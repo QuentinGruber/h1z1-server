@@ -214,9 +214,14 @@ function parse(fields, data, offset, referenceData) {
                 offset += 1;
                 break;
             case "string":
+                /* Old stuff
                 string = data.readPrefixedStringLE(offset);
                 result[field.name] = string;
                 offset += 4 + string.length;
+                */
+                string = data.toString("utf8", offset, offset+field.length);
+                result[field.name] = string;
+                offset += string.length;
                 break;
             case "fixedlengthstring":
                 string = data.toString("utf8", offset, offset+field.length);
@@ -429,7 +434,7 @@ function pack(fields, object, data, offset, referenceData) {
                     }
                     data.writeUInt32LE(value.length, offset);
                     offset += 4;
-                    data.writeBytes(value, offset);
+                 //   data.writeBytes(value, offset); TODO : why this isn't working ?
                     offset += value.length;
                 } else {
                     data.writeUInt32LE(0, offset);
@@ -522,8 +527,12 @@ function pack(fields, object, data, offset, referenceData) {
                 offset += 1;
                 break;
             case "string":
+                /*
                 data.writePrefixedStringLE(value, offset);
                 offset += 4 + value.length;
+                */
+               data.write(value, offset, value.length, "utf8");
+                offset += value.length;
                 break;
             case "fixedlengthstring":
                 data.write(value, offset, value.length, "utf8");
