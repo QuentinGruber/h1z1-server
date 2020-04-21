@@ -1,12 +1,8 @@
 {
-  "name": "h1z1-server-lib",
+  "name": "h1z1-server",
   "version": "0.1.0",
   "description": "Library for emulating h1z1 server",
-  "author": {
-    "name": "Quentin Gruber",
-    "email": "quentingruber@gmail.com",
-    "url": "http://github.com/quentingruber"
-  },
+  "author": "Quentin Gruber <quentingruber@gmail.com> (http://github.com/quentingruber)",
   "license": "MIT",
   "main": "soenetwork.js",
   "dependencies": {
@@ -16,5 +12,25 @@
     "extbuffer": "^1.0.1",
     "hash-jenkins": "^1.0.1",
     "mongodb": ">=1.4.8"
-  }
+  },
+  "directories": {
+    "lib": "lib"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/QuentinGruber/h1z1-server-emulator.git"
+  },
+  "keywords": [
+    "h1z1",
+    "server",
+    "emulation"
+  ],
+  "bugs": {
+    "url": "https://github.com/QuentinGruber/h1z1-server-emulator/issues"
+  },
+  "homepage": "https://github.com/QuentinGruber/h1z1-server-emulator#readme"
 }
