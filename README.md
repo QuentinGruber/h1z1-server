@@ -5,6 +5,11 @@
 Based on the work of @jseidelin on [soe-network](https://github.com/psemu/soe-network),
 h1z1-server is a library trying to emulate a h1z1(just survive) server.
 
+## Motivation
+
+"It's just matter of effort and to have enough people of with interest towards having such private servers to the respected game.
+I highly doubt that H1Z1 (Just Survive) is one of those."
+
 ## Current Goal
 
 Making this work for the 15 January 2015 version of H1Z1 (first version).
