@@ -9,7 +9,7 @@
     "buffer-crc32": ">=0.2.1",
     "dataschema": "git://github.com/QuentinGruber/dataschema.git",
     "debug": "^4.1.1",
-    "extbuffer": "^1.0.1",
+    "extbuffer": "git://github.com/QuentinGruber/extbuffer.git",
     "hash-jenkins": "^1.0.1",
     "mongodb": ">=1.4.8"
   },
