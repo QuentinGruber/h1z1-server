@@ -51,8 +51,9 @@ tionalizationLocale=en_US LaunchPadUfp={fingerprint} LaunchPadSessionId=0 STEAM_
 - [x] SessionRequestReply
 - [x] LoginRequestReply
 
-The client sends back an Ack right now .
+Right now after the client has succesfully receive the LoginRequestReply the LoginServer spam the client of 'ServerListReply'.
 
+This allows us to access the game menu ( :D ), but the menu does not display any server to join.
 
 ## How to use
 
