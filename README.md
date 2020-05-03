@@ -42,7 +42,32 @@ Execute this command in CMD/Powershell ( you have to be in your h1z1 game folder
 
 - Add the following code as a document, this is a server's info template:
 
-`{"serverId":{"$numberInt":"1"},"serverState":{"$numberInt":"1"},"locked":false,"name":"fuckdb","nameId":{"$numberInt":"1"},"description":"yeah","descriptionId":{"$numberInt":"1"},"reqFeatureId":{"$numberInt":"0"},"serverInfo":"ye","populationLevel":{"$numberInt":"1"},"populationData":"<Population ServerCapacity=\"0\" PingAddress=\"127.0.0.1:20043\" Rulesets=\"Permadeath\"><factionlist IsList=\"1\"><faction Id=\"1\" Percent=\"0\" TargetPopPct=\"0\" RewardBuff=\"52\" XPBuff=\"52\" PercentAvg=\"0\"/><faction Id=\"2\" Percent=\"0\" TargetPopPct=\"1\" RewardBuff=\"0\" XPBuff=\"0\" PercentAvg=\"0\"/><faction Id=\"3\" Percent=\"0\" TargetPopPct=\"1\" RewardBuff=\"0\" XPBuff=\"0\" PercentAvg=\"1\"/></factionlist></Population>","allowedAccess":true}`
+`{
+    "serverId": {
+        "numberInt": "1"
+    },
+    "serverState": {
+        "numberInt": "1"
+    },
+    "locked": false,
+    "name": "fuckdb",
+    "nameId": {
+        "numberInt": "1"
+    },
+    "description": "yeah",
+    "descriptionId": {
+        "numberInt": "1"
+    },
+    "reqFeatureId": {
+        "numberInt": "0"
+    },
+    "serverInfo": "ye",
+    "populationLevel": {
+        "numberInt": "1"
+    },
+    "populationData": "<Population ServerCapacity=\"0\" PingAddress=\"127.0.0.1:20043\" Rulesets=\"Permadeath\"><factionlist IsList=\"1\"><faction Id=\"1\" Percent=\"0\" TargetPopPct=\"0\" RewardBuff=\"52\" XPBuff=\"52\" PercentAvg=\"0\"/><faction Id=\"2\" Percent=\"0\" TargetPopPct=\"1\" RewardBuff=\"0\" XPBuff=\"0\" PercentAvg=\"0\"/><faction Id=\"3\" Percent=\"0\" TargetPopPct=\"1\" RewardBuff=\"0\" XPBuff=\"0\" PercentAvg=\"1\"/></factionlist></Population>",
+    "allowedAccess": true
+}`
 
 ## Current State
 
