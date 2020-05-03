@@ -82,7 +82,7 @@ This allows us to access the game menu ( :D ), but the menu does not display any
 
 ### Installation
 
-You need [Nodejs](https://nodejs.org/en/) ( currently using 12.16 LTS).
+You need [Nodejs](https://nodejs.org/en/) ( currently using 12.16 LTS) & [Git](https://git-scm.com/) (needed to fetch some dependencies).
 
 `npm i h1z1-server` to install package
 
