@@ -184,10 +184,6 @@ From my package.json, if it can help.
 
 ## More resources
 
-Here is a fork of the soe-network repository with updated dependencies without my work :
-
-https://github.com/QuentinGruber/soe-network
-
 @ChrisHffm attempts to do the same thing you can find his repository here :
 
 https://github.com/ChrisHffm/H1Z1-Server
