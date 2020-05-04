@@ -7,10 +7,8 @@
   "main": "soenetwork.js",
   "dependencies": {
     "buffer-crc32": ">=0.2.1",
-    "bufferext": "git://github.com/QuentinGruber/extbuffer.git",
-    "dataschema": "git://github.com/QuentinGruber/dataschema.git",
+    "h1z1-dataschema": "^1.0.1",
     "debug": "^4.1.1",
-    "extbuffer": "git://github.com/QuentinGruber/extbuffer.git",
     "hash-jenkins": "^1.0.1",
     "mongodb": "^3.5.7"
   },
