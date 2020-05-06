@@ -71,12 +71,9 @@ Execute this command in CMD/Powershell ( you have to be in your h1z1 game folder
 
 ## Current State
 
-- [x] SessionRequestReply
-- [x] LoginRequestReply
+The login server correctly manages the h1z1 client and sends it a fake "loginReply", it can also send server updates and respond to requests for server lists. The zoneServer (game server) seems to work but cannot be tested at the moment.
 
-Right now after the client has succesfully receive the LoginRequestReply the LoginServer spam the client of 'ServerListReply'.
-
-This allows us to access the game menu ( :D ), but the menu does not display any server to join.
+(Glitch) Spamming the h1z1 client of any packet gives us access to the server selection menu.
 
 ## How to use
 
