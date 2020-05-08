@@ -30,9 +30,9 @@ Like all games H1Z1 has C/C++ & DirectX dependencies.
 
 You may already have them but just in case
 
--     VC 2010 Redist
+- VC 2010 Redist
 
--     VC 2015 Redist
+- VC 2015 Redist
 
 - DirectX Jun 2010 Redist
 
