@@ -24,6 +24,18 @@ AppID : 295110 DepotID : 295111 ManifestID : 1930886153446950288
 
 How to use DepotDownloader : https://youtu.be/44HBxzC_RTg
 
+### H1Z1 Dependencies
+
+Like all games H1Z1 has C/C++ & DirectX dependencies.
+
+You may already have them but just in case
+
+-     VC 2010 Redist
+
+-     VC 2015 Redist
+
+- DirectX Jun 2010 Redist
+
 ### Setup ClientConfig.ini
 
 On the H1Z1 game folder there is a file name "ClientConfig.ini".
@@ -42,32 +54,7 @@ Execute this command in CMD/Powershell ( you have to be in your h1z1 game folder
 
 - Add the following code as a document, this is a server's info template:
 
-`{
-    "serverId": {
-        "numberInt": "1"
-    },
-    "serverState": {
-        "numberInt": "1"
-    },
-    "locked": false,
-    "name": "fuckdb",
-    "nameId": {
-        "numberInt": "1"
-    },
-    "description": "yeah",
-    "descriptionId": {
-        "numberInt": "1"
-    },
-    "reqFeatureId": {
-        "numberInt": "0"
-    },
-    "serverInfo": "ye",
-    "populationLevel": {
-        "numberInt": "1"
-    },
-    "populationData": "<Population ServerCapacity=\"0\" PingAddress=\"127.0.0.1:20043\" Rulesets=\"Permadeath\"><factionlist IsList=\"1\"><faction Id=\"1\" Percent=\"0\" TargetPopPct=\"0\" RewardBuff=\"52\" XPBuff=\"52\" PercentAvg=\"0\"/><faction Id=\"2\" Percent=\"0\" TargetPopPct=\"1\" RewardBuff=\"0\" XPBuff=\"0\" PercentAvg=\"0\"/><faction Id=\"3\" Percent=\"0\" TargetPopPct=\"1\" RewardBuff=\"0\" XPBuff=\"0\" PercentAvg=\"1\"/></factionlist></Population>",
-    "allowedAccess": true
-}`
+`{ "serverId": { "numberInt": "1" }, "serverState": { "numberInt": "1" }, "locked": false, "name": "fuckdb", "nameId": { "numberInt": "1" }, "description": "yeah", "descriptionId": { "numberInt": "1" }, "reqFeatureId": { "numberInt": "0" }, "serverInfo": "ye", "populationLevel": { "numberInt": "1" }, "populationData": "<Population ServerCapacity=\"0\" PingAddress=\"127.0.0.1:20043\" Rulesets=\"Permadeath\"><factionlist IsList=\"1\"><faction Id=\"1\" Percent=\"0\" TargetPopPct=\"0\" RewardBuff=\"52\" XPBuff=\"52\" PercentAvg=\"0\"/><faction Id=\"2\" Percent=\"0\" TargetPopPct=\"1\" RewardBuff=\"0\" XPBuff=\"0\" PercentAvg=\"0\"/><faction Id=\"3\" Percent=\"0\" TargetPopPct=\"1\" RewardBuff=\"0\" XPBuff=\"0\" PercentAvg=\"1\"/></factionlist></Population>", "allowedAccess": true }`
 
 ## Current State
 
