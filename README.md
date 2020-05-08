@@ -36,6 +36,8 @@ You may already have them but just in case
 
 - DirectX Jun 2010 Redist
 
+You can download them all [here](https://mega.nz/file/RtwDWJ7b#QYlxpXz_t0_kp7_S8a7whnWsctJ3Fr5B2sQdnuTR9LQ)
+
 ### Setup ClientConfig.ini
 
 On the H1Z1 game folder there is a file name "ClientConfig.ini".
