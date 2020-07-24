@@ -8,12 +8,41 @@ var EventEmitter = require("events").EventEmitter,
   MongoClient = require("mongodb").MongoClient,
   MongoServer = require("mongodb").Server;
 
-function LoginError(message) {
-  this.name = this.constructor.name;
-  this.message = message;
-}
-util.inherits(LoginError, Error);
+export class LoginServer {
+  _soeServer: any;
+  _protocol: any; // TODO
+  _usingMongo: boolean;
+  _compression: number;
+  _crcSeed: number;
+  _crcLength: number;
+  _udpLength: number;
+  _gameId: number;
+  _environment: string;
 
+  constructor(
+    gameId: number,
+    environment: string,
+    usingMongo: boolean,
+    serverPort: number,
+    loginKey: string
+  ) {
+    this._usingMongo = usingMongo;
+    this._compression = 0x0100;
+    this._crcSeed = 0;
+    this._crcLength = 2;
+    this._udpLength = 512;
+
+    this._gameId = gameId;
+    this._environment = environment;
+
+    var soeServer = (this._soeServer = new SOEServer(
+      "LoginUdp_9",
+      serverPort,
+      loginKey
+    ));
+    this._protocol = new LoginProtocol();
+  }
+}
 function LoginServer(
   gameId,
   environment,
