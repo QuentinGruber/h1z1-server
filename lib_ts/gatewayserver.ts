@@ -89,9 +89,11 @@ export class GatewayServer {
           //  me.emit("login", null, client, result.characterId);
           break;
         case "Logout":
+          debug("Logout");
           //     me.emit("logout", null, client);
           break;
         case "TunnelPacketFromExternalConnection":
+          debug("TunnelPacketFromExternalConnection");
           //   me.emit("tunneldata", null, client, packet.tunnelData, packet.flags);
           break;
       }
