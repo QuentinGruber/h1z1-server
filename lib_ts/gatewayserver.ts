@@ -1,8 +1,4 @@
-var EventEmitter = require("events").EventEmitter,
-  SOEServer = require("./soeserver").SOEServer,
-  https = require("https"),
-  fs = require("fs"),
-  util = require("util"),
+const SOEServer = require("./soeserver").SOEServer,
   GatewayProtocol = require("./gatewayprotocol").GatewayProtocol,
   debug = require("debug")("GatewayServer")
 
