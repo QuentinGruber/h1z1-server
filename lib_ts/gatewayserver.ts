@@ -3,10 +3,8 @@ var EventEmitter = require("events").EventEmitter,
   https = require("https"),
   fs = require("fs"),
   util = require("util"),
-  GatewayProtocol = require("./gatewayprotocol").GatewayProtocol;
-function debug(arg: string) {
-  console.log(arg);
-}
+  GatewayProtocol = require("./gatewayprotocol").GatewayProtocol,
+  debug = require("debug")("GatewayServer")
 
 export class GatewayServer {
   _soeServer: any;

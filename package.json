@@ -11,7 +11,8 @@
     "debug": "^4.1.1",
     "h1z1-dataschema": "^1.0.1",
     "hash-jenkins": "^1.0.1",
-    "mongodb": "^3.5.7"
+    "mongodb": "^3.5.7",
+    "typescript": "^3.9.7"
   },
   "directories": {
     "lib": "lib"
