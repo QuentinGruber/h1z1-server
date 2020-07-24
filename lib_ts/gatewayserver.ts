@@ -1,10 +1,15 @@
 const SOEServer = require("./soeserver").SOEServer,
   GatewayProtocol = require("./gatewayprotocol").GatewayProtocol,
-  debug = require("debug")("GatewayServer")
+  debug = require("debug")("GatewayServer");
+
+interface GatewayProtocol {
+  pack: Function;
+  parse: Function;
+}
 
 export class GatewayServer {
-  _soeServer: any;
-  _protocol: any;
+  _soeServer: any; // TODO: make soe server types when it has been rewrite in ts
+  _protocol: GatewayProtocol;
   _compression: number;
   _crcSeed: number;
   _crcLength: number;
