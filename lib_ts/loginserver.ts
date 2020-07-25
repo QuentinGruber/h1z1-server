@@ -1,8 +1,10 @@
+import events = require("events");
+
 const SOEServer = require("./soeserver").SOEServer,
   LoginProtocol = require("./loginprotocol").LoginProtocol,
   debug = require("debug")("LoginServer"),
   MongoClient = require("mongodb").MongoClient;
-export class LoginServer {
+export class LoginServer extends events.EventEmitter {
   _soeServer: any; // TODO
   _protocol: any; // TODO
   _db: any; // TODO
@@ -22,6 +24,7 @@ export class LoginServer {
     serverPort: number,
     loginKey: string
   ) {
+    super();
     this._usingMongo = usingMongo;
     this._compression = 0x0100;
     this._crcSeed = 0;
@@ -33,136 +36,132 @@ export class LoginServer {
 
     this._soeServer = new SOEServer("LoginUdp_9", serverPort, loginKey);
     this._protocol = new LoginProtocol();
-  }
-
-  private connect(client: any) {
-    debug("Client connected from " + client.address + ":" + client.port);
-    //server.emit('connect', err, client);
-  }
-
-  private disconnect(client: any) {
-    debug("Client disconnected from " + client.address + ":" + client.port);
-    //server.emit('disconnect', err, client);
-  }
-
-  private session(client: any) {
-    debug("Session started for client " + client.address + ":" + client.port);
-  }
-
-  private async Force_sendServerList(client: any) {
-    const servers = await this._soeServer._db
-      .collection("servers")
-      .find()
-      .toArray(function (err: string, servers: any) {
-        return servers;
-      });
-    // remove object id
-    for (let i = 0; i < servers.length; i++) {
-      delete servers[i]._id;
-    }
-    var data = this._protocol.pack("ServerListReply", {
-      servers: servers,
+    this.on("connect", (client: any) => {
+      debug("Client connected from " + client.address + ":" + client.port);
+      //server.emit('connect', err, client);
     });
-    this._soeServer.sendAppData(client, data, true);
-  }
-  private async SendServerUpdate(client: any) {
-    const servers = await this._soeServer._db
-      .collection("servers")
-      .find()
-      .toArray(function (err: string, servers: any) {
-        return servers;
+    this.on("disconnect", (client: any) => {
+      debug("Client disconnected from " + client.address + ":" + client.port);
+      //server.emit('disconnect', err, client);
+    });
+    this.on("session", (client: any) => {
+      debug("Session started for client " + client.address + ":" + client.port);
+    });
+    this.on("Force_sendServerList", async (client: any) => {
+      const servers = await this._soeServer._db
+        .collection("servers")
+        .find()
+        .toArray(function (err: string, servers: any) {
+          return servers;
+        });
+      // remove object id
+      for (let i = 0; i < servers.length; i++) {
+        delete servers[i]._id;
+      }
+      var data = this._protocol.pack("ServerListReply", {
+        servers: servers,
       });
-    for (var i = 0; i < servers.length; i++) {
-      delete servers[i]._id; // remove object id
-      var data = this._protocol.pack("ServerUpdate", servers[i]);
       this._soeServer.sendAppData(client, data, true);
-    }
-  }
+    });
+    this.on("SendServerUpdate", async (client: any) => {
+      const servers = await this._soeServer._db
+        .collection("servers")
+        .find()
+        .toArray(function (err: string, servers: any) {
+          return servers;
+        });
+      for (var i = 0; i < servers.length; i++) {
+        delete servers[i]._id; // remove object id
+        var data = this._protocol.pack("ServerUpdate", servers[i]);
+        this._soeServer.sendAppData(client, data, true);
+      }
+    });
 
-  private async appdata(client: any, data: any) {
-    var packet = this._protocol.parse(data);
-    if (packet != false) {
-      // if packet parsing succeed
-      var result = packet.result;
-      switch (packet.name) {
-        case "LoginRequest":
-          /*
-            backend.login(result.sessionId, result.fingerprint, function (
-              err,
-              result
-            ) {
+    this.on("appdata", async (client: any, data: any) => {
+      var packet = this._protocol.parse(data);
+      if (packet != false) {
+        // if packet parsing succeed
+        var result = packet.result;
+        switch (packet.name) {
+          case "LoginRequest":
+            /*
+              backend.login(result.sessionId, result.fingerprint, function (
+                err,
+                result
+              ) {
+                if (err) {
+                  server.emit("login", new LoginError("Login failed"));
+                } else {
+                  var data = protocol.pack("LoginReply", result);
+                  soeServer.sendAppData(client, data, true);
+                }
+              });
+              */
+            var falsified_data = {
+              // HACK
+              loggedIn: true,
+              status: 1,
+              isMember: true,
+              isInternal: true,
+              namespace: "",
+              payload: "e",
+            };
+            var data = this._protocol.pack("LoginReply", falsified_data);
+            this._soeServer.sendAppData(client, data, true);
+            break;
+          case "ServerListRequest":
+            const servers = await this._soeServer._db
+              .collection("servers")
+              .find()
+              .toArray(function (err: string, servers: any) {
+                return servers;
+              });
+            var data = this._protocol.pack("ServerListReply", {
+              servers: servers,
+            });
+            this._soeServer.sendAppData(client, data, true);
+
+            break;
+          case "CharacterSelectInfoRequest":
+            /*
+            backend.getCharacterInfo(function (err, result) {
               if (err) {
-                server.emit("login", new LoginError("Login failed"));
+                server.emit(
+                  "characterselectinforequest",
+                  new LoginError("Character select info request failed")
+                );
               } else {
-                var data = protocol.pack("LoginReply", result);
+                var data = protocol.pack("CharacterSelectInfoReply", result);
+                soeServer.sendAppData(client, data, true, true);
+              }
+            });
+            */
+            debug("CharacterSelectInfoRequest");
+            break;
+          case "CharacterLoginRequest":
+            /*
+            backend.characterLogin(null, null, null, function (err, result) {
+              if (err) {
+                server.emit(
+                  "characterloginrequest",
+                  new LoginError("Character login request failed")
+                );
+              } else {
+                result = JSON.parse(
+                  fs.readFileSync("data/characterloginreply.json")
+                );
+                var data = protocol.pack("CharacterLoginReply", result);
                 soeServer.sendAppData(client, data, true);
               }
             });
             */
-          var falsified_data = {
-            // HACK
-            loggedIn: true,
-            status: 1,
-            isMember: true,
-            isInternal: true,
-            namespace: "",
-            payload: "e",
-          };
-          var data = this._protocol.pack("LoginReply", falsified_data);
-          this._soeServer.sendAppData(client, data, true);
-          break;
-        case "ServerListRequest":
-          const servers = await this._soeServer._db
-            .collection("servers")
-            .find()
-            .toArray(function (err: string, servers: any) {
-              return servers;
-            });
-          var data = this._protocol.pack("ServerListReply", {
-            servers: servers,
-          });
-          this._soeServer.sendAppData(client, data, true);
-
-          break;
-        case "CharacterSelectInfoRequest":
-          /*
-          backend.getCharacterInfo(function (err, result) {
-            if (err) {
-              server.emit(
-                "characterselectinforequest",
-                new LoginError("Character select info request failed")
-              );
-            } else {
-              var data = protocol.pack("CharacterSelectInfoReply", result);
-              soeServer.sendAppData(client, data, true, true);
-            }
-          });
-          */
-          debug("CharacterSelectInfoRequest");
-          break;
-        case "CharacterLoginRequest":
-          /*
-          backend.characterLogin(null, null, null, function (err, result) {
-            if (err) {
-              server.emit(
-                "characterloginrequest",
-                new LoginError("Character login request failed")
-              );
-            } else {
-              result = JSON.parse(
-                fs.readFileSync("data/characterloginreply.json")
-              );
-              var data = protocol.pack("CharacterLoginReply", result);
-              soeServer.sendAppData(client, data, true);
-            }
-          });
-          */
-          debug("CharacterLoginRequest");
-          break;
+            debug("CharacterLoginRequest");
+            break;
+        }
+      } else {
+        debug("Packet parsing was unsuccesful");
       }
-    } else {
-      debug("Packet parsing was unsuccesful");
-    }
+    });
   }
   async start() {
     debug("Starting server");
