@@ -23,7 +23,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/QuentinGruber/h1z1-server-emulator.git"
+    "url": "git+https://github.com/QuentinGruber/h1z1-server.git"
   },
   "keywords": [
     "h1z1",
@@ -31,7 +31,7 @@
     "emulation"
   ],
   "bugs": {
-    "url": "https://github.com/QuentinGruber/h1z1-server-emulator/issues"
+    "url": "https://github.com/QuentinGruber/h1z1-server/issues"
   },
-  "homepage": "https://github.com/QuentinGruber/h1z1-server-emulator#readme"
+  "homepage": "https://github.com/QuentinGruber/h1z1-server#readme"
 }
