@@ -88,12 +88,7 @@ export class LoginServer extends EventEmitter {
     this._soeServer.on(
       "Force_sendServerList",
       async (err: string, client: Client) => {
-        const servers = await this._db
-          .collection("servers")
-          .find()
-          .toArray(function (err: string, servers: any) {
-            return servers;
-          });
+        const servers = await this._db.collection("servers").find().toArray();
         // remove object id
         for (let i = 0; i < servers.length; i++) {
           delete servers[i]._id;
@@ -107,12 +102,7 @@ export class LoginServer extends EventEmitter {
     this._soeServer.on(
       "SendServerUpdate",
       async (err: string, client: Client) => {
-        const servers = await this._db
-          .collection("servers")
-          .find()
-          .toArray(function (err: string, servers: any) {
-            return servers;
-          });
+        const servers = await this._db.collection("servers").find().toArray();
         for (var i = 0; i < servers.length; i++) {
           delete servers[i]._id; // remove object id
           var data = this._protocol.pack("ServerUpdate", servers[i]);
@@ -162,9 +152,7 @@ export class LoginServer extends EventEmitter {
               const servers = await this._db
                 .collection("servers")
                 .find()
-                .toArray(function (err: string, servers: any) {
-                  return servers;
-                });
+                .toArray();
               var data: Buffer = this._protocol.pack("ServerListReply", {
                 servers: servers,
               });
