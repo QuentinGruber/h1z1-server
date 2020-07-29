@@ -58,12 +58,6 @@ Execute this command in CMD/Powershell ( you have to be in your h1z1 game folder
 
 `{ "serverId": { "numberInt": "1" }, "serverState": { "numberInt": "1" }, "locked": false, "name": "fuckdb", "nameId": { "numberInt": "1" }, "description": "yeah", "descriptionId": { "numberInt": "1" }, "reqFeatureId": { "numberInt": "0" }, "serverInfo": "ye", "populationLevel": { "numberInt": "1" }, "populationData": "<Population ServerCapacity=\"0\" PingAddress=\"127.0.0.1:20043\" Rulesets=\"Permadeath\"><factionlist IsList=\"1\"><faction Id=\"1\" Percent=\"0\" TargetPopPct=\"0\" RewardBuff=\"52\" XPBuff=\"52\" PercentAvg=\"0\"/><faction Id=\"2\" Percent=\"0\" TargetPopPct=\"1\" RewardBuff=\"0\" XPBuff=\"0\" PercentAvg=\"0\"/><faction Id=\"3\" Percent=\"0\" TargetPopPct=\"1\" RewardBuff=\"0\" XPBuff=\"0\" PercentAvg=\"1\"/></factionlist></Population>", "allowedAccess": true }`
 
-## Current State
-
-The login server correctly manages the h1z1 client and sends it a fake "loginReply", it can also send server updates and respond to requests for server lists. The zoneServer (game server) seems to work but cannot be tested at the moment.
-
-(Glitch) Spamming the h1z1 client of any packet gives us access to the server selection menu.
-
 ## How to use
 
 ### Installation
@@ -86,17 +80,6 @@ You need [Nodejs](https://nodejs.org/en/) ( currently using 12.16 LTS).
      );
      server.start();
 
-### ZoneServer
-
-    const H1server = require("h1z1-server");
-
-    var server = new H1server.ZoneServer(
-      1117, // <- server port
-      "fuckdb", // <- gatewayKey (useless)
-      false, // <- using MongoDB (boolean)
-     );
-     server.connect();
-
 ### LoginClient (used for testing)
 
     const H1server = require("h1z1-server");
@@ -111,21 +94,6 @@ You need [Nodejs](https://nodejs.org/en/) ( currently using 12.16 LTS).
      );
      server.connect();
 
-### ZoneClient (used for testing)
-
-    const H1server = require("h1z1-server");
-
-    var server = new H1server.ZoneClient(
-      "127.0.0.1", // <- ZoneServer IP adress
-      1117, // <- server port
-      "fuckdb", // <- key (useless)
-      2, // <- characterId (useless)
-      "fuckdb", // <- ticket (useless)
-      "fuckdb", // <- clientProtocol (useless)
-      "fuckdb", // <- clientBuild (useless)
-      "4851" // <- localport ( basically a random unused port on your pc)
-     );
-     server.connect();
 
 ### Enable Debug log
 
@@ -167,9 +135,8 @@ From my package.json, if it can help.
         "zone-server": "set DEBUG=* & node ZoneServer.js",
         "zone-client": "set DEBUG=* & node ZoneClient.js"
     }
-
-## More resources
-
-@ChrisHffm attempts to do the same thing you can find his repository here :
-
-https://github.com/ChrisHffm/H1Z1-Server
+    
+    
+ ### Legal
+ 
+This project is for educational purposes. I am not responsible for your actions with it.
