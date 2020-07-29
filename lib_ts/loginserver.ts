@@ -1,10 +1,10 @@
-import events = require("events");
+import { EventEmitter } from "events";
 
 const SOEServer = require("./soeserver").SOEServer,
   LoginProtocol = require("./loginprotocol").LoginProtocol,
   debug = require("debug")("LoginServer"),
   MongoClient = require("mongodb").MongoClient;
-export class LoginServer extends events.EventEmitter {
+export class LoginServer extends EventEmitter {
   _soeServer: any; // TODO
   _protocol: any; // TODO
   _db: any; // TODO
@@ -36,34 +36,37 @@ export class LoginServer extends events.EventEmitter {
 
     this._soeServer = new SOEServer("LoginUdp_9", serverPort, loginKey);
     this._protocol = new LoginProtocol();
-    this.on("connect", (client: any) => {
+    this._soeServer.on("connect", (err: any, client: any) => {
       debug("Client connected from " + client.address + ":" + client.port);
       //server.emit('connect', err, client);
     });
-    this.on("disconnect", (client: any) => {
+    this._soeServer.on("disconnect", (err: any, client: any) => {
       debug("Client disconnected from " + client.address + ":" + client.port);
       //server.emit('disconnect', err, client);
     });
-    this.on("session", (client: any) => {
+    this._soeServer.on("session", (err: any, client: any) => {
       debug("Session started for client " + client.address + ":" + client.port);
     });
-    this.on("Force_sendServerList", async (client: any) => {
-      const servers = await this._soeServer._db
-        .collection("servers")
-        .find()
-        .toArray(function (err: string, servers: any) {
-          return servers;
+    this._soeServer.on(
+      "Force_sendServerList",
+      async (err: any, client: any) => {
+        const servers = await this._soeServer._db
+          .collection("servers")
+          .find()
+          .toArray(function (err: string, servers: any) {
+            return servers;
+          });
+        // remove object id
+        for (let i = 0; i < servers.length; i++) {
+          delete servers[i]._id;
+        }
+        var data = this._protocol.pack("ServerListReply", {
+          servers: servers,
         });
-      // remove object id
-      for (let i = 0; i < servers.length; i++) {
-        delete servers[i]._id;
+        this._soeServer.sendAppData(client, data, true);
       }
-      var data = this._protocol.pack("ServerListReply", {
-        servers: servers,
-      });
-      this._soeServer.sendAppData(client, data, true);
-    });
-    this.on("SendServerUpdate", async (client: any) => {
+    );
+    this._soeServer.on("SendServerUpdate", async (err: any, client: any) => {
       const servers = await this._soeServer._db
         .collection("servers")
         .find()
@@ -77,7 +80,7 @@ export class LoginServer extends events.EventEmitter {
       }
     });
 
-    this.on("appdata", async (client: any, data: any) => {
+    this._soeServer.on("appdata", async (err: any, client: any, data: any) => {
       var packet = this._protocol.parse(data);
       if (packet != false) {
         // if packet parsing succeed
