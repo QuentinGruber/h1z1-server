@@ -137,6 +137,6 @@ From my package.json, if it can help.
     }
     
     
- ### Legal
+### Legal
  
 This project is for educational purposes. I am not responsible for your actions with it.
