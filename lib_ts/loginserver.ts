@@ -4,9 +4,47 @@ const SOEServer = require("./soeserver").SOEServer,
   LoginProtocol = require("./loginprotocol").LoginProtocol,
   debug = require("debug")("LoginServer"),
   MongoClient = require("mongodb").MongoClient;
+
+interface LoginProtocol {
+  parse: Function;
+  pack: Function;
+}
+
+interface SoeServer {
+  on: Function;
+  start: Function;
+  stop: Function;
+  _sendPacket: Function;
+  sendAppData: Function;
+  toggleEncryption: Function;
+  toggleDataDump: Function;
+}
+
+interface Client {
+  sessionId: number;
+  address: string;
+  port: number;
+  crcSeed: number;
+  crcLength: number;
+  clientUdpLength: number;
+  serverUdpLength: number;
+  sequences: any;
+  compression: number;
+  useEncryption: boolean;
+  outQueue: any;
+  outOfOrderPackets: any;
+  nextAck: number;
+  lastAck: number;
+  inputStream: Function;
+  outputStream: Function;
+  outQueueTimer: Function;
+  ackTimer: Function;
+  outOfOrderTimer: Function;
+}
+
 export class LoginServer extends EventEmitter {
-  _soeServer: any; // TODO
-  _protocol: any; // TODO
+  _soeServer: SoeServer;
+  _protocol: LoginProtocol;
   _db: any; // TODO
   _mongoClient: any;
   _usingMongo: boolean;
@@ -36,21 +74,21 @@ export class LoginServer extends EventEmitter {
 
     this._soeServer = new SOEServer("LoginUdp_9", serverPort, loginKey);
     this._protocol = new LoginProtocol();
-    this._soeServer.on("connect", (err: any, client: any) => {
+    this._soeServer.on("connect", (err: string, client: Client) => {
       debug("Client connected from " + client.address + ":" + client.port);
       //server.emit('connect', err, client);
     });
-    this._soeServer.on("disconnect", (err: any, client: any) => {
+    this._soeServer.on("disconnect", (err: string, client: Client) => {
       debug("Client disconnected from " + client.address + ":" + client.port);
       //server.emit('disconnect', err, client);
     });
-    this._soeServer.on("session", (err: any, client: any) => {
+    this._soeServer.on("session", (err: string, client: Client) => {
       debug("Session started for client " + client.address + ":" + client.port);
     });
     this._soeServer.on(
       "Force_sendServerList",
-      async (err: any, client: any) => {
-        const servers = await this._soeServer._db
+      async (err: string, client: Client) => {
+        const servers = await this._db
           .collection("servers")
           .find()
           .toArray(function (err: string, servers: any) {
@@ -66,28 +104,33 @@ export class LoginServer extends EventEmitter {
         this._soeServer.sendAppData(client, data, true);
       }
     );
-    this._soeServer.on("SendServerUpdate", async (err: any, client: any) => {
-      const servers = await this._soeServer._db
-        .collection("servers")
-        .find()
-        .toArray(function (err: string, servers: any) {
-          return servers;
-        });
-      for (var i = 0; i < servers.length; i++) {
-        delete servers[i]._id; // remove object id
-        var data = this._protocol.pack("ServerUpdate", servers[i]);
-        this._soeServer.sendAppData(client, data, true);
+    this._soeServer.on(
+      "SendServerUpdate",
+      async (err: string, client: Client) => {
+        const servers = await this._db
+          .collection("servers")
+          .find()
+          .toArray(function (err: string, servers: any) {
+            return servers;
+          });
+        for (var i = 0; i < servers.length; i++) {
+          delete servers[i]._id; // remove object id
+          var data = this._protocol.pack("ServerUpdate", servers[i]);
+          this._soeServer.sendAppData(client, data, true);
+        }
       }
-    });
+    );
 
-    this._soeServer.on("appdata", async (err: any, client: any, data: any) => {
-      var packet = this._protocol.parse(data);
-      if (packet != false) {
-        // if packet parsing succeed
-        var result = packet.result;
-        switch (packet.name) {
-          case "LoginRequest":
-            /*
+    this._soeServer.on(
+      "appdata",
+      async (err: string, client: Client, data: Buffer) => {
+        var packet = this._protocol.parse(data);
+        if (packet != false) {
+          // if packet parsing succeed
+          var result = packet.result;
+          switch (packet.name) {
+            case "LoginRequest":
+              /*
               backend.login(result.sessionId, result.fingerprint, function (
                 err,
                 result
@@ -100,33 +143,36 @@ export class LoginServer extends EventEmitter {
                 }
               });
               */
-            var falsified_data = {
-              // HACK
-              loggedIn: true,
-              status: 1,
-              isMember: true,
-              isInternal: true,
-              namespace: "",
-              payload: "e",
-            };
-            var data = this._protocol.pack("LoginReply", falsified_data);
-            this._soeServer.sendAppData(client, data, true);
-            break;
-          case "ServerListRequest":
-            const servers = await this._soeServer._db
-              .collection("servers")
-              .find()
-              .toArray(function (err: string, servers: any) {
-                return servers;
+              var falsified_data = {
+                // HACK
+                loggedIn: true,
+                status: 1,
+                isMember: true,
+                isInternal: true,
+                namespace: "",
+                payload: "e",
+              };
+              var data: Buffer = this._protocol.pack(
+                "LoginReply",
+                falsified_data
+              );
+              this._soeServer.sendAppData(client, data, true);
+              break;
+            case "ServerListRequest":
+              const servers = await this._db
+                .collection("servers")
+                .find()
+                .toArray(function (err: string, servers: any) {
+                  return servers;
+                });
+              var data: Buffer = this._protocol.pack("ServerListReply", {
+                servers: servers,
               });
-            var data = this._protocol.pack("ServerListReply", {
-              servers: servers,
-            });
-            this._soeServer.sendAppData(client, data, true);
+              this._soeServer.sendAppData(client, data, true);
 
-            break;
-          case "CharacterSelectInfoRequest":
-            /*
+              break;
+            case "CharacterSelectInfoRequest":
+              /*
             backend.getCharacterInfo(function (err, result) {
               if (err) {
                 server.emit(
@@ -139,10 +185,10 @@ export class LoginServer extends EventEmitter {
               }
             });
             */
-            debug("CharacterSelectInfoRequest");
-            break;
-          case "CharacterLoginRequest":
-            /*
+              debug("CharacterSelectInfoRequest");
+              break;
+            case "CharacterLoginRequest":
+              /*
             backend.characterLogin(null, null, null, function (err, result) {
               if (err) {
                 server.emit(
@@ -158,13 +204,14 @@ export class LoginServer extends EventEmitter {
               }
             });
             */
-            debug("CharacterLoginRequest");
-            break;
+              debug("CharacterLoginRequest");
+              break;
+          }
+        } else {
+          debug("Packet parsing was unsuccesful");
         }
-      } else {
-        debug("Packet parsing was unsuccesful");
       }
-    });
+    );
   }
   async start() {
     debug("Starting server");
@@ -183,7 +230,7 @@ export class LoginServer extends EventEmitter {
       }
       if (mongoClient.isConnected()) {
         debug("connected to mongo !");
-        this._soeServer._db = await mongoClient.db("h1server");
+        this._db = await mongoClient.db("h1server");
       } else {
         throw console.error("Unable to authenticate on mongo !", 2);
       }
@@ -196,7 +243,7 @@ export class LoginServer extends EventEmitter {
       this._udpLength
     );
   }
-  data(collectionName: any) {
+  data(collectionName: string) {
     if (this._db) {
       return this._db.collection(collectionName);
     }
