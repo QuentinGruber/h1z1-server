@@ -1,4 +1,4 @@
-# h1z1-server
+# h1z1-server [![npm version](http://img.shields.io/npm/v/h1z1-server.svg?style=flat)](https://npmjs.org/package/h1z1-server "View this project on npm")
 
 ## Description
 
