@@ -10,6 +10,8 @@ interface SoeClient {
   on: Function;
   start: Function;
   stop: Function;
+  _sessionId: number;
+  _protocol: LoginProtocol;
   _sendPacket: Function;
   sendAppData: Function;
   toggleEncryption: Function;
@@ -24,7 +26,7 @@ interface LoginProtocol {
 export class LoginClient extends EventEmitter {
   _gameId: number;
   _environment: string;
-  _soeClient: any; // TODO
+  _soeClient: SoeClient;
   _protocol: LoginProtocol;
   constructor(
     gameId: number,
@@ -131,7 +133,7 @@ export class LoginClient extends EventEmitter {
   async login(fingerprint: string) {
     async function SetupLoginRequest(
       fingerprint: string,
-      sessionId: number,
+      sessionId: string,
       protocol: LoginProtocol
     ) {
       var data = await protocol.pack("LoginRequest", {
