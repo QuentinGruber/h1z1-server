@@ -8,6 +8,8 @@ var SOEClient = require("./soeclient").SOEClient,
 
 interface SoeClient {
   on: Function;
+  emit: Function;
+  connect: Function;
   start: Function;
   stop: Function;
   _sessionId: number;
@@ -50,6 +52,7 @@ export class LoginClient extends EventEmitter {
     var n = 0;
     this._soeClient.on("connect", (err: string, result: string) => {
       debug("Connected to login server");
+      this.login("FiNgErPrInT");
     });
     this._soeClient.on("disconnect", (err: string, result: string) => {
       debug("Disconnected");
@@ -127,26 +130,14 @@ export class LoginClient extends EventEmitter {
   }
   connect() {
     debug("Connecting to login server");
-    this.emit("connect");
+    this._soeClient.connect();
   }
 
   async login(fingerprint: string) {
-    async function SetupLoginRequest(
-      fingerprint: string,
-      sessionId: string,
-      protocol: LoginProtocol
-    ) {
-      var data = await protocol.pack("LoginRequest", {
-        sessionId: sessionId,
-        systemFingerPrint: fingerprint,
-      });
-      return data;
-    }
-    var data = await SetupLoginRequest(
-      fingerprint,
-      this._soeClient._sessionId.toString(),
-      this._soeClient._protocol
-    );
+    var data = await this._protocol.pack("LoginRequest", {
+      sessionId: this._soeClient._sessionId,
+      systemFingerPrint: fingerprint,
+    });
     debug("Sending login request");
     this._soeClient.sendAppData(data, true);
 
