@@ -129,7 +129,7 @@ LoginClient.prototype.connect = function (callback) {
 };
 
 LoginClient.prototype.login = async function (fingerprint) {
-  me = this;
+  var me = this;
   async function SetupLoginRequest(fingerprint, sessionId, protocol) {
     var data = await me._protocol.pack("LoginRequest", {
       sessionId: sessionId,
