@@ -68,32 +68,30 @@ You need [Nodejs](https://nodejs.org/en/) ( currently using 12.16 LTS).
 
 ### LoginServer
 
-    const H1server = require("h1z1-server");
-
-    var server = new H1server.LoginServer(
-      295110, // <- AppID
-      "dontnow", // <- environment (useless)
-      true, // <- using MongoDB (boolean)
-      1115, // <- server port
-      "fuckdb", // <- loginkey
-      "dontnow" // <- backend (useless)
-     );
-     server.start();
+    const H1Z1servers = require("h1z1-server");
+    var server = new H1Z1servers.LoginServer(
+    295110, // <- AppID
+    "dev", // <- environment
+    false, // <- using MongoDB (boolean)
+    1115, // <- server port
+    "c2V4", // <- loginkey
+    true // <- Use spam glitch
+    );
+    server.start();
 
 ### LoginClient (used for testing)
 
-    const H1server = require("h1z1-server");
+    const H1Z1servers = require("h1z1-server");
 
-    var server = new H1server.LoginClient(
+    var client = new H1Z1servers.LoginClient(
       295110, // <- AppID
-      "dontnow", // <- environment (useless)
+      "dev", // <- environment
       "127.0.0.1", // <- LoginServer IP adress
       1115, // <- server port
-      "fuckdb", // <- loginkey
+      "c2V4", // <- loginkey
       "4851" // <- localport ( basically a random unused port on your pc)
      );
      server.connect();
-
 
 ### Enable Debug log
 
@@ -135,8 +133,7 @@ From my package.json, if it can help.
         "zone-server": "set DEBUG=* & node ZoneServer.js",
         "zone-client": "set DEBUG=* & node ZoneClient.js"
     }
-    
-    
+
 ### Legal
- 
+
 This project is for educational purposes. I am not responsible for your actions with it.

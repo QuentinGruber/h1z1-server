@@ -60,7 +60,8 @@ export class LoginServer extends EventEmitter {
     environment: string,
     usingMongo: boolean,
     serverPort: number,
-    loginKey: string
+    loginKey: string,
+    SpamGlitch: boolean
   ) {
     super();
     this._usingMongo = usingMongo;
@@ -72,7 +73,13 @@ export class LoginServer extends EventEmitter {
     this._gameId = gameId;
     this._environment = environment;
 
-    this._soeServer = new SOEServer("LoginUdp_9", serverPort, loginKey);
+    this._soeServer = new SOEServer(
+      "LoginUdp_9",
+      serverPort,
+      loginKey,
+      null,
+      SpamGlitch
+    );
     this._protocol = new LoginProtocol();
     this._soeServer.on("connect", (err: string, client: Client) => {
       debug("Client connected from " + client.address + ":" + client.port);
@@ -88,7 +95,27 @@ export class LoginServer extends EventEmitter {
     this._soeServer.on(
       "Force_sendServerList",
       async (err: string, client: Client) => {
-        const servers = await this._db.collection("servers").find().toArray();
+        let servers;
+        if (usingMongo) {
+          servers = await this._db.collection("servers").find().toArray();
+        } else {
+          servers = {
+            serverId: 1,
+            serverState: 0,
+            locked: false,
+            name: "fuckdb",
+            nameId: 1,
+            description: "yeah",
+            descriptionId: 1,
+            reqFeatureId: 0,
+            serverInfo:
+              'Region="CharacterCreate.RegionUs" PingAddress="127.0.0.1:1117" Subregion="UI.SubregionUS" IsRecommended="1" IsRecommendedVS="0" IsRecommendedNC="0" IsRecommendedTR="0"',
+            populationLevel: 1,
+            populationData:
+              'ServerCapacity="0" PingAddress="127.0.0.1:1117" Rulesets="Permadeath"',
+            allowedAccess: true,
+          };
+        }
         // remove object id
         for (let i = 0; i < servers.length; i++) {
           delete servers[i]._id;
@@ -102,7 +129,27 @@ export class LoginServer extends EventEmitter {
     this._soeServer.on(
       "SendServerUpdate",
       async (err: string, client: Client) => {
-        const servers = await this._db.collection("servers").find().toArray();
+        let servers;
+        if (usingMongo) {
+          servers = await this._db.collection("servers").find().toArray();
+        } else {
+          servers = {
+            serverId: 1,
+            serverState: 0,
+            locked: false,
+            name: "fuckdb",
+            nameId: 1,
+            description: "yeah",
+            descriptionId: 1,
+            reqFeatureId: 0,
+            serverInfo:
+              'Region="CharacterCreate.RegionUs" PingAddress="127.0.0.1:1117" Subregion="UI.SubregionUS" IsRecommended="1" IsRecommendedVS="0" IsRecommendedNC="0" IsRecommendedTR="0"',
+            populationLevel: 1,
+            populationData:
+              'ServerCapacity="0" PingAddress="127.0.0.1:1117" Rulesets="Permadeath"',
+            allowedAccess: true,
+          };
+        }
         for (var i = 0; i < servers.length; i++) {
           delete servers[i]._id; // remove object id
           var data = this._protocol.pack("ServerUpdate", servers[i]);
