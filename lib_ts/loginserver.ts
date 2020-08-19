@@ -60,7 +60,8 @@ export class LoginServer extends EventEmitter {
     environment: string,
     usingMongo: boolean,
     serverPort: number,
-    loginKey: string
+    loginKey: string,
+    SpamGlitch: boolean
   ) {
     super();
     this._usingMongo = usingMongo;
@@ -72,7 +73,13 @@ export class LoginServer extends EventEmitter {
     this._gameId = gameId;
     this._environment = environment;
 
-    this._soeServer = new SOEServer("LoginUdp_9", serverPort, loginKey);
+    this._soeServer = new SOEServer(
+      "LoginUdp_9",
+      serverPort,
+      loginKey,
+      null,
+      SpamGlitch
+    );
     this._protocol = new LoginProtocol();
     this._soeServer.on("connect", (err: string, client: Client) => {
       debug("Client connected from " + client.address + ":" + client.port);

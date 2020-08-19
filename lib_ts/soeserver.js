@@ -14,7 +14,13 @@ function SOEServerError(message) {
 }
 util.inherits(SOEServerError, Error);
 
-function SOEServer(protocolName, serverPort, cryptoKey, compression) {
+function SOEServer(
+  protocolName,
+  serverPort,
+  cryptoKey,
+  compression,
+  SpamGlitch
+) {
   EventEmitter.call(this);
 
   this._protocolName = protocolName;
@@ -25,6 +31,7 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression) {
   this._udpLength = 512;
   this._useEncryption = true;
   this._dumpData = false;
+  this._SpamGlitch = SpamGlitch;
 
   var clients = (this._clients = {});
   var connection = (this._connection = dgram.createSocket("udp4"));
@@ -127,12 +134,9 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression) {
         case "Ack":
           debug("Ack, sequence " + result.sequence);
           client.outputStream.ack(result.sequence);
-          /*
-          if (result.sequence == 0) {
-            me.emit("Force_sendServerList", null, client);
+          if (me._SpamGlitch) {
+            me.emit("Force_sendServerList", null, client); // spam the client of serverlistreply
           }
-          */
-          me.emit("Force_sendServerList", null, client); // spam the client of serverlistreply
           break;
         case "FatalError":
           debug("Received fatal error from client");
