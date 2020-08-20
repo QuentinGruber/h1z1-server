@@ -18,13 +18,16 @@ LoginProtocol.prototype.parse = function (data) {
     if (packet.schema) {
       debug(packet.name);
       result = DataSchema.parse(packet.schema, data, 1).result;
+      debug("[DEBUG] LoginRequestPacket :");
+      debug(result);
+
       return {
         type: packet.type,
         name: packet.name,
         result: result,
       };
     } else {
-      debug("parse()", "No schema for packet " + packet.name);
+      debug("parse()", "No schema for packet ", packet.name);
       return false;
     }
   } else {
