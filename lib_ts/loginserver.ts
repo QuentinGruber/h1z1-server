@@ -80,7 +80,10 @@ export class LoginServer extends EventEmitter {
       null,
       SpamGlitch
     );
-    this._protocol = new LoginProtocol();
+    this._protocol = new LoginProtocol(SpamGlitch);
+    if (SpamGlitch) {
+      debug("Server using SpamGlitch");
+    }
     this._soeServer.on("connect", (err: string, client: Client) => {
       debug("Client connected from " + client.address + ":" + client.port);
       //server.emit('connect', err, client);
