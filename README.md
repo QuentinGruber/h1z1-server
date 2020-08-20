@@ -60,6 +60,10 @@ Execute this command in CMD/Powershell ( you have to be in your h1z1 game folder
 
 ## How to use
 
+### Quick Start
+
+Clone this repo : [h1z1-server-QuickStart](https://github.com/QuentinGruber/h1z1-server-QuickStart)
+
 ### Installation
 
 You need [Nodejs](https://nodejs.org/en/) ( currently using 12.16 LTS).
