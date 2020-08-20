@@ -54,7 +54,7 @@ export class LoginProtocol {
         debug("Packing data for " + packet.name);
         payload = DataSchema.pack(packet.schema, object);
         if (payload) {
-          data = Buffer.alloc(1 + payload.length); // remove "new" maybe creating issues
+          data = new (Buffer.alloc as any)(1 + payload.length);
           data.writeUInt8(packetType, 0);
           payload.data.copy(data, 1);
         } else {
