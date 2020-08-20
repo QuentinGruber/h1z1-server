@@ -91,7 +91,7 @@ You need [Nodejs](https://nodejs.org/en/) ( currently using 12.16 LTS).
       "c2V4", // <- loginkey
       "4851" // <- localport ( basically a random unused port on your pc)
      );
-     server.connect();
+     client.connect();
 
 ### Enable Debug log
 
