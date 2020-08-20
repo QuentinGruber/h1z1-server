@@ -15,8 +15,6 @@ export class LoginProtocol {
       schema,
       name,
       packet = LoginPackets.Packets[packetType];
-    console.log("deqsfezsf spam glitch = ");
-    console.log(this);
     if (packet == undefined && this._SpamGlitch)
       packet = LoginPackets.Packets[1]; // HACK
     if (packet) {
