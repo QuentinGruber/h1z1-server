@@ -237,35 +237,63 @@ export class LoginServer extends EventEmitter {
 
               break;
             case "CharacterSelectInfoRequest":
-              const info: any = {
+              const characters_info: any = {
                 status: 1,
                 canBypassServerLock: true,
                 characters: [],
               };
               var data: Buffer = this._protocol.pack(
                 "CharacterSelectInfoReply",
-                info
+                characters_info
               );
               this._soeServer.sendAppData(client, data, true, true);
               debug("CharacterSelectInfoRequest");
               break;
             case "CharacterLoginRequest":
-              /*
-            backend.characterLogin(null, null, null, function (err, result) {
-              if (err) {
-                server.emit(
-                  "characterloginrequest",
-                  new LoginError("Character login request failed")
-                );
+              let characters_Login_info: any;
+              if (usingMongo) {
+                debug("[error] MongoDB support isn't ready");
               } else {
-                result = JSON.parse(
-                  fs.readFileSync("data/characterloginreply.json")
-                );
-                var data = protocol.pack("CharacterLoginReply", result);
-                soeServer.sendAppData(client, data, true);
+                characters_Login_info = {
+                  characterId: "0x03147cca2a860191",
+                  serverId: 1,
+                  unknown: 0,
+                  status: 1,
+                  payload: {
+                    serverAddress: "127.0.0.1:1117",
+                    serverTicket: "7y3Bh44sKWZCYZH",
+                    encryptionKey: [
+                      23,
+                      189,
+                      8,
+                      107,
+                      27,
+                      148,
+                      240,
+                      47,
+                      240,
+                      236,
+                      83,
+                      215,
+                      99,
+                      88,
+                      155,
+                      95,
+                    ],
+                    characterId: "0x03147cca2a860191",
+                    unknown1: 722776196,
+                    unknown2: 0,
+                    stationName: "reside0cupboy",
+                    characterName: "VanuLabsVS",
+                    unknown3: 0,
+                  },
+                };
               }
-            });
-            */
+              var data: Buffer = this._protocol.pack(
+                "CharacterLoginReply",
+                characters_Login_info
+              );
+              this._soeServer.sendAppData(client, data, true);
               debug("CharacterLoginRequest");
               break;
           }
