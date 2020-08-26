@@ -21,7 +21,7 @@ export class LoginProtocol {
       if (packet.schema) {
         debug(packet.name);
         result = DataSchema.parse(packet.schema, data, 1).result;
-        debug("[DEBUG] LoginRequestPacket :");
+        debug("[DEBUG] Packet receive :");
         debug(result);
 
         return {
