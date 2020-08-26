@@ -207,10 +207,29 @@ export class LoginServer extends EventEmitter {
               this._soeServer.sendAppData(client, data, true);
               break;
             case "ServerListRequest":
-              const servers = await this._db
-                .collection("servers")
-                .find()
-                .toArray();
+              let servers;
+              if (usingMongo) {
+                servers = await this._db.collection("servers").find().toArray();
+              } else {
+                servers = [
+                  {
+                    serverId: 1,
+                    serverState: 0,
+                    locked: false,
+                    name: "fuckdb",
+                    nameId: 1,
+                    description: "yeah",
+                    descriptionId: 1,
+                    reqFeatureId: 0,
+                    serverInfo:
+                      'Region="CharacterCreate.RegionUs" PingAddress="127.0.0.1:1117" Subregion="UI.SubregionUS" IsRecommended="1" IsRecommendedVS="0" IsRecommendedNC="0" IsRecommendedTR="0"',
+                    populationLevel: 1,
+                    populationData:
+                      'ServerCapacity="0" PingAddress="127.0.0.1:1117" Rulesets="Permadeath"',
+                    allowedAccess: true,
+                  },
+                ];
+              }
               var data: Buffer = this._protocol.pack("ServerListReply", {
                 servers: servers,
               });
@@ -218,19 +237,16 @@ export class LoginServer extends EventEmitter {
 
               break;
             case "CharacterSelectInfoRequest":
-              /*
-            backend.getCharacterInfo(function (err, result) {
-              if (err) {
-                server.emit(
-                  "characterselectinforequest",
-                  new LoginError("Character select info request failed")
-                );
-              } else {
-                var data = protocol.pack("CharacterSelectInfoReply", result);
-                soeServer.sendAppData(client, data, true, true);
-              }
-            });
-            */
+              const info: any = {
+                status: 1,
+                canBypassServerLock: true,
+                characters: [],
+              };
+              var data: Buffer = this._protocol.pack(
+                "CharacterSelectInfoReply",
+                info
+              );
+              this._soeServer.sendAppData(client, data, true, true);
               debug("CharacterSelectInfoRequest");
               break;
             case "CharacterLoginRequest":
