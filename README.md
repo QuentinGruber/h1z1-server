@@ -24,6 +24,8 @@ AppID : 295110 DepotID : 295111 ManifestID : 1930886153446950288
 
 How to use DepotDownloader : https://youtu.be/44HBxzC_RTg
 
+cmd : `dotnet .\DepotDownloader.dll -app 295110 -depot 29511 -manifest 1930886153446950288 -username username -password 1234`
+
 ### H1Z1 Dependencies
 
 Like all games H1Z1 has C/C++ & DirectX dependencies.
