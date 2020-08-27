@@ -50,7 +50,7 @@ Execute this command in CMD/Powershell ( you have to be in your h1z1 game folder
 
 `.\H1Z1.exe inifile=ClientConfig.ini providerNamespace=soe sessionid=0 CasSessionId=0 Interna tionalizationLocale=en_US LaunchPadUfp={fingerprint} LaunchPadSessionId=0 STEAM_ENABLED=0`
 
-## Setup [MongoDB](https://www.mongodb.com/download-center/community)
+## Setup [MongoDB](https://fastdl.mongodb.org/windows/mongodb-windows-x86_64-4.4.0-signed.msi)
 
 - Create a database named "h1server" with a collection named "servers"
 
@@ -74,6 +74,10 @@ Execute this command in CMD/Powershell ( you have to be in your h1z1 game folder
                   }`
 
 ## How to use
+
+### Quick Start
+
+Clone this repo : [h1z1-server-QuickStart](https://github.com/QuentinGruber/h1z1-server-QuickStart)
 
 ### Installation
 
