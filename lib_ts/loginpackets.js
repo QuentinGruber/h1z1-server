@@ -363,8 +363,12 @@ var packets = [
       ],
     },
   ],
-  ["TunnelAppPacketClientToServer", 0x10, {}],
-  ["TunnelAppPacketServerToClient", 0x11, {}],
+  ["TunnelAppPacketClientToServer", 0x10, {fields: [
+    
+  ]}],
+  ["TunnelAppPacketServerToClient", 0x11, {fields: [
+    
+  ]}],
   ["CharacterTransferRequest", 0x12, {}],
   ["CharacterTransferReply", 0x13, {}],
 ];

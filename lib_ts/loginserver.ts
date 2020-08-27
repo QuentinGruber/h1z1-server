@@ -166,10 +166,12 @@ export class LoginServer extends EventEmitter {
                     descriptionId: 1,
                     reqFeatureId: 0,
                     serverInfo:
-                    "<ServerInfo Region=\"CharacterCreate.RegionUs\" Subregion=\"UI.SubregionUS\" IsRecommended=\"1\" IsRecommendedVS=\"0\" IsRecommendedNC=\"0\" IsRecommendedTR=\"0\" />",
+                      // prettier-ignore
+                      "<ServerInfo Region=\"CharacterCreate.RegionUs\" Subregion=\"UI.SubregionUS\" IsRecommended=\"1\" IsRecommendedVS=\"0\" IsRecommendedNC=\"0\" IsRecommendedTR=\"0\" />",
                     populationLevel: 3,
                     populationData:
-                    "<Population ServerCapacity=\"0\" PingAddress=\"127.0.0.1:1117\" Rulesets=\"Permadeath\"><factionlist IsList=\"1\"><faction Id=\"1\" Percent=\"0\" TargetPopPct=\"0\" RewardBuff=\"52\" XPBuff=\"52\" PercentAvg=\"0\"/><faction Id=\"2\" Percent=\"0\" TargetPopPct=\"1\" RewardBuff=\"0\" XPBuff=\"0\" PercentAvg=\"0\"/><faction Id=\"3\" Percent=\"0\" TargetPopPct=\"1\" RewardBuff=\"0\" XPBuff=\"0\" PercentAvg=\"1\"/></factionlist></Population>",
+                      // prettier-ignore
+                      "<Population ServerCapacity=\"0\" PingAddress=\"127.0.0.1:1117\" Rulesets=\"Permadeath\"><factionlist IsList=\"1\"><faction Id=\"1\" Percent=\"0\" TargetPopPct=\"0\" RewardBuff=\"52\" XPBuff=\"52\" PercentAvg=\"0\"/><faction Id=\"2\" Percent=\"0\" TargetPopPct=\"1\" RewardBuff=\"0\" XPBuff=\"0\" PercentAvg=\"0\"/><faction Id=\"3\" Percent=\"0\" TargetPopPct=\"1\" RewardBuff=\"0\" XPBuff=\"0\" PercentAvg=\"1\"/></factionlist></Population>",
                     allowedAccess: true,
                   },
                 ];
@@ -203,13 +205,21 @@ export class LoginServer extends EventEmitter {
               let characters_Login_info: any;
               if (usingMongo) {
                 debug("[error] MongoDB support isn't ready");
-              } else {
                 characters_Login_info = {
                   characterId: "0x03147cca2a860191",
                   serverId: 1,
                   status: 1,
                   unknown: 0,
                   payload: "\u0000",
+                };
+              } else {
+                characters_Login_info = {
+                  characterId: "0x03147cca2a860191",
+                  serverId: 1,
+                  status: 1,
+                  unknown: 0,
+                  // prettier-ignore
+                  payload: "",
                 };
               }
               debug(characters_Login_info);
@@ -219,6 +229,22 @@ export class LoginServer extends EventEmitter {
               );
               this._soeServer.sendAppData(client, data, true);
               debug("CharacterLoginRequest");
+              break;
+
+            case "TunnelAppPacketClientToServer":
+              var falsified_data = {
+                loggedIn: true,
+                status: 1,
+                isMember: true,
+                isInternal: true,
+                namespace: "soe",
+                payload: "",
+              };
+              var data: Buffer = this._protocol.pack(
+                "TunnelAppPacketServerToClient",
+                falsified_data
+              );
+              this._soeServer.sendAppData(client, data, true);
               break;
           }
         } else {
