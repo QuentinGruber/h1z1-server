@@ -187,6 +187,18 @@ export class LoginServer extends EventEmitter {
               this._soeServer.sendAppData(client, data, true);
 
               break;
+
+            case "CharacterDeleteRequest":
+              const characters_delete_info: any = {
+                characterId: packet.result.characterId,
+              };
+              var data: Buffer = this._protocol.pack(
+                "CharacterDeleteReply",
+                characters_delete_info
+              );
+              this._soeServer.sendAppData(client, data, true, true);
+              debug("CharacterDeleteRequest");
+              break;
             case "CharacterSelectInfoRequest":
               const SinglePlayerCharacter = require("../single_player_character.json");
               const characters_info: any = {
