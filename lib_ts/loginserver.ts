@@ -61,8 +61,7 @@ export class LoginServer extends EventEmitter {
     environment: string,
     usingMongo: boolean,
     serverPort: number,
-    loginKey: string,
-    SpamGlitch: boolean
+    loginKey: string
   ) {
     super();
     this._usingMongo = usingMongo;
@@ -78,13 +77,9 @@ export class LoginServer extends EventEmitter {
       "LoginUdp_9",
       serverPort,
       this._cryptoKey,
-      null,
-      SpamGlitch
+      null
     );
-    this._protocol = new LoginProtocol(SpamGlitch);
-    if (SpamGlitch) {
-      debug("Server using SpamGlitch");
-    }
+    this._protocol = new LoginProtocol();
     this._soeServer.on("connect", (err: string, client: Client) => {
       debug("Client connected from " + client.address + ":" + client.port);
       //server.emit('connect', err, client);
@@ -96,44 +91,6 @@ export class LoginServer extends EventEmitter {
     this._soeServer.on("session", (err: string, client: Client) => {
       debug("Session started for client " + client.address + ":" + client.port);
     });
-    this._soeServer.on(
-      "Force_sendServerList",
-      async (err: string, client: Client) => {
-        let servers;
-        if (usingMongo) {
-          servers = await this._db.collection("servers").find().toArray();
-        } else {
-          servers = [
-            {
-              serverId: 1,
-              serverState: 0,
-              locked: false,
-              name: "fuckdb",
-              nameId: 1,
-              description: "yeah",
-              descriptionId: 1,
-              reqFeatureId: 0,
-              serverInfo:
-                'Region="CharacterCreate.RegionUs" PingAddress="127.0.0.1:1117" Subregion="UI.SubregionUS" IsRecommended="1" IsRecommendedVS="0" IsRecommendedNC="0" IsRecommendedTR="0"',
-              populationLevel: 1,
-              populationData:
-                'ServerCapacity="0" PingAddress="127.0.0.1:1117" Rulesets="Permadeath"',
-              allowedAccess: true,
-            },
-          ];
-        }
-        // remove object id
-        for (let i = 0; i < servers.length; i++) {
-          if (servers[i]._id) {
-            delete servers[i]._id;
-          }
-        }
-        var data = this._protocol.pack("ServerListReply", {
-          servers: servers,
-        });
-        this._soeServer.sendAppData(client, data, true);
-      }
-    );
     this._soeServer.on(
       "SendServerUpdate",
       async (err: string, client: Client) => {
@@ -179,27 +136,13 @@ export class LoginServer extends EventEmitter {
           var result = packet.result;
           switch (packet.name) {
             case "LoginRequest":
-              /*
-              backend.login(result.sessionId, result.fingerprint, function (
-                err,
-                result
-              ) {
-                if (err) {
-                  server.emit("login", new LoginError("Login failed"));
-                } else {
-                  var data = protocol.pack("LoginReply", result);
-                  soeServer.sendAppData(client, data, true);
-                }
-              });
-              */
               var falsified_data = {
-                // HACK
                 loggedIn: true,
                 status: 1,
                 isMember: true,
                 isInternal: true,
-                namespace: "",
-                payload: "e",
+                namespace: "soe",
+                payload: "",
               };
               var data: Buffer = this._protocol.pack(
                 "LoginReply",
@@ -215,21 +158,26 @@ export class LoginServer extends EventEmitter {
                 servers = [
                   {
                     serverId: 1,
-                    serverState: 0,
-                    locked: false,
-                    name: "fuckdb",
+                    serverState: 1,
+                    locked: true,
+                    name: "SoloServer",
                     nameId: 1,
                     description: "yeah",
                     descriptionId: 1,
                     reqFeatureId: 0,
                     serverInfo:
                       'Region="CharacterCreate.RegionUs" PingAddress="127.0.0.1:1117" Subregion="UI.SubregionUS" IsRecommended="1" IsRecommendedVS="0" IsRecommendedNC="0" IsRecommendedTR="0"',
-                    populationLevel: 1,
+                    populationLevel: 0,
                     populationData:
                       'ServerCapacity="0" PingAddress="127.0.0.1:1117" Rulesets="Permadeath"',
                     allowedAccess: true,
                   },
                 ];
+              }
+              for (var i = 0; i < servers.length; i++) {
+                if (servers[i]._id) {
+                  delete servers[i]._id;
+                }
               }
               var data: Buffer = this._protocol.pack("ServerListReply", {
                 servers: servers,
@@ -257,12 +205,11 @@ export class LoginServer extends EventEmitter {
                 debug("[error] MongoDB support isn't ready");
               } else {
                 characters_Login_info = {
-                  characterId: 0x03147cca2a860191,
+                  characterId: "0x03147cca2a860191",
                   serverId: 1,
                   status: 1,
-                  unknown: 1,
-                  payload:
-                    "serverAddress: 127.0.0.1:1117,serverTicket: 7y3Bh44sKWZCYZH,encryptionKey: this._cryptoKey,characterId: 0x03147cca2a860191,unknown1: 722776196,unknown2: 0,stationName: reside0cupboy,characterName: VanuLabsVS, unknown3: 0,",
+                  unknown: 0,
+                  payload: "\u0000",
                 };
               }
               debug(characters_Login_info);
