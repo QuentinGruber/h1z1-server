@@ -19,7 +19,7 @@
   },
   "devDependencies": {},
   "scripts": {
-    "compile_ts": "tsc -p ."
+    "compile_ts": "tsc --declaration -p ."
   },
   "repository": {
     "type": "git",
