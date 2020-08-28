@@ -3,7 +3,8 @@ import { EventEmitter } from "events";
 const SOEServer = require("./soeserver").SOEServer,
   LoginProtocol = require("./loginprotocol").LoginProtocol,
   debug = require("debug")("LoginServer"),
-  MongoClient = require("mongodb").MongoClient;
+  MongoClient = require("mongodb").MongoClient,
+  PackageSetting = require("../package.json");
 
 interface LoginProtocol {
   parse: Function;
@@ -231,7 +232,7 @@ export class LoginServer extends EventEmitter {
                   status: 1,
                   unknown: 0,
                   // prettier-ignore
-                  payload: "",
+                  payload: "\u0000",
                 };
               }
               debug(characters_Login_info);
@@ -266,8 +267,8 @@ export class LoginServer extends EventEmitter {
     );
   }
   async start() {
+    console.log(PackageSetting.name + " V" + PackageSetting.version);
     debug("Starting server");
-
     if (this._usingMongo) {
       const uri =
         "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass%20Community&ssl=false";

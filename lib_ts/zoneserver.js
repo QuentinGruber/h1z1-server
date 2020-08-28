@@ -7,7 +7,8 @@ var EventEmitter = require("events").EventEmitter,
   ZoneProtocol = require("./zoneprotocol").ZoneProtocol,
   debug = require("debug")("ZoneServer"),
   MongoClient = require("mongodb").MongoClient,
-  MongoServer = require("mongodb").Server;
+  MongoServer = require("mongodb").Server,
+  PackageSetting = require("../package.json");
 
 function Int64String(value) {
   return "0x" + ("0000000000000000" + value.toString(16)).substr(-16);
@@ -107,6 +108,7 @@ function ZoneServer(serverPort, gatewayKey, UsingMongo) {
 util.inherits(ZoneServer, EventEmitter);
 
 ZoneServer.prototype.start = async function (callback) {
+  console.log(PackageSetting.name + " V" + PackageSetting.version);
   debug("Starting server");
   this._startTime = Date.now();
   var me = this;
