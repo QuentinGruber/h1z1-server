@@ -89,30 +89,17 @@ You need [Nodejs](https://nodejs.org/en/) ( currently using 12.16 LTS).
 
 ### LoginServer
 
-    const H1Z1servers = require("h1z1-server");
+    const H1Z1servers = require("./h1z1-server");
+    const { Base64 } = require("js-base64");
     var server = new H1Z1servers.LoginServer(
     295110, // <- AppID
     "dev", // <- environment
-    false, // <- using MongoDB (boolean)
+    false, // <- using MongoDB
     1115, // <- server port
-    "c2V4", // <- loginkey
-    true // <- Use spam glitch
+    Base64.toUint8Array("F70IaxuU8C/w7FPXY1ibXw=="), // <- loginkey
+    true // <- SoloMode
     );
     server.start();
-
-### LoginClient (used for testing)
-
-    const H1Z1servers = require("h1z1-server");
-
-    var client = new H1Z1servers.LoginClient(
-      295110, // <- AppID
-      "dev", // <- environment
-      "127.0.0.1", // <- LoginServer IP adress
-      1115, // <- server port
-      "c2V4", // <- loginkey
-      "4851" // <- localport ( basically a random unused port on your pc)
-     );
-     client.connect();
 
 ### Enable Debug log
 
