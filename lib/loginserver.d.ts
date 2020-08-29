@@ -14,6 +14,20 @@ interface SoeServer {
     toggleEncryption: Function;
     toggleDataDump: Function;
 }
+interface GameServer {
+    serverId: number;
+    serverState: number;
+    locked: boolean;
+    name: string;
+    nameId: number;
+    description: string;
+    descriptionId: number;
+    reqFeatureId: number;
+    serverInfo: string;
+    populationLevel: number;
+    populationData: string;
+    allowedAccess: boolean;
+}
 export declare class LoginServer extends EventEmitter {
     _soeServer: SoeServer;
     _protocol: LoginProtocol;
@@ -27,7 +41,7 @@ export declare class LoginServer extends EventEmitter {
     _gameId: number;
     _environment: string;
     _cryptoKey: string;
-    constructor(gameId: number, environment: string, usingMongo: boolean, serverPort: number, loginKey: string, SoloMode: boolean);
+    constructor(gameId: number, environment: string, usingMongo: boolean, serverPort: number, loginKey: string, SoloMode: boolean | undefined, ServerList: Array<GameServer>);
     start(): Promise<void>;
     data(collectionName: string): any;
     stop(): void;

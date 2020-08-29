@@ -1,3 +1,7 @@
+PackageSetting = require("./package.json");
+
+console.log(PackageSetting.name + " V" + PackageSetting.version);
+
 exports.SOEInputStream = require("./lib/soeinputstream.js").SOEInputStream;
 exports.SOEOutputStream = require("./lib/soeoutputstream.js").SOEOutputStream;
 

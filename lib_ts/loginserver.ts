@@ -3,8 +3,7 @@ import { EventEmitter } from "events";
 const SOEServer = require("./soeserver").SOEServer,
   LoginProtocol = require("./loginprotocol").LoginProtocol,
   debug = require("debug")("LoginServer"),
-  MongoClient = require("mongodb").MongoClient,
-  PackageSetting = require("../package.json");
+  MongoClient = require("mongodb").MongoClient;
 
 interface LoginProtocol {
   parse: Function;
@@ -43,6 +42,21 @@ interface Client {
   outOfOrderTimer: Function;
 }
 
+interface GameServer {
+  serverId: number;
+  serverState: number;
+  locked: boolean;
+  name: string;
+  nameId: number;
+  description: string;
+  descriptionId: number;
+  reqFeatureId: number;
+  serverInfo: string;
+  populationLevel: number;
+  populationData: string;
+  allowedAccess: boolean;
+}
+
 export class LoginServer extends EventEmitter {
   _soeServer: SoeServer;
   _protocol: LoginProtocol;
@@ -63,7 +77,8 @@ export class LoginServer extends EventEmitter {
     usingMongo: boolean,
     serverPort: number,
     loginKey: string,
-    SoloMode: boolean
+    SoloMode: boolean = false,
+    ServerList: Array<GameServer>
   ) {
     super();
     this._usingMongo = usingMongo;
@@ -74,6 +89,19 @@ export class LoginServer extends EventEmitter {
     this._cryptoKey = loginKey;
     this._gameId = gameId;
     this._environment = environment;
+
+    // reminders
+    if (SoloMode) {
+      debug("Server in solo mode, Serverlist argument & MongoDB ignored !");
+    } else if (usingMongo && ServerList != undefined) {
+      debug("Server using Mongo, the defined Serverlist is ignored !");
+    } else if (!usingMongo && ServerList == undefined) {
+      debug(
+        "You must provide a serverlist with Mongodb or with the serverlist argument !"
+      );
+      debug("you can run the server in solo mode to fix this problem.");
+      this.stop();
+    }
 
     this._soeServer = new SOEServer(
       "LoginUdp_9",
@@ -154,29 +182,15 @@ export class LoginServer extends EventEmitter {
               break;
             case "ServerListRequest":
               let servers;
-              if (usingMongo) {
+              if (usingMongo && !SoloMode) {
                 servers = await this._db.collection("servers").find().toArray();
               } else {
-                servers = [
-                  {
-                    serverId: 1,
-                    serverState: 2,
-                    locked: false,
-                    name: "SoloServer",
-                    nameId: 8,
-                    description: "yeah",
-                    descriptionId: 1,
-                    reqFeatureId: 0,
-                    serverInfo:
-                      // prettier-ignore
-                      "<ServerInfo Region=\"CharacterCreate.RegionUs\" Subregion=\"UI.SubregionUS\" IsRecommended=\"1\" IsRecommendedVS=\"0\" IsRecommendedNC=\"0\" IsRecommendedTR=\"0\" />",
-                    populationLevel: 3,
-                    populationData:
-                      // prettier-ignore
-                      "<Population ServerCapacity=\"0\" PingAddress=\"127.0.0.1:1117\" Rulesets=\"Permadeath\"><factionlist IsList=\"1\"><faction Id=\"1\" Percent=\"0\" TargetPopPct=\"0\" RewardBuff=\"52\" XPBuff=\"52\" PercentAvg=\"0\"/><faction Id=\"2\" Percent=\"0\" TargetPopPct=\"1\" RewardBuff=\"0\" XPBuff=\"0\" PercentAvg=\"0\"/><faction Id=\"3\" Percent=\"0\" TargetPopPct=\"1\" RewardBuff=\"0\" XPBuff=\"0\" PercentAvg=\"1\"/></factionlist></Population>",
-                    allowedAccess: true,
-                  },
-                ];
+                if (SoloMode) {
+                  const SoloServer = require("../single_player_server.json");
+                  servers = [SoloServer];
+                } else {
+                  servers = ServerList;
+                }
               }
               for (var i = 0; i < servers.length; i++) {
                 if (servers[i]._id) {
@@ -277,7 +291,6 @@ export class LoginServer extends EventEmitter {
     );
   }
   async start() {
-    console.log(PackageSetting.name + " V" + PackageSetting.version);
     debug("Starting server");
     if (this._usingMongo) {
       const uri =
@@ -313,6 +326,6 @@ export class LoginServer extends EventEmitter {
   }
   stop() {
     debug("Shutting down");
-    process.exit(1);
+    process.exit(0);
   }
 }
