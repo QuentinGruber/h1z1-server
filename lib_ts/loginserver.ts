@@ -269,17 +269,12 @@ export class LoginServer extends EventEmitter {
               break;
 
             case "TunnelAppPacketClientToServer":
-              var falsified_data = {
-                loggedIn: true,
-                status: 1,
-                isMember: true,
-                isInternal: true,
-                namespace: "soe",
-                payload: "",
+              var test_data = {
+                unknown1: true,
               };
               var data: Buffer = this._protocol.pack(
                 "TunnelAppPacketServerToClient",
-                falsified_data
+                test_data
               );
               this._soeServer.sendAppData(client, data, true);
               break;
