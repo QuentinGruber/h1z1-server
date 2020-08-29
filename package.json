@@ -19,7 +19,8 @@
   },
   "devDependencies": {},
   "scripts": {
-    "compile_ts": "tsc --declaration -p ."
+    "compile_ts": "tsc --declaration -p .",
+    "lint_ts": "tslint -c tslint.json './lib_ts/*.ts'"
   },
   "repository": {
     "type": "git",
