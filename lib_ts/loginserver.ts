@@ -62,7 +62,8 @@ export class LoginServer extends EventEmitter {
     environment: string,
     usingMongo: boolean,
     serverPort: number,
-    loginKey: string
+    loginKey: string,
+    SoloMode: boolean
   ) {
     super();
     this._usingMongo = usingMongo;
@@ -201,12 +202,21 @@ export class LoginServer extends EventEmitter {
               debug("CharacterDeleteRequest");
               break;
             case "CharacterSelectInfoRequest":
-              const SinglePlayerCharacter = require("../single_player_character.json");
-              const characters_info: any = {
-                status: 1,
-                canBypassServerLock: true,
-                characters: [SinglePlayerCharacter],
-              };
+              let characters_info;
+              if (SoloMode) {
+                const SinglePlayerCharacter = require("../single_player_character.json");
+                characters_info = {
+                  status: 1,
+                  canBypassServerLock: true,
+                  characters: [SinglePlayerCharacter],
+                };
+              } else {
+                characters_info = {
+                  status: 1,
+                  canBypassServerLock: true,
+                  characters: [],
+                };
+              }
               var data: Buffer = this._protocol.pack(
                 "CharacterSelectInfoReply",
                 characters_info
@@ -219,7 +229,7 @@ export class LoginServer extends EventEmitter {
               if (usingMongo) {
                 debug("[error] MongoDB support isn't ready");
                 characters_Login_info = {
-                  characterId: "0x03147cca2a860191",
+                  characterId: packet.result.characterId,
                   serverId: 1,
                   status: 1,
                   unknown: 0,
@@ -227,7 +237,7 @@ export class LoginServer extends EventEmitter {
                 };
               } else {
                 characters_Login_info = {
-                  characterId: "0x03147cca2a860191",
+                  characterId: packet.result.characterId,
                   serverId: 1,
                   status: 1,
                   unknown: 0,
