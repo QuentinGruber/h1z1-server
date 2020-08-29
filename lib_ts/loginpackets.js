@@ -99,8 +99,18 @@ var packets = [
       ],
     },
   ],
-  ["CharacterDeleteRequest", 0x09, {}],
-  ["CharacterDeleteReply", 0x0a, {}],
+  [
+    "CharacterDeleteRequest",
+    0x09,
+    {
+      fields: [{ name: "characterId", type: "uint64" }],
+    },
+  ],
+  [
+    "CharacterDeleteReply",
+    0x0a,
+    { fields: [{ name: "characterId", type: "uint64" }] },
+  ],
   [
     "CharacterSelectInfoRequest",
     0x0b,
@@ -363,8 +373,8 @@ var packets = [
       ],
     },
   ],
-  ["TunnelAppPacketClientToServer", 0x10, {}],
-  ["TunnelAppPacketServerToClient", 0x11, {}],
+  ["TunnelAppPacketClientToServer", 0x10, { fields: [] }],
+  ["TunnelAppPacketServerToClient", 0x11, { fields: [] }],
   ["CharacterTransferRequest", 0x12, {}],
   ["CharacterTransferReply", 0x13, {}],
 ];

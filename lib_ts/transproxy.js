@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 var EventEmitter = require("events").EventEmitter,
   util = require("util"),
   fs = require("fs"),

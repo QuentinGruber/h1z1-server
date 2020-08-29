@@ -4,10 +4,8 @@ var fs = require("fs"),
   LoginPackets = require("./loginpackets");
 
 export class LoginProtocol {
-  _SpamGlitch: boolean;
-  constructor(SpamGlitch: boolean) {
+  constructor() {
     var n = 0;
-    this._SpamGlitch = SpamGlitch;
   }
   parse(data: any) {
     var packetType = data[0],
@@ -15,13 +13,11 @@ export class LoginProtocol {
       schema,
       name,
       packet = LoginPackets.Packets[packetType];
-    if (packet == undefined && this._SpamGlitch)
-      packet = LoginPackets.Packets[1]; // HACK
     if (packet) {
       if (packet.schema) {
         debug(packet.name);
         result = DataSchema.parse(packet.schema, data, 1).result;
-        debug("[DEBUG] LoginRequestPacket :");
+        debug("[DEBUG] Packet receive :");
         debug(result);
 
         return {

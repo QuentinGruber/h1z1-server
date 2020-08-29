@@ -42,6 +42,21 @@ interface Client {
   outOfOrderTimer: Function;
 }
 
+interface GameServer {
+  serverId: number;
+  serverState: number;
+  locked: boolean;
+  name: string;
+  nameId: number;
+  description: string;
+  descriptionId: number;
+  reqFeatureId: number;
+  serverInfo: string;
+  populationLevel: number;
+  populationData: string;
+  allowedAccess: boolean;
+}
+
 export class LoginServer extends EventEmitter {
   _soeServer: SoeServer;
   _protocol: LoginProtocol;
@@ -54,6 +69,7 @@ export class LoginServer extends EventEmitter {
   _udpLength: number;
   _gameId: number;
   _environment: string;
+  _cryptoKey: string;
 
   constructor(
     gameId: number,
@@ -61,7 +77,8 @@ export class LoginServer extends EventEmitter {
     usingMongo: boolean,
     serverPort: number,
     loginKey: string,
-    SpamGlitch: boolean
+    SoloMode: boolean = false,
+    ServerList: Array<GameServer>
   ) {
     super();
     this._usingMongo = usingMongo;
@@ -69,21 +86,30 @@ export class LoginServer extends EventEmitter {
     this._crcSeed = 0;
     this._crcLength = 2;
     this._udpLength = 512;
-
+    this._cryptoKey = loginKey;
     this._gameId = gameId;
     this._environment = environment;
+
+    // reminders
+    if (SoloMode) {
+      debug("Server in solo mode, Serverlist argument & MongoDB ignored !");
+    } else if (usingMongo && ServerList != undefined) {
+      debug("Server using Mongo, the defined Serverlist is ignored !");
+    } else if (!usingMongo && ServerList == undefined) {
+      debug(
+        "You must provide a serverlist with Mongodb or with the serverlist argument !"
+      );
+      debug("you can run the server in solo mode to fix this problem.");
+      this.stop();
+    }
 
     this._soeServer = new SOEServer(
       "LoginUdp_9",
       serverPort,
-      loginKey,
-      null,
-      SpamGlitch
+      this._cryptoKey,
+      null
     );
-    this._protocol = new LoginProtocol(SpamGlitch);
-    if (SpamGlitch) {
-      debug("Server using SpamGlitch");
-    }
+    this._protocol = new LoginProtocol();
     this._soeServer.on("connect", (err: string, client: Client) => {
       debug("Client connected from " + client.address + ":" + client.port);
       //server.emit('connect', err, client);
@@ -95,44 +121,6 @@ export class LoginServer extends EventEmitter {
     this._soeServer.on("session", (err: string, client: Client) => {
       debug("Session started for client " + client.address + ":" + client.port);
     });
-    this._soeServer.on(
-      "Force_sendServerList",
-      async (err: string, client: Client) => {
-        let servers;
-        if (usingMongo) {
-          servers = await this._db.collection("servers").find().toArray();
-        } else {
-          servers = [
-            {
-              serverId: 1,
-              serverState: 0,
-              locked: false,
-              name: "fuckdb",
-              nameId: 1,
-              description: "yeah",
-              descriptionId: 1,
-              reqFeatureId: 0,
-              serverInfo:
-                'Region="CharacterCreate.RegionUs" PingAddress="127.0.0.1:1117" Subregion="UI.SubregionUS" IsRecommended="1" IsRecommendedVS="0" IsRecommendedNC="0" IsRecommendedTR="0"',
-              populationLevel: 1,
-              populationData:
-                'ServerCapacity="0" PingAddress="127.0.0.1:1117" Rulesets="Permadeath"',
-              allowedAccess: true,
-            },
-          ];
-        }
-        // remove object id
-        for (let i = 0; i < servers.length; i++) {
-          if (servers[i]._id) {
-            delete servers[i]._id;
-          }
-        }
-        var data = this._protocol.pack("ServerListReply", {
-          servers: servers,
-        });
-        this._soeServer.sendAppData(client, data, true);
-      }
-    );
     this._soeServer.on(
       "SendServerUpdate",
       async (err: string, client: Client) => {
@@ -178,27 +166,13 @@ export class LoginServer extends EventEmitter {
           var result = packet.result;
           switch (packet.name) {
             case "LoginRequest":
-              /*
-              backend.login(result.sessionId, result.fingerprint, function (
-                err,
-                result
-              ) {
-                if (err) {
-                  server.emit("login", new LoginError("Login failed"));
-                } else {
-                  var data = protocol.pack("LoginReply", result);
-                  soeServer.sendAppData(client, data, true);
-                }
-              });
-              */
               var falsified_data = {
-                // HACK
                 loggedIn: true,
                 status: 1,
                 isMember: true,
                 isInternal: true,
-                namespace: "",
-                payload: "e",
+                namespace: "soe",
+                payload: "",
               };
               var data: Buffer = this._protocol.pack(
                 "LoginReply",
@@ -207,50 +181,107 @@ export class LoginServer extends EventEmitter {
               this._soeServer.sendAppData(client, data, true);
               break;
             case "ServerListRequest":
-              const servers = await this._db
-                .collection("servers")
-                .find()
-                .toArray();
+              let servers;
+              if (usingMongo && !SoloMode) {
+                servers = await this._db.collection("servers").find().toArray();
+              } else {
+                if (SoloMode) {
+                  const SoloServer = require("../single_player_server.json");
+                  servers = [SoloServer];
+                } else {
+                  servers = ServerList;
+                }
+              }
+              for (var i = 0; i < servers.length; i++) {
+                if (servers[i]._id) {
+                  delete servers[i]._id;
+                }
+              }
               var data: Buffer = this._protocol.pack("ServerListReply", {
                 servers: servers,
               });
               this._soeServer.sendAppData(client, data, true);
 
               break;
+
+            case "CharacterDeleteRequest":
+              const characters_delete_info: any = {
+                characterId: packet.result.characterId,
+              };
+              var data: Buffer = this._protocol.pack(
+                "CharacterDeleteReply",
+                characters_delete_info
+              );
+              this._soeServer.sendAppData(client, data, true, true);
+              debug("CharacterDeleteRequest");
+              break;
             case "CharacterSelectInfoRequest":
-              /*
-            backend.getCharacterInfo(function (err, result) {
-              if (err) {
-                server.emit(
-                  "characterselectinforequest",
-                  new LoginError("Character select info request failed")
-                );
+              let characters_info;
+              if (SoloMode) {
+                const SinglePlayerCharacter = require("../single_player_character.json");
+                characters_info = {
+                  status: 1,
+                  canBypassServerLock: true,
+                  characters: [SinglePlayerCharacter],
+                };
               } else {
-                var data = protocol.pack("CharacterSelectInfoReply", result);
-                soeServer.sendAppData(client, data, true, true);
+                characters_info = {
+                  status: 1,
+                  canBypassServerLock: true,
+                  characters: [],
+                };
               }
-            });
-            */
+              var data: Buffer = this._protocol.pack(
+                "CharacterSelectInfoReply",
+                characters_info
+              );
+              this._soeServer.sendAppData(client, data, true, true);
               debug("CharacterSelectInfoRequest");
               break;
             case "CharacterLoginRequest":
-              /*
-            backend.characterLogin(null, null, null, function (err, result) {
-              if (err) {
-                server.emit(
-                  "characterloginrequest",
-                  new LoginError("Character login request failed")
-                );
+              let characters_Login_info: any;
+              if (usingMongo) {
+                debug("[error] MongoDB support isn't ready");
+                characters_Login_info = {
+                  characterId: packet.result.characterId,
+                  serverId: 1,
+                  status: 1,
+                  unknown: 0,
+                  payload: "\u0000",
+                };
               } else {
-                result = JSON.parse(
-                  fs.readFileSync("data/characterloginreply.json")
-                );
-                var data = protocol.pack("CharacterLoginReply", result);
-                soeServer.sendAppData(client, data, true);
+                characters_Login_info = {
+                  characterId: packet.result.characterId,
+                  serverId: 1,
+                  status: 1,
+                  unknown: 0,
+                  // prettier-ignore
+                  payload: "\u0000",
+                };
               }
-            });
-            */
+              debug(characters_Login_info);
+              var data: Buffer = this._protocol.pack(
+                "CharacterLoginReply",
+                characters_Login_info
+              );
+              this._soeServer.sendAppData(client, data, true);
               debug("CharacterLoginRequest");
+              break;
+
+            case "TunnelAppPacketClientToServer":
+              var falsified_data = {
+                loggedIn: true,
+                status: 1,
+                isMember: true,
+                isInternal: true,
+                namespace: "soe",
+                payload: "",
+              };
+              var data: Buffer = this._protocol.pack(
+                "TunnelAppPacketServerToClient",
+                falsified_data
+              );
+              this._soeServer.sendAppData(client, data, true);
               break;
           }
         } else {
@@ -261,7 +292,6 @@ export class LoginServer extends EventEmitter {
   }
   async start() {
     debug("Starting server");
-
     if (this._usingMongo) {
       const uri =
         "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass%20Community&ssl=false";
@@ -296,6 +326,6 @@ export class LoginServer extends EventEmitter {
   }
   stop() {
     debug("Shutting down");
-    process.exit(1);
+    process.exit(0);
   }
 }

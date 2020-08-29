@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 var EventEmitter = require("events").EventEmitter,
   GatewayProxy = require("./gatewayproxy").GatewayProxy,
   ZoneProtocol = require("./zoneprotocol").ZoneProtocol,
