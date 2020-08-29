@@ -74,60 +74,53 @@ export class GatewayServer extends EventEmitter {
       debug("Session started for client " + client.address + ":" + client.port);
     });
 
-    this.on("sendTunnelData", (client: Client, tunnelData: string) => {
-      debug("Sending tunnel data to client");
-      var data = this._protocol.pack("TunnelPacketToExternalConnection", {
-        channel: 0,
-        tunnelData: tunnelData,
-      });
-      //fs.writeFileSync("gatewayserver_appdata_" + (n++) + ".dat", data);
-      this._soeServer.sendAppData(client, data);
-    });
+    this._soeServer.on(
+      "appdata",
+      (err: string, client: Client, data: Buffer) => {
+        var packet = this._protocol.parse(data);
+        if (packet != false && packet != undefined) {
+          var result = packet.result;
+          switch (packet.name) {
+            case "LoginRequest":
+              this._soeServer.toggleEncryption(true);
+              this._soeServer.sendAppData(
+                client,
+                this._protocol.pack("LoginReply", { loggedIn: true }),
+                true
+              );
+              this._soeServer.sendAppData(
+                client,
+                this._protocol.pack("ChannelIsRoutable", {
+                  channel: 0,
+                  isRoutable: true,
+                }),
+                true
+              );
+              this._soeServer.sendAppData(
+                client,
+                this._protocol.pack("ChannelIsRoutable", {
+                  channel: 1,
+                  isRoutable: true,
+                }),
+                true
+              );
 
-    this.on("appdata", (client: Client, data: Buffer) => {
-      var packet = this._protocol.parse(data);
-      if (packet != false && packet != undefined) {
-        var result = packet.result;
-        switch (packet.name) {
-          case "LoginRequest":
-            this._soeServer.toggleEncryption(true);
-            this._soeServer.sendAppData(
-              client,
-              this._protocol.pack("LoginReply", { loggedIn: true }),
-              true
-            );
-            this._soeServer.sendAppData(
-              client,
-              this._protocol.pack("ChannelIsRoutable", {
-                channel: 0,
-                isRoutable: true,
-              }),
-              true
-            );
-            this._soeServer.sendAppData(
-              client,
-              this._protocol.pack("ChannelIsRoutable", {
-                channel: 1,
-                isRoutable: true,
-              }),
-              true
-            );
-
-            //  me.emit("login", null, client, result.characterId);
-            break;
-          case "Logout":
-            debug("Logout");
-            //     me.emit("logout", null, client);
-            break;
-          case "TunnelPacketFromExternalConnection":
-            debug("TunnelPacketFromExternalConnection");
-            //   me.emit("tunneldata", null, client, packet.tunnelData, packet.flags);
-            break;
+              //  me.emit("login", null, client, result.characterId);
+              break;
+            case "Logout":
+              debug("Logout");
+              //     me.emit("logout", null, client);
+              break;
+            case "TunnelPacketFromExternalConnection":
+              debug("TunnelPacketFromExternalConnection");
+              //   me.emit("tunneldata", null, client, packet.tunnelData, packet.flags);
+              break;
+          }
+        } else {
+          debug("Packet parsing was unsuccesful");
         }
-      } else {
-        debug("Packet parsing was unsuccesful");
       }
-    });
+    );
   }
   start() {
     debug("Starting server");
@@ -137,6 +130,15 @@ export class GatewayServer extends EventEmitter {
       this._crcLength,
       this._udpLength
     );
+  }
+  sendTunnelData(client: Client, tunnelData: string) {
+    debug("Sending tunnel data to client");
+    var data = this._protocol.pack("TunnelPacketToExternalConnection", {
+      channel: 0,
+      tunnelData: tunnelData,
+    });
+    //fs.writeFileSync("gatewayserver_appdata_" + (n++) + ".dat", data);
+    this._soeServer.sendAppData(client, data);
   }
   stop() {
     debug("Shutting down");
