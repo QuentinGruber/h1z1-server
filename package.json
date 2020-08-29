@@ -4,7 +4,7 @@
   "description": "Library for emulating h1z1 server",
   "author": "Quentin Gruber <quentingruber@gmail.com> (http://github.com/quentingruber)",
   "license": "GNU General Public License v3.0",
-  "main": "soenetwork.js",
+  "main": "h1z1-server.js",
   "dependencies": {
     "@types/node": "^12.12.51",
     "buffer-crc32": ">=0.2.1",
