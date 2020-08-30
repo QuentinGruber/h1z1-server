@@ -64,11 +64,11 @@ export class GatewayServer extends EventEmitter {
     this._protocol = new GatewayProtocol();
     this._soeServer.on("connect", (err: string, client: Client) => {
       debug("Client connected from " + client.address + ":" + client.port);
-      //server.emit('connect', err, client);
+      this.emit("connect", err, client);
     });
     this._soeServer.on("disconnect", (err: string, client: Client) => {
       debug("Client disconnected from " + client.address + ":" + client.port);
-      //server.emit('disconnect', err, client);
+      this.emit("disconnect", err, client);
     });
     this._soeServer.on("session", (err: string, client: Client) => {
       debug("Session started for client " + client.address + ":" + client.port);
@@ -105,15 +105,21 @@ export class GatewayServer extends EventEmitter {
                 true
               );
 
-              //  me.emit("login", null, client, result.characterId);
+              this.emit("login", null, client, result.characterId);
               break;
             case "Logout":
               debug("Logout");
-              //     me.emit("logout", null, client);
+              this.emit("logout", null, client);
               break;
             case "TunnelPacketFromExternalConnection":
               debug("TunnelPacketFromExternalConnection");
-              //   me.emit("tunneldata", null, client, packet.tunnelData, packet.flags);
+              this.emit(
+                "tunneldata",
+                null,
+                client,
+                packet.tunnelData,
+                packet.flags
+              );
               break;
           }
         } else {
