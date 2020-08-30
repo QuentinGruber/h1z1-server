@@ -14,6 +14,27 @@ interface SoeServer {
     toggleEncryption: Function;
     toggleDataDump: Function;
 }
+interface Client {
+    sessionId: number;
+    address: string;
+    port: number;
+    crcSeed: number;
+    crcLength: number;
+    clientUdpLength: number;
+    serverUdpLength: number;
+    sequences: any;
+    compression: number;
+    useEncryption: boolean;
+    outQueue: any;
+    outOfOrderPackets: any;
+    nextAck: number;
+    lastAck: number;
+    inputStream: Function;
+    outputStream: Function;
+    outQueueTimer: Function;
+    ackTimer: Function;
+    outOfOrderTimer: Function;
+}
 export declare class GatewayServer extends EventEmitter {
     _soeServer: SoeServer;
     _protocol: GatewayProtocol;
@@ -23,6 +44,7 @@ export declare class GatewayServer extends EventEmitter {
     _udpLength: number;
     constructor(protocolName: string, serverPort: number, gatewayKey: string);
     start(): void;
+    sendTunnelData(client: Client, tunnelData: string): void;
     stop(): void;
 }
 export {};
