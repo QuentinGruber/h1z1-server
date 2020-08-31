@@ -24,6 +24,8 @@ AppID : 295110 DepotID : 295111 ManifestID : 1930886153446950288
 
 How to use DepotDownloader : https://youtu.be/44HBxzC_RTg
 
+cmd : `dotnet .\DepotDownloader.dll -app 295110 -depot 295111 -manifest 1930886153446950288 -username username -password 1234`
+
 ### H1Z1 Dependencies
 
 Like all games H1Z1 has C/C++ & DirectX dependencies.
@@ -50,15 +52,34 @@ Execute this command in CMD/Powershell ( you have to be in your h1z1 game folder
 
 `.\H1Z1.exe inifile=ClientConfig.ini providerNamespace=soe sessionid=0 CasSessionId=0 Interna tionalizationLocale=en_US LaunchPadUfp={fingerprint} LaunchPadSessionId=0 STEAM_ENABLED=0`
 
-## Setup [MongoDB](https://www.mongodb.com/download-center/community)
+## Setup [MongoDB](https://fastdl.mongodb.org/windows/mongodb-windows-x86_64-4.4.0-signed.msi)
 
 - Create a database named "h1server" with a collection named "servers"
 
 - Add the following code as a document, this is a server's info template:
 
-`{ "serverId": { "numberInt": "1" }, "serverState": { "numberInt": "1" }, "locked": false, "name": "fuckdb", "nameId": { "numberInt": "1" }, "description": "yeah", "descriptionId": { "numberInt": "1" }, "reqFeatureId": { "numberInt": "0" }, "serverInfo": "ye", "populationLevel": { "numberInt": "1" }, "populationData": "<Population ServerCapacity=\"0\" PingAddress=\"127.0.0.1:20043\" Rulesets=\"Permadeath\"><factionlist IsList=\"1\"><faction Id=\"1\" Percent=\"0\" TargetPopPct=\"0\" RewardBuff=\"52\" XPBuff=\"52\" PercentAvg=\"0\"/><faction Id=\"2\" Percent=\"0\" TargetPopPct=\"1\" RewardBuff=\"0\" XPBuff=\"0\" PercentAvg=\"0\"/><faction Id=\"3\" Percent=\"0\" TargetPopPct=\"1\" RewardBuff=\"0\" XPBuff=\"0\" PercentAvg=\"1\"/></factionlist></Population>", "allowedAccess": true }`
+`{
+                    serverId: 1,
+                    serverState: 2,
+                    locked: false,
+                    name: "SoloServer",
+                    nameId: 8,
+                    description: "yeah",
+                    descriptionId: 1,
+                    reqFeatureId: 0,
+                    serverInfo:
+                    "<ServerInfo Region=\"CharacterCreate.RegionUs\" Subregion=\"UI.SubregionUS\" IsRecommended=\"1\" IsRecommendedVS=\"0\" IsRecommendedNC=\"0\" IsRecommendedTR=\"0\" />",
+                    populationLevel: 3,
+                    populationData:
+                    "<Population ServerCapacity=\"0\" PingAddress=\"127.0.0.1:1117\" Rulesets=\"Permadeath\"><factionlist IsList=\"1\"><faction Id=\"1\" Percent=\"0\" TargetPopPct=\"0\" RewardBuff=\"52\" XPBuff=\"52\" PercentAvg=\"0\"/><faction Id=\"2\" Percent=\"0\" TargetPopPct=\"1\" RewardBuff=\"0\" XPBuff=\"0\" PercentAvg=\"0\"/><faction Id=\"3\" Percent=\"0\" TargetPopPct=\"1\" RewardBuff=\"0\" XPBuff=\"0\" PercentAvg=\"1\"/></factionlist></Population>",
+                    allowedAccess: true,
+                  }`
 
 ## How to use
+
+### Quick Start
+
+Clone this repo : [h1z1-server-QuickStart](https://github.com/QuentinGruber/h1z1-server-QuickStart)
 
 ### Installation
 
@@ -68,30 +89,17 @@ You need [Nodejs](https://nodejs.org/en/) ( currently using 12.16 LTS).
 
 ### LoginServer
 
-    const H1Z1servers = require("h1z1-server");
+    const H1Z1servers = require("./h1z1-server");
+    const { Base64 } = require("js-base64");
     var server = new H1Z1servers.LoginServer(
     295110, // <- AppID
     "dev", // <- environment
-    false, // <- using MongoDB (boolean)
+    false, // <- using MongoDB
     1115, // <- server port
-    "F70IaxuU8C/w7FPXY1ibXw==", // <- loginkey
-    true // <- Use spam glitch
+    Base64.toUint8Array("F70IaxuU8C/w7FPXY1ibXw=="), // <- loginkey
+    true // <- SoloMode
     );
     server.start();
-
-### LoginClient (used for testing)
-
-    const H1server = require("h1z1-server");
-
-    var server = new H1server.LoginClient(
-      295110, // <- AppID
-      "dontnow", // <- environment (useless)
-      "127.0.0.1", // <- LoginServer IP adress
-      1115, // <- server port
-      "fuckdb", // <- loginkey
-      "4851" // <- localport ( basically a random unused port on your pc)
-     );
-     server.connect();
 
 ### Enable Debug log
 

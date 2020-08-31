@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 var EventEmitter = require("events").EventEmitter,
   SOEProxy = require("./soeproxy").SOEProxy,
   LoginProtocol = require("./loginprotocol").LoginProtocol,

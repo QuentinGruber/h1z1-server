@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 var EventEmitter = require("events").EventEmitter,
   SOEServer = require("./soeserver").SOEServer,
   SOEClient = require("./soeclient").SOEClient,

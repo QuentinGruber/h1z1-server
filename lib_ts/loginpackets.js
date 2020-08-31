@@ -82,7 +82,8 @@ var packets = [
         { name: "characterId", type: "uint64" },
         { name: "serverId", type: "uint32" },
         { name: "unknown", type: "uint32", defaultValue: 0 },
-        { name: "payload", type: "string" },
+        { name: "unknown2", type: "uint32", defaultValue: 0 },
+        { name: "characterLocalisation", type: "string" },
       ],
     },
   ],
@@ -99,8 +100,18 @@ var packets = [
       ],
     },
   ],
-  ["CharacterDeleteRequest", 0x09, {}],
-  ["CharacterDeleteReply", 0x0a, {}],
+  [
+    "CharacterDeleteRequest",
+    0x09,
+    {
+      fields: [{ name: "characterId", type: "uint64" }],
+    },
+  ],
+  [
+    "CharacterDeleteReply",
+    0x0a,
+    { fields: [{ name: "characterId", type: "uint64" }] },
+  ],
   [
     "CharacterSelectInfoRequest",
     0x0b,
@@ -363,8 +374,23 @@ var packets = [
       ],
     },
   ],
-  ["TunnelAppPacketClientToServer", 0x10, {}],
-  ["TunnelAppPacketServerToClient", 0x11, {}],
+  [
+    "TunnelAppPacketClientToServer",
+    0x10,
+    {
+      fields: [
+        { name: "unknown", type: "string" },
+        { name: "data", type: "string" },
+      ],
+    },
+  ],
+  [
+    "TunnelAppPacketServerToClient",
+    0x11,
+    {
+      fields: [{ name: "unknown1", type: "boolean" }],
+    },
+  ],
   ["CharacterTransferRequest", 0x12, {}],
   ["CharacterTransferReply", 0x13, {}],
 ];
