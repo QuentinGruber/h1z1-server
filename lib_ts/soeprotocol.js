@@ -608,6 +608,11 @@ function parseSOEPacket(data, crcSeed, compression, isSubPacket, appData) {
     result,
     name,
     packet = SOEPackets.Packets[packetType];
+  if (!packet && data.readUInt8(0) === 1) {
+    // if ping zone packet
+    debug("Receive Zone Ping ");
+    debug("Zone Ping Packets receive : ", data.readUInt8(1));
+  }
   if (packet) {
     if (packet.parse) {
       //debug(packet.name);
