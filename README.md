@@ -100,7 +100,6 @@ You need [Nodejs](https://nodejs.org/en/) ( currently using 12.16 LTS).
     var server = new H1Z1servers.LoginServer(
     295110, // <- AppID
     "dev", // <- environment
-    false, // <- using MongoDB
     1115, // <- server port
     Base64.toUint8Array("F70IaxuU8C/w7FPXY1ibXw=="), // <- loginkey
     true // <- SoloMode
