@@ -201,7 +201,15 @@ export class LoginServer extends EventEmitter {
               );
               this._soeServer.sendAppData(client, data, true, true);
               debug("CharacterDeleteRequest");
-              break;
+
+              if (this._soloMode) {
+                debug(
+                  "Deleting a character in solo mode is weird, modify single_player_character.json instead"
+                );
+                break;
+              } else {
+                // todo
+              }
             case "CharacterSelectInfoRequest":
               let characters_info;
               if (this._soloMode) {
@@ -212,10 +220,14 @@ export class LoginServer extends EventEmitter {
                   characters: [SinglePlayerCharacter],
                 };
               } else {
+                var characters = await this._db
+                  .collection("characters")
+                  .find()
+                  .toArray();
                 characters_info = {
                   status: 1,
                   canBypassServerLock: true,
-                  characters: [],
+                  characters: characters,
                 };
               }
               var data: Buffer = this._protocol.pack(
