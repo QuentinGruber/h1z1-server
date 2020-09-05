@@ -62,7 +62,6 @@ export class LoginServer extends EventEmitter {
   _protocol: LoginProtocol;
   _db: any; // TODO
   _mongoClient: any;
-  _usingMongo: boolean;
   _compression: number;
   _crcSeed: number;
   _crcLength: number;
@@ -70,17 +69,15 @@ export class LoginServer extends EventEmitter {
   _gameId: number;
   _environment: string;
   _cryptoKey: string;
-
+  _soloMode: boolean;
   constructor(
     gameId: number,
     environment: string,
-    usingMongo: boolean,
     serverPort: number,
     loginKey: string,
     SoloMode: boolean = false
   ) {
     super();
-    this._usingMongo = usingMongo;
     this._compression = 0x0100;
     this._crcSeed = 0;
     this._crcLength = 2;
@@ -88,12 +85,11 @@ export class LoginServer extends EventEmitter {
     this._cryptoKey = loginKey;
     this._gameId = gameId;
     this._environment = environment;
+    this._soloMode = SoloMode;
 
     // reminders
-    if (SoloMode) {
-      debug("Server in solo mode, MongoDB ignored !");
-    } else if (usingMongo) {
-      debug("Server using Mongo !");
+    if (this._soloMode) {
+      debug("Server in solo mode !");
     }
 
     this._soeServer = new SOEServer(
@@ -118,7 +114,7 @@ export class LoginServer extends EventEmitter {
       "SendServerUpdate",
       async (err: string, client: Client) => {
         let servers;
-        if (usingMongo) {
+        if (!this._soloMode) {
           servers = await this._db.collection("servers").find().toArray();
         } else {
           servers = [
@@ -175,10 +171,10 @@ export class LoginServer extends EventEmitter {
               break;
             case "ServerListRequest":
               let servers;
-              if (usingMongo && !SoloMode) {
+              if (!this._soloMode) {
                 servers = await this._db.collection("servers").find().toArray();
               } else {
-                if (SoloMode) {
+                if (this._soloMode) {
                   const SoloServer = require("../single_player_server.json");
                   servers = [SoloServer];
                 }
@@ -208,7 +204,7 @@ export class LoginServer extends EventEmitter {
               break;
             case "CharacterSelectInfoRequest":
               let characters_info;
-              if (SoloMode) {
+              if (this._soloMode) {
                 const SinglePlayerCharacter = require("../single_player_character.json");
                 characters_info = {
                   status: 1,
@@ -231,7 +227,7 @@ export class LoginServer extends EventEmitter {
               break;
             case "CharacterLoginRequest":
               let characters_Login_info: any;
-              if (usingMongo) {
+              if (!this._soloMode) {
                 debug("[error] MongoDB support isn't ready");
                 characters_Login_info = {
                   characterId: packet.result.characterId,
@@ -278,7 +274,7 @@ export class LoginServer extends EventEmitter {
   }
   async start() {
     debug("Starting server");
-    if (this._usingMongo) {
+    if (!this._soloMode) {
       const uri =
         "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass%20Community&ssl=false";
       const mongoClient = (this._mongoClient = new MongoClient(uri, {
