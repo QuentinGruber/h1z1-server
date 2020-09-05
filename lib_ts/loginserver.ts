@@ -208,7 +208,22 @@ export class LoginServer extends EventEmitter {
                 );
                 break;
               } else {
-                // todo
+                const WaitSuccess = await this._db
+                  .collection("characters")
+                  .deleteOne(
+                    { characterId: packet.result.characterId },
+                    function (err: any, obj: any) {
+                      if (err) {
+                        debug(err);
+                      } else {
+                        debug(
+                          "Character " +
+                            packet.result.characterId +
+                            " deleted !"
+                        );
+                      }
+                    }
+                  );
               }
             case "CharacterSelectInfoRequest":
               let characters_info;
