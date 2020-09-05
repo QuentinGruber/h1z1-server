@@ -20,6 +20,7 @@
   "devDependencies": {},
   "scripts": {
     "compile_ts": "tsc --declaration -p .",
+    "publish_release":"git push --tags && git push origin dev && git push origin master",
     "lint_ts": "tslint -c tslint.json './lib_ts/*.ts'"
   },
   "repository": {
