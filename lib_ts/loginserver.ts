@@ -77,8 +77,7 @@ export class LoginServer extends EventEmitter {
     usingMongo: boolean,
     serverPort: number,
     loginKey: string,
-    SoloMode: boolean = false,
-    ServerList: Array<GameServer>
+    SoloMode: boolean = false
   ) {
     super();
     this._usingMongo = usingMongo;
@@ -92,15 +91,9 @@ export class LoginServer extends EventEmitter {
 
     // reminders
     if (SoloMode) {
-      debug("Server in solo mode, Serverlist argument & MongoDB ignored !");
-    } else if (usingMongo && ServerList != undefined) {
-      debug("Server using Mongo, the defined Serverlist is ignored !");
-    } else if (!usingMongo && ServerList == undefined) {
-      debug(
-        "You must provide a serverlist with Mongodb or with the serverlist argument !"
-      );
-      debug("you can run the server in solo mode to fix this problem.");
-      this.stop();
+      debug("Server in solo mode, MongoDB ignored !");
+    } else if (usingMongo) {
+      debug("Server using Mongo !");
     }
 
     this._soeServer = new SOEServer(
@@ -188,8 +181,6 @@ export class LoginServer extends EventEmitter {
                 if (SoloMode) {
                   const SoloServer = require("../single_player_server.json");
                   servers = [SoloServer];
-                } else {
-                  servers = ServerList;
                 }
               }
               for (var i = 0; i < servers.length; i++) {
