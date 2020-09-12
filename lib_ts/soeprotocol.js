@@ -627,9 +627,8 @@ function parseSOEPacket(data, crcSeed, compression, isSubPacket, appData) {
     packet = SOEPackets.Packets[packetType];
   if (!packet && data.readUInt8(0) === 1) {
     // if ping zone packet
-    debug(data);
     debug("Zone Ping Packets receive : ", data.readUInt8(1));
-    debug("XOR : ", data.readUInt16BE(3));
+    debug("XOR : ", data.toString("hex").substring(6));
     packet = SOEPackets.Packets[0x16];
   }
   if (packet) {
