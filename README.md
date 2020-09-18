@@ -77,6 +77,12 @@ Execute this command in CMD/Powershell ( you have to be in your h1z1 game folder
 
 ## How to use
 
+### Use the app
+
+The application is at the very beginning of its development, it can contain bugs and is very minimalist.
+
+Download here : https://github.com/QuentinGruber/h1z1-server-app/releases
+
 ### Quick Start
 
 Clone this repo : [h1z1-server-QuickStart](https://github.com/QuentinGruber/h1z1-server-QuickStart)
@@ -94,7 +100,6 @@ You need [Nodejs](https://nodejs.org/en/) ( currently using 12.16 LTS).
     var server = new H1Z1servers.LoginServer(
     295110, // <- AppID
     "dev", // <- environment
-    false, // <- using MongoDB
     1115, // <- server port
     Base64.toUint8Array("F70IaxuU8C/w7FPXY1ibXw=="), // <- loginkey
     true // <- SoloMode
