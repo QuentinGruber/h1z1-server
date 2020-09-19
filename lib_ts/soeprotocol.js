@@ -9,14 +9,16 @@ var stand_alone_packets = [
     {
       parse: function (data) {
         return {
-          PingId: data.readUInt8(1) * (data.readUInt8(2) + 1),
+          PingId: data.readUInt16LE(1),
           Data: data.toString("hex").substring(6),
         };
       },
-      pack: function () {
-        var data = new Buffer.alloc(2);
-        data.writeUInt16BE(0x06, 0);
-        return data;
+      pack: function (data) {
+        var packet = new Buffer.alloc(5);
+        packet.writeUInt8(0x1, 0);
+        packet.writeUInt16LE(data.PingId, 1);
+        debug("packet send : ", packet);
+        return packet;
       },
     },
   ],
