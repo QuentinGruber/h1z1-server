@@ -31,8 +31,12 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression) {
   var me = this;
 
   function handlePacket(client, packet) {
-    var soePacket = packet.soePacket,
-      result = soePacket.result;
+    var soePacket = packet.soePacket;
+    let standAlonePacket;
+    if (!soePacket) {
+      standAlonePacket = packet.StandAlonePackets;
+    }
+    var result = soePacket.result;
     if (result != null) {
       switch (soePacket.name) {
         case "SessionRequest":
@@ -127,6 +131,13 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression) {
         case "Ack":
           debug("Ack, sequence " + result.sequence);
           client.outputStream.ack(result.sequence);
+          break;
+        case "ZonePing":
+          debug("Receive Zone Ping ");
+          me._sendPacket(client, "ZonePing", {
+            PingId: result.PingId,
+            Data: result.Data,
+          });
           break;
         case "FatalError":
           debug("Received fatal error from client");
