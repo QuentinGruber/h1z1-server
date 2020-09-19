@@ -134,8 +134,6 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression) {
           break;
         case "ZonePing":
           debug("Receive Zone Ping ");
-          debug("Zone Ping Packets receive : ", result.PingId);
-          debug("XOR : ", result.Data);
           me._sendPacket(client, "ZonePing", {
             PingId: result.PingId,
             Data: result.Data,
