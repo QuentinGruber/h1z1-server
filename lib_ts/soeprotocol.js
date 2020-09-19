@@ -2,6 +2,30 @@ var fs = require("fs"),
   debug = require("debug")("SOEProtocol"),
   PacketTable = require("./packettable");
 
+var stand_alone_packets = [
+  [
+    "ZonePing",
+    0x1,
+    {
+      parse: function (data) {
+        debug(
+          "Zone Ping Packets receive : ",
+          data.readUInt8(1) * (data.readUInt8(2) + 1)
+        );
+        debug("XOR : ", data.toString("hex").substring(6));
+        return {
+          PingId: data.readUInt8(1),
+          Time: data.readUInt16BE(1),
+        };
+      },
+      pack: function () {
+        var data = new Buffer.alloc(2);
+        data.writeUInt16BE(0x06, 0);
+        return data;
+      },
+    },
+  ],
+];
 var packets = [
   [
     "SessionRequest",
@@ -289,23 +313,6 @@ var packets = [
       },
     },
   ],
-  [
-    "ZonePing",
-    0x16,
-    {
-      parse: function (data) {
-        return {
-          PingId: data.readUInt8(1),
-          Time: data.readUInt16BE(1),
-        };
-      },
-      pack: function () {
-        var data = new Buffer.alloc(2);
-        data.writeUInt16BE(0x06, 0);
-        return data;
-      },
-    },
-  ],
   ["FatalError", 0x1d, {}],
   ["FatalErrorReply", 0x1e, {}],
 ];
@@ -315,7 +322,17 @@ var SOEPackets = {
   Packets: {},
 };
 
+var StandAlonePackets = {
+  PacketTypes: {},
+  Packets: {},
+};
+
 PacketTable.build(packets, SOEPackets.PacketTypes, SOEPackets.Packets);
+PacketTable.build(
+  stand_alone_packets,
+  StandAlonePackets.PacketTypes,
+  StandAlonePackets.Packets
+);
 
 var crcTable = [
   0x00000000,
@@ -604,9 +621,14 @@ function appendCRC(data, crcSeed) {
 }
 
 function packSOEPacket(packetName, object, crcSeed, compression, isSubPacket) {
-  var packetType = SOEPackets.PacketTypes[packetName],
+  let packetType = SOEPackets.PacketTypes[packetName],
     packet = SOEPackets.Packets[packetType],
     data;
+  if (!packet) {
+    // try if packet is a stand-alone packet
+    packetType = StandAlonePackets.PacketTypes[packetName];
+    packet = StandAlonePackets.Packets[packetType];
+  }
   if (packet) {
     if (packet.pack) {
       data = packet.pack(object, crcSeed, compression, isSubPacket);
@@ -625,11 +647,9 @@ function parseSOEPacket(data, crcSeed, compression, isSubPacket, appData) {
     result,
     name,
     packet = SOEPackets.Packets[packetType];
-  if (!packet && data.readUInt8(0) === 1) {
-    // if ping zone packet
-    debug("Zone Ping Packets receive : ", data.readUInt8(1));
-    debug("XOR : ", data.toString("hex").substring(6));
-    packet = SOEPackets.Packets[0x16];
+  if (!packet) {
+    // try with Int8 opcode
+    packet = StandAlonePackets.Packets[data.readUInt8(0)];
   }
   if (packet) {
     if (packet.parse) {
