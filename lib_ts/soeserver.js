@@ -138,6 +138,7 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression) {
           debug("XOR : ", result.Data);
           me._sendPacket(client, "ZonePing", {
             PingId: result.PingId,
+            Data: result.Data,
           });
           break;
         case "FatalError":
