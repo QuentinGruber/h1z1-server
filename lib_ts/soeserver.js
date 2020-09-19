@@ -31,8 +31,12 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression) {
   var me = this;
 
   function handlePacket(client, packet) {
-    var soePacket = packet.soePacket,
-      result = soePacket.result;
+    var soePacket = packet.soePacket;
+    let standAlonePacket;
+    if (!soePacket) {
+      standAlonePacket = packet.StandAlonePackets;
+    }
+    var result = soePacket.result;
     if (result != null) {
       switch (soePacket.name) {
         case "SessionRequest":
@@ -130,6 +134,8 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression) {
           break;
         case "ZonePing":
           debug("Receive Zone Ping ");
+          debug("Zone Ping Packets receive : ", result.PingId);
+          debug("XOR : ", result.Data);
           me._sendPacket(client, "ZonePing", {
             pingID: result.PingId,
             Time: result.Time,

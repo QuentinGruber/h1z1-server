@@ -8,14 +8,9 @@ var stand_alone_packets = [
     0x1,
     {
       parse: function (data) {
-        debug(
-          "Zone Ping Packets receive : ",
-          data.readUInt8(1) * (data.readUInt8(2) + 1)
-        );
-        debug("XOR : ", data.toString("hex").substring(6));
         return {
-          PingId: data.readUInt8(1),
-          Time: data.readUInt16BE(1),
+          PingId: data.readUInt8(1) * (data.readUInt8(2) + 1),
+          Data: data.toString("hex").substring(6),
         };
       },
       pack: function () {
