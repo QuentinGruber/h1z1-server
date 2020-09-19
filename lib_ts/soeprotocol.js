@@ -2,6 +2,27 @@ var fs = require("fs"),
   debug = require("debug")("SOEProtocol"),
   PacketTable = require("./packettable");
 
+var stand_alone_packets = [
+  [
+    "ZonePing",
+    0x1,
+    {
+      parse: function (data) {
+        return {
+          PingId: data.readUInt16LE(1),
+          Data: data.toString("hex").substring(6),
+        };
+      },
+      pack: function (data) {
+        var packet = new Buffer.alloc(5);
+        packet.writeUInt8(0x1, 0);
+        packet.writeUInt16LE(data.PingId, 1);
+        packet.write(data.Data, 3, "hex");
+        return packet;
+      },
+    },
+  ],
+];
 var packets = [
   [
     "SessionRequest",
@@ -298,7 +319,17 @@ var SOEPackets = {
   Packets: {},
 };
 
+var StandAlonePackets = {
+  PacketTypes: {},
+  Packets: {},
+};
+
 PacketTable.build(packets, SOEPackets.PacketTypes, SOEPackets.Packets);
+PacketTable.build(
+  stand_alone_packets,
+  StandAlonePackets.PacketTypes,
+  StandAlonePackets.Packets
+);
 
 var crcTable = [
   0x00000000,
@@ -587,9 +618,14 @@ function appendCRC(data, crcSeed) {
 }
 
 function packSOEPacket(packetName, object, crcSeed, compression, isSubPacket) {
-  var packetType = SOEPackets.PacketTypes[packetName],
+  let packetType = SOEPackets.PacketTypes[packetName],
     packet = SOEPackets.Packets[packetType],
     data;
+  if (!packet) {
+    // try if packet is a stand-alone packet
+    packetType = StandAlonePackets.PacketTypes[packetName];
+    packet = StandAlonePackets.Packets[packetType];
+  }
   if (packet) {
     if (packet.pack) {
       data = packet.pack(object, crcSeed, compression, isSubPacket);
@@ -608,6 +644,10 @@ function parseSOEPacket(data, crcSeed, compression, isSubPacket, appData) {
     result,
     name,
     packet = SOEPackets.Packets[packetType];
+  if (!packet) {
+    // try with Int8 opcode
+    packet = StandAlonePackets.Packets[data.readUInt8(0)];
+  }
   if (packet) {
     if (packet.parse) {
       //debug(packet.name);
