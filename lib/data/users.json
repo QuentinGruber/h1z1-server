@@ -1,0 +1,12 @@
+{
+    "users": {
+        "vanulabs" : {
+            "username": "vanulabs",
+            "characters": [
+                {
+                    "guid": "1234567890"
+                }
+            ]
+        }
+    }
+}

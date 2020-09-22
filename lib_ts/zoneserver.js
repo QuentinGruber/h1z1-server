@@ -3,7 +3,7 @@ var EventEmitter = require("events").EventEmitter,
   fs = require("fs"),
   path = require("path"),
   util = require("util"),
-  Jenkins = require("hash-jenkins"),
+  packetHandlers = require("./zonepackethandlers.js"),
   ZoneProtocol = require("./h1z1protocol").H1Z1Protocol,
   debug = require("debug")("ZoneServer"),
   MongoClient = require("mongodb").MongoClient,
@@ -31,6 +31,136 @@ function ZoneServer(serverPort, gatewayKey, UsingMongo) {
   this._serverTime = 6662384021;
   this._transientId = 0;
   this._guids = {};
+
+  this.on("data", function (err, client, packet) {
+    if (err) {
+      console.error(err);
+    } else {
+      debug("Receive Data");
+      if (packetHandlers && packetHandlers[packet.name]) {
+        try {
+          packetHandlers[packet.name](this, client, packet);
+        } catch (e) {
+          console.log(e);
+        }
+      }
+    }
+  });
+
+  this.on("login", function (err, client) {
+    if (err) {
+      console.error(err);
+    } else {
+      this.sendRawData(
+        client,
+        fs.readFileSync(
+          `${__dirname}/data/zone/ReferenceData.WeaponDefinitions.dat`
+        )
+      );
+      this.sendRawData(
+        client,
+        fs.readFileSync(`${__dirname}/data/zone/InitializationParameters.dat`)
+      );
+
+      this.sendData(client, "SendZoneDetails", {
+        zoneName: "Science",
+        unknownDword1: 4,
+        unknownBoolean1: false,
+        unknownFloat1: 0,
+        skyData: {
+          name: "sky",
+          unknownDword1: 0,
+          unknownDword2: 0,
+          unknownDword3: 0,
+          unknownDword4: 0,
+          unknownDword5: 0,
+          unknownDword6: 0,
+          unknownDword7: 0,
+          unknownDword8: 0,
+          unknownDword9: 0,
+          unknownDword10: 0,
+          unknownDword11: 0,
+          unknownDword12: 0,
+          unknownDword13: 0,
+          unknownDword14: 0,
+          unknownDword15: 0,
+          unknownDword16: 0,
+          unknownDword17: 0,
+          unknownDword18: 0,
+          unknownDword19: 0,
+          unknownDword20: 0,
+          unknownDword21: 0,
+          unknownDword22: 0,
+          unknownDword23: 0,
+          unknownDword24: 0,
+          unknownDword25: 0,
+          unknownArray: [
+            {
+              unknownDword1: 0,
+              unknownDword2: 0,
+              unknownDword3: 0,
+              unknownDword4: 0,
+              unknownDword5: 0,
+              unknownDword6: 0,
+              unknownDword7: 0,
+            },
+          ],
+        },
+        zoneId1: 42,
+        zoneId2: 42,
+        nameId: 7699,
+        unknownBoolean7: true,
+      });
+      this.sendRawData(
+        client,
+        fs.readFileSync(`${__dirname}/data/zone/ClientUpdateZonePopulation.dat`)
+      );
+      this.sendRawData(
+        client,
+        fs.readFileSync(
+          `${__dirname}/data/zone/ClientUpdateRespawnLocations.dat`
+        )
+      );
+
+      this.sendData(client, "ClientGameSettings", {
+        unknownDword1: 0,
+        unknownDword2: 7,
+        unknownBoolean1: true,
+        unknownFloat1: 1,
+        unknownDword3: 1,
+        unknownDword4: 1,
+        unknownDword5: 0,
+        unknownFloat2: 12,
+        unknownFloat3: 110,
+      });
+
+      this.sendRawData(
+        client,
+        fs.readFileSync(`${__dirname}/data/zone/Command.ItemDefinitions.dat`)
+      );
+
+      //this.sendRawData(client, fs.readFileSync("./data/zone/VehicleBaseLoadVehicleDefinitionManager.dat"));
+      this.sendRawData(
+        client,
+        fs.readFileSync(
+          `${__dirname}/data/zone/ReferenceData.VehicleDefinitions.dat`
+        )
+      );
+
+      var self = JSON.parse(fs.readFileSync(`${__dirname}/data/sendself.json`));
+      client.character.guid = self.data.guid = this.generateGuid();
+      client.character.loadouts = self.data.characterLoadoutData.loadouts;
+      client.character.inventory = self.data.inventory;
+      client.character.factionId = self.data.factionId;
+      client.character.name = self.data.identity.characterName;
+
+      // this.sendData(client, "SendSelfToClient", self);
+      this.sendData(client, "PlayerUpdate.SetBattleRank", {
+        characterId: client.character.characterId,
+        battleRank: 100,
+      });
+    }
+  });
 
   gatewayServer.on("login", function (err, client, characterId) {
     debug(
