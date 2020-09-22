@@ -234,13 +234,6 @@ ZoneServer.prototype.setCharacterLoadout = function (
 var outcount = 0;
 ZoneServer.prototype.sendData = function (client, packetName, obj) {
   var data = this._protocol.pack(packetName, obj, this._referenceData);
-  fs.writeFileSync(
-    path.join(
-      "../ps2debug/zonefailed/",
-      "outdata_" + outcount++ + "_" + packetName + ".dat"
-    ),
-    data
-  );
   if (Array.isArray(client)) {
     for (var i = 0; i < client.length; i++) {
       this._gatewayServer.sendTunnelData(client[i], data);
