@@ -256,6 +256,7 @@ export class LoginServer extends EventEmitter {
               let characters_Login_info: any;
               if (!this._soloMode) {
                 debug("[error] MongoDB support isn't ready");
+                /*
                 characters_Login_info = {
                   characterId: packet.result.characterId,
                   serverId: 1,
@@ -263,15 +264,25 @@ export class LoginServer extends EventEmitter {
                   unknown: 0,
                   payload: "\u0000",
                 };
+                */
               } else {
                 characters_Login_info = {
                   characterId: packet.result.characterId,
                   serverId: 1,
                   status: 1,
                   unknown: 0,
-                  // prettier-ignore
-                  payload: "\u0000",
-                };
+                  payload: {
+                    serverAddress: "127.0.0.1:1117", //zoneserver port
+                    serverTicket: "7y3Bh44sKWZCYZH",
+                    encryptionKey: [23, 189, 8, 107, 27, 148, 240, 47, 240, 236, 83, 215, 99, 88, 155, 95],
+                    characterId: packet.result.characterId,
+                    unknown1: 722776196, //722776196
+                    unknown2: 0, //0
+                    stationName: "nope0no",
+                    characterName: "LocalPlayer",
+                    unknown3: 0 //0
+                  }
+                }
               }
               debug(characters_Login_info);
               var data: Buffer = this._protocol.pack(
