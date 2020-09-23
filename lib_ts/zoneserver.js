@@ -51,6 +51,8 @@ function ZoneServer(serverPort, gatewayKey, UsingMongo) {
     if (err) {
       console.error(err);
     } else {
+      
+      /*
       this.sendRawData(
         client,
         fs.readFileSync(
@@ -61,11 +63,11 @@ function ZoneServer(serverPort, gatewayKey, UsingMongo) {
         client,
         fs.readFileSync(`${__dirname}/data/zone/InitializationParameters.dat`)
       );
-
+        */
       this.sendData(client, "SendZoneDetails", {
-        zoneName: "Science",
+        zoneName: "Hospital",
         unknownDword1: 4,
-        unknownBoolean1: false,
+        unknownBoolean1: true,
         unknownFloat1: 0,
         skyData: {
           name: "sky",
@@ -111,6 +113,7 @@ function ZoneServer(serverPort, gatewayKey, UsingMongo) {
         nameId: 7699,
         unknownBoolean7: true,
       });
+      /*
       this.sendRawData(
         client,
         fs.readFileSync(`${__dirname}/data/zone/ClientUpdateZonePopulation.dat`)
@@ -121,7 +124,7 @@ function ZoneServer(serverPort, gatewayKey, UsingMongo) {
           `${__dirname}/data/zone/ClientUpdateRespawnLocations.dat`
         )
       );
-
+*/
       this.sendData(client, "ClientGameSettings", {
         unknownDword1: 0,
         unknownDword2: 7,
@@ -134,19 +137,21 @@ function ZoneServer(serverPort, gatewayKey, UsingMongo) {
         unknownFloat3: 110,
       });
 
+      /*
       this.sendRawData(
         client,
         fs.readFileSync(`${__dirname}/data/zone/Command.ItemDefinitions.dat`)
       );
-
-      //this.sendRawData(client, fs.readFileSync("./data/zone/VehicleBaseLoadVehicleDefinitionManager.dat"));
+*/
+/*
+      this.sendRawData(client, fs.readFileSync(`${__dirname}/data/zone/VehicleBaseLoadVehicleDefinitionManager.dat`));
       this.sendRawData(
         client,
         fs.readFileSync(
           `${__dirname}/data/zone/ReferenceData.VehicleDefinitions.dat`
         )
       );
-
+*/
       var self = JSON.parse(fs.readFileSync(`${__dirname}/data/sendself.json`));
       client.character.guid = self.data.guid = this.generateGuid();
       client.character.loadouts = self.data.characterLoadoutData.loadouts;
@@ -154,7 +159,7 @@ function ZoneServer(serverPort, gatewayKey, UsingMongo) {
       client.character.factionId = self.data.factionId;
       client.character.name = self.data.identity.characterName;
 
-      // this.sendData(client, "SendSelfToClient", self);
+     this.sendData(client, "SendSelfToClient", self);
       this.sendData(client, "PlayerUpdate.SetBattleRank", {
         characterId: client.character.characterId,
         battleRank: 100,
