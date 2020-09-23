@@ -1388,7 +1388,7 @@ function parseItemData(data, offset, referenceData) {
   var baseItem = DataSchema.parse(itemBaseSchema, data, offset);
   offset += baseItem.length;
 
-  if (referenceData.itemTypes[baseItem.result.itemId] == "Weapon") {
+  if (referenceData && referenceData.itemTypes[baseItem.result.itemId] == "Weapon") {
     detailSchema = itemWeaponDetailSchema;
   } else {
     detailSchema = itemDetailSchema;
@@ -1412,7 +1412,7 @@ function packItemData(obj, referenceData) {
     detailData,
     detailSchema;
 
-  if (referenceData.itemTypes[obj.baseItem.itemId] == "Weapon") {
+  if (referenceData && referenceData.itemTypes[obj.baseItem.itemId] == "Weapon") {
     detailSchema = itemWeaponDetailSchema;
   } else {
     detailSchema = itemDetailSchema;
