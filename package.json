@@ -6,12 +6,12 @@
   "license": "GNU General Public License v3.0",
   "main": "h1z1-server.js",
   "dependencies": {
-    "@types/node": "^12.12.51",
+    "@types/node": "^12.12.62",
     "buffer-crc32": ">=0.2.1",
-    "debug": "^4.1.1",
-    "h1z1-dataschema": "^1.0.1",
+    "debug": "^4.2.0",
+    "h1z1-dataschema": "^1.0.3",
     "hash-jenkins": "^1.0.1",
-    "mongodb": "^3.5.7",
+    "mongodb": "^3.6.2",
     "typescript": "^3.9.7"
   },
   "directories": {
