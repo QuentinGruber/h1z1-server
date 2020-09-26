@@ -3,7 +3,7 @@ var EventEmitter = require("events").EventEmitter,
   fs = require("fs"),
   path = require("path"),
   util = require("util"),
-  Jenkins = require("hash-jenkins"),
+  packetHandlers = require("./zonepackethandlers.js"),
   ZoneProtocol = require("./h1z1protocol").H1Z1Protocol,
   debug = require("debug")("ZoneServer"),
   MongoClient = require("mongodb").MongoClient,
@@ -31,6 +31,141 @@ function ZoneServer(serverPort, gatewayKey, UsingMongo) {
   this._serverTime = 6662384021;
   this._transientId = 0;
   this._guids = {};
+
+  this.on("data", function (err, client, packet) {
+    if (err) {
+      console.error(err);
+    } else {
+      debug("Receive Data");
+      if (packetHandlers && packetHandlers[packet.name]) {
+        try {
+          packetHandlers[packet.name](this, client, packet);
+        } catch (e) {
+          console.log(e);
+        }
+      }
+    }
+  });
+
+  this.on("login", function (err, client) {
+    if (err) {
+      console.error(err);
+    } else {
+      /*
+      this.sendRawData(
+        client,
+        fs.readFileSync(
+          `${__dirname}/data/zone/ReferenceData.WeaponDefinitions.dat`
+        )
+      );
+      this.sendRawData(
+        client,
+        fs.readFileSync(`${__dirname}/data/zone/InitializationParameters.dat`)
+      );
+        */
+      this.sendData(client, "SendZoneDetails", {
+        zoneName: "Z1",
+        unknownDword1: 4,
+        unknownBoolean1: true,
+        unknownFloat1: 1,
+        skyData: {
+          name: "sky",
+          unknownDword1: 1,
+          unknownDword2: 1,
+          unknownDword3: 1,
+          unknownDword4: 1,
+          unknownDword5: 1,
+          unknownDword6: 1,
+          unknownDword7: 1,
+          unknownDword8: 1,
+          unknownDword9: 1,
+          unknownDword10: 1,
+          unknownDword11: 1,
+          unknownDword12: 1,
+          unknownDword13: 1,
+          unknownDword14: 1,
+          unknownDword15: 1,
+          unknownDword16: 1,
+          unknownDword17: 1,
+          unknownDword18: 1,
+          unknownDword19: 1,
+          unknownDword20: 1,
+          unknownDword21: 1,
+          unknownDword22: 1,
+          unknownDword23: 1,
+          unknownDword24: 1,
+          unknownDword25: 1,
+          unknownArray: [
+            {
+              unknownDword1: 1,
+              unknownDword2: 1,
+              unknownDword3: 1,
+              unknownDword4: 1,
+              unknownDword5: 1,
+              unknownDword6: 1,
+              unknownDword7: 1,
+            },
+          ],
+        },
+        zoneId1: 3905829720,
+        zoneId2: 3905829720,
+        nameId: 7699,
+        unknownBoolean7: true,
+      });
+
+      /*
+      this.sendRawData(
+        client,
+        fs.readFileSync(`${__dirname}/data/zone/ClientUpdateZonePopulation.dat`)
+      );
+      this.sendRawData(
+        client,
+        fs.readFileSync(
+          `${__dirname}/data/zone/ClientUpdateRespawnLocations.dat`
+        )
+      );
+*/
+      this.sendData(client, "ClientGameSettings", {
+        unknownDword1: 0,
+        unknownDword2: 7,
+        unknownBoolean1: true,
+        unknownFloat1: 1,
+        unknownDword3: 1,
+        unknownDword4: 1,
+        unknownDword5: 0,
+        unknownFloat2: 12,
+        unknownFloat3: 110,
+      });
+
+      /*
+      this.sendRawData(
+        client,
+        fs.readFileSync(`${__dirname}/data/zone/Command.ItemDefinitions.dat`)
+      );
+*/
+      /*
+      this.sendRawData(client, fs.readFileSync(`${__dirname}/data/zone/VehicleBaseLoadVehicleDefinitionManager.dat`));
+      this.sendRawData(
+        client,
+        fs.readFileSync(
+          `${__dirname}/data/zone/ReferenceData.VehicleDefinitions.dat`
+        )
+      );
+*/
+      var self = JSON.parse(fs.readFileSync(`${__dirname}/data/sendself.json`));
+      client.character.guid = self.data.guid = this.generateGuid();
+      client.character.loadouts = self.data.characterLoadoutData.loadouts;
+      client.character.inventory = self.data.inventory;
+      client.character.factionId = self.data.factionId;
+      client.character.name = self.data.identity.characterName;
+
+      this.sendData(client, "SendSelfToClient", self);
+      this.sendData(client, "PlayerUpdate.SetBattleRank", {
+        characterId: client.character.characterId,
+        battleRank: 100,
+      });
+    }
+  });
 
   gatewayServer.on("login", function (err, client, characterId) {
     debug(
@@ -234,13 +369,6 @@ ZoneServer.prototype.setCharacterLoadout = function (
 var outcount = 0;
 ZoneServer.prototype.sendData = function (client, packetName, obj) {
   var data = this._protocol.pack(packetName, obj, this._referenceData);
-  fs.writeFileSync(
-    path.join(
-      "../ps2debug/zonefailed/",
-      "outdata_" + outcount++ + "_" + packetName + ".dat"
-    ),
-    data
-  );
   if (Array.isArray(client)) {
     for (var i = 0; i < client.length; i++) {
       this._gatewayServer.sendTunnelData(client[i], data);

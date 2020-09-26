@@ -1,0 +1,238 @@
+{
+  "data": {
+    "guid": "0x000000002b14b084",
+    "characterId": "0x03147cca2a860191",
+    "unknownUint1": 52,
+    "lastLoginDate": "0x0000000053da7046",
+    "actorModelId": 9240,
+    "headActor": "FPSurvivorMale001.adr",
+    "unknownString1": "",
+    "unknownDword4": 0,
+    "unknownDword5": 0,
+    "unknownString2": "",
+    "unknownString3": "",
+    "unknownString4": "",
+    "headId": 1,
+    "unknownDword6": 7,
+    "factionId": 1,
+    "unknownDword9": 0,
+    "unknownDword10": 0,
+    "position": [0, 700, 0, 1],
+    "unknownVector2": [0, -0.7071066498756409, 0, 0.70710688829422],
+    "identity": {
+      "unknownDword1": 0,
+      "unknownDword2": 0,
+      "unknownDword3": 0,
+      "characterName": "LocalPlayer",
+      "unknownString1": ""
+    },
+    "unknownDword14": 0,
+    "currency": [],
+    "creationDate": "0x0000000051f3a168",
+    "unknownDword15": 531724,
+    "unknownDword16": 6931,
+    "unknownBoolean1": false,
+    "unknownBoolean2": false,
+    "unknownDword17": 0,
+    "unknownDword18": 0,
+    "unknownBoolean3": false,
+    "unknownDword19": 217,
+    "gender": 2,
+    "unknownDword21": 0,
+    "unknownDword22": 0,
+    "unknownDword23": 914,
+    "unknownBoolean4": false,
+    "unknownTime1": "0x0000000052b1d24b",
+    "unknownTime2": "0x0000000000000000",
+    "unknownTime3": "0x0000000000000000",
+    "unknownDword24": 26,
+    "unknownBoolean5": false,
+    "unknownDword25": 0,
+    "offset": 293,
+    "profiles": [],
+    "currentProfile": 0,
+    "unknownArray2": [],
+    "collections": [],
+    "inventory": {
+      "items": [],
+      "unknownDword1": 0
+    },
+    "unknownDword28": 2,
+    "characterQuests": {
+      "quests": [],
+      "unknownDword1": 0,
+      "unknownDword2": 4294967295,
+      "unknownBoolean1": false,
+      "unknownDword3": 0,
+      "unknownDword4": 0
+    },
+    "characterAchievements": [],
+    "acquaintances": [],
+    "recipes": [],
+    "mounts": [],
+    "unknownCoinStoreData": {
+      "unknownBoolean1": true,
+      "unknownArray1": []
+    },
+    "unknownArray10": [],
+    "unknownEffectArray": [],
+    "stats": [],
+    "playerTitles": [],
+    "currentPlayerTitle": 0,
+    "unknownArray13": [],
+    "unknownArray14": [],
+    "unknownDword33": 0,
+    "unknownArray15": [],
+    "unknownArray16": [],
+    "unknownArray17": [],
+    "unknownDword34": 0,
+    "unknownDword35": 0,
+    "unknownArray18": [],
+    "unknownArray19": [],
+    "unknownArray20": [],
+    "unknownData1": {
+      "abilityLines": [],
+      "unknownArray2": [],
+      "unknownArray3": [],
+      "unknownArray4": [],
+      "unknownDword1": 21,
+      "unknownDword2": 0,
+      "unknownArray5": [],
+      "unknownArray6": [],
+      "unknownArray7": []
+    },
+    "unknownArray21": [
+      {
+        "unknownDword1": 3,
+        "unknownDword2": 3,
+        "unknownDword3": 283
+      }
+    ],
+    "unknownArray22": [],
+    "unknownArray23": [],
+    "unknownByte1": 128,
+    "unknownData2": {
+      "unknownDword1": 0,
+      "unknownData1": {
+        "unknownDword1": 0,
+        "unknownDword2": 0,
+        "unknownDword3": 0
+      },
+      "unknownData2": {
+        "unknownDword1": 0,
+        "unknownDword2": 0,
+        "unknownDword3": 0
+      },
+      "unknownDword2": 0
+    },
+    "unknownDword36": 3,
+    "unknownArray24": [],
+    "unknownData3": {
+      "unknownDword1": 0,
+      "unknownDword2": 0,
+      "unknownDword3": 0,
+      "unknownDword4": 0,
+      "unknownDword5": 0
+    },
+    "unknownArray25": [],
+    "unknownArray26": [],
+    "unknownArray27": [],
+    "unknownArray28": [],
+    "playerRanks": [],
+    "unknownData4": {
+      "unknownDword1": 0,
+      "unknownDword2": 0,
+      "unknownDword3": 0,
+      "unknownDword4": 0,
+      "unknownDword5": 0
+    },
+    "unknownData5": {
+      "unknownDword1": 0,
+      "unknownDword2": 0,
+      "unknownDword3": 0
+    },
+    "implantSlots": [],
+    "itemTimerData": {
+      "unknownData1": {
+        "unknownDword1": 0,
+        "unknownFloat1": 0,
+        "unknownTime1": "0x0000000000000000",
+        "unknownTime2": "0x0000000000000000"
+      },
+      "unknownArray1": [],
+      "unknownData2": {
+        "unknownDword1": 0,
+        "unknownFloat1": 0,
+        "unknownTime1": "0x0000000000000000"
+      },
+      "unknownArray2": [],
+      "unknownArray3": [],
+      "unknownArray4": [],
+      "unknownByte1": 160
+    },
+    "characterLoadoutData": {
+      "loadouts": [],
+      "unknownArray2": [],
+      "unknownArray3": [],
+      "unknownData1": {
+        "loadoutId": 19,
+        "unknownData1": {
+          "unknownDword1": 21,
+          "unknownByte1": 1
+        },
+        "unknownDword2": 0,
+        "unknownData2": {
+          "unknownDword1": 0,
+          "loadoutName": ""
+        },
+        "tintItemId": 0,
+        "unknownDword4": 0,
+        "decalItemId": 0,
+        "loadoutSlots": []
+      },
+      "unknownData2": {
+        "unknownDword1": 0,
+        "unknownData1": {
+          "unknownDword1": 0,
+          "unknownByte1": 0
+        },
+        "unknownString1": "",
+        "unknownDword2": 0,
+        "unknownDword3": 0,
+        "unknownDword4": 0,
+        "unknownDword5": 0,
+        "unknownArray1": []
+      },
+      "unknownDword1": 256,
+      "unknownDword2": 0,
+      "unknownDword3": 1,
+      "unknownDword4": 1
+    },
+    "missionData": {
+      "unknownArray1": [],
+      "unknownArray2": [],
+      "unknownArray3": [],
+      "unknownArray4": [],
+      "unknownArray5": []
+    },
+    "characterResources": [],
+    "characterResourceChargers": [],
+    "skillPointData": {
+      "skillPointsGranted": "0x0000000000000000",
+      "skillPointsTotal": "0x0000000000061a82",
+      "skillPointsSpent": "0x000000000000c112",
+      "nextSkillPointPct": 0.7054166666726663,
+      "unknownTime1": "0x0000000053da7024",
+      "unknownDword1": 0
+    },
+    "skills": [],
+    "unknownBoolean8": true,
+    "unknownQword1": "0x0000000000000000",
+    "unknownDword37": 0,
+    "unknownQword2": "0x0000000000000000",
+    "unknownQword3": "0x0000000000000000",
+    "unknownDword38": 0,
+    "unknownDword39": 4294967295,
+    "unknownBoolean9": true
+  }
+}

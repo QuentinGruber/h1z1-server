@@ -1,0 +1,17 @@
+{
+    "characterId": "0x03147cca2a860191",
+    "serverId": 101,
+    "unknown": 0,
+    "status": 1,
+    "payload": {
+        "serverAddress": "127.0.0.1:42042",
+        "serverTicket": "7y3Bh44sKWZCYZH",
+        "encryptionKey": [23, 189, 8, 107, 27, 148, 240, 47, 240, 236, 83, 215, 99, 88, 155, 95],
+        "characterId": "0x03147cca2a860191",
+        "unknown1": 722776196,
+        "unknown2": 0,
+        "stationName": "reside0cupboy",
+        "characterName": "VanuLabsVS",
+        "unknown3": 0
+    }
+}
