@@ -51,7 +51,6 @@ function ZoneServer(serverPort, gatewayKey, UsingMongo) {
     if (err) {
       console.error(err);
     } else {
-      
       /*
       this.sendRawData(
         client,
@@ -65,54 +64,55 @@ function ZoneServer(serverPort, gatewayKey, UsingMongo) {
       );
         */
       this.sendData(client, "SendZoneDetails", {
-        zoneName: "Hospital",
+        zoneName: "Z1",
         unknownDword1: 4,
         unknownBoolean1: true,
-        unknownFloat1: 0,
+        unknownFloat1: 1,
         skyData: {
           name: "sky",
-          unknownDword1: 0,
-          unknownDword2: 0,
-          unknownDword3: 0,
-          unknownDword4: 0,
-          unknownDword5: 0,
-          unknownDword6: 0,
-          unknownDword7: 0,
-          unknownDword8: 0,
-          unknownDword9: 0,
-          unknownDword10: 0,
-          unknownDword11: 0,
-          unknownDword12: 0,
-          unknownDword13: 0,
-          unknownDword14: 0,
-          unknownDword15: 0,
-          unknownDword16: 0,
-          unknownDword17: 0,
-          unknownDword18: 0,
-          unknownDword19: 0,
-          unknownDword20: 0,
-          unknownDword21: 0,
-          unknownDword22: 0,
-          unknownDword23: 0,
-          unknownDword24: 0,
-          unknownDword25: 0,
+          unknownDword1: 1,
+          unknownDword2: 1,
+          unknownDword3: 1,
+          unknownDword4: 1,
+          unknownDword5: 1,
+          unknownDword6: 1,
+          unknownDword7: 1,
+          unknownDword8: 1,
+          unknownDword9: 1,
+          unknownDword10: 1,
+          unknownDword11: 1,
+          unknownDword12: 1,
+          unknownDword13: 1,
+          unknownDword14: 1,
+          unknownDword15: 1,
+          unknownDword16: 1,
+          unknownDword17: 1,
+          unknownDword18: 1,
+          unknownDword19: 1,
+          unknownDword20: 1,
+          unknownDword21: 1,
+          unknownDword22: 1,
+          unknownDword23: 1,
+          unknownDword24: 1,
+          unknownDword25: 1,
           unknownArray: [
             {
-              unknownDword1: 0,
-              unknownDword2: 0,
-              unknownDword3: 0,
-              unknownDword4: 0,
-              unknownDword5: 0,
-              unknownDword6: 0,
-              unknownDword7: 0,
+              unknownDword1: 1,
+              unknownDword2: 1,
+              unknownDword3: 1,
+              unknownDword4: 1,
+              unknownDword5: 1,
+              unknownDword6: 1,
+              unknownDword7: 1,
             },
           ],
         },
-        zoneId1: 42,
-        zoneId2: 42,
+        zoneId1: 3905829720,
+        zoneId2: 3905829720,
         nameId: 7699,
         unknownBoolean7: true,
       });
+
       /*
       this.sendRawData(
         client,
@@ -143,7 +143,7 @@ function ZoneServer(serverPort, gatewayKey, UsingMongo) {
         fs.readFileSync(`${__dirname}/data/zone/Command.ItemDefinitions.dat`)
       );
 */
-/*
+      /*
       this.sendRawData(client, fs.readFileSync(`${__dirname}/data/zone/VehicleBaseLoadVehicleDefinitionManager.dat`));
       this.sendRawData(
         client,
@@ -159,7 +159,7 @@ function ZoneServer(serverPort, gatewayKey, UsingMongo) {
       client.character.factionId = self.data.factionId;
       client.character.name = self.data.identity.characterName;
 
-     this.sendData(client, "SendSelfToClient", self);
+      this.sendData(client, "SendSelfToClient", self);
       this.sendData(client, "PlayerUpdate.SetBattleRank", {
         characterId: client.character.characterId,
         battleRank: 100,
