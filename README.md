@@ -14,6 +14,18 @@ I highly doubt that H1Z1 (Just Survive) is one of those."
 
 Making this work for the 15 January 2015 version of H1Z1 (first version).
 
+## Thanks list
+
+- Thank to UTIL_TRACELINE for his involvement in the project, the project would not be in this state today without him.
+
+- Thank to LcplReaper for his interest in the project and the management of the community around the project.
+
+- Thank to Chriis who provided the basis for this project by being the first (as far as I know) to try to emulate servers for h1z1 and who inspired me.
+
+- Thank to Jacob Seidelin without whom none of this would have been possible.
+
+- Thank to all those who sent messages of help and support and perpetuated the hope of playing h1z1 again.
+
 ## Setup H1Z1
 
 ### Download it
