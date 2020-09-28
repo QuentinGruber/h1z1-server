@@ -96,7 +96,8 @@ var packets = [
         { name: "serverId", type: "uint32" },
         { name: "unknown", type: "uint32" },
         { name: "status", type: "uint32" },
-        { name: "payload",
+        {
+          name: "payload",
           type: "byteswithlength",
           fields: [
             { name: "serverAddress", type: "string" },
@@ -108,7 +109,7 @@ var packets = [
             { name: "stationName", type: "string" },
             { name: "characterName", type: "string" },
             { name: "unknown3", type: "uint32" },
-          ]
+          ],
         },
       ],
     },

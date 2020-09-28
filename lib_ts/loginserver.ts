@@ -274,15 +274,32 @@ export class LoginServer extends EventEmitter {
                   payload: {
                     serverAddress: "127.0.0.1:1117", //zoneserver port
                     serverTicket: "7y3Bh44sKWZCYZH",
-                    encryptionKey: [23, 189, 8, 107, 27, 148, 240, 47, 240, 236, 83, 215, 99, 88, 155, 95],
+                    encryptionKey: [
+                      23,
+                      189,
+                      8,
+                      107,
+                      27,
+                      148,
+                      240,
+                      47,
+                      240,
+                      236,
+                      83,
+                      215,
+                      99,
+                      88,
+                      155,
+                      95,
+                    ],
                     characterId: packet.result.characterId,
                     unknown1: 722776196, //722776196
                     unknown2: 0, //0
                     stationName: "nope0no",
                     characterName: "LocalPlayer",
-                    unknown3: 0 //0
-                  }
-                }
+                    unknown3: 0, //0
+                  },
+                };
               }
               debug(characters_Login_info);
               var data: Buffer = this._protocol.pack(

@@ -23,7 +23,6 @@ function ZoneServer(serverPort, gatewayKey, UsingMongo) {
   ));
 
   var protocol = (this._protocol = new ZoneProtocol());
-  var me = this;
   var clients = (this._clients = {});
   var characters = (this._characters = {});
   var ncps = {};
@@ -167,6 +166,9 @@ function ZoneServer(serverPort, gatewayKey, UsingMongo) {
     }
   });
 
+  var me = this;
+
+
   gatewayServer.on("login", function (err, client, characterId) {
     debug(
       "Client logged in from " +
@@ -225,17 +227,7 @@ function ZoneServer(serverPort, gatewayKey, UsingMongo) {
     if (packet) {
       me.emit("data", null, client, packet);
     } else {
-      fs.writeFileSync(
-        path.join(
-          "../ps2debug/zonefailed/",
-          "tunneldata_" +
-            tunnelDataCount++ +
-            "_" +
-            (packet ? packet.name : "Unknown") +
-            ".dat"
-        ),
-        data
-      );
+      debug("zonefailed : ", packet);
     }
   });
 }
@@ -312,32 +304,6 @@ ZoneServer.prototype.sendChatText = function (client, message) {
     unknownByte3: 0,
     unknownByte4: 1,
   });
-};
-
-ZoneServer.prototype.setCharacterLoadout = function (
-  client,
-  loadoutId,
-  loadoutTab
-) {
-  for (var i = 0; i < client.character.loadouts.length; i++) {
-    var loadout = client.character.loadouts[i];
-    if (loadout.loadoutId == loadoutId && loadout.unknownDword2 == loadoutTab) {
-      this.sendChatText(client, "Setting loadout " + loadoutId);
-      debug(JSON.stringify(loadout, null, 2));
-      client.character.currentLoadout = loadout.loadoutData;
-
-      client.character.currentLoadoutId = loadoutId;
-      client.character.currentLoadoutTab = loadoutTab;
-      this.sendData(client, "Loadout.SetCurrentLoadout", {
-        type: 2,
-        unknown1: 0,
-        loadoutId: loadoutId,
-        tabId: loadoutTab,
-        unknown2: 1,
-      });
-      break;
-    }
-  }
 };
 
 ZoneServer.prototype.setCharacterLoadout = function (
