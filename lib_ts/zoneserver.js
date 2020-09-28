@@ -36,13 +36,18 @@ function ZoneServer(serverPort, gatewayKey, UsingMongo) {
       console.error(err);
     } else {
       debug("Receive Data");
-      if (packetHandlers && packetHandlers[packet.name]) {
+      debug(packetHandlers);
+      debug([packet.name]);
+      debug(packetHandlers.default[packet.name.toString()]);
+      if (packetHandlers.default[packet.name]) {
         try {
-          packetHandlers[packet.name](this, client, packet);
+          debug("try Data");
+          packetHandlers.default[packet.name](this, client, packet);
         } catch (e) {
           console.log(e);
         }
       }
+      debug("didn't recongnize data");
     }
   });
 
@@ -50,6 +55,7 @@ function ZoneServer(serverPort, gatewayKey, UsingMongo) {
     if (err) {
       console.error(err);
     } else {
+      debug("login");
       /*
       this.sendRawData(
         client,
@@ -167,7 +173,6 @@ function ZoneServer(serverPort, gatewayKey, UsingMongo) {
   });
 
   var me = this;
-
 
   gatewayServer.on("login", function (err, client, characterId) {
     debug(
@@ -334,6 +339,7 @@ ZoneServer.prototype.setCharacterLoadout = function (
 
 var outcount = 0;
 ZoneServer.prototype.sendData = function (client, packetName, obj) {
+  debug("send data");
   var data = this._protocol.pack(packetName, obj, this._referenceData);
   if (Array.isArray(client)) {
     for (var i = 0; i < client.length; i++) {
@@ -377,16 +383,19 @@ ZoneServer.prototype.stop = function () {
 };
 
 ZoneServer.prototype.getGameTime = function () {
+  debug("get game time");
   return Math.floor(Date.now() / 1000);
 };
 
 ZoneServer.prototype.getServerTime = function () {
+  debug("get server time");
   var delta = Date.now() - this._startTime;
   delta = Math.floor(delta / 1000);
   return this._serverTime + delta;
 };
 
 ZoneServer.prototype.sendGameTimeSync = function (client) {
+  debug("GameTimeSync");
   this.sendData(client, "GameTimeSync", {
     time: Int64String(this.getGameTime()),
     unknownFloat1: 12,
