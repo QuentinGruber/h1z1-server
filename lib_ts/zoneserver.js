@@ -23,7 +23,6 @@ function ZoneServer(serverPort, gatewayKey, UsingMongo) {
   ));
 
   var protocol = (this._protocol = new ZoneProtocol());
-  var me = this;
   var clients = (this._clients = {});
   var characters = (this._characters = {});
   var ncps = {};
@@ -166,6 +165,9 @@ function ZoneServer(serverPort, gatewayKey, UsingMongo) {
       });
     }
   });
+
+  var me = this;
+
 
   gatewayServer.on("login", function (err, client, characterId) {
     debug(
