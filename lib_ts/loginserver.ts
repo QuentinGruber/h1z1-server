@@ -224,20 +224,20 @@ export class LoginServer extends EventEmitter {
                   );
               }
             case "CharacterSelectInfoRequest":
-              let characters_info;
+              let CharactersInfo;
               if (this._soloMode) {
                 const SinglePlayerCharacter = require("../single_player_character.json");
-                characters_info = {
+                CharactersInfo = {
                   status: 1,
                   canBypassServerLock: true,
                   characters: [SinglePlayerCharacter],
                 };
               } else {
-                var characters = await this._db
+                const characters = await this._db
                   .collection("characters")
                   .find()
                   .toArray();
-                characters_info = {
+                CharactersInfo = {
                   status: 1,
                   canBypassServerLock: true,
                   characters: characters,
@@ -245,7 +245,7 @@ export class LoginServer extends EventEmitter {
               }
               data = this._protocol.pack(
                 "CharacterSelectInfoReply",
-                characters_info
+                CharactersInfo
               );
               this._soeServer.sendAppData(client, data, true);
               debug("CharacterSelectInfoRequest");
