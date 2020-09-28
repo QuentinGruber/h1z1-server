@@ -1,16 +1,15 @@
 var Jenkins = require("hash-jenkins"),
 var fs = require("fs");
-
 function Int64String(value) {
     return "0x" + ("0000000000000000" + value.toString(16)).substr(-16);
 }
 
 var packetHandlers = {
     "ClientIsReady": function(server, client, packet) {
-        server.sendRawData(client, fs.readFileSync("data/zone/QuickChatSendData.dat"));
-        server.sendRawData(client, fs.readFileSync("data/zone/ClientUpdateDoneSendingPreloadCharacters.dat"));
-        server.sendRawData(client, fs.readFileSync("data/zone/ClientUpdateUpdateStat.dat"));
-        server.sendRawData(client, fs.readFileSync("data/zone/ActivityManagerProfileList.dat"));
+        server.sendRawData(client, fs.readFileSync(`${__dirname}/data/zone/QuickChatSendData.dat`));
+        server.sendRawData(client, fs.readFileSync(`${__dirname}/data/zone/ClientUpdateDoneSendingPreloadCharacters.dat`));
+        server.sendRawData(client, fs.readFileSync(`${__dirname}/data/zone/ClientUpdateUpdateStat.dat`));
+        server.sendRawData(client, fs.readFileSync(`${__dirname}/data/zone/ActivityManagerProfileList.dat`));
         
         server.sendData(client, "Operation.ClientClearMissions", {});
 
@@ -58,15 +57,15 @@ var packetHandlers = {
         });
         server.sendGameTimeSync(client);
 
-        server.sendRawData(client, fs.readFileSync("data/zone/CommandEnableCompositeEffects.dat"));
-        server.sendRawData(client, fs.readFileSync("data/zone/ReferenceData.ItemClassDefinitions.dat"));
-        server.sendRawData(client, fs.readFileSync("data/zone/ReferenceData.ItemCategoryDefinitions.dat"));
-        server.sendRawData(client, fs.readFileSync("data/zone/ReferenceData.ClientProfileData.dat"));
-        server.sendRawData(client, fs.readFileSync("data/zone/ReferenceData.ProjectileDefinitions.dat"));
-        server.sendRawData(client, fs.readFileSync("data/zone/FacilityReferenceData.dat"));
-        server.sendRawData(client, fs.readFileSync("data/zone/ItemsLoadItemRentalDefinitionManager.dat"));
-        server.sendRawData(client, fs.readFileSync("data/zone/AbilityAddAbilityDefinition.dat"));
-        server.sendRawData(client, fs.readFileSync("data/zone/AbilitiesSetAbilityActivationManager.dat"));
+        server.sendRawData(client, fs.readFileSync(`${__dirname}/data/zone/CommandEnableCompositeEffects.dat`));
+        server.sendRawData(client, fs.readFileSync(`${__dirname}/data/zone/ReferenceData.ItemClassDefinitions.dat`));
+        server.sendRawData(client, fs.readFileSync(`${__dirname}/data/zone/ReferenceData.ItemCategoryDefinitions.dat`));
+        server.sendRawData(client, fs.readFileSync(`${__dirname}/data/zone/ReferenceData.ClientProfileData.dat`));
+        server.sendRawData(client, fs.readFileSync(`${__dirname}/data/zone/ReferenceData.ProjectileDefinitions.dat`));
+        server.sendRawData(client, fs.readFileSync(`${__dirname}/data/zone/FacilityReferenceData.dat`));
+        server.sendRawData(client, fs.readFileSync(`${__dirname}/data/zone/ItemsLoadItemRentalDefinitionManager.dat`));
+        server.sendRawData(client, fs.readFileSync(`${__dirname}/data/zone/AbilityAddAbilityDefinition.dat`));
+        server.sendRawData(client, fs.readFileSync(`${__dirname}/data/zone/AbilitiesSetAbilityActivationManager.dat`));
         client.character.currentLoadoutId = 17;
         server.sendData(client, "Loadout.SetCurrentLoadout", {
             "type": 2,
@@ -75,8 +74,8 @@ var packetHandlers = {
             "tabId": 256,
             "unknown2": 1
         });
-        server.sendRawData(client, fs.readFileSync("data/zone/PointOfInterestDefinitionReply.dat"));
-        server.sendRawData(client, fs.readFileSync("data/zone/ZoneDoneSendingInitialData.dat"));
+        server.sendRawData(client, fs.readFileSync(`${__dirname}/data/zone/PointOfInterestDefinitionReply.dat`));
+        server.sendRawData(client, fs.readFileSync(`${__dirname}/data/zone/ZoneDoneSendingInitialData.dat`));
 
         var commands = ["hax", "ammo", "weaponstat", "loadout", "npc", "model", "stat"];
 
@@ -1682,14 +1681,14 @@ var packetHandlers = {
     },
     "ProfileStats.GetPlayerProfileStats": function(server, client, packet) {
         server.sendData(client, "ProfileStats.PlayerProfileStats",
-            JSON.parse(fs.readFileSync("data/zone/profilestats.json"))
+            JSON.parse(fs.readFileSync(`${__dirname}/data/zone/profilestats.json`))
         );
     },
     "GetRewardBuffInfo": function(server, client, packet) {
-        server.sendRawData(client, fs.readFileSync("data/zone/RewardBuffInfo.dat"));
+        server.sendRawData(client, fs.readFileSync(`${__dirname}/data/zone/RewardBuffInfo.dat`));
     },
     "GetContinentBattleInfo": function(server, client, packet) {
-        server.sendRawData(client, fs.readFileSync("data/zone/ContinentBattleInfo.dat"));
+        server.sendRawData(client, fs.readFileSync(`${__dirname}/data/zone/ContinentBattleInfo.dat`));
     },
     "PlayerUpdateUpdatePositionClientToZone": function(server, client, packet) {
         if (packet.data.position) {
