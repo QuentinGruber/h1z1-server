@@ -35,19 +35,16 @@ function ZoneServer(serverPort, gatewayKey, UsingMongo) {
     if (err) {
       console.error(err);
     } else {
-      debug("Receive Data");
-      debug(packetHandlers);
-      debug([packet.name]);
-      debug(packetHandlers.default[packet.name.toString()]);
+      debug(`Receive Data ${[packet.name]}`);
       if (packetHandlers.default[packet.name]) {
         try {
-          debug("try Data");
           packetHandlers.default[packet.name](this, client, packet);
         } catch (e) {
           console.log(e);
         }
+      } else {
+        debug("Packet not implemented in packetHandlers");
       }
-      debug("didn't recongnize data");
     }
   });
 
