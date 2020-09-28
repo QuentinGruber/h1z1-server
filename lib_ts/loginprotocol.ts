@@ -1,22 +1,16 @@
-var fs = require("fs"),
-  debug = require("debug")("LoginProtocol"),
-  DataSchema = require("h1z1-dataschema"),
-  LoginPackets = require("./loginpackets");
+const debug = require("debug")("LoginProtocol");
+import DataSchema from "h1z1-dataschema";
+const LoginPackets = require("./loginpackets");
 
 export class LoginProtocol {
-  constructor() {
-    var n = 0;
-  }
   parse(data: any) {
-    var packetType = data[0],
-      result,
-      schema,
-      name,
-      packet = LoginPackets.Packets[packetType];
+    const packetType = data[0];
+    let result;
+    const packet = LoginPackets.Packets[packetType];
     if (packet) {
       if (packet.schema) {
         debug(packet.name);
-        result = DataSchema.parse(packet.schema, data, 1).result;
+        result = DataSchema.parse(packet.schema, data, 1, undefined).result;
         debug("[DEBUG] Packet receive :");
         debug(result);
 
@@ -30,7 +24,6 @@ export class LoginProtocol {
         return false;
       }
     } else {
-      //fs.writeFileSync("debug/loginbadpacket.dat", data); Diseable that
       debug(
         "parse() " + "Unknown or unhandled login packet type: " + packetType
       );
@@ -39,14 +32,20 @@ export class LoginProtocol {
   }
 
   pack(packetName: string, object: any) {
-    var packetType = LoginPackets.PacketTypes[packetName],
-      packet = LoginPackets.Packets[packetType],
-      payload,
-      data;
+    const packetType = LoginPackets.PacketTypes[packetName];
+    const packet = LoginPackets.Packets[packetType];
+    let payload;
+    let data;
     if (packet) {
       if (packet.schema) {
         debug("Packing data for " + packet.name);
-        payload = DataSchema.pack(packet.schema, object);
+        payload = DataSchema.pack(
+          packet.schema,
+          object,
+          undefined,
+          undefined,
+          undefined
+        );
         if (payload) {
           data = new (Buffer.alloc as any)(1 + payload.length);
           data.writeUInt8(packetType, 0);

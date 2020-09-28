@@ -1,23 +1,23 @@
 import { EventEmitter } from "events";
 
-const SOEServer = require("./soeserver").SOEServer,
-  LoginProtocol = require("./loginprotocol").LoginProtocol,
-  debug = require("debug")("LoginServer"),
-  MongoClient = require("mongodb").MongoClient;
-
-interface LoginProtocol {
-  parse: Function;
-  pack: Function;
-}
+const SOEServer = require("./soeserver").SOEServer;
+import { LoginProtocol } from "./loginprotocol";
+const debug = require("debug")("LoginServer");
+import { MongoClient } from "mongodb";
 
 interface SoeServer {
-  on: Function;
-  start: Function;
-  stop: Function;
-  _sendPacket: Function;
-  sendAppData: Function;
-  toggleEncryption: Function;
-  toggleDataDump: Function;
+  on: (arg0: string, arg1: any) => void;
+  start: (
+    compression: any,
+    crcSeed: any,
+    crcLength: any,
+    udpLength: any
+  ) => void;
+  stop: () => void;
+  _sendPacket: () => void;
+  sendAppData: (arg0: Client, arg1: any, arg2: undefined | any) => void;
+  toggleEncryption: (arg0: boolean) => void;
+  toggleDataDump: () => void;
 }
 
 interface Client {
@@ -35,11 +35,11 @@ interface Client {
   outOfOrderPackets: any;
   nextAck: number;
   lastAck: number;
-  inputStream: Function;
-  outputStream: Function;
-  outQueueTimer: Function;
-  ackTimer: Function;
-  outOfOrderTimer: Function;
+  inputStream: () => void;
+  outputStream: () => void;
+  outQueueTimer: () => void;
+  ackTimer: () => void;
+  outOfOrderTimer: () => void;
 }
 
 interface GameServer {
@@ -101,11 +101,11 @@ export class LoginServer extends EventEmitter {
     this._protocol = new LoginProtocol();
     this._soeServer.on("connect", (err: string, client: Client) => {
       debug("Client connected from " + client.address + ":" + client.port);
-      //server.emit('connect', err, client);
+      this.emit("connect", err, client);
     });
     this._soeServer.on("disconnect", (err: string, client: Client) => {
       debug("Client disconnected from " + client.address + ":" + client.port);
-      //server.emit('disconnect', err, client);
+      this.emit("disconnect", err, client);
     });
     this._soeServer.on("session", (err: string, client: Client) => {
       debug("Session started for client " + client.address + ":" + client.port);
@@ -149,10 +149,11 @@ export class LoginServer extends EventEmitter {
     this._soeServer.on(
       "appdata",
       async (err: string, client: Client, data: Buffer) => {
-        var packet = this._protocol.parse(data);
-        if (packet != false) {
+        const packet: any = this._protocol.parse(data);
+        if (packet !== false) {
           // if packet parsing succeed
           var result = packet.result;
+          let data: Buffer;
           switch (packet.name) {
             case "LoginRequest":
               var falsified_data = {
@@ -163,10 +164,7 @@ export class LoginServer extends EventEmitter {
                 namespace: "soe",
                 payload: "",
               };
-              var data: Buffer = this._protocol.pack(
-                "LoginReply",
-                falsified_data
-              );
+              data = this._protocol.pack("LoginReply", falsified_data);
               this._soeServer.sendAppData(client, data, true);
               break;
             case "ServerListRequest":
@@ -184,7 +182,7 @@ export class LoginServer extends EventEmitter {
                   delete servers[i]._id;
                 }
               }
-              var data: Buffer = this._protocol.pack("ServerListReply", {
+              data = this._protocol.pack("ServerListReply", {
                 servers: servers,
               });
               this._soeServer.sendAppData(client, data, true);
@@ -193,13 +191,13 @@ export class LoginServer extends EventEmitter {
 
             case "CharacterDeleteRequest":
               const characters_delete_info: any = {
-                characterId: packet.result.characterId,
+                characterId: (packet.result as any).characterId,
               };
-              var data: Buffer = this._protocol.pack(
+              data = this._protocol.pack(
                 "CharacterDeleteReply",
                 characters_delete_info
               );
-              this._soeServer.sendAppData(client, data, true, true);
+              this._soeServer.sendAppData(client, data, true);
               debug("CharacterDeleteRequest");
 
               if (this._soloMode) {
@@ -211,14 +209,14 @@ export class LoginServer extends EventEmitter {
                 const WaitSuccess = await this._db
                   .collection("characters")
                   .deleteOne(
-                    { characterId: packet.result.characterId },
+                    { characterId: (packet.result as any).characterId },
                     function (err: any, obj: any) {
                       if (err) {
                         debug(err);
                       } else {
                         debug(
                           "Character " +
-                            packet.result.characterId +
+                            (packet.result as any).characterId +
                             " deleted !"
                         );
                       }
@@ -245,20 +243,20 @@ export class LoginServer extends EventEmitter {
                   characters: characters,
                 };
               }
-              var data: Buffer = this._protocol.pack(
+              data = this._protocol.pack(
                 "CharacterSelectInfoReply",
                 characters_info
               );
-              this._soeServer.sendAppData(client, data, true, true);
+              this._soeServer.sendAppData(client, data, true);
               debug("CharacterSelectInfoRequest");
               break;
             case "CharacterLoginRequest":
-              let characters_Login_info: any;
+              let charactersLoginInfo: any;
               if (!this._soloMode) {
                 debug("[error] MongoDB support isn't ready");
                 /*
-                characters_Login_info = {
-                  characterId: packet.result.characterId,
+                charactersLoginInfo = {
+                  characterId: (packet.result as any).characterId,
                   serverId: 1,
                   status: 1,
                   unknown: 0,
@@ -266,13 +264,13 @@ export class LoginServer extends EventEmitter {
                 };
                 */
               } else {
-                characters_Login_info = {
-                  characterId: packet.result.characterId,
+                charactersLoginInfo = {
+                  characterId: (packet.result as any).characterId,
                   serverId: 1,
                   status: 1,
                   unknown: 0,
                   payload: {
-                    serverAddress: "127.0.0.1:1117", //zoneserver port
+                    serverAddress: "127.0.0.1:1117", // zoneserver port
                     serverTicket: "7y3Bh44sKWZCYZH",
                     encryptionKey: [
                       23,
@@ -292,31 +290,31 @@ export class LoginServer extends EventEmitter {
                       155,
                       95,
                     ],
-                    characterId: packet.result.characterId,
-                    unknown1: 722776196, //722776196
-                    unknown2: 0, //0
+                    characterId: (packet.result as any).characterId,
+                    unknown1: 722776196,
+                    unknown2: 0,
                     stationName: "nope0no",
                     characterName: "LocalPlayer",
-                    unknown3: 0, //0
+                    unknown3: 0,
                   },
                 };
               }
-              debug(characters_Login_info);
-              var data: Buffer = this._protocol.pack(
+              debug(charactersLoginInfo);
+              data = this._protocol.pack(
                 "CharacterLoginReply",
-                characters_Login_info
+                charactersLoginInfo
               );
               this._soeServer.sendAppData(client, data, true);
               debug("CharacterLoginRequest");
               break;
 
             case "TunnelAppPacketClientToServer":
-              var test_data = {
+              const TestData = {
                 unknown1: true,
               };
-              var data: Buffer = this._protocol.pack(
+              data = this._protocol.pack(
                 "TunnelAppPacketServerToClient",
-                test_data
+                TestData
               );
               this._soeServer.sendAppData(client, data, true);
               break;
@@ -337,19 +335,19 @@ export class LoginServer extends EventEmitter {
         native_parser: true,
       }));
       try {
-        let waiting = await mongoClient.connect();
+        await mongoClient.connect();
       } catch (e) {
-        throw console.error("[ERROR]Unable to connect to mongo server");
+        throw debug("[ERROR]Unable to connect to mongo server");
       }
       if (mongoClient.isConnected()) {
         debug("connected to mongo !");
         this._db = await mongoClient.db("h1server");
       } else {
-        throw console.error("Unable to authenticate on mongo !", 2);
+        throw debug("Unable to authenticate on mongo !");
       }
     }
 
-    this._soeServer.start(
+    (this._soeServer as SoeServer).start(
       this._compression,
       this._crcSeed,
       this._crcLength,
