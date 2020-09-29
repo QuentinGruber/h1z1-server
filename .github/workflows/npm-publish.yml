@@ -6,8 +6,8 @@ on:
   # Trigger the workflow on push
   # but only for the master branch
   push:
-    branches:
-      - master
+    tags:
+      - '*'
 
 jobs:
   build:
