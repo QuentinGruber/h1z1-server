@@ -336,7 +336,7 @@ ZoneServer.prototype.setCharacterLoadout = function (
 
 var outcount = 0;
 ZoneServer.prototype.sendData = function (client, packetName, obj) {
-  debug("send data");
+  debug("send data ", packetName);
   var data = this._protocol.pack(packetName, obj, this._referenceData);
   if (Array.isArray(client)) {
     for (var i = 0; i < client.length; i++) {
