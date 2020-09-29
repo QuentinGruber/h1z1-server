@@ -1,5 +1,6 @@
 var Jenkins = require("hash-jenkins"),
 var fs = require("fs");
+const debug = require("debug")("zonepacketHandlers"),
 function Int64String(value) {
     return "0x" + ("0000000000000000" + value.toString(16)).substr(-16);
 }
@@ -89,6 +90,9 @@ var packetHandlers = {
         server.sendData(client, "AdminCommand.RunSpeed", {
             runSpeed: packet.data.runSpeed
         });
+    },
+    "ClientLog": function(server, client, packet) {
+        debug(packet)
     },
     "Loadout.SelectSlot": function(server, client, packet) {
         if (client.character.currentLoadout) {
