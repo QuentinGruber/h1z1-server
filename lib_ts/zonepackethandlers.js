@@ -6,7 +6,7 @@ function Int64String(value) {
 }
 
 var packetHandlers = {
-  ClientFinishedLoading: function (server, client, packet) {
+  ClientIsReady: function (server, client, packet) {
     server.sendRawData(
       client,
       fs.readFileSync(`${__dirname}/data/zone/QuickChatSendData.dat`)
