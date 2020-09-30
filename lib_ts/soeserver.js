@@ -33,10 +33,12 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression) {
   function handlePacket(client, packet) {
     var soePacket = packet.soePacket;
     let standAlonePacket;
+    let result;
     if (!soePacket) {
       standAlonePacket = packet.StandAlonePackets;
+    } else {
+      result = soePacket.result;
     }
-    var result = soePacket.result;
     if (result != null) {
       switch (soePacket.name) {
         case "SessionRequest":

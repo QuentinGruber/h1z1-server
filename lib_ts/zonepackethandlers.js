@@ -171,9 +171,14 @@ var packetHandlers = {
   SetLocale: function (server, client, packet) {
     debug("Do nothing");
   },
-  GetRewardBuffInfo: function (server, client, packet) {
-    debug("Do nothing");
+  /*
+  GetContinentBattleInfo: function (server, client, packet) {
+    server.sendRawData(
+      client,
+      fs.readFileSync(`${__dirname}/data/zone/ContinentBattleInfo.dat`)
+    );
   },
+  */
   GetContinentBattleInfo: function (server, client, packet) {
     server.sendData(client, "ContinentBattleInfo", {
       zones: [
@@ -1995,12 +2000,6 @@ var packetHandlers = {
     server.sendRawData(
       client,
       fs.readFileSync(`${__dirname}/data/zone/RewardBuffInfo.dat`)
-    );
-  },
-  GetContinentBattleInfo: function (server, client, packet) {
-    server.sendRawData(
-      client,
-      fs.readFileSync(`${__dirname}/data/zone/ContinentBattleInfo.dat`)
     );
   },
   PlayerUpdateUpdatePositionClientToZone: function (server, client, packet) {
