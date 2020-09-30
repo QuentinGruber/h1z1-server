@@ -159,7 +159,11 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression) {
     var client;
     var know_client = true;
     // if doesn't know the client
-    if (!clients[remote.address]) {
+    if (
+      !clients[remote.sessionId] &&
+      !clients[remote.port] &&
+      !clients[remote.address]
+    ) {
       know_client = false;
       client = clients[remote.address] = {
         sessionId: 0,
@@ -382,6 +386,11 @@ SOEServer.prototype.toggleEncryption = function (value) {
 
 SOEServer.prototype.toggleDataDump = function (value) {
   this._dumpData = value;
+};
+
+SOEServer.prototype.deleteClient = function (client) {
+  delete this?._clients[client.address];
+  debug("client connection from port : ", client.port, " deleted");
 };
 
 exports.SOEServer = SOEServer;
