@@ -5,7 +5,6 @@ declare var packetHandlers: {
     ClientLog: (server: any, client: any, packet: any) => void;
     "WallOfData.UIEvent": (server: any, client: any, packet: any) => void;
     SetLocale: (server: any, client: any, packet: any) => void;
-    GetRewardBuffInfo: (server: any, client: any, packet: any) => void;
     GetContinentBattleInfo: (server: any, client: any, packet: any) => void;
     "Loadout.SelectSlot": (server: any, client: any, packet: any) => void;
     ClientInitializationDetails: (server: any, client: any, packet: any) => void;
@@ -19,5 +18,6 @@ declare var packetHandlers: {
     "Vehicle.AutoMount": (server: any, client: any, packet: any) => void;
     "AdminCommand.SpawnVehicle": (server: any, client: any, packet: any) => void;
     "ProfileStats.GetPlayerProfileStats": (server: any, client: any, packet: any) => void;
+    GetRewardBuffInfo: (server: any, client: any, packet: any) => void;
     PlayerUpdateUpdatePositionClientToZone: (server: any, client: any, packet: any) => void;
 };

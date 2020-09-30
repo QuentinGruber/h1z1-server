@@ -117,8 +117,9 @@ export class GatewayServer extends EventEmitter {
                 }),
                 true
               );
-
-              this.emit("login", null, client, result.characterId);
+              if (result) {
+                this.emit("login", null, client, result?.characterId);
+              }
               break;
             case "Logout":
               debug("Logout");

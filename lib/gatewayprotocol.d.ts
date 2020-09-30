@@ -13,7 +13,7 @@ declare class GatewayProtocol {
         type: any;
         flags: number;
         name: any;
-        result: {};
+        result: {} | undefined;
         fromClient?: undefined;
         tunnelData?: undefined;
     } | undefined;
