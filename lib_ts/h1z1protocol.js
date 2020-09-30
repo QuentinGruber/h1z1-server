@@ -409,8 +409,11 @@ function parseUpdatePositionData(data, offset) {
       obj["unknown15_float"] = v.value / 10;
       offset += v.length;
     }
+    /*
     if (obj.flags & 0xe0) {
+
     }
+    */
   } catch (e) {
     debug(e);
   }
