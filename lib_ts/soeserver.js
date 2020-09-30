@@ -36,7 +36,6 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression) {
     let result;
     if (!soePacket) {
       standAlonePacket = packet.StandAlonePackets;
-      result = soePacket.result;
     } else {
       result = soePacket.result;
     }
