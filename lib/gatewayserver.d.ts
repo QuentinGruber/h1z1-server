@@ -1,18 +1,24 @@
 /// <reference types="node" />
 import { EventEmitter } from "events";
-declare const GatewayProtocol: any;
+import { GatewayProtocol } from "./gatewayprotocol";
+interface Packet {
+    result: any;
+    name: string;
+    tunnelData: any;
+    flags: any;
+}
 interface GatewayProtocol {
-    pack: Function;
-    parse: Function;
+    pack: (arg0: string, arg1: any) => Packet;
+    parse: (arg0: any) => Packet;
 }
 interface SoeServer {
-    on: Function;
-    start: Function;
-    stop: Function;
-    _sendPacket: Function;
-    sendAppData: Function;
-    toggleEncryption: Function;
-    toggleDataDump: Function;
+    on: (arg0: string, arg1: any) => void;
+    start: (compression: any, crcSeed: any, crcLength: any, udpLength: any) => void;
+    stop: () => void;
+    _sendPacket: () => void;
+    sendAppData: (arg0: Client, arg1: any, arg2: undefined | any) => void;
+    toggleEncryption: (arg0: boolean) => void;
+    toggleDataDump: () => void;
 }
 interface Client {
     sessionId: number;
@@ -29,11 +35,11 @@ interface Client {
     outOfOrderPackets: any;
     nextAck: number;
     lastAck: number;
-    inputStream: Function;
-    outputStream: Function;
-    outQueueTimer: Function;
-    ackTimer: Function;
-    outOfOrderTimer: Function;
+    inputStream: () => void;
+    outputStream: () => void;
+    outQueueTimer: () => void;
+    ackTimer: () => void;
+    outOfOrderTimer: () => void;
 }
 export declare class GatewayServer extends EventEmitter {
     _soeServer: SoeServer;
@@ -44,7 +50,7 @@ export declare class GatewayServer extends EventEmitter {
     _udpLength: number;
     constructor(protocolName: string, serverPort: number, gatewayKey: string);
     start(): void;
-    sendTunnelData(client: Client, tunnelData: string): void;
+    sendTunnelData(client: Client, tunnelData: any): void;
     stop(): void;
 }
 export {};

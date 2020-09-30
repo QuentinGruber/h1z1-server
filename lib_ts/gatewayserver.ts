@@ -1,22 +1,34 @@
 import { EventEmitter } from "events";
 
-const SOEServer = require("./soeserver").SOEServer,
-  GatewayProtocol = require("./gatewayprotocol").GatewayProtocol,
-  debug = require("debug")("GatewayServer");
+import { SOEServer } from "./soeserver";
+import { GatewayProtocol } from "./gatewayprotocol";
+const debug = require("debug")("GatewayServer");
+
+interface Packet {
+  result: any;
+  name: string;
+  tunnelData: any;
+  flags: any;
+}
 
 interface GatewayProtocol {
-  pack: Function;
-  parse: Function;
+  pack: (arg0: string, arg1: any) => Packet;
+  parse: (arg0: any) => Packet;
 }
 
 interface SoeServer {
-  on: Function;
-  start: Function;
-  stop: Function;
-  _sendPacket: Function;
-  sendAppData: Function;
-  toggleEncryption: Function;
-  toggleDataDump: Function;
+  on: (arg0: string, arg1: any) => void;
+  start: (
+    compression: any,
+    crcSeed: any,
+    crcLength: any,
+    udpLength: any
+  ) => void;
+  stop: () => void;
+  _sendPacket: () => void;
+  sendAppData: (arg0: Client, arg1: any, arg2: undefined | any) => void;
+  toggleEncryption: (arg0: boolean) => void;
+  toggleDataDump: () => void;
 }
 
 interface Client {
@@ -34,11 +46,11 @@ interface Client {
   outOfOrderPackets: any;
   nextAck: number;
   lastAck: number;
-  inputStream: Function;
-  outputStream: Function;
-  outQueueTimer: Function;
-  ackTimer: Function;
-  outOfOrderTimer: Function;
+  inputStream: () => void;
+  outputStream: () => void;
+  outQueueTimer: () => void;
+  ackTimer: () => void;
+  outOfOrderTimer: () => void;
 }
 
 export class GatewayServer extends EventEmitter {
@@ -55,13 +67,14 @@ export class GatewayServer extends EventEmitter {
     this._crcLength = 2;
     this._udpLength = 512;
 
-    var soeServer = (this._soeServer = new SOEServer(
+    const soeServer = (this._soeServer = new SOEServer(
       protocolName,
       serverPort,
-      gatewayKey
-    ));
+      gatewayKey,
+      this._compression
+    ) as any); // as any since SOEServer isn't typed
     soeServer.toggleEncryption(false);
-    this._protocol = new GatewayProtocol();
+    this._protocol = new GatewayProtocol() as GatewayProtocol;
     this._soeServer.on("connect", (err: string, client: Client) => {
       debug("Client connected from " + client.address + ":" + client.port);
       this.emit("connect", err, client);
@@ -77,9 +90,9 @@ export class GatewayServer extends EventEmitter {
     this._soeServer.on(
       "appdata",
       (err: string, client: Client, data: Buffer) => {
-        var packet = this._protocol.parse(data);
-        if (packet != false && packet != undefined) {
-          var result = packet.result;
+        const packet = this._protocol.parse(data);
+        if ((packet as any) !== false && packet !== undefined) {
+          const result = packet.result;
           switch (packet.name) {
             case "LoginRequest":
               this._soeServer.toggleEncryption(true);
@@ -137,14 +150,13 @@ export class GatewayServer extends EventEmitter {
       this._udpLength
     );
   }
-  sendTunnelData(client: Client, tunnelData: string) {
+  sendTunnelData(client: Client, tunnelData: any) {
     debug("Sending tunnel data to client");
-    var data = this._protocol.pack("TunnelPacketToExternalConnection", {
+    const data = this._protocol.pack("TunnelPacketToExternalConnection", {
       channel: 0,
       tunnelData: tunnelData,
     });
-    //fs.writeFileSync("gatewayserver_appdata_" + (n++) + ".dat", data);
-    this._soeServer.sendAppData(client, data);
+    (this._soeServer.sendAppData as any)(client, data);
   }
   stop() {
     debug("Shutting down");
