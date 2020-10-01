@@ -35,7 +35,9 @@ function ZoneServer(serverPort, gatewayKey, UsingMongo) {
     if (err) {
       console.error(err);
     } else {
-      debug(`Receive Data ${[packet.name]}`);
+      if (packet.name != "KeepAlive") {
+        debug(`Receive Data ${[packet.name]}`);
+      }
       if (packetHandlers.default[packet.name]) {
         try {
           packetHandlers.default[packet.name](this, client, packet);
@@ -336,7 +338,9 @@ ZoneServer.prototype.setCharacterLoadout = function (
 
 var outcount = 0;
 ZoneServer.prototype.sendData = function (client, packetName, obj) {
-  debug("send data ", packetName);
+  if (packetName != "KeepAlive") {
+    debug("send data ", packetName);
+  }
   var data = this._protocol.pack(packetName, obj, this._referenceData);
   if (Array.isArray(client)) {
     for (var i = 0; i < client.length; i++) {
