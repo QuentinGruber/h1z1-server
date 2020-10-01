@@ -159,7 +159,11 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression) {
     var client;
     var know_client = true;
     // if doesn't know the client
-    if (!clients[remote.address]) {
+    if (
+      !clients[remote.sessionId] &&
+      !clients[remote.port] &&
+      !clients[remote.address]
+    ) {
       know_client = false;
       client = clients[remote.address] = {
         sessionId: 0,
@@ -282,17 +286,23 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression) {
       fs.writeFileSync("debug/soeserver_" + n0++ + "_in.dat", data);
     }
     var result = me._protocol.parse(data, client.crcSeed, client.compression);
-    if (know_client && result.soePacket.name == "SessionRequest") {
-      delete clients[client.address];
-      debug(
-        "Delete an old session badly closed by the client(" +
-          client.address +
-          ":" +
-          client.port +
-          ")"
-      );
+    if (result !== undefined && result !== null) {
+      if (
+        know_client &&
+        result.soePacket &&
+        result.soePacket.name == "SessionRequest"
+      ) {
+        delete clients[client.address];
+        debug(
+          "Delete an old session badly closed by the client(" +
+            client.address +
+            ":" +
+            client.port +
+            ")"
+        );
+      }
+      handlePacket(client, result);
     }
-    handlePacket(client, result);
   });
 
   connection.on("listening", function () {
@@ -376,6 +386,11 @@ SOEServer.prototype.toggleEncryption = function (value) {
 
 SOEServer.prototype.toggleDataDump = function (value) {
   this._dumpData = value;
+};
+
+SOEServer.prototype.deleteClient = function (client) {
+  delete this?._clients[client.address];
+  debug("client connection from port : ", client.port, " deleted");
 };
 
 exports.SOEServer = SOEServer;

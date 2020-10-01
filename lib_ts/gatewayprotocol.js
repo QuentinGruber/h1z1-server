@@ -28,7 +28,11 @@ GatewayProtocol.prototype.parse = function (data) {
     } else {
       if (packet.schema) {
         debug(packet.name);
-        result = DataSchema.parse(packet.schema, data, 1).result;
+        try {
+          result = DataSchema.parse(packet.schema, data, 1).result;
+        } catch (e) {
+          debug(e);
+        }
         return {
           type: packet.type,
           flags: data[0] >> 5,
