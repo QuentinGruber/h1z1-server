@@ -155,17 +155,14 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression) {
     n2 = 0;
 
   connection.on("message", function (data, remote) {
-    debug(data.length + " bytes from client");
     var client;
-    var know_client = true;
+    const clientId = remote.address + ":" + remote.port;
+    debug(data.length + " bytes from ", clientId);
+    let unknow_client;
     // if doesn't know the client
-    if (
-      !clients[remote.sessionId] &&
-      !clients[remote.port] &&
-      !clients[remote.address]
-    ) {
-      know_client = false;
-      client = clients[remote.address] = {
+    if (!clients[clientId]) {
+      unknow_client = true;
+      client = clients[clientId] = {
         sessionId: 0,
         address: remote.address,
         port: remote.port,
@@ -279,26 +276,25 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression) {
       };
       checkOutOfOrderQueue();
 
-      me.emit("connect", null, clients[remote.address]);
+      me.emit("connect", null, clients[clientId]);
     }
-    client = clients[remote.address];
+    client = clients[clientId];
     if (me._dumpData) {
       fs.writeFileSync("debug/soeserver_" + n0++ + "_in.dat", data);
     }
+    debug(unknow_client);
     var result = me._protocol.parse(data, client.crcSeed, client.compression);
     if (result !== undefined && result !== null) {
       if (
-        know_client &&
+        !unknow_client &&
         result.soePacket &&
         result.soePacket.name == "SessionRequest"
       ) {
-        delete clients[client.address];
+        delete clients[clientId];
         debug(
-          "Delete an old session badly closed by the client(" +
-            client.address +
-            ":" +
-            client.port +
-            ")"
+          "Delete an old session badly closed by the client (",
+          clientId,
+          ") )"
         );
       }
       handlePacket(client, result);
