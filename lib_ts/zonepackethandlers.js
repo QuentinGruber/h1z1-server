@@ -157,6 +157,21 @@ var packetHandlers = {
       });
     }
   },
+  "Command.FreeInteractionNpc": function (server, client, packet) {
+    debug("FreeInteractionNpc");
+    server.sendData(client, "Command.FreeInteractionNpc", {});
+  },
+  "Collision.Damage": function (server, client, packet) {
+    debug("Collision.Damage");
+    debug(packet);
+  },
+  "PlayerUpdate.EndCharacterAccess": function (server, client, packet) {
+    debug("EndCharacterAccess");
+    debug(packet);
+    server.sendData(client, "PlayerUpdate.BeginCharacterAccess", {
+      guid: client.character.guid,
+    });
+  },
   KeepAlive: function (server, client, packet) {
     server.sendData(client, "KeepAlive", {
       gameTime: packet.data.gameTime,
@@ -171,7 +186,7 @@ var packetHandlers = {
     debug(packet);
   },
   "WallOfData.UIEvent": function (server, client, packet) {
-    debug("Do nothing");
+    debug("UIEvent");
   },
   SetLocale: function (server, client, packet) {
     debug("Do nothing");
@@ -195,7 +210,7 @@ var packetHandlers = {
           regionPercent: [],
           populationBuff: [],
           populationTargetPercent: [],
-          name: "z1",
+          name: "Z1", // could use this field to load a specific TileInfo
           hexSize: 100,
           isProductionZone: 1,
         },
@@ -240,7 +255,7 @@ var packetHandlers = {
     }
   },
   ClientLogout: function (server, client, packet) {
-    debug("Handle ClientLogout (debug feature)");
+    debug("ClientLogout");
     //server.sendData(client, "ClientKickedFromServer", {});
   },
   GameTimeSync: function (server, client, packet) {
