@@ -157,6 +157,11 @@ var packetHandlers = {
       });
     }
   },
+  KeepAlive: function (server, client, packet) {
+    server.sendData(client, "KeepAlive", {
+      gameTime: packet.data.gameTime,
+    });
+  },
   "AdminCommand.RunSpeed": function (server, client, packet) {
     server.sendData(client, "AdminCommand.RunSpeed", {
       runSpeed: packet.data.runSpeed,
@@ -233,6 +238,10 @@ var packetHandlers = {
     if (packet.data.unknownDword1) {
       debug("ClientInitializationDetails : ", packet.data.unknownDword1);
     }
+  },
+  ClientLogout: function (server, client, packet) {
+    debug("Handle ClientLogout (debug feature)");
+    //server.sendData(client, "ClientKickedFromServer", {});
   },
   GameTimeSync: function (server, client, packet) {
     server.sendData(client, "GameTimeSync", {
