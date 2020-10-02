@@ -29,6 +29,7 @@ interface SoeServer {
   sendAppData: (arg0: Client, arg1: any, arg2: undefined | any) => void;
   toggleEncryption: (arg0: boolean) => void;
   toggleDataDump: () => void;
+  deleteClient: (client: Client) => void;
 }
 
 interface Client {
@@ -117,8 +118,9 @@ export class GatewayServer extends EventEmitter {
                 }),
                 true
               );
-
-              this.emit("login", null, client, result.characterId);
+              if (result && result.characterId) {
+                this.emit("login", null, client, result.characterId);
+              }
               break;
             case "Logout":
               debug("Logout");
@@ -140,6 +142,9 @@ export class GatewayServer extends EventEmitter {
         }
       }
     );
+    this.on("logout", (err: string, client: Client) => {
+      this._soeServer.deleteClient(client);
+    });
   }
   start() {
     debug("Starting server");
@@ -160,5 +165,6 @@ export class GatewayServer extends EventEmitter {
   }
   stop() {
     debug("Shutting down");
+    process.exit(0);
   }
 }

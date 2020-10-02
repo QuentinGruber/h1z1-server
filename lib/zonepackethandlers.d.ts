@@ -1,14 +1,20 @@
 export default packetHandlers;
 declare var packetHandlers: {
     ClientIsReady: (server: any, client: any, packet: any) => void;
+    "Command.FreeInteractionNpc": (server: any, client: any, packet: any) => void;
+    "Collision.Damage": (server: any, client: any, packet: any) => void;
+    "LobbyGameDefinition.DefinitionsRequest": (server: any, client: any, packet: any) => void;
+    "PlayerUpdate.EndCharacterAccess": (server: any, client: any, packet: any) => void;
+    KeepAlive: (server: any, client: any, packet: any) => void;
     "AdminCommand.RunSpeed": (server: any, client: any, packet: any) => void;
     ClientLog: (server: any, client: any, packet: any) => void;
     "WallOfData.UIEvent": (server: any, client: any, packet: any) => void;
     SetLocale: (server: any, client: any, packet: any) => void;
-    GetRewardBuffInfo: (server: any, client: any, packet: any) => void;
     GetContinentBattleInfo: (server: any, client: any, packet: any) => void;
+    "Chat.Chat": (server: any, client: any, packet: any) => void;
     "Loadout.SelectSlot": (server: any, client: any, packet: any) => void;
     ClientInitializationDetails: (server: any, client: any, packet: any) => void;
+    ClientLogout: (server: any, client: any, packet: any) => void;
     GameTimeSync: (server: any, client: any, packet: any) => void;
     Synchronization: (server: any, client: any, packet: any) => void;
     "Command.ExecuteCommand": (server: any, client: any, packet: any, ...args: any[]) => void;
@@ -19,5 +25,6 @@ declare var packetHandlers: {
     "Vehicle.AutoMount": (server: any, client: any, packet: any) => void;
     "AdminCommand.SpawnVehicle": (server: any, client: any, packet: any) => void;
     "ProfileStats.GetPlayerProfileStats": (server: any, client: any, packet: any) => void;
+    GetRewardBuffInfo: (server: any, client: any, packet: any) => void;
     PlayerUpdateUpdatePositionClientToZone: (server: any, client: any, packet: any) => void;
 };

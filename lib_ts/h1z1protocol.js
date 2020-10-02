@@ -303,114 +303,120 @@ function readSignedIntWith2bitLengthValue(data, offset) {
 }
 
 function parseUpdatePositionData(data, offset) {
-  var obj = {};
+  try {
+    var obj = {};
 
-  obj["flags"] = data.readUInt16LE(offset);
-  offset += 2;
+    obj["flags"] = data.readUInt16LE(offset);
+    offset += 2;
 
-  obj["unknown2_int32"] = data.readUInt32LE(offset);
-  offset += 4;
-
-  obj["unknown3_int8"] = data.readUInt8(offset);
-  offset += 1;
-
-  if (obj.flags & 1) {
-    var v = readUnsignedIntWith2bitLengthValue(data, offset);
-    obj["unknown4"] = v.value;
-    offset += v.length;
-  }
-
-  if (obj.flags & 2) {
-    obj["position"] = [];
-    var v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["position"][0] = v.value / 100;
-    offset += v.length;
-    var v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["position"][1] = v.value / 100;
-    offset += v.length;
-    var v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["position"][2] = v.value / 100;
-    offset += v.length;
-  }
-
-  if (obj.flags & 0x20) {
-    obj["unknown6_int32"] = data.readUInt32LE(offset);
+    obj["unknown2_int32"] = data.readUInt32LE(offset);
     offset += 4;
-  }
 
-  if (obj.flags & 0x40) {
-    var v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["unknown7_float"] = v.value / 100;
-    offset += v.length;
-  }
+    obj["unknown3_int8"] = data.readUInt8(offset);
+    offset += 1;
 
-  if (obj.flags & 0x80) {
-    var v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["unknown8_float"] = v.value / 100;
-    offset += v.length;
-  }
+    if (obj.flags & 1) {
+      var v = readUnsignedIntWith2bitLengthValue(data, offset);
+      obj["unknown4"] = v.value;
+      offset += v.length;
+    }
 
-  if (obj.flags & 4) {
-    var v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["unknown9_float"] = v.value / 100;
-    offset += v.length;
-  }
+    if (obj.flags & 2) {
+      obj["position"] = [];
+      var v = readSignedIntWith2bitLengthValue(data, offset);
+      obj["position"][0] = v.value / 100;
+      offset += v.length;
+      var v = readSignedIntWith2bitLengthValue(data, offset);
+      obj["position"][1] = v.value / 100;
+      offset += v.length;
+      var v = readSignedIntWith2bitLengthValue(data, offset);
+      obj["position"][2] = v.value / 100;
+      offset += v.length;
+    }
 
-  if (obj.flags & 0x8) {
-    var v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["unknown10_float"] = v.value / 100;
-    offset += v.length;
-  }
+    if (obj.flags & 0x20) {
+      obj["unknown6_int32"] = data.readUInt32LE(offset);
+      offset += 4;
+    }
 
-  if (obj.flags & 0x10) {
-    var v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["unknown11_float"] = v.value / 10;
-    offset += v.length;
-  }
+    if (obj.flags & 0x40) {
+      var v = readSignedIntWith2bitLengthValue(data, offset);
+      obj["unknown7_float"] = v.value / 100;
+      offset += v.length;
+    }
 
-  if (obj.flags & 0x100) {
-    obj["unknown12_float"] = [];
-    var v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["unknown12_float"][0] = v.value / 100;
-    offset += v.length;
-    var v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["unknown12_float"][1] = v.value / 100;
-    offset += v.length;
-    var v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["unknown12_float"][2] = v.value / 100;
-    offset += v.length;
-  }
+    if (obj.flags & 0x80) {
+      var v = readSignedIntWith2bitLengthValue(data, offset);
+      obj["unknown8_float"] = v.value / 100;
+      offset += v.length;
+    }
 
-  if (obj.flags & 0x200) {
-    obj["unknown13_float"] = [];
-    var v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["unknown13_float"][0] = v.value / 100;
-    offset += v.length;
-    var v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["unknown13_float"][1] = v.value / 100;
-    offset += v.length;
-    var v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["unknown13_float"][2] = v.value / 100;
-    offset += v.length;
-    var v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["unknown13_float"][3] = v.value / 100;
-    offset += v.length;
-  }
+    if (obj.flags & 4) {
+      var v = readSignedIntWith2bitLengthValue(data, offset);
+      obj["unknown9_float"] = v.value / 100;
+      offset += v.length;
+    }
 
-  if (obj.flags & 0x400) {
-    var v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["unknown14_float"] = v.value / 10;
-    offset += v.length;
-  }
+    if (obj.flags & 0x8) {
+      var v = readSignedIntWith2bitLengthValue(data, offset);
+      obj["unknown10_float"] = v.value / 100;
+      offset += v.length;
+    }
 
-  if (obj.flags & 0x800) {
-    var v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["unknown15_float"] = v.value / 10;
-    offset += v.length;
-  }
-  if (obj.flags & 0xe0) {
-  }
+    if (obj.flags & 0x10) {
+      var v = readSignedIntWith2bitLengthValue(data, offset);
+      obj["unknown11_float"] = v.value / 10;
+      offset += v.length;
+    }
 
+    if (obj.flags & 0x100) {
+      obj["unknown12_float"] = [];
+      var v = readSignedIntWith2bitLengthValue(data, offset);
+      obj["unknown12_float"][0] = v.value / 100;
+      offset += v.length;
+      var v = readSignedIntWith2bitLengthValue(data, offset);
+      obj["unknown12_float"][1] = v.value / 100;
+      offset += v.length;
+      var v = readSignedIntWith2bitLengthValue(data, offset);
+      obj["unknown12_float"][2] = v.value / 100;
+      offset += v.length;
+    }
+
+    if (obj.flags & 0x200) {
+      obj["unknown13_float"] = [];
+      var v = readSignedIntWith2bitLengthValue(data, offset);
+      obj["unknown13_float"][0] = v.value / 100;
+      offset += v.length;
+      var v = readSignedIntWith2bitLengthValue(data, offset);
+      obj["unknown13_float"][1] = v.value / 100;
+      offset += v.length;
+      var v = readSignedIntWith2bitLengthValue(data, offset);
+      obj["unknown13_float"][2] = v.value / 100;
+      offset += v.length;
+      var v = readSignedIntWith2bitLengthValue(data, offset);
+      obj["unknown13_float"][3] = v.value / 100;
+      offset += v.length;
+    }
+
+    if (obj.flags & 0x400) {
+      var v = readSignedIntWith2bitLengthValue(data, offset);
+      obj["unknown14_float"] = v.value / 10;
+      offset += v.length;
+    }
+
+    if (obj.flags & 0x800) {
+      var v = readSignedIntWith2bitLengthValue(data, offset);
+      obj["unknown15_float"] = v.value / 10;
+      offset += v.length;
+    }
+    /*
+    if (obj.flags & 0xe0) {
+
+    }
+    */
+  } catch (e) {
+    debug(e);
+  }
   return obj;
 }
 
@@ -494,16 +500,20 @@ H1Z1Protocol.prototype.parse = function (
   }
 
   if (flags == 2) {
-    if (fromClient) {
-      packet = {
-        name: "PlayerUpdateUpdatePositionClientToZone",
-        fn: parseUpdatePositionClientToZone,
-      };
-    } else {
-      packet = {
-        name: "PlayerUpdateUpdatePositionZoneToClient",
-        fn: parseUpdatePositionZoneToClient,
-      };
+    try {
+      if (fromClient) {
+        packet = {
+          name: "PlayerUpdateUpdatePositionClientToZone",
+          fn: parseUpdatePositionClientToZone,
+        };
+      } else {
+        packet = {
+          name: "PlayerUpdateUpdatePositionZoneToClient",
+          fn: parseUpdatePositionZoneToClient,
+        };
+      }
+    } catch (e) {
+      debug(e);
     }
   } else {
     if (H1Z1Packets.Packets[opCode]) {
@@ -532,9 +542,15 @@ H1Z1Protocol.prototype.parse = function (
 
   if (packet) {
     if (packet.schema) {
-      debug(packet.name);
-      result = DataSchema.parse(packet.schema, data, offset, referenceData)
-        .result;
+      if (packet.name != "KeepAlive") {
+        debug(packet.name);
+      }
+      try {
+        result = DataSchema.parse(packet.schema, data, offset, referenceData)
+          .result;
+      } catch (e) {
+        debug(e);
+      }
 
       switch (packet.name) {
         case "FacilityBase.ReferenceData":
