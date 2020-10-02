@@ -5282,7 +5282,7 @@ var packets = [
     "PlayerUpdate.EndCharacterAccess",
     0x0f6d,
     {
-      fields: [{ name: "data", type: "string", defaultValue: "" }],
+      fields: [{ name: "characterId", type: "uint64", defaultValue: "" }],
     },
   ],
   ["PlayerUpdate.UpdateMutateRights", 0x0f6e, {}],
@@ -6294,7 +6294,13 @@ var packets = [
     "LobbyGameDefinition.DefinitionsResponse",
     0x420200,
     {
-      fields: [{ name: "definitionsData", type: "byteswithlength" }],
+      fields: [
+        {
+          name: "definitionsData",
+          type: "byteswithlength",
+          fields: [{ name: "data", type: "string", defaultValue: "" }],
+        },
+      ],
     },
   ],
   ["ShowSystemMessage", 0x43, {}],
