@@ -542,7 +542,9 @@ H1Z1Protocol.prototype.parse = function (
 
   if (packet) {
     if (packet.schema) {
-      debug(packet.name);
+      if (packet.name != "KeepAlive") {
+        debug(packet.name);
+      }
       try {
         result = DataSchema.parse(packet.schema, data, offset, referenceData)
           .result;

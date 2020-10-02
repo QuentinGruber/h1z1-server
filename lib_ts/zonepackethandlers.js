@@ -157,6 +157,31 @@ var packetHandlers = {
       });
     }
   },
+  "Command.FreeInteractionNpc": function (server, client, packet) {
+    debug("FreeInteractionNpc");
+    server.sendData(client, "Command.FreeInteractionNpc", {});
+  },
+  "Collision.Damage": function (server, client, packet) {
+    debug("Collision.Damage");
+    debug(packet);
+  },
+  "LobbyGameDefinition.DefinitionsRequest": function (server, client, packet) {
+    server.sendData(client, "LobbyGameDefinition.DefinitionsResponse", {
+      definitionsData: { data: "" },
+    });
+  },
+  "PlayerUpdate.EndCharacterAccess": function (server, client, packet) {
+    debug("EndCharacterAccess");
+    debug(packet);
+    server.sendData(client, "PlayerUpdate.BeginCharacterAccess", {
+      guid: client.character.guid,
+    });
+  },
+  KeepAlive: function (server, client, packet) {
+    server.sendData(client, "KeepAlive", {
+      gameTime: packet.data.gameTime,
+    });
+  },
   "AdminCommand.RunSpeed": function (server, client, packet) {
     server.sendData(client, "AdminCommand.RunSpeed", {
       runSpeed: packet.data.runSpeed,
@@ -166,7 +191,7 @@ var packetHandlers = {
     debug(packet);
   },
   "WallOfData.UIEvent": function (server, client, packet) {
-    debug("Do nothing");
+    debug("UIEvent");
   },
   SetLocale: function (server, client, packet) {
     debug("Do nothing");
@@ -190,12 +215,19 @@ var packetHandlers = {
           regionPercent: [],
           populationBuff: [],
           populationTargetPercent: [],
-          name: "z1",
+          name: "Z1", // could use this field to load a specific TileInfo
           hexSize: 100,
           isProductionZone: 1,
         },
       ],
     });
+  },
+  "Chat.Chat": function (server, client, packet) {
+    const { channel, message } = packet.data;
+    // if is a chat text
+    if (channel === 0) {
+      server.sendChatText(client, message);
+    }
   },
   "Loadout.SelectSlot": function (server, client, packet) {
     if (client.character.currentLoadout) {
@@ -233,6 +265,10 @@ var packetHandlers = {
     if (packet.data.unknownDword1) {
       debug("ClientInitializationDetails : ", packet.data.unknownDword1);
     }
+  },
+  ClientLogout: function (server, client, packet) {
+    debug("ClientLogout");
+    //server.sendData(client, "ClientKickedFromServer", {});
   },
   GameTimeSync: function (server, client, packet) {
     server.sendData(client, "GameTimeSync", {

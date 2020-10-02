@@ -5271,8 +5271,20 @@ var packets = [
   ["PlayerUpdate.AggroLevel", 0x0f69, {}],
   ["PlayerUpdate.DoorState", 0x0f6a, {}],
   ["PlayerUpdate.RequestToggleDoorState", 0x0f6b, {}],
-  ["PlayerUpdate.BeginCharacterAccess", 0x0f6c, {}],
-  ["PlayerUpdate.EndCharacterAccess", 0x0f6d, {}],
+  [
+    "PlayerUpdate.BeginCharacterAccess",
+    0x0f6c,
+    {
+      fields: [{ name: "guid", type: "uint64", defaultValue: "0" }],
+    },
+  ],
+  [
+    "PlayerUpdate.EndCharacterAccess",
+    0x0f6d,
+    {
+      fields: [{ name: "characterId", type: "uint64", defaultValue: "" }],
+    },
+  ],
   ["PlayerUpdate.UpdateMutateRights", 0x0f6e, {}],
   ["PlayerUpdate.UpdateFogOfWar", 0x0f70, {}],
   ["PlayerUpdate.SetAllowRespawn", 0x0f71, {}],
@@ -6282,7 +6294,13 @@ var packets = [
     "LobbyGameDefinition.DefinitionsResponse",
     0x420200,
     {
-      fields: [{ name: "definitionsData", type: "byteswithlength" }],
+      fields: [
+        {
+          name: "definitionsData",
+          type: "byteswithlength",
+          fields: [{ name: "data", type: "string", defaultValue: "" }],
+        },
+      ],
     },
   ],
   ["ShowSystemMessage", 0x43, {}],
@@ -7394,7 +7412,17 @@ var packets = [
       ],
     },
   ],
-  ["Collision.Damage", 0x8e01, {}],
+  [
+    "Collision.Damage",
+    0x8e01,
+    {
+      fields: [
+        { name: "guid", type: "uint64", defaultValue: "0" },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
   ["Leaderboard", 0x8f, {}],
   ["PlayerUpdateManagedPosition", 0x90, {}],
   ["PlayerUpdateNetworkObjectComponents", 0x91, {}],

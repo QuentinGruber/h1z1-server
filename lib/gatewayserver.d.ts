@@ -19,6 +19,7 @@ interface SoeServer {
     sendAppData: (arg0: Client, arg1: any, arg2: undefined | any) => void;
     toggleEncryption: (arg0: boolean) => void;
     toggleDataDump: () => void;
+    deleteClient: (client: Client) => void;
 }
 interface Client {
     sessionId: number;
