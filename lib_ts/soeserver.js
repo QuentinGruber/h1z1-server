@@ -384,7 +384,7 @@ SOEServer.prototype.toggleDataDump = function (value) {
 };
 
 SOEServer.prototype.deleteClient = function (client) {
-  delete this?._clients[client.address];
+  delete this?._clients[client.address + ":" + client.port];
   debug("client connection from port : ", client.port, " deleted");
 };
 
