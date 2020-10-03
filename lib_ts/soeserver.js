@@ -14,7 +14,13 @@ function SOEServerError(message) {
 }
 util.inherits(SOEServerError, Error);
 
-function SOEServer(protocolName, serverPort, cryptoKey, compression) {
+function SOEServer(
+  protocolName,
+  serverPort,
+  cryptoKey,
+  compression,
+  isGatewayServer = false
+) {
   EventEmitter.call(this);
 
   this._protocolName = protocolName;
@@ -24,6 +30,7 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression) {
   this._protocol = new SOEProtocol();
   this._udpLength = 512;
   this._useEncryption = true;
+  this._isGatewayServer = isGatewayServer;
   this._dumpData = false;
 
   var clients = (this._clients = {});
@@ -42,7 +49,12 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression) {
     if (result != null) {
       switch (soePacket.name) {
         case "SessionRequest":
-          debug("Received session request from " + client.address);
+          debug(
+            "Received session request from " +
+              client.address +
+              ":" +
+              client.port
+          );
           client.crcLength = result.crcLength;
           client.sessionId = result.sessionId;
           client.clientUdpLength = result.udpLength;
@@ -51,7 +63,11 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression) {
           client.serverUdpLength = me._udpLength;
           client.crcSeed = me._crcSeed;
           client.crcLength = me._crcLength;
-          client.inputStream.toggleEncryption(me._useEncryption);
+          if (me._isGatewayServer) {
+            client.inputStream.toggleEncryption(false);
+          } else {
+            client.inputStream.toggleEncryption(me._useEncryption);
+          }
           client.outputStream.toggleEncryption(me._useEncryption);
           client.outputStream.setFragmentSize(client.clientUdpLength - 7);
 
@@ -66,7 +82,7 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression) {
           break;
         case "Disconnect":
           debug("Received disconnect from client");
-          delete clients[client.address];
+          delete clients[client.address + ":" + client.port];
           me.emit("disconnect", null, client);
           break;
         case "MultiPacket":
