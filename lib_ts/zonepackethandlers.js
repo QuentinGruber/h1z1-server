@@ -225,10 +225,7 @@ var packetHandlers = {
   },
   "Chat.Chat": function (server, client, packet) {
     const { channel, message } = packet.data;
-    // if is a chat text
-    if (channel === 0) {
-      server.sendChatText(client, message);
-    }
+    server.sendChat(client, message, channel);
   },
   "Loadout.SelectSlot": function (server, client, packet) {
     if (client.character.currentLoadout) {

@@ -3742,8 +3742,8 @@ var packets = [
     0x060100,
     {
       fields: [
-        { name: "unknown2", type: "uint16" },
-        { name: "channel", type: "uint16" },
+        { name: "unknown2", type: "uint16", defaultValue: 0 },
+        { name: "channel", type: "uint16", defaultValue: 0 },
         { name: "characterId1", type: "uint64", defaultValue: "0" },
         { name: "characterId2", type: "uint64", defaultValue: "0" },
         { name: "unknown5_0", type: "uint32", defaultValue: 0 },
@@ -8126,7 +8126,12 @@ var packets = [
     0xaa,
     {
       fields: [
-        { name: "population", type: "array", elementType: "uint16" },
+        {
+          name: "population",
+          type: "array",
+          elementtype: "uint16",
+          defaultValue: 0,
+        },
         { name: "populationPercent", type: "array", elementType: "uint8" },
         { name: "populationBuff", type: "array", elementType: "uint8" },
       ],

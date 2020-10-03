@@ -299,6 +299,16 @@ ZoneServer.prototype.sendSystemMessage = function (client, message) {
   });
 };
 
+ZoneServer.prototype.sendChat = function (client, message, channel) {
+  const { character } = client;
+  this.sendData(client, "Chat.Chat", {
+    channel: channel,
+    characterName1: character.name,
+    message: message,
+    color1: 1,
+  });
+};
+
 ZoneServer.prototype.sendChatText = function (client, message) {
   this.sendData(client, "Chat.ChatText", {
     message: message,
