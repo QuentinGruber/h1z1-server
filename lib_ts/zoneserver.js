@@ -253,10 +253,10 @@ ZoneServer.prototype.start = async function (callback) {
       throw console.error("[ERROR]Unable to connect to mongo server");
     }
     if (mongoClient.isConnected()) {
-      log("connected to mongo !");
+      debug("connected to mongo !");
       this._db = await mongoClient.db("h1server");
     } else {
-      throw log("Unable to authenticate on mongo !", 2);
+      throw console.log("Unable to authenticate on mongo !", 2);
     }
   }
   this._gatewayServer.start();
