@@ -68,13 +68,13 @@ export class GatewayServer extends EventEmitter {
     this._crcLength = 2;
     this._udpLength = 512;
 
-    const soeServer = (this._soeServer = new SOEServer(
+    this._soeServer = new SOEServer(
       protocolName,
       serverPort,
       gatewayKey,
       this._compression,
       true
-    ) as any); // as any since SOEServer isn't typed
+    ) as any; // as any since SOEServer isn't typed
     this._protocol = new GatewayProtocol() as GatewayProtocol;
     this._soeServer.on("connect", (err: string, client: Client) => {
       debug("Client connected from " + client.address + ":" + client.port);

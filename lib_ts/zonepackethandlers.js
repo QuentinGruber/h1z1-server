@@ -291,7 +291,7 @@ var packetHandlers = {
   "Command.ExecuteCommand": function (server, client, packet) {
     var args = packet.data.arguments.split(" ");
     if (packet.data.commandHash == Jenkins.oaat("LOG")) {
-      const { _gatewayServer, _characters, _clients } = server;
+      const { _gatewayServer, _clients } = server;
       debug("_clients :", _clients);
       debug("Soeclients :", _gatewayServer._soeServer);
     }
