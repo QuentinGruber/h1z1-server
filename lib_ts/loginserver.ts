@@ -253,21 +253,49 @@ export class LoginServer extends EventEmitter {
               break;
             case "CharacterLoginRequest":
               let charactersLoginInfo: any;
+              const { serverId, characterId } = packet.result;
               if (!this._soloMode) {
-                debug("[error] MongoDB support isn't ready");
-                /*
+                const { serverAddress } = await this._db
+                  .collection("servers")
+                  .findOne({ serverId: serverId });
                 charactersLoginInfo = {
-                  characterId: (packet.result as any).characterId,
-                  serverId: 1,
+                  characterId: characterId,
+                  serverId: serverId,
                   status: 1,
                   unknown: 0,
-                  payload: "\u0000",
+                  payload: {
+                    serverAddress: serverAddress, // zoneserver port
+                    serverTicket: "7y3Bh44sKWZCYZH",
+                    encryptionKey: [
+                      23,
+                      189,
+                      8,
+                      107,
+                      27,
+                      148,
+                      240,
+                      47,
+                      240,
+                      236,
+                      83,
+                      215,
+                      99,
+                      88,
+                      155,
+                      95,
+                    ],
+                    characterId: characterId,
+                    unknown1: 722776196,
+                    unknown2: 0,
+                    stationName: "nope0no",
+                    characterName: "LocalPlayer",
+                    unknown3: 0,
+                  },
                 };
-                */
               } else {
                 charactersLoginInfo = {
-                  characterId: (packet.result as any).characterId,
-                  serverId: 1,
+                  characterId: characterId,
+                  serverId: serverId,
                   status: 1,
                   unknown: 0,
                   payload: {
@@ -291,7 +319,7 @@ export class LoginServer extends EventEmitter {
                       155,
                       95,
                     ],
-                    characterId: (packet.result as any).characterId,
+                    characterId: characterId,
                     unknown1: 722776196,
                     unknown2: 0,
                     stationName: "nope0no",

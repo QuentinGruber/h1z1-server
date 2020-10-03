@@ -149,6 +149,7 @@ var packetHandlers = {
       "npc",
       "model",
       "stat",
+      "log",
     ];
 
     for (var i = 0; i < commands.length; i++) {
@@ -268,7 +269,7 @@ var packetHandlers = {
   },
   ClientLogout: function (server, client, packet) {
     debug("ClientLogout");
-    //server.sendData(client, "ClientKickedFromServer", {});
+    server._gatewayServer._soeServer.deleteClient(client);
   },
   GameTimeSync: function (server, client, packet) {
     server.sendData(client, "GameTimeSync", {
@@ -289,6 +290,11 @@ var packetHandlers = {
   },
   "Command.ExecuteCommand": function (server, client, packet) {
     var args = packet.data.arguments.split(" ");
+    if (packet.data.commandHash == Jenkins.oaat("LOG")) {
+      const { _gatewayServer, _clients } = server;
+      debug("_clients :", _clients);
+      debug("Soeclients :", _gatewayServer._soeServer);
+    }
     if (packet.data.commandHash == Jenkins.oaat("STAT")) {
       if (args[0] && args[1]) {
         server
