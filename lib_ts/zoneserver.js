@@ -13,11 +13,6 @@ function Int64String(value) {
   return "0x" + ("0000000000000000" + value.toString(16)).substr(-16);
 }
 
-Date.now = () => {
-  // force current time
-  return 971172000000;
-};
-
 function ZoneServer(serverPort, gatewayKey, UsingMongo) {
   EventEmitter.call(this);
 
@@ -32,7 +27,7 @@ function ZoneServer(serverPort, gatewayKey, UsingMongo) {
   var characters = (this._characters = {});
   var ncps = {};
   this._usingMongo = UsingMongo;
-  this._serverTime = Date.now() / 1000;
+  this._serverTime = 6662384021;
   this._transientId = 0;
   this._guids = {};
 
@@ -94,36 +89,46 @@ function ZoneServer(serverPort, gatewayKey, UsingMongo) {
         unknownFloat1: 1,
         skyData: {
           name: "sky",
-          unknownDword1: 100,
-          unknownDword2: 100,
-          unknownDword3: 100,
-          unknownDword4: 100,
-          unknownDword5: 100,
-          unknownDword6: 100,
-          unknownDword7: 100,
-          unknownDword8: 100,
-          unknownDword9: 100,
-          unknownDword10: 100,
-          unknownDword11: 100,
-          unknownDword12: 100,
-          unknownDword13: 100,
-          unknownDword14: 100,
-          unknownDword15: 100,
-          unknownDword16: 100,
-          unknownDword17: 100,
-          unknownDword18: 100,
-          unknownDword19: 100,
-          unknownDword20: 100,
-          unknownDword21: 100,
-          unknownDword22: 100,
-          unknownDword23: 100,
-          unknownDword24: 100,
-          unknownDword25: 100,
-          unknownArray: [],
+          unknownDword1: 1,
+          unknownDword2: 1,
+          unknownDword3: 1,
+          unknownDword4: 1,
+          unknownDword5: 1,
+          unknownDword6: 1,
+          unknownDword7: 1,
+          unknownDword8: 1,
+          unknownDword9: 1,
+          unknownDword10: 1,
+          unknownDword11: 1,
+          unknownDword12: 1,
+          unknownDword13: 1,
+          unknownDword14: 1,
+          unknownDword15: 1,
+          unknownDword16: 1,
+          unknownDword17: 1,
+          unknownDword18: 1,
+          unknownDword19: 1,
+          unknownDword20: 1,
+          unknownDword21: 1,
+          unknownDword22: 1,
+          unknownDword23: 1,
+          unknownDword24: 1,
+          unknownDword25: 1,
+          unknownArray: [
+            {
+              unknownDword1: 1,
+              unknownDword2: 1,
+              unknownDword3: 1,
+              unknownDword4: 1,
+              unknownDword5: 1,
+              unknownDword6: 1,
+              unknownDword7: 1,
+            },
+          ],
         },
-        zoneId1: 302,
-        zoneId2: 302,
-        nameId: 1,
+        zoneId1: 3905829720,
+        zoneId2: 3905829720,
+        nameId: 7699,
         unknownBoolean7: true,
       });
 
