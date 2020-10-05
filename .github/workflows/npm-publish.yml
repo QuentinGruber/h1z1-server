@@ -47,6 +47,6 @@ jobs:
         with:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }}
-          body: use `npm i h1z1-server` to download it !
+          body: "Changelog : \n to fill... \n use `npm i h1z1-server` to download it !"
           draft: false
           prerelease: false
