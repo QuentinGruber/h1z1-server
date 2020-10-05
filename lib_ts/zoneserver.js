@@ -67,6 +67,21 @@ function ZoneServer(serverPort, gatewayKey, UsingMongo) {
         fs.readFileSync(`${__dirname}/data/zone/InitializationParameters.dat`)
       );
         */
+      var itemData = fs.readFileSync(
+          `${__dirname}/data/ClientItemDefinitions.txt`,
+          "utf8"
+        ),
+        itemLines = itemData.split("\n"),
+        items = {};
+      for (var i = 1; i < itemLines.length; i++) {
+        var line = itemLines[i].split("^");
+        if (line[0]) {
+          items[line[0]] = line[1];
+        }
+      }
+      const referenceData = { itemTypes: items };
+      this.setReferenceData(referenceData);
+
       this.sendData(client, "SendZoneDetails", {
         zoneName: "Z1",
         unknownDword1: 4,
@@ -296,6 +311,16 @@ ZoneServer.prototype.sendSystemMessage = function (client, message) {
     color2: 0,
     unknown15: 0,
     unknown16: false,
+  });
+};
+
+ZoneServer.prototype.sendChat = function (client, message, channel) {
+  const { character } = client;
+  this.sendData(client, "Chat.Chat", {
+    channel: channel,
+    characterName1: character.name,
+    message: message,
+    color1: 1,
   });
 };
 

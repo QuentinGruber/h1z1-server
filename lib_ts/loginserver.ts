@@ -167,7 +167,32 @@ export class LoginServer extends EventEmitter {
               };
               data = this._protocol.pack("LoginReply", falsified_data);
               this._soeServer.sendAppData(client, data, true);
-              break;
+              case "CharacterSelectInfoRequest":
+              let CharactersInfo;
+              if (this._soloMode) {
+                const SinglePlayerCharacter = require("../single_player_character.json");
+                CharactersInfo = {
+                  status: 1,
+                  canBypassServerLock: true,
+                  characters: [SinglePlayerCharacter],
+                };
+              } else {
+                const characters = await this._db
+                  .collection("characters")
+                  .find()
+                  .toArray();
+                CharactersInfo = {
+                  status: 1,
+                  canBypassServerLock: true,
+                  characters: characters,
+                };
+              }
+              data = this._protocol.pack(
+                "CharacterSelectInfoReply",
+                CharactersInfo
+              );
+              this._soeServer.sendAppData(client, data, true);
+              debug("CharacterSelectInfoRequest");
             case "ServerListRequest":
               let servers;
               if (!this._soloMode) {
@@ -224,33 +249,6 @@ export class LoginServer extends EventEmitter {
                     }
                   );
               }
-            case "CharacterSelectInfoRequest":
-              let CharactersInfo;
-              if (this._soloMode) {
-                const SinglePlayerCharacter = require("../single_player_character.json");
-                CharactersInfo = {
-                  status: 1,
-                  canBypassServerLock: true,
-                  characters: [SinglePlayerCharacter],
-                };
-              } else {
-                const characters = await this._db
-                  .collection("characters")
-                  .find()
-                  .toArray();
-                CharactersInfo = {
-                  status: 1,
-                  canBypassServerLock: true,
-                  characters: characters,
-                };
-              }
-              data = this._protocol.pack(
-                "CharacterSelectInfoReply",
-                CharactersInfo
-              );
-              this._soeServer.sendAppData(client, data, true);
-              debug("CharacterSelectInfoRequest");
-              break;
             case "CharacterLoginRequest":
               let charactersLoginInfo: any;
               const { serverId, characterId } = packet.result;
