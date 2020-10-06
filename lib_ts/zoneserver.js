@@ -109,9 +109,9 @@ function ZoneServer(serverPort, gatewayKey, UsingMongo) {
           unknownDword13: 0,
           unknownDword14: 0,
           unknownDword15: 0,
-          unknownDword16: 0,
-          unknownDword17: 0,
-          unknownDword18: 0,
+          unknownDword16: 50,// sun orientation on x axis ???
+          unknownDword17: 0, // night when 100
+          unknownDword18: 0, 
           unknownDword19: 0,
           unknownDword20: 0,
           unknownDword21: 0,
