@@ -48,8 +48,8 @@ var packets = [
     0x05,
     {
       fields: [
-        { name: "serverId", type: "boolean" },
-        { name: "unknown", type: "boolean" },
+        { name: "serverId", type: "uint32" },
+        { name: "unknown", type: "uint32" },
         {
           name: "payload",
           type: "byteswithlength",

@@ -7,13 +7,13 @@
   "unknown2": 1,
   "payload": {
     "name": "LocalPlayer",
-    "empireId": 1,
+    "empireId": 2,
     "battleRank": 100,
     "nextBattleRankPercent": 0,
-    "headId": 5,
+    "headId": 1,
     "modelId": 174,
-    "gender": 2,
-    "profileId": 22,
+    "gender": 1,
+    "profileId": 4,
     "unknownDword1": 1,
     "loadoutData": {
       "loadoutId": 20,
