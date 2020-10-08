@@ -67,6 +67,12 @@ function ZoneServer(serverPort, gatewayKey, UsingMongo) {
         fs.readFileSync(`${__dirname}/data/zone/InitializationParameters.dat`)
       );
         */
+
+      this.sendData(client, "InitializationParameters", {
+        environment: "LOCAL",
+        serverId: 1,
+      });
+
       var itemData = fs.readFileSync(
           `${__dirname}/data/ClientItemDefinitions.txt`,
           "utf8"
@@ -104,9 +110,9 @@ function ZoneServer(serverPort, gatewayKey, UsingMongo) {
           unknownDword13: 0,
           unknownDword14: 0,
           unknownDword15: 0,
-          unknownDword16: 0,// sun orientation on x axis ???
+          unknownDword16: 0, // sun orientation on x axis ???
           unknownDword17: 0, // night when 100
-          unknownDword18: 0, 
+          unknownDword18: 0,
           unknownDword19: 0,
           unknownDword20: 0,
           unknownDword21: 0,
@@ -122,18 +128,18 @@ function ZoneServer(serverPort, gatewayKey, UsingMongo) {
         unknownBoolean7: true,
       });
 
-      /*
-      this.sendRawData(
-        client,
-        fs.readFileSync(`${__dirname}/data/zone/ClientUpdateZonePopulation.dat`)
-      );
-      this.sendRawData(
-        client,
-        fs.readFileSync(
-          `${__dirname}/data/zone/ClientUpdateRespawnLocations.dat`
-        )
-      );
-*/
+      this.sendData(client, "ClientUpdate.ZonePopulation", {
+        populations: [0, 0],
+      });
+
+      this.sendData(client, "ClientUpdate.RespawnLocations", {
+        unknownFlags: 0,
+        locations: [],
+        unknownDword1: 0,
+        unknownDword2: 0,
+        locations2: [],
+      });
+
       this.sendData(client, "ClientGameSettings", {
         unknownDword1: 0,
         unknownDword2: 7,
