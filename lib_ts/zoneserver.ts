@@ -56,7 +56,7 @@ export class ZoneServer extends EventEmitter {
     }
   });
 
-  this.on("login", function (err, client) {
+  this.on("login",  (err, client) => {
     if (err) {
       console.error(err);
     } else {
@@ -167,7 +167,7 @@ export class ZoneServer extends EventEmitter {
         )
       );
 */
-      var self = JSON.parse(fs.readFileSync(`${__dirname}/data/sendself.json`));
+      var self = require(`${__dirname}/data/sendself.json`)
       client.character.guid = self.data.guid = this.generateGuid();
       client.character.loadouts = self.data.characterLoadoutData.loadouts;
       client.character.inventory = self.data.inventory;
