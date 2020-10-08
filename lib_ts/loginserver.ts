@@ -167,7 +167,7 @@ export class LoginServer extends EventEmitter {
               };
               data = this._protocol.pack("LoginReply", falsified_data);
               this._soeServer.sendAppData(client, data, true);
-              case "CharacterSelectInfoRequest":
+            case "CharacterSelectInfoRequest":
               let CharactersInfo;
               if (this._soloMode) {
                 const SinglePlayerCharacter = require("../single_player_character.json");
@@ -286,7 +286,7 @@ export class LoginServer extends EventEmitter {
                     unknown1: 722776196,
                     unknown2: 0,
                     stationName: "nope0no",
-                    characterName: "LocalPlayer",
+                    characterName: "LocalPlayer", // get character name from the characterID (ask db)
                     unknown3: 0,
                   },
                 };
@@ -333,6 +333,15 @@ export class LoginServer extends EventEmitter {
               );
               this._soeServer.sendAppData(client, data, true);
               debug("CharacterLoginRequest");
+              break;
+
+            case "CharacterCreateRequest":
+              const reply_data = {
+                status: 1,
+                characterId: "0x03147cca2a860191", // TODO: generate a random id like on zoneserver
+              };
+              data = this._protocol.pack("CharacterCreateReply", reply_data);
+              this._soeServer.sendAppData(client, data, true);
               break;
 
             case "TunnelAppPacketClientToServer":

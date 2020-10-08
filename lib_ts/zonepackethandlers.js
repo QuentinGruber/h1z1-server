@@ -1271,6 +1271,54 @@ var packetHandlers = {
     }
     if (packet.data.commandHash == Jenkins.oaat("HAX")) {
       switch (args[0]) {
+        case "hell":
+          debug(":)");
+          function rnd_number() {
+            return Math.random() * 100;
+          }
+
+          const rnd_zoneDetails = {
+            zoneName: "Z1",
+            unknownDword1: 4,
+            unknownBoolean1: true,
+            unknownFloat1: 1,
+            skyData: {
+              name: "sky",
+              unknownDword1: rnd_number(),
+              unknownDword2: rnd_number(),
+              unknownDword3: rnd_number(),
+              fog: rnd_number(), // fog intensity
+              unknownDword5: rnd_number(),
+              unknownDword6: rnd_number(),
+              unknownDword7: rnd_number(),
+              unknownDword8: rnd_number(),
+              temperature: rnd_number(), // 0 : snow map , 40+ : spring map
+              unknownDword10: rnd_number(),
+              unknownDword11: rnd_number(),
+              unknownDword12: rnd_number(),
+              unknownDword13: rnd_number(),
+              unknownDword14: rnd_number(),
+              unknownDword15: rnd_number(),
+              unknownDword16: rnd_number(), // sun orientation on x axis ???
+              unknownDword17: rnd_number(), // night when 100
+              unknownDword18: rnd_number(),
+              unknownDword19: rnd_number(),
+              unknownDword20: rnd_number(),
+              unknownDword21: rnd_number(),
+              unknownDword22: rnd_number(),
+              unknownDword23: rnd_number(),
+              unknownDword24: rnd_number(),
+              unknownDword25: rnd_number(),
+              unknownArray: [],
+            },
+            zoneId1: 3905829720,
+            zoneId2: 3905829720,
+            nameId: 7699,
+            unknownBoolean7: true,
+          };
+          debug(JSON.stringify(rnd_zoneDetails));
+          server.sendData(client, "SendZoneDetails", rnd_zoneDetails);
+          break;
         case "variable":
           server.sendData(client, "DefinitionFilter.SetDefinitionVariable", {
             unknownDword1: 4280275237,
