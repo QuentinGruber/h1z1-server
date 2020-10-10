@@ -229,6 +229,7 @@ export class ZoneServer extends EventEmitter {
         characterId: client.character.characterId,
         battleRank: 100,
       });
+      this.sendData(client, "ZoneDoneSendingInitialData", {});
     }
   });
 
