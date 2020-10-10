@@ -4,7 +4,7 @@ import {GatewayServer} from "./gatewayserver";
 import fs from "fs"
 import {default as packetHandlers} from "./zonepackethandlers"
 import {H1Z1Protocol as ZoneProtocol} from "./h1z1protocol"
-import {MongoClient} from "mongodb"
+// import {MongoClient} from "mongodb"
 const debug = require("debug")("ZoneServer")
 
 interface SoeServer {
@@ -290,7 +290,7 @@ async start () {
       native_parser: true,
     }));
     try {
-      let waiting = await mongoClient.connect();
+      await mongoClient.connect();
     } catch (e) {
       throw console.error("[ERROR]Unable to connect to mongo server");
     }
@@ -484,7 +484,7 @@ spawnNPC (npcId:number, position:Array<number>, rotation:Array<number>, callback
         rotation: rotation,
         npcDefinition: npc,
       };
-
+      /*
       var npcData = {
         guid: guid,
         transientId: this._transientId,
@@ -530,7 +530,7 @@ spawnNPC (npcId:number, position:Array<number>, rotation:Array<number>, callback
         unknownByte7: 0,
         unknownArray1: [],
       };
-
+      */
       callback(null, this.npcs[guid]);
     } else {
       callback("NPC " + npcId + " not found");
