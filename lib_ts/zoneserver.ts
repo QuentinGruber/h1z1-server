@@ -1,46 +1,102 @@
-var EventEmitter = require("events").EventEmitter,
-  GatewayServer = require("./gatewayserver").GatewayServer,
-  fs = require("fs"),
-  path = require("path"),
-  util = require("util"),
-  packetHandlers = require("./zonepackethandlers.js"),
-  ZoneProtocol = require("./h1z1protocol").H1Z1Protocol,
-  debug = require("debug")("ZoneServer"),
-  MongoClient = require("mongodb").MongoClient,
-  MongoServer = require("mongodb").Server;
 
-function Int64String(value) {
+import { EventEmitter } from "events";
+import {GatewayServer} from "./gatewayserver";
+import fs from "fs"
+import {default as packetHandlers} from "./zonepackethandlers"
+import {H1Z1Protocol as ZoneProtocol} from "./h1z1protocol"
+// import {MongoClient} from "mongodb"
+const debug = require("debug")("ZoneServer")
+
+interface SoeServer {
+  on: (arg0: string, arg1: any) => void;
+  start: (
+    compression: any,
+    crcSeed: any,
+    crcLength: any,
+    udpLength: any
+  ) => void;
+  stop: () => void;
+  _sendPacket: () => void;
+  sendAppData: (arg0: Client, arg1: any, arg2: undefined | any) => void;
+  toggleEncryption: (arg0: boolean) => void;
+  toggleDataDump: () => void;
+  deleteClient: (client: Client) => void;
+}
+
+interface Client {
+  client: { characterId: string; state: { position: number[]; rotation: number[]; health: number; shield: number; }; client: Client; };
+  transientId: number;
+  transientIds: {};
+  character: { characterId: string;name?:string;loadouts?:any;currentLoadoutTab?:any;currentLoadoutId?:any;currentLoadout?:any; state: { position: number[]; rotation: number[]; health: number; shield: number; }; client: Client; };
+  sessionId: number;
+  address: string;
+  port: number;
+  crcSeed: number;
+  crcLength: number;
+  clientUdpLength: number;
+  serverUdpLength: number;
+  sequences: any;
+  compression: number;
+  useEncryption: boolean;
+  outQueue: any;
+  outOfOrderPackets: any;
+  nextAck: number;
+  lastAck: number;
+  inputStream: () => void;
+  outputStream: () => void;
+  outQueueTimer: () => void;
+  ackTimer: () => void;
+  outOfOrderTimer: () => void;
+}
+
+function Int64String(value:number) {
   return "0x" + ("0000000000000000" + value.toString(16)).substr(-16);
 }
 
-function ZoneServer(serverPort, gatewayKey, UsingMongo) {
-  EventEmitter.call(this);
-
-  var gatewayServer = (this._gatewayServer = new GatewayServer(
-    "ExternalGatewayApi_3",
-    serverPort,
-    gatewayKey
-  ));
-
-  var protocol = (this._protocol = new ZoneProtocol());
-  var clients = (this._clients = {});
-  var characters = (this._characters = {});
-  var ncps = {};
+export class ZoneServer extends EventEmitter {
+  _gatewayServer:any;
+  _protocol:any;
+  _clients:any;
+  _characters:any;
+  _ncps:any;
+  _usingMongo:any;
+  _serverTime:any;
+  _transientId:any;
+  _guids:any;
+  _packetHandlers:any;
+  _referenceData:any;
+  _startTime: number;
+ // _mongoClient: MongoClient;
+  _db: any;
+  npcs: any;
+  constructor(serverPort:number, gatewayKey:string, UsingMongo:boolean) {
+    super()
+    this._gatewayServer = new GatewayServer(
+      "ExternalGatewayApi_3",
+      serverPort,
+      gatewayKey
+    )
+  this._protocol = new ZoneProtocol()
+  this._clients = {}
+  this._characters = {}
+  this._ncps = {};
   this._usingMongo = UsingMongo;
   this._serverTime = 6662384021;
   this._transientId = 0;
   this._guids = {};
+  this._packetHandlers = packetHandlers
+  this._startTime = 0
 
-  this.on("data", function (err, client, packet) {
+  this.on("data", (err, client, packet) => {
     if (err) {
       console.error(err);
     } else {
       if (packet.name != "KeepAlive") {
         debug(`Receive Data ${[packet.name]}`);
       }
-      if (packetHandlers.default[packet.name]) {
+      if (this._packetHandlers[packet.name]) {
         try {
-          packetHandlers.default[packet.name](this, client, packet);
+          this._packetHandlers[packet.name](this, client, packet);
         } catch (e) {
           console.log(e);
         }
@@ -50,7 +106,7 @@ function ZoneServer(serverPort, gatewayKey, UsingMongo) {
     }
   });
 
-  this.on("login", function (err, client) {
+  this.on("login",  (err, client) => {
     if (err) {
       console.error(err);
     } else {
@@ -82,7 +138,7 @@ function ZoneServer(serverPort, gatewayKey, UsingMongo) {
       for (var i = 1; i < itemLines.length; i++) {
         var line = itemLines[i].split("^");
         if (line[0]) {
-          items[line[0]] = line[1];
+          (items as any)[line[0]] = line[1];
         }
       }
       const referenceData = { itemTypes: items };
@@ -167,7 +223,7 @@ function ZoneServer(serverPort, gatewayKey, UsingMongo) {
         )
       );
 */
-      var self = JSON.parse(fs.readFileSync(`${__dirname}/data/sendself.json`));
+      var self = require(`${__dirname}/data/sendself.json`)
       client.character.guid = self.data.guid = this.generateGuid();
       client.character.loadouts = self.data.characterLoadoutData.loadouts;
       client.character.inventory = self.data.inventory;
@@ -182,9 +238,7 @@ function ZoneServer(serverPort, gatewayKey, UsingMongo) {
     }
   });
 
-  var me = this;
-
-  gatewayServer.on("login", function (err, client, characterId) {
+  this._gatewayServer.on("login", (err:string, client:Client, characterId:string) => {
     debug(
       "Client logged in from " +
         client.address +
@@ -194,7 +248,7 @@ function ZoneServer(serverPort, gatewayKey, UsingMongo) {
         characterId
     );
 
-    clients[client.sessionId] = client;
+    this._clients[client.sessionId] = client;
     client.transientIds = {};
     client.transientId = 0;
     client.character = {
@@ -207,51 +261,34 @@ function ZoneServer(serverPort, gatewayKey, UsingMongo) {
       },
       client: client,
     };
-    characters[characterId] = client.character;
+    this._characters[characterId] = client.character;
 
-    me.emit("login", err, client);
+    this.emit("login", err, client);
   });
 
-  gatewayServer.on("disconnect", function (err, client) {
+  this._gatewayServer.on("disconnect", (err:string, client:Client) =>{
     debug("Client disconnected from " + client.address + ":" + client.port);
-    delete clients[client.sessionId];
-    me.emit("disconnect", err, client);
+    delete this._clients[client.sessionId];
+    this.emit("disconnect", err, client);
   });
 
-  gatewayServer.on("session", function (err, client) {
+  this._gatewayServer.on("session", (err:string, client:Client) => {
     debug("Session started for client " + client.address + ":" + client.port);
   });
 
-  var tunnelDataCount = 0;
-
-  gatewayServer.on("tunneldata", function (err, client, data, flags) {
-    var packet = protocol.parse(data, flags, true, me._referenceData);
-    if (me._dumpData) {
-      fs.writeFileSync(
-        path.join(
-          me._dumpDataPath,
-          "tunneldata_" +
-            tunnelDataCount++ +
-            "_" +
-            (packet ? packet.name : "Unknown") +
-            ".dat"
-        ),
-        data
-      );
-    }
+  this._gatewayServer.on("tunneldata", (err:string, client:Client, data:Buffer, flags:number) =>{
+    var packet = this._protocol.parse(data, flags, true, this._referenceData);
     if (packet) {
-      me.emit("data", null, client, packet);
+      this.emit("data", null, client, packet);
     } else {
       debug("zonefailed : ", packet);
     }
   });
 }
-util.inherits(ZoneServer, EventEmitter);
-
-ZoneServer.prototype.start = async function (callback) {
+async start () {
   debug("Starting server");
-  this._startTime = Date.now();
-  var me = this;
+  this._startTime += Date.now();
+  /*
   if (this._usingMongo) {
     const uri = "mongodb://localhost:27017";
     const mongoClient = (this._mongoClient = new MongoClient(uri, {
@@ -259,7 +296,7 @@ ZoneServer.prototype.start = async function (callback) {
       native_parser: true,
     }));
     try {
-      let waiting = await mongoClient.connect();
+      await mongoClient.connect();
     } catch (e) {
       throw console.error("[ERROR]Unable to connect to mongo server");
     }
@@ -269,21 +306,21 @@ ZoneServer.prototype.start = async function (callback) {
     } else {
       throw console.log("Unable to authenticate on mongo !", 2);
     }
-  }
+  }*/
   this._gatewayServer.start();
 };
 
-ZoneServer.prototype.data = function (collectionName) {
+data (collectionName:string) {
   if (this._db) {
     return this._db.collection(collectionName);
   }
 };
 
-ZoneServer.prototype.setReferenceData = function (referenceData) {
+setReferenceData(referenceData:any) {
   this._referenceData = referenceData;
 };
 
-ZoneServer.prototype.sendSystemMessage = function (client, message) {
+sendSystemMessage (client:Client, message:string) {
   this.sendDataToAll("Chat.Chat", {
     unknown2: 0,
     channel: 2,
@@ -310,7 +347,7 @@ ZoneServer.prototype.sendSystemMessage = function (client, message) {
   });
 };
 
-ZoneServer.prototype.sendChat = function (client, message, channel) {
+sendChat (client:Client, message:string, channel:number) {
   const { character } = client;
   this.sendData(client, "Chat.Chat", {
     channel: channel,
@@ -320,7 +357,7 @@ ZoneServer.prototype.sendChat = function (client, message, channel) {
   });
 };
 
-ZoneServer.prototype.sendChatText = function (client, message) {
+sendChatText(client:Client, message:string) {
   this.sendData(client, "Chat.ChatText", {
     message: message,
     unknownDword1: 0,
@@ -331,10 +368,10 @@ ZoneServer.prototype.sendChatText = function (client, message) {
   });
 };
 
-ZoneServer.prototype.setCharacterLoadout = function (
-  client,
-  loadoutId,
-  loadoutTab
+setCharacterLoadout(
+  client:Client,
+  loadoutId:number,
+  loadoutTab:any
 ) {
   for (var i = 0; i < client.character.loadouts.length; i++) {
     var loadout = client.character.loadouts[i];
@@ -356,9 +393,7 @@ ZoneServer.prototype.setCharacterLoadout = function (
     }
   }
 };
-
-var outcount = 0;
-ZoneServer.prototype.sendData = function (client, packetName, obj) {
+sendData(client:Client, packetName:string, obj:any) {
   if (packetName != "KeepAlive") {
     debug("send data ", packetName);
   }
@@ -372,15 +407,14 @@ ZoneServer.prototype.sendData = function (client, packetName, obj) {
   }
 };
 
-ZoneServer.prototype.sendDataToAll = function (packetName, obj) {
-  var clients = [];
+
+sendDataToAll (packetName:string, obj:any) {
   for (var a in this._clients) {
-    clients.push(this._clients[a]);
+    this.sendData(this._clients[a], packetName, obj);
   }
-  this.sendData(clients, packetName, obj);
 };
 
-ZoneServer.prototype.sendWeaponPacket = function (client, packetName, obj) {
+sendWeaponPacket (client:Client, packetName:string, obj:any) {
   var weaponPacket = {
     gameTime: this.getServerTime(),
     packetName: packetName,
@@ -391,32 +425,27 @@ ZoneServer.prototype.sendWeaponPacket = function (client, packetName, obj) {
   });
 };
 
-ZoneServer.prototype.toggleDataDump = function (value, path) {
-  this._dumpData = !!value;
-  this._dumpDataPath = path || "./debug";
-};
-
-ZoneServer.prototype.sendRawData = function (client, data) {
+sendRawData(client:Client, data:Buffer) {
   this._gatewayServer.sendTunnelData(client, data);
 };
 
-ZoneServer.prototype.stop = function () {
+stop  () {
   debug("Shutting down");
 };
 
-ZoneServer.prototype.getGameTime = function () {
+getGameTime () {
   debug("get game time");
   return Math.floor(Date.now() / 1000);
 };
 
-ZoneServer.prototype.getServerTime = function () {
+getServerTime() {
   debug("get server time");
   var delta = Date.now() - this._startTime;
   delta = Math.floor(delta / 1000);
   return this._serverTime + delta;
 };
 
-ZoneServer.prototype.sendGameTimeSync = function (client) {
+sendGameTimeSync  (client:Client) {
   debug("GameTimeSync");
   this.sendData(client, "GameTimeSync", {
     time: Int64String(this.getGameTime()),
@@ -425,7 +454,7 @@ ZoneServer.prototype.sendGameTimeSync = function (client) {
   });
 };
 
-ZoneServer.prototype.generateGuid = function () {
+generateGuid() {
   var str = "0x";
   for (var i = 0; i < 16; i++) {
     str += Math.floor(Math.random() * 16).toString(16);
@@ -434,11 +463,12 @@ ZoneServer.prototype.generateGuid = function () {
     this._guids[str] = true;
     return str;
   } else {
-    return this.generateGuid();
+    debug("generateGuid failed! retrying...")
+    this.generateGuid();
   }
 };
 
-ZoneServer.prototype.getTransientId = function (client, guid) {
+getTransientId(client:any, guid:string) {
   if (!client.transientIds[guid]) {
     client.transientId++;
     client.transientIds[guid] = client.transientId;
@@ -446,25 +476,24 @@ ZoneServer.prototype.getTransientId = function (client, guid) {
   return client.transientIds[guid];
 };
 
-ZoneServer.prototype.spawnNPC = function (npcId, position, rotation, callback) {
-  var server = this;
-  this.data("npcs").findOne({ id: npcId }, function (err, npc) {
+spawnNPC (npcId:number, position:Array<number>, rotation:Array<number>, callback:any) {
+  this.data("npcs").findOne({ id: npcId },  (err:string, npc:any) => {
     if (err) {
       debug(err);
       return;
     }
     if (npc) {
-      var guid = server.generateGuid();
-      server.npcs[guid] = {
+      var guid:any = this.generateGuid();
+      this.npcs[guid] = {
         guid: guid,
         position: position,
         rotation: rotation,
         npcDefinition: npc,
       };
-
+      /*
       var npcData = {
         guid: guid,
-        transientId: transientId,
+        transientId: this._transientId,
         unknownString0: "",
         nameId: npc.name_id > 0 ? npc.name_id : 0,
         unknownDword2: 242919,
@@ -507,17 +536,17 @@ ZoneServer.prototype.spawnNPC = function (npcId, position, rotation, callback) {
         unknownByte7: 0,
         unknownArray1: [],
       };
-
-      callback(null, servers.npcs[guid]);
+      */
+      callback(null, this.npcs[guid]);
     } else {
       callback("NPC " + npcId + " not found");
     }
   });
 };
 
-ZoneServer.prototype.spawnVehicle = function (vehicleId) {};
+spawnVehicle (vehicleId:number) {};
 
-ZoneServer.prototype.createPositionUpdate = function (position, rotation) {
+createPositionUpdate (position:Array<number>, rotation:Array<number>) {
   var obj = {
     flags: 4095,
     unknown2_int32: this.getGameTime(),
@@ -537,5 +566,4 @@ ZoneServer.prototype.createPositionUpdate = function (position, rotation) {
   };
   return obj;
 };
-
-exports.ZoneServer = ZoneServer;
+  }
