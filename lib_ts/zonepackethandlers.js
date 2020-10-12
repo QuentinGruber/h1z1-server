@@ -172,7 +172,7 @@ var packetHandlers = {
         `${__dirname}/data/zone/AbilitiesSetAbilityActivationManager.dat`
       )
     );
-    client.character.currentLoadoutId = 17;
+    client.character.currentLoadoutId = 3;
     server.sendData(client, "Loadout.SetCurrentLoadout", {
       type: 2,
       unknown1: 0,
