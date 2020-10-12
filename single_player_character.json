@@ -11,12 +11,12 @@
     "battleRank": 100,
     "nextBattleRankPercent": 0,
     "headId": 1,
-    "modelId": 174,
+    "modelId": 9240,
     "gender": 1,
     "profileId": 4,
     "unknownDword1": 1,
     "loadoutData": {
-      "loadoutId": 20,
+      "loadoutId": 3,
       "unknownData1": {
         "unknownDword1": 22,
         "unknownByte1": 1
