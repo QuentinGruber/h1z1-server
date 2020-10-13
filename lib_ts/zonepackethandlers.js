@@ -206,7 +206,10 @@ var packetHandlers = {
       server.sendData(client, "Command.AddWorldCommand", {
         command: commands[i],
       });
-    }
+    }    
+  },
+  Security: function (server, client, packet) {
+    debug(packet);
   },
   "Command.FreeInteractionNpc": function (server, client, packet) {
     debug("FreeInteractionNpc");
