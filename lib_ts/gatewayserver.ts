@@ -108,7 +108,7 @@ export class GatewayServer extends EventEmitter {
                   channel: 0,
                   isRoutable: true,
                 }),
-                true
+                false
               );
               this._soeServer.sendAppData(
                 client,
@@ -116,7 +116,7 @@ export class GatewayServer extends EventEmitter {
                   channel: 1,
                   isRoutable: true,
                 }),
-                true
+                false
               );
               if (result && result.characterId) {
                 this.emit("login", null, client, result.characterId);
