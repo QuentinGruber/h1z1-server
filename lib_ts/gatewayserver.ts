@@ -96,11 +96,11 @@ export class GatewayServer extends EventEmitter {
           const result = packet.result;
           switch (packet.name) {
             case "LoginRequest":
-              this._soeServer.toggleEncryption(true);
+              this._soeServer.toggleEncryption(false);
               this._soeServer.sendAppData(
                 client,
                 this._protocol.pack("LoginReply", { loggedIn: true }),
-                true
+                false
               );
               this._soeServer.sendAppData(
                 client,
