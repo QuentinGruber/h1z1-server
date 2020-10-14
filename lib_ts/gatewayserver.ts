@@ -96,11 +96,11 @@ export class GatewayServer extends EventEmitter {
           const result = packet.result;
           switch (packet.name) {
             case "LoginRequest":
-              this._soeServer.toggleEncryption(false);
+              this._soeServer.toggleEncryption(true);
               this._soeServer.sendAppData(
                 client,
                 this._protocol.pack("LoginReply", { loggedIn: true }),
-                false
+                true
               );
               this._soeServer.sendAppData(
                 client,
@@ -108,7 +108,7 @@ export class GatewayServer extends EventEmitter {
                   channel: 0,
                   isRoutable: true,
                 }),
-                false
+                true
               );
               this._soeServer.sendAppData(
                 client,
@@ -116,7 +116,7 @@ export class GatewayServer extends EventEmitter {
                   channel: 1,
                   isRoutable: true,
                 }),
-                false
+                true
               );
               if (result && result.characterId) {
                 this.emit("login", null, client, result.characterId);
