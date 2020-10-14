@@ -18,7 +18,7 @@ interface SoeServer {
   stop: () => void;
   _sendPacket: () => void;
   sendAppData: (arg0: Client, arg1: any, arg2: undefined | any) => void;
-  toggleEncryption: (arg0: boolean) => void;
+  toggleEncryption: () => void;
   toggleDataDump: () => void;
   deleteClient: (client: Client) => void;
 }
