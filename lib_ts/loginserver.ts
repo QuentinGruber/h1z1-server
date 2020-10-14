@@ -288,7 +288,7 @@ export class LoginServer extends EventEmitter {
                     unknown2: 0,
                     stationName: "nope0no",
                     characterName: "LocalPlayer",
-                    unknown3: 0,
+                    loginQueuePlacement: 0,
                   },
                 };
               }

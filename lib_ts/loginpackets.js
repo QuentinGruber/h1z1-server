@@ -108,7 +108,7 @@ var packets = [
             { name: "unknown2", type: "uint32" },
             { name: "stationName", type: "string" },
             { name: "characterName", type: "string" },
-            { name: "unknown3", type: "uint32" },
+            { name: "loginQueuePlacement", type: "uint32" },
           ],
         },
       ],
