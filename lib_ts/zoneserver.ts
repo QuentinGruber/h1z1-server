@@ -140,8 +140,8 @@ export class ZoneServer extends EventEmitter {
 
       this.sendData(client, "SendZoneDetails", {
         zoneName: "Z1",
-        unknownDword1: 4,
         unknownBoolean1: true,
+        zoneType: 4,
         unknownFloat1: 1,
         skyData: {
           name: "sky",
