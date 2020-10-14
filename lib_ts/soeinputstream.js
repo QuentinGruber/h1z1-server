@@ -190,9 +190,14 @@ SOEInputStream.prototype.write = function (data, sequence, fragment) {
   }
 };
 
-SOEInputStream.prototype.toggleEncryption = function (value) {
-  debug("Toggling encryption: " + value);
-  this._useEncryption = !!value;
+SOEInputStream.prototype.setEncryption = function (value) {
+  this._useEncryption = value;
+  debug("encryption: " + this._useEncryption);
+};
+
+SOEInputStream.prototype.toggleEncryption = function () {
+  this._useEncryption = !this._useEncryption;
+  debug("Toggling encryption: " + this._useEncryption);
 };
 
 exports.SOEInputStream = SOEInputStream;
