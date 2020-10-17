@@ -57,23 +57,17 @@ var packetHandlers = {
       unknownBoolean7: true,
     });
 
+    server.sendData(client, "QuickChat.SendData", { commands: [] });
+
+    server.sendData(client, "ClientUpdate.DoneSendingPreloadCharacters", {
+      unknownBoolean1: 1,
+    });
+
+    server.sendData(client, "ClientUpdate.UpdateStat", { stats: [] });
+
     server.sendRawData(
       client,
-      fs.readFileSync(`${__dirname}/data/zone/QuickChatSendData.dat`)
-    );
-    server.sendRawData(
-      client,
-      fs.readFileSync(
-        `${__dirname}/data/zone/ClientUpdateDoneSendingPreloadCharacters.dat`
-      )
-    );
-    server.sendRawData(
-      client,
-      fs.readFileSync(`${__dirname}/data/zone/ClientUpdateUpdateStat.dat`)
-    );
-    server.sendRawData(
-      client,
-      fs.readFileSync(`${__dirname}/data/zone/ActivityManagerProfileList.dat`)
+      fs.readFileSync(`${__dirname}/data/zone/ActivityManagerProfileList.dat`) // keep that since we do not have schema for this packet
     );
 
     server.sendData(client, "Operation.ClientClearMissions", {});
@@ -206,7 +200,7 @@ var packetHandlers = {
       server.sendData(client, "Command.AddWorldCommand", {
         command: commands[i],
       });
-    }    
+    }
   },
   Security: function (server, client, packet) {
     debug(packet);
@@ -250,14 +244,6 @@ var packetHandlers = {
   SetLocale: function (server, client, packet) {
     debug("Do nothing");
   },
-  /*
-  GetContinentBattleInfo: function (server, client, packet) {
-    server.sendRawData(
-      client,
-      fs.readFileSync(`${__dirname}/data/zone/ContinentBattleInfo.dat`)
-    );
-  },
-  */
   GetContinentBattleInfo: function (server, client, packet) {
     server.sendData(client, "ContinentBattleInfo", {
       zones: [

@@ -110,22 +110,16 @@ export class ZoneServer extends EventEmitter {
     if (err) {
       console.error(err);
     } else {
-      debug("login");
+      debug("zone login");
       /*
       this.sendRawData(
         client,
         fs.readFileSync(
           `${__dirname}/data/zone/ReferenceData.WeaponDefinitions.dat`
-        )
-      );
-      this.sendRawData(
-        client,
-        fs.readFileSync(`${__dirname}/data/zone/InitializationParameters.dat`)
-      );
-        */
+        )*/
 
       this.sendData(client, "InitializationParameters", {
-        environment: "LOCAL",
+        environment: "local",
         serverId: 1,
       });
 
@@ -208,21 +202,6 @@ export class ZoneServer extends EventEmitter {
         unknownFloat3: 110,
       });
 
-      /*
-      this.sendRawData(
-        client,
-        fs.readFileSync(`${__dirname}/data/zone/Command.ItemDefinitions.dat`)
-      );
-*/
-      /*
-      this.sendRawData(client, fs.readFileSync(`${__dirname}/data/zone/VehicleBaseLoadVehicleDefinitionManager.dat`));
-      this.sendRawData(
-        client,
-        fs.readFileSync(
-          `${__dirname}/data/zone/ReferenceData.VehicleDefinitions.dat`
-        )
-      );
-*/
       var self = require(`${__dirname}/data/sendself.json`)
       client.character.guid = self.data.guid = this.generateGuid();
       client.character.loadouts = self.data.characterLoadoutData.loadouts;
