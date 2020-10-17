@@ -69,8 +69,14 @@ SOEOutputStream.prototype.resendData = function (sequence) {
   }
 };
 
-SOEOutputStream.prototype.toggleEncryption = function (value) {
-  this._useEncryption = !!value;
+SOEOutputStream.prototype.setEncryption = function (value) {
+  this._useEncryption = value;
+  debug("encryption: " + this._useEncryption);
+};
+
+SOEOutputStream.prototype.toggleEncryption = function () {
+  this._useEncryption = !this._useEncryption;
+  debug("Toggling encryption: " + this._useEncryption);
 };
 
 SOEOutputStream.prototype.setFragmentSize = function (value) {

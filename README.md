@@ -56,9 +56,13 @@ You can download them all [here](https://mega.nz/file/RtwDWJ7b#QYlxpXz_t0_kp7_S8
 
 On the H1Z1 game folder there is a file name "ClientConfig.ini".
 
-Open it and change the _Server_ value to the adress of your server , probably `localhost:PORT`
+Add `sessionid=0` at the beginning of this file.
+
+And change the _Server_ value to the adress of your server , probably `localhost:PORT`
 
 ### Launch the game
+
+If you have followed the step just above this one, this step is no longer necessary you can start the game by double clicking on H1Z1.exe.
 
 Execute this command in CMD/Powershell ( you have to be in your h1z1 game folder ) :
 
