@@ -5542,7 +5542,7 @@ var packets = [
     {
       fields: [
         { name: "zoneName", type: "string", defaultValue: "" },
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "zoneType", type: "uint32", defaultValue: 0 },
         { name: "unknownBoolean1", type: "boolean", defaultValue: false },
         { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
         {
