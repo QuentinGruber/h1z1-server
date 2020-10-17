@@ -9,7 +9,7 @@ var packetHandlers = {
   ClientIsReady: function (server, client, packet) {
     server.sendData(client, "ClientBeginZoning", {
       zoneName: "Z1",
-      unknownDword1: 4,
+      zoneType: 4,
       unknownBoolean1: true,
       unknownFloat1: 1,
       skyData: {
