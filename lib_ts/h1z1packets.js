@@ -5462,22 +5462,24 @@ var packets = [
     "ClientUpdate.ZonePopulation",
     0x111f00,
     {
-      fields: [
-        // { name: "populations",                  type: "array",     elementType: "uint8" }
-      ],
+      fields: [{ name: "populations", type: "array", elementType: "uint8" }],
     },
   ],
   [
     "ClientUpdate.RespawnLocations",
     0x112000,
     {
-      // fields: [
-      //     { name: "unknownFlags",                 type: "uint8" , defaultValue : 0},
-      //     { name: "locations",                    type: "array",  fields: respawnLocationDataSchema },
-      //     { name: "unknownDword1",                type: "uint32" , defaultValue : 0},
-      //     { name: "unknownDword2",                type: "uint32" , defaultValue : 0},
-      //     { name: "locations2",                   type: "array",  fields: respawnLocationDataSchema }
-      // ]
+      fields: [
+        { name: "unknownFlags", type: "uint8", defaultValue: 0 },
+        { name: "locations", type: "array", fields: respawnLocationDataSchema },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        {
+          name: "locations2",
+          type: "array",
+          fields: respawnLocationDataSchema,
+        },
+      ],
     },
   ],
   ["ClientUpdate.ModifyMovementSpeed", 0x112100, {}],

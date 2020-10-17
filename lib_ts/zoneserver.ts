@@ -110,19 +110,19 @@ export class ZoneServer extends EventEmitter {
     if (err) {
       console.error(err);
     } else {
-      debug("login");
+      debug("zone login");
       /*
       this.sendRawData(
         client,
         fs.readFileSync(
           `${__dirname}/data/zone/ReferenceData.WeaponDefinitions.dat`
-        )
-      );
-      this.sendRawData(
-        client,
-        fs.readFileSync(`${__dirname}/data/zone/InitializationParameters.dat`)
-      );
-        */
+        )*/
+
+      this.sendData(client, "InitializationParameters", {
+        environment: "local",
+        serverId: 1,
+      });
+
       var itemData = fs.readFileSync(
           `${__dirname}/data/ClientItemDefinitions.txt`,
           "utf8"
@@ -160,9 +160,9 @@ export class ZoneServer extends EventEmitter {
           unknownDword13: 0,
           unknownDword14: 0,
           unknownDword15: 0,
-          unknownDword16: 0,// sun orientation on x axis ???
+          unknownDword16: 0, // sun orientation on x axis ???
           unknownDword17: 0, // night when 100
-          unknownDword18: 0, 
+          unknownDword18: 0,
           unknownDword19: 0,
           unknownDword20: 0,
           unknownDword21: 0,
@@ -178,18 +178,18 @@ export class ZoneServer extends EventEmitter {
         unknownBoolean7: true,
       });
 
-      /*
-      this.sendRawData(
-        client,
-        fs.readFileSync(`${__dirname}/data/zone/ClientUpdateZonePopulation.dat`)
-      );
-      this.sendRawData(
-        client,
-        fs.readFileSync(
-          `${__dirname}/data/zone/ClientUpdateRespawnLocations.dat`
-        )
-      );
-*/
+      this.sendData(client, "ClientUpdate.ZonePopulation", {
+        populations: [0, 0],
+      });
+
+      this.sendData(client, "ClientUpdate.RespawnLocations", {
+        unknownFlags: 0,
+        locations: [],
+        unknownDword1: 0,
+        unknownDword2: 0,
+        locations2: [],
+      });
+
       this.sendData(client, "ClientGameSettings", {
         unknownDword1: 0,
         unknownDword2: 7,
@@ -202,21 +202,6 @@ export class ZoneServer extends EventEmitter {
         unknownFloat3: 110,
       });
 
-      /*
-      this.sendRawData(
-        client,
-        fs.readFileSync(`${__dirname}/data/zone/Command.ItemDefinitions.dat`)
-      );
-*/
-      /*
-      this.sendRawData(client, fs.readFileSync(`${__dirname}/data/zone/VehicleBaseLoadVehicleDefinitionManager.dat`));
-      this.sendRawData(
-        client,
-        fs.readFileSync(
-          `${__dirname}/data/zone/ReferenceData.VehicleDefinitions.dat`
-        )
-      );
-*/
       var self = require(`${__dirname}/data/sendself.json`)
       client.character.guid = self.data.guid = this.generateGuid();
       client.character.loadouts = self.data.characterLoadoutData.loadouts;
