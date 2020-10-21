@@ -7,6 +7,11 @@ import {H1Z1Protocol as ZoneProtocol} from "./h1z1protocol"
 // import {MongoClient} from "mongodb"
 const debug = require("debug")("ZoneServer")
 
+Date.now = () => {
+  // force current time
+  return 971172000000;
+};
+
 interface SoeServer {
   on: (arg0: string, arg1: any) => void;
   start: (
@@ -81,7 +86,7 @@ export class ZoneServer extends EventEmitter {
   this._characters = {}
   this._ncps = {};
   this._usingMongo = UsingMongo;
-  this._serverTime = 6662384021;
+  this._serverTime = Date.now() / 1000;
   this._transientId = 0;
   this._guids = {};
   this._packetHandlers = packetHandlers
@@ -194,7 +199,7 @@ export class ZoneServer extends EventEmitter {
         unknownDword1: 0,
         unknownDword2: 7,
         unknownBoolean1: true,
-        unknownFloat1: 1,
+        timescale: 1,
         unknownDword3: 1,
         unknownDword4: 1,
         unknownDword5: 0,
@@ -394,7 +399,7 @@ sendDataToAll (packetName:string, obj:any) {
   }
 };
 
-sendWeaponPacket (client:Client, packetName:string, obj:any) {
+sendWeaponPacket(client:Client, packetName:string, obj:any) {
   var weaponPacket = {
     gameTime: this.getServerTime(),
     packetName: packetName,
@@ -409,7 +414,7 @@ sendRawData(client:Client, data:Buffer) {
   this._gatewayServer.sendTunnelData(client, data);
 };
 
-stop  () {
+stop() {
   debug("Shutting down");
 };
 
@@ -425,7 +430,7 @@ getServerTime() {
   return this._serverTime + delta;
 };
 
-sendGameTimeSync  (client:Client) {
+sendGameTimeSync(client:Client) {
   debug("GameTimeSync");
   this.sendData(client, "GameTimeSync", {
     time: Int64String(this.getGameTime()),
@@ -456,7 +461,7 @@ getTransientId(client:any, guid:string) {
   return client.transientIds[guid];
 };
 
-spawnNPC (npcId:number, position:Array<number>, rotation:Array<number>, callback:any) {
+spawnNPC(npcId:number, position:Array<number>, rotation:Array<number>, callback:any) {
   this.data("npcs").findOne({ id: npcId },  (err:string, npc:any) => {
     if (err) {
       debug(err);
@@ -524,9 +529,9 @@ spawnNPC (npcId:number, position:Array<number>, rotation:Array<number>, callback
   });
 };
 
-spawnVehicle (vehicleId:number) {};
+spawnVehicle(vehicleId:number) {};
 
-createPositionUpdate (position:Array<number>, rotation:Array<number>) {
+createPositionUpdate(position:Array<number>, rotation:Array<number>) {
   var obj = {
     flags: 4095,
     unknown2_int32: this.getGameTime(),
