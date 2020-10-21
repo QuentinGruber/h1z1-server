@@ -91,25 +91,26 @@ Execute this command in CMD/Powershell ( you have to be in your h1z1 game folder
                     allowedAccess: true,
                   }`
 
-## How to use
+## How to use (3 ways)
 
-### Use the app
+### Using the GUI app
 
 The application is at the very beginning of its development, it can contain bugs and is very minimalist.
 
 Download here : https://github.com/QuentinGruber/h1z1-server-app/releases
 
-### Quick Start
+### Using Quick Start
 
-Clone this repo : [h1z1-server-QuickStart](https://github.com/QuentinGruber/h1z1-server-QuickStart)
+Clone this repo : [h1z1-server-QuickStart](https://github.com/QuentinGruber/h1z1-server-QuickStart) and follow the instruction in wrote in his README
 
-### Installation
+### Using your own scripts with the library
+#### Installation
 
 You need [Nodejs](https://nodejs.org/en/) ( currently using 12.16 LTS).
 
 `npm i h1z1-server` to install package
 
-### LoginServer
+#### LoginServer script exemple
 
     const H1Z1servers = require("./h1z1-server");
     const { Base64 } = require("js-base64");
