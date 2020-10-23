@@ -68,29 +68,6 @@ Execute this command in CMD/Powershell ( you have to be in your h1z1 game folder
 
 `.\H1Z1.exe inifile=ClientConfig.ini providerNamespace=soe sessionid=0 CasSessionId=0 Interna tionalizationLocale=en_US LaunchPadUfp={fingerprint} LaunchPadSessionId=0 STEAM_ENABLED=0`
 
-## Setup [MongoDB](https://fastdl.mongodb.org/windows/mongodb-windows-x86_64-4.4.0-signed.msi) (OPTIONAL)
-
-- Create a database named "h1server" with a collection named "servers"
-
-- Add the following code as a document, this is a server's info template:
-
-`{
-                    serverId: 1,
-                    serverState: 2,
-                    locked: false,
-                    name: "SoloServer",
-                    nameId: 8,
-                    description: "yeah",
-                    descriptionId: 1,
-                    reqFeatureId: 0,
-                    serverInfo:
-                    "<ServerInfo Region=\"CharacterCreate.RegionUs\" Subregion=\"UI.SubregionUS\" IsRecommended=\"1\" IsRecommendedVS=\"0\" IsRecommendedNC=\"0\" IsRecommendedTR=\"0\" />",
-                    populationLevel: 3,
-                    populationData:
-                    "<Population ServerCapacity=\"0\" PingAddress=\"127.0.0.1:1117\" Rulesets=\"Permadeath\"><factionlist IsList=\"1\"><faction Id=\"1\" Percent=\"0\" TargetPopPct=\"0\" RewardBuff=\"52\" XPBuff=\"52\" PercentAvg=\"0\"/><faction Id=\"2\" Percent=\"0\" TargetPopPct=\"1\" RewardBuff=\"0\" XPBuff=\"0\" PercentAvg=\"0\"/><faction Id=\"3\" Percent=\"0\" TargetPopPct=\"1\" RewardBuff=\"0\" XPBuff=\"0\" PercentAvg=\"1\"/></factionlist></Population>",
-                    allowedAccess: true,
-                  }`
-
 ## How to use (3 ways)
 
 ### Using the GUI app
@@ -163,6 +140,29 @@ From my package.json, if it can help.
         "zone-server": "set DEBUG=* & node ZoneServer.js",
         "zone-client": "set DEBUG=* & node ZoneClient.js"
     }
+
+## Setup [MongoDB](https://fastdl.mongodb.org/windows/mongodb-windows-x86_64-4.4.0-signed.msi) (OPTIONAL)
+
+- Create a database named "h1server" with a collection named "servers"
+
+- Add the following code as a document, this is a server's info template:
+
+`{
+                    serverId: 1,
+                    serverState: 2,
+                    locked: false,
+                    name: "SoloServer",
+                    nameId: 8,
+                    description: "yeah",
+                    descriptionId: 1,
+                    reqFeatureId: 0,
+                    serverInfo:
+                    "<ServerInfo Region=\"CharacterCreate.RegionUs\" Subregion=\"UI.SubregionUS\" IsRecommended=\"1\" IsRecommendedVS=\"0\" IsRecommendedNC=\"0\" IsRecommendedTR=\"0\" />",
+                    populationLevel: 3,
+                    populationData:
+                    "<Population ServerCapacity=\"0\" PingAddress=\"127.0.0.1:1117\" Rulesets=\"Permadeath\"><factionlist IsList=\"1\"><faction Id=\"1\" Percent=\"0\" TargetPopPct=\"0\" RewardBuff=\"52\" XPBuff=\"52\" PercentAvg=\"0\"/><faction Id=\"2\" Percent=\"0\" TargetPopPct=\"1\" RewardBuff=\"0\" XPBuff=\"0\" PercentAvg=\"0\"/><faction Id=\"3\" Percent=\"0\" TargetPopPct=\"1\" RewardBuff=\"0\" XPBuff=\"0\" PercentAvg=\"1\"/></factionlist></Population>",
+                    allowedAccess: true,
+                  }`
 
 ### Legal
 
