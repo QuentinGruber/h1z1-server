@@ -180,10 +180,8 @@ var packetHandlers = {
         `${__dirname}/data/zone/PointOfInterestDefinitionReply.dat`
       )
     );
-    server.sendRawData(
-      client,
-      fs.readFileSync(`${__dirname}/data/zone/ZoneDoneSendingInitialData.dat`)
-    );
+
+    server.sendData(client, "ZoneDoneSendingInitialData", {});
 
     var commands = [
       "hax",
