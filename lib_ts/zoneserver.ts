@@ -7,6 +7,11 @@ import {H1Z1Protocol as ZoneProtocol} from "./h1z1protocol"
 // import {MongoClient} from "mongodb"
 const debug = require("debug")("ZoneServer")
 
+Date.now = () => {
+  // force current time
+  return 971172000000;
+};
+
 interface SoeServer {
   on: (arg0: string, arg1: any) => void;
   start: (
@@ -81,7 +86,7 @@ export class ZoneServer extends EventEmitter {
   this._characters = {}
   this._ncps = {};
   this._usingMongo = UsingMongo;
-  this._serverTime = 6662384021;
+  this._serverTime = Date.now() / 1000;
   this._transientId = 0;
   this._guids = {};
   this._packetHandlers = packetHandlers
@@ -110,19 +115,19 @@ export class ZoneServer extends EventEmitter {
     if (err) {
       console.error(err);
     } else {
-      debug("login");
+      debug("zone login");
       /*
       this.sendRawData(
         client,
         fs.readFileSync(
           `${__dirname}/data/zone/ReferenceData.WeaponDefinitions.dat`
-        )
-      );
-      this.sendRawData(
-        client,
-        fs.readFileSync(`${__dirname}/data/zone/InitializationParameters.dat`)
-      );
-        */
+        )*/
+
+      this.sendData(client, "InitializationParameters", {
+        environment: "local",
+        serverId: 1,
+      });
+
       var itemData = fs.readFileSync(
           `${__dirname}/data/ClientItemDefinitions.txt`,
           "utf8"
@@ -140,8 +145,8 @@ export class ZoneServer extends EventEmitter {
 
       this.sendData(client, "SendZoneDetails", {
         zoneName: "Z1",
-        unknownDword1: 4,
         unknownBoolean1: true,
+        zoneType: 4,
         unknownFloat1: 1,
         skyData: {
           name: "sky",
@@ -160,9 +165,9 @@ export class ZoneServer extends EventEmitter {
           unknownDword13: 0,
           unknownDword14: 0,
           unknownDword15: 0,
-          unknownDword16: 0,// sun orientation on x axis ???
+          unknownDword16: 0, // sun orientation on x axis ???
           unknownDword17: 0, // night when 100
-          unknownDword18: 0, 
+          unknownDword18: 0,
           unknownDword19: 0,
           unknownDword20: 0,
           unknownDword21: 0,
@@ -178,23 +183,23 @@ export class ZoneServer extends EventEmitter {
         unknownBoolean7: true,
       });
 
-      /*
-      this.sendRawData(
-        client,
-        fs.readFileSync(`${__dirname}/data/zone/ClientUpdateZonePopulation.dat`)
-      );
-      this.sendRawData(
-        client,
-        fs.readFileSync(
-          `${__dirname}/data/zone/ClientUpdateRespawnLocations.dat`
-        )
-      );
-*/
+      this.sendData(client, "ClientUpdate.ZonePopulation", {
+        populations: [0, 0],
+      });
+
+      this.sendData(client, "ClientUpdate.RespawnLocations", {
+        unknownFlags: 0,
+        locations: [],
+        unknownDword1: 0,
+        unknownDword2: 0,
+        locations2: [],
+      });
+
       this.sendData(client, "ClientGameSettings", {
         unknownDword1: 0,
         unknownDword2: 7,
         unknownBoolean1: true,
-        unknownFloat1: 1,
+        timescale: 1,
         unknownDword3: 1,
         unknownDword4: 1,
         unknownDword5: 0,
@@ -202,21 +207,6 @@ export class ZoneServer extends EventEmitter {
         unknownFloat3: 110,
       });
 
-      /*
-      this.sendRawData(
-        client,
-        fs.readFileSync(`${__dirname}/data/zone/Command.ItemDefinitions.dat`)
-      );
-*/
-      /*
-      this.sendRawData(client, fs.readFileSync(`${__dirname}/data/zone/VehicleBaseLoadVehicleDefinitionManager.dat`));
-      this.sendRawData(
-        client,
-        fs.readFileSync(
-          `${__dirname}/data/zone/ReferenceData.VehicleDefinitions.dat`
-        )
-      );
-*/
       var self = require(`${__dirname}/data/sendself.json`)
       client.character.guid = self.data.guid = this.generateGuid();
       client.character.loadouts = self.data.characterLoadoutData.loadouts;
@@ -229,7 +219,6 @@ export class ZoneServer extends EventEmitter {
         characterId: client.character.characterId,
         battleRank: 100,
       });
-      this.sendData(client, "ZoneDoneSendingInitialData", {});
     }
   });
 
@@ -409,7 +398,7 @@ sendDataToAll (packetName:string, obj:any) {
   }
 };
 
-sendWeaponPacket (client:Client, packetName:string, obj:any) {
+sendWeaponPacket(client:Client, packetName:string, obj:any) {
   var weaponPacket = {
     gameTime: this.getServerTime(),
     packetName: packetName,
@@ -424,7 +413,7 @@ sendRawData(client:Client, data:Buffer) {
   this._gatewayServer.sendTunnelData(client, data);
 };
 
-stop  () {
+stop() {
   debug("Shutting down");
 };
 
@@ -440,7 +429,7 @@ getServerTime() {
   return this._serverTime + delta;
 };
 
-sendGameTimeSync  (client:Client) {
+sendGameTimeSync(client:Client) {
   debug("GameTimeSync");
   this.sendData(client, "GameTimeSync", {
     time: Int64String(this.getGameTime()),
@@ -471,7 +460,7 @@ getTransientId(client:any, guid:string) {
   return client.transientIds[guid];
 };
 
-spawnNPC (npcId:number, position:Array<number>, rotation:Array<number>, callback:any) {
+spawnNPC(npcId:number, position:Array<number>, rotation:Array<number>, callback:any) {
   this.data("npcs").findOne({ id: npcId },  (err:string, npc:any) => {
     if (err) {
       debug(err);
@@ -539,9 +528,9 @@ spawnNPC (npcId:number, position:Array<number>, rotation:Array<number>, callback
   });
 };
 
-spawnVehicle (vehicleId:number) {};
+spawnVehicle(vehicleId:number) {};
 
-createPositionUpdate (position:Array<number>, rotation:Array<number>) {
+createPositionUpdate(position:Array<number>, rotation:Array<number>) {
   var obj = {
     flags: 4095,
     unknown2_int32: this.getGameTime(),

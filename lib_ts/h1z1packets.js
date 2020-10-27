@@ -4823,7 +4823,7 @@ var packets = [
     {
       fields: [
         { name: "zoneName", type: "string", defaultValue: "" },
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "zoneType", type: "uint32", defaultValue: 0 },
         { name: "unknownBoolean1", type: "boolean", defaultValue: false },
         { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
         {
@@ -5462,22 +5462,24 @@ var packets = [
     "ClientUpdate.ZonePopulation",
     0x111f00,
     {
-      fields: [
-        // { name: "populations",                  type: "array",     elementType: "uint8" }
-      ],
+      fields: [{ name: "populations", type: "array", elementType: "uint8" }],
     },
   ],
   [
     "ClientUpdate.RespawnLocations",
     0x112000,
     {
-      // fields: [
-      //     { name: "unknownFlags",                 type: "uint8" , defaultValue : 0},
-      //     { name: "locations",                    type: "array",  fields: respawnLocationDataSchema },
-      //     { name: "unknownDword1",                type: "uint32" , defaultValue : 0},
-      //     { name: "unknownDword2",                type: "uint32" , defaultValue : 0},
-      //     { name: "locations2",                   type: "array",  fields: respawnLocationDataSchema }
-      // ]
+      fields: [
+        { name: "unknownFlags", type: "uint8", defaultValue: 0 },
+        { name: "locations", type: "array", fields: respawnLocationDataSchema },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        {
+          name: "locations2",
+          type: "array",
+          fields: respawnLocationDataSchema,
+        },
+      ],
     },
   ],
   ["ClientUpdate.ModifyMovementSpeed", 0x112100, {}],
@@ -5542,7 +5544,7 @@ var packets = [
     {
       fields: [
         { name: "zoneName", type: "string", defaultValue: "" },
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "zoneType", type: "uint32", defaultValue: 0 },
         { name: "unknownBoolean1", type: "boolean", defaultValue: false },
         { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
         {
@@ -6423,7 +6425,7 @@ var packets = [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
         { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-        { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
+        { name: "timescale", type: "float", defaultValue: 1.0 },
         { name: "unknownDword3", type: "uint32", defaultValue: 0 },
         { name: "unknownDword4", type: "uint32", defaultValue: 0 },
         { name: "unknownDword5", type: "uint32", defaultValue: 0 },
