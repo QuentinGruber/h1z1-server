@@ -1,3 +1,13 @@
+// ======================================================================
+//
+//   GNU GENERAL PUBLIC LICENSE
+//   Version 3, 29 June 2007 
+//   copyright (c) 2020 Quentin Gruber
+//
+//   https://github.com/QuentinGruber/h1z1-server
+//   https://www.npmjs.com/package/h1z1-server
+// ======================================================================
+
 var Jenkins = require("hash-jenkins");
 var fs = require("fs");
 const debug = require("debug")("zonepacketHandlers");

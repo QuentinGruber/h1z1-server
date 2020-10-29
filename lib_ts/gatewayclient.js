@@ -1,3 +1,13 @@
+// ======================================================================
+//
+//   GNU GENERAL PUBLIC LICENSE
+//   Version 3, 29 June 2007 
+//   copyright (c) 2020 Quentin Gruber
+//
+//   https://github.com/QuentinGruber/h1z1-server
+//   https://www.npmjs.com/package/h1z1-server
+// ======================================================================
+
 var EventEmitter = require("events").EventEmitter,
   SOEClient = require("./soeclient").SOEClient,
   fs = require("fs"),

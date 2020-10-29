@@ -9,6 +9,6 @@ declare class ZoneProtocol {
     } | undefined;
 }
 declare namespace ZoneProtocol {
-    export function reloadPacketDefinitions(): void;
+    function reloadPacketDefinitions(): void;
 }
 export {};

@@ -8,12 +8,13 @@ declare class SOEInputStream {
     _nextSequence: number;
     _lastAck: number;
     _nextFragment: number;
-    _lastProcessedFragment: any;
+    _lastProcessedFragment: number;
     _fragments: any[];
     _useEncryption: boolean;
     _rc4: import("crypto").Decipher;
     _processDataFragments(): void;
     write(data: any, sequence: any, fragment: any): void;
-    toggleEncryption(value: any): void;
+    setEncryption(value: any): void;
+    toggleEncryption(): void;
 }
 export {};

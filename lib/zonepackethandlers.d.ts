@@ -1,6 +1,7 @@
 export default packetHandlers;
 declare var packetHandlers: {
     ClientIsReady: (server: any, client: any, packet: any) => void;
+    Security: (server: any, client: any, packet: any) => void;
     "Command.FreeInteractionNpc": (server: any, client: any, packet: any) => void;
     "Collision.Damage": (server: any, client: any, packet: any) => void;
     "LobbyGameDefinition.DefinitionsRequest": (server: any, client: any, packet: any) => void;
