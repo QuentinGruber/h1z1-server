@@ -6,6 +6,8 @@
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
+//   
+//   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
 function build(packets, packetTypes, packetDescriptors, prefix) {
