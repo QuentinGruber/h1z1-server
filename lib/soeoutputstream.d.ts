@@ -12,7 +12,8 @@ declare class SOEOutputStream {
     write(data: any, overrideEncryption: any): void;
     ack(sequence: any): void;
     resendData(sequence: any): void;
-    toggleEncryption(value: any): void;
+    setEncryption(value: any): void;
+    toggleEncryption(): void;
     setFragmentSize(value: any): void;
 }
 export {};

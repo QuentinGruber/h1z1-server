@@ -1,7 +1,7 @@
 export var SOEProtocol: typeof SOEProtocol;
 export namespace SOEPackets {
-    export const PacketTypes: {};
-    export const Packets: {};
+    const PacketTypes: {};
+    const Packets: {};
 }
 declare function SOEProtocol(): void;
 declare class SOEProtocol {
