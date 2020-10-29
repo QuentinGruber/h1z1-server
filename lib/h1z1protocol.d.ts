@@ -9,6 +9,6 @@ declare class H1Z1Protocol {
     } | undefined;
 }
 declare namespace H1Z1Protocol {
-    export function reloadPacketDefinitions(): void;
+    function reloadPacketDefinitions(): void;
 }
 export {};
