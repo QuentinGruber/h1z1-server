@@ -282,7 +282,7 @@ export class LoginServer extends EventEmitter {
                     unknown2: 0,
                     stationName: "nope0no",
                     characterName: "LocalPlayer", // get character name from the characterID (ask db)
-                    unknown3: 0,
+                    loginQueuePlacement: 0,
                   },
                 };
               } else {
