@@ -1,12 +1,12 @@
 // ======================================================================
 //
 //   GNU GENERAL PUBLIC LICENSE
-//   Version 3, 29 June 2007 
+//   Version 3, 29 June 2007
 //   copyright (c) 2020 Quentin Gruber
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
-//   
+//
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
@@ -24,7 +24,7 @@ GatewayProtocol.prototype.parse = function (data) {
     packet = GatewayPackets.Packets[packetType];
 
   if (packet) {
-    debug("receive data : ",data)
+    debug("receive data : ", data);
     if (
       packet.name == "TunnelPacketToExternalConnection" ||
       packet.name == "TunnelPacketFromExternalConnection"
@@ -74,23 +74,23 @@ GatewayProtocol.prototype.pack = function (packetName, object) {
       data = new Buffer.alloc(1 + object.tunnelData.length);
       data.writeUInt8(packetType | (object.channel << 5), 0);
       object.tunnelData.copy(data, 1);
-      debug("tunnelpacket send data :",object)
+      debug("tunnelpacket send data :", object);
     } else if (packet.name == "ChannelIsRoutable") {
       data = new Buffer.alloc(2);
       data.writeUInt8(packetType | (object.channel << 5), 0);
       data.writeUInt8(object.isRoutable, 1);
-      debug("ChannelIsRoutable send data :",data)
+      debug("ChannelIsRoutable send data :", data);
     } else {
       if (packet.schema) {
         debug("Packing data for " + packet.name);
-        debug("object receive :",object)
+        debug("object receive :", object);
         payload = DataSchema.pack(packet.schema, object);
         if (payload) {
           data = new Buffer.alloc(1 + payload.length);
           data.writeUInt8(packetType, 0);
           payload.data.copy(data, 1);
-          debug("packet w/payload:",payload)
-          debug("send data :",data)
+          debug("packet w/payload:", payload);
+          debug("send data :", data);
         } else {
           debug("Could not pack data schema for " + packet.name);
         }
