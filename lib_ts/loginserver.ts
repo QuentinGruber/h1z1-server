@@ -1,12 +1,12 @@
 // ======================================================================
 //
 //   GNU GENERAL PUBLIC LICENSE
-//   Version 3, 29 June 2007 
+//   Version 3, 29 June 2007
 //   copyright (c) 2020 Quentin Gruber
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
-//   
+//
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
@@ -182,7 +182,7 @@ export class LoginServer extends EventEmitter {
             case "CharacterSelectInfoRequest":
               let CharactersInfo;
               if (this._soloMode) {
-                const SinglePlayerCharacter = require("../single_player_character.json");
+                const SinglePlayerCharacter = require("./data/single_player_character.json");
                 CharactersInfo = {
                   status: 1,
                   canBypassServerLock: true,
@@ -211,7 +211,7 @@ export class LoginServer extends EventEmitter {
                 servers = await this._db.collection("servers").find().toArray();
               } else {
                 if (this._soloMode) {
-                  const SoloServer = require("../single_player_server.json");
+                  const SoloServer = require("./data/single_player_server.json");
                   servers = [SoloServer];
                 }
               }
