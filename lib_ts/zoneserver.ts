@@ -390,7 +390,7 @@ setCharacterLoadout(
 };
 sendData(client:Client, packetName:string, obj:any) {
   if (packetName != "KeepAlive") {
-    debug("send data ", packetName);
+    debug("send data", packetName);
   }
   var data = this._protocol.pack(packetName, obj, this._referenceData);
   if (Array.isArray(client)) {
