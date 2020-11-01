@@ -230,6 +230,8 @@ export class LoginServer extends EventEmitter {
             case "CharacterDeleteRequest":
               const characters_delete_info: any = {
                 characterId: (packet.result as any).characterId,
+                status:1,
+                Payload:"\0"
               };
               data = this._protocol.pack(
                 "CharacterDeleteReply",
