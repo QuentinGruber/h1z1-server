@@ -116,7 +116,7 @@ var packets = [
             { name: "serverTicket", type: "string" },
             { name: "encryptionKey", type: "byteswithlength" },
             { name: "characterId", type: "uint64" },
-            { name: "unknown1", type: "uint32" },
+            { name: "guid", type: "uint32" },
             { name: "unknown2", type: "uint32" },
             { name: "stationName", type: "string" },
             { name: "characterName", type: "string" },
