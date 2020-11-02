@@ -263,6 +263,7 @@ export class LoginServer extends EventEmitter {
                     }
                   );
               }
+              break;
             case "CharacterLoginRequest":
               let charactersLoginInfo: any;
               const { serverId, characterId } = packet.result;
