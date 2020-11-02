@@ -94,8 +94,11 @@ var packets = [
         { name: "characterId", type: "uint64" },
         { name: "serverId", type: "uint32" },
         { name: "unknown", type: "uint32", defaultValue: 0 },
-        { name: "unknown2", type: "uint32", defaultValue: 0 },
-        { name: "characterLocalisation", type: "string" },
+        {
+          name: "payload",
+          type: "byteswithlength",
+          fields: [{ name: "locale", type: "string" }],
+        },
       ],
     },
   ],
