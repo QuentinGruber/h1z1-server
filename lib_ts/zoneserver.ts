@@ -242,7 +242,7 @@ export class ZoneServer extends EventEmitter {
         });
 
         var self = require(`${__dirname}/data/sendself.json`);
-        client.character.guid = self.data.guid = this.generateGuid();
+        client.character.guid = self.data.guid;
         client.character.loadouts = self.data.characterLoadoutData.loadouts;
         client.character.inventory = self.data.inventory;
         client.character.factionId = self.data.factionId;
