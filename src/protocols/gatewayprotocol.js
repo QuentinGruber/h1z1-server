@@ -12,7 +12,7 @@
 
 var debug = require("debug")("GatewayProtocol"),
   DataSchema = require("h1z1-dataschema"),
-  GatewayPackets = require("../gatewaypackets");
+  GatewayPackets = require("../packets/gatewaypackets");
 
 function GatewayProtocol() {}
 
