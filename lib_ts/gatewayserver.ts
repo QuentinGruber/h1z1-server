@@ -1,12 +1,12 @@
 // ======================================================================
 //
 //   GNU GENERAL PUBLIC LICENSE
-//   Version 3, 29 June 2007 
+//   Version 3, 29 June 2007
 //   copyright (c) 2020 Quentin Gruber
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
-//   
+//
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
@@ -39,7 +39,8 @@ interface SoeServer {
   stop: () => void;
   _sendPacket: () => void;
   sendAppData: (arg0: Client, arg1: any, arg2: undefined | any) => void;
-  toggleEncryption: (arg0: boolean) => void;
+  toggleEncryption: () => void;
+  setEncryption: (arg0: boolean) => void;
   toggleDataDump: () => void;
   deleteClient: (client: Client) => void;
 }
@@ -108,28 +109,12 @@ export class GatewayServer extends EventEmitter {
           const result = packet.result;
           switch (packet.name) {
             case "LoginRequest":
-              this._soeServer.toggleEncryption(true);
-              this._soeServer.sendAppData(
+              this._soeServer.toggleEncryption();
+             this._soeServer.sendAppData(
                 client,
-                this._protocol.pack("LoginReply", { loggedIn: true }),
-                true
-              );
-              this._soeServer.sendAppData(
-                client,
-                this._protocol.pack("ChannelIsRoutable", {
-                  channel: 0,
-                  isRoutable: true,
-                }),
-                true
-              );
-              this._soeServer.sendAppData(
-                client,
-                this._protocol.pack("ChannelIsRoutable", {
-                  channel: 1,
-                  isRoutable: true,
-                }),
-                true
-              );
+                this._protocol.pack("LoginReply", {loggedIn:true}),
+                true)
+
               if (result && result.characterId) {
                 this.emit("login", null, client, result.characterId);
               }

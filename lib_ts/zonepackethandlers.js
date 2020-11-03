@@ -1,12 +1,12 @@
 // ======================================================================
 //
 //   GNU GENERAL PUBLIC LICENSE
-//   Version 3, 29 June 2007 
+//   Version 3, 29 June 2007
 //   copyright (c) 2020 Quentin Gruber
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
-//   
+//
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
@@ -77,11 +77,12 @@ var packetHandlers = {
 
     server.sendData(client, "ClientUpdate.UpdateStat", { stats: [] });
 
+    /*
     server.sendRawData(
       client,
-      fs.readFileSync(`${__dirname}/data/zone/ActivityManagerProfileList.dat`) // keep that since we do not have schema for this packet
+      fs.readFileSync(`${__dirname}/data/zone/ActivityManagerProfileList.dat`)
     );
-
+    */
     server.sendData(client, "Operation.ClientClearMissions", {});
 
     server.sendData(client, "ZoneSetting.Data", {
@@ -127,7 +128,7 @@ var packetHandlers = {
       gameTime: (server.getServerTime() & 0xffffffff) >>> 0,
     });
     server.sendGameTimeSync(client);
-
+    /*
     server.sendRawData(
       client,
       fs.readFileSync(
@@ -178,6 +179,7 @@ var packetHandlers = {
         `${__dirname}/data/zone/AbilitiesSetAbilityActivationManager.dat`
       )
     );
+    */
     client.character.currentLoadoutId = 3;
     server.sendData(client, "Loadout.SetCurrentLoadout", {
       type: 2,
@@ -186,13 +188,15 @@ var packetHandlers = {
       tabId: 256,
       unknown2: 1,
     });
+
+    /*
     server.sendRawData(
       client,
       fs.readFileSync(
         `${__dirname}/data/zone/PointOfInterestDefinitionReply.dat`
       )
     );
-
+    */
     server.sendData(client, "ZoneDoneSendingInitialData", {});
 
     var commands = [
@@ -1270,6 +1274,10 @@ var packetHandlers = {
     }
     if (packet.data.commandHash == Jenkins.oaat("HAX")) {
       switch (args[0]) {
+        case "testpacket":
+          const packetName = args[1];
+          server.sendData(client, packetName, {});
+          break;
         case "hell":
           debug(":)");
           function rnd_number() {
@@ -2129,14 +2137,11 @@ var packetHandlers = {
     server.sendData(
       client,
       "ProfileStats.PlayerProfileStats",
-      JSON.parse(fs.readFileSync(`${__dirname}/data/zone/profilestats.json`))
+      JSON.parse(fs.readFileSync(`${__dirname}/data/profilestats.json`))
     );
   },
   GetRewardBuffInfo: function (server, client, packet) {
-    server.sendRawData(
-      client,
-      fs.readFileSync(`${__dirname}/data/zone/RewardBuffInfo.dat`)
-    );
+    server.sendData(client, "RewardBuffInfo", {});
   },
   PlayerUpdateUpdatePositionClientToZone: function (server, client, packet) {
     if (packet.data.position) {
