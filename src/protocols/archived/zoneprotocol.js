@@ -13,7 +13,7 @@
 var debug = require("debug")("ZoneProtocol"),
   DataSchema = require("h1z1-dataschema"),
   fs = require("fs"),
-  ZonePackets = require("../../zonepackets");
+  ZonePackets = require("../../packets/zonepackets");
 
 function lz4_decompress(data, inSize, outSize) {
   var outdata = new Buffer.alloc(outSize),

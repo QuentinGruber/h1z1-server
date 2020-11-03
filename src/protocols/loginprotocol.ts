@@ -12,7 +12,7 @@
 
 const debug = require("debug")("LoginProtocol");
 import DataSchema from "h1z1-dataschema";
-const LoginPackets = require("./loginpackets");
+const LoginPackets = require("../packets/loginpackets");
 
 export class LoginProtocol {
   parse(data: any) {

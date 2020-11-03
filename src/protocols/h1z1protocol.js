@@ -13,7 +13,7 @@
 var debug = require("debug")("H1Z1Protocol"),
   DataSchema = require("h1z1-dataschema"),
   fs = require("fs"),
-  H1Z1Packets = require("../h1z1packets");
+  H1Z1Packets = require("../packets/h1z1packets");
 
 function lz4_decompress(data, inSize, outSize) {
   var outdata = new Buffer.alloc(outSize),

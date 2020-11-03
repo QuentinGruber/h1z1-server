@@ -11,8 +11,8 @@
 // ======================================================================
 
 var EventEmitter = require("events").EventEmitter,
-  SOEServer = require("./soeserver").SOEServer,
-  SOEClient = require("./soeclient").SOEClient,
+  SOEServer = require("../servers/SoeServer/soeserver").SOEServer,
+  SOEClient = require("../clients/soeclient").SOEClient,
   util = require("util"),
   fs = require("fs"),
   debug = require("debug")("SOEProxy");

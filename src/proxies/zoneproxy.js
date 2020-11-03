@@ -12,7 +12,7 @@
 
 var EventEmitter = require("events").EventEmitter,
   GatewayProxy = require("./gatewayproxy").GatewayProxy,
-  ZoneProtocol = require("./protocols/archived/zoneprotocol").ZoneProtocol,
+  ZoneProtocol = require("../protocols/archived/zoneprotocol").ZoneProtocol,
   util = require("util"),
   fs = require("fs"),
   debug = require("debug")("ZoneProxy");
