@@ -162,8 +162,9 @@ export class ZoneServer extends EventEmitter {
           serverId: 1,
         });
 
+        /*
         var itemData = fs.readFileSync(
-            "./data/ClientItemDefinitions.txt", // maybe path is wrong
+          `${__dirname}../../../data/ClientItemDefinitions.txt`, // TODO : fix this path
             "utf8"
           ),
           itemLines = itemData.split("\n"),
@@ -176,7 +177,7 @@ export class ZoneServer extends EventEmitter {
         }
         const referenceData = { itemTypes: items };
         this.setReferenceData(referenceData);
-
+        */
         this.sendData(client, "SendZoneDetails", {
           zoneName: "Z1",
           unknownBoolean1: true,
