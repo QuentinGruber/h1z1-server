@@ -12,7 +12,7 @@
 
 import { EventEmitter } from "events";
 
-import { SOEServer } from "./soeserver";
+import { SOEServer } from "../SoeServer/soeserver";
 import { GatewayProtocol } from "../../protocols/gatewayprotocol";
 const debug = require("debug")("GatewayServer");
 

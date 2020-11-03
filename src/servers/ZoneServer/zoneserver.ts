@@ -11,10 +11,10 @@
 // ======================================================================
 
 import { EventEmitter } from "events";
-import { GatewayServer } from "./servers/GatewayServer/gatewayserver";
+import { GatewayServer } from "../GatewayServer/gatewayserver";
 import fs from "fs";
 import { default as packetHandlers } from "./zonepackethandlers";
-import { H1Z1Protocol as ZoneProtocol } from "./protocols/h1z1protocol";
+import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
 // import {MongoClient} from "mongodb"
 const debug = require("debug")("ZoneServer");
 
