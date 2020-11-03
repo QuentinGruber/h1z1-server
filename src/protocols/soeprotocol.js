@@ -12,7 +12,7 @@
 
 var fs = require("fs"),
   debug = require("debug")("SOEProtocol"),
-  PacketTable = require("./packettable");
+  PacketTable = require("../packettable");
 
 var stand_alone_packets = [
   [

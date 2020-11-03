@@ -14,8 +14,8 @@ var EventEmitter = require("events").EventEmitter,
   SOEClient = require("./soeclient").SOEClient,
   fs = require("fs"),
   util = require("util"),
-  GatewayProtocol = require("./gatewayprotocol").GatewayProtocol,
-  GatewayPackets = require("./gatewayprotocol").GatewayPackets,
+  GatewayProtocol = require("../protocols/gatewayprotocol").GatewayProtocol,
+  GatewayPackets = require("../protocols/gatewayprotocol").GatewayPackets,
   debug = require("debug")("GatewayClient");
 
 function GatewayClientError(message) {

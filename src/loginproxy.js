@@ -12,7 +12,7 @@
 
 var EventEmitter = require("events").EventEmitter,
   SOEProxy = require("./soeproxy").SOEProxy,
-  LoginProtocol = require("./loginprotocol").LoginProtocol,
+  LoginProtocol = require("./protocols/loginprotocol").LoginProtocol,
   fs = require("fs"),
   util = require("util"),
   debug = require("debug")("LoginProxy");

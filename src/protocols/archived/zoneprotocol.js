@@ -10,10 +10,10 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-var debug = require("debug")("H1Z1Protocol"),
+var debug = require("debug")("ZoneProtocol"),
   DataSchema = require("h1z1-dataschema"),
   fs = require("fs"),
-  H1Z1Packets = require("./h1z1packets");
+  ZonePackets = require("../../zonepackets");
 
 function lz4_decompress(data, inSize, outSize) {
   var outdata = new Buffer.alloc(outSize),
@@ -315,120 +315,114 @@ function readSignedIntWith2bitLengthValue(data, offset) {
 }
 
 function parseUpdatePositionData(data, offset) {
-  try {
-    var obj = {};
+  var obj = {};
 
-    obj["flags"] = data.readUInt16LE(offset);
-    offset += 2;
+  obj["flags"] = data.readUInt16LE(offset);
+  offset += 2;
 
-    obj["unknown2_int32"] = data.readUInt32LE(offset);
-    offset += 4;
+  obj["unknown2_int32"] = data.readUInt32LE(offset);
+  offset += 4;
 
-    obj["unknown3_int8"] = data.readUInt8(offset);
-    offset += 1;
+  obj["unknown3_int8"] = data.readUInt8(offset);
+  offset += 1;
 
-    if (obj.flags & 1) {
-      var v = readUnsignedIntWith2bitLengthValue(data, offset);
-      obj["unknown4"] = v.value;
-      offset += v.length;
-    }
-
-    if (obj.flags & 2) {
-      obj["position"] = [];
-      var v = readSignedIntWith2bitLengthValue(data, offset);
-      obj["position"][0] = v.value / 100;
-      offset += v.length;
-      var v = readSignedIntWith2bitLengthValue(data, offset);
-      obj["position"][1] = v.value / 100;
-      offset += v.length;
-      var v = readSignedIntWith2bitLengthValue(data, offset);
-      obj["position"][2] = v.value / 100;
-      offset += v.length;
-    }
-
-    if (obj.flags & 0x20) {
-      obj["unknown6_int32"] = data.readUInt32LE(offset);
-      offset += 4;
-    }
-
-    if (obj.flags & 0x40) {
-      var v = readSignedIntWith2bitLengthValue(data, offset);
-      obj["unknown7_float"] = v.value / 100;
-      offset += v.length;
-    }
-
-    if (obj.flags & 0x80) {
-      var v = readSignedIntWith2bitLengthValue(data, offset);
-      obj["unknown8_float"] = v.value / 100;
-      offset += v.length;
-    }
-
-    if (obj.flags & 4) {
-      var v = readSignedIntWith2bitLengthValue(data, offset);
-      obj["unknown9_float"] = v.value / 100;
-      offset += v.length;
-    }
-
-    if (obj.flags & 0x8) {
-      var v = readSignedIntWith2bitLengthValue(data, offset);
-      obj["unknown10_float"] = v.value / 100;
-      offset += v.length;
-    }
-
-    if (obj.flags & 0x10) {
-      var v = readSignedIntWith2bitLengthValue(data, offset);
-      obj["unknown11_float"] = v.value / 10;
-      offset += v.length;
-    }
-
-    if (obj.flags & 0x100) {
-      obj["unknown12_float"] = [];
-      var v = readSignedIntWith2bitLengthValue(data, offset);
-      obj["unknown12_float"][0] = v.value / 100;
-      offset += v.length;
-      var v = readSignedIntWith2bitLengthValue(data, offset);
-      obj["unknown12_float"][1] = v.value / 100;
-      offset += v.length;
-      var v = readSignedIntWith2bitLengthValue(data, offset);
-      obj["unknown12_float"][2] = v.value / 100;
-      offset += v.length;
-    }
-
-    if (obj.flags & 0x200) {
-      obj["unknown13_float"] = [];
-      var v = readSignedIntWith2bitLengthValue(data, offset);
-      obj["unknown13_float"][0] = v.value / 100;
-      offset += v.length;
-      var v = readSignedIntWith2bitLengthValue(data, offset);
-      obj["unknown13_float"][1] = v.value / 100;
-      offset += v.length;
-      var v = readSignedIntWith2bitLengthValue(data, offset);
-      obj["unknown13_float"][2] = v.value / 100;
-      offset += v.length;
-      var v = readSignedIntWith2bitLengthValue(data, offset);
-      obj["unknown13_float"][3] = v.value / 100;
-      offset += v.length;
-    }
-
-    if (obj.flags & 0x400) {
-      var v = readSignedIntWith2bitLengthValue(data, offset);
-      obj["unknown14_float"] = v.value / 10;
-      offset += v.length;
-    }
-
-    if (obj.flags & 0x800) {
-      var v = readSignedIntWith2bitLengthValue(data, offset);
-      obj["unknown15_float"] = v.value / 10;
-      offset += v.length;
-    }
-    /*
-    if (obj.flags & 0xe0) {
-
-    }
-    */
-  } catch (e) {
-    debug(e);
+  if (obj.flags & 1) {
+    var v = readUnsignedIntWith2bitLengthValue(data, offset);
+    obj["unknown4"] = v.value;
+    offset += v.length;
   }
+
+  if (obj.flags & 2) {
+    obj["position"] = [];
+    var v = readSignedIntWith2bitLengthValue(data, offset);
+    obj["position"][0] = v.value / 100;
+    offset += v.length;
+    var v = readSignedIntWith2bitLengthValue(data, offset);
+    obj["position"][1] = v.value / 100;
+    offset += v.length;
+    var v = readSignedIntWith2bitLengthValue(data, offset);
+    obj["position"][2] = v.value / 100;
+    offset += v.length;
+  }
+
+  if (obj.flags & 0x20) {
+    obj["unknown6_int32"] = data.readUInt32LE(offset);
+    offset += 4;
+  }
+
+  if (obj.flags & 0x40) {
+    var v = readSignedIntWith2bitLengthValue(data, offset);
+    obj["unknown7_float"] = v.value / 100;
+    offset += v.length;
+  }
+
+  if (obj.flags & 0x80) {
+    var v = readSignedIntWith2bitLengthValue(data, offset);
+    obj["unknown8_float"] = v.value / 100;
+    offset += v.length;
+  }
+
+  if (obj.flags & 4) {
+    var v = readSignedIntWith2bitLengthValue(data, offset);
+    obj["unknown9_float"] = v.value / 100;
+    offset += v.length;
+  }
+
+  if (obj.flags & 0x8) {
+    var v = readSignedIntWith2bitLengthValue(data, offset);
+    obj["unknown10_float"] = v.value / 100;
+    offset += v.length;
+  }
+
+  if (obj.flags & 0x10) {
+    var v = readSignedIntWith2bitLengthValue(data, offset);
+    obj["unknown11_float"] = v.value / 10;
+    offset += v.length;
+  }
+
+  if (obj.flags & 0x100) {
+    obj["unknown12_float"] = [];
+    var v = readSignedIntWith2bitLengthValue(data, offset);
+    obj["unknown12_float"][0] = v.value / 100;
+    offset += v.length;
+    var v = readSignedIntWith2bitLengthValue(data, offset);
+    obj["unknown12_float"][1] = v.value / 100;
+    offset += v.length;
+    var v = readSignedIntWith2bitLengthValue(data, offset);
+    obj["unknown12_float"][2] = v.value / 100;
+    offset += v.length;
+  }
+
+  if (obj.flags & 0x200) {
+    obj["unknown13_float"] = [];
+    var v = readSignedIntWith2bitLengthValue(data, offset);
+    obj["unknown13_float"][0] = v.value / 100;
+    offset += v.length;
+    var v = readSignedIntWith2bitLengthValue(data, offset);
+    obj["unknown13_float"][1] = v.value / 100;
+    offset += v.length;
+    var v = readSignedIntWith2bitLengthValue(data, offset);
+    obj["unknown13_float"][2] = v.value / 100;
+    offset += v.length;
+    var v = readSignedIntWith2bitLengthValue(data, offset);
+    obj["unknown13_float"][3] = v.value / 100;
+    offset += v.length;
+  }
+
+  if (obj.flags & 0x400) {
+    var v = readSignedIntWith2bitLengthValue(data, offset);
+    obj["unknown14_float"] = v.value / 10;
+    offset += v.length;
+  }
+
+  if (obj.flags & 0x800) {
+    var v = readSignedIntWith2bitLengthValue(data, offset);
+    obj["unknown15_float"] = v.value / 10;
+    offset += v.length;
+  }
+  if (obj.flags & 0xe0) {
+  }
+
   return obj;
 }
 
@@ -457,11 +451,11 @@ function int64String(bytes) {
   return int64.toUnsignedDecimalString();
 }
 
-function H1Z1Protocol() {}
+function ZoneProtocol() {}
 
-H1Z1Protocol.prototype.pack = function (packetName, object, referenceData) {
-  var packetType = H1Z1Packets.PacketTypes[packetName],
-    packet = H1Z1Packets.Packets[packetType],
+ZoneProtocol.prototype.pack = function (packetName, object, referenceData) {
+  var packetType = ZonePackets.PacketTypes[packetName],
+    packet = ZonePackets.Packets[packetType],
     packetData,
     data,
     packetTypeBytes = [];
@@ -496,7 +490,7 @@ H1Z1Protocol.prototype.pack = function (packetName, object, referenceData) {
   return data;
 };
 
-H1Z1Protocol.prototype.parse = function (
+ZoneProtocol.prototype.parse = function (
   data,
   flags,
   fromClient,
@@ -512,39 +506,35 @@ H1Z1Protocol.prototype.parse = function (
   }
 
   if (flags == 2) {
-    try {
-      if (fromClient) {
-        packet = {
-          name: "PlayerUpdateUpdatePositionClientToZone",
-          fn: parseUpdatePositionClientToZone,
-        };
-      } else {
-        packet = {
-          name: "PlayerUpdateUpdatePositionZoneToClient",
-          fn: parseUpdatePositionZoneToClient,
-        };
-      }
-    } catch (e) {
-      debug(e);
+    if (fromClient) {
+      packet = {
+        name: "PlayerUpdateUpdatePositionClientToZone",
+        fn: parseUpdatePositionClientToZone,
+      };
+    } else {
+      packet = {
+        name: "PlayerUpdateUpdatePositionZoneToClient",
+        fn: parseUpdatePositionZoneToClient,
+      };
     }
   } else {
-    if (H1Z1Packets.Packets[opCode]) {
-      packet = H1Z1Packets.Packets[opCode];
+    if (ZonePackets.Packets[opCode]) {
+      packet = ZonePackets.Packets[opCode];
       offset = 1;
     } else if (data.length > 1) {
       opCode = (data[0] << 8) + data[1];
-      if (H1Z1Packets.Packets[opCode]) {
-        packet = H1Z1Packets.Packets[opCode];
+      if (ZonePackets.Packets[opCode]) {
+        packet = ZonePackets.Packets[opCode];
         offset = 2;
       } else if (data.length > 2) {
         opCode = (data[0] << 16) + (data[1] << 8) + data[2];
-        if (H1Z1Packets.Packets[opCode]) {
-          packet = H1Z1Packets.Packets[opCode];
+        if (ZonePackets.Packets[opCode]) {
+          packet = ZonePackets.Packets[opCode];
           offset = 3;
         } else if (data.length > 3) {
           opCode = (data[0] << 24) + (data[1] << 16) + (data[2] << 8) + data[3];
-          if (H1Z1Packets.Packets[opCode]) {
-            packet = H1Z1Packets.Packets[opCode];
+          if (ZonePackets.Packets[opCode]) {
+            packet = ZonePackets.Packets[opCode];
             offset = 4;
           }
         }
@@ -554,15 +544,9 @@ H1Z1Protocol.prototype.parse = function (
 
   if (packet) {
     if (packet.schema) {
-      if (packet.name != "KeepAlive") {
-        debug(packet.name);
-      }
-      try {
-        result = DataSchema.parse(packet.schema, data, offset, referenceData)
-          .result;
-      } catch (e) {
-        debug(e);
-      }
+      debug(packet.name);
+      result = DataSchema.parse(packet.schema, data, offset, referenceData)
+        .result;
 
       switch (packet.name) {
         case "FacilityBase.ReferenceData":
@@ -597,11 +581,11 @@ H1Z1Protocol.prototype.parse = function (
 */
 };
 
-H1Z1Protocol.reloadPacketDefinitions = function () {
-  delete require.cache[require.resolve("./h1z1packets")];
-  H1Z1Packets = require("./h1z1packets");
-  exports.H1Z1Packets = H1Z1Packets;
+ZoneProtocol.reloadPacketDefinitions = function () {
+  delete require.cache[require.resolve("./zonepackets")];
+  ZonePackets = require("../../zonepackets");
+  exports.ZonePackets = ZonePackets;
 };
 
-exports.H1Z1Protocol = H1Z1Protocol;
-exports.H1Z1Packets = H1Z1Packets;
+exports.ZoneProtocol = ZoneProtocol;
+exports.ZonePackets = ZonePackets;
