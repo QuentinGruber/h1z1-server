@@ -12,7 +12,7 @@
 
 var EventEmitter = require("events").EventEmitter,
   SOEProxy = require("./soeproxy").SOEProxy,
-  GatewayProtocol = require("./protocols/gatewayprotocol").GatewayProtocol,
+  GatewayProtocol = require("../protocols/gatewayprotocol").GatewayProtocol,
   fs = require("fs"),
   util = require("util"),
   debug = require("debug")("GatewayProxy");
