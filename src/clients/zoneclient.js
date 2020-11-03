@@ -14,8 +14,8 @@ var EventEmitter = require("events").EventEmitter,
   GatewayClient = require("./gatewayclient").GatewayClient,
   fs = require("fs"),
   util = require("util"),
-  ZoneProtocol = require("./zoneprotocol").ZoneProtocol,
-  ZonePackets = require("./zoneprotocol").ZonePackets,
+  ZoneProtocol = require("../protocols/zoneprotocol").ZoneProtocol,
+  ZonePackets = require("../protocols/zoneprotocol").ZonePackets,
   debug = require("debug")("ZoneClient");
 
 function ZoneClientError(message) {

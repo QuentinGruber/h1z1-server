@@ -14,7 +14,7 @@ import { EventEmitter } from "events";
 var SOEClient = require("./soeclient").SOEClient,
   https = require("https"),
   util = require("util"),
-  LoginProtocol = require("./loginprotocol").LoginProtocol,
+  LoginProtocol = require("../protocols/loginprotocol").LoginProtocol,
   loginProtocolName = "LoginUdp_9",
   debug = require("debug")("LoginClient");
 
