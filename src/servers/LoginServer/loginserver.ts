@@ -13,7 +13,7 @@
 import { EventEmitter } from "events";
 
 const SOEServer = require("./soeserver").SOEServer;
-import { LoginProtocol } from "./protocols/loginprotocol";
+import { LoginProtocol } from "../../protocols/loginprotocol";
 const debug = require("debug")("LoginServer");
 import { MongoClient } from "mongodb";
 

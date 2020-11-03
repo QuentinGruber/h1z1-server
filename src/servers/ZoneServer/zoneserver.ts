@@ -11,7 +11,7 @@
 // ======================================================================
 
 import { EventEmitter } from "events";
-import { GatewayServer } from "./gatewayserver";
+import { GatewayServer } from "./servers/GatewayServer/gatewayserver";
 import fs from "fs";
 import { default as packetHandlers } from "./zonepackethandlers";
 import { H1Z1Protocol as ZoneProtocol } from "./protocols/h1z1protocol";
