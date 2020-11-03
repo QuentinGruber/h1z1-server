@@ -2137,7 +2137,7 @@ var packetHandlers = {
     server.sendData(
       client,
       "ProfileStats.PlayerProfileStats",
-      JSON.parse(fs.readFileSync(`${__dirname}/data/profilestats.json`))
+      require("../../../data/profilestats.json")
     );
   },
   GetRewardBuffInfo: function (server, client, packet) {

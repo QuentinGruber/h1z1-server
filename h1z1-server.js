@@ -14,8 +14,8 @@ const PackageSetting = require("./package.json");
 
 console.log(PackageSetting.name + " V" + PackageSetting.version);
 
-exports.SOEInputStream = require("./out/SoeServer/soeinputstream.js").SOEInputStream;
-exports.SOEOutputStream = require("./out/SoeServer/soeoutputstream.js").SOEOutputStream;
+exports.SOEInputStream = require("./out/servers/SoeServer/soeinputstream.js").SOEInputStream;
+exports.SOEOutputStream = require("./out/servers/SoeServer/soeoutputstream.js").SOEOutputStream;
 
 exports.SOEProtocol = require("./out/protocols/soeprotocol.js").SOEProtocol;
 exports.LoginProtocol = require("./out/protocols/loginprotocol.js").LoginProtocol;

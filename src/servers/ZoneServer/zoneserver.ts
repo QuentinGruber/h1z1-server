@@ -163,7 +163,7 @@ export class ZoneServer extends EventEmitter {
         });
 
         var itemData = fs.readFileSync(
-            `${__dirname}/data/ClientItemDefinitions.txt`,
+            "./data/ClientItemDefinitions.txt", // maybe path is wrong
             "utf8"
           ),
           itemLines = itemData.split("\n"),
@@ -241,7 +241,7 @@ export class ZoneServer extends EventEmitter {
           unknownFloat3: 110,
         });
 
-        var self = require(`${__dirname}/data/sendself.json`);
+        var self = require("../../../data/sendself.json");
         client.character.guid = self.data.guid;
         client.character.loadouts = self.data.characterLoadoutData.loadouts;
         client.character.inventory = self.data.inventory;
