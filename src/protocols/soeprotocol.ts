@@ -462,26 +462,32 @@ function readDataLength(data: any, offset: number) {
   };
 }
 
-function SOEProtocol() {}
+class SOEProtocol {
+  constructor() {
+    
+  }
 
-SOEProtocol.prototype.parse = function (data: any, crcSeed: number, compression: number) {
-  var appData:Array<any> = [],
-    packet = parseSOEPacket(data, crcSeed, compression, false, appData);
-  return {
-    soePacket: packet,
-    appPackets: appData,
+  parse (data: any, crcSeed: number, compression: number) {
+    var appData:Array<any> = [],
+      packet = parseSOEPacket(data, crcSeed, compression, false, appData);
+    return {
+      soePacket: packet,
+      appPackets: appData,
+    };
   };
-};
+  
+  pack (
+    packetName: string,
+    object: any,
+    crcSeed: number,
+    compression: number
+  ) {
+    var data = packSOEPacket(packetName, object, crcSeed, compression);
+    return data;
+  };
+}
 
-SOEProtocol.prototype.pack = function (
-  packetName: string,
-  object: any,
-  crcSeed: number,
-  compression: number
-) {
-  var data = packSOEPacket(packetName, object, crcSeed, compression);
-  return data;
-};
+
 
 exports.SOEProtocol = SOEProtocol as any;
 exports.SOEPackets = SOEPackets as any;
