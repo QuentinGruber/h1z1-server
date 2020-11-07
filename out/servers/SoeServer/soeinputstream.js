@@ -13,7 +13,7 @@
 var EventEmitter = require("events").EventEmitter, crypto = require("crypto"), util = require("util"), debug = require("debug")("SOEInputStream");
 function SOEInputStream(cryptoKey) {
     EventEmitter.call(this);
-    this._sequences = [];
+    this._sequences = new Array(0x10000);
     this._sequenceAdd = 0;
     this._nextSequence = -1;
     this._lastAck = -1;

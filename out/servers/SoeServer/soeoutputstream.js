@@ -17,7 +17,7 @@ function SOEOutputStream(cryptoKey, fragmentSize) {
     this._fragmentSize = fragmentSize;
     this._sequence = -1;
     this._lastAck = -1;
-    this._cache = [];
+    this._cache = new Array(0x10000);
     this._rc4 = crypto.createCipheriv("rc4", cryptoKey, "");
 }
 util.inherits(SOEOutputStream, EventEmitter);
