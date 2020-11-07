@@ -10,7 +10,8 @@
 //
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
-var fs = require("fs"), debug = require("debug")("SOEProtocol"), PacketTable = require("../packets/packettable");
+var debug = require("debug")("SOEProtocol");
+var PacketTable = require("../packets/packettable");
 var stand_alone_packets = [
     [
         "ZonePing",
@@ -38,7 +39,10 @@ var packets = [
         0x01,
         {
             parse: function (data, crcSeed, compression, isSubPacket) {
-                var packetType = data.readUInt16BE(0), clientCRCLength = data.readUInt32BE(2), clientSessionId = data.readUInt32BE(6), clientUDPLength = data.readUInt32BE(10), protocol = data.readNullTerminatedString(14);
+                var clientCRCLength = data.readUInt32BE(2);
+                var clientSessionId = data.readUInt32BE(6);
+                var clientUDPLength = data.readUInt32BE(10);
+                var protocol = data.readNullTerminatedString(14);
                 return {
                     crcLength: clientCRCLength,
                     sessionId: clientSessionId,
@@ -62,7 +66,11 @@ var packets = [
         0x02,
         {
             parse: function (data, crcSeed, compression, isSubPacket) {
-                var packetType = data.readUInt16BE(0), serverSessionId = data.readUInt32BE(2), serverCrcSeed = data.readUInt32BE(6), serverCRCLength = data.readUInt8(10), serverCompression = data.readUInt16BE(11), serverUDPLength = data.readUInt32BE(13);
+                var serverSessionId = data.readUInt32BE(2);
+                var serverCrcSeed = data.readUInt32BE(6);
+                var serverCRCLength = data.readUInt8(10);
+                var serverCompression = data.readUInt16BE(11);
+                var serverUDPLength = data.readUInt32BE(13);
                 return {
                     crcSeed: serverCrcSeed,
                     crcLength: serverCRCLength,
@@ -233,7 +241,8 @@ var packets = [
                 };
             },
             pack: function (packet, crcSeed, compression, isSubPacket, useCrc64) {
-                var data = new Buffer.alloc(4 + (compression && !isSubPacket ? 1 : 0)), offset = 0;
+                var data = new Buffer.alloc(4 + (compression && !isSubPacket ? 1 : 0));
+                var offset = 0;
                 data.writeUInt16BE(0x11, offset);
                 offset += 2;
                 if (compression && !isSubPacket) {
@@ -241,7 +250,6 @@ var packets = [
                     offset += 1;
                 }
                 data.writeUInt16BE(packet.sequence, offset);
-                offset += 2;
                 if (!isSubPacket) {
                     data = appendCRC(data, crcSeed, useCrc64);
                 }
@@ -365,7 +373,7 @@ function packSOEPacket(packetName, object, crcSeed, compression, isSubPacket, us
     return data;
 }
 function parseSOEPacket(data, crcSeed, compression, isSubPacket, appData) {
-    var packetType = data.readUInt16BE(0), result, name, packet = SOEPackets.Packets[packetType];
+    var packetType = data.readUInt16BE(0), result, packet = SOEPackets.Packets[packetType];
     if (!packet) {
         // try with Int8 opcode
         packet = StandAlonePackets.Packets[data.readUInt8(0)];
