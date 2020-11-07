@@ -316,6 +316,7 @@ function appendCRC(data, crcSeed) {
     return Buffer.concat([data, crcBuffer]);
 }
 function packSOEPacket(packetName, object, crcSeed, compression, isSubPacket) {
+    if (isSubPacket === void 0) { isSubPacket = false; }
     var packetType = SOEPackets.PacketTypes[packetName], packet = SOEPackets.Packets[packetType], data;
     if (!packet) {
         // try if packet is a stand-alone packet
