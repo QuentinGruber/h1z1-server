@@ -249,7 +249,7 @@ export class ZoneServer extends EventEmitter {
         client.character.factionId = self.data.factionId;
         client.character.name = self.data.identity.characterName;
 
-        this.sendData(client, "SendSelfToClient", self);
+   //     this.sendData(client, "SendSelfToClient", self);
         this.sendData(client, "PlayerUpdate.SetBattleRank", {
           characterId: client.character.characterId,
           battleRank: 100,
