@@ -71,13 +71,13 @@ export class GatewayServer extends EventEmitter {
   _soeServer: SoeServer;
   _protocol: GatewayProtocol;
   _compression: number;
-  _crcSeed: number;
+  _crcSeed: string;
   _crcLength: number;
   _udpLength: number;
   constructor(protocolName: string, serverPort: number, gatewayKey: string) {
     super();
     this._compression = 0x0000;
-    this._crcSeed = 0;
+    this._crcSeed = (13049251224421725568).toString(16);
     this._crcLength = 2;
     this._udpLength = 512;
 
@@ -87,7 +87,7 @@ export class GatewayServer extends EventEmitter {
       gatewayKey,
       this._compression,
       true,
-      true // use crc64
+      false // use crc64
     ) as any; // as any since SOEServer isn't typed
     this._protocol = new GatewayProtocol() as GatewayProtocol;
     this._soeServer.on("connect", (err: string, client: Client) => {

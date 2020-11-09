@@ -34,10 +34,10 @@ var GatewayServer = /** @class */ (function (_super) {
     function GatewayServer(protocolName, serverPort, gatewayKey) {
         var _this = _super.call(this) || this;
         _this._compression = 0x0000;
-        _this._crcSeed = 0;
+        _this._crcSeed = (13049251224421725568).toString(16);
         _this._crcLength = 2;
         _this._udpLength = 512;
-        _this._soeServer = new soeserver_1.SOEServer(protocolName, serverPort, gatewayKey, _this._compression, true, true // use crc64
+        _this._soeServer = new soeserver_1.SOEServer(protocolName, serverPort, gatewayKey, _this._compression, true, false // use crc64
         ); // as any since SOEServer isn't typed
         _this._protocol = new gatewayprotocol_1.GatewayProtocol();
         _this._soeServer.on("connect", function (err, client) {
