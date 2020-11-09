@@ -164,7 +164,7 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression, isGatewaySe
                 sessionId: 0,
                 address: remote.address,
                 port: remote.port,
-                crcSeed: "0xb51840d9c87cf800",
+                crcSeed: me._crcSeed,
                 crcLength: 2,
                 clientUdpLength: 512,
                 serverUdpLength: 512,
