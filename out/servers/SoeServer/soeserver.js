@@ -16,14 +16,15 @@ function SOEServerError(message) {
     this.message = message;
 }
 util.inherits(SOEServerError, Error);
-function SOEServer(protocolName, serverPort, cryptoKey, compression, isGatewayServer) {
+function SOEServer(protocolName, serverPort, cryptoKey, compression, isGatewayServer, useCrc64) {
     if (isGatewayServer === void 0) { isGatewayServer = false; }
+    if (useCrc64 === void 0) { useCrc64 = false; }
     EventEmitter.call(this);
     this._protocolName = protocolName;
     this._serverPort = serverPort;
     this._cryptoKey = cryptoKey;
     this._compression = compression;
-    this._protocol = new SOEProtocol();
+    this._protocol = new SOEProtocol(useCrc64);
     this._udpLength = 512;
     this._useEncryption = true;
     this._isGatewayServer = isGatewayServer;
