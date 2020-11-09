@@ -211,7 +211,7 @@ var ZoneServer = /** @class */ (function (_super) {
                 client.character.inventory = self.data.inventory;
                 client.character.factionId = self.data.factionId;
                 client.character.name = self.data.identity.characterName;
-                //     this.sendData(client, "SendSelfToClient", self);
+                _this.sendData(client, "SendSelfToClient", self);
                 _this.sendData(client, "PlayerUpdate.SetBattleRank", {
                     characterId: client.character.characterId,
                     battleRank: 100,
