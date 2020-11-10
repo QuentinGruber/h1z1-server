@@ -11,6 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 var debug = require("debug")("H1Z1Protocol"), DataSchema = require("h1z1-dataschema"), fs = require("fs"), H1Z1Packets = require("../packets/h1z1packets");
+var appendCRC = require("../utils/crc").appendCRC;
 function lz4_decompress(data, inSize, outSize) {
     var outdata = new Buffer.alloc(outSize), token, literalLength, matchLength, matchOffset, matchStart, matchEnd, offsetIn = 0, offsetOut = 0;
     while (1) {
@@ -440,6 +441,7 @@ H1Z1Protocol.prototype.pack = function (packetName, object, referenceData) {
     else {
         debug("pack()", "Unknown or unhandled zone packet type: " + packetType);
     }
+    data = appendCRC(data, 0, false);
     return data;
 };
 H1Z1Protocol.prototype.parse = function (data, flags, fromClient, referenceData) {
