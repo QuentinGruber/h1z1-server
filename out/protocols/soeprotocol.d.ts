@@ -1,11 +1,88 @@
-export var SOEProtocol: typeof SOEProtocol;
-export namespace SOEPackets {
-    const PacketTypes: {};
-    const Packets: {};
-}
-declare function SOEProtocol(): void;
+declare const debug: any;
+declare const PacketTable: any;
+declare const appendCRC: any;
+declare var stand_alone_packets: (string | number | {
+    parse: (data: any) => {
+        PingId: any;
+        Data: any;
+    };
+    pack: (data: any) => any;
+})[][];
+declare var packets: ((string | number | {
+    parse: (data: any, crcSeed: number, compression: number, isSubPacket: boolean) => {
+        crcLength: any;
+        sessionId: any;
+        udpLength: any;
+        protocol: any;
+    };
+    pack: (packet: any, crcSeed: number, compression: number, isSubPacket: boolean, useCrc64: boolean) => any;
+})[] | (string | number | {
+    parse: (data: any, crcSeed: number, compression: number, isSubPacket: boolean) => {
+        crcSeed: any;
+        crcLength: any;
+        sessionId: any;
+        compression: any;
+        udpLength: any;
+    };
+    pack: (packet: any, crcSeed: number, compression: number, isSubPacket: boolean, useCrc64: boolean) => any;
+})[] | (string | number | {
+    parse: (data: any, crcSeed: number, compression: number, isSubPacket: boolean, appData: any) => {
+        subPackets: ({
+            type: any;
+            name: any;
+            result: any;
+        } | {
+            result: null;
+            type?: undefined;
+            name?: undefined;
+        } | undefined)[];
+    };
+    pack: (packet: any, crcSeed: number, compression: number, isSubPacket: boolean, useCrc64: boolean) => any;
+})[] | (string | number | {
+    parse: (data: any) => {};
+    pack: () => any;
+})[] | {}[] | (string | number | {
+    parse: (data: any, crcSeed: number, compression: number, isSubPacket: boolean, appData: any) => {
+        channel: number;
+        sequence: any;
+        crc: any;
+        data: any;
+    };
+    pack: (packet: any, crcSeed: number, compression: number, isSubPacket: boolean, useCrc64: boolean) => any;
+})[] | (string | number | {
+    parse: (data: any, crcSeed: number, compression: number, isSubPacket: boolean) => {
+        channel: number;
+        sequence: any;
+    };
+    pack: (packet: any, crcSeed: number, compression: number, isSubPacket: boolean, useCrc64: boolean) => any;
+})[])[];
+declare var SOEPackets: {
+    PacketTypes: {};
+    Packets: {};
+};
+declare var StandAlonePackets: {
+    PacketTypes: {};
+    Packets: {};
+};
+declare function packSOEPacket(packetName: string, object: any, crcSeed: number, compression: number, isSubPacket?: boolean, useCrc64?: boolean): any;
+declare function parseSOEPacket(data: any, crcSeed: number, compression: number, isSubPacket: boolean, appData: any): {
+    type: any;
+    name: any;
+    result: any;
+} | {
+    result: null;
+    type?: undefined;
+    name?: undefined;
+} | undefined;
+declare function writeDataLength(length: number): any;
+declare function readDataLength(data: any, offset: number): {
+    value: any;
+    numBytes: number;
+};
 declare class SOEProtocol {
-    parse(data: any, crcSeed: any, compression: any): {
+    useCrc64: boolean;
+    constructor(useCrc64?: boolean);
+    parse(data: any, crcSeed: number, compression: number): {
         soePacket: {
             type: any;
             name: any;
@@ -17,6 +94,5 @@ declare class SOEProtocol {
         } | undefined;
         appPackets: any[];
     };
-    pack(packetName: any, object: any, crcSeed: any, compression: any): any;
+    pack(packetName: string, object: any, crcSeed: number, compression: number): any;
 }
-export {};
