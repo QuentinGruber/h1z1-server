@@ -1,6 +1,6 @@
 {
   "name": "h1z1-server",
-  "version": "0.6.15",
+  "version": "0.6.16",
   "description": "Library for emulating h1z1 server",
   "author": "Quentin Gruber <quentingruber@gmail.com> (http://github.com/quentingruber)",
   "license": "GPL-3.0-only",
@@ -16,13 +16,13 @@
     "typescript": "^4.0.3"
   },
   "directories": {
-    "lib": "lib"
+    "scr": "scr"
   },
   "devDependencies": {},
   "scripts": {
     "compile_ts": "tsc --declaration -p .",
     "publish_release": "git push --tags && git push origin dev && git push origin master",
-    "lint_ts": "tslint -c tslint.json './lib_ts/*.ts'"
+    "lint_ts": "tslint -c tslint.json './scr/*.ts'"
   },
   "repository": {
     "type": "git",
