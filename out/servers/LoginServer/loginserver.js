@@ -260,7 +260,7 @@ var LoginServer = /** @class */ (function (_super) {
                             characterId: characterId,
                             serverId: serverId,
                             status: 1,
-                            unknown: 0,
+                            lastLogin: 1406824518,
                             payload: {
                                 serverAddress: serverAddress,
                                 serverTicket: "7y3Bh44sKWZCYZH",
@@ -279,7 +279,7 @@ var LoginServer = /** @class */ (function (_super) {
                             characterId: characterId,
                             serverId: serverId,
                             status: 1,
-                            unknown: 0,
+                            lastLogin: 1406824518,
                             payload: {
                                 serverAddress: "127.0.0.1:1117",
                                 serverTicket: "7y3Bh44sKWZCYZH",

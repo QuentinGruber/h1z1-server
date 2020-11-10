@@ -275,7 +275,7 @@ export class LoginServer extends EventEmitter {
                   characterId: characterId,
                   serverId: serverId,
                   status: 1,
-                  unknown: 0,
+                  lastLogin: 1406824518,
                   payload: {
                     serverAddress: serverAddress, // zoneserver port
                     serverTicket: "7y3Bh44sKWZCYZH",
@@ -293,7 +293,7 @@ export class LoginServer extends EventEmitter {
                   characterId: characterId,
                   serverId: serverId,
                   status: 1,
-                  unknown: 0,
+                  lastLogin: 1406824518,
                   payload: {
                     serverAddress: "127.0.0.1:1117", // zoneserver port
                     serverTicket: "7y3Bh44sKWZCYZH",

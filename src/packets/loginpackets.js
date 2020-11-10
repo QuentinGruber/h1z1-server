@@ -109,7 +109,7 @@ var packets = [
       fields: [
         { name: "characterId", type: "uint64" },
         { name: "serverId", type: "uint32" },
-        { name: "unknown", type: "uint32" },
+        { name: "lastLogin", type: "uint32" },
         { name: "status", type: "uint32" },
         {
           name: "payload",
