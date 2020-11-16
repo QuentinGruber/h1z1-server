@@ -1954,6 +1954,15 @@ var packetHandlers = {
             });
         });
     },
+    "Command.StartLogoutRequest": function (server, client, packet) {
+        server.sendData(client, "ClientUpdate.CompleteLogoutProcess", {});
+    },
+    CharacterSelectSessionRequest: function (server, client, packet) {
+        server.sendData(client, "CharacterSelectSessionResponse", {
+            status: 1,
+            sessionId: "placeholder",
+        });
+    },
     "ProfileStats.GetPlayerProfileStats": function (server, client, packet) {
         server.sendData(client, "ProfileStats.PlayerProfileStats", require("../../../data/profilestats.json"));
     },

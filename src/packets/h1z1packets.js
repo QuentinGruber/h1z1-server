@@ -5710,7 +5710,13 @@ var packets = [
   ["ClientUpdate.InGamePurchaseResult", 0x113000, {}],
   ["ClientUpdate.QuizComplete", 0x113100, {}],
   ["ClientUpdate.StartTimer", 0x113200, []],
-  ["ClientUpdate.CompleteLogoutProcess", 0x113300, []],
+  [
+    "ClientUpdate.CompleteLogoutProcess",
+    0x113300,
+    {
+      fields: [],
+    },
+  ],
   ["ClientUpdate.ProximateItems", 0x113400, []],
   ["ClientUpdate.TextAlert", 0x113500, []],
   ["ClientUpdate.ClearEntitlementValues", 0x113600, []],
