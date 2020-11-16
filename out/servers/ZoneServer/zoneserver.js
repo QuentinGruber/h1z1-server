@@ -66,6 +66,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ZoneServer = void 0;
 var events_1 = require("events");
 var gatewayserver_1 = require("../GatewayServer/gatewayserver");
+var fs_1 = __importDefault(require("fs"));
 var zonepackethandlers_1 = __importDefault(require("./zonepackethandlers"));
 var h1z1protocol_1 = require("../../protocols/h1z1protocol");
 // import {MongoClient} from "mongodb"
@@ -129,22 +130,15 @@ var ZoneServer = /** @class */ (function (_super) {
                     environment: "local",
                     serverId: 1,
                 });
-                /*
-                var itemData = fs.readFileSync(
-                  `${__dirname}../../../data/ClientItemDefinitions.txt`, // TODO : fix this path
-                    "utf8"
-                  ),
-                  itemLines = itemData.split("\n"),
-                  items = {};
+                var itemData = fs_1.default.readFileSync(__dirname + "/../../../data/ClientItemDefinitions.txt", "utf8"), itemLines = itemData.split("\n"), items = {};
                 for (var i = 1; i < itemLines.length; i++) {
-                  var line = itemLines[i].split("^");
-                  if (line[0]) {
-                    (items as any)[line[0]] = line[1];
-                  }
+                    var line = itemLines[i].split("^");
+                    if (line[0]) {
+                        items[line[0]] = line[1];
+                    }
                 }
-                const referenceData = { itemTypes: items };
-                this.setReferenceData(referenceData);
-                */
+                var referenceData = { itemTypes: items };
+                _this.setReferenceData(referenceData);
                 _this.sendData(client, "SendZoneDetails", {
                     zoneName: "Z1",
                     unknownBoolean1: true,
