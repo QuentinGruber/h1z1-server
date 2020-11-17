@@ -158,7 +158,7 @@ export class ZoneServer extends EventEmitter {
         )*/
 
         this.sendData(client, "InitializationParameters", {
-          environment: "local",
+          environment: "LIVE",
           serverId: 1,
         });
 

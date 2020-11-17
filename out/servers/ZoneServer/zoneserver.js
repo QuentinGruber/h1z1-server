@@ -127,7 +127,7 @@ var ZoneServer = /** @class */ (function (_super) {
                   `${__dirname}/data/zone/ReferenceData.WeaponDefinitions.dat`
                 )*/
                 _this.sendData(client, "InitializationParameters", {
-                    environment: "local",
+                    environment: "LIVE",
                     serverId: 1,
                 });
                 var itemData = fs_1.default.readFileSync(__dirname + "/../../../data/ClientItemDefinitions.txt", "utf8"), itemLines = itemData.split("\n"), items = {};
