@@ -66,6 +66,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ZoneServer = void 0;
 var events_1 = require("events");
 var gatewayserver_1 = require("../GatewayServer/gatewayserver");
+var fs_1 = __importDefault(require("fs"));
 var zonepackethandlers_1 = __importDefault(require("./zonepackethandlers"));
 var h1z1protocol_1 = require("../../protocols/h1z1protocol");
 // import {MongoClient} from "mongodb"
@@ -126,25 +127,18 @@ var ZoneServer = /** @class */ (function (_super) {
                   `${__dirname}/data/zone/ReferenceData.WeaponDefinitions.dat`
                 )*/
                 _this.sendData(client, "InitializationParameters", {
-                    environment: "local",
+                    environment: "LIVE",
                     serverId: 1,
                 });
-                /*
-                var itemData = fs.readFileSync(
-                  `${__dirname}../../../data/ClientItemDefinitions.txt`, // TODO : fix this path
-                    "utf8"
-                  ),
-                  itemLines = itemData.split("\n"),
-                  items = {};
+                var itemData = fs_1.default.readFileSync(__dirname + "/../../../data/ClientItemDefinitions.txt", "utf8"), itemLines = itemData.split("\n"), items = {};
                 for (var i = 1; i < itemLines.length; i++) {
-                  var line = itemLines[i].split("^");
-                  if (line[0]) {
-                    (items as any)[line[0]] = line[1];
-                  }
+                    var line = itemLines[i].split("^");
+                    if (line[0]) {
+                        items[line[0]] = line[1];
+                    }
                 }
-                const referenceData = { itemTypes: items };
-                this.setReferenceData(referenceData);
-                */
+                var referenceData = { itemTypes: items };
+                _this.setReferenceData(referenceData);
                 _this.sendData(client, "SendZoneDetails", {
                     zoneName: "Z1",
                     unknownBoolean1: true,
@@ -155,24 +149,24 @@ var ZoneServer = /** @class */ (function (_super) {
                         unknownDword1: 0,
                         unknownDword2: 0,
                         unknownDword3: 0,
-                        fog: 0,
-                        unknownDword5: 0,
-                        unknownDword6: 0,
+                        fogDensity: 0,
+                        fogGradient: 0,
+                        fogFloor: 0,
                         unknownDword7: 0,
                         unknownDword8: 0,
-                        temperature: 40,
-                        unknownDword10: 0,
-                        unknownDword11: 0,
-                        unknownDword12: 0,
-                        unknownDword13: 0,
-                        unknownDword14: 0,
-                        unknownDword15: 0,
-                        unknownDword16: 0,
-                        unknownDword17: 0,
+                        temp: 40,
+                        skyColor: 0,
+                        cloudWeight0: 0,
+                        cloudWeight1: 0,
+                        cloudWeight2: 0,
+                        cloudWeight3: 0,
+                        sunAxisX: 0,
+                        sunAxisY: 0,
+                        sunAxisZ: 0,
                         unknownDword18: 0,
                         unknownDword19: 0,
                         unknownDword20: 0,
-                        unknownDword21: 0,
+                        wind: 0,
                         unknownDword22: 0,
                         unknownDword23: 0,
                         unknownDword24: 0,

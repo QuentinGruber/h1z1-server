@@ -1,2 +1,3 @@
-export var PacketTypes: {};
-export var Packets: {};
+declare var packetTypes: {};
+declare var packetDescriptors: {};
+export { packetTypes as PacketTypes, packetDescriptors as Packets };

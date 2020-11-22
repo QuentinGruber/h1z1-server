@@ -97,7 +97,10 @@ var packets = [
         {
           name: "payload",
           type: "byteswithlength",
-          fields: [{ name: "locale", type: "string" }],
+          fields: [
+            { name: "locale", type: "string" },
+            { name: "gatewayId", type: "uint32" },
+          ],
         },
       ],
     },
@@ -112,7 +115,7 @@ var packets = [
         { name: "lastLogin", type: "uint32" },
         { name: "status", type: "uint32" },
         {
-          name: "payload",
+          name: "applicationData",
           type: "byteswithlength",
           fields: [
             { name: "serverAddress", type: "string" },

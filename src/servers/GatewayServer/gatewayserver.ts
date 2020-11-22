@@ -11,7 +11,6 @@
 // ======================================================================
 
 import { EventEmitter } from "events";
-
 import { SOEServer } from "../SoeServer/soeserver";
 import { GatewayProtocol } from "../../protocols/gatewayprotocol";
 const debug = require("debug")("GatewayServer");
@@ -23,7 +22,7 @@ interface Packet {
   flags: any;
 }
 
-interface GatewayProtocol {
+interface GatewayProtocolInterface {
   pack: (arg0: string, arg1: any) => Packet;
   parse: (arg0: any) => Packet;
 }
@@ -69,7 +68,7 @@ interface Client {
 
 export class GatewayServer extends EventEmitter {
   _soeServer: SoeServer;
-  _protocol: GatewayProtocol;
+  _protocol: GatewayProtocolInterface;
   _compression: number;
   _crcSeed: string;
   _crcLength: number;
@@ -89,7 +88,7 @@ export class GatewayServer extends EventEmitter {
       true,
       false // use crc64
     ) as any; // as any since SOEServer isn't typed
-    this._protocol = new GatewayProtocol() as GatewayProtocol;
+    this._protocol = new GatewayProtocol() as GatewayProtocolInterface;
     this._soeServer.on("connect", (err: string, client: Client) => {
       debug("Client connected from " + client.address + ":" + client.port);
       this.emit("connect", err, client);

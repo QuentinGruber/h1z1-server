@@ -1,7 +1,6 @@
 /// <reference types="node" />
-export var SOEServer: typeof SOEServer;
-declare function SOEServer(protocolName: any, serverPort: any, cryptoKey: any, compression: any, isGatewayServer?: boolean, useCrc64?: boolean): void;
-declare class SOEServer {
+export function SOEServer(protocolName: any, serverPort: any, cryptoKey: any, compression: any, isGatewayServer?: boolean, useCrc64?: boolean): void;
+export class SOEServer {
     constructor(protocolName: any, serverPort: any, cryptoKey: any, compression: any, isGatewayServer?: boolean, useCrc64?: boolean);
     _protocolName: any;
     _serverPort: any;
@@ -13,7 +12,7 @@ declare class SOEServer {
     _isGatewayServer: boolean;
     _dumpData: boolean;
     _clients: {};
-    _connection: import("dgram").Socket;
+    _connection: dgram.Socket;
     start(compression: any, crcSeed: any, crcLength: any, udpLength: any): void;
     _crcSeed: any;
     _crcLength: any;
@@ -25,4 +24,4 @@ declare class SOEServer {
     toggleDataDump(value: any): void;
     deleteClient(client: any): void;
 }
-export {};
+import dgram = require("dgram");
