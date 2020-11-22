@@ -1,10 +1,9 @@
 /// <reference types="node" />
-export var TransparentProxy: typeof TransparentProxy;
-declare function TransparentProxy(remoteAddress: any, remotePort: any, localPort: any, localClientPort: any): void;
-declare class TransparentProxy {
+export function TransparentProxy(remoteAddress: any, remotePort: any, localPort: any, localClientPort: any): void;
+export class TransparentProxy {
     constructor(remoteAddress: any, remotePort: any, localPort: any, localClientPort: any);
-    _server: import("dgram").Socket;
-    _client: import("dgram").Socket;
+    _server: dgram.Socket;
+    _client: dgram.Socket;
     _serverPort: any;
     _serverAddress: any;
     _localPort: any;
@@ -12,4 +11,4 @@ declare class TransparentProxy {
     start(): void;
     stop(): void;
 }
-export {};
+import dgram = require("dgram");
