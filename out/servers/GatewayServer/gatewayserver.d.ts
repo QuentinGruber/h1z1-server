@@ -1,13 +1,12 @@
 /// <reference types="node" />
 import { EventEmitter } from "events";
-import { GatewayProtocol } from "../../protocols/gatewayprotocol";
 interface Packet {
     result: any;
     name: string;
     tunnelData: any;
     flags: any;
 }
-interface GatewayProtocol {
+interface GatewayProtocolInterface {
     pack: (arg0: string, arg1: any) => Packet;
     parse: (arg0: any) => Packet;
 }
@@ -45,7 +44,7 @@ interface Client {
 }
 export declare class GatewayServer extends EventEmitter {
     _soeServer: SoeServer;
-    _protocol: GatewayProtocol;
+    _protocol: GatewayProtocolInterface;
     _compression: number;
     _crcSeed: string;
     _crcLength: number;
