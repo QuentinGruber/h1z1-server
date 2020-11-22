@@ -2061,12 +2061,10 @@ var packets = [
                   name: "unknownDword1",
                   type: "int32",
                   defaultValue: 0,
-                  defaultValue: 0,
                 },
                 {
                   name: "unknownDword2",
                   type: "int32",
-                  defaultValue: 0,
                   defaultValue: 0,
                 },
               ],
