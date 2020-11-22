@@ -187,24 +187,24 @@ export class ZoneServer extends EventEmitter {
             unknownDword1: 0,
             unknownDword2: 0,
             unknownDword3: 0,
-            fog: 0, // fog intensity
-            unknownDword5: 0,
-            unknownDword6: 0,
+            fogDensity: 0, // fog intensity
+            fogGradient: 0,
+            fogFloor: 0,
             unknownDword7: 0,
             unknownDword8: 0,
-            temperature: 40, // 0 : snow map , 40+ : spring map
-            unknownDword10: 0,
-            unknownDword11: 0,
-            unknownDword12: 0,
-            unknownDword13: 0,
-            unknownDword14: 0,
-            unknownDword15: 0,
-            unknownDword16: 0, // sun orientation on x axis ???
-            unknownDword17: 0, // night when 100
+            temp: 40, // 0 : snow map , 40+ : spring map
+            skyColor: 0,
+            cloudWeight0: 0,
+            cloudWeight1: 0,
+            cloudWeight2: 0,
+            cloudWeight3: 0,
+            sunAxisX: 0,
+            sunAxisY: 0, // sun orientation on x axis ???
+            sunAxisZ: 0, // night when 100
             unknownDword18: 0,
             unknownDword19: 0,
             unknownDword20: 0,
-            unknownDword21: 0,
+            wind: 0,
             unknownDword22: 0,
             unknownDword23: 0,
             unknownDword24: 0,

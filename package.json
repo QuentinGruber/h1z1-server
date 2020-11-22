@@ -7,7 +7,7 @@
   "main": "h1z1-server.js",
   "dependencies": {
     "@types/mongodb": "^3.5.27",
-    "@types/node": "^14.0.0",
+    "@types/node": "^14.14.9",
     "buffer-crc32": ">=0.2.1",
     "debug": "^4.2.0",
     "h1z1-dataschema": "^1.0.4",
