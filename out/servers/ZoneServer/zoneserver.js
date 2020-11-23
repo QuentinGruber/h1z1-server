@@ -161,7 +161,7 @@ var ZoneServer = /** @class */ (function (_super) {
                         cloudWeight2: 0,
                         cloudWeight3: 0,
                         sunAxisX: 0,
-                        sunAxisY: 0,
+                        sunAxisY: 90,
                         sunAxisZ: 0,
                         unknownDword18: 0,
                         unknownDword19: 0,

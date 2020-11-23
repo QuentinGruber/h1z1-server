@@ -199,7 +199,7 @@ export class ZoneServer extends EventEmitter {
             cloudWeight2: 0,
             cloudWeight3: 0,
             sunAxisX: 0,
-            sunAxisY: 0, // sun orientation on x axis ???
+            sunAxisY: 90,
             sunAxisZ: 0, // night when 100
             unknownDword18: 0,
             unknownDword19: 0,
