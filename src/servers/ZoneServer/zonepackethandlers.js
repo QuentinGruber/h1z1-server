@@ -215,6 +215,8 @@ var packetHandlers = {
         command: commands[i],
       });
     }
+
+    server.sendSystemMessage(client, "Welcome to H1emu ! :D");
   },
   Security: function (server, client, packet) {
     debug(packet);
