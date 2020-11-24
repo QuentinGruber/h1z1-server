@@ -340,7 +340,7 @@ var ZoneServer = /** @class */ (function (_super) {
         for (var i = 0; i < client.character.loadouts.length; i++) {
             var loadout = client.character.loadouts[i];
             if (loadout.loadoutId == loadoutId &&
-                loadout.unknownDword2 == loadoutTab) {
+                loadout.loadoutTab == loadoutTab) {
                 this.sendChatText(client, "Setting loadout " + loadoutId);
                 debug(JSON.stringify(loadout, null, 2));
                 client.character.currentLoadout = loadout.loadoutData;

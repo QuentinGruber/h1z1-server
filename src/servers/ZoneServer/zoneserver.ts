@@ -402,7 +402,7 @@ export class ZoneServer extends EventEmitter {
       var loadout = client.character.loadouts[i];
       if (
         loadout.loadoutId == loadoutId &&
-        loadout.unknownDword2 == loadoutTab
+        loadout.loadoutTab == loadoutTab
       ) {
         this.sendChatText(client, "Setting loadout " + loadoutId);
         debug(JSON.stringify(loadout, null, 2));
