@@ -1276,6 +1276,13 @@ var packetHandlers = {
     }
     if (packet.data.commandHash == Jenkins.oaat("HAX")) {
       switch (args[0]) {
+        case "pc":
+          server.sendData(client, "PlayerUpdate.AddLightweightPc", {
+            characterid: client.character.characterId,
+            transientId: 1,
+          });
+          server.sendChatText(client, "tried to spawn a LightweightPc");
+          break;
         case "testpacket":
           const packetName = args[1];
           server.sendData(client, packetName, {});
@@ -2163,6 +2170,29 @@ var packetHandlers = {
         0,
       ];
     }
+  },
+  "PlayerUpdate.FullCharacterDataRequest": function (server, client, packet) {
+    debug(packet);
+    server.sendData(client, "PlayerUpdate.LightweightToFullPc", {
+      attachments: [],
+      effectTags: [],
+      characterVariables: [],
+      resources: [],
+      unknownVector1: [0, 200, 0],
+      unknownVector2: [0, 200, 0],
+      unknownVector4: [0, 200, 0, 1],
+      unknownVector5: [0, 200, 0, 1],
+      unknownData1: {
+        unknownDword1: 0,
+        unknownString1: "",
+        unknownString2: "",
+        unknownDword2: 0,
+        unknownString3: "",
+      },
+      unknownData2: { unknownFloat1: 1.0 },
+      unknownData3: { unknownDword1: 0 },
+      targetData: { targetType: 1 },
+    });
   },
 };
 
