@@ -18,7 +18,7 @@
     "unknownDword9": 0,
     "unknownDword10": 0,
     "position": [0, 200, 0, 1],
-    "characterVector": [0, 0, 0, 0],
+    "rotation": [0, 0, 0, 0],
     "identity": {
       "unknownDword1": 0,
       "unknownDword2": 0,
