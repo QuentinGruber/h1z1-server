@@ -1802,7 +1802,7 @@ var packets = [
                         { name: "unknownString1", type: "string", defaultValue: "" },
                         { name: "unknownDword4", type: "uint32", defaultValue: 0 },
                         { name: "unknownDword5", type: "uint32", defaultValue: 0 },
-                        { name: "unknownString2", type: "string", defaultValue: "" },
+                        { name: "emptyTexture", type: "string", defaultValue: "" },
                         { name: "unknownString3", type: "string", defaultValue: "" },
                         { name: "unknownString4", type: "string", defaultValue: "" },
                         { name: "headId", type: "uint32", defaultValue: 0 },
