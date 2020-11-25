@@ -216,7 +216,7 @@ var packetHandlers = {
       });
     }
 
-    server.sendSystemMessage(client, "Welcome to H1emu ! :D");
+    server.sendChatText(client, "Welcome to H1emu ! :D");
   },
   Security: function (server, client, packet) {
     debug(packet);
