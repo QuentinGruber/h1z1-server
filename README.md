@@ -74,11 +74,11 @@ Execute this command in CMD/Powershell ( you have to be in your h1z1 game folder
 
 The application is at the very beginning of its development, it can contain bugs and is very minimalist.
 
-Download here : https://github.com/QuentinGruber/h1z1-server-app/releases
+Download here : https://github.com/H1emu/h1z1-server-app/releases
 
 ### Using Quick Start
 
-Clone this repo : [h1z1-server-QuickStart](https://github.com/QuentinGruber/h1z1-server-QuickStart) and follow the instruction in wrote in his README
+Clone this repo : [h1z1-server-QuickStart](https://github.com/H1emu/h1z1-server-QuickStart) and follow the instruction in wrote in his README
 
 ### Using your own scripts with the library
 #### Installation
