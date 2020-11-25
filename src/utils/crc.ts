@@ -1,4 +1,4 @@
-const { crc32: crc32Table , crc64: crc64Table } = require("./crctable.js");
+const { crc32: crc32Table, crc64: crc64Table } = require("./crctable.js");
 
 function crc32(data: any, crcSeed: number) {
   var crc = crc32Table[~crcSeed & 0xff];
@@ -40,16 +40,18 @@ function crc64(data: any, crcSeed: number) {
   return ~crc >>> 0;
 }
 
-exports.appendCRC = function (data: any, crcSeed: number, useCrc64: boolean = false) {
+exports.appendCRC = function (
+  data: any,
+  crcSeed: number,
+  useCrc64: boolean = false
+) {
   let crc;
   if (useCrc64) {
     crc = crc64(data, crcSeed >>> 0);
-  }
-  else {
+  } else {
     crc = crc32(data, crcSeed >>> 0);
   }
   var crcBuffer = new (Buffer as any).alloc(2);
   crcBuffer.writeUInt16BE(crc & 0xffff, 0);
   return Buffer.concat([data, crcBuffer]);
-}
-
+};
