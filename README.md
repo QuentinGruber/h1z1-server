@@ -74,7 +74,7 @@ Execute this command in CMD/Powershell ( you have to be in your h1z1 game folder
 
 The application is at the very beginning of its development, it can contain bugs and is very minimalist.
 
-Download here : https://github.com/H1emu/h1z1-server-app/releases
+Download here : https://github.com/H1emu/H1emu-server-app/releases [Easy way]
 
 ### Using Quick Start
 
