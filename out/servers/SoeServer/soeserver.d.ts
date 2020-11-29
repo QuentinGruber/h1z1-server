@@ -1,7 +1,7 @@
 /// <reference types="node" />
-export function SOEServer(protocolName: any, serverPort: any, cryptoKey: any, compression: any, isGatewayServer?: boolean, useCrc64?: boolean): void;
+export function SOEServer(protocolName: any, serverPort: any, cryptoKey: any, compression: any, isGatewayServer?: boolean): void;
 export class SOEServer {
-    constructor(protocolName: any, serverPort: any, cryptoKey: any, compression: any, isGatewayServer?: boolean, useCrc64?: boolean);
+    constructor(protocolName: any, serverPort: any, cryptoKey: any, compression: any, isGatewayServer?: boolean);
     _protocolName: any;
     _serverPort: any;
     _cryptoKey: any;

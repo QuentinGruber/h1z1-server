@@ -37,8 +37,7 @@ var GatewayServer = /** @class */ (function (_super) {
         _this._crcSeed = 0;
         _this._crcLength = 2;
         _this._udpLength = 512;
-        _this._soeServer = new soeserver_1.SOEServer(protocolName, serverPort, gatewayKey, _this._compression, true, false // use crc64
-        ); // as any since SOEServer isn't typed
+        _this._soeServer = new soeserver_1.SOEServer(protocolName, serverPort, gatewayKey, _this._compression, true); // as any since SOEServer isn't typed
         _this._protocol = new gatewayprotocol_1.GatewayProtocol();
         _this._soeServer.on("connect", function (err, client) {
             debug("Client connected from " + client.address + ":" + client.port);
