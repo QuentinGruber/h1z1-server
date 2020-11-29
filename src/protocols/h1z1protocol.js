@@ -15,8 +15,6 @@ var debug = require("debug")("H1Z1Protocol"),
   fs = require("fs"),
   H1Z1Packets = require("../packets/h1z1packets");
 
-const { appendCRC } = require("../utils/crc");
-
 function lz4_decompress(data, inSize, outSize) {
   var outdata = new Buffer.alloc(outSize),
     token,
@@ -495,7 +493,6 @@ H1Z1Protocol.prototype.pack = function (packetName, object, referenceData) {
   } else {
     debug("pack()", "Unknown or unhandled zone packet type: " + packetType);
   }
-  data = appendCRC(data, 0, false);
   return data;
 };
 
