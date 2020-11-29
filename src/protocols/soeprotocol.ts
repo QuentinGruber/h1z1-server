@@ -170,7 +170,7 @@ var packets = [
           dataParts.push(writeDataLength(subData.length), subData);
         }
         data = Buffer.concat(dataParts);
-        data = appendCRC(data, crcSeed);
+        data = appendCRC(data, data.length, crcSeed,2); console.log(data)
         return data;
       },
     },
@@ -252,7 +252,7 @@ var packets = [
         offset += 2;
         packet.data.copy(data, offset);
         if (!isSubPacket) {
-          data = appendCRC(data, crcSeed);
+          data = appendCRC(data, data.length, crcSeed,2); console.log(data)
         }
         return data;
       },
@@ -305,7 +305,7 @@ var packets = [
         offset += 2;
         packet.data.copy(data, offset);
         if (!isSubPacket) {
-          data = appendCRC(data, crcSeed);
+          data = appendCRC(data, data.length, crcSeed,2); console.log(data)
         }
         return data;
       },
@@ -347,7 +347,7 @@ var packets = [
         }
         data.writeUInt16BE(packet.sequence, offset);
         if (!isSubPacket) {
-          data = appendCRC(data, crcSeed);
+          data = appendCRC(data, data.length, crcSeed,2); console.log(data)
         }
         return data;
       },
@@ -389,7 +389,7 @@ var packets = [
         }
         data.writeUInt16BE(packet.sequence, offset);
         if (!isSubPacket) {
-          data = appendCRC(data, crcSeed);
+          data = appendCRC(data, data.length, crcSeed,2); console.log(data)
         }
         return data;
       },
