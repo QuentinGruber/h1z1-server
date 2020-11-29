@@ -163,7 +163,7 @@ export class ZoneServer extends EventEmitter {
         });
 
         var itemData = fs.readFileSync(
-          `${__dirname}/../../../data/ClientItemDefinitions.txt`,
+            `${__dirname}/../../../data/ClientItemDefinitions.txt`,
             "utf8"
           ),
           itemLines = itemData.split("\n"),
@@ -176,7 +176,7 @@ export class ZoneServer extends EventEmitter {
         }
         const referenceData = { itemTypes: items };
         this.setReferenceData(referenceData);
-        
+
         this.sendData(client, "SendZoneDetails", {
           zoneName: "Z1",
           unknownBoolean1: true,
@@ -199,7 +199,7 @@ export class ZoneServer extends EventEmitter {
             cloudWeight2: 0,
             cloudWeight3: 0,
             sunAxisX: 0,
-            sunAxisY: 0, // sun orientation on x axis ???
+            sunAxisY: 90,
             sunAxisZ: 0, // night when 100
             unknownDword18: 0,
             unknownDword19: 0,
@@ -400,10 +400,7 @@ export class ZoneServer extends EventEmitter {
   setCharacterLoadout(client: Client, loadoutId: number, loadoutTab: any) {
     for (var i = 0; i < client.character.loadouts.length; i++) {
       var loadout = client.character.loadouts[i];
-      if (
-        loadout.loadoutId == loadoutId &&
-        loadout.unknownDword2 == loadoutTab
-      ) {
+      if (loadout.loadoutId == loadoutId && loadout.loadoutTab == loadoutTab) {
         this.sendChatText(client, "Setting loadout " + loadoutId);
         debug(JSON.stringify(loadout, null, 2));
         client.character.currentLoadout = loadout.loadoutData;

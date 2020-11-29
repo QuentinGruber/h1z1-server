@@ -30,4 +30,5 @@ declare var packetHandlers: {
     "ProfileStats.GetPlayerProfileStats": (server: any, client: any, packet: any) => void;
     GetRewardBuffInfo: (server: any, client: any, packet: any) => void;
     PlayerUpdateUpdatePositionClientToZone: (server: any, client: any, packet: any) => void;
+    "PlayerUpdate.FullCharacterDataRequest": (server: any, client: any, packet: any) => void;
 };

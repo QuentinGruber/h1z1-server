@@ -161,7 +161,7 @@ var ZoneServer = /** @class */ (function (_super) {
                         cloudWeight2: 0,
                         cloudWeight3: 0,
                         sunAxisX: 0,
-                        sunAxisY: 0,
+                        sunAxisY: 90,
                         sunAxisZ: 0,
                         unknownDword18: 0,
                         unknownDword19: 0,
@@ -339,8 +339,7 @@ var ZoneServer = /** @class */ (function (_super) {
     ZoneServer.prototype.setCharacterLoadout = function (client, loadoutId, loadoutTab) {
         for (var i = 0; i < client.character.loadouts.length; i++) {
             var loadout = client.character.loadouts[i];
-            if (loadout.loadoutId == loadoutId &&
-                loadout.unknownDword2 == loadoutTab) {
+            if (loadout.loadoutId == loadoutId && loadout.loadoutTab == loadoutTab) {
                 this.sendChatText(client, "Setting loadout " + loadoutId);
                 debug(JSON.stringify(loadout, null, 2));
                 client.character.currentLoadout = loadout.loadoutData;

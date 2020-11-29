@@ -12,7 +12,7 @@
 // ======================================================================
 var debug = require("debug")("SOEProtocol");
 var PacketTable = require("../packets/packettable");
-var appendCRC = require('../utils/crc').appendCRC;
+var appendCRC = require("../utils/crc").appendCRC;
 var stand_alone_packets = [
     [
         "ZonePing",
@@ -403,12 +403,10 @@ var SOEProtocol = /** @class */ (function () {
             appPackets: appData,
         };
     };
-    ;
     SOEProtocol.prototype.pack = function (packetName, object, crcSeed, compression) {
         var data = packSOEPacket(packetName, object, crcSeed, compression, false, this.useCrc64);
         return data;
     };
-    ;
     return SOEProtocol;
 }());
 exports.SOEProtocol = SOEProtocol;

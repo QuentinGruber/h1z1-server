@@ -10,9 +10,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-const  debug = require("debug")("SOEProtocol");
+const debug = require("debug")("SOEProtocol");
 const PacketTable = require("../packets/packettable");
-const { appendCRC }  = require('../utils/crc')
+const { appendCRC } = require("../utils/crc");
 var stand_alone_packets = [
   [
     "ZonePing",
@@ -39,7 +39,12 @@ var packets = [
     "SessionRequest",
     0x01,
     {
-      parse: function (data: any, crcSeed: number, compression: number, isSubPacket: boolean) {
+      parse: function (
+        data: any,
+        crcSeed: number,
+        compression: number,
+        isSubPacket: boolean
+      ) {
         const clientCRCLength = data.readUInt32BE(2);
         const clientSessionId = data.readUInt32BE(6);
         const clientUDPLength = data.readUInt32BE(10);
@@ -51,7 +56,13 @@ var packets = [
           protocol: protocol,
         };
       },
-      pack: function (packet: any, crcSeed: number, compression: number, isSubPacket: boolean, useCrc64: boolean) {
+      pack: function (
+        packet: any,
+        crcSeed: number,
+        compression: number,
+        isSubPacket: boolean,
+        useCrc64: boolean
+      ) {
         var data = new (Buffer as any).alloc(14 + packet.protocol.length + 1);
         data.writeUInt16BE(0x01, 0);
         data.writeUInt32BE(packet.crcLength, 2);
@@ -66,7 +77,12 @@ var packets = [
     "SessionReply",
     0x02,
     {
-      parse: function (data: any, crcSeed: number, compression: number, isSubPacket: boolean) {
+      parse: function (
+        data: any,
+        crcSeed: number,
+        compression: number,
+        isSubPacket: boolean
+      ) {
         const serverSessionId = data.readUInt32BE(2);
         const serverCrcSeed = data.readUInt32BE(6);
         const serverCRCLength = data.readUInt8(10);
@@ -80,7 +96,13 @@ var packets = [
           udpLength: serverUDPLength,
         };
       },
-      pack: function (packet: any, crcSeed: number, compression: number, isSubPacket: boolean, useCrc64: boolean) {
+      pack: function (
+        packet: any,
+        crcSeed: number,
+        compression: number,
+        isSubPacket: boolean,
+        useCrc64: boolean
+      ) {
         var data = new (Buffer as any).alloc(21);
         data.writeUInt16BE(0x02, 0);
         data.writeUInt32BE(packet.sessionId, 2);
@@ -97,7 +119,13 @@ var packets = [
     "MultiPacket",
     0x03,
     {
-      parse: function (data: any, crcSeed: number, compression: number, isSubPacket: boolean, appData: any) {
+      parse: function (
+        data: any,
+        crcSeed: number,
+        compression: number,
+        isSubPacket: boolean,
+        appData: any
+      ) {
         var offset = 2 + (compression ? 1 : 0),
           dataLength,
           subPackets = [];
@@ -119,7 +147,13 @@ var packets = [
           subPackets: subPackets,
         };
       },
-      pack: function (packet: any, crcSeed: number, compression: number, isSubPacket: boolean, useCrc64: boolean) {
+      pack: function (
+        packet: any,
+        crcSeed: number,
+        compression: number,
+        isSubPacket: boolean,
+        useCrc64: boolean
+      ) {
         var dataParts = [],
           subData,
           data = new (Buffer as any).alloc(2 + (compression ? 1 : 0));
@@ -148,7 +182,7 @@ var packets = [
     "Disconnect",
     0x05,
     {
-      parse: function (data:any) {
+      parse: function (data: any) {
         return {};
       },
       pack: function () {
@@ -162,7 +196,7 @@ var packets = [
     "Ping",
     0x06,
     {
-      parse: function (data:any) {
+      parse: function (data: any) {
         return {};
       },
       pack: function () {
@@ -178,7 +212,13 @@ var packets = [
     "Data",
     0x09,
     {
-      parse: function (data: any, crcSeed: number, compression: number, isSubPacket: boolean, appData: any) {
+      parse: function (
+        data: any,
+        crcSeed: number,
+        compression: number,
+        isSubPacket: boolean,
+        appData: any
+      ) {
         var sequence = data.readUInt16BE(compression && !isSubPacket ? 3 : 2),
           dataEnd = data.length - (isSubPacket ? 0 : 2),
           crc = isSubPacket ? 0 : data.readUInt16BE(dataEnd);
@@ -195,7 +235,13 @@ var packets = [
           data: data,
         };
       },
-      pack: function (packet: any, crcSeed: number, compression: number, isSubPacket: boolean, useCrc64: boolean) {
+      pack: function (
+        packet: any,
+        crcSeed: number,
+        compression: number,
+        isSubPacket: boolean,
+        useCrc64: boolean
+      ) {
         var data = new (Buffer as any).alloc(
             4 + (compression && !isSubPacket ? 1 : 0) + packet.data.length
           ),
@@ -220,7 +266,13 @@ var packets = [
     "DataFragment",
     0x0d,
     {
-      parse: function (data: any, crcSeed: number, compression: number, isSubPacket: boolean, appData: any) {
+      parse: function (
+        data: any,
+        crcSeed: number,
+        compression: number,
+        isSubPacket: boolean,
+        appData: any
+      ) {
         var sequence = data.readUInt16BE(compression && !isSubPacket ? 3 : 2),
           fragmentEnd = data.length - (isSubPacket ? 0 : 2),
           crc = isSubPacket ? 0 : data.readUInt16BE(fragmentEnd);
@@ -237,7 +289,13 @@ var packets = [
           data: data,
         };
       },
-      pack: function (packet: any, crcSeed: number, compression: number, isSubPacket: boolean, useCrc64: boolean) {
+      pack: function (
+        packet: any,
+        crcSeed: number,
+        compression: number,
+        isSubPacket: boolean,
+        useCrc64: boolean
+      ) {
         var data = new (Buffer as any).alloc(
             4 + (compression && !isSubPacket ? 1 : 0) + packet.data.length
           ),
@@ -262,7 +320,12 @@ var packets = [
     "OutOfOrder",
     0x11,
     {
-      parse: function (data: any, crcSeed: number, compression: number, isSubPacket: boolean) {
+      parse: function (
+        data: any,
+        crcSeed: number,
+        compression: number,
+        isSubPacket: boolean
+      ) {
         var sequence = data.readUInt16BE(
           2 + (compression && !isSubPacket ? 1 : 0)
         );
@@ -271,8 +334,16 @@ var packets = [
           sequence: sequence,
         };
       },
-      pack: function (packet: any, crcSeed: number, compression: number, isSubPacket: boolean, useCrc64: boolean) {
-        let data = new (Buffer as any).alloc(4 + (compression && !isSubPacket ? 1 : 0))
+      pack: function (
+        packet: any,
+        crcSeed: number,
+        compression: number,
+        isSubPacket: boolean,
+        useCrc64: boolean
+      ) {
+        let data = new (Buffer as any).alloc(
+          4 + (compression && !isSubPacket ? 1 : 0)
+        );
         let offset = 0;
         data.writeUInt16BE(0x11, offset);
         offset += 2;
@@ -292,7 +363,12 @@ var packets = [
     "Ack",
     0x15,
     {
-      parse: function (data: any, crcSeed: number, compression: number, isSubPacket: boolean) {
+      parse: function (
+        data: any,
+        crcSeed: number,
+        compression: number,
+        isSubPacket: boolean
+      ) {
         var sequence = data.readUInt16BE(
           2 + (compression && !isSubPacket ? 1 : 0)
         );
@@ -301,8 +377,16 @@ var packets = [
           sequence: sequence,
         };
       },
-      pack: function (packet: any, crcSeed: number, compression: number, isSubPacket: boolean, useCrc64: boolean) {
-        var data = new (Buffer as any).alloc(4 + (compression && !isSubPacket ? 1 : 0)),
+      pack: function (
+        packet: any,
+        crcSeed: number,
+        compression: number,
+        isSubPacket: boolean,
+        useCrc64: boolean
+      ) {
+        var data = new (Buffer as any).alloc(
+            4 + (compression && !isSubPacket ? 1 : 0)
+          ),
           offset = 0;
         data.writeUInt16BE(0x15, offset);
         offset += 2;
@@ -339,7 +423,14 @@ PacketTable.build(
   StandAlonePackets.Packets
 );
 
-function packSOEPacket(packetName: string, object: any, crcSeed: number, compression: number, isSubPacket: boolean = false, useCrc64: boolean = false) {
+function packSOEPacket(
+  packetName: string,
+  object: any,
+  crcSeed: number,
+  compression: number,
+  isSubPacket: boolean = false,
+  useCrc64: boolean = false
+) {
   let packetType = (SOEPackets as any).PacketTypes[packetName],
     packet = (SOEPackets as any).Packets[packetType],
     data;
@@ -350,7 +441,7 @@ function packSOEPacket(packetName: string, object: any, crcSeed: number, compres
   }
   if (packet) {
     if (packet.pack) {
-      data = packet.pack(object, crcSeed, compression, isSubPacket , useCrc64);
+      data = packet.pack(object, crcSeed, compression, isSubPacket, useCrc64);
       debug("Packing data for " + packet.name);
     } else {
       debug("pack()", "No pack function for packet " + packet.name);
@@ -361,7 +452,13 @@ function packSOEPacket(packetName: string, object: any, crcSeed: number, compres
   return data;
 }
 
-function parseSOEPacket(data: any, crcSeed: number, compression: number, isSubPacket: boolean, appData: any) {
+function parseSOEPacket(
+  data: any,
+  crcSeed: number,
+  compression: number,
+  isSubPacket: boolean,
+  appData: any
+) {
   var packetType = data.readUInt16BE(0),
     result,
     packet = (SOEPackets as any).Packets[packetType];
@@ -431,32 +528,32 @@ function readDataLength(data: any, offset: number) {
 }
 
 class SOEProtocol {
-  useCrc64:boolean
+  useCrc64: boolean;
   constructor(useCrc64: boolean = false) {
-    this.useCrc64 = useCrc64
+    this.useCrc64 = useCrc64;
   }
 
-  parse (data: any, crcSeed: number, compression: number) {
-    var appData:Array<any> = [],
+  parse(data: any, crcSeed: number, compression: number) {
+    var appData: Array<any> = [],
       packet = parseSOEPacket(data, crcSeed, compression, false, appData);
     return {
       soePacket: packet,
       appPackets: appData,
     };
-  };
-  
-  pack (
-    packetName: string,
-    object: any,
-    crcSeed: number,
-    compression: number
-  ) {
-    var data = packSOEPacket(packetName, object, crcSeed, compression , false , this.useCrc64);
+  }
+
+  pack(packetName: string, object: any, crcSeed: number, compression: number) {
+    var data = packSOEPacket(
+      packetName,
+      object,
+      crcSeed,
+      compression,
+      false,
+      this.useCrc64
+    );
     return data;
-  };
+  }
 }
-
-
 
 exports.SOEProtocol = SOEProtocol as any;
 exports.SOEPackets = SOEPackets as any;
