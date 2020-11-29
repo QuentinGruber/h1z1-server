@@ -177,7 +177,7 @@ var ZoneServer = /** @class */ (function (_super) {
                     zoneId2: 3905829720,
                     nameId: 7699,
                     unknownBoolean7: true,
-                });
+                }, true);
                 _this.sendData(client, "ClientUpdate.ZonePopulation", {
                     populations: [0, 0],
                 });
@@ -205,7 +205,7 @@ var ZoneServer = /** @class */ (function (_super) {
                 client.character.inventory = self.data.inventory;
                 client.character.factionId = self.data.factionId;
                 client.character.name = self.data.identity.characterName;
-                _this.sendData(client, "SendSelfToClient", self);
+                _this.sendData(client, "SendSelfToClient", self, true);
                 _this.sendData(client, "PlayerUpdate.SetBattleRank", {
                     characterId: client.character.characterId,
                     battleRank: 100,
@@ -356,23 +356,25 @@ var ZoneServer = /** @class */ (function (_super) {
             }
         }
     };
-    ZoneServer.prototype.sendData = function (client, packetName, obj) {
+    ZoneServer.prototype.sendData = function (client, packetName, obj, includeCrc) {
+        if (includeCrc === void 0) { includeCrc = false; }
         if (packetName != "KeepAlive") {
             debug("send data", packetName);
         }
         var data = this._protocol.pack(packetName, obj, this._referenceData);
         if (Array.isArray(client)) {
             for (var i = 0; i < client.length; i++) {
-                this._gatewayServer.sendTunnelData(client[i], data);
+                this._gatewayServer.sendTunnelData(client[i], data, includeCrc);
             }
         }
         else {
-            this._gatewayServer.sendTunnelData(client, data);
+            this._gatewayServer.sendTunnelData(client, data, includeCrc);
         }
     };
-    ZoneServer.prototype.sendDataToAll = function (packetName, obj) {
+    ZoneServer.prototype.sendDataToAll = function (packetName, obj, includeCrc) {
+        if (includeCrc === void 0) { includeCrc = false; }
         for (var a in this._clients) {
-            this.sendData(this._clients[a], packetName, obj);
+            this.sendData(this._clients[a], packetName, obj, includeCrc);
         }
     };
     ZoneServer.prototype.sendWeaponPacket = function (client, packetName, obj) {

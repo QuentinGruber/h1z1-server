@@ -215,7 +215,7 @@ export class ZoneServer extends EventEmitter {
           zoneId2: 3905829720,
           nameId: 7699,
           unknownBoolean7: true,
-        });
+        },true);
 
         this.sendData(client, "ClientUpdate.ZonePopulation", {
           populations: [0, 0],
@@ -248,7 +248,7 @@ export class ZoneServer extends EventEmitter {
         client.character.factionId = self.data.factionId;
         client.character.name = self.data.identity.characterName;
 
-        this.sendData(client, "SendSelfToClient", self);
+        this.sendData(client, "SendSelfToClient", self,true);
         this.sendData(client, "PlayerUpdate.SetBattleRank", {
           characterId: client.character.characterId,
           battleRank: 100,
@@ -418,23 +418,23 @@ export class ZoneServer extends EventEmitter {
       }
     }
   }
-  sendData(client: Client, packetName: string, obj: any) {
+  sendData(client: Client, packetName: string, obj: any, includeCrc:boolean = false) {
     if (packetName != "KeepAlive") {
       debug("send data", packetName);
     }
     var data = this._protocol.pack(packetName, obj, this._referenceData);
     if (Array.isArray(client)) {
       for (var i = 0; i < client.length; i++) {
-        this._gatewayServer.sendTunnelData(client[i], data);
+        this._gatewayServer.sendTunnelData(client[i], data, includeCrc);
       }
     } else {
-      this._gatewayServer.sendTunnelData(client, data);
+      this._gatewayServer.sendTunnelData(client, data, includeCrc);
     }
   }
 
-  sendDataToAll(packetName: string, obj: any) {
+  sendDataToAll(packetName: string, obj: any, includeCrc:boolean = false) {
     for (var a in this._clients) {
-      this.sendData(this._clients[a], packetName, obj);
+      this.sendData(this._clients[a], packetName, obj,includeCrc);
     }
   }
 

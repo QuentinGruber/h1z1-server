@@ -28,6 +28,7 @@ exports.GatewayServer = void 0;
 var events_1 = require("events");
 var soeserver_1 = require("../SoeServer/soeserver");
 var gatewayprotocol_1 = require("../../protocols/gatewayprotocol");
+var appendCRC = require("../../utils/crc").appendCRC;
 var debug = require("debug")("GatewayServer");
 var GatewayServer = /** @class */ (function (_super) {
     __extends(GatewayServer, _super);
@@ -85,8 +86,11 @@ var GatewayServer = /** @class */ (function (_super) {
         debug("Starting server");
         this._soeServer.start(this._compression, this._crcSeed, this._crcLength, this._udpLength);
     };
-    GatewayServer.prototype.sendTunnelData = function (client, tunnelData) {
+    GatewayServer.prototype.sendTunnelData = function (client, tunnelData, includeCrc) {
         debug("Sending tunnel data to client");
+        if (includeCrc) {
+            tunnelData = appendCRC(tunnelData, this._crcSeed);
+        }
         var data = this._protocol.pack("TunnelPacketToExternalConnection", {
             channel: 0,
             tunnelData: tunnelData,

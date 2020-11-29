@@ -13,6 +13,7 @@
 import { EventEmitter } from "events";
 import { SOEServer } from "../SoeServer/soeserver";
 import { GatewayProtocol } from "../../protocols/gatewayprotocol";
+const appendCRC = require("../../utils/crc").appendCRC;
 const debug = require("debug")("GatewayServer");
 
 interface Packet {
@@ -152,8 +153,11 @@ export class GatewayServer extends EventEmitter {
       this._udpLength
     );
   }
-  sendTunnelData(client: Client, tunnelData: any) {
+  sendTunnelData(client: Client, tunnelData: any , includeCrc:boolean) {
     debug("Sending tunnel data to client");
+    if (includeCrc) {
+      tunnelData = appendCRC(tunnelData, this._crcSeed);
+    }
     const data = this._protocol.pack("TunnelPacketToExternalConnection", {
       channel: 0,
       tunnelData: tunnelData,
