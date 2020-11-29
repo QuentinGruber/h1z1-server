@@ -85,8 +85,7 @@ export class GatewayServer extends EventEmitter {
       serverPort,
       gatewayKey,
       this._compression,
-      true,
-      false // use crc64
+      true
     ) as any; // as any since SOEServer isn't typed
     this._protocol = new GatewayProtocol() as GatewayProtocolInterface;
     this._soeServer.on("connect", (err: string, client: Client) => {
