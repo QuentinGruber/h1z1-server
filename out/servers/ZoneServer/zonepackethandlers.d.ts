@@ -25,7 +25,10 @@ declare var packetHandlers: {
     "Vehicle.Spawn": (server: any, client: any, packet: any) => void;
     "Vehicle.AutoMount": (server: any, client: any, packet: any) => void;
     "AdminCommand.SpawnVehicle": (server: any, client: any, packet: any) => void;
+    "Command.StartLogoutRequest": (server: any, client: any, packet: any) => void;
+    CharacterSelectSessionRequest: (server: any, client: any, packet: any) => void;
     "ProfileStats.GetPlayerProfileStats": (server: any, client: any, packet: any) => void;
     GetRewardBuffInfo: (server: any, client: any, packet: any) => void;
     PlayerUpdateUpdatePositionClientToZone: (server: any, client: any, packet: any) => void;
+    "PlayerUpdate.FullCharacterDataRequest": (server: any, client: any, packet: any) => void;
 };

@@ -11,7 +11,6 @@
 // ======================================================================
 
 import { EventEmitter } from "events";
-
 import { SOEServer } from "../SoeServer/soeserver";
 import { GatewayProtocol } from "../../protocols/gatewayprotocol";
 const debug = require("debug")("GatewayServer");
@@ -23,7 +22,7 @@ interface Packet {
   flags: any;
 }
 
-interface GatewayProtocol {
+interface GatewayProtocolInterface {
   pack: (arg0: string, arg1: any) => Packet;
   parse: (arg0: any) => Packet;
 }
@@ -69,15 +68,15 @@ interface Client {
 
 export class GatewayServer extends EventEmitter {
   _soeServer: SoeServer;
-  _protocol: GatewayProtocol;
+  _protocol: GatewayProtocolInterface;
   _compression: number;
-  _crcSeed: number;
+  _crcSeed: string;
   _crcLength: number;
   _udpLength: number;
   constructor(protocolName: string, serverPort: number, gatewayKey: string) {
     super();
     this._compression = 0x0000;
-    this._crcSeed = 0;
+    this._crcSeed = (13049251224421725568).toString(16);
     this._crcLength = 2;
     this._udpLength = 512;
 
@@ -86,9 +85,10 @@ export class GatewayServer extends EventEmitter {
       serverPort,
       gatewayKey,
       this._compression,
-      true
+      true,
+      false // use crc64
     ) as any; // as any since SOEServer isn't typed
-    this._protocol = new GatewayProtocol() as GatewayProtocol;
+    this._protocol = new GatewayProtocol() as GatewayProtocolInterface;
     this._soeServer.on("connect", (err: string, client: Client) => {
       debug("Client connected from " + client.address + ":" + client.port);
       this.emit("connect", err, client);
@@ -110,10 +110,11 @@ export class GatewayServer extends EventEmitter {
           switch (packet.name) {
             case "LoginRequest":
               this._soeServer.toggleEncryption();
-             this._soeServer.sendAppData(
+              this._soeServer.sendAppData(
                 client,
-                this._protocol.pack("LoginReply", {loggedIn:true}),
-                true)
+                this._protocol.pack("LoginReply", { loggedIn: true }),
+                true
+              );
 
               if (result && result.characterId) {
                 this.emit("login", null, client, result.characterId);

@@ -13,7 +13,7 @@
 var EventEmitter = require("events").EventEmitter, crypto = require("crypto"), util = require("util"), debug = require("debug")("SOEInputStream");
 function SOEInputStream(cryptoKey) {
     EventEmitter.call(this);
-    this._sequences = [];
+    this._sequences = new Array(0x10000);
     this._sequenceAdd = 0;
     this._nextSequence = -1;
     this._lastAck = -1;
@@ -137,6 +137,7 @@ SOEInputStream.prototype._processDataFragments = function () {
     }
 };
 SOEInputStream.prototype.write = function (data, sequence, fragment) {
+    var _this = this;
     if (this._nextSequence == -1) {
         this._nextSequence = sequence;
     }
@@ -155,15 +156,15 @@ SOEInputStream.prototype.write = function (data, sequence, fragment) {
     }
     else {
         var ack = sequence;
-        for (var i = 1; i < 65536; i++) {
-            var j = (this._lastAck + i) & 0xffff;
-            if (this._fragments[j]) {
+        this._sequences.forEach(function (element, index) {
+            var j = (_this._lastAck + index) & 0xffff;
+            if (_this._fragments[j]) {
                 ack = j;
             }
             else {
                 break;
             }
-        }
+        });
         if (ack > this._lastAck) {
             this._lastAck = ack;
             this.emit("ack", null, ack);

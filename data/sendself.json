@@ -9,7 +9,7 @@
     "unknownString1": "",
     "unknownDword4": 0,
     "unknownDword5": 0,
-    "unknownString2": "",
+    "emptyTexture": "",
     "unknownString3": "",
     "unknownString4": "",
     "headId": 1,
@@ -17,8 +17,8 @@
     "factionId": 2,
     "unknownDword9": 0,
     "unknownDword10": 0,
-    "position": [0, 200, 0, 1],
-    "characterVector": [0, 0, 0, 0],
+    "position": [0, 50, 0, 1],
+    "rotation": [0, 0, 0, 0],
     "identity": {
       "unknownDword1": 0,
       "unknownDword2": 0,
@@ -855,7 +855,31 @@
     "unknownArray2": [],
     "collections": [],
     "inventory": {
-      "items": [],
+      "items": [
+        {
+          "itemData": {
+            "baseItem": {
+              "itemId": 70441,
+              "unknownDword2": 0,
+              "unknownGuid1": "0x28f9d0b480000001",
+              "unknownDword3": 1,
+              "unknownDword4": 0,
+              "unknownDword5": 0,
+              "unknownDword6": 0,
+              "unknownBoolean1": true,
+              "unknownDword7": 0,
+              "unknownByte1": 0,
+              "unknownData": {
+                "type": 0,
+                "value": {}
+              }
+            },
+            "detail": {
+              "unknownBoolean1": false
+            }
+          }
+        }
+      ],
       "unknownDword1": 0
     },
     "unknownDword28": 2,

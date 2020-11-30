@@ -1,13 +1,13 @@
 {
   "name": "h1z1-server",
-  "version": "0.6.14",
+  "version": "0.6.19",
   "description": "Library for emulating h1z1 server",
   "author": "Quentin Gruber <quentingruber@gmail.com> (http://github.com/quentingruber)",
-  "license": "GNU General Public License v3.0",
+  "license": "GPL-3.0-only",
   "main": "h1z1-server.js",
   "dependencies": {
     "@types/mongodb": "^3.5.27",
-    "@types/node": "^12.12.62",
+    "@types/node": "^14.14.9",
     "buffer-crc32": ">=0.2.1",
     "debug": "^4.2.0",
     "h1z1-dataschema": "^1.0.4",
@@ -16,13 +16,13 @@
     "typescript": "^4.0.3"
   },
   "directories": {
-    "lib": "lib"
+    "src": "./src"
   },
   "devDependencies": {},
   "scripts": {
     "compile_ts": "tsc --declaration -p .",
     "publish_release": "git push --tags && git push origin dev && git push origin master",
-    "lint_ts": "tslint -c tslint.json './lib_ts/*.ts'"
+    "lint_ts": "tslint -c tslint.json './scr/*.ts'"
   },
   "repository": {
     "type": "git",
@@ -36,5 +36,5 @@
   "bugs": {
     "url": "https://github.com/QuentinGruber/h1z1-server/issues"
   },
-  "homepage": "https://github.com/QuentinGruber/h1z1-server#readme"
+  "homepage": "http://h1emu.com/"
 }

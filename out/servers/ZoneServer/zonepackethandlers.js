@@ -29,24 +29,24 @@ var packetHandlers = {
                 unknownDword1: 1,
                 unknownDword2: 1,
                 unknownDword3: 1,
-                unknownDword4: 1,
-                unknownDword5: 1,
-                unknownDword6: 1,
+                fogDensity: 1,
+                fogGradient: 1,
+                fogFloor: 1,
                 unknownDword7: 1,
                 unknownDword8: 1,
-                unknownDword9: 1,
-                unknownDword10: 1,
-                unknownDword11: 1,
-                unknownDword12: 1,
-                unknownDword13: 1,
-                unknownDword14: 1,
-                unknownDword15: 1,
-                unknownDword16: 1,
-                unknownDword17: 1,
+                temp: 1,
+                skyColor: 1,
+                cloudWeight0: 1,
+                cloudWeight1: 1,
+                cloudWeight2: 1,
+                cloudWeight3: 1,
+                sunAxisX: 1,
+                sunAxisY: 1,
+                sunAxisZ: 1,
                 unknownDword18: 1,
                 unknownDword19: 1,
                 unknownDword20: 1,
-                unknownDword21: 1,
+                wind: 1,
                 unknownDword22: 1,
                 unknownDword23: 1,
                 unknownDword24: 1,
@@ -206,6 +206,7 @@ var packetHandlers = {
                 command: commands[i],
             });
         }
+        server.sendChatText(client, "Welcome to H1emu ! :D");
     },
     Security: function (server, client, packet) {
         debug(packet);
@@ -1122,6 +1123,13 @@ var packetHandlers = {
         }
         if (packet.data.commandHash == Jenkins.oaat("HAX")) {
             switch (args[0]) {
+                case "pc":
+                    server.sendData(client, "PlayerUpdate.AddLightweightPc", {
+                        characterid: client.character.characterId,
+                        transientId: 1,
+                    });
+                    server.sendChatText(client, "tried to spawn a LightweightPc");
+                    break;
                 case "testpacket":
                     var packetName = args[1];
                     server.sendData(client, packetName, {});
@@ -1141,24 +1149,24 @@ var packetHandlers = {
                             unknownDword1: rnd_number(),
                             unknownDword2: rnd_number(),
                             unknownDword3: rnd_number(),
-                            fog: rnd_number(),
-                            unknownDword5: rnd_number(),
-                            unknownDword6: rnd_number(),
+                            fogDensity: rnd_number(),
+                            fogGradient: rnd_number(),
+                            fogFloor: rnd_number(),
                             unknownDword7: rnd_number(),
                             unknownDword8: rnd_number(),
-                            temperature: rnd_number(),
-                            unknownDword10: rnd_number(),
-                            unknownDword11: rnd_number(),
-                            unknownDword12: rnd_number(),
-                            unknownDword13: rnd_number(),
-                            unknownDword14: rnd_number(),
-                            unknownDword15: rnd_number(),
-                            unknownDword16: rnd_number(),
-                            unknownDword17: rnd_number(),
+                            temp: rnd_number(),
+                            skyColor: rnd_number(),
+                            cloudWeight0: rnd_number(),
+                            cloudWeight1: rnd_number(),
+                            cloudWeight2: rnd_number(),
+                            cloudWeight3: rnd_number(),
+                            sunAxisX: rnd_number(),
+                            sunAxisY: rnd_number(),
+                            sunAxisZ: rnd_number(),
                             unknownDword18: rnd_number(),
                             unknownDword19: rnd_number(),
                             unknownDword20: rnd_number(),
-                            unknownDword21: rnd_number(),
+                            wind: rnd_number(),
                             unknownDword22: rnd_number(),
                             unknownDword23: rnd_number(),
                             unknownDword24: rnd_number(),
@@ -1954,6 +1962,15 @@ var packetHandlers = {
             });
         });
     },
+    "Command.StartLogoutRequest": function (server, client, packet) {
+        server.sendData(client, "ClientUpdate.CompleteLogoutProcess", {});
+    },
+    CharacterSelectSessionRequest: function (server, client, packet) {
+        server.sendData(client, "CharacterSelectSessionResponse", {
+            status: 1,
+            sessionId: "placeholder",
+        });
+    },
     "ProfileStats.GetPlayerProfileStats": function (server, client, packet) {
         server.sendData(client, "ProfileStats.PlayerProfileStats", require("../../../data/profilestats.json"));
     },
@@ -1969,6 +1986,29 @@ var packetHandlers = {
                 0,
             ];
         }
+    },
+    "PlayerUpdate.FullCharacterDataRequest": function (server, client, packet) {
+        debug(packet);
+        server.sendData(client, "PlayerUpdate.LightweightToFullPc", {
+            attachments: [],
+            effectTags: [],
+            characterVariables: [],
+            resources: [],
+            unknownVector1: [0, 200, 0],
+            unknownVector2: [0, 200, 0],
+            unknownVector4: [0, 200, 0, 1],
+            unknownVector5: [0, 200, 0, 1],
+            unknownData1: {
+                unknownDword1: 0,
+                unknownString1: "",
+                unknownString2: "",
+                unknownDword2: 0,
+                unknownString3: "",
+            },
+            unknownData2: { unknownFloat1: 1.0 },
+            unknownData3: { unknownDword1: 0 },
+            targetData: { targetType: 1 },
+        });
     },
 };
 exports.default = packetHandlers;
