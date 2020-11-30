@@ -7,39 +7,39 @@
     "actorModelId": 9240,
     "headActor": "Head_Male_Caucasian.adr",
     "unknownString1": "",
-    "unknownDword4": 20,
-    "unknownDword5": 20,
+    "unknownDword4": 0,
+    "unknownDword5": 0,
     "emptyTexture": "",
     "unknownString3": "",
     "unknownString4": "",
     "headId": 1,
     "unknownDword6": 7,
     "factionId": 2,
-    "unknownDword9": 20,
-    "unknownDword10": 20,
-    "position": [20, 50, 20, 1],
+    "unknownDword9": 0,
+    "unknownDword10": 0,
+    "position": [0, 50, 0, 1],
     "rotation": [0, 0, 0, 1],
     "identity": {
-      "unknownDword1": 20,
-      "unknownDword2": 20,
-      "unknownDword3": 20,
+      "unknownDword1": 0,
+      "unknownDword2": 0,
+      "unknownDword3": 0,
       "characterName": "LocalPlayer",
       "characterNameBis": ""
     },
-    "unknownDword14": 20,
+    "unknownDword14": 0,
     "currency": [],
     "creationDate": "0x0000000051f3a168",
     "unknownDword15": 531724,
     "unknownDword16": 6931,
     "unknownBoolean1": false,
     "unknownBoolean2": false,
-    "unknownDword17": 20,
-    "unknownDword18": 20,
+    "unknownDword17": 0,
+    "unknownDword18": 0,
     "unknownBoolean3": false,
     "unknownDword19": 217,
     "gender": 1,
-    "unknownDword21": 20,
-    "unknownDword22": 20,
+    "unknownDword21": 0,
+    "unknownDword22": 0,
     "unknownDword23": 914,
     "unknownBoolean4": false,
     "unknownTime1": "0x0000000052b1d24b",
@@ -47,7 +47,7 @@
     "unknownTime3": "0x0000000000000000",
     "unknownDword24": 26,
     "unknownBoolean5": false,
-    "unknownDword25": 20,
+    "unknownDword25": 0,
     "offset": 293,
     "profiles": [],
     "currentProfile": 4,
@@ -79,16 +79,16 @@
           }
         }
       ],
-      "unknownDword1": 20
+      "unknownDword1": 0
     },
     "unknownDword28": 2,
     "characterQuests": {
       "quests": [],
-      "unknownDword1": 20,
+      "unknownDword1": 0,
       "unknownDword2": 4294967295,
       "unknownBoolean1": false,
-      "unknownDword3": 20,
-      "unknownDword4": 20
+      "unknownDword3": 0,
+      "unknownDword4": 0
     },
     "characterAchievements": [],
     "acquaintances": [],
@@ -102,15 +102,15 @@
     "unknownEffectArray": [],
     "stats": [],
     "playerTitles": [],
-    "currentPlayerTitle": 20,
+    "currentPlayerTitle": 0,
     "unknownArray13": [],
     "unknownArray14": [],
-    "unknownDword33": 20,
+    "unknownDword33": 0,
     "unknownArray15": [],
     "unknownArray16": [],
     "unknownArray17": [],
-    "unknownDword34": 20,
-    "unknownDword35": 20,
+    "unknownDword34": 0,
+    "unknownDword35": 0,
     "unknownArray18": [],
     "unknownArray19": [],
     "unknownArray20": [],
@@ -120,7 +120,7 @@
       "unknownArray3": [],
       "unknownArray4": [],
       "unknownDword1": 21,
-      "unknownDword2": 20,
+      "unknownDword2": 0,
       "unknownArray5": [],
       "unknownArray6": [],
       "unknownArray7": []
@@ -136,27 +136,27 @@
     "unknownArray23": [],
     "unknownByte1": 128,
     "unknownData2": {
-      "unknownDword1": 20,
+      "unknownDword1": 0,
       "unknownData1": {
-        "unknownDword1": 20,
-        "unknownDword2": 20,
-        "unknownDword3": 20
+        "unknownDword1": 0,
+        "unknownDword2": 0,
+        "unknownDword3": 0
       },
       "unknownData2": {
-        "unknownDword1": 20,
-        "unknownDword2": 20,
-        "unknownDword3": 20
+        "unknownDword1": 0,
+        "unknownDword2": 0,
+        "unknownDword3": 0
       },
-      "unknownDword2": 20
+      "unknownDword2": 0
     },
     "unknownDword36": 3,
     "unknownArray24": [],
     "unknownData3": {
-      "unknownDword1": 20,
-      "unknownDword2": 20,
-      "unknownDword3": 20,
-      "unknownDword4": 20,
-      "unknownDword5": 20
+      "unknownDword1": 0,
+      "unknownDword2": 0,
+      "unknownDword3": 0,
+      "unknownDword4": 0,
+      "unknownDword5": 0
     },
     "unknownArray25": [],
     "unknownArray26": [],
@@ -164,29 +164,29 @@
     "unknownArray28": [],
     "playerRanks": [],
     "unknownData4": {
-      "unknownDword1": 20,
-      "unknownDword2": 20,
-      "unknownDword3": 20,
-      "unknownDword4": 20,
-      "unknownDword5": 20
+      "unknownDword1": 0,
+      "unknownDword2": 0,
+      "unknownDword3": 0,
+      "unknownDword4": 0,
+      "unknownDword5": 0
     },
     "unknownData5": {
-      "unknownDword1": 20,
-      "unknownDword2": 20,
-      "unknownDword3": 20
+      "unknownDword1": 0,
+      "unknownDword2": 0,
+      "unknownDword3": 0
     },
     "implantSlots": [],
     "itemTimerData": {
       "unknownData1": {
-        "unknownDword1": 20,
-        "unknownFloat1": 20,
+        "unknownDword1": 0,
+        "unknownFloat1": 0,
         "unknownTime1": "0x0000000000000000",
         "unknownTime2": "0x0000000000000000"
       },
       "unknownArray1": [],
       "unknownData2": {
-        "unknownDword1": 20,
-        "unknownFloat1": 20,
+        "unknownDword1": 0,
+        "unknownFloat1": 0,
         "unknownTime1": "0x0000000000000000"
       },
       "unknownArray2": [],
@@ -204,26 +204,26 @@
           "unknownDword1": 21,
           "unknownByte1": 1
         },
-        "unknownDword2": 20,
+        "unknownDword2": 0,
         "unknownData2": {
-          "unknownDword1": 20,
+          "unknownDword1": 0,
           "loadoutName": "survivor"
         },
-        "tintItemId": 20,
-        "unknownDword4": 20,
-        "decalItemId": 20,
+        "tintItemId": 0,
+        "unknownDword4": 0,
+        "decalItemId": 0,
         "loadoutSlots": [
           {
             "loadoutSlotId": 1,
             "loadoutSlotData": {
               "index": 1,
               "loadoutSlotItem": {
-                "itemLineId": 20,
-                "flags": 20,
+                "itemLineId": 0,
+                "flags": 0,
                 "attachments": [],
                 "attachmentClasses": []
               },
-              "tintItemId": 20,
+              "tintItemId": 0,
               "itemSlot": 7
             }
           },
@@ -232,12 +232,12 @@
             "loadoutSlotData": {
               "index": 2,
               "loadoutSlotItem": {
-                "itemLineId": 20,
-                "flags": 20,
+                "itemLineId": 0,
+                "flags": 0,
                 "attachments": [],
                 "attachmentClasses": []
               },
-              "tintItemId": 20,
+              "tintItemId": 0,
               "itemSlot": 7
             }
           },
@@ -246,12 +246,12 @@
             "loadoutSlotData": {
               "index": 3,
               "loadoutSlotItem": {
-                "itemLineId": 20,
-                "flags": 20,
+                "itemLineId": 0,
+                "flags": 0,
                 "attachments": [],
                 "attachmentClasses": []
               },
-              "tintItemId": 20,
+              "tintItemId": 0,
               "itemSlot": 7
             }
           },
@@ -261,11 +261,11 @@
               "index": 4,
               "loadoutSlotItem": {
                 "itemLineId": 85,
-                "flags": 20,
+                "flags": 0,
                 "attachments": [],
                 "attachmentClasses": []
               },
-              "tintItemId": 20,
+              "tintItemId": 0,
               "itemSlot": 7
             }
           },
@@ -274,12 +274,12 @@
             "loadoutSlotData": {
               "index": 5,
               "loadoutSlotItem": {
-                "itemLineId": 20,
-                "flags": 20,
+                "itemLineId": 0,
+                "flags": 0,
                 "attachments": [],
                 "attachmentClasses": []
               },
-              "tintItemId": 20,
+              "tintItemId": 0,
               "itemSlot": 3
             }
           },
@@ -288,12 +288,12 @@
             "loadoutSlotData": {
               "index": 6,
               "loadoutSlotItem": {
-                "itemLineId": 20,
-                "flags": 20,
+                "itemLineId": 0,
+                "flags": 0,
                 "attachments": [],
                 "attachmentClasses": []
               },
-              "tintItemId": 20,
+              "tintItemId": 0,
               "itemSlot": 1
             }
           },
@@ -302,12 +302,12 @@
             "loadoutSlotData": {
               "index": 7,
               "loadoutSlotItem": {
-                "itemLineId": 20,
-                "flags": 20,
+                "itemLineId": 0,
+                "flags": 0,
                 "attachments": [],
                 "attachmentClasses": []
               },
-              "tintItemId": 20,
+              "tintItemId": 0,
               "itemSlot": 10
             }
           },
@@ -316,12 +316,12 @@
             "loadoutSlotData": {
               "index": 8,
               "loadoutSlotItem": {
-                "itemLineId": 20,
-                "flags": 20,
+                "itemLineId": 0,
+                "flags": 0,
                 "attachments": [],
                 "attachmentClasses": []
               },
-              "tintItemId": 20,
+              "tintItemId": 0,
               "itemSlot": 5
             }
           },
@@ -330,12 +330,12 @@
             "loadoutSlotData": {
               "index": 9,
               "loadoutSlotItem": {
-                "itemLineId": 20,
+                "itemLineId": 0,
                 "flags": 128,
                 "attachments": [],
                 "attachmentClasses": []
               },
-              "tintItemId": 20,
+              "tintItemId": 0,
               "itemSlot": 4
             }
           },
@@ -344,13 +344,13 @@
             "loadoutSlotData": {
               "index": 10,
               "loadoutSlotItem": {
-                "itemLineId": 20,
-                "flags": 20,
+                "itemLineId": 0,
+                "flags": 0,
                 "attachments": [],
                 "attachmentClasses": []
               },
-              "tintItemId": 20,
-              "itemSlot": 20
+              "tintItemId": 0,
+              "itemSlot": 0
             }
           },
           {
@@ -358,12 +358,12 @@
             "loadoutSlotData": {
               "index": 11,
               "loadoutSlotItem": {
-                "itemLineId": 20,
-                "flags": 20,
+                "itemLineId": 0,
+                "flags": 0,
                 "attachments": [],
                 "attachmentClasses": []
               },
-              "tintItemId": 20,
+              "tintItemId": 0,
               "itemSlot": 2
             }
           },
@@ -372,12 +372,12 @@
             "loadoutSlotData": {
               "index": 12,
               "loadoutSlotItem": {
-                "itemLineId": 20,
-                "flags": 20,
+                "itemLineId": 0,
+                "flags": 0,
                 "attachments": [],
                 "attachmentClasses": []
               },
-              "tintItemId": 20,
+              "tintItemId": 0,
               "itemSlot": 11
             }
           },
@@ -386,32 +386,32 @@
             "loadoutSlotData": {
               "index": 13,
               "loadoutSlotItem": {
-                "itemLineId": 20,
-                "flags": 20,
+                "itemLineId": 0,
+                "flags": 0,
                 "attachments": [],
                 "attachmentClasses": []
               },
-              "tintItemId": 20,
+              "tintItemId": 0,
               "itemSlot": 26
             }
           }
         ]
       },
       "unknownData2": {
-        "unknownDword1": 20,
+        "unknownDword1": 0,
         "unknownData1": {
-          "unknownDword1": 20,
-          "unknownByte1": 20
+          "unknownDword1": 0,
+          "unknownByte1": 0
         },
         "unknownString1": "",
-        "unknownDword2": 20,
-        "unknownDword3": 20,
-        "unknownDword4": 20,
-        "unknownDword5": 20,
+        "unknownDword2": 0,
+        "unknownDword3": 0,
+        "unknownDword4": 0,
+        "unknownDword5": 0,
         "unknownArray1": []
       },
       "unknownDword1": 256,
-      "unknownDword2": 20,
+      "unknownDword2": 0,
       "unknownDword3": 1,
       "unknownDword4": 1
     },
@@ -428,17 +428,17 @@
       "skillPointsGranted": "0x0000000000000000",
       "skillPointsTotal": "0x0000000000061a82",
       "skillPointsSpent": "0x000000000000c112",
-      "nextSkillPointPct": 20.7054166666726663,
+      "nextSkillPointPct": 0.7054166666726663,
       "unknownTime1": "0x0000000053da7024",
-      "unknownDword1": 20
+      "unknownDword1": 0
     },
     "skills": [],
     "unknownBoolean8": true,
     "unknownQword1": "0x0000000000000000",
-    "unknownDword37": 20,
+    "unknownDword37": 0,
     "unknownQword2": "0x0000000000000000",
     "unknownQword3": "0x0000000000000000",
-    "unknownDword38": 20,
+    "unknownDword38": 0,
     "unknownDword39": 4294967295,
     "unknownBoolean9": true
   }
