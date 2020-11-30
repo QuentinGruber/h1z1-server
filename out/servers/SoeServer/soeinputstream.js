@@ -137,6 +137,7 @@ SOEInputStream.prototype._processDataFragments = function () {
     }
 };
 SOEInputStream.prototype.write = function (data, sequence, fragment) {
+    var _this = this;
     if (this._nextSequence == -1) {
         this._nextSequence = sequence;
     }
@@ -155,15 +156,15 @@ SOEInputStream.prototype.write = function (data, sequence, fragment) {
     }
     else {
         var ack = sequence;
-        for (var i = 1; i < 65536; i++) {
-            var j = (this._lastAck + i) & 0xffff;
-            if (this._fragments[j]) {
+        this._sequences.forEach(function (element, index) {
+            var j = (_this._lastAck + index) & 0xffff;
+            if (_this._fragments[j]) {
                 ack = j;
             }
             else {
                 break;
             }
-        }
+        });
         if (ack > this._lastAck) {
             this._lastAck = ack;
             this.emit("ack", null, ack);
