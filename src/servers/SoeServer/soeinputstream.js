@@ -184,14 +184,14 @@ SOEInputStream.prototype.write = function (data, sequence, fragment) {
     this.emit("outoforder", null, this._nextSequence, sequence);
   } else {
     var ack = sequence;
-    for (var i = 1; i < 65536; i++) {
-      var j = (this._lastAck + i) & 0xffff;
+    this._sequences.forEach((element,index) => {
+      var j = (this._lastAck + index) & 0xffff;
       if (this._fragments[j]) {
         ack = j;
       } else {
         break;
       }
-    }
+    });
     if (ack > this._lastAck) {
       this._lastAck = ack;
       this.emit("ack", null, ack);
