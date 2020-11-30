@@ -1134,6 +1134,13 @@ var packetHandlers = {
                     var packetName = args[1];
                     server.sendData(client, packetName, {});
                     break;
+                case "run":
+                    var speed = parseFloat(args[1]);
+                    server.sendChatText(client, "Setting run speed: " + speed);
+                    server.sendData(client, "Command.RunSpeed", {
+                        runSpeed: speed
+                    });
+                    break;
                 case "hell":
                     debug(":)");
                     function rnd_number() {
