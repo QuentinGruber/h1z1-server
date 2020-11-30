@@ -385,7 +385,8 @@ var packetHandlers = {
         if (packet.data.commandHash == Jenkins.oaat("NPC")) {
             if (args[0]) {
                 var npcId = parseInt(args[0]);
-                server.data("npcs").findOne({ id: npcId }, function (err, npc) {
+                var npc_data = require("../../../data/npcs.json");
+                npc_data.findOne({ id: npcId }, function (err, npc) {
                     server.sendChatText(client, "Spawning NPC " + npc.id);
                     var guid = server.generateGuid(), transientId = server.getTransientId(client, guid);
                     server.sendData(client, "PlayerUpdate.AddLightweightNpc", {
