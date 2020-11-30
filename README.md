@@ -20,6 +20,8 @@ Making this work for the 15 January 2015 version of H1Z1 (first version).
 
 - Thank to LcplReaper for his interest in the project and the management of the community around the project.
 
+- Thank to Meme for being an OG/active contributor :smile:.
+
 - Thank to Chriis who provided the basis for this project by being the first (as far as I know) to try to emulate servers for h1z1 and who inspired me.
 
 - Thank to Jacob Seidelin without whom none of this would have been possible.
