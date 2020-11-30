@@ -17,7 +17,7 @@
     "factionId": 2,
     "unknownDword9": 0,
     "unknownDword10": 0,
-    "position": [0, 200, 0, 1],
+    "position": [0, 50, 0, 1],
     "rotation": [0, 0, 0, 0],
     "identity": {
       "unknownDword1": 0,
