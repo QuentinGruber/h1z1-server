@@ -56,6 +56,8 @@ You can download them all [here](https://mega.nz/file/RtwDWJ7b#QYlxpXz_t0_kp7_S8
 
 ### Setup ClientConfig.ini
 
+**Not needed if you use the H1emu app**
+
 On the H1Z1 game folder there is a file name "ClientConfig.ini".
 
 Add `sessionid=0` at the beginning of this file.
@@ -63,6 +65,8 @@ Add `sessionid=0` at the beginning of this file.
 And change the _Server_ value to the adress of your server , probably `localhost:PORT`
 
 ### Launch the game
+
+**Not needed if you use the H1emu app**
 
 If you have followed the step just above this one, this step is no longer necessary you can start the game by double clicking on H1Z1.exe.
 
