@@ -541,7 +541,8 @@ var packetHandlers = {
                                     break;
                                 case "PelletsPerShot":
                                     if (args[1]) {
-                                        server.sendChatText(client, "Setting PelletsPerShot = " + parseFloat(args[1]));
+                                        server.sendChatText(client, "Setting PelletsPerShot = " +
+                                            parseFloat(args[1]));
                                         for (var i = 0; i < fireModes.length; i++) {
                                             server.sendWeaponPacket(client, "Weapon.StatUpdate", {
                                                 statData: [
@@ -1136,10 +1137,18 @@ var packetHandlers = {
                     server.sendData(client, packetName, {});
                     break;
                 case "run":
-                    var speed = parseFloat(args[1]);
+                    var speedValue = args[1];
+                    var speed = void 0;
+                    if (speedValue > 10) {
+                        server.sendChatText(client, "To avoid security issue speed > 10 is set to 15");
+                        speed = 15;
+                    }
+                    else {
+                        speed = speedValue;
+                    }
                     server.sendChatText(client, "Setting run speed: " + speed);
                     server.sendData(client, "Command.RunSpeed", {
-                        runSpeed: speed
+                        runSpeed: speed,
                     });
                     break;
                 case "hell":
