@@ -83,7 +83,6 @@ SOEInputStream.prototype._processDataFragments = function () {
     data,
     totalSize,
     dataSize,
-    offset,
     fragment,
     appData = [],
     i,

@@ -68,7 +68,7 @@ function parseChannelPacketData(data) {
     return appData;
 }
 SOEInputStream.prototype._processDataFragments = function () {
-    var nextFragment = (this._lastProcessedFragment + 1) & 0xffff, fragments = this._fragments, head = fragments[nextFragment], data, totalSize, dataSize, offset, fragment, appData = [], i, j, k;
+    var nextFragment = (this._lastProcessedFragment + 1) & 0xffff, fragments = this._fragments, head = fragments[nextFragment], data, totalSize, dataSize, fragment, appData = [], i, j, k;
     if (head) {
         if (head.singlePacket) {
             this._lastProcessedFragment = nextFragment;
