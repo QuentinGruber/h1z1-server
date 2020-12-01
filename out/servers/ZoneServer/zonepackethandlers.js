@@ -1125,6 +1125,12 @@ var packetHandlers = {
         }
         if (packet.data.commandHash == Jenkins.oaat("HAX")) {
             switch (args[0]) {
+                case "observer":
+                    server.sendData(client, "PlayerUpdate.RemovePlayer", {
+                        guid: client.character.characterId,
+                    });
+                    server.sendChatText(client, "Delete player, back in observer mode");
+                    break;
                 case "pc":
                     server.sendData(client, "PlayerUpdate.AddLightweightPc", {
                         characterid: client.character.characterId,
