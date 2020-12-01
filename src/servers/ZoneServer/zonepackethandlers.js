@@ -2213,6 +2213,9 @@ var packetHandlers = {
           );
       });
   },
+  "Command.InteractCancel": function (server, client, packet) {
+    server.sendData(client, "Command.InteractCancel", {});
+  },
   "Command.StartLogoutRequest": function (server, client, packet) {
     server.sendData(client, "ClientUpdate.CompleteLogoutProcess", {});
   },

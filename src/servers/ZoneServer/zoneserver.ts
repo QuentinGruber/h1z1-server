@@ -140,6 +140,7 @@ export class ZoneServer extends EventEmitter {
             console.log(e);
           }
         } else {
+          debug(packet)
           debug("Packet not implemented in packetHandlers");
         }
       }
@@ -309,7 +310,7 @@ export class ZoneServer extends EventEmitter {
         if (packet) {
           this.emit("data", null, client, packet);
         } else {
-          debug("zonefailed : ", packet);
+          debug("zonefailed : ", data);
         }
       }
     );
