@@ -195,7 +195,52 @@
       "unknownByte1": 160
     },
     "characterLoadoutData": {
-      "loadouts": [],
+      "loadouts": [
+        {
+          "loadoutId": 3,
+          "unknownDword2": 0,
+          "loadoutData": {
+            "loadoutId": 3,
+            "unknownData1": {
+              "unknownDword1": 0,
+              "unknownByte1": 0
+            },
+            "unknownDword2": 0,
+            "unknownData2": {
+              "unknownDword1": 0,
+              "loadoutName": "survivor"
+            },
+            "tintItemId": 0,
+            "unknownDword4": 0,
+            "decalItemId": 0,
+            "loadoutSlots": [
+              {
+                "loadoutSlotId": 0,
+                "loadoutSlotData": {
+                  "index": 0,
+                  "loadoutSlotItem": {
+                    "itemLineId": 0,
+                    "flags": 0,
+                    "attachments": [
+                      {
+                        "attachmentId": 0
+                      }
+                    ],
+                    "attachmentClasses": [
+                      {
+                        "classId": 0,
+                        "attachmentId": 0
+                      }
+                    ]
+                  },
+                  "tintItemId": 0,
+                  "itemSlot": 0
+                }
+              }
+            ]
+          }
+        }
+      ],
       "unknownArray2": [],
       "unknownArray3": [],
       "unknownData1": {
