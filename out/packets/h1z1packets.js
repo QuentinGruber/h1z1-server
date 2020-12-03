@@ -8440,9 +8440,8 @@ var packets = [
         0xbe,
         {
             fields: [
-                { name: "unknown1", type: "uint8" },
+                { name: "unknown1", type: "uint16" },
                 { name: "guid", type: "uint64" },
-                { name: "unknown2", type: "uint8" },
                 { name: "name", type: "string" },
             ],
         },
