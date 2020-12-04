@@ -15,6 +15,7 @@ import { GatewayServer } from "../GatewayServer/gatewayserver";
 import fs from "fs";
 import { default as packetHandlers } from "./zonepackethandlers";
 import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
+const spawnList = require("../../../data/spawnLocations.json")
 // import {MongoClient} from "mongodb"
 const debug = require("debug")("ZoneServer");
 
@@ -248,6 +249,8 @@ export class ZoneServer extends EventEmitter {
         client.character.factionId = self.data.factionId;
         client.character.name = self.data.identity.characterName;
 
+        const randomSpawnIndex = Math.floor(Math.random() * (spawnList.length + 1));
+        self.data.position = spawnList[randomSpawnIndex].position
         this.sendData(client, "SendSelfToClient", self);
         this.sendData(client, "PlayerUpdate.SetBattleRank", {
           characterId: client.character.characterId,
