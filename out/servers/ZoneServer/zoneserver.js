@@ -206,7 +206,7 @@ var ZoneServer = /** @class */ (function (_super) {
                 client.character.inventory = self.data.inventory;
                 client.character.factionId = self.data.factionId;
                 client.character.name = self.data.identity.characterName;
-                var randomSpawnIndex = Math.floor(Math.random() * (spawnList.length + 1));
+                var randomSpawnIndex = Math.floor(Math.random() * (spawnList.length));
                 self.data.position = spawnList[randomSpawnIndex].position;
                 _this.sendData(client, "SendSelfToClient", self);
                 _this.sendData(client, "PlayerUpdate.SetBattleRank", {

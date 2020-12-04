@@ -249,7 +249,7 @@ export class ZoneServer extends EventEmitter {
         client.character.factionId = self.data.factionId;
         client.character.name = self.data.identity.characterName;
 
-        const randomSpawnIndex = Math.floor(Math.random() * (spawnList.length + 1));
+        const randomSpawnIndex = Math.floor(Math.random() * (spawnList.length));
         self.data.position = spawnList[randomSpawnIndex].position
         this.sendData(client, "SendSelfToClient", self);
         this.sendData(client, "PlayerUpdate.SetBattleRank", {
