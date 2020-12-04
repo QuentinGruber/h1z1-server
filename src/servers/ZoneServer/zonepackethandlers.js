@@ -208,14 +208,14 @@ var packetHandlers = {
       "model",
       "stat",
       "log",
+      "location",
     ];
 
-    for (var i = 0; i < commands.length; i++) {
+    commands.forEach((command) => {
       server.sendData(client, "Command.AddWorldCommand", {
-        command: commands[i],
+        command: command,
       });
-    }
-
+    });
     server.sendChatText(client, "Welcome to H1emu ! :D");
   },
   Security: function (server, client, packet) {
@@ -346,6 +346,18 @@ var packetHandlers = {
       const { _gatewayServer, _clients } = server;
       debug("_clients :", _clients);
       debug("Soeclients :", _gatewayServer._soeServer);
+    }
+    if (packet.data.commandHash == Jenkins.oaat("LOCATION") || 3270589520) {
+      // /loc
+      const { position, rotation } = client.character.state;
+      server.sendChatText(
+        client,
+        `position: ${position[0]},${position[1]},${position[2]}`
+      );
+      server.sendChatText(
+        client,
+        `rotation: ${rotation[0]},${rotation[1]},${rotation[2]}`
+      );
     }
     if (packet.data.commandHash == Jenkins.oaat("STAT")) {
       if (args[0] && args[1]) {
