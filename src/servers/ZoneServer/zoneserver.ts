@@ -16,6 +16,7 @@ import fs from "fs";
 import { default as packetHandlers } from "./zonepackethandlers";
 import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
 const spawnList = require("../../../data/spawnLocations.json")
+const _ = require('lodash');
 // import {MongoClient} from "mongodb"
 const debug = require("debug")("ZoneServer");
 
@@ -248,8 +249,7 @@ export class ZoneServer extends EventEmitter {
         client.character.inventory = self.data.inventory;
         client.character.factionId = self.data.factionId;
         client.character.name = self.data.identity.characterName;
-
-        if (self.data.position === [0, 0, 0, 1] && self.data.rotation === [0, 0, 0, 1]) { // if position/rotation hasn't be changed
+        if (_.isEqual(self.data.position,[0, 0, 0, 1]) && _.isEqual(self.data.rotation,[0, 0, 0, 1])) { // if position/rotation hasn't be changed
           // Take position/rotation from a random spawn location.
           const randomSpawnIndex = Math.floor(Math.random() * (spawnList.length));
           self.data.position = spawnList[randomSpawnIndex].position
