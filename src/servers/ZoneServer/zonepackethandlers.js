@@ -208,14 +208,14 @@ var packetHandlers = {
       "model",
       "stat",
       "log",
+      "location",
     ];
 
-    for (var i = 0; i < commands.length; i++) {
+    commands.forEach((command) => {
       server.sendData(client, "Command.AddWorldCommand", {
-        command: commands[i],
+        command: command,
       });
-    }
-
+    });
     server.sendChatText(client, "Welcome to H1emu ! :D");
   },
   Security: function (server, client, packet) {
@@ -294,20 +294,20 @@ var packetHandlers = {
             loadoutSlots[i].loadoutSlotData.loadoutSlotItem.itemLineId;
           server
             .data("item_line_members")
-            .findOne({ itemLineId: itemLineId, itemLineIndex: 0 }, function (
-              err,
-              itemLineMember
-            ) {
-              var itemId = itemLineMember.itemId;
-              var inventoryItems = client.character.inventory.items;
-              for (var j = 0; j < inventoryItems.length; j++) {
-                if (inventoryItems[j].itemData.baseItem.itemId == itemId) {
-                  client.character.currentLoadoutSlotItem =
-                    inventoryItems[j].itemData;
-                  break;
+            .findOne(
+              { itemLineId: itemLineId, itemLineIndex: 0 },
+              function (err, itemLineMember) {
+                var itemId = itemLineMember.itemId;
+                var inventoryItems = client.character.inventory.items;
+                for (var j = 0; j < inventoryItems.length; j++) {
+                  if (inventoryItems[j].itemData.baseItem.itemId == itemId) {
+                    client.character.currentLoadoutSlotItem =
+                      inventoryItems[j].itemData;
+                    break;
+                  }
                 }
               }
-            });
+            );
           break;
         }
       }
@@ -346,6 +346,21 @@ var packetHandlers = {
       const { _gatewayServer, _clients } = server;
       debug("_clients :", _clients);
       debug("Soeclients :", _gatewayServer._soeServer);
+    }
+    if (
+      packet.data.commandHash == Jenkins.oaat("LOCATION") ||
+      packet.data.commandHash == 3270589520
+    ) {
+      // /loc
+      const { position, rotation } = client.character.state;
+      server.sendChatText(
+        client,
+        `position: ${position[0]},${position[1]},${position[2]}`
+      );
+      server.sendChatText(
+        client,
+        `rotation: ${rotation[0]},${rotation[1]},${rotation[2]}`
+      );
     }
     if (packet.data.commandHash == Jenkins.oaat("STAT")) {
       if (args[0] && args[1]) {
@@ -403,8 +418,8 @@ var packetHandlers = {
     if (packet.data.commandHash == Jenkins.oaat("NPC")) {
       if (args[0]) {
         var npcId = parseInt(args[0]);
-
-        server.data("npcs").findOne({ id: npcId }, function (err, npc) {
+        const npc_data = require("../../../data/npcs.json");
+        npc_data.findOne({ id: npcId }, function (err, npc) {
           server.sendChatText(client, "Spawning NPC " + npc.id);
 
           var guid = server.generateGuid(),
@@ -519,751 +534,799 @@ var packetHandlers = {
         var weaponItem = client.character.currentLoadoutSlotItem;
         server
           .data("client_item_datasheet_data")
-          .findOne({ itemId: weaponItem.baseItem.itemId }, function (
-            err,
-            clientItem
-          ) {
-            var weaponId = clientItem.weaponId;
+          .findOne(
+            { itemId: weaponItem.baseItem.itemId },
+            function (err, clientItem) {
+              var weaponId = clientItem.weaponId;
 
-            server
-              .data("weapon_definitions")
-              .findOne({ weaponId: weaponId }, function (err, weapon) {
-                server
-                  .data("fire_groups")
-                  .findOne({ fireGroupId: weapon.fireGroups[0] }, function (
-                    err,
-                    fireGroup
-                  ) {
-                    var fireModes = fireGroup.fireModes;
+              server
+                .data("weapon_definitions")
+                .findOne({ weaponId: weaponId }, function (err, weapon) {
+                  server
+                    .data("fire_groups")
+                    .findOne(
+                      { fireGroupId: weapon.fireGroups[0] },
+                      function (err, fireGroup) {
+                        var fireModes = fireGroup.fireModes;
 
-                    switch (args[0]) {
-                      case "FireMode.DefaultZoom":
-                        if (args[1]) {
-                          server.sendChatText(
-                            client,
-                            "Setting FireMode.DefaultZoom = " +
-                              parseFloat(args[1])
-                          );
-                          for (var i = 0; i < fireModes.length; i++) {
-                            var weaponPacket = {
-                              statData: [
-                                {
-                                  guid: weaponItem.baseItem.unknownGuid1,
-                                  unknownBoolean1: false,
-                                  statUpdates: [
+                        switch (args[0]) {
+                          case "FireMode.DefaultZoom":
+                            if (args[1]) {
+                              server.sendChatText(
+                                client,
+                                "Setting FireMode.DefaultZoom = " +
+                                  parseFloat(args[1])
+                              );
+                              for (var i = 0; i < fireModes.length; i++) {
+                                var weaponPacket = {
+                                  statData: [
                                     {
-                                      statCategory: 3,
-                                      statUpdateData: {
-                                        statOwnerId: fireModes[i],
-                                        statData: {
-                                          statId: 3834666950,
-                                          statValue: {
-                                            type: 1,
-                                            value: {
-                                              baseValue: parseFloat(args[1]),
-                                              modifierValue: 0,
+                                      guid: weaponItem.baseItem.unknownGuid1,
+                                      unknownBoolean1: false,
+                                      statUpdates: [
+                                        {
+                                          statCategory: 3,
+                                          statUpdateData: {
+                                            statOwnerId: fireModes[i],
+                                            statData: {
+                                              statId: 3834666950,
+                                              statValue: {
+                                                type: 1,
+                                                value: {
+                                                  baseValue: parseFloat(
+                                                    args[1]
+                                                  ),
+                                                  modifierValue: 0,
+                                                },
+                                              },
                                             },
                                           },
                                         },
-                                      },
+                                      ],
                                     },
                                   ],
-                                },
-                              ],
-                            };
-                            server.sendWeaponPacket(
-                              client,
-                              "Weapon.StatUpdate",
-                              weaponPacket
-                            );
-                          }
-                        }
-                        break;
-                      case "PelletsPerShot":
-                        if (args[1]) {
-                          server.sendChatText(
-                            client,
-                            "Setting PelletsPerShot = " + parseFloat(args[1])
-                          );
-                          for (var i = 0; i < fireModes.length; i++) {
-                            server.sendWeaponPacket(
-                              client,
-                              "Weapon.StatUpdate",
-                              {
-                                statData: [
+                                };
+                                server.sendWeaponPacket(
+                                  client,
+                                  "Weapon.StatUpdate",
+                                  weaponPacket
+                                );
+                              }
+                            }
+                            break;
+                          case "PelletsPerShot":
+                            if (args[1]) {
+                              server.sendChatText(
+                                client,
+                                "Setting PelletsPerShot = " +
+                                  parseFloat(args[1])
+                              );
+                              for (var i = 0; i < fireModes.length; i++) {
+                                server.sendWeaponPacket(
+                                  client,
+                                  "Weapon.StatUpdate",
                                   {
-                                    guid: weaponItem.baseItem.unknownGuid1,
-                                    unknownBoolean1: false,
-                                    statUpdates: [
+                                    statData: [
                                       {
-                                        statCategory: 3,
-                                        statUpdateData: {
-                                          statOwnerId: fireModes[i],
-                                          statData: {
-                                            statId: 61541959,
-                                            statValue: {
-                                              type: 0,
-                                              value: {
-                                                baseValue: parseFloat(args[1]),
-                                                modifierValue: 0,
+                                        guid: weaponItem.baseItem.unknownGuid1,
+                                        unknownBoolean1: false,
+                                        statUpdates: [
+                                          {
+                                            statCategory: 3,
+                                            statUpdateData: {
+                                              statOwnerId: fireModes[i],
+                                              statData: {
+                                                statId: 61541959,
+                                                statValue: {
+                                                  type: 0,
+                                                  value: {
+                                                    baseValue: parseFloat(
+                                                      args[1]
+                                                    ),
+                                                    modifierValue: 0,
+                                                  },
+                                                },
+                                              },
+                                            },
+                                          },
+                                        ],
+                                      },
+                                    ],
+                                  }
+                                );
+                              }
+                            }
+                            break;
+                          case "FireMode.RecoilMaxXModifier":
+                            if (args[1]) {
+                              server.sendChatText(
+                                client,
+                                "Setting FireMode.RecoilMaxXModifier = " +
+                                  parseFloat(args[1])
+                              );
+                              for (var i = 0; i < fireModes.length; i++) {
+                                server.sendWeaponPacket(
+                                  client,
+                                  "Weapon.StatUpdate",
+                                  {
+                                    statData: [
+                                      {
+                                        guid: weaponItem.baseItem.unknownGuid1,
+                                        unknownBoolean1: false,
+                                        statUpdates: [
+                                          {
+                                            statCategory: 3,
+                                            statUpdateData: {
+                                              statOwnerId: fireModes[i],
+                                              statData: {
+                                                statId: 834031893,
+                                                statValue: {
+                                                  type: 1,
+                                                  value: {
+                                                    baseValue: parseFloat(
+                                                      args[1]
+                                                    ),
+                                                    modifierValue: 0,
+                                                  },
+                                                },
+                                              },
+                                            },
+                                          },
+                                        ],
+                                      },
+                                    ],
+                                  }
+                                );
+                              }
+                            }
+                            break;
+                          case "FireMode.RecoilMinXModifier":
+                            server.sendChatText(
+                              client,
+                              "Setting FireMode.RecoilMinXModifier = " +
+                                parseFloat(args[1])
+                            );
+                            if (args[1]) {
+                              for (var i = 0; i < fireModes.length; i++) {
+                                server.sendWeaponPacket(
+                                  client,
+                                  "Weapon.StatUpdate",
+                                  {
+                                    statData: [
+                                      {
+                                        guid: weaponItem.baseItem.unknownGuid1,
+                                        unknownBoolean1: false,
+                                        statUpdates: [
+                                          {
+                                            statCategory: 3,
+                                            statUpdateData: {
+                                              statOwnerId: fireModes[i],
+                                              statData: {
+                                                statId: 3852947489,
+                                                statValue: {
+                                                  type: 1,
+                                                  value: {
+                                                    baseValue: parseFloat(
+                                                      args[1]
+                                                    ),
+                                                    modifierValue: 0,
+                                                  },
+                                                },
+                                              },
+                                            },
+                                          },
+                                        ],
+                                      },
+                                    ],
+                                  }
+                                );
+                              }
+                            }
+                            break;
+                          case "FireMode.RecoilAngleMin":
+                            if (args[1]) {
+                              server.sendChatText(
+                                client,
+                                "Setting FireMode.RecoilAngleMin = " +
+                                  parseFloat(args[1])
+                              );
+                              for (var i = 0; i < fireModes.length; i++) {
+                                server.sendWeaponPacket(
+                                  client,
+                                  "Weapon.StatUpdate",
+                                  {
+                                    statData: [
+                                      {
+                                        guid: weaponItem.baseItem.unknownGuid1,
+                                        unknownBoolean1: false,
+                                        statUpdates: [
+                                          {
+                                            statCategory: 3,
+                                            statUpdateData: {
+                                              statOwnerId: fireModes[i],
+                                              statData: {
+                                                statId: 1282859301,
+                                                statValue: {
+                                                  type: 1,
+                                                  value: {
+                                                    baseValue: parseFloat(
+                                                      args[1]
+                                                    ),
+                                                    modifierValue: 0,
+                                                  },
+                                                },
+                                              },
+                                            },
+                                          },
+                                        ],
+                                      },
+                                    ],
+                                  }
+                                );
+                              }
+                            }
+                            break;
+                          case "FireMode.RecoilAngleMax":
+                            if (args[1]) {
+                              server.sendChatText(
+                                client,
+                                "Setting FireMode.RecoilAngleMax = " +
+                                  parseFloat(args[1])
+                              );
+                              for (var i = 0; i < fireModes.length; i++) {
+                                server.sendWeaponPacket(
+                                  client,
+                                  "Weapon.StatUpdate",
+                                  {
+                                    statData: [
+                                      {
+                                        guid: weaponItem.baseItem.unknownGuid1,
+                                        unknownBoolean1: false,
+                                        statUpdates: [
+                                          {
+                                            statCategory: 3,
+                                            statUpdateData: {
+                                              statOwnerId: fireModes[i],
+                                              statData: {
+                                                statId: 1732279640,
+                                                statValue: {
+                                                  type: 1,
+                                                  value: {
+                                                    baseValue: parseFloat(
+                                                      args[1]
+                                                    ),
+                                                    modifierValue: 0,
+                                                  },
+                                                },
+                                              },
+                                            },
+                                          },
+                                        ],
+                                      },
+                                    ],
+                                  }
+                                );
+                              }
+                            }
+                            break;
+                          case "FireMode.CofRecoil":
+                            if (args[1]) {
+                              server.sendChatText(
+                                client,
+                                "Setting FireMode.CofRecoil = " +
+                                  parseFloat(args[1])
+                              );
+                              for (var i = 0; i < fireModes.length; i++) {
+                                server.sendWeaponPacket(
+                                  client,
+                                  "Weapon.StatUpdate",
+                                  {
+                                    statData: [
+                                      {
+                                        guid: weaponItem.baseItem.unknownGuid1,
+                                        unknownBoolean1: false,
+                                        statUpdates: [
+                                          {
+                                            statCategory: 3,
+                                            statUpdateData: {
+                                              statOwnerId: fireModes[i],
+                                              statData: {
+                                                statId: 3679927309,
+                                                statValue: {
+                                                  type: 1,
+                                                  value: {
+                                                    baseValue: parseFloat(
+                                                      args[1]
+                                                    ),
+                                                    modifierValue: 0,
+                                                  },
+                                                },
+                                              },
+                                            },
+                                          },
+                                        ],
+                                      },
+                                    ],
+                                  }
+                                );
+                              }
+                            }
+                            break;
+                          case "FireMode.CofMinScalar":
+                            if (args[1]) {
+                              server.sendChatText(
+                                client,
+                                "Setting FireMode.CofMinScalar = " +
+                                  parseFloat(args[1])
+                              );
+                              for (var i = 0; i < fireModes.length; i++) {
+                                server.sendWeaponPacket(
+                                  client,
+                                  "Weapon.StatUpdate",
+                                  {
+                                    statData: [
+                                      {
+                                        guid: weaponItem.baseItem.unknownGuid1,
+                                        unknownBoolean1: false,
+                                        statUpdates: [
+                                          {
+                                            statCategory: 3,
+                                            statUpdateData: {
+                                              statOwnerId: fireModes[i],
+                                              statData: {
+                                                statId: 2407137070,
+                                                statValue: {
+                                                  type: 1,
+                                                  value: {
+                                                    baseValue: parseFloat(
+                                                      args[1]
+                                                    ),
+                                                    modifierValue: 0,
+                                                  },
+                                                },
+                                              },
+                                            },
+                                          },
+                                        ],
+                                      },
+                                    ],
+                                  }
+                                );
+                              }
+                            }
+                            break;
+                          case "FireMode.CofScalar":
+                            if (args[1]) {
+                              server.sendChatText(
+                                client,
+                                "Setting FireMode.CofScalar = " +
+                                  parseFloat(args[1])
+                              );
+                              for (var i = 0; i < fireModes.length; i++) {
+                                server.sendWeaponPacket(
+                                  client,
+                                  "Weapon.StatUpdate",
+                                  {
+                                    statData: [
+                                      {
+                                        guid: weaponItem.baseItem.unknownGuid1,
+                                        unknownBoolean1: false,
+                                        statUpdates: [
+                                          {
+                                            statCategory: 3,
+                                            statUpdateData: {
+                                              statOwnerId: fireModes[i],
+                                              statData: {
+                                                statId: 1567043769,
+                                                statValue: {
+                                                  type: 1,
+                                                  value: {
+                                                    baseValue: parseFloat(
+                                                      args[1]
+                                                    ),
+                                                    modifierValue: 0,
+                                                  },
+                                                },
+                                              },
+                                            },
+                                          },
+                                        ],
+                                      },
+                                    ],
+                                  }
+                                );
+                              }
+                            }
+                            break;
+                          case "FireMode.RecoilMagnitudeModifier":
+                            if (args[1]) {
+                              server.sendChatText(
+                                client,
+                                "Setting FireMode.RecoilMagnitudeModifier = " +
+                                  parseFloat(args[1])
+                              );
+                              for (var i = 0; i < fireModes.length; i++) {
+                                server.sendWeaponPacket(
+                                  client,
+                                  "Weapon.StatUpdate",
+                                  {
+                                    statData: [
+                                      {
+                                        guid: weaponItem.baseItem.unknownGuid1,
+                                        unknownBoolean1: false,
+                                        statUpdates: [
+                                          {
+                                            statCategory: 3,
+                                            statUpdateData: {
+                                              statOwnerId: fireModes[i],
+                                              statData: {
+                                                statId: 2597357303,
+                                                statValue: {
+                                                  type: 1,
+                                                  value: {
+                                                    baseValue: parseFloat(
+                                                      args[1]
+                                                    ),
+                                                    modifierValue: 0,
+                                                  },
+                                                },
+                                              },
+                                            },
+                                          },
+                                        ],
+                                      },
+                                    ],
+                                  }
+                                );
+                              }
+                            }
+                            break;
+                          case "FireMode.CofScalarMoving":
+                            if (args[1]) {
+                              server.sendChatText(
+                                client,
+                                "Setting FireMode.CofScalarMoving = " +
+                                  parseFloat(args[1])
+                              );
+                              for (var i = 0; i < fireModes.length; i++) {
+                                server.sendWeaponPacket(
+                                  client,
+                                  "Weapon.StatUpdate",
+                                  {
+                                    statData: [
+                                      {
+                                        guid: weaponItem.baseItem.unknownGuid1,
+                                        unknownBoolean1: false,
+                                        statUpdates: [
+                                          {
+                                            statCategory: 3,
+                                            statUpdateData: {
+                                              statOwnerId: fireModes[i],
+                                              statData: {
+                                                statId: 4118721662,
+                                                statValue: {
+                                                  type: 1,
+                                                  value: {
+                                                    baseValue: parseFloat(
+                                                      args[1]
+                                                    ),
+                                                    modifierValue: 0,
+                                                  },
+                                                },
+                                              },
+                                            },
+                                          },
+                                        ],
+                                      },
+                                    ],
+                                  }
+                                );
+                              }
+                            }
+                            break;
+                          case "FireGroup.ProjectileSpeedMultiplier":
+                            if (args[1]) {
+                              server.sendChatText(
+                                client,
+                                "Setting FireGroup.ProjectileSpeedMultiplier = " +
+                                  parseFloat(args[1])
+                              );
+                              server.sendWeaponPacket(
+                                client,
+                                "Weapon.StatUpdate",
+                                {
+                                  statData: [
+                                    {
+                                      guid: weaponItem.baseItem.unknownGuid1,
+                                      unknownBoolean1: false,
+                                      statUpdates: [
+                                        {
+                                          statCategory: 2,
+                                          statUpdateData: {
+                                            statOwnerId: fireGroup.fireGroupId,
+                                            statData: {
+                                              statId: 1673453061,
+                                              statValue: {
+                                                type: 1,
+                                                value: {
+                                                  baseValue: parseFloat(
+                                                    args[1]
+                                                  ),
+                                                  modifierValue: 0,
+                                                },
                                               },
                                             },
                                           },
                                         },
-                                      },
-                                    ],
-                                  },
-                                ],
-                              }
-                            );
-                          }
-                        }
-                        break;
-                      case "FireMode.RecoilMaxXModifier":
-                        if (args[1]) {
-                          server.sendChatText(
-                            client,
-                            "Setting FireMode.RecoilMaxXModifier = " +
-                              parseFloat(args[1])
-                          );
-                          for (var i = 0; i < fireModes.length; i++) {
-                            server.sendWeaponPacket(
-                              client,
-                              "Weapon.StatUpdate",
-                              {
-                                statData: [
-                                  {
-                                    guid: weaponItem.baseItem.unknownGuid1,
-                                    unknownBoolean1: false,
-                                    statUpdates: [
-                                      {
-                                        statCategory: 3,
-                                        statUpdateData: {
-                                          statOwnerId: fireModes[i],
-                                          statData: {
-                                            statId: 834031893,
-                                            statValue: {
-                                              type: 1,
-                                              value: {
-                                                baseValue: parseFloat(args[1]),
-                                                modifierValue: 0,
-                                              },
-                                            },
-                                          },
-                                        },
-                                      },
-                                    ],
-                                  },
-                                ],
-                              }
-                            );
-                          }
-                        }
-                        break;
-                      case "FireMode.RecoilMinXModifier":
-                        server.sendChatText(
-                          client,
-                          "Setting FireMode.RecoilMinXModifier = " +
-                            parseFloat(args[1])
-                        );
-                        if (args[1]) {
-                          for (var i = 0; i < fireModes.length; i++) {
-                            server.sendWeaponPacket(
-                              client,
-                              "Weapon.StatUpdate",
-                              {
-                                statData: [
-                                  {
-                                    guid: weaponItem.baseItem.unknownGuid1,
-                                    unknownBoolean1: false,
-                                    statUpdates: [
-                                      {
-                                        statCategory: 3,
-                                        statUpdateData: {
-                                          statOwnerId: fireModes[i],
-                                          statData: {
-                                            statId: 3852947489,
-                                            statValue: {
-                                              type: 1,
-                                              value: {
-                                                baseValue: parseFloat(args[1]),
-                                                modifierValue: 0,
-                                              },
-                                            },
-                                          },
-                                        },
-                                      },
-                                    ],
-                                  },
-                                ],
-                              }
-                            );
-                          }
-                        }
-                        break;
-                      case "FireMode.RecoilAngleMin":
-                        if (args[1]) {
-                          server.sendChatText(
-                            client,
-                            "Setting FireMode.RecoilAngleMin = " +
-                              parseFloat(args[1])
-                          );
-                          for (var i = 0; i < fireModes.length; i++) {
-                            server.sendWeaponPacket(
-                              client,
-                              "Weapon.StatUpdate",
-                              {
-                                statData: [
-                                  {
-                                    guid: weaponItem.baseItem.unknownGuid1,
-                                    unknownBoolean1: false,
-                                    statUpdates: [
-                                      {
-                                        statCategory: 3,
-                                        statUpdateData: {
-                                          statOwnerId: fireModes[i],
-                                          statData: {
-                                            statId: 1282859301,
-                                            statValue: {
-                                              type: 1,
-                                              value: {
-                                                baseValue: parseFloat(args[1]),
-                                                modifierValue: 0,
-                                              },
-                                            },
-                                          },
-                                        },
-                                      },
-                                    ],
-                                  },
-                                ],
-                              }
-                            );
-                          }
-                        }
-                        break;
-                      case "FireMode.RecoilAngleMax":
-                        if (args[1]) {
-                          server.sendChatText(
-                            client,
-                            "Setting FireMode.RecoilAngleMax = " +
-                              parseFloat(args[1])
-                          );
-                          for (var i = 0; i < fireModes.length; i++) {
-                            server.sendWeaponPacket(
-                              client,
-                              "Weapon.StatUpdate",
-                              {
-                                statData: [
-                                  {
-                                    guid: weaponItem.baseItem.unknownGuid1,
-                                    unknownBoolean1: false,
-                                    statUpdates: [
-                                      {
-                                        statCategory: 3,
-                                        statUpdateData: {
-                                          statOwnerId: fireModes[i],
-                                          statData: {
-                                            statId: 1732279640,
-                                            statValue: {
-                                              type: 1,
-                                              value: {
-                                                baseValue: parseFloat(args[1]),
-                                                modifierValue: 0,
-                                              },
-                                            },
-                                          },
-                                        },
-                                      },
-                                    ],
-                                  },
-                                ],
-                              }
-                            );
-                          }
-                        }
-                        break;
-                      case "FireMode.CofRecoil":
-                        if (args[1]) {
-                          server.sendChatText(
-                            client,
-                            "Setting FireMode.CofRecoil = " +
-                              parseFloat(args[1])
-                          );
-                          for (var i = 0; i < fireModes.length; i++) {
-                            server.sendWeaponPacket(
-                              client,
-                              "Weapon.StatUpdate",
-                              {
-                                statData: [
-                                  {
-                                    guid: weaponItem.baseItem.unknownGuid1,
-                                    unknownBoolean1: false,
-                                    statUpdates: [
-                                      {
-                                        statCategory: 3,
-                                        statUpdateData: {
-                                          statOwnerId: fireModes[i],
-                                          statData: {
-                                            statId: 3679927309,
-                                            statValue: {
-                                              type: 1,
-                                              value: {
-                                                baseValue: parseFloat(args[1]),
-                                                modifierValue: 0,
-                                              },
-                                            },
-                                          },
-                                        },
-                                      },
-                                    ],
-                                  },
-                                ],
-                              }
-                            );
-                          }
-                        }
-                        break;
-                      case "FireMode.CofMinScalar":
-                        if (args[1]) {
-                          server.sendChatText(
-                            client,
-                            "Setting FireMode.CofMinScalar = " +
-                              parseFloat(args[1])
-                          );
-                          for (var i = 0; i < fireModes.length; i++) {
-                            server.sendWeaponPacket(
-                              client,
-                              "Weapon.StatUpdate",
-                              {
-                                statData: [
-                                  {
-                                    guid: weaponItem.baseItem.unknownGuid1,
-                                    unknownBoolean1: false,
-                                    statUpdates: [
-                                      {
-                                        statCategory: 3,
-                                        statUpdateData: {
-                                          statOwnerId: fireModes[i],
-                                          statData: {
-                                            statId: 2407137070,
-                                            statValue: {
-                                              type: 1,
-                                              value: {
-                                                baseValue: parseFloat(args[1]),
-                                                modifierValue: 0,
-                                              },
-                                            },
-                                          },
-                                        },
-                                      },
-                                    ],
-                                  },
-                                ],
-                              }
-                            );
-                          }
-                        }
-                        break;
-                      case "FireMode.CofScalar":
-                        if (args[1]) {
-                          server.sendChatText(
-                            client,
-                            "Setting FireMode.CofScalar = " +
-                              parseFloat(args[1])
-                          );
-                          for (var i = 0; i < fireModes.length; i++) {
-                            server.sendWeaponPacket(
-                              client,
-                              "Weapon.StatUpdate",
-                              {
-                                statData: [
-                                  {
-                                    guid: weaponItem.baseItem.unknownGuid1,
-                                    unknownBoolean1: false,
-                                    statUpdates: [
-                                      {
-                                        statCategory: 3,
-                                        statUpdateData: {
-                                          statOwnerId: fireModes[i],
-                                          statData: {
-                                            statId: 1567043769,
-                                            statValue: {
-                                              type: 1,
-                                              value: {
-                                                baseValue: parseFloat(args[1]),
-                                                modifierValue: 0,
-                                              },
-                                            },
-                                          },
-                                        },
-                                      },
-                                    ],
-                                  },
-                                ],
-                              }
-                            );
-                          }
-                        }
-                        break;
-                      case "FireMode.RecoilMagnitudeModifier":
-                        if (args[1]) {
-                          server.sendChatText(
-                            client,
-                            "Setting FireMode.RecoilMagnitudeModifier = " +
-                              parseFloat(args[1])
-                          );
-                          for (var i = 0; i < fireModes.length; i++) {
-                            server.sendWeaponPacket(
-                              client,
-                              "Weapon.StatUpdate",
-                              {
-                                statData: [
-                                  {
-                                    guid: weaponItem.baseItem.unknownGuid1,
-                                    unknownBoolean1: false,
-                                    statUpdates: [
-                                      {
-                                        statCategory: 3,
-                                        statUpdateData: {
-                                          statOwnerId: fireModes[i],
-                                          statData: {
-                                            statId: 2597357303,
-                                            statValue: {
-                                              type: 1,
-                                              value: {
-                                                baseValue: parseFloat(args[1]),
-                                                modifierValue: 0,
-                                              },
-                                            },
-                                          },
-                                        },
-                                      },
-                                    ],
-                                  },
-                                ],
-                              }
-                            );
-                          }
-                        }
-                        break;
-                      case "FireMode.CofScalarMoving":
-                        if (args[1]) {
-                          server.sendChatText(
-                            client,
-                            "Setting FireMode.CofScalarMoving = " +
-                              parseFloat(args[1])
-                          );
-                          for (var i = 0; i < fireModes.length; i++) {
-                            server.sendWeaponPacket(
-                              client,
-                              "Weapon.StatUpdate",
-                              {
-                                statData: [
-                                  {
-                                    guid: weaponItem.baseItem.unknownGuid1,
-                                    unknownBoolean1: false,
-                                    statUpdates: [
-                                      {
-                                        statCategory: 3,
-                                        statUpdateData: {
-                                          statOwnerId: fireModes[i],
-                                          statData: {
-                                            statId: 4118721662,
-                                            statValue: {
-                                              type: 1,
-                                              value: {
-                                                baseValue: parseFloat(args[1]),
-                                                modifierValue: 0,
-                                              },
-                                            },
-                                          },
-                                        },
-                                      },
-                                    ],
-                                  },
-                                ],
-                              }
-                            );
-                          }
-                        }
-                        break;
-                      case "FireGroup.ProjectileSpeedMultiplier":
-                        if (args[1]) {
-                          server.sendChatText(
-                            client,
-                            "Setting FireGroup.ProjectileSpeedMultiplier = " +
-                              parseFloat(args[1])
-                          );
-                          server.sendWeaponPacket(client, "Weapon.StatUpdate", {
-                            statData: [
-                              {
-                                guid: weaponItem.baseItem.unknownGuid1,
-                                unknownBoolean1: false,
-                                statUpdates: [
-                                  {
-                                    statCategory: 2,
-                                    statUpdateData: {
-                                      statOwnerId: fireGroup.fireGroupId,
-                                      statData: {
-                                        statId: 1673453061,
-                                        statValue: {
-                                          type: 1,
-                                          value: {
-                                            baseValue: parseFloat(args[1]),
-                                            modifierValue: 0,
-                                          },
-                                        },
-                                      },
+                                      ],
                                     },
-                                  },
-                                ],
-                              },
-                            ],
-                          });
-                        }
-                        break;
-                      case "FireMode.ProjectileOverride":
-                        if (args[1]) {
-                          server.sendChatText(
-                            client,
-                            "Setting FireMode.ProjectileOverride = " +
-                              parseInt(args[1], 10)
-                          );
-                          for (var i = 0; i < fireModes.length; i++) {
-                            server.sendWeaponPacket(
-                              client,
-                              "Weapon.StatUpdate",
-                              {
-                                statData: [
+                                  ],
+                                }
+                              );
+                            }
+                            break;
+                          case "FireMode.ProjectileOverride":
+                            if (args[1]) {
+                              server.sendChatText(
+                                client,
+                                "Setting FireMode.ProjectileOverride = " +
+                                  parseInt(args[1], 10)
+                              );
+                              for (var i = 0; i < fireModes.length; i++) {
+                                server.sendWeaponPacket(
+                                  client,
+                                  "Weapon.StatUpdate",
                                   {
-                                    guid: weaponItem.baseItem.unknownGuid1,
-                                    unknownBoolean1: false,
-                                    statUpdates: [
+                                    statData: [
                                       {
-                                        statCategory: 3,
-                                        statUpdateData: {
-                                          statOwnerId: fireModes[i],
-                                          statData: {
-                                            statId: 2846895694,
-                                            statValue: {
-                                              type: 0,
-                                              value: {
-                                                baseValue: parseInt(
-                                                  args[1],
-                                                  10
-                                                ),
-                                                modifierValue: 0,
+                                        guid: weaponItem.baseItem.unknownGuid1,
+                                        unknownBoolean1: false,
+                                        statUpdates: [
+                                          {
+                                            statCategory: 3,
+                                            statUpdateData: {
+                                              statOwnerId: fireModes[i],
+                                              statData: {
+                                                statId: 2846895694,
+                                                statValue: {
+                                                  type: 0,
+                                                  value: {
+                                                    baseValue: parseInt(
+                                                      args[1],
+                                                      10
+                                                    ),
+                                                    modifierValue: 0,
+                                                  },
+                                                },
+                                              },
+                                            },
+                                          },
+                                        ],
+                                      },
+                                    ],
+                                  }
+                                );
+                              }
+                            }
+                            break;
+                          case "FireMode.RecoilHorizontalTolerance":
+                            if (args[1]) {
+                              server.sendChatText(
+                                client,
+                                "Setting FireMode.RecoilHorizontalTolerance = " +
+                                  parseFloat(args[1])
+                              );
+                              for (var i = 0; i < fireModes.length; i++) {
+                                server.sendWeaponPacket(
+                                  client,
+                                  "Weapon.StatUpdate",
+                                  {
+                                    statData: [
+                                      {
+                                        guid: weaponItem.baseItem.unknownGuid1,
+                                        unknownBoolean1: false,
+                                        statUpdates: [
+                                          {
+                                            statCategory: 3,
+                                            statUpdateData: {
+                                              statOwnerId: fireModes[i],
+                                              statData: {
+                                                statId: 3881570778,
+                                                statValue: {
+                                                  type: 1,
+                                                  value: {
+                                                    baseValue: parseFloat(
+                                                      args[1]
+                                                    ),
+                                                    modifierValue: 0,
+                                                  },
+                                                },
+                                              },
+                                            },
+                                          },
+                                        ],
+                                      },
+                                    ],
+                                  }
+                                );
+                              }
+                            }
+                            break;
+                          case "FireMode.RecoilHorizontalMin":
+                            if (args[1]) {
+                              server.sendChatText(
+                                client,
+                                "Setting FireMode.RecoilHorizontalMin = " +
+                                  parseFloat(args[1])
+                              );
+                              for (var i = 0; i < fireModes.length; i++) {
+                                server.sendWeaponPacket(
+                                  client,
+                                  "Weapon.StatUpdate",
+                                  {
+                                    statData: [
+                                      {
+                                        guid: weaponItem.baseItem.unknownGuid1,
+                                        unknownBoolean1: false,
+                                        statUpdates: [
+                                          {
+                                            statCategory: 3,
+                                            statUpdateData: {
+                                              statOwnerId: fireModes[i],
+                                              statData: {
+                                                statId: 3397642193,
+                                                statValue: {
+                                                  type: 1,
+                                                  value: {
+                                                    baseValue: parseFloat(
+                                                      args[1]
+                                                    ),
+                                                    modifierValue: 0,
+                                                  },
+                                                },
+                                              },
+                                            },
+                                          },
+                                        ],
+                                      },
+                                    ],
+                                  }
+                                );
+                              }
+                            }
+                            break;
+                          case "FireMode.RecoilHorizontalMax":
+                            if (args[1]) {
+                              server.sendChatText(
+                                client,
+                                "Setting FireMode.RecoilHorizontalMax = " +
+                                  parseFloat(args[1])
+                              );
+                              for (var i = 0; i < fireModes.length; i++) {
+                                server.sendWeaponPacket(
+                                  client,
+                                  "Weapon.StatUpdate",
+                                  {
+                                    statData: [
+                                      {
+                                        guid: weaponItem.baseItem.unknownGuid1,
+                                        unknownBoolean1: false,
+                                        statUpdates: [
+                                          {
+                                            statCategory: 3,
+                                            statUpdateData: {
+                                              statOwnerId: fireModes[i],
+                                              statData: {
+                                                statId: 2306315094,
+                                                statValue: {
+                                                  type: 1,
+                                                  value: {
+                                                    baseValue: parseFloat(
+                                                      args[1]
+                                                    ),
+                                                    modifierValue: 0,
+                                                  },
+                                                },
+                                              },
+                                            },
+                                          },
+                                        ],
+                                      },
+                                    ],
+                                  }
+                                );
+                              }
+                            }
+                            break;
+                          case "FireGroup.ProjectileSpeedOverride":
+                            if (args[1]) {
+                              server.sendChatText(
+                                client,
+                                "Setting FireGroup.ProjectileSpeedOverride = " +
+                                  parseFloat(args[1])
+                              );
+                              server.sendWeaponPacket(
+                                client,
+                                "Weapon.StatUpdate",
+                                {
+                                  statData: [
+                                    {
+                                      guid: weaponItem.baseItem.unknownGuid1,
+                                      unknownBoolean1: false,
+                                      statUpdates: [
+                                        {
+                                          statCategory: 2,
+                                          statUpdateData: {
+                                            statOwnerId: fireGroup.fireGroupId,
+                                            statData: {
+                                              statId: 3301973150,
+                                              statValue: {
+                                                type: 1,
+                                                value: {
+                                                  baseValue: parseFloat(
+                                                    args[1]
+                                                  ),
+                                                  modifierValue: 0,
+                                                },
                                               },
                                             },
                                           },
                                         },
-                                      },
-                                    ],
-                                  },
-                                ],
-                              }
-                            );
-                          }
-                        }
-                        break;
-                      case "FireMode.RecoilHorizontalTolerance":
-                        if (args[1]) {
-                          server.sendChatText(
-                            client,
-                            "Setting FireMode.RecoilHorizontalTolerance = " +
-                              parseFloat(args[1])
-                          );
-                          for (var i = 0; i < fireModes.length; i++) {
-                            server.sendWeaponPacket(
-                              client,
-                              "Weapon.StatUpdate",
-                              {
-                                statData: [
-                                  {
-                                    guid: weaponItem.baseItem.unknownGuid1,
-                                    unknownBoolean1: false,
-                                    statUpdates: [
-                                      {
-                                        statCategory: 3,
-                                        statUpdateData: {
-                                          statOwnerId: fireModes[i],
-                                          statData: {
-                                            statId: 3881570778,
-                                            statValue: {
-                                              type: 1,
-                                              value: {
-                                                baseValue: parseFloat(args[1]),
-                                                modifierValue: 0,
-                                              },
-                                            },
-                                          },
-                                        },
-                                      },
-                                    ],
-                                  },
-                                ],
-                              }
-                            );
-                          }
-                        }
-                        break;
-                      case "FireMode.RecoilHorizontalMin":
-                        if (args[1]) {
-                          server.sendChatText(
-                            client,
-                            "Setting FireMode.RecoilHorizontalMin = " +
-                              parseFloat(args[1])
-                          );
-                          for (var i = 0; i < fireModes.length; i++) {
-                            server.sendWeaponPacket(
-                              client,
-                              "Weapon.StatUpdate",
-                              {
-                                statData: [
-                                  {
-                                    guid: weaponItem.baseItem.unknownGuid1,
-                                    unknownBoolean1: false,
-                                    statUpdates: [
-                                      {
-                                        statCategory: 3,
-                                        statUpdateData: {
-                                          statOwnerId: fireModes[i],
-                                          statData: {
-                                            statId: 3397642193,
-                                            statValue: {
-                                              type: 1,
-                                              value: {
-                                                baseValue: parseFloat(args[1]),
-                                                modifierValue: 0,
-                                              },
-                                            },
-                                          },
-                                        },
-                                      },
-                                    ],
-                                  },
-                                ],
-                              }
-                            );
-                          }
-                        }
-                        break;
-                      case "FireMode.RecoilHorizontalMax":
-                        if (args[1]) {
-                          server.sendChatText(
-                            client,
-                            "Setting FireMode.RecoilHorizontalMax = " +
-                              parseFloat(args[1])
-                          );
-                          for (var i = 0; i < fireModes.length; i++) {
-                            server.sendWeaponPacket(
-                              client,
-                              "Weapon.StatUpdate",
-                              {
-                                statData: [
-                                  {
-                                    guid: weaponItem.baseItem.unknownGuid1,
-                                    unknownBoolean1: false,
-                                    statUpdates: [
-                                      {
-                                        statCategory: 3,
-                                        statUpdateData: {
-                                          statOwnerId: fireModes[i],
-                                          statData: {
-                                            statId: 2306315094,
-                                            statValue: {
-                                              type: 1,
-                                              value: {
-                                                baseValue: parseFloat(args[1]),
-                                                modifierValue: 0,
-                                              },
-                                            },
-                                          },
-                                        },
-                                      },
-                                    ],
-                                  },
-                                ],
-                              }
-                            );
-                          }
-                        }
-                        break;
-                      case "FireGroup.ProjectileSpeedOverride":
-                        if (args[1]) {
-                          server.sendChatText(
-                            client,
-                            "Setting FireGroup.ProjectileSpeedOverride = " +
-                              parseFloat(args[1])
-                          );
-                          server.sendWeaponPacket(client, "Weapon.StatUpdate", {
-                            statData: [
-                              {
-                                guid: weaponItem.baseItem.unknownGuid1,
-                                unknownBoolean1: false,
-                                statUpdates: [
-                                  {
-                                    statCategory: 2,
-                                    statUpdateData: {
-                                      statOwnerId: fireGroup.fireGroupId,
-                                      statData: {
-                                        statId: 3301973150,
-                                        statValue: {
-                                          type: 1,
-                                          value: {
-                                            baseValue: parseFloat(args[1]),
-                                            modifierValue: 0,
-                                          },
-                                        },
-                                      },
+                                      ],
                                     },
-                                  },
-                                ],
-                              },
-                            ],
-                          });
-                        }
-                        break;
-                      case "AmmoSlot.ClipSize":
-                        if (args[1]) {
-                          server.sendChatText(
-                            client,
-                            "Setting AmmoSlot.ClipSize = " +
-                              parseInt(args[1], 10)
-                          );
-                          server.sendWeaponPacket(client, "Weapon.StatUpdate", {
-                            statData: [
-                              {
-                                guid: weaponItem.baseItem.unknownGuid1,
-                                unknownBoolean1: false,
-                                statUpdates: [
-                                  {
-                                    statCategory: 4,
-                                    statUpdateData: {
-                                      statOwnerId: 0,
-                                      statData: {
-                                        statId: 3729010617,
-                                        statValue: {
-                                          type: 0,
-                                          value: {
-                                            baseValue: parseInt(args[1], 10),
-                                            modifierValue: 0,
+                                  ],
+                                }
+                              );
+                            }
+                            break;
+                          case "AmmoSlot.ClipSize":
+                            if (args[1]) {
+                              server.sendChatText(
+                                client,
+                                "Setting AmmoSlot.ClipSize = " +
+                                  parseInt(args[1], 10)
+                              );
+                              server.sendWeaponPacket(
+                                client,
+                                "Weapon.StatUpdate",
+                                {
+                                  statData: [
+                                    {
+                                      guid: weaponItem.baseItem.unknownGuid1,
+                                      unknownBoolean1: false,
+                                      statUpdates: [
+                                        {
+                                          statCategory: 4,
+                                          statUpdateData: {
+                                            statOwnerId: 0,
+                                            statData: {
+                                              statId: 3729010617,
+                                              statValue: {
+                                                type: 0,
+                                                value: {
+                                                  baseValue: parseInt(
+                                                    args[1],
+                                                    10
+                                                  ),
+                                                  modifierValue: 0,
+                                                },
+                                              },
+                                            },
                                           },
                                         },
-                                      },
+                                      ],
                                     },
-                                  },
-                                ],
-                              },
-                            ],
-                          });
+                                  ],
+                                }
+                              );
+                            }
+                            break;
                         }
-                        break;
-                    }
-                  });
-              });
-          });
+                      }
+                    );
+                });
+            }
+          );
       }
     }
     if (packet.data.commandHash == Jenkins.oaat("LOADOUT")) {
@@ -1276,6 +1339,12 @@ var packetHandlers = {
     }
     if (packet.data.commandHash == Jenkins.oaat("HAX")) {
       switch (args[0]) {
+        case "observer":
+          server.sendData(client, "PlayerUpdate.RemovePlayer", {
+            guid: client.character.characterId,
+          });
+          server.sendChatText(client, "Delete player, back in observer mode");
+          break;
         case "pc":
           server.sendData(client, "PlayerUpdate.AddLightweightPc", {
             characterid: client.character.characterId,
@@ -1286,6 +1355,23 @@ var packetHandlers = {
         case "testpacket":
           const packetName = args[1];
           server.sendData(client, packetName, {});
+          break;
+        case "run":
+          const speedValue = args[1];
+          let speed;
+          if (speedValue > 10) {
+            server.sendChatText(
+              client,
+              "To avoid security issue speed > 10 is set to 15"
+            );
+            speed = 15;
+          } else {
+            speed = speedValue;
+          }
+          server.sendChatText(client, "Setting run speed: " + speed);
+          server.sendData(client, "Command.RunSpeed", {
+            runSpeed: speed,
+          });
           break;
         case "hell":
           debug(":)");
@@ -1992,154 +2078,154 @@ var packetHandlers = {
         }
         server
           .data("npc_vehicle_mappings")
-          .findOne({ vehicle_id: packet.data.vehicleId }, function (
-            err,
-            npcDefinitionMapping
-          ) {
-            if (err || !npcDefinitionMapping) {
-              server.sendChatText(client, "Vehicle has no NPC mapping");
-              return;
-            }
-            server
-              .data("npcs")
-              .findOne(
-                { id: npcDefinitionMapping.npc_definition_id },
-                function (err, npc) {
-                  if (err || !npc) {
-                    server.sendChatText(
-                      client,
-                      "NPC definition " +
-                        npcDefinitionMapping.npc_definition_id +
-                        " not found"
-                    );
-                    return;
-                  }
-                  var nameId = vehicle.name_id > 0 ? vehicle.name_id : 0,
-                    modelId = npc.model_id;
-                  var vehicleData = {
-                    npcData: {
-                      guid: guid,
-                      transientId: transientId,
-                      unknownString0: "",
-                      nameId: nameId,
-                      unknownDword2: 0,
-                      unknownDword3: 0,
-                      unknownByte1: 1,
-                      modelId: modelId,
-                      scale: [1, 1, 1, 1],
-                      unknownString1: "",
-                      unknownString2: "",
-                      unknownDword5: 0,
-                      unknownDword6: 0,
-                      position: packet.data.position,
-                      unknownVector1: [
-                        0,
-                        -0.7071066498756409,
-                        0,
-                        0.70710688829422,
-                      ],
-                      rotation: [packet.data.heading, 0, 0, 0],
-                      unknownDword7: 0,
-                      unknownFloat1: 3,
-                      unknownString3: "",
-                      unknownString4: "",
-                      unknownString5: "",
-                      vehicleId: packet.data.vehicleId,
-                      unknownDword9: 0,
-                      npcDefinitionId: npc.id,
-                      unknownByte2: 2,
-                      profileId: npc.profile_id,
-                      unknownBoolean1: false,
-                      unknownData1: {
-                        unknownByte1: 16,
-                        unknownByte2: 9,
-                        unknownByte3: 0,
-                      },
-                      unknownByte6: 0,
-                      unknownDword11: 0,
-                      unknownGuid1: "0x0000000000000000",
-                      unknownData2: {
-                        unknownGuid1: "0x0000000000000000",
-                      },
-                      unknownDword12: 2484,
-                      unknownDword13: 1528,
-                      unknownDword14: 0,
-                      unknownByte7: 0,
-                      unknownArray1: [],
-                    },
-                    unknownGuid1: "0x0000000000000000",
-                    unknownDword1: 0,
-                    unknownDword2: 0,
-                    positionUpdate: server.createPositionUpdate(
-                      packet.data.position,
-                      [packet.data.heading, 0, 0, 0]
-                    ),
-                    unknownString1: "",
-                  };
-                  console.log(JSON.stringify(vehicleData, null, 2));
-
-                  server.sendData(
-                    client,
-                    "PlayerUpdate.AddLightweightVehicle",
-                    vehicleData
-                  );
-                  server.sendData(client, "PlayerUpdate.SetFaction", {
-                    guid: guid,
-                    factionId:
-                      packet.data.factionId || client.character.factionId,
-                  });
-
-                  server.sendData(client, "Vehicle.Owner", {
-                    guid: guid,
-                    characterId: client.character.characterId,
-                    unknownDword1: 305,
-                    vehicleId: packet.data.vehicleId,
-                    passengers: [
-                      {
-                        passengerData: {
-                          characterId: "0x0000000000000000",
-                          characterData: {
-                            unknownDword1: 0,
-                            unknownDword2: 0,
-                            unknownDword3: 0,
-                            characterName: "",
-                            unknownString1: "",
-                          },
-                          unknownDword1: 0,
-                          unknownString1: "",
-                        },
-                        unknownByte1: 0,
-                      },
-                      {
-                        passengerData: {
-                          characterId: "0x0000000000000000",
-                          characterData: {
-                            unknownDword1: 0,
-                            unknownDword2: 0,
-                            unknownDword3: 0,
-                            characterName: "",
-                            unknownString1: "",
-                          },
-                          unknownDword1: 0,
-                          unknownString1: "",
-                        },
+          .findOne(
+            { vehicle_id: packet.data.vehicleId },
+            function (err, npcDefinitionMapping) {
+              if (err || !npcDefinitionMapping) {
+                server.sendChatText(client, "Vehicle has no NPC mapping");
+                return;
+              }
+              server
+                .data("npcs")
+                .findOne(
+                  { id: npcDefinitionMapping.npc_definition_id },
+                  function (err, npc) {
+                    if (err || !npc) {
+                      server.sendChatText(
+                        client,
+                        "NPC definition " +
+                          npcDefinitionMapping.npc_definition_id +
+                          " not found"
+                      );
+                      return;
+                    }
+                    var nameId = vehicle.name_id > 0 ? vehicle.name_id : 0,
+                      modelId = npc.model_id;
+                    var vehicleData = {
+                      npcData: {
+                        guid: guid,
+                        transientId: transientId,
+                        unknownString0: "",
+                        nameId: nameId,
+                        unknownDword2: 0,
+                        unknownDword3: 0,
                         unknownByte1: 1,
+                        modelId: modelId,
+                        scale: [1, 1, 1, 1],
+                        unknownString1: "",
+                        unknownString2: "",
+                        unknownDword5: 0,
+                        unknownDword6: 0,
+                        position: packet.data.position,
+                        unknownVector1: [
+                          0,
+                          -0.7071066498756409,
+                          0,
+                          0.70710688829422,
+                        ],
+                        rotation: [packet.data.heading, 0, 0, 0],
+                        unknownDword7: 0,
+                        unknownFloat1: 3,
+                        unknownString3: "",
+                        unknownString4: "",
+                        unknownString5: "",
+                        vehicleId: packet.data.vehicleId,
+                        unknownDword9: 0,
+                        npcDefinitionId: npc.id,
+                        unknownByte2: 2,
+                        profileId: npc.profile_id,
+                        unknownBoolean1: false,
+                        unknownData1: {
+                          unknownByte1: 16,
+                          unknownByte2: 9,
+                          unknownByte3: 0,
+                        },
+                        unknownByte6: 0,
+                        unknownDword11: 0,
+                        unknownGuid1: "0x0000000000000000",
+                        unknownData2: {
+                          unknownGuid1: "0x0000000000000000",
+                        },
+                        unknownDword12: 2484,
+                        unknownDword13: 1528,
+                        unknownDword14: 0,
+                        unknownByte7: 0,
+                        unknownArray1: [],
                       },
-                    ],
-                  });
+                      unknownGuid1: "0x0000000000000000",
+                      unknownDword1: 0,
+                      unknownDword2: 0,
+                      positionUpdate: server.createPositionUpdate(
+                        packet.data.position,
+                        [packet.data.heading, 0, 0, 0]
+                      ),
+                      unknownString1: "",
+                    };
+                    console.log(JSON.stringify(vehicleData, null, 2));
 
-                  server.sendData(client, "Vehicle.SetAutoDrive", {
-                    guid: guid,
-                  });
+                    server.sendData(
+                      client,
+                      "PlayerUpdate.AddLightweightVehicle",
+                      vehicleData
+                    );
+                    server.sendData(client, "PlayerUpdate.SetFaction", {
+                      guid: guid,
+                      factionId:
+                        packet.data.factionId || client.character.factionId,
+                    });
 
-                  server.sendData(client, "PlayerUpdate.ManagedObject", {
-                    guid: guid,
-                    guid2: "0x0000000000000000",
-                    characterId: client.character.characterId,
-                  });
-                }
-              );
-          });
+                    server.sendData(client, "Vehicle.Owner", {
+                      guid: guid,
+                      characterId: client.character.characterId,
+                      unknownDword1: 305,
+                      vehicleId: packet.data.vehicleId,
+                      passengers: [
+                        {
+                          passengerData: {
+                            characterId: "0x0000000000000000",
+                            characterData: {
+                              unknownDword1: 0,
+                              unknownDword2: 0,
+                              unknownDword3: 0,
+                              characterName: "",
+                              unknownString1: "",
+                            },
+                            unknownDword1: 0,
+                            unknownString1: "",
+                          },
+                          unknownByte1: 0,
+                        },
+                        {
+                          passengerData: {
+                            characterId: "0x0000000000000000",
+                            characterData: {
+                              unknownDword1: 0,
+                              unknownDword2: 0,
+                              unknownDword3: 0,
+                              characterName: "",
+                              unknownString1: "",
+                            },
+                            unknownDword1: 0,
+                            unknownString1: "",
+                          },
+                          unknownByte1: 1,
+                        },
+                      ],
+                    });
+
+                    server.sendData(client, "Vehicle.SetAutoDrive", {
+                      guid: guid,
+                    });
+
+                    server.sendData(client, "PlayerUpdate.ManagedObject", {
+                      guid: guid,
+                      guid2: "0x0000000000000000",
+                      characterId: client.character.characterId,
+                    });
+                  }
+                );
+            }
+          );
       });
   },
   "Command.StartLogoutRequest": function (server, client, packet) {

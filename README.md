@@ -20,6 +20,8 @@ Making this work for the 15 January 2015 version of H1Z1 (first version).
 
 - Thank to LcplReaper for his interest in the project and the management of the community around the project.
 
+- Thank to Meme for being an OG/active contributor :smile:.
+
 - Thank to Chriis who provided the basis for this project by being the first (as far as I know) to try to emulate servers for h1z1 and who inspired me.
 
 - Thank to Jacob Seidelin without whom none of this would have been possible.
@@ -54,6 +56,8 @@ You can download them all [here](https://mega.nz/file/RtwDWJ7b#QYlxpXz_t0_kp7_S8
 
 ### Setup ClientConfig.ini
 
+**Not needed if you use the H1emu app**
+
 On the H1Z1 game folder there is a file name "ClientConfig.ini".
 
 Add `sessionid=0` at the beginning of this file.
@@ -61,6 +65,8 @@ Add `sessionid=0` at the beginning of this file.
 And change the _Server_ value to the adress of your server , probably `localhost:PORT`
 
 ### Launch the game
+
+**Not needed if you use the H1emu app**
 
 If you have followed the step just above this one, this step is no longer necessary you can start the game by double clicking on H1Z1.exe.
 

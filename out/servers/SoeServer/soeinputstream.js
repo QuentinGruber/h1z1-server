@@ -68,7 +68,7 @@ function parseChannelPacketData(data) {
     return appData;
 }
 SOEInputStream.prototype._processDataFragments = function () {
-    var nextFragment = (this._lastProcessedFragment + 1) & 0xffff, fragments = this._fragments, head = fragments[nextFragment], data, totalSize, dataSize, offset, fragment, appData = [], i, j, k;
+    var nextFragment = (this._lastProcessedFragment + 1) & 0xffff, fragments = this._fragments, head = fragments[nextFragment], data, totalSize, dataSize, fragment, appData = [], i, j, k;
     if (head) {
         if (head.singlePacket) {
             this._lastProcessedFragment = nextFragment;
@@ -155,7 +155,7 @@ SOEInputStream.prototype.write = function (data, sequence, fragment) {
     }
     else {
         var ack = sequence;
-        for (var i = 1; i < 65536; i++) {
+        for (var i = 1; i < this._sequences.length; i++) {
             var j = (this._lastAck + i) & 0xffff;
             if (this._fragments[j]) {
                 ack = j;

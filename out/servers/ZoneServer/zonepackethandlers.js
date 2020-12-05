@@ -200,12 +200,13 @@ var packetHandlers = {
             "model",
             "stat",
             "log",
+            "location",
         ];
-        for (var i = 0; i < commands.length; i++) {
+        commands.forEach(function (command) {
             server.sendData(client, "Command.AddWorldCommand", {
-                command: commands[i],
+                command: command,
             });
-        }
+        });
         server.sendChatText(client, "Welcome to H1emu ! :D");
     },
     Security: function (server, client, packet) {
@@ -332,6 +333,13 @@ var packetHandlers = {
             debug("_clients :", _clients);
             debug("Soeclients :", _gatewayServer._soeServer);
         }
+        if (packet.data.commandHash == Jenkins.oaat("LOCATION") ||
+            packet.data.commandHash == 3270589520) {
+            // /loc
+            var _a = client.character.state, position = _a.position, rotation = _a.rotation;
+            server.sendChatText(client, "position: " + position[0] + "," + position[1] + "," + position[2]);
+            server.sendChatText(client, "rotation: " + rotation[0] + "," + rotation[1] + "," + rotation[2]);
+        }
         if (packet.data.commandHash == Jenkins.oaat("STAT")) {
             if (args[0] && args[1]) {
                 server
@@ -385,7 +393,8 @@ var packetHandlers = {
         if (packet.data.commandHash == Jenkins.oaat("NPC")) {
             if (args[0]) {
                 var npcId = parseInt(args[0]);
-                server.data("npcs").findOne({ id: npcId }, function (err, npc) {
+                var npc_data = require("../../../data/npcs.json");
+                npc_data.findOne({ id: npcId }, function (err, npc) {
                     server.sendChatText(client, "Spawning NPC " + npc.id);
                     var guid = server.generateGuid(), transientId = server.getTransientId(client, guid);
                     server.sendData(client, "PlayerUpdate.AddLightweightNpc", {
@@ -540,7 +549,8 @@ var packetHandlers = {
                                     break;
                                 case "PelletsPerShot":
                                     if (args[1]) {
-                                        server.sendChatText(client, "Setting PelletsPerShot = " + parseFloat(args[1]));
+                                        server.sendChatText(client, "Setting PelletsPerShot = " +
+                                            parseFloat(args[1]));
                                         for (var i = 0; i < fireModes.length; i++) {
                                             server.sendWeaponPacket(client, "Weapon.StatUpdate", {
                                                 statData: [
@@ -1123,6 +1133,12 @@ var packetHandlers = {
         }
         if (packet.data.commandHash == Jenkins.oaat("HAX")) {
             switch (args[0]) {
+                case "observer":
+                    server.sendData(client, "PlayerUpdate.RemovePlayer", {
+                        guid: client.character.characterId,
+                    });
+                    server.sendChatText(client, "Delete player, back in observer mode");
+                    break;
                 case "pc":
                     server.sendData(client, "PlayerUpdate.AddLightweightPc", {
                         characterid: client.character.characterId,
@@ -1133,6 +1149,21 @@ var packetHandlers = {
                 case "testpacket":
                     var packetName = args[1];
                     server.sendData(client, packetName, {});
+                    break;
+                case "run":
+                    var speedValue = args[1];
+                    var speed = void 0;
+                    if (speedValue > 10) {
+                        server.sendChatText(client, "To avoid security issue speed > 10 is set to 15");
+                        speed = 15;
+                    }
+                    else {
+                        speed = speedValue;
+                    }
+                    server.sendChatText(client, "Setting run speed: " + speed);
+                    server.sendData(client, "Command.RunSpeed", {
+                        runSpeed: speed,
+                    });
                     break;
                 case "hell":
                     debug(":)");

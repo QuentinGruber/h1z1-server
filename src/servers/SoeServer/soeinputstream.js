@@ -83,7 +83,6 @@ SOEInputStream.prototype._processDataFragments = function () {
     data,
     totalSize,
     dataSize,
-    offset,
     fragment,
     appData = [],
     i,
@@ -184,7 +183,7 @@ SOEInputStream.prototype.write = function (data, sequence, fragment) {
     this.emit("outoforder", null, this._nextSequence, sequence);
   } else {
     var ack = sequence;
-    for (var i = 1; i < 65536; i++) {
+    for (var i = 1; i < this._sequences.length; i++) {
       var j = (this._lastAck + i) & 0xffff;
       if (this._fragments[j]) {
         ack = j;
