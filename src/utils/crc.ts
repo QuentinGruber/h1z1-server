@@ -1,5 +1,4 @@
 const { crc32: crc32Table } = require("./crctable.js");
-const crcFunctions = require("./crcFunctions")
 
 function crc32(data: any, crcSeed: number) {
   var crc = crc32Table[~crcSeed & 0xff];
@@ -20,4 +19,12 @@ function crc32(data: any, crcSeed: number) {
   }
   return ~crc >>> 0;
 }
-exports.appendCRC = crcFunctions.cwrap("AppendCRC", Buffer, [Buffer,Number,Number,Number]);
+exports.appendCRC = function (
+  data: any,
+  crcSeed: number
+) {
+  const crc = crc32(data, crcSeed >>> 0);
+  var crcBuffer = new (Buffer as any).alloc(2);
+  crcBuffer.writeUInt16BE(crc & 0xffff, 0);
+  return Buffer.concat([data, crcBuffer]);
+};
