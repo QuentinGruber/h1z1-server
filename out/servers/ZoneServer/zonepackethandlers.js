@@ -333,7 +333,8 @@ var packetHandlers = {
             debug("_clients :", _clients);
             debug("Soeclients :", _gatewayServer._soeServer);
         }
-        if (packet.data.commandHash == Jenkins.oaat("LOCATION") || 3270589520) {
+        if (packet.data.commandHash == Jenkins.oaat("LOCATION") ||
+            packet.data.commandHash == 3270589520) {
             // /loc
             var _a = client.character.state, position = _a.position, rotation = _a.rotation;
             server.sendChatText(client, "position: " + position[0] + "," + position[1] + "," + position[2]);

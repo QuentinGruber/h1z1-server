@@ -70,6 +70,7 @@ var fs_1 = __importDefault(require("fs"));
 var zonepackethandlers_1 = __importDefault(require("./zonepackethandlers"));
 var h1z1protocol_1 = require("../../protocols/h1z1protocol");
 var spawnList = require("../../../data/spawnLocations.json");
+var _ = require('lodash');
 // import {MongoClient} from "mongodb"
 var debug = require("debug")("ZoneServer");
 Date.now = function () {
@@ -206,8 +207,16 @@ var ZoneServer = /** @class */ (function (_super) {
                 client.character.inventory = self.data.inventory;
                 client.character.factionId = self.data.factionId;
                 client.character.name = self.data.identity.characterName;
-                var randomSpawnIndex = Math.floor(Math.random() * (spawnList.length));
-                self.data.position = spawnList[randomSpawnIndex].position;
+                if (_.isEqual(self.data.position, [0, 0, 0, 1]) && _.isEqual(self.data.rotation, [0, 0, 0, 1])) {
+                    // if position/rotation hasn't be changed
+                    self.data.isRandomlySpawning = true;
+                }
+                if (self.data.isRandomlySpawning) {
+                    // Take position/rotation from a random spawn location.
+                    var randomSpawnIndex = Math.floor(Math.random() * (spawnList.length));
+                    self.data.position = spawnList[randomSpawnIndex].position;
+                    self.data.rotation = spawnList[randomSpawnIndex].rotation;
+                }
                 _this.sendData(client, "SendSelfToClient", self);
                 _this.sendData(client, "PlayerUpdate.SetBattleRank", {
                     characterId: client.character.characterId,
