@@ -206,8 +206,12 @@ var ZoneServer = /** @class */ (function (_super) {
                 client.character.inventory = self.data.inventory;
                 client.character.factionId = self.data.factionId;
                 client.character.name = self.data.identity.characterName;
-                var randomSpawnIndex = Math.floor(Math.random() * (spawnList.length));
-                self.data.position = spawnList[randomSpawnIndex].position;
+                if (self.data.position === [0, 0, 0, 1] && self.data.rotation === [0, 0, 0, 1]) { // if position/rotation hasn't be changed
+                    // Take position/rotation from a random spawn location.
+                    var randomSpawnIndex = Math.floor(Math.random() * (spawnList.length));
+                    self.data.position = spawnList[randomSpawnIndex].position;
+                    self.data.rotation = spawnList[randomSpawnIndex].rotation;
+                }
                 _this.sendData(client, "SendSelfToClient", self);
                 _this.sendData(client, "PlayerUpdate.SetBattleRank", {
                     characterId: client.character.characterId,
