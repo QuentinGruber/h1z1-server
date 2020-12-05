@@ -207,7 +207,11 @@ var ZoneServer = /** @class */ (function (_super) {
                 client.character.inventory = self.data.inventory;
                 client.character.factionId = self.data.factionId;
                 client.character.name = self.data.identity.characterName;
-                if (_.isEqual(self.data.position, [0, 0, 0, 1]) && _.isEqual(self.data.rotation, [0, 0, 0, 1])) { // if position/rotation hasn't be changed
+                if (_.isEqual(self.data.position, [0, 0, 0, 1]) && _.isEqual(self.data.rotation, [0, 0, 0, 1])) {
+                    // if position/rotation hasn't be changed
+                    self.data.isRandomlySpawning = true;
+                }
+                if (self.data.isRandomlySpawning) {
                     // Take position/rotation from a random spawn location.
                     var randomSpawnIndex = Math.floor(Math.random() * (spawnList.length));
                     self.data.position = spawnList[randomSpawnIndex].position;
