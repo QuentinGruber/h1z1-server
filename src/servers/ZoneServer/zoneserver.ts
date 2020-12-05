@@ -16,6 +16,7 @@ import fs from "fs";
 import { default as packetHandlers } from "./zonepackethandlers";
 import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
 const spawnList = require("../../../data/spawnLocations.json")
+const _ = require('lodash');
 // import {MongoClient} from "mongodb"
 const debug = require("debug")("ZoneServer");
 
@@ -242,15 +243,24 @@ export class ZoneServer extends EventEmitter {
           unknownFloat3: 110,
         });
 
-        var self = require("../../../data/sendself.json");
+        const self = require("../../../data/sendself.json");
         client.character.guid = self.data.guid;
         client.character.loadouts = self.data.characterLoadoutData.loadouts;
         client.character.inventory = self.data.inventory;
         client.character.factionId = self.data.factionId;
         client.character.name = self.data.identity.characterName;
 
-        const randomSpawnIndex = Math.floor(Math.random() * (spawnList.length));
-        self.data.position = spawnList[randomSpawnIndex].position
+        if (_.isEqual(self.data.position, [0, 0, 0, 1]) && _.isEqual(self.data.rotation, [0, 0, 0, 1])) {
+          // if position/rotation hasn't be changed
+          self.data.isRandomlySpawning = true
+        }
+
+        if (self.data.isRandomlySpawning) {
+          // Take position/rotation from a random spawn location.
+          const randomSpawnIndex = Math.floor(Math.random() * (spawnList.length));
+          self.data.position = spawnList[randomSpawnIndex].position
+          self.data.rotation = spawnList[randomSpawnIndex].rotation
+        }
         this.sendData(client, "SendSelfToClient", self);
         this.sendData(client, "PlayerUpdate.SetBattleRank", {
           characterId: client.character.characterId,
