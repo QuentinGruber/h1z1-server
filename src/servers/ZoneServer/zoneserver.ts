@@ -261,7 +261,7 @@ export class ZoneServer extends EventEmitter {
           self.data.position = spawnList[randomSpawnIndex].position
           self.data.rotation = spawnList[randomSpawnIndex].rotation
         }
-        this.sendData(client, "SendSelfToClient", self);
+       // this.sendData(client, "SendSelfToClient", self);
         this.sendData(client, "PlayerUpdate.SetBattleRank", {
           characterId: client.character.characterId,
           battleRank: 100,
