@@ -2214,7 +2214,7 @@ var packetHandlers = {
       });
   },
   "Command.InteractCancel": function (server, client, packet) {
-    server.sendData(client, "Command.InteractCancel", {});
+    debug("Interaction Canceled");
   },
   "Command.StartLogoutRequest": function (server, client, packet) {
     server.sendData(client, "ClientUpdate.CompleteLogoutProcess", {});
