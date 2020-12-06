@@ -24,7 +24,7 @@ exports.appendCRC = function (
   crcSeed: number
 ) {
   const crc = crc32(data, crcSeed >>> 0);
-  var crcBuffer = new (Buffer as any).alloc(2);
+  const crcBuffer = new (Buffer as any).alloc(2);
   crcBuffer.writeUInt16BE(crc & 0xffff, 0);
   return Buffer.concat([data, crcBuffer]);
 };
