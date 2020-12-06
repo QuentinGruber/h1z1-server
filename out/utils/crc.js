@@ -21,11 +21,6 @@ function crc32(data, crcSeed) {
     return ~crc >>> 0;
 }
 exports.appendCRC = function (data, crcSeed) {
-    var genCRC = crcFunctions.cwrap("GenerateCrc", Number, [Buffer, Number, Number]);
-    var rnd = Math.random() * 100;
-    console.log("try id_" + rnd.toFixed(0));
-    console.log("current Javascript generated crc :" + crc32(data, crcSeed >>> 0));
-    console.log("generated crc from the c++ function :" + genCRC(data, data.length, crcSeed >>> 0));
     var crc = crc32(data, crcSeed >>> 0);
     var crcBuffer = new Buffer.alloc(2);
     crcBuffer.writeUInt16BE(crc & 0xffff, 0);
