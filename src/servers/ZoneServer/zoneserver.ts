@@ -243,6 +243,14 @@ export class ZoneServer extends EventEmitter {
           unknownFloat3: 110,
         });
 
+        /*this.sendData(client, "Command.ItemDefinitions", {
+          items: [
+            { itemid: 69 },
+            { itemid: 6969 },{ itemid: 696969 },
+          ]
+        });*/
+        this.sendRawData(client, fs.readFileSync(`${__dirname}/../../../data/rawdata/Command.ItemDefinitions.dat`));
+
         const self = require("../../../data/sendself.json");
         client.character.guid = self.data.guid;
         client.character.loadouts = self.data.characterLoadoutData.loadouts;

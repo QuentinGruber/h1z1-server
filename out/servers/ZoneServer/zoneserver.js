@@ -201,6 +201,13 @@ var ZoneServer = /** @class */ (function (_super) {
                     unknownFloat2: 12,
                     unknownFloat3: 110,
                 });
+                /*this.sendData(client, "Command.ItemDefinitions", {
+                  items: [
+                    { itemid: 69 },
+                    { itemid: 6969 },{ itemid: 696969 },
+                  ]
+                });*/
+                _this.sendRawData(client, fs_1.default.readFileSync(__dirname + "/../../../data/rawdata/Command.ItemDefinitions.dat"));
                 var self_1 = require("../../../data/sendself.json");
                 client.character.guid = self_1.data.guid;
                 client.character.loadouts = self_1.data.characterLoadoutData.loadouts;
