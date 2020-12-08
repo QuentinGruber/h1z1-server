@@ -15,7 +15,7 @@ declare var packets: ((string | number | {
         udpLength: any;
         protocol: any;
     };
-    pack: (packet: any, crcSeed: number, compression: number, isSubPacket: boolean, useCrc64: boolean) => any;
+    pack: (packet: any, crcSeed: number, compression: number, isSubPacket: boolean) => any;
 })[] | (string | number | {
     parse: (data: any, crcSeed: number, compression: number, isSubPacket: boolean) => {
         crcSeed: any;
@@ -24,7 +24,7 @@ declare var packets: ((string | number | {
         compression: any;
         udpLength: any;
     };
-    pack: (packet: any, crcSeed: number, compression: number, isSubPacket: boolean, useCrc64: boolean) => any;
+    pack: (packet: any, crcSeed: number, compression: number, isSubPacket: boolean) => any;
 })[] | (string | number | {
     parse: (data: any, crcSeed: number, compression: number, isSubPacket: boolean, appData: any) => {
         subPackets: ({
@@ -37,7 +37,7 @@ declare var packets: ((string | number | {
             name?: undefined;
         } | undefined)[];
     };
-    pack: (packet: any, crcSeed: number, compression: number, isSubPacket: boolean, useCrc64: boolean) => any;
+    pack: (packet: any, crcSeed: number, compression: number, isSubPacket: boolean) => any;
 })[] | (string | number | {
     parse: (data: any) => {};
     pack: () => any;
@@ -48,13 +48,13 @@ declare var packets: ((string | number | {
         crc: any;
         data: any;
     };
-    pack: (packet: any, crcSeed: number, compression: number, isSubPacket: boolean, useCrc64: boolean) => any;
+    pack: (packet: any, crcSeed: number, compression: number, isSubPacket: boolean) => any;
 })[] | (string | number | {
     parse: (data: any, crcSeed: number, compression: number, isSubPacket: boolean) => {
         channel: number;
         sequence: any;
     };
-    pack: (packet: any, crcSeed: number, compression: number, isSubPacket: boolean, useCrc64: boolean) => any;
+    pack: (packet: any, crcSeed: number, compression: number, isSubPacket: boolean) => any;
 })[])[];
 declare var SOEPackets: {
     PacketTypes: {};
@@ -64,7 +64,7 @@ declare var StandAlonePackets: {
     PacketTypes: {};
     Packets: {};
 };
-declare function packSOEPacket(packetName: string, object: any, crcSeed: number, compression: number, isSubPacket?: boolean, useCrc64?: boolean): any;
+declare function packSOEPacket(packetName: string, object: any, crcSeed: number, compression: number, isSubPacket?: boolean): any;
 declare function parseSOEPacket(data: any, crcSeed: number, compression: number, isSubPacket: boolean, appData: any): {
     type: any;
     name: any;
@@ -80,8 +80,6 @@ declare function readDataLength(data: any, offset: number): {
     numBytes: number;
 };
 declare class SOEProtocol {
-    useCrc64: boolean;
-    constructor(useCrc64?: boolean);
     parse(data: any, crcSeed: number, compression: number): {
         soePacket: {
             type: any;
