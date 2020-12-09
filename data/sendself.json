@@ -17,14 +17,24 @@
     "factionId": 2,
     "unknownDword9": 0,
     "unknownDword10": 0,
-    "position": [0, 50, 0, 1],
-    "rotation": [0, 0, 0, 1],
+    "position": [
+      0,
+      0,
+      0,
+      1
+    ],
+    "rotation": [
+      0,
+      0,
+      0,
+      1
+    ],
     "identity": {
-      "unknownDword1": 0,
-      "unknownDword2": 0,
+      "CharacterId": 713425297,
+      "AccountId": 722776196,
       "unknownDword3": 0,
-      "characterName": "LocalPlayer",
-      "characterNameBis": ""
+      "characterFirstName": "LocalPlayer",
+      "characterLastName": ""
     },
     "unknownDword14": 0,
     "currency": [],
@@ -49,7 +59,40 @@
     "unknownBoolean5": false,
     "unknownDword25": 0,
     "offset": 293,
-    "profiles": [],
+    "profiles": [
+      {
+        "profileId": 4,
+        "nameId": 1097,
+        "descriptionId": 1,
+        "type": 3,
+        "iconId": 0,
+        "unknownDword6": 0,
+        "unknownDword7": 0,
+        "unknownDword8": 0,
+        "unknownBoolean1": false,
+        "unknownDword9": 0,
+        "unknownArray1": [],
+        "unknownBoolean2": false,
+        "unknownDword10": 0,
+        "unknownDword11": 0,
+        "unknownBoolean3": false,
+        "unknownByte1": 0,
+        "unknownBoolean4": false,
+        "unknownBoolean5": false,
+        "unknownFloat1": 0.0,
+        "unknownFloat2": 0.0,
+        "unknownFloat3": 0.0,
+        "unknownFloat4": 0.0,
+        "unknownDword13": 0,
+        "unknownFloat5": 0,
+        "unknownDword14": 0,
+        "unknownDword15": 0,
+        "unknownDword16": 0,
+        "unknownDword17": 0,
+        "unknownDword18": 0,
+        "unknownDword19": 0
+      }
+    ],
     "currentProfile": 4,
     "unknownArray2": [],
     "collections": [],
@@ -195,7 +238,211 @@
       "unknownByte1": 160
     },
     "characterLoadoutData": {
-      "loadouts": [],
+      "loadouts": [
+        {
+          "loadoutId": 3,
+          "unknownDword2": 0,
+          "loadoutData": {
+            "loadoutId": 3,
+            "unknownData1": {
+              "unknownDword1": 0,
+              "unknownByte1": 0
+            },
+            "unknownDword2": 0,
+            "unknownData2": {
+              "unknownDword1": 0,
+              "loadoutName": "survivor"
+            },
+            "tintItemId": 0,
+            "unknownDword4": 0,
+            "decalItemId": 0,
+            "loadoutSlots": [
+              {
+                "loadoutSlotId": 1,
+                "loadoutSlotData": {
+                  "index": 0,
+                  "loadoutSlotItem": {
+                    "itemLineId": 0,
+                    "flags": 0,
+                    "attachments": [],
+                    "attachmentClasses": []
+                  },
+                  "tintItemId": 0,
+                  "itemSlot": 7
+                }
+              },
+              {
+                "loadoutSlotId": 3,
+                "loadoutSlotData": {
+                  "index": 1,
+                  "loadoutSlotItem": {
+                    "itemLineId": 0,
+                    "flags": 0,
+                    "attachments": [],
+                    "attachmentClasses": []
+                  },
+                  "tintItemId": 0,
+                  "itemSlot": 7
+                }
+              },
+              {
+                "loadoutSlotId": 4,
+                "loadoutSlotData": {
+                  "index": 2,
+                  "loadoutSlotItem": {
+                    "itemLineId": 0,
+                    "flags": 0,
+                    "attachments": [],
+                    "attachmentClasses": []
+                  },
+                  "tintItemId": 0,
+                  "itemSlot": 7
+                }
+              },
+              {
+                "loadoutSlotId": 7,
+                "loadoutSlotData": {
+                  "index": 3,
+                  "loadoutSlotItem": {
+                    "itemLineId": 85,
+                    "flags": 0,
+                    "attachments": [],
+                    "attachmentClasses": []
+                  },
+                  "tintItemId": 85,
+                  "itemSlot": 7
+                }
+              },
+              {
+                "loadoutSlotId": 10,
+                "loadoutSlotData": {
+                  "index": 4,
+                  "loadoutSlotItem": {
+                    "itemLineId": 0,
+                    "flags": 0,
+                    "attachments": [],
+                    "attachmentClasses": []
+                  },
+                  "tintItemId": 0,
+                  "itemSlot": 3
+                }
+              },
+              {
+                "loadoutSlotId": 11,
+                "loadoutSlotData": {
+                  "index": 5,
+                  "loadoutSlotItem": {
+                    "itemLineId": 0,
+                    "flags": 0,
+                    "attachments": [],
+                    "attachmentClasses": []
+                  },
+                  "tintItemId": 0,
+                  "itemSlot": 1
+                }
+              },
+              {
+                "loadoutSlotId": 12,
+                "loadoutSlotData": {
+                  "index": 6,
+                  "loadoutSlotItem": {
+                    "itemLineId": 0,
+                    "flags": 0,
+                    "attachments": [],
+                    "attachmentClasses": []
+                  },
+                  "tintItemId": 0,
+                  "itemSlot": 10
+                }
+              },
+              {
+                "loadoutSlotId": 13,
+                "loadoutSlotData": {
+                  "index": 7,
+                  "loadoutSlotItem": {
+                    "itemLineId": 0,
+                    "flags": 0,
+                    "attachments": [],
+                    "attachmentClasses": []
+                  },
+                  "tintItemId": 0,
+                  "itemSlot": 5
+                }
+              },
+              {
+                "loadoutSlotId": 14,
+                "loadoutSlotData": {
+                  "index": 8,
+                  "loadoutSlotItem": {
+                    "itemLineId": 0,
+                    "flags": 0,
+                    "attachments": [],
+                    "attachmentClasses": []
+                  },
+                  "tintItemId": 0,
+                  "itemSlot": 4
+                }
+              },
+              {
+                "loadoutSlotId": 15,
+                "loadoutSlotData": {
+                  "index": 9,
+                  "loadoutSlotItem": {
+                    "itemLineId": 0,
+                    "flags": 0,
+                    "attachments": [],
+                    "attachmentClasses": []
+                  },
+                  "tintItemId": 0,
+                  "itemSlot": 0
+                }
+              },
+              {
+                "loadoutSlotId": 16,
+                "loadoutSlotData": {
+                  "index": 10,
+                  "loadoutSlotItem": {
+                    "itemLineId": 0,
+                    "flags": 0,
+                    "attachments": [],
+                    "attachmentClasses": []
+                  },
+                  "tintItemId": 0,
+                  "itemSlot": 2
+                }
+              },
+              {
+                "loadoutSlotId": 25,
+                "loadoutSlotData": {
+                  "index": 11,
+                  "loadoutSlotItem": {
+                    "itemLineId": 0,
+                    "flags": 0,
+                    "attachments": [],
+                    "attachmentClasses": []
+                  },
+                  "tintItemId": 0,
+                  "itemSlot": 11
+                }
+              },
+              {
+                "loadoutSlotId": 26,
+                "loadoutSlotData": {
+                  "index": 12,
+                  "loadoutSlotItem": {
+                    "itemLineId": 0,
+                    "flags": 0,
+                    "attachments": [],
+                    "attachmentClasses": []
+                  },
+                  "tintItemId": 0,
+                  "itemSlot": 26
+                }
+              }
+            ]
+          }
+        }
+      ],
       "unknownArray2": [],
       "unknownArray3": [],
       "unknownData1": {
@@ -216,7 +463,7 @@
           {
             "loadoutSlotId": 1,
             "loadoutSlotData": {
-              "index": 1,
+              "index": 0,
               "loadoutSlotItem": {
                 "itemLineId": 0,
                 "flags": 0,
@@ -230,7 +477,7 @@
           {
             "loadoutSlotId": 3,
             "loadoutSlotData": {
-              "index": 2,
+              "index": 1,
               "loadoutSlotItem": {
                 "itemLineId": 0,
                 "flags": 0,
@@ -244,7 +491,7 @@
           {
             "loadoutSlotId": 4,
             "loadoutSlotData": {
-              "index": 3,
+              "index": 2,
               "loadoutSlotItem": {
                 "itemLineId": 0,
                 "flags": 0,
@@ -258,21 +505,21 @@
           {
             "loadoutSlotId": 7,
             "loadoutSlotData": {
-              "index": 4,
+              "index": 3,
               "loadoutSlotItem": {
                 "itemLineId": 85,
                 "flags": 0,
                 "attachments": [],
                 "attachmentClasses": []
               },
-              "tintItemId": 0,
+              "tintItemId": 85,
               "itemSlot": 7
             }
           },
           {
             "loadoutSlotId": 10,
             "loadoutSlotData": {
-              "index": 5,
+              "index": 4,
               "loadoutSlotItem": {
                 "itemLineId": 0,
                 "flags": 0,
@@ -286,7 +533,7 @@
           {
             "loadoutSlotId": 11,
             "loadoutSlotData": {
-              "index": 6,
+              "index": 5,
               "loadoutSlotItem": {
                 "itemLineId": 0,
                 "flags": 0,
@@ -300,7 +547,7 @@
           {
             "loadoutSlotId": 12,
             "loadoutSlotData": {
-              "index": 7,
+              "index": 6,
               "loadoutSlotItem": {
                 "itemLineId": 0,
                 "flags": 0,
@@ -314,7 +561,7 @@
           {
             "loadoutSlotId": 13,
             "loadoutSlotData": {
-              "index": 8,
+              "index": 7,
               "loadoutSlotItem": {
                 "itemLineId": 0,
                 "flags": 0,
@@ -328,10 +575,10 @@
           {
             "loadoutSlotId": 14,
             "loadoutSlotData": {
-              "index": 9,
+              "index": 8,
               "loadoutSlotItem": {
                 "itemLineId": 0,
-                "flags": 128,
+                "flags": 0,
                 "attachments": [],
                 "attachmentClasses": []
               },
@@ -342,7 +589,7 @@
           {
             "loadoutSlotId": 15,
             "loadoutSlotData": {
-              "index": 10,
+              "index": 9,
               "loadoutSlotItem": {
                 "itemLineId": 0,
                 "flags": 0,
@@ -356,7 +603,7 @@
           {
             "loadoutSlotId": 16,
             "loadoutSlotData": {
-              "index": 11,
+              "index": 10,
               "loadoutSlotItem": {
                 "itemLineId": 0,
                 "flags": 0,
@@ -370,7 +617,7 @@
           {
             "loadoutSlotId": 25,
             "loadoutSlotData": {
-              "index": 12,
+              "index": 11,
               "loadoutSlotItem": {
                 "itemLineId": 0,
                 "flags": 0,
@@ -384,7 +631,7 @@
           {
             "loadoutSlotId": 26,
             "loadoutSlotData": {
-              "index": 13,
+              "index": 12,
               "loadoutSlotItem": {
                 "itemLineId": 0,
                 "flags": 0,

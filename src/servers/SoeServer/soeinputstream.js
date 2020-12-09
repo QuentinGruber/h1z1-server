@@ -101,7 +101,7 @@ SOEInputStream.prototype._processDataFragments = function () {
       head.copy(data, 0, 4);
 
       var fragmentIndices = [nextFragment];
-      for (var i = 1; i < 65536; i++) {
+      for (var i = 1; i < fragments.length; i++) {
         var j = (nextFragment + i) % 0xffff;
         fragment = fragments[j];
         if (fragment) {
