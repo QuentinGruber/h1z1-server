@@ -216,6 +216,7 @@ var ZoneServer = /** @class */ (function (_super) {
                     var randomSpawnIndex = Math.floor(Math.random() * (spawnList.length));
                     self_1.data.position = spawnList[randomSpawnIndex].position;
                     self_1.data.rotation = spawnList[randomSpawnIndex].rotation;
+                    client.character.spawnInfo = spawnList[randomSpawnIndex].name;
                 }
                 _this.sendData(client, "SendSelfToClient", self_1);
                 _this.sendData(client, "PlayerUpdate.SetBattleRank", {
@@ -338,7 +339,20 @@ var ZoneServer = /** @class */ (function (_super) {
             color1: 1,
         });
     };
-    ZoneServer.prototype.sendChatText = function (client, message) {
+    ZoneServer.prototype.sendChatText = function (client, message, clearChat) {
+        if (clearChat === void 0) { clearChat = false; }
+        if (clearChat) {
+            for (var index = 0; index < 6; index++) {
+                this.sendData(client, "Chat.ChatText", {
+                    message: " ",
+                    unknownDword1: 0,
+                    color: [255, 255, 255, 0],
+                    unknownDword2: 13951728,
+                    unknownByte3: 0,
+                    unknownByte4: 1,
+                });
+            }
+        }
         this.sendData(client, "Chat.ChatText", {
             message: message,
             unknownDword1: 0,
