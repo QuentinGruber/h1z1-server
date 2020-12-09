@@ -412,25 +412,24 @@ var packets = [
       ],
     },
   ],
+  ["TunnelAppPacketClientToServer", 0x10, {}],
+  ["TunnelAppPacketServerToClient", 0x11, {}],
+  ["CharacterTransferRequest", 0x12, {}],
+  ["CharacterTransferReply", 0x13, {}],
+  // no "real packets" below there
   [
-    "TunnelAppPacketClientToServer",
-    0x10,
+    "NameValidationRequest",
+    0x14,
     {
       fields: [
-        { name: "unknown", type: "string" },
-        { name: "data", type: "string" },
+        { name: "serverId", type: "uint32" },
+        { name: "unknown1", type: "int32" },
+        { name: "packetLength", type: "int32" },
+        { name: "loginServerId", type: "uint8" },
+        { name: "name", type: "string" },
       ],
     },
   ],
-  [
-    "TunnelAppPacketServerToClient",
-    0x11,
-    {
-      fields: [{ name: "unknown1", type: "boolean" }],
-    },
-  ],
-  ["CharacterTransferRequest", 0x12, {}],
-  ["CharacterTransferReply", 0x13, {}],
 ];
 
 var packetTypes = {},
