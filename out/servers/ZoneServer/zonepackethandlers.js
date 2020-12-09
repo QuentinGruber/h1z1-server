@@ -87,31 +87,43 @@ var packetHandlers = {
                     hash: Jenkins.oaat("zonesetting.deploy.on.login".toUpperCase()),
                     value: 1,
                     settingType: 2,
+                    unknown1: 0,
+                    unknown2: 0,
                 },
                 {
                     hash: Jenkins.oaat("zonesetting.no.acquisition.timers".toUpperCase()),
                     value: 1,
                     settingType: 2,
+                    unknown1: 0,
+                    unknown2: 0,
                 },
                 {
                     hash: Jenkins.oaat("zonesetting.XpMultiplier".toUpperCase()),
                     value: 1,
                     settingType: 1,
+                    unknown1: 0,
+                    unknown2: 0,
                 },
                 {
                     hash: Jenkins.oaat("zonesetting.disabletrialitems".toUpperCase()),
                     value: 1,
                     settingType: 2,
+                    unknown1: 0,
+                    unknown2: 0,
                 },
                 {
                     hash: Jenkins.oaat("zonesetting.isvrzone".toUpperCase()),
                     value: 0,
                     settingType: 2,
+                    unknown1: 0,
+                    unknown2: 0,
                 },
                 {
                     hash: Jenkins.oaat("zonesetting.no.resource.costs".toUpperCase()),
                     value: 1,
                     settingType: 2,
+                    unknown1: 0,
+                    unknown2: 0,
                 },
             ],
         });
@@ -177,11 +189,8 @@ var packetHandlers = {
         */
         client.character.currentLoadoutId = 3;
         server.sendData(client, "Loadout.SetCurrentLoadout", {
-            type: 2,
-            unknown1: 0,
+            guid: client.character.guid,
             loadoutId: client.character.currentLoadoutId,
-            tabId: 256,
-            unknown2: 1,
         });
         /*
         server.sendRawData(
@@ -2021,7 +2030,20 @@ var packetHandlers = {
         server.sendData(client, "ProfileStats.PlayerProfileStats", require("../../../data/profilestats.json"));
     },
     GetRewardBuffInfo: function (server, client, packet) {
-        server.sendData(client, "RewardBuffInfo", {});
+        server.sendData(client, "RewardBuffInfo", {
+            unknownFloat1: 1,
+            unknownFloat2: 2,
+            unknownFloat3: 3,
+            unknownFloat4: 4,
+            unknownFloat5: 5,
+            unknownFloat6: 6,
+            unknownFloat7: 7,
+            unknownFloat8: 8,
+            unknownFloat9: 9,
+            unknownFloat10: 10,
+            unknownFloat11: 11,
+            unknownFloat12: 12,
+        });
     },
     PlayerUpdateUpdatePositionClientToZone: function (server, client, packet) {
         if (packet.data.position) {

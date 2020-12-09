@@ -687,6 +687,7 @@
     "unknownQword3": "0x0000000000000000",
     "unknownDword38": 0,
     "unknownDword39": 4294967295,
+    "unknownDword40": 150,
     "unknownBoolean9": true
   }
 }
