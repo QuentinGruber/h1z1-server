@@ -19,7 +19,7 @@
     "unknownDword10": 0,
     "position": [
       0,
-      50,
+      0,
       0,
       1
     ],
@@ -30,11 +30,11 @@
       1
     ],
     "identity": {
-      "unknownDword1": 0,
-      "unknownDword2": 0,
+      "CharacterId": 713425297,
+      "AccountId": 722776196,
       "unknownDword3": 0,
-      "characterName": "LocalPlayer",
-      "characterNameBis": ""
+      "characterFirstName": "LocalPlayer",
+      "characterLastName": ""
     },
     "unknownDword14": 0,
     "currency": [],
