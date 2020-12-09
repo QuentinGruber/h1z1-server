@@ -12,6 +12,7 @@
 
 var Jenkins = require("hash-jenkins");
 var fs = require("fs");
+const _ = require("lodash");
 const debug = require("debug")("zonepacketHandlers");
 function Int64String(value) {
   return "0x" + ("0000000000000000" + value.toString(16)).substr(-16);
@@ -207,8 +208,9 @@ var packetHandlers = {
       "npc",
       "model",
       "stat",
-      "log",
       "location",
+      "serverinfo",
+      "spawninfo",
     ];
 
     commands.forEach((command) => {
@@ -216,7 +218,7 @@ var packetHandlers = {
         command: command,
       });
     });
-    server.sendChatText(client, "Welcome to H1emu ! :D");
+    server.sendChatText(client, "Welcome to H1emu ! :D", true);
   },
   Security: function (server, client, packet) {
     debug(packet);
@@ -342,10 +344,23 @@ var packetHandlers = {
   },
   "Command.ExecuteCommand": function (server, client, packet) {
     var args = packet.data.arguments.split(" ");
-    if (packet.data.commandHash == Jenkins.oaat("LOG")) {
-      const { _gatewayServer, _clients } = server;
-      debug("_clients :", _clients);
-      debug("Soeclients :", _gatewayServer._soeServer);
+
+    if (packet.data.commandHash == 2371122039) {
+      // /serverinfo
+      const { _clients: clients, _characters: characters, npcs: npcs } = server;
+      const serverVersion = require("../../../package.json").version;
+      server.sendChatText(client, `h1z1-server V${serverVersion}`, true);
+      server.sendChatText(client, `Connected clients : ${_.size(clients)}`);
+      server.sendChatText(client, `characters : ${_.size(characters)}`);
+      server.sendChatText(client, `npcs : ${_.size(npcs)}`);
+    }
+    if (packet.data.commandHash == 1757604914) {
+      // /spawninfo
+      server.sendChatText(
+        client,
+        `You spawned at "${client.character.spawnInfo}"`,
+        true
+      );
     }
     if (
       packet.data.commandHash == Jenkins.oaat("LOCATION") ||
@@ -1343,6 +1358,8 @@ var packetHandlers = {
           server.sendData(client, "PlayerUpdate.RemovePlayer", {
             guid: client.character.characterId,
           });
+          delete server._characters[client.character.characterId];
+          debug(server._characters);
           server.sendChatText(client, "Delete player, back in observer mode");
           break;
         case "pc":
@@ -1362,13 +1379,14 @@ var packetHandlers = {
           if (speedValue > 10) {
             server.sendChatText(
               client,
-              "To avoid security issue speed > 10 is set to 15"
+              "To avoid security issue speed > 10 is set to 15",
+              true
             );
             speed = 15;
           } else {
             speed = speedValue;
           }
-          server.sendChatText(client, "Setting run speed: " + speed);
+          server.sendChatText(client, "Setting run speed: " + speed, true);
           server.sendData(client, "Command.RunSpeed", {
             runSpeed: speed,
           });
