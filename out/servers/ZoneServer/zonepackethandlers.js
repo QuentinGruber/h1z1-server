@@ -2005,6 +2005,9 @@ var packetHandlers = {
             });
         });
     },
+    "Command.InteractCancel": function (server, client, packet) {
+        debug("Interaction Canceled");
+    },
     "Command.StartLogoutRequest": function (server, client, packet) {
         server.sendData(client, "ClientUpdate.CompleteLogoutProcess", {});
     },

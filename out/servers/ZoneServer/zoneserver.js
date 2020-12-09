@@ -112,6 +112,7 @@ var ZoneServer = /** @class */ (function (_super) {
                     }
                 }
                 else {
+                    debug(packet);
                     debug("Packet not implemented in packetHandlers");
                 }
             }
@@ -262,7 +263,7 @@ var ZoneServer = /** @class */ (function (_super) {
                 _this.emit("data", null, client, packet);
             }
             else {
-                debug("zonefailed : ", packet);
+                debug("zonefailed : ", data);
             }
         });
         return _this;
