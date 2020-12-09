@@ -32,6 +32,14 @@ Making this work for the 15 January 2015 version of H1Z1 (first version).
 
 ### Download it
 
+#### The new way (easier)
+
+Make sure you have a version higher than 2.1 of .NET sdk or download the latest version [here](https://dotnet.microsoft.com/download/dotnet-core/3.1).
+
+[Download the latest version of H1DepotDownloader](https://github.com/H1emu/H1DepotDownloader/releases)
+
+#### The old way
+
 Use [DepotDownloader](https://github.com/SteamRE/DepotDownloader) ( only work if you've bought h1z1 )
 
 AppID : 295110 DepotID : 295111 ManifestID : 1930886153446950288
