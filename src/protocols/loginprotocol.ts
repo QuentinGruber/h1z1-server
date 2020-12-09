@@ -20,27 +20,45 @@ export class LoginProtocol {
     let result;
     const packet = LoginPackets.Packets[packetType];
     if (packet) {
-      if (packet.schema) {
-        debug(packet.name);
-        result = DataSchema.parse(packet.schema, data, 1, undefined).result;
-        debug("[DEBUG] Packet receive :");
-        debug(result);
+      if (
+        packet.name == "TunnelAppPacketClientToServer" ||
+        packet.name == "TunnelAppPacketServerToClient"
+      ) {
+        debug(packet.name, data[0], packetType, data[0] >> 5, data.length);
 
         return {
           type: packet.type,
+          flags: data[0] >> 5,
+          fromClient: packet.name == "TunnelAppPacketClientToServer",
           name: packet.name,
-          result: result,
+          tunnelData: data.slice(1), // remove the opcode
         };
-      } else {
-        debug("parse()", "No schema for packet ", packet.name);
+      }
+      else {
+        if (packet.schema) {
+          debug(packet.name);
+          result = DataSchema.parse(packet.schema, data, 1, undefined).result;
+          debug("[DEBUG] Packet receive :");
+          debug(result);
+
+          return {
+            type: packet.type,
+            name: packet.name,
+            result: result,
+          };
+        } else {
+          debug("parse()", "No schema for packet ", packet.name);
+          return false;
+        }
+      }
+    }
+    else {
+        debug(
+          "parse() " + "Unknown or unhandled login packet type: " + packetType
+        );
         return false;
       }
-    } else {
-      debug(
-        "parse() " + "Unknown or unhandled login packet type: " + packetType
-      );
-      return false;
-    }
+    
   }
 
   pack(packetName: string, object: any) {

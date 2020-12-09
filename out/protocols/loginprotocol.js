@@ -26,20 +26,33 @@ var LoginProtocol = /** @class */ (function () {
         var result;
         var packet = LoginPackets.Packets[packetType];
         if (packet) {
-            if (packet.schema) {
-                debug(packet.name);
-                result = h1z1_dataschema_1.default.parse(packet.schema, data, 1, undefined).result;
-                debug("[DEBUG] Packet receive :");
-                debug(result);
+            if (packet.name == "TunnelAppPacketClientToServer" ||
+                packet.name == "TunnelAppPacketServerToClient") {
+                debug(packet.name, data[0], packetType, data[0] >> 5, data.length);
                 return {
                     type: packet.type,
+                    flags: data[0] >> 5,
+                    fromClient: packet.name == "TunnelAppPacketClientToServer",
                     name: packet.name,
-                    result: result,
+                    tunnelData: data.slice(1),
                 };
             }
             else {
-                debug("parse()", "No schema for packet ", packet.name);
-                return false;
+                if (packet.schema) {
+                    debug(packet.name);
+                    result = h1z1_dataschema_1.default.parse(packet.schema, data, 1, undefined).result;
+                    debug("[DEBUG] Packet receive :");
+                    debug(result);
+                    return {
+                        type: packet.type,
+                        name: packet.name,
+                        result: result,
+                    };
+                }
+                else {
+                    debug("parse()", "No schema for packet ", packet.name);
+                    return false;
+                }
             }
         }
         else {
