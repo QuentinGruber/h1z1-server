@@ -137,7 +137,7 @@ var LoginServer = /** @class */ (function (_super) {
             });
         }); });
         _this._soeServer.on("appdata", function (err, client, data) { return __awaiter(_this, void 0, void 0, function () {
-            var packet, result, data_1, _a, falsified_data, CharactersInfo, SinglePlayerCharacter, characters, servers, SoloServer, i, characters_delete_info, WaitSuccess, charactersLoginInfo, _b, serverId, characterId, serverAddress, reply_data, TestData;
+            var packet, result, data_1, _a, falsified_data, CharactersInfo, SinglePlayerCharacter, characters, servers, SoloServer, i, characters_delete_info, WaitSuccess, charactersLoginInfo, _b, serverId, characterId, serverAddress, reply_data, tunnelData, tunnelPackets, tunnelAppPacket, index, opcode, prefix, SimulatedPacket, result_1;
             return __generator(this, function (_c) {
                 switch (_c.label) {
                     case 0:
@@ -308,11 +308,28 @@ var LoginServer = /** @class */ (function (_super) {
                         this._soeServer.sendAppData(client, data_1, true);
                         return [3 /*break*/, 21];
                     case 19:
-                        TestData = {
-                            unknown1: true,
-                        };
-                        data_1 = this._protocol.pack("TunnelAppPacketServerToClient", TestData);
-                        this._soeServer.sendAppData(client, data_1, true);
+                        tunnelData = packet.tunnelData;
+                        tunnelPackets = [0x14] // an array containing all tunnel packets opcodes
+                        ;
+                        tunnelAppPacket = void 0;
+                        for (index = 0; index < tunnelPackets.length; index++) {
+                            opcode = tunnelPackets[index];
+                            prefix = Buffer.alloc(1);
+                            prefix.writeUInt8(opcode);
+                            SimulatedPacket = Buffer.concat([prefix, tunnelData]);
+                            result_1 = void 0;
+                            try {
+                                result_1 = this._protocol.parse(SimulatedPacket);
+                            }
+                            catch (error) { }
+                            // if parsing is a success then we have identified our package
+                            if (result_1) {
+                                tunnelAppPacket = result_1;
+                                break;
+                            }
+                        }
+                        //debug(tunnelAppPacket)
+                        // Do something with the identify packet
                         return [3 /*break*/, 21];
                     case 20:
                         this._soeServer.deleteClient(client);

@@ -326,16 +326,33 @@ export class LoginServer extends EventEmitter {
               break;
 
             case "TunnelAppPacketClientToServer":
-              const TestData = {
-                unknown1: true,
-              };
-              data = this._protocol.pack(
-                "TunnelAppPacketServerToClient",
-                TestData
-              );
-              this._soeServer.sendAppData(client, data, true);
-              break;
 
+              // weird stuff here :D
+              // I try to simulate the tunnelpacket sending and 
+              // to send back a convincing result to the game without having to transfer the packet to the game server.
+
+              const { tunnelData } = packet;
+              const tunnelPackets = [0x14] // an array containing all tunnel packets opcodes
+              let tunnelAppPacket;
+              for (let index = 0; index < tunnelPackets.length; index++) {
+                // Build a "simulated" packet
+                const opcode = tunnelPackets[index];
+                const prefix = Buffer.alloc(1)
+                prefix.writeUInt8(opcode)
+                const SimulatedPacket = Buffer.concat([prefix, tunnelData])
+                // parse that packet
+                let result;
+                try {
+                  result = this._protocol.parse(SimulatedPacket)
+                } catch (error) {}
+                // if parsing is a success then we have identified our package
+                if(result){
+                  tunnelAppPacket = result
+                  break}
+              }
+              //debug(tunnelAppPacket)
+              // Do something with the identify packet
+              break;
             case "Logout":
               this._soeServer.deleteClient(client);
           }
