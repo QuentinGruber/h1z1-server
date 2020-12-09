@@ -8672,6 +8672,18 @@ var packets = [
   ["RequestWalletTopupUpdate", 0xba, {}],
   ["RequestStationCashActivePromoUpdate", 0xbb, {}],
   ["CharacterSlot", 0xbc, {}],
+  [
+    "Pickup",
+    0xbe,
+    {
+      fields: [
+        { name: "type?", type: "uint16" },
+        { name: "id", type: "uint32" },
+        { name: "treeId", type: "uint32" },
+        { name: "name", type: "string" },
+      ],
+    },
+  ],
   ["Operation.RequestCreate", 0xbf01, {}],
   ["Operation.RequestDestroy", 0xbf02, {}],
   ["Operation.RequestJoin", 0xbf03, {}],
