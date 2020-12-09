@@ -13,6 +13,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var Jenkins = require("hash-jenkins");
 var fs = require("fs");
+var _ = require("lodash");
 var debug = require("debug")("zonepacketHandlers");
 function Int64String(value) {
     return "0x" + ("0000000000000000" + value.toString(16)).substr(-16);
@@ -199,8 +200,8 @@ var packetHandlers = {
             "npc",
             "model",
             "stat",
-            "log",
             "location",
+            "serverinfo",
         ];
         commands.forEach(function (command) {
             server.sendData(client, "Command.AddWorldCommand", {
@@ -328,10 +329,15 @@ var packetHandlers = {
     },
     "Command.ExecuteCommand": function (server, client, packet) {
         var args = packet.data.arguments.split(" ");
-        if (packet.data.commandHash == Jenkins.oaat("LOG")) {
-            var _gatewayServer = server._gatewayServer, _clients = server._clients;
-            debug("_clients :", _clients);
-            debug("Soeclients :", _gatewayServer._soeServer);
+        if (packet.data.commandHash == 2371122039) {
+            // /serverinfo
+            var clients = server._clients, characters = server._characters, npcs = server.npcs;
+            var serverVersion = require("../../../package.json").version;
+            server.sendChatText(client, " "); // for better looking logs
+            server.sendChatText(client, "h1z1-server V" + serverVersion);
+            server.sendChatText(client, "Connected clients : " + _.size(clients));
+            server.sendChatText(client, "characters : " + _.size(characters));
+            server.sendChatText(client, "npcs : " + _.size(npcs));
         }
         if (packet.data.commandHash == Jenkins.oaat("LOCATION") ||
             packet.data.commandHash == 3270589520) {
@@ -1137,6 +1143,8 @@ var packetHandlers = {
                     server.sendData(client, "PlayerUpdate.RemovePlayer", {
                         guid: client.character.characterId,
                     });
+                    delete server._characters[client.character.characterId];
+                    debug(server._characters);
                     server.sendChatText(client, "Delete player, back in observer mode");
                     break;
                 case "pc":
