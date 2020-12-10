@@ -112,6 +112,7 @@ var ZoneServer = /** @class */ (function (_super) {
                     }
                 }
                 else {
+                    debug(packet);
                     debug("Packet not implemented in packetHandlers");
                 }
             }
@@ -202,11 +203,12 @@ var ZoneServer = /** @class */ (function (_super) {
                     unknownFloat3: 110,
                 });
                 var self_1 = require("../../../data/sendself.json");
+                var identity = self_1.data.identity;
                 client.character.guid = self_1.data.guid;
                 client.character.loadouts = self_1.data.characterLoadoutData.loadouts;
                 client.character.inventory = self_1.data.inventory;
                 client.character.factionId = self_1.data.factionId;
-                client.character.name = self_1.data.identity.characterName;
+                client.character.name = identity.characterFirstName + identity.characterLastName;
                 if (_.isEqual(self_1.data.position, [0, 0, 0, 1]) && _.isEqual(self_1.data.rotation, [0, 0, 0, 1])) {
                     // if position/rotation hasn't be changed
                     self_1.data.isRandomlySpawning = true;
@@ -216,6 +218,7 @@ var ZoneServer = /** @class */ (function (_super) {
                     var randomSpawnIndex = Math.floor(Math.random() * (spawnList.length));
                     self_1.data.position = spawnList[randomSpawnIndex].position;
                     self_1.data.rotation = spawnList[randomSpawnIndex].rotation;
+                    client.character.spawnInfo = spawnList[randomSpawnIndex].name;
                 }
                 _this.sendData(client, "SendSelfToClient", self_1);
                 _this.sendData(client, "PlayerUpdate.SetBattleRank", {
@@ -261,7 +264,7 @@ var ZoneServer = /** @class */ (function (_super) {
                 _this.emit("data", null, client, packet);
             }
             else {
-                debug("zonefailed : ", packet);
+                debug("zonefailed : ", data);
             }
         });
         return _this;
@@ -338,7 +341,20 @@ var ZoneServer = /** @class */ (function (_super) {
             color1: 1,
         });
     };
-    ZoneServer.prototype.sendChatText = function (client, message) {
+    ZoneServer.prototype.sendChatText = function (client, message, clearChat) {
+        if (clearChat === void 0) { clearChat = false; }
+        if (clearChat) {
+            for (var index = 0; index < 6; index++) {
+                this.sendData(client, "Chat.ChatText", {
+                    message: " ",
+                    unknownDword1: 0,
+                    color: [255, 255, 255, 0],
+                    unknownDword2: 13951728,
+                    unknownByte3: 0,
+                    unknownByte4: 1,
+                });
+            }
+        }
         this.sendData(client, "Chat.ChatText", {
             message: message,
             unknownDword1: 0,

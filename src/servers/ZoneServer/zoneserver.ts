@@ -142,6 +142,7 @@ export class ZoneServer extends EventEmitter {
             console.log(e);
           }
         } else {
+          debug(packet)
           debug("Packet not implemented in packetHandlers");
         }
       }
@@ -244,11 +245,12 @@ export class ZoneServer extends EventEmitter {
         });
 
         const self = require("../../../data/sendself.json");
+        const { data: { identity } } = self;
         client.character.guid = self.data.guid;
         client.character.loadouts = self.data.characterLoadoutData.loadouts;
         client.character.inventory = self.data.inventory;
         client.character.factionId = self.data.factionId;
-        client.character.name = self.data.identity.characterName;
+        client.character.name = identity.characterFirstName + identity.characterLastName;
 
         if (_.isEqual(self.data.position, [0, 0, 0, 1]) && _.isEqual(self.data.rotation, [0, 0, 0, 1])) {
           // if position/rotation hasn't be changed
@@ -260,6 +262,7 @@ export class ZoneServer extends EventEmitter {
           const randomSpawnIndex = Math.floor(Math.random() * (spawnList.length));
           self.data.position = spawnList[randomSpawnIndex].position
           self.data.rotation = spawnList[randomSpawnIndex].rotation
+          client.character.spawnInfo = spawnList[randomSpawnIndex].name
         }
         this.sendData(client, "SendSelfToClient", self);
         this.sendData(client, "PlayerUpdate.SetBattleRank", {
@@ -322,7 +325,7 @@ export class ZoneServer extends EventEmitter {
         if (packet) {
           this.emit("data", null, client, packet);
         } else {
-          debug("zonefailed : ", packet);
+          debug("zonefailed : ", data);
         }
       }
     );
@@ -399,7 +402,19 @@ export class ZoneServer extends EventEmitter {
     });
   }
 
-  sendChatText(client: Client, message: string) {
+  sendChatText(client: Client, message: string, clearChat: boolean = false) {
+    if (clearChat) {
+      for (let index = 0; index < 6; index++) {
+        this.sendData(client, "Chat.ChatText", {
+          message: " ",
+          unknownDword1: 0,
+          color: [255, 255, 255, 0],
+          unknownDword2: 13951728,
+          unknownByte3: 0,
+          unknownByte4: 1,
+        });
+      }
+    }
     this.sendData(client, "Chat.ChatText", {
       message: message,
       unknownDword1: 0,
