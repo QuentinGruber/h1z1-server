@@ -203,11 +203,12 @@ var ZoneServer = /** @class */ (function (_super) {
                     unknownFloat3: 110,
                 });
                 var self_1 = require("../../../data/sendself.json");
+                var identity = self_1.data.identity;
                 client.character.guid = self_1.data.guid;
                 client.character.loadouts = self_1.data.characterLoadoutData.loadouts;
                 client.character.inventory = self_1.data.inventory;
                 client.character.factionId = self_1.data.factionId;
-                client.character.name = self_1.data.identity.characterName;
+                client.character.name = identity.characterFirstName + identity.characterLastName;
                 if (_.isEqual(self_1.data.position, [0, 0, 0, 1]) && _.isEqual(self_1.data.rotation, [0, 0, 0, 1])) {
                     // if position/rotation hasn't be changed
                     self_1.data.isRandomlySpawning = true;

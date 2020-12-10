@@ -245,11 +245,12 @@ export class ZoneServer extends EventEmitter {
         });
 
         const self = require("../../../data/sendself.json");
+        const { data: { identity } } = self;
         client.character.guid = self.data.guid;
         client.character.loadouts = self.data.characterLoadoutData.loadouts;
         client.character.inventory = self.data.inventory;
         client.character.factionId = self.data.factionId;
-        client.character.name = self.data.identity.characterName;
+        client.character.name = identity.characterFirstName + identity.characterLastName;
 
         if (_.isEqual(self.data.position, [0, 0, 0, 1]) && _.isEqual(self.data.rotation, [0, 0, 0, 1])) {
           // if position/rotation hasn't be changed
