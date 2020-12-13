@@ -4164,7 +4164,21 @@ var packets = [
     ["AdminCommand.DeliveryManagerStatus", 0x0a4f00, {}],
     ["Command.DeliveryManagerShowNotification", 0x095000, {}],
     ["AdminCommand.DeliveryManagerShowNotification", 0x0a5000, {}],
-    ["Command.AddItem", 0x09ea03, {}],
+    [
+        "Command.AddItem",
+        0x09ea03,
+        {
+            // found at 1407c97d0
+            fields: [
+                { name: "itemId", type: "uint32", defaultValue: "0" },
+                { name: "stackCount", type: "uint32", defaultValue: "0" },
+                { name: "imageSetId", type: "uint32", defaultValue: "0" },
+                { name: "imageTintValue", type: "uint32", defaultValue: "0" },
+                { name: "NameId", type: "uint32", defaultValue: "0" },
+                { name: "DescriptionId", type: "uint32", defaultValue: "0" },
+            ],
+        },
+    ],
     ["AdminCommand.AddItem", 0x0aea03, {}],
     ["Command.DeleteItem", 0x09eb03, {}],
     ["AdminCommand.DeleteItem", 0x0aeb03, {}],
