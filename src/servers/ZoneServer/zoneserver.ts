@@ -226,10 +226,60 @@ export class ZoneServer extends EventEmitter {
 
         this.sendData(client, "ClientUpdate.RespawnLocations", {
           unknownFlags: 0,
-          locations: [],
+          locations: [{ 
+            guid: this.generateGuid(), 
+            respawnType: 1,
+            position: [0, 50, 0, 1],
+            unknownDword1: 1,
+            unknownDword2: 1,
+            iconId1: 1,
+            iconId2: 1,
+            respawnTotalTime: 1,
+            respawnTimeMs: 1,
+            nameId: 1,
+            distance: 1,
+            unknownByte1: 1,
+            unknownByte2: 1,
+            unknownData1: {
+              unknownByte1: 1,
+              unknownByte2: 1,
+              unknownByte3: 1,
+              unknownByte4: 1,
+              unknownByte5: 1,
+            },
+            unknownDword4: 1,
+            unknownByte3: 1,
+            unknownByte4: 1,
+            
+          }],
           unknownDword1: 0,
           unknownDword2: 0,
-          locations2: [],
+          locations2: [{
+            guid: this.generateGuid(),
+            respawnType: 1,
+            position: [0, 50, 0, 1],
+            unknownDword1: 1,
+            unknownDword2: 1,
+            iconId1: 1,
+            iconId2: 1,
+            respawnTotalTime: 1,
+            respawnTimeMs: 1,
+            nameId: 1,
+            distance: 1,
+            unknownByte1: 1,
+            unknownByte2: 1,
+            unknownData1: {
+              unknownByte1: 1,
+              unknownByte2: 1,
+              unknownByte3: 1,
+              unknownByte4: 1,
+              unknownByte5: 1,
+            },
+            unknownDword4: 1,
+            unknownByte3: 1,
+            unknownByte4: 1,
+            
+          }],
         });
 
         this.sendData(client, "ClientGameSettings", {

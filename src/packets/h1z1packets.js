@@ -1948,7 +1948,7 @@ var respawnLocationDataSchema = [
   { name: "iconId1", type: "uint32", defaultValue: 0 },
   { name: "iconId2", type: "uint32", defaultValue: 0 },
   { name: "respawnTotalTime", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+  { name: "respawnTimeMs", type: "uint32", defaultValue: 0 },
   { name: "nameId", type: "uint32", defaultValue: 0 },
   { name: "distance", type: "float", defaultValue: 0.0 },
   { name: "unknownByte1", type: "uint8", defaultValue: 0 },
