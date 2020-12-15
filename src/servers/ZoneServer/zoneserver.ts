@@ -15,8 +15,8 @@ import { GatewayServer } from "../GatewayServer/gatewayserver";
 import fs from "fs";
 import { default as packetHandlers } from "./zonepackethandlers";
 import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
-const spawnList = require("../../../data/spawnLocations.json")
-const _ = require('lodash');
+const spawnList = require("../../../data/spawnLocations.json");
+const _ = require("lodash");
 // import {MongoClient} from "mongodb"
 const debug = require("debug")("ZoneServer");
 
@@ -142,7 +142,7 @@ export class ZoneServer extends EventEmitter {
             console.log(e);
           }
         } else {
-          debug(packet)
+          debug(packet);
           debug("Packet not implemented in packetHandlers");
         }
       }
@@ -227,60 +227,62 @@ export class ZoneServer extends EventEmitter {
 
         this.sendData(client, "ClientUpdate.RespawnLocations", {
           unknownFlags: 0,
-          locations: [{ 
-            guid: this.generateGuid(), 
-            respawnType: 1,
-            position: [0, 50, 0, 1],
-            unknownDword1: 1,
-            unknownDword2: 1,
-            iconId1: 1,
-            iconId2: 1,
-            respawnTotalTime: 1,
-            respawnTimeMs: 1,
-            nameId: 1,
-            distance: 1,
-            unknownByte1: 1,
-            unknownByte2: 1,
-            unknownData1: {
+          locations: [
+            {
+              guid: this.generateGuid(),
+              respawnType: 1,
+              position: [0, 50, 0, 1],
+              unknownDword1: 1,
+              unknownDword2: 1,
+              iconId1: 1,
+              iconId2: 1,
+              respawnTotalTime: 1,
+              respawnTimeMs: 1,
+              nameId: 1,
+              distance: 1,
               unknownByte1: 1,
               unknownByte2: 1,
+              unknownData1: {
+                unknownByte1: 1,
+                unknownByte2: 1,
+                unknownByte3: 1,
+                unknownByte4: 1,
+                unknownByte5: 1,
+              },
+              unknownDword4: 1,
               unknownByte3: 1,
               unknownByte4: 1,
-              unknownByte5: 1,
             },
-            unknownDword4: 1,
-            unknownByte3: 1,
-            unknownByte4: 1,
-            
-          }],
+          ],
           unknownDword1: 0,
           unknownDword2: 0,
-          locations2: [{
-            guid: this.generateGuid(),
-            respawnType: 1,
-            position: [0, 50, 0, 1],
-            unknownDword1: 1,
-            unknownDword2: 1,
-            iconId1: 1,
-            iconId2: 1,
-            respawnTotalTime: 1,
-            respawnTimeMs: 1,
-            nameId: 1,
-            distance: 1,
-            unknownByte1: 1,
-            unknownByte2: 1,
-            unknownData1: {
+          locations2: [
+            {
+              guid: this.generateGuid(),
+              respawnType: 1,
+              position: [0, 50, 0, 1],
+              unknownDword1: 1,
+              unknownDword2: 1,
+              iconId1: 1,
+              iconId2: 1,
+              respawnTotalTime: 1,
+              respawnTimeMs: 1,
+              nameId: 1,
+              distance: 1,
               unknownByte1: 1,
               unknownByte2: 1,
+              unknownData1: {
+                unknownByte1: 1,
+                unknownByte2: 1,
+                unknownByte3: 1,
+                unknownByte4: 1,
+                unknownByte5: 1,
+              },
+              unknownDword4: 1,
               unknownByte3: 1,
               unknownByte4: 1,
-              unknownByte5: 1,
             },
-            unknownDword4: 1,
-            unknownByte3: 1,
-            unknownByte4: 1,
-            
-          }],
+          ],
         });
 
         this.sendData(client, "ClientGameSettings", {
@@ -296,24 +298,30 @@ export class ZoneServer extends EventEmitter {
         });
 
         const self = require("../../../data/sendself.json");
-        const { data: { identity } } = self;
+        const {
+          data: { identity },
+        } = self;
         client.character.guid = self.data.guid;
         client.character.loadouts = self.data.characterLoadoutData.loadouts;
         client.character.inventory = self.data.inventory;
         client.character.factionId = self.data.factionId;
-        client.character.name = identity.characterFirstName + identity.characterLastName;
+        client.character.name =
+          identity.characterFirstName + identity.characterLastName;
 
-        if (_.isEqual(self.data.position, [0, 0, 0, 1]) && _.isEqual(self.data.rotation, [0, 0, 0, 1])) {
+        if (
+          _.isEqual(self.data.position, [0, 0, 0, 1]) &&
+          _.isEqual(self.data.rotation, [0, 0, 0, 1])
+        ) {
           // if position/rotation hasn't be changed
-          self.data.isRandomlySpawning = true
+          self.data.isRandomlySpawning = true;
         }
 
         if (self.data.isRandomlySpawning) {
           // Take position/rotation from a random spawn location.
-          const randomSpawnIndex = Math.floor(Math.random() * (spawnList.length));
-          self.data.position = spawnList[randomSpawnIndex].position
-          self.data.rotation = spawnList[randomSpawnIndex].rotation
-          client.character.spawnInfo = spawnList[randomSpawnIndex].name
+          const randomSpawnIndex = Math.floor(Math.random() * spawnList.length);
+          self.data.position = spawnList[randomSpawnIndex].position;
+          self.data.rotation = spawnList[randomSpawnIndex].rotation;
+          client.character.spawnInfo = spawnList[randomSpawnIndex].name;
         }
         this.sendData(client, "SendSelfToClient", self);
         this.sendData(client, "PlayerUpdate.SetBattleRank", {

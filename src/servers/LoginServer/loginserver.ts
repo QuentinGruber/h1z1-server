@@ -126,8 +126,9 @@ export class LoginServer extends EventEmitter {
     this._soeServer.on(
       "SendServerUpdate",
       async (err: string, client: Client) => {
-        let servers:Array<GameServer>;
-        if (!this._soloMode) { // useless if in solomode ( never get called either)
+        let servers: Array<GameServer>;
+        if (!this._soloMode) {
+          // useless if in solomode ( never get called either)
           servers = await this._db.collection("servers").find().toArray();
 
           for (var i = 0; i < servers.length; i++) {
