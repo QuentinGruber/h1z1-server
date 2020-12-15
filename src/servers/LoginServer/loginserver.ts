@@ -97,7 +97,7 @@ export class LoginServer extends EventEmitter {
     this._udpLength = 512;
     this._cryptoKey = loginKey;
     this._gameId = gameId;
-    this._environment = environment;
+    this._environment = environment; // TODO: remove unused field ( need to update quickstart too )
     this._soloMode = SoloMode;
 
     // reminders
@@ -126,35 +126,14 @@ export class LoginServer extends EventEmitter {
     this._soeServer.on(
       "SendServerUpdate",
       async (err: string, client: Client) => {
-        let servers;
-        if (!this._soloMode) {
+        let servers:Array<GameServer>;
+        if (!this._soloMode) { // useless if in solomode ( never get called either)
           servers = await this._db.collection("servers").find().toArray();
-        } else {
-          servers = [
-            {
-              serverId: 1,
-              serverState: 0,
-              locked: false,
-              name: "fuckdb",
-              nameId: 1,
-              description: "yeah",
-              descriptionId: 1,
-              reqFeatureId: 0,
-              serverInfo:
-                'Region="CharacterCreate.RegionUs" PingAddress="127.0.0.1:1117" Subregion="UI.SubregionUS" IsRecommended="1" IsRecommendedVS="0" IsRecommendedNC="0" IsRecommendedTR="0"',
-              populationLevel: 1,
-              populationData:
-                'ServerCapacity="0" PingAddress="127.0.0.1:1117" Rulesets="Permadeath"',
-              allowedAccess: true,
-            },
-          ];
-        }
-        for (var i = 0; i < servers.length; i++) {
-          if (servers[i]._id) {
-            delete servers[i]._id;
+
+          for (var i = 0; i < servers.length; i++) {
+            var data = this._protocol.pack("ServerUpdate", servers[i]);
+            this._soeServer.sendAppData(client, data, true);
           }
-          var data = this._protocol.pack("ServerUpdate", servers[i]);
-          this._soeServer.sendAppData(client, data, true);
         }
       }
     );
@@ -246,7 +225,7 @@ export class LoginServer extends EventEmitter {
                 );
                 break;
               } else {
-                const WaitSuccess = await this._db
+                await this._db
                   .collection("characters")
                   .deleteOne(
                     { characterId: (packet.result as any).characterId },
@@ -284,7 +263,7 @@ export class LoginServer extends EventEmitter {
                     guid: 722776196,
                     unknown2: 0,
                     stationName: "nope0no",
-                    characterName: "LocalPlayer", // get character name from the characterID (ask db)
+                    characterName: "LocalPlayer",
                     loginQueuePlacement: 0,
                   },
                 };
@@ -348,6 +327,7 @@ export class LoginServer extends EventEmitter {
   async start() {
     debug("Starting server");
     if (!this._soloMode) {
+      // TODO: use env variable
       const uri =
         "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass%20Community&ssl=false";
       const mongoClient = (this._mongoClient = new MongoClient(uri, {

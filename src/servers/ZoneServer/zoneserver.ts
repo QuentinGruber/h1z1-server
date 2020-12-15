@@ -159,12 +159,13 @@ export class ZoneServer extends EventEmitter {
         fs.readFileSync(
           `${__dirname}/data/zone/ReferenceData.WeaponDefinitions.dat`
         )*/
-
+        // TODO: wrap all of the "sendData" in a function
         this.sendData(client, "InitializationParameters", {
           environment: "LIVE",
           serverId: 1,
         });
 
+        // TODO: setup referenceData at server start
         var itemData = fs.readFileSync(
             `${__dirname}/../../../data/ClientItemDefinitions.txt`,
             "utf8"

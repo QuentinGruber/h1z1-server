@@ -77,7 +77,7 @@ var LoginServer = /** @class */ (function (_super) {
         _this._udpLength = 512;
         _this._cryptoKey = loginKey;
         _this._gameId = gameId;
-        _this._environment = environment;
+        _this._environment = environment; // TODO: remove unused field ( need to update quickstart too )
         _this._soloMode = SoloMode;
         // reminders
         if (_this._soloMode) {
@@ -105,39 +105,17 @@ var LoginServer = /** @class */ (function (_super) {
                         return [4 /*yield*/, this._db.collection("servers").find().toArray()];
                     case 1:
                         servers = _a.sent();
-                        return [3 /*break*/, 3];
-                    case 2:
-                        servers = [
-                            {
-                                serverId: 1,
-                                serverState: 0,
-                                locked: false,
-                                name: "fuckdb",
-                                nameId: 1,
-                                description: "yeah",
-                                descriptionId: 1,
-                                reqFeatureId: 0,
-                                serverInfo: 'Region="CharacterCreate.RegionUs" PingAddress="127.0.0.1:1117" Subregion="UI.SubregionUS" IsRecommended="1" IsRecommendedVS="0" IsRecommendedNC="0" IsRecommendedTR="0"',
-                                populationLevel: 1,
-                                populationData: 'ServerCapacity="0" PingAddress="127.0.0.1:1117" Rulesets="Permadeath"',
-                                allowedAccess: true,
-                            },
-                        ];
-                        _a.label = 3;
-                    case 3:
                         for (i = 0; i < servers.length; i++) {
-                            if (servers[i]._id) {
-                                delete servers[i]._id;
-                            }
                             data = this._protocol.pack("ServerUpdate", servers[i]);
                             this._soeServer.sendAppData(client, data, true);
                         }
-                        return [2 /*return*/];
+                        _a.label = 2;
+                    case 2: return [2 /*return*/];
                 }
             });
         }); });
         _this._soeServer.on("appdata", function (err, client, data) { return __awaiter(_this, void 0, void 0, function () {
-            var packet, result, data_1, _a, falsified_data, CharactersInfo, SinglePlayerCharacter, characters, servers, SoloServer, i, characters_delete_info, WaitSuccess, charactersLoginInfo, _b, serverId, characterId, serverAddress, reply_data, TestData;
+            var packet, result, data_1, _a, falsified_data, CharactersInfo, SinglePlayerCharacter, characters, servers, SoloServer, i, characters_delete_info, charactersLoginInfo, _b, serverId, characterId, serverAddress, reply_data, TestData;
             return __generator(this, function (_c) {
                 switch (_c.label) {
                     case 0:
@@ -244,7 +222,7 @@ var LoginServer = /** @class */ (function (_super) {
                             }
                         })];
                     case 12:
-                        WaitSuccess = _c.sent();
+                        _c.sent();
                         _c.label = 13;
                     case 13: return [3 /*break*/, 21];
                     case 14:
