@@ -70,7 +70,7 @@ var mongodb_1 = require("mongodb");
 var utils_1 = require("../../utils/utils");
 var LoginServer = /** @class */ (function (_super) {
     __extends(LoginServer, _super);
-    function LoginServer(serverPort, _mongoAddress) {
+    function LoginServer(serverPort, mongoAddress) {
         var _this = _super.call(this) || this;
         _this._compression = 0x0100;
         _this._crcSeed = 0;
@@ -78,7 +78,7 @@ var LoginServer = /** @class */ (function (_super) {
         _this._udpLength = 512;
         _this._cryptoKey = js_base64_1.toUint8Array("F70IaxuU8C/w7FPXY1ibXw==");
         _this._soloMode = false;
-        _this._mongoAddress = _mongoAddress;
+        _this._mongoAddress = mongoAddress;
         // reminders
         if (!_this._mongoAddress) {
             _this._soloMode = true;

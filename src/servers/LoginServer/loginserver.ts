@@ -86,7 +86,7 @@ export class LoginServer extends EventEmitter {
   _soloMode: boolean;
   constructor(
     serverPort: number,
-    _mongoAddress: string
+    mongoAddress: string
   ) {
     super();
     this._compression = 0x0100;
@@ -95,7 +95,7 @@ export class LoginServer extends EventEmitter {
     this._udpLength = 512;
     this._cryptoKey = toUint8Array("F70IaxuU8C/w7FPXY1ibXw==");
     this._soloMode = false;
-    this._mongoAddress = _mongoAddress; 
+    this._mongoAddress = mongoAddress; 
     
 
     // reminders
