@@ -70,8 +70,7 @@ var fs_1 = __importDefault(require("fs"));
 var zonepackethandlers_1 = __importDefault(require("./zonepackethandlers"));
 var h1z1protocol_1 = require("../../protocols/h1z1protocol");
 var spawnList = require("../../../data/spawnLocations.json");
-var _ = require('lodash');
-// import {MongoClient} from "mongodb"
+var _ = require("lodash");
 var debug = require("debug")("ZoneServer");
 Date.now = function () {
     // force current time
@@ -93,6 +92,7 @@ var ZoneServer = /** @class */ (function (_super) {
         _this._serverTime = Date.now() / 1000;
         _this._transientId = 0;
         _this._guids = {};
+        _this._referenceData = _this.parseReferenceData();
         _this._packetHandlers = zonepackethandlers_1.default;
         _this._startTime = 0;
         _this.on("data", function (err, client, packet) {
@@ -123,158 +123,7 @@ var ZoneServer = /** @class */ (function (_super) {
             }
             else {
                 debug("zone login");
-                /*
-              this.sendRawData(
-                client,
-                fs.readFileSync(
-                  `${__dirname}/data/zone/ReferenceData.WeaponDefinitions.dat`
-                )*/
-                // TODO: wrap all of the "sendData" in a function
-                _this.sendData(client, "InitializationParameters", {
-                    environment: "LIVE",
-                    serverId: 1,
-                });
-                // TODO: setup referenceData at server start
-                var itemData = fs_1.default.readFileSync(__dirname + "/../../../data/ClientItemDefinitions.txt", "utf8"), itemLines = itemData.split("\n"), items = {};
-                for (var i = 1; i < itemLines.length; i++) {
-                    var line = itemLines[i].split("^");
-                    if (line[0]) {
-                        items[line[0]] = line[1];
-                    }
-                }
-                var referenceData = { itemTypes: items };
-                _this.setReferenceData(referenceData);
-                _this.sendData(client, "SendZoneDetails", {
-                    zoneName: "Z1",
-                    unknownBoolean1: true,
-                    zoneType: 4,
-                    unknownFloat1: 1,
-                    skyData: {
-                        name: "sky",
-                        unknownDword1: 0,
-                        unknownDword2: 0,
-                        unknownDword3: 0,
-                        fogDensity: 0,
-                        fogGradient: 0,
-                        fogFloor: 0,
-                        unknownDword7: 0,
-                        unknownDword8: 0,
-                        temp: 40,
-                        skyColor: 0,
-                        cloudWeight0: 0,
-                        cloudWeight1: 0,
-                        cloudWeight2: 0,
-                        cloudWeight3: 0,
-                        sunAxisX: 0,
-                        sunAxisY: 90,
-                        sunAxisZ: 0,
-                        unknownDword18: 0,
-                        unknownDword19: 0,
-                        unknownDword20: 0,
-                        wind: 0,
-                        unknownDword22: 0,
-                        unknownDword23: 0,
-                        unknownDword24: 0,
-                        unknownDword25: 0,
-                        unknownArray: [],
-                    },
-                    zoneId1: 3905829720,
-                    zoneId2: 3905829720,
-                    nameId: 7699,
-                    unknownBoolean7: true,
-                });
-                _this.sendData(client, "ClientUpdate.ZonePopulation", {
-                    populations: [0, 0],
-                });
-                _this.sendData(client, "ClientUpdate.RespawnLocations", {
-                    unknownFlags: 0,
-                    locations: [{
-                            guid: _this.generateGuid(),
-                            respawnType: 1,
-                            position: [0, 50, 0, 1],
-                            unknownDword1: 1,
-                            unknownDword2: 1,
-                            iconId1: 1,
-                            iconId2: 1,
-                            respawnTotalTime: 1,
-                            respawnTimeMs: 1,
-                            nameId: 1,
-                            distance: 1,
-                            unknownByte1: 1,
-                            unknownByte2: 1,
-                            unknownData1: {
-                                unknownByte1: 1,
-                                unknownByte2: 1,
-                                unknownByte3: 1,
-                                unknownByte4: 1,
-                                unknownByte5: 1,
-                            },
-                            unknownDword4: 1,
-                            unknownByte3: 1,
-                            unknownByte4: 1,
-                        }],
-                    unknownDword1: 0,
-                    unknownDword2: 0,
-                    locations2: [{
-                            guid: _this.generateGuid(),
-                            respawnType: 1,
-                            position: [0, 50, 0, 1],
-                            unknownDword1: 1,
-                            unknownDword2: 1,
-                            iconId1: 1,
-                            iconId2: 1,
-                            respawnTotalTime: 1,
-                            respawnTimeMs: 1,
-                            nameId: 1,
-                            distance: 1,
-                            unknownByte1: 1,
-                            unknownByte2: 1,
-                            unknownData1: {
-                                unknownByte1: 1,
-                                unknownByte2: 1,
-                                unknownByte3: 1,
-                                unknownByte4: 1,
-                                unknownByte5: 1,
-                            },
-                            unknownDword4: 1,
-                            unknownByte3: 1,
-                            unknownByte4: 1,
-                        }],
-                });
-                _this.sendData(client, "ClientGameSettings", {
-                    unknownDword1: 0,
-                    unknownDword2: 7,
-                    unknownBoolean1: true,
-                    timescale: 1,
-                    unknownDword3: 1,
-                    unknownDword4: 1,
-                    unknownDword5: 0,
-                    unknownFloat2: 12,
-                    unknownFloat3: 110,
-                });
-                var self_1 = require("../../../data/sendself.json");
-                var identity = self_1.data.identity;
-                client.character.guid = self_1.data.guid;
-                client.character.loadouts = self_1.data.characterLoadoutData.loadouts;
-                client.character.inventory = self_1.data.inventory;
-                client.character.factionId = self_1.data.factionId;
-                client.character.name = identity.characterFirstName + identity.characterLastName;
-                if (_.isEqual(self_1.data.position, [0, 0, 0, 1]) && _.isEqual(self_1.data.rotation, [0, 0, 0, 1])) {
-                    // if position/rotation hasn't be changed
-                    self_1.data.isRandomlySpawning = true;
-                }
-                if (self_1.data.isRandomlySpawning) {
-                    // Take position/rotation from a random spawn location.
-                    var randomSpawnIndex = Math.floor(Math.random() * (spawnList.length));
-                    self_1.data.position = spawnList[randomSpawnIndex].position;
-                    self_1.data.rotation = spawnList[randomSpawnIndex].rotation;
-                    client.character.spawnInfo = spawnList[randomSpawnIndex].name;
-                }
-                _this.sendData(client, "SendSelfToClient", self_1);
-                _this.sendData(client, "PlayerUpdate.SetBattleRank", {
-                    characterId: client.character.characterId,
-                    battleRank: 100,
-                });
+                _this.sendInitData(client);
             }
         });
         _this._gatewayServer.on("login", function (err, client, characterId) {
@@ -324,28 +173,163 @@ var ZoneServer = /** @class */ (function (_super) {
             return __generator(this, function (_a) {
                 debug("Starting server");
                 this._startTime += Date.now();
-                /*
-              if (this._usingMongo) {
-                const uri = "mongodb://localhost:27017";
-                const mongoClient = (this._mongoClient = new MongoClient(uri, {
-                  useUnifiedTopology: true,
-                  native_parser: true,
-                }));
-                try {
-                  await mongoClient.connect();
-                } catch (e) {
-                  throw console.error("[ERROR]Unable to connect to mongo server");
-                }
-                if (mongoClient.isConnected()) {
-                  debug("connected to mongo !");
-                  this._db = await mongoClient.db("h1server");
-                } else {
-                  throw console.log("Unable to authenticate on mongo !", 2);
-                }
-              }*/
                 this._gatewayServer.start();
                 return [2 /*return*/];
             });
+        });
+    };
+    ZoneServer.prototype.parseReferenceData = function () {
+        var itemData = fs_1.default.readFileSync(__dirname + "/../../../data/ClientItemDefinitions.txt", "utf8"), itemLines = itemData.split("\n"), items = {};
+        for (var i = 1; i < itemLines.length; i++) {
+            var line = itemLines[i].split("^");
+            if (line[0]) {
+                items[line[0]] = line[1];
+            }
+        }
+        var referenceData = { itemTypes: items };
+        return referenceData;
+    };
+    ZoneServer.prototype.sendInitData = function (client) {
+        this.sendData(client, "InitializationParameters", {
+            environment: "LIVE",
+            serverId: 1,
+        });
+        this.sendData(client, "SendZoneDetails", {
+            zoneName: "Z1",
+            unknownBoolean1: true,
+            zoneType: 4,
+            unknownFloat1: 1,
+            skyData: {
+                name: "sky",
+                unknownDword1: 0,
+                unknownDword2: 0,
+                unknownDword3: 0,
+                fogDensity: 0,
+                fogGradient: 0,
+                fogFloor: 0,
+                unknownDword7: 0,
+                unknownDword8: 0,
+                temp: 40,
+                skyColor: 0,
+                cloudWeight0: 0,
+                cloudWeight1: 0,
+                cloudWeight2: 0,
+                cloudWeight3: 0,
+                sunAxisX: 0,
+                sunAxisY: 90,
+                sunAxisZ: 0,
+                unknownDword18: 0,
+                unknownDword19: 0,
+                unknownDword20: 0,
+                wind: 0,
+                unknownDword22: 0,
+                unknownDword23: 0,
+                unknownDword24: 0,
+                unknownDword25: 0,
+                unknownArray: [],
+            },
+            zoneId1: 3905829720,
+            zoneId2: 3905829720,
+            nameId: 7699,
+            unknownBoolean7: true,
+        });
+        this.sendData(client, "ClientUpdate.ZonePopulation", {
+            populations: [0, 0],
+        });
+        this.sendData(client, "ClientUpdate.RespawnLocations", {
+            unknownFlags: 0,
+            locations: [
+                {
+                    guid: this.generateGuid(),
+                    respawnType: 1,
+                    position: [0, 50, 0, 1],
+                    unknownDword1: 1,
+                    unknownDword2: 1,
+                    iconId1: 1,
+                    iconId2: 1,
+                    respawnTotalTime: 1,
+                    respawnTimeMs: 1,
+                    nameId: 1,
+                    distance: 1,
+                    unknownByte1: 1,
+                    unknownByte2: 1,
+                    unknownData1: {
+                        unknownByte1: 1,
+                        unknownByte2: 1,
+                        unknownByte3: 1,
+                        unknownByte4: 1,
+                        unknownByte5: 1,
+                    },
+                    unknownDword4: 1,
+                    unknownByte3: 1,
+                    unknownByte4: 1,
+                },
+            ],
+            unknownDword1: 0,
+            unknownDword2: 0,
+            locations2: [
+                {
+                    guid: this.generateGuid(),
+                    respawnType: 1,
+                    position: [0, 50, 0, 1],
+                    unknownDword1: 1,
+                    unknownDword2: 1,
+                    iconId1: 1,
+                    iconId2: 1,
+                    respawnTotalTime: 1,
+                    respawnTimeMs: 1,
+                    nameId: 1,
+                    distance: 1,
+                    unknownByte1: 1,
+                    unknownByte2: 1,
+                    unknownData1: {
+                        unknownByte1: 1,
+                        unknownByte2: 1,
+                        unknownByte3: 1,
+                        unknownByte4: 1,
+                        unknownByte5: 1,
+                    },
+                    unknownDword4: 1,
+                    unknownByte3: 1,
+                    unknownByte4: 1,
+                },
+            ],
+        });
+        this.sendData(client, "ClientGameSettings", {
+            unknownDword1: 0,
+            unknownDword2: 7,
+            unknownBoolean1: true,
+            timescale: 1,
+            unknownDword3: 1,
+            unknownDword4: 1,
+            unknownDword5: 0,
+            unknownFloat2: 12,
+            unknownFloat3: 110,
+        });
+        var self = require("../../../data/sendself.json"); // dummy self
+        var identity = self.data.identity;
+        client.character.guid = self.data.guid;
+        client.character.loadouts = self.data.characterLoadoutData.loadouts;
+        client.character.inventory = self.data.inventory;
+        client.character.factionId = self.data.factionId;
+        client.character.name =
+            identity.characterFirstName + identity.characterLastName;
+        if (_.isEqual(self.data.position, [0, 0, 0, 1]) &&
+            _.isEqual(self.data.rotation, [0, 0, 0, 1])) {
+            // if position/rotation hasn't be changed
+            self.data.isRandomlySpawning = true;
+        }
+        if (self.data.isRandomlySpawning) {
+            // Take position/rotation from a random spawn location.
+            var randomSpawnIndex = Math.floor(Math.random() * spawnList.length);
+            self.data.position = spawnList[randomSpawnIndex].position;
+            self.data.rotation = spawnList[randomSpawnIndex].rotation;
+            client.character.spawnLocation = spawnList[randomSpawnIndex].name;
+        }
+        this.sendData(client, "SendSelfToClient", self);
+        this.sendData(client, "PlayerUpdate.SetBattleRank", {
+            characterId: client.character.characterId,
+            battleRank: 100,
         });
     };
     ZoneServer.prototype.data = function (collectionName) {
@@ -353,10 +337,7 @@ var ZoneServer = /** @class */ (function (_super) {
             return this._db.collection(collectionName);
         }
     };
-    ZoneServer.prototype.setReferenceData = function (referenceData) {
-        this._referenceData = referenceData;
-    };
-    ZoneServer.prototype.sendSystemMessage = function (client, message) {
+    ZoneServer.prototype.sendSystemMessage = function (message) {
         this.sendDataToAll("Chat.Chat", {
             unknown2: 0,
             channel: 2,
