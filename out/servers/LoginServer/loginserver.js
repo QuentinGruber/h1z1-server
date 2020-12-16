@@ -117,7 +117,7 @@ var LoginServer = /** @class */ (function (_super) {
             });
         }); });
         _this._soeServer.on("appdata", function (err, client, data) { return __awaiter(_this, void 0, void 0, function () {
-            var packet, result, data_1, _a, falsified_data, CharactersInfo, SinglePlayerCharacter, characters, servers, SoloServer, i, characters_delete_info, charactersLoginInfo, _b, serverId, characterId, serverAddress, reply_data, tunnelData, tunnelPackets, tunnelAppPacket, index, opcode, prefix, SimulatedPacket, result_1;
+            var packet, result, data_1, _a, falsified_data, CharactersInfo, SinglePlayerCharacter, characters, servers, SoloServer, i, characters_delete_info, charactersLoginInfo, _b, serverId, characterId, serverAddress, reply_data, tunnelData, tunnelAppPacket;
             return __generator(this, function (_c) {
                 switch (_c.label) {
                     case 0:
@@ -289,27 +289,10 @@ var LoginServer = /** @class */ (function (_super) {
                         return [3 /*break*/, 21];
                     case 19:
                         tunnelData = packet.tunnelData;
-                        tunnelPackets = [0x14] // an array containing all tunnel packets opcodes
-                        ;
-                        tunnelAppPacket = void 0;
-                        for (index = 0; index < tunnelPackets.length; index++) {
-                            opcode = tunnelPackets[index];
-                            prefix = Buffer.alloc(1);
-                            prefix.writeUInt8(opcode);
-                            SimulatedPacket = Buffer.concat([prefix, tunnelData]);
-                            result_1 = void 0;
-                            try {
-                                result_1 = this._protocol.parse(SimulatedPacket);
-                            }
-                            catch (error) { }
-                            // if parsing is a success then we have identified our package
-                            if (result_1) {
-                                tunnelAppPacket = result_1;
-                                break;
-                            }
-                        }
-                        //debug(tunnelAppPacket)
-                        // Do something with the identify packet
+                        tunnelAppPacket = this.parseTunnelData(tunnelData);
+                        debug(tunnelAppPacket);
+                        data_1 = this._protocol.pack("TunnelAppPacketServerToClient", {});
+                        this._soeServer.sendAppData(client, data_1, true);
                         return [3 /*break*/, 21];
                     case 20:
                         this._soeServer.deleteClient(client);
@@ -324,6 +307,30 @@ var LoginServer = /** @class */ (function (_super) {
         }); });
         return _this;
     }
+    LoginServer.prototype.parseTunnelData = function (tunnelData) {
+        // weird stuff here :D
+        // I try to simulate the tunnelpacket sending and 
+        // to send back a convincing result to the game without having to transfer the packet to the game server.
+        // TODO: remove "tunnelPackets" and make LoginTunnelPackets.js"
+        var tunnelPackets = [0x14]; // an array containing all tunnel packets opcodes
+        for (var index = 0; index < tunnelPackets.length; index++) {
+            // Build a "simulated" packet
+            var opcode = tunnelPackets[index];
+            var prefix = Buffer.alloc(1);
+            prefix.writeUInt8(opcode);
+            var SimulatedPacket = Buffer.concat([prefix, tunnelData]);
+            // parse that packet
+            var result = void 0;
+            try {
+                result = this._protocol.parse(SimulatedPacket);
+            }
+            catch (error) { }
+            // if parsing is a success then we have identified our package
+            if (result) {
+                return result;
+            }
+        }
+    };
     LoginServer.prototype.start = function () {
         return __awaiter(this, void 0, void 0, function () {
             var mongoClient, e_1, _a;

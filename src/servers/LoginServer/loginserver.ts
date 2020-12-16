@@ -305,32 +305,14 @@ export class LoginServer extends EventEmitter {
               break;
 
             case "TunnelAppPacketClientToServer":
-
-              // weird stuff here :D
-              // I try to simulate the tunnelpacket sending and 
-              // to send back a convincing result to the game without having to transfer the packet to the game server.
-
               const { tunnelData } = packet;
-              const tunnelPackets = [0x14] // an array containing all tunnel packets opcodes
-              let tunnelAppPacket;
-              for (let index = 0; index < tunnelPackets.length; index++) {
-                // Build a "simulated" packet
-                const opcode = tunnelPackets[index];
-                const prefix = Buffer.alloc(1)
-                prefix.writeUInt8(opcode)
-                const SimulatedPacket = Buffer.concat([prefix, tunnelData])
-                // parse that packet
-                let result;
-                try {
-                  result = this._protocol.parse(SimulatedPacket)
-                } catch (error) {}
-                // if parsing is a success then we have identified our package
-                if(result){
-                  tunnelAppPacket = result
-                  break}
-              }
-              //debug(tunnelAppPacket)
-              // Do something with the identify packet
+              const tunnelAppPacket = this.parseTunnelData(tunnelData)
+              debug(tunnelAppPacket)
+              data = this._protocol.pack(
+                "TunnelAppPacketServerToClient",
+                {}
+              );
+              this._soeServer.sendAppData(client, data, true);
               break;
             case "Logout":
               this._soeServer.deleteClient(client);
@@ -341,6 +323,32 @@ export class LoginServer extends EventEmitter {
       }
     );
   }
+
+  parseTunnelData(tunnelData: Buffer) {
+    // weird stuff here :D
+    // I try to simulate the tunnelpacket sending and 
+    // to send back a convincing result to the game without having to transfer the packet to the game server.
+
+    // TODO: remove "tunnelPackets" and make LoginTunnelPackets.js"
+    const tunnelPackets = [0x14] // an array containing all tunnel packets opcodes
+    for (let index = 0; index < tunnelPackets.length; index++) {
+      // Build a "simulated" packet
+      const opcode = tunnelPackets[index];
+      const prefix = Buffer.alloc(1)
+      prefix.writeUInt8(opcode)
+      const SimulatedPacket = Buffer.concat([prefix, tunnelData])
+      // parse that packet
+      let result;
+      try {
+        result = this._protocol.parse(SimulatedPacket)
+        } catch (error) {}
+      // if parsing is a success then we have identified our package
+      if(result){
+        return result
+      }
+    }
+  }
+
   async start() {
     debug("Starting server");
     if (this._mongoAddress) {
