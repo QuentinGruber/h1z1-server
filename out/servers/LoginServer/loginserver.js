@@ -65,22 +65,22 @@ var events_1 = require("events");
 var SOEServer = require("../SoeServer/soeserver").SOEServer;
 var loginprotocol_1 = require("../../protocols/loginprotocol");
 var debug = require("debug")("LoginServer");
+var js_base64_1 = require("js-base64");
 var mongodb_1 = require("mongodb");
 var LoginServer = /** @class */ (function (_super) {
     __extends(LoginServer, _super);
-    function LoginServer(gameId, environment, serverPort, loginKey, SoloMode) {
-        if (SoloMode === void 0) { SoloMode = false; }
+    function LoginServer(serverPort, _mongoAddress) {
         var _this = _super.call(this) || this;
         _this._compression = 0x0100;
         _this._crcSeed = 0;
         _this._crcLength = 2;
         _this._udpLength = 512;
-        _this._cryptoKey = loginKey;
-        _this._gameId = gameId;
-        _this._environment = environment; // TODO: remove unused field ( need to update quickstart too )
-        _this._soloMode = SoloMode;
+        _this._cryptoKey = js_base64_1.toUint8Array("F70IaxuU8C/w7FPXY1ibXw==");
+        _this._soloMode = false;
+        _this._mongoAddress = _mongoAddress;
         // reminders
-        if (_this._soloMode) {
+        if (!_this._mongoAddress) {
+            _this._soloMode = true;
             debug("Server in solo mode !");
         }
         _this._soeServer = new SOEServer("LoginUdp_9", serverPort, _this._cryptoKey, null);
@@ -104,6 +104,7 @@ var LoginServer = /** @class */ (function (_super) {
                         if (!!this._soloMode) return [3 /*break*/, 2];
                         return [4 /*yield*/, this._db.collection("servers").find().toArray()];
                     case 1:
+                        // useless if in solomode ( never get called either)
                         servers = _a.sent();
                         for (i = 0; i < servers.length; i++) {
                             data = this._protocol.pack("ServerUpdate", servers[i]);
@@ -307,14 +308,13 @@ var LoginServer = /** @class */ (function (_super) {
     }
     LoginServer.prototype.start = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var uri, mongoClient, e_1, _a;
+            var mongoClient, e_1, _a;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
                         debug("Starting server");
-                        if (!!this._soloMode) return [3 /*break*/, 7];
-                        uri = "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass%20Community&ssl=false";
-                        mongoClient = (this._mongoClient = new mongodb_1.MongoClient(uri, {
+                        if (!this._mongoAddress) return [3 /*break*/, 7];
+                        mongoClient = (this._mongoClient = new mongodb_1.MongoClient(this._mongoAddress, {
                             useUnifiedTopology: true,
                             native_parser: true,
                         }));
