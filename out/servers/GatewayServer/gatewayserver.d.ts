@@ -46,7 +46,7 @@ export declare class GatewayServer extends EventEmitter {
     _soeServer: SoeServer;
     _protocol: GatewayProtocolInterface;
     _compression: number;
-    _crcSeed: string;
+    _crcSeed: number;
     _crcLength: number;
     _udpLength: number;
     constructor(protocolName: string, serverPort: number, gatewayKey: string);

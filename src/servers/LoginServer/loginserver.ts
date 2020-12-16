@@ -15,7 +15,9 @@ import { EventEmitter } from "events";
 const SOEServer = require("../SoeServer/soeserver").SOEServer;
 import { LoginProtocol } from "../../protocols/loginprotocol";
 const debug = require("debug")("LoginServer");
+import { toUint8Array } from "js-base64";
 import { MongoClient } from "mongodb";
+import { generateGuid } from "../../utils/utils"
 
 interface SoeServer {
   on: (arg0: string, arg1: any) => void;
@@ -73,35 +75,32 @@ interface GameServer {
 export class LoginServer extends EventEmitter {
   _soeServer: SoeServer;
   _protocol: LoginProtocol;
-  _db: any; // TODO
+  _db: any;
   _mongoClient: any;
   _compression: number;
   _crcSeed: number;
   _crcLength: number;
   _udpLength: number;
-  _gameId: number;
-  _environment: string;
-  _cryptoKey: string;
+  _cryptoKey: Uint8Array;
+  _mongoAddress: string;
   _soloMode: boolean;
   constructor(
-    gameId: number,
-    environment: string,
     serverPort: number,
-    loginKey: string,
-    SoloMode: boolean = false
+    mongoAddress: string
   ) {
     super();
     this._compression = 0x0100;
     this._crcSeed = 0;
     this._crcLength = 2;
     this._udpLength = 512;
-    this._cryptoKey = loginKey;
-    this._gameId = gameId;
-    this._environment = environment; // TODO: remove unused field ( need to update quickstart too )
-    this._soloMode = SoloMode;
+    this._cryptoKey = toUint8Array("F70IaxuU8C/w7FPXY1ibXw==");
+    this._soloMode = false;
+    this._mongoAddress = mongoAddress; 
+    
 
     // reminders
-    if (this._soloMode) {
+    if (!this._mongoAddress) {
+      this._soloMode = true;
       debug("Server in solo mode !");
     }
 
@@ -299,7 +298,7 @@ export class LoginServer extends EventEmitter {
             case "CharacterCreateRequest":
               const reply_data = {
                 status: 1,
-                characterId: "0x03147cca2a860191", // TODO: generate a random id like on zoneserver
+                characterId: generateGuid(),
               };
               data = this._protocol.pack("CharacterCreateReply", reply_data);
               this._soeServer.sendAppData(client, data, true);
@@ -327,11 +326,8 @@ export class LoginServer extends EventEmitter {
   }
   async start() {
     debug("Starting server");
-    if (!this._soloMode) {
-      // TODO: use env variable
-      const uri =
-        "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass%20Community&ssl=false";
-      const mongoClient = (this._mongoClient = new MongoClient(uri, {
+    if (this._mongoAddress) {
+      const mongoClient = (this._mongoClient = new MongoClient(this._mongoAddress, {
         useUnifiedTopology: true,
         native_parser: true,
       }));

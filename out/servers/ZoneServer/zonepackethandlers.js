@@ -350,7 +350,7 @@ var packetHandlers = {
         }
         if (packet.data.commandHash == 1757604914) {
             // /spawninfo
-            server.sendChatText(client, "You spawned at \"" + client.character.spawnInfo + "\"", true);
+            server.sendChatText(client, "You spawned at \"" + client.character.spawnLocation + "\"", true);
         }
         if (packet.data.commandHash == Jenkins.oaat("LOCATION") ||
             packet.data.commandHash == 3270589520) {
