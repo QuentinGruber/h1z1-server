@@ -16,29 +16,14 @@ import fs from "fs";
 import { default as packetHandlers } from "./zonepackethandlers";
 import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
 const spawnList = require("../../../data/spawnLocations.json");
-const _ = require("lodash");
+import _ from "lodash";
+import { Int64String, generateGuid } from "../../utils/utils"
 const debug = require("debug")("ZoneServer");
 
 Date.now = () => {
   // force current time
   return 971172000000;
 };
-
-interface SoeServer {
-  on: (arg0: string, arg1: any) => void;
-  start: (
-    compression: any,
-    crcSeed: any,
-    crcLength: any,
-    udpLength: any
-  ) => void;
-  stop: () => void;
-  _sendPacket: () => void;
-  sendAppData: (arg0: Client, arg1: any, arg2: undefined | any) => void;
-  toggleEncryption: () => void;
-  toggleDataDump: () => void;
-  deleteClient: (client: Client) => void;
-}
 
 interface Client {
   client: {
@@ -93,26 +78,21 @@ interface Client {
   outOfOrderTimer: () => void;
 }
 
-function Int64String(value: number) {
-  return "0x" + ("0000000000000000" + value.toString(16)).substr(-16);
-}
-
 export class ZoneServer extends EventEmitter {
   _gatewayServer: any;
   _protocol: any;
   _clients: any;
   _characters: any;
   _ncps: any;
-  _usingMongo: any;
   _serverTime: any;
   _transientId: any;
-  _guids: any;
+  _guids: Array<string>;
   _packetHandlers: any;
   _referenceData: any;
   _startTime: number;
   _db: any;
   npcs: any;
-  constructor(serverPort: number, gatewayKey: string, UsingMongo: boolean) {
+  constructor(serverPort: number, gatewayKey: string) {
     super();
     this._gatewayServer = new GatewayServer(
       "ExternalGatewayApi_3",
@@ -123,10 +103,9 @@ export class ZoneServer extends EventEmitter {
     this._clients = {};
     this._characters = {};
     this._ncps = {};
-    this._usingMongo = UsingMongo;
     this._serverTime = Date.now() / 1000;
     this._transientId = 0;
-    this._guids = {};
+    this._guids = [];
     this._referenceData = this.parseReferenceData()
     this._packetHandlers = packetHandlers;
     this._startTime = 0;
@@ -295,7 +274,7 @@ export class ZoneServer extends EventEmitter {
       unknownFlags: 0,
       locations: [
         {
-          guid: this.generateGuid(),
+          guid: generateGuid(this._guids),
           respawnType: 1,
           position: [0, 50, 0, 1],
           unknownDword1: 1,
@@ -324,7 +303,7 @@ export class ZoneServer extends EventEmitter {
       unknownDword2: 0,
       locations2: [
         {
-          guid: this.generateGuid(),
+          guid: generateGuid(this._guids),
           respawnType: 1,
           position: [0, 50, 0, 1],
           unknownDword1: 1,
@@ -543,20 +522,6 @@ export class ZoneServer extends EventEmitter {
     });
   }
 
-  generateGuid() {
-    var str = "0x";
-    for (var i = 0; i < 16; i++) {
-      str += Math.floor(Math.random() * 16).toString(16);
-    }
-    if (!this._guids[str]) {
-      this._guids[str] = true;
-      return str;
-    } else {
-      debug("generateGuid failed! retrying...");
-      this.generateGuid();
-    }
-  }
-
   getTransientId(client: any, guid: string) {
     if (!client.transientIds[guid]) {
       client.transientId++;
@@ -577,7 +542,7 @@ export class ZoneServer extends EventEmitter {
         return;
       }
       if (npc) {
-        var guid: any = this.generateGuid();
+        var guid: any = generateGuid(this._guids);
         this.npcs[guid] = {
           guid: guid,
           position: position,

@@ -70,28 +70,25 @@ var fs_1 = __importDefault(require("fs"));
 var zonepackethandlers_1 = __importDefault(require("./zonepackethandlers"));
 var h1z1protocol_1 = require("../../protocols/h1z1protocol");
 var spawnList = require("../../../data/spawnLocations.json");
-var _ = require("lodash");
+var lodash_1 = __importDefault(require("lodash"));
+var utils_1 = require("../../utils/utils");
 var debug = require("debug")("ZoneServer");
 Date.now = function () {
     // force current time
     return 971172000000;
 };
-function Int64String(value) {
-    return "0x" + ("0000000000000000" + value.toString(16)).substr(-16);
-}
 var ZoneServer = /** @class */ (function (_super) {
     __extends(ZoneServer, _super);
-    function ZoneServer(serverPort, gatewayKey, UsingMongo) {
+    function ZoneServer(serverPort, gatewayKey) {
         var _this = _super.call(this) || this;
         _this._gatewayServer = new gatewayserver_1.GatewayServer("ExternalGatewayApi_3", serverPort, gatewayKey);
         _this._protocol = new h1z1protocol_1.H1Z1Protocol();
         _this._clients = {};
         _this._characters = {};
         _this._ncps = {};
-        _this._usingMongo = UsingMongo;
         _this._serverTime = Date.now() / 1000;
         _this._transientId = 0;
-        _this._guids = {};
+        _this._guids = [];
         _this._referenceData = _this.parseReferenceData();
         _this._packetHandlers = zonepackethandlers_1.default;
         _this._startTime = 0;
@@ -240,7 +237,7 @@ var ZoneServer = /** @class */ (function (_super) {
             unknownFlags: 0,
             locations: [
                 {
-                    guid: this.generateGuid(),
+                    guid: utils_1.generateGuid(this._guids),
                     respawnType: 1,
                     position: [0, 50, 0, 1],
                     unknownDword1: 1,
@@ -269,7 +266,7 @@ var ZoneServer = /** @class */ (function (_super) {
             unknownDword2: 0,
             locations2: [
                 {
-                    guid: this.generateGuid(),
+                    guid: utils_1.generateGuid(this._guids),
                     respawnType: 1,
                     position: [0, 50, 0, 1],
                     unknownDword1: 1,
@@ -314,8 +311,8 @@ var ZoneServer = /** @class */ (function (_super) {
         client.character.factionId = self.data.factionId;
         client.character.name =
             identity.characterFirstName + identity.characterLastName;
-        if (_.isEqual(self.data.position, [0, 0, 0, 1]) &&
-            _.isEqual(self.data.rotation, [0, 0, 0, 1])) {
+        if (lodash_1.default.isEqual(self.data.position, [0, 0, 0, 1]) &&
+            lodash_1.default.isEqual(self.data.rotation, [0, 0, 0, 1])) {
             // if position/rotation hasn't be changed
             self.data.isRandomlySpawning = true;
         }
@@ -463,24 +460,10 @@ var ZoneServer = /** @class */ (function (_super) {
     ZoneServer.prototype.sendGameTimeSync = function (client) {
         debug("GameTimeSync");
         this.sendData(client, "GameTimeSync", {
-            time: Int64String(this.getGameTime()),
+            time: utils_1.Int64String(this.getGameTime()),
             unknownFloat1: 12,
             unknownBoolean1: false,
         });
-    };
-    ZoneServer.prototype.generateGuid = function () {
-        var str = "0x";
-        for (var i = 0; i < 16; i++) {
-            str += Math.floor(Math.random() * 16).toString(16);
-        }
-        if (!this._guids[str]) {
-            this._guids[str] = true;
-            return str;
-        }
-        else {
-            debug("generateGuid failed! retrying...");
-            this.generateGuid();
-        }
     };
     ZoneServer.prototype.getTransientId = function (client, guid) {
         if (!client.transientIds[guid]) {
@@ -497,7 +480,7 @@ var ZoneServer = /** @class */ (function (_super) {
                 return;
             }
             if (npc) {
-                var guid = _this.generateGuid();
+                var guid = utils_1.generateGuid(_this._guids);
                 _this.npcs[guid] = {
                     guid: guid,
                     position: position,

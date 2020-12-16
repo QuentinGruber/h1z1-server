@@ -17,6 +17,7 @@ import { LoginProtocol } from "../../protocols/loginprotocol";
 const debug = require("debug")("LoginServer");
 import { toUint8Array } from "js-base64";
 import { MongoClient } from "mongodb";
+import { generateGuid } from "../../utils/utils"
 
 interface SoeServer {
   on: (arg0: string, arg1: any) => void;
@@ -297,7 +298,7 @@ export class LoginServer extends EventEmitter {
             case "CharacterCreateRequest":
               const reply_data = {
                 status: 1,
-                characterId: "0x03147cca2a860191", // TODO: generate a random id like on zoneserver
+                characterId: generateGuid(),
               };
               data = this._protocol.pack("CharacterCreateReply", reply_data);
               this._soeServer.sendAppData(client, data, true);

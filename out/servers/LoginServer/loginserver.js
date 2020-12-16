@@ -67,6 +67,7 @@ var loginprotocol_1 = require("../../protocols/loginprotocol");
 var debug = require("debug")("LoginServer");
 var js_base64_1 = require("js-base64");
 var mongodb_1 = require("mongodb");
+var utils_1 = require("../../utils/utils");
 var LoginServer = /** @class */ (function (_super) {
     __extends(LoginServer, _super);
     function LoginServer(serverPort, _mongoAddress) {
@@ -281,7 +282,7 @@ var LoginServer = /** @class */ (function (_super) {
                     case 18:
                         reply_data = {
                             status: 1,
-                            characterId: "0x03147cca2a860191",
+                            characterId: utils_1.generateGuid(),
                         };
                         data_1 = this._protocol.pack("CharacterCreateReply", reply_data);
                         this._soeServer.sendAppData(client, data_1, true);

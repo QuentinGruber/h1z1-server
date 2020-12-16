@@ -20,7 +20,9 @@
   "directories": {
     "src": "./src"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@types/lodash": "^4.14.165"
+  },
   "scripts": {
     "compile_ts": "tsc --declaration -p .",
     "publish_release": "git push --tags && git push origin dev && git push origin master",
