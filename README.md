@@ -103,14 +103,10 @@ You need [Nodejs](https://nodejs.org/en/) ( currently using 12.16 LTS).
 
 #### LoginServer script exemple
 
-    const H1Z1servers = require("./h1z1-server");
-    const { Base64 } = require("js-base64");
+    const H1Z1servers = require("h1z1-server");
     var server = new H1Z1servers.LoginServer(
-    295110, // <- AppID
-    "dev", // <- environment
     1115, // <- server port
-    Base64.toUint8Array("F70IaxuU8C/w7FPXY1ibXw=="), // <- loginkey
-    true // <- SoloMode
+    "" // <- MongoDB address ( if blank server start in solo mode )
     );
     server.start();
 
