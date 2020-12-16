@@ -22,6 +22,7 @@ var LoginProtocol = /** @class */ (function () {
     function LoginProtocol() {
     }
     LoginProtocol.prototype.parse = function (data) {
+        console.log(data);
         var packetType = data[0];
         var result;
         var packet = LoginPackets.Packets[packetType];
@@ -32,7 +33,7 @@ var LoginProtocol = /** @class */ (function () {
                 return {
                     type: packet.type,
                     flags: data[0] >> 5,
-                    fromClient: packet.name == "TunnelAppPacketClientToServer",
+                    fromClient: packet.name == "TunnelAppPacketClientToServer" || packet.name == "TunnelAppPacketServerToClient",
                     name: packet.name,
                     tunnelData: data.slice(1),
                 };
@@ -66,20 +67,28 @@ var LoginProtocol = /** @class */ (function () {
         var payload;
         var data;
         if (packet) {
-            if (packet.schema) {
-                debug("Packing data for " + packet.name);
-                payload = h1z1_dataschema_1.default.pack(packet.schema, object, undefined, undefined, undefined);
-                if (payload) {
-                    data = new Buffer.alloc(1 + payload.length);
-                    data.writeUInt8(packetType, 0);
-                    payload.data.copy(data, 1);
-                }
-                else {
-                    debug("Could not pack data schema for " + packet.name);
-                }
+            if (packet.name == "TunnelAppPacketServerToClient" || packet.name == "TunnelAppPacketClientToServer") {
+                data = new Buffer.alloc(1 + object.tunnelData.length);
+                data.writeUInt8(packetType | (object.channel << 5), 0);
+                object.tunnelData.copy(data, 1);
+                debug("tunnelpacket send data :", object);
             }
             else {
-                debug("pack()", "No schema for packet " + packet.name);
+                if (packet.schema) {
+                    debug("Packing data for " + packet.name);
+                    payload = h1z1_dataschema_1.default.pack(packet.schema, object, undefined, undefined, undefined);
+                    if (payload) {
+                        data = new Buffer.alloc(1 + payload.length);
+                        data.writeUInt8(packetType, 0);
+                        payload.data.copy(data, 1);
+                    }
+                    else {
+                        debug("Could not pack data schema for " + packet.name);
+                    }
+                }
+                else {
+                    debug("pack()", "No schema for packet " + packet.name);
+                }
             }
         }
         else {
