@@ -15,31 +15,15 @@ import { GatewayServer } from "../GatewayServer/gatewayserver";
 import fs from "fs";
 import { default as packetHandlers } from "./zonepackethandlers";
 import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
-const spawnList = require("../../../data/spawnLocations.json")
-const _ = require('lodash');
-// import {MongoClient} from "mongodb"
+const spawnList = require("../../../data/spawnLocations.json");
+import _ from "lodash";
+import { Int64String, generateGuid } from "../../utils/utils"
 const debug = require("debug")("ZoneServer");
 
 Date.now = () => {
   // force current time
   return 971172000000;
 };
-
-interface SoeServer {
-  on: (arg0: string, arg1: any) => void;
-  start: (
-    compression: any,
-    crcSeed: any,
-    crcLength: any,
-    udpLength: any
-  ) => void;
-  stop: () => void;
-  _sendPacket: () => void;
-  sendAppData: (arg0: Client, arg1: any, arg2: undefined | any) => void;
-  toggleEncryption: () => void;
-  toggleDataDump: () => void;
-  deleteClient: (client: Client) => void;
-}
 
 interface Client {
   client: {
@@ -58,9 +42,13 @@ interface Client {
     characterId: string;
     name?: string;
     loadouts?: any;
-    currentLoadoutTab?: any;
-    currentLoadoutId?: any;
-    currentLoadout?: any;
+    currentLoadoutTab?: number;
+    currentLoadoutId?: number;
+    currentLoadout?: number;
+    guid?: string;
+    inventory?: Array<any>;
+    factionId?: number;
+    spawnLocation?: string;
     state: {
       position: number[];
       rotation: number[];
@@ -90,27 +78,21 @@ interface Client {
   outOfOrderTimer: () => void;
 }
 
-function Int64String(value: number) {
-  return "0x" + ("0000000000000000" + value.toString(16)).substr(-16);
-}
-
 export class ZoneServer extends EventEmitter {
   _gatewayServer: any;
   _protocol: any;
   _clients: any;
   _characters: any;
   _ncps: any;
-  _usingMongo: any;
   _serverTime: any;
   _transientId: any;
-  _guids: any;
+  _guids: Array<string>;
   _packetHandlers: any;
   _referenceData: any;
   _startTime: number;
-  // _mongoClient: MongoClient;
   _db: any;
   npcs: any;
-  constructor(serverPort: number, gatewayKey: string, UsingMongo: boolean) {
+  constructor(serverPort: number, gatewayKey: string) {
     super();
     this._gatewayServer = new GatewayServer(
       "ExternalGatewayApi_3",
@@ -121,10 +103,10 @@ export class ZoneServer extends EventEmitter {
     this._clients = {};
     this._characters = {};
     this._ncps = {};
-    this._usingMongo = UsingMongo;
     this._serverTime = Date.now() / 1000;
     this._transientId = 0;
-    this._guids = {};
+    this._guids = [];
+    this._referenceData = this.parseReferenceData()
     this._packetHandlers = packetHandlers;
     this._startTime = 0;
 
@@ -142,6 +124,7 @@ export class ZoneServer extends EventEmitter {
             console.log(e);
           }
         } else {
+          debug(packet);
           debug("Packet not implemented in packetHandlers");
         }
       }
@@ -152,121 +135,7 @@ export class ZoneServer extends EventEmitter {
         console.error(err);
       } else {
         debug("zone login");
-        /*
-      this.sendRawData(
-        client,
-        fs.readFileSync(
-          `${__dirname}/data/zone/ReferenceData.WeaponDefinitions.dat`
-        )*/
-
-        this.sendData(client, "InitializationParameters", {
-          environment: "LIVE",
-          serverId: 1,
-        });
-
-        var itemData = fs.readFileSync(
-            `${__dirname}/../../../data/ClientItemDefinitions.txt`,
-            "utf8"
-          ),
-          itemLines = itemData.split("\n"),
-          items = {};
-        for (var i = 1; i < itemLines.length; i++) {
-          var line = itemLines[i].split("^");
-          if (line[0]) {
-            (items as any)[line[0]] = line[1];
-          }
-        }
-        const referenceData = { itemTypes: items };
-        this.setReferenceData(referenceData);
-
-        this.sendData(client, "SendZoneDetails", {
-          zoneName: "Z1",
-          unknownBoolean1: true,
-          zoneType: 4,
-          unknownFloat1: 1,
-          skyData: {
-            name: "sky",
-            unknownDword1: 0,
-            unknownDword2: 0,
-            unknownDword3: 0,
-            fogDensity: 0, // fog intensity
-            fogGradient: 0,
-            fogFloor: 0,
-            unknownDword7: 0,
-            unknownDword8: 0,
-            temp: 40, // 0 : snow map , 40+ : spring map
-            skyColor: 0,
-            cloudWeight0: 0,
-            cloudWeight1: 0,
-            cloudWeight2: 0,
-            cloudWeight3: 0,
-            sunAxisX: 0,
-            sunAxisY: 90,
-            sunAxisZ: 0, // night when 100
-            unknownDword18: 0,
-            unknownDword19: 0,
-            unknownDword20: 0,
-            wind: 0,
-            unknownDword22: 0,
-            unknownDword23: 0,
-            unknownDword24: 0,
-            unknownDword25: 0,
-            unknownArray: [],
-          },
-          zoneId1: 3905829720,
-          zoneId2: 3905829720,
-          nameId: 7699,
-          unknownBoolean7: true,
-        });
-
-        this.sendData(client, "ClientUpdate.ZonePopulation", {
-          populations: [0, 0],
-        });
-
-        this.sendData(client, "ClientUpdate.RespawnLocations", {
-          unknownFlags: 0,
-          locations: [],
-          unknownDword1: 0,
-          unknownDword2: 0,
-          locations2: [],
-        });
-
-        this.sendData(client, "ClientGameSettings", {
-          unknownDword1: 0,
-          unknownDword2: 7,
-          unknownBoolean1: true,
-          timescale: 1,
-          unknownDword3: 1,
-          unknownDword4: 1,
-          unknownDword5: 0,
-          unknownFloat2: 12,
-          unknownFloat3: 110,
-        });
-
-        const self = require("../../../data/sendself.json");
-        client.character.guid = self.data.guid;
-        client.character.loadouts = self.data.characterLoadoutData.loadouts;
-        client.character.inventory = self.data.inventory;
-        client.character.factionId = self.data.factionId;
-        client.character.name = self.data.identity.characterName;
-
-        if (_.isEqual(self.data.position, [0, 0, 0, 1]) && _.isEqual(self.data.rotation, [0, 0, 0, 1])) {
-          // if position/rotation hasn't be changed
-          self.data.isRandomlySpawning = true
-        }
-
-        if (self.data.isRandomlySpawning) {
-          // Take position/rotation from a random spawn location.
-          const randomSpawnIndex = Math.floor(Math.random() * (spawnList.length));
-          self.data.position = spawnList[randomSpawnIndex].position
-          self.data.rotation = spawnList[randomSpawnIndex].rotation
-          client.character.spawnInfo = spawnList[randomSpawnIndex].name
-        }
-        this.sendData(client, "SendSelfToClient", self);
-        this.sendData(client, "PlayerUpdate.SetBattleRank", {
-          characterId: client.character.characterId,
-          battleRank: 100,
-        });
+        this.sendInitData(client);
       }
     });
 
@@ -323,7 +192,7 @@ export class ZoneServer extends EventEmitter {
         if (packet) {
           this.emit("data", null, client, packet);
         } else {
-          debug("zonefailed : ", packet);
+          debug("zonefailed : ", data);
         }
       }
     );
@@ -331,26 +200,179 @@ export class ZoneServer extends EventEmitter {
   async start() {
     debug("Starting server");
     this._startTime += Date.now();
-    /*
-  if (this._usingMongo) {
-    const uri = "mongodb://localhost:27017";
-    const mongoClient = (this._mongoClient = new MongoClient(uri, {
-      useUnifiedTopology: true,
-      native_parser: true,
-    }));
-    try {
-      await mongoClient.connect();
-    } catch (e) {
-      throw console.error("[ERROR]Unable to connect to mongo server");
-    }
-    if (mongoClient.isConnected()) {
-      debug("connected to mongo !");
-      this._db = await mongoClient.db("h1server");
-    } else {
-      throw console.log("Unable to authenticate on mongo !", 2);
-    }
-  }*/
     this._gatewayServer.start();
+  }
+
+  parseReferenceData() {
+    var itemData = fs.readFileSync(
+      `${__dirname}/../../../data/ClientItemDefinitions.txt`,
+      "utf8"
+    ),
+    itemLines = itemData.split("\n"),
+    items = {};
+  for (var i = 1; i < itemLines.length; i++) {
+    var line = itemLines[i].split("^");
+    if (line[0]) {
+      (items as any)[line[0]] = line[1];
+    }
+  }
+    const referenceData = { itemTypes: items };
+    return referenceData;
+  }
+
+  sendInitData(client:Client) {
+    this.sendData(client, "InitializationParameters", {
+      environment: "LIVE",
+      serverId: 1,
+    });
+   
+    this.sendData(client, "SendZoneDetails", {
+      zoneName: "Z1",
+      unknownBoolean1: true,
+      zoneType: 4,
+      unknownFloat1: 1,
+      skyData: {
+        name: "sky",
+        unknownDword1: 0,
+        unknownDword2: 0,
+        unknownDword3: 0,
+        fogDensity: 0, // fog intensity
+        fogGradient: 0,
+        fogFloor: 0,
+        unknownDword7: 0,
+        unknownDword8: 0,
+        temp: 40, // 0 : snow map , 40+ : spring map
+        skyColor: 0,
+        cloudWeight0: 0,
+        cloudWeight1: 0,
+        cloudWeight2: 0,
+        cloudWeight3: 0,
+        sunAxisX: 0,
+        sunAxisY: 90,
+        sunAxisZ: 0,
+        unknownDword18: 0,
+        unknownDword19: 0,
+        unknownDword20: 0,
+        wind: 0,
+        unknownDword22: 0,
+        unknownDword23: 0,
+        unknownDword24: 0,
+        unknownDword25: 0,
+        unknownArray: [],
+      },
+      zoneId1: 3905829720,
+      zoneId2: 3905829720,
+      nameId: 7699,
+      unknownBoolean7: true,
+    });
+
+    this.sendData(client, "ClientUpdate.ZonePopulation", {
+      populations: [0, 0],
+    });
+
+    this.sendData(client, "ClientUpdate.RespawnLocations", {
+      unknownFlags: 0,
+      locations: [
+        {
+          guid: generateGuid(this._guids),
+          respawnType: 1,
+          position: [0, 50, 0, 1],
+          unknownDword1: 1,
+          unknownDword2: 1,
+          iconId1: 1,
+          iconId2: 1,
+          respawnTotalTime: 1,
+          respawnTimeMs: 1,
+          nameId: 1,
+          distance: 1,
+          unknownByte1: 1,
+          unknownByte2: 1,
+          unknownData1: {
+            unknownByte1: 1,
+            unknownByte2: 1,
+            unknownByte3: 1,
+            unknownByte4: 1,
+            unknownByte5: 1,
+          },
+          unknownDword4: 1,
+          unknownByte3: 1,
+          unknownByte4: 1,
+        },
+      ],
+      unknownDword1: 0,
+      unknownDword2: 0,
+      locations2: [
+        {
+          guid: generateGuid(this._guids),
+          respawnType: 1,
+          position: [0, 50, 0, 1],
+          unknownDword1: 1,
+          unknownDword2: 1,
+          iconId1: 1,
+          iconId2: 1,
+          respawnTotalTime: 1,
+          respawnTimeMs: 1,
+          nameId: 1,
+          distance: 1,
+          unknownByte1: 1,
+          unknownByte2: 1,
+          unknownData1: {
+            unknownByte1: 1,
+            unknownByte2: 1,
+            unknownByte3: 1,
+            unknownByte4: 1,
+            unknownByte5: 1,
+          },
+          unknownDword4: 1,
+          unknownByte3: 1,
+          unknownByte4: 1,
+        },
+      ],
+    });
+
+    this.sendData(client, "ClientGameSettings", {
+      unknownDword1: 0,
+      unknownDword2: 7,
+      unknownBoolean1: true,
+      timescale: 1,
+      unknownDword3: 1,
+      unknownDword4: 1,
+      unknownDword5: 0,
+      unknownFloat2: 12,
+      unknownFloat3: 110,
+    });
+
+    const self = require("../../../data/sendself.json"); // dummy self
+    const {
+      data: { identity },
+    } = self;
+    client.character.guid = self.data.guid;
+    client.character.loadouts = self.data.characterLoadoutData.loadouts;
+    client.character.inventory = self.data.inventory;
+    client.character.factionId = self.data.factionId;
+    client.character.name =
+      identity.characterFirstName + identity.characterLastName;
+
+    if (
+      _.isEqual(self.data.position, [0, 0, 0, 1]) &&
+      _.isEqual(self.data.rotation, [0, 0, 0, 1])
+    ) {
+      // if position/rotation hasn't be changed
+      self.data.isRandomlySpawning = true;
+    }
+
+    if (self.data.isRandomlySpawning) {
+      // Take position/rotation from a random spawn location.
+      const randomSpawnIndex = Math.floor(Math.random() * spawnList.length);
+      self.data.position = spawnList[randomSpawnIndex].position;
+      self.data.rotation = spawnList[randomSpawnIndex].rotation;
+      client.character.spawnLocation = spawnList[randomSpawnIndex].name;
+    }
+    this.sendData(client, "SendSelfToClient", self);
+    this.sendData(client, "PlayerUpdate.SetBattleRank", {
+      characterId: client.character.characterId,
+      battleRank: 100,
+    });
   }
 
   data(collectionName: string) {
@@ -359,11 +381,7 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
-  setReferenceData(referenceData: any) {
-    this._referenceData = referenceData;
-  }
-
-  sendSystemMessage(client: Client, message: string) {
+  sendSystemMessage(message: string) {
     this.sendDataToAll("Chat.Chat", {
       unknown2: 0,
       channel: 2,
@@ -504,20 +522,6 @@ export class ZoneServer extends EventEmitter {
     });
   }
 
-  generateGuid() {
-    var str = "0x";
-    for (var i = 0; i < 16; i++) {
-      str += Math.floor(Math.random() * 16).toString(16);
-    }
-    if (!this._guids[str]) {
-      this._guids[str] = true;
-      return str;
-    } else {
-      debug("generateGuid failed! retrying...");
-      this.generateGuid();
-    }
-  }
-
   getTransientId(client: any, guid: string) {
     if (!client.transientIds[guid]) {
       client.transientId++;
@@ -538,7 +542,7 @@ export class ZoneServer extends EventEmitter {
         return;
       }
       if (npc) {
-        var guid: any = this.generateGuid();
+        var guid: any = generateGuid(this._guids);
         this.npcs[guid] = {
           guid: guid,
           position: position,

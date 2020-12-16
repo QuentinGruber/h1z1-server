@@ -65,22 +65,23 @@ var events_1 = require("events");
 var SOEServer = require("../SoeServer/soeserver").SOEServer;
 var loginprotocol_1 = require("../../protocols/loginprotocol");
 var debug = require("debug")("LoginServer");
+var js_base64_1 = require("js-base64");
 var mongodb_1 = require("mongodb");
+var utils_1 = require("../../utils/utils");
 var LoginServer = /** @class */ (function (_super) {
     __extends(LoginServer, _super);
-    function LoginServer(gameId, environment, serverPort, loginKey, SoloMode) {
-        if (SoloMode === void 0) { SoloMode = false; }
+    function LoginServer(serverPort, mongoAddress) {
         var _this = _super.call(this) || this;
         _this._compression = 0x0100;
         _this._crcSeed = 0;
         _this._crcLength = 2;
         _this._udpLength = 512;
-        _this._cryptoKey = loginKey;
-        _this._gameId = gameId;
-        _this._environment = environment;
-        _this._soloMode = SoloMode;
+        _this._cryptoKey = js_base64_1.toUint8Array("F70IaxuU8C/w7FPXY1ibXw==");
+        _this._soloMode = false;
+        _this._mongoAddress = mongoAddress;
         // reminders
-        if (_this._soloMode) {
+        if (!_this._mongoAddress) {
+            _this._soloMode = true;
             debug("Server in solo mode !");
         }
         _this._soeServer = new SOEServer("LoginUdp_9", serverPort, _this._cryptoKey, null);
@@ -104,40 +105,19 @@ var LoginServer = /** @class */ (function (_super) {
                         if (!!this._soloMode) return [3 /*break*/, 2];
                         return [4 /*yield*/, this._db.collection("servers").find().toArray()];
                     case 1:
+                        // useless if in solomode ( never get called either)
                         servers = _a.sent();
-                        return [3 /*break*/, 3];
-                    case 2:
-                        servers = [
-                            {
-                                serverId: 1,
-                                serverState: 0,
-                                locked: false,
-                                name: "fuckdb",
-                                nameId: 1,
-                                description: "yeah",
-                                descriptionId: 1,
-                                reqFeatureId: 0,
-                                serverInfo: 'Region="CharacterCreate.RegionUs" PingAddress="127.0.0.1:1117" Subregion="UI.SubregionUS" IsRecommended="1" IsRecommendedVS="0" IsRecommendedNC="0" IsRecommendedTR="0"',
-                                populationLevel: 1,
-                                populationData: 'ServerCapacity="0" PingAddress="127.0.0.1:1117" Rulesets="Permadeath"',
-                                allowedAccess: true,
-                            },
-                        ];
-                        _a.label = 3;
-                    case 3:
                         for (i = 0; i < servers.length; i++) {
-                            if (servers[i]._id) {
-                                delete servers[i]._id;
-                            }
                             data = this._protocol.pack("ServerUpdate", servers[i]);
                             this._soeServer.sendAppData(client, data, true);
                         }
-                        return [2 /*return*/];
+                        _a.label = 2;
+                    case 2: return [2 /*return*/];
                 }
             });
         }); });
         _this._soeServer.on("appdata", function (err, client, data) { return __awaiter(_this, void 0, void 0, function () {
-            var packet, result, data_1, _a, falsified_data, CharactersInfo, SinglePlayerCharacter, characters, servers, SoloServer, i, characters_delete_info, WaitSuccess, charactersLoginInfo, _b, serverId, characterId, serverAddress, reply_data, tunnelData, tunnelPackets, tunnelAppPacket, index, opcode, prefix, SimulatedPacket, result_1;
+            var packet, result, data_1, _a, falsified_data, CharactersInfo, SinglePlayerCharacter, characters, servers, SoloServer, i, characters_delete_info, charactersLoginInfo, _b, serverId, characterId, serverAddress, reply_data, tunnelData, tunnelPackets, tunnelAppPacket, index, opcode, prefix, SimulatedPacket, result_1;
             return __generator(this, function (_c) {
                 switch (_c.label) {
                     case 0:
@@ -244,7 +224,7 @@ var LoginServer = /** @class */ (function (_super) {
                             }
                         })];
                     case 12:
-                        WaitSuccess = _c.sent();
+                        _c.sent();
                         _c.label = 13;
                     case 13: return [3 /*break*/, 21];
                     case 14:
@@ -302,7 +282,7 @@ var LoginServer = /** @class */ (function (_super) {
                     case 18:
                         reply_data = {
                             status: 1,
-                            characterId: "0x03147cca2a860191",
+                            characterId: utils_1.generateGuid(),
                         };
                         data_1 = this._protocol.pack("CharacterCreateReply", reply_data);
                         this._soeServer.sendAppData(client, data_1, true);
@@ -346,14 +326,13 @@ var LoginServer = /** @class */ (function (_super) {
     }
     LoginServer.prototype.start = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var uri, mongoClient, e_1, _a;
+            var mongoClient, e_1, _a;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
                         debug("Starting server");
-                        if (!!this._soloMode) return [3 /*break*/, 7];
-                        uri = "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass%20Community&ssl=false";
-                        mongoClient = (this._mongoClient = new mongodb_1.MongoClient(uri, {
+                        if (!this._mongoAddress) return [3 /*break*/, 7];
+                        mongoClient = (this._mongoClient = new mongodb_1.MongoClient(this._mongoAddress, {
                             useUnifiedTopology: true,
                             native_parser: true,
                         }));

@@ -488,6 +488,7 @@ H1Z1Protocol.prototype.pack = function (packetName, object, referenceData) {
         debug("Could not pack data schema for " + packet.name);
       }
     } else {
+      debug(packet);
       debug("pack()", "No schema for packet " + packet.name);
     }
   } else {

@@ -434,6 +434,7 @@ H1Z1Protocol.prototype.pack = function (packetName, object, referenceData) {
             }
         }
         else {
+            debug(packet);
             debug("pack()", "No schema for packet " + packet.name);
         }
     }

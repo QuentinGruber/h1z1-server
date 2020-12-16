@@ -60,7 +60,7 @@ var packets = [
         packet: any,
         crcSeed: number,
         compression: number,
-        isSubPacket: boolean,
+        isSubPacket: boolean
       ) {
         var data = new (Buffer as any).alloc(14 + packet.protocol.length + 1);
         data.writeUInt16BE(0x01, 0);
@@ -520,7 +520,6 @@ function readDataLength(data: any, offset: number) {
 }
 
 class SOEProtocol {
-
   parse(data: any, crcSeed: number, compression: number) {
     var appData: Array<any> = [],
       packet = parseSOEPacket(data, crcSeed, compression, false, appData);
@@ -531,13 +530,7 @@ class SOEProtocol {
   }
 
   pack(packetName: string, object: any, crcSeed: number, compression: number) {
-    var data = packSOEPacket(
-      packetName,
-      object,
-      crcSeed,
-      compression,
-      false
-    );
+    var data = packSOEPacket(packetName, object, crcSeed, compression, false);
     return data;
   }
 }

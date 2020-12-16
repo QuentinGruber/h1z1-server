@@ -32,6 +32,14 @@ Making this work for the 15 January 2015 version of H1Z1 (first version).
 
 ### Download it
 
+#### The new way (easier)
+
+Make sure you have a version higher than 2.1 of .NET sdk or download the latest version [here](https://dotnet.microsoft.com/download/dotnet-core/3.1).
+
+[Download the latest version of H1DepotDownloader](https://github.com/H1emu/H1DepotDownloader/releases)
+
+#### The old way
+
 Use [DepotDownloader](https://github.com/SteamRE/DepotDownloader) ( only work if you've bought h1z1 )
 
 AppID : 295110 DepotID : 295111 ManifestID : 1930886153446950288
@@ -95,14 +103,10 @@ You need [Nodejs](https://nodejs.org/en/) ( currently using 12.16 LTS).
 
 #### LoginServer script exemple
 
-    const H1Z1servers = require("./h1z1-server");
-    const { Base64 } = require("js-base64");
+    const H1Z1servers = require("h1z1-server");
     var server = new H1Z1servers.LoginServer(
-    295110, // <- AppID
-    "dev", // <- environment
     1115, // <- server port
-    Base64.toUint8Array("F70IaxuU8C/w7FPXY1ibXw=="), // <- loginkey
-    true // <- SoloMode
+    "" // <- MongoDB address ( if blank server start in solo mode )
     );
     server.start();
 
