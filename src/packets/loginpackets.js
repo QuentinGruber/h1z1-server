@@ -444,10 +444,36 @@ var packets = [
     {
       fields: [
         { name: "serverId", type: "uint32" },
-        { name: "unknown1", type: "int32" },
-        { name: "packetLength", type: "int32" },
-        { name: "loginServerId", type: "uint8" },
-        { name: "name", type: "string" },
+        {
+          name: "payload",
+          type: "schema",
+          fields: [
+            { name: "unknown1", type: "int32" },
+            { name: "packetLength", type: "int32" },
+            { name: "loginServerId", type: "uint8" },
+            { name: "name", type: "string" },
+          ],
+        },
+      ],
+    },
+  ],
+  [
+    "NameValidationReply",
+    0x15,
+    {
+      fields: [
+        { name: "serverId", type: "uint32" },
+        { name: "status", type: "uint32" },
+        {
+          name: "payload",
+          type: "schema",
+          fields: [
+            { name: "unknown1", type: "int32" },
+            { name: "packetLength", type: "int32" },
+            { name: "loginServerId", type: "uint8" },
+            { name: "name", type: "string" },
+          ],
+        },
       ],
     },
   ],
