@@ -4998,16 +4998,26 @@ var packets = [
     0x0b,
     {
       fields: [
+        { name: "unknownByte1", type: "byte", defaultValue: 0 },
         { name: "zoneName", type: "string", defaultValue: "" },
-        { name: "zoneType", type: "uint32", defaultValue: 0 },
-        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-        { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
+        { name: "unknownDword1", type: "int32", defaultValue: 0 },
+
+        { name: "unknownDword2", type: "int32", defaultValue: 0 },
+        { name: "unknownDword3", type: "int32", defaultValue: 0 },
+        { name: "unknownDword4", type: "int32", defaultValue: 0 },
+        { name: "unknownDword5", type: "int32", defaultValue: 0 },
+
+        { name: "unknownDword6", type: "int32", defaultValue: 0 },
+        { name: "unknownDword7", type: "int32", defaultValue: 0 },
+        { name: "unknownDword8", type: "int32", defaultValue: 0 },
+        { name: "unknownDword9", type: "int32", defaultValue: 0 },
+
         {
           name: "skyData",
           type: "schema",
           fields: [
-            { name: "name", type: "string", defaultValue: "" },
             { name: "unknownDword1", type: "int32", defaultValue: 0 },
+            { name: "name", type: "string", defaultValue: "" },
             { name: "unknownDword2", type: "int32", defaultValue: 0 },
             { name: "unknownDword3", type: "int32", defaultValue: 0 },
             { name: "fogDensity", type: "int32", defaultValue: 0 },
@@ -5032,11 +5042,11 @@ var packets = [
             { name: "unknownDword23", type: "int32", defaultValue: 0 },
             { name: "unknownDword24", type: "int32", defaultValue: 0 },
             { name: "unknownDword25", type: "int32", defaultValue: 0 },
+            { name: "unknownDword26", type: "int32", defaultValue: 0 },
             {
               name: "unknownArray",
               type: "array",
               defaultValue: [{}],
-              length: 50,
               fields: [
                 { name: "unknownDword1", type: "int32", defaultValue: 0 },
                 { name: "unknownDword2", type: "int32", defaultValue: 0 },
@@ -5049,10 +5059,13 @@ var packets = [
             },
           ],
         },
+        { name: "unknownByte2", type: "byte", defaultValue: 0 },
         { name: "zoneId1", type: "uint32", defaultValue: 0 },
         { name: "zoneId2", type: "uint32", defaultValue: 0 },
         { name: "nameId", type: "uint32", defaultValue: 0 },
-        { name: "unknownBoolean7", type: "boolean", defaultValue: false },
+        { name: "unknownDword10", type: "uint32", defaultValue: 0 },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+        { name: "unknownBoolean2", type: "boolean", defaultValue: false },
       ],
     },
   ],

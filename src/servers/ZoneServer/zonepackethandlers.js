@@ -20,14 +20,35 @@ function Int64String(value) {
 
 var packetHandlers = {
   ClientIsReady: function (server, client, packet) {
-    server.sendData(client, "ClientBeginZoning", {
-      zoneName: "Z1",
-      zoneType: 4,
-      unknownBoolean1: true,
-      unknownFloat1: 1,
-      skyData: {
-        name: "sky",
+    const dumb_array = []; // TODO: generate this from dataschema
+    for (let index = 0; index < 50; index++) {
+      dumb_array.push({
         unknownDword1: 0,
+        unknownDword2: 0,
+        unknownDword3: 0,
+        unknownDword4: 0,
+        unknownDword5: 0,
+        unknownDword6: 0,
+        unknownDword7: 0,
+      });
+    }
+
+    server.sendData(client, "ClientBeginZoning", {
+      unknownByte1: 0,
+      zoneName: "Z1",
+      unknownDword1: 0,
+      unknownDword2: 0,
+      unknownDword3: 0,
+      unknownDword4: 0,
+      unknownDword5: 0,
+      unknownDword6: 0,
+      unknownDword7: 0,
+      unknownDword8: 0,
+      unknownDword9: 0,
+
+      skyData: {
+        unknownDword1: 0,
+        name: "sky",
         unknownDword2: 0,
         unknownDword3: 0,
         fogDensity: 0,
@@ -52,22 +73,16 @@ var packetHandlers = {
         unknownDword23: 0,
         unknownDword24: 0,
         unknownDword25: 0,
-        unknownArray: [
-          {
-            unknownDword1: 0,
-            unknownDword2: 0,
-            unknownDword3: 0,
-            unknownDword4: 0,
-            unknownDword5: 0,
-            unknownDword6: 0,
-            unknownDword7: 0,
-          },
-        ],
+        unknownDword26: 0,
+        unknownArray: dumb_array,
       },
+      unknownByte2: 0,
       zoneId1: 3168227224,
       zoneId2: 3168227224,
       nameId: 130,
-      unknownBoolean7: true,
+      unknownDword10: 0,
+      unknownBoolean1: true,
+      unknownBoolean2: true,
     });
 
     server.sendData(client, "QuickChat.SendData", { commands: [] });
