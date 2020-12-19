@@ -5757,16 +5757,16 @@ var packets = [
     0x16,
     {
       fields: [
+        { name: "unknownByte", type: "byte", defaultValue: 0 },
         { name: "zoneName", type: "string", defaultValue: "" },
         { name: "zoneType", type: "uint32", defaultValue: 0 },
         { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-        { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
         {
           name: "skyData",
           type: "schema",
           fields: [
-            { name: "name", type: "string", defaultValue: "" },
             { name: "unknownDword1", type: "int32", defaultValue: 0 },
+            { name: "name", type: "string", defaultValue: "" },
             { name: "unknownDword2", type: "int32", defaultValue: 0 },
             { name: "unknownDword3", type: "int32", defaultValue: 0 },
             { name: "fogDensity", type: "int32", defaultValue: 0 },
@@ -5795,7 +5795,6 @@ var packets = [
               name: "unknownArray",
               type: "array",
               defaultValue: [{}],
-              length: 50,
               fields: [
                 { name: "unknownDword1", type: "int32", defaultValue: 0 },
                 { name: "unknownDword2", type: "int32", defaultValue: 0 },
