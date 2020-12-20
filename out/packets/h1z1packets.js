@@ -4820,7 +4820,7 @@ var packets = [
                         { name: "unknownDword26", type: "int32", defaultValue: 0 },
                         {
                             name: "unknownArray",
-                            type: "array",
+                            type: "array8",
                             defaultValue: [{}],
                             fields: [
                                 { name: "unknownDword1", type: "int32", defaultValue: 0 },
