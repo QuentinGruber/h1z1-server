@@ -540,6 +540,52 @@ H1Z1Protocol.prototype.parse = function (data, flags, fromClient, referenceData)
       }
   */
 };
+H1Z1Protocol.prototype.calculatePacketLength = function (data, referenceData) {
+    var opCode = data[0], offset = 0, packet, result;
+    if (H1Z1Packets.Packets[opCode]) {
+        packet = H1Z1Packets.Packets[opCode];
+        offset = 1;
+    }
+    else if (data.length > 1) {
+        opCode = (data[0] << 8) + data[1];
+        if (H1Z1Packets.Packets[opCode]) {
+            packet = H1Z1Packets.Packets[opCode];
+            offset = 2;
+        }
+        else if (data.length > 2) {
+            opCode = (data[0] << 16) + (data[1] << 8) + data[2];
+            if (H1Z1Packets.Packets[opCode]) {
+                packet = H1Z1Packets.Packets[opCode];
+                offset = 3;
+            }
+            else if (data.length > 3) {
+                opCode = (data[0] << 24) + (data[1] << 16) + (data[2] << 8) + data[3];
+                if (H1Z1Packets.Packets[opCode]) {
+                    packet = H1Z1Packets.Packets[opCode];
+                    offset = 4;
+                }
+            }
+        }
+    }
+    if (packet) {
+        if (packet.schema) {
+            try {
+                result = DataSchema.calculateDataLength(packet.schema, data, referenceData)
+                    .result;
+            }
+            catch (e) {
+                debug(e);
+            }
+        }
+        else {
+            debug("No schema for packet " + packet.name);
+        }
+        return result;
+    }
+    else {
+        debug("Unhandled zone packet:", data[0], data[1], data[2]);
+    }
+};
 H1Z1Protocol.reloadPacketDefinitions = function () {
     delete require.cache[require.resolve("./h1z1packets")];
     H1Z1Packets = require("../h1z1packets");
