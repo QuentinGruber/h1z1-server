@@ -20,6 +20,8 @@ function Int64String(value) {
 
 var packetHandlers = {
   ClientIsReady: function (server, client, packet) {
+    /* 
+     **DISABLE THAT TEMPORARILY**
     const dumb_array = []; // TODO: generate this from dataschema
     for (let index = 0; index < 50; index++) {
       dumb_array.push({
@@ -84,7 +86,7 @@ var packetHandlers = {
       unknownBoolean1: true,
       unknownBoolean2: true,
     });
-
+*/
     server.sendData(client, "QuickChat.SendData", { commands: [] });
 
     server.sendData(client, "ClientUpdate.DoneSendingPreloadCharacters", {
