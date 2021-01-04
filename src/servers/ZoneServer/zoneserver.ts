@@ -247,8 +247,6 @@ export class ZoneServer extends EventEmitter {
       self.data.rotation = spawnList[randomSpawnIndex].rotation;
       client.character.spawnLocation = spawnList[randomSpawnIndex].name;
     }
-    self.lengthOfPacket = this._protocol.calculatePacketLength(self);
-    debug("Packet length : ",self.lengthOfPacket)
     this.sendData(client, "SendSelfToClient", self);
   }
 

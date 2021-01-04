@@ -1789,8 +1789,7 @@ var packets = [
                     name: "data",
                     type: "byteswithlength",
                     fields: [
-                        { name: "lengthOfPacket", type: "uint32", defaultValue: 0 },
-                        { name: "guid", type: "uint32", defaultValue: 0 },
+                        { name: "guid", type: "uint64", defaultValue: 0 },
                         { name: "characterId", type: "uint64", defaultValue: 0 },
                         {
                             name: "unknownUint1",
