@@ -1395,6 +1395,27 @@ var packetHandlers = {
           });
           server.sendChatText(client, "tried to spawn a LightweightPc");
           break;
+        case "weather":
+          const weatherTemplates = require("../../../data/weather.json");
+          const weatherTemplate = weatherTemplates[args[1]];
+          if (!args[1]) {
+            server.sendChatText(
+              client,
+              "Please define a weather template to use (data/weather.json)"
+            );
+          } else if (weatherTemplate) {
+            server.sendData(client, "SendZoneDetails", weatherTemplate);
+            server.sendChatText(
+              client,
+              `Use "${args[1]}" as a weather template`
+            );
+          } else {
+            server.sendChatText(
+              client,
+              `"${args[1]}" isn't a weather template`
+            );
+          }
+          break;
         case "testpacket":
           const packetName = args[1];
           server.sendData(client, packetName, {});
@@ -1418,7 +1439,13 @@ var packetHandlers = {
           });
           break;
         case "hell":
-          debug(":)");
+          server.sendChatText(
+            client,
+            "[DEPRECATED] use '/hax randomWeather' instead",
+            true
+          );
+        case "randomWeather":
+          debug("Randomized weather");
           function rnd_number() {
             return Math.random() * 100;
           }
