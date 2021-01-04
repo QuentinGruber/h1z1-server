@@ -1948,7 +1948,7 @@ var respawnLocationDataSchema = [
   { name: "iconId1", type: "uint32", defaultValue: 0 },
   { name: "iconId2", type: "uint32", defaultValue: 0 },
   { name: "respawnTotalTime", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+  { name: "respawnTimeMs", type: "uint32", defaultValue: 0 },
   { name: "nameId", type: "uint32", defaultValue: 0 },
   { name: "distance", type: "float", defaultValue: 0.0 },
   { name: "unknownByte1", type: "uint8", defaultValue: 0 },
@@ -4385,7 +4385,21 @@ var packets = [
   ["AdminCommand.DeliveryManagerStatus", 0x0a4f00, {}],
   ["Command.DeliveryManagerShowNotification", 0x095000, {}],
   ["AdminCommand.DeliveryManagerShowNotification", 0x0a5000, {}],
-  ["Command.AddItem", 0x09ea03, {}],
+  [
+    "Command.AddItem",
+    0x09ea03,
+    {
+      // found at 1407c97d0
+      fields: [
+        { name: "itemId", type: "uint32", defaultValue: "0" },
+        { name: "stackCount", type: "uint32", defaultValue: "0" },
+        { name: "imageSetId", type: "uint32", defaultValue: "0" },
+        { name: "imageTintValue", type: "uint32", defaultValue: "0" },
+        { name: "NameId", type: "uint32", defaultValue: "0" },
+        { name: "DescriptionId", type: "uint32", defaultValue: "0" },
+      ],
+    },
+  ],
   ["AdminCommand.AddItem", 0x0aea03, {}],
   ["Command.DeleteItem", 0x09eb03, {}],
   ["AdminCommand.DeleteItem", 0x0aeb03, {}],
@@ -4984,16 +4998,26 @@ var packets = [
     0x0b,
     {
       fields: [
+        { name: "unknownByte1", type: "byte", defaultValue: 0 },
         { name: "zoneName", type: "string", defaultValue: "" },
-        { name: "zoneType", type: "uint32", defaultValue: 0 },
-        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-        { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
+        { name: "unknownDword1", type: "int32", defaultValue: 0 },
+
+        { name: "unknownDword2", type: "int32", defaultValue: 0 },
+        { name: "unknownDword3", type: "int32", defaultValue: 0 },
+        { name: "unknownDword4", type: "int32", defaultValue: 0 },
+        { name: "unknownDword5", type: "int32", defaultValue: 0 },
+
+        { name: "unknownDword6", type: "int32", defaultValue: 0 },
+        { name: "unknownDword7", type: "int32", defaultValue: 0 },
+        { name: "unknownDword8", type: "int32", defaultValue: 0 },
+        { name: "unknownDword9", type: "int32", defaultValue: 0 },
+
         {
           name: "skyData",
           type: "schema",
           fields: [
-            { name: "name", type: "string", defaultValue: "" },
             { name: "unknownDword1", type: "int32", defaultValue: 0 },
+            { name: "name", type: "string", defaultValue: "" },
             { name: "unknownDword2", type: "int32", defaultValue: 0 },
             { name: "unknownDword3", type: "int32", defaultValue: 0 },
             { name: "fogDensity", type: "int32", defaultValue: 0 },
@@ -5018,11 +5042,11 @@ var packets = [
             { name: "unknownDword23", type: "int32", defaultValue: 0 },
             { name: "unknownDword24", type: "int32", defaultValue: 0 },
             { name: "unknownDword25", type: "int32", defaultValue: 0 },
+            { name: "unknownDword26", type: "int32", defaultValue: 0 },
             {
               name: "unknownArray",
-              type: "array",
+              type: "array8",
               defaultValue: [{}],
-              length: 50,
               fields: [
                 { name: "unknownDword1", type: "int32", defaultValue: 0 },
                 { name: "unknownDword2", type: "int32", defaultValue: 0 },
@@ -5035,10 +5059,13 @@ var packets = [
             },
           ],
         },
+        { name: "unknownByte2", type: "byte", defaultValue: 0 },
         { name: "zoneId1", type: "uint32", defaultValue: 0 },
         { name: "zoneId2", type: "uint32", defaultValue: 0 },
         { name: "nameId", type: "uint32", defaultValue: 0 },
-        { name: "unknownBoolean7", type: "boolean", defaultValue: false },
+        { name: "unknownDword10", type: "uint32", defaultValue: 0 },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+        { name: "unknownBoolean2", type: "boolean", defaultValue: false },
       ],
     },
   ],
@@ -5743,18 +5770,19 @@ var packets = [
     0x16,
     {
       fields: [
+        { name: "unknownByte", type: "byte", defaultValue: 0 },
         { name: "zoneName", type: "string", defaultValue: "" },
         { name: "zoneType", type: "uint32", defaultValue: 0 },
         { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-        { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
         {
           name: "skyData",
           type: "schema",
           fields: [
-            { name: "name", type: "string", defaultValue: "" },
             { name: "unknownDword1", type: "int32", defaultValue: 0 },
+            { name: "name", type: "string", defaultValue: "" },
             { name: "unknownDword2", type: "int32", defaultValue: 0 },
             { name: "unknownDword3", type: "int32", defaultValue: 0 },
+            { name: "unknownDword4", type: "int32", defaultValue: 0 },
             { name: "fogDensity", type: "int32", defaultValue: 0 },
             { name: "fogGradient", type: "int32", defaultValue: 0 },
             { name: "fogFloor", type: "int32", defaultValue: 0 },
@@ -5776,12 +5804,10 @@ var packets = [
             { name: "unknownDword22", type: "int32", defaultValue: 0 },
             { name: "unknownDword23", type: "int32", defaultValue: 0 },
             { name: "unknownDword24", type: "int32", defaultValue: 0 },
-            { name: "unknownDword25", type: "int32", defaultValue: 0 },
             {
               name: "unknownArray",
               type: "array",
               defaultValue: [{}],
-              length: 50,
               fields: [
                 { name: "unknownDword1", type: "int32", defaultValue: 0 },
                 { name: "unknownDword2", type: "int32", defaultValue: 0 },

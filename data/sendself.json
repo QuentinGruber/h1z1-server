@@ -101,7 +101,7 @@
         {
           "itemData": {
             "baseItem": {
-              "itemId": 70441,
+              "itemId": 12,
               "unknownDword2": 20,
               "unknownGuid1": "0x28f9d0b480000001",
               "unknownDword3": 1,
@@ -112,12 +112,109 @@
               "unknownDword7": 20,
               "unknownByte1": 20,
               "unknownData": {
-                "type": 20,
-                "value": {}
+                "unknownDword1": 0,
+                "unknownDword2": 0,
+                "unknownDword3": 0
               }
             },
             "detail": {
               "unknownBoolean1": false
+            }
+          }
+        },
+        {
+          "itemData": {
+            "baseItem": {
+              "itemId": 1382,
+              "unknownDword2": 20,
+              "unknownGuid1": "0x28f9d0b480000001",
+              "unknownDword3": 1,
+              "unknownDword4": 20,
+              "unknownDword5": 20,
+              "unknownDword6": 20,
+              "unknownBoolean1": true,
+              "unknownDword7": 20,
+              "unknownByte1": 20,
+              "unknownData": {
+                "unknownDword1": 0,
+                "unknownDword2": 0,
+                "unknownDword3": 0
+              }
+            },
+            "detail": {
+              "unknownBoolean1": false,
+              "unknownArray1": [
+                {
+                  "unknownDword1": 0,
+                  "unknownDword2": 0
+                }
+              ],
+              "unknownArray2": [
+                {
+                  "unknownDword1": 0,
+                  "unknownArray1": [
+                    {
+                      "unknownByte1": 0,
+                      "unknownDword1": 0,
+                      "unknownDword2": 0,
+                      "unknownDword3": 0
+                    }
+                  ]
+                }
+              ],
+              "unknownByte1": 0,
+              "unknownByte2": 0,
+              "unknownDword1": 0,
+              "unknownByte3": 0,
+              "unknownFloat1": 0.0,
+              "unknownByte4": 0,
+              "unknownDword2": 0,
+              "unknownArray3": [
+                {
+                  "statOwnerId": 0,
+                  "statData": {
+                    "statId": 0,
+                    "statValue": [
+                      {
+                        "baseValue": 0,
+                        "modifierValue": 0
+                      },
+                      {
+                        "baseValue": 0,
+                        "modifierValue": 0
+                      }
+                    ]
+                  }
+                }
+              ],
+              "unknownArray4": [
+                {
+                  "unknownDword1": 0,
+                  "unknownArray1": [
+                    {
+                      "unknownDword1": 0,
+                      "unknownArray1": [
+                        {
+                          "statOwnerId": 0,
+                          "statData": {
+                            "statId": 0,
+                            "statValue": [
+                              {
+                                "baseValue": 0,
+                                "modifierValue": 0
+                              },
+                              {
+                                "baseValue": 0,
+                                "modifierValue": 0
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
             }
           }
         }

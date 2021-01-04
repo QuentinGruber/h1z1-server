@@ -41,11 +41,10 @@ export declare class LoginServer extends EventEmitter {
     _crcSeed: number;
     _crcLength: number;
     _udpLength: number;
-    _gameId: number;
-    _environment: string;
-    _cryptoKey: string;
+    _cryptoKey: Uint8Array;
+    _mongoAddress: string;
     _soloMode: boolean;
-    constructor(gameId: number, environment: string, serverPort: number, loginKey: string, SoloMode?: boolean);
+    constructor(serverPort: number, mongoAddress: string);
     start(): Promise<void>;
     data(collectionName: string): any;
     stop(): void;

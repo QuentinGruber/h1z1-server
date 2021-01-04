@@ -17,9 +17,13 @@ interface Client {
         characterId: string;
         name?: string;
         loadouts?: any;
-        currentLoadoutTab?: any;
-        currentLoadoutId?: any;
-        currentLoadout?: any;
+        currentLoadoutTab?: number;
+        currentLoadoutId?: number;
+        currentLoadout?: number;
+        guid?: string;
+        inventory?: Array<any>;
+        factionId?: number;
+        spawnLocation?: string;
         state: {
             position: number[];
             rotation: number[];
@@ -54,22 +58,25 @@ export declare class ZoneServer extends EventEmitter {
     _clients: any;
     _characters: any;
     _ncps: any;
-    _usingMongo: any;
     _serverTime: any;
     _transientId: any;
-    _guids: any;
+    _guids: Array<string>;
     _packetHandlers: any;
     _referenceData: any;
     _startTime: number;
     _db: any;
     npcs: any;
-    constructor(serverPort: number, gatewayKey: string, UsingMongo: boolean);
+    constructor(serverPort: number, gatewayKey: string);
     start(): Promise<void>;
+    parseReferenceData(): {
+        itemTypes: {};
+    };
+    characterData(client: Client): void;
+    sendInitData(client: Client): void;
     data(collectionName: string): any;
-    setReferenceData(referenceData: any): void;
-    sendSystemMessage(client: Client, message: string): void;
+    sendSystemMessage(message: string): void;
     sendChat(client: Client, message: string, channel: number): void;
-    sendChatText(client: Client, message: string): void;
+    sendChatText(client: Client, message: string, clearChat?: boolean): void;
     setCharacterLoadout(client: Client, loadoutId: number, loadoutTab: any): void;
     sendData(client: Client, packetName: string, obj: any): void;
     sendDataToAll(packetName: string, obj: any): void;
@@ -79,7 +86,6 @@ export declare class ZoneServer extends EventEmitter {
     getGameTime(): number;
     getServerTime(): any;
     sendGameTimeSync(client: Client): void;
-    generateGuid(): string | undefined;
     getTransientId(client: any, guid: string): any;
     spawnNPC(npcId: number, position: Array<number>, rotation: Array<number>, callback: any): void;
     spawnVehicle(vehicleId: number): void;

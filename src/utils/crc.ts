@@ -19,10 +19,7 @@ function crc32(data: any, crcSeed: number) {
   }
   return ~crc >>> 0;
 }
-exports.appendCRC = function (
-  data: any,
-  crcSeed: number
-) {
+exports.appendCRC = function (data: any, crcSeed: number) {
   const crc = crc32(data, crcSeed >>> 0);
   const crcBuffer = new (Buffer as any).alloc(2);
   crcBuffer.writeUInt16BE(crc & 0xffff, 0);
