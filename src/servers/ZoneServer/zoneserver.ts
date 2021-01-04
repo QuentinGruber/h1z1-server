@@ -121,7 +121,7 @@ export class ZoneServer extends EventEmitter {
           try {
             this._packetHandlers[packet.name](this, client, packet);
           } catch (e) {
-            console.log(e);
+            debug(e);
           }
         } else {
           debug(packet);
@@ -220,6 +220,36 @@ export class ZoneServer extends EventEmitter {
     return referenceData;
   }
 
+  characterData(client: Client) {
+    const self = require("../../../data/sendself.json"); // dummy self
+    const {
+      data: { identity },
+    } = self;
+    client.character.guid = self.data.guid;
+    client.character.loadouts = self.data.characterLoadoutData.loadouts;
+    client.character.inventory = self.data.inventory;
+    client.character.factionId = self.data.factionId;
+    client.character.name =
+      identity.characterFirstName + identity.characterLastName;
+
+    if (
+      _.isEqual(self.data.position, [0, 0, 0, 1]) &&
+      _.isEqual(self.data.rotation, [0, 0, 0, 1])
+    ) {
+      // if position/rotation hasn't be changed
+      self.data.isRandomlySpawning = true;
+    }
+
+    if (self.data.isRandomlySpawning) {
+      // Take position/rotation from a random spawn location.
+      const randomSpawnIndex = Math.floor(Math.random() * spawnList.length);
+      self.data.position = spawnList[randomSpawnIndex].position;
+      self.data.rotation = spawnList[randomSpawnIndex].rotation;
+      client.character.spawnLocation = spawnList[randomSpawnIndex].name;
+    }
+    this.sendData(client, "SendSelfToClient", self);
+  }
+
   sendInitData(client:Client) {
     this.sendData(client, "InitializationParameters", {
       environment: "LIVE",
@@ -250,6 +280,7 @@ export class ZoneServer extends EventEmitter {
         unknownDword1: 0,
         unknownDword2: 0,
         unknownDword3: 0,
+        unknownDword4: 0,
         fogDensity: 0, // fog intensity
         fogGradient: 0,
         fogFloor: 0,
@@ -271,7 +302,6 @@ export class ZoneServer extends EventEmitter {
         unknownDword22: 0,
         unknownDword23: 0,
         unknownDword24: 0,
-        unknownDword25: 0,
         unknownArray: dumb_array,
       },
       zoneId1: 3905829720,
@@ -356,33 +386,8 @@ export class ZoneServer extends EventEmitter {
       unknownFloat3: 110,
     });
 
-    const self = require("../../../data/sendself.json"); // dummy self
-    const {
-      data: { identity },
-    } = self;
-    client.character.guid = self.data.guid;
-    client.character.loadouts = self.data.characterLoadoutData.loadouts;
-    client.character.inventory = self.data.inventory;
-    client.character.factionId = self.data.factionId;
-    client.character.name =
-      identity.characterFirstName + identity.characterLastName;
+    this.characterData(client);
 
-    if (
-      _.isEqual(self.data.position, [0, 0, 0, 1]) &&
-      _.isEqual(self.data.rotation, [0, 0, 0, 1])
-    ) {
-      // if position/rotation hasn't be changed
-      self.data.isRandomlySpawning = true;
-    }
-
-    if (self.data.isRandomlySpawning) {
-      // Take position/rotation from a random spawn location.
-      const randomSpawnIndex = Math.floor(Math.random() * spawnList.length);
-      self.data.position = spawnList[randomSpawnIndex].position;
-      self.data.rotation = spawnList[randomSpawnIndex].rotation;
-      client.character.spawnLocation = spawnList[randomSpawnIndex].name;
-    }
-    this.sendData(client, "SendSelfToClient", self);
     this.sendData(client, "PlayerUpdate.SetBattleRank", {
       characterId: client.character.characterId,
       battleRank: 100,
