@@ -5782,6 +5782,7 @@ var packets = [
             { name: "name", type: "string", defaultValue: "" },
             { name: "unknownDword2", type: "int32", defaultValue: 0 },
             { name: "unknownDword3", type: "int32", defaultValue: 0 },
+            { name: "unknownDword4", type: "int32", defaultValue: 0 },
             { name: "fogDensity", type: "int32", defaultValue: 0 },
             { name: "fogGradient", type: "int32", defaultValue: 0 },
             { name: "fogFloor", type: "int32", defaultValue: 0 },
@@ -5803,7 +5804,6 @@ var packets = [
             { name: "unknownDword22", type: "int32", defaultValue: 0 },
             { name: "unknownDword23", type: "int32", defaultValue: 0 },
             { name: "unknownDword24", type: "int32", defaultValue: 0 },
-            { name: "unknownDword25", type: "int32", defaultValue: 0 },
             {
               name: "unknownArray",
               type: "array",

@@ -1,0 +1,493 @@
+{
+  "Winter-Night": {
+    "zoneName": "Z1",
+    "unknownDword1": 4,
+    "unknownBoolean1": true,
+    "unknownFloat1": 1,
+    "skyData": {
+      "name": "sky",
+      "unknownDword1": 6.806021432001685,
+      "unknownDword2": 60.87026093491132,
+      "unknownDword3": 35.20585077918603,
+      "unknownDword4": 91.0979289923476,
+      "fogDensity": 5.425211738906355,
+      "fogGradient": 21.998856800177414,
+      "fogFloor": 11.409987906495367,
+      "unknownDword7": 6.8264151045448695,
+      "unknownDword8": 96.80768231037568,
+      "temp": 8.490466470197378,
+      "skyColor": 50.57908757960226,
+      "cloudWeight0": 0.17765260780200354,
+      "cloudWeight1": 12.795348549502815,
+      "cloudWeight2": 99.30996739098354,
+      "cloudWeight3": 18.601071154309313,
+      "sunAxisX": 98.37846953825733,
+      "sunAxisY": 18.66383531611884,
+      "sunAxisZ": 83.22891001850765,
+      "unknownDword18": 28.66426351073825,
+      "unknownDword19": 37.52299530875738,
+      "unknownDword20": 53.08594324306697,
+      "wind": 83.54691499995046,
+      "unknownDword22": 43.837989971264534,
+      "unknownDword23": 75.43157808293024,
+      "unknownDword24": 40.2709941475873,
+      "unknownDword25": 99.92046774252314,
+      "unknownArray": [
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        },
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownDword5": 0,
+          "unknownDword6": 0,
+          "unknownDword7": 0
+        }
+      ]
+    },
+    "zoneId1": 3905829720,
+    "zoneId2": 3905829720,
+    "nameId": 7699,
+    "unknownBoolean7": true
+  }
+}

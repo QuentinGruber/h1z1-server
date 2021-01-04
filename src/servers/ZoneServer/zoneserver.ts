@@ -280,6 +280,7 @@ export class ZoneServer extends EventEmitter {
         unknownDword1: 0,
         unknownDword2: 0,
         unknownDword3: 0,
+        unknownDword4: 0,
         fogDensity: 0, // fog intensity
         fogGradient: 0,
         fogFloor: 0,
@@ -301,7 +302,6 @@ export class ZoneServer extends EventEmitter {
         unknownDword22: 0,
         unknownDword23: 0,
         unknownDword24: 0,
-        unknownDword25: 0,
         unknownArray: dumb_array,
       },
       zoneId1: 3905829720,

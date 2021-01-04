@@ -1209,6 +1209,18 @@ var packetHandlers = {
                     function rnd_number() {
                         return Math.random() * 100;
                     }
+                    var dumb_array = []; // TODO: generate this from dataschema
+                    for (var index = 0; index < 50; index++) {
+                        dumb_array.push({
+                            unknownDword1: 0,
+                            unknownDword2: 0,
+                            unknownDword3: 0,
+                            unknownDword4: 0,
+                            unknownDword5: 0,
+                            unknownDword6: 0,
+                            unknownDword7: 0,
+                        });
+                    }
                     var rnd_zoneDetails = {
                         zoneName: "Z1",
                         unknownDword1: 4,
@@ -1219,6 +1231,7 @@ var packetHandlers = {
                             unknownDword1: rnd_number(),
                             unknownDword2: rnd_number(),
                             unknownDword3: rnd_number(),
+                            unknownDword4: rnd_number(),
                             fogDensity: rnd_number(),
                             fogGradient: rnd_number(),
                             fogFloor: rnd_number(),
@@ -1241,7 +1254,7 @@ var packetHandlers = {
                             unknownDword23: rnd_number(),
                             unknownDword24: rnd_number(),
                             unknownDword25: rnd_number(),
-                            unknownArray: [],
+                            unknownArray: dumb_array,
                         },
                         zoneId1: 3905829720,
                         zoneId2: 3905829720,
