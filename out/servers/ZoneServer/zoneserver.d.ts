@@ -71,6 +71,7 @@ export declare class ZoneServer extends EventEmitter {
     parseReferenceData(): {
         itemTypes: {};
     };
+    characterData(client: Client): void;
     sendInitData(client: Client): void;
     data(collectionName: string): any;
     sendSystemMessage(message: string): void;

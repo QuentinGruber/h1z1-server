@@ -20,6 +20,8 @@ function Int64String(value) {
 
 var packetHandlers = {
   ClientIsReady: function (server, client, packet) {
+    /* 
+     **DISABLE THAT TEMPORARILY**
     const dumb_array = []; // TODO: generate this from dataschema
     for (let index = 0; index < 50; index++) {
       dumb_array.push({
@@ -84,7 +86,7 @@ var packetHandlers = {
       unknownBoolean1: true,
       unknownBoolean2: true,
     });
-
+*/
     server.sendData(client, "QuickChat.SendData", { commands: [] });
 
     server.sendData(client, "ClientUpdate.DoneSendingPreloadCharacters", {
@@ -1393,6 +1395,27 @@ var packetHandlers = {
           });
           server.sendChatText(client, "tried to spawn a LightweightPc");
           break;
+        case "weather":
+          const weatherTemplates = require("../../../data/weather.json");
+          const weatherTemplate = weatherTemplates[args[1]];
+          if (!args[1]) {
+            server.sendChatText(
+              client,
+              "Please define a weather template to use (data/weather.json)"
+            );
+          } else if (weatherTemplate) {
+            server.sendData(client, "SendZoneDetails", weatherTemplate);
+            server.sendChatText(
+              client,
+              `Use "${args[1]}" as a weather template`
+            );
+          } else {
+            server.sendChatText(
+              client,
+              `"${args[1]}" isn't a weather template`
+            );
+          }
+          break;
         case "testpacket":
           const packetName = args[1];
           server.sendData(client, packetName, {});
@@ -1416,11 +1439,28 @@ var packetHandlers = {
           });
           break;
         case "hell":
-          debug(":)");
+          server.sendChatText(
+            client,
+            "[DEPRECATED] use '/hax randomWeather' instead",
+            true
+          );
+        case "randomWeather":
+          debug("Randomized weather");
           function rnd_number() {
             return Math.random() * 100;
           }
-
+          const dumb_array = []; // TODO: generate this from dataschema
+          for (let index = 0; index < 50; index++) {
+            dumb_array.push({
+              unknownDword1: 0,
+              unknownDword2: 0,
+              unknownDword3: 0,
+              unknownDword4: 0,
+              unknownDword5: 0,
+              unknownDword6: 0,
+              unknownDword7: 0,
+            });
+          }
           const rnd_zoneDetails = {
             zoneName: "Z1",
             unknownDword1: 4,
@@ -1431,6 +1471,7 @@ var packetHandlers = {
               unknownDword1: rnd_number(),
               unknownDword2: rnd_number(),
               unknownDword3: rnd_number(),
+              unknownDword4: rnd_number(),
               fogDensity: rnd_number(), // fog intensity
               fogGradient: rnd_number(),
               fogFloor: rnd_number(),
@@ -1453,7 +1494,7 @@ var packetHandlers = {
               unknownDword23: rnd_number(),
               unknownDword24: rnd_number(),
               unknownDword25: rnd_number(),
-              unknownArray: [],
+              unknownArray: dumb_array,
             },
             zoneId1: 3905829720,
             zoneId2: 3905829720,

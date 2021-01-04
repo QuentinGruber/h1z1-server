@@ -105,7 +105,7 @@ var ZoneServer = /** @class */ (function (_super) {
                         _this._packetHandlers[packet.name](_this, client, packet);
                     }
                     catch (e) {
-                        console.log(e);
+                        debug(e);
                     }
                 }
                 else {
@@ -186,6 +186,29 @@ var ZoneServer = /** @class */ (function (_super) {
         var referenceData = { itemTypes: items };
         return referenceData;
     };
+    ZoneServer.prototype.characterData = function (client) {
+        var self = require("../../../data/sendself.json"); // dummy self
+        var identity = self.data.identity;
+        client.character.guid = self.data.guid;
+        client.character.loadouts = self.data.characterLoadoutData.loadouts;
+        client.character.inventory = self.data.inventory;
+        client.character.factionId = self.data.factionId;
+        client.character.name =
+            identity.characterFirstName + identity.characterLastName;
+        if (lodash_1.default.isEqual(self.data.position, [0, 0, 0, 1]) &&
+            lodash_1.default.isEqual(self.data.rotation, [0, 0, 0, 1])) {
+            // if position/rotation hasn't be changed
+            self.data.isRandomlySpawning = true;
+        }
+        if (self.data.isRandomlySpawning) {
+            // Take position/rotation from a random spawn location.
+            var randomSpawnIndex = Math.floor(Math.random() * spawnList.length);
+            self.data.position = spawnList[randomSpawnIndex].position;
+            self.data.rotation = spawnList[randomSpawnIndex].rotation;
+            client.character.spawnLocation = spawnList[randomSpawnIndex].name;
+        }
+        this.sendData(client, "SendSelfToClient", self);
+    };
     ZoneServer.prototype.sendInitData = function (client) {
         this.sendData(client, "InitializationParameters", {
             environment: "LIVE",
@@ -214,6 +237,7 @@ var ZoneServer = /** @class */ (function (_super) {
                 unknownDword1: 0,
                 unknownDword2: 0,
                 unknownDword3: 0,
+                unknownDword4: 0,
                 fogDensity: 0,
                 fogGradient: 0,
                 fogFloor: 0,
@@ -235,7 +259,6 @@ var ZoneServer = /** @class */ (function (_super) {
                 unknownDword22: 0,
                 unknownDword23: 0,
                 unknownDword24: 0,
-                unknownDword25: 0,
                 unknownArray: dumb_array,
             },
             zoneId1: 3905829720,
@@ -316,27 +339,7 @@ var ZoneServer = /** @class */ (function (_super) {
             unknownFloat2: 12,
             unknownFloat3: 110,
         });
-        var self = require("../../../data/sendself.json"); // dummy self
-        var identity = self.data.identity;
-        client.character.guid = self.data.guid;
-        client.character.loadouts = self.data.characterLoadoutData.loadouts;
-        client.character.inventory = self.data.inventory;
-        client.character.factionId = self.data.factionId;
-        client.character.name =
-            identity.characterFirstName + identity.characterLastName;
-        if (lodash_1.default.isEqual(self.data.position, [0, 0, 0, 1]) &&
-            lodash_1.default.isEqual(self.data.rotation, [0, 0, 0, 1])) {
-            // if position/rotation hasn't be changed
-            self.data.isRandomlySpawning = true;
-        }
-        if (self.data.isRandomlySpawning) {
-            // Take position/rotation from a random spawn location.
-            var randomSpawnIndex = Math.floor(Math.random() * spawnList.length);
-            self.data.position = spawnList[randomSpawnIndex].position;
-            self.data.rotation = spawnList[randomSpawnIndex].rotation;
-            client.character.spawnLocation = spawnList[randomSpawnIndex].name;
-        }
-        this.sendData(client, "SendSelfToClient", self);
+        this.characterData(client);
         this.sendData(client, "PlayerUpdate.SetBattleRank", {
             characterId: client.character.characterId,
             battleRank: 100,
