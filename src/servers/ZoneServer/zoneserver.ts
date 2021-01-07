@@ -256,19 +256,6 @@ export class ZoneServer extends EventEmitter {
       serverId: 1,
     });
    
-    const dumb_array = [] // TODO: generate this from dataschema
-    for (let index = 0; index < 50; index++) {
-      dumb_array.push(
-        {
-          unknownDword1: 0,
-          unknownDword2: 0,
-          unknownDword3: 0,
-          unknownDword4: 0,
-          unknownDword5: 0,
-          unknownDword6: 0,
-          unknownDword7: 0
-        })
-    }
     this.sendData(client, "SendZoneDetails", {
       unknownByte:0,
       zoneName: "Z1",
@@ -302,7 +289,15 @@ export class ZoneServer extends EventEmitter {
         unknownDword22: 0,
         unknownDword23: 0,
         unknownDword24: 0,
-        unknownArray: dumb_array,
+        unknownArray: _.fill(Array(50), {
+          unknownDword1: 0,
+          unknownDword2: 0,
+          unknownDword3: 0,
+          unknownDword4: 0,
+          unknownDword5: 0,
+          unknownDword6: 0,
+          unknownDword7: 0
+        }),
       },
       zoneId1: 3905829720,
       zoneId2: 3905829720,

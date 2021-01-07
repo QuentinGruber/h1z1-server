@@ -22,18 +22,6 @@ var packetHandlers = {
     ClientIsReady: function (server, client, packet) {
         /*
          **DISABLE THAT TEMPORARILY**
-        const dumb_array = []; // TODO: generate this from dataschema
-        for (let index = 0; index < 50; index++) {
-          dumb_array.push({
-            unknownDword1: 0,
-            unknownDword2: 0,
-            unknownDword3: 0,
-            unknownDword4: 0,
-            unknownDword5: 0,
-            unknownDword6: 0,
-            unknownDword7: 0,
-          });
-        }
     
         server.sendData(client, "ClientBeginZoning", {
           unknownByte1: 0,
@@ -76,7 +64,15 @@ var packetHandlers = {
             unknownDword24: 0,
             unknownDword25: 0,
             unknownDword26: 0,
-            unknownArray: dumb_array,
+            unknownArray: _.fill(Array(50), {
+                    unknownDword1: 0,
+                    unknownDword2: 0,
+                    unknownDword3: 0,
+                    unknownDword4: 0,
+                    unknownDword5: 0,
+                    unknownDword6: 0,
+                    unknownDword7: 0,
+                  }),
           },
           unknownByte2: 0,
           zoneId1: 3168227224,
@@ -1225,18 +1221,6 @@ var packetHandlers = {
                     function rnd_number() {
                         return Math.random() * 100;
                     }
-                    var dumb_array = []; // TODO: generate this from dataschema
-                    for (var index = 0; index < 50; index++) {
-                        dumb_array.push({
-                            unknownDword1: 0,
-                            unknownDword2: 0,
-                            unknownDword3: 0,
-                            unknownDword4: 0,
-                            unknownDword5: 0,
-                            unknownDword6: 0,
-                            unknownDword7: 0,
-                        });
-                    }
                     var rnd_zoneDetails = {
                         zoneName: "Z1",
                         unknownDword1: 4,
@@ -1270,7 +1254,15 @@ var packetHandlers = {
                             unknownDword23: rnd_number(),
                             unknownDword24: rnd_number(),
                             unknownDword25: rnd_number(),
-                            unknownArray: dumb_array,
+                            unknownArray: _.fill(Array(50), {
+                                unknownDword1: 0,
+                                unknownDword2: 0,
+                                unknownDword3: 0,
+                                unknownDword4: 0,
+                                unknownDword5: 0,
+                                unknownDword6: 0,
+                                unknownDword7: 0,
+                            }),
                         },
                         zoneId1: 3905829720,
                         zoneId2: 3905829720,
