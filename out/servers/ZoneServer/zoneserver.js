@@ -230,7 +230,7 @@ var ZoneServer = /** @class */ (function (_super) {
                 fogGradient: 0,
                 fogFloor: 0,
                 unknownDword7: 0,
-                unknownDword8: 0,
+                rain: 0,
                 temp: 40,
                 skyColor: 0,
                 cloudWeight0: 0,

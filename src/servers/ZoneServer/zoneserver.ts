@@ -272,7 +272,7 @@ export class ZoneServer extends EventEmitter {
         fogGradient: 0,
         fogFloor: 0,
         unknownDword7: 0,
-        unknownDword8: 0,
+        rain: 0,
         temp: 40, // 0 : snow map , 40+ : spring map
         skyColor: 0,
         cloudWeight0: 0,

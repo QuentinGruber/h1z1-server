@@ -45,7 +45,7 @@ var packetHandlers = {
         fogGradient: 0,
         fogFloor: 0,
         unknownDword7: 0,
-        unknownDword8: 0,
+        rain: 0,
         temp: 0,
         skyColor: 0,
         cloudWeight0: 0,
@@ -1460,7 +1460,7 @@ var packetHandlers = {
               fogGradient: rnd_number(),
               fogFloor: rnd_number(),
               unknownDword7: rnd_number(),
-              unknownDword8: rnd_number(),
+              rain: rnd_number(),
               temp: rnd_number(), // 0 : snow map , 40+ : spring map
               skyColor: rnd_number(),
               cloudWeight0: rnd_number(),
