@@ -6,8 +6,6 @@
   "license": "GPL-3.0-only",
   "main": "h1z1-server.js",
   "dependencies": {
-    "@types/mongodb": "^3.5.27",
-    "@types/node": "^14.14.9",
     "buffer-crc32": ">=0.2.1",
     "debug": "^4.2.0",
     "h1z1-dataschema": "^1.0.6",
@@ -21,7 +19,9 @@
     "src": "./src"
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.165"
+    "@types/lodash": "^4.14.165",
+    "@types/mongodb": "^3.6.3",
+    "@types/node": "^14.14.21"
   },
   "scripts": {
     "compile_ts": "tsc --declaration -p .",
