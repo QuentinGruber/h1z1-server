@@ -6336,7 +6336,11 @@ var packets = [
         0x38,
         {
             fields: [
-                { name: "timeBeforeShutdown", type: "uint64", defaultValue: "600EB251" },
+                {
+                    name: "timeBeforeShutdown",
+                    type: "uint64",
+                    defaultValue: "600EB251",
+                },
                 { name: "message", type: "string", defaultValue: "" },
             ],
         },

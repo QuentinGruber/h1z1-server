@@ -275,7 +275,7 @@ var ZoneServer = /** @class */ (function (_super) {
                     unknownDword4: 0,
                     unknownDword5: 0,
                     unknownDword6: 0,
-                    unknownDword7: 0
+                    unknownDword7: 0,
                 }),
             },
             zoneId1: 3905829720,
