@@ -21,12 +21,14 @@
   "devDependencies": {
     "@types/lodash": "^4.14.165",
     "@types/mongodb": "^3.6.3",
-    "@types/node": "^14.14.21"
+    "@types/node": "^14.14.21",
+    "prettier": "^2.2.1"
   },
   "scripts": {
     "compile_ts": "tsc --declaration -p .",
     "publish_release": "git push --tags && git push origin dev && git push origin master",
-    "lint_ts": "tslint -c tslint.json './scr/*.ts'"
+    "lint_ts": "tslint -c tslint.json './scr/*.ts'",
+    "prettier_sources": "prettier --write ./src"
   },
   "repository": {
     "type": "git",
