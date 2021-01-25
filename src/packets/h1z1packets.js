@@ -6556,7 +6556,16 @@ var packets = [
   ["SetClientArea", 0x35, {}],
   ["ZoneTeleportRequest", 0x36, {}],
   ["TradingCard", 0x37, {}],
-  ["WorldShutdownNotice", 0x38, {fields: [{ name: "time", type: "uint64", defaultValue: "600EB251" },{ name: "message", type: "string", defaultValue: "" }]}],
+  [
+    "WorldShutdownNotice",
+    0x38,
+    {
+      fields: [
+        { name: "timeBeforeShutdown", type: "uint64", defaultValue: "600EB251" },
+        { name: "message", type: "string", defaultValue: "" },
+      ],
+    },
+  ],
   ["LoadWelcomeScreen", 0x39, {}],
   ["ShipCombat", 0x3a, {}],
   ["AdminMiniGame", 0x3b, {}],

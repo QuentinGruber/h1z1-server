@@ -92,6 +92,7 @@ var ZoneServer = /** @class */ (function (_super) {
         _this._referenceData = _this.parseReferenceData();
         _this._packetHandlers = zonepackethandlers_1.default;
         _this._startTime = 0;
+        _this._reloadPacketsInterval;
         _this.on("data", function (err, client, packet) {
             if (err) {
                 console.error(err);
@@ -174,6 +175,26 @@ var ZoneServer = /** @class */ (function (_super) {
                 return [2 /*return*/];
             });
         });
+    };
+    ZoneServer.prototype.reloadPackets = function (client, intervalTime) {
+        var _this = this;
+        if (intervalTime === void 0) { intervalTime = -1; }
+        if (intervalTime > 0) {
+            if (this._reloadPacketsInterval)
+                clearInterval(this._reloadPacketsInterval);
+            this._reloadPacketsInterval = setInterval(function () { return _this.reloadPackets(client); }, intervalTime * 1000);
+            this.sendChatText(client, "[DEV] Packets reload interval is set to " + intervalTime + " seconds", true);
+        }
+        else {
+            this.reloadZonePacketHandlers();
+            this._protocol.reloadPacketDefinitions();
+            this.sendChatText(client, "[DEV] Packets reloaded", true);
+        }
+    };
+    ZoneServer.prototype.reloadZonePacketHandlers = function () {
+        delete require.cache[require.resolve("./zonepackethandlers")];
+        this._packetHandlers = require("./zonepackethandlers").default;
+        console.log(this._packetHandlers);
     };
     ZoneServer.prototype.parseReferenceData = function () {
         var itemData = fs_1.default.readFileSync(__dirname + "/../../../data/ClientItemDefinitions.txt", "utf8"), itemLines = itemData.split("\n"), items = {};

@@ -92,6 +92,7 @@ export class ZoneServer extends EventEmitter {
   _startTime: number;
   _db: any;
   npcs: any;
+  _reloadPacketsInterval: any;
   constructor(serverPort: number, gatewayKey: string) {
     super();
     this._gatewayServer = new GatewayServer(
@@ -109,6 +110,7 @@ export class ZoneServer extends EventEmitter {
     this._referenceData = this.parseReferenceData()
     this._packetHandlers = packetHandlers;
     this._startTime = 0;
+    this._reloadPacketsInterval;
 
     this.on("data", (err, client, packet) => {
       if (err) {
@@ -201,6 +203,25 @@ export class ZoneServer extends EventEmitter {
     debug("Starting server");
     this._startTime += Date.now();
     this._gatewayServer.start();
+  }
+
+  reloadPackets(client: Client, intervalTime: number = -1) {
+    if (intervalTime > 0) {
+      if (this._reloadPacketsInterval) clearInterval(this._reloadPacketsInterval)
+      this._reloadPacketsInterval = setInterval(() => this.reloadPackets(client), intervalTime * 1000)
+      this.sendChatText(client, `[DEV] Packets reload interval is set to ${intervalTime} seconds`, true)
+    }
+    else {
+      this.reloadZonePacketHandlers()
+      this._protocol.reloadPacketDefinitions()
+      this.sendChatText(client, "[DEV] Packets reloaded", true)
+    }
+  }
+
+  reloadZonePacketHandlers() {
+    delete require.cache[require.resolve("./zonepackethandlers")];
+    this._packetHandlers = require("./zonepackethandlers").default;
+    console.log(this._packetHandlers)
   }
 
   parseReferenceData() {

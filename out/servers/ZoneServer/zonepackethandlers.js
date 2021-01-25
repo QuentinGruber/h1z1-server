@@ -1176,10 +1176,9 @@ var packetHandlers = {
                     break;
                 case "shutdown":
                     server.sendData(client, "WorldShutdownNotice", {
-                        time: "0x00000000600EA995",
-                        message: "bye.",
+                        timeBeforeShutdown: "0x00000000000001",
+                        message: "where is this message displayed lmao ?",
                     });
-                    server.sendChatText(client, "tried shutdown");
                     break;
                 case "weather":
                     var weatherTemplates = require("../../../data/weather.json");
@@ -1271,6 +1270,14 @@ var packetHandlers = {
                     };
                     debug(JSON.stringify(rnd_zoneDetails));
                     server.sendData(client, "SendZoneDetails", rnd_zoneDetails);
+                    break;
+                case "reloadPackets":
+                    if (args[1]) {
+                        server.reloadPackets(client, args[1]);
+                    }
+                    else {
+                        server.reloadPackets(client);
+                    }
                     break;
                 case "variable":
                     server.sendData(client, "DefinitionFilter.SetDefinitionVariable", {
