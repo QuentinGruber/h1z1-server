@@ -1384,12 +1384,12 @@ var packetHandlers = {
           debug(server._characters);
           server.sendChatText(client, "Delete player, back in observer mode");
           break;
-        case "pc":
-          server.sendData(client, "PlayerUpdate.AddLightweightPc", {
-            characterid: client.character.characterId,
-            transientId: 1,
+        case "shutdown":
+          server.sendData(client, "WorldShutdownNotice", {
+            time: "0x00000000600EA995",
+            message: "bye.",
           });
-          server.sendChatText(client, "tried to spawn a LightweightPc");
+          server.sendChatText(client, "tried shutdown");
           break;
         case "weather":
           const weatherTemplates = require("../../../data/weather.json");
