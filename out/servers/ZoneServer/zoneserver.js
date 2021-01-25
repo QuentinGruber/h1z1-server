@@ -92,6 +92,7 @@ var ZoneServer = /** @class */ (function (_super) {
         _this._referenceData = _this.parseReferenceData();
         _this._packetHandlers = zonepackethandlers_1.default;
         _this._startTime = 0;
+        _this._reloadPacketsInterval;
         _this.on("data", function (err, client, packet) {
             if (err) {
                 console.error(err);
@@ -105,7 +106,7 @@ var ZoneServer = /** @class */ (function (_super) {
                         _this._packetHandlers[packet.name](_this, client, packet);
                     }
                     catch (e) {
-                        console.log(e);
+                        debug(e);
                     }
                 }
                 else {
@@ -175,6 +176,26 @@ var ZoneServer = /** @class */ (function (_super) {
             });
         });
     };
+    ZoneServer.prototype.reloadPackets = function (client, intervalTime) {
+        var _this = this;
+        if (intervalTime === void 0) { intervalTime = -1; }
+        if (intervalTime > 0) {
+            if (this._reloadPacketsInterval)
+                clearInterval(this._reloadPacketsInterval);
+            this._reloadPacketsInterval = setInterval(function () { return _this.reloadPackets(client); }, intervalTime * 1000);
+            this.sendChatText(client, "[DEV] Packets reload interval is set to " + intervalTime + " seconds", true);
+        }
+        else {
+            this.reloadZonePacketHandlers();
+            this._protocol.reloadPacketDefinitions();
+            this.sendChatText(client, "[DEV] Packets reloaded", true);
+        }
+    };
+    ZoneServer.prototype.reloadZonePacketHandlers = function () {
+        delete require.cache[require.resolve("./zonepackethandlers")];
+        this._packetHandlers = require("./zonepackethandlers").default;
+        console.log(this._packetHandlers);
+    };
     ZoneServer.prototype.parseReferenceData = function () {
         var itemData = fs_1.default.readFileSync(__dirname + "/../../../data/ClientItemDefinitions.txt", "utf8"), itemLines = itemData.split("\n"), items = {};
         for (var i = 1; i < itemLines.length; i++) {
@@ -186,12 +207,36 @@ var ZoneServer = /** @class */ (function (_super) {
         var referenceData = { itemTypes: items };
         return referenceData;
     };
+    ZoneServer.prototype.characterData = function (client) {
+        var self = require("../../../data/sendself.json"); // dummy self
+        var identity = self.data.identity;
+        client.character.guid = self.data.guid;
+        client.character.loadouts = self.data.characterLoadoutData.loadouts;
+        client.character.inventory = self.data.inventory;
+        client.character.factionId = self.data.factionId;
+        client.character.name =
+            identity.characterFirstName + identity.characterLastName;
+        if (lodash_1.default.isEqual(self.data.position, [0, 0, 0, 1]) &&
+            lodash_1.default.isEqual(self.data.rotation, [0, 0, 0, 1])) {
+            // if position/rotation hasn't be changed
+            self.data.isRandomlySpawning = true;
+        }
+        if (self.data.isRandomlySpawning) {
+            // Take position/rotation from a random spawn location.
+            var randomSpawnIndex = Math.floor(Math.random() * spawnList.length);
+            self.data.position = spawnList[randomSpawnIndex].position;
+            self.data.rotation = spawnList[randomSpawnIndex].rotation;
+            client.character.spawnLocation = spawnList[randomSpawnIndex].name;
+        }
+        this.sendData(client, "SendSelfToClient", self);
+    };
     ZoneServer.prototype.sendInitData = function (client) {
         this.sendData(client, "InitializationParameters", {
             environment: "LIVE",
             serverId: 1,
         });
         this.sendData(client, "SendZoneDetails", {
+            unknownByte: 0,
             zoneName: "Z1",
             unknownBoolean1: true,
             zoneType: 4,
@@ -201,11 +246,12 @@ var ZoneServer = /** @class */ (function (_super) {
                 unknownDword1: 0,
                 unknownDword2: 0,
                 unknownDword3: 0,
+                unknownDword4: 0,
                 fogDensity: 0,
                 fogGradient: 0,
                 fogFloor: 0,
                 unknownDword7: 0,
-                unknownDword8: 0,
+                rain: 0,
                 temp: 40,
                 skyColor: 0,
                 cloudWeight0: 0,
@@ -222,8 +268,15 @@ var ZoneServer = /** @class */ (function (_super) {
                 unknownDword22: 0,
                 unknownDword23: 0,
                 unknownDword24: 0,
-                unknownDword25: 0,
-                unknownArray: [],
+                unknownArray: lodash_1.default.fill(Array(50), {
+                    unknownDword1: 0,
+                    unknownDword2: 0,
+                    unknownDword3: 0,
+                    unknownDword4: 0,
+                    unknownDword5: 0,
+                    unknownDword6: 0,
+                    unknownDword7: 0,
+                }),
             },
             zoneId1: 3905829720,
             zoneId2: 3905829720,
@@ -303,27 +356,7 @@ var ZoneServer = /** @class */ (function (_super) {
             unknownFloat2: 12,
             unknownFloat3: 110,
         });
-        var self = require("../../../data/sendself.json"); // dummy self
-        var identity = self.data.identity;
-        client.character.guid = self.data.guid;
-        client.character.loadouts = self.data.characterLoadoutData.loadouts;
-        client.character.inventory = self.data.inventory;
-        client.character.factionId = self.data.factionId;
-        client.character.name =
-            identity.characterFirstName + identity.characterLastName;
-        if (lodash_1.default.isEqual(self.data.position, [0, 0, 0, 1]) &&
-            lodash_1.default.isEqual(self.data.rotation, [0, 0, 0, 1])) {
-            // if position/rotation hasn't be changed
-            self.data.isRandomlySpawning = true;
-        }
-        if (self.data.isRandomlySpawning) {
-            // Take position/rotation from a random spawn location.
-            var randomSpawnIndex = Math.floor(Math.random() * spawnList.length);
-            self.data.position = spawnList[randomSpawnIndex].position;
-            self.data.rotation = spawnList[randomSpawnIndex].rotation;
-            client.character.spawnLocation = spawnList[randomSpawnIndex].name;
-        }
-        this.sendData(client, "SendSelfToClient", self);
+        this.characterData(client);
         this.sendData(client, "PlayerUpdate.SetBattleRank", {
             characterId: client.character.characterId,
             battleRank: 100,

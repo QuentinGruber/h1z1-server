@@ -6,8 +6,6 @@ export class H1Z1Protocol {
         name: any;
         data: any;
     } | undefined;
-}
-export namespace H1Z1Protocol {
-    function reloadPacketDefinitions(): void;
+    reloadPacketDefinitions(): void;
 }
 export { H1Z1Packets };

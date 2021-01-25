@@ -3,7 +3,6 @@ export function SOEInputStream(cryptoKey: any): void;
 export class SOEInputStream {
     constructor(cryptoKey: any);
     _sequences: any[];
-    _sequenceAdd: number;
     _nextSequence: number;
     _lastAck: number;
     _nextFragment: number;

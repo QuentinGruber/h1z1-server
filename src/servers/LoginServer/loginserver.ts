@@ -17,7 +17,7 @@ import { LoginProtocol } from "../../protocols/loginprotocol";
 const debug = require("debug")("LoginServer");
 import { toUint8Array } from "js-base64";
 import { MongoClient } from "mongodb";
-import { generateGuid } from "../../utils/utils"
+import { generateGuid } from "../../utils/utils";
 
 interface SoeServer {
   on: (arg0: string, arg1: any) => void;
@@ -84,10 +84,7 @@ export class LoginServer extends EventEmitter {
   _cryptoKey: Uint8Array;
   _mongoAddress: string;
   _soloMode: boolean;
-  constructor(
-    serverPort: number,
-    mongoAddress: string
-  ) {
+  constructor(serverPort: number, mongoAddress: string) {
     super();
     this._compression = 0x0100;
     this._crcSeed = 0;
@@ -95,8 +92,7 @@ export class LoginServer extends EventEmitter {
     this._udpLength = 512;
     this._cryptoKey = toUint8Array("F70IaxuU8C/w7FPXY1ibXw==");
     this._soloMode = false;
-    this._mongoAddress = mongoAddress; 
-    
+    this._mongoAddress = mongoAddress;
 
     // reminders
     if (!this._mongoAddress) {
@@ -352,10 +348,13 @@ export class LoginServer extends EventEmitter {
   async start() {
     debug("Starting server");
     if (this._mongoAddress) {
-      const mongoClient = (this._mongoClient = new MongoClient(this._mongoAddress, {
-        useUnifiedTopology: true,
-        native_parser: true,
-      }));
+      const mongoClient = (this._mongoClient = new MongoClient(
+        this._mongoAddress,
+        {
+          useUnifiedTopology: true,
+          native_parser: true,
+        }
+      ));
       try {
         await mongoClient.connect();
       } catch (e) {

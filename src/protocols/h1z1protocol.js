@@ -598,9 +598,9 @@ H1Z1Protocol.prototype.parse = function (
 */
 };
 
-H1Z1Protocol.reloadPacketDefinitions = function () {
-  delete require.cache[require.resolve("./h1z1packets")];
-  H1Z1Packets = require("../h1z1packets");
+H1Z1Protocol.prototype.reloadPacketDefinitions = function () {
+  delete require.cache[require.resolve("../packets/h1z1packets")];
+  H1Z1Packets = require("../packets/h1z1packets");
   exports.H1Z1Packets = H1Z1Packets;
 };
 

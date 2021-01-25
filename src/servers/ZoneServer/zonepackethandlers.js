@@ -20,56 +20,69 @@ function Int64String(value) {
 
 var packetHandlers = {
   ClientIsReady: function (server, client, packet) {
-    server.sendData(client, "ClientBeginZoning", {
-      zoneName: "Z1",
-      zoneType: 4,
-      unknownBoolean1: true,
-      unknownFloat1: 1,
-      skyData: {
-        name: "sky",
-        unknownDword1: 1,
-        unknownDword2: 1,
-        unknownDword3: 1,
-        fogDensity: 1,
-        fogGradient: 1,
-        fogFloor: 1,
-        unknownDword7: 1,
-        unknownDword8: 1,
-        temp: 1,
-        skyColor: 1,
-        cloudWeight0: 1,
-        cloudWeight1: 1,
-        cloudWeight2: 1,
-        cloudWeight3: 1,
-        sunAxisX: 1,
-        sunAxisY: 1,
-        sunAxisZ: 1,
-        unknownDword18: 1,
-        unknownDword19: 1,
-        unknownDword20: 1,
-        wind: 1,
-        unknownDword22: 1,
-        unknownDword23: 1,
-        unknownDword24: 1,
-        unknownDword25: 1,
-        unknownArray: [
-          {
-            unknownDword1: 1,
-            unknownDword2: 1,
-            unknownDword3: 1,
-            unknownDword4: 1,
-            unknownDword5: 1,
-            unknownDword6: 1,
-            unknownDword7: 1,
-          },
-        ],
-      },
-      zoneId1: 3905829720,
-      zoneId2: 3905829720,
-      nameId: 7699,
-      unknownBoolean7: true,
-    });
+    /* 
+     **DISABLE THAT TEMPORARILY**
 
+    server.sendData(client, "ClientBeginZoning", {
+      unknownByte1: 0,
+      zoneName: "Z1",
+      unknownDword1: 0,
+      unknownDword2: 0,
+      unknownDword3: 0,
+      unknownDword4: 0,
+      unknownDword5: 0,
+      unknownDword6: 0,
+      unknownDword7: 0,
+      unknownDword8: 0,
+      unknownDword9: 0,
+
+      skyData: {
+        unknownDword1: 0,
+        name: "sky",
+        unknownDword2: 0,
+        unknownDword3: 0,
+        fogDensity: 0,
+        fogGradient: 0,
+        fogFloor: 0,
+        unknownDword7: 0,
+        rain: 0,
+        temp: 0,
+        skyColor: 0,
+        cloudWeight0: 0,
+        cloudWeight1: 0,
+        cloudWeight2: 0,
+        cloudWeight3: 0,
+        sunAxisX: 0,
+        sunAxisY: 0,
+        sunAxisZ: 0,
+        unknownDword18: 0,
+        unknownDword19: 0,
+        unknownDword20: 0,
+        wind: 0,
+        unknownDword22: 0,
+        unknownDword23: 0,
+        unknownDword24: 0,
+        unknownDword25: 0,
+        unknownDword26: 0,
+        unknownArray: _.fill(Array(50), {
+                unknownDword1: 0,
+                unknownDword2: 0,
+                unknownDword3: 0,
+                unknownDword4: 0,
+                unknownDword5: 0,
+                unknownDword6: 0,
+                unknownDword7: 0,
+              }),
+      },
+      unknownByte2: 0,
+      zoneId1: 3168227224,
+      zoneId2: 3168227224,
+      nameId: 130,
+      unknownDword10: 0,
+      unknownBoolean1: true,
+      unknownBoolean2: true,
+    });
+*/
     server.sendData(client, "QuickChat.SendData", { commands: [] });
 
     server.sendData(client, "ClientUpdate.DoneSendingPreloadCharacters", {
@@ -1371,12 +1384,32 @@ var packetHandlers = {
           debug(server._characters);
           server.sendChatText(client, "Delete player, back in observer mode");
           break;
-        case "pc":
-          server.sendData(client, "PlayerUpdate.AddLightweightPc", {
-            characterid: client.character.characterId,
-            transientId: 1,
+        case "shutdown":
+          server.sendData(client, "WorldShutdownNotice", {
+            timeBeforeShutdown: "0x00000000000001",
+            message: "where is this message displayed lmao ?",
           });
-          server.sendChatText(client, "tried to spawn a LightweightPc");
+          break;
+        case "weather":
+          const weatherTemplates = require("../../../data/weather.json");
+          const weatherTemplate = weatherTemplates[args[1]];
+          if (!args[1]) {
+            server.sendChatText(
+              client,
+              "Please define a weather template to use (data/weather.json)"
+            );
+          } else if (weatherTemplate) {
+            server.sendData(client, "SendZoneDetails", weatherTemplate);
+            server.sendChatText(
+              client,
+              `Use "${args[1]}" as a weather template`
+            );
+          } else {
+            server.sendChatText(
+              client,
+              `"${args[1]}" isn't a weather template`
+            );
+          }
           break;
         case "testpacket":
           const packetName = args[1];
@@ -1401,11 +1434,16 @@ var packetHandlers = {
           });
           break;
         case "hell":
-          debug(":)");
+          server.sendChatText(
+            client,
+            "[DEPRECATED] use '/hax randomWeather' instead",
+            true
+          );
+        case "randomWeather":
+          debug("Randomized weather");
           function rnd_number() {
             return Math.random() * 100;
           }
-
           const rnd_zoneDetails = {
             zoneName: "Z1",
             unknownDword1: 4,
@@ -1416,11 +1454,12 @@ var packetHandlers = {
               unknownDword1: rnd_number(),
               unknownDword2: rnd_number(),
               unknownDword3: rnd_number(),
+              unknownDword4: rnd_number(),
               fogDensity: rnd_number(), // fog intensity
               fogGradient: rnd_number(),
               fogFloor: rnd_number(),
               unknownDword7: rnd_number(),
-              unknownDword8: rnd_number(),
+              rain: rnd_number(),
               temp: rnd_number(), // 0 : snow map , 40+ : spring map
               skyColor: rnd_number(),
               cloudWeight0: rnd_number(),
@@ -1438,7 +1477,15 @@ var packetHandlers = {
               unknownDword23: rnd_number(),
               unknownDword24: rnd_number(),
               unknownDword25: rnd_number(),
-              unknownArray: [],
+              unknownArray: _.fill(Array(50), {
+                unknownDword1: 0,
+                unknownDword2: 0,
+                unknownDword3: 0,
+                unknownDword4: 0,
+                unknownDword5: 0,
+                unknownDword6: 0,
+                unknownDword7: 0,
+              }),
             },
             zoneId1: 3905829720,
             zoneId2: 3905829720,
@@ -1447,6 +1494,13 @@ var packetHandlers = {
           };
           debug(JSON.stringify(rnd_zoneDetails));
           server.sendData(client, "SendZoneDetails", rnd_zoneDetails);
+          break;
+        case "reloadPackets":
+          if (args[1]) {
+            server.reloadPackets(client, args[1]);
+          } else {
+            server.reloadPackets(client);
+          }
           break;
         case "variable":
           server.sendData(client, "DefinitionFilter.SetDefinitionVariable", {

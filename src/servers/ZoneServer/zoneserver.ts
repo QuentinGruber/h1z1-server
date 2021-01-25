@@ -17,7 +17,7 @@ import { default as packetHandlers } from "./zonepackethandlers";
 import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
 const spawnList = require("../../../data/spawnLocations.json");
 import _ from "lodash";
-import { Int64String, generateGuid } from "../../utils/utils"
+import { Int64String, generateGuid } from "../../utils/utils";
 const debug = require("debug")("ZoneServer");
 
 Date.now = () => {
@@ -92,6 +92,7 @@ export class ZoneServer extends EventEmitter {
   _startTime: number;
   _db: any;
   npcs: any;
+  _reloadPacketsInterval: any;
   constructor(serverPort: number, gatewayKey: string) {
     super();
     this._gatewayServer = new GatewayServer(
@@ -106,9 +107,10 @@ export class ZoneServer extends EventEmitter {
     this._serverTime = Date.now() / 1000;
     this._transientId = 0;
     this._guids = [];
-    this._referenceData = this.parseReferenceData()
+    this._referenceData = this.parseReferenceData();
     this._packetHandlers = packetHandlers;
     this._startTime = 0;
+    this._reloadPacketsInterval;
 
     this.on("data", (err, client, packet) => {
       if (err) {
@@ -121,7 +123,7 @@ export class ZoneServer extends EventEmitter {
           try {
             this._packetHandlers[packet.name](this, client, packet);
           } catch (e) {
-            console.log(e);
+            debug(e);
           }
         } else {
           debug(packet);
@@ -203,30 +205,87 @@ export class ZoneServer extends EventEmitter {
     this._gatewayServer.start();
   }
 
-  parseReferenceData() {
-    var itemData = fs.readFileSync(
-      `${__dirname}/../../../data/ClientItemDefinitions.txt`,
-      "utf8"
-    ),
-    itemLines = itemData.split("\n"),
-    items = {};
-  for (var i = 1; i < itemLines.length; i++) {
-    var line = itemLines[i].split("^");
-    if (line[0]) {
-      (items as any)[line[0]] = line[1];
+  reloadPackets(client: Client, intervalTime: number = -1) {
+    if (intervalTime > 0) {
+      if (this._reloadPacketsInterval)
+        clearInterval(this._reloadPacketsInterval);
+      this._reloadPacketsInterval = setInterval(
+        () => this.reloadPackets(client),
+        intervalTime * 1000
+      );
+      this.sendChatText(
+        client,
+        `[DEV] Packets reload interval is set to ${intervalTime} seconds`,
+        true
+      );
+    } else {
+      this.reloadZonePacketHandlers();
+      this._protocol.reloadPacketDefinitions();
+      this.sendChatText(client, "[DEV] Packets reloaded", true);
     }
   }
+
+  reloadZonePacketHandlers() {
+    delete require.cache[require.resolve("./zonepackethandlers")];
+    this._packetHandlers = require("./zonepackethandlers").default;
+    console.log(this._packetHandlers);
+  }
+
+  parseReferenceData() {
+    var itemData = fs.readFileSync(
+        `${__dirname}/../../../data/ClientItemDefinitions.txt`,
+        "utf8"
+      ),
+      itemLines = itemData.split("\n"),
+      items = {};
+    for (var i = 1; i < itemLines.length; i++) {
+      var line = itemLines[i].split("^");
+      if (line[0]) {
+        (items as any)[line[0]] = line[1];
+      }
+    }
     const referenceData = { itemTypes: items };
     return referenceData;
   }
 
-  sendInitData(client:Client) {
+  characterData(client: Client) {
+    const self = require("../../../data/sendself.json"); // dummy self
+    const {
+      data: { identity },
+    } = self;
+    client.character.guid = self.data.guid;
+    client.character.loadouts = self.data.characterLoadoutData.loadouts;
+    client.character.inventory = self.data.inventory;
+    client.character.factionId = self.data.factionId;
+    client.character.name =
+      identity.characterFirstName + identity.characterLastName;
+
+    if (
+      _.isEqual(self.data.position, [0, 0, 0, 1]) &&
+      _.isEqual(self.data.rotation, [0, 0, 0, 1])
+    ) {
+      // if position/rotation hasn't be changed
+      self.data.isRandomlySpawning = true;
+    }
+
+    if (self.data.isRandomlySpawning) {
+      // Take position/rotation from a random spawn location.
+      const randomSpawnIndex = Math.floor(Math.random() * spawnList.length);
+      self.data.position = spawnList[randomSpawnIndex].position;
+      self.data.rotation = spawnList[randomSpawnIndex].rotation;
+      client.character.spawnLocation = spawnList[randomSpawnIndex].name;
+    }
+    this.sendData(client, "SendSelfToClient", self);
+  }
+
+  sendInitData(client: Client) {
     this.sendData(client, "InitializationParameters", {
       environment: "LIVE",
       serverId: 1,
     });
-   
+
     this.sendData(client, "SendZoneDetails", {
+      unknownByte: 0,
       zoneName: "Z1",
       unknownBoolean1: true,
       zoneType: 4,
@@ -236,11 +295,12 @@ export class ZoneServer extends EventEmitter {
         unknownDword1: 0,
         unknownDword2: 0,
         unknownDword3: 0,
+        unknownDword4: 0,
         fogDensity: 0, // fog intensity
         fogGradient: 0,
         fogFloor: 0,
         unknownDword7: 0,
-        unknownDword8: 0,
+        rain: 0,
         temp: 40, // 0 : snow map , 40+ : spring map
         skyColor: 0,
         cloudWeight0: 0,
@@ -257,8 +317,15 @@ export class ZoneServer extends EventEmitter {
         unknownDword22: 0,
         unknownDword23: 0,
         unknownDword24: 0,
-        unknownDword25: 0,
-        unknownArray: [],
+        unknownArray: _.fill(Array(50), {
+          unknownDword1: 0,
+          unknownDword2: 0,
+          unknownDword3: 0,
+          unknownDword4: 0,
+          unknownDword5: 0,
+          unknownDword6: 0,
+          unknownDword7: 0,
+        }),
       },
       zoneId1: 3905829720,
       zoneId2: 3905829720,
@@ -342,33 +409,8 @@ export class ZoneServer extends EventEmitter {
       unknownFloat3: 110,
     });
 
-    const self = require("../../../data/sendself.json"); // dummy self
-    const {
-      data: { identity },
-    } = self;
-    client.character.guid = self.data.guid;
-    client.character.loadouts = self.data.characterLoadoutData.loadouts;
-    client.character.inventory = self.data.inventory;
-    client.character.factionId = self.data.factionId;
-    client.character.name =
-      identity.characterFirstName + identity.characterLastName;
+    this.characterData(client);
 
-    if (
-      _.isEqual(self.data.position, [0, 0, 0, 1]) &&
-      _.isEqual(self.data.rotation, [0, 0, 0, 1])
-    ) {
-      // if position/rotation hasn't be changed
-      self.data.isRandomlySpawning = true;
-    }
-
-    if (self.data.isRandomlySpawning) {
-      // Take position/rotation from a random spawn location.
-      const randomSpawnIndex = Math.floor(Math.random() * spawnList.length);
-      self.data.position = spawnList[randomSpawnIndex].position;
-      self.data.rotation = spawnList[randomSpawnIndex].rotation;
-      client.character.spawnLocation = spawnList[randomSpawnIndex].name;
-    }
-    this.sendData(client, "SendSelfToClient", self);
     this.sendData(client, "PlayerUpdate.SetBattleRank", {
       characterId: client.character.characterId,
       battleRank: 100,

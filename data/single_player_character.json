@@ -1,10 +1,9 @@
 {
   "characterId": "0x03147cca2a860191",
   "serverId": 1,
+  "lastLoginDate": "0x0000000053da0a5b",
+  "nullField": 0,
   "status": 1,
-  "lastLoginDate": 1403451769,
-  "unknown1": 0,
-  "unknown2": 1,
   "payload": {
     "name": "LocalPlayer",
     "empireId": 2,
