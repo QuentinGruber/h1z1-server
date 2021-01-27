@@ -10,7 +10,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-var PacketTable = require("../packettable");
+var PacketTable = require("../../packettable");
 
 var packets = [
   [
@@ -385,6 +385,7 @@ var packets = [
             { name: "serverInfo", type: "string" },
             { name: "populationLevel", type: "uint32" },
             { name: "populationData", type: "string" },
+            { name: "AccessExpression", type: "string", defaultValue: "" },
             { name: "allowedAccess", type: "boolean" },
           ],
         },

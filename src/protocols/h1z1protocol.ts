@@ -48,10 +48,10 @@ export class H1Z1Protocol {
     // Maybe will remove this switch later
     switch (this.protocolName) {
       case "ClientProtocol_860": // normal client from 15 january 2015
-        this.H1Z1Packets = require("../packets/ClientProtocol_860/loginpackets");
+        this.H1Z1Packets = require("../packets/ClientProtocol/ClientProtocol_860/loginpackets");
         break;
       case "ClientProtocol_948": // admin client
-        this.H1Z1Packets = require("../packets/ClientProtocol_948/loginpackets");
+        this.H1Z1Packets = require("../packets/ClientProtocol/ClientProtocol_948/loginpackets");
         break;
       default:
         debug(`Protocol ${this.protocolName} unsupported !`)
