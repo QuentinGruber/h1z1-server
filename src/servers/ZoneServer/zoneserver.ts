@@ -201,6 +201,7 @@ export class ZoneServer extends EventEmitter {
   }
   async start() {
     debug("Starting server");
+    debug(`Protocol used : ${this._protocol.protocolName}`)
     this._startTime += Date.now();
     this._gatewayServer.start();
   }

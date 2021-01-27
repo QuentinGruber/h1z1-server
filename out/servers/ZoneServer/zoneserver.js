@@ -170,6 +170,7 @@ var ZoneServer = /** @class */ (function (_super) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 debug("Starting server");
+                debug("Protocol used : " + this._protocol.protocolName);
                 this._startTime += Date.now();
                 this._gatewayServer.start();
                 return [2 /*return*/];

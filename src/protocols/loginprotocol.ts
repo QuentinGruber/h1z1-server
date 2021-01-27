@@ -18,6 +18,7 @@ export class LoginProtocol {
   protocolName: String;
   constructor(protocolName: String = "LoginUdp_9") {
     this.protocolName = protocolName;
+    // Maybe will remove this switch later
     switch (this.protocolName) {
       case "LoginUdp_9":
         this.LoginPackets = require("../packets/LoginUdp_9/loginpackets");

@@ -21,6 +21,7 @@ var LoginProtocol = /** @class */ (function () {
     function LoginProtocol(protocolName) {
         if (protocolName === void 0) { protocolName = "LoginUdp_9"; }
         this.protocolName = protocolName;
+        // Maybe will remove this switch later
         switch (this.protocolName) {
             case "LoginUdp_9":
                 this.LoginPackets = require("../packets/LoginUdp_9/loginpackets");
