@@ -1,4 +1,7 @@
 export declare class LoginProtocol {
+    LoginPackets: any;
+    protocolName: String;
+    constructor(protocolName?: String);
     parse(data: any): false | {
         type: any;
         name: any;

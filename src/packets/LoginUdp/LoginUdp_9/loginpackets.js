@@ -10,7 +10,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-var PacketTable = require("./packettable");
+var PacketTable = require("../../packettable");
 
 var packets = [
   [

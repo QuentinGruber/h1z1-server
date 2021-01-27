@@ -23,9 +23,6 @@ exports.GatewayProtocol = require("./out/protocols/gatewayprotocol.js").GatewayP
 exports.ZoneProtocol = require("./out/protocols/archived/zoneprotocol.js").ZoneProtocol;
 exports.H1Z1Protocol = require("./out/protocols/h1z1protocol.js").H1Z1Protocol;
 
-exports.ZonePackets = require("./out/packets/archived/zonepackets.js");
-exports.H1Z1Packets = require("./out/packets/h1z1packets.js");
-
 exports.SOEClient = require("./out/clients/soeclient.js").SOEClient;
 exports.LoginClient = require("./out/clients/loginclient.js").LoginClient;
 exports.GatewayClient = require("./out/clients/gatewayclient.js").GatewayClient;
