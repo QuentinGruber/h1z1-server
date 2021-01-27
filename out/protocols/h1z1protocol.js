@@ -389,8 +389,9 @@ var H1Z1Protocol = /** @class */ (function () {
     };
     ;
     H1Z1Protocol.prototype.reloadPacketDefinitions = function () {
-        delete require.cache[require.resolve("../packets/h1z1packets")]; // TODO: fix that
-        this.H1Z1Packets = require("../packets/h1z1packets");
+        var protocolPacketsPath = "../packets/ClientProtocol/" + this.protocolName + "/h1z1packets.js";
+        delete require.cache[require.resolve(protocolPacketsPath)];
+        this.H1Z1Packets = require(protocolPacketsPath);
     };
     ;
     return H1Z1Protocol;

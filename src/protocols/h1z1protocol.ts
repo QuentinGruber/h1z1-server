@@ -431,9 +431,10 @@ export class H1Z1Protocol {
   */
   };
   
-  reloadPacketDefinitions (){
-    delete require.cache[require.resolve("../packets/h1z1packets")]; // TODO: fix that
-    this.H1Z1Packets = require("../packets/h1z1packets");
+  reloadPacketDefinitions() {
+    const protocolPacketsPath = `../packets/ClientProtocol/${this.protocolName}/h1z1packets.js`
+    delete require.cache[require.resolve(protocolPacketsPath)];
+    this.H1Z1Packets = require(protocolPacketsPath);
   };
 }
 
