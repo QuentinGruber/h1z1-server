@@ -17,41 +17,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.H1Z1Protocol = void 0;
 var debug = require("debug")("H1Z1Protocol");
 var h1z1_dataschema_1 = __importDefault(require("h1z1-dataschema"));
-var h1z1packets_1 = __importDefault(require("../packets/h1z1packets"));
 var utils_1 = require("../utils/utils");
 var H1Z1Protocol = /** @class */ (function () {
     function H1Z1Protocol(protocolName) {
         if (protocolName === void 0) { protocolName = "ClientProtocol_860"; }
-        this.pack = function (packetName, object, referenceData) {
-            var packetType = h1z1packets_1.default.packetTypes[packetName], packet = h1z1packets_1.default.Packets[packetType], packetData, data, packetTypeBytes = [];
-            if (packet) {
-                while (packetType) {
-                    packetTypeBytes.unshift(packetType & 0xff);
-                    packetType = packetType >> 8;
-                }
-                if (packet.schema) {
-                    packetData = h1z1_dataschema_1.default.pack(packet.schema, object, null, null, referenceData);
-                    if (packetData) {
-                        data = new Buffer.alloc(packetTypeBytes.length + packetData.length);
-                        for (var i = 0; i < packetTypeBytes.length; i++) {
-                            data.writeUInt8(packetTypeBytes[i], i);
-                        }
-                        packetData.data.copy(data, packetTypeBytes.length);
-                    }
-                    else {
-                        debug("Could not pack data schema for " + packet.name);
-                    }
-                }
-                else {
-                    debug(packet);
-                    debug("pack()", "No schema for packet " + packet.name);
-                }
-            }
-            else {
-                debug("pack()", "Unknown or unhandled zone packet type: " + packetType);
-            }
-            return data;
-        };
         this.protocolName = protocolName;
         // Maybe will remove this switch later
         switch (this.protocolName) {
@@ -420,7 +389,40 @@ var H1Z1Protocol = /** @class */ (function () {
             result: obj,
         };
     };
+    H1Z1Protocol.prototype.pack = function (packetName, object, referenceData) {
+        var H1Z1Packets = this.H1Z1Packets;
+        var packetType = H1Z1Packets.packetTypes[packetName], packet = H1Z1Packets.Packets[packetType], packetData, data, packetTypeBytes = [];
+        if (packet) {
+            while (packetType) {
+                packetTypeBytes.unshift(packetType & 0xff);
+                packetType = packetType >> 8;
+            }
+            if (packet.schema) {
+                packetData = h1z1_dataschema_1.default.pack(packet.schema, object, null, null, referenceData);
+                if (packetData) {
+                    data = new Buffer.alloc(packetTypeBytes.length + packetData.length);
+                    for (var i = 0; i < packetTypeBytes.length; i++) {
+                        data.writeUInt8(packetTypeBytes[i], i);
+                    }
+                    packetData.data.copy(data, packetTypeBytes.length);
+                }
+                else {
+                    debug("Could not pack data schema for " + packet.name);
+                }
+            }
+            else {
+                debug(packet);
+                debug("pack()", "No schema for packet " + packet.name);
+            }
+        }
+        else {
+            debug("pack()", "Unknown or unhandled zone packet type: " + packetType);
+        }
+        return data;
+    };
+    ;
     H1Z1Protocol.prototype.parse = function (data, flags, fromClient, referenceData) {
+        var H1Z1Packets = this.H1Z1Packets;
         var opCode = data[0], offset = 0, packet, result;
         if (flags) {
             debug("Flags = " + flags);
@@ -445,26 +447,26 @@ var H1Z1Protocol = /** @class */ (function () {
             }
         }
         else {
-            if (h1z1packets_1.default.Packets[opCode]) {
-                packet = h1z1packets_1.default.Packets[opCode];
+            if (H1Z1Packets.Packets[opCode]) {
+                packet = H1Z1Packets.Packets[opCode];
                 offset = 1;
             }
             else if (data.length > 1) {
                 opCode = (data[0] << 8) + data[1];
-                if (h1z1packets_1.default.Packets[opCode]) {
-                    packet = h1z1packets_1.default.Packets[opCode];
+                if (H1Z1Packets.Packets[opCode]) {
+                    packet = H1Z1Packets.Packets[opCode];
                     offset = 2;
                 }
                 else if (data.length > 2) {
                     opCode = (data[0] << 16) + (data[1] << 8) + data[2];
-                    if (h1z1packets_1.default.Packets[opCode]) {
-                        packet = h1z1packets_1.default.Packets[opCode];
+                    if (H1Z1Packets.Packets[opCode]) {
+                        packet = H1Z1Packets.Packets[opCode];
                         offset = 3;
                     }
                     else if (data.length > 3) {
                         opCode = (data[0] << 24) + (data[1] << 16) + (data[2] << 8) + data[3];
-                        if (h1z1packets_1.default.Packets[opCode]) {
-                            packet = h1z1packets_1.default.Packets[opCode];
+                        if (H1Z1Packets.Packets[opCode]) {
+                            packet = H1Z1Packets.Packets[opCode];
                             offset = 4;
                         }
                     }
@@ -521,7 +523,6 @@ var H1Z1Protocol = /** @class */ (function () {
     H1Z1Protocol.prototype.reloadPacketDefinitions = function () {
         delete require.cache[require.resolve("../packets/h1z1packets")]; // TODO: fix that
         this.H1Z1Packets = require("../packets/h1z1packets");
-        exports.H1Z1Packets = h1z1packets_1.default;
     };
     ;
     return H1Z1Protocol;

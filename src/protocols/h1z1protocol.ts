@@ -12,7 +12,6 @@
 
 const debug = require("debug")("H1Z1Protocol");
 import DataSchema from "h1z1-dataschema";
-import H1Z1Packets from "../packets/h1z1packets";
 import { lz4_decompress } from "../utils/utils"
 
 
@@ -439,9 +438,10 @@ export class H1Z1Protocol {
     };
 }
   
-  pack = function (packetName: string, object: Buffer, referenceData: any) {
-    var packetType: number = (H1Z1Packets as any).packetTypes[packetName],
-      packet = (H1Z1Packets as any).Packets[packetType],
+  pack (packetName: string, object: Buffer, referenceData: any) {
+    const { H1Z1Packets } = this;
+    var packetType: number = H1Z1Packets.packetTypes[packetName],
+      packet = H1Z1Packets.Packets[packetType],
       packetData,
       data,
       packetTypeBytes = [];
@@ -483,6 +483,7 @@ export class H1Z1Protocol {
     fromClient: boolean,
     referenceData: any
   ) {
+    const { H1Z1Packets } = this;
     var opCode = data[0],
       offset = 0,
       packet,
@@ -581,6 +582,5 @@ export class H1Z1Protocol {
   reloadPacketDefinitions (){
     delete require.cache[require.resolve("../packets/h1z1packets")]; // TODO: fix that
     this.H1Z1Packets = require("../packets/h1z1packets");
-    exports.H1Z1Packets = H1Z1Packets;
   };
 }
