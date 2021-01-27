@@ -17,14 +17,26 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.LoginProtocol = void 0;
 var debug = require("debug")("LoginProtocol");
 var h1z1_dataschema_1 = __importDefault(require("h1z1-dataschema"));
-var LoginPackets = require("../packets/loginpackets");
 var LoginProtocol = /** @class */ (function () {
-    function LoginProtocol() {
+    function LoginProtocol(protocolName) {
+        if (protocolName === void 0) { protocolName = "LoginUdp_9"; }
+        this.protocolName = protocolName;
+        switch (this.protocolName) {
+            case "LoginUdp_9":
+                this.LoginPackets = require("../packets/LoginUdp_9/loginpackets");
+                break;
+            case "LoginUdp_11":
+                this.LoginPackets = require("../packets/LoginUdp_11/loginpackets");
+                break;
+            default:
+                debug("Protocol " + this.protocolName + " unsupported !");
+                process.exit();
+        }
     }
     LoginProtocol.prototype.parse = function (data) {
         var packetType = data[0];
         var result;
-        var packet = LoginPackets.Packets[packetType];
+        var packet = this.LoginPackets.Packets[packetType];
         if (packet) {
             if (packet.schema) {
                 debug(packet.name);
@@ -48,8 +60,8 @@ var LoginProtocol = /** @class */ (function () {
         }
     };
     LoginProtocol.prototype.pack = function (packetName, object) {
-        var packetType = LoginPackets.PacketTypes[packetName];
-        var packet = LoginPackets.Packets[packetType];
+        var packetType = this.LoginPackets.PacketTypes[packetName];
+        var packet = this.LoginPackets.Packets[packetType];
         var payload;
         var data;
         if (packet) {
@@ -78,4 +90,3 @@ var LoginProtocol = /** @class */ (function () {
 }());
 exports.LoginProtocol = LoginProtocol;
 exports.LoginProtocol = LoginProtocol;
-exports.LoginPackets = LoginPackets;
