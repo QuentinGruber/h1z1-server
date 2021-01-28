@@ -15,7 +15,11 @@ export const generateGuid = function (guidList: Array<string> = []) {
   return guid;
 };
 
-export const lz4_decompress = function (data: any, inSize: number, outSize: number) {
+export const lz4_decompress = function (
+  data: any,
+  inSize: number,
+  outSize: number
+) {
   var outdata = new (Buffer as any).alloc(outSize),
     token,
     literalLength,
@@ -70,4 +74,4 @@ export const lz4_decompress = function (data: any, inSize: number, outSize: numb
     }
   }
   return outdata;
-}
+};

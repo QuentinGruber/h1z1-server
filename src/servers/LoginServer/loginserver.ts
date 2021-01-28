@@ -322,7 +322,7 @@ export class LoginServer extends EventEmitter {
   }
   async start() {
     debug("Starting server");
-    debug(`Protocol used : ${this._protocol.protocolName}`)
+    debug(`Protocol used : ${this._protocol.protocolName}`);
     if (this._mongoAddress) {
       const mongoClient = (this._mongoClient = new MongoClient(
         this._mongoAddress,

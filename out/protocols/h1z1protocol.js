@@ -288,7 +288,6 @@ var H1Z1Protocol = /** @class */ (function () {
         }
         return data;
     };
-    ;
     H1Z1Protocol.prototype.parse = function (data, flags, fromClient, referenceData) {
         var H1Z1Packets = this.H1Z1Packets;
         var opCode = data[0], offset = 0, packet, result;
@@ -332,7 +331,8 @@ var H1Z1Protocol = /** @class */ (function () {
                         offset = 3;
                     }
                     else if (data.length > 3) {
-                        opCode = (data[0] << 24) + (data[1] << 16) + (data[2] << 8) + data[3];
+                        opCode =
+                            (data[0] << 24) + (data[1] << 16) + (data[2] << 8) + data[3];
                         if (H1Z1Packets.Packets[opCode]) {
                             packet = H1Z1Packets.Packets[opCode];
                             offset = 4;
@@ -387,13 +387,11 @@ var H1Z1Protocol = /** @class */ (function () {
           }
       */
     };
-    ;
     H1Z1Protocol.prototype.reloadPacketDefinitions = function () {
         var protocolPacketsPath = "../packets/ClientProtocol/" + this.protocolName + "/h1z1packets.js";
         delete require.cache[require.resolve(protocolPacketsPath)];
         this.H1Z1Packets = require(protocolPacketsPath);
     };
-    ;
     return H1Z1Protocol;
 }());
 exports.H1Z1Protocol = H1Z1Protocol;
