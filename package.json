@@ -6,7 +6,6 @@
   "license": "GPL-3.0-only",
   "main": "h1z1-server.js",
   "dependencies": {
-    "buffer-crc32": ">=0.2.1",
     "debug": "^4.2.0",
     "h1z1-dataschema": "^1.0.7",
     "hash-jenkins": "^1.0.1",
