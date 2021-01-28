@@ -66,8 +66,11 @@ export declare class ZoneServer extends EventEmitter {
     _startTime: number;
     _db: any;
     npcs: any;
+    _reloadPacketsInterval: any;
     constructor(serverPort: number, gatewayKey: string);
     start(): Promise<void>;
+    reloadPackets(client: Client, intervalTime?: number): void;
+    reloadZonePacketHandlers(): void;
     parseReferenceData(): {
         itemTypes: {};
     };

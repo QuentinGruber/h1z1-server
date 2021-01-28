@@ -92,6 +92,7 @@ var ZoneServer = /** @class */ (function (_super) {
         _this._referenceData = _this.parseReferenceData();
         _this._packetHandlers = zonepackethandlers_1.default;
         _this._startTime = 0;
+        _this._reloadPacketsInterval;
         _this.on("data", function (err, client, packet) {
             if (err) {
                 console.error(err);
@@ -169,11 +170,32 @@ var ZoneServer = /** @class */ (function (_super) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 debug("Starting server");
+                debug("Protocol used : " + this._protocol.protocolName);
                 this._startTime += Date.now();
                 this._gatewayServer.start();
                 return [2 /*return*/];
             });
         });
+    };
+    ZoneServer.prototype.reloadPackets = function (client, intervalTime) {
+        var _this = this;
+        if (intervalTime === void 0) { intervalTime = -1; }
+        if (intervalTime > 0) {
+            if (this._reloadPacketsInterval)
+                clearInterval(this._reloadPacketsInterval);
+            this._reloadPacketsInterval = setInterval(function () { return _this.reloadPackets(client); }, intervalTime * 1000);
+            this.sendChatText(client, "[DEV] Packets reload interval is set to " + intervalTime + " seconds", true);
+        }
+        else {
+            this.reloadZonePacketHandlers();
+            this._protocol.reloadPacketDefinitions();
+            this.sendChatText(client, "[DEV] Packets reloaded", true);
+        }
+    };
+    ZoneServer.prototype.reloadZonePacketHandlers = function () {
+        delete require.cache[require.resolve("./zonepackethandlers")];
+        this._packetHandlers = require("./zonepackethandlers").default;
+        console.log(this._packetHandlers);
     };
     ZoneServer.prototype.parseReferenceData = function () {
         var itemData = fs_1.default.readFileSync(__dirname + "/../../../data/ClientItemDefinitions.txt", "utf8"), itemLines = itemData.split("\n"), items = {};
@@ -214,18 +236,6 @@ var ZoneServer = /** @class */ (function (_super) {
             environment: "LIVE",
             serverId: 1,
         });
-        var dumb_array = []; // TODO: generate this from dataschema
-        for (var index = 0; index < 50; index++) {
-            dumb_array.push({
-                unknownDword1: 0,
-                unknownDword2: 0,
-                unknownDword3: 0,
-                unknownDword4: 0,
-                unknownDword5: 0,
-                unknownDword6: 0,
-                unknownDword7: 0
-            });
-        }
         this.sendData(client, "SendZoneDetails", {
             unknownByte: 0,
             zoneName: "Z1",
@@ -242,7 +252,7 @@ var ZoneServer = /** @class */ (function (_super) {
                 fogGradient: 0,
                 fogFloor: 0,
                 unknownDword7: 0,
-                unknownDword8: 0,
+                rain: 0,
                 temp: 40,
                 skyColor: 0,
                 cloudWeight0: 0,
@@ -259,7 +269,15 @@ var ZoneServer = /** @class */ (function (_super) {
                 unknownDword22: 0,
                 unknownDword23: 0,
                 unknownDword24: 0,
-                unknownArray: dumb_array,
+                unknownArray: lodash_1.default.fill(Array(50), {
+                    unknownDword1: 0,
+                    unknownDword2: 0,
+                    unknownDword3: 0,
+                    unknownDword4: 0,
+                    unknownDword5: 0,
+                    unknownDword6: 0,
+                    unknownDword7: 0,
+                }),
             },
             zoneId1: 3905829720,
             zoneId2: 3905829720,

@@ -14,7 +14,6 @@ var EventEmitter = require("events").EventEmitter, crypto = require("crypto"), u
 function SOEInputStream(cryptoKey) {
     EventEmitter.call(this);
     this._sequences = new Array(0x10000);
-    this._sequenceAdd = 0;
     this._nextSequence = -1;
     this._lastAck = -1;
     this._nextFragment = 0;
@@ -68,6 +67,7 @@ function parseChannelPacketData(data) {
     return appData;
 }
 SOEInputStream.prototype._processDataFragments = function () {
+    var _this = this;
     var nextFragment = (this._lastProcessedFragment + 1) & 0xffff, fragments = this._fragments, head = fragments[nextFragment], data, totalSize, dataSize, fragment, appData = [], i, j, k;
     if (head) {
         if (head.singlePacket) {
@@ -129,11 +129,9 @@ SOEInputStream.prototype._processDataFragments = function () {
             }
             this.emit("data", null, data);
         }
-        var me = this;
         setTimeout(function () {
-            me._processDataFragments();
+            _this._processDataFragments();
         }, 0);
-        //this._processDataFragments();
     }
 };
 SOEInputStream.prototype.write = function (data, sequence, fragment) {

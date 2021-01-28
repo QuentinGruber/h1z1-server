@@ -10,7 +10,7 @@
 //
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
-var PacketTable = require("./packettable");
+var PacketTable = require("../../packettable");
 var packets = [
     [
         "LoginRequest",
@@ -92,7 +92,7 @@ var packets = [
             fields: [
                 { name: "characterId", type: "uint64" },
                 { name: "serverId", type: "uint32" },
-                { name: "unknown", type: "uint32", defaultValue: 0 },
+                { name: "status", type: "uint32", defaultValue: 0 },
                 {
                     name: "payload",
                     type: "byteswithlength",
@@ -169,10 +169,9 @@ var packets = [
                     fields: [
                         { name: "characterId", type: "uint64" },
                         { name: "serverId", type: "uint32" },
+                        { name: "lastLoginDate", type: "uint64" },
+                        { name: "nullField", type: "uint32" },
                         { name: "status", type: "uint32" },
-                        { name: "lastLoginDate", type: "uint32" },
-                        { name: "unknown1", type: "uint32" },
-                        { name: "unknown2", type: "uint32" },
                         {
                             name: "payload",
                             type: "byteswithlength",
@@ -385,6 +384,7 @@ var packets = [
                         { name: "serverInfo", type: "string" },
                         { name: "populationLevel", type: "uint32" },
                         { name: "populationData", type: "string" },
+                        { name: "AccessExpression", type: "string", defaultValue: "" },
                         { name: "allowedAccess", type: "boolean" },
                     ],
                 },

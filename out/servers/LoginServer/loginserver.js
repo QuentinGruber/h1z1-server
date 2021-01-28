@@ -314,6 +314,7 @@ var LoginServer = /** @class */ (function (_super) {
                 switch (_b.label) {
                     case 0:
                         debug("Starting server");
+                        debug("Protocol used : " + this._protocol.protocolName);
                         if (!this._mongoAddress) return [3 /*break*/, 7];
                         mongoClient = (this._mongoClient = new mongodb_1.MongoClient(this._mongoAddress, {
                             useUnifiedTopology: true,

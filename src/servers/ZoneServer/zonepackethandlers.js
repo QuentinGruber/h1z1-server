@@ -22,18 +22,6 @@ var packetHandlers = {
   ClientIsReady: function (server, client, packet) {
     /* 
      **DISABLE THAT TEMPORARILY**
-    const dumb_array = []; // TODO: generate this from dataschema
-    for (let index = 0; index < 50; index++) {
-      dumb_array.push({
-        unknownDword1: 0,
-        unknownDword2: 0,
-        unknownDword3: 0,
-        unknownDword4: 0,
-        unknownDword5: 0,
-        unknownDword6: 0,
-        unknownDword7: 0,
-      });
-    }
 
     server.sendData(client, "ClientBeginZoning", {
       unknownByte1: 0,
@@ -57,7 +45,7 @@ var packetHandlers = {
         fogGradient: 0,
         fogFloor: 0,
         unknownDword7: 0,
-        unknownDword8: 0,
+        rain: 0,
         temp: 0,
         skyColor: 0,
         cloudWeight0: 0,
@@ -76,7 +64,15 @@ var packetHandlers = {
         unknownDword24: 0,
         unknownDword25: 0,
         unknownDword26: 0,
-        unknownArray: dumb_array,
+        unknownArray: _.fill(Array(50), {
+                unknownDword1: 0,
+                unknownDword2: 0,
+                unknownDword3: 0,
+                unknownDword4: 0,
+                unknownDword5: 0,
+                unknownDword6: 0,
+                unknownDword7: 0,
+              }),
       },
       unknownByte2: 0,
       zoneId1: 3168227224,
@@ -1388,12 +1384,11 @@ var packetHandlers = {
           debug(server._characters);
           server.sendChatText(client, "Delete player, back in observer mode");
           break;
-        case "pc":
-          server.sendData(client, "PlayerUpdate.AddLightweightPc", {
-            characterid: client.character.characterId,
-            transientId: 1,
+        case "shutdown":
+          server.sendData(client, "WorldShutdownNotice", {
+            timeBeforeShutdown: "0x00000000000001",
+            message: "where is this message displayed lmao ?",
           });
-          server.sendChatText(client, "tried to spawn a LightweightPc");
           break;
         case "weather":
           const weatherTemplates = require("../../../data/weather.json");
@@ -1449,18 +1444,6 @@ var packetHandlers = {
           function rnd_number() {
             return Math.random() * 100;
           }
-          const dumb_array = []; // TODO: generate this from dataschema
-          for (let index = 0; index < 50; index++) {
-            dumb_array.push({
-              unknownDword1: 0,
-              unknownDword2: 0,
-              unknownDword3: 0,
-              unknownDword4: 0,
-              unknownDword5: 0,
-              unknownDword6: 0,
-              unknownDword7: 0,
-            });
-          }
           const rnd_zoneDetails = {
             zoneName: "Z1",
             unknownDword1: 4,
@@ -1476,7 +1459,7 @@ var packetHandlers = {
               fogGradient: rnd_number(),
               fogFloor: rnd_number(),
               unknownDword7: rnd_number(),
-              unknownDword8: rnd_number(),
+              rain: rnd_number(),
               temp: rnd_number(), // 0 : snow map , 40+ : spring map
               skyColor: rnd_number(),
               cloudWeight0: rnd_number(),
@@ -1494,7 +1477,15 @@ var packetHandlers = {
               unknownDword23: rnd_number(),
               unknownDword24: rnd_number(),
               unknownDword25: rnd_number(),
-              unknownArray: dumb_array,
+              unknownArray: _.fill(Array(50), {
+                unknownDword1: 0,
+                unknownDword2: 0,
+                unknownDword3: 0,
+                unknownDword4: 0,
+                unknownDword5: 0,
+                unknownDword6: 0,
+                unknownDword7: 0,
+              }),
             },
             zoneId1: 3905829720,
             zoneId2: 3905829720,
@@ -1503,6 +1494,13 @@ var packetHandlers = {
           };
           debug(JSON.stringify(rnd_zoneDetails));
           server.sendData(client, "SendZoneDetails", rnd_zoneDetails);
+          break;
+        case "reloadPackets":
+          if (args[1]) {
+            server.reloadPackets(client, args[1]);
+          } else {
+            server.reloadPackets(client);
+          }
           break;
         case "variable":
           server.sendData(client, "DefinitionFilter.SetDefinitionVariable", {

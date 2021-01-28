@@ -10,8 +10,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-var PacketTable = require("./packettable"),
-  DataSchema = require("h1z1-dataschema");
+const PacketTable = require("../../packettable");
+const DataSchema = require("h1z1-dataschema");
+const { lz4_decompress } = require("../../../utils/utils");
 
 function readPacketType(data, packets) {
   var opCode = data[0] >>> 0,
@@ -341,63 +342,6 @@ function packPositionUpdateData(obj) {
   data.writeUInt16LE(flags, 0);
 
   return data;
-}
-
-function lz4_decompress(data, inSize, outSize) {
-  var outdata = new Buffer.alloc(outSize),
-    token,
-    literalLength,
-    matchLength,
-    matchOffset,
-    matchStart,
-    matchEnd,
-    offsetIn = 0,
-    offsetOut = 0;
-
-  while (1) {
-    var token = data[offsetIn];
-    var literalLength = token >> 4;
-    var matchLength = token & 0xf;
-    offsetIn++;
-    if (literalLength) {
-      if (literalLength == 0xf) {
-        while (data[offsetIn] == 0xff) {
-          literalLength += 0xff;
-          offsetIn++;
-        }
-        literalLength += data[offsetIn];
-        offsetIn++;
-      }
-      data.copy(outdata, offsetOut, offsetIn, offsetIn + literalLength);
-
-      offsetIn += literalLength;
-      offsetOut += literalLength;
-    }
-
-    if (offsetIn < data.length - 2) {
-      var matchOffset = data.readUInt16LE(offsetIn);
-      offsetIn += 2;
-
-      if (matchLength == 0xf) {
-        while (data[offsetIn] == 0xff) {
-          matchLength += 0xff;
-          offsetIn++;
-        }
-        matchLength += data[offsetIn];
-        offsetIn++;
-      }
-      matchLength += 4;
-      var matchStart = offsetOut - matchOffset,
-        matchEnd = offsetOut - matchOffset + matchLength;
-      for (var i = matchStart; i < matchEnd; i++) {
-        outdata[offsetOut] = outdata[i];
-        offsetOut++;
-      }
-    } else {
-      break;
-    }
-  }
-  return outdata;
 }
 
 var vehicleReferenceDataSchema = [
@@ -2035,7 +1979,7 @@ var packets = [
             { name: "unknownDword16", type: "uint32", defaultValue: 0 },
             { name: "unknownBoolean1", type: "boolean", defaultValue: true },
             { name: "unknownBoolean2", type: "boolean", defaultValue: true },
-            { name: "unknownDword17", type: "uint32", defaultValue: 0 },
+            { name: "isMember", type: "uint32", defaultValue: 0 },
             { name: "unknownDword18", type: "uint32", defaultValue: 0 },
             { name: "unknownBoolean3", type: "boolean", defaultValue: true },
             { name: "unknownDword19", type: "uint32", defaultValue: 0 },
@@ -5024,7 +4968,7 @@ var packets = [
             { name: "fogGradient", type: "int32", defaultValue: 0 },
             { name: "fogFloor", type: "int32", defaultValue: 0 },
             { name: "unknownDword7", type: "int32", defaultValue: 0 },
-            { name: "unknownDword8", type: "int32", defaultValue: 0 },
+            { name: "rain", type: "int32", defaultValue: 0 },
             { name: "temp", type: "int32", defaultValue: 0 },
             { name: "skyColor", type: "int32", defaultValue: 0 },
             { name: "cloudWeight0", type: "int32", defaultValue: 0 },
@@ -5787,7 +5731,7 @@ var packets = [
             { name: "fogGradient", type: "int32", defaultValue: 0 },
             { name: "fogFloor", type: "int32", defaultValue: 0 },
             { name: "unknownDword7", type: "int32", defaultValue: 0 },
-            { name: "unknownDword8", type: "int32", defaultValue: 0 },
+            { name: "rain", type: "int32", defaultValue: 0 },
             { name: "temp", type: "int32", defaultValue: 0 },
             { name: "skyColor", type: "int32", defaultValue: 0 },
             { name: "cloudWeight0", type: "int32", defaultValue: 0 },
@@ -6556,7 +6500,20 @@ var packets = [
   ["SetClientArea", 0x35, {}],
   ["ZoneTeleportRequest", 0x36, {}],
   ["TradingCard", 0x37, {}],
-  ["WorldShutdownNotice", 0x38, {}],
+  [
+    "WorldShutdownNotice",
+    0x38,
+    {
+      fields: [
+        {
+          name: "timeBeforeShutdown",
+          type: "uint64",
+          defaultValue: "600EB251",
+        },
+        { name: "message", type: "string", defaultValue: "" },
+      ],
+    },
+  ],
   ["LoadWelcomeScreen", 0x39, {}],
   ["ShipCombat", 0x3a, {}],
   ["AdminMiniGame", 0x3b, {}],

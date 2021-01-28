@@ -12,13 +12,29 @@
 
 const debug = require("debug")("LoginProtocol");
 import DataSchema from "h1z1-dataschema";
-const LoginPackets = require("../packets/loginpackets");
 
 export class LoginProtocol {
+  LoginPackets: any;
+  protocolName: String;
+  constructor(protocolName: String = "LoginUdp_9") {
+    this.protocolName = protocolName;
+    // Maybe will remove this switch later
+    switch (this.protocolName) {
+      case "LoginUdp_9":
+        this.LoginPackets = require("../packets/LoginUdp/LoginUdp_9/loginpackets");
+        break;
+      case "LoginUdp_11":
+        this.LoginPackets = require("../packets/LoginUdp/LoginUdp_11/loginpackets");
+        break;
+      default:
+        debug(`Protocol ${this.protocolName} unsupported !`)
+        process.exit()
+    }
+  }
   parse(data: any) {
     const packetType = data[0];
     let result;
-    const packet = LoginPackets.Packets[packetType];
+    const packet = this.LoginPackets.Packets[packetType];
     if (packet) {
       if (packet.schema) {
         debug(packet.name);
@@ -44,8 +60,8 @@ export class LoginProtocol {
   }
 
   pack(packetName: string, object: any) {
-    const packetType = LoginPackets.PacketTypes[packetName];
-    const packet = LoginPackets.Packets[packetType];
+    const packetType = this.LoginPackets.PacketTypes[packetName];
+    const packet = this.LoginPackets.Packets[packetType];
     let payload;
     let data;
     if (packet) {
@@ -76,4 +92,3 @@ export class LoginProtocol {
 }
 
 exports.LoginProtocol = LoginProtocol;
-exports.LoginPackets = LoginPackets;
