@@ -18,9 +18,15 @@ Making this work for the 15 January 2015 version of H1Z1 (first version).
 
 - Thank to UTIL_TRACELINE for his involvement in the project, the project would not be in this state today without him.
 
+- Thank to Hax max for his determination and hacking skills :stuck_out_tongue:.
+
 - Thank to LcplReaper for his interest in the project and the management of the community around the project.
 
 - Thank to Meme for being an OG/active contributor :smile:.
+
+- Thank to Rhett for his interest in the project and his research on the Forgelight engine in general.
+
+- Thank to LegendsNeveerrDie for is work on editing the map.
 
 - Thank to Chriis who provided the basis for this project by being the first (as far as I know) to try to emulate servers for h1z1 and who inspired me.
 

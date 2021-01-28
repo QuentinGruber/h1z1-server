@@ -26,15 +26,6 @@ export declare class H1Z1Protocol {
     constructor(protocolName?: String);
     parseFacilityReferenceData(data: Buffer): {};
     parseWeaponDefinitionReferenceData(data: Buffer): {} | undefined;
-    readUnsignedIntWith2bitLengthValue(data: Buffer, offset: number): {
-        value: number;
-        length: number;
-    };
-    readSignedIntWith2bitLengthValue(data: Buffer, offset: number): {
-        value: number;
-        length: number;
-    };
-    parseUpdatePositionData(data: Buffer, offset: number): UpdatePositionObject;
     parseUpdatePositionClientToZone(data: Buffer, offset: number): {
         result: UpdatePositionObject;
     };
