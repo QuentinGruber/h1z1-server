@@ -10,7 +10,9 @@
 //
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
-var PacketTable = require("./packettable"), DataSchema = require("h1z1-dataschema");
+var PacketTable = require("../../packettable");
+var DataSchema = require("h1z1-dataschema");
+var lz4_decompress = require("../../../utils/utils").lz4_decompress;
 function readPacketType(data, packets) {
     var opCode = data[0] >>> 0, length = 0, packet;
     if (packets[opCode]) {
@@ -303,50 +305,6 @@ function packPositionUpdateData(obj) {
     }
     data.writeUInt16LE(flags, 0);
     return data;
-}
-function lz4_decompress(data, inSize, outSize) {
-    var outdata = new Buffer.alloc(outSize), token, literalLength, matchLength, matchOffset, matchStart, matchEnd, offsetIn = 0, offsetOut = 0;
-    while (1) {
-        var token = data[offsetIn];
-        var literalLength = token >> 4;
-        var matchLength = token & 0xf;
-        offsetIn++;
-        if (literalLength) {
-            if (literalLength == 0xf) {
-                while (data[offsetIn] == 0xff) {
-                    literalLength += 0xff;
-                    offsetIn++;
-                }
-                literalLength += data[offsetIn];
-                offsetIn++;
-            }
-            data.copy(outdata, offsetOut, offsetIn, offsetIn + literalLength);
-            offsetIn += literalLength;
-            offsetOut += literalLength;
-        }
-        if (offsetIn < data.length - 2) {
-            var matchOffset = data.readUInt16LE(offsetIn);
-            offsetIn += 2;
-            if (matchLength == 0xf) {
-                while (data[offsetIn] == 0xff) {
-                    matchLength += 0xff;
-                    offsetIn++;
-                }
-                matchLength += data[offsetIn];
-                offsetIn++;
-            }
-            matchLength += 4;
-            var matchStart = offsetOut - matchOffset, matchEnd = offsetOut - matchOffset + matchLength;
-            for (var i = matchStart; i < matchEnd; i++) {
-                outdata[offsetOut] = outdata[i];
-                offsetOut++;
-            }
-        }
-        else {
-            break;
-        }
-    }
-    return outdata;
 }
 var vehicleReferenceDataSchema = [
     {
@@ -1383,7 +1341,6 @@ var rewardBundleDataSchema = [
     {
         name: "currency",
         type: "array",
-        defaultValue: [{}],
         fields: [
             { name: "currencyId", type: "uint32", defaultValue: 0 },
             { name: "quantity", type: "uint32", defaultValue: 0 },
@@ -2097,7 +2054,6 @@ var packets = [
                                             defaultValue: true,
                                         },
                                     ],
-                                    defaultValue: [],
                                 },
                                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                                 { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -8328,7 +8284,6 @@ var packets = [
                     type: "array",
                     defaultValue: [{}],
                     elementtype: "uint16",
-                    defaultValue: 0,
                 },
                 {
                     name: "populationPercent",
