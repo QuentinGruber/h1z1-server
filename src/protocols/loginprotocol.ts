@@ -27,8 +27,8 @@ export class LoginProtocol {
         this.LoginPackets = require("../packets/LoginUdp/LoginUdp_11/loginpackets");
         break;
       default:
-        debug(`Protocol ${this.protocolName} unsupported !`)
-        process.exit()
+        debug(`Protocol ${this.protocolName} unsupported !`);
+        process.exit();
     }
   }
   parse(data: any) {

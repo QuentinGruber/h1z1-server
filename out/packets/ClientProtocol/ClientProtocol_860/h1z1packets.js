@@ -1341,7 +1341,6 @@ var rewardBundleDataSchema = [
     {
         name: "currency",
         type: "array",
-        defaultValue: [{}],
         fields: [
             { name: "currencyId", type: "uint32", defaultValue: 0 },
             { name: "quantity", type: "uint32", defaultValue: 0 },
@@ -2055,7 +2054,6 @@ var packets = [
                                             defaultValue: true,
                                         },
                                     ],
-                                    defaultValue: [],
                                 },
                                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                                 { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -8286,7 +8284,6 @@ var packets = [
                     type: "array",
                     defaultValue: [{}],
                     elementtype: "uint16",
-                    defaultValue: 0,
                 },
                 {
                     name: "populationPercent",
