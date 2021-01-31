@@ -51,13 +51,7 @@ function SOEServer(
 
   function handlePacket(client, packet) {
     const soePacket = packet.soePacket;
-    let standAlonePacket;
-    let result;
-    if (!soePacket) {
-      standAlonePacket = packet.StandAlonePackets;
-    } else {
-      result = soePacket.result;
-    }
+    const result = soePacket.result;
     if (result != null) {
       switch (soePacket.name) {
         case "SessionRequest":
