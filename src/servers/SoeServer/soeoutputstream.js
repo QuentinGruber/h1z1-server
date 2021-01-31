@@ -10,10 +10,10 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-var EventEmitter = require("events").EventEmitter,
-  crypto = require("crypto"),
-  util = require("util"),
-  debug = require("debug")("SOEOutputStream");
+const EventEmitter = require("events").EventEmitter,
+    crypto = require("crypto"),
+    util = require("util"),
+    debug = require("debug")("SOEOutputStream");
 
 function SOEOutputStream(cryptoKey, fragmentSize) {
   EventEmitter.call(this);
@@ -30,8 +30,8 @@ SOEOutputStream.prototype.write = function (data, overrideEncryption) {
   if (this._useEncryption && overrideEncryption !== false) {
     this._rc4.write(data);
     data = this._rc4.read();
-    if (data[0] == 0) {
-      var tmp = new Buffer.alloc(1);
+    if (data[0] === 0) {
+      const tmp = new Buffer.alloc(1);
       tmp[0] = 0;
       data = Buffer.concat([tmp, data]);
     }
@@ -45,13 +45,13 @@ SOEOutputStream.prototype.write = function (data, overrideEncryption) {
     };
     this.emit("data", null, data, this._sequence, false);
   } else {
-    var header = new Buffer.alloc(4),
-      fragments = [];
+    const header = new Buffer.alloc(4),
+        fragments = [];
     header.writeUInt32BE(data.length, 0);
     data = Buffer.concat([header, data]);
-    for (var i = 0; i < data.length; i += this._fragmentSize) {
+    for (let i = 0; i < data.length; i += this._fragmentSize) {
       this._sequence++;
-      var fragmentData = data.slice(i, i + this._fragmentSize);
+      const fragmentData = data.slice(i, i + this._fragmentSize);
       this._cache[this._sequence] = {
         data: fragmentData,
         fragment: true,
@@ -71,8 +71,8 @@ SOEOutputStream.prototype.ack = function (sequence) {
 };
 
 SOEOutputStream.prototype.resendData = function (sequence) {
-  var start = this._lastAck + 1;
-  for (var i = start; i < sequence; i++) {
+  const start = this._lastAck + 1;
+  for (let i = start; i < sequence; i++) {
     if (this._cache[i]) {
       this.emit("data", null, this._cache[i].data, i, this._cache[i].fragment);
     } else {

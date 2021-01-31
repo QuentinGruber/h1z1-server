@@ -10,15 +10,15 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-var EventEmitter = require("events").EventEmitter,
-  SOEProtocol = require("../../protocols/soeprotocol").SOEProtocol,
-  SOEPackets = require("../../protocols/soeprotocol").SOEPackets,
-  SOEInputStream = require("./soeinputstream").SOEInputStream,
-  SOEOutputStream = require("./soeoutputstream").SOEOutputStream,
-  util = require("util"),
-  fs = require("fs"),
-  dgram = require("dgram"),
-  debug = require("debug")("SOEServer");
+const EventEmitter = require("events").EventEmitter,
+    SOEProtocol = require("../../protocols/soeprotocol").SOEProtocol,
+    SOEPackets = require("../../protocols/soeprotocol").SOEPackets,
+    SOEInputStream = require("./soeinputstream").SOEInputStream,
+    SOEOutputStream = require("./soeoutputstream").SOEOutputStream,
+    util = require("util"),
+    fs = require("fs"),
+    dgram = require("dgram"),
+    debug = require("debug")("SOEServer");
 
 function SOEServerError(message) {
   this.name = this.constructor.name;
@@ -45,12 +45,12 @@ function SOEServer(
   this._isGatewayServer = isGatewayServer;
   this._dumpData = false;
 
-  var clients = (this._clients = {});
-  var connection = (this._connection = dgram.createSocket("udp4"));
-  var me = this;
+  const clients = (this._clients = {});
+  const connection = (this._connection = dgram.createSocket("udp4"));
+  const me = this;
 
   function handlePacket(client, packet) {
-    var soePacket = packet.soePacket;
+    const soePacket = packet.soePacket;
     let standAlonePacket;
     let result;
     if (!soePacket) {
@@ -98,10 +98,10 @@ function SOEServer(
           me.emit("disconnect", null, client);
           break;
         case "MultiPacket":
-          var lastOutOfOrder = 0,
-            channel = 0;
-          for (var i = 0; i < result.subPackets.length; i++) {
-            var subPacket = result.subPackets[i];
+          let lastOutOfOrder = 0;
+          const channel = 0;
+          for (let i = 0; i < result.subPackets.length; i++) {
+            const subPacket = result.subPackets[i];
             switch (subPacket.name) {
               case "OutOfOrder":
                 if (subPacket.sequence > lastOutOfOrder) {
@@ -178,12 +178,12 @@ function SOEServer(
     }
   }
 
-  var n0 = 0,
-    n1 = 0,
-    n2 = 0;
+  let n0 = 0;
+  const n1 = 0;
+  let n2 = 0;
 
   connection.on("message", function (data, remote) {
-    var client;
+    let client;
     const clientId = remote.address + ":" + remote.port;
     debug(data.length + " bytes from ", clientId);
     let unknow_client;
@@ -238,47 +238,48 @@ function SOEServer(
         }
       });
 
-      var checkClientOutQueue = function () {
+      const checkClientOutQueue = function () {
         if (client.outQueue.length) {
-          var data = client.outQueue.shift();
+          const data = client.outQueue.shift();
           if (me._dumpData) {
             fs.writeFileSync("debug/soeserver_" + n0++ + "_out.dat", data);
           }
           me._connection.send(
-            data,
-            0,
-            data.length,
-            client.port,
-            client.address,
-            function (err, bytes) {}
+              data,
+              0,
+              data.length,
+              client.port,
+              client.address,
+              function (err, bytes) {
+              }
           );
         }
         client.outQueueTimer = setTimeout(checkClientOutQueue, 0);
       };
       checkClientOutQueue();
 
-      var checkAck = function () {
+      const checkAck = function () {
         if (client.lastAck != client.nextAck) {
           client.lastAck = client.nextAck;
           me._sendPacket(
-            client,
-            "Ack",
-            {
-              channel: 0,
-              sequence: client.nextAck,
-            },
-            true
+              client,
+              "Ack",
+              {
+                channel: 0,
+                sequence: client.nextAck,
+              },
+              true
           );
         }
         client.ackTimer = setTimeout(checkAck, 50);
       };
       checkAck();
 
-      var checkOutOfOrderQueue = function () {
+      const checkOutOfOrderQueue = function () {
         if (client.outOfOrderPackets.length) {
-          var packets = [];
-          for (var i = 0; i < 20; i++) {
-            var sequence = client.outOfOrderPackets.shift();
+          const packets = [];
+          for (let i = 0; i < 20; i++) {
+            const sequence = client.outOfOrderPackets.shift();
             packets.push({
               name: "OutOfOrder",
               soePacket: {
@@ -292,12 +293,12 @@ function SOEServer(
           }
           debug("Sending " + packets.length + " OutOfOrder packets");
           me._sendPacket(
-            client,
-            "MultiPacket",
-            {
-              subPackets: packets,
-            },
-            true
+              client,
+              "MultiPacket",
+              {
+                subPackets: packets,
+              },
+              true
           );
         }
         client.outOfOrderTimer = setTimeout(checkOutOfOrderQueue, 10);
@@ -310,12 +311,12 @@ function SOEServer(
     if (me._dumpData) {
       fs.writeFileSync("debug/soeserver_" + n0++ + "_in.dat", data);
     }
-    var result = me._protocol.parse(data, client.crcSeed, client.compression);
+    const result = me._protocol.parse(data, client.crcSeed, client.compression);
     if (result !== undefined && result !== null) {
       if (
         !unknow_client &&
         result.soePacket &&
-        result.soePacket.name == "SessionRequest"
+        result.soePacket.name === "SessionRequest"
       ) {
         delete clients[clientId];
         debug(
@@ -329,7 +330,7 @@ function SOEServer(
   });
 
   connection.on("listening", function () {
-    var address = this.address();
+    const address = this.address();
     debug("Listening on " + address.address + ":" + address.port);
   });
 }
@@ -349,7 +350,7 @@ SOEServer.prototype.start = function (
 };
 
 SOEServer.prototype.stop = function () {
-  for (var a in this._clients) {
+  for (let a in this._clients) {
     if (this._clients.hasOwnProperty(a)) {
       clearTimeout(this._clients[a].outQueueTimer);
       clearTimeout(this._clients[a].ackTimer);
@@ -401,9 +402,9 @@ SOEServer.prototype.sendAppData = function (client, data, overrideEncryption) {
 SOEServer.prototype.setEncryption = function (value) {
   /*this._useEncryption = value;
    debug(this._guid, "encryption: " + this._useEncryption);*/
-  for (var i in this._clients) {
+  for (let i in this._clients) {
     if (this._clients.hasOwnProperty(i)) {
-      var client = this._clients[i];
+      const client = this._clients[i];
       client.outputStream.setEncryption(value);
       client.inputStream.setEncryption(value);
     }
@@ -414,9 +415,9 @@ SOEServer.prototype.toggleEncryption = function () {
   // value = !!value; wtf Jacob ?
   /* this._useEncryption = !this._useEncryption;
   debug(this._guid, "Toggling encryption: " + this._useEncryption);*/
-  for (var i in this._clients) {
+  for (let i in this._clients) {
     if (this._clients.hasOwnProperty(i)) {
-      var client = this._clients[i];
+      const client = this._clients[i];
       client.outputStream.toggleEncryption();
       client.inputStream.toggleEncryption();
     }

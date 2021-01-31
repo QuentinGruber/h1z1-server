@@ -32,8 +32,8 @@ function ZeroBuffer(length) {
 }
 function readDataLength(data, offset) {
     var dataLength = data.readUInt8(offset), n;
-    if (dataLength == 0xff) {
-        if (data[offset + 1] == 0xff && data[offset + 2] == 0xff) {
+    if (dataLength === 0xff) {
+        if (data[offset + 1] === 0xff && data[offset + 2] === 0xff) {
             dataLength = data.readUInt32BE(offset + 3);
             n = 7;
         }
@@ -52,7 +52,7 @@ function readDataLength(data, offset) {
 }
 function parseChannelPacketData(data) {
     var appData = [], offset, dataLength;
-    if (data[0] === 0x00 && data[1] == 0x19) {
+    if (data[0] === 0x00 && data[1] === 0x19) {
         offset = 2;
         while (offset < data.length) {
             dataLength = readDataLength(data, offset);
@@ -68,7 +68,8 @@ function parseChannelPacketData(data) {
 }
 SOEInputStream.prototype._processDataFragments = function () {
     var _this = this;
-    var nextFragment = (this._lastProcessedFragment + 1) & 0xffff, fragments = this._fragments, head = fragments[nextFragment], data, totalSize, dataSize, fragment, appData = [], k;
+    var nextFragment = (this._lastProcessedFragment + 1) & 0xffff, fragments = this._fragments, head = fragments[nextFragment];
+    var data, totalSize, dataSize, fragment, appData = [], k;
     if (head) {
         if (head.singlePacket) {
             this._lastProcessedFragment = nextFragment;
@@ -99,7 +100,7 @@ SOEInputStream.prototype._processDataFragments = function () {
                             fragment.length +
                             ")");
                     }
-                    if (dataSize == totalSize) {
+                    if (dataSize === totalSize) {
                         for (k = 0; k < fragmentIndices.length; k++) {
                             fragments[fragmentIndices[k]] = null;
                         }
@@ -135,7 +136,7 @@ SOEInputStream.prototype._processDataFragments = function () {
     }
 };
 SOEInputStream.prototype.write = function (data, sequence, fragment) {
-    if (this._nextSequence == -1) {
+    if (this._nextSequence === -1) {
         this._nextSequence = sequence;
     }
     debug("Writing " + data.length + " bytes, sequence " + sequence, " fragment=" + fragment + ", lastAck: " + this._lastAck);

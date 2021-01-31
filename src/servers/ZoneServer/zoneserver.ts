@@ -185,11 +185,11 @@ export class ZoneServer extends EventEmitter {
     this._gatewayServer.on(
       "tunneldata",
       (err: string, client: Client, data: Buffer, flags: number) => {
-        var packet = this._protocol.parse(
-          data,
-          flags,
-          true,
-          this._referenceData
+        const packet = this._protocol.parse(
+            data,
+            flags,
+            true,
+            this._referenceData
         );
         if (packet) {
           this.emit("data", null, client, packet);
@@ -232,14 +232,14 @@ export class ZoneServer extends EventEmitter {
   }
 
   parseReferenceData() {
-    var itemData = fs.readFileSync(
+    const itemData = fs.readFileSync(
         `${__dirname}/../../../data/ClientItemDefinitions.txt`,
         "utf8"
-      ),
-      itemLines = itemData.split("\n"),
-      items = {};
-    for (var i = 1; i < itemLines.length; i++) {
-      var line = itemLines[i].split("^");
+        ),
+        itemLines = itemData.split("\n"),
+        items = {};
+    for (let i = 1; i < itemLines.length; i++) {
+      const line = itemLines[i].split("^");
       if (line[0]) {
         (items as any)[line[0]] = line[1];
       }
@@ -484,8 +484,8 @@ export class ZoneServer extends EventEmitter {
   }
 
   setCharacterLoadout(client: Client, loadoutId: number, loadoutTab: any) {
-    for (var i = 0; i < client.character.loadouts.length; i++) {
-      var loadout = client.character.loadouts[i];
+    for (let i = 0; i < client.character.loadouts.length; i++) {
+      const loadout = client.character.loadouts[i];
       if (loadout.loadoutId == loadoutId && loadout.loadoutTab == loadoutTab) {
         this.sendChatText(client, "Setting loadout " + loadoutId);
         debug(JSON.stringify(loadout, null, 2));
@@ -508,9 +508,9 @@ export class ZoneServer extends EventEmitter {
     if (packetName != "KeepAlive") {
       debug("send data", packetName);
     }
-    var data = this._protocol.pack(packetName, obj, this._referenceData);
+    const data = this._protocol.pack(packetName, obj, this._referenceData);
     if (Array.isArray(client)) {
-      for (var i = 0; i < client.length; i++) {
+      for (let i = 0; i < client.length; i++) {
         this._gatewayServer.sendTunnelData(client[i], data);
       }
     } else {
@@ -519,13 +519,13 @@ export class ZoneServer extends EventEmitter {
   }
 
   sendDataToAll(packetName: string, obj: any) {
-    for (var a in this._clients) {
+    for (let a in this._clients) {
       this.sendData(this._clients[a], packetName, obj);
     }
   }
 
   sendWeaponPacket(client: Client, packetName: string, obj: any) {
-    var weaponPacket = {
+    const weaponPacket = {
       gameTime: this.getServerTime(),
       packetName: packetName,
       packet: obj,
@@ -550,7 +550,7 @@ export class ZoneServer extends EventEmitter {
 
   getServerTime() {
     debug("get server time");
-    var delta = Date.now() - this._startTime;
+    let delta = Date.now() - this._startTime;
     delta = Math.floor(delta / 1000);
     return this._serverTime + delta;
   }
@@ -584,7 +584,7 @@ export class ZoneServer extends EventEmitter {
         return;
       }
       if (npc) {
-        var guid: any = generateGuid(this._guids);
+        const guid: any = generateGuid(this._guids);
         this.npcs[guid] = {
           guid: guid,
           position: position,
@@ -648,7 +648,7 @@ export class ZoneServer extends EventEmitter {
   spawnVehicle(vehicleId: number) {}
 
   createPositionUpdate(position: Array<number>, rotation: Array<number>) {
-    var obj = {
+    const obj = {
       flags: 4095,
       unknown2_int32: this.getGameTime(),
       unknown3_int8: 0,
