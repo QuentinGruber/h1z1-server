@@ -229,7 +229,6 @@ export class ZoneServer extends EventEmitter {
   reloadZonePacketHandlers() {
     delete require.cache[require.resolve("./zonepackethandlers")];
     this._packetHandlers = require("./zonepackethandlers").default;
-    console.log(this._packetHandlers);
   }
 
   parseReferenceData() {
