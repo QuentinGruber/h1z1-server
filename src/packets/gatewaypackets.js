@@ -10,18 +10,18 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-var PacketTable = require("./packettable");
+const PacketTable = require("./packettable");
 
-var packets = [
+const packets = [
   [
     "LoginRequest",
     0x01,
     {
       fields: [
-        { name: "characterId", type: "uint64" },
-        { name: "ticket", type: "string" },
-        { name: "clientProtocol", type: "string" },
-        { name: "clientBuild", type: "string" },
+        {name: "characterId", type: "uint64"},
+        {name: "ticket", type: "string"},
+        {name: "clientProtocol", type: "string"},
+        {name: "clientBuild", type: "string"},
       ],
     },
   ],
@@ -29,7 +29,7 @@ var packets = [
     "LoginReply",
     0x02,
     {
-      fields: [{ name: "loggedIn", type: "boolean" }],
+      fields: [{name: "loggedIn", type: "boolean"}],
     },
   ],
   [
@@ -52,7 +52,7 @@ var packets = [
     "ChannelIsRoutable",
     0x07,
     {
-      fields: [{ name: "isRoutable", type: "boolean" }],
+      fields: [{name: "isRoutable", type: "boolean"}],
     },
   ],
   [
@@ -64,8 +64,8 @@ var packets = [
   ],
 ];
 
-var packetTypes = {},
-  packetDescriptors = {};
+const packetTypes = {},
+    packetDescriptors = {};
 
 PacketTable.build(packets, packetTypes, packetDescriptors);
 
