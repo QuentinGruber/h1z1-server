@@ -67,7 +67,6 @@ function SOEServer(
               ":" +
               client.port
           );
-          client.crcLength = result.crcLength;
           client.sessionId = result.sessionId;
           client.clientUdpLength = result.udpLength;
           client.protocolName = result.protocol;

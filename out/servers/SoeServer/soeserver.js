@@ -48,7 +48,6 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression, isGatewaySe
                         client.address +
                         ":" +
                         client.port);
-                    client.crcLength = result.crcLength;
                     client.sessionId = result.sessionId;
                     client.clientUdpLength = result.udpLength;
                     client.protocolName = result.protocol;
