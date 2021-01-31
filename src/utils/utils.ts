@@ -22,7 +22,7 @@ export const lz4_decompress = function (
 ) {
   const outdata = new (Buffer as any).alloc(outSize);
   let offsetIn = 0,
-      offsetOut = 0;
+    offsetOut = 0;
 
   while (1) {
     const token: any = data[offsetIn];

@@ -896,7 +896,9 @@ var effectTagDataSchema = [
     { name: "unknownDword6", type: "uint32", defaultValue: 0 },
     { name: "unknownByte1", type: "uint8", defaultValue: 0 },
 ];
-var targetDataSchema = [{ name: "targetType", type: "uint8", defaultValue: 0 }];
+var targetDataSchema = [
+    { name: "targetType", type: "uint8", defaultValue: 0 },
+];
 var itemDetailSchema = [
     { name: "unknownBoolean1", type: "boolean", defaultValue: false },
 ];

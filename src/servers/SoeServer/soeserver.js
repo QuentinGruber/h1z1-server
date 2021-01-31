@@ -11,14 +11,14 @@
 // ======================================================================
 
 const EventEmitter = require("events").EventEmitter,
-    SOEProtocol = require("../../protocols/soeprotocol").SOEProtocol,
-    SOEPackets = require("../../protocols/soeprotocol").SOEPackets,
-    SOEInputStream = require("./soeinputstream").SOEInputStream,
-    SOEOutputStream = require("./soeoutputstream").SOEOutputStream,
-    util = require("util"),
-    fs = require("fs"),
-    dgram = require("dgram"),
-    debug = require("debug")("SOEServer");
+  SOEProtocol = require("../../protocols/soeprotocol").SOEProtocol,
+  SOEPackets = require("../../protocols/soeprotocol").SOEPackets,
+  SOEInputStream = require("./soeinputstream").SOEInputStream,
+  SOEOutputStream = require("./soeoutputstream").SOEOutputStream,
+  util = require("util"),
+  fs = require("fs"),
+  dgram = require("dgram"),
+  debug = require("debug")("SOEServer");
 
 function SOEServerError(message) {
   this.name = this.constructor.name;
@@ -245,13 +245,12 @@ function SOEServer(
             fs.writeFileSync("debug/soeserver_" + n0++ + "_out.dat", data);
           }
           me._connection.send(
-              data,
-              0,
-              data.length,
-              client.port,
-              client.address,
-              function (err, bytes) {
-              }
+            data,
+            0,
+            data.length,
+            client.port,
+            client.address,
+            function (err, bytes) {}
           );
         }
         client.outQueueTimer = setTimeout(checkClientOutQueue, 0);
@@ -262,13 +261,13 @@ function SOEServer(
         if (client.lastAck != client.nextAck) {
           client.lastAck = client.nextAck;
           me._sendPacket(
-              client,
-              "Ack",
-              {
-                channel: 0,
-                sequence: client.nextAck,
-              },
-              true
+            client,
+            "Ack",
+            {
+              channel: 0,
+              sequence: client.nextAck,
+            },
+            true
           );
         }
         client.ackTimer = setTimeout(checkAck, 50);
@@ -293,12 +292,12 @@ function SOEServer(
           }
           debug("Sending " + packets.length + " OutOfOrder packets");
           me._sendPacket(
-              client,
-              "MultiPacket",
-              {
-                subPackets: packets,
-              },
-              true
+            client,
+            "MultiPacket",
+            {
+              subPackets: packets,
+            },
+            true
           );
         }
         client.outOfOrderTimer = setTimeout(checkOutOfOrderQueue, 10);

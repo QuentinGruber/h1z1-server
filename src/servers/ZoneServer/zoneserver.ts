@@ -186,10 +186,10 @@ export class ZoneServer extends EventEmitter {
       "tunneldata",
       (err: string, client: Client, data: Buffer, flags: number) => {
         const packet = this._protocol.parse(
-            data,
-            flags,
-            true,
-            this._referenceData
+          data,
+          flags,
+          true,
+          this._referenceData
         );
         if (packet) {
           this.emit("data", null, client, packet);
@@ -235,9 +235,9 @@ export class ZoneServer extends EventEmitter {
     const itemData = fs.readFileSync(
         `${__dirname}/../../../data/ClientItemDefinitions.txt`,
         "utf8"
-        ),
-        itemLines = itemData.split("\n"),
-        items = {};
+      ),
+      itemLines = itemData.split("\n"),
+      items = {};
     for (let i = 1; i < itemLines.length; i++) {
       const line = itemLines[i].split("^");
       if (line[0]) {

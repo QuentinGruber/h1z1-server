@@ -11,19 +11,17 @@
 // ======================================================================
 
 const debug = require("debug")("GatewayProtocol"),
-    DataSchema = require("h1z1-dataschema"),
-    GatewayPackets = require("../packets/gatewaypackets");
+  DataSchema = require("h1z1-dataschema"),
+  GatewayPackets = require("../packets/gatewaypackets");
 
 function GatewayProtocol() {}
 
 GatewayProtocol.prototype.parse = function (data) {
-    const packetType = data[0] & 0x1f;
-    let result,
-        schema,
-        name;
-    const packet = GatewayPackets.Packets[packetType];
+  const packetType = data[0] & 0x1f;
+  let result, schema, name;
+  const packet = GatewayPackets.Packets[packetType];
 
-    if (packet) {
+  if (packet) {
     debug("receive data : ", data);
     if (
       packet.name === "TunnelPacketToExternalConnection" ||
@@ -62,11 +60,10 @@ GatewayProtocol.prototype.parse = function (data) {
 };
 
 GatewayProtocol.prototype.pack = function (packetName, object) {
-    const packetType = GatewayPackets.PacketTypes[packetName],
-        packet = GatewayPackets.Packets[packetType];
-    let payload,
-        data;
-    if (packet) {
+  const packetType = GatewayPackets.PacketTypes[packetName],
+    packet = GatewayPackets.Packets[packetType];
+  let payload, data;
+  if (packet) {
     if (
       packet.name === "TunnelPacketToExternalConnection" ||
       packet.name === "TunnelPacketFromExternalConnection"

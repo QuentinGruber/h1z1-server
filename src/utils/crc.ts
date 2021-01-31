@@ -1,10 +1,10 @@
 const { crc32: crc32Table } = require("./crctable.js");
 
 function crc32(data: any, crcSeed: number) {
-    let crc = crc32Table[~crcSeed & 0xff];
-    crc ^= 0x00ffffff;
-    let index = (crcSeed >> 8) ^ crc;
-    crc = (crc >> 8) & 0x00ffffff;
+  let crc = crc32Table[~crcSeed & 0xff];
+  crc ^= 0x00ffffff;
+  let index = (crcSeed >> 8) ^ crc;
+  crc = (crc >> 8) & 0x00ffffff;
   crc ^= crc32Table[index & 0xff];
   index = (crcSeed >> 16) ^ crc;
   crc = (crc >> 8) & 0x00ffffff;

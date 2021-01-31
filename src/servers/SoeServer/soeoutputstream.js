@@ -11,9 +11,9 @@
 // ======================================================================
 
 const EventEmitter = require("events").EventEmitter,
-    crypto = require("crypto"),
-    util = require("util"),
-    debug = require("debug")("SOEOutputStream");
+  crypto = require("crypto"),
+  util = require("util"),
+  debug = require("debug")("SOEOutputStream");
 
 function SOEOutputStream(cryptoKey, fragmentSize) {
   EventEmitter.call(this);
@@ -46,7 +46,7 @@ SOEOutputStream.prototype.write = function (data, overrideEncryption) {
     this.emit("data", null, data, this._sequence, false);
   } else {
     const header = new Buffer.alloc(4),
-        fragments = [];
+      fragments = [];
     header.writeUInt32BE(data.length, 0);
     data = Buffer.concat([header, data]);
     for (let i = 0; i < data.length; i += this._fragmentSize) {

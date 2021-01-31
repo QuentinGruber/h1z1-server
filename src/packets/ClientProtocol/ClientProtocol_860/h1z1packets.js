@@ -16,8 +16,8 @@ const { lz4_decompress } = require("../../../utils/utils");
 
 function readPacketType(data, packets) {
   let opCode = data[0] >>> 0,
-      length = 0,
-      packet;
+    length = 0,
+    packet;
   if (packets[opCode]) {
     packet = packets[opCode];
     length = 1;
@@ -130,7 +130,7 @@ function packSignedIntWith2bitLengthValue(value) {
 
 function readPositionUpdateData(data, offset) {
   const obj = {},
-      startOffset = offset;
+    startOffset = offset;
 
   obj["flags"] = data.readUInt16LE(offset);
   offset += 2;
@@ -246,8 +246,8 @@ function readPositionUpdateData(data, offset) {
 
 function packPositionUpdateData(obj) {
   let data = new Buffer.alloc(7),
-      flags = 0,
-      v;
+    flags = 0,
+    v;
 
   data.writeUInt32LE(obj["unknown2_int32"], 2);
   data.writeUInt8(obj["unknown3_int8"], 6);
@@ -350,79 +350,79 @@ const vehicleReferenceDataSchema = [
     type: "array",
     defaultValue: [{}],
     fields: [
-      {name: "id", type: "uint32", defaultValue: 0},
+      { name: "id", type: "uint32", defaultValue: 0 },
       {
         name: "data",
         type: "schema",
         fields: [
-          {name: "id", type: "uint32", defaultValue: 0},
-          {name: "unknownByte1", type: "uint8", defaultValue: 0},
-          {name: "unknownByte2", type: "uint8", defaultValue: 0},
-          {name: "unknownDword2", type: "uint32", defaultValue: 0},
-          {name: "unknownByte3", type: "uint8", defaultValue: 0},
+          { name: "id", type: "uint32", defaultValue: 0 },
+          { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+          { name: "unknownByte2", type: "uint8", defaultValue: 0 },
+          { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+          { name: "unknownByte3", type: "uint8", defaultValue: 0 },
 
-          {name: "unknownFloat1", type: "float", defaultValue: 0.0},
-          {name: "unknownFloat2", type: "float", defaultValue: 0.0},
-          {name: "max_forward", type: "float", defaultValue: 0.0},
-          {name: "max_reverse", type: "float", defaultValue: 0.0},
-          {name: "max_dive", type: "float", defaultValue: 0.0},
-          {name: "max_rise", type: "float", defaultValue: 0.0},
-          {name: "max_strafe", type: "float", defaultValue: 0.0},
-          {name: "accel_forward", type: "float", defaultValue: 0.0},
-          {name: "accel_reverse", type: "float", defaultValue: 0.0},
-          {name: "accel_dive", type: "float", defaultValue: 0.0},
-          {name: "accel_rise", type: "float", defaultValue: 0.0},
-          {name: "accel_strafe", type: "float", defaultValue: 0.0},
-          {name: "brake_forward", type: "float", defaultValue: 0.0},
-          {name: "brake_reverse", type: "float", defaultValue: 0.0},
-          {name: "brake_dive", type: "float", defaultValue: 0.0},
-          {name: "brake_rise", type: "float", defaultValue: 0.0},
-          {name: "brake_strafe", type: "float", defaultValue: 0.0},
-          {name: "move_pitch_rate", type: "float", defaultValue: 0.0},
-          {name: "move_yaw_rate", type: "float", defaultValue: 0.0},
-          {name: "move_roll_rate", type: "float", defaultValue: 0.0},
-          {name: "still_pitch_rate", type: "float", defaultValue: 0.0},
-          {name: "still_yaw_rate", type: "float", defaultValue: 0.0},
-          {name: "still_roll_rate", type: "float", defaultValue: 0.0},
-          {name: "unknownDword3", type: "uint32", defaultValue: 0},
-          {name: "unknownDword4", type: "uint32", defaultValue: 0},
-          {name: "landing_gear_height", type: "uint32", defaultValue: 0},
-          {name: "vehicle_archetype", type: "uint8", defaultValue: 0},
-          {name: "movement_mode", type: "uint8", defaultValue: 0},
+          { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
+          { name: "unknownFloat2", type: "float", defaultValue: 0.0 },
+          { name: "max_forward", type: "float", defaultValue: 0.0 },
+          { name: "max_reverse", type: "float", defaultValue: 0.0 },
+          { name: "max_dive", type: "float", defaultValue: 0.0 },
+          { name: "max_rise", type: "float", defaultValue: 0.0 },
+          { name: "max_strafe", type: "float", defaultValue: 0.0 },
+          { name: "accel_forward", type: "float", defaultValue: 0.0 },
+          { name: "accel_reverse", type: "float", defaultValue: 0.0 },
+          { name: "accel_dive", type: "float", defaultValue: 0.0 },
+          { name: "accel_rise", type: "float", defaultValue: 0.0 },
+          { name: "accel_strafe", type: "float", defaultValue: 0.0 },
+          { name: "brake_forward", type: "float", defaultValue: 0.0 },
+          { name: "brake_reverse", type: "float", defaultValue: 0.0 },
+          { name: "brake_dive", type: "float", defaultValue: 0.0 },
+          { name: "brake_rise", type: "float", defaultValue: 0.0 },
+          { name: "brake_strafe", type: "float", defaultValue: 0.0 },
+          { name: "move_pitch_rate", type: "float", defaultValue: 0.0 },
+          { name: "move_yaw_rate", type: "float", defaultValue: 0.0 },
+          { name: "move_roll_rate", type: "float", defaultValue: 0.0 },
+          { name: "still_pitch_rate", type: "float", defaultValue: 0.0 },
+          { name: "still_yaw_rate", type: "float", defaultValue: 0.0 },
+          { name: "still_roll_rate", type: "float", defaultValue: 0.0 },
+          { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+          { name: "landing_gear_height", type: "uint32", defaultValue: 0 },
+          { name: "vehicle_archetype", type: "uint8", defaultValue: 0 },
+          { name: "movement_mode", type: "uint8", defaultValue: 0 },
           {
             name: "change_mode_speed_percent",
             type: "float",
             defaultValue: 0.0,
           },
-          {name: "unknownFloat25", type: "float", defaultValue: 0.0},
-          {name: "unknownFloat26", type: "float", defaultValue: 0.0},
-          {name: "min_traction", type: "float", defaultValue: 0.0},
-          {name: "linear_redirect", type: "float", defaultValue: 0.0},
-          {name: "linear_dampening", type: "float", defaultValue: 0.0},
-          {name: "hover_power", type: "float", defaultValue: 0.0},
-          {name: "hover_length", type: "float", defaultValue: 0.0},
-          {name: "unknownFloat32", type: "float", defaultValue: 0.0},
-          {name: "unknownFloat33", type: "float", defaultValue: 0.0},
-          {name: "unknownFloat34", type: "float", defaultValue: 0.0},
-          {name: "unknownFloat35", type: "float", defaultValue: 0.0},
-          {name: "unknownFloat36", type: "float", defaultValue: 0.0},
-          {name: "dead_zone_size", type: "float", defaultValue: 0.0},
-          {name: "dead_zone_rate", type: "float", defaultValue: 0.0},
-          {name: "dead_zone_sensitivity", type: "float", defaultValue: 0.0},
-          {name: "unknownFloat40", type: "float", defaultValue: 0.0},
-          {name: "unknownFloat41", type: "float", defaultValue: 0.0},
-          {name: "auto_level_roll_rate", type: "float", defaultValue: 0.0},
-          {name: "camera_shake_intensity", type: "float", defaultValue: 0.0},
-          {name: "camera_shake_speed", type: "float", defaultValue: 0.0},
+          { name: "unknownFloat25", type: "float", defaultValue: 0.0 },
+          { name: "unknownFloat26", type: "float", defaultValue: 0.0 },
+          { name: "min_traction", type: "float", defaultValue: 0.0 },
+          { name: "linear_redirect", type: "float", defaultValue: 0.0 },
+          { name: "linear_dampening", type: "float", defaultValue: 0.0 },
+          { name: "hover_power", type: "float", defaultValue: 0.0 },
+          { name: "hover_length", type: "float", defaultValue: 0.0 },
+          { name: "unknownFloat32", type: "float", defaultValue: 0.0 },
+          { name: "unknownFloat33", type: "float", defaultValue: 0.0 },
+          { name: "unknownFloat34", type: "float", defaultValue: 0.0 },
+          { name: "unknownFloat35", type: "float", defaultValue: 0.0 },
+          { name: "unknownFloat36", type: "float", defaultValue: 0.0 },
+          { name: "dead_zone_size", type: "float", defaultValue: 0.0 },
+          { name: "dead_zone_rate", type: "float", defaultValue: 0.0 },
+          { name: "dead_zone_sensitivity", type: "float", defaultValue: 0.0 },
+          { name: "unknownFloat40", type: "float", defaultValue: 0.0 },
+          { name: "unknownFloat41", type: "float", defaultValue: 0.0 },
+          { name: "auto_level_roll_rate", type: "float", defaultValue: 0.0 },
+          { name: "camera_shake_intensity", type: "float", defaultValue: 0.0 },
+          { name: "camera_shake_speed", type: "float", defaultValue: 0.0 },
           {
             name: "camera_shake_change_speed",
             type: "float",
             defaultValue: 0.0,
           },
-          {name: "unknownFloat46", type: "float", defaultValue: 0.0},
-          {name: "inward_yaw_mod", type: "float", defaultValue: 0.0},
-          {name: "unknownFloat48", type: "float", defaultValue: 0.0},
-          {name: "vehicle_strafe_lift", type: "float", defaultValue: 0.0},
+          { name: "unknownFloat46", type: "float", defaultValue: 0.0 },
+          { name: "inward_yaw_mod", type: "float", defaultValue: 0.0 },
+          { name: "unknownFloat48", type: "float", defaultValue: 0.0 },
+          { name: "vehicle_strafe_lift", type: "float", defaultValue: 0.0 },
           {
             name: "dead_zone_influence_exponent",
             type: "float",
@@ -433,29 +433,29 @@ const vehicleReferenceDataSchema = [
             type: "float",
             defaultValue: 0.0,
           },
-          {name: "unknownFloat52", type: "float", defaultValue: 0.0},
-          {name: "dampening", type: "floatvector3", defaultValue: [0, 0, 0]},
-          {name: "unknownFloat53", type: "float", defaultValue: 0.0},
-          {name: "unknownFloat54", type: "float", defaultValue: 0.0},
-          {name: "sprint_lift_sub", type: "float", defaultValue: 0.0},
-          {name: "sprint_lift_factor", type: "float", defaultValue: 0.0},
-          {name: "lift_factor", type: "float", defaultValue: 0.0},
-          {name: "unknownFloat58", type: "float", defaultValue: 0.0},
+          { name: "unknownFloat52", type: "float", defaultValue: 0.0 },
+          { name: "dampening", type: "floatvector3", defaultValue: [0, 0, 0] },
+          { name: "unknownFloat53", type: "float", defaultValue: 0.0 },
+          { name: "unknownFloat54", type: "float", defaultValue: 0.0 },
+          { name: "sprint_lift_sub", type: "float", defaultValue: 0.0 },
+          { name: "sprint_lift_factor", type: "float", defaultValue: 0.0 },
+          { name: "lift_factor", type: "float", defaultValue: 0.0 },
+          { name: "unknownFloat58", type: "float", defaultValue: 0.0 },
           {
             name: "steer_burst_factor",
             type: "floatvector3",
             defaultValue: [0, 0, 0],
           },
-          {name: "steer_burst_speed", type: "float", defaultValue: 0.0},
-          {name: "steer_factor", type: "float", defaultValue: 0.0},
-          {name: "steer_exponent", type: "float", defaultValue: 0.0},
-          {name: "steer_spin_factor", type: "float", defaultValue: 0.0},
-          {name: "steer_spin_exponent", type: "float", defaultValue: 0.0},
-          {name: "steer_lean_factor", type: "float", defaultValue: 0.0},
-          {name: "steer_lean_turn_factor", type: "float", defaultValue: 0.0},
-          {name: "steer_compensate_factor", type: "float", defaultValue: 0.0},
-          {name: "unknownFloat67", type: "float", defaultValue: 0.0},
-          {name: "unknownFloat68", type: "float", defaultValue: 0.0},
+          { name: "steer_burst_speed", type: "float", defaultValue: 0.0 },
+          { name: "steer_factor", type: "float", defaultValue: 0.0 },
+          { name: "steer_exponent", type: "float", defaultValue: 0.0 },
+          { name: "steer_spin_factor", type: "float", defaultValue: 0.0 },
+          { name: "steer_spin_exponent", type: "float", defaultValue: 0.0 },
+          { name: "steer_lean_factor", type: "float", defaultValue: 0.0 },
+          { name: "steer_lean_turn_factor", type: "float", defaultValue: 0.0 },
+          { name: "steer_compensate_factor", type: "float", defaultValue: 0.0 },
+          { name: "unknownFloat67", type: "float", defaultValue: 0.0 },
+          { name: "unknownFloat68", type: "float", defaultValue: 0.0 },
           {
             name: "angular_dampening_scalar",
             type: "float",
@@ -466,24 +466,24 @@ const vehicleReferenceDataSchema = [
             type: "floatvector3",
             defaultValue: [0, 0, 0],
           },
-          {name: "estimated_max_speed", type: "uint32", defaultValue: 0},
-          {name: "hill_climb", type: "float", defaultValue: 0.0},
-          {name: "hill_climb_decay_range", type: "float", defaultValue: 0.0},
-          {name: "hill_climb_min_power", type: "float", defaultValue: 0.0},
-          {name: "unknownFloat73", type: "float", defaultValue: 0.0},
-          {name: "unknownDword7", type: "uint32", defaultValue: 0},
-          {name: "unknownDword8", type: "uint32", defaultValue: 0},
-          {name: "unknownDword9", type: "uint32", defaultValue: 0},
-          {name: "unknownDword10", type: "uint32", defaultValue: 0},
-          {name: "unknownDword11", type: "uint32", defaultValue: 0},
-          {name: "unknownDword12", type: "uint32", defaultValue: 0},
-          {name: "unknownDword13", type: "uint32", defaultValue: 0},
-          {name: "unknownDword14", type: "uint32", defaultValue: 0},
-          {name: "unknownDword15", type: "uint32", defaultValue: 0},
-          {name: "unknownDword16", type: "uint32", defaultValue: 0},
-          {name: "unknownDword17", type: "uint32", defaultValue: 0},
-          {name: "wake_effect", type: "uint32", defaultValue: 0},
-          {name: "debris_effect", type: "uint32", defaultValue: 0},
+          { name: "estimated_max_speed", type: "uint32", defaultValue: 0 },
+          { name: "hill_climb", type: "float", defaultValue: 0.0 },
+          { name: "hill_climb_decay_range", type: "float", defaultValue: 0.0 },
+          { name: "hill_climb_min_power", type: "float", defaultValue: 0.0 },
+          { name: "unknownFloat73", type: "float", defaultValue: 0.0 },
+          { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword8", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword9", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword10", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword11", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword12", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword13", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword14", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword15", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword16", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword17", type: "uint32", defaultValue: 0 },
+          { name: "wake_effect", type: "uint32", defaultValue: 0 },
+          { name: "debris_effect", type: "uint32", defaultValue: 0 },
         ],
       },
     ],
@@ -493,16 +493,16 @@ const vehicleReferenceDataSchema = [
     type: "array",
     defaultValue: [{}],
     fields: [
-      {name: "id", type: "uint32", defaultValue: 0},
+      { name: "id", type: "uint32", defaultValue: 0 },
       {
         name: "data",
         type: "schema",
         fields: [
-          {name: "id", type: "uint32", defaultValue: 0},
-          {name: "max_velocity", type: "float", defaultValue: 0.0},
-          {name: "turn_torque", type: "float", defaultValue: 0.0},
-          {name: "turn_rate", type: "float", defaultValue: 0.0},
-          {name: "center_of_gravity_y", type: "float", defaultValue: 0.0},
+          { name: "id", type: "uint32", defaultValue: 0 },
+          { name: "max_velocity", type: "float", defaultValue: 0.0 },
+          { name: "turn_torque", type: "float", defaultValue: 0.0 },
+          { name: "turn_rate", type: "float", defaultValue: 0.0 },
+          { name: "center_of_gravity_y", type: "float", defaultValue: 0.0 },
         ],
       },
     ],
@@ -512,23 +512,23 @@ const vehicleReferenceDataSchema = [
     type: "array",
     defaultValue: [{}],
     fields: [
-      {name: "id", type: "uint32", defaultValue: 0},
+      { name: "id", type: "uint32", defaultValue: 0 },
       {
         name: "data",
         type: "schema",
         fields: [
-          {name: "id", type: "uint32", defaultValue: 0},
-          {name: "peak_torque", type: "float", defaultValue: 0.0},
-          {name: "torque_curve_y", type: "float", defaultValue: 0.0},
-          {name: "engaged_clutch_damp", type: "float", defaultValue: 0.0},
-          {name: "disengaged_clutch_damp", type: "float", defaultValue: 0.0},
-          {name: "clutch_strength", type: "float", defaultValue: 0.0},
-          {name: "reverse_gear", type: "float", defaultValue: 0.0},
-          {name: "first_gear", type: "float", defaultValue: 0.0},
-          {name: "second_gear", type: "float", defaultValue: 0.0},
-          {name: "third_gear", type: "float", defaultValue: 0.0},
-          {name: "fourth_gear", type: "float", defaultValue: 0.0},
-          {name: "switch_gear_time", type: "float", defaultValue: 0.0},
+          { name: "id", type: "uint32", defaultValue: 0 },
+          { name: "peak_torque", type: "float", defaultValue: 0.0 },
+          { name: "torque_curve_y", type: "float", defaultValue: 0.0 },
+          { name: "engaged_clutch_damp", type: "float", defaultValue: 0.0 },
+          { name: "disengaged_clutch_damp", type: "float", defaultValue: 0.0 },
+          { name: "clutch_strength", type: "float", defaultValue: 0.0 },
+          { name: "reverse_gear", type: "float", defaultValue: 0.0 },
+          { name: "first_gear", type: "float", defaultValue: 0.0 },
+          { name: "second_gear", type: "float", defaultValue: 0.0 },
+          { name: "third_gear", type: "float", defaultValue: 0.0 },
+          { name: "fourth_gear", type: "float", defaultValue: 0.0 },
+          { name: "switch_gear_time", type: "float", defaultValue: 0.0 },
         ],
       },
     ],
@@ -538,21 +538,21 @@ const vehicleReferenceDataSchema = [
     type: "array",
     defaultValue: [{}],
     fields: [
-      {name: "id", type: "uint32", defaultValue: 0},
+      { name: "id", type: "uint32", defaultValue: 0 },
       {
         name: "data",
         type: "schema",
         fields: [
-          {name: "id", type: "uint32", defaultValue: 0},
-          {name: "spring_frequency", type: "float", defaultValue: 0.0},
-          {name: "spring_damper_ratio", type: "float", defaultValue: 0.0},
+          { name: "id", type: "uint32", defaultValue: 0 },
+          { name: "spring_frequency", type: "float", defaultValue: 0.0 },
+          { name: "spring_damper_ratio", type: "float", defaultValue: 0.0 },
           {
             name: "hashes",
             type: "array",
             defaultValue: [{}],
             fields: [
-              {name: "hash_1", type: "uint32", defaultValue: 0},
-              {name: "hash_2", type: "uint32", defaultValue: 0},
+              { name: "hash_1", type: "uint32", defaultValue: 0 },
+              { name: "hash_2", type: "uint32", defaultValue: 0 },
             ],
           },
         ],
@@ -565,8 +565,8 @@ const vehicleReferenceDataSchema = [
     type: "array",
     defaultValue: [{}],
     fields: [
-      {name: "vehicle_id", type: "uint32", defaultValue: 0},
-      {name: "model_id", type: "uint32", defaultValue: 0},
+      { name: "vehicle_id", type: "uint32", defaultValue: 0 },
+      { name: "model_id", type: "uint32", defaultValue: 0 },
     ],
   },
 
@@ -575,22 +575,22 @@ const vehicleReferenceDataSchema = [
     type: "array",
     defaultValue: [{}],
     fields: [
-      {name: "id", type: "uint32", defaultValue: 0},
+      { name: "id", type: "uint32", defaultValue: 0 },
       {
         name: "data",
         type: "schema",
         fields: [
-          {name: "id", type: "uint32", defaultValue: 0},
-          {name: "max_brake", type: "float", defaultValue: 0.0},
-          {name: "max_hand_brake", type: "float", defaultValue: 0.0},
-          {name: "max_steer", type: "float", defaultValue: 0.0},
+          { name: "id", type: "uint32", defaultValue: 0 },
+          { name: "max_brake", type: "float", defaultValue: 0.0 },
+          { name: "max_hand_brake", type: "float", defaultValue: 0.0 },
+          { name: "max_steer", type: "float", defaultValue: 0.0 },
           {
             name: "hashes",
             type: "array",
             defaultValue: [{}],
             fields: [
-              {name: "hash_1", type: "uint32", defaultValue: 0},
-              {name: "hash_2", type: "uint32", defaultValue: 0},
+              { name: "hash_1", type: "uint32", defaultValue: 0 },
+              { name: "hash_2", type: "uint32", defaultValue: 0 },
             ],
           },
         ],
@@ -602,21 +602,21 @@ const vehicleReferenceDataSchema = [
     type: "array",
     defaultValue: [{}],
     fields: [
-      {name: "id", type: "uint32", defaultValue: 0},
+      { name: "id", type: "uint32", defaultValue: 0 },
       {
         name: "data",
         type: "schema",
         fields: [
-          {name: "id", type: "uint32", defaultValue: 0},
-          {name: "long_stiff", type: "float", defaultValue: 0.0},
-          {name: "tire_second", type: "float", defaultValue: 0.0},
+          { name: "id", type: "uint32", defaultValue: 0 },
+          { name: "long_stiff", type: "float", defaultValue: 0.0 },
+          { name: "tire_second", type: "float", defaultValue: 0.0 },
           {
             name: "hashes",
             type: "array",
             defaultValue: [{}],
             fields: [
-              {name: "hash_1", type: "uint32", defaultValue: 0},
-              {name: "hash_2", type: "uint32", defaultValue: 0},
+              { name: "hash_1", type: "uint32", defaultValue: 0 },
+              { name: "hash_2", type: "uint32", defaultValue: 0 },
             ],
           },
         ],
@@ -628,7 +628,7 @@ const vehicleReferenceDataSchema = [
     type: "array",
     defaultValue: [{}],
     fields: [
-      {name: "vehicle_id", type: "uint32", defaultValue: 0},
+      { name: "vehicle_id", type: "uint32", defaultValue: 0 },
       {
         name: "move_info",
         type: "array",
@@ -645,8 +645,8 @@ function parseVehicleReferenceData(data, offset) {
   data = data.slice(offset, offset + dataLength);
 
   const inSize = data.readUInt32LE(0),
-      outSize = data.readUInt32LE(4),
-      compData = data.slice(8);
+    outSize = data.readUInt32LE(4),
+    compData = data.slice(8);
   data = lz4_decompress(compData, inSize, outSize);
 
   const result = DataSchema.parse(vehicleReferenceDataSchema, data, 0).result;
@@ -669,11 +669,11 @@ function parseItemAddData(data, offset, referenceData) {
   var itemData = data.slice(offset, offset + itemDataLength);
 
   const inSize = itemData.readUInt16LE(0),
-      outSize = itemData.readUInt16LE(2),
-      compData = itemData.slice(4, 4 + inSize),
-      decompData = lz4_decompress(compData, inSize, outSize),
-      itemDefinition = DataSchema.parse(baseItemDefinitionSchema, decompData, 0)
-          .result;
+    outSize = itemData.readUInt16LE(2),
+    compData = itemData.slice(4, 4 + inSize),
+    decompData = lz4_decompress(compData, inSize, outSize),
+    itemDefinition = DataSchema.parse(baseItemDefinitionSchema, decompData, 0)
+      .result;
 
   var itemData = parseItemData(itemData, 4 + inSize, referenceData).value;
   return {
@@ -688,45 +688,45 @@ function parseItemAddData(data, offset, referenceData) {
 function packItemAddData() {}
 
 const profileDataSchema = [
-  {name: "profileId", type: "uint32", defaultValue: 0},
-  {name: "nameId", type: "uint32", defaultValue: 0},
-  {name: "descriptionId", type: "uint32", defaultValue: 0},
-  {name: "type", type: "uint32", defaultValue: 0},
-  {name: "iconId", type: "uint32", defaultValue: 0},
-  {name: "unknownDword6", type: "uint32", defaultValue: 0},
-  {name: "unknownDword7", type: "uint32", defaultValue: 0},
-  {name: "unknownDword8", type: "uint32", defaultValue: 0},
-  {name: "unknownBoolean1", type: "boolean", defaultValue: false},
-  {name: "unknownDword9", type: "uint32", defaultValue: 0},
+  { name: "profileId", type: "uint32", defaultValue: 0 },
+  { name: "nameId", type: "uint32", defaultValue: 0 },
+  { name: "descriptionId", type: "uint32", defaultValue: 0 },
+  { name: "type", type: "uint32", defaultValue: 0 },
+  { name: "iconId", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword8", type: "uint32", defaultValue: 0 },
+  { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+  { name: "unknownDword9", type: "uint32", defaultValue: 0 },
   {
     name: "unknownArray1",
     type: "array",
     defaultValue: [{}],
     fields: [
-      {name: "unknownDword1", type: "uint32", defaultValue: 0},
-      {name: "unknownDword2", type: "uint32", defaultValue: 0},
-      {name: "unknownDword3", type: "uint32", defaultValue: 0},
+      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword3", type: "uint32", defaultValue: 0 },
     ],
   },
-  {name: "unknownBoolean2", type: "boolean", defaultValue: false},
-  {name: "unknownDword10", type: "uint32", defaultValue: 0},
-  {name: "unknownDword11", type: "uint32", defaultValue: 0},
-  {name: "unknownBoolean3", type: "boolean", defaultValue: false},
-  {name: "unknownByte1", type: "uint8", defaultValue: 0},
-  {name: "unknownBoolean4", type: "boolean", defaultValue: false},
-  {name: "unknownBoolean5", type: "boolean", defaultValue: false},
-  {name: "unknownFloat1", type: "float", defaultValue: 0.0},
-  {name: "unknownFloat2", type: "float", defaultValue: 0.0},
-  {name: "unknownFloat3", type: "float", defaultValue: 0.0},
-  {name: "unknownFloat4", type: "float", defaultValue: 0.0},
-  {name: "unknownDword13", type: "uint32", defaultValue: 0},
-  {name: "unknownFloat5", type: "float", defaultValue: 0.0},
-  {name: "unknownDword14", type: "uint32", defaultValue: 0},
-  {name: "unknownDword15", type: "uint32", defaultValue: 0},
-  {name: "unknownDword16", type: "uint32", defaultValue: 0},
-  {name: "unknownDword17", type: "uint32", defaultValue: 0},
-  {name: "unknownDword18", type: "uint32", defaultValue: 0},
-  {name: "unknownDword19", type: "uint32", defaultValue: 0},
+  { name: "unknownBoolean2", type: "boolean", defaultValue: false },
+  { name: "unknownDword10", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword11", type: "uint32", defaultValue: 0 },
+  { name: "unknownBoolean3", type: "boolean", defaultValue: false },
+  { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+  { name: "unknownBoolean4", type: "boolean", defaultValue: false },
+  { name: "unknownBoolean5", type: "boolean", defaultValue: false },
+  { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
+  { name: "unknownFloat2", type: "float", defaultValue: 0.0 },
+  { name: "unknownFloat3", type: "float", defaultValue: 0.0 },
+  { name: "unknownFloat4", type: "float", defaultValue: 0.0 },
+  { name: "unknownDword13", type: "uint32", defaultValue: 0 },
+  { name: "unknownFloat5", type: "float", defaultValue: 0.0 },
+  { name: "unknownDword14", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword15", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword16", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword17", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword18", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword19", type: "uint32", defaultValue: 0 },
 ];
 
 var baseItemDefinitionSchema = [
@@ -815,27 +815,27 @@ var baseItemDefinitionSchema = [
 ];
 
 const lightWeightNpcSchema = [
-  {name: "guid", type: "uint64", defaultValue: "0"},
+  { name: "guid", type: "uint64", defaultValue: "0" },
   {
     name: "transientId",
     type: "custom",
     parser: readUnsignedIntWith2bitLengthValue,
     packer: packUnsignedIntWith2bitLengthValue,
   },
-  {name: "unknownString0", type: "string", defaultValue: ""},
-  {name: "nameId", type: "uint32", defaultValue: 0},
-  {name: "unknownDword2", type: "uint32", defaultValue: 0},
-  {name: "unknownDword3", type: "uint32", defaultValue: 0},
-  {name: "unknownByte1", type: "uint8", defaultValue: 0},
-  {name: "modelId", type: "uint32", defaultValue: 0},
-  {name: "scale", type: "floatvector4", defaultValue: [0, 0, 0, 0]},
-  {name: "unknownString1", type: "string", defaultValue: ""},
-  {name: "unknownString2", type: "string", defaultValue: ""},
-  {name: "unknownDword5", type: "uint32", defaultValue: 0},
+  { name: "unknownString0", type: "string", defaultValue: "" },
+  { name: "nameId", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+  { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+  { name: "modelId", type: "uint32", defaultValue: 0 },
+  { name: "scale", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
+  { name: "unknownString1", type: "string", defaultValue: "" },
+  { name: "unknownString2", type: "string", defaultValue: "" },
+  { name: "unknownDword5", type: "uint32", defaultValue: 0 },
   // { name: "unknownString3",   type: "string" , defaultValue : ""},
-  {name: "position", type: "floatvector3", defaultValue: [0, 0, 0]},
-  {name: "unknownVector1", type: "floatvector4", defaultValue: [0, 0, 0, 0]},
-  {name: "rotation", type: "floatvector4", defaultValue: [0, 0, 0, 0]},
+  { name: "position", type: "floatvector3", defaultValue: [0, 0, 0] },
+  { name: "unknownVector1", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
+  { name: "rotation", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
   // { name: "unknownDword7",    type: "uint32" , defaultValue : 0},
   // { name: "unknownFloat1",    type: "float" , defaultValue : 0.0},
   // { name: "unknownString4",   type: "string" , defaultValue : ""},
@@ -875,105 +875,105 @@ const lightWeightNpcSchema = [
 ];
 
 const profileStatsSubSchema1 = [
-  {name: "unknownDword1", type: "uint32", defaultValue: 0},
+  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
   {
     name: "unknownArray1",
     type: "array",
     defaultValue: [{}],
     elementType: "uint32",
   },
-  {name: "unknownDword2", type: "uint32", defaultValue: 0},
-  {name: "unknownDword3", type: "uint32", defaultValue: 0},
-  {name: "unknownDword4", type: "uint32", defaultValue: 0},
-  {name: "unknownDword5", type: "uint32", defaultValue: 0},
-  {name: "unknownDword6", type: "uint32", defaultValue: 0},
-  {name: "unknownDword7", type: "uint32", defaultValue: 0},
-  {name: "unknownDword8", type: "uint32", defaultValue: 0},
+  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword8", type: "uint32", defaultValue: 0 },
 ];
 
 const weaponStatsDataSubSchema1 = [
-  {name: "unknownDword1", type: "uint32", defaultValue: 0},
-  {name: "unknownDword2", type: "uint32", defaultValue: 0},
-  {name: "unknownDword3", type: "uint32", defaultValue: 0},
-  {name: "unknownDword4", type: "uint32", defaultValue: 0},
-  {name: "unknownDword5", type: "uint32", defaultValue: 0},
-  {name: "unknownDword6", type: "uint32", defaultValue: 0},
-  {name: "unknownDword7", type: "uint32", defaultValue: 0},
-  {name: "unknownDword8", type: "uint32", defaultValue: 0},
-  {name: "unknownDword9", type: "uint32", defaultValue: 0},
-  {name: "unknownDword10", type: "uint32", defaultValue: 0},
-  {name: "unknownDword11", type: "uint32", defaultValue: 0},
-  {name: "unknownDword12", type: "uint32", defaultValue: 0},
-  {name: "unknownDword13", type: "uint32", defaultValue: 0},
-  {name: "unknownBoolean1", type: "boolean", defaultValue: false},
-  {name: "unknownDword14", type: "uint32", defaultValue: 0},
+  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword8", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword9", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword10", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword11", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword12", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword13", type: "uint32", defaultValue: 0 },
+  { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+  { name: "unknownDword14", type: "uint32", defaultValue: 0 },
 ];
 
 const weaponStatsDataSchema = [
-  {name: "unknownData1", type: "schema", fields: profileStatsSubSchema1},
-  {name: "unknownDword1", type: "uint32", defaultValue: 0},
-  {name: "unknownDword2", type: "uint32", defaultValue: 0},
-  {name: "unknownDword3", type: "uint32", defaultValue: 0},
-  {name: "unknownDword4", type: "uint32", defaultValue: 0},
-  {name: "unknownDword5", type: "uint32", defaultValue: 0},
-  {name: "unknownDword6", type: "uint32", defaultValue: 0},
-  {name: "unknownDword7", type: "uint32", defaultValue: 0},
-  {name: "unknownDword8", type: "uint32", defaultValue: 0},
-  {name: "unknownDword9", type: "uint32", defaultValue: 0},
-  {name: "unknownDword10", type: "uint32", defaultValue: 0},
-  {name: "unknownDword11", type: "uint32", defaultValue: 0},
-  {name: "unknownData2", type: "schema", fields: weaponStatsDataSubSchema1},
-  {name: "unknownData3", type: "schema", fields: weaponStatsDataSubSchema1},
+  { name: "unknownData1", type: "schema", fields: profileStatsSubSchema1 },
+  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword8", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword9", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword10", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword11", type: "uint32", defaultValue: 0 },
+  { name: "unknownData2", type: "schema", fields: weaponStatsDataSubSchema1 },
+  { name: "unknownData3", type: "schema", fields: weaponStatsDataSubSchema1 },
 ];
 
 const vehicleStatsDataSchema = [
-  {name: "unknownData1", type: "schema", fields: profileStatsSubSchema1},
-  {name: "unknownData2", type: "schema", fields: weaponStatsDataSubSchema1},
+  { name: "unknownData1", type: "schema", fields: profileStatsSubSchema1 },
+  { name: "unknownData2", type: "schema", fields: weaponStatsDataSubSchema1 },
 ];
 
 const facilityStatsDataSchema = [
-  {name: "unknownData1", type: "schema", fields: weaponStatsDataSubSchema1},
+  { name: "unknownData1", type: "schema", fields: weaponStatsDataSubSchema1 },
 ];
 
 const itemBaseSchema = [
-  {name: "itemId", type: "uint32", defaultValue: 0},
-  {name: "unknownDword2", type: "uint32", defaultValue: 0},
-  {name: "unknownGuid1", type: "uint64", defaultValue: "0"},
-  {name: "unknownDword3", type: "uint32", defaultValue: 0},
-  {name: "unknownDword4", type: "uint32", defaultValue: 0},
-  {name: "unknownDword5", type: "uint32", defaultValue: 0},
-  {name: "unknownDword6", type: "uint32", defaultValue: 0},
-  {name: "unknownBoolean1", type: "boolean", defaultValue: false},
-  {name: "unknownDword7", type: "uint32", defaultValue: 0},
-  {name: "unknownByte1", type: "uint8", defaultValue: 0},
+  { name: "itemId", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+  { name: "unknownGuid1", type: "uint64", defaultValue: "0" },
+  { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+  { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+  { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+  { name: "unknownByte1", type: "uint8", defaultValue: 0 },
   {
     name: "unknownData",
     type: "variabletype8",
     types: {
       0: [],
       1: [
-        {name: "unknownDword1", type: "uint32", defaultValue: 0},
-        {name: "unknownDword2", type: "uint32", defaultValue: 0},
-        {name: "unknownDword3", type: "uint32", defaultValue: 0},
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
       ],
     },
   },
 ];
 
 const effectTagDataSchema = [
-  {name: "unknownDword1", type: "uint32", defaultValue: 0},
-  {name: "unknownDword2", type: "uint32", defaultValue: 0},
+  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
 
-  {name: "unknownDword3", type: "uint32", defaultValue: 0},
-  {name: "unknownDword4", type: "uint32", defaultValue: 0},
-  {name: "unknownDword5", type: "uint32", defaultValue: 0},
+  { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword5", type: "uint32", defaultValue: 0 },
 
   {
     name: "unknownData1",
     type: "schema",
     fields: [
-      {name: "unknownGuid1", type: "uint64", defaultValue: "0"},
-      {name: "unknownGuid2", type: "uint64", defaultValue: "0"},
+      { name: "unknownGuid1", type: "uint64", defaultValue: "0" },
+      { name: "unknownGuid2", type: "uint64", defaultValue: "0" },
     ],
   },
 
@@ -981,8 +981,8 @@ const effectTagDataSchema = [
     name: "unknownData2",
     type: "schema",
     fields: [
-      {name: "unknownGuid1", type: "uint64", defaultValue: "0"},
-      {name: "unknownGuid2", type: "uint64", defaultValue: "0"},
+      { name: "unknownGuid1", type: "uint64", defaultValue: "0" },
+      { name: "unknownGuid2", type: "uint64", defaultValue: "0" },
       {
         name: "unknownVector1",
         type: "floatvector4",
@@ -995,53 +995,55 @@ const effectTagDataSchema = [
     name: "unknownData3",
     type: "schema",
     fields: [
-      {name: "unknownDword1", type: "uint32", defaultValue: 0},
-      {name: "unknownDword2", type: "uint32", defaultValue: 0},
-      {name: "unknownDword3", type: "uint32", defaultValue: 0},
+      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword3", type: "uint32", defaultValue: 0 },
     ],
   },
 
-  {name: "unknownDword6", type: "uint32", defaultValue: 0},
-  {name: "unknownByte1", type: "uint8", defaultValue: 0},
+  { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+  { name: "unknownByte1", type: "uint8", defaultValue: 0 },
 ];
 
-const targetDataSchema = [{name: "targetType", type: "uint8", defaultValue: 0}];
+const targetDataSchema = [
+  { name: "targetType", type: "uint8", defaultValue: 0 },
+];
 
 const itemDetailSchema = [
-  {name: "unknownBoolean1", type: "boolean", defaultValue: false},
+  { name: "unknownBoolean1", type: "boolean", defaultValue: false },
 ];
 
 const statDataSchema = [
-  {name: "statId", type: "uint32", defaultValue: 0},
+  { name: "statId", type: "uint32", defaultValue: 0 },
   {
     name: "statValue",
     type: "variabletype8",
     types: {
       0: [
-        {name: "baseValue", type: "uint32", defaultValue: 0},
-        {name: "modifierValue", type: "uint32", defaultValue: 0},
+        { name: "baseValue", type: "uint32", defaultValue: 0 },
+        { name: "modifierValue", type: "uint32", defaultValue: 0 },
       ],
       1: [
-        {name: "baseValue", type: "float", defaultValue: 0.0},
-        {name: "modifierValue", type: "float", defaultValue: 0.0},
+        { name: "baseValue", type: "float", defaultValue: 0.0 },
+        { name: "modifierValue", type: "float", defaultValue: 0.0 },
       ],
     },
   },
 ];
 
 const itemWeaponDetailSubSchema1 = [
-  {name: "statOwnerId", type: "uint32", defaultValue: 0},
-  {name: "statData", type: "schema", fields: statDataSchema},
+  { name: "statOwnerId", type: "uint32", defaultValue: 0 },
+  { name: "statData", type: "schema", fields: statDataSchema },
 ];
 
 const itemWeaponDetailSubSchema2 = [
-  {name: "unknownDword1", type: "uint32", defaultValue: 0},
+  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
   {
     name: "unknownArray1",
     type: "array",
     defaultValue: [{}],
     fields: [
-      {name: "unknownDword1", type: "uint32", defaultValue: 0},
+      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
       {
         name: "unknownArray1",
         type: "array",
@@ -1053,40 +1055,40 @@ const itemWeaponDetailSubSchema2 = [
 ];
 
 const itemWeaponDetailSchema = [
-  {name: "unknownBoolean1", type: "boolean", defaultValue: false},
+  { name: "unknownBoolean1", type: "boolean", defaultValue: false },
   {
     name: "unknownArray1",
     type: "array",
     defaultValue: [{}],
     fields: [
-      {name: "unknownDword1", type: "uint32", defaultValue: 0},
-      {name: "unknownDword2", type: "uint32", defaultValue: 0},
+      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword2", type: "uint32", defaultValue: 0 },
     ],
   },
   {
     name: "unknownArray2",
     type: "array8",
     fields: [
-      {name: "unknownDword1", type: "uint32", defaultValue: 0},
+      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
       {
         name: "unknownArray1",
         type: "array8",
         fields: [
-          {name: "unknownByte1", type: "uint8", defaultValue: 0},
-          {name: "unknownDword1", type: "uint32", defaultValue: 0},
-          {name: "unknownDword2", type: "uint32", defaultValue: 0},
-          {name: "unknownDword3", type: "uint32", defaultValue: 0},
+          { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+          { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword3", type: "uint32", defaultValue: 0 },
         ],
       },
     ],
   },
-  {name: "unknownByte1", type: "uint8", defaultValue: 0},
-  {name: "unknownByte2", type: "uint8", defaultValue: 0},
-  {name: "unknownDword1", type: "uint32", defaultValue: 0},
-  {name: "unknownByte3", type: "uint8", defaultValue: 0},
-  {name: "unknownFloat1", type: "float", defaultValue: 0.0},
-  {name: "unknownByte4", type: "uint8", defaultValue: 0},
-  {name: "unknownDword2", type: "uint32", defaultValue: 0},
+  { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+  { name: "unknownByte2", type: "uint8", defaultValue: 0 },
+  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+  { name: "unknownByte3", type: "uint8", defaultValue: 0 },
+  { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
+  { name: "unknownByte4", type: "uint8", defaultValue: 0 },
+  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
   {
     name: "unknownArray3",
     type: "array",
@@ -1107,9 +1109,9 @@ const weaponPackets = [
     0x8201,
     {
       fields: [
-        {name: "guid", type: "uint64", defaultValue: "0"},
-        {name: "unknownByte1", type: "uint8", defaultValue: 0},
-        {name: "unknownByte2", type: "uint8", defaultValue: 0},
+        { name: "guid", type: "uint64", defaultValue: "0" },
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+        { name: "unknownByte2", type: "uint8", defaultValue: 0 },
       ],
     },
   ],
@@ -1119,11 +1121,11 @@ const weaponPackets = [
     0x8203,
     {
       fields: [
-        {name: "guid", type: "uint64", defaultValue: "0"},
-        {name: "position", type: "floatvector3", defaultValue: [0, 0, 0]},
-        {name: "unknownDword1", type: "uint32", defaultValue: 0},
-        {name: "unknownDword2", type: "uint32", defaultValue: 0},
-        {name: "unknownDword3", type: "uint32", defaultValue: 0},
+        { name: "guid", type: "uint64", defaultValue: "0" },
+        { name: "position", type: "floatvector3", defaultValue: [0, 0, 0] },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
       ],
     },
   ],
@@ -1134,7 +1136,7 @@ const weaponPackets = [
     "Weapon.ReloadRequest",
     0x8207,
     {
-      fields: [{name: "guid", type: "uint64", defaultValue: "0"}],
+      fields: [{ name: "guid", type: "uint64", defaultValue: "0" }],
     },
   ],
   ["Weapon.Reload", 0x8208, {}],
@@ -1145,10 +1147,10 @@ const weaponPackets = [
     0x820b,
     {
       fields: [
-        {name: "guid", type: "uint64", defaultValue: "0"},
-        {name: "unknownByte1", type: "uint8", defaultValue: 0},
-        {name: "unknownByte2", type: "uint8", defaultValue: 0},
-        {name: "unknownByte3", type: "uint8", defaultValue: 0},
+        { name: "guid", type: "uint64", defaultValue: "0" },
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+        { name: "unknownByte2", type: "uint8", defaultValue: 0 },
+        { name: "unknownByte3", type: "uint8", defaultValue: 0 },
       ],
     },
   ],
@@ -1164,14 +1166,14 @@ const weaponPackets = [
           type: "array",
           defaultValue: [{}],
           fields: [
-            {name: "guid", type: "uint64", defaultValue: "0"},
-            {name: "unknownBoolean1", type: "boolean", defaultValue: false},
+            { name: "guid", type: "uint64", defaultValue: "0" },
+            { name: "unknownBoolean1", type: "boolean", defaultValue: false },
             {
               name: "statUpdates",
               type: "array",
               defaultValue: [{}],
               fields: [
-                {name: "statCategory", type: "uint8", defaultValue: 0},
+                { name: "statCategory", type: "uint8", defaultValue: 0 },
                 {
                   name: "statUpdateData",
                   type: "schema",
@@ -1203,9 +1205,9 @@ const weaponPackets = [
           parser: readUnsignedIntWith2bitLengthValue,
           packer: packUnsignedIntWith2bitLengthValue,
         },
-        {name: "unknownByte1", type: "uint8", defaultValue: 0},
-        {name: "unknownQword1", type: "uint64", defaultValue: "0"},
-        {name: "unknownByte2", type: "uint8", defaultValue: 0},
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+        { name: "unknownQword1", type: "uint64", defaultValue: "0" },
+        { name: "unknownByte2", type: "uint8", defaultValue: 0 },
         {
           name: "unknownUint2",
           type: "custom",
@@ -1244,9 +1246,9 @@ const weaponPackets = [
     0x821b,
     {
       fields: [
-        {name: "unknownQword1", type: "uint64", defaultValue: "0"},
-        {name: "unknownBoolean1", type: "boolean", defaultValue: false},
-        {name: "unknownByte1", type: "uint8", defaultValue: 0},
+        { name: "unknownQword1", type: "uint64", defaultValue: "0" },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
       ],
     },
   ],
@@ -1274,13 +1276,13 @@ const weaponPackets = [
 ];
 
 const weaponPacketTypes = {},
-    weaponPacketDescriptors = {};
+  weaponPacketDescriptors = {};
 
 PacketTable.build(weaponPackets, weaponPacketTypes, weaponPacketDescriptors);
 
 function parseMultiWeaponPacket(data, offset) {
   const startOffset = offset,
-      packets = [];
+    packets = [];
   const n = data.readUInt32LE(offset);
   offset += 4;
 
@@ -1311,7 +1313,10 @@ function parseWeaponPacket(data, offset) {
   weaponPacketData.writeUInt8(0x85, 0);
   tmpData.copy(weaponPacketData, 1);
 
-  const weaponPacket = readPacketType(weaponPacketData, weaponPacketDescriptors);
+  const weaponPacket = readPacketType(
+    weaponPacketData,
+    weaponPacketDescriptors
+  );
   if (weaponPacket.packet) {
     obj.packetType = weaponPacket.packetType;
     obj.packetName = weaponPacket.packet.name;
@@ -1335,12 +1340,12 @@ function parseWeaponPacket(data, offset) {
 
 function packWeaponPacket(obj) {
   const subObj = obj.packet,
-      subName = obj.packetName,
-      subType = weaponPacketTypes[subName];
+    subName = obj.packetName,
+    subType = weaponPacketTypes[subName];
   let data;
   if (weaponPacketDescriptors[subType]) {
     const subPacket = weaponPacketDescriptors[subType],
-        subTypeData = writePacketType(subType);
+      subTypeData = writePacketType(subType);
     let subData = DataSchema.pack(subPacket.schema, subObj).data;
     subData = Buffer.concat([subTypeData.slice(1), subData]);
     data = new Buffer.alloc(subData.length + 4);
@@ -1354,8 +1359,7 @@ function packWeaponPacket(obj) {
 
 function parseItemData(data, offset, referenceData) {
   const startOffset = offset;
-  let detailItem,
-      detailSchema;
+  let detailItem, detailSchema;
   const baseItem = DataSchema.parse(itemBaseSchema, data, offset);
   offset += baseItem.length;
 
@@ -1383,8 +1387,7 @@ function parseItemData(data, offset, referenceData) {
 
 function packItemData(obj, referenceData) {
   const baseData = DataSchema.pack(itemBaseSchema, obj.baseItem);
-  let detailData,
-      detailSchema;
+  let detailData, detailSchema;
 
   if (
     referenceData &&
@@ -1404,8 +1407,8 @@ const resourceEventDataSubSchema = [
     name: "resourceData",
     type: "schema",
     fields: [
-      {name: "resourceId", type: "uint32", defaultValue: 0},
-      {name: "resourceType", type: "uint32", defaultValue: 0},
+      { name: "resourceId", type: "uint32", defaultValue: 0 },
+      { name: "resourceType", type: "uint32", defaultValue: 0 },
     ],
   },
   {
@@ -1413,14 +1416,14 @@ const resourceEventDataSubSchema = [
     type: "array",
     defaultValue: [{}],
     fields: [
-      {name: "unknownDword1", type: "uint32", defaultValue: 0},
+      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
       {
         name: "unknownData1",
         type: "schema",
         fields: [
-          {name: "unknownDword1", type: "uint32", defaultValue: 0},
-          {name: "unknownFloat1", type: "float", defaultValue: 0.0},
-          {name: "unknownFloat2", type: "float", defaultValue: 0.0},
+          { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+          { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
+          { name: "unknownFloat2", type: "float", defaultValue: 0.0 },
         ],
       },
     ],
@@ -1429,49 +1432,49 @@ const resourceEventDataSubSchema = [
     name: "unknownData2",
     type: "schema",
     fields: [
-      {name: "max_value", type: "uint32", defaultValue: 0},
-      {name: "initial_value", type: "uint32", defaultValue: 0},
-      {name: "unknownFloat1", type: "float", defaultValue: 0.0},
-      {name: "unknownFloat2", type: "float", defaultValue: 0.0},
-      {name: "unknownFloat3", type: "float", defaultValue: 0.0},
-      {name: "unknownDword3", type: "uint32", defaultValue: 0},
-      {name: "unknownDword4", type: "uint32", defaultValue: 0},
-      {name: "unknownDword5", type: "uint32", defaultValue: 0},
+      { name: "max_value", type: "uint32", defaultValue: 0 },
+      { name: "initial_value", type: "uint32", defaultValue: 0 },
+      { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
+      { name: "unknownFloat2", type: "float", defaultValue: 0.0 },
+      { name: "unknownFloat3", type: "float", defaultValue: 0.0 },
+      { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword5", type: "uint32", defaultValue: 0 },
     ],
   },
-  {name: "unknownByte1", type: "uint8", defaultValue: 0},
-  {name: "unknownByte2", type: "uint8", defaultValue: 0},
-  {name: "unknownTime1", type: "uint64", defaultValue: "0"},
-  {name: "unknownTime2", type: "uint64", defaultValue: "0"},
-  {name: "unknownTime3", type: "uint64", defaultValue: "0"},
-  {name: "unknownDword1", type: "uint32", defaultValue: 0},
-  {name: "unknownDword2", type: "uint32", defaultValue: 0},
-  {name: "unknownDword3", type: "uint32", defaultValue: 0},
+  { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+  { name: "unknownByte2", type: "uint8", defaultValue: 0 },
+  { name: "unknownTime1", type: "uint64", defaultValue: "0" },
+  { name: "unknownTime2", type: "uint64", defaultValue: "0" },
+  { name: "unknownTime3", type: "uint64", defaultValue: "0" },
+  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword3", type: "uint32", defaultValue: 0 },
 ];
 
 const rewardBundleDataSchema = [
-  {name: "unknownByte1", type: "boolean", defaultValue: false},
+  { name: "unknownByte1", type: "boolean", defaultValue: false },
   {
     name: "currency",
     type: "array",
     fields: [
-      {name: "currencyId", type: "uint32", defaultValue: 0},
-      {name: "quantity", type: "uint32", defaultValue: 0},
+      { name: "currencyId", type: "uint32", defaultValue: 0 },
+      { name: "quantity", type: "uint32", defaultValue: 0 },
     ],
-    defaultValue: [{currencyId: 0, quantity: 0}],
+    defaultValue: [{ currencyId: 0, quantity: 0 }],
   },
-  {name: "unknownDword1", type: "uint32", defaultValue: 0},
-  {name: "unknownByte2", type: "uint8", defaultValue: 0},
-  {name: "unknownDword2", type: "uint32", defaultValue: 0},
-  {name: "unknownDword3", type: "uint32", defaultValue: 0},
-  {name: "unknownDword4", type: "uint32", defaultValue: 0},
-  {name: "unknownDword5", type: "uint32", defaultValue: 0},
-  {name: "unknownDword6", type: "uint32", defaultValue: 0},
-  {name: "time", type: "uint64", defaultValue: "0"},
-  {name: "characterId", type: "uint64", defaultValue: "0"},
-  {name: "nameId", type: "uint32", defaultValue: 0},
-  {name: "unknownDword8", type: "uint32", defaultValue: 0},
-  {name: "imageSetId", type: "uint32", defaultValue: 0},
+  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+  { name: "unknownByte2", type: "uint8", defaultValue: 0 },
+  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+  { name: "time", type: "uint64", defaultValue: "0" },
+  { name: "characterId", type: "uint64", defaultValue: "0" },
+  { name: "nameId", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword8", type: "uint32", defaultValue: 0 },
+  { name: "imageSetId", type: "uint32", defaultValue: 0 },
   {
     name: "entries",
     type: "array",
@@ -1491,15 +1494,15 @@ const rewardBundleDataSchema = [
                   type: "boolean",
                   defaultValue: false,
                 },
-                {name: "imageSetId", type: "uint32", defaultValue: 0},
-                {name: "unknownDword2", type: "uint32", defaultValue: 0},
-                {name: "nameId", type: "uint32", defaultValue: 0},
-                {name: "quantity", type: "uint32", defaultValue: 0},
-                {name: "itemId", type: "uint32", defaultValue: 0},
-                {name: "unknownDword6", type: "uint32", defaultValue: 0},
-                {name: "unknownString1", type: "string", defaultValue: ""},
-                {name: "unknownDword7", type: "uint32", defaultValue: 0},
-                {name: "unknownDword8", type: "uint32", defaultValue: 0},
+                { name: "imageSetId", type: "uint32", defaultValue: 0 },
+                { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+                { name: "nameId", type: "uint32", defaultValue: 0 },
+                { name: "quantity", type: "uint32", defaultValue: 0 },
+                { name: "itemId", type: "uint32", defaultValue: 0 },
+                { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+                { name: "unknownString1", type: "string", defaultValue: "" },
+                { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+                { name: "unknownDword8", type: "uint32", defaultValue: 0 },
               ],
             },
           ],
@@ -1507,103 +1510,103 @@ const rewardBundleDataSchema = [
       }, // RewardBundleBase_GetEntryFromType
     ],
   },
-  {name: "unknownDword10", type: "uint32", defaultValue: 0},
+  { name: "unknownDword10", type: "uint32", defaultValue: 0 },
 ];
 
 const objectiveDataSchema = [
-  {name: "objectiveId", type: "uint32", defaultValue: 0},
-  {name: "nameId", type: "uint32", defaultValue: 0},
-  {name: "descriptionId", type: "uint32", defaultValue: 0},
-  {name: "rewardData", type: "schema", fields: rewardBundleDataSchema},
-  {name: "unknownByte1", type: "uint8", defaultValue: 0},
-  {name: "unknownDword3", type: "uint32", defaultValue: 0},
-  {name: "unknownDword4", type: "uint32", defaultValue: 0},
-  {name: "unknownByte2", type: "uint8", defaultValue: 0},
-  {name: "unknownByte3", type: "uint8", defaultValue: 0},
+  { name: "objectiveId", type: "uint32", defaultValue: 0 },
+  { name: "nameId", type: "uint32", defaultValue: 0 },
+  { name: "descriptionId", type: "uint32", defaultValue: 0 },
+  { name: "rewardData", type: "schema", fields: rewardBundleDataSchema },
+  { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+  { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+  { name: "unknownByte2", type: "uint8", defaultValue: 0 },
+  { name: "unknownByte3", type: "uint8", defaultValue: 0 },
   {
     name: "unknownData1",
     type: "schema",
     fields: [
-      {name: "unknownDword1", type: "uint32", defaultValue: 0},
-      {name: "unknownDword2", type: "uint32", defaultValue: 0},
-      {name: "unknownDword3", type: "uint32", defaultValue: 0},
-      {name: "unknownDword4", type: "uint32", defaultValue: 0},
+      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword4", type: "uint32", defaultValue: 0 },
     ],
   },
-  {name: "unknownByte4", type: "uint8", defaultValue: 0},
+  { name: "unknownByte4", type: "uint8", defaultValue: 0 },
 ];
 
 const achievementDataSchema = [
-  {name: "achievementId", type: "uint32", defaultValue: 0},
-  {name: "unknownBoolean1", type: "uint32", defaultValue: 0},
-  {name: "nameId", type: "uint32", defaultValue: 0},
-  {name: "descriptionId", type: "uint32", defaultValue: 0},
-  {name: "timeStarted", type: "uint64", defaultValue: "0"},
-  {name: "timeFinished", type: "uint64", defaultValue: "0"},
-  {name: "progress", type: "float", defaultValue: 0.0},
+  { name: "achievementId", type: "uint32", defaultValue: 0 },
+  { name: "unknownBoolean1", type: "uint32", defaultValue: 0 },
+  { name: "nameId", type: "uint32", defaultValue: 0 },
+  { name: "descriptionId", type: "uint32", defaultValue: 0 },
+  { name: "timeStarted", type: "uint64", defaultValue: "0" },
+  { name: "timeFinished", type: "uint64", defaultValue: "0" },
+  { name: "progress", type: "float", defaultValue: 0.0 },
   {
     name: "objectives",
     type: "array",
     defaultValue: [{}],
     fields: [
-      {name: "index", type: "uint32", defaultValue: 0},
-      {name: "objectiveData", type: "schema", fields: objectiveDataSchema},
+      { name: "index", type: "uint32", defaultValue: 0 },
+      { name: "objectiveData", type: "schema", fields: objectiveDataSchema },
     ],
   },
-  {name: "iconId", type: "uint32", defaultValue: 0},
-  {name: "unknownDword5", type: "uint32", defaultValue: 0},
-  {name: "unknownDword6", type: "uint32", defaultValue: 0},
-  {name: "points", type: "uint32", defaultValue: 0},
-  {name: "unknownDword8", type: "uint32", defaultValue: 0},
-  {name: "unknownBoolean2", type: "boolean", defaultValue: false},
-  {name: "unknownDword9", type: "uint32", defaultValue: 0},
+  { name: "iconId", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+  { name: "points", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword8", type: "uint32", defaultValue: 0 },
+  { name: "unknownBoolean2", type: "boolean", defaultValue: false },
+  { name: "unknownDword9", type: "uint32", defaultValue: 0 },
 ];
 
 const loadoutDataSubSchema1 = [
-  {name: "loadoutId", type: "uint32", defaultValue: 0},
+  { name: "loadoutId", type: "uint32", defaultValue: 0 },
   {
     name: "unknownData1",
     type: "schema",
     fields: [
-      {name: "unknownDword1", type: "uint32", defaultValue: 0},
-      {name: "unknownByte1", type: "uint8", defaultValue: 0},
+      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      { name: "unknownByte1", type: "uint8", defaultValue: 0 },
     ],
   },
-  {name: "unknownDword2", type: "uint32", defaultValue: 0},
+  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
   {
     name: "unknownData2",
     type: "schema",
     fields: [
-      {name: "unknownDword1", type: "uint32", defaultValue: 0},
-      {name: "loadoutName", type: "string", defaultValue: ""},
+      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      { name: "loadoutName", type: "string", defaultValue: "" },
     ],
   },
-  {name: "tintItemId", type: "uint32", defaultValue: 0},
-  {name: "unknownDword4", type: "uint32", defaultValue: 0},
-  {name: "decalItemId", type: "uint32", defaultValue: 0},
+  { name: "tintItemId", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+  { name: "decalItemId", type: "uint32", defaultValue: 0 },
   {
     name: "loadoutSlots",
     type: "array",
     defaultValue: [{}],
     fields: [
-      {name: "loadoutSlotId", type: "uint32", defaultValue: 0},
+      { name: "loadoutSlotId", type: "uint32", defaultValue: 0 },
       {
         name: "loadoutSlotData",
         type: "schema",
         fields: [
-          {name: "index", type: "uint32", defaultValue: 0},
+          { name: "index", type: "uint32", defaultValue: 0 },
           {
             name: "loadoutSlotItem",
             type: "schema",
             fields: [
-              {name: "itemLineId", type: "uint32", defaultValue: 0},
-              {name: "flags", type: "uint8", defaultValue: 0},
+              { name: "itemLineId", type: "uint32", defaultValue: 0 },
+              { name: "flags", type: "uint8", defaultValue: 0 },
               {
                 name: "attachments",
                 type: "array",
                 defaultValue: [{}],
                 fields: [
-                  {name: "attachmentId", type: "uint32", defaultValue: 0},
+                  { name: "attachmentId", type: "uint32", defaultValue: 0 },
                 ],
               },
               {
@@ -1611,14 +1614,14 @@ const loadoutDataSubSchema1 = [
                 type: "array",
                 defaultValue: [{}],
                 fields: [
-                  {name: "classId", type: "uint32", defaultValue: 0},
-                  {name: "attachmentId", type: "uint32", defaultValue: 0},
+                  { name: "classId", type: "uint32", defaultValue: 0 },
+                  { name: "attachmentId", type: "uint32", defaultValue: 0 },
                 ],
               },
             ],
           },
-          {name: "tintItemId", type: "uint32", defaultValue: 0},
-          {name: "itemSlot", type: "uint32", defaultValue: 0},
+          { name: "tintItemId", type: "uint32", defaultValue: 0 },
+          { name: "itemSlot", type: "uint32", defaultValue: 0 },
         ],
       },
     ],
@@ -1626,44 +1629,44 @@ const loadoutDataSubSchema1 = [
 ];
 
 const loadoutDataSubSchema2 = [
-  {name: "unknownDword1", type: "uint32", defaultValue: 0},
+  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
   {
     name: "unknownData1",
     type: "schema",
     fields: [
-      {name: "unknownDword1", type: "uint32", defaultValue: 0},
-      {name: "unknownByte1", type: "uint8", defaultValue: 0},
+      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      { name: "unknownByte1", type: "uint8", defaultValue: 0 },
     ],
   },
-  {name: "unknownString1", type: "string", defaultValue: ""},
-  {name: "unknownDword2", type: "uint32", defaultValue: 0},
-  {name: "unknownDword3", type: "uint32", defaultValue: 0},
-  {name: "unknownDword4", type: "uint32", defaultValue: 0},
-  {name: "unknownDword5", type: "uint32", defaultValue: 0},
+  { name: "unknownString1", type: "string", defaultValue: "" },
+  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword5", type: "uint32", defaultValue: 0 },
   {
     name: "unknownArray1",
     type: "array",
     defaultValue: [{}],
     fields: [
-      {name: "unknownDword1", type: "uint32", defaultValue: 0},
+      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
       {
         name: "unknownData1",
         type: "schema",
         fields: [
-          {name: "unknownDword1", type: "uint32", defaultValue: 0},
+          { name: "unknownDword1", type: "uint32", defaultValue: 0 },
 
           {
             name: "unknownData1",
             type: "schema",
             fields: [
-              {name: "unknownDword1", type: "uint32", defaultValue: 0},
-              {name: "unknownByte1", type: "uint8", defaultValue: 0},
+              { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+              { name: "unknownByte1", type: "uint8", defaultValue: 0 },
               {
                 name: "unknownArray1",
                 type: "array",
                 defaultValue: [{}],
                 fields: [
-                  {name: "unknownDword1", type: "uint32", defaultValue: 0},
+                  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                 ],
               },
               {
@@ -1671,15 +1674,15 @@ const loadoutDataSubSchema2 = [
                 type: "array",
                 defaultValue: [{}],
                 fields: [
-                  {name: "unknownDword1", type: "uint32", defaultValue: 0},
-                  {name: "unknownDword2", type: "uint32", defaultValue: 0},
+                  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
                 ],
               },
             ],
           },
 
-          {name: "unknownDword2", type: "uint32", defaultValue: 0},
-          {name: "unknownDword3", type: "uint32", defaultValue: 0},
+          { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword3", type: "uint32", defaultValue: 0 },
         ],
       },
     ],
@@ -1694,166 +1697,166 @@ const fullNpcDataSchema = [
     packer: packUnsignedIntWith2bitLengthValue,
     defaultValue: 115,
   },
-  {name: "unknownDword1", type: "uint32", defaultValue: 0},
-  {name: "unknownDword2", type: "uint32", defaultValue: 0},
-  {name: "unknownDword3", type: "uint32", defaultValue: 0},
+  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword3", type: "uint32", defaultValue: 0 },
   {
     name: "attachments",
     type: "array",
     defaultValue: [{}],
     fields: [
-      {name: "unknownString1", type: "string", defaultValue: ""},
-      {name: "unknownString2", type: "string", defaultValue: ""},
-      {name: "unknownString3", type: "string", defaultValue: ""},
-      {name: "unknownString4", type: "string", defaultValue: ""},
-      {name: "unknownDword1", type: "uint32", defaultValue: 0},
-      {name: "unknownDword2", type: "uint32", defaultValue: 0},
-      {name: "unknownDword3", type: "uint32", defaultValue: 0},
+      { name: "unknownString1", type: "string", defaultValue: "" },
+      { name: "unknownString2", type: "string", defaultValue: "" },
+      { name: "unknownString3", type: "string", defaultValue: "" },
+      { name: "unknownString4", type: "string", defaultValue: "" },
+      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword3", type: "uint32", defaultValue: 0 },
     ],
   },
-  {name: "unknownString1", type: "string", defaultValue: ""},
-  {name: "unknownString2", type: "string", defaultValue: ""},
-  {name: "unknownDword4", type: "uint32", defaultValue: 0},
-  {name: "unknownFloat1", type: "float", defaultValue: 0.0},
-  {name: "unknownDword5", type: "uint32", defaultValue: 0},
-  {name: "unknownVector1", type: "floatvector3", defaultValue: [0, 0, 0]},
-  {name: "unknownVector2", type: "floatvector3", defaultValue: [0, 0, 0]},
-  {name: "unknownFloat2", type: "float", defaultValue: 0.0},
-  {name: "unknownDword6", type: "uint32", defaultValue: 0},
-  {name: "unknownDword7", type: "uint32", defaultValue: 0},
-  {name: "unknownDword8", type: "uint32", defaultValue: 0},
+  { name: "unknownString1", type: "string", defaultValue: "" },
+  { name: "unknownString2", type: "string", defaultValue: "" },
+  { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+  { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
+  { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+  { name: "unknownVector1", type: "floatvector3", defaultValue: [0, 0, 0] },
+  { name: "unknownVector2", type: "floatvector3", defaultValue: [0, 0, 0] },
+  { name: "unknownFloat2", type: "float", defaultValue: 0.0 },
+  { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword8", type: "uint32", defaultValue: 0 },
   {
     name: "effectTags",
     type: "array",
     defaultValue: [{}],
     fields: [
-      {name: "unknownDword1", type: "uint32", defaultValue: 0},
-      {name: "unknownDword2", type: "uint32", defaultValue: 0},
-      {name: "unknownDword3", type: "uint32", defaultValue: 0},
-      {name: "unknownDword4", type: "uint32", defaultValue: 0},
-      {name: "unknownDword5", type: "uint32", defaultValue: 0},
-      {name: "unknownDword6", type: "uint32", defaultValue: 0},
-      {name: "unknownDword7", type: "uint32", defaultValue: 0},
-      {name: "unknownDword8", type: "uint32", defaultValue: 0},
-      {name: "unknownDword9", type: "uint32", defaultValue: 0},
-      {name: "unknownFloat1", type: "float", defaultValue: 0.0},
-      {name: "unknownDword10", type: "uint32", defaultValue: 0},
-      {name: "unknownQword1", type: "uint64", defaultValue: "0"},
-      {name: "unknownQword2", type: "uint64", defaultValue: "0"},
-      {name: "unknownQword3", type: "uint64", defaultValue: "0"},
-      {name: "unknownGuid1", type: "uint64", defaultValue: "0"},
-      {name: "unknownDword11", type: "uint32", defaultValue: 0},
-      {name: "unknownDword12", type: "uint32", defaultValue: 0},
-      {name: "unknownDword13", type: "uint32", defaultValue: 0},
-      {name: "unknownDword14", type: "uint32", defaultValue: 0},
-      {name: "unknownDword15", type: "uint32", defaultValue: 0},
-      {name: "unknownDword16", type: "uint32", defaultValue: 0},
-      {name: "unknownDword17", type: "uint32", defaultValue: 0},
-      {name: "unknownGuid2", type: "uint64", defaultValue: "0"},
-      {name: "unknownDword18", type: "uint32", defaultValue: 0},
-      {name: "unknownDword19", type: "uint32", defaultValue: 0},
-      {name: "unknownDword20", type: "uint32", defaultValue: 0},
-      {name: "unknownDword21", type: "uint32", defaultValue: 0},
-      {name: "unknownGuid3", type: "uint64", defaultValue: "0"},
-      {name: "unknownGuid4", type: "uint64", defaultValue: "0"},
-      {name: "unknownDword22", type: "uint32", defaultValue: 0},
-      {name: "unknownQword4", type: "uint64", defaultValue: "0"},
-      {name: "unknownDword23", type: "uint32", defaultValue: 0},
+      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword8", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword9", type: "uint32", defaultValue: 0 },
+      { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
+      { name: "unknownDword10", type: "uint32", defaultValue: 0 },
+      { name: "unknownQword1", type: "uint64", defaultValue: "0" },
+      { name: "unknownQword2", type: "uint64", defaultValue: "0" },
+      { name: "unknownQword3", type: "uint64", defaultValue: "0" },
+      { name: "unknownGuid1", type: "uint64", defaultValue: "0" },
+      { name: "unknownDword11", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword12", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword13", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword14", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword15", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword16", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword17", type: "uint32", defaultValue: 0 },
+      { name: "unknownGuid2", type: "uint64", defaultValue: "0" },
+      { name: "unknownDword18", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword19", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword20", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword21", type: "uint32", defaultValue: 0 },
+      { name: "unknownGuid3", type: "uint64", defaultValue: "0" },
+      { name: "unknownGuid4", type: "uint64", defaultValue: "0" },
+      { name: "unknownDword22", type: "uint32", defaultValue: 0 },
+      { name: "unknownQword4", type: "uint64", defaultValue: "0" },
+      { name: "unknownDword23", type: "uint32", defaultValue: 0 },
     ],
   },
   {
     name: "unknownData1",
     type: "schema",
     fields: [
-      {name: "unknownDword1", type: "uint32", defaultValue: 0},
-      {name: "unknownString1", type: "string", defaultValue: ""},
-      {name: "unknownString2", type: "string", defaultValue: ""},
-      {name: "unknownDword2", type: "uint32", defaultValue: 0},
-      {name: "unknownString3", type: "string", defaultValue: ""},
+      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      { name: "unknownString1", type: "string", defaultValue: "" },
+      { name: "unknownString2", type: "string", defaultValue: "" },
+      { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+      { name: "unknownString3", type: "string", defaultValue: "" },
     ],
   },
-  {name: "unknownVector4", type: "floatvector4", defaultValue: [0, 0, 0, 0]},
-  {name: "unknownDword9", type: "uint32", defaultValue: 0},
-  {name: "unknownDword10", type: "uint32", defaultValue: 0},
-  {name: "unknownDword11", type: "uint32", defaultValue: 0},
-  {name: "characterId", type: "uint64", defaultValue: "0"},
-  {name: "unknownFloat3", type: "float", defaultValue: 0.0},
-  {name: "targetData", type: "schema", fields: targetDataSchema},
+  { name: "unknownVector4", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
+  { name: "unknownDword9", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword10", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword11", type: "uint32", defaultValue: 0 },
+  { name: "characterId", type: "uint64", defaultValue: "0" },
+  { name: "unknownFloat3", type: "float", defaultValue: 0.0 },
+  { name: "targetData", type: "schema", fields: targetDataSchema },
   {
     name: "characterVariables",
     type: "array",
     defaultValue: [{}],
     fields: [
-      {name: "unknownString1", type: "string", defaultValue: ""},
-      {name: "unknownDword1", type: "uint32", defaultValue: 0},
+      { name: "unknownString1", type: "string", defaultValue: "" },
+      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
     ],
   },
-  {name: "unknownDword12", type: "uint32", defaultValue: 0},
-  {name: "unknownFloat4", type: "float", defaultValue: 0.0},
-  {name: "unknownVector5", type: "floatvector4", defaultValue: [0, 0, 0, 0]},
-  {name: "unknownDword13", type: "uint32", defaultValue: 0},
-  {name: "unknownFloat5", type: "float", defaultValue: 0.0},
-  {name: "unknownFloat6", type: "float", defaultValue: 0.0},
+  { name: "unknownDword12", type: "uint32", defaultValue: 0 },
+  { name: "unknownFloat4", type: "float", defaultValue: 0.0 },
+  { name: "unknownVector5", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
+  { name: "unknownDword13", type: "uint32", defaultValue: 0 },
+  { name: "unknownFloat5", type: "float", defaultValue: 0.0 },
+  { name: "unknownFloat6", type: "float", defaultValue: 0.0 },
   {
     name: "unknownData2",
     type: "schema",
-    fields: [{name: "unknownFloat1", type: "float", defaultValue: 0.0}],
+    fields: [{ name: "unknownFloat1", type: "float", defaultValue: 0.0 }],
   },
-  {name: "unknownDword14", type: "uint32", defaultValue: 0},
-  {name: "unknownDword15", type: "uint32", defaultValue: 0},
-  {name: "unknownDword16", type: "uint32", defaultValue: 0},
-  {name: "unknownDword17", type: "uint32", defaultValue: 0},
-  {name: "unknownDword18", type: "uint32", defaultValue: 0},
-  {name: "unknownByte1", type: "uint8", defaultValue: 0},
-  {name: "unknownByte2", type: "uint8", defaultValue: 0},
-  {name: "unknownDword19", type: "uint32", defaultValue: 0},
-  {name: "unknownDword20", type: "uint32", defaultValue: 0},
-  {name: "unknownDword21", type: "uint32", defaultValue: 0},
+  { name: "unknownDword14", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword15", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword16", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword17", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword18", type: "uint32", defaultValue: 0 },
+  { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+  { name: "unknownByte2", type: "uint8", defaultValue: 0 },
+  { name: "unknownDword19", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword20", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword21", type: "uint32", defaultValue: 0 },
   {
     name: "resources",
     type: "array",
     defaultValue: [{}],
     fields: resourceEventDataSubSchema,
   },
-  {name: "unknownGuid1", type: "uint64", defaultValue: "0"},
+  { name: "unknownGuid1", type: "uint64", defaultValue: "0" },
   {
     name: "unknownData3",
     type: "schema",
-    fields: [{name: "unknownDword1", type: "uint32", defaultValue: 0}],
+    fields: [{ name: "unknownDword1", type: "uint32", defaultValue: 0 }],
   },
-  {name: "unknownDword22", type: "uint32", defaultValue: 0},
-  {name: "unknownBytes1", type: "byteswithlength", defaultValue: null},
-  {name: "unknownBytes2", type: "byteswithlength", defaultValue: null},
+  { name: "unknownDword22", type: "uint32", defaultValue: 0 },
+  { name: "unknownBytes1", type: "byteswithlength", defaultValue: null },
+  { name: "unknownBytes2", type: "byteswithlength", defaultValue: null },
 ];
 
 const respawnLocationDataSchema = [
-  {name: "guid", type: "uint64", defaultValue: "0"},
-  {name: "respawnType", type: "uint8", defaultValue: 0},
-  {name: "position", type: "floatvector4", defaultValue: [0, 0, 0, 0]},
-  {name: "unknownDword1", type: "uint32", defaultValue: 0},
-  {name: "unknownDword2", type: "uint32", defaultValue: 0},
-  {name: "iconId1", type: "uint32", defaultValue: 0},
-  {name: "iconId2", type: "uint32", defaultValue: 0},
-  {name: "respawnTotalTime", type: "uint32", defaultValue: 0},
-  {name: "respawnTimeMs", type: "uint32", defaultValue: 0},
-  {name: "nameId", type: "uint32", defaultValue: 0},
-  {name: "distance", type: "float", defaultValue: 0.0},
-  {name: "unknownByte1", type: "uint8", defaultValue: 0},
-  {name: "unknownByte2", type: "uint8", defaultValue: 0},
+  { name: "guid", type: "uint64", defaultValue: "0" },
+  { name: "respawnType", type: "uint8", defaultValue: 0 },
+  { name: "position", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
+  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+  { name: "iconId1", type: "uint32", defaultValue: 0 },
+  { name: "iconId2", type: "uint32", defaultValue: 0 },
+  { name: "respawnTotalTime", type: "uint32", defaultValue: 0 },
+  { name: "respawnTimeMs", type: "uint32", defaultValue: 0 },
+  { name: "nameId", type: "uint32", defaultValue: 0 },
+  { name: "distance", type: "float", defaultValue: 0.0 },
+  { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+  { name: "unknownByte2", type: "uint8", defaultValue: 0 },
   {
     name: "unknownData1",
     type: "schema",
     fields: [
-      {name: "unknownByte1", type: "uint8", defaultValue: 0},
-      {name: "unknownByte2", type: "uint8", defaultValue: 0},
-      {name: "unknownByte3", type: "uint8", defaultValue: 0},
-      {name: "unknownByte4", type: "uint8", defaultValue: 0},
-      {name: "unknownByte5", type: "uint8", defaultValue: 0},
+      { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+      { name: "unknownByte2", type: "uint8", defaultValue: 0 },
+      { name: "unknownByte3", type: "uint8", defaultValue: 0 },
+      { name: "unknownByte4", type: "uint8", defaultValue: 0 },
+      { name: "unknownByte5", type: "uint8", defaultValue: 0 },
     ],
   },
-  {name: "unknownDword4", type: "uint32", defaultValue: 0},
-  {name: "unknownByte3", type: "uint8", defaultValue: 0},
-  {name: "unknownByte4", type: "uint8", defaultValue: 0},
+  { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+  { name: "unknownByte3", type: "uint8", defaultValue: 0 },
+  { name: "unknownByte4", type: "uint8", defaultValue: 0 },
 ];
 
 var packets = [
@@ -6906,11 +6909,8 @@ var packets = [
     {
       fn: function (data, offset) {
         const result = {},
-            startOffset = offset;
-        let n,
-            i,
-            values,
-            flags;
+          startOffset = offset;
+        let n, i, values, flags;
 
         result["facilityId"] = data.readUInt32LE(offset);
         flags = data.readUInt16LE(offset + 4);
@@ -8697,7 +8697,7 @@ var packets = [
 ];
 
 const packetTypes = {},
-    packetDescriptors = {};
+  packetDescriptors = {};
 
 PacketTable.build(packets, packetTypes, packetDescriptors);
 

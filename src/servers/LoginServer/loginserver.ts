@@ -180,7 +180,7 @@ export class LoginServer extends EventEmitter {
               );
               this._soeServer.sendAppData(client, data, true);
               debug("CharacterSelectInfoRequest");
-              break
+              break;
             case "ServerListRequest":
               let servers;
               if (!this._soloMode) {

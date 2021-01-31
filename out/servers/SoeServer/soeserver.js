@@ -211,8 +211,7 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression, isGatewaySe
                     if (me._dumpData) {
                         fs.writeFileSync("debug/soeserver_" + n0++ + "_out.dat", data_1);
                     }
-                    me._connection.send(data_1, 0, data_1.length, client.port, client.address, function (err, bytes) {
-                    });
+                    me._connection.send(data_1, 0, data_1.length, client.port, client.address, function (err, bytes) { });
                 }
                 client.outQueueTimer = setTimeout(checkClientOutQueue_1, 0);
             };

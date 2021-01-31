@@ -18,10 +18,10 @@ const packets = [
     0x01,
     {
       fields: [
-        {name: "characterId", type: "uint64"},
-        {name: "ticket", type: "string"},
-        {name: "clientProtocol", type: "string"},
-        {name: "clientBuild", type: "string"},
+        { name: "characterId", type: "uint64" },
+        { name: "ticket", type: "string" },
+        { name: "clientProtocol", type: "string" },
+        { name: "clientBuild", type: "string" },
       ],
     },
   ],
@@ -29,7 +29,7 @@ const packets = [
     "LoginReply",
     0x02,
     {
-      fields: [{name: "loggedIn", type: "boolean"}],
+      fields: [{ name: "loggedIn", type: "boolean" }],
     },
   ],
   [
@@ -52,7 +52,7 @@ const packets = [
     "ChannelIsRoutable",
     0x07,
     {
-      fields: [{name: "isRoutable", type: "boolean"}],
+      fields: [{ name: "isRoutable", type: "boolean" }],
     },
   ],
   [
@@ -65,7 +65,7 @@ const packets = [
 ];
 
 const packetTypes = {},
-    packetDescriptors = {};
+  packetDescriptors = {};
 
 PacketTable.build(packets, packetTypes, packetDescriptors);
 

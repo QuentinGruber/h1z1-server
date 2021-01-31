@@ -11,9 +11,9 @@
 // ======================================================================
 
 const EventEmitter = require("events").EventEmitter,
-    crypto = require("crypto"),
-    util = require("util"),
-    debug = require("debug")("SOEInputStream");
+  crypto = require("crypto"),
+  util = require("util"),
+  debug = require("debug")("SOEInputStream");
 
 function SOEInputStream(cryptoKey) {
   EventEmitter.call(this);
@@ -39,7 +39,7 @@ function ZeroBuffer(length) {
 
 function readDataLength(data, offset) {
   let dataLength = data.readUInt8(offset),
-      n;
+    n;
   if (dataLength === 0xff) {
     if (data[offset + 1] === 0xff && data[offset + 2] === 0xff) {
       dataLength = data.readUInt32BE(offset + 3);
@@ -59,8 +59,8 @@ function readDataLength(data, offset) {
 
 function parseChannelPacketData(data) {
   let appData = [],
-      offset,
-      dataLength;
+    offset,
+    dataLength;
   if (data[0] === 0x00 && data[1] === 0x19) {
     offset = 2;
     while (offset < data.length) {
@@ -77,14 +77,14 @@ function parseChannelPacketData(data) {
 
 SOEInputStream.prototype._processDataFragments = function () {
   const nextFragment = (this._lastProcessedFragment + 1) & 0xffff,
-      fragments = this._fragments,
-      head = fragments[nextFragment];
+    fragments = this._fragments,
+    head = fragments[nextFragment];
   let data,
-      totalSize,
-      dataSize,
-      fragment,
-      appData = [],
-      k;
+    totalSize,
+    dataSize,
+    fragment,
+    appData = [],
+    k;
   if (head) {
     if (head.singlePacket) {
       this._lastProcessedFragment = nextFragment;
