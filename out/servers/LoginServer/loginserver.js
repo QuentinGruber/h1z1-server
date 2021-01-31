@@ -174,7 +174,7 @@ var LoginServer = /** @class */ (function (_super) {
                         data_1 = this._protocol.pack("CharacterSelectInfoReply", CharactersInfo);
                         this._soeServer.sendAppData(client, data_1, true);
                         debug("CharacterSelectInfoRequest");
-                        _c.label = 6;
+                        return [3 /*break*/, 21];
                     case 6:
                         servers = void 0;
                         if (!!this._soloMode) return [3 /*break*/, 8];

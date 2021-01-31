@@ -84,8 +84,6 @@ SOEInputStream.prototype._processDataFragments = function () {
     dataSize,
     fragment,
     appData = [],
-    i,
-    j,
     k;
   if (head) {
     if (head.singlePacket) {

@@ -1439,6 +1439,7 @@ var packetHandlers = {
             "[DEPRECATED] use '/hax randomWeather' instead",
             true
           );
+          break
         case "randomWeather":
           debug("Randomized weather");
           function rnd_number() {

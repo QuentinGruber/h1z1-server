@@ -21,12 +21,6 @@ export const lz4_decompress = function (
   outSize: number
 ) {
   var outdata = new (Buffer as any).alloc(outSize),
-    token,
-    literalLength,
-    matchLength,
-    matchOffset,
-    matchStart,
-    matchEnd,
     offsetIn = 0,
     offsetOut = 0;
 

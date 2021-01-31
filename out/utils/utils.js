@@ -22,7 +22,7 @@ var generateGuid = function (guidList) {
 };
 exports.generateGuid = generateGuid;
 var lz4_decompress = function (data, inSize, outSize) {
-    var outdata = new Buffer.alloc(outSize), token, literalLength, matchLength, matchOffset, matchStart, matchEnd, offsetIn = 0, offsetOut = 0;
+    var outdata = new Buffer.alloc(outSize), offsetIn = 0, offsetOut = 0;
     while (1) {
         var token = data[offsetIn];
         var literalLength = token >> 4;
