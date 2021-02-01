@@ -33,14 +33,7 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression, isGatewaySe
     var me = this;
     function handlePacket(client, packet) {
         var soePacket = packet.soePacket;
-        var standAlonePacket;
-        var result;
-        if (!soePacket) {
-            standAlonePacket = packet.StandAlonePackets;
-        }
-        else {
-            result = soePacket.result;
-        }
+        var result = soePacket.result;
         if (result != null) {
             switch (soePacket.name) {
                 case "SessionRequest":
@@ -48,7 +41,6 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression, isGatewaySe
                         client.address +
                         ":" +
                         client.port);
-                    client.crcLength = result.crcLength;
                     client.sessionId = result.sessionId;
                     client.clientUdpLength = result.udpLength;
                     client.protocolName = result.protocol;
@@ -80,7 +72,8 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression, isGatewaySe
                     me.emit("disconnect", null, client);
                     break;
                 case "MultiPacket":
-                    var lastOutOfOrder = 0, channel = 0;
+                    var lastOutOfOrder = 0;
+                    var channel = 0;
                     for (var i = 0; i < result.subPackets.length; i++) {
                         var subPacket = result.subPackets[i];
                         switch (subPacket.name) {
@@ -150,7 +143,9 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression, isGatewaySe
             }
         }
     }
-    var n0 = 0, n1 = 0, n2 = 0;
+    var n0 = 0;
+    var n1 = 0;
+    var n2 = 0;
     connection.on("message", function (data, remote) {
         var client;
         var clientId = remote.address + ":" + remote.port;
@@ -203,18 +198,18 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression, isGatewaySe
                     });
                 }
             });
-            var checkClientOutQueue = function () {
+            var checkClientOutQueue_1 = function () {
                 if (client.outQueue.length) {
-                    var data = client.outQueue.shift();
+                    var data_1 = client.outQueue.shift();
                     if (me._dumpData) {
-                        fs.writeFileSync("debug/soeserver_" + n0++ + "_out.dat", data);
+                        fs.writeFileSync("debug/soeserver_" + n0++ + "_out.dat", data_1);
                     }
-                    me._connection.send(data, 0, data.length, client.port, client.address, function (err, bytes) { });
+                    me._connection.send(data_1, 0, data_1.length, client.port, client.address, function (err, bytes) { });
                 }
-                client.outQueueTimer = setTimeout(checkClientOutQueue, 0);
+                client.outQueueTimer = setTimeout(checkClientOutQueue_1, 0);
             };
-            checkClientOutQueue();
-            var checkAck = function () {
+            checkClientOutQueue_1();
+            var checkAck_1 = function () {
                 if (client.lastAck != client.nextAck) {
                     client.lastAck = client.nextAck;
                     me._sendPacket(client, "Ack", {
@@ -222,15 +217,15 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression, isGatewaySe
                         sequence: client.nextAck,
                     }, true);
                 }
-                client.ackTimer = setTimeout(checkAck, 50);
+                client.ackTimer = setTimeout(checkAck_1, 50);
             };
-            checkAck();
-            var checkOutOfOrderQueue = function () {
+            checkAck_1();
+            var checkOutOfOrderQueue_1 = function () {
                 if (client.outOfOrderPackets.length) {
-                    var packets = [];
+                    var packets_1 = [];
                     for (var i = 0; i < 20; i++) {
                         var sequence = client.outOfOrderPackets.shift();
-                        packets.push({
+                        packets_1.push({
                             name: "OutOfOrder",
                             soePacket: {
                                 channel: 0,
@@ -241,14 +236,14 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression, isGatewaySe
                             break;
                         }
                     }
-                    debug("Sending " + packets.length + " OutOfOrder packets");
+                    debug("Sending " + packets_1.length + " OutOfOrder packets");
                     me._sendPacket(client, "MultiPacket", {
-                        subPackets: packets,
+                        subPackets: packets_1,
                     }, true);
                 }
-                client.outOfOrderTimer = setTimeout(checkOutOfOrderQueue, 10);
+                client.outOfOrderTimer = setTimeout(checkOutOfOrderQueue_1, 10);
             };
-            checkOutOfOrderQueue();
+            checkOutOfOrderQueue_1();
             me.emit("connect", null, clients[clientId]);
         }
         client = clients[clientId];
@@ -259,7 +254,7 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression, isGatewaySe
         if (result !== undefined && result !== null) {
             if (!unknow_client &&
                 result.soePacket &&
-                result.soePacket.name == "SessionRequest") {
+                result.soePacket.name === "SessionRequest") {
                 delete clients[clientId];
                 debug("Delete an old session badly closed by the client (", clientId, ") )");
             }

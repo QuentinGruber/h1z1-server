@@ -195,7 +195,6 @@ var ZoneServer = /** @class */ (function (_super) {
     ZoneServer.prototype.reloadZonePacketHandlers = function () {
         delete require.cache[require.resolve("./zonepackethandlers")];
         this._packetHandlers = require("./zonepackethandlers").default;
-        console.log(this._packetHandlers);
     };
     ZoneServer.prototype.parseReferenceData = function () {
         var itemData = fs_1.default.readFileSync(__dirname + "/../../../data/ClientItemDefinitions.txt", "utf8"), itemLines = itemData.split("\n"), items = {};

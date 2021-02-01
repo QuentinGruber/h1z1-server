@@ -1215,6 +1215,7 @@ var packetHandlers = {
                     break;
                 case "hell":
                     server.sendChatText(client, "[DEPRECATED] use '/hax randomWeather' instead", true);
+                    break;
                 case "randomWeather":
                     debug("Randomized weather");
                     function rnd_number() {

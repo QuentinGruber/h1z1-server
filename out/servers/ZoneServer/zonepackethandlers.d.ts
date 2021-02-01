@@ -1,5 +1,5 @@
 export default packetHandlers;
-declare var packetHandlers: {
+declare const packetHandlers: {
     ClientIsReady: (server: any, client: any, packet: any) => void;
     Security: (server: any, client: any, packet: any) => void;
     "Command.FreeInteractionNpc": (server: any, client: any, packet: any) => void;

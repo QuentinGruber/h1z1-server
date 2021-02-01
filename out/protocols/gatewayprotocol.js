@@ -13,16 +13,18 @@
 var debug = require("debug")("GatewayProtocol"), DataSchema = require("h1z1-dataschema"), GatewayPackets = require("../packets/gatewaypackets");
 function GatewayProtocol() { }
 GatewayProtocol.prototype.parse = function (data) {
-    var packetType = data[0] & 0x1f, result, schema, name, packet = GatewayPackets.Packets[packetType];
+    var packetType = data[0] & 0x1f;
+    var result, schema, name;
+    var packet = GatewayPackets.Packets[packetType];
     if (packet) {
         debug("receive data : ", data);
-        if (packet.name == "TunnelPacketToExternalConnection" ||
-            packet.name == "TunnelPacketFromExternalConnection") {
+        if (packet.name === "TunnelPacketToExternalConnection" ||
+            packet.name === "TunnelPacketFromExternalConnection") {
             debug(packet.name, data[0], packetType, data[0] >> 5, data.length);
             return {
                 type: packet.type,
                 flags: data[0] >> 5,
-                fromClient: packet.name == "TunnelPacketFromExternalConnection",
+                fromClient: packet.name === "TunnelPacketFromExternalConnection",
                 name: packet.name,
                 tunnelData: data.slice(1),
             };
@@ -53,16 +55,17 @@ GatewayProtocol.prototype.parse = function (data) {
     }
 };
 GatewayProtocol.prototype.pack = function (packetName, object) {
-    var packetType = GatewayPackets.PacketTypes[packetName], packet = GatewayPackets.Packets[packetType], payload, data;
+    var packetType = GatewayPackets.PacketTypes[packetName], packet = GatewayPackets.Packets[packetType];
+    var payload, data;
     if (packet) {
-        if (packet.name == "TunnelPacketToExternalConnection" ||
-            packet.name == "TunnelPacketFromExternalConnection") {
+        if (packet.name === "TunnelPacketToExternalConnection" ||
+            packet.name === "TunnelPacketFromExternalConnection") {
             data = new Buffer.alloc(1 + object.tunnelData.length);
             data.writeUInt8(packetType | (object.channel << 5), 0);
             object.tunnelData.copy(data, 1);
             debug("tunnelpacket send data :", object);
         }
-        else if (packet.name == "ChannelIsRoutable") {
+        else if (packet.name === "ChannelIsRoutable") {
             data = new Buffer.alloc(2);
             data.writeUInt8(packetType | (object.channel << 5), 0);
             data.writeUInt8(object.isRoutable, 1);

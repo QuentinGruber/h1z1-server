@@ -132,12 +132,12 @@ function readPositionUpdateData(data, offset) {
     offset += 4;
     obj["unknown3_int8"] = data.readUInt8(offset);
     offset += 1;
-    if (obj.flags & 1) {
+    if (obj.flags && 1) {
         var v = readUnsignedIntWith2bitLengthValue(data, offset);
         obj["unknown4"] = v.value;
         offset += v.length;
     }
-    if (obj.flags & 2) {
+    if (obj.flags && 2) {
         obj["position"] = [];
         var v = readSignedIntWith2bitLengthValue(data, offset);
         obj["position"][0] = v.value / 100;
@@ -149,36 +149,36 @@ function readPositionUpdateData(data, offset) {
         obj["position"][2] = v.value / 100;
         offset += v.length;
     }
-    if (obj.flags & 0x20) {
+    if (obj.flags && 0x20) {
         obj["unknown6_int32"] = data.readUInt32LE(offset);
         offset += 4;
     }
-    if (obj.flags & 0x40) {
+    if (obj.flags && 0x40) {
         var v = readSignedIntWith2bitLengthValue(data, offset);
         obj["unknown7_float"] = v.value / 100;
         offset += v.length;
     }
-    if (obj.flags & 0x80) {
+    if (obj.flags && 0x80) {
         var v = readSignedIntWith2bitLengthValue(data, offset);
         obj["unknown8_float"] = v.value / 100;
         offset += v.length;
     }
-    if (obj.flags & 4) {
+    if (obj.flags && 4) {
         var v = readSignedIntWith2bitLengthValue(data, offset);
         obj["unknown9_float"] = v.value / 100;
         offset += v.length;
     }
-    if (obj.flags & 0x8) {
+    if (obj.flags && 0x8) {
         var v = readSignedIntWith2bitLengthValue(data, offset);
         obj["unknown10_float"] = v.value / 100;
         offset += v.length;
     }
-    if (obj.flags & 0x10) {
+    if (obj.flags && 0x10) {
         var v = readSignedIntWith2bitLengthValue(data, offset);
         obj["unknown11_float"] = v.value / 10;
         offset += v.length;
     }
-    if (obj.flags & 0x100) {
+    if (obj.flags && 0x100) {
         obj["unknown12_float"] = [];
         var v = readSignedIntWith2bitLengthValue(data, offset);
         obj["unknown12_float"][0] = v.value / 100;
@@ -190,7 +190,7 @@ function readPositionUpdateData(data, offset) {
         obj["unknown12_float"][2] = v.value / 100;
         offset += v.length;
     }
-    if (obj.flags & 0x200) {
+    if (obj.flags && 0x200) {
         obj["unknown13_float"] = [];
         var v = readSignedIntWith2bitLengthValue(data, offset);
         obj["unknown13_float"][0] = v.value / 100;
@@ -205,17 +205,17 @@ function readPositionUpdateData(data, offset) {
         obj["unknown13_float"][3] = v.value / 100;
         offset += v.length;
     }
-    if (obj.flags & 0x400) {
+    if (obj.flags && 0x400) {
         var v = readSignedIntWith2bitLengthValue(data, offset);
         obj["unknown14_float"] = v.value / 10;
         offset += v.length;
     }
-    if (obj.flags & 0x800) {
+    if (obj.flags && 0x800) {
         var v = readSignedIntWith2bitLengthValue(data, offset);
         obj["unknown15_float"] = v.value / 10;
         offset += v.length;
     }
-    if (obj.flags & 0xe0) {
+    if (obj.flags && 0xe0) {
     }
     return {
         value: obj,
@@ -312,8 +312,8 @@ function lz4_decompress(data, inSize, outSize) {
         var matchLength = token & 0xf;
         offsetIn++;
         if (literalLength) {
-            if (literalLength == 0xf) {
-                while (data[offsetIn] == 0xff) {
+            if (literalLength === 0xf) {
+                while (data[offsetIn] === 0xff) {
                     literalLength += 0xff;
                     offsetIn++;
                 }
@@ -327,8 +327,8 @@ function lz4_decompress(data, inSize, outSize) {
         if (offsetIn < data.length - 2) {
             var matchOffset = data.readUInt16LE(offsetIn);
             offsetIn += 2;
-            if (matchLength == 0xf) {
-                while (data[offsetIn] == 0xff) {
+            if (matchLength === 0xf) {
+                while (data[offsetIn] === 0xff) {
                     matchLength += 0xff;
                     offsetIn++;
                 }
@@ -631,7 +631,10 @@ function parseItemDefinitions(data, offset) {
     var itemDataLength = data.readUInt32LE(offset);
     offset += 4;
     var itemData = data.slice(offset, offset + itemDataLength);
-    var itemDefinitions = [], item, n = itemData.readUInt32LE(0), itemDataOffset = 4;
+    var itemDefinitions = [];
+    var item;
+    var n = itemData.readUInt32LE(0);
+    var itemDataOffset = 4;
     for (var i = 0; i < n; i++) {
         var blockSize = itemData.readUInt16LE(itemDataOffset), blockSizeOut = itemData.readUInt16LE(itemDataOffset + 2), blockData = itemData.slice(itemDataOffset + 4, itemDataOffset + 4 + blockSize), itemDefinitionData = lz4_decompress(blockData, blockSize, blockSizeOut);
         itemDataOffset += 4 + blockSize;
@@ -1261,9 +1264,11 @@ function parseWeaponPacket(data, offset) {
     };
 }
 function packWeaponPacket(obj) {
-    var subObj = obj.packet, subName = obj.packetName, subType = weaponPacketTypes[subName], data;
+    var subObj = obj.packet, subName = obj.packetName, subType = weaponPacketTypes[subName];
+    var data;
     if (weaponPacketDescriptors[subType]) {
-        var subPacket = weaponPacketDescriptors[subType], subTypeData = writePacketType(subType), subData = DataSchema.pack(subPacket.schema, subObj).data;
+        var subPacket = weaponPacketDescriptors[subType], subTypeData = writePacketType(subType);
+        var subData = DataSchema.pack(subPacket.schema, subObj).data;
         subData = Buffer.concat([subTypeData.slice(1), subData]);
         data = new Buffer.alloc(subData.length + 4);
         data.writeUInt32LE((obj.gameTime & 0xffffffff) >>> 0, 0);
@@ -1275,10 +1280,11 @@ function packWeaponPacket(obj) {
     return data;
 }
 function parseItemData(data, offset, referenceData) {
-    var startOffset = offset, detailItem, detailSchema;
+    var startOffset = offset;
+    var detailItem, detailSchema;
     var baseItem = DataSchema.parse(itemBaseSchema, data, offset);
     offset += baseItem.length;
-    if (referenceData.itemTypes[baseItem.result.itemId] == "Weapon") {
+    if (referenceData.itemTypes[baseItem.result.itemId] === "Weapon") {
         detailSchema = itemWeaponDetailSchema;
     }
     else {
@@ -1295,8 +1301,9 @@ function parseItemData(data, offset, referenceData) {
     };
 }
 function packItemData(obj, referenceData) {
-    var baseData = DataSchema.pack(itemBaseSchema, obj.baseItem), detailData, detailSchema;
-    if (referenceData.itemTypes[obj.baseItem.itemId] == "Weapon") {
+    var baseData = DataSchema.pack(itemBaseSchema, obj.baseItem);
+    var detailData, detailSchema;
+    if (referenceData.itemTypes[obj.baseItem.itemId] === "Weapon") {
         detailSchema = itemWeaponDetailSchema;
     }
     else {
@@ -4795,7 +4802,8 @@ var packets = [
         0x8706,
         {
             fn: function (data, offset) {
-                var result = {}, startOffset = offset, n, i, values, flags;
+                var result = {}, startOffset = offset;
+                var n, i, values, flags;
                 result["facilityId"] = data.readUInt32LE(offset);
                 flags = data.readUInt16LE(offset + 4);
                 result["flags"] = flags;

@@ -98,7 +98,8 @@ var packets = [
         0x03,
         {
             parse: function (data, crcSeed, compression, isSubPacket, appData) {
-                var offset = 2 + (compression ? 1 : 0), dataLength, subPackets = [];
+                var offset = 2 + (compression ? 1 : 0), dataLength;
+                var subPackets = [];
                 while (offset < data.length - 2) {
                     dataLength = readDataLength(data, offset);
                     offset += dataLength.numBytes;
@@ -110,7 +111,8 @@ var packets = [
                 };
             },
             pack: function (packet, crcSeed, compression, isSubPacket) {
-                var dataParts = [], subData, data = new Buffer.alloc(2 + (compression ? 1 : 0));
+                var dataParts = [];
+                var subData, data = new Buffer.alloc(2 + (compression ? 1 : 0));
                 data.writeUInt16BE(0x03, 0);
                 if (compression) {
                     data.writeUInt8(0, 2);
@@ -321,7 +323,8 @@ function packSOEPacket(packetName, object, crcSeed, compression, isSubPacket) {
     return data;
 }
 function parseSOEPacket(data, crcSeed, compression, isSubPacket, appData) {
-    var packetType = data.readUInt16BE(0), result, packet = SOEPackets.Packets[packetType];
+    var packetType = data.readUInt16BE(0);
+    var result, packet = SOEPackets.Packets[packetType];
     if (!packet) {
         // try with Int8 opcode
         packet = StandAlonePackets.Packets[data.readUInt8(0)];

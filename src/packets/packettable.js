@@ -12,8 +12,8 @@
 
 function build(packets, packetTypes, packetDescriptors, prefix) {
   prefix = prefix ? prefix + "." : "";
-  for (var i = 0; i < packets.length; i++) {
-    var packet = packets[i],
+  for (let i = 0; i < packets.length; i++) {
+    const packet = packets[i],
       name = prefix + packet[0],
       type = packet[1] >>> 0,
       packetDesc = packet[2];

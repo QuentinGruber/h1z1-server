@@ -13,11 +13,11 @@
 function build(packets, packetTypes, packetDescriptors, prefix) {
     prefix = prefix ? prefix + "." : "";
     for (var i = 0; i < packets.length; i++) {
-        var packet = packets[i], name = prefix + packet[0], type = packet[1] >>> 0, packetDesc = packet[2];
-        packetTypes[name] = type;
+        var packet = packets[i], name_1 = prefix + packet[0], type = packet[1] >>> 0, packetDesc = packet[2];
+        packetTypes[name_1] = type;
         packetDescriptors[type] = {
             type: type,
-            name: name,
+            name: name_1,
             schema: packetDesc.fields,
             fn: packetDesc.fn,
             parse: packetDesc.parse,

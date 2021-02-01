@@ -126,8 +126,8 @@ export class LoginServer extends EventEmitter {
           // useless if in solomode ( never get called either)
           servers = await this._db.collection("servers").find().toArray();
 
-          for (var i = 0; i < servers.length; i++) {
-            var data = this._protocol.pack("ServerUpdate", servers[i]);
+          for (let i = 0; i < servers.length; i++) {
+            const data = this._protocol.pack("ServerUpdate", servers[i]);
             this._soeServer.sendAppData(client, data, true);
           }
         }
@@ -140,11 +140,11 @@ export class LoginServer extends EventEmitter {
         const packet: any = this._protocol.parse(data);
         if (packet !== false) {
           // if packet parsing succeed
-          var result = packet.result;
+          const result = packet.result;
           let data: Buffer;
           switch (packet.name) {
             case "LoginRequest":
-              var falsified_data = {
+              const falsified_data = {
                 loggedIn: true,
                 status: 1,
                 isMember: true,
@@ -180,6 +180,7 @@ export class LoginServer extends EventEmitter {
               );
               this._soeServer.sendAppData(client, data, true);
               debug("CharacterSelectInfoRequest");
+              break;
             case "ServerListRequest":
               let servers;
               if (!this._soloMode) {
@@ -190,7 +191,7 @@ export class LoginServer extends EventEmitter {
                   servers = [SoloServer];
                 }
               }
-              for (var i = 0; i < servers.length; i++) {
+              for (let i = 0; i < servers.length; i++) {
                 if (servers[i]._id) {
                   delete servers[i]._id;
                 }
