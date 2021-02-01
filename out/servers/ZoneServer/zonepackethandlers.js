@@ -1166,6 +1166,23 @@ var packetHandlers = {
         }
         if (packet.data.commandHash == Jenkins.oaat("HAX")) {
             switch (args[0]) {
+                case "sonic":
+                    server.sendData(client, "ClientGameSettings", {
+                        unknownDword1: 0,
+                        unknownDword2: 7,
+                        unknownBoolean1: true,
+                        timescale: 3,
+                        unknownDword3: 1,
+                        unknownDword4: 1,
+                        unknownDword5: 0,
+                        unknownFloat2: 12,
+                        unknownFloat3: 110,
+                    });
+                    server.sendData(client, "Command.RunSpeed", {
+                        runSpeed: -1000,
+                    });
+                    server.sendChatText(client, "Welcome MR.Hedgehog");
+                    break;
                 case "observer":
                     server.sendData(client, "PlayerUpdate.RemovePlayer", {
                         guid: client.character.characterId,
