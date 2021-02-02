@@ -20,21 +20,12 @@ function Int64String(value) {
 
 const packetHandlers = {
   ClientIsReady: function (server, client, packet) {
-    /*
-     **DISABLE THAT TEMPORARILY**
-
     server.sendData(client, "ClientBeginZoning", {
       unknownByte1: 0,
       zoneName: "Z1",
-      unknownDword1: 0,
-      unknownDword2: 0,
-      unknownDword3: 0,
-      unknownDword4: 0,
-      unknownDword5: 0,
-      unknownDword6: 0,
-      unknownDword7: 0,
-      unknownDword8: 0,
-      unknownDword9: 0,
+      zoneType: 4,
+      position: [1, 2, 3, 1],
+      rotation: [4, 5, 6, 1],
 
       skyData: {
         unknownDword1: 0,
@@ -65,14 +56,14 @@ const packetHandlers = {
         unknownDword25: 0,
         unknownDword26: 0,
         unknownArray: _.fill(Array(50), {
-                unknownDword1: 0,
-                unknownDword2: 0,
-                unknownDword3: 0,
-                unknownDword4: 0,
-                unknownDword5: 0,
-                unknownDword6: 0,
-                unknownDword7: 0,
-              }),
+          unknownDword1: 0,
+          unknownDword2: 0,
+          unknownDword3: 0,
+          unknownDword4: 0,
+          unknownDword5: 0,
+          unknownDword6: 0,
+          unknownDword7: 0,
+        }),
       },
       unknownByte2: 0,
       zoneId1: 3168227224,
@@ -82,7 +73,7 @@ const packetHandlers = {
       unknownBoolean1: true,
       unknownBoolean2: true,
     });
-*/
+
     server.sendData(client, "QuickChat.SendData", { commands: [] });
 
     server.sendData(client, "ClientUpdate.DoneSendingPreloadCharacters", {
