@@ -10,7 +10,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-var EventEmitter = require("events").EventEmitter,
+const EventEmitter = require("events").EventEmitter,
   crypto = require("crypto"),
   util = require("util"),
   debug = require("debug")("SOEInputStream");
@@ -30,18 +30,18 @@ function SOEInputStream(cryptoKey) {
 util.inherits(SOEInputStream, EventEmitter);
 
 function ZeroBuffer(length) {
-  var buffer = new Buffer.alloc(length);
-  for (var i = 0; i < length; i++) {
+  const buffer = new Buffer.alloc(length);
+  for (let i = 0; i < length; i++) {
     buffer[i] = 0;
   }
   return buffer;
 }
 
 function readDataLength(data, offset) {
-  var dataLength = data.readUInt8(offset),
+  let dataLength = data.readUInt8(offset),
     n;
-  if (dataLength == 0xff) {
-    if (data[offset + 1] == 0xff && data[offset + 2] == 0xff) {
+  if (dataLength === 0xff) {
+    if (data[offset + 1] === 0xff && data[offset + 2] === 0xff) {
       dataLength = data.readUInt32BE(offset + 3);
       n = 7;
     } else {
@@ -58,10 +58,10 @@ function readDataLength(data, offset) {
 }
 
 function parseChannelPacketData(data) {
-  var appData = [],
+  let appData = [],
     offset,
     dataLength;
-  if (data[0] === 0x00 && data[1] == 0x19) {
+  if (data[0] === 0x00 && data[1] === 0x19) {
     offset = 2;
     while (offset < data.length) {
       dataLength = readDataLength(data, offset);
@@ -76,16 +76,14 @@ function parseChannelPacketData(data) {
 }
 
 SOEInputStream.prototype._processDataFragments = function () {
-  var nextFragment = (this._lastProcessedFragment + 1) & 0xffff,
+  const nextFragment = (this._lastProcessedFragment + 1) & 0xffff,
     fragments = this._fragments,
-    head = fragments[nextFragment],
-    data,
+    head = fragments[nextFragment];
+  let data,
     totalSize,
     dataSize,
     fragment,
     appData = [],
-    i,
-    j,
     k;
   if (head) {
     if (head.singlePacket) {
@@ -99,9 +97,9 @@ SOEInputStream.prototype._processDataFragments = function () {
       data = ZeroBuffer(totalSize);
       head.copy(data, 0, 4);
 
-      var fragmentIndices = [nextFragment];
+      const fragmentIndices = [nextFragment];
       for (var i = 1; i < fragments.length; i++) {
-        var j = (nextFragment + i) % 0xffff;
+        const j = (nextFragment + i) % 0xffff;
         fragment = fragments[j];
         if (fragment) {
           fragmentIndices.push(j);
@@ -121,7 +119,7 @@ SOEInputStream.prototype._processDataFragments = function () {
               ")"
             );
           }
-          if (dataSize == totalSize) {
+          if (dataSize === totalSize) {
             for (k = 0; k < fragmentIndices.length; k++) {
               fragments[fragmentIndices[k]] = null;
             }
@@ -157,7 +155,7 @@ SOEInputStream.prototype._processDataFragments = function () {
 };
 
 SOEInputStream.prototype.write = function (data, sequence, fragment) {
-  if (this._nextSequence == -1) {
+  if (this._nextSequence === -1) {
     this._nextSequence = sequence;
   }
   debug(
@@ -179,9 +177,9 @@ SOEInputStream.prototype.write = function (data, sequence, fragment) {
     );
     this.emit("outoforder", null, this._nextSequence, sequence);
   } else {
-    var ack = sequence;
-    for (var i = 1; i < this._sequences.length; i++) {
-      var j = (this._lastAck + i) & 0xffff;
+    let ack = sequence;
+    for (let i = 1; i < this._sequences.length; i++) {
+      const j = (this._lastAck + i) & 0xffff;
       if (this._fragments[j]) {
         ack = j;
       } else {

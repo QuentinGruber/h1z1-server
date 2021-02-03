@@ -13,7 +13,7 @@
 const debug = require("debug")("SOEProtocol");
 const PacketTable = require("../packets/packettable");
 const { appendCRC } = require("../utils/crc");
-var stand_alone_packets = [
+const stand_alone_packets = [
   [
     "ZonePing",
     0x1,
@@ -25,7 +25,7 @@ var stand_alone_packets = [
         };
       },
       pack: function (data: any) {
-        var packet = new (Buffer as any).alloc(5);
+        const packet = new (Buffer as any).alloc(5);
         packet.writeUInt8(0x1, 0);
         packet.writeUInt16LE(data.PingId, 1);
         packet.write(data.Data, 3, "hex");
@@ -34,7 +34,7 @@ var stand_alone_packets = [
     },
   ],
 ];
-var packets = [
+const packets = [
   [
     "SessionRequest",
     0x01,
@@ -62,7 +62,7 @@ var packets = [
         compression: number,
         isSubPacket: boolean
       ) {
-        var data = new (Buffer as any).alloc(14 + packet.protocol.length + 1);
+        const data = new (Buffer as any).alloc(14 + packet.protocol.length + 1);
         data.writeUInt16BE(0x01, 0);
         data.writeUInt32BE(packet.crcLength, 2);
         data.writeUInt32BE(packet.sessionId, 6);
@@ -101,7 +101,7 @@ var packets = [
         compression: number,
         isSubPacket: boolean
       ) {
-        var data = new (Buffer as any).alloc(21);
+        const data = new (Buffer as any).alloc(21);
         data.writeUInt16BE(0x02, 0);
         data.writeUInt32BE(packet.sessionId, 2);
         data.writeUInt32BE(packet.crcSeed, 6);
@@ -124,9 +124,9 @@ var packets = [
         isSubPacket: boolean,
         appData: any
       ) {
-        var offset = 2 + (compression ? 1 : 0),
-          dataLength,
-          subPackets = [];
+        let offset = 2 + (compression ? 1 : 0),
+          dataLength;
+        const subPackets = [];
         while (offset < data.length - 2) {
           dataLength = readDataLength(data, offset);
           offset += dataLength.numBytes;
@@ -151,15 +151,15 @@ var packets = [
         compression: number,
         isSubPacket: boolean
       ) {
-        var dataParts = [],
-          subData,
+        const dataParts = [];
+        let subData,
           data = new (Buffer as any).alloc(2 + (compression ? 1 : 0));
         data.writeUInt16BE(0x03, 0);
         if (compression) {
           data.writeUInt8(0, 2);
         }
         dataParts.push(data);
-        for (var i = 0; i < packet.subPackets.length; i++) {
+        for (let i = 0; i < packet.subPackets.length; i++) {
           subData = packSOEPacket(
             packet.subPackets[i].name,
             packet.subPackets[i].soePacket,
@@ -183,7 +183,7 @@ var packets = [
         return {};
       },
       pack: function () {
-        var data = new (Buffer as any).alloc(2);
+        const data = new (Buffer as any).alloc(2);
         data.writeUInt16BE(0x05, 0);
         return data;
       },
@@ -197,7 +197,7 @@ var packets = [
         return {};
       },
       pack: function () {
-        var data = new (Buffer as any).alloc(2);
+        const data = new (Buffer as any).alloc(2);
         data.writeUInt16BE(0x06, 0);
         return data;
       },
@@ -216,7 +216,7 @@ var packets = [
         isSubPacket: boolean,
         appData: any
       ) {
-        var sequence = data.readUInt16BE(compression && !isSubPacket ? 3 : 2),
+        const sequence = data.readUInt16BE(compression && !isSubPacket ? 3 : 2),
           dataEnd = data.length - (isSubPacket ? 0 : 2),
           crc = isSubPacket ? 0 : data.readUInt16BE(dataEnd);
         data = data.slice(compression && !isSubPacket ? 5 : 4, dataEnd);
@@ -238,7 +238,7 @@ var packets = [
         compression: number,
         isSubPacket: boolean
       ) {
-        var data = new (Buffer as any).alloc(
+        let data = new (Buffer as any).alloc(
             4 + (compression && !isSubPacket ? 1 : 0) + packet.data.length
           ),
           offset = 0;
@@ -269,7 +269,7 @@ var packets = [
         isSubPacket: boolean,
         appData: any
       ) {
-        var sequence = data.readUInt16BE(compression && !isSubPacket ? 3 : 2),
+        const sequence = data.readUInt16BE(compression && !isSubPacket ? 3 : 2),
           fragmentEnd = data.length - (isSubPacket ? 0 : 2),
           crc = isSubPacket ? 0 : data.readUInt16BE(fragmentEnd);
         data = data.slice(compression && !isSubPacket ? 5 : 4, fragmentEnd);
@@ -291,7 +291,7 @@ var packets = [
         compression: number,
         isSubPacket: boolean
       ) {
-        var data = new (Buffer as any).alloc(
+        let data = new (Buffer as any).alloc(
             4 + (compression && !isSubPacket ? 1 : 0) + packet.data.length
           ),
           offset = 0;
@@ -321,7 +321,7 @@ var packets = [
         compression: number,
         isSubPacket: boolean
       ) {
-        var sequence = data.readUInt16BE(
+        const sequence = data.readUInt16BE(
           2 + (compression && !isSubPacket ? 1 : 0)
         );
         return {
@@ -363,7 +363,7 @@ var packets = [
         compression: number,
         isSubPacket: boolean
       ) {
-        var sequence = data.readUInt16BE(
+        const sequence = data.readUInt16BE(
           2 + (compression && !isSubPacket ? 1 : 0)
         );
         return {
@@ -377,7 +377,7 @@ var packets = [
         compression: number,
         isSubPacket: boolean
       ) {
-        var data = new (Buffer as any).alloc(
+        let data = new (Buffer as any).alloc(
             4 + (compression && !isSubPacket ? 1 : 0)
           ),
           offset = 0;
@@ -399,12 +399,12 @@ var packets = [
   ["FatalErrorReply", 0x1e, {}],
 ];
 
-var SOEPackets = {
+const SOEPackets = {
   PacketTypes: {},
   Packets: {},
 };
 
-var StandAlonePackets = {
+const StandAlonePackets = {
   PacketTypes: {},
   Packets: {},
 };
@@ -451,8 +451,8 @@ function parseSOEPacket(
   isSubPacket: boolean,
   appData: any
 ) {
-  var packetType = data.readUInt16BE(0),
-    result,
+  const packetType = data.readUInt16BE(0);
+  let result,
     packet = (SOEPackets as any).Packets[packetType];
   if (!packet) {
     // try with Int8 opcode
@@ -479,7 +479,7 @@ function parseSOEPacket(
 }
 
 function writeDataLength(length: number) {
-  var data;
+  let data;
   if (length <= 0xff) {
     data = new (Buffer as any).alloc(1);
     data.writeUInt8(length, 0);
@@ -498,7 +498,7 @@ function writeDataLength(length: number) {
 }
 
 function readDataLength(data: any, offset: number) {
-  var dataLength = data.readUInt8(offset),
+  let dataLength = data.readUInt8(offset),
     n;
   if (dataLength == 0xff) {
     if (data[offset + 1] == 0xff && data[offset + 2] == 0xff) {
@@ -521,7 +521,7 @@ function readDataLength(data: any, offset: number) {
 
 class SOEProtocol {
   parse(data: any, crcSeed: number, compression: number) {
-    var appData: Array<any> = [],
+    const appData: Array<any> = [],
       packet = parseSOEPacket(data, crcSeed, compression, false, appData);
     return {
       soePacket: packet,
@@ -530,7 +530,7 @@ class SOEProtocol {
   }
 
   pack(packetName: string, object: any, crcSeed: number, compression: number) {
-    var data = packSOEPacket(packetName, object, crcSeed, compression, false);
+    const data = packSOEPacket(packetName, object, crcSeed, compression, false);
     return data;
   }
 }

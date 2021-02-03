@@ -12,8 +12,7 @@
 
 const debug = require("debug")("H1Z1Protocol");
 import DataSchema from "h1z1-dataschema";
-import { lz4_decompress } from "../utils/utils"
-
+import { lz4_decompress } from "../utils/utils";
 
 interface UpdatePositionObject {
   flags: any;
@@ -34,11 +33,9 @@ interface UpdatePositionObject {
 }
 
 interface PositionZoneToClient {
-  unknown1_uint: number,
+  unknown1_uint: number;
   positionData: UpdatePositionObject;
 }
-
-
 
 export class H1Z1Protocol {
   H1Z1Packets: any;
@@ -54,8 +51,8 @@ export class H1Z1Protocol {
         this.H1Z1Packets = require("../packets/ClientProtocol/ClientProtocol_948/h1z1packets");
         break;
       default:
-        debug(`Protocol ${this.protocolName} unsupported !`)
-        process.exit()
+        debug(`Protocol ${this.protocolName} unsupported !`);
+        process.exit();
     }
   }
   parseFacilityReferenceData(data: Buffer) {
@@ -95,7 +92,7 @@ export class H1Z1Protocol {
     var result = DataSchema.parse(schema, data, 0).result;
     return result;
   }
-  
+
   parseWeaponDefinitionReferenceData(data: Buffer) {
     var inSize = data.readUInt32LE(0),
       outSize = data.readUInt32LE(4),
@@ -268,29 +265,29 @@ export class H1Z1Protocol {
       var result = DataSchema.parse(schema, data, 0).result;
       return result;
     } catch (e) {}
-  }  
-  
+  }
+
   parseUpdatePositionClientToZone(data: Buffer, offset: number) {
     return {
       result: parseUpdatePositionData(data, offset),
     };
   }
-  
+
   parseUpdatePositionZoneToClient(data: Buffer, offset: number) {
     const obj = {} as PositionZoneToClient;
-  
+
     var v = readUnsignedIntWith2bitLengthValue(data, offset);
     obj["unknown1_uint"] = v.value;
     offset += v.length;
-  
+
     obj["positionData"] = parseUpdatePositionData(data, offset);
-  
+
     return {
       result: obj,
     };
-}
-  
-  pack (packetName: string, object: Buffer, referenceData: any) {
+  }
+
+  pack(packetName: string, object: Buffer, referenceData: any) {
     const { H1Z1Packets } = this;
     var packetType: number = H1Z1Packets.PacketTypes[packetName],
       packet = H1Z1Packets.Packets[packetType],
@@ -311,7 +308,9 @@ export class H1Z1Protocol {
           referenceData
         );
         if (packetData) {
-          data = new (Buffer as any).alloc(packetTypeBytes.length + packetData.length);
+          data = new (Buffer as any).alloc(
+            packetTypeBytes.length + packetData.length
+          );
           for (var i = 0; i < packetTypeBytes.length; i++) {
             data.writeUInt8(packetTypeBytes[i], i);
           }
@@ -327,24 +326,19 @@ export class H1Z1Protocol {
       debug("pack()", "Unknown or unhandled zone packet type: " + packetType);
     }
     return data;
-  };
-  
-  parse(
-    data: Buffer,
-    flags: any,
-    fromClient: boolean,
-    referenceData: any
-  ) {
+  }
+
+  parse(data: Buffer, flags: any, fromClient: boolean, referenceData: any) {
     const { H1Z1Packets } = this;
     var opCode = data[0],
       offset = 0,
       packet,
       result;
-  
+
     if (flags) {
       debug("Flags = " + flags);
     }
-  
+
     if (flags == 2) {
       try {
         if (fromClient) {
@@ -376,7 +370,8 @@ export class H1Z1Protocol {
             packet = (H1Z1Packets as any).Packets[opCode];
             offset = 3;
           } else if (data.length > 3) {
-            opCode = (data[0] << 24) + (data[1] << 16) + (data[2] << 8) + data[3];
+            opCode =
+              (data[0] << 24) + (data[1] << 16) + (data[2] << 8) + data[3];
             if ((H1Z1Packets as any).Packets[opCode]) {
               packet = (H1Z1Packets as any).Packets[opCode];
               offset = 4;
@@ -385,7 +380,7 @@ export class H1Z1Protocol {
         }
       }
     }
-  
+
     if (packet) {
       if (packet.schema) {
         if (packet.name != "KeepAlive") {
@@ -397,13 +392,15 @@ export class H1Z1Protocol {
         } catch (e) {
           debug(e);
         }
-  
+
         switch (packet.name) {
           case "FacilityBase.ReferenceData":
             result = this.parseFacilityReferenceData((result as any).data);
             break;
           case "ReferenceData.WeaponDefinitions":
-            result = this.parseWeaponDefinitionReferenceData((result as any).data);
+            result = this.parseWeaponDefinitionReferenceData(
+              (result as any).data
+            );
             break;
         }
       } else if (packet.fn) {
@@ -412,7 +409,7 @@ export class H1Z1Protocol {
       } else {
         debug("No schema for packet " + packet.name);
       }
-  
+
       return {
         name: packet.name,
         data: result,
@@ -429,16 +426,19 @@ export class H1Z1Protocol {
           debug("Unhandled zone packet:", data[1] & 0x1F, data[1] >> 5, opCode, op);
       }
   */
-  };
-  
+  }
+
   reloadPacketDefinitions() {
-    const protocolPacketsPath = `../packets/ClientProtocol/${this.protocolName}/h1z1packets.js`
+    const protocolPacketsPath = `../packets/ClientProtocol/${this.protocolName}/h1z1packets.js`;
     delete require.cache[require.resolve(protocolPacketsPath)];
     this.H1Z1Packets = require(protocolPacketsPath);
-  };
+  }
 }
 
-const readSignedIntWith2bitLengthValue = function (data: Buffer, offset: number) {
+const readSignedIntWith2bitLengthValue = function (
+  data: Buffer,
+  offset: number
+) {
   var value = data.readUInt8(offset);
   var sign = value & 1;
   var n = (value >> 1) & 3;
@@ -453,8 +453,11 @@ const readSignedIntWith2bitLengthValue = function (data: Buffer, offset: number)
     value: value,
     length: n + 1,
   };
-}
-const readUnsignedIntWith2bitLengthValue = function (data: Buffer, offset: number) {
+};
+const readUnsignedIntWith2bitLengthValue = function (
+  data: Buffer,
+  offset: number
+) {
   var value = data.readUInt8(offset);
   var n = value & 3;
   for (var i = 0; i < n; i++) {
@@ -465,7 +468,7 @@ const readUnsignedIntWith2bitLengthValue = function (data: Buffer, offset: numbe
     value: value,
     length: n + 1,
   };
-}
+};
 
 const parseUpdatePositionData = function (data: Buffer, offset: number) {
   const obj = {} as UpdatePositionObject;
@@ -582,4 +585,4 @@ const parseUpdatePositionData = function (data: Buffer, offset: number) {
     debug(e);
   }
   return obj;
-}
+};

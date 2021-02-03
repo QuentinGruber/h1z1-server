@@ -10,9 +10,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-var PacketTable = require("../../packettable");
+const PacketTable = require("../../packettable");
 
-var packets = [
+const packets = [
   [
     "LoginRequest",
     0x01,
@@ -432,7 +432,7 @@ var packets = [
   ["CharacterTransferReply", 0x13, {}],
 ];
 
-var packetTypes = {},
+const packetTypes = {},
   packetDescriptors = {};
 
 PacketTable.build(packets, packetTypes, packetDescriptors);

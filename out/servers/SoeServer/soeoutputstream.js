@@ -25,7 +25,7 @@ SOEOutputStream.prototype.write = function (data, overrideEncryption) {
     if (this._useEncryption && overrideEncryption !== false) {
         this._rc4.write(data);
         data = this._rc4.read();
-        if (data[0] == 0) {
+        if (data[0] === 0) {
             var tmp = new Buffer.alloc(1);
             tmp[0] = 0;
             data = Buffer.concat([tmp, data]);

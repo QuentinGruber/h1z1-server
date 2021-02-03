@@ -8,28 +8,26 @@ export const generateGuid = function (guidList: Array<string> = []) {
   let guid: string;
   do {
     guid = "0x";
-    for (var i: any = 0; i < 16; i++) {
+    for (let i: any = 0; i < 16; i++) {
       guid += Math.floor(Math.random() * 16).toString(16) as string;
     }
   } while (!_.indexOf(guidList, guid));
   return guid;
 };
 
-export const lz4_decompress = function (data: any, inSize: number, outSize: number) {
-  var outdata = new (Buffer as any).alloc(outSize),
-    token,
-    literalLength,
-    matchLength,
-    matchOffset,
-    matchStart,
-    matchEnd,
-    offsetIn = 0,
+export const lz4_decompress = function (
+  data: any,
+  inSize: number,
+  outSize: number
+) {
+  const outdata = new (Buffer as any).alloc(outSize);
+  let offsetIn = 0,
     offsetOut = 0;
 
   while (1) {
-    var token: any = data[offsetIn];
-    var literalLength: any = token >> 4;
-    var matchLength: any = token & 0xf;
+    const token: any = data[offsetIn];
+    let literalLength: any = token >> 4;
+    let matchLength: any = token & 0xf;
     offsetIn++;
     if (literalLength) {
       if (literalLength == 0xf) {
@@ -47,7 +45,7 @@ export const lz4_decompress = function (data: any, inSize: number, outSize: numb
     }
 
     if (offsetIn < data.length - 2) {
-      var matchOffset = data.readUInt16LE(offsetIn);
+      const matchOffset = data.readUInt16LE(offsetIn);
       offsetIn += 2;
 
       if (matchLength == 0xf) {
@@ -59,9 +57,9 @@ export const lz4_decompress = function (data: any, inSize: number, outSize: numb
         offsetIn++;
       }
       matchLength += 4;
-      var matchStart: any = offsetOut - matchOffset;
-      var matchEnd: any = offsetOut - matchOffset + matchLength;
-      for (var i = matchStart; i < matchEnd; i++) {
+      const matchStart: any = offsetOut - matchOffset;
+      const matchEnd: any = offsetOut - matchOffset + matchLength;
+      for (let i = matchStart; i < matchEnd; i++) {
         outdata[offsetOut] = outdata[i];
         offsetOut++;
       }
@@ -70,4 +68,4 @@ export const lz4_decompress = function (data: any, inSize: number, outSize: numb
     }
   }
   return outdata;
-}
+};

@@ -1,14 +1,14 @@
 declare const debug: any;
 declare const PacketTable: any;
 declare const appendCRC: any;
-declare var stand_alone_packets: (string | number | {
+declare const stand_alone_packets: (string | number | {
     parse: (data: any) => {
         PingId: any;
         Data: any;
     };
     pack: (data: any) => any;
 })[][];
-declare var packets: ((string | number | {
+declare const packets: ((string | number | {
     parse: (data: any, crcSeed: number, compression: number, isSubPacket: boolean) => {
         crcLength: any;
         sessionId: any;
@@ -56,11 +56,11 @@ declare var packets: ((string | number | {
     };
     pack: (packet: any, crcSeed: number, compression: number, isSubPacket: boolean) => any;
 })[])[];
-declare var SOEPackets: {
+declare const SOEPackets: {
     PacketTypes: {};
     Packets: {};
 };
-declare var StandAlonePackets: {
+declare const StandAlonePackets: {
     PacketTypes: {};
     Packets: {};
 };

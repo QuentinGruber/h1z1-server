@@ -10,17 +10,17 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-var Jenkins = require("hash-jenkins");
-var fs = require("fs");
+const Jenkins = require("hash-jenkins");
+const fs = require("fs");
 const _ = require("lodash");
 const debug = require("debug")("zonepacketHandlers");
 function Int64String(value) {
   return "0x" + ("0000000000000000" + value.toString(16)).substr(-16);
 }
 
-var packetHandlers = {
+const packetHandlers = {
   ClientIsReady: function (server, client, packet) {
-    /* 
+    /*
      **DISABLE THAT TEMPORARILY**
 
     server.sendData(client, "ClientBeginZoning", {
@@ -222,7 +222,7 @@ var packetHandlers = {
     */
     server.sendData(client, "ZoneDoneSendingInitialData", {});
 
-    var commands = [
+    const commands = [
       "hax",
       "ammo",
       "weaponstat",
@@ -308,22 +308,22 @@ var packetHandlers = {
   },
   "Loadout.SelectSlot": function (server, client, packet) {
     if (client.character.currentLoadout) {
-      var loadout = client.character.currentLoadout,
+      const loadout = client.character.currentLoadout,
         loadoutSlotId = packet.data.loadoutSlotId;
       client.character.currentLoadoutSlot = packet.data.loadoutSlotId;
-      var loadoutSlots = loadout.loadoutSlots;
-      for (var i = 0; i < loadoutSlots.length; i++) {
+      const loadoutSlots = loadout.loadoutSlots;
+      for (let i = 0; i < loadoutSlots.length; i++) {
         if (loadoutSlots[i].loadoutSlotId == loadoutSlotId) {
-          var itemLineId =
+          const itemLineId =
             loadoutSlots[i].loadoutSlotData.loadoutSlotItem.itemLineId;
           server
             .data("item_line_members")
             .findOne(
               { itemLineId: itemLineId, itemLineIndex: 0 },
               function (err, itemLineMember) {
-                var itemId = itemLineMember.itemId;
-                var inventoryItems = client.character.inventory.items;
-                for (var j = 0; j < inventoryItems.length; j++) {
+                const itemId = itemLineMember.itemId;
+                const inventoryItems = client.character.inventory.items;
+                for (let j = 0; j < inventoryItems.length; j++) {
                   if (inventoryItems[j].itemData.baseItem.itemId == itemId) {
                     client.character.currentLoadoutSlotItem =
                       inventoryItems[j].itemData;
@@ -365,7 +365,7 @@ var packetHandlers = {
     });
   },
   "Command.ExecuteCommand": function (server, client, packet) {
-    var args = packet.data.arguments.split(" ");
+    const args = packet.data.arguments.split(" ");
 
     if (packet.data.commandHash == 2371122039) {
       // /serverinfo
@@ -415,7 +415,7 @@ var packetHandlers = {
                   server.sendChatText(client, "No such stat");
                   return;
                 }
-                var value = parseFloat(args[1]);
+                const value = parseFloat(args[1]);
                 server.sendChatText(
                   client,
                   "Setting StatId." + args[0] + " = " + value
@@ -440,7 +440,7 @@ var packetHandlers = {
     }
     if (packet.data.commandHash == Jenkins.oaat("AMMO")) {
       if (args[0]) {
-        var n = parseInt(args[0]);
+        const n = parseInt(args[0]);
         server.sendChatText(client, "Adding " + n + " ammo");
         var weaponItem = client.character.currentLoadoutSlotItem;
         server.sendWeaponPacket(client, "Weapon.AddAmmo", {
@@ -454,12 +454,12 @@ var packetHandlers = {
     }
     if (packet.data.commandHash == Jenkins.oaat("NPC")) {
       if (args[0]) {
-        var npcId = parseInt(args[0]);
+        const npcId = parseInt(args[0]);
         const npc_data = require("../../../data/npcs.json");
         npc_data.findOne({ id: npcId }, function (err, npc) {
           server.sendChatText(client, "Spawning NPC " + npc.id);
 
-          var guid = server.generateGuid(),
+          const guid = server.generateGuid(),
             transientId = server.getTransientId(client, guid);
 
           server.sendData(client, "PlayerUpdate.AddLightweightNpc", {
@@ -512,7 +512,7 @@ var packetHandlers = {
     }
     if (packet.data.commandHash == Jenkins.oaat("MODEL")) {
       if (args[0]) {
-        var modelId = parseInt(args[0]);
+        const modelId = parseInt(args[0]);
 
         server.sendChatText(client, "Spawning model " + modelId);
 
@@ -574,7 +574,7 @@ var packetHandlers = {
           .findOne(
             { itemId: weaponItem.baseItem.itemId },
             function (err, clientItem) {
-              var weaponId = clientItem.weaponId;
+              const weaponId = clientItem.weaponId;
 
               server
                 .data("weapon_definitions")
@@ -584,7 +584,7 @@ var packetHandlers = {
                     .findOne(
                       { fireGroupId: weapon.fireGroups[0] },
                       function (err, fireGroup) {
-                        var fireModes = fireGroup.fireModes;
+                        const fireModes = fireGroup.fireModes;
 
                         switch (args[0]) {
                           case "FireMode.DefaultZoom":
@@ -595,7 +595,7 @@ var packetHandlers = {
                                   parseFloat(args[1])
                               );
                               for (var i = 0; i < fireModes.length; i++) {
-                                var weaponPacket = {
+                                const weaponPacket = {
                                   statData: [
                                     {
                                       guid: weaponItem.baseItem.unknownGuid1,
@@ -1367,7 +1367,7 @@ var packetHandlers = {
       }
     }
     if (packet.data.commandHash == Jenkins.oaat("LOADOUT")) {
-      var loadoutId = parseInt(args[0]),
+      const loadoutId = parseInt(args[0]),
         loadoutTab = parseInt(args[1]);
 
       if (!isNaN(loadoutId)) {
@@ -1376,6 +1376,23 @@ var packetHandlers = {
     }
     if (packet.data.commandHash == Jenkins.oaat("HAX")) {
       switch (args[0]) {
+        case "sonic":
+          server.sendData(client, "ClientGameSettings", {
+            unknownDword1: 0,
+            unknownDword2: 7,
+            unknownBoolean1: true,
+            timescale: 3,
+            unknownDword3: 1,
+            unknownDword4: 1,
+            unknownDword5: 0,
+            unknownFloat2: 12,
+            unknownFloat3: 110,
+          });
+          server.sendData(client, "Command.RunSpeed", {
+            runSpeed: -1000,
+          });
+          server.sendChatText(client, "Welcome MR.Hedgehog");
+          break;
         case "observer":
           server.sendData(client, "PlayerUpdate.RemovePlayer", {
             guid: client.character.characterId,
@@ -1439,11 +1456,14 @@ var packetHandlers = {
             "[DEPRECATED] use '/hax randomWeather' instead",
             true
           );
+          break;
         case "randomWeather":
           debug("Randomized weather");
+
           function rnd_number() {
             return Math.random() * 100;
           }
+
           const rnd_zoneDetails = {
             zoneName: "Z1",
             unknownDword1: 4,
@@ -1696,7 +1716,7 @@ var packetHandlers = {
     server.sendData(client, "Vehicle.Expiration", {
       expireTime: 300000,
     });
-    var guid = server.generateGuid();
+    const guid = server.generateGuid();
     server.sendData(client, "Vehicle.Owner", {
       guid: guid,
       characterId: client.character.characterId,
@@ -1742,12 +1762,12 @@ var packetHandlers = {
       tabId: 256,
       unknown2: 1,
     });
-    var position = [
+    const position = [
       client.character.state.position[0],
       client.character.state.position[1] + 10,
       client.character.state.position[2],
     ];
-    var rotation = [-1.570796012878418, 0, 0, 0];
+    const rotation = [-1.570796012878418, 0, 0, 0];
     server.sendData(client, "PlayerUpdate.AddLightweightVehicle", {
       guid: guid,
       unknownUint1: 95,
@@ -2147,7 +2167,7 @@ var packetHandlers = {
     });
   },
   "AdminCommand.SpawnVehicle": function (server, client, packet) {
-    var guid = server.generateGuid(),
+    const guid = server.generateGuid(),
       transientId = server.getTransientId(client, guid);
 
     server
@@ -2180,9 +2200,9 @@ var packetHandlers = {
                       );
                       return;
                     }
-                    var nameId = vehicle.name_id > 0 ? vehicle.name_id : 0,
+                    const nameId = vehicle.name_id > 0 ? vehicle.name_id : 0,
                       modelId = npc.model_id;
-                    var vehicleData = {
+                    const vehicleData = {
                       npcData: {
                         guid: guid,
                         transientId: transientId,
