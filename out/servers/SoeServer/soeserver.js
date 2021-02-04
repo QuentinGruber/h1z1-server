@@ -32,8 +32,8 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression, isGatewaySe
     var connection = (this._connection = dgram.createSocket("udp4"));
     var me = this;
     function handlePacket(client, packet) {
-        var soePacket = packet.soePacket;
-        var result = soePacket.result;
+        var soePacket = packet === null || packet === void 0 ? void 0 : packet.soePacket;
+        var result = soePacket === null || soePacket === void 0 ? void 0 : soePacket.result;
         if (result != null) {
             switch (soePacket.name) {
                 case "SessionRequest":

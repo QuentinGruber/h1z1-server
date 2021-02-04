@@ -50,8 +50,8 @@ function SOEServer(
   const me = this;
 
   function handlePacket(client, packet) {
-    const soePacket = packet.soePacket;
-    const result = soePacket.result;
+    const soePacket = packet?.soePacket;
+    const result = soePacket?.result;
     if (result != null) {
       switch (soePacket.name) {
         case "SessionRequest":
