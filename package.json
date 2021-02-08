@@ -25,6 +25,7 @@
   },
   "scripts": {
     "compile_ts": "tsc --declaration -p .",
+    "before_release": "npm run compile_ts && npm run prettier_sources && echo Do not forget to update package version !",
     "publish_release": "git push --tags && git push origin dev && git push origin master",
     "prettier_sources": "prettier --write ./src"
   },
