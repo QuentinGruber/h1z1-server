@@ -20,6 +20,7 @@ function Int64String(value) {
 
 const packetHandlers = {
   ClientIsReady: function (server, client, packet) {
+    /* Still disable but the packet schema seems to work well
     server.sendData(client, "ClientBeginZoning", {
       unknownByte1: 0,
       zoneName: "Z1",
@@ -72,7 +73,7 @@ const packetHandlers = {
       unknownDword10: 0,
       unknownBoolean1: true,
       unknownBoolean2: true,
-    });
+    });*/
 
     server.sendData(client, "QuickChat.SendData", { commands: [] });
 
