@@ -4699,16 +4699,10 @@ var packets = [
         {
             fields: [
                 { name: "unknownByte1", type: "byte", defaultValue: 0 },
-                { name: "zoneName", type: "string", defaultValue: "" },
-                { name: "unknownDword1", type: "int32", defaultValue: 0 },
-                { name: "unknownDword2", type: "int32", defaultValue: 0 },
-                { name: "unknownDword3", type: "int32", defaultValue: 0 },
-                { name: "unknownDword4", type: "int32", defaultValue: 0 },
-                { name: "unknownDword5", type: "int32", defaultValue: 0 },
-                { name: "unknownDword6", type: "int32", defaultValue: 0 },
-                { name: "unknownDword7", type: "int32", defaultValue: 0 },
-                { name: "unknownDword8", type: "int32", defaultValue: 0 },
-                { name: "unknownDword9", type: "int32", defaultValue: 0 },
+                { name: "zoneName", type: "string", defaultValue: "Z1" },
+                { name: "zoneType", type: "int32", defaultValue: 4 },
+                { name: "position", type: "floatvector4", defaultValue: [0, 0, 0, 1] },
+                { name: "rotation", type: "floatvector4", defaultValue: [0, 0, 0, 1] },
                 {
                     name: "skyData",
                     type: "schema",
