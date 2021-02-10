@@ -12,11 +12,9 @@
 
 const EventEmitter = require("events").EventEmitter,
   SOEProtocol = require("../../protocols/soeprotocol").SOEProtocol,
-  SOEPackets = require("../../protocols/soeprotocol").SOEPackets,
   SOEInputStream = require("./soeinputstream").SOEInputStream,
   SOEOutputStream = require("./soeoutputstream").SOEOutputStream,
   util = require("util"),
-  fs = require("fs"),
   dgram = require("dgram"),
   debug = require("debug")("SOEServer");
 
