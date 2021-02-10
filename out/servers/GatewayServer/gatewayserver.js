@@ -56,7 +56,7 @@ var GatewayServer = /** @class */ (function (_super) {
                 var result = packet.result;
                 switch (packet.name) {
                     case "LoginRequest":
-                        _this._soeServer.toggleEncryption();
+                        _this._soeServer.toggleEncryption(client);
                         _this._soeServer.sendAppData(client, _this._protocol.pack("LoginReply", { loggedIn: true }), true);
                         if (result && result.characterId) {
                             _this.emit("login", null, client, result.characterId);

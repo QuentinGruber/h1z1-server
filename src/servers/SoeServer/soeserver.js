@@ -313,8 +313,8 @@ function SOEServer(
   });
 
   connection.on("listening", function () {
-    const address = this.address();
-    debug("Listening on " + address.address + ":" + address.port);
+    const { address, port } = this.address();
+    debug("Listening on " + address + ":" + port);
   });
 }
 util.inherits(SOEServer, EventEmitter);
@@ -383,33 +383,18 @@ SOEServer.prototype.sendAppData = function (client, data, overrideEncryption) {
   client.outputStream.write(data, overrideEncryption);
 };
 
-SOEServer.prototype.setEncryption = function (value) {
-  /*this._useEncryption = value;
-   debug(this._guid, "encryption: " + this._useEncryption);*/
-  for (let i in this._clients) {
-    if (this._clients.hasOwnProperty(i)) {
-      const client = this._clients[i];
-      client.outputStream.setEncryption(value);
-      client.inputStream.setEncryption(value);
-    }
-  }
+SOEServer.prototype.setEncryption = function (client, value) {
+  client.outputStream.setEncryption(value);
+  client.inputStream.setEncryption(value);
 };
 
-SOEServer.prototype.toggleEncryption = function () {
-  // value = !!value; wtf Jacob ?
-  /* this._useEncryption = !this._useEncryption;
-  debug(this._guid, "Toggling encryption: " + this._useEncryption);*/
-  for (let i in this._clients) {
-    if (this._clients.hasOwnProperty(i)) {
-      const client = this._clients[i];
-      client.outputStream.toggleEncryption();
-      client.inputStream.toggleEncryption();
-    }
-  }
+SOEServer.prototype.toggleEncryption = function (client) {
+  client.outputStream.toggleEncryption();
+  client.inputStream.toggleEncryption();
 };
 
 SOEServer.prototype.deleteClient = function (client) {
-  delete this?._clients[client.address + ":" + client.port];
+  delete this._clients[client.address + ":" + client.port];
   debug("client connection from port : ", client.port, " deleted");
 };
 
