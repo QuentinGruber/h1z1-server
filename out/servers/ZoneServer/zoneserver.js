@@ -372,7 +372,6 @@ var ZoneServer = /** @class */ (function (_super) {
         });
     };
     ZoneServer.prototype.changeWeather = function (client, weather) {
-        debug(client.gameClient);
         client.gameClient.currentWeather = weather;
         this.SendZoneDetailsPacket(client, weather);
     };

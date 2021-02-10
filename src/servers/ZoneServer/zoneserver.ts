@@ -478,7 +478,6 @@ export class ZoneServer extends EventEmitter {
   }
 
   changeWeather(client: Client, weather: Weather) {
-    debug(client.gameClient)
     client.gameClient.currentWeather = weather;
     this.SendZoneDetailsPacket(client,weather)
   }
