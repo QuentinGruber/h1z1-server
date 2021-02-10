@@ -19,7 +19,7 @@ const spawnList = require("../../../data/spawnLocations.json");
 import _ from "lodash";
 import { Int64String, generateGuid } from "../../utils/utils";
 const debug = require("debug")("ZoneServer");
-const weatherTemplate = require("../../../data/weather.json");
+const weatherTemplate = require("../../../data/weather.json")
 Date.now = () => {
   // force current time
   return 971172000000;
@@ -27,8 +27,8 @@ Date.now = () => {
 
 interface Client {
   gameClient: {
-    currentWeather: Weather;
-  };
+    currentWeather: Weather
+  }
   transientId: number;
   transientIds: {};
   character: {
@@ -71,57 +71,60 @@ interface Client {
   outOfOrderTimer: () => void;
 }
 
-interface SendZoneDetailsPacket {
-  zoneName: string;
-  zoneType: number;
-  unknownBoolean1: boolean;
-  skyData: Weather;
-  zoneId1: number;
-  zoneId2: number;
-  nameId: number;
-  unknownBoolean7: boolean;
-}
+interface SendZoneDetailsPacket
+{
+	zoneName: string;
+	zoneType: number;
+	unknownBoolean1: boolean;
+	skyData: Weather;
+	zoneId1: number;
+	zoneId2: number;
+	nameId: number;
+	unknownBoolean7: boolean;
+  }
 
-interface Weather {
-  name: string;
-  unknownDword1: number;
-  unknownDword2: number;
-  unknownDword3: number;
-  unknownDword4: number;
-  fogDensity: number;
-  fogGradient: number;
-  fogFloor: number;
-  unknownDword7: number;
-  rain: number;
-  temp: number;
-  skyColor: number;
-  cloudWeight0: number;
-  cloudWeight1: number;
-  cloudWeight2: number;
-  cloudWeight3: number;
-  sunAxisX: number;
-  sunAxisY: number;
-  sunAxisZ: number;
-  unknownDword18: number;
-  unknownDword19: number;
-  unknownDword20: number;
-  wind: number;
-  unknownDword22: number;
-  unknownDword23: number;
-  unknownDword24: number;
-  unknownDword25: number;
-  unknownArray: UnknownArray[];
-}
+interface Weather
+{
+	name: string;
+	unknownDword1: number;
+	unknownDword2: number;
+	unknownDword3: number;
+	unknownDword4: number;
+	fogDensity: number;
+	fogGradient: number;
+	fogFloor: number;
+	unknownDword7: number;
+	rain: number;
+	temp: number;
+	skyColor: number;
+	cloudWeight0: number;
+	cloudWeight1: number;
+	cloudWeight2: number;
+	cloudWeight3: number;
+	sunAxisX: number;
+	sunAxisY: number;
+	sunAxisZ: number;
+	unknownDword18: number;
+	unknownDword19: number;
+	unknownDword20: number;
+	wind: number;
+	unknownDword22: number;
+	unknownDword23: number;
+	unknownDword24: number;
+	unknownDword25: number;
+	unknownArray: UnknownArray[];
+  }
 
-interface UnknownArray {
-  unknownDword1: number;
-  unknownDword2: number;
-  unknownDword3: number;
-  unknownDword4: number;
-  unknownDword5: number;
-  unknownDword6: number;
-  unknownDword7: number;
-}
+interface UnknownArray
+{
+	unknownDword1: number;
+	unknownDword2: number;
+	unknownDword3: number;
+	unknownDword4: number;
+	unknownDword5: number;
+	unknownDword6: number;
+	unknownDword7: number;
+  }
 
 export class ZoneServer extends EventEmitter {
   _gatewayServer: any;
@@ -157,7 +160,7 @@ export class ZoneServer extends EventEmitter {
     this._packetHandlers = packetHandlers;
     this._startTime = 0;
     this._reloadPacketsInterval;
-    this._defaultWeather = weatherTemplate["H1emuBaseWeather"];
+    this._defaultWeather = weatherTemplate["H1emuBaseWeather"]
 
     this.on("data", (err, client, packet) => {
       if (err) {
@@ -201,7 +204,7 @@ export class ZoneServer extends EventEmitter {
         );
 
         this._clients[client.sessionId] = client;
-        client.gameClient = { currentWeather: this._defaultWeather };
+        client.gameClient = {currentWeather:this._defaultWeather}
         client.transientIds = {};
         client.transientId = 0;
         client.character = {
@@ -424,7 +427,7 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
-  SendZoneDetailsPacket(client: Client, weather: Weather) {
+  SendZoneDetailsPacket(client:Client,weather:Weather) {
     this.sendData(client, "SendZoneDetails", {
       zoneName: "Z1",
       unknownBoolean1: true,
@@ -439,7 +442,7 @@ export class ZoneServer extends EventEmitter {
 
   changeWeather(client: Client, weather: Weather) {
     client.gameClient.currentWeather = weather;
-    this.SendZoneDetailsPacket(client, weather);
+    this.SendZoneDetailsPacket(client,weather)
   }
   sendSystemMessage(message: string) {
     this.sendDataToAll("Chat.Chat", {
