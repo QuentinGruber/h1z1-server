@@ -35,7 +35,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
   create-release:
     name: Create Release
-    needs: [publish-npm]
+    needs: publish-npm
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
