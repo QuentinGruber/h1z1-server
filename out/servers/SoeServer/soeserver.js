@@ -10,7 +10,7 @@
 //
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
-var EventEmitter = require("events").EventEmitter, SOEProtocol = require("../../protocols/soeprotocol").SOEProtocol, SOEPackets = require("../../protocols/soeprotocol").SOEPackets, SOEInputStream = require("./soeinputstream").SOEInputStream, SOEOutputStream = require("./soeoutputstream").SOEOutputStream, util = require("util"), fs = require("fs"), dgram = require("dgram"), debug = require("debug")("SOEServer");
+var EventEmitter = require("events").EventEmitter, SOEProtocol = require("../../protocols/soeprotocol").SOEProtocol, SOEInputStream = require("./soeinputstream").SOEInputStream, SOEOutputStream = require("./soeoutputstream").SOEOutputStream, util = require("util"), dgram = require("dgram"), debug = require("debug")("SOEServer");
 function SOEServerError(message) {
     this.name = this.constructor.name;
     this.message = message;
@@ -27,7 +27,6 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression, isGatewaySe
     this._udpLength = 512;
     this._useEncryption = true;
     this._isGatewayServer = isGatewayServer;
-    this._dumpData = false;
     var clients = (this._clients = {});
     var connection = (this._connection = dgram.createSocket("udp4"));
     var me = this;
@@ -173,9 +172,6 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression, isGatewaySe
                 outputStream: new SOEOutputStream(cryptoKey),
             };
             client.inputStream.on("data", function (err, data) {
-                if (me._dumpData) {
-                    fs.writeFileSync("debug/soeserver_apppacket_" + n2++ + ".dat", data);
-                }
                 me.emit("appdata", null, client, data);
             });
             client.inputStream.on("ack", function (err, sequence) {
@@ -201,9 +197,6 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression, isGatewaySe
             var checkClientOutQueue_1 = function () {
                 if (client.outQueue.length) {
                     var data_1 = client.outQueue.shift();
-                    if (me._dumpData) {
-                        fs.writeFileSync("debug/soeserver_" + n0++ + "_out.dat", data_1);
-                    }
                     me._connection.send(data_1, 0, data_1.length, client.port, client.address, function (err, bytes) { });
                 }
                 client.outQueueTimer = setTimeout(checkClientOutQueue_1, 0);
@@ -217,7 +210,7 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression, isGatewaySe
                         sequence: client.nextAck,
                     }, true);
                 }
-                client.ackTimer = setTimeout(checkAck_1, 50);
+                client.ackTimer = setTimeout(checkAck_1, 0); // maybe this is to much if we have a lot of ppl connected
             };
             checkAck_1();
             var checkOutOfOrderQueue_1 = function () {
@@ -241,15 +234,12 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression, isGatewaySe
                         subPackets: packets_1,
                     }, true);
                 }
-                client.outOfOrderTimer = setTimeout(checkOutOfOrderQueue_1, 10);
+                client.outOfOrderTimer = setTimeout(checkOutOfOrderQueue_1, 1000);
             };
-            checkOutOfOrderQueue_1();
+            //checkOutOfOrderQueue(); disable this for now, we will see if it's really needed
             me.emit("connect", null, clients[clientId]);
         }
         client = clients[clientId];
-        if (me._dumpData) {
-            fs.writeFileSync("debug/soeserver_" + n0++ + "_in.dat", data);
-        }
         var result = me._protocol.parse(data, client.crcSeed, client.compression);
         if (result !== undefined && result !== null) {
             if (!unknow_client &&
@@ -262,8 +252,8 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression, isGatewaySe
         }
     });
     connection.on("listening", function () {
-        var address = this.address();
-        debug("Listening on " + address.address + ":" + address.port);
+        var _a = this.address(), address = _a.address, port = _a.port;
+        debug("Listening on " + address + ":" + port);
     });
 }
 util.inherits(SOEServer, EventEmitter);
@@ -313,34 +303,16 @@ SOEServer.prototype.sendAppData = function (client, data, overrideEncryption) {
     }
     client.outputStream.write(data, overrideEncryption);
 };
-SOEServer.prototype.setEncryption = function (value) {
-    /*this._useEncryption = value;
-     debug(this._guid, "encryption: " + this._useEncryption);*/
-    for (var i in this._clients) {
-        if (this._clients.hasOwnProperty(i)) {
-            var client = this._clients[i];
-            client.outputStream.setEncryption(value);
-            client.inputStream.setEncryption(value);
-        }
-    }
+SOEServer.prototype.setEncryption = function (client, value) {
+    client.outputStream.setEncryption(value);
+    client.inputStream.setEncryption(value);
 };
-SOEServer.prototype.toggleEncryption = function () {
-    // value = !!value; wtf Jacob ?
-    /* this._useEncryption = !this._useEncryption;
-    debug(this._guid, "Toggling encryption: " + this._useEncryption);*/
-    for (var i in this._clients) {
-        if (this._clients.hasOwnProperty(i)) {
-            var client = this._clients[i];
-            client.outputStream.toggleEncryption();
-            client.inputStream.toggleEncryption();
-        }
-    }
-};
-SOEServer.prototype.toggleDataDump = function (value) {
-    this._dumpData = value;
+SOEServer.prototype.toggleEncryption = function (client) {
+    client.outputStream.toggleEncryption();
+    client.inputStream.toggleEncryption();
 };
 SOEServer.prototype.deleteClient = function (client) {
-    this === null || this === void 0 ? true : delete this._clients[client.address + ":" + client.port];
+    delete this._clients[client.address + ":" + client.port];
     debug("client connection from port : ", client.port, " deleted");
 };
 exports.SOEServer = SOEServer;
