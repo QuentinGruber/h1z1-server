@@ -1280,16 +1280,14 @@ var packetHandlers = {
                         unknownDword22: rnd_number(),
                         unknownDword23: rnd_number(),
                         unknownDword24: rnd_number(),
-                        // TODO: maybe random numbers on unknownArray is useless
-                        // figure this out
                         unknownArray: _.fill(Array(50), {
-                            unknownDword1: rnd_number(),
-                            unknownDword2: rnd_number(),
-                            unknownDword3: rnd_number(),
-                            unknownDword4: rnd_number(),
-                            unknownDword5: rnd_number(),
-                            unknownDword6: rnd_number(),
-                            unknownDword7: rnd_number(),
+                            unknownDword1: 0,
+                            unknownDword2: 0,
+                            unknownDword3: 0,
+                            unknownDword4: 0,
+                            unknownDword5: 0,
+                            unknownDword6: 0,
+                            unknownDword7: 0,
                         }),
                     };
                     debug(JSON.stringify(rnd_weather));

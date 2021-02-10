@@ -19,7 +19,7 @@ const spawnList = require("../../../data/spawnLocations.json");
 import _ from "lodash";
 import { Int64String, generateGuid } from "../../utils/utils";
 const debug = require("debug")("ZoneServer");
-
+const weatherTemplate = require("../../../data/weather.json")
 Date.now = () => {
   // force current time
   return 971172000000;
@@ -160,44 +160,7 @@ export class ZoneServer extends EventEmitter {
     this._packetHandlers = packetHandlers;
     this._startTime = 0;
     this._reloadPacketsInterval;
-    this._defaultWeather = {
-        name: "sky",
-        unknownDword1: 0,
-        unknownDword2: 0,
-        unknownDword3: 0,
-        unknownDword4: 0,
-        fogDensity: 0, // fog intensity
-        fogGradient: 0,
-        fogFloor: 0,
-        unknownDword7: 0,
-        rain: 0,
-        temp: 40, // 0 : snow map , 40+ : spring map
-        skyColor: 0,
-        cloudWeight0: 0,
-        cloudWeight1: 0,
-        cloudWeight2: 0,
-        cloudWeight3: 0,
-        sunAxisX: 0,
-        sunAxisY: 90,
-        sunAxisZ: 0,
-        unknownDword18: 0,
-        unknownDword19: 0,
-        unknownDword20: 0,
-        wind: 0,
-        unknownDword22: 0,
-        unknownDword23: 0,
-        unknownDword24: 0,
-        unknownDword25: 0,
-        unknownArray: _.fill(Array(50), {
-          unknownDword1: 0,
-          unknownDword2: 0,
-          unknownDword3: 0,
-          unknownDword4: 0,
-          unknownDword5: 0,
-          unknownDword6: 0,
-          unknownDword7: 0,
-        }),
-      }
+    this._defaultWeather = weatherTemplate["H1emuBaseWeather"]
 
     this.on("data", (err, client, packet) => {
       if (err) {
