@@ -14,7 +14,7 @@ const Jenkins = require("hash-jenkins");
 const fs = require("fs");
 const _ = require("lodash");
 const debug = require("debug")("zonepacketHandlers");
-const weatherTemplates = require("../../../data/weather.json");
+let weatherTemplates = require("../../../data/weather.json");
 function Int64String(value) {
   return "0x" + ("0000000000000000" + value.toString(16)).substr(-16);
 }
