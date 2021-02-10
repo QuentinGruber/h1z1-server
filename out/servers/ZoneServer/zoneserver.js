@@ -3,7 +3,7 @@
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
-//   copyright (c) 2020 Quentin Gruber
+//   copyright (c) 2021 Quentin Gruber
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -73,6 +73,7 @@ var spawnList = require("../../../data/spawnLocations.json");
 var lodash_1 = __importDefault(require("lodash"));
 var utils_1 = require("../../utils/utils");
 var debug = require("debug")("ZoneServer");
+var weatherTemplate = require("../../../data/weather.json");
 Date.now = function () {
     // force current time
     return 971172000000;
@@ -93,6 +94,7 @@ var ZoneServer = /** @class */ (function (_super) {
         _this._packetHandlers = zonepackethandlers_1.default;
         _this._startTime = 0;
         _this._reloadPacketsInterval;
+        _this._defaultWeather = weatherTemplate["H1emuBaseWeather"];
         _this.on("data", function (err, client, packet) {
             if (err) {
                 console.error(err);
@@ -132,6 +134,7 @@ var ZoneServer = /** @class */ (function (_super) {
                 " with character id " +
                 characterId);
             _this._clients[client.sessionId] = client;
+            client.gameClient = { currentWeather: _this._defaultWeather };
             client.transientIds = {};
             client.transientId = 0;
             client.character = {
@@ -235,54 +238,7 @@ var ZoneServer = /** @class */ (function (_super) {
             environment: "LIVE",
             serverId: 1,
         });
-        this.sendData(client, "SendZoneDetails", {
-            unknownByte: 0,
-            zoneName: "Z1",
-            unknownBoolean1: true,
-            zoneType: 4,
-            unknownFloat1: 1,
-            skyData: {
-                name: "sky",
-                unknownDword1: 0,
-                unknownDword2: 0,
-                unknownDword3: 0,
-                unknownDword4: 0,
-                fogDensity: 0,
-                fogGradient: 0,
-                fogFloor: 0,
-                unknownDword7: 0,
-                rain: 0,
-                temp: 40,
-                skyColor: 0,
-                cloudWeight0: 0,
-                cloudWeight1: 0,
-                cloudWeight2: 0,
-                cloudWeight3: 0,
-                sunAxisX: 0,
-                sunAxisY: 90,
-                sunAxisZ: 0,
-                unknownDword18: 0,
-                unknownDword19: 0,
-                unknownDword20: 0,
-                wind: 0,
-                unknownDword22: 0,
-                unknownDword23: 0,
-                unknownDword24: 0,
-                unknownArray: lodash_1.default.fill(Array(50), {
-                    unknownDword1: 0,
-                    unknownDword2: 0,
-                    unknownDword3: 0,
-                    unknownDword4: 0,
-                    unknownDword5: 0,
-                    unknownDword6: 0,
-                    unknownDword7: 0,
-                }),
-            },
-            zoneId1: 3905829720,
-            zoneId2: 3905829720,
-            nameId: 7699,
-            unknownBoolean7: true,
-        });
+        this.SendZoneDetailsPacket(client, client.gameClient.currentWeather);
         this.sendData(client, "ClientUpdate.ZonePopulation", {
             populations: [0, 0],
         });
@@ -366,6 +322,22 @@ var ZoneServer = /** @class */ (function (_super) {
         if (this._db) {
             return this._db.collection(collectionName);
         }
+    };
+    ZoneServer.prototype.SendZoneDetailsPacket = function (client, weather) {
+        this.sendData(client, "SendZoneDetails", {
+            zoneName: "Z1",
+            unknownBoolean1: true,
+            zoneType: 4,
+            skyData: weather,
+            zoneId1: 3905829720,
+            zoneId2: 3905829720,
+            nameId: 7699,
+            unknownBoolean7: true,
+        });
+    };
+    ZoneServer.prototype.changeWeather = function (client, weather) {
+        client.gameClient.currentWeather = weather;
+        this.SendZoneDetailsPacket(client, weather);
     };
     ZoneServer.prototype.sendSystemMessage = function (message) {
         this.sendDataToAll("Chat.Chat", {

@@ -3,7 +3,7 @@
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
-//   copyright (c) 2020 Quentin Gruber
+//   copyright (c) 2021 Quentin Gruber
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -147,6 +147,8 @@ var LoginServer = /** @class */ (function (_super) {
                         };
                         data_1 = this._protocol.pack("LoginReply", falsified_data);
                         this._soeServer.sendAppData(client, data_1, true);
+                        if (this._protocol.protocolName !== "LoginUdp_11")
+                            return [3 /*break*/, 21];
                         _c.label = 2;
                     case 2:
                         CharactersInfo = void 0;
@@ -174,7 +176,9 @@ var LoginServer = /** @class */ (function (_super) {
                         data_1 = this._protocol.pack("CharacterSelectInfoReply", CharactersInfo);
                         this._soeServer.sendAppData(client, data_1, true);
                         debug("CharacterSelectInfoRequest");
-                        return [3 /*break*/, 21];
+                        if (this._protocol.protocolName !== "LoginUdp_11")
+                            return [3 /*break*/, 21];
+                        _c.label = 6;
                     case 6:
                         servers = void 0;
                         if (!!this._soloMode) return [3 /*break*/, 8];

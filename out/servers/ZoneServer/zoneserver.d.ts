@@ -1,15 +1,8 @@
 /// <reference types="node" />
 import { EventEmitter } from "events";
 interface Client {
-    client: {
-        characterId: string;
-        state: {
-            position: number[];
-            rotation: number[];
-            health: number;
-            shield: number;
-        };
-        client: Client;
+    gameClient: {
+        currentWeather: Weather;
     };
     transientId: number;
     transientIds: {};
@@ -52,6 +45,45 @@ interface Client {
     ackTimer: () => void;
     outOfOrderTimer: () => void;
 }
+interface Weather {
+    name: string;
+    unknownDword1: number;
+    unknownDword2: number;
+    unknownDword3: number;
+    unknownDword4: number;
+    fogDensity: number;
+    fogGradient: number;
+    fogFloor: number;
+    unknownDword7: number;
+    rain: number;
+    temp: number;
+    skyColor: number;
+    cloudWeight0: number;
+    cloudWeight1: number;
+    cloudWeight2: number;
+    cloudWeight3: number;
+    sunAxisX: number;
+    sunAxisY: number;
+    sunAxisZ: number;
+    unknownDword18: number;
+    unknownDword19: number;
+    unknownDword20: number;
+    wind: number;
+    unknownDword22: number;
+    unknownDword23: number;
+    unknownDword24: number;
+    unknownDword25: number;
+    unknownArray: UnknownArray[];
+}
+interface UnknownArray {
+    unknownDword1: number;
+    unknownDword2: number;
+    unknownDword3: number;
+    unknownDword4: number;
+    unknownDword5: number;
+    unknownDword6: number;
+    unknownDword7: number;
+}
 export declare class ZoneServer extends EventEmitter {
     _gatewayServer: any;
     _protocol: any;
@@ -64,6 +96,7 @@ export declare class ZoneServer extends EventEmitter {
     _packetHandlers: any;
     _referenceData: any;
     _startTime: number;
+    _defaultWeather: Weather;
     _db: any;
     npcs: any;
     _reloadPacketsInterval: any;
@@ -77,6 +110,8 @@ export declare class ZoneServer extends EventEmitter {
     characterData(client: Client): void;
     sendInitData(client: Client): void;
     data(collectionName: string): any;
+    SendZoneDetailsPacket(client: Client, weather: Weather): void;
+    changeWeather(client: Client, weather: Weather): void;
     sendSystemMessage(message: string): void;
     sendChat(client: Client, message: string, channel: number): void;
     sendChatText(client: Client, message: string, clearChat?: boolean): void;

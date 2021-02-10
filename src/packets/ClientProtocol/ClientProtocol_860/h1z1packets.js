@@ -2,7 +2,7 @@
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
-//   copyright (c) 2020 Quentin Gruber
+//   copyright (c) 2021 Quentin Gruber
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -4888,18 +4888,11 @@ var packets = [
     {
       fields: [
         { name: "unknownByte1", type: "byte", defaultValue: 0 },
-        { name: "zoneName", type: "string", defaultValue: "" },
-        { name: "unknownDword1", type: "int32", defaultValue: 0 },
+        { name: "zoneName", type: "string", defaultValue: "Z1" },
+        { name: "zoneType", type: "int32", defaultValue: 4 },
 
-        { name: "unknownDword2", type: "int32", defaultValue: 0 },
-        { name: "unknownDword3", type: "int32", defaultValue: 0 },
-        { name: "unknownDword4", type: "int32", defaultValue: 0 },
-        { name: "unknownDword5", type: "int32", defaultValue: 0 },
-
-        { name: "unknownDword6", type: "int32", defaultValue: 0 },
-        { name: "unknownDword7", type: "int32", defaultValue: 0 },
-        { name: "unknownDword8", type: "int32", defaultValue: 0 },
-        { name: "unknownDword9", type: "int32", defaultValue: 0 },
+        { name: "position", type: "floatvector4", defaultValue: [0, 0, 0, 1] },
+        { name: "rotation", type: "floatvector4", defaultValue: [0, 0, 0, 1] },
 
         {
           name: "skyData",

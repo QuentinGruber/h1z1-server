@@ -3,7 +3,7 @@
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
-//   copyright (c) 2020 Quentin Gruber
+//   copyright (c) 2021 Quentin Gruber
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -32,8 +32,8 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression, isGatewaySe
     var connection = (this._connection = dgram.createSocket("udp4"));
     var me = this;
     function handlePacket(client, packet) {
-        var soePacket = packet.soePacket;
-        var result = soePacket.result;
+        var soePacket = packet === null || packet === void 0 ? void 0 : packet.soePacket;
+        var result = soePacket === null || soePacket === void 0 ? void 0 : soePacket.result;
         if (result != null) {
             switch (soePacket.name) {
                 case "SessionRequest":
@@ -279,6 +279,7 @@ SOEServer.prototype.stop = function () {
         if (this._clients.hasOwnProperty(a)) {
             clearTimeout(this._clients[a].outQueueTimer);
             clearTimeout(this._clients[a].ackTimer);
+            clearTimeout(this._clients[a].outOfOrderTimer);
         }
     }
     this._connection.close();

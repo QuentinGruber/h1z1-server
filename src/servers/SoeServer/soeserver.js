@@ -2,7 +2,7 @@
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
-//   copyright (c) 2020 Quentin Gruber
+//   copyright (c) 2021 Quentin Gruber
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -50,8 +50,8 @@ function SOEServer(
   const me = this;
 
   function handlePacket(client, packet) {
-    const soePacket = packet.soePacket;
-    const result = soePacket.result;
+    const soePacket = packet?.soePacket;
+    const result = soePacket?.result;
     if (result != null) {
       switch (soePacket.name) {
         case "SessionRequest":
@@ -347,6 +347,7 @@ SOEServer.prototype.stop = function () {
     if (this._clients.hasOwnProperty(a)) {
       clearTimeout(this._clients[a].outQueueTimer);
       clearTimeout(this._clients[a].ackTimer);
+      clearTimeout(this._clients[a].outOfOrderTimer);
     }
   }
   this._connection.close();

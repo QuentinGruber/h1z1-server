@@ -2,7 +2,7 @@
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
-//   copyright (c) 2020 Quentin Gruber
+//   copyright (c) 2021 Quentin Gruber
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -154,6 +154,7 @@ export class LoginServer extends EventEmitter {
               };
               data = this._protocol.pack("LoginReply", falsified_data);
               this._soeServer.sendAppData(client, data, true);
+              if (this._protocol.protocolName !== "LoginUdp_11") break;
             case "CharacterSelectInfoRequest":
               let CharactersInfo;
               if (this._soloMode) {
@@ -180,7 +181,7 @@ export class LoginServer extends EventEmitter {
               );
               this._soeServer.sendAppData(client, data, true);
               debug("CharacterSelectInfoRequest");
-              break;
+              if (this._protocol.protocolName !== "LoginUdp_11") break;
             case "ServerListRequest":
               let servers;
               if (!this._soloMode) {
