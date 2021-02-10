@@ -15,6 +15,7 @@ var Jenkins = require("hash-jenkins");
 var fs = require("fs");
 var _ = require("lodash");
 var debug = require("debug")("zonepacketHandlers");
+var weatherTemplates = require("../../../data/weather.json");
 function Int64String(value) {
     return "0x" + ("0000000000000000" + value.toString(16)).substr(-16);
 }
@@ -1189,17 +1190,39 @@ var packetHandlers = {
                     });
                     break;
                 case "weather":
-                    var weatherTemplates = require("../../../data/weather.json");
                     var weatherTemplate = weatherTemplates[args[1]];
                     if (!args[1]) {
                         server.sendChatText(client, "Please define a weather template to use (data/weather.json)");
                     }
                     else if (weatherTemplate) {
-                        server.sendData(client, "SendZoneDetails", weatherTemplate);
+                        server.changeWeather(client, weatherTemplate);
                         server.sendChatText(client, "Use \"" + args[1] + "\" as a weather template");
                     }
                     else {
                         server.sendChatText(client, "\"" + args[1] + "\" isn't a weather template");
+                    }
+                    break;
+                case "saveCurrentWeather":
+                    if (!args[1]) {
+                        server.sendChatText(client, "Please define a name for your weather template '/hax saveCurrentWeather {name}'");
+                    }
+                    else if (weatherTemplates[args[1]]) {
+                        server.sendChatText(client, "\"" + args[1] + "\" already exist !");
+                    }
+                    else {
+                        var currentWeather = client.gameClient.currentWeather;
+                        if (currentWeather) {
+                            weatherTemplates[args[1]] = currentWeather;
+                            // TODO : maybe find a way to append instead of rewriting all of it
+                            fs.writeFileSync(__dirname + "/../../../data/weather.json", JSON.stringify(weatherTemplates));
+                            delete require.cache[require.resolve("../../../data/weather.json")];
+                            weatherTemplates = require("../../../data/weather.json");
+                            server.sendChatText(client, "template \"" + args[1] + "\" saved !");
+                        }
+                        else {
+                            server.sendChatText(client, "Saving current weather failed...");
+                            server.sendChatText(client, "plz report this");
+                        }
                     }
                     break;
                 case "testpacket":
@@ -1226,59 +1249,51 @@ var packetHandlers = {
                     break;
                 case "randomWeather":
                     debug("Randomized weather");
+                    server.sendChatText(client, "Randomized weather");
                     function rnd_number() {
-                        return Math.random() * 100;
+                        return Number((Math.random() * 100).toFixed(0));
                     }
-                    var rnd_zoneDetails = {
-                        zoneName: "Z1",
-                        unknownDword1: 4,
-                        unknownBoolean1: true,
-                        unknownFloat1: 1,
-                        skyData: {
-                            name: "sky",
+                    var rnd_weather = {
+                        name: "sky",
+                        unknownDword1: rnd_number(),
+                        unknownDword2: rnd_number(),
+                        unknownDword3: rnd_number(),
+                        unknownDword4: rnd_number(),
+                        fogDensity: rnd_number(),
+                        fogGradient: rnd_number(),
+                        fogFloor: rnd_number(),
+                        unknownDword7: rnd_number(),
+                        rain: rnd_number(),
+                        temp: rnd_number(),
+                        skyColor: rnd_number(),
+                        cloudWeight0: rnd_number(),
+                        cloudWeight1: rnd_number(),
+                        cloudWeight2: rnd_number(),
+                        cloudWeight3: rnd_number(),
+                        sunAxisX: rnd_number(),
+                        sunAxisY: rnd_number(),
+                        sunAxisZ: rnd_number(),
+                        unknownDword18: rnd_number(),
+                        unknownDword19: rnd_number(),
+                        unknownDword20: rnd_number(),
+                        wind: rnd_number(),
+                        unknownDword22: rnd_number(),
+                        unknownDword23: rnd_number(),
+                        unknownDword24: rnd_number(),
+                        // TODO: maybe random numbers on unknownArray is useless
+                        // figure this out
+                        unknownArray: _.fill(Array(50), {
                             unknownDword1: rnd_number(),
                             unknownDword2: rnd_number(),
                             unknownDword3: rnd_number(),
                             unknownDword4: rnd_number(),
-                            fogDensity: rnd_number(),
-                            fogGradient: rnd_number(),
-                            fogFloor: rnd_number(),
+                            unknownDword5: rnd_number(),
+                            unknownDword6: rnd_number(),
                             unknownDword7: rnd_number(),
-                            rain: rnd_number(),
-                            temp: rnd_number(),
-                            skyColor: rnd_number(),
-                            cloudWeight0: rnd_number(),
-                            cloudWeight1: rnd_number(),
-                            cloudWeight2: rnd_number(),
-                            cloudWeight3: rnd_number(),
-                            sunAxisX: rnd_number(),
-                            sunAxisY: rnd_number(),
-                            sunAxisZ: rnd_number(),
-                            unknownDword18: rnd_number(),
-                            unknownDword19: rnd_number(),
-                            unknownDword20: rnd_number(),
-                            wind: rnd_number(),
-                            unknownDword22: rnd_number(),
-                            unknownDword23: rnd_number(),
-                            unknownDword24: rnd_number(),
-                            unknownDword25: rnd_number(),
-                            unknownArray: _.fill(Array(50), {
-                                unknownDword1: 0,
-                                unknownDword2: 0,
-                                unknownDword3: 0,
-                                unknownDword4: 0,
-                                unknownDword5: 0,
-                                unknownDword6: 0,
-                                unknownDword7: 0,
-                            }),
-                        },
-                        zoneId1: 3905829720,
-                        zoneId2: 3905829720,
-                        nameId: 7699,
-                        unknownBoolean7: true,
+                        }),
                     };
-                    debug(JSON.stringify(rnd_zoneDetails));
-                    server.sendData(client, "SendZoneDetails", rnd_zoneDetails);
+                    debug(JSON.stringify(rnd_weather));
+                    server.changeWeather(client, rnd_weather);
                     break;
                 case "reloadPackets":
                     if (args[1]) {

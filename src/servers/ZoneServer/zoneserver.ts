@@ -26,16 +26,9 @@ Date.now = () => {
 };
 
 interface Client {
-  client: {
-    characterId: string;
-    state: {
-      position: number[];
-      rotation: number[];
-      health: number;
-      shield: number;
-    };
-    client: Client;
-  };
+  gameClient: {
+    currentWeather: Weather
+  }
   transientId: number;
   transientIds: {};
   character: {
@@ -78,6 +71,61 @@ interface Client {
   outOfOrderTimer: () => void;
 }
 
+interface SendZoneDetailsPacket
+{
+	zoneName: string;
+	zoneType: number;
+	unknownBoolean1: boolean;
+	skyData: Weather;
+	zoneId1: number;
+	zoneId2: number;
+	nameId: number;
+	unknownBoolean7: boolean;
+  }
+
+interface Weather
+{
+	name: string;
+	unknownDword1: number;
+	unknownDword2: number;
+	unknownDword3: number;
+	unknownDword4: number;
+	fogDensity: number;
+	fogGradient: number;
+	fogFloor: number;
+	unknownDword7: number;
+	rain: number;
+	temp: number;
+	skyColor: number;
+	cloudWeight0: number;
+	cloudWeight1: number;
+	cloudWeight2: number;
+	cloudWeight3: number;
+	sunAxisX: number;
+	sunAxisY: number;
+	sunAxisZ: number;
+	unknownDword18: number;
+	unknownDword19: number;
+	unknownDword20: number;
+	wind: number;
+	unknownDword22: number;
+	unknownDword23: number;
+	unknownDword24: number;
+	unknownDword25: number;
+	unknownArray: UnknownArray[];
+  }
+
+interface UnknownArray
+{
+	unknownDword1: number;
+	unknownDword2: number;
+	unknownDword3: number;
+	unknownDword4: number;
+	unknownDword5: number;
+	unknownDword6: number;
+	unknownDword7: number;
+  }
+
 export class ZoneServer extends EventEmitter {
   _gatewayServer: any;
   _protocol: any;
@@ -90,6 +138,7 @@ export class ZoneServer extends EventEmitter {
   _packetHandlers: any;
   _referenceData: any;
   _startTime: number;
+  _defaultWeather: Weather;
   _db: any;
   npcs: any;
   _reloadPacketsInterval: any;
@@ -111,6 +160,44 @@ export class ZoneServer extends EventEmitter {
     this._packetHandlers = packetHandlers;
     this._startTime = 0;
     this._reloadPacketsInterval;
+    this._defaultWeather = {
+        name: "sky",
+        unknownDword1: 0,
+        unknownDword2: 0,
+        unknownDword3: 0,
+        unknownDword4: 0,
+        fogDensity: 0, // fog intensity
+        fogGradient: 0,
+        fogFloor: 0,
+        unknownDword7: 0,
+        rain: 0,
+        temp: 40, // 0 : snow map , 40+ : spring map
+        skyColor: 0,
+        cloudWeight0: 0,
+        cloudWeight1: 0,
+        cloudWeight2: 0,
+        cloudWeight3: 0,
+        sunAxisX: 0,
+        sunAxisY: 90,
+        sunAxisZ: 0,
+        unknownDword18: 0,
+        unknownDword19: 0,
+        unknownDword20: 0,
+        wind: 0,
+        unknownDword22: 0,
+        unknownDword23: 0,
+        unknownDword24: 0,
+        unknownDword25: 0,
+        unknownArray: _.fill(Array(50), {
+          unknownDword1: 0,
+          unknownDword2: 0,
+          unknownDword3: 0,
+          unknownDword4: 0,
+          unknownDword5: 0,
+          unknownDword6: 0,
+          unknownDword7: 0,
+        }),
+      }
 
     this.on("data", (err, client, packet) => {
       if (err) {
@@ -154,6 +241,7 @@ export class ZoneServer extends EventEmitter {
         );
 
         this._clients[client.sessionId] = client;
+        client.gameClient = {currentWeather:this._defaultWeather}
         client.transientIds = {};
         client.transientId = 0;
         client.character = {
@@ -284,54 +372,7 @@ export class ZoneServer extends EventEmitter {
       serverId: 1,
     });
 
-    this.sendData(client, "SendZoneDetails", {
-      unknownByte: 0,
-      zoneName: "Z1",
-      unknownBoolean1: true,
-      zoneType: 4,
-      unknownFloat1: 1,
-      skyData: {
-        name: "sky",
-        unknownDword1: 0,
-        unknownDword2: 0,
-        unknownDword3: 0,
-        unknownDword4: 0,
-        fogDensity: 0, // fog intensity
-        fogGradient: 0,
-        fogFloor: 0,
-        unknownDword7: 0,
-        rain: 0,
-        temp: 40, // 0 : snow map , 40+ : spring map
-        skyColor: 0,
-        cloudWeight0: 0,
-        cloudWeight1: 0,
-        cloudWeight2: 0,
-        cloudWeight3: 0,
-        sunAxisX: 0,
-        sunAxisY: 90,
-        sunAxisZ: 0,
-        unknownDword18: 0,
-        unknownDword19: 0,
-        unknownDword20: 0,
-        wind: 0,
-        unknownDword22: 0,
-        unknownDword23: 0,
-        unknownDword24: 0,
-        unknownArray: _.fill(Array(50), {
-          unknownDword1: 0,
-          unknownDword2: 0,
-          unknownDword3: 0,
-          unknownDword4: 0,
-          unknownDword5: 0,
-          unknownDword6: 0,
-          unknownDword7: 0,
-        }),
-      },
-      zoneId1: 3905829720,
-      zoneId2: 3905829720,
-      nameId: 7699,
-      unknownBoolean7: true,
-    });
+    this.SendZoneDetailsPacket(client, client.gameClient.currentWeather);
 
     this.sendData(client, "ClientUpdate.ZonePopulation", {
       populations: [0, 0],
@@ -423,6 +464,24 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
+  SendZoneDetailsPacket(client:Client,weather:Weather) {
+    this.sendData(client, "SendZoneDetails", {
+      zoneName: "Z1",
+      unknownBoolean1: true,
+      zoneType: 4,
+      skyData: weather,
+      zoneId1: 3905829720,
+      zoneId2: 3905829720,
+      nameId: 7699,
+      unknownBoolean7: true,
+    });
+  }
+
+  changeWeather(client: Client, weather: Weather) {
+    debug(client.gameClient)
+    client.gameClient.currentWeather = weather;
+    this.SendZoneDetailsPacket(client,weather)
+  }
   sendSystemMessage(message: string) {
     this.sendDataToAll("Chat.Chat", {
       unknown2: 0,
