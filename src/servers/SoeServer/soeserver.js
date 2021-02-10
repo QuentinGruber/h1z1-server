@@ -287,7 +287,7 @@ function SOEServer(
         }
         client.outOfOrderTimer = setTimeout(checkOutOfOrderQueue, 1000);
       };
-      checkOutOfOrderQueue();
+      //checkOutOfOrderQueue(); disable this for now, we will see if it's really needed
 
       me.emit("connect", null, clients[clientId]);
     }

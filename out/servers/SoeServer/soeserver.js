@@ -236,7 +236,7 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression, isGatewaySe
                 }
                 client.outOfOrderTimer = setTimeout(checkOutOfOrderQueue_1, 1000);
             };
-            checkOutOfOrderQueue_1();
+            //checkOutOfOrderQueue(); disable this for now, we will see if it's really needed
             me.emit("connect", null, clients[clientId]);
         }
         client = clients[clientId];
