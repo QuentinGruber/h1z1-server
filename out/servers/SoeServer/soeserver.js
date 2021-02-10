@@ -279,6 +279,7 @@ SOEServer.prototype.stop = function () {
         if (this._clients.hasOwnProperty(a)) {
             clearTimeout(this._clients[a].outQueueTimer);
             clearTimeout(this._clients[a].ackTimer);
+            clearTimeout(this._clients[a].outOfOrderTimer);
         }
     }
     this._connection.close();
