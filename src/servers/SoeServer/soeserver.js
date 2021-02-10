@@ -12,11 +12,9 @@
 
 const EventEmitter = require("events").EventEmitter,
   SOEProtocol = require("../../protocols/soeprotocol").SOEProtocol,
-  SOEPackets = require("../../protocols/soeprotocol").SOEPackets,
   SOEInputStream = require("./soeinputstream").SOEInputStream,
   SOEOutputStream = require("./soeoutputstream").SOEOutputStream,
   util = require("util"),
-  fs = require("fs"),
   dgram = require("dgram"),
   debug = require("debug")("SOEServer");
 
@@ -43,7 +41,6 @@ function SOEServer(
   this._udpLength = 512;
   this._useEncryption = true;
   this._isGatewayServer = isGatewayServer;
-  this._dumpData = false;
 
   const clients = (this._clients = {});
   const connection = (this._connection = dgram.createSocket("udp4"));
@@ -204,9 +201,6 @@ function SOEServer(
       };
 
       client.inputStream.on("data", function (err, data) {
-        if (me._dumpData) {
-          fs.writeFileSync("debug/soeserver_apppacket_" + n2++ + ".dat", data);
-        }
         me.emit("appdata", null, client, data);
       });
 
@@ -235,9 +229,6 @@ function SOEServer(
       const checkClientOutQueue = function () {
         if (client.outQueue.length) {
           const data = client.outQueue.shift();
-          if (me._dumpData) {
-            fs.writeFileSync("debug/soeserver_" + n0++ + "_out.dat", data);
-          }
           me._connection.send(
             data,
             0,
@@ -264,7 +255,7 @@ function SOEServer(
             true
           );
         }
-        client.ackTimer = setTimeout(checkAck, 50);
+        client.ackTimer = setTimeout(checkAck, 0); // maybe this is to much if we have a lot of ppl connected
       };
       checkAck();
 
@@ -294,16 +285,13 @@ function SOEServer(
             true
           );
         }
-        client.outOfOrderTimer = setTimeout(checkOutOfOrderQueue, 10);
+        client.outOfOrderTimer = setTimeout(checkOutOfOrderQueue, 1000);
       };
-      checkOutOfOrderQueue();
+      //checkOutOfOrderQueue(); disable this for now, we will see if it's really needed
 
       me.emit("connect", null, clients[clientId]);
     }
     client = clients[clientId];
-    if (me._dumpData) {
-      fs.writeFileSync("debug/soeserver_" + n0++ + "_in.dat", data);
-    }
     const result = me._protocol.parse(data, client.crcSeed, client.compression);
     if (result !== undefined && result !== null) {
       if (
@@ -323,8 +311,8 @@ function SOEServer(
   });
 
   connection.on("listening", function () {
-    const address = this.address();
-    debug("Listening on " + address.address + ":" + address.port);
+    const { address, port } = this.address();
+    debug("Listening on " + address + ":" + port);
   });
 }
 util.inherits(SOEServer, EventEmitter);
@@ -393,37 +381,18 @@ SOEServer.prototype.sendAppData = function (client, data, overrideEncryption) {
   client.outputStream.write(data, overrideEncryption);
 };
 
-SOEServer.prototype.setEncryption = function (value) {
-  /*this._useEncryption = value;
-   debug(this._guid, "encryption: " + this._useEncryption);*/
-  for (let i in this._clients) {
-    if (this._clients.hasOwnProperty(i)) {
-      const client = this._clients[i];
-      client.outputStream.setEncryption(value);
-      client.inputStream.setEncryption(value);
-    }
-  }
+SOEServer.prototype.setEncryption = function (client, value) {
+  client.outputStream.setEncryption(value);
+  client.inputStream.setEncryption(value);
 };
 
-SOEServer.prototype.toggleEncryption = function () {
-  // value = !!value; wtf Jacob ?
-  /* this._useEncryption = !this._useEncryption;
-  debug(this._guid, "Toggling encryption: " + this._useEncryption);*/
-  for (let i in this._clients) {
-    if (this._clients.hasOwnProperty(i)) {
-      const client = this._clients[i];
-      client.outputStream.toggleEncryption();
-      client.inputStream.toggleEncryption();
-    }
-  }
-};
-
-SOEServer.prototype.toggleDataDump = function (value) {
-  this._dumpData = value;
+SOEServer.prototype.toggleEncryption = function (client) {
+  client.outputStream.toggleEncryption();
+  client.inputStream.toggleEncryption();
 };
 
 SOEServer.prototype.deleteClient = function (client) {
-  delete this?._clients[client.address + ":" + client.port];
+  delete this._clients[client.address + ":" + client.port];
   debug("client connection from port : ", client.port, " deleted");
 };
 

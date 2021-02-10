@@ -45,8 +45,7 @@ SOEOutputStream.prototype.write = function (data, overrideEncryption) {
     };
     this.emit("data", null, data, this._sequence, false);
   } else {
-    const header = new Buffer.alloc(4),
-      fragments = [];
+    const header = new Buffer.alloc(4);
     header.writeUInt32BE(data.length, 0);
     data = Buffer.concat([header, data]);
     for (let i = 0; i < data.length; i += this._fragmentSize) {

@@ -38,7 +38,7 @@ interface SoeServer {
   stop: () => void;
   _sendPacket: () => void;
   sendAppData: (arg0: Client, arg1: any, arg2: undefined | any) => void;
-  toggleEncryption: () => void;
+  toggleEncryption: (arg0: Client) => void;
   setEncryption: (arg0: boolean) => void;
   toggleDataDump: () => void;
   deleteClient: (client: Client) => void;
@@ -108,7 +108,7 @@ export class GatewayServer extends EventEmitter {
           const result = packet.result;
           switch (packet.name) {
             case "LoginRequest":
-              this._soeServer.toggleEncryption();
+              this._soeServer.toggleEncryption(client);
               this._soeServer.sendAppData(
                 client,
                 this._protocol.pack("LoginReply", { loggedIn: true }),
