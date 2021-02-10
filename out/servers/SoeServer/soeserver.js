@@ -27,7 +27,6 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression, isGatewaySe
     this._udpLength = 512;
     this._useEncryption = true;
     this._isGatewayServer = isGatewayServer;
-    this._dumpData = false;
     var clients = (this._clients = {});
     var connection = (this._connection = dgram.createSocket("udp4"));
     var me = this;
@@ -173,9 +172,6 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression, isGatewaySe
                 outputStream: new SOEOutputStream(cryptoKey),
             };
             client.inputStream.on("data", function (err, data) {
-                if (me._dumpData) {
-                    fs.writeFileSync("debug/soeserver_apppacket_" + n2++ + ".dat", data);
-                }
                 me.emit("appdata", null, client, data);
             });
             client.inputStream.on("ack", function (err, sequence) {
@@ -201,9 +197,6 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression, isGatewaySe
             var checkClientOutQueue_1 = function () {
                 if (client.outQueue.length) {
                     var data_1 = client.outQueue.shift();
-                    if (me._dumpData) {
-                        fs.writeFileSync("debug/soeserver_" + n0++ + "_out.dat", data_1);
-                    }
                     me._connection.send(data_1, 0, data_1.length, client.port, client.address, function (err, bytes) { });
                 }
                 client.outQueueTimer = setTimeout(checkClientOutQueue_1, 0);
@@ -217,7 +210,7 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression, isGatewaySe
                         sequence: client.nextAck,
                     }, true);
                 }
-                client.ackTimer = setTimeout(checkAck_1, 50);
+                client.ackTimer = setTimeout(checkAck_1, 0); // maybe this is to much if we have a lot of ppl connected
             };
             checkAck_1();
             var checkOutOfOrderQueue_1 = function () {
@@ -241,15 +234,12 @@ function SOEServer(protocolName, serverPort, cryptoKey, compression, isGatewaySe
                         subPackets: packets_1,
                     }, true);
                 }
-                client.outOfOrderTimer = setTimeout(checkOutOfOrderQueue_1, 10);
+                client.outOfOrderTimer = setTimeout(checkOutOfOrderQueue_1, 1000);
             };
             checkOutOfOrderQueue_1();
             me.emit("connect", null, clients[clientId]);
         }
         client = clients[clientId];
-        if (me._dumpData) {
-            fs.writeFileSync("debug/soeserver_" + n0++ + "_in.dat", data);
-        }
         var result = me._protocol.parse(data, client.crcSeed, client.compression);
         if (result !== undefined && result !== null) {
             if (!unknow_client &&
@@ -335,9 +325,6 @@ SOEServer.prototype.toggleEncryption = function () {
             client.inputStream.toggleEncryption();
         }
     }
-};
-SOEServer.prototype.toggleDataDump = function (value) {
-    this._dumpData = value;
 };
 SOEServer.prototype.deleteClient = function (client) {
     this === null || this === void 0 ? true : delete this._clients[client.address + ":" + client.port];

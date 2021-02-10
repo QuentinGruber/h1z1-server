@@ -10,7 +10,6 @@ export class SOEServer {
     _udpLength: number;
     _useEncryption: boolean;
     _isGatewayServer: boolean;
-    _dumpData: boolean;
     _clients: {};
     _connection: dgram.Socket;
     start(compression: any, crcSeed: any, crcLength: any, udpLength: any): void;
@@ -21,7 +20,6 @@ export class SOEServer {
     sendAppData(client: any, data: any, overrideEncryption: any): void;
     setEncryption(value: any): void;
     toggleEncryption(): void;
-    toggleDataDump(value: any): void;
     deleteClient(client: any): void;
 }
 import dgram = require("dgram");

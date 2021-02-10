@@ -43,7 +43,6 @@ function SOEServer(
   this._udpLength = 512;
   this._useEncryption = true;
   this._isGatewayServer = isGatewayServer;
-  this._dumpData = false;
 
   const clients = (this._clients = {});
   const connection = (this._connection = dgram.createSocket("udp4"));
@@ -204,9 +203,6 @@ function SOEServer(
       };
 
       client.inputStream.on("data", function (err, data) {
-        if (me._dumpData) {
-          fs.writeFileSync("debug/soeserver_apppacket_" + n2++ + ".dat", data);
-        }
         me.emit("appdata", null, client, data);
       });
 
@@ -235,9 +231,6 @@ function SOEServer(
       const checkClientOutQueue = function () {
         if (client.outQueue.length) {
           const data = client.outQueue.shift();
-          if (me._dumpData) {
-            fs.writeFileSync("debug/soeserver_" + n0++ + "_out.dat", data);
-          }
           me._connection.send(
             data,
             0,
@@ -264,7 +257,7 @@ function SOEServer(
             true
           );
         }
-        client.ackTimer = setTimeout(checkAck, 50);
+        client.ackTimer = setTimeout(checkAck, 0); // maybe this is to much if we have a lot of ppl connected
       };
       checkAck();
 
@@ -294,16 +287,13 @@ function SOEServer(
             true
           );
         }
-        client.outOfOrderTimer = setTimeout(checkOutOfOrderQueue, 10);
+        client.outOfOrderTimer = setTimeout(checkOutOfOrderQueue, 1000);
       };
       checkOutOfOrderQueue();
 
       me.emit("connect", null, clients[clientId]);
     }
     client = clients[clientId];
-    if (me._dumpData) {
-      fs.writeFileSync("debug/soeserver_" + n0++ + "_in.dat", data);
-    }
     const result = me._protocol.parse(data, client.crcSeed, client.compression);
     if (result !== undefined && result !== null) {
       if (
@@ -416,10 +406,6 @@ SOEServer.prototype.toggleEncryption = function () {
       client.inputStream.toggleEncryption();
     }
   }
-};
-
-SOEServer.prototype.toggleDataDump = function (value) {
-  this._dumpData = value;
 };
 
 SOEServer.prototype.deleteClient = function (client) {
