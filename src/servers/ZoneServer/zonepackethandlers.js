@@ -1388,7 +1388,7 @@ const packetHandlers = {
             unknownFloat3: 110,
           });
           server.sendData(client, "Command.RunSpeed", {
-            runSpeed: -1000,
+            runSpeed: -100,
           });
           server.sendChatText(client, "Welcome MR.Hedgehog");
           break;
