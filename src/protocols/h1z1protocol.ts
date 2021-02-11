@@ -89,7 +89,7 @@ export class H1Z1Protocol {
         },
       ],
     };
-    var result = DataSchema.parse(schema, data, 0).result;
+    var result = DataSchema.parse(schema, data, 0, null).result;
     return result;
   }
 
@@ -262,7 +262,7 @@ export class H1Z1Protocol {
       },
     ];
     try {
-      var result = DataSchema.parse(schema, data, 0).result;
+      var result = DataSchema.parse(schema, data, 0,null).result;
       return result;
     } catch (e) {}
   }
