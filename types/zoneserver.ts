@@ -110,6 +110,5 @@ export interface SoeServer {
   sendAppData: (arg0: Client, arg1: any, arg2: undefined | any) => void;
   toggleEncryption: (arg0: Client) => void;
   setEncryption: (arg0: boolean) => void;
-  toggleDataDump: () => void;
   deleteClient: (client: Client) => void;
 }

@@ -14,7 +14,11 @@ import { EventEmitter } from "events";
 import { SOEServer } from "../SoeServer/soeserver";
 import { GatewayProtocol } from "../../protocols/gatewayprotocol";
 const debug = require("debug")("GatewayServer");
-import {SoeServer,Client,GatewayProtocolInterface} from "../../../types/gatewayserver"
+import {
+  SoeServer,
+  Client,
+  GatewayProtocolInterface,
+} from "../../../types/gatewayserver";
 
 export class GatewayServer extends EventEmitter {
   _soeServer: SoeServer;
