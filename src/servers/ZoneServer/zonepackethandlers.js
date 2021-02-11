@@ -233,6 +233,12 @@ const packetHandlers = {
         command: command,
       });
     });
+
+    /* temp workaround */
+    server.sendData(client, "ClientUpdate.ModifyMovementSpeed", {
+      speed: 11.0,
+    });
+
     server.sendChatText(client, "Welcome to H1emu ! :D", true);
   },
   Security: function (server, client, packet) {
