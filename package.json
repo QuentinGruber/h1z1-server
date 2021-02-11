@@ -1,7 +1,7 @@
 {
   "name": "h1z1-server",
-  "version": "0.8.3",
-  "description": "Library for emulating h1z1 server",
+  "version": "0.8.4",
+  "description": "Library for emulating h1z1 servers",
   "author": "Quentin Gruber <quentingruber@gmail.com> (http://github.com/quentingruber)",
   "license": "GPL-3.0-only",
   "main": "h1z1-server.js",
@@ -24,6 +24,7 @@
     "prettier": "^2.2.1"
   },
   "scripts": {
+    "prepublishOnly": "tsc -p .",
     "before_release": "npm run prettier_sources && echo Do not forget to update package version !",
     "publish_release": "git push --tags && git push origin dev && git push origin master",
     "prettier_sources": "prettier --write ./src"
