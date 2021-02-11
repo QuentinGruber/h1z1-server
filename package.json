@@ -24,7 +24,7 @@
     "prettier": "^2.2.1"
   },
   "scripts": {
-    "postinstall": "tsc --declaration -p .",
+    "prepublishOnly": "tsc -p .",
     "before_release": "npm run prettier_sources && echo Do not forget to update package version !",
     "publish_release": "git push --tags && git push origin dev && git push origin master",
     "prettier_sources": "prettier --write ./src"
