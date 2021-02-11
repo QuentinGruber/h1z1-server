@@ -20,7 +20,7 @@ import _ from "lodash";
 import { Int64String, generateGuid } from "../../utils/utils";
 const debug = require("debug")("ZoneServer");
 const weatherTemplate = require("../../../data/weather.json");
-import { Weather, Client } from "../../../types/zoneserver";
+import { Weather, Client } from "../../types/zoneserver";
 Date.now = () => {
   // force current time
   return 971172000000;
