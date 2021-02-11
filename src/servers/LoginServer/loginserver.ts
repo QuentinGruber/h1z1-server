@@ -18,7 +18,7 @@ const debug = require("debug")("LoginServer");
 import { toUint8Array } from "js-base64";
 import { MongoClient } from "mongodb";
 import { generateGuid } from "../../utils/utils";
-import { SoeServer, Client, GameServer } from "../../../types/loginserver";
+import { SoeServer, Client, GameServer } from "../../types/loginserver";
 
 export class LoginServer extends EventEmitter {
   _soeServer: SoeServer;

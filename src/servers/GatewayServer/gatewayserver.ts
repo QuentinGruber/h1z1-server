@@ -18,7 +18,7 @@ import {
   SoeServer,
   Client,
   GatewayProtocolInterface,
-} from "../../../types/gatewayserver";
+} from "../../types/gatewayserver";
 
 export class GatewayServer extends EventEmitter {
   _soeServer: SoeServer;
