@@ -4,9 +4,3 @@ export interface Packet {
   tunnelData: any;
   flags: any;
 }
-
-
-
-
-
-
