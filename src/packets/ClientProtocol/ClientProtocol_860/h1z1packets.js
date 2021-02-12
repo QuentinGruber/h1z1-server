@@ -6584,13 +6584,11 @@ var packets = [
     0x60,
     {
       fields: [
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+        { name: "unknownQword1", type: "uint64", defaultValue: 0 },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: 0 },
         { name: "timescale", type: "float", defaultValue: 1.0 },
-        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword4", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+        { name: "unknownQword2", type: "uint64", defaultValue: 0 },
+        { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
         { name: "unknownFloat2", type: "float", defaultValue: 0.0 },
         { name: "unknownFloat3", type: "float", defaultValue: 0.0 },
       ],

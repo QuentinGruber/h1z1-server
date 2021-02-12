@@ -301,13 +301,11 @@ export class ZoneServer extends EventEmitter {
     });
 
     this.sendData(client, "ClientGameSettings", {
-      unknownDword1: 0,
-      unknownDword2: 7,
+      unknownQword1: "0x0000000000000000",
       unknownBoolean1: true,
       timescale: 1,
-      unknownDword3: 1,
-      unknownDword4: 1,
-      unknownDword5: 0,
+      unknownQword2: "0x0000000000000000",
+      unknownFloat1: 0,
       unknownFloat2: 12,
       unknownFloat3: 110,
     });

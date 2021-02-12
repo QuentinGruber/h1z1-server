@@ -1377,15 +1377,13 @@ const packetHandlers = {
       switch (args[0]) {
         case "sonic":
           server.sendData(client, "ClientGameSettings", {
-            unknownDword1: 0,
-            unknownDword2: 7,
+            unknownQword1: "0x0000000000000000",
             unknownBoolean1: true,
-            timescale: 3,
-            unknownDword3: 1,
-            unknownDword4: 1,
-            unknownDword5: 0,
-            unknownFloat2: 12,
-            unknownFloat3: 110,
+            timescale: 3.0,
+            unknownQword2: "0x0000000000000000",
+            unknownFloat1: 0.0,
+            unknownFloat2: 12.0,
+            unknownFloat3: 110.0,
           });
           server.sendData(client, "Command.RunSpeed", {
             runSpeed: -100,
