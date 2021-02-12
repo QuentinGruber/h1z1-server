@@ -1,4 +1,4 @@
-import {Packet} from "./shared"
+import { Packet } from "./shared";
 
 export interface Client {
   sessionId: number;
