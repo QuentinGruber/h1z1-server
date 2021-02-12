@@ -1,4 +1,3 @@
-
 export interface Client {
   gameClient: {
     currentWeather: Weather;

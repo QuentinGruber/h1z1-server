@@ -262,7 +262,7 @@ export class H1Z1Protocol {
       },
     ];
     try {
-      var result = DataSchema.parse(schema, data, 0,null).result;
+      var result = DataSchema.parse(schema, data, 0, null).result;
       return result;
     } catch (e) {}
   }
