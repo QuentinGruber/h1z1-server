@@ -99,7 +99,8 @@ const packets = [
           type: "byteswithlength",
           fields: [
             { name: "locale", type: "string" },
-            { name: "gatewayId", type: "uint32" },
+            { name: "localeId", type: "uint32" },
+            { name: "preferredGatewayId", type: "uint32" },
           ],
         },
       ],
