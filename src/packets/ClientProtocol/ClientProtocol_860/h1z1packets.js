@@ -5031,7 +5031,17 @@ var packets = [
   ["PlayerUpdate.ScriptedAnimation", 0x0f11, {}],
   ["PlayerUpdate.ThoughtBubble", 0x0f12, {}],
   ["PlayerUpdate.SetDisposition", 0x0f13, {}],
-  ["PlayerUpdate.LootEvent", 0x0f14, {}],
+  [
+    "PlayerUpdate.LootEvent",
+    0x0f14,
+    {
+      fields: [
+        { name: "unknownQword1", type: "uint64", defaultValue: "0" },
+        { name: "unknownQword2", type: "uint64", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
   ["PlayerUpdate.SlotCompositeEffectOverride", 0x0f15, {}],
   ["PlayerUpdate.EffectPackage", 0x0f16, {}],
   ["PlayerUpdate.PreferredLanguages", 0x0f17, {}],

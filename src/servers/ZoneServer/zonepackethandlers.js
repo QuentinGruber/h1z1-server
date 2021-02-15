@@ -2363,6 +2363,17 @@ const packetHandlers = {
       require("../../../data/profilestats.json")
     );
   },
+  Pickup: function (server, client, packet) {
+    debug(packet);
+    debug("PlayerUpdate.LootEvent isn't send since it crash the game rn.");
+    return;
+    const { data: packetData } = packet;
+    server.sendData(client, "PlayerUpdate.LootEvent", {
+      unknownQword1: Int64String(packetData.id),
+      unknownQword2: Int64String(packetData.id),
+      unknownDword2: packet.id,
+    });
+  },
   GetRewardBuffInfo: function (server, client, packet) {
     server.sendData(client, "RewardBuffInfo", {
       unknownFloat1: 1,
