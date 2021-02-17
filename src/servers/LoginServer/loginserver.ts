@@ -92,6 +92,7 @@ export class LoginServer extends EventEmitter {
           let data: Buffer;
           switch (packet.name) {
             case "LoginRequest":
+              client.loginSessionId = packet.result.sessionId;
               const falsified_data = {
                 loggedIn: true,
                 status: 1,
@@ -113,9 +114,10 @@ export class LoginServer extends EventEmitter {
                   characters: [SinglePlayerCharacter],
                 };
               } else {
+                const charactersQuery = { ownerId: client.loginSessionId }
                 const characters = await this._db
                   .collection("characters")
-                  .find()
+                  .find(charactersQuery)
                   .toArray();
                 CharactersInfo = {
                   status: 1,

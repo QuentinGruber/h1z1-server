@@ -1,5 +1,6 @@
 export interface Client {
   sessionId: number;
+  loginSessionId: string;
   address: string;
   port: number;
   crcSeed: number;
