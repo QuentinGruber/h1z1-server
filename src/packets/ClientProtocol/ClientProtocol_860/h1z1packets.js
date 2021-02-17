@@ -5238,7 +5238,11 @@ var packets = [
         { name: "unknownDword1", type: "uint32", defaultValue: 9241 },
         { name: "unknownDword2", type: "uint32", defaultValue: 9242 },
         { name: "unknownDword3", type: "uint32", defaultValue: 9243 },
-        { name: "characterFirstName", type: "string", defaultValue: "LocalPlayer" },
+        {
+          name: "characterFirstName",
+          type: "string",
+          defaultValue: "LocalPlayer",
+        },
         { name: "characterLastName", type: "string", defaultValue: "" },
         { name: "unknownByte3", type: "uint8", defaultValue: 0 },
         { name: "modelId", type: "uint32", defaultValue: 9001 },
