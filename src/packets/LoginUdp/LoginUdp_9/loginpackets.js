@@ -99,7 +99,8 @@ const packets = [
           type: "byteswithlength",
           fields: [
             { name: "locale", type: "string" },
-            { name: "gatewayId", type: "uint32" },
+            { name: "localeId", type: "uint32" },
+            { name: "preferredGatewayId", type: "uint32" },
           ],
         },
       ],
@@ -416,8 +417,16 @@ const packets = [
     0x10,
     {
       fields: [
-        { name: "unknown", type: "string" },
-        { name: "data", type: "string" },
+        { name: "serverId", type: "uint32" },
+        { name: "unknown1", type: "uint32" },
+        {
+          name: "payload",
+          type: "byteswithlength",
+          fields: [
+            { name: "characterName", type: "string" },
+            { name: "unknown2", type: "uint32" },
+          ],
+        },
       ],
     },
   ],
@@ -425,7 +434,20 @@ const packets = [
     "TunnelAppPacketServerToClient",
     0x11,
     {
-      fields: [{ name: "unknown1", type: "boolean" }],
+      fields: [
+        { name: "serverId", type: "uint32" },
+        { name: "unknown1", type: "uint32" },
+
+        {
+          name: "payload",
+          type: "byteswithlength",
+          fields: [
+            { name: "unknown1", type: "uint32" },
+            { name: "characterName", type: "string" },
+            { name: "unknown2", type: "uint32" },
+          ],
+        },
+      ],
     },
   ],
   ["CharacterTransferRequest", 0x12, {}],

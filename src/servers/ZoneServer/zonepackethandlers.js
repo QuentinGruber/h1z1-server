@@ -15,9 +15,7 @@ const fs = require("fs");
 const _ = require("lodash");
 const debug = require("debug")("zonepacketHandlers");
 let weatherTemplates = require("../../../data/weather.json");
-function Int64String(value) {
-  return "0x" + ("0000000000000000" + value.toString(16)).substr(-16);
-}
+import { Int64String, generateGuid } from "../../utils/utils";
 
 const packetHandlers = {
   ClientIsReady: function (server, client, packet) {
@@ -458,7 +456,7 @@ const packetHandlers = {
         npc_data.findOne({ id: npcId }, function (err, npc) {
           server.sendChatText(client, "Spawning NPC " + npc.id);
 
-          const guid = server.generateGuid(),
+          const guid = generateGuid(),
             transientId = server.getTransientId(client, guid);
 
           server.sendData(client, "PlayerUpdate.AddLightweightNpc", {
@@ -515,7 +513,7 @@ const packetHandlers = {
 
         server.sendChatText(client, "Spawning model " + modelId);
 
-        var guid = server.generateGuid(),
+        var guid = generateGuid(),
           transientId = server.getTransientId(client, guid);
 
         server.sendData(client, "PlayerUpdate.AddLightweightNpc", {
@@ -1375,6 +1373,17 @@ const packetHandlers = {
     }
     if (packet.data.commandHash == Jenkins.oaat("HAX")) {
       switch (args[0]) {
+        case "npcTest": // TODO: remove that
+          const guid = generateGuid();
+          const transientId = server.getTransientId(client, guid);
+          server.sendData(client, "PlayerUpdate.AddLightweightPc", {
+            characterId: generateGuid(),
+            guid: guid,
+            transientId: transientId,
+            position: client.character.state.position,
+            name: "LocalPlayer",
+          });
+          break;
         case "sonic":
           server.sendData(client, "ClientGameSettings", {
             unknownQword1: "0x0000000000000000",
@@ -1731,12 +1740,12 @@ const packetHandlers = {
     server.sendData(client, "Vehicle.Expiration", {
       expireTime: 300000,
     });
-    const guid = server.generateGuid();
+    const guid = generateGuid();
     server.sendData(client, "Vehicle.Owner", {
       guid: guid,
       characterId: client.character.characterId,
       unknownDword1: 305,
-      vehicleId: packet.data.vehicleId,
+      vehicleId: 1712,
       passengers: [
         {
           passengerData: {
@@ -2182,7 +2191,7 @@ const packetHandlers = {
     });
   },
   "AdminCommand.SpawnVehicle": function (server, client, packet) {
-    const guid = server.generateGuid(),
+    const guid = generateGuid(),
       transientId = server.getTransientId(client, guid);
 
     server
@@ -2362,6 +2371,17 @@ const packetHandlers = {
       "ProfileStats.PlayerProfileStats",
       require("../../../data/profilestats.json")
     );
+  },
+  Pickup: function (server, client, packet) {
+    debug(packet);
+    debug("PlayerUpdate.LootEvent isn't send since it crash the game rn.");
+    return;
+    const { data: packetData } = packet;
+    server.sendData(client, "PlayerUpdate.LootEvent", {
+      unknownQword1: Int64String(packetData.id),
+      unknownQword2: Int64String(packetData.id),
+      unknownDword2: packet.id,
+    });
   },
   GetRewardBuffInfo: function (server, client, packet) {
     server.sendData(client, "RewardBuffInfo", {
