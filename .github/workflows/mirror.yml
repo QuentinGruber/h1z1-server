@@ -1,0 +1,11 @@
+on: [push]
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: spyoungtech/mirror-action@master
+        with:
+          REMOTE: "https://github.com/H1emu/h1z1-server.git"
+          GIT_USERNAME: quentingruber
+          GIT_PASSWORD: ${{ secrets.GIT_PASSWORD }}

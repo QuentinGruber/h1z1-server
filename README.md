@@ -86,7 +86,7 @@ If you have followed the step just above this one, this step is no longer necess
 
 Execute this command in CMD/Powershell ( you have to be in your h1z1 game folder ) :
 
-`.\H1Z1.exe inifile=ClientConfig.ini providerNamespace=soe sessionid=0 CasSessionId=0 Interna tionalizationLocale=en_US LaunchPadUfp={fingerprint} LaunchPadSessionId=0 STEAM_ENABLED=0`
+`.\H1Z1.exe sessionid=0`
 
 ## How to use (3 ways)
 
