@@ -1373,15 +1373,27 @@ const packetHandlers = {
     }
     if (packet.data.commandHash == Jenkins.oaat("HAX")) {
       switch (args[0]) {
-        case "npcTest": // TODO: remove that
+        case "spawnNpcModel":
           const guid = generateGuid();
           const transientId = server.getTransientId(client, guid);
+          if (!args[1]) {
+            server.sendChatText(
+              client,
+              "[ERROR] You need to specify a model !"
+            );
+            return;
+          }
+          const choosenModelId = Number(args[1]);
+          const testpos = _.cloneDeep(client.character.state.position);
+          testpos[0] += 5;
+          server.sendChatText(client, guid);
           server.sendData(client, "PlayerUpdate.AddLightweightPc", {
             characterId: generateGuid(),
             guid: guid,
             transientId: transientId,
-            position: client.character.state.position,
-            name: "LocalPlayer",
+            modelId: choosenModelId,
+            position: testpos,
+            characterFirstName: "LocalPlayer",
           });
           break;
         case "sonic":
@@ -1401,7 +1413,7 @@ const packetHandlers = {
           break;
         case "observer":
           server.sendData(client, "PlayerUpdate.RemovePlayer", {
-            guid: client.character.characterId,
+            characterId: client.character.characterId,
           });
           delete server._characters[client.character.characterId];
           debug(server._characters);
