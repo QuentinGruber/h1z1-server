@@ -15,7 +15,7 @@ const fs = require("fs");
 const _ = require("lodash");
 const debug = require("debug")("zonepacketHandlers");
 let weatherTemplates = require("../../../data/weather.json");
-import { Int64String, generateGuid } from "../../utils/utils";
+import { Int64String } from "../../utils/utils";
 
 const packetHandlers = {
   ClientIsReady: function (server, client, packet) {
@@ -456,7 +456,7 @@ const packetHandlers = {
         npc_data.findOne({ id: npcId }, function (err, npc) {
           server.sendChatText(client, "Spawning NPC " + npc.id);
 
-          const guid = generateGuid(),
+          const guid = server.generateGuid(),
             transientId = server.getTransientId(client, guid);
 
           server.sendData(client, "PlayerUpdate.AddLightweightNpc", {
@@ -513,7 +513,7 @@ const packetHandlers = {
 
         server.sendChatText(client, "Spawning model " + modelId);
 
-        var guid = generateGuid(),
+        var guid = server.generateGuid(),
           transientId = server.getTransientId(client, guid);
 
         server.sendData(client, "PlayerUpdate.AddLightweightNpc", {
@@ -1374,25 +1374,22 @@ const packetHandlers = {
     if (packet.data.commandHash == Jenkins.oaat("HAX")) {
       switch (args[0]) {
         case "spawnNpcModel":
-          const guid = generateGuid();
+          const guid = server.generateGuid();
           const transientId = server.getTransientId(client, guid);
           if (!args[1]) {
             server.sendChatText(
               client,
-              "[ERROR] You need to specify a model !"
+              "[ERROR] You need to specify a model id !"
             );
             return;
           }
           const choosenModelId = Number(args[1]);
-          const testpos = _.cloneDeep(client.character.state.position);
-          testpos[0] += 5;
-          server.sendChatText(client, guid);
           server.sendData(client, "PlayerUpdate.AddLightweightPc", {
-            characterId: generateGuid(),
+            characterId: server.generateGuid(),
             guid: guid,
             transientId: transientId,
             modelId: choosenModelId,
-            position: testpos,
+            position: client.character.state.position,
             characterFirstName: "LocalPlayer",
           });
           break;
@@ -1569,7 +1566,7 @@ const packetHandlers = {
           });
           break;
         case "vehicleterminal":
-          var guid = server.generateGuid();
+          var guid = server.server.generateGuid();
           var transientId = server.getTransientId(client, guid);
           server.sendData(client, "PlayerUpdate.AddLightweightNpc", {
             guid: guid,
@@ -1752,7 +1749,7 @@ const packetHandlers = {
     server.sendData(client, "Vehicle.Expiration", {
       expireTime: 300000,
     });
-    const guid = generateGuid();
+    const guid = server.generateGuid();
     server.sendData(client, "Vehicle.Owner", {
       guid: guid,
       characterId: client.character.characterId,
@@ -2203,7 +2200,7 @@ const packetHandlers = {
     });
   },
   "AdminCommand.SpawnVehicle": function (server, client, packet) {
-    const guid = generateGuid(),
+    const guid = server.generateGuid(),
       transientId = server.getTransientId(client, guid);
 
     server
