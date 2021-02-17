@@ -1373,6 +1373,17 @@ const packetHandlers = {
     }
     if (packet.data.commandHash == Jenkins.oaat("HAX")) {
       switch (args[0]) {
+        case "npcTest": // TODO: remove that
+          const guid = generateGuid();
+          const transientId = server.getTransientId(client, guid);
+          server.sendData(client, "PlayerUpdate.AddLightweightPc", {
+            characterId: generateGuid(),
+            guid: guid,
+            transientId: transientId,
+            position: client.character.state.position,
+            name: "LocalPlayer",
+          });
+          break;
         case "sonic":
           server.sendData(client, "ClientGameSettings", {
             unknownQword1: "0x0000000000000000",
