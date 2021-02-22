@@ -13,7 +13,7 @@
     "h1z1-dataschema": "1.0.7",
     "hash-jenkins": "1.0.1",
     "js-base64": "3.6.0",
-    "lodash": "4.17.20",
+    "lodash": "4.17.21",
     "mongodb": "3.6.4",
     "typescript": "4.1.5"
   },
