@@ -10,7 +10,7 @@
     "@types/mongodb": "3.6.6",
     "@types/node": "14.14.25",
     "debug": "4.3.1",
-    "h1z1-dataschema": "1.0.8",
+    "h1z1-dataschema": "1.0.9",
     "hash-jenkins": "1.0.1",
     "js-base64": "3.6.0",
     "lodash": "4.17.21",
