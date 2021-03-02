@@ -17,7 +17,7 @@ import { default as packetHandlers } from "./zonepackethandlers";
 import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
 const spawnList = require("../../../data/spawnLocations.json");
 import _ from "lodash";
-import { Int64String, generateGuid } from "../../utils/utils";
+import { Int64String } from "../../utils/utils";
 const debug = require("debug")("ZoneServer");
 const weatherTemplate = require("../../../data/weather.json");
 import { Weather, Client } from "../../types/zoneserver";
@@ -181,6 +181,18 @@ export class ZoneServer extends EventEmitter {
     this._packetHandlers = require("./zonepackethandlers").default;
   }
 
+  generateGuid () {
+    let guid: string;
+    do {
+      guid = "0x";
+      for (let i: any = 0; i < 16; i++) {
+        guid += Math.floor(Math.random() * 16).toString(16) as string;
+      }
+    } while (!_.indexOf(this._guids, guid));
+    this._guids.push(guid);
+    return guid;
+  };
+
   parseReferenceData() {
     const itemData = fs.readFileSync(
         `${__dirname}/../../../data/ClientItemDefinitions.txt`,
@@ -244,7 +256,7 @@ export class ZoneServer extends EventEmitter {
       unknownFlags: 0,
       locations: [
         {
-          guid: generateGuid(this._guids),
+          guid: this.generateGuid(),
           respawnType: 1,
           position: [0, 50, 0, 1],
           unknownDword1: 1,
@@ -273,7 +285,7 @@ export class ZoneServer extends EventEmitter {
       unknownDword2: 0,
       locations2: [
         {
-          guid: generateGuid(this._guids),
+          guid: this.generateGuid(),
           respawnType: 1,
           position: [0, 50, 0, 1],
           unknownDword1: 1,
@@ -502,7 +514,7 @@ export class ZoneServer extends EventEmitter {
         return;
       }
       if (npc) {
-        const guid: any = generateGuid(this._guids);
+        const guid: any = this.generateGuid();
         this.npcs[guid] = {
           guid: guid,
           position: position,

@@ -52,7 +52,7 @@ const packets = [
     "ForceDisconnect",
     0x04,
     {
-      fields: [],
+      fields: [{ name: "reason", type: "uint32", defaultValue: 1 }],
     },
   ],
   [

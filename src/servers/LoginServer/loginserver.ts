@@ -17,7 +17,7 @@ import { LoginProtocol } from "../../protocols/loginprotocol";
 const debug = require("debug")("LoginServer");
 import { toUint8Array } from "js-base64";
 import { MongoClient } from "mongodb";
-import { generateGuid } from "../../utils/utils";
+import { generateRandomGuid } from "../../utils/utils";
 import { SoeServer, Client, GameServer } from "../../types/loginserver";
 
 export class LoginServer extends EventEmitter {
@@ -92,6 +92,7 @@ export class LoginServer extends EventEmitter {
           let data: Buffer;
           switch (packet.name) {
             case "LoginRequest":
+              client.loginSessionId = packet.result.sessionId;
               const falsified_data = {
                 loggedIn: true,
                 status: 1,
@@ -113,9 +114,10 @@ export class LoginServer extends EventEmitter {
                   characters: [SinglePlayerCharacter],
                 };
               } else {
+                const charactersQuery = { ownerId: client.loginSessionId }
                 const characters = await this._db
                   .collection("characters")
-                  .find()
+                  .find(charactersQuery)
                   .toArray();
                 CharactersInfo = {
                   status: 1,
@@ -244,7 +246,7 @@ export class LoginServer extends EventEmitter {
             case "CharacterCreateRequest":
               const reply_data = {
                 status: 1,
-                characterId: generateGuid(),
+                characterId: generateRandomGuid(),
               };
               data = this._protocol.pack("CharacterCreateReply", reply_data);
               this._soeServer.sendAppData(client, data, true);
