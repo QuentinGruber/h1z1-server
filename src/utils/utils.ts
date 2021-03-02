@@ -4,10 +4,10 @@ export const Int64String = function (value: number) {
 
 export const generateRandomGuid = function () {
   let guid: string;
-    guid = "0x";
-    for (let i: any = 0; i < 16; i++) {
-      guid += Math.floor(Math.random() * 16).toString(16) as string;
-    }
+  guid = "0x";
+  for (let i: any = 0; i < 16; i++) {
+    guid += Math.floor(Math.random() * 16).toString(16) as string;
+  }
   return guid;
 };
 

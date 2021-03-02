@@ -181,7 +181,7 @@ export class ZoneServer extends EventEmitter {
     this._packetHandlers = require("./zonepackethandlers").default;
   }
 
-  generateGuid () {
+  generateGuid() {
     let guid: string;
     do {
       guid = "0x";
@@ -191,7 +191,7 @@ export class ZoneServer extends EventEmitter {
     } while (!_.indexOf(this._guids, guid));
     this._guids.push(guid);
     return guid;
-  };
+  }
 
   parseReferenceData() {
     const itemData = fs.readFileSync(

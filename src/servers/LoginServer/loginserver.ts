@@ -114,7 +114,7 @@ export class LoginServer extends EventEmitter {
                   characters: [SinglePlayerCharacter],
                 };
               } else {
-                const charactersQuery = { ownerId: client.loginSessionId }
+                const charactersQuery = { ownerId: client.loginSessionId };
                 const characters = await this._db
                   .collection("characters")
                   .find(charactersQuery)
