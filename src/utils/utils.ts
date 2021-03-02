@@ -1,5 +1,3 @@
-import _ from "lodash";
-
 export const Int64String = function (value: number) {
   return "0x" + ("0000000000000000" + value.toString(16)).substr(-16);
 };
