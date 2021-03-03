@@ -49,7 +49,7 @@ export class ZoneServer extends EventEmitter {
     this._clients = {};
     this._characters = {};
     this._ncps = {};
-    this._serverTime = 0
+    this._serverTime = (Date.now() / 1000).toFixed(0)
     this._transientId = 0;
     this._guids = [];
     this._referenceData = this.parseReferenceData();
