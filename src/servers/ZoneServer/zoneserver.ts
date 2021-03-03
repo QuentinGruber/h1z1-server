@@ -21,10 +21,7 @@ import { Int64String } from "../../utils/utils";
 const debug = require("debug")("ZoneServer");
 const weatherTemplate = require("../../../data/weather.json");
 import { Weather, Client } from "../../types/zoneserver";
-Date.now = () => {
-  // force current time
-  return 971172000000;
-};
+
 export class ZoneServer extends EventEmitter {
   _gatewayServer: any;
   _protocol: any;
@@ -52,7 +49,7 @@ export class ZoneServer extends EventEmitter {
     this._clients = {};
     this._characters = {};
     this._ncps = {};
-    this._serverTime = Date.now() / 1000;
+    this._serverTime = 0
     this._transientId = 0;
     this._guids = [];
     this._referenceData = this.parseReferenceData();
