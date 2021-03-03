@@ -346,9 +346,9 @@ const packetHandlers = {
   },
   GameTimeSync: function (server, client, packet) {
     server.sendData(client, "GameTimeSync", {
-      time: Int64String(server.getGameTime()),
-      unknownFloat1: 12,
-      unknownBoolean1: false,
+      time: packet.data.time,
+      unknownFloat1: packet.data.unknownFloat1,
+      unknownBoolean1: packet.data.unknownBoolean1,
     });
   },
   Synchronization: function (server, client, packet) {
