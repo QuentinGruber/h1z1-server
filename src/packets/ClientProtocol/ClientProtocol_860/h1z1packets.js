@@ -5696,7 +5696,6 @@ var packets = [
     0x16,
     {
       fields: [
-        { name: "unknownByte", type: "byte", defaultValue: 0 },
         { name: "zoneName", type: "string", defaultValue: "" },
         { name: "zoneType", type: "uint32", defaultValue: 0 },
         { name: "unknownBoolean1", type: "boolean", defaultValue: false },
