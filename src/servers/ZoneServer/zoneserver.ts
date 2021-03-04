@@ -40,7 +40,7 @@ export class ZoneServer extends EventEmitter {
   _reloadPacketsInterval: any;
   constructor(serverPort: number, gatewayKey: string) {
     super();
-    this.forceTime(971172000000) // force day time by default
+    this.forceTime(971172000000); // force day time by default
     this._gatewayServer = new GatewayServer(
       "ExternalGatewayApi_3",
       serverPort,
@@ -50,7 +50,7 @@ export class ZoneServer extends EventEmitter {
     this._clients = {};
     this._characters = {};
     this._ncps = {};
-    this._serverTime =  this.getCurrentTime()
+    this._serverTime = this.getCurrentTime();
     this._transientId = 0;
     this._guids = [];
     this._referenceData = this.parseReferenceData();
@@ -483,9 +483,9 @@ export class ZoneServer extends EventEmitter {
       return new Date().getTime();
     };
   }
-  
+
   getCurrentTime() {
-    return (Date.now() / 1000).toFixed(0)
+    return (Date.now() / 1000).toFixed(0);
   }
 
   getGameTime() {
