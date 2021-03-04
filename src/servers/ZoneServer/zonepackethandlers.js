@@ -1373,6 +1373,30 @@ const packetHandlers = {
     }
     if (packet.data.commandHash == Jenkins.oaat("HAX")) {
       switch (args[0]) {
+        case "forceNight":
+          server.forceTime(1614815705926);
+          server.sendChatText(
+            client,
+            "Will force Night time on next sync...",
+            true
+          );
+          break;
+        case "forceDay":
+          server.forceTime(971172000000);
+          server.sendChatText(
+            client,
+            "Will force Day time on next sync...",
+            true
+          );
+          break;
+        case "realTime":
+          server.removeForcedTime();
+          server.sendChatText(
+            client,
+            "Game time is now based on real time",
+            true
+          );
+          break;
         case "spawnNpcModel":
           const guid = server.generateGuid();
           const transientId = server.getTransientId(client, guid);
