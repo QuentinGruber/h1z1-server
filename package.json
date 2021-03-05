@@ -15,7 +15,7 @@
     "js-base64": "3.6.0",
     "lodash": "4.17.21",
     "mongodb": "3.6.4",
-    "typescript": "4.2.2"
+    "typescript": "4.2.3"
   },
   "directories": {
     "src": "./src"
