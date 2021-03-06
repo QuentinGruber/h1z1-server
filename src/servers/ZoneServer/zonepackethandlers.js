@@ -1404,7 +1404,7 @@ const packetHandlers = {
     if (packet.data.commandHash == Jenkins.oaat("HAX")) {
       switch (args[0]) {
         case "forceNight":
-          server.forceTime(1614815705926);
+          server.forceTime(1615062252322);
           server.sendChatText(
             client,
             "Will force Night time on next sync...",
