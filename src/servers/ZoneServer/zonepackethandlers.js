@@ -224,6 +224,7 @@ const packetHandlers = {
       "location",
       "serverinfo",
       "spawninfo",
+      "help",
     ];
 
     commands.forEach((command) => {
@@ -380,6 +381,35 @@ const packetHandlers = {
         `You spawned at "${client.character.spawnLocation}"`,
         true
       );
+    }
+    if (
+      packet.data.commandHash == Jenkins.oaat("HELP") ||
+      packet.data.commandHash == 3575372649
+    ) {
+      // /help
+      const haxCommandList = [
+        "/hax run",
+        "/hax sonic",
+        "/hax observer",
+        "/hax saveCurrentWeather",
+        "/hax weather",
+        "/hax randomWeather",
+        "/hax forceDay",
+        "/hax forceNight",
+        "/hax realTime",
+      ];
+      const commandList = [
+        "/help",
+        "/loc",
+        "/spawninfo",
+        "/serverinfo",
+        "/player_air_control",
+        "/player_fall_through_world_test",
+      ];
+      server.sendChatText(client, `Commands list:`);
+      _.concat(commandList, haxCommandList).forEach((command) => {
+        server.sendChatText(client, `${command}`);
+      });
     }
     if (
       packet.data.commandHash == Jenkins.oaat("LOCATION") ||
