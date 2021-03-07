@@ -397,6 +397,7 @@ const packetHandlers = {
           "/hax forceDay",
           "/hax forceNight",
           "/hax realTime",
+          "/hax spawnNpcModel",
         ];
         const commandList = [
           "/help",
