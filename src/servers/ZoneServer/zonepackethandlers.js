@@ -367,17 +367,26 @@ const packetHandlers = {
 
     switch (packet.data.commandHash) {
       case 2371122039: // /serverinfo
-        const {
-          _clients: clients,
-          _characters: characters,
-          npcs: npcs,
-        } = server;
-        const serverVersion = require("../../../package.json").version;
-        server.sendChatText(client, `h1z1-server V${serverVersion}`, true);
-        server.sendChatText(client, `Connected clients : ${_.size(clients)}`);
-        server.sendChatText(client, `characters : ${_.size(characters)}`);
-        server.sendChatText(client, `npcs : ${_.size(npcs)}`);
-        break;
+        if (args[0] === "tech") {
+          const used = process.memoryUsage().heapUsed / 1024 / 1024;
+          server.sendChatText(
+            client,
+            `Used memory ${Math.round(used * 100) / 100} MB`
+          );
+          break;
+        } else {
+          const {
+            _clients: clients,
+            _characters: characters,
+            npcs: npcs,
+          } = server;
+          const serverVersion = require("../../../package.json").version;
+          server.sendChatText(client, `h1z1-server V${serverVersion}`, true);
+          server.sendChatText(client, `Connected clients : ${_.size(clients)}`);
+          server.sendChatText(client, `characters : ${_.size(characters)}`);
+          server.sendChatText(client, `npcs : ${_.size(npcs)}`);
+          break;
+        }
       case 1757604914: // /spawninfo
         server.sendChatText(
           client,
