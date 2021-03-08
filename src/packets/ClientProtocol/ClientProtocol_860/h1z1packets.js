@@ -5839,7 +5839,7 @@ var packets = [
     {
       fields: [
         { name: "time", type: "uint64", defaultValue: "0" },
-        { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
+        { name: "cycleSpeed", type: "float", defaultValue: 0.0 },
         { name: "unknownBoolean1", type: "boolean", defaultValue: false },
       ],
     },
