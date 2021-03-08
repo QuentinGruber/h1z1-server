@@ -367,7 +367,7 @@ const packetHandlers = {
 
     switch (packet.data.commandHash) {
       case 2371122039: // /serverinfo
-        if (args[0] === "tech") {
+        if (args[0] === "mem") {
           const used = process.memoryUsage().heapUsed / 1024 / 1024;
           server.sendChatText(
             client,
