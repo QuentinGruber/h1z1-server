@@ -1451,6 +1451,7 @@ const packetHandlers = {
             );
             break;
           case "spawnNpcModel":
+            server.sendChatText(client, "[info] this command is kinda broken try it multiple time",1);
             const guid = server.generateGuid();
             const transientId = server.getTransientId(client, guid);
             if (!args[1]) {
