@@ -36,7 +36,7 @@ export class ZoneServer extends EventEmitter {
   _startTime: number;
   _defaultWeather: Weather;
   _db: any;
-  npcs: any;
+  _npcs: any;
   _reloadPacketsInterval: any;
   constructor(serverPort: number, gatewayKey: string) {
     super();
@@ -49,7 +49,7 @@ export class ZoneServer extends EventEmitter {
     this._protocol = new ZoneProtocol();
     this._clients = {};
     this._characters = {};
-    this._ncps = {};
+    this._npcs = {};
     this._serverTime = this.getCurrentTime();
     this._transientId = 0;
     this._guids = [];
@@ -326,6 +326,14 @@ export class ZoneServer extends EventEmitter {
       characterId: client.character.characterId,
       battleRank: 100,
     });
+
+    this.spawnAllNpc(client)
+  }
+
+  spawnAllNpc(client: Client) {
+    for (let npc in this._npcs) {
+      this.sendData(client, "PlayerUpdate.AddLightweightPc", this._npcs[npc]);
+    };
   }
 
   data(collectionName: string) {
@@ -530,7 +538,7 @@ export class ZoneServer extends EventEmitter {
       }
       if (npc) {
         const guid: any = this.generateGuid();
-        this.npcs[guid] = {
+        this._npcs[guid] = {
           guid: guid,
           position: position,
           rotation: rotation,
@@ -583,7 +591,7 @@ export class ZoneServer extends EventEmitter {
         unknownArray1: [],
       };
       */
-        callback(null, this.npcs[guid]);
+        callback(null, this._npcs[guid]);
       } else {
         callback("NPC " + npcId + " not found");
       }

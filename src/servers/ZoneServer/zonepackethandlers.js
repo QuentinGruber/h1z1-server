@@ -378,7 +378,7 @@ const packetHandlers = {
           const {
             _clients: clients,
             _characters: characters,
-            npcs: npcs,
+            _npcs: npcs,
           } = server;
           const serverVersion = require("../../../package.json").version;
           server.sendChatText(client, `h1z1-server V${serverVersion}`, true);
@@ -1461,14 +1461,17 @@ const packetHandlers = {
               return;
             }
             const choosenModelId = Number(args[1]);
-            server.sendData(client, "PlayerUpdate.AddLightweightPc", {
-              characterId: server.generateGuid(),
+            const characterId = server.generateGuid();
+             const npc = {
+              characterId: characterId,
               guid: guid,
               transientId: transientId,
               modelId: choosenModelId,
               position: client.character.state.position,
-              characterFirstName: "LocalPlayer",
-            });
+              characterFirstName: `Model ${choosenModelId}`,
+            }
+            server.sendData(client, "PlayerUpdate.AddLightweightPc", npc);
+            server._npcs[characterId] = npc // save npc
             break;
           case "sonic":
             server.sendData(client, "ClientGameSettings", {
