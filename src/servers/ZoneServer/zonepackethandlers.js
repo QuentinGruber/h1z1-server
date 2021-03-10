@@ -15,7 +15,7 @@ const fs = require("fs");
 const _ = require("lodash");
 const debug = require("debug")("zonepacketHandlers");
 let weatherTemplates = require("../../../data/weather.json");
-import { Int64String } from "../../utils/utils";
+import { Int64String, generateCharacterId } from "../../utils/utils";
 
 const packetHandlers = {
   ClientIsReady: function (server, client, packet) {
@@ -382,11 +382,6 @@ const packetHandlers = {
             );
             break;
           case "spawnNpcModel":
-            server.sendChatText(
-              client,
-              "[info] this command is kinda broken try it multiple time",
-              1
-            );
             const guid = server.generateGuid();
             const transientId = server.getTransientId(client, guid);
             if (!args[1]) {
@@ -397,7 +392,7 @@ const packetHandlers = {
               return;
             }
             const choosenModelId = Number(args[1]);
-            const characterId = server.generateGuid();
+            const characterId = generateCharacterId();
             const npc = {
               characterId: characterId,
               guid: guid,
