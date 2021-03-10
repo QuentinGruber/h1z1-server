@@ -5672,7 +5672,13 @@ var packets = [
   ["ClientUpdate.LoyaltyPoints", 0x112c00, {}],
   ["ClientUpdate.Membership", 0x112d00, {}],
   ["ClientUpdate.ResetMissionRespawnTimer", 0x112e00, {}],
-  ["ClientUpdate.Freeze", 0x112f00, {}],
+  [
+    "ClientUpdate.Freeze",
+    0x112f00,
+    {
+      fields: [{ name: "frozen", type: "uint8", defaultValue: 1 }], // 0 unfreeze jump & > 1 freeze jump ( don't know how it was used )
+    },
+  ],
   ["ClientUpdate.InGamePurchaseResult", 0x113000, {}],
   ["ClientUpdate.QuizComplete", 0x113100, {}],
   ["ClientUpdate.StartTimer", 0x113200, []],
