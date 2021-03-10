@@ -18,8 +18,6 @@ export const generateCharacterId = function (usedId: Array<string> = []) {
   let characterId = null;
   while (characterId === null) {
     const rndIndex = Math.floor(Math.random() * valid_character_ids.length)
-    console.log(valid_character_ids[rndIndex])
-    console.log(convertToInt64((valid_character_ids[rndIndex])))
     if (usedId.length) { // if usedId array is defined
       if (_.findIndex(usedId, valid_character_ids[rndIndex], 0) === -1) { // TODO: try this
         characterId = convertToInt64((valid_character_ids[rndIndex]));
