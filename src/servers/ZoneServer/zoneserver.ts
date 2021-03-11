@@ -209,6 +209,9 @@ export class ZoneServer extends EventEmitter {
   }
 
   characterData(client: Client) {
+    delete require.cache[
+      require.resolve("../../../data/sendself.json") // reload json
+    ];
     const self = require("../../../data/sendself.json"); // dummy self
     const {
       data: { identity },
