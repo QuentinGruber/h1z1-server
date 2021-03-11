@@ -213,6 +213,11 @@ export class ZoneServer extends EventEmitter {
       require.resolve("../../../data/sendself.json") // reload json
     ];
     const self = require("../../../data/sendself.json"); // dummy self
+    if (client.character.characterId === "0x03147cca2a860192") { // for fun 🤠
+      self.data.identity.characterFirstName = "Cowboy :)"
+      self.data.extraModel = "SurvivorMale_Ivan_OutbackHat_Base.adr"
+      self.data.extraModelTexture = "Ivan_OutbackHat_LeatherTan"
+    }
     const {
       data: { identity },
     } = self;
