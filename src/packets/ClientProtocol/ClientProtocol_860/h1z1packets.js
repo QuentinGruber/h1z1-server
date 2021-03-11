@@ -1924,11 +1924,11 @@ var packets = [
             },
             { name: "lastLoginDate", type: "uint64", defaultValue: 0 },
             { name: "actorModelId", type: "uint32", defaultValue: 0 },
-            { name: "headActor", type: "string", defaultValue: "" },
+            { name: "extraModel", type: "string", defaultValue: "" },
             { name: "unknownString1", type: "string", defaultValue: "" },
             { name: "unknownDword4", type: "uint32", defaultValue: 0 },
             { name: "unknownDword5", type: "uint32", defaultValue: 0 },
-            { name: "emptyTexture", type: "string", defaultValue: "" },
+            { name: "extraModelTexture", type: "string", defaultValue: "" },
             { name: "unknownString3", type: "string", defaultValue: "" },
             { name: "unknownString4", type: "string", defaultValue: "" },
             { name: "headId", type: "uint32", defaultValue: 0 },
@@ -5672,7 +5672,13 @@ var packets = [
   ["ClientUpdate.LoyaltyPoints", 0x112c00, {}],
   ["ClientUpdate.Membership", 0x112d00, {}],
   ["ClientUpdate.ResetMissionRespawnTimer", 0x112e00, {}],
-  ["ClientUpdate.Freeze", 0x112f00, {}],
+  [
+    "ClientUpdate.Freeze",
+    0x112f00,
+    {
+      fields: [{ name: "frozen", type: "uint8", defaultValue: 1 }], // 0 unfreeze jump & > 1 freeze jump ( don't know how it was used )
+    },
+  ],
   ["ClientUpdate.InGamePurchaseResult", 0x113000, {}],
   ["ClientUpdate.QuizComplete", 0x113100, {}],
   ["ClientUpdate.StartTimer", 0x113200, []],
@@ -5839,7 +5845,7 @@ var packets = [
     {
       fields: [
         { name: "time", type: "uint64", defaultValue: "0" },
-        { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
+        { name: "cycleSpeed", type: "float", defaultValue: 0.0 },
         { name: "unknownBoolean1", type: "boolean", defaultValue: false },
       ],
     },

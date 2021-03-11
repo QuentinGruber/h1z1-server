@@ -17,8 +17,9 @@ import { LoginProtocol } from "../../protocols/loginprotocol";
 const debug = require("debug")("LoginServer");
 import { toUint8Array } from "js-base64";
 import { MongoClient } from "mongodb";
-import { generateRandomGuid } from "../../utils/utils";
+import { generateCharacterId } from "../../utils/utils";
 import { SoeServer, Client, GameServer } from "../../types/loginserver";
+import _ from "lodash";
 
 export class LoginServer extends EventEmitter {
   _soeServer: SoeServer;
@@ -108,10 +109,15 @@ export class LoginServer extends EventEmitter {
               let CharactersInfo;
               if (this._soloMode) {
                 const SinglePlayerCharacter = require("../../../data/single_player_character.json");
+
+                const cowboy = _.cloneDeep(SinglePlayerCharacter) // for fun 🤠
+                cowboy.characterId = "0x03147cca2a860192"
+                cowboy.payload.name = "Cowboy"
+
                 CharactersInfo = {
                   status: 1,
                   canBypassServerLock: true,
-                  characters: [SinglePlayerCharacter],
+                  characters: [SinglePlayerCharacter,cowboy],
                 };
               } else {
                 const charactersQuery = { ownerId: client.loginSessionId };
@@ -246,7 +252,7 @@ export class LoginServer extends EventEmitter {
             case "CharacterCreateRequest":
               const reply_data = {
                 status: 1,
-                characterId: generateRandomGuid(),
+                characterId: generateCharacterId(),
               };
               data = this._protocol.pack("CharacterCreateReply", reply_data);
               this._soeServer.sendAppData(client, data, true);
