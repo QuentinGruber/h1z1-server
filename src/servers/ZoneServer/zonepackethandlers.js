@@ -399,7 +399,7 @@ const packetHandlers = {
               transientId: transientId,
               modelId: choosenModelId,
               position: client.character.state.position,
-              characterFirstName: `Model ${choosenModelId}`,
+              characterFirstName: ``,
             };
             server.sendData(client, "PlayerUpdate.AddLightweightPc", npc);
             server._npcs[characterId] = npc; // save npc
