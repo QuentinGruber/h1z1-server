@@ -463,9 +463,7 @@ const packetHandlers = {
             } else if (weatherTemplates[args[1]]) {
               server.sendChatText(client, `"${args[1]}" already exist !`);
             } else {
-              const {
-                gameClient: { currentWeather },
-              } = client;
+              const { _weather: currentWeather } = server;
               if (currentWeather) {
                 weatherTemplates[args[1]] = currentWeather;
                 // TODO : maybe find a way to append instead of rewriting all of it

@@ -40,7 +40,7 @@ export class ZoneServer extends EventEmitter {
   _packetHandlers: any;
   _referenceData: any;
   _startTime: number;
-  _defaultWeather: Weather;
+  _weather: Weather;
   _npcs: any;
   _reloadPacketsInterval: any;
   constructor(serverPort: number, gatewayKey: string, mongoAddress: string = "") {
@@ -64,7 +64,7 @@ export class ZoneServer extends EventEmitter {
     this._startTime = 0;
     this._reloadPacketsInterval;
     this._soloMode = false;
-    this._defaultWeather = weatherTemplate["H1emuBaseWeather"];
+    this._weather = weatherTemplate["H1emuBaseWeather"];
     if (!this._mongoAddress) {
       this._soloMode = true;
       debug("Server in solo mode !");
@@ -112,7 +112,6 @@ export class ZoneServer extends EventEmitter {
 
         this._clients[client.sessionId] = client;
         client.loginSessionId = loginSessionId;
-        client.gameClient = { currentWeather: this._defaultWeather };
         client.transientIds = {};
         client.transientId = 0;
         client.character = {
@@ -283,7 +282,7 @@ export class ZoneServer extends EventEmitter {
       serverId: 1,
     });
 
-    this.SendZoneDetailsPacket(client, client.gameClient.currentWeather);
+    this.SendZoneDetailsPacket(client, this._weather);
 
     this.sendData(client, "ClientUpdate.ZonePopulation", {
       populations: [0, 0],
@@ -381,8 +380,9 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
-  SendZoneDetailsPacket(client: Client, weather: Weather) {
-    this.sendData(client, "SendZoneDetails", {
+  SendZoneDetailsPacket(client: Client, weather: Weather , isGlobal: boolean = false) {
+    
+    const SendZoneDetails_packet = {
       zoneName: "Z1",
       unknownBoolean1: true,
       zoneType: 4,
@@ -391,12 +391,19 @@ export class ZoneServer extends EventEmitter {
       zoneId2: 3905829720,
       nameId: 7699,
       unknownBoolean7: true,
-    });
+    }
+    if (isGlobal) {
+      this.sendDataToAll("SendZoneDetails", SendZoneDetails_packet);
+      this.sendGlobalChatText(`User "${client.character.name}" has changed weather.`)
+    }
+    else {
+      this.sendData(client, "SendZoneDetails", SendZoneDetails_packet);
+    }
   }
 
   changeWeather(client: Client, weather: Weather) {
-    client.gameClient.currentWeather = weather;
-    this.SendZoneDetailsPacket(client, weather);
+    this._weather = weather;
+    this.SendZoneDetailsPacket(client, weather, true);
   }
   sendSystemMessage(message: string) {
     this.sendDataToAll("Chat.Chat", {
@@ -435,6 +442,11 @@ export class ZoneServer extends EventEmitter {
     });
   }
 
+  sendGlobalChatText( message: string, clearChat: boolean = false) {
+    for (let a in this._clients) {
+      this.sendChatText(this._clients[a], message, clearChat);
+    }
+  }
   sendChatText(client: Client, message: string, clearChat: boolean = false) {
     if (clearChat) {
       for (let index = 0; index <= 6; index++) {
