@@ -66,9 +66,9 @@ export class ZoneServer extends EventEmitter {
     this._startTime = 0;
     this._reloadPacketsInterval;
     this._soloMode = false;
-    this._weatherTemplates = undefined;
+    this._weatherTemplates = localWeatherTemplates;
     this._defaultWeatherTemplate = "H1emuBaseWeather";
-    this._weather = localSpawnList[this._defaultWeatherTemplate]
+    this._weather = this._weatherTemplates[this._defaultWeatherTemplate];
     if (!this._mongoAddress) {
       this._soloMode = true;
       debug("Server in solo mode !");
