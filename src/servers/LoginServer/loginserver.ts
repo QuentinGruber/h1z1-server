@@ -268,6 +268,7 @@ export class LoginServer extends EventEmitter {
                 client.serverUpdateTimer
               );
               // this._soeServer.deleteClient(client); this is done to early
+              break;
           }
         } else {
           debug("Packet parsing was unsuccesful");
