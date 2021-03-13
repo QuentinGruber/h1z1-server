@@ -19,7 +19,7 @@ const localSpawnList = require("../../../data/spawnLocations.json");
 import _ from "lodash";
 import { Int64String } from "../../utils/utils";
 const debug = require("debug")("ZoneServer");
-const localWeatherTemplate = require("../../../data/weather.json");
+const localWeatherTemplates = require("../../../data/weather.json");
 import { Weather, Client } from "../../types/zoneserver";
 import { MongoClient } from "mongodb";
 
@@ -42,7 +42,7 @@ export class ZoneServer extends EventEmitter {
   _weather: Weather;
   _spawnLocations: any;
   _defaultWeatherTemplate: string;
-  _weatherTemplate: any;
+  _weatherTemplates: any;
   _npcs: any;
   _reloadPacketsInterval: any;
   constructor(serverPort: number, gatewayKey: string, mongoAddress: string = "") {
@@ -66,7 +66,7 @@ export class ZoneServer extends EventEmitter {
     this._startTime = 0;
     this._reloadPacketsInterval;
     this._soloMode = false;
-    this._weatherTemplate = undefined;
+    this._weatherTemplates = undefined;
     this._defaultWeatherTemplate = "H1emuBaseWeather";
     this._weather = localSpawnList[this._defaultWeatherTemplate]
     if (!this._mongoAddress) {
@@ -167,14 +167,14 @@ export class ZoneServer extends EventEmitter {
     .collection("spawns")
       .find()
       .toArray()
-      this._weatherTemplate = this._soloMode? localWeatherTemplate : await this._db
+      this._weatherTemplates = this._soloMode? localWeatherTemplates : await this._db
       .collection("weathers")
         .find()
       .toArray()
 
     this._weather = this._soloMode ?
-      this._weatherTemplate[this._defaultWeatherTemplate] :
-      _.find(this._weatherTemplate, (template) => { return template.templateName === this._defaultWeatherTemplate });
+      this._weatherTemplates[this._defaultWeatherTemplate] :
+      _.find(this._weatherTemplates, (template) => { return template.templateName === this._defaultWeatherTemplate });
   }
   async start() {
     debug("Starting server");
@@ -254,8 +254,7 @@ export class ZoneServer extends EventEmitter {
         (items as any)[line[0]] = line[1];
       }
     }
-    const referenceData = { itemTypes: items };
-    return referenceData;
+    return { itemTypes: items };
   }
 
   characterData(client: Client) {

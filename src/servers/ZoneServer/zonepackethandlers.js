@@ -434,14 +434,14 @@ const packetHandlers = {
             });
             break;
           case "weather":
-            const weatherTemplate = server._weatherTemplate[args[1]];
+            const weatherTemplates = server._weatherTemplates[args[1]];
             if (!args[1]) {
               server.sendChatText(
                 client,
                 "Please define a weather template to use (data/weather.json)"
               );
-            } else if (weatherTemplate) {
-              server.changeWeather(client, weatherTemplate);
+            } else if (weatherTemplates) {
+              server.changeWeather(client, weatherTemplates);
               server.sendChatText(
                 client,
                 `Use "${args[1]}" as a weather template`
@@ -460,8 +460,8 @@ const packetHandlers = {
                 "Please define a name for your weather template '/hax saveCurrentWeather {name}'"
               );
             } else if (
-              server._weatherTemplate[args[1]] ||
-              _.find(server._weatherTemplate, (template) => {
+              server._weatherTemplates[args[1]] ||
+              _.find(server._weatherTemplates, (template) => {
                 return template.templateName === args[1];
               })
             ) {
@@ -470,21 +470,21 @@ const packetHandlers = {
               const { _weather: currentWeather } = server;
               if (currentWeather) {
                 if (server._soloMode) {
-                  server._weatherTemplate[args[1]] = currentWeather;
+                  server._weatherTemplates[args[1]] = currentWeather;
                   fs.writeFileSync(
                     `${__dirname}/../../../data/weather.json`,
-                    JSON.stringify(server._weatherTemplate)
+                    JSON.stringify(server._weatherTemplates)
                   );
                   delete require.cache[
                     require.resolve("../../../data/weather.json")
                   ];
-                  server._weatherTemplate = require("../../../data/weather.json");
+                  server._weatherTemplates = require("../../../data/weather.json");
                 } else {
                   currentWeather.templateName = args[1];
                   await server._db
                     .collection("weathers")
                     .insertOne(currentWeather);
-                  server._weatherTemplate = await server._db
+                  server._weatherTemplates = await server._db
                     .collection("weathers")
                     .find()
                     .toArray();
