@@ -583,6 +583,9 @@ const packetHandlers = {
               server.reloadPackets(client);
             }
             break;
+          case "reloadMongo":
+            server.reloadMongoData(client);
+            break;
           default:
             server.sendChatText(client, `Unknown command`);
             break;

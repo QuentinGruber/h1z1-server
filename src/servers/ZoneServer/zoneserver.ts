@@ -163,15 +163,7 @@ export class ZoneServer extends EventEmitter {
   }
 
   async setupServer() {
-    this._spawnLocations = this._soloMode? localSpawnList : await this._db
-    .collection("spawns")
-      .find()
-      .toArray()
-      this._weatherTemplates = this._soloMode? localWeatherTemplates : await this._db
-      .collection("weathers")
-        .find()
-      .toArray()
-
+    await this.loadMongoData();
     this._weather = this._soloMode ?
       this._weatherTemplates[this._defaultWeatherTemplate] :
       _.find(this._weatherTemplates, (template) => { return template.templateName === this._defaultWeatherTemplate });
@@ -202,6 +194,22 @@ export class ZoneServer extends EventEmitter {
     await this.setupServer()
     this._startTime += Date.now();
     this._gatewayServer.start();
+  }
+
+  async loadMongoData() {
+    this._spawnLocations = this._soloMode? localSpawnList : await this._db
+    .collection("spawns")
+      .find()
+      .toArray()
+      this._weatherTemplates = this._soloMode? localWeatherTemplates : await this._db
+      .collection("weathers")
+        .find()
+      .toArray()
+  }
+
+  async reloadMongoData(client: Client) {
+    await this.loadMongoData()
+    this.sendChatText(client, "[DEV] Mongo data reloaded", true);
   }
 
   reloadPackets(client: Client, intervalTime: number = -1) {
