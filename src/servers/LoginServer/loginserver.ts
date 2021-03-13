@@ -95,7 +95,7 @@ export class LoginServer extends EventEmitter {
               };
               data = this._protocol.pack("LoginReply", falsified_data);
               this._soeServer.sendAppData(client, data, true);
-              if(false && !this._soloMode){ // disable this for now ( WIP )
+              if(!this._soloMode){
                 client.serverUpdateTimer = setInterval(() => this.updateServerList(client), 30000)
               }
               if (this._protocol.protocolName !== "LoginUdp_11") break;
@@ -264,7 +264,10 @@ export class LoginServer extends EventEmitter {
               break;
 
             case "Logout":
-              this._soeServer.deleteClient(client);
+              clearInterval(
+                client.serverUpdateTimer
+              );
+              // this._soeServer.deleteClient(client); this is done to early
           }
         } else {
           debug("Packet parsing was unsuccesful");

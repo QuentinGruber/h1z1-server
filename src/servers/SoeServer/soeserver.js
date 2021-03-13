@@ -85,10 +85,6 @@ function SOEServer(
           break;
         case "Disconnect":
           debug("Received disconnect from client");
-          clearInterval(
-            // TODO : doesn't seems to work
-            clients[client.address + ":" + client.port].serverUpdateTimer
-          );
           delete clients[client.address + ":" + client.port];
           me.emit("disconnect", null, client);
           break;
