@@ -14,7 +14,6 @@ const Jenkins = require("hash-jenkins");
 const fs = require("fs");
 const _ = require("lodash");
 const debug = require("debug")("zonepacketHandlers");
-let weatherTemplates = require("../../../data/weather.json");
 import { Int64String, generateCharacterId } from "../../utils/utils";
 
 const packetHandlers = {
@@ -266,6 +265,7 @@ const packetHandlers = {
   ClientLogout: function (server, client, packet) {
     debug("ClientLogout");
     server._gatewayServer._soeServer.deleteClient(client);
+    delete server._clients[client.sessionId];
   },
   GameTimeSync: function (server, client, packet) {
     server.sendData(client, "GameTimeSync", {
@@ -284,7 +284,7 @@ const packetHandlers = {
       time3: packet.data.clientTime + 2,
     });
   },
-  "Command.ExecuteCommand": function (server, client, packet) {
+  "Command.ExecuteCommand": async function (server, client, packet) {
     const args = packet.data.arguments.split(" ");
 
     switch (packet.data.commandHash) {
@@ -434,14 +434,18 @@ const packetHandlers = {
             });
             break;
           case "weather":
-            const weatherTemplate = weatherTemplates[args[1]];
+            const weatherTemplates = server._soloMode
+              ? server._weatherTemplates[args[1]]
+              : _.find(server._weatherTemplates, (template) => {
+                  return template.templateName === args[1];
+                });
             if (!args[1]) {
               server.sendChatText(
                 client,
                 "Please define a weather template to use (data/weather.json)"
               );
-            } else if (weatherTemplate) {
-              server.changeWeather(client, weatherTemplate);
+            } else if (weatherTemplates) {
+              server.changeWeather(client, weatherTemplates);
               server.sendChatText(
                 client,
                 `Use "${args[1]}" as a weather template`
@@ -459,23 +463,36 @@ const packetHandlers = {
                 client,
                 "Please define a name for your weather template '/hax saveCurrentWeather {name}'"
               );
-            } else if (weatherTemplates[args[1]]) {
+            } else if (
+              server._weatherTemplates[args[1]] ||
+              _.find(server._weatherTemplates, (template) => {
+                return template.templateName === args[1];
+              })
+            ) {
               server.sendChatText(client, `"${args[1]}" already exist !`);
             } else {
-              const {
-                gameClient: { currentWeather },
-              } = client;
+              const { _weather: currentWeather } = server;
               if (currentWeather) {
-                weatherTemplates[args[1]] = currentWeather;
-                // TODO : maybe find a way to append instead of rewriting all of it
-                fs.writeFileSync(
-                  `${__dirname}/../../../data/weather.json`,
-                  JSON.stringify(weatherTemplates)
-                );
-                delete require.cache[
-                  require.resolve("../../../data/weather.json")
-                ];
-                weatherTemplates = require("../../../data/weather.json");
+                if (server._soloMode) {
+                  server._weatherTemplates[args[1]] = currentWeather;
+                  fs.writeFileSync(
+                    `${__dirname}/../../../data/weather.json`,
+                    JSON.stringify(server._weatherTemplates)
+                  );
+                  delete require.cache[
+                    require.resolve("../../../data/weather.json")
+                  ];
+                  server._weatherTemplates = require("../../../data/weather.json");
+                } else {
+                  currentWeather.templateName = args[1];
+                  await server._db
+                    .collection("weathers")
+                    .insertOne(currentWeather);
+                  server._weatherTemplates = await server._db
+                    .collection("weathers")
+                    .find()
+                    .toArray();
+                }
                 server.sendChatText(client, `template "${args[1]}" saved !`);
               } else {
                 server.sendChatText(client, `Saving current weather failed...`);
@@ -565,6 +582,11 @@ const packetHandlers = {
             } else {
               server.reloadPackets(client);
             }
+            break;
+          case "reloadMongo":
+            server._soloMode
+              ? server.sendChatText(client, "Can't do that in solomode...")
+              : server.reloadMongoData(client);
             break;
           default:
             server.sendChatText(client, `Unknown command`);
@@ -1240,7 +1262,7 @@ const packetHandlers = {
   CharacterSelectSessionRequest: function (server, client, packet) {
     server.sendData(client, "CharacterSelectSessionResponse", {
       status: 1,
-      sessionId: "placeholder",
+      sessionId: client.loginSessionId,
     });
   },
   "ProfileStats.GetPlayerProfileStats": function (server, client, packet) {

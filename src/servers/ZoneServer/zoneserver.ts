@@ -15,30 +15,40 @@ import { GatewayServer } from "../GatewayServer/gatewayserver";
 import fs from "fs";
 import { default as packetHandlers } from "./zonepackethandlers";
 import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
-const spawnList = require("../../../data/spawnLocations.json");
+const localSpawnList = require("../../../data/spawnLocations.json");
 import _ from "lodash";
 import { Int64String } from "../../utils/utils";
 const debug = require("debug")("ZoneServer");
-const weatherTemplate = require("../../../data/weather.json");
+const localWeatherTemplates = require("../../../data/weather.json");
 import { Weather, Client } from "../../types/zoneserver";
+import { MongoClient } from "mongodb";
 
 export class ZoneServer extends EventEmitter {
   _gatewayServer: any;
   _protocol: any;
+  _db: any;
+  _soloMode: any;
+  _mongoClient: any;
+  _mongoAddress: string;
   _clients: any;
   _characters: any;
-  _ncps: any;
   _serverTime: any;
   _transientId: any;
   _guids: Array<string>;
   _packetHandlers: any;
   _referenceData: any;
   _startTime: number;
-  _defaultWeather: Weather;
-  _db: any;
+  _weather: Weather;
+  _spawnLocations: any;
+  _defaultWeatherTemplate: string;
+  _weatherTemplates: any;
   _npcs: any;
   _reloadPacketsInterval: any;
-  constructor(serverPort: number, gatewayKey: string) {
+  constructor(
+    serverPort: number,
+    gatewayKey: string,
+    mongoAddress: string = ""
+  ) {
     super();
     this.forceTime(971172000000); // force day time by default
     this._gatewayServer = new GatewayServer(
@@ -46,6 +56,7 @@ export class ZoneServer extends EventEmitter {
       serverPort,
       gatewayKey
     );
+    this._mongoAddress = mongoAddress;
     this._protocol = new ZoneProtocol();
     this._clients = {};
     this._characters = {};
@@ -57,8 +68,14 @@ export class ZoneServer extends EventEmitter {
     this._packetHandlers = packetHandlers;
     this._startTime = 0;
     this._reloadPacketsInterval;
-    this._defaultWeather = weatherTemplate["H1emuBaseWeather"];
-
+    this._soloMode = false;
+    this._weatherTemplates = localWeatherTemplates;
+    this._defaultWeatherTemplate = "H1emuBaseWeather";
+    this._weather = this._weatherTemplates[this._defaultWeatherTemplate];
+    if (!this._mongoAddress) {
+      this._soloMode = true;
+      debug("Server in solo mode !");
+    }
     this.on("data", (err, client, packet) => {
       if (err) {
         console.error(err);
@@ -90,7 +107,12 @@ export class ZoneServer extends EventEmitter {
 
     this._gatewayServer.on(
       "login",
-      (err: string, client: Client, characterId: string) => {
+      (
+        err: string,
+        client: Client,
+        characterId: string,
+        loginSessionId: string
+      ) => {
         debug(
           "Client logged in from " +
             client.address +
@@ -101,7 +123,7 @@ export class ZoneServer extends EventEmitter {
         );
 
         this._clients[client.sessionId] = client;
-        client.gameClient = { currentWeather: this._defaultWeather };
+        client.loginSessionId = loginSessionId;
         client.transientIds = {};
         client.transientId = 0;
         client.character = {
@@ -147,11 +169,55 @@ export class ZoneServer extends EventEmitter {
       }
     );
   }
+
+  async setupServer() {
+    await this.loadMongoData();
+    this._weather = this._soloMode
+      ? this._weatherTemplates[this._defaultWeatherTemplate]
+      : _.find(this._weatherTemplates, (template) => {
+          return template.templateName === this._defaultWeatherTemplate;
+        });
+  }
   async start() {
     debug("Starting server");
     debug(`Protocol used : ${this._protocol.protocolName}`);
+    if (this._mongoAddress) {
+      const mongoClient = (this._mongoClient = new MongoClient(
+        this._mongoAddress,
+        {
+          useUnifiedTopology: true,
+          native_parser: true,
+        }
+      ));
+      try {
+        await mongoClient.connect();
+      } catch (e) {
+        throw debug("[ERROR]Unable to connect to mongo server");
+      }
+      if (mongoClient.isConnected()) {
+        debug("connected to mongo !");
+        this._db = await mongoClient.db("h1server");
+      } else {
+        throw debug("Unable to authenticate on mongo !");
+      }
+    }
+    await this.setupServer();
     this._startTime += Date.now();
     this._gatewayServer.start();
+  }
+
+  async loadMongoData() {
+    this._spawnLocations = this._soloMode
+      ? localSpawnList
+      : await this._db.collection("spawns").find().toArray();
+    this._weatherTemplates = this._soloMode
+      ? localWeatherTemplates
+      : await this._db.collection("weathers").find().toArray();
+  }
+
+  async reloadMongoData(client: Client) {
+    await this.loadMongoData();
+    this.sendChatText(client, "[DEV] Mongo data reloaded", true);
   }
 
   reloadPackets(client: Client, intervalTime: number = -1) {
@@ -204,8 +270,7 @@ export class ZoneServer extends EventEmitter {
         (items as any)[line[0]] = line[1];
       }
     }
-    const referenceData = { itemTypes: items };
-    return referenceData;
+    return { itemTypes: items };
   }
 
   characterData(client: Client) {
@@ -213,10 +278,11 @@ export class ZoneServer extends EventEmitter {
       require.resolve("../../../data/sendself.json") // reload json
     ];
     const self = require("../../../data/sendself.json"); // dummy self
-    if (client.character.characterId === "0x03147cca2a860192") { // for fun 🤠
-      self.data.identity.characterFirstName = "Cowboy :)"
-      self.data.extraModel = "SurvivorMale_Ivan_OutbackHat_Base.adr"
-      self.data.extraModelTexture = "Ivan_OutbackHat_LeatherTan"
+    if (client.character.characterId === "0x03147cca2a860192") {
+      // for fun 🤠
+      self.data.identity.characterFirstName = "Cowboy :)";
+      self.data.extraModel = "SurvivorMale_Ivan_OutbackHat_Base.adr";
+      self.data.extraModelTexture = "Ivan_OutbackHat_LeatherTan";
     }
     const {
       data: { identity },
@@ -238,10 +304,14 @@ export class ZoneServer extends EventEmitter {
 
     if (self.data.isRandomlySpawning) {
       // Take position/rotation from a random spawn location.
-      const randomSpawnIndex = Math.floor(Math.random() * spawnList.length);
-      self.data.position = spawnList[randomSpawnIndex].position;
-      self.data.rotation = spawnList[randomSpawnIndex].rotation;
-      client.character.spawnLocation = spawnList[randomSpawnIndex].name;
+      const randomSpawnIndex = Math.floor(
+        Math.random() * this._spawnLocations.length
+      );
+      self.data.position = this._spawnLocations[randomSpawnIndex].position;
+      self.data.rotation = this._spawnLocations[randomSpawnIndex].rotation;
+      client.character.spawnLocation = this._spawnLocations[
+        randomSpawnIndex
+      ].name;
     }
     this.sendData(client, "SendSelfToClient", self);
   }
@@ -252,7 +322,7 @@ export class ZoneServer extends EventEmitter {
       serverId: 1,
     });
 
-    this.SendZoneDetailsPacket(client, client.gameClient.currentWeather);
+    this.SendZoneDetailsPacket(client, this._weather);
 
     this.sendData(client, "ClientUpdate.ZonePopulation", {
       populations: [0, 0],
@@ -335,13 +405,13 @@ export class ZoneServer extends EventEmitter {
       battleRank: 100,
     });
 
-    this.spawnAllNpc(client)
+    this.spawnAllNpc(client);
   }
 
   spawnAllNpc(client: Client) {
     for (let npc in this._npcs) {
       this.sendData(client, "PlayerUpdate.AddLightweightPc", this._npcs[npc]);
-    };
+    }
   }
 
   data(collectionName: string) {
@@ -350,8 +420,12 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
-  SendZoneDetailsPacket(client: Client, weather: Weather) {
-    this.sendData(client, "SendZoneDetails", {
+  SendZoneDetailsPacket(
+    client: Client,
+    weather: Weather,
+    isGlobal: boolean = false
+  ) {
+    const SendZoneDetails_packet = {
       zoneName: "Z1",
       unknownBoolean1: true,
       zoneType: 4,
@@ -360,12 +434,20 @@ export class ZoneServer extends EventEmitter {
       zoneId2: 3905829720,
       nameId: 7699,
       unknownBoolean7: true,
-    });
+    };
+    if (isGlobal) {
+      this.sendDataToAll("SendZoneDetails", SendZoneDetails_packet);
+      this.sendGlobalChatText(
+        `User "${client.character.name}" has changed weather.`
+      );
+    } else {
+      this.sendData(client, "SendZoneDetails", SendZoneDetails_packet);
+    }
   }
 
   changeWeather(client: Client, weather: Weather) {
-    client.gameClient.currentWeather = weather;
-    this.SendZoneDetailsPacket(client, weather);
+    this._weather = weather;
+    this.SendZoneDetailsPacket(client, weather, this._soloMode ? false : true);
   }
   sendSystemMessage(message: string) {
     this.sendDataToAll("Chat.Chat", {
@@ -404,6 +486,11 @@ export class ZoneServer extends EventEmitter {
     });
   }
 
+  sendGlobalChatText(message: string, clearChat: boolean = false) {
+    for (let a in this._clients) {
+      this.sendChatText(this._clients[a], message, clearChat);
+    }
+  }
   sendChatText(client: Client, message: string, clearChat: boolean = false) {
     if (clearChat) {
       for (let index = 0; index <= 6; index++) {

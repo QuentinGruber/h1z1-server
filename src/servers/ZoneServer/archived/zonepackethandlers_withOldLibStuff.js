@@ -1451,7 +1451,11 @@ const packetHandlers = {
             );
             break;
           case "spawnNpcModel":
-            server.sendChatText(client, "[info] this command is kinda broken try it multiple time",1);
+            server.sendChatText(
+              client,
+              "[info] this command is kinda broken try it multiple time",
+              1
+            );
             const guid = server.generateGuid();
             const transientId = server.getTransientId(client, guid);
             if (!args[1]) {
@@ -1463,16 +1467,16 @@ const packetHandlers = {
             }
             const choosenModelId = Number(args[1]);
             const characterId = server.generateGuid();
-             const npc = {
+            const npc = {
               characterId: characterId,
               guid: guid,
               transientId: transientId,
               modelId: choosenModelId,
               position: client.character.state.position,
               characterFirstName: `Model ${choosenModelId}`,
-            }
+            };
             server.sendData(client, "PlayerUpdate.AddLightweightPc", npc);
-            server._npcs[characterId] = npc // save npc
+            server._npcs[characterId] = npc; // save npc
             break;
           case "sonic":
             server.sendData(client, "ClientGameSettings", {
@@ -1537,7 +1541,6 @@ const packetHandlers = {
               } = client;
               if (currentWeather) {
                 weatherTemplates[args[1]] = currentWeather;
-                // TODO : maybe find a way to append instead of rewriting all of it
                 fs.writeFileSync(
                   `${__dirname}/../../../data/weather.json`,
                   JSON.stringify(weatherTemplates)

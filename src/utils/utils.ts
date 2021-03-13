@@ -1,4 +1,4 @@
-import { convertToInt64 } from "convert_to_int64"
+import { convertToInt64 } from "convert_to_int64";
 import _ from "lodash";
 const valid_character_ids = require("../../data/valid_character_ids.json");
 export const Int64String = function (value: number) {
@@ -17,14 +17,15 @@ export const generateRandomGuid = function () {
 export const generateCharacterId = function (usedId: Array<string> = []) {
   let characterId = null;
   while (characterId === null) {
-    const rndIndex = Math.floor(Math.random() * valid_character_ids.length)
-    if (usedId.length) { // if usedId array is defined
-      if (_.findIndex(usedId, valid_character_ids[rndIndex], 0) === -1) { // TODO: try this
-        characterId = convertToInt64((valid_character_ids[rndIndex]));
+    const rndIndex = Math.floor(Math.random() * valid_character_ids.length);
+    if (usedId.length) {
+      // if usedId array is defined
+      if (_.findIndex(usedId, valid_character_ids[rndIndex], 0) === -1) {
+        // TODO: try this
+        characterId = convertToInt64(valid_character_ids[rndIndex]);
       }
-    }
-    else {
-      characterId = convertToInt64((valid_character_ids[rndIndex]));
+    } else {
+      characterId = convertToInt64(valid_character_ids[rndIndex]);
     }
   }
   return `0x${characterId}`;

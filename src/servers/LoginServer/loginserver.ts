@@ -33,7 +33,7 @@ export class LoginServer extends EventEmitter {
   _cryptoKey: Uint8Array;
   _mongoAddress: string;
   _soloMode: boolean;
-  constructor(serverPort: number, mongoAddress: string) {
+  constructor(serverPort: number, mongoAddress: string = "") {
     super();
     this._compression = 0x0100;
     this._crcSeed = 0;
@@ -70,16 +70,7 @@ export class LoginServer extends EventEmitter {
     this._soeServer.on(
       "SendServerUpdate",
       async (err: string, client: Client) => {
-        let servers: Array<GameServer>;
-        if (!this._soloMode) {
-          // useless if in solomode ( never get called either)
-          servers = await this._db.collection("servers").find().toArray();
-
-          for (let i = 0; i < servers.length; i++) {
-            const data = this._protocol.pack("ServerUpdate", servers[i]);
-            this._soeServer.sendAppData(client, data, true);
-          }
-        }
+        this.updateServerList(client);
       }
     );
 
@@ -104,20 +95,26 @@ export class LoginServer extends EventEmitter {
               };
               data = this._protocol.pack("LoginReply", falsified_data);
               this._soeServer.sendAppData(client, data, true);
+              if (!this._soloMode) {
+                client.serverUpdateTimer = setInterval(
+                  () => this.updateServerList(client),
+                  30000
+                );
+              }
               if (this._protocol.protocolName !== "LoginUdp_11") break;
             case "CharacterSelectInfoRequest":
               let CharactersInfo;
               if (this._soloMode) {
                 const SinglePlayerCharacter = require("../../../data/single_player_character.json");
 
-                const cowboy = _.cloneDeep(SinglePlayerCharacter) // for fun 🤠
-                cowboy.characterId = "0x03147cca2a860192"
-                cowboy.payload.name = "Cowboy"
+                const cowboy = _.cloneDeep(SinglePlayerCharacter); // for fun 🤠
+                cowboy.characterId = "0x03147cca2a860192";
+                cowboy.payload.name = "Cowboy";
 
                 CharactersInfo = {
                   status: 1,
                   canBypassServerLock: true,
-                  characters: [SinglePlayerCharacter,cowboy],
+                  characters: [SinglePlayerCharacter, cowboy],
                 };
               } else {
                 const charactersQuery = { ownerId: client.loginSessionId };
@@ -211,7 +208,7 @@ export class LoginServer extends EventEmitter {
                   status: 1,
                   applicationData: {
                     serverAddress: serverAddress, // zoneserver port
-                    serverTicket: "7y3Bh44sKWZCYZH",
+                    serverTicket: client.loginSessionId,
                     encryptionKey: this._cryptoKey,
                     characterId: characterId,
                     guid: 722776196,
@@ -229,7 +226,7 @@ export class LoginServer extends EventEmitter {
                   status: 1,
                   applicationData: {
                     serverAddress: "127.0.0.1:1117", // zoneserver port
-                    serverTicket: "7y3Bh44sKWZCYZH",
+                    serverTicket: client.loginSessionId,
                     encryptionKey: this._cryptoKey,
                     characterId: characterId,
                     guid: 722776196,
@@ -270,13 +267,29 @@ export class LoginServer extends EventEmitter {
               break;
 
             case "Logout":
-              this._soeServer.deleteClient(client);
+              clearInterval(client.serverUpdateTimer);
+              // this._soeServer.deleteClient(client); this is done to early
+              break;
           }
         } else {
           debug("Packet parsing was unsuccesful");
         }
       }
     );
+  }
+  async updateServerList(client: Client) {
+    if (!this._soloMode) {
+      // useless if in solomode ( never get called either)
+      const servers: Array<GameServer> = await this._db
+        .collection("servers")
+        .find()
+        .toArray();
+
+      for (let i = 0; i < servers.length; i++) {
+        const data = this._protocol.pack("ServerUpdate", servers[i]);
+        this._soeServer.sendAppData(client, data, true);
+      }
+    }
   }
   async start() {
     debug("Starting server");

@@ -12,6 +12,21 @@
 
 const PacketTable = require("../../packettable");
 
+const serverField = [
+  { name: "serverId", type: "uint32" },
+  { name: "serverState", type: "uint32" },
+  { name: "locked", type: "boolean" },
+  { name: "name", type: "string" },
+  { name: "nameId", type: "uint32" },
+  { name: "description", type: "string" },
+  { name: "descriptionId", type: "uint32" },
+  { name: "reqFeatureId", type: "uint32" },
+  { name: "serverInfo", type: "string" },
+  { name: "populationLevel", type: "uint32" },
+  { name: "populationData", type: "string" },
+  { name: "allowedAccess", type: "boolean" },
+];
+
 const packets = [
   [
     "LoginRequest",
@@ -374,20 +389,7 @@ const packets = [
         {
           name: "servers",
           type: "array",
-          fields: [
-            { name: "serverId", type: "uint32" },
-            { name: "serverState", type: "uint32" },
-            { name: "locked", type: "boolean" },
-            { name: "name", type: "string" },
-            { name: "nameId", type: "uint32" },
-            { name: "description", type: "string" },
-            { name: "descriptionId", type: "uint32" },
-            { name: "reqFeatureId", type: "uint32" },
-            { name: "serverInfo", type: "string" },
-            { name: "populationLevel", type: "uint32" },
-            { name: "populationData", type: "string" },
-            { name: "allowedAccess", type: "boolean" },
-          ],
+          fields: serverField,
         },
       ],
     },
@@ -396,20 +398,7 @@ const packets = [
     "ServerUpdate",
     0x0f,
     {
-      fields: [
-        { name: "serverId", type: "uint32" },
-        { name: "serverState", type: "uint32" },
-        { name: "locked", type: "boolean" },
-        { name: "name", type: "string" },
-        { name: "nameId", type: "uint32" },
-        { name: "description", type: "string" },
-        { name: "descriptionId", type: "uint32" },
-        { name: "reqFeatureId", type: "uint32" },
-        { name: "serverInfo", type: "string" },
-        { name: "populationLevel", type: "uint32" },
-        { name: "populationData", type: "string" },
-        { name: "allowedAccess", type: "boolean" },
-      ],
+      fields: serverField,
     },
   ],
   [

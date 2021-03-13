@@ -84,6 +84,9 @@ function SOEServer(
           me.emit("session", null, client);
           break;
         case "Disconnect":
+          // hack so updateInterval is cleared even if user badly close the client
+          me.emit("appdata", null, client, Buffer.from(new Uint8Array([0x03]))); // trigger "Logout"
+
           debug("Received disconnect from client");
           delete clients[client.address + ":" + client.port];
           me.emit("disconnect", null, client);
