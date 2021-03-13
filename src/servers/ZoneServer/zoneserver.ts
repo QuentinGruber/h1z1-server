@@ -403,7 +403,7 @@ export class ZoneServer extends EventEmitter {
 
   changeWeather(client: Client, weather: Weather) {
     this._weather = weather;
-    this.SendZoneDetailsPacket(client, weather, true);
+    this.SendZoneDetailsPacket(client, weather, this._soloMode? false:true);
   }
   sendSystemMessage(message: string) {
     this.sendDataToAll("Chat.Chat", {
