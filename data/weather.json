@@ -1,5 +1,6 @@
 {
   "WinterNight": {
+    "templateName": "WinterNight",
     "name": "sky",
     "unknownDword1": 6.806021432001685,
     "unknownDword2": 60.87026093491132,
@@ -481,6 +482,7 @@
     ]
   },
   "WinterDay": {
+    "templateName": "WinterDay",
     "name": "sky",
     "unknownDword1": 45.9095265034317,
     "unknownDword2": 34.05265527462107,
@@ -962,6 +964,7 @@
     ]
   },
   "FogDay": {
+    "templateName": "FogDay",
     "name": "sky",
     "unknownDword1": 89.85944430017246,
     "unknownDword2": 93.52279138674136,
@@ -1443,6 +1446,7 @@
     ]
   },
   "H1emuBaseWeather": {
+    "templateName": "H1emuBaseWeather",
     "name": "sky",
     "unknownDword1": 91,
     "unknownDword2": 68,
@@ -1923,6 +1927,7 @@
     ]
   },
   "OldH1emuBaseWeather": {
+    "templateName": "OldH1emuBaseWeather",
     "name": "sky",
     "unknownDword1": 0,
     "unknownDword2": 0,
@@ -2404,6 +2409,7 @@
     ]
   },
   "GreyDay": {
+    "templateName": "GreyDay",
     "name": "sky",
     "unknownDword1": 60,
     "unknownDword2": 23,
@@ -2884,6 +2890,7 @@
     ]
   },
   "CoolWinter": {
+    "templateName": "CoolWinter",
     "name": "sky",
     "unknownDword1": 27,
     "unknownDword2": 7,
@@ -3364,6 +3371,7 @@
     ]
   },
   "FogWinter": {
+    "templateName": "FogWinter",
     "name": "sky",
     "unknownDword1": 30,
     "unknownDword2": 68,
