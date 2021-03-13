@@ -584,7 +584,9 @@ const packetHandlers = {
             }
             break;
           case "reloadMongo":
-            server.reloadMongoData(client);
+            server._soloMode
+              ? server.sendChatText(client, "Can't do that in solomode...")
+              : server.reloadMongoData(client);
             break;
           default:
             server.sendChatText(client, `Unknown command`);
