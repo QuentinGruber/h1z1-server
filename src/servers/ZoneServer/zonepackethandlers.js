@@ -1241,7 +1241,7 @@ const packetHandlers = {
   CharacterSelectSessionRequest: function (server, client, packet) {
     server.sendData(client, "CharacterSelectSessionResponse", {
       status: 1,
-      sessionId: "placeholder",
+      sessionId: client.loginSessionId,
     });
   },
   "ProfileStats.GetPlayerProfileStats": function (server, client, packet) {

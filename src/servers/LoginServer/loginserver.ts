@@ -211,7 +211,7 @@ export class LoginServer extends EventEmitter {
                   status: 1,
                   applicationData: {
                     serverAddress: serverAddress, // zoneserver port
-                    serverTicket: "7y3Bh44sKWZCYZH",
+                    serverTicket: client.loginSessionId,
                     encryptionKey: this._cryptoKey,
                     characterId: characterId,
                     guid: 722776196,
@@ -229,7 +229,7 @@ export class LoginServer extends EventEmitter {
                   status: 1,
                   applicationData: {
                     serverAddress: "127.0.0.1:1117", // zoneserver port
-                    serverTicket: "7y3Bh44sKWZCYZH",
+                    serverTicket: client.loginSessionId,
                     encryptionKey: this._cryptoKey,
                     characterId: characterId,
                     guid: 722776196,

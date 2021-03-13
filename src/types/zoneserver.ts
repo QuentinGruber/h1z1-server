@@ -23,6 +23,7 @@ export interface Client {
     };
     client: Client;
   };
+  loginSessionId?: string;
   sessionId: number;
   address: string;
   port: number;

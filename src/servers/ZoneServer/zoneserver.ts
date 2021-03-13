@@ -90,7 +90,7 @@ export class ZoneServer extends EventEmitter {
 
     this._gatewayServer.on(
       "login",
-      (err: string, client: Client, characterId: string) => {
+      (err: string, client: Client, characterId: string, loginSessionId: string) => {
         debug(
           "Client logged in from " +
             client.address +
@@ -101,6 +101,7 @@ export class ZoneServer extends EventEmitter {
         );
 
         this._clients[client.sessionId] = client;
+        client.loginSessionId = loginSessionId;
         client.gameClient = { currentWeather: this._defaultWeather };
         client.transientIds = {};
         client.transientId = 0;
