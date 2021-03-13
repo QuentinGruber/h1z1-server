@@ -434,7 +434,11 @@ const packetHandlers = {
             });
             break;
           case "weather":
-            const weatherTemplates = server._weatherTemplates[args[1]];
+            const weatherTemplates = server._soloMode
+              ? server._weatherTemplates[args[1]]
+              : _.find(server._weatherTemplates, (template) => {
+                  return template.templateName === args[1];
+                });
             if (!args[1]) {
               server.sendChatText(
                 client,
