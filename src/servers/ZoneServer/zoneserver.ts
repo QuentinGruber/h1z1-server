@@ -23,7 +23,6 @@ const localWeatherTemplates = require("../../../data/weather.json");
 import { Weather, Client } from "../../types/zoneserver";
 import { MongoClient } from "mongodb";
 
-
 export class ZoneServer extends EventEmitter {
   _gatewayServer: any;
   _protocol: any;
@@ -45,7 +44,11 @@ export class ZoneServer extends EventEmitter {
   _weatherTemplates: any;
   _npcs: any;
   _reloadPacketsInterval: any;
-  constructor(serverPort: number, gatewayKey: string, mongoAddress: string = "") {
+  constructor(
+    serverPort: number,
+    gatewayKey: string,
+    mongoAddress: string = ""
+  ) {
     super();
     this.forceTime(971172000000); // force day time by default
     this._gatewayServer = new GatewayServer(
@@ -104,7 +107,12 @@ export class ZoneServer extends EventEmitter {
 
     this._gatewayServer.on(
       "login",
-      (err: string, client: Client, characterId: string, loginSessionId: string) => {
+      (
+        err: string,
+        client: Client,
+        characterId: string,
+        loginSessionId: string
+      ) => {
         debug(
           "Client logged in from " +
             client.address +
@@ -164,9 +172,11 @@ export class ZoneServer extends EventEmitter {
 
   async setupServer() {
     await this.loadMongoData();
-    this._weather = this._soloMode ?
-      this._weatherTemplates[this._defaultWeatherTemplate] :
-      _.find(this._weatherTemplates, (template) => { return template.templateName === this._defaultWeatherTemplate });
+    this._weather = this._soloMode
+      ? this._weatherTemplates[this._defaultWeatherTemplate]
+      : _.find(this._weatherTemplates, (template) => {
+          return template.templateName === this._defaultWeatherTemplate;
+        });
   }
   async start() {
     debug("Starting server");
@@ -191,24 +201,22 @@ export class ZoneServer extends EventEmitter {
         throw debug("Unable to authenticate on mongo !");
       }
     }
-    await this.setupServer()
+    await this.setupServer();
     this._startTime += Date.now();
     this._gatewayServer.start();
   }
 
   async loadMongoData() {
-    this._spawnLocations = this._soloMode? localSpawnList : await this._db
-    .collection("spawns")
-      .find()
-      .toArray()
-      this._weatherTemplates = this._soloMode? localWeatherTemplates : await this._db
-      .collection("weathers")
-        .find()
-      .toArray()
+    this._spawnLocations = this._soloMode
+      ? localSpawnList
+      : await this._db.collection("spawns").find().toArray();
+    this._weatherTemplates = this._soloMode
+      ? localWeatherTemplates
+      : await this._db.collection("weathers").find().toArray();
   }
 
   async reloadMongoData(client: Client) {
-    await this.loadMongoData()
+    await this.loadMongoData();
     this.sendChatText(client, "[DEV] Mongo data reloaded", true);
   }
 
@@ -270,10 +278,11 @@ export class ZoneServer extends EventEmitter {
       require.resolve("../../../data/sendself.json") // reload json
     ];
     const self = require("../../../data/sendself.json"); // dummy self
-    if (client.character.characterId === "0x03147cca2a860192") { // for fun 🤠
-      self.data.identity.characterFirstName = "Cowboy :)"
-      self.data.extraModel = "SurvivorMale_Ivan_OutbackHat_Base.adr"
-      self.data.extraModelTexture = "Ivan_OutbackHat_LeatherTan"
+    if (client.character.characterId === "0x03147cca2a860192") {
+      // for fun 🤠
+      self.data.identity.characterFirstName = "Cowboy :)";
+      self.data.extraModel = "SurvivorMale_Ivan_OutbackHat_Base.adr";
+      self.data.extraModelTexture = "Ivan_OutbackHat_LeatherTan";
     }
     const {
       data: { identity },
@@ -295,10 +304,14 @@ export class ZoneServer extends EventEmitter {
 
     if (self.data.isRandomlySpawning) {
       // Take position/rotation from a random spawn location.
-      const randomSpawnIndex = Math.floor(Math.random() * this._spawnLocations.length);
+      const randomSpawnIndex = Math.floor(
+        Math.random() * this._spawnLocations.length
+      );
       self.data.position = this._spawnLocations[randomSpawnIndex].position;
       self.data.rotation = this._spawnLocations[randomSpawnIndex].rotation;
-      client.character.spawnLocation = this._spawnLocations[randomSpawnIndex].name;
+      client.character.spawnLocation = this._spawnLocations[
+        randomSpawnIndex
+      ].name;
     }
     this.sendData(client, "SendSelfToClient", self);
   }
@@ -392,13 +405,13 @@ export class ZoneServer extends EventEmitter {
       battleRank: 100,
     });
 
-    this.spawnAllNpc(client)
+    this.spawnAllNpc(client);
   }
 
   spawnAllNpc(client: Client) {
     for (let npc in this._npcs) {
       this.sendData(client, "PlayerUpdate.AddLightweightPc", this._npcs[npc]);
-    };
+    }
   }
 
   data(collectionName: string) {
@@ -407,8 +420,11 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
-  SendZoneDetailsPacket(client: Client, weather: Weather , isGlobal: boolean = false) {
-    
+  SendZoneDetailsPacket(
+    client: Client,
+    weather: Weather,
+    isGlobal: boolean = false
+  ) {
     const SendZoneDetails_packet = {
       zoneName: "Z1",
       unknownBoolean1: true,
@@ -418,19 +434,20 @@ export class ZoneServer extends EventEmitter {
       zoneId2: 3905829720,
       nameId: 7699,
       unknownBoolean7: true,
-    }
+    };
     if (isGlobal) {
       this.sendDataToAll("SendZoneDetails", SendZoneDetails_packet);
-      this.sendGlobalChatText(`User "${client.character.name}" has changed weather.`)
-    }
-    else {
+      this.sendGlobalChatText(
+        `User "${client.character.name}" has changed weather.`
+      );
+    } else {
       this.sendData(client, "SendZoneDetails", SendZoneDetails_packet);
     }
   }
 
   changeWeather(client: Client, weather: Weather) {
     this._weather = weather;
-    this.SendZoneDetailsPacket(client, weather, this._soloMode? false:true);
+    this.SendZoneDetailsPacket(client, weather, this._soloMode ? false : true);
   }
   sendSystemMessage(message: string) {
     this.sendDataToAll("Chat.Chat", {
@@ -469,7 +486,7 @@ export class ZoneServer extends EventEmitter {
     });
   }
 
-  sendGlobalChatText( message: string, clearChat: boolean = false) {
+  sendGlobalChatText(message: string, clearChat: boolean = false) {
     for (let a in this._clients) {
       this.sendChatText(this._clients[a], message, clearChat);
     }

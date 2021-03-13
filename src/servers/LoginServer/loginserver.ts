@@ -70,7 +70,7 @@ export class LoginServer extends EventEmitter {
     this._soeServer.on(
       "SendServerUpdate",
       async (err: string, client: Client) => {
-        this.updateServerList(client)
+        this.updateServerList(client);
       }
     );
 
@@ -95,8 +95,11 @@ export class LoginServer extends EventEmitter {
               };
               data = this._protocol.pack("LoginReply", falsified_data);
               this._soeServer.sendAppData(client, data, true);
-              if(!this._soloMode){
-                client.serverUpdateTimer = setInterval(() => this.updateServerList(client), 30000)
+              if (!this._soloMode) {
+                client.serverUpdateTimer = setInterval(
+                  () => this.updateServerList(client),
+                  30000
+                );
               }
               if (this._protocol.protocolName !== "LoginUdp_11") break;
             case "CharacterSelectInfoRequest":
@@ -104,14 +107,14 @@ export class LoginServer extends EventEmitter {
               if (this._soloMode) {
                 const SinglePlayerCharacter = require("../../../data/single_player_character.json");
 
-                const cowboy = _.cloneDeep(SinglePlayerCharacter) // for fun 🤠
-                cowboy.characterId = "0x03147cca2a860192"
-                cowboy.payload.name = "Cowboy"
+                const cowboy = _.cloneDeep(SinglePlayerCharacter); // for fun 🤠
+                cowboy.characterId = "0x03147cca2a860192";
+                cowboy.payload.name = "Cowboy";
 
                 CharactersInfo = {
                   status: 1,
                   canBypassServerLock: true,
-                  characters: [SinglePlayerCharacter,cowboy],
+                  characters: [SinglePlayerCharacter, cowboy],
                 };
               } else {
                 const charactersQuery = { ownerId: client.loginSessionId };
@@ -264,9 +267,7 @@ export class LoginServer extends EventEmitter {
               break;
 
             case "Logout":
-              clearInterval(
-                client.serverUpdateTimer
-              );
+              clearInterval(client.serverUpdateTimer);
               // this._soeServer.deleteClient(client); this is done to early
               break;
           }
@@ -276,10 +277,13 @@ export class LoginServer extends EventEmitter {
       }
     );
   }
-  async updateServerList(client: Client){
+  async updateServerList(client: Client) {
     if (!this._soloMode) {
       // useless if in solomode ( never get called either)
-      const servers: Array<GameServer> = await this._db.collection("servers").find().toArray();
+      const servers: Array<GameServer> = await this._db
+        .collection("servers")
+        .find()
+        .toArray();
 
       for (let i = 0; i < servers.length; i++) {
         const data = this._protocol.pack("ServerUpdate", servers[i]);
