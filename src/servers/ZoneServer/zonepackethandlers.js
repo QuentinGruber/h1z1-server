@@ -266,6 +266,7 @@ const packetHandlers = {
   ClientLogout: function (server, client, packet) {
     debug("ClientLogout");
     server._gatewayServer._soeServer.deleteClient(client);
+    delete server._clients[client.sessionId];
   },
   GameTimeSync: function (server, client, packet) {
     server.sendData(client, "GameTimeSync", {
