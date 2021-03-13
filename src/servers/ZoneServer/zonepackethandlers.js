@@ -14,7 +14,6 @@ const Jenkins = require("hash-jenkins");
 const fs = require("fs");
 const _ = require("lodash");
 const debug = require("debug")("zonepacketHandlers");
-let weatherTemplates = require("../../../data/weather.json");
 import { Int64String, generateCharacterId } from "../../utils/utils";
 
 const packetHandlers = {
@@ -285,7 +284,7 @@ const packetHandlers = {
       time3: packet.data.clientTime + 2,
     });
   },
-  "Command.ExecuteCommand": function (server, client, packet) {
+  "Command.ExecuteCommand": async function (server, client, packet) {
     const args = packet.data.arguments.split(" ");
 
     switch (packet.data.commandHash) {
@@ -435,7 +434,7 @@ const packetHandlers = {
             });
             break;
           case "weather":
-            const weatherTemplate = weatherTemplates[args[1]];
+            const weatherTemplate = server._weatherTemplate[args[1]];
             if (!args[1]) {
               server.sendChatText(
                 client,
@@ -460,21 +459,36 @@ const packetHandlers = {
                 client,
                 "Please define a name for your weather template '/hax saveCurrentWeather {name}'"
               );
-            } else if (weatherTemplates[args[1]]) {
+            } else if (
+              server._weatherTemplate[args[1]] ||
+              _.find(server._weatherTemplate, (template) => {
+                return template.templateName === args[1];
+              })
+            ) {
               server.sendChatText(client, `"${args[1]}" already exist !`);
             } else {
               const { _weather: currentWeather } = server;
               if (currentWeather) {
-                weatherTemplates[args[1]] = currentWeather;
-                // TODO : maybe find a way to append instead of rewriting all of it
-                fs.writeFileSync(
-                  `${__dirname}/../../../data/weather.json`,
-                  JSON.stringify(weatherTemplates)
-                );
-                delete require.cache[
-                  require.resolve("../../../data/weather.json")
-                ];
-                weatherTemplates = require("../../../data/weather.json");
+                if (server._soloMode) {
+                  server._weatherTemplate[args[1]] = currentWeather;
+                  fs.writeFileSync(
+                    `${__dirname}/../../../data/weather.json`,
+                    JSON.stringify(server._weatherTemplate)
+                  );
+                  delete require.cache[
+                    require.resolve("../../../data/weather.json")
+                  ];
+                  server._weatherTemplate = require("../../../data/weather.json");
+                } else {
+                  currentWeather.templateName = args[1];
+                  await server._db
+                    .collection("weathers")
+                    .insertOne(currentWeather);
+                  server._weatherTemplate = await server._db
+                    .collection("weathers")
+                    .find()
+                    .toArray();
+                }
                 server.sendChatText(client, `template "${args[1]}" saved !`);
               } else {
                 server.sendChatText(client, `Saving current weather failed...`);

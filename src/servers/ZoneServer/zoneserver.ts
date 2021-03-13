@@ -15,11 +15,11 @@ import { GatewayServer } from "../GatewayServer/gatewayserver";
 import fs from "fs";
 import { default as packetHandlers } from "./zonepackethandlers";
 import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
-const spawnList = require("../../../data/spawnLocations.json");
+const localSpawnList = require("../../../data/spawnLocations.json");
 import _ from "lodash";
 import { Int64String } from "../../utils/utils";
 const debug = require("debug")("ZoneServer");
-const weatherTemplate = require("../../../data/weather.json");
+const localWeatherTemplate = require("../../../data/weather.json");
 import { Weather, Client } from "../../types/zoneserver";
 import { MongoClient } from "mongodb";
 
@@ -33,7 +33,6 @@ export class ZoneServer extends EventEmitter {
   _mongoAddress: string;
   _clients: any;
   _characters: any;
-  _ncps: any;
   _serverTime: any;
   _transientId: any;
   _guids: Array<string>;
@@ -41,6 +40,9 @@ export class ZoneServer extends EventEmitter {
   _referenceData: any;
   _startTime: number;
   _weather: Weather;
+  _spawnLocations: any;
+  _defaultWeatherTemplate: string;
+  _weatherTemplate: any;
   _npcs: any;
   _reloadPacketsInterval: any;
   constructor(serverPort: number, gatewayKey: string, mongoAddress: string = "") {
@@ -64,7 +66,9 @@ export class ZoneServer extends EventEmitter {
     this._startTime = 0;
     this._reloadPacketsInterval;
     this._soloMode = false;
-    this._weather = weatherTemplate["H1emuBaseWeather"];
+    this._weatherTemplate = undefined;
+    this._defaultWeatherTemplate = "H1emuBaseWeather";
+    this._weather = localSpawnList[this._defaultWeatherTemplate]
     if (!this._mongoAddress) {
       this._soloMode = true;
       debug("Server in solo mode !");
@@ -157,6 +161,21 @@ export class ZoneServer extends EventEmitter {
       }
     );
   }
+
+  async setupServer() {
+    this._spawnLocations = this._soloMode? localSpawnList : await this._db
+    .collection("spawns")
+      .find()
+      .toArray()
+      this._weatherTemplate = this._soloMode? localWeatherTemplate : await this._db
+      .collection("weathers")
+        .find()
+      .toArray()
+
+    this._weather = this._soloMode ?
+      this._weatherTemplate[this._defaultWeatherTemplate] :
+      _.find(this._weatherTemplate, (template) => { return template.templateName === this._defaultWeatherTemplate });
+  }
   async start() {
     debug("Starting server");
     debug(`Protocol used : ${this._protocol.protocolName}`);
@@ -180,6 +199,7 @@ export class ZoneServer extends EventEmitter {
         throw debug("Unable to authenticate on mongo !");
       }
     }
+    await this.setupServer()
     this._startTime += Date.now();
     this._gatewayServer.start();
   }
@@ -268,10 +288,10 @@ export class ZoneServer extends EventEmitter {
 
     if (self.data.isRandomlySpawning) {
       // Take position/rotation from a random spawn location.
-      const randomSpawnIndex = Math.floor(Math.random() * spawnList.length);
-      self.data.position = spawnList[randomSpawnIndex].position;
-      self.data.rotation = spawnList[randomSpawnIndex].rotation;
-      client.character.spawnLocation = spawnList[randomSpawnIndex].name;
+      const randomSpawnIndex = Math.floor(Math.random() * this._spawnLocations.length);
+      self.data.position = this._spawnLocations[randomSpawnIndex].position;
+      self.data.rotation = this._spawnLocations[randomSpawnIndex].rotation;
+      client.character.spawnLocation = this._spawnLocations[randomSpawnIndex].name;
     }
     this.sendData(client, "SendSelfToClient", self);
   }
