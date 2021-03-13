@@ -70,16 +70,7 @@ export class LoginServer extends EventEmitter {
     this._soeServer.on(
       "SendServerUpdate",
       async (err: string, client: Client) => {
-        let servers: Array<GameServer>;
-        if (!this._soloMode) {
-          // useless if in solomode ( never get called either)
-          servers = await this._db.collection("servers").find().toArray();
-
-          for (let i = 0; i < servers.length; i++) {
-            const data = this._protocol.pack("ServerUpdate", servers[i]);
-            this._soeServer.sendAppData(client, data, true);
-          }
-        }
+        this.updateServerList(client)
       }
     );
 
@@ -104,6 +95,9 @@ export class LoginServer extends EventEmitter {
               };
               data = this._protocol.pack("LoginReply", falsified_data);
               this._soeServer.sendAppData(client, data, true);
+              if(false && !this._soloMode){ // disable this for now ( WIP )
+                client.serverUpdateTimer = setInterval(() => this.updateServerList(client), 30000)
+              }
               if (this._protocol.protocolName !== "LoginUdp_11") break;
             case "CharacterSelectInfoRequest":
               let CharactersInfo;
@@ -277,6 +271,17 @@ export class LoginServer extends EventEmitter {
         }
       }
     );
+  }
+  async updateServerList(client: Client){
+    if (!this._soloMode) {
+      // useless if in solomode ( never get called either)
+      const servers: Array<GameServer> = await this._db.collection("servers").find().toArray();
+
+      for (let i = 0; i < servers.length; i++) {
+        const data = this._protocol.pack("ServerUpdate", servers[i]);
+        this._soeServer.sendAppData(client, data, true);
+      }
+    }
   }
   async start() {
     debug("Starting server");
