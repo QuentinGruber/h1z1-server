@@ -21,10 +21,16 @@ import { Int64String } from "../../utils/utils";
 const debug = require("debug")("ZoneServer");
 const weatherTemplate = require("../../../data/weather.json");
 import { Weather, Client } from "../../types/zoneserver";
+import { MongoClient } from "mongodb";
+
 
 export class ZoneServer extends EventEmitter {
   _gatewayServer: any;
   _protocol: any;
+  _db: any;
+  _soloMode: any;
+  _mongoClient: any;
+  _mongoAddress: string;
   _clients: any;
   _characters: any;
   _ncps: any;
@@ -35,10 +41,9 @@ export class ZoneServer extends EventEmitter {
   _referenceData: any;
   _startTime: number;
   _defaultWeather: Weather;
-  _db: any;
   _npcs: any;
   _reloadPacketsInterval: any;
-  constructor(serverPort: number, gatewayKey: string) {
+  constructor(serverPort: number, gatewayKey: string, mongoAddress: string = "") {
     super();
     this.forceTime(971172000000); // force day time by default
     this._gatewayServer = new GatewayServer(
@@ -46,6 +51,7 @@ export class ZoneServer extends EventEmitter {
       serverPort,
       gatewayKey
     );
+    this._mongoAddress = mongoAddress;
     this._protocol = new ZoneProtocol();
     this._clients = {};
     this._characters = {};
@@ -57,8 +63,12 @@ export class ZoneServer extends EventEmitter {
     this._packetHandlers = packetHandlers;
     this._startTime = 0;
     this._reloadPacketsInterval;
+    this._soloMode = false;
     this._defaultWeather = weatherTemplate["H1emuBaseWeather"];
-
+    if (!this._mongoAddress) {
+      this._soloMode = true;
+      debug("Server in solo mode !");
+    }
     this.on("data", (err, client, packet) => {
       if (err) {
         console.error(err);
@@ -151,6 +161,26 @@ export class ZoneServer extends EventEmitter {
   async start() {
     debug("Starting server");
     debug(`Protocol used : ${this._protocol.protocolName}`);
+    if (this._mongoAddress) {
+      const mongoClient = (this._mongoClient = new MongoClient(
+        this._mongoAddress,
+        {
+          useUnifiedTopology: true,
+          native_parser: true,
+        }
+      ));
+      try {
+        await mongoClient.connect();
+      } catch (e) {
+        throw debug("[ERROR]Unable to connect to mongo server");
+      }
+      if (mongoClient.isConnected()) {
+        debug("connected to mongo !");
+        this._db = await mongoClient.db("h1server");
+      } else {
+        throw debug("Unable to authenticate on mongo !");
+      }
+    }
     this._startTime += Date.now();
     this._gatewayServer.start();
   }

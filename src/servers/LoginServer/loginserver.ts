@@ -33,7 +33,7 @@ export class LoginServer extends EventEmitter {
   _cryptoKey: Uint8Array;
   _mongoAddress: string;
   _soloMode: boolean;
-  constructor(serverPort: number, mongoAddress: string) {
+  constructor(serverPort: number, mongoAddress: string = "") {
     super();
     this._compression = 0x0100;
     this._crcSeed = 0;
