@@ -111,10 +111,14 @@ export class LoginServer extends EventEmitter {
                 cowboy.characterId = "0x03147cca2a860192";
                 cowboy.payload.name = "Cowboy";
 
+                const zombie = _.cloneDeep(SinglePlayerCharacter); // for fun X2
+                zombie.characterId = "0x03147cca2a860193";
+                zombie.payload.name = "Z (only third person)";
+
                 CharactersInfo = {
                   status: 1,
                   canBypassServerLock: true,
-                  characters: [SinglePlayerCharacter, cowboy],
+                  characters: [SinglePlayerCharacter, cowboy,zombie],
                 };
               } else {
                 const charactersQuery = { ownerId: client.loginSessionId };

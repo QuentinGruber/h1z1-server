@@ -284,6 +284,11 @@ export class ZoneServer extends EventEmitter {
       self.data.extraModel = "SurvivorMale_Ivan_OutbackHat_Base.adr";
       self.data.extraModelTexture = "Ivan_OutbackHat_LeatherTan";
     }
+    else if (client.character.characterId === "0x03147cca2a860193") {
+      // for fun 🤠
+      self.data.identity.characterFirstName = "Z";
+      self.data.actorModelId = 9001;
+    }
     const {
       data: { identity },
     } = self;
