@@ -144,6 +144,9 @@ export class ZoneServer extends EventEmitter {
 
     this._gatewayServer.on("disconnect", (err: string, client: Client) => {
       debug("Client disconnected from " + client.address + ":" + client.port);
+      if(client.character?.characterId){
+        delete this._characters[client.character.characterId];
+      }
       delete this._clients[client.sessionId];
       this.emit("disconnect", err, client);
     });
