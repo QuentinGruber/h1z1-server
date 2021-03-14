@@ -434,7 +434,7 @@ const packetHandlers = {
             });
             break;
           case "weather":
-            const weatherTemplates = server._soloMode
+            const weatherTemplate = server._soloMode
               ? server._weatherTemplates[args[1]]
               : _.find(server._weatherTemplates, (template) => {
                   return template.templateName === args[1];
@@ -444,17 +444,29 @@ const packetHandlers = {
                 client,
                 "Please define a weather template to use (data/weather.json)"
               );
-            } else if (weatherTemplates) {
-              server.changeWeather(client, weatherTemplates);
+            } else if (weatherTemplate) {
+              server.changeWeather(client, weatherTemplate);
               server.sendChatText(
                 client,
                 `Use "${args[1]}" as a weather template`
               );
             } else {
-              server.sendChatText(
-                client,
-                `"${args[1]}" isn't a weather template`
-              );
+              if (args[1] === "list") {
+                server.sendChatText(client, `Weather templates :`);
+                _.forEach(server._weatherTemplates, function (element, key) {
+                  console.log(element.templateName);
+                  server.sendChatText(client, `- ${element.templateName}`);
+                });
+              } else {
+                server.sendChatText(
+                  client,
+                  `"${args[1]}" isn't a weather template`
+                );
+                server.sendChatText(
+                  client,
+                  `Use "/hax weather list" to know all available templates`
+                );
+              }
             }
             break;
           case "saveCurrentWeather":
@@ -473,8 +485,11 @@ const packetHandlers = {
             } else {
               const { _weather: currentWeather } = server;
               if (currentWeather) {
+                currentWeather.templateName = args[1];
                 if (server._soloMode) {
-                  server._weatherTemplates[args[1]] = currentWeather;
+                  server._weatherTemplates[
+                    currentWeather.templateName
+                  ] = currentWeather;
                   fs.writeFileSync(
                     `${__dirname}/../../../data/weather.json`,
                     JSON.stringify(server._weatherTemplates)
@@ -484,7 +499,6 @@ const packetHandlers = {
                   ];
                   server._weatherTemplates = require("../../../data/weather.json");
                 } else {
-                  currentWeather.templateName = args[1];
                   await server._db
                     .collection("weathers")
                     .insertOne(currentWeather);
