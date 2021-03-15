@@ -858,64 +858,44 @@ const skyData = [
 ];
 
 const lightWeightNpcSchema = [
-  { name: "guid", type: "uint64", defaultValue: "0" },
+   
+]
+
+const lightWeightPcSchema = [
+  { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+  { name: "unknownByte2", type: "uint8", defaultValue: 0 },
+  { name: "characterId", type: "uint64", defaultValue: "0" },
   {
     name: "transientId",
     type: "custom",
     parser: readUnsignedIntWith2bitLengthValue,
     packer: packUnsignedIntWith2bitLengthValue,
   },
-  { name: "unknownString0", type: "string", defaultValue: "" },
-  { name: "nameId", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-  { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-  { name: "modelId", type: "uint32", defaultValue: 0 },
-  { name: "scale", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
-  { name: "unknownString1", type: "string", defaultValue: "" },
-  { name: "unknownString2", type: "string", defaultValue: "" },
-  { name: "unknownDword5", type: "uint32", defaultValue: 0 },
-  // { name: "unknownString3",   type: "string" , defaultValue : ""},
-  { name: "position", type: "floatvector3", defaultValue: [0, 0, 0] },
-  { name: "unknownVector1", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
-  { name: "rotation", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
-  // { name: "unknownDword7",    type: "uint32" , defaultValue : 0},
-  // { name: "unknownFloat1",    type: "float" , defaultValue : 0.0},
-  // { name: "unknownString4",   type: "string" , defaultValue : ""},
-  // { name: "unknownString5",   type: "string" , defaultValue : ""},
-  // { name: "unknownString6",   type: "string" , defaultValue : ""},
-  // { name: "vehicleId",        type: "uint32" , defaultValue : 0},
-  // { name: "unknownDword9",    type: "uint32" , defaultValue : 0},
-  // { name: "npcDefinitionId",  type: "uint32" , defaultValue : 0},
-  // { name: "unknownByte2",     type: "uint8" , defaultValue : 0},
-  // { name: "profileId",        type: "uint32" , defaultValue : 0},
-  // { name: "unknownBoolean1",  type: "boolean" , defaultValue : false},
-  // { name: "unknownData1",     type: "schema", fields: [
-  //     { name: "unknownByte1",     type: "uint8" , defaultValue : 0},
-  //     { name: "unknownByte2",     type: "uint8" , defaultValue : 0},
-  //     { name: "unknownByte3",     type: "uint8" , defaultValue : 0}
-  // ]},
-  // { name: "unknownByte6",     type: "uint8" , defaultValue : 0},
-  // { name: "unknownDword11",   type: "uint32" , defaultValue : 0},
-  // { name: "unknownGuid1",     type: "uint64" , defaultValue : "0"},
-  // { name: "unknownData2",     type: "schema", fields: [
-  //     { name: "unknownGuid1",     type: "uint64" , defaultValue : "0"}
-  // ]},
+  { name: "unknownDword1", type: "uint32", defaultValue: 9241 },
+  { name: "unknownDword2", type: "uint32", defaultValue: 9242 },
+  { name: "unknownDword3", type: "uint32", defaultValue: 9243 },
+  {
+    name: "characterFirstName",
+    type: "string",
+    defaultValue: "LocalPlayer",
+  },
+  { name: "characterLastName", type: "string", defaultValue: "" },
+  { name: "unknownByte3", type: "uint8", defaultValue: 0 },
+  { name: "modelId", type: "uint32", defaultValue: 9001 },
+  { name: "unknownDword5", type: "uint32", defaultValue: 9001 },
+  { name: "position", type: "floatvector3", defaultValue: [0, 200, 0] },
+  { name: "rotation", type: "floatvector4", defaultValue: [0, 0, 0, 1] },
+  { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
+  { name: "unknownGuid1", type: "uint64", defaultValue: "0" },
+  { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+  { name: "unknownByte4", type: "uint8", defaultValue: 0 },
+  { name: "unknownDword8", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword9", type: "uint32", defaultValue: 0 },
+  { name: "unknownGuid2", type: "uint64", defaultValue: "0x0000" },
+  { name: "unknownByte5", type: "uint8", defaultValue: 0 },
+]
 
-  // { name: "unknownDword12",   type: "uint32" , defaultValue : 0},
-  // { name: "unknownDword13",   type: "uint32" , defaultValue : 0},
-  // { name: "unknownDword14",   type: "uint32" , defaultValue : 0},
-  // { name: "unknownByte7",     type: "uint8" , defaultValue : 0},
-  // { name: "unknownArray1",    type: "array",defaultValue:[{}], fields: [
-  //     { name: "unknownByte1",     type: "uint8" , defaultValue : 0},
-  //     { name: "unknownDword1",    type: "uint32" , defaultValue : 0},
-  //     { name: "unknownDword2",    type: "uint32" , defaultValue : 0},
-  //     { name: "unknownDword3",    type: "uint32" , defaultValue : 0},
-  //     { name: "characterId",      type: "uint64" , defaultValue : "0"},
-  //     { name: "unknownDword4",    type: "uint32" , defaultValue : 0},
-  //     { name: "unknownDword5",    type: "uint32" , defaultValue : 0}
-  // ]}
-];
 
 const profileStatsSubSchema1 = [
   { name: "unknownDword1", type: "uint32", defaultValue: 0 },
@@ -5225,40 +5205,7 @@ var packets = [
     "PlayerUpdate.AddLightweightPc",
     0x0f56,
     {
-      fields: [
-        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-        { name: "unknownByte2", type: "uint8", defaultValue: 0 },
-        { name: "characterId", type: "uint64", defaultValue: "0" },
-        {
-          name: "transientId",
-          type: "custom",
-          parser: readUnsignedIntWith2bitLengthValue,
-          packer: packUnsignedIntWith2bitLengthValue,
-        },
-        { name: "unknownDword1", type: "uint32", defaultValue: 9241 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 9242 },
-        { name: "unknownDword3", type: "uint32", defaultValue: 9243 },
-        {
-          name: "characterFirstName",
-          type: "string",
-          defaultValue: "LocalPlayer",
-        },
-        { name: "characterLastName", type: "string", defaultValue: "" },
-        { name: "unknownByte3", type: "uint8", defaultValue: 0 },
-        { name: "modelId", type: "uint32", defaultValue: 9001 },
-        { name: "unknownDword5", type: "uint32", defaultValue: 9001 },
-        { name: "position", type: "floatvector3", defaultValue: [0, 200, 0] },
-        { name: "rotation", type: "floatvector4", defaultValue: [0, 0, 0, 1] },
-        { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
-        { name: "unknownGuid1", type: "uint64", defaultValue: "0" },
-        { name: "unknownDword6", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword7", type: "uint32", defaultValue: 0 },
-        { name: "unknownByte4", type: "uint8", defaultValue: 0 },
-        { name: "unknownDword8", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword9", type: "uint32", defaultValue: 0 },
-        { name: "unknownGuid2", type: "uint64", defaultValue: "0x0000" },
-        { name: "unknownByte5", type: "uint8", defaultValue: 0 },
-      ],
+      fields: lightWeightPcSchema,
     },
   ],
   [
