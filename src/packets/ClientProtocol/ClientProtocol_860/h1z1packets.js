@@ -12,7 +12,7 @@
 
 const PacketTable = require("../../packettable");
 const DataSchema = require("h1z1-dataschema");
-const _ = require("lodash")
+const _ = require("lodash");
 const { lz4_decompress } = require("../../../utils/utils");
 
 function readPacketType(data, packets) {
@@ -891,16 +891,17 @@ const lightWeightPcSchema = [
   { name: "unknownDword9", type: "uint32", defaultValue: 0 },
   { name: "unknownGuid2", type: "uint64", defaultValue: "0x0000" },
   { name: "unknownByte5", type: "uint8", defaultValue: 0 },
-]
+];
 
-const lightWeightNpcSchema = _.concat(lightWeightPcSchema,
+const lightWeightNpcSchema = _.concat(
+  lightWeightPcSchema,
   { name: "unknownQword1_", type: "uint64", defaultValue: "0" },
   { name: "unknownDword1_", type: "uint32", defaultValue: 1 },
   { name: "unknownDword2_", type: "uint32", defaultValue: 1 },
   { name: "unknownDword3_", type: "uint16", defaultValue: 1 },
   { name: "unknownDword4_", type: "uint32", defaultValue: 1 },
-  { name: "unknownDword5_", type: "uint8", defaultValue: 1 }, // char *
-)
+  { name: "unknownDword5_", type: "uint8", defaultValue: 1 } // char *
+);
 
 const profileStatsSubSchema1 = [
   { name: "unknownDword1", type: "uint32", defaultValue: 0 },
@@ -8641,9 +8642,13 @@ var packets = [
   ["Stats", 0xc9, {}],
   ["Resource", 0xca, {}],
   ["Construction", 0xcc, {}],
-  ["SkyChanged", 0xcd, {
-    fields: skyData,
-  }],
+  [
+    "SkyChanged",
+    0xcd,
+    {
+      fields: skyData,
+    },
+  ],
   ["NavGen", 0xce, {}],
   ["Locks", 0xcf, {}],
   ["Ragdoll", 0xd0, {}],

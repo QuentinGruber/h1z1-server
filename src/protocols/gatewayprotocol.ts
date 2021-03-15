@@ -10,10 +10,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-const debug = require("debug")("GatewayProtocol")
-import DataSchema from "h1z1-dataschema"
+const debug = require("debug")("GatewayProtocol");
+import DataSchema from "h1z1-dataschema";
 import GatewayPackets from "../packets/gatewaypackets";
-
 
 export class GatewayProtocol {
   parse(data: Buffer) {
@@ -55,11 +54,14 @@ export class GatewayProtocol {
         }
       }
     } else {
-      debug("parse()", "Unknown or unhandled gateway packet type: " + packetType);
+      debug(
+        "parse()",
+        "Unknown or unhandled gateway packet type: " + packetType
+      );
     }
-  };
+  }
 
-  pack(packetName: string, object:any) {
+  pack(packetName: string, object: any) {
     const packetType = (GatewayPackets as any).PacketTypes[packetName],
       packet = (GatewayPackets as any).Packets[packetType];
     let payload, data;
@@ -81,7 +83,12 @@ export class GatewayProtocol {
         if (packet.schema) {
           debug("Packing data for " + packet.name);
           debug("object receive :", object);
-          payload = DataSchema.pack(packet.schema, object,undefined,undefined);
+          payload = DataSchema.pack(
+            packet.schema,
+            object,
+            undefined,
+            undefined
+          );
           if (payload) {
             data = new (Buffer as any).alloc(1 + payload.length);
             data.writeUInt8(packetType, 0);
@@ -96,11 +103,14 @@ export class GatewayProtocol {
         }
       }
     } else {
-      debug("pack()", "Unknown or unhandled gateway packet type: " + packetType);
+      debug(
+        "pack()",
+        "Unknown or unhandled gateway packet type: " + packetType
+      );
     }
 
     return data;
-  };
+  }
 }
 
 exports.GatewayProtocol = GatewayProtocol;

@@ -118,7 +118,7 @@ export class LoginServer extends EventEmitter {
                 CharactersInfo = {
                   status: 1,
                   canBypassServerLock: true,
-                  characters: [SinglePlayerCharacter, cowboy,zombie],
+                  characters: [SinglePlayerCharacter, cowboy, zombie],
                 };
               } else {
                 const charactersQuery = { ownerId: client.loginSessionId };

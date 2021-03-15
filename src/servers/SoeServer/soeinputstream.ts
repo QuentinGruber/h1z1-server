@@ -11,7 +11,7 @@
 // ======================================================================
 
 import { EventEmitter } from "events";
-import { createDecipheriv,Decipher } from "crypto";
+import { createDecipheriv, Decipher } from "crypto";
 const debug = require("debug")("SOEInputStream");
 
 export class SOEInputStream extends EventEmitter {
@@ -22,7 +22,7 @@ export class SOEInputStream extends EventEmitter {
   _lastProcessedFragment: number;
   _fragments: Array<any>;
   _useEncryption: boolean;
-  _rc4: Decipher ;
+  _rc4: Decipher;
   constructor(cryptoKey: string) {
     super();
     this._sequences = new Array(0x10000);
@@ -112,7 +112,7 @@ export class SOEInputStream extends EventEmitter {
       }, 0);
     }
   }
-  write(data:Buffer, sequence:number, fragment:any) {
+  write(data: Buffer, sequence: number, fragment: any) {
     if (this._nextSequence === -1) {
       this._nextSequence = sequence;
     }
@@ -129,9 +129,9 @@ export class SOEInputStream extends EventEmitter {
     if (sequence > this._nextSequence) {
       debug(
         "Sequence out of order, expected " +
-        this._nextSequence +
-        " but received " +
-        sequence
+          this._nextSequence +
+          " but received " +
+          sequence
       );
       this.emit("outoforder", null, this._nextSequence, sequence);
     } else {
@@ -153,7 +153,7 @@ export class SOEInputStream extends EventEmitter {
       this._processDataFragments();
     }
   }
-  setEncryption(value:boolean) {
+  setEncryption(value: boolean) {
     this._useEncryption = value;
     debug("encryption: " + this._useEncryption);
   }
@@ -162,7 +162,7 @@ export class SOEInputStream extends EventEmitter {
     debug("Toggling encryption: " + this._useEncryption);
   }
 }
-function ZeroBuffer(length:number) {
+function ZeroBuffer(length: number) {
   const buffer = new (Buffer as any).alloc(length);
   for (let i = 0; i < length; i++) {
     buffer[i] = 0;
@@ -170,7 +170,7 @@ function ZeroBuffer(length:number) {
   return buffer;
 }
 
-function readDataLength(data:Buffer, offset:number) {
+function readDataLength(data: Buffer, offset: number) {
   let dataLength = data.readUInt8(offset),
     n;
   if (dataLength === 0xff) {
@@ -190,8 +190,8 @@ function readDataLength(data:Buffer, offset:number) {
   };
 }
 
-function parseChannelPacketData(data:Buffer) {
-  let appData:any = [],
+function parseChannelPacketData(data: Buffer) {
+  let appData: any = [],
     offset,
     dataLength;
   if (data[0] === 0x00 && data[1] === 0x19) {

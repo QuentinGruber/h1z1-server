@@ -15,7 +15,7 @@ import { EventEmitter } from "events";
 
 const debug = require("debug")("SOEOutputStream");
 
-export class SOEOutputStream extends EventEmitter{
+export class SOEOutputStream extends EventEmitter {
   _useEncryption: boolean;
   _fragmentSize: number;
   _sequence: number;
@@ -24,7 +24,7 @@ export class SOEOutputStream extends EventEmitter{
   _rc4: crypto.Cipher;
 
   constructor(cryptoKey: string, fragmentSize: number) {
-    super()
+    super();
     this._useEncryption = false;
     this._fragmentSize = fragmentSize;
     this._sequence = -1;
@@ -32,7 +32,7 @@ export class SOEOutputStream extends EventEmitter{
     this._cache = new Array(0x10000);
     this._rc4 = crypto.createCipheriv("rc4", cryptoKey, "");
   }
-  write(data: Buffer, overrideEncryption:boolean) {
+  write(data: Buffer, overrideEncryption: boolean) {
     if (this._useEncryption && overrideEncryption !== false) {
       this._rc4.write(data);
       data = this._rc4.read();
@@ -65,7 +65,7 @@ export class SOEOutputStream extends EventEmitter{
       }
     }
   }
-  ack(sequence:number) {
+  ack(sequence: number) {
     while (this._lastAck <= sequence) {
       this._lastAck++;
       if (this._cache[this._lastAck]) {
@@ -73,17 +73,23 @@ export class SOEOutputStream extends EventEmitter{
       }
     }
   }
-  resendData(sequence:number) {
+  resendData(sequence: number) {
     const start = this._lastAck + 1;
     for (let i = start; i < sequence; i++) {
       if (this._cache[i]) {
-        this.emit("data", null, this._cache[i].data, i, this._cache[i].fragment);
+        this.emit(
+          "data",
+          null,
+          this._cache[i].data,
+          i,
+          this._cache[i].fragment
+        );
       } else {
         throw "Cache error, could not resend data!";
       }
     }
   }
-  setEncryption(value:boolean) {
+  setEncryption(value: boolean) {
     this._useEncryption = value;
     debug("encryption: " + this._useEncryption);
   }
@@ -91,14 +97,9 @@ export class SOEOutputStream extends EventEmitter{
     this._useEncryption = !this._useEncryption;
     debug("Toggling encryption: " + this._useEncryption);
   }
-  setFragmentSize(value:number) {
+  setFragmentSize(value: number) {
     this._fragmentSize = value;
   }
 }
-
-
-
-
-
 
 exports.SOEOutputStream = SOEOutputStream;

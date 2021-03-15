@@ -144,7 +144,7 @@ export class ZoneServer extends EventEmitter {
 
     this._gatewayServer.on("disconnect", (err: string, client: Client) => {
       debug("Client disconnected from " + client.address + ":" + client.port);
-      if(client.character?.characterId){
+      if (client.character?.characterId) {
         delete this._characters[client.character.characterId];
       }
       delete this._clients[client.sessionId];
@@ -286,8 +286,7 @@ export class ZoneServer extends EventEmitter {
       self.data.identity.characterFirstName = "Cowboy :)";
       self.data.extraModel = "SurvivorMale_Ivan_OutbackHat_Base.adr";
       self.data.extraModelTexture = "Ivan_OutbackHat_LeatherTan";
-    }
-    else if (client.character.characterId === "0x03147cca2a860193") {
+    } else if (client.character.characterId === "0x03147cca2a860193") {
       // for fun 🤠
       self.data.identity.characterFirstName = "Z";
       self.data.actorModelId = 9001;
@@ -428,10 +427,7 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
-  SendZoneDetailsPacket(
-    client: Client,
-    weather: Weather
-  ) {
+  SendZoneDetailsPacket(client: Client, weather: Weather) {
     const SendZoneDetails_packet = {
       zoneName: "Z1",
       unknownBoolean1: true,
