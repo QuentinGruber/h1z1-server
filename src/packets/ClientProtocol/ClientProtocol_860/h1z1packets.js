@@ -5117,7 +5117,6 @@ var packets = [
         { name: "respawnType", type: "uint8", defaultValue: 0 },
         { name: "respawnGuid", type: "uint64", defaultValue: "0" },
         { name: "profileId", type: "uint32", defaultValue: 0 },
-        { name: "profileId2", type: "uint32", defaultValue: 0 },
       ],
     },
   ],
