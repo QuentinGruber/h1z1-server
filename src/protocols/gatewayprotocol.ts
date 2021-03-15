@@ -17,7 +17,7 @@ import GatewayPackets from "../packets/gatewaypackets";
 export class GatewayProtocol {
   parse(data: Buffer) {
     const packetType = data[0] & 0x1f;
-    let result, schema, name;
+    let result;
     const packet = (GatewayPackets as any).Packets[packetType];
 
     if (packet) {
