@@ -8689,7 +8689,9 @@ var packets = [
   ["Stats", 0xc9, {}],
   ["Resource", 0xca, {}],
   ["Construction", 0xcc, {}],
-  ["SkyChanged", 0xcd, {}],
+  ["SkyChanged", 0xcd, {
+    fields: skyData,
+  }],
   ["NavGen", 0xce, {}],
   ["Locks", 0xcf, {}],
   ["Ragdoll", 0xd0, {}],

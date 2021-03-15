@@ -430,8 +430,7 @@ export class ZoneServer extends EventEmitter {
 
   SendZoneDetailsPacket(
     client: Client,
-    weather: Weather,
-    isGlobal: boolean = false
+    weather: Weather
   ) {
     const SendZoneDetails_packet = {
       zoneName: "Z1",
@@ -443,19 +442,27 @@ export class ZoneServer extends EventEmitter {
       nameId: 7699,
       unknownBoolean7: true,
     };
+    this.sendData(client, "SendZoneDetails", SendZoneDetails_packet);
+  }
+
+  SendSkyChangedPacket(
+    client: Client,
+    weather: Weather,
+    isGlobal: boolean = false
+  ) {
     if (isGlobal) {
-      this.sendDataToAll("SendZoneDetails", SendZoneDetails_packet);
+      this.sendDataToAll("SkyChanged", weather);
       this.sendGlobalChatText(
         `User "${client.character.name}" has changed weather.`
       );
     } else {
-      this.sendData(client, "SendZoneDetails", SendZoneDetails_packet);
+      this.sendData(client, "SkyChanged", weather);
     }
   }
 
   changeWeather(client: Client, weather: Weather) {
     this._weather = weather;
-    this.SendZoneDetailsPacket(client, weather, this._soloMode ? false : true);
+    this.SendSkyChangedPacket(client, weather, this._soloMode ? false : true);
   }
   sendSystemMessage(message: string) {
     this.sendDataToAll("Chat.Chat", {
