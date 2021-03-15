@@ -184,10 +184,6 @@ const packetHandlers = {
   },
   "PlayerUpdate.EndCharacterAccess": function (server, client, packet) {
     debug("EndCharacterAccess");
-    debug(packet);
-    server.sendData(client, "PlayerUpdate.BeginCharacterAccess", {
-      guid: client.character.guid,
-    });
   },
   KeepAlive: function (server, client, packet) {
     server.sendData(client, "KeepAlive", {

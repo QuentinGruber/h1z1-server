@@ -5387,14 +5387,14 @@ var packets = [
     "PlayerUpdate.BeginCharacterAccess",
     0x0f6c,
     {
-      fields: [{ name: "guid", type: "uint64", defaultValue: "0" }],
+      fields: [],
     },
   ],
   [
     "PlayerUpdate.EndCharacterAccess",
     0x0f6d,
     {
-      fields: [{ name: "characterId", type: "uint64", defaultValue: "" }],
+      fields: [],
     },
   ],
   ["PlayerUpdate.UpdateMutateRights", 0x0f6e, {}],
