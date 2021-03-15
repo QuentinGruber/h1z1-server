@@ -12,6 +12,7 @@
 
 const PacketTable = require("../../packettable");
 const DataSchema = require("h1z1-dataschema");
+const _ = require("lodash")
 const { lz4_decompress } = require("../../../utils/utils");
 
 function readPacketType(data, packets) {
@@ -857,10 +858,6 @@ const skyData = [
   },
 ];
 
-const lightWeightNpcSchema = [
-   
-]
-
 const lightWeightPcSchema = [
   { name: "unknownByte1", type: "uint8", defaultValue: 0 },
   { name: "unknownByte2", type: "uint8", defaultValue: 0 },
@@ -896,6 +893,14 @@ const lightWeightPcSchema = [
   { name: "unknownByte5", type: "uint8", defaultValue: 0 },
 ]
 
+const lightWeightNpcSchema = _.concat(lightWeightPcSchema,
+  { name: "unknownQword1_", type: "uint64", defaultValue: "0" },
+  { name: "unknownDword1_", type: "uint32", defaultValue: 1 },
+  { name: "unknownDword2_", type: "uint32", defaultValue: 1 },
+  { name: "unknownDword3_", type: "uint16", defaultValue: 1 },
+  { name: "unknownDword4_", type: "uint32", defaultValue: 1 },
+  { name: "unknownDword5_", type: "uint8", defaultValue: 1 }, // char *
+)
 
 const profileStatsSubSchema1 = [
   { name: "unknownDword1", type: "uint32", defaultValue: 0 },
