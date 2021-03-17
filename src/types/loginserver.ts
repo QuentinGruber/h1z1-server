@@ -14,6 +14,7 @@ export interface Client {
   outOfOrderPackets: any;
   nextAck: number;
   lastAck: number;
+  serverUpdateTimer: ReturnType<typeof setTimeout>;
   inputStream: () => void;
   outputStream: () => void;
   outQueueTimer: () => void;

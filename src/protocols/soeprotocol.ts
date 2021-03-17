@@ -519,7 +519,7 @@ function readDataLength(data: any, offset: number) {
   };
 }
 
-class SOEProtocol {
+export class SOEProtocol {
   parse(data: any, crcSeed: number, compression: number) {
     const appData: Array<any> = [],
       packet = parseSOEPacket(data, crcSeed, compression, false, appData);
@@ -535,5 +535,4 @@ class SOEProtocol {
   }
 }
 
-exports.SOEProtocol = SOEProtocol as any;
 exports.SOEPackets = SOEPackets as any;
