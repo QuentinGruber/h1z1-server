@@ -489,14 +489,14 @@ export class ZoneServer extends EventEmitter {
 
   sendChat(client: Client, message: string, channel: number) {
     const { character } = client;
-    if(!this._soloMode){
-    this.sendDataToAll("Chat.Chat", {
-      channel: channel,
-      characterName1: character.name,
-      message: message,
-      color1: 1,
-    });}
-    else{
+    if (!this._soloMode) {
+      this.sendDataToAll("Chat.Chat", {
+        channel: channel,
+        characterName1: character.name,
+        message: message,
+        color1: 1,
+      });
+    } else {
       this.sendData(client, "Chat.Chat", {
         channel: channel,
         characterName1: character.name,

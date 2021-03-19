@@ -1324,9 +1324,12 @@ const packetHandlers = {
       ];
     }
   },
-  "PlayerUpdate.Respawn": function(server, client, packet) {
+  "PlayerUpdate.Respawn": function (server, client, packet) {
     debug(packet);
-    server.sendData(client, "PlayerUpdate.RespawnReply", {characterId:"0x03147cca2a860191",status:1});
+    server.sendData(client, "PlayerUpdate.RespawnReply", {
+      characterId: "0x03147cca2a860191",
+      status: 1,
+    });
   },
   "PlayerUpdate.FullCharacterDataRequest": function (server, client, packet) {
     debug(packet);
