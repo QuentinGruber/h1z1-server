@@ -319,18 +319,10 @@ const packetHandlers = {
         break;
       case Jenkins.oaat("HELP"):
       case 3575372649: // /help
-        const haxCommandList = [
-          "/hax run",
-          "/hax sonic",
-          "/hax observer",
-          "/hax saveCurrentWeather",
-          "/hax weather",
-          "/hax randomWeather",
-          "/hax forceDay",
-          "/hax forceNight",
-          "/hax realTime",
-          "/hax spawnNpcModel",
-        ];
+        const haxCommandList = []
+        Object.keys(hax).forEach(key => {
+          haxCommandList.push(`/hax ${key}`)
+        });
         const commandList = [
           "/help",
           "/loc",
