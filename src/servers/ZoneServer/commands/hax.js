@@ -1,6 +1,7 @@
 import { generateCharacterId } from "../../../utils/utils";
 const _ = require("lodash");
 const debug = require("debug")("zonepacketHandlers");
+import fs from "fs";
 
 const hax = {
   forceNight: function (server, client, args) {
