@@ -350,7 +350,9 @@ const packetHandlers = {
         );
         break;
       case Jenkins.oaat("HAX"):
-        hax[args[0]](server, client, args);
+        hax[args[0]]
+          ? hax[args[0]](server, client, args)
+          : server.sendChatText(client, `Unknown command: /hax ${args[0]}`);
     }
   },
   "Command.SetProfile": function (server, client, packet) {
