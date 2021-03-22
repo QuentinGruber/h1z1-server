@@ -258,6 +258,7 @@ export class ZoneServer extends EventEmitter {
         delete this._characters[client.character.characterId];
       }
       delete this._clients[client.sessionId];
+      this._gatewayServer._soeServer.deleteClient(client)
       this.emit("disconnect", null, client);
     }
   }
