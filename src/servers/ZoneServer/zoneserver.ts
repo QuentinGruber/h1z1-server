@@ -134,7 +134,6 @@ export class ZoneServer extends EventEmitter {
             health: 0,
             shield: 0,
           },
-          client: client,
         };
         client.lastPingTime = new Date().getTime();
         client.pingTimer = setInterval(()=>{this.checkIfClientStillOnline(client)},20000)

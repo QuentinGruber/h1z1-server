@@ -21,7 +21,6 @@ export interface Client {
       health: number;
       shield: number;
     };
-    client: Client;
   };
   loginSessionId?: string;
   sessionId: number;
