@@ -186,6 +186,7 @@ const packetHandlers = {
     debug("EndCharacterAccess");
   },
   KeepAlive: function (server, client, packet) {
+    client.lastPingTime = new Date().getTime();
     server.sendData(client, "KeepAlive", {
       gameTime: packet.data.gameTime,
     });
@@ -319,9 +320,9 @@ const packetHandlers = {
         break;
       case Jenkins.oaat("HELP"):
       case 3575372649: // /help
-        const haxCommandList = []
-        Object.keys(hax).forEach(key => {
-          haxCommandList.push(`/hax ${key}`)
+        const haxCommandList = [];
+        Object.keys(hax).forEach((key) => {
+          haxCommandList.push(`/hax ${key}`);
         });
         const commandList = [
           "/help",
@@ -349,7 +350,7 @@ const packetHandlers = {
         );
         break;
       case Jenkins.oaat("HAX"):
-        hax[args[0]](server, client, args)
+        hax[args[0]](server, client, args);
     }
   },
   "Command.SetProfile": function (server, client, packet) {

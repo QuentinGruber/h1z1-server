@@ -136,6 +136,8 @@ export class ZoneServer extends EventEmitter {
           },
           client: client,
         };
+        client.lastPingTime = new Date().getTime();
+        client.pingTimer = setInterval(()=>{this.checkIfClientStillOnline(client)},20000)
         this._characters[characterId] = client.character;
 
         this.emit("login", err, client);
@@ -246,6 +248,18 @@ export class ZoneServer extends EventEmitter {
   reloadZonePacketHandlers() {
     delete require.cache[require.resolve("./zonepackethandlers")];
     this._packetHandlers = require("./zonepackethandlers").default;
+  }
+
+  checkIfClientStillOnline(client:Client){
+    if(new Date().getTime() - client.lastPingTime > 10000 ){
+      clearInterval(client.pingTimer);
+      debug("Client disconnected from " + client.address + ":" + client.port +" ( ping timeout )");
+      if (client.character?.characterId) {
+        delete this._characters[client.character.characterId];
+      }
+      delete this._clients[client.sessionId];
+      this.emit("disconnect", null, client);
+    }
   }
 
   generateGuid() {
