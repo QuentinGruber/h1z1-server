@@ -367,11 +367,13 @@ const packetHandlers = {
         hax[args[0]]
           ? hax[args[0]](server, client, args)
           : server.sendChatText(client, `Unknown command: /hax ${args[0]}`);
+        break;
       case Jenkins.oaat("DEV"):
       case 552078457: // dev
         dev[args[0]]
           ? dev[args[0]](server, client, args)
           : server.sendChatText(client, `Unknown command: /dev ${args[0]}`);
+        break;
     }
   },
   "Command.SetProfile": function (server, client, packet) {
