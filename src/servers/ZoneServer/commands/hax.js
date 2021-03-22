@@ -136,10 +136,6 @@ const hax = {
       }
     }
   },
-  testpacket: function (server, client, args) {
-    const packetName = args[1];
-    server.sendData(client, packetName, {});
-  },
   run: function (server, client, args) {
     const speedValue = args[1];
     let speed;
@@ -211,18 +207,6 @@ const hax = {
     };
     debug(JSON.stringify(rnd_weather));
     server.changeWeather(client, rnd_weather);
-  },
-  reloadPackets: function (server, client, args) {
-    if (args[1]) {
-      server.reloadPackets(client, args[1]);
-    } else {
-      server.reloadPackets(client);
-    }
-  },
-  reloadMongo: function (server, client, args) {
-    server._soloMode
-      ? server.sendChatText(client, "Can't do that in solomode...")
-      : server.reloadMongoData(client);
   },
 };
 

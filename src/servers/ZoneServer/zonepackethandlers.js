@@ -12,6 +12,7 @@
 
 const Jenkins = require("hash-jenkins");
 import hax from "./commands/hax";
+import dev from "./commands/dev";
 const _ = require("lodash");
 const debug = require("debug")("zonepacketHandlers");
 import { Int64String } from "../../utils/utils";
@@ -146,7 +147,14 @@ const packetHandlers = {
 
     server.sendData(client, "ZoneDoneSendingInitialData", {});
 
-    const commands = ["hax", "location", "serverinfo", "spawninfo", "help"];
+    const commands = [
+      "hax",
+      "dev",
+      "location",
+      "serverinfo",
+      "spawninfo",
+      "help",
+    ];
 
     commands.forEach((command) => {
       server.sendData(client, "Command.AddWorldCommand", {
@@ -186,6 +194,7 @@ const packetHandlers = {
     debug("EndCharacterAccess");
   },
   KeepAlive: function (server, client, packet) {
+    client.lastPingTime = new Date().getTime();
     server.sendData(client, "KeepAlive", {
       gameTime: packet.data.gameTime,
     });
@@ -319,9 +328,13 @@ const packetHandlers = {
         break;
       case Jenkins.oaat("HELP"):
       case 3575372649: // /help
-        const haxCommandList = []
-        Object.keys(hax).forEach(key => {
-          haxCommandList.push(`/hax ${key}`)
+        const haxCommandList = [];
+        Object.keys(hax).forEach((key) => {
+          haxCommandList.push(`/hax ${key}`);
+        });
+        const devCommandList = [];
+        Object.keys(dev).forEach((key) => {
+          devCommandList.push(`/dev ${key}`);
         });
         const commandList = [
           "/help",
@@ -332,9 +345,11 @@ const packetHandlers = {
           "/player_fall_through_world_test",
         ];
         server.sendChatText(client, `Commands list:`);
-        _.concat(commandList, haxCommandList).forEach((command) => {
-          server.sendChatText(client, `${command}`);
-        });
+        _.concat(commandList, haxCommandList, devCommandList).forEach(
+          (command) => {
+            server.sendChatText(client, `${command}`);
+          }
+        );
         break;
       case Jenkins.oaat("LOCATION"):
       case 3270589520: // /loc
@@ -349,7 +364,16 @@ const packetHandlers = {
         );
         break;
       case Jenkins.oaat("HAX"):
-        hax[args[0]](server, client, args)
+        hax[args[0]]
+          ? hax[args[0]](server, client, args)
+          : server.sendChatText(client, `Unknown command: /hax ${args[0]}`);
+        break;
+      case Jenkins.oaat("DEV"):
+      case 552078457: // dev
+        dev[args[0]]
+          ? dev[args[0]](server, client, args)
+          : server.sendChatText(client, `Unknown command: /dev ${args[0]}`);
+        break;
     }
   },
   "Command.SetProfile": function (server, client, packet) {

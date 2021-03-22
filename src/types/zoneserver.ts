@@ -42,6 +42,8 @@ export interface Client {
   outputStream: () => void;
   outQueueTimer: () => void;
   ackTimer: () => void;
+  lastPingTime: number;
+  pingTimer: NodeJS.Timeout;
   outOfOrderTimer: () => void;
 }
 
