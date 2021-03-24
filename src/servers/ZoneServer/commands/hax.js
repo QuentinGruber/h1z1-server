@@ -61,8 +61,8 @@ const hax = {
   },
   shutdown: function (server, client, args) {
     server.sendData(client, "WorldShutdownNotice", {
-      timeBeforeShutdown: "0x00000000000001",
-      message: "where is this message displayed lmao ?",
+      timeLeft: 0,
+      message: " ",
     });
   },
   weather: function (server, client, args) {

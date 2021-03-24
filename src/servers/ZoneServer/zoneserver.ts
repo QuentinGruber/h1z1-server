@@ -607,6 +607,7 @@ export class ZoneServer extends EventEmitter {
 
   stop() {
     debug("Shutting down");
+    process.exit(0);
   }
 
   forceTime(time: number) {

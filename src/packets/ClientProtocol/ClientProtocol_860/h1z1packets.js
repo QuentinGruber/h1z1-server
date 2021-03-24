@@ -6461,9 +6461,8 @@ var packets = [
     0x38,
     {
       fields: [
-        { name: "Unknown1", type: "byte", defaultValue: 0 },
-        { name: "Unknown2", type: "uint32", defaultValue: 0 },
-        { name: "Unknown3", type: "string", defaultValue: "" },
+        { name: "timeLeft", type: "uint32", defaultValue: 0 },
+        { name: "message", type: "string", defaultValue: "" },
         { name: "Unknown4", type: "uint32", defaultValue: 0 },
       ],
     },
