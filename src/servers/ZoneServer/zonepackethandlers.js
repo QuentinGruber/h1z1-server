@@ -176,6 +176,10 @@ const packetHandlers = {
     });
   },
   ClientFinishedLoading: function (server, client, packet) {
+    server.sendData(client, "POIChangeMessage", {
+      messageStringId: 20,
+      id: 99,
+    });
     server.sendChatText(client, "Welcome to H1emu ! :D", true);
   },
   Security: function (server, client, packet) {
