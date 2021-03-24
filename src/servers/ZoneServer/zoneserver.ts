@@ -44,6 +44,7 @@ export class ZoneServer extends EventEmitter {
   _weatherTemplates: any;
   _npcs: any;
   _reloadPacketsInterval: any;
+  _pingTimeoutTime: number;
   constructor(
     serverPort: number,
     gatewayKey: string,
@@ -72,6 +73,7 @@ export class ZoneServer extends EventEmitter {
     this._weatherTemplates = localWeatherTemplates;
     this._defaultWeatherTemplate = "H1emuBaseWeather";
     this._weather = this._weatherTemplates[this._defaultWeatherTemplate];
+    this._pingTimeoutTime = 10000;
     if (!this._mongoAddress) {
       this._soloMode = true;
       debug("Server in solo mode !");
@@ -135,7 +137,7 @@ export class ZoneServer extends EventEmitter {
             shield: 0,
           },
         };
-        client.lastPingTime = new Date().getTime();
+        client.lastPingTime = new Date().getTime() + (120 * 1000);
         client.pingTimer = setInterval(()=>{this.checkIfClientStillOnline(client)},20000)
         this._characters[characterId] = client.character;
 
@@ -251,7 +253,7 @@ export class ZoneServer extends EventEmitter {
   }
 
   checkIfClientStillOnline(client:Client){
-    if(new Date().getTime() - client.lastPingTime > 10000 ){
+    if( new Date().getTime() - client.lastPingTime > this._pingTimeoutTime ){
       clearInterval(client.pingTimer);
       debug("Client disconnected from " + client.address + ":" + client.port +" ( ping timeout )");
       if (client.character?.characterId) {

@@ -181,6 +181,7 @@ const packetHandlers = {
       id: 99,
     });
     server.sendChatText(client, "Welcome to H1emu ! :D", true);
+    client.lastPingTime = new Date().getTime();
   },
   Security: function (server, client, packet) {
     debug(packet);
