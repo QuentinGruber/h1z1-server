@@ -103,7 +103,7 @@ Clone this repo : [h1z1-server-QuickStart](https://github.com/H1emu/h1z1-server-
 ### Using your own scripts with the library
 #### Installation
 
-You need [Nodejs](https://nodejs.org/en/) ( currently using 12.16 LTS).
+You need [Nodejs](https://nodejs.org/en/) ( currently using 14.16 LTS).
 
 `npm i h1z1-server` to install package
 
@@ -166,6 +166,7 @@ From my package.json, if it can help.
 `{
                     serverId: 1,
                     serverState: 2,
+                    serverAddress:"localhost:1117",
                     locked: false,
                     name: "SoloServer",
                     nameId: 8,
