@@ -4135,8 +4135,8 @@ var packets = [
     0x092b00,
     {
       fields: [
-        { name: "guid", type: "uint64", defaultValue: "0" },
-        { name: "stringId", type: "uint32", defaultValue: 0 },
+        { name: "stringId", type: "uint16", defaultValue: "0" },
+        { name: "guid", type: "uint64", defaultValue: 0 },
         { name: "unknown4", type: "uint32", defaultValue: 0 },
       ],
     },
@@ -4168,7 +4168,25 @@ var packets = [
   ["AdminCommand.OfferHelp", 0x0a3200, {}],
   ["Command.Redeploy", 0x093300, {}],
   ["AdminCommand.Redeploy", 0x0a3300, {}],
-  ["Command.PlayersInRadius", 0x093400, {}],
+  [
+    "Command.PlayersInRadius",
+    0x093400,
+    {
+      fields: [
+        { name: "radius", type: "float", defaultValue: 20 },
+        {
+          name: "unknown",
+          type: "uint32",
+          defaultValue: 0,
+        },
+        {
+          name: "numberOfPlayer",
+          type: "uint32",
+          defaultValue: 155,
+        },
+      ],
+    },
+  ],
   ["AdminCommand.PlayersInRadius", 0x0a3400, {}],
   ["Command.AFK", 0x093500, {}],
   ["AdminCommand.AFK", 0x0a3500, {}],
