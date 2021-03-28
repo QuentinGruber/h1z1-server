@@ -1,6 +1,5 @@
 import { convertToInt64 } from "convert_to_int64";
 import _ from "lodash";
-import { dirname } from "path";
 const restore = require("mongodb-restore-dump");
 const valid_character_ids = require("../../data/valid_character_ids.json");
 export const Int64String = function (value: number) {
