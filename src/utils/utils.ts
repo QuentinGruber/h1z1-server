@@ -1,5 +1,7 @@
 import { convertToInt64 } from "convert_to_int64";
 import _ from "lodash";
+import { dirname } from "path";
+const restore = require("mongodb-restore-dump");
 const valid_character_ids = require("../../data/valid_character_ids.json");
 export const Int64String = function (value: number) {
   return "0x" + ("0000000000000000" + value.toString(16)).substr(-16);
@@ -84,4 +86,16 @@ export const lz4_decompress = function (
     }
   }
   return outdata;
+};
+
+export const initMongo = async function (uri:string,serverName:string) {
+  const debug = require("debug")(serverName);
+
+  // restore single database
+  await restore.database({
+    uri,
+    database: 'h1server',
+    from: `${__dirname}/../../mongodb/h1server/`
+  });
+  debug("h1server database was missing... created one with samples.")
 };
