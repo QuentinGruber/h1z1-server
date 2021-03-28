@@ -15,7 +15,6 @@
     "hash-jenkins": "1.0.1",
     "js-base64": "3.6.0",
     "lodash": "4.17.21",
-    "migrate-mongo": "8.2.2",
     "mongodb": "3.6.5",
     "typescript": "4.2.3"
   },
