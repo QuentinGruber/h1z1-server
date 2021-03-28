@@ -14,10 +14,11 @@ import { EventEmitter } from "events";
 
 const SOEServer = require("../SoeServer/soeserver").SOEServer;
 import { LoginProtocol } from "../../protocols/loginprotocol";
-const debug = require("debug")("LoginServer");
+const debugName = "LoginServer";
+const debug = require("debug")(debugName);
 import { toUint8Array } from "js-base64";
 import { MongoClient } from "mongodb";
-import { generateCharacterId } from "../../utils/utils";
+import { generateCharacterId , initMongo } from "../../utils/utils";
 import { SoeServer, Client, GameServer } from "../../types/loginserver";
 import _ from "lodash";
 
@@ -313,7 +314,10 @@ export class LoginServer extends EventEmitter {
       }
       if (mongoClient.isConnected()) {
         debug("connected to mongo !");
-        this._db = await mongoClient.db("h1server");
+
+        // if no collections exist on h1server database , fill it with samples
+        (await mongoClient.db("h1server").collections()).length || await initMongo(this._mongoAddress,debugName) 
+        this._db = mongoClient.db("h1server");
       } else {
         throw debug("Unable to authenticate on mongo !");
       }
