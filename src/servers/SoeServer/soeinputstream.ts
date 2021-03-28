@@ -25,12 +25,12 @@ export class SOEInputStream extends EventEmitter {
   _rc4: Decipher;
   constructor(cryptoKey: string) {
     super();
-    this._sequences = new Array(0x10000);
+    this._sequences = [];
     this._nextSequence = -1;
     this._lastAck = -1;
     this._nextFragment = 0;
     this._lastProcessedFragment = -1;
-    this._fragments = new Array(0x10000);
+    this._fragments = [];
     this._useEncryption = false;
     this._rc4 = createDecipheriv("rc4", cryptoKey, "");
   }

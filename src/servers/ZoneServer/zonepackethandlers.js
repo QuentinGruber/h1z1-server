@@ -10,11 +10,16 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+// delete commands cache if exist so /dev reloadPackets reload them too
+delete require.cache[require.resolve("./commands/hax")];
+delete require.cache[require.resolve("./commands/dev")];
+
 const Jenkins = require("hash-jenkins");
-const fs = require("fs");
+import hax from "./commands/hax";
+import dev from "./commands/dev";
 const _ = require("lodash");
 const debug = require("debug")("zonepacketHandlers");
-import { Int64String, generateCharacterId } from "../../utils/utils";
+import { Int64String } from "../../utils/utils";
 
 const packetHandlers = {
   ClientIsReady: function (server, client, packet) {
@@ -146,7 +151,14 @@ const packetHandlers = {
 
     server.sendData(client, "ZoneDoneSendingInitialData", {});
 
-    const commands = ["hax", "location", "serverinfo", "spawninfo", "help"];
+    const commands = [
+      "hax",
+      "dev",
+      "location",
+      "serverinfo",
+      "spawninfo",
+      "help",
+    ];
 
     commands.forEach((command) => {
       server.sendData(client, "Command.AddWorldCommand", {
@@ -164,7 +176,12 @@ const packetHandlers = {
     });
   },
   ClientFinishedLoading: function (server, client, packet) {
+    server.sendData(client, "POIChangeMessage", {
+      messageStringId: 20,
+      id: 99,
+    });
     server.sendChatText(client, "Welcome to H1emu ! :D", true);
+    client.lastPingTime = new Date().getTime();
   },
   Security: function (server, client, packet) {
     debug(packet);
@@ -186,6 +203,7 @@ const packetHandlers = {
     debug("EndCharacterAccess");
   },
   KeepAlive: function (server, client, packet) {
+    client.lastPingTime = new Date().getTime();
     server.sendData(client, "KeepAlive", {
       gameTime: packet.data.gameTime,
     });
@@ -319,18 +337,14 @@ const packetHandlers = {
         break;
       case Jenkins.oaat("HELP"):
       case 3575372649: // /help
-        const haxCommandList = [
-          "/hax run",
-          "/hax sonic",
-          "/hax observer",
-          "/hax saveCurrentWeather",
-          "/hax weather",
-          "/hax randomWeather",
-          "/hax forceDay",
-          "/hax forceNight",
-          "/hax realTime",
-          "/hax spawnNpcModel",
-        ];
+        const haxCommandList = [];
+        Object.keys(hax).forEach((key) => {
+          haxCommandList.push(`/hax ${key}`);
+        });
+        const devCommandList = [];
+        Object.keys(dev).forEach((key) => {
+          devCommandList.push(`/dev ${key}`);
+        });
         const commandList = [
           "/help",
           "/loc",
@@ -340,9 +354,11 @@ const packetHandlers = {
           "/player_fall_through_world_test",
         ];
         server.sendChatText(client, `Commands list:`);
-        _.concat(commandList, haxCommandList).forEach((command) => {
-          server.sendChatText(client, `${command}`);
-        });
+        _.concat(commandList, haxCommandList, devCommandList).forEach(
+          (command) => {
+            server.sendChatText(client, `${command}`);
+          }
+        );
         break;
       case Jenkins.oaat("LOCATION"):
       case 3270589520: // /loc
@@ -357,256 +373,16 @@ const packetHandlers = {
         );
         break;
       case Jenkins.oaat("HAX"):
-        switch (args[0]) {
-          case "forceNight":
-            server.forceTime(1615062252322);
-            server.sendChatText(
-              client,
-              "Will force Night time on next sync...",
-              true
-            );
-            break;
-          case "forceDay":
-            server.forceTime(971172000000);
-            server.sendChatText(
-              client,
-              "Will force Day time on next sync...",
-              true
-            );
-            break;
-          case "realTime":
-            server.removeForcedTime();
-            server.sendChatText(
-              client,
-              "Game time is now based on real time",
-              true
-            );
-            break;
-          case "spawnNpcModel":
-            const guid = server.generateGuid();
-            const transientId = server.getTransientId(client, guid);
-            if (!args[1]) {
-              server.sendChatText(
-                client,
-                "[ERROR] You need to specify a model id !"
-              );
-              return;
-            }
-            const choosenModelId = Number(args[1]);
-            const characterId = generateCharacterId();
-            const npc = {
-              characterId: characterId,
-              guid: guid,
-              transientId: transientId,
-              modelId: choosenModelId,
-              position: client.character.state.position,
-              characterFirstName: ``,
-            };
-            server.sendData(client, "PlayerUpdate.AddLightweightPc", npc);
-            server._npcs[characterId] = npc; // save npc
-            break;
-          case "sonic":
-            server.sendData(client, "ClientGameSettings", {
-              unknownQword1: "0x0000000000000000",
-              unknownBoolean1: true,
-              timescale: 3.0,
-              unknownQword2: "0x0000000000000000",
-              unknownFloat1: 0.0,
-              unknownFloat2: 12.0,
-              unknownFloat3: 110.0,
-            });
-            server.sendData(client, "Command.RunSpeed", {
-              runSpeed: -100,
-            });
-            server.sendChatText(client, "Welcome MR.Hedgehog");
-            break;
-          case "observer":
-            server.sendData(client, "PlayerUpdate.RemovePlayer", {
-              characterId: client.character.characterId,
-            });
-            delete server._characters[client.character.characterId];
-            debug(server._characters);
-            server.sendChatText(client, "Delete player, back in observer mode");
-            break;
-          case "shutdown":
-            server.sendData(client, "WorldShutdownNotice", {
-              timeBeforeShutdown: "0x00000000000001",
-              message: "where is this message displayed lmao ?",
-            });
-            break;
-          case "weather":
-            const weatherTemplate = server._soloMode
-              ? server._weatherTemplates[args[1]]
-              : _.find(server._weatherTemplates, (template) => {
-                  return template.templateName === args[1];
-                });
-            if (!args[1]) {
-              server.sendChatText(
-                client,
-                "Please define a weather template to use (data/weather.json)"
-              );
-            } else if (weatherTemplate) {
-              server.changeWeather(client, weatherTemplate);
-              server.sendChatText(
-                client,
-                `Use "${args[1]}" as a weather template`
-              );
-            } else {
-              if (args[1] === "list") {
-                server.sendChatText(client, `Weather templates :`);
-                _.forEach(server._weatherTemplates, function (element, key) {
-                  console.log(element.templateName);
-                  server.sendChatText(client, `- ${element.templateName}`);
-                });
-              } else {
-                server.sendChatText(
-                  client,
-                  `"${args[1]}" isn't a weather template`
-                );
-                server.sendChatText(
-                  client,
-                  `Use "/hax weather list" to know all available templates`
-                );
-              }
-            }
-            break;
-          case "saveCurrentWeather":
-            if (!args[1]) {
-              server.sendChatText(
-                client,
-                "Please define a name for your weather template '/hax saveCurrentWeather {name}'"
-              );
-            } else if (
-              server._weatherTemplates[args[1]] ||
-              _.find(server._weatherTemplates, (template) => {
-                return template.templateName === args[1];
-              })
-            ) {
-              server.sendChatText(client, `"${args[1]}" already exist !`);
-            } else {
-              const { _weather: currentWeather } = server;
-              if (currentWeather) {
-                currentWeather.templateName = args[1];
-                if (server._soloMode) {
-                  server._weatherTemplates[
-                    currentWeather.templateName
-                  ] = currentWeather;
-                  fs.writeFileSync(
-                    `${__dirname}/../../../data/weather.json`,
-                    JSON.stringify(server._weatherTemplates)
-                  );
-                  delete require.cache[
-                    require.resolve("../../../data/weather.json")
-                  ];
-                  server._weatherTemplates = require("../../../data/weather.json");
-                } else {
-                  await server._db
-                    .collection("weathers")
-                    .insertOne(currentWeather);
-                  server._weatherTemplates = await server._db
-                    .collection("weathers")
-                    .find()
-                    .toArray();
-                }
-                server.sendChatText(client, `template "${args[1]}" saved !`);
-              } else {
-                server.sendChatText(client, `Saving current weather failed...`);
-                server.sendChatText(client, `plz report this`);
-              }
-            }
-            break;
-          case "testpacket":
-            const packetName = args[1];
-            server.sendData(client, packetName, {});
-            break;
-          case "run":
-            const speedValue = args[1];
-            let speed;
-            if (speedValue > 10) {
-              server.sendChatText(
-                client,
-                "To avoid security issue speed > 10 is set to 15",
-                true
-              );
-              speed = 15;
-            } else {
-              speed = speedValue;
-            }
-            server.sendChatText(client, "Setting run speed: " + speed, true);
-            server.sendData(client, "Command.RunSpeed", {
-              runSpeed: speed,
-            });
-            break;
-          case "hell":
-            server.sendChatText(
-              client,
-              "[DEPRECATED] use '/hax randomWeather' instead",
-              true
-            );
-            break;
-          case "randomWeather":
-            debug("Randomized weather");
-            server.sendChatText(client, `Randomized weather`);
-            function rnd_number() {
-              return Number((Math.random() * 100).toFixed(0));
-            }
-
-            const rnd_weather = {
-              name: "sky",
-              unknownDword1: rnd_number(),
-              unknownDword2: rnd_number(),
-              unknownDword3: rnd_number(),
-              unknownDword4: rnd_number(),
-              fogDensity: rnd_number(), // fog intensity
-              fogGradient: rnd_number(),
-              fogFloor: rnd_number(),
-              unknownDword7: rnd_number(),
-              rain: rnd_number(),
-              temp: rnd_number(), // 0 : snow map , 40+ : spring map
-              skyColor: rnd_number(),
-              cloudWeight0: rnd_number(),
-              cloudWeight1: rnd_number(),
-              cloudWeight2: rnd_number(),
-              cloudWeight3: rnd_number(),
-              sunAxisX: rnd_number(),
-              sunAxisY: rnd_number(),
-              sunAxisZ: rnd_number(), // night when 100
-              unknownDword18: rnd_number(),
-              unknownDword19: rnd_number(),
-              unknownDword20: rnd_number(),
-              wind: rnd_number(),
-              unknownDword22: rnd_number(),
-              unknownDword23: rnd_number(),
-              unknownDword24: rnd_number(),
-              unknownArray: _.fill(Array(50), {
-                unknownDword1: 0,
-                unknownDword2: 0,
-                unknownDword3: 0,
-                unknownDword4: 0,
-                unknownDword5: 0,
-                unknownDword6: 0,
-                unknownDword7: 0,
-              }),
-            };
-            debug(JSON.stringify(rnd_weather));
-            server.changeWeather(client, rnd_weather);
-            break;
-          case "reloadPackets":
-            if (args[1]) {
-              server.reloadPackets(client, args[1]);
-            } else {
-              server.reloadPackets(client);
-            }
-            break;
-          case "reloadMongo":
-            server._soloMode
-              ? server.sendChatText(client, "Can't do that in solomode...")
-              : server.reloadMongoData(client);
-            break;
-          default:
-            server.sendChatText(client, `Unknown command`);
-            break;
-        }
+        hax[args[0]]
+          ? hax[args[0]](server, client, args)
+          : server.sendChatText(client, `Unknown command: /hax ${args[0]}`);
+        break;
+      case Jenkins.oaat("DEV"):
+      case 552078457: // dev
+        dev[args[0]]
+          ? dev[args[0]](server, client, args)
+          : server.sendChatText(client, `Unknown command: /dev ${args[0]}`);
+        break;
     }
   },
   "Command.SetProfile": function (server, client, packet) {
@@ -1324,9 +1100,12 @@ const packetHandlers = {
       ];
     }
   },
-  "PlayerUpdate.Respawn": function(server, client, packet) {
+  "PlayerUpdate.Respawn": function (server, client, packet) {
     debug(packet);
-    server.sendData(client, "PlayerUpdate.RespawnReply", {characterId:"0x03147cca2a860191",status:1});
+    server.sendData(client, "PlayerUpdate.RespawnReply", {
+      characterId: "0x03147cca2a860191",
+      status: 1,
+    });
   },
   "PlayerUpdate.FullCharacterDataRequest": function (server, client, packet) {
     debug(packet);

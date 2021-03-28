@@ -21,7 +21,6 @@ export interface Client {
       health: number;
       shield: number;
     };
-    client: Client;
   };
   loginSessionId?: string;
   sessionId: number;
@@ -42,6 +41,8 @@ export interface Client {
   outputStream: () => void;
   outQueueTimer: () => void;
   ackTimer: () => void;
+  lastPingTime: number;
+  pingTimer: NodeJS.Timeout;
   outOfOrderTimer: () => void;
 }
 

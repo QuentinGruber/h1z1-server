@@ -17,8 +17,9 @@ import { default as packetHandlers } from "./zonepackethandlers";
 import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
 const localSpawnList = require("../../../data/spawnLocations.json");
 import _ from "lodash";
-import { Int64String } from "../../utils/utils";
-const debug = require("debug")("ZoneServer");
+import { Int64String, initMongo } from "../../utils/utils";
+const debugName = "ZoneServer";
+const debug = require("debug")(debugName);
 const localWeatherTemplates = require("../../../data/weather.json");
 import { Weather, Client } from "../../types/zoneserver";
 import { MongoClient } from "mongodb";
@@ -44,6 +45,7 @@ export class ZoneServer extends EventEmitter {
   _weatherTemplates: any;
   _npcs: any;
   _reloadPacketsInterval: any;
+  _pingTimeoutTime: number;
   constructor(
     serverPort: number,
     gatewayKey: string,
@@ -72,6 +74,7 @@ export class ZoneServer extends EventEmitter {
     this._weatherTemplates = localWeatherTemplates;
     this._defaultWeatherTemplate = "H1emuBaseWeather";
     this._weather = this._weatherTemplates[this._defaultWeatherTemplate];
+    this._pingTimeoutTime = 10000;
     if (!this._mongoAddress) {
       this._soloMode = true;
       debug("Server in solo mode !");
@@ -134,8 +137,11 @@ export class ZoneServer extends EventEmitter {
             health: 0,
             shield: 0,
           },
-          client: client,
         };
+        client.lastPingTime = new Date().getTime() + 120 * 1000;
+        client.pingTimer = setInterval(() => {
+          this.checkIfClientStillOnline(client);
+        }, 20000);
         this._characters[characterId] = client.character;
 
         this.emit("login", err, client);
@@ -144,6 +150,7 @@ export class ZoneServer extends EventEmitter {
 
     this._gatewayServer.on("disconnect", (err: string, client: Client) => {
       debug("Client disconnected from " + client.address + ":" + client.port);
+      clearInterval(client.pingTimer);
       if (client.character?.characterId) {
         delete this._characters[client.character.characterId];
       }
@@ -199,7 +206,9 @@ export class ZoneServer extends EventEmitter {
       }
       if (mongoClient.isConnected()) {
         debug("connected to mongo !");
-        this._db = await mongoClient.db("h1server");
+        // if no collections exist on h1server database , fill it with samples
+        (await mongoClient.db("h1server").collections()).length || await initMongo(this._mongoAddress,debugName) 
+        this._db = mongoClient.db("h1server");
       } else {
         throw debug("Unable to authenticate on mongo !");
       }
@@ -246,6 +255,25 @@ export class ZoneServer extends EventEmitter {
   reloadZonePacketHandlers() {
     delete require.cache[require.resolve("./zonepackethandlers")];
     this._packetHandlers = require("./zonepackethandlers").default;
+  }
+
+  checkIfClientStillOnline(client: Client) {
+    if (new Date().getTime() - client.lastPingTime > this._pingTimeoutTime) {
+      clearInterval(client.pingTimer);
+      debug(
+        "Client disconnected from " +
+          client.address +
+          ":" +
+          client.port +
+          " ( ping timeout )"
+      );
+      if (client.character?.characterId) {
+        delete this._characters[client.character.characterId];
+      }
+      delete this._clients[client.sessionId];
+      this._gatewayServer._soeServer.deleteClient(client);
+      this.emit("disconnect", null, client);
+    }
   }
 
   generateGuid() {
@@ -489,12 +517,21 @@ export class ZoneServer extends EventEmitter {
 
   sendChat(client: Client, message: string, channel: number) {
     const { character } = client;
-    this.sendData(client, "Chat.Chat", {
-      channel: channel,
-      characterName1: character.name,
-      message: message,
-      color1: 1,
-    });
+    if (!this._soloMode) {
+      this.sendDataToAll("Chat.Chat", {
+        channel: channel,
+        characterName1: character.name,
+        message: message,
+        color1: 1,
+      });
+    } else {
+      this.sendData(client, "Chat.Chat", {
+        channel: channel,
+        characterName1: character.name,
+        message: message,
+        color1: 1,
+      });
+    }
   }
 
   sendGlobalChatText(message: string, clearChat: boolean = false) {
@@ -583,6 +620,7 @@ export class ZoneServer extends EventEmitter {
 
   stop() {
     debug("Shutting down");
+    process.exit(0);
   }
 
   forceTime(time: number) {

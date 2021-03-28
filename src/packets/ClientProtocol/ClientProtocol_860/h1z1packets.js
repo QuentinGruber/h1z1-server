@@ -3862,7 +3862,16 @@ var packets = [
     },
   ],
   ["ClientLogout", 0x07, {}],
-  ["TargetClientNotOnline", 0x08, {}],
+  [
+    "TargetClientNotOnline",
+    0x08,
+    {
+      fields: [
+        { name: "Unknown1", type: "uint32", defaultValue: 0 },
+        { name: "Unknown2", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
   ["Command.ShowDialog", 0x090100, {}],
   ["AdminCommand.ShowDialog", 0x0a0100, {}],
   ["Command.EndDialog", 0x090200, {}],
@@ -4126,8 +4135,8 @@ var packets = [
     0x092b00,
     {
       fields: [
-        { name: "guid", type: "uint64", defaultValue: "0" },
-        { name: "stringId", type: "uint32", defaultValue: 0 },
+        { name: "stringId", type: "uint16", defaultValue: "0" },
+        { name: "guid", type: "uint64", defaultValue: 0 },
         { name: "unknown4", type: "uint32", defaultValue: 0 },
       ],
     },
@@ -4159,7 +4168,25 @@ var packets = [
   ["AdminCommand.OfferHelp", 0x0a3200, {}],
   ["Command.Redeploy", 0x093300, {}],
   ["AdminCommand.Redeploy", 0x0a3300, {}],
-  ["Command.PlayersInRadius", 0x093400, {}],
+  [
+    "Command.PlayersInRadius",
+    0x093400,
+    {
+      fields: [
+        { name: "radius", type: "float", defaultValue: 20 },
+        {
+          name: "unknown",
+          type: "uint32",
+          defaultValue: 0,
+        },
+        {
+          name: "numberOfPlayer",
+          type: "uint32",
+          defaultValue: 155,
+        },
+      ],
+    },
+  ],
   ["AdminCommand.PlayersInRadius", 0x0a3400, {}],
   ["Command.AFK", 0x093500, {}],
   ["AdminCommand.AFK", 0x0a3500, {}],
@@ -5767,7 +5794,24 @@ var packets = [
   ],
   ["Objective", 0x18, {}],
   ["Debug", 0x19, {}],
-  ["Ui.TaskAdd", 0x1a01, {}],
+  [
+    "Ui.TaskAdd",
+    0x1a01,
+    {
+      fields: [
+        { name: "Unknown1", type: "byte", defaultValue: 0 },
+        { name: "Unknown2", type: "byte", defaultValue: 0 },
+        { name: "Unknown3", type: "uint32", defaultValue: 0 },
+        { name: "Unknown1", type: "uint32", defaultValue: 0 },
+        { name: "Unknown2", type: "uint32", defaultValue: 0 },
+        { name: "Unknown3", type: "boolean", defaultValue: 0 },
+        { name: "Unknown4", type: "boolean", defaultValue: 0 },
+        { name: "Unknown5", type: "uint32", defaultValue: 0 },
+        { name: "Unknown6", type: "boolean", defaultValue: 0 },
+        { name: "Unknown7", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
   ["Ui.TaskUpdate", 0x1a02, {}],
   ["Ui.TaskComplete", 0x1a03, {}],
   ["Ui.TaskFail", 0x1a04, {}],
@@ -5778,8 +5822,29 @@ var packets = [
   ["Ui.ObjectiveTargetUpdate", 0x1a0d, {}],
   ["Ui.Message", 0x1a0e, {}],
   ["Ui.CinematicStartLookAt", 0x1a0f, {}],
-  ["Ui.WeaponHitFeedback", 0x1a10, {}],
-  ["Ui.HeadShotFeedback", 0x1a11, {}],
+  [
+    "Ui.WeaponHitFeedback",
+    0x1a10,
+    {
+      fields: [
+        { name: "Unknown1", type: "uint32", defaultValue: 0 },
+        { name: "isEnemy", type: "boolean", defaultValue: 0 },
+        { name: "Unknown2", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
+  [
+    "Ui.HeadShotFeedback",
+    0x1a11,
+    {
+      fields: [
+        { name: "Unknown1", type: "byte", defaultValue: 0 }, // maybe useless
+        { name: "Unknown2", type: "byte", defaultValue: 0 }, // maybe useless
+        { name: "Unknown3", type: "boolean", defaultValue: 0 },
+        { name: "Unknown4", type: "boolean", defaultValue: 0 },
+      ],
+    },
+  ],
   ["Ui.WaypointCooldown", 0x1a14, {}],
   ["Ui.ZoneWaypoint", 0x1a15, {}],
   ["Ui.WaypointNotify", 0x1a16, {}],
@@ -6395,7 +6460,18 @@ var packets = [
       fields: [{ name: "locale", type: "string", defaultValue: "" }],
     },
   ],
-  ["SetClientArea", 0x35, {}],
+  [
+    "SetClientArea",
+    0x35,
+    {
+      fields: [
+        { name: "Unknown1", type: "byte", defaultValue: 0 },
+        { name: "Unknown2", type: "uint32", defaultValue: 0 },
+        { name: "Unknown3", type: "boolean", defaultValue: 0 },
+        { name: "Unknown4", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
   ["ZoneTeleportRequest", 0x36, {}],
   ["TradingCard", 0x37, {}],
   [
@@ -6403,12 +6479,9 @@ var packets = [
     0x38,
     {
       fields: [
-        {
-          name: "timeBeforeShutdown",
-          type: "uint64",
-          defaultValue: "600EB251",
-        },
+        { name: "timeLeft", type: "uint32", defaultValue: 0 },
         { name: "message", type: "string", defaultValue: "" },
+        { name: "Unknown4", type: "uint32", defaultValue: 0 },
       ],
     },
   ],
@@ -6461,8 +6534,33 @@ var packets = [
       ],
     },
   ],
-  ["ShowSystemMessage", 0x43, {}],
-  ["POIChangeMessage", 0x44, {}],
+  [
+    "ShowSystemMessage",
+    0x43,
+    {
+      fields: [
+        { name: "Unknown2", type: "uint32", defaultValue: 0 },
+        {
+          name: "UnknownString",
+          type: "string",
+          defaultValue: "hello",
+        },
+        { name: "Unknown3", type: "uint32", defaultValue: 0 },
+        { name: "Unknown4", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
+  [
+    "POIChangeMessage",
+    0x44,
+    {
+      fields: [
+        { name: "messageStringId", type: "uint32", defaultValue: 20 },
+        { name: "id", type: "uint32", defaultValue: 1 },
+        { name: "unknown4", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
   ["ClientMetrics", 0x45, {}],
   ["FirstTimeEvent", 0x46, {}],
   ["Claim", 0x47, {}],
@@ -6517,10 +6615,13 @@ var packets = [
     0x60,
     {
       fields: [
-        { name: "unknownQword1", type: "uint64", defaultValue: 0 },
+        { name: "UnknownByte", type: "byte", defaultValue: 0 },
+        { name: "Unknown2", type: "uint32", defaultValue: 0 },
+        { name: "Unknown3", type: "uint32", defaultValue: 0 },
         { name: "unknownBoolean1", type: "boolean", defaultValue: 0 },
         { name: "timescale", type: "float", defaultValue: 1.0 },
-        { name: "unknownQword2", type: "uint64", defaultValue: 0 },
+        { name: "Unknown4", type: "uint32", defaultValue: 0 },
+        { name: "Unknown5", type: "uint32", defaultValue: 0 },
         { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
         { name: "unknownFloat2", type: "float", defaultValue: 0.0 },
         { name: "unknownFloat3", type: "float", defaultValue: 0.0 },
@@ -6756,7 +6857,22 @@ var packets = [
       fields: [{ name: "unknownDword1", type: "uint32", defaultValue: 0 }],
     },
   ],
-  ["ClientAreaTimer", 0x72, {}],
+  [
+    "ClientAreaTimer",
+    0x72,
+    {
+      fields: [
+        { name: "Unknown1", type: "byte", defaultValue: 0 },
+        { name: "Unknown2", type: "uint32", defaultValue: 10 },
+        { name: "Unknown3", type: "uint32", defaultValue: 10 },
+        {
+          name: "Unknown4",
+          type: "uint64",
+          defaultValue: "0x0000000000000010",
+        },
+      ],
+    },
+  ],
   ["LoyaltyReward.GiveLoyaltyReward", 0x7301, {}],
   ["Rating", 0x74, {}],
   ["ClientActivityLaunch", 0x75, {}],
@@ -8640,7 +8756,25 @@ var packets = [
   ],
   ["Stats", 0xc9, {}],
   ["Resource", 0xca, {}],
-  ["Construction", 0xcc, {}],
+  ["Construction.PlacementRequest", 0xcc01, {}],
+  [
+    "Construction.PlacementResponse",
+    0xcc02,
+    {
+      fields: [
+        { name: "Unknown1", type: "byte", defaultValue: 0 },
+        { name: "Unknown2", type: "uint16", defaultValue: 0 },
+        { name: "Unknown3", type: "uint32", defaultValue: 0 },
+        { name: "Unknown4", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
+  ["Construction.PlacementFinalizeRequest", 0xcc03, {}],
+  [
+    "Construction.PlacementFinalizeResponse",
+    0xcc04,
+    { fields: [{ name: "status", type: "boolean", defaultValue: 0 }] },
+  ],
   [
     "SkyChanged",
     0xcd,
