@@ -17,8 +17,9 @@ import { default as packetHandlers } from "./zonepackethandlers";
 import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
 const localSpawnList = require("../../../data/spawnLocations.json");
 import _ from "lodash";
-import { Int64String } from "../../utils/utils";
-const debug = require("debug")("ZoneServer");
+import { Int64String, initMongo } from "../../utils/utils";
+const debugName = "ZoneServer";
+const debug = require("debug")(debugName);
 const localWeatherTemplates = require("../../../data/weather.json");
 import { Weather, Client } from "../../types/zoneserver";
 import { MongoClient } from "mongodb";
@@ -203,7 +204,9 @@ export class ZoneServer extends EventEmitter {
       }
       if (mongoClient.isConnected()) {
         debug("connected to mongo !");
-        this._db = await mongoClient.db("h1server");
+        // if no collections exist on h1server database , fill it with samples
+        (await mongoClient.db("h1server").collections()).length || await initMongo(this._mongoAddress,debugName) 
+        this._db = mongoClient.db("h1server");
       } else {
         throw debug("Unable to authenticate on mongo !");
       }
