@@ -820,6 +820,7 @@ const clientBeginZoningSkyData = [
   { name: "name", type: "string", defaultValue: "" },
   { name: "unknownDword2", type: "int32", defaultValue: 0 },
   { name: "unknownDword3", type: "int32", defaultValue: 0 },
+  { name: "unknownDword4", type: "int32", defaultValue: 0 },
   { name: "fogDensity", type: "int32", defaultValue: 0 },
   { name: "fogGradient", type: "int32", defaultValue: 0 },
   { name: "fogFloor", type: "int32", defaultValue: 0 },
@@ -842,7 +843,6 @@ const clientBeginZoningSkyData = [
   { name: "unknownDword23", type: "int32", defaultValue: 0 },
   { name: "unknownDword24", type: "int32", defaultValue: 0 },
   { name: "unknownDword25", type: "int32", defaultValue: 0 },
-  { name: "unknownDword26", type: "int32", defaultValue: 0 },
   {
     name: "unknownArray",
     type: "array8",
