@@ -117,11 +117,13 @@ const hax = {
             currentWeather.templateName
           ] = currentWeather;
           fs.writeFileSync(
-            `${__dirname}/../../../data/weather.json`,
+            `${__dirname}/../../../../data/weather.json`,
             JSON.stringify(server._weatherTemplates)
           );
-          delete require.cache[require.resolve("../../../data/weather.json")];
-          server._weatherTemplates = require("../../../data/weather.json");
+          delete require.cache[
+            require.resolve("../../../../data/weather.json")
+          ];
+          server._weatherTemplates = require("../../../../data/weather.json");
         } else {
           await server._db.collection("weathers").insertOne(currentWeather);
           server._weatherTemplates = await server._db
@@ -207,6 +209,34 @@ const hax = {
     };
     debug(JSON.stringify(rnd_weather));
     server.changeWeather(client, rnd_weather);
+  },
+  titan: function (server, client, args) {
+    server.sendData(client, "PlayerUpdate.UpdateScale", {
+      characterId: client.character.characterId,
+      scale: [20, 20, 20, 1],
+    });
+    server.sendChatText(client, "TITAN size");
+  },
+  poutine: function (server, client, args) {
+    server.sendData(client, "PlayerUpdate.UpdateScale", {
+      characterId: client.character.characterId,
+      scale: [20, 5, 20, 1],
+    });
+    server.sendChatText(client, "The meme become a reality.....");
+  },
+  rat: function (server, client, args) {
+    server.sendData(client, "PlayerUpdate.UpdateScale", {
+      characterId: client.character.characterId,
+      scale: [0.2, 0.2, 0.2, 1],
+    });
+    server.sendChatText(client, "Rat size");
+  },
+  normalSize: function (server, client, args) {
+    server.sendData(client, "PlayerUpdate.UpdateScale", {
+      characterId: client.character.characterId,
+      scale: [1, 1, 1, 1],
+    });
+    server.sendChatText(client, "Back to normal size");
   },
 };
 

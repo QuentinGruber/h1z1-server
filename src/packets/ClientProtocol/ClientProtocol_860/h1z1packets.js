@@ -815,6 +815,49 @@ var baseItemDefinitionSchema = [
   { name: "unknown41", type: "uint32", defaultValue: 0 },
 ];
 
+const clientBeginZoningSkyData = [
+  { name: "unknownDword1", type: "int32", defaultValue: 0 },
+  { name: "name", type: "string", defaultValue: "" },
+  { name: "unknownDword2", type: "int32", defaultValue: 0 },
+  { name: "unknownDword3", type: "int32", defaultValue: 0 },
+  { name: "unknownDword4", type: "int32", defaultValue: 0 },
+  { name: "fogDensity", type: "int32", defaultValue: 0 },
+  { name: "fogGradient", type: "int32", defaultValue: 0 },
+  { name: "fogFloor", type: "int32", defaultValue: 0 },
+  { name: "unknownDword7", type: "int32", defaultValue: 0 },
+  { name: "rain", type: "int32", defaultValue: 0 },
+  { name: "temp", type: "int32", defaultValue: 0 },
+  { name: "skyColor", type: "int32", defaultValue: 0 },
+  { name: "cloudWeight0", type: "int32", defaultValue: 0 },
+  { name: "cloudWeight1", type: "int32", defaultValue: 0 },
+  { name: "cloudWeight2", type: "int32", defaultValue: 0 },
+  { name: "cloudWeight3", type: "int32", defaultValue: 0 },
+  { name: "sunAxisY", type: "int32", defaultValue: 0 },
+  { name: "sunAxisX", type: "int32", defaultValue: 0 },
+  { name: "sunAxisZ", type: "int32", defaultValue: 0 },
+  { name: "unknownDword18", type: "int32", defaultValue: 0 },
+  { name: "unknownDword19", type: "int32", defaultValue: 0 },
+  { name: "unknownDword20", type: "int32", defaultValue: 0 },
+  { name: "wind", type: "int32", defaultValue: 0 },
+  { name: "unknownDword22", type: "int32", defaultValue: 0 },
+  { name: "unknownDword23", type: "int32", defaultValue: 0 },
+  { name: "unknownDword24", type: "int32", defaultValue: 0 },
+  { name: "unknownDword25", type: "int32", defaultValue: 0 },
+  {
+    name: "unknownArray",
+    type: "array8",
+    defaultValue: [{}],
+    fields: [
+      { name: "unknownDword1", type: "int32", defaultValue: 0 },
+      { name: "unknownDword2", type: "int32", defaultValue: 0 },
+      { name: "unknownDword3", type: "int32", defaultValue: 0 },
+      { name: "unknownDword4", type: "int32", defaultValue: 0 },
+      { name: "unknownDword5", type: "int32", defaultValue: 0 },
+      { name: "unknownDword6", type: "int32", defaultValue: 0 },
+      { name: "unknownDword7", type: "int32", defaultValue: 0 },
+    ],
+  },
+];
 const skyData = [
   { name: "unknownDword1", type: "int32", defaultValue: 0 },
   { name: "name", type: "string", defaultValue: "" },
@@ -4953,7 +4996,7 @@ var packets = [
         {
           name: "skyData",
           type: "schema",
-          fields: skyData,
+          fields: clientBeginZoningSkyData,
         },
         { name: "unknownByte2", type: "byte", defaultValue: 0 },
         { name: "zoneId1", type: "uint32", defaultValue: 0 },
@@ -5022,7 +5065,26 @@ var packets = [
       ],
     },
   ],
-  ["PlayerUpdate.UpdateScale", 0x0f08, {}],
+  [
+    "PlayerUpdate.UpdateScale",
+    0x0f08,
+    {
+      fields: [
+        { name: "unknown1", type: "byte", defaultValue: 0 },
+        { name: "unknown2", type: "byte", defaultValue: 0 },
+        {
+          name: "characterId",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        {
+          name: "scale",
+          type: "floatvector4",
+          defaultValue: [20, 5, 20, 1],
+        },
+      ],
+    },
+  ],
   ["PlayerUpdate.UpdateTemporaryAppearance", 0x0f09, {}],
   ["PlayerUpdate.RemoveTemporaryAppearance", 0x0f0a, {}],
   ["PlayerUpdate.PlayCompositeEffect", 0x0f0b, {}],
@@ -6882,7 +6944,14 @@ var packets = [
     "PlayerUpdate.UpdatePosition",
     0x78,
     {
-      fields: [{ name: "unknown1", type: "uint32", defaultValue: 0 }],
+      fields: [
+        {
+          name: "characterId",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        { name: "unknown4", type: "byte", defaultValue: 0 },
+      ],
     },
   ],
   ["InviteAndStartMiniGame", 0x79, {}],
