@@ -207,7 +207,8 @@ export class ZoneServer extends EventEmitter {
       if (mongoClient.isConnected()) {
         debug("connected to mongo !");
         // if no collections exist on h1server database , fill it with samples
-        (await mongoClient.db("h1server").collections()).length || await initMongo(this._mongoAddress,debugName) 
+        (await mongoClient.db("h1server").collections()).length ||
+          (await initMongo(this._mongoAddress, debugName));
         this._db = mongoClient.db("h1server");
       } else {
         throw debug("Unable to authenticate on mongo !");
@@ -309,13 +310,19 @@ export class ZoneServer extends EventEmitter {
       require.resolve("../../../data/sendself.json") // reload json
     ];
     const self = require("../../../data/sendself.json"); // dummy self
-    if (String(client.character.characterId).toUpperCase() === String(getCharacterId(99)).toUpperCase()) {
+    if (
+      String(client.character.characterId).toUpperCase() ===
+      String(getCharacterId(99)).toUpperCase()
+    ) {
       // for fun 🤠
       self.data.characterId = String(getCharacterId(99)).toUpperCase();
       self.data.identity.characterFirstName = "Cowboy :)";
       self.data.extraModel = "SurvivorMale_Ivan_OutbackHat_Base.adr";
       self.data.extraModelTexture = "Ivan_OutbackHat_LeatherTan";
-    } else if (String(client.character.characterId).toUpperCase() === String(getCharacterId(100)).toUpperCase()) {
+    } else if (
+      String(client.character.characterId).toUpperCase() ===
+      String(getCharacterId(100)).toUpperCase()
+    ) {
       // for fun 🤠
       self.data.characterId = String(getCharacterId(100)).toUpperCase();
       self.data.identity.characterFirstName = "Z";
