@@ -18,7 +18,7 @@ const debugName = "LoginServer";
 const debug = require("debug")(debugName);
 import { toUint8Array } from "js-base64";
 import { MongoClient } from "mongodb";
-import { generateCharacterId , initMongo } from "../../utils/utils";
+import { generateCharacterId , getCharacterId, initMongo } from "../../utils/utils";
 import { SoeServer, Client, GameServer } from "../../types/loginserver";
 import _ from "lodash";
 
@@ -109,11 +109,11 @@ export class LoginServer extends EventEmitter {
                 const SinglePlayerCharacter = require("../../../data/single_player_character.json");
 
                 const cowboy = _.cloneDeep(SinglePlayerCharacter); // for fun 🤠
-                cowboy.characterId = "0x03147cca2a860192";
+                cowboy.characterId = getCharacterId(99);
                 cowboy.payload.name = "Cowboy";
 
                 const zombie = _.cloneDeep(SinglePlayerCharacter); // for fun X2
-                zombie.characterId = "0x03147cca2a860193";
+                zombie.characterId = getCharacterId(100);
                 zombie.payload.name = "Z (only third person)";
 
                 CharactersInfo = {

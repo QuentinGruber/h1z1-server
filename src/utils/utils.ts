@@ -15,6 +15,10 @@ export const generateRandomGuid = function () {
   return guid;
 };
 
+export const getCharacterId = function (index:number) {
+  return `0x${convertToInt64(valid_character_ids[index])}`;
+};
+
 export const generateCharacterId = function (usedId: Array<string> = []) {
   let characterId = null;
   while (characterId === null) {
