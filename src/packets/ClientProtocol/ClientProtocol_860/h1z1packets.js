@@ -6925,7 +6925,14 @@ var packets = [
     "PlayerUpdate.UpdatePosition",
     0x78,
     {
-      fields: [{ name: "unknown1", type: "uint32", defaultValue: 0 }],
+      fields: [
+        {
+          name: "characterId",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        { name: "unknown4", type: "byte", defaultValue: 0 },
+      ],
     },
   ],
   ["InviteAndStartMiniGame", 0x79, {}],
