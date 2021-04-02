@@ -210,6 +210,27 @@ const hax = {
     debug(JSON.stringify(rnd_weather));
     server.changeWeather(client, rnd_weather);
   },
+  titan: function (server, client, args) {
+    server.sendData(client, "PlayerUpdate.UpdateScale", {
+      characterId: client.character.characterId,
+      scale: [20, 20, 20, 1],
+    });
+    server.sendChatText(client, "TITAN size");
+  },
+  poutine: function (server, client, args) {
+    server.sendData(client, "PlayerUpdate.UpdateScale", {
+      characterId: client.character.characterId,
+      scale: [20, 5, 20, 1],
+    });
+    server.sendChatText(client, "The meme become a reality.....");
+  },
+  normalSize: function (server, client, args) {
+    server.sendData(client, "PlayerUpdate.UpdateScale", {
+      characterId: client.character.characterId,
+      scale: [1, 1, 1, 1],
+    });
+    server.sendChatText(client, "Back to normal size");
+  },
 };
 
 export default hax;
