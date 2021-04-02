@@ -224,6 +224,13 @@ const hax = {
     });
     server.sendChatText(client, "The meme become a reality.....");
   },
+  rat: function (server, client, args) {
+    server.sendData(client, "PlayerUpdate.UpdateScale", {
+      characterId: client.character.characterId,
+      scale: [0.2, 0.2, 0.2, 1],
+    });
+    server.sendChatText(client, "Rat size");
+  },
   normalSize: function (server, client, args) {
     server.sendData(client, "PlayerUpdate.UpdateScale", {
       characterId: client.character.characterId,
