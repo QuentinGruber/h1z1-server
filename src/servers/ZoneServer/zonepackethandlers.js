@@ -1103,8 +1103,8 @@ const packetHandlers = {
   "PlayerUpdate.Respawn": function (server, client, packet) {
     debug(packet);
     server.sendData(client, "PlayerUpdate.RespawnReply", {
-      characterId: "0x03147cca2a860191",
-      status: 1,
+      characterId: client.character.characterId,
+      position: [0, 200, 0, 1],
     });
   },
   "PlayerUpdate.FullCharacterDataRequest": function (server, client, packet) {

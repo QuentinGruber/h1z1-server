@@ -5070,8 +5070,6 @@ var packets = [
     0x0f08,
     {
       fields: [
-        { name: "unknown1", type: "byte", defaultValue: 0 },
-        { name: "unknown2", type: "byte", defaultValue: 0 },
         {
           name: "characterId",
           type: "uint64",
@@ -5214,8 +5212,20 @@ var packets = [
     0x0f39,
     {
       fields: [
-        { name: "characterId", type: "uint64", defaultValue: "0" },
-        { name: "status", type: "boolean", defaultValue: false },
+        { name: "unknown1", type: "byte", defaultValue: 0 },
+        { name: "unknown2", type: "byte", defaultValue: 0 },
+        {
+          name: "characterId",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        { name: "unknown4", type: "uint32", defaultValue: 1 },
+        { name: "unknown5", type: "uint32", defaultValue: 1 },
+        {
+          name: "position",
+          type: "floatvector3",
+          defaultValue: [0, 0, 0],
+        },
       ],
     },
   ],
@@ -5328,7 +5338,30 @@ var packets = [
       ],
     },
   ],
-  ["PlayerUpdate.AddProxiedObject", 0x0f59, {}],
+  [
+    "PlayerUpdate.AddProxiedObject",
+    0x0f59,
+    {
+      fields: [
+        { name: "unknown1", type: "byte", defaultValue: 0 },
+        { name: "unknown2", type: "byte", defaultValue: 0 },
+        {
+          name: "unknown3",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        { name: "unknown4", type: "byte", defaultValue: 0 },
+        { name: "unknown1", type: "uint32", defaultValue: 0 },
+        { name: "unknown5", type: "uint32", defaultValue: 0 },
+        { name: "unknown6", type: "uint32", defaultValue: 0 },
+        { name: "unknown7", type: "uint32", defaultValue: 0 },
+        { name: "unknown8", type: "uint32", defaultValue: 0 },
+        { name: "unknown9", type: "string", defaultValue: "hello" },
+        { name: "unknown10", type: "string", defaultValue: "hello" },
+        // schema?
+      ],
+    },
+  ],
   ["PlayerUpdate.LightweightToFullPc", 0x0f5a, { fields: fullNpcDataSchema }],
   [
     "PlayerUpdate.LightweightToFullNpc",
@@ -5459,16 +5492,83 @@ var packets = [
       fields: [{ name: "guid", type: "uint64", defaultValue: "0" }],
     },
   ],
-  ["PlayerUpdate.InitiateNameChange", 0x0f5e, {}],
+  [
+    "PlayerUpdate.InitiateNameChange",
+    0x0f5e,
+    {
+      fields: [
+        {
+          name: "characterId",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+      ],
+    },
+  ],
   ["PlayerUpdate.NameChangeResult", 0x0f5f, {}],
   ["PlayerUpdate.NameValidationResult", 0x0f60, {}],
-  ["PlayerUpdate.Deploy", 0x0f61, {}],
+  [
+    "PlayerUpdate.Deploy", // just freeze the player...
+    0x0f61,
+    {
+      fields: [
+        {
+          name: "characterId",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        { name: "status", type: "uint32", defaultValue: 1 },
+      ],
+    },
+  ],
   ["PlayerUpdate.LowAmmoUpdate", 0x0f62, {}],
-  ["PlayerUpdate.KilledBy", 0x0f63, {}],
+  [
+    "PlayerUpdate.KilledBy",
+    0x0f63,
+    {
+      fields: [
+        { name: "unknown1", type: "byte", defaultValue: 0 },
+        { name: "unknown2", type: "byte", defaultValue: 0 },
+        {
+          name: "characterId",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        {
+          name: "characterId2",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        { name: "unknown5", type: "byte", defaultValue: 0 },
+      ],
+    },
+  ],
   ["PlayerUpdate.MotorRunning", 0x0f64, {}],
   ["PlayerUpdate.DroppedIemNotification", 0x0f65, {}],
   ["PlayerUpdate.NoSpaceNotification", 0x0f66, {}],
-  ["PlayerUpdate.StartMultiStateDeath", 0x0f68, {}],
+  [
+    "PlayerUpdate.StartMultiStateDeath",
+    0x0f68,
+    {
+      fields: [
+        { name: "unknown1", type: "byte", defaultValue: 0 },
+        { name: "unknown2", type: "byte", defaultValue: 0 },
+        {
+          name: "characterId",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        { name: "unknown4", type: "byte", defaultValue: 0 },
+        { name: "unknown5", type: "byte", defaultValue: 0 },
+        { name: "unknown6", type: "byte", defaultValue: 0 },
+        {
+          name: "unknown7",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+      ],
+    },
+  ],
   ["PlayerUpdate.AggroLevel", 0x0f69, {}],
   ["PlayerUpdate.DoorState", 0x0f6a, {}],
   ["PlayerUpdate.RequestToggleDoorState", 0x0f6b, {}],
@@ -5730,8 +5830,30 @@ var packets = [
       fields: [],
     },
   ],
-  ["ClientUpdate.ProximateItems", 0x113400, []],
-  ["ClientUpdate.TextAlert", 0x113500, []],
+  [
+    "ClientUpdate.ProximateItems",
+    0x113400,
+    {
+      fields: [
+        { name: "unknown1", type: "byte", defaultValue: 0 },
+        { name: "unknown2", type: "uint16", defaultValue: 10 },
+        { name: "unknown3", type: "float", defaultValue: 10 },
+        { name: "unknown4", type: "byte", defaultValue: 1 },
+      ],
+    },
+  ],
+  [
+    "ClientUpdate.TextAlert",
+    0x113500,
+    {
+      fields: [
+        { name: "unknown1", type: "byte", defaultValue: 0 },
+        { name: "unknown2", type: "uint16", defaultValue: 10 },
+        { name: "unknown3", type: "float", defaultValue: 10 },
+        { name: "unknown4", type: "byte", defaultValue: 1 },
+      ],
+    },
+  ],
   ["ClientUpdate.ClearEntitlementValues", 0x113600, []],
   ["ClientUpdate.AddEntitlementValue", 0x113700, []],
   ["MiniGame", 0x12, {}],
