@@ -15,7 +15,7 @@ export const generateRandomGuid = function () {
   return guid;
 };
 
-export const getCharacterId = function (index:number) {
+export const getCharacterId = function (index: number) {
   return `0x${convertToInt64(valid_character_ids[index])}`;
 };
 
@@ -91,14 +91,14 @@ export const lz4_decompress = function (
   return outdata;
 };
 
-export const initMongo = async function (uri:string,serverName:string) {
+export const initMongo = async function (uri: string, serverName: string) {
   const debug = require("debug")(serverName);
 
   // restore single database
   await restore.database({
     uri,
-    database: 'h1server',
-    from: `${__dirname}/../../mongodb/h1server/`
+    database: "h1server",
+    from: `${__dirname}/../../mongodb/h1server/`,
   });
-  debug("h1server database was missing... created one with samples.")
+  debug("h1server database was missing... created one with samples.");
 };
