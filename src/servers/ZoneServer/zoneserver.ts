@@ -311,11 +311,13 @@ export class ZoneServer extends EventEmitter {
     const self = require("../../../data/sendself.json"); // dummy self
     if (String(client.character.characterId).toUpperCase() === String(getCharacterId(99)).toUpperCase()) {
       // for fun 🤠
+      self.data.characterId = String(getCharacterId(99)).toUpperCase();
       self.data.identity.characterFirstName = "Cowboy :)";
       self.data.extraModel = "SurvivorMale_Ivan_OutbackHat_Base.adr";
       self.data.extraModelTexture = "Ivan_OutbackHat_LeatherTan";
     } else if (String(client.character.characterId).toUpperCase() === String(getCharacterId(100)).toUpperCase()) {
       // for fun 🤠
+      self.data.characterId = String(getCharacterId(100)).toUpperCase();
       self.data.identity.characterFirstName = "Z";
       self.data.actorModelId = 9001;
     }
