@@ -5065,7 +5065,26 @@ var packets = [
       ],
     },
   ],
-  ["PlayerUpdate.UpdateScale", 0x0f08, {}],
+  [
+    "PlayerUpdate.UpdateScale",
+    0x0f08,
+    {
+      fields: [
+        { name: "unknown1", type: "byte", defaultValue: 0 },
+        { name: "unknown2", type: "byte", defaultValue: 0 },
+        {
+          name: "characterId",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        {
+          name: "scale",
+          type: "floatvector4",
+          defaultValue: [20, 5, 20, 1],
+        },
+      ],
+    },
+  ],
   ["PlayerUpdate.UpdateTemporaryAppearance", 0x0f09, {}],
   ["PlayerUpdate.RemoveTemporaryAppearance", 0x0f0a, {}],
   ["PlayerUpdate.PlayCompositeEffect", 0x0f0b, {}],
