@@ -215,6 +215,7 @@ const hax = {
       characterId: client.character.characterId,
       scale: [20, 20, 20, 1],
     });
+    server.sendChatText(client, "[info] only for with LocalPlayer character");
     server.sendChatText(client, "TITAN size");
   },
   poutine: function (server, client, args) {
@@ -222,6 +223,7 @@ const hax = {
       characterId: client.character.characterId,
       scale: [20, 5, 20, 1],
     });
+    server.sendChatText(client, "[info] only for with LocalPlayer character");
     server.sendChatText(client, "The meme become a reality.....");
   },
   rat: function (server, client, args) {
@@ -229,6 +231,7 @@ const hax = {
       characterId: client.character.characterId,
       scale: [0.2, 0.2, 0.2, 1],
     });
+    server.sendChatText(client, "[info] only for with LocalPlayer character");
     server.sendChatText(client, "Rat size");
   },
   normalSize: function (server, client, args) {
@@ -236,6 +239,7 @@ const hax = {
       characterId: client.character.characterId,
       scale: [1, 1, 1, 1],
     });
+    server.sendChatText(client, "[info] only for with LocalPlayer character");
     server.sendChatText(client, "Back to normal size");
   },
 };
