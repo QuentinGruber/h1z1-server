@@ -7,12 +7,14 @@ const dev = {
     server.sendData(client, packetName, {});
   },
   testNpc: function (server, client, args) {
+    const characterId = generateCharacterId();
     server.sendData(client, "PlayerUpdate.AddLightweightNpc", {
-      characterId: generateCharacterId(),
-      transientId: 1,
-      array5: [{ unknown1: 1 }],
-      array17: [{ unknown1: 1 }],
-      array18: [{ unknown1: 1 }],
+      characterId: characterId,
+      transientId: server.getTransientId(client, characterId),
+      position: client.character.state.position,
+      array5: [{ unknown1: 0 }],
+      array17: [{ unknown1: 0 }],
+      array18: [{ unknown1: 0 }],
     });
   },
   reloadPackets: function (server, client, args) {
