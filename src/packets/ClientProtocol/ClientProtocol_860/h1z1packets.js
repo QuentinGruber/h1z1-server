@@ -902,8 +902,6 @@ const skyData = [
 ];
 
 const lightWeightPcSchema = [
-  { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-  { name: "unknownByte2", type: "uint8", defaultValue: 0 },
   { name: "characterId", type: "uint64", defaultValue: "0" },
   {
     name: "transientId",
@@ -936,15 +934,78 @@ const lightWeightPcSchema = [
   { name: "unknownByte5", type: "uint8", defaultValue: 0 },
 ];
 
-const lightWeightNpcSchema = _.concat(
-  lightWeightPcSchema,
-  { name: "unknownQword1_", type: "uint64", defaultValue: "0" },
-  { name: "unknownDword1_", type: "uint32", defaultValue: 1 },
-  { name: "unknownDword2_", type: "uint32", defaultValue: 1 },
-  { name: "unknownDword3_", type: "uint16", defaultValue: 1 },
-  { name: "unknownDword4_", type: "uint32", defaultValue: 1 },
-  { name: "unknownDword5_", type: "uint8", defaultValue: 1 } // char *
-);
+const lightWeightNpcSchema = [
+    { name: "characterId", type: "uint64", defaultValue: "0x0000000000000000" },
+    {
+      name: "transientId",
+      type: "custom",
+      parser: readUnsignedIntWith2bitLengthValue,
+      packer: packUnsignedIntWith2bitLengthValue,
+    },
+    { name: "string5", type: "string", defaultValue: "unknownString" },
+    { name: "nameId", type: "uint32", defaultValue: 9001 },
+    { name: "unknown7", type: "uint32", defaultValue: 9001 },
+    { name: "unknown8", type: "uint32", defaultValue: 9001 },
+    { name: "unknown9", type: "uint8", defaultValue:0 },
+    { name: "unknown10", type: "uint32", defaultValue: 9001 },
+    { name: "scale", type: "floatvector4", defaultValue: [1, 1, 1, 1]  },
+    { name: "string12", type: "string", defaultValue: "unknownString" },
+    { name: "string13", type: "string", defaultValue: "unknownString" },
+    { name: "unknown14", type: "uint32", defaultValue: 9001 },
+    { name: "position", type: "floatvector4", defaultValue: [0, 0, 0, 1] },
+    {
+      name: "unknownVector1",
+      type: "floatvector4",
+      defaultValue: [0, 0, 0, 1],
+    },
+    { name: "rotation", type: "floatvector4", defaultValue: [0, 0, 0, 1] },
+    { name: "unknown18", type: "uint32", defaultValue:9001 },
+    { name: "unknown19", type: "uint32", defaultValue: 9001 },
+    { name: "string20", type: "string", defaultValue: "unknownString" },
+    { name: "string21", type: "string", defaultValue: "unknownString" },
+    { name: "string22", type: "string", defaultValue: "unknownString" },
+    { name: "vehicleId", type: "uint32", defaultValue: 9001 },
+    { name: "unknown24", type: "uint32", defaultValue: 9001 },
+    { name: "npcDefinitionId", type: "uint32", defaultValue: 9001 },
+    { name: "unknown26", type: "byte", defaultValue: 0 },
+    { name: "profileId", type: "uint32", defaultValue: 9001 },
+    { name: "unknown28", type: "boolean", defaultValue: 0 },
+    {
+      name: "array5",
+      type: "array",
+      fields: [{ name: "unknown1", type: "byte", defaultValue: 0 }],
+    },
+    { name: "unknown30", type: "byte", defaultValue: 0 },
+    { name: "unknown31", type: "uint32", defaultValue: 9001 },
+    { name: "unknown32", type: "uint64", defaultValue: "0x0000000000000000" },
+    { name: "unknown1", type: "uint64", defaultValue: "0x0000000000000000" },
+    {
+      name: "unknownVector2",
+      type: "floatvector4",
+      defaultValue: [0, 0, 0, 1],
+    },
+    {
+      name: "unknownVector3",
+      type: "floatvector4",
+      defaultValue: [0, 0, 0, 1],
+    },
+    { name: "unknown4", type: "uint32", defaultValue: 9001 },
+    { name: "unknown33", type: "uint32", defaultValue: 9001 },
+    { name: "unknown34", type: "uint32", defaultValue: 9001 },
+    { name: "unknown35", type: "uint32", defaultValue: 9001 },
+    { name: "unknown36", type: "uint64", defaultValue: "0x0000000000000000" },
+    { name: "unknown37", type: "uint32", defaultValue: 9001 },
+    {
+      name: "array17",
+      type: "array",
+      fields: [{ name: "unknown1", type: "byte", defaultValue: 0 }],
+    },
+    {
+      name: "array18",
+      type: "array",
+      fields: [{ name: "unknown1", type: "byte", defaultValue: 0 }],
+    },
+  ],
 
 const profileStatsSubSchema1 = [
   { name: "unknownDword1", type: "uint32", defaultValue: 0 },
