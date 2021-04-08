@@ -1068,10 +1068,10 @@ const packetHandlers = {
     const { data: packetData } = packet;
     server.sendData(client, "PlayerUpdate.StartHarvest", {
       characterId: client.character.characterId,
-      unknown4: 10,
+      unknown4: 0,
       timeMs: 10,
-      unknown6: 10,
-      unknown7: 10,
+      unknown6: 0,
+      stringId: 10002,
       unknownGuid: Int64String(packetData.id),
     });
   },

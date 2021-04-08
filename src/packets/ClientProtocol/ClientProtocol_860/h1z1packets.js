@@ -5261,7 +5261,7 @@ var packets = [
         { name: "unknown4", type: "uint32", defaultValue:10 },
         { name: "timeMs", type: "uint32", defaultValue: 1000 },
         { name: "unknown6", type: "uint32", defaultValue: 10 },
-        { name: "unknown7", type: "uint32", defaultValue: 10 },
+        { name: "stringId", type: "uint32", defaultValue: 10 },
         {
           name: "unknownGuid",
           type: "uint64",
