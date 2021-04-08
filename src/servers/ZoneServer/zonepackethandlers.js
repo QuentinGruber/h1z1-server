@@ -1065,13 +1065,14 @@ const packetHandlers = {
   },
   Pickup: function (server, client, packet) {
     debug(packet);
-    debug("PlayerUpdate.LootEvent isn't send since it crash the game rn.");
-    return;
+    debug(client.character.characterId);
     const { data: packetData } = packet;
-    server.sendData(client, "PlayerUpdate.LootEvent", {
-      unknownQword1: Int64String(packetData.id),
-      unknownQword2: Int64String(packetData.id),
-      unknownDword2: packet.id,
+    server.sendData(client, "PlayerUpdate.StartHarvest", {
+      characterId: client.character.characterId,
+      unknown4: 100,
+      unknown5: 100,
+      unknown6: 100,
+      unknown7: 100,
     });
   },
   GetRewardBuffInfo: function (server, client, packet) {

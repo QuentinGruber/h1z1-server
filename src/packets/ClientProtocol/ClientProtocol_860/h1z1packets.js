@@ -5186,7 +5186,23 @@ var packets = [
   ],
   ["PlayerUpdate.MemberStatus", 0x0f32, {}],
   ["PlayerUpdate.SetCurrentAdventure", 0x0f33, {}],
-  ["PlayerUpdate.StartHarvest", 0x0f34, {}],
+  [
+    "PlayerUpdate.StartHarvest",
+    0x0f34,
+    {
+      fields: [
+        {
+          name: "characterId",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        { name: "unknown4", type: "uint32", defaultValue: 0 },
+        { name: "unknown5", type: "uint32", defaultValue: 0 },
+        { name: "unknown6", type: "uint32", defaultValue: 0 },
+        { name: "unknown7", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
   ["PlayerUpdate.StopHarvest", 0x0f35, {}],
   [
     "PlayerUpdate.KnockedOut",
