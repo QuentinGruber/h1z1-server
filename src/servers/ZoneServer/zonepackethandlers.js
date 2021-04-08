@@ -1065,14 +1065,14 @@ const packetHandlers = {
   },
   Pickup: function (server, client, packet) {
     debug(packet);
-    debug(client.character.characterId);
     const { data: packetData } = packet;
     server.sendData(client, "PlayerUpdate.StartHarvest", {
       characterId: client.character.characterId,
-      unknown4: 100,
-      unknown5: 100,
-      unknown6: 100,
-      unknown7: 100,
+      unknown4: 10,
+      timeMs: 10,
+      unknown6: 10,
+      unknown7: 10,
+      unknownGuid: Int64String(packetData.id),
     });
   },
   GetRewardBuffInfo: function (server, client, packet) {

@@ -5251,15 +5251,22 @@ var packets = [
     0x0f34,
     {
       fields: [
+        { name: "unknownBoolean1", type: "byte", defaultValue: 0 },
+        { name: "unknownBoolean2", type: "byte", defaultValue: 0 },
         {
           name: "characterId",
           type: "uint64",
           defaultValue: "0x0000000000000000",
         },
-        { name: "unknown4", type: "uint32", defaultValue: 0 },
-        { name: "unknown5", type: "uint32", defaultValue: 0 },
-        { name: "unknown6", type: "uint32", defaultValue: 0 },
-        { name: "unknown7", type: "uint32", defaultValue: 0 },
+        { name: "unknown4", type: "uint32", defaultValue:10 },
+        { name: "timeMs", type: "uint32", defaultValue: 1000 },
+        { name: "unknown6", type: "uint32", defaultValue: 10 },
+        { name: "unknown7", type: "uint32", defaultValue: 10 },
+        {
+          name: "unknownGuid",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
       ],
     },
   ],
@@ -8954,7 +8961,7 @@ var packets = [
     0xbe,
     {
       fields: [
-        { name: "type?", type: "uint16" },
+        { name: "type", type: "uint16" },
         { name: "id", type: "uint32" },
         { name: "treeId", type: "uint32" },
         { name: "name", type: "string" },
