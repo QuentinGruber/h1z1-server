@@ -9049,6 +9049,9 @@ var packets = [
   ],
   ["Stats", 0xc9, {}],
   ["Resource", 0xca, {}],
+  ["Container.InitEquippedContainers", 0xcb02, {}],
+  ["Container.PacketListAll", 0xcb05, {}],
+  ["Container.UpdateEquippedContainer", 0xcb06, {}],
   ["Construction.PlacementRequest", 0xcc01, {}],
   [
     "Construction.PlacementResponse",
