@@ -210,41 +210,39 @@ export class LoginServer extends EventEmitter {
                 const { serverAddress } = await this._db
                   .collection("servers")
                   .findOne({ serverId: serverId });
-                charactersLoginInfo = {
-                  characterId: characterId,
-                  serverId: serverId,
-                  lastLogin: 1406824518,
-                  status: 1,
-                  applicationData: {
-                    serverAddress: serverAddress, // zoneserver port
-                    serverTicket: client.loginSessionId,
-                    encryptionKey: this._cryptoKey,
-                    characterId: characterId,
-                    guid: 722776196,
-                    unknown2: 0,
-                    stationName: "nope0no",
-                    characterName: "LocalPlayer",
-                    loginQueuePlacement: 0,
-                  },
+                  charactersLoginInfo = {
+                    unknownQword1: "0x0",
+                    unknownDword1: 0,
+                    unknownDword2: 0,
+                    status: 1,
+                    applicationData: {
+                        serverAddress: serverAddress,
+                        serverTicket: client.loginSessionId,
+                        encryptionKey: this._cryptoKey,
+                        guid: characterId,
+                        unknownQword2: "0x0",
+                        stationName: "",
+                        characterName: "",
+                        unknownString: "",
+                    },
                 };
               } else {
                 charactersLoginInfo = {
-                  characterId: characterId,
-                  serverId: serverId,
-                  lastLogin: 1406824518,
+                  unknownQword1: "0x0",
+                  unknownDword1: 0,
+                  unknownDword2: 0,
                   status: 1,
                   applicationData: {
-                    serverAddress: "127.0.0.1:1117", // zoneserver port
-                    serverTicket: client.loginSessionId,
-                    encryptionKey: this._cryptoKey,
-                    characterId: characterId,
-                    guid: 722776196,
-                    unknown2: 0,
-                    stationName: "nope0no",
-                    characterName: "LocalPlayer",
-                    loginQueuePlacement: 0,
+                      serverAddress: "127.0.0.1:1117",
+                      serverTicket: client.loginSessionId,
+                      encryptionKey: this._cryptoKey,
+                      guid: characterId,
+                      unknownQword2: "0x0",
+                      stationName: "",
+                      characterName: "",
+                      unknownString: "",
                   },
-                };
+              };
               }
               debug(charactersLoginInfo);
               data = this._protocol.pack(
