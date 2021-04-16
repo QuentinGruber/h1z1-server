@@ -935,6 +935,8 @@ const lightWeightPcSchema = [
 ];
 
 const lightWeightNpcSchema = [
+  { name: "unknown1", type: "byte", defaultValue: 0 } ,
+{ name: "unknown2", type: "byte", defaultValue: 0 } ,
     { name: "characterId", type: "uint64", defaultValue: "0x0000000000000000" },
     {
       name: "transientId",
