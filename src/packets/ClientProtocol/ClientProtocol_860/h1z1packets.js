@@ -5196,15 +5196,72 @@ var packets = [
   ["PlayerUpdate.UpdateOwner", 0x0f24, {}],
   ["PlayerUpdate.WeaponStance", 0x0f25, {}],
   ["PlayerUpdate.UpdateTintAlias", 0x0f26, {}],
-  ["PlayerUpdate.MoveOnRail", 0x0f27, {}],
-  ["PlayerUpdate.ClearMovementRail", 0x0f28, {}],
-  ["PlayerUpdate.MoveOnRelativeRail", 0x0f29, {}],
+  [
+    "PlayerUpdate.MoveOnRail",
+    0x0f27,
+    {
+      fields: [
+        { name: "unknown1", type: "byte", defaultValue: 0 },
+        { name: "unknown2", type: "byte", defaultValue: 0 },
+        {
+          name: "characterId",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        { name: "unknown4", type: "uint32", defaultValue: 50 },
+        { name: "unknown5", type: "uint32", defaultValue: 50 },
+        {
+          name: "unknownVector1",
+          type: "floatvector4",
+          defaultValue: [10, 0, 0, 1],
+        },
+      ],
+    },
+  ],
+  [
+    "PlayerUpdate.ClearMovementRail",
+    0x0f28,
+    {
+      fields: [
+        {
+          name: "characterId",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+      ],
+    },
+  ],
+  [
+    "PlayerUpdate.MoveOnRelativeRail",
+    0x0f29,
+    {
+      fields: [
+        { name: "unknown1", type: "byte", defaultValue: 0 },
+        { name: "unknown2", type: "byte", defaultValue: 0 },
+        {
+          name: "characterId",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        { name: "unknown4", type: "uint32", defaultValue: 0 },
+        { name: "unknown5", type: "uint32", defaultValue: 0 },
+        { name: "unknown6", type: "uint32", defaultValue: 0 },
+        { name: "unknown7", type: "uint32", defaultValue: 0 },
+        { name: "unknown8", type: "uint32", defaultValue: 0 },
+        {
+          name: "unknownVector1",
+          type: "floatvector4",
+          defaultValue: [0, 0, 0, 0],
+        },
+      ],
+    },
+  ],
   [
     "PlayerUpdate.Destroyed",
     0x0f2a,
     {
       fields: [
-        { name: "guid", type: "uint64", defaultValue: "0" },
+        { name: "characterId", type: "uint64", defaultValue: "0" },
         { name: "unknown1", type: "uint32", defaultValue: 0 },
         { name: "unknown2", type: "uint32", defaultValue: 0 },
         { name: "unknown3", type: "uint32", defaultValue: 0 },
@@ -5212,8 +5269,56 @@ var packets = [
       ],
     },
   ],
-  ["PlayerUpdate.SeekTarget", 0x0f2b, {}],
-  ["PlayerUpdate.SeekTargetUpdate", 0x0f2c, {}],
+  [
+    "PlayerUpdate.SeekTarget",
+    0x0f2b,
+    {
+      fields: [
+        { name: "unknown1", type: "byte", defaultValue: 0 },
+        { name: "unknown2", type: "byte", defaultValue: 0 },
+        {
+          name: "characterId",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        {
+          name: "TargetCharacterId",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        { name: "unknown5", type: "uint32", defaultValue: 0 },
+        { name: "unknown6", type: "uint32", defaultValue: 0 },
+        { name: "unknown7", type: "uint32", defaultValue: 0 },
+        { name: "unknown8", type: "uint32", defaultValue: 0 },
+        { name: "unknown9", type: "uint32", defaultValue: 0 },
+        {
+          name: "position",
+          type: "floatvector4",
+          defaultValue: [0, 0, 0, 0],
+        },
+      ],
+    },
+  ],
+  [
+    "PlayerUpdate.SeekTargetUpdate",
+    0x0f2c,
+    {
+      fields: [
+        { name: "unknown1", type: "byte", defaultValue: 0 },
+        { name: "unknown2", type: "byte", defaultValue: 0 },
+        {
+          name: "characterId",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        {
+          name: "TargetCharacterId",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+      ],
+    },
+  ],
   [
     "PlayerUpdate.UpdateActiveWieldType",
     0x0f2d,
@@ -5260,7 +5365,7 @@ var packets = [
           type: "uint64",
           defaultValue: "0x0000000000000000",
         },
-        { name: "unknown4", type: "uint32", defaultValue:10 },
+        { name: "unknown4", type: "uint32", defaultValue: 10 },
         { name: "timeMs", type: "uint32", defaultValue: 1000 },
         { name: "unknown6", type: "uint32", defaultValue: 10 },
         { name: "stringId", type: "uint32", defaultValue: 10 },
@@ -6959,23 +7064,38 @@ var packets = [
   ],
   ["Fotomat", 0x67, {}],
   ["UpdateUserAge", 0x68, {}],
-  ["Loot.Reply", 0x6901, { fields : [
-    { name: "unknown1", type: "byte", defaultValue: 1 } ,
-    { name: "vector1", type: "floatvector4", defaultValue: [-236.977, 22.55735, -1155.98, 1] },
-    { name: "unknown2", type: "uint32", defaultValue: 363588788 } ,
-    { name: "unknown3", type: "uint32", defaultValue: 363588788 } ,
-    { name: "unknown4", type: "uint32", defaultValue: 363588788 } ,
-    { name: "unknown5", type: "uint32", defaultValue: 363588788 } ,
-    { name: "unknown6", type: "uint32", defaultValue: 363588788 } ,
-    { name: "unknown7", type: "uint32", defaultValue: 363588788} ,
-    { name: "unknown8", type: "uint32", defaultValue: 363588788 } ,
-    { name: "unknown9", type: "uint32", defaultValue: 363588788 } ,
+  [
+    "Loot.Reply",
+    0x6901,
     {
-      name: "array4",
-      type: "array",
-      fields: [ { name: "unknown10", type: "byte", defaultValue: 0 } ]
-    } ,
-    { name: "vector2", type: "floatvector4", defaultValue: [-236.977, 22.55735, -1155.98, 1] },]}],
+      fields: [
+        { name: "unknown1", type: "byte", defaultValue: 1 },
+        {
+          name: "vector1",
+          type: "floatvector4",
+          defaultValue: [-236.977, 22.55735, -1155.98, 1],
+        },
+        { name: "unknown2", type: "uint32", defaultValue: 363588788 },
+        { name: "unknown3", type: "uint32", defaultValue: 363588788 },
+        { name: "unknown4", type: "uint32", defaultValue: 363588788 },
+        { name: "unknown5", type: "uint32", defaultValue: 363588788 },
+        { name: "unknown6", type: "uint32", defaultValue: 363588788 },
+        { name: "unknown7", type: "uint32", defaultValue: 363588788 },
+        { name: "unknown8", type: "uint32", defaultValue: 363588788 },
+        { name: "unknown9", type: "uint32", defaultValue: 363588788 },
+        {
+          name: "array4",
+          type: "array",
+          fields: [{ name: "unknown10", type: "byte", defaultValue: 0 }],
+        },
+        {
+          name: "vector2",
+          type: "floatvector4",
+          defaultValue: [-236.977, 22.55735, -1155.98, 1],
+        },
+      ],
+    },
+  ],
   ["Loot.Request", 0x6902, {}],
   ["Loot.DiscardRequest", 0x6903, {}],
   ["Loot.LootAllRequest", 0x6904, {}],
@@ -9082,43 +9202,63 @@ var packets = [
   ],
   ["NavGen", 0xce, {}],
   ["Locks", 0xcf, {}],
-  ["Ragdoll.UpdatePose", 0xd001, { fields : [
-    { name: "unknown1", type: "byte", defaultValue: 0 } ,
-    { name: "unknown2", type: "byte", defaultValue: 0 } ,
-    { name: "unknown3", type: "byte", defaultValue: 0 } ,
-    { name: "characterId", type: "uint64", defaultValue: "0x0000000000000000" } ,
-    { name: "unknown5", type: "byte", defaultValue: 0 } ,
-    { name: "unknown6", type: "uint32", defaultValue: 0 } ,
+  [
+    "Ragdoll.UpdatePose",
+    0xd001,
     {
-      name: "array4",
-      type: "array",
-      fields: [ { name: "unknown2", type: "uint32", defaultValue: 0 } ]
-    } ,
-    {
-      name: "array5",
-      type: "array",
-      fields: [ { name: "unknown3", type: "uint32", defaultValue: 0 } ]
-    } ,
-    ]}],
-  ["Ragdoll.Stop", 0xd002, { fields : [
-    { name: "unknown1", type: "byte", defaultValue: 0 } ,
-    { name: "unknown2", type: "byte", defaultValue: 0 } ,
-    { name: "unknown3", type: "byte", defaultValue: 0 } ,
-    { name: "unknown4", type: "uint64", defaultValue: "0x0000000000000000" } ,
-    {
-      name: "array1",
-      type: "array",
       fields: [
-        { name: "unknown5", type: "byte", defaultValue: 0 }, 
-        { name: "unknown6", type: "uint32", defaultValue: 0 }
-      ]
-    } ,
+        { name: "unknown1", type: "byte", defaultValue: 0 },
+        { name: "unknown2", type: "byte", defaultValue: 0 },
+        { name: "unknown3", type: "byte", defaultValue: 0 },
+        {
+          name: "characterId",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        { name: "unknown5", type: "byte", defaultValue: 0 },
+        { name: "unknown6", type: "uint32", defaultValue: 0 },
+        {
+          name: "array4",
+          type: "array",
+          fields: [{ name: "unknown2", type: "uint32", defaultValue: 0 }],
+        },
+        {
+          name: "array5",
+          type: "array",
+          fields: [{ name: "unknown3", type: "uint32", defaultValue: 0 }],
+        },
+      ],
+    },
+  ],
+  [
+    "Ragdoll.Stop",
+    0xd002,
     {
-      name: "array2",
-      type: "array",
-      fields: [ { name: "unknown7", type: "uint32", defaultValue: 0 } ]
-    } ,
-    ]}],
+      fields: [
+        { name: "unknown1", type: "byte", defaultValue: 0 },
+        { name: "unknown2", type: "byte", defaultValue: 0 },
+        { name: "unknown3", type: "byte", defaultValue: 0 },
+        {
+          name: "unknown4",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        {
+          name: "array1",
+          type: "array",
+          fields: [
+            { name: "unknown5", type: "byte", defaultValue: 0 },
+            { name: "unknown6", type: "uint32", defaultValue: 0 },
+          ],
+        },
+        {
+          name: "array2",
+          type: "array",
+          fields: [{ name: "unknown7", type: "uint32", defaultValue: 0 }],
+        },
+      ],
+    },
+  ],
 ];
 
 const packetTypes = {},

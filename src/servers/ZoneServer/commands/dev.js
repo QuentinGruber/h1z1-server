@@ -10,13 +10,20 @@ const dev = {
     const characterId = generateCharacterId();
     server.sendData(client, "PlayerUpdate.AddLightweightNpc", {
       characterId: characterId,
-      modelId: 7225,
+      modelId: 9001,
       transientId: server.getTransientId(client, characterId),
       position: client.character.state.position,
       array5: [{ unknown1: 0 }],
       array17: [{ unknown1: 0 }],
       array18: [{ unknown1: 0 }],
     });
+    setInterval(() => {
+      server.sendData(client, "PlayerUpdate.SeekTarget", {
+        characterId: characterId,
+        TargetCharacterId: client.character.characterId,
+        position: client.character.state.position,
+      });
+    }, 500);
   },
   testVehicle: function (server, client, args) {
     const characterId = generateCharacterId();
