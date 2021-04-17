@@ -643,7 +643,7 @@ export class ZoneServer extends EventEmitter {
 
   forceTime(time: number) {
     this._cycleSpeed = 0.1;
-    this._frozeCycle = false;
+    this._frozeCycle = true;
     this._gameTime = time;
     this.sendSyncToAll();
   }
@@ -662,7 +662,6 @@ export class ZoneServer extends EventEmitter {
   getGameTime() {
     debug("get server time");
     let delta = Date.now() - this._startGameTime;
-    console.log(this._frozeCycle)
     return this._frozeCycle? Number(((this._gameTime+delta)/1000).toFixed(0)) : Number(((this._gameTime)/1000).toFixed(0));
   }
 
@@ -677,7 +676,7 @@ export class ZoneServer extends EventEmitter {
     this.sendData(client, "GameTimeSync", {
       time: Int64String(this.getGameTime()),
       cycleSpeed: this._cycleSpeed,
-      frozeCycle: this._frozeCycle,
+      unknownBoolean: false,
     });
   }
 
