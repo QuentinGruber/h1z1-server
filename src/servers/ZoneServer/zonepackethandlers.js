@@ -287,11 +287,7 @@ const packetHandlers = {
     delete server._clients[client.sessionId];
   },
   GameTimeSync: function (server, client, packet) {
-    server.sendData(client, "GameTimeSync", {
-      time: Int64String(server.getGameTime()),
-      cycleSpeed: 12,
-      unknownBoolean1: false,
-    });
+    server.sendGameTimeSync(client);
   },
   Synchronization: function (server, client, packet) {
     const serverTime = Int64String(server.getServerTime());
