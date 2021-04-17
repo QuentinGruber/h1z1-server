@@ -10,6 +10,7 @@ const dev = {
     const characterId = generateCharacterId();
     server.sendData(client, "PlayerUpdate.AddLightweightNpc", {
       characterId: characterId,
+      modelId: 7225,
       transientId: server.getTransientId(client, characterId),
       position: client.character.state.position,
       array5: [{ unknown1: 0 }],
@@ -18,11 +19,12 @@ const dev = {
     });
   },
   testVehicle: function (server, client, args) {
+    const characterId = generateCharacterId();
     const vehicleData = {
       npcData: {
-        guid: generateCharacterId(),
-        transientId: 1,
         unknownString0: "",
+        guid: characterId,
+        transientId: server.getTransientId(client, characterId),
         nameId: 12,
         unknownDword2: 0,
         unknownDword3: 0,
@@ -34,7 +36,7 @@ const dev = {
         unknownDword5: 0,
         unknownDword6: 0,
         position: client.character.state.position,
-        unknownVector1: [0, 0, 0, 1],
+        unknownVector1: [0, 0, 0, 0],
         rotation: [0, 0, 0, 1],
         unknownDword7: 0,
         unknownFloat1: 3,
@@ -67,14 +69,11 @@ const dev = {
         array17: [{ unknown1: 0 }],
         array18: [{ unknown1: 0 }],
       },
-      unknownGuid1: generateCharacterId(),
+      unknownGuid1: characterId,
       unknownDword1: 0,
       unknownDword2: 0,
-      positionUpdate: server.createPositionUpdate(
-        client.character.state.position,
-        [0, 0, 0, 0]
-      ),
-      unknownString1: "mdr",
+      positionUpdate: server.createPositionUpdate([0, 0, 0, 0], [0, 0, 0, 0]),
+      unknownString1: "",
     };
 
     server.sendData(client, "PlayerUpdate.AddLightweightVehicle", vehicleData);
