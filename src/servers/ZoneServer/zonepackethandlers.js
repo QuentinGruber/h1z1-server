@@ -294,12 +294,13 @@ const packetHandlers = {
     });
   },
   Synchronization: function (server, client, packet) {
+    const serverTime = Int64String(server.getServerTime());
     server.sendData(client, "Synchronization", {
       time1: packet.data.time1,
       time2: packet.data.time2,
       clientTime: packet.data.clientTime,
-      serverTime: Int64String(server.getServerTime()),
-      serverTime2: Int64String(server.getServerTime()),
+      serverTime: serverTime,
+      serverTime2: serverTime,
       time3: packet.data.clientTime + 2,
     });
   },
