@@ -176,6 +176,7 @@ const packetHandlers = {
     });
   },
   ClientFinishedLoading: function (server, client, packet) {
+    server.spawnAllNpc(client);
     server.sendData(client, "POIChangeMessage", {
       messageStringId: 20,
       id: 99,
