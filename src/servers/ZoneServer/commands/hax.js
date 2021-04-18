@@ -12,6 +12,27 @@ const hax = {
     server.forceTime(971172000000);
     server.sendChatText(client, "Will force Day time on next sync...", true);
   },
+  time: function (server, client, args) {
+    const choosenHour = Number(args[1]);
+    if (!choosenHour) {
+      server.sendChatText(client, "You need to specify an hour to set !");
+      return;
+    }
+    server.forceTime(choosenHour * 3600 * 1000);
+    server.sendChatText(
+      client,
+      `Will force time to be ${
+        choosenHour % 1 >= 0.5
+          ? choosenHour.toFixed(0) - 1
+          : choosenHour.toFixed(0)
+      }:${
+        choosenHour % 1 === 0
+          ? "00"
+          : (((choosenHour % 1) * 100 * 60) / 100).toFixed(0)
+      } on next sync...`,
+      true
+    );
+  },
   realTime: function (server, client, args) {
     server.removeForcedTime();
     server.sendChatText(client, "Game time is now based on real time", true);
