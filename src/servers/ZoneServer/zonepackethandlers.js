@@ -176,6 +176,7 @@ const packetHandlers = {
     });
   },
   ClientFinishedLoading: function (server, client, packet) {
+    server.spawnAllNpc(client);
     server.sendData(client, "POIChangeMessage", {
       messageStringId: 20,
       id: 99,
@@ -287,19 +288,16 @@ const packetHandlers = {
     delete server._clients[client.sessionId];
   },
   GameTimeSync: function (server, client, packet) {
-    server.sendData(client, "GameTimeSync", {
-      time: Int64String(server.getGameTime()),
-      cycleSpeed: 12,
-      unknownBoolean1: false,
-    });
+    server.sendGameTimeSync(client);
   },
   Synchronization: function (server, client, packet) {
+    const serverTime = Int64String(server.getServerTime());
     server.sendData(client, "Synchronization", {
       time1: packet.data.time1,
       time2: packet.data.time2,
       clientTime: packet.data.clientTime,
-      serverTime: Int64String(server.getServerTime()),
-      serverTime2: Int64String(server.getServerTime()),
+      serverTime: serverTime,
+      serverTime2: serverTime,
       time3: packet.data.clientTime + 2,
     });
   },
@@ -354,11 +352,11 @@ const packetHandlers = {
           "/player_fall_through_world_test",
         ];
         server.sendChatText(client, `Commands list:`);
-        _.concat(commandList, haxCommandList, devCommandList).forEach(
-          (command) => {
+        _.concat(commandList, haxCommandList, devCommandList)
+          .sort((a, b) => a.localeCompare(b))
+          .forEach((command) => {
             server.sendChatText(client, `${command}`);
-          }
-        );
+          });
         break;
       case Jenkins.oaat("LOCATION"):
       case 3270589520: // /loc
@@ -1065,13 +1063,14 @@ const packetHandlers = {
   },
   Pickup: function (server, client, packet) {
     debug(packet);
-    debug("PlayerUpdate.LootEvent isn't send since it crash the game rn.");
-    return;
     const { data: packetData } = packet;
-    server.sendData(client, "PlayerUpdate.LootEvent", {
-      unknownQword1: Int64String(packetData.id),
-      unknownQword2: Int64String(packetData.id),
-      unknownDword2: packet.id,
+    server.sendData(client, "PlayerUpdate.StartHarvest", {
+      characterId: client.character.characterId,
+      unknown4: 0,
+      timeMs: 10,
+      unknown6: 0,
+      stringId: 10002,
+      unknownGuid: Int64String(packetData.id),
     });
   },
   GetRewardBuffInfo: function (server, client, packet) {
@@ -1103,8 +1102,8 @@ const packetHandlers = {
   "PlayerUpdate.Respawn": function (server, client, packet) {
     debug(packet);
     server.sendData(client, "PlayerUpdate.RespawnReply", {
-      characterId: "0x03147cca2a860191",
-      status: 1,
+      characterId: client.character.characterId,
+      position: [0, 200, 0, 1],
     });
   },
   "PlayerUpdate.FullCharacterDataRequest": function (server, client, packet) {

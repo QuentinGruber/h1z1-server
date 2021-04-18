@@ -6,15 +6,124 @@ import fs from "fs";
 const hax = {
   forceNight: function (server, client, args) {
     server.forceTime(1615062252322);
-    server.sendChatText(client, "Will force Night time on next sync...", true);
+    server.sendChatText(
+      client,
+      "[Deprecated] This command will be removed in futher updates",
+      true
+    );
+    server.sendChatText(
+      client,
+      "Use /hax time {choosen hour as float} instead",
+      false
+    );
+    server.sendChatText(client, "Will force Night time on next sync...", false);
   },
   forceDay: function (server, client, args) {
     server.forceTime(971172000000);
-    server.sendChatText(client, "Will force Day time on next sync...", true);
+    server.sendChatText(
+      client,
+      "[Deprecated] This command will be removed in futher updates",
+      true
+    );
+    server.sendChatText(
+      client,
+      "Use /hax time {choosen hour as float} instead",
+      false
+    );
+    server.sendChatText(client, "Will force Day time on next sync...", false);
+  },
+  time: function (server, client, args) {
+    const choosenHour = Number(args[1]);
+    if (choosenHour < 0) {
+      server.sendChatText(client, "You need to specify an hour to set !");
+      return;
+    }
+    server.forceTime(choosenHour * 3600 * 1000);
+    server.sendChatText(
+      client,
+      `Will force time to be ${
+        choosenHour % 1 >= 0.5
+          ? choosenHour.toFixed(0) - 1
+          : choosenHour.toFixed(0)
+      }:${
+        choosenHour % 1 === 0
+          ? "00"
+          : (((choosenHour % 1) * 100 * 60) / 100).toFixed(0)
+      } on next sync...`,
+      true
+    );
   },
   realTime: function (server, client, args) {
     server.removeForcedTime();
     server.sendChatText(client, "Game time is now based on real time", true);
+  },
+  spamOffroader: function (server, client, args) {
+    for (let index = 0; index < 150; index++) {
+      const vehicleData = {
+        npcData: {
+          guid: generateCharacterId(),
+          transientId: 1,
+          unknownString0: "",
+          nameId: 12,
+          unknownDword2: 0,
+          unknownDword3: 0,
+          unknownByte1: 0,
+          modelId: 7225,
+          scale: [1, 1, 1, 1],
+          unknownString1: "",
+          unknownString2: "",
+          unknownDword5: 0,
+          unknownDword6: 0,
+          position: client.character.state.position,
+          unknownVector1: [0, 0, 0, 1],
+          rotation: [0, 0, 0, 1],
+          unknownDword7: 0,
+          unknownFloat1: 3,
+          unknownString3: "",
+          unknownString4: "",
+          unknownString5: "",
+          vehicleId: 3,
+          unknownDword9: 0,
+          npcDefinitionId: 2,
+          unknownByte2: 2,
+          profileId: 3,
+          unknownBoolean1: false,
+          unknownData1: {
+            unknownByte1: 16,
+            unknownByte2: 9,
+            unknownByte3: 0,
+          },
+          unknownByte6: 0,
+          unknownDword11: 0,
+          unknownGuid1: "0x0000000000000000",
+          unknownData2: {
+            unknownGuid1: "0x0000000000000000",
+          },
+          unknownDword12: 0,
+          unknownDword13: 0,
+          unknownDword14: 0,
+          unknownByte7: 0,
+          unknownArray1: [],
+          array5: [{ unknown1: 0 }],
+          array17: [{ unknown1: 0 }],
+          array18: [{ unknown1: 0 }],
+        },
+        unknownGuid1: generateCharacterId(),
+        unknownDword1: 0,
+        unknownDword2: 0,
+        positionUpdate: server.createPositionUpdate(
+          client.character.state.position,
+          [0, 0, 0, 0]
+        ),
+        unknownString1: "mdr",
+      };
+
+      server.sendData(
+        client,
+        "PlayerUpdate.AddLightweightVehicle",
+        vehicleData
+      );
+    }
   },
   spawnNpcModel: function (server, client, args) {
     const guid = server.generateGuid();
@@ -31,9 +140,11 @@ const hax = {
       transientId: transientId,
       modelId: choosenModelId,
       position: client.character.state.position,
-      characterFirstName: ``,
+      array5: [{ unknown1: 0 }],
+      array17: [{ unknown1: 0 }],
+      array18: [{ unknown1: 0 }],
     };
-    server.sendData(client, "PlayerUpdate.AddLightweightPc", npc);
+    server.sendData(client, "PlayerUpdate.AddLightweightNpc", npc);
     server._npcs[characterId] = npc; // save npc
   },
   sonic: function (server, client, args) {
