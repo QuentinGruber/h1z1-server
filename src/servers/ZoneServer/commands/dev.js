@@ -85,6 +85,22 @@ const dev = {
 
     server.sendData(client, "PlayerUpdate.AddLightweightVehicle", vehicleData);
   },
+  findModel: function (server, client, args) {
+    const models = require("../../../../data/Models.json");
+    const wordFilter = args[1];
+    if (wordFilter) {
+      const result = models.filter((word) =>
+        word?.MODEL_FILE_NAME?.toLowerCase().includes(wordFilter.toLowerCase())
+      );
+      server.sendChatText(client, `Found models for ${wordFilter}:`);
+      for (let index = 0; index < result.length; index++) {
+        const element = result[index];
+        server.sendChatText(client, `${element.ID} ${element.MODEL_FILE_NAME}`);
+      }
+    } else {
+      server.sendChatText(client, `missing word filter`);
+    }
+  },
   reloadPackets: function (server, client, args) {
     if (args[1]) {
       server.reloadPackets(client, args[1]);
