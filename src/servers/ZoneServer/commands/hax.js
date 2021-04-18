@@ -99,9 +99,11 @@ const hax = {
       transientId: transientId,
       modelId: choosenModelId,
       position: client.character.state.position,
-      characterFirstName: ``,
+      array5: [{ unknown1: 0 }],
+      array17: [{ unknown1: 0 }],
+      array18: [{ unknown1: 0 }],
     };
-    server.sendData(client, "PlayerUpdate.AddLightweightPc", npc);
+    server.sendData(client, "PlayerUpdate.AddLightweightNpc", npc);
     server._npcs[characterId] = npc; // save npc
   },
   sonic: function (server, client, args) {

@@ -458,12 +458,11 @@ export class ZoneServer extends EventEmitter {
       battleRank: 100,
     });
 
-    this.spawnAllNpc(client);
   }
 
   spawnAllNpc(client: Client) {
     for (let npc in this._npcs) {
-      this.sendData(client, "PlayerUpdate.AddLightweightPc", this._npcs[npc]);
+      this.sendData(client, "PlayerUpdate.AddLightweightNpc", this._npcs[npc]);
     }
   }
 

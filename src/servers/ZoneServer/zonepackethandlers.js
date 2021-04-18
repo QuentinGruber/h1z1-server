@@ -176,6 +176,7 @@ const packetHandlers = {
     });
   },
   ClientFinishedLoading: function (server, client, packet) {
+    server.spawnAllNpc(client);
     server.sendData(client, "POIChangeMessage", {
       messageStringId: 20,
       id: 99,
@@ -351,11 +352,11 @@ const packetHandlers = {
           "/player_fall_through_world_test",
         ];
         server.sendChatText(client, `Commands list:`);
-        _.concat(commandList, haxCommandList, devCommandList).forEach(
-          (command) => {
+        _.concat(commandList, haxCommandList, devCommandList)
+          .sort((a, b) => a.localeCompare(b))
+          .forEach((command) => {
             server.sendChatText(client, `${command}`);
-          }
-        );
+          });
         break;
       case Jenkins.oaat("LOCATION"):
       case 3270589520: // /loc
