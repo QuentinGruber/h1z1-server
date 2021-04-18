@@ -224,7 +224,6 @@ export class ZoneServer extends EventEmitter {
     await this.setupServer();
     this._startTime += Date.now();
     this._startGameTime += Date.now();
-    console.log(this._gameTime)
     this._gatewayServer.start();
   }
 
