@@ -34,7 +34,7 @@ const hax = {
   },
   time: function (server, client, args) {
     const choosenHour = Number(args[1]);
-    if (!choosenHour) {
+    if (choosenHour < 0) {
       server.sendChatText(client, "You need to specify an hour to set !");
       return;
     }
