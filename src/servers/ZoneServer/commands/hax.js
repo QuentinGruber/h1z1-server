@@ -6,11 +6,52 @@ import fs from "fs";
 const hax = {
   forceNight: function (server, client, args) {
     server.forceTime(1615062252322);
-    server.sendChatText(client, "Will force Night time on next sync...", true);
+    server.sendChatText(
+      client,
+      "[Deprecated] This command will be removed in futher updates",
+      true
+    );
+    server.sendChatText(
+      client,
+      "Use /hax time {choosen hour as float} instead",
+      false
+    );
+    server.sendChatText(client, "Will force Night time on next sync...", false);
   },
   forceDay: function (server, client, args) {
     server.forceTime(971172000000);
-    server.sendChatText(client, "Will force Day time on next sync...", true);
+    server.sendChatText(
+      client,
+      "[Deprecated] This command will be removed in futher updates",
+      true
+    );
+    server.sendChatText(
+      client,
+      "Use /hax time {choosen hour as float} instead",
+      false
+    );
+    server.sendChatText(client, "Will force Day time on next sync...", false);
+  },
+  time: function (server, client, args) {
+    const choosenHour = Number(args[1]);
+    if (!choosenHour) {
+      server.sendChatText(client, "You need to specify an hour to set !");
+      return;
+    }
+    server.forceTime(choosenHour * 3600 * 1000);
+    server.sendChatText(
+      client,
+      `Will force time to be ${
+        choosenHour % 1 >= 0.5
+          ? choosenHour.toFixed(0) - 1
+          : choosenHour.toFixed(0)
+      }:${
+        choosenHour % 1 === 0
+          ? "00"
+          : (((choosenHour % 1) * 100 * 60) / 100).toFixed(0)
+      } on next sync...`,
+      true
+    );
   },
   realTime: function (server, client, args) {
     server.removeForcedTime();

@@ -33,12 +33,16 @@ export class ZoneServer extends EventEmitter {
   _mongoAddress: string;
   _clients: any;
   _characters: any;
+  _gameTime: any;
   _serverTime: any;
   _transientId: any;
   _guids: Array<string>;
   _packetHandlers: any;
   _referenceData: any;
   _startTime: number;
+  _startGameTime: number;
+  _cycleSpeed: number;
+  _frozeCycle: boolean;
   _weather: Weather;
   _spawnLocations: any;
   _defaultWeatherTemplate: string;
@@ -52,7 +56,6 @@ export class ZoneServer extends EventEmitter {
     mongoAddress: string = ""
   ) {
     super();
-    this.forceTime(971172000000); // force day time by default
     this._gatewayServer = new GatewayServer(
       "ExternalGatewayApi_3",
       serverPort,
@@ -69,6 +72,9 @@ export class ZoneServer extends EventEmitter {
     this._referenceData = this.parseReferenceData();
     this._packetHandlers = packetHandlers;
     this._startTime = 0;
+    this._startGameTime = 0;
+    this._cycleSpeed = 0;
+    this._frozeCycle = false;
     this._reloadPacketsInterval;
     this._soloMode = false;
     this._weatherTemplates = localWeatherTemplates;
@@ -181,6 +187,7 @@ export class ZoneServer extends EventEmitter {
   }
 
   async setupServer() {
+    this.forceTime(971172000000); // force day time by default
     await this.loadMongoData();
     this._weather = this._soloMode
       ? this._weatherTemplates[this._defaultWeatherTemplate]
@@ -216,6 +223,7 @@ export class ZoneServer extends EventEmitter {
     }
     await this.setupServer();
     this._startTime += Date.now();
+    this._startGameTime += Date.now();
     this._gatewayServer.start();
   }
 
@@ -632,16 +640,17 @@ export class ZoneServer extends EventEmitter {
   }
 
   forceTime(time: number) {
-    Date.now = () => {
-      // force current time
-      return time;
-    };
+    this._cycleSpeed = 0.1;
+    this._frozeCycle = true;
+    this._gameTime = time;
+    this.sendSyncToAll();
   }
 
   removeForcedTime() {
-    Date.now = () => {
-      return new Date().getTime();
-    };
+    this._cycleSpeed = 0.1;
+    this._frozeCycle = false;
+    this._gameTime = Date.now();
+    this.sendSyncToAll();
   }
 
   getCurrentTime() {
@@ -649,14 +658,14 @@ export class ZoneServer extends EventEmitter {
   }
 
   getGameTime() {
-    debug("get game time");
-    return Math.floor(Date.now() / 1000);
+    debug("get server time");
+    let delta = Date.now() - this._startGameTime;
+    return this._frozeCycle? Number(((this._gameTime+delta)/1000).toFixed(0)) : Number(((this._gameTime)/1000).toFixed(0));
   }
 
   getServerTime() {
     debug("get server time");
     let delta = Date.now() - this._startTime;
-    delta = Math.floor(delta / 1000);
     return this._serverTime + delta;
   }
 
@@ -664,8 +673,16 @@ export class ZoneServer extends EventEmitter {
     debug("GameTimeSync");
     this.sendData(client, "GameTimeSync", {
       time: Int64String(this.getGameTime()),
-      unknownFloat1: 12,
-      unknownBoolean1: false,
+      cycleSpeed: this._cycleSpeed,
+      unknownBoolean: false,
+    });
+  }
+
+  sendSyncToAll() { // TODO: this do not seems to work
+    debug("Synchronization");
+    this.sendDataToAll("Synchronization", {
+      serverTime: Int64String(this.getServerTime()),
+      serverTime2: Int64String(this.getServerTime()),
     });
   }
 
