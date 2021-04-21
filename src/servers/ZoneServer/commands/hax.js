@@ -164,6 +164,17 @@ const hax = {
       message: " ",
     });
   },
+  changeModel: function (server, client, args) {
+    const newModelId = args[1];
+    if (newModelId) {
+      server.sendData(client, "PlayerUpdate.ReplaceBaseModel", {
+        characterId: client.character.characterId,
+        modelId: newModelId,
+      });
+    } else {
+      server.sendChatText(client, "Specify a model id !");
+    }
+  },
   weather: function (server, client, args) {
     const weatherTemplate = server._soloMode
       ? server._weatherTemplates[args[1]]

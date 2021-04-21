@@ -5191,7 +5191,23 @@ var packets = [
   ["PlayerUpdate.SetComboState", 0x0f1f, {}],
   ["PlayerUpdate.SetSurpriseState", 0x0f20, {}],
   ["PlayerUpdate.RemoveNpcCustomization", 0x0f21, {}],
-  ["PlayerUpdate.ReplaceBaseModel", 0x0f22, {}],
+  [
+    "PlayerUpdate.ReplaceBaseModel",
+    0x0f22,
+    {
+      fields: [
+        { name: "unknown1", type: "byte", defaultValue: 0 },
+        { name: "unknown2", type: "byte", defaultValue: 0 },
+        {
+          name: "characterId",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        { name: "modelId", type: "uint32", defaultValue: 0 },
+        { name: "unknown3", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
   ["PlayerUpdate.SetCollidable", 0x0f23, {}],
   ["PlayerUpdate.UpdateOwner", 0x0f24, {}],
   ["PlayerUpdate.WeaponStance", 0x0f25, {}],
