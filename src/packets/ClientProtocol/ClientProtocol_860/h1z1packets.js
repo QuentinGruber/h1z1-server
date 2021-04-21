@@ -5227,7 +5227,7 @@ var packets = [
         { name: "unknown4", type: "uint32", defaultValue: 50 },
         { name: "unknown5", type: "uint32", defaultValue: 50 },
         {
-          name: "unknownVector1",
+          name: "position",
           type: "floatvector4",
           defaultValue: [10, 0, 0, 1],
         },
