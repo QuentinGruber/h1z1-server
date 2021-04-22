@@ -177,6 +177,7 @@ const packetHandlers = {
   },
   ClientFinishedLoading: function (server, client, packet) {
     server.spawnAllNpc(client);
+    server.spawnAllObject(client);
     server.sendData(client, "POIChangeMessage", {
       messageStringId: 20,
       id: 99,
@@ -318,12 +319,15 @@ const packetHandlers = {
             _clients: clients,
             _characters: characters,
             _npcs: npcs,
+            _objects: objects,
           } = server;
           const serverVersion = require("../../../package.json").version;
           server.sendChatText(client, `h1z1-server V${serverVersion}`, true);
           server.sendChatText(client, `Connected clients : ${_.size(clients)}`);
           server.sendChatText(client, `characters : ${_.size(characters)}`);
           server.sendChatText(client, `npcs : ${_.size(npcs)}`);
+          server.sendChatText(client, `objects : ${_.size(objects)}`);
+
           break;
         }
       case 1757604914: // /spawninfo

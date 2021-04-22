@@ -17,10 +17,12 @@ import { default as packetHandlers } from "./zonepackethandlers";
 import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
 const localSpawnList = require("../../../data/spawnLocations.json");
 import _ from "lodash";
-import { Int64String, initMongo, getCharacterId } from "../../utils/utils";
+import { Int64String, initMongo, getCharacterId, generateCharacterId } from "../../utils/utils";
 const debugName = "ZoneServer";
 const debug = require("debug")(debugName);
 const localWeatherTemplates = require("../../../data/weather.json");
+const Z1_doors = require("../../../data/Z1_doors.json")
+const models = require("../../../data/Models.json")
 import { Weather, Client } from "../../types/zoneserver";
 import { MongoClient } from "mongodb";
 
@@ -48,6 +50,7 @@ export class ZoneServer extends EventEmitter {
   _defaultWeatherTemplate: string;
   _weatherTemplates: any;
   _npcs: any;
+  _objects:any;
   _reloadPacketsInterval: any;
   _pingTimeoutTime: number;
   constructor(
@@ -66,6 +69,7 @@ export class ZoneServer extends EventEmitter {
     this._clients = {};
     this._characters = {};
     this._npcs = {};
+    this._objects = {};
     this._serverTime = this.getCurrentTime();
     this._transientId = 0;
     this._guids = [];
@@ -194,6 +198,8 @@ export class ZoneServer extends EventEmitter {
       : _.find(this._weatherTemplates, (template) => {
           return template.templateName === this._defaultWeatherTemplate;
         });
+    this.createAllObjects();
+    debug("Server ready")
   }
   async start() {
     debug("Starting server");
@@ -463,6 +469,46 @@ export class ZoneServer extends EventEmitter {
     for (let npc in this._npcs) {
       this.sendData(client, "PlayerUpdate.AddLightweightNpc", this._npcs[npc]);
     }
+  }
+
+  spawnAllObject(client: Client) {
+    for (let object in this._objects) {
+      this.sendData(client, "PlayerUpdate.AddLightweightNpc", this._objects[object]);
+    }
+  }
+
+  createObject(modelID:number,position:Array<number>,rotation:Array<number>){
+    const guid = this.generateGuid();
+    const transientId = _.size(this._objects);
+    const choosenModelId = modelID;
+    const characterId = generateCharacterId();
+    position[1] += 2.25;
+    const object = {
+      characterId: characterId,
+      guid: guid,
+      transientId: transientId,
+      modelId: choosenModelId,
+      position: position,
+      rotation: rotation,
+      array5: [{ unknown1: 0 }],
+      array17: [{ unknown1: 0 }],
+      array18: [{ unknown1: 0 }],
+    };
+    this._objects[characterId] = object; // save npc
+  }
+
+  createAllObjects(){
+    this.createAllDoors();
+    debug("All objects created")
+  }
+  createAllDoors() {
+    Z1_doors.forEach((doorType:any) => { // TODO: add types for Z1_doors
+      const modelId:number = _.find(models, { 'MODEL_FILE_NAME': doorType.actorDefinition.replace("_Placer","") })?.ID;
+      doorType.instances.forEach((doorInstance:any) => {
+        modelId ? this.createObject(modelId, doorInstance.position,doorInstance.rotation):null;
+      });
+    });
+    debug("All doors objects created")
   }
 
   data(collectionName: string) {
