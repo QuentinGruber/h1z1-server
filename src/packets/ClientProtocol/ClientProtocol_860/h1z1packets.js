@@ -5807,6 +5807,7 @@ var packets = [
           defaultValue: "0x0000000000000000",
         },
         { name: "doorState", type: "uint32", defaultValue: 0 },
+        { name: "unknownBoolean", type: "boolean", defaultValue: 0 },
       ],
     },
   ],
