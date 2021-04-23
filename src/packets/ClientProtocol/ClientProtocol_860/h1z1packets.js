@@ -5729,7 +5729,24 @@ var packets = [
       ],
     },
   ],
-  ["PlayerUpdate.NameChangeResult", 0x0f5f, {}],
+  [
+    "PlayerUpdate.NameChangeResult",
+    0x0f5f,
+    {
+      fields: [
+        { name: "unknown1", type: "byte", defaultValue: 0 },
+        { name: "unknown2", type: "byte", defaultValue: 0 },
+        {
+          name: "characterId",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        { name: "result", type: "uint32", defaultValue: 1 },
+        { name: "unknown5", type: "uint8", defaultValue: 1 },
+        { name: "unknown6", type: "uint8", defaultValue: 1 },
+      ],
+    },
+  ],
   ["PlayerUpdate.NameValidationResult", 0x0f60, {}],
   [
     "PlayerUpdate.Deploy", // just freeze the player...
