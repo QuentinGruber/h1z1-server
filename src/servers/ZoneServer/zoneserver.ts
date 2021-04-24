@@ -505,7 +505,7 @@ export class ZoneServer extends EventEmitter {
     Z1_doors.forEach((doorType:any) => { // TODO: add types for Z1_doors
       const modelId:number = _.find(models, { 'MODEL_FILE_NAME': doorType.actorDefinition.replace("_Placer","") })?.ID;
       doorType.instances.forEach((doorInstance:any) => {
-        modelId ? this.createObject(modelId, doorInstance.position,doorInstance.rotation):null;
+        modelId ? this.createObject(modelId, doorInstance.position,doorInstance.rotation):this.createObject(9183, doorInstance.position,doorInstance.rotation);
       });
     });
     debug("All doors objects created")
