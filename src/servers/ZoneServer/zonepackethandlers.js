@@ -1112,6 +1112,7 @@ const packetHandlers = {
   },
   "PlayerUpdate.FullCharacterDataRequest": function (server, client, packet) {
     debug(packet);
+    return;
     server.sendData(client, "PlayerUpdate.LightweightToFullPc", {
       attachments: [],
       effectTags: [],
