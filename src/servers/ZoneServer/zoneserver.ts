@@ -479,22 +479,19 @@ export class ZoneServer extends EventEmitter {
 
   createObject(modelID:number,position:Array<number>,rotation:Array<number>){
     const guid = this.generateGuid();
-    const transientId = _.size(this._objects);
-    const choosenModelId = modelID;
     const characterId = generateCharacterId();
     rotation[0] += 250;
-    const object = {
+    this._objects[characterId] = {
       characterId: characterId,
       guid: guid,
-      transientId: transientId,
-      modelId: choosenModelId,
+      transientId: 1,
+      modelId: modelID,
       position: position,
       rotation: rotation,
       array5: [{ unknown1: 0 }],
       array17: [{ unknown1: 0 }],
       array18: [{ unknown1: 0 }],
     };
-    this._objects[characterId] = object; // save npc
   }
 
   createAllObjects(){
