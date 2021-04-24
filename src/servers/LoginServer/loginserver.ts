@@ -259,13 +259,14 @@ export class LoginServer extends EventEmitter {
               break;
 
             case "TunnelAppPacketClientToServer":
-              const TestData = {
-                unknown1: true,
-              };
+              console.log(packet)
+              packet.tunnelData = new (Buffer as any).alloc(4);
+              packet.tunnelData.writeUInt32LE(0x1)
               data = this._protocol.pack(
                 "TunnelAppPacketServerToClient",
-                TestData
+                packet
               );
+              console.log(data)
               this._soeServer.sendAppData(client, data, true);
               break;
 
