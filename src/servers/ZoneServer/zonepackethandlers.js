@@ -174,10 +174,10 @@ const packetHandlers = {
     server.sendData(client, "ClientUpdate.ModifyMovementSpeed", {
       speed: 11.0,
     });
-  },
-  ClientFinishedLoading: function (server, client, packet) {
     server.spawnAllNpc(client);
     server.spawnAllObject(client);
+  },
+  ClientFinishedLoading: function (server, client, packet) {
     server.sendData(client, "POIChangeMessage", {
       messageStringId: 20,
       id: 99,

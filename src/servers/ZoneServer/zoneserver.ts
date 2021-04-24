@@ -482,7 +482,7 @@ export class ZoneServer extends EventEmitter {
     const transientId = _.size(this._objects);
     const choosenModelId = modelID;
     const characterId = generateCharacterId();
-    position[1] += 2.25;
+    rotation[0] += 250;
     const object = {
       characterId: characterId,
       guid: guid,
