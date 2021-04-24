@@ -116,14 +116,10 @@ export class LoginServer extends EventEmitter {
                 cowboy.characterId = getCharacterId(99);
                 cowboy.payload.name = "Cowboy";
 
-                const zombie = _.cloneDeep(SinglePlayerCharacter); // for fun X2
-                zombie.characterId = getCharacterId(100);
-                zombie.payload.name = "Z (only third person)";
-
                 CharactersInfo = {
                   status: 1,
                   canBypassServerLock: true,
-                  characters: [SinglePlayerCharacter, cowboy, zombie],
+                  characters: [SinglePlayerCharacter, cowboy],
                 };
               } else {
                 const charactersQuery = { ownerId: client.loginSessionId };
@@ -263,13 +259,14 @@ export class LoginServer extends EventEmitter {
               break;
 
             case "TunnelAppPacketClientToServer":
-              const TestData = {
-                unknown1: true,
-              };
+              console.log(packet)
+              packet.tunnelData = new (Buffer as any).alloc(4);
+              packet.tunnelData.writeUInt32LE(0x1) // TODO
               data = this._protocol.pack(
                 "TunnelAppPacketServerToClient",
-                TestData
+                packet
               );
+              console.log(data)
               this._soeServer.sendAppData(client, data, true);
               break;
 
