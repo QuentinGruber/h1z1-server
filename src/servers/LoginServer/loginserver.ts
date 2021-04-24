@@ -261,7 +261,7 @@ export class LoginServer extends EventEmitter {
             case "TunnelAppPacketClientToServer":
               console.log(packet)
               packet.tunnelData = new (Buffer as any).alloc(4);
-              packet.tunnelData.writeUInt32LE(0x1)
+              packet.tunnelData.writeUInt32LE(0x1) // TODO
               data = this._protocol.pack(
                 "TunnelAppPacketServerToClient",
                 packet
