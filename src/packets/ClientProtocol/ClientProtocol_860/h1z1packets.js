@@ -956,11 +956,11 @@ const lightWeightNpcSchema = [
   { name: "unknown14", type: "uint32", defaultValue: 0 },
   { name: "position", type: "floatvector4", defaultValue: [0, 50, 0, 1] },
   {
-    name: "unknownVector1",
+    name: "rotation",
     type: "floatvector4",
     defaultValue: [0, 0, 0, 1],
   },
-  { name: "rotation", type: "floatvector4", defaultValue: [0, 0, 0, 1] },
+  { name: "rotation2", type: "floatvector4", defaultValue: [0, 0, 0, 1] },
   { name: "unknown18", type: "uint32", defaultValue: 0 },
   { name: "unknown19", type: "uint32", defaultValue: 0 },
   { name: "string20", type: "string", defaultValue: "" },
@@ -5811,7 +5811,23 @@ var packets = [
     },
   ],
   ["PlayerUpdate.AggroLevel", 0x0f69, {}],
-  ["PlayerUpdate.DoorState", 0x0f6a, {}],
+  [
+    "PlayerUpdate.DoorState",
+    0x0f6a,
+    {
+      fields: [
+        { name: "unknown1", type: "byte", defaultValue: 0 },
+        { name: "unknown2", type: "byte", defaultValue: 0 },
+        {
+          name: "characterId",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        { name: "doorState", type: "uint32", defaultValue: 0 },
+        { name: "unknownBoolean", type: "boolean", defaultValue: 0 },
+      ],
+    },
+  ],
   ["PlayerUpdate.RequestToggleDoorState", 0x0f6b, {}],
   [
     "PlayerUpdate.BeginCharacterAccess",
