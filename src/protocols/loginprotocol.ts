@@ -37,18 +37,15 @@ export class LoginProtocol {
     let result;
     const packet = this.LoginPackets.Packets[packetType];
     if (packet) {
-      if (
-        packet.name === "TunnelAppPacketClientToServer"
-      ) {
+      if (packet.name === "TunnelAppPacketClientToServer") {
         return {
-          serverId:data.readUInt32LE(1),
-          unknown:data.readUInt32LE(5),
-          packetLenght:data.readUInt32LE(9),
+          serverId: data.readUInt32LE(1),
+          unknown: data.readUInt32LE(5),
+          packetLenght: data.readUInt32LE(9),
           name: packet.name,
           tunnelData: data.slice(13),
         };
-      }
-      else if (packet.schema) {
+      } else if (packet.schema) {
         debug(packet.name);
         result = DataSchema.parse(packet.schema, data, 1, undefined).result;
         debug("[DEBUG] Packet receive :");
@@ -77,18 +74,14 @@ export class LoginProtocol {
     let payload;
     let data;
     if (packet) {
-      
-      if (
-        packet.name === "TunnelAppPacketServerToClient"
-      ) {
+      if (packet.name === "TunnelAppPacketServerToClient") {
         data = new (Buffer as any).alloc(13 + object.tunnelData.length);
         data.writeUInt8(packetType, 0);
-        data.writeUInt64String(Int64String(object.serverId),1);
-        data.writeUInt32LE(object.tunnelData.length,9);
+        data.writeUInt64String(Int64String(object.serverId), 1);
+        data.writeUInt32LE(object.tunnelData.length, 9);
         object.tunnelData.copy(data, 13);
         debug("tunnelpacket send data :", object);
-      }
-      else if (packet.schema) {
+      } else if (packet.schema) {
         debug("Packing data for " + packet.name);
         payload = DataSchema.pack(
           packet.schema,
