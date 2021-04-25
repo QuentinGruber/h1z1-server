@@ -114,7 +114,9 @@ export class ZoneServer extends EventEmitter {
         console.error(err);
       } else {
         debug("zone login");
+        setImmediate(() => {
         this.sendInitData(client);
+        })
       }
     });
 
@@ -459,13 +461,18 @@ export class ZoneServer extends EventEmitter {
 
   spawnAllNpc(client: Client) {
     for (let npc in this._npcs) {
+      setImmediate(() => {
       this.sendData(client, "PlayerUpdate.AddLightweightNpc", this._npcs[npc]);
+    });
+
     }
   }
 
   spawnAllObject(client: Client) {
     for (let object in this._objects) {
+      setImmediate(() => {
       this.sendData(client, "PlayerUpdate.AddLightweightNpc", this._objects[object]);
+    });
     }
   }
 

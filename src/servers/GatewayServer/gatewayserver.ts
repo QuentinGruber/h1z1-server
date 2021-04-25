@@ -70,6 +70,7 @@ export class GatewayServer extends EventEmitter {
               );
 
               if (result && result.characterId) {
+                setImmediate(() => {
                 this.emit(
                   "login",
                   null,
@@ -77,6 +78,7 @@ export class GatewayServer extends EventEmitter {
                   result.characterId,
                   result.ticket
                 );
+                })
               }
               break;
             case "Logout":
