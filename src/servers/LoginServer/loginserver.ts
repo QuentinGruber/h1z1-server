@@ -116,14 +116,10 @@ export class LoginServer extends EventEmitter {
                 cowboy.characterId = getCharacterId(99);
                 cowboy.payload.name = "Cowboy";
 
-                const zombie = _.cloneDeep(SinglePlayerCharacter); // for fun X2
-                zombie.characterId = getCharacterId(100);
-                zombie.payload.name = "Z (only third person)";
-
                 CharactersInfo = {
                   status: 1,
                   canBypassServerLock: true,
-                  characters: [SinglePlayerCharacter, cowboy, zombie],
+                  characters: [SinglePlayerCharacter, cowboy],
                 };
               } else {
                 const charactersQuery = { ownerId: client.loginSessionId };
@@ -210,21 +206,21 @@ export class LoginServer extends EventEmitter {
                 const { serverAddress } = await this._db
                   .collection("servers")
                   .findOne({ serverId: serverId });
-                  charactersLoginInfo = {
-                    unknownQword1: "0x0",
-                    unknownDword1: 0,
-                    unknownDword2: 0,
-                    status: 1,
-                    applicationData: {
-                        serverAddress: serverAddress,
-                        serverTicket: client.loginSessionId,
-                        encryptionKey: this._cryptoKey,
-                        guid: characterId,
-                        unknownQword2: "0x0",
-                        stationName: "",
-                        characterName: "",
-                        unknownString: "",
-                    },
+                charactersLoginInfo = {
+                  unknownQword1: "0x0",
+                  unknownDword1: 0,
+                  unknownDword2: 0,
+                  status: 1,
+                  applicationData: {
+                    serverAddress: serverAddress,
+                    serverTicket: client.loginSessionId,
+                    encryptionKey: this._cryptoKey,
+                    guid: characterId,
+                    unknownQword2: "0x0",
+                    stationName: "",
+                    characterName: "",
+                    unknownString: "",
+                  },
                 };
               } else {
                 charactersLoginInfo = {
@@ -233,16 +229,16 @@ export class LoginServer extends EventEmitter {
                   unknownDword2: 0,
                   status: 1,
                   applicationData: {
-                      serverAddress: "127.0.0.1:1117",
-                      serverTicket: client.loginSessionId,
-                      encryptionKey: this._cryptoKey,
-                      guid: characterId,
-                      unknownQword2: "0x0",
-                      stationName: "",
-                      characterName: "",
-                      unknownString: "",
+                    serverAddress: "127.0.0.1:1117",
+                    serverTicket: client.loginSessionId,
+                    encryptionKey: this._cryptoKey,
+                    guid: characterId,
+                    unknownQword2: "0x0",
+                    stationName: "",
+                    characterName: "",
+                    unknownString: "",
                   },
-              };
+                };
               }
               debug(charactersLoginInfo);
               data = this._protocol.pack(
@@ -263,13 +259,14 @@ export class LoginServer extends EventEmitter {
               break;
 
             case "TunnelAppPacketClientToServer":
-              const TestData = {
-                unknown1: true,
-              };
+              console.log(packet);
+              packet.tunnelData = new (Buffer as any).alloc(4);
+              packet.tunnelData.writeUInt32LE(0x1); // TODO
               data = this._protocol.pack(
                 "TunnelAppPacketServerToClient",
-                TestData
+                packet
               );
+              console.log(data);
               this._soeServer.sendAppData(client, data, true);
               break;
 

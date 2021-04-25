@@ -956,11 +956,11 @@ const lightWeightNpcSchema = [
   { name: "unknown14", type: "uint32", defaultValue: 0 },
   { name: "position", type: "floatvector4", defaultValue: [0, 50, 0, 1] },
   {
-    name: "unknownVector1",
+    name: "rotation",
     type: "floatvector4",
     defaultValue: [0, 0, 0, 1],
   },
-  { name: "rotation", type: "floatvector4", defaultValue: [0, 0, 0, 1] },
+  { name: "unknownVector", type: "floatvector4", defaultValue: [0, 0, 0, 1] },
   { name: "unknown18", type: "uint32", defaultValue: 0 },
   { name: "unknown19", type: "uint32", defaultValue: 0 },
   { name: "string20", type: "string", defaultValue: "" },
@@ -5191,7 +5191,23 @@ var packets = [
   ["PlayerUpdate.SetComboState", 0x0f1f, {}],
   ["PlayerUpdate.SetSurpriseState", 0x0f20, {}],
   ["PlayerUpdate.RemoveNpcCustomization", 0x0f21, {}],
-  ["PlayerUpdate.ReplaceBaseModel", 0x0f22, {}],
+  [
+    "PlayerUpdate.ReplaceBaseModel",
+    0x0f22,
+    {
+      fields: [
+        { name: "unknown1", type: "byte", defaultValue: 0 },
+        { name: "unknown2", type: "byte", defaultValue: 0 },
+        {
+          name: "characterId",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        { name: "modelId", type: "uint32", defaultValue: 0 },
+        { name: "unknown3", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
   ["PlayerUpdate.SetCollidable", 0x0f23, {}],
   ["PlayerUpdate.UpdateOwner", 0x0f24, {}],
   ["PlayerUpdate.WeaponStance", 0x0f25, {}],
@@ -5211,7 +5227,7 @@ var packets = [
         { name: "unknown4", type: "uint32", defaultValue: 50 },
         { name: "unknown5", type: "uint32", defaultValue: 50 },
         {
-          name: "unknownVector1",
+          name: "position",
           type: "floatvector4",
           defaultValue: [10, 0, 0, 1],
         },
@@ -5536,19 +5552,37 @@ var packets = [
         { name: "unknown1", type: "byte", defaultValue: 0 },
         { name: "unknown2", type: "byte", defaultValue: 0 },
         {
-          name: "unknown3",
+          name: "characterId",
           type: "uint64",
           defaultValue: "0x0000000000000000",
         },
-        { name: "unknown4", type: "byte", defaultValue: 0 },
-        { name: "unknown1", type: "uint32", defaultValue: 0 },
-        { name: "unknown5", type: "uint32", defaultValue: 0 },
-        { name: "unknown6", type: "uint32", defaultValue: 0 },
-        { name: "unknown7", type: "uint32", defaultValue: 0 },
-        { name: "unknown8", type: "uint32", defaultValue: 0 },
-        { name: "unknown9", type: "string", defaultValue: "hello" },
-        { name: "unknown10", type: "string", defaultValue: "hello" },
-        // schema?
+        {
+          name: "transientId",
+          type: "custom",
+          parser: readUnsignedIntWith2bitLengthValue,
+          packer: packUnsignedIntWith2bitLengthValue,
+        },
+        { name: "unknown5", type: "byte", defaultValue: 1 },
+        {
+          name: "position",
+          type: "floatvector4",
+          defaultValue: [0, 50, 0, 0],
+        },
+        {
+          name: "rotation",
+          type: "floatvector4",
+          defaultValue: [0, 0, 0, 1],
+        },
+        {
+          name: "array3",
+          type: "array",
+          fields: [{ name: "unknown1", type: "byte", defaultValue: 0 }],
+        },
+        {
+          name: "array4",
+          type: "array",
+          fields: [{ name: "unknown1", type: "byte", defaultValue: 0 }],
+        },
       ],
     },
   ],
@@ -5695,7 +5729,24 @@ var packets = [
       ],
     },
   ],
-  ["PlayerUpdate.NameChangeResult", 0x0f5f, {}],
+  [
+    "PlayerUpdate.NameChangeResult",
+    0x0f5f,
+    {
+      fields: [
+        { name: "unknown1", type: "byte", defaultValue: 0 },
+        { name: "unknown2", type: "byte", defaultValue: 0 },
+        {
+          name: "characterId",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        { name: "result", type: "uint32", defaultValue: 1 },
+        { name: "unknown5", type: "uint8", defaultValue: 1 },
+        { name: "unknown6", type: "uint8", defaultValue: 1 },
+      ],
+    },
+  ],
   ["PlayerUpdate.NameValidationResult", 0x0f60, {}],
   [
     "PlayerUpdate.Deploy", // just freeze the player...
@@ -5760,7 +5811,23 @@ var packets = [
     },
   ],
   ["PlayerUpdate.AggroLevel", 0x0f69, {}],
-  ["PlayerUpdate.DoorState", 0x0f6a, {}],
+  [
+    "PlayerUpdate.DoorState",
+    0x0f6a,
+    {
+      fields: [
+        { name: "unknown1", type: "byte", defaultValue: 0 },
+        { name: "unknown2", type: "byte", defaultValue: 0 },
+        {
+          name: "characterId",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        { name: "doorState", type: "uint32", defaultValue: 0 },
+        { name: "unknownBoolean", type: "boolean", defaultValue: 0 },
+      ],
+    },
+  ],
   ["PlayerUpdate.RequestToggleDoorState", 0x0f6b, {}],
   [
     "PlayerUpdate.BeginCharacterAccess",

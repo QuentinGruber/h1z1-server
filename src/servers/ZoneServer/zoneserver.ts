@@ -17,10 +17,17 @@ import { default as packetHandlers } from "./zonepackethandlers";
 import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
 const localSpawnList = require("../../../data/spawnLocations.json");
 import _ from "lodash";
-import { Int64String, initMongo, getCharacterId } from "../../utils/utils";
+import {
+  Int64String,
+  initMongo,
+  getCharacterId,
+  generateCharacterId,
+} from "../../utils/utils";
 const debugName = "ZoneServer";
 const debug = require("debug")(debugName);
 const localWeatherTemplates = require("../../../data/weather.json");
+const Z1_doors = require("../../../data/Z1_doors.json");
+const models = require("../../../data/Models.json");
 import { Weather, Client } from "../../types/zoneserver";
 import { MongoClient } from "mongodb";
 
@@ -48,6 +55,7 @@ export class ZoneServer extends EventEmitter {
   _defaultWeatherTemplate: string;
   _weatherTemplates: any;
   _npcs: any;
+  _objects: any;
   _reloadPacketsInterval: any;
   _pingTimeoutTime: number;
   constructor(
@@ -66,6 +74,7 @@ export class ZoneServer extends EventEmitter {
     this._clients = {};
     this._characters = {};
     this._npcs = {};
+    this._objects = {};
     this._serverTime = this.getCurrentTime();
     this._transientId = 0;
     this._guids = [];
@@ -110,7 +119,9 @@ export class ZoneServer extends EventEmitter {
         console.error(err);
       } else {
         debug("zone login");
-        this.sendInitData(client);
+        setImmediate(() => {
+          this.sendInitData(client);
+        });
       }
     });
 
@@ -194,6 +205,8 @@ export class ZoneServer extends EventEmitter {
       : _.find(this._weatherTemplates, (template) => {
           return template.templateName === this._defaultWeatherTemplate;
         });
+    this.createAllObjects();
+    debug("Server ready");
   }
   async start() {
     debug("Starting server");
@@ -327,14 +340,6 @@ export class ZoneServer extends EventEmitter {
       self.data.identity.characterFirstName = "Cowboy :)";
       self.data.extraModel = "SurvivorMale_Ivan_OutbackHat_Base.adr";
       self.data.extraModelTexture = "Ivan_OutbackHat_LeatherTan";
-    } else if (
-      String(client.character.characterId).toUpperCase() ===
-      String(getCharacterId(100)).toUpperCase()
-    ) {
-      // for fun 🤠
-      self.data.characterId = String(getCharacterId(100)).toUpperCase();
-      self.data.identity.characterFirstName = "Z";
-      self.data.actorModelId = 9001;
     }
     const {
       data: { identity },
@@ -456,13 +461,78 @@ export class ZoneServer extends EventEmitter {
       characterId: client.character.characterId,
       battleRank: 100,
     });
-
   }
 
   spawnAllNpc(client: Client) {
     for (let npc in this._npcs) {
-      this.sendData(client, "PlayerUpdate.AddLightweightNpc", this._npcs[npc]);
+      setImmediate(() => {
+        this.sendData(
+          client,
+          "PlayerUpdate.AddLightweightNpc",
+          this._npcs[npc]
+        );
+      });
     }
+  }
+
+  spawnAllObject(client: Client) {
+    for (let object in this._objects) {
+      setImmediate(() => {
+        this.sendData(
+          client,
+          "PlayerUpdate.AddLightweightNpc",
+          this._objects[object]
+        );
+      });
+    }
+  }
+
+  createObject(
+    modelID: number,
+    position: Array<number>,
+    rotation: Array<number>
+  ) {
+    const guid = this.generateGuid();
+    const characterId = generateCharacterId();
+    rotation[0] += 250;
+    this._objects[characterId] = {
+      characterId: characterId,
+      guid: guid,
+      transientId: 1,
+      modelId: modelID,
+      position: position,
+      rotation: rotation,
+      array5: [{ unknown1: 0 }],
+      array17: [{ unknown1: 0 }],
+      array18: [{ unknown1: 0 }],
+    };
+  }
+
+  createAllObjects() {
+    this.createAllDoors();
+    debug("All objects created");
+  }
+  createAllDoors() {
+    Z1_doors.forEach((doorType: any) => {
+      // TODO: add types for Z1_doors
+      const modelId: number = _.find(models, {
+        MODEL_FILE_NAME: doorType.actorDefinition.replace("_Placer", ""),
+      })?.ID;
+      doorType.instances.forEach((doorInstance: any) => {
+        modelId
+          ? this.createObject(
+              modelId,
+              doorInstance.position,
+              doorInstance.rotation
+            )
+          : this.createObject(
+              9183,
+              doorInstance.position,
+              doorInstance.rotation
+            );
+      });
+    });
+    debug("All doors objects created");
   }
 
   data(collectionName: string) {
@@ -660,7 +730,9 @@ export class ZoneServer extends EventEmitter {
   getGameTime() {
     debug("get server time");
     let delta = Date.now() - this._startGameTime;
-    return this._frozeCycle? Number(((this._gameTime+delta)/1000).toFixed(0)) : Number(((this._gameTime)/1000).toFixed(0));
+    return this._frozeCycle
+      ? Number(((this._gameTime + delta) / 1000).toFixed(0))
+      : Number((this._gameTime / 1000).toFixed(0));
   }
 
   getServerTime() {
@@ -678,7 +750,8 @@ export class ZoneServer extends EventEmitter {
     });
   }
 
-  sendSyncToAll() { // TODO: this do not seems to work
+  sendSyncToAll() {
+    // TODO: this do not seems to work
     debug("Synchronization");
     this.sendDataToAll("Synchronization", {
       serverTime: Int64String(this.getServerTime()),
