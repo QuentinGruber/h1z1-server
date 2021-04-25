@@ -960,7 +960,7 @@ const lightWeightNpcSchema = [
     type: "floatvector4",
     defaultValue: [0, 0, 0, 1],
   },
-  { name: "rotation2", type: "floatvector4", defaultValue: [0, 0, 0, 1] },
+  { name: "unknownVector", type: "floatvector4", defaultValue: [0, 0, 0, 1] },
   { name: "unknown18", type: "uint32", defaultValue: 0 },
   { name: "unknown19", type: "uint32", defaultValue: 0 },
   { name: "string20", type: "string", defaultValue: "" },
