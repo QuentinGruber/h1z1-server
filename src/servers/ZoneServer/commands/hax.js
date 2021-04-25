@@ -59,12 +59,14 @@ const hax = {
   },
   despawnObjects: function (server, client, args) {
     for (let object in server._objects) {
-      server.sendData(client, "PlayerUpdate.RemovePlayer", {
-        characterId: object,
-      });
-      delete server._objects[object];
+      if(object != client.character.characterId){ // TODO: fix that bug the right way
+        server.sendData(client, "PlayerUpdate.RemovePlayer", {
+          characterId: object,
+        });
+        delete server._objects[object];
+      }
     }
-    server.sendChatText(client, "Objects removed from the game.", true);
+      server.sendChatText(client, "Objects removed from the game.", true);
   },
   spamOffroader: function (server, client, args) {
     for (let index = 0; index < 150; index++) {
