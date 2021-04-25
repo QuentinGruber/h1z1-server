@@ -103,7 +103,6 @@ const hax = {
           guid: generateCharacterId(),
           transientId: 1,
           modelId: 9301,
-          scale: [0.1, 0.1, 0.1, 0.1],
           position: client.character.state.position,
           unknownArray1: [],
           array5: [{ unknown1: 0 }],
