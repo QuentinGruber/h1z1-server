@@ -15,7 +15,7 @@ import { GatewayServer } from "../GatewayServer/gatewayserver";
 import fs from "fs";
 import { default as packetHandlers } from "./zonepackethandlers";
 import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
-const localSpawnList = require("../../../data/spawnLocations.json");
+const localSpawnList = require("../../../data/sampleData/spawnLocations.json");
 import _ from "lodash";
 import {
   Int64String,
@@ -25,9 +25,9 @@ import {
 } from "../../utils/utils";
 const debugName = "ZoneServer";
 const debug = require("debug")(debugName);
-const localWeatherTemplates = require("../../../data/weather.json");
-const Z1_doors = require("../../../data/Z1_doors.json");
-const models = require("../../../data/Models.json");
+const localWeatherTemplates = require("../../../data/sampleData/weather.json");
+const Z1_doors = require("../../../data/zoneData/Z1_doors.json");
+const models = require("../../../data/dataSources/Models.json");
 import { Weather, Client } from "../../types/zoneserver";
 import { MongoClient } from "mongodb";
 
@@ -312,7 +312,7 @@ export class ZoneServer extends EventEmitter {
 
   parseReferenceData() {
     const itemData = fs.readFileSync(
-        `${__dirname}/../../../data/ClientItemDefinitions.txt`,
+        `${__dirname}/../../../data/dataSources/ClientItemDefinitions.txt`,
         "utf8"
       ),
       itemLines = itemData.split("\n"),
@@ -328,9 +328,9 @@ export class ZoneServer extends EventEmitter {
 
   characterData(client: Client) {
     delete require.cache[
-      require.resolve("../../../data/sendself.json") // reload json
+      require.resolve("../../../data/sampleData/sendself.json") // reload json
     ];
-    const self = require("../../../data/sendself.json"); // dummy self
+    const self = require("../../../data/sampleData/sendself.json"); // dummy self
     if (
       String(client.character.characterId).toUpperCase() ===
       String(getCharacterId(99)).toUpperCase()
@@ -371,6 +371,15 @@ export class ZoneServer extends EventEmitter {
       ].name;
     }
     this.sendData(client, "SendSelfToClient", self);
+  }
+  generateProfiles(): any[] {
+    const profiles: any[] = [];
+    const profileTypes = require("../../../data/dataSources/ProfileTypes.json")
+    profileTypes.forEach((profile:any) => {
+      profiles.push({profileId:profile.ID,type:profile.ID,nameId:profile.NAME_ID})
+    });
+    debug("Generated profiles")
+    return profiles;
   }
 
   sendInitData(client: Client) {

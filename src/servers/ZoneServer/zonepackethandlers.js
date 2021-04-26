@@ -1062,7 +1062,7 @@ const packetHandlers = {
     server.sendData(
       client,
       "ProfileStats.PlayerProfileStats",
-      require("../../../data/profilestats.json")
+      require("../../../data/sampleData/profilestats.json")
     );
   },
   Pickup: function (server, client, packet) {
