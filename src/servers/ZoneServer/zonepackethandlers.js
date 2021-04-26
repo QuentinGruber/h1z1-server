@@ -23,23 +23,13 @@ import { Int64String } from "../../utils/utils";
 
 const packetHandlers = {
   ClientIsReady: function (server, client, packet) {
+    /* still disable
     server.sendData(client, "ClientBeginZoning", {
-      unknownByte1: 0,
-      zoneName: "Z1",
-      zoneType: 4,
       position: client.character.state.position,
       rotation: client.character.state.rotation,
-
       skyData: server._weather,
-      unknownByte2: 0,
-      zoneId1: 1,
-      zoneId2: 2,
-      nameId: 67,
-      unknownDword10: 1,
-      unknownBoolean1: true,
-      unknownBoolean2: true,
     });
-
+    */
     server.sendData(client, "QuickChat.SendData", { commands: [] });
 
     server.sendData(client, "ClientUpdate.DoneSendingPreloadCharacters", {
