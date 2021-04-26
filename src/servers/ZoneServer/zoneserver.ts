@@ -50,6 +50,7 @@ export class ZoneServer extends EventEmitter {
   _startGameTime: number;
   _cycleSpeed: number;
   _frozeCycle: boolean;
+  _profiles:any[];
   _weather: Weather;
   _spawnLocations: any;
   _defaultWeatherTemplate: string;
@@ -89,6 +90,7 @@ export class ZoneServer extends EventEmitter {
     this._weatherTemplates = localWeatherTemplates;
     this._defaultWeatherTemplate = "H1emuBaseWeather";
     this._weather = this._weatherTemplates[this._defaultWeatherTemplate];
+    this._profiles = [];
     this._pingTimeoutTime = 30000;
     if (!this._mongoAddress) {
       this._soloMode = true;
@@ -205,6 +207,7 @@ export class ZoneServer extends EventEmitter {
       : _.find(this._weatherTemplates, (template) => {
           return template.templateName === this._defaultWeatherTemplate;
         });
+    this._profiles = this.generateProfiles();
     this.createAllObjects();
     debug("Server ready");
   }
@@ -370,7 +373,18 @@ export class ZoneServer extends EventEmitter {
         randomSpawnIndex
       ].name;
     }
+
+    self.data.profiles = this._profiles;
     this.sendData(client, "SendSelfToClient", self);
+  }
+  generateProfiles(): any[] {
+    const profiles: any[] = [];
+    const profileTypes = require("../../../data/ProfileTypes.json")
+    profileTypes.forEach((profile:any) => {
+      profiles.push({profileId:profile.ID,type:profile.ID,nameId:profile.NAME_ID})
+    });
+    debug("Generated profiles")
+    return profiles;
   }
 
   sendInitData(client: Client) {
