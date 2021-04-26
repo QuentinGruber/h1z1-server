@@ -885,9 +885,11 @@ const skyData = [
   { name: "unknownDword22", type: "int32", defaultValue: 0 },
   { name: "unknownDword23", type: "int32", defaultValue: 0 },
   { name: "unknownDword24", type: "int32", defaultValue: 0 },
+  { name: "unknownDword25", type: "int32", defaultValue: 0 },
   {
     name: "unknownArray",
     type: "array",
+    fixedLength: 50,
     defaultValue: [],
     fields: [
       { name: "unknownDword1", type: "int32", defaultValue: 0 },
