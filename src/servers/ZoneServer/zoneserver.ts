@@ -364,8 +364,8 @@ export class ZoneServer extends EventEmitter {
       const randomSpawnIndex = Math.floor(
         Math.random() * this._spawnLocations.length
       );
-      self.data.position = this._spawnLocations[randomSpawnIndex].position;
-      self.data.rotation = this._spawnLocations[randomSpawnIndex].rotation;
+      self.data.position = client.character.state.position = this._spawnLocations[randomSpawnIndex].position;
+      self.data.rotation = client.character.state.rotation = this._spawnLocations[randomSpawnIndex].rotation;
       client.character.spawnLocation = this._spawnLocations[
         randomSpawnIndex
       ].name;
