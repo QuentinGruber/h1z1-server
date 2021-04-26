@@ -11,7 +11,7 @@
     "@types/node": "14.14.25",
     "convert_to_int64": "^1.0.1",
     "debug": "4.3.1",
-    "h1z1-dataschema": "1.0.9",
+    "h1z1-dataschema": "1.0.10",
     "hash-jenkins": "1.0.1",
     "js-base64": "3.6.0",
     "lodash": "4.17.21",
