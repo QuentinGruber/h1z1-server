@@ -3872,7 +3872,7 @@ var packets = [
                 { name: "unknownByte1", type: "uint8", defaultValue: 0 },
               ],
             },
-
+            // unknown array here
             {
               name: "skillPointData",
               type: "schema",
@@ -3903,6 +3903,7 @@ var packets = [
             { name: "unknownDword39", type: "uint32", defaultValue: 0 },
             { name: "unknownDword40", type: "uint32", defaultValue: 0 },
             { name: "unknownBoolean9", type: "boolean", defaultValue: true },
+            { name: "unknownBoolean10", type: "boolean", defaultValue: true },
           ],
         },
       ],
