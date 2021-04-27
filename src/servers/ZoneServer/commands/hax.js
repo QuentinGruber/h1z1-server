@@ -175,7 +175,7 @@ const hax = {
     if (!args[1]) {
       server.sendChatText(
         client,
-        "Please define a weather template to use (data/weather.json)"
+        "Please define a weather template to use (data/sampleData/weather.json)"
       );
     } else if (weatherTemplate) {
       server.changeWeather(client, weatherTemplate);
@@ -218,13 +218,13 @@ const hax = {
             currentWeather.templateName
           ] = currentWeather;
           fs.writeFileSync(
-            `${__dirname}/../../../../data/weather.json`,
+            `${__dirname}/../../../../data/sampleData/weather.json`,
             JSON.stringify(server._weatherTemplates)
           );
           delete require.cache[
             require.resolve("../../../../data/weather.json")
           ];
-          server._weatherTemplates = require("../../../../data/weather.json");
+          server._weatherTemplates = require("../../../../data/sampleData/weather.json");
         } else {
           await server._db.collection("weathers").insertOne(currentWeather);
           server._weatherTemplates = await server._db
