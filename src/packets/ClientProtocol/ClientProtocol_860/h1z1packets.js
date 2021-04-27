@@ -1773,12 +1773,14 @@ const loadoutDataSubSchema2 = [
 ];
 
 const fullNpcDataSchema = [
+  { name: "unknown1", type: "byte", defaultValue: 0 },
+  { name: "unknown2", type: "byte", defaultValue: 0 },
   {
     name: "transient_id",
     type: "custom",
     parser: readUnsignedIntWith2bitLengthValue,
     packer: packUnsignedIntWith2bitLengthValue,
-    defaultValue: 115,
+    defaultValue: 1,
   },
   { name: "unknownDword1", type: "uint32", defaultValue: 0 },
   { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -1847,31 +1849,26 @@ const fullNpcDataSchema = [
       { name: "unknownDword23", type: "uint32", defaultValue: 0 },
     ],
   },
-  {
-    name: "unknownData1",
-    type: "schema",
-    fields: [
-      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-      { name: "unknownString1", type: "string", defaultValue: "" },
-      { name: "unknownString2", type: "string", defaultValue: "" },
-      { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-      { name: "unknownString3", type: "string", defaultValue: "" },
-    ],
-  },
+  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+  { name: "unknownString1", type: "string", defaultValue: "" },
+  { name: "unknownString2", type: "string", defaultValue: "" },
+  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+  { name: "unknownString3", type: "string", defaultValue: "" },
   { name: "unknownVector4", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
   { name: "unknownDword9", type: "uint32", defaultValue: 0 },
   { name: "unknownDword10", type: "uint32", defaultValue: 0 },
   { name: "unknownDword11", type: "uint32", defaultValue: 0 },
   { name: "characterId", type: "uint64", defaultValue: "0" },
   { name: "unknownFloat3", type: "float", defaultValue: 0.0 },
-  { name: "targetData", type: "schema", fields: targetDataSchema },
+  // { name: "targetData", type: "schema", fields: targetDataSchema }, removed
   {
     name: "characterVariables",
     type: "array",
     defaultValue: [],
     fields: [
-      { name: "unknownString1", type: "string", defaultValue: "" },
       { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      { name: "unknownString1", type: "string", defaultValue: "" },
+      { name: "unknownDword2", type: "uint32", defaultValue: 0 },
     ],
   },
   { name: "unknownDword12", type: "uint32", defaultValue: 0 },
@@ -1880,11 +1877,8 @@ const fullNpcDataSchema = [
   { name: "unknownDword13", type: "uint32", defaultValue: 0 },
   { name: "unknownFloat5", type: "float", defaultValue: 0.0 },
   { name: "unknownFloat6", type: "float", defaultValue: 0.0 },
-  {
-    name: "unknownData2",
-    type: "schema",
-    fields: [{ name: "unknownFloat1", type: "float", defaultValue: 0.0 }],
-  },
+  { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
+
   { name: "unknownDword14", type: "uint32", defaultValue: 0 },
   { name: "unknownDword15", type: "uint32", defaultValue: 0 },
   { name: "unknownDword16", type: "uint32", defaultValue: 0 },
@@ -1895,21 +1889,15 @@ const fullNpcDataSchema = [
   { name: "unknownDword19", type: "uint32", defaultValue: 0 },
   { name: "unknownDword20", type: "uint32", defaultValue: 0 },
   { name: "unknownDword21", type: "uint32", defaultValue: 0 },
-  {
-    name: "resources",
-    type: "array",
-    defaultValue: [],
-    fields: resourceEventDataSubSchema,
-  },
+
   { name: "unknownGuid1", type: "uint64", defaultValue: "0" },
-  {
-    name: "unknownData3",
-    type: "schema",
-    fields: [{ name: "unknownDword1", type: "uint32", defaultValue: 0 }],
-  },
+  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+  { name: "unknownGuid2", type: "uint64", defaultValue: "0" },
+
+  // missing stuff from 0x1401dfee7
+
   { name: "unknownDword22", type: "uint32", defaultValue: 0 },
-  { name: "unknownBytes1", type: "byteswithlength", defaultValue: null },
-  { name: "unknownBytes2", type: "byteswithlength", defaultValue: null },
+  { name: "unknownDword23", type: "uint32", defaultValue: 0 },
 ];
 
 const respawnLocationDataSchema = [

@@ -1063,28 +1063,8 @@ const packetHandlers = {
     });
   },
   "PlayerUpdate.FullCharacterDataRequest": function (server, client, packet) {
-    debug(packet);
-    return;
-    server.sendData(client, "PlayerUpdate.LightweightToFullPc", {
-      attachments: [],
-      effectTags: [],
-      characterVariables: [],
-      resources: [],
-      unknownVector1: [0, 200, 0],
-      unknownVector2: [0, 200, 0],
-      unknownVector4: [0, 200, 0, 1],
-      unknownVector5: [0, 200, 0, 1],
-      unknownData1: {
-        unknownDword1: 0,
-        unknownString1: "",
-        unknownString2: "",
-        unknownDword2: 0,
-        unknownString3: "",
-      },
-      unknownData2: { unknownFloat1: 1.0 },
-      unknownData3: { unknownDword1: 0 },
-      targetData: { targetType: 1 },
-    });
+   // debug(packet);
+    server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {});
   },
 };
 
