@@ -928,15 +928,11 @@ const lightWeightNpcSchema = [
   { name: "vehicleId", type: "uint32", defaultValue: 0 },
   { name: "unknown24", type: "uint32", defaultValue: 0 },
   { name: "npcDefinitionId", type: "uint32", defaultValue: 0 },
-  { name: "unknown26", type: "byte", defaultValue: 0 },
+  { name: "unknown26", type: "boolean", defaultValue: false },
   { name: "profileId", type: "uint32", defaultValue: 0 },
-  { name: "unknown28", type: "boolean", defaultValue: 0 },
-  {
-    name: "array5",
-    type: "array",
-    fields: [{ name: "unknown1", type: "byte", defaultValue: 0 }],
-  },
-  { name: "unknown30", type: "byte", defaultValue: 0 },
+  { name: "unknown28", type: "boolean", defaultValue: false },
+  { name: "color", type: "rgba", defaultValue: [0, 0, 0, 0] },
+  { name: "unknown30", type: "boolean", defaultValue: false },
   { name: "unknown31", type: "uint32", defaultValue: 0 },
   { name: "unknown32", type: "uint64", defaultValue: "0x0000000000000000" },
   { name: "unknown1", type: "uint64", defaultValue: "0x0000000000000000" },
@@ -952,20 +948,13 @@ const lightWeightNpcSchema = [
   },
   { name: "unknown4", type: "uint32", defaultValue: 0 },
   { name: "unknown33", type: "uint32", defaultValue: 0 },
+
   { name: "unknown34", type: "uint32", defaultValue: 0 },
   { name: "unknown35", type: "uint32", defaultValue: 0 },
-  { name: "unknown36", type: "uint64", defaultValue: "0x0000000000000000" },
   { name: "unknown37", type: "uint32", defaultValue: 0 },
-  {
-    name: "array17",
-    type: "array",
-    fields: [{ name: "unknown1", type: "byte", defaultValue: 0 }],
-  },
-  {
-    name: "array18",
-    type: "array",
-    fields: [{ name: "unknown1", type: "byte", defaultValue: 0 }],
-  },
+  { name: "unknown36", type: "uint64", defaultValue: "0x0000000000000000" },
+  { name: "unknown38", type: "uint32", defaultValue: 0 },
+  { name: "unknown39", type: "byte", defaultValue: 0 },
 ];
 
 const profileStatsSubSchema1 = [
