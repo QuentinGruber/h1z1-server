@@ -370,6 +370,10 @@ export class ZoneServer extends EventEmitter {
         randomSpawnIndex
       ].name;
     }
+    else{
+      client.character.state.position = self.data.position
+      client.character.state.rotation = self.data.rotation
+    }
     this.sendData(client, "SendSelfToClient", self);
   }
   generateProfiles(): any[] {
