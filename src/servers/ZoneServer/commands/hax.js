@@ -4,34 +4,6 @@ const debug = require("debug")("zonepacketHandlers");
 import fs from "fs";
 
 const hax = {
-  forceNight: function (server, client, args) {
-    server.forceTime(1615062252322);
-    server.sendChatText(
-      client,
-      "[Deprecated] This command will be removed in futher updates",
-      true
-    );
-    server.sendChatText(
-      client,
-      "Use /hax time {choosen hour as float} instead",
-      false
-    );
-    server.sendChatText(client, "Will force Night time on next sync...", false);
-  },
-  forceDay: function (server, client, args) {
-    server.forceTime(971172000000);
-    server.sendChatText(
-      client,
-      "[Deprecated] This command will be removed in futher updates",
-      true
-    );
-    server.sendChatText(
-      client,
-      "Use /hax time {choosen hour as float} instead",
-      false
-    );
-    server.sendChatText(client, "Will force Day time on next sync...", false);
-  },
   time: function (server, client, args) {
     const choosenHour = Number(args[1]);
     if (choosenHour < 0) {
