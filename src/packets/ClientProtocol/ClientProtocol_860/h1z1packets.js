@@ -1068,26 +1068,18 @@ const facilityStatsDataSchema = [
 const itemBaseSchema = [
   { name: "itemId", type: "uint32", defaultValue: 0 },
   { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-  { name: "unknownGuid1", type: "uint64", defaultValue: "0" },
+  { name: "unknownGuid1", type: "uint64", defaultValue: "0x0000000000000000" },
   { name: "unknownDword3", type: "uint32", defaultValue: 0 },
   { name: "unknownDword4", type: "uint32", defaultValue: 0 },
   { name: "unknownDword5", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword6", type: "uint32", defaultValue: 0 },
-  { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+  { name: "unknownQword6", type: "uint64", defaultValue: "0x0000000000000000" }, // ici
   { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword8", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword9", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword10", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword11", type: "uint32", defaultValue: 0 },
   { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-  {
-    name: "unknownData",
-    type: "variabletype8",
-    types: {
-      0: [],
-      1: [
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-      ],
-    },
-  },
+  { name: "unknownQword7", type: "uint64", defaultValue: "0x0000000000000000" },
 ];
 
 const effectTagDataSchema = [
@@ -1528,8 +1520,8 @@ function packItemData(obj, referenceData) {
     detailSchema = itemDetailSchema;
   }
 
-  detailData = DataSchema.pack(detailSchema, obj.detail);
-  return Buffer.concat([baseData.data, detailData.data]);
+  //detailData = DataSchema.pack(detailSchema, obj.detail);
+  return baseData.data;
 }
 
 const resourceEventDataSubSchema = [
