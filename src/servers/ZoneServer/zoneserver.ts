@@ -29,12 +29,12 @@ const localWeatherTemplates = require("../../../data/sampleData/weather.json");
 const Z1_doors = require("../../../data/zoneData/Z1_doors.json");
 const models = require("../../../data/dataSources/Models.json");
 import { Weather, Client } from "../../types/zoneserver";
-import { MongoClient } from "mongodb";
+import { MongoClient , Db} from "mongodb";
 
 export class ZoneServer extends EventEmitter {
   _gatewayServer: any;
   _protocol: any;
-  _db: any;
+  _db: Db | undefined;
   _soloMode: any;
   _mongoClient: any;
   _mongoAddress: string;
@@ -58,10 +58,12 @@ export class ZoneServer extends EventEmitter {
   _objects: any;
   _reloadPacketsInterval: any;
   _pingTimeoutTime: number;
+  _worldId: number;
   constructor(
     serverPort: number,
     gatewayKey: string,
-    mongoAddress: string = ""
+    mongoAddress: string = "",
+    worldId: number = 0
   ) {
     super();
     this._gatewayServer = new GatewayServer(
@@ -70,6 +72,7 @@ export class ZoneServer extends EventEmitter {
       gatewayKey
     );
     this._mongoAddress = mongoAddress;
+    this._worldId = worldId;
     this._protocol = new ZoneProtocol();
     this._clients = {};
     this._characters = {};
@@ -205,8 +208,57 @@ export class ZoneServer extends EventEmitter {
       : _.find(this._weatherTemplates, (template) => {
           return template.templateName === this._defaultWeatherTemplate;
         });
-    this.createAllObjects();
+        if(!this._soloMode && (await this._db?.collection("worlds").findOne({worldId:this._worldId}))){
+          this.fetchWorldData();
+        }
+        else{
+          this.createAllObjects();
+          await this.saveWorld();
+        }
     debug("Server ready");
+  }
+  async fetchWorldData() {
+    if(!this._soloMode){
+      const worldData = await this._db?.collection("worlds").findOne({worldId:this._worldId});
+      this._npcs = worldData.npcs
+      this._objects = worldData.objects
+      this._weather = worldData.weather
+      debug("World fetched!")
+    }
+  }
+  async saveWorld() {
+    if(!this._soloMode){
+      const save = {
+        worldId:this._worldId,
+        npcs:this._npcs,
+        weather:this._weather,
+        objects:this._objects
+      }
+      if(this._worldId){
+        if((await this._db?.collection("worlds").findOne({worldId:this._worldId}))){
+          await this._db?.collection("worlds").updateOne({worldId:this._worldId},{$set:save});
+
+        }
+        else {
+          await this._db?.collection("worlds").insertOne(save);
+        }
+
+      }
+      else{
+        const numberOfWorld:number = await this._db?.collection("worlds").find( {  } ).count() || 0
+        const createdWorld = await this._db?.collection("worlds").insertOne( {
+          worldId:numberOfWorld +1,
+          npcs:save.npcs,
+          weather:save.weather,
+          objects:save.objects
+        });
+        this._worldId = createdWorld?.ops[0].worldId
+      }
+      debug("World saved!")
+      setTimeout(() => {
+        this.saveWorld();
+      }, 30000);
+    }
   }
   async start() {
     debug("Starting server");
@@ -243,10 +295,10 @@ export class ZoneServer extends EventEmitter {
   async loadMongoData() {
     this._spawnLocations = this._soloMode
       ? localSpawnList
-      : await this._db.collection("spawns").find().toArray();
+      : await this._db?.collection("spawns").find().toArray();
     this._weatherTemplates = this._soloMode
       ? localWeatherTemplates
-      : await this._db.collection("weathers").find().toArray();
+      : await this._db?.collection("weathers").find().toArray();
   }
 
   async reloadMongoData(client: Client) {
