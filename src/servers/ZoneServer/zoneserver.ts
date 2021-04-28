@@ -52,6 +52,7 @@ export class ZoneServer extends EventEmitter {
   _startGameTime: number;
   _cycleSpeed: number;
   _frozeCycle: boolean;
+  _profiles:any[];
   _weather: Weather;
   _spawnLocations: any;
   _defaultWeatherTemplate: string;
@@ -95,6 +96,7 @@ export class ZoneServer extends EventEmitter {
     this._weatherTemplates = localWeatherTemplates;
     this._defaultWeatherTemplate = "H1emuBaseWeather";
     this._weather = this._weatherTemplates[this._defaultWeatherTemplate];
+    this._profiles = [];
     this._pingTimeoutTime = 30000;
     if (!this._mongoAddress) {
       this._soloMode = true;
@@ -211,13 +213,13 @@ export class ZoneServer extends EventEmitter {
       : _.find(this._weatherTemplates, (template) => {
           return template.templateName === this._defaultWeatherTemplate;
         });
-        if(!this._soloMode && (await this._db?.collection("worlds").findOne({worldId:this._worldId}))){
-          this.fetchWorldData();
-        }
-        else{
-          this.createAllObjects();
-          await this.saveWorld();
-        }
+    this._profiles = this.generateProfiles();
+    if(await this._db?.collection("worlds").findOne({worldId:this._worldId})){
+    await this.fetchWorldData();
+  }
+  else{
+    await this.saveWorld()
+  }
     debug("Server ready");
   }
   async fetchWorldData():Promise<void> {
@@ -240,14 +242,15 @@ export class ZoneServer extends EventEmitter {
       if(this._worldId){
         if((await this._db?.collection("worlds").findOne({worldId:this._worldId}))){
           await this._db?.collection("worlds").updateOne({worldId:this._worldId},{$set:save});
-
         }
         else {
+          this.createAllObjects();
           await this._db?.collection("worlds").insertOne(save);
         }
 
       }
       else{
+        this.createAllObjects();
         const numberOfWorld:number = await this._db?.collection("worlds").find( {  } ).count() || 0
         const createdWorld = await this._db?.collection("worlds").insertOne( {
           worldId:numberOfWorld +1,
@@ -261,6 +264,9 @@ export class ZoneServer extends EventEmitter {
       setTimeout(() => {
         this.saveWorld();
       }, 30000);
+    }
+    else{
+      this.createAllObjects()
     }
   }
   async start():Promise<void> {

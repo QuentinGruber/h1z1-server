@@ -709,25 +709,20 @@ const profileDataSchema = [
       { name: "unknownDword3", type: "uint32", defaultValue: 0 },
     ],
   },
-  { name: "unknownBoolean2", type: "boolean", defaultValue: false },
   { name: "unknownDword10", type: "uint32", defaultValue: 0 },
   { name: "unknownDword11", type: "uint32", defaultValue: 0 },
   { name: "unknownBoolean3", type: "boolean", defaultValue: false },
-  { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-  { name: "unknownBoolean4", type: "boolean", defaultValue: false },
-  { name: "unknownBoolean5", type: "boolean", defaultValue: false },
-  { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
-  { name: "unknownFloat2", type: "float", defaultValue: 0.0 },
-  { name: "unknownFloat3", type: "float", defaultValue: 0.0 },
-  { name: "unknownFloat4", type: "float", defaultValue: 0.0 },
+  { name: "unknownFloat1", type: "uint32", defaultValue: 0.0 },
+  { name: "unknownFloat2", type: "uint32", defaultValue: 0.0 },
+  { name: "unknownFloat3", type: "uint32", defaultValue: 0.0 },
+  { name: "unknownFloat4", type: "uint32", defaultValue: 0.0 },
   { name: "unknownDword13", type: "uint32", defaultValue: 0 },
-  { name: "unknownFloat5", type: "float", defaultValue: 0.0 },
+  { name: "unknownFloat5", type: "uint32", defaultValue: 0.0 },
   { name: "unknownDword14", type: "uint32", defaultValue: 0 },
   { name: "unknownDword15", type: "uint32", defaultValue: 0 },
   { name: "unknownDword16", type: "uint32", defaultValue: 0 },
   { name: "unknownDword17", type: "uint32", defaultValue: 0 },
   { name: "unknownDword18", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword19", type: "uint32", defaultValue: 0 },
 ];
 
 var baseItemDefinitionSchema = [
@@ -1021,26 +1016,18 @@ const facilityStatsDataSchema = [
 const itemBaseSchema = [
   { name: "itemId", type: "uint32", defaultValue: 0 },
   { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-  { name: "unknownGuid1", type: "uint64", defaultValue: "0" },
+  { name: "unknownGuid1", type: "uint64", defaultValue: "0x0000000000000000" },
   { name: "unknownDword3", type: "uint32", defaultValue: 0 },
   { name: "unknownDword4", type: "uint32", defaultValue: 0 },
   { name: "unknownDword5", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword6", type: "uint32", defaultValue: 0 },
-  { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+  { name: "unknownQword6", type: "uint64", defaultValue: "0x0000000000000000" }, // ici
   { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword8", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword9", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword10", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword11", type: "uint32", defaultValue: 0 },
   { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-  {
-    name: "unknownData",
-    type: "variabletype8",
-    types: {
-      0: [],
-      1: [
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-      ],
-    },
-  },
+  { name: "unknownQword7", type: "uint64", defaultValue: "0x0000000000000000" },
 ];
 
 const effectTagDataSchema = [
@@ -1481,8 +1468,8 @@ function packItemData(obj, referenceData) {
     detailSchema = itemDetailSchema;
   }
 
-  detailData = DataSchema.pack(detailSchema, obj.detail);
-  return Buffer.concat([baseData.data, detailData.data]);
+  //detailData = DataSchema.pack(detailSchema, obj.detail);
+  return baseData.data;
 }
 
 const resourceEventDataSubSchema = [
@@ -3821,7 +3808,7 @@ var packets = [
                 { name: "unknownByte1", type: "uint8", defaultValue: 0 },
               ],
             },
-
+            // unknown array here
             {
               name: "skillPointData",
               type: "schema",
@@ -3852,6 +3839,7 @@ var packets = [
             { name: "unknownDword39", type: "uint32", defaultValue: 0 },
             { name: "unknownDword40", type: "uint32", defaultValue: 0 },
             { name: "unknownBoolean9", type: "boolean", defaultValue: true },
+            { name: "unknownBoolean10", type: "boolean", defaultValue: true },
           ],
         },
       ],
