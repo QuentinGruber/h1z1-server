@@ -7,7 +7,7 @@ const dev = {
     server.sendData(client, packetName, {});
   },
   testNpc: function (server, client, args) {
-    const characterId = generateCharacterId(server._guids);
+    const characterId = generateCharacterId(server._characterIds);
     server.sendData(client, "PlayerUpdate.AddLightweightNpc", {
       characterId: characterId,
       modelId: 9001,
@@ -26,7 +26,7 @@ const dev = {
     }, 500);
   },
   testVehicle: function (server, client, args) {
-    const characterId = generateCharacterId(server._guids);
+    const characterId = generateCharacterId(server._characterIds);
     const vehicleData = {
       npcData: {
         unknownString0: "",

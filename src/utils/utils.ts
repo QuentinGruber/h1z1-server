@@ -1,4 +1,3 @@
-const debug = require("debug")("utils")
 import _ from "lodash";
 const restore = require("mongodb-restore-dump");
 const valid_character_ids = require("../../data/valid_character_ids.json");
@@ -15,32 +14,26 @@ export const generateRandomGuid = function () {
   return guid;
 };
 
-export function arrayRemove(arr:Array<any>, value:any) { 
-  return arr.filter(function(ele){ 
-      return ele != value; 
-  });
-}
-
 export const getCharacterId = function (index: number) {
   return `0x${valid_character_ids[index]}`;
 };
 
-export const generateCharacterId = function (usedId: Array<string>) {
+export const generateCharacterId = function (usedId: any) {
   let characterId = null;
-  debug(`available ids : ${valid_character_ids.length - usedId.length}`)
-  if(usedId.length < valid_character_ids.length){
+  console.log(`available ids : ${valid_character_ids.length - _.size(usedId)}`)
+  if(_.size(usedId) < valid_character_ids.length){
   while (characterId === null) {
     const rndIndex = Math.floor(Math.random() * valid_character_ids.length);
       const rnd_character_id = valid_character_ids[rndIndex];
-      if (_.findIndex(usedId, rnd_character_id, 0) === -1) {
+      if (!usedId[rnd_character_id]) {
         characterId = rnd_character_id;
-        usedId.push(characterId)
+        usedId[rnd_character_id] = 1
       }
   }
   return `0x${characterId}`;
 }
   else{
-    debug("No more valid character id available :(")
+    console.error("No more valid character id available :(")
     return `0x000000000000000`;}
 };
 
