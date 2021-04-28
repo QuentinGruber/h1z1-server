@@ -4,34 +4,6 @@ const debug = require("debug")("zonepacketHandlers");
 import fs from "fs";
 
 const hax = {
-  forceNight: function (server, client, args) {
-    server.forceTime(1615062252322);
-    server.sendChatText(
-      client,
-      "[Deprecated] This command will be removed in futher updates",
-      true
-    );
-    server.sendChatText(
-      client,
-      "Use /hax time {choosen hour as float} instead",
-      false
-    );
-    server.sendChatText(client, "Will force Night time on next sync...", false);
-  },
-  forceDay: function (server, client, args) {
-    server.forceTime(971172000000);
-    server.sendChatText(
-      client,
-      "[Deprecated] This command will be removed in futher updates",
-      true
-    );
-    server.sendChatText(
-      client,
-      "Use /hax time {choosen hour as float} instead",
-      false
-    );
-    server.sendChatText(client, "Will force Day time on next sync...", false);
-  },
   time: function (server, client, args) {
     const choosenHour = Number(args[1]);
     if (choosenHour < 0) {
@@ -59,13 +31,8 @@ const hax = {
   },
   despawnObjects: function (server, client, args) {
     for (let object in server._objects) {
-      if (object != client.character.characterId) {
-        // TODO: fix that bug the right way
-        server.sendData(client, "PlayerUpdate.RemovePlayer", {
-          characterId: object,
-        });
-        delete server._objects[object];
-      }
+      server.removeNpc(object);
+      delete server._objects[object];
     }
     server.sendChatText(client, "Objects removed from the game.", true);
   },
@@ -73,7 +40,7 @@ const hax = {
     for (let index = 0; index < 150; index++) {
       const vehicleData = {
         npcData: {
-          guid: generateCharacterId(),
+          guid: generateCharacterId(server._characterIds),
           transientId: 1,
           modelId: 7225,
           scale: [1, 1, 1, 1],
@@ -83,7 +50,7 @@ const hax = {
           array17: [{ unknown1: 0 }],
           array18: [{ unknown1: 0 }],
         },
-        unknownGuid1: generateCharacterId(),
+        unknownGuid1: generateCharacterId(server._characterIds),
         positionUpdate: server.createPositionUpdate(
           client.character.state.position,
           [0, 0, 0, 0]
@@ -101,7 +68,7 @@ const hax = {
     for (let index = 0; index < 150; index++) {
       const vehicleData = {
         npcData: {
-          guid: generateCharacterId(),
+          guid: generateCharacterId(server._characterIds),
           transientId: 1,
           modelId: 9301,
           position: client.character.state.position,
@@ -110,7 +77,7 @@ const hax = {
           array17: [{ unknown1: 0 }],
           array18: [{ unknown1: 0 }],
         },
-        unknownGuid1: generateCharacterId(),
+        unknownGuid1: generateCharacterId(server._characterIds),
         positionUpdate: server.createPositionUpdate(
           client.character.state.position,
           [0, 0, 0, 0]
@@ -132,7 +99,7 @@ const hax = {
       return;
     }
     const choosenModelId = Number(args[1]);
-    const characterId = generateCharacterId();
+    const characterId = generateCharacterId(server._characterIds);
     const npc = {
       characterId: characterId,
       guid: guid,
@@ -169,11 +136,19 @@ const hax = {
     debug(server._characters);
     server.sendChatText(client, "Delete player, back in observer mode");
   },
-  shutdown: function (server, client, args) {
-    server.sendData(client, "WorldShutdownNotice", {
+  shutdown: async function (server, client, args) {
+    server.sendDataToAll("WorldShutdownNotice", {
       timeLeft: 0,
       message: " ",
     });
+    if (!server._soloMode) {
+      server.sendDataToAll("CharacterSelectSessionResponse", {
+        status: 1,
+        sessionId: "placeholder", // TODO: get sessionId from client object
+      });
+      await server.saveWorld();
+      process.exit(0);
+    }
   },
   changeModel: function (server, client, args) {
     const newModelId = args[1];
@@ -195,7 +170,7 @@ const hax = {
     if (!args[1]) {
       server.sendChatText(
         client,
-        "Please define a weather template to use (data/weather.json)"
+        "Please define a weather template to use (data/sampleData/weather.json)"
       );
     } else if (weatherTemplate) {
       server.changeWeather(client, weatherTemplate);
@@ -238,13 +213,13 @@ const hax = {
             currentWeather.templateName
           ] = currentWeather;
           fs.writeFileSync(
-            `${__dirname}/../../../../data/weather.json`,
+            `${__dirname}/../../../../data/sampleData/weather.json`,
             JSON.stringify(server._weatherTemplates)
           );
           delete require.cache[
             require.resolve("../../../../data/weather.json")
           ];
-          server._weatherTemplates = require("../../../../data/weather.json");
+          server._weatherTemplates = require("../../../../data/sampleData/weather.json");
         } else {
           await server._db.collection("weathers").insertOne(currentWeather);
           server._weatherTemplates = await server._db

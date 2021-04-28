@@ -7,7 +7,7 @@ const dev = {
     server.sendData(client, packetName, {});
   },
   testNpc: function (server, client, args) {
-    const characterId = generateCharacterId();
+    const characterId = generateCharacterId(server._characterIds);
     server.sendData(client, "PlayerUpdate.AddLightweightNpc", {
       characterId: characterId,
       modelId: 9001,
@@ -26,7 +26,7 @@ const dev = {
     }, 500);
   },
   testVehicle: function (server, client, args) {
-    const characterId = generateCharacterId();
+    const characterId = generateCharacterId(server._characterIds);
     const vehicleData = {
       npcData: {
         unknownString0: "",
@@ -86,7 +86,7 @@ const dev = {
     server.sendData(client, "PlayerUpdate.AddLightweightVehicle", vehicleData);
   },
   findModel: function (server, client, args) {
-    const models = require("../../../../data/Models.json");
+    const models = require("../../../../data/dataSources/Models.json");
     const wordFilter = args[1];
     if (wordFilter) {
       const result = models.filter((word) =>

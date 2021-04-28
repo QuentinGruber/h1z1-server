@@ -32,7 +32,7 @@ export class SOEOutputStream extends EventEmitter {
     this._cache = [];
     this._rc4 = crypto.createCipheriv("rc4", cryptoKey, "");
   }
-  write(data: Buffer, overrideEncryption: boolean) {
+  write(data: Buffer, overrideEncryption: boolean):void {
     if (this._useEncryption && overrideEncryption !== false) {
       this._rc4.write(data);
       data = this._rc4.read();
@@ -65,7 +65,7 @@ export class SOEOutputStream extends EventEmitter {
       }
     }
   }
-  ack(sequence: number) {
+  ack(sequence: number):void {
     while (this._lastAck <= sequence) {
       this._lastAck++;
       if (this._cache[this._lastAck]) {
@@ -73,7 +73,7 @@ export class SOEOutputStream extends EventEmitter {
       }
     }
   }
-  resendData(sequence: number) {
+  resendData(sequence: number):void {
     const start = this._lastAck + 1;
     for (let i = start; i < sequence; i++) {
       if (this._cache[i]) {
@@ -89,15 +89,15 @@ export class SOEOutputStream extends EventEmitter {
       }
     }
   }
-  setEncryption(value: boolean) {
+  setEncryption(value: boolean):void {
     this._useEncryption = value;
     debug("encryption: " + this._useEncryption);
   }
-  toggleEncryption() {
+  toggleEncryption():void {
     this._useEncryption = !this._useEncryption;
     debug("Toggling encryption: " + this._useEncryption);
   }
-  setFragmentSize(value: number) {
+  setFragmentSize(value: number):void {
     this._fragmentSize = value;
   }
 }

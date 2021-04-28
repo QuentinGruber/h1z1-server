@@ -6,11 +6,11 @@ export interface Client {
   crcLength: number;
   clientUdpLength: number;
   serverUdpLength: number;
-  protocolName: string;
   sequences: any;
   compression: number;
   useEncryption: boolean;
   outQueue: any;
+  protocolName: string;
   outOfOrderPackets: any;
   nextAck: number;
   lastAck: number;

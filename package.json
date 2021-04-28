@@ -9,7 +9,6 @@
     "@types/lodash": "4.14.168",
     "@types/mongodb": "3.6.6",
     "@types/node": "14.14.25",
-    "convert_to_int64": "^1.0.1",
     "debug": "4.3.1",
     "h1z1-dataschema": "1.1.0",
     "hash-jenkins": "1.0.1",
@@ -17,16 +16,22 @@
     "lodash": "4.17.21",
     "mongodb": "3.6.6",
     "mongodb-restore-dump": "1.0.1",
+    "terser-output": "1.0.2",
     "typescript": "4.2.4"
   },
   "directories": {
     "src": "./src"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.22.0",
+    "@typescript-eslint/parser": "^4.22.0",
+    "eslint": "^7.25.0",
     "prettier": "^2.2.1"
   },
   "scripts": {
-    "postinstall": "tsc -p ./tsconfig.json",
+    "build-optimized": "npm run build && terser-output ./out",
+    "build": "tsc -p ./tsconfig.json",
+    "postinstall": "npm run build-optimized",
     "before_release": "npm run prettier_sources && echo Do not forget to update package version !",
     "publish_release": "git push --tags && git push origin dev && git push origin master",
     "prettier_sources": "prettier --write ./src"

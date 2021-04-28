@@ -23,61 +23,13 @@ import { Int64String } from "../../utils/utils";
 
 const packetHandlers = {
   ClientIsReady: function (server, client, packet) {
-    /* Still disable but the packet schema seems to work well
+    /* still disable
     server.sendData(client, "ClientBeginZoning", {
-      unknownByte1: 0,
-      zoneName: "Z1",
-      zoneType: 4,
-      position: [1, 2, 3, 1],
-      rotation: [4, 5, 6, 1],
-
-      skyData: {
-        unknownDword1: 0,
-        name: "sky",
-        unknownDword2: 0,
-        unknownDword3: 0,
-        fogDensity: 0,
-        fogGradient: 0,
-        fogFloor: 0,
-        unknownDword7: 0,
-        rain: 0,
-        temp: 0,
-        skyColor: 0,
-        cloudWeight0: 0,
-        cloudWeight1: 0,
-        cloudWeight2: 0,
-        cloudWeight3: 0,
-        sunAxisX: 0,
-        sunAxisY: 0,
-        sunAxisZ: 0,
-        unknownDword18: 0,
-        unknownDword19: 0,
-        unknownDword20: 0,
-        wind: 0,
-        unknownDword22: 0,
-        unknownDword23: 0,
-        unknownDword24: 0,
-        unknownDword25: 0,
-        unknownDword26: 0,
-        unknownArray: _.fill(Array(50), {
-          unknownDword1: 0,
-          unknownDword2: 0,
-          unknownDword3: 0,
-          unknownDword4: 0,
-          unknownDword5: 0,
-          unknownDword6: 0,
-          unknownDword7: 0,
-        }),
-      },
-      unknownByte2: 0,
-      zoneId1: 3168227224,
-      zoneId2: 3168227224,
-      nameId: 130,
-      unknownDword10: 0,
-      unknownBoolean1: true,
-      unknownBoolean2: true,
-    });*/
-
+      position: client.character.state.position,
+      rotation: client.character.state.rotation,
+      skyData: server._weather,
+    });
+    */
     server.sendData(client, "QuickChat.SendData", { commands: [] });
 
     server.sendData(client, "ClientUpdate.DoneSendingPreloadCharacters", {
@@ -1111,28 +1063,8 @@ const packetHandlers = {
     });
   },
   "PlayerUpdate.FullCharacterDataRequest": function (server, client, packet) {
-    debug(packet);
-    return;
-    server.sendData(client, "PlayerUpdate.LightweightToFullPc", {
-      attachments: [],
-      effectTags: [],
-      characterVariables: [],
-      resources: [],
-      unknownVector1: [0, 200, 0],
-      unknownVector2: [0, 200, 0],
-      unknownVector4: [0, 200, 0, 1],
-      unknownVector5: [0, 200, 0, 1],
-      unknownData1: {
-        unknownDword1: 0,
-        unknownString1: "",
-        unknownString2: "",
-        unknownDword2: 0,
-        unknownString3: "",
-      },
-      unknownData2: { unknownFloat1: 1.0 },
-      unknownData3: { unknownDword1: 0 },
-      targetData: { targetType: 1 },
-    });
+   // debug(packet);
+    server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {});
   },
 };
 
