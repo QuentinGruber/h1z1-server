@@ -594,7 +594,7 @@ export class ZoneServer extends EventEmitter {
       let modelId:number;
       switch (spawnerType.actorDefinition) {
         case "ItemSpawnerResidential_Tier00.adr":
-          modelId = 4;
+          modelId = 0;
           break
         case "ItemSpawner_BattleRoyale_AmmoBox02_12GaShotgun.adr":
             modelId = 0;
@@ -615,25 +615,25 @@ export class ZoneServer extends EventEmitter {
             modelId = 0;
             break          
           case "ItemSpawnerRare_Tier00.adr":
-            modelId = 21;
+            modelId = 0;
             break
           case "ItemSpawnerIndustrial_Tier00.adr":
-            modelId = 15;
+            modelId = 0;
             break
           case "ItemSpawnerWorld_Tier00.adr":
-            modelId = 15;
+            modelId = 0;
             break
           case "ItemSpawner_BattleRoyale_FirstAidKit01.adr":
-            modelId = 9221;
+            modelId = 0;
             break      
           case "ItemSpawner_Log01.adr":
-            modelId = 15;
+            modelId = 0;
             break
           case "ItemSpawnerCommercial_Tier00.adr":
-            modelId = 15;
+            modelId = 0;
             break
           case "ItemSpawnerFarm.adr":
-            modelId = 15;
+            modelId = 0;
             break
           case "ItemSpawner_Weapon_M16A4.adr":
             modelId = 23;
