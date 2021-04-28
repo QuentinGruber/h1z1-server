@@ -44,6 +44,7 @@ export class ZoneServer extends EventEmitter {
   _serverTime: any;
   _transientId: any;
   _guids: Array<string>;
+  _characterIds: any;
   _packetHandlers: any;
   _referenceData: any;
   _startTime: number;
@@ -81,6 +82,7 @@ export class ZoneServer extends EventEmitter {
     this._serverTime = this.getCurrentTime();
     this._transientId = 0;
     this._guids = [];
+    this._characterIds = {};
     this._referenceData = this.parseReferenceData();
     this._packetHandlers = packetHandlers;
     this._startTime = 0;
@@ -552,13 +554,20 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
+  removeNpc(characterId:string){
+    this.sendDataToAll("PlayerUpdate.RemovePlayer", {
+      characterId: characterId,
+    });
+    delete this._characterIds[characterId.replace("0x","")]
+  }
+
   createObject(
     modelID: number,
     position: Array<number>,
     rotation: Array<number>
   ) {
     const guid = this.generateGuid();
-    const characterId = generateCharacterId();
+    const characterId = generateCharacterId(this._characterIds);
     rotation[0] += 250;
     this._objects[characterId] = {
       characterId: characterId,
