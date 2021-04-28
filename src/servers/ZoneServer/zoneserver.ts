@@ -61,7 +61,7 @@ export class ZoneServer extends EventEmitter {
   _worldId: number;
   constructor(
     serverPort: number,
-    gatewayKey: string,
+    gatewayKey: Uint8Array,
     mongoAddress = "",
     worldId = 0
   ) {
