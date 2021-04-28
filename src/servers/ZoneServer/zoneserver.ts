@@ -22,6 +22,7 @@ import {
   initMongo,
   getCharacterId,
   generateCharacterId,
+  arrayRemove,
 } from "../../utils/utils";
 const debugName = "ZoneServer";
 const debug = require("debug")(debugName);
@@ -552,13 +553,24 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
+  removeNpc(characterId:string){
+    this.sendDataToAll("PlayerUpdate.RemovePlayer", {
+      characterId: characterId,
+    });
+    this.removeGuid(characterId)
+  }
+
+  removeGuid(characterId:string){
+    this._guids = arrayRemove(this._guids,characterId.replace("0x",""))
+  }
+
   createObject(
     modelID: number,
     position: Array<number>,
     rotation: Array<number>
   ) {
     const guid = this.generateGuid();
-    const characterId = generateCharacterId();
+    const characterId = generateCharacterId(this._guids);
     rotation[0] += 250;
     this._objects[characterId] = {
       characterId: characterId,
