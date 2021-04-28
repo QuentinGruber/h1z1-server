@@ -256,7 +256,7 @@ export class LoginServer extends EventEmitter {
             case "CharacterCreateRequest":{
               const reply_data = {
                 status: 1,
-                characterId: generateCharacterId(),
+                characterId: "0x0",//generateCharacterId(), TODO: get guids list from mongo
               };
               data = this._protocol.pack("CharacterCreateReply", reply_data);
               this._soeServer.sendAppData(client, data, true);

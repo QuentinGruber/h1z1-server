@@ -31,13 +31,8 @@ const hax = {
   },
   despawnObjects: function (server, client, args) {
     for (let object in server._objects) {
-      if (object != client.character.characterId) {
-        // TODO: fix that bug the right way
-        server.sendData(client, "PlayerUpdate.RemovePlayer", {
-          characterId: object,
-        });
-        delete server._objects[object];
-      }
+      server.removeNpc(object);
+      delete server._objects[object];
     }
     server.sendChatText(client, "Objects removed from the game.", true);
   },
@@ -45,7 +40,7 @@ const hax = {
     for (let index = 0; index < 150; index++) {
       const vehicleData = {
         npcData: {
-          guid: generateCharacterId(),
+          guid: generateCharacterId(server._characterIds),
           transientId: 1,
           modelId: 7225,
           scale: [1, 1, 1, 1],
@@ -55,7 +50,7 @@ const hax = {
           array17: [{ unknown1: 0 }],
           array18: [{ unknown1: 0 }],
         },
-        unknownGuid1: generateCharacterId(),
+        unknownGuid1: generateCharacterId(server._characterIds),
         positionUpdate: server.createPositionUpdate(
           client.character.state.position,
           [0, 0, 0, 0]
@@ -73,7 +68,7 @@ const hax = {
     for (let index = 0; index < 150; index++) {
       const vehicleData = {
         npcData: {
-          guid: generateCharacterId(),
+          guid: generateCharacterId(server._characterIds),
           transientId: 1,
           modelId: 9301,
           position: client.character.state.position,
@@ -82,7 +77,7 @@ const hax = {
           array17: [{ unknown1: 0 }],
           array18: [{ unknown1: 0 }],
         },
-        unknownGuid1: generateCharacterId(),
+        unknownGuid1: generateCharacterId(server._characterIds),
         positionUpdate: server.createPositionUpdate(
           client.character.state.position,
           [0, 0, 0, 0]
@@ -104,7 +99,7 @@ const hax = {
       return;
     }
     const choosenModelId = Number(args[1]);
-    const characterId = generateCharacterId();
+    const characterId = generateCharacterId(server._characterIds);
     const npc = {
       characterId: characterId,
       guid: guid,

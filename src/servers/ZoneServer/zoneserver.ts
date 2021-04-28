@@ -26,6 +26,7 @@ import {
 const debugName = "ZoneServer";
 const debug = require("debug")(debugName);
 const localWeatherTemplates = require("../../../data/sampleData/weather.json");
+const Z1_items = require("../../../data/zoneData/Z1_items.json")
 const Z1_doors = require("../../../data/zoneData/Z1_doors.json");
 const models = require("../../../data/dataSources/Models.json");
 import { Weather, Client } from "../../types/zoneserver";
@@ -44,6 +45,7 @@ export class ZoneServer extends EventEmitter {
   _serverTime: any;
   _transientId: any;
   _guids: Array<string>;
+  _characterIds: any;
   _packetHandlers: any;
   _referenceData: any;
   _startTime: number;
@@ -81,6 +83,7 @@ export class ZoneServer extends EventEmitter {
     this._serverTime = this.getCurrentTime();
     this._transientId = 0;
     this._guids = [];
+    this._characterIds = {};
     this._referenceData = this.parseReferenceData();
     this._packetHandlers = packetHandlers;
     this._startTime = 0;
@@ -552,13 +555,20 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
+  removeNpc(characterId:string){
+    this.sendDataToAll("PlayerUpdate.RemovePlayer", {
+      characterId: characterId,
+    });
+    delete this._characterIds[characterId.replace("0x","")]
+  }
+
   createObject(
     modelID: number,
     position: Array<number>,
     rotation: Array<number>
   ):void {
     const guid = this.generateGuid();
-    const characterId = generateCharacterId();
+    const characterId = generateCharacterId(this._characterIds);
     rotation[0] += 250;
     this._objects[characterId] = {
       characterId: characterId,
@@ -575,7 +585,161 @@ export class ZoneServer extends EventEmitter {
 
   createAllObjects():void {
     this.createAllDoors();
-    debug("All objects created");
+    this.createAllItems();
+    debug("All objects created")
+  }
+
+  createAllItems() {
+    Z1_items.forEach((spawnerType:any) => { 
+      let modelId:number;
+      switch (spawnerType.actorDefinition) {
+        case "ItemSpawnerResidential_Tier00.adr":
+          modelId = 0;
+          break
+        case "ItemSpawner_BattleRoyale_AmmoBox02_12GaShotgun.adr":
+            modelId = 0;
+            break
+        case "ItemSpawner_BattleRoyale_Gear01.adr":
+            modelId = 0;
+            break
+        case "ItemSpawner_BattleRoyale_Weapons01.adr":
+            modelId = 0;
+            break
+        case "ItemSpawner_BattleRoyale_Ammo01.adr":
+            modelId = 0;
+            break
+          case "ItemSpawner_BattleRoyale_Backpack01.adr":
+            modelId = 0;
+            break
+          case "ItemSpawner_BattleRoyale_AmmoBox02_1911.adr":
+            modelId = 0;
+            break          
+          case "ItemSpawnerRare_Tier00.adr":
+            modelId = 0;
+            break
+          case "ItemSpawnerIndustrial_Tier00.adr":
+            modelId = 0;
+            break
+          case "ItemSpawnerWorld_Tier00.adr":
+            modelId = 0;
+            break
+          case "ItemSpawner_BattleRoyale_FirstAidKit01.adr":
+            modelId = 0;
+            break      
+          case "ItemSpawner_Log01.adr":
+            modelId = 0;
+            break
+          case "ItemSpawnerCommercial_Tier00.adr":
+            modelId = 0;
+            break
+          case "ItemSpawnerFarm.adr":
+            modelId = 0;
+            break
+          case "ItemSpawner_Weapon_M16A4.adr":
+            modelId = 23;
+            break
+          case "ItemSpawner_AmmoBox02_M16A4.adr":
+            modelId = 10;
+            break
+          case "ItemSpawner_AmmoBox02.adr":
+            modelId = 10;
+            break
+          case "ItemSpawner_Weapon_PumpShotgun01.adr":
+            modelId = 9286;
+            break
+          case "ItemSpawner_AmmoBox02_12GaShotgun.adr":
+            modelId = 10;
+            break
+          case "ItemSpawner_Weapon_Crowbar01.adr":
+            modelId = 18;
+            break
+          case "ItemSpawner_Weapon_CombatKnife01.adr":
+            modelId = 21;
+            break
+          case "ItemSpawner_Weapon_45Auto.adr":
+            modelId = 17;
+            break
+          case "ItemSpawner_AmmoBox02_1911.adr":
+            modelId = 10;
+            break
+          case "ItemSpawner_Weapon_Machete01.adr":
+            modelId = 24;
+            break
+          case "ItemSpawner_BattleRoyale_AmmoBox02_M16A4.adr":
+            modelId = 0;
+            break
+          case "ItemSpawner_BattleRoyale_AmmoBox02_308Rifle.adr":
+            modelId = 0;
+            break
+          case "ItemSpawner_Weapon_Bat01.adr":
+            modelId = 42;
+            break
+          case "ItemSpawner_BackpackOnGround001.adr":
+            modelId = 9093;
+            break
+          case "ItemSpawner_FirstAidKit.adr":
+            modelId = 9221;
+            break
+          case "ItemSpawner_Weapon_M24.adr":
+            modelId = 9204;
+            break
+          case "ItemSpawner_GasCan01.adr":
+            modelId = 9135;
+            break
+          case "ItemSpawner_Weapon_Guitar01.adr":
+            modelId = 9318;
+            break
+          case "ItemSpawner_Weapon_WoodAxe01.adr":
+            modelId = 27;
+            break
+          case "ItemSpawner_AmmoBox02_308Rifle.adr":
+            modelId = 10;
+            break
+          case "ItemSpawner_Weapon_FireAxe01.adr":
+            modelId = 9325;
+            break
+          case "ItemSpawner_Weapon_ClawHammer01.adr":
+            modelId = 9252;
+            break
+          case "ItemSpawner_Weapon_Hatchet01.adr":
+            modelId = 22;
+            break
+          case "ItemSpawner_Weapon_Pipe01.adr":
+            modelId = 9209;
+            break
+          case "ItemSpawner_CannedFood.adr":
+            modelId = Math.random()*100>50? 7:8020;
+            break
+          case "ItemSpawner_WaterContainer_Small_Purified.adr":
+            modelId = 9159;
+            break
+          case "ItemSpawner_Clothes_MotorcycleHelmet.adr":
+            modelId = 68;
+            break
+          case "ItemSpawner_Clothes_BaseballCap.adr":
+            modelId = 66;
+            break
+          case "ItemSpawner_Clothes_FoldedShirt.adr":
+            modelId = 9249;
+            break
+          case "ItemSpawner_Weapon_Bat02.adr":
+            modelId = 9313;
+            break
+          case "ItemSpawner_Clothes_Beanie.adr":
+            modelId = 67;
+            break
+      
+        default:
+          modelId =0
+          break;
+      }
+      if(modelId){
+      spawnerType.instances.forEach((itemInstance:any) => {
+        this.createObject(modelId, itemInstance.position,itemInstance.rotation);
+      });
+    }
+    });
+    debug("All items objects created")
   }
   createAllDoors():void {
     Z1_doors.forEach((doorType: any) => {

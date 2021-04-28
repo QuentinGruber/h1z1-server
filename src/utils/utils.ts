@@ -1,4 +1,3 @@
-import { convertToInt64 } from "convert_to_int64";
 import _ from "lodash";
 const restore = require("mongodb-restore-dump");
 const valid_character_ids = require("../../data/valid_character_ids.json");
@@ -16,24 +15,25 @@ export const generateRandomGuid = function ():string {
 };
 
 export const getCharacterId = function (index: number):string {
-  return `0x${convertToInt64(valid_character_ids[index])}`;
+  return `0x${valid_character_ids[index]}`;
 };
 
-export const generateCharacterId = function (usedId: Array<string> = []):string {
+export const generateCharacterId = function (usedId: any):string {
   let characterId = null;
+  if(_.size(usedId) < valid_character_ids.length){
   while (characterId === null) {
     const rndIndex = Math.floor(Math.random() * valid_character_ids.length);
-    if (usedId.length) {
-      // if usedId array is defined
-      if (_.findIndex(usedId, valid_character_ids[rndIndex], 0) === -1) {
-        // TODO: try this
-        characterId = convertToInt64(valid_character_ids[rndIndex]);
+      const rnd_character_id = valid_character_ids[rndIndex];
+      if (!usedId[rnd_character_id]) {
+        characterId = rnd_character_id;
+        usedId[rnd_character_id] = 1
       }
-    } else {
-      characterId = convertToInt64(valid_character_ids[rndIndex]);
-    }
   }
   return `0x${characterId}`;
+}
+  else{
+    console.error("No more valid character id available :(")
+    return `0x000000000000000`;}
 };
 
 export const lz4_decompress = function (
