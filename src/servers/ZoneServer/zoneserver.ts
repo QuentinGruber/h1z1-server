@@ -214,6 +214,12 @@ export class ZoneServer extends EventEmitter {
           return template.templateName === this._defaultWeatherTemplate;
         });
     this._profiles = this.generateProfiles();
+    if(await this._db?.collection("worlds").findOne({worldId:this._worldId})){
+    await this.fetchWorldData();
+  }
+  else{
+    await this.saveWorld()
+  }
     debug("Server ready");
   }
   async fetchWorldData():Promise<void> {
@@ -236,14 +242,15 @@ export class ZoneServer extends EventEmitter {
       if(this._worldId){
         if((await this._db?.collection("worlds").findOne({worldId:this._worldId}))){
           await this._db?.collection("worlds").updateOne({worldId:this._worldId},{$set:save});
-
         }
         else {
+          this.createAllObjects();
           await this._db?.collection("worlds").insertOne(save);
         }
 
       }
       else{
+        this.createAllObjects();
         const numberOfWorld:number = await this._db?.collection("worlds").find( {  } ).count() || 0
         const createdWorld = await this._db?.collection("worlds").insertOne( {
           worldId:numberOfWorld +1,
@@ -257,6 +264,9 @@ export class ZoneServer extends EventEmitter {
       setTimeout(() => {
         this.saveWorld();
       }, 30000);
+    }
+    else{
+      this.createAllObjects()
     }
   }
   async start():Promise<void> {
