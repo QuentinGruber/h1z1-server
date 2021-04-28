@@ -20,7 +20,6 @@ export const getCharacterId = function (index: number) {
 
 export const generateCharacterId = function (usedId: any) {
   let characterId = null;
-  console.log(`available ids : ${valid_character_ids.length - _.size(usedId)}`)
   if(_.size(usedId) < valid_character_ids.length){
   while (characterId === null) {
     const rndIndex = Math.floor(Math.random() * valid_character_ids.length);
