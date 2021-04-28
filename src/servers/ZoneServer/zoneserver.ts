@@ -63,9 +63,9 @@ export class ZoneServer extends EventEmitter {
   _worldId: number;
   constructor(
     serverPort: number,
-    gatewayKey: string,
-    mongoAddress: string = "",
-    worldId: number = 0
+    gatewayKey: Uint8Array,
+    mongoAddress = "",
+    worldId = 0
   ) {
     super();
     this._gatewayServer = new GatewayServer(
@@ -203,7 +203,7 @@ export class ZoneServer extends EventEmitter {
     );
   }
 
-  async setupServer() {
+  async setupServer():Promise<void> {
     this.forceTime(971172000000); // force day time by default
     await this.loadMongoData();
     this._weather = this._soloMode
@@ -220,7 +220,7 @@ export class ZoneServer extends EventEmitter {
         }
     debug("Server ready");
   }
-  async fetchWorldData() {
+  async fetchWorldData():Promise<void> {
     if(!this._soloMode){
       const worldData = await this._db?.collection("worlds").findOne({worldId:this._worldId});
       this._npcs = worldData.npcs
@@ -229,7 +229,7 @@ export class ZoneServer extends EventEmitter {
       debug("World fetched!")
     }
   }
-  async saveWorld() {
+  async saveWorld():Promise<void> {
     if(!this._soloMode){
       const save = {
         worldId:this._worldId,
@@ -263,7 +263,7 @@ export class ZoneServer extends EventEmitter {
       }, 30000);
     }
   }
-  async start() {
+  async start():Promise<void> {
     debug("Starting server");
     debug(`Protocol used : ${this._protocol.protocolName}`);
     if (this._mongoAddress) {
@@ -295,7 +295,7 @@ export class ZoneServer extends EventEmitter {
     this._gatewayServer.start();
   }
 
-  async loadMongoData() {
+  async loadMongoData():Promise<void> {
     this._spawnLocations = this._soloMode
       ? localSpawnList
       : await this._db?.collection("spawns").find().toArray();
@@ -304,12 +304,12 @@ export class ZoneServer extends EventEmitter {
       : await this._db?.collection("weathers").find().toArray();
   }
 
-  async reloadMongoData(client: Client) {
+  async reloadMongoData(client: Client):Promise<void> {
     await this.loadMongoData();
     this.sendChatText(client, "[DEV] Mongo data reloaded", true);
   }
 
-  reloadPackets(client: Client, intervalTime: number = -1) {
+  reloadPackets(client: Client, intervalTime = -1):void {
     if (intervalTime > 0) {
       if (this._reloadPacketsInterval)
         clearInterval(this._reloadPacketsInterval);
@@ -329,12 +329,12 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
-  reloadZonePacketHandlers() {
+  reloadZonePacketHandlers():void {
     delete require.cache[require.resolve("./zonepackethandlers")];
     this._packetHandlers = require("./zonepackethandlers").default;
   }
 
-  checkIfClientStillOnline(client: Client) {
+  checkIfClientStillOnline(client: Client):void {
     if (new Date().getTime() - client.lastPingTime > this._pingTimeoutTime) {
       clearInterval(client.pingTimer);
       debug(
@@ -353,7 +353,7 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
-  generateGuid() {
+  generateGuid():string {
     let guid: string;
     do {
       guid = "0x";
@@ -365,7 +365,7 @@ export class ZoneServer extends EventEmitter {
     return guid;
   }
 
-  parseReferenceData() {
+  parseReferenceData():any {
     const itemData = fs.readFileSync(
         `${__dirname}/../../../data/dataSources/ClientItemDefinitions.txt`,
         "utf8"
@@ -381,7 +381,7 @@ export class ZoneServer extends EventEmitter {
     return { itemTypes: items };
   }
 
-  characterData(client: Client) {
+  characterData(client: Client):void {
     delete require.cache[
       require.resolve("../../../data/sampleData/sendself.json") // reload json
     ];
@@ -441,7 +441,7 @@ export class ZoneServer extends EventEmitter {
     return profiles;
   }
 
-  sendInitData(client: Client) {
+  sendInitData(client: Client):void {
     this.sendData(client, "InitializationParameters", {
       environment: "LIVE",
       serverId: 1,
@@ -531,8 +531,8 @@ export class ZoneServer extends EventEmitter {
     });
   }
 
-  spawnAllNpc(client: Client) {
-    for (let npc in this._npcs) {
+  spawnAllNpc(client: Client):void {
+    for (const npc in this._npcs) {
       setImmediate(() => {
         this.sendData(
           client,
@@ -543,8 +543,8 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
-  spawnAllObject(client: Client) {
-    for (let object in this._objects) {
+  spawnAllObject(client: Client):void {
+    for (const object in this._objects) {
       setImmediate(() => {
         this.sendData(
           client,
@@ -566,7 +566,7 @@ export class ZoneServer extends EventEmitter {
     modelID: number,
     position: Array<number>,
     rotation: Array<number>
-  ) {
+  ):void {
     const guid = this.generateGuid();
     const characterId = generateCharacterId(this._characterIds);
     rotation[0] += 250;
@@ -583,7 +583,7 @@ export class ZoneServer extends EventEmitter {
     };
   }
 
-  createAllObjects() {
+  createAllObjects():void {
     this.createAllDoors();
     this.createAllItems();
     debug("All objects created")
@@ -741,9 +741,7 @@ export class ZoneServer extends EventEmitter {
     });
     debug("All items objects created")
   }
-
-
-  createAllDoors() {
+  createAllDoors():void {
     Z1_doors.forEach((doorType: any) => {
       // TODO: add types for Z1_doors
       const modelId: number = _.find(models, {
@@ -766,13 +764,13 @@ export class ZoneServer extends EventEmitter {
     debug("All doors objects created");
   }
 
-  data(collectionName: string) {
+  data(collectionName: string):any {
     if (this._db) {
       return this._db.collection(collectionName);
     }
   }
 
-  SendZoneDetailsPacket(client: Client, weather: Weather) {
+  SendZoneDetailsPacket(client: Client, weather: Weather):void{
     const SendZoneDetails_packet = {
       zoneName: "Z1",
       unknownBoolean1: true,
@@ -789,8 +787,8 @@ export class ZoneServer extends EventEmitter {
   SendSkyChangedPacket(
     client: Client,
     weather: Weather,
-    isGlobal: boolean = false
-  ) {
+    isGlobal = false
+  ):void {
     if (isGlobal) {
       this.sendDataToAll("SkyChanged", weather);
       this.sendGlobalChatText(
@@ -801,11 +799,11 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
-  changeWeather(client: Client, weather: Weather) {
+  changeWeather(client: Client, weather: Weather):void {
     this._weather = weather;
     this.SendSkyChangedPacket(client, weather, this._soloMode ? false : true);
   }
-  sendSystemMessage(message: string) {
+  sendSystemMessage(message: string):void {
     this.sendDataToAll("Chat.Chat", {
       unknown2: 0,
       channel: 2,
@@ -832,7 +830,7 @@ export class ZoneServer extends EventEmitter {
     });
   }
 
-  sendChat(client: Client, message: string, channel: number) {
+  sendChat(client: Client, message: string, channel: number):void {
     const { character } = client;
     if (!this._soloMode) {
       this.sendDataToAll("Chat.Chat", {
@@ -851,12 +849,12 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
-  sendGlobalChatText(message: string, clearChat: boolean = false) {
-    for (let a in this._clients) {
+  sendGlobalChatText(message: string, clearChat = false):void {
+    for (const a in this._clients) {
       this.sendChatText(this._clients[a], message, clearChat);
     }
   }
-  sendChatText(client: Client, message: string, clearChat: boolean = false) {
+  sendChatText(client: Client, message: string, clearChat = false):void {
     if (clearChat) {
       for (let index = 0; index <= 6; index++) {
         this.sendData(client, "Chat.ChatText", {
@@ -879,7 +877,7 @@ export class ZoneServer extends EventEmitter {
     });
   }
 
-  setCharacterLoadout(client: Client, loadoutId: number, loadoutTab: any) {
+  setCharacterLoadout(client: Client, loadoutId: number, loadoutTab: number):void {
     for (let i = 0; i < client.character.loadouts.length; i++) {
       const loadout = client.character.loadouts[i];
       if (loadout.loadoutId == loadoutId && loadout.loadoutTab == loadoutTab) {
@@ -900,7 +898,7 @@ export class ZoneServer extends EventEmitter {
       }
     }
   }
-  sendData(client: Client, packetName: string, obj: any) {
+  sendData(client: Client, packetName: string, obj: any):void {
     if (packetName != "KeepAlive") {
       debug("send data", packetName);
     }
@@ -914,13 +912,13 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
-  sendDataToAll(packetName: string, obj: any) {
-    for (let a in this._clients) {
+  sendDataToAll(packetName: string, obj: any):void {
+    for (const a in this._clients) {
       this.sendData(this._clients[a], packetName, obj);
     }
   }
 
-  sendWeaponPacket(client: Client, packetName: string, obj: any) {
+  sendWeaponPacket(client: Client, packetName: string, obj: any):void {
     const weaponPacket = {
       gameTime: this.getServerTime(),
       packetName: packetName,
@@ -931,48 +929,48 @@ export class ZoneServer extends EventEmitter {
     });
   }
 
-  sendRawData(client: Client, data: Buffer) {
+  sendRawData(client: Client, data: Buffer):void {
     this._gatewayServer.sendTunnelData(client, data);
   }
 
-  stop() {
+  stop():void {
     debug("Shutting down");
     process.exit(0);
   }
 
-  forceTime(time: number) {
+  forceTime(time: number):void {
     this._cycleSpeed = 0.1;
     this._frozeCycle = true;
     this._gameTime = time;
     this.sendSyncToAll();
   }
 
-  removeForcedTime() {
+  removeForcedTime():void {
     this._cycleSpeed = 0.1;
     this._frozeCycle = false;
     this._gameTime = Date.now();
     this.sendSyncToAll();
   }
 
-  getCurrentTime() {
-    return (Date.now() / 1000).toFixed(0);
+  getCurrentTime():number {
+    return Number((Date.now() / 1000).toFixed(0));
   }
 
-  getGameTime() {
+  getGameTime():number {
     debug("get server time");
-    let delta = Date.now() - this._startGameTime;
+    const delta = Date.now() - this._startGameTime;
     return this._frozeCycle
       ? Number(((this._gameTime + delta) / 1000).toFixed(0))
       : Number((this._gameTime / 1000).toFixed(0));
   }
 
-  getServerTime() {
+  getServerTime():number {
     debug("get server time");
-    let delta = Date.now() - this._startTime;
+    const delta = Date.now() - this._startTime;
     return this._serverTime + delta;
   }
 
-  sendGameTimeSync(client: Client) {
+  sendGameTimeSync(client: Client):void {
     debug("GameTimeSync");
     this.sendData(client, "GameTimeSync", {
       time: Int64String(this.getGameTime()),
@@ -981,7 +979,7 @@ export class ZoneServer extends EventEmitter {
     });
   }
 
-  sendSyncToAll() {
+  sendSyncToAll():void {
     // TODO: this do not seems to work
     debug("Synchronization");
     this.sendDataToAll("Synchronization", {
@@ -990,7 +988,7 @@ export class ZoneServer extends EventEmitter {
     });
   }
 
-  getTransientId(client: any, guid: string) {
+  getTransientId(client: any, guid: string):number {
     if (!client.transientIds[guid]) {
       client.transientId++;
       client.transientIds[guid] = client.transientId;
@@ -998,7 +996,7 @@ export class ZoneServer extends EventEmitter {
     return client.transientIds[guid];
   }
 
-  createPositionUpdate(position: Array<number>, rotation: Array<number>) {
+  createPositionUpdate(position: Array<number>, rotation: Array<number>):any {
     const obj = {
       flags: 4095,
       unknown2_int32: this.getGameTime(),

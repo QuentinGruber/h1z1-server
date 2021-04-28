@@ -27,7 +27,7 @@ export class GatewayServer extends EventEmitter {
   _crcSeed: number;
   _crcLength: number;
   _udpLength: number;
-  constructor(protocolName: string, serverPort: number, gatewayKey: string) {
+  constructor(protocolName: string, serverPort: number, gatewayKey: Uint8Array) {
     super();
     this._compression = 0x0000;
     this._crcSeed = 0;

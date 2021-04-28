@@ -1,11 +1,11 @@
 import _ from "lodash";
 const restore = require("mongodb-restore-dump");
 const valid_character_ids = require("../../data/valid_character_ids.json");
-export const Int64String = function (value: number) {
+export const Int64String = function (value: number):string {
   return "0x" + ("0000000000000000" + value.toString(16)).substr(-16);
 };
 
-export const generateRandomGuid = function () {
+export const generateRandomGuid = function ():string {
   let guid: string;
   guid = "0x";
   for (let i: any = 0; i < 16; i++) {
@@ -14,11 +14,11 @@ export const generateRandomGuid = function () {
   return guid;
 };
 
-export const getCharacterId = function (index: number) {
+export const getCharacterId = function (index: number):string {
   return `0x${valid_character_ids[index]}`;
 };
 
-export const generateCharacterId = function (usedId: any) {
+export const generateCharacterId = function (usedId: any):string {
   let characterId = null;
   if(_.size(usedId) < valid_character_ids.length){
   while (characterId === null) {
@@ -40,7 +40,7 @@ export const lz4_decompress = function (
   data: any,
   inSize: number,
   outSize: number
-) {
+):any {
   const outdata = new (Buffer as any).alloc(outSize);
   let offsetIn = 0,
     offsetOut = 0;
@@ -91,7 +91,7 @@ export const lz4_decompress = function (
   return outdata;
 };
 
-export const initMongo = async function (uri: string, serverName: string) {
+export const initMongo = async function (uri: string, serverName: string):Promise<void> {
   const debug = require("debug")(serverName);
 
   // restore single database

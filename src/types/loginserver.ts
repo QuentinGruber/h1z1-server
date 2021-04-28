@@ -10,6 +10,7 @@ export interface Client {
   sequences: any;
   compression: number;
   useEncryption: boolean;
+  protocolName: string;
   outQueue: any;
   outOfOrderPackets: any;
   nextAck: number;
@@ -31,10 +32,10 @@ export interface SoeServer {
     udpLength: any
   ) => void;
   stop: () => void;
-  _sendPacket: () => void;
+  _sendPacket: (client: Client, packetName: string, packet: any, prioritize?: boolean | undefined) => void;
   sendAppData: (arg0: Client, arg1: any, arg2: undefined | any) => void;
   toggleEncryption: (arg0: Client) => void;
-  setEncryption: (arg0: boolean) => void;
+  setEncryption: (client: Client, value: boolean) => void;
   deleteClient: (client: Client) => void;
 }
 
