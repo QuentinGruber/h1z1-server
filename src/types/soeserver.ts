@@ -6,7 +6,6 @@ export interface Client {
   crcLength: number;
   clientUdpLength: number;
   serverUdpLength: number;
-  protocolName: string;
   sequences: any;
   compression: number;
   useEncryption: boolean;

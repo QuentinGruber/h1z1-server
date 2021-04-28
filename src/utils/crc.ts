@@ -1,6 +1,6 @@
 const { crc32: crc32Table } = require("./crctable.js");
 
-function crc32(data: any, crcSeed: number) {
+function crc32(data: Buffer, crcSeed: number):number {
   let crc = crc32Table[~crcSeed & 0xff];
   crc ^= 0x00ffffff;
   let index = (crcSeed >> 8) ^ crc;
@@ -19,7 +19,7 @@ function crc32(data: any, crcSeed: number) {
   }
   return ~crc >>> 0;
 }
-exports.appendCRC = function (data: any, crcSeed: number) {
+exports.appendCRC = function (data: any, crcSeed: number):Buffer {
   const crc = crc32(data, crcSeed >>> 0);
   const crcBuffer = new (Buffer as any).alloc(2);
   crcBuffer.writeUInt16BE(crc & 0xffff, 0);
