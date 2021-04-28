@@ -349,7 +349,7 @@ const vehicleReferenceDataSchema = [
   {
     name: "move_info",
     type: "array",
-    defaultValue: [{}],
+    defaultValue: [],
     fields: [
       { name: "id", type: "uint32", defaultValue: 0 },
       {
@@ -492,7 +492,7 @@ const vehicleReferenceDataSchema = [
   {
     name: "dynamics_info",
     type: "array",
-    defaultValue: [{}],
+    defaultValue: [],
     fields: [
       { name: "id", type: "uint32", defaultValue: 0 },
       {
@@ -511,7 +511,7 @@ const vehicleReferenceDataSchema = [
   {
     name: "engine_info",
     type: "array",
-    defaultValue: [{}],
+    defaultValue: [],
     fields: [
       { name: "id", type: "uint32", defaultValue: 0 },
       {
@@ -537,7 +537,7 @@ const vehicleReferenceDataSchema = [
   {
     name: "suspension_info",
     type: "array",
-    defaultValue: [{}],
+    defaultValue: [],
     fields: [
       { name: "id", type: "uint32", defaultValue: 0 },
       {
@@ -550,7 +550,7 @@ const vehicleReferenceDataSchema = [
           {
             name: "hashes",
             type: "array",
-            defaultValue: [{}],
+            defaultValue: [],
             fields: [
               { name: "hash_1", type: "uint32", defaultValue: 0 },
               { name: "hash_2", type: "uint32", defaultValue: 0 },
@@ -564,7 +564,7 @@ const vehicleReferenceDataSchema = [
   {
     name: "vehicle_model_mappings",
     type: "array",
-    defaultValue: [{}],
+    defaultValue: [],
     fields: [
       { name: "vehicle_id", type: "uint32", defaultValue: 0 },
       { name: "model_id", type: "uint32", defaultValue: 0 },
@@ -574,7 +574,7 @@ const vehicleReferenceDataSchema = [
   {
     name: "wheel_info",
     type: "array",
-    defaultValue: [{}],
+    defaultValue: [],
     fields: [
       { name: "id", type: "uint32", defaultValue: 0 },
       {
@@ -588,7 +588,7 @@ const vehicleReferenceDataSchema = [
           {
             name: "hashes",
             type: "array",
-            defaultValue: [{}],
+            defaultValue: [],
             fields: [
               { name: "hash_1", type: "uint32", defaultValue: 0 },
               { name: "hash_2", type: "uint32", defaultValue: 0 },
@@ -601,7 +601,7 @@ const vehicleReferenceDataSchema = [
   {
     name: "tire_info",
     type: "array",
-    defaultValue: [{}],
+    defaultValue: [],
     fields: [
       { name: "id", type: "uint32", defaultValue: 0 },
       {
@@ -614,7 +614,7 @@ const vehicleReferenceDataSchema = [
           {
             name: "hashes",
             type: "array",
-            defaultValue: [{}],
+            defaultValue: [],
             fields: [
               { name: "hash_1", type: "uint32", defaultValue: 0 },
               { name: "hash_2", type: "uint32", defaultValue: 0 },
@@ -627,13 +627,13 @@ const vehicleReferenceDataSchema = [
   {
     name: "vehicle_move_info_mappings",
     type: "array",
-    defaultValue: [{}],
+    defaultValue: [],
     fields: [
       { name: "vehicle_id", type: "uint32", defaultValue: 0 },
       {
         name: "move_info",
         type: "array",
-        defaultValue: [{}],
+        defaultValue: [],
         elementType: "uint32",
       },
     ],
@@ -702,7 +702,7 @@ const profileDataSchema = [
   {
     name: "unknownArray1",
     type: "array",
-    defaultValue: [{}],
+    defaultValue: [],
     fields: [
       { name: "unknownDword1", type: "uint32", defaultValue: 0 },
       { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -815,7 +815,7 @@ var baseItemDefinitionSchema = [
   { name: "unknown41", type: "uint32", defaultValue: 0 },
 ];
 
-const clientBeginZoningSkyData = [
+const skyData = [
   { name: "unknownDword1", type: "int32", defaultValue: 0 },
   { name: "name", type: "string", defaultValue: "" },
   { name: "unknownDword2", type: "int32", defaultValue: 0 },
@@ -845,50 +845,9 @@ const clientBeginZoningSkyData = [
   { name: "unknownDword25", type: "int32", defaultValue: 0 },
   {
     name: "unknownArray",
-    type: "array8",
-    defaultValue: [{}],
-    fields: [
-      { name: "unknownDword1", type: "int32", defaultValue: 0 },
-      { name: "unknownDword2", type: "int32", defaultValue: 0 },
-      { name: "unknownDword3", type: "int32", defaultValue: 0 },
-      { name: "unknownDword4", type: "int32", defaultValue: 0 },
-      { name: "unknownDword5", type: "int32", defaultValue: 0 },
-      { name: "unknownDword6", type: "int32", defaultValue: 0 },
-      { name: "unknownDword7", type: "int32", defaultValue: 0 },
-    ],
-  },
-];
-const skyData = [
-  { name: "unknownDword1", type: "int32", defaultValue: 0 },
-  { name: "name", type: "string", defaultValue: "" },
-  { name: "unknownDword2", type: "int32", defaultValue: 0 },
-  { name: "unknownDword3", type: "int32", defaultValue: 0 },
-  { name: "unknownDword4", type: "int32", defaultValue: 0 },
-  { name: "fogDensity", type: "int32", defaultValue: 0 },
-  { name: "fogGradient", type: "int32", defaultValue: 0 },
-  { name: "fogFloor", type: "int32", defaultValue: 0 },
-  { name: "unknownDword7", type: "int32", defaultValue: 0 },
-  { name: "rain", type: "int32", defaultValue: 0 },
-  { name: "temp", type: "int32", defaultValue: 0 },
-  { name: "skyColor", type: "int32", defaultValue: 0 },
-  { name: "cloudWeight0", type: "int32", defaultValue: 0 },
-  { name: "cloudWeight1", type: "int32", defaultValue: 0 },
-  { name: "cloudWeight2", type: "int32", defaultValue: 0 },
-  { name: "cloudWeight3", type: "int32", defaultValue: 0 },
-  { name: "sunAxisY", type: "int32", defaultValue: 0 },
-  { name: "sunAxisX", type: "int32", defaultValue: 0 },
-  { name: "sunAxisZ", type: "int32", defaultValue: 0 },
-  { name: "unknownDword18", type: "int32", defaultValue: 0 },
-  { name: "unknownDword19", type: "int32", defaultValue: 0 },
-  { name: "unknownDword20", type: "int32", defaultValue: 0 },
-  { name: "wind", type: "int32", defaultValue: 0 },
-  { name: "unknownDword22", type: "int32", defaultValue: 0 },
-  { name: "unknownDword23", type: "int32", defaultValue: 0 },
-  { name: "unknownDword24", type: "int32", defaultValue: 0 },
-  {
-    name: "unknownArray",
     type: "array",
-    defaultValue: [{}],
+    fixedLength: 50,
+    defaultValue: [],
     fields: [
       { name: "unknownDword1", type: "int32", defaultValue: 0 },
       { name: "unknownDword2", type: "int32", defaultValue: 0 },
@@ -960,7 +919,7 @@ const lightWeightNpcSchema = [
     type: "floatvector4",
     defaultValue: [0, 0, 0, 1],
   },
-  { name: "rotation2", type: "floatvector4", defaultValue: [0, 0, 0, 1] },
+  { name: "unknownVector", type: "floatvector4", defaultValue: [0, 0, 0, 1] },
   { name: "unknown18", type: "uint32", defaultValue: 0 },
   { name: "unknown19", type: "uint32", defaultValue: 0 },
   { name: "string20", type: "string", defaultValue: "" },
@@ -969,15 +928,11 @@ const lightWeightNpcSchema = [
   { name: "vehicleId", type: "uint32", defaultValue: 0 },
   { name: "unknown24", type: "uint32", defaultValue: 0 },
   { name: "npcDefinitionId", type: "uint32", defaultValue: 0 },
-  { name: "unknown26", type: "byte", defaultValue: 0 },
+  { name: "unknown26", type: "boolean", defaultValue: false },
   { name: "profileId", type: "uint32", defaultValue: 0 },
-  { name: "unknown28", type: "boolean", defaultValue: 0 },
-  {
-    name: "array5",
-    type: "array",
-    fields: [{ name: "unknown1", type: "byte", defaultValue: 0 }],
-  },
-  { name: "unknown30", type: "byte", defaultValue: 0 },
+  { name: "unknown28", type: "boolean", defaultValue: false },
+  { name: "color", type: "rgba", defaultValue: [0, 0, 0, 0] },
+  { name: "unknown30", type: "boolean", defaultValue: false },
   { name: "unknown31", type: "uint32", defaultValue: 0 },
   { name: "unknown32", type: "uint64", defaultValue: "0x0000000000000000" },
   { name: "unknown1", type: "uint64", defaultValue: "0x0000000000000000" },
@@ -993,20 +948,13 @@ const lightWeightNpcSchema = [
   },
   { name: "unknown4", type: "uint32", defaultValue: 0 },
   { name: "unknown33", type: "uint32", defaultValue: 0 },
+
   { name: "unknown34", type: "uint32", defaultValue: 0 },
   { name: "unknown35", type: "uint32", defaultValue: 0 },
-  { name: "unknown36", type: "uint64", defaultValue: "0x0000000000000000" },
   { name: "unknown37", type: "uint32", defaultValue: 0 },
-  {
-    name: "array17",
-    type: "array",
-    fields: [{ name: "unknown1", type: "byte", defaultValue: 0 }],
-  },
-  {
-    name: "array18",
-    type: "array",
-    fields: [{ name: "unknown1", type: "byte", defaultValue: 0 }],
-  },
+  { name: "unknown36", type: "uint64", defaultValue: "0x0000000000000000" },
+  { name: "unknown38", type: "uint32", defaultValue: 0 },
+  { name: "unknown39", type: "byte", defaultValue: 0 },
 ];
 
 const profileStatsSubSchema1 = [
@@ -1014,7 +962,7 @@ const profileStatsSubSchema1 = [
   {
     name: "unknownArray1",
     type: "array",
-    defaultValue: [{}],
+    defaultValue: [],
     elementType: "uint32",
   },
   { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -1176,13 +1124,13 @@ const itemWeaponDetailSubSchema2 = [
   {
     name: "unknownArray1",
     type: "array",
-    defaultValue: [{}],
+    defaultValue: [],
     fields: [
       { name: "unknownDword1", type: "uint32", defaultValue: 0 },
       {
         name: "unknownArray1",
         type: "array",
-        defaultValue: [{}],
+        defaultValue: [],
         fields: itemWeaponDetailSubSchema1,
       },
     ],
@@ -1194,7 +1142,7 @@ const itemWeaponDetailSchema = [
   {
     name: "unknownArray1",
     type: "array",
-    defaultValue: [{}],
+    defaultValue: [],
     fields: [
       { name: "unknownDword1", type: "uint32", defaultValue: 0 },
       { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -1227,13 +1175,13 @@ const itemWeaponDetailSchema = [
   {
     name: "unknownArray3",
     type: "array",
-    defaultValue: [{}],
+    defaultValue: [],
     fields: itemWeaponDetailSubSchema1,
   },
   {
     name: "unknownArray4",
     type: "array",
-    defaultValue: [{}],
+    defaultValue: [],
     fields: itemWeaponDetailSubSchema2,
   },
 ];
@@ -1299,14 +1247,14 @@ const weaponPackets = [
         {
           name: "statData",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "guid", type: "uint64", defaultValue: "0" },
             { name: "unknownBoolean1", type: "boolean", defaultValue: false },
             {
               name: "statUpdates",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: [
                 { name: "statCategory", type: "uint8", defaultValue: 0 },
                 {
@@ -1549,7 +1497,7 @@ const resourceEventDataSubSchema = [
   {
     name: "unknownArray1",
     type: "array",
-    defaultValue: [{}],
+    defaultValue: [],
     fields: [
       { name: "unknownDword1", type: "uint32", defaultValue: 0 },
       {
@@ -1613,7 +1561,7 @@ const rewardBundleDataSchema = [
   {
     name: "entries",
     type: "array",
-    defaultValue: [{}],
+    defaultValue: [],
     fields: [
       {
         name: "entryData",
@@ -1682,7 +1630,7 @@ const achievementDataSchema = [
   {
     name: "objectives",
     type: "array",
-    defaultValue: [{}],
+    defaultValue: [],
     fields: [
       { name: "index", type: "uint32", defaultValue: 0 },
       { name: "objectiveData", type: "schema", fields: objectiveDataSchema },
@@ -1722,7 +1670,7 @@ const loadoutDataSubSchema1 = [
   {
     name: "loadoutSlots",
     type: "array",
-    defaultValue: [{}],
+    defaultValue: [],
     fields: [
       { name: "loadoutSlotId", type: "uint32", defaultValue: 0 },
       {
@@ -1739,7 +1687,7 @@ const loadoutDataSubSchema1 = [
               {
                 name: "attachments",
                 type: "array",
-                defaultValue: [{}],
+                defaultValue: [],
                 fields: [
                   { name: "attachmentId", type: "uint32", defaultValue: 0 },
                 ],
@@ -1747,7 +1695,7 @@ const loadoutDataSubSchema1 = [
               {
                 name: "attachmentClasses",
                 type: "array",
-                defaultValue: [{}],
+                defaultValue: [],
                 fields: [
                   { name: "classId", type: "uint32", defaultValue: 0 },
                   { name: "attachmentId", type: "uint32", defaultValue: 0 },
@@ -1781,7 +1729,7 @@ const loadoutDataSubSchema2 = [
   {
     name: "unknownArray1",
     type: "array",
-    defaultValue: [{}],
+    defaultValue: [],
     fields: [
       { name: "unknownDword1", type: "uint32", defaultValue: 0 },
       {
@@ -1799,7 +1747,7 @@ const loadoutDataSubSchema2 = [
               {
                 name: "unknownArray1",
                 type: "array",
-                defaultValue: [{}],
+                defaultValue: [],
                 fields: [
                   { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                 ],
@@ -1807,7 +1755,7 @@ const loadoutDataSubSchema2 = [
               {
                 name: "unknownArray2",
                 type: "array",
-                defaultValue: [{}],
+                defaultValue: [],
                 fields: [
                   { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                   { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -1825,12 +1773,14 @@ const loadoutDataSubSchema2 = [
 ];
 
 const fullNpcDataSchema = [
+  { name: "unknown1", type: "byte", defaultValue: 0 },
+  { name: "unknown2", type: "byte", defaultValue: 0 },
   {
     name: "transient_id",
     type: "custom",
     parser: readUnsignedIntWith2bitLengthValue,
     packer: packUnsignedIntWith2bitLengthValue,
-    defaultValue: 115,
+    defaultValue: 1,
   },
   { name: "unknownDword1", type: "uint32", defaultValue: 0 },
   { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -1838,7 +1788,7 @@ const fullNpcDataSchema = [
   {
     name: "attachments",
     type: "array",
-    defaultValue: [{}],
+    defaultValue: [],
     fields: [
       { name: "unknownString1", type: "string", defaultValue: "" },
       { name: "unknownString2", type: "string", defaultValue: "" },
@@ -1863,7 +1813,7 @@ const fullNpcDataSchema = [
   {
     name: "effectTags",
     type: "array",
-    defaultValue: [{}],
+    defaultValue: [],
     fields: [
       { name: "unknownDword1", type: "uint32", defaultValue: 0 },
       { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -1899,31 +1849,26 @@ const fullNpcDataSchema = [
       { name: "unknownDword23", type: "uint32", defaultValue: 0 },
     ],
   },
-  {
-    name: "unknownData1",
-    type: "schema",
-    fields: [
-      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-      { name: "unknownString1", type: "string", defaultValue: "" },
-      { name: "unknownString2", type: "string", defaultValue: "" },
-      { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-      { name: "unknownString3", type: "string", defaultValue: "" },
-    ],
-  },
+  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+  { name: "unknownString1", type: "string", defaultValue: "" },
+  { name: "unknownString2", type: "string", defaultValue: "" },
+  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+  { name: "unknownString3", type: "string", defaultValue: "" },
   { name: "unknownVector4", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
   { name: "unknownDword9", type: "uint32", defaultValue: 0 },
   { name: "unknownDword10", type: "uint32", defaultValue: 0 },
   { name: "unknownDword11", type: "uint32", defaultValue: 0 },
   { name: "characterId", type: "uint64", defaultValue: "0" },
   { name: "unknownFloat3", type: "float", defaultValue: 0.0 },
-  { name: "targetData", type: "schema", fields: targetDataSchema },
+  // { name: "targetData", type: "schema", fields: targetDataSchema }, removed
   {
     name: "characterVariables",
     type: "array",
-    defaultValue: [{}],
+    defaultValue: [],
     fields: [
-      { name: "unknownString1", type: "string", defaultValue: "" },
       { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      { name: "unknownString1", type: "string", defaultValue: "" },
+      { name: "unknownDword2", type: "uint32", defaultValue: 0 },
     ],
   },
   { name: "unknownDword12", type: "uint32", defaultValue: 0 },
@@ -1932,11 +1877,8 @@ const fullNpcDataSchema = [
   { name: "unknownDword13", type: "uint32", defaultValue: 0 },
   { name: "unknownFloat5", type: "float", defaultValue: 0.0 },
   { name: "unknownFloat6", type: "float", defaultValue: 0.0 },
-  {
-    name: "unknownData2",
-    type: "schema",
-    fields: [{ name: "unknownFloat1", type: "float", defaultValue: 0.0 }],
-  },
+  { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
+
   { name: "unknownDword14", type: "uint32", defaultValue: 0 },
   { name: "unknownDword15", type: "uint32", defaultValue: 0 },
   { name: "unknownDword16", type: "uint32", defaultValue: 0 },
@@ -1947,21 +1889,15 @@ const fullNpcDataSchema = [
   { name: "unknownDword19", type: "uint32", defaultValue: 0 },
   { name: "unknownDword20", type: "uint32", defaultValue: 0 },
   { name: "unknownDword21", type: "uint32", defaultValue: 0 },
-  {
-    name: "resources",
-    type: "array",
-    defaultValue: [{}],
-    fields: resourceEventDataSubSchema,
-  },
+
   { name: "unknownGuid1", type: "uint64", defaultValue: "0" },
-  {
-    name: "unknownData3",
-    type: "schema",
-    fields: [{ name: "unknownDword1", type: "uint32", defaultValue: 0 }],
-  },
+  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+  { name: "unknownGuid2", type: "uint64", defaultValue: "0" },
+
+  // missing stuff from 0x1401dfee7
+
   { name: "unknownDword22", type: "uint32", defaultValue: 0 },
-  { name: "unknownBytes1", type: "byteswithlength", defaultValue: null },
-  { name: "unknownBytes2", type: "byteswithlength", defaultValue: null },
+  { name: "unknownDword23", type: "uint32", defaultValue: 0 },
 ];
 
 const respawnLocationDataSchema = [
@@ -1995,7 +1931,24 @@ const respawnLocationDataSchema = [
 ];
 
 var packets = [
-  ["Server", 0x01, {}],
+  [
+    "Server",
+    0x01,
+    {
+      fields: [
+        {
+          name: "currency",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "currencyId", type: "uint32", defaultValue: 0 },
+            { name: "quantity", type: "uint32", defaultValue: 0 },
+            { name: "currency2Id", type: "uint32", defaultValue: 0 },
+          ],
+        },
+      ],
+    },
+  ],
   ["ClientFinishedLoading", 0x02, {}],
   [
     "SendSelfToClient",
@@ -2049,7 +2002,7 @@ var packets = [
             {
               name: "currency",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: [
                 { name: "currencyId", type: "uint32", defaultValue: 0 },
                 { name: "quantity", type: "uint32", defaultValue: 0 },
@@ -2077,14 +2030,14 @@ var packets = [
             {
               name: "profiles",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: profileDataSchema,
             },
             { name: "currentProfile", type: "uint32", defaultValue: 0 },
             {
               name: "unknownArray2",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: [
                 {
                   name: "unknownDword1",
@@ -2101,7 +2054,7 @@ var packets = [
             {
               name: "collections",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                 { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -2120,7 +2073,7 @@ var packets = [
                 {
                   name: "unknownArray2",
                   type: "array",
-                  defaultValue: [{}],
+                  defaultValue: [],
                   fields: [
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                     {
@@ -2180,7 +2133,7 @@ var packets = [
                 {
                   name: "items",
                   type: "array",
-                  defaultValue: [{}],
+                  defaultValue: [],
                   fields: [
                     {
                       name: "itemData",
@@ -2202,7 +2155,7 @@ var packets = [
                 {
                   name: "quests",
                   type: "array",
-                  defaultValue: [{}],
+                  defaultValue: [],
                   fields: [
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                     { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -2231,7 +2184,7 @@ var packets = [
                     {
                       name: "unknownArray2",
                       type: "array",
-                      defaultValue: [{}],
+                      defaultValue: [],
                       fields: [
                         {
                           name: "unknownDword1",
@@ -2335,13 +2288,13 @@ var packets = [
             {
               name: "characterAchievements",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: achievementDataSchema,
             },
             {
               name: "acquaintances",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: [
                 { name: "unknownGuid1", type: "uint64", defaultValue: 0 },
                 { name: "unknownString1", type: "string", defaultValue: "" },
@@ -2357,7 +2310,7 @@ var packets = [
             {
               name: "recipes",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                 { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -2374,7 +2327,7 @@ var packets = [
                 {
                   name: "components",
                   type: "array",
-                  defaultValue: [{}],
+                  defaultValue: [],
                   fields: [
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                     { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -2392,7 +2345,7 @@ var packets = [
             {
               name: "mounts",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                 { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -2419,7 +2372,7 @@ var packets = [
                 {
                   name: "unknownArray1",
                   type: "array",
-                  defaultValue: [{}],
+                  defaultValue: [],
                   fields: [
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                   ],
@@ -2429,7 +2382,7 @@ var packets = [
             {
               name: "unknownArray10",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
               ],
@@ -2437,7 +2390,7 @@ var packets = [
             {
               name: "unknownEffectArray",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                 {
@@ -2621,7 +2574,7 @@ var packets = [
                     {
                       name: "unknownArray1",
                       type: "array",
-                      defaultValue: [{}],
+                      defaultValue: [],
                       fields: [
                         {
                           name: "unknownDword1",
@@ -2637,7 +2590,7 @@ var packets = [
             {
               name: "stats",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: [
                 { name: "statId", type: "uint32", defaultValue: 0 },
                 {
@@ -2666,7 +2619,7 @@ var packets = [
             {
               name: "playerTitles",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: [
                 { name: "titleId", type: "uint32", defaultValue: 0 },
                 { name: "titleType", type: "uint32", defaultValue: 0 },
@@ -2677,7 +2630,7 @@ var packets = [
             {
               name: "unknownArray13",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                 { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -2686,7 +2639,7 @@ var packets = [
             {
               name: "unknownArray14",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
               ],
@@ -2695,7 +2648,7 @@ var packets = [
             {
               name: "unknownArray15",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
               ],
@@ -2703,7 +2656,7 @@ var packets = [
             {
               name: "unknownArray16",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
               ],
@@ -2711,7 +2664,7 @@ var packets = [
             {
               name: "unknownArray17",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: [
                 {
                   name: "unknownBoolean1",
@@ -2726,7 +2679,7 @@ var packets = [
             {
               name: "unknownArray18",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                 { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -2741,7 +2694,7 @@ var packets = [
             {
               name: "unknownArray19",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                 { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -2756,7 +2709,7 @@ var packets = [
             {
               name: "unknownArray20",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                 { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -2769,7 +2722,7 @@ var packets = [
                 {
                   name: "abilityLines",
                   type: "array",
-                  defaultValue: [{}],
+                  defaultValue: [],
                   fields: [
                     { name: "abilityLineId", type: "uint32", defaultValue: 0 },
                     {
@@ -2794,7 +2747,7 @@ var packets = [
                 {
                   name: "unknownArray2",
                   type: "array",
-                  defaultValue: [{}],
+                  defaultValue: [],
                   fields: [
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                     { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -2805,7 +2758,7 @@ var packets = [
                 {
                   name: "unknownArray3",
                   type: "array",
-                  defaultValue: [{}],
+                  defaultValue: [],
                   fields: [
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                     { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -2816,7 +2769,7 @@ var packets = [
                 {
                   name: "unknownArray4",
                   type: "array",
-                  defaultValue: [{}],
+                  defaultValue: [],
                   fields: [
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                     { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -2829,7 +2782,7 @@ var packets = [
                 {
                   name: "unknownArray5",
                   type: "array",
-                  defaultValue: [{}],
+                  defaultValue: [],
                   fields: [
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                     {
@@ -2868,7 +2821,7 @@ var packets = [
                 {
                   name: "unknownArray6",
                   type: "array",
-                  defaultValue: [{}],
+                  defaultValue: [],
                   fields: [
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                     {
@@ -2902,7 +2855,7 @@ var packets = [
                 {
                   name: "unknownArray7",
                   type: "array",
-                  defaultValue: [{}],
+                  defaultValue: [],
                   fields: [
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                     { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -2913,7 +2866,7 @@ var packets = [
             {
               name: "unknownArray21",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                 { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -2923,7 +2876,7 @@ var packets = [
             {
               name: "unknownArray22",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
 
@@ -2937,7 +2890,7 @@ var packets = [
             {
               name: "unknownArray23",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                 { name: "unknownByte1", type: "uint8", defaultValue: 0 },
@@ -2982,7 +2935,7 @@ var packets = [
             {
               name: "unknownArray24",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                 { name: "unknownFloat1", type: "float", defaultValue: 0 },
@@ -3004,7 +2957,7 @@ var packets = [
             {
               name: "unknownArray25",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                 { name: "unknownGuid1", type: "uint64", defaultValue: 0 },
@@ -3016,14 +2969,14 @@ var packets = [
             {
               name: "unknownArray26",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                 { name: "unknownGuid1", type: "uint64", defaultValue: 0 },
                 {
                   name: "unknownArray1",
                   type: "array",
-                  defaultValue: [{}],
+                  defaultValue: [],
                   fields: [
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                     { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -3035,7 +2988,7 @@ var packets = [
             {
               name: "unknownArray27",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: [
                 {
                   name: "unknownData1",
@@ -3057,7 +3010,7 @@ var packets = [
             {
               name: "unknownArray28",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                 { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -3080,7 +3033,7 @@ var packets = [
                 {
                   name: "unknownArray1",
                   type: "array",
-                  defaultValue: [{}],
+                  defaultValue: [],
                   fields: [
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                     {
@@ -3117,7 +3070,7 @@ var packets = [
             {
               name: "playerRanks",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: [
                 { name: "rankId", type: "uint32", defaultValue: 0 },
                 {
@@ -3159,7 +3112,7 @@ var packets = [
             {
               name: "implantSlots",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                 {
@@ -3192,7 +3145,7 @@ var packets = [
                 {
                   name: "unknownArray1",
                   type: "array",
-                  defaultValue: [{}],
+                  defaultValue: [],
                   fields: [
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                     {
@@ -3236,7 +3189,7 @@ var packets = [
                 {
                   name: "unknownArray2",
                   type: "array",
-                  defaultValue: [{}],
+                  defaultValue: [],
                   fields: [
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                     {
@@ -3280,7 +3233,7 @@ var packets = [
                 {
                   name: "unknownArray3",
                   type: "array",
-                  defaultValue: [{}],
+                  defaultValue: [],
                   fields: [
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                     {
@@ -3324,7 +3277,7 @@ var packets = [
                 {
                   name: "unknownArray4",
                   type: "array",
-                  defaultValue: [{}],
+                  defaultValue: [],
                   fields: [
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                     {
@@ -3381,7 +3334,7 @@ var packets = [
                 {
                   name: "loadouts",
                   type: "array",
-                  defaultValue: [{}],
+                  defaultValue: [],
                   fields: [
                     { name: "loadoutId", type: "uint32", defaultValue: 0 },
                     { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -3395,7 +3348,7 @@ var packets = [
                 {
                   name: "unknownArray2",
                   type: "array",
-                  defaultValue: [{}],
+                  defaultValue: [],
                   fields: [
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                     { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -3409,7 +3362,7 @@ var packets = [
                 {
                   name: "unknownArray3",
                   type: "array",
-                  defaultValue: [{}],
+                  defaultValue: [],
                   fields: [
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
 
@@ -3430,7 +3383,7 @@ var packets = [
                         {
                           name: "unknownArray1",
                           type: "array",
-                          defaultValue: [{}],
+                          defaultValue: [],
                           fields: [
                             {
                               name: "unknownDword1",
@@ -3442,7 +3395,7 @@ var packets = [
                         {
                           name: "unknownArray2",
                           type: "array",
-                          defaultValue: [{}],
+                          defaultValue: [],
                           fields: [
                             {
                               name: "unknownDword1",
@@ -3484,7 +3437,7 @@ var packets = [
                 {
                   name: "unknownArray1",
                   type: "array",
-                  defaultValue: [{}],
+                  defaultValue: [],
                   fields: [
                     {
                       name: "unknownData1",
@@ -3523,7 +3476,7 @@ var packets = [
                 {
                   name: "unknownArray2",
                   type: "array",
-                  defaultValue: [{}],
+                  defaultValue: [],
                   fields: [
                     {
                       name: "unknownData1",
@@ -3562,7 +3515,7 @@ var packets = [
                 {
                   name: "unknownArray3",
                   type: "array",
-                  defaultValue: [{}],
+                  defaultValue: [],
                   fields: [
                     {
                       name: "unknownData1",
@@ -3601,7 +3554,7 @@ var packets = [
                 {
                   name: "unknownArray4",
                   type: "array",
-                  defaultValue: [{}],
+                  defaultValue: [],
                   fields: [
                     {
                       name: "unknownData1",
@@ -3713,7 +3666,7 @@ var packets = [
                 {
                   name: "unknownArray5",
                   type: "array",
-                  defaultValue: [{}],
+                  defaultValue: [],
                   fields: [
                     {
                       name: "unknownData1",
@@ -3828,7 +3781,7 @@ var packets = [
             {
               name: "characterResources",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: [
                 { name: "resourceType", type: "uint32", defaultValue: 0 },
                 {
@@ -3842,7 +3795,7 @@ var packets = [
             {
               name: "characterResourceChargers",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: [
                 { name: "resourceChargerId", type: "uint32", defaultValue: 0 },
                 {
@@ -3885,7 +3838,7 @@ var packets = [
             {
               name: "skills",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: [
                 { name: "skillLineId", type: "uint32", defaultValue: 0 },
                 { name: "skillId", type: "uint32", defaultValue: 0 },
@@ -4027,7 +3980,7 @@ var packets = [
         {
           name: "unknownArray1",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
             { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -4043,7 +3996,7 @@ var packets = [
         {
           name: "unknownArray2",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "unknownString1", type: "uint32", defaultValue: 0 },
             { name: "unknownFloat2", type: "uint32", defaultValue: 0 },
@@ -4070,7 +4023,7 @@ var packets = [
         {
           name: "unknownArray1",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
             { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -4086,7 +4039,7 @@ var packets = [
         {
           name: "unknownArray2",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "unknownString1", type: "uint32", defaultValue: 0 },
             { name: "unknownFloat2", type: "uint32", defaultValue: 0 },
@@ -5058,15 +5011,15 @@ var packets = [
         {
           name: "skyData",
           type: "schema",
-          fields: clientBeginZoningSkyData,
+          fields: skyData,
         },
-        { name: "unknownByte2", type: "byte", defaultValue: 0 },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: 0 },
         { name: "zoneId1", type: "uint32", defaultValue: 0 },
         { name: "zoneId2", type: "uint32", defaultValue: 0 },
         { name: "nameId", type: "uint32", defaultValue: 0 },
         { name: "unknownDword10", type: "uint32", defaultValue: 0 },
-        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
         { name: "unknownBoolean2", type: "boolean", defaultValue: false },
+        { name: "unknownBoolean3", type: "boolean", defaultValue: false },
       ],
     },
   ],
@@ -5117,7 +5070,7 @@ var packets = [
         {
           name: "npcs",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "guid", type: "uint64", defaultValue: "0" },
             { name: "unknownBoolean1", type: "boolean", defaultValue: false },
@@ -5356,7 +5309,7 @@ var packets = [
         {
           name: "customizationData",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "unknown1", type: "uint32", defaultValue: 0 },
             { name: "modelName", type: "string", defaultValue: "" },
@@ -5605,7 +5558,7 @@ var packets = [
         {
           name: "unknownArray1",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
             { name: "unknownBoolean1", type: "boolean", defaultValue: false },
@@ -5614,7 +5567,7 @@ var packets = [
         {
           name: "unknownArray2",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
             { name: "unknownByte1", type: "boolean", defaultValue: false },
@@ -5634,7 +5587,7 @@ var packets = [
         {
           name: "unknownArray3",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
             { name: "unknownQword1", type: "uint64", defaultValue: "0" },
@@ -5643,7 +5596,7 @@ var packets = [
         {
           name: "unknownArray4",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
             { name: "unknownQword1", type: "uint64", defaultValue: "0" },
@@ -5652,7 +5605,7 @@ var packets = [
         {
           name: "unknownArray5",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             {
               name: "unknownData1",
@@ -5688,7 +5641,7 @@ var packets = [
         {
           name: "unknownArray6",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "unknownString1", type: "string", defaultValue: "" },
           ],
@@ -5696,13 +5649,13 @@ var packets = [
         {
           name: "unknownArray7",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: itemWeaponDetailSubSchema1,
         },
         {
           name: "unknownArray8",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: itemWeaponDetailSubSchema2,
         },
         { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
@@ -5729,7 +5682,24 @@ var packets = [
       ],
     },
   ],
-  ["PlayerUpdate.NameChangeResult", 0x0f5f, {}],
+  [
+    "PlayerUpdate.NameChangeResult",
+    0x0f5f,
+    {
+      fields: [
+        { name: "unknown1", type: "byte", defaultValue: 0 },
+        { name: "unknown2", type: "byte", defaultValue: 0 },
+        {
+          name: "characterId",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        { name: "result", type: "uint32", defaultValue: 1 },
+        { name: "unknown5", type: "uint8", defaultValue: 1 },
+        { name: "unknown6", type: "uint8", defaultValue: 1 },
+      ],
+    },
+  ],
   ["PlayerUpdate.NameValidationResult", 0x0f60, {}],
   [
     "PlayerUpdate.Deploy", // just freeze the player...
@@ -5877,7 +5847,7 @@ var packets = [
         {
           name: "stats",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: statDataSchema,
         },
       ],
@@ -5909,7 +5879,7 @@ var packets = [
         {
           name: "attachmentData",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "modelName", type: "string", defaultValue: "" },
             { name: "unknownString1", type: "string", defaultValue: "" },
@@ -5954,7 +5924,7 @@ var packets = [
         {
           name: "populations",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           elementType: "uint8",
         },
       ],
@@ -5969,7 +5939,7 @@ var packets = [
         {
           name: "locations",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: respawnLocationDataSchema,
         },
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
@@ -5977,7 +5947,7 @@ var packets = [
         {
           name: "locations2",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: respawnLocationDataSchema,
         },
       ],
@@ -6130,7 +6100,7 @@ var packets = [
         {
           name: "profiles",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "profileId", type: "uint32", defaultValue: 0 },
             {
@@ -6161,7 +6131,7 @@ var packets = [
                 {
                   name: "unknownArray1",
                   type: "array",
-                  defaultValue: [{}],
+                  defaultValue: [],
                   fields: [
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                     { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -6173,7 +6143,7 @@ var packets = [
                 {
                   name: "unknownArray2",
                   type: "array",
-                  defaultValue: [{}],
+                  defaultValue: [],
                   fields: [
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                   ],
@@ -6310,7 +6280,7 @@ var packets = [
         {
           name: "recipes",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "recipeId", type: "uint32", defaultValue: 0 },
             {
@@ -6328,7 +6298,7 @@ var packets = [
                 {
                   name: "components",
                   type: "array",
-                  defaultValue: [{}],
+                  defaultValue: [],
                   fields: [
                     { name: "componentId", type: "uint32", defaultValue: 0 },
                     {
@@ -6405,7 +6375,7 @@ var packets = [
         {
           name: "storeBundles",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "bundleId", type: "uint32", defaultValue: 0 },
             {
@@ -6498,7 +6468,7 @@ var packets = [
                         {
                           name: "itemListDetails",
                           type: "array",
-                          defaultValue: [{}],
+                          defaultValue: [],
                           fields: [
                             {
                               name: "unknownDword1",
@@ -6590,7 +6560,7 @@ var packets = [
         {
           name: "categories",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "categoryId", type: "uint32", defaultValue: 0 },
             {
@@ -6610,7 +6580,7 @@ var packets = [
                 {
                   name: "unknownArray1",
                   type: "array",
-                  defaultValue: [{}],
+                  defaultValue: [],
                   fields: [
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                     { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -6699,14 +6669,14 @@ var packets = [
         {
           name: "unknown1",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [{ name: "id", type: "uint32", defaultValue: 0 }],
         },
         { name: "unknown2", type: "uint32", defaultValue: 0 },
         {
           name: "unknown3",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "scheduleId", type: "uint32", defaultValue: 0 },
             { name: "time", type: "uint32", defaultValue: 0 },
@@ -6736,7 +6706,7 @@ var packets = [
         {
           name: "commands",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "commandId", type: "uint32", defaultValue: 0 },
             {
@@ -6774,7 +6744,7 @@ var packets = [
         {
           name: "friends",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "unknown1", type: "uint32", defaultValue: 0 },
             { name: "unknown2", type: "uint32", defaultValue: 0 },
@@ -7079,7 +7049,7 @@ var packets = [
         {
           name: "clientAchievements",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: achievementDataSchema,
         },
         {
@@ -7089,7 +7059,7 @@ var packets = [
             {
               name: "achievements",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: achievementDataSchema,
             },
           ],
@@ -7160,7 +7130,7 @@ var packets = [
         {
           name: "items",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "itemId", type: "uint32", defaultValue: 0 },
             {
@@ -7411,7 +7381,7 @@ var packets = [
         {
           name: "facilities",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "facilityId", type: "uint32", defaultValue: 0 },
             { name: "facilityType", type: "uint8", defaultValue: 0 },
@@ -7678,19 +7648,19 @@ var packets = [
         {
           name: "experienceRanks",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
             {
               name: "experienceRankData",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: [
                 { name: "experienceRequired", type: "uint32", defaultValue: 0 },
                 {
                   name: "factionRanks",
                   type: "array",
-                  defaultValue: [{}],
+                  defaultValue: [],
                   length: 4,
                   fields: [
                     { name: "nameId", type: "uint32", defaultValue: 0 },
@@ -7699,7 +7669,7 @@ var packets = [
                     {
                       name: "rewards",
                       type: "array",
-                      defaultValue: [{}],
+                      defaultValue: [],
                       fields: [
                         { name: "itemId", type: "uint32", defaultValue: 0 },
                         { name: "nameId", type: "uint32", defaultValue: 0 },
@@ -7751,7 +7721,7 @@ var packets = [
         {
           name: "passengers",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             {
               name: "passengerData",
@@ -7795,7 +7765,7 @@ var packets = [
         {
           name: "unknownArray1",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
             { name: "unknownBoolean1", type: "boolean", defaultValue: false },
@@ -7804,7 +7774,7 @@ var packets = [
         {
           name: "passengers",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             {
               name: "passengerData",
@@ -7836,7 +7806,7 @@ var packets = [
         {
           name: "unknownArray2",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "unknownQword1", type: "uint64", defaultValue: "0" },
           ],
@@ -7862,7 +7832,7 @@ var packets = [
             {
               name: "unknownArray3",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                 {
@@ -7887,7 +7857,7 @@ var packets = [
                         {
                           name: "unknownArray1",
                           type: "array",
-                          defaultValue: [{}],
+                          defaultValue: [],
                           fields: [
                             {
                               name: "unknownDword1",
@@ -7899,7 +7869,7 @@ var packets = [
                         {
                           name: "unknownArray2",
                           type: "array",
-                          defaultValue: [{}],
+                          defaultValue: [],
                           fields: [
                             {
                               name: "unknownDword1",
@@ -7950,7 +7920,7 @@ var packets = [
         {
           name: "unknown4",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "unknown1", type: "uint32", defaultValue: 0 },
             { name: "unknown2", type: "uint8", defaultValue: 0 },
@@ -7959,7 +7929,7 @@ var packets = [
         {
           name: "unknown5",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "unknown1", type: "uint32", defaultValue: 0 },
             { name: "unknown2", type: "uint8", defaultValue: 0 },
@@ -8015,7 +7985,7 @@ var packets = [
         {
           name: "vehicleDefinitions",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "vehicleId", type: "uint32", defaultValue: 0 },
             { name: "modelId", type: "uint32", defaultValue: 0 },
@@ -8093,7 +8063,7 @@ var packets = [
               {
                 name: "unknownArray1",
                 type: "array",
-                defaultValue: [{}],
+                defaultValue: [],
                 fields: [
                   { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                   {
@@ -8112,7 +8082,7 @@ var packets = [
               {
                 name: "unknownArray1",
                 type: "array",
-                defaultValue: [{}],
+                defaultValue: [],
                 fields: [
                   { name: "unknownDword1", type: "float", defaultValue: 0.0 },
                   { name: "unknownDword2", type: "float", defaultValue: 0.0 },
@@ -8207,7 +8177,7 @@ var packets = [
             {
               name: "unknownArray1",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               elementType: "uint32",
             },
             { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -8221,7 +8191,7 @@ var packets = [
             {
               name: "unknownArray2",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               elementType: "uint32",
             },
             { name: "unknownDword8", type: "uint32", defaultValue: 0 },
@@ -8232,39 +8202,39 @@ var packets = [
             {
               name: "unknownArray3",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               elementType: "uint32",
             },
             { name: "unknownDword13", type: "uint32", defaultValue: 0 },
             {
               name: "unknownArray4",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               elementType: "uint32",
             },
             {
               name: "unknownArray5",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               length: 10,
               fields: [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                 {
                   name: "unknownArray1",
                   type: "array",
-                  defaultValue: [{}],
+                  defaultValue: [],
                   elementType: "uint32",
                 },
                 {
                   name: "unknownArray2",
                   type: "array",
-                  defaultValue: [{}],
+                  defaultValue: [],
                   elementType: "uint32",
                 },
                 {
                   name: "unknownArray3",
                   type: "array",
-                  defaultValue: [{}],
+                  defaultValue: [],
                   elementType: "uint32",
                 },
               ],
@@ -8274,31 +8244,31 @@ var packets = [
         {
           name: "weaponStats1",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: weaponStatsDataSchema,
         },
         {
           name: "weaponStats2",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: weaponStatsDataSchema,
         },
         {
           name: "vehicleStats",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: vehicleStatsDataSchema,
         },
         {
           name: "facilityStats1",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: facilityStatsDataSchema,
         },
         {
           name: "facilityStats2",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: facilityStatsDataSchema,
         },
       ],
@@ -8324,7 +8294,7 @@ var packets = [
         {
           name: "equipmentSlots",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "equipmentSlotId", type: "uint32", defaultValue: 0 },
             {
@@ -8342,7 +8312,7 @@ var packets = [
         {
           name: "attachmentData",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "modelName", type: "string", defaultValue: "" },
             { name: "unknownString1", type: "string", defaultValue: "" },
@@ -8369,7 +8339,7 @@ var packets = [
         {
           name: "slots",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "index", type: "uint32", defaultValue: 0 },
             { name: "slotId", type: "uint32", defaultValue: 0 },
@@ -8381,7 +8351,7 @@ var packets = [
         {
           name: "textures",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "index", type: "uint32", defaultValue: 0 },
             { name: "slotId", type: "uint32", defaultValue: 0 },
@@ -8394,7 +8364,7 @@ var packets = [
         {
           name: "models",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "modelName", type: "string", defaultValue: "" },
             { name: "unknown1", type: "string", defaultValue: "" },
@@ -8437,7 +8407,7 @@ var packets = [
         {
           name: "unknownData1",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
             { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -8474,7 +8444,7 @@ var packets = [
         {
           name: "zones",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "id", type: "uint32", defaultValue: 0 },
             { name: "nameId", type: "uint32", defaultValue: 0 },
@@ -8482,25 +8452,25 @@ var packets = [
             {
               name: "population",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               elementType: "uint8",
             },
             {
               name: "regionPercent",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               elementType: "uint8",
             },
             {
               name: "populationBuff",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               elementType: "uint8",
             },
             {
               name: "populationTargetPercent",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               elementType: "uint8",
             },
             { name: "name", type: "string", defaultValue: "" },
@@ -8756,7 +8726,7 @@ var packets = [
         {
           name: "unknownArray1",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "unknownQword1", type: "uint64", defaultValue: "0" },
             {
@@ -8809,7 +8779,7 @@ var packets = [
         {
           name: "abilities",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "abilitySlotId", type: "uint32", defaultValue: 0 },
             {
@@ -8870,7 +8840,7 @@ var packets = [
         {
           name: "regions",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "regionId", type: "uint32", defaultValue: 0 },
             { name: "regionId2", type: "uint32", defaultValue: 0 },
@@ -8882,7 +8852,7 @@ var packets = [
             {
               name: "hexes",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: [
                 { name: "x", type: "int32", defaultValue: 0 },
                 { name: "y", type: "int32", defaultValue: 0 },
@@ -8893,19 +8863,19 @@ var packets = [
             {
               name: "unknown4",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               elementType: "uint8",
             },
             {
               name: "unknown5",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               elementType: "uint8",
             },
             {
               name: "unknown6",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               elementType: "uint8",
             },
             { name: "connectionFacilityId", type: "uint32", defaultValue: 0 },
@@ -8955,7 +8925,7 @@ var packets = [
         {
           name: "speechPacks",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [{ name: "speechPackId", type: "uint32", defaultValue: 0 }],
         },
       ],
@@ -8979,19 +8949,19 @@ var packets = [
         {
           name: "population",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           elementtype: "uint16",
         },
         {
           name: "populationPercent",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           elementType: "uint8",
         },
         {
           name: "populationBuff",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           elementType: "uint8",
         },
       ],
@@ -9103,7 +9073,7 @@ var packets = [
         {
           name: "settings",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "hash", type: "uint32", defaultValue: 0 },
             { name: "unknown1", type: "uint32", defaultValue: 0 },
@@ -9181,7 +9151,7 @@ var packets = [
         {
           name: "facilities",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "zoneId", type: "uint32", defaultValue: 0 },
             { name: "facilityId", type: "uint32", defaultValue: 0 },

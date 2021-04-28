@@ -15,22 +15,27 @@ import { GatewayServer } from "../GatewayServer/gatewayserver";
 import fs from "fs";
 import { default as packetHandlers } from "./zonepackethandlers";
 import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
-const localSpawnList = require("../../../data/spawnLocations.json");
+const localSpawnList = require("../../../data/sampleData/spawnLocations.json");
 import _ from "lodash";
-import { Int64String, initMongo, getCharacterId, generateCharacterId } from "../../utils/utils";
+import {
+  Int64String,
+  initMongo,
+  getCharacterId,
+  generateCharacterId,
+} from "../../utils/utils";
 const debugName = "ZoneServer";
 const debug = require("debug")(debugName);
-const localWeatherTemplates = require("../../../data/weather.json");
-const Z1_items = require("../../../data/Z1_items.json")
-const Z1_doors = require("../../../data/Z1_doors.json")
-const models = require("../../../data/Models.json")
+const localWeatherTemplates = require("../../../data/sampleData/weather.json");
+const Z1_items = require("../../../data/zoneData/Z1_items.json")
+const Z1_doors = require("../../../data/zoneData/Z1_doors.json");
+const models = require("../../../data/dataSources/Models.json");
 import { Weather, Client } from "../../types/zoneserver";
-import { MongoClient } from "mongodb";
+import { MongoClient , Db} from "mongodb";
 
 export class ZoneServer extends EventEmitter {
   _gatewayServer: any;
   _protocol: any;
-  _db: any;
+  _db: Db | undefined;
   _soloMode: any;
   _mongoClient: any;
   _mongoAddress: string;
@@ -40,6 +45,7 @@ export class ZoneServer extends EventEmitter {
   _serverTime: any;
   _transientId: any;
   _guids: Array<string>;
+  _characterIds: any;
   _packetHandlers: any;
   _referenceData: any;
   _startTime: number;
@@ -51,13 +57,15 @@ export class ZoneServer extends EventEmitter {
   _defaultWeatherTemplate: string;
   _weatherTemplates: any;
   _npcs: any;
-  _objects:any;
+  _objects: any;
   _reloadPacketsInterval: any;
   _pingTimeoutTime: number;
+  _worldId: number;
   constructor(
     serverPort: number,
     gatewayKey: string,
-    mongoAddress: string = ""
+    mongoAddress: string = "",
+    worldId: number = 0
   ) {
     super();
     this._gatewayServer = new GatewayServer(
@@ -66,6 +74,7 @@ export class ZoneServer extends EventEmitter {
       gatewayKey
     );
     this._mongoAddress = mongoAddress;
+    this._worldId = worldId;
     this._protocol = new ZoneProtocol();
     this._clients = {};
     this._characters = {};
@@ -74,6 +83,7 @@ export class ZoneServer extends EventEmitter {
     this._serverTime = this.getCurrentTime();
     this._transientId = 0;
     this._guids = [];
+    this._characterIds = {};
     this._referenceData = this.parseReferenceData();
     this._packetHandlers = packetHandlers;
     this._startTime = 0;
@@ -115,7 +125,9 @@ export class ZoneServer extends EventEmitter {
         console.error(err);
       } else {
         debug("zone login");
-        this.sendInitData(client);
+        setImmediate(() => {
+          this.sendInitData(client);
+        });
       }
     });
 
@@ -199,8 +211,57 @@ export class ZoneServer extends EventEmitter {
       : _.find(this._weatherTemplates, (template) => {
           return template.templateName === this._defaultWeatherTemplate;
         });
-    this.createAllObjects();
-    debug("Server ready")
+        if(!this._soloMode && (await this._db?.collection("worlds").findOne({worldId:this._worldId}))){
+          this.fetchWorldData();
+        }
+        else{
+          this.createAllObjects();
+          await this.saveWorld();
+        }
+    debug("Server ready");
+  }
+  async fetchWorldData() {
+    if(!this._soloMode){
+      const worldData = await this._db?.collection("worlds").findOne({worldId:this._worldId});
+      this._npcs = worldData.npcs
+      this._objects = worldData.objects
+      this._weather = worldData.weather
+      debug("World fetched!")
+    }
+  }
+  async saveWorld() {
+    if(!this._soloMode){
+      const save = {
+        worldId:this._worldId,
+        npcs:this._npcs,
+        weather:this._weather,
+        objects:this._objects
+      }
+      if(this._worldId){
+        if((await this._db?.collection("worlds").findOne({worldId:this._worldId}))){
+          await this._db?.collection("worlds").updateOne({worldId:this._worldId},{$set:save});
+
+        }
+        else {
+          await this._db?.collection("worlds").insertOne(save);
+        }
+
+      }
+      else{
+        const numberOfWorld:number = await this._db?.collection("worlds").find( {  } ).count() || 0
+        const createdWorld = await this._db?.collection("worlds").insertOne( {
+          worldId:numberOfWorld +1,
+          npcs:save.npcs,
+          weather:save.weather,
+          objects:save.objects
+        });
+        this._worldId = createdWorld?.ops[0].worldId
+      }
+      debug("World saved!")
+      setTimeout(() => {
+        this.saveWorld();
+      }, 30000);
+    }
   }
   async start() {
     debug("Starting server");
@@ -237,10 +298,10 @@ export class ZoneServer extends EventEmitter {
   async loadMongoData() {
     this._spawnLocations = this._soloMode
       ? localSpawnList
-      : await this._db.collection("spawns").find().toArray();
+      : await this._db?.collection("spawns").find().toArray();
     this._weatherTemplates = this._soloMode
       ? localWeatherTemplates
-      : await this._db.collection("weathers").find().toArray();
+      : await this._db?.collection("weathers").find().toArray();
   }
 
   async reloadMongoData(client: Client) {
@@ -306,7 +367,7 @@ export class ZoneServer extends EventEmitter {
 
   parseReferenceData() {
     const itemData = fs.readFileSync(
-        `${__dirname}/../../../data/ClientItemDefinitions.txt`,
+        `${__dirname}/../../../data/dataSources/ClientItemDefinitions.txt`,
         "utf8"
       ),
       itemLines = itemData.split("\n"),
@@ -322,9 +383,9 @@ export class ZoneServer extends EventEmitter {
 
   characterData(client: Client) {
     delete require.cache[
-      require.resolve("../../../data/sendself.json") // reload json
+      require.resolve("../../../data/sampleData/sendself.json") // reload json
     ];
-    const self = require("../../../data/sendself.json"); // dummy self
+    const self = require("../../../data/sampleData/sendself.json"); // dummy self
     if (
       String(client.character.characterId).toUpperCase() ===
       String(getCharacterId(99)).toUpperCase()
@@ -334,14 +395,6 @@ export class ZoneServer extends EventEmitter {
       self.data.identity.characterFirstName = "Cowboy :)";
       self.data.extraModel = "SurvivorMale_Ivan_OutbackHat_Base.adr";
       self.data.extraModelTexture = "Ivan_OutbackHat_LeatherTan";
-    } else if (
-      String(client.character.characterId).toUpperCase() ===
-      String(getCharacterId(100)).toUpperCase()
-    ) {
-      // for fun 🤠
-      self.data.characterId = String(getCharacterId(100)).toUpperCase();
-      self.data.identity.characterFirstName = "Z";
-      self.data.actorModelId = 9001;
     }
     const {
       data: { identity },
@@ -366,13 +419,26 @@ export class ZoneServer extends EventEmitter {
       const randomSpawnIndex = Math.floor(
         Math.random() * this._spawnLocations.length
       );
-      self.data.position = this._spawnLocations[randomSpawnIndex].position;
-      self.data.rotation = this._spawnLocations[randomSpawnIndex].rotation;
+      self.data.position = client.character.state.position = this._spawnLocations[randomSpawnIndex].position;
+      self.data.rotation = client.character.state.rotation = this._spawnLocations[randomSpawnIndex].rotation;
       client.character.spawnLocation = this._spawnLocations[
         randomSpawnIndex
       ].name;
     }
+    else{
+      client.character.state.position = self.data.position
+      client.character.state.rotation = self.data.rotation
+    }
     this.sendData(client, "SendSelfToClient", self);
+  }
+  generateProfiles(): any[] {
+    const profiles: any[] = [];
+    const profileTypes = require("../../../data/dataSources/ProfileTypes.json")
+    profileTypes.forEach((profile:any) => {
+      profiles.push({profileId:profile.ID,type:profile.ID,nameId:profile.NAME_ID})
+    });
+    debug("Generated profiles")
+    return profiles;
   }
 
   sendInitData(client: Client) {
@@ -463,24 +529,46 @@ export class ZoneServer extends EventEmitter {
       characterId: client.character.characterId,
       battleRank: 100,
     });
-
   }
 
   spawnAllNpc(client: Client) {
     for (let npc in this._npcs) {
-      this.sendData(client, "PlayerUpdate.AddLightweightNpc", this._npcs[npc]);
+      setImmediate(() => {
+        this.sendData(
+          client,
+          "PlayerUpdate.AddLightweightNpc",
+          this._npcs[npc]
+        );
+      });
     }
   }
 
   spawnAllObject(client: Client) {
     for (let object in this._objects) {
-      this.sendData(client, "PlayerUpdate.AddLightweightNpc", this._objects[object]);
+      setImmediate(() => {
+        this.sendData(
+          client,
+          "PlayerUpdate.AddLightweightNpc",
+          this._objects[object]
+        );
+      });
     }
   }
 
-  createObject(modelID:number,position:Array<number>,rotation:Array<number>){
+  removeNpc(characterId:string){
+    this.sendDataToAll("PlayerUpdate.RemovePlayer", {
+      characterId: characterId,
+    });
+    delete this._characterIds[characterId.replace("0x","")]
+  }
+
+  createObject(
+    modelID: number,
+    position: Array<number>,
+    rotation: Array<number>
+  ) {
     const guid = this.generateGuid();
-    const characterId = generateCharacterId();
+    const characterId = generateCharacterId(this._characterIds);
     rotation[0] += 250;
     this._objects[characterId] = {
       characterId: characterId,
@@ -495,7 +583,7 @@ export class ZoneServer extends EventEmitter {
     };
   }
 
-  createAllObjects(){
+  createAllObjects() {
     this.createAllDoors();
     this.createAllItems();
     debug("All objects created")
@@ -656,13 +744,26 @@ export class ZoneServer extends EventEmitter {
 
 
   createAllDoors() {
-    Z1_doors.forEach((doorType:any) => { // TODO: add types for Z1_doors
-      const modelId:number = _.find(models, { 'MODEL_FILE_NAME': doorType.actorDefinition.replace("_Placer","") })?.ID;
-      doorType.instances.forEach((doorInstance:any) => {
-        modelId ? this.createObject(modelId, doorInstance.position,doorInstance.rotation):this.createObject(9183, doorInstance.position,doorInstance.rotation);
+    Z1_doors.forEach((doorType: any) => {
+      // TODO: add types for Z1_doors
+      const modelId: number = _.find(models, {
+        MODEL_FILE_NAME: doorType.actorDefinition.replace("_Placer", ""),
+      })?.ID;
+      doorType.instances.forEach((doorInstance: any) => {
+        modelId
+          ? this.createObject(
+              modelId,
+              doorInstance.position,
+              doorInstance.rotation
+            )
+          : this.createObject(
+              9183,
+              doorInstance.position,
+              doorInstance.rotation
+            );
       });
     });
-    debug("All doors objects created")
+    debug("All doors objects created");
   }
 
   data(collectionName: string) {
@@ -860,7 +961,9 @@ export class ZoneServer extends EventEmitter {
   getGameTime() {
     debug("get server time");
     let delta = Date.now() - this._startGameTime;
-    return this._frozeCycle? Number(((this._gameTime+delta)/1000).toFixed(0)) : Number(((this._gameTime)/1000).toFixed(0));
+    return this._frozeCycle
+      ? Number(((this._gameTime + delta) / 1000).toFixed(0))
+      : Number((this._gameTime / 1000).toFixed(0));
   }
 
   getServerTime() {
@@ -878,7 +981,8 @@ export class ZoneServer extends EventEmitter {
     });
   }
 
-  sendSyncToAll() { // TODO: this do not seems to work
+  sendSyncToAll() {
+    // TODO: this do not seems to work
     debug("Synchronization");
     this.sendDataToAll("Synchronization", {
       serverTime: Int64String(this.getServerTime()),
@@ -893,81 +997,6 @@ export class ZoneServer extends EventEmitter {
     }
     return client.transientIds[guid];
   }
-
-  spawnNPC(
-    npcId: number,
-    position: Array<number>,
-    rotation: Array<number>,
-    callback: any
-  ) {
-    this.data("npcs").findOne({ id: npcId }, (err: string, npc: any) => {
-      if (err) {
-        debug(err);
-        return;
-      }
-      if (npc) {
-        const guid: any = this.generateGuid();
-        this._npcs[guid] = {
-          guid: guid,
-          position: position,
-          rotation: rotation,
-          npcDefinition: npc,
-        };
-        /*
-      var npcData = {
-        guid: guid,
-        transientId: this._transientId,
-        unknownString0: "",
-        nameId: npc.name_id > 0 ? npc.name_id : 0,
-        unknownDword2: 242919,
-        unknownDword3: 310060,
-        unknownByte1: 1,
-        modelId: npc.model_id || 0,
-        scale: [1, 1, 1, 1],
-        unknownString1: "",
-        unknownString2: "",
-        unknownDword5: 0,
-        unknownDword6: 0,
-        position: position,
-        unknownVector1: [0, -0.7071066498756409, 0, 0.70710688829422],
-        rotation: [-1.570796012878418, 0, 0, 0],
-        unknownDword7: 0,
-        unknownFloat1: 0,
-        unknownString3: "",
-        unknownString4: "",
-        unknownString5: "",
-        vehicleId: 0,
-        unknownDword9: 0,
-        npcDefinitionId: npc.id || 0,
-        unknownByte2: 0,
-        profileId: npc.profile_id || 0,
-        unknownBoolean1: true,
-        unknownData1: {
-          unknownByte1: 16,
-          unknownByte2: 10,
-          unknownByte3: 0,
-        },
-        unknownByte6: 0,
-        unknownDword11: 0,
-        unknownGuid1: "0x0000000000000000",
-        unknownData2: {
-          unknownGuid1: "0x0000000000000000",
-        },
-        unknownDword12: 0,
-        unknownDword13: 0,
-        unknownDword14: 0,
-        unknownByte7: 0,
-        unknownArray1: [],
-      };
-      */
-        callback(null, this._npcs[guid]);
-      } else {
-        callback("NPC " + npcId + " not found");
-      }
-    });
-  }
-
-  spawnVehicle(vehicleId: number) {}
 
   createPositionUpdate(position: Array<number>, rotation: Array<number>) {
     const obj = {
