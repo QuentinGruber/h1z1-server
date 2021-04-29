@@ -136,6 +136,10 @@ const packetHandlers = {
     });
     server.sendChatText(client, "Welcome to H1emu ! :D", true);
     client.lastPingTime = new Date().getTime();
+    client.savePositionTimer = setTimeout(
+      () => server.saveCharacterPosition(client, 30000),
+      30000
+    );
   },
   Security: function (server, client, packet) {
     debug(packet);
@@ -237,6 +241,7 @@ const packetHandlers = {
   },
   ClientLogout: function (server, client, packet) {
     debug("ClientLogout");
+    server.saveCharacterPosition(client);
     server._gatewayServer._soeServer.deleteClient(client);
     delete server._clients[client.sessionId];
   },
@@ -1063,7 +1068,7 @@ const packetHandlers = {
     });
   },
   "PlayerUpdate.FullCharacterDataRequest": function (server, client, packet) {
-   // debug(packet);
+    // debug(packet);
     server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {});
   },
 };

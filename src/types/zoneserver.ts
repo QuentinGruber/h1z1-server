@@ -43,6 +43,7 @@ export interface Client {
   ackTimer: () => void;
   lastPingTime: number;
   pingTimer: NodeJS.Timeout;
+  savePositionTimer?: NodeJS.Timeout;
   outOfOrderTimer: () => void;
 }
 

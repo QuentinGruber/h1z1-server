@@ -387,7 +387,17 @@ export class ZoneServer extends EventEmitter {
     return { itemTypes: items };
   }
 
-  characterData(client: Client):void {
+  async saveCharacterPosition(client:Client,updtTimeMs = 0){
+    const {position , rotation} = client.character.state
+    await this._db?.collection("characters").updateOne({characterId:client.character.characterId},{$set:{position:position,rotation:rotation}})
+    if(updtTimeMs){
+      setTimeout(() => {
+        this.saveCharacterPosition(client,updtTimeMs)
+      }, updtTimeMs);
+    }
+  }
+
+  async characterData(client: Client):Promise<void> {
     delete require.cache[
       require.resolve("../../../data/sampleData/sendself.json") // reload json
     ];
@@ -411,13 +421,15 @@ export class ZoneServer extends EventEmitter {
     client.character.factionId = self.data.factionId;
     client.character.name =
       identity.characterFirstName + identity.characterLastName;
-
+    const characterDataMongo = await this._db?.collection("characters").findOne({characterId:client.character.characterId})
     if (
       _.isEqual(self.data.position, [0, 0, 0, 1]) &&
       _.isEqual(self.data.rotation, [0, 0, 0, 1])
     ) {
       // if position/rotation hasn't be changed
+      if(!this._soloMode && !characterDataMongo.position){
       self.data.isRandomlySpawning = true;
+    }
     }
 
     if (self.data.isRandomlySpawning) {
@@ -432,11 +444,16 @@ export class ZoneServer extends EventEmitter {
       ].name;
     }
     else{
+      if(!this._soloMode){
+        self.data.position = characterDataMongo.position
+        self.data.rotation = characterDataMongo.rotation
+      }
       client.character.state.position = self.data.position
       client.character.state.rotation = self.data.rotation
     }
     this.sendData(client, "SendSelfToClient", self);
   }
+  
   generateProfiles(): any[] {
     const profiles: any[] = [];
     const profileTypes = require("../../../data/dataSources/ProfileTypes.json")
