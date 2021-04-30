@@ -427,7 +427,7 @@ export class ZoneServer extends EventEmitter {
       _.isEqual(self.data.rotation, [0, 0, 0, 1])
     ) {
       // if position/rotation hasn't be changed
-      if(!this._soloMode && !characterDataMongo.position){
+      if(this._soloMode || !characterDataMongo.position){
       self.data.isRandomlySpawning = true;
     }
     }
