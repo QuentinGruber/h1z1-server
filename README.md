@@ -1,5 +1,9 @@
 # h1z1-server [![npm version](http://img.shields.io/npm/v/h1z1-server.svg?style=flat)](https://npmjs.org/package/h1z1-server "View this project on npm")
 
+## Versions
+
+This project use Node.js v16.0.0 and npm v6.14.12
+
 ## Description
 
 Based on the work of @jseidelin on [soe-network](https://github.com/psemu/soe-network),
@@ -101,9 +105,10 @@ Download here : https://github.com/H1emu/H1emu-server-app/releases [Easy way]
 Clone this repo : [h1z1-server-QuickStart](https://github.com/H1emu/h1z1-server-QuickStart) and follow the instruction in wrote in his README
 
 ### Using your own scripts with the library
+
 #### Installation
 
-You need [Nodejs](https://nodejs.org/en/) ( currently using 14.16 LTS).
+You need [Nodejs](https://nodejs.org/en/) ( currently using 16.0.0 LTS ).
 
 `npm i h1z1-server` to install package
 
@@ -156,30 +161,6 @@ From my package.json, if it can help.
         "zone-server": "set DEBUG=* & node ZoneServer.js",
         "zone-client": "set DEBUG=* & node ZoneClient.js"
     }
-
-## Setup [MongoDB](https://fastdl.mongodb.org/windows/mongodb-windows-x86_64-4.4.0-signed.msi) (OPTIONAL)
-
-- Create a database named "h1server" with a collection named "servers"
-
-- Add the following code as a document, this is a server's info template:
-
-`{
-                    serverId: 1,
-                    serverState: 2,
-                    serverAddress:"localhost:1117",
-                    locked: false,
-                    name: "SoloServer",
-                    nameId: 8,
-                    description: "yeah",
-                    descriptionId: 1,
-                    reqFeatureId: 0,
-                    serverInfo:
-                    "<ServerInfo Region=\"CharacterCreate.RegionUs\" Subregion=\"UI.SubregionUS\" IsRecommended=\"1\" IsRecommendedVS=\"0\" IsRecommendedNC=\"0\" IsRecommendedTR=\"0\" />",
-                    populationLevel: 3,
-                    populationData:
-                    "<Population ServerCapacity=\"0\" PingAddress=\"127.0.0.1:1117\" Rulesets=\"Permadeath\"><factionlist IsList=\"1\"><faction Id=\"1\" Percent=\"0\" TargetPopPct=\"0\" RewardBuff=\"52\" XPBuff=\"52\" PercentAvg=\"0\"/><faction Id=\"2\" Percent=\"0\" TargetPopPct=\"1\" RewardBuff=\"0\" XPBuff=\"0\" PercentAvg=\"0\"/><faction Id=\"3\" Percent=\"0\" TargetPopPct=\"1\" RewardBuff=\"0\" XPBuff=\"0\" PercentAvg=\"1\"/></factionlist></Population>",
-                    allowedAccess: true,
-                  }`
 
 ### Legal
 
