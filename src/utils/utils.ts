@@ -1,5 +1,3 @@
-import _ from "lodash";
-
 const restore = require("mongodb-restore-dump");
 export const Int64String = function (value: number): string {
   return "0x" + ("0000000000000000" + value.toString(16)).substr(-16);
