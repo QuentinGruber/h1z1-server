@@ -1,7 +1,8 @@
 import { generateCharacterId } from "../../../utils/utils";
+import fs from "fs";
+
 const _ = require("lodash");
 const debug = require("debug")("zonepacketHandlers");
-import fs from "fs";
 
 const hax = {
   time: function (server, client, args) {
@@ -262,6 +263,7 @@ const hax = {
   randomWeather: function (server, client, args) {
     debug("Randomized weather");
     server.sendChatText(client, `Randomized weather`);
+
     function rnd_number() {
       return Number((Math.random() * 100).toFixed(0));
     }

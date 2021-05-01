@@ -17,19 +17,20 @@ delete require.cache[require.resolve("./commands/dev")];
 const Jenkins = require("hash-jenkins");
 import hax from "./commands/hax";
 import dev from "./commands/dev";
+import { Int64String } from "../../utils/utils";
+
 const _ = require("lodash");
 const debug = require("debug")("zonepacketHandlers");
-import { Int64String } from "../../utils/utils";
 
 const packetHandlers = {
   ClientIsReady: function (server, client, packet) {
     /* still disable
-    server.sendData(client, "ClientBeginZoning", {
-      position: client.character.state.position,
-      rotation: client.character.state.rotation,
-      skyData: server._weather,
-    });
-    */
+        server.sendData(client, "ClientBeginZoning", {
+          position: client.character.state.position,
+          rotation: client.character.state.rotation,
+          skyData: server._weather,
+        });
+        */
     server.sendData(client, "QuickChat.SendData", { commands: [] });
 
     server.sendData(client, "ClientUpdate.DoneSendingPreloadCharacters", {

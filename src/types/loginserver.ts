@@ -32,7 +32,12 @@ export interface SoeServer {
     udpLength: any
   ) => void;
   stop: () => void;
-  _sendPacket: (client: Client, packetName: string, packet: any, prioritize?: boolean | undefined) => void;
+  _sendPacket: (
+    client: Client,
+    packetName: string,
+    packet: any,
+    prioritize?: boolean | undefined
+  ) => void;
   sendAppData: (arg0: Client, arg1: any, arg2: undefined | any) => void;
   toggleEncryption: (arg0: Client) => void;
   setEncryption: (client: Client, value: boolean) => void;

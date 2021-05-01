@@ -12,19 +12,16 @@
 
 import { EventEmitter } from "events";
 
-import {SOEServer} from "../SoeServer/soeserver";
+import { SOEServer } from "../SoeServer/soeserver";
 import { LoginProtocol } from "../../protocols/loginprotocol";
-const debugName = "LoginServer";
-const debug = require("debug")(debugName);
 import { toUint8Array } from "js-base64";
 import { MongoClient } from "mongodb";
-import {
-  generateCharacterId,
-  getCharacterId,
-  initMongo,
-} from "../../utils/utils";
-import { SoeServer, Client, GameServer } from "../../types/loginserver";
+import { getCharacterId, initMongo } from "../../utils/utils";
+import { Client, GameServer, SoeServer } from "../../types/loginserver";
 import _ from "lodash";
+
+const debugName = "LoginServer";
+const debug = require("debug")(debugName);
 
 export class LoginServer extends EventEmitter {
   _soeServer: SoeServer;
@@ -38,6 +35,7 @@ export class LoginServer extends EventEmitter {
   _cryptoKey: Uint8Array;
   _mongoAddress: string;
   _soloMode: boolean;
+
   constructor(serverPort: number, mongoAddress = "") {
     super();
     this._compression = 0x0100;
@@ -85,10 +83,10 @@ export class LoginServer extends EventEmitter {
         const packet: any = this._protocol.parse(data);
         if (packet !== false) {
           // if packet parsing succeed
-          const {sessionId} = packet.result;
+          const { sessionId } = packet.result;
           let data: Buffer;
           switch (packet.name) {
-            case "LoginRequest":{
+            case "LoginRequest": {
               client.loginSessionId = sessionId;
               const falsified_data = {
                 loggedIn: true,
@@ -101,14 +99,15 @@ export class LoginServer extends EventEmitter {
               data = this._protocol.pack("LoginReply", falsified_data);
               this._soeServer.sendAppData(client, data, true);
               if (!this._soloMode) {
-                client.serverUpdateTimer = setInterval( // TODO: fix the fact that this interval is never cleared
+                client.serverUpdateTimer = setInterval(
+                  // TODO: fix the fact that this interval is never cleared
                   () => this.updateServerList(client),
                   30000
                 );
               }
               if (this._protocol.protocolName !== "LoginUdp_11") break;
             }
-            case "CharacterSelectInfoRequest":{
+            case "CharacterSelectInfoRequest": {
               let CharactersInfo;
               if (this._soloMode) {
                 const SinglePlayerCharacter = require("../../../data/sampleData/single_player_character.json");
@@ -142,30 +141,34 @@ export class LoginServer extends EventEmitter {
               debug("CharacterSelectInfoRequest");
               if (this._protocol.protocolName !== "LoginUdp_11") break;
             }
-            case "ServerListRequest":{
-              let servers;
-              if (!this._soloMode) {
-                servers = await this._db.collection("servers").find().toArray();
-              } else {
-                if (this._soloMode) {
-                  const SoloServer = require("../../../data/sampleData/single_player_server.json");
-                  servers = [SoloServer];
+            case "ServerListRequest":
+              {
+                let servers;
+                if (!this._soloMode) {
+                  servers = await this._db
+                    .collection("servers")
+                    .find()
+                    .toArray();
+                } else {
+                  if (this._soloMode) {
+                    const SoloServer = require("../../../data/sampleData/single_player_server.json");
+                    servers = [SoloServer];
+                  }
                 }
-              }
-              for (let i = 0; i < servers.length; i++) {
-                if (servers[i]._id) {
-                  delete servers[i]._id;
+                for (let i = 0; i < servers.length; i++) {
+                  if (servers[i]._id) {
+                    delete servers[i]._id;
+                  }
                 }
+                data = this._protocol.pack("ServerListReply", {
+                  servers: servers,
+                });
+                this._soeServer.sendAppData(client, data, true);
               }
-              data = this._protocol.pack("ServerListReply", {
-                servers: servers,
-              });
-              this._soeServer.sendAppData(client, data, true);
-            }
 
               break;
 
-            case "CharacterDeleteRequest":{
+            case "CharacterDeleteRequest": {
               const characters_delete_info: any = {
                 characterId: (packet.result as any).characterId,
                 status: 1,
@@ -203,7 +206,7 @@ export class LoginServer extends EventEmitter {
               }
               break;
             }
-            case "CharacterLoginRequest":{
+            case "CharacterLoginRequest": {
               let charactersLoginInfo: any;
               const { serverId, characterId } = packet.result;
               if (!this._soloMode) {
@@ -252,11 +255,11 @@ export class LoginServer extends EventEmitter {
               this._soeServer.sendAppData(client, data, true);
               debug("CharacterLoginRequest");
               break;
-              }
-            case "CharacterCreateRequest":{
+            }
+            case "CharacterCreateRequest": {
               const reply_data = {
                 status: 1,
-                characterId: "0x0",//generateCharacterId(), TODO: get guids list from mongo
+                characterId: "0x0", //generateCharacterId(), TODO: get guids list from mongo
               };
               data = this._protocol.pack("CharacterCreateReply", reply_data);
               this._soeServer.sendAppData(client, data, true);
@@ -285,7 +288,8 @@ export class LoginServer extends EventEmitter {
       }
     );
   }
-  async updateServerList(client: Client):Promise<void> {
+
+  async updateServerList(client: Client): Promise<void> {
     if (!this._soloMode) {
       // useless if in solomode ( never get called either)
       const servers: Array<GameServer> = await this._db
@@ -299,7 +303,8 @@ export class LoginServer extends EventEmitter {
       }
     }
   }
-  async start():Promise<void> {
+
+  async start(): Promise<void> {
     debug("Starting server");
     debug(`Protocol used : ${this._protocol.protocolName}`);
     if (this._mongoAddress) {
@@ -334,12 +339,14 @@ export class LoginServer extends EventEmitter {
       this._udpLength
     );
   }
-  data(collectionName: string):any | undefined {
+
+  data(collectionName: string): any | undefined {
     if (this._db) {
       return this._db.collection(collectionName);
     }
   }
-  stop():void {
+
+  stop(): void {
     debug("Shutting down");
     process.exit(0);
   }

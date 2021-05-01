@@ -572,13 +572,13 @@ ZoneProtocol.prototype.parse = function (
     //fs.writeFileSync("zone_failed_" + Date.now() + "_" + Math.random() + ".dat", data);
   }
   /*
-    var op =  BasePackets.getName(opCode);
-    if (PacketHandlers[op]) {
-        result = PacketHandlers[op](data);
-    } else {
-        debug("Unhandled zone packet:", data[1] & 0x1F, data[1] >> 5, opCode, op);
-    }
-*/
+      var op =  BasePackets.getName(opCode);
+      if (PacketHandlers[op]) {
+          result = PacketHandlers[op](data);
+      } else {
+          debug("Unhandled zone packet:", data[1] & 0x1F, data[1] >> 5, opCode, op);
+      }
+  */
 };
 
 ZoneProtocol.reloadPacketDefinitions = function () {

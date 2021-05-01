@@ -40,6 +40,7 @@ interface PositionZoneToClient {
 export class H1Z1Protocol {
   H1Z1Packets: any;
   protocolName: String;
+
   constructor(protocolName: String = "ClientProtocol_860") {
     this.protocolName = protocolName;
     // Maybe will remove this switch later
@@ -55,6 +56,7 @@ export class H1Z1Protocol {
         process.exit();
     }
   }
+
   parseFacilityReferenceData(data: Buffer) {
     var inSize = data.readUInt32LE(0),
       outSize = data.readUInt32LE(4),
@@ -419,13 +421,13 @@ export class H1Z1Protocol {
       //fs.writeFileSync("zone_failed_" + Date.now() + "_" + Math.random() + ".dat", data);
     }
     /*
-      var op =  BasePackets.getName(opCode);
-      if (PacketHandlers[op]) {
-          result = PacketHandlers[op](data);
-      } else {
-          debug("Unhandled zone packet:", data[1] & 0x1F, data[1] >> 5, opCode, op);
-      }
-  */
+          var op =  BasePackets.getName(opCode);
+          if (PacketHandlers[op]) {
+              result = PacketHandlers[op](data);
+          } else {
+              debug("Unhandled zone packet:", data[1] & 0x1F, data[1] >> 5, opCode, op);
+          }
+      */
   }
 
   reloadPacketDefinitions() {
@@ -577,10 +579,10 @@ const parseUpdatePositionData = function (data: Buffer, offset: number) {
       offset += v.length;
     }
     /*
-    if (obj.flags & 0xe0) {
+        if (obj.flags & 0xe0) {
 
-    }
-    */
+        }
+        */
   } catch (e) {
     debug(e);
   }

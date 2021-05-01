@@ -12,6 +12,7 @@
 
 import { EventEmitter } from "events";
 import { createDecipheriv, Decipher } from "crypto";
+
 const debug = require("debug")("SOEInputStream");
 
 export class SOEInputStream extends EventEmitter {
@@ -23,6 +24,7 @@ export class SOEInputStream extends EventEmitter {
   _fragments: Array<any>;
   _useEncryption: boolean;
   _rc4: Decipher;
+
   constructor(cryptoKey: string) {
     super();
     this._sequences = [];
@@ -34,7 +36,8 @@ export class SOEInputStream extends EventEmitter {
     this._useEncryption = false;
     this._rc4 = createDecipheriv("rc4", cryptoKey, "");
   }
-  _processDataFragments():void {
+
+  _processDataFragments(): void {
     const nextFragment = (this._lastProcessedFragment + 1) & 0xffff,
       fragments = this._fragments,
       head = fragments[nextFragment];
@@ -112,7 +115,8 @@ export class SOEInputStream extends EventEmitter {
       }, 0);
     }
   }
-  write(data: Buffer, sequence: number, fragment: any):void {
+
+  write(data: Buffer, sequence: number, fragment: any): void {
     if (this._nextSequence === -1) {
       this._nextSequence = sequence;
     }
@@ -153,24 +157,30 @@ export class SOEInputStream extends EventEmitter {
       this._processDataFragments();
     }
   }
-  setEncryption(value: boolean):void {
+
+  setEncryption(value: boolean): void {
     this._useEncryption = value;
     debug("encryption: " + this._useEncryption);
   }
-  toggleEncryption():void {
+
+  toggleEncryption(): void {
     this._useEncryption = !this._useEncryption;
     debug("Toggling encryption: " + this._useEncryption);
   }
 }
-function ZeroBuffer(length: number):Buffer {
-  const buffer:Buffer = new (Buffer as any).alloc(length);
+
+function ZeroBuffer(length: number): Buffer {
+  const buffer: Buffer = new (Buffer as any).alloc(length);
   for (let i = 0; i < length; i++) {
     buffer[i] = 0;
   }
   return buffer;
 }
 
-function readDataLength(data: Buffer, offset: number):{ value: number; numBytes: number; } {
+function readDataLength(
+  data: Buffer,
+  offset: number
+): { value: number; numBytes: number } {
   let dataLength = data.readUInt8(offset),
     n;
   if (dataLength === 0xff) {
@@ -190,7 +200,7 @@ function readDataLength(data: Buffer, offset: number):{ value: number; numBytes:
   };
 }
 
-function parseChannelPacketData(data: Buffer):any {
+function parseChannelPacketData(data: Buffer): any {
   let appData: any = [],
     offset,
     dataLength;

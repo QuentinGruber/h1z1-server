@@ -16,6 +16,7 @@ import { SOEInputStream } from "./soeinputstream";
 import { SOEOutputStream } from "./soeoutputstream";
 import dgram from "dgram";
 import { Client } from "../../types/soeserver";
+
 const debug = require("debug")("SOEServer");
 
 export class SOEServer extends EventEmitter {
@@ -265,7 +266,7 @@ export class SOEServer extends EventEmitter {
           delete this._clients[client.address + ":" + client.port];
           this.emit("disconnect", null, client);
           break;
-        case "MultiPacket":{
+        case "MultiPacket": {
           let lastOutOfOrder = 0;
           const channel = 0;
           for (let i = 0; i < result.subPackets.length; i++) {
@@ -350,44 +351,44 @@ export class SOEServer extends EventEmitter {
       }
     }
   }
+
   start(
     compression: number,
     crcSeed: number,
     crcLength: number,
     udpLength: number
-  ):void {
+  ): void {
     this._compression = compression;
     this._crcSeed = crcSeed;
     this._crcLength = crcLength;
     this._udpLength = udpLength;
     this._connection.bind(this._serverPort, function () {});
   }
-  stop():void {
+
+  stop(): void {
     this._connection.close();
-    process.exit(0)
+    process.exit(0);
   }
 
-  createPacket( client: Client,
-    packetName: string,
-    packet: any):any{
-      try {
-        return this._protocol.pack(
-          packetName,
-          packet,
-          client.crcSeed,
-          client.compression
-        );
-      } catch (e) {
-        throw (
-          packetName +
-          " " +
-          client.crcSeed +
-          " " +
-          client.compression +
-          " " +
-          JSON.stringify(packet, null, 4)
-        );
-      }
+  createPacket(client: Client, packetName: string, packet: any): any {
+    try {
+      return this._protocol.pack(
+        packetName,
+        packet,
+        client.crcSeed,
+        client.compression
+      );
+    } catch (e) {
+      throw (
+        packetName +
+        " " +
+        client.crcSeed +
+        " " +
+        client.compression +
+        " " +
+        JSON.stringify(packet, null, 4)
+      );
+    }
   }
 
   _sendPacket(
@@ -395,15 +396,16 @@ export class SOEServer extends EventEmitter {
     packetName: string,
     packet: any,
     prioritize = false
-  ):void {
-    const data = this.createPacket(client,packetName,packet)
+  ): void {
+    const data = this.createPacket(client, packetName, packet);
     if (prioritize) {
       client.outQueue.unshift(data);
     } else {
       client.outQueue.push(data);
     }
   }
-  sendAppData(client: Client, data: Buffer, overrideEncryption: boolean):void {
+
+  sendAppData(client: Client, data: Buffer, overrideEncryption: boolean): void {
     if ((client as any).outputStream._useEncryption) {
       debug("Sending app data: " + data.length + " bytes with encryption");
     } else {
@@ -411,15 +413,18 @@ export class SOEServer extends EventEmitter {
     }
     (client as any).outputStream.write(data, overrideEncryption);
   }
-  setEncryption(client: Client, value: boolean):void {
+
+  setEncryption(client: Client, value: boolean): void {
     (client as any).outputStream.setEncryption(value);
     (client as any).inputStream.setEncryption(value);
   }
-  toggleEncryption(client: Client):void {
+
+  toggleEncryption(client: Client): void {
     (client as any).outputStream.toggleEncryption();
     (client as any).inputStream.toggleEncryption();
   }
-  deleteClient(client: Client):void {
+
+  deleteClient(client: Client): void {
     clearTimeout(
       this._clients[client.address + ":" + client.port]?.outQueueTimer
     );

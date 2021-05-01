@@ -20,59 +20,59 @@ import { Int64String } from "../../utils/utils";
 const packetHandlers = {
   ClientIsReady: function (server, client, packet) {
     /* Still disable but the packet schema seems to work well
-    server.sendData(client, "ClientBeginZoning", {
-      unknownByte1: 0,
-      zoneName: "Z1",
-      zoneType: 4,
-      position: [1, 2, 3, 1],
-      rotation: [4, 5, 6, 1],
+        server.sendData(client, "ClientBeginZoning", {
+          unknownByte1: 0,
+          zoneName: "Z1",
+          zoneType: 4,
+          position: [1, 2, 3, 1],
+          rotation: [4, 5, 6, 1],
 
-      skyData: {
-        unknownDword1: 0,
-        name: "sky",
-        unknownDword2: 0,
-        unknownDword3: 0,
-        fogDensity: 0,
-        fogGradient: 0,
-        fogFloor: 0,
-        unknownDword7: 0,
-        rain: 0,
-        temp: 0,
-        skyColor: 0,
-        cloudWeight0: 0,
-        cloudWeight1: 0,
-        cloudWeight2: 0,
-        cloudWeight3: 0,
-        sunAxisX: 0,
-        sunAxisY: 0,
-        sunAxisZ: 0,
-        unknownDword18: 0,
-        unknownDword19: 0,
-        unknownDword20: 0,
-        wind: 0,
-        unknownDword22: 0,
-        unknownDword23: 0,
-        unknownDword24: 0,
-        unknownDword25: 0,
-        unknownDword26: 0,
-        unknownArray: _.fill(Array(50), {
-          unknownDword1: 0,
-          unknownDword2: 0,
-          unknownDword3: 0,
-          unknownDword4: 0,
-          unknownDword5: 0,
-          unknownDword6: 0,
-          unknownDword7: 0,
-        }),
-      },
-      unknownByte2: 0,
-      zoneId1: 3168227224,
-      zoneId2: 3168227224,
-      nameId: 130,
-      unknownDword10: 0,
-      unknownBoolean1: true,
-      unknownBoolean2: true,
-    });*/
+          skyData: {
+            unknownDword1: 0,
+            name: "sky",
+            unknownDword2: 0,
+            unknownDword3: 0,
+            fogDensity: 0,
+            fogGradient: 0,
+            fogFloor: 0,
+            unknownDword7: 0,
+            rain: 0,
+            temp: 0,
+            skyColor: 0,
+            cloudWeight0: 0,
+            cloudWeight1: 0,
+            cloudWeight2: 0,
+            cloudWeight3: 0,
+            sunAxisX: 0,
+            sunAxisY: 0,
+            sunAxisZ: 0,
+            unknownDword18: 0,
+            unknownDword19: 0,
+            unknownDword20: 0,
+            wind: 0,
+            unknownDword22: 0,
+            unknownDword23: 0,
+            unknownDword24: 0,
+            unknownDword25: 0,
+            unknownDword26: 0,
+            unknownArray: _.fill(Array(50), {
+              unknownDword1: 0,
+              unknownDword2: 0,
+              unknownDword3: 0,
+              unknownDword4: 0,
+              unknownDword5: 0,
+              unknownDword6: 0,
+              unknownDword7: 0,
+            }),
+          },
+          unknownByte2: 0,
+          zoneId1: 3168227224,
+          zoneId2: 3168227224,
+          nameId: 130,
+          unknownDword10: 0,
+          unknownBoolean1: true,
+          unknownBoolean2: true,
+        });*/
 
     server.sendData(client, "QuickChat.SendData", { commands: [] });
 
@@ -83,11 +83,11 @@ const packetHandlers = {
     server.sendData(client, "ClientUpdate.UpdateStat", { stats: [] });
 
     /*
-    server.sendRawData(
-      client,
-      fs.readFileSync(`${__dirname}/data/zone/ActivityManagerProfileList.dat`)
-    );
-    */
+        server.sendRawData(
+          client,
+          fs.readFileSync(`${__dirname}/data/zone/ActivityManagerProfileList.dat`)
+        );
+        */
     server.sendData(client, "Operation.ClientClearMissions", {});
 
     server.sendData(client, "ZoneSetting.Data", {
@@ -146,57 +146,57 @@ const packetHandlers = {
     });
     server.sendGameTimeSync(client);
     /*
-    server.sendRawData(
-      client,
-      fs.readFileSync(
-        `${__dirname}/data/zone/CommandEnableCompositeEffects.dat`
-      )
-    );
-    server.sendRawData(
-      client,
-      fs.readFileSync(
-        `${__dirname}/data/zone/ReferenceData.ItemClassDefinitions.dat`
-      )
-    );
-    server.sendRawData(
-      client,
-      fs.readFileSync(
-        `${__dirname}/data/zone/ReferenceData.ItemCategoryDefinitions.dat`
-      )
-    );
-    server.sendRawData(
-      client,
-      fs.readFileSync(
-        `${__dirname}/data/zone/ReferenceData.ClientProfileData.dat`
-      )
-    );
-    server.sendRawData(
-      client,
-      fs.readFileSync(
-        `${__dirname}/data/zone/ReferenceData.ProjectileDefinitions.dat`
-      )
-    );
-    server.sendRawData(
-      client,
-      fs.readFileSync(`${__dirname}/data/zone/FacilityReferenceData.dat`)
-    );
-    server.sendRawData(
-      client,
-      fs.readFileSync(
-        `${__dirname}/data/zone/ItemsLoadItemRentalDefinitionManager.dat`
-      )
-    );
-    server.sendRawData(
-      client,
-      fs.readFileSync(`${__dirname}/data/zone/AbilityAddAbilityDefinition.dat`)
-    );
-    server.sendRawData(
-      client,
-      fs.readFileSync(
-        `${__dirname}/data/zone/AbilitiesSetAbilityActivationManager.dat`
-      )
-    );
-    */
+        server.sendRawData(
+          client,
+          fs.readFileSync(
+            `${__dirname}/data/zone/CommandEnableCompositeEffects.dat`
+          )
+        );
+        server.sendRawData(
+          client,
+          fs.readFileSync(
+            `${__dirname}/data/zone/ReferenceData.ItemClassDefinitions.dat`
+          )
+        );
+        server.sendRawData(
+          client,
+          fs.readFileSync(
+            `${__dirname}/data/zone/ReferenceData.ItemCategoryDefinitions.dat`
+          )
+        );
+        server.sendRawData(
+          client,
+          fs.readFileSync(
+            `${__dirname}/data/zone/ReferenceData.ClientProfileData.dat`
+          )
+        );
+        server.sendRawData(
+          client,
+          fs.readFileSync(
+            `${__dirname}/data/zone/ReferenceData.ProjectileDefinitions.dat`
+          )
+        );
+        server.sendRawData(
+          client,
+          fs.readFileSync(`${__dirname}/data/zone/FacilityReferenceData.dat`)
+        );
+        server.sendRawData(
+          client,
+          fs.readFileSync(
+            `${__dirname}/data/zone/ItemsLoadItemRentalDefinitionManager.dat`
+          )
+        );
+        server.sendRawData(
+          client,
+          fs.readFileSync(`${__dirname}/data/zone/AbilityAddAbilityDefinition.dat`)
+        );
+        server.sendRawData(
+          client,
+          fs.readFileSync(
+            `${__dirname}/data/zone/AbilitiesSetAbilityActivationManager.dat`
+          )
+        );
+        */
     client.character.currentLoadoutId = 3;
     server.sendData(client, "Loadout.SetCurrentLoadout", {
       guid: client.character.guid,
@@ -204,13 +204,13 @@ const packetHandlers = {
     });
 
     /*
-    server.sendRawData(
-      client,
-      fs.readFileSync(
-        `${__dirname}/data/zone/PointOfInterestDefinitionReply.dat`
-      )
-    );
-    */
+        server.sendRawData(
+          client,
+          fs.readFileSync(
+            `${__dirname}/data/zone/PointOfInterestDefinitionReply.dat`
+          )
+        );
+        */
     server.sendData(client, "ZoneDoneSendingInitialData", {});
 
     const commands = [
@@ -1588,6 +1588,7 @@ const packetHandlers = {
           case "randomWeather":
             debug("Randomized weather");
             server.sendChatText(client, `Randomized weather`);
+
             function rnd_number() {
               return Number((Math.random() * 100).toFixed(0));
             }

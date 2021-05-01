@@ -11,6 +11,7 @@
 // ======================================================================
 
 import { EventEmitter } from "events";
+
 var SOEClient = require("./soeclient").SOEClient,
   https = require("https"),
   util = require("util"),
@@ -42,6 +43,7 @@ export class LoginClient extends EventEmitter {
   _environment: string;
   _soeClient: SoeClient;
   _protocol: LoginProtocol;
+
   constructor(
     gameId: number,
     environment: string,
@@ -140,6 +142,7 @@ export class LoginClient extends EventEmitter {
       }
     });
   }
+
   connect() {
     debug("Connecting to login server");
     this._soeClient.connect();
@@ -157,6 +160,7 @@ export class LoginClient extends EventEmitter {
       });
       return data;
     }
+
     var data = await SetupLoginRequest(
       fingerprint,
       this._soeClient._sessionId.toString(),

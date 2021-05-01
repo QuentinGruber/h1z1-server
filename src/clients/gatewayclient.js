@@ -22,6 +22,7 @@ function GatewayClientError(message) {
   this.name = this.constructor.name;
   this.message = message;
 }
+
 util.inherits(GatewayClientError, Error);
 
 function GatewayClient(serverAddress, serverPort, key, localPort) {
@@ -66,6 +67,7 @@ function GatewayClient(serverAddress, serverPort, key, localPort) {
     me.emit("disconnect", err, result);
   });
 }
+
 util.inherits(GatewayClient, EventEmitter);
 
 GatewayClient.prototype.connect = function (callback) {

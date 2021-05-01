@@ -15,22 +15,24 @@ import { GatewayServer } from "../GatewayServer/gatewayserver";
 import fs from "fs";
 import { default as packetHandlers } from "./zonepackethandlers";
 import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
-const localSpawnList = require("../../../data/sampleData/spawnLocations.json");
 import _ from "lodash";
 import {
-  Int64String,
-  initMongo,
-  getCharacterId,
   generateCharacterId,
+  getCharacterId,
+  initMongo,
+  Int64String,
 } from "../../utils/utils";
+import { Client, Weather } from "../../types/zoneserver";
+import { Db, MongoClient } from "mongodb";
+
+const localSpawnList = require("../../../data/sampleData/spawnLocations.json");
+
 const debugName = "ZoneServer";
 const debug = require("debug")(debugName);
 const localWeatherTemplates = require("../../../data/sampleData/weather.json");
-const Z1_items = require("../../../data/zoneData/Z1_items.json")
+const Z1_items = require("../../../data/zoneData/Z1_items.json");
 const Z1_doors = require("../../../data/zoneData/Z1_doors.json");
 const models = require("../../../data/dataSources/Models.json");
-import { Weather, Client } from "../../types/zoneserver";
-import { MongoClient , Db} from "mongodb";
 
 export class ZoneServer extends EventEmitter {
   _gatewayServer: any;
@@ -52,7 +54,7 @@ export class ZoneServer extends EventEmitter {
   _startGameTime: number;
   _cycleSpeed: number;
   _frozeCycle: boolean;
-  _profiles:any[];
+  _profiles: any[];
   _weather: Weather;
   _spawnLocations: any;
   _defaultWeatherTemplate: string;
@@ -62,6 +64,7 @@ export class ZoneServer extends EventEmitter {
   _reloadPacketsInterval: any;
   _pingTimeoutTime: number;
   _worldId: number;
+
   constructor(
     serverPort: number,
     gatewayKey: Uint8Array,
@@ -205,7 +208,7 @@ export class ZoneServer extends EventEmitter {
     );
   }
 
-  async setupServer():Promise<void> {
+  async setupServer(): Promise<void> {
     this.forceTime(971172000000); // force day time by default
     await this.loadMongoData();
     this._weather = this._soloMode
@@ -214,62 +217,71 @@ export class ZoneServer extends EventEmitter {
           return template.templateName === this._defaultWeatherTemplate;
         });
     this._profiles = this.generateProfiles();
-    if(await this._db?.collection("worlds").findOne({worldId:this._worldId})){
-    await this.fetchWorldData();
-  }
-  else{
-    await this.saveWorld()
-  }
+    if (
+      await this._db?.collection("worlds").findOne({ worldId: this._worldId })
+    ) {
+      await this.fetchWorldData();
+    } else {
+      await this.saveWorld();
+    }
     debug("Server ready");
   }
-  async fetchWorldData():Promise<void> {
-    if(!this._soloMode){
-      const worldData = await this._db?.collection("worlds").findOne({worldId:this._worldId});
-      this._npcs = worldData.npcs
-      this._objects = worldData.objects
-      this._weather = worldData.weather
-      debug("World fetched!")
+
+  async fetchWorldData(): Promise<void> {
+    if (!this._soloMode) {
+      const worldData = await this._db
+        ?.collection("worlds")
+        .findOne({ worldId: this._worldId });
+      this._npcs = worldData.npcs;
+      this._objects = worldData.objects;
+      this._weather = worldData.weather;
+      debug("World fetched!");
     }
   }
-  async saveWorld():Promise<void> {
-    if(!this._soloMode){
+
+  async saveWorld(): Promise<void> {
+    if (!this._soloMode) {
       const save = {
-        worldId:this._worldId,
-        npcs:this._npcs,
-        weather:this._weather,
-        objects:this._objects
-      }
-      if(this._worldId){
-        if((await this._db?.collection("worlds").findOne({worldId:this._worldId}))){
-          await this._db?.collection("worlds").updateOne({worldId:this._worldId},{$set:save});
-        }
-        else {
+        worldId: this._worldId,
+        npcs: this._npcs,
+        weather: this._weather,
+        objects: this._objects,
+      };
+      if (this._worldId) {
+        if (
+          await this._db
+            ?.collection("worlds")
+            .findOne({ worldId: this._worldId })
+        ) {
+          await this._db
+            ?.collection("worlds")
+            .updateOne({ worldId: this._worldId }, { $set: save });
+        } else {
           this.createAllObjects();
           await this._db?.collection("worlds").insertOne(save);
         }
-
-      }
-      else{
+      } else {
         this.createAllObjects();
-        const numberOfWorld:number = await this._db?.collection("worlds").find( {  } ).count() || 0
-        const createdWorld = await this._db?.collection("worlds").insertOne( {
-          worldId:numberOfWorld +1,
-          npcs:save.npcs,
-          weather:save.weather,
-          objects:save.objects
+        const numberOfWorld: number =
+          (await this._db?.collection("worlds").find({}).count()) || 0;
+        const createdWorld = await this._db?.collection("worlds").insertOne({
+          worldId: numberOfWorld + 1,
+          npcs: save.npcs,
+          weather: save.weather,
+          objects: save.objects,
         });
-        this._worldId = createdWorld?.ops[0].worldId
+        this._worldId = createdWorld?.ops[0].worldId;
       }
-      debug("World saved!")
+      debug("World saved!");
       setTimeout(() => {
         this.saveWorld();
       }, 30000);
-    }
-    else{
-      this.createAllObjects()
+    } else {
+      this.createAllObjects();
     }
   }
-  async start():Promise<void> {
+
+  async start(): Promise<void> {
     debug("Starting server");
     debug(`Protocol used : ${this._protocol.protocolName}`);
     if (this._mongoAddress) {
@@ -301,7 +313,7 @@ export class ZoneServer extends EventEmitter {
     this._gatewayServer.start();
   }
 
-  async loadMongoData():Promise<void> {
+  async loadMongoData(): Promise<void> {
     this._spawnLocations = this._soloMode
       ? localSpawnList
       : await this._db?.collection("spawns").find().toArray();
@@ -310,12 +322,12 @@ export class ZoneServer extends EventEmitter {
       : await this._db?.collection("weathers").find().toArray();
   }
 
-  async reloadMongoData(client: Client):Promise<void> {
+  async reloadMongoData(client: Client): Promise<void> {
     await this.loadMongoData();
     this.sendChatText(client, "[DEV] Mongo data reloaded", true);
   }
 
-  reloadPackets(client: Client, intervalTime = -1):void {
+  reloadPackets(client: Client, intervalTime = -1): void {
     if (intervalTime > 0) {
       if (this._reloadPacketsInterval)
         clearInterval(this._reloadPacketsInterval);
@@ -335,12 +347,12 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
-  reloadZonePacketHandlers():void {
+  reloadZonePacketHandlers(): void {
     delete require.cache[require.resolve("./zonepackethandlers")];
     this._packetHandlers = require("./zonepackethandlers").default;
   }
 
-  checkIfClientStillOnline(client: Client):void {
+  checkIfClientStillOnline(client: Client): void {
     if (new Date().getTime() - client.lastPingTime > this._pingTimeoutTime) {
       clearInterval(client.pingTimer);
       debug(
@@ -359,7 +371,7 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
-  generateGuid():string {
+  generateGuid(): string {
     let guid: string;
     do {
       guid = "0x";
@@ -371,7 +383,7 @@ export class ZoneServer extends EventEmitter {
     return guid;
   }
 
-  parseReferenceData():any {
+  parseReferenceData(): any {
     const itemData = fs.readFileSync(
         `${__dirname}/../../../data/dataSources/ClientItemDefinitions.txt`,
         "utf8"
@@ -387,17 +399,25 @@ export class ZoneServer extends EventEmitter {
     return { itemTypes: items };
   }
 
-  async saveCharacterPosition(client:Client,updtTimeMs = 0){
-    const {position , rotation} = client.character.state
-    await this._db?.collection("characters").updateOne({characterId:client.character.characterId},{$set:{position:position,rotation:rotation}})
-    if(updtTimeMs){
+  async saveCharacterPosition(client: Client, updtTimeMs = 0) {
+    const { position, rotation } = client.character.state;
+    await this._db?.collection("characters").updateOne(
+      { characterId: client.character.characterId },
+      {
+        $set: {
+          position: position,
+          rotation: rotation,
+        },
+      }
+    );
+    if (updtTimeMs) {
       setTimeout(() => {
-        this.saveCharacterPosition(client,updtTimeMs)
+        this.saveCharacterPosition(client, updtTimeMs);
       }, updtTimeMs);
     }
   }
 
-  async characterData(client: Client):Promise<void> {
+  async characterData(client: Client): Promise<void> {
     delete require.cache[
       require.resolve("../../../data/sampleData/sendself.json") // reload json
     ];
@@ -421,15 +441,17 @@ export class ZoneServer extends EventEmitter {
     client.character.factionId = self.data.factionId;
     client.character.name =
       identity.characterFirstName + identity.characterLastName;
-    const characterDataMongo = await this._db?.collection("characters").findOne({characterId:client.character.characterId})
+    const characterDataMongo = await this._db
+      ?.collection("characters")
+      .findOne({ characterId: client.character.characterId });
     if (
       _.isEqual(self.data.position, [0, 0, 0, 1]) &&
       _.isEqual(self.data.rotation, [0, 0, 0, 1])
     ) {
       // if position/rotation hasn't be changed
-      if(this._soloMode || !characterDataMongo.position){
-      self.data.isRandomlySpawning = true;
-    }
+      if (this._soloMode || !characterDataMongo.position) {
+        self.data.isRandomlySpawning = true;
+      }
     }
 
     if (self.data.isRandomlySpawning) {
@@ -437,34 +459,41 @@ export class ZoneServer extends EventEmitter {
       const randomSpawnIndex = Math.floor(
         Math.random() * this._spawnLocations.length
       );
-      self.data.position = client.character.state.position = this._spawnLocations[randomSpawnIndex].position;
-      self.data.rotation = client.character.state.rotation = this._spawnLocations[randomSpawnIndex].rotation;
+      self.data.position = client.character.state.position = this._spawnLocations[
+        randomSpawnIndex
+      ].position;
+      self.data.rotation = client.character.state.rotation = this._spawnLocations[
+        randomSpawnIndex
+      ].rotation;
       client.character.spawnLocation = this._spawnLocations[
         randomSpawnIndex
       ].name;
-    }
-    else{
-      if(!this._soloMode){
-        self.data.position = characterDataMongo.position
-        self.data.rotation = characterDataMongo.rotation
+    } else {
+      if (!this._soloMode) {
+        self.data.position = characterDataMongo.position;
+        self.data.rotation = characterDataMongo.rotation;
       }
-      client.character.state.position = self.data.position
-      client.character.state.rotation = self.data.rotation
+      client.character.state.position = self.data.position;
+      client.character.state.rotation = self.data.rotation;
     }
     this.sendData(client, "SendSelfToClient", self);
   }
-  
+
   generateProfiles(): any[] {
     const profiles: any[] = [];
-    const profileTypes = require("../../../data/dataSources/ProfileTypes.json")
-    profileTypes.forEach((profile:any) => {
-      profiles.push({profileId:profile.ID,type:profile.ID,nameId:profile.NAME_ID})
+    const profileTypes = require("../../../data/dataSources/ProfileTypes.json");
+    profileTypes.forEach((profile: any) => {
+      profiles.push({
+        profileId: profile.ID,
+        type: profile.ID,
+        nameId: profile.NAME_ID,
+      });
     });
-    debug("Generated profiles")
+    debug("Generated profiles");
     return profiles;
   }
 
-  sendInitData(client: Client):void {
+  sendInitData(client: Client): void {
     this.sendData(client, "InitializationParameters", {
       environment: "LIVE",
       serverId: 1,
@@ -554,43 +583,48 @@ export class ZoneServer extends EventEmitter {
     });
   }
 
-  spawnAllNpc(client: Client):void {
+  spawnAllNpc(client: Client): void {
     for (const npc in this._npcs) {
       setImmediate(() => {
         this.sendData(
           client,
           "PlayerUpdate.AddLightweightNpc",
-          this._npcs[npc]
-          ,1
+          this._npcs[npc],
+          1
         );
       });
     }
   }
 
-  spawnAllObject(client: Client):void {
+  spawnAllObject(client: Client): void {
     for (const object in this._objects) {
       setImmediate(() => {
         this.sendData(
           client,
           "PlayerUpdate.AddLightweightNpc",
-          this._objects[object],1
+          this._objects[object],
+          1
         );
       });
     }
   }
 
-  removeNpc(characterId:string){
-    this.sendDataToAll("PlayerUpdate.RemovePlayer", {
-      characterId: characterId,
-    },1);
-    delete this._characterIds[characterId.replace("0x","")]
+  removeNpc(characterId: string) {
+    this.sendDataToAll(
+      "PlayerUpdate.RemovePlayer",
+      {
+        characterId: characterId,
+      },
+      1
+    );
+    delete this._characterIds[characterId.replace("0x", "")];
   }
 
   createObject(
     modelID: number,
     position: Array<number>,
     rotation: Array<number>
-  ):void {
+  ): void {
     const guid = this.generateGuid();
     const characterId = generateCharacterId(this._characterIds);
     rotation[0] += 250;
@@ -607,165 +641,170 @@ export class ZoneServer extends EventEmitter {
     };
   }
 
-  createAllObjects():void {
+  createAllObjects(): void {
     this.createAllDoors();
     this.createAllItems();
-    debug("All objects created")
+    debug("All objects created");
   }
 
   createAllItems() {
-    Z1_items.forEach((spawnerType:any) => { 
-      let modelId:number;
+    Z1_items.forEach((spawnerType: any) => {
+      let modelId: number;
       switch (spawnerType.actorDefinition) {
         case "ItemSpawnerResidential_Tier00.adr":
           modelId = 0;
-          break
+          break;
         case "ItemSpawner_BattleRoyale_AmmoBox02_12GaShotgun.adr":
-            modelId = 0;
-            break
+          modelId = 0;
+          break;
         case "ItemSpawner_BattleRoyale_Gear01.adr":
-            modelId = 0;
-            break
+          modelId = 0;
+          break;
         case "ItemSpawner_BattleRoyale_Weapons01.adr":
-            modelId = 0;
-            break
+          modelId = 0;
+          break;
         case "ItemSpawner_BattleRoyale_Ammo01.adr":
-            modelId = 0;
-            break
-          case "ItemSpawner_BattleRoyale_Backpack01.adr":
-            modelId = 0;
-            break
-          case "ItemSpawner_BattleRoyale_AmmoBox02_1911.adr":
-            modelId = 0;
-            break          
-          case "ItemSpawnerRare_Tier00.adr":
-            modelId = 0;
-            break
-          case "ItemSpawnerIndustrial_Tier00.adr":
-            modelId = 0;
-            break
-          case "ItemSpawnerWorld_Tier00.adr":
-            modelId = 0;
-            break
-          case "ItemSpawner_BattleRoyale_FirstAidKit01.adr":
-            modelId = 0;
-            break      
-          case "ItemSpawner_Log01.adr":
-            modelId = 0;
-            break
-          case "ItemSpawnerCommercial_Tier00.adr":
-            modelId = 0;
-            break
-          case "ItemSpawnerFarm.adr":
-            modelId = 0;
-            break
-          case "ItemSpawner_Weapon_M16A4.adr":
-            modelId = 23;
-            break
-          case "ItemSpawner_AmmoBox02_M16A4.adr":
-            modelId = 10;
-            break
-          case "ItemSpawner_AmmoBox02.adr":
-            modelId = 10;
-            break
-          case "ItemSpawner_Weapon_PumpShotgun01.adr":
-            modelId = 9286;
-            break
-          case "ItemSpawner_AmmoBox02_12GaShotgun.adr":
-            modelId = 10;
-            break
-          case "ItemSpawner_Weapon_Crowbar01.adr":
-            modelId = 18;
-            break
-          case "ItemSpawner_Weapon_CombatKnife01.adr":
-            modelId = 21;
-            break
-          case "ItemSpawner_Weapon_45Auto.adr":
-            modelId = 17;
-            break
-          case "ItemSpawner_AmmoBox02_1911.adr":
-            modelId = 10;
-            break
-          case "ItemSpawner_Weapon_Machete01.adr":
-            modelId = 24;
-            break
-          case "ItemSpawner_BattleRoyale_AmmoBox02_M16A4.adr":
-            modelId = 0;
-            break
-          case "ItemSpawner_BattleRoyale_AmmoBox02_308Rifle.adr":
-            modelId = 0;
-            break
-          case "ItemSpawner_Weapon_Bat01.adr":
-            modelId = 42;
-            break
-          case "ItemSpawner_BackpackOnGround001.adr":
-            modelId = 9093;
-            break
-          case "ItemSpawner_FirstAidKit.adr":
-            modelId = 9221;
-            break
-          case "ItemSpawner_Weapon_M24.adr":
-            modelId = 9204;
-            break
-          case "ItemSpawner_GasCan01.adr":
-            modelId = 9135;
-            break
-          case "ItemSpawner_Weapon_Guitar01.adr":
-            modelId = 9318;
-            break
-          case "ItemSpawner_Weapon_WoodAxe01.adr":
-            modelId = 27;
-            break
-          case "ItemSpawner_AmmoBox02_308Rifle.adr":
-            modelId = 10;
-            break
-          case "ItemSpawner_Weapon_FireAxe01.adr":
-            modelId = 9325;
-            break
-          case "ItemSpawner_Weapon_ClawHammer01.adr":
-            modelId = 9252;
-            break
-          case "ItemSpawner_Weapon_Hatchet01.adr":
-            modelId = 22;
-            break
-          case "ItemSpawner_Weapon_Pipe01.adr":
-            modelId = 9209;
-            break
-          case "ItemSpawner_CannedFood.adr":
-            modelId = Math.random()*100>50? 7:8020;
-            break
-          case "ItemSpawner_WaterContainer_Small_Purified.adr":
-            modelId = 9159;
-            break
-          case "ItemSpawner_Clothes_MotorcycleHelmet.adr":
-            modelId = 68;
-            break
-          case "ItemSpawner_Clothes_BaseballCap.adr":
-            modelId = 66;
-            break
-          case "ItemSpawner_Clothes_FoldedShirt.adr":
-            modelId = 9249;
-            break
-          case "ItemSpawner_Weapon_Bat02.adr":
-            modelId = 9313;
-            break
-          case "ItemSpawner_Clothes_Beanie.adr":
-            modelId = 67;
-            break
-      
+          modelId = 0;
+          break;
+        case "ItemSpawner_BattleRoyale_Backpack01.adr":
+          modelId = 0;
+          break;
+        case "ItemSpawner_BattleRoyale_AmmoBox02_1911.adr":
+          modelId = 0;
+          break;
+        case "ItemSpawnerRare_Tier00.adr":
+          modelId = 0;
+          break;
+        case "ItemSpawnerIndustrial_Tier00.adr":
+          modelId = 0;
+          break;
+        case "ItemSpawnerWorld_Tier00.adr":
+          modelId = 0;
+          break;
+        case "ItemSpawner_BattleRoyale_FirstAidKit01.adr":
+          modelId = 0;
+          break;
+        case "ItemSpawner_Log01.adr":
+          modelId = 0;
+          break;
+        case "ItemSpawnerCommercial_Tier00.adr":
+          modelId = 0;
+          break;
+        case "ItemSpawnerFarm.adr":
+          modelId = 0;
+          break;
+        case "ItemSpawner_Weapon_M16A4.adr":
+          modelId = 23;
+          break;
+        case "ItemSpawner_AmmoBox02_M16A4.adr":
+          modelId = 10;
+          break;
+        case "ItemSpawner_AmmoBox02.adr":
+          modelId = 10;
+          break;
+        case "ItemSpawner_Weapon_PumpShotgun01.adr":
+          modelId = 9286;
+          break;
+        case "ItemSpawner_AmmoBox02_12GaShotgun.adr":
+          modelId = 10;
+          break;
+        case "ItemSpawner_Weapon_Crowbar01.adr":
+          modelId = 18;
+          break;
+        case "ItemSpawner_Weapon_CombatKnife01.adr":
+          modelId = 21;
+          break;
+        case "ItemSpawner_Weapon_45Auto.adr":
+          modelId = 17;
+          break;
+        case "ItemSpawner_AmmoBox02_1911.adr":
+          modelId = 10;
+          break;
+        case "ItemSpawner_Weapon_Machete01.adr":
+          modelId = 24;
+          break;
+        case "ItemSpawner_BattleRoyale_AmmoBox02_M16A4.adr":
+          modelId = 0;
+          break;
+        case "ItemSpawner_BattleRoyale_AmmoBox02_308Rifle.adr":
+          modelId = 0;
+          break;
+        case "ItemSpawner_Weapon_Bat01.adr":
+          modelId = 42;
+          break;
+        case "ItemSpawner_BackpackOnGround001.adr":
+          modelId = 9093;
+          break;
+        case "ItemSpawner_FirstAidKit.adr":
+          modelId = 9221;
+          break;
+        case "ItemSpawner_Weapon_M24.adr":
+          modelId = 9204;
+          break;
+        case "ItemSpawner_GasCan01.adr":
+          modelId = 9135;
+          break;
+        case "ItemSpawner_Weapon_Guitar01.adr":
+          modelId = 9318;
+          break;
+        case "ItemSpawner_Weapon_WoodAxe01.adr":
+          modelId = 27;
+          break;
+        case "ItemSpawner_AmmoBox02_308Rifle.adr":
+          modelId = 10;
+          break;
+        case "ItemSpawner_Weapon_FireAxe01.adr":
+          modelId = 9325;
+          break;
+        case "ItemSpawner_Weapon_ClawHammer01.adr":
+          modelId = 9252;
+          break;
+        case "ItemSpawner_Weapon_Hatchet01.adr":
+          modelId = 22;
+          break;
+        case "ItemSpawner_Weapon_Pipe01.adr":
+          modelId = 9209;
+          break;
+        case "ItemSpawner_CannedFood.adr":
+          modelId = Math.random() * 100 > 50 ? 7 : 8020;
+          break;
+        case "ItemSpawner_WaterContainer_Small_Purified.adr":
+          modelId = 9159;
+          break;
+        case "ItemSpawner_Clothes_MotorcycleHelmet.adr":
+          modelId = 68;
+          break;
+        case "ItemSpawner_Clothes_BaseballCap.adr":
+          modelId = 66;
+          break;
+        case "ItemSpawner_Clothes_FoldedShirt.adr":
+          modelId = 9249;
+          break;
+        case "ItemSpawner_Weapon_Bat02.adr":
+          modelId = 9313;
+          break;
+        case "ItemSpawner_Clothes_Beanie.adr":
+          modelId = 67;
+          break;
+
         default:
-          modelId =0
+          modelId = 0;
           break;
       }
-      if(modelId){
-      spawnerType.instances.forEach((itemInstance:any) => {
-        this.createObject(modelId, itemInstance.position,itemInstance.rotation);
-      });
-    }
+      if (modelId) {
+        spawnerType.instances.forEach((itemInstance: any) => {
+          this.createObject(
+            modelId,
+            itemInstance.position,
+            itemInstance.rotation
+          );
+        });
+      }
     });
-    debug("All items objects created")
+    debug("All items objects created");
   }
-  createAllDoors():void {
+
+  createAllDoors(): void {
     Z1_doors.forEach((doorType: any) => {
       // TODO: add types for Z1_doors
       const modelId: number = _.find(models, {
@@ -788,13 +827,13 @@ export class ZoneServer extends EventEmitter {
     debug("All doors objects created");
   }
 
-  data(collectionName: string):any {
+  data(collectionName: string): any {
     if (this._db) {
       return this._db.collection(collectionName);
     }
   }
 
-  SendZoneDetailsPacket(client: Client, weather: Weather):void{
+  SendZoneDetailsPacket(client: Client, weather: Weather): void {
     const SendZoneDetails_packet = {
       zoneName: "Z1",
       unknownBoolean1: true,
@@ -812,7 +851,7 @@ export class ZoneServer extends EventEmitter {
     client: Client,
     weather: Weather,
     isGlobal = false
-  ):void {
+  ): void {
     if (isGlobal) {
       this.sendDataToAll("SkyChanged", weather);
       this.sendGlobalChatText(
@@ -823,11 +862,12 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
-  changeWeather(client: Client, weather: Weather):void {
+  changeWeather(client: Client, weather: Weather): void {
     this._weather = weather;
     this.SendSkyChangedPacket(client, weather, this._soloMode ? false : true);
   }
-  sendSystemMessage(message: string):void {
+
+  sendSystemMessage(message: string): void {
     this.sendDataToAll("Chat.Chat", {
       unknown2: 0,
       channel: 2,
@@ -854,7 +894,7 @@ export class ZoneServer extends EventEmitter {
     });
   }
 
-  sendChat(client: Client, message: string, channel: number):void {
+  sendChat(client: Client, message: string, channel: number): void {
     const { character } = client;
     if (!this._soloMode) {
       this.sendDataToAll("Chat.Chat", {
@@ -873,12 +913,13 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
-  sendGlobalChatText(message: string, clearChat = false):void {
+  sendGlobalChatText(message: string, clearChat = false): void {
     for (const a in this._clients) {
       this.sendChatText(this._clients[a], message, clearChat);
     }
   }
-  sendChatText(client: Client, message: string, clearChat = false):void {
+
+  sendChatText(client: Client, message: string, clearChat = false): void {
     if (clearChat) {
       for (let index = 0; index <= 6; index++) {
         this.sendData(client, "Chat.ChatText", {
@@ -901,7 +942,11 @@ export class ZoneServer extends EventEmitter {
     });
   }
 
-  setCharacterLoadout(client: Client, loadoutId: number, loadoutTab: number):void {
+  setCharacterLoadout(
+    client: Client,
+    loadoutId: number,
+    loadoutTab: number
+  ): void {
     for (let i = 0; i < client.character.loadouts.length; i++) {
       const loadout = client.character.loadouts[i];
       if (loadout.loadoutId == loadoutId && loadout.loadoutTab == loadoutTab) {
@@ -922,27 +967,28 @@ export class ZoneServer extends EventEmitter {
       }
     }
   }
-  sendData(client: Client, packetName: string, obj: any,channel = 0):void {
+
+  sendData(client: Client, packetName: string, obj: any, channel = 0): void {
     if (packetName != "KeepAlive") {
       debug("send data", packetName);
     }
     const data = this._protocol.pack(packetName, obj, this._referenceData);
     if (Array.isArray(client)) {
       for (let i = 0; i < client.length; i++) {
-        this._gatewayServer.sendTunnelData(client[i], data,channel);
+        this._gatewayServer.sendTunnelData(client[i], data, channel);
       }
     } else {
-      this._gatewayServer.sendTunnelData(client, data,channel);
+      this._gatewayServer.sendTunnelData(client, data, channel);
     }
   }
 
-  sendDataToAll(packetName: string, obj: any,channel = 0):void {
+  sendDataToAll(packetName: string, obj: any, channel = 0): void {
     for (const a in this._clients) {
-      this.sendData(this._clients[a], packetName, obj,channel);
+      this.sendData(this._clients[a], packetName, obj, channel);
     }
   }
 
-  sendWeaponPacket(client: Client, packetName: string, obj: any):void {
+  sendWeaponPacket(client: Client, packetName: string, obj: any): void {
     const weaponPacket = {
       gameTime: this.getServerTime(),
       packetName: packetName,
@@ -953,34 +999,34 @@ export class ZoneServer extends EventEmitter {
     });
   }
 
-  sendRawData(client: Client, data: Buffer):void {
+  sendRawData(client: Client, data: Buffer): void {
     this._gatewayServer.sendTunnelData(client, data);
   }
 
-  stop():void {
+  stop(): void {
     debug("Shutting down");
     process.exit(0);
   }
 
-  forceTime(time: number):void {
+  forceTime(time: number): void {
     this._cycleSpeed = 0.1;
     this._frozeCycle = true;
     this._gameTime = time;
     this.sendSyncToAll();
   }
 
-  removeForcedTime():void {
+  removeForcedTime(): void {
     this._cycleSpeed = 0.1;
     this._frozeCycle = false;
     this._gameTime = Date.now();
     this.sendSyncToAll();
   }
 
-  getCurrentTime():number {
+  getCurrentTime(): number {
     return Number((Date.now() / 1000).toFixed(0));
   }
 
-  getGameTime():number {
+  getGameTime(): number {
     debug("get server time");
     const delta = Date.now() - this._startGameTime;
     return this._frozeCycle
@@ -988,13 +1034,13 @@ export class ZoneServer extends EventEmitter {
       : Number((this._gameTime / 1000).toFixed(0));
   }
 
-  getServerTime():number {
+  getServerTime(): number {
     debug("get server time");
     const delta = Date.now() - this._startTime;
     return this._serverTime + delta;
   }
 
-  sendGameTimeSync(client: Client):void {
+  sendGameTimeSync(client: Client): void {
     debug("GameTimeSync");
     this.sendData(client, "GameTimeSync", {
       time: Int64String(this.getGameTime()),
@@ -1003,7 +1049,7 @@ export class ZoneServer extends EventEmitter {
     });
   }
 
-  sendSyncToAll():void {
+  sendSyncToAll(): void {
     // TODO: this do not seems to work
     debug("Synchronization");
     this.sendDataToAll("Synchronization", {
@@ -1012,7 +1058,7 @@ export class ZoneServer extends EventEmitter {
     });
   }
 
-  getTransientId(client: any, guid: string):number {
+  getTransientId(client: any, guid: string): number {
     if (!client.transientIds[guid]) {
       client.transientId++;
       client.transientIds[guid] = client.transientId;
@@ -1020,7 +1066,7 @@ export class ZoneServer extends EventEmitter {
     return client.transientIds[guid];
   }
 
-  createPositionUpdate(position: Array<number>, rotation: Array<number>):any {
+  createPositionUpdate(position: Array<number>, rotation: Array<number>): any {
     const obj = {
       flags: 4095,
       unknown2_int32: this.getGameTime(),
