@@ -114,10 +114,10 @@ export class GatewayServer extends EventEmitter {
       this._udpLength
     );
   }
-  sendTunnelData(client: Client, tunnelData: any) {
+  sendTunnelData(client: Client, tunnelData: any, channel = 0) {
     debug("Sending tunnel data to client");
     const data = this._protocol.pack("TunnelPacketToExternalConnection", {
-      channel: 0,
+      channel: channel,
       tunnelData: tunnelData,
     });
     (this._soeServer.sendAppData as any)(client, data);

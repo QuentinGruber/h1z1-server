@@ -561,6 +561,7 @@ export class ZoneServer extends EventEmitter {
           client,
           "PlayerUpdate.AddLightweightNpc",
           this._npcs[npc]
+          ,1
         );
       });
     }
@@ -572,7 +573,7 @@ export class ZoneServer extends EventEmitter {
         this.sendData(
           client,
           "PlayerUpdate.AddLightweightNpc",
-          this._objects[object]
+          this._objects[object],1
         );
       });
     }
@@ -581,7 +582,7 @@ export class ZoneServer extends EventEmitter {
   removeNpc(characterId:string){
     this.sendDataToAll("PlayerUpdate.RemovePlayer", {
       characterId: characterId,
-    });
+    },1);
     delete this._characterIds[characterId.replace("0x","")]
   }
 
@@ -921,23 +922,23 @@ export class ZoneServer extends EventEmitter {
       }
     }
   }
-  sendData(client: Client, packetName: string, obj: any):void {
+  sendData(client: Client, packetName: string, obj: any,channel = 0):void {
     if (packetName != "KeepAlive") {
       debug("send data", packetName);
     }
     const data = this._protocol.pack(packetName, obj, this._referenceData);
     if (Array.isArray(client)) {
       for (let i = 0; i < client.length; i++) {
-        this._gatewayServer.sendTunnelData(client[i], data);
+        this._gatewayServer.sendTunnelData(client[i], data,channel);
       }
     } else {
-      this._gatewayServer.sendTunnelData(client, data);
+      this._gatewayServer.sendTunnelData(client, data,channel);
     }
   }
 
-  sendDataToAll(packetName: string, obj: any):void {
+  sendDataToAll(packetName: string, obj: any,channel = 0):void {
     for (const a in this._clients) {
-      this.sendData(this._clients[a], packetName, obj);
+      this.sendData(this._clients[a], packetName, obj,channel);
     }
   }
 
