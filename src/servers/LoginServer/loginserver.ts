@@ -16,7 +16,7 @@ import { SOEServer } from "../SoeServer/soeserver";
 import { LoginProtocol } from "../../protocols/loginprotocol";
 import { toUint8Array } from "js-base64";
 import { MongoClient } from "mongodb";
-import { getCharacterId, initMongo } from "../../utils/utils";
+import { initMongo } from "../../utils/utils";
 import { Client, GameServer, SoeServer } from "../../types/loginserver";
 import _ from "lodash";
 
@@ -113,7 +113,7 @@ export class LoginServer extends EventEmitter {
                 const SinglePlayerCharacter = require("../../../data/sampleData/single_player_character.json");
 
                 const cowboy = _.cloneDeep(SinglePlayerCharacter); // for fun 🤠
-                cowboy.characterId = getCharacterId(99);
+                cowboy.characterId = "0x0000000000000001";
                 cowboy.payload.name = "Cowboy";
 
                 CharactersInfo = {

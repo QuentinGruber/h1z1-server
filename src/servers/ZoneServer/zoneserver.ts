@@ -17,8 +17,6 @@ import { default as packetHandlers } from "./zonepackethandlers";
 import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
 import _ from "lodash";
 import {
-  generateCharacterId,
-  getCharacterId,
   initMongo,
   Int64String,
 } from "../../utils/utils";
@@ -47,7 +45,6 @@ export class ZoneServer extends EventEmitter {
   _serverTime: any;
   _transientId: any;
   _guids: Array<string>;
-  _characterIds: any;
   _packetHandlers: any;
   _referenceData: any;
   _startTime: number;
@@ -87,7 +84,6 @@ export class ZoneServer extends EventEmitter {
     this._serverTime = this.getCurrentTime();
     this._transientId = 0;
     this._guids = [];
-    this._characterIds = {};
     this._referenceData = this.parseReferenceData();
     this._packetHandlers = packetHandlers;
     this._startTime = 0;
@@ -423,11 +419,11 @@ export class ZoneServer extends EventEmitter {
     ];
     const self = require("../../../data/sampleData/sendself.json"); // dummy self
     if (
-      String(client.character.characterId).toUpperCase() ===
-      String(getCharacterId(99)).toUpperCase()
+      String(client.character.characterId) ===
+      "0x0000000000000001"
     ) {
       // for fun 🤠
-      self.data.characterId = String(getCharacterId(99)).toUpperCase();
+      self.data.characterId = "0x0000000000000001";
       self.data.identity.characterFirstName = "Cowboy :)";
       self.data.extraModel = "SurvivorMale_Ivan_OutbackHat_Base.adr";
       self.data.extraModelTexture = "Ivan_OutbackHat_LeatherTan";
@@ -617,7 +613,8 @@ export class ZoneServer extends EventEmitter {
       },
       1
     );
-    delete this._characterIds[characterId.replace("0x", "")];
+    const idIndex =_.indexOf(this._guids, characterId)
+    this._guids.splice(idIndex,1)
   }
 
   createObject(
@@ -626,7 +623,7 @@ export class ZoneServer extends EventEmitter {
     rotation: Array<number>
   ): void {
     const guid = this.generateGuid();
-    const characterId = generateCharacterId(this._characterIds);
+    const characterId = this.generateGuid();
     rotation[0] += 250;
     this._objects[characterId] = {
       characterId: characterId,
