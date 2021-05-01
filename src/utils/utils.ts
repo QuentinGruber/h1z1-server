@@ -1,7 +1,4 @@
-import _ from "lodash";
-
 const restore = require("mongodb-restore-dump");
-const valid_character_ids = require("../../data/valid_character_ids.json");
 export const Int64String = function (value: number): string {
   return "0x" + ("0000000000000000" + value.toString(16)).substr(-16);
 };
@@ -13,28 +10,6 @@ export const generateRandomGuid = function (): string {
     guid += Math.floor(Math.random() * 16).toString(16) as string;
   }
   return guid;
-};
-
-export const getCharacterId = function (index: number): string {
-  return `0x${valid_character_ids[index]}`;
-};
-
-export const generateCharacterId = function (usedId: any): string {
-  let characterId = null;
-  if (_.size(usedId) < valid_character_ids.length) {
-    while (characterId === null) {
-      const rndIndex = Math.floor(Math.random() * valid_character_ids.length);
-      const rnd_character_id = valid_character_ids[rndIndex];
-      if (!usedId[rnd_character_id]) {
-        characterId = rnd_character_id;
-        usedId[rnd_character_id] = 1;
-      }
-    }
-    return `0x${characterId}`;
-  } else {
-    console.error("No more valid character id available :(");
-    return `0x000000000000000`;
-  }
 };
 
 export const lz4_decompress = function (

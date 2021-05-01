@@ -1,4 +1,3 @@
-import { generateCharacterId } from "../../../utils/utils";
 import fs from "fs";
 
 const _ = require("lodash");
@@ -41,7 +40,7 @@ const hax = {
     for (let index = 0; index < 150; index++) {
       const vehicleData = {
         npcData: {
-          guid: generateCharacterId(server._characterIds),
+          guid: server.generateGuid(),
           transientId: 1,
           modelId: 7225,
           scale: [1, 1, 1, 1],
@@ -51,7 +50,7 @@ const hax = {
           array17: [{ unknown1: 0 }],
           array18: [{ unknown1: 0 }],
         },
-        unknownGuid1: generateCharacterId(server._characterIds),
+        unknownGuid1: server.generateGuid(),
         positionUpdate: server.createPositionUpdate(
           client.character.state.position,
           [0, 0, 0, 0]
@@ -69,7 +68,7 @@ const hax = {
     for (let index = 0; index < 150; index++) {
       const vehicleData = {
         npcData: {
-          guid: generateCharacterId(server._characterIds),
+          guid: server.generateGuid(),
           transientId: 1,
           modelId: 9301,
           position: client.character.state.position,
@@ -78,7 +77,7 @@ const hax = {
           array17: [{ unknown1: 0 }],
           array18: [{ unknown1: 0 }],
         },
-        unknownGuid1: generateCharacterId(server._characterIds),
+        unknownGuid1: server.generateGuid(),
         positionUpdate: server.createPositionUpdate(
           client.character.state.position,
           [0, 0, 0, 0]
@@ -100,7 +99,7 @@ const hax = {
       return;
     }
     const choosenModelId = Number(args[1]);
-    const characterId = generateCharacterId(server._characterIds);
+    const characterId = server.generateGuid();
     const npc = {
       characterId: characterId,
       guid: guid,
