@@ -19,6 +19,7 @@ import _ from "lodash";
 import {
   initMongo,
   Int64String,
+  isPosInRadius
 } from "../../utils/utils";
 import { Client, Weather } from "../../types/zoneserver";
 import { Db, MongoClient } from "mongodb";
@@ -62,6 +63,7 @@ export class ZoneServer extends EventEmitter {
   _reloadPacketsInterval: any;
   _pingTimeoutTime: number;
   _worldId: number;
+  _npcRenderDistance: number;
 
   constructor(
     serverPort: number,
@@ -97,6 +99,7 @@ export class ZoneServer extends EventEmitter {
     this._defaultWeatherTemplate = "H1emuBaseWeather";
     this._weather = this._weatherTemplates[this._defaultWeatherTemplate];
     this._profiles = [];
+    this._npcRenderDistance = 100;
     this._pingTimeoutTime = 30000;
     if (!this._mongoAddress) {
       this._soloMode = true;
@@ -157,7 +160,7 @@ export class ZoneServer extends EventEmitter {
         client.character = {
           characterId: characterId,
           state: {
-            position: [0, 0, 0, 0],
+            position: new Float32Array([0, 0, 0, 0]),
             rotation: [0, 0, 0, 0],
             health: 0,
             shield: 0,
@@ -167,6 +170,7 @@ export class ZoneServer extends EventEmitter {
         client.pingTimer = setInterval(() => {
           this.checkIfClientStillOnline(client);
         }, 20000);
+        client.spawnedEntities = [];
         this._characters[characterId] = client.character;
 
         this.emit("login", err, client);
@@ -586,8 +590,9 @@ export class ZoneServer extends EventEmitter {
     });
   }
 
-  spawnAllNpc(client: Client): void {
+  spawnNpcs(client: Client): void {
     for (const npc in this._npcs) {
+      if(isPosInRadius(this._npcRenderDistance,client.character.state.position,this._npcs[npc].position)){
       setImmediate(() => {
         this.sendData(
           client,
@@ -595,12 +600,39 @@ export class ZoneServer extends EventEmitter {
           this._npcs[npc],
           1
         );
+        client.spawnedEntities.push(this._npcs[npc])
       });
     }
+    }
+  }
+  worldRoutine(client:Client):void{
+    this.spawnObjects(client)
+    this.spawnNpcs(client)
+    this.removeOutOfDistanceEntities(client)
   }
 
-  spawnAllObject(client: Client): void {
+  filterOutOfDistance(element:any,playerPosition:Float32Array):boolean{
+    return !isPosInRadius(this._npcRenderDistance,playerPosition,element.position)
+  }
+  removeOutOfDistanceEntities(client:Client):void{
+    setImmediate(()=>{
+    const objectsToRemove = client.spawnedEntities.filter((e)=>this.filterOutOfDistance(e,client.character.state.position))
+    client.spawnedEntities = client.spawnedEntities.filter( ( el )=>{
+      return !objectsToRemove.includes( el );
+    } );
+    objectsToRemove.forEach((object:any) => {
+        this.sendData(client,"PlayerUpdate.RemovePlayer",
+        {
+          characterId: object.characterId,
+        },
+        1)
+      })
+    });
+  }
+
+  spawnObjects(client: Client): void {
     for (const object in this._objects) {
+      if(isPosInRadius(this._npcRenderDistance,client.character.state.position,this._objects[object].position)){
       setImmediate(() => {
         this.sendData(
           client,
@@ -608,7 +640,9 @@ export class ZoneServer extends EventEmitter {
           this._objects[object],
           1
         );
+        client.spawnedEntities.push(this._objects[object])
       });
+    }
     }
   }
 

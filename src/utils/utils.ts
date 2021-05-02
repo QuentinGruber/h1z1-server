@@ -1,4 +1,15 @@
 const restore = require("mongodb-restore-dump");
+
+
+const isBetween = (radius: number, value1: number, value2: number):boolean =>  {
+  return value1 <= (value2 + radius) && value1 >= (value2 - radius);
+}
+
+export const isPosInRadius = (radius:number,player_position:Float32Array,enemi_position:Float32Array):boolean =>{
+  return isBetween(radius, player_position[0], enemi_position[0])
+  && isBetween(radius, player_position[2], enemi_position[2]);
+}
+
 export const Int64String = function (value: number): string {
   return "0x" + ("0000000000000000" + value.toString(16)).substr(-16);
 };

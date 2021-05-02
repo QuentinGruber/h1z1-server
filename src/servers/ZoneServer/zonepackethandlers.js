@@ -127,8 +127,8 @@ const packetHandlers = {
     server.sendData(client, "ClientUpdate.ModifyMovementSpeed", {
       speed: 11.0,
     });
-    server.spawnAllNpc(client);
-    server.spawnAllObject(client);
+    server.spawnNpcs(client);
+    server.spawnObjects(client);
   },
   ClientFinishedLoading: function (server, client, packet) {
     server.sendData(client, "POIChangeMessage", {
@@ -247,6 +247,9 @@ const packetHandlers = {
     delete server._clients[client.sessionId];
   },
   GameTimeSync: function (server, client, packet) {
+    // TODO: execute worldRoutine only when like 2/3 of the radius distance has been travelled by the player no matter on X or Z axis
+    // this is a temp workaround
+    server.worldRoutine(client);
     server.sendGameTimeSync(client);
   },
   Synchronization: function (server, client, packet) {
