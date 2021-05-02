@@ -5433,7 +5433,18 @@ var packets = [
   ["PlayerUpdate.ManagedObjectReleaseControl", 0x0f4b, {}],
   ["PlayerUpdate.MaterialTypeOverride", 0x0f4c, {}],
   ["PlayerUpdate.DebrisLaunch", 0x0f4d, {}],
-  ["PlayerUpdate.HideCorpse", 0x0f4e, {}],
+  [
+    "PlayerUpdate.HideCorpse",
+    0x0f4e,
+    {
+      fields: [
+        { name: "unknown1", type: "byte", defaultValue: 0 },
+        { name: "unknown2", type: "byte", defaultValue: 0 },
+        { name: "characterId", type: "uint64", defaultValue: "0" },
+        { name: "unknownBoolean", type: "boolean", defaultValue: 0 },
+      ],
+    },
+  ],
   [
     "PlayerUpdate.CharacterStateDelta",
     0x0f4f,
@@ -5726,8 +5737,23 @@ var packets = [
     },
   ],
   ["PlayerUpdate.MotorRunning", 0x0f64, {}],
-  ["PlayerUpdate.DroppedIemNotification", 0x0f65, {}],
-  ["PlayerUpdate.NoSpaceNotification", 0x0f66, {}],
+  [
+    "PlayerUpdate.DroppedIemNotification",
+    0x0f65,
+    {
+      fields: [
+        { name: "unknown1", type: "byte", defaultValue: 0 },
+        { name: "unknown2", type: "byte", defaultValue: 0 },
+        {
+          name: "itemId",
+          type: "uint32",
+          defaultValue: "2",
+        },
+        { name: "quantity", type: "uint32", defaultValue: 10 },
+      ],
+    },
+  ],
+  ["PlayerUpdate.NoSpaceNotification", 0x0f66, { fields: [] }],
   [
     "PlayerUpdate.StartMultiStateDeath",
     0x0f68,
