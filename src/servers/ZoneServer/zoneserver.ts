@@ -22,6 +22,7 @@ import {
 } from "../../utils/utils";
 import { Client, Weather } from "../../types/zoneserver";
 import { Db, MongoClient } from "mongodb";
+import { Worker } from 'worker_threads';
 
 const localSpawnList = require("../../../data/sampleData/spawnLocations.json");
 
@@ -217,6 +218,9 @@ export class ZoneServer extends EventEmitter {
       await this._db?.collection("worlds").findOne({ worldId: this._worldId })
     ) {
       await this.fetchWorldData();
+      setTimeout(() => {
+        this.saveWorld();
+      }, 30000);
     } else {
       await this.saveWorld();
     }
@@ -249,9 +253,11 @@ export class ZoneServer extends EventEmitter {
             ?.collection("worlds")
             .findOne({ worldId: this._worldId })
         ) {
-          await this._db
-            ?.collection("worlds")
-            .updateOne({ worldId: this._worldId }, { $set: save });
+          const worker = new Worker(__dirname+"/../../utils/workers/saveWorld.js", {
+            workerData: {mongoAddress:this._mongoAddress,worldId:this._worldId,worldSave:JSON.stringify(save)}
+          });
+          worker.on('message', debug);
+          worker.on('error', debug);
         } else {
           this.createAllObjects();
           await this._db?.collection("worlds").insertOne(save);
@@ -267,8 +273,8 @@ export class ZoneServer extends EventEmitter {
           objects: save.objects,
         });
         this._worldId = createdWorld?.ops[0].worldId;
+        debug("World saved!");
       }
-      debug("World saved!");
       setTimeout(() => {
         this.saveWorld();
       }, 30000);
