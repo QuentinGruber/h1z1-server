@@ -478,6 +478,7 @@ export class ZoneServer extends EventEmitter {
       client.character.state.position = self.data.position;
       client.character.state.rotation = self.data.rotation;
     }
+    self.data.profiles = this._profiles
     this.sendData(client, "SendSelfToClient", self);
   }
 
