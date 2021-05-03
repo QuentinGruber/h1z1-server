@@ -592,7 +592,10 @@ export class ZoneServer extends EventEmitter {
 
   spawnNpcs(client: Client): void {
     for (const npc in this._npcs) {
-      if(isPosInRadius(this._npcRenderDistance,client.character.state.position,this._npcs[npc].position)){
+      if(
+        isPosInRadius(this._npcRenderDistance,client.character.state.position,this._npcs[npc].position)
+        && !client.spawnedEntities.includes(this._npcs[npc])
+        ){
       setImmediate(() => {
         this.sendData(
           client,
@@ -632,7 +635,10 @@ export class ZoneServer extends EventEmitter {
 
   spawnObjects(client: Client): void {
     for (const object in this._objects) {
-      if(isPosInRadius(this._npcRenderDistance,client.character.state.position,this._objects[object].position)){
+      if(
+        isPosInRadius(this._npcRenderDistance,client.character.state.position,this._objects[object].position)
+        && !client.spawnedEntities.includes(this._objects[object])
+      ){
       setImmediate(() => {
         this.sendData(
           client,
