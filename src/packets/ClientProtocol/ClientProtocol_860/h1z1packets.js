@@ -2148,6 +2148,11 @@ var packets = [
               defaultValue: [],
               fields: [],
             },
+
+            { name: "unknownDword34", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword35", type: "uint32", defaultValue: 0 },
+
+            //  { ABILITES HERE }
             {
               name: "unknownArray18",
               type: "array",
@@ -2369,44 +2374,19 @@ var packets = [
                 { name: "unknownByte1", type: "uint8", defaultValue: 0 },
               ],
             },
-
+            { name: "unknownDword4254453", type: "uint32", defaultValue: 0 },
             {
-              name: "characterLoadoutData",
-              type: "schema",
-              fields: [
-                {
-                  name: "loadouts",
-                  type: "array",
-                  defaultValue: [],
-                  fields: [],
-                },
-                {
-                  name: "unknownArray2",
-                  type: "array",
-                  defaultValue: [],
-                  fields: [],
-                },
-                {
-                  name: "unknownArray3",
-                  type: "array",
-                  defaultValue: [],
-                  fields: [],
-                },
-                {
-                  name: "unknownData1",
-                  type: "schema",
-                  fields: loadoutDataSubSchema1,
-                },
-                {
-                  name: "unknownData2",
-                  type: "schema",
-                  fields: loadoutDataSubSchema2,
-                },
-                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-                { name: "unknownDword4", type: "uint32", defaultValue: 0 },
-              ],
+              name: "unknowNewArray15481",
+              type: "array",
+              defaultValue: [],
+              fields: [],
+            },
+            { name: "unknownDword5454244", type: "uint32", defaultValue: 0 },
+            {
+              name: "itemrelated",
+              type: "array",
+              defaultValue: [],
+              fields: [],
             },
             {
               name: "LocksPermissions",
