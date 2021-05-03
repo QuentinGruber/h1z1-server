@@ -2438,12 +2438,12 @@ var packets = [
               fields: [],
             },
 
-            {
+            /*{ seems to have been removed
               name: "characterResourceChargers",
               type: "array",
               defaultValue: [],
               fields: [],
-            },
+            },*/
             // unknown array here
             {
               name: "skillPointData",
@@ -2464,7 +2464,7 @@ var packets = [
               defaultValue: [],
               fields: [],
             },
-            // missing array here 0x1401e03b4
+            // missing array here 0x1401e03b4 "EquippedContainers"
             { name: "unknownBoolean8", type: "boolean", defaultValue: true },
             { name: "unknownQword1", type: "uint64", defaultValue: 0 },
             { name: "unknownDword38", type: "uint32", defaultValue: 0 },
