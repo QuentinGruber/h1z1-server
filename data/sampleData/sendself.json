@@ -65,7 +65,7 @@
       "items": [],
       "unknownDword1": 0
     },
-    "unknownDword28": 2,
+    "unknownDword28": 0,
     "characterQuests": {
       "quests": [],
       "unknownDword1": 0,
@@ -176,7 +176,7 @@
       "unknownArray2": [],
       "unknownArray3": [],
       "unknownArray4": [],
-      "unknownByte1": 160
+      "unknownByte1": 0
     },
     "characterLoadoutData": {
       "loadouts": [],
@@ -229,7 +229,7 @@
       "skillPointsGranted": "0x0000000000000000",
       "skillPointsTotal": "0x0000000000061a82",
       "skillPointsSpent": "0x000000000000c112",
-      "nextSkillPointPct": 0.7054166666726663,
+      "nextSkillPointPct": 0.0,
       "unknownTime1": "0x0000000053da7024",
       "unknownDword1": 0
     },
