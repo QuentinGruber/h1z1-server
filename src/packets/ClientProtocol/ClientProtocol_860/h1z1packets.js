@@ -2422,342 +2422,31 @@ var packets = [
                   name: "unknownArray1",
                   type: "array",
                   defaultValue: [],
-                  fields: [
-                    {
-                      name: "unknownData1",
-                      type: "schema",
-                      fields: [
-                        {
-                          name: "unknownDword1",
-                          type: "uint32",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownTime1",
-                          type: "uint64",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownByte1",
-                          type: "uint8",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownDword2",
-                          type: "uint32",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownDword3",
-                          type: "uint32",
-                          defaultValue: 0,
-                        },
-                      ],
-                    },
-                    { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                  ],
+                  fields: [],
                 },
                 {
                   name: "unknownArray2",
                   type: "array",
                   defaultValue: [],
-                  fields: [
-                    {
-                      name: "unknownData1",
-                      type: "schema",
-                      fields: [
-                        {
-                          name: "unknownDword1",
-                          type: "uint32",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownTime1",
-                          type: "uint64",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownByte1",
-                          type: "uint8",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownDword2",
-                          type: "uint32",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownDword3",
-                          type: "uint32",
-                          defaultValue: 0,
-                        },
-                      ],
-                    },
-                    { name: "unknownFloat1", type: "float", defaultValue: 0 },
-                  ],
+                  fields: [],
                 },
                 {
                   name: "unknownArray3",
                   type: "array",
                   defaultValue: [],
-                  fields: [
-                    {
-                      name: "unknownData1",
-                      type: "schema",
-                      fields: [
-                        {
-                          name: "unknownDword1",
-                          type: "uint32",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownTime1",
-                          type: "uint64",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownByte1",
-                          type: "uint8",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownDword2",
-                          type: "uint32",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownDword3",
-                          type: "uint32",
-                          defaultValue: 0,
-                        },
-                      ],
-                    },
-                    { name: "unknownGuid1", type: "uint64", defaultValue: 0 },
-                  ],
+                  fields: [],
                 },
                 {
                   name: "unknownArray4",
                   type: "array",
                   defaultValue: [],
-                  fields: [
-                    {
-                      name: "unknownData1",
-                      type: "schema",
-                      fields: [
-                        {
-                          name: "unknownData1",
-                          type: "schema",
-                          fields: [
-                            {
-                              name: "unknownDword1",
-                              type: "uint32",
-                              defaultValue: 0,
-                            },
-                            {
-                              name: "unknownTime1",
-                              type: "uint64",
-                              defaultValue: 0,
-                            },
-                            {
-                              name: "unknownByte1",
-                              type: "uint8",
-                              defaultValue: 0,
-                            },
-                          ],
-                        },
-                        {
-                          name: "unknownData2",
-                          type: "schema",
-                          fields: [
-                            {
-                              name: "unknownDword1",
-                              type: "uint32",
-                              defaultValue: 0,
-                            },
-                            {
-                              name: "unknownTime1",
-                              type: "uint64",
-                              defaultValue: 0,
-                            },
-                            {
-                              name: "unknownByte1",
-                              type: "uint8",
-                              defaultValue: 0,
-                            },
-                          ],
-                        },
-                        {
-                          name: "unknownData3",
-                          type: "schema",
-                          fields: [
-                            {
-                              name: "unknownDword1",
-                              type: "uint32",
-                              defaultValue: 0,
-                            },
-                            {
-                              name: "unknownDword2",
-                              type: "uint32",
-                              defaultValue: 0,
-                            },
-                            {
-                              name: "unknownDword3",
-                              type: "uint32",
-                              defaultValue: 0,
-                            },
-                          ],
-                        },
-                        {
-                          name: "unknownDword1",
-                          type: "uint32",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownData4",
-                          type: "schema",
-                          fields: [
-                            {
-                              name: "unknownDword1",
-                              type: "uint32",
-                              defaultValue: 0,
-                            },
-                            {
-                              name: "unknownDword2",
-                              type: "uint32",
-                              defaultValue: 0,
-                            },
-                            {
-                              name: "unknownDword3",
-                              type: "uint32",
-                              defaultValue: 0,
-                            },
-                            {
-                              name: "unknownDword4",
-                              type: "uint32",
-                              defaultValue: 0,
-                            },
-                            {
-                              name: "unknownVector1",
-                              type: "floatvector4",
-                              defaultValue: 0,
-                            },
-                          ],
-                        },
-                      ],
-                    },
-                  ],
+                  fields: [],
                 },
                 {
                   name: "unknownArray5",
                   type: "array",
                   defaultValue: [],
-                  fields: [
-                    {
-                      name: "unknownData1",
-                      type: "schema",
-                      fields: [
-                        {
-                          name: "unknownData1",
-                          type: "schema",
-                          fields: [
-                            {
-                              name: "unknownDword1",
-                              type: "uint32",
-                              defaultValue: 0,
-                            },
-                            {
-                              name: "unknownTime1",
-                              type: "uint64",
-                              defaultValue: 0,
-                            },
-                            {
-                              name: "unknownByte1",
-                              type: "uint8",
-                              defaultValue: 0,
-                            },
-                          ],
-                        },
-                        {
-                          name: "unknownData2",
-                          type: "schema",
-                          fields: [
-                            {
-                              name: "unknownDword1",
-                              type: "uint32",
-                              defaultValue: 0,
-                            },
-                            {
-                              name: "unknownTime1",
-                              type: "uint64",
-                              defaultValue: 0,
-                            },
-                            {
-                              name: "unknownByte1",
-                              type: "uint8",
-                              defaultValue: 0,
-                            },
-                          ],
-                        },
-                        {
-                          name: "unknownData3",
-                          type: "schema",
-                          fields: [
-                            {
-                              name: "unknownDword1",
-                              type: "uint32",
-                              defaultValue: 0,
-                            },
-                            {
-                              name: "unknownDword2",
-                              type: "uint32",
-                              defaultValue: 0,
-                            },
-                            {
-                              name: "unknownDword3",
-                              type: "uint32",
-                              defaultValue: 0,
-                            },
-                          ],
-                        },
-                        {
-                          name: "unknownDword1",
-                          type: "uint32",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownData4",
-                          type: "schema",
-                          fields: [
-                            {
-                              name: "unknownDword1",
-                              type: "uint32",
-                              defaultValue: 0,
-                            },
-                            {
-                              name: "unknownDword2",
-                              type: "uint32",
-                              defaultValue: 0,
-                            },
-                            {
-                              name: "unknownDword3",
-                              type: "uint32",
-                              defaultValue: 0,
-                            },
-                            {
-                              name: "unknownDword4",
-                              type: "uint32",
-                              defaultValue: 0,
-                            },
-                            {
-                              name: "unknownVector1",
-                              type: "floatvector4",
-                              defaultValue: 0,
-                            },
-                          ],
-                        },
-                      ],
-                    },
-                  ],
+                  fields: [],
                 },
               ],
             },
@@ -2766,44 +2455,14 @@ var packets = [
               name: "characterResources",
               type: "array",
               defaultValue: [],
-              fields: [
-                { name: "resourceType", type: "uint32", defaultValue: 0 },
-                {
-                  name: "resourceData",
-                  type: "schema",
-                  fields: resourceEventDataSubSchema,
-                },
-              ],
+              fields: [],
             },
 
             {
               name: "characterResourceChargers",
               type: "array",
               defaultValue: [],
-              fields: [
-                { name: "resourceChargerId", type: "uint32", defaultValue: 0 },
-                {
-                  name: "resourceChargerData",
-                  type: "schema",
-                  fields: [
-                    {
-                      name: "resourceChargerId",
-                      type: "uint32",
-                      defaultValue: 0,
-                    },
-                    { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                    {
-                      name: "itemData",
-                      type: "schema",
-                      fields: [
-                        { name: "itemId", type: "uint32", defaultValue: 0 },
-                        { name: "itemClass", type: "uint32", defaultValue: 0 },
-                      ],
-                    },
-                  ],
-                },
-                { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-              ],
+              fields: [],
             },
             // unknown array here
             {
@@ -2823,10 +2482,7 @@ var packets = [
               name: "skills",
               type: "array",
               defaultValue: [],
-              fields: [
-                { name: "skillLineId", type: "uint32", defaultValue: 0 },
-                { name: "skillId", type: "uint32", defaultValue: 0 },
-              ],
+              fields: [],
             },
             { name: "unknownBoolean8", type: "boolean", defaultValue: true },
             { name: "unknownQword1", type: "uint64", defaultValue: 0 },
