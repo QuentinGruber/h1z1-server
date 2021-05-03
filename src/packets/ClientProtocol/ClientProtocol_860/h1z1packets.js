@@ -2408,7 +2408,12 @@ var packets = [
                 { name: "unknownDword4", type: "uint32", defaultValue: 0 },
               ],
             },
-
+            {
+              name: "LocksPermissions",
+              type: "array",
+              defaultValue: [],
+              fields: [],
+            },
             {
               name: "missionData",
               type: "schema",
