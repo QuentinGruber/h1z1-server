@@ -2464,6 +2464,7 @@ var packets = [
               defaultValue: [],
               fields: [],
             },
+            // missing array here 0x1401e03b4
             { name: "unknownBoolean8", type: "boolean", defaultValue: true },
             { name: "unknownQword1", type: "uint64", defaultValue: 0 },
             { name: "unknownDword38", type: "uint32", defaultValue: 0 },
