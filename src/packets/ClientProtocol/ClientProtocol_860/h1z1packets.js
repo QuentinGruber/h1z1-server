@@ -1918,24 +1918,7 @@ const respawnLocationDataSchema = [
 ];
 
 var packets = [
-  [
-    "Server",
-    0x01,
-    {
-      fields: [
-        {
-          name: "currency",
-          type: "array",
-          defaultValue: [],
-          fields: [
-            { name: "currencyId", type: "uint32", defaultValue: 0 },
-            { name: "quantity", type: "uint32", defaultValue: 0 },
-            { name: "currency2Id", type: "uint32", defaultValue: 0 },
-          ],
-        },
-      ],
-    },
-  ],
+  ["Server", 0x01, {}],
   ["ClientFinishedLoading", 0x02, {}],
   [
     "SendSelfToClient",
