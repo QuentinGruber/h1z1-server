@@ -1,12 +1,20 @@
-import { convertToInt64 } from "convert_to_int64";
-import _ from "lodash";
 const restore = require("mongodb-restore-dump");
-const valid_character_ids = require("../../data/valid_character_ids.json");
-export const Int64String = function (value: number) {
+
+
+const isBetween = (radius: number, value1: number, value2: number):boolean =>  {
+  return value1 <= (value2 + radius) && value1 >= (value2 - radius);
+}
+
+export const isPosInRadius = (radius:number,player_position:Float32Array,enemi_position:Float32Array):boolean =>{
+  return isBetween(radius, player_position[0], enemi_position[0])
+  && isBetween(radius, player_position[2], enemi_position[2]);
+}
+
+export const Int64String = function (value: number): string {
   return "0x" + ("0000000000000000" + value.toString(16)).substr(-16);
 };
 
-export const generateRandomGuid = function () {
+export const generateRandomGuid = function (): string {
   let guid: string;
   guid = "0x";
   for (let i: any = 0; i < 16; i++) {
@@ -15,32 +23,11 @@ export const generateRandomGuid = function () {
   return guid;
 };
 
-export const getCharacterId = function (index: number) {
-  return `0x${convertToInt64(valid_character_ids[index])}`;
-};
-
-export const generateCharacterId = function (usedId: Array<string> = []) {
-  let characterId = null;
-  while (characterId === null) {
-    const rndIndex = Math.floor(Math.random() * valid_character_ids.length);
-    if (usedId.length) {
-      // if usedId array is defined
-      if (_.findIndex(usedId, valid_character_ids[rndIndex], 0) === -1) {
-        // TODO: try this
-        characterId = convertToInt64(valid_character_ids[rndIndex]);
-      }
-    } else {
-      characterId = convertToInt64(valid_character_ids[rndIndex]);
-    }
-  }
-  return `0x${characterId}`;
-};
-
 export const lz4_decompress = function (
   data: any,
   inSize: number,
   outSize: number
-) {
+): any {
   const outdata = new (Buffer as any).alloc(outSize);
   let offsetIn = 0,
     offsetOut = 0;
@@ -91,7 +78,10 @@ export const lz4_decompress = function (
   return outdata;
 };
 
-export const initMongo = async function (uri: string, serverName: string) {
+export const initMongo = async function (
+  uri: string,
+  serverName: string
+): Promise<void> {
   const debug = require("debug")(serverName);
 
   // restore single database

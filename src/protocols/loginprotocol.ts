@@ -17,6 +17,7 @@ import { Int64String } from "../utils/utils";
 export class LoginProtocol {
   LoginPackets: any;
   protocolName: String;
+
   constructor(protocolName: String = "LoginUdp_9") {
     this.protocolName = protocolName;
     // Maybe will remove this switch later
@@ -32,6 +33,7 @@ export class LoginProtocol {
         process.exit();
     }
   }
+
   parse(data: any) {
     const packetType = data[0];
     let result;

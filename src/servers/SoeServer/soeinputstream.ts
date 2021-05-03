@@ -12,6 +12,7 @@
 
 import { EventEmitter } from "events";
 import { createDecipheriv, Decipher } from "crypto";
+
 const debug = require("debug")("SOEInputStream");
 
 export class SOEInputStream extends EventEmitter {
@@ -23,6 +24,7 @@ export class SOEInputStream extends EventEmitter {
   _fragments: Array<any>;
   _useEncryption: boolean;
   _rc4: Decipher;
+
   constructor(cryptoKey: string) {
     super();
     this._sequences = [];
@@ -34,7 +36,8 @@ export class SOEInputStream extends EventEmitter {
     this._useEncryption = false;
     this._rc4 = createDecipheriv("rc4", cryptoKey, "");
   }
-  _processDataFragments() {
+
+  _processDataFragments(): void {
     const nextFragment = (this._lastProcessedFragment + 1) & 0xffff,
       fragments = this._fragments,
       head = fragments[nextFragment];
@@ -57,7 +60,7 @@ export class SOEInputStream extends EventEmitter {
         head.copy(data, 0, 4);
 
         const fragmentIndices = [nextFragment];
-        for (var i = 1; i < fragments.length; i++) {
+        for (let i = 1; i < fragments.length; i++) {
           const j = (nextFragment + i) % 0xffff;
           fragment = fragments[j];
           if (fragment) {
@@ -94,7 +97,7 @@ export class SOEInputStream extends EventEmitter {
     }
 
     if (appData.length) {
-      for (i = 0; i < appData.length; i++) {
+      for (let i = 0; i < appData.length; i++) {
         data = appData[i];
         if (this._useEncryption) {
           // sometimes there's an extra 0x00 byte in the beginning that trips up the RC4 decyption
@@ -112,7 +115,8 @@ export class SOEInputStream extends EventEmitter {
       }, 0);
     }
   }
-  write(data: Buffer, sequence: number, fragment: any) {
+
+  write(data: Buffer, sequence: number, fragment: any): void {
     if (this._nextSequence === -1) {
       this._nextSequence = sequence;
     }
@@ -153,24 +157,30 @@ export class SOEInputStream extends EventEmitter {
       this._processDataFragments();
     }
   }
-  setEncryption(value: boolean) {
+
+  setEncryption(value: boolean): void {
     this._useEncryption = value;
     debug("encryption: " + this._useEncryption);
   }
-  toggleEncryption() {
+
+  toggleEncryption(): void {
     this._useEncryption = !this._useEncryption;
     debug("Toggling encryption: " + this._useEncryption);
   }
 }
-function ZeroBuffer(length: number) {
-  const buffer = new (Buffer as any).alloc(length);
+
+function ZeroBuffer(length: number): Buffer {
+  const buffer: Buffer = new (Buffer as any).alloc(length);
   for (let i = 0; i < length; i++) {
     buffer[i] = 0;
   }
   return buffer;
 }
 
-function readDataLength(data: Buffer, offset: number) {
+function readDataLength(
+  data: Buffer,
+  offset: number
+): { value: number; numBytes: number } {
   let dataLength = data.readUInt8(offset),
     n;
   if (dataLength === 0xff) {
@@ -190,7 +200,7 @@ function readDataLength(data: Buffer, offset: number) {
   };
 }
 
-function parseChannelPacketData(data: Buffer) {
+function parseChannelPacketData(data: Buffer): any {
   let appData: any = [],
     offset,
     dataLength;

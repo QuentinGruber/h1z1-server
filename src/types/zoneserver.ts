@@ -1,4 +1,5 @@
 export interface Client {
+  spawnedEntities: any[];
   gameClient: {
     currentWeather: Weather;
   };
@@ -16,7 +17,7 @@ export interface Client {
     factionId?: number;
     spawnLocation?: string;
     state: {
-      position: number[];
+      position: Float32Array;
       rotation: number[];
       health: number;
       shield: number;
@@ -43,6 +44,7 @@ export interface Client {
   ackTimer: () => void;
   lastPingTime: number;
   pingTimer: NodeJS.Timeout;
+  savePositionTimer?: NodeJS.Timeout;
   outOfOrderTimer: () => void;
 }
 

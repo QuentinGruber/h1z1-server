@@ -15,26 +15,29 @@ import { GatewayServer } from "../GatewayServer/gatewayserver";
 import fs from "fs";
 import { default as packetHandlers } from "./zonepackethandlers";
 import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
-const localSpawnList = require("../../../data/spawnLocations.json");
 import _ from "lodash";
 import {
-  Int64String,
   initMongo,
-  getCharacterId,
-  generateCharacterId,
+  Int64String,
+  isPosInRadius
 } from "../../utils/utils";
+import { Client, Weather } from "../../types/zoneserver";
+import { Db, MongoClient } from "mongodb";
+import { Worker } from 'worker_threads';
+
+const localSpawnList = require("../../../data/sampleData/spawnLocations.json");
+
 const debugName = "ZoneServer";
 const debug = require("debug")(debugName);
-const localWeatherTemplates = require("../../../data/weather.json");
-const Z1_doors = require("../../../data/Z1_doors.json");
-const models = require("../../../data/Models.json");
-import { Weather, Client } from "../../types/zoneserver";
-import { MongoClient } from "mongodb";
+const localWeatherTemplates = require("../../../data/sampleData/weather.json");
+const Z1_items = require("../../../data/zoneData/Z1_items.json");
+const Z1_doors = require("../../../data/zoneData/Z1_doors.json");
+const models = require("../../../data/dataSources/Models.json");
 
 export class ZoneServer extends EventEmitter {
   _gatewayServer: any;
   _protocol: any;
-  _db: any;
+  _db: Db | undefined;
   _soloMode: any;
   _mongoClient: any;
   _mongoAddress: string;
@@ -50,6 +53,7 @@ export class ZoneServer extends EventEmitter {
   _startGameTime: number;
   _cycleSpeed: number;
   _frozeCycle: boolean;
+  _profiles: any[];
   _weather: Weather;
   _spawnLocations: any;
   _defaultWeatherTemplate: string;
@@ -58,10 +62,14 @@ export class ZoneServer extends EventEmitter {
   _objects: any;
   _reloadPacketsInterval: any;
   _pingTimeoutTime: number;
+  _worldId: number;
+  _npcRenderDistance: number;
+
   constructor(
     serverPort: number,
-    gatewayKey: string,
-    mongoAddress: string = ""
+    gatewayKey: Uint8Array,
+    mongoAddress = "",
+    worldId = 0
   ) {
     super();
     this._gatewayServer = new GatewayServer(
@@ -70,6 +78,7 @@ export class ZoneServer extends EventEmitter {
       gatewayKey
     );
     this._mongoAddress = mongoAddress;
+    this._worldId = worldId;
     this._protocol = new ZoneProtocol();
     this._clients = {};
     this._characters = {};
@@ -89,6 +98,8 @@ export class ZoneServer extends EventEmitter {
     this._weatherTemplates = localWeatherTemplates;
     this._defaultWeatherTemplate = "H1emuBaseWeather";
     this._weather = this._weatherTemplates[this._defaultWeatherTemplate];
+    this._profiles = [];
+    this._npcRenderDistance = 100;
     this._pingTimeoutTime = 30000;
     if (!this._mongoAddress) {
       this._soloMode = true;
@@ -149,7 +160,7 @@ export class ZoneServer extends EventEmitter {
         client.character = {
           characterId: characterId,
           state: {
-            position: [0, 0, 0, 0],
+            position: new Float32Array([0, 0, 0, 0]),
             rotation: [0, 0, 0, 0],
             health: 0,
             shield: 0,
@@ -159,6 +170,7 @@ export class ZoneServer extends EventEmitter {
         client.pingTimer = setInterval(() => {
           this.checkIfClientStillOnline(client);
         }, 20000);
+        client.spawnedEntities = [];
         this._characters[characterId] = client.character;
 
         this.emit("login", err, client);
@@ -197,7 +209,7 @@ export class ZoneServer extends EventEmitter {
     );
   }
 
-  async setupServer() {
+  async setupServer(): Promise<void> {
     this.forceTime(971172000000); // force day time by default
     await this.loadMongoData();
     this._weather = this._soloMode
@@ -205,10 +217,77 @@ export class ZoneServer extends EventEmitter {
       : _.find(this._weatherTemplates, (template) => {
           return template.templateName === this._defaultWeatherTemplate;
         });
-    this.createAllObjects();
+    this._profiles = this.generateProfiles();
+    if (
+      await this._db?.collection("worlds").findOne({ worldId: this._worldId })
+    ) {
+      await this.fetchWorldData();
+      setTimeout(() => {
+        this.saveWorld();
+      }, 30000);
+    } else {
+      await this.saveWorld();
+    }
     debug("Server ready");
   }
-  async start() {
+
+  async fetchWorldData(): Promise<void> {
+    if (!this._soloMode) {
+      const worldData = await this._db
+        ?.collection("worlds")
+        .findOne({ worldId: this._worldId });
+      this._npcs = worldData.npcs;
+      this._objects = worldData.objects;
+      this._weather = worldData.weather;
+      debug("World fetched!");
+    }
+  }
+
+  async saveWorld(): Promise<void> {
+    if (!this._soloMode) {
+      const save = {
+        worldId: this._worldId,
+        npcs: this._npcs,
+        weather: this._weather,
+        objects: this._objects,
+      };
+      if (this._worldId) {
+        if (
+          await this._db
+            ?.collection("worlds")
+            .findOne({ worldId: this._worldId })
+        ) {
+          const worker = new Worker(__dirname+"/../../utils/workers/saveWorld.js", {
+            workerData: {mongoAddress:this._mongoAddress,worldId:this._worldId,worldSave:JSON.stringify(save)}
+          });
+          worker.on('message', debug);
+          worker.on('error', debug);
+        } else {
+          this.createAllObjects();
+          await this._db?.collection("worlds").insertOne(save);
+        }
+      } else {
+        this.createAllObjects();
+        const numberOfWorld: number =
+          (await this._db?.collection("worlds").find({}).count()) || 0;
+        const createdWorld = await this._db?.collection("worlds").insertOne({
+          worldId: numberOfWorld + 1,
+          npcs: save.npcs,
+          weather: save.weather,
+          objects: save.objects,
+        });
+        this._worldId = createdWorld?.ops[0].worldId;
+        debug("World saved!");
+      }
+      setTimeout(() => {
+        this.saveWorld();
+      }, 30000);
+    } else {
+      this.createAllObjects();
+    }
+  }
+
+  async start(): Promise<void> {
     debug("Starting server");
     debug(`Protocol used : ${this._protocol.protocolName}`);
     if (this._mongoAddress) {
@@ -240,21 +319,21 @@ export class ZoneServer extends EventEmitter {
     this._gatewayServer.start();
   }
 
-  async loadMongoData() {
+  async loadMongoData(): Promise<void> {
     this._spawnLocations = this._soloMode
       ? localSpawnList
-      : await this._db.collection("spawns").find().toArray();
+      : await this._db?.collection("spawns").find().toArray();
     this._weatherTemplates = this._soloMode
       ? localWeatherTemplates
-      : await this._db.collection("weathers").find().toArray();
+      : await this._db?.collection("weathers").find().toArray();
   }
 
-  async reloadMongoData(client: Client) {
+  async reloadMongoData(client: Client): Promise<void> {
     await this.loadMongoData();
     this.sendChatText(client, "[DEV] Mongo data reloaded", true);
   }
 
-  reloadPackets(client: Client, intervalTime: number = -1) {
+  reloadPackets(client: Client, intervalTime = -1): void {
     if (intervalTime > 0) {
       if (this._reloadPacketsInterval)
         clearInterval(this._reloadPacketsInterval);
@@ -274,12 +353,12 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
-  reloadZonePacketHandlers() {
+  reloadZonePacketHandlers(): void {
     delete require.cache[require.resolve("./zonepackethandlers")];
     this._packetHandlers = require("./zonepackethandlers").default;
   }
 
-  checkIfClientStillOnline(client: Client) {
+  checkIfClientStillOnline(client: Client): void {
     if (new Date().getTime() - client.lastPingTime > this._pingTimeoutTime) {
       clearInterval(client.pingTimer);
       debug(
@@ -298,7 +377,7 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
-  generateGuid() {
+  generateGuid(): string {
     let guid: string;
     do {
       guid = "0x";
@@ -310,9 +389,9 @@ export class ZoneServer extends EventEmitter {
     return guid;
   }
 
-  parseReferenceData() {
+  parseReferenceData(): any {
     const itemData = fs.readFileSync(
-        `${__dirname}/../../../data/ClientItemDefinitions.txt`,
+        `${__dirname}/../../../data/dataSources/ClientItemDefinitions.txt`,
         "utf8"
       ),
       itemLines = itemData.split("\n"),
@@ -326,17 +405,35 @@ export class ZoneServer extends EventEmitter {
     return { itemTypes: items };
   }
 
-  characterData(client: Client) {
+  async saveCharacterPosition(client: Client, updtTimeMs = 0) {
+    const { position, rotation } = client.character.state;
+    await this._db?.collection("characters").updateOne(
+      { characterId: client.character.characterId },
+      {
+        $set: {
+          position: position,
+          rotation: rotation,
+        },
+      }
+    );
+    if (updtTimeMs) {
+      setTimeout(() => {
+        this.saveCharacterPosition(client, updtTimeMs);
+      }, updtTimeMs);
+    }
+  }
+
+  async characterData(client: Client): Promise<void> {
     delete require.cache[
-      require.resolve("../../../data/sendself.json") // reload json
+      require.resolve("../../../data/sampleData/sendself.json") // reload json
     ];
-    const self = require("../../../data/sendself.json"); // dummy self
+    const self = require("../../../data/sampleData/sendself.json"); // dummy self
     if (
-      String(client.character.characterId).toUpperCase() ===
-      String(getCharacterId(99)).toUpperCase()
+      String(client.character.characterId) ===
+      "0x0000000000000001"
     ) {
       // for fun 🤠
-      self.data.characterId = String(getCharacterId(99)).toUpperCase();
+      self.data.characterId = "0x0000000000000001";
       self.data.identity.characterFirstName = "Cowboy :)";
       self.data.extraModel = "SurvivorMale_Ivan_OutbackHat_Base.adr";
       self.data.extraModelTexture = "Ivan_OutbackHat_LeatherTan";
@@ -350,13 +447,17 @@ export class ZoneServer extends EventEmitter {
     client.character.factionId = self.data.factionId;
     client.character.name =
       identity.characterFirstName + identity.characterLastName;
-
+    const characterDataMongo = await this._db
+      ?.collection("characters")
+      .findOne({ characterId: client.character.characterId });
     if (
       _.isEqual(self.data.position, [0, 0, 0, 1]) &&
       _.isEqual(self.data.rotation, [0, 0, 0, 1])
     ) {
       // if position/rotation hasn't be changed
-      self.data.isRandomlySpawning = true;
+      if (this._soloMode || !characterDataMongo.position) {
+        self.data.isRandomlySpawning = true;
+      }
     }
 
     if (self.data.isRandomlySpawning) {
@@ -364,16 +465,42 @@ export class ZoneServer extends EventEmitter {
       const randomSpawnIndex = Math.floor(
         Math.random() * this._spawnLocations.length
       );
-      self.data.position = this._spawnLocations[randomSpawnIndex].position;
-      self.data.rotation = this._spawnLocations[randomSpawnIndex].rotation;
+      self.data.position = client.character.state.position = this._spawnLocations[
+        randomSpawnIndex
+      ].position;
+      self.data.rotation = client.character.state.rotation = this._spawnLocations[
+        randomSpawnIndex
+      ].rotation;
       client.character.spawnLocation = this._spawnLocations[
         randomSpawnIndex
       ].name;
+    } else {
+      if (!this._soloMode) {
+        self.data.position = characterDataMongo.position;
+        self.data.rotation = characterDataMongo.rotation;
+      }
+      client.character.state.position = self.data.position;
+      client.character.state.rotation = self.data.rotation;
     }
+    self.data.profiles = this._profiles
     this.sendData(client, "SendSelfToClient", self);
   }
 
-  sendInitData(client: Client) {
+  generateProfiles(): any[] {
+    const profiles: any[] = [];
+    const profileTypes = require("../../../data/dataSources/ProfileTypes.json");
+    profileTypes.forEach((profile: any) => {
+      profiles.push({
+        profileId: profile.ID,
+        type: profile.ID,
+        nameId: profile.NAME_ID,
+      });
+    });
+    debug("Generated profiles");
+    return profiles;
+  }
+
+  sendInitData(client: Client): void {
     this.sendData(client, "InitializationParameters", {
       environment: "LIVE",
       serverId: 1,
@@ -463,37 +590,87 @@ export class ZoneServer extends EventEmitter {
     });
   }
 
-  spawnAllNpc(client: Client) {
-    for (let npc in this._npcs) {
+  spawnNpcs(client: Client): void {
+    for (const npc in this._npcs) {
+      if(
+        isPosInRadius(this._npcRenderDistance,client.character.state.position,this._npcs[npc].position)
+        && !client.spawnedEntities.includes(this._npcs[npc])
+        ){
       setImmediate(() => {
         this.sendData(
           client,
           "PlayerUpdate.AddLightweightNpc",
-          this._npcs[npc]
+          this._npcs[npc],
+          1
         );
+        client.spawnedEntities.push(this._npcs[npc])
       });
+    }
+    }
+  }
+  worldRoutine(client:Client):void{
+    this.spawnObjects(client)
+    this.spawnNpcs(client)
+    this.removeOutOfDistanceEntities(client)
+  }
+
+  filterOutOfDistance(element:any,playerPosition:Float32Array):boolean{
+    return !isPosInRadius(this._npcRenderDistance,playerPosition,element.position)
+  }
+  removeOutOfDistanceEntities(client:Client):void{
+    setImmediate(()=>{
+    const objectsToRemove = client.spawnedEntities.filter((e)=>this.filterOutOfDistance(e,client.character.state.position))
+    client.spawnedEntities = client.spawnedEntities.filter( ( el )=>{
+      return !objectsToRemove.includes( el );
+    } );
+    objectsToRemove.forEach((object:any) => {
+        this.sendData(client,"PlayerUpdate.RemovePlayer",
+        {
+          characterId: object.characterId,
+        },
+        1)
+      })
+    });
+  }
+
+  spawnObjects(client: Client): void {
+    for (const object in this._objects) {
+      if(
+        isPosInRadius(this._npcRenderDistance,client.character.state.position,this._objects[object].position)
+        && !client.spawnedEntities.includes(this._objects[object])
+      ){
+      setImmediate(() => {
+        this.sendData(
+          client,
+          "PlayerUpdate.AddLightweightNpc",
+          this._objects[object],
+          1
+        );
+        client.spawnedEntities.push(this._objects[object])
+      });
+    }
     }
   }
 
-  spawnAllObject(client: Client) {
-    for (let object in this._objects) {
-      setImmediate(() => {
-        this.sendData(
-          client,
-          "PlayerUpdate.AddLightweightNpc",
-          this._objects[object]
-        );
-      });
-    }
+  removeNpc(characterId: string) {
+    this.sendDataToAll(
+      "PlayerUpdate.RemovePlayer",
+      {
+        characterId: characterId,
+      },
+      1
+    );
+    const idIndex =_.indexOf(this._guids, characterId)
+    this._guids.splice(idIndex,1)
   }
 
   createObject(
     modelID: number,
     position: Array<number>,
     rotation: Array<number>
-  ) {
+  ): void {
     const guid = this.generateGuid();
-    const characterId = generateCharacterId();
+    const characterId = this.generateGuid();
     rotation[0] += 250;
     this._objects[characterId] = {
       characterId: characterId,
@@ -508,11 +685,170 @@ export class ZoneServer extends EventEmitter {
     };
   }
 
-  createAllObjects() {
+  createAllObjects(): void {
     this.createAllDoors();
+    this.createAllItems();
     debug("All objects created");
   }
-  createAllDoors() {
+
+  createAllItems() {
+    Z1_items.forEach((spawnerType: any) => {
+      let modelId: number;
+      switch (spawnerType.actorDefinition) {
+        case "ItemSpawnerResidential_Tier00.adr":
+          modelId = 0;
+          break;
+        case "ItemSpawner_BattleRoyale_AmmoBox02_12GaShotgun.adr":
+          modelId = 0;
+          break;
+        case "ItemSpawner_BattleRoyale_Gear01.adr":
+          modelId = 0;
+          break;
+        case "ItemSpawner_BattleRoyale_Weapons01.adr":
+          modelId = 0;
+          break;
+        case "ItemSpawner_BattleRoyale_Ammo01.adr":
+          modelId = 0;
+          break;
+        case "ItemSpawner_BattleRoyale_Backpack01.adr":
+          modelId = 0;
+          break;
+        case "ItemSpawner_BattleRoyale_AmmoBox02_1911.adr":
+          modelId = 0;
+          break;
+        case "ItemSpawnerRare_Tier00.adr":
+          modelId = 0;
+          break;
+        case "ItemSpawnerIndustrial_Tier00.adr":
+          modelId = 0;
+          break;
+        case "ItemSpawnerWorld_Tier00.adr":
+          modelId = 0;
+          break;
+        case "ItemSpawner_BattleRoyale_FirstAidKit01.adr":
+          modelId = 0;
+          break;
+        case "ItemSpawner_Log01.adr":
+          modelId = 0;
+          break;
+        case "ItemSpawnerCommercial_Tier00.adr":
+          modelId = 0;
+          break;
+        case "ItemSpawnerFarm.adr":
+          modelId = 0;
+          break;
+        case "ItemSpawner_Weapon_M16A4.adr":
+          modelId = 23;
+          break;
+        case "ItemSpawner_AmmoBox02_M16A4.adr":
+          modelId = 10;
+          break;
+        case "ItemSpawner_AmmoBox02.adr":
+          modelId = 10;
+          break;
+        case "ItemSpawner_Weapon_PumpShotgun01.adr":
+          modelId = 9286;
+          break;
+        case "ItemSpawner_AmmoBox02_12GaShotgun.adr":
+          modelId = 10;
+          break;
+        case "ItemSpawner_Weapon_Crowbar01.adr":
+          modelId = 18;
+          break;
+        case "ItemSpawner_Weapon_CombatKnife01.adr":
+          modelId = 21;
+          break;
+        case "ItemSpawner_Weapon_45Auto.adr":
+          modelId = 17;
+          break;
+        case "ItemSpawner_AmmoBox02_1911.adr":
+          modelId = 10;
+          break;
+        case "ItemSpawner_Weapon_Machete01.adr":
+          modelId = 24;
+          break;
+        case "ItemSpawner_BattleRoyale_AmmoBox02_M16A4.adr":
+          modelId = 0;
+          break;
+        case "ItemSpawner_BattleRoyale_AmmoBox02_308Rifle.adr":
+          modelId = 0;
+          break;
+        case "ItemSpawner_Weapon_Bat01.adr":
+          modelId = 42;
+          break;
+        case "ItemSpawner_BackpackOnGround001.adr":
+          modelId = 9093;
+          break;
+        case "ItemSpawner_FirstAidKit.adr":
+          modelId = 9221;
+          break;
+        case "ItemSpawner_Weapon_M24.adr":
+          modelId = 9204;
+          break;
+        case "ItemSpawner_GasCan01.adr":
+          modelId = 9135;
+          break;
+        case "ItemSpawner_Weapon_Guitar01.adr":
+          modelId = 9318;
+          break;
+        case "ItemSpawner_Weapon_WoodAxe01.adr":
+          modelId = 27;
+          break;
+        case "ItemSpawner_AmmoBox02_308Rifle.adr":
+          modelId = 10;
+          break;
+        case "ItemSpawner_Weapon_FireAxe01.adr":
+          modelId = 9325;
+          break;
+        case "ItemSpawner_Weapon_ClawHammer01.adr":
+          modelId = 9252;
+          break;
+        case "ItemSpawner_Weapon_Hatchet01.adr":
+          modelId = 22;
+          break;
+        case "ItemSpawner_Weapon_Pipe01.adr":
+          modelId = 9209;
+          break;
+        case "ItemSpawner_CannedFood.adr":
+          modelId = Math.random() * 100 > 50 ? 7 : 8020;
+          break;
+        case "ItemSpawner_WaterContainer_Small_Purified.adr":
+          modelId = 9159;
+          break;
+        case "ItemSpawner_Clothes_MotorcycleHelmet.adr":
+          modelId = 68;
+          break;
+        case "ItemSpawner_Clothes_BaseballCap.adr":
+          modelId = 66;
+          break;
+        case "ItemSpawner_Clothes_FoldedShirt.adr":
+          modelId = 9249;
+          break;
+        case "ItemSpawner_Weapon_Bat02.adr":
+          modelId = 9313;
+          break;
+        case "ItemSpawner_Clothes_Beanie.adr":
+          modelId = 67;
+          break;
+
+        default:
+          modelId = 0;
+          break;
+      }
+      if (modelId) {
+        spawnerType.instances.forEach((itemInstance: any) => {
+          this.createObject(
+            modelId,
+            itemInstance.position,
+            itemInstance.rotation
+          );
+        });
+      }
+    });
+    debug("All items objects created");
+  }
+
+  createAllDoors(): void {
     Z1_doors.forEach((doorType: any) => {
       // TODO: add types for Z1_doors
       const modelId: number = _.find(models, {
@@ -535,13 +871,13 @@ export class ZoneServer extends EventEmitter {
     debug("All doors objects created");
   }
 
-  data(collectionName: string) {
+  data(collectionName: string): any {
     if (this._db) {
       return this._db.collection(collectionName);
     }
   }
 
-  SendZoneDetailsPacket(client: Client, weather: Weather) {
+  SendZoneDetailsPacket(client: Client, weather: Weather): void {
     const SendZoneDetails_packet = {
       zoneName: "Z1",
       unknownBoolean1: true,
@@ -558,8 +894,8 @@ export class ZoneServer extends EventEmitter {
   SendSkyChangedPacket(
     client: Client,
     weather: Weather,
-    isGlobal: boolean = false
-  ) {
+    isGlobal = false
+  ): void {
     if (isGlobal) {
       this.sendDataToAll("SkyChanged", weather);
       this.sendGlobalChatText(
@@ -570,11 +906,12 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
-  changeWeather(client: Client, weather: Weather) {
+  changeWeather(client: Client, weather: Weather): void {
     this._weather = weather;
     this.SendSkyChangedPacket(client, weather, this._soloMode ? false : true);
   }
-  sendSystemMessage(message: string) {
+
+  sendSystemMessage(message: string): void {
     this.sendDataToAll("Chat.Chat", {
       unknown2: 0,
       channel: 2,
@@ -601,7 +938,7 @@ export class ZoneServer extends EventEmitter {
     });
   }
 
-  sendChat(client: Client, message: string, channel: number) {
+  sendChat(client: Client, message: string, channel: number): void {
     const { character } = client;
     if (!this._soloMode) {
       this.sendDataToAll("Chat.Chat", {
@@ -620,12 +957,13 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
-  sendGlobalChatText(message: string, clearChat: boolean = false) {
-    for (let a in this._clients) {
+  sendGlobalChatText(message: string, clearChat = false): void {
+    for (const a in this._clients) {
       this.sendChatText(this._clients[a], message, clearChat);
     }
   }
-  sendChatText(client: Client, message: string, clearChat: boolean = false) {
+
+  sendChatText(client: Client, message: string, clearChat = false): void {
     if (clearChat) {
       for (let index = 0; index <= 6; index++) {
         this.sendData(client, "Chat.ChatText", {
@@ -648,7 +986,11 @@ export class ZoneServer extends EventEmitter {
     });
   }
 
-  setCharacterLoadout(client: Client, loadoutId: number, loadoutTab: any) {
+  setCharacterLoadout(
+    client: Client,
+    loadoutId: number,
+    loadoutTab: number
+  ): void {
     for (let i = 0; i < client.character.loadouts.length; i++) {
       const loadout = client.character.loadouts[i];
       if (loadout.loadoutId == loadoutId && loadout.loadoutTab == loadoutTab) {
@@ -669,27 +1011,28 @@ export class ZoneServer extends EventEmitter {
       }
     }
   }
-  sendData(client: Client, packetName: string, obj: any) {
+
+  sendData(client: Client, packetName: string, obj: any, channel = 0): void {
     if (packetName != "KeepAlive") {
       debug("send data", packetName);
     }
     const data = this._protocol.pack(packetName, obj, this._referenceData);
     if (Array.isArray(client)) {
       for (let i = 0; i < client.length; i++) {
-        this._gatewayServer.sendTunnelData(client[i], data);
+        this._gatewayServer.sendTunnelData(client[i], data, channel);
       }
     } else {
-      this._gatewayServer.sendTunnelData(client, data);
+      this._gatewayServer.sendTunnelData(client, data, channel);
     }
   }
 
-  sendDataToAll(packetName: string, obj: any) {
-    for (let a in this._clients) {
-      this.sendData(this._clients[a], packetName, obj);
+  sendDataToAll(packetName: string, obj: any, channel = 0): void {
+    for (const a in this._clients) {
+      this.sendData(this._clients[a], packetName, obj, channel);
     }
   }
 
-  sendWeaponPacket(client: Client, packetName: string, obj: any) {
+  sendWeaponPacket(client: Client, packetName: string, obj: any): void {
     const weaponPacket = {
       gameTime: this.getServerTime(),
       packetName: packetName,
@@ -700,48 +1043,48 @@ export class ZoneServer extends EventEmitter {
     });
   }
 
-  sendRawData(client: Client, data: Buffer) {
+  sendRawData(client: Client, data: Buffer): void {
     this._gatewayServer.sendTunnelData(client, data);
   }
 
-  stop() {
+  stop(): void {
     debug("Shutting down");
     process.exit(0);
   }
 
-  forceTime(time: number) {
+  forceTime(time: number): void {
     this._cycleSpeed = 0.1;
     this._frozeCycle = true;
     this._gameTime = time;
     this.sendSyncToAll();
   }
 
-  removeForcedTime() {
+  removeForcedTime(): void {
     this._cycleSpeed = 0.1;
     this._frozeCycle = false;
     this._gameTime = Date.now();
     this.sendSyncToAll();
   }
 
-  getCurrentTime() {
-    return (Date.now() / 1000).toFixed(0);
+  getCurrentTime(): number {
+    return Number((Date.now() / 1000).toFixed(0));
   }
 
-  getGameTime() {
+  getGameTime(): number {
     debug("get server time");
-    let delta = Date.now() - this._startGameTime;
+    const delta = Date.now() - this._startGameTime;
     return this._frozeCycle
       ? Number(((this._gameTime + delta) / 1000).toFixed(0))
       : Number((this._gameTime / 1000).toFixed(0));
   }
 
-  getServerTime() {
+  getServerTime(): number {
     debug("get server time");
-    let delta = Date.now() - this._startTime;
+    const delta = Date.now() - this._startTime;
     return this._serverTime + delta;
   }
 
-  sendGameTimeSync(client: Client) {
+  sendGameTimeSync(client: Client): void {
     debug("GameTimeSync");
     this.sendData(client, "GameTimeSync", {
       time: Int64String(this.getGameTime()),
@@ -750,7 +1093,7 @@ export class ZoneServer extends EventEmitter {
     });
   }
 
-  sendSyncToAll() {
+  sendSyncToAll(): void {
     // TODO: this do not seems to work
     debug("Synchronization");
     this.sendDataToAll("Synchronization", {
@@ -759,7 +1102,7 @@ export class ZoneServer extends EventEmitter {
     });
   }
 
-  getTransientId(client: any, guid: string) {
+  getTransientId(client: any, guid: string): number {
     if (!client.transientIds[guid]) {
       client.transientId++;
       client.transientIds[guid] = client.transientId;
@@ -767,82 +1110,7 @@ export class ZoneServer extends EventEmitter {
     return client.transientIds[guid];
   }
 
-  spawnNPC(
-    npcId: number,
-    position: Array<number>,
-    rotation: Array<number>,
-    callback: any
-  ) {
-    this.data("npcs").findOne({ id: npcId }, (err: string, npc: any) => {
-      if (err) {
-        debug(err);
-        return;
-      }
-      if (npc) {
-        const guid: any = this.generateGuid();
-        this._npcs[guid] = {
-          guid: guid,
-          position: position,
-          rotation: rotation,
-          npcDefinition: npc,
-        };
-        /*
-      var npcData = {
-        guid: guid,
-        transientId: this._transientId,
-        unknownString0: "",
-        nameId: npc.name_id > 0 ? npc.name_id : 0,
-        unknownDword2: 242919,
-        unknownDword3: 310060,
-        unknownByte1: 1,
-        modelId: npc.model_id || 0,
-        scale: [1, 1, 1, 1],
-        unknownString1: "",
-        unknownString2: "",
-        unknownDword5: 0,
-        unknownDword6: 0,
-        position: position,
-        unknownVector1: [0, -0.7071066498756409, 0, 0.70710688829422],
-        rotation: [-1.570796012878418, 0, 0, 0],
-        unknownDword7: 0,
-        unknownFloat1: 0,
-        unknownString3: "",
-        unknownString4: "",
-        unknownString5: "",
-        vehicleId: 0,
-        unknownDword9: 0,
-        npcDefinitionId: npc.id || 0,
-        unknownByte2: 0,
-        profileId: npc.profile_id || 0,
-        unknownBoolean1: true,
-        unknownData1: {
-          unknownByte1: 16,
-          unknownByte2: 10,
-          unknownByte3: 0,
-        },
-        unknownByte6: 0,
-        unknownDword11: 0,
-        unknownGuid1: "0x0000000000000000",
-        unknownData2: {
-          unknownGuid1: "0x0000000000000000",
-        },
-        unknownDword12: 0,
-        unknownDword13: 0,
-        unknownDword14: 0,
-        unknownByte7: 0,
-        unknownArray1: [],
-      };
-      */
-        callback(null, this._npcs[guid]);
-      } else {
-        callback("NPC " + npcId + " not found");
-      }
-    });
-  }
-
-  spawnVehicle(vehicleId: number) {}
-
-  createPositionUpdate(position: Array<number>, rotation: Array<number>) {
+  createPositionUpdate(position: Array<number>, rotation: Array<number>): any {
     const obj = {
       flags: 4095,
       unknown2_int32: this.getGameTime(),

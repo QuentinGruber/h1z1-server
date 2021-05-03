@@ -22,6 +22,7 @@ function ZoneClientError(message) {
   this.name = this.constructor.name;
   this.message = message;
 }
+
 util.inherits(ZoneClientError, Error);
 
 function ZoneClient(
@@ -140,6 +141,7 @@ function ZoneClient(
     me.emit("disconnect", err, result);
   });
 }
+
 util.inherits(ZoneClient, EventEmitter);
 
 ZoneClient.prototype.connect = function () {

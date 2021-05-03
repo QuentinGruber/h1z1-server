@@ -16,12 +16,13 @@ import { SOEInputStream } from "./soeinputstream";
 import { SOEOutputStream } from "./soeoutputstream";
 import dgram from "dgram";
 import { Client } from "../../types/soeserver";
+
 const debug = require("debug")("SOEServer");
 
 export class SOEServer extends EventEmitter {
   _protocolName: string;
   _serverPort: number;
-  _cryptoKey: string;
+  _cryptoKey: Uint8Array;
   _compression: number;
   _protocol: any;
   _udpLength: number;
@@ -35,9 +36,9 @@ export class SOEServer extends EventEmitter {
   constructor(
     protocolName: string,
     serverPort: number,
-    cryptoKey: string,
+    cryptoKey: Uint8Array,
     compression: number,
-    isGatewayServer: boolean = false
+    isGatewayServer = false
   ) {
     super();
     EventEmitter.call(this);
@@ -126,8 +127,7 @@ export class SOEServer extends EventEmitter {
               0,
               data.length,
               client.port,
-              client.address,
-              function (err, bytes) {}
+              client.address
             );
           }
           (client as any).outQueueTimer = setTimeout(checkClientOutQueue, 0);
@@ -266,7 +266,7 @@ export class SOEServer extends EventEmitter {
           delete this._clients[client.address + ":" + client.port];
           this.emit("disconnect", null, client);
           break;
-        case "MultiPacket":
+        case "MultiPacket": {
           let lastOutOfOrder = 0;
           const channel = 0;
           for (let i = 0; i < result.subPackets.length; i++) {
@@ -293,6 +293,7 @@ export class SOEServer extends EventEmitter {
             (client as any).outputStream.resendData(lastOutOfOrder);
           }
           break;
+        }
         case "Ping":
           debug("Received ping from client");
           this._sendPacket(client, "Ping", {
@@ -350,36 +351,28 @@ export class SOEServer extends EventEmitter {
       }
     }
   }
+
   start(
     compression: number,
     crcSeed: number,
     crcLength: number,
     udpLength: number
-  ) {
+  ): void {
     this._compression = compression;
     this._crcSeed = crcSeed;
     this._crcLength = crcLength;
     this._udpLength = udpLength;
     this._connection.bind(this._serverPort, function () {});
   }
-  stop() {
-    for (let a in this._clients) {
-      if (this._clients.hasOwnProperty(a)) {
-        clearTimeout(this._clients[a].outQueueTimer);
-        clearTimeout(this._clients[a].ackTimer);
-        clearTimeout(this._clients[a].outOfOrderTimer);
-      }
-    }
+
+  stop(): void {
     this._connection.close();
+    process.exit(0);
   }
-  _sendPacket(
-    client: Client,
-    packetName: string,
-    packet: any,
-    prioritize: boolean = false
-  ) {
+
+  createPacket(client: Client, packetName: string, packet: any): any {
     try {
-      var data = this._protocol.pack(
+      return this._protocol.pack(
         packetName,
         packet,
         client.crcSeed,
@@ -396,13 +389,23 @@ export class SOEServer extends EventEmitter {
         JSON.stringify(packet, null, 4)
       );
     }
+  }
+
+  _sendPacket(
+    client: Client,
+    packetName: string,
+    packet: any,
+    prioritize = false
+  ): void {
+    const data = this.createPacket(client, packetName, packet);
     if (prioritize) {
       client.outQueue.unshift(data);
     } else {
       client.outQueue.push(data);
     }
   }
-  sendAppData(client: Client, data: Buffer, overrideEncryption: boolean) {
+
+  sendAppData(client: Client, data: Buffer, overrideEncryption: boolean): void {
     if ((client as any).outputStream._useEncryption) {
       debug("Sending app data: " + data.length + " bytes with encryption");
     } else {
@@ -410,15 +413,18 @@ export class SOEServer extends EventEmitter {
     }
     (client as any).outputStream.write(data, overrideEncryption);
   }
-  setEncryption(client: Client, value: boolean) {
+
+  setEncryption(client: Client, value: boolean): void {
     (client as any).outputStream.setEncryption(value);
     (client as any).inputStream.setEncryption(value);
   }
-  toggleEncryption(client: Client) {
+
+  toggleEncryption(client: Client): void {
     (client as any).outputStream.toggleEncryption();
     (client as any).inputStream.toggleEncryption();
   }
-  deleteClient(client: Client) {
+
+  deleteClient(client: Client): void {
     clearTimeout(
       this._clients[client.address + ":" + client.port]?.outQueueTimer
     );

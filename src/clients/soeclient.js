@@ -100,6 +100,7 @@ function SOEClient(
     }
     me._ackTimer = setTimeout(checkAck, 50);
   }
+
   checkAck();
 
   function checkOutOfOrderQueue() {
@@ -129,6 +130,7 @@ function SOEClient(
     }
     me._outOfOrderTimer = setTimeout(checkOutOfOrderQueue, 10);
   }
+
   checkOutOfOrderQueue();
 
   function checkOutQueue() {
@@ -148,6 +150,7 @@ function SOEClient(
     }
     me._outQueueTimer = setTimeout(checkOutQueue, 0);
   }
+
   checkOutQueue();
 
   function handlePacket(packet) {
@@ -247,6 +250,7 @@ function SOEClient(
     debug("Listening on " + address.address + ":" + address.port);
   });
 }
+
 util.inherits(SOEClient, EventEmitter);
 
 SOEClient.prototype.connect = function () {

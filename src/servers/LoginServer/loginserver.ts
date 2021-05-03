@@ -12,19 +12,16 @@
 
 import { EventEmitter } from "events";
 
-const SOEServer = require("../SoeServer/soeserver").SOEServer;
+import { SOEServer } from "../SoeServer/soeserver";
 import { LoginProtocol } from "../../protocols/loginprotocol";
-const debugName = "LoginServer";
-const debug = require("debug")(debugName);
 import { toUint8Array } from "js-base64";
 import { MongoClient } from "mongodb";
-import {
-  generateCharacterId,
-  getCharacterId,
-  initMongo,
-} from "../../utils/utils";
-import { SoeServer, Client, GameServer } from "../../types/loginserver";
+import { initMongo } from "../../utils/utils";
+import { Client, GameServer, SoeServer } from "../../types/loginserver";
 import _ from "lodash";
+
+const debugName = "LoginServer";
+const debug = require("debug")(debugName);
 
 export class LoginServer extends EventEmitter {
   _soeServer: SoeServer;
@@ -38,7 +35,8 @@ export class LoginServer extends EventEmitter {
   _cryptoKey: Uint8Array;
   _mongoAddress: string;
   _soloMode: boolean;
-  constructor(serverPort: number, mongoAddress: string = "") {
+
+  constructor(serverPort: number, mongoAddress = "") {
     super();
     this._compression = 0x0100;
     this._crcSeed = 0;
@@ -58,7 +56,7 @@ export class LoginServer extends EventEmitter {
       "LoginUdp_9",
       serverPort,
       this._cryptoKey,
-      null
+      0
     );
     this._protocol = new LoginProtocol();
     this._soeServer.on("connect", (err: string, client: Client) => {
@@ -85,11 +83,11 @@ export class LoginServer extends EventEmitter {
         const packet: any = this._protocol.parse(data);
         if (packet !== false) {
           // if packet parsing succeed
-          const result = packet.result;
+          const { sessionId } = packet.result;
           let data: Buffer;
           switch (packet.name) {
-            case "LoginRequest":
-              client.loginSessionId = packet.result.sessionId;
+            case "LoginRequest": {
+              client.loginSessionId = sessionId;
               const falsified_data = {
                 loggedIn: true,
                 status: 1,
@@ -102,18 +100,20 @@ export class LoginServer extends EventEmitter {
               this._soeServer.sendAppData(client, data, true);
               if (!this._soloMode) {
                 client.serverUpdateTimer = setInterval(
+                  // TODO: fix the fact that this interval is never cleared
                   () => this.updateServerList(client),
                   30000
                 );
               }
               if (this._protocol.protocolName !== "LoginUdp_11") break;
-            case "CharacterSelectInfoRequest":
+            }
+            case "CharacterSelectInfoRequest": {
               let CharactersInfo;
               if (this._soloMode) {
-                const SinglePlayerCharacter = require("../../../data/single_player_character.json");
+                const SinglePlayerCharacter = require("../../../data/sampleData/single_player_character.json");
 
                 const cowboy = _.cloneDeep(SinglePlayerCharacter); // for fun 🤠
-                cowboy.characterId = getCharacterId(99);
+                cowboy.characterId = "0x0000000000000001";
                 cowboy.payload.name = "Cowboy";
 
                 CharactersInfo = {
@@ -140,29 +140,35 @@ export class LoginServer extends EventEmitter {
               this._soeServer.sendAppData(client, data, true);
               debug("CharacterSelectInfoRequest");
               if (this._protocol.protocolName !== "LoginUdp_11") break;
+            }
             case "ServerListRequest":
-              let servers;
-              if (!this._soloMode) {
-                servers = await this._db.collection("servers").find().toArray();
-              } else {
-                if (this._soloMode) {
-                  const SoloServer = require("../../../data/single_player_server.json");
-                  servers = [SoloServer];
+              {
+                let servers;
+                if (!this._soloMode) {
+                  servers = await this._db
+                    .collection("servers")
+                    .find()
+                    .toArray();
+                } else {
+                  if (this._soloMode) {
+                    const SoloServer = require("../../../data/sampleData/single_player_server.json");
+                    servers = [SoloServer];
+                  }
                 }
-              }
-              for (let i = 0; i < servers.length; i++) {
-                if (servers[i]._id) {
-                  delete servers[i]._id;
+                for (let i = 0; i < servers.length; i++) {
+                  if (servers[i]._id) {
+                    delete servers[i]._id;
+                  }
                 }
+                data = this._protocol.pack("ServerListReply", {
+                  servers: servers,
+                });
+                this._soeServer.sendAppData(client, data, true);
               }
-              data = this._protocol.pack("ServerListReply", {
-                servers: servers,
-              });
-              this._soeServer.sendAppData(client, data, true);
 
               break;
 
-            case "CharacterDeleteRequest":
+            case "CharacterDeleteRequest": {
               const characters_delete_info: any = {
                 characterId: (packet.result as any).characterId,
                 status: 1,
@@ -185,7 +191,7 @@ export class LoginServer extends EventEmitter {
                   .collection("characters")
                   .deleteOne(
                     { characterId: (packet.result as any).characterId },
-                    function (err: any, obj: any) {
+                    function (err: string) {
                       if (err) {
                         debug(err);
                       } else {
@@ -199,7 +205,8 @@ export class LoginServer extends EventEmitter {
                   );
               }
               break;
-            case "CharacterLoginRequest":
+            }
+            case "CharacterLoginRequest": {
               let charactersLoginInfo: any;
               const { serverId, characterId } = packet.result;
               if (!this._soloMode) {
@@ -248,16 +255,16 @@ export class LoginServer extends EventEmitter {
               this._soeServer.sendAppData(client, data, true);
               debug("CharacterLoginRequest");
               break;
-
-            case "CharacterCreateRequest":
+            }
+            case "CharacterCreateRequest": {
               const reply_data = {
                 status: 1,
-                characterId: generateCharacterId(),
+                characterId: "0x0", //generateCharacterId(), TODO: get guids list from mongo
               };
               data = this._protocol.pack("CharacterCreateReply", reply_data);
               this._soeServer.sendAppData(client, data, true);
               break;
-
+            }
             case "TunnelAppPacketClientToServer":
               console.log(packet);
               packet.tunnelData = new (Buffer as any).alloc(4);
@@ -281,7 +288,8 @@ export class LoginServer extends EventEmitter {
       }
     );
   }
-  async updateServerList(client: Client) {
+
+  async updateServerList(client: Client): Promise<void> {
     if (!this._soloMode) {
       // useless if in solomode ( never get called either)
       const servers: Array<GameServer> = await this._db
@@ -295,7 +303,8 @@ export class LoginServer extends EventEmitter {
       }
     }
   }
-  async start() {
+
+  async start(): Promise<void> {
     debug("Starting server");
     debug(`Protocol used : ${this._protocol.protocolName}`);
     if (this._mongoAddress) {
@@ -330,12 +339,14 @@ export class LoginServer extends EventEmitter {
       this._udpLength
     );
   }
-  data(collectionName: string) {
+
+  data(collectionName: string): any | undefined {
     if (this._db) {
       return this._db.collection(collectionName);
     }
   }
-  stop() {
+
+  stop(): void {
     debug("Shutting down");
     process.exit(0);
   }

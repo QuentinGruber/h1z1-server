@@ -13,12 +13,13 @@
 import { EventEmitter } from "events";
 import { SOEServer } from "../SoeServer/soeserver";
 import { GatewayProtocol } from "../../protocols/gatewayprotocol";
-const debug = require("debug")("GatewayServer");
 import {
-  SoeServer,
   Client,
   GatewayProtocolInterface,
+  SoeServer,
 } from "../../types/gatewayserver";
+
+const debug = require("debug")("GatewayServer");
 
 export class GatewayServer extends EventEmitter {
   _soeServer: SoeServer;
@@ -27,7 +28,12 @@ export class GatewayServer extends EventEmitter {
   _crcSeed: number;
   _crcLength: number;
   _udpLength: number;
-  constructor(protocolName: string, serverPort: number, gatewayKey: string) {
+
+  constructor(
+    protocolName: string,
+    serverPort: number,
+    gatewayKey: Uint8Array
+  ) {
     super();
     this._compression = 0x0000;
     this._crcSeed = 0;
@@ -105,6 +111,7 @@ export class GatewayServer extends EventEmitter {
       this._soeServer.deleteClient(client);
     });
   }
+
   start() {
     debug("Starting server");
     this._soeServer.start(
@@ -114,14 +121,16 @@ export class GatewayServer extends EventEmitter {
       this._udpLength
     );
   }
-  sendTunnelData(client: Client, tunnelData: any) {
+
+  sendTunnelData(client: Client, tunnelData: any, channel = 0) {
     debug("Sending tunnel data to client");
     const data = this._protocol.pack("TunnelPacketToExternalConnection", {
-      channel: 0,
+      channel: channel,
       tunnelData: tunnelData,
     });
     (this._soeServer.sendAppData as any)(client, data);
   }
+
   stop() {
     debug("Shutting down");
     process.exit(0);
