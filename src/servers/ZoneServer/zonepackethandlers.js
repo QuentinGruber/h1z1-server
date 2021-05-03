@@ -17,6 +17,7 @@ delete require.cache[require.resolve("./commands/dev")];
 const Jenkins = require("hash-jenkins");
 import hax from "./commands/hax";
 import dev from "./commands/dev";
+import admin from "./commands/admin";
 import { Int64String } from "../../utils/utils";
 
 const _ = require("lodash");
@@ -107,6 +108,7 @@ const packetHandlers = {
     const commands = [
       "hax",
       "dev",
+      "admin",
       "location",
       "serverinfo",
       "spawninfo",
@@ -308,6 +310,10 @@ const packetHandlers = {
         Object.keys(dev).forEach((key) => {
           devCommandList.push(`/dev ${key}`);
         });
+        const adminCommandList = [];
+        Object.keys(admin).forEach((key) => {
+          adminCommandList.push(`/admin ${key}`);
+        });
         const commandList = [
           "/help",
           "/loc",
@@ -317,7 +323,7 @@ const packetHandlers = {
           "/player_fall_through_world_test",
         ];
         server.sendChatText(client, `Commands list:`);
-        _.concat(commandList, haxCommandList, devCommandList)
+        _.concat(commandList, haxCommandList, devCommandList, adminCommandList)
           .sort((a, b) => a.localeCompare(b))
           .forEach((command) => {
             server.sendChatText(client, `${command}`);
@@ -345,6 +351,12 @@ const packetHandlers = {
         dev[args[0]]
           ? dev[args[0]](server, client, args)
           : server.sendChatText(client, `Unknown command: /dev ${args[0]}`);
+        break;
+      case Jenkins.oaat("ADMIN"):
+      case 997464845: // dev
+        admin[args[0]]
+          ? admin[args[0]](server, client, args)
+          : server.sendChatText(client, `Unknown command: /admin ${args[0]}`);
         break;
     }
   },
