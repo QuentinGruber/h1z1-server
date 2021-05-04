@@ -2374,20 +2374,19 @@ var packets = [
                 { name: "unknownByte1", type: "uint8", defaultValue: 0 },
               ],
             },
-            { name: "unknownDword4254453", type: "uint32", defaultValue: 0 },
             {
-              name: "unknowNewArray15481",
+              name: "unknownDword5454qq2sfs44",
+              type: "uint32",
+              defaultValue: 0,
+            },
+
+            {
+              name: "loadoutStuff",
               type: "array",
               defaultValue: [],
               fields: [],
             },
-            { name: "unknownDword5454244", type: "uint32", defaultValue: 0 },
-            {
-              name: "itemrelated",
-              type: "array",
-              defaultValue: [],
-              fields: [],
-            },
+            { name: "unknownDword54542sfs44", type: "uint32", defaultValue: 0 },
             {
               name: "LocksPermissions",
               type: "array",
@@ -2464,7 +2463,12 @@ var packets = [
               defaultValue: [],
               fields: [],
             },
-            // missing array here 0x1401e03b4 "EquippedContainers"
+            {
+              name: "EquippedContainers",
+              type: "array",
+              defaultValue: [],
+              fields: [],
+            },
             { name: "unknownBoolean8", type: "boolean", defaultValue: true },
             { name: "unknownQword1", type: "uint64", defaultValue: 0 },
             { name: "unknownDword38", type: "uint32", defaultValue: 0 },
