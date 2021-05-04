@@ -442,9 +442,6 @@ export class ZoneServer extends EventEmitter {
       data: { identity },
     } = self;
     client.character.guid = self.data.guid;
-    client.character.loadouts = self.data.characterLoadoutData.loadouts;
-    client.character.inventory = self.data.inventory;
-    client.character.factionId = self.data.factionId;
     client.character.name =
       identity.characterFirstName + identity.characterLastName;
     const characterDataMongo = await this._db

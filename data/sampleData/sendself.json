@@ -76,6 +76,119 @@
     },
     "characterAchievements": [],
     "acquaintances": [],
+    "recipes": [],
+    "mounts": [],
+    "unknownCoinStoreData": {
+      "unknownBoolean1": 0,
+      "unknownArray1": []
+    },
+    "unknownArray10": [],
+    "unknownEffectArray": [],
+    "stats": [],
+    "playerTitles": [],
+    "currentPlayerTitle": 0,
+    "unknownArray13": [],
+    "unknownArray14": [],
+    "unknownDword33": 0,
+    "unknownArray15": [],
+    "unknownArray16": [],
+    "unknownArray17": [],
+    "unknownDword34": 0,
+    "unknownDword35": 0,
+    "abilities": {
+      "unknownArray1": [],
+      "unknownArray2": [],
+      "unknownArray3": [],
+      "unknownArray4": [],
+      "unknownData1": {
+        "unknownDword1": 0,
+        "unknownDword2": 0
+      },
+      "unknownArray5": [],
+      "unknownArray6": [],
+      "unknownArray7": [],
+      "unknownArray8": []
+    },
+    "acquireTimers": {
+      "unknownArray1": [],
+      "unknownDword1": 0
+    },
+    "unknownSchema2525": {
+      "unknownDword1": 0,
+      "unknownSchema1": {
+        "unknownDword1": 0,
+        "unknownDword2": 0,
+        "unknownDword3": 0
+      },
+      "unknownSchema2": {
+        "unknownDword1": 0,
+        "unknownDword2": 0,
+        "unknownDword3": 0
+      },
+      "unknownDword2": 0
+    },
+    "unknownDword2548": 0,
+    "unknownArray14154": [],
+    "unknownSchema47522": {
+      "unknownDword1": 0,
+      "unknownSchema4z7522": {
+        "unknownDword1": 0,
+        "unknownDword2": 0,
+        "unknownDword3": 0
+      },
+      "unknownDword3": 0
+    },
+    "unknownArray1511125": [],
+    "unknownArray1qsd5": [],
+    "unknownArrayHello": [],
+    "unknownArrayRank": [],
+    "unknownArray1qqqsd5": [],
+    "unknownSchema41722": {
+      "unknownDword1": 0,
+      "unknownSchema475a22": {
+        "unknownDword1": 0,
+        "unknownDword2": 0,
+        "unknownDword3": 0
+      },
+      "unknownDword3": 0
+    },
+    "unknownSchema33334": {
+      "unknownDword1": 0,
+      "unknownDword2": 0,
+      "unknownDword3": 0
+    },
+    "unknownArray184d5": [],
+    "unknownArrayAboutItem": [],
+    "itemTimerData": {
+      "unknownData1": {
+        "unknownDword1": 0,
+        "unknownFloat1": 0,
+        "unknownTime1": "0x0000000000000000",
+        "unknownTime2": "0x0000000000000000"
+      },
+      "unknownArray1": [],
+      "unknownData2": {
+        "unknownDword1": 0,
+        "unknownFloat1": 0,
+        "unknownTime1": "0x0000000000000000"
+      },
+      "unknownArray2": [],
+      "unknownArray3": [],
+      "unknownArray4": [],
+      "unknownByte1": 0
+    },
+    "unknownDword5454qq2sfs44": [],
+    "loadoutStuff": [],
+    "unknownDword54542sfs44": 0,
+    "LocksPermissions": [],
+    "missionData": {
+      "unknownArray1": [],
+      "unknownArray2": [],
+      "unknownArray3": [],
+      "unknownArray4": [],
+      "unknownArray5": []
+    },
+    "characterResources": [],
     "skillPointData": {
       "skillPointsGranted": "0x0000000000000000",
       "skillPointsTotal": "0x0000000000061a82",
