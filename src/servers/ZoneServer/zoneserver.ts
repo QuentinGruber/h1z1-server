@@ -32,6 +32,7 @@ const debug = require("debug")(debugName);
 const localWeatherTemplates = require("../../../data/sampleData/weather.json");
 const Z1_items = require("../../../data/zoneData/Z1_items.json");
 const Z1_doors = require("../../../data/zoneData/Z1_doors.json");
+const Z1_npcs = require("../../../data/zoneData/Z1_npcs.json");
 const models = require("../../../data/dataSources/Models.json");
 
 export class ZoneServer extends EventEmitter {
@@ -688,7 +689,40 @@ export class ZoneServer extends EventEmitter {
   createAllObjects(): void {
     this.createAllDoors();
     this.createAllItems();
+    this.createSomeNpcs();
     debug("All objects created");
+  }
+
+  createSomeNpcs() {
+    // This is only for giving the world some life
+    Z1_npcs.forEach((spawnerType: any) => {
+      const authorizedModelId: number[]= [];
+      switch (spawnerType.actorDefinition) {
+        case "NPCSpawner_ZombieLazy.adr":
+          authorizedModelId.push(9001);
+          authorizedModelId.push(9193)
+          break;
+        case "NPCSpawner_ZombieWalker.adr":
+          authorizedModelId.push(9001);
+          authorizedModelId.push(9193);
+          break;
+        case "NPCSpawner_Deer001.adr":
+          authorizedModelId.push(9002);
+          break;
+        default:
+          break;
+      }
+      if (authorizedModelId.length) {
+        spawnerType.instances.forEach((itemInstance: any) => {
+          this.createObject(
+            authorizedModelId[Math.floor(Math.random() * authorizedModelId.length)],
+            itemInstance.position,
+            itemInstance.rotation
+          );
+        });
+      }
+    });
+    debug("All npcs objects created");
   }
 
   createAllItems() {
