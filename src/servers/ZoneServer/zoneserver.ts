@@ -100,7 +100,7 @@ export class ZoneServer extends EventEmitter {
     this._defaultWeatherTemplate = "H1emuBaseWeather";
     this._weather = this._weatherTemplates[this._defaultWeatherTemplate];
     this._profiles = [];
-    this._npcRenderDistance = 100;
+    this._npcRenderDistance = 200;
     this._pingTimeoutTime = 30000;
     if (!this._mongoAddress) {
       this._soloMode = true;
