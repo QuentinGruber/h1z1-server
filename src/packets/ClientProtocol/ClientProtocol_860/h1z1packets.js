@@ -2505,6 +2505,13 @@ var packets = [
             { name: "unknownDword40", type: "uint32", defaultValue: 0 },
             { name: "unknownBoolean9", type: "boolean", defaultValue: true },
             { name: "unknownBoolean10", type: "boolean", defaultValue: true },
+            { name: "unknownDwddddord39", type: "uint32", defaultValue: 0 },
+            { name: "unknownqzdsqzDword40", type: "uint32", defaultValue: 0 },
+            {
+              name: "unknownBooleanqdzq9",
+              type: "boolean",
+              defaultValue: true,
+            },
           ],
         },
       ],
