@@ -204,7 +204,7 @@
     "unknownQword2": "0x0000000000000000",
     "unknownQword3": "0x0000000000000000",
     "unknownDword38": 0,
-    "unknownDword39": 0,
+    "vehicleLoadoutId": 0,
     "unknownDword40": 0,
     "unknownBoolean9": true
   }
