@@ -936,11 +936,12 @@ const lightWeightNpcSchema = [
   { name: "unknown31", type: "uint32", defaultValue: 0 },
   { name: "unknown32", type: "uint64", defaultValue: "0x0000000000000000" },
   {
-    name: "unknownData1",
+    name: "attachedObject",
     type: "schema",
     fields: [
-      { name: "unknown1", type: "uint64", defaultValue: "0x0000000000000000" },
-    {
+      { name: "targetObjectId", type: "uint64", defaultValue: "0x0000000000000000" },
+      /* Disable since it's not read if targetObjectID === 0
+      {
         name: "unknownVector2",
         type: "floatvector4",
         defaultValue: [0, 0, 0, 0],
@@ -950,9 +951,9 @@ const lightWeightNpcSchema = [
         type: "floatvector4",
         defaultValue: [0, 0, 0, 0],
       },
-      { name: "unknown4", type: "uint32", defaultValue: 0 },
-      { name: "unknown33", type: "uint32", defaultValue: 0 },
-    
+      { name: "unknown4", type: "uint32", defaultValue: 13 },
+      { name: "unknown33", type: "uint32", defaultValue: 13},
+      */
     ],
   },
   { name: "unknown34", type: "uint32", defaultValue: 0 },
