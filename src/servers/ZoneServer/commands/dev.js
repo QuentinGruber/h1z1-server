@@ -12,13 +12,13 @@ const dev = {
       modelId: 9001,
       transientId: server.getTransientId(client, characterId),
       position: client.character.state.position,
-     /* attachedObject:{
+      attachedObject:{
         unknown1:"0x0000000000000000",
         unknownVector2:client.character.state.position,
         unknownVector3:[0,0,0,0],
         unknown4:0,
         unknown33:0
-      },*/
+      },
       color:{r:0,g:0,b:0},
       array5: [{ unknown1: 0 }],
       array17: [{ unknown1: 0 }],

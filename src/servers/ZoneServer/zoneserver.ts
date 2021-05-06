@@ -672,7 +672,8 @@ export class ZoneServer extends EventEmitter {
   ): void {
     const guid = this.generateGuid();
     const characterId = this.generateGuid();
-    rotation[0] += 250;
+    rotation[0] = 0;
+    rotation[1] = 90;
     this._objects[characterId] = {
       characterId: characterId,
       guid: guid,
@@ -680,6 +681,8 @@ export class ZoneServer extends EventEmitter {
       modelId: modelID,
       position: position,
       rotation: rotation,
+      attachedObject: {},
+      color: {},
       array5: [{ unknown1: 0 }],
       array17: [{ unknown1: 0 }],
       array18: [{ unknown1: 0 }],
