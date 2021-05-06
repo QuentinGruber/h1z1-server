@@ -12,17 +12,25 @@ const dev = {
       modelId: 9001,
       transientId: server.getTransientId(client, characterId),
       position: client.character.state.position,
+      unknownData1:{
+        unknown1:"0x0000000000000001",
+        unknownVector2:[0,0,0,0],
+        unknownVector3:[0,0,0,0],
+        unknown4:0,
+        unknown33:0
+      },
+      color:{r:0,g:0,b:0},
       array5: [{ unknown1: 0 }],
       array17: [{ unknown1: 0 }],
       array18: [{ unknown1: 0 }],
     });
-    setInterval(() => {
+   /* setInterval(() => {
       server.sendData(client, "PlayerUpdate.SeekTarget", {
         characterId: characterId,
         TargetCharacterId: client.character.characterId,
         position: client.character.state.position,
       });
-    }, 500);
+    }, 500);*/
   },
   testVehicle: function (server, client, args) {
     const characterId = server.generateGuid();

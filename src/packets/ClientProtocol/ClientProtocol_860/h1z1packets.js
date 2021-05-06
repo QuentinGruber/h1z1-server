@@ -908,7 +908,7 @@ const lightWeightNpcSchema = [
   { name: "texture", type: "string", defaultValue: "" },
   { name: "string13", type: "string", defaultValue: "" },
   { name: "unknown14", type: "uint32", defaultValue: 0 },
-  { name: "position", type: "floatvector4", defaultValue: [0, 50, 0, 1] },
+  { name: "position", type: "floatvector3", defaultValue: [0, 50, 0] },
   {
     name: "rotation",
     type: "floatvector4",
@@ -926,30 +926,42 @@ const lightWeightNpcSchema = [
   { name: "unknown26", type: "boolean", defaultValue: false },
   { name: "profileId", type: "uint32", defaultValue: 0 },
   { name: "unknown28", type: "boolean", defaultValue: false },
-  { name: "color", type: "rgba", defaultValue: [0, 0, 0, 0] },
+  { name: "color", type: "rgb",
+  fields: [
+    { name: "r", type: "uint8", defaultValue: 0 },
+    { name: "g", type: "uint8", defaultValue: 0 },
+    { name: "b", type: "uint8", defaultValue: 0 },
+  ]},
   { name: "unknown30", type: "boolean", defaultValue: false },
   { name: "unknown31", type: "uint32", defaultValue: 0 },
   { name: "unknown32", type: "uint64", defaultValue: "0x0000000000000000" },
-  { name: "unknown1", type: "uint64", defaultValue: "0x0000000000000000" },
   {
-    name: "unknownVector2",
-    type: "floatvector4",
-    defaultValue: [0, 0, 0, 0],
+    name: "unknownData1",
+    type: "schema",
+    fields: [
+      { name: "unknown1", type: "uint64", defaultValue: "0x0000000000000000" },
+    {
+        name: "unknownVector2",
+        type: "floatvector4",
+        defaultValue: [0, 0, 0, 0],
+      },
+      {
+        name: "unknownVector3",
+        type: "floatvector4",
+        defaultValue: [0, 0, 0, 0],
+      },
+      { name: "unknown4", type: "uint32", defaultValue: 0 },
+      { name: "unknown33", type: "uint32", defaultValue: 0 },
+    
+    ],
   },
-  {
-    name: "unknownVector3",
-    type: "floatvector4",
-    defaultValue: [0, 0, 0, 0],
-  },
-  { name: "unknown4", type: "uint32", defaultValue: 0 },
-  { name: "unknown33", type: "uint32", defaultValue: 0 },
-
   { name: "unknown34", type: "uint32", defaultValue: 0 },
   { name: "unknown35", type: "uint32", defaultValue: 0 },
   { name: "unknown37", type: "uint32", defaultValue: 0 },
   { name: "unknown36", type: "uint64", defaultValue: "0x0000000000000000" },
   { name: "unknown38", type: "uint32", defaultValue: 0 },
-  { name: "unknown39", type: "byte", defaultValue: 0 },
+  { name: "unknown39", type: "uint32", defaultValue: 0 },
+  { name: "unknown40", type: "uint32", defaultValue: 0 },
 ];
 
 const profileStatsSubSchema1 = [
