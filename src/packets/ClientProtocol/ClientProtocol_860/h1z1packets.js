@@ -14,6 +14,7 @@ const PacketTable = require("../../packettable");
 const DataSchema = require("h1z1-dataschema");
 const _ = require("lodash");
 const { lz4_decompress } = require("../../../utils/utils");
+const { stubFalse } = require("lodash");
 
 function readPacketType(data, packets) {
   let opCode = data[0] >>> 0,
@@ -917,7 +918,11 @@ const lightWeightNpcSchema = [
   { name: "unknownVector", type: "floatvector4", defaultValue: [0, 0, 0, 1] },
   { name: "unknown18", type: "uint32", defaultValue: 0 },
   { name: "unknown19", type: "uint32", defaultValue: 0 },
-  { name: "string20", type: "string", defaultValue: "" },
+  {
+    name: "extraModel",
+    type: "string",
+    defaultValue: "",
+  },
   { name: "string21", type: "string", defaultValue: "" },
   { name: "string22", type: "string", defaultValue: "" },
   { name: "vehicleId", type: "uint32", defaultValue: 0 },
@@ -926,20 +931,27 @@ const lightWeightNpcSchema = [
   { name: "unknown26", type: "boolean", defaultValue: false },
   { name: "profileId", type: "uint32", defaultValue: 0 },
   { name: "unknown28", type: "boolean", defaultValue: false },
-  { name: "color", type: "rgb",
-  fields: [
-    { name: "r", type: "uint8", defaultValue: 0 },
-    { name: "g", type: "uint8", defaultValue: 0 },
-    { name: "b", type: "uint8", defaultValue: 0 },
-  ]},
-  { name: "unknown30", type: "boolean", defaultValue: false },
+  {
+    name: "color",
+    type: "rgb",
+    fields: [
+      { name: "r", type: "uint8", defaultValue: 0 },
+      { name: "g", type: "uint8", defaultValue: 0 },
+      { name: "b", type: "uint8", defaultValue: 0 },
+    ],
+  },
+  { name: "unknown30", type: "boolean", defaultValue: stubFalse },
   { name: "unknown31", type: "uint32", defaultValue: 0 },
   { name: "unknown32", type: "uint64", defaultValue: "0x0000000000000000" },
   {
     name: "attachedObject",
     type: "schema",
     fields: [
-      { name: "targetObjectId", type: "uint64", defaultValue: "0x0000000000000000" },
+      {
+        name: "targetObjectId",
+        type: "uint64",
+        defaultValue: "0x0000000000000000",
+      },
       /* Disable since it's not read if targetObjectID === 0
       {
         name: "unknownVector2",

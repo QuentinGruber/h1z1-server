@@ -15,6 +15,7 @@ const dev:any = {
       modelId: 9001,
       transientId: server.getTransientId(client, characterId),
       position: client.character.state.position,
+      extraModel:"SurvivorMale_Ivan_AviatorHat_Base.adr",
       attachedObject:{
         unknown1:"0x0000000000000000",
         unknownVector2:client.character.state.position,
