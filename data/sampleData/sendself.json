@@ -79,7 +79,7 @@
     "recipes": [],
     "mounts": [],
     "unknownCoinStoreData": {
-      "unknownBoolean1": true,
+      "unknownBoolean1": 0,
       "unknownArray1": []
     },
     "unknownArray10": [],
@@ -95,71 +95,70 @@
     "unknownArray17": [],
     "unknownDword34": 0,
     "unknownDword35": 0,
-    "unknownArray18": [],
-    "unknownArray19": [],
-    "unknownArray20": [],
-    "unknownData1": {
-      "abilityLines": [],
+    "abilities": {
+      "unknownArray1": [],
       "unknownArray2": [],
       "unknownArray3": [],
       "unknownArray4": [],
-      "unknownDword1": 0,
-      "unknownDword2": 0,
+      "unknownData1": {
+        "unknownDword1": 0,
+        "unknownDword2": 0
+      },
       "unknownArray5": [],
       "unknownArray6": [],
-      "unknownArray7": []
+      "unknownArray7": [],
+      "unknownArray8": []
     },
-    "unknownArray21": [
-      {
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0
-      }
-    ],
-    "unknownArray22": [],
-    "unknownArray23": [],
-    "unknownByte1": 0,
-    "unknownData2": {
+    "acquireTimers": {
+      "unknownArray1": [],
+      "unknownDword1": 0
+    },
+    "unknownSchema2525": {
       "unknownDword1": 0,
-      "unknownData1": {
+      "unknownSchema1": {
         "unknownDword1": 0,
         "unknownDword2": 0,
         "unknownDword3": 0
       },
-      "unknownData2": {
+      "unknownSchema2": {
         "unknownDword1": 0,
         "unknownDword2": 0,
         "unknownDword3": 0
       },
       "unknownDword2": 0
     },
-    "unknownDword36": 3,
-    "unknownArray24": [],
-    "unknownData3": {
+    "unknownDword2548": 0,
+    "unknownArray14154": [],
+    "unknownSchema47522": {
       "unknownDword1": 0,
-      "unknownDword2": 0,
-      "unknownDword3": 0,
-      "unknownDword4": 0,
-      "unknownDword5": 0
+      "unknownSchema4z7522": {
+        "unknownDword1": 0,
+        "unknownDword2": 0,
+        "unknownDword3": 0
+      },
+      "unknownDword3": 0
     },
-    "unknownArray25": [],
-    "unknownArray26": [],
-    "unknownArray27": [],
-    "unknownArray28": [],
-    "playerRanks": [],
-    "unknownData4": {
+    "unknownArray1511125": [],
+    "unknownArray1qsd5": [],
+    "unknownArrayHello": [],
+    "unknownArrayRank": [],
+    "unknownArray1qqqsd5": [],
+    "unknownSchema41722": {
       "unknownDword1": 0,
-      "unknownDword2": 0,
-      "unknownDword3": 0,
-      "unknownDword4": 0,
-      "unknownDword5": 0
+      "unknownSchema475a22": {
+        "unknownDword1": 0,
+        "unknownDword2": 0,
+        "unknownDword3": 0
+      },
+      "unknownDword3": 0
     },
-    "unknownData5": {
+    "unknownSchema33334": {
       "unknownDword1": 0,
       "unknownDword2": 0,
       "unknownDword3": 0
     },
-    "implantSlots": [],
+    "unknownArray184d5": [],
+    "unknownArrayAboutItem": [],
     "itemTimerData": {
       "unknownData1": {
         "unknownDword1": 0,
@@ -178,44 +177,10 @@
       "unknownArray4": [],
       "unknownByte1": 0
     },
-    "characterLoadoutData": {
-      "loadouts": [],
-      "unknownArray2": [],
-      "unknownArray3": [],
-      "unknownData1": {
-        "loadoutId": 3,
-        "unknownData1": {
-          "unknownDword1": 21,
-          "unknownByte1": 1
-        },
-        "unknownDword2": 0,
-        "unknownData2": {
-          "unknownDword1": 0,
-          "loadoutName": "survivor"
-        },
-        "tintItemId": 0,
-        "unknownDword4": 0,
-        "decalItemId": 0,
-        "loadoutSlots": []
-      },
-      "unknownData2": {
-        "unknownDword1": 0,
-        "unknownData1": {
-          "unknownDword1": 0,
-          "unknownByte1": 0
-        },
-        "unknownString1": "",
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownArray1": []
-      },
-      "unknownDword1": 0,
-      "unknownDword2": 0,
-      "unknownDword3": 0,
-      "unknownDword4": 0
-    },
+    "unknownDword5454qq2sfs44": [],
+    "loadoutStuff": [],
+    "unknownDword54542sfs44": 0,
+    "LocksPermissions": [],
     "missionData": {
       "unknownArray1": [],
       "unknownArray2": [],
@@ -224,7 +189,6 @@
       "unknownArray5": []
     },
     "characterResources": [],
-    "characterResourceChargers": [],
     "skillPointData": {
       "skillPointsGranted": "0x0000000000000000",
       "skillPointsTotal": "0x0000000000061a82",
@@ -240,7 +204,7 @@
     "unknownQword2": "0x0000000000000000",
     "unknownQword3": "0x0000000000000000",
     "unknownDword38": 0,
-    "unknownDword39": 0,
+    "vehicleLoadoutId": 0,
     "unknownDword40": 0,
     "unknownBoolean9": true
   }
