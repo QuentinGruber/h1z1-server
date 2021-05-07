@@ -14,8 +14,3 @@ export var SOEServer: typeof import("./out/servers/SoeServer/soeserver.js").SOES
 export var LoginServer: typeof import("./out/servers/LoginServer/loginserver.js").LoginServer;
 export var GatewayServer: typeof import("./out/servers/GatewayServer/gatewayserver.js").GatewayServer;
 export var ZoneServer: typeof import("./out/servers/ZoneServer/zoneserver.js").ZoneServer;
-export var SOEProxy: typeof import("./out/proxies/soeproxy.js").SOEProxy;
-export var LoginProxy: typeof import("./out/proxies/loginproxy.js").LoginProxy;
-export var GatewayProxy: typeof import("./out/proxies/gatewayproxy.js").GatewayProxy;
-export var ZoneProxy: typeof import("./out/proxies/zoneproxy.js").ZoneProxy;
-export var TransparentProxy: typeof import("./out/proxies/transproxy.js").TransparentProxy;

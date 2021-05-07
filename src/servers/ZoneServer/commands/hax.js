@@ -30,10 +30,11 @@ const hax = {
     server.sendChatText(client, "Game time is now based on real time", true);
   },
   despawnObjects: function (server, client, args) {
-    for (let object in server._objects) {
-      server.removeNpc(object);
-      delete server._objects[object];
-    }
+    client.spawnedEntities.forEach((object) => {
+      server.removeNpc(object.characterId);
+    });
+    client.spawnedEntities = [];
+    server._objects = {};
     server.sendChatText(client, "Objects removed from the game.", true);
   },
   spamOffroader: function (server, client, args) {
