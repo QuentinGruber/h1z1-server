@@ -89,7 +89,7 @@ const dev:any = {
       unknownGuid1: characterId,
       unknownDword1: 0,
       unknownDword2: 0,
-      positionUpdate: server.createPositionUpdate([0, 0, 0, 0], [0, 0, 0, 0]),
+      positionUpdate: server.createPositionUpdate(new Float32Array([0,0,0,0]), [0, 0, 0, 0]),
       unknownString1: "",
     };
 

@@ -5,7 +5,7 @@ import { ZoneServer } from "../zoneserver";
 import _ from "lodash";
 const debug = require("debug")("zonepacketHandlers");
 
-const hax = {
+const hax:any = {
   time: function (server:ZoneServer, client:Client, args:any[]) {
     const choosenHour:number = Number(args[1]);
     if (choosenHour < 0) {
