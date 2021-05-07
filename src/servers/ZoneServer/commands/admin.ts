@@ -1,7 +1,8 @@
 const debug = require("debug")("zonepacketHandlers");
-
-const admin = {
-  shutdown: async function (server, client, args) {
+import { Client } from "types/zoneserver";
+import { ZoneServer } from "../zoneserver";
+const admin:any = {
+  shutdown: async function (server:ZoneServer, client:Client, args:any[]) {
     server.sendDataToAll("WorldShutdownNotice", {
       timeLeft: 0,
       message: " ",

@@ -1144,7 +1144,7 @@ export class ZoneServer extends EventEmitter {
     return client.transientIds[guid];
   }
 
-  createPositionUpdate(position: Array<number>, rotation: Array<number>): any {
+  createPositionUpdate(position: Float32Array, rotation: Array<number>): any {
     const obj = {
       flags: 4095,
       unknown2_int32: this.getGameTime(),

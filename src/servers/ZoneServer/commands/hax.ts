@@ -1,11 +1,13 @@
 import fs from "fs";
+import { Client, Weather } from "types/zoneserver";
+import { ZoneServer } from "../zoneserver";
 
-const _ = require("lodash");
+import _ from "lodash";
 const debug = require("debug")("zonepacketHandlers");
 
-const hax = {
-  time: function (server, client, args) {
-    const choosenHour = Number(args[1]);
+const hax:any = {
+  time: function (server:ZoneServer, client:Client, args:any[]) {
+    const choosenHour:number = Number(args[1]);
     if (choosenHour < 0) {
       server.sendChatText(client, "You need to specify an hour to set !");
       return;
@@ -15,7 +17,7 @@ const hax = {
       client,
       `Will force time to be ${
         choosenHour % 1 >= 0.5
-          ? choosenHour.toFixed(0) - 1
+          ? Number(choosenHour.toFixed(0)) - 1
           : choosenHour.toFixed(0)
       }:${
         choosenHour % 1 === 0
@@ -25,11 +27,11 @@ const hax = {
       true
     );
   },
-  realTime: function (server, client, args) {
+  realTime: function (server:ZoneServer, client:Client, args:any[]) {
     server.removeForcedTime();
     server.sendChatText(client, "Game time is now based on real time", true);
   },
-  despawnObjects: function (server, client, args) {
+  despawnObjects: function (server:ZoneServer, client:Client, args:any[]) {
     client.spawnedEntities.forEach((object) => {
       server.removeNpc(object.characterId);
     });
@@ -37,7 +39,7 @@ const hax = {
     server._objects = {};
     server.sendChatText(client, "Objects removed from the game.", true);
   },
-  spamOffroader: function (server, client, args) {
+  spamOffroader: function (server:ZoneServer, client:Client, args:any[]) {
     for (let index = 0; index < 150; index++) {
       const vehicleData = {
         npcData: {
@@ -65,7 +67,7 @@ const hax = {
       );
     }
   },
-  spamPoliceCar: function (server, client, args) {
+  spamPoliceCar: function (server:ZoneServer, client:Client, args:any[]) {
     for (let index = 0; index < 150; index++) {
       const vehicleData = {
         npcData: {
@@ -92,7 +94,7 @@ const hax = {
       );
     }
   },
-  spawnNpcModel: function (server, client, args) {
+  spawnNpcModel: function (server:ZoneServer, client:Client, args:any[]) {
     const guid = server.generateGuid();
     const transientId = server.getTransientId(client, guid);
     if (!args[1]) {
@@ -114,7 +116,7 @@ const hax = {
     server.sendData(client, "PlayerUpdate.AddLightweightNpc", npc);
     server._npcs[characterId] = npc; // save npc
   },
-  sonic: function (server, client, args) {
+  sonic: function (server:ZoneServer, client:Client, args:any[]) {
     server.sendData(client, "ClientGameSettings", {
       unknownQword1: "0x0000000000000000",
       unknownBoolean1: true,
@@ -129,7 +131,7 @@ const hax = {
     });
     server.sendChatText(client, "Welcome MR.Hedgehog");
   },
-  observer: function (server, client, args) {
+  observer: function (server:ZoneServer, client:Client, args:any[]) {
     server.sendData(client, "PlayerUpdate.RemovePlayer", {
       characterId: client.character.characterId,
     });
@@ -137,7 +139,7 @@ const hax = {
     debug(server._characters);
     server.sendChatText(client, "Delete player, back in observer mode");
   },
-  changeModel: function (server, client, args) {
+  changeModel: function (server:ZoneServer, client:Client, args:any[]) {
     const newModelId = args[1];
     if (newModelId) {
       server.sendData(client, "PlayerUpdate.ReplaceBaseModel", {
@@ -148,7 +150,7 @@ const hax = {
       server.sendChatText(client, "Specify a model id !");
     }
   },
-  weather: function (server, client, args) {
+  weather: function (server:ZoneServer, client:Client, args:any[]) {
     const weatherTemplate = server._soloMode
       ? server._weatherTemplates[args[1]]
       : _.find(server._weatherTemplates, (template) => {
@@ -178,7 +180,7 @@ const hax = {
       }
     }
   },
-  saveCurrentWeather: async function (server, client, args) {
+  saveCurrentWeather: async function (server:ZoneServer, client:Client, args:any[]) {
     if (!args[1]) {
       server.sendChatText(
         client,
@@ -197,7 +199,7 @@ const hax = {
         currentWeather.templateName = args[1];
         if (server._soloMode) {
           server._weatherTemplates[
-            currentWeather.templateName
+            currentWeather.templateName as string
           ] = currentWeather;
           fs.writeFileSync(
             `${__dirname}/../../../../data/sampleData/weather.json`,
@@ -208,8 +210,8 @@ const hax = {
           ];
           server._weatherTemplates = require("../../../../data/sampleData/weather.json");
         } else {
-          await server._db.collection("weathers").insertOne(currentWeather);
-          server._weatherTemplates = await server._db
+          await server._db?.collection("weathers").insertOne(currentWeather);
+          server._weatherTemplates = await (server._db as any)
             .collection("weathers")
             .find()
             .toArray();
@@ -221,7 +223,7 @@ const hax = {
       }
     }
   },
-  run: function (server, client, args) {
+  run: function (server:ZoneServer, client:Client, args:any[]) {
     const speedValue = args[1];
     let speed;
     if (speedValue > 10) {
@@ -239,14 +241,14 @@ const hax = {
       runSpeed: speed,
     });
   },
-  hell: function (server, client, args) {
+  hell: function (server:ZoneServer, client:Client, args:any[]) {
     server.sendChatText(
       client,
       "[DEPRECATED] use '/hax randomWeather' instead",
       true
     );
   },
-  randomWeather: function (server, client, args) {
+  randomWeather: function (server:ZoneServer, client:Client, args:any[]) {
     debug("Randomized weather");
     server.sendChatText(client, `Randomized weather`);
 
@@ -254,7 +256,7 @@ const hax = {
       return Number((Math.random() * 100).toFixed(0));
     }
 
-    const rnd_weather = {
+    const rnd_weather:Weather = {
       name: "sky",
       unknownDword1: rnd_number(),
       unknownDword2: rnd_number(),
@@ -281,6 +283,7 @@ const hax = {
       unknownDword22: rnd_number(),
       unknownDword23: rnd_number(),
       unknownDword24: rnd_number(),
+      unknownDword25: rnd_number(),
       unknownArray: _.fill(Array(50), {
         unknownDword1: 0,
         unknownDword2: 0,
@@ -294,28 +297,28 @@ const hax = {
     debug(JSON.stringify(rnd_weather));
     server.changeWeather(client, rnd_weather);
   },
-  titan: function (server, client, args) {
+  titan: function (server:ZoneServer, client:Client, args:any[]) {
     server.sendData(client, "PlayerUpdate.UpdateScale", {
       characterId: client.character.characterId,
       scale: [20, 20, 20, 1],
     });
     server.sendChatText(client, "TITAN size");
   },
-  poutine: function (server, client, args) {
+  poutine: function (server:ZoneServer, client:Client, args:any[]) {
     server.sendData(client, "PlayerUpdate.UpdateScale", {
       characterId: client.character.characterId,
       scale: [20, 5, 20, 1],
     });
     server.sendChatText(client, "The meme become a reality.....");
   },
-  rat: function (server, client, args) {
+  rat: function (server:ZoneServer, client:Client, args:any[]) {
     server.sendData(client, "PlayerUpdate.UpdateScale", {
       characterId: client.character.characterId,
       scale: [0.2, 0.2, 0.2, 1],
     });
     server.sendChatText(client, "Rat size");
   },
-  normalSize: function (server, client, args) {
+  normalSize: function (server:ZoneServer, client:Client, args:any[]) {
     server.sendData(client, "PlayerUpdate.UpdateScale", {
       characterId: client.character.characterId,
       scale: [1, 1, 1, 1],

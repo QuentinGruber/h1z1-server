@@ -1,11 +1,14 @@
+import { Client } from "types/zoneserver";
+import { ZoneServer } from "../zoneserver";
+
 const debug = require("debug")("zonepacketHandlers");
 
-const dev = {
-  testpacket: function (server, client, args) {
+const dev:any = {
+  testpacket: function (server:ZoneServer, client:Client, args:any[]) {
     const packetName = args[1];
     server.sendData(client, packetName, {});
   },
-  testNpc: function (server, client, args) {
+  testNpc: function (server:ZoneServer, client:Client, args:any[]) {
     const characterId = server.generateGuid();
     server.sendData(client, "PlayerUpdate.AddLightweightNpc", {
       characterId: characterId,
@@ -32,7 +35,7 @@ const dev = {
       });
     }, 500);*/
   },
-  testVehicle: function (server, client, args) {
+  testVehicle: function (server:ZoneServer, client:Client, args:any[]) {
     const characterId = server.generateGuid();
     const vehicleData = {
       npcData: {
@@ -86,17 +89,17 @@ const dev = {
       unknownGuid1: characterId,
       unknownDword1: 0,
       unknownDword2: 0,
-      positionUpdate: server.createPositionUpdate([0, 0, 0, 0], [0, 0, 0, 0]),
+      positionUpdate: server.createPositionUpdate(new Float32Array([0,0,0,0]), [0, 0, 0, 0]),
       unknownString1: "",
     };
 
     server.sendData(client, "PlayerUpdate.AddLightweightVehicle", vehicleData);
   },
-  findModel: function (server, client, args) {
+  findModel: function (server:ZoneServer, client:Client, args:any[]) {
     const models = require("../../../../data/dataSources/Models.json");
     const wordFilter = args[1];
     if (wordFilter) {
-      const result = models.filter((word) =>
+      const result = models.filter((word:any) =>
         word?.MODEL_FILE_NAME?.toLowerCase().includes(wordFilter.toLowerCase())
       );
       server.sendChatText(client, `Found models for ${wordFilter}:`);
@@ -108,14 +111,14 @@ const dev = {
       server.sendChatText(client, `missing word filter`);
     }
   },
-  reloadPackets: function (server, client, args) {
+  reloadPackets: function (server:ZoneServer, client:Client, args:any[]) {
     if (args[1]) {
       server.reloadPackets(client, args[1]);
     } else {
       server.reloadPackets(client);
     }
   },
-  reloadMongo: function (server, client, args) {
+  reloadMongo: function (server:ZoneServer, client:Client, args:any[]) {
     server._soloMode
       ? server.sendChatText(client, "Can't do that in solomode...")
       : server.reloadMongoData(client);
