@@ -60,6 +60,7 @@ export interface SendZoneDetailsPacket {
 }
 
 export interface Weather {
+  templateName?: string;
   name: string;
   unknownDword1: number;
   unknownDword2: number;
