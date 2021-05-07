@@ -206,7 +206,7 @@ const hax:any = {
             JSON.stringify(server._weatherTemplates)
           );
           delete require.cache[
-            require.resolve("../../../../data/weather.json")
+            require.resolve("../../../../data/sampleData/weather.json")
           ];
           server._weatherTemplates = require("../../../../data/sampleData/weather.json");
         } else {
@@ -255,19 +255,21 @@ const hax:any = {
     function rnd_number() {
       return Number((Math.random() * 100).toFixed(0));
     }
-
+    const fogEnabled = Math.random() * 3 < 1
+    const rainEnabled = Math.random() * 4 < 1
+    const winterEnabled = Math.random() * 4 < 1
     const rnd_weather:Weather = {
       name: "sky",
       unknownDword1: rnd_number(),
       unknownDword2: rnd_number(),
       unknownDword3: rnd_number(),
       unknownDword4: rnd_number(),
-      fogDensity: rnd_number(), // fog intensity
-      fogGradient: rnd_number(),
-      fogFloor: rnd_number(),
-      unknownDword7: rnd_number(),
-      rain: rnd_number(),
-      temp: rnd_number(), // 0 : snow map , 40+ : spring map
+      fogDensity: fogEnabled? rnd_number():0, // fog intensity
+      fogGradient: fogEnabled? rnd_number():0,
+      fogFloor: fogEnabled? rnd_number():0,
+      unknownDword7: 0,
+      rain: rainEnabled?rnd_number():0,
+      temp: winterEnabled?0:40, // 0 : snow map , 40+ : spring map
       skyColor: rnd_number(),
       cloudWeight0: rnd_number(),
       cloudWeight1: rnd_number(),
