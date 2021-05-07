@@ -385,7 +385,7 @@ export class ZoneServer extends EventEmitter {
       for (let i: any = 0; i < 16; i++) {
         guid += Math.floor(Math.random() * 16).toString(16) as string;
       }
-    } while (!_.indexOf(this._guids, guid));
+    } while (!_.indexOf(this._guids, guid)); // TODO: need to find a more performant way
     this._guids.push(guid);
     return guid;
   }
