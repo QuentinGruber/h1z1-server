@@ -91,7 +91,43 @@
         "online": false
       }
     ],
-    "recipes": [],
+    "recipes": [
+      {
+        "recipeId": 1,
+        "Name": 19,
+        "iconId": 18,
+        "unknownDword4": 4,
+        "description": 20,
+        "unknownDword6": 6,
+        "memberOnly": false,
+        "filterType": 5,
+        "components": [
+          {
+            "unknownDword1": 10,
+            "name": 310,
+            "unknownDword3": 18,
+            "unknownDword4": 4,
+            "unknownDword5": 20,
+            "numberOfItems": "0x0000000000000010",
+            "unknownDword6": 5,
+            "unknownDword7": 8,
+            "unknownDword8": 0
+          },
+          {
+            "unknownDword1": 1,
+            "name": 614,
+            "unknownDword3": 18,
+            "unknownDword4": 4,
+            "unknownDword5": 20,
+            "numberOfItems": "0x0000000000000001",
+            "unknownDword6": 5,
+            "unknownDword7": 8,
+            "unknownDword8": 0
+          }
+        ],
+        "itemDefinitionId": 8
+      }
+    ],
     "mounts": [],
     "unknownCoinStoreData": {
       "unknownBoolean1": 0,
