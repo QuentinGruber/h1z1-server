@@ -147,6 +147,10 @@ const packetHandlers:any = {
   Security: function (server:ZoneServer, client:Client, packet:any) {
     debug(packet);
   },
+  "Command.RecipeStart": function (server:ZoneServer, client:Client, packet:any) {
+    debug(packet);
+    server.sendData(client,"Command.RecipeAction",{})
+  },
   "Command.FreeInteractionNpc": function (server:ZoneServer, client:Client, packet:any) {
     debug("FreeInteractionNpc");
     server.sendData(client, "Command.FreeInteractionNpc", {});
