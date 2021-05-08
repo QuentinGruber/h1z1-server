@@ -128,9 +128,7 @@ const packetHandlers:any = {
       serverTime2: Int64String(server.getServerTime()),
     });
     /* temp workaround */
-    server.sendData(client, "ClientUpdate.ModifyMovementSpeed", {
-      speed: 11.0,
-    });
+;
     server.spawnNpcs(client);
     server.spawnObjects(client);
   },

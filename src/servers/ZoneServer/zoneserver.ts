@@ -481,6 +481,22 @@ export class ZoneServer extends EventEmitter {
       client.character.state.rotation = self.data.rotation;
     }
     self.data.profiles = this._profiles
+    const arrayStat :any[] = []
+    for (let index = 0; index < 81; index++) {
+      arrayStat.push( {
+        "statId": index,
+        "statData": {
+          "statId": index,
+          "statValue": {
+            "type": 1,
+            "value": {
+              "base": 1,
+              "modifier": 0
+          }}
+        }
+      })
+      self.data.stats = arrayStat
+    }
     this.sendData(client, "SendSelfToClient", self);
   }
 
