@@ -75,7 +75,22 @@
       "unknownDword4": 0
     },
     "characterAchievements": [],
-    "acquaintances": [],
+    "acquaintances": [
+      {
+        "guid": "0x0000000000000001",
+        "name": "easter egg 1",
+        "type": 1,
+        "elapsedTime": "0x427794947C610000",
+        "online": true
+      },
+      {
+        "guid": "0x0000000000000002",
+        "name": "easter egg 2",
+        "type": 2,
+        "elapsedTime": "0x427794947C610000",
+        "online": false
+      }
+    ],
     "recipes": [],
     "mounts": [],
     "unknownCoinStoreData": {

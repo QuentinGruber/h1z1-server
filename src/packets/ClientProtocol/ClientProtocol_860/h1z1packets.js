@@ -2283,12 +2283,12 @@ var packets = [
               type: "array",
               defaultValue: [],
               fields: [
-                { name: "unknownGuid1", type: "uint64", defaultValue: 0 },
-                { name: "unknownString1", type: "string", defaultValue: "" },
-                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                { name: "unknownGuid2", type: "uint64", defaultValue: 0 },
+                { name: "guid", type: "uint64", defaultValue: 0 },
+                { name: "name", type: "string", defaultValue: "" },
+                { name: "type", type: "uint32", defaultValue: 0 },
+                { name: "elapsedTime", type: "uint64", defaultValue: 0 },
                 {
-                  name: "unknownBoolean1",
+                  name: "online",
                   type: "boolean",
                   defaultValue: true,
                 },
