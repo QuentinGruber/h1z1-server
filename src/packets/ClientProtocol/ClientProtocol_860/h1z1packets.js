@@ -2129,7 +2129,32 @@ var packets = [
                   name: "items",
                   type: "array",
                   defaultValue: [],
-                  fields: [],
+                  fields: [
+                    { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                    { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+                    { name: "unknownQword1", type: "uint64", defaultValue: 0 },
+                    { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+                    { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+                    /* {
+                      name: "unknownBoolean",
+                      type: "boolean",
+                      defaultValue: 0,
+                    },*/
+                    { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+                    // weird stuff
+                    { name: "unknownQword2", type: "uint64", defaultValue: 0 },
+                    { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+                    { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+                    { name: "unknownDword8", type: "uint32", defaultValue: 0 },
+                    { name: "unknownDword9", type: "uint32", defaultValue: 0 },
+                    { name: "unknownDword10", type: "uint32", defaultValue: 0 },
+                    {
+                      name: "unknownBoolean2",
+                      type: "boolean",
+                      defaultValue: 0,
+                    },
+                    { name: "unknownQword3", type: "uint64", defaultValue: 0 },
+                  ],
                 },
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
               ],
