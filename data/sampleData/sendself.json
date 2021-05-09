@@ -248,6 +248,20 @@
       "unknownDword1": 0
     },
     "skills": [],
+    "EquippedContainers": [
+      {
+        "unknownDword1": 2,
+        "unknownQword1": "0x0000000000000001",
+        "unknownDword2": 3,
+        "unknownQword2": "0x0000000000000002",
+        "unknownDword3": 4,
+        "unknownArray1": [],
+        "unknownBoolean": true,
+        "unknownDword4": 5,
+        "unknownDword5": 6,
+        "unknownDword6": 7
+      }
+    ],
     "unknownBoolean8": true,
     "unknownQword1": "0x0000000000000000",
     "unknownDword37": 0,
