@@ -5416,7 +5416,20 @@ var packets = [
       ],
     },
   ],
-  ["PlayerUpdate.LowAmmoUpdate", 0x0f62, {}],
+  [
+    "PlayerUpdate.LowAmmoUpdate",
+    0x0f62,
+    {
+      fields: [
+        {
+          name: "characterId",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        { name: "status", type: "boolean", defaultValue: 0 },
+      ],
+    },
+  ],
   [
     "PlayerUpdate.KilledBy",
     0x0f63,
