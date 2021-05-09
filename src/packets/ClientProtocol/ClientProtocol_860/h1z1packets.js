@@ -2850,19 +2850,20 @@ var packets = [
                 { name: "unknownDword3", type: "uint32", defaultValue: 0 },
               ],
             },
-
             {
               name: "unknownArray184d5",
               type: "array",
               defaultValue: [],
               fields: [],
             },
-
             {
-              name: "unknownArrayAboutItem",
+              name: "accountItem", // that's a weird type i don't get it & it probably broke the sendself base schema
               type: "array",
-              defaultValue: [],
-              fields: [],
+              fields: [
+                { name: "unknownDword1", type: "uint32", defaultValue: 2 },
+                { name: "unknownDword2", type: "uint32", defaultValue: 3 },
+                { name: "unknownDword3", type: "uint32", defaultValue: 4 },
+              ],
             },
 
             {
