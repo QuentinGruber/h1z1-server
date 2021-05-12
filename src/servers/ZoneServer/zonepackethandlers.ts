@@ -340,11 +340,11 @@ const packetHandlers:any = {
         const { position, rotation } = client.character.state;
         server.sendChatText(
           client,
-          `position: ${position[0]},${position[1]},${position[2]}`
+          `position: ${position[0].toFixed(2)},${position[1].toFixed(2)},${position[2].toFixed(2)}`
         );
         server.sendChatText(
           client,
-          `rotation: ${rotation[0]},${rotation[1]},${rotation[2]}`
+          `rotation: ${rotation[0].toFixed(2)},${rotation[1].toFixed(2)},${rotation[2].toFixed(2)}`
         );
         break;
       case Jenkins.oaat("HAX"):
