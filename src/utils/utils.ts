@@ -1,5 +1,5 @@
 const restore = require("mongodb-restore-dump");
-
+import { v4 as uuidv4 ,  parse as uuidParse  } from 'uuid';
 
 const isBetween = (radius: number, value1: number, value2: number):boolean =>  {
   return value1 <= (value2 + radius) && value1 >= (value2 - radius);
@@ -15,11 +15,12 @@ export const Int64String = function (value: number): string {
 };
 
 export const generateRandomGuid = function (): string {
-  let guid: string;
-  guid = "0x";
-  for (let i: any = 0; i < 16; i++) {
-    guid += Math.floor(Math.random() * 16).toString(16) as string;
-  }
+  let guid: string = "0x"
+    let guidString: string = uuidv4();
+    const bytes = uuidParse(guidString);
+    (new Uint8Array(bytes)).forEach(byte => {
+      guid += byte.toString(16) as string
+    });    
   return guid;
 };
 

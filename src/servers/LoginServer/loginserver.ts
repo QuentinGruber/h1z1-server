@@ -16,7 +16,7 @@ import { SOEServer } from "../SoeServer/soeserver";
 import { LoginProtocol } from "../../protocols/loginprotocol";
 import { toUint8Array } from "js-base64";
 import { MongoClient } from "mongodb";
-import { initMongo } from "../../utils/utils";
+import { generateRandomGuid, initMongo } from "../../utils/utils";
 import { Client, GameServer, SoeServer } from "../../types/loginserver";
 import _ from "lodash";
 
@@ -259,7 +259,7 @@ export class LoginServer extends EventEmitter {
             case "CharacterCreateRequest": {
               const reply_data = {
                 status: 1,
-                characterId: "0x0", //generateCharacterId(), TODO: get guids list from mongo
+                characterId: generateRandomGuid(),
               };
               data = this._protocol.pack("CharacterCreateReply", reply_data);
               this._soeServer.sendAppData(client, data, true);

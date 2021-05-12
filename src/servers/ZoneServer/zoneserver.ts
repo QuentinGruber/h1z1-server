@@ -17,6 +17,7 @@ import { default as packetHandlers } from "./zonepackethandlers";
 import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
 import _ from "lodash";
 import {
+  generateRandomGuid,
   initMongo,
   Int64String,
   isPosInRadius
@@ -24,6 +25,7 @@ import {
 import { Client, Weather } from "../../types/zoneserver";
 import { Db, MongoClient } from "mongodb";
 import { Worker } from 'worker_threads';
+
 
 const localSpawnList = require("../../../data/sampleData/spawnLocations.json");
 
@@ -48,7 +50,6 @@ export class ZoneServer extends EventEmitter {
   _gameTime: any;
   _serverTime: any;
   _transientId: any;
-  _guids: Array<string>;
   _packetHandlers: any;
   _referenceData: any;
   _startTime: number;
@@ -88,7 +89,6 @@ export class ZoneServer extends EventEmitter {
     this._objects = {};
     this._serverTime = this.getCurrentTime();
     this._transientId = 0;
-    this._guids = [];
     this._referenceData = this.parseReferenceData();
     this._packetHandlers = packetHandlers;
     this._startTime = 0;
@@ -380,14 +380,7 @@ export class ZoneServer extends EventEmitter {
   }
 
   generateGuid(): string {
-    let guid: string;
-    do {
-      guid = "0x";
-      for (let i: any = 0; i < 16; i++) {
-        guid += Math.floor(Math.random() * 16).toString(16) as string;
-      }
-    } while (!_.indexOf(this._guids, guid)); // TODO: need to find a more performant way
-    this._guids.push(guid);
+    const guid = generateRandomGuid();
     return guid;
   }
 
@@ -660,8 +653,6 @@ export class ZoneServer extends EventEmitter {
       },
       1
     );
-    const idIndex =_.indexOf(this._guids, characterId)
-    this._guids.splice(idIndex,1)
   }
 
   createObject(
