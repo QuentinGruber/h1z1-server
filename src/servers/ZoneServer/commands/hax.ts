@@ -33,7 +33,7 @@ const hax:any = {
   },
   despawnObjects: function (server:ZoneServer, client:Client, args:any[]) {
     client.spawnedEntities.forEach((object) => {
-      server.removeNpc(object.characterId);
+      server.despawnEntity(object.characterId);
     });
     client.spawnedEntities = [];
     server._objects = {};
