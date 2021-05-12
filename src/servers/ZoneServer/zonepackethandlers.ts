@@ -1083,7 +1083,7 @@ const packetHandlers:any = {
   },
   "PlayerUpdate.FullCharacterDataRequest": function (server:ZoneServer, client:Client, packet:any) {
     // debug(packet);
-    server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {});
+    server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {characterId:client.character.characterId});
   },
 };
 
