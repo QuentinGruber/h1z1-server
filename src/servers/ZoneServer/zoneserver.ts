@@ -686,16 +686,17 @@ export class ZoneServer extends EventEmitter {
     delete dictionnary[characterId];
   }
 
-  createObject(
+  createEntity(
     modelID: number,
     position: Array<number>,
-    rotation: Array<number>
+    rotation: Array<number>,
+    dictionnary: any
   ): void {
     const guid = this.generateGuid();
     const characterId = this.generateGuid();
     rotation[0] = 0;
     rotation[1] = 90;
-    this._objects[characterId] = {
+    dictionnary[characterId] = {
       characterId: characterId,
       guid: guid,
       transientId: 1,
@@ -738,12 +739,13 @@ export class ZoneServer extends EventEmitter {
       }
       if (authorizedModelId.length) {
         spawnerType.instances.forEach((itemInstance: any) => {
-          this.createObject(
+          this.createEntity(
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
             ],
             itemInstance.position,
-            itemInstance.rotation
+            itemInstance.rotation,
+            this._npcs
           );
         });
       }
@@ -906,12 +908,13 @@ export class ZoneServer extends EventEmitter {
       }
       if (authorizedModelId.length) {
         spawnerType.instances.forEach((itemInstance: any) => {
-          this.createObject(
+          this.createEntity(
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
             ],
             itemInstance.position,
-            itemInstance.rotation
+            itemInstance.rotation,
+            this._objects
           );
         });
       }
@@ -926,17 +929,12 @@ export class ZoneServer extends EventEmitter {
         MODEL_FILE_NAME: doorType.actorDefinition.replace("_Placer", ""),
       })?.ID;
       doorType.instances.forEach((doorInstance: any) => {
-        modelId
-          ? this.createObject(
-              modelId,
-              doorInstance.position,
-              doorInstance.rotation
-            )
-          : this.createObject(
-              9183,
-              doorInstance.position,
-              doorInstance.rotation
-            );
+        this.createEntity(
+          modelId ? modelId : 9183,
+          doorInstance.position,
+          doorInstance.rotation,
+          this._objects
+        );
       });
     });
     debug("All doors objects created");
