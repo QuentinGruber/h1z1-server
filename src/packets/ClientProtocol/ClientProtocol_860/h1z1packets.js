@@ -1111,18 +1111,25 @@ const itemDetailSchema = [
 const statDataSchema = [
   { name: "statId", type: "uint32", defaultValue: 0 },
   {
-    name: "statValue",
-    type: "variabletype8",
-    types: {
-      0: [
-        { name: "baseValue", type: "uint32", defaultValue: 0 },
-        { name: "modifierValue", type: "uint32", defaultValue: 0 },
-      ],
-      1: [
-        { name: "baseValue", type: "float", defaultValue: 0.0 },
-        { name: "modifierValue", type: "float", defaultValue: 0.0 },
-      ],
-    },
+    name: "statData",
+    type: "schema",
+    fields: [
+      { name: "statId", type: "uint32", defaultValue: 0 },
+      {
+        name: "statValue",
+        type: "variabletype8",
+        types: {
+          0: [
+            { name: "base", type: "uint32", defaultValue: 0 },
+            { name: "modifier", type: "uint32", defaultValue: 0 },
+          ],
+          1: [
+            { name: "base", type: "float", defaultValue: 0 },
+            { name: "modifier", type: "float", defaultValue: 0 },
+          ],
+        },
+      },
+    ],
   },
 ];
 
@@ -2609,30 +2616,7 @@ var packets = [
               name: "stats",
               type: "array",
               defaultValue: [],
-              fields: [
-                { name: "statId", type: "uint32", defaultValue: 0 },
-                {
-                  name: "statData",
-                  type: "schema",
-                  fields: [
-                    { name: "statId", type: "uint32", defaultValue: 0 },
-                    {
-                      name: "statValue",
-                      type: "variabletype8",
-                      types: {
-                        0: [
-                          { name: "base", type: "uint32", defaultValue: 0 },
-                          { name: "modifier", type: "uint32", defaultValue: 0 },
-                        ],
-                        1: [
-                          { name: "base", type: "float", defaultValue: 0 },
-                          { name: "modifier", type: "float", defaultValue: 0 },
-                        ],
-                      },
-                    },
-                  ],
-                },
-              ],
+              fields: statDataSchema,
             },
             {
               name: "playerTitles",
@@ -5165,7 +5149,23 @@ var packets = [
       ],
     },
   ],
-  ["PlayerUpdate.UpdateStat", 0x0f50, {}],
+  [
+    "PlayerUpdate.UpdateStat",
+    0x0f50,
+    {
+      fields: [
+        { name: "unk", type: "byte", defaultValue: "0" },
+        { name: "unk2", type: "byte", defaultValue: "0" },
+        { name: "characterId", type: "uint64", defaultValue: "0" },
+        {
+          name: "stats",
+          type: "array",
+          defaultValue: [],
+          fields: statDataSchema,
+        },
+      ],
+    },
+  ],
   ["PlayerUpdate.AnimationRequest", 0x0f51, {}],
   ["PlayerUpdate.NonPriorityCharacters", 0x0f53, {}],
   ["PlayerUpdate.PlayWorldCompositeEffect", 0x0f54, {}],
