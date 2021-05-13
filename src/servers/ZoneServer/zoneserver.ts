@@ -38,7 +38,7 @@ const models = require("../../../data/dataSources/Models.json");
 const stats = require("../../../data/sampleData/stats.json");
 
 export class ZoneServer extends EventEmitter {
-  _gatewayServer: any;
+  _gatewayServer: GatewayServer;
   _protocol: any;
   _db: Db | undefined;
   _soloMode: any;
