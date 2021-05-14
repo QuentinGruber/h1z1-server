@@ -1506,26 +1506,26 @@ function packItemData(obj, referenceData) {
 
 const resourceEventDataSubSchema = [
   {
-    name: "resourceData",
+    name: "subResourceData",
     type: "schema",
     fields: [
       { name: "resourceId", type: "uint32", defaultValue: 0 },
       { name: "resourceType", type: "uint32", defaultValue: 0 },
-    ],
-  },
-  {
-    name: "unknownArray1",
-    type: "array",
-    defaultValue: [],
-    fields: [
-      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
       {
-        name: "unknownData1",
-        type: "schema",
+        name: "unknownArray1",
+        type: "array",
+        defaultValue: [],
         fields: [
           { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-          { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
-          { name: "unknownFloat2", type: "float", defaultValue: 0.0 },
+          {
+            name: "unknownData1",
+            type: "schema",
+            fields: [
+              { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+              { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
+              { name: "unknownFloat2", type: "float", defaultValue: 0.0 },
+            ],
+          },
         ],
       },
     ],
@@ -1542,16 +1542,17 @@ const resourceEventDataSubSchema = [
       { name: "unknownDword3", type: "uint32", defaultValue: 0 },
       { name: "unknownDword4", type: "uint32", defaultValue: 0 },
       { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword6", type: "uint32", defaultValue: 0 },
     ],
   },
+  // a loop that read 2 bytes
   { name: "unknownByte1", type: "uint8", defaultValue: 0 },
   { name: "unknownByte2", type: "uint8", defaultValue: 0 },
+  // end of this loop
   { name: "unknownTime1", type: "uint64", defaultValue: "0" },
   { name: "unknownTime2", type: "uint64", defaultValue: "0" },
   { name: "unknownTime3", type: "uint64", defaultValue: "0" },
-  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+  { name: "unknownTime4", type: "uint64", defaultValue: "0" },
 ];
 
 const rewardBundleDataSchema = [

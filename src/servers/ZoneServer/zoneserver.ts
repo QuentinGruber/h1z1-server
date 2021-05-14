@@ -101,7 +101,7 @@ export class ZoneServer extends EventEmitter {
     this._weather = this._weatherTemplates[this._defaultWeatherTemplate];
     this._profiles = [];
     this._npcRenderDistance = 350;
-    this._pingTimeoutTime = 30000;
+    this._pingTimeoutTime = 3000000;
     if (!this._mongoAddress) {
       this._soloMode = true;
       debug("Server in solo mode !");
@@ -477,8 +477,27 @@ export class ZoneServer extends EventEmitter {
       client.character.state.position = self.data.position;
       client.character.state.rotation = self.data.rotation;
     }
+    const characterResources:any[] = [];
+    const ressources = require("../../../data/dataSources/Resources.json")
+    ressources.forEach((ressource : any) => {
+      characterResources.push({
+        resourceType:ressource.RESOURCE_TYPE,
+        resourceData:{
+          subResourceData:{
+          resourceId:ressource.ID,
+          resourceType:ressource.RESOURCE_TYPE,
+          unknownArray1:[],
+          },
+          unknownData2:{
+            max_value:ressource.MAX_VALUE,
+            initial_value:ressource.INITIAL_VALUE,
+          }
+        }
+      })
+    });
     self.data.profiles = this._profiles;
     self.data.stats = stats;
+    self.data.characterResources = characterResources;
     this.sendData(client, "SendSelfToClient", self);
   }
 
