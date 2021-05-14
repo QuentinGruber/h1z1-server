@@ -5649,7 +5649,27 @@ var packets = [
   ["ClientUpdate.UpdateActionBarSlotUsed", 0x111b00, {}],
   ["ClientUpdate.PhaseChange", 0x111c00, {}],
   ["ClientUpdate.UpdateKingdomExperience", 0x111d00, {}],
-  ["ClientUpdate.DamageInfo", 0x111e00, {}],
+  ["ClientUpdate.DamageInfo", 0x111e00, {
+    fields: [
+      { name: "unknownBoolean1",type: "boolean", defaultValue: 0,  },
+      { name: "unknownWord",type: "uint16", defaultValue: 0,  },
+      { name: "unknownDword1",type: "uint32", defaultValue: 0,  },
+      {
+        name: "unknownUint1",
+        type: "custom",
+        parser: readUnsignedIntWith2bitLengthValue,
+        packer: packUnsignedIntWith2bitLengthValue,
+      },
+      { name: "unknownDword2",type: "uint32", defaultValue: 0,  },
+      { name: "unknownDword3",type: "uint32", defaultValue: 0,  },
+      { name: "unknownDword4",type: "uint32", defaultValue: 0,  },
+      { name: "unknownBoolean2",type: "boolean", defaultValue: 0,  },
+      { name: "unknownBoolean3",type: "boolean", defaultValue: 0,  },
+      { name: "unknownDword5",type: "uint32", defaultValue: 0,  },
+      { name: "unknownDword6",type: "uint32", defaultValue: 0,  },
+      ],
+    }
+  ],
   [
     "ClientUpdate.ZonePopulation",
     0x111f00,
