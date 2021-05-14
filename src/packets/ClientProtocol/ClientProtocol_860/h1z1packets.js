@@ -899,6 +899,8 @@ const lightWeightNpcSchema = [
     parser: readUnsignedIntWith2bitLengthValue,
     packer: packUnsignedIntWith2bitLengthValue,
   },
+  { name: "string5", type: "string", defaultValue: "" },
+  { name: "nameId", type: "uint32", defaultValue: 0 },
   { name: "spawnId", type: "uint32", defaultValue: 3 },
   { name: "facilityId", type: "uint32", defaultValue: 1 },
   { name: "unknown9", type: "uint8", defaultValue: 0 },
