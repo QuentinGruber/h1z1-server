@@ -61,9 +61,9 @@
         "statData": {
             "statId": 4,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
-                    "base": 1,
+                    "base": 0.7,
                     "modifier": 0
                 }
             }
@@ -75,9 +75,9 @@
         "statData": {
             "statId": 5,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
-                    "base": 1,
+                    "base": 1.1,
                     "modifier": 1
                 }
             }
@@ -337,13 +337,13 @@
     },
     {
         "statId": 24,
-        "statName": "speedPenaltyForkWard",
+        "statName": "startOfMovementTimeFordWard",
         "statData": {
             "statId": 24,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
-                    "base": 0,
+                    "base": 0.5,
                     "modifier": 0
                 }
             }
@@ -351,13 +351,13 @@
     },
     {
         "statId": 25,
-        "statName": "speedPenaltyBackWard",
+        "statName": "startOfMovementTimeBackWard",
         "statData": {
             "statId": 25,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
-                    "base": 0,
+                    "base": 0.5,
                     "modifier": 0
                 }
             }
@@ -365,13 +365,13 @@
     },
     {
         "statId": 26,
-        "statName": "speedPenaltyLeftRight",
+        "statName": "startOfMovementTimeLeftRight",
         "statData": {
             "statId": 26,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
-                    "base": 0,
+                    "base": 0.5,
                     "modifier": 0
                 }
             }
@@ -383,9 +383,9 @@
         "statData": {
             "statId": 27,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
-                    "base": 0,
+                    "base": 0.2,
                     "modifier": 0
                 }
             }
@@ -399,7 +399,7 @@
             "statValue": {
                 "type": 0,
                 "value": {
-                    "base": 0,
+                    "base": 0.2,
                     "modifier": 0
                 }
             }
@@ -413,7 +413,7 @@
             "statValue": {
                 "type": 0,
                 "value": {
-                    "base": 0,
+                    "base": 0.2,
                     "modifier": 0
                 }
             }
@@ -943,9 +943,9 @@
         "statData": {
             "statId": 67,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
-                    "base": 1,
+                    "base": 0.3,
                     "modifier": 0
                 }
             }
