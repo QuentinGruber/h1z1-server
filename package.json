@@ -18,7 +18,9 @@
     "mongodb-restore-dump": "1.0.1",
     "terser-output": "1.0.2",
     "typescript": "4.2.4",
-    "uuid": "^8.3.2"
+    "uuid": "8.3.2",
+    "@swc/cli": "0.1.40",
+    "@swc/core": "1.2.57"
   },
   "directories": {
     "src": "./src"
@@ -33,6 +35,7 @@
   "scripts": {
     "build-optimized": "npm run build && terser-output ./out",
     "build": "tsc -p ./tsconfig.json",
+    "build-swc": "npx swc src -d out",
     "postinstall": "npm run build-optimized",
     "before_release": "npm run prettier_sources && echo Do not forget to update package version !",
     "publish_release": "git push --tags && git push origin dev && git push origin master",
