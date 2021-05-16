@@ -1,25 +1,32 @@
 const restore = require("mongodb-restore-dump");
+import { v4 as uuidv4, parse as uuidParse } from "uuid";
 
+const isBetween = (radius: number, value1: number, value2: number): boolean => {
+  return value1 <= value2 + radius && value1 >= value2 - radius;
+};
 
-const isBetween = (radius: number, value1: number, value2: number):boolean =>  {
-  return value1 <= (value2 + radius) && value1 >= (value2 - radius);
-}
-
-export const isPosInRadius = (radius:number,player_position:Float32Array,enemi_position:Float32Array):boolean =>{
-  return isBetween(radius, player_position[0], enemi_position[0])
-  && isBetween(radius, player_position[2], enemi_position[2]);
-}
+export const isPosInRadius = (
+  radius: number,
+  player_position: Float32Array,
+  enemi_position: Float32Array
+): boolean => {
+  return (
+    isBetween(radius, player_position[0], enemi_position[0]) &&
+    isBetween(radius, player_position[2], enemi_position[2])
+  );
+};
 
 export const Int64String = function (value: number): string {
   return "0x" + ("0000000000000000" + value.toString(16)).substr(-16);
 };
 
 export const generateRandomGuid = function (): string {
-  let guid: string;
-  guid = "0x";
-  for (let i: any = 0; i < 16; i++) {
-    guid += Math.floor(Math.random() * 16).toString(16) as string;
-  }
+  let guid: string = "0x";
+  let guidString: string = uuidv4();
+  const bytes = uuidParse(guidString);
+  new Uint8Array(bytes).forEach((byte) => {
+    guid += byte.toString(16) as string;
+  });
   return guid;
 };
 

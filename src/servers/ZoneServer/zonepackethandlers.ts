@@ -25,8 +25,8 @@ import { Client } from "types/zoneserver";
 const _ = require("lodash");
 const debug = require("debug")("zonepacketHandlers");
 
-const packetHandlers:any = {
-  ClientIsReady: function (server:ZoneServer, client:Client, packet:any) {
+const packetHandlers: any = {
+  ClientIsReady: function (server: ZoneServer, client: Client, packet: any) {
     /* still disable
         server.sendData(client, "ClientBeginZoning", {
           position: client.character.state.position,
@@ -128,11 +128,14 @@ const packetHandlers:any = {
       serverTime2: Int64String(server.getServerTime()),
     });
     /* temp workaround */
-;
     server.spawnNpcs(client);
     server.spawnObjects(client);
   },
-  ClientFinishedLoading: function (server:ZoneServer, client:Client, packet:any) {
+  ClientFinishedLoading: function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
     server.sendData(client, "POIChangeMessage", {
       messageStringId: 20,
       id: 99,
@@ -144,50 +147,82 @@ const packetHandlers:any = {
       30000
     );
   },
-  Security: function (server:ZoneServer, client:Client, packet:any) {
+  Security: function (server: ZoneServer, client: Client, packet: any) {
     debug(packet);
   },
-  "Command.RecipeStart": function (server:ZoneServer, client:Client, packet:any) {
+  "Command.RecipeStart": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
     debug(packet);
-    server.sendData(client,"Command.RecipeAction",{})
+    server.sendData(client, "Command.RecipeAction", {});
   },
-  "Command.FreeInteractionNpc": function (server:ZoneServer, client:Client, packet:any) {
+  "Command.FreeInteractionNpc": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
     debug("FreeInteractionNpc");
     server.sendData(client, "Command.FreeInteractionNpc", {});
   },
-  "Collision.Damage": function (server:ZoneServer, client:Client, packet:any) {
+  "Collision.Damage": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
     debug("Collision.Damage");
     debug(packet);
   },
-  "LobbyGameDefinition.DefinitionsRequest": function (server:ZoneServer, client:Client, packet:any) {
+  "LobbyGameDefinition.DefinitionsRequest": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
     server.sendData(client, "LobbyGameDefinition.DefinitionsResponse", {
       definitionsData: { data: "" },
     });
   },
-  "PlayerUpdate.EndCharacterAccess": function (server:ZoneServer, client:Client, packet:any) {
+  "PlayerUpdate.EndCharacterAccess": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
     debug("EndCharacterAccess");
   },
-  KeepAlive: function (server:ZoneServer, client:Client, packet:any) {
+  KeepAlive: function (server: ZoneServer, client: Client, packet: any) {
     client.lastPingTime = new Date().getTime();
     server.sendData(client, "KeepAlive", {
       gameTime: packet.data.gameTime,
     });
   },
-  "AdminCommand.RunSpeed": function (server:ZoneServer, client:Client, packet:any) {
+  "AdminCommand.RunSpeed": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
     server.sendData(client, "AdminCommand.RunSpeed", {
       runSpeed: packet.data.runSpeed,
     });
   },
-  ClientLog: function (server:ZoneServer, client:Client, packet:any) {
+  ClientLog: function (server: ZoneServer, client: Client, packet: any) {
     debug(packet);
   },
-  "WallOfData.UIEvent": function (server:ZoneServer, client:Client, packet:any) {
+  "WallOfData.UIEvent": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
     debug("UIEvent");
   },
-  SetLocale: function (server:ZoneServer, client:Client, packet:any) {
+  SetLocale: function (server: ZoneServer, client: Client, packet: any) {
     debug("Do nothing");
   },
-  GetContinentBattleInfo: function (server:ZoneServer, client:Client, packet:any) {
+  GetContinentBattleInfo: function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
     server.sendData(client, "ContinentBattleInfo", {
       zones: [
         {
@@ -205,11 +240,15 @@ const packetHandlers:any = {
       ],
     });
   },
-  "Chat.Chat": function (server:ZoneServer, client:Client, packet:any) {
+  "Chat.Chat": function (server: ZoneServer, client: Client, packet: any) {
     const { channel, message } = packet.data;
     server.sendChat(client, message, channel);
   },
-  "Loadout.SelectSlot": function (server:ZoneServer, client:Client, packet:any) {
+  "Loadout.SelectSlot": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
     /*
     if (client.character.currentLoadout) {
       const loadout = client.character.currentLoadout,
@@ -242,25 +281,29 @@ const packetHandlers:any = {
     }
     */
   },
-  ClientInitializationDetails: function (server:ZoneServer, client:Client, packet:any) {
+  ClientInitializationDetails: function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
     // just in case
     if (packet.data.unknownDword1) {
       debug("ClientInitializationDetails : ", packet.data.unknownDword1);
     }
   },
-  ClientLogout: function (server:ZoneServer, client:Client, packet:any) {
+  ClientLogout: function (server: ZoneServer, client: Client, packet: any) {
     debug("ClientLogout");
     server.saveCharacterPosition(client);
     server._gatewayServer._soeServer.deleteClient(client);
     delete server._clients[client.sessionId];
   },
-  GameTimeSync: function (server:ZoneServer, client:Client, packet:any) {
+  GameTimeSync: function (server: ZoneServer, client: Client, packet: any) {
     // TODO: execute worldRoutine only when like 2/3 of the radius distance has been travelled by the player no matter on X or Z axis
     // this is a temp workaround
     server.worldRoutine(client);
     server.sendGameTimeSync(client);
   },
-  Synchronization: function (server:ZoneServer, client:Client, packet:any) {
+  Synchronization: function (server: ZoneServer, client: Client, packet: any) {
     const serverTime = Int64String(server.getServerTime());
     server.sendData(client, "Synchronization", {
       time1: packet.data.time1,
@@ -271,8 +314,12 @@ const packetHandlers:any = {
       time3: packet.data.clientTime + 2,
     });
   },
-  "Command.ExecuteCommand": async function (server:ZoneServer, client:Client, packet:any) {
-    const args:any[] = packet.data.arguments.split(" ");
+  "Command.ExecuteCommand": async function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
+    const args: any[] = packet.data.arguments.split(" ");
 
     switch (packet.data.commandHash) {
       case 2371122039: // /serverinfo
@@ -308,15 +355,15 @@ const packetHandlers:any = {
         break;
       case Jenkins.oaat("HELP"):
       case 3575372649: // /help
-        const haxCommandList:string[] = [];
+        const haxCommandList: string[] = [];
         Object.keys(hax).forEach((key) => {
           haxCommandList.push(`/hax ${key}`);
         });
-        const devCommandList:string[] = [];
+        const devCommandList: string[] = [];
         Object.keys(dev).forEach((key) => {
           devCommandList.push(`/dev ${key}`);
         });
-        const adminCommandList:string[] = [];
+        const adminCommandList: string[] = [];
         Object.keys(admin).forEach((key) => {
           adminCommandList.push(`/admin ${key}`);
         });
@@ -330,8 +377,8 @@ const packetHandlers:any = {
         ];
         server.sendChatText(client, `Commands list:`);
         _.concat(commandList, haxCommandList, devCommandList, adminCommandList)
-          .sort((a:string, b:string) => a.localeCompare(b))
-          .forEach((command:string) => {
+          .sort((a: string, b: string) => a.localeCompare(b))
+          .forEach((command: string) => {
             server.sendChatText(client, `${command}`);
           });
         break;
@@ -340,11 +387,15 @@ const packetHandlers:any = {
         const { position, rotation } = client.character.state;
         server.sendChatText(
           client,
-          `position: ${position[0]},${position[1]},${position[2]}`
+          `position: ${position[0].toFixed(2)},${position[1].toFixed(
+            2
+          )},${position[2].toFixed(2)}`
         );
         server.sendChatText(
           client,
-          `rotation: ${rotation[0]},${rotation[1]},${rotation[2]}`
+          `rotation: ${rotation[0].toFixed(2)},${rotation[1].toFixed(
+            2
+          )},${rotation[2].toFixed(2)}`
         );
         break;
       case Jenkins.oaat("HAX"):
@@ -366,7 +417,11 @@ const packetHandlers:any = {
         break;
     }
   },
-  "Command.SetProfile": function (server:ZoneServer, client:Client, packet:any) {
+  "Command.SetProfile": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
     server.sendData(client, "Loadout.SetCurrentLoadout", {
       type: 2,
       unknown1: 0,
@@ -375,7 +430,11 @@ const packetHandlers:any = {
       unknown2: 1,
     });
   },
-  "Command.InteractRequest": function (server:ZoneServer, client:Client, packet:any) {
+  "Command.InteractRequest": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
     server.sendData(client, "Command.InteractionString", {
       guid: packet.data.guid,
       stringId: 5463,
@@ -401,14 +460,18 @@ const packetHandlers:any = {
       unknownBoolean3: false,
     });
   },
-  "Command.InteractionSelect": function (server:ZoneServer, client:Client, packet:any) {
+  "Command.InteractionSelect": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
     server.sendData(client, "Loadout.SetLoadouts", {
       type: 2,
       guid: packet.data.guid,
       unknownDword1: 1,
     });
   },
-  "Vehicle.Spawn": function (server:ZoneServer, client:Client, packet:any) {
+  "Vehicle.Spawn": function (server: ZoneServer, client: Client, packet: any) {
     server.sendData(client, "Vehicle.Expiration", {
       expireTime: 300000,
     });
@@ -458,7 +521,11 @@ const packetHandlers:any = {
       tabId: 256,
       unknown2: 1,
     });
-    const position = new Float32Array([client.character.state.position[0], client.character.state.position[1] + 10, client.character.state.position[2]])
+    const position = new Float32Array([
+      client.character.state.position[0],
+      client.character.state.position[1] + 10,
+      client.character.state.position[2],
+    ]);
     const rotation = [-1.570796012878418, 0, 0, 0];
     server.sendData(client, "PlayerUpdate.AddLightweightVehicle", {
       guid: guid,
@@ -514,7 +581,11 @@ const packetHandlers:any = {
       guid: guid,
     });
   },
-  "Vehicle.AutoMount": function (server:ZoneServer, client:Client, packet:any) {
+  "Vehicle.AutoMount": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
     server.sendData(client, "Mount.MountResponse", {
       characterId: client.character.characterId,
       guid: packet.data.guid,
@@ -858,189 +929,209 @@ const packetHandlers:any = {
       },
     });
   },
-  "AdminCommand.SpawnVehicle": function (server:ZoneServer, client:Client, packet:any) {
+  "AdminCommand.SpawnVehicle": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
     const guid = server.generateGuid(),
       transientId = server.getTransientId(client, guid);
 
     server
       .data("vehicles")
-      .findOne({ id: packet.data.vehicleId }, function (err:string, vehicle:any) {
-        if (err || !vehicle) {
-          server.sendChatText(client, "No such vehicle");
-          return;
-        }
-        server
-          .data("npc_vehicle_mappings")
-          .findOne(
-            { vehicle_id: packet.data.vehicleId },
-            function (err:string, npcDefinitionMapping:any) {
-              if (err || !npcDefinitionMapping) {
-                server.sendChatText(client, "Vehicle has no NPC mapping");
-                return;
-              }
-              server
-                .data("npcs")
-                .findOne(
-                  { id: npcDefinitionMapping.npc_definition_id },
-                  function (err:string, npc:any) {
-                    if (err || !npc) {
-                      server.sendChatText(
-                        client,
-                        "NPC definition " +
-                          npcDefinitionMapping.npc_definition_id +
-                          " not found"
-                      );
-                      return;
-                    }
-                    const nameId = vehicle.name_id > 0 ? vehicle.name_id : 0,
-                      modelId = npc.model_id;
-                    const vehicleData = {
-                      npcData: {
-                        guid: guid,
-                        transientId: transientId,
-                        unknownString0: "",
-                        nameId: nameId,
-                        unknownDword2: 0,
-                        unknownDword3: 0,
-                        unknownByte1: 1,
-                        modelId: modelId,
-                        scale: [1, 1, 1, 1],
-                        unknownString1: "",
-                        unknownString2: "",
-                        unknownDword5: 0,
-                        unknownDword6: 0,
-                        position: packet.data.position,
-                        unknownVector1: [
-                          0,
-                          -0.7071066498756409,
-                          0,
-                          0.70710688829422,
-                        ],
-                        rotation: [packet.data.heading, 0, 0, 0],
-                        unknownDword7: 0,
-                        unknownFloat1: 3,
-                        unknownString3: "",
-                        unknownString4: "",
-                        unknownString5: "",
-                        vehicleId: packet.data.vehicleId,
-                        unknownDword9: 0,
-                        npcDefinitionId: npc.id,
-                        unknownByte2: 2,
-                        profileId: npc.profile_id,
-                        unknownBoolean1: false,
-                        unknownData1: {
-                          unknownByte1: 16,
-                          unknownByte2: 9,
-                          unknownByte3: 0,
-                        },
-                        unknownByte6: 0,
-                        unknownDword11: 0,
-                        unknownGuid1: "0x0000000000000000",
-                        unknownData2: {
-                          unknownGuid1: "0x0000000000000000",
-                        },
-                        unknownDword12: 2484,
-                        unknownDword13: 1528,
-                        unknownDword14: 0,
-                        unknownByte7: 0,
-                        unknownArray1: [],
-                      },
-                      unknownGuid1: "0x0000000000000000",
-                      unknownDword1: 0,
-                      unknownDword2: 0,
-                      positionUpdate: server.createPositionUpdate(
-                        packet.data.position,
-                        [packet.data.heading, 0, 0, 0]
-                      ),
-                      unknownString1: "",
-                    };
-                    console.log(JSON.stringify(vehicleData, null, 2));
-
-                    server.sendData(
-                      client,
-                      "PlayerUpdate.AddLightweightVehicle",
-                      vehicleData
-                    );
-                    server.sendData(client, "PlayerUpdate.SetFaction", {
-                      guid: guid,
-                      factionId:
-                        packet.data.factionId || client.character.factionId,
-                    });
-
-                    server.sendData(client, "Vehicle.Owner", {
-                      guid: guid,
-                      characterId: client.character.characterId,
-                      unknownDword1: 305,
-                      vehicleId: packet.data.vehicleId,
-                      passengers: [
-                        {
-                          passengerData: {
-                            characterId: "0x0000000000000000",
-                            characterData: {
-                              unknownDword1: 0,
-                              unknownDword2: 0,
-                              unknownDword3: 0,
-                              characterName: "",
-                              unknownString1: "",
-                            },
-                            unknownDword1: 0,
-                            unknownString1: "",
-                          },
-                          unknownByte1: 0,
-                        },
-                        {
-                          passengerData: {
-                            characterId: "0x0000000000000000",
-                            characterData: {
-                              unknownDword1: 0,
-                              unknownDword2: 0,
-                              unknownDword3: 0,
-                              characterName: "",
-                              unknownString1: "",
-                            },
-                            unknownDword1: 0,
-                            unknownString1: "",
-                          },
+      .findOne(
+        { id: packet.data.vehicleId },
+        function (err: string, vehicle: any) {
+          if (err || !vehicle) {
+            server.sendChatText(client, "No such vehicle");
+            return;
+          }
+          server
+            .data("npc_vehicle_mappings")
+            .findOne(
+              { vehicle_id: packet.data.vehicleId },
+              function (err: string, npcDefinitionMapping: any) {
+                if (err || !npcDefinitionMapping) {
+                  server.sendChatText(client, "Vehicle has no NPC mapping");
+                  return;
+                }
+                server
+                  .data("npcs")
+                  .findOne(
+                    { id: npcDefinitionMapping.npc_definition_id },
+                    function (err: string, npc: any) {
+                      if (err || !npc) {
+                        server.sendChatText(
+                          client,
+                          "NPC definition " +
+                            npcDefinitionMapping.npc_definition_id +
+                            " not found"
+                        );
+                        return;
+                      }
+                      const nameId = vehicle.name_id > 0 ? vehicle.name_id : 0,
+                        modelId = npc.model_id;
+                      const vehicleData = {
+                        npcData: {
+                          guid: guid,
+                          transientId: transientId,
+                          unknownString0: "",
+                          nameId: nameId,
+                          unknownDword2: 0,
+                          unknownDword3: 0,
                           unknownByte1: 1,
+                          modelId: modelId,
+                          scale: [1, 1, 1, 1],
+                          unknownString1: "",
+                          unknownString2: "",
+                          unknownDword5: 0,
+                          unknownDword6: 0,
+                          position: packet.data.position,
+                          unknownVector1: [
+                            0, -0.7071066498756409, 0, 0.70710688829422,
+                          ],
+                          rotation: [packet.data.heading, 0, 0, 0],
+                          unknownDword7: 0,
+                          unknownFloat1: 3,
+                          unknownString3: "",
+                          unknownString4: "",
+                          unknownString5: "",
+                          vehicleId: packet.data.vehicleId,
+                          unknownDword9: 0,
+                          npcDefinitionId: npc.id,
+                          unknownByte2: 2,
+                          profileId: npc.profile_id,
+                          unknownBoolean1: false,
+                          unknownData1: {
+                            unknownByte1: 16,
+                            unknownByte2: 9,
+                            unknownByte3: 0,
+                          },
+                          unknownByte6: 0,
+                          unknownDword11: 0,
+                          unknownGuid1: "0x0000000000000000",
+                          unknownData2: {
+                            unknownGuid1: "0x0000000000000000",
+                          },
+                          unknownDword12: 2484,
+                          unknownDword13: 1528,
+                          unknownDword14: 0,
+                          unknownByte7: 0,
+                          unknownArray1: [],
                         },
-                      ],
-                    });
+                        unknownGuid1: "0x0000000000000000",
+                        unknownDword1: 0,
+                        unknownDword2: 0,
+                        positionUpdate: server.createPositionUpdate(
+                          packet.data.position,
+                          [packet.data.heading, 0, 0, 0]
+                        ),
+                        unknownString1: "",
+                      };
+                      console.log(JSON.stringify(vehicleData, null, 2));
 
-                    server.sendData(client, "Vehicle.SetAutoDrive", {
-                      guid: guid,
-                    });
+                      server.sendData(
+                        client,
+                        "PlayerUpdate.AddLightweightVehicle",
+                        vehicleData
+                      );
+                      server.sendData(client, "PlayerUpdate.SetFaction", {
+                        guid: guid,
+                        factionId:
+                          packet.data.factionId || client.character.factionId,
+                      });
 
-                    server.sendData(client, "PlayerUpdate.ManagedObject", {
-                      guid: guid,
-                      guid2: "0x0000000000000000",
-                      characterId: client.character.characterId,
-                    });
-                  }
-                );
-            }
-          );
-      });
+                      server.sendData(client, "Vehicle.Owner", {
+                        guid: guid,
+                        characterId: client.character.characterId,
+                        unknownDword1: 305,
+                        vehicleId: packet.data.vehicleId,
+                        passengers: [
+                          {
+                            passengerData: {
+                              characterId: "0x0000000000000000",
+                              characterData: {
+                                unknownDword1: 0,
+                                unknownDword2: 0,
+                                unknownDword3: 0,
+                                characterName: "",
+                                unknownString1: "",
+                              },
+                              unknownDword1: 0,
+                              unknownString1: "",
+                            },
+                            unknownByte1: 0,
+                          },
+                          {
+                            passengerData: {
+                              characterId: "0x0000000000000000",
+                              characterData: {
+                                unknownDword1: 0,
+                                unknownDword2: 0,
+                                unknownDword3: 0,
+                                characterName: "",
+                                unknownString1: "",
+                              },
+                              unknownDword1: 0,
+                              unknownString1: "",
+                            },
+                            unknownByte1: 1,
+                          },
+                        ],
+                      });
+
+                      server.sendData(client, "Vehicle.SetAutoDrive", {
+                        guid: guid,
+                      });
+
+                      server.sendData(client, "PlayerUpdate.ManagedObject", {
+                        guid: guid,
+                        guid2: "0x0000000000000000",
+                        characterId: client.character.characterId,
+                      });
+                    }
+                  );
+              }
+            );
+        }
+      );
   },
-  "Command.InteractCancel": function (server:ZoneServer, client:Client, packet:any) {
+  "Command.InteractCancel": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
     debug("Interaction Canceled");
   },
-  "Command.StartLogoutRequest": function (server:ZoneServer, client:Client, packet:any) {
+  "Command.StartLogoutRequest": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
     server.sendData(client, "ClientUpdate.CompleteLogoutProcess", {});
   },
-  CharacterSelectSessionRequest: function (server:ZoneServer, client:Client, packet:any) {
+  CharacterSelectSessionRequest: function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
     server.sendData(client, "CharacterSelectSessionResponse", {
       status: 1,
       sessionId: client.loginSessionId,
     });
   },
-  "ProfileStats.GetPlayerProfileStats": function (server:ZoneServer, client:Client, packet:any) {
+  "ProfileStats.GetPlayerProfileStats": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
     server.sendData(
       client,
       "ProfileStats.PlayerProfileStats",
       require("../../../data/sampleData/profilestats.json")
     );
   },
-  Pickup: function (server:ZoneServer, client:Client, packet:any) {
+  Pickup: function (server: ZoneServer, client: Client, packet: any) {
     debug(packet);
     const { data: packetData } = packet;
     server.sendData(client, "PlayerUpdate.StartHarvest", {
@@ -1052,7 +1143,11 @@ const packetHandlers:any = {
       unknownGuid: Int64String(packetData.id),
     });
   },
-  GetRewardBuffInfo: function (server:ZoneServer, client:Client, packet:any) {
+  GetRewardBuffInfo: function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
     server.sendData(client, "RewardBuffInfo", {
       unknownFloat1: 1,
       unknownFloat2: 2,
@@ -1068,22 +1163,41 @@ const packetHandlers:any = {
       unknownFloat12: 12,
     });
   },
-  PlayerUpdateUpdatePositionClientToZone: function (server:ZoneServer, client:Client, packet:any) {
+  PlayerUpdateUpdatePositionClientToZone: function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
     if (packet.data.position) {
       // TODO: modify array element beside re-creating it
-      client.character.state.position = new Float32Array([packet.data.position[0], packet.data.position[1], packet.data.position[2], 0])
+      client.character.state.position = new Float32Array([
+        packet.data.position[0],
+        packet.data.position[1],
+        packet.data.position[2],
+        0,
+      ]);
     }
   },
-  "PlayerUpdate.Respawn": function (server:ZoneServer, client:Client, packet:any) {
+  "PlayerUpdate.Respawn": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
     debug(packet);
     server.sendData(client, "PlayerUpdate.RespawnReply", {
       characterId: client.character.characterId,
       position: [0, 200, 0, 1],
     });
   },
-  "PlayerUpdate.FullCharacterDataRequest": function (server:ZoneServer, client:Client, packet:any) {
+  "PlayerUpdate.FullCharacterDataRequest": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
     // debug(packet);
-    server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {});
+    server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
+      characterId: client.character.characterId,
+    });
   },
 };
 

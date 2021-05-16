@@ -674,8 +674,11 @@ function parseItemAddData(data, offset, referenceData) {
     outSize = itemData.readUInt16LE(2),
     compData = itemData.slice(4, 4 + inSize),
     decompData = lz4_decompress(compData, inSize, outSize),
-    itemDefinition = DataSchema.parse(baseItemDefinitionSchema, decompData, 0)
-      .result;
+    itemDefinition = DataSchema.parse(
+      baseItemDefinitionSchema,
+      decompData,
+      0
+    ).result;
 
   var itemData = parseItemData(itemData, 4 + inSize, referenceData).value;
   return {
@@ -901,8 +904,8 @@ const lightWeightNpcSchema = [
   },
   { name: "string5", type: "string", defaultValue: "" },
   { name: "nameId", type: "uint32", defaultValue: 0 },
-  { name: "unknown7", type: "uint32", defaultValue: 0 },
-  { name: "unknown8", type: "uint32", defaultValue: 0 },
+  { name: "spawnId", type: "uint32", defaultValue: 3 },
+  { name: "facilityId", type: "uint32", defaultValue: 1 },
   { name: "unknown9", type: "uint8", defaultValue: 0 },
   { name: "modelId", type: "uint32", defaultValue: 9001 },
   { name: "scale", type: "floatvector4", defaultValue: [1, 1, 1, 1] },
@@ -1111,18 +1114,25 @@ const itemDetailSchema = [
 const statDataSchema = [
   { name: "statId", type: "uint32", defaultValue: 0 },
   {
-    name: "statValue",
-    type: "variabletype8",
-    types: {
-      0: [
-        { name: "baseValue", type: "uint32", defaultValue: 0 },
-        { name: "modifierValue", type: "uint32", defaultValue: 0 },
-      ],
-      1: [
-        { name: "baseValue", type: "float", defaultValue: 0.0 },
-        { name: "modifierValue", type: "float", defaultValue: 0.0 },
-      ],
-    },
+    name: "statData",
+    type: "schema",
+    fields: [
+      { name: "statId", type: "uint32", defaultValue: 0 },
+      {
+        name: "statValue",
+        type: "variabletype8",
+        types: {
+          0: [
+            { name: "base", type: "uint32", defaultValue: 0 },
+            { name: "modifier", type: "uint32", defaultValue: 0 },
+          ],
+          1: [
+            { name: "base", type: "float", defaultValue: 0 },
+            { name: "modifier", type: "float", defaultValue: 0 },
+          ],
+        },
+      },
+    ],
   },
 ];
 
@@ -1861,15 +1871,15 @@ const fullNpcDataSchema = [
       { name: "unknownDword23", type: "uint32", defaultValue: 0 },
     ],
   },
-  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-  { name: "unknownString1", type: "string", defaultValue: "" },
-  { name: "unknownString2", type: "string", defaultValue: "" },
-  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-  { name: "unknownString3", type: "string", defaultValue: "" },
-  { name: "unknownVector4", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
   { name: "unknownDword9", type: "uint32", defaultValue: 0 },
+  { name: "unknownString3", type: "string", defaultValue: "" },
+  { name: "unknownString4", type: "string", defaultValue: "" },
   { name: "unknownDword10", type: "uint32", defaultValue: 0 },
+  { name: "unknownString5", type: "string", defaultValue: "" },
+  { name: "unknownVector3", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
   { name: "unknownDword11", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword12", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword13", type: "uint32", defaultValue: 0 },
   { name: "characterId", type: "uint64", defaultValue: "0" },
   { name: "unknownFloat3", type: "float", defaultValue: 0.0 },
   // { name: "targetData", type: "schema", fields: targetDataSchema }, removed
@@ -1883,33 +1893,38 @@ const fullNpcDataSchema = [
       { name: "unknownDword2", type: "uint32", defaultValue: 0 },
     ],
   },
-  { name: "unknownDword12", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword14", type: "uint32", defaultValue: 0 },
   { name: "unknownFloat4", type: "float", defaultValue: 0.0 },
   { name: "unknownVector5", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
-  { name: "unknownDword13", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword15", type: "uint32", defaultValue: 0 },
   { name: "unknownFloat5", type: "float", defaultValue: 0.0 },
   { name: "unknownFloat6", type: "float", defaultValue: 0.0 },
-  { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
+  { name: "unknownFloat7", type: "float", defaultValue: 0.0 },
 
-  { name: "unknownDword14", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword15", type: "uint32", defaultValue: 0 },
   { name: "unknownDword16", type: "uint32", defaultValue: 0 },
   { name: "unknownDword17", type: "uint32", defaultValue: 0 },
   { name: "unknownDword18", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword19", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword21", type: "uint32", defaultValue: 0 },
   { name: "unknownByte1", type: "uint8", defaultValue: 0 },
   { name: "unknownByte2", type: "uint8", defaultValue: 0 },
-  { name: "unknownDword19", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword20", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword21", type: "uint32", defaultValue: 0 },
-
-  { name: "unknownGuid1", type: "uint64", defaultValue: "0" },
-  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-  { name: "unknownGuid2", type: "uint64", defaultValue: "0" },
-
-  // missing stuff from 0x1401dfee7
-
   { name: "unknownDword22", type: "uint32", defaultValue: 0 },
   { name: "unknownDword23", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword24", type: "uint32", defaultValue: 0 },
+
+  { name: "unknownGuid1", type: "uint64", defaultValue: "0" },
+  { name: "unknownDword25", type: "uint32", defaultValue: 0 },
+  { name: "unknownGuid2", type: "uint64", defaultValue: "0" },
+
+  { name: "unknownDword26", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword27", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword28", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword29", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword30", type: "uint32", defaultValue: 0 },
+
+  { name: "unknownDword31", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword32", type: "uint32", defaultValue: 0 },
+  { name: "unk", type: "uint8", defaultValue: 0 },
 ];
 
 const respawnLocationDataSchema = [
@@ -2604,30 +2619,7 @@ var packets = [
               name: "stats",
               type: "array",
               defaultValue: [],
-              fields: [
-                { name: "statId", type: "uint32", defaultValue: 0 },
-                {
-                  name: "statData",
-                  type: "schema",
-                  fields: [
-                    { name: "statId", type: "uint32", defaultValue: 0 },
-                    {
-                      name: "statValue",
-                      type: "variabletype8",
-                      types: {
-                        0: [
-                          { name: "base", type: "uint32", defaultValue: 0 },
-                          { name: "modifier", type: "uint32", defaultValue: 0 },
-                        ],
-                        1: [
-                          { name: "base", type: "float", defaultValue: 0 },
-                          { name: "modifier", type: "float", defaultValue: 0 },
-                        ],
-                      },
-                    },
-                  ],
-                },
-              ],
+              fields: statDataSchema,
             },
             {
               name: "playerTitles",
@@ -5177,7 +5169,23 @@ var packets = [
       ],
     },
   ],
-  ["PlayerUpdate.UpdateStat", 0x0f50, {}],
+  [
+    "PlayerUpdate.UpdateStat",
+    0x0f50,
+    {
+      fields: [
+        { name: "unk", type: "byte", defaultValue: "0" },
+        { name: "unk2", type: "byte", defaultValue: "0" },
+        { name: "characterId", type: "uint64", defaultValue: "0" },
+        {
+          name: "stats",
+          type: "array",
+          defaultValue: [],
+          fields: statDataSchema,
+        },
+      ],
+    },
+  ],
   ["PlayerUpdate.AnimationRequest", 0x0f51, {}],
   ["PlayerUpdate.NonPriorityCharacters", 0x0f53, {}],
   ["PlayerUpdate.PlayWorldCompositeEffect", 0x0f54, {}],
@@ -5661,7 +5669,30 @@ var packets = [
   ["ClientUpdate.UpdateActionBarSlotUsed", 0x111b00, {}],
   ["ClientUpdate.PhaseChange", 0x111c00, {}],
   ["ClientUpdate.UpdateKingdomExperience", 0x111d00, {}],
-  ["ClientUpdate.DamageInfo", 0x111e00, {}],
+  [
+    "ClientUpdate.DamageInfo",
+    0x111e00,
+    {
+      fields: [
+        { name: "unknownBoolean1", type: "boolean", defaultValue: 0 },
+        { name: "unknownWord", type: "uint16", defaultValue: 0 },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        {
+          name: "unknownUint1",
+          type: "custom",
+          parser: readUnsignedIntWith2bitLengthValue,
+          packer: packUnsignedIntWith2bitLengthValue,
+        },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+        { name: "unknownBoolean2", type: "boolean", defaultValue: 0 },
+        { name: "unknownBoolean3", type: "boolean", defaultValue: 0 },
+        { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
   [
     "ClientUpdate.ZonePopulation",
     0x111f00,
