@@ -17,13 +17,14 @@ import { default as packetHandlers } from "./zonepackethandlers";
 import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
 import _ from "lodash";
 import {
+  generateRandomGuid,
   initMongo,
   Int64String,
-  isPosInRadius
+  isPosInRadius,
 } from "../../utils/utils";
 import { Client, Weather } from "../../types/zoneserver";
 import { Db, MongoClient } from "mongodb";
-import { Worker } from 'worker_threads';
+import { Worker } from "worker_threads";
 
 const localSpawnList = require("../../../data/sampleData/spawnLocations.json");
 
@@ -32,10 +33,12 @@ const debug = require("debug")(debugName);
 const localWeatherTemplates = require("../../../data/sampleData/weather.json");
 const Z1_items = require("../../../data/zoneData/Z1_items.json");
 const Z1_doors = require("../../../data/zoneData/Z1_doors.json");
+const Z1_npcs = require("../../../data/zoneData/Z1_npcs.json");
 const models = require("../../../data/dataSources/Models.json");
+const stats = require("../../../data/sampleData/stats.json");
 
 export class ZoneServer extends EventEmitter {
-  _gatewayServer: any;
+  _gatewayServer: GatewayServer;
   _protocol: any;
   _db: Db | undefined;
   _soloMode: any;
@@ -46,7 +49,6 @@ export class ZoneServer extends EventEmitter {
   _gameTime: any;
   _serverTime: any;
   _transientId: any;
-  _guids: Array<string>;
   _packetHandlers: any;
   _referenceData: any;
   _startTime: number;
@@ -86,7 +88,6 @@ export class ZoneServer extends EventEmitter {
     this._objects = {};
     this._serverTime = this.getCurrentTime();
     this._transientId = 0;
-    this._guids = [];
     this._referenceData = this.parseReferenceData();
     this._packetHandlers = packetHandlers;
     this._startTime = 0;
@@ -99,7 +100,7 @@ export class ZoneServer extends EventEmitter {
     this._defaultWeatherTemplate = "H1emuBaseWeather";
     this._weather = this._weatherTemplates[this._defaultWeatherTemplate];
     this._profiles = [];
-    this._npcRenderDistance = 100;
+    this._npcRenderDistance = 350;
     this._pingTimeoutTime = 30000;
     if (!this._mongoAddress) {
       this._soloMode = true;
@@ -257,11 +258,18 @@ export class ZoneServer extends EventEmitter {
             ?.collection("worlds")
             .findOne({ worldId: this._worldId })
         ) {
-          const worker = new Worker(__dirname+"/../../utils/workers/saveWorld.js", {
-            workerData: {mongoAddress:this._mongoAddress,worldId:this._worldId,worldSave:JSON.stringify(save)}
-          });
-          worker.on('message', debug);
-          worker.on('error', debug);
+          const worker = new Worker(
+            __dirname + "/../../utils/workers/saveWorld.js",
+            {
+              workerData: {
+                mongoAddress: this._mongoAddress,
+                worldId: this._worldId,
+                worldSave: JSON.stringify(save),
+              },
+            }
+          );
+          worker.on("message", debug);
+          worker.on("error", debug);
         } else {
           this.createAllObjects();
           await this._db?.collection("worlds").insertOne(save);
@@ -378,14 +386,7 @@ export class ZoneServer extends EventEmitter {
   }
 
   generateGuid(): string {
-    let guid: string;
-    do {
-      guid = "0x";
-      for (let i: any = 0; i < 16; i++) {
-        guid += Math.floor(Math.random() * 16).toString(16) as string;
-      }
-    } while (!_.indexOf(this._guids, guid));
-    this._guids.push(guid);
+    const guid = generateRandomGuid();
     return guid;
   }
 
@@ -428,10 +429,7 @@ export class ZoneServer extends EventEmitter {
       require.resolve("../../../data/sampleData/sendself.json") // reload json
     ];
     const self = require("../../../data/sampleData/sendself.json"); // dummy self
-    if (
-      String(client.character.characterId) ===
-      "0x0000000000000001"
-    ) {
+    if (String(client.character.characterId) === "0x0000000000000001") {
       // for fun 🤠
       self.data.characterId = "0x0000000000000001";
       self.data.identity.characterFirstName = "Cowboy :)";
@@ -442,9 +440,6 @@ export class ZoneServer extends EventEmitter {
       data: { identity },
     } = self;
     client.character.guid = self.data.guid;
-    client.character.loadouts = self.data.characterLoadoutData.loadouts;
-    client.character.inventory = self.data.inventory;
-    client.character.factionId = self.data.factionId;
     client.character.name =
       identity.characterFirstName + identity.characterLastName;
     const characterDataMongo = await this._db
@@ -465,15 +460,12 @@ export class ZoneServer extends EventEmitter {
       const randomSpawnIndex = Math.floor(
         Math.random() * this._spawnLocations.length
       );
-      self.data.position = client.character.state.position = this._spawnLocations[
-        randomSpawnIndex
-      ].position;
-      self.data.rotation = client.character.state.rotation = this._spawnLocations[
-        randomSpawnIndex
-      ].rotation;
-      client.character.spawnLocation = this._spawnLocations[
-        randomSpawnIndex
-      ].name;
+      self.data.position = client.character.state.position =
+        this._spawnLocations[randomSpawnIndex].position;
+      self.data.rotation = client.character.state.rotation =
+        this._spawnLocations[randomSpawnIndex].rotation;
+      client.character.spawnLocation =
+        this._spawnLocations[randomSpawnIndex].name;
     } else {
       if (!this._soloMode) {
         self.data.position = characterDataMongo.position;
@@ -482,7 +474,8 @@ export class ZoneServer extends EventEmitter {
       client.character.state.position = self.data.position;
       client.character.state.rotation = self.data.rotation;
     }
-    self.data.profiles = this._profiles
+    self.data.profiles = this._profiles;
+    self.data.stats = stats;
     this.sendData(client, "SendSelfToClient", self);
   }
 
@@ -592,67 +585,84 @@ export class ZoneServer extends EventEmitter {
 
   spawnNpcs(client: Client): void {
     for (const npc in this._npcs) {
-      if(
-        isPosInRadius(this._npcRenderDistance,client.character.state.position,this._npcs[npc].position)
-        && !client.spawnedEntities.includes(this._npcs[npc])
-        ){
-      setImmediate(() => {
-        this.sendData(
-          client,
-          "PlayerUpdate.AddLightweightNpc",
-          this._npcs[npc],
-          1
-        );
-        client.spawnedEntities.push(this._npcs[npc])
-      });
-    }
+      if (
+        isPosInRadius(
+          this._npcRenderDistance,
+          client.character.state.position,
+          this._npcs[npc].position
+        ) &&
+        !client.spawnedEntities.includes(this._npcs[npc])
+      ) {
+        setImmediate(() => {
+          this.sendData(
+            client,
+            "PlayerUpdate.AddLightweightNpc",
+            this._npcs[npc],
+            1
+          );
+          client.spawnedEntities.push(this._npcs[npc]);
+        });
+      }
     }
   }
-  worldRoutine(client:Client):void{
-    this.spawnObjects(client)
-    this.spawnNpcs(client)
-    this.removeOutOfDistanceEntities(client)
+  worldRoutine(client: Client): void {
+    this.spawnObjects(client);
+    this.spawnNpcs(client);
+    this.removeOutOfDistanceEntities(client);
   }
 
-  filterOutOfDistance(element:any,playerPosition:Float32Array):boolean{
-    return !isPosInRadius(this._npcRenderDistance,playerPosition,element.position)
+  filterOutOfDistance(element: any, playerPosition: Float32Array): boolean {
+    return !isPosInRadius(
+      this._npcRenderDistance,
+      playerPosition,
+      element.position
+    );
   }
-  removeOutOfDistanceEntities(client:Client):void{
-    setImmediate(()=>{
-    const objectsToRemove = client.spawnedEntities.filter((e)=>this.filterOutOfDistance(e,client.character.state.position))
-    client.spawnedEntities = client.spawnedEntities.filter( ( el )=>{
-      return !objectsToRemove.includes( el );
-    } );
-    objectsToRemove.forEach((object:any) => {
-        this.sendData(client,"PlayerUpdate.RemovePlayer",
-        {
-          characterId: object.characterId,
-        },
-        1)
-      })
+  removeOutOfDistanceEntities(client: Client): void {
+    setImmediate(() => {
+      const objectsToRemove = client.spawnedEntities.filter((e) =>
+        this.filterOutOfDistance(e, client.character.state.position)
+      );
+      client.spawnedEntities = client.spawnedEntities.filter((el) => {
+        return !objectsToRemove.includes(el);
+      });
+      objectsToRemove.forEach((object: any) => {
+        this.sendData(
+          client,
+          "PlayerUpdate.RemovePlayer",
+          {
+            characterId: object.characterId,
+          },
+          1
+        );
+      });
     });
   }
 
   spawnObjects(client: Client): void {
     for (const object in this._objects) {
-      if(
-        isPosInRadius(this._npcRenderDistance,client.character.state.position,this._objects[object].position)
-        && !client.spawnedEntities.includes(this._objects[object])
-      ){
-      setImmediate(() => {
-        this.sendData(
-          client,
-          "PlayerUpdate.AddLightweightNpc",
-          this._objects[object],
-          1
-        );
-        client.spawnedEntities.push(this._objects[object])
-      });
-    }
+      if (
+        isPosInRadius(
+          this._npcRenderDistance,
+          client.character.state.position,
+          this._objects[object].position
+        ) &&
+        !client.spawnedEntities.includes(this._objects[object])
+      ) {
+        setImmediate(() => {
+          this.sendData(
+            client,
+            "PlayerUpdate.AddLightweightNpc",
+            this._objects[object],
+            1
+          );
+          client.spawnedEntities.push(this._objects[object]);
+        });
+      }
     }
   }
 
-  removeNpc(characterId: string) {
+  despawnEntity(characterId: string) {
     this.sendDataToAll(
       "PlayerUpdate.RemovePlayer",
       {
@@ -660,25 +670,38 @@ export class ZoneServer extends EventEmitter {
       },
       1
     );
-    const idIndex =_.indexOf(this._guids, characterId)
-    this._guids.splice(idIndex,1)
   }
 
-  createObject(
+  deleteEntity(characterId: string, dictionnary: any) {
+    this.sendDataToAll(
+      "PlayerUpdate.RemovePlayer",
+      {
+        characterId: characterId,
+      },
+      1
+    );
+    delete dictionnary[characterId];
+  }
+
+  createEntity(
     modelID: number,
     position: Array<number>,
-    rotation: Array<number>
+    rotation: Array<number>,
+    dictionnary: any
   ): void {
     const guid = this.generateGuid();
     const characterId = this.generateGuid();
-    rotation[0] += 250;
-    this._objects[characterId] = {
+    rotation[0] = 0;
+    rotation[1] = 90;
+    dictionnary[characterId] = {
       characterId: characterId,
       guid: guid,
       transientId: 1,
       modelId: modelID,
       position: position,
       rotation: rotation,
+      attachedObject: {},
+      color: {},
       array5: [{ unknown1: 0 }],
       array17: [{ unknown1: 0 }],
       array18: [{ unknown1: 0 }],
@@ -688,159 +711,207 @@ export class ZoneServer extends EventEmitter {
   createAllObjects(): void {
     this.createAllDoors();
     this.createAllItems();
+    this.createSomeNpcs();
     debug("All objects created");
+  }
+
+  createSomeNpcs() {
+    // This is only for giving the world some life
+    Z1_npcs.forEach((spawnerType: any) => {
+      const authorizedModelId: number[] = [];
+      switch (spawnerType.actorDefinition) {
+        case "NPCSpawner_ZombieLazy.adr":
+          authorizedModelId.push(9001);
+          authorizedModelId.push(9193);
+          break;
+        case "NPCSpawner_ZombieWalker.adr":
+          authorizedModelId.push(9001);
+          authorizedModelId.push(9193);
+          break;
+        case "NPCSpawner_Deer001.adr":
+          authorizedModelId.push(9002);
+          break;
+        default:
+          break;
+      }
+      if (authorizedModelId.length) {
+        spawnerType.instances.forEach((itemInstance: any) => {
+          this.createEntity(
+            authorizedModelId[
+              Math.floor(Math.random() * authorizedModelId.length)
+            ],
+            itemInstance.position,
+            itemInstance.rotation,
+            this._npcs
+          );
+        });
+      }
+    });
+    debug("All npcs objects created");
   }
 
   createAllItems() {
     Z1_items.forEach((spawnerType: any) => {
-      let modelId: number;
+      const authorizedModelId: number[] = [];
       switch (spawnerType.actorDefinition) {
-        case "ItemSpawnerResidential_Tier00.adr":
-          modelId = 0;
-          break;
         case "ItemSpawner_BattleRoyale_AmmoBox02_12GaShotgun.adr":
-          modelId = 0;
           break;
         case "ItemSpawner_BattleRoyale_Gear01.adr":
-          modelId = 0;
           break;
         case "ItemSpawner_BattleRoyale_Weapons01.adr":
-          modelId = 0;
           break;
         case "ItemSpawner_BattleRoyale_Ammo01.adr":
-          modelId = 0;
           break;
         case "ItemSpawner_BattleRoyale_Backpack01.adr":
-          modelId = 0;
           break;
         case "ItemSpawner_BattleRoyale_AmmoBox02_1911.adr":
-          modelId = 0;
-          break;
-        case "ItemSpawnerRare_Tier00.adr":
-          modelId = 0;
-          break;
-        case "ItemSpawnerIndustrial_Tier00.adr":
-          modelId = 0;
-          break;
-        case "ItemSpawnerWorld_Tier00.adr":
-          modelId = 0;
           break;
         case "ItemSpawner_BattleRoyale_FirstAidKit01.adr":
-          modelId = 0;
-          break;
-        case "ItemSpawner_Log01.adr":
-          modelId = 0;
-          break;
-        case "ItemSpawnerCommercial_Tier00.adr":
-          modelId = 0;
-          break;
-        case "ItemSpawnerFarm.adr":
-          modelId = 0;
-          break;
-        case "ItemSpawner_Weapon_M16A4.adr":
-          modelId = 23;
-          break;
-        case "ItemSpawner_AmmoBox02_M16A4.adr":
-          modelId = 10;
-          break;
-        case "ItemSpawner_AmmoBox02.adr":
-          modelId = 10;
-          break;
-        case "ItemSpawner_Weapon_PumpShotgun01.adr":
-          modelId = 9286;
-          break;
-        case "ItemSpawner_AmmoBox02_12GaShotgun.adr":
-          modelId = 10;
-          break;
-        case "ItemSpawner_Weapon_Crowbar01.adr":
-          modelId = 18;
-          break;
-        case "ItemSpawner_Weapon_CombatKnife01.adr":
-          modelId = 21;
-          break;
-        case "ItemSpawner_Weapon_45Auto.adr":
-          modelId = 17;
-          break;
-        case "ItemSpawner_AmmoBox02_1911.adr":
-          modelId = 10;
-          break;
-        case "ItemSpawner_Weapon_Machete01.adr":
-          modelId = 24;
           break;
         case "ItemSpawner_BattleRoyale_AmmoBox02_M16A4.adr":
-          modelId = 0;
           break;
         case "ItemSpawner_BattleRoyale_AmmoBox02_308Rifle.adr":
-          modelId = 0;
+          break;
+        case "ItemSpawnerResidential_Tier00.adr":
+          authorizedModelId.push(16);
+          authorizedModelId.push(58);
+          authorizedModelId.push(66);
+          authorizedModelId.push(67);
+          authorizedModelId.push(68);
+          authorizedModelId.push(8020);
+          break;
+        case "ItemSpawnerRare_Tier00.adr":
+          authorizedModelId.push(9003);
+          break;
+        case "ItemSpawnerIndustrial_Tier00.adr":
+          authorizedModelId.push(70);
+          authorizedModelId.push(71);
+          authorizedModelId.push(72);
+          authorizedModelId.push(73);
+          break;
+        case "ItemSpawnerWorld_Tier00.adr":
+          authorizedModelId.push(16);
+          authorizedModelId.push(58);
+          authorizedModelId.push(66);
+          authorizedModelId.push(67);
+          authorizedModelId.push(68);
+          authorizedModelId.push(8020);
+          break;
+        case "ItemSpawner_Log01.adr":
+          authorizedModelId.push(9043);
+          break;
+        case "ItemSpawnerCommercial_Tier00.adr":
+          authorizedModelId.push(16);
+          authorizedModelId.push(58);
+          authorizedModelId.push(66);
+          authorizedModelId.push(67);
+          authorizedModelId.push(68);
+          authorizedModelId.push(8020);
+          break;
+        case "ItemSpawnerFarm.adr":
+          authorizedModelId.push(15);
+          authorizedModelId.push(9065);
+          break;
+        case "ItemSpawner_Weapon_M16A4.adr":
+          authorizedModelId.push(23);
+          break;
+        case "ItemSpawner_AmmoBox02_M16A4.adr":
+          authorizedModelId.push(10);
+          break;
+        case "ItemSpawner_AmmoBox02.adr":
+          authorizedModelId.push(10);
+          break;
+        case "ItemSpawner_Weapon_PumpShotgun01.adr":
+          authorizedModelId.push(9286);
+          break;
+        case "ItemSpawner_AmmoBox02_12GaShotgun.adr":
+          authorizedModelId.push(10);
+          break;
+        case "ItemSpawner_Weapon_Crowbar01.adr":
+          authorizedModelId.push(18);
+          break;
+        case "ItemSpawner_Weapon_CombatKnife01.adr":
+          authorizedModelId.push(21);
+          break;
+        case "ItemSpawner_Weapon_45Auto.adr":
+          authorizedModelId.push(17);
+          break;
+        case "ItemSpawner_AmmoBox02_1911.adr":
+          authorizedModelId.push(10);
+          break;
+        case "ItemSpawner_Weapon_Machete01.adr":
+          authorizedModelId.push(24);
           break;
         case "ItemSpawner_Weapon_Bat01.adr":
-          modelId = 42;
+          authorizedModelId.push(42);
           break;
         case "ItemSpawner_BackpackOnGround001.adr":
-          modelId = 9093;
+          authorizedModelId.push(9093);
           break;
         case "ItemSpawner_FirstAidKit.adr":
-          modelId = 9221;
+          authorizedModelId.push(9221);
           break;
         case "ItemSpawner_Weapon_M24.adr":
-          modelId = 9204;
+          authorizedModelId.push(9204);
           break;
         case "ItemSpawner_GasCan01.adr":
-          modelId = 9135;
+          authorizedModelId.push(9135);
           break;
         case "ItemSpawner_Weapon_Guitar01.adr":
-          modelId = 9318;
+          authorizedModelId.push(9318);
           break;
         case "ItemSpawner_Weapon_WoodAxe01.adr":
-          modelId = 27;
+          authorizedModelId.push(27);
           break;
         case "ItemSpawner_AmmoBox02_308Rifle.adr":
-          modelId = 10;
+          authorizedModelId.push(10);
           break;
         case "ItemSpawner_Weapon_FireAxe01.adr":
-          modelId = 9325;
+          authorizedModelId.push(9325);
           break;
         case "ItemSpawner_Weapon_ClawHammer01.adr":
-          modelId = 9252;
+          authorizedModelId.push(9252);
           break;
         case "ItemSpawner_Weapon_Hatchet01.adr":
-          modelId = 22;
+          authorizedModelId.push(22);
           break;
         case "ItemSpawner_Weapon_Pipe01.adr":
-          modelId = 9209;
+          authorizedModelId.push(9209);
           break;
         case "ItemSpawner_CannedFood.adr":
-          modelId = Math.random() * 100 > 50 ? 7 : 8020;
+          authorizedModelId.push(7);
+          authorizedModelId.push(8020);
           break;
         case "ItemSpawner_WaterContainer_Small_Purified.adr":
-          modelId = 9159;
+          authorizedModelId.push(9159);
           break;
         case "ItemSpawner_Clothes_MotorcycleHelmet.adr":
-          modelId = 68;
+          authorizedModelId.push(68);
           break;
         case "ItemSpawner_Clothes_BaseballCap.adr":
-          modelId = 66;
+          authorizedModelId.push(66);
           break;
         case "ItemSpawner_Clothes_FoldedShirt.adr":
-          modelId = 9249;
+          authorizedModelId.push(9249);
           break;
         case "ItemSpawner_Weapon_Bat02.adr":
-          modelId = 9313;
+          authorizedModelId.push(9313);
           break;
         case "ItemSpawner_Clothes_Beanie.adr":
-          modelId = 67;
+          authorizedModelId.push(67);
           break;
-
         default:
-          modelId = 0;
           break;
       }
-      if (modelId) {
+      if (authorizedModelId.length) {
         spawnerType.instances.forEach((itemInstance: any) => {
-          this.createObject(
-            modelId,
+          this.createEntity(
+            authorizedModelId[
+              Math.floor(Math.random() * authorizedModelId.length)
+            ],
             itemInstance.position,
-            itemInstance.rotation
+            itemInstance.rotation,
+            this._objects
           );
         });
       }
@@ -855,17 +926,12 @@ export class ZoneServer extends EventEmitter {
         MODEL_FILE_NAME: doorType.actorDefinition.replace("_Placer", ""),
       })?.ID;
       doorType.instances.forEach((doorInstance: any) => {
-        modelId
-          ? this.createObject(
-              modelId,
-              doorInstance.position,
-              doorInstance.rotation
-            )
-          : this.createObject(
-              9183,
-              doorInstance.position,
-              doorInstance.rotation
-            );
+        this.createEntity(
+          modelId ? modelId : 9183,
+          doorInstance.position,
+          doorInstance.rotation,
+          this._objects
+        );
       });
     });
     debug("All doors objects created");
@@ -1110,7 +1176,7 @@ export class ZoneServer extends EventEmitter {
     return client.transientIds[guid];
   }
 
-  createPositionUpdate(position: Array<number>, rotation: Array<number>): any {
+  createPositionUpdate(position: Float32Array, rotation: Array<number>): any {
     const obj = {
       flags: 4095,
       unknown2_int32: this.getGameTime(),
