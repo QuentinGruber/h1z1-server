@@ -120,8 +120,8 @@ export class SOEServer extends EventEmitter {
         );
 
         const checkClientOutQueue = () => {
-            const data = client.outQueue.shift();
-            if (data) {
+          const data = client.outQueue.shift();
+          if (data) {
             this._connection.send(
               data,
               0,

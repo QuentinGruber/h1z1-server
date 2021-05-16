@@ -679,8 +679,8 @@ const packetHandlers = {
                                     {
                                       statData: [
                                         {
-                                          guid:
-                                            weaponItem.baseItem.unknownGuid1,
+                                          guid: weaponItem.baseItem
+                                            .unknownGuid1,
                                           unknownBoolean1: false,
                                           statUpdates: [
                                             {
@@ -723,8 +723,8 @@ const packetHandlers = {
                                     {
                                       statData: [
                                         {
-                                          guid:
-                                            weaponItem.baseItem.unknownGuid1,
+                                          guid: weaponItem.baseItem
+                                            .unknownGuid1,
                                           unknownBoolean1: false,
                                           statUpdates: [
                                             {
@@ -767,8 +767,8 @@ const packetHandlers = {
                                     {
                                       statData: [
                                         {
-                                          guid:
-                                            weaponItem.baseItem.unknownGuid1,
+                                          guid: weaponItem.baseItem
+                                            .unknownGuid1,
                                           unknownBoolean1: false,
                                           statUpdates: [
                                             {
@@ -811,8 +811,8 @@ const packetHandlers = {
                                     {
                                       statData: [
                                         {
-                                          guid:
-                                            weaponItem.baseItem.unknownGuid1,
+                                          guid: weaponItem.baseItem
+                                            .unknownGuid1,
                                           unknownBoolean1: false,
                                           statUpdates: [
                                             {
@@ -855,8 +855,8 @@ const packetHandlers = {
                                     {
                                       statData: [
                                         {
-                                          guid:
-                                            weaponItem.baseItem.unknownGuid1,
+                                          guid: weaponItem.baseItem
+                                            .unknownGuid1,
                                           unknownBoolean1: false,
                                           statUpdates: [
                                             {
@@ -899,8 +899,8 @@ const packetHandlers = {
                                     {
                                       statData: [
                                         {
-                                          guid:
-                                            weaponItem.baseItem.unknownGuid1,
+                                          guid: weaponItem.baseItem
+                                            .unknownGuid1,
                                           unknownBoolean1: false,
                                           statUpdates: [
                                             {
@@ -943,8 +943,8 @@ const packetHandlers = {
                                     {
                                       statData: [
                                         {
-                                          guid:
-                                            weaponItem.baseItem.unknownGuid1,
+                                          guid: weaponItem.baseItem
+                                            .unknownGuid1,
                                           unknownBoolean1: false,
                                           statUpdates: [
                                             {
@@ -987,8 +987,8 @@ const packetHandlers = {
                                     {
                                       statData: [
                                         {
-                                          guid:
-                                            weaponItem.baseItem.unknownGuid1,
+                                          guid: weaponItem.baseItem
+                                            .unknownGuid1,
                                           unknownBoolean1: false,
                                           statUpdates: [
                                             {
@@ -1031,8 +1031,8 @@ const packetHandlers = {
                                     {
                                       statData: [
                                         {
-                                          guid:
-                                            weaponItem.baseItem.unknownGuid1,
+                                          guid: weaponItem.baseItem
+                                            .unknownGuid1,
                                           unknownBoolean1: false,
                                           statUpdates: [
                                             {
@@ -1075,8 +1075,8 @@ const packetHandlers = {
                                     {
                                       statData: [
                                         {
-                                          guid:
-                                            weaponItem.baseItem.unknownGuid1,
+                                          guid: weaponItem.baseItem
+                                            .unknownGuid1,
                                           unknownBoolean1: false,
                                           statUpdates: [
                                             {
@@ -1161,8 +1161,8 @@ const packetHandlers = {
                                     {
                                       statData: [
                                         {
-                                          guid:
-                                            weaponItem.baseItem.unknownGuid1,
+                                          guid: weaponItem.baseItem
+                                            .unknownGuid1,
                                           unknownBoolean1: false,
                                           statUpdates: [
                                             {
@@ -1206,8 +1206,8 @@ const packetHandlers = {
                                     {
                                       statData: [
                                         {
-                                          guid:
-                                            weaponItem.baseItem.unknownGuid1,
+                                          guid: weaponItem.baseItem
+                                            .unknownGuid1,
                                           unknownBoolean1: false,
                                           statUpdates: [
                                             {
@@ -1250,8 +1250,8 @@ const packetHandlers = {
                                     {
                                       statData: [
                                         {
-                                          guid:
-                                            weaponItem.baseItem.unknownGuid1,
+                                          guid: weaponItem.baseItem
+                                            .unknownGuid1,
                                           unknownBoolean1: false,
                                           statUpdates: [
                                             {
@@ -1294,8 +1294,8 @@ const packetHandlers = {
                                     {
                                       statData: [
                                         {
-                                          guid:
-                                            weaponItem.baseItem.unknownGuid1,
+                                          guid: weaponItem.baseItem
+                                            .unknownGuid1,
                                           unknownBoolean1: false,
                                           statUpdates: [
                                             {
@@ -2341,10 +2341,7 @@ const packetHandlers = {
                         unknownDword6: 0,
                         position: packet.data.position,
                         unknownVector1: [
-                          0,
-                          -0.7071066498756409,
-                          0,
-                          0.70710688829422,
+                          0, -0.7071066498756409, 0, 0.70710688829422,
                         ],
                         rotation: [packet.data.heading, 0, 0, 0],
                         unknownDword7: 0,

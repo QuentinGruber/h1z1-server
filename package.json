@@ -1,12 +1,12 @@
 {
   "name": "h1z1-server",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "Library for emulating h1z1 servers",
   "author": "Quentin Gruber <quentingruber@gmail.com> (http://github.com/quentingruber)",
   "license": "GPL-3.0-only",
   "main": "h1z1-server.js",
   "dependencies": {
-    "@types/lodash": "4.14.168",
+    "@types/lodash": "4.14.169",
     "@types/mongodb": "3.6.12",
     "@types/node": "15.0.1",
     "debug": "4.3.1",
