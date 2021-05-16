@@ -3484,7 +3484,7 @@ var packets = [
             },
             {
               name: "EquippedContainers",
-              type: "array",
+              type: "array8",
               defaultValue: [],
               fields: [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
