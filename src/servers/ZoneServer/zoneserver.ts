@@ -460,15 +460,12 @@ export class ZoneServer extends EventEmitter {
       const randomSpawnIndex = Math.floor(
         Math.random() * this._spawnLocations.length
       );
-      self.data.position = client.character.state.position = this._spawnLocations[
-        randomSpawnIndex
-      ].position;
-      self.data.rotation = client.character.state.rotation = this._spawnLocations[
-        randomSpawnIndex
-      ].rotation;
-      client.character.spawnLocation = this._spawnLocations[
-        randomSpawnIndex
-      ].name;
+      self.data.position = client.character.state.position =
+        this._spawnLocations[randomSpawnIndex].position;
+      self.data.rotation = client.character.state.rotation =
+        this._spawnLocations[randomSpawnIndex].rotation;
+      client.character.spawnLocation =
+        this._spawnLocations[randomSpawnIndex].name;
     } else {
       if (!this._soloMode) {
         self.data.position = characterDataMongo.position;
@@ -801,7 +798,7 @@ export class ZoneServer extends EventEmitter {
           authorizedModelId.push(8020);
           break;
         case "ItemSpawner_Log01.adr":
-          authorizedModelId.push(9043); 
+          authorizedModelId.push(9043);
           break;
         case "ItemSpawnerCommercial_Tier00.adr":
           authorizedModelId.push(16);
