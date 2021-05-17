@@ -36,6 +36,7 @@ const hax: any = {
       server.despawnEntity(object.characterId);
     });
     client.spawnedEntities = [];
+    server._npcs = {};
     server._objects = {};
     server.sendChatText(client, "Objects removed from the game.", true);
   },
