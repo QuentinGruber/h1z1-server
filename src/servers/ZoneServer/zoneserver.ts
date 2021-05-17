@@ -110,7 +110,7 @@ export class ZoneServer extends EventEmitter {
       if (err) {
         console.error(err);
       } else {
-        if (packet.name != "KeepAlive") {
+        if (packet.name != "KeepAlive" && packet.name != "PlayerUpdateUpdatePositionClientToZone") {
           debug(`Receive Data ${[packet.name]}`);
         }
         if (this._packetHandlers[packet.name]) {
