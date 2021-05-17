@@ -337,9 +337,9 @@ export class H1Z1Protocol {
       packet,
       result;
 
-    if (flags) {
+    /*if (flags) {
       debug("Flags = " + flags);
-    }
+    }*/
 
     if (flags == 2) {
       try {
@@ -410,7 +410,9 @@ export class H1Z1Protocol {
             break;
         }
       } else if (packet.fn) {
-        debug(packet.name);
+        if (packet.name != "PlayerUpdateUpdatePositionClientToZone") {
+          debug(packet.name);
+        }
         result = packet.fn(data, offset).result;
       } else {
         debug("No schema for packet " + packet.name);
