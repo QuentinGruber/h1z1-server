@@ -36,6 +36,7 @@ const hax: any = {
       server.despawnEntity(object.characterId);
     });
     client.spawnedEntities = [];
+    server._npcs = {};
     server._objects = {};
     server.sendChatText(client, "Objects removed from the game.", true);
   },
@@ -142,7 +143,7 @@ const hax: any = {
     server.sendChatText(client, "Delete player, back in observer mode");
   },
   changeStat: function (server: ZoneServer, client: Client, args: any[]) {
-    const stats = require("../../../../data/sampleData/stats.json")
+    const stats = require("../../../../data/sampleData/stats.json");
     server.sendData(client, "PlayerUpdate.UpdateStat", {
       characterId: client.character.characterId,
       stats: stats,
@@ -212,9 +213,8 @@ const hax: any = {
       if (currentWeather) {
         currentWeather.templateName = args[1];
         if (server._soloMode) {
-          server._weatherTemplates[
-            currentWeather.templateName as string
-          ] = currentWeather;
+          server._weatherTemplates[currentWeather.templateName as string] =
+            currentWeather;
           fs.writeFileSync(
             `${__dirname}/../../../../data/sampleData/weather.json`,
             JSON.stringify(server._weatherTemplates)

@@ -545,8 +545,12 @@ ZoneProtocol.prototype.parse = function (
   if (packet) {
     if (packet.schema) {
       debug(packet.name);
-      result = DataSchema.parse(packet.schema, data, offset, referenceData)
-        .result;
+      result = DataSchema.parse(
+        packet.schema,
+        data,
+        offset,
+        referenceData
+      ).result;
 
       switch (packet.name) {
         case "FacilityBase.ReferenceData":
