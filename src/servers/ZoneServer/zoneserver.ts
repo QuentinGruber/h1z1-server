@@ -836,7 +836,9 @@ export class ZoneServer extends EventEmitter {
           break;
         case "ItemSpawnerFarm.adr":
           authorizedModelId.push(15);
-          authorizedModelId.push(9065);
+          authorizedModelId.push(27);
+          authorizedModelId.push(9163);
+          authorizedModelId.push(9314);          
           break;
         case "ItemSpawner_Weapon_M16A4.adr":
           authorizedModelId.push(23);
