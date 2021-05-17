@@ -4824,14 +4824,14 @@ var packets = [
     0x0c09,
     {
       fields: [
-        /*{ name: "unknown1", type: "byte", defaultValue: 0 },
-        { name: "unknown2", type: "uint16", defaultValue: 0 },*/
+        { name: "unknown1", type: "byte", defaultValue: true },
+        { name: "unknown2", type: "uint16", defaultValue: 1 },
         {
           name: "characterId",
           type: "uint64",
           defaultValue: "0x0000000000000000",
         },
-        { name: "unknown6", type: "boolean", defaultValue: 0 },
+        { name: "unknown6", type: "boolean", defaultValue: true },
       ],
     },
   ],
@@ -4840,8 +4840,8 @@ var packets = [
     0x0c0a,
     {
       fields: [
-        /*{ name: "unknown1", type: "byte", defaultValue: 0 },
-        { name: "unknown2", type: "uint16", defaultValue: 0 },*/
+        { name: "unknown1", type: "byte", defaultValue: true },
+        { name: "unknown2", type: "uint16", defaultValue: 1 },
         {
           name: "characterId",
           type: "uint64",
@@ -4860,8 +4860,8 @@ var packets = [
     0x0c0b,
     {
       fields: [
-        /*{ name: "unknown1", type: "byte", defaultValue: 0 },
-        { name: "unknown2", type: "uint16", defaultValue: 0 },*/
+        { name: "unknown1", type: "byte", defaultValue: true },
+        { name: "unknown2", type: "uint16", defaultValue: 1 },
         {
           name: "characterId",
           type: "uint64",
