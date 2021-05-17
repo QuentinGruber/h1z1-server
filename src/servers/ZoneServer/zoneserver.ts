@@ -31,6 +31,7 @@ const localSpawnList = require("../../../data/sampleData/spawnLocations.json");
 const debugName = "ZoneServer";
 const debug = require("debug")(debugName);
 const localWeatherTemplates = require("../../../data/sampleData/weather.json");
+const Z1_vehicles = require("../../../data/sampleData/vehiculeLocations.json")
 const Z1_items = require("../../../data/zoneData/Z1_items.json");
 const Z1_doors = require("../../../data/zoneData/Z1_doors.json");
 const Z1_npcs = require("../../../data/zoneData/Z1_npcs.json");
@@ -711,8 +712,29 @@ export class ZoneServer extends EventEmitter {
   createAllObjects(): void {
     this.createAllDoors();
     this.createAllItems();
+    this.createAllVehicles();
     this.createSomeNpcs();
     debug("All objects created");
+  }
+
+  getRandomVehicleId(){
+    switch (Math.floor(Math.random() * 3)) {
+      case 0:
+      return 7225
+      case 1:
+      return 9301 
+      case 2:
+      return 9258
+      default:
+      return 9258
+    }
+  }
+
+  createAllVehicles() {
+    Z1_vehicles.forEach((vehicle: any) => {
+      this.createEntity(this.getRandomVehicleId(),vehicle.position,vehicle.rotation,this._npcs)
+    });
+    debug("All vehicles created");
   }
 
   createSomeNpcs() {
