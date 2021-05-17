@@ -803,7 +803,11 @@ export class ZoneServer extends EventEmitter {
           authorizedModelId.push(8020);
           break;
         case "ItemSpawnerRare_Tier00.adr":
-          authorizedModelId.push(9003);
+          authorizedModelId.push(10);
+          authorizedModelId.push(17);
+          authorizedModelId.push(9204);
+          authorizedModelId.push(9286);
+          authorizedModelId.push(23);
           break;
         case "ItemSpawnerIndustrial_Tier00.adr":
           authorizedModelId.push(70);
