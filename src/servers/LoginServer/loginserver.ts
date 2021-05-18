@@ -330,9 +330,9 @@ export class LoginServer extends EventEmitter {
       } else {
         throw debug("Unable to authenticate on mongo !");
       }
-      throw new Error("that's an error");
       
     }
+    throw new Error("that's an error");
 
     (this._soeServer as SoeServer).start(
       this._compression,
