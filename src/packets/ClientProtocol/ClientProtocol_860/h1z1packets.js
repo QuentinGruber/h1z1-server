@@ -5776,7 +5776,18 @@ var packets = [
   ["ClientUpdate.CollectionRemove", 0x110700, {}],
   ["ClientUpdate.CollectionAddEntry", 0x110800, {}],
   ["ClientUpdate.CollectionRemoveEntry", 0x110900, {}],
-  ["ClientUpdate.UpdateLocation", 0x110a00, {}],
+  [
+    "ClientUpdate.UpdateLocation",
+    0x110a00,
+    {
+      fields: [
+        { name: "position", type: "floatvector4", defaultValue: [0, 50, 0, 1] },
+        { name: "rotation", type: "floatvector4", defaultValue: [0, 0, 0, 1] },
+        { name: "unknownBool1", type: "boolean", defaultValue: true },
+        { name: "unknownBool2", type: "boolean", defaultValue: true },
+      ],
+    },
+  ],
   ["ClientUpdate.Mana", 0x110b00, {}],
   ["ClientUpdate.UpdateProfileExperience", 0x110c00, {}],
   ["ClientUpdate.AddProfileAbilitySetApl", 0x110d00, {}],
