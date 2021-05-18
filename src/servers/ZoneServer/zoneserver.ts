@@ -37,6 +37,7 @@ const Z1_doors = require("../../../data/zoneData/Z1_doors.json");
 const Z1_npcs = require("../../../data/zoneData/Z1_npcs.json");
 const models = require("../../../data/dataSources/Models.json");
 const stats = require("../../../data/sampleData/stats.json");
+const recipes = require("../../../data/sampleData/recipes.json")
 
 export class ZoneServer extends EventEmitter {
   _gatewayServer: GatewayServer;
@@ -477,6 +478,7 @@ export class ZoneServer extends EventEmitter {
     }
     self.data.profiles = this._profiles;
     self.data.stats = stats;
+    self.data.recipes = recipes;
     this.sendData(client, "SendSelfToClient", self);
   }
 
