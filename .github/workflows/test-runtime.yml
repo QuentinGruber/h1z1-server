@@ -7,7 +7,7 @@ on:
     branches: [ master, dev ]
 
 jobs:
-  build-linux:
+  test-linux:
 
     runs-on: ubuntu-latest
 
@@ -24,7 +24,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - run: npm ci
     - run: npm test
-  build-win:
+  test-win:
 
     runs-on: windows-latest
 
