@@ -31,14 +31,14 @@ const localSpawnList = require("../../../data/sampleData/spawnLocations.json");
 const debugName = "ZoneServer";
 const debug = require("debug")(debugName);
 const localWeatherTemplates = require("../../../data/sampleData/weather.json");
-const Z1_vehicles = require("../../../data/sampleData/vehiculeLocations.json")
+const Z1_vehicles = require("../../../data/sampleData/vehiculeLocations.json");
 const Z1_items = require("../../../data/zoneData/Z1_items.json");
 const Z1_doors = require("../../../data/zoneData/Z1_doors.json");
 const Z1_npcs = require("../../../data/zoneData/Z1_npcs.json");
 const models = require("../../../data/dataSources/Models.json");
 const stats = require("../../../data/sampleData/stats.json");
-const recipes = require("../../../data/sampleData/recipes.json")
-const ressources = require("../../../data/dataSources/Resources.json")
+const recipes = require("../../../data/sampleData/recipes.json");
+const ressources = require("../../../data/dataSources/Resources.json");
 
 export class ZoneServer extends EventEmitter {
   _gatewayServer: GatewayServer;
@@ -113,7 +113,10 @@ export class ZoneServer extends EventEmitter {
       if (err) {
         console.error(err);
       } else {
-        if (packet.name != "KeepAlive" && packet.name != "PlayerUpdateUpdatePositionClientToZone") {
+        if (
+          packet.name != "KeepAlive" &&
+          packet.name != "PlayerUpdateUpdatePositionClientToZone"
+        ) {
           debug(`Receive Data ${[packet.name]}`);
         }
         if (this._packetHandlers[packet.name]) {
@@ -150,11 +153,11 @@ export class ZoneServer extends EventEmitter {
       ) => {
         debug(
           "Client logged in from " +
-          client.address +
-          ":" +
-          client.port +
-          " with character id " +
-          characterId
+            client.address +
+            ":" +
+            client.port +
+            " with character id " +
+            characterId
         );
 
         this._clients[client.sessionId] = client;
@@ -219,8 +222,8 @@ export class ZoneServer extends EventEmitter {
     this._weather = this._soloMode
       ? this._weatherTemplates[this._defaultWeatherTemplate]
       : _.find(this._weatherTemplates, (template) => {
-        return template.templateName === this._defaultWeatherTemplate;
-      });
+          return template.templateName === this._defaultWeatherTemplate;
+        });
     this._profiles = this.generateProfiles();
     if (
       await this._db?.collection("worlds").findOne({ worldId: this._worldId })
@@ -374,10 +377,10 @@ export class ZoneServer extends EventEmitter {
       clearInterval(client.pingTimer);
       debug(
         "Client disconnected from " +
-        client.address +
-        ":" +
-        client.port +
-        " ( ping timeout )"
+          client.address +
+          ":" +
+          client.port +
+          " ( ping timeout )"
       );
       if (client.character?.characterId) {
         delete this._characters[client.character.characterId];
@@ -395,9 +398,9 @@ export class ZoneServer extends EventEmitter {
 
   parseReferenceData(): any {
     const itemData = fs.readFileSync(
-      `${__dirname}/../../../data/dataSources/ClientItemDefinitions.txt`,
-      "utf8"
-    ),
+        `${__dirname}/../../../data/dataSources/ClientItemDefinitions.txt`,
+        "utf8"
+      ),
       itemLines = itemData.split("\n"),
       items = {};
     for (let i = 1; i < itemLines.length; i++) {
@@ -490,9 +493,9 @@ export class ZoneServer extends EventEmitter {
           unknownData2: {
             max_value: ressource.MAX_VALUE,
             initial_value: ressource.INITIAL_VALUE,
-          }
-        }
-      })
+          },
+        },
+      });
     });
     self.data.profiles = this._profiles;
     self.data.stats = stats;
@@ -741,19 +744,24 @@ export class ZoneServer extends EventEmitter {
   getRandomVehicleId() {
     switch (Math.floor(Math.random() * 3)) {
       case 0:
-        return 7225
+        return 7225;
       case 1:
-        return 9301
+        return 9301;
       case 2:
-        return 9258
+        return 9258;
       default:
-        return 9258
+        return 9258;
     }
   }
 
   createAllVehicles() {
     Z1_vehicles.forEach((vehicle: any) => {
-      this.createEntity(this.getRandomVehicleId(), vehicle.position, vehicle.rotation, this._npcs)
+      this.createEntity(
+        this.getRandomVehicleId(),
+        vehicle.position,
+        vehicle.rotation,
+        this._npcs
+      );
     });
     debug("All vehicles created");
   }
@@ -781,7 +789,7 @@ export class ZoneServer extends EventEmitter {
         spawnerType.instances.forEach((itemInstance: any) => {
           this.createEntity(
             authorizedModelId[
-            Math.floor(Math.random() * authorizedModelId.length)
+              Math.floor(Math.random() * authorizedModelId.length)
             ],
             itemInstance.position,
             itemInstance.rotation,
@@ -956,7 +964,7 @@ export class ZoneServer extends EventEmitter {
         spawnerType.instances.forEach((itemInstance: any) => {
           this.createEntity(
             authorizedModelId[
-            Math.floor(Math.random() * authorizedModelId.length)
+              Math.floor(Math.random() * authorizedModelId.length)
             ],
             itemInstance.position,
             itemInstance.rotation,

@@ -7457,17 +7457,21 @@ var packets = [
   ["Facility.NotificationFacilitySpawnBeginCapture", 0x840c, {}],
   ["Facility.NotificationFacilitySpawnFinishCapture", 0x840d, {}],
   ["Facility.NotificationLeavingFacilityDuringContention", 0x840e, {}],
-  ["Facility.ProximitySpawnCaptureUpdate", 0x840f, {
-    fields: [
-      { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-      { name: "unknownBoolean2", type: "boolean", defaultValue: false },
-      { name: "unknown1", type: "uint16", defaultValue: 0 },
-      { name: "unknownBoolean3", type: "boolean", defaultValue: false },
-      { name: "unknownBoolean4", type: "boolean", defaultValue: false },
-      { name: "unknownBoolean5", type: "boolean", defaultValue: false },
-      { name: "unknownBoolean6", type: "boolean", defaultValue: false },
-    ],
-  }],
+  [
+    "Facility.ProximitySpawnCaptureUpdate",
+    0x840f,
+    {
+      fields: [
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+        { name: "unknownBoolean2", type: "boolean", defaultValue: false },
+        { name: "unknown1", type: "uint16", defaultValue: 0 },
+        { name: "unknownBoolean3", type: "boolean", defaultValue: false },
+        { name: "unknownBoolean4", type: "boolean", defaultValue: false },
+        { name: "unknownBoolean5", type: "boolean", defaultValue: false },
+        { name: "unknownBoolean6", type: "boolean", defaultValue: false },
+      ],
+    },
+  ],
   ["Facility.ClearProximitySpawn", 0x8410, {}],
   ["Facility.GridStabilizeTimerUpdated", 0x8411, {}],
   [
