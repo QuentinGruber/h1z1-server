@@ -1509,26 +1509,26 @@ function packItemData(obj, referenceData) {
 
 const resourceEventDataSubSchema = [
   {
-    name: "resourceData",
+    name: "subResourceData",
     type: "schema",
     fields: [
       { name: "resourceId", type: "uint32", defaultValue: 0 },
       { name: "resourceType", type: "uint32", defaultValue: 0 },
-    ],
-  },
-  {
-    name: "unknownArray1",
-    type: "array",
-    defaultValue: [],
-    fields: [
-      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
       {
-        name: "unknownData1",
-        type: "schema",
+        name: "unknownArray1",
+        type: "array",
+        defaultValue: [],
         fields: [
           { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-          { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
-          { name: "unknownFloat2", type: "float", defaultValue: 0.0 },
+          {
+            name: "unknownData1",
+            type: "schema",
+            fields: [
+              { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+              { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
+              { name: "unknownFloat2", type: "float", defaultValue: 0.0 },
+            ],
+          },
         ],
       },
     ],
@@ -1545,16 +1545,17 @@ const resourceEventDataSubSchema = [
       { name: "unknownDword3", type: "uint32", defaultValue: 0 },
       { name: "unknownDword4", type: "uint32", defaultValue: 0 },
       { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword6", type: "uint32", defaultValue: 0 },
     ],
   },
+  // a loop that read 2 bytes
   { name: "unknownByte1", type: "uint8", defaultValue: 0 },
   { name: "unknownByte2", type: "uint8", defaultValue: 0 },
+  // end of this loop
   { name: "unknownTime1", type: "uint64", defaultValue: "0" },
   { name: "unknownTime2", type: "uint64", defaultValue: "0" },
   { name: "unknownTime3", type: "uint64", defaultValue: "0" },
-  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+  { name: "unknownTime4", type: "uint64", defaultValue: "0" },
 ];
 
 const rewardBundleDataSchema = [
@@ -3484,9 +3485,26 @@ var packets = [
             },
             {
               name: "EquippedContainers",
-              type: "array",
+              type: "array8",
               defaultValue: [],
-              fields: [],
+              fields: [
+                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+
+                { name: "unknownQword1", type: "uint64", defaultValue: 0 },
+                { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+                { name: "unknownQword2", type: "uint64", defaultValue: 0 },
+                { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+                {
+                  name: "unknownArray1",
+                  type: "array",
+                  defaultValue: [],
+                  fields: [],
+                },
+                { name: "unknownBoolean", type: "boolean", defaultValue: true },
+                { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+                { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+                { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+              ],
             },
             { name: "unknownBoolean8", type: "boolean", defaultValue: true },
             { name: "unknownQword1", type: "uint64", defaultValue: 0 },
@@ -4708,13 +4726,178 @@ var packets = [
   ["Combat.AutoAttackTarget", 0x0c01, {}],
   ["Combat.AutoAttackOff", 0x0c02, {}],
   ["Combat.SingleAttackTarget", 0x0c03, {}],
-  ["Combat.AttackTargetDamage", 0x0c04, {}],
-  ["Combat.AttackAttackerMissed", 0x0c05, {}],
-  ["Combat.AttackTargetDodged", 0x0c06, {}],
-  ["Combat.AttackProcessed", 0x0c07, {}],
-  ["Combat.EnableBossDisplay", 0x0c09, {}],
-  ["Combat.AttackTargetBlocked", 0x0c0a, {}],
-  ["Combat.AttackTargetParried", 0x0c0b, {}],
+  [
+    "Combat.AttackTargetDamage",
+    0x0c04,
+    {
+      fields: [
+        { name: "unknown1", type: "boolean", defaultValue: true },
+        { name: "unknown2", type: "uint16", defaultValue: 1 },
+        {
+          name: "characterId",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        {
+          name: "targetId",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        { name: "unknown5", type: "uint32", defaultValue: 100 },
+        { name: "unknown6", type: "boolean", defaultValue: true },
+      ],
+    },
+  ],
+  [
+    "Combat.AttackAttackerMissed",
+    0x0c05,
+    {
+      fields: [
+        { name: "unknown1", type: "boolean", defaultValue: true },
+        { name: "unknown2", type: "uint16", defaultValue: 1 },
+        {
+          name: "characterId",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        {
+          name: "targetId",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+      ],
+    },
+  ],
+  [
+    "Combat.AttackTargetDodged",
+    0x0c06,
+    {
+      fields: [
+        { name: "unknown1", type: "boolean", defaultValue: true },
+        { name: "unknown2", type: "uint16", defaultValue: 1 },
+        {
+          name: "characterId",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        {
+          name: "targetId",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+      ],
+    },
+  ],
+  [
+    "Combat.AttackProcessed",
+    0x0c07,
+    {
+      fields: [
+        { name: "unknown1", type: "boolean", defaultValue: true },
+        { name: "unknown2", type: "uint16", defaultValue: 1 },
+        {
+          name: "unknown3",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        {
+          name: "unknown4",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        {
+          name: "unknown5",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        { name: "unknown6", type: "uint32", defaultValue: 0 },
+        { name: "unknown7", type: "uint32", defaultValue: 0 },
+        { name: "unknown8", type: "uint32", defaultValue: 0 },
+        { name: "unknown9", type: "boolean", defaultValue: 0 },
+        { name: "unknown10", type: "boolean", defaultValue: 0 },
+        { name: "unknown11", type: "uint32", defaultValue: 0 },
+        { name: "unknown12", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
+  [
+    "Combat.EnableBossDisplay",
+    0x0c09,
+    {
+      fields: [
+        { name: "unknown1", type: "byte", defaultValue: true },
+        { name: "unknown2", type: "uint16", defaultValue: 1 },
+        {
+          name: "characterId",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        { name: "unknown6", type: "boolean", defaultValue: true },
+      ],
+    },
+  ],
+  [
+    "Combat.AttackTargetBlocked",
+    0x0c0a,
+    {
+      fields: [
+        { name: "unknown1", type: "byte", defaultValue: true },
+        { name: "unknown2", type: "uint16", defaultValue: 1 },
+        {
+          name: "characterId",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        {
+          name: "targetId",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+      ],
+    },
+  ],
+  [
+    "Combat.AttackTargetParried",
+    0x0c0b,
+    {
+      fields: [
+        { name: "unknown1", type: "byte", defaultValue: true },
+        { name: "unknown2", type: "uint16", defaultValue: 1 },
+        {
+          name: "characterId",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        {
+          name: "targetId",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+      ],
+    },
+  ],
+  [
+    "Combat.UpdateGrappling",
+    0x0c0b,
+    {
+      fields: [
+        { name: "unknown1", type: "boolean", defaultValue: true },
+        { name: "unknown2", type: "uint16", defaultValue: 1 },
+        {
+          name: "unknown3",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        { name: "unknown4", type: "uint32", defaultValue: 0 },
+        {
+          name: "unknown5",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        { name: "unknown6", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
   ["Mail", 0x0e, {}],
   ["PlayerUpdate.None", 0x0f00, {}],
   [
@@ -5594,7 +5777,18 @@ var packets = [
   ["ClientUpdate.CollectionRemove", 0x110700, {}],
   ["ClientUpdate.CollectionAddEntry", 0x110800, {}],
   ["ClientUpdate.CollectionRemoveEntry", 0x110900, {}],
-  ["ClientUpdate.UpdateLocation", 0x110a00, {}],
+  [
+    "ClientUpdate.UpdateLocation",
+    0x110a00,
+    {
+      fields: [
+        { name: "position", type: "floatvector4", defaultValue: [0, 50, 0, 1] },
+        { name: "rotation", type: "floatvector4", defaultValue: [0, 0, 0, 1] },
+        { name: "unknownBool1", type: "boolean", defaultValue: true },
+        { name: "unknownBool2", type: "boolean", defaultValue: true },
+      ],
+    },
+  ],
   ["ClientUpdate.Mana", 0x110b00, {}],
   ["ClientUpdate.UpdateProfileExperience", 0x110c00, {}],
   ["ClientUpdate.AddProfileAbilitySetApl", 0x110d00, {}],
@@ -7263,7 +7457,21 @@ var packets = [
   ["Facility.NotificationFacilitySpawnBeginCapture", 0x840c, {}],
   ["Facility.NotificationFacilitySpawnFinishCapture", 0x840d, {}],
   ["Facility.NotificationLeavingFacilityDuringContention", 0x840e, {}],
-  ["Facility.ProximitySpawnCaptureUpdate", 0x840f, {}],
+  [
+    "Facility.ProximitySpawnCaptureUpdate",
+    0x840f,
+    {
+      fields: [
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+        { name: "unknownBoolean2", type: "boolean", defaultValue: false },
+        { name: "unknown1", type: "uint16", defaultValue: 0 },
+        { name: "unknownBoolean3", type: "boolean", defaultValue: false },
+        { name: "unknownBoolean4", type: "boolean", defaultValue: false },
+        { name: "unknownBoolean5", type: "boolean", defaultValue: false },
+        { name: "unknownBoolean6", type: "boolean", defaultValue: false },
+      ],
+    },
+  ],
   ["Facility.ClearProximitySpawn", 0x8410, {}],
   ["Facility.GridStabilizeTimerUpdated", 0x8411, {}],
   [
