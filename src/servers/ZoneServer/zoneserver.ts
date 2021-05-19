@@ -31,13 +31,14 @@ const localSpawnList = require("../../../data/sampleData/spawnLocations.json");
 const debugName = "ZoneServer";
 const debug = require("debug")(debugName);
 const localWeatherTemplates = require("../../../data/sampleData/weather.json");
-const Z1_vehicles = require("../../../data/sampleData/vehiculeLocations.json")
+const Z1_vehicles = require("../../../data/sampleData/vehiculeLocations.json");
 const Z1_items = require("../../../data/zoneData/Z1_items.json");
 const Z1_doors = require("../../../data/zoneData/Z1_doors.json");
 const Z1_npcs = require("../../../data/zoneData/Z1_npcs.json");
 const models = require("../../../data/dataSources/Models.json");
 const stats = require("../../../data/sampleData/stats.json");
-const recipes = require("../../../data/sampleData/recipes.json")
+const recipes = require("../../../data/sampleData/recipes.json");
+const ressources = require("../../../data/dataSources/Resources.json");
 
 export class ZoneServer extends EventEmitter {
   _gatewayServer: GatewayServer;
@@ -112,7 +113,10 @@ export class ZoneServer extends EventEmitter {
       if (err) {
         console.error(err);
       } else {
-        if (packet.name != "KeepAlive" && packet.name != "PlayerUpdateUpdatePositionClientToZone") {
+        if (
+          packet.name != "KeepAlive" &&
+          packet.name != "PlayerUpdateUpdatePositionClientToZone"
+        ) {
           debug(`Receive Data ${[packet.name]}`);
         }
         if (this._packetHandlers[packet.name]) {
@@ -476,8 +480,26 @@ export class ZoneServer extends EventEmitter {
       client.character.state.position = self.data.position;
       client.character.state.rotation = self.data.rotation;
     }
+    const characterResources: any[] = [];
+    ressources.forEach((ressource: any) => {
+      characterResources.push({
+        resourceType: ressource.RESOURCE_TYPE,
+        resourceData: {
+          subResourceData: {
+            resourceId: ressource.ID,
+            resourceType: ressource.RESOURCE_TYPE,
+            unknownArray1: [],
+          },
+          unknownData2: {
+            max_value: ressource.MAX_VALUE,
+            initial_value: ressource.INITIAL_VALUE,
+          },
+        },
+      });
+    });
     self.data.profiles = this._profiles;
     self.data.stats = stats;
+    self.data.characterResources = characterResources;
     self.data.recipes = recipes;
     this.sendData(client, "SendSelfToClient", self);
   }
@@ -719,22 +741,27 @@ export class ZoneServer extends EventEmitter {
     debug("All objects created");
   }
 
-  getRandomVehicleId(){
+  getRandomVehicleId() {
     switch (Math.floor(Math.random() * 3)) {
       case 0:
-      return 7225
+        return 7225;
       case 1:
-      return 9301 
+        return 9301;
       case 2:
-      return 9258
+        return 9258;
       default:
-      return 9258
+        return 9258;
     }
   }
 
   createAllVehicles() {
     Z1_vehicles.forEach((vehicle: any) => {
-      this.createEntity(this.getRandomVehicleId(),vehicle.position,vehicle.rotation,this._npcs)
+      this.createEntity(
+        this.getRandomVehicleId(),
+        vehicle.position,
+        vehicle.rotation,
+        this._npcs
+      );
     });
     debug("All vehicles created");
   }
@@ -840,7 +867,7 @@ export class ZoneServer extends EventEmitter {
           authorizedModelId.push(15);
           authorizedModelId.push(27);
           authorizedModelId.push(9163);
-          authorizedModelId.push(9314);          
+          authorizedModelId.push(9314);
           break;
         case "ItemSpawner_Weapon_M16A4.adr":
           authorizedModelId.push(23);

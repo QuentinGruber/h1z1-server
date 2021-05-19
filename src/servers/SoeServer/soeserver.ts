@@ -379,8 +379,14 @@ export class SOEServer extends EventEmitter {
         client.compression
       );
     } catch (e) {
-      console.error(`Failed to create packet ${packetName} packet data : ${JSON.stringify(packet, null, 4)}`)
-      console.error(e)
+      console.error(
+        `Failed to create packet ${packetName} packet data : ${JSON.stringify(
+          packet,
+          null,
+          4
+        )}`
+      );
+      console.error(e);
     }
   }
 

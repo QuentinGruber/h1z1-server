@@ -33,22 +33,22 @@ const hax: any = {
   },
   tp: function (server: ZoneServer, client: Client, args: any[]) {
     const choosenSpawnLocation = args[1];
-    let locationPosition:Float32Array;
+    let locationPosition: Float32Array;
     switch (choosenSpawnLocation) {
       case "zimms":
-        locationPosition = new Float32Array([2209.17,47.42,-1011.48,1])
+        locationPosition = new Float32Array([2209.17, 47.42, -1011.48, 1]);
         break;
       case "pv":
-        locationPosition = new Float32Array([-125.55,23.41,-1131.71,1])
+        locationPosition = new Float32Array([-125.55, 23.41, -1131.71, 1]);
         break;
       default:
-        locationPosition = new Float32Array([0,50,0,1])
+        locationPosition = new Float32Array([0, 50, 0, 1]);
         break;
     }
     server.sendData(client, "ClientUpdate.UpdateLocation", {
-      position:locationPosition,
+      position: locationPosition,
     });
-    client.character.state.position = locationPosition
+    client.character.state.position = locationPosition;
     server.worldRoutine(client);
   },
   despawnObjects: function (server: ZoneServer, client: Client, args: any[]) {
