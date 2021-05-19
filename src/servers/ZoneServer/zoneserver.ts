@@ -104,7 +104,7 @@ export class ZoneServer extends EventEmitter {
     this._weather = this._weatherTemplates[this._defaultWeatherTemplate];
     this._profiles = [];
     this._npcRenderDistance = 350;
-    this._pingTimeoutTime = 3000000;
+    this._pingTimeoutTime = 30000;
     if (!this._mongoAddress) {
       this._soloMode = true;
       debug("Server in solo mode !");
@@ -150,11 +150,11 @@ export class ZoneServer extends EventEmitter {
       ) => {
         debug(
           "Client logged in from " +
-            client.address +
-            ":" +
-            client.port +
-            " with character id " +
-            characterId
+          client.address +
+          ":" +
+          client.port +
+          " with character id " +
+          characterId
         );
 
         this._clients[client.sessionId] = client;
@@ -219,8 +219,8 @@ export class ZoneServer extends EventEmitter {
     this._weather = this._soloMode
       ? this._weatherTemplates[this._defaultWeatherTemplate]
       : _.find(this._weatherTemplates, (template) => {
-          return template.templateName === this._defaultWeatherTemplate;
-        });
+        return template.templateName === this._defaultWeatherTemplate;
+      });
     this._profiles = this.generateProfiles();
     if (
       await this._db?.collection("worlds").findOne({ worldId: this._worldId })
@@ -374,10 +374,10 @@ export class ZoneServer extends EventEmitter {
       clearInterval(client.pingTimer);
       debug(
         "Client disconnected from " +
-          client.address +
-          ":" +
-          client.port +
-          " ( ping timeout )"
+        client.address +
+        ":" +
+        client.port +
+        " ( ping timeout )"
       );
       if (client.character?.characterId) {
         delete this._characters[client.character.characterId];
@@ -395,9 +395,9 @@ export class ZoneServer extends EventEmitter {
 
   parseReferenceData(): any {
     const itemData = fs.readFileSync(
-        `${__dirname}/../../../data/dataSources/ClientItemDefinitions.txt`,
-        "utf8"
-      ),
+      `${__dirname}/../../../data/dataSources/ClientItemDefinitions.txt`,
+      "utf8"
+    ),
       itemLines = itemData.split("\n"),
       items = {};
     for (let i = 1; i < itemLines.length; i++) {
@@ -477,19 +477,19 @@ export class ZoneServer extends EventEmitter {
       client.character.state.position = self.data.position;
       client.character.state.rotation = self.data.rotation;
     }
-    const characterResources:any[] = [];
-    ressources.forEach((ressource : any) => {
+    const characterResources: any[] = [];
+    ressources.forEach((ressource: any) => {
       characterResources.push({
-        resourceType:ressource.RESOURCE_TYPE,
-        resourceData:{
-          subResourceData:{
-          resourceId:ressource.ID,
-          resourceType:ressource.RESOURCE_TYPE,
-          unknownArray1:[],
+        resourceType: ressource.RESOURCE_TYPE,
+        resourceData: {
+          subResourceData: {
+            resourceId: ressource.ID,
+            resourceType: ressource.RESOURCE_TYPE,
+            unknownArray1: [],
           },
-          unknownData2:{
-            max_value:ressource.MAX_VALUE,
-            initial_value:ressource.INITIAL_VALUE,
+          unknownData2: {
+            max_value: ressource.MAX_VALUE,
+            initial_value: ressource.INITIAL_VALUE,
           }
         }
       })
@@ -738,22 +738,22 @@ export class ZoneServer extends EventEmitter {
     debug("All objects created");
   }
 
-  getRandomVehicleId(){
+  getRandomVehicleId() {
     switch (Math.floor(Math.random() * 3)) {
       case 0:
-      return 7225
+        return 7225
       case 1:
-      return 9301 
+        return 9301
       case 2:
-      return 9258
+        return 9258
       default:
-      return 9258
+        return 9258
     }
   }
 
   createAllVehicles() {
     Z1_vehicles.forEach((vehicle: any) => {
-      this.createEntity(this.getRandomVehicleId(),vehicle.position,vehicle.rotation,this._npcs)
+      this.createEntity(this.getRandomVehicleId(), vehicle.position, vehicle.rotation, this._npcs)
     });
     debug("All vehicles created");
   }
@@ -781,7 +781,7 @@ export class ZoneServer extends EventEmitter {
         spawnerType.instances.forEach((itemInstance: any) => {
           this.createEntity(
             authorizedModelId[
-              Math.floor(Math.random() * authorizedModelId.length)
+            Math.floor(Math.random() * authorizedModelId.length)
             ],
             itemInstance.position,
             itemInstance.rotation,
@@ -859,7 +859,7 @@ export class ZoneServer extends EventEmitter {
           authorizedModelId.push(15);
           authorizedModelId.push(27);
           authorizedModelId.push(9163);
-          authorizedModelId.push(9314);          
+          authorizedModelId.push(9314);
           break;
         case "ItemSpawner_Weapon_M16A4.adr":
           authorizedModelId.push(23);
@@ -956,7 +956,7 @@ export class ZoneServer extends EventEmitter {
         spawnerType.instances.forEach((itemInstance: any) => {
           this.createEntity(
             authorizedModelId[
-              Math.floor(Math.random() * authorizedModelId.length)
+            Math.floor(Math.random() * authorizedModelId.length)
             ],
             itemInstance.position,
             itemInstance.rotation,
