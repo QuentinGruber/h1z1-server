@@ -91,43 +91,6 @@
         "online": false
       }
     ],
-    "recipes": [
-      {
-        "recipeId": 1,
-        "Name": 19,
-        "iconId": 18,
-        "unknownDword4": 4,
-        "description": 20,
-        "unknownDword6": 6,
-        "memberOnly": false,
-        "filterType": 5,
-        "components": [
-          {
-            "unknownDword1": 10,
-            "name": 310,
-            "unknownDword3": 18,
-            "unknownDword4": 4,
-            "unknownDword5": 20,
-            "numberOfItems": "0x0000000000000010",
-            "unknownDword6": 5,
-            "unknownDword7": 8,
-            "unknownDword8": 0
-          },
-          {
-            "unknownDword1": 1,
-            "name": 614,
-            "unknownDword3": 18,
-            "unknownDword4": 4,
-            "unknownDword5": 20,
-            "numberOfItems": "0x0000000000000001",
-            "unknownDword6": 5,
-            "unknownDword7": 8,
-            "unknownDword8": 0
-          }
-        ],
-        "itemDefinitionId": 8
-      }
-    ],
     "mounts": [],
     "unknownCoinStoreData": {
       "unknownBoolean1": 0,
@@ -248,6 +211,20 @@
       "unknownDword1": 0
     },
     "skills": [],
+    "EquippedContainers": [
+      {
+        "unknownDword1": 2,
+        "unknownQword1": "0x0000000000000001",
+        "unknownDword2": 3,
+        "unknownQword2": "0x0000000000000002",
+        "unknownDword3": 4,
+        "unknownArray1": [],
+        "unknownBoolean": true,
+        "unknownDword4": 5,
+        "unknownDword5": 6,
+        "unknownDword6": 7
+      }
+    ],
     "unknownBoolean8": true,
     "unknownQword1": "0x0000000000000000",
     "unknownDword37": 0,

@@ -46,10 +46,10 @@ export class SOEOutputStream extends EventEmitter {
 
     if (data.length <= this._fragmentSize) {
       this._sequence++;
-      this._cache[this._sequence] = {
+      /*this._cache[this._sequence] = { ====> https://github.com/QuentinGruber/h1z1-server/issues/178 need to think about an another system for this
         data: data,
         fragment: false,
-      };
+      };*/
       this.emit("data", null, data, this._sequence, false);
     } else {
       const header = new (Buffer as any).alloc(4);
@@ -58,10 +58,10 @@ export class SOEOutputStream extends EventEmitter {
       for (let i = 0; i < data.length; i += this._fragmentSize) {
         this._sequence++;
         const fragmentData = data.slice(i, i + this._fragmentSize);
-        this._cache[this._sequence] = {
+        /*this._cache[this._sequence] = {
           data: fragmentData,
           fragment: true,
-        };
+        };*/
         this.emit("data", null, fragmentData, this._sequence, true);
       }
     }

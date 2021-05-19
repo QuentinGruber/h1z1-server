@@ -120,8 +120,8 @@ export class SOEServer extends EventEmitter {
         );
 
         const checkClientOutQueue = () => {
-            const data = client.outQueue.shift();
-            if (data) {
+          const data = client.outQueue.shift();
+          if (data) {
             this._connection.send(
               data,
               0,
@@ -379,15 +379,8 @@ export class SOEServer extends EventEmitter {
         client.compression
       );
     } catch (e) {
-      throw (
-        packetName +
-        " " +
-        client.crcSeed +
-        " " +
-        client.compression +
-        " " +
-        JSON.stringify(packet, null, 4)
-      );
+      console.error(`Failed to create packet ${packetName} packet data : ${JSON.stringify(packet, null, 4)}`)
+      console.error(e)
     }
   }
 
