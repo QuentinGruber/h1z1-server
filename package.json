@@ -7,7 +7,7 @@
   "main": "h1z1-server.js",
   "dependencies": {
     "@swc/cli": "0.1.40",
-    "@swc/core": "1.2.57",
+    "@swc/core": "1.2.58",
     "@types/lodash": "4.14.169",
     "@types/mongodb": "3.6.12",
     "@types/node": "15.0.1",
