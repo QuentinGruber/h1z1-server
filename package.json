@@ -6,7 +6,7 @@
   "license": "GPL-3.0-only",
   "main": "h1z1-server.js",
   "dependencies": {
-    "@swc/cli": "0.1.40",
+    "@swc/cli": "0.1.42",
     "@swc/core": "1.2.57",
     "@types/lodash": "4.14.169",
     "@types/mongodb": "3.6.12",
