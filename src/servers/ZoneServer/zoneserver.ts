@@ -733,6 +733,7 @@ export class ZoneServer extends EventEmitter {
     const { npcs , objects } = createAllEntities()
     this._npcs = npcs
     this._objects = objects
+    debug("All entities created");
   }
 
   data(collectionName: string): any {
