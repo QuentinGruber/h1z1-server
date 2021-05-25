@@ -729,8 +729,10 @@ export class ZoneServer extends EventEmitter {
   }
 
   createAllObjects(): void {
-    const { createAllObjects } = require("./workers/createBaseEntities")
-    createAllObjects();
+    const { createAllEntities } = require("./workers/createBaseEntities")
+    const { npcs , objects } = createAllEntities()
+    this._npcs = npcs
+    this._objects = objects
   }
 
   data(collectionName: string): any {

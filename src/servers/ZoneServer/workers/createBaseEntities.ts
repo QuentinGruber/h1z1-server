@@ -1,11 +1,11 @@
 const debug = require("debug")("baseEntityCreator");
-const Z1_vehicles = require("../../../data/sampleData/vehiculeLocations.json");
-const Z1_items = require("../../../data/zoneData/Z1_items.json");
-const Z1_doors = require("../../../data/zoneData/Z1_doors.json");
-const Z1_npcs = require("../../../data/zoneData/Z1_npcs.json");
-const models = require("../../../data/dataSources/Models.json");
-import { ZoneServer } from "../zoneserver"
+const Z1_vehicles = require("../../../../data/sampleData/vehiculeLocations.json");
+const Z1_items = require("../../../../data/zoneData/Z1_items.json");
+const Z1_doors = require("../../../../data/zoneData/Z1_doors.json");
+const Z1_npcs = require("../../../../data/zoneData/Z1_npcs.json");
+const models = require("../../../../data/dataSources/Models.json");
 import _ from "lodash";
+import { generateRandomGuid } from "../../../utils/utils";
 const npcs : any = {};
 const objects:any = {};
 
@@ -25,8 +25,33 @@ var chanceLog = 10;
 var chanceCommercial = 10;
 var chanceFarm = 10;
 
-const { createEntity } = (new ZoneServer(11414,new Uint8Array([0,1,2,4])))
-export function createAllObjects(): void {
+function createEntity(
+  modelID: number,
+  position: Array<number>,
+  rotation: Array<number>,
+  dictionnary: any
+): void {
+  const guid = generateRandomGuid();
+  const characterId = generateRandomGuid();
+  rotation[0] = 0;
+  rotation[1] = 90;
+  dictionnary[characterId] = {
+    characterId: characterId,
+    guid: guid,
+    transientId: 1,
+    modelId: modelID,
+    position: position,
+    rotation: rotation,
+    attachedObject: {},
+    color: {},
+    array5: [{ unknown1: 0 }],
+    array17: [{ unknown1: 0 }],
+    array18: [{ unknown1: 0 }],
+  };
+}
+
+
+export function createAllEntities(): any {
     createAllDoors();
     createAR15();
 	createPumpShotgun();
@@ -44,7 +69,8 @@ export function createAllObjects(): void {
 	createFarm();
     createAllVehicles();
     createSomeNpcs();
-    debug("All objects created");
+    debug("All entities created");
+    return {npcs : npcs, objects:objects}
   }
 
 function getRandomVehicleId() {
