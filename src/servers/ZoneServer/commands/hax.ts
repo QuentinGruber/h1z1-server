@@ -5,6 +5,8 @@ import { ZoneServer } from "../zoneserver";
 import _ from "lodash";
 const debug = require("debug")("zonepacketHandlers");
 
+let isSonic = false;
+
 const hax: any = {
   time: function (server: ZoneServer, client: Client, args: any[]) {
     const choosenHour: number = Number(args[1]);
@@ -143,16 +145,18 @@ const hax: any = {
     server.sendData(client, "ClientGameSettings", {
       unknownQword1: "0x0000000000000000",
       unknownBoolean1: true,
-      timescale: 3.0,
+      timescale: isSonic? 1.0:3.0,
       unknownQword2: "0x0000000000000000",
       unknownFloat1: 0.0,
       unknownFloat2: 12.0,
       unknownFloat3: 110.0,
     });
     server.sendData(client, "Command.RunSpeed", {
-      runSpeed: -100,
+      runSpeed: isSonic? 0:-100,
     });
-    server.sendChatText(client, "Welcome MR.Hedgehog");
+    const messageToMrHedgehog = isSonic? "Goodbye MR.Hedgehog" : "Welcome MR.Hedgehog"
+    server.sendChatText(client, messageToMrHedgehog,true);
+    isSonic = !isSonic
   },
   observer: function (server: ZoneServer, client: Client, args: any[]) {
     server.sendData(client, "PlayerUpdate.RemovePlayer", {
