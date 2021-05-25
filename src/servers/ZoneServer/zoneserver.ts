@@ -614,7 +614,6 @@ export class ZoneServer extends EventEmitter {
         ) &&
         !client.spawnedEntities.includes(this._npcs[npc])
       ) {
-        setImmediate(() => {
           this.sendData(
             client,
             "PlayerUpdate.AddLightweightNpc",
@@ -622,7 +621,6 @@ export class ZoneServer extends EventEmitter {
             1
           );
           client.spawnedEntities.push(this._npcs[npc]);
-        });
       }
     }
   }
@@ -653,7 +651,6 @@ export class ZoneServer extends EventEmitter {
     );
   }
   removeOutOfDistanceEntities(client: Client): void {
-    setImmediate(() => {
       const objectsToRemove = client.spawnedEntities.filter((e) =>
         this.filterOutOfDistance(e, client.character.state.position)
       );
@@ -670,10 +667,10 @@ export class ZoneServer extends EventEmitter {
           1
         );
       });
-    });
   }
 
   spawnObjects(client: Client): void {
+    setImmediate(()=>{
     for (const object in this._objects) {
       if (
         isPosInRadius(
@@ -683,7 +680,6 @@ export class ZoneServer extends EventEmitter {
         ) &&
         !client.spawnedEntities.includes(this._objects[object])
       ) {
-        setImmediate(() => {
           this.sendData(
             client,
             "PlayerUpdate.AddLightweightNpc",
@@ -691,9 +687,9 @@ export class ZoneServer extends EventEmitter {
             1
           );
           client.spawnedEntities.push(this._objects[object]);
-        });
       }
     }
+  })
   }
 
   despawnEntity(characterId: string) {
