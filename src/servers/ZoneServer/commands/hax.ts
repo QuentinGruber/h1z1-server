@@ -43,6 +43,33 @@ const hax: any = {
       case "pv":
         locationPosition = new Float32Array([-125.55, 23.41, -1131.71, 1]);
         break;
+        case "br":
+          locationPosition = new Float32Array([3824.41,168.19,-4000.00, 1]);
+          break;
+      case "ranchito":
+          locationPosition = new Float32Array([2185.32,42.36,2130.49, 1]);
+          break;	
+      case "drylake":
+          locationPosition = new Float32Array([479.46,109.70,2902.51, 1]);
+          break;
+       case "dam":
+          locationPosition = new Float32Array([-629.49,69.96,1233.49, 1]);
+          break
+       case "cranberry":
+          locationPosition = new Float32Array([-1368.37,71.29,1837.61, 1]);
+          break
+       case "church":
+          locationPosition = new Float32Array([-1928.68,62.77,2880.10, 1]);
+          break
+       case "desoto":
+          locationPosition = new Float32Array([-2793.22,140.77,1035.80, 1]);
+          break	
+       case "toxic":
+          locationPosition = new Float32Array([-3064.68,42.98,-2160.06, 1]);
+          break
+       case "radiotower":
+          locationPosition = new Float32Array([-1499.21,353.98,-840.52, 1]);
+          break
       default:
         locationPosition = new Float32Array([0, 50, 0, 1]);
         break;
