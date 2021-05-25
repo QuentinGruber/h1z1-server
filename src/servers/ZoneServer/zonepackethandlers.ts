@@ -136,10 +136,6 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
-    server.sendData(client, "POIChangeMessage", {
-      messageStringId: 20,
-      id: 99,
-    });
     server.sendChatText(client, "Welcome to H1emu ! :D", true);
     client.lastPingTime = new Date().getTime();
     client.savePositionTimer = setTimeout(
