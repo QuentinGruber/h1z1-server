@@ -34,6 +34,7 @@ const localWeatherTemplates = require("../../../data/sampleData/weather.json");
 const stats = require("../../../data/sampleData/stats.json");
 const recipes = require("../../../data/sampleData/recipes.json");
 const ressources = require("../../../data/dataSources/Resources.json");
+const Z1_POIs = require("../../../data/zoneData/Z1_POIs");
 
 export class ZoneServer extends EventEmitter {
   _gatewayServer: GatewayServer;
@@ -625,10 +626,23 @@ export class ZoneServer extends EventEmitter {
       }
     }
   }
+
+  pointOfInterest(client:Client) {
+    Z1_POIs.forEach((point:any) => {
+        if (isPosInRadius(point.range, client.character.state.position, point.position)) {
+            this.sendData(client, "POIChangeMessage", {
+                messageStringId: point.stringId,
+                id: point.POIid,
+            });
+        }
+    })
+}
+
   worldRoutine(client: Client): void {
     this.spawnObjects(client);
     this.spawnNpcs(client);
     this.removeOutOfDistanceEntities(client);
+    this.pointOfInterest(client)
   }
 
   filterOutOfDistance(element: any, playerPosition: Float32Array): boolean {
