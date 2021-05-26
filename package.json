@@ -30,12 +30,13 @@
     "@typescript-eslint/eslint-plugin": "^4.22.0",
     "@typescript-eslint/parser": "^4.22.0",
     "eslint": "^7.25.0",
-    "prettier": "^2.2.1"
+    "prettier": "^2.2.1",
+    "ts-node": "^10.0.0"
   },
   "scripts": {
     "build-optimized": "npm run build && terser-output ./out",
     "build": "tsc -p ./tsconfig.json",
-    "test": "node tests/testRuntime",
+    "test": "node tests/testRuntime && ts-node tests/testIssuesInPacketSchemas.ts",
     "build-swc": "npx swc src -d out",
     "postinstall": "npm run build-optimized",
     "before_release": "npm run prettier_sources && echo Do not forget to update package version !",
