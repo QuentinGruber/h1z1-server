@@ -953,13 +953,13 @@
     },
     {
         "statId": 68,
-        "statName": "unknown68",
+        "statName": "mouseUnlockedProne",
         "statData": {
             "statId": 68,
             "statValue": {
                 "type": 0,
                 "value": {
-                    "base": 0,
+                    "base": 1,
                     "modifier": 0
                 }
             }
