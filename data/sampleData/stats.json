@@ -945,7 +945,7 @@
             "statValue": {
                 "type": 1,
                 "value": {
-                    "base": 0.3,
+                    "base": 0.4,
                     "modifier": 0
                 }
             }
