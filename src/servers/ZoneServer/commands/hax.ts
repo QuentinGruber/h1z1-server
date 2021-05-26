@@ -74,11 +74,10 @@ const hax: any = {
         locationPosition = new Float32Array([0, 50, 0, 1]);
         break;
     }
+    client.character.state.position = locationPosition;
     server.sendData(client, "ClientUpdate.UpdateLocation", {
       position: locationPosition,
     });
-    client.character.state.position = locationPosition;
-    server.worldRoutine(client);
   },
   despawnObjects: function (server: ZoneServer, client: Client, args: any[]) {
     client.spawnedEntities.forEach((object) => {
