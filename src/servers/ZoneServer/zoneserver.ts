@@ -721,8 +721,6 @@ export class ZoneServer extends EventEmitter {
   ): void {
     const guid = this.generateGuid();
     const characterId = this.generateGuid();
-    rotation[0] = 0;
-    rotation[1] = 90;
     dictionnary[characterId] = {
       characterId: characterId,
       guid: guid,

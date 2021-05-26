@@ -32,8 +32,6 @@ function createEntity(
 ): void {
   const guid = generateRandomGuid();
   const characterId = generateRandomGuid();
-  rotation[0] = 0;
-  rotation[1] = 90;
   dictionnary[characterId] = {
     characterId: characterId,
     guid: guid,
