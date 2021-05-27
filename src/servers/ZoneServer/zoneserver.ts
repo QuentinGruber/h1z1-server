@@ -219,7 +219,7 @@ export class ZoneServer extends EventEmitter {
     await this.loadMongoData();
     this._weather = this._soloMode
       ? this._weatherTemplates[this._defaultWeatherTemplate]
-      : _.find(this._weatherTemplates, (template) => {
+      : _.find(this._weatherTemplates, (template: { templateName: string; }) => {
           return template.templateName === this._defaultWeatherTemplate;
         });
     this._profiles = this.generateProfiles();
