@@ -260,16 +260,13 @@ export class ZoneServer extends EventEmitter {
             ?.collection("worlds")
             .findOne({ worldId: this._worldId })
         ) {
-          const worker = new Worker(
-            __dirname + "./workers/saveWorld.js",
-            {
-              workerData: {
-                mongoAddress: this._mongoAddress,
-                worldId: this._worldId,
-                worldSave: JSON.stringify(save),
-              },
-            }
-          );
+          const worker = new Worker(__dirname + "./workers/saveWorld.js", {
+            workerData: {
+              mongoAddress: this._mongoAddress,
+              worldId: this._worldId,
+              worldSave: JSON.stringify(save),
+            },
+          });
           worker.on("message", debug);
           worker.on("error", debug);
         } else {
@@ -614,33 +611,39 @@ export class ZoneServer extends EventEmitter {
         ) &&
         !client.spawnedEntities.includes(this._npcs[npc])
       ) {
-          this.sendData(
-            client,
-            "PlayerUpdate.AddLightweightNpc",
-            this._npcs[npc],
-            1
-          );
-          client.spawnedEntities.push(this._npcs[npc]);
+        this.sendData(
+          client,
+          "PlayerUpdate.AddLightweightNpc",
+          this._npcs[npc],
+          1
+        );
+        client.spawnedEntities.push(this._npcs[npc]);
       }
     }
   }
 
-  pointOfInterest(client:Client) {
-    Z1_POIs.forEach((point:any) => {
-        if (isPosInRadius(point.range, client.character.state.position, point.position)) {
-            this.sendData(client, "POIChangeMessage", {
-                messageStringId: point.stringId,
-                id: point.POIid,
-            });
-        }
-    })
-}
+  pointOfInterest(client: Client) {
+    Z1_POIs.forEach((point: any) => {
+      if (
+        isPosInRadius(
+          point.range,
+          client.character.state.position,
+          point.position
+        )
+      ) {
+        this.sendData(client, "POIChangeMessage", {
+          messageStringId: point.stringId,
+          id: point.POIid,
+        });
+      }
+    });
+  }
 
   worldRoutine(client: Client): void {
     this.spawnObjects(client);
     this.spawnNpcs(client);
     this.removeOutOfDistanceEntities(client);
-    this.pointOfInterest(client)
+    this.pointOfInterest(client);
   }
 
   filterOutOfDistance(element: any, playerPosition: Float32Array): boolean {
@@ -651,35 +654,35 @@ export class ZoneServer extends EventEmitter {
     );
   }
   removeOutOfDistanceEntities(client: Client): void {
-      const objectsToRemove = client.spawnedEntities.filter((e) =>
-        this.filterOutOfDistance(e, client.character.state.position)
+    const objectsToRemove = client.spawnedEntities.filter((e) =>
+      this.filterOutOfDistance(e, client.character.state.position)
+    );
+    client.spawnedEntities = client.spawnedEntities.filter((el) => {
+      return !objectsToRemove.includes(el);
+    });
+    objectsToRemove.forEach((object: any) => {
+      this.sendData(
+        client,
+        "PlayerUpdate.RemovePlayer",
+        {
+          characterId: object.characterId,
+        },
+        1
       );
-      client.spawnedEntities = client.spawnedEntities.filter((el) => {
-        return !objectsToRemove.includes(el);
-      });
-      objectsToRemove.forEach((object: any) => {
-        this.sendData(
-          client,
-          "PlayerUpdate.RemovePlayer",
-          {
-            characterId: object.characterId,
-          },
-          1
-        );
-      });
+    });
   }
 
   spawnObjects(client: Client): void {
-    setImmediate(()=>{
-    for (const object in this._objects) {
-      if (
-        isPosInRadius(
-          this._npcRenderDistance,
-          client.character.state.position,
-          this._objects[object].position
-        ) &&
-        !client.spawnedEntities.includes(this._objects[object])
-      ) {
+    setImmediate(() => {
+      for (const object in this._objects) {
+        if (
+          isPosInRadius(
+            this._npcRenderDistance,
+            client.character.state.position,
+            this._objects[object].position
+          ) &&
+          !client.spawnedEntities.includes(this._objects[object])
+        ) {
           this.sendData(
             client,
             "PlayerUpdate.AddLightweightNpc",
@@ -687,9 +690,9 @@ export class ZoneServer extends EventEmitter {
             1
           );
           client.spawnedEntities.push(this._objects[object]);
+        }
       }
-    }
-  })
+    });
   }
 
   despawnEntity(characterId: string) {
@@ -737,10 +740,10 @@ export class ZoneServer extends EventEmitter {
   }
 
   createAllObjects(): void {
-    const { createAllEntities } = require("./workers/createBaseEntities")
-    const { npcs , objects } = createAllEntities()
-    this._npcs = npcs
-    this._objects = objects
+    const { createAllEntities } = require("./workers/createBaseEntities");
+    const { npcs, objects } = createAllEntities();
+    this._npcs = npcs;
+    this._objects = objects;
     debug("All entities created");
   }
 
