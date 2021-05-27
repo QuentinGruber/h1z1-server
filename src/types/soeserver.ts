@@ -9,7 +9,7 @@ export interface Client {
   sequences: any;
   compression: number;
   useEncryption: boolean;
-  outQueue: any;
+  outQueue: any[];
   protocolName: string;
   outOfOrderPackets: any;
   nextAck: number;
