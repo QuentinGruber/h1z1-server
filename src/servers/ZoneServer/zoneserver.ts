@@ -262,7 +262,7 @@ export class ZoneServer extends EventEmitter {
             ?.collection("worlds")
             .findOne({ worldId: this._worldId })
         ) {
-          const worker = new Worker(__dirname + "./workers/saveWorld.js", {
+          const worker = new Worker(__dirname + "/workers/saveWorld.js", {
             workerData: {
               mongoAddress: this._mongoAddress,
               worldId: this._worldId,
