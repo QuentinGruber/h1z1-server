@@ -217,6 +217,11 @@ const hax: any = {
       server.sendChatText(client, "Specify a model id !");
     }
   },
+  removeDynamicWeather: async function (server: ZoneServer, client: Client, args: any[]) {
+    clearInterval(server._dynamicWeatherInterval);
+    server.changeWeather(client, server._weatherTemplates[server._defaultWeatherTemplate])
+    server.sendChatText(client,"Dynamic weather removed !")
+  },
   weather: function (server: ZoneServer, client: Client, args: any[]) {
     const weatherTemplate = server._soloMode
       ? server._weatherTemplates[args[1]]
