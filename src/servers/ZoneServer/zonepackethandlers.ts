@@ -127,25 +127,20 @@ const packetHandlers: any = {
       serverTime: Int64String(server.getServerTime()),
       serverTime2: Int64String(server.getServerTime()),
     });
-    /* temp workaround */
-    server.spawnNpcs(client);
-    server.spawnObjects(client);
   },
   ClientFinishedLoading: function (
     server: ZoneServer,
     client: Client,
     packet: any
   ) {
-    server.sendData(client, "POIChangeMessage", {
-      messageStringId: 20,
-      id: 99,
-    });
     server.sendChatText(client, "Welcome to H1emu ! :D", true);
     client.lastPingTime = new Date().getTime();
     client.savePositionTimer = setTimeout(
       () => server.saveCharacterPosition(client, 30000),
       30000
     );
+    server.spawnNpcs(client);
+    server.spawnObjects(client);
   },
   Security: function (server: ZoneServer, client: Client, packet: any) {
     debug(packet);
