@@ -25,6 +25,7 @@ import {
 import { Client, Weather } from "../../types/zoneserver";
 import { Db, MongoClient } from "mongodb";
 import { Worker } from "worker_threads";
+import dynamicWeather from "./workers/dynamicWeather";
 
 const localSpawnList = require("../../../data/sampleData/spawnLocations.json");
 
@@ -65,6 +66,7 @@ export class ZoneServer extends EventEmitter {
   _pingTimeoutTime: number;
   _worldId: number;
   _npcRenderDistance: number;
+  _dynamicWeatherInterval: any;
 
   constructor(
     serverPort: number,
@@ -323,6 +325,7 @@ export class ZoneServer extends EventEmitter {
     await this.setupServer();
     this._startTime += Date.now();
     this._startGameTime += Date.now();
+    this._dynamicWeatherInterval = setInterval(()=>dynamicWeather(this),5000)
     this._gatewayServer.start();
   }
 
@@ -774,9 +777,11 @@ export class ZoneServer extends EventEmitter {
   ): void {
     if (isGlobal) {
       this.sendDataToAll("SkyChanged", weather);
-      this.sendGlobalChatText(
-        `User "${client.character.name}" has changed weather.`
-      );
+      if(client?.character?.name){
+        this.sendGlobalChatText(
+          `User "${client.character.name}" has changed weather.`
+        );
+      }
     } else {
       this.sendData(client, "SkyChanged", weather);
     }
