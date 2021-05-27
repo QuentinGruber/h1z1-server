@@ -6,7 +6,7 @@ const debug = require("debug")("dynamicWeather");
 
 let fog = -10;
 let foggradient = 50;
-let rain = 50;
+let rain = 30;
 let raintoggle = 0;
 let raintimems = 0;
 let raintimemin = 0;
@@ -44,7 +44,7 @@ export default function dynamicWeather(serverContext:ZoneServer) {
         raintoggle = 1;
         raincheck = "ON";
         rain = 0;
-        const raintime = randomIntFromInterval(300000, 900000)
+        const raintime = randomIntFromInterval(180000, 300000)
         raintimems = (raintime / 60000)
         raintimemin = Math.floor(raintimems)
         debug("Rain will last for " + raintimemin + " min");
@@ -55,7 +55,7 @@ export default function dynamicWeather(serverContext:ZoneServer) {
             debug("Rain ended");
         }, raintime);
     }
-    const tempchance = randomIntFromInterval(-4, 3)
+    const tempchance = randomIntFromInterval(-1, 1)
     temp = (temp + tempchance)
     tempfix = (temp - 33)
     if (temp <= 33) {
@@ -67,7 +67,7 @@ export default function dynamicWeather(serverContext:ZoneServer) {
             wintertoggle = 0;
             wintercheck = "OFF";
             debug("Winter ended");
-        }, 900000);
+        }, 300000);
     }
     if (temp > 78) {
         temp = 78;
