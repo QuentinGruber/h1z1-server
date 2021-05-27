@@ -1,6 +1,10 @@
 const restore = require("mongodb-restore-dump");
 import { v4 as uuidv4, parse as uuidParse } from "uuid";
 
+export const randomIntFromInterval = (min:number, max:number)=> { // min and max included 
+  return Math.floor(Math.random() * (max - min + 1) + min)
+}
+
 const isBetween = (radius: number, value1: number, value2: number): boolean => {
   return value1 <= value2 + radius && value1 >= value2 - radius;
 };
