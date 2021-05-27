@@ -21,8 +21,8 @@ let wintercheck = "OFF";
 export default function dynamicWeather(serverContext:ZoneServer) {
     const fogchance = randomIntFromInterval(-1, 1)
     fog = (fog + fogchance);
-    if (fog < -20) {
-        fog = 0
+    if (fog < -50) {
+        fog = -50
     }
     if (fog > 100) {
         fog = 100
