@@ -18,7 +18,7 @@ export interface Client {
     spawnLocation?: string;
     state: {
       position: Float32Array;
-      rotation: number[];
+      rotation: Float32Array;
       health: number;
       shield: number;
     };

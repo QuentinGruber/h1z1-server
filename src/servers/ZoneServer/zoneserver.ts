@@ -166,7 +166,7 @@ export class ZoneServer extends EventEmitter {
           characterId: characterId,
           state: {
             position: new Float32Array([0, 0, 0, 0]),
-            rotation: [0, 0, 0, 0],
+            rotation: new Float32Array([0, 0, 0, 0]),
             health: 0,
             shield: 0,
           },
@@ -262,7 +262,7 @@ export class ZoneServer extends EventEmitter {
             ?.collection("worlds")
             .findOne({ worldId: this._worldId })
         ) {
-          const worker = new Worker(__dirname + "./workers/saveWorld.js", {
+          const worker = new Worker(__dirname + "/workers/saveWorld.js", {
             workerData: {
               mongoAddress: this._mongoAddress,
               worldId: this._worldId,
