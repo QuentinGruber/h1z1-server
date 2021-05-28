@@ -133,6 +133,7 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
+    server.worldRoutine(client);
     server.sendGameTimeSync(client);
     server.sendChatText(client, "Welcome to H1emu ! :D", true);
     client.lastPingTime = new Date().getTime();
@@ -292,9 +293,6 @@ const packetHandlers: any = {
     delete server._clients[client.sessionId];
   },
   GameTimeSync: function (server: ZoneServer, client: Client, packet: any) {
-    // TODO: execute worldRoutine only when like 2/3 of the radius distance has been travelled by the player no matter on X or Z axis
-    // this is a temp workaround
-    server.worldRoutine(client);
     server.sendGameTimeSync(client);
   },
   Synchronization: function (server: ZoneServer, client: Client, packet: any) {
@@ -1168,6 +1166,7 @@ const packetHandlers: any = {
     packet: any
   ) {
     if (packet.data.position) {
+  
       // TODO: modify array element beside re-creating it
       client.character.state.position = new Float32Array([
         packet.data.position[0],
@@ -1180,6 +1179,10 @@ const packetHandlers: any = {
         clearTimeout(client.logoutTimer)
         client.logoutTimer = null;
         server.sendData(client, "ClientUpdate.StartTimer", {stringId:0,time:0}); // don't know how it was done so
+      }
+
+      if(!isPosInRadius(server._npcRenderDistance/2.5,client.character.state.position,client.posAtLastRoutine)){
+        server.worldRoutine(client);
       }
     }
     if (packet.data.rotation) {

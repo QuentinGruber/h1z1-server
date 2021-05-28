@@ -647,6 +647,7 @@ export class ZoneServer extends EventEmitter {
     this.spawnNpcs(client);
     this.removeOutOfDistanceEntities(client);
     this.pointOfInterest(client);
+    client.posAtLastRoutine = client.character.state.position
   }
 
   filterOutOfDistance(element: any, playerPosition: Float32Array): boolean {
