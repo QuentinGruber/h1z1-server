@@ -6149,9 +6149,10 @@ var packets = [
     0x1a01,
     {
       fields: [
-        { name: "Unknown1", type: "byte", defaultValue: 0 },
-        { name: "Unknown2", type: "byte", defaultValue: 0 },
-        { name: "Unknown3", type: "uint32", defaultValue: 0 },
+        { name: "Unknown1", type: "boolean", defaultValue: 0 },
+        { name: "Unknown2", type: "boolean", defaultValue: 0 },
+        { name: "Unknown3", type: "boolean", defaultValue: 0 },
+
         { name: "Unknown4", type: "uint32", defaultValue: 0 },
         { name: "Unknown5", type: "uint32", defaultValue: 0 },
         { name: "Unknown6", type: "boolean", defaultValue: 0 },
@@ -6159,6 +6160,7 @@ var packets = [
         { name: "Unknown8", type: "uint32", defaultValue: 0 },
         { name: "Unknown9", type: "boolean", defaultValue: 0 },
         { name: "Unknown10", type: "uint32", defaultValue: 0 },
+        { name: "Unknown11", type: "uint32", defaultValue: 0 },
       ],
     },
   ],
@@ -6167,10 +6169,14 @@ var packets = [
   ["Ui.TaskFail", 0x1a04, {}],
   ["Ui.Unknown", 0x1a05, {}],
   ["Ui.ExecuteScript", 0x1a07, {}],
-  ["Ui.StartTimer", 0x1a09, {}],
-  ["Ui.ResetTimer", 0x1a0a, {}],
+  [
+    "Ui.StartTimer",
+    0x1a09,
+    { fields: [{ name: "time", type: "uint32", defaultValue: 0 }] },
+  ],
+  ["Ui.ResetTimer", 0x1a0a, { fields: []}],
   ["Ui.ObjectiveTargetUpdate", 0x1a0d, {}],
-  ["Ui.Message", 0x1a0e, {}],
+  ["Ui.Message", 0x1a0e,{ fields: [{ name: "stringId", type: "uint32", defaultValue: 0 }] }],
   ["Ui.CinematicStartLookAt", 0x1a0f, {}],
   [
     "Ui.WeaponHitFeedback",
