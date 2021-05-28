@@ -5833,7 +5833,17 @@ var packets = [
     },
   ],
   ["ClientUpdate.AddAbility", 0x111400, {}],
-  ["ClientUpdate.NotifyPlayer", 0x111500, {}],
+  [
+    "ClientUpdate.NotifyPlayer",
+    0x111500,
+    {
+      fields: [
+        { name: "unknown1", type: "byte", defaultValue: 0 },
+        { name: "unknown2", type: "uint16", defaultValue: 10 },
+        { name: "message", type: "string", defaultValue: "hello" },
+      ],
+    },
+  ],
   ["ClientUpdate.UpdateProfileAbilitySetApl", 0x111600, {}],
   ["ClientUpdate.RemoveActionBars", 0x111700, {}],
   ["ClientUpdate.UpdateActionBarSlot", 0x111800, {}],
@@ -5988,7 +5998,17 @@ var packets = [
   ],
   ["ClientUpdate.InGamePurchaseResult", 0x113000, {}],
   ["ClientUpdate.QuizComplete", 0x113100, {}],
-  ["ClientUpdate.StartTimer", 0x113200, []],
+  [
+    "ClientUpdate.StartTimer",
+    0x113200,
+    {
+      fields: [
+        { name: "stringId", type: "uint32", defaultValue: 0 },
+        { name: "time", type: "uint32", defaultValue: 10000 },
+        { name: "message", type: "string", defaultValue: "hello" },
+      ],
+    },
+  ],
   [
     "ClientUpdate.CompleteLogoutProcess",
     0x113300,
@@ -6001,10 +6021,30 @@ var packets = [
     0x113400,
     {
       fields: [
-        { name: "unknown1", type: "byte", defaultValue: 0 },
-        { name: "unknown2", type: "uint16", defaultValue: 10 },
-        { name: "unknown3", type: "float", defaultValue: 10 },
-        { name: "unknown4", type: "byte", defaultValue: 1 },
+        {
+          name: "Items",
+          type: "array8",
+          defaultValue: [],
+          fields: [
+            { name: "unknownWord1", type: "boolean", defaultValue: 0 },
+
+            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+            { name: "unknownQword1", type: "uint64", defaultValue: "0" },
+            { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+            { name: "unknownBoolean1", type: "boolean", defaultValue: true },
+            { name: "unknownQword2", type: "uint64", defaultValue: "0" },
+            { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword8", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword9", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword10", type: "uint32", defaultValue: 0 },
+            { name: "unknownWord2", type: "boolean", defaultValue: 0 },
+            { name: "unknownQword3", type: "uint64", defaultValue: "0" },
+            { name: "unknown11", type: "uint16", defaultValue: 0 },
+          ],
+        },
       ],
     },
   ],
@@ -6015,8 +6055,7 @@ var packets = [
       fields: [
         { name: "unknown1", type: "byte", defaultValue: 0 },
         { name: "unknown2", type: "uint16", defaultValue: 10 },
-        { name: "unknown3", type: "float", defaultValue: 10 },
-        { name: "unknown4", type: "byte", defaultValue: 1 },
+        { name: "message", type: "string", defaultValue: "hello" },
       ],
     },
   ],
@@ -6174,9 +6213,13 @@ var packets = [
     0x1a09,
     { fields: [{ name: "time", type: "uint32", defaultValue: 0 }] },
   ],
-  ["Ui.ResetTimer", 0x1a0a, { fields: []}],
+  ["Ui.ResetTimer", 0x1a0a, { fields: [] }],
   ["Ui.ObjectiveTargetUpdate", 0x1a0d, {}],
-  ["Ui.Message", 0x1a0e,{ fields: [{ name: "stringId", type: "uint32", defaultValue: 0 }] }],
+  [
+    "Ui.Message",
+    0x1a0e,
+    { fields: [{ name: "stringId", type: "uint32", defaultValue: 0 }] },
+  ],
   ["Ui.CinematicStartLookAt", 0x1a0f, {}],
   [
     "Ui.WeaponHitFeedback",
