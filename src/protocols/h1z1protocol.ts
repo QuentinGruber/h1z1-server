@@ -13,6 +13,7 @@
 const debug = require("debug")("H1Z1Protocol");
 import DataSchema from "h1z1-dataschema";
 import { lz4_decompress } from "../utils/utils";
+import eul2quat from "eul2quat";
 
 interface UpdatePositionObject {
   flags: any;
@@ -27,7 +28,7 @@ interface UpdatePositionObject {
   unknown10_float: any;
   unknown11_float: any;
   unknown12_float: any;
-  unknown13_float: any;
+  rotation: any;
   unknown14_float: any;
   unknown15_float: any;
 }
@@ -558,18 +559,20 @@ const parseUpdatePositionData = function (data: Buffer, offset: number) {
     }
 
     if (obj.flags & 0x200) {
-      obj["unknown13_float"] = [];
+      const rotationEul = [];
       var v = readSignedIntWith2bitLengthValue(data, offset);
-      obj["unknown13_float"][0] = v.value / 100;
+      rotationEul[0] = v.value / 100;
       offset += v.length;
       var v = readSignedIntWith2bitLengthValue(data, offset);
-      obj["unknown13_float"][1] = v.value / 100;
+      rotationEul[1] = v.value / 100;
       offset += v.length;
       var v = readSignedIntWith2bitLengthValue(data, offset);
-      obj["unknown13_float"][2] = v.value / 100;
+      rotationEul[2] = v.value / 100;
       offset += v.length;
       var v = readSignedIntWith2bitLengthValue(data, offset);
-      obj["unknown13_float"][3] = v.value / 100;
+      rotationEul[3] = v.value / 100;
+
+      obj["rotation"] = eul2quat(rotationEul);
       offset += v.length;
     }
 

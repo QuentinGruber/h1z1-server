@@ -166,7 +166,7 @@ export class ZoneServer extends EventEmitter {
           characterId: characterId,
           state: {
             position: new Float32Array([0, 0, 0, 0]),
-            rotation: [0, 0, 0, 0],
+            rotation: new Float32Array([0, 0, 0, 0]),
             health: 0,
             shield: 0,
           },
@@ -219,7 +219,7 @@ export class ZoneServer extends EventEmitter {
     await this.loadMongoData();
     this._weather = this._soloMode
       ? this._weatherTemplates[this._defaultWeatherTemplate]
-      : _.find(this._weatherTemplates, (template) => {
+      : _.find(this._weatherTemplates, (template: { templateName: string; }) => {
           return template.templateName === this._defaultWeatherTemplate;
         });
     this._profiles = this.generateProfiles();
@@ -262,7 +262,7 @@ export class ZoneServer extends EventEmitter {
             ?.collection("worlds")
             .findOne({ worldId: this._worldId })
         ) {
-          const worker = new Worker(__dirname + "./workers/saveWorld.js", {
+          const worker = new Worker(__dirname + "/workers/saveWorld.js", {
             workerData: {
               mongoAddress: this._mongoAddress,
               worldId: this._worldId,

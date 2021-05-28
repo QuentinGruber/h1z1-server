@@ -641,6 +641,30 @@ const vehicleReferenceDataSchema = [
   },
 ];
 
+const EquippedContainersSchema = {
+  name: "EquippedContainers",
+  type: "array8",
+  defaultValue: [],
+  fields: [
+    { name: "unknownWord1", type: "boolean", defaultValue: 0 },
+
+    { name: "unknownQword1", type: "uint64", defaultValue: "0" },
+    { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+    { name: "unknownQword2", type: "uint64", defaultValue: "0" },
+    { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+    {
+      name: "unknownArray1",
+      type: "array8",
+      defaultValue: [],
+      fields: [],
+    },
+    { name: "unknownBoolean", type: "boolean", defaultValue: true },
+    { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+    { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+    { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+  ],
+};
+
 function parseVehicleReferenceData(data, offset) {
   const dataLength = data.readUInt32LE(offset);
   offset += 4;
@@ -3483,29 +3507,7 @@ var packets = [
                 { name: "skillId", type: "uint32", defaultValue: 0 },
               ],
             },
-            {
-              name: "EquippedContainers",
-              type: "array8",
-              defaultValue: [],
-              fields: [
-                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-
-                { name: "unknownQword1", type: "uint64", defaultValue: 0 },
-                { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                { name: "unknownQword2", type: "uint64", defaultValue: 0 },
-                { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-                {
-                  name: "unknownArray1",
-                  type: "array",
-                  defaultValue: [],
-                  fields: [],
-                },
-                { name: "unknownBoolean", type: "boolean", defaultValue: true },
-                { name: "unknownDword4", type: "uint32", defaultValue: 0 },
-                { name: "unknownDword5", type: "uint32", defaultValue: 0 },
-                { name: "unknownDword6", type: "uint32", defaultValue: 0 },
-              ],
-            },
+            EquippedContainersSchema,
             { name: "unknownBoolean8", type: "boolean", defaultValue: true },
             { name: "unknownQword1", type: "uint64", defaultValue: 0 },
             { name: "unknownDword38", type: "uint32", defaultValue: 0 },
@@ -9159,7 +9161,17 @@ var packets = [
   ],
   ["Stats", 0xc9, {}],
   ["Resource", 0xca, {}],
-  ["Container.InitEquippedContainers", 0xcb02, {}],
+  [
+    "Container.InitEquippedContainers",
+    0xcb02,
+    {
+      fields: [
+        { name: "Unknown2", type: "uint16", defaultValue: 0 },
+        EquippedContainersSchema,
+      ],
+    },
+  ],
+  ["Container.Error", 0xcb03, {}],
   ["Container.PacketListAll", 0xcb05, {}],
   ["Container.UpdateEquippedContainer", 0xcb06, {}],
   ["Construction.PlacementRequest", 0xcc01, {}],
