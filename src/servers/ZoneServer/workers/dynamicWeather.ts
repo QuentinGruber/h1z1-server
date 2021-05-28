@@ -10,23 +10,98 @@ let rain = 50;
 let raintoggle = 0;
 let raintimems = 0;
 let raintimemin = 0;
-let temp = 73;
-let tempfix = 0;
 let wintertoggle = 0;
 let winter = 53;
 let raincheck = "OFF";
 let wintercheck = "OFF";
+let season = "summer";
+let sunposx = 10;
+let sunposy = 10;
+let sunposz = 10;
+let fchancemin = 0;
+let fchancemax = 0;
+let rchancemin = 0;
+let rchancemax = 0;
+let rreqval = 0; // required value to reach for rain toggle
 
+function summer() {
+    sunposx = 15;
+    sunposy = 90;
+    sunposz = 0;
+	fchancemin = -1;
+    fchancemax = 0;
+    rchancemin = -1;
+    rchancemax = 2;
+    rreqval = 150;
+    wintertoggle = 0;
+	season = "summer";
+    setTimeout(autumn, 900000);
+    setInterval(summer, 3600000);
+}
+function autumn() {
+    wintertoggle = 0;
+    sunposx = 30;
+    sunposy = 110;
+    sunposz = 20;
+	fchancemin = -1;
+    fchancemax = 2;
+    rchancemin = -1;
+    rchancemax = 2;
+    rreqval = 80;
+	season = "autumn";
+    setTimeout(winterr, 900000);
+}
+function winterr() {
+    sunposx = 90;
+    sunposy = 130;
+    sunposz = 60;
+    wintertoggle = 1;
+	fchancemin = -1;
+    fchancemax = 1;
+    rchancemin = 0;
+    rchancemax = 1;
+    rreqval = 100; 
+	season = "winter";
+    setTimeout(spring, 900000);
+}
+function spring() {
+    wintertoggle = 0;
+    sunposx = 20;
+    sunposy = 110;
+    sunposz = 10;
+	fchancemin = -3;
+    fchancemax = 1;
+    rchancemin = -1;
+    rchancemax = 2;
+    rreqval = 120;
+	season = "spring";
+}
+
+var seasonstart = (function() {
+    var started = false;
+    return function() {
+        if (!started) {
+            started = true;
+            summer();
+        }
+    };
+})();
 
 export default function dynamicWeather(serverContext:ZoneServer) {
-    const fogchance = randomIntFromInterval(-1, 1)
+	seasonstart();
+	
+	
+    const fogchance = randomIntFromInterval(fchancemin, fchancemax)
     fog = (fog + fogchance);
-    if (fog < -20) {
-        fog = 0
+    if (fog < -10) {
+        fog = -9;
     }
-    if (fog > 100) {
-        fog = 100
+    if (fog > 80) {
+        fog = 79;
     }
+	
+	
+	
     const foggchance = randomIntFromInterval(-3, 3)
     foggradient = (foggradient + foggchance);
     if (foggradient < 0) {
@@ -35,16 +110,16 @@ export default function dynamicWeather(serverContext:ZoneServer) {
     if (foggradient > 100) {
         foggradient = 100
     }
-    const rainchance = randomIntFromInterval(-2, 3)
+    const rainchance = randomIntFromInterval(rchancemin, rchancemax)
     rain = (rain + rainchance);
     if (rain < 0) {
         rain = 0
     }
-    if (rain >= 100) {
+    if (rain >= rreqval) {
         raintoggle = 1;
         raincheck = "ON";
         rain = 0;
-        const raintime = randomIntFromInterval(300000, 900000)
+        const raintime = randomIntFromInterval(180000, 300000)
         raintimems = (raintime / 60000)
         raintimemin = Math.floor(raintimems)
         debug("Rain will last for " + raintimemin + " min");
@@ -55,31 +130,14 @@ export default function dynamicWeather(serverContext:ZoneServer) {
             debug("Rain ended");
         }, raintime);
     }
-    const tempchance = randomIntFromInterval(-4, 3)
-    temp = (temp + tempchance)
-    tempfix = (temp - 33)
-    if (temp <= 33) {
-        temp = 31;
-        wintertoggle = 1;
-        wintercheck = "ON";
-        setTimeout(function() {
-            temp = 63;
-            wintertoggle = 0;
-            wintercheck = "OFF";
-            debug("Winter ended");
-        }, 900000);
-    }
-    if (temp > 78) {
-        temp = 78;
-    }
     if (wintertoggle === 0) {
         winter = 53;
-    } else {
+    }
+	if (wintertoggle === 1) {
         winter = 20;
     }
     debug("[WEATHERSYSTEM] FogDensity: " + fog + "/100");
     debug("[WEATHERSYSTEM] FogGradient: " + foggradient + "/100");
-    debug("[WEATHERSYSTEM] Winter: " + wintercheck + " - Temperature: " + tempfix + " C");
     debug("[WEATHERSYSTEM] Rain: " + raincheck + " - Conditions: " + rain + "/100");
     const rnd_weather = {
         name: "sky",
@@ -98,9 +156,9 @@ export default function dynamicWeather(serverContext:ZoneServer) {
         cloudWeight1: 83,
         cloudWeight2: 93,
         cloudWeight3: 27,
-        sunAxisX: 5,
-        sunAxisY: 82,
-        sunAxisZ: 94,
+        sunAxisX: sunposx,
+        sunAxisY: sunposy,
+        sunAxisZ: sunposz,
         unknownDword18: 76,
         unknownDword19: 74,
         unknownDword20: 59,
