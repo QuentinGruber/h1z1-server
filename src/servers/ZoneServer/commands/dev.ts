@@ -6,7 +6,13 @@ const debug = require("debug")("zonepacketHandlers");
 const dev: any = {
   testpacket: function (server: ZoneServer, client: Client, args: any[]) {
     const packetName = args[1];
-    server.sendData(client, packetName, {});
+    server.sendData(client, "ClientUpdate.StartTimer", {stringId:0,time:0});
+  },
+  quickDisc: function (server: ZoneServer, client: Client, args: any[]) {
+    server.sendData(client, "CharacterSelectSessionResponse", {
+      status: 1,
+      sessionId: client.loginSessionId,
+    });
   },
   testNpc: function (server: ZoneServer, client: Client, args: any[]) {
     const characterId = server.generateGuid();

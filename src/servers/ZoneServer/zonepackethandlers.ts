@@ -18,7 +18,7 @@ const Jenkins = require("hash-jenkins");
 import hax from "./commands/hax";
 import dev from "./commands/dev";
 import admin from "./commands/admin";
-import { Int64String } from "../../utils/utils";
+import { Int64String, isPosInRadius } from "../../utils/utils";
 import { ZoneServer } from "./zoneserver";
 import { Client } from "types/zoneserver";
 
@@ -1102,7 +1102,12 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
-    server.sendData(client, "ClientUpdate.CompleteLogoutProcess", {});
+    const logoutTime = 10000;
+    server.sendData(client, "ClientUpdate.StartTimer", {stringId:0,time:logoutTime});
+    client.posAtLogoutStart = client.character.state.position;
+    client.logoutTimer = setTimeout(() => {
+      server.sendData(client, "ClientUpdate.CompleteLogoutProcess", {});
+    }, logoutTime);
   },
   CharacterSelectSessionRequest: function (
     server: ZoneServer,
@@ -1170,6 +1175,12 @@ const packetHandlers: any = {
         packet.data.position[2],
         0,
       ]);
+
+      if(client.logoutTimer != null && !isPosInRadius(1,client.character.state.position,client.posAtLogoutStart)){
+        clearTimeout(client.logoutTimer)
+        client.logoutTimer = null;
+        server.sendData(client, "ClientUpdate.StartTimer", {stringId:0,time:0}); // don't know how it was done so
+      }
     }
     if (packet.data.rotation) {
       // TODO: modify array element beside re-creating it
