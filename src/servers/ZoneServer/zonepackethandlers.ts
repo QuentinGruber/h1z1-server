@@ -98,7 +98,7 @@ const packetHandlers: any = {
       guid4: "0x0000000000000000",
       gameTime: (server.getServerTime() & 0xffffffff) >>> 0,
     });
-    server.sendGameTimeSync(client);
+
     client.character.currentLoadoutId = 3;
     server.sendData(client, "Loadout.SetCurrentLoadout", {
       guid: client.character.guid,
@@ -133,14 +133,13 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
+    server.sendGameTimeSync(client);
     server.sendChatText(client, "Welcome to H1emu ! :D", true);
     client.lastPingTime = new Date().getTime();
     client.savePositionTimer = setTimeout(
       () => server.saveCharacterPosition(client, 30000),
       30000
     );
-    server.spawnNpcs(client);
-    server.spawnObjects(client);
   },
   Security: function (server: ZoneServer, client: Client, packet: any) {
     debug(packet);
