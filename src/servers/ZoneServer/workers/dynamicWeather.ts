@@ -13,7 +13,6 @@ let raintimemin = 0;
 let wintertoggle = 0;
 let winter = 53;
 let raincheck = "OFF";
-let wintercheck = "OFF";
 let sunposx = 10;
 let sunposy = 10;
 let sunposz = 10;
