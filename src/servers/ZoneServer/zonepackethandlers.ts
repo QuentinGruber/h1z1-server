@@ -296,7 +296,6 @@ const packetHandlers: any = {
     // TODO: execute worldRoutine only when like 2/3 of the radius distance has been travelled by the player no matter on X or Z axis
     // this is a temp workaround
     server.worldRoutine(client);
-    server.sendGameTimeSync(client);
   },
   Synchronization: function (server: ZoneServer, client: Client, packet: any) {
     const serverTime = Int64String(server.getServerTime());

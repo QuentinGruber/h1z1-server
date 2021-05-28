@@ -46,7 +46,7 @@ export class ZoneServer extends EventEmitter {
   _mongoAddress: string;
   _clients: any;
   _characters: any;
-  _gameTime: any;
+  _gameTime: number;
   _serverTime: any;
   _transientId: any;
   _packetHandlers: any;
@@ -67,6 +67,7 @@ export class ZoneServer extends EventEmitter {
   _worldId: number;
   _npcRenderDistance: number;
   _dynamicWeatherInterval: any;
+  _gameTimeSyncInterval: any;
 
   constructor(
     serverPort: number,
@@ -93,7 +94,8 @@ export class ZoneServer extends EventEmitter {
     this._packetHandlers = packetHandlers;
     this._startTime = 0;
     this._startGameTime = 0;
-    this._cycleSpeed = 0;
+    this._gameTime = 32400000; // 9am
+    this._cycleSpeed = 60;
     this._frozeCycle = false;
     this._reloadPacketsInterval;
     this._soloMode = false;
@@ -103,6 +105,7 @@ export class ZoneServer extends EventEmitter {
     this._profiles = [];
     this._npcRenderDistance = 350;
     this._pingTimeoutTime = 30000;
+    this.setupTimeSyncInterval()
     if (!this._mongoAddress) {
       this._soloMode = true;
       debug("Server in solo mode !");
@@ -933,17 +936,25 @@ export class ZoneServer extends EventEmitter {
     process.exit(0);
   }
 
+  setupTimeSyncInterval(){
+    this._gameTimeSyncInterval = setInterval(() => {
+      this._gameTime += 60000;
+    }, 5000);
+  }
+
   forceTime(time: number): void {
-    this._cycleSpeed = 0.1;
-    this._frozeCycle = true;
+    this._cycleSpeed = 600;
+    this._frozeCycle = false;
     this._gameTime = time;
+    clearInterval(this._gameTimeSyncInterval);
     this.sendSyncToAll();
   }
 
   removeForcedTime(): void {
-    this._cycleSpeed = 0.1;
+    this._cycleSpeed = 60;
     this._frozeCycle = false;
     this._gameTime = Date.now();
+    this.setupTimeSyncInterval()
     this.sendSyncToAll();
   }
 
@@ -968,19 +979,19 @@ export class ZoneServer extends EventEmitter {
   sendGameTimeSync(client: Client): void {
     debug("GameTimeSync");
     this.sendData(client, "GameTimeSync", {
-      time: Int64String(this.getGameTime()),
+      time: Int64String(this._gameTime),
       cycleSpeed: this._cycleSpeed,
-      unknownBoolean: false,
-    });
+      unknownBoolean: this._frozeCycle,
+      });
   }
 
   sendSyncToAll(): void {
-    // TODO: this do not seems to work
-    debug("Synchronization");
-    this.sendDataToAll("Synchronization", {
-      serverTime: Int64String(this.getServerTime()),
-      serverTime2: Int64String(this.getServerTime()),
-    });
+    debug("GameTimeSync");
+    this.sendDataToAll("GameTimeSync",  {
+      time: Int64String(this._gameTime),
+      cycleSpeed: this._cycleSpeed,
+      unknownBoolean: this._frozeCycle,
+      });
   }
 
   getTransientId(client: any, guid: string): number {
