@@ -5791,7 +5791,11 @@ var packets = [
       ],
     },
   ],
-  ["ClientUpdate.Mana", 0x110b00, {}],
+  ["ClientUpdate.Mana", 0x110b00, {
+    fields: [
+      { name: "mana", type: "uint32", defaultValue: 10 },
+    ],
+  }],
   ["ClientUpdate.UpdateProfileExperience", 0x110c00, {}],
   ["ClientUpdate.AddProfileAbilitySetApl", 0x110d00, {}],
   ["ClientUpdate.AddEffectTag", 0x110e00, {}],
@@ -5838,8 +5842,6 @@ var packets = [
     0x111500,
     {
       fields: [
-        { name: "unknown1", type: "byte", defaultValue: 0 },
-        { name: "unknown2", type: "uint16", defaultValue: 10 },
         { name: "message", type: "string", defaultValue: "hello" },
       ],
     },
@@ -5950,7 +5952,33 @@ var packets = [
     },
   ],
   ["ClientUpdate.UpdateManagedLocation", 0x112400, {}],
-  ["ClientUpdate.ScreenEffect", 0x112500, {}],
+  [
+    "ClientUpdate.ScreenEffect",
+    0x112500,
+    {
+      fields: [
+        { name: "unknown1", type: "uint32", defaultValue: 0 },
+        {
+          name: "unknownUint",
+          type: "custom",
+          parser: readUnsignedIntWith2bitLengthValue,
+          packer: packUnsignedIntWith2bitLengthValue,
+        },
+        { name: "unknown2", type: "boolean", defaultValue: 0 },
+        { name: "unknown3", type: "boolean", defaultValue: 0 },
+        { name: "unknown4", type: "boolean", defaultValue: 0 },
+        { name: "unknown5", type: "boolean", defaultValue: 0 },
+        { name: "unknown6", type: "boolean", defaultValue: 0 },
+        { name: "unknown7", type: "uint32", defaultValue: 0 },
+        { name: "unknown8", type: "uint32", defaultValue: 0 },
+        {
+          name: "vector1",
+          type: "floatvector4",
+          defaultValue: [0, 0, 0, 1],
+        },
+      ],
+    },
+  ],
   [
     "ClientUpdate.MovementVersion",
     0x112600,
