@@ -10,9 +10,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-const PacketTable = require("../../packettable");
+import PacketTableBuild from "../../packettable";
 
-const serverField = [
+const serverField:any[] = [
   { name: "serverId", type: "uint32" },
   { name: "serverState", type: "uint32" },
   { name: "locked", type: "boolean" },
@@ -24,10 +24,11 @@ const serverField = [
   { name: "serverInfo", type: "string" },
   { name: "populationLevel", type: "uint32" },
   { name: "populationData", type: "string" },
+  { name: "AccessExpression", type: "string", defaultValue: "" },
   { name: "allowedAccess", type: "boolean" },
 ];
 
-const packets = [
+const packets:any[] = [
   [
     "LoginRequest",
     0x01,
@@ -67,7 +68,7 @@ const packets = [
     "ForceDisconnect",
     0x04,
     {
-      fields: [{ name: "reason", type: "uint32", defaultValue: 1 }],
+      fields: [],
     },
   ],
   [
@@ -405,16 +406,8 @@ const packets = [
     0x10,
     {
       fields: [
-        { name: "serverId", type: "uint32" },
-        { name: "unknown1", type: "uint32" },
-        {
-          name: "payload",
-          type: "byteswithlength",
-          fields: [
-            { name: "characterName", type: "string" },
-            { name: "unknown2", type: "uint32" },
-          ],
-        },
+        { name: "unknown", type: "string" },
+        { name: "data", type: "string" },
       ],
     },
   ],
@@ -422,30 +415,12 @@ const packets = [
     "TunnelAppPacketServerToClient",
     0x11,
     {
-      fields: [
-        { name: "serverId", type: "uint32" },
-        { name: "unknown1", type: "uint32" },
-
-        {
-          name: "payload",
-          type: "byteswithlength",
-          fields: [
-            { name: "unknown1", type: "uint32" },
-            { name: "characterName", type: "string" },
-            { name: "unknown2", type: "uint32" },
-          ],
-        },
-      ],
+      fields: [{ name: "unknown1", type: "boolean" }],
     },
   ],
   ["CharacterTransferRequest", 0x12, {}],
   ["CharacterTransferReply", 0x13, {}],
 ];
 
-const packetTypes = {},
-  packetDescriptors = {};
+export const [packetTypes,packetDescriptors] = PacketTableBuild(packets);
 
-PacketTable.build(packets, packetTypes, packetDescriptors);
-
-exports.PacketTypes = packetTypes;
-exports.Packets = packetDescriptors;

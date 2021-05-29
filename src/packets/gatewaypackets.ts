@@ -10,9 +10,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-const PacketTable = require("./packettable");
+import PacketTableBuild from "./packettable";
 
-const packets = [
+const packets:any[] = [
   [
     "LoginRequest",
     0x01,
@@ -64,10 +64,8 @@ const packets = [
   ],
 ];
 
-const packetTypes = {},
-  packetDescriptors = {};
 
-PacketTable.build(packets, packetTypes, packetDescriptors);
 
-exports.PacketTypes = packetTypes;
-exports.Packets = packetDescriptors;
+export const [packetTypes,packetDescriptors] = PacketTableBuild(packets);
+const GatewayPackets = {Packets:packetDescriptors,PacketDescriptors:packetTypes}
+export default GatewayPackets

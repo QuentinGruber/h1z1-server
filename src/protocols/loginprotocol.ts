@@ -23,10 +23,10 @@ export class LoginProtocol {
     // Maybe will remove this switch later
     switch (this.protocolName) {
       case "LoginUdp_9":
-        this.LoginPackets = require("../packets/LoginUdp/LoginUdp_9/loginpackets");
+        this.LoginPackets = require("../packets/LoginUdp/LoginUdp_9/loginpackets").default;
         break;
       case "LoginUdp_11":
-        this.LoginPackets = require("../packets/LoginUdp/LoginUdp_11/loginpackets");
+        this.LoginPackets = require("../packets/LoginUdp/LoginUdp_11/loginpackets").default;
         break;
       default:
         debug(`Protocol ${this.protocolName} unsupported !`);
@@ -37,6 +37,7 @@ export class LoginProtocol {
   parse(data: any) {
     const packetType = data[0];
     let result;
+    console.log(this.LoginPackets)
     const packet = this.LoginPackets.Packets[packetType];
     if (packet) {
       if (packet.name === "TunnelAppPacketClientToServer") {
