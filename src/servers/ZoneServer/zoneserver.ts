@@ -166,7 +166,7 @@ export class ZoneServer extends EventEmitter {
           characterId: characterId,
           state: {
             position: new Float32Array([0, 0, 0, 0]),
-            rotation: [0, 0, 0, 0],
+            rotation: new Float32Array([0, 0, 0, 0]),
             health: 0,
             shield: 0,
           },
@@ -219,7 +219,7 @@ export class ZoneServer extends EventEmitter {
     await this.loadMongoData();
     this._weather = this._soloMode
       ? this._weatherTemplates[this._defaultWeatherTemplate]
-      : _.find(this._weatherTemplates, (template) => {
+      : _.find(this._weatherTemplates, (template: { templateName: string; }) => {
           return template.templateName === this._defaultWeatherTemplate;
         });
     this._profiles = this.generateProfiles();
@@ -262,7 +262,7 @@ export class ZoneServer extends EventEmitter {
             ?.collection("worlds")
             .findOne({ worldId: this._worldId })
         ) {
-          const worker = new Worker(__dirname + "./workers/saveWorld.js", {
+          const worker = new Worker(__dirname + "/workers/saveWorld.js", {
             workerData: {
               mongoAddress: this._mongoAddress,
               worldId: this._worldId,
@@ -626,6 +626,7 @@ export class ZoneServer extends EventEmitter {
   }
 
   pointOfInterest(client: Client) {
+    let isInAPOIArea = false;
     Z1_POIs.forEach((point: any) => {
       if (
         isPosInRadius(
@@ -638,8 +639,15 @@ export class ZoneServer extends EventEmitter {
           messageStringId: point.stringId,
           id: point.POIid,
         });
+        isInAPOIArea = true;
       }
     });
+    if(!isInAPOIArea){
+      this.sendData(client, "POIChangeMessage", {
+        messageStringId: 0,
+        id: 115,
+      });
+    }
   }
 
   worldRoutine(client: Client): void {
@@ -647,6 +655,7 @@ export class ZoneServer extends EventEmitter {
     this.spawnNpcs(client);
     this.removeOutOfDistanceEntities(client);
     this.pointOfInterest(client);
+    client.posAtLastRoutine = client.character.state.position
   }
 
   filterOutOfDistance(element: any, playerPosition: Float32Array): boolean {

@@ -12,7 +12,9 @@
     "@types/mongodb": "3.6.12",
     "@types/node": "15.0.1",
     "@types/uuid": "^8.3.0",
+    "chokidar": "^3.5.1",
     "debug": "4.3.1",
+    "eul2quat": "^1.0.0",
     "h1z1-dataschema": "1.2.0",
     "hash-jenkins": "1.0.1",
     "js-base64": "3.6.1",
@@ -34,10 +36,11 @@
     "ts-node": "^10.0.0"
   },
   "scripts": {
-    "build-optimized": "npm run build && terser-output ./out",
+    "build-optimized": "npm run build-swc && terser-output ./out",
     "build": "tsc -p ./tsconfig.json",
     "test": "node tests/testRuntime && ts-node tests/testIssuesInPacketSchemas.ts",
     "build-swc": "npx swc src -d out",
+    "watch-swc": "npx swc --watch src -d out",
     "postinstall": "npm run build-optimized",
     "before_release": "npm run prettier_sources && echo Do not forget to update package version !",
     "publish_release": "git push --tags && git push origin dev && git push origin master",

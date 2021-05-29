@@ -641,6 +641,30 @@ const vehicleReferenceDataSchema = [
   },
 ];
 
+const EquippedContainersSchema = {
+  name: "EquippedContainers",
+  type: "array8",
+  defaultValue: [],
+  fields: [
+    { name: "unknownWord1", type: "boolean", defaultValue: 0 },
+
+    { name: "unknownQword1", type: "uint64", defaultValue: "0" },
+    { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+    { name: "unknownQword2", type: "uint64", defaultValue: "0" },
+    { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+    {
+      name: "unknownArray1",
+      type: "array8",
+      defaultValue: [],
+      fields: [],
+    },
+    { name: "unknownBoolean", type: "boolean", defaultValue: true },
+    { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+    { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+    { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+  ],
+};
+
 function parseVehicleReferenceData(data, offset) {
   const dataLength = data.readUInt32LE(offset);
   offset += 4;
@@ -3483,29 +3507,7 @@ var packets = [
                 { name: "skillId", type: "uint32", defaultValue: 0 },
               ],
             },
-            {
-              name: "EquippedContainers",
-              type: "array8",
-              defaultValue: [],
-              fields: [
-                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-
-                { name: "unknownQword1", type: "uint64", defaultValue: 0 },
-                { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                { name: "unknownQword2", type: "uint64", defaultValue: 0 },
-                { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-                {
-                  name: "unknownArray1",
-                  type: "array",
-                  defaultValue: [],
-                  fields: [],
-                },
-                { name: "unknownBoolean", type: "boolean", defaultValue: true },
-                { name: "unknownDword4", type: "uint32", defaultValue: 0 },
-                { name: "unknownDword5", type: "uint32", defaultValue: 0 },
-                { name: "unknownDword6", type: "uint32", defaultValue: 0 },
-              ],
-            },
+            EquippedContainersSchema,
             { name: "unknownBoolean8", type: "boolean", defaultValue: true },
             { name: "unknownQword1", type: "uint64", defaultValue: 0 },
             { name: "unknownDword38", type: "uint32", defaultValue: 0 },
@@ -5789,7 +5791,11 @@ var packets = [
       ],
     },
   ],
-  ["ClientUpdate.Mana", 0x110b00, {}],
+  ["ClientUpdate.Mana", 0x110b00, {
+    fields: [
+      { name: "mana", type: "uint32", defaultValue: 10 },
+    ],
+  }],
   ["ClientUpdate.UpdateProfileExperience", 0x110c00, {}],
   ["ClientUpdate.AddProfileAbilitySetApl", 0x110d00, {}],
   ["ClientUpdate.AddEffectTag", 0x110e00, {}],
@@ -5831,7 +5837,15 @@ var packets = [
     },
   ],
   ["ClientUpdate.AddAbility", 0x111400, {}],
-  ["ClientUpdate.NotifyPlayer", 0x111500, {}],
+  [
+    "ClientUpdate.NotifyPlayer",
+    0x111500,
+    {
+      fields: [
+        { name: "message", type: "string", defaultValue: "hello" },
+      ],
+    },
+  ],
   ["ClientUpdate.UpdateProfileAbilitySetApl", 0x111600, {}],
   ["ClientUpdate.RemoveActionBars", 0x111700, {}],
   ["ClientUpdate.UpdateActionBarSlot", 0x111800, {}],
@@ -5938,7 +5952,33 @@ var packets = [
     },
   ],
   ["ClientUpdate.UpdateManagedLocation", 0x112400, {}],
-  ["ClientUpdate.ScreenEffect", 0x112500, {}],
+  [
+    "ClientUpdate.ScreenEffect",
+    0x112500,
+    {
+      fields: [
+        { name: "unknown1", type: "uint32", defaultValue: 0 },
+        {
+          name: "unknownUint",
+          type: "custom",
+          parser: readUnsignedIntWith2bitLengthValue,
+          packer: packUnsignedIntWith2bitLengthValue,
+        },
+        { name: "unknown2", type: "boolean", defaultValue: 0 },
+        { name: "unknown3", type: "boolean", defaultValue: 0 },
+        { name: "unknown4", type: "boolean", defaultValue: 0 },
+        { name: "unknown5", type: "boolean", defaultValue: 0 },
+        { name: "unknown6", type: "boolean", defaultValue: 0 },
+        { name: "unknown7", type: "uint32", defaultValue: 0 },
+        { name: "unknown8", type: "uint32", defaultValue: 0 },
+        {
+          name: "vector1",
+          type: "floatvector4",
+          defaultValue: [0, 0, 0, 1],
+        },
+      ],
+    },
+  ],
   [
     "ClientUpdate.MovementVersion",
     0x112600,
@@ -5986,7 +6026,17 @@ var packets = [
   ],
   ["ClientUpdate.InGamePurchaseResult", 0x113000, {}],
   ["ClientUpdate.QuizComplete", 0x113100, {}],
-  ["ClientUpdate.StartTimer", 0x113200, []],
+  [
+    "ClientUpdate.StartTimer",
+    0x113200,
+    {
+      fields: [
+        { name: "stringId", type: "uint32", defaultValue: 0 },
+        { name: "time", type: "uint32", defaultValue: 10000 },
+        { name: "message", type: "string", defaultValue: "hello" },
+      ],
+    },
+  ],
   [
     "ClientUpdate.CompleteLogoutProcess",
     0x113300,
@@ -5999,10 +6049,30 @@ var packets = [
     0x113400,
     {
       fields: [
-        { name: "unknown1", type: "byte", defaultValue: 0 },
-        { name: "unknown2", type: "uint16", defaultValue: 10 },
-        { name: "unknown3", type: "float", defaultValue: 10 },
-        { name: "unknown4", type: "byte", defaultValue: 1 },
+        {
+          name: "Items",
+          type: "array8",
+          defaultValue: [],
+          fields: [
+            { name: "unknownWord1", type: "boolean", defaultValue: 0 },
+
+            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+            { name: "unknownQword1", type: "uint64", defaultValue: "0" },
+            { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+            { name: "unknownBoolean1", type: "boolean", defaultValue: true },
+            { name: "unknownQword2", type: "uint64", defaultValue: "0" },
+            { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword8", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword9", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword10", type: "uint32", defaultValue: 0 },
+            { name: "unknownWord2", type: "boolean", defaultValue: 0 },
+            { name: "unknownQword3", type: "uint64", defaultValue: "0" },
+            { name: "unknown11", type: "uint16", defaultValue: 0 },
+          ],
+        },
       ],
     },
   ],
@@ -6010,12 +6080,7 @@ var packets = [
     "ClientUpdate.TextAlert",
     0x113500,
     {
-      fields: [
-        { name: "unknown1", type: "byte", defaultValue: 0 },
-        { name: "unknown2", type: "uint16", defaultValue: 10 },
-        { name: "unknown3", type: "float", defaultValue: 10 },
-        { name: "unknown4", type: "byte", defaultValue: 1 },
-      ],
+      fields: [{ name: "message", type: "string", defaultValue: "hello" }],
     },
   ],
   ["ClientUpdate.ClearEntitlementValues", 0x113600, []],
@@ -6147,9 +6212,10 @@ var packets = [
     0x1a01,
     {
       fields: [
-        { name: "Unknown1", type: "byte", defaultValue: 0 },
-        { name: "Unknown2", type: "byte", defaultValue: 0 },
-        { name: "Unknown3", type: "uint32", defaultValue: 0 },
+        { name: "Unknown1", type: "boolean", defaultValue: 0 },
+        { name: "Unknown2", type: "boolean", defaultValue: 0 },
+        { name: "Unknown3", type: "boolean", defaultValue: 0 },
+
         { name: "Unknown4", type: "uint32", defaultValue: 0 },
         { name: "Unknown5", type: "uint32", defaultValue: 0 },
         { name: "Unknown6", type: "boolean", defaultValue: 0 },
@@ -6157,6 +6223,7 @@ var packets = [
         { name: "Unknown8", type: "uint32", defaultValue: 0 },
         { name: "Unknown9", type: "boolean", defaultValue: 0 },
         { name: "Unknown10", type: "uint32", defaultValue: 0 },
+        { name: "Unknown11", type: "uint32", defaultValue: 0 },
       ],
     },
   ],
@@ -6165,10 +6232,18 @@ var packets = [
   ["Ui.TaskFail", 0x1a04, {}],
   ["Ui.Unknown", 0x1a05, {}],
   ["Ui.ExecuteScript", 0x1a07, {}],
-  ["Ui.StartTimer", 0x1a09, {}],
-  ["Ui.ResetTimer", 0x1a0a, {}],
+  [
+    "Ui.StartTimer",
+    0x1a09,
+    { fields: [{ name: "time", type: "uint32", defaultValue: 0 }] },
+  ],
+  ["Ui.ResetTimer", 0x1a0a, { fields: [] }],
   ["Ui.ObjectiveTargetUpdate", 0x1a0d, {}],
-  ["Ui.Message", 0x1a0e, {}],
+  [
+    "Ui.Message",
+    0x1a0e,
+    { fields: [{ name: "stringId", type: "uint32", defaultValue: 0 }] },
+  ],
   ["Ui.CinematicStartLookAt", 0x1a0f, {}],
   [
     "Ui.WeaponHitFeedback",
@@ -9159,7 +9234,17 @@ var packets = [
   ],
   ["Stats", 0xc9, {}],
   ["Resource", 0xca, {}],
-  ["Container.InitEquippedContainers", 0xcb02, {}],
+  [
+    "Container.InitEquippedContainers",
+    0xcb02,
+    {
+      fields: [
+        { name: "Unknown2", type: "uint16", defaultValue: 0 },
+        EquippedContainersSchema,
+      ],
+    },
+  ],
+  ["Container.Error", 0xcb03, {}],
   ["Container.PacketListAll", 0xcb05, {}],
   ["Container.UpdateEquippedContainer", 0xcb06, {}],
   ["Construction.PlacementRequest", 0xcc01, {}],
