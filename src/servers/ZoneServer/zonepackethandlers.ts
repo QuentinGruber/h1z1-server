@@ -1101,10 +1101,13 @@ const packetHandlers: any = {
     packet: any
   ) {
     const logoutTime = 10000;
-    server.sendData(client, "ClientUpdate.StartTimer", {stringId:0,time:logoutTime});
+    server.sendData(client, "ClientUpdate.StartTimer", {
+      stringId: 0,
+      time: logoutTime,
+    });
     client.posAtLogoutStart = client.character.state.position;
-    if(client.logoutTimer != null){
-      clearTimeout(client.logoutTimer)
+    if (client.logoutTimer != null) {
+      clearTimeout(client.logoutTimer);
     }
     client.logoutTimer = setTimeout(() => {
       server.sendData(client, "ClientUpdate.CompleteLogoutProcess", {});
@@ -1134,12 +1137,18 @@ const packetHandlers: any = {
   Pickup: function (server: ZoneServer, client: Client, packet: any) {
     debug(packet);
     const { data: packetData } = packet;
-    server.sendData(client, "ClientUpdate.StartTimer", {stringId:582,time:100});
-    if(packetData.name === "SpeedTree.Blackberry"){
-      server.sendData(client, "ClientUpdate.TextAlert", {message:"Blackberries...miss you..."});
-    }
-    else{
-      server.sendData(client, "ClientUpdate.TextAlert", {message:packetData.name.replace("SpeedTree.","")});
+    server.sendData(client, "ClientUpdate.StartTimer", {
+      stringId: 582,
+      time: 100,
+    });
+    if (packetData.name === "SpeedTree.Blackberry") {
+      server.sendData(client, "ClientUpdate.TextAlert", {
+        message: "Blackberries...miss you...",
+      });
+    } else {
+      server.sendData(client, "ClientUpdate.TextAlert", {
+        message: packetData.name.replace("SpeedTree.", ""),
+      });
     }
     server.sendData(client, "PlayerUpdate.StartHarvest", {
       characterId: client.character.characterId,
@@ -1176,7 +1185,6 @@ const packetHandlers: any = {
     packet: any
   ) {
     if (packet.data.position) {
-  
       // TODO: modify array element beside re-creating it
       client.character.state.position = new Float32Array([
         packet.data.position[0],
@@ -1185,13 +1193,29 @@ const packetHandlers: any = {
         0,
       ]);
 
-      if(client.logoutTimer != null && !isPosInRadius(1,client.character.state.position,client.posAtLogoutStart)){
-        clearTimeout(client.logoutTimer)
+      if (
+        client.logoutTimer != null &&
+        !isPosInRadius(
+          1,
+          client.character.state.position,
+          client.posAtLogoutStart
+        )
+      ) {
+        clearTimeout(client.logoutTimer);
         client.logoutTimer = null;
-        server.sendData(client, "ClientUpdate.StartTimer", {stringId:0,time:0}); // don't know how it was done so
+        server.sendData(client, "ClientUpdate.StartTimer", {
+          stringId: 0,
+          time: 0,
+        }); // don't know how it was done so
       }
 
-      if(!isPosInRadius(server._npcRenderDistance/2.5,client.character.state.position,client.posAtLastRoutine)){
+      if (
+        !isPosInRadius(
+          server._npcRenderDistance / 2.5,
+          client.character.state.position,
+          client.posAtLastRoutine
+        )
+      ) {
         server.worldRoutine(client);
       }
     }

@@ -10,10 +10,13 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-export default function PacketTableBuild(packets: string | any[], prefix?: string):any[] {
+export default function PacketTableBuild(
+  packets: string | any[],
+  prefix?: string
+): any[] {
   prefix = prefix ? prefix + "." : "";
-  const packetTypes:any = {};
-  const packetDescriptors:any = {}; 
+  const packetTypes: any = {};
+  const packetDescriptors: any = {};
   for (let i = 0; i < packets.length; i++) {
     const packet = packets[i],
       name = prefix + packet[0],
@@ -29,5 +32,5 @@ export default function PacketTableBuild(packets: string | any[], prefix?: strin
       pack: packetDesc.pack,
     };
   }
-  return [packetTypes,packetDescriptors]
+  return [packetTypes, packetDescriptors];
 }

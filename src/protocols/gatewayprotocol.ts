@@ -12,7 +12,7 @@
 
 const debug = require("debug")("GatewayProtocol");
 import DataSchema from "h1z1-dataschema";
-import {packetDescriptors , packetTypes} from "../packets/gatewaypackets";
+import { packetDescriptors, packetTypes } from "../packets/gatewaypackets";
 
 export class GatewayProtocol {
   parse(data: Buffer) {

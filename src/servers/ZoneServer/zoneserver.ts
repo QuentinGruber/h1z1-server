@@ -220,7 +220,7 @@ export class ZoneServer extends EventEmitter {
     await this.loadMongoData();
     this._weather = this._soloMode
       ? this._weatherTemplates[this._defaultWeatherTemplate]
-      : _.find(this._weatherTemplates, (template: { templateName: string; }) => {
+      : _.find(this._weatherTemplates, (template: { templateName: string }) => {
           return template.templateName === this._defaultWeatherTemplate;
         });
     this._profiles = this.generateProfiles();
@@ -326,7 +326,10 @@ export class ZoneServer extends EventEmitter {
     await this.setupServer();
     this._startTime += Date.now();
     this._startGameTime += Date.now();
-    this._dynamicWeatherInterval = setInterval(()=>dynamicWeather(this),5000)
+    this._dynamicWeatherInterval = setInterval(
+      () => dynamicWeather(this),
+      5000
+    );
     this._gatewayServer.start();
   }
 
@@ -643,7 +646,7 @@ export class ZoneServer extends EventEmitter {
         isInAPOIArea = true;
       }
     });
-    if(!isInAPOIArea){
+    if (!isInAPOIArea) {
       this.sendData(client, "POIChangeMessage", {
         messageStringId: 0,
         id: 115,
@@ -656,7 +659,7 @@ export class ZoneServer extends EventEmitter {
     this.spawnNpcs(client);
     this.removeOutOfDistanceEntities(client);
     this.pointOfInterest(client);
-    client.posAtLastRoutine = client.character.state.position
+    client.posAtLastRoutine = client.character.state.position;
   }
 
   filterOutOfDistance(element: any, playerPosition: Float32Array): boolean {
@@ -787,7 +790,7 @@ export class ZoneServer extends EventEmitter {
   ): void {
     if (isGlobal) {
       this.sendDataToAll("SkyChanged", weather);
-      if(client?.character?.name){
+      if (client?.character?.name) {
         this.sendGlobalChatText(
           `User "${client.character.name}" has changed weather.`
         );
