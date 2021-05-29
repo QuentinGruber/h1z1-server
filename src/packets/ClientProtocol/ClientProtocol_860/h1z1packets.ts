@@ -12,7 +12,6 @@
 
 import PacketTableBuild from "../../packettable";
 import DataSchema from "h1z1-dataschema";
-const _ = require("lodash");
 import { lz4_decompress } from "../../../utils/utils";
 import { stubFalse } from "lodash";
 
