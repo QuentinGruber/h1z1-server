@@ -6052,11 +6052,7 @@ var packets = [
     "ClientUpdate.TextAlert",
     0x113500,
     {
-      fields: [
-        { name: "unknown1", type: "byte", defaultValue: 0 },
-        { name: "unknown2", type: "uint16", defaultValue: 10 },
-        { name: "message", type: "string", defaultValue: "hello" },
-      ],
+      fields: [{ name: "message", type: "string", defaultValue: "hello" }],
     },
   ],
   ["ClientUpdate.ClearEntitlementValues", 0x113600, []],
