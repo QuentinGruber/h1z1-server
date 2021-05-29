@@ -5750,12 +5750,8 @@ var packets = [
     0x110200,
     {
       fields: [
-        {
-          name: "itemAddData",
-          type: "custom",
-          parser: parseItemAddData,
-          packer: packItemAddData,
-        },
+        { name: "guid", type: "uint64", defaultValue: "0" },
+        { name: "unknown1", type: "uint32", defaultValue: 7 }, // need to be > 0
       ],
     },
   ],
@@ -5791,11 +5787,13 @@ var packets = [
       ],
     },
   ],
-  ["ClientUpdate.Mana", 0x110b00, {
-    fields: [
-      { name: "mana", type: "uint32", defaultValue: 10 },
-    ],
-  }],
+  [
+    "ClientUpdate.Mana",
+    0x110b00,
+    {
+      fields: [{ name: "mana", type: "uint32", defaultValue: 10 }],
+    },
+  ],
   ["ClientUpdate.UpdateProfileExperience", 0x110c00, {}],
   ["ClientUpdate.AddProfileAbilitySetApl", 0x110d00, {}],
   ["ClientUpdate.AddEffectTag", 0x110e00, {}],
@@ -5841,9 +5839,7 @@ var packets = [
     "ClientUpdate.NotifyPlayer",
     0x111500,
     {
-      fields: [
-        { name: "message", type: "string", defaultValue: "hello" },
-      ],
+      fields: [{ name: "message", type: "string", defaultValue: "hello" }],
     },
   ],
   ["ClientUpdate.UpdateProfileAbilitySetApl", 0x111600, {}],
