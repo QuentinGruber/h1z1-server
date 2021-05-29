@@ -1172,6 +1172,14 @@ const packetHandlers: any = {
         0,
       ]);
     }
+	if (packet.data.unknown13_float) {
+      client.character.state.rotation = [
+        packet.data.unknown13_float[0],
+        0,
+        0,
+        0,
+      ];
+	}
   },
   "PlayerUpdate.Respawn": function (
     server: ZoneServer,
@@ -1197,3 +1205,4 @@ const packetHandlers: any = {
 };
 
 export default packetHandlers;
+
