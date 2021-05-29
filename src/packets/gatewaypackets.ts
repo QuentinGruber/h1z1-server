@@ -67,3 +67,5 @@ const packets:any[] = [
 
 
 export const [packetTypes,packetDescriptors] = PacketTableBuild(packets);
+const GatewayPackets = {Packets:packetDescriptors,PacketDescriptors:packetTypes}
+export default GatewayPackets

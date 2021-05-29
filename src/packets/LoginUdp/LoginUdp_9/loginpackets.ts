@@ -444,3 +444,6 @@ const packets:any[] = [
 
 export const [packetTypes,packetDescriptors] = PacketTableBuild(packets);
 
+const loginPackets = {Packets:packetDescriptors,PacketTypes:packetTypes}
+export default loginPackets
+
