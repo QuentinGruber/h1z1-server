@@ -3,7 +3,12 @@ const { H1Z1Packets } = new H1Z1Protocol("ClientProtocol_860")
 
 Object.values(H1Z1Packets.Packets).forEach((packet:any) => {
   const { schema } = packet;
+  try{
   checkFields(schema)
+  }
+  catch(e){
+    console.error(e)
+  }
 });
 
 process.stdout.write("No issue detected in H1Z1 packets schemas")
