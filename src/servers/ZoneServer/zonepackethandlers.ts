@@ -1265,9 +1265,10 @@ const packetHandlers: any = {
       });
     }
     else if(server._vehicles[guid]){
-      server.sendData(client, "PlayerUpdate.LightweightToFullVehicle", {
+      /*server.sendData(client, "PlayerUpdate.LightweightToFullVehicle", {
       characterId: guid,
-      });
+      });*/
+      debug("LightweightToFullVehicle")
     }
   },
 };

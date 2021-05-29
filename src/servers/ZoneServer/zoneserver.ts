@@ -657,18 +657,63 @@ export class ZoneServer extends EventEmitter {
   }
 
   worldRoutine(client: Client): void {
+    this.spawnCharacters(client);
     this.spawnObjects(client);
     this.spawnNpcs(client);
+    this.spawnVehicles(client);
     this.removeOutOfDistanceEntities(client);
     this.pointOfInterest(client);
     client.posAtLastRoutine = client.character.state.position;
+  }
+
+  spawnCharacters(client: Client) {
+    for (const character in this._characters) {
+      if (
+        client.character.characterId != character &&
+        isPosInRadius(
+          this._npcRenderDistance,
+          client.character.state.position,
+          this._characters[character].state.position
+        ) &&
+        !client.spawnedEntities.includes(this._characters[character])
+      ) {
+        this.sendData(
+          client,
+          "PlayerUpdate.AddLightweightPc",
+          {...this._characters[character],transientId:1},
+          1
+        );
+        client.spawnedEntities.push(this._characters[character]);
+      }
+    }
+  }
+
+  spawnVehicles(client: Client) {
+    for (const vehicle in this._vehicles) {
+      if (
+        isPosInRadius(
+          this._npcRenderDistance,
+          client.character.state.position,
+          this._vehicles[vehicle].position
+        ) &&
+        !client.spawnedEntities.includes(this._vehicles[vehicle])
+      ) {
+        this.sendData(
+          client,
+          "PlayerUpdate.AddLightweightVehicle",
+          this._vehicles[vehicle],
+          1
+        );
+        client.spawnedEntities.push(this._vehicles[vehicle]);
+      }
+    }
   }
 
   filterOutOfDistance(element: any, playerPosition: Float32Array): boolean {
     return !isPosInRadius(
       this._npcRenderDistance,
       playerPosition,
-      element.position
+      element.position || element.state.position
     );
   }
   removeOutOfDistanceEntities(client: Client): void {
