@@ -32,13 +32,13 @@
     "@typescript-eslint/eslint-plugin": "^4.22.0",
     "@typescript-eslint/parser": "^4.22.0",
     "eslint": "^7.25.0",
-    "prettier": "^2.2.1",
-    "ts-node": "^10.0.0"
+    "prettier": "^2.2.1"
   },
   "scripts": {
     "build-optimized": "npm run build-swc && terser-output ./out",
     "build": "tsc -p ./tsconfig.json",
-    "test": "node tests/testRuntime && ts-node tests/testIssuesInPacketSchemas.ts",
+    "build-tests": "npx swc tests -d tests_out",
+    "test": "npm run build-tests && node tests_out/testRuntime.js && node tests_out/testIssuesInPacketSchemas.js",
     "build-swc": "npx swc src -d out",
     "watch-swc": "npx swc --watch src -d out",
     "postinstall": "npm run build-optimized",
