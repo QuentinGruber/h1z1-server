@@ -12,13 +12,13 @@
 
 const debug = require("debug")("GatewayProtocol");
 import DataSchema from "h1z1-dataschema";
-import GatewayPackets from "../packets/gatewaypackets";
+import { packetDescriptors, packetTypes } from "../packets/gatewaypackets";
 
 export class GatewayProtocol {
   parse(data: Buffer) {
     const packetType = data[0] & 0x1f;
     let result;
-    const packet = (GatewayPackets as any).Packets[packetType];
+    const packet = packetDescriptors[packetType];
 
     if (packet) {
       debug("receive data : ", data);
@@ -62,8 +62,8 @@ export class GatewayProtocol {
   }
 
   pack(packetName: string, object: any) {
-    const packetType = (GatewayPackets as any).PacketTypes[packetName],
-      packet = (GatewayPackets as any).Packets[packetType];
+    const packetType = packetTypes[packetName],
+      packet = packetDescriptors[packetType];
     let payload, data;
     if (packet) {
       if (
@@ -114,4 +114,4 @@ export class GatewayProtocol {
 }
 
 exports.GatewayProtocol = GatewayProtocol;
-exports.GatewayPackets = GatewayPackets;
+exports.GatewayPackets = packetDescriptors;

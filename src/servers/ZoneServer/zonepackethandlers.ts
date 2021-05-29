@@ -18,7 +18,7 @@ const Jenkins = require("hash-jenkins");
 import hax from "./commands/hax";
 import dev from "./commands/dev";
 import admin from "./commands/admin";
-import { Int64String } from "../../utils/utils";
+import { Int64String, isPosInRadius } from "../../utils/utils";
 import { ZoneServer } from "./zoneserver";
 import { Client } from "types/zoneserver";
 
@@ -98,7 +98,7 @@ const packetHandlers: any = {
       guid4: "0x0000000000000000",
       gameTime: (server.getServerTime() & 0xffffffff) >>> 0,
     });
-    server.sendGameTimeSync(client);
+
     client.character.currentLoadoutId = 3;
     server.sendData(client, "Loadout.SetCurrentLoadout", {
       guid: client.character.guid,
@@ -133,14 +133,14 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
+    server.worldRoutine(client);
+    server.sendGameTimeSync(client);
     server.sendChatText(client, "Welcome to H1emu ! :D", true);
     client.lastPingTime = new Date().getTime();
     client.savePositionTimer = setTimeout(
       () => server.saveCharacterPosition(client, 30000),
       30000
     );
-    server.spawnNpcs(client);
-    server.spawnObjects(client);
   },
   Security: function (server: ZoneServer, client: Client, packet: any) {
     debug(packet);
@@ -293,9 +293,6 @@ const packetHandlers: any = {
     delete server._clients[client.sessionId];
   },
   GameTimeSync: function (server: ZoneServer, client: Client, packet: any) {
-    // TODO: execute worldRoutine only when like 2/3 of the radius distance has been travelled by the player no matter on X or Z axis
-    // this is a temp workaround
-    server.worldRoutine(client);
     server.sendGameTimeSync(client);
   },
   Synchronization: function (server: ZoneServer, client: Client, packet: any) {
@@ -1103,7 +1100,18 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
-    server.sendData(client, "ClientUpdate.CompleteLogoutProcess", {});
+    const logoutTime = 10000;
+    server.sendData(client, "ClientUpdate.StartTimer", {
+      stringId: 0,
+      time: logoutTime,
+    });
+    client.posAtLogoutStart = client.character.state.position;
+    if (client.logoutTimer != null) {
+      clearTimeout(client.logoutTimer);
+    }
+    client.logoutTimer = setTimeout(() => {
+      server.sendData(client, "ClientUpdate.CompleteLogoutProcess", {});
+    }, logoutTime);
   },
   CharacterSelectSessionRequest: function (
     server: ZoneServer,
@@ -1129,6 +1137,19 @@ const packetHandlers: any = {
   Pickup: function (server: ZoneServer, client: Client, packet: any) {
     debug(packet);
     const { data: packetData } = packet;
+    server.sendData(client, "ClientUpdate.StartTimer", {
+      stringId: 582,
+      time: 100,
+    });
+    if (packetData.name === "SpeedTree.Blackberry") {
+      server.sendData(client, "ClientUpdate.TextAlert", {
+        message: "Blackberries...miss you...",
+      });
+    } else {
+      server.sendData(client, "ClientUpdate.TextAlert", {
+        message: packetData.name.replace("SpeedTree.", ""),
+      });
+    }
     server.sendData(client, "PlayerUpdate.StartHarvest", {
       characterId: client.character.characterId,
       unknown4: 0,
@@ -1170,6 +1191,48 @@ const packetHandlers: any = {
         packet.data.position[1],
         packet.data.position[2],
         0,
+      ]);
+
+      if (
+        client.logoutTimer != null &&
+        !isPosInRadius(
+          1,
+          client.character.state.position,
+          client.posAtLogoutStart
+        )
+      ) {
+        clearTimeout(client.logoutTimer);
+        client.logoutTimer = null;
+        server.sendData(client, "ClientUpdate.StartTimer", {
+          stringId: 0,
+          time: 0,
+        }); // don't know how it was done so
+      }
+
+      if (
+        !isPosInRadius(
+          server._npcRenderDistance / 2.5,
+          client.character.state.position,
+          client.posAtLastRoutine
+        )
+      ) {
+        server.worldRoutine(client);
+      }
+    }
+    if (packet.data.rotation) {
+      // TODO: modify array element beside re-creating it
+      client.character.state.rotation = new Float32Array([
+        packet.data.rotation[0],
+        packet.data.rotation[1],
+        packet.data.rotation[2],
+        packet.data.rotation[3],
+      ]);
+
+      client.character.state.lookAt = new Float32Array([
+        packet.data.lookAt[0],
+        packet.data.lookAt[1],
+        packet.data.lookAt[2],
+        packet.data.lookAt[3],
       ]);
     }
   },
