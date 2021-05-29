@@ -1203,6 +1203,13 @@ const packetHandlers: any = {
         packet.data.rotation[2],
         packet.data.rotation[3],
       ]);
+
+      client.character.state.lookAt = new Float32Array([
+        packet.data.lookAt[0],
+        packet.data.lookAt[1],
+        packet.data.lookAt[2],
+        packet.data.lookAt[3],
+      ]);
     }
   },
   "PlayerUpdate.Respawn": function (

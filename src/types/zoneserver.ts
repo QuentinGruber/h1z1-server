@@ -22,6 +22,7 @@ export interface Client {
     state: {
       position: Float32Array;
       rotation: Float32Array;
+      lookAt: Float32Array;
       health: number;
       shield: number;
     };

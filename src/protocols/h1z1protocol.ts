@@ -28,6 +28,7 @@ interface UpdatePositionObject {
   unknown10_float: any;
   unknown11_float: any;
   unknown12_float: any;
+  lookAt:any;
   rotation: any;
   unknown14_float: any;
   unknown15_float: any;
@@ -562,7 +563,6 @@ const parseUpdatePositionData = function (data: Buffer, offset: number) {
       const rotationEul = [];
       var v = readSignedIntWith2bitLengthValue(data, offset);
       rotationEul[0] = v.value / 100;
-      /*
       offset += v.length;
       var v = readSignedIntWith2bitLengthValue(data, offset);
       rotationEul[1] = v.value / 100;
@@ -572,8 +572,8 @@ const parseUpdatePositionData = function (data: Buffer, offset: number) {
       offset += v.length;
       var v = readSignedIntWith2bitLengthValue(data, offset);
       rotationEul[3] = v.value / 100;
-      */
-      obj["rotation"] = eul2quat([...rotationEul,0,0,0]);
+      obj["rotation"] = eul2quat(rotationEul);
+      obj["lookAt"] = eul2quat([rotationEul[0],0,0,0]);
       offset += v.length;
     }
 
