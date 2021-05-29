@@ -8,6 +8,7 @@ import _ from "lodash";
 import { generateRandomGuid } from "../../../utils/utils";
 const npcs: any = {};
 const objects: any = {};
+const vehicles: any = {};
 
 const chancePumpShotgun = 50;
 const chanceAR15 = 50;
@@ -65,7 +66,7 @@ export function createAllEntities(): any {
   createFarm();
   createAllVehicles();
   createSomeNpcs();
-  return { npcs: npcs, objects: objects };
+  return { npcs: npcs, objects: objects, vehicles : vehicles };
 }
 
 function getRandomVehicleId() {
@@ -87,7 +88,7 @@ function createAllVehicles() {
       getRandomVehicleId(),
       vehicle.position,
       vehicle.rotation,
-      npcs
+      vehicles
     );
   });
   debug("All vehicles created");

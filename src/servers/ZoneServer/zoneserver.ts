@@ -67,6 +67,7 @@ export class ZoneServer extends EventEmitter {
   _worldId: number;
   _npcRenderDistance: number;
   _dynamicWeatherInterval: any;
+  _vehicles: any;
 
   constructor(
     serverPort: number,
@@ -87,6 +88,7 @@ export class ZoneServer extends EventEmitter {
     this._characters = {};
     this._npcs = {};
     this._objects = {};
+    this._vehicles = {};
     this._serverTime = this.getCurrentTime();
     this._transientId = 0;
     this._referenceData = this.parseReferenceData();
@@ -757,9 +759,10 @@ export class ZoneServer extends EventEmitter {
 
   createAllObjects(): void {
     const { createAllEntities } = require("./workers/createBaseEntities");
-    const { npcs, objects } = createAllEntities();
+    const { npcs, objects, vehicles } = createAllEntities();
     this._npcs = npcs;
     this._objects = objects;
+    this._vehicles = vehicles;
     debug("All entities created");
   }
 

@@ -328,6 +328,7 @@ const packetHandlers: any = {
             _characters: characters,
             _npcs: npcs,
             _objects: objects,
+            _vehicles: vehicles
           } = server;
           const serverVersion = require("../../../package.json").version;
           server.sendChatText(client, `h1z1-server V${serverVersion}`, true);
@@ -335,7 +336,7 @@ const packetHandlers: any = {
           server.sendChatText(client, `characters : ${_.size(characters)}`);
           server.sendChatText(client, `npcs : ${_.size(npcs)}`);
           server.sendChatText(client, `objects : ${_.size(objects)}`);
-
+          server.sendChatText(client, `vehicles : ${_.size(vehicles)}`);
           break;
         }
       case 1757604914: // /spawninfo
