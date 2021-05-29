@@ -1253,10 +1253,22 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
-    // debug(packet);
-    server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
-      characterId: client.character.characterId,
-    });
+    const { data:{guid}} = packet
+    if(server._npcs[guid] || server._objects[guid]){
+      server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
+      characterId: guid,
+      });
+    }
+    else if(server._characters[guid]){
+      server.sendData(client, "PlayerUpdate.LightweightToFullPc", {
+      characterId: guid,
+      });
+    }
+    else if(server._vehicles[guid]){
+      server.sendData(client, "PlayerUpdate.LightweightToFullVehicle", {
+      characterId: guid,
+      });
+    }
   },
 };
 
