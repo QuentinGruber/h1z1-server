@@ -36,7 +36,7 @@
     "ts-node": "^10.0.0"
   },
   "scripts": {
-    "build-optimized": "npm run build && terser-output ./out",
+    "build-optimized": "npm run build-swc && terser-output ./out",
     "build": "tsc -p ./tsconfig.json",
     "test": "node tests/testRuntime && ts-node tests/testIssuesInPacketSchemas.ts",
     "build-swc": "npx swc src -d out",
