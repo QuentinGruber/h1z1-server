@@ -5556,20 +5556,20 @@ var packets = [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         {
           name: "unknownArray1",
-          type: "array",
+          type: "array8",
           defaultValue: [],
           fields: [
-            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
             { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+            { name: "unknownBoolean2", type: "boolean", defaultValue: false },
           ],
         },
         {
           name: "unknownArray2",
-          type: "array",
+          type: "array8",
           defaultValue: [],
           fields: [
-            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownByte1", type: "boolean", defaultValue: false },
+            { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+            { name: "unknownBoolean2", type: "boolean", defaultValue: false },
           ],
         },
         {
@@ -5583,81 +5583,26 @@ var packets = [
           defaultValue: [0, 0, 0, 0],
         },
         { name: "unknownByte3", type: "uint8", defaultValue: 0 },
+
+
         {
           name: "unknownArray3",
-          type: "array",
+          type: "array8",
           defaultValue: [],
           fields: [
-            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownQword1", type: "uint64", defaultValue: "0" },
+           //TODO
           ],
         },
+
+        // TODO fields from FUN_1401ab630 this array can't be empty
         {
           name: "unknownArray4",
-          type: "array",
+          type: "array8",
           defaultValue: [],
           fields: [
-            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownQword1", type: "uint64", defaultValue: "0" },
+            //TODO FUN_1401806c0
           ],
         },
-        {
-          name: "unknownArray5",
-          type: "array",
-          defaultValue: [],
-          fields: [
-            {
-              name: "unknownData1",
-              type: "schema",
-              fields: [
-                { name: "unknownQword1", type: "uint64", defaultValue: "0" },
-                {
-                  name: "unknownData1",
-                  type: "schema",
-                  fields: [
-                    { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                    { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                    { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-                    {
-                      name: "unknownString1",
-                      type: "string",
-                      defaultValue: "",
-                    },
-                    {
-                      name: "unknownString2",
-                      type: "string",
-                      defaultValue: "",
-                    },
-                  ],
-                },
-                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                { name: "unknownString1", type: "string", defaultValue: "" },
-              ],
-            },
-            { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-          ],
-        },
-        {
-          name: "unknownArray6",
-          type: "array",
-          defaultValue: [],
-          fields: [
-            { name: "unknownString1", type: "string", defaultValue: "" },
-          ],
-        },
-        {
-          name: "unknownArray7",
-          type: "array",
-          defaultValue: [],
-          fields: itemWeaponDetailSubSchema1,
-        },
-        {
-          name: "unknownArray8",
-          type: "array",
-          defaultValue: [],
-          fields: itemWeaponDetailSubSchema2,
-        },
-        { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
       ],
     },
   ],
