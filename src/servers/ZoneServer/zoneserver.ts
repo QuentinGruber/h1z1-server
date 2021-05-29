@@ -626,6 +626,7 @@ export class ZoneServer extends EventEmitter {
   }
 
   pointOfInterest(client: Client) {
+    let isInAPOIArea = false;
     Z1_POIs.forEach((point: any) => {
       if (
         isPosInRadius(
@@ -638,8 +639,15 @@ export class ZoneServer extends EventEmitter {
           messageStringId: point.stringId,
           id: point.POIid,
         });
+        isInAPOIArea = true;
       }
     });
+    if(!isInAPOIArea){
+      this.sendData(client, "POIChangeMessage", {
+        messageStringId: 0,
+        id: 115,
+      });
+    }
   }
 
   worldRoutine(client: Client): void {
