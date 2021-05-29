@@ -11,8 +11,9 @@
 // ======================================================================
 
 const debug = require("debug")("SOEProtocol");
-const PacketTable = require("../packets/packettable");
-const { appendCRC } = require("../utils/crc");
+import PacketTableBuild from "../packets/packettable";
+import PacketTable from "../packets/packettable";
+import { appendCRC } from "../utils/crc";
 const stand_alone_packets = [
   [
     "ZonePing",
@@ -399,22 +400,19 @@ const packets = [
   ["FatalErrorReply", 0x1e, {}],
 ];
 
+
+export const [SOEPacketsPacketTypes,SOEPacketsPackets] = PacketTableBuild(packets);
+export const [StandAlonePacketsPacketTypes,StandAlonePacketsPackets] = PacketTableBuild(stand_alone_packets);
+
 const SOEPackets = {
-  PacketTypes: {},
-  Packets: {},
+  PacketTypes: SOEPacketsPacketTypes,
+  Packets: SOEPacketsPackets,
 };
 
 const StandAlonePackets = {
-  PacketTypes: {},
-  Packets: {},
+  PacketTypes: StandAlonePacketsPacketTypes,
+  Packets: StandAlonePacketsPackets,
 };
-
-PacketTable.build(packets, SOEPackets.PacketTypes, SOEPackets.Packets);
-PacketTable.build(
-  stand_alone_packets,
-  StandAlonePackets.PacketTypes,
-  StandAlonePackets.Packets
-);
 
 function packSOEPacket(
   packetName: string,
