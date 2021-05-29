@@ -162,7 +162,7 @@ const hax: any = {
       transientId: transientId,
       modelId: choosenModelId,
       position: client.character.state.position,
-	    rotation: client.character.state.lookAt,
+      rotation: client.character.state.lookAt,
       attachedObject: {},
       color: {},
       array5: [{ unknown1: 0 }],
@@ -218,10 +218,17 @@ const hax: any = {
       server.sendChatText(client, "Specify a model id !");
     }
   },
-  removeDynamicWeather: async function (server: ZoneServer, client: Client, args: any[]) {
+  removeDynamicWeather: async function (
+    server: ZoneServer,
+    client: Client,
+    args: any[]
+  ) {
     clearInterval(server._dynamicWeatherInterval);
-    server.changeWeather(client, server._weatherTemplates[server._defaultWeatherTemplate])
-    server.sendChatText(client,"Dynamic weather removed !")
+    server.changeWeather(
+      client,
+      server._weatherTemplates[server._defaultWeatherTemplate]
+    );
+    server.sendChatText(client, "Dynamic weather removed !");
   },
   weather: function (server: ZoneServer, client: Client, args: any[]) {
     const weatherTemplate = server._soloMode

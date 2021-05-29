@@ -12,7 +12,7 @@
 
 import PacketTableBuild from "../../packettable";
 
-const serverField:any[] = [
+const serverField: any[] = [
   { name: "serverId", type: "uint32" },
   { name: "serverState", type: "uint32" },
   { name: "locked", type: "boolean" },
@@ -28,7 +28,7 @@ const serverField:any[] = [
   { name: "allowedAccess", type: "boolean" },
 ];
 
-const packets:any[] = [
+const packets: any[] = [
   [
     "LoginRequest",
     0x01,
@@ -422,5 +422,4 @@ const packets:any[] = [
   ["CharacterTransferReply", 0x13, {}],
 ];
 
-export const [packetTypes,packetDescriptors] = PacketTableBuild(packets);
-
+export const [packetTypes, packetDescriptors] = PacketTableBuild(packets);

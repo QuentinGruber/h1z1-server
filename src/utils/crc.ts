@@ -1,4 +1,4 @@
-import { crc32 as crc32Table} from "./crctable"
+import { crc32 as crc32Table } from "./crctable";
 function crc32(data: Buffer, crcSeed: number): number {
   let crc = crc32Table[~crcSeed & 0xff];
   crc ^= 0x00ffffff;
@@ -19,9 +19,9 @@ function crc32(data: Buffer, crcSeed: number): number {
   return ~crc >>> 0;
 }
 
-export function appendCRC (data: any, crcSeed: number): Buffer {
+export function appendCRC(data: any, crcSeed: number): Buffer {
   const crc = crc32(data, crcSeed >>> 0);
   const crcBuffer = new (Buffer as any).alloc(2);
   crcBuffer.writeUInt16BE(crc & 0xffff, 0);
   return Buffer.concat([data, crcBuffer]);
-};
+}

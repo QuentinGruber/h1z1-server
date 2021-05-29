@@ -15,7 +15,7 @@ import DataSchema from "h1z1-dataschema";
 import { lz4_decompress } from "../../../utils/utils";
 import { stubFalse } from "lodash";
 
-function readPacketType(data:Buffer, packets:any) {
+function readPacketType(data: Buffer, packets: any) {
   let opCode = data[0] >>> 0,
     length = 0,
     packet;
@@ -49,7 +49,7 @@ function readPacketType(data:Buffer, packets:any) {
   };
 }
 
-function writePacketType(packetType:number) {
+function writePacketType(packetType: number) {
   const packetTypeBytes = [];
   while (packetType) {
     packetTypeBytes.unshift(packetType & 0xff);
@@ -62,7 +62,7 @@ function writePacketType(packetType:number) {
   return data;
 }
 
-function readUnsignedIntWith2bitLengthValue(data:Buffer, offset:number) {
+function readUnsignedIntWith2bitLengthValue(data: Buffer, offset: number) {
   let value = data.readUInt8(offset);
   const n = value & 3;
   for (let i = 0; i < n; i++) {
@@ -75,7 +75,7 @@ function readUnsignedIntWith2bitLengthValue(data:Buffer, offset:number) {
   };
 }
 
-function packUnsignedIntWith2bitLengthValue(value:number) {
+function packUnsignedIntWith2bitLengthValue(value: number) {
   value = Math.round(value);
   value = value << 2;
   let n = 0;
@@ -92,7 +92,7 @@ function packUnsignedIntWith2bitLengthValue(value:number) {
   return data.slice(0, n + 1);
 }
 
-function readSignedIntWith2bitLengthValue(data:Buffer, offset:number) {
+function readSignedIntWith2bitLengthValue(data: Buffer, offset: number) {
   let value = data.readUInt8(offset);
   const sign = value & 1;
   const n = (value >> 1) & 3;
@@ -109,7 +109,7 @@ function readSignedIntWith2bitLengthValue(data:Buffer, offset:number) {
   };
 }
 
-function packSignedIntWith2bitLengthValue(value:number) {
+function packSignedIntWith2bitLengthValue(value: number) {
   value = Math.round(value);
   const sign = value < 0 ? 1 : 0;
   value = sign ? -value : value;
@@ -129,10 +129,10 @@ function packSignedIntWith2bitLengthValue(value:number) {
   return data.slice(0, n + 1);
 }
 
-function readPositionUpdateData(data:Buffer, offset:number) {
-  const obj:any = {},
+function readPositionUpdateData(data: Buffer, offset: number) {
+  const obj: any = {},
     startOffset = offset;
-  let v :any;
+  let v: any;
   obj["flags"] = data.readUInt16LE(offset);
   offset += 2;
 
@@ -245,7 +245,7 @@ function readPositionUpdateData(data:Buffer, offset:number) {
   };
 }
 
-function packPositionUpdateData(obj:any) {
+function packPositionUpdateData(obj: any) {
   let data = new (Buffer.alloc as any)(7),
     flags = 0,
     v;
@@ -664,7 +664,7 @@ const EquippedContainersSchema = {
   ],
 };
 
-function parseVehicleReferenceData(data:Buffer, offset:number) {
+function parseVehicleReferenceData(data: Buffer, offset: number) {
   const dataLength = data.readUInt32LE(offset);
   offset += 4;
   data = data.slice(offset, offset + dataLength);
@@ -682,16 +682,16 @@ function parseVehicleReferenceData(data:Buffer, offset:number) {
   };
 }
 
-function packVehicleReferenceData(obj:any) {
+function packVehicleReferenceData(obj: any) {
   const data = DataSchema.pack(vehicleReferenceDataSchema, obj);
   return data;
 }
 
-function parseItemAddData(data:Buffer, offset:number, referenceData:any) {
+function parseItemAddData(data: Buffer, offset: number, referenceData: any) {
   const itemDataLength = data.readUInt32LE(offset);
   offset += 4;
 
-  let itemData:any = data.slice(offset, offset + itemDataLength);
+  let itemData: any = data.slice(offset, offset + itemDataLength);
 
   const inSize = itemData.readUInt16LE(0),
     outSize = itemData.readUInt16LE(2),
@@ -1403,10 +1403,10 @@ const weaponPackets = [
   ["Weapon.AddDebugLogEntry", 0x8223, {}],
 ];
 
+const [weaponPacketTypes, weaponPacketDescriptors] =
+  PacketTableBuild(weaponPackets);
 
-const [weaponPacketTypes,weaponPacketDescriptors] = PacketTableBuild(weaponPackets);
-
-function parseMultiWeaponPacket(data:Buffer, offset:number) {
+function parseMultiWeaponPacket(data: Buffer, offset: number) {
   const startOffset = offset,
     packets = [];
   const n = data.readUInt32LE(offset);
@@ -1429,8 +1429,8 @@ function parseMultiWeaponPacket(data:Buffer, offset:number) {
 
 function packMultiWeaponPacket() {}
 
-function parseWeaponPacket(data:Buffer, offset:number) {
-  const obj:any = {};
+function parseWeaponPacket(data: Buffer, offset: number) {
+  const obj: any = {};
 
   obj.gameTime = data.readUInt32LE(offset);
   const tmpData = data.slice(offset + 4);
@@ -1464,7 +1464,7 @@ function parseWeaponPacket(data:Buffer, offset:number) {
   };
 }
 
-function packWeaponPacket(obj:any) {
+function packWeaponPacket(obj: any) {
   const subObj = obj.packet,
     subName = obj.packetName,
     subType = weaponPacketTypes[subName];
@@ -1483,10 +1483,10 @@ function packWeaponPacket(obj:any) {
   return data;
 }
 
-function parseItemData(data:Buffer, offset:number, referenceData:any) {
+function parseItemData(data: Buffer, offset: number, referenceData: any) {
   const startOffset = offset;
   let detailItem, detailSchema;
-  const baseItem:any = DataSchema.parse(itemBaseSchema, data, offset);
+  const baseItem: any = DataSchema.parse(itemBaseSchema, data, offset);
   offset += baseItem.length;
 
   if (
@@ -1511,7 +1511,7 @@ function parseItemData(data:Buffer, offset:number, referenceData:any) {
   };
 }
 
-function packItemData(obj:any, referenceData:any) {
+function packItemData(obj: any, referenceData: any) {
   const baseData = DataSchema.pack(itemBaseSchema, obj.baseItem);
   let detailData, detailSchema;
 
@@ -7431,8 +7431,8 @@ var packets = [
     "Facility.FacilityUpdate",
     0x8406,
     {
-      fn: function (data:Buffer, offset:number) {
-        const result:any = {},
+      fn: function (data: Buffer, offset: number) {
+        const result: any = {},
           startOffset = offset;
         let n, i, values, flags;
 
@@ -9327,7 +9327,7 @@ var packets = [
   ],
 ];
 
-const [packetTypes,packetDescriptors] = PacketTableBuild(packets);
+const [packetTypes, packetDescriptors] = PacketTableBuild(packets);
 
 exports.PacketTypes = packetTypes;
 exports.Packets = packetDescriptors;

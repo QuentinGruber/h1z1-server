@@ -12,7 +12,7 @@
 
 import PacketTableBuild from "./packettable";
 
-const packets:any[] = [
+const packets: any[] = [
   [
     "LoginRequest",
     0x01,
@@ -64,8 +64,9 @@ const packets:any[] = [
   ],
 ];
 
-
-
-export const [packetTypes,packetDescriptors] = PacketTableBuild(packets);
-const GatewayPackets = {Packets:packetDescriptors,PacketDescriptors:packetTypes}
-export default GatewayPackets
+export const [packetTypes, packetDescriptors] = PacketTableBuild(packets);
+const GatewayPackets = {
+  Packets: packetDescriptors,
+  PacketDescriptors: packetTypes,
+};
+export default GatewayPackets;
