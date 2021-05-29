@@ -1134,6 +1134,13 @@ const packetHandlers: any = {
   Pickup: function (server: ZoneServer, client: Client, packet: any) {
     debug(packet);
     const { data: packetData } = packet;
+    server.sendData(client, "ClientUpdate.StartTimer", {stringId:582,time:100});
+    if(packetData.name === "SpeedTree.Blackberry"){
+      server.sendData(client, "ClientUpdate.TextAlert", {message:"Blackberries...miss you..."});
+    }
+    else{
+      server.sendData(client, "ClientUpdate.TextAlert", {message:packetData.name.replace("SpeedTree.","")});
+    }
     server.sendData(client, "PlayerUpdate.StartHarvest", {
       characterId: client.character.characterId,
       unknown4: 0,
