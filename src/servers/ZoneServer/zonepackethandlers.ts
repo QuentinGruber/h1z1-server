@@ -1103,6 +1103,9 @@ const packetHandlers: any = {
     const logoutTime = 10000;
     server.sendData(client, "ClientUpdate.StartTimer", {stringId:0,time:logoutTime});
     client.posAtLogoutStart = client.character.state.position;
+    if(client.logoutTimer != null){
+      clearTimeout(client.logoutTimer)
+    }
     client.logoutTimer = setTimeout(() => {
       server.sendData(client, "ClientUpdate.CompleteLogoutProcess", {});
     }, logoutTime);
