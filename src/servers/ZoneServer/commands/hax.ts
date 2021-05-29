@@ -162,6 +162,7 @@ const hax: any = {
       transientId: transientId,
       modelId: choosenModelId,
       position: client.character.state.position,
+	    rotation: client.character.state.lookAt,
       attachedObject: {},
       color: {},
       array5: [{ unknown1: 0 }],
