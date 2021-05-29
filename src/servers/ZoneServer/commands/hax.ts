@@ -7,6 +7,29 @@ const debug = require("debug")("zonepacketHandlers");
 
 let isSonic = false;
 
+function Eul2Quat(angle: any){
+    // Assuming the angles are in radians.
+	var qw=0,qx=0,qy=0,qz=0;
+	var heading = angle[0], attitude = angle[1], bank = -angle[2];
+
+	var c1 = Math.cos(heading/2);
+	var s1 = Math.sin(heading/2);
+	var c2 = Math.cos(attitude/2);
+	var s2 = Math.sin(attitude/2);
+	var c3 = Math.cos(bank/2);
+	var s3 = Math.sin(bank/2);
+
+
+	var c1c2 = c1*c2;
+	var s1s2 = s1*s2;
+	qw = c1c2*c3 - s1s2*s3;
+	qy = s1*c2*c3 + c1*s2*s3;
+  	qz = c1c2*s3 + s1s2*c3;
+	qx = c1*s2*c3 - s1*c2*s3;
+
+	return([qx,qy,-qz,qw])
+}
+
 const hax: any = {
   time: function (server: ZoneServer, client: Client, args: any[]) {
     const choosenHour: number = Number(args[1]);
@@ -154,6 +177,7 @@ const hax: any = {
       server.sendChatText(client, "[ERROR] You need to specify a model id !");
       return;
     }
+	var rotQuat = Eul2Quat(client.character.state.rotation);
     const choosenModelId = Number(args[1]);
     const characterId = server.generateGuid();
     const npc = {
@@ -162,6 +186,7 @@ const hax: any = {
       transientId: transientId,
       modelId: choosenModelId,
       position: client.character.state.position,
+	  rotation: rotQuat,
       attachedObject: {},
       color: {},
       array5: [{ unknown1: 0 }],
