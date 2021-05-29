@@ -39,7 +39,6 @@ export class LoginProtocol {
   parse(data: any) {
     const packetType = data[0];
     let result;
-    console.log(this.LoginPackets);
     const packet = this.LoginPackets.Packets[packetType];
     if (packet) {
       if (packet.name === "TunnelAppPacketClientToServer") {
