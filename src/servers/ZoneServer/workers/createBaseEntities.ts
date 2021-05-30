@@ -84,12 +84,25 @@ function getRandomVehicleId() {
 
 function createAllVehicles() {
   Z1_vehicles.forEach((vehicle: any) => {
-    createEntity(
-      getRandomVehicleId(),
-      vehicle.position,
-      vehicle.rotation,
-      vehicles
-    );
+    const characterId = generateRandomGuid();
+    vehicles[characterId] = {
+      npcData: {
+        guid: characterId,
+        transientId: 1,
+        modelId: getRandomVehicleId(),
+        scale: [1, 1, 1, 1],
+        position: vehicle.position,
+        rotation: vehicle.rotation,
+        attachedObject: {},
+        color: {},
+        unknownArray1: [],
+        array5: [{ unknown1: 0 }],
+        array17: [{ unknown1: 0 }],
+        array18: [{ unknown1: 0 }],
+      },
+      unknownGuid1: generateRandomGuid(),
+      positionUpdate: [0,0,0,0],
+    };
   });
   debug("All vehicles created");
 }

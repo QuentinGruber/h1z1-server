@@ -702,7 +702,7 @@ export class ZoneServer extends EventEmitter {
         isPosInRadius(
           this._npcRenderDistance,
           client.character.state.position,
-          this._vehicles[vehicle].position
+          this._vehicles[vehicle].npcData.position
         ) &&
         !client.spawnedEntities.includes(this._vehicles[vehicle])
       ) {
@@ -721,7 +721,7 @@ export class ZoneServer extends EventEmitter {
     return !isPosInRadius(
       this._npcRenderDistance,
       playerPosition,
-      element.position || element.state.position
+      element.position || element.state.position || element.npcData
     );
   }
   removeOutOfDistanceEntities(client: Client): void {
