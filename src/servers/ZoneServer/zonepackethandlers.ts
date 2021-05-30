@@ -294,6 +294,7 @@ const packetHandlers: any = {
       characterId: client.character.characterId,
     });
     server._gatewayServer._soeServer.deleteClient(client);
+    delete server._characters[client.character.characterId];
     delete server._clients[client.sessionId];
   },
   GameTimeSync: function (server: ZoneServer, client: Client, packet: any) {
