@@ -667,21 +667,28 @@ export class ZoneServer extends EventEmitter {
     client.posAtLastRoutine = client.character.state.position;
   }
 
+  executeFuncForAllClients(zoneServerFuncName:string): void{
+    for (const client in this._clients) {
+        (this as any)[zoneServerFuncName](this._clients[client])
+    }
+  }
+
   spawnCharacters(client: Client) {
     for (const character in this._characters) {
+      const characterObj = this._characters[character];
       if (
         client.character.characterId != character &&
         isPosInRadius(
           this._npcRenderDistance,
           client.character.state.position,
-          this._characters[character].state.position
+          characterObj.state.position
         ) &&
-        !client.spawnedEntities.includes(this._characters[character])
+        !client.spawnedEntities.includes(characterObj)
       ) {
         this.sendData(
           client,
           "PlayerUpdate.AddLightweightPc",
-          {...this._characters[character],transientId:1},
+          {...characterObj,transientId:1,characterFirstName:characterObj.name,position:characterObj.state.position,rotation:characterObj.state.lookAt},
           1
         );
         client.spawnedEntities.push(this._characters[character]);
@@ -972,6 +979,14 @@ export class ZoneServer extends EventEmitter {
   sendDataToAll(packetName: string, obj: any, channel = 0): void {
     for (const a in this._clients) {
       this.sendData(this._clients[a], packetName, obj, channel);
+    }
+  }
+
+  sendDataToAllOthers(client:Client,packetName: string, obj: any, channel = 0): void {
+    for (const a in this._clients) {
+      if(client != this._clients[a]){
+      this.sendData(this._clients[a], packetName, obj, channel);
+    }
     }
   }
 

@@ -900,7 +900,7 @@ const lightWeightPcSchema = [
   },
   { name: "characterLastName", type: "string", defaultValue: "" },
   { name: "unknownByte3", type: "uint8", defaultValue: 0 },
-  { name: "modelId", type: "uint32", defaultValue: 9001 },
+  { name: "modelId", type: "uint32", defaultValue: 9240 },
   { name: "unknownDword5", type: "uint32", defaultValue: 9001 },
   { name: "position", type: "floatvector3", defaultValue: [0, 200, 0] },
   { name: "rotation", type: "floatvector4", defaultValue: [0, 0, 0, 1] },

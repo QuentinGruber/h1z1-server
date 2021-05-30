@@ -141,6 +141,7 @@ const packetHandlers: any = {
       () => server.saveCharacterPosition(client, 30000),
       30000
     );
+    server.executeFuncForAllClients("spawnCharacters")
   },
   Security: function (server: ZoneServer, client: Client, packet: any) {
     debug(packet);
@@ -289,6 +290,9 @@ const packetHandlers: any = {
   ClientLogout: function (server: ZoneServer, client: Client, packet: any) {
     debug("ClientLogout");
     server.saveCharacterPosition(client);
+    server.sendDataToAllOthers(client, "PlayerUpdate.RemovePlayer", {
+      characterId: client.character.characterId,
+    });
     server._gatewayServer._soeServer.deleteClient(client);
     delete server._clients[client.sessionId];
   },
