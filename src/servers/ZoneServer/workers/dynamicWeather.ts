@@ -6,69 +6,129 @@ const debug = require("debug")("dynamicWeather");
 
 let fog = -10;
 let foggradient = 50;
-let rain = 50;
-let raintoggle = 0;
+let rain = 50; // increasing value for rain to start
+let raintimehalf = 0;
+let raintoggle = 0; // not really a toggle, anables rain and specifies its strength
 let raintimems = 0;
 let raintimemin = 0;
+let rainIncMin = 0;
+let rainIncMax = 0;
 let wintertoggle = 0;
 let winter = 53;
 let raincheck = "OFF";
-let sunposx = 10;
-let sunposy = 10;
-let sunposz = 10;
+let sunposx = 15; // sun position at server start
+let sunposy = 90;
+let sunposz = 0;
+let sunposInc = 0;
+let sunposXmin = 0; // max values of sun axis, changed for every season 
+let sunposXmax = 0;
+let sunposYmin = 0;
+let sunposYmax = 0;
+let sunposZmin = 0;
+let sunposZmax = 0;
+let cloud1 = 1;
+let cloud2 = 1;
+let cloud3 = 1;
+let cloud4 = 1;
+let cchancemin = 0;
+let cchancemax = 0;
+let cloudmax = 6; // maximum value of clouds at game start
 let fchancemin = 0;
 let fchancemax = 0;
 let rchancemin = 0;
 let rchancemax = 0;
-let rreqval = 0; // required value to reach for rain toggle
+let rreqval = 0; // required value "rain" has to reach to enable it
+let wind = 20;
+let windmax = 30;
+let wchancemin = 0;
+let wchancemax = 0;
 
 function summer() {
-  sunposx = 15;
-  sunposy = 90;
-  sunposz = 0;
+  sunposInc = -0.3;
+  sunposXmin = 15;
+  sunposYmin = 90;
+  sunposZmin = 0;
   fchancemin = -1;
   fchancemax = 0;
   rchancemin = -1;
   rchancemax = 2;
+  cchancemin = -1;
+  cchancemax = 1;
+  cloudmax = 7;
   rreqval = 150;
   wintertoggle = 0;
+  windmax = 30;
+  wchancemin = -2;
+  wchancemax = 1;
   setTimeout(autumn, 900000);
   setInterval(summer, 3600000);
 }
 function autumn() {
   wintertoggle = 0;
-  sunposx = 30;
-  sunposy = 110;
-  sunposz = 20;
+  sunposInc = 0.3;
+  sunposXmax = 30;
+  sunposYmax = 110;
+  sunposZmax = 20;
   fchancemin = -1;
   fchancemax = 2;
   rchancemin = -1;
   rchancemax = 2;
+  cchancemin = -1;
+  cchancemax = 2;
+  cloudmax = 100;
   rreqval = 80;
+  windmax = 100;
+  wchancemin = -1;
+  wchancemax = 2;
+  setTimeout(function () {
+      sunposXmax = 90;
+      sunposYmax = 130;
+      sunposZmax = 60;
+	  wchancemin = -1;
+      wchancemax = 3;
+    }, 450000);
   setTimeout(winterr, 900000);
 }
 function winterr() {
-  sunposx = 90;
-  sunposy = 130;
-  sunposz = 60;
+  sunposInc = 0.3;
+  sunposXmax = 90;
+  sunposYmax = 130;
+  sunposZmax = 60;
   wintertoggle = 1;
   fchancemin = -1;
   fchancemax = 1;
   rchancemin = 0;
   rchancemax = 1;
+  cchancemin = -1;
+  cchancemax = 2;
+  cloudmax = 100;
   rreqval = 100;
+  windmax = 200;
+  wchancemin = -1;
+  wchancemax = 3;
+  setTimeout(function () {
+	  wchancemin = -3;
+      wchancemax = 1;
+    }, 450000);
   setTimeout(spring, 900000);
 }
 function spring() {
   wintertoggle = 0;
-  sunposx = 20;
-  sunposy = 110;
-  sunposz = 10;
+  sunposInc = -0.3;
+  sunposXmin = 20;
+  sunposYmin = 110;
+  sunposZmin = 10;
   fchancemin = -3;
   fchancemax = 1;
   rchancemin = -1;
   rchancemax = 2;
+  cchancemin = -3;
+  cchancemax = 0;
+  cloudmax = 100;
   rreqval = 120;
+  windmax = 150;
+  wchancemin = -3;
+  wchancemax = 1;
 }
 
 var seasonstart = (function () {
@@ -83,13 +143,83 @@ var seasonstart = (function () {
 
 export default function dynamicWeather(serverContext: ZoneServer) {
   seasonstart();
-
+// sun axis
+  sunposx = sunposx + sunposInc;
+  if (sunposx > sunposXmax) {
+	  sunposx = sunposXmax;
+  }
+  if (sunposx < sunposXmin) {
+	  sunposx = sunposXmin;
+  }
+  sunposy = sunposy + sunposInc;
+  if (sunposy > sunposYmax) {
+	  sunposy = sunposYmax;
+  }
+  if (sunposy < sunposYmin) {
+	  sunposy = sunposYmin;
+  }
+  sunposz = sunposz + sunposInc;
+  if (sunposz > sunposZmax) {
+	  sunposz = sunposZmax;
+  }
+  if (sunposz < sunposZmin) {
+	  sunposz = sunposZmin;
+  }
+//rain strength 
+  const rainchancestr = randomIntFromInterval(rainIncMin, rainIncMax); // rain strength increase
+  raintoggle = raintoggle + rainchancestr;
+  if (raintoggle > 101) {
+	  raintoggle = 100;
+  }
+// wind
+  const windchance = randomIntFromInterval(wchancemin, wchancemax);
+  wind = wind + windchance;
+  if (wind < -3) {
+	  wind = -2;
+  }
+  if (wind > windmax) {
+	  cloud1 = (cloudmax - 1);
+  }
+// clouds
+  const c1chance = randomIntFromInterval(cchancemin, cchancemax);
+  cloud1 = cloud1 + c1chance;
+  if (cloud1 < -3) {
+	  cloud1 = -2;
+  }
+  if (cloud1 > cloudmax) {
+	  cloud1 = (cloudmax - 1);
+  }
+  const c2chance = randomIntFromInterval(cchancemin, cchancemax);
+  cloud2 = cloud2 + c2chance;
+  if (cloud2 < -3) {
+	  cloud2 = -2;
+  }
+  if (cloud2 > cloudmax) {
+	  cloud2 = (cloudmax - 1);
+  }
+  const c3chance = randomIntFromInterval(cchancemin, cchancemax);
+  cloud3 = cloud3 + c3chance;
+  if (cloud3 < -3) {
+	  cloud3 = -2;
+  }
+  if (cloud3 > cloudmax) {
+	  cloud3 = (cloudmax - 1);
+  }
+  const c4chance = randomIntFromInterval(cchancemin, cchancemax);
+  cloud4 = cloud4 + c4chance;
+  if (cloud4 < -3) {
+	  cloud4 = -2;
+  }
+  if (cloud4 > cloudmax) {
+	  cloud4 = (cloudmax - 1);
+  }
+// fog
   const fogchance = randomIntFromInterval(fchancemin, fchancemax);
   fog = fog + fogchance;
   if (fog < -10) {
     fog = -9;
   }
-  if (fog > 80) {
+  if (fog > 90) {
     fog = 79;
   }
 
@@ -101,6 +231,7 @@ export default function dynamicWeather(serverContext: ZoneServer) {
   if (foggradient > 100) {
     foggradient = 100;
   }
+// rain  
   const rainchance = randomIntFromInterval(rchancemin, rchancemax);
   rain = rain + rainchance;
   if (rain < 0) {
@@ -110,14 +241,23 @@ export default function dynamicWeather(serverContext: ZoneServer) {
     raintoggle = 1;
     raincheck = "ON";
     rain = 0;
+	rainIncMin = 2;
+    rainIncMax = 2;
     const raintime = randomIntFromInterval(180000, 300000);
+	raintimehalf = raintime / 2;
     raintimems = raintime / 60000;
     raintimemin = Math.floor(raintimems);
     debug("Rain will last for " + raintimemin + " min");
+	setTimeout(function () {
+      rainIncMin = -2;
+      rainIncMax = -2;
+    }, raintimehalf);
     setTimeout(function () {
-      raintoggle = 0;
+	  rainIncMin = 0;
+      rainIncMax = 0;
       rain = 0;
       raincheck = "OFF";
+	  raintoggle = 0;
       debug("Rain ended");
     }, raintime);
   }
@@ -145,17 +285,17 @@ export default function dynamicWeather(serverContext: ZoneServer) {
     rain: raintoggle,
     temp: winter,
     skyColor: 7,
-    cloudWeight0: 32,
-    cloudWeight1: 83,
-    cloudWeight2: 93,
-    cloudWeight3: 27,
+    cloudWeight0: cloud1,
+    cloudWeight1: cloud2,
+    cloudWeight2: cloud3,
+    cloudWeight3: cloud4,
     sunAxisX: sunposx,
     sunAxisY: sunposy,
     sunAxisZ: sunposz,
     unknownDword18: 76,
     unknownDword19: 74,
     unknownDword20: 59,
-    wind: 25,
+    wind: wind,
     unknownDword22: 46,
     unknownDword23: 53,
     unknownDword24: 65,
