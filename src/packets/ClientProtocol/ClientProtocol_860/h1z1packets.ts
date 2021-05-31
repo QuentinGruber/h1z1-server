@@ -5095,9 +5095,19 @@ var packets = [
     0x0f14,
     {
       fields: [
-        { name: "unknownQword1", type: "uint64", defaultValue: "0" },
-        { name: "unknownQword2", type: "uint64", defaultValue: 0 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "characterId", type: "uint64", defaultValue: "0" },
+
+        {
+          name: "position",
+          type: "floatvector4",
+          defaultValue: [0, 50, 0, 1],
+        },
+        {
+          name: "rotation",
+          type: "floatvector4",
+          defaultValue: [0, 0, 0, 1],
+        },
+        { name: "modelFileName", type: "string", defaultValue: "ZombieMale001.adr" },
       ],
     },
   ],
