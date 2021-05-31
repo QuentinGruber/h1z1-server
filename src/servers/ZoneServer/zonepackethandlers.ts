@@ -212,7 +212,7 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
-    debug("UIEvent");
+    debug(packet);
   },
   SetLocale: function (server: ZoneServer, client: Client, packet: any) {
     debug("Do nothing");
