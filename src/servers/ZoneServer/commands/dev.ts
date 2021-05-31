@@ -11,7 +11,7 @@ const dev: any = {
       time: 0,
     });
   },
-  quickDisc: function (server: ZoneServer, client: Client, args: any[]) {
+  d: function (server: ZoneServer, client: Client, args: any[]) { // quick disconnect
     server.sendData(client, "CharacterSelectSessionResponse", {
       status: 1,
       sessionId: client.loginSessionId,
