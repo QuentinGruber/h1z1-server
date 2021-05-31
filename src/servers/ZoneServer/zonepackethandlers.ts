@@ -108,8 +108,6 @@ const packetHandlers: any = {
       loadoutId: client.character.currentLoadoutId,
     });
 
-    server.sendData(client, "ZoneDoneSendingInitialData", {});
-
     const commands = [
       "hax",
       "dev",
@@ -130,6 +128,8 @@ const packetHandlers: any = {
       serverTime: Int64String(server.getServerTime()),
       serverTime2: Int64String(server.getServerTime()),
     });
+    server.sendData(client, "ZoneDoneSendingInitialData", {});
+
   },
   ClientFinishedLoading: function (
     server: ZoneServer,
