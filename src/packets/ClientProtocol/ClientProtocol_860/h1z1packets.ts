@@ -718,10 +718,10 @@ function packItemAddData() {}
 const currencySchema = 
   {
     name: "currency",
-    type: "array8",
+    type: "array", // TODO : that's an array8
     defaultValue: [],
     fields: [
-      { name: "currencyId", type: "uint8", defaultValue: 0 },
+      { name: "currencyId", type: "uint32", defaultValue: 0 }, // TODO : that's an uint8
       { name: "quantity", type: "uint32", defaultValue: 0 },
     ],
   }
