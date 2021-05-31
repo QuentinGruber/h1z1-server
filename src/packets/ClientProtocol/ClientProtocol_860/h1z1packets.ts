@@ -5317,7 +5317,19 @@ var packets = [
   ],
   ["PlayerUpdate.LaunchProjectile", 0x0f2e, {}],
   ["PlayerUpdate.SetSynchronizedAnimations", 0x0f2f, {}],
-  ["PlayerUpdate.HudMessage", 0x0f30, {}],
+  ["PlayerUpdate.HudMessage", 0x0f30, { 
+     fields: [
+    { name: "characterId", type: "uint64", defaultValue: "0" },
+    { name: "unkguid2", type: "uint64", defaultValue: "0x0000000000000011" },
+    { name: "unknownDword1", type: "uint32", defaultValue: 1 },
+    { name: "unknownDword2", type: "uint32", defaultValue: 2 },
+    { name: "unknownDword3", type: "uint32", defaultValue: 3 },
+    { name: "unknownDword4", type: "uint32", defaultValue: 4 },
+    { name: "unknownDword5", type: "uint32", defaultValue: 5 },
+    { name: "unknownDword6", type: "uint32", defaultValue: 6 },
+
+  ]
+}],
   [
     "PlayerUpdate.CustomizationData",
     0x0f31,
