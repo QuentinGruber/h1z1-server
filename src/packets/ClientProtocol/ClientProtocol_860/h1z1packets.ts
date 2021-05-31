@@ -5168,7 +5168,17 @@ var packets = [
       ],
     },
   ],
-  ["PlayerUpdate.SetCollidable", 0x0f23, {}],
+  ["PlayerUpdate.SetCollidable", 0x0f23, {
+    fields:[
+      { name: "unknown1", type: "byte", defaultValue: 0 },
+  { name: "unknown2", type: "byte", defaultValue: 0 },
+  {
+    name: "characterId",
+    type: "uint64",
+    defaultValue: "0x0000000000000000",
+  },
+  { name: "collisionEnabled", type: "boolean", defaultValue: 0 }
+]}],
   ["PlayerUpdate.UpdateOwner", 0x0f24, {}],
   ["PlayerUpdate.WeaponStance", 0x0f25, {}],
   ["PlayerUpdate.UpdateTintAlias", 0x0f26, {}],
