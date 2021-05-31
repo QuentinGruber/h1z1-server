@@ -3776,11 +3776,12 @@ var packets = [
     0x090900,
     {
       fields: [
+        { name: "unk", type: "uint16", defaultValue: 0 },
         { name: "guid", type: "uint64", defaultValue: "0" },
-        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: true },
         {
-          name: "unknownArray1",
-          type: "array",
+          name: "unknownArray1", // can't be empty
+          type: "array8",
           defaultValue: [],
           fields: [
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
@@ -3792,14 +3793,14 @@ var packets = [
             { name: "unknownDword7", type: "uint32", defaultValue: 0 },
           ],
         },
-        { name: "unknownString1", type: "string", defaultValue: "" },
-        { name: "unknownBoolean2", type: "boolean", defaultValue: false },
+        { name: "unknownString1", type: "string", defaultValue: "hello" },
+        { name: "unknownBoolean2", type: "boolean", defaultValue: true },
         {
-          name: "unknownArray2",
+          name: "unknownArray2", // can't be empty
           type: "array",
           defaultValue: [],
           fields: [
-            { name: "unknownString1", type: "uint32", defaultValue: 0 },
+            { name: "unknownString1", type: "string", defaultValue: "helllo" },
             { name: "unknownFloat2", type: "uint32", defaultValue: 0 },
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
             { name: "unknownDword2", type: "uint32", defaultValue: 0 },
