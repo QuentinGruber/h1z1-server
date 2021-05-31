@@ -715,6 +715,40 @@ function parseItemAddData(data: Buffer, offset: number, referenceData: any) {
 
 function packItemAddData() {}
 
+const currencySchema = 
+  {
+    name: "currency",
+    type: "array8",
+    defaultValue: [],
+    fields: [
+      { name: "currencyId", type: "uint8", defaultValue: 0 },
+      { name: "quantity", type: "uint32", defaultValue: 0 },
+    ],
+  }
+
+  const lootItemSchema = [
+  
+        { name: "unknown1", type: "byte", defaultValue: 1 },
+        currencySchema,
+        { name: "unknown2", type: "uint32", defaultValue: 2 },
+        { name: "unknown3", type: "uint32", defaultValue: 3 },
+        { name: "unknown4", type: "uint32", defaultValue: 4 },
+        { name: "unknown5", type: "uint32", defaultValue: 5 },
+        { name: "unknown6", type: "uint32", defaultValue: 6 },
+        { name: "unknown7", type: "uint32", defaultValue: 8 },
+        { name: "unknown7", type: "uint8", defaultValue: 9 },
+        { name: "unknown8", type: "uint8", defaultValue: 10 },
+        { name: "unknown9", type: "uint32", defaultValue: 11 },
+        { name: "unknown10", type: "uint32", defaultValue: 12 },
+        {
+          name: "array4",
+          type: "array",
+          fields: [{ name: "unknown1", type: "uint32", defaultValue: 13 },
+        ],
+        },
+        { name: "unknown11", type: "uint32", defaultValue: 14 }
+      ]
+
 const profileDataSchema = [
   { name: "profileId", type: "uint32", defaultValue: 0 },
   { name: "nameId", type: "uint32", defaultValue: 0 },
@@ -2137,15 +2171,7 @@ var packets = [
               ],
             },
             { name: "unknownDword14", type: "uint32", defaultValue: 0 },
-            {
-              name: "currency",
-              type: "array",
-              defaultValue: [],
-              fields: [
-                { name: "currencyId", type: "uint32", defaultValue: 0 },
-                { name: "quantity", type: "uint32", defaultValue: 0 },
-              ],
-            },
+            currencySchema,
             { name: "creationDate", type: "uint64", defaultValue: 0 },
             { name: "unknownDword15", type: "uint32", defaultValue: 0 },
             { name: "unknownDword16", type: "uint32", defaultValue: 0 },
@@ -7161,30 +7187,13 @@ var packets = [
     0x6901,
     {
       fields: [
-        { name: "unknown1", type: "byte", defaultValue: 1 },
         {
-          name: "vector1",
-          type: "floatvector4",
-          defaultValue: [-236.977, 22.55735, -1155.98, 1],
-        },
-        { name: "unknown2", type: "uint32", defaultValue: 363588788 },
-        { name: "unknown3", type: "uint32", defaultValue: 363588788 },
-        { name: "unknown4", type: "uint32", defaultValue: 363588788 },
-        { name: "unknown5", type: "uint32", defaultValue: 363588788 },
-        { name: "unknown6", type: "uint32", defaultValue: 363588788 },
-        { name: "unknown7", type: "uint32", defaultValue: 363588788 },
-        { name: "unknown8", type: "uint32", defaultValue: 363588788 },
-        { name: "unknown9", type: "uint32", defaultValue: 363588788 },
-        {
-          name: "array4",
+          name: "items",
           type: "array",
-          fields: [{ name: "unknown10", type: "byte", defaultValue: 0 }],
-        },
-        {
-          name: "vector2",
-          type: "floatvector4",
-          defaultValue: [-236.977, 22.55735, -1155.98, 1],
-        },
+          defaultValue: [],
+          fields: [
+        ...lootItemSchema
+          ]}
       ],
     },
   ],
