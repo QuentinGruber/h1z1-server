@@ -594,12 +594,17 @@ export class ZoneServer extends EventEmitter {
         ) &&
         !client.spawnedEntities.includes(this._npcs[npc])
       ) {
+        const npcObject = this._npcs[npc];
         this.sendData(
           client,
           "PlayerUpdate.AddLightweightNpc",
           this._npcs[npc],
           1
         );
+        this.sendData(client, "PlayerUpdate.SetFaction", {
+          guid: npcObject.characterId,
+          factionId: 1,
+        });
         client.spawnedEntities.push(this._npcs[npc]);
       }
     }
