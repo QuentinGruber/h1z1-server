@@ -5341,20 +5341,12 @@ var packets = [
     0x0f39,
     {
       fields: [
-        { name: "unknown1", type: "byte", defaultValue: 0 },
-        { name: "unknown2", type: "byte", defaultValue: 0 },
         {
           name: "characterId",
           type: "uint64",
           defaultValue: "0x0000000000000000",
         },
-        { name: "unknown4", type: "uint32", defaultValue: 1 },
-        { name: "unknown5", type: "uint32", defaultValue: 1 },
-        {
-          name: "position",
-          type: "floatvector3",
-          defaultValue: [0, 0, 0],
-        },
+        { name: "unk", type: "uint8", defaultValue: 4 },
       ],
     },
   ],
