@@ -32,6 +32,7 @@ const localSpawnList = require("../../../data/sampleData/spawnLocations.json");
 
 const debugName = "ZoneServer";
 const debug = require("debug")(debugName);
+const spawnLocations = require("../../../data/sampleData/spawnLocations.json")
 const localWeatherTemplates = require("../../../data/sampleData/weather.json");
 const stats = require("../../../data/sampleData/stats.json");
 const recipes = require("../../../data/sampleData/recipes.json");
@@ -69,6 +70,7 @@ export class ZoneServer extends EventEmitter {
   _npcRenderDistance: number;
   _dynamicWeatherInterval: any;
   _vehicles: any;
+  _respawnLocations:any[]
 
   constructor(
     serverPort: number,
@@ -106,6 +108,33 @@ export class ZoneServer extends EventEmitter {
     this._profiles = [];
     this._npcRenderDistance = 350;
     this._pingTimeoutTime = 30000;
+    this._respawnLocations = spawnLocations.map((spawn:any)=>{
+      return {
+        guid: this.generateGuid(),
+        respawnType: 4,
+        position: spawn.position,
+        unknownDword1: 1,
+        unknownDword2: 1,
+        iconId1: 1,
+        iconId2: 1,
+        respawnTotalTime: 1,
+        respawnTimeMs: 1,
+        nameId: 1,
+        distance: 1,
+        unknownByte1: 1,
+        unknownByte2: 1,
+        unknownData1: {
+          unknownByte1: 1,
+          unknownByte2: 1,
+          unknownByte3: 1,
+          unknownByte4: 1,
+          unknownByte5: 1,
+        },
+        unknownDword4: 1,
+        unknownByte3: 1,
+        unknownByte4: 1,
+      }
+    })
     if (!this._mongoAddress) {
       this._soloMode = true;
       debug("Server in solo mode !");
@@ -532,65 +561,9 @@ export class ZoneServer extends EventEmitter {
     this.sendData(client, "ClientUpdate.ZonePopulation", {
       populations: [0, 0],
     });
-
     this.sendData(client, "ClientUpdate.RespawnLocations", {
-      unknownFlags: 0,
-      locations: [
-        {
-          guid: this.generateGuid(),
-          respawnType: 1,
-          position: [0, 50, 0, 1],
-          unknownDword1: 1,
-          unknownDword2: 1,
-          iconId1: 1,
-          iconId2: 1,
-          respawnTotalTime: 1,
-          respawnTimeMs: 1,
-          nameId: 1,
-          distance: 1,
-          unknownByte1: 1,
-          unknownByte2: 1,
-          unknownData1: {
-            unknownByte1: 1,
-            unknownByte2: 1,
-            unknownByte3: 1,
-            unknownByte4: 1,
-            unknownByte5: 1,
-          },
-          unknownDword4: 1,
-          unknownByte3: 1,
-          unknownByte4: 1,
-        },
-      ],
-      unknownDword1: 0,
-      unknownDword2: 0,
-      locations2: [
-        {
-          guid: this.generateGuid(),
-          respawnType: 1,
-          position: [0, 50, 0, 1],
-          unknownDword1: 1,
-          unknownDword2: 1,
-          iconId1: 1,
-          iconId2: 1,
-          respawnTotalTime: 1,
-          respawnTimeMs: 1,
-          nameId: 1,
-          distance: 1,
-          unknownByte1: 1,
-          unknownByte2: 1,
-          unknownData1: {
-            unknownByte1: 1,
-            unknownByte2: 1,
-            unknownByte3: 1,
-            unknownByte4: 1,
-            unknownByte5: 1,
-          },
-          unknownDword4: 1,
-          unknownByte3: 1,
-          unknownByte4: 1,
-        },
-      ],
+      locations: this._respawnLocations,
+      locations2: this._respawnLocations,
     });
 
     this.sendData(client, "ClientGameSettings", {
