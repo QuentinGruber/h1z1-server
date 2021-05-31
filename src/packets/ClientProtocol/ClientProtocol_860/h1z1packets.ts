@@ -4014,8 +4014,8 @@ var packets = [
     0x092b00,
     {
       fields: [
-        { name: "stringId", type: "uint16", defaultValue: "0" },
         { name: "guid", type: "uint64", defaultValue: 0 },
+        { name: "stringId", type: "uint16", defaultValue: "0" },
         { name: "unknown4", type: "uint32", defaultValue: 0 },
       ],
     },

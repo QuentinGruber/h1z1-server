@@ -458,6 +458,22 @@ const packetHandlers: any = {
       unknownBoolean3: false,
     });
   },
+  "Command.InteractionString": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
+    debug(packet.data)
+    const spawnedObject = server._objects[packet.data.guid]
+    if(spawnedObject && false){
+    server.sendData(client, "PlayerUpdate.LootEvent", {
+      guid: spawnedObject.characterId,
+      position:spawnedObject.position,
+      rotation:spawnedObject.rotation,
+      modelFileName:"Common_Props_AmmoBox02.adr",
+    });
+  }
+  },
   "Command.InteractionSelect": function (
     server: ZoneServer,
     client: Client,
