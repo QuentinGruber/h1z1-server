@@ -694,7 +694,7 @@ export class ZoneServer extends EventEmitter {
     return !isPosInRadius(
       this._npcRenderDistance,
       playerPosition,
-      element.position || element.state.position || element.npcData
+      element.position || element.state?.position || element.npcData
     );
   }
   removeOutOfDistanceEntities(client: Client): void {
@@ -705,11 +705,12 @@ export class ZoneServer extends EventEmitter {
       return !objectsToRemove.includes(el);
     });
     objectsToRemove.forEach((object: any) => {
+      const characterId = object.characterId? object.characterId : object.npcData.guid
       this.sendData(
         client,
         "PlayerUpdate.RemovePlayer",
         {
-          characterId: object.characterId,
+          characterId,
         },
         1
       );
