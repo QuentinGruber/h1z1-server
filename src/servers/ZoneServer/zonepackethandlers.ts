@@ -98,6 +98,9 @@ const packetHandlers: any = {
       guid4: "0x0000000000000000",
       gameTime: (server.getServerTime() & 0xffffffff) >>> 0,
     });
+    server.sendData(client, "ReferenceData.ClientProfileData", {
+      profiles:server._profiles
+    });
 
     client.character.currentLoadoutId = 3;
     server.sendData(client, "Loadout.SetCurrentLoadout", {
