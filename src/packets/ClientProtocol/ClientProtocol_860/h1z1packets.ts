@@ -5346,7 +5346,7 @@ var packets = [
           type: "uint64",
           defaultValue: "0x0000000000000000",
         },
-        { name: "unk", type: "uint8", defaultValue: 4 },
+        { name: "unk", type: "uint8", defaultValue: 1 },
       ],
     },
   ],

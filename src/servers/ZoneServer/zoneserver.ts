@@ -117,10 +117,10 @@ export class ZoneServer extends EventEmitter {
         unknownDword2: 1,
         iconId1: 1,
         iconId2: 1,
-        respawnTotalTime: 1,
-        respawnTimeMs: 1,
+        respawnTotalTime: 10,
+        respawnTimeMs: 10000,
         nameId: 1,
-        distance: 1,
+        distance: 1000,
         unknownByte1: 1,
         unknownByte2: 1,
         unknownData1: {
