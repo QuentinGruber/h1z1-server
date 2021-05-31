@@ -87,7 +87,8 @@ function createAllVehicles() {
     const characterId = generateRandomGuid();
     vehicles[characterId] = {
       npcData: {
-        guid: characterId,
+        guid: generateRandomGuid(),
+        characterId: characterId,
         transientId: 1,
         modelId: getRandomVehicleId(),
         scale: [1, 1, 1, 1],
