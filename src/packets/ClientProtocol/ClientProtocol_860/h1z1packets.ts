@@ -736,17 +736,17 @@ const currencySchema =
         { name: "unknown5", type: "uint32", defaultValue: 5 },
         { name: "unknown6", type: "uint32", defaultValue: 6 },
         { name: "unknown7", type: "uint32", defaultValue: 8 },
-        { name: "unknown7", type: "uint8", defaultValue: 9 },
-        { name: "unknown8", type: "uint8", defaultValue: 10 },
-        { name: "unknown9", type: "uint32", defaultValue: 11 },
-        { name: "unknown10", type: "uint32", defaultValue: 12 },
+        { name: "unknown8", type: "uint8", defaultValue: 9 },
+        { name: "unknown9", type: "uint8", defaultValue: 10 },
+        { name: "unknown10", type: "uint32", defaultValue: 11 },
+        { name: "unknown11", type: "uint32", defaultValue: 12 },
         {
           name: "array4",
           type: "array",
           fields: [{ name: "unknown1", type: "uint32", defaultValue: 13 },
         ],
         },
-        { name: "unknown11", type: "uint32", defaultValue: 14 }
+        { name: "unknown12", type: "uint32", defaultValue: 14 }
       ]
 
 const profileDataSchema = [
