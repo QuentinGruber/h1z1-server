@@ -215,9 +215,8 @@ export class SOEServer extends EventEmitter {
   }
 
   handlePacket(client: Client, packet: any) {
-    const soePacket = packet?.soePacket;
-    const result = soePacket?.result;
-    if (result != null) {
+    const { soePacket:{result} , soePacket} = packet;
+    if (result) {
       switch (soePacket.name) {
         case "SessionRequest":
           debug(
