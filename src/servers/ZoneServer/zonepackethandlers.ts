@@ -467,15 +467,19 @@ const packetHandlers: any = {
     packet: any
   ) {
     debug(packet.data)
-    const spawnedObject = server._objects[packet.data.guid]
-    if(spawnedObject && false){
-    server.sendData(client, "PlayerUpdate.LootEvent", {
-      guid: spawnedObject.characterId,
-      position:spawnedObject.position,
-      rotation:spawnedObject.rotation,
-      modelFileName:"Common_Props_AmmoBox02.adr",
-    });
-  }
+    const { guid } = packet.data;
+    if(server._objects[guid]){
+      server.sendData(client, "Command.InteractionString", {
+        guid: guid,
+        stringId:29,
+      });
+    }
+    else if(server._doors[guid]){
+      server.sendData(client, "Command.InteractionString", {
+        guid: guid,
+        stringId:31,
+      });
+    }
   },
   "Command.InteractionSelect": function (
     server: ZoneServer,

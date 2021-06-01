@@ -71,6 +71,7 @@ export class ZoneServer extends EventEmitter {
   _dynamicWeatherInterval: any;
   _vehicles: any;
   _respawnLocations:any[]
+  _doors: any;
 
   constructor(
     serverPort: number,
@@ -91,6 +92,7 @@ export class ZoneServer extends EventEmitter {
     this._characters = {};
     this._npcs = {};
     this._objects = {};
+    this._doors = {};
     this._vehicles = {};
     this._serverTime = this.getCurrentTime();
     this._transientId = 0;
@@ -633,6 +635,7 @@ export class ZoneServer extends EventEmitter {
   worldRoutine(client: Client): void {
     this.spawnCharacters(client);
     this.spawnObjects(client);
+    this.spawnDoors(client);
     this.spawnNpcs(client);
     this.spawnVehicles(client);
     this.removeOutOfDistanceEntities(client);
@@ -740,6 +743,29 @@ export class ZoneServer extends EventEmitter {
     });
   }
 
+  spawnDoors(client: Client): void {
+    setImmediate(() => {
+      for (const door in this._doors) {
+        if (
+          isPosInRadius(
+            this._npcRenderDistance,
+            client.character.state.position,
+            this._doors[door].position
+          ) &&
+          !client.spawnedEntities.includes(this._doors[door])
+        ) {
+          this.sendData(
+            client,
+            "PlayerUpdate.AddLightweightNpc",
+            this._doors[door],
+            1
+          );
+          client.spawnedEntities.push(this._doors[door]);
+        }
+      }
+    });
+  }
+
   despawnEntity(characterId: string) {
     this.sendDataToAll(
       "PlayerUpdate.RemovePlayer",
@@ -786,9 +812,10 @@ export class ZoneServer extends EventEmitter {
 
   createAllObjects(): void {
     const { createAllEntities } = require("./workers/createBaseEntities");
-    const { npcs, objects, vehicles } = createAllEntities();
+    const { npcs, objects, vehicles, doors } = createAllEntities();
     this._npcs = npcs;
     this._objects = objects;
+    this._doors = doors
     this._vehicles = vehicles;
     debug("All entities created");
   }
