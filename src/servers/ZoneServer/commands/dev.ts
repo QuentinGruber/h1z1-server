@@ -9,6 +9,10 @@ const dev: any = {
     server.sendData(client, "ClientUpdate.StartTimer", {
       stringId: 0,
       time: 0,
+  testNpcRelevance: function (server: ZoneServer, client: Client, args: any[]) {
+    const npcs = Object.values(server._npcs).map((npc:any)=>{ return {guid:npc.characterId}})
+    server.sendData(client, "PlayerUpdate.NpcRelevance", {
+      npcs:npcs
     });
   },
   d: function (server: ZoneServer, client: Client, args: any[]) { // quick disconnect

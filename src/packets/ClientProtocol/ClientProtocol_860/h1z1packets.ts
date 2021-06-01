@@ -5070,8 +5070,9 @@ var packets = [
           defaultValue: [],
           fields: [
             { name: "guid", type: "uint64", defaultValue: "0" },
-            { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-            { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+            { name: "unknownBoolean1", type: "boolean", defaultValue: true },
+            { name: "unknownByte1", type: "uint8", defaultValue: 1 },
+            { name: "unknownByte2", type: "uint8", defaultValue: 1 },
           ],
         },
       ],
