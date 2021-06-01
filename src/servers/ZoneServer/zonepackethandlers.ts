@@ -468,16 +468,26 @@ const packetHandlers: any = {
   ) {
     debug(packet.data)
     const { guid } = packet.data;
-    if(server._objects[guid]){
+    const objectData = server._objects[guid];
+    const doorData = server._doors[guid];
+    const vehicleData = server._vehicles[guid];
+    const interactionDistance = 2;
+    if(objectData && isPosInRadius(interactionDistance,client.character.state.position,objectData.position)){
       server.sendData(client, "Command.InteractionString", {
         guid: guid,
         stringId:29,
       });
     }
-    else if(server._doors[guid]){
+    else if(doorData && isPosInRadius(interactionDistance,client.character.state.position,doorData.position)){
       server.sendData(client, "Command.InteractionString", {
         guid: guid,
         stringId:31,
+      });
+    }
+    else if(vehicleData && isPosInRadius(interactionDistance,client.character.state.position,vehicleData.npcData.position)){
+      server.sendData(client, "Command.InteractionString", {
+        guid: guid,
+        stringId:15,
       });
     }
   },
