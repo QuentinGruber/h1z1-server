@@ -471,7 +471,7 @@ const packetHandlers: any = {
     const objectData = server._objects[guid];
     const doorData = server._doors[guid];
     const vehicleData = server._vehicles[guid];
-    const interactionDistance = 2;
+    const interactionDistance = 4;
     if(objectData && isPosInRadius(interactionDistance,client.character.state.position,objectData.position)){
       server.sendData(client, "Command.InteractionString", {
         guid: guid,
