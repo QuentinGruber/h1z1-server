@@ -24,14 +24,20 @@ import { Int64String } from "../../utils/utils";
 const packetHandlers = {
   ClientIsReady: function (server, client, packet) {
     // clientBeginZoning re-enabled
-    server.sendData(client, "ClientBeginZoning", {});
+    server.sendData(client, "ClientBeginZoning", {});// Needed for trees
 
     server.sendData(client, "QuickChat.SendData", { commands: [] });
 
     server.sendData(client, "ClientUpdate.DoneSendingPreloadCharacters", {
-      unknownBoolean1: 1,
-    });
+      done: 1,
+    }); // Required for WaitForWorldReady
 
+    /*
+    server.sendData(client, "ClientUpdate.NetworkProximityUpdatesComplete", {
+      done: 1,
+    }); // Required for WaitForWorldReady
+    */
+   
     server.sendData(client, "ClientUpdate.UpdateStat", { stats: [] });
 
     //server.sendData(client, "Operation.ClientClearMissions", {});
@@ -98,7 +104,7 @@ const packetHandlers = {
       loadoutId: client.character.currentLoadoutId,
     });
     
-    server.sendData(client, "ZoneDoneSendingInitialData", {});
+    server.sendData(client, "ZoneDoneSendingInitialData", {}); // Required for WaitForWorldReady
 
     const commands = [
       "hax",

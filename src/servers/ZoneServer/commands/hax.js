@@ -30,8 +30,8 @@ const hax = {
       unknownBoolean2: true,
       unknownBoolean3: true,
     };
-    server.sendData(client, "SendZoneDetails", SendZoneDetails_packet);
-    server.sendData(client, "ClientBeginZoning", {});
+    server.sendData(client, "SendZoneDetails", SendZoneDetails_packet); // needed or screen is black, maybe use skyChanged instead?
+    server.sendData(client, "ClientBeginZoning", {}); // needed or no trees / foliage spawned on tp
   },
 
   forceNight: function (server, client, args) {
@@ -155,6 +155,23 @@ const hax = {
       );
     }
   },
+  spawnObject: function (server, client, args) {
+    const guid = server.generateGuid();
+    //const transientId = server.getTransientId(client, guid);
+    if (!args[1]) {
+      server.sendChatText(client, "[ERROR] You need to specify a model id !");
+      return;
+    }
+    const choosenModelId = Number(args[1]);
+    const obj = {
+      guid: guid,
+      transientId: choosenModelId,
+      position: [client.character.state.position[0], client.character.state.position[1], client.character.state.position[2]],
+      rotation: [client.character.state.rotation[0], client.character.state.rotation[1], client.character.state.rotation[2]],
+    };
+    server.sendData(client, "AddProxiedObject", obj);
+    // server.obj[guid] = obj; // save npc
+  },
   spawnNpcModel: function (server, client, args) {
     const guid = server.generateGuid();
     const transientId = server.getTransientId(client, guid);
@@ -169,32 +186,34 @@ const hax = {
       guid: guid,
       transientId: transientId,
       modelId: choosenModelId,
-      position: client.character.state.position,
-      // unknownByteArray1: [unknownByte1 = 0, unknownByte2 = 0, unknownByte3 = 0],
-      //array17: [{ unknown1: 0 }],
-      //array18: [{ unknown1: 0 }],
+      position: [client.character.state.position[0], client.character.state.position[1], client.character.state.position[2]],
+      rotation: [client.character.state.rotation[0], client.character.state.rotation[1], client.character.state.rotation[2]],
+      color: {},
+      unknownData1: {unknownData1: {}}
     };
     server.sendData(client, "AddLightweightNpc", npc);
     server._npcs[characterId] = npc; // save npc
   },
   spawnPcModel: function (server, client, args) {
     const guid = server.generateGuid();
-    const characterId = generateCharacterId();
-    const transientId = server.getTransientId(client, characterId);
+    //const characterId = generateCharacterId();
+    const transientId = server.getTransientId(client, guid);
     debug("spawnPcModel called");
+    /*
     if (!args[1]) {
       server.sendChatText(client, "[ERROR] You need to specify a model id !");
       return;
     }
+    */
     //const choosenModelId = Number(args[1]);
     
-    debug(`\n\n\n\ncharacterId: ${characterId}\n\n\n\n`);
+    debug(`\n\n\n\nguid: ${guid}\n\n\n\n`);
     const lightweight = {
-      characterId: characterId,
-      guid: characterId,
+      guid: guid,
       transientId: transientId,
       //modelId: choosenModelId,
-      position: client.character.state.position,
+      position: [client.character.state.position[0], client.character.state.position[1], client.character.state.position[2]],
+      roation: client.character.state.rotation,
       identity: {}
     };
     const full = {
