@@ -35,16 +35,20 @@
     "prettier": "^2.2.1"
   },
   "scripts": {
-    "build-optimized": "npm run build-swc && terser-output ./out",
+    "build-optimized": "npm run build && terser-output ./out",
     "build": "tsc -p ./tsconfig.json",
     "build-tests": "npx swc tests -d tests_out",
-    "test": "npm run build-swc && npm run build-tests && node tests_out/testRuntime.js && node tests_out/testIssuesInPacketSchemas.js",
+    "test-zone-client": "node tests_out/zoneClientTest.js",
+    "test-login-client": "node tests_out/loginClientTest.js",
+    "test-load-login-client": "npm run build-swc && npm run build-tests && node tests_out/loadTests/loginClientLoadTest.js",
+    "test-load-zone-client": "npm run build-swc && npm run build-tests && node tests_out/loadTests/zoneClientLoadTest.js",
+    "test": "npm run build-swc && npm run build-tests && node tests_out/testRuntime.js && node tests_out/testIssuesInPacketSchemas.js && npm run test-login-client && npm run test-zone-client",
     "build-swc": "npx swc src -d out",
     "watch-swc": "npx swc --watch src -d out",
     "postinstall": "npm run build-optimized",
     "before_release": "npm run prettier_sources && echo Do not forget to update package version !",
     "publish_release": "git push --tags && git push origin dev && git push origin master",
-    "prettier_sources": "prettier --write ./src"
+    "prettier_sources": "prettier --write ./src && prettier --write ./tests"
   },
   "repository": {
     "type": "git",
