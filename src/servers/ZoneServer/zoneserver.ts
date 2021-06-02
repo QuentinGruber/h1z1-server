@@ -431,6 +431,7 @@ export class ZoneServer extends EventEmitter {
   }
 
   parseReferenceData(): any {
+    /*
     const itemData = fs.readFileSync(
         `${__dirname}/../../../data/dataSources/ClientItemDefinitions.txt`,
         "utf8"
@@ -442,8 +443,8 @@ export class ZoneServer extends EventEmitter {
       if (line[0]) {
         (items as any)[line[0]] = line[1];
       }
-    }
-    return { itemTypes: items };
+    }*/
+    return { itemTypes: undefined };
   }
 
   async saveCharacterPosition(client: Client, updtTimeMs = 0) {
