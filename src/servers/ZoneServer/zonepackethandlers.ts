@@ -1318,6 +1318,10 @@ const packetHandlers: any = {
       server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
         characterId: guid,
         transientId: npc.transientId,
+        unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
+			  unknownDword2: 13951728,
+			  unknownDword3: 1,
+			  unknownDword6: 100,
       });
     } else if (server._characters[guid]) {
       server.sendData(client, "PlayerUpdate.LightweightToFullPc", {
