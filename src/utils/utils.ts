@@ -31,13 +31,12 @@ export const generateRandomGuid = function (): string {
   const bytes = uuidParse(guidString);
   const arrayBytes = new Uint8Array(bytes);
   for (let index = 0; index < arrayBytes.length; index++) {
-    if(guid.length === 18 ) break;
-    const byte = arrayBytes[index].toString(16)
-    if(arrayBytes[index].toString(16).length === 1){
-      guid +=( "0" + byte )
-    }
-    else{
-    guid += byte;
+    if (guid.length === 18) break;
+    const byte = arrayBytes[index].toString(16);
+    if (arrayBytes[index].toString(16).length === 1) {
+      guid += "0" + byte;
+    } else {
+      guid += byte;
     }
   }
   return guid;

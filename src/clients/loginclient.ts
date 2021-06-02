@@ -12,12 +12,10 @@
 
 import { EventEmitter } from "events";
 
-var SOEClient = require("./soeclient").SOEClient,
-  https = require("https"),
-  util = require("util"),
-  LoginProtocol = require("../protocols/loginprotocol").LoginProtocol,
-  loginProtocolName = "LoginUdp_9",
-  debug = require("debug")("LoginClient");
+import { SOEClient } from "./soeclient";
+import { LoginProtocol } from "../protocols/loginprotocol";
+const loginProtocolName = "LoginUdp_9";
+const debug = require("debug")("LoginClient");
 
 interface SoeClient {
   on: Function;
@@ -33,7 +31,7 @@ interface SoeClient {
   toggleDataDump: Function;
 }
 
-interface LoginProtocol {
+interface LoginProtocolInterface {
   parse: Function;
   pack: Function;
 }
@@ -41,15 +39,15 @@ interface LoginProtocol {
 export class LoginClient extends EventEmitter {
   _gameId: number;
   _environment: string;
-  _soeClient: SoeClient;
-  _protocol: LoginProtocol;
+  _soeClient: any;
+  _protocol: LoginProtocolInterface;
 
   constructor(
     gameId: number,
     environment: string,
     serverAddress: string,
     serverPort: number,
-    loginKey: string,
+    loginKey: Uint8Array,
     localPort: number
   ) {
     super();
@@ -188,7 +186,7 @@ export class LoginClient extends EventEmitter {
     this._soeClient.sendAppData(data, true);
   }
 
-  requestCharacterLogin(characterId: number, serverId: number, payload: any) {
+  requestCharacterLogin(characterId: string, serverId: number, payload: any) {
     debug("Requesting character login");
     var data = this._protocol.pack("CharacterLoginRequest", {
       characterId: characterId,

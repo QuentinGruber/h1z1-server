@@ -9,7 +9,7 @@ import { generateRandomGuid } from "../../../utils/utils";
 const npcs: any = {};
 const objects: any = {};
 const vehicles: any = {};
-const doors:any = {};
+const doors: any = {};
 
 const chancePumpShotgun = 50;
 const chanceAR15 = 50;
@@ -67,7 +67,7 @@ export function createAllEntities(): any {
   createFarm();
   createAllVehicles();
   createSomeNpcs();
-  return { npcs: npcs, objects: objects, vehicles : vehicles, doors: doors };
+  return { npcs: npcs, objects: objects, vehicles: vehicles, doors: doors };
 }
 
 function getRandomVehicleId() {
@@ -103,7 +103,7 @@ function createAllVehicles() {
         array18: [{ unknown1: 0 }],
       },
       unknownGuid1: generateRandomGuid(),
-      positionUpdate: [0,0,0,0],
+      positionUpdate: [0, 0, 0, 0],
     };
   });
   debug("All vehicles created");

@@ -715,39 +715,36 @@ function parseItemAddData(data: Buffer, offset: number, referenceData: any) {
 
 function packItemAddData() {}
 
-const currencySchema = 
-  {
-    name: "currency",
-    type: "array", // TODO : that's an array8
-    defaultValue: [],
-    fields: [
-      { name: "currencyId", type: "uint32", defaultValue: 0 }, // TODO : that's an uint8
-      { name: "quantity", type: "uint32", defaultValue: 0 },
-    ],
-  }
+const currencySchema = {
+  name: "currency",
+  type: "array", // TODO : that's an array8
+  defaultValue: [],
+  fields: [
+    { name: "currencyId", type: "uint32", defaultValue: 0 }, // TODO : that's an uint8
+    { name: "quantity", type: "uint32", defaultValue: 0 },
+  ],
+};
 
-  const lootItemSchema = [
-  
-        { name: "unknown1", type: "byte", defaultValue: 1 },
-        currencySchema,
-        { name: "unknown2", type: "uint32", defaultValue: 2 },
-        { name: "unknown3", type: "uint32", defaultValue: 3 },
-        { name: "unknown4", type: "uint32", defaultValue: 4 },
-        { name: "unknown5", type: "uint32", defaultValue: 5 },
-        { name: "unknown6", type: "uint32", defaultValue: 6 },
-        { name: "unknown7", type: "uint32", defaultValue: 8 },
-        { name: "unknown8", type: "uint8", defaultValue: 9 },
-        { name: "unknown9", type: "uint8", defaultValue: 10 },
-        { name: "unknown10", type: "uint32", defaultValue: 11 },
-        { name: "unknown11", type: "uint32", defaultValue: 12 },
-        {
-          name: "array4",
-          type: "array",
-          fields: [{ name: "unknown1", type: "uint32", defaultValue: 13 },
-        ],
-        },
-        { name: "unknown12", type: "uint32", defaultValue: 14 }
-      ]
+const lootItemSchema = [
+  { name: "unknown1", type: "byte", defaultValue: 1 },
+  currencySchema,
+  { name: "unknown2", type: "uint32", defaultValue: 2 },
+  { name: "unknown3", type: "uint32", defaultValue: 3 },
+  { name: "unknown4", type: "uint32", defaultValue: 4 },
+  { name: "unknown5", type: "uint32", defaultValue: 5 },
+  { name: "unknown6", type: "uint32", defaultValue: 6 },
+  { name: "unknown7", type: "uint32", defaultValue: 8 },
+  { name: "unknown8", type: "uint8", defaultValue: 9 },
+  { name: "unknown9", type: "uint8", defaultValue: 10 },
+  { name: "unknown10", type: "uint32", defaultValue: 11 },
+  { name: "unknown11", type: "uint32", defaultValue: 12 },
+  {
+    name: "array4",
+    type: "array",
+    fields: [{ name: "unknown1", type: "uint32", defaultValue: 13 }],
+  },
+  { name: "unknown12", type: "uint32", defaultValue: 14 },
+];
 
 const profileDataSchema = [
   { name: "profileId", type: "uint32", defaultValue: 0 },
@@ -923,7 +920,7 @@ const lightWeightPcSchema = [
     type: "custom",
     parser: readUnsignedIntWith2bitLengthValue,
     packer: packUnsignedIntWith2bitLengthValue,
-    defaultValue:1
+    defaultValue: 1,
   },
   { name: "unknownDword1", type: "uint32", defaultValue: 9241 },
   { name: "unknownDword2", type: "uint32", defaultValue: 9242 },
@@ -959,7 +956,7 @@ const lightWeightNpcSchema = [
     type: "custom",
     parser: readUnsignedIntWith2bitLengthValue,
     packer: packUnsignedIntWith2bitLengthValue,
-    defaultValue:1
+    defaultValue: 1,
   },
   { name: "string5", type: "string", defaultValue: "" },
   { name: "nameId", type: "uint32", defaultValue: 0 },
@@ -1897,7 +1894,6 @@ const fullPcDataSchema = [
   { name: "unknownboolean2", type: "boolean", defaultValue: 0 },
   { name: "unknownboolean3", type: "boolean", defaultValue: 0 },
 
-
   {
     name: "effectTags",
     type: "array8",
@@ -1952,7 +1948,6 @@ const fullPcDataSchema = [
   { name: "unknownDword15", type: "uint32", defaultValue: 0 },
   { name: "unknownDword16", type: "uint32", defaultValue: 0 },
   { name: "unknownDword17", type: "uint32", defaultValue: 0 },
-
 
   { name: "unknownboolean5", type: "boolean", defaultValue: 0 },
   { name: "unknownboolean6", type: "boolean", defaultValue: 0 },
@@ -4023,7 +4018,7 @@ var packets = [
           type: "array",
           defaultValue: [],
           fields: [
-            { name: "unknownString1", type: "string", defaultValue: ""},
+            { name: "unknownString1", type: "string", defaultValue: "" },
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
             { name: "unknownDword2", type: "uint32", defaultValue: 0 },
           ],
@@ -5146,7 +5141,11 @@ var packets = [
           type: "floatvector4",
           defaultValue: [0, 0, 0, 1],
         },
-        { name: "modelFileName", type: "string", defaultValue: "ZombieMale001.adr" },
+        {
+          name: "modelFileName",
+          type: "string",
+          defaultValue: "ZombieMale001.adr",
+        },
       ],
     },
   ],
@@ -5180,17 +5179,22 @@ var packets = [
       ],
     },
   ],
-  ["PlayerUpdate.SetCollidable", 0x0f23, {
-    fields:[
-      { name: "unknown1", type: "byte", defaultValue: 0 },
-  { name: "unknown2", type: "byte", defaultValue: 0 },
-  {
-    name: "characterId",
-    type: "uint64",
-    defaultValue: "0x0000000000000000",
-  },
-  { name: "collisionEnabled", type: "boolean", defaultValue: 0 }
-]}],
+  [
+    "PlayerUpdate.SetCollidable",
+    0x0f23,
+    {
+      fields: [
+        { name: "unknown1", type: "byte", defaultValue: 0 },
+        { name: "unknown2", type: "byte", defaultValue: 0 },
+        {
+          name: "characterId",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        { name: "collisionEnabled", type: "boolean", defaultValue: 0 },
+      ],
+    },
+  ],
   ["PlayerUpdate.UpdateOwner", 0x0f24, {}],
   ["PlayerUpdate.WeaponStance", 0x0f25, {}],
   ["PlayerUpdate.UpdateTintAlias", 0x0f26, {}],
@@ -5329,19 +5333,26 @@ var packets = [
   ],
   ["PlayerUpdate.LaunchProjectile", 0x0f2e, {}],
   ["PlayerUpdate.SetSynchronizedAnimations", 0x0f2f, {}],
-  ["PlayerUpdate.HudMessage", 0x0f30, { 
-     fields: [
-    { name: "characterId", type: "uint64", defaultValue: "0" },
-    { name: "unkguid2", type: "uint64", defaultValue: "0x0000000000000011" },
-    { name: "unknownDword1", type: "uint32", defaultValue: 1 },
-    { name: "unknownDword2", type: "uint32", defaultValue: 2 },
-    { name: "unknownDword3", type: "uint32", defaultValue: 3 },
-    { name: "unknownDword4", type: "uint32", defaultValue: 4 },
-    { name: "unknownDword5", type: "uint32", defaultValue: 5 },
-    { name: "unknownDword6", type: "uint32", defaultValue: 6 },
-
-  ]
-}],
+  [
+    "PlayerUpdate.HudMessage",
+    0x0f30,
+    {
+      fields: [
+        { name: "characterId", type: "uint64", defaultValue: "0" },
+        {
+          name: "unkguid2",
+          type: "uint64",
+          defaultValue: "0x0000000000000011",
+        },
+        { name: "unknownDword1", type: "uint32", defaultValue: 1 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 2 },
+        { name: "unknownDword3", type: "uint32", defaultValue: 3 },
+        { name: "unknownDword4", type: "uint32", defaultValue: 4 },
+        { name: "unknownDword5", type: "uint32", defaultValue: 5 },
+        { name: "unknownDword6", type: "uint32", defaultValue: 6 },
+      ],
+    },
+  ],
   [
     "PlayerUpdate.CustomizationData",
     0x0f31,
@@ -5645,13 +5656,12 @@ var packets = [
         },
         { name: "unknownByte3", type: "uint8", defaultValue: 0 },
 
-
         {
           name: "unknownArray3",
           type: "array8",
           defaultValue: [],
           fields: [
-           //TODO
+            //TODO
           ],
         },
 
@@ -6226,7 +6236,9 @@ var packets = [
           defaultValue: [],
           fields: profileDataSchema,
         },
-  ]}],
+      ],
+    },
+  ],
   [
     "ReferenceData.WeaponDefinitions",
     0x1704,
@@ -7166,9 +7178,8 @@ var packets = [
           name: "items",
           type: "array",
           defaultValue: [],
-          fields: [
-        ...lootItemSchema
-          ]}
+          fields: [...lootItemSchema],
+        },
       ],
     },
   ],
