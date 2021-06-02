@@ -48,7 +48,7 @@
     "postinstall": "npm run build-optimized",
     "before_release": "npm run prettier_sources && echo Do not forget to update package version !",
     "publish_release": "git push --tags && git push origin dev && git push origin master",
-    "prettier_sources": "prettier --write ./src"
+    "prettier_sources": "prettier --write ./src && prettier --write ./tests"
   },
   "repository": {
     "type": "git",
