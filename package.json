@@ -35,7 +35,7 @@
     "prettier": "^2.2.1"
   },
   "scripts": {
-    "build-optimized": "npm run build-swc && terser-output ./out",
+    "build-optimized": "npm run build && terser-output ./out",
     "build": "tsc -p ./tsconfig.json",
     "build-tests": "npx swc tests -d tests_out",
     "test-login-client": "npm run build-swc && npm run build-tests && node tests_out/loginClientTest.js",
