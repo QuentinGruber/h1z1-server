@@ -99,7 +99,7 @@ const packetHandlers: any = {
       gameTime: (server.getServerTime() & 0xffffffff) >>> 0,
     });
     server.sendData(client, "ReferenceData.ClientProfileData", {
-      profiles:server._profiles
+      profiles: server._profiles,
     });
 
     client.character.currentLoadoutId = 3;
@@ -129,7 +129,6 @@ const packetHandlers: any = {
       serverTime2: Int64String(server.getServerTime()),
     });
     server.sendData(client, "ZoneDoneSendingInitialData", {});
-
   },
   ClientFinishedLoading: function (
     server: ZoneServer,
@@ -144,7 +143,7 @@ const packetHandlers: any = {
       () => server.saveCharacterPosition(client, 30000),
       30000
     );
-    server.executeFuncForAllClients("spawnCharacters")
+    server.executeFuncForAllClients("spawnCharacters");
   },
   Security: function (server: ZoneServer, client: Client, packet: any) {
     debug(packet);
@@ -336,7 +335,7 @@ const packetHandlers: any = {
             _characters: characters,
             _npcs: npcs,
             _objects: objects,
-            _vehicles: vehicles
+            _vehicles: vehicles,
           } = server;
           const serverVersion = require("../../../package.json").version;
           server.sendChatText(client, `h1z1-server V${serverVersion}`, true);
@@ -466,28 +465,47 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
-    debug(packet.data)
+    debug(packet.data);
     const { guid } = packet.data;
     const objectData = server._objects[guid];
     const doorData = server._doors[guid];
     const vehicleData = server._vehicles[guid];
     const interactionDistance = 4;
-    if(objectData && isPosInRadius(interactionDistance,client.character.state.position,objectData.position)){
+    if (
+      objectData &&
+      isPosInRadius(
+        interactionDistance,
+        client.character.state.position,
+        objectData.position
+      )
+    ) {
       server.sendData(client, "Command.InteractionString", {
         guid: guid,
-        stringId:29,
+        stringId: 29,
       });
-    }
-    else if(doorData && isPosInRadius(interactionDistance,client.character.state.position,doorData.position)){
+    } else if (
+      doorData &&
+      isPosInRadius(
+        interactionDistance,
+        client.character.state.position,
+        doorData.position
+      )
+    ) {
       server.sendData(client, "Command.InteractionString", {
         guid: guid,
-        stringId:31,
+        stringId: 31,
       });
-    }
-    else if(vehicleData && isPosInRadius(interactionDistance,client.character.state.position,vehicleData.npcData.position)){
+    } else if (
+      vehicleData &&
+      isPosInRadius(
+        interactionDistance,
+        client.character.state.position,
+        vehicleData.npcData.position
+      )
+    ) {
       server.sendData(client, "Command.InteractionString", {
         guid: guid,
-        stringId:15,
+        stringId: 15,
       });
     }
   },
@@ -1291,56 +1309,31 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
-    const { data: { guid } } = packet;
-		const transientidnpc = server._npcs[guid];
-		const transientidobj = server._objects[guid];
-		/*const transientidcha = server._characters[guid];*/
-		const transientiddoo = server._doors[guid];
-		/*const transientidveh = server._vehicles[guid];*/
-        if (server._npcs[guid]) {
-            server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
-            transient_id: transientidnpc.transientId,
-			    	unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
-			    	unknownDword2: 13951728,
-			    	unknownDword3: 1,
-			    	unknownDword6: 100,
-            });
-        }
-		if (server._objects[guid]) {
-            server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
-            transient_id: transientidobj.transientId,
-			    	unknownDword1: 16777215,
-			    	unknownDword2: 13951728,
-			    	unknownDword3: 1,
-			    	unknownDword6: 100,
-            });
-        }
-        else if (server._characters[guid]) {
-            /*server.sendData(client, "PlayerUpdate.LightweightToFullPc", {
-            transient_id: transientidcha.transientId,
-			    	unknownDword1: 16777215,
-		    		unknownDword2: 13951728,
-		    		unknownDword3: 1,
-		    		unknownDword6: 100,
-            });*/
-			debug("LightweightToFullPC");
-        }
-		else if (server._doors[guid]) {
-            server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
-            transient_id: transientiddoo.transientId,
-			    	unknownDword1: 16777215,
-		    		unknownDword2: 13951728,
-		    		unknownDword3: 1,
-		    		unknownDword6: 100,
-            });
-        }
-        else if (server._vehicles[guid]) {
-            /*server.sendData(client, "PlayerUpdate.LightweightToFullVehicle", {
-            characterId: guid,
-            });*/
-            debug("LightweightToFullVehicle");
-        }
-    },
+    const {
+      data: { guid },
+    } = packet;
+    const npc =
+      server._npcs[guid] || server._objects[guid] || server._doors[guid];
+    if (npc) {
+      server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
+        characterId: guid,
+        transientId: npc.transientId,
+        unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
+			  unknownDword2: 13951728,
+			  unknownDword3: 1,
+			  unknownDword6: 100,
+      });
+    } else if (server._characters[guid]) {
+      server.sendData(client, "PlayerUpdate.LightweightToFullPc", {
+        characterId: guid,
+      });
+    } else if (server._vehicles[guid]) {
+      /*server.sendData(client, "PlayerUpdate.LightweightToFullVehicle", {
+      characterId: guid,
+      });*/
+      debug("LightweightToFullVehicle");
+    }
+  },
 };
 
 export default packetHandlers;

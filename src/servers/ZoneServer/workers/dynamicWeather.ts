@@ -20,7 +20,7 @@ let sunposx = 15; // sun position at server start
 let sunposy = 90;
 let sunposz = 0;
 let sunposInc = 0;
-let sunposXmin = 0; // max values of sun axis, changed for every season 
+let sunposXmin = 0; // max values of sun axis, changed for every season
 let sunposXmax = 0;
 let sunposYmin = 0;
 let sunposYmax = 0;
@@ -81,12 +81,12 @@ function autumn() {
   wchancemin = -1;
   wchancemax = 2;
   setTimeout(function () {
-      sunposXmax = 90;
-      sunposYmax = 130;
-      sunposZmax = 60;
-	  wchancemin = -1;
-      wchancemax = 3;
-    }, 450000);
+    sunposXmax = 90;
+    sunposYmax = 130;
+    sunposZmax = 60;
+    wchancemin = -1;
+    wchancemax = 3;
+  }, 450000);
   setTimeout(winterr, 900000);
 }
 function winterr() {
@@ -107,9 +107,9 @@ function winterr() {
   wchancemin = -1;
   wchancemax = 3;
   setTimeout(function () {
-	  wchancemin = -3;
-      wchancemax = 1;
-    }, 450000);
+    wchancemin = -3;
+    wchancemax = 1;
+  }, 450000);
   setTimeout(spring, 900000);
 }
 function spring() {
@@ -143,77 +143,77 @@ var seasonstart = (function () {
 
 export default function dynamicWeather(serverContext: ZoneServer) {
   seasonstart();
-// sun axis
+  // sun axis
   sunposx = sunposx + sunposInc;
   if (sunposx > sunposXmax) {
-	  sunposx = sunposXmax;
+    sunposx = sunposXmax;
   }
   if (sunposx < sunposXmin) {
-	  sunposx = sunposXmin;
+    sunposx = sunposXmin;
   }
   sunposy = sunposy + sunposInc;
   if (sunposy > sunposYmax) {
-	  sunposy = sunposYmax;
+    sunposy = sunposYmax;
   }
   if (sunposy < sunposYmin) {
-	  sunposy = sunposYmin;
+    sunposy = sunposYmin;
   }
   sunposz = sunposz + sunposInc;
   if (sunposz > sunposZmax) {
-	  sunposz = sunposZmax;
+    sunposz = sunposZmax;
   }
   if (sunposz < sunposZmin) {
-	  sunposz = sunposZmin;
+    sunposz = sunposZmin;
   }
-//rain strength 
+  //rain strength
   const rainchancestr = randomIntFromInterval(rainIncMin, rainIncMax); // rain strength increase
   raintoggle = raintoggle + rainchancestr;
   if (raintoggle > 101) {
-	  raintoggle = 100;
+    raintoggle = 100;
   }
-// wind
+  // wind
   const windchance = randomIntFromInterval(wchancemin, wchancemax);
   wind = wind + windchance;
   if (wind < -3) {
-	  wind = -2;
+    wind = -2;
   }
   if (wind > windmax) {
-	  cloud1 = (cloudmax - 1);
+    cloud1 = cloudmax - 1;
   }
-// clouds
+  // clouds
   const c1chance = randomIntFromInterval(cchancemin, cchancemax);
   cloud1 = cloud1 + c1chance;
   if (cloud1 < -3) {
-	  cloud1 = -2;
+    cloud1 = -2;
   }
   if (cloud1 > cloudmax) {
-	  cloud1 = (cloudmax - 1);
+    cloud1 = cloudmax - 1;
   }
   const c2chance = randomIntFromInterval(cchancemin, cchancemax);
   cloud2 = cloud2 + c2chance;
   if (cloud2 < -3) {
-	  cloud2 = -2;
+    cloud2 = -2;
   }
   if (cloud2 > cloudmax) {
-	  cloud2 = (cloudmax - 1);
+    cloud2 = cloudmax - 1;
   }
   const c3chance = randomIntFromInterval(cchancemin, cchancemax);
   cloud3 = cloud3 + c3chance;
   if (cloud3 < -3) {
-	  cloud3 = -2;
+    cloud3 = -2;
   }
   if (cloud3 > cloudmax) {
-	  cloud3 = (cloudmax - 1);
+    cloud3 = cloudmax - 1;
   }
   const c4chance = randomIntFromInterval(cchancemin, cchancemax);
   cloud4 = cloud4 + c4chance;
   if (cloud4 < -3) {
-	  cloud4 = -2;
+    cloud4 = -2;
   }
   if (cloud4 > cloudmax) {
-	  cloud4 = (cloudmax - 1);
+    cloud4 = cloudmax - 1;
   }
-// fog
+  // fog
   const fogchance = randomIntFromInterval(fchancemin, fchancemax);
   fog = fog + fogchance;
   if (fog < -10) {
@@ -231,7 +231,7 @@ export default function dynamicWeather(serverContext: ZoneServer) {
   if (foggradient > 100) {
     foggradient = 100;
   }
-// rain  
+  // rain
   const rainchance = randomIntFromInterval(rchancemin, rchancemax);
   rain = rain + rainchance;
   if (rain < 0) {
@@ -241,23 +241,23 @@ export default function dynamicWeather(serverContext: ZoneServer) {
     raintoggle = 1;
     raincheck = "ON";
     rain = 0;
-	rainIncMin = 2;
+    rainIncMin = 2;
     rainIncMax = 2;
     const raintime = randomIntFromInterval(180000, 300000);
-	raintimehalf = raintime / 2;
+    raintimehalf = raintime / 2;
     raintimems = raintime / 60000;
     raintimemin = Math.floor(raintimems);
     debug("Rain will last for " + raintimemin + " min");
-	setTimeout(function () {
+    setTimeout(function () {
       rainIncMin = -2;
       rainIncMax = -2;
     }, raintimehalf);
     setTimeout(function () {
-	  rainIncMin = 0;
+      rainIncMin = 0;
       rainIncMax = 0;
       rain = 0;
       raincheck = "OFF";
-	  raintoggle = 0;
+      raintoggle = 0;
       debug("Rain ended");
     }, raintime);
   }

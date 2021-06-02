@@ -32,7 +32,7 @@ const localSpawnList = require("../../../data/sampleData/spawnLocations.json");
 
 const debugName = "ZoneServer";
 const debug = require("debug")(debugName);
-const spawnLocations = require("../../../data/sampleData/spawnLocations.json")
+const spawnLocations = require("../../../data/sampleData/spawnLocations.json");
 const localWeatherTemplates = require("../../../data/sampleData/weather.json");
 const stats = require("../../../data/sampleData/stats.json");
 const recipes = require("../../../data/sampleData/recipes.json");
@@ -70,7 +70,7 @@ export class ZoneServer extends EventEmitter {
   _npcRenderDistance: number;
   _dynamicWeatherInterval: any;
   _vehicles: any;
-  _respawnLocations:any[]
+  _respawnLocations: any[];
   _doors: any;
 
   constructor(
@@ -110,7 +110,7 @@ export class ZoneServer extends EventEmitter {
     this._profiles = [];
     this._npcRenderDistance = 350;
     this._pingTimeoutTime = 30000;
-    this._respawnLocations = spawnLocations.map((spawn:any)=>{
+    this._respawnLocations = spawnLocations.map((spawn: any) => {
       return {
         guid: this.generateGuid(),
         respawnType: 4,
@@ -135,8 +135,8 @@ export class ZoneServer extends EventEmitter {
         unknownDword4: 1,
         unknownByte3: 1,
         unknownByte4: 1,
-      }
-    })
+      };
+    });
     if (!this._mongoAddress) {
       this._soloMode = true;
       debug("Server in solo mode !");
@@ -643,9 +643,9 @@ export class ZoneServer extends EventEmitter {
     client.posAtLastRoutine = client.character.state.position;
   }
 
-  executeFuncForAllClients(zoneServerFuncName:string): void{
+  executeFuncForAllClients(zoneServerFuncName: string): void {
     for (const client in this._clients) {
-        (this as any)[zoneServerFuncName](this._clients[client])
+      (this as any)[zoneServerFuncName](this._clients[client]);
     }
   }
 
@@ -664,7 +664,13 @@ export class ZoneServer extends EventEmitter {
         this.sendData(
           client,
           "PlayerUpdate.AddLightweightPc",
-          {...characterObj,transientId:1,characterFirstName:characterObj.name,position:characterObj.state.position,rotation:characterObj.state.lookAt},
+          {
+            ...characterObj,
+            transientId: 1,
+            characterFirstName: characterObj.name,
+            position: characterObj.state.position,
+            rotation: characterObj.state.lookAt,
+          },
           1
         );
         client.spawnedEntities.push(this._characters[character]);
@@ -708,7 +714,9 @@ export class ZoneServer extends EventEmitter {
       return !objectsToRemove.includes(el);
     });
     objectsToRemove.forEach((object: any) => {
-      const characterId = object.characterId? object.characterId : object.npcData.characterId
+      const characterId = object.characterId
+        ? object.characterId
+        : object.npcData.characterId;
       this.sendData(
         client,
         "PlayerUpdate.RemovePlayer",
@@ -815,7 +823,7 @@ export class ZoneServer extends EventEmitter {
     const { npcs, objects, vehicles, doors } = createAllEntities();
     this._npcs = npcs;
     this._objects = objects;
-    this._doors = doors
+    this._doors = doors;
     this._vehicles = vehicles;
     debug("All entities created");
   }
@@ -983,11 +991,16 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
-  sendDataToAllOthers(client:Client,packetName: string, obj: any, channel = 0): void {
+  sendDataToAllOthers(
+    client: Client,
+    packetName: string,
+    obj: any,
+    channel = 0
+  ): void {
     for (const a in this._clients) {
-      if(client != this._clients[a]){
-      this.sendData(this._clients[a], packetName, obj, channel);
-    }
+      if (client != this._clients[a]) {
+        this.sendData(this._clients[a], packetName, obj, channel);
+      }
     }
   }
 
@@ -1090,6 +1103,6 @@ export class ZoneServer extends EventEmitter {
     return obj;
   }
 }
-if(process.env.VSCODE_DEBUG === "true"){
-  (new ZoneServer(1117,Base64.toUint8Array("F70IaxuU8C/w7FPXY1ibXw=="))).start()
+if (process.env.VSCODE_DEBUG === "true") {
+  new ZoneServer(1117, Base64.toUint8Array("F70IaxuU8C/w7FPXY1ibXw==")).start();
 }

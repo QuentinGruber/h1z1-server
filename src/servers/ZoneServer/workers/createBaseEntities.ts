@@ -9,7 +9,7 @@ import { generateRandomGuid } from "../../../utils/utils";
 const npcs: any = {};
 const objects: any = {};
 const vehicles: any = {};
-const doors:any = {};
+const doors: any = {};
 
 const chancePumpShotgun = 50;
 const chanceAR15 = 50;
@@ -26,8 +26,6 @@ const chanceLog = 10;
 const chanceCommercial = 10;
 const chanceFarm = 10;
 
-let numberOfSpawnedEntity = 0;
-
 function createEntity(
   modelID: number,
   position: Array<number>,
@@ -36,11 +34,10 @@ function createEntity(
 ): void {
   const guid = generateRandomGuid();
   const characterId = generateRandomGuid();
-  numberOfSpawnedEntity++;
   dictionnary[characterId] = {
     characterId: characterId,
     guid: guid,
-    transientId: numberOfSpawnedEntity,
+    transientId: 1,
     modelId: modelID,
     position: position,
     rotation: rotation,
@@ -70,7 +67,7 @@ export function createAllEntities(): any {
   createFarm();
   createAllVehicles();
   createSomeNpcs();
-  return { npcs: npcs, objects: objects, vehicles : vehicles, doors: doors };
+  return { npcs: npcs, objects: objects, vehicles: vehicles, doors: doors };
 }
 
 function getRandomVehicleId() {
@@ -89,12 +86,11 @@ function getRandomVehicleId() {
 function createAllVehicles() {
   Z1_vehicles.forEach((vehicle: any) => {
     const characterId = generateRandomGuid();
-    numberOfSpawnedEntity++;
     vehicles[characterId] = {
       npcData: {
         guid: generateRandomGuid(),
         characterId: characterId,
-        transientId: numberOfSpawnedEntity,
+        transientId: 1,
         modelId: getRandomVehicleId(),
         scale: [1, 1, 1, 1],
         position: vehicle.position,
@@ -107,7 +103,7 @@ function createAllVehicles() {
         array18: [{ unknown1: 0 }],
       },
       unknownGuid1: generateRandomGuid(),
-      positionUpdate: [0,0,0,0],
+      positionUpdate: [0, 0, 0, 0],
     };
   });
   debug("All vehicles created");
