@@ -1,10 +1,10 @@
-import {LoginClient , LoginServer} from "../../h1z1-server";
+import {LoginClient} from "../../h1z1-server";
 import { Base64 } from "js-base64";
+import { Worker } from 'worker_threads';
+const loginServer = new Worker(`${__dirname}/workers/loginServer.js`);
+loginServer.on('message', testLoad);
 
-
-new LoginServer(1115).start();
-
-
+function testLoad(){
 for (let index = 0; index < 100; index++) {
   const client = new LoginClient(
     295110,
@@ -30,4 +30,5 @@ for (let index = 0; index < 100; index++) {
   client.on("characterlogin", (err,res) => {
       console.timeEnd("FullLogin"+index)
     });
+}
 }
