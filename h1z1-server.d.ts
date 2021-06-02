@@ -4,7 +4,6 @@ export var SOEOutputStream: typeof import("./out/servers/SoeServer/soeoutputstre
 export var SOEProtocol: typeof import("./out/protocols/soeprotocol.js").SOEProtocol;
 export var LoginProtocol: typeof import("./out/protocols/loginprotocol.js").LoginProtocol;
 export var GatewayProtocol: typeof import("./out/protocols/gatewayprotocol.js").GatewayProtocol;
-export var ZoneProtocol: typeof import("./out/protocols/archived/zoneprotocol.js").ZoneProtocol;
 export var H1Z1Protocol: typeof import("./out/protocols/h1z1protocol.js").H1Z1Protocol;
 export var SOEClient: typeof import("./out/clients/soeclient.js").SOEClient;
 export var LoginClient: typeof import("./out/clients/loginclient.js").LoginClient;
