@@ -291,7 +291,7 @@ export class H1Z1Protocol {
     };
   }
 
-  pack(packetName: string, object: Buffer, referenceData: any) {
+  pack(packetName: string, object?: any, referenceData?: any) {
     const { H1Z1Packets } = this;
     var packetType: number = H1Z1Packets.PacketTypes[packetName],
       packet = H1Z1Packets.Packets[packetType],
