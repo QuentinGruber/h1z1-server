@@ -179,10 +179,10 @@ export class SOEServer extends EventEmitter {
           }
           (client as any).outOfOrderTimer = setTimeout(
             checkOutOfOrderQueue,
-            1000
+            0
           );
         };
-        //checkOutOfOrderQueue(); disable this for now, we will see if it's really needed
+        checkOutOfOrderQueue()
         this.emit("connect", null, this._clients[clientId]);
       }
       client = this._clients[clientId];
