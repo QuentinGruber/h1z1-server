@@ -136,7 +136,9 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
-    server.worldRoutine(client);
+    setTimeout(() => {
+      server.worldRoutine(client);
+    }, 10000);
     server.sendGameTimeSync(client);
     server.sendChatText(client, "Welcome to H1emu ! :D", true);
     client.lastPingTime = new Date().getTime();
@@ -1292,9 +1294,11 @@ const packetHandlers: any = {
     packet: any
   ) {
     const { data:{guid}} = packet
-    if(server._npcs[guid] || server._objects[guid]){
+    const npc = server._npcs[guid] || server._objects[guid] || server._doors[guid]
+    if(npc){
       server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
       characterId: guid,
+      transientId: npc.transientId
       });
     }
     else if(server._characters[guid]){

@@ -923,6 +923,7 @@ const lightWeightPcSchema = [
     type: "custom",
     parser: readUnsignedIntWith2bitLengthValue,
     packer: packUnsignedIntWith2bitLengthValue,
+    defaultValue:1
   },
   { name: "unknownDword1", type: "uint32", defaultValue: 9241 },
   { name: "unknownDword2", type: "uint32", defaultValue: 9242 },
@@ -958,6 +959,7 @@ const lightWeightNpcSchema = [
     type: "custom",
     parser: readUnsignedIntWith2bitLengthValue,
     packer: packUnsignedIntWith2bitLengthValue,
+    defaultValue:1
   },
   { name: "string5", type: "string", defaultValue: "" },
   { name: "nameId", type: "uint32", defaultValue: 0 },
@@ -1852,7 +1854,7 @@ const loadoutDataSubSchema2 = [
 
 const fullPcDataSchema = [
   {
-    name: "transient_id",
+    name: "transientId",
     type: "custom",
     parser: readUnsignedIntWith2bitLengthValue,
     packer: packUnsignedIntWith2bitLengthValue,
@@ -1962,7 +1964,7 @@ const fullNpcDataSchema = [
   { name: "unknown1", type: "byte", defaultValue: 0 },
   { name: "unknown2", type: "byte", defaultValue: 0 },
   {
-    name: "transient_id",
+    name: "transientId",
     type: "custom",
     parser: readUnsignedIntWith2bitLengthValue,
     packer: packUnsignedIntWith2bitLengthValue,

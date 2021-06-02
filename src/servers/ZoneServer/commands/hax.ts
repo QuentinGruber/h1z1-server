@@ -149,7 +149,7 @@ const hax: any = {
   },
   spawnNpcModel: function (server: ZoneServer, client: Client, args: any[]) {
     const guid = server.generateGuid();
-    const transientId = server.getTransientId(client, guid);
+    const transientId = 1
     if (!args[1]) {
       server.sendChatText(client, "[ERROR] You need to specify a model id !");
       return;
