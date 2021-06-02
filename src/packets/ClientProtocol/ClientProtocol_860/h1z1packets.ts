@@ -2041,7 +2041,7 @@ const fullNpcDataSchema = [
   { name: "unknownDword11", type: "uint32", defaultValue: 0 },
   { name: "unknownDword12", type: "uint32", defaultValue: 0 },
   { name: "unknownDword13", type: "uint32", defaultValue: 0 },
-  { name: "characterId", type: "uint64", defaultValue: "0" },
+  { name: "unknownGuid", type: "uint64", defaultValue: "0" },
   { name: "unknownFloat3", type: "float", defaultValue: 0.0 },
   // { name: "targetData", type: "schema", fields: targetDataSchema }, removed
   {
@@ -5294,7 +5294,7 @@ var packets = [
         { name: "unknown8", type: "uint32", defaultValue: 0 },
         { name: "unknown9", type: "uint32", defaultValue: 0 },
         {
-          name: "position",
+          name: "rotation",
           type: "floatvector4",
           defaultValue: [0, 0, 0, 0],
         },
