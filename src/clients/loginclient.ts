@@ -12,9 +12,9 @@
 
 import { EventEmitter } from "events";
 
-import {SOEClient} from "./soeclient";
-import {LoginProtocol} from "../protocols/loginprotocol"
-const loginProtocolName = "LoginUdp_9"
+import { SOEClient } from "./soeclient";
+import { LoginProtocol } from "../protocols/loginprotocol";
+const loginProtocolName = "LoginUdp_9";
 const debug = require("debug")("LoginClient");
 
 interface SoeClient {
