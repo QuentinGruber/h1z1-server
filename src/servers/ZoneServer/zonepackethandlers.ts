@@ -1291,24 +1291,56 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
-    const { data:{guid}} = packet
-    if(server._npcs[guid] || server._objects[guid]){
-      server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
-      characterId: guid,
-      });
-    }
-    else if(server._characters[guid]){
-      server.sendData(client, "PlayerUpdate.LightweightToFullPc", {
-      characterId: guid,
-      });
-    }
-    else if(server._vehicles[guid]){
-      /*server.sendData(client, "PlayerUpdate.LightweightToFullVehicle", {
-      characterId: guid,
-      });*/
-      debug("LightweightToFullVehicle")
-    }
-  },
+    const { data: { guid } } = packet;
+		const transientidnpc = server._npcs[guid];
+		const transientidobj = server._objects[guid];
+		/*const transientidcha = server._characters[guid];*/
+		const transientiddoo = server._doors[guid];
+		/*const transientidveh = server._vehicles[guid];*/
+        if (server._npcs[guid]) {
+            server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
+            transient_id: transientidnpc.transientId,
+			    	unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
+			    	unknownDword2: 13951728,
+			    	unknownDword3: 1,
+			    	unknownDword6: 100,
+            });
+        }
+		if (server._objects[guid]) {
+            server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
+            transient_id: transientidobj.transientId,
+			    	unknownDword1: 16777215,
+			    	unknownDword2: 13951728,
+			    	unknownDword3: 1,
+			    	unknownDword6: 100,
+            });
+        }
+        else if (server._characters[guid]) {
+            /*server.sendData(client, "PlayerUpdate.LightweightToFullPc", {
+            transient_id: transientidcha.transientId,
+			    	unknownDword1: 16777215,
+		    		unknownDword2: 13951728,
+		    		unknownDword3: 1,
+		    		unknownDword6: 100,
+            });*/
+			debug("LightweightToFullPC");
+        }
+		else if (server._doors[guid]) {
+            server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
+            transient_id: transientiddoo.transientId,
+			    	unknownDword1: 16777215,
+		    		unknownDword2: 13951728,
+		    		unknownDword3: 1,
+		    		unknownDword6: 100,
+            });
+        }
+        else if (server._vehicles[guid]) {
+            /*server.sendData(client, "PlayerUpdate.LightweightToFullVehicle", {
+            characterId: guid,
+            });*/
+            debug("LightweightToFullVehicle");
+        }
+    },
 };
 
 export default packetHandlers;
