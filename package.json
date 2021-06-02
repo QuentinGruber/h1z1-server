@@ -39,6 +39,7 @@
     "build": "tsc -p ./tsconfig.json",
     "build-tests": "npx swc tests -d tests_out",
     "test-login-client": "npm run build-swc && npm run build-tests && node tests_out/loginClientTest.js",
+    "test-load-login-client": "npm run build-swc && npm run build-tests && node tests_out/loadTests/loginClientLoadTest.js",
     "test": "npm run build-swc && npm run build-tests && node tests_out/testRuntime.js && node tests_out/testIssuesInPacketSchemas.js",
     "build-swc": "npx swc src -d out",
     "watch-swc": "npx swc --watch src -d out",
