@@ -35,7 +35,7 @@ client.on("characterinfo", (err,res) => {
 client.on("characterlogin", (err,res) => {
     console.log(`Get characterlogin`)
     console.log(res)
-    process.exit(1)
+    process.exit(0)
   });
 
   setInterval(()=>{
