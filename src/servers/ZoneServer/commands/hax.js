@@ -189,9 +189,38 @@ const hax = {
       position: [client.character.state.position[0], client.character.state.position[1], client.character.state.position[2]],
       rotation: [client.character.state.rotation[0], client.character.state.rotation[1], client.character.state.rotation[2]],
       color: {},
-      unknownData1: {unknownData1: {}}
+      unknownData1: {unknownData1: {}},
+      extraModel: "SurvivorMale_Head_01.adr"
     };
     server.sendData(client, "AddLightweightNpc", npc);
+    server._npcs[characterId] = npc; // save npc
+  },
+  spawnVehicle: function (server, client, args) {
+    const guid = server.generateGuid();
+    const transientId = server.getTransientId(client, guid);
+    if (!args[1]) {
+      server.sendChatText(client, "[ERROR] You need to specify a model id !");
+      return;
+    }
+    const choosenModelId = Number(args[1]);
+    const characterId = generateCharacterId();
+    const npc = {
+      npcData: {
+        characterId: characterId,
+        guid: guid,
+        transientId: transientId,
+        modelId: choosenModelId,
+        position: [client.character.state.position[0], client.character.state.position[1], client.character.state.position[2]],
+        rotation: [client.character.state.rotation[0], client.character.state.rotation[1], client.character.state.rotation[2]],
+        color: {},
+        unknownData1: {unknownData1: {}}
+      },
+      positionUpdate: server.createPositionUpdate(
+        client.character.state.position,
+        [0, 0, 0, 0]
+      ),
+    };
+    server.sendData(client, "AddLightweightVehicle", npc);
     server._npcs[characterId] = npc; // save npc
   },
   spawnPcModel: function (server, client, args) {
@@ -240,16 +269,6 @@ const hax = {
     });
     server.sendChatText(client, "Welcome MR.Hedgehog");
   },
-  /* depreciated ?
-  observer: function (server, client, args) {
-    server.sendData(client, "PlayerUpdate.RemovePlayer", {
-      characterId: client.character.characterId,
-    });
-    delete server._characters[client.character.characterId];
-    debug(server._characters);
-    server.sendChatText(client, "Delete player, back in observer mode");
-  },
-  */
   shutdown: function (server, client, args) {
     server.sendData(client, "WorldShutdownNotice", {
       timeLeft: 0,
