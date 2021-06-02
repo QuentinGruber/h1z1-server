@@ -136,9 +136,7 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
-    setTimeout(() => {
-      server.worldRoutine(client);
-    }, 10000);
+    server.worldRoutine(client);
     server.sendGameTimeSync(client);
     server.sendChatText(client, "Welcome to H1emu ! :D", true);
     client.lastPingTime = new Date().getTime();
