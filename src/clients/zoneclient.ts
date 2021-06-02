@@ -74,6 +74,9 @@ export class ZoneClient extends EventEmitter {
       if (packet) {
         //fs.writeFileSync("dump/tunneldata_" + n + ".json", JSON.stringify(packet,null,2));
         switch (packet.name) {
+          case "ZoneDoneSendingInitialData":
+            me.emit("ZoneDoneSendingInitialData", null, {});
+            break;
           case "InitializationParameters":
             me.emit("initializationParameters", null, packet.data);
             break;

@@ -12,12 +12,12 @@ var client = new ZoneClient(
   "0x0000000000000001","0","","",6457
 );
 client.connect();
-console.log("connect")
 client.on("connect", (err,res) => {
-  console.log(res)
+  console.log("connect")
 });
-client.on("SendZoneDetails", (err,res) => {
-  console.log(res)
+client.on("ZoneDoneSendingInitialData", (err,res) => {
+  console.log("ZoneDoneSendingInitialData")
+  process.exit(0)
 });
 
   setInterval(()=>{
