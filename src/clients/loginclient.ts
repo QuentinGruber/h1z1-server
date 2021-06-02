@@ -49,7 +49,7 @@ export class LoginClient extends EventEmitter {
     environment: string,
     serverAddress: string,
     serverPort: number,
-    loginKey: string,
+    loginKey: Uint8Array,
     localPort: number
   ) {
     super();
@@ -188,7 +188,7 @@ export class LoginClient extends EventEmitter {
     this._soeClient.sendAppData(data, true);
   }
 
-  requestCharacterLogin(characterId: number, serverId: number, payload: any) {
+  requestCharacterLogin(characterId: string, serverId: number, payload: any) {
     debug("Requesting character login");
     var data = this._protocol.pack("CharacterLoginRequest", {
       characterId: characterId,
