@@ -38,6 +38,8 @@
     "build-optimized": "npm run build && terser-output ./out",
     "build": "tsc -p ./tsconfig.json",
     "build-tests": "npx swc tests -d tests_out",
+    "bundle-login": "npx esbuild ./bin/loginServer.js --bundle --external:mongodb-client-encryption --platform=node --outfile=./bin/out/loginServer_bundle.js",
+    "bundle-zone": "npx esbuild ./bin/zoneServer.js --bundle --external:mongodb-client-encryption --platform=node --outfile=./bin/out/zoneServer_bundle.js",
     "test-zone-client": "node tests_out/zoneClientTest.js",
     "test-login-client": "node tests_out/loginClientTest.js",
     "test-load-login-client": "npm run build-swc && npm run build-tests && node tests_out/loadTests/loginClientLoadTest.js",
