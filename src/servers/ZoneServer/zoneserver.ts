@@ -12,7 +12,6 @@
 
 import { EventEmitter } from "events";
 import { GatewayServer } from "../GatewayServer/gatewayserver";
-import fs from "fs";
 import { default as packetHandlers } from "./zonepackethandlers";
 import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
 import _ from "lodash";
