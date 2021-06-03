@@ -470,11 +470,11 @@ const packetHandlers: any = {
     const objectData = server._objects[guid];
     const doorData = server._doors[guid];
     const vehicleData = server._vehicles[guid];
-    const interactionDistance = 4;
+    
     if (
       objectData &&
       isPosInRadius(
-        interactionDistance,
+        server._interactionDistance,
         client.character.state.position,
         objectData.position
       )
@@ -486,7 +486,7 @@ const packetHandlers: any = {
     } else if (
       doorData &&
       isPosInRadius(
-        interactionDistance,
+        server._interactionDistance,
         client.character.state.position,
         doorData.position
       )
@@ -498,7 +498,7 @@ const packetHandlers: any = {
     } else if (
       vehicleData &&
       isPosInRadius(
-        interactionDistance,
+        server._interactionDistance,
         client.character.state.position,
         vehicleData.npcData.position
       )
@@ -1300,7 +1300,11 @@ const packetHandlers: any = {
   ) {
     debug(packet);
     const objectToPickup = server._objects[packet.data.guid]
-    if(objectToPickup){
+    if(objectToPickup && isPosInRadius(
+      server._interactionDistance,
+      client.character.state.position,
+      objectToPickup.position
+    )){
 
       const model_index = models.findIndex((x:any) => x.ID === objectToPickup.modelId);
       const pickupMessage = models[model_index].DESCRIPTION.replace("NPC Spawn ","");
