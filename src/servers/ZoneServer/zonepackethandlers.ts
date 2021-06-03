@@ -21,6 +21,7 @@ import admin from "./commands/admin";
 import { Int64String, isPosInRadius } from "../../utils/utils";
 import { ZoneServer } from "./zoneserver";
 import { Client } from "types/zoneserver";
+const models = require("../../../data/dataSources/Models.json")
 
 const _ = require("lodash");
 const debug = require("debug")("zonepacketHandlers");
@@ -1290,6 +1291,26 @@ const packetHandlers: any = {
         packet.data.lookAt[2],
         packet.data.lookAt[3],
       ]);
+    }
+  },
+  "Command.PlayerSelect": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
+    debug(packet);
+    const objectToPickup = server._objects[packet.data.guid]
+    if(objectToPickup){
+
+      const model_index = models.findIndex((x:any) => x.ID === objectToPickup.modelId);
+      const pickupMessage = models[model_index].DESCRIPTION.replace("NPC Spawn ","");
+      server.sendData(client, "ClientUpdate.TextAlert", {
+        message: pickupMessage,
+      });
+
+      server.sendData(client, "PlayerUpdate.RemovePlayer", {
+        characterId: objectToPickup.characterId,
+      });
     }
   },
   "PlayerUpdate.Respawn": function (
