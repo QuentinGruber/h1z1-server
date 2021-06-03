@@ -34,6 +34,7 @@ const hax: any = {
     server.sendChatText(client, "Game time is now based on real time", true);
   },
   tp: function (server: ZoneServer, client: Client, args: any[]) {
+    client.isLoading = true;
     const choosenSpawnLocation = args[1];
     let locationPosition: Float32Array;
     switch (choosenSpawnLocation) {

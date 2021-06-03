@@ -72,6 +72,7 @@ export class ZoneServer extends EventEmitter {
   _vehicles: any;
   _respawnLocations: any[];
   _doors: any;
+  _interactionDistance: number;
 
   constructor(
     serverPort: number,
@@ -108,6 +109,7 @@ export class ZoneServer extends EventEmitter {
     this._defaultWeatherTemplate = "H1emuBaseWeather";
     this._weather = this._weatherTemplates[this._defaultWeatherTemplate];
     this._profiles = [];
+    this._interactionDistance = 4;
     this._npcRenderDistance = 350;
     this._pingTimeoutTime = 30000;
     this._respawnLocations = spawnLocations.map((spawn: any) => {
@@ -193,6 +195,7 @@ export class ZoneServer extends EventEmitter {
         );
 
         this._clients[client.sessionId] = client;
+        client.isLoading = true;
         client.loginSessionId = loginSessionId;
         client.transientIds = {};
         client.transientId = 0;
@@ -900,21 +903,12 @@ export class ZoneServer extends EventEmitter {
 
   sendChat(client: Client, message: string, channel: number): void {
     const { character } = client;
-    if (!this._soloMode) {
       this.sendDataToAll("Chat.Chat", {
         channel: channel,
         characterName1: character.name,
         message: message,
         color1: 1,
       });
-    } else {
-      this.sendData(client, "Chat.Chat", {
-        channel: channel,
-        characterName1: character.name,
-        message: message,
-        color1: 1,
-      });
-    }
   }
 
   sendGlobalChatText(message: string, clearChat = false): void {
