@@ -1311,10 +1311,11 @@ const packetHandlers: any = {
       server.sendData(client, "ClientUpdate.TextAlert", {
         message: pickupMessage,
       });
-
+      
       server.sendDataToAll("PlayerUpdate.RemovePlayer", {
         characterId: objectToPickup.characterId,
       });
+      delete server._objects[objectToPickup.characterId]
     }
   },
   "PlayerUpdate.Respawn": function (
