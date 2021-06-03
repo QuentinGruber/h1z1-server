@@ -20,7 +20,8 @@ jobs:
         with:
           node-version: 16.2.0
       - run: npm ci
-      - run: npx pkg -t node16-win-x64 ./bin/loginServer.js -o ./bin/loginServer.exe
+      - run: sudo apt update && sudo apt install -y python python3
+      - run: npx nexe --build node16-win-x64 ./bin/loginServer.js --output ./bin/loginServer.exe
       - name: "Upload Artifact"
         uses: actions/upload-artifact@v2
         with:
