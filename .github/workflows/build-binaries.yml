@@ -20,13 +20,28 @@ jobs:
         with:
           node-version: 16.2.0
       - run: npm ci
-      - run: npx pkg -t node16-win-x64 ./bin/loginServer.js --output ./bin/loginServer.exe
-      - run: npx pkg -t node16-win-x64 ./bin/zoneServer.js --output ./bin/zoneServer.exe
-      - run: npx pkg -t node16-win-x64 ./bin/h1emuServer.js --output ./bin/h1emuServer.exe
-      - name: Upload binaries to release
+      - run: npm i -g pkg@5.2.1
+      - run: pkg -t node16-win-x64 ./bin/loginServer.js --output ./bin/loginServer.exe
+      - run: pkg -t node16-win-x64 ./bin/zoneServer.js --output ./bin/zoneServer.exe
+      - run: pkg -t node16-win-x64 ./bin/h1emuServer.js --output ./bin/h1emuServer.exe
+      - name: Upload h1emuServer to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ./bin/h1emuServer.exe
           asset_name: h1emuServer
+          tag: 0.9.4
+      - name: Upload zoneServer to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ./bin/zoneServer.exe
+          asset_name: zoneServer
+          tag: 0.9.4
+      - name: Upload loginServer to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ./bin/loginServer.exe
+          asset_name: loginServer
           tag: 0.9.4
