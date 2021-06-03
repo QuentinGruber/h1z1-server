@@ -21,9 +21,23 @@ jobs:
           node-version: 16.2.0
       - run: npm ci
       - run: npx pkg -t node16-win-x64 ./bin/loginServer.js --output ./bin/loginServer.exe
+      - run: npx pkg -t node16-win-x64 ./bin/zoneServer.js --output ./bin/zoneServer.exe
+      - run: npx pkg -t node16-win-x64 ./bin/h1emuServer.js --output ./bin/h1emuServer.exe
+      - name: "Upload Artifact"
+        uses: actions/upload-artifact@v2
+        with:
+          name: ZoneServer
+          path: ./bin/zoneServer.exe
+          retention-days: 2
+      - name: "Upload Artifact"
+        uses: actions/upload-artifact@v2
+        with:
+          name: H1emuServer
+          path: ./bin/H1emuServer.exe
+          retention-days: 2
       - name: "Upload Artifact"
         uses: actions/upload-artifact@v2
         with:
           name: LoginServer
           path: ./bin/loginServer.exe
-          retention-days: 5
+          retention-days: 2
