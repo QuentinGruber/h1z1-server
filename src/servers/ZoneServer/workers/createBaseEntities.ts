@@ -37,6 +37,9 @@ function createEntity(
   const guid = generateRandomGuid();
   const characterId = generateRandomGuid();
   numberOfSpawnedEntity++;
+  if (numberOfSpawnedEntity > 30000) {
+    numberOfSpawnedEntity = 1;
+}
   dictionnary[characterId] = {
     characterId: characterId,
     guid: guid,
