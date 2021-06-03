@@ -5348,14 +5348,6 @@ var packets = [
         },
     ],
     ["ClientUpdate.UpdateManagedLocation", 0x112300, {}],
-    //["ClientUpdate.ScreenEffect", 0x112500, {}],
-    /*[
-        "ClientUpdate.MovementVersion",
-        0x112400,
-        {
-            fields: [{ name: "version", type: "uint32", defaultValue: 0 }],
-        },
-    ],*/
     [
         "ClientUpdate.ManagedMovementVersion",
         0x112400,
@@ -5385,7 +5377,6 @@ var packets = [
     ["ClientUpdate.DailyRibbonCount", 0x112700, {}],
     ["ClientUpdate.DespawnNpcUpdate", 0x112900, {}],
     ["ClientUpdate.LoyaltyPoints", 0x112a00, {}],
-    //["ClientUpdate.Membership", 0x112b00, {}],
     ["ClientUpdate.ResetMissionRespawnTimer", 0x112b00, {}],
     ["ClientUpdate.Freeze", 0x112c00, {}],
     ["ClientUpdate.InGamePurchaseResult", 0x112d00, {}],
@@ -6290,29 +6281,29 @@ var packets = [
     ["ZoneSafeTeleportRequest", 0x53, {}],
     ["RemoteInteractionRequest", 0x54, {}],
     ["UpdateCamera", 0x57, {}],
-    ["Guild.Disband", 0x5802, {}],
-    ["Guild.Rename", 0x5803, {}],
-    ["Guild.ChangeMemberRank", 0x580a, {}],
-    ["Guild.MotdUpdate", 0x580b, {}],
-    ["Guild.UpdateRank", 0x580e, {}],
-    ["Guild.DataFull", 0x580f, {}],
-    ["Guild.Data", 0x5810, {}],
-    ["Guild.Invitations", 0x5811, {}],
-    ["Guild.AddMember", 0x5812, {}],
-    ["Guild.RemoveMember", 0x5813, {}],
-    ["Guild.UpdateInvitation", 0x5814, {}],
-    ["Guild.MemberOnlineStatus", 0x5815, {}],
-    ["Guild.TagsUpdated", 0x5816, {}],
-    ["Guild.Notification", 0x5817, {}],
-    ["Guild.UpdateAppData", 0x5820, {}],
-    ["Guild.RecruitingGuildsForBrowserReply", 0x5826, {}],
-    ["AdminGuild", 0x59, {}],
-    ["BattleMages", 0x5a, {}],
-    ["WorldToWorld", 0x5b, {}],
-    ["PerformAction", 0x5c, {}],
-    ["EncounterMatchmaking", 0x5d, {}],
-    ["ClientLuaMetrics", 0x5e, {}],
-    ["RepeatingActivity", 0x5f, {}],
+    ["Guild.Disband", 0x5902, {}],
+    ["Guild.Rename", 0x5903, {}],
+    ["Guild.ChangeMemberRank", 0x590a, {}],
+    ["Guild.MotdUpdate", 0x590b, {}],
+    ["Guild.UpdateRank", 0x590e, {}],
+    ["Guild.DataFull", 0x590f, {}],
+    ["Guild.Data", 0x5910, {}],
+    ["Guild.Invitations", 0x5911, {}],
+    ["Guild.AddMember", 0x5912, {}],
+    ["Guild.RemoveMember", 0x5913, {}],
+    ["Guild.UpdateInvitation", 0x5914, {}],
+    ["Guild.MemberOnlineStatus", 0x5915, {}],
+    ["Guild.TagsUpdated", 0x5916, {}],
+    ["Guild.Notification", 0x5917, {}],
+    ["Guild.UpdateAppData", 0x5920, {}],
+    ["Guild.RecruitingGuildsForBrowserReply", 0x5926, {}],
+    ["AdminGuild", 0x5a, {}],
+    ["BattleMages", 0x5b, {}],
+    ["WorldToWorld", 0x5c, {}],
+    ["PerformAction", 0x5d, {}],
+    ["EncounterMatchmaking", 0x5e, {}],
+    ["ClientLuaMetrics", 0x5f, {}],
+    ["RepeatingActivity", 0x60, {}],
     [
         "ClientGameSettings",
         0x61,
@@ -6328,14 +6319,14 @@ var packets = [
             ],
         },
     ],
-    ["ClientTrialProfileUpsell", 0x60, {}],
-    ["ActivityManager.ProfileActivityList", 0x6201, {}],
-    ["ActivityManager.JoinErrorString", 0x6202, {}],
-    ["RequestSendItemDefinitionsToClient", 0x63, {}],
-    ["Inspect", 0x64, {}],
+    ["ClientTrialProfileUpsell", 0x62, {}],
+    ["ActivityManager.ProfileActivityList", 0x6301, {}],
+    ["ActivityManager.JoinErrorString", 0x6302, {}],
+    ["RequestSendItemDefinitionsToClient", 0x64, {}],
+    ["Inspect", 0x65, {}],
     [
         "Achievement.Add",
-        0x6502,
+        0x6602,
         {
             fields: [
                 { name: "achievementId", type: "uint32", defaultValue: 0 },
@@ -6349,7 +6340,7 @@ var packets = [
     ],
     [
         "Achievement.Initialize",
-        0x6503,
+        0x6603,
         {
             fields: [
                 {
@@ -6373,14 +6364,14 @@ var packets = [
             ],
         },
     ],
-    ["Achievement.Complete", 0x6504, {}],
-    ["Achievement.ObjectiveAdded", 0x6505, {}],
-    ["Achievement.ObjectiveActivated", 0x6506, {}],
-    ["Achievement.ObjectiveUpdate", 0x6507, {}],
-    ["Achievement.ObjectiveComplete", 0x6508, {}],
+    ["Achievement.Complete", 0x6604, {}],
+    ["Achievement.ObjectiveAdded", 0x6605, {}],
+    ["Achievement.ObjectiveActivated", 0x6606, {}],
+    ["Achievement.ObjectiveUpdate", 0x6607, {}],
+    ["Achievement.ObjectiveComplete", 0x6608, {}],
     [
         "PlayerTitle",
-        0x66,
+        0x67,
         {
             fields: [
                 { name: "unknown1", type: "uint8", defaultValue: 0 },
@@ -6388,15 +6379,15 @@ var packets = [
             ],
         },
     ],
-    ["Fotomat", 0x67, {}],
-    ["UpdateUserAge", 0x68, {}],
-    ["Loot", 0x69, {}],
-    ["ActionBarManager", 0x6a, {}],
-    ["ClientTrialProfileUpsellRequest", 0x6b, {}],
-    ["PlayerUpdateJump", 0x6c, {}],
+    ["MatchHistory", 0x68, {}],
+    ["UpdateUserAge", 0x69, {}],
+    ["Loot", 0x6a, {}],
+    ["ActionBarManager", 0x6b, {}],
+    ["ClientTrialProfileUpsellRequest", 0x6c, {}],
+    ["PlayerUpdateJump", 0x6d, {}],
     [
         "CoinStore.ItemList",
-        0x6d0100,
+        0x6e0100,
         {
             fields: [
                 {
@@ -6429,11 +6420,11 @@ var packets = [
             ],
         },
     ],
-    ["CoinStore.ItemDefinitionsRequest", 0x6d0200, {}],
-    ["CoinStore.ItemDefinitionsResponse", 0x6d0300, {}],
+    ["CoinStore.ItemDefinitionsRequest", 0x6e0200, {}],
+    ["CoinStore.ItemDefinitionsResponse", 0x6e0300, {}],
     [
         "CoinStore.SellToClientRequest",
-        0x6d0400,
+        0x6e0400,
         {
             fields: [
                 { name: "unknown1", type: "uint32", defaultValue: 0 },
@@ -6445,10 +6436,10 @@ var packets = [
             ],
         },
     ],
-    ["CoinStore.BuyFromClientRequest", 0x6d0500, {}],
+    ["CoinStore.BuyFromClientRequest", 0x6e0500, {}],
     [
         "CoinStore.TransactionComplete",
-        0x6d0600,
+        0x6e0600,
         {
             fields: [
                 { name: "unknown1", type: "uint32", defaultValue: 0 },
@@ -6469,16 +6460,16 @@ var packets = [
             ],
         },
     ],
-    ["CoinStore.Open", 0x6d0700, {}],
-    ["CoinStore.ItemDynamicListUpdateRequest", 0x6d0800, {}],
-    ["CoinStore.ItemDynamicListUpdateResponse", 0x6d0900, {}],
-    ["CoinStore.MerchantList", 0x6d0a00, {}],
-    ["CoinStore.ClearTransactionHistory", 0x6d0b00, {}],
-    ["CoinStore.BuyBackRequest", 0x6d0c00, {}],
-    ["CoinStore.BuyBackResponse", 0x6d0d00, {}],
-    ["CoinStore.SellToClientAndGiftRequest", 0x6d0e00, {}],
-    ["CoinStore.ReceiveGiftItem", 0x6d1100, {}],
-    ["CoinStore.GiftTransactionComplete", 0x6d1200, {}],
+    ["CoinStore.Open", 0x6e0700, {}],
+    ["CoinStore.ItemDynamicListUpdateRequest", 0x6e0800, {}],
+    ["CoinStore.ItemDynamicListUpdateResponse", 0x6e0900, {}],
+    ["CoinStore.MerchantList", 0x6e0a00, {}],
+    ["CoinStore.ClearTransactionHistory", 0x6e0b00, {}],
+    ["CoinStore.BuyBackRequest", 0x6e0c00, {}],
+    ["CoinStore.BuyBackResponse", 0x6e0d00, {}],
+    ["CoinStore.SellToClientAndGiftRequest", 0x6e0e00, {}],
+    ["CoinStore.ReceiveGiftItem", 0x6e1100, {}],
+    ["CoinStore.GiftTransactionComplete", 0x6e1200, {}],
     [
         "InitializationParameters",
         0x6f,
@@ -6489,13 +6480,13 @@ var packets = [
             ],
         },
     ],
-    ["ActivityService.Activity.ListOfActivities", 0x6f0101, {}],
-    ["ActivityService.Activity.UpdateActivityFeaturedStatus", 0x6f0105, {}],
-    ["ActivityService.ScheduledActivity.ListOfActivities", 0x6f0201, {}],
-    ["Mount.MountRequest", 0x7001, {}],
+    ["Activity.Activity.ListOfActivities", 0x700101, {}],
+    ["Activity.Activity.UpdateActivityFeaturedStatus", 0x700105, {}],
+    ["Activity.ScheduledActivity.ListOfActivities", 0x700201, {}],
+    ["Mount.MountRequest", 0x7101, {}],
     [
         "Mount.MountResponse",
-        0x7002,
+        0x7102,
         {
             fields: [
                 { name: "characterId", type: "uint64", defaultValue: "0" },
@@ -6522,14 +6513,14 @@ var packets = [
     ],
     [
         "Mount.DismountRequest",
-        0x7003,
+        0x7103,
         {
             fields: [{ name: "unknownByte1", type: "uint8", defaultValue: 0 }],
         },
     ],
     [
         "Mount.DismountResponse",
-        0x7004,
+        0x7104,
         {
             fields: [
                 { name: "characterId", type: "uint64", defaultValue: "0" },
@@ -6540,47 +6531,46 @@ var packets = [
             ],
         },
     ],
-    ["Mount.List", 0x7005, {}],
-    ["Mount.Spawn", 0x7006, {}],
-    ["Mount.Despawn", 0x7007, {}],
-    ["Mount.SpawnByItemDefinitionId", 0x7008, {}],
-    ["Mount.OfferUpsell", 0x7009, {}],
-    ["Mount.SeatChangeRequest", 0x700a, {}],
-    ["Mount.SeatChangeResponse", 0x700b, {}],
-    ["Mount.SeatSwapRequest", 0x700c, {}],
-    ["Mount.SeatSwapResponse", 0x700d, {}],
-    ["Mount.TypeCount", 0x700e, {}],
+    ["Mount.List", 0x7105, {}],
+    ["Mount.Spawn", 0x7106, {}],
+    ["Mount.Despawn", 0x7107, {}],
+    ["Mount.SpawnByItemDefinitionId", 0x7108, {}],
+    ["Mount.OfferUpsell", 0x7109, {}],
+    ["Mount.SeatChangeRequest", 0x710a, {}],
+    ["Mount.SeatChangeResponse", 0x710b, {}],
+    ["Mount.SeatSwapRequest", 0x710c, {}],
+    ["Mount.SeatSwapResponse", 0x710d, {}],
+    ["Mount.TypeCount", 0x710e, {}],
     [
         "ClientInitializationDetails",
-        0x71,
+        0x72,
         {
             fields: [{ name: "unknownDword1", type: "uint32", defaultValue: 0 }],
         },
     ],
-    ["ClientAreaTimer", 0x72, {}],
-    ["LoyaltyReward.GiveLoyaltyReward", 0x7301, {}],
-    ["Rating", 0x74, {}],
-    ["ClientActivityLaunch", 0x75, {}],
-    ["ServerActivityLaunch", 0x76, {}],
-    ["ClientFlashTimer", 0x77, {}],
+    ["ClientAreaTimer", 0x73, {}],
+    ["LoyaltyReward.GiveLoyaltyReward", 0x7401, {}],
+    ["Rating", 0x75, {}],
+    ["ClientActivityLaunch", 0x76, {}],
+    ["ServerActivityLaunch", 0x77, {}],
+    ["ClientFlashTimer", 0x78, {}],
     [
         "PlayerUpdate.UpdatePosition",
-        0x78,
+        0x79,
         {
             fields: [{ name: "unknown1", type: "uint32", defaultValue: 0 }],
         },
     ],
-    ["InviteAndStartMiniGame", 0x79, {}],
-    ["PlayerUpdate.Flourish", 0x7a, {}],
+    ["InviteAndStartMiniGame", 0x7a, {}],
     ["Quiz", 0x7b, {}],
     ["PlayerUpdate.PositionOnPlatform", 0x7c, {}],
     ["ClientMembershipVipInfo", 0x7d, {}],
     ["Target", 0x7e, {}],
-    ["GuideStone", 0x7f, {}],
-    ["Raid", 0x80, {}],
+    ["GuideStone", 0x80, {}],
+    ["Raid", 0x81, {}],
     [
         "Voice.Login",
-        0x8100,
+        0x8200,
         {
             fields: [
                 { name: "clientName", type: "string", defaultValue: "" },
@@ -6592,7 +6582,7 @@ var packets = [
     ],
     [
         "Voice.JoinChannel",
-        0x8101,
+        0x8201,
         {
             fields: [
                 { name: "roomType", type: "uint8", defaultValue: 0 },
@@ -6601,10 +6591,10 @@ var packets = [
             ],
         },
     ],
-    ["Voice.LeaveChannel", 0x8102, {}],
+    ["Voice.LeaveChannel", 0x8202, {}],
     [
         "Weapon.Weapon",
-        0x8200,
+        0x8300,
         {
             fields: [
                 {
@@ -6616,16 +6606,17 @@ var packets = [
             ],
         },
     ],
+    ["MatchSchedule", 0x84, {}],
     [
         "Facility.ReferenceData",
-        0x8401,
+        0x8501,
         {
             fields: [{ name: "data", type: "byteswithlength" }],
         },
     ],
     [
         "Facility.FacilityData",
-        0x8402,
+        0x8502,
         {
             fields: [
                 {
@@ -6652,12 +6643,12 @@ var packets = [
             ],
         },
     ],
-    ["Facility.CurrentFacilityUpdate", 0x8403, {}],
-    ["Facility.SpawnDataRequest", 0x8404, {}],
-    ["Facility.FacilitySpawnData", 0x8405, {}],
+    ["Facility.CurrentFacilityUpdate", 0x8503, {}],
+    ["Facility.SpawnDataRequest", 0x8504, {}],
+    ["Facility.FacilitySpawnData", 0x8505, {}],
     [
         "Facility.FacilityUpdate",
-        0x8406,
+        0x8506,
         {
             fn: function (data, offset) {
                 var result = {}, startOffset = offset;
@@ -6743,20 +6734,20 @@ var packets = [
             },
         },
     ],
-    ["Facility.FacilitySpawnStatus", 0x8407, {}],
-    ["Facility.FacilitySpawnStatusTracked", 0x8408, {}],
-    ["Facility.NotificationFacilityCaptured", 0x8409, {}],
-    ["Facility.NotificationFacilitySignificantCaptureProgress", 0x840a, {}],
-    ["Facility.NotificationFacilityCloseToCapture", 0x840b, {}],
-    ["Facility.NotificationFacilitySpawnBeginCapture", 0x840c, {}],
-    ["Facility.NotificationFacilitySpawnFinishCapture", 0x840d, {}],
-    ["Facility.NotificationLeavingFacilityDuringContention", 0x840e, {}],
-    ["Facility.ProximitySpawnCaptureUpdate", 0x840f, {}],
-    ["Facility.ClearProximitySpawn", 0x8410, {}],
-    ["Facility.GridStabilizeTimerUpdated", 0x8411, {}],
+    ["Facility.FacilitySpawnStatus", 0x8507, {}],
+    ["Facility.FacilitySpawnStatusTracked", 0x8508, {}],
+    ["Facility.NotificationFacilityCaptured", 0x8509, {}],
+    ["Facility.NotificationFacilitySignificantCaptureProgress", 0x850a, {}],
+    ["Facility.NotificationFacilityCloseToCapture", 0x850b, {}],
+    ["Facility.NotificationFacilitySpawnBeginCapture", 0x850c, {}],
+    ["Facility.NotificationFacilitySpawnFinishCapture", 0x850d, {}],
+    ["Facility.NotificationLeavingFacilityDuringContention", 0x850e, {}],
+    ["Facility.ProximitySpawnCaptureUpdate", 0x850f, {}],
+    ["Facility.ClearProximitySpawn", 0x8510, {}],
+    ["Facility.GridStabilizeTimerUpdated", 0x8511, {}],
     [
         "Facility.SpawnCollisionChanged",
-        0x8412,
+        0x8512,
         {
             fields: [
                 { name: "unknown1", type: "uint32", defaultValue: 0 },
@@ -6765,21 +6756,21 @@ var packets = [
             ],
         },
     ],
-    ["Facility.NotificationFacilitySecondaryObjectiveEventPacket", 0x8413, {}],
-    ["Facility.PenetrateShieldEffect", 0x8414, {}],
-    ["Facility.SpawnUpdateGuid", 0x8415, {}],
-    ["Facility.FacilityUpdateRequest", 0x8416, {}],
-    ["Facility.EmpireScoreValueUpdate", 0x8417, {}],
-    ["Skill.Echo", 0x8501, {}],
-    ["Skill.SelectSkillSet", 0x8502, {}],
-    ["Skill.SelectSkill", 0x8503, {}],
-    ["Skill.GetSkillPointManager", 0x8504, {}],
-    ["Skill.SetLoyaltyPoints", 0x8505, {}],
-    ["Skill.LoadSkillDefinitionManager", 0x8506, {}],
-    ["Skill.SetSkillPointManager", 0x8507, {}],
+    ["Facility.NotificationFacilitySecondaryObjectiveEventPacket", 0x8513, {}],
+    ["Facility.PenetrateShieldEffect", 0x8514, {}],
+    ["Facility.SpawnUpdateGuid", 0x8515, {}],
+    ["Facility.FacilityUpdateRequest", 0x8516, {}],
+    ["Facility.EmpireScoreValueUpdate", 0x8517, {}],
+    ["Skill.Echo", 0x8601, {}],
+    ["Skill.SelectSkillSet", 0x8602, {}],
+    ["Skill.SelectSkill", 0x8603, {}],
+    ["Skill.GetSkillPointManager", 0x8604, {}],
+    ["Skill.SetLoyaltyPoints", 0x8605, {}],
+    ["Skill.LoadSkillDefinitionManager", 0x8606, {}],
+    ["Skill.SetSkillPointManager", 0x8607, {}],
     [
         "Skill.SetSkillPointProgress",
-        0x8508,
+        0x8608,
         {
             fields: [
                 { name: "unknown1", type: "uint32", defaultValue: 0 },
@@ -6788,15 +6779,15 @@ var packets = [
             ],
         },
     ],
-    ["Skill.AddSkill", 0x8509, {}],
-    ["Skill.ReportSkillGrant", 0x850a, {}],
-    ["Skill.ReportOfflineEarnedSkillPoints", 0x850b, {}],
-    ["Skill.ReportDeprecatedSkillLine", 0x850c, {}],
-    ["Loadout.LoadLoadoutDefinitionManager", 0x8601, {}],
-    ["Loadout.SelectLoadout", 0x8602, {}],
+    ["Skill.AddSkill", 0x8609, {}],
+    ["Skill.ReportSkillGrant", 0x860a, {}],
+    ["Skill.ReportOfflineEarnedSkillPoints", 0x860b, {}],
+    ["Skill.ReportDeprecatedSkillLine", 0x860c, {}],
+    ["Loadout.LoadLoadoutDefinitionManager", 0x8701, {}],
+    ["Loadout.SelectLoadout", 0x8702, {}],
     [
         "Loadout.SetCurrentLoadout",
-        0x8603,
+        0x8703,
         {
             fields: [
                 { name: "guid", type: "uint64", defaultValue: "0" },
@@ -6806,7 +6797,7 @@ var packets = [
     ],
     [
         "Loadout.SelectSlot",
-        0x8604,
+        0x8704,
         {
             fields: [
                 { name: "type", type: "uint8", defaultValue: 0 },
@@ -6817,10 +6808,10 @@ var packets = [
             ],
         },
     ],
-    ["Loadout.SelectClientSlot", 0x8605, {}],
+    ["Loadout.SelectClientSlot", 0x8705, {}],
     [
         "Loadout.SetCurrentSlot",
-        0x8606,
+        0x8706,
         {
             fields: [
                 { name: "type", type: "uint8", defaultValue: 0 },
@@ -6829,28 +6820,28 @@ var packets = [
             ],
         },
     ],
-    ["Loadout.CreateCustomLoadout", 0x8607, {}],
-    ["Loadout.SelectSlotItem", 0x8608, {}],
-    ["Loadout.UnselectSlotItem", 0x8609, {}],
-    ["Loadout.SelectSlotTintItem", 0x860a, {}],
-    ["Loadout.UnselectSlotTintItem", 0x860b, {}],
-    ["Loadout.SelectAllSlotTintItems", 0x860c, {}],
-    ["Loadout.UnselectAllSlotTintItems", 0x860d, {}],
-    ["Loadout.SelectBodyTintItem", 0x860e, {}],
-    ["Loadout.UnselectBodyTintItem", 0x860f, {}],
-    ["Loadout.SelectAllBodyTintItems", 0x8610, {}],
-    ["Loadout.UnselectAllBodyTintItems", 0x8611, {}],
-    ["Loadout.SelectGuildTintItem", 0x8612, {}],
-    ["Loadout.UnselectGuildTintItem", 0x8613, {}],
-    ["Loadout.SelectDecalItem", 0x8614, {}],
-    ["Loadout.UnselectDecalItem", 0x8615, {}],
-    ["Loadout.SelectAttachmentItem", 0x8616, {}],
-    ["Loadout.UnselectAttachmentItem", 0x8617, {}],
-    ["Loadout.SelectCustomName", 0x8618, {}],
-    ["Loadout.ActivateLoadoutTerminal", 0x8619, {}],
+    ["Loadout.CreateCustomLoadout", 0x8707, {}],
+    ["Loadout.SelectSlotItem", 0x8708, {}],
+    ["Loadout.UnselectSlotItem", 0x8709, {}],
+    ["Loadout.SelectSlotTintItem", 0x870a, {}],
+    ["Loadout.UnselectSlotTintItem", 0x870b, {}],
+    ["Loadout.SelectAllSlotTintItems", 0x870c, {}],
+    ["Loadout.UnselectAllSlotTintItems", 0x870d, {}],
+    ["Loadout.SelectBodyTintItem", 0x870e, {}],
+    ["Loadout.UnselectBodyTintItem", 0x870f, {}],
+    ["Loadout.SelectAllBodyTintItems", 0x8710, {}],
+    ["Loadout.UnselectAllBodyTintItems", 0x8711, {}],
+    ["Loadout.SelectGuildTintItem", 0x8712, {}],
+    ["Loadout.UnselectGuildTintItem", 0x8713, {}],
+    ["Loadout.SelectDecalItem", 0x8714, {}],
+    ["Loadout.UnselectDecalItem", 0x8715, {}],
+    ["Loadout.SelectAttachmentItem", 0x8716, {}],
+    ["Loadout.UnselectAttachmentItem", 0x8717, {}],
+    ["Loadout.SelectCustomName", 0x8718, {}],
+    ["Loadout.ActivateLoadoutTerminal", 0x8719, {}],
     [
         "Loadout.ActivateVehicleLoadoutTerminal",
-        0x861a,
+        0x871a,
         {
             fields: [
                 { name: "type", type: "uint8", defaultValue: 0 },
@@ -6860,7 +6851,7 @@ var packets = [
     ],
     [
         "Loadout.SetLoadouts",
-        0x861b,
+        0x871b,
         {
             fields: [
                 { name: "type", type: "uint8", defaultValue: 0 },
@@ -6869,28 +6860,28 @@ var packets = [
             ],
         },
     ],
-    ["Loadout.AddLoadout", 0x861c, {}],
-    ["Loadout.UpdateCurrentLoadout", 0x861d, {}],
-    ["Loadout.UpdateLoadoutSlot", 0x861e, {}],
-    ["Loadout.SetVehicleLoadouts", 0x861f, {}],
-    ["Loadout.AddVehicleLoadout", 0x8620, {}],
-    ["Loadout.ClearCurrentVehicleLoadout", 0x8621, {}],
-    ["Loadout.UpdateVehicleLoadoutSlot", 0x8622, {}],
-    ["Loadout.SetSlotTintItem", 0x8623, {}],
-    ["Loadout.UnsetSlotTintItem", 0x8624, {}],
-    ["Loadout.SetBodyTintItem", 0x8625, {}],
-    ["Loadout.UnsetBodyTintItem", 0x8626, {}],
-    ["Loadout.SetGuildTintItem", 0x8627, {}],
-    ["Loadout.UnsetGuildTintItem", 0x8628, {}],
-    ["Loadout.SetDecalItem", 0x8629, {}],
-    ["Loadout.UnsetDecalItem", 0x862a, {}],
-    ["Loadout.SetCustomName", 0x862b, {}],
-    ["Loadout.UnsetCustomName", 0x862c, {}],
-    ["Loadout.UpdateLoadoutSlotItemLineConfig", 0x862d, {}],
-    ["Experience.SetExperience", 0x8701, {}],
+    ["Loadout.AddLoadout", 0x871c, {}],
+    ["Loadout.UpdateCurrentLoadout", 0x871d, {}],
+    ["Loadout.UpdateLoadoutSlot", 0x871e, {}],
+    ["Loadout.SetVehicleLoadouts", 0x871f, {}],
+    ["Loadout.AddVehicleLoadout", 0x8720, {}],
+    ["Loadout.ClearCurrentVehicleLoadout", 0x8721, {}],
+    ["Loadout.UpdateVehicleLoadoutSlot", 0x8722, {}],
+    ["Loadout.SetSlotTintItem", 0x8723, {}],
+    ["Loadout.UnsetSlotTintItem", 0x8724, {}],
+    ["Loadout.SetBodyTintItem", 0x8725, {}],
+    ["Loadout.UnsetBodyTintItem", 0x8726, {}],
+    ["Loadout.SetGuildTintItem", 0x8727, {}],
+    ["Loadout.UnsetGuildTintItem", 0x8728, {}],
+    ["Loadout.SetDecalItem", 0x8729, {}],
+    ["Loadout.UnsetDecalItem", 0x872a, {}],
+    ["Loadout.SetCustomName", 0x872b, {}],
+    ["Loadout.UnsetCustomName", 0x872c, {}],
+    ["Loadout.UpdateLoadoutSlotItemLineConfig", 0x872d, {}],
+    ["Experience.SetExperience", 0x8801, {}],
     [
         "Experience.SetExperienceRanks",
-        0x8702,
+        0x8802,
         {
             fields: [
                 {
@@ -6946,7 +6937,7 @@ var packets = [
     ],
     [
         "Experience.SetExperienceRateTier",
-        0x8703,
+        0x8803,
         {
             fields: [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
@@ -6959,7 +6950,7 @@ var packets = [
     ],
     [
         "Vehicle.Owner",
-        0x8801,
+        0x8901,
         {
             fields: [
                 { name: "guid", type: "uint64", defaultValue: "0" },
@@ -7003,7 +6994,7 @@ var packets = [
     ],
     [
         "Vehicle.Occupy",
-        0x8802,
+        0x8902,
         {
             fields: [
                 { name: "guid", type: "uint64", defaultValue: "0" },
@@ -7160,7 +7151,7 @@ var packets = [
     ],
     [
         "Vehicle.StateData",
-        0x8803,
+        0x8903,
         {
             fields: [
                 { name: "guid", type: "uint64", defaultValue: "0" },
@@ -7186,11 +7177,11 @@ var packets = [
             ],
         },
     ],
-    ["Vehicle.StateDamage", 0x8804, {}],
-    ["Vehicle.PlayerManager", 0x8805, {}],
+    ["Vehicle.StateDamage", 0x8904, {}],
+    ["Vehicle.PlayerManager", 0x8905, {}],
     [
         "Vehicle.Spawn",
-        0x8806,
+        0x8906,
         {
             fields: [
                 { name: "vehicleId", type: "uint32", defaultValue: 0 },
@@ -7198,36 +7189,36 @@ var packets = [
             ],
         },
     ],
-    ["Vehicle.Tint", 0x8807, {}],
-    ["Vehicle.LoadVehicleTerminalDefinitionManager", 0x8808, {}],
-    ["Vehicle.ActiveWeapon", 0x8809, {}],
-    ["Vehicle.Stats", 0x880a, {}],
-    ["Vehicle.DamageInfo", 0x880b, {}],
-    ["Vehicle.StatUpdate", 0x880c, {}],
-    ["Vehicle.UpdateWeapon", 0x880d, {}],
-    ["Vehicle.RemovedFromQueue", 0x880e, {}],
+    ["Vehicle.Tint", 0x8907, {}],
+    ["Vehicle.LoadVehicleTerminalDefinitionManager", 0x8908, {}],
+    ["Vehicle.ActiveWeapon", 0x8909, {}],
+    ["Vehicle.Stats", 0x890a, {}],
+    ["Vehicle.DamageInfo", 0x890b, {}],
+    ["Vehicle.StatUpdate", 0x890c, {}],
+    ["Vehicle.UpdateWeapon", 0x890d, {}],
+    ["Vehicle.RemovedFromQueue", 0x890e, {}],
     [
         "Vehicle.UpdateQueuePosition",
-        0x880f,
+        0x890f,
         {
             fields: [{ name: "queuePosition", type: "uint32", defaultValue: 0 }],
         },
     ],
-    ["Vehicle.PadDestroyNotify", 0x8810, {}],
+    ["Vehicle.PadDestroyNotify", 0x8910, {}],
     [
         "Vehicle.SetAutoDrive",
-        0x8811,
+        0x8911,
         {
             fields: [{ name: "guid", type: "uint64", defaultValue: "0" }],
         },
     ],
-    ["Vehicle.LockOnInfo", 0x8812, {}],
-    ["Vehicle.LockOnState", 0x8813, {}],
-    ["Vehicle.TrackingState", 0x8814, {}],
-    ["Vehicle.CounterMeasureState", 0x8815, {}],
+    ["Vehicle.LockOnInfo", 0x8912, {}],
+    ["Vehicle.LockOnState", 0x8913, {}],
+    ["Vehicle.TrackingState", 0x8914, {}],
+    ["Vehicle.CounterMeasureState", 0x8915, {}],
     [
         "Vehicle.LoadVehicleDefinitionManager",
-        0x8816,
+        0x8916,
         {
             fields: [
                 {
@@ -7242,11 +7233,11 @@ var packets = [
             ],
         },
     ],
-    ["Vehicle.AcquireState", 0x8817, {}],
-    ["Vehicle.Dismiss", 0x8818, {}],
+    ["Vehicle.AcquireState", 0x8917, {}],
+    ["Vehicle.Dismiss", 0x8918, {}],
     [
         "Vehicle.AutoMount",
-        0x8819,
+        0x8919,
         {
             fields: [
                 { name: "guid", type: "uint64", defaultValue: "0" },
@@ -7255,35 +7246,35 @@ var packets = [
             ],
         },
     ],
-    ["Vehicle.Deploy", 0x881a, {}],
-    ["Vehicle.Engine", 0x881b, {}],
-    ["Vehicle.AccessType", 0x881c, {}],
-    ["Vehicle.KickPlayer", 0x881d, {}],
-    ["Vehicle.HealthUpdateOwner", 0x881e, {}],
-    ["Vehicle.OwnerPassengerList", 0x881f, {}],
-    ["Vehicle.Kick", 0x8820, {}],
-    ["Vehicle.NoAccess", 0x8821, {}],
+    ["Vehicle.Deploy", 0x891a, {}],
+    ["Vehicle.Engine", 0x891b, {}],
+    ["Vehicle.AccessType", 0x891c, {}],
+    ["Vehicle.KickPlayer", 0x891d, {}],
+    ["Vehicle.HealthUpdateOwner", 0x891e, {}],
+    ["Vehicle.OwnerPassengerList", 0x891f, {}],
+    ["Vehicle.Kick", 0x8920, {}],
+    ["Vehicle.NoAccess", 0x8921, {}],
     [
         "Vehicle.Expiration",
-        0x8822,
+        0x8922,
         {
             fields: [{ name: "expireTime", type: "uint32", defaultValue: 0 }],
         },
     ],
-    ["Vehicle.Group", 0x8823, {}],
-    ["Vehicle.DeployResponse", 0x8824, {}],
-    ["Vehicle.ExitPoints", 0x8825, {}],
-    ["Vehicle.ControllerLogOut", 0x8826, {}],
-    ["Vehicle.CurrentMoveMode", 0x8827, {}],
-    ["Vehicle.ItemDefinitionRequest", 0x8828, {}],
-    ["Vehicle.ItemDefinitionReply", 0x8829, {}],
-    ["Vehicle.InventoryItems", 0x882a, {}],
-    ["Grief", 0x89, {}],
-    ["SpotPlayer", 0x8a, {}],
-    ["Faction", 0x8b, {}],
+    ["Vehicle.Group", 0x8923, {}],
+    ["Vehicle.DeployResponse", 0x8924, {}],
+    ["Vehicle.ExitPoints", 0x8925, {}],
+    ["Vehicle.ControllerLogOut", 0x8926, {}],
+    ["Vehicle.CurrentMoveMode", 0x8927, {}],
+    ["Vehicle.ItemDefinitionRequest", 0x8928, {}],
+    ["Vehicle.ItemDefinitionReply", 0x8929, {}],
+    ["Vehicle.InventoryItems", 0x892a, {}],
+    ["Grief", 0x8a, {}],
+    ["SpotPlayer", 0x8b, {}],
+    ["Faction", 0x8c, {}],
     [
         "Synchronization",
-        0x8c,
+        0x8d,
         {
             fields: [
                 { name: "time1", type: "uint64", defaultValue: "0" },
@@ -7297,7 +7288,7 @@ var packets = [
     ],
     [
         "ResourceEvent",
-        0x8d00,
+        0x8e00,
         {
             fields: [
                 { name: "gameTime", type: "uint32", defaultValue: 0 },
@@ -7382,7 +7373,7 @@ var packets = [
     ],
     [
         "Collision.Damage",
-        0x8e01,
+        0x8f01,
         {
             fields: [
                 { name: "guid", type: "uint64", defaultValue: "0" },
@@ -7391,21 +7382,21 @@ var packets = [
             ],
         },
     ],
-    ["Leaderboard", 0x8f, {}],
-    ["PlayerUpdateManagedPosition", 0x90, {}],
-    ["PlayerUpdateNetworkObjectComponents", 0x91, {}],
-    ["PlayerUpdateUpdateVehicleWeapon", 0x92, {}],
+    ["Leaderboard", 0x90, {}],
+    ["PlayerUpdateManagedPosition", 0x91, {}],
+    ["PlayerUpdateNetworkObjectComponents", 0x92, {}],
+    ["PlayerUpdateUpdateVehicleWeapon", 0x93, {}],
     [
         "ProfileStats.GetPlayerProfileStats",
-        0x930000,
+        0x940000,
         {
             fields: [{ name: "characterId", type: "uint64", defaultValue: "0" }],
         },
     ],
-    ["ProfileStats.GetZonePlayerProfileStats", 0x930100, {}],
+    ["ProfileStats.GetZonePlayerProfileStats", 0x940100, {}],
     [
         "ProfileStats.PlayerProfileStats",
-        0x930200,
+        0x940200,
         {
             fields: [
                 {
@@ -7518,16 +7509,16 @@ var packets = [
             ],
         },
     ],
-    ["ProfileStats.ZonePlayerProfileStats", 0x930300, {}],
-    ["ProfileStats.UpdatePlayerLeaderboards", 0x930400, {}],
-    ["ProfileStats.UpdatePlayerLeaderboardsReply", 0x930500, {}],
-    ["ProfileStats.GetLeaderboard", 0x930600, {}],
-    ["ProfileStats.Leaderboard", 0x930700, {}],
-    ["ProfileStats.GetZoneCharacterStats", 0x930800, {}],
-    ["ProfileStats.ZoneCharacterStats", 0x930900, {}],
+    ["ProfileStats.ZonePlayerProfileStats", 0x940300, {}],
+    ["ProfileStats.UpdatePlayerLeaderboards", 0x940400, {}],
+    ["ProfileStats.UpdatePlayerLeaderboardsReply", 0x940500, {}],
+    ["ProfileStats.GetLeaderboard", 0x940600, {}],
+    ["ProfileStats.Leaderboard", 0x940700, {}],
+    ["ProfileStats.GetZoneCharacterStats", 0x940800, {}],
+    ["ProfileStats.ZoneCharacterStats", 0x940900, {}],
     [
         "Equipment.SetCharacterEquipment",
-        0x9401,
+        0x9501,
         {
             fields: [
                 { name: "profileId", type: "uint32", defaultValue: 0 },
@@ -7570,11 +7561,11 @@ var packets = [
             ],
         },
     ],
-    ["Equipment.SetCharacterEquipmentSlot", 0x9402, {}],
-    ["Equipment.UnsetCharacterEquipmentSlot", 0x9403, {}],
+    ["Equipment.SetCharacterEquipmentSlot", 0x9502, {}],
+    ["Equipment.UnsetCharacterEquipmentSlot", 0x9503, {}],
     [
         "Equipment.SetCharacterEquipmentSlots",
-        0x9404,
+        0x9504,
         {
             fields: [
                 { name: "profileId", type: "uint32", defaultValue: 0 },
@@ -7622,10 +7613,10 @@ var packets = [
             ],
         },
     ],
-    ["DefinitionFilter.ListDefinitionVariables", 0x9501, {}],
+    ["DefinitionFilter.ListDefinitionVariables", 0x9601, {}],
     [
         "DefinitionFilter.SetDefinitionVariable",
-        0x9502,
+        0x9602,
         {
             fields: [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
@@ -7643,7 +7634,7 @@ var packets = [
     ],
     [
         "DefinitionFilter.SetDefinitionIntSet",
-        0x9503,
+        0x9603,
         {
             fields: [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
@@ -7662,7 +7653,7 @@ var packets = [
     ],
     [
         "DefinitionFilter.UnknownWithVariable1",
-        0x9504,
+        0x9604,
         {
             fields: [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
@@ -7672,7 +7663,7 @@ var packets = [
     ],
     [
         "DefinitionFilter.UnknownWithVariable2",
-        0x9505,
+        0x9605,
         {
             fields: [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
@@ -7682,7 +7673,7 @@ var packets = [
     ],
     [
         "ContinentBattleInfo",
-        0x96,
+        0x97,
         {
             fields: [
                 {
@@ -7727,22 +7718,30 @@ var packets = [
     ],
     [
         "GetContinentBattleInfo",
-        0x97,
+        0x98,
+        {
+            fields: [],
+        },
+    ],
+    [
+        "SendSecurityPacketAndSelfDestruct",
+        0x99,
         {
             fields: [],
         },
     ],
     [
         "GetRespawnLocations",
-        0x98,
+        0x9a,
         {
             fields: [],
         },
     ],
-    ["WallOfData.PlayerKeyboard", 0x9903, {}],
+
+    ["WallOfData.PlayerKeyboard", 0x9b03, {}],
     [
         "WallOfData.UIEvent",
-        0x9905,
+        0x9b05,
         {
             fields: [
                 { name: "object", type: "string", defaultValue: "" },
@@ -7751,14 +7750,14 @@ var packets = [
             ],
         },
     ],
-    ["WallOfData.ClientSystemInfo", 0x9906, {}],
-    ["WallOfData.VoiceChatEvent", 0x9907, {}],
-    ["WallOfData.NudgeEvent", 0x9909, {}],
-    ["WallOfData.LaunchPadFingerprint", 0x990a, {}],
-    ["WallOfData.VideoCapture", 0x990b, {}],
+    ["WallOfData.ClientSystemInfo", 0x9b06, {}],
+    ["WallOfData.VoiceChatEvent", 0x9b07, {}],
+    ["WallOfData.NudgeEvent", 0x9b09, {}],
+    ["WallOfData.LaunchPadFingerprint", 0x9b0a, {}],
+    ["WallOfData.VideoCapture", 0x9b0b, {}],
     [
         "WallOfData.ClientTransition",
-        0x990c,
+        0x9b0c,
         {
             fields: [
                 { name: "oldState", type: "uint32", defaultValue: 0 },
@@ -7767,15 +7766,12 @@ var packets = [
             ],
         },
     ],
-    ["ThrustPad.Data", 0x9a01, {}],
-    ["ThrustPad.Update", 0x9a02, {}],
-    ["ThrustPad.PlayerEntered", 0x9a03, {}],
-    ["Implant.SelectImplant", 0x9b01, {}],
-    ["Implant.UnselectImplant", 0x9b02, {}],
-    ["Implant.LoadImplantDefinitionManager", 0x9b03, {}],
-    ["Implant.SetImplants", 0x9b04, {}],
-    ["Implant.UpdateImplantSlot", 0x9b05, {}],
-    ["ClientInGamePurchase", 0x9c, {}],
+    ["Implant.SelectImplant", 0x9c01, {}],
+    ["Implant.UnselectImplant", 0x9c02, {}],
+    ["Implant.LoadImplantDefinitionManager", 0x9c03, {}],
+    ["Implant.SetImplants", 0x9c04, {}],
+    ["Implant.UpdateImplantSlot", 0x9c05, {}],
+    ["ClientInGamePurchase", 0x9d, {}],
     ["Missions.ListMissions", 0x9e01, {}],
     ["Missions.ConquerZone", 0x9e02, {}],
     ["Missions.SelectMission", 0x9e03, {}],
