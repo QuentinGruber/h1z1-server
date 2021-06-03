@@ -7,8 +7,8 @@
     "actorModelId": 9240,
     "headActor": "SurvivorMale_Head_01.adr",
     "unknownString1": "",
-    "unknownDword4": 0,
-    "unknownDword5": 0,
+    "unknownDword4": 444,
+    "unknownDword5": 555,
     "emptyTexture": "",
     "unknownString3": "",
     "unknownString4": "",
@@ -27,11 +27,11 @@
       "characterLastName": "",
       "unknownString1": "",
       "unknownString2": "",
-      "unknownQword1": "0x0000000000000000"
+      "unknownQword1": "0"
     },
     "currencyArrLength": 1,
     "currency": [],
-    "creationDate": "0x0000000000",
+    "creationDate": "0",
     "unknownDword15": 531724,
     "unknownDword16": 6931,
     "unknownBoolean1": false,
@@ -44,8 +44,8 @@
     "unknownDword21": 0,
     "unknownDword22": 0,
     "unknownDword23": 914,
-    "unknownTime1": "0x0000000000",
-    "unknownTime2": "0x0000000000",
+    "unknownTime1": "0",
+    "unknownTime2": "0",
     "unknownDword24": 26,
     "unknownBoolean5": false,
     "unknownDword25": 0,
@@ -80,136 +80,32 @@
       }
     ],
     "currentProfile": 74,
-    "unknownArray2": [],
+    "unknownArray1Length": 1,
+    "unknownArray1": [],
+    "collectionsArrLength": 1,
     "collections": [],
-    "inventory": {
-      "items": [
+    "inventoryArrLength": 0,
+    "unknownDword26": 0,
+    "characterQuests": {
+      "questsArrLength": 1,
+      "quests": [
         {
-          "itemData": {
-            "baseItem": {
-              "itemId": 12,
-              "unknownDword2": 20,
-              "unknownGuid1": "0x28f9d0b480000001",
-              "unknownDword3": 1,
-              "unknownDword4": 20,
-              "unknownDword5": 20,
-              "unknownDword6": 20,
-              "unknownBoolean1": true,
-              "unknownDword7": 20,
-              "unknownByte1": 20,
-              "unknownData": {
-                "unknownDword1": 0,
-                "unknownDword2": 0,
-                "unknownDword3": 0
-              }
-            },
-            "detail": {
-              "unknownBoolean1": false
-            }
-          }
-        },
-        {
-          "itemData": {
-            "baseItem": {
-              "itemId": 1382,
-              "unknownDword2": 20,
-              "unknownGuid1": "0x28f9d0b480000001",
-              "unknownDword3": 1,
-              "unknownDword4": 20,
-              "unknownDword5": 20,
-              "unknownDword6": 20,
-              "unknownBoolean1": true,
-              "unknownDword7": 20,
-              "unknownByte1": 20,
-              "unknownData": {
-                "unknownDword1": 0,
-                "unknownDword2": 0,
-                "unknownDword3": 0
-              }
-            },
-            "detail": {
-              "unknownBoolean1": false,
-              "unknownArray1": [
-                {
-                  "unknownDword1": 0,
-                  "unknownDword2": 0
-                }
-              ],
-              "unknownArray2": [
-                {
-                  "unknownDword1": 0,
-                  "unknownArray1": [
-                    {
-                      "unknownByte1": 0,
-                      "unknownDword1": 0,
-                      "unknownDword2": 0,
-                      "unknownDword3": 0
-                    }
-                  ]
-                }
-              ],
-              "unknownByte1": 0,
-              "unknownByte2": 0,
-              "unknownDword1": 0,
-              "unknownByte3": 0,
-              "unknownFloat1": 0.0,
-              "unknownByte4": 0,
-              "unknownDword2": 0,
-              "unknownArray3": [
-                {
-                  "statOwnerId": 0,
-                  "statData": {
-                    "statId": 0,
-                    "statValue": [
-                      {
-                        "baseValue": 0,
-                        "modifierValue": 0
-                      },
-                      {
-                        "baseValue": 0,
-                        "modifierValue": 0
-                      }
-                    ]
-                  }
-                }
-              ],
-              "unknownArray4": [
-                {
-                  "unknownDword1": 0,
-                  "unknownArray1": [
-                    {
-                      "unknownDword1": 0,
-                      "unknownArray1": [
-                        {
-                          "statOwnerId": 0,
-                          "statData": {
-                            "statId": 0,
-                            "statValue": [
-                              {
-                                "baseValue": 0,
-                                "modifierValue": 0
-                              },
-                              {
-                                "baseValue": 0,
-                                "modifierValue": 0
-                              }
-                            ]
-                          }
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            }
-          }
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownBoolean1": true,
+          "unknownGuid1": "0",
+          "unknownDword5": 0,
+          "unknownBoolean2": true,
+          "unknownDword6": 0,
+          "reward": {
+            "currency": []
+          },
+          "unknownArray1Length": 1,
+          "unknownArray1": []
         }
       ],
-      "unknownDword1": 0
-    },
-    "unknownDword28": 2,
-    "characterQuests": {
-      "quests": [],
       "unknownDword1": 0,
       "unknownDword2": 4294967295,
       "unknownBoolean1": false,
