@@ -24,6 +24,7 @@ import admin from "./commands/admin";
 import { Int64String, isPosInRadius } from "../../utils/utils";
 import { ZoneServer } from "./zoneserver";
 import { Client } from "types/zoneserver";
+const models = require("../../../data/dataSources/Models.json")
 
 const _ = require("lodash");
 const debug = require("debug")("zonepacketHandlers");
@@ -138,7 +139,6 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
-    server.worldRoutine(client);
     server.sendGameTimeSync(client);
     server.sendChatText(client, "Welcome to H1emu ! :D", true);
     client.lastPingTime = new Date().getTime();
@@ -147,6 +147,7 @@ const packetHandlers: any = {
       30000
     );
     server.executeFuncForAllClients("spawnCharacters");
+    client.isLoading = false
   },
   Security: function (server: ZoneServer, client: Client, packet: any) {
     debug(packet);
@@ -339,14 +340,13 @@ const packetHandlers: any = {
             _npcs: npcs,
             _objects: objects,
             _vehicles: vehicles,
+            _doors: doors
           } = server;
           const serverVersion = require("../../../package.json").version;
           server.sendChatText(client, `h1z1-server V${serverVersion}`, true);
-          server.sendChatText(client, `Connected clients : ${_.size(clients)}`);
-          server.sendChatText(client, `characters : ${_.size(characters)}`);
-          server.sendChatText(client, `npcs : ${_.size(npcs)}`);
-          server.sendChatText(client, `objects : ${_.size(objects)}`);
-          server.sendChatText(client, `vehicles : ${_.size(vehicles)}`);
+          server.sendChatText(client, `connected clients : ${_.size(clients)} characters : ${_.size(characters)}`);
+          server.sendChatText(client, `npcs : ${_.size(npcs)} doors : ${_.size(doors)}`);
+          server.sendChatText(client, `objects : ${_.size(objects)} vehicles : ${_.size(vehicles)}`);
           break;
         }
       case 1757604914: // /spawninfo
@@ -473,11 +473,11 @@ const packetHandlers: any = {
     const objectData = server._objects[guid];
     const doorData = server._doors[guid];
     const vehicleData = server._vehicles[guid];
-    const interactionDistance = 4;
+    
     if (
       objectData &&
       isPosInRadius(
-        interactionDistance,
+        server._interactionDistance,
         client.character.state.position,
         objectData.position
       )
@@ -489,7 +489,7 @@ const packetHandlers: any = {
     } else if (
       doorData &&
       isPosInRadius(
-        interactionDistance,
+        server._interactionDistance,
         client.character.state.position,
         doorData.position
       )
@@ -501,7 +501,7 @@ const packetHandlers: any = {
     } else if (
       vehicleData &&
       isPosInRadius(
-        interactionDistance,
+        server._interactionDistance,
         client.character.state.position,
         vehicleData.npcData.position
       )
@@ -1270,11 +1270,11 @@ const packetHandlers: any = {
       }
 
       if (
-        !isPosInRadius(
+        !client.posAtLastRoutine || !isPosInRadius(
           server._npcRenderDistance / 2.5,
           client.character.state.position,
           client.posAtLastRoutine
-        )
+        ) && !client.isLoading
       ) {
         server.worldRoutine(client);
       }
@@ -1294,6 +1294,31 @@ const packetHandlers: any = {
         packet.data.lookAt[2],
         packet.data.lookAt[3],
       ]);
+    }
+  },
+  "Command.PlayerSelect": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
+    debug(packet);
+    const objectToPickup = server._objects[packet.data.guid]
+    if(objectToPickup && isPosInRadius(
+      server._interactionDistance,
+      client.character.state.position,
+      objectToPickup.position
+    )){
+
+      const model_index = models.findIndex((x:any) => x.ID === objectToPickup.modelId);
+      const pickupMessage = models[model_index].DESCRIPTION.replace("NPC Spawn ","");
+      server.sendData(client, "ClientUpdate.TextAlert", {
+        message: pickupMessage,
+      });
+      
+      server.sendDataToAll("PlayerUpdate.RemovePlayer", {
+        characterId: objectToPickup.characterId,
+      });
+      delete server._objects[objectToPickup.characterId]
     }
   },
   "PlayerUpdate.Respawn": function (
