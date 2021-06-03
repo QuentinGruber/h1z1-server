@@ -225,6 +225,7 @@ const hax: any = {
     args: any[]
   ) {
     clearInterval(server._dynamicWeatherInterval);
+    server._dynamicWeatherInterval = null;
     server.changeWeather(
       client,
       server._weatherTemplates[server._defaultWeatherTemplate]
@@ -232,6 +233,11 @@ const hax: any = {
     server.sendChatText(client, "Dynamic weather removed !");
   },
   weather: function (server: ZoneServer, client: Client, args: any[]) {
+    if(server._dynamicWeatherInterval){
+      clearInterval(server._dynamicWeatherInterval);
+      server._dynamicWeatherInterval = null;
+      server.sendChatText(client, "Dynamic weather removed !")
+    }
     const weatherTemplate = server._soloMode
       ? server._weatherTemplates[args[1]]
       : _.find(server._weatherTemplates, (template) => {
