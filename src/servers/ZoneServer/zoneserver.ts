@@ -193,6 +193,7 @@ export class ZoneServer extends EventEmitter {
         );
 
         this._clients[client.sessionId] = client;
+        client.isLoading = true;
         client.loginSessionId = loginSessionId;
         client.transientIds = {};
         client.transientId = 0;

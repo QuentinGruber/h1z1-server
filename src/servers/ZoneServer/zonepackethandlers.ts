@@ -135,7 +135,6 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
-    server.worldRoutine(client);
     server.sendGameTimeSync(client);
     server.sendChatText(client, "Welcome to H1emu ! :D", true);
     client.lastPingTime = new Date().getTime();
@@ -144,6 +143,7 @@ const packetHandlers: any = {
       30000
     );
     server.executeFuncForAllClients("spawnCharacters");
+    client.isLoading = false
   },
   Security: function (server: ZoneServer, client: Client, packet: any) {
     debug(packet);
@@ -1267,11 +1267,11 @@ const packetHandlers: any = {
       }
 
       if (
-        !isPosInRadius(
+        !client.posAtLastRoutine || !isPosInRadius(
           server._npcRenderDistance / 2.5,
           client.character.state.position,
           client.posAtLastRoutine
-        )
+        ) && !client.isLoading
       ) {
         server.worldRoutine(client);
       }
