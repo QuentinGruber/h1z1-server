@@ -336,14 +336,13 @@ const packetHandlers: any = {
             _npcs: npcs,
             _objects: objects,
             _vehicles: vehicles,
+            _doors: doors
           } = server;
           const serverVersion = require("../../../package.json").version;
           server.sendChatText(client, `h1z1-server V${serverVersion}`, true);
-          server.sendChatText(client, `Connected clients : ${_.size(clients)}`);
-          server.sendChatText(client, `characters : ${_.size(characters)}`);
-          server.sendChatText(client, `npcs : ${_.size(npcs)}`);
-          server.sendChatText(client, `objects : ${_.size(objects)}`);
-          server.sendChatText(client, `vehicles : ${_.size(vehicles)}`);
+          server.sendChatText(client, `connected clients : ${_.size(clients)} characters : ${_.size(characters)}`);
+          server.sendChatText(client, `npcs : ${_.size(npcs)} doors : ${_.size(doors)}`);
+          server.sendChatText(client, `objects : ${_.size(objects)} vehicles : ${_.size(vehicles)}`);
           break;
         }
       case 1757604914: // /spawninfo
