@@ -30,18 +30,18 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ./bin/h1emuServer.exe
           asset_name: h1emuServer.exe
-          tag: 0.9.4
+          tag: ${{ github.ref }}
       - name: Upload zoneServer to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ./bin/zoneServer.exe
           asset_name: zoneServer.exe
-          tag: 0.9.4
+          tag: ${{ github.ref }}
       - name: Upload loginServer to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ./bin/loginServer.exe
           asset_name: loginServer.exe
-          tag: 0.9.4
+          tag: ${{ github.ref }}
