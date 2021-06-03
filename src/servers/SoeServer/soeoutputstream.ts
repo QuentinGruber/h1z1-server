@@ -46,7 +46,7 @@ export class SOEOutputStream extends EventEmitter {
 
     if (data.length <= this._fragmentSize) {
       this._sequence++;
-      this._cache[this._sequence] = { 
+      this._cache[this._sequence] = {
         data: data,
         fragment: false,
       };

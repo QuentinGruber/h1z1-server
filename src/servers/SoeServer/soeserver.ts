@@ -177,12 +177,9 @@ export class SOEServer extends EventEmitter {
               true
             );
           }
-          (client as any).outOfOrderTimer = setTimeout(
-            checkOutOfOrderQueue,
-            0
-          );
+          (client as any).outOfOrderTimer = setTimeout(checkOutOfOrderQueue, 0);
         };
-        checkOutOfOrderQueue()
+        checkOutOfOrderQueue();
         this.emit("connect", null, this._clients[clientId]);
       }
       client = this._clients[clientId];
