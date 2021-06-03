@@ -1308,7 +1308,7 @@ const packetHandlers: any = {
         message: pickupMessage,
       });
 
-      server.sendData(client, "PlayerUpdate.RemovePlayer", {
+      server.sendDataToAll("PlayerUpdate.RemovePlayer", {
         characterId: objectToPickup.characterId,
       });
     }
