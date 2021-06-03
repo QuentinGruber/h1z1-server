@@ -630,18 +630,30 @@ function parseItemAddData(data, offset, referenceData) {
 }
 function packItemAddData() { }
 const profileDataSchema = [
-    { name: "profileId", type: "uint32", defaultValue: 0 },
     { name: "nameId", type: "uint32", defaultValue: 0 },
     { name: "descriptionId", type: "uint32", defaultValue: 0 },
     { name: "type", type: "uint32", defaultValue: 0 },
-    { name: "iconId", type: "uint32", defaultValue: 0 },
-    { name: "unknownDword6", type: "uint32", defaultValue: 0 },
-    { name: "unknownDword7", type: "uint32", defaultValue: 0 },
-    { name: "unknownDword8", type: "uint32", defaultValue: 0 },
-    { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-    { name: "unknownDword9", type: "uint32", defaultValue: 0 },
+    { name: "unknownDword2", type: "uint8", defaultValue: 0 },
+    { name: "abilityBgImageSet", type: "uint32", defaultValue: 0 },
+    { name: "badgeImageSet", type: "uint32", defaultValue: 0 },
+    { name: "buttonImageSet", type: "uint32", defaultValue: 0 },
+    { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+    /*{ name: "unknownBoolean1", type: "boolean", defaultValue: false },
+    { name: "unknownDword4", type: "uint32", defaultValue: 0 },*/ // deprecated
     {
         name: "unknownArray1",
+        type: "array",
+        defaultValue: [{}],
+        fields: [
+            { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+            { name: "unknownByte2", type: "uint8", defaultValue: 0 },
+        ],
+    },
+    // { name: "unknownBoolean2", type: "boolean", defaultValue: false }, deprecated
+    { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+    { name: "unknownArray2Length", type: "uint32", defaultValue: 1 },
+    {
+        name: "unknownArray2",
         type: "array",
         defaultValue: [{}],
         fields: [
@@ -650,25 +662,28 @@ const profileDataSchema = [
             { name: "unknownDword3", type: "uint32", defaultValue: 0 },
         ],
     },
-    { name: "unknownBoolean2", type: "boolean", defaultValue: false },
-    { name: "unknownDword10", type: "uint32", defaultValue: 0 },
-    { name: "unknownDword11", type: "uint32", defaultValue: 0 },
-    { name: "unknownBoolean3", type: "boolean", defaultValue: false },
+    { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+    /*{ name: "unknownBoolean3", type: "boolean", defaultValue: false },
     { name: "unknownByte1", type: "uint8", defaultValue: 0 },
     { name: "unknownBoolean4", type: "boolean", defaultValue: false },
     { name: "unknownBoolean5", type: "boolean", defaultValue: false },
     { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
     { name: "unknownFloat2", type: "float", defaultValue: 0.0 },
     { name: "unknownFloat3", type: "float", defaultValue: 0.0 },
-    { name: "unknownFloat4", type: "float", defaultValue: 0.0 },
+    { name: "unknownFloat4", type: "float", defaultValue: 0.0 },*/ // deprecated
+    { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+    { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+    // { name: "unknownFloat5", type: "float", defaultValue: 0.0 }, deprecated
+    { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+    { name: "unknownDword8", type: "uint32", defaultValue: 0 },
+    { name: "unknownDword9", type: "uint32", defaultValue: 0 },
+    { name: "unknownDword10", type: "uint32", defaultValue: 0 },
+    { name: "unknownDword11", type: "uint32", defaultValue: 0 },
+    { name: "unknownDword12", type: "uint32", defaultValue: 0 },
     { name: "unknownDword13", type: "uint32", defaultValue: 0 },
-    { name: "unknownFloat5", type: "float", defaultValue: 0.0 },
     { name: "unknownDword14", type: "uint32", defaultValue: 0 },
     { name: "unknownDword15", type: "uint32", defaultValue: 0 },
     { name: "unknownDword16", type: "uint32", defaultValue: 0 },
-    { name: "unknownDword17", type: "uint32", defaultValue: 0 },
-    { name: "unknownDword18", type: "uint32", defaultValue: 0 },
-    { name: "unknownDword19", type: "uint32", defaultValue: 0 },
 ];
 const baseItemDefinitionSchema = [
     { name: "itemId", type: "uint32", defaultValue: 0 },
@@ -1994,9 +2009,12 @@ var packets = [
                                 { name: "unknownDword3", type: "uint32", defaultValue: 0 },
                                 { name: "characterFirstName", type: "string", defaultValue: "" },
                                 { name: "characterLastName", type: "string", defaultValue: "" },
+                                { name: "unknownString1", type: "string", defaultValue: "" },
+                                { name: "unknownString1", type: "string", defaultValue: "" },
+                                { name: "unknownQword1", type: "uint64", defaultValue: "0" },
                             ],
                         },
-                        { name: "unknownDword14", type: "uint32", defaultValue: 0 },
+                        { name: "currencyArrLength", type: "uint32", defaultValue: 1 },
                         {
                             name: "currency",
                             type: "array",
@@ -2019,13 +2037,14 @@ var packets = [
                         { name: "unknownDword21", type: "uint32", defaultValue: 0 },
                         { name: "unknownDword22", type: "uint32", defaultValue: 0 },
                         { name: "unknownDword23", type: "uint32", defaultValue: 0 },
-                        { name: "unknownBoolean4", type: "boolean", defaultValue: true },
+                        //{ name: "unknownBoolean4", type: "boolean", defaultValue: true }, deprecated
                         { name: "unknownTime1", type: "uint64", defaultValue: 0 },
                         { name: "unknownTime2", type: "uint64", defaultValue: 0 },
-                        { name: "unknownTime3", type: "uint64", defaultValue: 0 },
+                        //{ name: "unknownTime3", type: "uint64", defaultValue: 0 }, deprecated
                         { name: "unknownDword24", type: "uint32", defaultValue: 0 },
                         { name: "unknownBoolean5", type: "boolean", defaultValue: true },
                         { name: "unknownDword25", type: "uint32", defaultValue: 0 },
+                        { name: "profilesArrLength", type: "uint32", defaultValue: 1 },
                         {
                             name: "profiles",
                             type: "array",
