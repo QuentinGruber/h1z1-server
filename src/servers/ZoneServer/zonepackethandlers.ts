@@ -10,12 +10,11 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-try{
+try {
   // delete commands cache if exist so /dev reloadPackets reload them too
   delete require.cache[require.resolve("./commands/hax")];
   delete require.cache[require.resolve("./commands/dev")];
-}
-catch(e){}
+} catch (e) {}
 
 const Jenkins = require("hash-jenkins");
 import hax from "./commands/hax";
@@ -25,6 +24,8 @@ import { Int64String, isPosInRadius } from "../../utils/utils";
 import { ZoneServer } from "./zoneserver";
 import { Client } from "types/zoneserver";
 const modelToName = require("../../../data/sampleData/ModelToName.json");
+
+
 
 const _ = require("lodash");
 const debug = require("debug")("zonepacketHandlers");
@@ -147,7 +148,7 @@ const packetHandlers: any = {
       30000
     );
     server.executeFuncForAllClients("spawnCharacters");
-    client.isLoading = false
+    client.isLoading = false;
   },
   Security: function (server: ZoneServer, client: Client, packet: any) {
     debug(packet);
@@ -340,13 +341,24 @@ const packetHandlers: any = {
             _npcs: npcs,
             _objects: objects,
             _vehicles: vehicles,
-            _doors: doors
+            _doors: doors,
           } = server;
           const serverVersion = require("../../../package.json").version;
           server.sendChatText(client, `h1z1-server V${serverVersion}`, true);
-          server.sendChatText(client, `connected clients : ${_.size(clients)} characters : ${_.size(characters)}`);
-          server.sendChatText(client, `npcs : ${_.size(npcs)} doors : ${_.size(doors)}`);
-          server.sendChatText(client, `objects : ${_.size(objects)} vehicles : ${_.size(vehicles)}`);
+          server.sendChatText(
+            client,
+            `connected clients : ${_.size(clients)} characters : ${_.size(
+              characters
+            )}`
+          );
+          server.sendChatText(
+            client,
+            `npcs : ${_.size(npcs)} doors : ${_.size(doors)}`
+          );
+          server.sendChatText(
+            client,
+            `objects : ${_.size(objects)} vehicles : ${_.size(vehicles)}`
+          );
           break;
         }
       case 1757604914: // /spawninfo
@@ -473,7 +485,7 @@ const packetHandlers: any = {
     const objectData = server._objects[guid];
     const doorData = server._doors[guid];
     const vehicleData = server._vehicles[guid];
-    
+
     if (
       objectData &&
       isPosInRadius(
@@ -1270,11 +1282,13 @@ const packetHandlers: any = {
       }
 
       if (
-        !client.posAtLastRoutine || !isPosInRadius(
+        !client.posAtLastRoutine ||
+        (!isPosInRadius(
           server._npcRenderDistance / 2.5,
           client.character.state.position,
           client.posAtLastRoutine
-        ) && !client.isLoading
+        ) &&
+          !client.isLoading)
       ) {
         server.worldRoutine(client);
       }
@@ -1314,11 +1328,11 @@ const packetHandlers: any = {
       server.sendData(client, "ClientUpdate.TextAlert", {
         message: pickupMessage,
       });
-      
+
       server.sendDataToAll("PlayerUpdate.RemovePlayer", {
         characterId: objectToPickup.characterId,
       });
-      delete server._objects[objectToPickup.characterId]
+      delete server._objects[objectToPickup.characterId];
     }
   },
   "PlayerUpdate.Respawn": function (
@@ -1346,9 +1360,9 @@ const packetHandlers: any = {
       server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
         transientId: npc.transientId,
         unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
-			  unknownDword2: 13951728,
-			  unknownDword3: 1,
-			  unknownDword6: 100,
+        unknownDword2: 13951728,
+        unknownDword3: 1,
+        unknownDword6: 100,
       });
     } else if (server._characters[guid]) {
       server.sendData(client, "PlayerUpdate.LightweightToFullPc", {
