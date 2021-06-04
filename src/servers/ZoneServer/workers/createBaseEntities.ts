@@ -26,7 +26,6 @@ const chanceWorld = 10;
 const chanceLog = 10;
 const chanceCommercial = 10;
 const chanceFarm = 10;
-var stringNameId = 0;
 
 let numberOfSpawnedEntity = 0;
 
@@ -36,6 +35,7 @@ function createEntity(
   rotation: Array<number>,
   dictionnary: any
 ): void {
+  let stringNameId = 0;
   modelToName.forEach((spawnername: any) => {
     if (modelID === spawnername.modelId) {
       stringNameId = spawnername.NameId;
