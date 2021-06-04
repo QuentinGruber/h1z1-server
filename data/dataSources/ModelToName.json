@@ -1,0 +1,237 @@
+[
+  {
+	"itemName": "AR15",
+	"modelId": 23,
+	"NameId": 32
+  },
+  {
+	"itemName": "ammo AR15/ ammobox02",
+	"modelId": 10,
+	"NameId": 1169
+  },
+  {
+	"itemName": "PumpShotgun",
+	"modelId": 9286,
+	"NameId": 1055
+  },
+  {
+	"itemName": "ShotgunShell",
+	"modelId": 8023,
+	"NameId": 1450
+  },
+  {
+	"itemName": "Crowbar",
+	"modelId": 18,
+	"NameId": 362
+  },
+  {
+	"itemName": "CombatKnife",
+	"modelId": 21,
+	"NameId": 364
+  },
+  {
+	"itemName": "Machete",
+	"modelId": 24,
+	"NameId": 363
+  },
+  {
+	"itemName": "AluminiumBaseballbat",
+	"modelId": 42,
+	"NameId": 8961
+  },
+  {
+	"itemName": "Militarybackpack",
+	"modelId": 9093,
+	"NameId": 1019
+  },
+  {
+	"itemName": "Ethanol",
+	"modelId": 9135,
+	"NameId": 1104
+  },
+  {
+	"itemName": "Guitar",
+	"modelId": 9318,
+	"NameId": 8988
+  },
+  {
+	"itemName": "WoodAxe",
+	"modelId": 27,
+	"NameId": 84
+  },
+  {
+	"itemName": "FireAxe",
+	"modelId": 9325,
+	"NameId": 9028
+  },
+  {
+	"itemName": "Hammer",
+	"modelId": 9252,
+	"NameId": 1471
+  },
+  {
+	"itemName": "Hatchet",
+	"modelId": 22,
+	"NameId": 25
+  },
+  {
+	"itemName": "Pipe",
+	"modelId": 9209,
+	"NameId": 58
+  },
+  {
+	"itemName": "Woodenbat",
+	"modelId": 9313,
+	"NameId": 8961
+  },
+  {
+	"itemName": "1911",
+	"modelId": 17,
+	"NameId": 24
+  },
+  {
+	"itemName": ".308 Rifle",
+	"modelId": 9204,
+	"NameId": 1054
+  },
+  {
+	"itemName": ".308 ammo",
+	"modelId": 9287,
+	"NameId": 1364
+  },
+  {
+	"itemName": "FirstAidKit",
+	"modelId": 9221,
+	"NameId": 330
+  },
+  {
+	"itemName": "GroundCoffee",
+	"modelId": 7,
+	"NameId": 10
+  },
+  {
+	"itemName": "CannedFoodBeets",
+	"modelId": 8020,
+	"NameId": 23
+  },
+  {
+	"itemName": "WaterPurified",
+	"modelId": 9159,
+	"NameId": 1048
+  },
+  {
+	"itemName": "MotorcycleHelmet",
+	"modelId": 68,
+	"NameId": 1502
+  },
+  {
+	"itemName": "BaseballCap",
+	"modelId": 66,
+	"NameId": 1511
+  },
+  {
+	"itemName": "FoldedShirt",
+	"modelId": 9249,
+	"NameId": 626
+  },
+  {
+	"itemName": "Beanie",
+	"modelId": 67,
+	"NameId": 1510
+  },
+  {
+	"itemName": "Sugar",
+	"modelId": 9064,
+	"NameId": 11
+  },
+  {
+	"itemName": "CarBattery",
+	"modelId": 70,
+	"NameId": 1519
+  },
+  {
+	"itemName": "Salt",
+	"modelId": 9065,
+	"NameId": 51
+  },
+  {
+	"itemName": "CanOpener",
+	"modelId": 9039,
+	"NameId": 70
+  },
+  {
+	"itemName": "Lighter",
+	"modelId": 9182,
+	"NameId": 1182
+  },
+  {
+	"itemName": "EmptyBottle",
+	"modelId": 9156,
+	"NameId": 1005
+  },
+  {
+	"itemName": "SparkPlugs",
+	"modelId": 72,
+	"NameId": 1532
+  },
+  {
+	"itemName": "CornSeeds",
+	"modelId": 9163,
+	"NameId": 627
+  },
+  {
+	"itemName": "MREBag",
+	"modelId": 9250,
+	"NameId": 35
+  },
+  {
+	"itemName": "Binoculars",
+	"modelId": 9199,
+	"NameId": 1479
+  },
+  {
+	"itemName": "HeadLights",
+	"modelId": 71,
+	"NameId": 1319
+  },
+  {
+	"itemName": "OffroaderTurbo",
+	"modelId": 73,
+	"NameId": 1066
+  },
+  {
+	"itemName": "WoodPlank",
+	"modelId": 64,
+	"NameId": 629
+  },
+  {
+	"itemName": "MetalSheet",
+	"modelId": 11,
+	"NameId": 57
+  },
+  {
+	"itemName": "MetalScrap",
+	"modelId": 30,
+	"NameId": 2
+  },
+  {
+	"itemName": "Tarp",
+	"modelId": 54,
+	"NameId": 689
+  },
+  {
+	"itemName": "WoodLog",
+	"modelId": 9043,
+	"NameId": 43
+  },
+  {
+	"itemName": "WoodStick",
+	"modelId": 65,
+	"NameId": 631
+  },
+  {
+	"itemName": "Fertilizer",
+	"modelId": 15,
+	"NameId": 47
+  }
+]
