@@ -902,12 +902,12 @@ export class ZoneServer extends EventEmitter {
 
   sendChat(client: Client, message: string, channel: number): void {
     const { character } = client;
-      this.sendDataToAll("Chat.Chat", {
-        channel: channel,
-        characterName1: character.name,
-        message: message,
-        color1: 1,
-      });
+    this.sendDataToAll("Chat.Chat", {
+      channel: channel,
+      characterName1: character.name,
+      message: message,
+      color1: 1,
+    });
   }
 
   sendGlobalChatText(message: string, clearChat = false): void {

@@ -6,6 +6,7 @@ import _ from "lodash";
 const debug = require("debug")("zonepacketHandlers");
 
 let isSonic = false;
+let isVehicle = false;
 
 const hax: any = {
   time: function (server: ZoneServer, client: Client, args: any[]) {
@@ -157,6 +158,9 @@ const hax: any = {
     }
     const choosenModelId = Number(args[1]);
     const characterId = server.generateGuid();
+	if (choosenModelId === 7225 || choosenModelId === 9301 || choosenModelId === 9258) {
+			isVehicle = true;
+		}
     const npc = {
       characterId: characterId,
       guid: guid,
@@ -165,11 +169,13 @@ const hax: any = {
       position: client.character.state.position,
       rotation: client.character.state.lookAt,
       attachedObject: {},
+	  unknown26: isVehicle,
       color: {},
       array5: [{ unknown1: 0 }],
       array17: [{ unknown1: 0 }],
       array18: [{ unknown1: 0 }],
     };
+	isVehicle = false;
     server.sendData(client, "PlayerUpdate.AddLightweightNpc", npc);
     server._npcs[characterId] = npc; // save npc
   },
@@ -225,6 +231,7 @@ const hax: any = {
     args: any[]
   ) {
     clearInterval(server._dynamicWeatherInterval);
+    server._dynamicWeatherInterval = null;
     server.changeWeather(
       client,
       server._weatherTemplates[server._defaultWeatherTemplate]
@@ -232,6 +239,11 @@ const hax: any = {
     server.sendChatText(client, "Dynamic weather removed !");
   },
   weather: function (server: ZoneServer, client: Client, args: any[]) {
+    if(server._dynamicWeatherInterval){
+      clearInterval(server._dynamicWeatherInterval);
+      server._dynamicWeatherInterval = null;
+      server.sendChatText(client, "Dynamic weather removed !")
+    }
     const weatherTemplate = server._soloMode
       ? server._weatherTemplates[args[1]]
       : _.find(server._weatherTemplates, (template) => {

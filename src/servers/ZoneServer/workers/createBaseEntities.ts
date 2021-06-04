@@ -4,6 +4,7 @@ const Z1_items = require("../../../../data/zoneData/Z1_items.json");
 const Z1_doors = require("../../../../data/zoneData/Z1_doors.json");
 const Z1_npcs = require("../../../../data/zoneData/Z1_npcs.json");
 const models = require("../../../../data/dataSources/Models.json");
+const modelToName = require("../../../../data/sampleData/ModelToName.json");
 import _ from "lodash";
 import { generateRandomGuid } from "../../../utils/utils";
 const npcs: any = {};
@@ -34,16 +35,24 @@ function createEntity(
   rotation: Array<number>,
   dictionnary: any
 ): void {
+  let stringNameId = 0;
+  modelToName.forEach((spawnername: any) => {
+    if (modelID === spawnername.modelId) {
+      stringNameId = spawnername.NameId;
+    }
+  });
+
   const guid = generateRandomGuid();
   const characterId = generateRandomGuid();
   numberOfSpawnedEntity++;
   if (numberOfSpawnedEntity > 30000) {
     numberOfSpawnedEntity = 1;
-}
+  }
   dictionnary[characterId] = {
     characterId: characterId,
     guid: guid,
     transientId: numberOfSpawnedEntity,
+    nameId: stringNameId,
     modelId: modelID,
     position: position,
     rotation: rotation,
@@ -103,6 +112,7 @@ function createAllVehicles() {
         position: vehicle.position,
         rotation: vehicle.rotation,
         attachedObject: {},
+	unknown26: true,
         color: {},
         unknownArray1: [],
         array5: [{ unknown1: 0 }],
@@ -505,7 +515,6 @@ function createRare() {
         authorizedModelId.push(9204);
         authorizedModelId.push(9286);
         authorizedModelId.push(23);
-        authorizedModelId.push(9202);
         break;
       default:
         break;
@@ -544,7 +553,6 @@ function createIndustrial() {
         authorizedModelId.push(11);
         authorizedModelId.push(30);
         authorizedModelId.push(9209);
-        authorizedModelId.push(9156);
         authorizedModelId.push(27);
         authorizedModelId.push(54);
         break;
