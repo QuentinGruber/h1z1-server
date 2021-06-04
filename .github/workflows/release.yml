@@ -53,27 +53,27 @@ jobs:
           node-version: 16.2.0
       - run: npm ci
       - run: npm i -g pkg@5.2.1
-      - run: pkg -t node16-win-x64 ./bin/loginServer.js --output ./bin/loginServer.exe
-      - run: pkg -t node16-win-x64 ./bin/zoneServer.js --output ./bin/zoneServer.exe
-      - run: pkg -t node16-win-x64 ./bin/h1emuServer.js --output ./bin/h1emuServer.exe
+      - run: pkg -t node16-win-x64 ./bin/loginServer.js --output ./bin/loginServer-${{ github.ref }}.exe
+      - run: pkg -t node16-win-x64 ./bin/zoneServer.js --output ./bin/zoneServer-${{ github.ref }}.exe
+      - run: pkg -t node16-win-x64 ./bin/h1emuServer.js --output ./bin/h1emuServer-${{ github.ref }}.exe
       - name: Upload h1emuServer to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ./bin/h1emuServer.exe
-          asset_name: h1emuServer.exe
+          file: ./bin/h1emuServer-${{ github.ref }}.exe
+          asset_name: h1emuServer-${{ github.ref }}.exe
           tag: ${{ github.ref }}
       - name: Upload zoneServer to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ./bin/zoneServer.exe
-          asset_name: zoneServer.exe
+          file: ./bin/zoneServer-${{ github.ref }}.exe
+          asset_name: zoneServer-${{ github.ref }}.exe
           tag: ${{ github.ref }}
       - name: Upload loginServer to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ./bin/loginServer.exe
-          asset_name: loginServer.exe
+          file: ./bin/loginServer-${{ github.ref }}.exe
+          asset_name: loginServer-${{ github.ref }}.exe
           tag: ${{ github.ref }}
