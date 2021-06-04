@@ -28,6 +28,8 @@ Making this work for the 15 January 2015 version of H1Z1 (first version).
 
 - Thank to Meme for being an OG/active contributor :smile:.
 
+- Thank to Avcio for his dedication on gameplay improvement.
+
 - Thank to Rhett for his interest in the project and his research on the Forgelight engine in general.
 
 - Thank to LegendsNeveerrDie for is work on editing the map.
