@@ -23,7 +23,9 @@ import admin from "./commands/admin";
 import { Int64String, isPosInRadius } from "../../utils/utils";
 import { ZoneServer } from "./zoneserver";
 import { Client } from "types/zoneserver";
-const models = require("../../../data/dataSources/Models.json");
+const modelToName = require("../../../data/sampleData/ModelToName.json");
+
+
 
 const _ = require("lodash");
 const debug = require("debug")("zonepacketHandlers");
@@ -1314,22 +1316,15 @@ const packetHandlers: any = {
     packet: any
   ) {
     debug(packet);
-    const objectToPickup = server._objects[packet.data.guid];
-    if (
-      objectToPickup &&
-      isPosInRadius(
-        server._interactionDistance,
-        client.character.state.position,
-        objectToPickup.position
-      )
-    ) {
-      const model_index = models.findIndex(
-        (x: any) => x.ID === objectToPickup.modelId
-      );
-      const pickupMessage = models[model_index].DESCRIPTION.replace(
-        "NPC Spawn ",
-        ""
-      );
+    const objectToPickup = server._objects[packet.data.guid]
+    if(objectToPickup && isPosInRadius(
+      server._interactionDistance,
+      client.character.state.position,
+      objectToPickup.position
+    )){
+      // TODO : use strings from the game, will add to h1z1-string-finder the option to export to JSON
+      const model_index = modelToName.findIndex((x:any) => x.modelId === objectToPickup.modelId);
+      const pickupMessage = modelToName[model_index]?.itemName
       server.sendData(client, "ClientUpdate.TextAlert", {
         message: pickupMessage,
       });
