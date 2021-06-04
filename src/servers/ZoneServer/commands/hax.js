@@ -420,36 +420,18 @@ const hax = {
     debug(JSON.stringify(rnd_weather));
     server.changeWeather(client, rnd_weather);
   },
-  /* scale can no longer be updated through PlayerUpdate
-  titan: function (server, client, args) {
-    server.sendData(client, "PlayerUpdate.UpdateScale", {
-      characterId: client.character.characterId,
-      scale: [20, 20, 20, 1],
-    });
-    server.sendChatText(client, "TITAN size");
+  setresource: function (server, client, args) {
+  
+    const resourceEvent = {
+      type: 2,
+      eventData: {
+        unknownArray1:[],
+        unknownArray2: [],
+      }
+    };
+    server.sendChatText(client, "Setting character resource");
+    server.sendData(client, "ResourceEvent", resourceEvent);
   },
-  poutine: function (server, client, args) {
-    server.sendData(client, "PlayerUpdate.UpdateScale", {
-      characterId: client.character.characterId,
-      scale: [20, 5, 20, 1],
-    });
-    server.sendChatText(client, "The meme become a reality.....");
-  },
-  rat: function (server, client, args) {
-    server.sendData(client, "PlayerUpdate.UpdateScale", {
-      characterId: client.character.characterId,
-      scale: [0.2, 0.2, 0.2, 1],
-    });
-    server.sendChatText(client, "Rat size");
-  },
-  normalSize: function (server, client, args) {
-    server.sendData(client, "PlayerUpdate.UpdateScale", {
-      characterId: client.character.characterId,
-      scale: [1, 1, 1, 1],
-    });
-    server.sendChatText(client, "Back to normal size");
-  },
-  */
 };
 
 export default hax;
