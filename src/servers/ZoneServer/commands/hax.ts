@@ -34,6 +34,7 @@ const hax: any = {
     server.sendChatText(client, "Game time is now based on real time", true);
   },
   tp: function (server: ZoneServer, client: Client, args: any[]) {
+    client.isLoading = true;
     const choosenSpawnLocation = args[1];
     let locationPosition: Float32Array;
     switch (choosenSpawnLocation) {
@@ -149,7 +150,7 @@ const hax: any = {
   },
   spawnNpcModel: function (server: ZoneServer, client: Client, args: any[]) {
     const guid = server.generateGuid();
-    const transientId = server.getTransientId(client, guid);
+    const transientId = 1;
     if (!args[1]) {
       server.sendChatText(client, "[ERROR] You need to specify a model id !");
       return;
@@ -162,6 +163,7 @@ const hax: any = {
       transientId: transientId,
       modelId: choosenModelId,
       position: client.character.state.position,
+      rotation: client.character.state.lookAt,
       attachedObject: {},
       color: {},
       array5: [{ unknown1: 0 }],
@@ -217,10 +219,17 @@ const hax: any = {
       server.sendChatText(client, "Specify a model id !");
     }
   },
-  removeDynamicWeather: async function (server: ZoneServer, client: Client, args: any[]) {
+  removeDynamicWeather: async function (
+    server: ZoneServer,
+    client: Client,
+    args: any[]
+  ) {
     clearInterval(server._dynamicWeatherInterval);
-    server.changeWeather(client, server._weatherTemplates[server._defaultWeatherTemplate])
-    server.sendChatText(client,"Dynamic weather removed !")
+    server.changeWeather(
+      client,
+      server._weatherTemplates[server._defaultWeatherTemplate]
+    );
+    server.sendChatText(client, "Dynamic weather removed !");
   },
   weather: function (server: ZoneServer, client: Client, args: any[]) {
     const weatherTemplate = server._soloMode

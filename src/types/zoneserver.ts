@@ -1,4 +1,8 @@
 export interface Client {
+  isLoading: boolean;
+  posAtLastRoutine: Float32Array;
+  posAtLogoutStart: Float32Array;
+  logoutTimer: NodeJS.Timeout | null;
   spawnedEntities: any[];
   gameClient: {
     currentWeather: Weather;
@@ -19,6 +23,7 @@ export interface Client {
     state: {
       position: Float32Array;
       rotation: Float32Array;
+      lookAt: Float32Array;
       health: number;
       shield: number;
     };

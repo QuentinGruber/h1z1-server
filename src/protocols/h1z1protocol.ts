@@ -28,6 +28,7 @@ interface UpdatePositionObject {
   unknown10_float: any;
   unknown11_float: any;
   unknown12_float: any;
+  lookAt: any;
   rotation: any;
   unknown14_float: any;
   unknown15_float: any;
@@ -48,9 +49,6 @@ export class H1Z1Protocol {
     switch (this.protocolName) {
       case "ClientProtocol_860": // normal client from 15 january 2015
         this.H1Z1Packets = require("../packets/ClientProtocol/ClientProtocol_860/h1z1packets");
-        break;
-      case "ClientProtocol_948": // admin client
-        this.H1Z1Packets = require("../packets/ClientProtocol/ClientProtocol_948/h1z1packets");
         break;
       default:
         debug(`Protocol ${this.protocolName} unsupported !`);
@@ -290,7 +288,7 @@ export class H1Z1Protocol {
     };
   }
 
-  pack(packetName: string, object: Buffer, referenceData: any) {
+  pack(packetName: string, object?: any, referenceData?: any) {
     const { H1Z1Packets } = this;
     var packetType: number = H1Z1Packets.PacketTypes[packetName],
       packet = H1Z1Packets.Packets[packetType],
@@ -571,8 +569,8 @@ const parseUpdatePositionData = function (data: Buffer, offset: number) {
       offset += v.length;
       var v = readSignedIntWith2bitLengthValue(data, offset);
       rotationEul[3] = v.value / 100;
-
       obj["rotation"] = eul2quat(rotationEul);
+      obj["lookAt"] = eul2quat([rotationEul[0], 0, 0, 0]);
       offset += v.length;
     }
 

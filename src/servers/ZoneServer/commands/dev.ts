@@ -6,7 +6,25 @@ const debug = require("debug")("zonepacketHandlers");
 const dev: any = {
   testpacket: function (server: ZoneServer, client: Client, args: any[]) {
     const packetName = args[1];
-    server.sendData(client, packetName, {});
+    server.sendData(client, "ClientUpdate.StartTimer", {
+      stringId: 0,
+      time: 0,
+    });
+  },
+  testNpcRelevance: function (server: ZoneServer, client: Client, args: any[]) {
+    const npcs = Object.values(server._npcs).map((npc: any) => {
+      return { guid: npc.characterId };
+    });
+    server.sendData(client, "PlayerUpdate.NpcRelevance", {
+      npcs: npcs,
+    });
+  },
+  d: function (server: ZoneServer, client: Client, args: any[]) {
+    // quick disconnect
+    server.sendData(client, "CharacterSelectSessionResponse", {
+      status: 1,
+      sessionId: client.loginSessionId,
+    });
   },
   testNpc: function (server: ZoneServer, client: Client, args: any[]) {
     const characterId = server.generateGuid();
@@ -40,48 +58,13 @@ const dev: any = {
     const characterId = server.generateGuid();
     const vehicleData = {
       npcData: {
-        unknownString0: "",
-        guid: characterId,
-        transientId: server.getTransientId(client, characterId),
-        nameId: 12,
-        unknownDword2: 0,
-        unknownDword3: 0,
-        unknownByte1: 0,
+        guid: server.generateGuid(),
+        transientId: 1,
         modelId: 7225,
         scale: [1, 1, 1, 1],
-        unknownString1: "",
-        unknownString2: "",
-        unknownDword5: 0,
-        unknownDword6: 0,
         position: client.character.state.position,
-        unknownVector1: [0, 0, 0, 0],
-        rotation: [0, 0, 0, 1],
-        unknownDword7: 0,
-        unknownFloat1: 3,
-        unknownString3: "",
-        unknownString4: "",
-        unknownString5: "",
-        vehicleId: 3,
-        unknownDword9: 0,
-        npcDefinitionId: 2,
-        unknownByte2: 2,
-        profileId: 3,
-        unknownBoolean1: false,
-        unknownData1: {
-          unknownByte1: 16,
-          unknownByte2: 9,
-          unknownByte3: 0,
-        },
-        unknownByte6: 0,
-        unknownDword11: 0,
-        unknownGuid1: "0x0000000000000000",
-        unknownData2: {
-          unknownGuid1: "0x0000000000000000",
-        },
-        unknownDword12: 0,
-        unknownDword13: 0,
-        unknownDword14: 0,
-        unknownByte7: 0,
+        attachedObject: {},
+        color: {},
         unknownArray1: [],
         array5: [{ unknown1: 0 }],
         array17: [{ unknown1: 0 }],
