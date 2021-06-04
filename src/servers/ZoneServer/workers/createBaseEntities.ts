@@ -112,7 +112,7 @@ function createAllVehicles() {
         position: vehicle.position,
         rotation: vehicle.rotation,
         attachedObject: {},
-		unknown26: true,
+	unknown26: true,
         color: {},
         unknownArray1: [],
         array5: [{ unknown1: 0 }],
