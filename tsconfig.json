@@ -6,6 +6,7 @@
     "declaration": true /* Generates corresponding '.d.ts' file. */,
     "outDir": "./out/" /* Redirect output structure to the directory. */,
     "strict": true /* Enable all strict type-checking options. */,
+    "sourceMap": true,
     "baseUrl": "./src" /* Base directory to resolve non-absolute module names. */,
     "esModuleInterop": true /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */,
     "skipLibCheck": true /* Skip type checking of declaration files. */,

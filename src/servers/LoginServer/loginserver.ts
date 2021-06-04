@@ -351,3 +351,6 @@ export class LoginServer extends EventEmitter {
     process.exit(0);
   }
 }
+if (process.env.VSCODE_DEBUG === "true") {
+  new LoginServer(1115).start();
+}

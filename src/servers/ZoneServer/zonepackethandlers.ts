@@ -10,9 +10,11 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-// delete commands cache if exist so /dev reloadPackets reload them too
-delete require.cache[require.resolve("./commands/hax")];
-delete require.cache[require.resolve("./commands/dev")];
+try {
+  // delete commands cache if exist so /dev reloadPackets reload them too
+  delete require.cache[require.resolve("./commands/hax")];
+  delete require.cache[require.resolve("./commands/dev")];
+} catch (e) {}
 
 const Jenkins = require("hash-jenkins");
 import hax from "./commands/hax";
@@ -21,6 +23,9 @@ import admin from "./commands/admin";
 import { Int64String, isPosInRadius } from "../../utils/utils";
 import { ZoneServer } from "./zoneserver";
 import { Client } from "types/zoneserver";
+const modelToName = require("../../../data/sampleData/ModelToName.json");
+
+
 
 const _ = require("lodash");
 const debug = require("debug")("zonepacketHandlers");
@@ -98,14 +103,15 @@ const packetHandlers: any = {
       guid4: "0x0000000000000000",
       gameTime: (server.getServerTime() & 0xffffffff) >>> 0,
     });
+    server.sendData(client, "ReferenceData.ClientProfileData", {
+      profiles: server._profiles,
+    });
 
     client.character.currentLoadoutId = 3;
     server.sendData(client, "Loadout.SetCurrentLoadout", {
       guid: client.character.guid,
       loadoutId: client.character.currentLoadoutId,
     });
-
-    server.sendData(client, "ZoneDoneSendingInitialData", {});
 
     const commands = [
       "hax",
@@ -127,13 +133,13 @@ const packetHandlers: any = {
       serverTime: Int64String(server.getServerTime()),
       serverTime2: Int64String(server.getServerTime()),
     });
+    server.sendData(client, "ZoneDoneSendingInitialData", {});
   },
   ClientFinishedLoading: function (
     server: ZoneServer,
     client: Client,
     packet: any
   ) {
-    server.worldRoutine(client);
     server.sendGameTimeSync(client);
     server.sendChatText(client, "Welcome to H1emu ! :D", true);
     client.lastPingTime = new Date().getTime();
@@ -141,6 +147,8 @@ const packetHandlers: any = {
       () => server.saveCharacterPosition(client, 30000),
       30000
     );
+    server.executeFuncForAllClients("spawnCharacters");
+    client.isLoading = false;
   },
   Security: function (server: ZoneServer, client: Client, packet: any) {
     debug(packet);
@@ -208,7 +216,7 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
-    debug("UIEvent");
+    debug(packet);
   },
   SetLocale: function (server: ZoneServer, client: Client, packet: any) {
     debug("Do nothing");
@@ -289,7 +297,11 @@ const packetHandlers: any = {
   ClientLogout: function (server: ZoneServer, client: Client, packet: any) {
     debug("ClientLogout");
     server.saveCharacterPosition(client);
+    server.sendDataToAllOthers(client, "PlayerUpdate.RemovePlayer", {
+      characterId: client.character.characterId,
+    });
     server._gatewayServer._soeServer.deleteClient(client);
+    delete server._characters[client.character.characterId];
     delete server._clients[client.sessionId];
   },
   GameTimeSync: function (server: ZoneServer, client: Client, packet: any) {
@@ -328,14 +340,25 @@ const packetHandlers: any = {
             _characters: characters,
             _npcs: npcs,
             _objects: objects,
+            _vehicles: vehicles,
+            _doors: doors,
           } = server;
           const serverVersion = require("../../../package.json").version;
           server.sendChatText(client, `h1z1-server V${serverVersion}`, true);
-          server.sendChatText(client, `Connected clients : ${_.size(clients)}`);
-          server.sendChatText(client, `characters : ${_.size(characters)}`);
-          server.sendChatText(client, `npcs : ${_.size(npcs)}`);
-          server.sendChatText(client, `objects : ${_.size(objects)}`);
-
+          server.sendChatText(
+            client,
+            `connected clients : ${_.size(clients)} characters : ${_.size(
+              characters
+            )}`
+          );
+          server.sendChatText(
+            client,
+            `npcs : ${_.size(npcs)} doors : ${_.size(doors)}`
+          );
+          server.sendChatText(
+            client,
+            `objects : ${_.size(objects)} vehicles : ${_.size(vehicles)}`
+          );
           break;
         }
       case 1757604914: // /spawninfo
@@ -451,6 +474,55 @@ const packetHandlers: any = {
       unknownArray2: [],
       unknownBoolean3: false,
     });
+  },
+  "Command.InteractionString": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
+    debug(packet.data);
+    const { guid } = packet.data;
+    const objectData = server._objects[guid];
+    const doorData = server._doors[guid];
+    const vehicleData = server._vehicles[guid];
+
+    if (
+      objectData &&
+      isPosInRadius(
+        server._interactionDistance,
+        client.character.state.position,
+        objectData.position
+      )
+    ) {
+      server.sendData(client, "Command.InteractionString", {
+        guid: guid,
+        stringId: 29,
+      });
+    } else if (
+      doorData &&
+      isPosInRadius(
+        server._interactionDistance,
+        client.character.state.position,
+        doorData.position
+      )
+    ) {
+      server.sendData(client, "Command.InteractionString", {
+        guid: guid,
+        stringId: 31,
+      });
+    } else if (
+      vehicleData &&
+      isPosInRadius(
+        server._interactionDistance,
+        client.character.state.position,
+        vehicleData.npcData.position
+      )
+    ) {
+      server.sendData(client, "Command.InteractionString", {
+        guid: guid,
+        stringId: 15,
+      });
+    }
   },
   "Command.InteractionSelect": function (
     server: ZoneServer,
@@ -1210,11 +1282,13 @@ const packetHandlers: any = {
       }
 
       if (
-        !isPosInRadius(
+        !client.posAtLastRoutine ||
+        (!isPosInRadius(
           server._npcRenderDistance / 2.5,
           client.character.state.position,
           client.posAtLastRoutine
-        )
+        ) &&
+          !client.isLoading)
       ) {
         server.worldRoutine(client);
       }
@@ -1236,6 +1310,31 @@ const packetHandlers: any = {
       ]);
     }
   },
+  "Command.PlayerSelect": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
+    debug(packet);
+    const objectToPickup = server._objects[packet.data.guid]
+    if(objectToPickup && isPosInRadius(
+      server._interactionDistance,
+      client.character.state.position,
+      objectToPickup.position
+    )){
+      // TODO : use strings from the game, will add to h1z1-string-finder the option to export to JSON
+      const model_index = modelToName.findIndex((x:any) => x.modelId === objectToPickup.modelId);
+      const pickupMessage = modelToName[model_index]?.itemName
+      server.sendData(client, "ClientUpdate.TextAlert", {
+        message: pickupMessage,
+      });
+
+      server.sendDataToAll("PlayerUpdate.RemovePlayer", {
+        characterId: objectToPickup.characterId,
+      });
+      delete server._objects[objectToPickup.characterId];
+    }
+  },
   "PlayerUpdate.Respawn": function (
     server: ZoneServer,
     client: Client,
@@ -1252,10 +1351,29 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
-    // debug(packet);
-    server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
-      characterId: client.character.characterId,
-    });
+    const {
+      data: { guid },
+    } = packet;
+    const npc =
+      server._npcs[guid] || server._objects[guid] || server._doors[guid];
+    if (npc) {
+      server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
+        transientId: npc.transientId,
+        unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
+        unknownDword2: 13951728,
+        unknownDword3: 1,
+        unknownDword6: 100,
+      });
+    } else if (server._characters[guid]) {
+      server.sendData(client, "PlayerUpdate.LightweightToFullPc", {
+        characterId: guid,
+      });
+    } else if (server._vehicles[guid]) {
+      /*server.sendData(client, "PlayerUpdate.LightweightToFullVehicle", {
+      characterId: guid,
+      });*/
+      debug("LightweightToFullVehicle");
+    }
   },
 };
 

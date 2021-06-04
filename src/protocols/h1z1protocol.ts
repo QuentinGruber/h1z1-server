@@ -50,9 +50,6 @@ export class H1Z1Protocol {
       case "ClientProtocol_860": // normal client from 15 january 2015
         this.H1Z1Packets = require("../packets/ClientProtocol/ClientProtocol_860/h1z1packets");
         break;
-      case "ClientProtocol_948": // admin client
-        this.H1Z1Packets = require("../packets/ClientProtocol/ClientProtocol_948/h1z1packets");
-        break;
       default:
         debug(`Protocol ${this.protocolName} unsupported !`);
         process.exit();
@@ -291,7 +288,7 @@ export class H1Z1Protocol {
     };
   }
 
-  pack(packetName: string, object: Buffer, referenceData: any) {
+  pack(packetName: string, object?: any, referenceData?: any) {
     const { H1Z1Packets } = this;
     var packetType: number = H1Z1Packets.PacketTypes[packetName],
       packet = H1Z1Packets.Packets[packetType],

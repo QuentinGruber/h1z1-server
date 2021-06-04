@@ -12,7 +12,9 @@
 
 const PackageSetting = require("./package.json");
 
-console.log(PackageSetting.name + " V" + PackageSetting.version);
+console.log(
+  `${PackageSetting.name} V${PackageSetting.version} by H1emu community`
+);
 console.log(`Node ${process.version}`);
 
 exports.SOEInputStream =
