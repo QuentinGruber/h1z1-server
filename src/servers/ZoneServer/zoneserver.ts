@@ -35,7 +35,7 @@ const spawnLocations = require("../../../data/sampleData/spawnLocations.json");
 const localWeatherTemplates = require("../../../data/sampleData/weather.json");
 const stats = require("../../../data/sampleData/stats.json");
 const recipes = require("../../../data/sampleData/recipes.json");
-const ressources = require("../../../data/dataSources/Resources.json");
+const resources = require("../../../data/dataSources/Resources.json");
 const Z1_POIs = require("../../../data/zoneData/Z1_POIs");
 
 export class ZoneServer extends EventEmitter {
@@ -518,18 +518,18 @@ export class ZoneServer extends EventEmitter {
       client.character.state.rotation = self.data.rotation;
     }
     const characterResources: any[] = [];
-    ressources.forEach((ressource: any) => {
+    resources.forEach((resource: any) => {
       characterResources.push({
-        resourceType: ressource.RESOURCE_TYPE,
+        resourceType: resource.RESOURCE_TYPE,
         resourceData: {
           subResourceData: {
-            resourceId: ressource.ID,
-            resourceType: ressource.RESOURCE_TYPE,
+            resourceId: resource.ID,
+            resourceType: resource.RESOURCE_TYPE,
             unknownArray1: [],
           },
           unknownData2: {
-            max_value: ressource.MAX_VALUE,
-            initial_value: ressource.INITIAL_VALUE,
+            max_value: resource.MAX_VALUE,
+            initial_value: resource.INITIAL_VALUE,
           },
         },
       });
