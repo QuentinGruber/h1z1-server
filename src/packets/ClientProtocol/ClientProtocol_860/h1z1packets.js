@@ -5770,8 +5770,28 @@ var packets = [
             ],
         },
     ],
-    ["ShowSystemMessage", 0x43, {}],
-    ["POIChangeMessage", 0x44, {}],
+    [
+        "ShowSystemMessage", 
+        0x43, {
+            fields: [
+                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                { name: "message", type: "string", defaultValue: "" },
+                { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+                { name: "color", type: "uint32", defaultValue: 0 },
+            ]
+        }
+    ],
+    [
+        "POIChangeMessage", 
+        0x44, 
+        {
+            fields: [
+                { name: "messageStringId", type: "uint32", defaultValue: 0 },
+                { name: "id", type: "uint32", defaultValue: 0 },
+                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            ]
+        }
+    ],
     ["ClientMetrics", 0x45, {}],
     ["FirstTimeEvent", 0x46, {}],
     ["Claim", 0x47, {}],

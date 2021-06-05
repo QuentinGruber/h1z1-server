@@ -432,6 +432,20 @@ const hax = {
     server.sendChatText(client, "Setting character resource");
     server.sendData(client, "ResourceEvent", resourceEvent);
   },
+  systemmessage: function (server, client, args) {
+    if(!args[1]){
+      server.sendChatText(client, "Missing 'message' parameter");
+      return;
+    }
+    const msg = {
+      unknownDword1: 0,
+      message: args[1],
+      unknownDword2: 0,
+      color: 2
+    };
+    server.sendChatText(client, "Sending system message");
+    server.sendData(client, "ShowSystemMessage", msg);
+  },
 };
 
 export default hax;
