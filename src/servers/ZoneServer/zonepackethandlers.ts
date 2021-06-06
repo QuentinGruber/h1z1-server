@@ -134,6 +134,11 @@ const packetHandlers: any = {
       serverTime2: Int64String(server.getServerTime()),
     });
     server.sendData(client, "ZoneDoneSendingInitialData", {});
+
+    server.sendData(client, "PlayerUpdate.UpdateCharacterState", {
+      characterId: client.character.characterId,
+      gameTime: Int64String(server.getGameTime()),
+    });
   },
   ClientFinishedLoading: function (
     server: ZoneServer,
