@@ -297,9 +297,7 @@ const packetHandlers: any = {
   ClientLogout: function (server: ZoneServer, client: Client, packet: any) {
     debug("ClientLogout");
     server.saveCharacterPosition(client);
-    server.sendDataToAllOthers(client, "PlayerUpdate.RemovePlayer", {
-      characterId: client.character.characterId,
-    });
+    server.deleteEntity(client.character.characterId,server._characters);
     server._gatewayServer._soeServer.deleteClient(client);
     delete server._characters[client.character.characterId];
     delete server._clients[client.sessionId];
@@ -1328,11 +1326,7 @@ const packetHandlers: any = {
       server.sendData(client, "ClientUpdate.TextAlert", {
         message: pickupMessage,
       });
-
-      server.sendDataToAll("PlayerUpdate.RemovePlayer", {
-        characterId: objectToPickup.characterId,
-      });
-      delete server._objects[objectToPickup.characterId];
+      server.deleteEntity(objectToPickup.characterId,server._objects);
     }
   },
   "PlayerUpdate.Respawn": function (

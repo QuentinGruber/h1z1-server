@@ -722,7 +722,7 @@ export class ZoneServer extends EventEmitter {
         : object.npcData.characterId;
       this.sendData(
         client,
-        "PlayerUpdate.RemovePlayer",
+        "PlayerUpdate.RemovePlayerGracefully",
         {
           characterId,
         },
@@ -779,22 +779,22 @@ export class ZoneServer extends EventEmitter {
 
   despawnEntity(characterId: string) {
     this.sendDataToAll(
-      "PlayerUpdate.RemovePlayer",
+      "PlayerUpdate.RemovePlayerGracefully",
       {
         characterId: characterId,
       },
       1
-    );
+    )
   }
 
   deleteEntity(characterId: string, dictionnary: any) {
     this.sendDataToAll(
-      "PlayerUpdate.RemovePlayer",
+      "PlayerUpdate.RemovePlayerGracefully",
       {
         characterId: characterId,
       },
       1
-    );
+    )
     delete dictionnary[characterId];
   }
 

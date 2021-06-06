@@ -83,11 +83,13 @@ const hax: any = {
   },
   despawnObjects: function (server: ZoneServer, client: Client, args: any[]) {
     client.spawnedEntities.forEach((object) => {
-      server.despawnEntity(object.characterId);
+        server.despawnEntity(object.characterId?object.characterId:object.npcData.characterId);
     });
     client.spawnedEntities = [];
     server._npcs = {};
     server._objects = {};
+    server._vehicles = {};
+    server._doors = {};
     server.sendChatText(client, "Objects removed from the game.", true);
   },
   spamOffroader: function (server: ZoneServer, client: Client, args: any[]) {

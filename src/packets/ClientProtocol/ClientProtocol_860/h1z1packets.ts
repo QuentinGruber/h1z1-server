@@ -5050,13 +5050,13 @@ var packets = [
     0x0f010100,
     {
       fields: [
-        { name: "guid", type: "uint64", defaultValue: "0" },
+        { name: "characterId", type: "uint64", defaultValue: "0" },
         { name: "unknown5", type: "boolean", defaultValue: false },
-        { name: "unknown6", type: "uint32", defaultValue: 0 },
+        { name: "unknown6", type: "uint32", defaultValue: 1 },
         { name: "unknown7", type: "uint32", defaultValue: 0 },
-        { name: "unknown8", type: "uint32", defaultValue: 0 },
-        { name: "unknown9", type: "uint32", defaultValue: 0 },
-        { name: "unknown10", type: "uint32", defaultValue: 0 },
+        { name: "unknown8", type: "uint32", defaultValue: 1528 },
+        { name: "unknown9", type: "uint32", defaultValue: 1528 },
+        { name: "timeToDisappear", type: "uint32", defaultValue: 0 },
       ],
     },
   ],
