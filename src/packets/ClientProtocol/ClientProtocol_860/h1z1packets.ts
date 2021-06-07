@@ -5054,7 +5054,7 @@ var packets = [
         { name: "unknown5", type: "boolean", defaultValue: false },
         { name: "unknown6", type: "uint32", defaultValue: 1 },
         { name: "effectDelay", type: "uint32", defaultValue: 0 },
-        { name: "effectId", type: "uint32", defaultValue: 5034 }, // effect that stays at first object position, 5034 - lighter fire 4fun
+        { name: "effectId", type: "uint32", defaultValue: 0 }, // effect that stays at first object position
         { name: "stickyEffectId", type: "uint32", defaultValue: 0 }, // effect that follows object
         { name: "timeToDisappear", type: "uint32", defaultValue: 0 },
       ],
