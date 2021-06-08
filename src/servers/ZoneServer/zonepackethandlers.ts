@@ -453,30 +453,11 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
-    server.sendData(client, "Command.InteractionString", {
-      guid: packet.data.guid,
-      stringId: 5463,
-      unknown4: 0,
-    });
-    server.sendData(client, "Command.InteractionList", {
-      guid: packet.data.guid,
-      unknownBoolean1: true,
-      unknownArray1: [
-        {
-          unknownDword1: 11,
-          unknownDword2: 0,
-          unknownDword3: 5463,
-          unknownDword4: 51,
-          unknownDword5: 1,
-          unknownDword6: 0,
-          unknownDword7: 0,
-        },
-      ],
-      unknownString1: "",
-      unknownBoolean2: true,
-      unknownArray2: [],
-      unknownBoolean3: false,
-    });
+   server.sendData(client, "Command.InteractionList", {
+        guid:packet.data.guid,
+        unknownArray1: [{unknownDword1:0,unknownDword2:0,unknownDword3:0,unknownDword4:0,unknownDword5:0,unknownDword6:0,unknownDword7:0}],
+        unknownArray2: [{unknownString1:"test",unknownDword1:0,unknownDword2:0,unknownDword3:0,unknownDword4:0,unknownDword5:0,unknownDword6:0,unknownDword7:0}],
+      });
   },
   "Command.InteractionString": function (
     server: ZoneServer,
@@ -532,11 +513,8 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
-    server.sendData(client, "Loadout.SetLoadouts", {
-      type: 2,
-      guid: packet.data.guid,
-      unknownDword1: 1,
-    });
+    debug(packet)
+    debug("select")
   },
   "Vehicle.Spawn": function (server: ZoneServer, client: Client, packet: any) {
     server.sendData(client, "Vehicle.Expiration", {
