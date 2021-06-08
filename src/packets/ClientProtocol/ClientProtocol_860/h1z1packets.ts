@@ -5806,7 +5806,20 @@ var packets = [
       ],
     },
   ],
-  ["PlayerUpdate.AggroLevel", 0x0f69, {}],
+  [
+    "PlayerUpdate.AggroLevel",
+    0x0f69,
+    {
+      fields: [
+        {
+          name: "characterId",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        { name: "aggroLevel", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
   [
     "PlayerUpdate.DoorState",
     0x0f6a,
