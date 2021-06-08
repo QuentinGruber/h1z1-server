@@ -116,7 +116,7 @@ const dev: any = {
     server.sendData(client, "PlayerUpdate.AddLightweightVehicle", vehicleData);
   },
   findModel: function (server: ZoneServer, client: Client, args: any[]) {
-    const models = require("../../../../data/dataSources/Models.json");
+    const models = require("../../../../data/2015/dataSources/Models.json");
     const wordFilter = args[1];
     if (wordFilter) {
       const result = models.filter((word: any) =>

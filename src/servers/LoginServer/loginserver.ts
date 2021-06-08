@@ -110,7 +110,7 @@ export class LoginServer extends EventEmitter {
             case "CharacterSelectInfoRequest": {
               let CharactersInfo;
               if (this._soloMode) {
-                const SinglePlayerCharacter = require("../../../data/sampleData/single_player_character.json");
+                const SinglePlayerCharacter = require("../../../data/2015/sampleData/single_player_character.json");
 
                 const cowboy = _.cloneDeep(SinglePlayerCharacter); // for fun 🤠
                 cowboy.characterId = "0x0000000000000001";
@@ -151,7 +151,7 @@ export class LoginServer extends EventEmitter {
                     .toArray();
                 } else {
                   if (this._soloMode) {
-                    const SoloServer = require("../../../data/sampleData/single_player_server.json");
+                    const SoloServer = require("../../../data/2015/sampleData/single_player_server.json");
                     servers = [SoloServer];
                   }
                 }

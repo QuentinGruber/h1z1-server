@@ -1,10 +1,10 @@
 const debug = require("debug")("baseEntityCreator");
-const Z1_vehicles = require("../../../../data/sampleData/vehicleLocations.json");
-const Z1_items = require("../../../../data/zoneData/Z1_items.json");
-const Z1_doors = require("../../../../data/zoneData/Z1_doors.json");
-const Z1_npcs = require("../../../../data/zoneData/Z1_npcs.json");
-const models = require("../../../../data/dataSources/Models.json");
-const modelToName = require("../../../../data/sampleData/ModelToName.json");
+const Z1_vehicles = require("../../../../data/2015/sampleData/vehicleLocations.json");
+const Z1_items = require("../../../../data/2015/zoneData/Z1_items.json");
+const Z1_doors = require("../../../../data/2015/zoneData/Z1_doors.json");
+const Z1_npcs = require("../../../../data/2015/zoneData/Z1_npcs.json");
+const models = require("../../../../data/2015/dataSources/Models.json");
+const modelToName = require("../../../../data/2015/sampleData/ModelToName.json");
 import _ from "lodash";
 import { generateRandomGuid } from "../../../utils/utils";
 const npcs: any = {};

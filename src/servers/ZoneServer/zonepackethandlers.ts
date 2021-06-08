@@ -23,7 +23,7 @@ import admin from "./commands/admin";
 import { Int64String, isPosInRadius } from "../../utils/utils";
 import { ZoneServer } from "./zoneserver";
 import { Client } from "types/zoneserver";
-const modelToName = require("../../../data/sampleData/ModelToName.json");
+const modelToName = require("../../../data/2015/sampleData/ModelToName.json");
 
 
 
@@ -1184,7 +1184,7 @@ const packetHandlers: any = {
     server.sendData(
       client,
       "ProfileStats.PlayerProfileStats",
-      require("../../../data/sampleData/profilestats.json")
+      require("../../../data/2015/sampleData/profilestats.json")
     );
   },
   Pickup: function (server: ZoneServer, client: Client, packet: any) {
