@@ -15,6 +15,7 @@ const debug = require("debug")(debugName);
 import { default as packetHandlers } from "./zonepackethandlers";
 import { ZoneServer } from "servers/ZoneServer/zoneserver";
 import { Client } from "types/zoneserver";
+import { H1Z1Protocol } from "protocols/h1z1protocol";
 
 export class ZoneServer2016 extends ZoneServer {
   constructor(
@@ -23,6 +24,7 @@ export class ZoneServer2016 extends ZoneServer {
     mongoAddress: string = ""
   ) {
     super(serverPort,gatewayKey,mongoAddress)
+    this._protocol = new H1Z1Protocol("ClientProtocol_1080")
     this._packetHandlers = packetHandlers
   }
   spawnNpcs(client:Client){
