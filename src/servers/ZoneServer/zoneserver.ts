@@ -602,7 +602,7 @@ export class ZoneServer extends EventEmitter {
         this.sendData(
           client,
           "PlayerUpdate.AddLightweightNpc",
-          {...this._npcs[npc],profileId:65},
+          { ...this._npcs[npc], profileId: 65 },
           1
         );
         client.spawnedEntities.push(this._npcs[npc]);
@@ -745,7 +745,7 @@ export class ZoneServer extends EventEmitter {
           this.sendData(
             client,
             "PlayerUpdate.AddLightweightNpc",
-            {...this._objects[object],profileId:10},
+            { ...this._objects[object], profileId: 10 },
             1
           );
           client.spawnedEntities.push(this._objects[object]);
@@ -784,7 +784,7 @@ export class ZoneServer extends EventEmitter {
         characterId: characterId,
       },
       1
-    )
+    );
   }
 
   deleteEntity(characterId: string, dictionnary: any) {
@@ -794,7 +794,7 @@ export class ZoneServer extends EventEmitter {
         characterId: characterId,
       },
       1
-    )
+    );
     delete dictionnary[characterId];
   }
 

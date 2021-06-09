@@ -25,8 +25,6 @@ import { ZoneServer } from "./zoneserver";
 import { Client } from "types/zoneserver";
 const modelToName = require("../../../data/sampleData/ModelToName.json");
 
-
-
 const _ = require("lodash");
 const debug = require("debug")("zonepacketHandlers");
 
@@ -302,7 +300,7 @@ const packetHandlers: any = {
   ClientLogout: function (server: ZoneServer, client: Client, packet: any) {
     debug("ClientLogout");
     server.saveCharacterPosition(client);
-    server.deleteEntity(client.character.characterId,server._characters);
+    server.deleteEntity(client.character.characterId, server._characters);
     server._gatewayServer._soeServer.deleteClient(client);
     delete server._characters[client.character.characterId];
     delete server._clients[client.sessionId];
@@ -453,20 +451,41 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
-		server.sendData(client, "Mount.DismountResponse", {
-            characterId: client.character.characterId,
-        });		
+    server.sendData(client, "Mount.DismountResponse", {
+      characterId: client.character.characterId,
+    });
   },
   "Command.InteractRequest": function (
     server: ZoneServer,
     client: Client,
     packet: any
   ) {
-   server.sendData(client, "Command.InteractionList", {
-        guid:packet.data.guid,
-        unknownArray1: [{unknownDword1:0,unknownDword2:0,unknownDword3:0,unknownDword4:0,unknownDword5:0,unknownDword6:0,unknownDword7:0}],
-        unknownArray2: [{unknownString1:"test",unknownDword1:0,unknownDword2:0,unknownDword3:0,unknownDword4:0,unknownDword5:0,unknownDword6:0,unknownDword7:0}],
-      });
+    server.sendData(client, "Command.InteractionList", {
+      guid: packet.data.guid,
+      unknownArray1: [
+        {
+          unknownDword1: 0,
+          unknownDword2: 0,
+          unknownDword3: 0,
+          unknownDword4: 0,
+          unknownDword5: 0,
+          unknownDword6: 0,
+          unknownDword7: 0,
+        },
+      ],
+      unknownArray2: [
+        {
+          unknownString1: "test",
+          unknownDword1: 0,
+          unknownDword2: 0,
+          unknownDword3: 0,
+          unknownDword4: 0,
+          unknownDword5: 0,
+          unknownDword6: 0,
+          unknownDword7: 0,
+        },
+      ],
+    });
   },
   "Command.InteractionString": function (
     server: ZoneServer,
@@ -522,8 +541,8 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
-    debug(packet)
-    debug("select")
+    debug(packet);
+    debug("select");
   },
   "Vehicle.Spawn": function (server: ZoneServer, client: Client, packet: any) {
     server.sendData(client, "Vehicle.Expiration", {
@@ -1306,19 +1325,45 @@ const packetHandlers: any = {
     packet: any
   ) {
     debug(packet);
-    const objectToPickup = server._objects[packet.data.guid]
-    if(objectToPickup && isPosInRadius(
-      server._interactionDistance,
-      client.character.state.position,
-      objectToPickup.position
-    )){
+    // Maybe we should move all that logic to Command.InteractionSelect
+    const objectToPickup = server._objects[packet.data.guid];
+    const vehicleToMount = server._vehicles[packet.data.guid];
+    if (
+      objectToPickup &&
+      isPosInRadius(
+        server._interactionDistance,
+        client.character.state.position,
+        objectToPickup.position
+      )
+    ) {
       // TODO : use strings from the game, will add to h1z1-string-finder the option to export to JSON
-      const model_index = modelToName.findIndex((x:any) => x.modelId === objectToPickup.modelId);
-      const pickupMessage = modelToName[model_index]?.itemName
+      const model_index = modelToName.findIndex(
+        (x: any) => x.modelId === objectToPickup.modelId
+      );
+      const pickupMessage = modelToName[model_index]?.itemName;
       server.sendData(client, "ClientUpdate.TextAlert", {
         message: pickupMessage,
       });
-      server.deleteEntity(objectToPickup.characterId,server._objects);
+      server.deleteEntity(objectToPickup.characterId, server._objects);
+    }
+    else if (
+      vehicleToMount &&
+      isPosInRadius(
+        server._interactionDistance,
+        client.character.state.position,
+        vehicleToMount.npcData.position
+      )
+    ) {
+      const {characterId:vehicleGuid} = vehicleToMount.npcData;
+      server.sendData(client, "PlayerUpdate.ManagedObject", {
+        guid: vehicleGuid,
+        characterId: client.character.characterId,
+      });
+      server.sendData(client, "Mount.MountResponse", {
+        characterId: client.character.characterId,
+        guid: vehicleGuid,
+        characterData: [],
+      });
     }
   },
   "PlayerUpdate.Respawn": function (
