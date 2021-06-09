@@ -441,14 +441,12 @@ const hax: any = {
       runSpeed: speed,
     });
   },
-  hell: function (server: ZoneServer, client: Client, args: any[]) {
-    server.sendChatText(
-      client,
-      "[DEPRECATED] use '/hax randomWeather' instead",
-      true
-    );
-  },
   randomWeather: function (server: ZoneServer, client: Client, args: any[]) {
+    if (server._dynamicWeatherInterval) {
+      clearInterval(server._dynamicWeatherInterval);
+      server._dynamicWeatherInterval = null;
+      server.sendChatText(client, "Dynamic weather removed !");
+    }
     debug("Randomized weather");
     server.sendChatText(client, `Randomized weather`);
 
