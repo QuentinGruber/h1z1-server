@@ -3773,7 +3773,7 @@ var packets = [
     0x090900,
     {
       fields: [
-       // { name: "unk", type: "uint16", defaultValue: 0 },
+        // { name: "unk", type: "uint16", defaultValue: 0 },
         { name: "guid", type: "uint64", defaultValue: "0" },
         { name: "unknownBoolean1", type: "boolean", defaultValue: true },
         {
@@ -7319,7 +7319,11 @@ var packets = [
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
             { name: "unknownDword2", type: "uint32", defaultValue: 0 },
             { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-            { name: "characterName", type: "string", defaultValue: "LocalPlayer" },
+            {
+              name: "characterName",
+              type: "string",
+              defaultValue: "LocalPlayer",
+            },
             { name: "unknownString1", type: "string", defaultValue: "" },
           ],
         },

@@ -332,8 +332,8 @@ export class SOEServer extends EventEmitter {
           (client as any).outputStream.resendData(result.sequence);
           break;
         case "Ack":
-          if(result.sequence > 50000){
-            console.log("Warn Ack, sequence ",result.sequence)
+          if (result.sequence > 50000) {
+            console.log("Warn Ack, sequence ", result.sequence);
           }
           debug("Ack, sequence " + result.sequence);
           (client as any).outputStream.ack(result.sequence);

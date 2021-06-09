@@ -9,88 +9,102 @@ let isSonic = false;
 let isVehicle = false;
 
 const hax: any = {
- driveTest: function (server: ZoneServer, client: Client, args: any[]) {
-	    if (!args[1]) {
-           server.sendChatText(client, "[ERROR] You need to specify a vehicle model ID !");
-           return;
-        }
-	    const driveModel = Number(args[1]);
-		const characterId = server.generateGuid();
-		const guid = server.generateGuid();
-        const vehicleData = {
-            npcData: {
-                guid: guid,
-                transientId: 999999,
-				characterId: characterId,
-                modelId: driveModel,
-                scale: [1, 1, 1, 1],
-                position: client.character.state.position,
-				rotation: client.character.state.lookAt,
-				vehicleId: 1,
-                attachedObject: {},
-                color: {},
-                unknownArray1: [],
-                array5: [{ unknown1: 0 }],
-                array17: [{ unknown1: 0 }],
-                array18: [{ unknown1: 0 }],
-            },
-            unknownDword1: 10,
-            unknownDword2: 10,
-            positionUpdate: server.createPositionUpdate(new Float32Array([0, 0, 0, 0]), [0, 0, 0, 0]),
-            unknownString1: "",
-        };
-        server.sendData(client, "PlayerUpdate.AddLightweightVehicle", vehicleData);
-		server._vehicles[characterId] = vehicleData;
-        server.sendData(client, "PlayerUpdate.ManagedObject", {
-            guid: characterId,
-            characterId: client.character.characterId,
-        });
-		server.sendData(client, "Mount.MountResponse", {
+  driveTest: function (server: ZoneServer, client: Client, args: any[]) {
+    if (!args[1]) {
+      server.sendChatText(
+        client,
+        "[ERROR] You need to specify a vehicle model ID !"
+      );
+      return;
+    }
+    const driveModel = Number(args[1]);
+    const characterId = server.generateGuid();
+    const guid = server.generateGuid();
+    const vehicleData = {
+      npcData: {
+        guid: guid,
+        transientId: 999999,
+        characterId: characterId,
+        modelId: driveModel,
+        scale: [1, 1, 1, 1],
+        position: client.character.state.position,
+        rotation: client.character.state.lookAt,
+        vehicleId: 1,
+        attachedObject: {},
+        color: {},
+        unknownArray1: [],
+        array5: [{ unknown1: 0 }],
+        array17: [{ unknown1: 0 }],
+        array18: [{ unknown1: 0 }],
+      },
+      unknownDword1: 10,
+      unknownDword2: 10,
+      positionUpdate: server.createPositionUpdate(
+        new Float32Array([0, 0, 0, 0]),
+        [0, 0, 0, 0]
+      ),
+      unknownString1: "",
+    };
+    server.sendData(client, "PlayerUpdate.AddLightweightVehicle", vehicleData);
+    server._vehicles[characterId] = vehicleData;
+    server.sendData(client, "PlayerUpdate.ManagedObject", {
+      guid: characterId,
       characterId: client.character.characterId,
-guid: characterId,
-characterData: [],
-  });
-    },
+    });
+    server.sendData(client, "Mount.MountResponse", {
+      characterId: client.character.characterId,
+      guid: characterId,
+      characterData: [],
+    });
+  },
 
- parachute: function (server: ZoneServer, client: Client, args: any[]) {
-		const characterId = server.generateGuid();
-		const guid = server.generateGuid();
-		let posY = client.character.state.position[1] + 700;
-        const vehicleData = {
-            npcData: {
-                guid: guid,
-                transientId: 999999,
-				characterId: characterId,
-                modelId: 9374,
-                scale: [1, 1, 1, 1],
-                position: [client.character.state.position[0], posY, client.character.state.position[2], client.character.state.position[3]],
-				rotation: client.character.state.lookAt,
-				vehicleId: 13,
-                attachedObject: {},
-                color: {},
-                unknownArray1: [],
-                array5: [{ unknown1: 0 }],
-                array17: [{ unknown1: 0 }],
-                array18: [{ unknown1: 0 }],
-            },
-            unknownDword1: 10,
-            unknownDword2: 10,
-            positionUpdate: server.createPositionUpdate(new Float32Array([0, 0, 0, 0]), [0, 0, 0, 0]),
-            unknownString1: "",
-        };
-        server.sendData(client, "PlayerUpdate.AddLightweightVehicle", vehicleData);
-		server._vehicles[characterId] = vehicleData;
-        server.sendData(client, "PlayerUpdate.ManagedObject", {
-            guid: characterId,
-            characterId: client.character.characterId,
-        });
-		server.sendData(client, "Mount.MountResponse", {
+  parachute: function (server: ZoneServer, client: Client, args: any[]) {
+    const characterId = server.generateGuid();
+    const guid = server.generateGuid();
+    let posY = client.character.state.position[1] + 700;
+    const vehicleData = {
+      npcData: {
+        guid: guid,
+        transientId: 999999,
+        characterId: characterId,
+        modelId: 9374,
+        scale: [1, 1, 1, 1],
+        position: [
+          client.character.state.position[0],
+          posY,
+          client.character.state.position[2],
+          client.character.state.position[3],
+        ],
+        rotation: client.character.state.lookAt,
+        vehicleId: 13,
+        attachedObject: {},
+        color: {},
+        unknownArray1: [],
+        array5: [{ unknown1: 0 }],
+        array17: [{ unknown1: 0 }],
+        array18: [{ unknown1: 0 }],
+      },
+      unknownDword1: 10,
+      unknownDword2: 10,
+      positionUpdate: server.createPositionUpdate(
+        new Float32Array([0, 0, 0, 0]),
+        [0, 0, 0, 0]
+      ),
+      unknownString1: "",
+    };
+    server.sendData(client, "PlayerUpdate.AddLightweightVehicle", vehicleData);
+    server._vehicles[characterId] = vehicleData;
+    server.sendData(client, "PlayerUpdate.ManagedObject", {
+      guid: characterId,
       characterId: client.character.characterId,
-guid: characterId,
-characterData: [],
-  });
-    },
-	
+    });
+    server.sendData(client, "Mount.MountResponse", {
+      characterId: client.character.characterId,
+      guid: characterId,
+      characterData: [],
+    });
+  },
+
   time: function (server: ZoneServer, client: Client, args: any[]) {
     const choosenHour: number = Number(args[1]);
     if (choosenHour < 0) {
@@ -165,7 +179,9 @@ characterData: [],
   },
   despawnObjects: function (server: ZoneServer, client: Client, args: any[]) {
     client.spawnedEntities.forEach((object) => {
-        server.despawnEntity(object.characterId?object.characterId:object.npcData.characterId);
+      server.despawnEntity(
+        object.characterId ? object.characterId : object.npcData.characterId
+      );
     });
     client.spawnedEntities = [];
     server._npcs = {};
@@ -242,9 +258,13 @@ characterData: [],
     }
     const choosenModelId = Number(args[1]);
     const characterId = server.generateGuid();
-	if (choosenModelId === 7225 || choosenModelId === 9301 || choosenModelId === 9258) {
-			isVehicle = true;
-		}
+    if (
+      choosenModelId === 7225 ||
+      choosenModelId === 9301 ||
+      choosenModelId === 9258
+    ) {
+      isVehicle = true;
+    }
     const npc = {
       characterId: characterId,
       guid: guid,
@@ -253,13 +273,13 @@ characterData: [],
       position: client.character.state.position,
       rotation: client.character.state.lookAt,
       attachedObject: {},
-	  unknown26: isVehicle,
+      unknown26: isVehicle,
       color: {},
       array5: [{ unknown1: 0 }],
       array17: [{ unknown1: 0 }],
       array18: [{ unknown1: 0 }],
     };
-	isVehicle = false;
+    isVehicle = false;
     server.sendData(client, "PlayerUpdate.AddLightweightNpc", npc);
     server._npcs[characterId] = npc; // save npc
   },
@@ -323,10 +343,10 @@ characterData: [],
     server.sendChatText(client, "Dynamic weather removed !");
   },
   weather: function (server: ZoneServer, client: Client, args: any[]) {
-    if(server._dynamicWeatherInterval){
+    if (server._dynamicWeatherInterval) {
       clearInterval(server._dynamicWeatherInterval);
       server._dynamicWeatherInterval = null;
-      server.sendChatText(client, "Dynamic weather removed !")
+      server.sendChatText(client, "Dynamic weather removed !");
     }
     const weatherTemplate = server._soloMode
       ? server._weatherTemplates[args[1]]
