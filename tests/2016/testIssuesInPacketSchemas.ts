@@ -1,5 +1,5 @@
-import { H1Z1Protocol } from "../h1z1-server.js";
-const { H1Z1Packets } = new H1Z1Protocol("ClientProtocol_860");
+import { H1Z1Protocol } from "../../h1z1-server";
+const { H1Z1Packets } = new H1Z1Protocol("ClientProtocol_1080");
 
 Object.values(H1Z1Packets.Packets).forEach((packet: any) => {
   const { schema } = packet;
