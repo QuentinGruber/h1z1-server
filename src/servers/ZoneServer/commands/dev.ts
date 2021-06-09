@@ -12,7 +12,11 @@ const dev: any = {
       time: 0,
     });
   },
-  testManagedObject: function (server: ZoneServer, client: Client, args: any[]) {
+  testManagedObject: function (
+    server: ZoneServer,
+    client: Client,
+    args: any[]
+  ) {
     const vehicleId = generateRandomGuid();
     const vehicleData = {
       npcData: {

@@ -3773,7 +3773,7 @@ var packets = [
     0x090900,
     {
       fields: [
-       // { name: "unk", type: "uint16", defaultValue: 0 },
+        // { name: "unk", type: "uint16", defaultValue: 0 },
         { name: "guid", type: "uint64", defaultValue: "0" },
         { name: "unknownBoolean1", type: "boolean", defaultValue: true },
         {
@@ -7302,32 +7302,36 @@ var packets = [
   ["ActivityService.ScheduledActivity.ListOfActivities", 0x6f0201, {}],
   ["Mount.MountRequest", 0x7001, {}],
   [
-        "Mount.MountResponse",
-        0x7002,
+    "Mount.MountResponse",
+    0x7002,
+    {
+      fields: [
+        { name: "characterId", type: "uint64", defaultValue: "0" },
+        { name: "guid", type: "uint64", defaultValue: "0" },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 }, // seat 0-3
+        { name: "unknownDword2", type: "uint32", defaultValue: 1 }, // must be 1 or we dont get into vehicle?
+        { name: "unknownDword3", type: "uint32", defaultValue: 1 }, // is driver? (you can be on seat 3 and still have control)
+        { name: "unknownDword4", type: "uint32", defaultValue: 0 }, // colored lines on screen
         {
-            fields: [
-                { name: "vehicleCharacterId", type: "uint64", defaultValue: "0" },
-                { name: "clientCharacterId", type: "uint64", defaultValue: "0" },
-                { name: "unknownDword1", type: "uint32", defaultValue: 0 }, // seat 0-3
-                { name: "unknownDword2", type: "uint32", defaultValue: 1 }, // must be 1 or we dont get into vehicle?
-                { name: "unknownDword3", type: "uint32", defaultValue: 1 }, // is driver? (you can be on seat 3 and still have control)
-                { name: "unknownDword4", type: "uint32", defaultValue: 0 }, // colored lines on screen
-                {
-                    name: "characterData",
-                    type: "schema",
-                    fields: [
-                        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-                        { name: "characterName", type: "string", defaultValue: "LocalPlayer" },
-                        { name: "unknownString1", type: "string", defaultValue: "" },
-                    ],
-                },
-                { name: "tagString", type: "string", defaultValue: "" },
-                { name: "unknownDword5", type: "uint32", defaultValue: 0 },
-            ],
+          name: "characterData",
+          type: "schema",
+          fields: [
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+            {
+              name: "characterName",
+              type: "string",
+              defaultValue: "LocalPlayer",
+            },
+            { name: "unknownString1", type: "string", defaultValue: "" },
+          ],
         },
-    ],
+        { name: "tagString", type: "string", defaultValue: "" },
+        { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
   [
     "Mount.DismountRequest",
     0x7003,
