@@ -13,9 +13,9 @@
 const debugName = "ZoneServer";
 const debug = require("debug")(debugName);
 import { default as packetHandlers } from "./zonepackethandlers";
-import { ZoneServer } from "servers/ZoneServer/zoneserver";
-import { Client } from "types/zoneserver";
-import { H1Z1Protocol } from "protocols/h1z1protocol";
+import { ZoneServer } from "../ZoneServer/zoneserver";
+import { Client } from "../../types/zoneserver";
+import { H1Z1Protocol } from "../../protocols/h1z1protocol";
 
 export class ZoneServer2016 extends ZoneServer {
   constructor(
