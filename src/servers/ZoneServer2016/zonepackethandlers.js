@@ -24,7 +24,7 @@ import { Int64String } from "../../utils/utils";
 const packetHandlers = {
   ClientIsReady: function (server, client, packet) {
     // clientBeginZoning re-enabled
-    server.sendData(client, "ClientBeginZoning", {});// Needed for trees
+    server.sendData(client, "ClientBeginZoning", {}); // Needed for trees
 
     server.sendData(client, "QuickChat.SendData", { commands: [] });
 
@@ -37,7 +37,7 @@ const packetHandlers = {
       done: 1,
     }); // Required for WaitForWorldReady
     */
-   
+
     server.sendData(client, "ClientUpdate.UpdateStat", { stats: [] });
 
     //server.sendData(client, "Operation.ClientClearMissions", {});
@@ -97,13 +97,13 @@ const packetHandlers = {
       gameTime: (server.getServerTime() & 0xffffffff) >>> 0,
     });
     server.sendGameTimeSync(client);
-    
+
     client.character.currentLoadoutId = 3;
     server.sendData(client, "Loadout.SetCurrentLoadout", {
       guid: client.character.guid,
       loadoutId: client.character.currentLoadoutId,
     });
-    
+
     server.sendData(client, "ZoneDoneSendingInitialData", {}); // Required for WaitForWorldReady
 
     const commands = [
@@ -131,7 +131,7 @@ const packetHandlers = {
     });
   },
   ClientFinishedLoading: function (server, client, packet) {
-    server.spawnAllNpc(client);
+    server.spawnNpcs(client);
     server.sendData(client, "POIChangeMessage", {
       messageStringId: 20,
       id: 99,
@@ -198,10 +198,10 @@ const packetHandlers = {
   },
   "Chat.Chat": function (server, client, packet) {
     const { channel, message } = packet.data;
-    debug(`****\nCHANNEL: ${channel} MESSAGE: ${message}\n****`)
-    debug("DATA*****\n")
-    debug(packet.data)
-    debug("\n\n\n\n")
+    debug(`****\nCHANNEL: ${channel} MESSAGE: ${message}\n****`);
+    debug("DATA*****\n");
+    debug(packet.data);
+    debug("\n\n\n\n");
     server.sendChat(client, message, channel);
   },
   "Loadout.SelectSlot": function (server, client, packet) {
@@ -891,10 +891,7 @@ const packetHandlers = {
                         unknownDword6: 0,
                         position: packet.data.position,
                         unknownVector1: [
-                          0,
-                          -0.7071066498756409,
-                          0,
-                          0.70710688829422,
+                          0, -0.7071066498756409, 0, 0.70710688829422,
                         ],
                         rotation: [packet.data.heading, 0, 0, 0],
                         unknownDword7: 0,
@@ -1070,9 +1067,14 @@ const packetHandlers = {
     const guid = packet.data.guid;
     const transientId = server.getTransientId(client, guid);
     server.sendData(client, "LightweightToFullPc", {
-      fullPcSubDataSchema1: {transientIdMaybe: transientId},
+      fullPcSubDataSchema1: { transientIdMaybe: transientId },
       array1: [],
-      unknownData1: {transientId: transientId, unknownData1: {}, array1: [], array2: [],},
+      unknownData1: {
+        transientId: transientId,
+        unknownData1: {},
+        array1: [],
+        array2: [],
+      },
     });
   },
 };
