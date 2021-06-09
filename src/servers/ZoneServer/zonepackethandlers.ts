@@ -448,6 +448,15 @@ const packetHandlers: any = {
       unknown2: 1,
     });
   },
+  "Mount.DismountRequest": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
+		server.sendData(client, "Mount.DismountResponse", {
+            characterId: client.character.characterId,
+        });		
+  },
   "Command.InteractRequest": function (
     server: ZoneServer,
     client: Client,
