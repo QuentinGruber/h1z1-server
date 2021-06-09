@@ -1,4 +1,4 @@
-const { ZoneServer } = require("../h1z1-server");
+const { ZoneServer } = require("../../h1z1-server");
 const { Base64 } = require("js-base64");
 const Zone = new ZoneServer(
   1117,
