@@ -11,8 +11,11 @@
 // ======================================================================
 
 // delete commands cache if exist so /dev reloadPackets reload them too
-delete require.cache[require.resolve("./commands/hax")];
-delete require.cache[require.resolve("./commands/dev")];
+try {
+  // delete commands cache if exist so /dev reloadPackets reload them too
+  delete require.cache[require.resolve("./commands/hax")];
+  delete require.cache[require.resolve("./commands/dev")];
+} catch (e) {}
 
 const Jenkins = require("hash-jenkins");
 import hax from "./commands/hax";
