@@ -1325,7 +1325,9 @@ const packetHandlers: any = {
     packet: any
   ) {
     debug(packet);
+    // Maybe we should move all that logic to Command.InteractionSelect
     const objectToPickup = server._objects[packet.data.guid];
+    const vehicleToMount = server._vehicles[packet.data.guid];
     if (
       objectToPickup &&
       isPosInRadius(
@@ -1343,6 +1345,25 @@ const packetHandlers: any = {
         message: pickupMessage,
       });
       server.deleteEntity(objectToPickup.characterId, server._objects);
+    }
+    else if (
+      vehicleToMount &&
+      isPosInRadius(
+        server._interactionDistance,
+        client.character.state.position,
+        vehicleToMount.npcData.position
+      )
+    ) {
+      const {characterId:vehicleGuid} = vehicleToMount.npcData;
+      server.sendData(client, "PlayerUpdate.ManagedObject", {
+        guid: vehicleGuid,
+        characterId: client.character.characterId,
+      });
+      server.sendData(client, "Mount.MountResponse", {
+        characterId: client.character.characterId,
+        guid: vehicleGuid,
+        characterData: [],
+      });
     }
   },
   "PlayerUpdate.Respawn": function (
