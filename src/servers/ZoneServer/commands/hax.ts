@@ -45,7 +45,7 @@ const hax: any = {
 			characterData: [],
         };
         server.sendData(client, "PlayerUpdate.AddLightweightVehicle", vehicleData);
-		server._npcs[characterId] = vehicleData;
+		server._vehicles[characterId] = vehicleData;
         server.sendData(client, "PlayerUpdate.ManagedObject", {
             guid: characterId,
             characterId: client.character.characterId,
@@ -85,7 +85,7 @@ const hax: any = {
 			characterData: [],
         };
         server.sendData(client, "PlayerUpdate.AddLightweightVehicle", vehicleData);
-		server._npcs[characterId] = vehicleData;
+		server._vehicles[characterId] = vehicleData;
         server.sendData(client, "PlayerUpdate.ManagedObject", {
             guid: characterId,
             characterId: client.character.characterId,
