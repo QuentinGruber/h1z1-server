@@ -39,18 +39,17 @@ const hax: any = {
             positionUpdate: server.createPositionUpdate(new Float32Array([0, 0, 0, 0]), [0, 0, 0, 0]),
             unknownString1: "",
         };
-		const mOresponse = {
-            characterId: client.character.characterId,
-			guid: characterId,
-			characterData: [],
-        };
         server.sendData(client, "PlayerUpdate.AddLightweightVehicle", vehicleData);
 		server._vehicles[characterId] = vehicleData;
         server.sendData(client, "PlayerUpdate.ManagedObject", {
             guid: characterId,
             characterId: client.character.characterId,
         });
-		server.sendData(client, "Mount.MountResponse", mOresponse);
+		server.sendData(client, "Mount.MountResponse", {
+      characterId: client.character.characterId,
+guid: characterId,
+characterData: [],
+  });
     },
 
  parachute: function (server: ZoneServer, client: Client, args: any[]) {
@@ -79,18 +78,17 @@ const hax: any = {
             positionUpdate: server.createPositionUpdate(new Float32Array([0, 0, 0, 0]), [0, 0, 0, 0]),
             unknownString1: "",
         };
-		const mOresponse = {
-            characterId: client.character.characterId,
-			guid: characterId,
-			characterData: [],
-        };
         server.sendData(client, "PlayerUpdate.AddLightweightVehicle", vehicleData);
 		server._vehicles[characterId] = vehicleData;
         server.sendData(client, "PlayerUpdate.ManagedObject", {
             guid: characterId,
             characterId: client.character.characterId,
         });
-		server.sendData(client, "Mount.MountResponse", mOresponse);
+		server.sendData(client, "Mount.MountResponse", {
+      characterId: client.character.characterId,
+guid: characterId,
+characterData: [],
+  });
     },
 	
   time: function (server: ZoneServer, client: Client, args: any[]) {
