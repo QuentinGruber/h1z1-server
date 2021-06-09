@@ -68,6 +68,7 @@ export class ZoneServer extends EventEmitter {
   _worldId: number;
   _npcRenderDistance: number;
   _dynamicWeatherInterval: any;
+  _dynamicWeatherEnabled: boolean;
   _vehicles: any;
   _respawnLocations: any[];
   _doors: any;
@@ -111,6 +112,7 @@ export class ZoneServer extends EventEmitter {
     this._interactionDistance = 4;
     this._npcRenderDistance = 350;
     this._pingTimeoutTime = 30000;
+    this._dynamicWeatherEnabled = true;
     this._respawnLocations = spawnLocations.map((spawn: any) => {
       return {
         guid: this.generateGuid(),
@@ -362,10 +364,12 @@ export class ZoneServer extends EventEmitter {
     await this.setupServer();
     this._startTime += Date.now();
     this._startGameTime += Date.now();
-    this._dynamicWeatherInterval = setInterval(
-      () => dynamicWeather(this),
-      5000
-    );
+    if (this._dynamicWeatherEnabled){
+      this._dynamicWeatherInterval = setInterval(
+        () => dynamicWeather(this),
+        5000
+      );
+    }
     this._gatewayServer.start();
   }
 
