@@ -311,7 +311,7 @@ const hax: any = {
     server.sendChatText(client, "Delete player, back in observer mode");
   },
   changeStat: function (server: ZoneServer, client: Client, args: any[]) {
-    const stats = require("../../../../data/sampleData/stats.json");
+    const stats = require("../../../../data/2015/sampleData/stats.json");
     server.sendData(client, "PlayerUpdate.UpdateStat", {
       characterId: client.character.characterId,
       stats: stats,
@@ -406,9 +406,9 @@ const hax: any = {
             JSON.stringify(server._weatherTemplates)
           );
           delete require.cache[
-            require.resolve("../../../../data/sampleData/weather.json")
+            require.resolve("../../../../data/2015/sampleData/weather.json")
           ];
-          server._weatherTemplates = require("../../../../data/sampleData/weather.json");
+          server._weatherTemplates = require("../../../../data/2015/sampleData/weather.json");
         } else {
           await server._db?.collection("weathers").insertOne(currentWeather);
           server._weatherTemplates = await (server._db as any)
@@ -441,14 +441,12 @@ const hax: any = {
       runSpeed: speed,
     });
   },
-  hell: function (server: ZoneServer, client: Client, args: any[]) {
-    server.sendChatText(
-      client,
-      "[DEPRECATED] use '/hax randomWeather' instead",
-      true
-    );
-  },
   randomWeather: function (server: ZoneServer, client: Client, args: any[]) {
+    if (server._dynamicWeatherInterval) {
+      clearInterval(server._dynamicWeatherInterval);
+      server._dynamicWeatherInterval = null;
+      server.sendChatText(client, "Dynamic weather removed !");
+    }
     debug("Randomized weather");
     server.sendChatText(client, `Randomized weather`);
 

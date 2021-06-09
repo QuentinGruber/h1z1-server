@@ -27,16 +27,16 @@ import { Worker } from "worker_threads";
 import dynamicWeather from "./workers/dynamicWeather";
 import { Base64 } from "js-base64";
 
-const localSpawnList = require("../../../data/sampleData/spawnLocations.json");
+const localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json");
 
 const debugName = "ZoneServer";
 const debug = require("debug")(debugName);
-const spawnLocations = require("../../../data/sampleData/spawnLocations.json");
-const localWeatherTemplates = require("../../../data/sampleData/weather.json");
-const stats = require("../../../data/sampleData/stats.json");
-const recipes = require("../../../data/sampleData/recipes.json");
-const resources = require("../../../data/dataSources/Resources.json");
-const Z1_POIs = require("../../../data/zoneData/Z1_POIs");
+const spawnLocations = require("../../../data/2015/sampleData/spawnLocations.json");
+const localWeatherTemplates = require("../../../data/2015/sampleData/weather.json");
+const stats = require("../../../data/2015/sampleData/stats.json");
+const recipes = require("../../../data/2015/sampleData/recipes.json");
+const resources = require("../../../data/2015/dataSources/Resources.json");
+const Z1_POIs = require("../../../data/2015/zoneData/Z1_POIs");
 
 export class ZoneServer extends EventEmitter {
   _gatewayServer: GatewayServer;
@@ -68,6 +68,7 @@ export class ZoneServer extends EventEmitter {
   _worldId: number;
   _npcRenderDistance: number;
   _dynamicWeatherInterval: any;
+  _dynamicWeatherEnabled: boolean;
   _vehicles: any;
   _respawnLocations: any[];
   _doors: any;
@@ -111,6 +112,7 @@ export class ZoneServer extends EventEmitter {
     this._interactionDistance = 4;
     this._npcRenderDistance = 350;
     this._pingTimeoutTime = 30000;
+    this._dynamicWeatherEnabled = true;
     this._respawnLocations = spawnLocations.map((spawn: any) => {
       return {
         guid: this.generateGuid(),
@@ -362,10 +364,12 @@ export class ZoneServer extends EventEmitter {
     await this.setupServer();
     this._startTime += Date.now();
     this._startGameTime += Date.now();
-    this._dynamicWeatherInterval = setInterval(
-      () => dynamicWeather(this),
-      5000
-    );
+    if (this._dynamicWeatherEnabled){
+      this._dynamicWeatherInterval = setInterval(
+        () => dynamicWeather(this),
+        5000
+      );
+    }
     this._gatewayServer.start();
   }
 
@@ -469,9 +473,9 @@ export class ZoneServer extends EventEmitter {
 
   async characterData(client: Client): Promise<void> {
     delete require.cache[
-      require.resolve("../../../data/sampleData/sendself.json") // reload json
+      require.resolve("../../../data/2015/sampleData/sendself.json") // reload json
     ];
-    const self = require("../../../data/sampleData/sendself.json"); // dummy self
+    const self = require("../../../data/2015/sampleData/sendself.json"); // dummy self
     if (String(client.character.characterId) === "0x0000000000000001") {
       // for fun 🤠
       self.data.characterId = "0x0000000000000001";
@@ -543,7 +547,7 @@ export class ZoneServer extends EventEmitter {
 
   generateProfiles(): any[] {
     const profiles: any[] = [];
-    const profileTypes = require("../../../data/dataSources/ProfileTypes.json");
+    const profileTypes = require("../../../data/2015/dataSources/ProfileTypes.json");
     profileTypes.forEach((profile: any) => {
       profiles.push({
         profileId: profile.ID,

@@ -1,0 +1,717 @@
+{
+  "data": {
+    "guid": "0x665a2bff2b44c034",
+    "characterId": "0x03147cca2a860191",
+    "unknownUint1": 52,
+    "lastLoginDate": "0x0060B89351",
+    "actorModelId": 9240,
+    "headActor": "SurvivorMale_Head_01.adr",
+    "unknownString1": "",
+    "unknownDword4": 444,
+    "unknownDword5": 555,
+    "emptyTexture": "",
+    "unknownString3": "",
+    "unknownString4": "",
+    "headId": 1,
+    "unknownDword6": 7,
+    "factionId": 2,
+    "unknownDword9": 0,
+    "unknownDword10": 0,
+    "position": [
+      0,
+      0,
+      0,
+      1
+    ],
+    "rotation": [
+      0,
+      0,
+      0,
+      1
+    ],
+    "identity": {
+      "CharacterId": 713425297,
+      "AccountId": 722776196,
+      "unknownDword3": 0,
+      "characterFirstName": "LocalPlayer",
+      "characterLastName": "",
+      "unknownString1": "",
+      "unknownString2": "",
+      "unknownQword1": "0"
+    },
+    "currencyArrLength": 1,
+    "currency": [],
+    "creationDate": "0",
+    "unknownDword15": 531724,
+    "unknownDword16": 6931,
+    "unknownBoolean1": false,
+    "unknownBoolean2": false,
+    "isMember": 1,
+    "unknownDword18": 0,
+    "unknownBoolean3": false,
+    "unknownDword19": 217,
+    "gender": 1,
+    "unknownDword21": 0,
+    "unknownDword22": 0,
+    "unknownDword23": 914,
+    "unknownTime1": "0",
+    "unknownTime2": "0",
+    "unknownDword24": 26,
+    "unknownBoolean5": false,
+    "unknownDword25": 0,
+    "profilesArrLength": 1,
+    "profiles": [
+      {
+        "nameId": 74,
+        "descriptionId": 555,
+        "type": 114,
+        "unknownDword2": 0,
+        "abilityBgImageSet": 0,
+        "badgeImageSet": 0,
+        "buttonImageSet": 0,
+        "unknownDword3": 0,
+        "unknownArray1": [],
+        "unknownDword4": 0,
+        "unknownArray2Length": 1,
+        "unknownArray2": [],
+        "unknownDword5": 0,
+        "unknownDword6": 0,
+        "unknownByte1": 0,
+        "unknownDword7": 0,
+        "unknownDword8": 0,
+        "unknownDword9": 0,
+        "unknownDword10": 0,
+        "unknownDword11": 0,
+        "unknownDword12": 0,
+        "unknownDword13": 0,
+        "unknownDword14": 0,
+        "unknownDword15": 0,
+        "unknownDword16": 0
+      }
+    ],
+    "currentProfile": 74,
+    "unknownArray1Length": 1,
+    "unknownArray1": [],
+    "collectionsArrLength": 1,
+    "collections": [
+      {
+        "unknownDword1": 0,
+        "unknownDword2": 0,
+        "unknownDword3": 0,
+        "unknownDword4": 0,
+        "unknownDword5": 0,
+        "unknownDword6": 0,
+        "unknownDword7": 0,
+        "reward": {
+          "unknownBoolean1": true,
+          "currency": [
+            {
+              "currencyId": 45,
+              "quantity": 99
+            }
+          ]
+        },
+        "unknownArray2Length": 1,
+        "unknownArray2": [
+          {
+            "unknownDword1": 0,
+            "unknownData1": {
+              "unknownDword1": 0,
+              "unknownDword2": 0,
+              "unknownDword3": 0,
+              "unknownDword4": 0,
+              "unknownDword5": 0,
+              "unknownDword6": 0,
+              "unknownDword7": 0,
+              "unknownBoolean1": true
+            }
+          }
+        ]
+      }
+    ],
+    "inventoryArrLength": 0,
+    "unknownDword26": 0,
+    "characterQuests": {
+      "questsArrLength": 1,
+      "quests": [
+        {
+          "unknownDword1": 0,
+          "unknownDword2": 0,
+          "unknownDword3": 0,
+          "unknownDword4": 0,
+          "unknownBoolean1": true,
+          "unknownGuid1": "0",
+          "unknownDword5": 0,
+          "unknownBoolean2": true,
+          "unknownDword6": 0,
+          "reward": {
+            "currency": []
+          },
+          "unknownArray1Length": 1,
+          "unknownArray1": []
+        }
+      ],
+      "unknownDword1": 0,
+      "unknownDword2": 4294967295,
+      "unknownBoolean1": false,
+      "unknownDword3": 0,
+      "unknownDword4": 0
+    },
+    "characterAchievements": [],
+    "acquaintances": [],
+    "recipes": [],
+    "mounts": [],
+    "unknownCoinStoreData": {
+      "unknownBoolean1": true,
+      "unknownArray1": []
+    },
+    "unknownArray10": [],
+    "unknownEffectArray": [],
+    "stats": [],
+    "playerTitles": [],
+    "currentPlayerTitle": 0,
+    "unknownArray13": [],
+    "unknownArray14": [],
+    "unknownDword33": 0,
+    "unknownArray15": [],
+    "unknownArray16": [],
+    "unknownArray17": [],
+    "unknownDword34": 0,
+    "unknownDword35": 0,
+    "unknownArray18": [],
+    "unknownArray19": [],
+    "unknownArray20": [],
+    "unknownData1": {
+      "abilityLines": [],
+      "unknownArray2": [],
+      "unknownArray3": [],
+      "unknownArray4": [],
+      "unknownDword1": 21,
+      "unknownDword2": 0,
+      "unknownArray5": [],
+      "unknownArray6": [],
+      "unknownArray7": []
+    },
+    "unknownArray21": [
+      {
+        "unknownDword1": 3,
+        "unknownDword2": 3,
+        "unknownDword3": 283
+      }
+    ],
+    "unknownArray22": [],
+    "unknownArray23": [],
+    "unknownByte1": 128,
+    "unknownData2": {
+      "unknownDword1": 0,
+      "unknownData1": {
+        "unknownDword1": 0,
+        "unknownDword2": 0,
+        "unknownDword3": 0
+      },
+      "unknownData2": {
+        "unknownDword1": 0,
+        "unknownDword2": 0,
+        "unknownDword3": 0
+      },
+      "unknownDword2": 0
+    },
+    "unknownDword36": 3,
+    "unknownArray24": [],
+    "unknownData3": {
+      "unknownDword1": 0,
+      "unknownDword2": 0,
+      "unknownDword3": 0,
+      "unknownDword4": 0,
+      "unknownDword5": 0
+    },
+    "unknownArray25": [],
+    "unknownArray26": [],
+    "unknownArray27": [],
+    "unknownArray28": [],
+    "playerRanks": [],
+    "unknownData4": {
+      "unknownDword1": 0,
+      "unknownDword2": 0,
+      "unknownDword3": 0,
+      "unknownDword4": 0,
+      "unknownDword5": 0
+    },
+    "unknownData5": {
+      "unknownDword1": 0,
+      "unknownDword2": 0,
+      "unknownDword3": 0
+    },
+    "implantSlots": [],
+    "itemTimerData": {
+      "unknownData1": {
+        "unknownDword1": 0,
+        "unknownFloat1": 0,
+        "unknownTime1": "0x0000000000000000",
+        "unknownTime2": "0x0000000000000000"
+      },
+      "unknownArray1": [],
+      "unknownData2": {
+        "unknownDword1": 0,
+        "unknownFloat1": 0,
+        "unknownTime1": "0x0000000000000000"
+      },
+      "unknownArray2": [],
+      "unknownArray3": [],
+      "unknownArray4": [],
+      "unknownByte1": 160
+    },
+    "characterLoadoutData": {
+      "loadouts": [
+        {
+          "loadoutId": 3,
+          "unknownDword2": 0,
+          "loadoutData": {
+            "loadoutId": 3,
+            "unknownData1": {
+              "unknownDword1": 0,
+              "unknownByte1": 0
+            },
+            "unknownDword2": 0,
+            "unknownData2": {
+              "unknownDword1": 0,
+              "loadoutName": "survivor"
+            },
+            "tintItemId": 0,
+            "unknownDword4": 0,
+            "decalItemId": 0,
+            "loadoutSlots": [
+              {
+                "loadoutSlotId": 1,
+                "loadoutSlotData": {
+                  "index": 0,
+                  "loadoutSlotItem": {
+                    "itemLineId": 0,
+                    "flags": 0,
+                    "attachments": [],
+                    "attachmentClasses": []
+                  },
+                  "tintItemId": 0,
+                  "itemSlot": 7
+                }
+              },
+              {
+                "loadoutSlotId": 3,
+                "loadoutSlotData": {
+                  "index": 1,
+                  "loadoutSlotItem": {
+                    "itemLineId": 0,
+                    "flags": 0,
+                    "attachments": [],
+                    "attachmentClasses": []
+                  },
+                  "tintItemId": 0,
+                  "itemSlot": 7
+                }
+              },
+              {
+                "loadoutSlotId": 4,
+                "loadoutSlotData": {
+                  "index": 2,
+                  "loadoutSlotItem": {
+                    "itemLineId": 0,
+                    "flags": 0,
+                    "attachments": [],
+                    "attachmentClasses": []
+                  },
+                  "tintItemId": 0,
+                  "itemSlot": 7
+                }
+              },
+              {
+                "loadoutSlotId": 7,
+                "loadoutSlotData": {
+                  "index": 3,
+                  "loadoutSlotItem": {
+                    "itemLineId": 85,
+                    "flags": 0,
+                    "attachments": [],
+                    "attachmentClasses": []
+                  },
+                  "tintItemId": 85,
+                  "itemSlot": 7
+                }
+              },
+              {
+                "loadoutSlotId": 10,
+                "loadoutSlotData": {
+                  "index": 4,
+                  "loadoutSlotItem": {
+                    "itemLineId": 0,
+                    "flags": 0,
+                    "attachments": [],
+                    "attachmentClasses": []
+                  },
+                  "tintItemId": 0,
+                  "itemSlot": 3
+                }
+              },
+              {
+                "loadoutSlotId": 11,
+                "loadoutSlotData": {
+                  "index": 5,
+                  "loadoutSlotItem": {
+                    "itemLineId": 0,
+                    "flags": 0,
+                    "attachments": [],
+                    "attachmentClasses": []
+                  },
+                  "tintItemId": 0,
+                  "itemSlot": 1
+                }
+              },
+              {
+                "loadoutSlotId": 12,
+                "loadoutSlotData": {
+                  "index": 6,
+                  "loadoutSlotItem": {
+                    "itemLineId": 0,
+                    "flags": 0,
+                    "attachments": [],
+                    "attachmentClasses": []
+                  },
+                  "tintItemId": 0,
+                  "itemSlot": 10
+                }
+              },
+              {
+                "loadoutSlotId": 13,
+                "loadoutSlotData": {
+                  "index": 7,
+                  "loadoutSlotItem": {
+                    "itemLineId": 0,
+                    "flags": 0,
+                    "attachments": [],
+                    "attachmentClasses": []
+                  },
+                  "tintItemId": 0,
+                  "itemSlot": 5
+                }
+              },
+              {
+                "loadoutSlotId": 14,
+                "loadoutSlotData": {
+                  "index": 8,
+                  "loadoutSlotItem": {
+                    "itemLineId": 0,
+                    "flags": 0,
+                    "attachments": [],
+                    "attachmentClasses": []
+                  },
+                  "tintItemId": 0,
+                  "itemSlot": 4
+                }
+              },
+              {
+                "loadoutSlotId": 15,
+                "loadoutSlotData": {
+                  "index": 9,
+                  "loadoutSlotItem": {
+                    "itemLineId": 0,
+                    "flags": 0,
+                    "attachments": [],
+                    "attachmentClasses": []
+                  },
+                  "tintItemId": 0,
+                  "itemSlot": 0
+                }
+              },
+              {
+                "loadoutSlotId": 16,
+                "loadoutSlotData": {
+                  "index": 10,
+                  "loadoutSlotItem": {
+                    "itemLineId": 0,
+                    "flags": 0,
+                    "attachments": [],
+                    "attachmentClasses": []
+                  },
+                  "tintItemId": 0,
+                  "itemSlot": 2
+                }
+              },
+              {
+                "loadoutSlotId": 25,
+                "loadoutSlotData": {
+                  "index": 11,
+                  "loadoutSlotItem": {
+                    "itemLineId": 0,
+                    "flags": 0,
+                    "attachments": [],
+                    "attachmentClasses": []
+                  },
+                  "tintItemId": 0,
+                  "itemSlot": 11
+                }
+              },
+              {
+                "loadoutSlotId": 26,
+                "loadoutSlotData": {
+                  "index": 12,
+                  "loadoutSlotItem": {
+                    "itemLineId": 0,
+                    "flags": 0,
+                    "attachments": [],
+                    "attachmentClasses": []
+                  },
+                  "tintItemId": 0,
+                  "itemSlot": 26
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "unknownArray2": [],
+      "unknownArray3": [],
+      "unknownData1": {
+        "loadoutId": 3,
+        "unknownData1": {
+          "unknownDword1": 21,
+          "unknownByte1": 1
+        },
+        "unknownDword2": 0,
+        "unknownData2": {
+          "unknownDword1": 0,
+          "loadoutName": "survivor"
+        },
+        "tintItemId": 0,
+        "unknownDword4": 0,
+        "decalItemId": 0,
+        "loadoutSlots": [
+          {
+            "loadoutSlotId": 1,
+            "loadoutSlotData": {
+              "index": 0,
+              "loadoutSlotItem": {
+                "itemLineId": 0,
+                "flags": 0,
+                "attachments": [],
+                "attachmentClasses": []
+              },
+              "tintItemId": 0,
+              "itemSlot": 7
+            }
+          },
+          {
+            "loadoutSlotId": 3,
+            "loadoutSlotData": {
+              "index": 1,
+              "loadoutSlotItem": {
+                "itemLineId": 0,
+                "flags": 0,
+                "attachments": [],
+                "attachmentClasses": []
+              },
+              "tintItemId": 0,
+              "itemSlot": 7
+            }
+          },
+          {
+            "loadoutSlotId": 4,
+            "loadoutSlotData": {
+              "index": 2,
+              "loadoutSlotItem": {
+                "itemLineId": 0,
+                "flags": 0,
+                "attachments": [],
+                "attachmentClasses": []
+              },
+              "tintItemId": 0,
+              "itemSlot": 7
+            }
+          },
+          {
+            "loadoutSlotId": 7,
+            "loadoutSlotData": {
+              "index": 3,
+              "loadoutSlotItem": {
+                "itemLineId": 85,
+                "flags": 0,
+                "attachments": [],
+                "attachmentClasses": []
+              },
+              "tintItemId": 85,
+              "itemSlot": 7
+            }
+          },
+          {
+            "loadoutSlotId": 10,
+            "loadoutSlotData": {
+              "index": 4,
+              "loadoutSlotItem": {
+                "itemLineId": 0,
+                "flags": 0,
+                "attachments": [],
+                "attachmentClasses": []
+              },
+              "tintItemId": 0,
+              "itemSlot": 3
+            }
+          },
+          {
+            "loadoutSlotId": 11,
+            "loadoutSlotData": {
+              "index": 5,
+              "loadoutSlotItem": {
+                "itemLineId": 0,
+                "flags": 0,
+                "attachments": [],
+                "attachmentClasses": []
+              },
+              "tintItemId": 0,
+              "itemSlot": 1
+            }
+          },
+          {
+            "loadoutSlotId": 12,
+            "loadoutSlotData": {
+              "index": 6,
+              "loadoutSlotItem": {
+                "itemLineId": 0,
+                "flags": 0,
+                "attachments": [],
+                "attachmentClasses": []
+              },
+              "tintItemId": 0,
+              "itemSlot": 10
+            }
+          },
+          {
+            "loadoutSlotId": 13,
+            "loadoutSlotData": {
+              "index": 7,
+              "loadoutSlotItem": {
+                "itemLineId": 0,
+                "flags": 0,
+                "attachments": [],
+                "attachmentClasses": []
+              },
+              "tintItemId": 0,
+              "itemSlot": 5
+            }
+          },
+          {
+            "loadoutSlotId": 14,
+            "loadoutSlotData": {
+              "index": 8,
+              "loadoutSlotItem": {
+                "itemLineId": 0,
+                "flags": 0,
+                "attachments": [],
+                "attachmentClasses": []
+              },
+              "tintItemId": 0,
+              "itemSlot": 4
+            }
+          },
+          {
+            "loadoutSlotId": 15,
+            "loadoutSlotData": {
+              "index": 9,
+              "loadoutSlotItem": {
+                "itemLineId": 0,
+                "flags": 0,
+                "attachments": [],
+                "attachmentClasses": []
+              },
+              "tintItemId": 0,
+              "itemSlot": 0
+            }
+          },
+          {
+            "loadoutSlotId": 16,
+            "loadoutSlotData": {
+              "index": 10,
+              "loadoutSlotItem": {
+                "itemLineId": 0,
+                "flags": 0,
+                "attachments": [],
+                "attachmentClasses": []
+              },
+              "tintItemId": 0,
+              "itemSlot": 2
+            }
+          },
+          {
+            "loadoutSlotId": 25,
+            "loadoutSlotData": {
+              "index": 11,
+              "loadoutSlotItem": {
+                "itemLineId": 0,
+                "flags": 0,
+                "attachments": [],
+                "attachmentClasses": []
+              },
+              "tintItemId": 0,
+              "itemSlot": 11
+            }
+          },
+          {
+            "loadoutSlotId": 26,
+            "loadoutSlotData": {
+              "index": 12,
+              "loadoutSlotItem": {
+                "itemLineId": 0,
+                "flags": 0,
+                "attachments": [],
+                "attachmentClasses": []
+              },
+              "tintItemId": 0,
+              "itemSlot": 26
+            }
+          }
+        ]
+      },
+      "unknownData2": {
+        "unknownDword1": 0,
+        "unknownData1": {
+          "unknownDword1": 0,
+          "unknownByte1": 0
+        },
+        "unknownString1": "",
+        "unknownDword2": 0,
+        "unknownDword3": 0,
+        "unknownDword4": 0,
+        "unknownDword5": 0,
+        "unknownArray1": []
+      },
+      "unknownDword1": 256,
+      "unknownDword2": 0,
+      "unknownDword3": 1,
+      "unknownDword4": 1
+    },
+    "missionData": {
+      "unknownArray1": [],
+      "unknownArray2": [],
+      "unknownArray3": [],
+      "unknownArray4": [],
+      "unknownArray5": []
+    },
+    "characterResources": [],
+    "characterResourceChargers": [],
+    "skillPointData": {
+      "skillPointsGranted": "0x0000000000000000",
+      "skillPointsTotal": "0x0000000000061a82",
+      "skillPointsSpent": "0x000000000000c112",
+      "nextSkillPointPct": 0.7054166666726663,
+      "unknownTime1": "0x0000000053da7024",
+      "unknownDword1": 0
+    },
+    "skills": [],
+    "unknownBoolean8": true,
+    "unknownQword1": "0x0000000000000000",
+    "unknownDword37": 0,
+    "unknownQword2": "0x0000000000000000",
+    "unknownQword3": "0x0000000000000000",
+    "unknownDword38": 0,
+    "unknownDword39": 4294967295,
+    "unknownDword40": 150,
+    "unknownBoolean9": true
+  }
+}

@@ -50,6 +50,9 @@ export class H1Z1Protocol {
       case "ClientProtocol_860": // normal client from 15 january 2015
         this.H1Z1Packets = require("../packets/ClientProtocol/ClientProtocol_860/h1z1packets");
         break;
+      case "ClientProtocol_1080": // normal client from 22 december 2016
+        this.H1Z1Packets = require("../packets/ClientProtocol/ClientProtocol_1080/h1z1packets");
+        break;
       default:
         debug(`Protocol ${this.protocolName} unsupported !`);
         process.exit();

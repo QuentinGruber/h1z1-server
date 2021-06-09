@@ -53,9 +53,12 @@ jobs:
           node-version: 16.2.0
       - run: npm ci
       - run: npm i -g pkg@5.2.1
-      - run: pkg -t node16-win-x64 ./bin/loginServer.js --output ./bin/loginServer-${{ github.ref }}.exe
-      - run: pkg -t node16-win-x64 ./bin/zoneServer.js --output ./bin/zoneServer-${{ github.ref }}.exe
-      - run: pkg -t node16-win-x64 ./bin/h1emuServer.js --output ./bin/h1emuServer-${{ github.ref }}.exe
+      - run: pkg -t node16-win-x64 ./bin/2015/loginServer.js --output ./bin/loginServer-${{ github.ref }}.exe
+      - run: pkg -t node16-win-x64 ./bin/2015/zoneServer.js --output ./bin/zoneServer-${{ github.ref }}.exe
+      - run: pkg -t node16-win-x64 ./bin/2015/h1emuServer.js --output ./bin/h1emuServer-${{ github.ref }}.exe
+      - run: pkg -t node16-win-x64 ./bin/2016/loginServer.js --output ./bin/loginServer-2016-${{ github.ref }}.exe
+      - run: pkg -t node16-win-x64 ./bin/2016/zoneServer.js --output ./bin/zoneServer-2016-${{ github.ref }}.exe
+      - run: pkg -t node16-win-x64 ./bin/2016/h1emuServer.js --output ./bin/h1emuServer-2016-${{ github.ref }}.exe
       - name: Upload h1emuServer to release
         uses: svenstaro/upload-release-action@v2
         with:
@@ -76,4 +79,25 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ./bin/loginServer-${{ github.ref }}.exe
           asset_name: loginServer-${{ github.ref }}.exe
+          tag: ${{ github.ref }}
+      - name: Upload h1emuServer-2016 to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ./bin/h1emuServer-2016-${{ github.ref }}.exe
+          asset_name: h1emuServer-2016-${{ github.ref }}.exe
+          tag: ${{ github.ref }}
+      - name: Upload zoneServer-2016 to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ./bin/zoneServer-2016-${{ github.ref }}.exe
+          asset_name: zoneServer-2016-${{ github.ref }}.exe
+          tag: ${{ github.ref }}
+      - name: Upload loginServer-2016 to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ./bin/loginServer-2016-${{ github.ref }}.exe
+          asset_name: loginServer-2016-${{ github.ref }}.exe
           tag: ${{ github.ref }}
