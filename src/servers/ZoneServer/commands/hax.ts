@@ -406,7 +406,7 @@ const hax: any = {
             JSON.stringify(server._weatherTemplates)
           );
           delete require.cache[
-            require.resolve("../../../../data/sampleData/weather.json")
+            require.resolve("../../../../data/2015/sampleData/weather.json")
           ];
           server._weatherTemplates = require("../../../../data/2015/sampleData/weather.json");
         } else {

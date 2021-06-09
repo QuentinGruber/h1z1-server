@@ -4,8 +4,8 @@ const debug = require("debug")("zonepacketHandlers");
 import fs from "fs";
 
 const hax = {
-  tp: function(server, client, args) {
-    if(args.length < 4){
+  tp: function (server, client, args) {
+    if (args.length < 4) {
       server.sendChatText(client, "Need 3 args: position x, y, z", false);
       return;
     }
@@ -148,11 +148,7 @@ const hax = {
         unknownString1: "mdr",
       };
 
-      server.sendData(
-        client,
-        "AddLightweightVehicle",
-        vehicleData
-      );
+      server.sendData(client, "AddLightweightVehicle", vehicleData);
     }
   },
   spawnObject: function (server, client, args) {
@@ -166,8 +162,16 @@ const hax = {
     const obj = {
       guid: guid,
       transientId: choosenModelId,
-      position: [client.character.state.position[0], client.character.state.position[1], client.character.state.position[2]],
-      rotation: [client.character.state.rotation[0], client.character.state.rotation[1], client.character.state.rotation[2]],
+      position: [
+        client.character.state.position[0],
+        client.character.state.position[1],
+        client.character.state.position[2],
+      ],
+      rotation: [
+        client.character.state.rotation[0],
+        client.character.state.rotation[1],
+        client.character.state.rotation[2],
+      ],
     };
     server.sendData(client, "AddProxiedObject", obj);
     // server.obj[guid] = obj; // save npc
@@ -186,11 +190,19 @@ const hax = {
       guid: guid,
       transientId: transientId,
       modelId: choosenModelId,
-      position: [client.character.state.position[0], client.character.state.position[1], client.character.state.position[2]],
-      rotation: [client.character.state.rotation[0], client.character.state.rotation[1], client.character.state.rotation[2]],
+      position: [
+        client.character.state.position[0],
+        client.character.state.position[1],
+        client.character.state.position[2],
+      ],
+      rotation: [
+        client.character.state.rotation[0],
+        client.character.state.rotation[1],
+        client.character.state.rotation[2],
+      ],
       color: {},
-      unknownData1: {unknownData1: {}},
-      extraModel: "SurvivorMale_Head_01.adr"
+      unknownData1: { unknownData1: {} },
+      extraModel: "SurvivorMale_Head_01.adr",
     };
     server.sendData(client, "AddLightweightNpc", npc);
     server._npcs[characterId] = npc; // save npc
@@ -210,10 +222,18 @@ const hax = {
         guid: guid,
         transientId: transientId,
         modelId: choosenModelId,
-        position: [client.character.state.position[0], client.character.state.position[1], client.character.state.position[2]],
-        rotation: [client.character.state.rotation[0], client.character.state.rotation[1], client.character.state.rotation[2]],
+        position: [
+          client.character.state.position[0],
+          client.character.state.position[1],
+          client.character.state.position[2],
+        ],
+        rotation: [
+          client.character.state.rotation[0],
+          client.character.state.rotation[1],
+          client.character.state.rotation[2],
+        ],
         color: {},
-        unknownData1: {unknownData1: {}}
+        unknownData1: { unknownData1: {} },
       },
       positionUpdate: server.createPositionUpdate(
         client.character.state.position,
@@ -235,20 +255,29 @@ const hax = {
     }
     */
     //const choosenModelId = Number(args[1]);
-    
+
     debug(`\n\n\n\nguid: ${guid}\n\n\n\n`);
     const lightweight = {
       guid: guid,
       transientId: transientId,
       //modelId: choosenModelId,
-      position: [client.character.state.position[0], client.character.state.position[1], client.character.state.position[2]],
+      position: [
+        client.character.state.position[0],
+        client.character.state.position[1],
+        client.character.state.position[2],
+      ],
       roation: client.character.state.rotation,
-      identity: {}
+      identity: {},
     };
     const full = {
-      fullPcSubDataSchema1: {transientIdMaybe: transientId},
+      fullPcSubDataSchema1: { transientIdMaybe: transientId },
       array1: [],
-      unknownData1: {transientId: transientId, unknownData1: {}, array1: [], array2: [],},
+      unknownData1: {
+        transientId: transientId,
+        unknownData1: {},
+        array1: [],
+        array2: [],
+      },
     };
     server.sendData(client, "AddLightweightPc", lightweight);
     //server.sendData(client, "LightweightToFullPc", full);
@@ -323,17 +352,16 @@ const hax = {
       if (currentWeather) {
         currentWeather.templateName = args[1];
         if (server._soloMode) {
-          server._weatherTemplates[
-            currentWeather.templateName
-          ] = currentWeather;
+          server._weatherTemplates[currentWeather.templateName] =
+            currentWeather;
           fs.writeFileSync(
-            `${__dirname}/../../../../data/weather.json`,
+            `${__dirname}/../../../../../data/2016/sampleData/weather.json`,
             JSON.stringify(server._weatherTemplates)
           );
           delete require.cache[
-            require.resolve("../../../../data/weather.json")
+            require.resolve("../../../../data/2016/sampleData/weather.json")
           ];
-          server._weatherTemplates = require("../../../../data/weather.json");
+          server._weatherTemplates = require("../../../../data/2016/sampleData/weather.json");
         } else {
           await server._db.collection("weathers").insertOne(currentWeather);
           server._weatherTemplates = await server._db
@@ -421,19 +449,18 @@ const hax = {
     server.changeWeather(client, rnd_weather);
   },
   setresource: function (server, client, args) {
-  
     const resourceEvent = {
       type: 2,
       eventData: {
-        unknownArray1:[],
+        unknownArray1: [],
         unknownArray2: [],
-      }
+      },
     };
     server.sendChatText(client, "Setting character resource");
     server.sendData(client, "ResourceEvent", resourceEvent);
   },
   systemmessage: function (server, client, args) {
-    if(!args[1]){
+    if (!args[1]) {
       server.sendChatText(client, "Missing 'message' parameter");
       return;
     }
@@ -441,7 +468,7 @@ const hax = {
       unknownDword1: 0,
       message: args[1],
       unknownDword2: 0,
-      color: 2
+      color: 2,
     };
     server.sendChatText(client, "Sending system message");
     server.sendData(client, "ShowSystemMessage", msg);

@@ -1,0 +1,1136 @@
+[
+    {
+        "statId": 0,
+        "statName": "forWard",
+        "statData": {
+            "statId": 0,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 1,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 1,
+        "statName": "unknown1",
+        "statData": {
+            "statId": 1,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 2,
+        "statName": "unknown2",
+        "statData": {
+            "statId": 2,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 1,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 3,
+        "statName": "backWard",
+        "statData": {
+            "statId": 3,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 1,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 4,
+        "statName": "crouch",
+        "statData": {
+            "statId": 4,
+            "statValue": {
+                "type": 1,
+                "value": {
+                    "base": 0.7,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 5,
+        "statName": "run",
+        "statData": {
+            "statId": 5,
+            "statValue": {
+                "type": 1,
+                "value": {
+                    "base": 1.1,
+                    "modifier": 1
+                }
+            }
+        }
+    },
+    {
+        "statId": 6,
+        "statName": "unknown6",
+        "statData": {
+            "statId": 6,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 7,
+        "statName": "leftRight",
+        "statData": {
+            "statId": 7,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 1,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 8,
+        "statName": "unknown8",
+        "statData": {
+            "statId": 8,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 9,
+        "statName": "unknown9",
+        "statData": {
+            "statId": 9,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 10,
+        "statName": "unknown10",
+        "statData": {
+            "statId": 10,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 11,
+        "statName": "unknown11",
+        "statData": {
+            "statId": 11,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 1
+                }
+            }
+        }
+    },
+    {
+        "statId": 12,
+        "statName": "unknown12",
+        "statData": {
+            "statId": 12,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 13,
+        "statName": "unknown13",
+        "statData": {
+            "statId": 13,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 14,
+        "statName": "unknown14",
+        "statData": {
+            "statId": 14,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 15,
+        "statName": "unknown15",
+        "statData": {
+            "statId": 15,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 16,
+        "statName": "unknown16",
+        "statData": {
+            "statId": 16,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 17,
+        "statName": "unknown17",
+        "statData": {
+            "statId": 17,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 18,
+        "statName": "unknown18",
+        "statData": {
+            "statId": 18,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 19,
+        "statName": "unknown19",
+        "statData": {
+            "statId": 19,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 20,
+        "statName": "unknown20",
+        "statData": {
+            "statId": 20,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 21,
+        "statName": "unknown21",
+        "statData": {
+            "statId": 21,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 22,
+        "statName": "unknown22",
+        "statData": {
+            "statId": 22,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 23,
+        "statName": "unknown23",
+        "statData": {
+            "statId": 23,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 24,
+        "statName": "startOfMovementTimeFordWard",
+        "statData": {
+            "statId": 24,
+            "statValue": {
+                "type": 1,
+                "value": {
+                    "base": 0.5,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 25,
+        "statName": "startOfMovementTimeBackWard",
+        "statData": {
+            "statId": 25,
+            "statValue": {
+                "type": 1,
+                "value": {
+                    "base": 0.5,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 26,
+        "statName": "startOfMovementTimeLeftRight",
+        "statData": {
+            "statId": 26,
+            "statValue": {
+                "type": 1,
+                "value": {
+                    "base": 0.5,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 27,
+        "statName": "endOfMovementTimeBackkWard",
+        "statData": {
+            "statId": 27,
+            "statValue": {
+                "type": 1,
+                "value": {
+                    "base": 0.2,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 28,
+        "statName": "endOfMovementTimeForkWard",
+        "statData": {
+            "statId": 28,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0.2,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 29,
+        "statName": "endOfMovementTimeLeftRight",
+        "statData": {
+            "statId": 29,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0.2,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 30,
+        "statName": "unknown30",
+        "statData": {
+            "statId": 30,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 31,
+        "statName": "unknown31",
+        "statData": {
+            "statId": 31,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 32,
+        "statName": "unknown32",
+        "statData": {
+            "statId": 32,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 33,
+        "statName": "unknown33",
+        "statData": {
+            "statId": 33,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 34,
+        "statName": "unlockCam",
+        "statData": {
+            "statId": 34,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 1
+                }
+            }
+        }
+    },
+    {
+        "statId": 35,
+        "statName": "unknown35",
+        "statData": {
+            "statId": 35,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 36,
+        "statName": "unknown36",
+        "statData": {
+            "statId": 36,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 37,
+        "statName": "unknown37",
+        "statData": {
+            "statId": 37,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 38,
+        "statName": "unknown38",
+        "statData": {
+            "statId": 38,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 39,
+        "statName": "unknown39",
+        "statData": {
+            "statId": 39,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 40,
+        "statName": "unknown40",
+        "statData": {
+            "statId": 40,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 41,
+        "statName": "unknown41",
+        "statData": {
+            "statId": 41,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 42,
+        "statName": "unknown42",
+        "statData": {
+            "statId": 42,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 43,
+        "statName": "unknown43",
+        "statData": {
+            "statId": 43,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 44,
+        "statName": "unknown44",
+        "statData": {
+            "statId": 44,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 45,
+        "statName": "unknown45",
+        "statData": {
+            "statId": 45,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 46,
+        "statName": "unknown46",
+        "statData": {
+            "statId": 46,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 47,
+        "statName": "unknown47",
+        "statData": {
+            "statId": 47,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 48,
+        "statName": "unknown48",
+        "statData": {
+            "statId": 48,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 49,
+        "statName": "unknown49",
+        "statData": {
+            "statId": 49,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 50,
+        "statName": "unknown50",
+        "statData": {
+            "statId": 50,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 51,
+        "statName": "unknown51",
+        "statData": {
+            "statId": 51,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 52,
+        "statName": "blocAllMovementsIfStatId53NotActivate",
+        "statData": {
+            "statId": 52,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 53,
+        "statName": "speedMovmentWithStateId52",
+        "statData": {
+            "statId": 53,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 54,
+        "statName": "blocAllMovements",
+        "statData": {
+            "statId": 54,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 55,
+        "statName": "speedMovmentWithStateId54",
+        "statData": {
+            "statId": 55,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 56,
+        "statName": "blocAllMovements",
+        "statData": {
+            "statId": 56,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 57,
+        "statName": "speedMovmentWithStateId56",
+        "statData": {
+            "statId": 57,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 58,
+        "statName": "unknown58",
+        "statData": {
+            "statId": 58,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 59,
+        "statName": "unknown59",
+        "statData": {
+            "statId": 59,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 60,
+        "statName": "unknown60",
+        "statData": {
+            "statId": 60,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 61,
+        "statName": "unknown61",
+        "statData": {
+            "statId": 61,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 62,
+        "statName": "unknown62",
+        "statData": {
+            "statId": 62,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 63,
+        "statName": "unknown63",
+        "statData": {
+            "statId": 63,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 64,
+        "statName": "unknown64",
+        "statData": {
+            "statId": 64,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 65,
+        "statName": "unknown65",
+        "statData": {
+            "statId": 65,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 66,
+        "statName": "unknown66",
+        "statData": {
+            "statId": 66,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 67,
+        "statName": "moveProne",
+        "statData": {
+            "statId": 67,
+            "statValue": {
+                "type": 1,
+                "value": {
+                    "base": 0.4,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 68,
+        "statName": "mouseUnlockedProne",
+        "statData": {
+            "statId": 68,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 1,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 69,
+        "statName": "unknown69",
+        "statData": {
+            "statId": 69,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 70,
+        "statName": "unknown70",
+        "statData": {
+            "statId": 70,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 71,
+        "statName": "unknown71",
+        "statData": {
+            "statId": 71,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 72,
+        "statName": "unknown72",
+        "statData": {
+            "statId": 72,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 73,
+        "statName": "unknown73",
+        "statData": {
+            "statId": 73,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 74,
+        "statName": "unknown74",
+        "statData": {
+            "statId": 74,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 75,
+        "statName": "unknown75",
+        "statData": {
+            "statId": 75,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 76,
+        "statName": "unknown76",
+        "statData": {
+            "statId": 76,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 77,
+        "statName": "unknown77",
+        "statData": {
+            "statId": 77,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 78,
+        "statName": "unknown78",
+        "statData": {
+            "statId": 78,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 79,
+        "statName": "unknown79",
+        "statData": {
+            "statId": 79,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    },
+    {
+        "statId": 80,
+        "statName": "unknown80",
+        "statData": {
+            "statId": 80,
+            "statValue": {
+                "type": 0,
+                "value": {
+                    "base": 0,
+                    "modifier": 0
+                }
+            }
+        }
+    }
+]
