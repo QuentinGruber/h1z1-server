@@ -5765,7 +5765,24 @@ var packets = [
       ],
     },
   ],
-  ["PlayerUpdate.MotorRunning", 0x0f64, {}],
+  [
+    "PlayerUpdate.MotorRunning",
+    0x0f64,
+    {
+      fields: [
+        {
+          name: "characterId",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        {
+          name: "isRunning",
+          type: "boolean",
+          defaultValue: "true",
+        },
+      ],
+    },
+  ],
   [
     "PlayerUpdate.DroppedIemNotification",
     0x0f65,
@@ -8106,7 +8123,17 @@ var packets = [
     },
   ],
   ["Vehicle.Deploy", 0x881a, {}],
-  ["Vehicle.Engine", 0x881b, {}],
+  [
+    "Vehicle.Engine",
+    0x881b,
+    {
+      fields: [
+        { name: "guid1", type: "uint64", defaultValue: "0" },
+        { name: "guid2", type: "uint64", defaultValue: "0" },
+        { name: "unknownBoolean", type: "boolean", defaultValue: false },
+      ],
+    },
+  ],
   ["Vehicle.AccessType", 0x881c, {}],
   ["Vehicle.KickPlayer", 0x881d, {}],
   ["Vehicle.HealthUpdateOwner", 0x881e, {}],
