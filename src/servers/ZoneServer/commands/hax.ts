@@ -12,22 +12,29 @@ const hax: any = {
   drive: function (server: ZoneServer, client: Client, args: any[]) {
          let vehicleId = 1;
          let driveModel = 7225;
+         const driveChoosen = args[1];
          if (!args[1]) {
              server.sendChatText(client, "[ERROR] Usage /hax drive offroader/pickup/policecar");
              return;
          }
-         if (args[1] === "offroader") {
-             vehicleId = 1;
+         switch (driveChoosen) {
+          case "offroader":
+            vehicleId = 1;
+            driveModel = 7225;
+             break;
+          case "pickup":
+            vehicleId = 2;
+            driveModel = 9258;
+          break;
+          case "policecar":
+            vehicleId = 3;
+            driveModel = 9301;
+          break;
+          default:
+            vehicleId = 1;
              driveModel = 7225;
+          break;
          }
-         if (args[1] === "pickup") {
-             vehicleId = 2;
-             driveModel = 9258;
-         }
-         if (args[1] === "policecar") {
-             vehicleId = 3;
-             driveModel = 9301;
-         } 
          const characterId = server.generateGuid();
          const guid = server.generateGuid();
          const vehicleData = {
