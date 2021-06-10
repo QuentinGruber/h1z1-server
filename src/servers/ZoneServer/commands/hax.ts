@@ -9,54 +9,66 @@ let isSonic = false;
 let isVehicle = false;
 
 const hax: any = {
-  driveTest: function (server: ZoneServer, client: Client, args: any[]) {
-    if (!args[1]) {
-      server.sendChatText(
-        client,
-        "[ERROR] You need to specify a vehicle model ID !"
-      );
-      return;
-    }
-    const driveModel = Number(args[1]);
-    const characterId = server.generateGuid();
-    const guid = server.generateGuid();
-    const vehicleData = {
-      npcData: {
-        guid: guid,
-        transientId: 999999,
-        characterId: characterId,
-        modelId: driveModel,
-        scale: [1, 1, 1, 1],
-        position: client.character.state.position,
-        rotation: client.character.state.lookAt,
-        vehicleId: 1,
-        attachedObject: {},
-        color: {},
-        unknownArray1: [],
-        array5: [{ unknown1: 0 }],
-        array17: [{ unknown1: 0 }],
-        array18: [{ unknown1: 0 }],
-      },
-      unknownDword1: 10,
-      unknownDword2: 10,
-      positionUpdate: server.createPositionUpdate(
-        new Float32Array([0, 0, 0, 0]),
-        [0, 0, 0, 0]
-      ),
-      unknownString1: "",
-    };
-    server.sendData(client, "PlayerUpdate.AddLightweightVehicle", vehicleData);
-    server._vehicles[characterId] = vehicleData;
-    server.sendData(client, "PlayerUpdate.ManagedObject", {
-      guid: characterId,
-      characterId: client.character.characterId,
-    });
-    server.sendData(client, "Mount.MountResponse", {
-      characterId: client.character.characterId,
-      guid: characterId,
-      characterData: [],
-    });
-  },
+  drive: function (server: ZoneServer, client: Client, args: any[]) {
+         let vehicleId = 1;
+         let driveModel = 7225;
+         if (!args[1]) {
+             server.sendChatText(client, "[ERROR] Usage /hax drive offroader/pickup/policecar");
+             return;
+         }
+         if (args[1] === "offroader") {
+             vehicleId = 1;
+             driveModel = 7225;
+         }
+         if (args[1] === "pickup") {
+             vehicleId = 2;
+             driveModel = 9258;
+         }
+         if (args[1] === "policecar") {
+             vehicleId = 3;
+             driveModel = 9301;
+         } 
+         const characterId = server.generateGuid();
+         const guid = server.generateGuid();
+         const vehicleData = {
+            npcData: {
+            guid: guid,
+            transientId: 999999,
+            characterId: characterId,
+            modelId: driveModel,
+            scale: [1, 1, 1, 1],
+            position: client.character.state.position,
+            rotation: client.character.state.lookAt,
+            vehicleId: vehicleId,
+            attachedObject: {},
+            color: {},
+            unknownArray1: [],
+            array5: [{ unknown1: 0 }],
+            array17: [{ unknown1: 0 }],
+            array18: [{ unknown1: 0 }],
+            },
+          unknownDword1: 10,
+          unknownDword2: 10,
+          positionUpdate: server.createPositionUpdate(new Float32Array([0, 0, 0, 0]), [0, 0, 0, 0]),
+          unknownString1: "",
+          };
+         const mOresponse = {
+          characterId: client.character.characterId,
+          guid: characterId,
+          characterData: [],
+          };
+          server.sendData(client, "PlayerUpdate.AddLightweightVehicle", vehicleData);
+          server._vehicles[characterId] = vehicleData;
+          server.sendData(client, "PlayerUpdate.ManagedObject", {
+              guid: characterId,
+              characterId: client.character.characterId,
+          });
+          server.sendData(client, "Mount.MountResponse", mOresponse);
+          server.sendData(client, "Vehicle.Engine", {
+              guid2: characterId,
+              unknownBoolean: true,
+          });
+     },
 
   parachute: function (server: ZoneServer, client: Client, args: any[]) {
     const characterId = server.generateGuid();
