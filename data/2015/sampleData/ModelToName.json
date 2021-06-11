@@ -5,17 +5,17 @@
 	"NameId": 32
   },
   {
-	"itemName": "ammo AR15/ ammobox02",
+	"itemName": ".223 Round",
 	"modelId": 10,
 	"NameId": 1169
   },
   {
-	"itemName": "PumpShotgun",
+	"itemName": "12GA Pump Shotgun",
 	"modelId": 9286,
 	"NameId": 1055
   },
   {
-	"itemName": "ShotgunShell",
+	"itemName": "Shotgun Shell",
 	"modelId": 8023,
 	"NameId": 1450
   },
@@ -25,7 +25,7 @@
 	"NameId": 362
   },
   {
-	"itemName": "CombatKnife",
+	"itemName": "Combat Knife",
 	"modelId": 21,
 	"NameId": 364
   },
@@ -35,12 +35,12 @@
 	"NameId": 363
   },
   {
-	"itemName": "AluminiumBaseballbat",
+	"itemName": "Baseball bat",
 	"modelId": 42,
 	"NameId": 8961
   },
   {
-	"itemName": "Militarybackpack",
+	"itemName": "Military backpack",
 	"modelId": 9093,
 	"NameId": 1019
   },
@@ -55,12 +55,12 @@
 	"NameId": 8988
   },
   {
-	"itemName": "WoodAxe",
+	"itemName": "Wood Axe",
 	"modelId": 27,
 	"NameId": 84
   },
   {
-	"itemName": "FireAxe",
+	"itemName": "Fire Axe",
 	"modelId": 9325,
 	"NameId": 9028
   },
@@ -80,57 +80,57 @@
 	"NameId": 58
   },
   {
-	"itemName": "Woodenbat",
+	"itemName": "Wooden bat",
 	"modelId": 9313,
 	"NameId": 8961
   },
   {
-	"itemName": "1911",
+	"itemName": "M1911A1",
 	"modelId": 17,
 	"NameId": 24
   },
   {
-	"itemName": ".308 Rifle",
+	"itemName": ".308 Hunting Rifle",
 	"modelId": 9204,
 	"NameId": 1054
   },
   {
-	"itemName": ".308 ammo",
+	"itemName": ".308 Round",
 	"modelId": 9287,
 	"NameId": 1364
   },
   {
-	"itemName": "FirstAidKit",
+	"itemName": "First Aid Kit",
 	"modelId": 9221,
 	"NameId": 330
   },
   {
-	"itemName": "GroundCoffee",
+	"itemName": "Ground Coffee",
 	"modelId": 7,
 	"NameId": 10
   },
   {
-	"itemName": "CannedFoodBeets",
+	"itemName": "Roels Sliced Beets",
 	"modelId": 8020,
 	"NameId": 23
   },
   {
-	"itemName": "WaterPurified",
+	"itemName": "Purified Water",
 	"modelId": 9159,
 	"NameId": 1048
   },
   {
-	"itemName": "MotorcycleHelmet",
+	"itemName": "Motorcycle Helmet",
 	"modelId": 68,
 	"NameId": 1502
   },
   {
-	"itemName": "BaseballCap",
+	"itemName": "Baseball Cap",
 	"modelId": 66,
 	"NameId": 1511
   },
   {
-	"itemName": "FoldedShirt",
+	"itemName": "Gray T-Shirt",
 	"modelId": 9249,
 	"NameId": 626
   },
@@ -145,7 +145,7 @@
 	"NameId": 11
   },
   {
-	"itemName": "CarBattery",
+	"itemName": "Vehicle Battery",
 	"modelId": 70,
 	"NameId": 1519
   },
@@ -155,7 +155,7 @@
 	"NameId": 51
   },
   {
-	"itemName": "CanOpener",
+	"itemName": "Can Opener",
 	"modelId": 9039,
 	"NameId": 70
   },
@@ -165,22 +165,22 @@
 	"NameId": 1182
   },
   {
-	"itemName": "EmptyBottle",
+	"itemName": "Empty Bottle",
 	"modelId": 9156,
 	"NameId": 1005
   },
   {
-	"itemName": "SparkPlugs",
+	"itemName": "Sparkplugs",
 	"modelId": 72,
 	"NameId": 1532
   },
   {
-	"itemName": "CornSeeds",
+	"itemName": "Corn Seeds",
 	"modelId": 9163,
 	"NameId": 627
   },
   {
-	"itemName": "MREBag",
+	"itemName": "MRE Bag",
 	"modelId": 9250,
 	"NameId": 35
   },
@@ -200,17 +200,17 @@
 	"NameId": 1066
   },
   {
-	"itemName": "WoodPlank",
+	"itemName": "Wood Plank",
 	"modelId": 64,
 	"NameId": 629
   },
   {
-	"itemName": "MetalSheet",
+	"itemName": "Metal Sheet",
 	"modelId": 11,
 	"NameId": 57
   },
   {
-	"itemName": "MetalScrap",
+	"itemName": "Scrap Metal",
 	"modelId": 30,
 	"NameId": 2
   },
@@ -220,12 +220,12 @@
 	"NameId": 689
   },
   {
-	"itemName": "WoodLog",
+	"itemName": "Wood Log",
 	"modelId": 9043,
 	"NameId": 43
   },
   {
-	"itemName": "WoodStick",
+	"itemName": "Wood Stick",
 	"modelId": 65,
 	"NameId": 631
   },
