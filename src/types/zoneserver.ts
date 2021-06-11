@@ -1,5 +1,6 @@
 export interface Client {
   isLoading: boolean;
+  isMounted: boolean;
   posAtLastRoutine: Float32Array;
   posAtLogoutStart: Float32Array;
   logoutTimer: NodeJS.Timeout | null;
