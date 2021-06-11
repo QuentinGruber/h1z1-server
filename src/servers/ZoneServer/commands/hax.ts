@@ -72,6 +72,7 @@ const hax: any = {
               guid2: characterId,
               unknownBoolean: true,
           });
+    client.isMounted = true;
      },
 
   parachute: function (server: ZoneServer, client: Client, args: any[]) {
@@ -116,6 +117,7 @@ const hax: any = {
       guid: characterId,
       characterData: [],
     });
+    client.isMounted = true;
   },
 
   time: function (server: ZoneServer, client: Client, args: any[]) {
