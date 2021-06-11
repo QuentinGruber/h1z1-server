@@ -66,10 +66,7 @@ const hax: any = {
           };
           server.sendData(client, "PlayerUpdate.AddLightweightVehicle", vehicleData);
           server._vehicles[characterId] = vehicleData;
-          server.sendData(client, "PlayerUpdate.ManagedObject", {
-              guid: characterId,
-              characterId: client.character.characterId,
-          });
+          server.worldRoutine(client);
           server.sendData(client, "Mount.MountResponse", mOresponse);
           server.sendData(client, "Vehicle.Engine", {
               guid2: characterId,
@@ -113,10 +110,7 @@ const hax: any = {
     };
     server.sendData(client, "PlayerUpdate.AddLightweightVehicle", vehicleData);
     server._vehicles[characterId] = vehicleData;
-    server.sendData(client, "PlayerUpdate.ManagedObject", {
-      guid: characterId,
-      characterId: client.character.characterId,
-    });
+    server.worldRoutine(client);
     server.sendData(client, "Mount.MountResponse", {
       characterId: client.character.characterId,
       guid: characterId,
