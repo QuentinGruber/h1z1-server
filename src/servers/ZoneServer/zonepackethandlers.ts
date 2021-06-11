@@ -152,6 +152,7 @@ const packetHandlers: any = {
     );
     server.executeFuncForAllClients("spawnCharacters");
     client.isLoading = false;
+      client.isMounted = false;
   },
   Security: function (server: ZoneServer, client: Client, packet: any) {
     debug(packet);
@@ -454,6 +455,7 @@ const packetHandlers: any = {
     server.sendData(client, "Mount.DismountResponse", {
       characterId: client.character.characterId,
     });
+      client.isMounted = false;	
   },
   "Command.InteractRequest": function (
     server: ZoneServer,
@@ -523,19 +525,21 @@ const packetHandlers: any = {
         stringId: 31,
       });
     } else if (
-      vehicleData &&
-      isPosInRadius(
-        server._interactionDistance,
-        client.character.state.position,
-        vehicleData.npcData.position
-      )
-    ) {
-      server.sendData(client, "Command.InteractionString", {
-        guid: guid,
-        stringId: 15,
-      });
-    }
-  },
+        vehicleData &&
+        isPosInRadius(
+          server._interactionDistance,
+          client.character.state.position,
+          vehicleData.npcData.position
+        )
+      ) {
+        if (!client.isMounted) {
+        server.sendData(client, "Command.InteractionString", {
+          guid: guid,
+          stringId: 15,
+        });
+        }
+      }
+    },
   "Command.InteractionSelect": function (
     server: ZoneServer,
     client: Client,
