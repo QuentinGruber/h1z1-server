@@ -33,6 +33,37 @@
             "outFiles": [
                 "${workspaceFolder}/out/**/*.js"
             ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch ZoneServer2016",
+            "env":{
+                "VSCODE_DEBUG":"true"
+            },
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/src/servers/ZoneServer2016/zoneserver.ts",
+            "outFiles": [
+                "${workspaceFolder}/out/**/*.js"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch LoginServer2016",
+            "env":{
+                "VSCODE_DEBUG":"true",
+                "CLIENT_SIXTEEN":"true"
+            },
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/src/servers/LoginServer/loginserver.ts",
+            "outFiles": [
+                "${workspaceFolder}/out/**/*.js"
+            ]
         }
     ]
 }

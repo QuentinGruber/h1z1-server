@@ -1,5 +1,5 @@
 import { Base64 } from "js-base64";
-import { ZoneServer, ZoneClient } from "../h1z1-server";
+import { ZoneServer, ZoneClient } from "../../h1z1-server";
 
 new ZoneServer(1117, Base64.toUint8Array("F70IaxuU8C/w7FPXY1ibXw==")).start();
 

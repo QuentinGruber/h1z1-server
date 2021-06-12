@@ -9,6 +9,122 @@ let isSonic = false;
 let isVehicle = false;
 
 const hax: any = {
+  drive: function (server: ZoneServer, client: Client, args: any[]) {
+    let vehicleId;
+    let driveModel;
+    const driveChoosen = args[1];
+    if (!args[1]) {
+      server.sendChatText(
+        client,
+        "[ERROR] Usage /hax drive offroader/pickup/policecar"
+      );
+      return;
+    }
+    switch (driveChoosen) {
+      case "offroader":
+        vehicleId = 1;
+        driveModel = 7225;
+        break;
+      case "pickup":
+        vehicleId = 2;
+        driveModel = 9258;
+        break;
+      case "policecar":
+        vehicleId = 3;
+        driveModel = 9301;
+        break;
+      default:
+        vehicleId = 1;
+        driveModel = 7225;
+        break;
+    }
+    const characterId = server.generateGuid();
+    const guid = server.generateGuid();
+    const vehicleData = {
+      npcData: {
+        guid: guid,
+        transientId: 999999,
+        characterId: characterId,
+        modelId: driveModel,
+        scale: [1, 1, 1, 1],
+        position: client.character.state.position,
+        rotation: client.character.state.lookAt,
+        vehicleId: vehicleId,
+        attachedObject: {},
+        color: {},
+        unknownArray1: [],
+        array5: [{ unknown1: 0 }],
+        array17: [{ unknown1: 0 }],
+        array18: [{ unknown1: 0 }],
+      },
+      unknownDword1: 10,
+      unknownDword2: 10,
+      positionUpdate: server.createPositionUpdate(
+        new Float32Array([0, 0, 0, 0]),
+        [0, 0, 0, 0]
+      ),
+      unknownString1: "",
+    };
+    server.sendData(client, "PlayerUpdate.AddLightweightVehicle", vehicleData);
+    server._vehicles[characterId] = vehicleData;
+    server.worldRoutine(client);
+    server.sendData(client, "Mount.MountResponse", {
+      characterId: client.character.characterId,
+      guid: characterId,
+      characterData: [],
+    });
+    server.sendData(client, "Vehicle.Engine", {
+      guid2: characterId,
+      unknownBoolean: true,
+    });
+    client.isMounted = true;
+  },
+
+  parachute: function (server: ZoneServer, client: Client, args: any[]) {
+    const characterId = server.generateGuid();
+    const guid = server.generateGuid();
+    let posY = client.character.state.position[1] + 700;
+    const vehicleData = {
+      npcData: {
+        guid: guid,
+        transientId: 999999,
+        characterId: characterId,
+        modelId: 9374,
+        scale: [1, 1, 1, 1],
+        position: [
+          client.character.state.position[0],
+          posY,
+          client.character.state.position[2],
+          client.character.state.position[3],
+        ],
+        rotation: client.character.state.lookAt,
+        vehicleId: 13,
+        attachedObject: {},
+        color: {},
+        unknownArray1: [],
+        array5: [{ unknown1: 0 }],
+        array17: [{ unknown1: 0 }],
+        array18: [{ unknown1: 0 }],
+      },
+      unknownDword1: 10,
+      unknownDword2: 10,
+      positionUpdate: server.createPositionUpdate(
+        new Float32Array([0, 0, 0, 0]),
+        [0, 0, 0, 0]
+      ),
+      unknownString1: "",
+    };
+    server.sendData(client, "PlayerUpdate.AddLightweightVehicle", vehicleData);
+    server._vehicles[characterId] = vehicleData;
+    server.worldRoutine(client);
+    server.sendData(client, "Mount.MountResponse", {
+      characterId: client.character.characterId,
+      guid: characterId,
+      characterData: [],
+    });
+    client.isMounted = true;
+  },
+
   time: function (server: ZoneServer, client: Client, args: any[]) {
     const choosenHour: number = Number(args[1]);
     if (choosenHour < 0) {
@@ -83,11 +199,15 @@ const hax: any = {
   },
   despawnObjects: function (server: ZoneServer, client: Client, args: any[]) {
     client.spawnedEntities.forEach((object) => {
-      server.despawnEntity(object.characterId);
+      server.despawnEntity(
+        object.characterId ? object.characterId : object.npcData.characterId
+      );
     });
     client.spawnedEntities = [];
     server._npcs = {};
     server._objects = {};
+    server._vehicles = {};
+    server._doors = {};
     server.sendChatText(client, "Objects removed from the game.", true);
   },
   spamOffroader: function (server: ZoneServer, client: Client, args: any[]) {
@@ -158,9 +278,13 @@ const hax: any = {
     }
     const choosenModelId = Number(args[1]);
     const characterId = server.generateGuid();
-	if (choosenModelId === 7225 || choosenModelId === 9301 || choosenModelId === 9258) {
-			isVehicle = true;
-		}
+    if (
+      choosenModelId === 7225 ||
+      choosenModelId === 9301 ||
+      choosenModelId === 9258
+    ) {
+      isVehicle = true;
+    }
     const npc = {
       characterId: characterId,
       guid: guid,
@@ -169,13 +293,13 @@ const hax: any = {
       position: client.character.state.position,
       rotation: client.character.state.lookAt,
       attachedObject: {},
-	  unknown26: isVehicle,
+      unknown26: isVehicle,
       color: {},
       array5: [{ unknown1: 0 }],
       array17: [{ unknown1: 0 }],
       array18: [{ unknown1: 0 }],
     };
-	isVehicle = false;
+    isVehicle = false;
     server.sendData(client, "PlayerUpdate.AddLightweightNpc", npc);
     server._npcs[characterId] = npc; // save npc
   },
@@ -207,7 +331,7 @@ const hax: any = {
     server.sendChatText(client, "Delete player, back in observer mode");
   },
   changeStat: function (server: ZoneServer, client: Client, args: any[]) {
-    const stats = require("../../../../data/sampleData/stats.json");
+    const stats = require("../../../../data/2015/sampleData/stats.json");
     server.sendData(client, "PlayerUpdate.UpdateStat", {
       characterId: client.character.characterId,
       stats: stats,
@@ -239,10 +363,10 @@ const hax: any = {
     server.sendChatText(client, "Dynamic weather removed !");
   },
   weather: function (server: ZoneServer, client: Client, args: any[]) {
-    if(server._dynamicWeatherInterval){
+    if (server._dynamicWeatherInterval) {
       clearInterval(server._dynamicWeatherInterval);
       server._dynamicWeatherInterval = null;
-      server.sendChatText(client, "Dynamic weather removed !")
+      server.sendChatText(client, "Dynamic weather removed !");
     }
     const weatherTemplate = server._soloMode
       ? server._weatherTemplates[args[1]]
@@ -302,9 +426,9 @@ const hax: any = {
             JSON.stringify(server._weatherTemplates)
           );
           delete require.cache[
-            require.resolve("../../../../data/sampleData/weather.json")
+            require.resolve("../../../../data/2015/sampleData/weather.json")
           ];
-          server._weatherTemplates = require("../../../../data/sampleData/weather.json");
+          server._weatherTemplates = require("../../../../data/2015/sampleData/weather.json");
         } else {
           await server._db?.collection("weathers").insertOne(currentWeather);
           server._weatherTemplates = await (server._db as any)
@@ -337,14 +461,12 @@ const hax: any = {
       runSpeed: speed,
     });
   },
-  hell: function (server: ZoneServer, client: Client, args: any[]) {
-    server.sendChatText(
-      client,
-      "[DEPRECATED] use '/hax randomWeather' instead",
-      true
-    );
-  },
   randomWeather: function (server: ZoneServer, client: Client, args: any[]) {
+    if (server._dynamicWeatherInterval) {
+      clearInterval(server._dynamicWeatherInterval);
+      server._dynamicWeatherInterval = null;
+      server.sendChatText(client, "Dynamic weather removed !");
+    }
     debug("Randomized weather");
     server.sendChatText(client, `Randomized weather`);
 

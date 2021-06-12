@@ -1,4 +1,4 @@
-import * as h1emu from "../h1z1-server";
+import * as h1emu from "../../h1z1-server";
 import { toUint8Array } from "js-base64";
 
 new h1emu.LoginServer(1115).start();

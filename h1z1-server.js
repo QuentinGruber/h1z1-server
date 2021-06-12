@@ -41,3 +41,5 @@ exports.GatewayServer =
   require("./out/servers/GatewayServer/gatewayserver.js").GatewayServer;
 exports.ZoneServer =
   require("./out/servers/ZoneServer/zoneserver.js").ZoneServer;
+exports.ZoneServer2016 =
+  require("./out/servers/ZoneServer2016/zoneserver.js").ZoneServer2016;

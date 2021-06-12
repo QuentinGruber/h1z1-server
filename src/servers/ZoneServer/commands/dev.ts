@@ -1,4 +1,5 @@
 import { Client } from "types/zoneserver";
+import { generateRandomGuid } from "../../../utils/utils";
 import { ZoneServer } from "../zoneserver";
 
 const debug = require("debug")("zonepacketHandlers");
@@ -9,6 +10,42 @@ const dev: any = {
     server.sendData(client, "ClientUpdate.StartTimer", {
       stringId: 0,
       time: 0,
+    });
+  },
+  testManagedObject: function (
+    server: ZoneServer,
+    client: Client,
+    args: any[]
+  ) {
+    const vehicleId = generateRandomGuid();
+    const vehicleData = {
+      npcData: {
+        guid: server.generateGuid(),
+        transientId: 1,
+        modelId: 7225,
+        scale: [1, 1, 1, 1],
+        position: client.character.state.position,
+        attachedObject: {},
+        color: {},
+        unknownArray1: [],
+        array5: [{ unknown1: 0 }],
+        array17: [{ unknown1: 0 }],
+        array18: [{ unknown1: 0 }],
+      },
+      unknownGuid1: vehicleId,
+      unknownDword1: 0,
+      unknownDword2: 0,
+      positionUpdate: server.createPositionUpdate(
+        new Float32Array([0, 0, 0, 0]),
+        [0, 0, 0, 0]
+      ),
+      unknownString1: "",
+    };
+
+    server.sendData(client, "PlayerUpdate.AddLightweightVehicle", vehicleData);
+    server.sendData(client, "PlayerUpdate.ManagedObject", {
+      guid: vehicleId,
+      characterId: client.character.characterId,
     });
   },
   testNpcRelevance: function (server: ZoneServer, client: Client, args: any[]) {
@@ -83,7 +120,7 @@ const dev: any = {
     server.sendData(client, "PlayerUpdate.AddLightweightVehicle", vehicleData);
   },
   findModel: function (server: ZoneServer, client: Client, args: any[]) {
-    const models = require("../../../../data/dataSources/Models.json");
+    const models = require("../../../../data/2015/dataSources/Models.json");
     const wordFilter = args[1];
     if (wordFilter) {
       const result = models.filter((word: any) =>

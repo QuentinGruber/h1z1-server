@@ -1,7 +1,10 @@
-import { LoginClient, LoginServer } from "../h1z1-server";
+// UNUSED FOR NOW 2016 SIMULATED CLIENT ISN'T DONE
+import { LoginClient, LoginProtocol, LoginServer } from "../../h1z1-server";
 import { Base64 } from "js-base64";
 
-new LoginServer(1115).start();
+const loginServer2016 = new LoginServer(1115);
+loginServer2016._protocol = new LoginProtocol("LoginUdp_11");
+loginServer2016.start();
 
 var client = new LoginClient(
   295110,

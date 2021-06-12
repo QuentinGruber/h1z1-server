@@ -27,16 +27,16 @@ import { Worker } from "worker_threads";
 import dynamicWeather from "./workers/dynamicWeather";
 import { Base64 } from "js-base64";
 
-const localSpawnList = require("../../../data/sampleData/spawnLocations.json");
+const localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json");
 
 const debugName = "ZoneServer";
 const debug = require("debug")(debugName);
-const spawnLocations = require("../../../data/sampleData/spawnLocations.json");
-const localWeatherTemplates = require("../../../data/sampleData/weather.json");
-const stats = require("../../../data/sampleData/stats.json");
-const recipes = require("../../../data/sampleData/recipes.json");
-const ressources = require("../../../data/dataSources/Resources.json");
-const Z1_POIs = require("../../../data/zoneData/Z1_POIs");
+const spawnLocations = require("../../../data/2015/sampleData/spawnLocations.json");
+const localWeatherTemplates = require("../../../data/2015/sampleData/weather.json");
+const stats = require("../../../data/2015/sampleData/stats.json");
+const recipes = require("../../../data/2015/sampleData/recipes.json");
+const resources = require("../../../data/2015/dataSources/Resources.json");
+const Z1_POIs = require("../../../data/2015/zoneData/Z1_POIs");
 
 export class ZoneServer extends EventEmitter {
   _gatewayServer: GatewayServer;
@@ -68,6 +68,7 @@ export class ZoneServer extends EventEmitter {
   _worldId: number;
   _npcRenderDistance: number;
   _dynamicWeatherInterval: any;
+  _dynamicWeatherEnabled: boolean;
   _vehicles: any;
   _respawnLocations: any[];
   _doors: any;
@@ -111,6 +112,7 @@ export class ZoneServer extends EventEmitter {
     this._interactionDistance = 4;
     this._npcRenderDistance = 350;
     this._pingTimeoutTime = 30000;
+    this._dynamicWeatherEnabled = true;
     this._respawnLocations = spawnLocations.map((spawn: any) => {
       return {
         guid: this.generateGuid(),
@@ -362,10 +364,12 @@ export class ZoneServer extends EventEmitter {
     await this.setupServer();
     this._startTime += Date.now();
     this._startGameTime += Date.now();
-    this._dynamicWeatherInterval = setInterval(
-      () => dynamicWeather(this),
-      5000
-    );
+    if (this._dynamicWeatherEnabled) {
+      this._dynamicWeatherInterval = setInterval(
+        () => dynamicWeather(this),
+        5000
+      );
+    }
     this._gatewayServer.start();
   }
 
@@ -469,9 +473,9 @@ export class ZoneServer extends EventEmitter {
 
   async characterData(client: Client): Promise<void> {
     delete require.cache[
-      require.resolve("../../../data/sampleData/sendself.json") // reload json
+      require.resolve("../../../data/2015/sampleData/sendself.json") // reload json
     ];
-    const self = require("../../../data/sampleData/sendself.json"); // dummy self
+    const self = require("../../../data/2015/sampleData/sendself.json"); // dummy self
     if (String(client.character.characterId) === "0x0000000000000001") {
       // for fun 🤠
       self.data.characterId = "0x0000000000000001";
@@ -518,18 +522,18 @@ export class ZoneServer extends EventEmitter {
       client.character.state.rotation = self.data.rotation;
     }
     const characterResources: any[] = [];
-    ressources.forEach((ressource: any) => {
+    resources.forEach((resource: any) => {
       characterResources.push({
-        resourceType: ressource.RESOURCE_TYPE,
+        resourceType: resource.RESOURCE_TYPE,
         resourceData: {
           subResourceData: {
-            resourceId: ressource.ID,
-            resourceType: ressource.RESOURCE_TYPE,
+            resourceId: resource.ID,
+            resourceType: resource.RESOURCE_TYPE,
             unknownArray1: [],
           },
           unknownData2: {
-            max_value: ressource.MAX_VALUE,
-            initial_value: ressource.INITIAL_VALUE,
+            max_value: resource.MAX_VALUE,
+            initial_value: resource.INITIAL_VALUE,
           },
         },
       });
@@ -543,7 +547,7 @@ export class ZoneServer extends EventEmitter {
 
   generateProfiles(): any[] {
     const profiles: any[] = [];
-    const profileTypes = require("../../../data/dataSources/ProfileTypes.json");
+    const profileTypes = require("../../../data/2015/dataSources/ProfileTypes.json");
     profileTypes.forEach((profile: any) => {
       profiles.push({
         profileId: profile.ID,
@@ -602,7 +606,7 @@ export class ZoneServer extends EventEmitter {
         this.sendData(
           client,
           "PlayerUpdate.AddLightweightNpc",
-          this._npcs[npc],
+          { ...this._npcs[npc], profileId: 65 },
           1
         );
         client.spawnedEntities.push(this._npcs[npc]);
@@ -697,6 +701,10 @@ export class ZoneServer extends EventEmitter {
           this._vehicles[vehicle],
           1
         );
+        this.sendData(client, "PlayerUpdate.ManagedObject", {
+          guid: this._vehicles[vehicle].npcData.characterId,
+          characterId: client.character.characterId,
+        });
         client.spawnedEntities.push(this._vehicles[vehicle]);
       }
     }
@@ -720,9 +728,16 @@ export class ZoneServer extends EventEmitter {
       const characterId = object.characterId
         ? object.characterId
         : object.npcData.characterId;
+      if (characterId in this._vehicles) {
+        this.sendData(client, "PlayerUpdate.ManagedObject", {
+          guid: characterId,
+          characterId: client.character.characterId,
+        });
+      }
+
       this.sendData(
         client,
-        "PlayerUpdate.RemovePlayer",
+        "PlayerUpdate.RemovePlayerGracefully",
         {
           characterId,
         },
@@ -745,7 +760,7 @@ export class ZoneServer extends EventEmitter {
           this.sendData(
             client,
             "PlayerUpdate.AddLightweightNpc",
-            this._objects[object],
+            { ...this._objects[object], profileId: 10 },
             1
           );
           client.spawnedEntities.push(this._objects[object]);
@@ -779,7 +794,7 @@ export class ZoneServer extends EventEmitter {
 
   despawnEntity(characterId: string) {
     this.sendDataToAll(
-      "PlayerUpdate.RemovePlayer",
+      "PlayerUpdate.RemovePlayerGracefully",
       {
         characterId: characterId,
       },
@@ -789,7 +804,7 @@ export class ZoneServer extends EventEmitter {
 
   deleteEntity(characterId: string, dictionnary: any) {
     this.sendDataToAll(
-      "PlayerUpdate.RemovePlayer",
+      "PlayerUpdate.RemovePlayerGracefully",
       {
         characterId: characterId,
       },
