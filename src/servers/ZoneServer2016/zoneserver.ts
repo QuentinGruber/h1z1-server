@@ -25,9 +25,9 @@ export class ZoneServer2016 extends ZoneServer {
     gatewayKey: Uint8Array,
     mongoAddress: string = ""
   ) {
-    super(serverPort,gatewayKey,mongoAddress)
-    this._protocol = new H1Z1Protocol("ClientProtocol_1080")
-    this._packetHandlers = packetHandlers
+    super(serverPort, gatewayKey, mongoAddress);
+    this._protocol = new H1Z1Protocol("ClientProtocol_1080");
+    this._packetHandlers = packetHandlers;
     this._dynamicWeatherEnabled = false;
   }
   async characterData(client: Client) {
@@ -80,9 +80,8 @@ export class ZoneServer2016 extends ZoneServer {
       );
       self.data.position = this._spawnLocations[randomSpawnIndex].position;
       self.data.rotation = this._spawnLocations[randomSpawnIndex].rotation;
-      client.character.spawnLocation = this._spawnLocations[
-        randomSpawnIndex
-      ].name;
+      client.character.spawnLocation =
+        this._spawnLocations[randomSpawnIndex].name;
     }
     this.sendData(client, "SendSelfToClient", self);
   }
@@ -102,7 +101,7 @@ export class ZoneServer2016 extends ZoneServer {
       this.sendData(client, "SendZoneDetails", weather);
     }
   }
-  spawnNpcs(client:Client){
+  spawnNpcs(client: Client) {
     for (let npc in this._npcs) {
       this.sendData(client, "AddLightweightNpc", this._npcs[npc]);
     }
@@ -123,12 +122,12 @@ export class ZoneServer2016 extends ZoneServer {
       });
       */
       this.sendDataToAll("Chat.ChatText", {
-          message: `${client.character.name}: ${message}`,
-          unknownDword1: 0,
-          color: [255, 255, 255, 0],
-          unknownDword2: 13951728,
-          unknownByte3: 0,
-          unknownByte4: 1,
+        message: `${client.character.name}: ${message}`,
+        unknownDword1: 0,
+        color: [255, 255, 255, 0],
+        unknownDword2: 13951728,
+        unknownByte3: 0,
+        unknownByte4: 1,
       });
     } else {
       /*
@@ -156,5 +155,8 @@ export class ZoneServer2016 extends ZoneServer {
 }
 
 if (process.env.VSCODE_DEBUG === "true") {
-  new ZoneServer2016(1117, Base64.toUint8Array("F70IaxuU8C/w7FPXY1ibXw==")).start();
+  new ZoneServer2016(
+    1117,
+    Base64.toUint8Array("F70IaxuU8C/w7FPXY1ibXw==")
+  ).start();
 }

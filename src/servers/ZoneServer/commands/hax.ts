@@ -9,15 +9,35 @@ let isSonic = false;
 let isVehicle = false;
 
 const hax: any = {
-  driveTest: function (server: ZoneServer, client: Client, args: any[]) {
+  drive: function (server: ZoneServer, client: Client, args: any[]) {
+    let vehicleId;
+    let driveModel;
+    const driveChoosen = args[1];
     if (!args[1]) {
       server.sendChatText(
         client,
-        "[ERROR] You need to specify a vehicle model ID !"
+        "[ERROR] Usage /hax drive offroader/pickup/policecar"
       );
       return;
     }
-    const driveModel = Number(args[1]);
+    switch (driveChoosen) {
+      case "offroader":
+        vehicleId = 1;
+        driveModel = 7225;
+        break;
+      case "pickup":
+        vehicleId = 2;
+        driveModel = 9258;
+        break;
+      case "policecar":
+        vehicleId = 3;
+        driveModel = 9301;
+        break;
+      default:
+        vehicleId = 1;
+        driveModel = 7225;
+        break;
+    }
     const characterId = server.generateGuid();
     const guid = server.generateGuid();
     const vehicleData = {
@@ -29,7 +49,7 @@ const hax: any = {
         scale: [1, 1, 1, 1],
         position: client.character.state.position,
         rotation: client.character.state.lookAt,
-        vehicleId: 1,
+        vehicleId: vehicleId,
         attachedObject: {},
         color: {},
         unknownArray1: [],
@@ -47,15 +67,17 @@ const hax: any = {
     };
     server.sendData(client, "PlayerUpdate.AddLightweightVehicle", vehicleData);
     server._vehicles[characterId] = vehicleData;
-    server.sendData(client, "PlayerUpdate.ManagedObject", {
-      guid: characterId,
-      characterId: client.character.characterId,
-    });
+    server.worldRoutine(client);
     server.sendData(client, "Mount.MountResponse", {
       characterId: client.character.characterId,
       guid: characterId,
       characterData: [],
     });
+    server.sendData(client, "Vehicle.Engine", {
+      guid2: characterId,
+      unknownBoolean: true,
+    });
+    client.isMounted = true;
   },
 
   parachute: function (server: ZoneServer, client: Client, args: any[]) {
@@ -94,15 +116,13 @@ const hax: any = {
     };
     server.sendData(client, "PlayerUpdate.AddLightweightVehicle", vehicleData);
     server._vehicles[characterId] = vehicleData;
-    server.sendData(client, "PlayerUpdate.ManagedObject", {
-      guid: characterId,
-      characterId: client.character.characterId,
-    });
+    server.worldRoutine(client);
     server.sendData(client, "Mount.MountResponse", {
       characterId: client.character.characterId,
       guid: characterId,
       characterData: [],
     });
+    client.isMounted = true;
   },
 
   time: function (server: ZoneServer, client: Client, args: any[]) {
