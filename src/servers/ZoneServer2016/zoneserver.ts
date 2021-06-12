@@ -35,26 +35,6 @@ export class ZoneServer2016 extends ZoneServer {
       require.resolve("../../../data/2016/sampleData/sendself.json") // reload json
     ];
     const self = require("../../../data/2016/sampleData/sendself.json"); // dummy self
-    /*
-    if (
-      String(client.character.characterId).toUpperCase() ===
-      String(getCharacterId(99)).toUpperCase()
-    ) {
-      // for fun 🤠
-      self.data.characterId = String(getCharacterId(99)).toUpperCase();
-      self.data.identity.characterFirstName = "Cowboy :)";
-      self.data.extraModel = "SurvivorMale_Ivan_OutbackHat_Base.adr";
-      self.data.extraModelTexture = "Ivan_OutbackHat_LeatherTan";
-    } else if (
-      String(client.character.characterId).toUpperCase() ===
-      String(getCharacterId(100)).toUpperCase()
-    ) {
-      // for fun 🤠
-      self.data.characterId = String(getCharacterId(100)).toUpperCase();
-      self.data.identity.characterFirstName = "Z";
-      self.data.actorModelId = 9001;
-    }
-    */
     const {
       data: { identity },
     } = self;
