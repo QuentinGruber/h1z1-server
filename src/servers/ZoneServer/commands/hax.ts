@@ -10,8 +10,8 @@ let isVehicle = false;
 
 const hax: any = {
   drive: function (server: ZoneServer, client: Client, args: any[]) {
-         let vehicleId = 1;
-         let driveModel = 7225;
+         let vehicleId;
+         let driveModel;
          const driveChoosen = args[1];
          if (!args[1]) {
              server.sendChatText(client, "[ERROR] Usage /hax drive offroader/pickup/policecar");
