@@ -11,11 +11,8 @@
 // ======================================================================
 
 // delete commands cache if exist so /dev reloadPackets reload them too
-try {
-  // delete commands cache if exist so /dev reloadPackets reload them too
-  delete require.cache[require.resolve("./commands/hax")];
-  delete require.cache[require.resolve("./commands/dev")];
-} catch (e) {}
+delete require.cache[require.resolve("./commands/hax")];
+delete require.cache[require.resolve("./commands/dev")];
 
 const Jenkins = require("hash-jenkins");
 import hax from "./commands/hax";
@@ -27,7 +24,7 @@ import { Int64String } from "../../utils/utils";
 const packetHandlers = {
   ClientIsReady: function (server, client, packet) {
     // clientBeginZoning re-enabled
-    server.sendData(client, "ClientBeginZoning", {}); // Needed for trees
+    server.sendData(client, "ClientBeginZoning", {});// Needed for trees
 
     server.sendData(client, "QuickChat.SendData", { commands: [] });
 
@@ -40,7 +37,7 @@ const packetHandlers = {
       done: 1,
     }); // Required for WaitForWorldReady
     */
-
+   
     server.sendData(client, "ClientUpdate.UpdateStat", { stats: [] });
 
     //server.sendData(client, "Operation.ClientClearMissions", {});
@@ -100,13 +97,13 @@ const packetHandlers = {
       gameTime: (server.getServerTime() & 0xffffffff) >>> 0,
     });
     server.sendGameTimeSync(client);
-
+    
     client.character.currentLoadoutId = 3;
     server.sendData(client, "Loadout.SetCurrentLoadout", {
       guid: client.character.guid,
       loadoutId: client.character.currentLoadoutId,
     });
-
+    
     server.sendData(client, "ZoneDoneSendingInitialData", {}); // Required for WaitForWorldReady
 
     const commands = [
@@ -128,13 +125,68 @@ const packetHandlers = {
       serverTime: Int64String(server.getServerTime()),
       serverTime2: Int64String(server.getServerTime()),
     });
-    /* temp workaround */
+    /*
+    // temp workaround
     server.sendData(client, "ClientUpdate.ModifyMovementSpeed", {
       speed: 11.0,
     });
+    */
+    server.sendData(client, "ResourceEvent", {
+      eventData: {
+        type: 2,
+        value: {
+          characterId: "0x03147cca2a860191",
+          resourceId: 48,// health
+          resourceType: 1,
+          unknownArray1:[],
+          value: 10000,
+          unknownArray2: [],
+        }
+      }
+    });
+    server.sendData(client, "ResourceEvent", {
+      eventData: {
+        type: 2,
+        value: {
+          characterId: "0x03147cca2a860191",
+          resourceId: 6, // stamina
+          resourceType: 6,
+          unknownArray1:[],
+          value: 10000,
+          unknownArray2: [],
+        }
+      }
+    });
+    server.sendData(client, "ResourceEvent", {
+      eventData: {
+        type: 2,
+        value: {
+          characterId: "0x03147cca2a860191",
+          resourceId: 4, // food
+          resourceType: 4,
+          unknownArray1:[],
+          value: 10000,
+          unknownArray2: [],
+        }
+      }
+    });
+    server.sendData(client, "ResourceEvent", {
+      eventData: {
+        type: 2,
+        value: {
+          characterId: "0x03147cca2a860191",
+          resourceId: 5, // water
+          resourceType: 5,
+          unknownArray1:[],
+          value: 10000,
+          unknownArray2: [],
+        }
+      }
+    });
+
   },
   ClientFinishedLoading: function (server, client, packet) {
-    server.spawnNpcs(client);
+    server.spawnAllNpc(client);
     server.sendData(client, "POIChangeMessage", {
       messageStringId: 20,
       id: 99,
@@ -201,10 +253,10 @@ const packetHandlers = {
   },
   "Chat.Chat": function (server, client, packet) {
     const { channel, message } = packet.data;
-    debug(`****\nCHANNEL: ${channel} MESSAGE: ${message}\n****`);
-    debug("DATA*****\n");
-    debug(packet.data);
-    debug("\n\n\n\n");
+    debug(`****\nCHANNEL: ${channel} MESSAGE: ${message}\n****`)
+    debug("DATA*****\n")
+    debug(packet.data)
+    debug("\n\n\n\n")
     server.sendChat(client, message, channel);
   },
   "Loadout.SelectSlot": function (server, client, packet) {
@@ -894,7 +946,10 @@ const packetHandlers = {
                         unknownDword6: 0,
                         position: packet.data.position,
                         unknownVector1: [
-                          0, -0.7071066498756409, 0, 0.70710688829422,
+                          0,
+                          -0.7071066498756409,
+                          0,
+                          0.70710688829422,
                         ],
                         rotation: [packet.data.heading, 0, 0, 0],
                         unknownDword7: 0,
@@ -1017,7 +1072,7 @@ const packetHandlers = {
     server.sendData(
       client,
       "ProfileStats.PlayerProfileStats",
-      require("../../../data/2016/sampleData/profilestats.json")
+      require("../../../data/profilestats.json")
     );
   },
   Pickup: function (server, client, packet) {
@@ -1070,14 +1125,9 @@ const packetHandlers = {
     const guid = packet.data.guid;
     const transientId = server.getTransientId(client, guid);
     server.sendData(client, "LightweightToFullPc", {
-      fullPcSubDataSchema1: { transientIdMaybe: transientId },
+      fullPcSubDataSchema1: {transientIdMaybe: transientId},
       array1: [],
-      unknownData1: {
-        transientId: transientId,
-        unknownData1: {},
-        array1: [],
-        array2: [],
-      },
+      unknownData1: {transientId: transientId, unknownData1: {}, array1: [], array2: [],},
     });
   },
 };
