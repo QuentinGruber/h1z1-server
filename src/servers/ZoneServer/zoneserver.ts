@@ -364,7 +364,7 @@ export class ZoneServer extends EventEmitter {
     await this.setupServer();
     this._startTime += Date.now();
     this._startGameTime += Date.now();
-    if (this._dynamicWeatherEnabled){
+    if (this._dynamicWeatherEnabled) {
       this._dynamicWeatherInterval = setInterval(
         () => dynamicWeather(this),
         5000
@@ -701,9 +701,9 @@ export class ZoneServer extends EventEmitter {
           this._vehicles[vehicle],
           1
         );
-		    this.sendData(client, "PlayerUpdate.ManagedObject", {
-            guid: this._vehicles[vehicle].npcData.characterId,
-            characterId: client.character.characterId,
+        this.sendData(client, "PlayerUpdate.ManagedObject", {
+          guid: this._vehicles[vehicle].npcData.characterId,
+          characterId: client.character.characterId,
         });
         client.spawnedEntities.push(this._vehicles[vehicle]);
       }
@@ -728,18 +728,23 @@ export class ZoneServer extends EventEmitter {
       const characterId = object.characterId
         ? object.characterId
         : object.npcData.characterId;
-		if (characterId in this._vehicles) {
-			this.sendData(client, "PlayerUpdate.ManagedObject", {
-            guid: characterId,
-            characterId: client.character.characterId,
+      if (characterId in this._vehicles) {
+        this.sendData(client, "PlayerUpdate.ManagedObject", {
+          guid: characterId,
+          characterId: client.character.characterId,
         });
-				}
-					
-        this.sendData(client, "PlayerUpdate.RemovePlayerGracefully", {
-                characterId,
-            }, 1);
-        });
-    }
+      }
+
+      this.sendData(
+        client,
+        "PlayerUpdate.RemovePlayerGracefully",
+        {
+          characterId,
+        },
+        1
+      );
+    });
+  }
 
   spawnObjects(client: Client): void {
     setImmediate(() => {

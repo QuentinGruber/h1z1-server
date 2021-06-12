@@ -10,70 +10,75 @@ let isVehicle = false;
 
 const hax: any = {
   drive: function (server: ZoneServer, client: Client, args: any[]) {
-         let vehicleId;
-         let driveModel;
-         const driveChoosen = args[1];
-         if (!args[1]) {
-             server.sendChatText(client, "[ERROR] Usage /hax drive offroader/pickup/policecar");
-             return;
-         }
-         switch (driveChoosen) {
-          case "offroader":
-            vehicleId = 1;
-            driveModel = 7225;
-             break;
-          case "pickup":
-            vehicleId = 2;
-            driveModel = 9258;
-          break;
-          case "policecar":
-            vehicleId = 3;
-            driveModel = 9301;
-          break;
-          default:
-            vehicleId = 1;
-             driveModel = 7225;
-          break;
-         }
-         const characterId = server.generateGuid();
-         const guid = server.generateGuid();
-         const vehicleData = {
-            npcData: {
-            guid: guid,
-            transientId: 999999,
-            characterId: characterId,
-            modelId: driveModel,
-            scale: [1, 1, 1, 1],
-            position: client.character.state.position,
-            rotation: client.character.state.lookAt,
-            vehicleId: vehicleId,
-            attachedObject: {},
-            color: {},
-            unknownArray1: [],
-            array5: [{ unknown1: 0 }],
-            array17: [{ unknown1: 0 }],
-            array18: [{ unknown1: 0 }],
-            },
-          unknownDword1: 10,
-          unknownDword2: 10,
-          positionUpdate: server.createPositionUpdate(new Float32Array([0, 0, 0, 0]), [0, 0, 0, 0]),
-          unknownString1: "",
-          };
-         const mOresponse = {
-          characterId: client.character.characterId,
-          guid: characterId,
-          characterData: [],
-          };
-          server.sendData(client, "PlayerUpdate.AddLightweightVehicle", vehicleData);
-          server._vehicles[characterId] = vehicleData;
-          server.worldRoutine(client);
-          server.sendData(client, "Mount.MountResponse", mOresponse);
-          server.sendData(client, "Vehicle.Engine", {
-              guid2: characterId,
-              unknownBoolean: true,
-          });
+    let vehicleId;
+    let driveModel;
+    const driveChoosen = args[1];
+    if (!args[1]) {
+      server.sendChatText(
+        client,
+        "[ERROR] Usage /hax drive offroader/pickup/policecar"
+      );
+      return;
+    }
+    switch (driveChoosen) {
+      case "offroader":
+        vehicleId = 1;
+        driveModel = 7225;
+        break;
+      case "pickup":
+        vehicleId = 2;
+        driveModel = 9258;
+        break;
+      case "policecar":
+        vehicleId = 3;
+        driveModel = 9301;
+        break;
+      default:
+        vehicleId = 1;
+        driveModel = 7225;
+        break;
+    }
+    const characterId = server.generateGuid();
+    const guid = server.generateGuid();
+    const vehicleData = {
+      npcData: {
+        guid: guid,
+        transientId: 999999,
+        characterId: characterId,
+        modelId: driveModel,
+        scale: [1, 1, 1, 1],
+        position: client.character.state.position,
+        rotation: client.character.state.lookAt,
+        vehicleId: vehicleId,
+        attachedObject: {},
+        color: {},
+        unknownArray1: [],
+        array5: [{ unknown1: 0 }],
+        array17: [{ unknown1: 0 }],
+        array18: [{ unknown1: 0 }],
+      },
+      unknownDword1: 10,
+      unknownDword2: 10,
+      positionUpdate: server.createPositionUpdate(
+        new Float32Array([0, 0, 0, 0]),
+        [0, 0, 0, 0]
+      ),
+      unknownString1: "",
+    };
+    server.sendData(client, "PlayerUpdate.AddLightweightVehicle", vehicleData);
+    server._vehicles[characterId] = vehicleData;
+    server.worldRoutine(client);
+    server.sendData(client, "Mount.MountResponse", {
+      characterId: client.character.characterId,
+      guid: characterId,
+      characterData: [],
+    });
+    server.sendData(client, "Vehicle.Engine", {
+      guid2: characterId,
+      unknownBoolean: true,
+    });
     client.isMounted = true;
-     },
+  },
 
   parachute: function (server: ZoneServer, client: Client, args: any[]) {
     const characterId = server.generateGuid();
