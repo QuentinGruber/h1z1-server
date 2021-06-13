@@ -8110,7 +8110,7 @@ var packets = [
     },
   ],
   ["Vehicle.AcquireState", 0x8817, {}],
-  ["Vehicle.Dismiss", 0x8818, {}],
+  ["Vehicle.Dismiss", 0x8818, {fields: []}],
   [
     "Vehicle.AutoMount",
     0x8819,

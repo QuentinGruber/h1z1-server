@@ -548,6 +548,12 @@ const packetHandlers: any = {
     debug(packet);
     debug("select");
   },
+  "Vehicle.Dismiss": function (server: ZoneServer, client: Client, packet: any) {
+    server.sendData(client, "Mount.DismountResponse", {
+      characterId: client.character.characterId,
+    });
+    client.isMounted = false;
+  },
   "Vehicle.Spawn": function (server: ZoneServer, client: Client, packet: any) {
     server.sendData(client, "Vehicle.Expiration", {
       expireTime: 300000,
