@@ -1568,6 +1568,7 @@ const packetHandlers: any = {
     } = packet;
     const npc =
       server._npcs[guid] || server._objects[guid] || server._doors[guid];
+	    const pcData = server._characters[guid];
     if (npc) {
       server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
         transientId: npc.transientId,
@@ -1578,7 +1579,7 @@ const packetHandlers: any = {
       });
     } else if (server._characters[guid]) {
       server.sendData(client, "PlayerUpdate.LightweightToFullPc", {
-        characterId: guid,
+        transientId: pcData.transientId,
       });
     } else if (server._vehicles[guid]) {
       /*server.sendData(client, "PlayerUpdate.LightweightToFullVehicle", {
