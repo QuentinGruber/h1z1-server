@@ -1402,11 +1402,11 @@ const packetHandlers: any = {
         packet.data.position[2],
         0,
       ]);
-      if (packet.data.unknown11_float > 8) {
-        client.staminaRegen = false;
-      } else {
-        client.staminaRegen = true;
-      }
+	  if (packet.data.unknown11_float > 8) {
+			client.staminaRegen = false;
+		} else {
+			client.staminaRegen = true;
+		}
 
       if (
         client.logoutTimer != null &&
@@ -1436,23 +1436,6 @@ const packetHandlers: any = {
         server.worldRoutine(client);
       }
     }
-    if (packet.data.rotation) {
-      // TODO: modify array element beside re-creating it
-      client.character.state.rotation = new Float32Array([
-        packet.data.rotation[0],
-        packet.data.rotation[1],
-        packet.data.rotation[2],
-        packet.data.rotation[3],
-      ]);
-
-      client.character.state.lookAt = new Float32Array([
-        packet.data.lookAt[0],
-        packet.data.lookAt[1],
-        packet.data.lookAt[2],
-        packet.data.lookAt[3],
-      ]);
-    }
-  },
     if (packet.data.rotation) {
       // TODO: modify array element beside re-creating it
       client.character.state.rotation = new Float32Array([
