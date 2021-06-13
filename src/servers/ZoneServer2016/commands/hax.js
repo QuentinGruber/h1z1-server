@@ -1,4 +1,4 @@
-import { generateCharacterId } from "../../../utils/utils";
+//import { generateCharacterId } from "../../../utils/utils";
 const _ = require("lodash");
 const debug = require("debug")("zonepacketHandlers");
 import fs from "fs";
@@ -91,7 +91,7 @@ const hax = {
     for (let index = 0; index < 150; index++) {
       const vehicleData = {
         npcData: {
-          guid: generateCharacterId(),
+          guid: server.generateGuid(),
           transientId: 1,
           unknownString0: "",
           nameId: 12,
@@ -138,7 +138,7 @@ const hax = {
           array17: [{ unknown1: 0 }],
           array18: [{ unknown1: 0 }],
         },
-        unknownGuid1: generateCharacterId(),
+        unknownGuid1: server.generateGuid(),
         unknownDword1: 0,
         unknownDword2: 0,
         positionUpdate: server.createPositionUpdate(
@@ -165,7 +165,7 @@ const hax = {
     const choosenModelId = Number(args[1]);
     const obj = {
       guid: guid,
-      transientId: choosenModelId,
+      transientId: 1,
       position: [client.character.state.position[0], client.character.state.position[1], client.character.state.position[2]],
       rotation: [client.character.state.rotation[0], client.character.state.rotation[1], client.character.state.rotation[2]],
     };
@@ -180,7 +180,7 @@ const hax = {
       return;
     }
     const choosenModelId = Number(args[1]);
-    const characterId = generateCharacterId();
+    const characterId = server.generateGuid();
     const npc = {
       characterId: characterId,
       guid: guid,
@@ -203,7 +203,7 @@ const hax = {
       return;
     }
     const choosenModelId = Number(args[1]);
-    const characterId = generateCharacterId();
+    const characterId = server.generateGuid();
     const npc = {
       npcData: {
         characterId: characterId,
@@ -245,13 +245,7 @@ const hax = {
       roation: client.character.state.rotation,
       identity: {}
     };
-    const full = {
-      fullPcSubDataSchema1: {transientIdMaybe: transientId},
-      array1: [],
-      unknownData1: {transientId: transientId, unknownData1: {}, array1: [], array2: [],},
-    };
     server.sendData(client, "AddLightweightPc", lightweight);
-    //server.sendData(client, "LightweightToFullPc", full);
     // server._npcs[characterId] = lightweight; // save npc
   },
   sonic: function (server, client, args) {
@@ -407,7 +401,7 @@ const hax = {
       unknownDword22: rnd_number(),
       unknownDword23: rnd_number(),
       unknownDword24: rnd_number(),
-      unknownArray: _.fill(Array(50), {
+      /*unknownArray: _.fill(Array(50), {
         unknownDword1: 0,
         unknownDword2: 0,
         unknownDword3: 0,
@@ -415,7 +409,7 @@ const hax = {
         unknownDword5: 0,
         unknownDword6: 0,
         unknownDword7: 0,
-      }),
+      }),*/
     };
     debug(JSON.stringify(rnd_weather));
     server.changeWeather(client, rnd_weather);
