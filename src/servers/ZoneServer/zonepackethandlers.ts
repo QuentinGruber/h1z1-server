@@ -132,85 +132,123 @@ const packetHandlers: any = {
       serverTime2: Int64String(server.getServerTime()),
     });
     
-    // temp workaroud for base Resources
+    // initial resource values
+    client.health = 5000;
+    client.stamina = 50;
+    client.staminaRegen = true;
+    client.food = 5000;
+    client.water = 5000;
+
     server.sendData(client, "ResourceEvent", {
       eventData: {
-        type: 2,
-        value: {
-          characterId: client.character.characterId,
-          resourceId: 48, // health
-          resourceType: 1,
-		  initialValue: 5000,
-          unknownArray1:[],
-          unknownArray2: [],
-        }
-      }
-    });
-	server.sendData(client, "ResourceEvent", {
-      eventData: {
-        type: 2,
-        value: {
-          characterId: client.character.characterId,
-          resourceId: 6, // stamina
-          resourceType: 6,
-		  initialValue: 200,
-          unknownArray1:[],
-          unknownArray2: [],
-        }
-      }
-    });
-	server.sendData(client, "ResourceEvent", {
-      eventData: {
-        type: 2,
+        type: 3,
         value: {
           characterId: client.character.characterId,
           resourceId: 9, // VIRUS
           resourceType: 12,
-		  initialValue: 6000,
-          unknownArray1:[],
+          initialValue: 6000,
+          unknownArray1: [],
           unknownArray2: [],
-        }
-      }
+        },
+      },
     });
-	server.sendData(client, "ResourceEvent", {
-      eventData: {
-        type: 2,
-        value: {
-          characterId: client.character.characterId,
-          resourceId: 7, // HUMANITY
-          resourceType: 10,
-		  initialValue: 100000,
-          unknownArray1:[],
-          unknownArray2: [],
-        }
+
+    // prototype resource manager
+    setInterval(function () {
+      if (client.staminaRegen) {
+        client.stamina = client.stamina + 20;
+      } else {
+        client.stamina = client.stamina - 40;
       }
-    });
-    server.sendData(client, "ResourceEvent", {
-      eventData: {
-        type: 2,
-        value: {
-          characterId: client.character.characterId,
-          resourceId: 4, // food
-          resourceType: 4,
-		  initialValue: 5000,
-          unknownArray1:[],
-          unknownArray2: [],
-        }
+      // if we had a packets we could modify sprint stat to 0
+      // or play exhausted sounds etc
+      client.food = client.food - 10;
+      client.water = client.water - 20;
+      if (client.stamina > 600) {
+        client.stamina = 600;
       }
-    });
-    server.sendData(client, "ResourceEvent", {
-      eventData: {
-        type: 2,
-        value: {
-          characterId: client.character.characterId,
-          resourceId: 5, // water
-          resourceType: 5,
-		  initialValue: 5000,
-          unknownArray1:[],
-          unknownArray2: [],
-        }
+      if (client.stamina < 0) {
+        client.stamina = 0;
       }
-    });
+
+      if (client.food > 10000) {
+        client.food = 10000;
+      }
+      if (client.food < 0) {
+        client.food = 0;
+        client.health = client.health - 100;
+      }
+
+      if (client.water > 10000) {
+        client.water = 10000;
+      }
+      if (client.water < 0) {
+        client.water = 0;
+        client.health = client.health - 100;
+      }
+
+      if (client.health > 10000) {
+        client.health = 10000;
+      }
+      if (client.health < 0) {
+        client.health = 0;
+      }
+
+      server.sendData(client, "ResourceEvent", {
+        eventData: {
+          type: 3,
+          value: {
+            characterId: client.character.characterId,
+            resourceId: 48, // health
+            resourceType: 1,
+            initialValue: client.health,
+            unknownArray1: [],
+            unknownArray2: [],
+          },
+        },
+      });
+
+      server.sendData(client, "ResourceEvent", {
+        eventData: {
+          type: 3,
+          value: {
+            characterId: client.character.characterId,
+            resourceId: 6, // stamina
+            resourceType: 6,
+            initialValue: client.stamina,
+            unknownArray1: [],
+            unknownArray2: [],
+          },
+        },
+      });
+      server.sendData(client, "ResourceEvent", {
+        eventData: {
+          type: 3,
+          value: {
+            characterId: client.character.characterId,
+            resourceId: 4, // food
+            resourceType: 4,
+            initialValue: client.food,
+            unknownArray1: [],
+            unknownArray2: [],
+          },
+        },
+      });
+      server.sendData(client, "ResourceEvent", {
+        eventData: {
+          type: 3,
+          value: {
+            characterId: client.character.characterId,
+            resourceId: 5, // water
+            resourceType: 5,
+            initialValue: client.water,
+            unknownArray1: [],
+            unknownArray2: [],
+          },
+        },
+      });
+    }, 3000);
+    // end prototype resource manager
     
     server.sendData(client, "ZoneDoneSendingInitialData", {});
 
@@ -1364,6 +1402,11 @@ const packetHandlers: any = {
         packet.data.position[2],
         0,
       ]);
+      if (packet.data.unknown11_float > 8) {
+        client.staminaRegen = false;
+      } else {
+        client.staminaRegen = true;
+      }
 
       if (
         client.logoutTimer != null &&
@@ -1410,6 +1453,23 @@ const packetHandlers: any = {
       ]);
     }
   },
+    if (packet.data.rotation) {
+      // TODO: modify array element beside re-creating it
+      client.character.state.rotation = new Float32Array([
+        packet.data.rotation[0],
+        packet.data.rotation[1],
+        packet.data.rotation[2],
+        packet.data.rotation[3],
+      ]);
+
+      client.character.state.lookAt = new Float32Array([
+        packet.data.lookAt[0],
+        packet.data.lookAt[1],
+        packet.data.lookAt[2],
+        packet.data.lookAt[3],
+      ]);
+    }
+  },
   "Command.PlayerSelect": function (
     server: ZoneServer,
     client: Client,
@@ -1435,6 +1495,54 @@ const packetHandlers: any = {
       server.sendData(client, "ClientUpdate.TextAlert", {
         message: pickupMessage,
       });
+      if (objectToPickup.modelId === 9159) {
+        client.water = client.water + 4000;
+        server.sendData(client, "ResourceEvent", {
+          eventData: {
+            type: 3,
+            value: {
+              characterId: client.character.characterId,
+              resourceId: 5, // water
+              resourceType: 5,
+              initialValue: client.water,
+              unknownArray1: [],
+              unknownArray2: [],
+            },
+          },
+        });
+      }
+      if (objectToPickup.modelId === 8020 || objectToPickup.modelId === 9250) {
+        client.food = client.food + 4000;
+        server.sendData(client, "ResourceEvent", {
+          eventData: {
+            type: 3,
+            value: {
+              characterId: client.character.characterId,
+              resourceId: 4, // food
+              resourceType: 4,
+              initialValue: client.food,
+              unknownArray1: [],
+              unknownArray2: [],
+            },
+          },
+        });
+      }
+      if (objectToPickup.modelId === 9221) {
+        client.health = client.health + 10000;
+        server.sendData(client, "ResourceEvent", {
+          eventData: {
+            type: 3,
+            value: {
+              characterId: client.character.characterId,
+              resourceId: 48, // health
+              resourceType: 1,
+              initialValue: client.health,
+              unknownArray1: [],
+              unknownArray2: [],
+            },
+          },
+        });
+      }
       server.deleteEntity(objectToPickup.characterId, server._objects);
     } else if (
       vehicleToMount &&
