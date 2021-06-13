@@ -131,6 +131,86 @@ const packetHandlers: any = {
       serverTime: Int64String(server.getServerTime()),
       serverTime2: Int64String(server.getServerTime()),
     });
+    
+    server.sendData(client, "ResourceEvent", {
+      eventData: {
+        type: 2,
+        value: {
+          characterId: client.character.characterId,
+          resourceId: 48, // health
+          resourceType: 1,
+		  initialValue: 5000,
+          unknownArray1:[],
+          unknownArray2: [],
+        }
+      }
+    });
+	server.sendData(client, "ResourceEvent", {
+      eventData: {
+        type: 2,
+        value: {
+          characterId: client.character.characterId,
+          resourceId: 6, // stamina
+          resourceType: 6,
+		  initialValue: 200,
+          unknownArray1:[],
+          unknownArray2: [],
+        }
+      }
+    });
+	server.sendData(client, "ResourceEvent", {
+      eventData: {
+        type: 2,
+        value: {
+          characterId: client.character.characterId,
+          resourceId: 9, // VIRUS
+          resourceType: 12,
+		  initialValue: 6000,
+          unknownArray1:[],
+          unknownArray2: [],
+        }
+      }
+    });
+	server.sendData(client, "ResourceEvent", {
+      eventData: {
+        type: 2,
+        value: {
+          characterId: client.character.characterId,
+          resourceId: 7, // HUMANITY
+          resourceType: 10,
+		  initialValue: 100000,
+          unknownArray1:[],
+          unknownArray2: [],
+        }
+      }
+    });
+    server.sendData(client, "ResourceEvent", {
+      eventData: {
+        type: 2,
+        value: {
+          characterId: client.character.characterId,
+          resourceId: 4, // food
+          resourceType: 4,
+		  initialValue: 5000,
+          unknownArray1:[],
+          unknownArray2: [],
+        }
+      }
+    });
+    server.sendData(client, "ResourceEvent", {
+      eventData: {
+        type: 2,
+        value: {
+          characterId: client.character.characterId,
+          resourceId: 5, // water
+          resourceType: 5,
+		  initialValue: 5000,
+          unknownArray1:[],
+          unknownArray2: [],
+        }
+      }
+    });
+    
     server.sendData(client, "ZoneDoneSendingInitialData", {});
 
     server.sendData(client, "PlayerUpdate.UpdateCharacterState", {
