@@ -839,9 +839,9 @@ const lightWeightNpcSchema = [
   { name: "extraModel", type: "string", defaultValue: "" },
   { name: "unknownString3", type: "string", defaultValue: "" },
   { name: "unknownString4", type: "string", defaultValue: "" },
-  { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+  { name: "vehicleId", type: "uint32", defaultValue: 0 },
   { name: "unknownDword5", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+  { name: "npcDefinitionId", type: "uint32", defaultValue: 0 },
   { name: "unknownByte2", type: "uint8", defaultValue: 0 },
   { name: "unknownDword7", type: "uint32", defaultValue: 0 },
   { name: "unknownBoolean1", type: "uint8", defaultValue: 0 },
@@ -858,11 +858,11 @@ const lightWeightNpcSchema = [
   { name: "unknownDword8", type: "uint32", defaultValue: 0 },
   { name: "unknownQword1", type: "uint64", defaultValue: "0x0000000000000000" },
   {
-    name: "unknownData1",
+    name: "attachedObject",
     type: "schema",
     fields: [
       {
-        name: "unknownQword1",
+        name: "targetObjectId",
         type: "uint64",
         defaultValue: "0x0000000000000000",
       },
@@ -6060,23 +6060,25 @@ var packets = [
           fields: [
               { name: "characterId", type: "uint64", defaultValue: "0" },
               { name: "guid", type: "uint64", defaultValue: "0" },
-              { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-              { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-              { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-              { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+              { name: "unknownDword1", type: "uint32", defaultValue: 0 }, // seat 0-3
+              { name: "unknownDword2", type: "uint32", defaultValue: 1 }, // must be 1 or we dont get into vehicle?
+              { name: "unknownDword3", type: "uint32", defaultValue: 1 }, // is driver? (you can be on seat 3 and still have control)
+              { name: "unknownDword4", type: "uint32", defaultValue: 0 }, // colored lines on screen
               {
-                  name: "characterData",
-                  type: "schema",
-                  fields: [
-                      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                      { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                      { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-                      { name: "characterName", type: "string", defaultValue: "" },
-                      { name: "unknownString1", type: "string", defaultValue: "" },
-                  ],
+                name: "identity",
+                type: "schema",
+                fields: [
+                    { name: "CharacterId", type: "uint32", defaultValue: 0 },
+                    { name: "AccountId", type: "uint32", defaultValue: 0 },
+                    { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+                    { name: "characterFirstName", type: "string", defaultValue: "LocalPlayer" },
+                    { name: "characterLastName", type: "string", defaultValue: "" },
+                    { name: "unknownString1", type: "string", defaultValue: "" },
+                    { name: "unknownString1", type: "string", defaultValue: "" },
+                    { name: "unknownQword1", type: "uint64", defaultValue: "0" },
+                ],
               },
               { name: "tagString", type: "string", defaultValue: "" },
-              { name: "unknownDword5", type: "uint32", defaultValue: 0 },
           ],
       },
   ],
@@ -6848,7 +6850,17 @@ var packets = [
       },
   ],
   ["Vehicle.Deploy", 0x891a, {}],
-  ["Vehicle.Engine", 0x891b, {}],
+  [
+    "Vehicle.Engine", 
+    0x891b, 
+    {
+      fields: [
+        { name: "guid1", type: "uint64", defaultValue: "0" },
+        { name: "guid2", type: "uint64", defaultValue: "0" },
+        { name: "unknownBoolean", type: "boolean", defaultValue: false },
+      ],
+    }
+  ],
   ["Vehicle.AccessType", 0x891c, {}],
   ["Vehicle.KickPlayer", 0x891d, {}],
   ["Vehicle.HealthUpdateOwner", 0x891e, {}],

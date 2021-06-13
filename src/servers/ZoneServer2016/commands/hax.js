@@ -4,6 +4,84 @@ const debug = require("debug")("zonepacketHandlers");
 import fs from "fs";
 
 const hax = {
+  drive: function (server, client, args) {
+    let vehicleId;
+    let driveModel;
+    const driveChoosen = args[1];
+    if (!args[1]) {
+      server.sendChatText(
+        client,
+        "[ERROR] Usage /hax drive offroader/pickup/policecar"
+      );
+      return;
+    }
+    switch (driveChoosen) {
+      case "offroader":
+        vehicleId = 1;
+        driveModel = 7225;
+        break;
+      case "pickup":
+        vehicleId = 2;
+        driveModel = 9258;
+        break;
+      case "policecar":
+        vehicleId = 3;
+        driveModel = 9301;
+        break;
+      case "atv": // todo: fix (not working rn)
+        vehicleId = 4; // might not be correct
+        driveModel = 9588;
+      default: // offroader default
+        vehicleId = 1;
+        driveModel = 7225;
+        break;
+    }
+    const characterId = server.generateGuid();
+    const guid = server.generateGuid();
+    const vehicleData = {
+      npcData: {
+        guid: guid,
+        transientId: 999999,
+        characterId: characterId,
+        modelId: driveModel,
+        scale: [1, 1, 1, 1],
+        position: client.character.state.position,
+        rotation: client.character.state.lookAt,
+        vehicleId: vehicleId,
+        attachedObject: {},
+        color: {},
+        // unknownArray1: [],
+        // array5: [{ unknown1: 0 }],
+        // array17: [{ unknown1: 0 }],
+        // array18: [{ unknown1: 0 }],
+      },
+      unknownDword1: 10, // todo: test if used
+      unknownDword2: 10, // todo: test if used
+      positionUpdate: server.createPositionUpdate(
+        new Float32Array([0, 0, 0, 0]),
+        [0, 0, 0, 0]
+      ),
+      unknownString1: "",
+    };
+    server.sendData(client, "AddLightweightVehicle", vehicleData);
+    server._vehicles[characterId] = vehicleData;
+    // server.worldRoutine(client);
+    server.sendData(client, "PlayerUpdate.ManagedObject", {
+      guid: characterId,
+      characterId: client.character.characterId,
+    });
+    server.sendData(client, "Mount.MountResponse", {
+      characterId: client.character.characterId,
+      guid: characterId,
+      identity: {},
+    });
+    server.sendData(client, "Vehicle.Engine", {
+      guid2: characterId,
+      unknownBoolean: true,
+    });
+    client.isMounted = true;
+  },
+
   tp: function(server, client, args) {
     if(args.length < 4){
       server.sendChatText(client, "Need 3 args: position x, y, z", false);
@@ -213,7 +291,7 @@ const hax = {
         position: [client.character.state.position[0], client.character.state.position[1], client.character.state.position[2]],
         rotation: [client.character.state.rotation[0], client.character.state.rotation[1], client.character.state.rotation[2]],
         color: {},
-        unknownData1: {unknownData1: {}}
+        attachedObject: {}
       },
       positionUpdate: server.createPositionUpdate(
         client.character.state.position,

@@ -139,7 +139,7 @@ const packetHandlers = {
           resourceId: 48,// health
           resourceType: 1,
           unknownArray1:[],
-          value: 10000,
+          value: 5000,
           unknownArray2: [],
         }
       }
@@ -152,7 +152,7 @@ const packetHandlers = {
           resourceId: 6, // stamina
           resourceType: 6,
           unknownArray1:[],
-          value: 10000,
+          value: 300,
           unknownArray2: [],
         }
       }
@@ -165,7 +165,7 @@ const packetHandlers = {
           resourceId: 4, // food
           resourceType: 4,
           unknownArray1:[],
-          value: 10000,
+          value: 5000,
           unknownArray2: [],
         }
       }
@@ -178,7 +178,7 @@ const packetHandlers = {
           resourceId: 5, // water
           resourceType: 5,
           unknownArray1:[],
-          value: 10000,
+          value: 5000,
           unknownArray2: [],
         }
       }

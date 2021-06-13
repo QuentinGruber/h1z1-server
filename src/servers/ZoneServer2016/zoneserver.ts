@@ -65,6 +65,20 @@ export class ZoneServer2016 extends ZoneServer {
     }
     this.sendData(client, "SendSelfToClient", self);
   }
+
+  worldRoutine(client: Client): void {
+    // this.spawnCharacters(client);
+    // this.spawnObjects(client);
+    // this.spawnDoors(client);
+    // this.spawnNpcs(client);
+    // this.spawnVehicles(client);
+    // this.removeOutOfDistanceEntities(client);
+    // this.pointOfInterest(client);
+    // client.posAtLastRoutine = client.character.state.position;
+  }
+
+
+
   SendSkyChangedPacket(
     client: Client,
     weather: Weather,
@@ -86,6 +100,13 @@ export class ZoneServer2016 extends ZoneServer {
       this.sendData(client, "AddLightweightNpc", this._npcs[npc]);
     }
   }
+
+  spawnVehicles(client: Client) {
+    for (let vehicle in this._vehicles) {
+      this.sendData(client, "AddLightweightVehicle", this._vehicles[vehicle]);
+    }
+  }
+
   sendChat(client: Client, message: string, channel: number) {
     const { character } = client;
     if (!this._soloMode) {
