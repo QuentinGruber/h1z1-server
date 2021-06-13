@@ -132,6 +132,7 @@ const packetHandlers: any = {
       serverTime2: Int64String(server.getServerTime()),
     });
     
+    // temp workaroud for base Resources
     server.sendData(client, "ResourceEvent", {
       eventData: {
         type: 2,
