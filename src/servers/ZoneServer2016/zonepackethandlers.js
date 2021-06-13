@@ -11,19 +11,27 @@
 // ======================================================================
 
 // delete commands cache if exist so /dev reloadPackets reload them too
-delete require.cache[require.resolve("./commands/hax")];
-delete require.cache[require.resolve("./commands/dev")];
+try {
+  // delete commands cache if exist so /dev reloadPackets reload them too
+  delete require.cache[require.resolve("./commands/hax")];
+  delete require.cache[require.resolve("./commands/dev")];
+} catch (e) {}
 
 const Jenkins = require("hash-jenkins");
 import hax from "./commands/hax";
 import dev from "./commands/dev";
+import admin from "./commands/admin";
+
+import { Int64String, isPosInRadius } from "../../utils/utils";
+
+// TOOD: UPDATE THIS FOR 2016
+const modelToName = require("../../../data/2015/sampleData/ModelToName.json");
+
 const _ = require("lodash");
 const debug = require("debug")("zonepacketHandlers");
-import { Int64String } from "../../utils/utils";
 
 const packetHandlers = {
   ClientIsReady: function (server, client, packet) {
-    // clientBeginZoning re-enabled
     server.sendData(client, "ClientBeginZoning", {});// Needed for trees
 
     server.sendData(client, "QuickChat.SendData", { commands: [] });
@@ -193,9 +201,20 @@ const packetHandlers = {
     });
     server.sendChatText(client, "Welcome to H1emu ! :D", true);
     client.lastPingTime = new Date().getTime();
+    client.savePositionTimer = setTimeout(
+      () => server.saveCharacterPosition(client, 30000),
+      30000
+    );
+    server.executeFuncForAllClients("spawnCharacters");
+    client.isLoading = false;
+    client.isMounted = false;
   },
   Security: function (server, client, packet) {
     debug(packet);
+  },
+  "Command.RecipeStart": function (server, client, packet) {
+    debug(packet);
+    server.sendData(client, "Command.RecipeAction", {});
   },
   "Command.FreeInteractionNpc": function (server, client, packet) {
     debug("FreeInteractionNpc");
@@ -253,13 +272,10 @@ const packetHandlers = {
   },
   "Chat.Chat": function (server, client, packet) {
     const { channel, message } = packet.data;
-    debug(`****\nCHANNEL: ${channel} MESSAGE: ${message}\n****`)
-    debug("DATA*****\n")
-    debug(packet.data)
-    debug("\n\n\n\n")
     server.sendChat(client, message, channel);
   },
   "Loadout.SelectSlot": function (server, client, packet) {
+    /*
     if (client.character.currentLoadout) {
       const loadout = client.character.currentLoadout,
         loadoutSlotId = packet.data.loadoutSlotId;
@@ -289,6 +305,7 @@ const packetHandlers = {
         }
       }
     }
+    */
   },
   ClientInitializationDetails: function (server, client, packet) {
     // just in case
@@ -298,7 +315,10 @@ const packetHandlers = {
   },
   ClientLogout: function (server, client, packet) {
     debug("ClientLogout");
+    server.saveCharacterPosition(client);
+    server.deleteEntity(client.character.characterId, server._characters);
     server._gatewayServer._soeServer.deleteClient(client);
+    delete server._characters[client.character.characterId];
     delete server._clients[client.sessionId];
   },
   GameTimeSync: function (server, client, packet) {
@@ -405,6 +425,12 @@ const packetHandlers = {
       tabId: 256,
       unknown2: 1,
     });
+  },
+  "Mount.DismountRequest": function (server, client, packet) {
+    server.sendData(client, "Mount.DismountResponse", {
+      characterId: client.character.characterId,
+    });
+    client.isMounted = false;
   },
   "Command.InteractRequest": function (server, client, packet) {
     server.sendData(client, "Command.InteractionString", {
@@ -1105,12 +1131,50 @@ const packetHandlers = {
   },
   PlayerUpdateUpdatePositionClientToZone: function (server, client, packet) {
     if (packet.data.position) {
+      /*
       client.character.state.position = [
         packet.data.position[0],
         packet.data.position[1],
         packet.data.position[2],
         0,
       ];
+      */
+     // TODO: modify array element beside re-creating it
+      client.character.state.position = new Float32Array([
+        packet.data.position[0],
+        packet.data.position[1],
+        packet.data.position[2],
+        0,
+      ]);
+
+      if (
+        client.logoutTimer != null &&
+        !isPosInRadius(
+          1,
+          client.character.state.position,
+          client.posAtLogoutStart
+        )
+      ) {
+        clearTimeout(client.logoutTimer);
+        client.logoutTimer = null;
+        server.sendData(client, "ClientUpdate.StartTimer", {
+          stringId: 0,
+          time: 0,
+        }); // don't know how it was done so
+      }
+
+      if (
+        !client.posAtLastRoutine ||
+        (!isPosInRadius(
+          server._npcRenderDistance / 2.5,
+          client.character.state.position,
+          client.posAtLastRoutine
+        ) &&
+          !client.isLoading)
+      ) {
+        server.worldRoutine(client);
+      }
+
     }
   },
   "PlayerUpdate.Respawn": function (server, client, packet) {

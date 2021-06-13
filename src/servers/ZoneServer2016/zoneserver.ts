@@ -18,6 +18,22 @@ import { Client, Weather } from "../../types/zoneserver";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
 import _ from "lodash";
 import { Base64 } from "js-base64";
+import {
+  generateRandomGuid,
+  initMongo,
+  Int64String,
+  isPosInRadius,
+} from "../../utils/utils";
+
+// need to get 2016 lists
+const spawnLocations = require("../../../data/2015/sampleData/spawnLocations.json");
+const localWeatherTemplates = require("../../../data/2015/sampleData/weather.json");
+const stats = require("../../../data/2015/sampleData/stats.json");
+const recipes = require("../../../data/2015/sampleData/recipes.json");
+const resources = require("../../../data/2015/dataSources/Resources.json");
+const Z1_POIs = require("../../../data/2015/zoneData/Z1_POIs");
+
+
 
 export class ZoneServer2016 extends ZoneServer {
   constructor(
@@ -66,15 +82,42 @@ export class ZoneServer2016 extends ZoneServer {
     this.sendData(client, "SendSelfToClient", self);
   }
 
+  pointOfInterest(client: Client) {
+    let isInAPOIArea = false;
+    Z1_POIs.forEach((point: any) => {
+      if (
+        isPosInRadius(
+          point.range,
+          client.character.state.position,
+          point.position
+        )
+      ) {
+        this.sendData(client, "POIChangeMessage", {
+          messageStringId: point.stringId,
+          id: point.POIid,
+        });
+        isInAPOIArea = true;
+      }
+    });
+    if (!isInAPOIArea) {
+      this.sendData(client, "POIChangeMessage", {
+        messageStringId: 0,
+        id: 115,
+      });
+    }
+  }
+
   worldRoutine(client: Client): void {
-    // this.spawnCharacters(client);
-    // this.spawnObjects(client);
-    // this.spawnDoors(client);
-    // this.spawnNpcs(client);
-    // this.spawnVehicles(client);
-    // this.removeOutOfDistanceEntities(client);
+    // temp set this value
+    this._npcRenderDistance = 1000;
+    this.spawnCharacters(client);
+    this.spawnObjects(client);
+    this.spawnDoors(client);
+    this.spawnNpcs(client);
+    this.spawnVehicles(client);
+    this.removeOutOfDistanceEntities(client);
     // this.pointOfInterest(client);
-    // client.posAtLastRoutine = client.character.state.position;
+    client.posAtLastRoutine = client.character.state.position;
   }
 
 
@@ -95,33 +138,167 @@ export class ZoneServer2016 extends ZoneServer {
       this.sendData(client, "SendZoneDetails", weather);
     }
   }
-  spawnNpcs(client: Client) {
-    for (let npc in this._npcs) {
-      this.sendData(client, "AddLightweightNpc", this._npcs[npc]);
+
+  filterOutOfDistance(element: any, playerPosition: Float32Array): boolean {
+    return !isPosInRadius(
+      this._npcRenderDistance,
+      playerPosition,
+      element.position || element.state?.position || element.npcData.position
+    );
+  }
+
+  removeOutOfDistanceEntities(client: Client): void {
+    const objectsToRemove = client.spawnedEntities.filter((e) =>
+      this.filterOutOfDistance(e, client.character.state.position)
+    );
+    client.spawnedEntities = client.spawnedEntities.filter((el) => {
+      return !objectsToRemove.includes(el);
+    });
+    objectsToRemove.forEach((object: any) => {
+      const characterId = object.characterId
+        ? object.characterId
+        : object.npcData.characterId;
+      if (characterId in this._vehicles) {
+        this.sendData(client, "PlayerUpdate.ManagedObject", {
+          guid: characterId,
+          characterId: client.character.characterId,
+        });
+      }
+
+      this.sendData(
+        client,
+        "PlayerUpdate.RemovePlayer",
+        {
+          characterId,
+        },
+        1
+      );
+    });
+  }
+
+  spawnNpcs(client: Client): void {
+    for (const npc in this._npcs) {
+      if (
+        isPosInRadius(
+          this._npcRenderDistance,
+          client.character.state.position,
+          this._npcs[npc].position
+        ) &&
+        !client.spawnedEntities.includes(this._npcs[npc])
+      ) {
+        this.sendData(
+          client,
+          "AddLightweightNpc",
+          { ...this._npcs[npc], profileId: 65 },
+          1
+        );
+        client.spawnedEntities.push(this._npcs[npc]);
+      }
+    }
+  }
+
+  spawnCharacters(client: Client) {
+    for (const character in this._characters) {
+      const characterObj = this._characters[character];
+      if (
+        client.character.characterId != character &&
+        isPosInRadius(
+          this._npcRenderDistance,
+          client.character.state.position,
+          characterObj.state.position
+        ) &&
+        !client.spawnedEntities.includes(characterObj)
+      ) {
+        this.sendData(
+          client,
+          "AddLightweightPc",
+          {
+            ...characterObj,
+            transientId: 1,
+            characterFirstName: characterObj.name,
+            position: characterObj.state.position,
+            rotation: characterObj.state.lookAt,
+          },
+          1
+        );
+        client.spawnedEntities.push(this._characters[character]);
+      }
     }
   }
 
   spawnVehicles(client: Client) {
-    for (let vehicle in this._vehicles) {
-      this.sendData(client, "AddLightweightVehicle", this._vehicles[vehicle]);
+    for (const vehicle in this._vehicles) {
+      if (
+        isPosInRadius(
+          this._npcRenderDistance,
+          client.character.state.position,
+          this._vehicles[vehicle].npcData.position
+        ) &&
+        !client.spawnedEntities.includes(this._vehicles[vehicle])
+      ) {
+        this.sendData(
+          client,
+          "AddLightweightVehicle",
+          this._vehicles[vehicle],
+          1
+        );
+        this.sendData(client, "PlayerUpdate.ManagedObject", {
+          guid: this._vehicles[vehicle].npcData.characterId,
+          characterId: client.character.characterId,
+        });
+        client.spawnedEntities.push(this._vehicles[vehicle]);
+      }
     }
   }
 
+  spawnObjects(client: Client): void {
+    setImmediate(() => {
+      for (const object in this._objects) {
+        if (
+          isPosInRadius(
+            this._npcRenderDistance,
+            client.character.state.position,
+            this._objects[object].position
+          ) &&
+          !client.spawnedEntities.includes(this._objects[object])
+        ) {
+          this.sendData(
+            client,
+            "AddLightweightNpc",
+            { ...this._objects[object], profileId: 10 },
+            1
+          );
+          client.spawnedEntities.push(this._objects[object]);
+        }
+      }
+    });
+  }
+
+  spawnDoors(client: Client): void {
+    setImmediate(() => {
+      for (const door in this._doors) {
+        if (
+          isPosInRadius(
+            this._npcRenderDistance,
+            client.character.state.position,
+            this._doors[door].position
+          ) &&
+          !client.spawnedEntities.includes(this._doors[door])
+        ) {
+          this.sendData(
+            client,
+            "AddLightweightNpc",
+            this._doors[door],
+            1
+          );
+          client.spawnedEntities.push(this._doors[door]);
+        }
+      }
+    });
+  }
+
   sendChat(client: Client, message: string, channel: number) {
-    const { character } = client;
     if (!this._soloMode) {
-      /*
-      this.sendDataToAll("Chat.Chat", {
-        channel: 0,
-        identity1: { characterFirstName: character.name, unknownQword1: "0x03147cca2a860191"},
-        identity2: { characterFirstName: character.name, unknownQword1: "0x03147cca2a860191"},
-        characterId1: "0x03147cca2a860191",
-        characterId2: "0x03147cca2a860191",
-        message: message,
-        color1: 4294967295,
-        position: character.spawnLocation
-      });
-      */
       this.sendDataToAll("Chat.ChatText", {
         message: `${client.character.name}: ${message}`,
         unknownDword1: 0,
@@ -131,18 +308,6 @@ export class ZoneServer2016 extends ZoneServer {
         unknownByte4: 1,
       });
     } else {
-      /*
-      this.sendData(client, "Chat.Chat", {
-        channel: 0,
-        identity1: { characterFirstName: character.name, unknownQword1: "0x03147cca2a860191"},
-        identity2: { characterFirstName: character.name, unknownQword1: "0x03147cca2a860191"},
-        characterId1: "0x03147cca2a860191",
-        characterId2: "0x03147cca2a860191",
-        message: message,
-        color1: 4294967295,
-        position: character.spawnLocation
-      });
-      */
       this.sendData(client, "Chat.ChatText", {
         message: `${client.character.name}: ${message}`,
         unknownDword1: 0,

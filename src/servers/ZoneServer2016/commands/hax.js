@@ -50,10 +50,6 @@ const hax = {
         vehicleId: vehicleId,
         attachedObject: {},
         color: {},
-        // unknownArray1: [],
-        // array5: [{ unknown1: 0 }],
-        // array17: [{ unknown1: 0 }],
-        // array18: [{ unknown1: 0 }],
       },
       unknownDword1: 10, // todo: test if used
       unknownDword2: 10, // todo: test if used
@@ -78,6 +74,51 @@ const hax = {
     server.sendData(client, "Vehicle.Engine", {
       guid2: characterId,
       unknownBoolean: true,
+    });
+    client.isMounted = true;
+  },
+
+  parachute: function (server, client, args) {
+    const characterId = server.generateGuid();
+    const guid = server.generateGuid();
+    let posY = client.character.state.position[1] + 700;
+    const vehicleData = {
+      npcData: {
+        guid: guid,
+        transientId: 999999,
+        characterId: characterId,
+        modelId: 9374,
+        scale: [1, 1, 1, 1],
+        position: [
+          client.character.state.position[0],
+          posY,
+          client.character.state.position[2],
+          client.character.state.position[3],
+        ],
+        rotation: client.character.state.lookAt,
+        vehicleId: 13,
+        attachedObject: {},
+        color: {},
+      },
+      unknownDword1: 10,
+      unknownDword2: 10,
+      positionUpdate: server.createPositionUpdate(
+        new Float32Array([0, 0, 0, 0]),
+        [0, 0, 0, 0]
+      ),
+      unknownString1: "",
+    };
+    server.sendData(client, "AddLightweightVehicle", vehicleData);
+    server.sendData(client, "PlayerUpdate.ManagedObject", {
+      guid: characterId,
+      characterId: client.character.characterId,
+    });
+    server._vehicles[characterId] = vehicleData;
+    // server.worldRoutine(client);
+    server.sendData(client, "Mount.MountResponse", {
+      characterId: client.character.characterId,
+      guid: characterId,
+      identity: {},
     });
     client.isMounted = true;
   },
