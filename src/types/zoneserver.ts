@@ -1,4 +1,9 @@
 export interface Client {
+  health: number;
+	stamina: number;
+	staminaRegen: boolean;
+	food: number;
+	water: number;
   isLoading: boolean;
   isMounted: boolean;
   posAtLastRoutine: Float32Array;
