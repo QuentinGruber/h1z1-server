@@ -8202,8 +8202,8 @@ var packets = [
             2: [
               // SetCharacterResource
               { name: "characterId", type: "uint64", defaultValue: "0" },
-              { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-              { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+              { name: "resourceId", type: "uint32", defaultValue: 0 },
+              { name: "resourceType", type: "uint32", defaultValue: 0 },
               {
                 name: "unknownArray1",
                 type: "array",
@@ -8215,7 +8215,7 @@ var packets = [
                   { name: "unknownDword4", type: "float", defaultValue: 0.0 },
                 ],
               },
-              { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+              { name: "initialValue", type: "uint32", defaultValue: 0 },
               { name: "unknownDword4", type: "uint32", defaultValue: 0 },
               { name: "unknownFloat5", type: "float", defaultValue: 0.0 },
               { name: "unknownFloat6", type: "float", defaultValue: 0.0 },
