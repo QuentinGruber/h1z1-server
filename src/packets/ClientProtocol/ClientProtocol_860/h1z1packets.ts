@@ -5519,8 +5519,6 @@ var packets = [
     0x0f50,
     {
       fields: [
-        { name: "unk", type: "byte", defaultValue: "0" },
-        { name: "unk2", type: "byte", defaultValue: "0" },
         { name: "characterId", type: "uint64", defaultValue: "0" },
         {
           name: "stats",
