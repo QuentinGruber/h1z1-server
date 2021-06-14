@@ -28,9 +28,10 @@ const hax = {
         vehicleId = 3;
         driveModel = 9301;
         break;
-      case "atv": // todo: fix (not working rn)
-        vehicleId = 4; // might not be correct
+      case "atv":
+        vehicleId = 5;
         driveModel = 9588;
+        break;
       default: // offroader default
         vehicleId = 1;
         driveModel = 7225;
@@ -61,11 +62,13 @@ const hax = {
     };
     server.sendData(client, "AddLightweightVehicle", vehicleData);
     server._vehicles[characterId] = vehicleData;
-    // server.worldRoutine(client);
+    server.worldRoutine(client);
+    /*
     server.sendData(client, "PlayerUpdate.ManagedObject", {
       guid: characterId,
       characterId: client.character.characterId,
     });
+    */
     server.sendData(client, "Mount.MountResponse", {
       characterId: client.character.characterId,
       guid: characterId,
@@ -109,12 +112,14 @@ const hax = {
       unknownString1: "",
     };
     server.sendData(client, "AddLightweightVehicle", vehicleData);
+    /*
     server.sendData(client, "PlayerUpdate.ManagedObject", {
       guid: characterId,
       characterId: client.character.characterId,
     });
+    */
     server._vehicles[characterId] = vehicleData;
-    // server.worldRoutine(client);
+    server.worldRoutine(client);
     server.sendData(client, "Mount.MountResponse", {
       characterId: client.character.characterId,
       guid: characterId,
@@ -309,7 +314,8 @@ const hax = {
       rotation: [client.character.state.rotation[0], client.character.state.rotation[1], client.character.state.rotation[2]],
       color: {},
       unknownData1: {unknownData1: {}},
-      extraModel: "SurvivorMale_Head_01.adr"
+      extraModel: "SurvivorMale_Head_01.adr",
+      attachedObject: {},
     };
     server.sendData(client, "AddLightweightNpc", npc);
     server._npcs[characterId] = npc; // save npc
@@ -318,33 +324,58 @@ const hax = {
     const guid = server.generateGuid();
     const transientId = server.getTransientId(client, guid);
     if (!args[1]) {
-      server.sendChatText(client, "[ERROR] You need to specify a model id !");
+      server.sendChatText(
+        client,
+        "[ERROR] Usage /hax drive offroader/pickup/policecar/atv"
+      );
       return;
     }
-    const choosenModelId = Number(args[1]);
+    let vehicleId, driveModel;
+    switch (args[1]) {
+      case "offroader":
+        vehicleId = 1;
+        driveModel = 7225;
+        break;
+      case "pickup":
+        vehicleId = 2;
+        driveModel = 9258;
+        break;
+      case "policecar":
+        vehicleId = 3;
+        driveModel = 9301;
+        break;
+      case "atv": // todo: fix (not working rn)
+        vehicleId = 4; // might not be correct
+        driveModel = 9588;
+      default: // offroader default
+        vehicleId = 1;
+        driveModel = 7225;
+        break;
+    }
     const characterId = server.generateGuid();
-    const npc = {
+    const vehicle = {
       npcData: {
+        guid: server.generateGuid(),
         characterId: characterId,
-        guid: guid,
         transientId: transientId,
-        modelId: choosenModelId,
+        modelId: driveModel,
+        scale: [1, 1, 1, 1],
         position: [client.character.state.position[0], client.character.state.position[1], client.character.state.position[2]],
-        rotation: [client.character.state.rotation[0], client.character.state.rotation[1], client.character.state.rotation[2]],
+        rotation: client.character.state.lookAt,
+        attachedObject: {},
+        vehicleId: vehicleId,
         color: {},
         attachedObject: {}
       },
-      positionUpdate: server.createPositionUpdate(
-        client.character.state.position,
-        [0, 0, 0, 0]
-      ),
+      unknownGuid1:server.generateGuid(),
+      positionUpdate: [0, 0, 0, 0],
     };
-    server.sendData(client, "AddLightweightVehicle", npc);
-    server._npcs[characterId] = npc; // save npc
+    server.sendData(client, "AddLightweightVehicle", vehicle);
+    server._vehicles[characterId] = vehicle; // save vehicle
   },
+
   spawnPcModel: function (server, client, args) {
     const guid = server.generateGuid();
-    //const characterId = generateCharacterId();
     const transientId = server.getTransientId(client, guid);
     debug("spawnPcModel called");
     /*
@@ -354,9 +385,8 @@ const hax = {
     }
     */
     //const choosenModelId = Number(args[1]);
-    
-    debug(`\n\n\n\nguid: ${guid}\n\n\n\n`);
-    const lightweight = {
+
+    const pc = {
       guid: guid,
       transientId: transientId,
       //modelId: choosenModelId,
@@ -364,8 +394,8 @@ const hax = {
       roation: client.character.state.rotation,
       identity: {}
     };
-    server.sendData(client, "AddLightweightPc", lightweight);
-    // server._npcs[characterId] = lightweight; // save npc
+    server.sendData(client, "AddLightweightPc", pc);
+    // server._characters[guid] = pc; // save pc (disabled for now)
   },
   sonic: function (server, client, args) {
     server.sendData(client, "ClientGameSettings", {

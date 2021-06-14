@@ -109,18 +109,17 @@ export class ZoneServer2016 extends ZoneServer {
 
   worldRoutine(client: Client): void {
     // temp set this value
-    this._npcRenderDistance = 1000;
+    debug("WORLDROUTINE \n\n")
+    this._npcRenderDistance = 100;
     this.spawnCharacters(client);
     this.spawnObjects(client);
     this.spawnDoors(client);
     this.spawnNpcs(client);
     this.spawnVehicles(client);
     this.removeOutOfDistanceEntities(client);
-    // this.pointOfInterest(client);
+    this.pointOfInterest(client);
     client.posAtLastRoutine = client.character.state.position;
   }
-
-
 
   SendSkyChangedPacket(
     client: Client,

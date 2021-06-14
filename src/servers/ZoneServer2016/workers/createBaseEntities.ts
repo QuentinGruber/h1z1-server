@@ -12,6 +12,7 @@ const objects: any = {};
 const vehicles: any = {};
 const doors: any = {};
 
+/*
 const chancePumpShotgun = 50;
 const chanceAR15 = 50;
 const chanceTools = 50;
@@ -26,6 +27,22 @@ const chanceWorld = 10;
 const chanceLog = 10;
 const chanceCommercial = 10;
 const chanceFarm = 10;
+*/
+
+const chancePumpShotgun = 100;
+const chanceAR15 = 100;
+const chanceTools = 100;
+const chance1911 = 100;
+const chanceM24 = 100;
+const chanceConsumables = 100;
+const chanceClothes = 100;
+const chanceResidential = 100;
+const chanceRare = 100;
+const chanceIndustrial = 100;
+const chanceWorld = 100;
+const chanceLog = 100;
+const chanceCommercial = 100;
+const chanceFarm = 100;
 
 let numberOfSpawnedEntity = 0;
 
@@ -67,7 +84,6 @@ function createEntity(
 
 export function createAllEntities(): any {
   createAllDoors();
-  /*
   createAR15();
   createPumpShotgun();
   createTools();
@@ -84,7 +100,6 @@ export function createAllEntities(): any {
   createFarm();
   createAllVehicles();
   createSomeNpcs();
-  */
   return { npcs: npcs, objects: objects, vehicles: vehicles, doors: doors };
 }
 
@@ -153,7 +168,7 @@ function createSomeNpcs() {
     if (authorizedModelId.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
         const spawnchance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
-        if (spawnchance <= 40) {
+        if (spawnchance <= 100) {
           // temporary spawnchance
           createEntity(
             authorizedModelId[
@@ -189,7 +204,7 @@ function createAR15() {
     if (authorizedModelId.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
-        if (chance <= chanceAR15) {
+        //if (chance <= chanceAR15) {
           // temporary spawnchance
           createEntity(
             authorizedModelId[
@@ -199,7 +214,7 @@ function createAR15() {
             itemInstance.rotation,
             objects
           );
-        }
+        //}
       });
     }
   });
@@ -222,7 +237,7 @@ function createPumpShotgun() {
     if (authorizedModelId.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
-        if (chance <= chancePumpShotgun) {
+        //if (chance <= chancePumpShotgun) {
           // temporary spawnchance
           createEntity(
             authorizedModelId[
@@ -232,7 +247,7 @@ function createPumpShotgun() {
             itemInstance.rotation,
             objects
           );
-        }
+        //}
       });
     }
   });

@@ -160,7 +160,7 @@ const packetHandlers = {
           resourceId: 6, // stamina
           resourceType: 6,
           unknownArray1:[],
-          value: 300,
+          value: 600,
           unknownArray2: [],
         }
       }
@@ -194,7 +194,7 @@ const packetHandlers = {
 
   },
   ClientFinishedLoading: function (server, client, packet) {
-    server.spawnAllNpc(client);
+    // server.spawnAllNpc(client);
     server.sendData(client, "POIChangeMessage", {
       messageStringId: 20,
       id: 99,
@@ -208,6 +208,10 @@ const packetHandlers = {
     server.executeFuncForAllClients("spawnCharacters");
     client.isLoading = false;
     client.isMounted = false;
+
+    setInterval(function(){
+      server.worldRoutine(client);
+    }, 3000);
   },
   Security: function (server, client, packet) {
     debug(packet);
@@ -1130,6 +1134,7 @@ const packetHandlers = {
     });
   },
   PlayerUpdateUpdatePositionClientToZone: function (server, client, packet) {
+    // server.worldRoutine(client);
     if (packet.data.position) {
       /*
       client.character.state.position = [
@@ -1172,7 +1177,7 @@ const packetHandlers = {
         ) &&
           !client.isLoading)
       ) {
-        server.worldRoutine(client);
+        // server.worldRoutine(client); comment out for now
       }
 
     }
@@ -1184,6 +1189,7 @@ const packetHandlers = {
       position: [0, 200, 0, 1],
     });
   },
+  /*
   "PlayerUpdate.FullCharacterDataRequest": function (server, client, packet) {
     debug(packet);
     const guid = packet.data.guid;
@@ -1193,6 +1199,71 @@ const packetHandlers = {
       array1: [],
       unknownData1: {transientId: transientId, unknownData1: {}, array1: [], array2: [],},
     });
+  },
+  */
+  "PlayerUpdate.FullCharacterDataRequest": function (server, client, packet) {
+    const {
+      data: { guid },
+    } = packet;
+    const npc =
+      server._npcs[guid] || server._objects[guid] || server._doors[guid];
+    if (npc) {
+      server.sendData(client, "LightweightToFullNpc", {
+        transientId: npc.transientId,
+        attachments: [],
+        effectTags: [],
+        unknownData1: {},
+        targetData: {},
+        characterVariables: [],
+        unknownData2: {},
+        resources: [],
+        unknownData3: {}
+        //unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
+        //unknownDword2: 13951728,
+        //unknownDword3: 1,
+        //unknownDword6: 100,
+      });
+    } else if (server._characters[guid]) {
+      server.sendData(client, "LightweightToFullPc", {
+        fullPcSubDataSchema1: {transientIdMaybe: npc.transientId},
+        array1: [],
+        unknownData1: {transientId: npc.transientId, unknownData1: {}, array1: [], array2: [],},
+      });
+    } else if (server._vehicles[guid]) {
+      //debug(npc);
+      server.sendData(client, "LightweightToFullVehicle", {
+        npcData: {
+          transientId: server._vehicles[guid].npcData.transientId,
+          attachments: [],
+          effectTags: [],
+          unknownData1: {},
+          targetData: {},
+          characterVariables: [],
+          unknownData2: {},
+          resources: [],
+          unknownData3: {}
+        },
+        unknownArray1: [],
+        unknownArray2: [],
+        unknownArray3: [],
+        unknownArray4: [],
+        unknownArray5: [
+          {
+            unknownData1: {
+              unknownData1: {}
+            }
+          }
+        ],
+        unknownArray6: [],
+        unknownArray7: [],
+        unknownArray8: [
+          {
+            unknownArray1: []
+          }
+        ]
+      });
+      // debug("LightweightToFullVehicle");
+    }
   },
 };
 
