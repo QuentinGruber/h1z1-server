@@ -570,7 +570,12 @@ const packetHandlers: any = {
     server.sendData(client, "Mount.DismountResponse", {
       characterId: client.character.characterId,
     });
+	server.sendData(client, "Vehicle.Engine", {
+      guid2: client.selectedVehicle,
+      unknownBoolean: false,
+    });
     client.isMounted = false;
+	client.selectedVehicle = "0";
   },
   "Command.InteractRequest": function (
     server: ZoneServer,
@@ -627,6 +632,7 @@ const packetHandlers: any = {
         guid: guid,
         stringId: 29,
       });
+	client.selectedVehicle = "0";
     } else if (
       doorData &&
       isPosInRadius(
@@ -639,6 +645,7 @@ const packetHandlers: any = {
         guid: guid,
         stringId: 31,
       });
+	client.selectedVehicle = "0";
     } else if (
       vehicleData &&
       isPosInRadius(
@@ -647,11 +654,12 @@ const packetHandlers: any = {
         vehicleData.npcData.position
       )
     ) {
-      if (!client.isMounted) {
+      if (client.isMounted === false) {
         server.sendData(client, "Command.InteractionString", {
           guid: guid,
           stringId: 15,
         });
+	client.selectedVehicle = guid;
       }
     }
   },
