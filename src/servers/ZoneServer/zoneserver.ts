@@ -200,9 +200,9 @@ export class ZoneServer extends EventEmitter {
         client.isLoading = true;
         client.loginSessionId = loginSessionId;
         client.transientIds = {};
-        client.transientId = 0;
         client.character = {
           characterId: characterId,
+          transientId: Number((Math.random()*10000).toFixed(0)),
           isRunning: false,
           resources:{
             health: 5000,
@@ -682,7 +682,7 @@ export class ZoneServer extends EventEmitter {
           "PlayerUpdate.AddLightweightPc",
           {
             ...characterObj,
-            transientId: 1,
+            transientId: characterObj.transientId,
             characterFirstName: characterObj.name,
             position: characterObj.state.position,
             rotation: characterObj.state.lookAt,
@@ -1100,7 +1100,7 @@ export class ZoneServer extends EventEmitter {
     return client.transientIds[guid];
   }
 
-  createPositionUpdate(position: Float32Array, rotation: Array<number>): any {
+  createPositionUpdate(position: Float32Array, rotation: any): any {
     const obj = {
       flags: 4095,
       unknown2_int32: this.getGameTime(),

@@ -8,10 +8,10 @@ export interface Client {
   gameClient: {
     currentWeather: Weather;
   };
-  transientId: number;
   transientIds: {};
   character: {
     characterId: string;
+    transientId: number;
     name?: string;
     loadouts?: any;
     isRunning:boolean;

@@ -1429,6 +1429,10 @@ const packetHandlers: any = {
       ) {
         server.worldRoutine(client);
       }
+      const movingCharacter = server._characters[client.character.characterId];
+      console.log(movingCharacter)
+
+      server.sendDataToAllOthers(client,"PlayerUpdate.UpdatePosition",{transientId:movingCharacter.transientId,positionUpdate:server.createPositionUpdate(client.character.state.position,[0,0,0,0])})
     }
     if (packet.data.rotation) {
       // TODO: modify array element beside re-creating it

@@ -7411,11 +7411,18 @@ var packets = [
     {
       fields: [
         {
-          name: "characterId",
-          type: "uint64",
-          defaultValue: "0x0000000000000000",
+          name: "transientId",
+          type: "custom",
+          parser: readUnsignedIntWith2bitLengthValue,
+          packer: packUnsignedIntWith2bitLengthValue,
+          defaultValue: 1,
         },
-        { name: "unknown4", type: "byte", defaultValue: 0 },
+        {
+          name: "positionUpdate",
+          type: "custom",
+          parser: readPositionUpdateData,
+          packer: packPositionUpdateData,
+        },
       ],
     },
   ],
