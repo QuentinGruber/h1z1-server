@@ -203,6 +203,14 @@ export class ZoneServer extends EventEmitter {
         client.transientId = 0;
         client.character = {
           characterId: characterId,
+          isRunning: false,
+          resources:{
+            health: 5000,
+            stamina: 50,
+            food: 5000,
+            water: 5000,
+            virus: 6000,
+          },
           state: {
             position: new Float32Array([0, 0, 0, 0]),
             rotation: new Float32Array([0, 0, 0, 0]),
