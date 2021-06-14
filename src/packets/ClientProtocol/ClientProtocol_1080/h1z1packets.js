@@ -4938,7 +4938,17 @@ var packets = [
   ["ClientUpdate.Freeze", 0x112c00, {}],
   ["ClientUpdate.InGamePurchaseResult", 0x112d00, {}],
   ["ClientUpdate.QuizComplete", 0x112e00, {}],
-  ["ClientUpdate.StartTimer", 0x112f00, {fields: []}],
+  [
+    "ClientUpdate.StartTimer", 
+    0x112f00, 
+    {
+      fields: [
+        { name: "stringId", type: "uint32", defaultValue: 0 },
+        { name: "time", type: "uint32", defaultValue: 10000 },
+        { name: "message", type: "string", defaultValue: "hello" },
+      ],
+    }
+  ],
   ["ClientUpdate.CompleteLogoutProcess",
       0x113000,
       {
@@ -4946,7 +4956,15 @@ var packets = [
       },
   ],
   ["ClientUpdate.ProximateItems", 0x113100, []],
-  ["ClientUpdate.TextAlert", 0x113200, []],
+  [
+    "ClientUpdate.TextAlert", 
+    0x113200, 
+    {
+      fields: [
+        { name: "message", type: "string", defaultValue: "hello" }
+      ],
+    }
+  ],
   ["ClientUpdate.ClearEntitlementValues", 0x113300, []],
   ["ClientUpdate.AddEntitlementValue", 0x113400, []],
   [
@@ -4957,6 +4975,32 @@ var packets = [
           }
       ]
   ],
+  ["ClientUpdate.FileValidationRequest", 0x113600, []],
+  ["ClientUpdate.FileValidationResponse", 0x113700, []],
+  ["ClientUpdate.DeathMetrics", 0x113800, []],
+  ["ClientUpdate.ManagedObjectRequestControl", 0x113900, []],
+  ["ClientUpdate.ManagedObjectResponseControl", 0x113A00, []],
+  ["ClientUpdate.ManagedObjectReleaseControl", 0x113B00, []],
+  ["ClientUpdate.SetCurrentAdventure", 0x113C00, []],
+  ["ClientUpdate.CharacterSlot", 0x113D00, []],
+  ["ClientUpdate.CustomizationData", 0x113E00, []],
+  ["ClientUpdate.UpdateCurrency", 0x113F00, []],
+  ["ClientUpdate.AddNotifications", 0x114000, []],
+  ["ClientUpdate.RemoveNotifications", 0x114100, []],
+  ["ClientUpdate.NpcRelevance", 0x114200, []],
+  ["ClientUpdate.InitiateNameChange", 0x114300, []],
+  ["ClientUpdate.NameChangeResult", 0x114400, []],
+  ["ClientUpdate.MonitorTimeDrift", 0x114500, []],
+  ["ClientUpdate.NotifyServerOfStalledEvent", 0x114600, []],
+  ["ClientUpdate.UpdateSights", 0x114700, []],
+  ["ClientUpdate.UpdateRewardAndGrinderState", 0x114900, []],
+  ["ClientUpdate.UpdateActivityMetrics", 0x114B00, []],
+  ["ClientUpdate.StopWithError", 0x114C00, []],
+  ["ClientUpdate.SetWorldWipeTimer", 0x114D00, []],
+  ["ClientUpdate.UpdateLockoutTimes", 0x114E00, []],
+  ["ClientUpdate.ZoneStatus", 0x114F00, []],
+  ["ClientUpdate.SetDataCenter", 0x115000, []],
+  ["ClientUpdate.UpdateBattlEyeRegistration", 0x115100, []],
   ["MiniGame", 0x12, {}],
   ["Group", 0x13, {}],
   ["Encounter", 0x14, {}],
@@ -8140,9 +8184,10 @@ var packets = [
   ["StationCashActivePromoRequestUpdate", 0xb9, {}],
   /*
   ["CharacterSlot", 0xbc, {}],
+  */
   [
       "Pickup",
-      0xbe,
+      0xbb,
       {
           fields: [
               { name: "type?", type: "uint16" },
@@ -8152,7 +8197,7 @@ var packets = [
           ],
       },
   ],
-  */
+  
  
   /*
   ["Operation.RequestCreate", 0xbf01, {}],

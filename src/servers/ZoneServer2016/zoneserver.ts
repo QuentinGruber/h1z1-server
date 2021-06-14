@@ -175,6 +175,27 @@ export class ZoneServer2016 extends ZoneServer {
     });
   }
 
+  despawnEntity(characterId: string) {
+    this.sendDataToAll(
+      "PlayerUpdate.RemovePlayer",
+      {
+        characterId: characterId,
+      },
+      1
+    );
+  }
+
+  deleteEntity(characterId: string, dictionnary: any) {
+    this.sendDataToAll(
+      "PlayerUpdate.RemovePlayer",
+      {
+        characterId: characterId,
+      },
+      1
+    );
+    delete dictionnary[characterId];
+  }
+
   spawnNpcs(client: Client): void {
     for (const npc in this._npcs) {
       if (

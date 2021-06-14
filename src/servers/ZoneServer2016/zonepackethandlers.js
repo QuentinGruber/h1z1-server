@@ -942,6 +942,21 @@ const packetHandlers = {
   Pickup: function (server, client, packet) {
     debug(packet);
     const { data: packetData } = packet;
+    server.sendData(client, "ClientUpdate.StartTimer", {
+      stringId: 582,
+      time: 100,
+    });
+    if (packetData.name === "SpeedTree.Blackberry") {
+      server.sendData(client, "ClientUpdate.TextAlert", {
+        message: "Blackberries...miss you...",
+      });
+    } else {
+      server.sendData(client, "ClientUpdate.TextAlert", {
+        message: packetData.name.replace("SpeedTree.", ""),
+      });
+    }
+    // deprecated ?
+    /*
     server.sendData(client, "PlayerUpdate.StartHarvest", {
       characterId: client.character.characterId,
       unknown4: 0,
@@ -950,6 +965,7 @@ const packetHandlers = {
       stringId: 10002,
       unknownGuid: Int64String(packetData.id),
     });
+    */
   },
   GetRewardBuffInfo: function (server, client, packet) {
     server.sendData(client, "RewardBuffInfo", {
@@ -1112,19 +1128,19 @@ const packetHandlers = {
   },
 
   "Command.InteractionString": function (server, client, packet) {
-    console.log("INTERACTION STRING \n\n")
-    console.log(packet.data);
+    // console.log("INTERACTION STRING \n\n")
+    // console.log(packet.data);
     
     const { guid } = packet.data;
     const objectData = server._objects[guid];
     const doorData = server._doors[guid];
     const vehicleData = server._vehicles[guid];
-
+    /*
     server.sendData(client, "Command.InteractionString", {
       guid: guid,
       stringId: 29,
     });
-
+    */
     if (
       objectData &&
       isPosInRadius(
