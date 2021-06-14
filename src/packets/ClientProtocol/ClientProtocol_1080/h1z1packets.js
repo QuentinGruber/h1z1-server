@@ -4679,7 +4679,15 @@ var packets = [
   ["PlayerUpdate.Deploy", 0x0f46, {}],
   ["PlayerUpdate.LowAmmoUpdate", 0x0f47, {}],
   ["PlayerUpdate.KilledBy", 0x0f48, {}],
-  ["PlayerUpdate.MotorRunning", 0x0f49, {}],
+  [
+    "PlayerUpdate.MotorRunning", 0x0f49, 
+    {
+      fields: [
+        { name: "characterId", type: "uint64", defaultValue: "0" },
+        { name: "unknownBool1", type: "boolean", defaultValue: false }
+      ]
+    }
+  ],
   ["PlayerUpdate.DroppedIemNotification", 0x0f4a, {}],
   ["PlayerUpdate.NoSpaceNotification", 0x0f4b, {}],
   ["PlayerUpdate.ReloadNotification", 0x0f4c, {}],
@@ -7008,7 +7016,31 @@ var packets = [
   ],
   ["Leaderboard", 0x90, {}],
   ["PlayerUpdateManagedPosition", 0x91, {}],
-  ["PlayerUpdateNetworkObjectComponents", 0x92, {}],
+  [
+    "AddSimpleNpc", 
+    0x92, 
+    {
+      fields: [
+        { name: "characterId", type: "uint64", defaultValue: "0" },
+        {
+            name: "transientId",
+            type: "custom",
+            parser: readUnsignedIntWith2bitLengthValue,
+            packer: packUnsignedIntWith2bitLengthValue,
+        },
+        { name: "unknownByte1", type: "uint8", defaultValue: 50 },
+        { name: "position", type: "floatvector3", defaultValue: [0, 0, 0] },
+        { name: "rotation", type: "floatvector3", defaultValue: [0, 0, 0] },
+        { name: "unknownDword1", type: "uint32", defaultValue: 9000 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 9000 },
+        { name: "modelId", type: "uint32", defaultValue: 0 },
+        { name: "scale", type: "floatvector4", defaultValue: [1, 1, 1, 1] },
+        { name: "unknownDword3", type: "uint32", defaultValue: 9000 },
+        { name: "showHealth", type: "boolean", defaultValue: false },
+        { name: "unknownDword4", type: "uint32", defaultValue: 9000 },
+      ]
+    }
+  ],
   ["PlayerUpdateUpdateVehicleWeapon", 0x93, {}],
   [
       "ProfileStats.GetPlayerProfileStats",

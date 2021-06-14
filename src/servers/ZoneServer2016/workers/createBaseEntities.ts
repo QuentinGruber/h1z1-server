@@ -204,17 +204,17 @@ function createAR15() {
     if (authorizedModelId.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
-        //if (chance <= chanceAR15) {
+        if (chance <= chanceAR15) {
           // temporary spawnchance
           createEntity(
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
             ],
             itemInstance.position,
-            itemInstance.rotation,
+            itemInstance.rotation, // wrong rotation, needs fixed. FloatVector 4 converted to FloatVector3
             objects
           );
-        //}
+        }
       });
     }
   });
@@ -237,17 +237,17 @@ function createPumpShotgun() {
     if (authorizedModelId.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
-        //if (chance <= chancePumpShotgun) {
+        if (chance <= chancePumpShotgun) {
           // temporary spawnchance
           createEntity(
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
             ],
             itemInstance.position,
-            itemInstance.rotation,
+            itemInstance.rotation, // wrong rotation, needs fixed. FloatVector 4 converted to FloatVector3
             objects
           );
-        //}
+        }
       });
     }
   });
@@ -314,7 +314,7 @@ function createTools() {
               Math.floor(Math.random() * authorizedModelId.length)
             ],
             itemInstance.position,
-            itemInstance.rotation,
+            itemInstance.rotation, // wrong rotation, needs fixed. FloatVector 4 converted to FloatVector3
             objects
           );
         }
@@ -347,7 +347,7 @@ function create1911() {
               Math.floor(Math.random() * authorizedModelId.length)
             ],
             itemInstance.position,
-            itemInstance.rotation,
+            itemInstance.rotation, // wrong rotation, needs fixed. FloatVector 4 converted to FloatVector3
             objects
           );
         }
@@ -380,7 +380,7 @@ function createM24() {
               Math.floor(Math.random() * authorizedModelId.length)
             ],
             itemInstance.position,
-            itemInstance.rotation,
+            itemInstance.rotation, // wrong rotation, needs fixed. FloatVector 4 converted to FloatVector3
             objects
           );
         }
@@ -419,7 +419,7 @@ function createConsumables() {
               Math.floor(Math.random() * authorizedModelId.length)
             ],
             itemInstance.position,
-            itemInstance.rotation,
+            itemInstance.rotation, // wrong rotation, needs fixed. FloatVector 4 converted to FloatVector3
             objects
           );
         }
@@ -460,7 +460,7 @@ function createClothes() {
               Math.floor(Math.random() * authorizedModelId.length)
             ],
             itemInstance.position,
-            itemInstance.rotation,
+            itemInstance.rotation, // wrong rotation, needs fixed. FloatVector 4 converted to FloatVector3
             objects
           );
         }
@@ -509,7 +509,7 @@ function createResidential() {
               Math.floor(Math.random() * authorizedModelId.length)
             ],
             itemInstance.position,
-            itemInstance.rotation,
+            itemInstance.rotation, // wrong rotation, needs fixed. FloatVector 4 converted to FloatVector3
             objects
           );
         }
@@ -549,7 +549,7 @@ function createRare() {
               Math.floor(Math.random() * authorizedModelId.length)
             ],
             itemInstance.position,
-            itemInstance.rotation,
+            itemInstance.rotation, // wrong rotation, needs fixed. FloatVector 4 converted to FloatVector3
             objects
           );
         }
@@ -589,7 +589,7 @@ function createIndustrial() {
               Math.floor(Math.random() * authorizedModelId.length)
             ],
             itemInstance.position,
-            itemInstance.rotation,
+            itemInstance.rotation, // wrong rotation, needs fixed. FloatVector 4 converted to FloatVector3
             objects
           );
         }
@@ -632,7 +632,7 @@ function createWorld() {
               Math.floor(Math.random() * authorizedModelId.length)
             ],
             itemInstance.position,
-            itemInstance.rotation,
+            itemInstance.rotation, // wrong rotation, needs fixed. FloatVector 4 converted to FloatVector3
             objects
           );
         }
@@ -664,7 +664,7 @@ function createLog() {
               Math.floor(Math.random() * authorizedModelId.length)
             ],
             itemInstance.position,
-            itemInstance.rotation,
+            itemInstance.rotation, // wrong rotation, needs fixed. FloatVector 4 converted to FloatVector3
             objects
           );
         }
@@ -701,7 +701,7 @@ function createCommercial() {
               Math.floor(Math.random() * authorizedModelId.length)
             ],
             itemInstance.position,
-            itemInstance.rotation,
+            itemInstance.rotation, // wrong rotation, needs fixed. FloatVector 4 converted to FloatVector3
             objects
           );
         }
@@ -739,7 +739,7 @@ function createFarm() {
               Math.floor(Math.random() * authorizedModelId.length)
             ],
             itemInstance.position,
-            itemInstance.rotation,
+            itemInstance.rotation, // wrong rotation, needs fixed. FloatVector 4 converted to FloatVector3
             objects
           );
         }
@@ -759,7 +759,7 @@ function createAllDoors(): void {
       createEntity(
         modelId ? modelId : 9183,
         doorInstance.position,
-        doorInstance.rotation,
+        doorInstance.rotation, // wrong rotation, needs fixed. FloatVector 4 converted to FloatVector3
         doors
       );
     });

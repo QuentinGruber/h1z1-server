@@ -263,8 +263,8 @@ export class ZoneServer2016 extends ZoneServer {
         ) {
           this.sendData(
             client,
-            "AddLightweightNpc",
-            { ...this._objects[object], profileId: 10 },
+            "AddSimpleNpc",
+            { ...this._objects[object] },
             1
           );
           client.spawnedEntities.push(this._objects[object]);
@@ -286,7 +286,8 @@ export class ZoneServer2016 extends ZoneServer {
         ) {
           this.sendData(
             client,
-            "AddLightweightNpc",
+            //"AddLightweightNpc",
+            "AddSimpleNpc",
             this._doors[door],
             1
           );

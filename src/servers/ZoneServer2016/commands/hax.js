@@ -4,6 +4,7 @@ const debug = require("debug")("zonepacketHandlers");
 import fs from "fs";
 
 const hax = {
+  /*
   drive: function (server, client, args) {
     let vehicleId;
     let driveModel;
@@ -63,12 +64,6 @@ const hax = {
     server.sendData(client, "AddLightweightVehicle", vehicleData);
     server._vehicles[characterId] = vehicleData;
     server.worldRoutine(client);
-    /*
-    server.sendData(client, "PlayerUpdate.ManagedObject", {
-      guid: characterId,
-      characterId: client.character.characterId,
-    });
-    */
     server.sendData(client, "Mount.MountResponse", {
       characterId: client.character.characterId,
       guid: characterId,
@@ -80,7 +75,7 @@ const hax = {
     });
     client.isMounted = true;
   },
-
+  */
   parachute: function (server, client, args) {
     const characterId = server.generateGuid();
     const guid = server.generateGuid();
@@ -112,12 +107,6 @@ const hax = {
       unknownString1: "",
     };
     server.sendData(client, "AddLightweightVehicle", vehicleData);
-    /*
-    server.sendData(client, "PlayerUpdate.ManagedObject", {
-      guid: characterId,
-      characterId: client.character.characterId,
-    });
-    */
     server._vehicles[characterId] = vehicleData;
     server.worldRoutine(client);
     server.sendData(client, "Mount.MountResponse", {
@@ -134,7 +123,6 @@ const hax = {
       return;
     }
     const location = {
-      // unknownWord1: 50,
       position: [args[1], args[2], args[3], 1],
       rotation: [10, 20, 30, 1],
       unknownBool1: true,
@@ -211,6 +199,7 @@ const hax = {
     server.removeForcedTime();
     server.sendChatText(client, "Game time is now based on real time", true);
   },
+  /*
   spamOffroader: function (server, client, args) {
     for (let index = 0; index < 150; index++) {
       const vehicleData = {
@@ -279,22 +268,26 @@ const hax = {
       );
     }
   },
-  spawnObject: function (server, client, args) {
-    const guid = server.generateGuid();
-    //const transientId = server.getTransientId(client, guid);
+  */
+  spawnSimpleNpc: function (server, client, args) {
+    const characterId = server.generateGuid();
+    const transientId = server.getTransientId(client, characterId);
     if (!args[1]) {
       server.sendChatText(client, "[ERROR] You need to specify a model id !");
       return;
     }
     const choosenModelId = Number(args[1]);
-    const obj = {
-      guid: guid,
-      transientId: 1,
-      position: [client.character.state.position[0], client.character.state.position[1], client.character.state.position[2]],
-      rotation: [client.character.state.rotation[0], client.character.state.rotation[1], client.character.state.rotation[2]],
-    };
-    server.sendData(client, "AddProxiedObject", obj);
-    // server.obj[guid] = obj; // save npc
+      const obj = {
+        characterId: characterId,
+        transientId: transientId,
+        position: [client.character.state.position[0], client.character.state.position[1], client.character.state.position[2]],
+        rotation: [client.character.state.rotation[0], client.character.state.rotation[1], client.character.state.rotation[2]],
+        modelId: choosenModelId,
+        showHealth: false
+      };
+    server.sendData(client, "AddSimpleNpc", obj);
+    
+    server.obj[characterId] = obj; // save npc
   },
   spawnNpcModel: function (server, client, args) {
     const guid = server.generateGuid();
@@ -344,9 +337,10 @@ const hax = {
         vehicleId = 3;
         driveModel = 9301;
         break;
-      case "atv": // todo: fix (not working rn)
-        vehicleId = 4; // might not be correct
+      case "atv":
+        vehicleId = 5;
         driveModel = 9588;
+        break;
       default: // offroader default
         vehicleId = 1;
         driveModel = 7225;
