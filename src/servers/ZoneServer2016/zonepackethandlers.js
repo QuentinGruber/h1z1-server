@@ -194,7 +194,6 @@ const packetHandlers = {
 
   },
   ClientFinishedLoading: function (server, client, packet) {
-    // server.spawnAllNpc(client); todo: fix this 
     client.currentPOI = 0; // clears currentPOI for POIManager
     server.sendData(client, "POIChangeMessage", {
       messageStringId: 20,
@@ -919,7 +918,18 @@ const packetHandlers = {
     debug("Interaction Canceled");
   },
   "Command.StartLogoutRequest": function (server, client, packet) {
-    server.sendData(client, "ClientUpdate.CompleteLogoutProcess", {});
+    const logoutTime = 10000;
+    server.sendData(client, "ClientUpdate.StartTimer", {
+      stringId: 0,
+      time: logoutTime,
+    });
+    client.posAtLogoutStart = client.character.state.position;
+    if (client.logoutTimer != null) {
+      clearTimeout(client.logoutTimer);
+    }
+    client.logoutTimer = setTimeout(() => {
+      server.sendData(client, "ClientUpdate.CompleteLogoutProcess", {});
+    }, logoutTime);
   },
   CharacterSelectSessionRequest: function (server, client, packet) {
     server.sendData(client, "CharacterSelectSessionResponse", {
@@ -979,16 +989,7 @@ const packetHandlers = {
     });
   },
   PlayerUpdateUpdatePositionClientToZone: function (server, client, packet) {
-    // server.worldRoutine(client);
     if (packet.data.position) {
-      /*
-      client.character.state.position = [
-        packet.data.position[0],
-        packet.data.position[1],
-        packet.data.position[2],
-        0,
-      ];
-      */
      // TODO: modify array element beside re-creating it
       client.character.state.position = new Float32Array([
         packet.data.position[0],
@@ -1012,7 +1013,7 @@ const packetHandlers = {
           time: 0,
         }); // don't know how it was done so
       }
-
+      /*
       if (
         !client.posAtLastRoutine ||
         (!isPosInRadius(
@@ -1022,9 +1023,9 @@ const packetHandlers = {
         ) &&
           !client.isLoading)
       ) {
-        // server.worldRoutine(client); comment out for now
+        server.worldRoutine(client);
       }
-
+      */
     }
   },
   "PlayerUpdate.Respawn": function (server, client, packet) {
