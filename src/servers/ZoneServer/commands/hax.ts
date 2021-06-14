@@ -78,6 +78,7 @@ const hax: any = {
       unknownBoolean: true,
     });
     client.isMounted = true;
+    client.selectedVehicle = characterId;
   },
 
   parachute: function (server: ZoneServer, client: Client, args: any[]) {
