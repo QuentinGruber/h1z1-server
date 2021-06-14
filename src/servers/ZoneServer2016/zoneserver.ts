@@ -82,28 +82,26 @@ export class ZoneServer2016 extends ZoneServer {
     this.sendData(client, "SendSelfToClient", self);
   }
 
-  pointOfInterest(client: Client) {
+  POIManager(client: Client) {
     let isInAPOIArea = false;
     Z1_POIs.forEach((point: any) => {
-      if (
-        isPosInRadius(
-          point.range,
-          client.character.state.position,
-          point.position
-        )
-      ) {
-        this.sendData(client, "POIChangeMessage", {
-          messageStringId: point.stringId,
-          id: point.POIid,
-        });
+      if ( isPosInRadius(point.range, client.character.state.position, point.position) ) {
         isInAPOIArea = true;
+        if(client.currentPOI != point.stringId) { // checks if player already was sent POIChangeMessage
+          this.sendData(client, "POIChangeMessage", {
+            messageStringId: point.stringId,
+            id: point.POIid,
+          });
+          client.currentPOI = point.stringId;
+        }
       }
     });
-    if (!isInAPOIArea) {
+    if (!isInAPOIArea && client.currentPOI != 0) { // checks if POIChangeMessage was already cleared
       this.sendData(client, "POIChangeMessage", {
         messageStringId: 0,
         id: 115,
       });
+      client.currentPOI = 0;
     }
   }
 
@@ -117,7 +115,7 @@ export class ZoneServer2016 extends ZoneServer {
     this.spawnNpcs(client);
     this.spawnVehicles(client);
     this.removeOutOfDistanceEntities(client);
-    this.pointOfInterest(client);
+    this.POIManager(client);
     client.posAtLastRoutine = client.character.state.position;
   }
 

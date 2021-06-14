@@ -1,4 +1,5 @@
 export interface Client {
+  currentPOI: number;
   isLoading: boolean;
   isMounted: boolean;
   posAtLastRoutine: Float32Array;

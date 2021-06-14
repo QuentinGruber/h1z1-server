@@ -194,7 +194,8 @@ const packetHandlers = {
 
   },
   ClientFinishedLoading: function (server, client, packet) {
-    // server.spawnAllNpc(client);
+    // server.spawnAllNpc(client); todo: fix this 
+    client.currentPOI = 0; // clears currentPOI for POIManager
     server.sendData(client, "POIChangeMessage", {
       messageStringId: 20,
       id: 99,
@@ -424,12 +425,6 @@ const packetHandlers = {
       tabId: 256,
       unknown2: 1,
     });
-  },
-  "Mount.DismountRequest": function (server, client, packet) {
-    server.sendData(client, "Mount.DismountResponse", {
-      characterId: client.character.characterId,
-    });
-    client.isMounted = false;
   },
   "Command.InteractRequest": function (server, client, packet) {
     server.sendData(client, "Command.InteractionString", {
@@ -1126,21 +1121,12 @@ const packetHandlers = {
     });
     client.isMounted = false;
   },
-
   "Command.InteractionString": function (server, client, packet) {
-    // console.log("INTERACTION STRING \n\n")
-    // console.log(packet.data);
-    
     const { guid } = packet.data;
     const objectData = server._objects[guid];
     const doorData = server._doors[guid];
     const vehicleData = server._vehicles[guid];
-    /*
-    server.sendData(client, "Command.InteractionString", {
-      guid: guid,
-      stringId: 29,
-    });
-    */
+
     if (
       objectData &&
       isPosInRadius(

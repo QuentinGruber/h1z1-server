@@ -5902,6 +5902,17 @@ var packets = [
   ["ZoneSafeTeleportRequest", 0x53, {}],
   ["RemoteInteractionRequest", 0x54, {}],
   ["UpdateCamera", 0x57, {}],
+
+  [
+    "UnknownPacketName", // unknown name, sent from client, same dword value every time ?
+    0x58, 
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      ]
+    }
+  ],
+
   ["Guild.Disband", 0x5902, {}],
   ["Guild.Rename", 0x5903, {}],
   ["Guild.ChangeMemberRank", 0x590a, {}],
