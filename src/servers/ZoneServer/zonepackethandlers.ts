@@ -136,8 +136,6 @@ const packetHandlers: any = {
     client.character.resourcesUpdater = setInterval(function (){
           // prototype resource manager
       const {isRunning} = client.character
-      console.log("running ",isRunning)
-      console.log(client.character.resources)
       if (!isRunning) {
         client.character.resources.stamina += 20;
       } else {
