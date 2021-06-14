@@ -77,8 +77,7 @@ const hax: any = {
       guid2: characterId,
       unknownBoolean: true,
     });
-    client.isMounted = true;
-    client.selectedVehicle = characterId;
+    client.mountedVehicle = characterId;
   },
 
   parachute: function (server: ZoneServer, client: Client, args: any[]) {
@@ -123,7 +122,7 @@ const hax: any = {
       guid: characterId,
       characterData: [],
     });
-    client.isMounted = true;
+    client.mountedVehicle = characterId;
   },
 
   time: function (server: ZoneServer, client: Client, args: any[]) {
