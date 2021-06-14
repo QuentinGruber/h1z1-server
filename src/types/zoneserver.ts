@@ -1,6 +1,7 @@
 export interface Client {
   isLoading: boolean;
   isMounted: boolean;
+  selectedVehicle: string;
   posAtLastRoutine: Float32Array;
   posAtLogoutStart: Float32Array;
   logoutTimer: NodeJS.Timeout | null;
