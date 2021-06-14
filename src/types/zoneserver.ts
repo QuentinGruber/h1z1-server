@@ -1,9 +1,4 @@
 export interface Client {
-  health: number;
-	stamina: number;
-	staminaRegen: boolean;
-	food: number;
-	water: number;
   isLoading: boolean;
   isMounted: boolean;
   posAtLastRoutine: Float32Array;
@@ -19,6 +14,15 @@ export interface Client {
     characterId: string;
     name?: string;
     loadouts?: any;
+    isRunning:boolean;
+    resourcesUpdater?:any
+    resources:{
+      health: number;
+      stamina: number;
+      virus: number;
+      food: number;
+      water: number;
+    }
     currentLoadoutTab?: number;
     currentLoadoutId?: number;
     currentLoadout?: number;

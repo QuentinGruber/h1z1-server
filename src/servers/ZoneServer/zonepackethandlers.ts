@@ -132,67 +132,51 @@ const packetHandlers: any = {
       serverTime2: Int64String(server.getServerTime()),
     });
     
-    // initial resource values
-    client.health = 5000;
-    client.stamina = 50;
-    client.staminaRegen = true;
-    client.food = 5000;
-    client.water = 5000;
 
-    server.sendData(client, "ResourceEvent", {
-      eventData: {
-        type: 3,
-        value: {
-          characterId: client.character.characterId,
-          resourceId: 9, // VIRUS
-          resourceType: 12,
-          initialValue: 6000,
-          unknownArray1: [],
-          unknownArray2: [],
-        },
-      },
-    });
-
-    // prototype resource manager
-    setInterval(function () {
-      if (client.staminaRegen) {
-        client.stamina = client.stamina + 20;
+    client.character.resourcesUpdater = setInterval(function (){
+          // prototype resource manager
+      const {isRunning} = client.character
+      console.log("running ",isRunning)
+      console.log(client.character.resources)
+      if (!isRunning) {
+        client.character.resources.stamina += 20;
       } else {
-        client.stamina = client.stamina - 40;
+        client.character.resources.stamina -= 40;
       }
       // if we had a packets we could modify sprint stat to 0
       // or play exhausted sounds etc
-      client.food = client.food - 10;
-      client.water = client.water - 20;
-      if (client.stamina > 600) {
-        client.stamina = 600;
+      client.character.resources.food -= 10;
+      client.character.resources.water -= 20;
+      if (client.character.resources.stamina > 600) {
+        client.character.resources.stamina = 600;
       }
-      if (client.stamina < 0) {
-        client.stamina = 0;
-      }
-
-      if (client.food > 10000) {
-        client.food = 10000;
-      }
-      if (client.food < 0) {
-        client.food = 0;
-        client.health = client.health - 100;
+      else if (client.character.resources.stamina < 0) {
+        client.character.resources.stamina = 0;
       }
 
-      if (client.water > 10000) {
-        client.water = 10000;
+      if (client.character.resources.food > 10000) {
+        client.character.resources.food = 10000;
       }
-      if (client.water < 0) {
-        client.water = 0;
-        client.health = client.health - 100;
+      else if (client.character.resources.food < 0) {
+        client.character.resources.food = 0;
+        client.character.resources.health -= 100;
       }
 
-      if (client.health > 10000) {
-        client.health = 10000;
+      if (client.character.resources.water > 10000) {
+        client.character.resources.water = 10000;
       }
-      if (client.health < 0) {
-        client.health = 0;
+      else if (client.character.resources.water < 0) {
+        client.character.resources.water = 0;
+        client.character.resources.health -= 100;
       }
+
+      if (client.character.resources.health > 10000) {
+        client.character.resources.health = 10000;
+      }
+      else if (client.character.resources.health < 0) {
+        client.character.resources.health = 0;
+      }
+      const {stamina,food,water,health,virus} = client.character.resources
 
       server.sendData(client, "ResourceEvent", {
         eventData: {
@@ -201,13 +185,12 @@ const packetHandlers: any = {
             characterId: client.character.characterId,
             resourceId: 48, // health
             resourceType: 1,
-            initialValue: client.health,
+            initialValue: health,
             unknownArray1: [],
             unknownArray2: [],
           },
         },
       });
-
       server.sendData(client, "ResourceEvent", {
         eventData: {
           type: 3,
@@ -215,7 +198,7 @@ const packetHandlers: any = {
             characterId: client.character.characterId,
             resourceId: 6, // stamina
             resourceType: 6,
-            initialValue: client.stamina,
+            initialValue: stamina,
             unknownArray1: [],
             unknownArray2: [],
           },
@@ -228,7 +211,7 @@ const packetHandlers: any = {
             characterId: client.character.characterId,
             resourceId: 4, // food
             resourceType: 4,
-            initialValue: client.food,
+            initialValue: food,
             unknownArray1: [],
             unknownArray2: [],
           },
@@ -241,15 +224,27 @@ const packetHandlers: any = {
             characterId: client.character.characterId,
             resourceId: 5, // water
             resourceType: 5,
-            initialValue: client.water,
+            initialValue: water,
+            unknownArray1: [],
+            unknownArray2: [],
+          },
+        },
+      });
+      server.sendData(client, "ResourceEvent", {
+        eventData: {
+          type: 3,
+          value: {
+            characterId: client.character.characterId,
+            resourceId: 9, // VIRUS
+            resourceType: 12,
+            initialValue: virus,
             unknownArray1: [],
             unknownArray2: [],
           },
         },
       });
     }, 3000);
-    // end prototype resource manager
-    
+        
     server.sendData(client, "ZoneDoneSendingInitialData", {});
 
     server.sendData(client, "PlayerUpdate.UpdateCharacterState", {
@@ -419,6 +414,7 @@ const packetHandlers: any = {
   },
   ClientLogout: function (server: ZoneServer, client: Client, packet: any) {
     debug("ClientLogout");
+    clearInterval(client.character.resourcesUpdater);
     server.saveCharacterPosition(client);
     server.deleteEntity(client.character.characterId, server._characters);
     server._gatewayServer._soeServer.deleteClient(client);
@@ -1403,9 +1399,9 @@ const packetHandlers: any = {
         0,
       ]);
 	  if (packet.data.unknown11_float > 8) {
-			client.staminaRegen = false;
+			client.character.isRunning = true;
 		} else {
-			client.staminaRegen = true;
+			client.character.isRunning = false;
 		}
 
       if (
@@ -1478,8 +1474,10 @@ const packetHandlers: any = {
       server.sendData(client, "ClientUpdate.TextAlert", {
         message: pickupMessage,
       });
-      if (objectToPickup.modelId === 9159) {
-        client.water = client.water + 4000;
+      let {water , health, food} = client.character.resources
+      switch (objectToPickup.modelId ) {
+        case 9159:
+          water = water + 4000;
         server.sendData(client, "ResourceEvent", {
           eventData: {
             type: 3,
@@ -1487,15 +1485,16 @@ const packetHandlers: any = {
               characterId: client.character.characterId,
               resourceId: 5, // water
               resourceType: 5,
-              initialValue: client.water,
+              initialValue: water,
               unknownArray1: [],
               unknownArray2: [],
             },
           },
         });
-      }
-      if (objectToPickup.modelId === 8020 || objectToPickup.modelId === 9250) {
-        client.food = client.food + 4000;
+          break;
+      case 8020:
+      case 9250:
+        food = food + 4000;
         server.sendData(client, "ResourceEvent", {
           eventData: {
             type: 3,
@@ -1503,28 +1502,31 @@ const packetHandlers: any = {
               characterId: client.character.characterId,
               resourceId: 4, // food
               resourceType: 4,
-              initialValue: client.food,
+              initialValue: food,
               unknownArray1: [],
               unknownArray2: [],
             },
           },
         });
-      }
-      if (objectToPickup.modelId === 9221) {
-        client.health = client.health + 10000;
-        server.sendData(client, "ResourceEvent", {
-          eventData: {
-            type: 3,
-            value: {
-              characterId: client.character.characterId,
-              resourceId: 48, // health
-              resourceType: 1,
-              initialValue: client.health,
-              unknownArray1: [],
-              unknownArray2: [],
+        break;
+        case 9221:
+          health = health + 10000;
+          server.sendData(client, "ResourceEvent", {
+            eventData: {
+              type: 3,
+              value: {
+                characterId: client.character.characterId,
+                resourceId: 48, // health
+                resourceType: 1,
+                initialValue: health,
+                unknownArray1: [],
+                unknownArray2: [],
+              },
             },
-          },
-        });
+          });
+          break;
+        default:
+          break;
       }
       server.deleteEntity(objectToPickup.characterId, server._objects);
     } else if (
