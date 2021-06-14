@@ -654,7 +654,7 @@ const packetHandlers: any = {
         vehicleData.npcData.position
       )
     ) {
-      if (client.isMounted === false) {
+      if (!client.isMounted) {
         server.sendData(client, "Command.InteractionString", {
           guid: guid,
           stringId: 15,
