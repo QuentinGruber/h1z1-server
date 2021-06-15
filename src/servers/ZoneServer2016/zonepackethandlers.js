@@ -1156,9 +1156,9 @@ const packetHandlers = {
       });
     } else if (server._characters[guid]) {
       server.sendData(client, "LightweightToFullPc", {
-        fullPcSubDataSchema1: {transientIdMaybe: npc.transientId},
+        fullPcSubDataSchema1: {transientIdMaybe: server._characters[guid].transientId},
         array1: [],
-        unknownData1: {transientId: npc.transientId, unknownData1: {}, array1: [], array2: [],},
+        unknownData1: {transientId: server._characters[guid].transientId, unknownData1: {}, array1: [], array2: [],},
       });
     } else if (server._vehicles[guid]) {
       server.sendData(client, "LightweightToFullVehicle", {

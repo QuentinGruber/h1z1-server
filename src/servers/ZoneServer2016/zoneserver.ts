@@ -19,18 +19,18 @@ import { H1Z1Protocol } from "../../protocols/h1z1protocol";
 import _ from "lodash";
 import { Base64 } from "js-base64";
 import {
-  generateRandomGuid,
-  initMongo,
-  Int64String,
+  //generateRandomGuid,
+  //initMongo,
+  //Int64String,
   isPosInRadius,
 } from "../../utils/utils";
 
 // need to get 2016 lists
-const spawnLocations = require("../../../data/2015/sampleData/spawnLocations.json");
-const localWeatherTemplates = require("../../../data/2015/sampleData/weather.json");
-const stats = require("../../../data/2015/sampleData/stats.json");
-const recipes = require("../../../data/2015/sampleData/recipes.json");
-const resources = require("../../../data/2015/dataSources/Resources.json");
+// const spawnLocations = require("../../../data/2015/sampleData/spawnLocations.json");
+// const localWeatherTemplates = require("../../../data/2015/sampleData/weather.json");
+// const stats = require("../../../data/2015/sampleData/stats.json");
+// const recipes = require("../../../data/2015/sampleData/recipes.json");
+// const resources = require("../../../data/2015/dataSources/Resources.json");
 const Z1_POIs = require("../../../data/2015/zoneData/Z1_POIs");
 
 

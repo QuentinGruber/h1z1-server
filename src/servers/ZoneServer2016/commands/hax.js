@@ -143,8 +143,7 @@ const hax = {
           rotation: client.character.state.lookAt,
           attachedObject: {},
           vehicleId: 5,
-          color: {},
-          attachedObject: {}
+          color: {}
         },
         unknownGuid1:server.generateGuid(),
         positionUpdate: [0, 0, 0, 0],
@@ -246,8 +245,7 @@ const hax = {
         rotation: client.character.state.lookAt,
         attachedObject: {},
         vehicleId: vehicleId,
-        color: {},
-        attachedObject: {}
+        color: {}
       },
       unknownGuid1:server.generateGuid(),
       positionUpdate: [0, 0, 0, 0],
