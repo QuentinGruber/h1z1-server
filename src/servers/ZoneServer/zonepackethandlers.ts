@@ -131,6 +131,118 @@ const packetHandlers: any = {
       serverTime: Int64String(server.getServerTime()),
       serverTime2: Int64String(server.getServerTime()),
     });
+    
+
+    client.character.resourcesUpdater = setInterval(function (){
+          // prototype resource manager
+      const {isRunning} = client.character
+      if (!isRunning) {
+        client.character.resources.stamina += 20;
+      } else {
+        client.character.resources.stamina -= 40;
+      }
+      // if we had a packets we could modify sprint stat to 0
+      // or play exhausted sounds etc
+      client.character.resources.food -= 10;
+      client.character.resources.water -= 20;
+      if (client.character.resources.stamina > 600) {
+        client.character.resources.stamina = 600;
+      }
+      else if (client.character.resources.stamina < 0) {
+        client.character.resources.stamina = 0;
+      }
+
+      if (client.character.resources.food > 10000) {
+        client.character.resources.food = 10000;
+      }
+      else if (client.character.resources.food < 0) {
+        client.character.resources.food = 0;
+        client.character.resources.health -= 100;
+      }
+
+      if (client.character.resources.water > 10000) {
+        client.character.resources.water = 10000;
+      }
+      else if (client.character.resources.water < 0) {
+        client.character.resources.water = 0;
+        client.character.resources.health -= 100;
+      }
+
+      if (client.character.resources.health > 10000) {
+        client.character.resources.health = 10000;
+      }
+      else if (client.character.resources.health < 0) {
+        client.character.resources.health = 0;
+      }
+      const {stamina,food,water,health,virus} = client.character.resources
+
+      server.sendData(client, "ResourceEvent", {
+        eventData: {
+          type: 3,
+          value: {
+            characterId: client.character.characterId,
+            resourceId: 48, // health
+            resourceType: 1,
+            initialValue: health,
+            unknownArray1: [],
+            unknownArray2: [],
+          },
+        },
+      });
+      server.sendData(client, "ResourceEvent", {
+        eventData: {
+          type: 3,
+          value: {
+            characterId: client.character.characterId,
+            resourceId: 6, // stamina
+            resourceType: 6,
+            initialValue: stamina,
+            unknownArray1: [],
+            unknownArray2: [],
+          },
+        },
+      });
+      server.sendData(client, "ResourceEvent", {
+        eventData: {
+          type: 3,
+          value: {
+            characterId: client.character.characterId,
+            resourceId: 4, // food
+            resourceType: 4,
+            initialValue: food,
+            unknownArray1: [],
+            unknownArray2: [],
+          },
+        },
+      });
+      server.sendData(client, "ResourceEvent", {
+        eventData: {
+          type: 3,
+          value: {
+            characterId: client.character.characterId,
+            resourceId: 5, // water
+            resourceType: 5,
+            initialValue: water,
+            unknownArray1: [],
+            unknownArray2: [],
+          },
+        },
+      });
+      server.sendData(client, "ResourceEvent", {
+        eventData: {
+          type: 3,
+          value: {
+            characterId: client.character.characterId,
+            resourceId: 9, // VIRUS
+            resourceType: 12,
+            initialValue: virus,
+            unknownArray1: [],
+            unknownArray2: [],
+          },
+        },
+      });
+    }, 3000);
+        
     server.sendData(client, "ZoneDoneSendingInitialData", {});
 
     server.sendData(client, "PlayerUpdate.UpdateCharacterState", {
@@ -144,15 +256,19 @@ const packetHandlers: any = {
     packet: any
   ) {
     server.sendGameTimeSync(client);
-    server.sendChatText(client, "Welcome to H1emu ! :D", true);
-    client.lastPingTime = new Date().getTime();
-    client.savePositionTimer = setTimeout(
-      () => server.saveCharacterPosition(client, 30000),
-      30000
-    );
-    server.executeFuncForAllClients("spawnCharacters");
+    if(client.firstLoading){
+      server.sendChatText(client, "Welcome to H1emu ! :D", true);
+      server.sendGlobalChatText(`${client.character.name} has joined the server !`);
+      client.firstLoading = false;
+      client.lastPingTime = new Date().getTime();
+      client.savePositionTimer = setTimeout(
+        () => server.saveCharacterPosition(client, 30000),
+        30000
+      );
+      server.executeFuncForAllClients("spawnCharacters");
+    }
     client.isLoading = false;
-    client.isMounted = false;
+    delete client.mountedVehicle
   },
   Security: function (server: ZoneServer, client: Client, packet: any) {
     debug(packet);
@@ -300,6 +416,7 @@ const packetHandlers: any = {
   },
   ClientLogout: function (server: ZoneServer, client: Client, packet: any) {
     debug("ClientLogout");
+    clearInterval(client.character.resourcesUpdater);
     server.saveCharacterPosition(client);
     server.deleteEntity(client.character.characterId, server._characters);
     server._gatewayServer._soeServer.deleteClient(client);
@@ -455,7 +572,11 @@ const packetHandlers: any = {
     server.sendData(client, "Mount.DismountResponse", {
       characterId: client.character.characterId,
     });
-    client.isMounted = false;
+	server.sendData(client, "Vehicle.Engine", {
+      guid2: client.mountedVehicle,
+      unknownBoolean: false,
+    });
+	delete client.mountedVehicle
   },
   "Command.InteractRequest": function (
     server: ZoneServer,
@@ -512,6 +633,7 @@ const packetHandlers: any = {
         guid: guid,
         stringId: 29,
       });
+	    delete client.mountedVehicle;
     } else if (
       doorData &&
       isPosInRadius(
@@ -524,6 +646,7 @@ const packetHandlers: any = {
         guid: guid,
         stringId: 31,
       });
+      delete client.mountedVehicle;
     } else if (
       vehicleData &&
       isPosInRadius(
@@ -532,11 +655,12 @@ const packetHandlers: any = {
         vehicleData.npcData.position
       )
     ) {
-      if (!client.isMounted) {
+      if (!client.mountedVehicle) {
         server.sendData(client, "Command.InteractionString", {
           guid: guid,
           stringId: 15,
         });
+	client.mountedVehicle = guid;
       }
     }
   },
@@ -547,6 +671,12 @@ const packetHandlers: any = {
   ) {
     debug(packet);
     debug("select");
+  },
+  "Vehicle.Dismiss": function (server: ZoneServer, client: Client, packet: any) {
+    server.sendData(client, "Mount.DismountResponse", {
+      characterId: client.character.characterId,
+    });
+    delete client.mountedVehicle;
   },
   "Vehicle.Spawn": function (server: ZoneServer, client: Client, packet: any) {
     server.sendData(client, "Vehicle.Expiration", {
@@ -1269,6 +1399,11 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
+
+    const movingCharacter = server._characters[client.character.characterId];
+    
+
+    server.sendRawToAllOthers(client,server._protocol.createPositionBroadcast(packet.data.raw,movingCharacter.transientId));
     if (packet.data.position) {
       // TODO: modify array element beside re-creating it
       client.character.state.position = new Float32Array([
@@ -1277,6 +1412,11 @@ const packetHandlers: any = {
         packet.data.position[2],
         0,
       ]);
+	  if (packet.data.unknown11_float > 8) {
+			client.character.isRunning = true;
+		} else {
+			client.character.isRunning = false;
+		}
 
       if (
         client.logoutTimer != null &&
@@ -1322,6 +1462,7 @@ const packetHandlers: any = {
         packet.data.lookAt[3],
       ]);
     }
+
   },
   "Command.PlayerSelect": function (
     server: ZoneServer,
@@ -1348,6 +1489,60 @@ const packetHandlers: any = {
       server.sendData(client, "ClientUpdate.TextAlert", {
         message: pickupMessage,
       });
+      let {water , health, food} = client.character.resources
+      switch (objectToPickup.modelId ) {
+        case 9159:
+          water = water + 4000;
+        server.sendData(client, "ResourceEvent", {
+          eventData: {
+            type: 3,
+            value: {
+              characterId: client.character.characterId,
+              resourceId: 5, // water
+              resourceType: 5,
+              initialValue: water,
+              unknownArray1: [],
+              unknownArray2: [],
+            },
+          },
+        });
+          break;
+      case 8020:
+      case 9250:
+        food = food + 4000;
+        server.sendData(client, "ResourceEvent", {
+          eventData: {
+            type: 3,
+            value: {
+              characterId: client.character.characterId,
+              resourceId: 4, // food
+              resourceType: 4,
+              initialValue: food,
+              unknownArray1: [],
+              unknownArray2: [],
+            },
+          },
+        });
+        break;
+        case 9221:
+          health = health + 10000;
+          server.sendData(client, "ResourceEvent", {
+            eventData: {
+              type: 3,
+              value: {
+                characterId: client.character.characterId,
+                resourceId: 48, // health
+                resourceType: 1,
+                initialValue: health,
+                unknownArray1: [],
+                unknownArray2: [],
+              },
+            },
+          });
+          break;
+        default:
+          break;
+      }
       server.deleteEntity(objectToPickup.characterId, server._objects);
     } else if (
       vehicleToMount &&
@@ -1390,6 +1585,7 @@ const packetHandlers: any = {
     } = packet;
     const npc =
       server._npcs[guid] || server._objects[guid] || server._doors[guid];
+	    const pcData = server._characters[guid];
     if (npc) {
       server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
         transientId: npc.transientId,
@@ -1400,7 +1596,7 @@ const packetHandlers: any = {
       });
     } else if (server._characters[guid]) {
       server.sendData(client, "PlayerUpdate.LightweightToFullPc", {
-        characterId: guid,
+        transientId: pcData.transientId,
       });
     } else if (server._vehicles[guid]) {
       /*server.sendData(client, "PlayerUpdate.LightweightToFullVehicle", {
@@ -1412,3 +1608,4 @@ const packetHandlers: any = {
 };
 
 export default packetHandlers;
+
