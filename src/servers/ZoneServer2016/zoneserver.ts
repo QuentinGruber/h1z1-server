@@ -106,9 +106,7 @@ export class ZoneServer2016 extends ZoneServer {
   }
 
   worldRoutine(client: Client): void {
-    // temp set this value
     debug("WORLDROUTINE \n\n")
-    this._npcRenderDistance = 100;
     this.spawnCharacters(client);
     this.spawnObjects(client);
     this.spawnDoors(client);

@@ -205,6 +205,7 @@ const packetHandlers = {
       () => server.saveCharacterPosition(client, 30000),
       30000
     );
+    server._characters[client.character.characterId] = {...client.character, identity: {}};
     server.executeFuncForAllClients("spawnCharacters");
     client.isLoading = false;
     client.isMounted = false;
@@ -988,9 +989,87 @@ const packetHandlers = {
       unknownFloat12: 12,
     });
   },
+  /*
   PlayerUpdateUpdatePositionClientToZone: function (server, client, packet) {
     if (packet.data.position) {
      // TODO: modify array element beside re-creating it
+      client.character.state.position = new Float32Array([
+        packet.data.position[0],
+        packet.data.position[1],
+        packet.data.position[2],
+        0,
+      ]);
+
+      
+      server.sendDataToAll("Chat.ChatText", {
+        message: `${client.character.name}: test`,
+        unknownDword1: 0,
+        color: [255, 255, 255, 0],
+        unknownDword2: 13951728,
+        unknownByte3: 0,
+        unknownByte4: 1,
+      });
+
+      const p = packet.data.position;
+      console.log(packet.data);
+      console.log("position")
+      console.log(packet.data.position);
+      server.sendDataToAll("PlayerUpdatePosition", {
+        transientId: server.getTransientId(client, client.character.guid),
+        positionUpdate: server.createPositionUpdate(
+          new Float32Array([p[0], p[1], p[2], p[3]]),
+          [0, 0, 0, 0],
+        ),
+      });
+
+      if(packet.data.rotation){
+        const r = packet.data.rotation;
+        console.log("rotation")
+        console.log(packet.data.rotation);
+        server.sendDataToAll("PlayerUpdatePosition", {
+          transientId: server.getTransientId(client, client.character.guid),
+          positionUpdate: server.createPositionUpdate(
+            new Float32Array([p[0], p[1], p[2], p[3]]),
+            [r[0], r[1], r[2], r[3]],
+          ),
+        });
+      }
+      
+
+      if (
+        client.logoutTimer != null &&
+        !isPosInRadius(
+          1,
+          client.character.state.position,
+          client.posAtLogoutStart
+        )
+      ) {
+        clearTimeout(client.logoutTimer);
+        client.logoutTimer = null;
+        server.sendData(client, "ClientUpdate.StartTimer", {
+          stringId: 0,
+          time: 0,
+        }); // don't know how it was done so
+      }
+      
+      if (
+        !client.posAtLastRoutine ||
+        (!isPosInRadius(
+          server._npcRenderDistance / 2.5,
+          client.character.state.position,
+          client.posAtLastRoutine
+        ) &&
+          !client.isLoading)
+      ) {
+        server.worldRoutine(client);
+      }
+      
+    }
+  },
+  */
+  PlayerUpdateUpdatePositionClientToZone: function (server, client, packet) {
+    if (packet.data.position) {
+      // TODO: modify array element beside re-creating it
       client.character.state.position = new Float32Array([
         packet.data.position[0],
         packet.data.position[1],
@@ -1013,7 +1092,7 @@ const packetHandlers = {
           time: 0,
         }); // don't know how it was done so
       }
-      /*
+
       if (
         !client.posAtLastRoutine ||
         (!isPosInRadius(
@@ -1025,7 +1104,29 @@ const packetHandlers = {
       ) {
         server.worldRoutine(client);
       }
+      // todo
+      /*
+      const movingCharacter = server._characters[client.character.characterId];
+      console.log(movingCharacter)
+
+      server.sendDataToAllOthers(client,"PlayerUpdate.UpdatePosition",{transientId:movingCharacter.transientId,positionUpdate:server.createPositionUpdate(client.character.state.position,[0,0,0,0])})
       */
+    }
+    if (packet.data.rotation) {
+      // TODO: modify array element beside re-creating it
+      client.character.state.rotation = new Float32Array([
+        packet.data.rotation[0],
+        packet.data.rotation[1],
+        packet.data.rotation[2],
+        packet.data.rotation[3],
+      ]);
+
+      client.character.state.lookAt = new Float32Array([
+        packet.data.lookAt[0],
+        packet.data.lookAt[1],
+        packet.data.lookAt[2],
+        packet.data.lookAt[3],
+      ]);
     }
   },
   "PlayerUpdate.Respawn": function (server, client, packet) {
@@ -1052,10 +1153,6 @@ const packetHandlers = {
         unknownData2: {},
         resources: [],
         unknownData3: {}
-        //unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
-        //unknownDword2: 13951728,
-        //unknownDword3: 1,
-        //unknownDword6: 100,
       });
     } else if (server._characters[guid]) {
       server.sendData(client, "LightweightToFullPc", {
@@ -1064,7 +1161,6 @@ const packetHandlers = {
         unknownData1: {transientId: npc.transientId, unknownData1: {}, array1: [], array2: [],},
       });
     } else if (server._vehicles[guid]) {
-      //debug(npc);
       server.sendData(client, "LightweightToFullVehicle", {
         npcData: {
           transientId: server._vehicles[guid].npcData.transientId,
@@ -1096,7 +1192,6 @@ const packetHandlers = {
           }
         ]
       });
-      // debug("LightweightToFullVehicle");
     }
   },
 
