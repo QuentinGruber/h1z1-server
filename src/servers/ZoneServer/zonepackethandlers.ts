@@ -23,6 +23,7 @@ import admin from "./commands/admin";
 import { Int64String, isPosInRadius } from "../../utils/utils";
 import { ZoneServer } from "./zoneserver";
 import { Client } from "types/zoneserver";
+import Eul2Quat from "eul2quat";
 const modelToName = require("../../../data/2015/sampleData/ModelToName.json");
 
 const _ = require("lodash");
@@ -1395,6 +1396,8 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
+    const movingCharacter = server._characters[client.character.characterId];
+    console.log(movingCharacter)
     if (packet.data.position) {
       // TODO: modify array element beside re-creating it
       client.character.state.position = new Float32Array([
@@ -1436,10 +1439,7 @@ const packetHandlers: any = {
       ) {
         server.worldRoutine(client);
       }
-      const movingCharacter = server._characters[client.character.characterId];
-      console.log(movingCharacter)
-
-      server.sendDataToAllOthers(client,"PlayerUpdate.UpdatePosition",{transientId:movingCharacter.transientId,positionUpdate:server.createPositionUpdate(client.character.state.position,[0,0,0,0])})
+      server.sendDataToAllOthers(client,"PlayerUpdate.UpdatePosition",{transientId:movingCharacter.transientId,positionUpdate:server.createPositionUpdate(client.character.state.position)})
     }
     if (packet.data.rotation) {
       // TODO: modify array element beside re-creating it
@@ -1456,7 +1456,9 @@ const packetHandlers: any = {
         packet.data.lookAt[2],
         packet.data.lookAt[3],
       ]);
+      server.sendDataToAllOthers(client,"PlayerUpdate.UpdatePosition",{transientId:movingCharacter.transientId,positionUpdate:server.createPositionUpdate(client.character.state.position,Eul2Quat(client.character.state.lookAt))})
     }
+
   },
   "Command.PlayerSelect": function (
     server: ZoneServer,

@@ -26,6 +26,7 @@ import { Db, MongoClient } from "mongodb";
 import { Worker } from "worker_threads";
 import dynamicWeather from "./workers/dynamicWeather";
 import { Base64 } from "js-base64";
+import Eul2Quat from "eul2quat";
 
 const localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json");
 
@@ -1100,24 +1101,17 @@ export class ZoneServer extends EventEmitter {
     return client.transientIds[guid];
   }
 
-  createPositionUpdate(position: Float32Array, rotation: any): any {
-    const obj = {
+  createPositionUpdate(position: Float32Array, rotation?: any): any {
+    const obj:any = {
       flags: 4095,
       unknown2_int32: this.getGameTime(),
       unknown3_int8: 0,
       unknown4: 1,
       position: position,
-      unknown6_int32: 3217625048,
-      unknown7_float: 0,
-      unknown8_float: 0,
-      unknown9_float: 0,
-      unknown10_float: 0,
-      unknown11_float: 0,
-      unknown12_float: [0, 0, 0],
-      unknown13_float: rotation,
-      unknown14_float: 0,
-      unknown15_float: 0,
     };
+    if(rotation){
+      obj.unknown13_float = rotation
+    }
     return obj;
   }
 }
