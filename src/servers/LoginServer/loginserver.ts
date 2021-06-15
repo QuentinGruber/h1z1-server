@@ -84,185 +84,29 @@ export class LoginServer extends EventEmitter {
         if (packet !== false) {
           // if packet parsing succeed
           const { sessionId } = packet.result;
-          let data: Buffer;
           switch (packet.name) {
             case "LoginRequest": {
-              client.loginSessionId = sessionId;
-              const falsified_data = {
-                loggedIn: true,
-                status: 1,
-                isMember: true,
-                isInternal: true,
-                namespace: "soe",
-                ApplicationPayload: "",
-              };
-              data = this._protocol.pack("LoginReply", falsified_data);
-              this._soeServer.sendAppData(client, data, true);
-              if (!this._soloMode) {
-                client.serverUpdateTimer = setInterval(
-                  // TODO: fix the fact that this interval is never cleared
-                  () => this.updateServerList(client),
-                  30000
-                );
-              }
+              this.LoginRequest(client,sessionId)
               if (this._protocol.protocolName !== "LoginUdp_11") break;
             }
             case "CharacterSelectInfoRequest": {
-              let CharactersInfo;
-              if (this._soloMode) {
-                const SinglePlayerCharacter = require("../../../data/2015/sampleData/single_player_character.json");
-
-                const cowboy = _.cloneDeep(SinglePlayerCharacter); // for fun 🤠
-                cowboy.characterId = "0x0000000000000001";
-                cowboy.payload.name = "Cowboy";
-
-                CharactersInfo = {
-                  status: 1,
-                  canBypassServerLock: true,
-                  characters: [SinglePlayerCharacter, cowboy],
-                };
-              } else {
-                const charactersQuery = { ownerId: client.loginSessionId };
-                const characters = await this._db
-                  .collection("characters")
-                  .find(charactersQuery)
-                  .toArray();
-                CharactersInfo = {
-                  status: 1,
-                  canBypassServerLock: true,
-                  characters: characters,
-                };
-              }
-              data = this._protocol.pack(
-                "CharacterSelectInfoReply",
-                CharactersInfo
-              );
-              this._soeServer.sendAppData(client, data, true);
-              debug("CharacterSelectInfoRequest");
+              this.CharacterSelectInfoRequest(client)
               if (this._protocol.protocolName !== "LoginUdp_11") break;
             }
             case "ServerListRequest":
-              {
-                let servers;
-                if (!this._soloMode) {
-                  servers = await this._db
-                    .collection("servers")
-                    .find()
-                    .toArray();
-                } else {
-                  if (this._soloMode) {
-                    const SoloServer = require("../../../data/2015/sampleData/single_player_server.json");
-                    servers = [SoloServer];
-                  }
-                }
-                for (let i = 0; i < servers.length; i++) {
-                  if (servers[i]._id) {
-                    delete servers[i]._id;
-                  }
-                }
-                data = this._protocol.pack("ServerListReply", {
-                  servers: servers,
-                });
-                this._soeServer.sendAppData(client, data, true);
-              }
-
+              this.ServerListRequest(client)
               break;
 
             case "CharacterDeleteRequest": {
-              const characters_delete_info: any = {
-                characterId: (packet.result as any).characterId,
-                status: 1,
-                Payload: "\0",
-              };
-              data = this._protocol.pack(
-                "CharacterDeleteReply",
-                characters_delete_info
-              );
-              this._soeServer.sendAppData(client, data, true);
-              debug("CharacterDeleteRequest");
-
-              if (this._soloMode) {
-                debug(
-                  "Deleting a character in solo mode is weird, modify single_player_character.json instead"
-                );
-                break;
-              } else {
-                await this._db
-                  .collection("characters")
-                  .deleteOne(
-                    { characterId: (packet.result as any).characterId },
-                    function (err: string) {
-                      if (err) {
-                        debug(err);
-                      } else {
-                        debug(
-                          "Character " +
-                            (packet.result as any).characterId +
-                            " deleted !"
-                        );
-                      }
-                    }
-                  );
-              }
+              this.CharacterDeleteRequest(client,packet)
               break;
             }
             case "CharacterLoginRequest": {
-              let charactersLoginInfo: any;
-              const { serverId, characterId } = packet.result;
-              if (!this._soloMode) {
-                const { serverAddress } = await this._db
-                  .collection("servers")
-                  .findOne({ serverId: serverId });
-                charactersLoginInfo = {
-                  unknownQword1: "0x0",
-                  unknownDword1: 0,
-                  unknownDword2: 0,
-                  status: 1,
-                  applicationData: {
-                    serverAddress: serverAddress,
-                    serverTicket: client.loginSessionId,
-                    encryptionKey: this._cryptoKey,
-                    guid: characterId,
-                    unknownQword2: "0x0",
-                    stationName: "",
-                    characterName: "",
-                    unknownString: "",
-                  },
-                };
-              } else {
-                charactersLoginInfo = {
-                  unknownQword1: "0x0",
-                  unknownDword1: 0,
-                  unknownDword2: 0,
-                  status: 1,
-                  applicationData: {
-                    serverAddress: "127.0.0.1:1117",
-                    serverTicket: client.loginSessionId,
-                    encryptionKey: this._cryptoKey,
-                    guid: characterId,
-                    unknownQword2: "0x0",
-                    stationName: "",
-                    characterName: "",
-                    unknownString: "",
-                  },
-                };
-              }
-              debug(charactersLoginInfo);
-              data = this._protocol.pack(
-                "CharacterLoginReply",
-                charactersLoginInfo
-              );
-              this._soeServer.sendAppData(client, data, true);
-              debug("CharacterLoginRequest");
+              this.CharacterLoginRequest(client,packet)
               break;
             }
             case "CharacterCreateRequest": {
-              const reply_data = {
-                status: 1,
-                characterId: generateRandomGuid(),
-              };
-              data = this._protocol.pack("CharacterCreateReply", reply_data);
-              this._soeServer.sendAppData(client, data, true);
+             this.CharacterCreateRequest(client)
               break;
             }
             case "TunnelAppPacketClientToServer":
@@ -287,6 +131,181 @@ export class LoginServer extends EventEmitter {
         }
       }
     );
+  }
+
+  LoginRequest(client:Client,sessionId:string){
+    client.loginSessionId = sessionId;
+    const falsified_data = {
+      loggedIn: true,
+      status: 1,
+      isMember: true,
+      isInternal: true,
+      namespace: "soe",
+      ApplicationPayload: "",
+    };
+    const data = this._protocol.pack("LoginReply", falsified_data);
+    this._soeServer.sendAppData(client, data, true);
+    if (!this._soloMode) {
+      client.serverUpdateTimer = setInterval(
+        // TODO: fix the fact that this interval is never cleared
+        () => this.updateServerList(client),
+        30000
+      );
+    }
+  }
+
+  async CharacterSelectInfoRequest(client:Client){
+    let CharactersInfo;
+    if (this._soloMode) {
+      const SinglePlayerCharacter = require("../../../data/2015/sampleData/single_player_character.json");
+
+      const cowboy = _.cloneDeep(SinglePlayerCharacter); // for fun 🤠
+      cowboy.characterId = "0x0000000000000001";
+      cowboy.payload.name = "Cowboy";
+
+      CharactersInfo = {
+        status: 1,
+        canBypassServerLock: true,
+        characters: [SinglePlayerCharacter, cowboy],
+      };
+    } else {
+      const charactersQuery = { ownerId: client.loginSessionId };
+      const characters = await this._db
+        .collection("characters")
+        .find(charactersQuery)
+        .toArray();
+      CharactersInfo = {
+        status: 1,
+        canBypassServerLock: true,
+        characters: characters,
+      };
+    }
+    const data = this._protocol.pack(
+      "CharacterSelectInfoReply",
+      CharactersInfo
+    );
+    this._soeServer.sendAppData(client, data, true);
+    debug("CharacterSelectInfoRequest");
+  }
+
+  async ServerListRequest(client:Client){
+    let servers;
+    if (!this._soloMode) {
+      servers = await this._db
+        .collection("servers")
+        .find()
+        .toArray();
+    } else {
+      if (this._soloMode) {
+        const SoloServer = require("../../../data/2015/sampleData/single_player_server.json");
+        servers = [SoloServer];
+      }
+    }
+    for (let i = 0; i < servers.length; i++) {
+      if (servers[i]._id) {
+        delete servers[i]._id;
+      }
+    }
+    const data = this._protocol.pack("ServerListReply", {
+      servers: servers,
+    });
+    this._soeServer.sendAppData(client, data, true);
+  }
+
+  async CharacterDeleteRequest(client:Client,packet:any){
+    const characters_delete_info: any = {
+      characterId: (packet.result as any).characterId,
+      status: 1,
+      Payload: "\0",
+    };
+    const data = this._protocol.pack(
+      "CharacterDeleteReply",
+      characters_delete_info
+    );
+    this._soeServer.sendAppData(client, data, true);
+    debug("CharacterDeleteRequest");
+
+    if (this._soloMode) {
+      debug(
+        "Deleting a character in solo mode is weird, modify single_player_character.json instead"
+      );
+    } else {
+      await this._db
+        .collection("characters")
+        .deleteOne(
+          { characterId: (packet.result as any).characterId },
+          function (err: string) {
+            if (err) {
+              debug(err);
+            } else {
+              debug(
+                "Character " +
+                  (packet.result as any).characterId +
+                  " deleted !"
+              );
+            }
+          }
+        );
+    }
+  }
+
+  async CharacterLoginRequest(client: Client,packet:any){
+    let charactersLoginInfo: any;
+    const { serverId, characterId } = packet.result;
+    if (!this._soloMode) {
+      const { serverAddress } = await this._db
+        .collection("servers")
+        .findOne({ serverId: serverId });
+      charactersLoginInfo = {
+        unknownQword1: "0x0",
+        unknownDword1: 0,
+        unknownDword2: 0,
+        status: 1,
+        applicationData: {
+          serverAddress: serverAddress,
+          serverTicket: client.loginSessionId,
+          encryptionKey: this._cryptoKey,
+          guid: characterId,
+          unknownQword2: "0x0",
+          stationName: "",
+          characterName: "",
+          unknownString: "",
+        },
+      };
+    } else {
+      charactersLoginInfo = {
+        unknownQword1: "0x0",
+        unknownDword1: 0,
+        unknownDword2: 0,
+        status: 1,
+        applicationData: {
+          serverAddress: "127.0.0.1:1117",
+          serverTicket: client.loginSessionId,
+          encryptionKey: this._cryptoKey,
+          guid: characterId,
+          unknownQword2: "0x0",
+          stationName: "",
+          characterName: "",
+          unknownString: "",
+        },
+      };
+    }
+    debug(charactersLoginInfo);
+    const data = this._protocol.pack(
+      "CharacterLoginReply",
+      charactersLoginInfo
+    );
+    this._soeServer.sendAppData(client, data, true);
+    debug("CharacterLoginRequest");
+  }
+
+  CharacterCreateRequest(client:Client){
+    const reply_data = {
+      status: 1,
+      characterId: generateRandomGuid(),
+    };
+    const data = this._protocol.pack("CharacterCreateReply", reply_data);
+    this._soeServer.sendAppData(client, data, true);
   }
 
   async updateServerList(client: Client): Promise<void> {
