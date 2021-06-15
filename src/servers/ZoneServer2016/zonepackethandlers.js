@@ -20,12 +20,12 @@ try {
 const Jenkins = require("hash-jenkins");
 import hax from "./commands/hax";
 import dev from "./commands/dev";
-import admin from "./commands/admin";
+// import admin from "./commands/admin";
 
 import { Int64String, isPosInRadius } from "../../utils/utils";
 
 // TOOD: UPDATE THIS FOR 2016
-const modelToName = require("../../../data/2015/sampleData/ModelToName.json");
+// const modelToName = require("../../../data/2015/sampleData/ModelToName.json");
 
 const _ = require("lodash");
 const debug = require("debug")("zonepacketHandlers");
