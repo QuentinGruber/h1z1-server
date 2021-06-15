@@ -1107,11 +1107,13 @@ export class ZoneServer extends EventEmitter {
   }
 
   getTransientId(client: any, guid: string): number {
-    if (!client.transientIds[guid]) {
-      client.transientId++;
-      client.transientIds[guid] = client.transientId;
+    let generatedTransient;
+    do{
+        generatedTransient = Number((Math.random()*30000).toFixed(0));
     }
-    return client.transientIds[guid];
+    while(!this._transientIds[generatedTransient])
+    this._transientIds[generatedTransient] = guid;
+    return generatedTransient;
   }
 
   createPositionUpdate(position: Float32Array, rotation?: any): any {
