@@ -7,17 +7,17 @@ const debug = require("debug")("zonepacketHandlers");
 const dev: any = {
   testpacket: function (server: ZoneServer, client: Client, args: any[]) {
     server.sendData(client, "Ragdoll.UpdatePose", {
-      characterId: client.character.characterId
+      characterId: client.character.characterId,
     });
   },
   lol: function (server: ZoneServer, client: Client, args: any[]) {
     for (const npcKey in server._npcs) {
-        const npc = server._npcs[npcKey];
-        server.sendData(client, "Ragdoll.UpdatePose", {
-          characterId: npc.characterId
-        });
+      const npc = server._npcs[npcKey];
+      server.sendData(client, "Ragdoll.UpdatePose", {
+        characterId: npc.characterId,
+      });
     }
-    },
+  },
   testManagedObject: function (
     server: ZoneServer,
     client: Client,

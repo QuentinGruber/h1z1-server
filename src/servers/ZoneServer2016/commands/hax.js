@@ -1,16 +1,56 @@
-import { generateCharacterId } from "../../../utils/utils";
+//import { generateCharacterId } from "../../../utils/utils";
 const _ = require("lodash");
 const debug = require("debug")("zonepacketHandlers");
 import fs from "fs";
 
 const hax = {
+  parachute: function (server, client, args) {
+    const characterId = server.generateGuid();
+    const guid = server.generateGuid();
+    let posY = client.character.state.position[1] + 700;
+    const vehicleData = {
+      npcData: {
+        guid: guid,
+        transientId: 999999,
+        characterId: characterId,
+        modelId: 9374,
+        scale: [1, 1, 1, 1],
+        position: [
+          client.character.state.position[0],
+          posY,
+          client.character.state.position[2],
+          client.character.state.position[3],
+        ],
+        rotation: client.character.state.lookAt,
+        vehicleId: 13,
+        attachedObject: {},
+        color: {},
+      },
+      unknownDword1: 10,
+      unknownDword2: 10,
+      positionUpdate: server.createPositionUpdate(
+        new Float32Array([0, 0, 0, 0]),
+        [0, 0, 0, 0]
+      ),
+      unknownString1: "",
+    };
+    server.sendData(client, "AddLightweightVehicle", vehicleData);
+    server._vehicles[characterId] = vehicleData;
+    server.worldRoutine(client);
+    server.sendData(client, "Mount.MountResponse", {
+      characterId: client.character.characterId,
+      guid: characterId,
+      identity: {},
+    });
+    client.isMounted = true;
+  },
+
   tp: function (server, client, args) {
     if (args.length < 4) {
       server.sendChatText(client, "Need 3 args: position x, y, z", false);
       return;
     }
     const location = {
-      // unknownWord1: 50,
       position: [args[1], args[2], args[3], 1],
       rotation: [10, 20, 30, 1],
       unknownBool1: true,
@@ -87,81 +127,50 @@ const hax = {
     server.removeForcedTime();
     server.sendChatText(client, "Game time is now based on real time", true);
   },
-  spamOffroader: function (server, client, args) {
-    for (let index = 0; index < 150; index++) {
-      const vehicleData = {
+  spamAtv: function (server, client, args) {
+    for (let index = 0; index < 50; index++) {
+      const guid = server.generateGuid();
+      const transientId = server.getTransientId(client, guid);
+      const characterId = server.generateGuid();
+      const vehicle = {
         npcData: {
-          guid: generateCharacterId(),
-          transientId: 1,
-          unknownString0: "",
-          nameId: 12,
-          unknownDword2: 0,
-          unknownDword3: 0,
-          unknownByte1: 0,
-          modelId: 7225,
+          guid: guid,
+          characterId: characterId,
+          transientId: transientId,
+          modelId: 9588,
           scale: [1, 1, 1, 1],
-          unknownString1: "",
-          unknownString2: "",
-          unknownDword5: 0,
-          unknownDword6: 0,
-          position: client.character.state.position,
-          unknownVector1: [0, 0, 0, 1],
-          rotation: [0, 0, 0, 1],
-          unknownDword7: 0,
-          unknownFloat1: 3,
-          unknownString3: "",
-          unknownString4: "",
-          unknownString5: "",
-          vehicleId: 3,
-          unknownDword9: 0,
-          npcDefinitionId: 2,
-          unknownByte2: 2,
-          profileId: 3,
-          unknownBoolean1: false,
-          unknownData1: {
-            unknownByte1: 16,
-            unknownByte2: 9,
-            unknownByte3: 0,
-          },
-          unknownByte6: 0,
-          unknownDword11: 0,
-          unknownGuid1: "0x0000000000000000",
-          unknownData2: {
-            unknownGuid1: "0x0000000000000000",
-          },
-          unknownDword12: 0,
-          unknownDword13: 0,
-          unknownDword14: 0,
-          unknownByte7: 0,
-          unknownArray1: [],
-          array5: [{ unknown1: 0 }],
-          array17: [{ unknown1: 0 }],
-          array18: [{ unknown1: 0 }],
+          position: [
+            client.character.state.position[0],
+            client.character.state.position[1],
+            client.character.state.position[2],
+          ],
+          rotation: client.character.state.lookAt,
+          attachedObject: {},
+          vehicleId: 5,
+          color: {},
         },
-        unknownGuid1: generateCharacterId(),
-        unknownDword1: 0,
-        unknownDword2: 0,
-        positionUpdate: server.createPositionUpdate(
-          client.character.state.position,
-          [0, 0, 0, 0]
-        ),
-        unknownString1: "mdr",
+        unknownGuid1: server.generateGuid(),
+        positionUpdate: [0, 0, 0, 0],
       };
-
-      server.sendData(client, "AddLightweightVehicle", vehicleData);
+      server.sendData(client, "AddLightweightVehicle", vehicle);
+      server.sendData(client, "PlayerUpdate.ManagedObject", {
+        guid: characterId,
+        characterId: client.character.characterId,
+      });
+      server._vehicles[characterId] = vehicle; // save vehicle
     }
   },
-  spawnObject: function (server, client, args) {
-    const guid = server.generateGuid();
-    //const transientId = server.getTransientId(client, guid);
+  spawnSimpleNpc: function (server, client, args) {
+    const characterId = server.generateGuid();
+    const transientId = server.getTransientId(client, characterId);
     if (!args[1]) {
       server.sendChatText(client, "[ERROR] You need to specify a model id !");
       return;
     }
     const choosenModelId = Number(args[1]);
     const obj = {
-      guid: guid,
-      transientId: choosenModelId,
+      characterId: characterId,
+      transientId: transientId,
       position: [
         client.character.state.position[0],
         client.character.state.position[1],
@@ -172,9 +181,12 @@ const hax = {
         client.character.state.rotation[1],
         client.character.state.rotation[2],
       ],
+      modelId: choosenModelId,
+      showHealth: false,
     };
-    server.sendData(client, "AddProxiedObject", obj);
-    // server.obj[guid] = obj; // save npc
+    server.sendData(client, "AddSimpleNpc", obj);
+
+    server.obj[characterId] = obj; // save npc
   },
   spawnNpcModel: function (server, client, args) {
     const guid = server.generateGuid();
@@ -184,7 +196,7 @@ const hax = {
       return;
     }
     const choosenModelId = Number(args[1]);
-    const characterId = generateCharacterId();
+    const characterId = server.generateGuid();
     const npc = {
       characterId: characterId,
       guid: guid,
@@ -203,6 +215,7 @@ const hax = {
       color: {},
       unknownData1: { unknownData1: {} },
       extraModel: "SurvivorMale_Head_01.adr",
+      attachedObject: {},
     };
     server.sendData(client, "AddLightweightNpc", npc);
     server._npcs[characterId] = npc; // save npc
@@ -211,41 +224,67 @@ const hax = {
     const guid = server.generateGuid();
     const transientId = server.getTransientId(client, guid);
     if (!args[1]) {
-      server.sendChatText(client, "[ERROR] You need to specify a model id !");
+      server.sendChatText(
+        client,
+        "[ERROR] Usage /hax drive offroader/pickup/policecar/atv"
+      );
       return;
     }
-    const choosenModelId = Number(args[1]);
-    const characterId = generateCharacterId();
-    const npc = {
+    let vehicleId, driveModel;
+    switch (args[1]) {
+      case "offroader":
+        vehicleId = 1;
+        driveModel = 7225;
+        break;
+      case "pickup":
+        vehicleId = 2;
+        driveModel = 9258;
+        break;
+      case "policecar":
+        vehicleId = 3;
+        driveModel = 9301;
+        break;
+      case "atv":
+        vehicleId = 5;
+        driveModel = 9588;
+        break;
+      default:
+        // offroader default
+        vehicleId = 1;
+        driveModel = 7225;
+        break;
+    }
+    const characterId = server.generateGuid();
+    const vehicle = {
       npcData: {
-        characterId: characterId,
         guid: guid,
+        characterId: characterId,
         transientId: transientId,
-        modelId: choosenModelId,
+        modelId: driveModel,
+        scale: [1, 1, 1, 1],
         position: [
           client.character.state.position[0],
           client.character.state.position[1],
           client.character.state.position[2],
         ],
-        rotation: [
-          client.character.state.rotation[0],
-          client.character.state.rotation[1],
-          client.character.state.rotation[2],
-        ],
+        rotation: client.character.state.lookAt,
+        attachedObject: {},
+        vehicleId: vehicleId,
         color: {},
-        unknownData1: { unknownData1: {} },
       },
-      positionUpdate: server.createPositionUpdate(
-        client.character.state.position,
-        [0, 0, 0, 0]
-      ),
+      unknownGuid1: server.generateGuid(),
+      positionUpdate: [0, 0, 0, 0],
     };
-    server.sendData(client, "AddLightweightVehicle", npc);
-    server._npcs[characterId] = npc; // save npc
+    server.sendData(client, "AddLightweightVehicle", vehicle);
+    server.sendData(client, "PlayerUpdate.ManagedObject", {
+      guid: characterId,
+      characterId: client.character.characterId,
+    });
+    server._vehicles[characterId] = vehicle; // save vehicle
   },
+
   spawnPcModel: function (server, client, args) {
     const guid = server.generateGuid();
-    //const characterId = generateCharacterId();
     const transientId = server.getTransientId(client, guid);
     debug("spawnPcModel called");
     /*
@@ -256,8 +295,7 @@ const hax = {
     */
     //const choosenModelId = Number(args[1]);
 
-    debug(`\n\n\n\nguid: ${guid}\n\n\n\n`);
-    const lightweight = {
+    const pc = {
       guid: guid,
       transientId: transientId,
       //modelId: choosenModelId,
@@ -269,19 +307,8 @@ const hax = {
       roation: client.character.state.rotation,
       identity: {},
     };
-    const full = {
-      fullPcSubDataSchema1: { transientIdMaybe: transientId },
-      array1: [],
-      unknownData1: {
-        transientId: transientId,
-        unknownData1: {},
-        array1: [],
-        array2: [],
-      },
-    };
-    server.sendData(client, "AddLightweightPc", lightweight);
-    //server.sendData(client, "LightweightToFullPc", full);
-    // server._npcs[characterId] = lightweight; // save npc
+    server.sendData(client, "AddLightweightPc", pc);
+    // server._characters[guid] = pc; // save pc (disabled for now)
   },
   sonic: function (server, client, args) {
     server.sendData(client, "ClientGameSettings", {
@@ -355,13 +382,13 @@ const hax = {
           server._weatherTemplates[currentWeather.templateName] =
             currentWeather;
           fs.writeFileSync(
-            `${__dirname}/../../../../../data/2016/sampleData/weather.json`,
+            `${__dirname}/../../../../data/weather.json`,
             JSON.stringify(server._weatherTemplates)
           );
           delete require.cache[
-            require.resolve("../../../../data/2016/sampleData/weather.json")
+            require.resolve("../../../../data/weather.json")
           ];
-          server._weatherTemplates = require("../../../../data/2016/sampleData/weather.json");
+          server._weatherTemplates = require("../../../../data/weather.json");
         } else {
           await server._db.collection("weathers").insertOne(currentWeather);
           server._weatherTemplates = await server._db
@@ -393,13 +420,6 @@ const hax = {
     server.sendData(client, "Command.RunSpeed", {
       runSpeed: speed,
     });
-  },
-  hell: function (server, client, args) {
-    server.sendChatText(
-      client,
-      "[DEPRECATED] use '/hax randomWeather' instead",
-      true
-    );
   },
   randomWeather: function (server, client, args) {
     debug("Randomized weather");
@@ -435,43 +455,9 @@ const hax = {
       unknownDword22: rnd_number(),
       unknownDword23: rnd_number(),
       unknownDword24: rnd_number(),
-      unknownArray: _.fill(Array(50), {
-        unknownDword1: 0,
-        unknownDword2: 0,
-        unknownDword3: 0,
-        unknownDword4: 0,
-        unknownDword5: 0,
-        unknownDword6: 0,
-        unknownDword7: 0,
-      }),
     };
     debug(JSON.stringify(rnd_weather));
     server.changeWeather(client, rnd_weather);
-  },
-  setresource: function (server, client, args) {
-    const resourceEvent = {
-      type: 2,
-      eventData: {
-        unknownArray1: [],
-        unknownArray2: [],
-      },
-    };
-    server.sendChatText(client, "Setting character resource");
-    server.sendData(client, "ResourceEvent", resourceEvent);
-  },
-  systemmessage: function (server, client, args) {
-    if (!args[1]) {
-      server.sendChatText(client, "Missing 'message' parameter");
-      return;
-    }
-    const msg = {
-      unknownDword1: 0,
-      message: args[1],
-      unknownDword2: 0,
-      color: 2,
-    };
-    server.sendChatText(client, "Sending system message");
-    server.sendData(client, "ShowSystemMessage", msg);
   },
 };
 

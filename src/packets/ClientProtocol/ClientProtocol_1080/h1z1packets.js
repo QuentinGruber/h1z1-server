@@ -839,9 +839,9 @@ const lightWeightNpcSchema = [
   { name: "extraModel", type: "string", defaultValue: "" },
   { name: "unknownString3", type: "string", defaultValue: "" },
   { name: "unknownString4", type: "string", defaultValue: "" },
-  { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+  { name: "vehicleId", type: "uint32", defaultValue: 0 },
   { name: "unknownDword5", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+  { name: "npcDefinitionId", type: "uint32", defaultValue: 0 },
   { name: "unknownByte2", type: "uint8", defaultValue: 0 },
   { name: "unknownDword7", type: "uint32", defaultValue: 0 },
   { name: "unknownBoolean1", type: "uint8", defaultValue: 0 },
@@ -858,11 +858,11 @@ const lightWeightNpcSchema = [
   { name: "unknownDword8", type: "uint32", defaultValue: 0 },
   { name: "unknownQword1", type: "uint64", defaultValue: "0x0000000000000000" },
   {
-    name: "unknownData1",
+    name: "attachedObject",
     type: "schema",
     fields: [
       {
-        name: "unknownQword1",
+        name: "targetObjectId",
         type: "uint64",
         defaultValue: "0x0000000000000000",
       },
@@ -1447,42 +1447,42 @@ var rewardBundleDataSchema = [
   { name: "imageSetId", type: "uint32", defaultValue: 0 },
   { name: "entriesArrLength", type: "uint32", defaultValue: 0 },
   /* INGORE THIS FOR NOW, CAN'T FIND READ FUNCTION (length set to 0 for now)
-    {
-        name: "entries",
-        type: "array",
-        defaultValue: [{}],
-        fields: [
-            {
-                name: "entryData",
-                type: "variabletype8",
-                types: {
-                    1: [
-                        {
-                            name: "unknownData1",
-                            type: "schema",
-                            fields: [
-                                {
-                                    name: "unknownBoolean1",
-                                    type: "boolean",
-                                    defaultValue: false,
-                                },
-                                { name: "imageSetId", type: "uint32", defaultValue: 0 },
-                                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                                { name: "nameId", type: "uint32", defaultValue: 0 },
-                                { name: "quantity", type: "uint32", defaultValue: 0 },
-                                { name: "itemId", type: "uint32", defaultValue: 0 },
-                                { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                                { name: "unknownString1", type: "string", defaultValue: "" },
-                                { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-                                { name: "unknownDword4", type: "uint32", defaultValue: 0 },
-                            ],
-                        },
-                    ],
-                },
-            },
-        ],
-    },
-    */
+  {
+      name: "entries",
+      type: "array",
+      defaultValue: [{}],
+      fields: [
+          {
+              name: "entryData",
+              type: "variabletype8",
+              types: {
+                  1: [
+                      {
+                          name: "unknownData1",
+                          type: "schema",
+                          fields: [
+                              {
+                                  name: "unknownBoolean1",
+                                  type: "boolean",
+                                  defaultValue: false,
+                              },
+                              { name: "imageSetId", type: "uint32", defaultValue: 0 },
+                              { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                              { name: "nameId", type: "uint32", defaultValue: 0 },
+                              { name: "quantity", type: "uint32", defaultValue: 0 },
+                              { name: "itemId", type: "uint32", defaultValue: 0 },
+                              { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+                              { name: "unknownString1", type: "string", defaultValue: "" },
+                              { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+                              { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+                          ],
+                      },
+                  ],
+              },
+          },
+      ],
+  },
+  */
   { name: "unknownDword8", type: "uint32", defaultValue: 0 },
 ];
 const collectionsSchema = [
@@ -1842,7 +1842,7 @@ const fullPcSubDataSchema1 = [
 ];
 /*
 const fullPcSubDataSchema2 = [
-    
+  
 ];
 */
 const fullPcNpcSharedSchema = [
@@ -2080,7 +2080,7 @@ var packets = [
                 },
                 { name: "characterLastName", type: "string", defaultValue: "" },
                 { name: "unknownString1", type: "string", defaultValue: "" },
-                { name: "unknownString1", type: "string", defaultValue: "" },
+                { name: "unknownString2", type: "string", defaultValue: "" },
                 { name: "unknownQword1", type: "uint64", defaultValue: "0" },
               ],
             },
@@ -2139,28 +2139,28 @@ var packets = [
             },
             { name: "inventoryArrLength", type: "uint32", defaultValue: 0 },
             /* INGORE THIS FOR NOW, CAN'T FIND READ FUNCTION (length set to 0 for now)
-                        {
-                            name: "inventory",
-                            type: "schema",
-                            fields: [
-                                {
-                                    name: "items",
-                                    type: "array",
-                                    defaultValue: [{}],
-                                    fields: [
-                                        {
-                                            name: "itemData",
-                                            type: "custom",
-                                            parser: parseItemData,
-                                            packer: packItemData,
-                                            defaultValue: 0,
-                                        },
-                                    ],
-                                },
-                                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                            ],
-                        },
-                        */
+                      {
+                          name: "inventory",
+                          type: "schema",
+                          fields: [
+                              {
+                                  name: "items",
+                                  type: "array",
+                                  defaultValue: [{}],
+                                  fields: [
+                                      {
+                                          name: "itemData",
+                                          type: "custom",
+                                          parser: parseItemData,
+                                          packer: packItemData,
+                                          defaultValue: 0,
+                                      },
+                                  ],
+                              },
+                              { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                          ],
+                      },
+                      */
             { name: "unknownDword26", type: "uint32", defaultValue: 0 },
             {
               name: "characterQuests",
@@ -4804,7 +4804,16 @@ var packets = [
   ["PlayerUpdate.Deploy", 0x0f46, {}],
   ["PlayerUpdate.LowAmmoUpdate", 0x0f47, {}],
   ["PlayerUpdate.KilledBy", 0x0f48, {}],
-  ["PlayerUpdate.MotorRunning", 0x0f49, {}],
+  [
+    "PlayerUpdate.MotorRunning",
+    0x0f49,
+    {
+      fields: [
+        { name: "characterId", type: "uint64", defaultValue: "0" },
+        { name: "unknownBool1", type: "boolean", defaultValue: false },
+      ],
+    },
+  ],
   ["PlayerUpdate.DroppedIemNotification", 0x0f4a, {}],
   ["PlayerUpdate.NoSpaceNotification", 0x0f4b, {}],
   ["PlayerUpdate.ReloadNotification", 0x0f4c, {}],
@@ -5057,7 +5066,17 @@ var packets = [
   ["ClientUpdate.Freeze", 0x112c00, {}],
   ["ClientUpdate.InGamePurchaseResult", 0x112d00, {}],
   ["ClientUpdate.QuizComplete", 0x112e00, {}],
-  ["ClientUpdate.StartTimer", 0x112f00, { fields: [] }],
+  [
+    "ClientUpdate.StartTimer",
+    0x112f00,
+    {
+      fields: [
+        { name: "stringId", type: "uint32", defaultValue: 0 },
+        { name: "time", type: "uint32", defaultValue: 10000 },
+        { name: "message", type: "string", defaultValue: "hello" },
+      ],
+    },
+  ],
   [
     "ClientUpdate.CompleteLogoutProcess",
     0x113000,
@@ -5066,7 +5085,13 @@ var packets = [
     },
   ],
   ["ClientUpdate.ProximateItems", 0x113100, []],
-  ["ClientUpdate.TextAlert", 0x113200, []],
+  [
+    "ClientUpdate.TextAlert",
+    0x113200,
+    {
+      fields: [{ name: "message", type: "string", defaultValue: "hello" }],
+    },
+  ],
   ["ClientUpdate.ClearEntitlementValues", 0x113300, []],
   ["ClientUpdate.AddEntitlementValue", 0x113400, []],
   [
@@ -5078,6 +5103,32 @@ var packets = [
       },
     ],
   ],
+  ["ClientUpdate.FileValidationRequest", 0x113600, []],
+  ["ClientUpdate.FileValidationResponse", 0x113700, []],
+  ["ClientUpdate.DeathMetrics", 0x113800, []],
+  ["ClientUpdate.ManagedObjectRequestControl", 0x113900, []],
+  ["ClientUpdate.ManagedObjectResponseControl", 0x113a00, []],
+  ["ClientUpdate.ManagedObjectReleaseControl", 0x113b00, []],
+  ["ClientUpdate.SetCurrentAdventure", 0x113c00, []],
+  ["ClientUpdate.CharacterSlot", 0x113d00, []],
+  ["ClientUpdate.CustomizationData", 0x113e00, []],
+  ["ClientUpdate.UpdateCurrency", 0x113f00, []],
+  ["ClientUpdate.AddNotifications", 0x114000, []],
+  ["ClientUpdate.RemoveNotifications", 0x114100, []],
+  ["ClientUpdate.NpcRelevance", 0x114200, []],
+  ["ClientUpdate.InitiateNameChange", 0x114300, []],
+  ["ClientUpdate.NameChangeResult", 0x114400, []],
+  ["ClientUpdate.MonitorTimeDrift", 0x114500, []],
+  ["ClientUpdate.NotifyServerOfStalledEvent", 0x114600, []],
+  ["ClientUpdate.UpdateSights", 0x114700, []],
+  ["ClientUpdate.UpdateRewardAndGrinderState", 0x114900, []],
+  ["ClientUpdate.UpdateActivityMetrics", 0x114b00, []],
+  ["ClientUpdate.StopWithError", 0x114c00, []],
+  ["ClientUpdate.SetWorldWipeTimer", 0x114d00, []],
+  ["ClientUpdate.UpdateLockoutTimes", 0x114e00, []],
+  ["ClientUpdate.ZoneStatus", 0x114f00, []],
+  ["ClientUpdate.SetDataCenter", 0x115000, []],
+  ["ClientUpdate.UpdateBattlEyeRegistration", 0x115100, []],
   ["MiniGame", 0x12, {}],
   ["Group", 0x13, {}],
   ["Encounter", 0x14, {}],
@@ -5980,6 +6031,15 @@ var packets = [
   ["ZoneSafeTeleportRequest", 0x53, {}],
   ["RemoteInteractionRequest", 0x54, {}],
   ["UpdateCamera", 0x57, {}],
+
+  [
+    "UnknownPacketName", // unknown name, sent from client, same dword value every time ?
+    0x58,
+    {
+      fields: [{ name: "unknownDword1", type: "uint32", defaultValue: 0 }],
+    },
+  ],
+
   ["Guild.Disband", 0x5902, {}],
   ["Guild.Rename", 0x5903, {}],
   ["Guild.ChangeMemberRank", 0x590a, {}],
@@ -6190,23 +6250,29 @@ var packets = [
       fields: [
         { name: "characterId", type: "uint64", defaultValue: "0" },
         { name: "guid", type: "uint64", defaultValue: "0" },
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 }, // seat 0-3
+        { name: "unknownDword2", type: "uint32", defaultValue: 1 }, // must be 1 or we dont get into vehicle?
+        { name: "unknownDword3", type: "uint32", defaultValue: 1 }, // is driver? (you can be on seat 3 and still have control)
+        { name: "unknownDword4", type: "uint32", defaultValue: 0 }, // colored lines on screen
         {
-          name: "characterData",
+          name: "identity",
           type: "schema",
           fields: [
-            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+            { name: "CharacterId", type: "uint32", defaultValue: 0 },
+            { name: "AccountId", type: "uint32", defaultValue: 0 },
             { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-            { name: "characterName", type: "string", defaultValue: "" },
+            {
+              name: "characterFirstName",
+              type: "string",
+              defaultValue: "LocalPlayer",
+            },
+            { name: "characterLastName", type: "string", defaultValue: "" },
             { name: "unknownString1", type: "string", defaultValue: "" },
+            { name: "unknownString2", type: "string", defaultValue: "" },
+            { name: "unknownQword1", type: "uint64", defaultValue: "0" },
           ],
         },
         { name: "tagString", type: "string", defaultValue: "" },
-        { name: "unknownDword5", type: "uint32", defaultValue: 0 },
       ],
     },
   ],
@@ -6254,10 +6320,23 @@ var packets = [
   ["ServerActivityLaunch", 0x77, {}],
   ["ClientFlashTimer", 0x78, {}],
   [
-    "PlayerUpdate.UpdatePosition",
+    "PlayerUpdatePosition",
     0x79,
     {
-      fields: [{ name: "unknown1", type: "uint32", defaultValue: 0 }],
+      fields: [
+        {
+          name: "transientId",
+          type: "custom",
+          parser: readUnsignedIntWith2bitLengthValue,
+          packer: packUnsignedIntWith2bitLengthValue,
+        },
+        {
+          name: "positionUpdate",
+          type: "custom",
+          parser: readPositionUpdateData,
+          packer: packPositionUpdateData,
+        },
+      ],
     },
   ],
   ["InviteAndStartMiniGame", 0x7a, {}],
@@ -6483,6 +6562,38 @@ var packets = [
   ["Skill.ReportSkillGrant", 0x860a, {}],
   ["Skill.ReportOfflineEarnedSkillPoints", 0x860b, {}],
   ["Skill.ReportDeprecatedSkillLine", 0x860c, {}],
+  /*
+  [
+      "LoadoutEvent",
+      0x8700,
+      {
+          fields: [
+              // { name: "gameTime", type: "uint32", defaultValue: 0 },
+              {
+                  name: "eventData",
+                  type: "variabletype8",
+                  types: {
+                      1: [
+
+                      ],
+                      2: [
+
+                      ],
+                      3: [
+
+                      ],
+                      4: [
+
+                      ],
+                      5: [
+
+                      ],
+                  },
+              },
+          ],
+      },
+  ],
+  */
   ["Loadout.LoadLoadoutDefinitionManager", 0x8701, {}],
   ["Loadout.SelectLoadout", 0x8702, {}],
   [
@@ -6947,7 +7058,17 @@ var packets = [
     },
   ],
   ["Vehicle.Deploy", 0x891a, {}],
-  ["Vehicle.Engine", 0x891b, {}],
+  [
+    "Vehicle.Engine",
+    0x891b,
+    {
+      fields: [
+        { name: "guid1", type: "uint64", defaultValue: "0" },
+        { name: "guid2", type: "uint64", defaultValue: "0" },
+        { name: "unknownBoolean", type: "boolean", defaultValue: false },
+      ],
+    },
+  ],
   ["Vehicle.AccessType", 0x891c, {}],
   ["Vehicle.KickPlayer", 0x891d, {}],
   ["Vehicle.HealthUpdateOwner", 0x891e, {}],
@@ -6991,7 +7112,7 @@ var packets = [
     0x8e00,
     {
       fields: [
-        //{ name: "gameTime", type: "uint32", defaultValue: 0 },
+        { name: "gameTime", type: "uint32", defaultValue: 0 },
         {
           name: "eventData",
           type: "variabletype8",
@@ -7015,12 +7136,9 @@ var packets = [
             ],
             2: [
               // SetCharacterResource
-              { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-              { name: "unknownByte2", type: "uint8", defaultValue: 0 },
-              { name: "unknownByte3", type: "uint8", defaultValue: 0 },
-              { name: "unknownByte4", type: "uint8", defaultValue: 0 },
-              { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-              { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+              { name: "characterId", type: "uint64", defaultValue: "0" },
+              { name: "resourceId", type: "uint32", defaultValue: 0 },
+              { name: "resourceType", type: "uint32", defaultValue: 0 },
               { name: "unknownArray1Length", type: "uint32", defaultValue: 1 },
               {
                 name: "unknownArray1",
@@ -7036,17 +7154,37 @@ var packets = [
               { name: "unknownDword3", type: "uint32", defaultValue: 0 },
               { name: "unknownDword4", type: "uint32", defaultValue: 0 },
               { name: "unknownDword5", type: "uint32", defaultValue: 0 },
-              { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+              { name: "value", type: "uint32", defaultValue: 0 },
               { name: "unknownDword7", type: "uint32", defaultValue: 0 },
               { name: "unknownDword8", type: "uint32", defaultValue: 0 },
               { name: "unknownDword9", type: "uint32", defaultValue: 0 },
               { name: "unknownDword10", type: "uint32", defaultValue: 0 },
               { name: "unknownDword11", type: "uint32", defaultValue: 0 },
-              { name: "unknownQword1", type: "uint64", defaultValue: "0" },
-              { name: "unknownQword2", type: "uint64", defaultValue: "0" },
-              { name: "unknownQword3", type: "uint64", defaultValue: "0" },
-              { name: "unknownQword4", type: "uint64", defaultValue: "0" },
-              { name: "unknownQword5", type: "uint64", defaultValue: "0" },
+              {
+                name: "unknownQword1",
+                type: "uint64",
+                defaultValue: "0x0000000000000000",
+              },
+              {
+                name: "unknownQword2",
+                type: "uint64",
+                defaultValue: "0x0000000000000000",
+              },
+              {
+                name: "unknownQword3",
+                type: "uint64",
+                defaultValue: "0x0000000000000000",
+              },
+              {
+                name: "unknownQword4",
+                type: "uint64",
+                defaultValue: "0x0000000000000000",
+              },
+              {
+                name: "unknownQword5",
+                type: "uint64",
+                defaultValue: "0x0000000000000000",
+              },
               {
                 name: "unknownArray2",
                 type: "array",
@@ -7097,8 +7235,45 @@ var packets = [
     },
   ],
   ["Leaderboard", 0x90, {}],
-  ["PlayerUpdateManagedPosition", 0x91, {}],
-  ["PlayerUpdateNetworkObjectComponents", 0x92, {}],
+  [
+    "PlayerUpdateManagedPosition", // *NOT* full packet schema
+    0x91,
+    {
+      fields: [
+        {
+          name: "transientId",
+          type: "custom",
+          parser: readUnsignedIntWith2bitLengthValue,
+          packer: packUnsignedIntWith2bitLengthValue,
+        },
+      ],
+    },
+  ],
+  [
+    "AddSimpleNpc",
+    0x92,
+    {
+      fields: [
+        { name: "characterId", type: "uint64", defaultValue: "0" },
+        {
+          name: "transientId",
+          type: "custom",
+          parser: readUnsignedIntWith2bitLengthValue,
+          packer: packUnsignedIntWith2bitLengthValue,
+        },
+        { name: "unknownByte1", type: "uint8", defaultValue: 50 },
+        { name: "position", type: "floatvector3", defaultValue: [0, 0, 0] },
+        { name: "rotation", type: "floatvector3", defaultValue: [0, 0, 0] },
+        { name: "unknownDword1", type: "uint32", defaultValue: 9000 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 9000 },
+        { name: "modelId", type: "uint32", defaultValue: 0 },
+        { name: "scale", type: "floatvector4", defaultValue: [1, 1, 1, 1] },
+        { name: "unknownDword3", type: "uint32", defaultValue: 9000 },
+        { name: "showHealth", type: "boolean", defaultValue: false },
+        { name: "unknownDword4", type: "uint32", defaultValue: 9000 },
+      ],
+    },
+  ],
   ["PlayerUpdateUpdateVehicleWeapon", 0x93, {}],
   [
     "ProfileStats.GetPlayerProfileStats",
@@ -7230,6 +7405,122 @@ var packets = [
   ["ProfileStats.Leaderboard", 0x940700, {}],
   ["ProfileStats.GetZoneCharacterStats", 0x940800, {}],
   ["ProfileStats.ZoneCharacterStats", 0x940900, {}],
+  /*
+  [
+      "EquipmentEvent",
+      0x9500,
+      {
+          fields: [
+              { name: "unknown1", type: "uint32", defaultValue: 0 },
+              { name: "unknown2", type: "uint32", defaultValue: 0 },
+              { name: "unknown3", type: "uint32", defaultValue: 0 },
+              { name: "unknown4", type: "uint8", defaultValue: 2 },
+              { name: "unknown5", type: "uint8", defaultValue: 2 },
+              { name: "unknown6", type: "uint8", defaultValue: 2 },
+              { name: "unknown7", type: "uint8", defaultValue: 2 },
+              { name: "unknown8", type: "uint8", defaultValue: 2 },
+              { name: "unknown9", type: "uint8", defaultValue: 2 },
+              { name: "unknown10", type: "uint8", defaultValue: 2 },
+              { name: "unknown11", type: "uint8", defaultValue: 2 },
+              {
+                  name: "eventData",
+                  type: "variabletype8",
+                  types: {
+                      1:  [   // SetCharacterEquipment
+                              { name: "profileId", type: "uint32", defaultValue: 0 },
+                              { name: "characterId", type: "uint64", defaultValue: "0" },
+                              { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                              { name: "unknownString1", type: "string", defaultValue: "" },
+                              { name: "unknownString2", type: "string", defaultValue: "" },
+                              {
+                                  name: "equipmentSlots",
+                                  type: "array",
+                                  defaultValue: [{}],
+                                  fields: [
+                                      { name: "equipmentSlotId", type: "uint32", defaultValue: 0 },
+                                      {
+                                          name: "equipmentSlotData",
+                                          type: "schema",
+                                          fields: [
+                                              { name: "equipmentSlotId", type: "uint32", defaultValue: 0 },
+                                              { name: "guid", type: "uint64", defaultValue: "0" },
+                                              { name: "unknownString1", type: "string", defaultValue: "" },
+                                              { name: "unknownString2", type: "string", defaultValue: "" },
+                                          ],
+                                      },
+                                  ],
+                              },
+                              {
+                                  name: "attachmentData",
+                                  type: "array",
+                                  defaultValue: [{}],
+                                  fields: [
+                                      { name: "modelName", type: "string", defaultValue: "" },
+                                      { name: "unknownString1", type: "string", defaultValue: "" },
+                                      { name: "tintAlias", type: "string", defaultValue: "" },
+                                      { name: "unknownString2", type: "string", defaultValue: "" },
+                                      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                                      { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+                                      { name: "slotId", type: "uint32", defaultValue: 0 },
+                                  ],
+                              },
+                          ],
+                      2:  [   // SetCharacterEquipmentSlot
+
+                      ],
+                      3: [   // UnsetCharacterEquipmentSlot 
+
+                      ],
+                      4: [   // SetCharacterEquipmentSlots
+                          { name: "profileId", type: "uint32", defaultValue: 0 },
+                          { name: "characterId", type: "uint64", defaultValue: "0" },
+                          { name: "gameTime", type: "uint32", defaultValue: 0 },
+                          {
+                              name: "slots",
+                              type: "array",
+                              defaultValue: [{}],
+                              fields: [
+                                  { name: "index", type: "uint32", defaultValue: 0 },
+                                  { name: "slotId", type: "uint32", defaultValue: 0 },
+                              ],
+                          },
+                          { name: "unknown1", type: "uint32", defaultValue: 0 },
+                          { name: "unknown2", type: "uint32", defaultValue: 0 },
+                          { name: "unknown3", type: "uint32", defaultValue: 0 },
+                          {
+                              name: "textures",
+                              type: "array",
+                              defaultValue: [{}],
+                              fields: [
+                                  { name: "index", type: "uint32", defaultValue: 0 },
+                                  { name: "slotId", type: "uint32", defaultValue: 0 },
+                                  { name: "itemId", type: "uint32", defaultValue: 0 },
+                                  { name: "unknown1", type: "uint32", defaultValue: 0 },
+                                  { name: "textureAlias", type: "string", defaultValue: "" },
+                                  { name: "unknown2", type: "string", defaultValue: "" },
+                              ],
+                          },
+                          {
+                              name: "models",
+                              type: "array",
+                              defaultValue: [{}],
+                              fields: [
+                                  { name: "modelName", type: "string", defaultValue: "" },
+                                  { name: "unknown1", type: "string", defaultValue: "" },
+                                  { name: "textureAlias", type: "string", defaultValue: "" },
+                                  { name: "unknown3", type: "string", defaultValue: "" },
+                                  { name: "unknown4", type: "uint32", defaultValue: 0 },
+                                  { name: "unknown5", type: "uint32", defaultValue: 0 },
+                                  { name: "slotId", type: "uint32", defaultValue: 0 },
+                              ],
+                          },
+                      ],
+                  },
+              },
+          ],
+      },
+  ],
+  */
   [
     "Equipment.SetCharacterEquipment",
     0x9501,
@@ -7275,7 +7566,80 @@ var packets = [
       ],
     },
   ],
-  ["Equipment.SetCharacterEquipmentSlot", 0x9502, {}],
+  [
+    "Equipment.SetCharacterEquipmentSlot",
+    0x9502,
+    {
+      fields: [
+        {
+          name: "unknownData1",
+          type: "schema",
+          fields: [
+            {
+              name: "unknownData1",
+              type: "schema",
+              fields: [
+                { name: "unknownByte1", type: "uint8", defaultValue: 5 },
+                { name: "unknownByte2", type: "uint8", defaultValue: 6 },
+                { name: "unknownDword1", type: "uint32", defaultValue: 7 },
+                { name: "unknownQword1", type: "uint64", defaultValue: "0x8" },
+              ],
+            },
+            { name: "unknownDword1", type: "uint32", defaultValue: 9 },
+            { name: "unknownDword2", type: "uint32", defaultValue: 10 },
+            { name: "unknownQword1", type: "uint64", defaultValue: "0x11" },
+            { name: "unknownDword3", type: "uint32", defaultValue: 12 },
+            { name: "unknownString1", type: "string", defaultValue: "string1" },
+            {
+              name: "unknownData2",
+              type: "schema",
+              fields: [
+                {
+                  name: "unknownString1",
+                  type: "string",
+                  defaultValue: "string2",
+                },
+                {
+                  name: "unknownString2",
+                  type: "string",
+                  defaultValue: "string3",
+                },
+                {
+                  name: "unknownString3",
+                  type: "string",
+                  defaultValue: "string4",
+                },
+                {
+                  name: "unknownString4",
+                  type: "string",
+                  defaultValue: "string5",
+                },
+                { name: "unknownDword1", type: "uint32", defaultValue: 13 },
+                { name: "unknownDword2", type: "uint32", defaultValue: 14 },
+                { name: "unknownDword3", type: "uint32", defaultValue: 15 },
+                { name: "unknownDword4", type: "uint32", defaultValue: 16 },
+                { name: "unknownDword5", type: "uint32", defaultValue: 17 },
+                {
+                  name: "unknownArray1Length",
+                  type: "uint32",
+                  defaultValue: 1,
+                },
+                {
+                  name: "unknownArray1",
+                  type: "array",
+                  defaultValue: [{}],
+                  fields: [
+                    { name: "unknownDword1", type: "uint32", defaultValue: 18 },
+                  ],
+                },
+                { name: "unknownBool1", type: "uint8", defaultValue: 0 },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  ],
   ["Equipment.UnsetCharacterEquipmentSlot", 0x9503, {}],
   [
     "Equipment.SetCharacterEquipmentSlots",
@@ -8028,47 +8392,47 @@ var packets = [
   ["RequestWalletTopupUpdate", 0xb8, {}],
   ["StationCashActivePromoRequestUpdate", 0xb9, {}],
   /*
-    ["CharacterSlot", 0xbc, {}],
-    [
-        "Pickup",
-        0xbe,
-        {
-            fields: [
-                { name: "type?", type: "uint16" },
-                { name: "id", type: "uint32" },
-                { name: "treeId", type: "uint32" },
-                { name: "name", type: "string" },
-            ],
-        },
-    ],
-    */
+  ["CharacterSlot", 0xbc, {}],
+  */
+  [
+    "Pickup",
+    0xbb,
+    {
+      fields: [
+        { name: "type?", type: "uint16" },
+        { name: "id", type: "uint32" },
+        { name: "treeId", type: "uint32" },
+        { name: "name", type: "string" },
+      ],
+    },
+  ],
 
   /*
-    ["Operation.RequestCreate", 0xbf01, {}],
-    ["Operation.RequestDestroy", 0xbf02, {}],
-    ["Operation.RequestJoin", 0xbf03, {}],
-    ["Operation.RequestJoinByName", 0xbf04, {}],
-    ["Operation.RequestLeave", 0xbf05, {}],
-    ["Operation.ClientJoined", 0xbf06, {}],
-    ["Operation.ClientLeft", 0xbf07, {}],
-    ["Operation.BecomeListener", 0xbf08, {}],
-    ["Operation.AvailableData", 0xbf09, {}],
-    ["Operation.Created", 0xbf0a, {}],
-    ["Operation.Destroyed", 0xbf0b, {}],
-    [
-        "Operation.ClientClearMissions",
-        0xbf0c,
-        {
-            fields: [],
-        },
-    ],
-    ["Operation.InstanceAreaUpdate", 0xbf0d, {}],
-    ["Operation.ClientInArea", 0xbf0e, {}],
-    ["Operation.InstanceLocationUpdate", 0xbf0f, {}],
-    ["Operation.GroupOperationListRequest", 0xbf10, {}],
-    ["Operation.GroupOperationListReply", 0xbf11, {}],
-    ["Operation.GroupOperationSelect", 0xbf12, {}],
-    */
+  ["Operation.RequestCreate", 0xbf01, {}],
+  ["Operation.RequestDestroy", 0xbf02, {}],
+  ["Operation.RequestJoin", 0xbf03, {}],
+  ["Operation.RequestJoinByName", 0xbf04, {}],
+  ["Operation.RequestLeave", 0xbf05, {}],
+  ["Operation.ClientJoined", 0xbf06, {}],
+  ["Operation.ClientLeft", 0xbf07, {}],
+  ["Operation.BecomeListener", 0xbf08, {}],
+  ["Operation.AvailableData", 0xbf09, {}],
+  ["Operation.Created", 0xbf0a, {}],
+  ["Operation.Destroyed", 0xbf0b, {}],
+  [
+      "Operation.ClientClearMissions",
+      0xbf0c,
+      {
+          fields: [],
+      },
+  ],
+  ["Operation.InstanceAreaUpdate", 0xbf0d, {}],
+  ["Operation.ClientInArea", 0xbf0e, {}],
+  ["Operation.InstanceLocationUpdate", 0xbf0f, {}],
+  ["Operation.GroupOperationListRequest", 0xbf10, {}],
+  ["Operation.GroupOperationListReply", 0xbf11, {}],
+  ["Operation.GroupOperationSelect", 0xbf12, {}],
+  */
 
   ["Operation.ClientJoined", 0xbc06, {}],
   ["Operation.ClientLeft", 0xbc07, {}],

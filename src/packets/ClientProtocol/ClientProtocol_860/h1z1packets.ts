@@ -8115,7 +8115,7 @@ var packets = [
     },
   ],
   ["Vehicle.AcquireState", 0x8817, {}],
-  ["Vehicle.Dismiss", 0x8818, {fields: []}],
+  ["Vehicle.Dismiss", 0x8818, { fields: [] }],
   [
     "Vehicle.AutoMount",
     0x8819,
@@ -9367,7 +9367,7 @@ var packets = [
     0xd001,
     {
       fields: [
-        { name: "unk", type: "boolean", defaultValue: 0}, // if set to true it need at lot more fields that seems to be a positionUpdate
+        { name: "unk", type: "boolean", defaultValue: 0 }, // if set to true it need at lot more fields that seems to be a positionUpdate
         {
           name: "characterId",
           type: "uint64",

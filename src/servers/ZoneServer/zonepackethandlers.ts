@@ -131,11 +131,10 @@ const packetHandlers: any = {
       serverTime: Int64String(server.getServerTime()),
       serverTime2: Int64String(server.getServerTime()),
     });
-    
 
-    client.character.resourcesUpdater = setInterval(function (){
-          // prototype resource manager
-      const {isRunning} = client.character
+    client.character.resourcesUpdater = setInterval(function () {
+      // prototype resource manager
+      const { isRunning } = client.character;
       if (!isRunning) {
         client.character.resources.stamina += 20;
       } else {
@@ -147,34 +146,31 @@ const packetHandlers: any = {
       client.character.resources.water -= 20;
       if (client.character.resources.stamina > 600) {
         client.character.resources.stamina = 600;
-      }
-      else if (client.character.resources.stamina < 0) {
+      } else if (client.character.resources.stamina < 0) {
         client.character.resources.stamina = 0;
       }
 
       if (client.character.resources.food > 10000) {
         client.character.resources.food = 10000;
-      }
-      else if (client.character.resources.food < 0) {
+      } else if (client.character.resources.food < 0) {
         client.character.resources.food = 0;
         client.character.resources.health -= 100;
       }
 
       if (client.character.resources.water > 10000) {
         client.character.resources.water = 10000;
-      }
-      else if (client.character.resources.water < 0) {
+      } else if (client.character.resources.water < 0) {
         client.character.resources.water = 0;
         client.character.resources.health -= 100;
       }
 
       if (client.character.resources.health > 10000) {
         client.character.resources.health = 10000;
-      }
-      else if (client.character.resources.health < 0) {
+      } else if (client.character.resources.health < 0) {
         client.character.resources.health = 0;
       }
-      const {stamina,food,water,health,virus} = client.character.resources
+      const { stamina, food, water, health, virus } =
+        client.character.resources;
 
       server.sendData(client, "ResourceEvent", {
         eventData: {
@@ -242,7 +238,7 @@ const packetHandlers: any = {
         },
       });
     }, 3000);
-        
+
     server.sendData(client, "ZoneDoneSendingInitialData", {});
 
     server.sendData(client, "PlayerUpdate.UpdateCharacterState", {
@@ -256,9 +252,11 @@ const packetHandlers: any = {
     packet: any
   ) {
     server.sendGameTimeSync(client);
-    if(client.firstLoading){
+    if (client.firstLoading) {
       server.sendChatText(client, "Welcome to H1emu ! :D", true);
-      server.sendGlobalChatText(`${client.character.name} has joined the server !`);
+      server.sendGlobalChatText(
+        `${client.character.name} has joined the server !`
+      );
       client.firstLoading = false;
       client.lastPingTime = new Date().getTime();
       client.savePositionTimer = setTimeout(
@@ -268,7 +266,7 @@ const packetHandlers: any = {
       server.executeFuncForAllClients("spawnCharacters");
     }
     client.isLoading = false;
-    delete client.mountedVehicle
+    delete client.mountedVehicle;
   },
   Security: function (server: ZoneServer, client: Client, packet: any) {
     debug(packet);
@@ -572,11 +570,11 @@ const packetHandlers: any = {
     server.sendData(client, "Mount.DismountResponse", {
       characterId: client.character.characterId,
     });
-	server.sendData(client, "Vehicle.Engine", {
+    server.sendData(client, "Vehicle.Engine", {
       guid2: client.mountedVehicle,
       unknownBoolean: false,
     });
-	delete client.mountedVehicle
+    delete client.mountedVehicle;
   },
   "Command.InteractRequest": function (
     server: ZoneServer,
@@ -633,7 +631,7 @@ const packetHandlers: any = {
         guid: guid,
         stringId: 29,
       });
-	    delete client.mountedVehicle;
+      delete client.mountedVehicle;
     } else if (
       doorData &&
       isPosInRadius(
@@ -660,7 +658,7 @@ const packetHandlers: any = {
           guid: guid,
           stringId: 15,
         });
-	client.mountedVehicle = guid;
+        client.mountedVehicle = guid;
       }
     }
   },
@@ -672,7 +670,11 @@ const packetHandlers: any = {
     debug(packet);
     debug("select");
   },
-  "Vehicle.Dismiss": function (server: ZoneServer, client: Client, packet: any) {
+  "Vehicle.Dismiss": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
     server.sendData(client, "Mount.DismountResponse", {
       characterId: client.character.characterId,
     });
@@ -1399,11 +1401,15 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
-
     const movingCharacter = server._characters[client.character.characterId];
-    
 
-    server.sendRawToAllOthers(client,server._protocol.createPositionBroadcast(packet.data.raw,movingCharacter.transientId));
+    server.sendRawToAllOthers(
+      client,
+      server._protocol.createPositionBroadcast(
+        packet.data.raw,
+        movingCharacter.transientId
+      )
+    );
     if (packet.data.position) {
       // TODO: modify array element beside re-creating it
       client.character.state.position = new Float32Array([
@@ -1412,11 +1418,11 @@ const packetHandlers: any = {
         packet.data.position[2],
         0,
       ]);
-	  if (packet.data.unknown11_float > 8) {
-			client.character.isRunning = true;
-		} else {
-			client.character.isRunning = false;
-		}
+      if (packet.data.unknown11_float > 8) {
+        client.character.isRunning = true;
+      } else {
+        client.character.isRunning = false;
+      }
 
       if (
         client.logoutTimer != null &&
@@ -1462,7 +1468,6 @@ const packetHandlers: any = {
         packet.data.lookAt[3],
       ]);
     }
-
   },
   "Command.PlayerSelect": function (
     server: ZoneServer,
@@ -1489,41 +1494,41 @@ const packetHandlers: any = {
       server.sendData(client, "ClientUpdate.TextAlert", {
         message: pickupMessage,
       });
-      let {water , health, food} = client.character.resources
-      switch (objectToPickup.modelId ) {
+      let { water, health, food } = client.character.resources;
+      switch (objectToPickup.modelId) {
         case 9159:
           water = water + 4000;
-        server.sendData(client, "ResourceEvent", {
-          eventData: {
-            type: 3,
-            value: {
-              characterId: client.character.characterId,
-              resourceId: 5, // water
-              resourceType: 5,
-              initialValue: water,
-              unknownArray1: [],
-              unknownArray2: [],
+          server.sendData(client, "ResourceEvent", {
+            eventData: {
+              type: 3,
+              value: {
+                characterId: client.character.characterId,
+                resourceId: 5, // water
+                resourceType: 5,
+                initialValue: water,
+                unknownArray1: [],
+                unknownArray2: [],
+              },
             },
-          },
-        });
+          });
           break;
-      case 8020:
-      case 9250:
-        food = food + 4000;
-        server.sendData(client, "ResourceEvent", {
-          eventData: {
-            type: 3,
-            value: {
-              characterId: client.character.characterId,
-              resourceId: 4, // food
-              resourceType: 4,
-              initialValue: food,
-              unknownArray1: [],
-              unknownArray2: [],
+        case 8020:
+        case 9250:
+          food = food + 4000;
+          server.sendData(client, "ResourceEvent", {
+            eventData: {
+              type: 3,
+              value: {
+                characterId: client.character.characterId,
+                resourceId: 4, // food
+                resourceType: 4,
+                initialValue: food,
+                unknownArray1: [],
+                unknownArray2: [],
+              },
             },
-          },
-        });
-        break;
+          });
+          break;
         case 9221:
           health = health + 10000;
           server.sendData(client, "ResourceEvent", {
@@ -1585,7 +1590,7 @@ const packetHandlers: any = {
     } = packet;
     const npc =
       server._npcs[guid] || server._objects[guid] || server._doors[guid];
-	    const pcData = server._characters[guid];
+    const pcData = server._characters[guid];
     if (npc) {
       server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
         transientId: npc.transientId,
@@ -1608,4 +1613,3 @@ const packetHandlers: any = {
 };
 
 export default packetHandlers;
-

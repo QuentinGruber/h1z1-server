@@ -1,4 +1,5 @@
 export interface Client {
+  currentPOI?: number;
   firstLoading: boolean;
   isLoading: boolean;
   mountedVehicle?: string;
@@ -14,15 +15,15 @@ export interface Client {
     transientId: number;
     name?: string;
     loadouts?: any;
-    isRunning:boolean;
-    resourcesUpdater?:any
-    resources:{
+    isRunning: boolean;
+    resourcesUpdater?: any;
+    resources: {
       health: number;
       stamina: number;
       virus: number;
       food: number;
       water: number;
-    }
+    };
     currentLoadoutTab?: number;
     currentLoadoutId?: number;
     currentLoadout?: number;
