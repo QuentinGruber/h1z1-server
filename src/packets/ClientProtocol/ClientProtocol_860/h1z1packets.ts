@@ -75,7 +75,7 @@ function readUnsignedIntWith2bitLengthValue(data: Buffer, offset: number) {
   };
 }
 
-function packUnsignedIntWith2bitLengthValue(value: number) {
+export function packUnsignedIntWith2bitLengthValue(value: number) {
   value = Math.round(value);
   value = value << 2;
   let n = 0;

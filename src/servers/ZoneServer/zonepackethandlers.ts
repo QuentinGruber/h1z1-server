@@ -23,7 +23,6 @@ import admin from "./commands/admin";
 import { Int64String, isPosInRadius } from "../../utils/utils";
 import { ZoneServer } from "./zoneserver";
 import { Client } from "types/zoneserver";
-import Eul2Quat from "eul2quat";
 const modelToName = require("../../../data/2015/sampleData/ModelToName.json");
 
 const _ = require("lodash");
@@ -1396,36 +1395,11 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
-    function packUnsignedIntWith2bitLengthValue(value: number) {
-      value = Math.round(value);
-      value = value << 2;
-      let n = 0;
-      if (value > 0xffffff) {
-        n = 3;
-      } else if (value > 0xffff) {
-        n = 2;
-      } else if (value > 0xff) {
-        n = 1;
-      }
-      value |= n;
-      const data = new (Buffer.alloc as any)(4);
-      data.writeUInt32LE(value, 0);
-      return data.slice(0, n + 1);
-    }
-
-    let packetType = 0x78;
-    let opcode = []
-    while (packetType) {
-      opcode.unshift(packetType & 0xff);
-      packetType = packetType >> 8;
-    }
 
     const movingCharacter = server._characters[client.character.characterId];
-    const tId = packUnsignedIntWith2bitLengthValue(movingCharacter.transientId)
-    const buf = Buffer.concat([new Uint8Array(opcode),tId,packet.data.raw]);
-    console.log("original",packet.data.raw)
-    console.log("modified",buf)
-    server.sendRawToAllOthers(client,buf)
+    
+
+    server.sendRawToAllOthers(client,server._protocol.createPositionBroadcast(packet.data.raw,movingCharacter.transientId));
     if (packet.data.position) {
       // TODO: modify array element beside re-creating it
       client.character.state.position = new Float32Array([
@@ -1467,9 +1441,6 @@ const packetHandlers: any = {
       ) {
         server.worldRoutine(client);
       }
-      const moveData = server._protocol.pack("PlayerUpdate.UpdatePosition",{transientId:movingCharacter.transientId,positionUpdate:server.createPositionUpdate(client.character.state.position)});
-      console.log("MoveData",moveData)
-     // server.sendDataToAllOthers(client,"PlayerUpdate.UpdatePosition",{transientId:movingCharacter.transientId,positionUpdate:server.createPositionUpdate(client.character.state.position)})
     }
     if (packet.data.rotation) {
       // TODO: modify array element beside re-creating it
@@ -1486,7 +1457,6 @@ const packetHandlers: any = {
         packet.data.lookAt[2],
         packet.data.lookAt[3],
       ]);
-     // server.sendDataToAllOthers(client,"PlayerUpdate.UpdatePosition",{transientId:movingCharacter.transientId,positionUpdate:server.createPositionUpdate(client.character.state.position,Eul2Quat(client.character.state.lookAt))})
     }
 
   },
@@ -1634,3 +1604,4 @@ const packetHandlers: any = {
 };
 
 export default packetHandlers;
+
