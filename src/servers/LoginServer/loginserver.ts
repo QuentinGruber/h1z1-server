@@ -133,7 +133,7 @@ export class LoginServer extends EventEmitter {
     );
   }
 
-  LoginRequest(client:Client,sessionId:string,fingerprint){
+  LoginRequest(client:Client,sessionId:string,fingerprint:string){
     client.loginSessionId = sessionId;
     const falsified_data = {
       loggedIn: true,
