@@ -7,6 +7,7 @@ const models = require("../../../../data/2015/dataSources/Models.json");
 const modelToName = require("../../../../data/2015/sampleData/ModelToName.json");
 import _ from "lodash";
 import { generateRandomGuid } from "../../../utils/utils";
+import { ZoneServer } from "../zoneserver";
 const npcs: any = {};
 const objects: any = {};
 const vehicles: any = {};
@@ -30,7 +31,7 @@ const chanceFarm = 10;
 let numberOfSpawnedEntity = 0;
 
 function createEntity(
-  server:any,
+  server:ZoneServer,
   modelID: number,
   position: Array<number>,
   rotation: Array<number>,
@@ -66,7 +67,7 @@ function createEntity(
   };
 }
 
-export function createAllEntities(server:any): any {
+export function createAllEntities(server:ZoneServer): any {
   createAllDoors(server);
   createAR15(server);
   createPumpShotgun(server);
@@ -100,7 +101,7 @@ function getRandomVehicleId() {
   }
 }
 
-function createAllVehicles(server:any) {
+function createAllVehicles(server:ZoneServer) {
   Z1_vehicles.forEach((vehicle: any) => {
     const characterId = generateRandomGuid();
     numberOfSpawnedEntity++;
@@ -129,7 +130,7 @@ function createAllVehicles(server:any) {
   debug("All vehicles created");
 }
 
-function createSomeNpcs(server:any) {
+function createSomeNpcs(server:ZoneServer) {
   // This is only for giving the world some life
   Z1_npcs.forEach((spawnerType: any) => {
     const authorizedModelId: number[] = [];
@@ -168,7 +169,7 @@ function createSomeNpcs(server:any) {
   debug("All npcs objects created");
 }
 
-function createAR15(server:any) {
+function createAR15(server:ZoneServer) {
   Z1_items.forEach((spawnerType: any) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
@@ -204,7 +205,7 @@ function createAR15(server:any) {
   debug("AR15 and ammo items objects created. Spawnrate:" + chanceAR15 + "%");
 }
 
-function createPumpShotgun(server:any) {
+function createPumpShotgun(server:ZoneServer) {
   Z1_items.forEach((spawnerType: any) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
@@ -241,7 +242,7 @@ function createPumpShotgun(server:any) {
   );
 }
 
-function createTools(server:any) {
+function createTools(server:ZoneServer) {
   Z1_items.forEach((spawnerType: any) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
@@ -307,7 +308,7 @@ function createTools(server:any) {
   debug("Tools items objects created. Spawnrate:" + chanceTools + "%");
 }
 
-function create1911(server:any) {
+function create1911(server:ZoneServer) {
   Z1_items.forEach((spawnerType: any) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
@@ -340,7 +341,7 @@ function create1911(server:any) {
   debug("1911 and ammo items objects created. Spawnrate:" + chance1911 + "%");
 }
 
-function createM24(server:any) {
+function createM24(server:ZoneServer) {
   Z1_items.forEach((spawnerType: any) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
@@ -375,7 +376,7 @@ function createM24(server:any) {
   );
 }
 
-function createConsumables(server:any) {
+function createConsumables(server:ZoneServer) {
   Z1_items.forEach((spawnerType: any) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
@@ -414,7 +415,7 @@ function createConsumables(server:any) {
   );
 }
 
-function createClothes(server:any) {
+function createClothes(server:ZoneServer) {
   Z1_items.forEach((spawnerType: any) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
@@ -453,7 +454,7 @@ function createClothes(server:any) {
   debug("Clothes items objects created. Spawnrate:" + chanceClothes + "%");
 }
 
-function createResidential(server:any) {
+function createResidential(server:ZoneServer) {
   Z1_items.forEach((spawnerType: any) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
@@ -506,7 +507,7 @@ function createResidential(server:any) {
   );
 }
 
-function createRare(server:any) {
+function createRare(server:ZoneServer) {
   Z1_items.forEach((spawnerType: any) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
@@ -542,7 +543,7 @@ function createRare(server:any) {
   debug("Rare items objects created. Spawnrate:" + chanceRare + "%");
 }
 
-function createIndustrial(server:any) {
+function createIndustrial(server:ZoneServer) {
   Z1_items.forEach((spawnerType: any) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
@@ -586,7 +587,7 @@ function createIndustrial(server:any) {
   );
 }
 
-function createWorld(server:any) {
+function createWorld(server:ZoneServer) {
   Z1_items.forEach((spawnerType: any) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
@@ -625,7 +626,7 @@ function createWorld(server:any) {
   debug("World Areas items objects created. Spawnrate:" + chanceWorld + "%");
 }
 
-function createLog(server:any) {
+function createLog(server:ZoneServer) {
   Z1_items.forEach((spawnerType: any) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
@@ -657,7 +658,7 @@ function createLog(server:any) {
   debug("Log Areas items objects created. Spawnrate:" + chanceWorld + "%");
 }
 
-function createCommercial(server:any) {
+function createCommercial(server:ZoneServer) {
   Z1_items.forEach((spawnerType: any) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
@@ -698,7 +699,7 @@ function createCommercial(server:any) {
   );
 }
 
-function createFarm(server:any) {
+function createFarm(server:ZoneServer) {
   Z1_items.forEach((spawnerType: any) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
@@ -732,7 +733,7 @@ function createFarm(server:any) {
   debug("Farm Areas items objects created. Spawnrate:" + chanceFarm + "%");
 }
 
-function createAllDoors(server:any): void {
+function createAllDoors(server:ZoneServer): void {
   Z1_doors.forEach((doorType: any) => {
     // TODO: add types for Z1_doors
     const modelId: number = _.find(models, {
