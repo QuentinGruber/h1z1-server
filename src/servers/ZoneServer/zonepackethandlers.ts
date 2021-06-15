@@ -256,13 +256,17 @@ const packetHandlers: any = {
     packet: any
   ) {
     server.sendGameTimeSync(client);
-    server.sendChatText(client, "Welcome to H1emu ! :D", true);
-    client.lastPingTime = new Date().getTime();
-    client.savePositionTimer = setTimeout(
-      () => server.saveCharacterPosition(client, 30000),
-      30000
-    );
-    server.executeFuncForAllClients("spawnCharacters");
+    if(client.firstLoading){
+      server.sendChatText(client, "Welcome to H1emu ! :D", true);
+      server.sendGlobalChatText(`${client.character.name} has joined the server !`);
+      client.firstLoading = false;
+      client.lastPingTime = new Date().getTime();
+      client.savePositionTimer = setTimeout(
+        () => server.saveCharacterPosition(client, 30000),
+        30000
+      );
+      server.executeFuncForAllClients("spawnCharacters");
+    }
     client.isLoading = false;
     delete client.mountedVehicle
   },

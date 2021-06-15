@@ -1,4 +1,5 @@
 export interface Client {
+  firstLoading: boolean;
   isLoading: boolean;
   mountedVehicle?: string;
   posAtLastRoutine: Float32Array;
