@@ -86,27 +86,27 @@ export class LoginServer extends EventEmitter {
           const { sessionId, systemFingerPrint } = packet.result;
           switch (packet.name) {
             case "LoginRequest": {
-              this.LoginRequest(client,sessionId,systemFingerPrint)
+              this.LoginRequest(client, sessionId, systemFingerPrint);
               if (this._protocol.protocolName !== "LoginUdp_11") break;
             }
             case "CharacterSelectInfoRequest": {
-              this.CharacterSelectInfoRequest(client)
+              this.CharacterSelectInfoRequest(client);
               if (this._protocol.protocolName !== "LoginUdp_11") break;
             }
             case "ServerListRequest":
-              this.ServerListRequest(client)
+              this.ServerListRequest(client);
               break;
 
             case "CharacterDeleteRequest": {
-              this.CharacterDeleteRequest(client,packet)
+              this.CharacterDeleteRequest(client, packet);
               break;
             }
             case "CharacterLoginRequest": {
-              this.CharacterLoginRequest(client,packet)
+              this.CharacterLoginRequest(client, packet);
               break;
             }
             case "CharacterCreateRequest": {
-             this.CharacterCreateRequest(client)
+              this.CharacterCreateRequest(client);
               break;
             }
             case "TunnelAppPacketClientToServer":
@@ -133,7 +133,7 @@ export class LoginServer extends EventEmitter {
     );
   }
 
-  LoginRequest(client:Client,sessionId:string,fingerprint:string){
+  LoginRequest(client: Client, sessionId: string, fingerprint: string) {
     client.loginSessionId = sessionId;
     const falsified_data = {
       loggedIn: true,
@@ -154,7 +154,7 @@ export class LoginServer extends EventEmitter {
     }
   }
 
-  async CharacterSelectInfoRequest(client:Client){
+  async CharacterSelectInfoRequest(client: Client) {
     let CharactersInfo;
     if (this._soloMode) {
       const SinglePlayerCharacter = require("../../../data/2015/sampleData/single_player_character.json");
@@ -188,13 +188,10 @@ export class LoginServer extends EventEmitter {
     debug("CharacterSelectInfoRequest");
   }
 
-  async ServerListRequest(client:Client){
+  async ServerListRequest(client: Client) {
     let servers;
     if (!this._soloMode) {
-      servers = await this._db
-        .collection("servers")
-        .find()
-        .toArray();
+      servers = await this._db.collection("servers").find().toArray();
     } else {
       if (this._soloMode) {
         const SoloServer = require("../../../data/2015/sampleData/single_player_server.json");
@@ -212,7 +209,7 @@ export class LoginServer extends EventEmitter {
     this._soeServer.sendAppData(client, data, true);
   }
 
-  async CharacterDeleteRequest(client:Client,packet:any){
+  async CharacterDeleteRequest(client: Client, packet: any) {
     const characters_delete_info: any = {
       characterId: (packet.result as any).characterId,
       status: 1,
@@ -239,9 +236,7 @@ export class LoginServer extends EventEmitter {
               debug(err);
             } else {
               debug(
-                "Character " +
-                  (packet.result as any).characterId +
-                  " deleted !"
+                "Character " + (packet.result as any).characterId + " deleted !"
               );
             }
           }
@@ -249,7 +244,7 @@ export class LoginServer extends EventEmitter {
     }
   }
 
-  async CharacterLoginRequest(client: Client,packet:any){
+  async CharacterLoginRequest(client: Client, packet: any) {
     let charactersLoginInfo: any;
     const { serverId, characterId } = packet.result;
     if (!this._soloMode) {
@@ -299,7 +294,7 @@ export class LoginServer extends EventEmitter {
     debug("CharacterLoginRequest");
   }
 
-  CharacterCreateRequest(client:Client){
+  CharacterCreateRequest(client: Client) {
     const reply_data = {
       status: 1,
       characterId: generateRandomGuid(),

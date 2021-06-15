@@ -114,7 +114,7 @@ export class ZoneServer extends EventEmitter {
     this._npcRenderDistance = 350;
     this._pingTimeoutTime = 30000;
     this._dynamicWeatherEnabled = true;
-    this._dummySelf =  require("../../../data/2015/sampleData/sendself.json");
+    this._dummySelf = require("../../../data/2015/sampleData/sendself.json");
     this._respawnLocations = spawnLocations.map((spawn: any) => {
       return {
         guid: this.generateGuid(),
@@ -200,10 +200,9 @@ export class ZoneServer extends EventEmitter {
 
         this._clients[client.sessionId] = client;
         let generatedTransient;
-        do{
-          generatedTransient = Number((Math.random()*30000).toFixed(0));
-        }
-        while(!this._transientIds[generatedTransient])
+        do {
+          generatedTransient = Number((Math.random() * 30000).toFixed(0));
+        } while (!this._transientIds[generatedTransient]);
         this._transientIds[generatedTransient] = characterId;
         client.isLoading = true;
         client.firstLoading = true;
@@ -212,7 +211,7 @@ export class ZoneServer extends EventEmitter {
           characterId: characterId,
           transientId: generatedTransient,
           isRunning: false,
-          resources:{
+          resources: {
             health: 5000,
             stamina: 50,
             food: 5000,
@@ -1025,10 +1024,7 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
-  sendRawToAllOthers(
-    client: Client,
-    data: any
-  ): void {
+  sendRawToAllOthers(client: Client, data: any): void {
     for (const a in this._clients) {
       if (client != this._clients[a]) {
         this.sendRawData(this._clients[a], data);
@@ -1115,15 +1111,15 @@ export class ZoneServer extends EventEmitter {
   }
 
   createPositionUpdate(position: Float32Array, rotation?: any): any {
-    const obj:any = {
+    const obj: any = {
       flags: 4095,
       unknown2_int32: this.getGameTime(),
       unknown3_int8: 0,
       unknown4: 1,
       position: position,
     };
-    if(rotation){
-      obj.unknown13_float = rotation
+    if (rotation) {
+      obj.unknown13_float = rotation;
     }
     return obj;
   }
