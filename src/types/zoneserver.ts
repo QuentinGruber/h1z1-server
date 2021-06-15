@@ -1,4 +1,5 @@
 export interface Client {
+  currentPOI?: number;
   firstLoading: boolean;
   isLoading: boolean;
   mountedVehicle?: string;
