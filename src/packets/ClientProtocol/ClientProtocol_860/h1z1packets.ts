@@ -75,7 +75,7 @@ function readUnsignedIntWith2bitLengthValue(data: Buffer, offset: number) {
   };
 }
 
-function packUnsignedIntWith2bitLengthValue(value: number) {
+export function packUnsignedIntWith2bitLengthValue(value: number) {
   value = Math.round(value);
   value = value << 2;
   let n = 0;
@@ -5519,8 +5519,6 @@ var packets = [
     0x0f50,
     {
       fields: [
-        { name: "unk", type: "byte", defaultValue: "0" },
-        { name: "unk2", type: "byte", defaultValue: "0" },
         { name: "characterId", type: "uint64", defaultValue: "0" },
         {
           name: "stats",
@@ -7413,11 +7411,18 @@ var packets = [
     {
       fields: [
         {
-          name: "characterId",
-          type: "uint64",
-          defaultValue: "0x0000000000000000",
+          name: "transientId",
+          type: "custom",
+          parser: readUnsignedIntWith2bitLengthValue,
+          packer: packUnsignedIntWith2bitLengthValue,
+          defaultValue: 1,
         },
-        { name: "unknown4", type: "byte", defaultValue: 0 },
+        {
+          name: "positionUpdate",
+          type: "custom",
+          parser: readPositionUpdateData,
+          packer: packPositionUpdateData,
+        },
       ],
     },
   ],
@@ -8110,7 +8115,7 @@ var packets = [
     },
   ],
   ["Vehicle.AcquireState", 0x8817, {}],
-  ["Vehicle.Dismiss", 0x8818, {}],
+  ["Vehicle.Dismiss", 0x8818, {fields: []}],
   [
     "Vehicle.AutoMount",
     0x8819,
@@ -8202,8 +8207,8 @@ var packets = [
             2: [
               // SetCharacterResource
               { name: "characterId", type: "uint64", defaultValue: "0" },
-              { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-              { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+              { name: "resourceId", type: "uint32", defaultValue: 0 },
+              { name: "resourceType", type: "uint32", defaultValue: 0 },
               {
                 name: "unknownArray1",
                 type: "array",
@@ -8215,7 +8220,7 @@ var packets = [
                   { name: "unknownDword4", type: "float", defaultValue: 0.0 },
                 ],
               },
-              { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+              { name: "initialValue", type: "uint32", defaultValue: 0 },
               { name: "unknownDword4", type: "uint32", defaultValue: 0 },
               { name: "unknownFloat5", type: "float", defaultValue: 0.0 },
               { name: "unknownFloat6", type: "float", defaultValue: 0.0 },
@@ -8233,10 +8238,10 @@ var packets = [
             3: [
               // UpdateCharacterResource
               { name: "characterId", type: "uint64", defaultValue: "0" },
-              { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-              { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+              { name: "resourceId", type: "uint32", defaultValue: 0 },
+              { name: "resourceType", type: "uint32", defaultValue: 0 },
 
-              { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+              { name: "initialValue", type: "uint32", defaultValue: 0 },
               { name: "unknownDword4", type: "uint32", defaultValue: 0 },
               { name: "unknownFloat5", type: "float", defaultValue: 0.0 },
               { name: "unknownFloat6", type: "float", defaultValue: 0.0 },
@@ -9362,25 +9367,11 @@ var packets = [
     0xd001,
     {
       fields: [
-        { name: "unknown1", type: "byte", defaultValue: 0 },
-        { name: "unknown2", type: "byte", defaultValue: 0 },
-        { name: "unknown3", type: "byte", defaultValue: 0 },
+        { name: "unk", type: "boolean", defaultValue: 0}, // if set to true it need at lot more fields that seems to be a positionUpdate
         {
           name: "characterId",
           type: "uint64",
           defaultValue: "0x0000000000000000",
-        },
-        { name: "unknown5", type: "byte", defaultValue: 0 },
-        { name: "unknown6", type: "uint32", defaultValue: 0 },
-        {
-          name: "array4",
-          type: "array",
-          fields: [{ name: "unknown2", type: "uint32", defaultValue: 0 }],
-        },
-        {
-          name: "array5",
-          type: "array",
-          fields: [{ name: "unknown3", type: "uint32", defaultValue: 0 }],
         },
       ],
     },
