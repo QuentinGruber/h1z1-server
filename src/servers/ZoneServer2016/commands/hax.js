@@ -259,7 +259,7 @@ const hax = {
     });
     server._vehicles[characterId] = vehicle; // save vehicle
   },
-  
+
   spawnPcModel: function (server, client, args) {
     const guid = server.generateGuid();
     const transientId = server.getTransientId(client, guid);

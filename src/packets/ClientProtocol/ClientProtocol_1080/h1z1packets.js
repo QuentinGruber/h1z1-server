@@ -2066,7 +2066,7 @@ var packets = [
                               { name: "characterFirstName", type: "string", defaultValue: "" },
                               { name: "characterLastName", type: "string", defaultValue: "" },
                               { name: "unknownString1", type: "string", defaultValue: "" },
-                              { name: "unknownString1", type: "string", defaultValue: "" },
+                              { name: "unknownString2", type: "string", defaultValue: "" },
                               { name: "unknownQword1", type: "uint64", defaultValue: "0" },
                           ],
                       },
@@ -6137,7 +6137,7 @@ var packets = [
                     { name: "characterFirstName", type: "string", defaultValue: "LocalPlayer" },
                     { name: "characterLastName", type: "string", defaultValue: "" },
                     { name: "unknownString1", type: "string", defaultValue: "" },
-                    { name: "unknownString1", type: "string", defaultValue: "" },
+                    { name: "unknownString2", type: "string", defaultValue: "" },
                     { name: "unknownQword1", type: "uint64", defaultValue: "0" },
                 ],
               },
@@ -6189,10 +6189,23 @@ var packets = [
   ["ServerActivityLaunch", 0x77, {}],
   ["ClientFlashTimer", 0x78, {}],
   [
-      "PlayerUpdate.UpdatePosition",
+      "PlayerUpdatePosition",
       0x79,
       {
-          fields: [{ name: "unknown1", type: "uint32", defaultValue: 0 }],
+          fields: [
+              {
+                  name: "transientId",
+                  type: "custom",
+                  parser: readUnsignedIntWith2bitLengthValue,
+                  packer: packUnsignedIntWith2bitLengthValue,
+              },
+              {
+                 name: "positionUpdate",
+                  type: "custom",
+                  parser: readPositionUpdateData,
+                  packer: packPositionUpdateData,
+              },
+          ],
       },
   ],
   ["InviteAndStartMiniGame", 0x7a, {}],
@@ -7070,7 +7083,20 @@ var packets = [
       },
   ],
   ["Leaderboard", 0x90, {}],
-  ["PlayerUpdateManagedPosition", 0x91, {}],
+  [
+    "PlayerUpdateManagedPosition", // *NOT* full packet schema
+    0x91, 
+    {
+      fields: [
+        {
+          name: "transientId",
+          type: "custom",
+          parser: readUnsignedIntWith2bitLengthValue,
+          packer: packUnsignedIntWith2bitLengthValue,
+        },
+      ]
+    }
+  ],
   [
     "AddSimpleNpc", 
     0x92, 
