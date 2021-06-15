@@ -83,10 +83,10 @@ export class LoginServer extends EventEmitter {
         const packet: any = this._protocol.parse(data);
         if (packet !== false) {
           // if packet parsing succeed
-          const { sessionId } = packet.result;
+          const { sessionId, systemFingerPrint } = packet.result;
           switch (packet.name) {
             case "LoginRequest": {
-              this.LoginRequest(client,sessionId)
+              this.LoginRequest(client,sessionId,systemFingerPrint)
               if (this._protocol.protocolName !== "LoginUdp_11") break;
             }
             case "CharacterSelectInfoRequest": {
@@ -133,7 +133,7 @@ export class LoginServer extends EventEmitter {
     );
   }
 
-  LoginRequest(client:Client,sessionId:string){
+  LoginRequest(client:Client,sessionId:string,fingerprint){
     client.loginSessionId = sessionId;
     const falsified_data = {
       loggedIn: true,
