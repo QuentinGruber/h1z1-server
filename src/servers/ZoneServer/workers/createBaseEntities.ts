@@ -104,6 +104,7 @@ function createAllVehicles(server:any) {
   Z1_vehicles.forEach((vehicle: any) => {
     const characterId = generateRandomGuid();
     numberOfSpawnedEntity++;
+    server._transientIds[numberOfSpawnedEntity] = characterId;
     vehicles[characterId] = {
       npcData: {
         guid: generateRandomGuid(),

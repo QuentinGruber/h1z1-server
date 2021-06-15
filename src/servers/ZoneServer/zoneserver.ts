@@ -26,7 +26,6 @@ import { Db, MongoClient } from "mongodb";
 import { Worker } from "worker_threads";
 import dynamicWeather from "./workers/dynamicWeather";
 import { Base64 } from "js-base64";
-import Eul2Quat from "eul2quat";
 
 const localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json");
 
