@@ -9,7 +9,6 @@ export interface Client {
   gameClient: {
     currentWeather: Weather;
   };
-  transientIds: {};
   character: {
     characterId: string;
     transientId: number;

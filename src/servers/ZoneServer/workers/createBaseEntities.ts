@@ -30,6 +30,7 @@ const chanceFarm = 10;
 let numberOfSpawnedEntity = 0;
 
 function createEntity(
+  server:any,
   modelID: number,
   position: Array<number>,
   rotation: Array<number>,
@@ -48,6 +49,7 @@ function createEntity(
   if (numberOfSpawnedEntity > 30000) {
     numberOfSpawnedEntity = 1;
   }
+  server._transientIds[numberOfSpawnedEntity] = characterId;
   dictionnary[characterId] = {
     characterId: characterId,
     guid: guid,
@@ -64,24 +66,24 @@ function createEntity(
   };
 }
 
-export function createAllEntities(): any {
-  createAllDoors();
-  createAR15();
-  createPumpShotgun();
-  createTools();
-  create1911();
-  createM24();
-  createConsumables();
-  createClothes();
-  createResidential();
-  createRare();
-  createIndustrial();
-  createWorld();
-  createLog();
-  createCommercial();
-  createFarm();
-  createAllVehicles();
-  createSomeNpcs();
+export function createAllEntities(server:any): any {
+  createAllDoors(server);
+  createAR15(server);
+  createPumpShotgun(server);
+  createTools(server);
+  create1911(server);
+  createM24(server);
+  createConsumables(server);
+  createClothes(server);
+  createResidential(server);
+  createRare(server);
+  createIndustrial(server);
+  createWorld(server);
+  createLog(server);
+  createCommercial(server);
+  createFarm(server);
+  createAllVehicles(server);
+  createSomeNpcs(server);
   return { npcs: npcs, objects: objects, vehicles: vehicles, doors: doors };
 }
 
@@ -98,7 +100,7 @@ function getRandomVehicleId() {
   }
 }
 
-function createAllVehicles() {
+function createAllVehicles(server:any) {
   Z1_vehicles.forEach((vehicle: any) => {
     const characterId = generateRandomGuid();
     numberOfSpawnedEntity++;
@@ -126,7 +128,7 @@ function createAllVehicles() {
   debug("All vehicles created");
 }
 
-function createSomeNpcs() {
+function createSomeNpcs(server:any) {
   // This is only for giving the world some life
   Z1_npcs.forEach((spawnerType: any) => {
     const authorizedModelId: number[] = [];
@@ -150,7 +152,7 @@ function createSomeNpcs() {
         const spawnchance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (spawnchance <= 40) {
           // temporary spawnchance
-          createEntity(
+          createEntity(server,
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
             ],
@@ -165,7 +167,7 @@ function createSomeNpcs() {
   debug("All npcs objects created");
 }
 
-function createAR15() {
+function createAR15(server:any) {
   Z1_items.forEach((spawnerType: any) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
@@ -186,7 +188,7 @@ function createAR15() {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chanceAR15) {
           // temporary spawnchance
-          createEntity(
+          createEntity(server,
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
             ],
@@ -201,7 +203,7 @@ function createAR15() {
   debug("AR15 and ammo items objects created. Spawnrate:" + chanceAR15 + "%");
 }
 
-function createPumpShotgun() {
+function createPumpShotgun(server:any) {
   Z1_items.forEach((spawnerType: any) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
@@ -219,7 +221,7 @@ function createPumpShotgun() {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chancePumpShotgun) {
           // temporary spawnchance
-          createEntity(
+          createEntity(server,
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
             ],
@@ -238,7 +240,7 @@ function createPumpShotgun() {
   );
 }
 
-function createTools() {
+function createTools(server:any) {
   Z1_items.forEach((spawnerType: any) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
@@ -289,7 +291,7 @@ function createTools() {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chanceTools) {
           // temporary spawnchance
-          createEntity(
+          createEntity(server,
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
             ],
@@ -304,7 +306,7 @@ function createTools() {
   debug("Tools items objects created. Spawnrate:" + chanceTools + "%");
 }
 
-function create1911() {
+function create1911(server:any) {
   Z1_items.forEach((spawnerType: any) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
@@ -322,7 +324,7 @@ function create1911() {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chance1911) {
           // temporary spawnchance
-          createEntity(
+          createEntity(server,
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
             ],
@@ -337,7 +339,7 @@ function create1911() {
   debug("1911 and ammo items objects created. Spawnrate:" + chance1911 + "%");
 }
 
-function createM24() {
+function createM24(server:any) {
   Z1_items.forEach((spawnerType: any) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
@@ -355,7 +357,7 @@ function createM24() {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chanceM24) {
           // temporary spawnchance
-          createEntity(
+          createEntity(server,
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
             ],
@@ -372,7 +374,7 @@ function createM24() {
   );
 }
 
-function createConsumables() {
+function createConsumables(server:any) {
   Z1_items.forEach((spawnerType: any) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
@@ -394,7 +396,7 @@ function createConsumables() {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chanceConsumables) {
           // temporary spawnchance
-          createEntity(
+          createEntity(server,
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
             ],
@@ -411,7 +413,7 @@ function createConsumables() {
   );
 }
 
-function createClothes() {
+function createClothes(server:any) {
   Z1_items.forEach((spawnerType: any) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
@@ -435,7 +437,7 @@ function createClothes() {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chanceClothes) {
           // temporary spawnchance
-          createEntity(
+          createEntity(server,
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
             ],
@@ -450,7 +452,7 @@ function createClothes() {
   debug("Clothes items objects created. Spawnrate:" + chanceClothes + "%");
 }
 
-function createResidential() {
+function createResidential(server:any) {
   Z1_items.forEach((spawnerType: any) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
@@ -484,7 +486,7 @@ function createResidential() {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chanceResidential) {
           // temporary spawnchance
-          createEntity(
+          createEntity(server,
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
             ],
@@ -503,7 +505,7 @@ function createResidential() {
   );
 }
 
-function createRare() {
+function createRare(server:any) {
   Z1_items.forEach((spawnerType: any) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
@@ -524,7 +526,7 @@ function createRare() {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chanceRare) {
           // temporary spawnchance
-          createEntity(
+          createEntity(server,
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
             ],
@@ -539,7 +541,7 @@ function createRare() {
   debug("Rare items objects created. Spawnrate:" + chanceRare + "%");
 }
 
-function createIndustrial() {
+function createIndustrial(server:any) {
   Z1_items.forEach((spawnerType: any) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
@@ -564,7 +566,7 @@ function createIndustrial() {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chanceIndustrial) {
           // temporary spawnchance
-          createEntity(
+          createEntity(server,
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
             ],
@@ -583,7 +585,7 @@ function createIndustrial() {
   );
 }
 
-function createWorld() {
+function createWorld(server:any) {
   Z1_items.forEach((spawnerType: any) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
@@ -607,7 +609,7 @@ function createWorld() {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chanceWorld) {
           // temporary spawnchance
-          createEntity(
+          createEntity(server,
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
             ],
@@ -622,7 +624,7 @@ function createWorld() {
   debug("World Areas items objects created. Spawnrate:" + chanceWorld + "%");
 }
 
-function createLog() {
+function createLog(server:any) {
   Z1_items.forEach((spawnerType: any) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
@@ -639,7 +641,7 @@ function createLog() {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chanceLog) {
           // temporary spawnchance
-          createEntity(
+          createEntity(server,
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
             ],
@@ -654,7 +656,7 @@ function createLog() {
   debug("Log Areas items objects created. Spawnrate:" + chanceWorld + "%");
 }
 
-function createCommercial() {
+function createCommercial(server:any) {
   Z1_items.forEach((spawnerType: any) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
@@ -676,7 +678,7 @@ function createCommercial() {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chanceCommercial) {
           // temporary spawnchance
-          createEntity(
+          createEntity(server,
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
             ],
@@ -695,7 +697,7 @@ function createCommercial() {
   );
 }
 
-function createFarm() {
+function createFarm(server:any) {
   Z1_items.forEach((spawnerType: any) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
@@ -714,7 +716,7 @@ function createFarm() {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chanceFarm) {
           // temporary spawnchance
-          createEntity(
+          createEntity(server,
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
             ],
@@ -729,14 +731,14 @@ function createFarm() {
   debug("Farm Areas items objects created. Spawnrate:" + chanceFarm + "%");
 }
 
-function createAllDoors(): void {
+function createAllDoors(server:any): void {
   Z1_doors.forEach((doorType: any) => {
     // TODO: add types for Z1_doors
     const modelId: number = _.find(models, {
       MODEL_FILE_NAME: doorType.actorDefinition.replace("_Placer", ""),
     })?.ID;
     doorType.instances.forEach((doorInstance: any) => {
-      createEntity(
+      createEntity(server,
         modelId ? modelId : 9183,
         doorInstance.position,
         doorInstance.rotation,

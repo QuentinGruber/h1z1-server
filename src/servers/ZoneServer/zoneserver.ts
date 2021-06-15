@@ -50,7 +50,7 @@ export class ZoneServer extends EventEmitter {
   _characters: any;
   _gameTime: any;
   _serverTime: any;
-  _transientId: any;
+  _transientIds: any;
   _packetHandlers: any;
   _referenceData: any;
   _startTime: number;
@@ -97,7 +97,7 @@ export class ZoneServer extends EventEmitter {
     this._doors = {};
     this._vehicles = {};
     this._serverTime = this.getCurrentTime();
-    this._transientId = 0;
+    this._transientIds = {};
     this._referenceData = this.parseReferenceData();
     this._packetHandlers = packetHandlers;
     this._startTime = 0;
@@ -198,13 +198,18 @@ export class ZoneServer extends EventEmitter {
         );
 
         this._clients[client.sessionId] = client;
+        let generatedTransient;
+        do{
+          generatedTransient = Number((Math.random()*30000).toFixed(0));
+        }
+        while(!this._transientIds[generatedTransient])
+        this._transientIds[generatedTransient] = characterId;
         client.isLoading = true;
         client.firstLoading = true;
         client.loginSessionId = loginSessionId;
-        client.transientIds = {};
         client.character = {
           characterId: characterId,
-          transientId: Number((Math.random()*10000).toFixed(0)),
+          transientId: generatedTransient,
           isRunning: false,
           resources:{
             health: 5000,
@@ -844,7 +849,7 @@ export class ZoneServer extends EventEmitter {
 
   createAllObjects(): void {
     const { createAllEntities } = require("./workers/createBaseEntities");
-    const { npcs, objects, vehicles, doors } = createAllEntities();
+    const { npcs, objects, vehicles, doors } = createAllEntities(this);
     this._npcs = npcs;
     this._objects = objects;
     this._doors = doors;
