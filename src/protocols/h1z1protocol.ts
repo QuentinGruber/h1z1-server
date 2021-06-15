@@ -16,6 +16,7 @@ import { lz4_decompress } from "../utils/utils";
 import eul2quat from "eul2quat";
 
 interface UpdatePositionObject {
+  raw: Buffer;
   flags: any;
   unknown2_int32: any;
   unknown3_int8: any;
@@ -482,6 +483,7 @@ const readUnsignedIntWith2bitLengthValue = function (
 
 const parseUpdatePositionData = function (data: Buffer, offset: number) {
   const obj = {} as UpdatePositionObject;
+  obj.raw = data;
   try {
     obj["flags"] = data.readUInt16LE(offset);
     offset += 2;

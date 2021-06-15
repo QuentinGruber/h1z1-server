@@ -1023,6 +1023,17 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
+  sendRawToAllOthers(
+    client: Client,
+    data: any
+  ): void {
+    for (const a in this._clients) {
+      if (client != this._clients[a]) {
+        this.sendRawData(this._clients[a], data);
+      }
+    }
+  }
+
   sendWeaponPacket(client: Client, packetName: string, obj: any): void {
     const weaponPacket = {
       gameTime: this.getServerTime(),
