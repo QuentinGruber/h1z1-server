@@ -300,7 +300,7 @@ const hax: any = {
       array18: [{ unknown1: 0 }],
     };
     isVehicle = false;
-    server.sendData(client, "PlayerUpdate.AddLightweightNpc", npc);
+    server.sendDataToAll("PlayerUpdate.AddLightweightNpc", npc);
     server._npcs[characterId] = npc; // save npc
   },
   sonic: function (server: ZoneServer, client: Client, args: any[]) {

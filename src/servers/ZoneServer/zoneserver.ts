@@ -73,6 +73,7 @@ export class ZoneServer extends EventEmitter {
   _respawnLocations: any[];
   _doors: any;
   _interactionDistance: number;
+  _dummySelf: any;
 
   constructor(
     serverPort: number,
@@ -113,6 +114,7 @@ export class ZoneServer extends EventEmitter {
     this._npcRenderDistance = 350;
     this._pingTimeoutTime = 30000;
     this._dynamicWeatherEnabled = true;
+    this._dummySelf =  require("../../../data/2015/sampleData/sendself.json");
     this._respawnLocations = spawnLocations.map((spawn: any) => {
       return {
         guid: this.generateGuid(),
@@ -490,51 +492,51 @@ export class ZoneServer extends EventEmitter {
     delete require.cache[
       require.resolve("../../../data/2015/sampleData/sendself.json") // reload json
     ];
-    const self = require("../../../data/2015/sampleData/sendself.json"); // dummy self
+    this._dummySelf = require("../../../data/2015/sampleData/sendself.json"); // dummy this._dummySelf
     if (String(client.character.characterId) === "0x0000000000000001") {
       // for fun 🤠
-      self.data.characterId = "0x0000000000000001";
-      self.data.identity.characterFirstName = "Cowboy :)";
-      self.data.extraModel = "SurvivorMale_Ivan_OutbackHat_Base.adr";
-      self.data.extraModelTexture = "Ivan_OutbackHat_LeatherTan";
+      this._dummySelf.data.characterId = "0x0000000000000001";
+      this._dummySelf.data.identity.characterFirstName = "Cowboy :)";
+      this._dummySelf.data.extraModel = "SurvivorMale_Ivan_OutbackHat_Base.adr";
+      this._dummySelf.data.extraModelTexture = "Ivan_OutbackHat_LeatherTan";
     }
     const {
       data: { identity },
-    } = self;
-    client.character.guid = self.data.guid;
+    } = this._dummySelf;
+    client.character.guid = this._dummySelf.data.guid;
     client.character.name =
       identity.characterFirstName + identity.characterLastName;
     const characterDataMongo = await this._db
       ?.collection("characters")
       .findOne({ characterId: client.character.characterId });
     if (
-      _.isEqual(self.data.position, [0, 0, 0, 1]) &&
-      _.isEqual(self.data.rotation, [0, 0, 0, 1])
+      _.isEqual(this._dummySelf.data.position, [0, 0, 0, 1]) &&
+      _.isEqual(this._dummySelf.data.rotation, [0, 0, 0, 1])
     ) {
       // if position/rotation hasn't be changed
       if (this._soloMode || !characterDataMongo.position) {
-        self.data.isRandomlySpawning = true;
+        this._dummySelf.data.isRandomlySpawning = true;
       }
     }
 
-    if (self.data.isRandomlySpawning) {
+    if (this._dummySelf.data.isRandomlySpawning) {
       // Take position/rotation from a random spawn location.
       const randomSpawnIndex = Math.floor(
         Math.random() * this._spawnLocations.length
       );
-      self.data.position = client.character.state.position =
+      this._dummySelf.data.position = client.character.state.position =
         this._spawnLocations[randomSpawnIndex].position;
-      self.data.rotation = client.character.state.rotation =
+      this._dummySelf.data.rotation = client.character.state.rotation =
         this._spawnLocations[randomSpawnIndex].rotation;
       client.character.spawnLocation =
         this._spawnLocations[randomSpawnIndex].name;
     } else {
       if (!this._soloMode) {
-        self.data.position = characterDataMongo.position;
-        self.data.rotation = characterDataMongo.rotation;
+        this._dummySelf.data.position = characterDataMongo.position;
+        this._dummySelf.data.rotation = characterDataMongo.rotation;
       }
-      client.character.state.position = self.data.position;
-      client.character.state.rotation = self.data.rotation;
+      client.character.state.position = this._dummySelf.data.position;
+      client.character.state.rotation = this._dummySelf.data.rotation;
     }
     const characterResources: any[] = [];
     resources.forEach((resource: any) => {
@@ -553,11 +555,11 @@ export class ZoneServer extends EventEmitter {
         },
       });
     });
-    self.data.profiles = this._profiles;
-    self.data.stats = stats;
-    self.data.characterResources = characterResources;
-    self.data.recipes = recipes;
-    this.sendData(client, "SendSelfToClient", self);
+    this._dummySelf.data.profiles = this._profiles;
+    this._dummySelf.data.stats = stats;
+    this._dummySelf.data.characterResources = characterResources;
+    this._dummySelf.data.recipes = recipes;
+    this.sendData(client, "SendSelfToClient", this._dummySelf);
   }
 
   generateProfiles(): any[] {
