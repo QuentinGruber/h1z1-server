@@ -1,6 +1,8 @@
 export interface Client {
+  currentPOI?: number;
+  firstLoading: boolean;
   isLoading: boolean;
-  isMounted: boolean;
+  mountedVehicle?: string;
   posAtLastRoutine: Float32Array;
   posAtLogoutStart: Float32Array;
   logoutTimer: NodeJS.Timeout | null;
@@ -8,12 +10,20 @@ export interface Client {
   gameClient: {
     currentWeather: Weather;
   };
-  transientId: number;
-  transientIds: {};
   character: {
     characterId: string;
+    transientId: number;
     name?: string;
     loadouts?: any;
+    isRunning: boolean;
+    resourcesUpdater?: any;
+    resources: {
+      health: number;
+      stamina: number;
+      virus: number;
+      food: number;
+      water: number;
+    };
     currentLoadoutTab?: number;
     currentLoadoutId?: number;
     currentLoadout?: number;

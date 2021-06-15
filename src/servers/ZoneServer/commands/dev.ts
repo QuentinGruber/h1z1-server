@@ -6,11 +6,17 @@ const debug = require("debug")("zonepacketHandlers");
 
 const dev: any = {
   testpacket: function (server: ZoneServer, client: Client, args: any[]) {
-    const packetName = args[1];
-    server.sendData(client, "ClientUpdate.StartTimer", {
-      stringId: 0,
-      time: 0,
+    server.sendData(client, "Ragdoll.UpdatePose", {
+      characterId: client.character.characterId,
     });
+  },
+  lol: function (server: ZoneServer, client: Client, args: any[]) {
+    for (const npcKey in server._npcs) {
+      const npc = server._npcs[npcKey];
+      server.sendData(client, "Ragdoll.UpdatePose", {
+        characterId: npc.characterId,
+      });
+    }
   },
   testManagedObject: function (
     server: ZoneServer,

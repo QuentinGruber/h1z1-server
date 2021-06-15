@@ -49,7 +49,7 @@ export class ZoneServer extends EventEmitter {
   _characters: any;
   _gameTime: any;
   _serverTime: any;
-  _transientId: any;
+  _transientIds: any;
   _packetHandlers: any;
   _referenceData: any;
   _startTime: number;
@@ -73,6 +73,7 @@ export class ZoneServer extends EventEmitter {
   _respawnLocations: any[];
   _doors: any;
   _interactionDistance: number;
+  _dummySelf: any;
 
   constructor(
     serverPort: number,
@@ -96,7 +97,7 @@ export class ZoneServer extends EventEmitter {
     this._doors = {};
     this._vehicles = {};
     this._serverTime = this.getCurrentTime();
-    this._transientId = 0;
+    this._transientIds = {};
     this._referenceData = this.parseReferenceData();
     this._packetHandlers = packetHandlers;
     this._startTime = 0;
@@ -113,6 +114,7 @@ export class ZoneServer extends EventEmitter {
     this._npcRenderDistance = 350;
     this._pingTimeoutTime = 30000;
     this._dynamicWeatherEnabled = true;
+    this._dummySelf = require("../../../data/2015/sampleData/sendself.json");
     this._respawnLocations = spawnLocations.map((spawn: any) => {
       return {
         guid: this.generateGuid(),
@@ -150,7 +152,8 @@ export class ZoneServer extends EventEmitter {
       } else {
         if (
           packet.name != "KeepAlive" &&
-          packet.name != "PlayerUpdateUpdatePositionClientToZone"
+          packet.name != "PlayerUpdateUpdatePositionClientToZone" &&
+          packet.name != "PlayerUpdateManagedPosition"
         ) {
           debug(`Receive Data ${[packet.name]}`);
         }
@@ -196,12 +199,25 @@ export class ZoneServer extends EventEmitter {
         );
 
         this._clients[client.sessionId] = client;
+        let generatedTransient;
+        do {
+          generatedTransient = Number((Math.random() * 30000).toFixed(0));
+        } while (!this._transientIds[generatedTransient]);
+        this._transientIds[generatedTransient] = characterId;
         client.isLoading = true;
+        client.firstLoading = true;
         client.loginSessionId = loginSessionId;
-        client.transientIds = {};
-        client.transientId = 0;
         client.character = {
           characterId: characterId,
+          transientId: generatedTransient,
+          isRunning: false,
+          resources: {
+            health: 5000,
+            stamina: 50,
+            food: 5000,
+            water: 5000,
+            virus: 6000,
+          },
           state: {
             position: new Float32Array([0, 0, 0, 0]),
             rotation: new Float32Array([0, 0, 0, 0]),
@@ -475,51 +491,51 @@ export class ZoneServer extends EventEmitter {
     delete require.cache[
       require.resolve("../../../data/2015/sampleData/sendself.json") // reload json
     ];
-    const self = require("../../../data/2015/sampleData/sendself.json"); // dummy self
+    this._dummySelf = require("../../../data/2015/sampleData/sendself.json"); // dummy this._dummySelf
     if (String(client.character.characterId) === "0x0000000000000001") {
       // for fun 🤠
-      self.data.characterId = "0x0000000000000001";
-      self.data.identity.characterFirstName = "Cowboy :)";
-      self.data.extraModel = "SurvivorMale_Ivan_OutbackHat_Base.adr";
-      self.data.extraModelTexture = "Ivan_OutbackHat_LeatherTan";
+      this._dummySelf.data.characterId = "0x0000000000000001";
+      this._dummySelf.data.identity.characterFirstName = "Cowboy :)";
+      this._dummySelf.data.extraModel = "SurvivorMale_Ivan_OutbackHat_Base.adr";
+      this._dummySelf.data.extraModelTexture = "Ivan_OutbackHat_LeatherTan";
     }
     const {
       data: { identity },
-    } = self;
-    client.character.guid = self.data.guid;
+    } = this._dummySelf;
+    client.character.guid = this._dummySelf.data.guid;
     client.character.name =
       identity.characterFirstName + identity.characterLastName;
     const characterDataMongo = await this._db
       ?.collection("characters")
       .findOne({ characterId: client.character.characterId });
     if (
-      _.isEqual(self.data.position, [0, 0, 0, 1]) &&
-      _.isEqual(self.data.rotation, [0, 0, 0, 1])
+      _.isEqual(this._dummySelf.data.position, [0, 0, 0, 1]) &&
+      _.isEqual(this._dummySelf.data.rotation, [0, 0, 0, 1])
     ) {
       // if position/rotation hasn't be changed
       if (this._soloMode || !characterDataMongo.position) {
-        self.data.isRandomlySpawning = true;
+        this._dummySelf.data.isRandomlySpawning = true;
       }
     }
 
-    if (self.data.isRandomlySpawning) {
+    if (this._dummySelf.data.isRandomlySpawning) {
       // Take position/rotation from a random spawn location.
       const randomSpawnIndex = Math.floor(
         Math.random() * this._spawnLocations.length
       );
-      self.data.position = client.character.state.position =
+      this._dummySelf.data.position = client.character.state.position =
         this._spawnLocations[randomSpawnIndex].position;
-      self.data.rotation = client.character.state.rotation =
+      this._dummySelf.data.rotation = client.character.state.rotation =
         this._spawnLocations[randomSpawnIndex].rotation;
       client.character.spawnLocation =
         this._spawnLocations[randomSpawnIndex].name;
     } else {
       if (!this._soloMode) {
-        self.data.position = characterDataMongo.position;
-        self.data.rotation = characterDataMongo.rotation;
+        this._dummySelf.data.position = characterDataMongo.position;
+        this._dummySelf.data.rotation = characterDataMongo.rotation;
       }
-      client.character.state.position = self.data.position;
-      client.character.state.rotation = self.data.rotation;
+      client.character.state.position = this._dummySelf.data.position;
+      client.character.state.rotation = this._dummySelf.data.rotation;
     }
     const characterResources: any[] = [];
     resources.forEach((resource: any) => {
@@ -538,11 +554,11 @@ export class ZoneServer extends EventEmitter {
         },
       });
     });
-    self.data.profiles = this._profiles;
-    self.data.stats = stats;
-    self.data.characterResources = characterResources;
-    self.data.recipes = recipes;
-    this.sendData(client, "SendSelfToClient", self);
+    this._dummySelf.data.profiles = this._profiles;
+    this._dummySelf.data.stats = stats;
+    this._dummySelf.data.characterResources = characterResources;
+    this._dummySelf.data.recipes = recipes;
+    this.sendData(client, "SendSelfToClient", this._dummySelf);
   }
 
   generateProfiles(): any[] {
@@ -661,11 +677,6 @@ export class ZoneServer extends EventEmitter {
       const characterObj = this._characters[character];
       if (
         client.character.characterId != character &&
-        isPosInRadius(
-          this._npcRenderDistance,
-          client.character.state.position,
-          characterObj.state.position
-        ) &&
         !client.spawnedEntities.includes(characterObj)
       ) {
         this.sendData(
@@ -673,7 +684,7 @@ export class ZoneServer extends EventEmitter {
           "PlayerUpdate.AddLightweightPc",
           {
             ...characterObj,
-            transientId: 1,
+            transientId: characterObj.transientId,
             characterFirstName: characterObj.name,
             position: characterObj.state.position,
             rotation: characterObj.state.lookAt,
@@ -838,7 +849,7 @@ export class ZoneServer extends EventEmitter {
 
   createAllObjects(): void {
     const { createAllEntities } = require("./workers/createBaseEntities");
-    const { npcs, objects, vehicles, doors } = createAllEntities();
+    const { npcs, objects, vehicles, doors } = createAllEntities(this);
     this._npcs = npcs;
     this._objects = objects;
     this._doors = doors;
@@ -1013,6 +1024,14 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
+  sendRawToAllOthers(client: Client, data: any): void {
+    for (const a in this._clients) {
+      if (client != this._clients[a]) {
+        this.sendRawData(this._clients[a], data);
+      }
+    }
+  }
+
   sendWeaponPacket(client: Client, packetName: string, obj: any): void {
     const weaponPacket = {
       gameTime: this.getServerTime(),
@@ -1084,31 +1103,25 @@ export class ZoneServer extends EventEmitter {
   }
 
   getTransientId(client: any, guid: string): number {
-    if (!client.transientIds[guid]) {
-      client.transientId++;
-      client.transientIds[guid] = client.transientId;
-    }
-    return client.transientIds[guid];
+    let generatedTransient;
+    do {
+      generatedTransient = Number((Math.random() * 30000).toFixed(0));
+    } while (!this._transientIds[generatedTransient]);
+    this._transientIds[generatedTransient] = guid;
+    return generatedTransient;
   }
 
-  createPositionUpdate(position: Float32Array, rotation: Array<number>): any {
-    const obj = {
+  createPositionUpdate(position: Float32Array, rotation?: any): any {
+    const obj: any = {
       flags: 4095,
       unknown2_int32: this.getGameTime(),
       unknown3_int8: 0,
       unknown4: 1,
       position: position,
-      unknown6_int32: 3217625048,
-      unknown7_float: 0,
-      unknown8_float: 0,
-      unknown9_float: 0,
-      unknown10_float: 0,
-      unknown11_float: 0,
-      unknown12_float: [0, 0, 0],
-      unknown13_float: rotation,
-      unknown14_float: 0,
-      unknown15_float: 0,
     };
+    if (rotation) {
+      obj.unknown13_float = rotation;
+    }
     return obj;
   }
 }
