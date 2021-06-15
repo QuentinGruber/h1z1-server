@@ -256,13 +256,17 @@ const packetHandlers: any = {
     packet: any
   ) {
     server.sendGameTimeSync(client);
-    server.sendChatText(client, "Welcome to H1emu ! :D", true);
-    client.lastPingTime = new Date().getTime();
-    client.savePositionTimer = setTimeout(
-      () => server.saveCharacterPosition(client, 30000),
-      30000
-    );
-    server.executeFuncForAllClients("spawnCharacters");
+    if(client.firstLoading){
+      server.sendChatText(client, "Welcome to H1emu ! :D", true);
+      server.sendGlobalChatText(`${client.character.name} has joined the server !`);
+      client.firstLoading = false;
+      client.lastPingTime = new Date().getTime();
+      client.savePositionTimer = setTimeout(
+        () => server.saveCharacterPosition(client, 30000),
+        30000
+      );
+      server.executeFuncForAllClients("spawnCharacters");
+    }
     client.isLoading = false;
     delete client.mountedVehicle
   },
@@ -1395,6 +1399,11 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
+
+    const movingCharacter = server._characters[client.character.characterId];
+    
+
+    server.sendRawToAllOthers(client,server._protocol.createPositionBroadcast(packet.data.raw,movingCharacter.transientId));
     if (packet.data.position) {
       // TODO: modify array element beside re-creating it
       client.character.state.position = new Float32Array([
@@ -1453,6 +1462,7 @@ const packetHandlers: any = {
         packet.data.lookAt[3],
       ]);
     }
+
   },
   "Command.PlayerSelect": function (
     server: ZoneServer,
@@ -1598,3 +1608,4 @@ const packetHandlers: any = {
 };
 
 export default packetHandlers;
+

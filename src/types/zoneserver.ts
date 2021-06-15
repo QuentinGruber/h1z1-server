@@ -1,4 +1,5 @@
 export interface Client {
+  firstLoading: boolean;
   isLoading: boolean;
   mountedVehicle?: string;
   posAtLastRoutine: Float32Array;
@@ -8,10 +9,9 @@ export interface Client {
   gameClient: {
     currentWeather: Weather;
   };
-  transientId: number;
-  transientIds: {};
   character: {
     characterId: string;
+    transientId: number;
     name?: string;
     loadouts?: any;
     isRunning:boolean;

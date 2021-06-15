@@ -49,7 +49,7 @@ export class ZoneServer extends EventEmitter {
   _characters: any;
   _gameTime: any;
   _serverTime: any;
-  _transientId: any;
+  _transientIds: any;
   _packetHandlers: any;
   _referenceData: any;
   _startTime: number;
@@ -96,7 +96,7 @@ export class ZoneServer extends EventEmitter {
     this._doors = {};
     this._vehicles = {};
     this._serverTime = this.getCurrentTime();
-    this._transientId = 0;
+    this._transientIds = {};
     this._referenceData = this.parseReferenceData();
     this._packetHandlers = packetHandlers;
     this._startTime = 0;
@@ -197,12 +197,18 @@ export class ZoneServer extends EventEmitter {
         );
 
         this._clients[client.sessionId] = client;
+        let generatedTransient;
+        do{
+          generatedTransient = Number((Math.random()*30000).toFixed(0));
+        }
+        while(!this._transientIds[generatedTransient])
+        this._transientIds[generatedTransient] = characterId;
         client.isLoading = true;
+        client.firstLoading = true;
         client.loginSessionId = loginSessionId;
-        client.transientIds = {};
-        client.transientId = 0;
         client.character = {
           characterId: characterId,
+          transientId: generatedTransient,
           isRunning: false,
           resources:{
             health: 5000,
@@ -670,11 +676,6 @@ export class ZoneServer extends EventEmitter {
       const characterObj = this._characters[character];
       if (
         client.character.characterId != character &&
-        isPosInRadius(
-          this._npcRenderDistance,
-          client.character.state.position,
-          characterObj.state.position
-        ) &&
         !client.spawnedEntities.includes(characterObj)
       ) {
         this.sendData(
@@ -682,7 +683,7 @@ export class ZoneServer extends EventEmitter {
           "PlayerUpdate.AddLightweightPc",
           {
             ...characterObj,
-            transientId: 1,
+            transientId: characterObj.transientId,
             characterFirstName: characterObj.name,
             position: characterObj.state.position,
             rotation: characterObj.state.lookAt,
@@ -847,7 +848,7 @@ export class ZoneServer extends EventEmitter {
 
   createAllObjects(): void {
     const { createAllEntities } = require("./workers/createBaseEntities");
-    const { npcs, objects, vehicles, doors } = createAllEntities();
+    const { npcs, objects, vehicles, doors } = createAllEntities(this);
     this._npcs = npcs;
     this._objects = objects;
     this._doors = doors;
@@ -1022,6 +1023,17 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
+  sendRawToAllOthers(
+    client: Client,
+    data: any
+  ): void {
+    for (const a in this._clients) {
+      if (client != this._clients[a]) {
+        this.sendRawData(this._clients[a], data);
+      }
+    }
+  }
+
   sendWeaponPacket(client: Client, packetName: string, obj: any): void {
     const weaponPacket = {
       gameTime: this.getServerTime(),
@@ -1100,24 +1112,17 @@ export class ZoneServer extends EventEmitter {
     return client.transientIds[guid];
   }
 
-  createPositionUpdate(position: Float32Array, rotation: Array<number>): any {
-    const obj = {
+  createPositionUpdate(position: Float32Array, rotation?: any): any {
+    const obj:any = {
       flags: 4095,
       unknown2_int32: this.getGameTime(),
       unknown3_int8: 0,
       unknown4: 1,
       position: position,
-      unknown6_int32: 3217625048,
-      unknown7_float: 0,
-      unknown8_float: 0,
-      unknown9_float: 0,
-      unknown10_float: 0,
-      unknown11_float: 0,
-      unknown12_float: [0, 0, 0],
-      unknown13_float: rotation,
-      unknown14_float: 0,
-      unknown15_float: 0,
     };
+    if(rotation){
+      obj.unknown13_float = rotation
+    }
     return obj;
   }
 }

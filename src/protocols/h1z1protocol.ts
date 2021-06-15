@@ -14,8 +14,10 @@ const debug = require("debug")("H1Z1Protocol");
 import DataSchema from "h1z1-dataschema";
 import { lz4_decompress } from "../utils/utils";
 import eul2quat from "eul2quat";
+import { packUnsignedIntWith2bitLengthValue } from "../packets/ClientProtocol/ClientProtocol_860/h1z1packets";
 
 interface UpdatePositionObject {
+  raw: Buffer;
   flags: any;
   unknown2_int32: any;
   unknown3_int8: any;
@@ -58,6 +60,12 @@ export class H1Z1Protocol {
         process.exit();
     }
   }
+
+  createPositionBroadcast(rawData:Buffer,transientId:number):Buffer {
+    const tId = packUnsignedIntWith2bitLengthValue(transientId)
+    return Buffer.concat([new Uint8Array([120]),tId,rawData]);
+  }
+
 
   parseFacilityReferenceData(data: Buffer) {
     var inSize = data.readUInt32LE(0),
@@ -482,6 +490,7 @@ const readUnsignedIntWith2bitLengthValue = function (
 
 const parseUpdatePositionData = function (data: Buffer, offset: number) {
   const obj = {} as UpdatePositionObject;
+  obj.raw = data;
   try {
     obj["flags"] = data.readUInt16LE(offset);
     offset += 2;
