@@ -45,8 +45,8 @@ const hax = {
     client.isMounted = true;
   },
 
-  tp: function(server, client, args) {
-    if(args.length < 4){
+  tp: function (server, client, args) {
+    if (args.length < 4) {
       server.sendChatText(client, "Need 3 args: position x, y, z", false);
       return;
     }
@@ -139,16 +139,20 @@ const hax = {
           transientId: transientId,
           modelId: 9588,
           scale: [1, 1, 1, 1],
-          position: [client.character.state.position[0], client.character.state.position[1], client.character.state.position[2]],
+          position: [
+            client.character.state.position[0],
+            client.character.state.position[1],
+            client.character.state.position[2],
+          ],
           rotation: client.character.state.lookAt,
           attachedObject: {},
           vehicleId: 5,
-          color: {}
+          color: {},
         },
-        unknownGuid1:server.generateGuid(),
+        unknownGuid1: server.generateGuid(),
         positionUpdate: [0, 0, 0, 0],
       };
-      server.sendData( client, "AddLightweightVehicle", vehicle );
+      server.sendData(client, "AddLightweightVehicle", vehicle);
       server.sendData(client, "PlayerUpdate.ManagedObject", {
         guid: characterId,
         characterId: client.character.characterId,
@@ -164,16 +168,24 @@ const hax = {
       return;
     }
     const choosenModelId = Number(args[1]);
-      const obj = {
-        characterId: characterId,
-        transientId: transientId,
-        position: [client.character.state.position[0], client.character.state.position[1], client.character.state.position[2]],
-        rotation: [client.character.state.rotation[0], client.character.state.rotation[1], client.character.state.rotation[2]],
-        modelId: choosenModelId,
-        showHealth: false
-      };
+    const obj = {
+      characterId: characterId,
+      transientId: transientId,
+      position: [
+        client.character.state.position[0],
+        client.character.state.position[1],
+        client.character.state.position[2],
+      ],
+      rotation: [
+        client.character.state.rotation[0],
+        client.character.state.rotation[1],
+        client.character.state.rotation[2],
+      ],
+      modelId: choosenModelId,
+      showHealth: false,
+    };
     server.sendData(client, "AddSimpleNpc", obj);
-    
+
     server.obj[characterId] = obj; // save npc
   },
   spawnNpcModel: function (server, client, args) {
@@ -190,10 +202,18 @@ const hax = {
       guid: guid,
       transientId: transientId,
       modelId: choosenModelId,
-      position: [client.character.state.position[0], client.character.state.position[1], client.character.state.position[2]],
-      rotation: [client.character.state.rotation[0], client.character.state.rotation[1], client.character.state.rotation[2]],
+      position: [
+        client.character.state.position[0],
+        client.character.state.position[1],
+        client.character.state.position[2],
+      ],
+      rotation: [
+        client.character.state.rotation[0],
+        client.character.state.rotation[1],
+        client.character.state.rotation[2],
+      ],
       color: {},
-      unknownData1: {unknownData1: {}},
+      unknownData1: { unknownData1: {} },
       extraModel: "SurvivorMale_Head_01.adr",
       attachedObject: {},
     };
@@ -228,7 +248,8 @@ const hax = {
         vehicleId = 5;
         driveModel = 9588;
         break;
-      default: // offroader default
+      default:
+        // offroader default
         vehicleId = 1;
         driveModel = 7225;
         break;
@@ -241,13 +262,17 @@ const hax = {
         transientId: transientId,
         modelId: driveModel,
         scale: [1, 1, 1, 1],
-        position: [client.character.state.position[0], client.character.state.position[1], client.character.state.position[2]],
+        position: [
+          client.character.state.position[0],
+          client.character.state.position[1],
+          client.character.state.position[2],
+        ],
         rotation: client.character.state.lookAt,
         attachedObject: {},
         vehicleId: vehicleId,
-        color: {}
+        color: {},
       },
-      unknownGuid1:server.generateGuid(),
+      unknownGuid1: server.generateGuid(),
       positionUpdate: [0, 0, 0, 0],
     };
     server.sendData(client, "AddLightweightVehicle", vehicle);
@@ -274,9 +299,13 @@ const hax = {
       guid: guid,
       transientId: transientId,
       //modelId: choosenModelId,
-      position: [client.character.state.position[0], client.character.state.position[1], client.character.state.position[2]],
+      position: [
+        client.character.state.position[0],
+        client.character.state.position[1],
+        client.character.state.position[2],
+      ],
       roation: client.character.state.rotation,
-      identity: {}
+      identity: {},
     };
     server.sendData(client, "AddLightweightPc", pc);
     // server._characters[guid] = pc; // save pc (disabled for now)
@@ -350,9 +379,8 @@ const hax = {
       if (currentWeather) {
         currentWeather.templateName = args[1];
         if (server._soloMode) {
-          server._weatherTemplates[
-            currentWeather.templateName
-          ] = currentWeather;
+          server._weatherTemplates[currentWeather.templateName] =
+            currentWeather;
           fs.writeFileSync(
             `${__dirname}/../../../../data/weather.json`,
             JSON.stringify(server._weatherTemplates)

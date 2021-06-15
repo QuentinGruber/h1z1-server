@@ -32,7 +32,7 @@ const debug = require("debug")("zonepacketHandlers");
 
 const packetHandlers = {
   ClientIsReady: function (server, client, packet) {
-    server.sendData(client, "ClientBeginZoning", {});// Needed for trees
+    server.sendData(client, "ClientBeginZoning", {}); // Needed for trees
 
     server.sendData(client, "QuickChat.SendData", { commands: [] });
 
@@ -45,7 +45,7 @@ const packetHandlers = {
       done: 1,
     }); // Required for WaitForWorldReady
     */
-   
+
     server.sendData(client, "ClientUpdate.UpdateStat", { stats: [] });
 
     //server.sendData(client, "Operation.ClientClearMissions", {});
@@ -105,13 +105,13 @@ const packetHandlers = {
       gameTime: (server.getServerTime() & 0xffffffff) >>> 0,
     });
     server.sendGameTimeSync(client);
-    
+
     client.character.currentLoadoutId = 3;
     server.sendData(client, "Loadout.SetCurrentLoadout", {
       guid: client.character.guid,
       loadoutId: client.character.currentLoadoutId,
     });
-    
+
     server.sendData(client, "ZoneDoneSendingInitialData", {}); // Required for WaitForWorldReady
 
     const commands = [
@@ -144,13 +144,13 @@ const packetHandlers = {
         type: 2,
         value: {
           characterId: "0x03147cca2a860191",
-          resourceId: 48,// health
+          resourceId: 48, // health
           resourceType: 1,
-          unknownArray1:[],
+          unknownArray1: [],
           value: 5000,
           unknownArray2: [],
-        }
-      }
+        },
+      },
     });
     server.sendData(client, "ResourceEvent", {
       eventData: {
@@ -159,11 +159,11 @@ const packetHandlers = {
           characterId: "0x03147cca2a860191",
           resourceId: 6, // stamina
           resourceType: 6,
-          unknownArray1:[],
+          unknownArray1: [],
           value: 600,
           unknownArray2: [],
-        }
-      }
+        },
+      },
     });
     server.sendData(client, "ResourceEvent", {
       eventData: {
@@ -172,11 +172,11 @@ const packetHandlers = {
           characterId: "0x03147cca2a860191",
           resourceId: 4, // food
           resourceType: 4,
-          unknownArray1:[],
+          unknownArray1: [],
           value: 5000,
           unknownArray2: [],
-        }
-      }
+        },
+      },
     });
     server.sendData(client, "ResourceEvent", {
       eventData: {
@@ -185,13 +185,12 @@ const packetHandlers = {
           characterId: "0x03147cca2a860191",
           resourceId: 5, // water
           resourceType: 5,
-          unknownArray1:[],
+          unknownArray1: [],
           value: 5000,
           unknownArray2: [],
-        }
-      }
+        },
+      },
     });
-
   },
   ClientFinishedLoading: function (server, client, packet) {
     client.currentPOI = 0; // clears currentPOI for POIManager
@@ -205,12 +204,15 @@ const packetHandlers = {
       () => server.saveCharacterPosition(client, 30000),
       30000
     );
-    server._characters[client.character.characterId] = {...client.character, identity: {}};
+    server._characters[client.character.characterId] = {
+      ...client.character,
+      identity: {},
+    };
     server.executeFuncForAllClients("spawnCharacters");
     client.isLoading = false;
     client.isMounted = false;
 
-    setInterval(function(){
+    setInterval(function () {
       server.worldRoutine(client);
     }, 3000);
   },
@@ -1152,13 +1154,20 @@ const packetHandlers = {
         characterVariables: [],
         unknownData2: {},
         resources: [],
-        unknownData3: {}
+        unknownData3: {},
       });
     } else if (server._characters[guid]) {
       server.sendData(client, "LightweightToFullPc", {
-        fullPcSubDataSchema1: {transientIdMaybe: server._characters[guid].transientId},
+        fullPcSubDataSchema1: {
+          transientIdMaybe: server._characters[guid].transientId,
+        },
         array1: [],
-        unknownData1: {transientId: server._characters[guid].transientId, unknownData1: {}, array1: [], array2: [],},
+        unknownData1: {
+          transientId: server._characters[guid].transientId,
+          unknownData1: {},
+          array1: [],
+          array2: [],
+        },
       });
     } else if (server._vehicles[guid]) {
       server.sendData(client, "LightweightToFullVehicle", {
@@ -1171,7 +1180,7 @@ const packetHandlers = {
           characterVariables: [],
           unknownData2: {},
           resources: [],
-          unknownData3: {}
+          unknownData3: {},
         },
         unknownArray1: [],
         unknownArray2: [],
@@ -1180,29 +1189,32 @@ const packetHandlers = {
         unknownArray5: [
           {
             unknownData1: {
-              unknownData1: {}
-            }
-          }
+              unknownData1: {},
+            },
+          },
         ],
         unknownArray6: [],
         unknownArray7: [],
         unknownArray8: [
           {
-            unknownArray1: []
-          }
-        ]
+            unknownArray1: [],
+          },
+        ],
       });
     }
   },
 
-  "Command.PlayerSelect": function(server, client, packet) {
-    if (server._vehicles[packet.data.guid]) { // checking if vehicle
-      server.sendData(client, "Mount.MountResponse", { // mounts character
+  "Command.PlayerSelect": function (server, client, packet) {
+    if (server._vehicles[packet.data.guid]) {
+      // checking if vehicle
+      server.sendData(client, "Mount.MountResponse", {
+        // mounts character
         characterId: client.character.characterId,
         guid: packet.data.guid, // vehicle guid
         identity: {},
       });
-      server.sendData(client, "Vehicle.Engine", { // starts engine
+      server.sendData(client, "Vehicle.Engine", {
+        // starts engine
         guid2: packet.data.guid,
         unknownBoolean: true,
       });
@@ -1212,7 +1224,8 @@ const packetHandlers = {
 
   "Mount.DismountRequest": function (server, client, packet) {
     debug(packet.data);
-    server.sendData(client, "Mount.DismountResponse", { // dismounts character
+    server.sendData(client, "Mount.DismountResponse", {
+      // dismounts character
       characterId: client.character.characterId,
     });
     client.isMounted = false;
