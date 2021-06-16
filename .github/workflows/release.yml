@@ -53,12 +53,12 @@ jobs:
           node-version: 16.2.0
       - run: npm ci
       - run: npm i -g pkg@5.2.1
-      - run: pkg -t node16-win-x64 ./bin/2015/loginServer.js --output ./bin/loginServer-${{ github.ref.tag }}.exe
-      - run: pkg -t node16-win-x64 ./bin/2015/zoneServer.js --output ./bin/zoneServer-${{ github.ref.tag }}.exe
-      - run: pkg -t node16-win-x64 ./bin/2015/h1emuServer.js --output ./bin/h1emuServer-${{ github.ref.tag }}.exe
-      - run: pkg -t node16-win-x64 ./bin/2016/loginServer.js --output ./bin/loginServer-2016-${{ github.ref.tag }}.exe
-      - run: pkg -t node16-win-x64 ./bin/2016/zoneServer.js --output ./bin/zoneServer-2016-${{ github.ref.tag }}.exe
-      - run: pkg -t node16-win-x64 ./bin/2016/h1emuServer.js --output ./bin/h1emuServer-2016-${{ github.ref.tag }}.exe
+      - run: pkg -t node16-win-x64 ./bin/2015/loginServer.js --output ./bin/loginServer-${{ github.ref }}.exe
+      - run: pkg -t node16-win-x64 ./bin/2015/zoneServer.js --output ./bin/zoneServer-${{ github.ref }}.exe
+      - run: pkg -t node16-win-x64 ./bin/2015/h1emuServer.js --output ./bin/h1emuServer-${{ github.ref }}.exe
+      - run: pkg -t node16-win-x64 ./bin/2016/loginServer.js --output ./bin/loginServer-2016-${{ github.ref }}.exe
+      - run: pkg -t node16-win-x64 ./bin/2016/zoneServer.js --output ./bin/zoneServer-2016-${{ github.ref }}.exe
+      - run: pkg -t node16-win-x64 ./bin/2016/h1emuServer.js --output ./bin/h1emuServer-2016-${{ github.ref }}.exe
       - name: Upload h1emuServer to release
         uses: svenstaro/upload-release-action@v2
         with:
