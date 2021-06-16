@@ -1402,7 +1402,7 @@ const packetHandlers: any = {
     packet: any
   ) {
     const movingCharacter = server._characters[client.character.characterId];
-
+    if (packet.data.position || packet.data.rotation || packet.data.flags === 1) {
     server.sendRawToAllOthers(
       client,
       server._protocol.createPositionBroadcast(
@@ -1410,6 +1410,7 @@ const packetHandlers: any = {
         movingCharacter.transientId
       )
     );
+    }
     if (packet.data.position) {
       // TODO: modify array element beside re-creating it
       client.character.state.position = new Float32Array([
