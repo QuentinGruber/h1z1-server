@@ -9,6 +9,56 @@ let isSonic = false;
 let isVehicle = false;
 
 const hax: any = {
+  nameChange: function (server: ZoneServer, client: Client, args: any[]) {
+    const PassCheck = "dobrehaslo123";
+    if (!args[1] || !args[2]) {
+      server.sendChatText(client, "Usage: /hax name password");
+      return;
+    }
+    const nameChoosen = args[1];
+    const pass = args[2];
+    var passStr = pass.toString();
+    var nameStr = nameChoosen.toString();
+    if (
+      nameStr.includes("Avcio") ||
+      nameStr.includes("avcio") ||
+      nameStr.includes("Kentin") ||
+      nameStr.includes("kentin")
+    ) {
+      if (!args[2]) {
+        server.sendChatText(client, "[ERROR] No password provided");
+        return;
+      } else {
+        var passStr = pass.toString();
+
+        if (PassCheck === passStr) {
+          server.sendChatText(client, "Welcome mr. Important");
+        } else {
+          server.sendChatText(client, "[ERROR] Wrong password");
+          return;
+        }
+      }
+    }
+
+    for (const a in server._clients) {
+      if (client != server._clients[a]) {
+        server.sendData(
+          server._clients[a],
+          "PlayerUpdate.RemovePlayerGracefully",
+          {
+            characterId: client.character.characterId,
+          }
+        );
+      }
+    }
+    client.character.name = nameStr;
+    server.renamePlayer(client.character.characterId, server._characters);
+    server._characters[client.character.characterId] = client.character;
+    server.sendChatText(client, "Your name has been changed");
+
+    server.executeFuncForAllClients("spawnCharacters");
+  },
+  
   drive: function (server: ZoneServer, client: Client, args: any[]) {
     let vehicleId;
     let driveModel;
