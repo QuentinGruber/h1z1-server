@@ -314,6 +314,17 @@ export class ZoneServer2016 extends ZoneServer {
     });
   }
 
+  createAllObjects(): void {
+    const { createAllEntities } = require("./workers/createBaseEntities");
+    // const { createAllEntities } = require("../ZoneServer/workers/createBaseEntities");
+    const { npcs, objects, vehicles, doors } = createAllEntities(this);
+    this._npcs = npcs;
+    this._objects = objects;
+    this._doors = doors;
+    this._vehicles = vehicles;
+    debug("All entities created");
+  }
+
   sendChat(client: Client, message: string, channel: number) {
     if (!this._soloMode) {
       this.sendDataToAll("Chat.ChatText", {

@@ -126,6 +126,50 @@ const dev = {
     server.sendChatText(client, "Setting character equipment");
     server.sendData(client, "Equipment.SetCharacterEquipmentSlot", equipmentEvent);
   },
+
+  tpObject: function (server, client, args) {
+    if(!args[1]) {
+      server.sendChatText(client, "Missing object arg");
+      return;
+    }
+
+    const location = {
+      position: [0, 80, 0, 1],
+      rotation: [0, 0, 0, 1],
+      unknownBool1: true,
+      unknownByte1: 100,
+      unknownBool2: true,
+    };
+    let found = false;
+    for (const v in server._vehicles) {
+      console.log(server._vehicles[v]);
+      if(server._vehicles[v].npcData.modelId === parseInt(args[1])) {
+        location.position = server._vehicles[v].npcData.position;
+        server.sendData(client, "ClientUpdate.UpdateLocation", location);
+        const SendZoneDetails_packet = {
+          zoneName: "Z1",
+          unknownBoolean1: true,
+          zoneType: 4,
+          //skyData: weather,
+          skyData: {},
+          zoneId1: 3905829720,
+          zoneId2: 3905829720,
+          nameId: 7699,
+          unknownBoolean2: true,
+          unknownBoolean3: true,
+        };
+        server.sendData(client, "SendZoneDetails", SendZoneDetails_packet); // needed or screen is black, maybe use skyChanged instead?
+        server.sendData(client, "ClientBeginZoning", {}); // needed or no trees / foliage spawned on tp
+        found = true;
+        break;
+      }
+    };
+    if(found) {
+      server.sendChatText(client, "TPed successfully");
+    } else {
+      server.sendChatText(client, `No objects of ID: ${args[1]} found`);
+    }
+  }
 };
 
 export default dev;

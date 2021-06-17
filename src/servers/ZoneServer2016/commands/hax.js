@@ -242,7 +242,7 @@ const hax = {
         modelId: driveModel,
         scale: [1, 1, 1, 1],
         position: [client.character.state.position[0], client.character.state.position[1], client.character.state.position[2]],
-        rotation: client.character.state.lookAt,
+        rotation: [0, 0, 0, 0],
         attachedObject: {},
         vehicleId: vehicleId,
         color: {}
