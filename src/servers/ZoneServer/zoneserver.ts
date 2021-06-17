@@ -823,6 +823,10 @@ export class ZoneServer extends EventEmitter {
     );
     delete dictionnary[characterId];
   }
+  
+  renamePlayer(characterId: string, dictionnary: any) {
+    delete this._characters[characterId];
+  }
 
   createEntity(
     modelID: number,
