@@ -1418,7 +1418,7 @@ const packetHandlers: any = {
         packet.data.position[2],
         0,
       ]);
-      if (packet.data.unknown11_float > 8) {
+      if (packet.data.unknown11_float > 6) {
         client.character.isRunning = true;
       } else {
         client.character.isRunning = false;
