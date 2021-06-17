@@ -25,19 +25,12 @@ const hax: any = {
       nameStr.includes("Kentin") ||
       nameStr.includes("kentin")
     ) {
-      if (!args[2]) {
-        server.sendChatText(client, "[ERROR] No password provided");
-        return;
-      } else {
-        var passStr = pass.toString();
-
         if (PassCheck === passStr) {
           server.sendChatText(client, "Welcome mr. Important");
         } else {
           server.sendChatText(client, "[ERROR] Wrong password");
           return;
         }
-      }
     }
 
     for (const a in server._clients) {
