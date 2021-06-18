@@ -131,8 +131,8 @@ function spring() {
   wchancemax = 1;
 }
 
-const seasonstart = (function () {
-  let started = false;
+var seasonstart = (function () {
+  var started = false;
   return function () {
     if (!started) {
       started = true;

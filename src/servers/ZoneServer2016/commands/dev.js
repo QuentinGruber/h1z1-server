@@ -1,5 +1,5 @@
 const debug = require("debug")("zonepacketHandlers");
-import { generateRandomGuid } from "../../../utils/utils";
+import { generateCharacterId } from "../../../utils/utils";
 
 const dev = {
   testpacket: function (server, client, args) {
@@ -7,7 +7,7 @@ const dev = {
     server.sendData(client, packetName, {});
   },
   testNpc: function (server, client, args) {
-    const characterId = generateRandomGuid();
+    const characterId = generateCharacterId();
     server.sendData(client, "PlayerUpdate.AddLightweightNpc", {
       characterId: characterId,
       modelId: 9001,
