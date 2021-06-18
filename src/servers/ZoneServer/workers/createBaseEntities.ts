@@ -28,7 +28,7 @@ const chanceLog = 10;
 const chanceCommercial = 10;
 const chanceFarm = 10;
 
-let numberOfSpawnedEntity = 30000;
+let numberOfSpawnedEntity = 0;
 
 function createEntity(
   server: ZoneServer,
@@ -47,6 +47,9 @@ function createEntity(
   const guid = generateRandomGuid();
   const characterId = generateRandomGuid();
   numberOfSpawnedEntity++;
+  if (numberOfSpawnedEntity > 30000) {
+    numberOfSpawnedEntity = 1;
+  }
   server._transientIds[numberOfSpawnedEntity] = characterId;
   dictionnary[characterId] = {
     characterId: characterId,
