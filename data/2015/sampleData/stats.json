@@ -1,27 +1,13 @@
 [
     {
-        "statId": 0,
-        "statName": "forWard",
-        "statData": {
-            "statId": 0,
-            "statValue": {
-                "type": 0,
-                "value": {
-                    "base": 1,
-                    "modifier": 0
-                }
-            }
-        }
-    },
-    {
         "statId": 1,
         "statName": "unknown1",
         "statData": {
             "statId": 1,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
-                    "base": 0,
+                    "base": 1,
                     "modifier": 0
                 }
             }
@@ -33,9 +19,9 @@
         "statData": {
             "statId": 2,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
-                    "base": 1,
+                    "base": 4,
                     "modifier": 0
                 }
             }
@@ -47,9 +33,9 @@
         "statData": {
             "statId": 3,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
-                    "base": 1,
+                    "base": 0.75,
                     "modifier": 0
                 }
             }
@@ -63,7 +49,7 @@
             "statValue": {
                 "type": 1,
                 "value": {
-                    "base": 0.7,
+                    "base": 0.5,
                     "modifier": 0
                 }
             }
@@ -77,8 +63,8 @@
             "statValue": {
                 "type": 1,
                 "value": {
-                    "base": 1.1,
-                    "modifier": 1
+                    "base": 1.625,
+                    "modifier": 0
                 }
             }
         }
@@ -89,9 +75,9 @@
         "statData": {
             "statId": 6,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
-                    "base": 0,
+                    "base": 1,
                     "modifier": 0
                 }
             }
@@ -103,9 +89,9 @@
         "statData": {
             "statId": 7,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
-                    "base": 1,
+                    "base": 0.75,
                     "modifier": 0
                 }
             }
@@ -117,9 +103,9 @@
         "statData": {
             "statId": 8,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
-                    "base": 0,
+                    "base": 0.10000000149011612,
                     "modifier": 0
                 }
             }
@@ -131,9 +117,9 @@
         "statData": {
             "statId": 9,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
-                    "base": 0,
+                    "base": 0.25,
                     "modifier": 0
                 }
             }
@@ -145,9 +131,9 @@
         "statData": {
             "statId": 10,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
-                    "base": 0,
+                    "base": 0.10000000149011612,
                     "modifier": 0
                 }
             }
@@ -161,7 +147,7 @@
             "statValue": {
                 "type": 0,
                 "value": {
-                    "base": 0,
+                    "base": 3000,
                     "modifier": 1
                 }
             }
@@ -173,9 +159,9 @@
         "statData": {
             "statId": 12,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
-                    "base": 0,
+                    "base": 3,
                     "modifier": 0
                 }
             }
@@ -189,7 +175,7 @@
             "statValue": {
                 "type": 0,
                 "value": {
-                    "base": 0,
+                    "base": 1000,
                     "modifier": 0
                 }
             }
@@ -201,9 +187,9 @@
         "statData": {
             "statId": 14,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
-                    "base": 0,
+                    "base": 0.25,
                     "modifier": 0
                 }
             }
@@ -215,7 +201,7 @@
         "statData": {
             "statId": 15,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
                     "base": 0,
                     "modifier": 0
@@ -229,7 +215,7 @@
         "statData": {
             "statId": 16,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
                     "base": 0,
                     "modifier": 0
@@ -245,7 +231,7 @@
             "statValue": {
                 "type": 0,
                 "value": {
-                    "base": 0,
+                    "base": 25000,
                     "modifier": 0
                 }
             }
@@ -259,7 +245,7 @@
             "statValue": {
                 "type": 0,
                 "value": {
-                    "base": 0,
+                    "base": 750,
                     "modifier": 0
                 }
             }
@@ -273,7 +259,7 @@
             "statValue": {
                 "type": 0,
                 "value": {
-                    "base": 0,
+                    "base": 750,
                     "modifier": 0
                 }
             }
@@ -287,7 +273,7 @@
             "statValue": {
                 "type": 0,
                 "value": {
-                    "base": 0,
+                    "base": 750,
                     "modifier": 0
                 }
             }
@@ -299,9 +285,9 @@
         "statData": {
             "statId": 21,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
-                    "base": 0,
+                    "base": 0.20000000298023224,
                     "modifier": 0
                 }
             }
@@ -313,9 +299,9 @@
         "statData": {
             "statId": 22,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
-                    "base": 0,
+                    "base": 0.15000000596046448,
                     "modifier": 0
                 }
             }
@@ -327,9 +313,9 @@
         "statData": {
             "statId": 23,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
-                    "base": 0,
+                    "base": 48,
                     "modifier": 0
                 }
             }
@@ -343,7 +329,7 @@
             "statValue": {
                 "type": 1,
                 "value": {
-                    "base": 0.5,
+                    "base": 0.20000000298023224,
                     "modifier": 0
                 }
             }
@@ -357,7 +343,7 @@
             "statValue": {
                 "type": 1,
                 "value": {
-                    "base": 0.5,
+                    "base": 0.20000000298023224,
                     "modifier": 0
                 }
             }
@@ -371,7 +357,7 @@
             "statValue": {
                 "type": 1,
                 "value": {
-                    "base": 0.5,
+                    "base": 0.20000000298023224,
                     "modifier": 0
                 }
             }
@@ -385,7 +371,7 @@
             "statValue": {
                 "type": 1,
                 "value": {
-                    "base": 0.2,
+                    "base": 0.15000000596046448,
                     "modifier": 0
                 }
             }
@@ -397,9 +383,9 @@
         "statData": {
             "statId": 28,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
-                    "base": 0.2,
+                    "base": 0.15000000596046448,
                     "modifier": 0
                 }
             }
@@ -411,9 +397,9 @@
         "statData": {
             "statId": 29,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
-                    "base": 0.2,
+                    "base": 0.15000000596046448,
                     "modifier": 0
                 }
             }
@@ -425,9 +411,9 @@
         "statData": {
             "statId": 30,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
-                    "base": 0,
+                    "base": 1,
                     "modifier": 0
                 }
             }
@@ -439,9 +425,9 @@
         "statData": {
             "statId": 31,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
-                    "base": 0,
+                    "base": 1,
                     "modifier": 0
                 }
             }
@@ -453,7 +439,7 @@
         "statData": {
             "statId": 32,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
                     "base": 0,
                     "modifier": 0
@@ -467,7 +453,7 @@
         "statData": {
             "statId": 33,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
                     "base": 0,
                     "modifier": 0
@@ -481,10 +467,10 @@
         "statData": {
             "statId": 34,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
-                    "base": 0,
-                    "modifier": 1
+                    "base": 1,
+                    "modifier": 0
                 }
             }
         }
@@ -495,9 +481,9 @@
         "statData": {
             "statId": 35,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
-                    "base": 0,
+                    "base": 1,
                     "modifier": 0
                 }
             }
@@ -509,23 +495,9 @@
         "statData": {
             "statId": 36,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
-                    "base": 0,
-                    "modifier": 0
-                }
-            }
-        }
-    },
-    {
-        "statId": 37,
-        "statName": "unknown37",
-        "statData": {
-            "statId": 37,
-            "statValue": {
-                "type": 0,
-                "value": {
-                    "base": 0,
+                    "base": 1,
                     "modifier": 0
                 }
             }
@@ -537,10 +509,10 @@
         "statData": {
             "statId": 38,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
-                    "base": 0,
-                    "modifier": 0
+                    "base": 8,
+                    "modifier": 50
                 }
             }
         }
@@ -551,9 +523,9 @@
         "statData": {
             "statId": 39,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
-                    "base": 0,
+                    "base": 1,
                     "modifier": 0
                 }
             }
@@ -565,9 +537,9 @@
         "statData": {
             "statId": 40,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
-                    "base": 0,
+                    "base": 1,
                     "modifier": 0
                 }
             }
@@ -945,7 +917,7 @@
             "statValue": {
                 "type": 1,
                 "value": {
-                    "base": 0.4,
+                    "base": 0.3,
                     "modifier": 0
                 }
             }
