@@ -448,8 +448,7 @@ export class ZoneServer extends EventEmitter {
   }
 
   generateGuid(): string {
-    const guid = generateRandomGuid();
-    return guid;
+    return generateRandomGuid();
   }
 
   parseReferenceData(): any {

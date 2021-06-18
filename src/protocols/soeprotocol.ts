@@ -528,8 +528,7 @@ export class SOEProtocol {
   }
 
   pack(packetName: string, object: any, crcSeed: number, compression: number) {
-    const data = packSOEPacket(packetName, object, crcSeed, compression, false);
-    return data;
+    return packSOEPacket(packetName, object, crcSeed, compression, false);
   }
 }
 

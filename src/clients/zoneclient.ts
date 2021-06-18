@@ -52,19 +52,19 @@ export class ZoneClient extends EventEmitter {
     this._environment = "";
     this._serverId = 0;
 
-    var me = this;
+      const me = this;
 
-    var n = 0;
-    this._gatewayClient.on(
+      let n = 0;
+      this._gatewayClient.on(
       "tunneldata",
       (err: string, data: Buffer, flags: any) => {
         debug("Received tunnel data (" + data.length + " bytes)");
 
         n++;
         //fs.writeFileSync("dump/tunneldata_" + n + ".dat", data);
-        var packet;
+          let packet;
 
-        try {
+          try {
           packet = this._protocol.parse(data, flags, false, me._referenceData);
         } catch (e) {
           //fs.writeFileSync("tunneldata_" + n + ".dat", data);
