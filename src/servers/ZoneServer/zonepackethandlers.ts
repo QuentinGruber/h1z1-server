@@ -1402,14 +1402,15 @@ const packetHandlers: any = {
     packet: any
   ) {
     const movingCharacter = server._characters[client.character.characterId];
-
-    server.sendRawToAllOthers(
-      client,
-      server._protocol.createPositionBroadcast(
-        packet.data.raw,
-        movingCharacter.transientId
-      )
-    );
+    if(movingCharacter){
+      server.sendRawToAllOthers(
+       client,
+       server._protocol.createPositionBroadcast(
+         packet.data.raw,
+          movingCharacter.transientId
+        )
+      );
+    }
     if (packet.data.position) {
       // TODO: modify array element beside re-creating it
       client.character.state.position = new Float32Array([
