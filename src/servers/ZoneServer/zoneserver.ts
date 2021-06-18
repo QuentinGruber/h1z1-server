@@ -928,12 +928,17 @@ export class ZoneServer extends EventEmitter {
 
   sendChat(client: Client, message: string, channel: number): void {
     const { character } = client;
-    this.sendDataToAll("Chat.Chat", {
-      channel: channel,
-      characterName1: character.name,
-      message: message,
-      color1: 1,
-    });
+    for (const clientKey in this._clients) {
+        const targetClient = this._clients[clientKey];
+        if(isPosInRadius(350,client.character.state.position,targetClient.character.state.position)){
+          this.sendData(targetClient,"Chat.Chat", {
+            channel: channel,
+            characterName1: character.name,
+            message: message,
+            color1: 1,
+          });
+        }
+    }    
   }
 
   sendGlobalChatText(message: string, clearChat = false): void {
