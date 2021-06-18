@@ -678,6 +678,9 @@ const packetHandlers: any = {
     server.sendData(client, "Mount.DismountResponse", {
       characterId: client.character.characterId,
     });
+    server.sendData(client, "PlayerUpdate.Destroyed", {
+      characterId: client.mountedVehicle,
+    });
     delete client.mountedVehicle;
   },
   "Vehicle.Spawn": function (server: ZoneServer, client: Client, packet: any) {
