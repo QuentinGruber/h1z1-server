@@ -32,6 +32,7 @@ export class SOEServer extends EventEmitter {
   _connection: dgram.Socket;
   _crcSeed: number;
   _crcLength: number;
+  _checksFrequency: number;
 
   constructor(
     protocolName: string,
@@ -53,7 +54,7 @@ export class SOEServer extends EventEmitter {
     this._udpLength = 512;
     this._useEncryption = true;
     this._isGatewayServer = isGatewayServer;
-
+    this._checksFrequency = 0;
     this._clients = {};
     this._connection = dgram.createSocket("udp4");
 
@@ -130,7 +131,7 @@ export class SOEServer extends EventEmitter {
               client.address
             );
           }
-          (client as any).outQueueTimer = setTimeout(checkClientOutQueue, 0);
+          (client as any).outQueueTimer = setTimeout(checkClientOutQueue, this._checksFrequency);
         };
         checkClientOutQueue();
 
@@ -147,7 +148,7 @@ export class SOEServer extends EventEmitter {
               true
             );
           }
-          (client as any).ackTimer = setTimeout(checkAck, 0); // maybe this is to much if we have a lot of ppl connected
+          (client as any).ackTimer = setTimeout(checkAck, this._checksFrequency);
         };
         checkAck();
 
@@ -177,7 +178,7 @@ export class SOEServer extends EventEmitter {
               true
             );
           }
-          (client as any).outOfOrderTimer = setTimeout(checkOutOfOrderQueue, 0);
+          (client as any).outOfOrderTimer = setTimeout(checkOutOfOrderQueue, this._checksFrequency);
         };
         checkOutOfOrderQueue();
         this.emit("connect", null, this._clients[clientId]);
