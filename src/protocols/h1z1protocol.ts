@@ -67,21 +67,21 @@ export class H1Z1Protocol {
   }
 
   parseFacilityReferenceData(data: Buffer) {
-    const inSize = data.readUInt32LE(0),
-        outSize = data.readUInt32LE(4),
-        compData = data.slice(8);
+    var inSize = data.readUInt32LE(0),
+      outSize = data.readUInt32LE(4),
+      compData = data.slice(8);
     data = lz4_decompress(compData, inSize, outSize);
-    const schema = {
+    var schema = {
       fields: [
         {
           name: "facilityTypes",
           type: "array",
           elementSchema: {
             fields: [
-              {name: "facilityTypeId", type: "uint8"},
-              {name: "facilityString", type: "uint32"},
-              {name: "facilityIconId", type: "uint32"},
-              {name: "unknown1", type: "uint32"},
+              { name: "facilityTypeId", type: "uint8" },
+              { name: "facilityString", type: "uint32" },
+              { name: "facilityIconId", type: "uint32" },
+              { name: "unknown1", type: "uint32" },
             ],
           },
         },
@@ -90,190 +90,190 @@ export class H1Z1Protocol {
           type: "array",
           elementSchema: {
             fields: [
-              {name: "benefitGroupId", type: "uint32"},
-              {name: "benefitIconId", type: "uint32"},
-              {name: "benefitString", type: "uint32"},
-              {name: "facilityIconId", type: "uint32"},
-              {name: "facilityString", type: "uint32"},
+              { name: "benefitGroupId", type: "uint32" },
+              { name: "benefitIconId", type: "uint32" },
+              { name: "benefitString", type: "uint32" },
+              { name: "facilityIconId", type: "uint32" },
+              { name: "facilityString", type: "uint32" },
             ],
           },
         },
       ],
     };
-    const result = DataSchema.parse(schema, data, 0, null).result;
+    var result = DataSchema.parse(schema, data, 0, null).result;
     return result;
   }
 
   parseWeaponDefinitionReferenceData(data: Buffer) {
-    const inSize = data.readUInt32LE(0),
-        outSize = data.readUInt32LE(4),
-        compData = data.slice(8);
+    var inSize = data.readUInt32LE(0),
+      outSize = data.readUInt32LE(4),
+      compData = data.slice(8);
     data = lz4_decompress(compData, inSize, outSize);
     //fs.writeFileSync("weapondefinitions.dat", data);
-    const schema = [
+    var schema = [
       {
         name: "weaponDefinitions",
         type: "array",
         fields: [
-          {name: "weaponId", type: "uint32"},
-          {name: "weaponGroupId", type: "uint32"},
-          {name: "flags", type: "uint8"},
-          {name: "equipTime", type: "uint16"},
-          {name: "unequipTime", type: "uint16"},
-          {name: "toIronSightsTime", type: "uint16"},
-          {name: "fromIronSightsTime", type: "uint16"},
-          {name: "toIronSightsAnimTime", type: "uint16"},
-          {name: "fromIronSightsAnimTime", type: "uint16"},
-          {name: "sprintRecoveryTime", type: "uint16"},
-          {name: "nextUseDelayTime", type: "uint32"},
-          {name: "turnRateModifier", type: "float"},
-          {name: "movementSpeedModifier", type: "float"},
-          {name: "heatBleedOffRate", type: "uint16"},
-          {name: "overheatPenaltyTime", type: "uint16"},
-          {name: "rangeStringId", type: "uint32"},
-          {name: "meleeDetectWidth", type: "float"},
-          {name: "meleeDetectHeight", type: "float"},
-          {name: "animationSetName", type: "string"},
-          {name: "vehicleFirstPersonCameraId", type: "uint16"},
-          {name: "vehicleThirdPersonCameraId", type: "uint16"},
-          {name: "overheatEffectId", type: "uint32"},
-          {name: "minPitch", type: "float"},
-          {name: "maxPitch", type: "float"},
-          {name: "audioGameObjectHash", type: "uint32"},
+          { name: "weaponId", type: "uint32" },
+          { name: "weaponGroupId", type: "uint32" },
+          { name: "flags", type: "uint8" },
+          { name: "equipTime", type: "uint16" },
+          { name: "unequipTime", type: "uint16" },
+          { name: "toIronSightsTime", type: "uint16" },
+          { name: "fromIronSightsTime", type: "uint16" },
+          { name: "toIronSightsAnimTime", type: "uint16" },
+          { name: "fromIronSightsAnimTime", type: "uint16" },
+          { name: "sprintRecoveryTime", type: "uint16" },
+          { name: "nextUseDelayTime", type: "uint32" },
+          { name: "turnRateModifier", type: "float" },
+          { name: "movementSpeedModifier", type: "float" },
+          { name: "heatBleedOffRate", type: "uint16" },
+          { name: "overheatPenaltyTime", type: "uint16" },
+          { name: "rangeStringId", type: "uint32" },
+          { name: "meleeDetectWidth", type: "float" },
+          { name: "meleeDetectHeight", type: "float" },
+          { name: "animationSetName", type: "string" },
+          { name: "vehicleFirstPersonCameraId", type: "uint16" },
+          { name: "vehicleThirdPersonCameraId", type: "uint16" },
+          { name: "overheatEffectId", type: "uint32" },
+          { name: "minPitch", type: "float" },
+          { name: "maxPitch", type: "float" },
+          { name: "audioGameObjectHash", type: "uint32" },
           {
             name: "ammoSlots",
             type: "array",
             fields: [
-              {name: "ammoId", type: "uint32"},
-              {name: "clipSize", type: "uint16"},
-              {name: "capacity", type: "uint32"},
-              {name: "clipAttachmentSlot", type: "uint16"},
-              {name: "clipModelName", type: "string"},
-              {name: "reloadWeaponBone", type: "string"},
-              {name: "reloadCharacterBone", type: "string"},
+              { name: "ammoId", type: "uint32" },
+              { name: "clipSize", type: "uint16" },
+              { name: "capacity", type: "uint32" },
+              { name: "clipAttachmentSlot", type: "uint16" },
+              { name: "clipModelName", type: "string" },
+              { name: "reloadWeaponBone", type: "string" },
+              { name: "reloadCharacterBone", type: "string" },
             ],
           },
-          {name: "fireGroups", type: "array", elementType: "uint32"},
-          {name: "unknown", type: "uint16"},
+          { name: "fireGroups", type: "array", elementType: "uint32" },
+          { name: "unknown", type: "uint16" },
         ],
       },
       {
         name: "fireGroups",
         type: "array",
         fields: [
-          {name: "fireGroupId", type: "uint32"},
-          {name: "fireModes", type: "array", elementType: "uint32"},
-          {name: "flags", type: "uint8"},
-          {name: "chamberDurationTime", type: "uint16"},
-          {name: "imageSetOverride", type: "uint32"},
-          {name: "transitionDurationTime", type: "uint16"},
-          {name: "animActorSlotOverride", type: "uint8"},
-          {name: "deployableId", type: "uint8"},
-          {name: "spinUpTime", type: "uint16"},
-          {name: "spoolUpTime", type: "uint16"},
-          {name: "spoolUpInitialRefireTime", type: "uint16"},
+          { name: "fireGroupId", type: "uint32" },
+          { name: "fireModes", type: "array", elementType: "uint32" },
+          { name: "flags", type: "uint8" },
+          { name: "chamberDurationTime", type: "uint16" },
+          { name: "imageSetOverride", type: "uint32" },
+          { name: "transitionDurationTime", type: "uint16" },
+          { name: "animActorSlotOverride", type: "uint8" },
+          { name: "deployableId", type: "uint8" },
+          { name: "spinUpTime", type: "uint16" },
+          { name: "spoolUpTime", type: "uint16" },
+          { name: "spoolUpInitialRefireTime", type: "uint16" },
         ],
       },
       {
         name: "fireModes",
         type: "array",
         fields: [
-          {name: "fireModeId", type: "uint32"},
-          {name: "flags1", type: "uint8"},
-          {name: "flags2", type: "uint8"},
-          {name: "flags3", type: "uint8"},
-          {name: "type", type: "uint8"},
-          {name: "ammoItemId", type: "uint32"},
-          {name: "ammoSlot", type: "uint8"},
-          {name: "burstCount", type: "uint8"},
-          {name: "fireDurationTime", type: "uint16"},
-          {name: "fireCooldownDurationTime", type: "uint16"},
-          {name: "refireTime", type: "uint16"},
-          {name: "fireDelayTime", type: "uint16"},
-          {name: "autoFireTime", type: "uint16"},
-          {name: "chargeUpTime", type: "uint16"},
-          {name: "range", type: "float"},
-          {name: "ammoPerShot", type: "uint8"},
-          {name: "reloadTime", type: "uint16"},
-          {name: "reloadChamber", type: "uint16"},
-          {name: "reloadAmmoFillTime", type: "uint16"},
-          {name: "reloadLoopStartTime", type: "uint16"},
-          {name: "reloadLoopEndTime", type: "uint16"},
-          {name: "pelletsPerShot", type: "uint8"},
-          {name: "pelletSpread", type: "float"},
-          {name: "cofRecoil", type: "float"},
-          {name: "cofScalar", type: "float"},
-          {name: "cofScalarMoving", type: "float"},
-          {name: "cofOverride", type: "float"},
-          {name: "recoilAngleMin", type: "float"},
-          {name: "recoilAngleMax", type: "float"},
-          {name: "recoilHorizontalTolerance", type: "float"},
-          {name: "recoilHorizontalMin", type: "float"},
-          {name: "recoilHorizontalMax", type: "float"},
-          {name: "recoilMagnitudeMin", type: "float"},
-          {name: "recoilMagnitudeMax", type: "float"},
-          {name: "recoilRecoveryDelayTime", type: "uint16"},
-          {name: "recoilRecoveryRate", type: "float"},
-          {name: "recoilRecoveryAcceleration", type: "float"},
-          {name: "recoilShotsAtMinMagnitude", type: "uint8"},
-          {name: "recoilMaxTotalMagnitude", type: "float"},
-          {name: "recoilIncrease", type: "float"},
-          {name: "recoilIncreaseCrouch", type: "float"},
-          {name: "recoilFirstShotModifier", type: "float"},
-          {name: "unknown19", type: "float"},
-          {name: "unknown20", type: "float"},
-          {name: "fireDetectRange", type: "uint16"},
-          {name: "effectGroup", type: "uint32"},
-          {name: "playerStateGroupId", type: "uint32"},
-          {name: "movementModifier", type: "float"},
-          {name: "turnModifier", type: "float"},
-          {name: "unknown23", type: "uint32"},
-          {name: "unknown24", type: "uint32"},
-          {name: "lockOnAngle", type: "float"},
-          {name: "lockOnRadius", type: "float"},
-          {name: "lockOnRange", type: "float"},
-          {name: "lockOnRangeClose", type: "float"},
-          {name: "lockOnRangeFar", type: "float"},
-          {name: "lockOnAcquireTime", type: "uint16"},
-          {name: "lockOnAcquireTimeClose", type: "uint16"},
-          {name: "lockOnAcquireTimeFar", type: "uint16"},
-          {name: "lockOnLoseTime", type: "uint16"},
-          {name: "defaultZoom", type: "float"},
-          {name: "firstPersonOffsetX", type: "float"},
-          {name: "firstPersonOffsetY", type: "float"},
-          {name: "firstPersonOffsetZ", type: "float"},
-          {name: "reticleId", type: "uint32"},
-          {name: "unknown36", type: "uint16"},
-          {name: "heatThreshold", type: "uint16"},
-          {name: "unknown37", type: "uint16"},
-          {name: "heatRecoveryDelayTime", type: "uint16"},
-          {name: "swayAmplitudeX", type: "float"},
-          {name: "swayAmplitudeY", type: "float"},
-          {name: "swayPeriodX", type: "float"},
-          {name: "swayPeriodY", type: "float"},
-          {name: "swayInitialYOffset", type: "float"},
-          {name: "armsFovScalar", type: "float"},
-          {name: "animKickMagnitude", type: "float"},
-          {name: "animRecoilMagnitude", type: "float"},
-          {name: "descriptionId", type: "uint32"},
-          {name: "indirectEffectId", type: "uint32"},
-          {name: "bulletArcKickAngle", type: "float"},
-          {name: "projectileSpeedOverride", type: "float"},
-          {name: "inheritFromId", type: "uint32"},
-          {name: "inheritFromChargePower", type: "float"},
-          {name: "unknown49", type: "uint32"},
-          {name: "targetRequirement", type: "uint32"},
-          {name: "fireAnimDurationTime", type: "uint16"},
-          {name: "unknown52", type: "uint8"},
-          {name: "unknown53", type: "uint8"},
-          {name: "unknown54", type: "uint8"},
-          {name: "sequentialFireAnimCount", type: "uint8"},
-          {name: "unknown55", type: "uint32"},
+          { name: "fireModeId", type: "uint32" },
+          { name: "flags1", type: "uint8" },
+          { name: "flags2", type: "uint8" },
+          { name: "flags3", type: "uint8" },
+          { name: "type", type: "uint8" },
+          { name: "ammoItemId", type: "uint32" },
+          { name: "ammoSlot", type: "uint8" },
+          { name: "burstCount", type: "uint8" },
+          { name: "fireDurationTime", type: "uint16" },
+          { name: "fireCooldownDurationTime", type: "uint16" },
+          { name: "refireTime", type: "uint16" },
+          { name: "fireDelayTime", type: "uint16" },
+          { name: "autoFireTime", type: "uint16" },
+          { name: "chargeUpTime", type: "uint16" },
+          { name: "range", type: "float" },
+          { name: "ammoPerShot", type: "uint8" },
+          { name: "reloadTime", type: "uint16" },
+          { name: "reloadChamber", type: "uint16" },
+          { name: "reloadAmmoFillTime", type: "uint16" },
+          { name: "reloadLoopStartTime", type: "uint16" },
+          { name: "reloadLoopEndTime", type: "uint16" },
+          { name: "pelletsPerShot", type: "uint8" },
+          { name: "pelletSpread", type: "float" },
+          { name: "cofRecoil", type: "float" },
+          { name: "cofScalar", type: "float" },
+          { name: "cofScalarMoving", type: "float" },
+          { name: "cofOverride", type: "float" },
+          { name: "recoilAngleMin", type: "float" },
+          { name: "recoilAngleMax", type: "float" },
+          { name: "recoilHorizontalTolerance", type: "float" },
+          { name: "recoilHorizontalMin", type: "float" },
+          { name: "recoilHorizontalMax", type: "float" },
+          { name: "recoilMagnitudeMin", type: "float" },
+          { name: "recoilMagnitudeMax", type: "float" },
+          { name: "recoilRecoveryDelayTime", type: "uint16" },
+          { name: "recoilRecoveryRate", type: "float" },
+          { name: "recoilRecoveryAcceleration", type: "float" },
+          { name: "recoilShotsAtMinMagnitude", type: "uint8" },
+          { name: "recoilMaxTotalMagnitude", type: "float" },
+          { name: "recoilIncrease", type: "float" },
+          { name: "recoilIncreaseCrouch", type: "float" },
+          { name: "recoilFirstShotModifier", type: "float" },
+          { name: "unknown19", type: "float" },
+          { name: "unknown20", type: "float" },
+          { name: "fireDetectRange", type: "uint16" },
+          { name: "effectGroup", type: "uint32" },
+          { name: "playerStateGroupId", type: "uint32" },
+          { name: "movementModifier", type: "float" },
+          { name: "turnModifier", type: "float" },
+          { name: "unknown23", type: "uint32" },
+          { name: "unknown24", type: "uint32" },
+          { name: "lockOnAngle", type: "float" },
+          { name: "lockOnRadius", type: "float" },
+          { name: "lockOnRange", type: "float" },
+          { name: "lockOnRangeClose", type: "float" },
+          { name: "lockOnRangeFar", type: "float" },
+          { name: "lockOnAcquireTime", type: "uint16" },
+          { name: "lockOnAcquireTimeClose", type: "uint16" },
+          { name: "lockOnAcquireTimeFar", type: "uint16" },
+          { name: "lockOnLoseTime", type: "uint16" },
+          { name: "defaultZoom", type: "float" },
+          { name: "firstPersonOffsetX", type: "float" },
+          { name: "firstPersonOffsetY", type: "float" },
+          { name: "firstPersonOffsetZ", type: "float" },
+          { name: "reticleId", type: "uint32" },
+          { name: "unknown36", type: "uint16" },
+          { name: "heatThreshold", type: "uint16" },
+          { name: "unknown37", type: "uint16" },
+          { name: "heatRecoveryDelayTime", type: "uint16" },
+          { name: "swayAmplitudeX", type: "float" },
+          { name: "swayAmplitudeY", type: "float" },
+          { name: "swayPeriodX", type: "float" },
+          { name: "swayPeriodY", type: "float" },
+          { name: "swayInitialYOffset", type: "float" },
+          { name: "armsFovScalar", type: "float" },
+          { name: "animKickMagnitude", type: "float" },
+          { name: "animRecoilMagnitude", type: "float" },
+          { name: "descriptionId", type: "uint32" },
+          { name: "indirectEffectId", type: "uint32" },
+          { name: "bulletArcKickAngle", type: "float" },
+          { name: "projectileSpeedOverride", type: "float" },
+          { name: "inheritFromId", type: "uint32" },
+          { name: "inheritFromChargePower", type: "float" },
+          { name: "unknown49", type: "uint32" },
+          { name: "targetRequirement", type: "uint32" },
+          { name: "fireAnimDurationTime", type: "uint16" },
+          { name: "unknown52", type: "uint8" },
+          { name: "unknown53", type: "uint8" },
+          { name: "unknown54", type: "uint8" },
+          { name: "sequentialFireAnimCount", type: "uint8" },
+          { name: "unknown55", type: "uint32" },
         ],
       },
     ];
     try {
-      const result = DataSchema.parse(schema, data, 0, null).result;
+      var result = DataSchema.parse(schema, data, 0, null).result;
       return result;
     } catch (e) {}
   }
@@ -287,7 +287,7 @@ export class H1Z1Protocol {
   parseUpdatePositionZoneToClient(data: Buffer, offset: number) {
     const obj = {} as PositionZoneToClient;
 
-    const v = readUnsignedIntWith2bitLengthValue(data, offset);
+    var v = readUnsignedIntWith2bitLengthValue(data, offset);
     obj["unknown1_uint"] = v.value;
     offset += v.length;
 
@@ -300,11 +300,11 @@ export class H1Z1Protocol {
 
   pack(packetName: string, object?: any, referenceData?: any) {
     const { H1Z1Packets } = this;
-    let packetType: number = H1Z1Packets.PacketTypes[packetName];
-    const packet = H1Z1Packets.Packets[packetType];
-    let packetData,
-        data;
-    const packetTypeBytes = [];
+    var packetType: number = H1Z1Packets.PacketTypes[packetName],
+      packet = H1Z1Packets.Packets[packetType],
+      packetData,
+      data,
+      packetTypeBytes = [];
     if (packet) {
       while (packetType) {
         packetTypeBytes.unshift(packetType & 0xff);
@@ -322,7 +322,7 @@ export class H1Z1Protocol {
           data = new (Buffer as any).alloc(
             packetTypeBytes.length + packetData.length
           );
-          for (let i = 0; i < packetTypeBytes.length; i++) {
+          for (var i = 0; i < packetTypeBytes.length; i++) {
             data.writeUInt8(packetTypeBytes[i], i);
           }
           packetData.data.copy(data, packetTypeBytes.length);
@@ -341,10 +341,10 @@ export class H1Z1Protocol {
 
   parse(data: Buffer, flags: any, fromClient: boolean, referenceData: any) {
     const { H1Z1Packets } = this;
-    let opCode = data[0],
-        offset = 0,
-        packet,
-        result;
+    var opCode = data[0],
+      offset = 0,
+      packet,
+      result;
 
     /*if (flags) {
       debug("Flags = " + flags);
@@ -456,10 +456,10 @@ const readSignedIntWith2bitLengthValue = function (
   data: Buffer,
   offset: number
 ) {
-  let value = data.readUInt8(offset);
-  const sign = value & 1;
-  const n = (value >> 1) & 3;
-  for (let i = 0; i < n; i++) {
+  var value = data.readUInt8(offset);
+  var sign = value & 1;
+  var n = (value >> 1) & 3;
+  for (var i = 0; i < n; i++) {
     value += data.readUInt8(offset + i + 1) << ((i + 1) * 8);
   }
   value = value >>> 3;
@@ -475,9 +475,9 @@ const readUnsignedIntWith2bitLengthValue = function (
   data: Buffer,
   offset: number
 ) {
-  let value = data.readUInt8(offset);
-  const n = value & 3;
-  for (let i = 0; i < n; i++) {
+  var value = data.readUInt8(offset);
+  var n = value & 3;
+  for (var i = 0; i < n; i++) {
     value += data.readUInt8(offset + i + 1) << ((i + 1) * 8);
   }
   value = value >>> 2;
@@ -500,13 +500,13 @@ const parseUpdatePositionData = function (data: Buffer, offset: number) {
     obj["unknown3_int8"] = data.readUInt8(offset);
     offset += 1;
 
-    if (obj.flags && 1) {
+    if (obj.flags & 1) {
       var v = readUnsignedIntWith2bitLengthValue(data, offset);
       obj["unknown4"] = v.value;
       offset += v.length;
     }
 
-    if (obj.flags && 2) {
+    if (obj.flags & 2) {
       obj["position"] = [];
       var v = readSignedIntWith2bitLengthValue(data, offset);
       obj["position"][0] = v.value / 100;
@@ -519,42 +519,42 @@ const parseUpdatePositionData = function (data: Buffer, offset: number) {
       offset += v.length;
     }
 
-    if (obj.flags && 0x20) {
+    if (obj.flags & 0x20) {
       obj["unknown6_int32"] = data.readUInt32LE(offset);
       offset += 4;
     }
 
-    if (obj.flags && 0x40) {
+    if (obj.flags & 0x40) {
       var v = readSignedIntWith2bitLengthValue(data, offset);
       obj["unknown7_float"] = v.value / 100;
       offset += v.length;
     }
 
-    if (obj.flags && 0x80) {
+    if (obj.flags & 0x80) {
       var v = readSignedIntWith2bitLengthValue(data, offset);
       obj["unknown8_float"] = v.value / 100;
       offset += v.length;
     }
 
-    if (obj.flags && 4) {
+    if (obj.flags & 4) {
       var v = readSignedIntWith2bitLengthValue(data, offset);
       obj["unknown9_float"] = v.value / 100;
       offset += v.length;
     }
 
-    if (obj.flags && 0x8) {
+    if (obj.flags & 0x8) {
       var v = readSignedIntWith2bitLengthValue(data, offset);
       obj["unknown10_float"] = v.value / 100;
       offset += v.length;
     }
 
-    if (obj.flags && 0x10) {
+    if (obj.flags & 0x10) {
       var v = readSignedIntWith2bitLengthValue(data, offset);
       obj["unknown11_float"] = v.value / 10;
       offset += v.length;
     }
 
-    if (obj.flags && 0x100) {
+    if (obj.flags & 0x100) {
       obj["unknown12_float"] = [];
       var v = readSignedIntWith2bitLengthValue(data, offset);
       obj["unknown12_float"][0] = v.value / 100;
@@ -567,7 +567,7 @@ const parseUpdatePositionData = function (data: Buffer, offset: number) {
       offset += v.length;
     }
 
-    if (obj.flags && 0x200) {
+    if (obj.flags & 0x200) {
       const rotationEul = [];
       var v = readSignedIntWith2bitLengthValue(data, offset);
       rotationEul[0] = v.value / 100;
@@ -585,13 +585,13 @@ const parseUpdatePositionData = function (data: Buffer, offset: number) {
       offset += v.length;
     }
 
-    if (obj.flags && 0x400) {
+    if (obj.flags & 0x400) {
       var v = readSignedIntWith2bitLengthValue(data, offset);
       obj["unknown14_float"] = v.value / 10;
       offset += v.length;
     }
 
-    if (obj.flags && 0x800) {
+    if (obj.flags & 0x800) {
       var v = readSignedIntWith2bitLengthValue(data, offset);
       obj["unknown15_float"] = v.value / 10;
       offset += v.length;

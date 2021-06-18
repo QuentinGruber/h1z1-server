@@ -73,7 +73,7 @@ export class LoginServer extends EventEmitter {
     this._soeServer.on(
       "SendServerUpdate",
       async (err: string, client: Client) => {
-        await this.updateServerList(client);
+        this.updateServerList(client);
       }
     );
 
@@ -90,19 +90,19 @@ export class LoginServer extends EventEmitter {
               if (this._protocol.protocolName !== "LoginUdp_11") break;
             }
             case "CharacterSelectInfoRequest": {
-              await this.CharacterSelectInfoRequest(client);
+              this.CharacterSelectInfoRequest(client);
               if (this._protocol.protocolName !== "LoginUdp_11") break;
             }
             case "ServerListRequest":
-              await this.ServerListRequest(client);
+              this.ServerListRequest(client);
               break;
 
             case "CharacterDeleteRequest": {
-              await this.CharacterDeleteRequest(client, packet);
+              this.CharacterDeleteRequest(client, packet);
               break;
             }
             case "CharacterLoginRequest": {
-              await this.CharacterLoginRequest(client, packet);
+              this.CharacterLoginRequest(client, packet);
               break;
             }
             case "CharacterCreateRequest": {

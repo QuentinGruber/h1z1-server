@@ -61,7 +61,7 @@ export class LoginClient extends EventEmitter {
       localPort
     );
     this._protocol = new LoginProtocol();
-    let n = 0;
+    var n = 0;
     this._soeClient.on("connect", (err: string, result: string) => {
       debug("Connected to login server");
       this.login("FiNgErPrInT");
@@ -71,7 +71,7 @@ export class LoginClient extends EventEmitter {
     });
     this._soeClient.on("appdata", (err: string, data: Buffer) => {
       n++;
-      let packet, result;
+      var packet, result;
       try {
         packet = this._protocol.parse(data);
       } catch (e) {
@@ -152,7 +152,7 @@ export class LoginClient extends EventEmitter {
       sessionId: any,
       protocol: any
     ) {
-      const data = await protocol.pack("LoginRequest", {
+      var data = await protocol.pack("LoginRequest", {
         sessionId: sessionId,
         systemFingerPrint: fingerprint,
       });
@@ -176,19 +176,19 @@ export class LoginClient extends EventEmitter {
 
   requestServerList() {
     debug("Requesting server list");
-    const data = this._protocol.pack("ServerListRequest");
+    var data = this._protocol.pack("ServerListRequest");
     this._soeClient.sendAppData(data, true);
   }
 
   requestCharacterInfo() {
     debug("Requesting character info");
-    const data = this._protocol.pack("CharacterSelectInfoRequest");
+    var data = this._protocol.pack("CharacterSelectInfoRequest");
     this._soeClient.sendAppData(data, true);
   }
 
   requestCharacterLogin(characterId: string, serverId: number, payload: any) {
     debug("Requesting character login");
-    const data = this._protocol.pack("CharacterLoginRequest", {
+    var data = this._protocol.pack("CharacterLoginRequest", {
       characterId: characterId,
       serverId: serverId,
       payload: payload,
