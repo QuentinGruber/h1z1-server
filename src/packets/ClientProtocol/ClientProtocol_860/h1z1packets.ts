@@ -7524,11 +7524,11 @@ var packets = [
         flags = data.readUInt16LE(offset + 4);
         result["flags"] = flags;
         offset += 6;
-        if (flags & 1) {
+        if (flags && 1) {
           result["unknown1"] = data.readUInt8(offset);
           offset += 1;
         }
-        if ((flags >> 1) & 1) {
+        if ((flags >> 1) && 1) {
           n = data.readUInt32LE(offset);
           values = [];
           for (i = 0; i < n; i++) {
@@ -7537,11 +7537,11 @@ var packets = [
           result["unknown2"] = values;
           offset += 4 + n;
         }
-        if ((flags >> 2) & 1) {
+        if ((flags >> 2) && 1) {
           result["unknown3"] = data.readUInt8(offset);
           offset += 1;
         }
-        if ((flags >> 3) & 1) {
+        if ((flags >> 3) && 1) {
           n = data.readUInt32LE(offset);
           values = [];
           for (i = 0; i < n; i++) {
@@ -7550,7 +7550,7 @@ var packets = [
           result["unknown4"] = values;
           offset += 4 + n;
         }
-        if ((flags >> 4) & 1) {
+        if ((flags >> 4) && 1) {
           n = data.readUInt32LE(offset);
           values = [];
           for (i = 0; i < n; i++) {
@@ -7559,7 +7559,7 @@ var packets = [
           result["unknown5"] = values;
           offset += 4 + n;
         }
-        if ((flags >> 5) & 1) {
+        if ((flags >> 5) && 1) {
           values = [];
           for (i = 0; i < 4; i++) {
             values[i] = data.readUInt8(offset + i);
@@ -7567,30 +7567,30 @@ var packets = [
           result["unknown6"] = values;
           offset += 4;
         }
-        if ((flags >> 6) & 1) {
+        if ((flags >> 6) && 1) {
           result["unknown7"] = data.readUInt8(offset);
           offset += 1;
         }
-        if ((flags >> 8) & 1) {
+        if ((flags >> 8) && 1) {
           result["unknown8"] = data.readUInt8(offset);
           offset += 1;
         }
-        if ((flags >> 10) & 1) {
+        if ((flags >> 10) && 1) {
           result["unknown9"] = data.readUInt8(offset);
           offset += 1;
         }
-        if ((flags >> 11) & 1) {
+        if ((flags >> 11) && 1) {
           result["unknown10"] = [
             data.readUInt32LE(offset),
             data.readUInt32LE(offset + 4),
           ];
           offset += 8;
         }
-        if ((flags >> 12) & 1) {
+        if ((flags >> 12) && 1) {
           result["unknown11"] = data.readUInt8(offset);
           offset += 1;
         }
-        if ((flags >> 13) & 1) {
+        if ((flags >> 13) && 1) {
           result["unknown12"] = data.readUInt32LE(offset);
           offset += 4;
         }

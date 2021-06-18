@@ -500,13 +500,13 @@ const parseUpdatePositionData = function (data: Buffer, offset: number) {
     obj["unknown3_int8"] = data.readUInt8(offset);
     offset += 1;
 
-    if (obj.flags & 1) {
+    if (obj.flags && 1) {
       var v = readUnsignedIntWith2bitLengthValue(data, offset);
       obj["unknown4"] = v.value;
       offset += v.length;
     }
 
-    if (obj.flags & 2) {
+    if (obj.flags && 2) {
       obj["position"] = [];
       var v = readSignedIntWith2bitLengthValue(data, offset);
       obj["position"][0] = v.value / 100;
@@ -519,42 +519,42 @@ const parseUpdatePositionData = function (data: Buffer, offset: number) {
       offset += v.length;
     }
 
-    if (obj.flags & 0x20) {
+    if (obj.flags && 0x20) {
       obj["unknown6_int32"] = data.readUInt32LE(offset);
       offset += 4;
     }
 
-    if (obj.flags & 0x40) {
+    if (obj.flags && 0x40) {
       var v = readSignedIntWith2bitLengthValue(data, offset);
       obj["unknown7_float"] = v.value / 100;
       offset += v.length;
     }
 
-    if (obj.flags & 0x80) {
+    if (obj.flags && 0x80) {
       var v = readSignedIntWith2bitLengthValue(data, offset);
       obj["unknown8_float"] = v.value / 100;
       offset += v.length;
     }
 
-    if (obj.flags & 4) {
+    if (obj.flags && 4) {
       var v = readSignedIntWith2bitLengthValue(data, offset);
       obj["unknown9_float"] = v.value / 100;
       offset += v.length;
     }
 
-    if (obj.flags & 0x8) {
+    if (obj.flags && 0x8) {
       var v = readSignedIntWith2bitLengthValue(data, offset);
       obj["unknown10_float"] = v.value / 100;
       offset += v.length;
     }
 
-    if (obj.flags & 0x10) {
+    if (obj.flags && 0x10) {
       var v = readSignedIntWith2bitLengthValue(data, offset);
       obj["unknown11_float"] = v.value / 10;
       offset += v.length;
     }
 
-    if (obj.flags & 0x100) {
+    if (obj.flags && 0x100) {
       obj["unknown12_float"] = [];
       var v = readSignedIntWith2bitLengthValue(data, offset);
       obj["unknown12_float"][0] = v.value / 100;
@@ -567,7 +567,7 @@ const parseUpdatePositionData = function (data: Buffer, offset: number) {
       offset += v.length;
     }
 
-    if (obj.flags & 0x200) {
+    if (obj.flags && 0x200) {
       const rotationEul = [];
       var v = readSignedIntWith2bitLengthValue(data, offset);
       rotationEul[0] = v.value / 100;
@@ -585,13 +585,13 @@ const parseUpdatePositionData = function (data: Buffer, offset: number) {
       offset += v.length;
     }
 
-    if (obj.flags & 0x400) {
+    if (obj.flags && 0x400) {
       var v = readSignedIntWith2bitLengthValue(data, offset);
       obj["unknown14_float"] = v.value / 10;
       offset += v.length;
     }
 
-    if (obj.flags & 0x800) {
+    if (obj.flags && 0x800) {
       var v = readSignedIntWith2bitLengthValue(data, offset);
       obj["unknown15_float"] = v.value / 10;
       offset += v.length;
