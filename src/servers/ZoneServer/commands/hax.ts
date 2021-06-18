@@ -43,7 +43,7 @@ const hax: any = {
     const vehicleData = {
       npcData: {
         guid: guid,
-        transientId: 999999,
+        transientId: server.getTransientId(client,guid),
         characterId: characterId,
         modelId: driveModel,
         scale: [1, 1, 1, 1],
@@ -65,15 +65,15 @@ const hax: any = {
       ),
       unknownString1: "",
     };
-    server.sendData(client, "PlayerUpdate.AddLightweightVehicle", vehicleData);
+    server.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicleData);
     server._vehicles[characterId] = vehicleData;
     server.worldRoutine(client);
-    server.sendData(client, "Mount.MountResponse", {
+    server.sendDataToAll("Mount.MountResponse", {
       characterId: client.character.characterId,
       guid: characterId,
       characterData: [],
     });
-    server.sendData(client, "Vehicle.Engine", {
+    server.sendDataToAll("Vehicle.Engine", {
       guid2: characterId,
       unknownBoolean: true,
     });

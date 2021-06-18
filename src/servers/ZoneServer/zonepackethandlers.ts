@@ -1403,13 +1403,27 @@ const packetHandlers: any = {
   ) {
     const movingCharacter = server._characters[client.character.characterId];
     if(movingCharacter){
-      server.sendRawToAllOthers(
-       client,
-       server._protocol.createPositionBroadcast(
-         packet.data.raw,
-          movingCharacter.transientId
-        )
-      );
+      if(client.mountedVehicle)
+      {
+        const vehicle = server._vehicles[client.mountedVehicle]
+        console.log(vehicle)
+        server.sendRawToAllOthers(
+          client,
+          server._protocol.createPositionBroadcast(
+            packet.data.raw,
+            vehicle.npcData.transientId
+           )
+         );
+      }
+      else{
+        server.sendRawToAllOthers(
+          client,
+          server._protocol.createPositionBroadcast(
+            packet.data.raw,
+             movingCharacter.transientId
+           )
+         );
+      }
     }
     if (packet.data.position) {
       // TODO: modify array element beside re-creating it
