@@ -46,18 +46,57 @@ const hax = {
   },
 
   tp: function(server, client, args) {
-    if(args.length < 4){
-      server.sendChatText(client, "Need 3 args: position x, y, z", false);
-      return;
+    const choosenSpawnLocation = args[1];
+    let locationPosition;
+    switch (choosenSpawnLocation) {
+      case "zimms":
+        locationPosition = new Float32Array([2209.17, 47.42, -1011.48, 1]);
+        break;
+      case "pv":
+        locationPosition = new Float32Array([-125.55, 23.41, -1131.71, 1]);
+        break;
+      case "br":
+        locationPosition = new Float32Array([3824.41, 168.19, -4000.0, 1]);
+        break;
+      case "ranchito":
+        locationPosition = new Float32Array([2185.32, 42.36, 2130.49, 1]);
+        break;
+      case "drylake":
+        locationPosition = new Float32Array([479.46, 109.7, 2902.51, 1]);
+        break;
+      case "dam":
+        locationPosition = new Float32Array([-629.49, 69.96, 1233.49, 1]);
+        break;
+      case "cranberry":
+        locationPosition = new Float32Array([-1368.37, 71.29, 1837.61, 1]);
+        break;
+      case "church":
+        locationPosition = new Float32Array([-1928.68, 62.77, 2880.1, 1]);
+        break;
+      case "desoto":
+        locationPosition = new Float32Array([-2793.22, 140.77, 1035.8, 1]);
+        break;
+      case "toxic":
+        locationPosition = new Float32Array([-3064.68, 42.98, -2160.06, 1]);
+        break;
+      case "radiotower":
+        locationPosition = new Float32Array([-1499.21, 353.98, -840.52, 1]);
+        break;
+      default:
+        if(args.length < 4){
+          server.sendChatText(client, "Unknown set location, need 3 args to tp to exact location: x, y, z", false);
+          server.sendChatText(client, "Set location list: zimms, pv, br, ranchito, drylake, dam, cranberry, church, desoto, toxic, radiotower", false);
+          return;
+        }
+        locationPosition = new Float32Array([args[1], args[2], args[3], 1]);
+        break;
     }
-    const location = {
-      position: [args[1], args[2], args[3], 1],
-      rotation: [10, 20, 30, 1],
-      unknownBool1: true,
-      unknownByte1: 100,
-      unknownBool2: true,
-    };
-    server.sendData(client, "ClientUpdate.UpdateLocation", location);
+    
+    client.character.state.position = locationPosition;
+    server.sendData(client, "ClientUpdate.UpdateLocation", {
+      position: locationPosition,
+      triggerLoadingScreen: true,
+    });
     const SendZoneDetails_packet = {
       zoneName: "Z1",
       unknownBoolean1: true,

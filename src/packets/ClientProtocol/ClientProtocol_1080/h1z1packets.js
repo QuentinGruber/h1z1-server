@@ -4773,7 +4773,7 @@ var packets = [
           fields: [
               { name: "position", type: "floatvector4", defaultValue: [0, 0, 0, 1] },
               { name: "rotation", type: "floatvector4", defaultValue: [0, 0, 0, 1] },
-              { name: "unknownBool1", type: "boolean", defaultValue: false },
+              { name: "triggerLoadingScreen", type: "boolean", defaultValue: false },
               { name: "unknownByte1", type: "uint8", defaultValue: 0 },
               { name: "unknownBool2", type: "boolean", defaultValue: false },
           ]

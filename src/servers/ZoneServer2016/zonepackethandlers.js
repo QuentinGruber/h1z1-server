@@ -143,11 +143,11 @@ const packetHandlers = {
       eventData: {
         type: 2,
         value: {
-          characterId: "0x03147cca2a860191",
-          resourceId: 48,// health
+          characterId: client.character.characterId,
+          resourceId: 1,// health
           resourceType: 1,
           unknownArray1:[],
-          value: 5000,
+          value: 5000, // 10000 max
           unknownArray2: [],
         }
       }
@@ -156,11 +156,11 @@ const packetHandlers = {
       eventData: {
         type: 2,
         value: {
-          characterId: "0x03147cca2a860191",
+          characterId: client.character.characterId,
           resourceId: 6, // stamina
           resourceType: 6,
           unknownArray1:[],
-          value: 600,
+          value: 600, // 600 max
           unknownArray2: [],
         }
       }
@@ -169,11 +169,11 @@ const packetHandlers = {
       eventData: {
         type: 2,
         value: {
-          characterId: "0x03147cca2a860191",
+          characterId: client.character.characterId,
           resourceId: 4, // food
           resourceType: 4,
           unknownArray1:[],
-          value: 5000,
+          value: 5000, // 10000 max
           unknownArray2: [],
         }
       }
@@ -182,15 +182,56 @@ const packetHandlers = {
       eventData: {
         type: 2,
         value: {
-          characterId: "0x03147cca2a860191",
+          characterId: client.character.characterId,
           resourceId: 5, // water
           resourceType: 5,
           unknownArray1:[],
-          value: 5000,
+          value: 5000, // 10000 max
           unknownArray2: [],
         }
       }
     });
+    server.sendData(client, "ResourceEvent", {
+      eventData: {
+        type: 2,
+        value: {
+          characterId: client.character.characterId,
+          resourceId: 68, // comfort
+          resourceType: 68,
+          unknownArray1:[],
+          value: 5000, // 5000 max
+          unknownArray2: [],
+        }
+      }
+    });
+    server.sendData(client, "ResourceEvent", {
+      eventData: {
+        type: 2,
+        value: {
+          characterId: client.character.characterId,
+          resourceId: 12, // h1z1 virus
+          resourceType: 12,
+          unknownArray1:[],
+          value: 10000, // 10000 max
+          unknownArray2: [],
+        }
+      }
+    });
+    /* // this works, just dont need it rn
+    server.sendData(client, "ResourceEvent", {
+      eventData: {
+        type: 2,
+        value: {
+          characterId: client.character.characterId,
+          resourceId: 21, // bleeding
+          resourceType: 21,
+          unknownArray1:[],
+          value: 100, // 100 max
+          unknownArray2: [],
+        }
+      }
+    });
+    */
 
   },
   ClientFinishedLoading: function (server, client, packet) {
@@ -989,84 +1030,6 @@ const packetHandlers = {
       unknownFloat12: 12,
     });
   },
-  /*
-  PlayerUpdateUpdatePositionClientToZone: function (server, client, packet) {
-    if (packet.data.position) {
-     // TODO: modify array element beside re-creating it
-      client.character.state.position = new Float32Array([
-        packet.data.position[0],
-        packet.data.position[1],
-        packet.data.position[2],
-        0,
-      ]);
-
-      
-      server.sendDataToAll("Chat.ChatText", {
-        message: `${client.character.name}: test`,
-        unknownDword1: 0,
-        color: [255, 255, 255, 0],
-        unknownDword2: 13951728,
-        unknownByte3: 0,
-        unknownByte4: 1,
-      });
-
-      const p = packet.data.position;
-      console.log(packet.data);
-      console.log("position")
-      console.log(packet.data.position);
-      server.sendDataToAll("PlayerUpdatePosition", {
-        transientId: server.getTransientId(client, client.character.guid),
-        positionUpdate: server.createPositionUpdate(
-          new Float32Array([p[0], p[1], p[2], p[3]]),
-          [0, 0, 0, 0],
-        ),
-      });
-
-      if(packet.data.rotation){
-        const r = packet.data.rotation;
-        console.log("rotation")
-        console.log(packet.data.rotation);
-        server.sendDataToAll("PlayerUpdatePosition", {
-          transientId: server.getTransientId(client, client.character.guid),
-          positionUpdate: server.createPositionUpdate(
-            new Float32Array([p[0], p[1], p[2], p[3]]),
-            [r[0], r[1], r[2], r[3]],
-          ),
-        });
-      }
-      
-
-      if (
-        client.logoutTimer != null &&
-        !isPosInRadius(
-          1,
-          client.character.state.position,
-          client.posAtLogoutStart
-        )
-      ) {
-        clearTimeout(client.logoutTimer);
-        client.logoutTimer = null;
-        server.sendData(client, "ClientUpdate.StartTimer", {
-          stringId: 0,
-          time: 0,
-        }); // don't know how it was done so
-      }
-      
-      if (
-        !client.posAtLastRoutine ||
-        (!isPosInRadius(
-          server._npcRenderDistance / 2.5,
-          client.character.state.position,
-          client.posAtLastRoutine
-        ) &&
-          !client.isLoading)
-      ) {
-        server.worldRoutine(client);
-      }
-      
-    }
-  },
-  */
   PlayerUpdateUpdatePositionClientToZone: function (server, client, packet) {
     if (packet.data.position) {
       // TODO: modify array element beside re-creating it
@@ -1231,6 +1194,12 @@ const packetHandlers = {
         objectData.position
       )
     ) {
+      /*
+      server.sendData(client, "Command.InteractionString", {
+        guid: guid,
+        stringId: 29,
+      });
+      */
       server.sendData(client, "Command.InteractionString", {
         guid: guid,
         stringId: 29,
