@@ -5264,10 +5264,10 @@ var packets = [
     {
       fields: [
         { name: "characterId", type: "uint64", defaultValue: "0" },
-        { name: "unknown1", type: "uint32", defaultValue: 0 },
-        { name: "unknown2", type: "uint32", defaultValue: 0 },
-        { name: "unknown3", type: "uint32", defaultValue: 0 },
-        { name: "unknown4", type: "uint8", defaultValue: 0 },
+        { name: "unknown1", type: "uint32", defaultValue: 9001 },
+        { name: "unknown2", type: "uint32", defaultValue: 200 },
+        { name: "unknown3", type: "uint32", defaultValue: 300 },
+        { name: "disableWeirdPhysics", type: "boolean", defaultValue: 0 },
       ],
     },
   ],
