@@ -685,7 +685,7 @@ const packetHandlers: any = {
     server.sendData(client, "Mount.DismountResponse", {
       characterId: client.character.characterId,
     });
-    server.sendData(client, "PlayerUpdate.Destroyed", {
+    server.sendData(client, "PlayerUpdate.RemovePlayerGracefully", {
       characterId: client.mountedVehicle,
     });
     delete client.mountedVehicle;
