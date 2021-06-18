@@ -9104,7 +9104,15 @@ var packets = [
       fields: [],
     },
   ],
-  ["PlayerUpdate.VehicleCollision", 0xac, {}],
+  ["PlayerUpdate.VehicleCollision", 0xac, { fields: [
+    {
+      name: "transientId",
+      type: "custom",
+      parser: readUnsignedIntWith2bitLengthValue,
+      packer: packUnsignedIntWith2bitLengthValue,
+    },
+    { name: "unk", type: "uint32", defaultValue: 0.0 },
+  ],}],
   [
     "PlayerUpdate.Stop",
     0xad,
