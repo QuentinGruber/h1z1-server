@@ -670,6 +670,13 @@ const packetHandlers: any = {
     debug(packet);
     debug("select");
   },
+  "PlayerUpdate.VehicleCollision": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
+    debug(packet)
+  },
   "Vehicle.Dismiss": function (
     server: ZoneServer,
     client: Client,
