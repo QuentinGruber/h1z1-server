@@ -22,6 +22,5 @@ jobs:
       - run: npm i -g pkg@5.2.1
       - run: pkg -t node16-win-x64 ./bin/2015/h1emuServer.js --output ./bin/h1emuServer-${{ github.ref }}.exe
       - run: pkg -t node16-win-x64 ./bin/2016/h1emuServer.js --output ./bin/h1emuServer-2016-${{ github.ref }}.exe
-      - run: $env:TEST_BIN="true"
-      - run: ./bin/h1emuServer-${{ github.ref }}.exe
-      - run: ./bin/h1emuServer-2016-${{ github.ref }}.exe
+      - run: ./bin/h1emuServer-${{ github.ref }}.exe --test
+      - run: ./bin/h1emuServer-2016-${{ github.ref }}.exe --test

@@ -1,6 +1,6 @@
 require("./loginServer");
 require("./zoneServer");
 
-if (process.env.TEST_BIN) {
+if (process.argv[2] === "--test") {
   setTimeout(() => process.exit(0), 0);
 }
