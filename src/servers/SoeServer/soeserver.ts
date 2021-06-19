@@ -59,6 +59,7 @@ export class SOEServer extends EventEmitter {
     this._connection = dgram.createSocket("udp4");
 
     this._connection.on("message", (data, remote) => {
+      try{
       let client: any;
       const clientId = remote.address + ":" + remote.port;
       debug(data.length + " bytes from ", clientId);
@@ -203,6 +204,10 @@ export class SOEServer extends EventEmitter {
           );
         }
         this.handlePacket(client, result);
+      }
+      }
+      catch(e){
+        console.log(e)
       }
     });
 
