@@ -1488,6 +1488,7 @@ const packetHandlers: any = {
     debug(packet);
     // Maybe we should move all that logic to Command.InteractionSelect
     const objectToPickup = server._objects[packet.data.guid];
+    const doorToInteractWith = server._doors[packet.data.guid];
     const vehicleToMount = server._vehicles[packet.data.guid];
     if (
       objectToPickup &&
@@ -1577,6 +1578,19 @@ const packetHandlers: any = {
         characterId: client.character.characterId,
         guid: vehicleGuid,
         characterData: [],
+      });
+    }
+    else if (
+      doorToInteractWith &&
+      isPosInRadius(
+        server._interactionDistance,
+        client.character.state.position,
+        doorToInteractWith.position
+      )
+    ) {
+      debug("tried to open ",doorToInteractWith.characterId)
+      server.sendData(client, "PlayerUpdate.DoorState", {
+        characterId: doorToInteractWith.characterId
       });
     }
   },
