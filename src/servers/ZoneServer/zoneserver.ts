@@ -438,6 +438,7 @@ export class ZoneServer extends EventEmitter {
           client.port +
           " ( ping timeout )"
       );
+      clearInterval(client.character.resourcesUpdater);
       if (client.character?.characterId) {
         delete this._characters[client.character.characterId];
       }
