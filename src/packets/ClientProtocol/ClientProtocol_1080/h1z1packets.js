@@ -2020,6 +2020,69 @@ var respawnLocationDataSchema = [
   { name: "unknownByte3", type: "uint8", defaultValue: 0 },
   { name: "unknownByte4", type: "uint8", defaultValue: 0 },
 ];
+
+const itemData= [
+    { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+    { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+    { name: "unknownQword1", type: "uint64", defaultValue: "0" },
+    { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+    {
+        name: "itemSubData",
+        type: "schema",
+        fields: [
+            { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+            { name: "unknownDword1", type: "uint32", defaultValue: 1 },
+            {
+                name: "unknownData1",
+                type: "schema",
+                fields: [
+                    { name: "unknownQword1", type: "uint64", defaultValue: "0" },
+                    { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                    { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+                ]
+            },
+        ]
+    },
+    { name: "unknownQword2", type: "uint64", defaultValue: "0" },
+    { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+    { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+    { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+    { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+    { name: "unknownDword8", type: "uint32", defaultValue: 0 },
+    { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+    { name: "unknownQword3", type: "uint64", defaultValue: "0" },
+    { name: "unknownDword9", type: "uint32", defaultValue: 0 },
+];
+
+const containerData = [
+    { name: "guid", type: "uint64", defaultValue: "0" },
+    { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+    { name: "unknownQword1", type: "uint64", defaultValue: "0" },
+    { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+    {
+        name: "containerItems",
+        type: "schema",
+        fields: [
+            // todo
+            { name: "itemsLength", type: "uint32", defaultValue: 0 },
+            {
+                name: "items",
+                type: "array",
+                defaultValue: [{}],
+                fields: [
+                    { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                    { name: "itemData", type: "schema", fields: itemData },
+                ],
+            },
+        ],
+    },
+    { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+    { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+    { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+    { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+    { name: "unknownBoolean2", type: "boolean", defaultValue: false },
+];
+
 var packets = [
   ["Server", 0x01, {}],
   ["ClientFinishedLoading", 0x02, {}],
@@ -8332,6 +8395,66 @@ var packets = [
 ["Stats", 0xc6, {}],
 ["Score", 0xc7, {}],
 ["Resources", 0xc8, {}],
+[
+    "Container.unknown1", 
+    0xc90200, 
+    {
+        fields: [
+            { name: "ignore", type: "uint64", defaultValue: "0" },
+            { name: "characterId", type: "uint64", defaultValue: "0" },
+            { name: "array1Length", type: "uint64", defaultValue: "0" },
+            {
+                name: "array1",
+                type: "array",
+                defaultValue: [{}],
+                fields: [
+                    { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                    { name: "itemData", type: "schema", fields: itemData },
+                    // not done
+                ],
+            },
+        ]
+    }
+],
+[
+    "Container.Error", 
+    0xc90300, 
+    {
+        fields: [
+            { name: "ignore", type: "uint64", defaultValue: "0" },
+            { name: "containerError", type: "uint32", defaultValue: 0 },
+        ]
+    }
+],
+[
+    "Container.unknown2", 
+    0xc90500, 
+    {
+        fields: [
+            { name: "ignore", type: "uint64", defaultValue: "0" },
+            { name: "containersLength", type: "uint32", defaultValue: 1 },
+            {
+                name: "containers",
+                type: "array",
+                defaultValue: [{}],
+                fields: [
+                    { name: "containerData", type: "schema", fields: containerData },
+                ],
+            },
+            { name: "array1Length", type: "uint32", defaultValue: 1 },
+            {
+                name: "array1",
+                type: "array",
+                defaultValue: [{}],
+                fields: [
+                    { name: "unknownQword1", type: "uint64", defaultValue: "0" },
+                    { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                ],
+            },
+            { name: "unknownDword1", type: "uint32", defaultValue: 1 },
+        ]
+    }
+],
 ["Construction", 0xca, {}],
 ["UpdateWeatherData", 0xcb, {}],
 ["NavGen", 0xcc, {}],

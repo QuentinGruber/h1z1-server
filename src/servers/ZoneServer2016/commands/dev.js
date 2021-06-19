@@ -74,7 +74,7 @@ const dev = {
       return;
     }
     const resourceEvent = {
-      eventData: { // tonumber not defined for some reason, used for args
+      eventData: {
         type: 2,
         value: {
           characterId: "0x03147cca2a860191",
@@ -107,7 +107,43 @@ const dev = {
     server.sendChatText(client, "Setting character loadout");
     server.sendData(client, "LoadoutEvent", loadoutEvent);
   },
+  containerevent: function (server, client, args) {
+    /*
+    if(!args[1]){
+      server.sendChatText(client, "Missing containerError arg");
+      return;
+    }
+    */
+    const containerData = {
+      // characterId: client.character.characterId,
+      // containerError: parseInt(args[1])
+      // array1: [],
+      ignore: client.character.characterId,
+      containersLength: 1,
+      containers: [
+        {containerData: {
+          
+        }}
+      ],
+      array1Length: 1,
+      array1: [{unknownQword1: server.generateGuid(), unknownDword1: 2}]
+    }
 
+    server.sendData(client, "Container.unknown2", containerData);
+  },
+  containererror: function (server, client, args) {
+    
+    if(!args[1]){
+      server.sendChatText(client, "Missing containerError arg");
+      return;
+    }
+    const container = {
+      characterId: client.character.characterId,
+      containerError: parseInt(args[1])
+    }
+
+    server.sendData(client, "Container.Error", container);
+  },
   setequipment: function (server, client, args) {
     /*
     if(!args[3]){
@@ -115,6 +151,7 @@ const dev = {
       return;
     }
     */
+
     const equipmentEvent = {
       unknownData1: {
         unknownData1: {},
