@@ -538,7 +538,7 @@ export class ZoneServer extends EventEmitter {
       client.character.state.position = this._dummySelf.data.position;
       client.character.state.rotation = this._dummySelf.data.rotation;
     }
-    const characterResources: any[] = [];
+   /* const characterResources: any[] = []; DISABLED since it's not read by the game rn + we don't need to send all resources
     resources.forEach((resource: any) => {
       characterResources.push({
         resourceType: resource.RESOURCE_TYPE,
@@ -555,9 +555,9 @@ export class ZoneServer extends EventEmitter {
         },
       });
     });
+    this._dummySelf.data.characterResources = characterResources;*/
     this._dummySelf.data.profiles = this._profiles;
     this._dummySelf.data.stats = stats;
-    this._dummySelf.data.characterResources = characterResources;
     this._dummySelf.data.recipes = recipes;
     this.sendData(client, "SendSelfToClient", this._dummySelf);
   }
