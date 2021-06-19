@@ -176,9 +176,7 @@ export class ZoneServer extends EventEmitter {
         console.error(err);
       } else {
         debug("zone login");
-        setImmediate(() => {
-          this.sendInitData(client);
-        });
+        this.sendInitData(client);
       }
     });
 
