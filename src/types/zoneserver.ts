@@ -15,6 +15,7 @@ export interface Client {
     transientId: number;
     name?: string;
     loadouts?: any;
+    extraModel:string;
     isRunning: boolean;
     resourcesUpdater?: any;
     resources: {

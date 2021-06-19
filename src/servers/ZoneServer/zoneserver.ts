@@ -509,6 +509,8 @@ export class ZoneServer extends EventEmitter {
     const characterDataMongo = await this._db
       ?.collection("characters")
       .findOne({ characterId: client.character.characterId });
+    client.character.extraModel = characterDataMongo.extraModelTexture ? characterDataMongo.extraModelTexture:this._dummySelf.data.extraModelTexture;
+
     if (
       _.isEqual(this._dummySelf.data.position, [0, 0, 0, 1]) &&
       _.isEqual(this._dummySelf.data.rotation, [0, 0, 0, 1])
