@@ -80,8 +80,9 @@ export class LoginServer extends EventEmitter {
     this._soeServer.on(
       "appdata",
       async (err: string, client: Client, data: Buffer) => {
+        try{
         const packet: any = this._protocol.parse(data);
-        if (packet !== false) {
+        if (packet?.result) {
           // if packet parsing succeed
           const { sessionId, systemFingerPrint } = packet.result;
           switch (packet.name) {
@@ -129,6 +130,10 @@ export class LoginServer extends EventEmitter {
         } else {
           debug("Packet parsing was unsuccesful");
         }
+      }
+      catch(error){
+        console.log(error)
+      }
       }
     );
   }
