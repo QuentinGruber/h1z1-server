@@ -987,7 +987,7 @@ const lightWeightNpcSchema = [
   { name: "vehicleId", type: "uint32", defaultValue: 0 },
   { name: "unknown24", type: "uint32", defaultValue: 0 },
   { name: "npcDefinitionId", type: "uint32", defaultValue: 0 },
-  { name: "unknown26", type: "boolean", defaultValue: false },
+  { name: "isVehicle", type: "boolean", defaultValue: false },
   { name: "profileId", type: "uint32", defaultValue: 0 },
   { name: "unknown28", type: "boolean", defaultValue: false },
   {
