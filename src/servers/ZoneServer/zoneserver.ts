@@ -35,7 +35,6 @@ const spawnLocations = require("../../../data/2015/sampleData/spawnLocations.jso
 const localWeatherTemplates = require("../../../data/2015/sampleData/weather.json");
 const stats = require("../../../data/2015/sampleData/stats.json");
 const recipes = require("../../../data/2015/sampleData/recipes.json");
-const resources = require("../../../data/2015/dataSources/Resources.json");
 const Z1_POIs = require("../../../data/2015/zoneData/Z1_POIs");
 
 export class ZoneServer extends EventEmitter {
