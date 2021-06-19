@@ -430,11 +430,11 @@ export class SOEServer extends EventEmitter {
   }
 
   deleteClient(client: Client): void {
-    clearTimeout(
+    clearImmediate(
       this._clients[client.address + ":" + client.port]?.outQueueTimer
     );
-    clearTimeout(this._clients[client.address + ":" + client.port]?.ackTimer);
-    clearTimeout(
+    clearImmediate(this._clients[client.address + ":" + client.port]?.ackTimer);
+    clearImmediate(
       this._clients[client.address + ":" + client.port]?.outOfOrderTimer
     );
     delete this._clients[client.address + ":" + client.port];
