@@ -567,10 +567,10 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
-    server.sendData(client, "Mount.DismountResponse", {
+    server.sendDataToAll( "Mount.DismountResponse", {
       characterId: client.character.characterId,
     });
-    server.sendData(client, "Vehicle.Engine", {
+    server.sendDataToAll("Vehicle.Engine", {
       guid2: client.mountedVehicle,
       unknownBoolean: false,
     });
@@ -682,10 +682,10 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
-    server.sendData(client, "Mount.DismountResponse", {
+    server.sendDataToAll("Mount.DismountResponse", {
       characterId: client.character.characterId,
     });
-    server.sendData(client, "PlayerUpdate.RemovePlayerGracefully", {
+    server.sendDataToAll("PlayerUpdate.RemovePlayerGracefully", {
       characterId: client.mountedVehicle,
     });
     delete client.mountedVehicle;
@@ -1420,7 +1420,7 @@ const packetHandlers: any = {
         server.sendRawToAllOthers(
           client,
           server._protocol.createPositionBroadcast(
-            packet.data.raw,
+            packet.data.raw.slice(1),
             vehicle.npcData.transientId
            )
          );
