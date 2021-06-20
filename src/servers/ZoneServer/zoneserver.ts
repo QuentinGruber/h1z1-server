@@ -302,18 +302,20 @@ export class ZoneServer extends EventEmitter {
 
   async saveWorld(): Promise<void> {
     if (!this._soloMode) {
-      const save = {
-        worldId: this._worldId,
-        npcs: this._npcs,
-        weather: this._weather,
-        objects: this._objects,
-      };
       if (this._worldId) {
         if (
           await this._db
             ?.collection("worlds")
             .findOne({ worldId: this._worldId })
         ) {
+          const save = {
+            worldId: this._worldId,
+            npcs: this._npcs,
+            doors:this._doors,
+            vehicles: this._vehicles,
+            weather: this._weather,
+            objects: this._objects,
+          };
           const worker = new Worker(__dirname + "/workers/saveWorld.js", {
             workerData: {
               mongoAddress: this._mongoAddress,
@@ -325,17 +327,30 @@ export class ZoneServer extends EventEmitter {
           worker.on("error", debug);
         } else {
           this.createAllObjects();
+          const save = {
+            worldId: this._worldId,
+            npcs: this._npcs,
+            doors:this._doors,
+            vehicles: this._vehicles,
+            weather: this._weather,
+            objects: this._objects,
+          };
           await this._db?.collection("worlds").insertOne(save);
         }
       } else {
         this.createAllObjects();
+        const save = {
+          worldId: this._worldId,
+          npcs: this._npcs,
+          doors:this._doors,
+          vehicles: this._vehicles,
+          weather: this._weather,
+          objects: this._objects,
+        };
         const numberOfWorld: number =
           (await this._db?.collection("worlds").find({}).count()) || 0;
         const createdWorld = await this._db?.collection("worlds").insertOne({
-          worldId: numberOfWorld + 1,
-          npcs: save.npcs,
-          weather: save.weather,
-          objects: save.objects,
+          ...save,worldId: numberOfWorld + 1
         });
         this._worldId = createdWorld?.ops[0].worldId;
         debug("World saved!");
