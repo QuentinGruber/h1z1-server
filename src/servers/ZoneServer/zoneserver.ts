@@ -288,6 +288,27 @@ export class ZoneServer extends EventEmitter {
     debug("Server ready");
   }
 
+  getAllCurrentUsedTransientId(){
+    const allTransient:any = {};
+    for (const key in this._doors) {
+        const door = this._doors[key];
+        allTransient[door.transientId] = key
+    }
+    for (const key in this._vehicles) {
+      const vehicle = this._vehicles[key];
+      allTransient[vehicle.npcData.transientId] = key
+  }
+  for (const key in this._npcs) {
+    const npc = this._npcs[key];
+    allTransient[npc.transientId] = key
+}
+for (const key in this._objects) {
+  const object = this._objects[key];
+  allTransient[object.transientId] = key
+}
+  return allTransient
+  }
+
   async fetchWorldData(): Promise<void> {
     if (!this._soloMode) {
       const worldData = await this._db
@@ -298,6 +319,7 @@ export class ZoneServer extends EventEmitter {
       this._npcs = worldData.npcs;
       this._objects = worldData.objects;
       this._weather = worldData.weather;
+      this._transientIds = this.getAllCurrentUsedTransientId();
       debug("World fetched!");
     }
   }
