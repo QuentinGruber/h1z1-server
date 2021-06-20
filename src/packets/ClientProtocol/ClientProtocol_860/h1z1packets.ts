@@ -5123,7 +5123,17 @@ var packets = [
   ["PlayerUpdate.ExpectedSpeed", 0x0f10, {}],
   ["PlayerUpdate.ScriptedAnimation", 0x0f11, {}],
   ["PlayerUpdate.ThoughtBubble", 0x0f12, {}],
-  ["PlayerUpdate.SetDisposition", 0x0f13, {}],
+  ["PlayerUpdate.SetDisposition", 0x0f13, {
+    fields: [
+      { name: "characterId", type: "uint64", defaultValue: "0" },
+
+      {
+        name: "disposition",
+        type: "uint32",
+        defaultValue: 0,
+      },
+    ]
+  }],
   [
     "PlayerUpdate.LootEvent",
     0x0f14,
