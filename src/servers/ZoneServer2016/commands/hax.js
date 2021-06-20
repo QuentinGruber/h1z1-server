@@ -3,6 +3,21 @@ const _ = require("lodash");
 const debug = require("debug")("zonepacketHandlers");
 import fs from "fs";
 
+function getHeadActor(modelId) {
+  switch(modelId) {
+    case 9240:
+      return "SurvivorMale_Head_01.adr";
+    case 9474:
+      return "SurvivorFemale_Head_01.adr";
+    case 9510:
+      return "ZombieFemale_Head_01.adr";
+    case 9634:
+      return "ZombieMale_Head_01.adr";
+    default:
+      return "";
+  }
+}
+
 const hax = {
   parachute: function (server, client, args) {
     const characterId = server.generateGuid();
@@ -91,7 +106,7 @@ const hax = {
         locationPosition = new Float32Array([args[1], args[2], args[3], 1]);
         break;
     }
-    
+
     client.character.state.position = locationPosition;
     server.sendData(client, "ClientUpdate.UpdateLocation", {
       position: locationPosition,
@@ -202,12 +217,17 @@ const hax = {
       server.sendChatText(client, "[ERROR] You need to specify a model id !");
       return;
     }
+    if (!args[4]) {
+      server.sendChatText(client, "Missing rotation values");
+      return;
+    }
     const choosenModelId = Number(args[1]);
       const obj = {
         characterId: characterId,
         transientId: transientId,
         position: [client.character.state.position[0], client.character.state.position[1], client.character.state.position[2]],
-        rotation: [client.character.state.rotation[0], client.character.state.rotation[1], client.character.state.rotation[2]],
+        //rotation: [client.character.state.rotation[0], client.character.state.rotation[1], client.character.state.rotation[2]],
+        rotation: [Number(args[2]), Number(args[3]), Number(args[4])],
         modelId: choosenModelId,
         showHealth: false
       };
@@ -233,7 +253,7 @@ const hax = {
       rotation: [client.character.state.rotation[0], client.character.state.rotation[1], client.character.state.rotation[2]],
       color: {},
       unknownData1: {unknownData1: {}},
-      extraModel: "SurvivorMale_Head_01.adr",
+      headActor: getHeadActor(choosenModelId),
       attachedObject: {},
     };
     server.sendData(client, "AddLightweightNpc", npc);

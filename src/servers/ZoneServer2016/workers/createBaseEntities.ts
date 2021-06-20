@@ -5,7 +5,7 @@ const Z1_doors = require("../../../../data/2016/zoneData/Z1_doors.json");
 const Z1_npcs = require("../../../../data/2016/zoneData/Z1_npcs.json");
 const models = require("../../../../data/2016/dataSources/Models.json");
 const modelToName = require("../../../../data/2016/sampleData/ModelToName.json");
-import _ from "lodash";
+import _, { head } from "lodash";
 import { generateRandomGuid } from "../../../utils/utils";
 import { ZoneServer2016 } from "../zoneserver";
 const npcs: any = {};
@@ -13,7 +13,6 @@ const objects: any = {};
 const vehicles: any = {};
 const doors: any = {};
 
-/*
 const chancePumpShotgun = 50;
 const chanceAR15 = 50;
 const chanceTools = 50;
@@ -28,8 +27,8 @@ const chanceWorld = 10;
 const chanceLog = 10;
 const chanceCommercial = 10;
 const chanceFarm = 10;
-*/
 
+/*
 const chancePumpShotgun = 100;
 const chanceAR15 = 100;
 const chanceTools = 100;
@@ -44,8 +43,20 @@ const chanceWorld = 100;
 const chanceLog = 100;
 const chanceCommercial = 100;
 const chanceFarm = 100;
+*/
 
 let numberOfSpawnedEntity = 0;
+
+function getHeadActor(modelId: number): any {
+  switch(modelId) {
+    case 9510:
+      return "ZombieFemale_Head_01.adr";
+    case 9634:
+      return "ZombieMale_Head_01.adr";
+    default:
+      return "";
+  }
+}
 
 function createEntity(
   server:ZoneServer2016,
@@ -75,18 +86,16 @@ function createEntity(
     nameId: stringNameId,
     modelId: modelID,
     position: position,
-    //rotation: rotation,
-    rotation: [0, 0, 0], // default rotation for all items for now, needs 2016 item positions / rotations
+    rotation: rotation,
+    // rotation: [0, 0, 0], // default rotation for all items for now, needs 2016 item positions / rotations
+    headActor: getHeadActor(modelID),
     attachedObject: {},
     color: {},
-    array5: [{ unknown1: 0 }],
-    array17: [{ unknown1: 0 }],
-    array18: [{ unknown1: 0 }],
   };
 }
 
 export function createAllEntities(server:ZoneServer2016): any {
-  // createAllDoors(server); // disabled for now, needs 2016 door positions / rotations
+  createAllDoors(server); // needs 2016 door positions / rotations
   createAR15(server);
   createPumpShotgun(server);
   createTools(server);
@@ -157,12 +166,12 @@ function createSomeNpcs(server:ZoneServer2016) {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "NPCSpawner_ZombieLazy.adr":
-        authorizedModelId.push(9001);
-        authorizedModelId.push(9193);
+        authorizedModelId.push(9510);//
+        authorizedModelId.push(9634);
         break;
       case "NPCSpawner_ZombieWalker.adr":
-        authorizedModelId.push(9001);
-        authorizedModelId.push(9193);
+        authorizedModelId.push(9510);
+        authorizedModelId.push(9634);
         break;
       case "NPCSpawner_Deer001.adr":
         authorizedModelId.push(9002);
@@ -175,12 +184,13 @@ function createSomeNpcs(server:ZoneServer2016) {
         const spawnchance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (spawnchance <= 40) {
           // temporary spawnchance
+          const r = itemInstance.rotation;
           createEntity(server,
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
             ],
             itemInstance.position,
-            itemInstance.rotation,
+            [0, r[0], 0],
             npcs
           );
         }
@@ -211,12 +221,14 @@ function createAR15(server:ZoneServer2016) {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chanceAR15) {
           // temporary spawnchance
+          const r = itemInstance.rotation;
           createEntity(server,
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
             ],
             itemInstance.position,
-            itemInstance.rotation,
+            //itemInstance.rotation,
+            [r[1], r[0], r[2]],
             objects
           );
         }
@@ -244,12 +256,14 @@ function createPumpShotgun(server:ZoneServer2016) {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chancePumpShotgun) {
           // temporary spawnchance
+          const r = itemInstance.rotation;
           createEntity(server,
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
             ],
             itemInstance.position,
-            itemInstance.rotation,
+            //itemInstance.rotation,
+            [r[1], r[0], r[2]],
             objects
           );
         }
@@ -314,12 +328,14 @@ function createTools(server:ZoneServer2016) {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chanceTools) {
           // temporary spawnchance
+          const r = itemInstance.rotation;
           createEntity(server,
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
             ],
             itemInstance.position,
-            itemInstance.rotation,
+            //itemInstance.rotation,
+            [r[1], r[0], r[2]],
             objects
           );
         }
@@ -347,12 +363,14 @@ function create1911(server:ZoneServer2016) {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chance1911) {
           // temporary spawnchance
+          const r = itemInstance.rotation;
           createEntity(server,
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
             ],
             itemInstance.position,
-            itemInstance.rotation,
+            //itemInstance.rotation,
+            [r[1], r[0], r[2]],
             objects
           );
         }
@@ -380,12 +398,14 @@ function createM24(server:ZoneServer2016) {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chanceM24) {
           // temporary spawnchance
+          const r = itemInstance.rotation;
           createEntity(server,
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
             ],
             itemInstance.position,
-            itemInstance.rotation,
+            //itemInstance.rotation,
+            [r[1], r[0], r[2]],
             objects
           );
         }
@@ -419,12 +439,14 @@ function createConsumables(server:ZoneServer2016) {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chanceConsumables) {
           // temporary spawnchance
+          const r = itemInstance.rotation;
           createEntity(server,
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
             ],
             itemInstance.position,
-            itemInstance.rotation,
+            //itemInstance.rotation,
+            [r[1], r[0], r[2]],
             objects
           );
         }
@@ -460,12 +482,14 @@ function createClothes(server:ZoneServer2016) {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chanceClothes) {
           // temporary spawnchance
+          const r = itemInstance.rotation;
           createEntity(server,
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
             ],
             itemInstance.position,
-            itemInstance.rotation,
+            //itemInstance.rotation,
+            [r[1], r[0], r[2]],
             objects
           );
         }
@@ -509,12 +533,14 @@ function createResidential(server:ZoneServer2016) {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chanceResidential) {
           // temporary spawnchance
+          const r = itemInstance.rotation;
           createEntity(server,
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
             ],
             itemInstance.position,
-            itemInstance.rotation,
+            //itemInstance.rotation,
+            [r[1], r[0], r[2]],
             objects
           );
         }
@@ -549,12 +575,14 @@ function createRare(server:ZoneServer2016) {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chanceRare) {
           // temporary spawnchance
+          const r = itemInstance.rotation;
           createEntity(server,
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
             ],
             itemInstance.position,
-            itemInstance.rotation,
+            //itemInstance.rotation,
+            [r[1], r[0], r[2]],
             objects
           );
         }
@@ -589,12 +617,14 @@ function createIndustrial(server:ZoneServer2016) {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chanceIndustrial) {
           // temporary spawnchance
+          const r = itemInstance.rotation;
           createEntity(server,
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
             ],
             itemInstance.position,
-            itemInstance.rotation,
+            //itemInstance.rotation,
+            [r[1], r[0], r[2]],
             objects
           );
         }
@@ -632,12 +662,14 @@ function createWorld(server:ZoneServer2016) {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chanceWorld) {
           // temporary spawnchance
+          const r = itemInstance.rotation;
           createEntity(server,
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
             ],
             itemInstance.position,
-            itemInstance.rotation,
+            //itemInstance.rotation,
+            [r[1], r[0], r[2]],
             objects
           );
         }
@@ -664,12 +696,14 @@ function createLog(server:ZoneServer2016) {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chanceLog) {
           // temporary spawnchance
+          const r = itemInstance.rotation;
           createEntity(server,
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
             ],
             itemInstance.position,
-            itemInstance.rotation,
+            //itemInstance.rotation,
+            [r[1], r[0], r[2]],
             objects
           );
         }
@@ -701,12 +735,14 @@ function createCommercial(server:ZoneServer2016) {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chanceCommercial) {
           // temporary spawnchance
+          const r = itemInstance.rotation;
           createEntity(server,
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
             ],
             itemInstance.position,
-            itemInstance.rotation,
+            //itemInstance.rotation,
+            [r[1], r[0], r[2]],
             objects
           );
         }
@@ -739,12 +775,14 @@ function createFarm(server:ZoneServer2016) {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chanceFarm) {
           // temporary spawnchance
+          const r = itemInstance.rotation;
           createEntity(server,
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
             ],
             itemInstance.position,
-            itemInstance.rotation,
+            //itemInstance.rotation,
+            [r[1], r[0], r[2]],
             objects
           );
         }
@@ -756,16 +794,15 @@ function createFarm(server:ZoneServer2016) {
 
 function createAllDoors(server:ZoneServer2016): void {
   Z1_doors.forEach((doorType: any) => {
-    // TODO: add types for Z1_doors
     const modelId: number = _.find(models, {
       MODEL_FILE_NAME: doorType.actorDefinition.replace("_Placer", ""),
     })?.ID;
     doorType.instances.forEach((doorInstance: any) => {
+      const r = doorInstance.rotation;
       createEntity(server,
         modelId ? modelId : 9183,
         doorInstance.position,
-        //doorInstance.rotation,
-        [0, 45, 0], // todo
+        [0, r[0] + -1.5707963705062866, 0],
         doors
       );
     });

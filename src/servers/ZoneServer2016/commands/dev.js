@@ -122,7 +122,16 @@ const dev = {
       containersLength: 1,
       containers: [
         {containerData: {
-          
+          containerItems: {
+            itemsLength: 1,
+            items: [
+              {itemData: {
+                itemSubData: {
+                  unknownData1: {}
+                }
+              }}
+            ]
+          }
         }}
       ],
       array1Length: 1,

@@ -836,7 +836,7 @@ const lightWeightNpcSchema = [
   },
   { name: "unknownDword2", type: "uint32", defaultValue: 0 },
   { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-  { name: "extraModel", type: "string", defaultValue: "" },
+  { name: "headActor", type: "string", defaultValue: "" },
   { name: "unknownString3", type: "string", defaultValue: "" },
   { name: "unknownString4", type: "string", defaultValue: "" },
   { name: "vehicleId", type: "uint32", defaultValue: 0 },
