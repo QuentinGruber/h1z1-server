@@ -286,7 +286,9 @@ export class H1Z1Protocol {
   parseUpdatePositionRaw(data:Buffer, offset:number){ // Temp workaround
   const obj = {} as UpdatePositionObject;
   obj.raw = data;
-  return obj;
+  return {
+    result: obj,
+  };
   }
 
   parseUpdatePositionZoneToClient(data: Buffer, offset: number) {
