@@ -10,7 +10,7 @@ const admin: any = {
     if (!server._soloMode) {
       server.sendDataToAll("CharacterSelectSessionResponse", {
         status: 1,
-        sessionId: "placeholder", // TODO: get sessionId from client object
+        sessionId: 0, // TODO: get sessionId from client object
       });
       await server.saveWorld();
       process.exit(0);
