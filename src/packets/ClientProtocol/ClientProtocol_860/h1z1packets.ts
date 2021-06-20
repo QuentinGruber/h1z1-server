@@ -5495,10 +5495,27 @@ var packets = [
     },
   ],
   ["PlayerUpdate.ManagedObjectRequestControl", 0x0f49, {}],
-  ["PlayerUpdate.ManagedObjectResponseControl", 0x0f4a, {}],
+  ["PlayerUpdate.ManagedObjectResponseControl", 0x0f4a, {
+    fields: [
+      { name: "unk", type: "uint8", defaultValue: 0 },
+      { name: "characterId", type: "uint64", defaultValue: "0" },
+    ],
+  }],
   ["PlayerUpdate.ManagedObjectReleaseControl", 0x0f4b, {}],
-  ["PlayerUpdate.MaterialTypeOverride", 0x0f4c, {}],
-  ["PlayerUpdate.DebrisLaunch", 0x0f4d, {}],
+  ["PlayerUpdate.MaterialTypeOverride", 0x0f4c, {
+    fields: [
+      { name: "characterId", type: "uint64", defaultValue: "0" },
+      { name: "materialType", type: "uint32", defaultValue: 0 },
+    ],
+  }],
+  ["PlayerUpdate.DebrisLaunch", 0x0f4d, {
+    fields: [
+      { name: "characterId", type: "uint64", defaultValue: "0" },
+      { name: "unk1", type: "uint32", defaultValue: 0 },
+      { name: "unk2", type: "uint32", defaultValue: 0 },
+      { name: "unk3", type: "uint64", defaultValue: "0" },
+    ],
+  }],
   [
     "PlayerUpdate.HideCorpse",
     0x0f4e,
