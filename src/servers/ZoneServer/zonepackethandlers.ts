@@ -361,6 +361,12 @@ const packetHandlers: any = {
       ],
     });
   },
+  "Command.SetInWater": function (server: ZoneServer, client: Client, packet: any) {
+    server.sendData(client,"ClientUpdate.ModifyMovementSpeed",{speed:0.8})
+  },
+   "Command.ClearInWater": function (server: ZoneServer, client: Client, packet: any) {
+    server.sendData(client,"ClientUpdate.ModifyMovementSpeed",{speed:1.25})
+  },
   "Chat.Chat": function (server: ZoneServer, client: Client, packet: any) {
     const { channel, message } = packet.data;
     server.sendChat(client, message, channel);
