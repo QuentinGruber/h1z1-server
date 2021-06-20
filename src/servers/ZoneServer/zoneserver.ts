@@ -199,7 +199,7 @@ export class ZoneServer extends EventEmitter {
         let generatedTransient;
         do {
           generatedTransient = Number((Math.random() * 30000).toFixed(0));
-        } while (!this._transientIds[generatedTransient]);
+        } while (this._transientIds[generatedTransient]);
         this._transientIds[generatedTransient] = characterId;
         client.isLoading = true;
         client.firstLoading = true;
