@@ -293,6 +293,8 @@ export class ZoneServer extends EventEmitter {
       const worldData = await this._db
         ?.collection("worlds")
         .findOne({ worldId: this._worldId });
+      this._doors = worldData.doors;
+      this._vehicles = worldData.vehicles;
       this._npcs = worldData.npcs;
       this._objects = worldData.objects;
       this._weather = worldData.weather;
