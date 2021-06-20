@@ -32,7 +32,6 @@ export class SOEServer extends EventEmitter {
   _connection: dgram.Socket;
   _crcSeed: number;
   _crcLength: number;
-  _checksFrequency: number;
 
   constructor(
     protocolName: string,
@@ -54,11 +53,11 @@ export class SOEServer extends EventEmitter {
     this._udpLength = 512;
     this._useEncryption = true;
     this._isGatewayServer = isGatewayServer;
-    this._checksFrequency = 0;
     this._clients = {};
     this._connection = dgram.createSocket("udp4");
 
     this._connection.on("message", (data, remote) => {
+      try{
       let client: any;
       const clientId = remote.address + ":" + remote.port;
       debug(data.length + " bytes from ", clientId);
@@ -131,7 +130,7 @@ export class SOEServer extends EventEmitter {
               client.address
             );
           }
-          (client as any).outQueueTimer = setTimeout(checkClientOutQueue, this._checksFrequency);
+          (client as any).outQueueTimer = setImmediate(checkClientOutQueue);
         };
         checkClientOutQueue();
 
@@ -148,7 +147,7 @@ export class SOEServer extends EventEmitter {
               true
             );
           }
-          (client as any).ackTimer = setTimeout(checkAck, this._checksFrequency);
+          (client as any).ackTimer = setImmediate(checkAck);
         };
         checkAck();
 
@@ -178,7 +177,7 @@ export class SOEServer extends EventEmitter {
               true
             );
           }
-          (client as any).outOfOrderTimer = setTimeout(checkOutOfOrderQueue, this._checksFrequency);
+          (client as any).outOfOrderTimer = setImmediate(checkOutOfOrderQueue);
         };
         checkOutOfOrderQueue();
         this.emit("connect", null, this._clients[clientId]);
@@ -203,6 +202,10 @@ export class SOEServer extends EventEmitter {
           );
         }
         this.handlePacket(client, result);
+      }
+      }
+      catch(e){
+        console.log(e)
       }
     });
 
@@ -427,11 +430,11 @@ export class SOEServer extends EventEmitter {
   }
 
   deleteClient(client: Client): void {
-    clearTimeout(
+    clearImmediate(
       this._clients[client.address + ":" + client.port]?.outQueueTimer
     );
-    clearTimeout(this._clients[client.address + ":" + client.port]?.ackTimer);
-    clearTimeout(
+    clearImmediate(this._clients[client.address + ":" + client.port]?.ackTimer);
+    clearImmediate(
       this._clients[client.address + ":" + client.port]?.outOfOrderTimer
     );
     delete this._clients[client.address + ":" + client.port];

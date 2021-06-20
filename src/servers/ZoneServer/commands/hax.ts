@@ -293,7 +293,7 @@ const hax: any = {
       position: client.character.state.position,
       rotation: client.character.state.lookAt,
       attachedObject: {},
-      unknown26: isVehicle,
+      isVehicle: isVehicle,
       color: {},
       array5: [{ unknown1: 0 }],
       array17: [{ unknown1: 0 }],

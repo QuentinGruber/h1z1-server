@@ -10,6 +10,39 @@ const dev: any = {
       characterId: client.character.characterId,
     });
   },
+  testNpcMove: function (server: ZoneServer, client: Client, args: any[]) {    
+    const guid = server.generateGuid();
+    const characterId = server.generateGuid();
+    const transientId = server.getTransientId(client,characterId);
+
+    const npc = {
+      characterId: characterId,
+      guid: guid,
+      transientId: transientId,
+      modelId: 9001,
+      position: client.character.state.position,
+      rotation: client.character.state.lookAt,
+      attachedObject: {},
+      color: {},
+      array5: [{ unknown1: 0 }],
+      array17: [{ unknown1: 0 }],
+      array18: [{ unknown1: 0 }],
+    };
+    server.sendDataToAll("PlayerUpdate.AddLightweightNpc", npc);
+    server.sendData(client, "PlayerUpdate.ManagedObject", {
+      guid: characterId,
+      characterId: client.character.characterId,
+    });
+    server.sendData(client, "PlayerUpdate.SetCollidable", {
+      characterId: characterId,
+      collisionEnabled: true,
+    });
+    server.sendData(client, "PlayerUpdate.SeekTarget", {
+      characterId: characterId,
+      TargetCharacterId: client.character.characterId,
+    });
+    server._npcs[characterId] = npc; // save npc
+  },
   lol: function (server: ZoneServer, client: Client, args: any[]) {
     for (const npcKey in server._npcs) {
       const npc = server._npcs[npcKey];

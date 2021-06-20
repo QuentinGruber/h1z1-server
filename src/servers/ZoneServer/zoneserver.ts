@@ -35,7 +35,6 @@ const spawnLocations = require("../../../data/2015/sampleData/spawnLocations.jso
 const localWeatherTemplates = require("../../../data/2015/sampleData/weather.json");
 const stats = require("../../../data/2015/sampleData/stats.json");
 const recipes = require("../../../data/2015/sampleData/recipes.json");
-const resources = require("../../../data/2015/dataSources/Resources.json");
 const Z1_POIs = require("../../../data/2015/zoneData/Z1_POIs");
 
 export class ZoneServer extends EventEmitter {
@@ -175,9 +174,7 @@ export class ZoneServer extends EventEmitter {
         console.error(err);
       } else {
         debug("zone login");
-        setImmediate(() => {
-          this.sendInitData(client);
-        });
+        this.sendInitData(client);
       }
     });
 
@@ -438,6 +435,7 @@ export class ZoneServer extends EventEmitter {
           client.port +
           " ( ping timeout )"
       );
+      clearInterval(client.character.resourcesUpdater);
       if (client.character?.characterId) {
         delete this._characters[client.character.characterId];
       }
@@ -508,6 +506,8 @@ export class ZoneServer extends EventEmitter {
     const characterDataMongo = await this._db
       ?.collection("characters")
       .findOne({ characterId: client.character.characterId });
+    client.character.extraModel = characterDataMongo?.extraModelTexture ? characterDataMongo.extraModelTexture:this._dummySelf.data.extraModelTexture;
+
     if (
       _.isEqual(this._dummySelf.data.position, [0, 0, 0, 1]) &&
       _.isEqual(this._dummySelf.data.rotation, [0, 0, 0, 1])
@@ -537,7 +537,7 @@ export class ZoneServer extends EventEmitter {
       client.character.state.position = this._dummySelf.data.position;
       client.character.state.rotation = this._dummySelf.data.rotation;
     }
-    const characterResources: any[] = [];
+   /* const characterResources: any[] = []; DISABLED since it's not read by the game rn + we don't need to send all resources
     resources.forEach((resource: any) => {
       characterResources.push({
         resourceType: resource.RESOURCE_TYPE,
@@ -554,9 +554,9 @@ export class ZoneServer extends EventEmitter {
         },
       });
     });
+    this._dummySelf.data.characterResources = characterResources;*/
     this._dummySelf.data.profiles = this._profiles;
     this._dummySelf.data.stats = stats;
-    this._dummySelf.data.characterResources = characterResources;
     this._dummySelf.data.recipes = recipes;
     this.sendData(client, "SendSelfToClient", this._dummySelf);
   }
@@ -928,12 +928,17 @@ export class ZoneServer extends EventEmitter {
 
   sendChat(client: Client, message: string, channel: number): void {
     const { character } = client;
-    this.sendDataToAll("Chat.Chat", {
-      channel: channel,
-      characterName1: character.name,
-      message: message,
-      color1: 1,
-    });
+    for (const clientKey in this._clients) {
+        const targetClient = this._clients[clientKey];
+        if(isPosInRadius(350,client.character.state.position,targetClient.character.state.position)){
+          this.sendData(targetClient,"Chat.Chat", {
+            channel: channel,
+            characterName1: character.name,
+            message: message,
+            color1: 1,
+          });
+        }
+    }    
   }
 
   sendGlobalChatText(message: string, clearChat = false): void {

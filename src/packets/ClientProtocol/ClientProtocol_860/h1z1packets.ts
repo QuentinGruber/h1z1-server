@@ -987,7 +987,7 @@ const lightWeightNpcSchema = [
   { name: "vehicleId", type: "uint32", defaultValue: 0 },
   { name: "unknown24", type: "uint32", defaultValue: 0 },
   { name: "npcDefinitionId", type: "uint32", defaultValue: 0 },
-  { name: "unknown26", type: "boolean", defaultValue: false },
+  { name: "isVehicle", type: "boolean", defaultValue: false },
   { name: "profileId", type: "uint32", defaultValue: 0 },
   { name: "unknown28", type: "boolean", defaultValue: false },
   {
@@ -5123,7 +5123,17 @@ var packets = [
   ["PlayerUpdate.ExpectedSpeed", 0x0f10, {}],
   ["PlayerUpdate.ScriptedAnimation", 0x0f11, {}],
   ["PlayerUpdate.ThoughtBubble", 0x0f12, {}],
-  ["PlayerUpdate.SetDisposition", 0x0f13, {}],
+  ["PlayerUpdate.SetDisposition", 0x0f13, {
+    fields: [
+      { name: "characterId", type: "uint64", defaultValue: "0" },
+
+      {
+        name: "disposition",
+        type: "uint32",
+        defaultValue: 0,
+      },
+    ]
+  }],
   [
     "PlayerUpdate.LootEvent",
     0x0f14,
@@ -5264,10 +5274,10 @@ var packets = [
     {
       fields: [
         { name: "characterId", type: "uint64", defaultValue: "0" },
-        { name: "unknown1", type: "uint32", defaultValue: 0 },
-        { name: "unknown2", type: "uint32", defaultValue: 0 },
-        { name: "unknown3", type: "uint32", defaultValue: 0 },
-        { name: "unknown4", type: "uint8", defaultValue: 0 },
+        { name: "unknown1", type: "uint32", defaultValue: 9001 },
+        { name: "unknown2", type: "uint32", defaultValue: 200 },
+        { name: "unknown3", type: "uint32", defaultValue: 300 },
+        { name: "disableWeirdPhysics", type: "boolean", defaultValue: 0 },
       ],
     },
   ],
@@ -5485,10 +5495,27 @@ var packets = [
     },
   ],
   ["PlayerUpdate.ManagedObjectRequestControl", 0x0f49, {}],
-  ["PlayerUpdate.ManagedObjectResponseControl", 0x0f4a, {}],
+  ["PlayerUpdate.ManagedObjectResponseControl", 0x0f4a, {
+    fields: [
+      { name: "unk", type: "uint8", defaultValue: 0 },
+      { name: "characterId", type: "uint64", defaultValue: "0" },
+    ],
+  }],
   ["PlayerUpdate.ManagedObjectReleaseControl", 0x0f4b, {}],
-  ["PlayerUpdate.MaterialTypeOverride", 0x0f4c, {}],
-  ["PlayerUpdate.DebrisLaunch", 0x0f4d, {}],
+  ["PlayerUpdate.MaterialTypeOverride", 0x0f4c, {
+    fields: [
+      { name: "characterId", type: "uint64", defaultValue: "0" },
+      { name: "materialType", type: "uint32", defaultValue: 0 },
+    ],
+  }],
+  ["PlayerUpdate.DebrisLaunch", 0x0f4d, {
+    fields: [
+      { name: "characterId", type: "uint64", defaultValue: "0" },
+      { name: "unk1", type: "uint32", defaultValue: 0 },
+      { name: "unk2", type: "uint32", defaultValue: 0 },
+      { name: "unk3", type: "uint64", defaultValue: "0" },
+    ],
+  }],
   [
     "PlayerUpdate.HideCorpse",
     0x0f4e,
@@ -9104,7 +9131,15 @@ var packets = [
       fields: [],
     },
   ],
-  ["PlayerUpdate.VehicleCollision", 0xac, {}],
+  ["PlayerUpdate.VehicleCollision", 0xac, { fields: [
+    {
+      name: "transientId",
+      type: "custom",
+      parser: readUnsignedIntWith2bitLengthValue,
+      packer: packUnsignedIntWith2bitLengthValue,
+    },
+    { name: "unk", type: "uint32", defaultValue: 0.0 },
+  ],}],
   [
     "PlayerUpdate.Stop",
     0xad,
