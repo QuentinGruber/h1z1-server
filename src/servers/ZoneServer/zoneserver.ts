@@ -177,8 +177,8 @@ export class ZoneServer extends EventEmitter {
         try {
           this.sendInitData(client);
         } catch (error) {
-          debug(error)
-          this.sendData(client,"LoginFailed",{})
+          debug(error);
+          this.sendData(client, "LoginFailed", {});
         }
       }
     });
@@ -293,25 +293,25 @@ export class ZoneServer extends EventEmitter {
     debug("Server ready");
   }
 
-  getAllCurrentUsedTransientId(){
-    const allTransient:any = {};
+  getAllCurrentUsedTransientId() {
+    const allTransient: any = {};
     for (const key in this._doors) {
-        const door = this._doors[key];
-        allTransient[door.transientId] = key
+      const door = this._doors[key];
+      allTransient[door.transientId] = key;
     }
     for (const key in this._vehicles) {
       const vehicle = this._vehicles[key];
-      allTransient[vehicle.npcData.transientId] = key
-  }
-  for (const key in this._npcs) {
-    const npc = this._npcs[key];
-    allTransient[npc.transientId] = key
-}
-for (const key in this._objects) {
-  const object = this._objects[key];
-  allTransient[object.transientId] = key
-}
-  return allTransient
+      allTransient[vehicle.npcData.transientId] = key;
+    }
+    for (const key in this._npcs) {
+      const npc = this._npcs[key];
+      allTransient[npc.transientId] = key;
+    }
+    for (const key in this._objects) {
+      const object = this._objects[key];
+      allTransient[object.transientId] = key;
+    }
+    return allTransient;
   }
 
   async fetchWorldData(): Promise<void> {
@@ -340,7 +340,7 @@ for (const key in this._objects) {
           const save = {
             worldId: this._worldId,
             npcs: this._npcs,
-            doors:this._doors,
+            doors: this._doors,
             vehicles: this._vehicles,
             weather: this._weather,
             objects: this._objects,
@@ -359,7 +359,7 @@ for (const key in this._objects) {
           const save = {
             worldId: this._worldId,
             npcs: this._npcs,
-            doors:this._doors,
+            doors: this._doors,
             vehicles: this._vehicles,
             weather: this._weather,
             objects: this._objects,
@@ -371,7 +371,7 @@ for (const key in this._objects) {
         const save = {
           worldId: this._worldId,
           npcs: this._npcs,
-          doors:this._doors,
+          doors: this._doors,
           vehicles: this._vehicles,
           weather: this._weather,
           objects: this._objects,
@@ -379,7 +379,8 @@ for (const key in this._objects) {
         const numberOfWorld: number =
           (await this._db?.collection("worlds").find({}).count()) || 0;
         const createdWorld = await this._db?.collection("worlds").insertOne({
-          ...save,worldId: numberOfWorld + 1
+          ...save,
+          worldId: numberOfWorld + 1,
         });
         this._worldId = createdWorld?.ops[0].worldId;
         debug("World saved!");
@@ -550,7 +551,9 @@ for (const key in this._objects) {
     const characterDataMongo = await this._db
       ?.collection("characters")
       .findOne({ characterId: client.character.characterId });
-    client.character.extraModel = characterDataMongo?.extraModelTexture ? characterDataMongo.extraModelTexture:this._dummySelf.data.extraModelTexture;
+    client.character.extraModel = characterDataMongo?.extraModelTexture
+      ? characterDataMongo.extraModelTexture
+      : this._dummySelf.data.extraModelTexture;
 
     if (
       _.isEqual(this._dummySelf.data.position, [0, 0, 0, 1]) &&
@@ -581,7 +584,7 @@ for (const key in this._objects) {
       client.character.state.position = this._dummySelf.data.position;
       client.character.state.rotation = this._dummySelf.data.rotation;
     }
-   /* const characterResources: any[] = []; DISABLED since it's not read by the game rn + we don't need to send all resources
+    /* const characterResources: any[] = []; DISABLED since it's not read by the game rn + we don't need to send all resources
     resources.forEach((resource: any) => {
       characterResources.push({
         resourceType: resource.RESOURCE_TYPE,
@@ -973,16 +976,22 @@ for (const key in this._objects) {
   sendChat(client: Client, message: string, channel: number): void {
     const { character } = client;
     for (const clientKey in this._clients) {
-        const targetClient = this._clients[clientKey];
-        if(isPosInRadius(350,client.character.state.position,targetClient.character.state.position)){
-          this.sendData(targetClient,"Chat.Chat", {
-            channel: channel,
-            characterName1: character.name,
-            message: message,
-            color1: 1,
-          });
-        }
-    }    
+      const targetClient = this._clients[clientKey];
+      if (
+        isPosInRadius(
+          350,
+          client.character.state.position,
+          targetClient.character.state.position
+        )
+      ) {
+        this.sendData(targetClient, "Chat.Chat", {
+          channel: channel,
+          characterName1: character.name,
+          message: message,
+          color1: 1,
+        });
+      }
+    }
   }
 
   sendGlobalChatText(message: string, clearChat = false): void {

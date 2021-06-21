@@ -57,155 +57,158 @@ export class SOEServer extends EventEmitter {
     this._connection = dgram.createSocket("udp4");
 
     this._connection.on("message", (data, remote) => {
-      try{
-      let client: any;
-      const clientId = remote.address + ":" + remote.port;
-      debug(data.length + " bytes from ", clientId);
-      let unknow_client;
-      // if doesn't know the client
-      if (!this._clients[clientId]) {
-        unknow_client = true;
-        client = this._clients[clientId] = {
-          sessionId: 0,
-          address: remote.address,
-          port: remote.port,
-          crcSeed: this._crcSeed,
-          crcLength: 2,
-          clientUdpLength: 512,
-          serverUdpLength: 512,
-          sequences: [],
-          compression: this._compression,
-          useEncryption: true,
-          outQueue: [],
-          outOfOrderPackets: [],
-          nextAck: -1,
-          lastAck: -1,
-          inputStream: new (SOEInputStream as any)(cryptoKey),
-          outputStream: new (SOEOutputStream as any)(cryptoKey),
-        };
+      try {
+        let client: any;
+        const clientId = remote.address + ":" + remote.port;
+        debug(data.length + " bytes from ", clientId);
+        let unknow_client;
+        // if doesn't know the client
+        if (!this._clients[clientId]) {
+          unknow_client = true;
+          client = this._clients[clientId] = {
+            sessionId: 0,
+            address: remote.address,
+            port: remote.port,
+            crcSeed: this._crcSeed,
+            crcLength: 2,
+            clientUdpLength: 512,
+            serverUdpLength: 512,
+            sequences: [],
+            compression: this._compression,
+            useEncryption: true,
+            outQueue: [],
+            outOfOrderPackets: [],
+            nextAck: -1,
+            lastAck: -1,
+            inputStream: new (SOEInputStream as any)(cryptoKey),
+            outputStream: new (SOEOutputStream as any)(cryptoKey),
+          };
 
-        (client as any).inputStream.on("data", (err: string, data: Buffer) => {
-          this.emit("appdata", null, client, data);
-        });
-
-        (client as any).inputStream.on(
-          "ack",
-          (err: string, sequence: number) => {
-            client.nextAck = sequence;
-          }
-        );
-
-        (client as any).inputStream.on(
-          "outoforder",
-          (err: string, expected: any, sequence: number) => {
-            client.outOfOrderPackets.push(sequence);
-          }
-        );
-
-        (client as any).outputStream.on(
-          "data",
-          (err: string, data: Buffer, sequence: number, fragment: any) => {
-            if (fragment) {
-              this._sendPacket(client, "DataFragment", {
-                sequence: sequence,
-                data: data,
-              });
-            } else {
-              this._sendPacket(client, "Data", {
-                sequence: sequence,
-                data: data,
-              });
+          (client as any).inputStream.on(
+            "data",
+            (err: string, data: Buffer) => {
+              this.emit("appdata", null, client, data);
             }
-          }
-        );
+          );
 
-        const checkClientOutQueue = () => {
-          const data = client.outQueue.shift();
-          if (data) {
-            this._connection.send(
-              data,
-              0,
-              data.length,
-              client.port,
-              client.address
-            );
-          }
-          (client as any).outQueueTimer = setImmediate(checkClientOutQueue);
-        };
-        checkClientOutQueue();
+          (client as any).inputStream.on(
+            "ack",
+            (err: string, sequence: number) => {
+              client.nextAck = sequence;
+            }
+          );
 
-        const checkAck = () => {
-          if (client.lastAck != client.nextAck) {
-            client.lastAck = client.nextAck;
-            this._sendPacket(
-              client,
-              "Ack",
-              {
-                channel: 0,
-                sequence: client.nextAck,
-              },
-              true
-            );
-          }
-          (client as any).ackTimer = setImmediate(checkAck);
-        };
-        checkAck();
+          (client as any).inputStream.on(
+            "outoforder",
+            (err: string, expected: any, sequence: number) => {
+              client.outOfOrderPackets.push(sequence);
+            }
+          );
 
-        const checkOutOfOrderQueue = () => {
-          if (client.outOfOrderPackets.length) {
-            const packets = [];
-            for (let i = 0; i < 20; i++) {
-              const sequence = client.outOfOrderPackets.shift();
-              packets.push({
-                name: "OutOfOrder",
-                soePacket: {
-                  channel: 0,
+          (client as any).outputStream.on(
+            "data",
+            (err: string, data: Buffer, sequence: number, fragment: any) => {
+              if (fragment) {
+                this._sendPacket(client, "DataFragment", {
                   sequence: sequence,
-                },
-              });
-              if (!client.outOfOrderPackets.length) {
-                break;
+                  data: data,
+                });
+              } else {
+                this._sendPacket(client, "Data", {
+                  sequence: sequence,
+                  data: data,
+                });
               }
             }
-            debug("Sending " + packets.length + " OutOfOrder packets");
-            this._sendPacket(
-              client,
-              "MultiPacket",
-              {
-                subPackets: packets,
-              },
-              true
+          );
+
+          const checkClientOutQueue = () => {
+            const data = client.outQueue.shift();
+            if (data) {
+              this._connection.send(
+                data,
+                0,
+                data.length,
+                client.port,
+                client.address
+              );
+            }
+            (client as any).outQueueTimer = setImmediate(checkClientOutQueue);
+          };
+          checkClientOutQueue();
+
+          const checkAck = () => {
+            if (client.lastAck != client.nextAck) {
+              client.lastAck = client.nextAck;
+              this._sendPacket(
+                client,
+                "Ack",
+                {
+                  channel: 0,
+                  sequence: client.nextAck,
+                },
+                true
+              );
+            }
+            (client as any).ackTimer = setImmediate(checkAck);
+          };
+          checkAck();
+
+          const checkOutOfOrderQueue = () => {
+            if (client.outOfOrderPackets.length) {
+              const packets = [];
+              for (let i = 0; i < 20; i++) {
+                const sequence = client.outOfOrderPackets.shift();
+                packets.push({
+                  name: "OutOfOrder",
+                  soePacket: {
+                    channel: 0,
+                    sequence: sequence,
+                  },
+                });
+                if (!client.outOfOrderPackets.length) {
+                  break;
+                }
+              }
+              debug("Sending " + packets.length + " OutOfOrder packets");
+              this._sendPacket(
+                client,
+                "MultiPacket",
+                {
+                  subPackets: packets,
+                },
+                true
+              );
+            }
+            (client as any).outOfOrderTimer =
+              setImmediate(checkOutOfOrderQueue);
+          };
+          checkOutOfOrderQueue();
+          this.emit("connect", null, this._clients[clientId]);
+        }
+        client = this._clients[clientId];
+        const result = this._protocol.parse(
+          data,
+          client.crcSeed,
+          client.compression
+        );
+        if (result !== undefined && result !== null) {
+          if (
+            !unknow_client &&
+            result.soePacket &&
+            result.soePacket.name === "SessionRequest"
+          ) {
+            delete this._clients[clientId];
+            debug(
+              "Delete an old session badly closed by the client (",
+              clientId,
+              ") )"
             );
           }
-          (client as any).outOfOrderTimer = setImmediate(checkOutOfOrderQueue);
-        };
-        checkOutOfOrderQueue();
-        this.emit("connect", null, this._clients[clientId]);
-      }
-      client = this._clients[clientId];
-      const result = this._protocol.parse(
-        data,
-        client.crcSeed,
-        client.compression
-      );
-      if (result !== undefined && result !== null) {
-        if (
-          !unknow_client &&
-          result.soePacket &&
-          result.soePacket.name === "SessionRequest"
-        ) {
-          delete this._clients[clientId];
-          debug(
-            "Delete an old session badly closed by the client (",
-            clientId,
-            ") )"
-          );
+          this.handlePacket(client, result);
         }
-        this.handlePacket(client, result);
-      }
-      }
-      catch(e){
-        console.log(e)
+      } catch (e) {
+        console.log(e);
       }
     });
 
