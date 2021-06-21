@@ -80,54 +80,58 @@ export class LoginServer extends EventEmitter {
     this._soeServer.on(
       "appdata",
       async (err: string, client: Client, data: Buffer) => {
-        const packet: any = this._protocol.parse(data);
-        if (packet !== false) {
-          // if packet parsing succeed
-          const { sessionId, systemFingerPrint } = packet.result;
-          switch (packet.name) {
-            case "LoginRequest": {
-              this.LoginRequest(client, sessionId, systemFingerPrint);
-              if (this._protocol.protocolName !== "LoginUdp_11") break;
-            }
-            case "CharacterSelectInfoRequest": {
-              this.CharacterSelectInfoRequest(client);
-              if (this._protocol.protocolName !== "LoginUdp_11") break;
-            }
-            case "ServerListRequest":
-              this.ServerListRequest(client);
-              break;
+        try {
+          const packet: any = this._protocol.parse(data);
+          if (packet?.result) {
+            // if packet parsing succeed
+            const { sessionId, systemFingerPrint } = packet.result;
+            switch (packet.name) {
+              case "LoginRequest": {
+                this.LoginRequest(client, sessionId, systemFingerPrint);
+                if (this._protocol.protocolName !== "LoginUdp_11") break;
+              }
+              case "CharacterSelectInfoRequest": {
+                this.CharacterSelectInfoRequest(client);
+                if (this._protocol.protocolName !== "LoginUdp_11") break;
+              }
+              case "ServerListRequest":
+                this.ServerListRequest(client);
+                break;
 
-            case "CharacterDeleteRequest": {
-              this.CharacterDeleteRequest(client, packet);
-              break;
-            }
-            case "CharacterLoginRequest": {
-              this.CharacterLoginRequest(client, packet);
-              break;
-            }
-            case "CharacterCreateRequest": {
-              this.CharacterCreateRequest(client);
-              break;
-            }
-            case "TunnelAppPacketClientToServer":
-              console.log(packet);
-              packet.tunnelData = new (Buffer as any).alloc(4);
-              packet.tunnelData.writeUInt32LE(0x1); // TODO
-              data = this._protocol.pack(
-                "TunnelAppPacketServerToClient",
-                packet
-              );
-              console.log(data);
-              this._soeServer.sendAppData(client, data, true);
-              break;
+              case "CharacterDeleteRequest": {
+                this.CharacterDeleteRequest(client, packet);
+                break;
+              }
+              case "CharacterLoginRequest": {
+                this.CharacterLoginRequest(client, packet);
+                break;
+              }
+              case "CharacterCreateRequest": {
+                this.CharacterCreateRequest(client);
+                break;
+              }
+              case "TunnelAppPacketClientToServer":
+                console.log(packet);
+                packet.tunnelData = new (Buffer as any).alloc(4);
+                packet.tunnelData.writeUInt32LE(0x1); // TODO
+                data = this._protocol.pack(
+                  "TunnelAppPacketServerToClient",
+                  packet
+                );
+                console.log(data);
+                this._soeServer.sendAppData(client, data, true);
+                break;
 
-            case "Logout":
-              clearInterval(client.serverUpdateTimer);
-              // this._soeServer.deleteClient(client); this is done to early
-              break;
+              case "Logout":
+                clearInterval(client.serverUpdateTimer);
+                // this._soeServer.deleteClient(client); this is done to early
+                break;
+            }
+          } else {
+            debug("Packet parsing was unsuccesful");
           }
-        } else {
-          debug("Packet parsing was unsuccesful");
+        } catch (error) {
+          console.log(error);
         }
       }
     );

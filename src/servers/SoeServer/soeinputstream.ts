@@ -110,9 +110,9 @@ export class SOEInputStream extends EventEmitter {
         }
         this.emit("data", null, data);
       }
-      setTimeout(() => {
+      setImmediate(() => {
         this._processDataFragments();
-      }, 0);
+      });
     }
   }
 

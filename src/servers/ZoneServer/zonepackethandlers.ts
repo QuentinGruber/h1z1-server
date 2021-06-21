@@ -361,6 +361,22 @@ const packetHandlers: any = {
       ],
     });
   },
+  "Command.SetInWater": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
+    server.sendData(client, "ClientUpdate.ModifyMovementSpeed", { speed: 0.8 });
+  },
+  "Command.ClearInWater": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
+    server.sendData(client, "ClientUpdate.ModifyMovementSpeed", {
+      speed: 1.25,
+    });
+  },
   "Chat.Chat": function (server: ZoneServer, client: Client, packet: any) {
     const { channel, message } = packet.data;
     server.sendChat(client, message, channel);
@@ -670,6 +686,13 @@ const packetHandlers: any = {
     debug(packet);
     debug("select");
   },
+  "PlayerUpdate.VehicleCollision": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
+    debug(packet);
+  },
   "Vehicle.Dismiss": function (
     server: ZoneServer,
     client: Client,
@@ -677,6 +700,9 @@ const packetHandlers: any = {
   ) {
     server.sendData(client, "Mount.DismountResponse", {
       characterId: client.character.characterId,
+    });
+    server.sendData(client, "PlayerUpdate.RemovePlayerGracefully", {
+      characterId: client.mountedVehicle,
     });
     delete client.mountedVehicle;
   },
@@ -1402,14 +1428,15 @@ const packetHandlers: any = {
     packet: any
   ) {
     const movingCharacter = server._characters[client.character.characterId];
-
-    server.sendRawToAllOthers(
-      client,
-      server._protocol.createPositionBroadcast(
-        packet.data.raw,
-        movingCharacter.transientId
-      )
-    );
+    if (movingCharacter) {
+      server.sendRawToAllOthers(
+        client,
+        server._protocol.createPositionBroadcast(
+          packet.data.raw,
+          movingCharacter.transientId
+        )
+      );
+    }
     if (packet.data.position) {
       // TODO: modify array element beside re-creating it
       client.character.state.position = new Float32Array([
@@ -1418,7 +1445,7 @@ const packetHandlers: any = {
         packet.data.position[2],
         0,
       ]);
-      if (packet.data.unknown11_float > 8) {
+      if (packet.data.unknown11_float > 6) {
         client.character.isRunning = true;
       } else {
         client.character.isRunning = false;
@@ -1477,6 +1504,7 @@ const packetHandlers: any = {
     debug(packet);
     // Maybe we should move all that logic to Command.InteractionSelect
     const objectToPickup = server._objects[packet.data.guid];
+    const doorToInteractWith = server._doors[packet.data.guid];
     const vehicleToMount = server._vehicles[packet.data.guid];
     if (
       objectToPickup &&
@@ -1566,6 +1594,18 @@ const packetHandlers: any = {
         characterId: client.character.characterId,
         guid: vehicleGuid,
         characterData: [],
+      });
+    } else if (
+      doorToInteractWith &&
+      isPosInRadius(
+        server._interactionDistance,
+        client.character.state.position,
+        doorToInteractWith.position
+      )
+    ) {
+      debug("tried to open ", doorToInteractWith.characterId);
+      server.sendData(client, "PlayerUpdate.DoorState", {
+        characterId: doorToInteractWith.characterId,
       });
     }
   },
