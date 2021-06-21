@@ -19,7 +19,7 @@ jobs:
       - run: npm i
       - name: MongoDB in GitHub Actions
         uses: supercharge/mongodb-github-action@1.6.0
-      - run: npm test-mongo
+      - run: npm run test-mongo
   test-mongo-win:
     runs-on: windows-latest
     strategy:
@@ -34,4 +34,4 @@ jobs:
       - run: npm i
       - name: MongoDB in GitHub Actions
         uses: supercharge/mongodb-github-action@1.6.0
-      - run: npm test-mongo
+      - run: npm run test-mongo
