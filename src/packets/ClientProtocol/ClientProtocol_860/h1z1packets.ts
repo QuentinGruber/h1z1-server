@@ -7116,7 +7116,7 @@ var packets = [
   ["CommerceSessionRequest", 0x4e, {}],
   ["CommerceSessionResponse", 0x4f, {}],
   ["TrackedEvent", 0x50, {}],
-  ["LoginFailed", 0x51, {}],
+  ["LoginFailed", 0x51, {fields: []}],
   ["LoginToUChat", 0x52, {}],
   ["ZoneSafeTeleportRequest", 0x53, {}],
   ["RemoteInteractionRequest", 0x54, {}],

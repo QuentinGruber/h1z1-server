@@ -174,7 +174,12 @@ export class ZoneServer extends EventEmitter {
         console.error(err);
       } else {
         debug("zone login");
-        this.sendInitData(client);
+        try {
+          this.sendInitData(client);
+        } catch (error) {
+          debug(error)
+          this.sendData(client,"LoginFailed",{})
+        }
       }
     });
 
