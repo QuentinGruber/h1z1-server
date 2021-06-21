@@ -199,7 +199,7 @@ export class ZoneServer extends EventEmitter {
         let generatedTransient;
         do {
           generatedTransient = Number((Math.random() * 30000).toFixed(0));
-        } while (!this._transientIds[generatedTransient]);
+        } while (this._transientIds[generatedTransient]);
         this._transientIds[generatedTransient] = characterId;
         client.isLoading = true;
         client.firstLoading = true;
@@ -288,32 +288,58 @@ export class ZoneServer extends EventEmitter {
     debug("Server ready");
   }
 
+  getAllCurrentUsedTransientId(){
+    const allTransient:any = {};
+    for (const key in this._doors) {
+        const door = this._doors[key];
+        allTransient[door.transientId] = key
+    }
+    for (const key in this._vehicles) {
+      const vehicle = this._vehicles[key];
+      allTransient[vehicle.npcData.transientId] = key
+  }
+  for (const key in this._npcs) {
+    const npc = this._npcs[key];
+    allTransient[npc.transientId] = key
+}
+for (const key in this._objects) {
+  const object = this._objects[key];
+  allTransient[object.transientId] = key
+}
+  return allTransient
+  }
+
   async fetchWorldData(): Promise<void> {
     if (!this._soloMode) {
       const worldData = await this._db
         ?.collection("worlds")
         .findOne({ worldId: this._worldId });
+      this._doors = worldData.doors;
+      this._vehicles = worldData.vehicles;
       this._npcs = worldData.npcs;
       this._objects = worldData.objects;
       this._weather = worldData.weather;
+      this._transientIds = this.getAllCurrentUsedTransientId();
       debug("World fetched!");
     }
   }
 
   async saveWorld(): Promise<void> {
     if (!this._soloMode) {
-      const save = {
-        worldId: this._worldId,
-        npcs: this._npcs,
-        weather: this._weather,
-        objects: this._objects,
-      };
       if (this._worldId) {
         if (
           await this._db
             ?.collection("worlds")
             .findOne({ worldId: this._worldId })
         ) {
+          const save = {
+            worldId: this._worldId,
+            npcs: this._npcs,
+            doors:this._doors,
+            vehicles: this._vehicles,
+            weather: this._weather,
+            objects: this._objects,
+          };
           const worker = new Worker(__dirname + "/workers/saveWorld.js", {
             workerData: {
               mongoAddress: this._mongoAddress,
@@ -325,17 +351,30 @@ export class ZoneServer extends EventEmitter {
           worker.on("error", debug);
         } else {
           this.createAllObjects();
+          const save = {
+            worldId: this._worldId,
+            npcs: this._npcs,
+            doors:this._doors,
+            vehicles: this._vehicles,
+            weather: this._weather,
+            objects: this._objects,
+          };
           await this._db?.collection("worlds").insertOne(save);
         }
       } else {
         this.createAllObjects();
+        const save = {
+          worldId: this._worldId,
+          npcs: this._npcs,
+          doors:this._doors,
+          vehicles: this._vehicles,
+          weather: this._weather,
+          objects: this._objects,
+        };
         const numberOfWorld: number =
           (await this._db?.collection("worlds").find({}).count()) || 0;
         const createdWorld = await this._db?.collection("worlds").insertOne({
-          worldId: numberOfWorld + 1,
-          npcs: save.npcs,
-          weather: save.weather,
-          objects: save.objects,
+          ...save,worldId: numberOfWorld + 1
         });
         this._worldId = createdWorld?.ops[0].worldId;
         debug("World saved!");
