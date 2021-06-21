@@ -5,7 +5,7 @@ on:
   pull_request:
     branches: [master, dev]
 jobs:
-  test-linux:
+  test-mongo-linux:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -20,7 +20,7 @@ jobs:
       - name: MongoDB in GitHub Actions
         uses: supercharge/mongodb-github-action@1.6.0
       - run: npm test-mongo
-  test-win:
+  test-mongo-win:
     runs-on: windows-latest
     strategy:
       matrix:
