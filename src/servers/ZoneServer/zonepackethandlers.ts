@@ -361,11 +361,21 @@ const packetHandlers: any = {
       ],
     });
   },
-  "Command.SetInWater": function (server: ZoneServer, client: Client, packet: any) {
-    server.sendData(client,"ClientUpdate.ModifyMovementSpeed",{speed:0.8})
+  "Command.SetInWater": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
+    server.sendData(client, "ClientUpdate.ModifyMovementSpeed", { speed: 0.8 });
   },
-   "Command.ClearInWater": function (server: ZoneServer, client: Client, packet: any) {
-    server.sendData(client,"ClientUpdate.ModifyMovementSpeed",{speed:1.25})
+  "Command.ClearInWater": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
+    server.sendData(client, "ClientUpdate.ModifyMovementSpeed", {
+      speed: 1.25,
+    });
   },
   "Chat.Chat": function (server: ZoneServer, client: Client, packet: any) {
     const { channel, message } = packet.data;
@@ -681,7 +691,7 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
-    debug(packet)
+    debug(packet);
   },
   "Vehicle.Dismiss": function (
     server: ZoneServer,
@@ -1418,11 +1428,11 @@ const packetHandlers: any = {
     packet: any
   ) {
     const movingCharacter = server._characters[client.character.characterId];
-    if(movingCharacter){
+    if (movingCharacter) {
       server.sendRawToAllOthers(
-       client,
-       server._protocol.createPositionBroadcast(
-         packet.data.raw,
+        client,
+        server._protocol.createPositionBroadcast(
+          packet.data.raw,
           movingCharacter.transientId
         )
       );
@@ -1585,8 +1595,7 @@ const packetHandlers: any = {
         guid: vehicleGuid,
         characterData: [],
       });
-    }
-    else if (
+    } else if (
       doorToInteractWith &&
       isPosInRadius(
         server._interactionDistance,
@@ -1594,9 +1603,9 @@ const packetHandlers: any = {
         doorToInteractWith.position
       )
     ) {
-      debug("tried to open ",doorToInteractWith.characterId)
+      debug("tried to open ", doorToInteractWith.characterId);
       server.sendData(client, "PlayerUpdate.DoorState", {
-        characterId: doorToInteractWith.characterId
+        characterId: doorToInteractWith.characterId,
       });
     }
   },

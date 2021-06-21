@@ -10,10 +10,10 @@ const dev: any = {
       characterId: client.character.characterId,
     });
   },
-  testNpcMove: function (server: ZoneServer, client: Client, args: any[]) {    
+  testNpcMove: function (server: ZoneServer, client: Client, args: any[]) {
     const guid = server.generateGuid();
     const characterId = server.generateGuid();
-    const transientId = server.getTransientId(client,characterId);
+    const transientId = server.getTransientId(client, characterId);
 
     const npc = {
       characterId: characterId,
