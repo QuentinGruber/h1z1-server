@@ -5,7 +5,7 @@ const Z1_doors = require("../../../../data/2016/zoneData/Z1_doors.json");
 const Z1_npcs = require("../../../../data/2016/zoneData/Z1_npcs.json");
 const models = require("../../../../data/2016/dataSources/Models.json");
 const modelToName = require("../../../../data/2016/sampleData/ModelToName.json");
-import _, { head } from "lodash";
+import _ from "lodash";
 import { generateRandomGuid } from "../../../utils/utils";
 import { ZoneServer2016 } from "../zoneserver";
 const npcs: any = {};
@@ -27,23 +27,6 @@ const chanceWorld = 10;
 const chanceLog = 10;
 const chanceCommercial = 10;
 const chanceFarm = 10;
-
-/*
-const chancePumpShotgun = 100;
-const chanceAR15 = 100;
-const chanceTools = 100;
-const chance1911 = 100;
-const chanceM24 = 100;
-const chanceConsumables = 100;
-const chanceClothes = 100;
-const chanceResidential = 100;
-const chanceRare = 100;
-const chanceIndustrial = 100;
-const chanceWorld = 100;
-const chanceLog = 100;
-const chanceCommercial = 100;
-const chanceFarm = 100;
-*/
 
 let numberOfSpawnedEntity = 0;
 
@@ -148,10 +131,6 @@ function createAllVehicles(server:ZoneServer2016) {
         attachedObject: {},
         vehicleId: v.vehicleId,
         color: {},
-        unknownArray1: [],
-        array5: [{ unknown1: 0 }],
-        array17: [{ unknown1: 0 }],
-        array18: [{ unknown1: 0 }],
       },
       unknownGuid1: generateRandomGuid(),
       positionUpdate: [0, 0, 0, 0],
@@ -166,7 +145,7 @@ function createSomeNpcs(server:ZoneServer2016) {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "NPCSpawner_ZombieLazy.adr":
-        authorizedModelId.push(9510);//
+        authorizedModelId.push(9510);
         authorizedModelId.push(9634);
         break;
       case "NPCSpawner_ZombieWalker.adr":

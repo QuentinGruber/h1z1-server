@@ -90,12 +90,6 @@ const dev = {
     server.sendData(client, "ResourceEvent", resourceEvent);
   },
   setloadout: function (server, client, args) {
-    /*
-    if(!args[3]){
-      server.sendChatText(client, "Missing resourceId, resourceType, and value args");
-      return;
-    }
-    */
     const loadoutEvent = {
       eventData: {
         type: 2,
@@ -108,20 +102,11 @@ const dev = {
     server.sendData(client, "LoadoutEvent", loadoutEvent);
   },
   containerevent: function (server, client, args) {
-    /*
-    if(!args[1]){
-      server.sendChatText(client, "Missing containerError arg");
-      return;
-    }
-    */
     const containerData = {
-      // characterId: client.character.characterId,
-      // containerError: parseInt(args[1])
-      // array1: [],
       ignore: client.character.characterId,
       containersLength: 1,
       containers: [
-        {containerData: {
+        {
           containerItems: {
             itemsLength: 1,
             items: [
@@ -132,7 +117,7 @@ const dev = {
               }}
             ]
           }
-        }}
+        }
       ],
       array1Length: 1,
       array1: [{unknownQword1: server.generateGuid(), unknownDword1: 2}]
@@ -154,13 +139,6 @@ const dev = {
     server.sendData(client, "Container.Error", container);
   },
   setequipment: function (server, client, args) {
-    /*
-    if(!args[3]){
-      server.sendChatText(client, "Missing resourceId, resourceType, and value args");
-      return;
-    }
-    */
-
     const equipmentEvent = {
       unknownData1: {
         unknownData1: {},
@@ -173,9 +151,9 @@ const dev = {
     server.sendData(client, "Equipment.SetCharacterEquipmentSlot", equipmentEvent);
   },
 
-  tpObject: function (server, client, args) {
+  tpVehicle: function (server, client, args) {
     if(!args[1]) {
-      server.sendChatText(client, "Missing object arg");
+      server.sendChatText(client, "Missing vehicleId arg");
       return;
     }
 
@@ -213,9 +191,57 @@ const dev = {
     if(found) {
       server.sendChatText(client, "TPed successfully");
     } else {
-      server.sendChatText(client, `No objects of ID: ${args[1]} found`);
+      server.sendChatText(client, `No vehicles of ID: ${args[1]} found`);
     }
-  }
+  },
+
+  updateWeather: function(server, client, args) {
+    if(!args[2]) {
+      server.sendChatText(client, "Missing 2 args");
+      return;
+    }
+    const skyData = {
+      unknownDword1: 0, // breaks the game
+      unknownDword2: 0, // breaks the game
+
+      skyBrightness1: 1, // breaks the game
+      skyBrightness2: 1, // breaks the game
+
+      snow: 0,
+      snowMap: 0, // 32 - 35 snow starts thinning, dissapears over 35
+      colorGradient: 0,
+      unknownDword8: 0, // AOGamma? sky gets more yellow - test during night
+      unknownDword9: 0, // related to previous value - both do same/similar thing
+      unknownDword10: 0, // related to previous values - both do same/similar thing
+
+      unknownDword11: 0,
+      unknownDword12: 0,
+      sunAxisX: parseFloat(args[1]), // 0 - 360
+      sunAxisY: parseFloat(args[2]), // 0 - 360
+      unknownDword15: 0,
+      disableTrees: 0,
+      disableTrees1: 0,
+      disableTrees2: 0,
+      wind: 0,
+      // below variables do nothing ig
+      unknownDword20: 0,
+      unknownDword21: 0,
+      unknownDword22: 0,
+      unknownDword23: 0,
+      unknownDword24: 0,
+      unknownDword25: 0,
+      unknownDword26: 0,
+      unknownDword27: 0,
+      unknownDword28: 0,
+      unknownDword29: 0,
+      unknownDword30: 0,
+      unknownDword31: 0,
+      unknownDword32: 0,
+      unknownDword33: 0,
+    };
+    debug(skyData);
+    server.sendData(client, "UpdateWeatherData", skyData);
+  },
 };
 
 export default dev;

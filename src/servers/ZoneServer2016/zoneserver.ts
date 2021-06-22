@@ -14,17 +14,19 @@ const debugName = "ZoneServer";
 const debug = require("debug")(debugName);
 import { default as packetHandlers } from "./zonepackethandlers";
 import { ZoneServer } from "../ZoneServer/zoneserver";
-import { Client, Weather } from "../../types/zoneserver";
+import { Client, skyData } from "../../types/zoneserver";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
 import _ from "lodash";
 import { Base64 } from "js-base64";
 import {
   //generateRandomGuid,
-  //initMongo,
+  initMongo,
   //Int64String,
   isPosInRadius,
 } from "../../utils/utils";
 
+import { Db, MongoClient } from "mongodb";
+import dynamicWeather from "./workers/dynamicWeather";
 // need to get 2016 lists
 // const spawnLocations = require("../../../data/2015/sampleData/spawnLocations.json");
 // const localWeatherTemplates = require("../../../data/2015/sampleData/weather.json");
@@ -59,7 +61,7 @@ export class ZoneServer2016 extends ZoneServer {
     client.character.inventory = self.data.inventory;
     client.character.factionId = self.data.factionId;
     client.character.name =
-      identity.characterFirstName + identity.characterLastName;
+      /*`${identity.characterFirstName} ${identity.characterLastName}` ||*/ identity.characterName;
 
     if (
       _.isEqual(self.data.position, [0, 0, 0, 1]) &&
@@ -80,6 +82,44 @@ export class ZoneServer2016 extends ZoneServer {
         this._spawnLocations[randomSpawnIndex].name;
     }
     this.sendData(client, "SendSelfToClient", self);
+  }
+
+  async start(): Promise<void> {
+    debug("Starting server");
+    debug(`Protocol used : ${this._protocol.protocolName}`);
+    if (this._mongoAddress) {
+      const mongoClient = (this._mongoClient = new MongoClient(
+        this._mongoAddress,
+        {
+          useUnifiedTopology: true,
+          native_parser: true,
+        }
+      ));
+      try {
+        await mongoClient.connect();
+      } catch (e) {
+        throw debug("[ERROR]Unable to connect to mongo server");
+      }
+      if (mongoClient.isConnected()) {
+        debug("connected to mongo !");
+        // if no collections exist on h1server database , fill it with samples
+        (await mongoClient.db("h1server").collections()).length ||
+          (await initMongo(this._mongoAddress, debugName));
+        this._db = mongoClient.db("h1server");
+      } else {
+        throw debug("Unable to authenticate on mongo !");
+      }
+    }
+    await this.setupServer();
+    this._startTime += Date.now();
+    this._startGameTime += Date.now();
+    if (this._dynamicWeatherEnabled) {
+      this._dynamicWeatherInterval = setInterval(
+        () => dynamicWeather(this),
+        100
+      );
+    }
+    this._gatewayServer.start();
   }
 
   POIManager(client: Client) {
@@ -117,20 +157,20 @@ export class ZoneServer2016 extends ZoneServer {
     client.posAtLastRoutine = client.character.state.position;
   }
 
-  SendSkyChangedPacket(
+  SendWeatherUpdatePacket(
     client: Client,
-    weather: Weather,
+    weather: skyData,
     isGlobal = false
   ): void {
     if (isGlobal) {
-      this.sendDataToAll("SendZoneDetails", weather);
+      this.sendDataToAll("UpdateWeatherData", weather);
       if (client?.character?.name) {
         this.sendGlobalChatText(
           `User "${client.character.name}" has changed weather.`
         );
       }
     } else {
-      this.sendData(client, "SendZoneDetails", weather);
+      this.sendData(client, "UpdateWeatherData", weather);
     }
   }
 

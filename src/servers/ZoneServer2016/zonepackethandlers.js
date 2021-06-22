@@ -37,14 +37,12 @@ const packetHandlers = {
     server.sendData(client, "QuickChat.SendData", { commands: [] });
 
     server.sendData(client, "ClientUpdate.DoneSendingPreloadCharacters", {
-      done: 1,
+      done: true,
     }); // Required for WaitForWorldReady
 
-    /*
     server.sendData(client, "ClientUpdate.NetworkProximityUpdatesComplete", {
-      done: 1,
+      done: true,
     }); // Required for WaitForWorldReady
-    */
    
     server.sendData(client, "ClientUpdate.UpdateStat", { stats: [] });
 

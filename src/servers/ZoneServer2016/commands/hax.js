@@ -21,18 +21,16 @@ function getHeadActor(modelId) {
 const hax = {
   parachute: function (server, client, args) {
     const characterId = server.generateGuid();
-    const guid = server.generateGuid();
-    let posY = client.character.state.position[1] + 700;
     const vehicleData = {
       npcData: {
-        guid: guid,
+        guid: server.generateGuid(),
         transientId: 999999,
         characterId: characterId,
         modelId: 9374,
         scale: [1, 1, 1, 1],
         position: [
           client.character.state.position[0],
-          posY,
+          client.character.state.position[1] + 700,
           client.character.state.position[2],
           client.character.state.position[3],
         ],
@@ -41,13 +39,10 @@ const hax = {
         attachedObject: {},
         color: {},
       },
-      unknownDword1: 10,
-      unknownDword2: 10,
       positionUpdate: server.createPositionUpdate(
         new Float32Array([0, 0, 0, 0]),
         [0, 0, 0, 0]
       ),
-      unknownString1: "",
     };
     server.sendData(client, "AddLightweightVehicle", vehicleData);
     server._vehicles[characterId] = vehicleData;
@@ -61,9 +56,8 @@ const hax = {
   },
 
   tp: function(server, client, args) {
-    const choosenSpawnLocation = args[1];
     let locationPosition;
-    switch (choosenSpawnLocation) {
+    switch (args[1]) {
       case "zimms":
         locationPosition = new Float32Array([2209.17, 47.42, -1011.48, 1]);
         break;
@@ -112,20 +106,8 @@ const hax = {
       position: locationPosition,
       triggerLoadingScreen: true,
     });
-    const SendZoneDetails_packet = {
-      zoneName: "Z1",
-      unknownBoolean1: true,
-      zoneType: 4,
-      //skyData: weather,
-      skyData: {},
-      zoneId1: 3905829720,
-      zoneId2: 3905829720,
-      nameId: 7699,
-      unknownBoolean2: true,
-      unknownBoolean3: true,
-    };
-    server.sendData(client, "SendZoneDetails", SendZoneDetails_packet); // needed or screen is black, maybe use skyChanged instead?
-    server.sendData(client, "ClientBeginZoning", {}); // needed or no trees / foliage spawned on tp
+    
+    server.sendData(client, "UpdateWeatherData", {});
   },
 
   forceNight: function (server, client, args) {
@@ -321,12 +303,10 @@ const hax = {
     const guid = server.generateGuid();
     const transientId = server.getTransientId(client, guid);
     debug("spawnPcModel called");
-    /*
     if (!args[1]) {
-      server.sendChatText(client, "[ERROR] You need to specify a model id !");
+      server.sendChatText(client, "[ERROR] You need to specify a name !");
       return;
     }
-    */
     //const choosenModelId = Number(args[1]);
 
     const pc = {
@@ -335,7 +315,7 @@ const hax = {
       //modelId: choosenModelId,
       position: [client.character.state.position[0], client.character.state.position[1], client.character.state.position[2]],
       roation: client.character.state.rotation,
-      identity: {}
+      identity: {characterName: args[1]}
     };
     server.sendData(client, "AddLightweightPc", pc);
     // server._characters[guid] = pc; // save pc (disabled for now)
@@ -490,6 +470,22 @@ const hax = {
     debug(JSON.stringify(rnd_weather));
     server.changeWeather(client, rnd_weather);
   },
+  setNight: function(server, client, args) {
+    const skyData = {
+      sunAxisX: 180, // 0 - 360
+      sunAxisY: 180, // 0 - 360
+    };
+
+    server.sendData(client, "UpdateWeatherData", skyData);
+  },
+  setDay: function(server, client, args) {
+    const skyData = {
+      sunAxisX: 0, // 0 - 360
+      sunAxisY: 0, // 0 - 360
+    };
+
+    server.sendData(client, "UpdateWeatherData", skyData);
+  }
 };
 
 export default hax;
