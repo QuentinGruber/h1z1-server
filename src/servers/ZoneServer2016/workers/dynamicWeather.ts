@@ -145,7 +145,7 @@ var seasonstart = (function () {
 })();
 */
 
-export default function dynamicWeather(serverContext: ZoneServer2016) {
+export default function dynamicWeather(server: ZoneServer2016) {
 
   // sun axis
   sunposx += sunposXInc;
@@ -325,5 +325,5 @@ export default function dynamicWeather(serverContext: ZoneServer2016) {
     }),
   };
   */
-  serverContext.SendWeatherUpdatePacket({} as Client, weather, true);
+  server.SendWeatherUpdatePacket({} as Client, weather, true);
 }

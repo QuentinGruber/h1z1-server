@@ -1,5 +1,4 @@
 const debug = require("debug")("zonepacketHandlers");
-import { generateCharacterId } from "../../../utils/utils";
 
 const dev = {
   testpacket: function (server, client, args) {
@@ -7,7 +6,7 @@ const dev = {
     server.sendData(client, packetName, {});
   },
   testNpc: function (server, client, args) {
-    const characterId = generateCharacterId();
+    const characterId = server.generateGuid();
     server.sendData(client, "PlayerUpdate.AddLightweightNpc", {
       characterId: characterId,
       modelId: 9001,
@@ -242,6 +241,41 @@ const dev = {
     debug(skyData);
     server.sendData(client, "UpdateWeatherData", skyData);
   },
+
+  recipe: function(server, client, args) {
+    /*
+    if(!args[2]) {
+      server.sendChatText(client, "Missing 2 args");
+      return;
+    }
+    */
+    server.sendData(client, "Recipe.Add", {
+      unknownDword1: 93,
+      unknownDword2: 1536,
+      unknownDword3: 103,
+      unknownDword4: 4,
+      unknownDword5: 1537,
+      unknownDword6: 6,
+      unknownDword7: 6,
+      membersOnly: false,
+      unknownDword8: 5,
+      componentsLength: 1,
+      components: [
+        {
+          unknownDword0: 10,
+          unknownDword1: 49,
+          unknownDword2: 18,
+          unknownDword3: 4,
+          unknownDword4: 20,
+          unknownDword5: 5,
+          unknownQword1: "0x0000000000000001",
+          unknownDword6: 8,
+          unknownDword7: 0,
+        }
+      ],
+      unknownDword9: 8,
+    });
+  }
 };
 
 export default dev;

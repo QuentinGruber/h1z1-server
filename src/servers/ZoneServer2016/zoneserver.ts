@@ -25,7 +25,7 @@ import {
   isPosInRadius,
 } from "../../utils/utils";
 
-import { Db, MongoClient } from "mongodb";
+import { /*Db,*/ MongoClient } from "mongodb";
 import dynamicWeather from "./workers/dynamicWeather";
 // need to get 2016 lists
 // const spawnLocations = require("../../../data/2015/sampleData/spawnLocations.json");
@@ -60,8 +60,7 @@ export class ZoneServer2016 extends ZoneServer {
     client.character.loadouts = self.data.characterLoadoutData.loadouts;
     client.character.inventory = self.data.inventory;
     client.character.factionId = self.data.factionId;
-    client.character.name =
-      /*`${identity.characterFirstName} ${identity.characterLastName}` ||*/ identity.characterName;
+    client.character.name = identity.characterName;
 
     if (
       _.isEqual(self.data.position, [0, 0, 0, 1]) &&
@@ -122,7 +121,7 @@ export class ZoneServer2016 extends ZoneServer {
     this._gatewayServer.start();
   }
 
-  POIManager(client: Client) {
+  POIManager(client: Client) { // sends POIChangeMessage or clears it based on player location
     let isInAPOIArea = false;
     Z1_POIs.forEach((point: any) => {
       if ( isPosInRadius(point.range, client.character.state.position, point.position) ) {
@@ -157,11 +156,7 @@ export class ZoneServer2016 extends ZoneServer {
     client.posAtLastRoutine = client.character.state.position;
   }
 
-  SendWeatherUpdatePacket(
-    client: Client,
-    weather: skyData,
-    isGlobal = false
-  ): void {
+  SendWeatherUpdatePacket(client: Client, weather: skyData, isGlobal = false): void {
     if (isGlobal) {
       this.sendDataToAll("UpdateWeatherData", weather);
       if (client?.character?.name) {
@@ -195,7 +190,7 @@ export class ZoneServer2016 extends ZoneServer {
         : object.npcData.characterId;
       if (characterId in this._vehicles) {
         this.sendData(client, "PlayerUpdate.ManagedObject", {
-          guid: characterId,
+          objectCharacterId: characterId,
           characterId: client.character.characterId,
         });
       }
@@ -299,7 +294,7 @@ export class ZoneServer2016 extends ZoneServer {
           1
         );
         this.sendData(client, "PlayerUpdate.ManagedObject", {
-          guid: this._vehicles[vehicle].npcData.characterId,
+          objectCharacterId: this._vehicles[vehicle].npcData.characterId,
           characterId: client.character.characterId,
         });
         client.spawnedEntities.push(this._vehicles[vehicle]);
@@ -343,7 +338,6 @@ export class ZoneServer2016 extends ZoneServer {
         ) {
           this.sendData(
             client,
-            //"AddLightweightNpc",
             "AddSimpleNpc",
             this._doors[door],
             1
@@ -356,7 +350,6 @@ export class ZoneServer2016 extends ZoneServer {
 
   createAllObjects(): void {
     const { createAllEntities } = require("./workers/createBaseEntities");
-    // const { createAllEntities } = require("../ZoneServer/workers/createBaseEntities");
     const { npcs, objects, vehicles, doors } = createAllEntities(this);
     this._npcs = npcs;
     this._objects = objects;

@@ -629,7 +629,7 @@ const packetHandlers = {
     });
 
     server.sendData(client, "PlayerUpdate.ManagedObject", {
-      guid: packet.data.guid,
+      objectCharacterId: packet.data.guid,
       guid2: "0x0000000000000000",
       characterId: client.character.characterId,
     });

@@ -1,4 +1,3 @@
-//import { generateCharacterId } from "../../../utils/utils";
 const _ = require("lodash");
 const debug = require("debug")("zonepacketHandlers");
 import fs from "fs";
@@ -109,35 +108,6 @@ const hax = {
     
     server.sendData(client, "UpdateWeatherData", {});
   },
-
-  forceNight: function (server, client, args) {
-    server.forceTime(1615062252322);
-    server.sendChatText(
-      client,
-      "[Deprecated] This command will be removed in futher updates",
-      true
-    );
-    server.sendChatText(
-      client,
-      "Use /hax time {choosen hour as float} instead",
-      false
-    );
-    server.sendChatText(client, "Will force Night time on next sync...", false);
-  },
-  forceDay: function (server, client, args) {
-    server.forceTime(971172000000);
-    server.sendChatText(
-      client,
-      "[Deprecated] This command will be removed in futher updates",
-      true
-    );
-    server.sendChatText(
-      client,
-      "Use /hax time {choosen hour as float} instead",
-      false
-    );
-    server.sendChatText(client, "Will force Day time on next sync...", false);
-  },
   time: function (server, client, args) {
     const choosenHour = Number(args[1]);
     if (choosenHour < 0) {
@@ -186,7 +156,7 @@ const hax = {
       };
       server.sendData( client, "AddLightweightVehicle", vehicle );
       server.sendData(client, "PlayerUpdate.ManagedObject", {
-        guid: characterId,
+        objectCharacterId: characterId,
         characterId: client.character.characterId,
       });
       server._vehicles[characterId] = vehicle; // save vehicle
@@ -208,7 +178,6 @@ const hax = {
         characterId: characterId,
         transientId: transientId,
         position: [client.character.state.position[0], client.character.state.position[1], client.character.state.position[2]],
-        //rotation: [client.character.state.rotation[0], client.character.state.rotation[1], client.character.state.rotation[2]],
         rotation: [Number(args[2]), Number(args[3]), Number(args[4])],
         modelId: choosenModelId,
         showHealth: false
@@ -247,7 +216,7 @@ const hax = {
     if (!args[1]) {
       server.sendChatText(
         client,
-        "[ERROR] Usage /hax drive offroader/pickup/policecar/atv"
+        "[ERROR] Usage /hax spawnVehicle offroader/pickup/policecar/atv"
       );
       return;
     }
@@ -293,7 +262,7 @@ const hax = {
     };
     server.sendData(client, "AddLightweightVehicle", vehicle);
     server.sendData(client, "PlayerUpdate.ManagedObject", {
-      guid: characterId,
+      objectCharacterId: characterId,
       characterId: client.character.characterId,
     });
     server._vehicles[characterId] = vehicle; // save vehicle

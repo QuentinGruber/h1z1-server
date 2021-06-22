@@ -2108,6 +2108,36 @@ const skyData = [
     { name: "unknownDword33", type: "float", defaultValue: 0 },
 ];
 
+const recipeData = [
+    { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+    { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+    { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+    { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+    { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+    { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+    { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+    { name: "memberOnly", type: "boolean", defaultValue: false },
+    { name: "unknownDword8", type: "uint32", defaultValue: 0 },
+    { name: "componentsLength", type: "uint32", defaultValue: 1 },
+    {
+        name: "components",
+        type: "array",
+        defaultValue: [{}],
+        fields: [
+            { name: "unknownDword0", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+            { name: "unknownQword1", type: "uint64", defaultValue: "0" },
+            { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+        ],
+    },
+    { name: "unknownDword9", type: "uint32", defaultValue: 0 },
+];
+
 const packets = [
   ["Server", 0x01, {}],
   ["ClientFinishedLoading", 0x02, {}],
@@ -2309,40 +2339,12 @@ const packets = [
                               },
                           ],
                       },
+                      { name: "recipesArrLength", type: "uint32", defaultValue: 1 },
                       {
                           name: "recipes",
                           type: "array",
                           defaultValue: [{}],
-                          fields: [
-                              { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                              { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                              { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-                              { name: "unknownDword4", type: "uint32", defaultValue: 0 },
-                              { name: "unknownDword5", type: "uint32", defaultValue: 0 },
-                              { name: "unknownDword6", type: "uint32", defaultValue: 0 },
-                              {
-                                  name: "unknownBoolean1",
-                                  type: "boolean",
-                                  defaultValue: true,
-                              },
-                              { name: "unknownDword7", type: "uint32", defaultValue: 0 },
-                              {
-                                  name: "components",
-                                  type: "array",
-                                  defaultValue: [{}],
-                                  fields: [
-                                      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                                      { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                                      { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-                                      { name: "unknownDword4", type: "uint32", defaultValue: 0 },
-                                      { name: "unknownDword5", type: "uint32", defaultValue: 0 },
-                                      { name: "unknownQword1", type: "uint64", defaultValue: 0 },
-                                      { name: "unknownDword6", type: "uint32", defaultValue: 0 },
-                                      { name: "unknownDword7", type: "uint32", defaultValue: 0 },
-                                  ],
-                              },
-                              { name: "unknownDword8", type: "uint32", defaultValue: 0 },
-                          ],
+                          fields: recipeData,
                       },
                       {
                           name: "mounts",
@@ -4653,7 +4655,7 @@ const packets = [
       0x0f3b,
       {
           fields: [
-              { name: "guid", type: "uint64", defaultValue: "0" },
+              { name: "objectCharacterId", type: "uint64", defaultValue: "0" },
               { name: "guid2", type: "uint64", defaultValue: "0" },
               { name: "characterId", type: "uint64", defaultValue: "0" },
           ],
@@ -5175,9 +5177,9 @@ const packets = [
   ["EscrowGivePackage", 0x23, {}],
   ["EscrowGotPackage", 0x24, {}],
   ["UpdateEncounterDataCommon", 0x25, {}],
-  ["Recipe.Add", 0x2601, {}],
+  ["Recipe.Add", 0x2601, { fields: recipeData }],
   ["Recipe.ComponentUpdate", 0x2602, {}],
-  ["Recipe.Remove", 0x2603, {}],
+  [ "Recipe.Remove", 0x2603, {} ],
   [
       "Recipe.List",
       0x2605,
