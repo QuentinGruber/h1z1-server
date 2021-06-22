@@ -5671,7 +5671,7 @@ var packets = [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         {
           name: "unknownArray1",
-          type: "array8",
+          type: "array",
           defaultValue: [],
           fields: [
             { name: "unknownBoolean1", type: "boolean", defaultValue: false },
@@ -5680,7 +5680,7 @@ var packets = [
         },
         {
           name: "unknownArray2",
-          type: "array8",
+          type: "array",
           defaultValue: [],
           fields: [
             { name: "unknownBoolean1", type: "boolean", defaultValue: false },
@@ -5698,23 +5698,36 @@ var packets = [
           defaultValue: [0, 0, 0, 0],
         },
         { name: "unknownByte3", type: "uint8", defaultValue: 0 },
-
         {
           name: "unknownArray3",
-          type: "array8",
+          type: "array",
           defaultValue: [],
           fields: [
             //TODO
           ],
         },
-
-        // TODO fields from FUN_1401ab630 this array can't be empty
         {
           name: "unknownArray4",
-          type: "array8",
+          type: "array",
           defaultValue: [],
           fields: [
-            //TODO FUN_1401806c0
+            // TODO: 1401ab630
+          ],
+        },
+        {
+          name: "vehicleStats",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            // using the "stat" schema
+          ],
+        },
+        {
+          name: "characterStats", // not sure about the name
+          type: "array",
+          defaultValue: [],
+          fields: [
+            // TODO: 1401f48c0
           ],
         },
       ],

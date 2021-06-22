@@ -14,7 +14,7 @@ try {
   // delete commands cache if exist so /dev reloadPackets reload them too
   delete require.cache[require.resolve("./commands/hax")];
   delete require.cache[require.resolve("./commands/dev")];
-} catch (e) {}
+} catch (e) { }
 
 const Jenkins = require("hash-jenkins");
 import hax from "./commands/hax";
@@ -1199,8 +1199,8 @@ const packetHandlers: any = {
                         server.sendChatText(
                           client,
                           "NPC definition " +
-                            npcDefinitionMapping.npc_definition_id +
-                            " not found"
+                          npcDefinitionMapping.npc_definition_id +
+                          " not found"
                         );
                         return;
                       }
@@ -1644,10 +1644,19 @@ const packetHandlers: any = {
         transientId: pcData.transientId,
       });
     } else if (server._vehicles[guid]) {
-      /*server.sendData(client, "PlayerUpdate.LightweightToFullVehicle", {
-      characterId: guid,
-      });*/
-      debug("LightweightToFullVehicle");
+      console.log(server._vehicles[guid]);
+      const npcData = {
+        transientId: server._vehicles[guid].npcData.transientId,
+        unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
+        unknownDword2: 13951728,
+        unknownDword3: 1,
+        unknownDword6: 100,
+      };
+      server.sendData(client, "PlayerUpdate.LightweightToFullVehicle", {
+        npcData: npcData,
+        characterId: guid,
+      });
+      console.log(guid);
     }
   },
 };
