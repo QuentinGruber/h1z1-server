@@ -454,6 +454,71 @@ const hax = {
     };
 
     server.sendData(client, "UpdateWeatherData", skyData);
+  },
+  equipment: function(server, client, args) {
+    let effect, model, slot;
+    if(!args[1]) {
+      server.sendChatText(client, "[ERROR] Missing name !");
+      server.sendChatText(client, "Valid options: hoodie, shirt, pants, helmet, backpack, shoes, armor, gloves");
+      return;
+    }
+    if(!args[2]) {
+      server.sendChatText(client, "No effect added.");
+      effect = 0;
+    } else {
+      effect = args[2];
+    }
+    switch(args[1]) {
+      case "hoodie":
+        model = "SurvivorMale_Chest_Hoodie_Up_Tintable.adr";
+        slot = 3;
+        break;
+      case "shirt":
+        model = "SurvivorMale_Chest_Shirt_Henley.adr";
+        slot = 3;
+        break;
+      case "pants":
+        model = "SurvivorMale_Legs_Pants_StraightLeg.adr";
+        slot = 4;
+        break;
+      case "helmet":
+        model = "SurvivorMale_Head_Helmet_Motorcycle_Tintable.adr";
+        slot = 15;
+        break;
+      case "backpack":
+        //model = "SurvivorMale_Back_Backpack_Military.adr";
+        model = "SurvivorMale_Back_Backpack_Military_Rasta.adr";
+        slot = 10;
+        break;
+      case "shoes":
+        model = "SurvivorMale_Feet_Conveys_Tintable.adr";
+        slot = 5;
+        break;
+      case "armor":
+        model = "SurvivorMale_Armor_Kevlar_Military.adr";
+        slot = 100;
+        break;
+      case "gloves":
+        model = "SurvivorMale_Hands_Gloves_Padded.adr";
+        slot = 2;
+        break;
+      case "bandana":
+        model = "SurvivorMale_Face_Bandana.adr"
+        slot = 28;
+    }
+    const equipmentSlot = {
+      unknownData1: {
+        characterId: client.character.characterId
+      },
+      unknownData2: {
+        model: model,
+        effectId: Number(effect), // 0 - 16
+        equipmentSlotId: slot,
+        unknownArray1: []
+      }
+    };
+    server.sendChatText(client, `Setting character equipment slot: ${args[1]}`);
+    server.sendData(client, "Equipment.SetCharacterEquipmentSlot", equipmentSlot);
   }
 };
 

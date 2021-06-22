@@ -215,21 +215,19 @@ const packetHandlers = {
         }
       }
     });
-    /* // this works, just dont need it rn
-    server.sendData(client, "ResourceEvent", {
-      eventData: {
-        type: 2,
-        value: {
-          characterId: client.character.characterId,
-          resourceId: 21, // bleeding
-          resourceType: 21,
-          unknownArray1:[],
-          value: 100, // 100 max
-          unknownArray2: [],
-        }
+
+    const equipmentSlot = {
+      unknownData1: {
+        characterId: client.character.characterId
+      },
+      unknownData2: {
+        model: "SurvivorMale_Hair_ShortMessy.adr",
+        effectId: 0,
+        equipmentSlotId: 27,
+        unknownArray1: []
       }
-    });
-    */
+    };
+    server.sendData(client, "Equipment.SetCharacterEquipmentSlot", equipmentSlot);
 
   },
   ClientFinishedLoading: function (server, client, packet) {

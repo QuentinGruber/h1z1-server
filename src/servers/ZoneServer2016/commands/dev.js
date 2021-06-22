@@ -138,12 +138,22 @@ const dev = {
     server.sendData(client, "Container.Error", container);
   },
   setequipment: function (server, client, args) {
+    if(!args[5]) {
+      server.sendChatText(client, "Missing 5 args");
+      return;
+    }
     const equipmentEvent = {
       unknownData1: {
-        unknownData1: {},
-        unknownData2: {
-          unknownArray1: []
-        }
+        characterId: client.character.characterId
+      },
+      unknownData2: {
+        unknownString1: "SurvivorMale_Chest_Hoodie_Up_Tintable.adr",
+        unknownDword1: Number(args[1]),
+        unknownDword2: Number(args[2]), // 1, 2, 4
+        effectId: Number(args[3]), // 0 - 16
+        equipmentSlotId: Number(args[4]), // backpack: 10
+        unknownDword4: Number(args[5]),
+        unknownArray1: []
       }
     };
     server.sendChatText(client, "Setting character equipment");
