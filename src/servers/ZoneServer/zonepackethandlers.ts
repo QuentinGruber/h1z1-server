@@ -14,7 +14,7 @@ try {
   // delete commands cache if exist so /dev reloadPackets reload them too
   delete require.cache[require.resolve("./commands/hax")];
   delete require.cache[require.resolve("./commands/dev")];
-} catch (e) { }
+} catch (e) {}
 
 const Jenkins = require("hash-jenkins");
 import hax from "./commands/hax";
@@ -695,14 +695,14 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
-    debug(packet);;
-	let destroyedVehicleEffect = 0;
-	let destroyedVehicleModel = 0;
-	let minorDamageEffect = 0;
-	let majorDamageEffect = 0;
-	let criticalDamageEffect = 0;
+    debug(packet);
+    let destroyedVehicleEffect = 0;
+    let destroyedVehicleModel = 0;
+    let minorDamageEffect = 0;
+    let majorDamageEffect = 0;
+    let criticalDamageEffect = 0;
     vehicleState++;
-    switch (client.mountedVehicleType) {  
+    switch (client.mountedVehicleType) {
       case "offroader":
         destroyedVehicleEffect = 135;
         destroyedVehicleModel = 7226;
@@ -1301,8 +1301,8 @@ const packetHandlers: any = {
                         server.sendChatText(
                           client,
                           "NPC definition " +
-                          npcDefinitionMapping.npc_definition_id +
-                          " not found"
+                            npcDefinitionMapping.npc_definition_id +
+                            " not found"
                         );
                         return;
                       }
@@ -1761,7 +1761,7 @@ const packetHandlers: any = {
         transientId: pcData.transientId,
       });
     } else if (server._vehicles[guid]) {
-      const npcData = {
+     /* const npcData = {  DISABLED create some issues
         transientId: server._vehicles[guid].npcData.transientId,
         unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
         unknownDword2: 13951728,
@@ -1771,7 +1771,7 @@ const packetHandlers: any = {
       server.sendData(client, "PlayerUpdate.LightweightToFullVehicle", {
         npcData: npcData,
         characterId: guid,
-      });
+      });*/
     }
   },
 };

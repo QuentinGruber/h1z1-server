@@ -11,20 +11,20 @@ let isVehicle = false;
 const hax: any = {
   siren: function (server: ZoneServer, client: Client, args: any[]) {
     switch (client.mountedVehicleType) {
-		case "policecar":
-		server.sendData(client, "Mount.DismountResponse", {
-        characterId: client.character.characterId,
-      });
-      server.sendData(client, "Mount.MountResponse", {
-        characterId: client.character.characterId,
-        guid: client.mountedVehicle,
-        unknownDword4: 275,
-        characterData: {},
-      });		
-	  break;
-     default:     
-	  server.sendChatText(client, "You are not in a police car");
-	  break;
+      case "policecar":
+        server.sendData(client, "Mount.DismountResponse", {
+          characterId: client.character.characterId,
+        });
+        server.sendData(client, "Mount.MountResponse", {
+          characterId: client.character.characterId,
+          guid: client.mountedVehicle,
+          unknownDword4: 275,
+          characterData: {},
+        });
+        break;
+      default:
+        server.sendChatText(client, "You are not in a police car");
+        break;
     }
   },
   headlights: function (server: ZoneServer, client: Client, args: any[]) {

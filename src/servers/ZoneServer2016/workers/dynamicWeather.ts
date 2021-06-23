@@ -146,23 +146,22 @@ var seasonstart = (function () {
 */
 
 export default function dynamicWeather(server: ZoneServer2016) {
-
   // sun axis
   sunposx += sunposXInc;
   if (sunposx === sunposXmax) {
     sunposx = 0;
   }
-/*
+  /*
   if (sunposx < sunposXmin) {
     sunposx = sunposXmax;
   }
 */
-  
+
   sunposy += sunposYInc;
   if (sunposy === sunposYmax) {
     sunposy = 0;
   }
-/*
+  /*
   if (sunposy < sunposYmin) {
     sunposy = sunposYmin;
   }
@@ -175,9 +174,9 @@ export default function dynamicWeather(server: ZoneServer2016) {
     sunAxisX: sunposx,
     sunAxisY: sunposy,
     wind: 0,
-  }
+  };
   console.log(weather);
-  console.log(`${sunposx}, ${sunposy}`)
+  console.log(`${sunposx}, ${sunposy}`);
   /*
   //rain strength
   const rainchancestr = randomIntFromInterval(rainIncMin, rainIncMax); // rain strength increase
