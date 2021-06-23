@@ -28,6 +28,13 @@ const modelToName = require("../../../data/2015/sampleData/ModelToName.json");
 const _ = require("lodash");
 const debug = require("debug")("zonepacketHandlers");
 
+let vehicleState = 0;
+let destroyedVehicleEffect = 0;
+let destroyedVehicleModel = 0;
+let minorDamageEffect = 0;
+let majorDamageEffect = 0;
+let criticalDamageEffect = 0;
+
 const packetHandlers: any = {
   ClientIsReady: function (server: ZoneServer, client: Client, packet: any) {
     /* still disable
