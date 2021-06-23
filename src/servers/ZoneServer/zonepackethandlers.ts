@@ -14,7 +14,7 @@ try {
   // delete commands cache if exist so /dev reloadPackets reload them too
   delete require.cache[require.resolve("./commands/hax")];
   delete require.cache[require.resolve("./commands/dev")];
-} catch (e) { }
+} catch (e) {}
 
 const Jenkins = require("hash-jenkins");
 import hax from "./commands/hax";
@@ -695,14 +695,14 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
-    debug(packet);;
-	let destroyedVehicleEffect = 0;
-	let destroyedVehicleModel = 0;
-	let minorDamageEffect = 0;
-	let majorDamageEffect = 0;
-	let criticalDamageEffect = 0;
+    debug(packet);
+    let destroyedVehicleEffect = 0;
+    let destroyedVehicleModel = 0;
+    let minorDamageEffect = 0;
+    let majorDamageEffect = 0;
+    let criticalDamageEffect = 0;
     vehicleState++;
-    switch (client.mountedVehicleType) {  
+    switch (client.mountedVehicleType) {
       case "offroader":
         destroyedVehicleEffect = 135;
         destroyedVehicleModel = 7226;
@@ -1301,8 +1301,8 @@ const packetHandlers: any = {
                         server.sendChatText(
                           client,
                           "NPC definition " +
-                          npcDefinitionMapping.npc_definition_id +
-                          " not found"
+                            npcDefinitionMapping.npc_definition_id +
+                            " not found"
                         );
                         return;
                       }

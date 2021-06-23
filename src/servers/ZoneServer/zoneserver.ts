@@ -870,7 +870,7 @@ export class ZoneServer extends EventEmitter {
     );
     delete dictionnary[characterId];
   }
-  
+
   vehicleDelete(client: Client) {
     if (client.mountedVehicle) {
       delete this._vehicles[client.mountedVehicle];

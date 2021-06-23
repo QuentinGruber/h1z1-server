@@ -92,24 +92,24 @@ const dev = {
     server.sendData(client, "ResourceEvent", resourceEvent);
   },
   selectloadout: function (server, client, args) {
-    if(!args[1]) {
+    if (!args[1]) {
       server.sendChatText(client, "Missing unknownDword1 arg");
       return;
     }
     const loadout = {
-      unknownDword1: Number(args[1])
+      unknownDword1: Number(args[1]),
     };
     server.sendChatText(client, "Sending selectloadout packet");
     server.sendData(client, "Loadout.SelectLoadout", loadout);
   },
   setcurrentloadout: function (server, client, args) {
-    if(!args[1]) {
+    if (!args[1]) {
       server.sendChatText(client, "Missing loadoutId arg");
       return;
     }
     const loadout = {
       characterId: client.character.characterId,
-      loadoutId: Number(args[1])
+      loadoutId: Number(args[1]),
     };
     server.sendChatText(client, "Sending setcurrentloadout packet");
     server.sendData(client, "Loadout.SetCurrentLoadout", loadout);
@@ -128,13 +128,13 @@ const dev = {
             unknownData1: {
               unknownDword1: 16,
               unknownQword1: server.generateGuid(),
-              unknownByte1: 17
+              unknownByte1: 17,
             },
-            unknownDword4: 18
-          }
-        ]
+            unknownDword4: 18,
+          },
+        ],
       },
-      unknownDword2: 19
+      unknownDword2: 19,
     };
     server.sendChatText(client, "Sending selectslot packet");
     server.sendData(client, "Loadout.SelectSlot", loadout);
@@ -149,31 +149,32 @@ const dev = {
           containerItems: {
             itemsLength: 1,
             items: [
-              {itemData: {
-                itemSubData: {
-                  unknownData1: {}
-                }
-              }}
-            ]
-          }
-        }
+              {
+                itemData: {
+                  itemSubData: {
+                    unknownData1: {},
+                  },
+                },
+              },
+            ],
+          },
+        },
       ],
       array1Length: 1,
-      array1: [{unknownQword1: server.generateGuid(), unknownDword1: 2}]
-    }
+      array1: [{ unknownQword1: server.generateGuid(), unknownDword1: 2 }],
+    };
 
     server.sendData(client, "Container.unknown2", containerData);
   },
   containererror: function (server, client, args) {
-    
-    if(!args[1]){
+    if (!args[1]) {
       server.sendChatText(client, "Missing containerError arg");
       return;
     }
     const container = {
       characterId: client.character.characterId,
-      containerError: parseInt(args[1])
-    }
+      containerError: parseInt(args[1]),
+    };
 
     server.sendData(client, "Container.Error", container);
   },
@@ -206,17 +207,18 @@ const dev = {
     };
     server.sendData(client, "Equipment.SetCharacterEquipmentSlot", equipmentEvent);
     */
-   const equipment = { // not working yet, attachment error (texture related?)
+    const equipment = {
+      // not working yet, attachment error (texture related?)
       characterData: {
-        characterId: client.character.characterId
+        characterId: client.character.characterId,
       },
       gameTime: 1,
       slotsArrayLength: 1,
       slots: [
         {
           index: 1, // needs to be non-zero
-          slotId: 3 // needs to be non-zero
-        }
+          slotId: 3, // needs to be non-zero
+        },
       ],
       unknownDword1: 1,
       equipmentTexturesArrayLength: 1,
@@ -226,8 +228,8 @@ const dev = {
           slotId: 3, // needs to be non-zero
           unknownQword1: "0x1", // needs to be non-zero
           textureAlias: "",
-          unknownString1: ""
-        }
+          unknownString1: "",
+        },
       ],
       equipmentModelsArrayLength: 1,
       equipmentModels: [
@@ -238,17 +240,16 @@ const dev = {
           effectId: 6, // 0 - 16
           equipmentSlotId: 3,
           unknownDword4: 0,
-          unknownArray1: []
-        }
-      ]
-   }
+          unknownArray1: [],
+        },
+      ],
+    };
     server.sendChatText(client, "Setting character equipment");
     server.sendData(client, "Equipment.SetCharacterEquipmentSlots", equipment);
-  
   },
 
   tpVehicle: function (server, client, args) {
-    if(!args[1]) {
+    if (!args[1]) {
       server.sendChatText(client, "Missing vehicleId arg");
       return;
     }
@@ -262,22 +263,22 @@ const dev = {
     let found = false;
     for (const v in server._vehicles) {
       console.log(server._vehicles[v]);
-      if(server._vehicles[v].npcData.modelId === parseInt(args[1])) {
+      if (server._vehicles[v].npcData.modelId === parseInt(args[1])) {
         location.position = server._vehicles[v].npcData.position;
         server.sendData(client, "ClientUpdate.UpdateLocation", location);
         server.sendData(client, "UpdateWeatherData", {});
         found = true;
         break;
       }
-    };
-    if(found) {
+    }
+    if (found) {
       server.sendChatText(client, "TPed successfully");
     } else {
       server.sendChatText(client, `No vehicles of ID: ${args[1]} found`);
     }
   },
 
-  updateWeather: function(server, client, args) {
+  updateWeather: function (server, client, args) {
     /*
     if(!args[7]) {
       server.sendChatText(client, "Missing 7 args");
@@ -330,7 +331,7 @@ const dev = {
     server.sendData(client, "UpdateWeatherData", skyData);
   },
 
-  recipe: function(server, client, args) {
+  recipe: function (server, client, args) {
     /*
     if(!args[2]) {
       server.sendChatText(client, "Missing 2 args");
@@ -359,7 +360,7 @@ const dev = {
           unknownQword1: "0x0000000000000001",
           unknownDword6: 8,
           unknownDword7: 0,
-        }
+        },
       ],
       unknownDword9: 8,
     });
