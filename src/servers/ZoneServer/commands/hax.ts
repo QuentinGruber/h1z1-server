@@ -7,8 +7,53 @@ const debug = require("debug")("zonepacketHandlers");
 
 let isSonic = false;
 let isVehicle = false;
+let headlightType = 0;
 
 const hax: any = {
+  siren: function (server: ZoneServer, client: Client, args: any[]) {
+    if (client.isPolice) {
+      server.sendData(client, "Mount.DismountResponse", {
+        characterId: client.character.characterId,
+      });
+      server.sendData(client, "Mount.MountResponse", {
+        characterId: client.character.characterId,
+        guid: client.mountedVehicle,
+        unknownDword4: 275,
+        characterData: {},
+      });
+    } else {
+      server.sendChatText(client, "You are not in a police car");
+    }
+  },
+  headlights: function (server: ZoneServer, client: Client, args: any[]) {
+    switch (client.mountedVehicleType) {
+      case "offroader":
+        headlightType = 273;
+        break;
+      case "pickup":
+        headlightType = 321;
+        break;
+      case "policecar":
+        headlightType = 281;
+        break;
+      default:
+        headlightType = 273;
+        break;
+    }
+    if (client.mountedVehicleType != "0") {
+      server.sendData(client, "Mount.DismountResponse", {
+        characterId: client.character.characterId,
+      });
+      server.sendData(client, "Mount.MountResponse", {
+        characterId: client.character.characterId,
+        guid: client.mountedVehicle,
+        unknownDword4: headlightType,
+        characterData: {},
+      });
+    } else {
+      server.sendChatText(client, "You are not in a vehicle");
+    }
+  },
   drive: function (server: ZoneServer, client: Client, args: any[]) {
     let vehicleId;
     let driveModel;
