@@ -28,12 +28,7 @@ const modelToName = require("../../../data/2015/sampleData/ModelToName.json");
 const _ = require("lodash");
 const debug = require("debug")("zonepacketHandlers");
 
-let vehicleState = 0;
-let destroyedVehicleEffect = 0;
-let destroyedVehicleModel = 0;
-let minorDamageEffect = 0;
-let majorDamageEffect = 0;
-let criticalDamageEffect = 0;
+let vehicleState = 0; // has to be defined here or the value will reset before each switch
 
 const packetHandlers: any = {
   ClientIsReady: function (server: ZoneServer, client: Client, packet: any) {
@@ -275,7 +270,6 @@ const packetHandlers: any = {
     client.isLoading = false;
     delete client.mountedVehicle;
     client.mountedVehicleType = "0";
-    client.isPolice = false;
   },
   Security: function (server: ZoneServer, client: Client, packet: any) {
     debug(packet);
@@ -601,7 +595,6 @@ const packetHandlers: any = {
     });
     delete client.mountedVehicle;
     client.mountedVehicleType = "0";
-    client.isPolice = false;
   },
   "Command.InteractRequest": function (
     server: ZoneServer,
@@ -702,9 +695,14 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
-    debug(packet);
+    debug(packet);;
+	let destroyedVehicleEffect = 0;
+	let destroyedVehicleModel = 0;
+	let minorDamageEffect = 0;
+	let majorDamageEffect = 0;
+	let criticalDamageEffect = 0;
     vehicleState++;
-    switch (client.mountedVehicleType) {
+    switch (client.mountedVehicleType) {  
       case "offroader":
         destroyedVehicleEffect = 135;
         destroyedVehicleModel = 7226;
@@ -765,7 +763,6 @@ const packetHandlers: any = {
       client.mountedVehicleType = "0";
       delete client.mountedVehicle;
       vehicleState = 0;
-      client.isPolice = false;
     } else if (vehicleState === 500) {
       server.sendData(client, "Mount.DismountResponse", {
         characterId: client.character.characterId,
@@ -1701,7 +1698,6 @@ const packetHandlers: any = {
           break;
         case 3:
           client.mountedVehicleType = "policecar";
-          client.isPolice = true;
           break;
         default:
           client.mountedVehicleType = "offroader";
