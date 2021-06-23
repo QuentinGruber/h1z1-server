@@ -7,12 +7,12 @@ const debug = require("debug")("zonepacketHandlers");
 
 let isSonic = false;
 let isVehicle = false;
-let headlightType = 0;
 
 const hax: any = {
   siren: function (server: ZoneServer, client: Client, args: any[]) {
-    if (client.isPolice) {
-      server.sendData(client, "Mount.DismountResponse", {
+    switch (client.mountedVehicleType) {
+		case "policecar":
+		server.sendData(client, "Mount.DismountResponse", {
         characterId: client.character.characterId,
       });
       server.sendData(client, "Mount.MountResponse", {
@@ -20,12 +20,15 @@ const hax: any = {
         guid: client.mountedVehicle,
         unknownDword4: 275,
         characterData: {},
-      });
-    } else {
-      server.sendChatText(client, "You are not in a police car");
+      });		
+	  break;
+     default:     
+	  server.sendChatText(client, "You are not in a police car");
+	  break;
     }
   },
   headlights: function (server: ZoneServer, client: Client, args: any[]) {
+    let headlightType = 0;
     switch (client.mountedVehicleType) {
       case "offroader":
         headlightType = 273;
