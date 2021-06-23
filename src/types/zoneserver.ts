@@ -2,7 +2,6 @@ export interface Client {
   currentPOI?: number;
   firstLoading: boolean;
   isLoading: boolean;
-  isPolice: boolean;
   mountedVehicle?: string;
   mountedVehicleType: string;
   posAtLastRoutine: Float32Array;
