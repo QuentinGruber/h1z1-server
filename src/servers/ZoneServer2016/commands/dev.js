@@ -1,4 +1,5 @@
 const debug = require("debug")("zonepacketHandlers");
+// import fs from "fs";
 
 const dev = {
   testpacket: function (server, client, args) {
@@ -88,18 +89,55 @@ const dev = {
     server.sendChatText(client, "Setting character resource");
     server.sendData(client, "ResourceEvent", resourceEvent);
   },
-  setloadout: function (server, client, args) {
-    const loadoutEvent = {
-      eventData: {
-        type: 2,
-        value: {
-
-        }
-      }
+  selectloadout: function (server, client, args) {
+    if(!args[1]) {
+      server.sendChatText(client, "Missing unknownDword1 arg");
+      return;
+    }
+    const loadout = {
+      unknownDword1: Number(args[1])
     };
-    server.sendChatText(client, "Setting character loadout");
-    server.sendData(client, "LoadoutEvent", loadoutEvent);
+    server.sendChatText(client, "Sending selectloadout packet");
+    server.sendData(client, "Loadout.SelectLoadout", loadout);
   },
+  setcurrentloadout: function (server, client, args) {
+    if(!args[1]) {
+      server.sendChatText(client, "Missing loadoutId arg");
+      return;
+    }
+    const loadout = {
+      characterId: client.character.characterId,
+      loadoutId: Number(args[1])
+    };
+    server.sendChatText(client, "Sending setcurrentloadout packet");
+    server.sendData(client, "Loadout.SetCurrentLoadout", loadout);
+  },
+  selectslot: function (server, client, args) {
+    const loadout = {
+      characterId: client.character.characterId,
+      loadoutItemLoadoutId: 5,
+      unknownData1: {
+        unknownArray1Length: 1,
+        unknownArray1: [
+          {
+            unknownDword1: 1,
+            loadoutItemSlotId: 1,
+            itemDefinitionId: 2425,
+            unknownData1: {
+              unknownDword1: 16,
+              unknownQword1: server.generateGuid(),
+              unknownByte1: 17
+            },
+            unknownDword4: 18
+          }
+        ]
+      },
+      unknownDword2: 19
+    };
+    server.sendChatText(client, "Sending selectslot packet");
+    server.sendData(client, "Loadout.SelectSlot", loadout);
+  },
+
   containerevent: function (server, client, args) {
     const containerData = {
       ignore: client.character.characterId,
@@ -138,16 +176,24 @@ const dev = {
     server.sendData(client, "Container.Error", container);
   },
   setequipment: function (server, client, args) {
+    /*
     if(!args[5]) {
       server.sendChatText(client, "Missing 5 args");
       return;
     }
     const equipmentEvent = {
-      unknownData1: {
+      characterData: {
         characterId: client.character.characterId
       },
-      unknownData2: {
-        unknownString1: "SurvivorMale_Chest_Hoodie_Up_Tintable.adr",
+      equipmentTexture: {
+        index: 1, // needs to be non-zero
+        slotId: 1, // needs to be non-zero
+        unknownQword1: "0x1", // needs to be non-zero
+        textureAlias: "",
+        unknownString1: ""
+      },
+      equipmentModel: {
+        model: "SurvivorMale_Chest_Hoodie_Up_Tintable.adr",
         unknownDword1: Number(args[1]),
         unknownDword2: Number(args[2]), // 1, 2, 4
         effectId: Number(args[3]), // 0 - 16
@@ -156,8 +202,47 @@ const dev = {
         unknownArray1: []
       }
     };
-    server.sendChatText(client, "Setting character equipment");
     server.sendData(client, "Equipment.SetCharacterEquipmentSlot", equipmentEvent);
+    */
+   const equipment = { // not working yet, attachment error (texture related?)
+      characterData: {
+        characterId: client.character.characterId
+      },
+      gameTime: 1,
+      slotsArrayLength: 1,
+      slots: [
+        {
+          index: 1, // needs to be non-zero
+          slotId: 3 // needs to be non-zero
+        }
+      ],
+      unknownDword1: 1,
+      equipmentTexturesArrayLength: 1,
+      equipmentTextures: [
+        {
+          index: 1, // needs to be non-zero
+          slotId: 3, // needs to be non-zero
+          unknownQword1: "0x1", // needs to be non-zero
+          textureAlias: "",
+          unknownString1: ""
+        }
+      ],
+      equipmentModelsArrayLength: 1,
+      equipmentModels: [
+        {
+          model: "SurvivorMale_Chest_Hoodie_Up_Tintable.adr",
+          unknownDword1: 1,
+          unknownDword2: 1, // 1, 2, 4
+          effectId: 6, // 0 - 16
+          equipmentSlotId: 3,
+          unknownDword4: 0,
+          unknownArray1: []
+        }
+      ]
+   }
+    server.sendChatText(client, "Setting character equipment");
+    server.sendData(client, "Equipment.SetCharacterEquipmentSlots", equipment);
+  
   },
 
   tpVehicle: function (server, client, args) {
@@ -165,7 +250,6 @@ const dev = {
       server.sendChatText(client, "Missing vehicleId arg");
       return;
     }
-
     const location = {
       position: [0, 80, 0, 1],
       rotation: [0, 0, 0, 1],
@@ -179,20 +263,7 @@ const dev = {
       if(server._vehicles[v].npcData.modelId === parseInt(args[1])) {
         location.position = server._vehicles[v].npcData.position;
         server.sendData(client, "ClientUpdate.UpdateLocation", location);
-        const SendZoneDetails_packet = {
-          zoneName: "Z1",
-          unknownBoolean1: true,
-          zoneType: 4,
-          //skyData: weather,
-          skyData: {},
-          zoneId1: 3905829720,
-          zoneId2: 3905829720,
-          nameId: 7699,
-          unknownBoolean2: true,
-          unknownBoolean3: true,
-        };
-        server.sendData(client, "SendZoneDetails", SendZoneDetails_packet); // needed or screen is black, maybe use skyChanged instead?
-        server.sendData(client, "ClientBeginZoning", {}); // needed or no trees / foliage spawned on tp
+        server.sendData(client, "UpdateWeatherData", {});
         found = true;
         break;
       }
@@ -205,9 +276,14 @@ const dev = {
   },
 
   updateWeather: function(server, client, args) {
-    if(!args[2]) {
-      server.sendChatText(client, "Missing 2 args");
+    /*
+    if(!args[7]) {
+      server.sendChatText(client, "Missing 7 args");
       return;
+    }
+    */
+    function rnd_number() {
+      return Number((Math.random() * 100).toFixed(0));
     }
     const skyData = {
       unknownDword1: 0, // breaks the game
@@ -225,28 +301,28 @@ const dev = {
 
       unknownDword11: 0,
       unknownDword12: 0,
-      sunAxisX: parseFloat(args[1]), // 0 - 360
-      sunAxisY: parseFloat(args[2]), // 0 - 360
+      sunAxisX: 0, // 0 - 360
+      sunAxisY: 0, // 0 - 360
       unknownDword15: 0,
       disableTrees: 0,
       disableTrees1: 0,
       disableTrees2: 0,
       wind: 0,
       // below variables do nothing ig
-      unknownDword20: 0,
-      unknownDword21: 0,
-      unknownDword22: 0,
-      unknownDword23: 0,
-      unknownDword24: 0,
-      unknownDword25: 0,
-      unknownDword26: 0,
-      unknownDword27: 0,
-      unknownDword28: 0,
-      unknownDword29: 0,
-      unknownDword30: 0,
-      unknownDword31: 0,
-      unknownDword32: 0,
-      unknownDword33: 0,
+      unknownDword20: rnd_number(),
+      unknownDword21: rnd_number(),
+      unknownDword22: rnd_number(),
+      unknownDword23: rnd_number(),
+      unknownDword24: rnd_number(),
+      unknownDword25: rnd_number(),
+      unknownDword26: rnd_number(),
+      unknownDword27: rnd_number(),
+      unknownDword28: rnd_number(),
+      unknownDword29: rnd_number(),
+      unknownDword30: rnd_number(),
+      unknownDword31: rnd_number(),
+      unknownDword32: rnd_number(),
+      unknownDword33: rnd_number(),
     };
     debug(skyData);
     server.sendData(client, "UpdateWeatherData", skyData);
@@ -285,7 +361,25 @@ const dev = {
       ],
       unknownDword9: 8,
     });
+  },
+
+  /*
+  itemdefinitions: function(server, client, args) {
+    console.log("ItemDefinitions\n\n\n\n\n\n\n\n\n");
+    fs.readFile(`${__dirname}/../../../../data/2016/dataSources/ClientItemDefinitions.txt`, "utf8", (err, data) => {
+      const itemLines = data.split("\n");
+      let items = {};
+      for (let i = 1; i < itemLines.length; i++) {
+        const line = itemLines[i].split("^");
+        if (line[0]) {
+          items[line[0]] = line[1];
+        }
+      }
+      console.log(items);
+      server.sendData(client, "Command.ItemDefinitions", {data: data}) // todo: add ClientItemDefinition data
+    });
   }
+  */
 };
 
 export default dev;

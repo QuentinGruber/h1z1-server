@@ -439,6 +439,7 @@ const hax = {
     debug(JSON.stringify(rnd_weather));
     server.changeWeather(client, rnd_weather);
   },
+  /*
   setNight: function(server, client, args) {
     const skyData = {
       sunAxisX: 180, // 0 - 360
@@ -455,6 +456,7 @@ const hax = {
 
     server.sendData(client, "UpdateWeatherData", skyData);
   },
+  */
   equipment: function(server, client, args) {
     let effect, model, slot;
     if(!args[1]) {
@@ -495,7 +497,8 @@ const hax = {
         slot = 5;
         break;
       case "armor":
-        model = "SurvivorMale_Armor_Kevlar_Military.adr";
+        //model = "SurvivorMale_Armor_Kevlar_Military.adr";
+        model = "SurvivorMale_Armor_Kevlar_Basic_Patches.adr";
         slot = 100;
         break;
       case "gloves":
@@ -505,12 +508,20 @@ const hax = {
       case "bandana":
         model = "SurvivorMale_Face_Bandana.adr"
         slot = 28;
+        break;
     }
     const equipmentSlot = {
-      unknownData1: {
+      characterData: {
         characterId: client.character.characterId
       },
-      unknownData2: {
+      equipmentTexture: {
+        index: 1,
+        slotId: slot,
+        unknownQword1: "0x1",
+        textureAlias: "",
+        unknownString1: ""
+      },
+      equipmentModel: {
         model: model,
         effectId: Number(effect), // 0 - 16
         equipmentSlotId: slot,

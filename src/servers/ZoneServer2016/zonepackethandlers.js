@@ -217,10 +217,17 @@ const packetHandlers = {
     });
 
     const equipmentSlot = {
-      unknownData1: {
+      characterData: {
         characterId: client.character.characterId
       },
-      unknownData2: {
+      equipmentTexture: {
+        index: 1, // needs to be non-zero
+        slotId: 1, // needs to be non-zero
+        unknownQword1: "0x1", // needs to be non-zero
+        textureAlias: "",
+        unknownString1: ""
+      },
+      equipmentModel: {
         model: "SurvivorMale_Hair_ShortMessy.adr",
         effectId: 0,
         equipmentSlotId: 27,
@@ -1228,6 +1235,22 @@ const packetHandlers = {
       }
     }
   },
+  /*
+  "Command.ItemDefinitionRequest": function (server, client, packet) {
+    console.log("ItemDefinitionRequest\n\n\n\n\n\n\n\n\n");
+    console.log(packet.data);
+
+    server.sendData(client, "Command.ItemDefinitionReply", {data: {
+      ID: 1800,
+      unknownArray1Length: 0,
+      unknownArray1: [
+        {
+          unknownData1: {}
+        }
+      ]
+    }})
+  }
+  */
 };
 
 export default packetHandlers;

@@ -21,7 +21,7 @@ import { Base64 } from "js-base64";
 import {
   //generateRandomGuid,
   initMongo,
-  //Int64String,
+  Int64String,
   isPosInRadius,
 } from "../../utils/utils";
 
@@ -358,6 +358,8 @@ export class ZoneServer2016 extends ZoneServer {
     debug("All entities created");
   }
 
+
+  
   sendChat(client: Client, message: string, channel: number) {
     if (!this._soloMode) {
       this.sendDataToAll("Chat.ChatText", {
@@ -379,7 +381,18 @@ export class ZoneServer2016 extends ZoneServer {
       });
     }
   }
+
+  sendGameTimeSync(client: Client): void {
+    debug("GameTimeSync");
+    this.sendData(client, "GameTimeSync", {
+      time: Int64String(this.getGameTime()),
+      cycleSpeed: this._cycleSpeed,
+      unknownBoolean: false,
+    });
+  }
 }
+
+
 
 if (process.env.VSCODE_DEBUG === "true") {
   new ZoneServer2016(
