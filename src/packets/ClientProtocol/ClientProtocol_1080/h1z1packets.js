@@ -622,11 +622,11 @@ function parseItemAddData(data, offset, referenceData) {
     compData = itemData.slice(4, 4 + inSize),
     decompData = lz4_decompress(compData, inSize, outSize),
     itemDefinition = parse(baseItemDefinitionSchema, decompData, 0).result;
-  var itemData = parseItemData(itemData, 4 + inSize, referenceData).value;
+  var item = parseItemData(itemData, 4 + inSize, referenceData).value;
   return {
     value: {
       itemDefinition: itemDefinition,
-      itemData: itemData,
+      itemData: item,
     },
     length: itemDataLength + 4,
   };
