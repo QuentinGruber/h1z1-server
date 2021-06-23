@@ -1,20 +1,15 @@
 const debug = require("debug")("zonepacketHandlers");
 import { Client } from "types/zoneserver";
+import { zoneShutdown } from "../../../utils/utils";
 import { ZoneServer } from "../zoneserver";
+
+
 const admin: any = {
   shutdown: async function (server: ZoneServer, client: Client, args: any[]) {
-    server.sendDataToAll("WorldShutdownNotice", {
-      timeLeft: 0,
-      message: " ",
-    });
-    if (!server._soloMode) {
-      server.sendDataToAll("CharacterSelectSessionResponse", {
-        status: 1,
-        sessionId: "placeholder", // TODO: get sessionId from client object
-      });
-      await server.saveWorld();
-      process.exit(0);
-    }
+    const timeLeft = args[1] ? args[1] : 0;
+    const message = args[2] ? args[2] : " ";
+    const startedTime = Date.now();
+    zoneShutdown(server, startedTime, timeLeft, message);
   },
 };
 

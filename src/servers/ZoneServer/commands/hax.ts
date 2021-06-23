@@ -9,6 +9,54 @@ let isSonic = false;
 let isVehicle = false;
 
 const hax: any = {
+  siren: function (server: ZoneServer, client: Client, args: any[]) {
+    switch (client.mountedVehicleType) {
+		case "policecar":
+		server.sendData(client, "Mount.DismountResponse", {
+        characterId: client.character.characterId,
+      });
+      server.sendData(client, "Mount.MountResponse", {
+        characterId: client.character.characterId,
+        guid: client.mountedVehicle,
+        unknownDword4: 275,
+        characterData: {},
+      });		
+	  break;
+     default:     
+	  server.sendChatText(client, "You are not in a police car");
+	  break;
+    }
+  },
+  headlights: function (server: ZoneServer, client: Client, args: any[]) {
+    let headlightType = 0;
+    switch (client.mountedVehicleType) {
+      case "offroader":
+        headlightType = 273;
+        break;
+      case "pickup":
+        headlightType = 321;
+        break;
+      case "policecar":
+        headlightType = 281;
+        break;
+      default:
+        headlightType = 273;
+        break;
+    }
+    if (client.mountedVehicleType != "0") {
+      server.sendData(client, "Mount.DismountResponse", {
+        characterId: client.character.characterId,
+      });
+      server.sendData(client, "Mount.MountResponse", {
+        characterId: client.character.characterId,
+        guid: client.mountedVehicle,
+        unknownDword4: headlightType,
+        characterData: {},
+      });
+    } else {
+      server.sendChatText(client, "You are not in a vehicle");
+    }
+  },
   drive: function (server: ZoneServer, client: Client, args: any[]) {
     let vehicleId;
     let driveModel;
@@ -293,7 +341,7 @@ const hax: any = {
       position: client.character.state.position,
       rotation: client.character.state.lookAt,
       attachedObject: {},
-      unknown26: isVehicle,
+      isVehicle: isVehicle,
       color: {},
       array5: [{ unknown1: 0 }],
       array17: [{ unknown1: 0 }],
@@ -323,7 +371,7 @@ const hax: any = {
     isSonic = !isSonic;
   },
   observer: function (server: ZoneServer, client: Client, args: any[]) {
-    server.sendData(client, "PlayerUpdate.RemovePlayer", {
+    server.sendDataToAll("PlayerUpdate.RemovePlayer", {
       characterId: client.character.characterId,
     });
     delete server._characters[client.character.characterId];
@@ -341,7 +389,7 @@ const hax: any = {
   changeModel: function (server: ZoneServer, client: Client, args: any[]) {
     const newModelId = args[1];
     if (newModelId) {
-      server.sendData(client, "PlayerUpdate.ReplaceBaseModel", {
+      server.sendDataToAll("PlayerUpdate.ReplaceBaseModel", {
         characterId: client.character.characterId,
         modelId: newModelId,
       });
@@ -518,28 +566,28 @@ const hax: any = {
     server.changeWeather(client, rnd_weather);
   },
   titan: function (server: ZoneServer, client: Client, args: any[]) {
-    server.sendData(client, "PlayerUpdate.UpdateScale", {
+    server.sendDataToAll("PlayerUpdate.UpdateScale", {
       characterId: client.character.characterId,
       scale: [20, 20, 20, 1],
     });
     server.sendChatText(client, "TITAN size");
   },
   poutine: function (server: ZoneServer, client: Client, args: any[]) {
-    server.sendData(client, "PlayerUpdate.UpdateScale", {
+    server.sendDataToAll("PlayerUpdate.UpdateScale", {
       characterId: client.character.characterId,
       scale: [20, 5, 20, 1],
     });
     server.sendChatText(client, "The meme become a reality.....");
   },
   rat: function (server: ZoneServer, client: Client, args: any[]) {
-    server.sendData(client, "PlayerUpdate.UpdateScale", {
+    server.sendDataToAll("PlayerUpdate.UpdateScale", {
       characterId: client.character.characterId,
       scale: [0.2, 0.2, 0.2, 1],
     });
     server.sendChatText(client, "Rat size");
   },
   normalSize: function (server: ZoneServer, client: Client, args: any[]) {
-    server.sendData(client, "PlayerUpdate.UpdateScale", {
+    server.sendDataToAll("PlayerUpdate.UpdateScale", {
       characterId: client.character.characterId,
       scale: [1, 1, 1, 1],
     });

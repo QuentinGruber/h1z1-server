@@ -61,11 +61,10 @@ export class H1Z1Protocol {
     }
   }
 
-  createPositionBroadcast(rawData:Buffer,transientId:number):Buffer {
-    const tId = packUnsignedIntWith2bitLengthValue(transientId)
-    return Buffer.concat([new Uint8Array([120]),tId,rawData]);
+  createPositionBroadcast(rawData: Buffer, transientId: number): Buffer {
+    const tId = packUnsignedIntWith2bitLengthValue(transientId);
+    return Buffer.concat([new Uint8Array([120]), tId, rawData]);
   }
-
 
   parseFacilityReferenceData(data: Buffer) {
     var inSize = data.readUInt32LE(0),
