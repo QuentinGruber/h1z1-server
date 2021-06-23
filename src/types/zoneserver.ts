@@ -2,7 +2,9 @@ export interface Client {
   currentPOI?: number;
   firstLoading: boolean;
   isLoading: boolean;
+  isPolice: boolean;
   mountedVehicle?: string;
+  mountedVehicleType: string;
   posAtLastRoutine: Float32Array;
   posAtLogoutStart: Float32Array;
   logoutTimer: NodeJS.Timeout | null;
