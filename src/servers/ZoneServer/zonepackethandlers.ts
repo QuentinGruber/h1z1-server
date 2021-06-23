@@ -1761,7 +1761,7 @@ const packetHandlers: any = {
         transientId: pcData.transientId,
       });
     } else if (server._vehicles[guid]) {
-      const npcData = {
+     /* const npcData = {  DISABLED create some issues
         transientId: server._vehicles[guid].npcData.transientId,
         unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
         unknownDword2: 13951728,
@@ -1771,7 +1771,7 @@ const packetHandlers: any = {
       server.sendData(client, "PlayerUpdate.LightweightToFullVehicle", {
         npcData: npcData,
         characterId: guid,
-      });
+      });*/
     }
   },
 };
