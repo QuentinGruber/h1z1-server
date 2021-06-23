@@ -1,10 +1,10 @@
-/*
-import _ from "lodash";
+// import _ from "lodash";
 import { Client } from "types/zoneserver";
-import { randomIntFromInterval } from "../../../utils/utils";
-import { ZoneServer } from "../zoneserver";
-const debug = require("debug")("dynamicWeather");
+// import { randomIntFromInterval } from "../../../utils/utils";
+import { ZoneServer2016 } from "../zoneserver";
+// const debug = require("debug")("dynamicWeather");
 
+/*
 let fog = -10;
 let foggradient = 50;
 let rain = 50; // increasing value for rain to start
@@ -17,16 +17,16 @@ let rainIncMax = 0;
 let wintertoggle = 0;
 let winter = 53;
 let raincheck = "OFF";
-let sunposx = 15; // sun position at server start
-let sunposy = 90;
-let sunposz = 0;
-let sunposInc = 0;
-let sunposXmin = 0; // max values of sun axis, changed for every season
-let sunposXmax = 0;
-let sunposYmin = 0;
-let sunposYmax = 0;
-let sunposZmin = 0;
-let sunposZmax = 0;
+*/
+let sunposx = 0; // sun position at server start
+let sunposy = 0; // sun position at server start
+let sunposXInc = 1;
+let sunposYInc = 1;
+let sunposXmax = 360;
+let sunposYmax = 360;
+//let sunposXmin = 0;
+//let sunposYmin = 0; // max values of sun axis, changed for every season
+/*
 let cloud1 = 1;
 let cloud2 = 1;
 let cloud3 = 1;
@@ -43,7 +43,9 @@ let wind = 20;
 let windmax = 30;
 let wchancemin = 0;
 let wchancemax = 0;
+*/
 
+/*
 function summer() {
   sunposInc = -0.3;
   sunposXmin = 15;
@@ -141,31 +143,42 @@ var seasonstart = (function () {
     }
   };
 })();
+*/
 
-export default function dynamicWeather(serverContext: ZoneServer) {
-  seasonstart();
+export default function dynamicWeather(server: ZoneServer2016) {
+
   // sun axis
-  sunposx = sunposx + sunposInc;
-  if (sunposx > sunposXmax) {
+  sunposx += sunposXInc;
+  if (sunposx === sunposXmax) {
+    sunposx = 0;
+  }
+/*
+  if (sunposx < sunposXmin) {
     sunposx = sunposXmax;
   }
-  if (sunposx < sunposXmin) {
-    sunposx = sunposXmin;
+*/
+  
+  sunposy += sunposYInc;
+  if (sunposy === sunposYmax) {
+    sunposy = 0;
   }
-  sunposy = sunposy + sunposInc;
-  if (sunposy > sunposYmax) {
-    sunposy = sunposYmax;
-  }
+/*
   if (sunposy < sunposYmin) {
     sunposy = sunposYmin;
   }
-  sunposz = sunposz + sunposInc;
-  if (sunposz > sunposZmax) {
-    sunposz = sunposZmax;
+*/
+
+  let weather = {
+    snow: 0,
+    snowMap: 0,
+    colorGradient: 0,
+    sunAxisX: sunposx,
+    sunAxisY: sunposy,
+    wind: 0,
   }
-  if (sunposz < sunposZmin) {
-    sunposz = sunposZmin;
-  }
+  console.log(weather);
+  console.log(`${sunposx}, ${sunposy}`)
+  /*
   //rain strength
   const rainchancestr = randomIntFromInterval(rainIncMin, rainIncMax); // rain strength increase
   raintoggle = raintoggle + rainchancestr;
@@ -311,6 +324,6 @@ export default function dynamicWeather(serverContext: ZoneServer) {
       unknownDword7: 0,
     }),
   };
-  serverContext.SendSkyChangedPacket({} as Client, rnd_weather, true);
+  */
+  server.SendWeatherUpdatePacket({} as Client, weather, true);
 }
-*/

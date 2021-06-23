@@ -2,7 +2,7 @@
   {
     "id": 0,
     "name": "Camp Ranchito Taquito",
-    "modelId": 9308,
+    "modelId": 9588,
     "position": [
       2608,
       47, 
@@ -19,7 +19,7 @@
   {
     "id": 1,
     "name": "The villa developement ",
-    "modelId": 9308,
+    "modelId": 9588,
     "position": [
       1053,
       62.31, 
@@ -36,7 +36,7 @@
   {
     "id": 2,
     "name": "Lone pine developement 1",
-    "modelId": 9308,
+    "modelId": 9588,
     "position": [
       -968,
       62, 
@@ -53,7 +53,7 @@
   {
     "id": 3,
     "name": "Lone pine developement 2",
-    "modelId": 9308,
+    "modelId": 9588,
     "position": [
       -1049.34,
       62, 
@@ -70,7 +70,7 @@
   {
     "id": 4,
     "name": "1st street camp",
-    "modelId": 9308,
+    "modelId": 9588,
     "position": [
       2412,
       13.15, 
@@ -87,7 +87,7 @@
   {
     "id": 5,
     "name": "Misty loop",
-    "modelId": 9308,
+    "modelId": 9588,
     "position": [
       -383,
       47.64, 
@@ -104,7 +104,7 @@
   {
     "id": 6,
     "name": "Crossroads to Misty loop and Misty Peack Dam",
-    "modelId": 9308,
+    "modelId": 9588,
     "position": [
       -710.29,
       68.49, 
@@ -121,7 +121,7 @@
   {
     "id": 7,
     "name": "Misty Peack Dam",
-    "modelId": 9308,
+    "modelId": 9588,
     "position": [
       -363.83,
       63.69, 
@@ -138,7 +138,7 @@
   {
     "id": 8,
     "name": "oHlOne circle",
-    "modelId": 9308,
+    "modelId": 9588,
     "position": [
       -2741.89,
       48.02, 
@@ -155,7 +155,7 @@
   {
     "id": 9,
     "name": "Darthmouth way",
-    "modelId": 9308,
+    "modelId": 9588,
     "position": [
       -2576.65,
       42.02, 
@@ -172,7 +172,7 @@
   {
     "id": 10,
     "name": "Mine 1",
-    "modelId": 9308,
+    "modelId": 9588,
     "position": [
       -3087.36,
       44.92, 
@@ -189,7 +189,7 @@
   {
     "id": 11,
     "name": "Mine 2",
-    "modelId": 9308,
+    "modelId": 9588,
     "position": [
       -3052.42,
       44.70, 
@@ -206,7 +206,7 @@
   {
     "id": 12,
     "name": "Mine 3",
-    "modelId": 9308,
+    "modelId": 9588,
     "position": [
       -3060.22,
       44.14,
@@ -223,7 +223,7 @@
   {
     "id": 13,
     "name": "Mine 4",
-    "modelId": 9308,
+    "modelId": 9588,
     "position": [
       -3123.49,
       26.88, 
@@ -240,7 +240,7 @@
   {
     "id": 14,
     "name": "Hemingway Truck stop",
-    "modelId": 9308,
+    "modelId": 9588,
     "position": [
       -1909.52,
       62.31, 
@@ -257,7 +257,7 @@
   {
     "id": 15,
     "name": "President house",
-    "modelId": 9308,
+    "modelId": 9588,
     "position": [
       2796.16,
       86.69, 
@@ -274,7 +274,7 @@
   {
     "id": 16,
     "name": "Pleasant Valley Police Station",
-    "modelId": 9308,
+    "modelId": 9588,
     "position": [
       -222.04,
       23.41, 
@@ -291,7 +291,7 @@
   {
     "id": 17,
     "name": "Pleasant Valley Romero's ",
-    "modelId": 9308,
+    "modelId": 9588,
     "position": [
       86.36,
       31.34, 
@@ -308,7 +308,7 @@
   {
     "id": 18,
     "name": "Pleasant Valley village1",
-    "modelId": 9308,
+    "modelId": 9588,
     "position": [
       145.17,
       22, 
@@ -325,7 +325,7 @@
   {
     "id": 19,
     "name": "Pleasant Valley camp",
-    "modelId": 9308,
+    "modelId": 9588,
     "position": [
       415.81,
       13.78, 
@@ -342,7 +342,7 @@
   {
     "id": 20,
     "name": "Mosquito river camp 1",
-    "modelId": 9308,
+    "modelId": 9588,
     "position": [
       734.31,
       16.69, 
@@ -359,7 +359,7 @@
   {
     "id": 21,
     "name": "Mosquito river camp 2" ,
-    "modelId": 9308,
+    "modelId": 9588,
     "position": [
       1425.74,
       20.34, 
@@ -376,7 +376,7 @@
   {
     "id": 22,
     "name": "Crossroads Devils pass",
-    "modelId": 9308,
+    "modelId": 9588,
     "position": [
       181.85,
       48.88, 
@@ -393,7 +393,7 @@
   {
     "id": 23,
     "name": "Devils pass alone house",
-    "modelId": 9308,
+    "modelId": 9588,
     "position": [
       1967.90,
       45.31, 
@@ -410,7 +410,7 @@
   {
     "id": 24,
     "name": "Devils pass road",
-    "modelId": 9308,
+    "modelId": 9588,
     "position": [
       1621.22,
       38.91, 
@@ -427,7 +427,7 @@
   {
     "id": 25,
     "name": "Zim's",
-    "modelId": 9308,
+    "modelId": 9588,
     "position": [
       2202.68,
       47.41, 

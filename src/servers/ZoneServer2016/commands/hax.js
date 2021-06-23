@@ -1,23 +1,35 @@
-//import { generateCharacterId } from "../../../utils/utils";
 const _ = require("lodash");
 const debug = require("debug")("zonepacketHandlers");
 import fs from "fs";
 
+function getHeadActor(modelId) {
+  switch(modelId) {
+    case 9240:
+      return "SurvivorMale_Head_01.adr";
+    case 9474:
+      return "SurvivorFemale_Head_01.adr";
+    case 9510:
+      return "ZombieFemale_Head_01.adr";
+    case 9634:
+      return "ZombieMale_Head_01.adr";
+    default:
+      return "";
+  }
+}
+
 const hax = {
   parachute: function (server, client, args) {
     const characterId = server.generateGuid();
-    const guid = server.generateGuid();
-    let posY = client.character.state.position[1] + 700;
     const vehicleData = {
       npcData: {
-        guid: guid,
+        guid: server.generateGuid(),
         transientId: 999999,
         characterId: characterId,
         modelId: 9374,
         scale: [1, 1, 1, 1],
         position: [
           client.character.state.position[0],
-          posY,
+          client.character.state.position[1] + 700,
           client.character.state.position[2],
           client.character.state.position[3],
         ],
@@ -26,13 +38,10 @@ const hax = {
         attachedObject: {},
         color: {},
       },
-      unknownDword1: 10,
-      unknownDword2: 10,
       positionUpdate: server.createPositionUpdate(
         new Float32Array([0, 0, 0, 0]),
         [0, 0, 0, 0]
       ),
-      unknownString1: "",
     };
     server.sendData(client, "AddLightweightVehicle", vehicleData);
     server._vehicles[characterId] = vehicleData;
@@ -45,62 +54,59 @@ const hax = {
     client.isMounted = true;
   },
 
-  tp: function (server, client, args) {
-    if (args.length < 4) {
-      server.sendChatText(client, "Need 3 args: position x, y, z", false);
-      return;
+  tp: function(server, client, args) {
+    let locationPosition;
+    switch (args[1]) {
+      case "zimms":
+        locationPosition = new Float32Array([2209.17, 47.42, -1011.48, 1]);
+        break;
+      case "pv":
+        locationPosition = new Float32Array([-125.55, 23.41, -1131.71, 1]);
+        break;
+      case "br":
+        locationPosition = new Float32Array([3824.41, 168.19, -4000.0, 1]);
+        break;
+      case "ranchito":
+        locationPosition = new Float32Array([2185.32, 42.36, 2130.49, 1]);
+        break;
+      case "drylake":
+        locationPosition = new Float32Array([479.46, 109.7, 2902.51, 1]);
+        break;
+      case "dam":
+        locationPosition = new Float32Array([-629.49, 69.96, 1233.49, 1]);
+        break;
+      case "cranberry":
+        locationPosition = new Float32Array([-1368.37, 71.29, 1837.61, 1]);
+        break;
+      case "church":
+        locationPosition = new Float32Array([-1928.68, 62.77, 2880.1, 1]);
+        break;
+      case "desoto":
+        locationPosition = new Float32Array([-2793.22, 140.77, 1035.8, 1]);
+        break;
+      case "toxic":
+        locationPosition = new Float32Array([-3064.68, 42.98, -2160.06, 1]);
+        break;
+      case "radiotower":
+        locationPosition = new Float32Array([-1499.21, 353.98, -840.52, 1]);
+        break;
+      default:
+        if(args.length < 4){
+          server.sendChatText(client, "Unknown set location, need 3 args to tp to exact location: x, y, z", false);
+          server.sendChatText(client, "Set location list: zimms, pv, br, ranchito, drylake, dam, cranberry, church, desoto, toxic, radiotower", false);
+          return;
+        }
+        locationPosition = new Float32Array([args[1], args[2], args[3], 1]);
+        break;
     }
-    const location = {
-      position: [args[1], args[2], args[3], 1],
-      rotation: [10, 20, 30, 1],
-      unknownBool1: true,
-      unknownByte1: 100,
-      unknownBool2: true,
-    };
-    server.sendData(client, "ClientUpdate.UpdateLocation", location);
-    const SendZoneDetails_packet = {
-      zoneName: "Z1",
-      unknownBoolean1: true,
-      zoneType: 4,
-      //skyData: weather,
-      skyData: {},
-      zoneId1: 3905829720,
-      zoneId2: 3905829720,
-      nameId: 7699,
-      unknownBoolean2: true,
-      unknownBoolean3: true,
-    };
-    server.sendData(client, "SendZoneDetails", SendZoneDetails_packet); // needed or screen is black, maybe use skyChanged instead?
-    server.sendData(client, "ClientBeginZoning", {}); // needed or no trees / foliage spawned on tp
-  },
 
-  forceNight: function (server, client, args) {
-    server.forceTime(1615062252322);
-    server.sendChatText(
-      client,
-      "[Deprecated] This command will be removed in futher updates",
-      true
-    );
-    server.sendChatText(
-      client,
-      "Use /hax time {choosen hour as float} instead",
-      false
-    );
-    server.sendChatText(client, "Will force Night time on next sync...", false);
-  },
-  forceDay: function (server, client, args) {
-    server.forceTime(971172000000);
-    server.sendChatText(
-      client,
-      "[Deprecated] This command will be removed in futher updates",
-      true
-    );
-    server.sendChatText(
-      client,
-      "Use /hax time {choosen hour as float} instead",
-      false
-    );
-    server.sendChatText(client, "Will force Day time on next sync...", false);
+    client.character.state.position = locationPosition;
+    server.sendData(client, "ClientUpdate.UpdateLocation", {
+      position: locationPosition,
+      triggerLoadingScreen: true,
+    });
+    
+    server.sendData(client, "UpdateWeatherData", {});
   },
   time: function (server, client, args) {
     const choosenHour = Number(args[1]);
@@ -154,7 +160,7 @@ const hax = {
       };
       server.sendData(client, "AddLightweightVehicle", vehicle);
       server.sendData(client, "PlayerUpdate.ManagedObject", {
-        guid: characterId,
+        objectCharacterId: characterId,
         characterId: client.character.characterId,
       });
       server._vehicles[characterId] = vehicle; // save vehicle
@@ -167,23 +173,19 @@ const hax = {
       server.sendChatText(client, "[ERROR] You need to specify a model id !");
       return;
     }
+    if (!args[4]) {
+      server.sendChatText(client, "Missing rotation values");
+      return;
+    }
     const choosenModelId = Number(args[1]);
-    const obj = {
-      characterId: characterId,
-      transientId: transientId,
-      position: [
-        client.character.state.position[0],
-        client.character.state.position[1],
-        client.character.state.position[2],
-      ],
-      rotation: [
-        client.character.state.rotation[0],
-        client.character.state.rotation[1],
-        client.character.state.rotation[2],
-      ],
-      modelId: choosenModelId,
-      showHealth: false,
-    };
+      const obj = {
+        characterId: characterId,
+        transientId: transientId,
+        position: [client.character.state.position[0], client.character.state.position[1], client.character.state.position[2]],
+        rotation: [Number(args[2]), Number(args[3]), Number(args[4])],
+        modelId: choosenModelId,
+        showHealth: false
+      };
     server.sendData(client, "AddSimpleNpc", obj);
 
     server.obj[characterId] = obj; // save npc
@@ -213,8 +215,8 @@ const hax = {
         client.character.state.rotation[2],
       ],
       color: {},
-      unknownData1: { unknownData1: {} },
-      extraModel: "SurvivorMale_Head_01.adr",
+      unknownData1: {unknownData1: {}},
+      headActor: getHeadActor(choosenModelId),
       attachedObject: {},
     };
     server.sendData(client, "AddLightweightNpc", npc);
@@ -226,7 +228,7 @@ const hax = {
     if (!args[1]) {
       server.sendChatText(
         client,
-        "[ERROR] Usage /hax drive offroader/pickup/policecar/atv"
+        "[ERROR] Usage /hax spawnVehicle offroader/pickup/policecar/atv"
       );
       return;
     }
@@ -262,12 +264,8 @@ const hax = {
         transientId: transientId,
         modelId: driveModel,
         scale: [1, 1, 1, 1],
-        position: [
-          client.character.state.position[0],
-          client.character.state.position[1],
-          client.character.state.position[2],
-        ],
-        rotation: client.character.state.lookAt,
+        position: [client.character.state.position[0], client.character.state.position[1], client.character.state.position[2]],
+        rotation: [0, 0, 0, 0],
         attachedObject: {},
         vehicleId: vehicleId,
         color: {},
@@ -277,7 +275,7 @@ const hax = {
     };
     server.sendData(client, "AddLightweightVehicle", vehicle);
     server.sendData(client, "PlayerUpdate.ManagedObject", {
-      guid: characterId,
+      objectCharacterId: characterId,
       characterId: client.character.characterId,
     });
     server._vehicles[characterId] = vehicle; // save vehicle
@@ -287,12 +285,10 @@ const hax = {
     const guid = server.generateGuid();
     const transientId = server.getTransientId(client, guid);
     debug("spawnPcModel called");
-    /*
     if (!args[1]) {
-      server.sendChatText(client, "[ERROR] You need to specify a model id !");
+      server.sendChatText(client, "[ERROR] You need to specify a name !");
       return;
     }
-    */
     //const choosenModelId = Number(args[1]);
 
     const pc = {
@@ -305,7 +301,7 @@ const hax = {
         client.character.state.position[2],
       ],
       roation: client.character.state.rotation,
-      identity: {},
+      identity: {characterName: args[1]}
     };
     server.sendData(client, "AddLightweightPc", pc);
     // server._characters[guid] = pc; // save pc (disabled for now)
@@ -459,6 +455,98 @@ const hax = {
     debug(JSON.stringify(rnd_weather));
     server.changeWeather(client, rnd_weather);
   },
+  /*
+  setNight: function(server, client, args) {
+    const skyData = {
+      sunAxisX: 180, // 0 - 360
+      sunAxisY: 180, // 0 - 360
+    };
+
+    server.sendData(client, "UpdateWeatherData", skyData);
+  },
+  setDay: function(server, client, args) {
+    const skyData = {
+      sunAxisX: 0, // 0 - 360
+      sunAxisY: 0, // 0 - 360
+    };
+
+    server.sendData(client, "UpdateWeatherData", skyData);
+  },
+  */
+  equipment: function(server, client, args) {
+    let effect, model, slot;
+    if(!args[1]) {
+      server.sendChatText(client, "[ERROR] Missing name !");
+      server.sendChatText(client, "Valid options: hoodie, shirt, pants, helmet, backpack, shoes, armor, gloves");
+      return;
+    }
+    if(!args[2]) {
+      server.sendChatText(client, "No effect added.");
+      effect = 0;
+    } else {
+      effect = args[2];
+    }
+    switch(args[1]) {
+      case "hoodie":
+        model = "SurvivorMale_Chest_Hoodie_Up_Tintable.adr";
+        slot = 3;
+        break;
+      case "shirt":
+        model = "SurvivorMale_Chest_Shirt_Henley.adr";
+        slot = 3;
+        break;
+      case "pants":
+        model = "SurvivorMale_Legs_Pants_StraightLeg.adr";
+        slot = 4;
+        break;
+      case "helmet":
+        model = "SurvivorMale_Head_Helmet_Motorcycle_Tintable.adr";
+        slot = 15;
+        break;
+      case "backpack":
+        //model = "SurvivorMale_Back_Backpack_Military.adr";
+        model = "SurvivorMale_Back_Backpack_Military_Rasta.adr";
+        slot = 10;
+        break;
+      case "shoes":
+        model = "SurvivorMale_Feet_Conveys_Tintable.adr";
+        slot = 5;
+        break;
+      case "armor":
+        //model = "SurvivorMale_Armor_Kevlar_Military.adr";
+        model = "SurvivorMale_Armor_Kevlar_Basic_Patches.adr";
+        slot = 100;
+        break;
+      case "gloves":
+        model = "SurvivorMale_Hands_Gloves_Padded.adr";
+        slot = 2;
+        break;
+      case "bandana":
+        model = "SurvivorMale_Face_Bandana.adr"
+        slot = 28;
+        break;
+    }
+    const equipmentSlot = {
+      characterData: {
+        characterId: client.character.characterId
+      },
+      equipmentTexture: {
+        index: 1,
+        slotId: slot,
+        unknownQword1: "0x1",
+        textureAlias: "",
+        unknownString1: ""
+      },
+      equipmentModel: {
+        model: model,
+        effectId: Number(effect), // 0 - 16
+        equipmentSlotId: slot,
+        unknownArray1: []
+      }
+    };
+    server.sendChatText(client, `Setting character equipment slot: ${args[1]}`);
+    server.sendData(client, "Equipment.SetCharacterEquipmentSlot", equipmentSlot);
+  }
 };
 
 export default hax;

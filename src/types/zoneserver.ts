@@ -119,6 +119,16 @@ export interface UnknownArray {
   unknownDword7: number;
 }
 
+export interface skyData {
+  templateName?: string;
+  snow: number;
+  snowMap: number;
+  colorGradient: number;
+  sunAxisX: number;
+  sunAxisY: number;
+  wind: number;
+}
+
 export interface SoeServer {
   on: (arg0: string, arg1: any) => void;
   start: (
