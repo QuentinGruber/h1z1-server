@@ -3,6 +3,7 @@ export interface Client {
   firstLoading: boolean;
   isLoading: boolean;
   mountedVehicle?: string;
+  mountedVehicleType: string;
   posAtLastRoutine: Float32Array;
   posAtLogoutStart: Float32Array;
   logoutTimer: NodeJS.Timeout | null;
