@@ -1644,7 +1644,6 @@ const packetHandlers: any = {
         transientId: pcData.transientId,
       });
     } else if (server._vehicles[guid]) {
-      console.log(server._vehicles[guid]);
       const npcData = {
         transientId: server._vehicles[guid].npcData.transientId,
         unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
@@ -1656,7 +1655,6 @@ const packetHandlers: any = {
         npcData: npcData,
         characterId: guid,
       });
-      console.log(guid);
     }
   },
 };
