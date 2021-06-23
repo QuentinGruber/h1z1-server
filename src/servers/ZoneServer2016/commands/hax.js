@@ -460,7 +460,7 @@ const hax = {
   equipment: function(server, client, args) {
     let effect, model, slot;
     if(!args[1]) {
-      server.sendChatText(client, "[ERROR] Missing name !");
+      server.sendChatText(client, "[ERROR] Missing equipment name !");
       server.sendChatText(client, "Valid options: hoodie, shirt, pants, helmet, backpack, shoes, armor, gloves");
       return;
     }
@@ -509,6 +509,9 @@ const hax = {
         model = "SurvivorMale_Face_Bandana.adr"
         slot = 28;
         break;
+      default:
+        server.sendChatText(client, "Valid options: hoodie, shirt, pants, helmet, backpack, shoes, armor, gloves, bandana");
+        return;
     }
     const equipmentSlot = {
       characterData: {
