@@ -54,7 +54,7 @@ const dev = {
       : server.reloadMongoData(client);
   },
   systemmessage: function (server, client, args) {
-    if(!args[1]){
+    if (!args[1]) {
       server.sendChatText(client, "Missing 'message' parameter");
       return;
     }
@@ -62,15 +62,17 @@ const dev = {
       unknownDword1: 0,
       message: args[1],
       unknownDword2: 0,
-      color: 2
+      color: 2,
     };
     server.sendChatText(client, "Sending system message");
     server.sendData(client, "ShowSystemMessage", msg);
   },
   setresource: function (server, client, args) {
-  
-    if(!args[3]){
-      server.sendChatText(client, "Missing resourceId, resourceType, and value args");
+    if (!args[3]) {
+      server.sendChatText(
+        client,
+        "Missing resourceId, resourceType, and value args"
+      );
       return;
     }
     const resourceEvent = {
@@ -80,11 +82,11 @@ const dev = {
           characterId: "0x03147cca2a860191",
           resourceId: args[1],
           resourceType: args[2],
-          unknownArray1:[],
+          unknownArray1: [],
           value: args[3],
           unknownArray2: [],
-        }
-      }
+        },
+      },
     };
     server.sendChatText(client, "Setting character resource");
     server.sendData(client, "ResourceEvent", resourceEvent);

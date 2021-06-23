@@ -15,15 +15,16 @@ export interface Client {
     transientId: number;
     name?: string;
     loadouts?: any;
-    isRunning:boolean;
-    resourcesUpdater?:any
-    resources:{
+    extraModel?: string;
+    isRunning: boolean;
+    resourcesUpdater?: any;
+    resources: {
       health: number;
       stamina: number;
       virus: number;
       food: number;
       water: number;
-    }
+    };
     currentLoadoutTab?: number;
     currentLoadoutId?: number;
     currentLoadout?: number;

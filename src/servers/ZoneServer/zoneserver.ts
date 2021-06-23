@@ -35,7 +35,6 @@ const spawnLocations = require("../../../data/2015/sampleData/spawnLocations.jso
 const localWeatherTemplates = require("../../../data/2015/sampleData/weather.json");
 const stats = require("../../../data/2015/sampleData/stats.json");
 const recipes = require("../../../data/2015/sampleData/recipes.json");
-const resources = require("../../../data/2015/dataSources/Resources.json");
 const Z1_POIs = require("../../../data/2015/zoneData/Z1_POIs");
 
 export class ZoneServer extends EventEmitter {
@@ -114,7 +113,7 @@ export class ZoneServer extends EventEmitter {
     this._npcRenderDistance = 350;
     this._pingTimeoutTime = 30000;
     this._dynamicWeatherEnabled = true;
-    this._dummySelf =  require("../../../data/2015/sampleData/sendself.json");
+    this._dummySelf = require("../../../data/2015/sampleData/sendself.json");
     this._respawnLocations = spawnLocations.map((spawn: any) => {
       return {
         guid: this.generateGuid(),
@@ -175,9 +174,12 @@ export class ZoneServer extends EventEmitter {
         console.error(err);
       } else {
         debug("zone login");
-        setImmediate(() => {
+        try {
           this.sendInitData(client);
-        });
+        } catch (error) {
+          debug(error);
+          this.sendData(client, "LoginFailed", {});
+        }
       }
     });
 
@@ -200,10 +202,9 @@ export class ZoneServer extends EventEmitter {
 
         this._clients[client.sessionId] = client;
         let generatedTransient;
-        do{
-          generatedTransient = Number((Math.random()*30000).toFixed(0));
-        }
-        while(!this._transientIds[generatedTransient])
+        do {
+          generatedTransient = Number((Math.random() * 30000).toFixed(0));
+        } while (this._transientIds[generatedTransient]);
         this._transientIds[generatedTransient] = characterId;
         client.isLoading = true;
         client.firstLoading = true;
@@ -212,7 +213,7 @@ export class ZoneServer extends EventEmitter {
           characterId: characterId,
           transientId: generatedTransient,
           isRunning: false,
-          resources:{
+          resources: {
             health: 5000,
             stamina: 50,
             food: 5000,
@@ -292,32 +293,58 @@ export class ZoneServer extends EventEmitter {
     debug("Server ready");
   }
 
+  getAllCurrentUsedTransientId() {
+    const allTransient: any = {};
+    for (const key in this._doors) {
+      const door = this._doors[key];
+      allTransient[door.transientId] = key;
+    }
+    for (const key in this._vehicles) {
+      const vehicle = this._vehicles[key];
+      allTransient[vehicle.npcData.transientId] = key;
+    }
+    for (const key in this._npcs) {
+      const npc = this._npcs[key];
+      allTransient[npc.transientId] = key;
+    }
+    for (const key in this._objects) {
+      const object = this._objects[key];
+      allTransient[object.transientId] = key;
+    }
+    return allTransient;
+  }
+
   async fetchWorldData(): Promise<void> {
     if (!this._soloMode) {
       const worldData = await this._db
         ?.collection("worlds")
         .findOne({ worldId: this._worldId });
+      this._doors = worldData.doors;
+      this._vehicles = worldData.vehicles;
       this._npcs = worldData.npcs;
       this._objects = worldData.objects;
       this._weather = worldData.weather;
+      this._transientIds = this.getAllCurrentUsedTransientId();
       debug("World fetched!");
     }
   }
 
   async saveWorld(): Promise<void> {
     if (!this._soloMode) {
-      const save = {
-        worldId: this._worldId,
-        npcs: this._npcs,
-        weather: this._weather,
-        objects: this._objects,
-      };
       if (this._worldId) {
         if (
           await this._db
             ?.collection("worlds")
             .findOne({ worldId: this._worldId })
         ) {
+          const save = {
+            worldId: this._worldId,
+            npcs: this._npcs,
+            doors: this._doors,
+            vehicles: this._vehicles,
+            weather: this._weather,
+            objects: this._objects,
+          };
           const worker = new Worker(__dirname + "/workers/saveWorld.js", {
             workerData: {
               mongoAddress: this._mongoAddress,
@@ -329,17 +356,31 @@ export class ZoneServer extends EventEmitter {
           worker.on("error", debug);
         } else {
           this.createAllObjects();
+          const save = {
+            worldId: this._worldId,
+            npcs: this._npcs,
+            doors: this._doors,
+            vehicles: this._vehicles,
+            weather: this._weather,
+            objects: this._objects,
+          };
           await this._db?.collection("worlds").insertOne(save);
         }
       } else {
         this.createAllObjects();
+        const save = {
+          worldId: this._worldId,
+          npcs: this._npcs,
+          doors: this._doors,
+          vehicles: this._vehicles,
+          weather: this._weather,
+          objects: this._objects,
+        };
         const numberOfWorld: number =
           (await this._db?.collection("worlds").find({}).count()) || 0;
         const createdWorld = await this._db?.collection("worlds").insertOne({
+          ...save,
           worldId: numberOfWorld + 1,
-          npcs: save.npcs,
-          weather: save.weather,
-          objects: save.objects,
         });
         this._worldId = createdWorld?.ops[0].worldId;
         debug("World saved!");
@@ -439,6 +480,7 @@ export class ZoneServer extends EventEmitter {
           client.port +
           " ( ping timeout )"
       );
+      clearInterval(client.character?.resourcesUpdater);
       if (client.character?.characterId) {
         delete this._characters[client.character.characterId];
       }
@@ -509,6 +551,10 @@ export class ZoneServer extends EventEmitter {
     const characterDataMongo = await this._db
       ?.collection("characters")
       .findOne({ characterId: client.character.characterId });
+    client.character.extraModel = characterDataMongo?.extraModelTexture
+      ? characterDataMongo.extraModelTexture
+      : this._dummySelf.data.extraModelTexture;
+
     if (
       _.isEqual(this._dummySelf.data.position, [0, 0, 0, 1]) &&
       _.isEqual(this._dummySelf.data.rotation, [0, 0, 0, 1])
@@ -538,7 +584,7 @@ export class ZoneServer extends EventEmitter {
       client.character.state.position = this._dummySelf.data.position;
       client.character.state.rotation = this._dummySelf.data.rotation;
     }
-    const characterResources: any[] = [];
+    /* const characterResources: any[] = []; DISABLED since it's not read by the game rn + we don't need to send all resources
     resources.forEach((resource: any) => {
       characterResources.push({
         resourceType: resource.RESOURCE_TYPE,
@@ -555,9 +601,9 @@ export class ZoneServer extends EventEmitter {
         },
       });
     });
+    this._dummySelf.data.characterResources = characterResources;*/
     this._dummySelf.data.profiles = this._profiles;
     this._dummySelf.data.stats = stats;
-    this._dummySelf.data.characterResources = characterResources;
     this._dummySelf.data.recipes = recipes;
     this.sendData(client, "SendSelfToClient", this._dummySelf);
   }
@@ -929,12 +975,23 @@ export class ZoneServer extends EventEmitter {
 
   sendChat(client: Client, message: string, channel: number): void {
     const { character } = client;
-    this.sendDataToAll("Chat.Chat", {
-      channel: channel,
-      characterName1: character.name,
-      message: message,
-      color1: 1,
-    });
+    for (const clientKey in this._clients) {
+      const targetClient = this._clients[clientKey];
+      if (
+        isPosInRadius(
+          350,
+          client.character.state.position,
+          targetClient.character.state.position
+        )
+      ) {
+        this.sendData(targetClient, "Chat.Chat", {
+          channel: channel,
+          characterName1: character.name,
+          message: message,
+          color1: 1,
+        });
+      }
+    }
   }
 
   sendGlobalChatText(message: string, clearChat = false): void {
@@ -1025,10 +1082,7 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
-  sendRawToAllOthers(
-    client: Client,
-    data: any
-  ): void {
+  sendRawToAllOthers(client: Client, data: any): void {
     for (const a in this._clients) {
       if (client != this._clients[a]) {
         this.sendRawData(this._clients[a], data);
@@ -1108,24 +1162,23 @@ export class ZoneServer extends EventEmitter {
 
   getTransientId(client: any, guid: string): number {
     let generatedTransient;
-    do{
-        generatedTransient = Number((Math.random()*30000).toFixed(0));
-    }
-    while(!this._transientIds[generatedTransient])
+    do {
+      generatedTransient = Number((Math.random() * 30000).toFixed(0));
+    } while (!this._transientIds[generatedTransient]);
     this._transientIds[generatedTransient] = guid;
     return generatedTransient;
   }
 
   createPositionUpdate(position: Float32Array, rotation?: any): any {
-    const obj:any = {
+    const obj: any = {
       flags: 4095,
       unknown2_int32: this.getGameTime(),
       unknown3_int8: 0,
       unknown4: 1,
       position: position,
     };
-    if(rotation){
-      obj.unknown13_float = rotation
+    if (rotation) {
+      obj.unknown13_float = rotation;
     }
     return obj;
   }

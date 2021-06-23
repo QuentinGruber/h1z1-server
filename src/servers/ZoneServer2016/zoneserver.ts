@@ -35,8 +35,6 @@ import dynamicWeather from "./workers/dynamicWeather";
 // const resources = require("../../../data/2015/dataSources/Resources.json");
 const Z1_POIs = require("../../../data/2015/zoneData/Z1_POIs");
 
-
-
 export class ZoneServer2016 extends ZoneServer {
   constructor(
     serverPort: number,
@@ -124,9 +122,16 @@ export class ZoneServer2016 extends ZoneServer {
   POIManager(client: Client) { // sends POIChangeMessage or clears it based on player location
     let isInAPOIArea = false;
     Z1_POIs.forEach((point: any) => {
-      if ( isPosInRadius(point.range, client.character.state.position, point.position) ) {
+      if (
+        isPosInRadius(
+          point.range,
+          client.character.state.position,
+          point.position
+        )
+      ) {
         isInAPOIArea = true;
-        if(client.currentPOI != point.stringId) { // checks if player already was sent POIChangeMessage
+        if (client.currentPOI != point.stringId) {
+          // checks if player already was sent POIChangeMessage
           this.sendData(client, "POIChangeMessage", {
             messageStringId: point.stringId,
             id: point.POIid,
@@ -135,7 +140,8 @@ export class ZoneServer2016 extends ZoneServer {
         }
       }
     });
-    if (!isInAPOIArea && client.currentPOI != 0) { // checks if POIChangeMessage was already cleared
+    if (!isInAPOIArea && client.currentPOI != 0) {
+      // checks if POIChangeMessage was already cleared
       this.sendData(client, "POIChangeMessage", {
         messageStringId: 0,
         id: 115,
@@ -145,7 +151,7 @@ export class ZoneServer2016 extends ZoneServer {
   }
 
   worldRoutine(client: Client): void {
-    debug("WORLDROUTINE \n\n")
+    debug("WORLDROUTINE \n\n");
     this.spawnCharacters(client);
     this.spawnObjects(client);
     this.spawnDoors(client);
