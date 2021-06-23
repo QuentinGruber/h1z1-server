@@ -267,6 +267,8 @@ const packetHandlers: any = {
     }
     client.isLoading = false;
     delete client.mountedVehicle;
+    client.mountedVehicleType = "0";
+    client.isPolice = false;
   },
   Security: function (server: ZoneServer, client: Client, packet: any) {
     debug(packet);
@@ -591,6 +593,8 @@ const packetHandlers: any = {
       unknownBoolean: false,
     });
     delete client.mountedVehicle;
+    client.mountedVehicleType = "0";
+    client.isPolice = false;
   },
   "Command.InteractRequest": function (
     server: ZoneServer,
@@ -692,6 +696,100 @@ const packetHandlers: any = {
     packet: any
   ) {
     debug(packet);
+    vehicleState++;
+    switch (client.mountedVehicleType) {
+      case "offroader":
+        destroyedVehicleEffect = 135;
+        destroyedVehicleModel = 7226;
+        minorDamageEffect = 182;
+        majorDamageEffect = 181;
+        criticalDamageEffect = 180;
+        break;
+      case "pickup":
+        destroyedVehicleEffect = 326;
+        destroyedVehicleModel = 9315;
+        minorDamageEffect = 325;
+        majorDamageEffect = 324;
+        criticalDamageEffect = 323;
+        break;
+      case "policecar":
+        destroyedVehicleEffect = 286;
+        destroyedVehicleModel = 9316;
+        minorDamageEffect = 285;
+        majorDamageEffect = 284;
+        criticalDamageEffect = 283;
+        break;
+      default:
+        destroyedVehicleEffect = 135;
+        destroyedVehicleModel = 7226;
+        minorDamageEffect = 182;
+        majorDamageEffect = 181;
+        criticalDamageEffect = 180;
+        break;
+    }
+    if (vehicleState === 1000) {
+      const vehicleToDestroy = client.mountedVehicle;
+      server.vehicleDelete(client);
+      server.sendData(client, "Mount.DismountResponse", {
+        characterId: client.character.characterId,
+      });
+      server.sendData(client, "Vehicle.Engine", {
+        guid2: client.mountedVehicle,
+        unknownBoolean: false,
+      });
+      server.sendData(client, "PlayerUpdate.Destroyed", {
+        characterId: client.mountedVehicle,
+        unknown1: destroyedVehicleEffect, // destroyed offroader effect
+        unknown2: destroyedVehicleModel, // destroyed offroader model
+        unknown3: 0,
+        disableWeirdPhysics: false,
+      });
+      setTimeout(function () {
+        server.sendDataToAll(
+          "PlayerUpdate.RemovePlayerGracefully",
+          {
+            characterId: vehicleToDestroy,
+            timeToDisappear: 13000,
+            stickyEffectId: 156,
+          },
+          1
+        );
+      }, 2000);
+      client.mountedVehicleType = "0";
+      delete client.mountedVehicle;
+      vehicleState = 0;
+      client.isPolice = false;
+    } else if (vehicleState === 500) {
+      server.sendData(client, "Mount.DismountResponse", {
+        characterId: client.character.characterId,
+      });
+      server.sendData(client, "Mount.MountResponse", {
+        characterId: client.character.characterId,
+        guid: client.mountedVehicle,
+        unknownDword4: minorDamageEffect,
+        characterData: {},
+      });
+    } else if (vehicleState === 700) {
+      server.sendData(client, "Mount.DismountResponse", {
+        characterId: client.character.characterId,
+      });
+      server.sendData(client, "Mount.MountResponse", {
+        characterId: client.character.characterId,
+        guid: client.mountedVehicle,
+        unknownDword4: majorDamageEffect,
+        characterData: {},
+      });
+    } else if (vehicleState === 850) {
+      server.sendData(client, "Mount.DismountResponse", {
+        characterId: client.character.characterId,
+      });
+      server.sendData(client, "Mount.MountResponse", {
+        characterId: client.character.characterId,
+        guid: client.mountedVehicle,
+        unknownDword4: criticalDamageEffect,
+        characterData: {},
+      });
+    }
   },
   "Vehicle.Dismiss": function (
     server: ZoneServer,
@@ -1586,6 +1684,22 @@ const packetHandlers: any = {
       )
     ) {
       const { characterId: vehicleGuid } = vehicleToMount.npcData;
+      const { modelId: vehicleTypeId } = vehicleToMount.npcData;
+      switch (vehicleTypeId) {
+        case 1:
+          client.mountedVehicleType = "offroader";
+          break;
+        case 2:
+          client.mountedVehicleType = "pickup";
+          break;
+        case 3:
+          client.mountedVehicleType = "policecar";
+          client.isPolice = true;
+          break;
+        default:
+          client.mountedVehicleType = "offroader";
+          break;
+      }
       server.sendData(client, "PlayerUpdate.ManagedObject", {
         guid: vehicleGuid,
         characterId: client.character.characterId,
