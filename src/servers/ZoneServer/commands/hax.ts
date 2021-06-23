@@ -72,18 +72,22 @@ const hax: any = {
       case "offroader":
         vehicleId = 1;
         driveModel = 7225;
+		client.mountedVehicleType = "offroader";
         break;
       case "pickup":
         vehicleId = 2;
         driveModel = 9258;
+		client.mountedVehicleType = "pickup";
         break;
       case "policecar":
         vehicleId = 3;
         driveModel = 9301;
+		client.mountedVehicleType = "policecar";
         break;
       default:
         vehicleId = 1;
         driveModel = 7225;
+		client.mountedVehicleType = "offroader";
         break;
     }
     const characterId = server.generateGuid();
