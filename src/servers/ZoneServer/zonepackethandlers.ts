@@ -1688,15 +1688,15 @@ const packetHandlers: any = {
       )
     ) {
       const { characterId: vehicleGuid } = vehicleToMount.npcData;
-      const { modelId: vehicleTypeId } = vehicleToMount.npcData;
-      switch (vehicleTypeId) {
-        case 1:
+      const { modelId: vehicleModelId } = vehicleToMount.npcData;
+      switch (vehicleModelId) {
+        case 7225:
           client.mountedVehicleType = "offroader";
           break;
-        case 2:
+        case 9258:
           client.mountedVehicleType = "pickup";
           break;
-        case 3:
+        case 9301:
           client.mountedVehicleType = "policecar";
           break;
         default:
@@ -1712,6 +1712,10 @@ const packetHandlers: any = {
         guid: vehicleGuid,
         characterData: [],
       });
+      server.sendData(client, "Vehicle.Engine", {
+      guid2: vehicleGuid,
+      unknownBoolean: true,
+    });
     } else if (
       doorToInteractWith &&
       isPosInRadius(
@@ -1761,17 +1765,13 @@ const packetHandlers: any = {
         transientId: pcData.transientId,
       });
     } else if (server._vehicles[guid]) {
-     /* const npcData = {  DISABLED create some issues
+        const npcData = { 
         transientId: server._vehicles[guid].npcData.transientId,
-        unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
-        unknownDword2: 13951728,
-        unknownDword3: 1,
-        unknownDword6: 100,
       };
       server.sendData(client, "PlayerUpdate.LightweightToFullVehicle", {
         npcData: npcData,
         characterId: guid,
-      });*/
+      });
     }
   },
 };
