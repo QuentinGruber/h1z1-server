@@ -4150,6 +4150,7 @@ const packets = [
                     type: "byteswithlength", 
                     fields: [
                         { name: "ID", type: "uint32", defaultValue: 0 },
+                        
                         { name: "unknownWord1", type: "uint16", defaultValue: 1 },
                         { name: "unknownWord2", type: "uint16", defaultValue: 2 },
                         { name: "unknownDword1", type: "uint32", defaultValue: 3 },
@@ -4242,6 +4243,7 @@ const packets = [
                                 { name: "unknownDword2", type: "uint32", defaultValue: 0 },
                             ],
                         },
+                        
                     ]
                 }
             ]
@@ -7249,7 +7251,7 @@ const packets = [
             { name: "modelId", type: "uint32", defaultValue: 0 },
             { name: "scale", type: "floatvector4", defaultValue: [1, 1, 1, 1] },
             { name: "unknownDword3", type: "uint32", defaultValue: 9000 },
-            { name: "showHealth", type: "boolean", defaultValue: false },
+            { name: "showHealth", type: "uint8", defaultValue: 0 },
             { name: "unknownDword4", type: "uint32", defaultValue: 9000 },
         ]
         }

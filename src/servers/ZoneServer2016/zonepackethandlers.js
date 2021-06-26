@@ -1246,7 +1246,7 @@ const packetHandlers = {
       }
     }
   },
-  /*
+
   "Command.ItemDefinitionRequest": function (server, client, packet) {
     console.log("ItemDefinitionRequest\n\n\n\n\n\n\n\n\n");
     console.log(packet.data);
@@ -1261,7 +1261,6 @@ const packetHandlers = {
       ]
     }})
   }
-  */
 };
 
 export default packetHandlers;
