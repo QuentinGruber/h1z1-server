@@ -187,6 +187,7 @@ const packetHandlers: any = {
           },
         },
       });
+
       server.sendData(client, "ResourceEvent", {
         eventData: {
           type: 3,
@@ -357,7 +358,7 @@ const packetHandlers: any = {
           regionPercent: [],
           populationBuff: [],
           populationTargetPercent: [],
-          name: "Z1", // could use this field to load a specific TileInfo
+          name: "", // could use this field to load a specific TileInfo
           hexSize: 100,
           isProductionZone: 1,
         },
@@ -634,10 +635,11 @@ const packetHandlers: any = {
     packet: any
   ) {
     debug(packet.data);
-    const { guid } = packet.data;
+    let { guid } = packet.data;
     const objectData = server._objects[guid];
     const doorData = server._doors[guid];
     const vehicleData = server._vehicles[guid];
+    const propData = server._props[guid];
 
     if (
       objectData &&
@@ -650,6 +652,62 @@ const packetHandlers: any = {
       server.sendData(client, "Command.InteractionString", {
         guid: guid,
         stringId: 29,
+      });
+      delete client.mountedVehicle;
+    } else if (
+      propData &&
+      isPosInRadius(
+        server._interactionDistance,
+        client.character.state.position,
+        propData.position
+      )
+    ) {
+      let stringId = 0;
+      switch (propData.modelId) {
+        case 9330: // beds
+          stringId = 439;
+          break;
+        case 9329:
+          stringId = 439;
+          break;
+        case 9328:
+          stringId = 439;
+          break;
+        case 57: // Openable
+          stringId = 31;
+          break;
+        case 36: // interactables
+          stringId = 1186;
+          break;
+        case 9205:
+          stringId = 1186;
+          break;
+        case 8014: // NoString
+          guid = "0";
+          break;
+        case 8013:
+          guid = "0";
+          break;
+        case 9088:
+          guid = "0";
+          break;
+        case 8012: // NoString
+          guid = "0";
+          break;
+        case 9069:
+          guid = "0";
+          break;
+        case 9061:
+          guid = "0";
+          break;
+        default:
+          // searchable
+          stringId = 1191;
+          break;
+      }
+      server.sendData(client, "Command.InteractionString", {
+        guid: guid,
+        stringId: stringId,
       });
       delete client.mountedVehicle;
     } else if (
@@ -1607,6 +1665,7 @@ const packetHandlers: any = {
     // Maybe we should move all that logic to Command.InteractionSelect
     const objectToPickup = server._objects[packet.data.guid];
     const doorToInteractWith = server._doors[packet.data.guid];
+    const propToSearch = server._props[packet.data.guid];
     const vehicleToMount = server._vehicles[packet.data.guid];
     if (
       objectToPickup &&
@@ -1713,9 +1772,9 @@ const packetHandlers: any = {
         characterData: [],
       });
       server.sendData(client, "Vehicle.Engine", {
-      guid2: vehicleGuid,
-      unknownBoolean: true,
-    });
+        guid2: vehicleGuid,
+        unknownBoolean: true,
+      });
     } else if (
       doorToInteractWith &&
       isPosInRadius(
@@ -1728,6 +1787,81 @@ const packetHandlers: any = {
       server.sendData(client, "PlayerUpdate.DoorState", {
         characterId: doorToInteractWith.characterId,
       });
+    } else if (
+      propToSearch &&
+      isPosInRadius(
+        server._interactionDistance,
+        client.character.state.position,
+        propToSearch.position
+      )
+    ) {
+      let interactType = "0";
+      switch (propToSearch.modelId) {
+        case 8013:
+          interactType = "destroy";
+          break;
+        case 8014:
+          interactType = "destroy";
+          break;
+        case 9088:
+          interactType = "destroy";
+          break;
+        case 9328:
+          interactType = "sleep";
+          break;
+        case 9330:
+          interactType = "sleep";
+          break;
+        case 9329:
+          interactType = "sleep";
+          break;
+        case 36:
+          interactType = "use";
+          break;
+        case 9205:
+          interactType = "use";
+          break;
+        case 57:
+          interactType = "open";
+          break;
+        case 9127:
+          interactType = "open";
+          break;
+        default:
+          interactType = "search";
+          break;
+      }
+      switch (interactType) {
+        case "destroy":
+          server.sendData(client, "PlayerUpdate.Destroyed", {
+            characterId: propToSearch.characterId,
+            unknown1: 242,
+            unknown2: 8015,
+            unknown3: 0,
+            disableWeirdPhysics: true,
+          });
+          break;
+        case "sleep":
+          server.sendData(client, "ClientUpdate.StartTimer", {
+            stringId: 439,
+            time: 5000,
+          });
+          break;
+        case "use":
+          interactType = "use";
+          break;
+        case "open":
+          interactType = "open";
+          break;
+        case "search":
+          server.sendData(client, "ClientUpdate.StartTimer", {
+            stringId: propToSearch.nameId,
+            time: 3000,
+          });
+          break;
+        default:
+          break;
+      }
     }
   },
   "PlayerUpdate.Respawn": function (
@@ -1750,7 +1884,10 @@ const packetHandlers: any = {
       data: { guid },
     } = packet;
     const npc =
-      server._npcs[guid] || server._objects[guid] || server._doors[guid];
+      server._npcs[guid] ||
+      server._objects[guid] ||
+      server._doors[guid] ||
+      server._props[guid];
     const pcData = server._characters[guid];
     if (npc) {
       server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
@@ -1765,7 +1902,7 @@ const packetHandlers: any = {
         transientId: pcData.transientId,
       });
     } else if (server._vehicles[guid]) {
-        const npcData = { 
+      const npcData = {
         transientId: server._vehicles[guid].npcData.transientId,
       };
       server.sendData(client, "PlayerUpdate.LightweightToFullVehicle", {
