@@ -1816,16 +1816,16 @@ const packetHandlers: any = {
           interactType = "sleep";
           break;
         case 36:
-          interactType = "use";
+       //   interactType = "use";
           break;
         case 9205:
-          interactType = "use";
+       //   interactType = "use";
           break;
         case 57:
-          interactType = "open";
+        //  interactType = "open";
           break;
         case 9127:
-          interactType = "open";
+        //  interactType = "open";
           break;
         default:
           interactType = "search";
@@ -1848,10 +1848,10 @@ const packetHandlers: any = {
           });
           break;
         case "use":
-          interactType = "use";
+     //     interactType = "use";
           break;
         case "open":
-          interactType = "open";
+      //    interactType = "open";
           break;
         case "search":
           server.sendData(client, "ClientUpdate.StartTimer", {
