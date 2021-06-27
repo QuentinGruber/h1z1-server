@@ -358,7 +358,7 @@ const packetHandlers: any = {
           regionPercent: [],
           populationBuff: [],
           populationTargetPercent: [],
-          name: "", // could use this field to load a specific TileInfo
+          name: "Z1", // could use this field to load a specific TileInfo
           hexSize: 100,
           isProductionZone: 1,
         },
