@@ -806,7 +806,7 @@ export class ZoneServer extends EventEmitter {
 
       this.sendData(
         client,
-        "PlayerUpdate.RemovePlayer",
+        "PlayerUpdate.RemovePlayerGracefully",
         {
           characterId,
         },
