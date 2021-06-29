@@ -72,18 +72,22 @@ const hax: any = {
       case "offroader":
         vehicleId = 1;
         driveModel = 7225;
+		client.mountedVehicleType = "offroader";
         break;
       case "pickup":
         vehicleId = 2;
         driveModel = 9258;
+		client.mountedVehicleType = "pickup";
         break;
       case "policecar":
         vehicleId = 3;
         driveModel = 9301;
+		client.mountedVehicleType = "policecar";
         break;
       default:
         vehicleId = 1;
         driveModel = 7225;
+		client.mountedVehicleType = "offroader";
         break;
     }
     const characterId = server.generateGuid();
@@ -113,10 +117,10 @@ const hax: any = {
       ),
       unknownString1: "",
     };
-    server.sendData(client, "PlayerUpdate.AddLightweightVehicle", vehicleData);
     server._vehicles[characterId] = vehicleData;
     server.worldRoutine(client);
-    server.sendData(client, "Mount.MountResponse", {
+    setTimeout(function(){ // doing anything with vehicle before client gets fullvehicle packet breaks it
+	server.sendData(client, "Mount.MountResponse", {
       characterId: client.character.characterId,
       guid: characterId,
       characterData: [],
@@ -126,6 +130,7 @@ const hax: any = {
       unknownBoolean: true,
     });
     client.mountedVehicle = characterId;
+	}, 500);
   },
 
   parachute: function (server: ZoneServer, client: Client, args: any[]) {
