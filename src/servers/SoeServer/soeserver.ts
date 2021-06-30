@@ -343,6 +343,7 @@ export class SOEServer extends EventEmitter {
         case "Ack":
           if (result.sequence > 50000) {
             console.log("Warn Ack, sequence ", result.sequence);
+            this.emit("PacketLimitationReached", client);
           }
           debug("Ack, sequence " + result.sequence);
           (client as any).outputStream.ack(result.sequence);
