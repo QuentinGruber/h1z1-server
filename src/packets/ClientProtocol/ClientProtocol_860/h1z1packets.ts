@@ -5632,18 +5632,18 @@ var packets = [
         {
           name: "position",
           type: "floatvector3",
-          defaultValue: [0, 50, 0],
+          defaultValue: [0, 40, 0],
         },
         {
           name: "rotation",
           type: "floatvector3",
           defaultValue: [0, 0, 0],
         },
-        { name: "unknown6", type: "uint8", defaultValue: 1 },
+        { name: "unknown6", type: "uint32", defaultValue: 11 },
 
         {
           name: "NetworkObjectComponent", // can't be empty
-          type: "array8",
+          type: "array",
           fields: [{ name: "unknown1", type: "uint8", defaultValue: 0 }],
         },
       ],
