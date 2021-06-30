@@ -32,6 +32,7 @@ export class SOEServer extends EventEmitter {
   _connection: dgram.Socket;
   _crcSeed: number;
   _crcLength: number;
+  _maxOutOfOrderPacketsPerLoop: number;
 
   constructor(
     protocolName: string,
@@ -48,6 +49,7 @@ export class SOEServer extends EventEmitter {
     this._cryptoKey = cryptoKey;
     this._crcSeed = 0;
     this._crcLength = 2;
+    this._maxOutOfOrderPacketsPerLoop = 20;
     this._compression = compression;
     this._protocol = new SOEProtocol();
     this._udpLength = 512;
@@ -157,7 +159,7 @@ export class SOEServer extends EventEmitter {
           const checkOutOfOrderQueue = () => {
             if (client.outOfOrderPackets.length) {
               const packets = [];
-              for (let i = 0; i < 20; i++) {
+              for (let i = 0; i < this._maxOutOfOrderPacketsPerLoop; i++) {
                 const sequence = client.outOfOrderPackets.shift();
                 packets.push({
                   name: "OutOfOrder",
