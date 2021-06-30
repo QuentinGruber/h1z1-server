@@ -223,6 +223,9 @@ export class ZoneServer extends EventEmitter {
         client.isLoading = true;
         client.firstLoading = true;
         client.loginSessionId = loginSessionId;
+        client.vehicle = {
+          vehicleState: 0,
+        }
         client.character = {
           characterId: characterId,
           transientId: generatedTransient,
@@ -918,8 +921,8 @@ export class ZoneServer extends EventEmitter {
   }
 
   vehicleDelete(client: Client) {
-    if (client.mountedVehicle) {
-      delete this._vehicles[client.mountedVehicle];
+    if (client.vehicle.mountedVehicle) {
+      delete this._vehicles[client.vehicle.mountedVehicle];
     }
   }
 
