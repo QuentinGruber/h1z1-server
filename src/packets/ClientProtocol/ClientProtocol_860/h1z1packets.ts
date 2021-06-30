@@ -5628,26 +5628,23 @@ var packets = [
           parser: readUnsignedIntWith2bitLengthValue,
           packer: packUnsignedIntWith2bitLengthValue,
         },
-        { name: "unknown5", type: "byte", defaultValue: 1 },
+        { name: "unknown5", type: "uint8", defaultValue: 1 },
         {
           name: "position",
-          type: "floatvector4",
-          defaultValue: [0, 50, 0, 0],
+          type: "floatvector3",
+          defaultValue: [0, 50, 0],
         },
         {
           name: "rotation",
-          type: "floatvector4",
-          defaultValue: [0, 0, 0, 1],
+          type: "floatvector3",
+          defaultValue: [0, 0, 0],
         },
+        { name: "unknown6", type: "uint8", defaultValue: 1 },
+
         {
-          name: "array3",
-          type: "array",
-          fields: [{ name: "unknown1", type: "byte", defaultValue: 0 }],
-        },
-        {
-          name: "array4",
-          type: "array",
-          fields: [{ name: "unknown1", type: "byte", defaultValue: 0 }],
+          name: "NetworkObjectComponent", // can't be empty
+          type: "array8",
+          fields: [{ name: "unknown1", type: "uint8", defaultValue: 0 }],
         },
       ],
     },
