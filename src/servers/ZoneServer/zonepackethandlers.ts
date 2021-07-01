@@ -1517,18 +1517,18 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
-    const logoutTime = 10000;
+    const timerTime = 10000;
     server.sendData(client, "ClientUpdate.StartTimer", {
       stringId: 0,
-      time: logoutTime,
+      time: timerTime,
     });
     client.posAtLogoutStart = client.character.state.position;
-    if (client.logoutTimer != null) {
-      clearTimeout(client.logoutTimer);
+    if (client.timer != null) {
+      clearTimeout(client.timer);
     }
-    client.logoutTimer = setTimeout(() => {
+    client.timer = setTimeout(() => {
       server.sendData(client, "ClientUpdate.CompleteLogoutProcess", {});
-    }, logoutTime);
+    }, timerTime);
   },
   CharacterSelectSessionRequest: function (
     server: ZoneServer,
@@ -1626,15 +1626,15 @@ const packetHandlers: any = {
       }
 
       if (
-        client.logoutTimer != null &&
+        client.timer != null &&
         !isPosInRadius(
           1,
           client.character.state.position,
           client.posAtLogoutStart
         )
       ) {
-        clearTimeout(client.logoutTimer);
-        client.logoutTimer = null;
+        clearTimeout(client.timer);
+        client.timer = null;
         client.isInteracting = false;
         server.sendData(client, "ClientUpdate.StartTimer", {
           stringId: 0,
@@ -1811,7 +1811,7 @@ const packetHandlers: any = {
       )
     ) {
       let interactType;
-      let logoutTime = 0;
+      let timerTime = 0;
       switch (propToSearch.modelId) {
         case 8013:
           interactType = "destroy";
@@ -1824,23 +1824,23 @@ const packetHandlers: any = {
           break;
         case 9328:
           interactType = "sleep";
-          logoutTime = 20000;
+          timerTime = 20000;
           break;
         case 9330:
           interactType = "sleep";
-          logoutTime = 20000;
+          timerTime = 20000;
           break;
         case 9329:
           interactType = "sleep";
-          logoutTime = 20000;
+          timerTime = 20000;
           break;
         case 9331:
           interactType = "sleep";
-          logoutTime = 20000;
+          timerTime = 20000;
           break;
         case 9336:
           interactType = "sleep";
-          logoutTime = 20000;
+          timerTime = 20000;
           break;
         case 36:
           interactType = "use";
@@ -1865,7 +1865,7 @@ const packetHandlers: any = {
           break;
         default:
           interactType = "search";
-          logoutTime = 1500;
+          timerTime = 1500;
           break;
       }
       switch (interactType) {
@@ -1883,18 +1883,18 @@ const packetHandlers: any = {
             client.isInteracting = true;
             server.sendData(client, "ClientUpdate.StartTimer", {
               stringId: 9051,
-              time: logoutTime,
+              time: timerTime,
             });
             client.posAtLogoutStart = client.character.state.position;
-            if (client.logoutTimer != null) {
-              clearTimeout(client.logoutTimer);
+            if (client.timer != null) {
+              clearTimeout(client.timer);
             }
-            client.logoutTimer = setTimeout(() => {
+            client.timer = setTimeout(() => {
               server.sendData(client, "ClientUpdate.TextAlert", {
                 message: "You feel refreshed after sleeping well.",
               });
               client.isInteracting = false;
-            }, logoutTime);
+            }, timerTime);
           }
           break;
         case "use":
@@ -1917,18 +1917,18 @@ const packetHandlers: any = {
             client.isInteracting = true;
             server.sendData(client, "ClientUpdate.StartTimer", {
               stringId: propToSearch.nameId,
-              time: logoutTime,
+              time: timerTime,
             });
             client.posAtLogoutStart = client.character.state.position;
-            if (client.logoutTimer != null) {
-              clearTimeout(client.logoutTimer);
+            if (client.timer != null) {
+              clearTimeout(client.timer);
             }
             client.logoutTimer = setTimeout(() => {
               server.sendData(client, "ClientUpdate.TextAlert", {
                 message: "Nothing in there... yet :P",
               });
               client.isInteracting = false;
-            }, logoutTime);
+            }, timerTime);
           }
           break;
         default:
