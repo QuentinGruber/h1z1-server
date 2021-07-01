@@ -12,7 +12,7 @@ const npcs: any = {};
 const objects: any = {};
 const vehicles: any = {};
 const doors: any = {};
-/*
+
 const chancePumpShotgun = 50;
 const chanceAR15 = 50;
 const chanceTools = 50;
@@ -29,23 +29,6 @@ const chanceCommercial = 10;
 const chanceFarm = 10;
 const chanceHospital = 50;
 const chanceMilitary = 20;
-*/
-const chancePumpShotgun = 100;
-const chanceAR15 = 100;
-const chanceTools = 100;
-const chancePistols = 100;
-const chanceM24 = 100;
-const chanceConsumables = 100;
-const chanceClothes = 100;
-const chanceResidential = 100;
-const chanceRare = 100;
-const chanceIndustrial = 100;
-const chanceWorld = 100;
-const chanceLog = 100;
-const chanceCommercial = 100;
-const chanceFarm = 100;
-const chanceHospital = 100;
-const chanceMilitary = 100;
 
 let numberOfSpawnedEntity = 0;
 
@@ -292,7 +275,14 @@ function createHospital(server:ZoneServer2016) {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawnerHospital.adr":
-        authorizedModelId.push(9003); // TEMP wolf
+        authorizedModelId.push(9221); // medkit
+        authorizedModelId.push(9250); // mre
+        authorizedModelId.push(9066); // bandage
+        authorizedModelId.push(9543); // vial
+        authorizedModelId.push(9540); // syringe
+        authorizedModelId.push(9249); // shirt
+        authorizedModelId.push(9296); // water bottle
+        authorizedModelId.push(9156); // empty bottle
         break;
       default:
         break;

@@ -466,24 +466,6 @@ const hax = {
     debug(JSON.stringify(rnd_weather));
     server.changeWeather(client, rnd_weather);
   },
-  /*
-  setNight: function(server, client, args) {
-    const skyData = {
-      sunAxisX: 180, // 0 - 360
-      sunAxisY: 180, // 0 - 360
-    };
-
-    server.sendData(client, "UpdateWeatherData", skyData);
-  },
-  setDay: function(server, client, args) {
-    const skyData = {
-      sunAxisX: 0, // 0 - 360
-      sunAxisY: 0, // 0 - 360
-    };
-
-    server.sendData(client, "UpdateWeatherData", skyData);
-  },
-  */
   equipment: function(server, client, args) {
     let effect, model, slot;
     if(!args[1]) {

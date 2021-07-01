@@ -104,10 +104,12 @@ const packetHandlers = {
     server.sendGameTimeSync(client);
 
     client.character.currentLoadoutId = 3;
+    /*
     server.sendData(client, "Loadout.SetCurrentLoadout", {
       guid: client.character.guid,
       loadoutId: client.character.currentLoadoutId,
     });
+    */
 
     server.sendData(client, "ZoneDoneSendingInitialData", {}); // Required for WaitForWorldReady
 
@@ -318,8 +320,9 @@ const packetHandlers = {
     const { channel, message } = packet.data;
     server.sendChat(client, message, channel);
   },
+  /*
   "Loadout.SelectSlot": function (server, client, packet) {
-    /*
+    
     if (client.character.currentLoadout) {
       const loadout = client.character.currentLoadout,
         loadoutSlotId = packet.data.loadoutSlotId;
@@ -349,8 +352,9 @@ const packetHandlers = {
         }
       }
     }
-    */
+    
   },
+  */
   ClientInitializationDetails: function (server, client, packet) {
     // just in case
     if (packet.data.unknownDword1) {
@@ -461,6 +465,7 @@ const packetHandlers = {
         break;
     }
   },
+  /*
   "Command.SetProfile": function (server, client, packet) {
     server.sendData(client, "Loadout.SetCurrentLoadout", {
       type: 2,
@@ -470,6 +475,7 @@ const packetHandlers = {
       unknown2: 1,
     });
   },
+  */
   "Command.InteractRequest": function (server, client, packet) {
     server.sendData(client, "Command.InteractionString", {
       guid: packet.data.guid,
@@ -496,6 +502,7 @@ const packetHandlers = {
       unknownBoolean3: false,
     });
   },
+  /*
   "Command.InteractionSelect": function (server, client, packet) {
     server.sendData(client, "Loadout.SetLoadouts", {
       type: 2,
@@ -503,6 +510,7 @@ const packetHandlers = {
       unknownDword1: 1,
     });
   },
+  */
   /*
   "Vehicle.Spawn": function (server, client, packet) {
     server.sendData(client, "Vehicle.Expiration", {
@@ -1247,13 +1255,14 @@ const packetHandlers = {
     }
   },
 
+  /*
   "Command.ItemDefinitionRequest": function (server, client, packet) {
     console.log("ItemDefinitionRequest\n\n\n\n\n\n\n\n\n");
     console.log(packet.data);
 
     server.sendData(client, "Command.ItemDefinitionReply", {data: {
-      ID: 1800,
-      unknownArray1Length: 0,
+      ID: 2425,
+      unknownArray1Length: 1,
       unknownArray1: [
         {
           unknownData1: {}
@@ -1261,6 +1270,7 @@ const packetHandlers = {
       ]
     }})
   }
+  */
 };
 
 export default packetHandlers;
