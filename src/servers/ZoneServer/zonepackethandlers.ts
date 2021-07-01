@@ -1849,7 +1849,7 @@ const packetHandlers: any = {
           interactType = "use";
           break;
         case 9041:
-          const interactType = "use";
+          interactType = "use";
           break;
         case 57:
           interactType = "open";
@@ -1898,10 +1898,10 @@ const packetHandlers: any = {
           }
           break;
         case "use":
-         // const interactType = "use";
+          // interactType = "use";
           break;
         case "open":
-         // const interactType = "open";
+          // interactType = "open";
           break;
         case "collectWater":
           server.sendData(client, "ClientUpdate.TextAlert", {
