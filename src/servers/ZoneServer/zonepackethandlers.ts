@@ -1641,6 +1641,9 @@ const packetHandlers: any = {
           time: 0,
         }); // don't know how it was done so
       }
+      if (!client.posAtLastRoutine) {
+        server.spawnProps(client);
+      }
 
       if (
         !client.posAtLastRoutine ||
