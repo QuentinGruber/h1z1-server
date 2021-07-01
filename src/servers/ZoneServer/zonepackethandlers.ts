@@ -1851,7 +1851,7 @@ const packetHandlers: any = {
           let interactType = "use";
           break;
         case 57:
-          interactType = "open";
+          let interactType = "open";
           break;
         case 9127:
           let interactType = "open";
