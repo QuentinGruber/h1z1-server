@@ -90,18 +90,19 @@ const hax = {
       case "radiotower":
         locationPosition = new Float32Array([-1499.21, 353.98, -840.52, 1]);
         break;
+      case "villas":
+        locationPosition = new Float32Array([489.02, 102, 2942.65, 1]);
+        break;
+      case "military":
+        locationPosition = new Float32Array([696.53, 48.08, -2470.62, 1]);
+        break;
+      case "hospital":
+        locationPosition = new Float32Array([1895.4, 93.69, -2914.39, 1]);
+        break;
       default:
-        if (args.length < 4) {
-          server.sendChatText(
-            client,
-            "Unknown set location, need 3 args to tp to exact location: x, y, z",
-            false
-          );
-          server.sendChatText(
-            client,
-            "Set location list: zimms, pv, br, ranchito, drylake, dam, cranberry, church, desoto, toxic, radiotower",
-            false
-          );
+        if(args.length < 4){
+          server.sendChatText(client, "Unknown set location, need 3 args to tp to exact location: x, y, z", false);
+          server.sendChatText(client, "Set location list: zimms, pv, br, ranchito, drylake, dam, cranberry, church, desoto, toxic, radiotower, villas, military, hospital", false);
           return;
         }
         locationPosition = new Float32Array([args[1], args[2], args[3], 1]);
@@ -181,26 +182,23 @@ const hax = {
       server.sendChatText(client, "[ERROR] You need to specify a model id !");
       return;
     }
-    if (!args[4]) {
-      server.sendChatText(client, "Missing rotation values");
+    if (!args[3]) {
+      server.sendChatText(client, "Missing 2 byte values");
       return;
     }
     const choosenModelId = Number(args[1]);
-    const obj = {
-      characterId: characterId,
-      transientId: transientId,
-      position: [
-        client.character.state.position[0],
-        client.character.state.position[1],
-        client.character.state.position[2],
-      ],
-      rotation: [Number(args[2]), Number(args[3]), Number(args[4])],
-      modelId: choosenModelId,
-      showHealth: false,
-    };
-    server.sendData(client, "AddSimpleNpc", obj);
+      const obj = {
+        characterId: characterId,
+        transientId: transientId,
+        //unknownByte1: Number(args[2]),
+        position: [client.character.state.position[0], client.character.state.position[1], client.character.state.position[2]],
+        modelId: choosenModelId,
+        showHealth: Number(args[2]),
+        unknownDword4: Number(args[3])
 
-    server.obj[characterId] = obj; // save npc
+      };
+    server.sendData(client, "AddSimpleNpc", obj);
+    // server.obj[characterId] = obj; // save npc
   },
   spawnNpcModel: function (server, client, args) {
     const guid = server.generateGuid();
@@ -471,25 +469,7 @@ const hax = {
     debug(JSON.stringify(rnd_weather));
     server.changeWeather(client, rnd_weather);
   },
-  /*
-  setNight: function(server, client, args) {
-    const skyData = {
-      sunAxisX: 180, // 0 - 360
-      sunAxisY: 180, // 0 - 360
-    };
-
-    server.sendData(client, "UpdateWeatherData", skyData);
-  },
-  setDay: function(server, client, args) {
-    const skyData = {
-      sunAxisX: 0, // 0 - 360
-      sunAxisY: 0, // 0 - 360
-    };
-
-    server.sendData(client, "UpdateWeatherData", skyData);
-  },
-  */
-  equipment: function (server, client, args) {
+  equipment: function(server, client, args) {
     let effect, model, slot;
     if (!args[1]) {
       server.sendChatText(client, "[ERROR] Missing equipment name !");
@@ -544,11 +524,12 @@ const hax = {
         model = "SurvivorMale_Face_Bandana.adr";
         slot = 28;
         break;
+      case "ghillie":
+        model = "SurvivorMale_Chest_GhillieSuit.adr";
+        slot = 3;
+        break;
       default:
-        server.sendChatText(
-          client,
-          "Valid options: hoodie, shirt, pants, helmet, backpack, shoes, armor, gloves, bandana"
-        );
+        server.sendChatText(client, "Valid options: hoodie, shirt, pants, helmet, backpack, shoes, armor, gloves, bandana, ghillie");
         return;
     }
     const equipmentSlot = {
