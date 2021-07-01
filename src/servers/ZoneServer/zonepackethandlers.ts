@@ -1675,9 +1675,9 @@ const packetHandlers: any = {
     }
     else if (packet.data.vehicle_position && client.vehicle.mountedVehicle){
       server._vehicles[client.vehicle.mountedVehicle].npcData.position = new Float32Array([
-          packet.data.position[0],
-          packet.data.position[1],
-          packet.data.position[2],
+          packet.data.vehicle_position[0],
+          packet.data.vehicle_position[1],
+          packet.data.vehicle_position[2],
           0,
         ]);
   }
