@@ -143,9 +143,9 @@ const packetHandlers = {
         type: 2,
         value: {
           characterId: client.character.characterId,
-          resourceId: 1,// health
+          resourceId: 1, // health
           resourceType: 1,
-          unknownArray1:[],
+          unknownArray1: [],
           value: 5000, // 10000 max
           unknownArray2: [],
         },
@@ -158,7 +158,7 @@ const packetHandlers = {
           characterId: client.character.characterId,
           resourceId: 6, // stamina
           resourceType: 6,
-          unknownArray1:[],
+          unknownArray1: [],
           value: 600, // 600 max
           unknownArray2: [],
         },
@@ -171,7 +171,7 @@ const packetHandlers = {
           characterId: client.character.characterId,
           resourceId: 4, // food
           resourceType: 4,
-          unknownArray1:[],
+          unknownArray1: [],
           value: 5000, // 10000 max
           unknownArray2: [],
         },
@@ -184,11 +184,11 @@ const packetHandlers = {
           characterId: client.character.characterId,
           resourceId: 5, // water
           resourceType: 5,
-          unknownArray1:[],
+          unknownArray1: [],
           value: 5000, // 10000 max
           unknownArray2: [],
-        }
-      }
+        },
+      },
     });
     server.sendData(client, "ResourceEvent", {
       eventData: {
@@ -197,11 +197,11 @@ const packetHandlers = {
           characterId: client.character.characterId,
           resourceId: 68, // comfort
           resourceType: 68,
-          unknownArray1:[],
+          unknownArray1: [],
           value: 5000, // 5000 max
           unknownArray2: [],
-        }
-      }
+        },
+      },
     });
     server.sendData(client, "ResourceEvent", {
       eventData: {
@@ -210,7 +210,7 @@ const packetHandlers = {
           characterId: client.character.characterId,
           resourceId: 12, // h1z1 virus
           resourceType: 12,
-          unknownArray1:[],
+          unknownArray1: [],
           value: 10000, // 10000 max
           unknownArray2: [],
         },
@@ -218,23 +218,27 @@ const packetHandlers = {
     });
     const equipmentSlot = {
       characterData: {
-        characterId: client.character.characterId
+        characterId: client.character.characterId,
       },
       equipmentTexture: {
         index: 1, // needs to be non-zero
         slotId: 1, // needs to be non-zero
         unknownQword1: "0x1", // needs to be non-zero
         textureAlias: "",
-        unknownString1: ""
+        unknownString1: "",
       },
       equipmentModel: {
         model: "SurvivorMale_Hair_ShortMessy.adr",
         effectId: 0,
         equipmentSlotId: 27,
-        unknownArray1: []
-      }
+        unknownArray1: [],
+      },
     };
-    server.sendData(client, "Equipment.SetCharacterEquipmentSlot", equipmentSlot);
+    server.sendData(
+      client,
+      "Equipment.SetCharacterEquipmentSlot",
+      equipmentSlot
+    );
   },
   ClientFinishedLoading: function (server, client, packet) {
     client.currentPOI = 0; // clears currentPOI for POIManager

@@ -19,7 +19,9 @@ export async function zoneShutdown(
       sessionId: "0", // TODO: get sessionId from client object
     });
     await server.saveWorld();
-    setTimeout(()=>{process.exit(0)},5000)
+    setTimeout(() => {
+      process.exit(0);
+    }, 5000);
   } else {
     server.sendDataToAll("WorldShutdownNotice", {
       timeLeft: currentTimeLeft / 1000,

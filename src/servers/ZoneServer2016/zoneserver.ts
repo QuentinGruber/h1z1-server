@@ -119,7 +119,8 @@ export class ZoneServer2016 extends ZoneServer {
     this._gatewayServer.start();
   }
 
-  POIManager(client: Client) { // sends POIChangeMessage or clears it based on player location
+  POIManager(client: Client) {
+    // sends POIChangeMessage or clears it based on player location
     let isInAPOIArea = false;
     Z1_POIs.forEach((point: any) => {
       if (
@@ -162,7 +163,11 @@ export class ZoneServer2016 extends ZoneServer {
     client.posAtLastRoutine = client.character.state.position;
   }
 
-  SendWeatherUpdatePacket(client: Client, weather: skyData, isGlobal = false): void {
+  SendWeatherUpdatePacket(
+    client: Client,
+    weather: skyData,
+    isGlobal = false
+  ): void {
     if (isGlobal) {
       this.sendDataToAll("UpdateWeatherData", weather);
       if (client?.character?.name) {
@@ -342,12 +347,7 @@ export class ZoneServer2016 extends ZoneServer {
           ) &&
           !client.spawnedEntities.includes(this._doors[door])
         ) {
-          this.sendData(
-            client,
-            "AddSimpleNpc",
-            this._doors[door],
-            1
-          );
+          this.sendData(client, "AddSimpleNpc", this._doors[door], 1);
           client.spawnedEntities.push(this._doors[door]);
         }
       }
@@ -364,8 +364,6 @@ export class ZoneServer2016 extends ZoneServer {
     debug("All entities created");
   }
 
-
-  
   sendChat(client: Client, message: string, channel: number) {
     if (!this._soloMode) {
       this.sendDataToAll("Chat.ChatText", {
@@ -397,8 +395,6 @@ export class ZoneServer2016 extends ZoneServer {
     });
   }
 }
-
-
 
 if (process.env.VSCODE_DEBUG === "true") {
   new ZoneServer2016(
