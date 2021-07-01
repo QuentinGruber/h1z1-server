@@ -267,6 +267,7 @@ const packetHandlers: any = {
       server.executeFuncForAllClients("spawnCharacters");
     }
     client.isLoading = false;
+    client.isInteracting = false;
     delete client.vehicle.mountedVehicle;
     client.vehicle.mountedVehicleType = "0";
   },
@@ -663,13 +664,19 @@ const packetHandlers: any = {
       let stringId = 0;
       switch (propData.modelId) {
         case 9330: // beds
-          stringId = 439;
+          stringId = 9041;
           break;
         case 9329:
-          stringId = 439;
+          stringId = 9041;
           break;
         case 9328:
-          stringId = 439;
+          stringId = 9041;
+          break;
+        case 9331:
+          stringId = 9041;
+          break;
+        case 9336:
+          stringId = 9041;
           break;
         case 57: // Openable
           stringId = 31;
@@ -678,6 +685,9 @@ const packetHandlers: any = {
           stringId = 1186;
           break;
         case 9205:
+          stringId = 1186;
+          break;
+        case 9041:
           stringId = 1186;
           break;
         case 8014: // NoString
@@ -697,6 +707,12 @@ const packetHandlers: any = {
           break;
         case 9061:
           guid = "0";
+          break;
+        case 9032: // collect water
+          stringId = 1008;
+          break;
+        case 9033:
+          stringId = 1008;
           break;
         default:
           // searchable
@@ -1619,6 +1635,7 @@ const packetHandlers: any = {
       ) {
         clearTimeout(client.logoutTimer);
         client.logoutTimer = null;
+        client.isInteracting = false;
         server.sendData(client, "ClientUpdate.StartTimer", {
           stringId: 0,
           time: 0,
@@ -1794,6 +1811,7 @@ const packetHandlers: any = {
       )
     ) {
       let interactType = "0";
+      let logoutTime = 0;
       switch (propToSearch.modelId) {
         case 8013:
           interactType = "destroy";
@@ -1806,27 +1824,48 @@ const packetHandlers: any = {
           break;
         case 9328:
           interactType = "sleep";
+          logoutTime = 20000;
           break;
         case 9330:
           interactType = "sleep";
+          logoutTime = 20000;
           break;
         case 9329:
           interactType = "sleep";
+          logoutTime = 20000;
+          break;
+        case 9331:
+          interactType = "sleep";
+          logoutTime = 20000;
+          break;
+        case 9336:
+          interactType = "sleep";
+          logoutTime = 20000;
           break;
         case 36:
-       //   interactType = "use";
+          interactType = "use";
           break;
         case 9205:
-       //   interactType = "use";
+          interactType = "use";
+          break;
+        case 9041:
+          interactType = "use";
           break;
         case 57:
-        //  interactType = "open";
+          interactType = "open";
           break;
         case 9127:
-        //  interactType = "open";
+          interactType = "open";
+          break;
+        case 9032:
+          interactType = "collectWater";
+          break;
+        case 9033:
+          interactType = "collectWater";
           break;
         default:
           interactType = "search";
+          logoutTime = 1500;
           break;
       }
       switch (interactType) {
@@ -1840,22 +1879,53 @@ const packetHandlers: any = {
           });
           break;
         case "sleep":
-          server.sendData(client, "ClientUpdate.StartTimer", {
-            stringId: 439,
-            time: 5000,
-          });
+          if (!client.isInteracting) {
+            client.isInteracting = true;
+            server.sendData(client, "ClientUpdate.StartTimer", {
+              stringId: 9051,
+              time: logoutTime,
+            });
+            client.posAtLogoutStart = client.character.state.position;
+            if (client.logoutTimer != null) {
+              clearTimeout(client.logoutTimer);
+            }
+            client.logoutTimer = setTimeout(() => {
+              server.sendData(client, "ClientUpdate.TextAlert", {
+                message: "You feel refreshed after sleeping well.",
+              });
+              client.isInteracting = false;
+            }, logoutTime);
+          }
           break;
         case "use":
-     //     interactType = "use";
+          interactType = "use";
           break;
         case "open":
-      //    interactType = "open";
+          interactType = "open";
+          break;
+        case "collectWater":
+          server.sendData(client, "ClientUpdate.TextAlert", {
+            message: "You dont have an Empty Bottle",
+          });
           break;
         case "search":
-          server.sendData(client, "ClientUpdate.StartTimer", {
-            stringId: propToSearch.nameId,
-            time: 3000,
-          });
+          if (!client.isInteracting) {
+            client.isInteracting = true;
+            server.sendData(client, "ClientUpdate.StartTimer", {
+              stringId: propToSearch.nameId,
+              time: logoutTime,
+            });
+            client.posAtLogoutStart = client.character.state.position;
+            if (client.logoutTimer != null) {
+              clearTimeout(client.logoutTimer);
+            }
+            client.logoutTimer = setTimeout(() => {
+              server.sendData(client, "ClientUpdate.TextAlert", {
+                message: "Nothing in there... yet :P",
+              });
+              client.isInteracting = false;
+            }, logoutTime);
+          }
           break;
         default:
           break;
