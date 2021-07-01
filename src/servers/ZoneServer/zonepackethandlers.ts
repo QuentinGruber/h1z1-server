@@ -1602,7 +1602,7 @@ const packetHandlers: any = {
     packet: any
   ) {
     const movingCharacter = server._characters[client.character.characterId];
-    if(movingCharacter){
+    if(movingCharacter && !server._soloMode){
       if(client.vehicle.mountedVehicle)
       {
         const vehicle = server._vehicles[client.vehicle.mountedVehicle]
@@ -1627,17 +1627,17 @@ const packetHandlers: any = {
     }
     if (packet.data.position) {
       // TODO: modify array element beside re-creating it
-      client.character.state.position = new Float32Array([
-        packet.data.position[0],
-        packet.data.position[1],
-        packet.data.position[2],
-        0,
-      ]);
-      if (packet.data.unknown11_float > 6) {
-        client.character.isRunning = true;
-      } else {
-        client.character.isRunning = false;
-      }
+        client.character.state.position = new Float32Array([
+          packet.data.position[0],
+          packet.data.position[1],
+          packet.data.position[2],
+          0,
+        ]);
+        if (packet.data.unknown11_float > 6) {
+          client.character.isRunning = true;
+        } else {
+          client.character.isRunning = false;
+        }      
 
       if (
         client.timer != null &&
@@ -1671,6 +1671,14 @@ const packetHandlers: any = {
         server.worldRoutine(client);
       }
     }
+    else if (packet.data.vehicle_position && client.vehicle.mountedVehicle){
+      server._vehicles[client.vehicle.mountedVehicle].npcData.position = new Float32Array([
+          packet.data.position[0],
+          packet.data.position[1],
+          packet.data.position[2],
+          0,
+        ]);
+  }
     if (packet.data.rotation) {
       // TODO: modify array element beside re-creating it
       client.character.state.rotation = new Float32Array([
