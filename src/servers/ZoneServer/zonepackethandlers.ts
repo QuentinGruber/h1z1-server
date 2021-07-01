@@ -1810,7 +1810,7 @@ const packetHandlers: any = {
         propToSearch.position
       )
     ) {
-      let interactType = "0";
+      let interactType;
       let logoutTime = 0;
       switch (propToSearch.modelId) {
         case 8013:
