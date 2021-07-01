@@ -373,11 +373,11 @@ export class H1Z1Protocol {
       } catch (e) {
         debug(e);
       }
-    } else if(flags === 3) {
+    } else if(flags === 3 && false) { // disabled
       try {
           packet = {
             name: "PlayerUpdateUpdatePositionClientToZone",
-            fn: this.parseUpdatePositionRaw,
+            fn: this.parseUpdatePositionClientToZone,
           };
       } catch (e) {
         debug(e);
