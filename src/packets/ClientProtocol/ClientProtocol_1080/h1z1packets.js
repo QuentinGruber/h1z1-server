@@ -880,62 +880,7 @@ const lightWeightNpcSchema = [
   { name: "unknownDword14", type: "uint32", defaultValue: 0 },
   { name: "unknownDword15", type: "uint32", defaultValue: 0 },
 ];
-const profileStatsSubSchema1 = [
-  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-  {
-    name: "unknownArray1",
-    type: "array",
-    defaultValue: [{}],
-    elementType: "uint32",
-  },
-  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword4", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword5", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword6", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword7", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword8", type: "uint32", defaultValue: 0 },
-];
-const weaponStatsDataSubSchema1 = [
-  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword4", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword5", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword6", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword7", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword8", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword9", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword10", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword11", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword12", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword13", type: "uint32", defaultValue: 0 },
-  { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-  { name: "unknownDword14", type: "uint32", defaultValue: 0 },
-];
-const weaponStatsDataSchema = [
-  { name: "unknownData1", type: "schema", fields: profileStatsSubSchema1 },
-  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword4", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword5", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword6", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword7", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword8", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword9", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword10", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword11", type: "uint32", defaultValue: 0 },
-  { name: "unknownData2", type: "schema", fields: weaponStatsDataSubSchema1 },
-  { name: "unknownData3", type: "schema", fields: weaponStatsDataSubSchema1 },
-];
-const vehicleStatsDataSchema = [
-  { name: "unknownData1", type: "schema", fields: profileStatsSubSchema1 },
-  { name: "unknownData2", type: "schema", fields: weaponStatsDataSubSchema1 },
-];
-const facilityStatsDataSchema = [
-  { name: "unknownData1", type: "schema", fields: weaponStatsDataSubSchema1 },
-];
+
 const itemBaseSchema = [
   { name: "itemId", type: "uint32", defaultValue: 0 },
   { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -7391,6 +7336,7 @@ const packets = [
     },
   ],
   ["ProfileStats.GetZonePlayerProfileStats", 0x940100, {}],
+  /*
   [
     "ProfileStats.PlayerProfileStats",
     0x940200,
@@ -7437,20 +7383,124 @@ const packets = [
               defaultValue: [{}],
               elementType: "uint32",
             },
-            { name: "unknownDword13", type: "uint32", defaultValue: 0 },
-            {
-              name: "unknownArray4",
-              type: "array",
-              defaultValue: [{}],
-              elementType: "uint32",
-            },
-            {
-              name: "unknownArray5",
-              type: "array",
-              defaultValue: [{}],
-              length: 10,
-              fields: [
-                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            { name: "unknownByte1", type: "uint8", defaultValue: 50 },
+            { name: "position", type: "floatvector3", defaultValue: [0, 0, 0] },
+            { name: "rotation", type: "floatvector3", defaultValue: [0, 0, 0] },
+            { name: "unknownDword1", type: "uint32", defaultValue: 9000 },
+            { name: "unknownDword2", type: "uint32", defaultValue: 9000 },
+            { name: "modelId", type: "uint32", defaultValue: 0 },
+            { name: "scale", type: "floatvector4", defaultValue: [1, 1, 1, 1] },
+            { name: "unknownDword3", type: "uint32", defaultValue: 9000 },
+            { name: "showHealth", type: "uint8", defaultValue: 0 },
+            { name: "unknownDword4", type: "uint32", defaultValue: 9000 },
+        ]
+        }
+    ],
+    */
+    ["PlayerUpdateUpdateVehicleWeapon", 0x93, {}],
+    [
+        "ProfileStats.GetPlayerProfileStats",
+        0x940000,
+        {
+            fields: [{ name: "characterId", type: "uint64", defaultValue: "0" }],
+        },
+    ],
+    ["ProfileStats.GetZonePlayerProfileStats", 0x940100, {}],
+    /*
+    [
+        "ProfileStats.PlayerProfileStats",
+        0x940200,
+        {
+            fields: [
+                {
+                    name: "unknownData1",
+                    type: "schema",
+                    fields: [
+                        {
+                            name: "unknownData1",
+                            type: "schema",
+                            fields: profileStatsSubSchema1,
+                        },
+                        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                        {
+                            name: "unknownArray1",
+                            type: "array",
+                            defaultValue: [{}],
+                            elementType: "uint32",
+                        },
+                        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+                        { name: "characterName", type: "string", defaultValue: "" },
+                        { name: "characterId", type: "uint64", defaultValue: "0" },
+                        { name: "battleRank", type: "uint32", defaultValue: 0 },
+                        { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+                        { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+                        { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+                        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+                        {
+                            name: "unknownArray2",
+                            type: "array",
+                            defaultValue: [{}],
+                            elementType: "uint32",
+                        },
+                        { name: "unknownDword8", type: "uint32", defaultValue: 0 },
+                        { name: "unknownDword9", type: "uint32", defaultValue: 0 },
+                        { name: "unknownDword10", type: "uint32", defaultValue: 0 },
+                        { name: "unknownDword11", type: "uint32", defaultValue: 0 },
+                        { name: "unknownDword12", type: "uint32", defaultValue: 0 },
+                        {
+                            name: "unknownArray3",
+                            type: "array",
+                            defaultValue: [{}],
+                            elementType: "uint32",
+                        },
+                        { name: "unknownDword13", type: "uint32", defaultValue: 0 },
+                        {
+                            name: "unknownArray4",
+                            type: "array",
+                            defaultValue: [{}],
+                            elementType: "uint32",
+                        },
+                        {
+                            name: "unknownArray5",
+                            type: "array",
+                            defaultValue: [{}],
+                            length: 10,
+                            fields: [
+                                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                                {
+                                    name: "unknownArray1",
+                                    type: "array",
+                                    defaultValue: [{}],
+                                    elementType: "uint32",
+                                },
+                                {
+                                    name: "unknownArray2",
+                                    type: "array",
+                                    defaultValue: [{}],
+                                    elementType: "uint32",
+                                },
+                                {
+                                    name: "unknownArray3",
+                                    type: "array",
+                                    defaultValue: [{}],
+                                    elementType: "uint32",
+                                },
+                            ],
+                        },
+                    ],
+                },
+                {
+                    name: "weaponStats1",
+                    type: "array",
+                    defaultValue: [{}],
+                    fields: weaponStatsDataSchema,
+                },
+                {
+                    name: "weaponStats2",
+                    type: "array",
+                    defaultValue: [{}],
+                    fields: weaponStatsDataSchema,
+                },
                 {
                   name: "unknownArray1",
                   type: "array",
@@ -7506,6 +7556,7 @@ const packets = [
       ],
     },
   ],
+  */
   ["ProfileStats.ZonePlayerProfileStats", 0x940300, {}],
   ["ProfileStats.UpdatePlayerLeaderboards", 0x940400, {}],
   ["ProfileStats.UpdatePlayerLeaderboardsReply", 0x940500, {}],
@@ -7513,122 +7564,6 @@ const packets = [
   ["ProfileStats.Leaderboard", 0x940700, {}],
   ["ProfileStats.GetZoneCharacterStats", 0x940800, {}],
   ["ProfileStats.ZoneCharacterStats", 0x940900, {}],
-  /*
-    [
-        "EquipmentEvent",
-        0x9500,
-        {
-            fields: [
-                { name: "unknown1", type: "uint32", defaultValue: 0 },
-                { name: "unknown2", type: "uint32", defaultValue: 0 },
-                { name: "unknown3", type: "uint32", defaultValue: 0 },
-                { name: "unknown4", type: "uint8", defaultValue: 2 },
-                { name: "unknown5", type: "uint8", defaultValue: 2 },
-                { name: "unknown6", type: "uint8", defaultValue: 2 },
-                { name: "unknown7", type: "uint8", defaultValue: 2 },
-                { name: "unknown8", type: "uint8", defaultValue: 2 },
-                { name: "unknown9", type: "uint8", defaultValue: 2 },
-                { name: "unknown10", type: "uint8", defaultValue: 2 },
-                { name: "unknown11", type: "uint8", defaultValue: 2 },
-                {
-                    name: "eventData",
-                    type: "variabletype8",
-                    types: {
-                        1:  [   // SetCharacterEquipment
-                                { name: "profileId", type: "uint32", defaultValue: 0 },
-                                { name: "characterId", type: "uint64", defaultValue: "0" },
-                                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                                { name: "unknownString1", type: "string", defaultValue: "" },
-                                { name: "unknownString2", type: "string", defaultValue: "" },
-                                {
-                                    name: "equipmentSlots",
-                                    type: "array",
-                                    defaultValue: [{}],
-                                    fields: [
-                                        { name: "equipmentSlotId", type: "uint32", defaultValue: 0 },
-                                        {
-                                            name: "equipmentSlotData",
-                                            type: "schema",
-                                            fields: [
-                                                { name: "equipmentSlotId", type: "uint32", defaultValue: 0 },
-                                                { name: "guid", type: "uint64", defaultValue: "0" },
-                                                { name: "unknownString1", type: "string", defaultValue: "" },
-                                                { name: "unknownString2", type: "string", defaultValue: "" },
-                                            ],
-                                        },
-                                    ],
-                                },
-                                {
-                                    name: "attachmentData",
-                                    type: "array",
-                                    defaultValue: [{}],
-                                    fields: [
-                                        { name: "modelName", type: "string", defaultValue: "" },
-                                        { name: "unknownString1", type: "string", defaultValue: "" },
-                                        { name: "tintAlias", type: "string", defaultValue: "" },
-                                        { name: "unknownString2", type: "string", defaultValue: "" },
-                                        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                                        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                                        { name: "slotId", type: "uint32", defaultValue: 0 },
-                                    ],
-                                },
-                            ],
-                        2:  [   // SetCharacterEquipmentSlot
-
-                        ],
-                        3: [   // UnsetCharacterEquipmentSlot 
-
-                        ],
-                        4: [   // SetCharacterEquipmentSlots
-                            { name: "profileId", type: "uint32", defaultValue: 0 },
-                            { name: "characterId", type: "uint64", defaultValue: "0" },
-                            { name: "gameTime", type: "uint32", defaultValue: 0 },
-                            {
-                                name: "slots",
-                                type: "array",
-                                defaultValue: [{}],
-                                fields: [
-                                    { name: "index", type: "uint32", defaultValue: 0 },
-                                    { name: "slotId", type: "uint32", defaultValue: 0 },
-                                ],
-                            },
-                            { name: "unknown1", type: "uint32", defaultValue: 0 },
-                            { name: "unknown2", type: "uint32", defaultValue: 0 },
-                            { name: "unknown3", type: "uint32", defaultValue: 0 },
-                            {
-                                name: "textures",
-                                type: "array",
-                                defaultValue: [{}],
-                                fields: [
-                                    { name: "index", type: "uint32", defaultValue: 0 },
-                                    { name: "slotId", type: "uint32", defaultValue: 0 },
-                                    { name: "itemId", type: "uint32", defaultValue: 0 },
-                                    { name: "unknown1", type: "uint32", defaultValue: 0 },
-                                    { name: "textureAlias", type: "string", defaultValue: "" },
-                                    { name: "unknown2", type: "string", defaultValue: "" },
-                                ],
-                            },
-                            {
-                                name: "models",
-                                type: "array",
-                                defaultValue: [{}],
-                                fields: [
-                                    { name: "modelName", type: "string", defaultValue: "" },
-                                    { name: "unknown1", type: "string", defaultValue: "" },
-                                    { name: "textureAlias", type: "string", defaultValue: "" },
-                                    { name: "unknown3", type: "string", defaultValue: "" },
-                                    { name: "unknown4", type: "uint32", defaultValue: 0 },
-                                    { name: "unknown5", type: "uint32", defaultValue: 0 },
-                                    { name: "slotId", type: "uint32", defaultValue: 0 },
-                                ],
-                            },
-                        ],
-                    },
-                },
-            ],
-        },
-    ],
-    */
   [
     "Equipment.SetCharacterEquipment",
     0x9501,
