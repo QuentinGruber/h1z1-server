@@ -731,7 +731,7 @@ export class ZoneServer extends EventEmitter {
     this.spawnCharacters(client);
     this.spawnObjects(client);
     this.spawnDoors(client);
-    this.spawnProps(client);
+    // this.spawnProps(client);
     this.spawnNpcs(client);
     this.spawnVehicles(client);
     this.removeOutOfDistanceEntities(client);
@@ -812,21 +812,23 @@ export class ZoneServer extends EventEmitter {
       const characterId = object.characterId
         ? object.characterId
         : object.npcData.characterId;
-      if (characterId in this._vehicles) {
-        this.sendData(client, "PlayerUpdate.ManagedObject", {
-          guid: characterId,
-          characterId: client.character.characterId,
-        });
+      if (characterId in this._props) {
+      } else {
+        if (characterId in this._vehicles) {
+          this.sendData(client, "PlayerUpdate.ManagedObject", {
+            guid: characterId,
+            characterId: client.character.characterId,
+          });
+        }
+        this.sendData(
+          client,
+          "PlayerUpdate.RemovePlayerGracefully",
+          {
+            characterId,
+          },
+          1
+        );
       }
-
-      this.sendData(
-        client,
-        "PlayerUpdate.RemovePlayerGracefully",
-        {
-          characterId,
-        },
-        1
-      );
     });
   }
 
