@@ -233,5 +233,256 @@
 	"itemName": "Fertilizer",
 	"modelId": 15,
 	"NameId": 47
+  },
+  
+  
+  
+  
+  
+  
+  {
+	"itemName": "Wrecked Truck",
+	"modelId": 9108,
+	"NameId": 1083
+  },
+  {
+	"itemName": "Wrecked Car",
+	"modelId": 9105,
+	"NameId": 1081
+  },
+  {
+	"itemName": "Wrecked Truck Open",
+	"modelId": 9178,
+	"NameId": 1083
+  },
+  {
+	"itemName": "Wrecked Car Open",
+	"modelId": 9179,
+	"NameId": 1081
+  },
+  {
+	"itemName": "Wrecked Van",
+	"modelId": 9110,
+	"NameId": 1082
+  },
+  {
+	"itemName": "File Cabinet",
+	"modelId": 9034,
+	"NameId": 353
+  },
+  {
+	"itemName": "Kitchen Fridge",
+	"modelId": 9030,
+	"NameId": 1385
+  },
+  {
+	"itemName": "Desk",
+	"modelId": 9038,
+	"NameId": 357
+  },
+  {
+	"itemName": "Dumpster",
+	"modelId": 9037,
+	"NameId": 354
+  },
+  {
+	"itemName": "Kitchen cabinets 1",
+	"modelId": 9011,
+	"NameId": 358
+  },
+  {
+	"itemName": "Kitchen cabinets 2",
+	"modelId": 9012,
+	"NameId": 358
+  },
+  {
+	"itemName": "Kitchen cabinets 3",
+	"modelId": 9026,
+	"NameId": 358
+  },
+  {
+	"itemName": "Kitchen cabinets 4",
+	"modelId": 9027,
+	"NameId": 358
+  },
+  {
+	"itemName": "Kitchen cabinets 5",
+	"modelId": 9028,
+	"NameId": 358
+  },
+  {
+	"itemName": "Kitchen cabinets 6",
+	"modelId": 9239,
+	"NameId": 358
+  },
+  {
+	"itemName": "Dresser",
+	"modelId": 9005,
+	"NameId": 355
+  },
+  {
+	"itemName": "Dresser Rustic",
+	"modelId": 9125,
+	"NameId": 355
+  },
+  {
+	"itemName": "Armoire",
+	"modelId": 9006,
+	"NameId": 350
+  },
+  {
+	"itemName": "Armoire Rustic",
+	"modelId": 9124,
+	"NameId": 350
+  },
+  {
+	"itemName": "Cabinet set 1",
+	"modelId": 9352,
+	"NameId": 358
+  },
+  {
+	"itemName": "Cabinet set 2",
+	"modelId": 9353,
+	"NameId": 358
+  },
+  {
+	"itemName": "Cabinet set 3",
+	"modelId": 9362,
+	"NameId": 358
+  },
+  {
+	"itemName": "Cabinet set 4",
+	"modelId": 9363,
+	"NameId": 358
+  },
+  {
+	"itemName": "Cabinet set 5",
+	"modelId": 9364,
+	"NameId": 358
+  },
+  {
+	"itemName": "Cabinet set 6",
+	"modelId": 9365,
+	"NameId": 358
+  },
+  {
+	"itemName": "Cabinet set 7",
+	"modelId": 9366,
+	"NameId": 358
+  },
+  {
+	"itemName": "Cabinet set 8",
+	"modelId": 9367,
+	"NameId": 358
+  },
+  {
+	"itemName": "Cabinet set 9",
+	"modelId": 9368,
+	"NameId": 358
+  },
+  {
+	"itemName": "Cabinet set 10",
+	"modelId": 9369,
+	"NameId": 358
+  },
+  {
+	"itemName": "Cabinet set 11",
+	"modelId": 9370,
+	"NameId": 358
+  },
+  {
+	"itemName": "Tool cabinet",
+	"modelId": 9035,
+	"NameId": 360
+  },
+  {
+	"itemName": "Bathroom cabinet 2",
+	"modelId": 9237,
+	"NameId": 358
+  },
+  {
+	"itemName": "Bathroom cabinet 1",
+	"modelId": 9031,
+	"NameId": 358
+  },
+  {
+	"itemName": "Barbaque",
+	"modelId": 9205,
+	"NameId": 1211
+  },
+  {
+	"itemName": "Storage Container",
+	"modelId": 57,
+	"NameId": 587
+  },
+  {
+	"itemName": "Furnace",
+	"modelId": 36,
+	"NameId": 92
+  },
+  {
+	"itemName": "Campfire",
+	"modelId": 9041,
+	"NameId": 42
+  },
+  {
+	"itemName": "Filling cabinet",
+	"modelId": 9225,
+	"NameId": 1377
+  },
+  {
+	"itemName": "cube cabinet",
+	"modelId": 9229,
+	"NameId": 1377
+  },
+  {
+	"itemName": "Locker",
+	"modelId": 9254,
+	"NameId": 8891
+  },
+  {
+	"itemName": "Locker weapon",
+	"modelId": 9255,
+	"NameId": 8890
+  },
+  {
+	"itemName": "Glass cabinet 1",
+	"modelId": 9256,
+	"NameId": 358
+  },
+  {
+	"itemName": "Chest DEM",
+	"modelId": 9127,
+	"NameId": 587
+  },
+  {
+	"itemName": "Office cabinets 1",
+	"modelId": 9226,
+	"NameId": 358
+  },
+  {
+	"itemName": "Office cabinets 2",
+	"modelId": 9227,
+	"NameId": 358
+  },
+  {
+	"itemName": "Office cabinets 3",
+	"modelId": 9228,
+	"NameId": 358
+  },
+  {
+	"itemName": "Garbage Can",
+	"modelId": 9007,
+	"NameId": 352
+  },
+  {
+	"itemName": "Ottoman",
+	"modelId": 9149,
+	"NameId": 1085
+  },
+  {
+	"itemName": "Ottoman Leather",
+	"modelId": 9150,
+	"NameId": 1085
   }
 ]

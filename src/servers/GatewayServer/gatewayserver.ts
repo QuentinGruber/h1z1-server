@@ -64,7 +64,7 @@ export class GatewayServer extends EventEmitter {
       "appdata",
       (err: string, client: Client, data: Buffer) => {
         const packet = this._protocol.parse(data);
-        if ((packet as any) !== false && packet !== undefined) {
+        if (packet) {
           const result = packet.result;
           switch (packet.name) {
             case "LoginRequest":

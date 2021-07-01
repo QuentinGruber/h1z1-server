@@ -71,6 +71,7 @@ export class ZoneServer extends EventEmitter {
   _vehicles: any;
   _respawnLocations: any[];
   _doors: any;
+  _props: any;
   _interactionDistance: number;
   _dummySelf: any;
 
@@ -95,6 +96,7 @@ export class ZoneServer extends EventEmitter {
     this._objects = {};
     this._doors = {};
     this._vehicles = {};
+    this._props = {};
     this._serverTime = this.getCurrentTime();
     this._transientIds = {};
     this._referenceData = this.parseReferenceData();
@@ -183,6 +185,27 @@ export class ZoneServer extends EventEmitter {
       }
     });
 
+    this._gatewayServer._soeServer.on(
+      "PacketLimitationReached",
+      (client: Client) => {
+        this.sendChatText(
+          client,
+          "You've almost reach the packet limitation with the server."
+        );
+        this.sendChatText(
+          client,
+          "We will disconnect you in 60 seconds ( you can do it yourself )"
+        );
+        this.sendChatText(client, "Sorry for that.");
+        setTimeout(() => {
+          this.sendData(client, "CharacterSelectSessionResponse", {
+            status: 1,
+            sessionId: client.loginSessionId,
+          });
+        }, 60000);
+      }
+    );
+
     this._gatewayServer.on(
       "login",
       (
@@ -209,6 +232,9 @@ export class ZoneServer extends EventEmitter {
         client.isLoading = true;
         client.firstLoading = true;
         client.loginSessionId = loginSessionId;
+        client.vehicle = {
+          vehicleState: 0,
+        };
         client.character = {
           characterId: characterId,
           transientId: generatedTransient,
@@ -299,6 +325,10 @@ export class ZoneServer extends EventEmitter {
       const door = this._doors[key];
       allTransient[door.transientId] = key;
     }
+    for (const key in this._props) {
+      const prop = this._props[key];
+      allTransient[prop.transientId] = key;
+    }
     for (const key in this._vehicles) {
       const vehicle = this._vehicles[key];
       allTransient[vehicle.npcData.transientId] = key;
@@ -320,6 +350,7 @@ export class ZoneServer extends EventEmitter {
         ?.collection("worlds")
         .findOne({ worldId: this._worldId });
       this._doors = worldData.doors;
+      this._props = worldData.props;
       this._vehicles = worldData.vehicles;
       this._npcs = worldData.npcs;
       this._objects = worldData.objects;
@@ -341,6 +372,7 @@ export class ZoneServer extends EventEmitter {
             worldId: this._worldId,
             npcs: this._npcs,
             doors: this._doors,
+            props: this._props,
             vehicles: this._vehicles,
             weather: this._weather,
             objects: this._objects,
@@ -360,6 +392,7 @@ export class ZoneServer extends EventEmitter {
             worldId: this._worldId,
             npcs: this._npcs,
             doors: this._doors,
+            props: this._props,
             vehicles: this._vehicles,
             weather: this._weather,
             objects: this._objects,
@@ -372,6 +405,7 @@ export class ZoneServer extends EventEmitter {
           worldId: this._worldId,
           npcs: this._npcs,
           doors: this._doors,
+          props: this._props,
           vehicles: this._vehicles,
           weather: this._weather,
           objects: this._objects,
@@ -536,7 +570,7 @@ export class ZoneServer extends EventEmitter {
     ];
     this._dummySelf = require("../../../data/2015/sampleData/sendself.json"); // dummy this._dummySelf
     if (String(client.character.characterId) === "0x0000000000000001") {
-      // for fun 🤠
+      // for fun ­Ъца
       this._dummySelf.data.characterId = "0x0000000000000001";
       this._dummySelf.data.identity.characterFirstName = "Cowboy :)";
       this._dummySelf.data.extraModel = "SurvivorMale_Ivan_OutbackHat_Base.adr";
@@ -706,6 +740,7 @@ export class ZoneServer extends EventEmitter {
     this.spawnCharacters(client);
     this.spawnObjects(client);
     this.spawnDoors(client);
+    // this.spawnProps(client);
     this.spawnNpcs(client);
     this.spawnVehicles(client);
     this.removeOutOfDistanceEntities(client);
@@ -786,21 +821,23 @@ export class ZoneServer extends EventEmitter {
       const characterId = object.characterId
         ? object.characterId
         : object.npcData.characterId;
-      if (characterId in this._vehicles) {
-        this.sendData(client, "PlayerUpdate.ManagedObject", {
-          guid: characterId,
-          characterId: client.character.characterId,
-        });
+      const propCheck = characterId in this._props;
+      if (!propCheck) {
+        if (characterId in this._vehicles) {
+          this.sendData(client, "PlayerUpdate.ManagedObject", {
+            guid: characterId,
+            characterId: client.character.characterId,
+          });
+        }
+        this.sendData(
+          client,
+          "PlayerUpdate.RemovePlayerGracefully",
+          {
+            characterId,
+          },
+          1
+        );
       }
-
-      this.sendData(
-        client,
-        "PlayerUpdate.RemovePlayerGracefully",
-        {
-          characterId,
-        },
-        1
-      );
     });
   }
 
@@ -850,6 +887,29 @@ export class ZoneServer extends EventEmitter {
     });
   }
 
+  spawnProps(client: Client): void {
+    setImmediate(() => {
+      for (const prop in this._props) {
+        if (
+          isPosInRadius(
+            this._npcRenderDistance,
+            client.character.state.position,
+            this._props[prop].position
+          ) &&
+          !client.spawnedEntities.includes(this._props[prop])
+        ) {
+          this.sendData(
+            client,
+            "PlayerUpdate.AddLightweightNpc",
+            this._props[prop],
+            1
+          );
+          client.spawnedEntities.push(this._props[prop]);
+        }
+      }
+    });
+  }
+
   despawnEntity(characterId: string) {
     this.sendDataToAll(
       "PlayerUpdate.RemovePlayerGracefully",
@@ -872,8 +932,8 @@ export class ZoneServer extends EventEmitter {
   }
 
   vehicleDelete(client: Client) {
-    if (client.mountedVehicle) {
-      delete this._vehicles[client.mountedVehicle];
+    if (client.vehicle.mountedVehicle) {
+      delete this._vehicles[client.vehicle.mountedVehicle];
     }
   }
 
@@ -902,11 +962,12 @@ export class ZoneServer extends EventEmitter {
 
   createAllObjects(): void {
     const { createAllEntities } = require("./workers/createBaseEntities");
-    const { npcs, objects, vehicles, doors } = createAllEntities(this);
+    const { npcs, objects, vehicles, doors, props } = createAllEntities(this);
     this._npcs = npcs;
     this._objects = objects;
     this._doors = doors;
     this._vehicles = vehicles;
+    this._props = props;
     debug("All entities created");
   }
 
