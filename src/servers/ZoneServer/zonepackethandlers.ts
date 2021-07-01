@@ -593,8 +593,11 @@ const packetHandlers: any = {
       guid2: client.vehicle.mountedVehicle,
       unknownBoolean: false,
     });
-    delete client.vehicle.mountedVehicle;
-    client.vehicle.mountedVehicleType = "0";
+    setTimeout(()=>{ // temp workaround to fix https://github.com/QuentinGruber/h1z1-server/issues/285
+      server._vehicles[client.vehicle.mountedVehicle as string].npcData.position = client.character.state.position
+      delete client.vehicle.mountedVehicle;
+      client.vehicle.mountedVehicleType = "0";
+    },50)
   },
   "Command.InteractRequest": function (
     server: ZoneServer,
@@ -877,8 +880,7 @@ const packetHandlers: any = {
     });
     server.sendDataToAll("PlayerUpdate.RemovePlayerGracefully", {
       characterId: client.vehicle.mountedVehicle,
-    });
-    delete client.vehicle.mountedVehicle;
+    });    
   },
   "Vehicle.Spawn": function (server: ZoneServer, client: Client, packet: any) {
     server.sendData(client, "Vehicle.Expiration", {
