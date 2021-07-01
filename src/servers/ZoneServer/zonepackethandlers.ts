@@ -1810,39 +1810,40 @@ const packetHandlers: any = {
         propToSearch.position
       )
     ) {
+      let interactType = "0";
       let logoutTime = 0;
       switch (propToSearch.modelId) {
         case 8013:
-          const interactType = "destroy";
+          interactType = "destroy";
           break;
         case 8014:
-          const interactType = "destroy";
+          interactType = "destroy";
           break;
         case 9088:
-          const interactType = "destroy";
+          interactType = "destroy";
           break;
         case 9328:
-          const interactType = "sleep";
+          interactType = "sleep";
           logoutTime = 20000;
           break;
         case 9330:
-          const interactType = "sleep";
+          interactType = "sleep";
           logoutTime = 20000;
           break;
         case 9329:
-          const interactType = "sleep";
+          interactType = "sleep";
           logoutTime = 20000;
           break;
         case 9331:
-          const interactType = "sleep";
+          interactType = "sleep";
           logoutTime = 20000;
           break;
         case 9336:
-          const interactType = "sleep";
+          interactType = "sleep";
           logoutTime = 20000;
           break;
         case 36:
-          const interactType = "use";
+          interactType = "use";
           break;
         case 9205:
           interactType = "use";
@@ -1851,19 +1852,19 @@ const packetHandlers: any = {
           const interactType = "use";
           break;
         case 57:
-          const interactType = "open";
+          interactType = "open";
           break;
         case 9127:
-          const interactType = "open";
+          interactType = "open";
           break;
         case 9032:
-          const interactType = "collectWater";
+          interactType = "collectWater";
           break;
         case 9033:
-          const interactType = "collectWater";
+          interactType = "collectWater";
           break;
         default:
-          const interactType = "search";
+          interactType = "search";
           logoutTime = 1500;
           break;
       }
