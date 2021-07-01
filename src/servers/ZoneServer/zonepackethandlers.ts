@@ -1898,10 +1898,14 @@ const packetHandlers: any = {
           }
           break;
         case "use":
-          // interactType = "use";
+          server.sendData(client, "ClientUpdate.TextAlert", {
+            message: "Nothing in there... yet :P",
+          });
           break;
         case "open":
-          // interactType = "open";
+          server.sendData(client, "ClientUpdate.TextAlert", {
+            message: "Nothing in there... yet :P",
+          });
           break;
         case "collectWater":
           server.sendData(client, "ClientUpdate.TextAlert", {
