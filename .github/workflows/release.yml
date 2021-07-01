@@ -32,7 +32,7 @@ jobs:
         with:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }}
-          body: "Join the community at https://h1emu.com/"
+          body: "Patch note will come..."
           draft: false
           prerelease: false
 
