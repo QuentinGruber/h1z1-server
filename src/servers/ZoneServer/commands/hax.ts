@@ -119,18 +119,19 @@ const hax: any = {
     };
     server._vehicles[characterId] = vehicleData;
     server.worldRoutine(client);
-    setTimeout(function(){ // doing anything with vehicle before client gets fullvehicle packet breaks it
-	server.sendData(client, "Mount.MountResponse", {
-      characterId: client.character.characterId,
-      guid: characterId,
-      characterData: [],
-    });
-    server.sendData(client, "Vehicle.Engine", {
-      guid2: characterId,
-      unknownBoolean: true,
-    });
-    client.vehicle.mountedVehicle = characterId;
-	}, 500);
+    setTimeout(function () {
+      // doing anything with vehicle before client gets fullvehicle packet breaks it
+      server.sendData(client, "Mount.MountResponse", {
+        characterId: client.character.characterId,
+        guid: characterId,
+        characterData: [],
+      });
+      server.sendData(client, "Vehicle.Engine", {
+        guid2: characterId,
+        unknownBoolean: true,
+      });
+      client.vehicle.mountedVehicle = characterId;
+    }, 500);
   },
 
   parachute: function (server: ZoneServer, client: Client, args: any[]) {

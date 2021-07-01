@@ -100,9 +100,17 @@ const hax = {
         locationPosition = new Float32Array([1895.4, 93.69, -2914.39, 1]);
         break;
       default:
-        if(args.length < 4){
-          server.sendChatText(client, "Unknown set location, need 3 args to tp to exact location: x, y, z", false);
-          server.sendChatText(client, "Set location list: zimms, pv, br, ranchito, drylake, dam, cranberry, church, desoto, toxic, radiotower, villas, military, hospital", false);
+        if (args.length < 4) {
+          server.sendChatText(
+            client,
+            "Unknown set location, need 3 args to tp to exact location: x, y, z",
+            false
+          );
+          server.sendChatText(
+            client,
+            "Set location list: zimms, pv, br, ranchito, drylake, dam, cranberry, church, desoto, toxic, radiotower, villas, military, hospital",
+            false
+          );
           return;
         }
         locationPosition = new Float32Array([args[1], args[2], args[3], 1]);
@@ -187,16 +195,19 @@ const hax = {
       return;
     }
     const choosenModelId = Number(args[1]);
-      const obj = {
-        characterId: characterId,
-        transientId: transientId,
-        //unknownByte1: Number(args[2]),
-        position: [client.character.state.position[0], client.character.state.position[1], client.character.state.position[2]],
-        modelId: choosenModelId,
-        showHealth: Number(args[2]),
-        unknownDword4: Number(args[3])
-
-      };
+    const obj = {
+      characterId: characterId,
+      transientId: transientId,
+      //unknownByte1: Number(args[2]),
+      position: [
+        client.character.state.position[0],
+        client.character.state.position[1],
+        client.character.state.position[2],
+      ],
+      modelId: choosenModelId,
+      showHealth: Number(args[2]),
+      unknownDword4: Number(args[3]),
+    };
     server.sendData(client, "AddSimpleNpc", obj);
     // server.obj[characterId] = obj; // save npc
   },
@@ -469,7 +480,7 @@ const hax = {
     debug(JSON.stringify(rnd_weather));
     server.changeWeather(client, rnd_weather);
   },
-  equipment: function(server, client, args) {
+  equipment: function (server, client, args) {
     let effect, model, slot;
     if (!args[1]) {
       server.sendChatText(client, "[ERROR] Missing equipment name !");
@@ -529,7 +540,10 @@ const hax = {
         slot = 3;
         break;
       default:
-        server.sendChatText(client, "Valid options: hoodie, shirt, pants, helmet, backpack, shoes, armor, gloves, bandana, ghillie");
+        server.sendChatText(
+          client,
+          "Valid options: hoodie, shirt, pants, helmet, backpack, shoes, armor, gloves, bandana, ghillie"
+        );
         return;
     }
     const equipmentSlot = {

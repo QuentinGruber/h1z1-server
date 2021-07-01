@@ -7397,16 +7397,16 @@ const packets = [
         }
     ],
     */
-    ["PlayerUpdateUpdateVehicleWeapon", 0x93, {}],
-    [
-        "ProfileStats.GetPlayerProfileStats",
-        0x940000,
-        {
-            fields: [{ name: "characterId", type: "uint64", defaultValue: "0" }],
-        },
-    ],
-    ["ProfileStats.GetZonePlayerProfileStats", 0x940100, {}],
-    /*
+  ["PlayerUpdateUpdateVehicleWeapon", 0x93, {}],
+  [
+    "ProfileStats.GetPlayerProfileStats",
+    0x940000,
+    {
+      fields: [{ name: "characterId", type: "uint64", defaultValue: "0" }],
+    },
+  ],
+  ["ProfileStats.GetZonePlayerProfileStats", 0x940100, {}],
+  /*
     [
         "ProfileStats.PlayerProfileStats",
         0x940200,

@@ -186,7 +186,7 @@ function createSomeNpcs(server: ZoneServer2016) {
   debug("All npcs objects created");
 }
 
-function createMilitary(server:ZoneServer2016) {
+function createMilitary(server: ZoneServer2016) {
   Z1_items.forEach((spawnerType: any) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
@@ -213,15 +213,15 @@ function createMilitary(server:ZoneServer2016) {
         authorizedModelId.push(9583); // kevlar
         break;
       case "ItemSpawner_Z1_MilitaryBase_MotorPool.adr": // common
-          authorizedModelId.push(9199); // binoculars
-          authorizedModelId.push(21); // combat knife
-          authorizedModelId.push(25); // flare
-          authorizedModelId.push(30); // scrap
-          authorizedModelId.push(9391); // bag (cloth)
-          authorizedModelId.push(58); // flashlight
-          authorizedModelId.push(54); // tarp
-          authorizedModelId.push(9250); // mre
-          break;
+        authorizedModelId.push(9199); // binoculars
+        authorizedModelId.push(21); // combat knife
+        authorizedModelId.push(25); // flare
+        authorizedModelId.push(30); // scrap
+        authorizedModelId.push(9391); // bag (cloth)
+        authorizedModelId.push(58); // flashlight
+        authorizedModelId.push(54); // tarp
+        authorizedModelId.push(9250); // mre
+        break;
       case "ItemSpawner_Z1_MilitaryBase_Hangar.adr": // industrial
         authorizedModelId.push(30); // scrap
         authorizedModelId.push(11); // sheet metal
@@ -256,7 +256,8 @@ function createMilitary(server:ZoneServer2016) {
         if (chance <= chanceMilitary) {
           // temporary spawnchance
           const r = itemInstance.rotation;
-          createEntity(server,
+          createEntity(
+            server,
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
             ],
@@ -272,7 +273,7 @@ function createMilitary(server:ZoneServer2016) {
   debug("Military objects created. Spawnrate:" + chanceMilitary + "%");
 }
 
-function createHospital(server:ZoneServer2016) {
+function createHospital(server: ZoneServer2016) {
   Z1_items.forEach((spawnerType: any) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
@@ -295,7 +296,8 @@ function createHospital(server:ZoneServer2016) {
         if (chance <= chanceHospital) {
           // temporary spawnchance
           const r = itemInstance.rotation;
-          createEntity(server,
+          createEntity(
+            server,
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
             ],
@@ -311,7 +313,7 @@ function createHospital(server:ZoneServer2016) {
   debug("Hospital objects created. Spawnrate:" + chanceHospital + "%");
 }
 
-function createAR15(server:ZoneServer2016) {
+function createAR15(server: ZoneServer2016) {
   Z1_items.forEach((spawnerType: any) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
@@ -462,7 +464,7 @@ function createTools(server: ZoneServer2016) {
   debug("Tools items objects created. Spawnrate:" + chanceTools + "%");
 }
 
-function createPistols(server:ZoneServer2016) {
+function createPistols(server: ZoneServer2016) {
   Z1_items.forEach((spawnerType: any) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
@@ -498,7 +500,9 @@ function createPistols(server:ZoneServer2016) {
       });
     }
   });
-  debug("1911, M9 and ammo items objects created. Spawnrate:" + chancePistols + "%");
+  debug(
+    "1911, M9 and ammo items objects created. Spawnrate:" + chancePistols + "%"
+  );
 }
 
 function createM24(server: ZoneServer2016) {
