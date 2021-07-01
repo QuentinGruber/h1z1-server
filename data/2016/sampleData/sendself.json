@@ -2,7 +2,7 @@
   "data": {
     "guid": "0x665a2bff2b44c034",
     "characterId": "0x03147cca2a860191",
-    "unknownUint1": 52,
+    "transientId": 52,
     "lastLoginDate": "0x0060B89351",
     "actorModelId": 9240,
     "headActor": "SurvivorMale_Head_01.adr",
@@ -17,26 +17,16 @@
     "factionId": 2,
     "unknownDword9": 0,
     "unknownDword10": 0,
-    "position": [
-      0,
-      0,
-      0,
-      1
-    ],
-    "rotation": [
-      0,
-      0,
-      0,
-      1
-    ],
+    "position": [ 0, 0, 0, 1 ],
+    "rotation": [ 0, 0, 0, 1 ],
     "identity": {
-      "CharacterId": 713425297,
-      "AccountId": 722776196,
+      "unknownDword1": 0,
+      "unknownDword2": 0,
       "unknownDword3": 0,
-      "characterFirstName": "LocalPlayer",
+      "characterFirstName": "",
       "characterLastName": "",
       "unknownString1": "",
-      "unknownString2": "",
+      "characterName": "LocalPlayer",
       "unknownQword1": "0"
     },
     "currencyArrLength": 1,

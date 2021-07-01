@@ -1,6 +1,39 @@
 const restore = require("mongodb-restore-dump");
 import { v4 as uuidv4, parse as uuidParse } from "uuid";
 
+export async function zoneShutdown(
+  server: any,
+  startedTime: number,
+  timeLeft: number,
+  message: string
+) {
+  const timeLeftMs = timeLeft * 1000;
+  const currentTimeLeft = timeLeftMs - (Date.now() - startedTime);
+  if (currentTimeLeft < 0) {
+    server.sendDataToAll("WorldShutdownNotice", {
+      timeLeft: 0,
+      message: message,
+    });
+    server.sendDataToAll("CharacterSelectSessionResponse", {
+      status: 1,
+      sessionId: "0", // TODO: get sessionId from client object
+    });
+    await server.saveWorld();
+    setTimeout(() => {
+      process.exit(0);
+    }, 5000);
+  } else {
+    server.sendDataToAll("WorldShutdownNotice", {
+      timeLeft: currentTimeLeft / 1000,
+      message: message,
+    });
+    setTimeout(
+      () => zoneShutdown(server, startedTime, timeLeft, message),
+      timeLeftMs / 5
+    );
+  }
+}
+
 export const randomIntFromInterval = (min: number, max: number) => {
   // min and max included
   return Math.floor(Math.random() * (max - min + 1) + min);

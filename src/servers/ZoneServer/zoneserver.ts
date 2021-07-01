@@ -71,6 +71,7 @@ export class ZoneServer extends EventEmitter {
   _vehicles: any;
   _respawnLocations: any[];
   _doors: any;
+  _props: any;
   _interactionDistance: number;
   _dummySelf: any;
 
@@ -95,6 +96,7 @@ export class ZoneServer extends EventEmitter {
     this._objects = {};
     this._doors = {};
     this._vehicles = {};
+    this._props = {};
     this._serverTime = this.getCurrentTime();
     this._transientIds = {};
     this._referenceData = this.parseReferenceData();
@@ -174,9 +176,26 @@ export class ZoneServer extends EventEmitter {
         console.error(err);
       } else {
         debug("zone login");
-        this.sendInitData(client);
+        try {
+          this.sendInitData(client);
+        } catch (error) {
+          debug(error);
+          this.sendData(client, "LoginFailed", {});
+        }
       }
     });
+
+    this._gatewayServer._soeServer.on("PacketLimitationReached", (client: Client) => {
+      this.sendChatText(client, "You've almost reach the packet limitation with the server.")
+      this.sendChatText(client, "We will disconnect you in 60 seconds ( you can do it yourself )")
+      this.sendChatText(client, "Sorry for that.")
+      setTimeout(() => {
+        this.sendData(client, "CharacterSelectSessionResponse", {
+          status: 1,
+          sessionId: client.loginSessionId,
+        });
+      }, 60000);
+    })
 
     this._gatewayServer.on(
       "login",
@@ -199,11 +218,14 @@ export class ZoneServer extends EventEmitter {
         let generatedTransient;
         do {
           generatedTransient = Number((Math.random() * 30000).toFixed(0));
-        } while (!this._transientIds[generatedTransient]);
+        } while (this._transientIds[generatedTransient]);
         this._transientIds[generatedTransient] = characterId;
         client.isLoading = true;
         client.firstLoading = true;
         client.loginSessionId = loginSessionId;
+        client.vehicle = {
+          vehicleState: 0,
+        }
         client.character = {
           characterId: characterId,
           transientId: generatedTransient,
@@ -288,32 +310,64 @@ export class ZoneServer extends EventEmitter {
     debug("Server ready");
   }
 
+  getAllCurrentUsedTransientId() {
+    const allTransient: any = {};
+    for (const key in this._doors) {
+      const door = this._doors[key];
+      allTransient[door.transientId] = key;
+    }
+    for (const key in this._props) {
+      const prop = this._props[key];
+      allTransient[prop.transientId] = key;
+    }
+    for (const key in this._vehicles) {
+      const vehicle = this._vehicles[key];
+      allTransient[vehicle.npcData.transientId] = key;
+    }
+    for (const key in this._npcs) {
+      const npc = this._npcs[key];
+      allTransient[npc.transientId] = key;
+    }
+    for (const key in this._objects) {
+      const object = this._objects[key];
+      allTransient[object.transientId] = key;
+    }
+    return allTransient;
+  }
+
   async fetchWorldData(): Promise<void> {
     if (!this._soloMode) {
       const worldData = await this._db
         ?.collection("worlds")
         .findOne({ worldId: this._worldId });
+      this._doors = worldData.doors;
+      this._props = worldData.props;
+      this._vehicles = worldData.vehicles;
       this._npcs = worldData.npcs;
       this._objects = worldData.objects;
       this._weather = worldData.weather;
+      this._transientIds = this.getAllCurrentUsedTransientId();
       debug("World fetched!");
     }
   }
 
   async saveWorld(): Promise<void> {
     if (!this._soloMode) {
-      const save = {
-        worldId: this._worldId,
-        npcs: this._npcs,
-        weather: this._weather,
-        objects: this._objects,
-      };
       if (this._worldId) {
         if (
           await this._db
             ?.collection("worlds")
             .findOne({ worldId: this._worldId })
         ) {
+          const save = {
+            worldId: this._worldId,
+            npcs: this._npcs,
+            doors: this._doors,
+            props: this._props,
+            vehicles: this._vehicles,
+            weather: this._weather,
+            objects: this._objects,
+          };
           const worker = new Worker(__dirname + "/workers/saveWorld.js", {
             workerData: {
               mongoAddress: this._mongoAddress,
@@ -325,17 +379,33 @@ export class ZoneServer extends EventEmitter {
           worker.on("error", debug);
         } else {
           this.createAllObjects();
+          const save = {
+            worldId: this._worldId,
+            npcs: this._npcs,
+            doors: this._doors,
+            props: this._props,
+            vehicles: this._vehicles,
+            weather: this._weather,
+            objects: this._objects,
+          };
           await this._db?.collection("worlds").insertOne(save);
         }
       } else {
         this.createAllObjects();
+        const save = {
+          worldId: this._worldId,
+          npcs: this._npcs,
+          doors: this._doors,
+          props: this._props,
+          vehicles: this._vehicles,
+          weather: this._weather,
+          objects: this._objects,
+        };
         const numberOfWorld: number =
           (await this._db?.collection("worlds").find({}).count()) || 0;
         const createdWorld = await this._db?.collection("worlds").insertOne({
+          ...save,
           worldId: numberOfWorld + 1,
-          npcs: save.npcs,
-          weather: save.weather,
-          objects: save.objects,
         });
         this._worldId = createdWorld?.ops[0].worldId;
         debug("World saved!");
@@ -435,7 +505,7 @@ export class ZoneServer extends EventEmitter {
           client.port +
           " ( ping timeout )"
       );
-      clearInterval(client.character.resourcesUpdater);
+      clearInterval(client.character?.resourcesUpdater);
       if (client.character?.characterId) {
         delete this._characters[client.character.characterId];
       }
@@ -491,7 +561,7 @@ export class ZoneServer extends EventEmitter {
     ];
     this._dummySelf = require("../../../data/2015/sampleData/sendself.json"); // dummy this._dummySelf
     if (String(client.character.characterId) === "0x0000000000000001") {
-      // for fun 🤠
+      // for fun ­Ъца
       this._dummySelf.data.characterId = "0x0000000000000001";
       this._dummySelf.data.identity.characterFirstName = "Cowboy :)";
       this._dummySelf.data.extraModel = "SurvivorMale_Ivan_OutbackHat_Base.adr";
@@ -506,7 +576,9 @@ export class ZoneServer extends EventEmitter {
     const characterDataMongo = await this._db
       ?.collection("characters")
       .findOne({ characterId: client.character.characterId });
-    client.character.extraModel = characterDataMongo?.extraModelTexture ? characterDataMongo.extraModelTexture:this._dummySelf.data.extraModelTexture;
+    client.character.extraModel = characterDataMongo?.extraModelTexture
+      ? characterDataMongo.extraModelTexture
+      : this._dummySelf.data.extraModelTexture;
 
     if (
       _.isEqual(this._dummySelf.data.position, [0, 0, 0, 1]) &&
@@ -537,7 +609,7 @@ export class ZoneServer extends EventEmitter {
       client.character.state.position = this._dummySelf.data.position;
       client.character.state.rotation = this._dummySelf.data.rotation;
     }
-   /* const characterResources: any[] = []; DISABLED since it's not read by the game rn + we don't need to send all resources
+    /* const characterResources: any[] = []; DISABLED since it's not read by the game rn + we don't need to send all resources
     resources.forEach((resource: any) => {
       characterResources.push({
         resourceType: resource.RESOURCE_TYPE,
@@ -659,6 +731,7 @@ export class ZoneServer extends EventEmitter {
     this.spawnCharacters(client);
     this.spawnObjects(client);
     this.spawnDoors(client);
+    // this.spawnProps(client);
     this.spawnNpcs(client);
     this.spawnVehicles(client);
     this.removeOutOfDistanceEntities(client);
@@ -739,21 +812,23 @@ export class ZoneServer extends EventEmitter {
       const characterId = object.characterId
         ? object.characterId
         : object.npcData.characterId;
-      if (characterId in this._vehicles) {
-        this.sendData(client, "PlayerUpdate.ManagedObject", {
-          guid: characterId,
-          characterId: client.character.characterId,
-        });
+      const propCheck = characterId in this._props;
+      if (!propCheck) {
+        if (characterId in this._vehicles) {
+          this.sendData(client, "PlayerUpdate.ManagedObject", {
+            guid: characterId,
+            characterId: client.character.characterId,
+          });
+        }
+        this.sendData(
+          client,
+          "PlayerUpdate.RemovePlayerGracefully",
+          {
+            characterId,
+          },
+          1
+        );
       }
-
-      this.sendData(
-        client,
-        "PlayerUpdate.RemovePlayerGracefully",
-        {
-          characterId,
-        },
-        1
-      );
     });
   }
 
@@ -803,6 +878,29 @@ export class ZoneServer extends EventEmitter {
     });
   }
 
+  spawnProps(client: Client): void {
+    setImmediate(() => {
+      for (const prop in this._props) {
+        if (
+          isPosInRadius(
+            this._npcRenderDistance,
+            client.character.state.position,
+            this._props[prop].position
+          ) &&
+          !client.spawnedEntities.includes(this._props[prop])
+        ) {
+          this.sendData(
+            client,
+            "PlayerUpdate.AddLightweightNpc",
+            this._props[prop],
+            1
+          );
+          client.spawnedEntities.push(this._props[prop]);
+        }
+      }
+    });
+  }
+
   despawnEntity(characterId: string) {
     this.sendDataToAll(
       "PlayerUpdate.RemovePlayerGracefully",
@@ -822,6 +920,12 @@ export class ZoneServer extends EventEmitter {
       1
     );
     delete dictionnary[characterId];
+  }
+
+  vehicleDelete(client: Client) {
+    if (client.vehicle.mountedVehicle) {
+      delete this._vehicles[client.vehicle.mountedVehicle];
+    }
   }
 
   createEntity(
@@ -849,11 +953,12 @@ export class ZoneServer extends EventEmitter {
 
   createAllObjects(): void {
     const { createAllEntities } = require("./workers/createBaseEntities");
-    const { npcs, objects, vehicles, doors } = createAllEntities(this);
+    const { npcs, objects, vehicles, doors, props } = createAllEntities(this);
     this._npcs = npcs;
     this._objects = objects;
     this._doors = doors;
     this._vehicles = vehicles;
+    this._props = props;
     debug("All entities created");
   }
 
@@ -929,16 +1034,22 @@ export class ZoneServer extends EventEmitter {
   sendChat(client: Client, message: string, channel: number): void {
     const { character } = client;
     for (const clientKey in this._clients) {
-        const targetClient = this._clients[clientKey];
-        if(isPosInRadius(350,client.character.state.position,targetClient.character.state.position)){
-          this.sendData(targetClient,"Chat.Chat", {
-            channel: channel,
-            characterName1: character.name,
-            message: message,
-            color1: 1,
-          });
-        }
-    }    
+      const targetClient = this._clients[clientKey];
+      if (
+        isPosInRadius(
+          350,
+          client.character.state.position,
+          targetClient.character.state.position
+        )
+      ) {
+        this.sendData(targetClient, "Chat.Chat", {
+          channel: channel,
+          characterName1: character.name,
+          message: message,
+          color1: 1,
+        });
+      }
+    }
   }
 
   sendGlobalChatText(message: string, clearChat = false): void {
