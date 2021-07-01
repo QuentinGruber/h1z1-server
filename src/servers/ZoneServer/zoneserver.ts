@@ -812,8 +812,8 @@ export class ZoneServer extends EventEmitter {
       const characterId = object.characterId
         ? object.characterId
         : object.npcData.characterId;
-      if (characterId in this._props) {
-      } else {
+      const propCheck = characterId in this._props;
+      if (!propCheck) {
         if (characterId in this._vehicles) {
           this.sendData(client, "PlayerUpdate.ManagedObject", {
             guid: characterId,
