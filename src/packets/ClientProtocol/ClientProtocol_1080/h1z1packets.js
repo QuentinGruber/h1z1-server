@@ -880,39 +880,6 @@ const lightWeightNpcSchema = [
   { name: "unknownDword14", type: "uint32", defaultValue: 0 },
   { name: "unknownDword15", type: "uint32", defaultValue: 0 },
 ];
-const profileStatsSubSchema1 = [
-  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-  {
-    name: "unknownArray1",
-    type: "array",
-    defaultValue: [{}],
-    elementType: "uint32",
-  },
-  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword4", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword5", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword6", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword7", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword8", type: "uint32", defaultValue: 0 },
-];
-const weaponStatsDataSubSchema1 = [
-  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword4", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword5", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword6", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword7", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword8", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword9", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword10", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword11", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword12", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword13", type: "uint32", defaultValue: 0 },
-  { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-  { name: "unknownDword14", type: "uint32", defaultValue: 0 },
-];
 
 const itemBaseSchema = [
   { name: "itemId", type: "uint32", defaultValue: 0 },
