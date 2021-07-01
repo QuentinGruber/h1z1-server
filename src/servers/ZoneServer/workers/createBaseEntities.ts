@@ -50,7 +50,7 @@ function createEntity(
   const guid = generateRandomGuid();
   const characterId = generateRandomGuid();
   numberOfSpawnedEntity++;
-  if (numberOfSpawnedEntity > 65000) {
+  if (numberOfSpawnedEntity > 60000) {
     numberOfSpawnedEntity = 1;
   }
   server._transientIds[numberOfSpawnedEntity] = characterId;
