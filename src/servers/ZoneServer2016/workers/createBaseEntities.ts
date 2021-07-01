@@ -431,6 +431,7 @@ function createTools(server:ZoneServer2016) {
         break;
       case "ItemSpawner_Weapon_Bow.adr":
         authorizedModelId.push(9162);
+        break;
       default:
         break;
     }
