@@ -977,7 +977,7 @@ const lightWeightNpcSchema = [
   { name: "nameId", type: "uint32", defaultValue: 0 },
   { name: "spawnId", type: "uint32", defaultValue: 3 },
   { name: "facilityId", type: "uint32", defaultValue: 1 },
-  { name: "unknown9", type: "uint8", defaultValue: 0 },
+  { name: "factionId", type: "uint8", defaultValue: 0 },
   { name: "modelId", type: "uint32", defaultValue: 9001 },
   { name: "scale", type: "floatvector4", defaultValue: [1, 1, 1, 1] },
   { name: "texture", type: "string", defaultValue: "" },

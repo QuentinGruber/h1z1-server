@@ -251,6 +251,16 @@
 	"NameId": 1081
   },
   {
+	"itemName": "Wrecked Truck Open",
+	"modelId": 9178,
+	"NameId": 1083
+  },
+  {
+	"itemName": "Wrecked Car Open",
+	"modelId": 9179,
+	"NameId": 1081
+  },
+  {
 	"itemName": "Wrecked Van",
 	"modelId": 9110,
 	"NameId": 1082
@@ -411,6 +421,11 @@
 	"NameId": 92
   },
   {
+	"itemName": "Campfire",
+	"modelId": 9041,
+	"NameId": 42
+  },
+  {
 	"itemName": "Filling cabinet",
 	"modelId": 9225,
 	"NameId": 1377
@@ -423,12 +438,12 @@
   {
 	"itemName": "Locker",
 	"modelId": 9254,
-	"NameId": 19
+	"NameId": 8891
   },
   {
 	"itemName": "Locker weapon",
 	"modelId": 9255,
-	"NameId": 19
+	"NameId": 8890
   },
   {
 	"itemName": "Glass cabinet 1",
@@ -454,5 +469,20 @@
 	"itemName": "Office cabinets 3",
 	"modelId": 9228,
 	"NameId": 358
+  },
+  {
+	"itemName": "Garbage Can",
+	"modelId": 9007,
+	"NameId": 352
+  },
+  {
+	"itemName": "Ottoman",
+	"modelId": 9149,
+	"NameId": 1085
+  },
+  {
+	"itemName": "Ottoman Leather",
+	"modelId": 9150,
+	"NameId": 1085
   }
 ]
