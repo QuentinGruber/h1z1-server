@@ -9,7 +9,6 @@ const modelToName = require("../../../../data/2015/sampleData/ModelToName.json")
 import _ from "lodash";
 import { generateRandomGuid } from "../../../utils/utils";
 import { ZoneServer } from "../zoneserver";
-import eul2quat from "eul2quat";
 const npcs: any = {};
 const objects: any = {};
 const vehicles: any = {};
@@ -781,41 +780,11 @@ function createProps(server: ZoneServer) {
       MODEL_FILE_NAME: propType.actorDefinition,
     })?.ID;
     propType.instances.forEach((propInstance: any) => {
-      let rotationfix = propInstance.rotation;
-      if (
-        propType.actorDefinition.includes(
-          "Common_Props_Bedroom_Mattress01.adr"
-        ) ||
-        propType.actorDefinition.includes(
-          "Common_Props_LivingRoom_Ottoman01.adr"
-        ) ||
-        propType.actorDefinition.includes(
-          "Common_Props_LivingRoom_Ottoman02_Leather.adr"
-        ) ||
-        propType.actorDefinition.includes(
-          "Common_Props_WreckedTruck01_OpenDoors.adr"
-        ) ||
-        propType.actorDefinition.includes(
-          "Common_Props_WreckedCar01_OpenDoors.adr"
-        ) ||
-        propType.actorDefinition.includes(
-          "Common_Props_Bedroom_BedFrame01.adr"
-        ) ||
-        propType.actorDefinition.includes(
-          "Common_Props_Cabinets_KitchenSink.adr"
-        ) ||
-        propType.actorDefinition.includes(
-          "Common_Props_Cabinets_BathroomSink.adr"
-        ) ||
-        propType.actorDefinition.includes("Common_Props_GarbageCan01.adr")
-      ) {
-        rotationfix = eul2quat(propInstance.rotation);
-      }
       createEntity(
         server,
         modelId,
         propInstance.position,
-        rotationfix,
+        propInstance.rotation,
         propInstance.scale,
         props
       );
