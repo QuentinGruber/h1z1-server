@@ -1810,61 +1810,60 @@ const packetHandlers: any = {
         propToSearch.position
       )
     ) {
-      let interactType = "0";
       let logoutTime = 0;
       switch (propToSearch.modelId) {
         case 8013:
-          interactType = "destroy";
+          let interactType = "destroy";
           break;
         case 8014:
-          interactType = "destroy";
+          let interactType = "destroy";
           break;
         case 9088:
-          interactType = "destroy";
+          let interactType = "destroy";
           break;
         case 9328:
-          interactType = "sleep";
+          let interactType = "sleep";
           logoutTime = 20000;
           break;
         case 9330:
-          interactType = "sleep";
+          let interactType = "sleep";
           logoutTime = 20000;
           break;
         case 9329:
-          interactType = "sleep";
+          let interactType = "sleep";
           logoutTime = 20000;
           break;
         case 9331:
-          interactType = "sleep";
+          let interactType = "sleep";
           logoutTime = 20000;
           break;
         case 9336:
-          interactType = "sleep";
+          let interactType = "sleep";
           logoutTime = 20000;
           break;
         case 36:
-          interactType = "use";
+          let interactType = "use";
           break;
         case 9205:
           interactType = "use";
           break;
         case 9041:
-          interactType = "use";
+          let interactType = "use";
           break;
         case 57:
           interactType = "open";
           break;
         case 9127:
-          interactType = "open";
+          let interactType = "open";
           break;
         case 9032:
-          interactType = "collectWater";
+          let interactType = "collectWater";
           break;
         case 9033:
-          interactType = "collectWater";
+          let interactType = "collectWater";
           break;
         default:
-          interactType = "search";
+          let interactType = "search";
           logoutTime = 1500;
           break;
       }
@@ -1898,10 +1897,10 @@ const packetHandlers: any = {
           }
           break;
         case "use":
-         // interactType = "use";
+         // let interactType = "use";
           break;
         case "open":
-         // interactType = "open";
+         // let interactType = "open";
           break;
         case "collectWater":
           server.sendData(client, "ClientUpdate.TextAlert", {
