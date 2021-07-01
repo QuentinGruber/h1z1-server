@@ -58,7 +58,7 @@ function createEntity(
     transientId: numberOfSpawnedEntity,
     nameId: stringNameId,
     modelId: modelID,
-	scale: scale,
+    scale: scale,
     position: position,
     rotation: rotation,
     attachedObject: {},
@@ -88,7 +88,13 @@ export function createAllEntities(server: ZoneServer): any {
   createProps(server);
   createAllVehicles(server);
   createSomeNpcs(server);
-  return { npcs: npcs, objects: objects, vehicles: vehicles, doors: doors, props: props };
+  return {
+    npcs: npcs,
+    objects: objects,
+    vehicles: vehicles,
+    doors: doors,
+    props: props,
+  };
 }
 
 function getRandomVehicleId() {
@@ -164,7 +170,7 @@ function createSomeNpcs(server: ZoneServer) {
             ],
             itemInstance.position,
             itemInstance.rotation,
-			itemInstance.scale,
+            itemInstance.scale,
             npcs
           );
         }
@@ -202,7 +208,7 @@ function createAR15(server: ZoneServer) {
             ],
             itemInstance.position,
             itemInstance.rotation,
-			itemInstance.scale,
+            itemInstance.scale,
             objects
           );
         }
@@ -237,7 +243,7 @@ function createPumpShotgun(server: ZoneServer) {
             ],
             itemInstance.position,
             itemInstance.rotation,
-			itemInstance.scale,
+            itemInstance.scale,
             objects
           );
         }
@@ -309,7 +315,7 @@ function createTools(server: ZoneServer) {
             ],
             itemInstance.position,
             itemInstance.rotation,
-			itemInstance.scale,
+            itemInstance.scale,
             objects
           );
         }
@@ -344,7 +350,7 @@ function create1911(server: ZoneServer) {
             ],
             itemInstance.position,
             itemInstance.rotation,
-			itemInstance.scale,
+            itemInstance.scale,
             objects
           );
         }
@@ -379,7 +385,7 @@ function createM24(server: ZoneServer) {
             ],
             itemInstance.position,
             itemInstance.rotation,
-			itemInstance.scale,
+            itemInstance.scale,
             objects
           );
         }
@@ -420,7 +426,7 @@ function createConsumables(server: ZoneServer) {
             ],
             itemInstance.position,
             itemInstance.rotation,
-			itemInstance.scale,
+            itemInstance.scale,
             objects
           );
         }
@@ -463,7 +469,7 @@ function createClothes(server: ZoneServer) {
             ],
             itemInstance.position,
             itemInstance.rotation,
-			itemInstance.scale,
+            itemInstance.scale,
             objects
           );
         }
@@ -514,7 +520,7 @@ function createResidential(server: ZoneServer) {
             ],
             itemInstance.position,
             itemInstance.rotation,
-			itemInstance.scale,
+            itemInstance.scale,
             objects
           );
         }
@@ -556,7 +562,7 @@ function createRare(server: ZoneServer) {
             ],
             itemInstance.position,
             itemInstance.rotation,
-			itemInstance.scale,
+            itemInstance.scale,
             objects
           );
         }
@@ -598,7 +604,7 @@ function createIndustrial(server: ZoneServer) {
             ],
             itemInstance.position,
             itemInstance.rotation,
-			itemInstance.scale,
+            itemInstance.scale,
             objects
           );
         }
@@ -643,7 +649,7 @@ function createWorld(server: ZoneServer) {
             ],
             itemInstance.position,
             itemInstance.rotation,
-			itemInstance.scale,
+            itemInstance.scale,
             objects
           );
         }
@@ -677,7 +683,7 @@ function createLog(server: ZoneServer) {
             ],
             itemInstance.position,
             itemInstance.rotation,
-			itemInstance.scale,
+            itemInstance.scale,
             objects
           );
         }
@@ -716,7 +722,7 @@ function createCommercial(server: ZoneServer) {
             ],
             itemInstance.position,
             itemInstance.rotation,
-			itemInstance.scale,
+            itemInstance.scale,
             objects
           );
         }
@@ -756,7 +762,7 @@ function createFarm(server: ZoneServer) {
             ],
             itemInstance.position,
             itemInstance.rotation,
-			itemInstance.scale,
+            itemInstance.scale,
             objects
           );
         }
@@ -772,27 +778,47 @@ function createProps(server: ZoneServer) {
       MODEL_FILE_NAME: propType.actorDefinition,
     })?.ID;
     propType.instances.forEach((propInstance: any) => {
-		let rotationfix = propInstance.rotation;
-		if (propType.actorDefinition.includes("Common_Props_Bedroom_Mattress01.adr") || 
-		propType.actorDefinition.includes("Common_Props_LivingRoom_Ottoman01.adr") || 
-		propType.actorDefinition.includes("Common_Props_LivingRoom_Ottoman02_Leather.adr") || 
-		propType.actorDefinition.includes("Common_Props_WreckedTruck01_OpenDoors.adr") ||
-		propType.actorDefinition.includes("Common_Props_WreckedCar01_OpenDoors.adr") ||
-		propType.actorDefinition.includes("Common_Props_GarbageCan01.adr")) {
-		   rotationfix = eul2quat(propInstance.rotation);
-		   
-		}
+      let rotationfix = propInstance.rotation;
+      if (
+        propType.actorDefinition.includes(
+          "Common_Props_Bedroom_Mattress01.adr"
+        ) ||
+        propType.actorDefinition.includes(
+          "Common_Props_LivingRoom_Ottoman01.adr"
+        ) ||
+        propType.actorDefinition.includes(
+          "Common_Props_LivingRoom_Ottoman02_Leather.adr"
+        ) ||
+        propType.actorDefinition.includes(
+          "Common_Props_WreckedTruck01_OpenDoors.adr"
+        ) ||
+        propType.actorDefinition.includes(
+          "Common_Props_WreckedCar01_OpenDoors.adr"
+        ) ||
+        propType.actorDefinition.includes(
+          "Common_Props_Bedroom_BedFrame01.adr"
+        ) ||
+        propType.actorDefinition.includes(
+          "Common_Props_Cabinets_KitchenSink.adr"
+        ) ||
+        propType.actorDefinition.includes(
+          "Common_Props_Cabinets_BathroomSink.adr"
+        ) ||
+        propType.actorDefinition.includes("Common_Props_GarbageCan01.adr")
+      ) {
+        rotationfix = eul2quat(propInstance.rotation);
+      }
       createEntity(
         server,
         modelId,
         propInstance.position,
         rotationfix,
-		propInstance.scale,
+        propInstance.scale,
         props
       );
     });
   });
-  debug("All props objects created");
+  debug("Props objects created");
 }
 
 function createAllDoors(server: ZoneServer): void {
@@ -807,7 +833,7 @@ function createAllDoors(server: ZoneServer): void {
         modelId ? modelId : 9183,
         doorInstance.position,
         doorInstance.rotation,
-		doorInstance.scale,
+        doorInstance.scale,
         doors
       );
     });
