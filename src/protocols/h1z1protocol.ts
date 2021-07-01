@@ -283,12 +283,13 @@ export class H1Z1Protocol {
       result: parseUpdatePositionData(data, offset),
     };
   }
-  parseUpdatePositionRaw(data:Buffer, offset:number){ // Temp workaround
-  const obj = {} as UpdatePositionObject;
-  obj.raw = data;
-  return {
-    result: obj,
-  };
+  parseUpdatePositionRaw(data: Buffer, offset: number) {
+    // Temp workaround
+    const obj = {} as UpdatePositionObject;
+    obj.raw = data;
+    return {
+      result: obj,
+    };
   }
 
   parseUpdatePositionZoneToClient(data: Buffer, offset: number) {
@@ -353,7 +354,7 @@ export class H1Z1Protocol {
       packet,
       result;
 
-   /* if (flags) {
+    /* if (flags) {
       debug("Flags = " + flags);
     }*/
 
@@ -373,17 +374,17 @@ export class H1Z1Protocol {
       } catch (e) {
         debug(e);
       }
-    } else if(flags === 3 && false) { // disabled
+    } else if (flags === 3 && false) {
+      // disabled
       try {
-          packet = {
-            name: "PlayerUpdateUpdatePositionClientToZone",
-            fn: this.parseUpdatePositionClientToZone,
-          };
+        packet = {
+          name: "PlayerUpdateUpdatePositionClientToZone",
+          fn: this.parseUpdatePositionClientToZone,
+        };
       } catch (e) {
         debug(e);
       }
-    }
-    else {
+    } else {
       if ((H1Z1Packets as any).Packets[opCode]) {
         packet = (H1Z1Packets as any).Packets[opCode];
         offset = 1;

@@ -14,7 +14,7 @@ export interface Client {
     mountedVehicle?: string;
     mountedVehicleType?: string;
     vehicleState: number;
-  }
+  };
   character: {
     characterId: string;
     transientId: number;

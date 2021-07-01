@@ -5440,7 +5440,7 @@ var packets = [
           ],
         },
         {
-          name: "unknownData2",// same schema as unknownData1
+          name: "unknownData2", // same schema as unknownData1
           type: "schema",
           fields: [
             { name: "unknownQword1", type: "uint64", defaultValue: "0" },
@@ -6286,14 +6286,14 @@ var packets = [
   ["ClientUpdate.SpotProbation", 0x112900, {}],
   ["ClientUpdate.DailyRibbonCount", 0x112a00, {}],
   [
-    "ClientUpdate.DespawnNpcUpdate", 
-    0x112c00, 
+    "ClientUpdate.DespawnNpcUpdate",
+    0x112c00,
     {
       fields: [
         { name: "characterId", type: "uint64", defaultValue: "0" },
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-      ]
-    }
+      ],
+    },
   ],
   ["ClientUpdate.LoyaltyPoints", 0x112c00, {}],
   ["ClientUpdate.Membership", 0x112d00, {}],

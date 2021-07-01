@@ -185,17 +185,26 @@ export class ZoneServer extends EventEmitter {
       }
     });
 
-    this._gatewayServer._soeServer.on("PacketLimitationReached", (client: Client) => {
-      this.sendChatText(client, "You've almost reach the packet limitation with the server.")
-      this.sendChatText(client, "We will disconnect you in 60 seconds ( you can do it yourself )")
-      this.sendChatText(client, "Sorry for that.")
-      setTimeout(() => {
-        this.sendData(client, "CharacterSelectSessionResponse", {
-          status: 1,
-          sessionId: client.loginSessionId,
-        });
-      }, 60000);
-    })
+    this._gatewayServer._soeServer.on(
+      "PacketLimitationReached",
+      (client: Client) => {
+        this.sendChatText(
+          client,
+          "You've almost reach the packet limitation with the server."
+        );
+        this.sendChatText(
+          client,
+          "We will disconnect you in 60 seconds ( you can do it yourself )"
+        );
+        this.sendChatText(client, "Sorry for that.");
+        setTimeout(() => {
+          this.sendData(client, "CharacterSelectSessionResponse", {
+            status: 1,
+            sessionId: client.loginSessionId,
+          });
+        }, 60000);
+      }
+    );
 
     this._gatewayServer.on(
       "login",
@@ -225,7 +234,7 @@ export class ZoneServer extends EventEmitter {
         client.loginSessionId = loginSessionId;
         client.vehicle = {
           vehicleState: 0,
-        }
+        };
         client.character = {
           characterId: characterId,
           transientId: generatedTransient,
