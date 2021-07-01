@@ -1603,9 +1603,9 @@ const packetHandlers: any = {
   ) {
     const movingCharacter = server._characters[client.character.characterId];
     if(movingCharacter){
-      if(client.mountedVehicle)
+      if(client.vehicle.mountedVehicle)
       {
-        const vehicle = server._vehicles[client.mountedVehicle]
+        const vehicle = server._vehicles[client.vehicle.mountedVehicle]
         console.log(vehicle)
         server.sendRawToAllOthers(
           client,
