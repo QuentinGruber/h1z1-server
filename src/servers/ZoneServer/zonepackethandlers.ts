@@ -1923,7 +1923,7 @@ const packetHandlers: any = {
             if (client.timer != null) {
               clearTimeout(client.timer);
             }
-            client.logoutTimer = setTimeout(() => {
+            client.timer = setTimeout(() => {
               server.sendData(client, "ClientUpdate.TextAlert", {
                 message: "Nothing in there... yet :P",
               });
