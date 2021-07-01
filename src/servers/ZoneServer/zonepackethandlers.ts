@@ -586,15 +586,18 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
-    server.sendData(client, "Mount.DismountResponse", {
+    server.sendDataToAll( "Mount.DismountResponse", {
       characterId: client.character.characterId,
     });
-    server.sendData(client, "Vehicle.Engine", {
+    server.sendDataToAll("Vehicle.Engine", {
       guid2: client.vehicle.mountedVehicle,
       unknownBoolean: false,
     });
-    delete client.vehicle.mountedVehicle;
-    client.vehicle.mountedVehicleType = "0";
+    setTimeout(()=>{ // temp workaround to fix https://github.com/QuentinGruber/h1z1-server/issues/285
+      server._vehicles[client.vehicle.mountedVehicle as string].npcData.position = client.character.state.position
+      delete client.vehicle.mountedVehicle;
+      client.vehicle.mountedVehicleType = "0";
+    },50)
   },
   "Command.InteractRequest": function (
     server: ZoneServer,
@@ -872,13 +875,12 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
-    server.sendData(client, "Mount.DismountResponse", {
+    server.sendDataToAll("Mount.DismountResponse", {
       characterId: client.character.characterId,
     });
-    server.sendData(client, "PlayerUpdate.RemovePlayerGracefully", {
+    server.sendDataToAll("PlayerUpdate.RemovePlayerGracefully", {
       characterId: client.vehicle.mountedVehicle,
-    });
-    delete client.vehicle.mountedVehicle;
+    });    
   },
   "Vehicle.Spawn": function (server: ZoneServer, client: Client, packet: any) {
     server.sendData(client, "Vehicle.Expiration", {
@@ -1602,28 +1604,42 @@ const packetHandlers: any = {
     packet: any
   ) {
     const movingCharacter = server._characters[client.character.characterId];
-    if (movingCharacter) {
-      server.sendRawToAllOthers(
-        client,
-        server._protocol.createPositionBroadcast(
-          packet.data.raw,
-          movingCharacter.transientId
-        )
-      );
+    if(movingCharacter && !server._soloMode){
+      if(client.vehicle.mountedVehicle)
+      {
+        const vehicle = server._vehicles[client.vehicle.mountedVehicle]
+        console.log(vehicle)
+        server.sendRawToAllOthers(
+          client,
+          server._protocol.createPositionBroadcast(
+            packet.data.raw.slice(1),
+            vehicle.npcData.transientId
+           )
+         );
+      }
+      else{
+        server.sendRawToAllOthers(
+          client,
+          server._protocol.createPositionBroadcast(
+            packet.data.raw,
+             movingCharacter.transientId
+           )
+         );
+      }
     }
     if (packet.data.position) {
       // TODO: modify array element beside re-creating it
-      client.character.state.position = new Float32Array([
-        packet.data.position[0],
-        packet.data.position[1],
-        packet.data.position[2],
-        0,
-      ]);
-      if (packet.data.unknown11_float > 6) {
-        client.character.isRunning = true;
-      } else {
-        client.character.isRunning = false;
-      }
+        client.character.state.position = new Float32Array([
+          packet.data.position[0],
+          packet.data.position[1],
+          packet.data.position[2],
+          0,
+        ]);
+        if (packet.data.unknown11_float > 6) {
+          client.character.isRunning = true;
+        } else {
+          client.character.isRunning = false;
+        }      
 
       if (
         client.timer != null &&
@@ -1657,6 +1673,14 @@ const packetHandlers: any = {
         server.worldRoutine(client);
       }
     }
+    else if (packet.data.vehicle_position && client.vehicle.mountedVehicle){
+      server._vehicles[client.vehicle.mountedVehicle].npcData.position = new Float32Array([
+          packet.data.vehicle_position[0],
+          packet.data.vehicle_position[1],
+          packet.data.vehicle_position[2],
+          0,
+        ]);
+  }
     if (packet.data.rotation) {
       // TODO: modify array element beside re-creating it
       client.character.state.rotation = new Float32Array([
