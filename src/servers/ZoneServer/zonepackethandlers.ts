@@ -232,6 +232,19 @@ const packetHandlers: any = {
           type: 3,
           value: {
             characterId: client.character.characterId,
+            resourceId: 2, // mana
+            resourceType: 2,
+            initialValue: 0,
+            unknownArray1: [],
+            unknownArray2: [],
+          },
+        },
+      });
+      server.sendData(client, "ResourceEvent", {
+        eventData: {
+          type: 3,
+          value: {
+            characterId: client.character.characterId,
             resourceId: 9, // VIRUS
             resourceType: 12,
             initialValue: virus,
@@ -269,6 +282,7 @@ const packetHandlers: any = {
       server.executeFuncForAllClients("spawnCharacters");
     }
     client.isLoading = false;
+    client.isInteracting = false;
     delete client.mountedVehicle;
     client.mountedVehicleType = "0";
   },
@@ -358,7 +372,7 @@ const packetHandlers: any = {
           regionPercent: [],
           populationBuff: [],
           populationTargetPercent: [],
-          name: "Z1", // could use this field to load a specific TileInfo
+          name: "", // could use this field to load a specific TileInfo
           hexSize: 100,
           isProductionZone: 1,
         },
@@ -653,25 +667,26 @@ const packetHandlers: any = {
         guid: guid,
         stringId: 29,
       });
-      delete client.mountedVehicle;
     } else if (
       propData &&
-      isPosInRadius(
-        server._interactionDistance,
-        client.character.state.position,
-        propData.position
-      )
+      isPosInRadius(6, client.character.state.position, propData.position)
     ) {
       let stringId = 0;
       switch (propData.modelId) {
         case 9330: // beds
-          stringId = 439;
+          stringId = 9041;
           break;
         case 9329:
-          stringId = 439;
+          stringId = 9041;
           break;
         case 9328:
-          stringId = 439;
+          stringId = 9041;
+          break;
+        case 9331:
+          stringId = 9041;
+          break;
+        case 9336:
+          stringId = 9041;
           break;
         case 57: // Openable
           stringId = 31;
@@ -680,6 +695,9 @@ const packetHandlers: any = {
           stringId = 1186;
           break;
         case 9205:
+          stringId = 1186;
+          break;
+        case 9041:
           stringId = 1186;
           break;
         case 8014: // NoString
@@ -700,6 +718,12 @@ const packetHandlers: any = {
         case 9061:
           guid = "0";
           break;
+        case 9032: // collect water
+          stringId = 1008;
+          break;
+        case 9033:
+          stringId = 1008;
+          break;
         default:
           // searchable
           stringId = 1191;
@@ -709,7 +733,6 @@ const packetHandlers: any = {
         guid: guid,
         stringId: stringId,
       });
-      delete client.mountedVehicle;
     } else if (
       doorData &&
       isPosInRadius(
@@ -722,7 +745,6 @@ const packetHandlers: any = {
         guid: guid,
         stringId: 31,
       });
-      delete client.mountedVehicle;
     } else if (
       vehicleData &&
       isPosInRadius(
@@ -731,13 +753,10 @@ const packetHandlers: any = {
         vehicleData.npcData.position
       )
     ) {
-      if (!client.mountedVehicle) {
-        server.sendData(client, "Command.InteractionString", {
-          guid: guid,
-          stringId: 15,
-        });
-        client.mountedVehicle = guid;
-      }
+      server.sendData(client, "Command.InteractionString", {
+        guid: guid,
+        stringId: 15,
+      });
     }
   },
   "Command.InteractionSelect": function (
@@ -1491,13 +1510,7 @@ const packetHandlers: any = {
         }
       );
   },
-  "Command.InteractCancel": function (
-    server: ZoneServer,
-    client: Client,
-    packet: any
-  ) {
-    debug("Interaction Canceled");
-  },
+
   "Command.StartLogoutRequest": function (
     server: ZoneServer,
     client: Client,
@@ -1621,10 +1634,14 @@ const packetHandlers: any = {
       ) {
         clearTimeout(client.logoutTimer);
         client.logoutTimer = null;
+        client.isInteracting = false;
         server.sendData(client, "ClientUpdate.StartTimer", {
           stringId: 0,
           time: 0,
         }); // don't know how it was done so
+      }
+      if (!client.posAtLastRoutine && !client.isLoading) {
+        server.spawnProps(client);
       }
 
       if (
@@ -1796,6 +1813,7 @@ const packetHandlers: any = {
       )
     ) {
       let interactType = "0";
+      let logoutTime = 0;
       switch (propToSearch.modelId) {
         case 8013:
           interactType = "destroy";
@@ -1808,27 +1826,48 @@ const packetHandlers: any = {
           break;
         case 9328:
           interactType = "sleep";
+          logoutTime = 20000;
           break;
         case 9330:
           interactType = "sleep";
+          logoutTime = 20000;
           break;
         case 9329:
           interactType = "sleep";
+          logoutTime = 20000;
+          break;
+        case 9331:
+          interactType = "sleep";
+          logoutTime = 20000;
+          break;
+        case 9336:
+          interactType = "sleep";
+          logoutTime = 20000;
           break;
         case 36:
-       //   interactType = "use";
+          interactType = "use";
           break;
         case 9205:
-       //   interactType = "use";
+          interactType = "use";
+          break;
+        case 9041:
+          interactType = "use";
           break;
         case 57:
-        //  interactType = "open";
+          interactType = "open";
           break;
         case 9127:
-        //  interactType = "open";
+          interactType = "open";
+          break;
+        case 9032:
+          interactType = "collectWater";
+          break;
+        case 9033:
+          interactType = "collectWater";
           break;
         default:
           interactType = "search";
+          logoutTime = 1500;
           break;
       }
       switch (interactType) {
@@ -1842,22 +1881,53 @@ const packetHandlers: any = {
           });
           break;
         case "sleep":
-          server.sendData(client, "ClientUpdate.StartTimer", {
-            stringId: 439,
-            time: 5000,
-          });
+          if (!client.isInteracting) {
+            client.isInteracting = true;
+            server.sendData(client, "ClientUpdate.StartTimer", {
+              stringId: 9051,
+              time: logoutTime,
+            });
+            client.posAtLogoutStart = client.character.state.position;
+            if (client.logoutTimer != null) {
+              clearTimeout(client.logoutTimer);
+            }
+            client.logoutTimer = setTimeout(() => {
+              server.sendData(client, "ClientUpdate.TextAlert", {
+                message: "You feel refreshed after sleeping well.",
+              });
+              client.isInteracting = false;
+            }, logoutTime);
+          }
           break;
         case "use":
-     //     interactType = "use";
+          interactType = "use";
           break;
         case "open":
-      //    interactType = "open";
+          interactType = "open";
+          break;
+        case "collectWater":
+          server.sendData(client, "ClientUpdate.TextAlert", {
+            message: "You dont have an Empty Bottle",
+          });
           break;
         case "search":
-          server.sendData(client, "ClientUpdate.StartTimer", {
-            stringId: propToSearch.nameId,
-            time: 3000,
-          });
+          if (!client.isInteracting) {
+            client.isInteracting = true;
+            server.sendData(client, "ClientUpdate.StartTimer", {
+              stringId: propToSearch.nameId,
+              time: logoutTime,
+            });
+            client.posAtLogoutStart = client.character.state.position;
+            if (client.logoutTimer != null) {
+              clearTimeout(client.logoutTimer);
+            }
+            client.logoutTimer = setTimeout(() => {
+              server.sendData(client, "ClientUpdate.TextAlert", {
+                message: "Nothing in there... yet :P",
+              });
+              client.isInteracting = false;
+            }, logoutTime);
+          }
           break;
         default:
           break;
