@@ -821,8 +821,6 @@ export class ZoneServer extends EventEmitter {
       const characterId = object.characterId
         ? object.characterId
         : object.npcData.characterId;
-      const propCheck = characterId in this._props;
-      if (!propCheck) {
         if (characterId in this._vehicles) {
           this.sendData(client, "PlayerUpdate.ManagedObject", {
             guid: characterId,
@@ -837,8 +835,8 @@ export class ZoneServer extends EventEmitter {
           },
           1
         );
-      }
     });
+  }
   }
 
   spawnObjects(client: Client): void {
@@ -890,22 +888,12 @@ export class ZoneServer extends EventEmitter {
   spawnProps(client: Client): void {
     setImmediate(() => {
       for (const prop in this._props) {
-        if (
-          isPosInRadius(
-            this._npcRenderDistance,
-            client.character.state.position,
-            this._props[prop].position
-          ) &&
-          !client.spawnedEntities.includes(this._props[prop])
-        ) {
           this.sendData(
             client,
             "PlayerUpdate.AddLightweightNpc",
             this._props[prop],
             1
           );
-          client.spawnedEntities.push(this._props[prop]);
-        }
       }
     });
   }
