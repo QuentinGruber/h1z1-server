@@ -42,10 +42,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Use Node.js 16.2.0
+      - name: Use Node.js 16.4.1
         uses: actions/setup-node@v2
         with:
-          node-version: 16.2.0
+          node-version: 16.4.1
       - run: npm i --production
       - run: npm i -g pkg@5.2.1
       - run: pkg -t node16-win-x64 ./bin/2015/loginServer.js --output ./bin/loginServer-${{ github.ref }}.exe
