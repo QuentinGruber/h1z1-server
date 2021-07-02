@@ -837,7 +837,6 @@ export class ZoneServer extends EventEmitter {
         );
     });
   }
-  }
 
   spawnObjects(client: Client): void {
     setImmediate(() => {
