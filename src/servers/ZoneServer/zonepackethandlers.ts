@@ -2001,7 +2001,7 @@ const packetHandlers: any = {
       server.sendData(client, "PlayerUpdate.LightweightToFullPc", {
         transientId: pcData.transientId,
       });
-    } else if (server._vehicles[guid]) {
+    } else if (server._vehicles[guid] && server._vehicles[guid].npcData.vehicleId != 13) { // ignore parachute
       const npcData = {
         transientId: server._vehicles[guid].npcData.transientId,
       };
