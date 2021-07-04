@@ -9,6 +9,18 @@ let isSonic = false;
 let isVehicle = false;
 
 const hax: any = {
+  placement:function (server: ZoneServer, client: Client, args: any[]) {
+    const modelChoosen = args[1];
+    if (!modelChoosen) {
+      server.sendChatText(
+        client,
+        "[ERROR] Usage /hax placement {modelId}"
+      );
+      return;
+    }
+    server.sendData(client, "Construction.PlacementResponse", {model:modelChoosen});
+  }
+  ,
   siren: function (server: ZoneServer, client: Client, args: any[]) {
     switch (client.vehicle.mountedVehicleType) {
       case "policecar":
