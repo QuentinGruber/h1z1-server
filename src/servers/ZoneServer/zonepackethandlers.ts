@@ -25,7 +25,7 @@ import { ZoneServer } from "./zoneserver";
 import { Client } from "types/zoneserver";
 const modelToName = require("../../../data/2015/sampleData/ModelToName.json");
 
-const _ = require("lodash");
+import _ from "lodash";
 const debug = require("debug")("zonepacketHandlers");
 
 const packetHandlers: any = {
@@ -493,7 +493,7 @@ const packetHandlers: any = {
           );
           server.sendChatText(
             client,
-            `objects : ${_.size(objects)} vehicles : ${_.size(vehicles)}`
+            `objects : ${_.size(objects)} props : ${_.size(objects)} vehicles : ${_.size(vehicles)}`
           );
           break;
         }
