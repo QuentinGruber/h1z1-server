@@ -259,6 +259,7 @@ const hax: any = {
       );
     });
     client.spawnedEntities = [];
+    server._props = {};
     server._npcs = {};
     server._objects = {};
     server._vehicles = {};
