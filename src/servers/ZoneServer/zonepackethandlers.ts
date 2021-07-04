@@ -478,6 +478,7 @@ const packetHandlers: any = {
             _objects: objects,
             _vehicles: vehicles,
             _doors: doors,
+            _props: props,
           } = server;
           const serverVersion = require("../../../package.json").version;
           server.sendChatText(client, `h1z1-server V${serverVersion}`, true);
@@ -493,7 +494,7 @@ const packetHandlers: any = {
           );
           server.sendChatText(
             client,
-            `objects : ${_.size(objects)} props : ${_.size(objects)} vehicles : ${_.size(vehicles)}`
+            `objects : ${_.size(objects)} props : ${_.size(props)} vehicles : ${_.size(vehicles)}`
           );
           break;
         }
