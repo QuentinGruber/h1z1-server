@@ -9535,10 +9535,9 @@ var packets = [
     0xcc02,
     {
       fields: [
-        { name: "Unknown1", type: "byte", defaultValue: 0 },
-        { name: "Unknown2", type: "uint16", defaultValue: 0 },
-        { name: "Unknown3", type: "uint32", defaultValue: 0 },
-        { name: "Unknown4", type: "uint32", defaultValue: 0 },
+        { name: "Unknown2", type: "boolean", defaultValue: 0 },
+        { name: "Unknown3", type: "uint32", defaultValue: 55 },
+        { name: "model", type: "uint32", defaultValue: 55 },
       ],
     },
   ],
