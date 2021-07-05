@@ -14,7 +14,6 @@ import { EventEmitter } from "events";
 
 import { SOEServer } from "../SoeServer/soeserver";
 import { LoginProtocol } from "../../protocols/loginprotocol";
-import { toUint8Array } from "js-base64";
 import { MongoClient } from "mongodb";
 import { generateRandomGuid, initMongo } from "../../utils/utils";
 import { Client, GameServer, SoeServer } from "../../types/loginserver";
@@ -42,7 +41,7 @@ export class LoginServer extends EventEmitter {
     this._crcSeed = 0;
     this._crcLength = 2;
     this._udpLength = 512;
-    this._cryptoKey = toUint8Array("F70IaxuU8C/w7FPXY1ibXw==");
+    this._cryptoKey = new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", 'base64');
     this._soloMode = false;
     this._mongoAddress = mongoAddress;
 
