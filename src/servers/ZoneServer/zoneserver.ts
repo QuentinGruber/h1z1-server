@@ -25,7 +25,7 @@ import { Client, Weather } from "../../types/zoneserver";
 import { Db, MongoClient } from "mongodb";
 import { Worker } from "worker_threads";
 import dynamicWeather from "./workers/dynamicWeather";
-import { Base64 } from "js-base64";
+
 
 const localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json");
 
@@ -1238,5 +1238,5 @@ export class ZoneServer extends EventEmitter {
   }
 }
 if (process.env.VSCODE_DEBUG === "true") {
-  new ZoneServer(1117, Base64.toUint8Array("F70IaxuU8C/w7FPXY1ibXw==")).start();
+  new ZoneServer(1117, new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", 'base64')).start();
 }
