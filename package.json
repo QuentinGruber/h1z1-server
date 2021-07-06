@@ -10,7 +10,6 @@
     "@types/lodash": "4.14.170",
     "@types/mongodb": "3.6.12",
     "@types/node": "15.0.1",
-    "@types/uuid": "^8.3.0",
     "debug": "4.3.2",
     "eul2quat": "^1.0.0",
     "h1emu-core": "^0.1.1",
@@ -20,8 +19,7 @@
     "mongodb": "3.6.9",
     "mongodb-restore-dump": "1.0.1",
     "terser-output": "1.0.2",
-    "typescript": "4.3.5",
-    "uuid": "8.3.2"
+    "typescript": "4.3.5"
   },
   "directories": {
     "src": "./src"

@@ -1,5 +1,4 @@
 const restore = require("mongodb-restore-dump");
-import { v4 as uuidv4, parse as uuidParse } from "uuid";
 import {generate_random_guid} from "h1emu-core"
 export async function zoneShutdown(
   server: any,
