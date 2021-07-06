@@ -416,6 +416,23 @@ export class SOEServer extends EventEmitter {
     }
   }
 
+  _sendMultiPacket(
+    client: Client,
+    packetName: string,
+    packets: any,
+    prioritize = false
+  ): void {
+    for (let index = 0; index < packets.length; index++) {
+      const packet = packets[index];
+      const data = this.createPacket(client, packetName, packet);
+      if (prioritize) {
+        client.outQueue.unshift(data);
+      } else {
+        client.outQueue.push(data);
+      }
+    }
+  }
+
   sendAppData(client: Client, data: Buffer, overrideEncryption: boolean): void {
     if ((client as any).outputStream._useEncryption) {
       debug("Sending app data: " + data.length + " bytes with encryption");
@@ -423,6 +440,15 @@ export class SOEServer extends EventEmitter {
       debug("Sending app data: " + data.length + " bytes");
     }
     (client as any).outputStream.write(data, overrideEncryption);
+  }
+
+  sendLargeAppData(client: Client, data: Buffer, overrideEncryption: boolean): void {
+    if ((client as any).outputStream._useEncryption) {
+      debug("Sending large app data: " + data.length + " bytes with encryption");
+    } else {
+      debug("Sending large app data: " + data.length + " bytes");
+    }
+    (client as any).outputStream.write(data, overrideEncryption, true);
   }
 
   setEncryption(client: Client, value: boolean): void {

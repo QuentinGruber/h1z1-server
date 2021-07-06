@@ -33,7 +33,7 @@ export class SOEOutputStream extends EventEmitter {
     this._rc4 = crypto.createCipheriv("rc4", cryptoKey, "");
   }
 
-  write(data: Buffer, overrideEncryption: boolean): void {
+  write(data: Buffer, overrideEncryption: boolean, multiPacket: boolean = false): void {
     if (this._useEncryption && overrideEncryption !== false) {
       this._rc4.write(data);
       data = this._rc4.read();
@@ -50,7 +50,7 @@ export class SOEOutputStream extends EventEmitter {
         data: data,
         fragment: false,
       };
-      this.emit("data", null, data, this._sequence, false);
+      this.emit(multiPacket?"largeData":"data", null, data, this._sequence, false);
     } else {
       const header = new (Buffer as any).alloc(4);
       header.writeUInt32BE(data.length, 0);
