@@ -365,7 +365,6 @@ export class ZoneServer extends EventEmitter {
   async saveWorld(): Promise<void> {
     if (!this._soloMode) {
       if (this._worldId) {
-
           this.createAllObjects();
           await this._db
             ?.collection(`world-${this._worldId}-npcs`)
@@ -407,9 +406,6 @@ export class ZoneServer extends EventEmitter {
             .insertMany(Object.values(this._objects));
         debug("World saved!");
       }
-      setTimeout(() => {
-        this.saveWorld();
-      }, 30000);
     } else {
       this.createAllObjects();
     }
