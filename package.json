@@ -7,7 +7,7 @@
   "main": "h1z1-server.js",
   "dependencies": {
     "@types/json-schema": "^7.0.7",
-    "@types/lodash": "4.14.170",
+    "@types/lodash": "4.14.171",
     "@types/mongodb": "3.6.12",
     "@types/node": "15.0.1",
     "@types/uuid": "^8.3.0",
