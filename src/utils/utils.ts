@@ -58,7 +58,7 @@ export const Int64String = function (value: number): string {
 };
 
 export const generateRandomGuid = function (): string {
-  return generate_random_guid();
+  return "0x"+generate_random_guid().toLocaleLowerCase();
 };
 
 export const lz4_decompress = function (
