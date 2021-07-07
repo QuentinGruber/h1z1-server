@@ -740,7 +740,7 @@ export class ZoneServer extends EventEmitter {
     this.spawnCharacters(client);
     this.spawnObjects(client);
     this.spawnDoors(client);
-    // this.spawnProps(client);
+    this.spawnProps(client);
     this.spawnNpcs(client);
     this.spawnVehicles(client);
     this.removeOutOfDistanceEntities(client);
@@ -814,27 +814,23 @@ export class ZoneServer extends EventEmitter {
     const objectsToRemove = client.spawnedEntities.filter((e) =>
       this.filterOutOfDistance(e, client.character.state.position)
     );
-    client.spawnedEntities = client.spawnedEntities.filter((el) => {
+    /*client.spawnedEntities = client.spawnedEntities.filter((el) => {
       return !objectsToRemove.includes(el);
-    });
+    });*/
     objectsToRemove.forEach((object: any) => {
       const characterId = object.characterId
         ? object.characterId
         : object.npcData.characterId;
         if (characterId in this._vehicles) {
-          this.sendData(client, "PlayerUpdate.ManagedObject", {
-            guid: characterId,
-            characterId: client.character.characterId,
-          });
+          this.sendData(
+            client,
+            "PlayerUpdate.RemovePlayerGracefully",
+            {
+              characterId,
+            },
+            1
+          );
         }
-        this.sendData(
-          client,
-          "PlayerUpdate.RemovePlayerGracefully",
-          {
-            characterId,
-          },
-          1
-        );
     });
   }
 
@@ -887,12 +883,22 @@ export class ZoneServer extends EventEmitter {
   spawnProps(client: Client): void {
     setImmediate(() => {
       for (const prop in this._props) {
+        if (
+          isPosInRadius(
+            this._npcRenderDistance,
+            client.character.state.position,
+            this._props[prop].position
+          ) &&
+          !client.spawnedEntities.includes(this._props[prop])
+        ) {
           this.sendData(
             client,
             "PlayerUpdate.AddLightweightNpc",
             this._props[prop],
             1
           );
+          client.spawnedEntities.push(this._props[prop]);
+        }
       }
     });
   }
