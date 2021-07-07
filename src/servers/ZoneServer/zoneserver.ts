@@ -314,6 +314,8 @@ export class ZoneServer extends EventEmitter {
         this.saveWorld();
       }, 30000);
     } else {
+      await this._db?.collection(`worlds`)
+        .updateOne({ worldId: this._worldId }, { $set: { worldId: this._worldId } });
       await this.saveWorld();
     }
     debug("Server ready");
@@ -363,60 +365,46 @@ export class ZoneServer extends EventEmitter {
   async saveWorld(): Promise<void> {
     if (!this._soloMode) {
       if (this._worldId) {
-        if (
-          await this._db
-            ?.collection("worlds")
-            .findOne({ worldId: this._worldId })
-        ) {
-          const save = {
-            worldId: this._worldId,
-            npcs: this._npcs,
-            doors: this._doors,
-            props: this._props,
-            vehicles: this._vehicles,
-            weather: this._weather,
-            objects: this._objects,
-          };
-          const worker = new Worker(__dirname + "/workers/saveWorld.js", {
-            workerData: {
-              mongoAddress: this._mongoAddress,
-              worldId: this._worldId,
-              worldSave: JSON.stringify(save),
-            },
-          });
-          worker.on("message", debug);
-          worker.on("error", debug);
-        } else {
+
           this.createAllObjects();
-          const save = {
-            worldId: this._worldId,
-            npcs: this._npcs,
-            doors: this._doors,
-            props: this._props,
-            vehicles: this._vehicles,
-            weather: this._weather,
-            objects: this._objects,
-          };
-          await this._db?.collection("worlds").insertOne(save);
-        }
+          await this._db
+            ?.collection(`world-${this._worldId}-npcs`)
+            .insertMany(Object.values(this._npcs));
+            await this._db
+            ?.collection(`world-${this._worldId}-doors`)
+            .insertMany(Object.values(this._doors));
+            await this._db
+            ?.collection(`world-${this._worldId}-props`)
+            .insertMany(Object.values(this._props));
+            await this._db
+            ?.collection(`world-${this._worldId}-vehicles`)
+            .insertMany(Object.values(this._vehicles));
+            await this._db
+            ?.collection(`world-${this._worldId}-objects`)
+            .insertMany(Object.values(this._objects));
       } else {
         this.createAllObjects();
-        const save = {
-          worldId: this._worldId,
-          npcs: this._npcs,
-          doors: this._doors,
-          props: this._props,
-          vehicles: this._vehicles,
-          weather: this._weather,
-          objects: this._objects,
-        };
         const numberOfWorld: number =
           (await this._db?.collection("worlds").find({}).count()) || 0;
-        const createdWorld = await this._db?.collection("worlds").insertOne({
-          ...save,
-          worldId: numberOfWorld + 1,
+          this._worldId = numberOfWorld + 1;
+        await this._db?.collection("worlds").insertOne({
+          worldId: this._worldId,
         });
-        this._worldId = createdWorld?.ops[0].worldId;
+        await this._db
+            ?.collection(`world-${this._worldId}-npcs`)
+            .insertMany(Object.values(this._npcs));
+            await this._db
+            ?.collection(`world-${this._worldId}-doors`)
+            .insertMany(Object.values(this._doors));
+            await this._db
+            ?.collection(`world-${this._worldId}-props`)
+            .insertMany(Object.values(this._props));
+            await this._db
+            ?.collection(`world-${this._worldId}-vehicles`)
+            .insertMany(Object.values(this._vehicles));
+            await this._db
+            ?.collection(`world-${this._worldId}-objects`)
+            .insertMany(Object.values(this._objects));
         debug("World saved!");
       }
       setTimeout(() => {
