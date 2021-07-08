@@ -6291,7 +6291,7 @@ var packets = [
     {
       fields: [
         { name: "characterId", type: "uint64", defaultValue: "0" },
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "timeBeforeDespawn", type: "uint32", defaultValue: 0 },
       ],
     },
   ],
