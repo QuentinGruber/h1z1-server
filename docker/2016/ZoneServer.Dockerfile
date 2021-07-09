@@ -4,4 +4,4 @@ COPY . .
 RUN npm i --production
 # Zone server port
 EXPOSE 1117/udp
-CMD [ "npm","run","zone-server" ]
+CMD [ "node", "./docker/2016/zoneServer.js" ]

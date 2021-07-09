@@ -7,4 +7,4 @@ EXPOSE 1115/udp
 # Zone server port
 EXPOSE 1117/udp
 # Start both of the servers
-CMD [ "npm", "start" ]
+CMD [ "node", "./docker\2015\h1emuServer.js" ]
