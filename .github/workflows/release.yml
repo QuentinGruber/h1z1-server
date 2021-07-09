@@ -99,7 +99,7 @@ jobs:
           asset_name: loginServer-2016-${{ steps.tagName.outputs.tag }}.exe
           tag: ${{ github.ref }}
 
-build-docker-images:
+  build-docker-images:
     name: Create and push docker images
     needs: create-release
     runs-on: ubuntu-latest
@@ -111,11 +111,10 @@ build-docker-images:
           node-version: 16.4.1
       - uses: olegtarasov/get-tag@v2.1
         id: tagName
-      - run: sudo apt update
-      - run: sudo apt install -y docker.io
+      - uses: docker-practice/actions-setup-docker@master
       - run: npm i
       - run: npm run build-docker-images
-      - run: sudo docker login -u quentingruber -p ${{ secrets.DOCKER_HUB_TOKEN }}
+      - run: sudo docker login -u qgruber -p ${{ secrets.DOCKER_HUB_TOKEN }}
       - run: sudo docker image push h1emu/server:${{ steps.tagName.outputs.tag }}
       - run: sudo docker image push h1emu/server-2016:${{ steps.tagName.outputs.tag }}
       - run: sudo docker image push h1emu/login-server:${{ steps.tagName.outputs.tag }}
