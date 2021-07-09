@@ -16,7 +16,7 @@ const doors: any = {};
 const chancePumpShotgun = 50;
 const chanceAR15 = 50;
 const chanceTools = 50;
-const chance1911 = 100;
+const chancePistols = 100;
 const chanceM24 = 50;
 const chanceConsumables = 50;
 const chanceClothes = 50;
@@ -27,6 +27,8 @@ const chanceWorld = 10;
 const chanceLog = 10;
 const chanceCommercial = 10;
 const chanceFarm = 10;
+const chanceHospital = 50;
+const chanceMilitary = 20;
 
 let numberOfSpawnedEntity = 0;
 
@@ -82,7 +84,7 @@ export function createAllEntities(server: ZoneServer2016): any {
   createAR15(server);
   createPumpShotgun(server);
   createTools(server);
-  create1911(server);
+  createPistols(server);
   createM24(server);
   createConsumables(server);
   createClothes(server);
@@ -93,6 +95,9 @@ export function createAllEntities(server: ZoneServer2016): any {
   createLog(server);
   createCommercial(server);
   createFarm(server);
+  createHospital(server);
+  createMilitary(server);
+
   createAllVehicles(server);
   createSomeNpcs(server);
   return { npcs: npcs, objects: objects, vehicles: vehicles, doors: doors };
@@ -179,6 +184,133 @@ function createSomeNpcs(server: ZoneServer2016) {
     }
   });
   debug("All npcs objects created");
+}
+
+function createMilitary(server: ZoneServer2016) {
+  Z1_items.forEach((spawnerType: any) => {
+    const authorizedModelId: number[] = [];
+    switch (spawnerType.actorDefinition) {
+      case "ItemSpawner_Z1_MilitaryBase_Tents1.adr": // uncommon
+        authorizedModelId.push(9202); // crossbow
+        authorizedModelId.push(9422); // r380
+        authorizedModelId.push(9249); // shirt, should be ghille suit when inventory works
+        authorizedModelId.push(68); // motorcycle helmet
+        authorizedModelId.push(9418); // tactical helmet
+        authorizedModelId.push(9419); // respirator
+        authorizedModelId.push(9221); // medkit
+        authorizedModelId.push(10); // pistol ammo
+        authorizedModelId.push(9445); // night vision goggles
+        authorizedModelId.push(10); // ar-15 / ak-47 ammo
+        authorizedModelId.push(9250); // mre
+        break;
+      case "ItemSpawner_Z1_MilitaryBase_Tents2.adr": // rare
+        authorizedModelId.push(9449); // molotov
+        authorizedModelId.push(9483); // magnum
+        authorizedModelId.push(8023); // shotgun ammo
+        authorizedModelId.push(9287); // 308 ammo
+        authorizedModelId.push(16); // gunpowder
+        authorizedModelId.push(9391); // bag (landmine)
+        authorizedModelId.push(9583); // kevlar
+        break;
+      case "ItemSpawner_Z1_MilitaryBase_MotorPool.adr": // common
+        authorizedModelId.push(9199); // binoculars
+        authorizedModelId.push(21); // combat knife
+        authorizedModelId.push(25); // flare
+        authorizedModelId.push(30); // scrap
+        authorizedModelId.push(9391); // bag (cloth)
+        authorizedModelId.push(58); // flashlight
+        authorizedModelId.push(54); // tarp
+        authorizedModelId.push(9250); // mre
+        break;
+      case "ItemSpawner_Z1_MilitaryBase_Hangar.adr": // industrial
+        authorizedModelId.push(30); // scrap
+        authorizedModelId.push(11); // sheet metal
+        authorizedModelId.push(12); // metal pipe
+        authorizedModelId.push(18); // crowbar
+        authorizedModelId.push(9252); // claw hammer
+        authorizedModelId.push(9135); // gas can
+        authorizedModelId.push(70); // battery
+        authorizedModelId.push(71); // headlights
+        authorizedModelId.push(72); // sparkplugs
+        authorizedModelId.push(73); // turbocharger
+        authorizedModelId.push(9393); // wrench
+        break;
+      case "ItemSpawner_Weapon_GrenadeSmoke.adr":
+        authorizedModelId.push(9450);
+        break;
+      case "ItemSpawner_Weapon_GrenadeFlashbang.adr":
+        authorizedModelId.push(9448);
+        break;
+      case "ItemSpawner_Weapon_GrenadeGas.adr":
+        authorizedModelId.push(9479);
+        break;
+      case "ItemSpawner_Weapon_GrenadeHE.adr":
+        authorizedModelId.push(9476);
+        break;
+      default:
+        break;
+    }
+    if (authorizedModelId.length) {
+      spawnerType.instances.forEach((itemInstance: any) => {
+        const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
+        if (chance <= chanceMilitary) {
+          // temporary spawnchance
+          const r = itemInstance.rotation;
+          createEntity(
+            server,
+            authorizedModelId[
+              Math.floor(Math.random() * authorizedModelId.length)
+            ],
+            itemInstance.position,
+            //itemInstance.rotation,
+            [r[1], r[0], r[2]],
+            objects
+          );
+        }
+      });
+    }
+  });
+  debug("Military objects created. Spawnrate:" + chanceMilitary + "%");
+}
+
+function createHospital(server: ZoneServer2016) {
+  Z1_items.forEach((spawnerType: any) => {
+    const authorizedModelId: number[] = [];
+    switch (spawnerType.actorDefinition) {
+      case "ItemSpawnerHospital.adr":
+        authorizedModelId.push(9221); // medkit
+        authorizedModelId.push(9250); // mre
+        authorizedModelId.push(9066); // bandage
+        authorizedModelId.push(9543); // vial
+        authorizedModelId.push(9540); // syringe
+        authorizedModelId.push(9249); // shirt
+        authorizedModelId.push(9296); // water bottle
+        authorizedModelId.push(9156); // empty bottle
+        break;
+      default:
+        break;
+    }
+    if (authorizedModelId.length) {
+      spawnerType.instances.forEach((itemInstance: any) => {
+        const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
+        if (chance <= chanceHospital) {
+          // temporary spawnchance
+          const r = itemInstance.rotation;
+          createEntity(
+            server,
+            authorizedModelId[
+              Math.floor(Math.random() * authorizedModelId.length)
+            ],
+            itemInstance.position,
+            //itemInstance.rotation,
+            [r[1], r[0], r[2]],
+            objects
+          );
+        }
+      });
+    }
+  });
+  debug("Hospital objects created. Spawnrate:" + chanceHospital + "%");
 }
 
 function createAR15(server: ZoneServer2016) {
@@ -303,6 +435,9 @@ function createTools(server: ZoneServer2016) {
       case "ItemSpawner_Weapon_Bat02.adr":
         authorizedModelId.push(9313);
         break;
+      case "ItemSpawner_Weapon_Bow.adr":
+        authorizedModelId.push(9162);
+        break;
       default:
         break;
     }
@@ -329,12 +464,15 @@ function createTools(server: ZoneServer2016) {
   debug("Tools items objects created. Spawnrate:" + chanceTools + "%");
 }
 
-function create1911(server: ZoneServer2016) {
+function createPistols(server: ZoneServer2016) {
   Z1_items.forEach((spawnerType: any) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_Weapon_45Auto.adr":
         authorizedModelId.push(17);
+        break;
+      case "ItemSpawner_Weapon_M9Auto.adr":
+        authorizedModelId.push(9423);
         break;
       case "ItemSpawner_AmmoBox02_1911.adr":
         authorizedModelId.push(10);
@@ -345,7 +483,7 @@ function create1911(server: ZoneServer2016) {
     if (authorizedModelId.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
-        if (chance <= chance1911) {
+        if (chance <= chancePistols) {
           // temporary spawnchance
           const r = itemInstance.rotation;
           createEntity(
@@ -362,7 +500,9 @@ function create1911(server: ZoneServer2016) {
       });
     }
   });
-  debug("1911 and ammo items objects created. Spawnrate:" + chance1911 + "%");
+  debug(
+    "1911, M9 and ammo items objects created. Spawnrate:" + chancePistols + "%"
+  );
 }
 
 function createM24(server: ZoneServer2016) {

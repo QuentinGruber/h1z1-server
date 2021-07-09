@@ -6,8 +6,11 @@ const debug = require("debug")("zonepacketHandlers");
 
 const dev: any = {
   testpacket: function (server: ZoneServer, client: Client, args: any[]) {
-    server.sendData(client, "Ragdoll.UpdatePose", {
-      characterId: client.character.characterId,
+    const guid = generateRandomGuid();
+    server.sendData(client, "PlayerUpdate.AddProxiedObject", {
+      characterId: guid,
+      transientId: server.getTransientId(client, guid),
+      NetworkObjectComponent: [{ unknown1: 0 }],
     });
   },
   testNpcMove: function (server: ZoneServer, client: Client, args: any[]) {

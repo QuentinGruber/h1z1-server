@@ -1,6 +1,5 @@
 const restore = require("mongodb-restore-dump");
-import { v4 as uuidv4, parse as uuidParse } from "uuid";
-
+import {generate_random_guid} from "h1emu-core"
 export async function zoneShutdown(
   server: any,
   startedTime: number,
@@ -59,20 +58,7 @@ export const Int64String = function (value: number): string {
 };
 
 export const generateRandomGuid = function (): string {
-  let guid: string = "0x";
-  let guidString: string = uuidv4();
-  const bytes = uuidParse(guidString);
-  const arrayBytes = new Uint8Array(bytes);
-  for (let index = 0; index < arrayBytes.length; index++) {
-    if (guid.length === 18) break;
-    const byte = arrayBytes[index].toString(16);
-    if (arrayBytes[index].toString(16).length === 1) {
-      guid += "0" + byte;
-    } else {
-      guid += byte;
-    }
-  }
-  return guid;
+  return "0x"+generate_random_guid().toLocaleLowerCase();
 };
 
 export const lz4_decompress = function (

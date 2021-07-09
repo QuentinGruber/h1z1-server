@@ -10,14 +10,14 @@ let isVehicle = false;
 
 const hax: any = {
   siren: function (server: ZoneServer, client: Client, args: any[]) {
-    switch (client.mountedVehicleType) {
+    switch (client.vehicle.mountedVehicleType) {
       case "policecar":
         server.sendData(client, "Mount.DismountResponse", {
           characterId: client.character.characterId,
         });
         server.sendData(client, "Mount.MountResponse", {
           characterId: client.character.characterId,
-          guid: client.mountedVehicle,
+          guid: client.vehicle.mountedVehicle,
           unknownDword4: 275,
           characterData: {},
         });
@@ -29,7 +29,7 @@ const hax: any = {
   },
   headlights: function (server: ZoneServer, client: Client, args: any[]) {
     let headlightType = 0;
-    switch (client.mountedVehicleType) {
+    switch (client.vehicle.mountedVehicleType) {
       case "offroader":
         headlightType = 273;
         break;
@@ -43,13 +43,13 @@ const hax: any = {
         headlightType = 273;
         break;
     }
-    if (client.mountedVehicleType != "0") {
+    if (client.vehicle.mountedVehicleType != "0") {
       server.sendData(client, "Mount.DismountResponse", {
         characterId: client.character.characterId,
       });
       server.sendData(client, "Mount.MountResponse", {
         characterId: client.character.characterId,
-        guid: client.mountedVehicle,
+        guid: client.vehicle.mountedVehicle,
         unknownDword4: headlightType,
         characterData: {},
       });
@@ -72,22 +72,22 @@ const hax: any = {
       case "offroader":
         vehicleId = 1;
         driveModel = 7225;
-		client.mountedVehicleType = "offroader";
+        client.vehicle.mountedVehicleType = "offroader";
         break;
       case "pickup":
         vehicleId = 2;
         driveModel = 9258;
-		client.mountedVehicleType = "pickup";
+        client.vehicle.mountedVehicleType = "pickup";
         break;
       case "policecar":
         vehicleId = 3;
         driveModel = 9301;
-		client.mountedVehicleType = "policecar";
+        client.vehicle.mountedVehicleType = "policecar";
         break;
       default:
         vehicleId = 1;
         driveModel = 7225;
-		client.mountedVehicleType = "offroader";
+        client.vehicle.mountedVehicleType = "offroader";
         break;
     }
     const characterId = server.generateGuid();
@@ -95,7 +95,7 @@ const hax: any = {
     const vehicleData = {
       npcData: {
         guid: guid,
-        transientId: 999999,
+        transientId: server.getTransientId(client, guid),
         characterId: characterId,
         modelId: driveModel,
         scale: [1, 1, 1, 1],
@@ -117,20 +117,22 @@ const hax: any = {
       ),
       unknownString1: "",
     };
+    server.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicleData);
     server._vehicles[characterId] = vehicleData;
     server.worldRoutine(client);
-    setTimeout(function(){ // doing anything with vehicle before client gets fullvehicle packet breaks it
-	server.sendData(client, "Mount.MountResponse", {
-      characterId: client.character.characterId,
-      guid: characterId,
-      characterData: [],
-    });
-    server.sendData(client, "Vehicle.Engine", {
-      guid2: characterId,
-      unknownBoolean: true,
-    });
-    client.mountedVehicle = characterId;
-	}, 500);
+    setTimeout(function () {
+      // doing anything with vehicle before client gets fullvehicle packet breaks it
+      server.sendDataToAll("Mount.MountResponse", {
+        characterId: client.character.characterId,
+        guid: characterId,
+        characterData: [],
+      });
+      server.sendDataToAll("Vehicle.Engine", {
+        guid2: characterId,
+        unknownBoolean: true,
+      });
+      client.vehicle.mountedVehicle = characterId;
+    }, 500);
   },
 
   parachute: function (server: ZoneServer, client: Client, args: any[]) {
@@ -175,7 +177,7 @@ const hax: any = {
       guid: characterId,
       characterData: [],
     });
-    client.mountedVehicle = characterId;
+    client.vehicle.mountedVehicle = characterId;
   },
 
   time: function (server: ZoneServer, client: Client, args: any[]) {
@@ -257,6 +259,7 @@ const hax: any = {
       );
     });
     client.spawnedEntities = [];
+    server._props = {};
     server._npcs = {};
     server._objects = {};
     server._vehicles = {};

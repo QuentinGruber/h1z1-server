@@ -30,7 +30,7 @@ const chanceLog = 10;
 const chanceCommercial = 10;
 const chanceFarm = 10;
 
-let numberOfSpawnedEntity = 300000;
+let numberOfSpawnedEntity = 0;
 
 function createEntity(
   server: ZoneServer,
@@ -50,6 +50,9 @@ function createEntity(
   const guid = generateRandomGuid();
   const characterId = generateRandomGuid();
   numberOfSpawnedEntity++;
+  if (numberOfSpawnedEntity > 60000) {
+    numberOfSpawnedEntity = 1;
+  }
   server._transientIds[numberOfSpawnedEntity] = characterId;
   dictionnary[characterId] = {
     characterId: characterId,
@@ -57,7 +60,7 @@ function createEntity(
     transientId: numberOfSpawnedEntity,
     nameId: stringNameId,
     modelId: modelID,
-	scale: scale,
+    scale: scale,
     position: position,
     rotation: rotation,
     attachedObject: {},
@@ -87,7 +90,13 @@ export function createAllEntities(server: ZoneServer): any {
   createProps(server);
   createAllVehicles(server);
   createSomeNpcs(server);
-  return { npcs: npcs, objects: objects, vehicles: vehicles, doors: doors, props: props };
+  return {
+    npcs: npcs,
+    objects: objects,
+    vehicles: vehicles,
+    doors: doors,
+    props: props,
+  };
 }
 
 function getRandomVehicleId() {
@@ -163,7 +172,7 @@ function createSomeNpcs(server: ZoneServer) {
             ],
             itemInstance.position,
             itemInstance.rotation,
-			itemInstance.scale,
+            itemInstance.scale,
             npcs
           );
         }
@@ -201,7 +210,7 @@ function createAR15(server: ZoneServer) {
             ],
             itemInstance.position,
             itemInstance.rotation,
-			itemInstance.scale,
+            itemInstance.scale,
             objects
           );
         }
@@ -236,7 +245,7 @@ function createPumpShotgun(server: ZoneServer) {
             ],
             itemInstance.position,
             itemInstance.rotation,
-			itemInstance.scale,
+            itemInstance.scale,
             objects
           );
         }
@@ -308,7 +317,7 @@ function createTools(server: ZoneServer) {
             ],
             itemInstance.position,
             itemInstance.rotation,
-			itemInstance.scale,
+            itemInstance.scale,
             objects
           );
         }
@@ -343,7 +352,7 @@ function create1911(server: ZoneServer) {
             ],
             itemInstance.position,
             itemInstance.rotation,
-			itemInstance.scale,
+            itemInstance.scale,
             objects
           );
         }
@@ -378,7 +387,7 @@ function createM24(server: ZoneServer) {
             ],
             itemInstance.position,
             itemInstance.rotation,
-			itemInstance.scale,
+            itemInstance.scale,
             objects
           );
         }
@@ -419,7 +428,7 @@ function createConsumables(server: ZoneServer) {
             ],
             itemInstance.position,
             itemInstance.rotation,
-			itemInstance.scale,
+            itemInstance.scale,
             objects
           );
         }
@@ -462,7 +471,7 @@ function createClothes(server: ZoneServer) {
             ],
             itemInstance.position,
             itemInstance.rotation,
-			itemInstance.scale,
+            itemInstance.scale,
             objects
           );
         }
@@ -513,7 +522,7 @@ function createResidential(server: ZoneServer) {
             ],
             itemInstance.position,
             itemInstance.rotation,
-			itemInstance.scale,
+            itemInstance.scale,
             objects
           );
         }
@@ -555,7 +564,7 @@ function createRare(server: ZoneServer) {
             ],
             itemInstance.position,
             itemInstance.rotation,
-			itemInstance.scale,
+            itemInstance.scale,
             objects
           );
         }
@@ -597,7 +606,7 @@ function createIndustrial(server: ZoneServer) {
             ],
             itemInstance.position,
             itemInstance.rotation,
-			itemInstance.scale,
+            itemInstance.scale,
             objects
           );
         }
@@ -642,7 +651,7 @@ function createWorld(server: ZoneServer) {
             ],
             itemInstance.position,
             itemInstance.rotation,
-			itemInstance.scale,
+            itemInstance.scale,
             objects
           );
         }
@@ -676,7 +685,7 @@ function createLog(server: ZoneServer) {
             ],
             itemInstance.position,
             itemInstance.rotation,
-			itemInstance.scale,
+            itemInstance.scale,
             objects
           );
         }
@@ -715,7 +724,7 @@ function createCommercial(server: ZoneServer) {
             ],
             itemInstance.position,
             itemInstance.rotation,
-			itemInstance.scale,
+            itemInstance.scale,
             objects
           );
         }
@@ -755,7 +764,7 @@ function createFarm(server: ZoneServer) {
             ],
             itemInstance.position,
             itemInstance.rotation,
-			itemInstance.scale,
+            itemInstance.scale,
             objects
           );
         }
@@ -776,12 +785,12 @@ function createProps(server: ZoneServer) {
         modelId,
         propInstance.position,
         propInstance.rotation,
-		propInstance.scale,
+        propInstance.scale,
         props
       );
     });
   });
-  debug("Farm Areas items objects created. Spawnrate:" + chanceFarm + "%");
+  debug("Props objects created");
 }
 
 function createAllDoors(server: ZoneServer): void {
@@ -796,7 +805,7 @@ function createAllDoors(server: ZoneServer): void {
         modelId ? modelId : 9183,
         doorInstance.position,
         doorInstance.rotation,
-		doorInstance.scale,
+        doorInstance.scale,
         doors
       );
     });

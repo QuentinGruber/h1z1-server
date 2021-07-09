@@ -25,7 +25,7 @@ import { Client, Weather } from "../../types/zoneserver";
 import { Db, MongoClient } from "mongodb";
 import { Worker } from "worker_threads";
 import dynamicWeather from "./workers/dynamicWeather";
-import { Base64 } from "js-base64";
+
 
 const localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json");
 
@@ -185,17 +185,26 @@ export class ZoneServer extends EventEmitter {
       }
     });
 
-    this._gatewayServer._soeServer.on("PacketLimitationReached", (client: Client) => {
-      this.sendChatText(client, "You've almost reach the packet limitation with the server.")
-      this.sendChatText(client, "We will disconnect you in 60 seconds ( you can do it yourself )")
-      this.sendChatText(client, "Sorry for that.")
-      setTimeout(() => {
-        this.sendData(client, "CharacterSelectSessionResponse", {
-          status: 1,
-          sessionId: client.loginSessionId,
-        });
-      }, 60000);
-    })
+    this._gatewayServer._soeServer.on(
+      "PacketLimitationReached",
+      (client: Client) => {
+        this.sendChatText(
+          client,
+          "You've almost reach the packet limitation with the server."
+        );
+        this.sendChatText(
+          client,
+          "We will disconnect you in 60 seconds ( you can do it yourself )"
+        );
+        this.sendChatText(client, "Sorry for that.");
+        setTimeout(() => {
+          this.sendData(client, "CharacterSelectSessionResponse", {
+            status: 1,
+            sessionId: client.loginSessionId,
+          });
+        }, 60000);
+      }
+    );
 
     this._gatewayServer.on(
       "login",
@@ -223,6 +232,9 @@ export class ZoneServer extends EventEmitter {
         client.isLoading = true;
         client.firstLoading = true;
         client.loginSessionId = loginSessionId;
+        client.vehicle = {
+          vehicleState: 0,
+        };
         client.character = {
           characterId: characterId,
           transientId: generatedTransient,
@@ -802,28 +814,23 @@ export class ZoneServer extends EventEmitter {
     const objectsToRemove = client.spawnedEntities.filter((e) =>
       this.filterOutOfDistance(e, client.character.state.position)
     );
-    client.spawnedEntities = client.spawnedEntities.filter((el) => {
+    /*client.spawnedEntities = client.spawnedEntities.filter((el) => {
       return !objectsToRemove.includes(el);
-    });
+    });*/
     objectsToRemove.forEach((object: any) => {
       const characterId = object.characterId
         ? object.characterId
         : object.npcData.characterId;
-      if (characterId in this._vehicles) {
-        this.sendData(client, "PlayerUpdate.ManagedObject", {
-          guid: characterId,
-          characterId: client.character.characterId,
-        });
-      }
-
-      this.sendData(
-        client,
-        "PlayerUpdate.RemovePlayerGracefully",
-        {
-          characterId,
-        },
-        1
-      );
+        if (characterId in this._vehicles) {
+          this.sendData(
+            client,
+            "PlayerUpdate.RemovePlayerGracefully",
+            {
+              characterId,
+            },
+            1
+          );
+        }
     });
   }
 
@@ -918,8 +925,8 @@ export class ZoneServer extends EventEmitter {
   }
 
   vehicleDelete(client: Client) {
-    if (client.mountedVehicle) {
-      delete this._vehicles[client.mountedVehicle];
+    if (client.vehicle.mountedVehicle) {
+      delete this._vehicles[client.vehicle.mountedVehicle];
     }
   }
 
@@ -1237,5 +1244,5 @@ export class ZoneServer extends EventEmitter {
   }
 }
 if (process.env.VSCODE_DEBUG === "true") {
-  new ZoneServer(1117, Base64.toUint8Array("F70IaxuU8C/w7FPXY1ibXw==")).start();
+  new ZoneServer(1117, new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", 'base64')).start();
 }

@@ -366,23 +366,40 @@ const dev = {
     });
   },
 
-  /*
-  itemdefinitions: function(server, client, args) {
+  itemdefinitions: function (server, client, args) {
     console.log("ItemDefinitions\n\n\n\n\n\n\n\n\n");
-    fs.readFile(`${__dirname}/../../../../data/2016/dataSources/ClientItemDefinitions.txt`, "utf8", (err, data) => {
-      const itemLines = data.split("\n");
-      let items = {};
-      for (let i = 1; i < itemLines.length; i++) {
-        const line = itemLines[i].split("^");
-        if (line[0]) {
-          items[line[0]] = line[1];
-        }
-      }
-      console.log(items);
-      server.sendData(client, "Command.ItemDefinitions", {data: data}) // todo: add ClientItemDefinition data
-    });
-  }
-  */
+    if (!args[2]) {
+      server.sendChatText(client, "Missing 2 id args");
+      return;
+    }
+    const itemDefinitions = {
+      data: {
+        itemDefinitionsLength: 2,
+        itemDefinitions: [
+          {
+            ID: Number(args[1]),
+            unknownArray1Length: 1,
+            unknownArray1: [
+              {
+                unknownData1: {},
+              },
+            ],
+          },
+          {
+            ID: Number(args[2]),
+            unknownArray1Length: 1,
+            unknownArray1: [
+              {
+                unknownData1: {},
+              },
+            ],
+          },
+        ],
+      },
+    };
+
+    server.sendData(client, "Command.ItemDefinitions", itemDefinitions); // todo: add ClientItemDefinition data
+  },
 };
 
 export default dev;

@@ -25,10 +25,8 @@ import { ZoneServer } from "./zoneserver";
 import { Client } from "types/zoneserver";
 const modelToName = require("../../../data/2015/sampleData/ModelToName.json");
 
-const _ = require("lodash");
+import _ from "lodash";
 const debug = require("debug")("zonepacketHandlers");
-
-let vehicleState = 0; // has to be defined here or the value will reset before each switch
 
 const packetHandlers: any = {
   ClientIsReady: function (server: ZoneServer, client: Client, packet: any) {
@@ -269,8 +267,9 @@ const packetHandlers: any = {
       server.executeFuncForAllClients("spawnCharacters");
     }
     client.isLoading = false;
-    delete client.mountedVehicle;
-    client.mountedVehicleType = "0";
+    client.isInteracting = false;
+    delete client.vehicle.mountedVehicle;
+    client.vehicle.mountedVehicleType = "0";
   },
   Security: function (server: ZoneServer, client: Client, packet: any) {
     debug(packet);
@@ -479,6 +478,7 @@ const packetHandlers: any = {
             _objects: objects,
             _vehicles: vehicles,
             _doors: doors,
+            _props: props,
           } = server;
           const serverVersion = require("../../../package.json").version;
           server.sendChatText(client, `h1z1-server V${serverVersion}`, true);
@@ -494,7 +494,7 @@ const packetHandlers: any = {
           );
           server.sendChatText(
             client,
-            `objects : ${_.size(objects)} vehicles : ${_.size(vehicles)}`
+            `objects : ${_.size(objects)} props : ${_.size(props)} vehicles : ${_.size(vehicles)}`
           );
           break;
         }
@@ -587,15 +587,21 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
-    server.sendData(client, "Mount.DismountResponse", {
+    server.sendDataToAll("Mount.DismountResponse", {
       characterId: client.character.characterId,
     });
-    server.sendData(client, "Vehicle.Engine", {
-      guid2: client.mountedVehicle,
+    server.sendDataToAll("Vehicle.Engine", {
+      guid2: client.vehicle.mountedVehicle,
       unknownBoolean: false,
     });
-    delete client.mountedVehicle;
-    client.mountedVehicleType = "0";
+    setTimeout(() => {
+      // temp workaround to fix https://github.com/QuentinGruber/h1z1-server/issues/285
+      server._vehicles[
+        client.vehicle.mountedVehicle as string
+      ].npcData.position = client.character.state.position;
+      delete client.vehicle.mountedVehicle;
+      client.vehicle.mountedVehicleType = "0";
+    }, 50);
   },
   "Command.InteractRequest": function (
     server: ZoneServer,
@@ -653,7 +659,7 @@ const packetHandlers: any = {
         guid: guid,
         stringId: 29,
       });
-      delete client.mountedVehicle;
+      delete client.vehicle.mountedVehicle;
     } else if (
       propData &&
       isPosInRadius(
@@ -665,13 +671,19 @@ const packetHandlers: any = {
       let stringId = 0;
       switch (propData.modelId) {
         case 9330: // beds
-          stringId = 439;
+          stringId = 9041;
           break;
         case 9329:
-          stringId = 439;
+          stringId = 9041;
           break;
         case 9328:
-          stringId = 439;
+          stringId = 9041;
+          break;
+        case 9331:
+          stringId = 9041;
+          break;
+        case 9336:
+          stringId = 9041;
           break;
         case 57: // Openable
           stringId = 31;
@@ -680,6 +692,9 @@ const packetHandlers: any = {
           stringId = 1186;
           break;
         case 9205:
+          stringId = 1186;
+          break;
+        case 9041:
           stringId = 1186;
           break;
         case 8014: // NoString
@@ -700,6 +715,12 @@ const packetHandlers: any = {
         case 9061:
           guid = "0";
           break;
+        case 9032: // collect water
+          stringId = 1008;
+          break;
+        case 9033:
+          stringId = 1008;
+          break;
         default:
           // searchable
           stringId = 1191;
@@ -709,7 +730,7 @@ const packetHandlers: any = {
         guid: guid,
         stringId: stringId,
       });
-      delete client.mountedVehicle;
+      delete client.vehicle.mountedVehicle;
     } else if (
       doorData &&
       isPosInRadius(
@@ -722,7 +743,7 @@ const packetHandlers: any = {
         guid: guid,
         stringId: 31,
       });
-      delete client.mountedVehicle;
+      delete client.vehicle.mountedVehicle;
     } else if (
       vehicleData &&
       isPosInRadius(
@@ -731,12 +752,12 @@ const packetHandlers: any = {
         vehicleData.npcData.position
       )
     ) {
-      if (!client.mountedVehicle) {
+      if (!client.vehicle.mountedVehicle) {
         server.sendData(client, "Command.InteractionString", {
           guid: guid,
           stringId: 15,
         });
-        client.mountedVehicle = guid;
+        client.vehicle.mountedVehicle = guid;
       }
     }
   },
@@ -759,8 +780,8 @@ const packetHandlers: any = {
     let minorDamageEffect = 0;
     let majorDamageEffect = 0;
     let criticalDamageEffect = 0;
-    vehicleState++;
-    switch (client.mountedVehicleType) {
+    client.vehicle.vehicleState++;
+    switch (client.vehicle.mountedVehicleType) {
       case "offroader":
         destroyedVehicleEffect = 135;
         destroyedVehicleModel = 7226;
@@ -790,18 +811,18 @@ const packetHandlers: any = {
         criticalDamageEffect = 180;
         break;
     }
-    if (vehicleState === 1000) {
-      const vehicleToDestroy = client.mountedVehicle;
+    if (client.vehicle.vehicleState === 1000) {
+      const vehicleToDestroy = client.vehicle.mountedVehicle;
       server.vehicleDelete(client);
       server.sendData(client, "Mount.DismountResponse", {
         characterId: client.character.characterId,
       });
       server.sendData(client, "Vehicle.Engine", {
-        guid2: client.mountedVehicle,
+        guid2: client.vehicle.mountedVehicle,
         unknownBoolean: false,
       });
       server.sendData(client, "PlayerUpdate.Destroyed", {
-        characterId: client.mountedVehicle,
+        characterId: client.vehicle.mountedVehicle,
         unknown1: destroyedVehicleEffect, // destroyed offroader effect
         unknown2: destroyedVehicleModel, // destroyed offroader model
         unknown3: 0,
@@ -818,36 +839,36 @@ const packetHandlers: any = {
           1
         );
       }, 2000);
-      client.mountedVehicleType = "0";
-      delete client.mountedVehicle;
-      vehicleState = 0;
-    } else if (vehicleState === 500) {
+      client.vehicle.mountedVehicleType = "0";
+      delete client.vehicle.mountedVehicle;
+      client.vehicle.vehicleState = 0;
+    } else if (client.vehicle.vehicleState === 500) {
       server.sendData(client, "Mount.DismountResponse", {
         characterId: client.character.characterId,
       });
       server.sendData(client, "Mount.MountResponse", {
         characterId: client.character.characterId,
-        guid: client.mountedVehicle,
+        guid: client.vehicle.mountedVehicle,
         unknownDword4: minorDamageEffect,
         characterData: {},
       });
-    } else if (vehicleState === 700) {
+    } else if (client.vehicle.vehicleState === 700) {
       server.sendData(client, "Mount.DismountResponse", {
         characterId: client.character.characterId,
       });
       server.sendData(client, "Mount.MountResponse", {
         characterId: client.character.characterId,
-        guid: client.mountedVehicle,
+        guid: client.vehicle.mountedVehicle,
         unknownDword4: majorDamageEffect,
         characterData: {},
       });
-    } else if (vehicleState === 850) {
+    } else if (client.vehicle.vehicleState === 850) {
       server.sendData(client, "Mount.DismountResponse", {
         characterId: client.character.characterId,
       });
       server.sendData(client, "Mount.MountResponse", {
         characterId: client.character.characterId,
-        guid: client.mountedVehicle,
+        guid: client.vehicle.mountedVehicle,
         unknownDword4: criticalDamageEffect,
         characterData: {},
       });
@@ -858,13 +879,12 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
-    server.sendData(client, "Mount.DismountResponse", {
+    server.sendDataToAll("Mount.DismountResponse", {
       characterId: client.character.characterId,
     });
-    server.sendData(client, "PlayerUpdate.RemovePlayerGracefully", {
-      characterId: client.mountedVehicle,
+    server.sendDataToAll("PlayerUpdate.RemovePlayerGracefully", {
+      characterId: client.vehicle.mountedVehicle,
     });
-    delete client.mountedVehicle;
   },
   "Vehicle.Spawn": function (server: ZoneServer, client: Client, packet: any) {
     server.sendData(client, "Vehicle.Expiration", {
@@ -1503,18 +1523,18 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
-    const logoutTime = 10000;
+    const timerTime = 10000;
     server.sendData(client, "ClientUpdate.StartTimer", {
       stringId: 0,
-      time: logoutTime,
+      time: timerTime,
     });
     client.posAtLogoutStart = client.character.state.position;
-    if (client.logoutTimer != null) {
-      clearTimeout(client.logoutTimer);
+    if (client.timer != null) {
+      clearTimeout(client.timer);
     }
-    client.logoutTimer = setTimeout(() => {
+    client.timer = setTimeout(() => {
       server.sendData(client, "ClientUpdate.CompleteLogoutProcess", {});
-    }, logoutTime);
+    }, timerTime);
   },
   CharacterSelectSessionRequest: function (
     server: ZoneServer,
@@ -1588,14 +1608,26 @@ const packetHandlers: any = {
     packet: any
   ) {
     const movingCharacter = server._characters[client.character.characterId];
-    if (movingCharacter) {
-      server.sendRawToAllOthers(
-        client,
-        server._protocol.createPositionBroadcast(
-          packet.data.raw,
-          movingCharacter.transientId
-        )
-      );
+    if (movingCharacter && !server._soloMode) {
+      if (client.vehicle.mountedVehicle) {
+        const vehicle = server._vehicles[client.vehicle.mountedVehicle];
+        console.log(vehicle);
+        server.sendRawToAllOthers(
+          client,
+          server._protocol.createPositionBroadcast(
+            packet.data.raw.slice(1),
+            vehicle.npcData.transientId
+          )
+        );
+      } else {
+        server.sendRawToAllOthers(
+          client,
+          server._protocol.createPositionBroadcast(
+            packet.data.raw,
+            movingCharacter.transientId
+          )
+        );
+      }
     }
     if (packet.data.position) {
       // TODO: modify array element beside re-creating it
@@ -1612,19 +1644,23 @@ const packetHandlers: any = {
       }
 
       if (
-        client.logoutTimer != null &&
+        client.timer != null &&
         !isPosInRadius(
           1,
           client.character.state.position,
           client.posAtLogoutStart
         )
       ) {
-        clearTimeout(client.logoutTimer);
-        client.logoutTimer = null;
+        clearTimeout(client.timer);
+        client.timer = null;
+        client.isInteracting = false;
         server.sendData(client, "ClientUpdate.StartTimer", {
           stringId: 0,
           time: 0,
         }); // don't know how it was done so
+      }
+      if (!client.posAtLastRoutine) {
+        server.spawnProps(client);
       }
 
       if (
@@ -1638,6 +1674,14 @@ const packetHandlers: any = {
       ) {
         server.worldRoutine(client);
       }
+    } else if (packet.data.vehicle_position && client.vehicle.mountedVehicle) {
+      server._vehicles[client.vehicle.mountedVehicle].npcData.position =
+        new Float32Array([
+          packet.data.vehicle_position[0],
+          packet.data.vehicle_position[1],
+          packet.data.vehicle_position[2],
+          0,
+        ]);
     }
     if (packet.data.rotation) {
       // TODO: modify array element beside re-creating it
@@ -1750,16 +1794,16 @@ const packetHandlers: any = {
       const { modelId: vehicleModelId } = vehicleToMount.npcData;
       switch (vehicleModelId) {
         case 7225:
-          client.mountedVehicleType = "offroader";
+          client.vehicle.mountedVehicleType = "offroader";
           break;
         case 9258:
-          client.mountedVehicleType = "pickup";
+          client.vehicle.mountedVehicleType = "pickup";
           break;
         case 9301:
-          client.mountedVehicleType = "policecar";
+          client.vehicle.mountedVehicleType = "policecar";
           break;
         default:
-          client.mountedVehicleType = "offroader";
+          client.vehicle.mountedVehicleType = "offroader";
           break;
       }
       server.sendData(client, "PlayerUpdate.ManagedObject", {
@@ -1795,7 +1839,8 @@ const packetHandlers: any = {
         propToSearch.position
       )
     ) {
-      let interactType = "0";
+      let interactType;
+      let timerTime = 0;
       switch (propToSearch.modelId) {
         case 8013:
           interactType = "destroy";
@@ -1808,27 +1853,48 @@ const packetHandlers: any = {
           break;
         case 9328:
           interactType = "sleep";
+          timerTime = 20000;
           break;
         case 9330:
           interactType = "sleep";
+          timerTime = 20000;
           break;
         case 9329:
           interactType = "sleep";
+          timerTime = 20000;
+          break;
+        case 9331:
+          interactType = "sleep";
+          timerTime = 20000;
+          break;
+        case 9336:
+          interactType = "sleep";
+          timerTime = 20000;
           break;
         case 36:
-       //   interactType = "use";
+          interactType = "use";
           break;
         case 9205:
-       //   interactType = "use";
+          interactType = "use";
+          break;
+        case 9041:
+          interactType = "use";
           break;
         case 57:
-        //  interactType = "open";
+          interactType = "open";
           break;
         case 9127:
-        //  interactType = "open";
+          interactType = "open";
+          break;
+        case 9032:
+          interactType = "collectWater";
+          break;
+        case 9033:
+          interactType = "collectWater";
           break;
         default:
           interactType = "search";
+          timerTime = 1500;
           break;
       }
       switch (interactType) {
@@ -1842,22 +1908,57 @@ const packetHandlers: any = {
           });
           break;
         case "sleep":
-          server.sendData(client, "ClientUpdate.StartTimer", {
-            stringId: 439,
-            time: 5000,
-          });
+          if (!client.isInteracting) {
+            client.isInteracting = true;
+            server.sendData(client, "ClientUpdate.StartTimer", {
+              stringId: 9051,
+              time: timerTime,
+            });
+            client.posAtLogoutStart = client.character.state.position;
+            if (client.timer != null) {
+              clearTimeout(client.timer);
+            }
+            client.timer = setTimeout(() => {
+              server.sendData(client, "ClientUpdate.TextAlert", {
+                message: "You feel refreshed after sleeping well.",
+              });
+              client.isInteracting = false;
+            }, timerTime);
+          }
           break;
         case "use":
-     //     interactType = "use";
+          server.sendData(client, "ClientUpdate.TextAlert", {
+            message: "Nothing in there... yet :P",
+          });
           break;
         case "open":
-      //    interactType = "open";
+          server.sendData(client, "ClientUpdate.TextAlert", {
+            message: "Nothing in there... yet :P",
+          });
+          break;
+        case "collectWater":
+          server.sendData(client, "ClientUpdate.TextAlert", {
+            message: "You dont have an Empty Bottle",
+          });
           break;
         case "search":
-          server.sendData(client, "ClientUpdate.StartTimer", {
-            stringId: propToSearch.nameId,
-            time: 3000,
-          });
+          if (!client.isInteracting) {
+            client.isInteracting = true;
+            server.sendData(client, "ClientUpdate.StartTimer", {
+              stringId: propToSearch.nameId,
+              time: timerTime,
+            });
+            client.posAtLogoutStart = client.character.state.position;
+            if (client.timer != null) {
+              clearTimeout(client.timer);
+            }
+            client.timer = setTimeout(() => {
+              server.sendData(client, "ClientUpdate.TextAlert", {
+                message: "Nothing in there... yet :P",
+              });
+              client.isInteracting = false;
+            }, timerTime);
+          }
           break;
         default:
           break;
@@ -1901,7 +2002,7 @@ const packetHandlers: any = {
       server.sendData(client, "PlayerUpdate.LightweightToFullPc", {
         transientId: pcData.transientId,
       });
-    } else if (server._vehicles[guid]) {
+    } else if (server._vehicles[guid] && server._vehicles[guid].npcData.vehicleId != 13) { // ignore parachute
       const npcData = {
         transientId: server._vehicles[guid].npcData.transientId,
       };
