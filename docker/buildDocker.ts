@@ -1,11 +1,6 @@
 import { spawn } from "child_process";
+import { ServerImage } from "./types";
 const images: ServerImage[] = require("./images.json");
-
-interface ServerImage {
-  name: string;
-  version: string;
-  fileName: string;
-}
 
 function buildAllImages(imageTag:string) {
   images.forEach((image) => {
