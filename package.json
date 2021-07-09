@@ -48,7 +48,6 @@
     "test-2016": "node tests_out/2016/testRuntime.js && node tests_out/2016/testIssuesInPacketSchemas.js",
     "test": "npm run build-swc && npm run build-tests && npm run test-2015 && npm run test-2016",
     "build-docker-images": "npx ts-node ./docker/buildDocker.ts",
-    "push-docker-images": "npx ts-node ./docker/buildDocker.ts",
     "build-swc": "npx swc src -d out",
     "watch-swc": "npx swc --watch src -d out",
     "postinstall": "npm run build-optimized",
