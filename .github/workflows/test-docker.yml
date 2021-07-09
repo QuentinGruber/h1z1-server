@@ -17,7 +17,7 @@ jobs:
       - uses: docker-practice/actions-setup-docker@master
       - run: npm i
       - run: npm run build-docker-images
-      - run: sudo docker login -u quentingruber -p ${{ secrets.DOCKER_HUB_TOKEN }}
+      - run: sudo docker login -u qgruber -p ${{ secrets.DOCKER_HUB_TOKEN }}
       - run: sudo docker image push h1emu/server:${{ steps.tagName.outputs.tag }}
       - run: sudo docker image push h1emu/server-2016:${{ steps.tagName.outputs.tag }}
       - run: sudo docker image push h1emu/login-server:${{ steps.tagName.outputs.tag }}
