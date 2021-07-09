@@ -14,8 +14,7 @@ jobs:
           node-version: 16.4.1
       - uses: olegtarasov/get-tag@v2.1
         id: tagName
-      - run: sudo apt update
-      - run: sudo apt install -y docker.io
+      - uses: docker-practice/actions-setup-docker@master
       - run: npm i
       - run: npm run build-docker-images
       - run: sudo docker login -u quentingruber -p ${{ secrets.DOCKER_HUB_TOKEN }}
