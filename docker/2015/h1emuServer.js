@@ -32,5 +32,3 @@ loginServer.stdout.on('data', (data) => {
             throw new Error((`${name}(${version}) exited with code ${code}`));
           }
       });
-
-// sur 2 process puis push et regarder pk ça marche plu :(((())))
