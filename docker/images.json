@@ -1,32 +1,32 @@
 [
-    {
-        "name":"login-server",
-        "fileName":"LoginServer",
-        "version":"2015"
-    },
-    {
-        "name":"zone-server",
-        "fileName":"ZoneServer",
-        "version":"2015"
-    },
-    {
-        "name":"server",
-        "fileName":"H1emuServer",
-        "version":"2015"
-    },
-    {
-        "name":"login-server-2016",
-        "fileName":"LoginServer",
-        "version":"2016"
-    },
-    {
-        "name":"zone-server-2016",
-        "fileName":"ZoneServer",
-        "version":"2016"
-    },
-    {
-        "name":"server-2016",
-        "fileName":"H1emuServer",
-        "version":"2016"
-    }
+  {
+    "name": "login-server",
+    "fileName": "LoginServer",
+    "version": "2015"
+  },
+  {
+    "name": "zone-server",
+    "fileName": "ZoneServer",
+    "version": "2015"
+  },
+  {
+    "name": "server",
+    "fileName": "H1emuServer",
+    "version": "2015"
+  },
+  {
+    "name": "login-server-2016",
+    "fileName": "LoginServer",
+    "version": "2016"
+  },
+  {
+    "name": "zone-server-2016",
+    "fileName": "ZoneServer",
+    "version": "2016"
+  },
+  {
+    "name": "server-2016",
+    "fileName": "H1emuServer",
+    "version": "2016"
+  }
 ]
