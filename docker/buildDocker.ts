@@ -7,13 +7,13 @@ interface ServerImage {
   fileName: string;
 }
 
-function buildAllImages() {
+function buildAllImages(imageTag:string) {
   images.forEach((image) => {
     const { name, version, fileName } = image;
     const buildProcess = spawn("docker", [
       "build",
       "-t",
-      `h1emu/${name}`,
+      `h1emu/${name}:${imageTag}`,
       "-f",
       `./docker/${version}/${fileName}.Dockerfile`,
       "./",
@@ -37,4 +37,7 @@ function buildAllImages() {
   });
 }
 
-buildAllImages();
+const serverVersion = require("../package.json").version
+buildAllImages(serverVersion);
+buildAllImages("latest");
+
