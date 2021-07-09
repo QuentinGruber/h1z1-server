@@ -1,7 +1,7 @@
 const { spawn } = require("child_process");
 
-const loginServer = spawn("node", ["./loginServer.js"]);
-const zoneServer = spawn("node", ["./zoneServer.js"]);
+const loginServer = spawn("node", [`${__dirname}/loginServer.js`]);
+const zoneServer = spawn("node", [`${__dirname}/zoneServer.js`]);
 
 loginServer.stdout.on("data", (data) => {
   console.log(`${data}`);
@@ -13,7 +13,7 @@ loginServer.stderr.on("data", (data) => {
 
 loginServer.on("close", (code) => {
   if (code) {
-    throw new Error(`${name}(${version}) exited with code ${code}`);
+    throw new Error(`loginServer exited with code ${code}`);
   }
 });
 
@@ -27,6 +27,6 @@ zoneServer.stderr.on("data", (data) => {
 
 zoneServer.on("close", (code) => {
   if (code) {
-    throw new Error(`${name}(${version}) exited with code ${code}`);
+    throw new Error(`zoneServer exited with code ${code}`);
   }
 });
