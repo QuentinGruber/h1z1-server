@@ -1,0 +1,34 @@
+name: test-docker
+on:
+  push:
+
+jobs:
+  build-docker-images:
+    name: Create and push docker images
+    needs: create-release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js 16.4.1
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16.4.1
+      - uses: olegtarasov/get-tag@v2.1
+        id: tagName
+      - run: sudo apt update
+      - run: sudo apt install -y docker.io
+      - run: npm i
+      - run: npm run build-docker-images
+      - run: sudo docker login -u quentingruber -p ${{ secrets.DOCKER_HUB_TOKEN }}
+      - run: sudo docker image push h1emu/server:${{ steps.tagName.outputs.tag }}
+      - run: sudo docker image push h1emu/server-2016:${{ steps.tagName.outputs.tag }}
+      - run: sudo docker image push h1emu/login-server:${{ steps.tagName.outputs.tag }}
+      - run: sudo docker image push h1emu/login-server-2016:${{ steps.tagName.outputs.tag }}
+      - run: sudo docker image push h1emu/zone-server:${{ steps.tagName.outputs.tag }}
+      - run: sudo docker image push h1emu/zone-server-2016:${{ steps.tagName.outputs.tag }}
+      - run: sudo docker image push h1emu/server:latest
+      - run: sudo docker image push h1emu/server-2016:latest
+      - run: sudo docker image push h1emu/login-server:latest
+      - run: sudo docker image push h1emu/login-server-2016:latest
+      - run: sudo docker image push h1emu/zone-server:latest
+      - run: sudo docker image push h1emu/zone-server-2016:latest
