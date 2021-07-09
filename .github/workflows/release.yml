@@ -46,53 +46,85 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 16.4.1
+      - uses: olegtarasov/get-tag@v2.1
+        id: tagName
       - run: npm i --production
       - run: npm i -g pkg@5.2.1
-      - run: pkg -t node16-win-x64 ./bin/2015/loginServer.js --output ./bin/loginServer-${{ github.ref }}.exe
-      - run: pkg -t node16-win-x64 ./bin/2015/zoneServer.js --output ./bin/zoneServer-${{ github.ref }}.exe
-      - run: pkg -t node16-win-x64 ./bin/2015/h1emuServer.js --output ./bin/h1emuServer-${{ github.ref }}.exe
-      - run: pkg -t node16-win-x64 ./bin/2016/loginServer.js --output ./bin/loginServer-2016-${{ github.ref }}.exe
-      - run: pkg -t node16-win-x64 ./bin/2016/zoneServer.js --output ./bin/zoneServer-2016-${{ github.ref }}.exe
-      - run: pkg -t node16-win-x64 ./bin/2016/h1emuServer.js --output ./bin/h1emuServer-2016-${{ github.ref }}.exe
+      - run: pkg -t node16-win-x64 ./bin/2015/loginServer.js --output ./bin/loginServer-${{ steps.tagName.outputs.tag }}.exe
+      - run: pkg -t node16-win-x64 ./bin/2015/zoneServer.js --output ./bin/zoneServer-${{ steps.tagName.outputs.tag }}.exe
+      - run: pkg -t node16-win-x64 ./bin/2015/h1emuServer.js --output ./bin/h1emuServer-${{ steps.tagName.outputs.tag }}.exe
+      - run: pkg -t node16-win-x64 ./bin/2016/loginServer.js --output ./bin/loginServer-2016-${{ steps.tagName.outputs.tag }}.exe
+      - run: pkg -t node16-win-x64 ./bin/2016/zoneServer.js --output ./bin/zoneServer-2016-${{ steps.tagName.outputs.tag }}.exe
+      - run: pkg -t node16-win-x64 ./bin/2016/h1emuServer.js --output ./bin/h1emuServer-2016-${{ steps.tagName.outputs.tag }}.exe
       - name: Upload h1emuServer to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ./bin/h1emuServer-${{ github.ref }}.exe
-          asset_name: h1emuServer-${{ github.ref }}.exe
+          file: ./bin/h1emuServer-${{ steps.tagName.outputs.tag }}.exe
+          asset_name: h1emuServer-${{ steps.tagName.outputs.tag }}.exe
           tag: ${{ github.ref }}
       - name: Upload zoneServer to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ./bin/zoneServer-${{ github.ref }}.exe
-          asset_name: zoneServer-${{ github.ref }}.exe
+          file: ./bin/zoneServer-${{ steps.tagName.outputs.tag }}.exe
+          asset_name: zoneServer-${{ steps.tagName.outputs.tag }}.exe
           tag: ${{ github.ref }}
       - name: Upload loginServer to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ./bin/loginServer-${{ github.ref }}.exe
-          asset_name: loginServer-${{ github.ref }}.exe
+          file: ./bin/loginServer-${{ steps.tagName.outputs.tag }}.exe
+          asset_name: loginServer-${{ steps.tagName.outputs.tag }}.exe
           tag: ${{ github.ref }}
       - name: Upload h1emuServer-2016 to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ./bin/h1emuServer-2016-${{ github.ref }}.exe
-          asset_name: h1emuServer-2016-${{ github.ref }}.exe
+          file: ./bin/h1emuServer-2016-${{ steps.tagName.outputs.tag }}.exe
+          asset_name: h1emuServer-2016-${{ steps.tagName.outputs.tag }}.exe
           tag: ${{ github.ref }}
       - name: Upload zoneServer-2016 to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ./bin/zoneServer-2016-${{ github.ref }}.exe
-          asset_name: zoneServer-2016-${{ github.ref }}.exe
+          file: ./bin/zoneServer-2016-${{ steps.tagName.outputs.tag }}.exe
+          asset_name: zoneServer-2016-${{ steps.tagName.outputs.tag }}.exe
           tag: ${{ github.ref }}
       - name: Upload loginServer-2016 to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ./bin/loginServer-2016-${{ github.ref }}.exe
-          asset_name: loginServer-2016-${{ github.ref }}.exe
+          file: ./bin/loginServer-2016-${{ steps.tagName.outputs.tag }}.exe
+          asset_name: loginServer-2016-${{ steps.tagName.outputs.tag }}.exe
           tag: ${{ github.ref }}
+
+build-docker-images:
+    name: Create and push docker images
+    needs: create-release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js 16.4.1
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16.4.1
+      - uses: olegtarasov/get-tag@v2.1
+        id: tagName
+      - run: sudo apt update
+      - run: sudo apt install -y docker.io
+      - run: npm i
+      - run: npm run build-docker-images
+      - run: sudo docker login -u quentingruber -p ${{ secrets.DOCKER_HUB_TOKEN }}
+      - run: sudo docker image push h1emu/server:${{ steps.tagName.outputs.tag }}
+      - run: sudo docker image push h1emu/server-2016:${{ steps.tagName.outputs.tag }}
+      - run: sudo docker image push h1emu/login-server:${{ steps.tagName.outputs.tag }}
+      - run: sudo docker image push h1emu/login-server-2016:${{ steps.tagName.outputs.tag }}
+      - run: sudo docker image push h1emu/zone-server:${{ steps.tagName.outputs.tag }}
+      - run: sudo docker image push h1emu/zone-server-2016:${{ steps.tagName.outputs.tag }}
+      - run: sudo docker image push h1emu/server:latest
+      - run: sudo docker image push h1emu/server-2016:latest
+      - run: sudo docker image push h1emu/login-server:latest
+      - run: sudo docker image push h1emu/login-server-2016:latest
+      - run: sudo docker image push h1emu/zone-server:latest
+      - run: sudo docker image push h1emu/zone-server-2016:latest
