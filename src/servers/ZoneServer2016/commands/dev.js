@@ -119,16 +119,15 @@ const dev = {
     const loadout = {
       characterId: client.character.characterId,
       loadoutItemLoadoutId: 5,
-      unknownData1: {
-        unknownArray1Length: 1,
-        unknownArray1: [
+      loadoutData: {
+        loadoutSlots: [
           {
-            unknownDword1: 1,
             loadoutItemSlotId: 1,
             itemDefinitionId: 2425,
+            unknownDword1: 1,
             unknownData1: {
-              unknownDword1: 16,
-              unknownQword1: server.generateGuid(),
+              itemDefinitionId: 2425,
+              loadoutItemOwnerGuid: client.character.characterId,
               unknownByte1: 17,
             },
             unknownDword4: 18,
@@ -144,11 +143,13 @@ const dev = {
   containerevent: function (server, client, args) {
     const containerData = {
       ignore: client.character.characterId,
-      containersLength: 1,
       containers: [
         {
+          guid: server.generateGuid(),
+          unknownDword1: 1,
+          unknownQword1: server.generateGuid(),
+          unknownDword2: 2,
           containerItems: {
-            itemsLength: 1,
             items: [
               {
                 itemData: {
@@ -161,7 +162,6 @@ const dev = {
           },
         },
       ],
-      array1Length: 1,
       array1: [{ unknownQword1: server.generateGuid(), unknownDword1: 2 }],
     };
 

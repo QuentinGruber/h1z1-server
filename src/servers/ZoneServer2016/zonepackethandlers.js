@@ -138,7 +138,25 @@ const packetHandlers = {
       speed: 11.0,
     });
     */
-   
+
+    server.sendData( client, "Equipment.SetCharacterEquipmentSlot", {
+      characterData: {
+        characterId: client.character.characterId,
+      },
+      equipmentTexture: {
+        index: 1, // needs to be non-zero
+        slotId: 1, // needs to be non-zero
+        unknownQword1: "0x1", // needs to be non-zero
+        textureAlias: "",
+        unknownString1: "",
+      },
+      equipmentModel: {
+        model: "SurvivorMale_Hair_ShortMessy.adr",
+        effectId: 0,
+        equipmentSlotId: 27,
+        unknownArray1: [],
+      },
+      });
     
     server.sendData(client, "ResourceEvent", {
       eventData: {
@@ -222,30 +240,7 @@ const packetHandlers = {
       },
     });
     */
-   
-    const equipmentSlot = {
-      characterData: {
-        characterId: client.character.characterId,
-      },
-      equipmentTexture: {
-        index: 1, // needs to be non-zero
-        slotId: 1, // needs to be non-zero
-        unknownQword1: "0x1", // needs to be non-zero
-        textureAlias: "",
-        unknownString1: "",
-      },
-      equipmentModel: {
-        model: "SurvivorMale_Hair_ShortMessy.adr",
-        effectId: 0,
-        equipmentSlotId: 27,
-        unknownArray1: [],
-      },
-    };
-    server.sendData(
-      client,
-      "Equipment.SetCharacterEquipmentSlot",
-      equipmentSlot
-    );
+
   },
   ClientFinishedLoading: function (server, client, packet) {
     client.currentPOI = 0; // clears currentPOI for POIManager
@@ -1135,50 +1130,43 @@ const packetHandlers = {
     if (npc) {
       server.sendData(client, "LightweightToFullNpc", {
         transientId: npc.transientId,
-        equipmentModelsLength: 1,
         equipmentModels: [
           {
-            model: "SurvivorMale_Head_Helmet_Motorcycle_Tintable.adr",
+            model: "SurvivorMale_Chest_Hoodie_Up_Tintable.adr",
             effectId: 0,
-            equipmentSlotId: 15,
+            equipmentSlotId: 3,
             unknownArray1: [],
           },
         ],
-        effectTagsLength: 1,
         effectTags: [],
         unknownData1: {},
         targetData: {},
-        unknownArray1Length: 1,
         unknownArray1: [],
-        unknownArray2Length: 1,
         unknownArray2: []
       });
     } else if (server._characters[guid]) {
       server.sendData(client, "LightweightToFullPc", {
-        fullPcSubDataSchema1: {
-          transientIdMaybe: server._characters[guid].transientId,
-        },
+        positionUpdate: server.createPositionUpdate(
+          new Float32Array([0, 0, 0, 0]),
+          [0, 0, 0, 0]
+        ),
         array1: [],
         unknownData1: {
           transientId: server._characters[guid].transientId,
-          unknownData1: {},
+          equipmentModels: {},
           array1: [],
-          array2: [],
+          effectTags: [],
         },
       });
     } else if (server._vehicles[guid]) {
       server.sendData(client, "LightweightToFullVehicle", {
         npcData: {
           transientId: server._vehicles[guid].npcData.transientId,
-          equipmentModelsLength: 1,
           equipmentModels: [],
-          effectTagsLength: 1,
           effectTags: [],
           unknownData1: {},
           targetData: {},
-          unknownArray1Length: 1,
           unknownArray1: [],
-          unknownArray2Length: 1,
           unknownArray2: []
         },
         unknownArray1: [],
