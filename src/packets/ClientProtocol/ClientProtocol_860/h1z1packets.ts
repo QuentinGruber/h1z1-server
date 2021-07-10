@@ -8615,7 +8615,7 @@ var packets = [
                 { name: "equipmentSlotId", type: "uint32", defaultValue: 0 },
                 { name: "guid", type: "uint64", defaultValue: "0" },
                 { name: "unknownString1", type: "string", defaultValue: "" },
-                { name: "unknownString2", type: "string", defaultValue: "" },
+                { name: "unknownString2", type: "string", defaultValue: "#" },
               ],
             },
           ],
