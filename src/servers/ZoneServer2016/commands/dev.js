@@ -257,9 +257,7 @@ const dev = {
     const location = {
       position: [0, 80, 0, 1],
       rotation: [0, 0, 0, 1],
-      unknownBool1: true,
-      unknownByte1: 100,
-      unknownBool2: true,
+      triggerLoadingScreen: true,
     };
     let found = false;
     for (const v in server._vehicles) {
@@ -276,6 +274,34 @@ const dev = {
       server.sendChatText(client, "TPed successfully");
     } else {
       server.sendChatText(client, `No vehicles of ID: ${args[1]} found`);
+    }
+  },
+
+  tpNpc: function (server, client, args) {
+    if (!args[1]) {
+      server.sendChatText(client, "Missing npc modelId arg");
+      return;
+    }
+    const location = {
+      position: [0, 80, 0, 1],
+      rotation: [0, 0, 0, 1],
+      triggerLoadingScreen: true,
+    };
+    let found = false;
+    for (const n in server._npcs) {
+      if (server._npcs[n].modelId === parseInt(args[1])) {
+        console.log(server._npcs[n]);
+        location.position = server._npcs[n].position;
+        server.sendData(client, "ClientUpdate.UpdateLocation", location);
+        server.sendData(client, "UpdateWeatherData", {});
+        found = true;
+        break;
+      }
+    }
+    if (found) {
+      server.sendChatText(client, "TPed successfully");
+    } else {
+      server.sendChatText(client, `No npcs of ID: ${args[1]} found`);
     }
   },
 
