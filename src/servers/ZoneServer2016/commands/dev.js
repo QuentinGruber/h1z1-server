@@ -1,5 +1,6 @@
 const debug = require("debug")("zonepacketHandlers");
 // import fs from "fs";
+//const objects = require("../../../../data/2016/zoneData/objects.json");
 
 const dev = {
   testpacket: function (server, client, args) {
@@ -398,8 +399,30 @@ const dev = {
       },
     };
 
-    server.sendData(client, "Command.ItemDefinitions", itemDefinitions); // todo: add ClientItemDefinition data
+    server.sendData(client, "Command.ItemDefinitions", itemDefinitions) // todo: add ClientItemDefinition data
   },
+
+  /*
+  proxiedObjects: function(server, client, args) {
+    
+    objects.runtime_object.runtime_objects.forEach((object) => {
+      if(object.actor_file === "Common_Props_Dryer.adr") {
+        object.instances.forEach((instance) => {
+          console.log("proxied object")
+          const obj = {
+            guid: instance.id,
+            transientId: server.getTransientId(client, instance.id),
+            unknownByte1: 0,
+            position: [instance.position[0], instance.position[1], instance.position[2]],
+            rotation: [instance.rotation[1], instance.rotation[0], instance.rotation[2]],
+          };
+          server.sendData(client, "AddProxiedObject", obj);
+        });
+        server.sendChatText(client, `Sent ${object.instance_count} ProxiedObject Packets`);
+      }
+    });
+  }
+  */
 };
 
 export default dev;

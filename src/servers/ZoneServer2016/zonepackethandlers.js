@@ -32,7 +32,7 @@ const debug = require("debug")("zonepacketHandlers");
 
 const packetHandlers = {
   ClientIsReady: function (server, client, packet) {
-    server.sendData(client, "ClientBeginZoning", {}); // Needed for trees
+    server.sendData(client, "ClientBeginZoning", { skyData: {} }); // Needed for trees
 
     server.sendData(client, "QuickChat.SendData", { commands: [] });
 
@@ -242,21 +242,28 @@ const packetHandlers = {
   },
   ClientFinishedLoading: function (server, client, packet) {
     client.currentPOI = 0; // clears currentPOI for POIManager
-    server.sendData(client, "POIChangeMessage", {
-      messageStringId: 20,
-      id: 99,
-    });
-    server.sendChatText(client, "Welcome to H1emu ! :D", true);
-    client.lastPingTime = new Date().getTime();
-    client.savePositionTimer = setTimeout(
-      () => server.saveCharacterPosition(client, 30000),
-      30000
-    );
-    server._characters[client.character.characterId] = {
-      ...client.character,
-      identity: {},
-    };
-    server.executeFuncForAllClients("spawnCharacters");
+    if (client.firstLoading) {
+      server.sendData(client, "POIChangeMessage", { // welcome POI message
+        messageStringId: 20,
+        id: 99,
+      });
+      server.sendChatText(client, "Welcome to H1emu ! :D", true);
+      server.sendGlobalChatText(
+        `${client.character.name} has joined the server !`
+      );
+      client.firstLoading = false;
+      client.lastPingTime = new Date().getTime();
+      client.savePositionTimer = setTimeout(
+        () => server.saveCharacterPosition(client, 30000),
+        30000
+      );
+      server._characters[client.character.characterId] = {
+        ...client.character,
+        identity: {},
+      };
+      server.executeFuncForAllClients("spawnCharacters");
+    }
+
     client.isLoading = false;
     client.isMounted = false;
 
@@ -434,8 +441,6 @@ const packetHandlers = {
           "/loc",
           "/spawninfo",
           "/serverinfo",
-          "/player_air_control",
-          "/player_fall_through_world_test",
         ];
         server.sendChatText(client, `Commands list:`);
         _.concat(commandList, haxCommandList, devCommandList)
@@ -1123,14 +1128,23 @@ const packetHandlers = {
     if (npc) {
       server.sendData(client, "LightweightToFullNpc", {
         transientId: npc.transientId,
-        attachments: [],
+        equipmentModelsLength: 1,
+        equipmentModels: [
+          {
+            model: "SurvivorMale_Head_Helmet_Motorcycle_Tintable.adr",
+            effectId: 0,
+            equipmentSlotId: 15,
+            unknownArray1: [],
+          },
+        ],
+        effectTagsLength: 1,
         effectTags: [],
         unknownData1: {},
         targetData: {},
-        characterVariables: [],
-        unknownData2: {},
-        resources: [],
-        unknownData3: {},
+        unknownArray1Length: 1,
+        unknownArray1: [],
+        unknownArray2Length: 1,
+        unknownArray2: []
       });
     } else if (server._characters[guid]) {
       server.sendData(client, "LightweightToFullPc", {
@@ -1149,14 +1163,16 @@ const packetHandlers = {
       server.sendData(client, "LightweightToFullVehicle", {
         npcData: {
           transientId: server._vehicles[guid].npcData.transientId,
-          attachments: [],
+          equipmentModelsLength: 1,
+          equipmentModels: [],
+          effectTagsLength: 1,
           effectTags: [],
           unknownData1: {},
           targetData: {},
-          characterVariables: [],
-          unknownData2: {},
-          resources: [],
-          unknownData3: {},
+          unknownArray1Length: 1,
+          unknownArray1: [],
+          unknownArray2Length: 1,
+          unknownArray2: []
         },
         unknownArray1: [],
         unknownArray2: [],
@@ -1220,12 +1236,6 @@ const packetHandlers = {
         objectData.position
       )
     ) {
-      /*
-      server.sendData(client, "Command.InteractionString", {
-        guid: guid,
-        stringId: 29,
-      });
-      */
       server.sendData(client, "Command.InteractionString", {
         guid: guid,
         stringId: 29,

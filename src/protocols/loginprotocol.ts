@@ -45,9 +45,10 @@ export class LoginProtocol {
         return {
           serverId: data.readUInt32LE(1),
           unknown: data.readUInt32LE(5),
-          packetLenght: data.readUInt32LE(9),
+          packetLength: data.readUInt32LE(9),
           name: packet.name,
           tunnelData: data.slice(13),
+          result: 1,
         };
       } else if (packet.schema) {
         debug(packet.name);

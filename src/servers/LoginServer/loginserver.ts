@@ -81,6 +81,7 @@ export class LoginServer extends EventEmitter {
       async (err: string, client: Client, data: Buffer) => {
         try {
           const packet: any = this._protocol.parse(data);
+          debug(packet);
           if (packet?.result) {
             // if packet parsing succeed
             const { sessionId, systemFingerPrint } = packet.result;
@@ -109,21 +110,31 @@ export class LoginServer extends EventEmitter {
                 this.CharacterCreateRequest(client);
                 break;
               }
-              case "TunnelAppPacketClientToServer":
-                console.log(packet);
-                packet.tunnelData = new (Buffer as any).alloc(4);
-                packet.tunnelData.writeUInt32LE(0x1); // TODO
+              case "TunnelAppPacketClientToServer": // only used for nameValidation rn
+                const string1 = "Name1";
+                const string2 = "Name2";
+                let offset = 0;
+                if (this._protocol.protocolName == "LoginUdp_9") {
+                  packet.tunnelData = new (Buffer as any).alloc(13 + string1.length + string2.length);
+                  packet.tunnelData.writeUInt8(0x02, offset); // nameValidation opcode
+                } else { // LoginUdp_11
+                  packet.tunnelData = new (Buffer as any).alloc(14 + string1.length + string2.length);
+                  packet.tunnelData.writeUInt8(0xa7, offset); // loginBase opcode
+                  packet.tunnelData.writeUInt8(0x02, offset += 1); // nameValidation opcode
+                }
+
+                packet.tunnelData.writePrefixedStringLE(string1, offset += 1); // string1
+                packet.tunnelData.writePrefixedStringLE(string2, offset += (4 + string1.length)); // string2
+                packet.tunnelData.writeUInt32LE(1, offset += (4 + string2.length)) // status dword
                 data = this._protocol.pack(
                   "TunnelAppPacketServerToClient",
                   packet
                 );
-                console.log(data);
                 this._soeServer.sendAppData(client, data, true);
                 break;
-
               case "Logout":
                 clearInterval(client.serverUpdateTimer);
-                // this._soeServer.deleteClient(client); this is done to early
+                // this._soeServer.deleteClient(client); this is done too early
                 break;
             }
           } else {
