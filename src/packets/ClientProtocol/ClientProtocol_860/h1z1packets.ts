@@ -6086,7 +6086,7 @@ var packets = [
     {
       fields: [
         {
-          name: "profileData",
+          name: "profiles",
           type: "byteswithlength",
           fields: profileDataSchema,
         },
@@ -6096,18 +6096,18 @@ var packets = [
           defaultValue: [],
           fields: [
             { name: "modelName", type: "string", defaultValue: "" },
-            { name: "unknownString1", type: "string", defaultValue: "" },
+            { name: "defaultTextureAlias", type: "string", defaultValue: "" },
             { name: "tintAlias", type: "string", defaultValue: "" },
             { name: "unknownString2", type: "string", defaultValue: "" },
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
             { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-            { name: "slotId", type: "uint32", defaultValue: 0 },
+            { name: "slotId", type: "uint32", defaultValue: 2 },
           ],
         },
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+        //{ name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword1", type: "uint32", defaultValue: 1 },
+        { name: "unknownDword3", type: "uint32", defaultValue: 1 },
+        { name: "actorModel", type: "uint32", defaultValue: 9240 },
         { name: "unknownString1", type: "string", defaultValue: "" },
         { name: "unknownString2", type: "string", defaultValue: "" },
       ],
