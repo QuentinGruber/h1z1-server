@@ -80,7 +80,7 @@ function createEntity(
 }
 
 export function createAllEntities(server: ZoneServer2016): any {
-  createAllDoors(server); // needs 2016 door positions / rotations
+  createAllDoors(server);
   createAR15(server);
   createPumpShotgun(server);
   createTools(server);
