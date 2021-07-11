@@ -572,13 +572,25 @@ export class ZoneServer extends EventEmitter {
     if (String(client.character.characterId) === "0x0000000000000001") {
       // for fun ­Ъца
       this._dummySelf.data.characterId = "0x0000000000000001";
-      this._dummySelf.data.identity.characterFirstName = "Cowboy :)";
       this._dummySelf.data.extraModel = "SurvivorMale_Ivan_OutbackHat_Base.adr";
       this._dummySelf.data.extraModelTexture = "Ivan_OutbackHat_LeatherTan";
     }
     const {
       data: { identity },
     } = this._dummySelf;
+
+    let characterName;
+    if (!this._soloMode) {
+      const character = await this._db?.collection("characters")
+      .findOne({ characterId: client.character.characterId })
+      characterName = character.name;
+    } else {
+      const SinglePlayerCharacters = require("../../../data/2015/sampleData/single_player_characters.json");
+      const character = SinglePlayerCharacters.find((character:any) => character.characterId === client.character.characterId)
+      characterName = character.payload.name;
+    }
+
+    this._dummySelf.data.identity.characterFirstName = characterName;
     client.character.guid = this._dummySelf.data.guid;
     client.character.name =
       identity.characterFirstName + identity.characterLastName;
