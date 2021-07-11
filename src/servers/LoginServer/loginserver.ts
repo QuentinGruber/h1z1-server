@@ -152,30 +152,21 @@ export class LoginServer extends EventEmitter {
     }
   }
   TunnelAppPacketClientToServer(client: Client, packet: any) {
-    const string1 = "Name1";
-    const string2 = "Name2";
-    let offset = 0;
-    if (this._protocol.protocolName == "LoginUdp_9") {
-      packet.tunnelData = new (Buffer as any).alloc(
-        13 + string1.length + string2.length
-      );
-      packet.tunnelData.writeUInt8(0x02, offset); // nameValidation opcode
-    } else {
-      // LoginUdp_11
-      packet.tunnelData = new (Buffer as any).alloc(
-        14 + string1.length + string2.length
-      );
-      packet.tunnelData.writeUInt8(0xa7, offset); // loginBase opcode
-      packet.tunnelData.writeUInt8(0x02, (offset += 1)); // nameValidation opcode
+    const baseResponse = {serverId:packet.serverId};
+    let response;
+    switch (packet.subPacketName) {
+      case "nameValidationRequest":
+        response = {...baseResponse,
+          subPacketOpcode:0x02,
+          firstName:packet.result.characterName,
+          status:1
+        }
+        break;
+      default:
+        debug(`Unhandled tunnel packet "${packet.subPacketName}"`)
+        break;
     }
-
-    packet.tunnelData.writePrefixedStringLE(string1, (offset += 1)); // string1
-    packet.tunnelData.writePrefixedStringLE(
-      string2,
-      (offset += 4 + string1.length)
-    ); // string2
-    packet.tunnelData.writeUInt32LE(1, (offset += 4 + string2.length)); // status dword
-    const data = this._protocol.pack("TunnelAppPacketServerToClient", packet);
+    const data = this._protocol.pack("TunnelAppPacketServerToClient", response);
     this._soeServer.sendAppData(client, data, true);
   }
   async CharacterSelectInfoRequest(client: Client) {
