@@ -101,7 +101,7 @@ export class LoginProtocol {
         data.writeUInt8(packetType, 0);
         data.writeUInt32LE(object.serverId, 1);
         data.writeUInt32LE(0, 5);
-        data.writeUInt32LE(tunnelData.length, 9);
+        data.writeUInt32LE(tunnelData.length + 1, 9);
         data.writeUInt8(subPacketOpcode, 13);
         tunnelData.data.copy(data, 14);
         debug("tunnelpacket send data :", object);
