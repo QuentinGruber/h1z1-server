@@ -1,5 +1,5 @@
 const debug = require("debug")("zonepacketHandlers");
-// import fs from "fs";
+//import fs from "fs";
 //const objects = require("../../../../data/2016/zoneData/objects.json");
 
 const dev = {
@@ -359,37 +359,41 @@ const dev = {
   },
 
   recipe: function (server, client, args) {
-    /*
-    if(!args[2]) {
-      server.sendChatText(client, "Missing 2 args");
-      return;
-    }
-    */
     server.sendData(client, "Recipe.Add", {
-      unknownDword1: 93,
-      unknownDword2: 1536,
-      unknownDword3: 103,
-      unknownDword4: 4,
-      unknownDword5: 1537,
-      unknownDword6: 6,
-      unknownDword7: 6,
+      recipeId: 93,
+      nameId: 1536,
+      iconId: 103,
+      unknownDword1: 0,
+      descriptionId: 1537,
+      unknownDword2: 0,
+      bundleCount: 0,
       membersOnly: false,
-      unknownDword8: 5,
-      componentsLength: 1,
+      filterId: 5,
       components: [
         {
-          unknownDword0: 10,
-          unknownDword1: 49,
-          unknownDword2: 18,
-          unknownDword3: 4,
-          unknownDword4: 20,
-          unknownDword5: 5,
-          unknownQword1: "0x0000000000000001",
-          unknownDword6: 8,
-          unknownDword7: 0,
+          unknownDword1: 0,
+          nameId: 49,
+          iconId: 0,
+          unknownDword2: 0,
+          descriptionId: 0,
+          requiredAmount: 1,
+          unknownQword1: server.generateGuid(),
+          unknownDword3: 0,
+          itemDefinitionId: 1, // crashes the game if 0, recipe turns green
         },
+        {
+          unknownDword1: 0,
+          nameId: 254,
+          iconId: 0,
+          unknownDword2: 0,
+          descriptionId: 0,
+          requiredAmount: 1,
+          unknownQword1: server.generateGuid(),
+          unknownDword3: 0,
+          itemDefinitionId: 1,
+      }
       ],
-      unknownDword9: 8,
+      itemDefinitionId: 8,
     });
   },
 
@@ -401,11 +405,9 @@ const dev = {
     }
     const itemDefinitions = {
       data: {
-        itemDefinitionsLength: 2,
         itemDefinitions: [
           {
             ID: Number(args[1]),
-            unknownArray1Length: 1,
             unknownArray1: [
               {
                 unknownData1: {}
@@ -414,7 +416,6 @@ const dev = {
           }, 
           {
             ID: Number(args[2]),
-            unknownArray1Length: 1,
             unknownArray1: [
               {
                 unknownData1: {}

@@ -27,11 +27,12 @@ import {
 
 import { /*Db,*/ MongoClient } from "mongodb";
 import dynamicWeather from "./workers/dynamicWeather";
+import { Server } from "node:http";
 // need to get 2016 lists
 // const spawnLocations = require("../../../data/2015/sampleData/spawnLocations.json");
 // const localWeatherTemplates = require("../../../data/2015/sampleData/weather.json");
 // const stats = require("../../../data/2015/sampleData/stats.json");
-// const recipes = require("../../../data/2015/sampleData/recipes.json");
+const recipes = require("../../../data/2016/sampleData/recipes.json");
 // const resources = require("../../../data/2015/dataSources/Resources.json");
 const Z1_POIs = require("../../../data/2015/zoneData/Z1_POIs");
 
@@ -186,6 +187,10 @@ export class ZoneServer2016 extends ZoneServer {
       playerPosition,
       element.position || element.state?.position || element.npcData.position
     );
+  }
+
+  sendRecipes(client: Client): void {
+    this.sendData(client, "Recipe.List", {recipes: recipes});
   }
 
   removeOutOfDistanceEntities(client: Client): void {

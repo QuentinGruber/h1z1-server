@@ -223,6 +223,8 @@ const packetHandlers = {
       },
     });
     
+    server.sendRecipes(client);
+
     /*
     server.sendData(client, "ResourceEvent", {
       eventData: {
@@ -1271,7 +1273,6 @@ const packetHandlers = {
 
     server.sendData(client, "Command.ItemDefinitionReply", {data: {
       ID: 2425,
-      unknownArray1Length: 1,
       unknownArray1: [
         {
           unknownData1: {}
@@ -1280,6 +1281,7 @@ const packetHandlers = {
     }})
   }
   */
+
 };
 
 export default packetHandlers;
