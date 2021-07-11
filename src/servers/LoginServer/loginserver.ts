@@ -335,8 +335,8 @@ export class LoginServer extends EventEmitter {
     newCharacter.payload.name = characterName;
     newCharacter.characterId = generateRandomGuid();
     if(this._soloMode){
-      SinglePlayerCharacters[SinglePlayerCharacters.length+1] = newCharacter
-      fs.writeFileSync(`${__dirname}../../../data/2015/sampleData/single_player_characters.json`,SinglePlayerCharacters)
+      SinglePlayerCharacters[SinglePlayerCharacters.length] = newCharacter
+      fs.writeFileSync(`${__dirname}/../../../data/2015/sampleData/single_player_characters.json`,JSON.stringify(SinglePlayerCharacters))
     }
     else{
       await this._db
