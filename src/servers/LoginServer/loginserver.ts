@@ -18,6 +18,7 @@ import { MongoClient } from "mongodb";
 import { generateRandomGuid, initMongo } from "../../utils/utils";
 import { Client, GameServer, SoeServer } from "../../types/loginserver";
 import _ from "lodash";
+import fs from "fs";
 
 const debugName = "LoginServer";
 const debug = require("debug")(debugName);
@@ -110,7 +111,7 @@ export class LoginServer extends EventEmitter {
                 break;
               }
               case "CharacterCreateRequest": {
-                this.CharacterCreateRequest(client);
+                this.CharacterCreateRequest(client,packet);
                 break;
               }
               case "TunnelAppPacketClientToServer": // only used for nameValidation rn
@@ -172,22 +173,18 @@ export class LoginServer extends EventEmitter {
   async CharacterSelectInfoRequest(client: Client) {
     let CharactersInfo;
     if (this._soloMode) {
-      const SinglePlayerCharacter = require("../../../data/2015/sampleData/single_player_character.json");
-
+      const SinglePlayerCharacters = require("../../../data/2015/sampleData/single_player_characters.json");
       if (this._protocol.protocolName == "LoginUdp_9") {
-        const cowboy = _.cloneDeep(SinglePlayerCharacter); // for fun 🤠
-        cowboy.characterId = "0x0000000000000001";
-        cowboy.payload.name = "Cowboy";
         CharactersInfo = {
           status: 1,
           canBypassServerLock: true,
-          characters: [SinglePlayerCharacter, cowboy],
+          characters: SinglePlayerCharacters,
         };
       } else { // LoginUdp_11
         CharactersInfo = {
           status: 1,
           canBypassServerLock: true,
-          characters: [SinglePlayerCharacter],
+          characters: SinglePlayerCharacters[0],
         };
       }
     } else {
@@ -246,7 +243,7 @@ export class LoginServer extends EventEmitter {
 
     if (this._soloMode) {
       debug(
-        "Deleting a character in solo mode is weird, modify single_player_character.json instead"
+        "Deleting a character in solo mode is weird, modify single_player_characters.json instead"
       );
     } else {
       await this._db
@@ -273,6 +270,10 @@ export class LoginServer extends EventEmitter {
       const { serverAddress } = await this._db
         .collection("servers")
         .findOne({ serverId: serverId });
+      const character = await this._db
+      .collection("characters")
+      .findOne({ characterId: characterId })
+
       charactersLoginInfo = {
         unknownQword1: "0x0",
         unknownDword1: 0,
@@ -285,11 +286,13 @@ export class LoginServer extends EventEmitter {
           guid: characterId,
           unknownQword2: "0x0",
           stationName: "",
-          characterName: "",
+          characterName: character.payload.name,
           unknownString: "",
         },
       };
     } else {
+      const SinglePlayerCharacters = require("../../../data/2015/sampleData/single_player_characters.json");
+      const character = SinglePlayerCharacters.find((character:any) => character.characterId === characterId)
       charactersLoginInfo = {
         unknownQword1: "0x0",
         unknownDword1: 0,
@@ -302,7 +305,7 @@ export class LoginServer extends EventEmitter {
           guid: characterId,
           unknownQword2: "0x0",
           stationName: "",
-          characterName: "",
+          characterName: character.payload.name,
           unknownString: "",
         },
       };
@@ -316,11 +319,34 @@ export class LoginServer extends EventEmitter {
     debug("CharacterLoginRequest");
   }
 
-  CharacterCreateRequest(client: Client) {
+  async CharacterCreateRequest(client: Client,packet:any) {
+    console.log(packet)
+    const {payload:{characterName},serverId} = packet.result;
+    // create character object 
+    try {
+      // delete commands cache if exist so /dev reloadPackets reload them too
+      delete require.cache[require.resolve("../../../data/2015/sampleData/single_player_characters.json")];
+    } catch (e) {}
+    const SinglePlayerCharacters = require("../../../data/2015/sampleData/single_player_characters.json");
+    console.log(SinglePlayerCharacters)
+    const newCharacter = {...SinglePlayerCharacters[0]}
+    console.log(newCharacter)
+    newCharacter.serverId = serverId;
+    newCharacter.payload.name = characterName;
+    newCharacter.characterId = generateRandomGuid();
+    if(this._soloMode){
+      SinglePlayerCharacters[SinglePlayerCharacters.length+1] = newCharacter
+      fs.writeFileSync(`${__dirname}../../../data/2015/sampleData/single_player_characters.json`,SinglePlayerCharacters)
+    }
+    else{
+      await this._db
+        .collection("characters").insertOne(newCharacter)
+    }
     const reply_data = {
       status: 1,
-      characterId: generateRandomGuid(),
+      characterId: newCharacter.characterId,
     };
+
     const data = this._protocol.pack("CharacterCreateReply", reply_data);
     this._soeServer.sendAppData(client, data, true);
   }
