@@ -1440,6 +1440,7 @@ const achievementDataSchema = [
   { name: "unknownBoolean2", type: "boolean", defaultValue: false },
   { name: "unknownDword9", type: "uint32", defaultValue: 0 },
 ];
+/*
 const loadoutDataSubSchema1 = [
   { name: "loadoutId", type: "uint32", defaultValue: 0 },
   {
@@ -1563,6 +1564,7 @@ const loadoutDataSubSchema2 = [
     ],
   },
 ];
+*/
 
 const equipmentModelSchema = [
     { name: "model", type: "string", defaultValue: "" },
