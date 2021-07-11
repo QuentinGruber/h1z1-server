@@ -47,8 +47,8 @@ export class LoginProtocol {
     const packet = this.loginPackets.Packets[packetType];
     if (packet) {
       if (packet.name === "TunnelAppPacketClientToServer") {
-        const {schema, name} = this.tunnelLoginPackets.Packets[data.readUint8(13)]
-        const tunnelData = data.slice(14);
+        const {schema, name} = this.tunnelLoginPackets.Packets[data.readUint8(this.protocolName == "LoginUdp_11"?14:13)]
+        const tunnelData = data.slice(this.protocolName == "LoginUdp_11"?15:14);
         result = DataSchema.parse(schema, tunnelData, 0, undefined).result;
         return {
           serverId: data.readUInt32LE(1),
@@ -97,13 +97,21 @@ export class LoginProtocol {
           undefined,
           undefined
         );
-        data = new (Buffer as any).alloc(14 + tunnelData.length);
+        const basePacketLength =  (this.protocolName == "LoginUdp_11"?15:14)
+        const opcodesLength = (this.protocolName == "LoginUdp_11"?2:1);
+        data = new (Buffer as any).alloc(basePacketLength + tunnelData.length);
         data.writeUInt8(packetType, 0);
         data.writeUInt32LE(object.serverId, 1);
         data.writeUInt32LE(0, 5);
-        data.writeUInt32LE(tunnelData.length + 1, 9);
-        data.writeUInt8(subPacketOpcode, 13);
-        tunnelData.data.copy(data, 14);
+        data.writeUInt32LE(tunnelData.length + opcodesLength, 9);
+        if(this.protocolName == "LoginUdp_11"){
+          data.writeUint8(0xa7,13)
+          data.writeUInt8(subPacketOpcode, 14);
+        }
+        else{
+          data.writeUInt8(subPacketOpcode, 13);
+        }
+        tunnelData.data.copy(data, basePacketLength);
         debug("tunnelpacket send data :", object);
       } else if (packet.schema) {
         debug("Packing data for " + packet.name);
