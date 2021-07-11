@@ -15,7 +15,8 @@ import DataSchema from "h1z1-dataschema";
 import { Int64String } from "../utils/utils";
 
 export class LoginProtocol {
-  LoginPackets: any;
+  loginPackets: any;
+  tunnelLoginPackets: any;
   protocolName: String;
 
   constructor(protocolName: String = "LoginUdp_9") {
@@ -23,12 +24,16 @@ export class LoginProtocol {
     // Maybe will remove this switch later
     switch (this.protocolName) {
       case "LoginUdp_9":
-        this.LoginPackets =
-          require("../packets/LoginUdp/LoginUdp_9/loginpackets").default;
+        this.loginPackets =
+          require("../packets/LoginUdp/LoginUdp_9/loginPackets").default;
+        this.tunnelLoginPackets =
+          require("../packets/LoginUdp/LoginUdp_9/loginTunnelPackets").default;
         break;
       case "LoginUdp_11":
-        this.LoginPackets =
-          require("../packets/LoginUdp/LoginUdp_11/loginpackets").default;
+        this.loginPackets =
+          require("../packets/LoginUdp/LoginUdp_11/loginPackets").default;
+        this.tunnelLoginPackets =
+          require("../packets/LoginUdp/LoginUdp_11/loginTunnelPackets").default;
         break;
       default:
         debug(`Protocol ${this.protocolName} unsupported !`);
@@ -39,16 +44,19 @@ export class LoginProtocol {
   parse(data: any) {
     const packetType = data[0];
     let result;
-    const packet = this.LoginPackets.Packets[packetType];
+    const packet = this.loginPackets.Packets[packetType];
     if (packet) {
       if (packet.name === "TunnelAppPacketClientToServer") {
+        const {schema, name} = this.tunnelLoginPackets.Packets[data.readUint8(13)]
+        const tunnelData = data.slice(14);
+        result = DataSchema.parse(schema, tunnelData, 0, undefined).result;
         return {
           serverId: data.readUInt32LE(1),
           unknown: data.readUInt32LE(5),
+          subPacketName: name,
           packetLength: data.readUInt32LE(9),
           name: packet.name,
-          tunnelData: data.slice(13),
-          result: 1,
+          result: result,
         };
       } else if (packet.schema) {
         debug(packet.name);
@@ -74,17 +82,28 @@ export class LoginProtocol {
   }
 
   pack(packetName: string, object: any) {
-    const packetType = this.LoginPackets.PacketTypes[packetName];
-    const packet = this.LoginPackets.Packets[packetType];
+    const packetType = this.loginPackets.PacketTypes[packetName];
+    const packet = this.loginPackets.Packets[packetType];
     let payload;
     let data;
     if (packet) {
       if (packet.name === "TunnelAppPacketServerToClient") {
-        data = new (Buffer as any).alloc(13 + object.tunnelData.length);
+        const {subPacketOpcode} = object;
+        const { schema } = this.tunnelLoginPackets.Packets[subPacketOpcode]
+        const tunnelData = DataSchema.pack(
+          schema,
+          object,
+          undefined,
+          undefined,
+          undefined
+        );
+        data = new (Buffer as any).alloc(14 + tunnelData.length);
         data.writeUInt8(packetType, 0);
-        data.writeUInt64String(Int64String(object.serverId), 1);
-        data.writeUInt32LE(object.tunnelData.length, 9);
-        object.tunnelData.copy(data, 13);
+        data.writeUInt32LE(object.serverId, 1);
+        data.writeUInt32LE(0, 5);
+        data.writeUInt32LE(tunnelData.length, 9);
+        data.writeUInt8(subPacketOpcode, 13);
+        tunnelData.data.copy(data, 14);
         debug("tunnelpacket send data :", object);
       } else if (packet.schema) {
         debug("Packing data for " + packet.name);
