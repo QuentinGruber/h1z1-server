@@ -295,8 +295,26 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
-    debug("Collision.Damage");
-    debug(packet);
+	if (packet.data.damage > 100000 && client.character.resources.health > 0 && client.falling < -1) {
+    const damageFix = packet.data.damage / 100000 * client.falling * -5;
+	client.character.resources.health = client.character.resources.health - damageFix;
+	if (client.character.resources.health < 0) {
+		client.character.resources.health = 0;
+	}
+	server.sendData(client, "ResourceEvent", {
+            eventData: {
+              type: 3,
+              value: {
+                characterId: client.character.characterId,
+                resourceId: 48, // health
+                resourceType: 1,
+                initialValue: client.character.resources.health,
+                unknownArray1: [],
+                unknownArray2: [],
+              },
+            },
+          });
+	}
   },
   "LobbyGameDefinition.DefinitionsRequest": function (
     server: ZoneServer,
@@ -1607,6 +1625,9 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
+    if (packet.data.flags === 510) {
+		  client.falling = packet.data.unknown10_float;
+	  }
     const movingCharacter = server._characters[client.character.characterId];
     if (movingCharacter && !server._soloMode) {
       if (client.vehicle.mountedVehicle) {
@@ -1730,7 +1751,7 @@ const packetHandlers: any = {
       let { water, health, food } = client.character.resources;
       switch (objectToPickup.modelId) {
         case 9159:
-          water = water + 4000;
+          client.character.resources.water = water + 4000;
           server.sendData(client, "ResourceEvent", {
             eventData: {
               type: 3,
@@ -1738,7 +1759,7 @@ const packetHandlers: any = {
                 characterId: client.character.characterId,
                 resourceId: 5, // water
                 resourceType: 5,
-                initialValue: water,
+                initialValue: client.character.resources.water,
                 unknownArray1: [],
                 unknownArray2: [],
               },
@@ -1747,7 +1768,7 @@ const packetHandlers: any = {
           break;
         case 8020:
         case 9250:
-          food = food + 4000;
+          client.character.resources.food = food + 4000;
           server.sendData(client, "ResourceEvent", {
             eventData: {
               type: 3,
@@ -1755,7 +1776,7 @@ const packetHandlers: any = {
                 characterId: client.character.characterId,
                 resourceId: 4, // food
                 resourceType: 4,
-                initialValue: food,
+                initialValue: client.character.resources.food,
                 unknownArray1: [],
                 unknownArray2: [],
               },
@@ -1763,7 +1784,7 @@ const packetHandlers: any = {
           });
           break;
         case 9221:
-          health = health + 10000;
+          client.character.resources.health = health + 10000;
           server.sendData(client, "ResourceEvent", {
             eventData: {
               type: 3,
@@ -1771,7 +1792,7 @@ const packetHandlers: any = {
                 characterId: client.character.characterId,
                 resourceId: 48, // health
                 resourceType: 1,
-                initialValue: health,
+                initialValue: client.character.resources.health,
                 unknownArray1: [],
                 unknownArray2: [],
               },
