@@ -119,16 +119,15 @@ const dev = {
     const loadout = {
       characterId: client.character.characterId,
       loadoutItemLoadoutId: 5,
-      unknownData1: {
-        unknownArray1Length: 1,
-        unknownArray1: [
+      loadoutData: {
+        loadoutSlots: [
           {
-            unknownDword1: 1,
             loadoutItemSlotId: 1,
             itemDefinitionId: 2425,
+            unknownDword1: 1,
             unknownData1: {
-              unknownDword1: 16,
-              unknownQword1: server.generateGuid(),
+              itemDefinitionId: 2425,
+              loadoutItemOwnerGuid: client.character.characterId,
               unknownByte1: 17,
             },
             unknownDword4: 18,
@@ -144,11 +143,13 @@ const dev = {
   containerevent: function (server, client, args) {
     const containerData = {
       ignore: client.character.characterId,
-      containersLength: 1,
       containers: [
         {
+          guid: server.generateGuid(),
+          unknownDword1: 1,
+          unknownQword1: server.generateGuid(),
+          unknownDword2: 2,
           containerItems: {
-            itemsLength: 1,
             items: [
               {
                 itemData: {
@@ -161,7 +162,6 @@ const dev = {
           },
         },
       ],
-      array1Length: 1,
       array1: [{ unknownQword1: server.generateGuid(), unknownDword1: 2 }],
     };
 
@@ -257,9 +257,7 @@ const dev = {
     const location = {
       position: [0, 80, 0, 1],
       rotation: [0, 0, 0, 1],
-      unknownBool1: true,
-      unknownByte1: 100,
-      unknownBool2: true,
+      triggerLoadingScreen: true,
     };
     let found = false;
     for (const v in server._vehicles) {
@@ -276,6 +274,34 @@ const dev = {
       server.sendChatText(client, "TPed successfully");
     } else {
       server.sendChatText(client, `No vehicles of ID: ${args[1]} found`);
+    }
+  },
+
+  tpNpc: function (server, client, args) {
+    if (!args[1]) {
+      server.sendChatText(client, "Missing npc modelId arg");
+      return;
+    }
+    const location = {
+      position: [0, 80, 0, 1],
+      rotation: [0, 0, 0, 1],
+      triggerLoadingScreen: true,
+    };
+    let found = false;
+    for (const n in server._npcs) {
+      if (server._npcs[n].modelId === parseInt(args[1])) {
+        console.log(server._npcs[n]);
+        location.position = server._npcs[n].position;
+        server.sendData(client, "ClientUpdate.UpdateLocation", location);
+        server.sendData(client, "UpdateWeatherData", {});
+        found = true;
+        break;
+      }
+    }
+    if (found) {
+      server.sendChatText(client, "TPed successfully");
+    } else {
+      server.sendChatText(client, `No npcs of ID: ${args[1]} found`);
     }
   },
 
@@ -333,37 +359,41 @@ const dev = {
   },
 
   recipe: function (server, client, args) {
-    /*
-    if(!args[2]) {
-      server.sendChatText(client, "Missing 2 args");
-      return;
-    }
-    */
     server.sendData(client, "Recipe.Add", {
-      unknownDword1: 93,
-      unknownDword2: 1536,
-      unknownDword3: 103,
-      unknownDword4: 4,
-      unknownDword5: 1537,
-      unknownDword6: 6,
-      unknownDword7: 6,
+      recipeId: 93,
+      nameId: 1536,
+      iconId: 103,
+      unknownDword1: 0,
+      descriptionId: 1537,
+      unknownDword2: 0,
+      bundleCount: 0,
       membersOnly: false,
-      unknownDword8: 5,
-      componentsLength: 1,
+      filterId: 5,
       components: [
         {
-          unknownDword0: 10,
-          unknownDword1: 49,
-          unknownDword2: 18,
-          unknownDword3: 4,
-          unknownDword4: 20,
-          unknownDword5: 5,
-          unknownQword1: "0x0000000000000001",
-          unknownDword6: 8,
-          unknownDword7: 0,
+          unknownDword1: 0,
+          nameId: 49,
+          iconId: 0,
+          unknownDword2: 0,
+          descriptionId: 0,
+          requiredAmount: 1,
+          unknownQword1: server.generateGuid(),
+          unknownDword3: 0,
+          itemDefinitionId: 1, // crashes the game if 0, recipe turns green
         },
+        {
+          unknownDword1: 0,
+          nameId: 254,
+          iconId: 0,
+          unknownDword2: 0,
+          descriptionId: 0,
+          requiredAmount: 1,
+          unknownQword1: server.generateGuid(),
+          unknownDword3: 0,
+          itemDefinitionId: 1,
+      }
       ],
-      unknownDword9: 8,
+      itemDefinitionId: 8,
     });
   },
 
@@ -375,11 +405,9 @@ const dev = {
     }
     const itemDefinitions = {
       data: {
-        itemDefinitionsLength: 2,
         itemDefinitions: [
           {
             ID: Number(args[1]),
-            unknownArray1Length: 1,
             unknownArray1: [
               {
                 unknownData1: {},
@@ -388,7 +416,6 @@ const dev = {
           },
           {
             ID: Number(args[2]),
-            unknownArray1Length: 1,
             unknownArray1: [
               {
                 unknownData1: {},
