@@ -1,5 +1,5 @@
 const debug = require("debug")("zonepacketHandlers");
-//import fs from "fs";
+// import fs from "fs";
 //const objects = require("../../../../data/2016/zoneData/objects.json");
 
 const dev = {
@@ -397,9 +397,9 @@ const dev = {
     });
   },
 
-  itemdefinitions: function(server, client, args) {
+  itemdefinitions: function (server, client, args) {
     console.log("ItemDefinitions\n\n\n\n\n\n\n\n\n");
-    if(!args[2]) {
+    if (!args[2]) {
       server.sendChatText(client, "Missing 2 id args");
       return;
     }
@@ -410,20 +410,20 @@ const dev = {
             ID: Number(args[1]),
             unknownArray1: [
               {
-                unknownData1: {}
-              }
-            ]
-          }, 
+                unknownData1: {},
+              },
+            ],
+          },
           {
             ID: Number(args[2]),
             unknownArray1: [
               {
-                unknownData1: {}
-              }
-            ]
-          }, 
-        ]
-      }
+                unknownData1: {},
+              },
+            ],
+          },
+        ],
+      },
     };
 
     server.sendData(client, "Command.ItemDefinitions", itemDefinitions) // todo: add ClientItemDefinition data

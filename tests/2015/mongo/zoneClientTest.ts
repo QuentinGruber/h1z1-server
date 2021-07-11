@@ -1,10 +1,10 @@
-import { Base64 } from "js-base64";
+
 import { ZoneServer, ZoneClient } from "../../../h1z1-server";
 
 async function test() {
   await new ZoneServer(
     1117,
-    Base64.toUint8Array("F70IaxuU8C/w7FPXY1ibXw=="),
+    new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", 'base64'),
     "mongodb://localhost:27017/",
     1
   ).start();
@@ -12,7 +12,7 @@ async function test() {
   var client = new ZoneClient(
     "127.0.0.1",
     1117,
-    Base64.toUint8Array("F70IaxuU8C/w7FPXY1ibXw=="),
+    new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", 'base64'),
     "0x03147cca2a860195",
     "0",
     "",
