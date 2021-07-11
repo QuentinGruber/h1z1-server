@@ -12,7 +12,6 @@
 
 const debug = require("debug")("LoginProtocol");
 import DataSchema from "h1z1-dataschema";
-import { Int64String } from "../utils/utils";
 
 export class LoginProtocol {
   loginPackets: any;
