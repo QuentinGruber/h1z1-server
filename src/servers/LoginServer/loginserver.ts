@@ -114,7 +114,7 @@ export class LoginServer extends EventEmitter {
                 break;
               }
               case "TunnelAppPacketClientToServer": // only used for nameValidation rn
-                this.TunnelAppPacketClientToServer(client, packet, 1);
+                this.TunnelAppPacketClientToServer(client, packet);
                 break;
               case "Logout":
                 clearInterval(client.serverUpdateTimer);
@@ -151,7 +151,7 @@ export class LoginServer extends EventEmitter {
       );
     }
   }
-  TunnelAppPacketClientToServer(client: Client, packet: any, status: number) {
+  TunnelAppPacketClientToServer(client: Client, packet: any) {
     const string1 = "Name1";
     const string2 = "Name2";
     let offset = 0;
@@ -174,7 +174,7 @@ export class LoginServer extends EventEmitter {
       string2,
       (offset += 4 + string1.length)
     ); // string2
-    packet.tunnelData.writeUInt32LE(status, (offset += 4 + string2.length)); // status dword
+    packet.tunnelData.writeUInt32LE(1, (offset += 4 + string2.length)); // status dword
     const data = this._protocol.pack("TunnelAppPacketServerToClient", packet);
     this._soeServer.sendAppData(client, data, true);
   }
