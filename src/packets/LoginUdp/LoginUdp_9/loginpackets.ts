@@ -404,38 +404,14 @@ const packets: any[] = [
     "TunnelAppPacketClientToServer",
     0x10,
     {
-      fields: [
-        { name: "serverId", type: "uint32" },
-        { name: "unknown1", type: "uint32" },
-        {
-          name: "payload",
-          type: "byteswithlength",
-          fields: [
-            { name: "characterName", type: "string" },
-            { name: "unknown2", type: "uint32" },
-          ],
-        },
-      ],
+      fields: [ /* loginTunnelPackets.ts */ ],
     },
   ],
   [
     "TunnelAppPacketServerToClient",
     0x11,
     {
-      fields: [
-        { name: "serverId", type: "uint32" },
-        { name: "unknown1", type: "uint32" },
-
-        {
-          name: "payload",
-          type: "byteswithlength",
-          fields: [
-            { name: "unknown1", type: "uint32" },
-            { name: "characterName", type: "string" },
-            { name: "unknown2", type: "uint32" },
-          ],
-        },
-      ],
+      fields: [ /* loginTunnelPackets.ts */],
     },
   ],
   ["CharacterTransferRequest", 0x12, {}],

@@ -17,7 +17,7 @@ import { ZoneServer } from "../ZoneServer/zoneserver";
 import { Client, skyData } from "../../types/zoneserver";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
 import _ from "lodash";
-import { Base64 } from "js-base64";
+
 import {
   //generateRandomGuid,
   initMongo,
@@ -491,6 +491,6 @@ export class ZoneServer2016 extends ZoneServer {
 if (process.env.VSCODE_DEBUG === "true") {
   new ZoneServer2016(
     1117,
-    Base64.toUint8Array("F70IaxuU8C/w7FPXY1ibXw==")
+    new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", 'base64')
   ).start();
 }

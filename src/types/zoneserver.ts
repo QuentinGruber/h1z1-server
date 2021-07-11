@@ -2,9 +2,10 @@ export interface Client {
   currentPOI?: number;
   firstLoading: boolean;
   isLoading: boolean;
+  isInteracting: boolean;
   posAtLastRoutine: Float32Array;
   posAtLogoutStart: Float32Array;
-  logoutTimer: NodeJS.Timeout | null;
+  timer: NodeJS.Timeout | null;
   spawnedEntities: any[];
   gameClient: {
     currentWeather: Weather;
@@ -13,7 +14,7 @@ export interface Client {
     mountedVehicle?: string;
     mountedVehicleType?: string;
     vehicleState: number;
-  }
+  };
   character: {
     characterId: string;
     transientId: number;

@@ -2184,7 +2184,7 @@ const packets = [
               defaultValue: [{}],
               fields: recipeData,
             },
-            /*
+            
             {
               name: "mounts",
               type: "array",
@@ -2230,6 +2230,7 @@ const packets = [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
               ],
             },
+            /*
             {
               name: "unknownEffectArray",
               type: "array",

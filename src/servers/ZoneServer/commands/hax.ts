@@ -95,7 +95,7 @@ const hax: any = {
     const vehicleData = {
       npcData: {
         guid: guid,
-        transientId: 999999,
+        transientId: server.getTransientId(client, guid),
         characterId: characterId,
         modelId: driveModel,
         scale: [1, 1, 1, 1],
@@ -117,20 +117,22 @@ const hax: any = {
       ),
       unknownString1: "",
     };
+    server.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicleData);
     server._vehicles[characterId] = vehicleData;
     server.worldRoutine(client);
-    setTimeout(function(){ // doing anything with vehicle before client gets fullvehicle packet breaks it
-	server.sendData(client, "Mount.MountResponse", {
-      characterId: client.character.characterId,
-      guid: characterId,
-      characterData: [],
-    });
-    server.sendData(client, "Vehicle.Engine", {
-      guid2: characterId,
-      unknownBoolean: true,
-    });
-    client.vehicle.mountedVehicle = characterId;
-	}, 500);
+    setTimeout(function () {
+      // doing anything with vehicle before client gets fullvehicle packet breaks it
+      server.sendDataToAll("Mount.MountResponse", {
+        characterId: client.character.characterId,
+        guid: characterId,
+        characterData: [],
+      });
+      server.sendDataToAll("Vehicle.Engine", {
+        guid2: characterId,
+        unknownBoolean: true,
+      });
+      client.vehicle.mountedVehicle = characterId;
+    }, 500);
   },
 
   parachute: function (server: ZoneServer, client: Client, args: any[]) {
@@ -257,6 +259,7 @@ const hax: any = {
       );
     });
     client.spawnedEntities = [];
+    server._props = {};
     server._npcs = {};
     server._objects = {};
     server._vehicles = {};
