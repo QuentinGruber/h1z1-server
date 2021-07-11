@@ -174,15 +174,22 @@ export class LoginServer extends EventEmitter {
     if (this._soloMode) {
       const SinglePlayerCharacter = require("../../../data/2015/sampleData/single_player_character.json");
 
-      const cowboy = _.cloneDeep(SinglePlayerCharacter); // for fun 🤠
-      cowboy.characterId = "0x0000000000000001";
-      cowboy.payload.name = "Cowboy";
-
-      CharactersInfo = {
-        status: 1,
-        canBypassServerLock: true,
-        characters: [SinglePlayerCharacter, cowboy],
-      };
+      if (this._protocol.protocolName == "LoginUdp_9") {
+        const cowboy = _.cloneDeep(SinglePlayerCharacter); // for fun 🤠
+        cowboy.characterId = "0x0000000000000001";
+        cowboy.payload.name = "Cowboy";
+        CharactersInfo = {
+          status: 1,
+          canBypassServerLock: true,
+          characters: [SinglePlayerCharacter, cowboy],
+        };
+      } else { // LoginUdp_11
+        CharactersInfo = {
+          status: 1,
+          canBypassServerLock: true,
+          characters: [SinglePlayerCharacter],
+        };
+      }
     } else {
       const charactersQuery = { ownerId: client.loginSessionId };
       const characters = await this._db

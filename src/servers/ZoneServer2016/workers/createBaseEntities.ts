@@ -30,6 +30,9 @@ const chanceFarm = 10;
 const chanceHospital = 50;
 const chanceMilitary = 20;
 
+const chanceNpc = 50;
+const chanceScreamer = 5; // 1000 max
+
 let numberOfSpawnedEntity = 0;
 
 function getHeadActor(modelId: number): any {
@@ -167,8 +170,11 @@ function createSomeNpcs(server: ZoneServer2016) {
     if (authorizedModelId.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
         const spawnchance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
-        if (spawnchance <= 40) {
-          // temporary spawnchance
+        if (spawnchance <= chanceNpc) {
+          const screamerChance = Math.floor(Math.random() * 1000) + 1; // temporary spawnchance
+          if (screamerChance <= chanceScreamer) {
+            authorizedModelId.push(9667);
+          }
           const r = itemInstance.rotation;
           createEntity(
             server,
