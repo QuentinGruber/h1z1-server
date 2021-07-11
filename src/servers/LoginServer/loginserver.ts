@@ -41,7 +41,10 @@ export class LoginServer extends EventEmitter {
     this._crcSeed = 0;
     this._crcLength = 2;
     this._udpLength = 512;
-    this._cryptoKey = new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", 'base64');
+    this._cryptoKey = new (Buffer as any).from(
+      "F70IaxuU8C/w7FPXY1ibXw==",
+      "base64"
+    );
     this._soloMode = false;
     this._mongoAddress = mongoAddress;
 
@@ -111,26 +114,7 @@ export class LoginServer extends EventEmitter {
                 break;
               }
               case "TunnelAppPacketClientToServer": // only used for nameValidation rn
-                const string1 = "Name1";
-                const string2 = "Name2";
-                let offset = 0;
-                if (this._protocol.protocolName == "LoginUdp_9") {
-                  packet.tunnelData = new (Buffer as any).alloc(13 + string1.length + string2.length);
-                  packet.tunnelData.writeUInt8(0x02, offset); // nameValidation opcode
-                } else { // LoginUdp_11
-                  packet.tunnelData = new (Buffer as any).alloc(14 + string1.length + string2.length);
-                  packet.tunnelData.writeUInt8(0xa7, offset); // loginBase opcode
-                  packet.tunnelData.writeUInt8(0x02, offset += 1); // nameValidation opcode
-                }
-
-                packet.tunnelData.writePrefixedStringLE(string1, offset += 1); // string1
-                packet.tunnelData.writePrefixedStringLE(string2, offset += (4 + string1.length)); // string2
-                packet.tunnelData.writeUInt32LE(1, offset += (4 + string2.length)) // status dword
-                data = this._protocol.pack(
-                  "TunnelAppPacketServerToClient",
-                  packet
-                );
-                this._soeServer.sendAppData(client, data, true);
+                this.TunnelAppPacketClientToServer(client, packet, 1);
                 break;
               case "Logout":
                 clearInterval(client.serverUpdateTimer);
@@ -167,7 +151,33 @@ export class LoginServer extends EventEmitter {
       );
     }
   }
+  TunnelAppPacketClientToServer(client: Client, packet: any, status: number) {
+    const string1 = "Name1";
+    const string2 = "Name2";
+    let offset = 0;
+    if (this._protocol.protocolName == "LoginUdp_9") {
+      packet.tunnelData = new (Buffer as any).alloc(
+        13 + string1.length + string2.length
+      );
+      packet.tunnelData.writeUInt8(0x02, offset); // nameValidation opcode
+    } else {
+      // LoginUdp_11
+      packet.tunnelData = new (Buffer as any).alloc(
+        14 + string1.length + string2.length
+      );
+      packet.tunnelData.writeUInt8(0xa7, offset); // loginBase opcode
+      packet.tunnelData.writeUInt8(0x02, (offset += 1)); // nameValidation opcode
+    }
 
+    packet.tunnelData.writePrefixedStringLE(string1, (offset += 1)); // string1
+    packet.tunnelData.writePrefixedStringLE(
+      string2,
+      (offset += 4 + string1.length)
+    ); // string2
+    packet.tunnelData.writeUInt32LE(status, (offset += 4 + string2.length)); // status dword
+    const data = this._protocol.pack("TunnelAppPacketServerToClient", packet);
+    this._soeServer.sendAppData(client, data, true);
+  }
   async CharacterSelectInfoRequest(client: Client) {
     let CharactersInfo;
     if (this._soloMode) {
