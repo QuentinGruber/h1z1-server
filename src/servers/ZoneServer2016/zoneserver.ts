@@ -79,6 +79,9 @@ export class ZoneServer2016 extends ZoneServer {
       client.character.spawnLocation =
         this._spawnLocations[randomSpawnIndex].name;
     }
+
+    self.data.recipes = recipes; // load recipes into sendself from file
+
     this.sendData(client, "SendSelfToClient", self);
   }
 
@@ -189,8 +192,92 @@ export class ZoneServer2016 extends ZoneServer {
     );
   }
 
-  sendRecipes(client: Client): void {
-    this.sendData(client, "Recipe.List", {recipes: recipes});
+  sendEquipment(client: Client): void {
+    this.sendData( client, "Equipment.SetCharacterEquipmentSlot", {
+      characterData: {
+        characterId: client.character.characterId,
+      },
+      equipmentTexture: {
+        index: 1, // needs to be non-zero
+        slotId: 1, // needs to be non-zero
+        unknownQword1: "0x1", // needs to be non-zero
+        textureAlias: "",
+        unknownString1: "",
+      },
+      equipmentModel: {
+        model: "SurvivorMale_Hair_ShortMessy.adr",
+        effectId: 0,
+        equipmentSlotId: 27,
+        unknownArray1: [],
+      },
+    });
+  }
+
+  sendResources(client: Client): void {
+    this.sendData(client, "ResourceEvent", {
+      eventData: {
+        type: 1,
+        value: {
+          characterId: client.character.characterId,
+          characterResources: [
+            {
+              resourceId: 1, // health
+              resourceData: {
+                resourceId: 1,
+                resourceType: 1,
+                unknownArray1: [],
+                value: 5000, // 10000 max
+              }
+            },
+            {
+              resourceId: 6, // stamina
+              resourceData: {
+                resourceId: 6,
+                resourceType: 6,
+                unknownArray1: [],
+                value: 600, // 600 max
+              }
+            },
+            {
+              resourceId: 4, // food
+              resourceData: {
+                resourceId: 4,
+                resourceType: 4,
+                unknownArray1: [],
+                value: 5000, // 10000 max
+              }
+            },
+            {
+              resourceId: 5, // water
+              resourceData: {
+                resourceId: 5,
+                resourceType: 5,
+                unknownArray1: [],
+                value: 5000, // 10000 max
+              }
+            },
+            {
+              resourceId: 68, // comfort
+              resourceData: {
+                resourceId: 68,
+                resourceType: 68,
+                unknownArray1: [],
+                value: 5000, // 5000 max
+              }
+            },
+            {
+              resourceId: 12, // h1z1 virus
+              resourceData: {
+                resourceId: 12,
+                resourceType: 12,
+                unknownArray1: [],
+                value: 10000, // 10000 max
+              }
+            }
+          ]
+        },
+      },
+    });
   }
 
   removeOutOfDistanceEntities(client: Client): void {
