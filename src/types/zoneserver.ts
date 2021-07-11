@@ -3,6 +3,7 @@ export interface Client {
   firstLoading: boolean;
   isLoading: boolean;
   isInteracting: boolean;
+  falling: number;
   posAtLastRoutine: Float32Array;
   posAtLogoutStart: Float32Array;
   timer: NodeJS.Timeout | null;
