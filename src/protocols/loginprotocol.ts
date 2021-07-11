@@ -25,13 +25,13 @@ export class LoginProtocol {
     switch (this.protocolName) {
       case "LoginUdp_9":
         this.loginPackets =
-          require("../packets/LoginUdp/LoginUdp_9/loginPackets").default;
+          require("../packets/LoginUdp/LoginUdp_9/loginpackets").default;
         this.tunnelLoginPackets =
           require("../packets/LoginUdp/LoginUdp_9/loginTunnelPackets").default;
         break;
       case "LoginUdp_11":
         this.loginPackets =
-          require("../packets/LoginUdp/LoginUdp_11/loginPackets").default;
+          require("../packets/LoginUdp/LoginUdp_11/loginpackets").default;
         this.tunnelLoginPackets =
           require("../packets/LoginUdp/LoginUdp_11/loginTunnelPackets").default;
         break;
