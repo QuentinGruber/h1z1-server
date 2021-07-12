@@ -6,7 +6,6 @@ const debug = require("debug")("zonepacketHandlers");
 
 const dev: any = {
   testpacket: function (server: ZoneServer, client: Client, args: any[]) {
-    const guid = generateRandomGuid();
     server.sendData(client, "Equipment.SetCharacterEquipment", {
       profileId: 3,
       characterId:client.character.characterId,
