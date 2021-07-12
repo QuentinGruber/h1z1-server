@@ -1751,7 +1751,7 @@ const packetHandlers: any = {
       server.sendData(client, "ClientUpdate.TextAlert", {
         message: pickupMessage,
       });
-      let { water, health, food } = client.character.resources;
+      const { water, health, food } = client.character.resources;
       switch (objectToPickup.modelId) {
         case 9159:
           client.character.resources.water = water + 4000;

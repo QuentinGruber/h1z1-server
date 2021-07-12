@@ -139,7 +139,7 @@ const hax: any = {
   parachute: function (server: ZoneServer, client: Client, args: any[]) {
     const characterId = server.generateGuid();
     const guid = server.generateGuid();
-    let posY = client.character.state.position[1] + 700;
+    const posY = client.character.state.position[1] + 700;
     const vehicleData = {
       npcData: {
         guid: guid,
@@ -182,7 +182,7 @@ const hax: any = {
   },
 
   time: function (server: ZoneServer, client: Client, args: any[]) {
-    const choosenHour: number = Number(args[1]);
+    const choosenHour = Number(args[1]);
     if (choosenHour < 0) {
       server.sendChatText(client, "You need to specify an hour to set !");
       return;
