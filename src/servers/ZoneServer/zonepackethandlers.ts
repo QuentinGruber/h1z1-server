@@ -43,7 +43,7 @@ const packetHandlers: any = {
       attachmentData: [
         {modelName:"Weapon_Empty.adr",slotId:7},
         {modelName:"SurvivorMale_Ivan_Shirt_Base.adr",slotId:3}, 
-        {modelName:"SurvivorMale_Ivan_Pants_Base.adr",slotId:4},
+        {modelName:"SurvivorMale_Ivan_Pants_Base.adr",defaultTextureAlias: "Ivan_Pants_Jeans_Blue",slotId:4},
       ],
     });
     server.sendData(client, "ClientUpdate.DoneSendingPreloadCharacters", {
