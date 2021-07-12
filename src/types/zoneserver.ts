@@ -1,3 +1,8 @@
+interface characterEquipment {
+  modelName:string;
+  slotId:number;
+  defaultTextureAlias?:string
+}
 export interface Client {
   currentPOI?: number;
   firstLoading: boolean;
@@ -11,6 +16,7 @@ export interface Client {
     currentWeather: Weather;
   };
   vehicle: {
+    falling:number;
     mountedVehicle?: string;
     mountedVehicleType?: string;
     vehicleState: number;
@@ -23,6 +29,7 @@ export interface Client {
     extraModel?: string;
     isRunning: boolean;
     resourcesUpdater?: any;
+    equipment: characterEquipment[]
     resources: {
       health: number;
       stamina: number;

@@ -1,5 +1,5 @@
 import { LoginClient } from "../../h1z1-server";
-import { Base64 } from "js-base64";
+
 import { Worker } from "worker_threads";
 const loginServer = new Worker(`${__dirname}/workers/loginServer.js`);
 loginServer.on("message", testLoad);
@@ -11,7 +11,7 @@ function testLoad() {
       "dev",
       "127.0.0.1",
       1115,
-      Base64.toUint8Array("F70IaxuU8C/w7FPXY1ibXw=="), // <- loginkey
+      new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", 'base64'), // <- loginkey
       4851 + index
     );
     console.time("FullLogin" + index);

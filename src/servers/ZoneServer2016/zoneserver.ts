@@ -17,7 +17,7 @@ import { ZoneServer } from "../ZoneServer/zoneserver";
 import { Client, skyData } from "../../types/zoneserver";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
 import _ from "lodash";
-import { Base64 } from "js-base64";
+
 import {
   //generateRandomGuid,
   initMongo,
@@ -27,11 +27,12 @@ import {
 
 import { /*Db,*/ MongoClient } from "mongodb";
 import dynamicWeather from "./workers/dynamicWeather";
+
 // need to get 2016 lists
 // const spawnLocations = require("../../../data/2015/sampleData/spawnLocations.json");
 // const localWeatherTemplates = require("../../../data/2015/sampleData/weather.json");
 // const stats = require("../../../data/2015/sampleData/stats.json");
-// const recipes = require("../../../data/2015/sampleData/recipes.json");
+const recipes = require("../../../data/2016/sampleData/recipes.json");
 // const resources = require("../../../data/2015/dataSources/Resources.json");
 const Z1_POIs = require("../../../data/2015/zoneData/Z1_POIs");
 
@@ -78,6 +79,9 @@ export class ZoneServer2016 extends ZoneServer {
       client.character.spawnLocation =
         this._spawnLocations[randomSpawnIndex].name;
     }
+
+    self.data.recipes = recipes; // load recipes into sendself from file
+
     this.sendData(client, "SendSelfToClient", self);
   }
 
@@ -186,6 +190,94 @@ export class ZoneServer2016 extends ZoneServer {
       playerPosition,
       element.position || element.state?.position || element.npcData.position
     );
+  }
+
+  sendEquipment(client: Client): void {
+    this.sendData( client, "Equipment.SetCharacterEquipmentSlot", {
+      characterData: {
+        characterId: client.character.characterId,
+      },
+      equipmentTexture: {
+        index: 1, // needs to be non-zero
+        slotId: 1, // needs to be non-zero
+        unknownQword1: "0x1", // needs to be non-zero
+        textureAlias: "",
+        unknownString1: "",
+      },
+      equipmentModel: {
+        model: "SurvivorMale_Hair_ShortMessy.adr",
+        effectId: 0,
+        equipmentSlotId: 27,
+        unknownArray1: [],
+      },
+    });
+  }
+
+  sendResources(client: Client): void {
+    this.sendData(client, "ResourceEvent", {
+      eventData: {
+        type: 1,
+        value: {
+          characterId: client.character.characterId,
+          characterResources: [
+            {
+              resourceId: 1, // health
+              resourceData: {
+                resourceId: 1,
+                resourceType: 1,
+                unknownArray1: [],
+                value: 5000, // 10000 max
+              }
+            },
+            {
+              resourceId: 6, // stamina
+              resourceData: {
+                resourceId: 6,
+                resourceType: 6,
+                unknownArray1: [],
+                value: 600, // 600 max
+              }
+            },
+            {
+              resourceId: 4, // food
+              resourceData: {
+                resourceId: 4,
+                resourceType: 4,
+                unknownArray1: [],
+                value: 5000, // 10000 max
+              }
+            },
+            {
+              resourceId: 5, // water
+              resourceData: {
+                resourceId: 5,
+                resourceType: 5,
+                unknownArray1: [],
+                value: 5000, // 10000 max
+              }
+            },
+            {
+              resourceId: 68, // comfort
+              resourceData: {
+                resourceId: 68,
+                resourceType: 68,
+                unknownArray1: [],
+                value: 5000, // 5000 max
+              }
+            },
+            {
+              resourceId: 12, // h1z1 virus
+              resourceData: {
+                resourceId: 12,
+                resourceType: 12,
+                unknownArray1: [],
+                value: 10000, // 10000 max
+              }
+            }
+          ]
+        },
+      },
+    });
   }
 
   removeOutOfDistanceEntities(client: Client): void {
@@ -399,6 +491,6 @@ export class ZoneServer2016 extends ZoneServer {
 if (process.env.VSCODE_DEBUG === "true") {
   new ZoneServer2016(
     1117,
-    Base64.toUint8Array("F70IaxuU8C/w7FPXY1ibXw==")
+    new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", 'base64')
   ).start();
 }
