@@ -532,13 +532,6 @@ const hax: any = {
                 },
               },
               {
-                equipmentSlotId: 1,
-                equipmentSlotData: {
-                  equipmentSlotId: 1,
-                  guid: generateRandomGuid(),
-                },
-              },
-              {
                 equipmentSlotId: 3,
                 equipmentSlotData: {
                   equipmentSlotId: 3,
@@ -555,11 +548,6 @@ const hax: any = {
             ],
             attachmentData: [
               { modelName: "Weapon_Empty.adr", slotId: 7 },
-              {
-                modelName: "SurvivorMale_Ivan_Beanie_Black.adr",
-                defaultTextureAlias: "Ivan_Beanie_BlackH1Z1",
-                slotId: 1,
-              },
               {
                 modelName: "SurvivorMale_Ivan_Shirt_Base.adr",
                 defaultTextureAlias: "Ivan_Tshirt_JINX",
@@ -614,16 +602,72 @@ const hax: any = {
                 slotId: 1,
               },
               {
-                modelName: "SurvivorMale_Ivan_Shirt_Base.adr",
-                slotId: 3,
-              },
-              {
                 modelName: "SurvivorMale_Ivan_Pants_Base.adr",
                 slotId: 4,
               },
             ],
           });
           break;
+          case "Red":
+            server.sendData(client, "Equipment.SetCharacterEquipment", {
+              profileId: 3,
+              characterId: client.character.characterId,
+              equipmentSlots: [
+                {
+                  equipmentSlotId: 0,
+                  equipmentSlotData: {
+                    equipmentSlotId: 0,
+                    guid: generateRandomGuid(),
+                  },
+                },
+                {
+                  equipmentSlotId: 1,
+                  equipmentSlotData: {
+                    equipmentSlotId: 1,
+                    guid: generateRandomGuid(),
+                  },
+                },
+                {
+                  equipmentSlotId: 2,
+                  equipmentSlotData: {
+                    equipmentSlotId: 2,
+                    guid: generateRandomGuid(),
+                  },
+                },
+                {
+                  equipmentSlotId: 3,
+                  equipmentSlotData: {
+                    equipmentSlotId: 3,
+                    guid: generateRandomGuid(),
+                  },
+                },
+                {
+                  equipmentSlotId: 4,
+                  equipmentSlotData: {
+                    equipmentSlotId: 4,
+                    guid: generateRandomGuid(),
+                  },
+                },
+              ],
+              attachmentData: [
+                { modelName: "Weapon_Empty.adr", slotId: 7 },
+                {
+                  modelName: "SurvivorMale_Ivan_Motorcycle_Helmet_Grey.adr",
+                  defaultTextureAlias: "Ivan_MotorCycle_Helmet_Red",
+                  slotId: 1,
+                },
+                {
+                  modelName: "SurvivorMale_Ivan_Shirt_Base.adr",
+                  defaultTextureAlias: "Ivan_Tshirt_RAZOR",
+                  slotId: 3,
+                },
+                {
+                  modelName: "SurvivorMale_Ivan_Pants_Base.adr",
+                  slotId: 4,
+                },
+              ],
+            });
+            break;
 
         default:
           break;

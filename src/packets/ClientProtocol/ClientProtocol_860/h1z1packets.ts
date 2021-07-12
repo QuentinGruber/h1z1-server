@@ -6100,7 +6100,7 @@ var packets = [
             { name: "tintAlias", type: "string", defaultValue: "" },
             { name: "unknownString2", type: "string", defaultValue: "#" },
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+            { name: "enableDebug", type: "uint32", defaultValue: 0 },
             { name: "slotId", type: "uint32", defaultValue: 2 },
           ],
         },
@@ -8633,7 +8633,7 @@ var packets = [
           defaultValue: [],
           fields: [
             { name: "modelName", type: "string", defaultValue: "" },
-            { name: "unknownString1", type: "string", defaultValue: "" },
+            { name: "defaultTextureAlias", type: "string", defaultValue: "" },
             { name: "tintAlias", type: "string", defaultValue: "" },
             { name: "unknownString2", type: "string", defaultValue: "" },
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
