@@ -488,68 +488,65 @@ const hax: any = {
             attachmentData: client.character.equipment,
           });
           break;
-            case "hatchet":
-              client.character.equipment[
-                client.character.equipment.findIndex((x) => x.slotId === 7)
-              ].modelName = "Weapon_Hatchet01_3p.adr";
-              server.sendData(client, "Equipment.SetCharacterEquipment", {
-                profileId: 3,
-                characterId: client.character.characterId,
-                equipmentSlots: client.character.equipment.map((equipment) => {
-                  return {
-                    equipmentSlotId: equipment.slotId,
-                    equipmentSlotData: {
-                      equipmentSlotId: equipment.slotId,
-                      guid: generateRandomGuid(),
-                    },
-                  };
-                }),
-                attachmentData: client.character.equipment,
-              });
-              break;
-              case "empty":
-                client.character.equipment[
-                  client.character.equipment.findIndex((x) => x.slotId === 7)
-                ].modelName = "Weapon_Empty.adr";
-                server.sendData(client, "Equipment.SetCharacterEquipment", {
-                  profileId: 3,
-                  characterId: client.character.characterId,
-                  equipmentSlots: client.character.equipment.map((equipment) => {
-                    return {
-                      equipmentSlotId: equipment.slotId,
-                      equipmentSlotData: {
-                        equipmentSlotId: equipment.slotId,
-                        guid: generateRandomGuid(),
-                      },
-                    };
-                  }),
-                  attachmentData: client.character.equipment,
-                });
-                break;
-              case "torch":
-                client.character.equipment[
-                  client.character.equipment.findIndex((x) => x.slotId === 7)
-                ].modelName = "Weapon_Torch_3p.adr";
-                server.sendData(client, "Equipment.SetCharacterEquipment", {
-                  profileId: 3,
-                  characterId: client.character.characterId,
-                  equipmentSlots: client.character.equipment.map((equipment) => {
-                    return {
-                      equipmentSlotId: equipment.slotId,
-                      equipmentSlotData: {
-                        equipmentSlotId: equipment.slotId,
-                        guid: generateRandomGuid(),
-                      },
-                    };
-                  }),
-                  attachmentData: client.character.equipment,
-                });
-                break;
+        case "hatchet":
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 7)
+          ].modelName = "Weapon_Hatchet01_3p.adr";
+          server.sendData(client, "Equipment.SetCharacterEquipment", {
+            profileId: 3,
+            characterId: client.character.characterId,
+            equipmentSlots: client.character.equipment.map((equipment) => {
+              return {
+                equipmentSlotId: equipment.slotId,
+                equipmentSlotData: {
+                  equipmentSlotId: equipment.slotId,
+                  guid: generateRandomGuid(),
+                },
+              };
+            }),
+            attachmentData: client.character.equipment,
+          });
+          break;
+        case "empty":
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 7)
+          ].modelName = "Weapon_Empty.adr";
+          server.sendData(client, "Equipment.SetCharacterEquipment", {
+            profileId: 3,
+            characterId: client.character.characterId,
+            equipmentSlots: client.character.equipment.map((equipment) => {
+              return {
+                equipmentSlotId: equipment.slotId,
+                equipmentSlotData: {
+                  equipmentSlotId: equipment.slotId,
+                  guid: generateRandomGuid(),
+                },
+              };
+            }),
+            attachmentData: client.character.equipment,
+          });
+          break;
+        case "torch":
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 7)
+          ].modelName = "Weapon_Torch_3p.adr";
+          server.sendData(client, "Equipment.SetCharacterEquipment", {
+            profileId: 3,
+            characterId: client.character.characterId,
+            equipmentSlots: client.character.equipment.map((equipment) => {
+              return {
+                equipmentSlotId: equipment.slotId,
+                equipmentSlotData: {
+                  equipmentSlotId: equipment.slotId,
+                  guid: generateRandomGuid(),
+                },
+              };
+            }),
+            attachmentData: client.character.equipment,
+          });
+          break;
         default:
-          server.sendChatText(
-            client,
-            "Unknown weapon "+choosenWeapon
-          );
+          server.sendChatText(client, "Unknown weapon " + choosenWeapon);
           break;
       }
     }
@@ -692,10 +689,7 @@ const hax: any = {
           break;
 
         default:
-          server.sendChatText(
-            client,
-            "Unknown outfit "+choosenOutfit
-          );
+          server.sendChatText(client, "Unknown outfit " + choosenOutfit);
           break;
       }
     }
