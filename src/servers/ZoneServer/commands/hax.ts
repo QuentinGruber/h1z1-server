@@ -454,6 +454,106 @@ const hax: any = {
       }
     }
   },
+  weapon: function (server: ZoneServer, client: Client, args: any[]) {
+    const choosenWeapon = args[1];
+    if (!choosenWeapon) {
+      server.sendChatText(
+        client,
+        "Please define the name of the weapon you wanna use ! see /hax weapon list'"
+      );
+    } else {
+      switch (choosenWeapon) {
+        case "list":
+          server.sendChatText(
+            client,
+            "Availables weapons : ar, hatchet, torch, empty"
+          );
+          break;
+        case "ar":
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 7)
+          ].modelName = "Weapon_M16A4_3p.adr";
+          server.sendData(client, "Equipment.SetCharacterEquipment", {
+            profileId: 3,
+            characterId: client.character.characterId,
+            equipmentSlots: client.character.equipment.map((equipment) => {
+              return {
+                equipmentSlotId: equipment.slotId,
+                equipmentSlotData: {
+                  equipmentSlotId: equipment.slotId,
+                  guid: generateRandomGuid(),
+                },
+              };
+            }),
+            attachmentData: client.character.equipment,
+          });
+          break;
+            case "hatchet":
+              client.character.equipment[
+                client.character.equipment.findIndex((x) => x.slotId === 7)
+              ].modelName = "Weapon_Hatchet01_3p.adr";
+              server.sendData(client, "Equipment.SetCharacterEquipment", {
+                profileId: 3,
+                characterId: client.character.characterId,
+                equipmentSlots: client.character.equipment.map((equipment) => {
+                  return {
+                    equipmentSlotId: equipment.slotId,
+                    equipmentSlotData: {
+                      equipmentSlotId: equipment.slotId,
+                      guid: generateRandomGuid(),
+                    },
+                  };
+                }),
+                attachmentData: client.character.equipment,
+              });
+              break;
+              case "empty":
+                client.character.equipment[
+                  client.character.equipment.findIndex((x) => x.slotId === 7)
+                ].modelName = "Weapon_Empty.adr";
+                server.sendData(client, "Equipment.SetCharacterEquipment", {
+                  profileId: 3,
+                  characterId: client.character.characterId,
+                  equipmentSlots: client.character.equipment.map((equipment) => {
+                    return {
+                      equipmentSlotId: equipment.slotId,
+                      equipmentSlotData: {
+                        equipmentSlotId: equipment.slotId,
+                        guid: generateRandomGuid(),
+                      },
+                    };
+                  }),
+                  attachmentData: client.character.equipment,
+                });
+                break;
+              case "torch":
+                client.character.equipment[
+                  client.character.equipment.findIndex((x) => x.slotId === 7)
+                ].modelName = "Weapon_Torch_3p.adr";
+                server.sendData(client, "Equipment.SetCharacterEquipment", {
+                  profileId: 3,
+                  characterId: client.character.characterId,
+                  equipmentSlots: client.character.equipment.map((equipment) => {
+                    return {
+                      equipmentSlotId: equipment.slotId,
+                      equipmentSlotData: {
+                        equipmentSlotId: equipment.slotId,
+                        guid: generateRandomGuid(),
+                      },
+                    };
+                  }),
+                  attachmentData: client.character.equipment,
+                });
+                break;
+        default:
+          server.sendChatText(
+            client,
+            "Unknown weapon "+choosenWeapon
+          );
+          break;
+      }
+    }
+  },
   outfit: function (server: ZoneServer, client: Client, args: any[]) {
     const choosenOutfit = args[1];
     if (!choosenOutfit) {
@@ -592,6 +692,10 @@ const hax: any = {
           break;
 
         default:
+          server.sendChatText(
+            client,
+            "Unknown outfit "+choosenOutfit
+          );
           break;
       }
     }
