@@ -570,13 +570,6 @@ export class ZoneServer extends EventEmitter {
       require.resolve("../../../data/2015/sampleData/sendself.json") // reload json
     ];
     this._dummySelf = require("../../../data/2015/sampleData/sendself.json"); // dummy this._dummySelf
-    if (String(client.character.characterId) === "0x0000000000000001") {
-      // for fun ­Ъца
-      this._dummySelf.data.characterId = "0x0000000000000001";
-      this._dummySelf.data.identity.characterFirstName = "Cowboy :)";
-      this._dummySelf.data.extraModel = "SurvivorMale_Ivan_OutbackHat_Base.adr";
-      this._dummySelf.data.extraModelTexture = "Ivan_OutbackHat_LeatherTan";
-    }
     const {
       data: { identity },
     } = this._dummySelf;
