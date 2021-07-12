@@ -3,6 +3,7 @@ import { Client, Weather } from "types/zoneserver";
 import { ZoneServer } from "../zoneserver";
 
 import _ from "lodash";
+import { generateRandomGuid } from "../../../utils/utils";
 const debug = require("debug")("zonepacketHandlers");
 
 let isSonic = false;
@@ -450,6 +451,182 @@ const hax: any = {
           client,
           `Use "/hax weather list" to know all available templates`
         );
+      }
+    }
+  },
+  outfit: function (server: ZoneServer, client: Client, args: any[]) {
+    const choosenOutfit = args[1];
+    if (!choosenOutfit) {
+      server.sendChatText(
+        client,
+        "Please define the name of the outfit you wanna use ! see /hax outfit list'"
+      );
+    } else {
+      switch (choosenOutfit) {
+        case "list":
+          server.sendChatText(
+            client,
+            "Availables outfits : Aviator, Cowboy, Jinx"
+          );
+          break;
+        case "Aviator":
+          server.sendData(client, "Equipment.SetCharacterEquipment", {
+            profileId: 3,
+            characterId: client.character.characterId,
+            equipmentSlots: [
+              {
+                equipmentSlotId: 7,
+                equipmentSlotData: {
+                  equipmentSlotId: 7,
+                  guid: generateRandomGuid(),
+                },
+              },
+              {
+                equipmentSlotId: 1,
+                equipmentSlotData: {
+                  equipmentSlotId: 1,
+                  guid: generateRandomGuid(),
+                },
+              },
+              {
+                equipmentSlotId: 3,
+                equipmentSlotData: {
+                  equipmentSlotId: 3,
+                  guid: generateRandomGuid(),
+                },
+              },
+              {
+                equipmentSlotId: 4,
+                equipmentSlotData: {
+                  equipmentSlotId: 4,
+                  guid: generateRandomGuid(),
+                },
+              },
+            ],
+            attachmentData: [
+              { modelName: "Weapon_Empty.adr", slotId: 7 },
+              { modelName: "SurvivorMale_Ivan_AviatorHat_Base.adr", slotId: 1 },
+              {
+                modelName: "SurvivorMale_Ivan_Shirt_Base.adr",
+                defaultTextureAlias: "Ivan_Tshirt_Army_Green",
+                slotId: 3,
+              },
+              {
+                modelName: "SurvivorMale_Ivan_Pants_Base.adr",
+                defaultTextureAlias: "Ivan_Pants_Jeans_Black",
+                slotId: 4,
+              },
+            ],
+          });
+          break;
+        case "Jinx":
+          server.sendData(client, "Equipment.SetCharacterEquipment", {
+            profileId: 3,
+            characterId: client.character.characterId,
+            equipmentSlots: [
+              {
+                equipmentSlotId: 2,
+                equipmentSlotData: {
+                  equipmentSlotId: 2,
+                  guid: generateRandomGuid(),
+                },
+              },
+              {
+                equipmentSlotId: 1,
+                equipmentSlotData: {
+                  equipmentSlotId: 1,
+                  guid: generateRandomGuid(),
+                },
+              },
+              {
+                equipmentSlotId: 3,
+                equipmentSlotData: {
+                  equipmentSlotId: 3,
+                  guid: generateRandomGuid(),
+                },
+              },
+              {
+                equipmentSlotId: 4,
+                equipmentSlotData: {
+                  equipmentSlotId: 4,
+                  guid: generateRandomGuid(),
+                },
+              },
+            ],
+            attachmentData: [
+              { modelName: "Weapon_Empty.adr", slotId: 7 },
+              {
+                modelName: "SurvivorMale_Ivan_Beanie_Black.adr",
+                defaultTextureAlias: "Ivan_Beanie_BlackH1Z1",
+                slotId: 1,
+              },
+              {
+                modelName: "SurvivorMale_Ivan_Shirt_Base.adr",
+                defaultTextureAlias: "Ivan_Tshirt_JINX",
+                slotId: 3,
+              },
+              {
+                modelName: "SurvivorMale_Ivan_Pants_Base.adr",
+                slotId: 4,
+              },
+            ],
+          });
+          break;
+        case "Cowboy":
+          server.sendData(client, "Equipment.SetCharacterEquipment", {
+            profileId: 3,
+            characterId: client.character.characterId,
+            equipmentSlots: [
+              {
+                equipmentSlotId: 2,
+                equipmentSlotData: {
+                  equipmentSlotId: 2,
+                  guid: generateRandomGuid(),
+                },
+              },
+              {
+                equipmentSlotId: 1,
+                equipmentSlotData: {
+                  equipmentSlotId: 1,
+                  guid: generateRandomGuid(),
+                },
+              },
+              {
+                equipmentSlotId: 3,
+                equipmentSlotData: {
+                  equipmentSlotId: 3,
+                  guid: generateRandomGuid(),
+                },
+              },
+              {
+                equipmentSlotId: 4,
+                equipmentSlotData: {
+                  equipmentSlotId: 4,
+                  guid: generateRandomGuid(),
+                },
+              },
+            ],
+            attachmentData: [
+              { modelName: "Weapon_Empty.adr", slotId: 7 },
+              {
+                modelName: "SurvivorMale_Ivan_OutbackHat_Base.adr",
+                defaultTextureAlias: "Ivan_OutbackHat_LeatherTan",
+                slotId: 1,
+              },
+              {
+                modelName: "SurvivorMale_Ivan_Shirt_Base.adr",
+                slotId: 3,
+              },
+              {
+                modelName: "SurvivorMale_Ivan_Pants_Base.adr",
+                slotId: 4,
+              },
+            ],
+          });
+          break;
+
+        default:
+          break;
       }
     }
   },
