@@ -234,11 +234,18 @@ export class ZoneServer extends EventEmitter {
         client.loginSessionId = loginSessionId;
         client.vehicle = {
           vehicleState: 0,
+          falling: -1
         };
         client.character = {
           characterId: characterId,
           transientId: generatedTransient,
-          isRunning: false,
+          isRunning: false, 
+          equipment:[
+            {modelName:"Weapon_Empty.adr",slotId:1}, // yeah that's an hack TODO find a better way
+            {modelName:"Weapon_Empty.adr",slotId:7},
+            {modelName:"SurvivorMale_Ivan_Shirt_Base.adr",defaultTextureAlias: "Ivan_Tshirt_Navy_Shoulder_Stripes",slotId:3}, 
+            {modelName:"SurvivorMale_Ivan_Pants_Base.adr",defaultTextureAlias: "Ivan_Pants_Jeans_Blue",slotId:4},
+          ],
           resources: {
             health: 5000,
             stamina: 50,
@@ -569,12 +576,6 @@ export class ZoneServer extends EventEmitter {
       require.resolve("../../../data/2015/sampleData/sendself.json") // reload json
     ];
     this._dummySelf = require("../../../data/2015/sampleData/sendself.json"); // dummy this._dummySelf
-    if (String(client.character.characterId) === "0x0000000000000001") {
-      // for fun ­Ъца
-      this._dummySelf.data.characterId = "0x0000000000000001";
-      this._dummySelf.data.extraModel = "SurvivorMale_Ivan_OutbackHat_Base.adr";
-      this._dummySelf.data.extraModelTexture = "Ivan_OutbackHat_LeatherTan";
-    }
     const {
       data: { identity },
     } = this._dummySelf;
