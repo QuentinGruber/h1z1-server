@@ -8637,7 +8637,7 @@ var packets = [
             { name: "tintAlias", type: "string", defaultValue: "" },
             { name: "unknownString2", type: "string", defaultValue: "" },
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+            { name: "enableDebug", type: "uint32", defaultValue: 0 },
             { name: "slotId", type: "uint32", defaultValue: 0 },
           ],
         },
