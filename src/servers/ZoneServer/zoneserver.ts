@@ -239,7 +239,13 @@ export class ZoneServer extends EventEmitter {
         client.character = {
           characterId: characterId,
           transientId: generatedTransient,
-          isRunning: false,
+          isRunning: false, 
+          equipment:[
+            {modelName:"Weapon_Empty.adr",slotId:1}, // yeah that's an hack TODO find a better way
+            {modelName:"Weapon_Empty.adr",slotId:7},
+            {modelName:"SurvivorMale_Ivan_Shirt_Base.adr",defaultTextureAlias: "Ivan_Tshirt_Navy_Shoulder_Stripes",slotId:3}, 
+            {modelName:"SurvivorMale_Ivan_Pants_Base.adr",defaultTextureAlias: "Ivan_Pants_Jeans_Blue",slotId:4},
+          ],
           resources: {
             health: 5000,
             stamina: 50,

@@ -466,208 +466,130 @@ const hax: any = {
         case "list":
           server.sendChatText(
             client,
-            "Availables outfits : Aviator, Cowboy, Jinx"
+            "Availables outfits : Aviator, Cowboy, Jinx, Red"
           );
           break;
         case "Aviator":
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 1)
+          ].modelName = "SurvivorMale_Ivan_AviatorHat_Base.adr";
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 3)
+          ].modelName = "SurvivorMale_Ivan_Shirt_Base.adr";
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 3)
+          ].defaultTextureAlias = "Ivan_Tshirt_Army_Green";
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 4)
+          ].modelName = "SurvivorMale_Ivan_Pants_Base.adr";
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 4)
+          ].defaultTextureAlias = "Ivan_Pants_Jeans_Black";
           server.sendData(client, "Equipment.SetCharacterEquipment", {
             profileId: 3,
             characterId: client.character.characterId,
-            equipmentSlots: [
-              {
-                equipmentSlotId: 7,
+            equipmentSlots: client.character.equipment.map((equipment) => {
+              return {
+                equipmentSlotId: equipment.slotId,
                 equipmentSlotData: {
-                  equipmentSlotId: 7,
+                  equipmentSlotId: equipment.slotId,
                   guid: generateRandomGuid(),
                 },
-              },
-              {
-                equipmentSlotId: 1,
-                equipmentSlotData: {
-                  equipmentSlotId: 1,
-                  guid: generateRandomGuid(),
-                },
-              },
-              {
-                equipmentSlotId: 3,
-                equipmentSlotData: {
-                  equipmentSlotId: 3,
-                  guid: generateRandomGuid(),
-                },
-              },
-              {
-                equipmentSlotId: 4,
-                equipmentSlotData: {
-                  equipmentSlotId: 4,
-                  guid: generateRandomGuid(),
-                },
-              },
-            ],
-            attachmentData: [
-              { modelName: "Weapon_Empty.adr", slotId: 7 },
-              { modelName: "SurvivorMale_Ivan_AviatorHat_Base.adr", slotId: 1 },
-              {
-                modelName: "SurvivorMale_Ivan_Shirt_Base.adr",
-                defaultTextureAlias: "Ivan_Tshirt_Army_Green",
-                slotId: 3,
-              },
-              {
-                modelName: "SurvivorMale_Ivan_Pants_Base.adr",
-                defaultTextureAlias: "Ivan_Pants_Jeans_Black",
-                slotId: 4,
-              },
-            ],
+              };
+            }),
+            attachmentData: client.character.equipment,
           });
           break;
         case "Jinx":
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 1)
+          ].modelName = "Weapon_Empty.adr";
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 3)
+          ].modelName = "SurvivorMale_Ivan_Shirt_Base.adr";
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 3)
+          ].defaultTextureAlias = "Ivan_Tshirt_JINX";
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 4)
+          ].modelName = "SurvivorMale_Ivan_Pants_Base.adr";
           server.sendData(client, "Equipment.SetCharacterEquipment", {
             profileId: 3,
             characterId: client.character.characterId,
-            equipmentSlots: [
-              {
-                equipmentSlotId: 2,
+            equipmentSlots: client.character.equipment.map((equipment) => {
+              return {
+                equipmentSlotId: equipment.slotId,
                 equipmentSlotData: {
-                  equipmentSlotId: 2,
+                  equipmentSlotId: equipment.slotId,
                   guid: generateRandomGuid(),
                 },
-              },
-              {
-                equipmentSlotId: 3,
-                equipmentSlotData: {
-                  equipmentSlotId: 3,
-                  guid: generateRandomGuid(),
-                },
-              },
-              {
-                equipmentSlotId: 4,
-                equipmentSlotData: {
-                  equipmentSlotId: 4,
-                  guid: generateRandomGuid(),
-                },
-              },
-            ],
-            attachmentData: [
-              { modelName: "Weapon_Empty.adr", slotId: 7 },
-              {
-                modelName: "SurvivorMale_Ivan_Shirt_Base.adr",
-                defaultTextureAlias: "Ivan_Tshirt_JINX",
-                slotId: 3,
-              },
-              {
-                modelName: "SurvivorMale_Ivan_Pants_Base.adr",
-                slotId: 4,
-              },
-            ],
+              };
+            }),
+            attachmentData: client.character.equipment,
           });
           break;
         case "Cowboy":
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 1)
+          ].modelName = "SurvivorMale_Ivan_OutbackHat_Base.adr";
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 1)
+          ].defaultTextureAlias = "Ivan_OutbackHat_LeatherTan";
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 3)
+          ].modelName = "SurvivorMale_Ivan_Shirt_Base.adr";
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 3)
+          ].defaultTextureAlias = "Ivan_Tshirt_Navy_Shoulder_Stripes";
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 4)
+          ].modelName = "SurvivorMale_Ivan_Pants_Base.adr";
           server.sendData(client, "Equipment.SetCharacterEquipment", {
             profileId: 3,
             characterId: client.character.characterId,
-            equipmentSlots: [
-              {
-                equipmentSlotId: 2,
+            equipmentSlots: client.character.equipment.map((equipment) => {
+              return {
+                equipmentSlotId: equipment.slotId,
                 equipmentSlotData: {
-                  equipmentSlotId: 2,
+                  equipmentSlotId: equipment.slotId,
                   guid: generateRandomGuid(),
                 },
-              },
-              {
-                equipmentSlotId: 1,
-                equipmentSlotData: {
-                  equipmentSlotId: 1,
-                  guid: generateRandomGuid(),
-                },
-              },
-              {
-                equipmentSlotId: 3,
-                equipmentSlotData: {
-                  equipmentSlotId: 3,
-                  guid: generateRandomGuid(),
-                },
-              },
-              {
-                equipmentSlotId: 4,
-                equipmentSlotData: {
-                  equipmentSlotId: 4,
-                  guid: generateRandomGuid(),
-                },
-              },
-            ],
-            attachmentData: [
-              { modelName: "Weapon_Empty.adr", slotId: 7 },
-              {
-                modelName: "SurvivorMale_Ivan_OutbackHat_Base.adr",
-                defaultTextureAlias: "Ivan_OutbackHat_LeatherTan",
-                slotId: 1,
-              },
-              {
-                modelName: "SurvivorMale_Ivan_Pants_Base.adr",
-                slotId: 4,
-              },
-            ],
+              };
+            }),
+            attachmentData: client.character.equipment,
           });
           break;
-          case "Red":
-            server.sendData(client, "Equipment.SetCharacterEquipment", {
-              profileId: 3,
-              characterId: client.character.characterId,
-              equipmentSlots: [
-                {
-                  equipmentSlotId: 0,
-                  equipmentSlotData: {
-                    equipmentSlotId: 0,
-                    guid: generateRandomGuid(),
-                  },
+        case "Red":
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 1)
+          ].modelName = "SurvivorMale_Ivan_Motorcycle_Helmet_Grey.adr";
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 1)
+          ].defaultTextureAlias = "Ivan_MotorCycle_Helmet_Red";
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 3)
+          ].modelName = "SurvivorMale_Ivan_Shirt_Base.adr";
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 3)
+          ].defaultTextureAlias = "Ivan_Tshirt_RAZOR";
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 4)
+          ].modelName = "SurvivorMale_Ivan_Pants_Base.adr";
+          server.sendData(client, "Equipment.SetCharacterEquipment", {
+            profileId: 3,
+            characterId: client.character.characterId,
+            equipmentSlots: client.character.equipment.map((equipment) => {
+              return {
+                equipmentSlotId: equipment.slotId,
+                equipmentSlotData: {
+                  equipmentSlotId: equipment.slotId,
+                  guid: generateRandomGuid(),
                 },
-                {
-                  equipmentSlotId: 1,
-                  equipmentSlotData: {
-                    equipmentSlotId: 1,
-                    guid: generateRandomGuid(),
-                  },
-                },
-                {
-                  equipmentSlotId: 2,
-                  equipmentSlotData: {
-                    equipmentSlotId: 2,
-                    guid: generateRandomGuid(),
-                  },
-                },
-                {
-                  equipmentSlotId: 3,
-                  equipmentSlotData: {
-                    equipmentSlotId: 3,
-                    guid: generateRandomGuid(),
-                  },
-                },
-                {
-                  equipmentSlotId: 4,
-                  equipmentSlotData: {
-                    equipmentSlotId: 4,
-                    guid: generateRandomGuid(),
-                  },
-                },
-              ],
-              attachmentData: [
-                { modelName: "Weapon_Empty.adr", slotId: 7 },
-                {
-                  modelName: "SurvivorMale_Ivan_Motorcycle_Helmet_Grey.adr",
-                  defaultTextureAlias: "Ivan_MotorCycle_Helmet_Red",
-                  slotId: 1,
-                },
-                {
-                  modelName: "SurvivorMale_Ivan_Shirt_Base.adr",
-                  defaultTextureAlias: "Ivan_Tshirt_RAZOR",
-                  slotId: 3,
-                },
-                {
-                  modelName: "SurvivorMale_Ivan_Pants_Base.adr",
-                  slotId: 4,
-                },
-              ],
-            });
-            break;
+              };
+            }),
+            attachmentData: client.character.equipment,
+          });
+          break;
 
         default:
           break;

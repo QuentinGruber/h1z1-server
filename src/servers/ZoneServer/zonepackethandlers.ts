@@ -40,11 +40,7 @@ const packetHandlers: any = {
     server.sendData(client, "QuickChat.SendData", { commands: [] });
     server.sendData(client, "ClientUpdate.ActivateProfile", {
       profiles: server._profiles,
-      attachmentData: [
-        {modelName:"Weapon_Empty.adr",slotId:7},
-        {modelName:"SurvivorMale_Ivan_Shirt_Base.adr",slotId:3}, 
-        {modelName:"SurvivorMale_Ivan_Pants_Base.adr",defaultTextureAlias: "Ivan_Pants_Jeans_Blue",slotId:4},
-      ],
+      attachmentData: client.character.equipment,
     });
     server.sendData(client, "ClientUpdate.DoneSendingPreloadCharacters", {
       unknownBoolean1: 1,
