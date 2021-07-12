@@ -48,10 +48,11 @@ const hax = {
     server.worldRoutine(client);
     server.sendData(client, "Mount.MountResponse", {
       characterId: client.character.characterId,
-      guid: characterId,
+      vehicleGuid: characterId,
       identity: {},
     });
-    client.isMounted = true;
+    client.vehicle.mountedVehicle = characterId;
+    client.vehicle.mountedVehicleType = "parachute";
   },
 
   tp: function (server, client, args) {

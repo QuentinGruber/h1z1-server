@@ -429,6 +429,30 @@ const dev = {
     server.sendData(client, "Command.ItemDefinitions", itemDefinitions) // todo: add ClientItemDefinition data
   },
 
+  seatchange: function (server, client, args) {
+    if (!args[3]) {
+      server.sendChatText(client, "Missing 3 args");
+      return;
+    }
+    server.sendData(client, "Mount.SeatChangeResponse", {
+      unknownQword1: client.character.characterId,
+      unknownQword2: client.vehicle.mountedVehicle,
+      identity: {
+        unknownDword1: 0,
+        unknownDword2: 0,
+        unknownDword3: 0,
+        characterFirstName: "",
+        characterLastName: "",
+        unknownString1: "",
+        characterName: "LocalPlayer",
+        unknownQword1: "0"
+      },
+      unknownDword1: Number(args[1]),
+      unknownDword2: Number(args[2]),
+      unknownDword3: Number(args[3]),
+    });
+    server.sendChatText(client, `sent seatchange`);
+  }
   /*
   proxiedObjects: function(server, client, args) {
     

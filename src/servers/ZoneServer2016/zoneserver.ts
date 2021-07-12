@@ -31,7 +31,7 @@ import dynamicWeather from "./workers/dynamicWeather";
 // need to get 2016 lists
 // const spawnLocations = require("../../../data/2015/sampleData/spawnLocations.json");
 // const localWeatherTemplates = require("../../../data/2015/sampleData/weather.json");
-// const stats = require("../../../data/2015/sampleData/stats.json");
+const stats = require("../../../data/2016/sampleData/stats.json");
 const recipes = require("../../../data/2016/sampleData/recipes.json");
 // const resources = require("../../../data/2015/dataSources/Resources.json");
 const Z1_POIs = require("../../../data/2015/zoneData/Z1_POIs");
@@ -81,7 +81,8 @@ export class ZoneServer2016 extends ZoneServer {
     }
 
     self.data.recipes = recipes; // load recipes into sendself from file
-
+    // disabled for now
+    //self.data.stats = stats; // load stats into sendself from file
     this.sendData(client, "SendSelfToClient", self);
   }
 
@@ -485,6 +486,77 @@ export class ZoneServer2016 extends ZoneServer {
       cycleSpeed: this._cycleSpeed,
       unknownBoolean: false,
     });
+  }
+  
+  mountVehicle(client: Client, packet: any): void {
+    client.vehicle.mountedVehicle = packet.data.guid;
+    switch (this._vehicles[packet.data.guid].npcData.vehicleId) {
+      case 1:
+        client.vehicle.mountedVehicleType = "offroader";
+        break;
+      case 2:
+        client.vehicle.mountedVehicleType = "pickup";
+        break;
+      case 3:
+        client.vehicle.mountedVehicleType = "policecar";
+        break;
+      case 5:
+        client.vehicle.mountedVehicleType = "atv";
+        break;
+      case 13:
+        client.vehicle.mountedVehicleType = "parachute";
+        break;
+      default:
+        client.vehicle.mountedVehicleType = "unknown";
+        break;
+    }
+    this.sendData(client, "Mount.MountResponse", {// mounts character
+      characterId: client.character.characterId,
+      vehicleGuid: client.vehicle.mountedVehicle, // vehicle guid
+      identity: {},
+    });
+    
+    this.sendData(client, "Vehicle.Engine", {// starts engine
+      guid2: client.vehicle.mountedVehicle,
+      engineOn: true,
+    });
+  }
+
+  dismountVehicle(client: Client): void {
+    this.sendData(client, "Mount.DismountResponse", {// dismounts character
+      characterId: client.character.characterId,
+    });
+    this.sendData(client, "Vehicle.Engine", {// stops engine
+      guid2: client.vehicle.mountedVehicle,
+      engineOn: false,
+    });
+    client.vehicle.mountedVehicle = "";
+  }
+
+  changeSeat(client: Client, packet: any): void {
+    let seatCount;
+    switch (client.vehicle.mountedVehicleType) {
+      case "offroader":
+      case "pickup":
+      case "policecar":
+        seatCount = 5;
+        break;
+      case "atv":
+        seatCount = 2;
+        break;
+      case "parachute":
+      default:
+        seatCount = 1;
+        break;
+    }
+    if(packet.data.seatId < seatCount) {
+      this.sendData(client, "Mount.SeatChangeResponse", {
+        characterId: client.character.characterId,
+        vehicleGuid: client.vehicle.mountedVehicle,
+        identity: {},
+        seatId: packet.data.seatId,
+      });
+    }
   }
 }
 

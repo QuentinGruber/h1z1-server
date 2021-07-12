@@ -23,6 +23,7 @@ import dev from "./commands/dev";
 // import admin from "./commands/admin";
 
 import { Int64String, isPosInRadius } from "../../utils/utils";
+import { CLIENT_RENEG_LIMIT } from "node:tls";
 
 // TOOD: UPDATE THIS FOR 2016
 // const modelToName = require("../../../data/2015/sampleData/ModelToName.json");
@@ -168,7 +169,6 @@ const packetHandlers = {
     }
 
     client.isLoading = false;
-    client.isMounted = false;
 
     setInterval(function () {
       server.worldRoutine(client);
@@ -1093,30 +1093,17 @@ const packetHandlers = {
   },
 
   "Command.PlayerSelect": function (server, client, packet) {
-    if (server._vehicles[packet.data.guid]) {
-      // checking if vehicle
-      server.sendData(client, "Mount.MountResponse", {
-        // mounts character
-        characterId: client.character.characterId,
-        guid: packet.data.guid, // vehicle guid
-        identity: {},
-      });
-      server.sendData(client, "Vehicle.Engine", {
-        // starts engine
-        guid2: packet.data.guid,
-        unknownBoolean: true,
-      });
-      client.isMounted = true;
+    if (server._vehicles[packet.data.guid] && !client.vehicle.mountedVehicle) {
+      server.mountVehicle(client, packet);
+    }
+    else if (server._vehicles[packet.data.guid] && client.vehicle.mountedVehicle) {// other seats
+      server.dismountVehicle(client);
     }
   },
 
-  "Mount.DismountRequest": function (server, client, packet) {
+  "Mount.DismountRequest": function (server, client, packet) { // only for driver seat
     debug(packet.data);
-    server.sendData(client, "Mount.DismountResponse", {
-      // dismounts character
-      characterId: client.character.characterId,
-    });
-    client.isMounted = false;
+    server.dismountVehicle(client);
   },
   "Command.InteractionString": function (server, client, packet) {
     const { guid } = packet.data;
@@ -1156,7 +1143,7 @@ const packetHandlers = {
         vehicleData.npcData.position
       )
     ) {
-      if (!client.isMounted) {
+      if (!client.vehicle.mountedVehicle) {
         server.sendData(client, "Command.InteractionString", {
           guid: guid,
           stringId: 15,
@@ -1164,6 +1151,10 @@ const packetHandlers = {
       }
     }
   },
+
+  "Mount.SeatChangeRequest": function (server, client, packet) {
+    server.changeSeat(client, packet);
+  }
 
   /*
   "Command.ItemDefinitionRequest": function (server, client, packet) {
