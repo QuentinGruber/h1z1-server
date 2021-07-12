@@ -41,11 +41,9 @@ const packetHandlers: any = {
     server.sendData(client, "ClientUpdate.ActivateProfile", {
       profiles: server._profiles,
       attachmentData: [
-        {modelName:"Weapon_Empty.adr",slotId:2},
-        {modelName:"Weapon_M16A4.adr",slotId:7},
-        {modelName:"SurvivorMale_Ivan_AviatorHat_Base.adr",slotId:1},
-        {modelName:"SurvivorMale_Ivan_Shirt_Base.adr",defaultTextureAlias:"Ivan_Tshirt_Army_Green",slotId:3}, 
-        {modelName:"SurvivorMale_Ivan_Pants_Base.adr",defaultTextureAlias:"Ivan_Pants_Jeans_Black",slotId:4},
+        {modelName:"Weapon_Empty.adr",slotId:7},
+        {modelName:"SurvivorMale_Ivan_Shirt_Base.adr",slotId:3}, 
+        {modelName:"SurvivorMale_Ivan_Pants_Base.adr",slotId:4},
       ],
     });
     server.sendData(client, "ClientUpdate.DoneSendingPreloadCharacters", {
