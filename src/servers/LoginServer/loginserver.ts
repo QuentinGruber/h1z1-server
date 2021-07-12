@@ -41,7 +41,10 @@ export class LoginServer extends EventEmitter {
     this._crcSeed = 0;
     this._crcLength = 2;
     this._udpLength = 512;
-    this._cryptoKey = new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", 'base64');
+    this._cryptoKey = new (Buffer as any).from(
+      "F70IaxuU8C/w7FPXY1ibXw==",
+      "base64"
+    );
     this._soloMode = false;
     this._mongoAddress = mongoAddress;
 
@@ -81,6 +84,7 @@ export class LoginServer extends EventEmitter {
       async (err: string, client: Client, data: Buffer) => {
         try {
           const packet: any = this._protocol.parse(data);
+          debug(packet);
           if (packet?.result) {
             // if packet parsing succeed
             const { sessionId, systemFingerPrint } = packet.result;
@@ -109,21 +113,12 @@ export class LoginServer extends EventEmitter {
                 this.CharacterCreateRequest(client);
                 break;
               }
-              case "TunnelAppPacketClientToServer":
-                console.log(packet);
-                packet.tunnelData = new (Buffer as any).alloc(4);
-                packet.tunnelData.writeUInt32LE(0x1); // TODO
-                data = this._protocol.pack(
-                  "TunnelAppPacketServerToClient",
-                  packet
-                );
-                console.log(data);
-                this._soeServer.sendAppData(client, data, true);
+              case "TunnelAppPacketClientToServer": // only used for nameValidation rn
+                this.TunnelAppPacketClientToServer(client, packet);
                 break;
-
               case "Logout":
                 clearInterval(client.serverUpdateTimer);
-                // this._soeServer.deleteClient(client); this is done to early
+                // this._soeServer.deleteClient(client); this is done too early
                 break;
             }
           } else {
@@ -156,21 +151,45 @@ export class LoginServer extends EventEmitter {
       );
     }
   }
-
+  TunnelAppPacketClientToServer(client: Client, packet: any) {
+    const baseResponse = {serverId:packet.serverId};
+    let response;
+    switch (packet.subPacketName) {
+      case "nameValidationRequest":
+        response = {...baseResponse,
+          subPacketOpcode:0x02,
+          firstName:packet.result.characterName,
+          status:1
+        }
+        break;
+      default:
+        debug(`Unhandled tunnel packet "${packet.subPacketName}"`)
+        break;
+    }
+    const data = this._protocol.pack("TunnelAppPacketServerToClient", response);
+    this._soeServer.sendAppData(client, data, true);
+  }
   async CharacterSelectInfoRequest(client: Client) {
     let CharactersInfo;
     if (this._soloMode) {
       const SinglePlayerCharacter = require("../../../data/2015/sampleData/single_player_character.json");
 
-      const cowboy = _.cloneDeep(SinglePlayerCharacter); // for fun 🤠
-      cowboy.characterId = "0x0000000000000001";
-      cowboy.payload.name = "Cowboy";
-
-      CharactersInfo = {
-        status: 1,
-        canBypassServerLock: true,
-        characters: [SinglePlayerCharacter, cowboy],
-      };
+      if (this._protocol.protocolName == "LoginUdp_9") {
+        const cowboy = _.cloneDeep(SinglePlayerCharacter); // for fun 🤠
+        cowboy.characterId = "0x0000000000000001";
+        cowboy.payload.name = "Cowboy";
+        CharactersInfo = {
+          status: 1,
+          canBypassServerLock: true,
+          characters: [SinglePlayerCharacter, cowboy],
+        };
+      } else { // LoginUdp_11
+        CharactersInfo = {
+          status: 1,
+          canBypassServerLock: true,
+          characters: [SinglePlayerCharacter],
+        };
+      }
     } else {
       const charactersQuery = { ownerId: client.loginSessionId };
       const characters = await this._db
