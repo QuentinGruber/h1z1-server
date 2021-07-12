@@ -38,7 +38,10 @@ const packetHandlers: any = {
         });
         */
     server.sendData(client, "QuickChat.SendData", { commands: [] });
-
+    server.sendData(client, "ClientUpdate.ActivateProfile", {
+      profiles: server._profiles,
+      attachmentData: client.character.equipment,
+    });
     server.sendData(client, "ClientUpdate.DoneSendingPreloadCharacters", {
       unknownBoolean1: 1,
     });
