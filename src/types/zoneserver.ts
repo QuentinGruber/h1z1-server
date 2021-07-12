@@ -11,7 +11,7 @@ export interface Client {
     currentWeather: Weather;
   };
   vehicle: {
-    falling:boolean;
+    falling:number;
     mountedVehicle?: string;
     mountedVehicleType?: string;
     vehicleState: number;
