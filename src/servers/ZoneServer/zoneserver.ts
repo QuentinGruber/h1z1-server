@@ -234,6 +234,7 @@ export class ZoneServer extends EventEmitter {
         client.loginSessionId = loginSessionId;
         client.vehicle = {
           vehicleState: 0,
+          falling: false
         };
         client.character = {
           characterId: characterId,

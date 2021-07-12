@@ -295,8 +295,8 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
-	if (packet.data.damage > 100000 && client.character.resources.health > 0 && client.falling < -1) {
-    const damageFix = packet.data.damage / 100000 * client.falling * -5;
+	if (packet.data.damage > 100000 && client.character.resources.health > 0 && client.vehicle.falling < -1) {
+    const damageFix = packet.data.damage / 100000 * client.vehicle.falling * -5;
 	client.character.resources.health = client.character.resources.health - damageFix;
 	if (client.character.resources.health < 0) {
 		client.character.resources.health = 0;
@@ -1626,7 +1626,7 @@ const packetHandlers: any = {
     packet: any
   ) {
     if (packet.data.flags === 510) {
-		  client.falling = packet.data.unknown10_float;
+		  client.vehicle.falling = packet.data.unknown10_float;
 	  }
     const movingCharacter = server._characters[client.character.characterId];
     if (movingCharacter && !server._soloMode) {

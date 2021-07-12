@@ -3,7 +3,6 @@ export interface Client {
   firstLoading: boolean;
   isLoading: boolean;
   isInteracting: boolean;
-  falling: number;
   posAtLastRoutine: Float32Array;
   posAtLogoutStart: Float32Array;
   timer: NodeJS.Timeout | null;
@@ -12,6 +11,7 @@ export interface Client {
     currentWeather: Weather;
   };
   vehicle: {
+    falling:boolean;
     mountedVehicle?: string;
     mountedVehicleType?: string;
     vehicleState: number;
