@@ -40,7 +40,7 @@ export class ZoneServer2016 extends ZoneServer {
   constructor(
     serverPort: number,
     gatewayKey: Uint8Array,
-    mongoAddress: string = ""
+    mongoAddress = ""
   ) {
     super(serverPort, gatewayKey, mongoAddress);
     this._protocol = new H1Z1Protocol("ClientProtocol_1080");

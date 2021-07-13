@@ -43,9 +43,9 @@ interface PositionZoneToClient {
 
 export class H1Z1Protocol {
   H1Z1Packets: any;
-  protocolName: String;
+  protocolName: string;
 
-  constructor(protocolName: String = "ClientProtocol_860") {
+  constructor(protocolName = "ClientProtocol_860") {
     this.protocolName = protocolName;
     // Maybe will remove this switch later
     switch (this.protocolName) {
@@ -67,11 +67,11 @@ export class H1Z1Protocol {
   }
 
   parseFacilityReferenceData(data: Buffer) {
-    var inSize = data.readUInt32LE(0),
+    const inSize = data.readUInt32LE(0),
       outSize = data.readUInt32LE(4),
       compData = data.slice(8);
     data = lz4_decompress(compData, inSize, outSize);
-    var schema = {
+    const schema = {
       fields: [
         {
           name: "facilityTypes",
@@ -100,17 +100,17 @@ export class H1Z1Protocol {
         },
       ],
     };
-    var result = DataSchema.parse(schema, data, 0, null).result;
+    const result = DataSchema.parse(schema, data, 0, null).result;
     return result;
   }
 
   parseWeaponDefinitionReferenceData(data: Buffer) {
-    var inSize = data.readUInt32LE(0),
+    const inSize = data.readUInt32LE(0),
       outSize = data.readUInt32LE(4),
       compData = data.slice(8);
     data = lz4_decompress(compData, inSize, outSize);
     //fs.writeFileSync("weapondefinitions.dat", data);
-    var schema = [
+    const schema = [
       {
         name: "weaponDefinitions",
         type: "array",
@@ -273,7 +273,7 @@ export class H1Z1Protocol {
       },
     ];
     try {
-      var result = DataSchema.parse(schema, data, 0, null).result;
+      const result = DataSchema.parse(schema, data, 0, null).result;
       return result;
     } catch (e) {}
   }
@@ -295,7 +295,7 @@ export class H1Z1Protocol {
   parseUpdatePositionZoneToClient(data: Buffer, offset: number) {
     const obj = {} as PositionZoneToClient;
 
-    var v = readUnsignedIntWith2bitLengthValue(data, offset);
+    const v = readUnsignedIntWith2bitLengthValue(data, offset);
     obj["unknown1_uint"] = v.value;
     offset += v.length;
 
@@ -308,7 +308,7 @@ export class H1Z1Protocol {
 
   pack(packetName: string, object?: any, referenceData?: any) {
     const { H1Z1Packets } = this;
-    var packetType: number = H1Z1Packets.PacketTypes[packetName],
+    let packetType: number = H1Z1Packets.PacketTypes[packetName],
       packet = H1Z1Packets.Packets[packetType],
       packetData,
       data,
@@ -330,7 +330,7 @@ export class H1Z1Protocol {
           data = new (Buffer as any).alloc(
             packetTypeBytes.length + packetData.length
           );
-          for (var i = 0; i < packetTypeBytes.length; i++) {
+          for (let i = 0; i < packetTypeBytes.length; i++) {
             data.writeUInt8(packetTypeBytes[i], i);
           }
           packetData.data.copy(data, packetTypeBytes.length);
@@ -349,7 +349,7 @@ export class H1Z1Protocol {
 
   parse(data: Buffer, flags: any, fromClient: boolean, referenceData: any) {
     const { H1Z1Packets } = this;
-    var opCode = data[0],
+    let opCode = data[0],
       offset = 0,
       packet,
       result;
@@ -474,10 +474,10 @@ const readSignedIntWith2bitLengthValue = function (
   data: Buffer,
   offset: number
 ) {
-  var value = data.readUInt8(offset);
-  var sign = value & 1;
-  var n = (value >> 1) & 3;
-  for (var i = 0; i < n; i++) {
+  let value = data.readUInt8(offset);
+  const sign = value & 1;
+  const n = (value >> 1) & 3;
+  for (let i = 0; i < n; i++) {
     value += data.readUInt8(offset + i + 1) << ((i + 1) * 8);
   }
   value = value >>> 3;
@@ -493,9 +493,9 @@ const readUnsignedIntWith2bitLengthValue = function (
   data: Buffer,
   offset: number
 ) {
-  var value = data.readUInt8(offset);
-  var n = value & 3;
-  for (var i = 0; i < n; i++) {
+  let value = data.readUInt8(offset);
+  const n = value & 3;
+  for (let i = 0; i < n; i++) {
     value += data.readUInt8(offset + i + 1) << ((i + 1) * 8);
   }
   value = value >>> 2;
