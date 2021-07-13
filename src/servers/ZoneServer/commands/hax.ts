@@ -441,7 +441,7 @@ const hax: any = {
     } else {
       if (args[1] === "list") {
         server.sendChatText(client, `Weather templates :`);
-        _.forEach(server._weatherTemplates, function (element, key) {
+        _.forEach(server._weatherTemplates, function (element) {
           console.log(element.templateName);
           server.sendChatText(client, `- ${element.templateName}`);
         });
