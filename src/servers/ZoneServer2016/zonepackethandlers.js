@@ -27,7 +27,7 @@ import { Int64String, isPosInRadius } from "../../utils/utils";
 // TOOD: UPDATE THIS FOR 2016
 // const modelToName = require("../../../data/2015/sampleData/ModelToName.json");
 
-const _ = require("lodash");
+const _ = require("../../utils/utils");
 const debug = require("debug")("zonepacketHandlers");
 
 const packetHandlers = {
