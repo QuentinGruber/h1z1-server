@@ -549,7 +549,7 @@ const packetHandlers: any = {
           "/player_fall_through_world_test",
         ];
         server.sendChatText(client, `Commands list:`);
-        _.concat(commandList, haxCommandList, devCommandList, adminCommandList)
+        commandList.concat(haxCommandList, devCommandList, adminCommandList)
           .sort((a: string, b: string) => a.localeCompare(b))
           .forEach((command: string) => {
             server.sendChatText(client, `${command}`);

@@ -346,7 +346,7 @@ const packetHandlers = {
           "/serverinfo",
         ];
         server.sendChatText(client, `Commands list:`);
-        _.concat(commandList, haxCommandList, devCommandList)
+        commandList.concat( haxCommandList, devCommandList)
           .sort((a, b) => a.localeCompare(b))
           .forEach((command) => {
             server.sendChatText(client, `${command}`);
