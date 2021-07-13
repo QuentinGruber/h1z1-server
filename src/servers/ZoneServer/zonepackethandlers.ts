@@ -25,7 +25,7 @@ import { ZoneServer } from "./zoneserver";
 import { Client } from "types/zoneserver";
 const modelToName = require("../../../data/2015/sampleData/ModelToName.json");
 
-import _ from "lodash";
+import {_} from "../../utils/utils";
 const debug = require("debug")("zonepacketHandlers");
 
 const packetHandlers: any = {

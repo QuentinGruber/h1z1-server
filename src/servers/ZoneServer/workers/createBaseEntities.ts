@@ -6,7 +6,7 @@ const Z1_npcs = require("../../../../data/2015/zoneData/Z1_npcs.json");
 const z1_Props = require("../../../../data/2015/zoneData/z1_Props.json");
 const models = require("../../../../data/2015/dataSources/Models.json");
 const modelToName = require("../../../../data/2015/sampleData/ModelToName.json");
-import _ from "lodash";
+import {_} from "../../../utils/utils";
 import { generateRandomGuid } from "../../../utils/utils";
 import { ZoneServer } from "../zoneserver";
 const npcs: any = {};

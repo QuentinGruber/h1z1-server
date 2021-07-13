@@ -17,7 +17,7 @@ import { LoginProtocol } from "../../protocols/loginprotocol";
 import { MongoClient } from "mongodb";
 import { generateRandomGuid, initMongo } from "../../utils/utils";
 import { Client, GameServer, SoeServer } from "../../types/loginserver";
-import _ from "lodash";
+import {_} from "../../utils/utils";
 
 const debugName = "LoginServer";
 const debug = require("debug")(debugName);

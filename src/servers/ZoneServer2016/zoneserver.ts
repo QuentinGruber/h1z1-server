@@ -16,7 +16,7 @@ import { default as packetHandlers } from "./zonepackethandlers";
 import { ZoneServer } from "../ZoneServer/zoneserver";
 import { Client, skyData } from "../../types/zoneserver";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
-import _ from "lodash";
+import {_} from "../../utils/utils";
 
 import {
   //generateRandomGuid,

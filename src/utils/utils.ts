@@ -2,7 +2,7 @@ const restore = require("mongodb-restore-dump");
 import {generate_random_guid} from "h1emu-core"
 import v8 from 'v8';
 
-export class _ {
+export class customLodash {
   constructor() {
   }
   cloneDeep(value:any){
@@ -34,6 +34,8 @@ export class _ {
     return array;
   }
 }
+export const _ = new customLodash();
+
 export async function zoneShutdown(
   server: any,
   startedTime: number,
