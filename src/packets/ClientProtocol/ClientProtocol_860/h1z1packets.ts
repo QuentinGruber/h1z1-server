@@ -13,7 +13,6 @@
 import PacketTableBuild from "../../packettable";
 import DataSchema from "h1z1-dataschema";
 import { lz4_decompress } from "../../../utils/utils";
-import { stubFalse } from "lodash";
 
 function readPacketType(data: Buffer, packets: any) {
   let opCode = data[0] >>> 0,
@@ -1014,7 +1013,7 @@ const lightWeightNpcSchema = [
       { name: "b", type: "uint8", defaultValue: 0 },
     ],
   },
-  { name: "unknown30", type: "boolean", defaultValue: stubFalse },
+  { name: "unknown30", type: "boolean", defaultValue: false },
   { name: "unknown31", type: "uint32", defaultValue: 0 },
   { name: "unknown32", type: "uint64", defaultValue: "0x0000000000000000" },
   {
