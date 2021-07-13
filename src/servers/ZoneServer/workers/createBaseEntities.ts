@@ -776,8 +776,8 @@ function createFarm(server: ZoneServer) {
 
 function createProps(server: ZoneServer) {
   z1_Props.forEach((propType: any) => {
-    const modelId: number = _.find(models, {
-      MODEL_FILE_NAME: propType.actorDefinition,
+    const modelId: number = _.find(models,(model:any) => {
+      return model.MODEL_FILE_NAME === propType.actorDefinition;
     })?.ID;
     propType.instances.forEach((propInstance: any) => {
       createEntity(
@@ -796,8 +796,8 @@ function createProps(server: ZoneServer) {
 function createAllDoors(server: ZoneServer): void {
   Z1_doors.forEach((doorType: any) => {
     // TODO: add types for Z1_doors
-    const modelId: number = _.find(models, {
-      MODEL_FILE_NAME: doorType.actorDefinition.replace("_Placer", ""),
+    const modelId: number = _.find(models, (model:any)=>{
+      return model.MODEL_FILE_NAME === doorType.actorDefinition.replace("_Placer", "");
     })?.ID;
     doorType.instances.forEach((doorInstance: any) => {
       createEntity(

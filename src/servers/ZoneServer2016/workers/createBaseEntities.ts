@@ -935,8 +935,8 @@ function createFarm(server: ZoneServer2016) {
 
 function createAllDoors(server: ZoneServer2016): void {
   Z1_doors.forEach((doorType: any) => {
-    const modelId: number = _.find(models, {
-      MODEL_FILE_NAME: doorType.actorDefinition.replace("_Placer", ""),
+    const modelId: number = _.find(models, (model:any)=>{
+      return model.MODEL_FILE_NAME === doorType.actorDefinition.replace("_Placer", "");
     })?.ID;
     doorType.instances.forEach((doorInstance: any) => {
       const r = doorInstance.rotation;
