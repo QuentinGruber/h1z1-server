@@ -11,7 +11,7 @@ function testLoad() {
       "dev",
       "127.0.0.1",
       1115,
-      new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", 'base64'), // <- loginkey
+      new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", "base64"), // <- loginkey
       4851 + index
     );
     console.time("FullLogin" + index);

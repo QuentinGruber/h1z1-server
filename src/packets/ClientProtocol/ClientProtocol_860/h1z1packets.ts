@@ -6294,7 +6294,7 @@ var packets = [
       ],
     },
   ],
- // ["ClientUpdate.LoyaltyPoints", 0x112c00, {}],
+  // ["ClientUpdate.LoyaltyPoints", 0x112c00, {}],
   ["ClientUpdate.Membership", 0x112d00, {}],
   ["ClientUpdate.ResetMissionRespawnTimer", 0x112e00, {}],
   [
