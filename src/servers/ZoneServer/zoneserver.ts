@@ -581,6 +581,7 @@ export class ZoneServer extends EventEmitter {
     } = this._dummySelf;
 
     let characterName;
+    let character;
     if (!this._soloMode) {
       const character = await this._db?.collection("characters")
       .findOne({ characterId: client.character.characterId })
@@ -588,12 +589,14 @@ export class ZoneServer extends EventEmitter {
     } else {
       delete require.cache[require.resolve("../../../data/2015/sampleData/single_player_characters.json")];
       const SinglePlayerCharacters = require("../../../data/2015/sampleData/single_player_characters.json");
-      const character = SinglePlayerCharacters.find((character:any) => character.characterId === client.character.characterId)
+      character = SinglePlayerCharacters.find((character:any) => character.characterId === client.character.characterId)
       characterName = character.payload.name;
     }
 
     this._dummySelf.data.identity.characterFirstName = characterName;
-    client.character.guid = this._dummySelf.data.guid;
+    this._dummySelf.data.guid = character.characterId;
+    this._dummySelf.data.characterId = character.characterId;
+    client.character.guid = client.character.characterId;
     client.character.name =
       identity.characterFirstName + identity.characterLastName;
     const characterDataMongo = await this._db
