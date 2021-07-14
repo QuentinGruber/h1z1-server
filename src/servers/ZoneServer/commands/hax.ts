@@ -455,14 +455,14 @@ const hax: any = {
     }
   },
   weapon: function (server: ZoneServer, client: Client, args: any[]) {
-    const choosenWeapon = args[1];
+    const choosenWeapon:string = args[1];
     if (!choosenWeapon) {
       server.sendChatText(
         client,
         "Please define the name of the weapon you wanna use ! see /hax weapon list'"
       );
     } else {
-      switch (choosenWeapon) {
+      switch (choosenWeapon.toLowerCase()) {
         case "list":
           server.sendChatText(
             client,
@@ -552,21 +552,21 @@ const hax: any = {
     }
   },
   outfit: function (server: ZoneServer, client: Client, args: any[]) {
-    const choosenOutfit = args[1];
+    const choosenOutfit:string = args[1];
     if (!choosenOutfit) {
       server.sendChatText(
         client,
         "Please define the name of the outfit you wanna use ! see /hax outfit list'"
       );
     } else {
-      switch (choosenOutfit) {
+      switch (choosenOutfit.toLowerCase()) {
         case "list":
           server.sendChatText(
             client,
             "Availables outfits : Aviator, Cowboy, Jinx, Red"
           );
           break;
-        case "Aviator":
+        case "aviator":
           client.character.equipment[
             client.character.equipment.findIndex((x) => x.slotId === 1)
           ].modelName = "SurvivorMale_Ivan_AviatorHat_Base.adr";
@@ -597,7 +597,7 @@ const hax: any = {
             attachmentData: client.character.equipment,
           });
           break;
-        case "Jinx":
+        case "jinx":
           client.character.equipment[
             client.character.equipment.findIndex((x) => x.slotId === 1)
           ].modelName = "Weapon_Empty.adr";
@@ -625,7 +625,7 @@ const hax: any = {
             attachmentData: client.character.equipment,
           });
           break;
-        case "Cowboy":
+        case "cowboy":
           client.character.equipment[
             client.character.equipment.findIndex((x) => x.slotId === 1)
           ].modelName = "SurvivorMale_Ivan_OutbackHat_Base.adr";
@@ -656,7 +656,7 @@ const hax: any = {
             attachmentData: client.character.equipment,
           });
           break;
-        case "Red":
+        case "red":
           client.character.equipment[
             client.character.equipment.findIndex((x) => x.slotId === 1)
           ].modelName = "SurvivorMale_Ivan_Motorcycle_Helmet_Grey.adr";
