@@ -242,9 +242,11 @@ export class LoginServer extends EventEmitter {
     debug("CharacterDeleteRequest");
 
     if (this._soloMode) {
-      debug(
-        "Deleting a character in solo mode is weird, modify single_player_characters.json instead"
-      );
+      delete require.cache[require.resolve("../../../data/2015/sampleData/single_player_characters.json")];
+      const singlePlayerCharacters: any[] = require("../../../data/2015/sampleData/single_player_characters.json");
+      const characterIndex = singlePlayerCharacters.findIndex((character:any) => character.characterId === packet.result.characterId)
+      singlePlayerCharacters.splice(characterIndex,1);
+      fs.writeFileSync(`${__dirname}/../../../data/2015/sampleData/single_player_characters.json`,JSON.stringify(singlePlayerCharacters))
     } else {
       await this._db
         .collection("characters")
