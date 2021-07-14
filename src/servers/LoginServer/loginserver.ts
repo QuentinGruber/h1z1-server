@@ -340,7 +340,7 @@ export class LoginServer extends EventEmitter {
     }
     else{
       await this._db
-        .collection("characters").insertOne(newCharacter)
+        .collection("characters").insertOne({...newCharacter,ownerId:client.loginSessionId})
     }
     const reply_data = {
       status: 1,
