@@ -119,9 +119,7 @@ const hax: any = {
       unknownString1: "",
     };
     server.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicleData);
-    server._vehicles[characterId] = vehicleData;
-    server.worldRoutine(client);
-    setTimeout(function () {
+    server._vehicles[characterId] = {...vehicleData,onReadyCallback:()=>{
       // doing anything with vehicle before client gets fullvehicle packet breaks it
       server.sendDataToAll("Mount.MountResponse", {
         characterId: client.character.characterId,
@@ -133,7 +131,8 @@ const hax: any = {
         unknownBoolean: true,
       });
       client.vehicle.mountedVehicle = characterId;
-    }, 500);
+    }};
+    server.worldRoutine(client);
   },
 
   parachute: function (server: ZoneServer, client: Client, args: any[]) {
