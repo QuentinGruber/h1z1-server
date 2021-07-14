@@ -1,7 +1,6 @@
 // UNUSED FOR NOW 2016 SIMULATED CLIENT ISN'T DONE
 import { LoginClient, LoginProtocol, LoginServer } from "../../h1z1-server";
 
-
 const loginServer2016 = new LoginServer(1115);
 loginServer2016._protocol = new LoginProtocol("LoginUdp_11");
 loginServer2016.start();
@@ -11,7 +10,7 @@ var client = new LoginClient(
   "dev",
   "127.0.0.1",
   1115,
-  new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", 'base64'), // <- loginkey
+  new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", "base64"), // <- loginkey
   4851
 );
 client.connect();

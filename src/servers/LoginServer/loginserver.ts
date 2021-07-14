@@ -18,7 +18,7 @@ import { MongoClient } from "mongodb";
 import { generateRandomGuid, initMongo } from "../../utils/utils";
 import { Client, GameServer, SoeServer } from "../../types/loginserver";
 import fs from "fs";
-import {_} from "../../utils/utils";
+import { _ } from "../../utils/utils";
 
 const debugName = "LoginServer";
 const debug = require("debug")(debugName);
@@ -111,7 +111,7 @@ export class LoginServer extends EventEmitter {
                 break;
               }
               case "CharacterCreateRequest": {
-                this.CharacterCreateRequest(client,packet);
+                this.CharacterCreateRequest(client, packet);
                 break;
               }
               case "TunnelAppPacketClientToServer": // only used for nameValidation rn
@@ -153,18 +153,19 @@ export class LoginServer extends EventEmitter {
     }
   }
   TunnelAppPacketClientToServer(client: Client, packet: any) {
-    const baseResponse = {serverId:packet.serverId};
+    const baseResponse = { serverId: packet.serverId };
     let response;
     switch (packet.subPacketName) {
       case "nameValidationRequest":
-        response = {...baseResponse,
-          subPacketOpcode:0x02,
-          firstName:packet.result.characterName,
-          status:1
-        }
+        response = {
+          ...baseResponse,
+          subPacketOpcode: 0x02,
+          firstName: packet.result.characterName,
+          status: 1,
+        };
         break;
       default:
-        debug(`Unhandled tunnel packet "${packet.subPacketName}"`)
+        debug(`Unhandled tunnel packet "${packet.subPacketName}"`);
         break;
     }
     const data = this._protocol.pack("TunnelAppPacketServerToClient", response);
@@ -180,7 +181,8 @@ export class LoginServer extends EventEmitter {
           canBypassServerLock: true,
           characters: SinglePlayerCharacters,
         };
-      } else { // LoginUdp_11
+      } else {
+        // LoginUdp_11
         CharactersInfo = {
           status: 1,
           canBypassServerLock: true,
@@ -242,11 +244,20 @@ export class LoginServer extends EventEmitter {
     debug("CharacterDeleteRequest");
 
     if (this._soloMode) {
-      delete require.cache[require.resolve("../../../data/2015/sampleData/single_player_characters.json")];
+      delete require.cache[
+        require.resolve(
+          "../../../data/2015/sampleData/single_player_characters.json"
+        )
+      ];
       const singlePlayerCharacters: any[] = require("../../../data/2015/sampleData/single_player_characters.json");
-      const characterIndex = singlePlayerCharacters.findIndex((character:any) => character.characterId === packet.result.characterId)
-      singlePlayerCharacters.splice(characterIndex,1);
-      fs.writeFileSync(`${__dirname}/../../../data/2015/sampleData/single_player_characters.json`,JSON.stringify(singlePlayerCharacters))
+      const characterIndex = singlePlayerCharacters.findIndex(
+        (character: any) => character.characterId === packet.result.characterId
+      );
+      singlePlayerCharacters.splice(characterIndex, 1);
+      fs.writeFileSync(
+        `${__dirname}/../../../data/2015/sampleData/single_player_characters.json`,
+        JSON.stringify(singlePlayerCharacters)
+      );
     } else {
       await this._db
         .collection("characters")
@@ -273,8 +284,8 @@ export class LoginServer extends EventEmitter {
         .collection("servers")
         .findOne({ serverId: serverId });
       const character = await this._db
-      .collection("characters")
-      .findOne({ characterId: characterId })
+        .collection("characters")
+        .findOne({ characterId: characterId });
 
       charactersLoginInfo = {
         unknownQword1: "0x0",
@@ -294,7 +305,9 @@ export class LoginServer extends EventEmitter {
       };
     } else {
       const SinglePlayerCharacters = require("../../../data/2015/sampleData/single_player_characters.json");
-      const character = SinglePlayerCharacters.find((character:any) => character.characterId === characterId)
+      const character = SinglePlayerCharacters.find(
+        (character: any) => character.characterId === characterId
+      );
       charactersLoginInfo = {
         unknownQword1: "0x0",
         unknownDword1: 0,
@@ -321,26 +334,36 @@ export class LoginServer extends EventEmitter {
     debug("CharacterLoginRequest");
   }
 
-  async CharacterCreateRequest(client: Client,packet:any) {
-    const {payload:{characterName},serverId} = packet.result;
-    // create character object 
+  async CharacterCreateRequest(client: Client, packet: any) {
+    const {
+      payload: { characterName },
+      serverId,
+    } = packet.result;
+    // create character object
     try {
       // delete commands cache if exist so /dev reloadPackets reload them too
-      delete require.cache[require.resolve("../../../data/2015/sampleData/single_player_characters.json")];
+      delete require.cache[
+        require.resolve(
+          "../../../data/2015/sampleData/single_player_characters.json"
+        )
+      ];
     } catch (e) {}
     const SinglePlayerCharacter = require("../../../data/2015/sampleData/single_player_character.json");
     const SinglePlayerCharacters = require("../../../data/2015/sampleData/single_player_characters.json");
-    const newCharacter = _.cloneDeep(SinglePlayerCharacter)
+    const newCharacter = _.cloneDeep(SinglePlayerCharacter);
     newCharacter.serverId = serverId;
     newCharacter.payload.name = characterName;
     newCharacter.characterId = generateRandomGuid();
-    if(this._soloMode){
-      SinglePlayerCharacters[SinglePlayerCharacters.length] = newCharacter
-      fs.writeFileSync(`${__dirname}/../../../data/2015/sampleData/single_player_characters.json`,JSON.stringify(SinglePlayerCharacters))
-    }
-    else{
+    if (this._soloMode) {
+      SinglePlayerCharacters[SinglePlayerCharacters.length] = newCharacter;
+      fs.writeFileSync(
+        `${__dirname}/../../../data/2015/sampleData/single_player_characters.json`,
+        JSON.stringify(SinglePlayerCharacters)
+      );
+    } else {
       await this._db
-        .collection("characters").insertOne({...newCharacter,ownerId:client.loginSessionId})
+        .collection("characters")
+        .insertOne({ ...newCharacter, ownerId: client.loginSessionId });
     }
     const reply_data = {
       status: 1,

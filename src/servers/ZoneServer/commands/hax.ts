@@ -2,7 +2,7 @@ import fs from "fs";
 import { Client, Weather } from "types/zoneserver";
 import { ZoneServer } from "../zoneserver";
 
-import {_} from "../../../utils/utils";
+import { _ } from "../../../utils/utils";
 import { generateRandomGuid } from "../../../utils/utils";
 const debug = require("debug")("zonepacketHandlers");
 
@@ -119,19 +119,22 @@ const hax: any = {
       unknownString1: "",
     };
     server.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicleData);
-    server._vehicles[characterId] = {...vehicleData,onReadyCallback:()=>{
-      // doing anything with vehicle before client gets fullvehicle packet breaks it
-      server.sendDataToAll("Mount.MountResponse", {
-        characterId: client.character.characterId,
-        guid: characterId,
-        characterData: [],
-      });
-      server.sendDataToAll("Vehicle.Engine", {
-        guid2: characterId,
-        unknownBoolean: true,
-      });
-      client.vehicle.mountedVehicle = characterId;
-    }};
+    server._vehicles[characterId] = {
+      ...vehicleData,
+      onReadyCallback: () => {
+        // doing anything with vehicle before client gets fullvehicle packet breaks it
+        server.sendDataToAll("Mount.MountResponse", {
+          characterId: client.character.characterId,
+          guid: characterId,
+          characterData: [],
+        });
+        server.sendDataToAll("Vehicle.Engine", {
+          guid2: characterId,
+          unknownBoolean: true,
+        });
+        client.vehicle.mountedVehicle = characterId;
+      },
+    };
     server.worldRoutine(client);
   },
 
@@ -426,7 +429,7 @@ const hax: any = {
     }
     const weatherTemplate = server._soloMode
       ? server._weatherTemplates[args[1]]
-      : _.find(server._weatherTemplates, (template: { templateName: any; }) => {
+      : _.find(server._weatherTemplates, (template: { templateName: any }) => {
           return template.templateName === args[1];
         });
     if (!args[1]) {
@@ -440,10 +443,13 @@ const hax: any = {
     } else {
       if (args[1] === "list") {
         server.sendChatText(client, `Weather templates :`);
-        _.forEach(server._weatherTemplates, function (element: { templateName: any; }) {
-          console.log(element.templateName);
-          server.sendChatText(client, `- ${element.templateName}`);
-        });
+        _.forEach(
+          server._weatherTemplates,
+          function (element: { templateName: any }) {
+            console.log(element.templateName);
+            server.sendChatText(client, `- ${element.templateName}`);
+          }
+        );
       } else {
         server.sendChatText(client, `"${args[1]}" isn't a weather template`);
         server.sendChatText(
@@ -454,7 +460,7 @@ const hax: any = {
     }
   },
   weapon: function (server: ZoneServer, client: Client, args: any[]) {
-    const choosenWeapon:string = args[1];
+    const choosenWeapon: string = args[1];
     if (!choosenWeapon) {
       server.sendChatText(
         client,
@@ -551,7 +557,7 @@ const hax: any = {
     }
   },
   outfit: function (server: ZoneServer, client: Client, args: any[]) {
-    const choosenOutfit:string = args[1];
+    const choosenOutfit: string = args[1];
     if (!choosenOutfit) {
       server.sendChatText(
         client,
@@ -705,7 +711,7 @@ const hax: any = {
       );
     } else if (
       server._weatherTemplates[args[1]] ||
-      _.find(server._weatherTemplates, (template: { templateName: any; }) => {
+      _.find(server._weatherTemplates, (template: { templateName: any }) => {
         return template.templateName === args[1];
       })
     ) {
