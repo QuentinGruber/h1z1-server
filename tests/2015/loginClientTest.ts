@@ -27,7 +27,7 @@ client.on("characterinfo", (err, res) => {
   console.log(`Get characterinfo`);
   console.log(res);
   setTimeout(() => {
-    client.requestCharacterLogin("0x0000000000000001", 1, {
+    client.requestCharacterLogin("0x03147cca2a860191", 1, {
       locale: "EnUS",
       localeId: 1,
       preferredGatewayId: 8,

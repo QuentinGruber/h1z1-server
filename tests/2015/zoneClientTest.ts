@@ -7,7 +7,7 @@ var client = new ZoneClient(
   "127.0.0.1",
   1117,
   new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", 'base64'),
-  "0x0000000000000001",
+  "0x03147cca2a860191",
   "0",
   "",
   "",
