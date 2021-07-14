@@ -320,17 +320,15 @@ export class LoginServer extends EventEmitter {
   }
 
   async CharacterCreateRequest(client: Client,packet:any) {
-    console.log(packet)
     const {payload:{characterName},serverId} = packet.result;
     // create character object 
     try {
       // delete commands cache if exist so /dev reloadPackets reload them too
       delete require.cache[require.resolve("../../../data/2015/sampleData/single_player_characters.json")];
     } catch (e) {}
+    const SinglePlayerCharacter = require("../../../data/2015/sampleData/single_player_character.json");
     const SinglePlayerCharacters = require("../../../data/2015/sampleData/single_player_characters.json");
-    console.log(SinglePlayerCharacters)
-    const newCharacter = {...SinglePlayerCharacters[0]}
-    console.log(newCharacter)
+    const newCharacter = _.cloneDeep(SinglePlayerCharacter)
     newCharacter.serverId = serverId;
     newCharacter.payload.name = characterName;
     newCharacter.characterId = generateRandomGuid();

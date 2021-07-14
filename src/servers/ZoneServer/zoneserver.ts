@@ -586,6 +586,7 @@ export class ZoneServer extends EventEmitter {
       .findOne({ characterId: client.character.characterId })
       characterName = character.name;
     } else {
+      delete require.cache[require.resolve("../../../data/2015/sampleData/single_player_characters.json")];
       const SinglePlayerCharacters = require("../../../data/2015/sampleData/single_player_characters.json");
       const character = SinglePlayerCharacters.find((character:any) => character.characterId === client.character.characterId)
       characterName = character.payload.name;
