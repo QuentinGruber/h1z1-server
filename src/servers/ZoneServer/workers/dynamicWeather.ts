@@ -1,4 +1,4 @@
-import _ from "lodash";
+import {_} from "../../../utils/utils";
 import { Client } from "types/zoneserver";
 import { randomIntFromInterval } from "../../../utils/utils";
 import { ZoneServer } from "../zoneserver";

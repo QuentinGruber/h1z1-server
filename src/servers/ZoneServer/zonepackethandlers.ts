@@ -25,7 +25,7 @@ import { ZoneServer } from "./zoneserver";
 import { Client } from "types/zoneserver";
 const modelToName = require("../../../data/2015/sampleData/ModelToName.json");
 
-import _ from "lodash";
+import {_} from "../../utils/utils";
 const debug = require("debug")("zonepacketHandlers");
 
 const packetHandlers: any = {
@@ -549,7 +549,7 @@ const packetHandlers: any = {
           "/player_fall_through_world_test",
         ];
         server.sendChatText(client, `Commands list:`);
-        _.concat(commandList, haxCommandList, devCommandList, adminCommandList)
+        commandList.concat(haxCommandList, devCommandList, adminCommandList)
           .sort((a: string, b: string) => a.localeCompare(b))
           .forEach((command: string) => {
             server.sendChatText(client, `${command}`);

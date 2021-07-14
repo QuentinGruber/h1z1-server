@@ -1,5 +1,41 @@
 const restore = require("mongodb-restore-dump");
 import {generate_random_guid} from "h1emu-core"
+import v8 from 'v8';
+
+export class customLodash {
+  constructor() {
+  }
+  cloneDeep(value:any){
+    return v8.deserialize(v8.serialize(value));
+  }
+  find(array:any[],filter:any){
+    return array.find(filter);
+  }
+  isEqual(array1:any[],array2:any[]){
+    return Array.isArray(array1) &&
+    Array.isArray(array2) &&
+    array1.length === array2.length &&
+    array1.every((val, index) => val === array2[index]);
+  }
+  forEach(object:Object,callback:Function){
+    const objectLength = Object.keys(object).length
+    const objectValues = Object.values(object)
+    for (let index = 0; index < objectLength; index++) {
+      callback(objectValues[index])
+    }
+  }
+  size(object:Object){
+    return Object.keys(object).length
+  }
+  fill(array:any[],object:any){
+    for (let index = 0; index < array.length; index++) {
+      array[index]=object;
+    }
+    return array;
+  }
+}
+export const _ = new customLodash();
+
 export async function zoneShutdown(
   server: any,
   startedTime: number,

@@ -2,7 +2,7 @@ import fs from "fs";
 import { Client, Weather } from "types/zoneserver";
 import { ZoneServer } from "../zoneserver";
 
-import _ from "lodash";
+import {_} from "../../../utils/utils";
 import { generateRandomGuid } from "../../../utils/utils";
 const debug = require("debug")("zonepacketHandlers");
 
@@ -427,7 +427,7 @@ const hax: any = {
     }
     const weatherTemplate = server._soloMode
       ? server._weatherTemplates[args[1]]
-      : _.find(server._weatherTemplates, (template) => {
+      : _.find(server._weatherTemplates, (template: { templateName: any; }) => {
           return template.templateName === args[1];
         });
     if (!args[1]) {
@@ -441,7 +441,7 @@ const hax: any = {
     } else {
       if (args[1] === "list") {
         server.sendChatText(client, `Weather templates :`);
-        _.forEach(server._weatherTemplates, function (element, key) {
+        _.forEach(server._weatherTemplates, function (element: { templateName: any; }) {
           console.log(element.templateName);
           server.sendChatText(client, `- ${element.templateName}`);
         });
@@ -706,7 +706,7 @@ const hax: any = {
       );
     } else if (
       server._weatherTemplates[args[1]] ||
-      _.find(server._weatherTemplates, (template) => {
+      _.find(server._weatherTemplates, (template: { templateName: any; }) => {
         return template.templateName === args[1];
       })
     ) {
