@@ -583,7 +583,7 @@ export class ZoneServer extends EventEmitter {
     let characterName;
     let character;
     if (!this._soloMode) {
-      const character = await this._db?.collection("characters")
+      character = await this._db?.collection("characters")
       .findOne({ characterId: client.character.characterId })
       characterName = character.payload.name;
     } else {
