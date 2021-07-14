@@ -478,7 +478,7 @@ const hax: any = {
           client.character.equipment[
             client.character.equipment.findIndex((x) => x.slotId === 7)
           ].modelName = "Weapon_M16A4_3p.adr";
-          server.sendData(client, "Equipment.SetCharacterEquipment", {
+          server.sendDataToAll("Equipment.SetCharacterEquipment", {
             profileId: 3,
             characterId: client.character.characterId,
             equipmentSlots: client.character.equipment.map((equipment) => {
@@ -497,7 +497,7 @@ const hax: any = {
           client.character.equipment[
             client.character.equipment.findIndex((x) => x.slotId === 7)
           ].modelName = "Weapon_Hatchet01_3p.adr";
-          server.sendData(client, "Equipment.SetCharacterEquipment", {
+          server.sendDataToAll("Equipment.SetCharacterEquipment", {
             profileId: 3,
             characterId: client.character.characterId,
             equipmentSlots: client.character.equipment.map((equipment) => {
@@ -516,7 +516,7 @@ const hax: any = {
           client.character.equipment[
             client.character.equipment.findIndex((x) => x.slotId === 7)
           ].modelName = "Weapon_Empty.adr";
-          server.sendData(client, "Equipment.SetCharacterEquipment", {
+          server.sendDataToAll("Equipment.SetCharacterEquipment", {
             profileId: 3,
             characterId: client.character.characterId,
             equipmentSlots: client.character.equipment.map((equipment) => {
@@ -535,7 +535,7 @@ const hax: any = {
           client.character.equipment[
             client.character.equipment.findIndex((x) => x.slotId === 7)
           ].modelName = "Weapon_Torch_3p.adr";
-          server.sendData(client, "Equipment.SetCharacterEquipment", {
+          server.sendDataToAll("Equipment.SetCharacterEquipment", {
             profileId: 3,
             characterId: client.character.characterId,
             equipmentSlots: client.character.equipment.map((equipment) => {
@@ -587,7 +587,7 @@ const hax: any = {
           client.character.equipment[
             client.character.equipment.findIndex((x) => x.slotId === 4)
           ].defaultTextureAlias = "Ivan_Pants_Jeans_Black";
-          server.sendData(client, "Equipment.SetCharacterEquipment", {
+          server.sendDataToAll("Equipment.SetCharacterEquipment", {
             profileId: 3,
             characterId: client.character.characterId,
             equipmentSlots: client.character.equipment.map((equipment) => {
@@ -615,7 +615,7 @@ const hax: any = {
           client.character.equipment[
             client.character.equipment.findIndex((x) => x.slotId === 4)
           ].modelName = "SurvivorMale_Ivan_Pants_Base.adr";
-          server.sendData(client, "Equipment.SetCharacterEquipment", {
+          server.sendDataToAll("Equipment.SetCharacterEquipment", {
             profileId: 3,
             characterId: client.character.characterId,
             equipmentSlots: client.character.equipment.map((equipment) => {
@@ -646,7 +646,7 @@ const hax: any = {
           client.character.equipment[
             client.character.equipment.findIndex((x) => x.slotId === 4)
           ].modelName = "SurvivorMale_Ivan_Pants_Base.adr";
-          server.sendData(client, "Equipment.SetCharacterEquipment", {
+          server.sendDataToAll("Equipment.SetCharacterEquipment", {
             profileId: 3,
             characterId: client.character.characterId,
             equipmentSlots: client.character.equipment.map((equipment) => {
@@ -677,7 +677,7 @@ const hax: any = {
           client.character.equipment[
             client.character.equipment.findIndex((x) => x.slotId === 4)
           ].modelName = "SurvivorMale_Ivan_Pants_Base.adr";
-          server.sendData(client, "Equipment.SetCharacterEquipment", {
+          server.sendDataToAll("Equipment.SetCharacterEquipment", {
             profileId: 3,
             characterId: client.character.characterId,
             equipmentSlots: client.character.equipment.map((equipment) => {
