@@ -184,7 +184,7 @@ export class LoginServer extends EventEmitter {
         CharactersInfo = {
           status: 1,
           canBypassServerLock: true,
-          characters: SinglePlayerCharacters[0],
+          characters: new Array(SinglePlayerCharacters[0]),
         };
       }
     } else {
