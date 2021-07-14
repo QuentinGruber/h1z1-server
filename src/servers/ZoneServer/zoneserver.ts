@@ -14,7 +14,7 @@ import { EventEmitter } from "events";
 import { GatewayServer } from "../GatewayServer/gatewayserver";
 import { default as packetHandlers } from "./zonepackethandlers";
 import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
-import _ from "lodash";
+import { _ } from "../../utils/utils";
 import {
   generateRandomGuid,
   initMongo,
@@ -25,7 +25,6 @@ import { Client, Weather } from "../../types/zoneserver";
 import { Db, MongoClient } from "mongodb";
 import { Worker } from "worker_threads";
 import dynamicWeather from "./workers/dynamicWeather";
-import { Base64 } from "js-base64";
 
 const localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json");
 
@@ -234,11 +233,26 @@ export class ZoneServer extends EventEmitter {
         client.loginSessionId = loginSessionId;
         client.vehicle = {
           vehicleState: 0,
+          falling: -1,
         };
         client.character = {
           characterId: characterId,
           transientId: generatedTransient,
           isRunning: false,
+          equipment: [
+            { modelName: "Weapon_Empty.adr", slotId: 1 }, // yeah that's an hack TODO find a better way
+            { modelName: "Weapon_Empty.adr", slotId: 7 },
+            {
+              modelName: "SurvivorMale_Ivan_Shirt_Base.adr",
+              defaultTextureAlias: "Ivan_Tshirt_Navy_Shoulder_Stripes",
+              slotId: 3,
+            },
+            {
+              modelName: "SurvivorMale_Ivan_Pants_Base.adr",
+              defaultTextureAlias: "Ivan_Pants_Jeans_Blue",
+              slotId: 4,
+            },
+          ],
           resources: {
             health: 5000,
             stamina: 50,
@@ -569,17 +583,35 @@ export class ZoneServer extends EventEmitter {
       require.resolve("../../../data/2015/sampleData/sendself.json") // reload json
     ];
     this._dummySelf = require("../../../data/2015/sampleData/sendself.json"); // dummy this._dummySelf
-    if (String(client.character.characterId) === "0x0000000000000001") {
-      // for fun ­Ъца
-      this._dummySelf.data.characterId = "0x0000000000000001";
-      this._dummySelf.data.identity.characterFirstName = "Cowboy :)";
-      this._dummySelf.data.extraModel = "SurvivorMale_Ivan_OutbackHat_Base.adr";
-      this._dummySelf.data.extraModelTexture = "Ivan_OutbackHat_LeatherTan";
-    }
     const {
       data: { identity },
     } = this._dummySelf;
-    client.character.guid = this._dummySelf.data.guid;
+
+    let characterName;
+    let character;
+    if (!this._soloMode) {
+      character = await this._db
+        ?.collection("characters")
+        .findOne({ characterId: client.character.characterId });
+      characterName = character.payload.name;
+    } else {
+      delete require.cache[
+        require.resolve(
+          "../../../data/2015/sampleData/single_player_characters.json"
+        )
+      ];
+      const SinglePlayerCharacters = require("../../../data/2015/sampleData/single_player_characters.json");
+      character = SinglePlayerCharacters.find(
+        (character: any) =>
+          character.characterId === client.character.characterId
+      );
+      characterName = character.payload.name;
+    }
+
+    this._dummySelf.data.identity.characterFirstName = characterName;
+    this._dummySelf.data.guid = character.characterId;
+    this._dummySelf.data.characterId = character.characterId;
+    client.character.guid = client.character.characterId;
     client.character.name =
       identity.characterFirstName + identity.characterLastName;
     const characterDataMongo = await this._db
@@ -740,7 +772,7 @@ export class ZoneServer extends EventEmitter {
     this.spawnCharacters(client);
     this.spawnObjects(client);
     this.spawnDoors(client);
-    // this.spawnProps(client);
+    this.spawnProps(client);
     this.spawnNpcs(client);
     this.spawnVehicles(client);
     this.removeOutOfDistanceEntities(client);
@@ -814,19 +846,14 @@ export class ZoneServer extends EventEmitter {
     const objectsToRemove = client.spawnedEntities.filter((e) =>
       this.filterOutOfDistance(e, client.character.state.position)
     );
-    client.spawnedEntities = client.spawnedEntities.filter((el) => {
+    /*client.spawnedEntities = client.spawnedEntities.filter((el) => {
       return !objectsToRemove.includes(el);
-    });
+    });*/
     objectsToRemove.forEach((object: any) => {
       const characterId = object.characterId
         ? object.characterId
         : object.npcData.characterId;
-        if (characterId in this._vehicles) {
-          this.sendData(client, "PlayerUpdate.ManagedObject", {
-            guid: characterId,
-            characterId: client.character.characterId,
-          });
-        }
+      if (characterId in this._vehicles) {
         this.sendData(
           client,
           "PlayerUpdate.RemovePlayerGracefully",
@@ -835,6 +862,7 @@ export class ZoneServer extends EventEmitter {
           },
           1
         );
+      }
     });
   }
 
@@ -887,12 +915,22 @@ export class ZoneServer extends EventEmitter {
   spawnProps(client: Client): void {
     setImmediate(() => {
       for (const prop in this._props) {
+        if (
+          isPosInRadius(
+            this._npcRenderDistance,
+            client.character.state.position,
+            this._props[prop].position
+          ) &&
+          !client.spawnedEntities.includes(this._props[prop])
+        ) {
           this.sendData(
             client,
             "PlayerUpdate.AddLightweightNpc",
             this._props[prop],
             1
           );
+          client.spawnedEntities.push(this._props[prop]);
+        }
       }
     });
   }
@@ -1238,5 +1276,8 @@ export class ZoneServer extends EventEmitter {
   }
 }
 if (process.env.VSCODE_DEBUG === "true") {
-  new ZoneServer(1117, Base64.toUint8Array("F70IaxuU8C/w7FPXY1ibXw==")).start();
+  new ZoneServer(
+    1117,
+    new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", "base64")
+  ).start();
 }

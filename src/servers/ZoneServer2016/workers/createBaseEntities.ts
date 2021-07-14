@@ -5,7 +5,7 @@ const Z1_doors = require("../../../../data/2016/zoneData/Z1_doors.json");
 const Z1_npcs = require("../../../../data/2016/zoneData/Z1_npcs.json");
 const models = require("../../../../data/2016/dataSources/Models.json");
 const modelToName = require("../../../../data/2016/sampleData/ModelToName.json");
-import _ from "lodash";
+import { _ } from "../../../utils/utils";
 import { generateRandomGuid } from "../../../utils/utils";
 import { ZoneServer2016 } from "../zoneserver";
 const npcs: any = {};
@@ -29,6 +29,9 @@ const chanceCommercial = 10;
 const chanceFarm = 10;
 const chanceHospital = 50;
 const chanceMilitary = 20;
+
+const chanceNpc = 50;
+const chanceScreamer = 5; // 1000 max
 
 let numberOfSpawnedEntity = 0;
 
@@ -80,7 +83,7 @@ function createEntity(
 }
 
 export function createAllEntities(server: ZoneServer2016): any {
-  createAllDoors(server); // needs 2016 door positions / rotations
+  createAllDoors(server);
   createAR15(server);
   createPumpShotgun(server);
   createTools(server);
@@ -167,8 +170,11 @@ function createSomeNpcs(server: ZoneServer2016) {
     if (authorizedModelId.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
         const spawnchance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
-        if (spawnchance <= 40) {
-          // temporary spawnchance
+        if (spawnchance <= chanceNpc) {
+          const screamerChance = Math.floor(Math.random() * 1000) + 1; // temporary spawnchance
+          if (screamerChance <= chanceScreamer) {
+            authorizedModelId.push(9667);
+          }
           const r = itemInstance.rotation;
           createEntity(
             server,
@@ -929,8 +935,11 @@ function createFarm(server: ZoneServer2016) {
 
 function createAllDoors(server: ZoneServer2016): void {
   Z1_doors.forEach((doorType: any) => {
-    const modelId: number = _.find(models, {
-      MODEL_FILE_NAME: doorType.actorDefinition.replace("_Placer", ""),
+    const modelId: number = _.find(models, (model: any) => {
+      return (
+        model.MODEL_FILE_NAME ===
+        doorType.actorDefinition.replace("_Placer", "")
+      );
     })?.ID;
     doorType.instances.forEach((doorInstance: any) => {
       const r = doorInstance.rotation;

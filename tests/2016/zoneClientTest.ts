@@ -1,16 +1,16 @@
 // UNUSED FOR NOW 2016 SIMULATED CLIENT ISN'T DONE
-import { Base64 } from "js-base64";
+
 import { ZoneServer2016, ZoneClient } from "../../h1z1-server";
 
 new ZoneServer2016(
   1117,
-  Base64.toUint8Array("F70IaxuU8C/w7FPXY1ibXw==")
+  new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", "base64")
 ).start();
 
 var client = new ZoneClient(
   "127.0.0.1",
   1117,
-  Base64.toUint8Array("F70IaxuU8C/w7FPXY1ibXw=="),
+  new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", "base64"),
   "0x0000000000000001",
   "0",
   "",

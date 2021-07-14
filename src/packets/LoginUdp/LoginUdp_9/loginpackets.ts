@@ -405,16 +405,7 @@ const packets: any[] = [
     0x10,
     {
       fields: [
-        { name: "serverId", type: "uint32" },
-        { name: "unknown1", type: "uint32" },
-        {
-          name: "payload",
-          type: "byteswithlength",
-          fields: [
-            { name: "characterName", type: "string" },
-            { name: "unknown2", type: "uint32" },
-          ],
-        },
+        /* loginTunnelPackets.ts */
       ],
     },
   ],
@@ -423,18 +414,7 @@ const packets: any[] = [
     0x11,
     {
       fields: [
-        { name: "serverId", type: "uint32" },
-        { name: "unknown1", type: "uint32" },
-
-        {
-          name: "payload",
-          type: "byteswithlength",
-          fields: [
-            { name: "unknown1", type: "uint32" },
-            { name: "characterName", type: "string" },
-            { name: "unknown2", type: "uint32" },
-          ],
-        },
+        /* loginTunnelPackets.ts */
       ],
     },
   ],

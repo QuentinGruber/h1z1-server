@@ -1,5 +1,4 @@
 import { LoginClient, LoginServer } from "../../../h1z1-server";
-import { Base64 } from "js-base64";
 
 async function test() {
   await new LoginServer(1115, "mongodb://localhost:27017/").start();
@@ -9,7 +8,7 @@ async function test() {
     "dev",
     "127.0.0.1",
     1115,
-    Base64.toUint8Array("F70IaxuU8C/w7FPXY1ibXw=="), // <- loginkey
+    new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", "base64"), // <- loginkey
     4851
   );
   client.connect();
@@ -28,7 +27,7 @@ async function test() {
     console.log(`Get characterinfo`);
     console.log(res);
     setTimeout(() => {
-      client.requestCharacterLogin("0x0000000000000001", 1, {
+      client.requestCharacterLogin("0x03147cca2a860195", 1, {
         locale: "EnUS",
         localeId: 1,
         preferredGatewayId: 8,

@@ -2,7 +2,8 @@ import fs from "fs";
 import { Client, Weather } from "types/zoneserver";
 import { ZoneServer } from "../zoneserver";
 
-import _ from "lodash";
+import { _ } from "../../../utils/utils";
+import { generateRandomGuid } from "../../../utils/utils";
 const debug = require("debug")("zonepacketHandlers");
 
 let isSonic = false;
@@ -118,27 +119,29 @@ const hax: any = {
       unknownString1: "",
     };
     server.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicleData);
-    server._vehicles[characterId] = vehicleData;
+    server._vehicles[characterId] = {
+      ...vehicleData,
+      onReadyCallback: () => {
+        // doing anything with vehicle before client gets fullvehicle packet breaks it
+        server.sendDataToAll("Mount.MountResponse", {
+          characterId: client.character.characterId,
+          guid: characterId,
+          characterData: [],
+        });
+        server.sendDataToAll("Vehicle.Engine", {
+          guid2: characterId,
+          unknownBoolean: true,
+        });
+        client.vehicle.mountedVehicle = characterId;
+      },
+    };
     server.worldRoutine(client);
-    setTimeout(function () {
-      // doing anything with vehicle before client gets fullvehicle packet breaks it
-      server.sendDataToAll("Mount.MountResponse", {
-        characterId: client.character.characterId,
-        guid: characterId,
-        characterData: [],
-      });
-      server.sendDataToAll("Vehicle.Engine", {
-        guid2: characterId,
-        unknownBoolean: true,
-      });
-      client.vehicle.mountedVehicle = characterId;
-    }, 500);
   },
 
   parachute: function (server: ZoneServer, client: Client, args: any[]) {
     const characterId = server.generateGuid();
     const guid = server.generateGuid();
-    let posY = client.character.state.position[1] + 700;
+    const posY = client.character.state.position[1] + 700;
     const vehicleData = {
       npcData: {
         guid: guid,
@@ -181,7 +184,7 @@ const hax: any = {
   },
 
   time: function (server: ZoneServer, client: Client, args: any[]) {
-    const choosenHour: number = Number(args[1]);
+    const choosenHour = Number(args[1]);
     if (choosenHour < 0) {
       server.sendChatText(client, "You need to specify an hour to set !");
       return;
@@ -426,7 +429,7 @@ const hax: any = {
     }
     const weatherTemplate = server._soloMode
       ? server._weatherTemplates[args[1]]
-      : _.find(server._weatherTemplates, (template) => {
+      : _.find(server._weatherTemplates, (template: { templateName: any }) => {
           return template.templateName === args[1];
         });
     if (!args[1]) {
@@ -440,16 +443,259 @@ const hax: any = {
     } else {
       if (args[1] === "list") {
         server.sendChatText(client, `Weather templates :`);
-        _.forEach(server._weatherTemplates, function (element, key) {
-          console.log(element.templateName);
-          server.sendChatText(client, `- ${element.templateName}`);
-        });
+        _.forEach(
+          server._weatherTemplates,
+          function (element: { templateName: any }) {
+            console.log(element.templateName);
+            server.sendChatText(client, `- ${element.templateName}`);
+          }
+        );
       } else {
         server.sendChatText(client, `"${args[1]}" isn't a weather template`);
         server.sendChatText(
           client,
           `Use "/hax weather list" to know all available templates`
         );
+      }
+    }
+  },
+  weapon: function (server: ZoneServer, client: Client, args: any[]) {
+    const choosenWeapon: string = args[1];
+    if (!choosenWeapon) {
+      server.sendChatText(
+        client,
+        "Please define the name of the weapon you wanna use ! see /hax weapon list'"
+      );
+    } else {
+      switch (choosenWeapon.toLowerCase()) {
+        case "list":
+          server.sendChatText(
+            client,
+            "Availables weapons : ar, hatchet, torch, empty"
+          );
+          break;
+        case "ar":
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 7)
+          ].modelName = "Weapon_M16A4_3p.adr";
+          server.sendDataToAll("Equipment.SetCharacterEquipment", {
+            profileId: 3,
+            characterId: client.character.characterId,
+            equipmentSlots: client.character.equipment.map((equipment) => {
+              return {
+                equipmentSlotId: equipment.slotId,
+                equipmentSlotData: {
+                  equipmentSlotId: equipment.slotId,
+                  guid: generateRandomGuid(),
+                },
+              };
+            }),
+            attachmentData: client.character.equipment,
+          });
+          break;
+        case "hatchet":
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 7)
+          ].modelName = "Weapon_Hatchet01_3p.adr";
+          server.sendDataToAll("Equipment.SetCharacterEquipment", {
+            profileId: 3,
+            characterId: client.character.characterId,
+            equipmentSlots: client.character.equipment.map((equipment) => {
+              return {
+                equipmentSlotId: equipment.slotId,
+                equipmentSlotData: {
+                  equipmentSlotId: equipment.slotId,
+                  guid: generateRandomGuid(),
+                },
+              };
+            }),
+            attachmentData: client.character.equipment,
+          });
+          break;
+        case "empty":
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 7)
+          ].modelName = "Weapon_Empty.adr";
+          server.sendDataToAll("Equipment.SetCharacterEquipment", {
+            profileId: 3,
+            characterId: client.character.characterId,
+            equipmentSlots: client.character.equipment.map((equipment) => {
+              return {
+                equipmentSlotId: equipment.slotId,
+                equipmentSlotData: {
+                  equipmentSlotId: equipment.slotId,
+                  guid: generateRandomGuid(),
+                },
+              };
+            }),
+            attachmentData: client.character.equipment,
+          });
+          break;
+        case "torch":
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 7)
+          ].modelName = "Weapon_Torch_3p.adr";
+          server.sendDataToAll("Equipment.SetCharacterEquipment", {
+            profileId: 3,
+            characterId: client.character.characterId,
+            equipmentSlots: client.character.equipment.map((equipment) => {
+              return {
+                equipmentSlotId: equipment.slotId,
+                equipmentSlotData: {
+                  equipmentSlotId: equipment.slotId,
+                  guid: generateRandomGuid(),
+                },
+              };
+            }),
+            attachmentData: client.character.equipment,
+          });
+          break;
+        default:
+          server.sendChatText(client, "Unknown weapon " + choosenWeapon);
+          break;
+      }
+    }
+  },
+  outfit: function (server: ZoneServer, client: Client, args: any[]) {
+    const choosenOutfit: string = args[1];
+    if (!choosenOutfit) {
+      server.sendChatText(
+        client,
+        "Please define the name of the outfit you wanna use ! see /hax outfit list'"
+      );
+    } else {
+      switch (choosenOutfit.toLowerCase()) {
+        case "list":
+          server.sendChatText(
+            client,
+            "Availables outfits : Aviator, Cowboy, Jinx, Red"
+          );
+          break;
+        case "aviator":
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 1)
+          ].modelName = "SurvivorMale_Ivan_AviatorHat_Base.adr";
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 3)
+          ].modelName = "SurvivorMale_Ivan_Shirt_Base.adr";
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 3)
+          ].defaultTextureAlias = "Ivan_Tshirt_Army_Green";
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 4)
+          ].modelName = "SurvivorMale_Ivan_Pants_Base.adr";
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 4)
+          ].defaultTextureAlias = "Ivan_Pants_Jeans_Black";
+          server.sendDataToAll("Equipment.SetCharacterEquipment", {
+            profileId: 3,
+            characterId: client.character.characterId,
+            equipmentSlots: client.character.equipment.map((equipment) => {
+              return {
+                equipmentSlotId: equipment.slotId,
+                equipmentSlotData: {
+                  equipmentSlotId: equipment.slotId,
+                  guid: generateRandomGuid(),
+                },
+              };
+            }),
+            attachmentData: client.character.equipment,
+          });
+          break;
+        case "jinx":
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 1)
+          ].modelName = "Weapon_Empty.adr";
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 3)
+          ].modelName = "SurvivorMale_Ivan_Shirt_Base.adr";
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 3)
+          ].defaultTextureAlias = "Ivan_Tshirt_JINX";
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 4)
+          ].modelName = "SurvivorMale_Ivan_Pants_Base.adr";
+          server.sendDataToAll("Equipment.SetCharacterEquipment", {
+            profileId: 3,
+            characterId: client.character.characterId,
+            equipmentSlots: client.character.equipment.map((equipment) => {
+              return {
+                equipmentSlotId: equipment.slotId,
+                equipmentSlotData: {
+                  equipmentSlotId: equipment.slotId,
+                  guid: generateRandomGuid(),
+                },
+              };
+            }),
+            attachmentData: client.character.equipment,
+          });
+          break;
+        case "cowboy":
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 1)
+          ].modelName = "SurvivorMale_Ivan_OutbackHat_Base.adr";
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 1)
+          ].defaultTextureAlias = "Ivan_OutbackHat_LeatherTan";
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 3)
+          ].modelName = "SurvivorMale_Ivan_Shirt_Base.adr";
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 3)
+          ].defaultTextureAlias = "Ivan_Tshirt_Navy_Shoulder_Stripes";
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 4)
+          ].modelName = "SurvivorMale_Ivan_Pants_Base.adr";
+          server.sendDataToAll("Equipment.SetCharacterEquipment", {
+            profileId: 3,
+            characterId: client.character.characterId,
+            equipmentSlots: client.character.equipment.map((equipment) => {
+              return {
+                equipmentSlotId: equipment.slotId,
+                equipmentSlotData: {
+                  equipmentSlotId: equipment.slotId,
+                  guid: generateRandomGuid(),
+                },
+              };
+            }),
+            attachmentData: client.character.equipment,
+          });
+          break;
+        case "red":
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 1)
+          ].modelName = "SurvivorMale_Ivan_Motorcycle_Helmet_Grey.adr";
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 1)
+          ].defaultTextureAlias = "Ivan_MotorCycle_Helmet_Red";
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 3)
+          ].modelName = "SurvivorMale_Ivan_Shirt_Base.adr";
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 3)
+          ].defaultTextureAlias = "Ivan_Tshirt_RAZOR";
+          client.character.equipment[
+            client.character.equipment.findIndex((x) => x.slotId === 4)
+          ].modelName = "SurvivorMale_Ivan_Pants_Base.adr";
+          server.sendDataToAll("Equipment.SetCharacterEquipment", {
+            profileId: 3,
+            characterId: client.character.characterId,
+            equipmentSlots: client.character.equipment.map((equipment) => {
+              return {
+                equipmentSlotId: equipment.slotId,
+                equipmentSlotData: {
+                  equipmentSlotId: equipment.slotId,
+                  guid: generateRandomGuid(),
+                },
+              };
+            }),
+            attachmentData: client.character.equipment,
+          });
+          break;
+
+        default:
+          server.sendChatText(client, "Unknown outfit " + choosenOutfit);
+          break;
       }
     }
   },
@@ -465,7 +711,7 @@ const hax: any = {
       );
     } else if (
       server._weatherTemplates[args[1]] ||
-      _.find(server._weatherTemplates, (template) => {
+      _.find(server._weatherTemplates, (template: { templateName: any }) => {
         return template.templateName === args[1];
       })
     ) {

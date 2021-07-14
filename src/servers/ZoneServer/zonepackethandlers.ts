@@ -25,7 +25,7 @@ import { ZoneServer } from "./zoneserver";
 import { Client } from "types/zoneserver";
 const modelToName = require("../../../data/2015/sampleData/ModelToName.json");
 
-import _ from "lodash";
+import { _ } from "../../utils/utils";
 const debug = require("debug")("zonepacketHandlers");
 
 const packetHandlers: any = {
@@ -38,7 +38,10 @@ const packetHandlers: any = {
         });
         */
     server.sendData(client, "QuickChat.SendData", { commands: [] });
-
+    server.sendData(client, "ClientUpdate.ActivateProfile", {
+      profiles: server._profiles,
+      attachmentData: client.character.equipment,
+    });
     server.sendData(client, "ClientUpdate.DoneSendingPreloadCharacters", {
       unknownBoolean1: 1,
     });
@@ -295,8 +298,32 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
-    debug("Collision.Damage");
-    debug(packet);
+    if (
+      packet.data.damage > 100000 &&
+      client.character.resources.health > 0 &&
+      client.vehicle.falling < -1
+    ) {
+      const damageFix =
+        (packet.data.damage / 100000) * client.vehicle.falling * -5;
+      client.character.resources.health =
+        client.character.resources.health - damageFix;
+      if (client.character.resources.health < 0) {
+        client.character.resources.health = 0;
+      }
+      server.sendData(client, "ResourceEvent", {
+        eventData: {
+          type: 3,
+          value: {
+            characterId: client.character.characterId,
+            resourceId: 48, // health
+            resourceType: 1,
+            initialValue: client.character.resources.health,
+            unknownArray1: [],
+            unknownArray2: [],
+          },
+        },
+      });
+    }
   },
   "LobbyGameDefinition.DefinitionsRequest": function (
     server: ZoneServer,
@@ -494,7 +521,9 @@ const packetHandlers: any = {
           );
           server.sendChatText(
             client,
-            `objects : ${_.size(objects)} props : ${_.size(props)} vehicles : ${_.size(vehicles)}`
+            `objects : ${_.size(objects)} props : ${_.size(
+              props
+            )} vehicles : ${_.size(vehicles)}`
           );
           break;
         }
@@ -528,7 +557,8 @@ const packetHandlers: any = {
           "/player_fall_through_world_test",
         ];
         server.sendChatText(client, `Commands list:`);
-        _.concat(commandList, haxCommandList, devCommandList, adminCommandList)
+        commandList
+          .concat(haxCommandList, devCommandList, adminCommandList)
           .sort((a: string, b: string) => a.localeCompare(b))
           .forEach((command: string) => {
             server.sendChatText(client, `${command}`);
@@ -1607,6 +1637,9 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
+    if (packet.data.flags === 510) {
+      client.vehicle.falling = packet.data.unknown10_float;
+    }
     const movingCharacter = server._characters[client.character.characterId];
     if (movingCharacter && !server._soloMode) {
       if (client.vehicle.mountedVehicle) {
@@ -1727,10 +1760,10 @@ const packetHandlers: any = {
       server.sendData(client, "ClientUpdate.TextAlert", {
         message: pickupMessage,
       });
-      let { water, health, food } = client.character.resources;
+      const { water, health, food } = client.character.resources;
       switch (objectToPickup.modelId) {
         case 9159:
-          water = water + 4000;
+          client.character.resources.water = water + 4000;
           server.sendData(client, "ResourceEvent", {
             eventData: {
               type: 3,
@@ -1738,7 +1771,7 @@ const packetHandlers: any = {
                 characterId: client.character.characterId,
                 resourceId: 5, // water
                 resourceType: 5,
-                initialValue: water,
+                initialValue: client.character.resources.water,
                 unknownArray1: [],
                 unknownArray2: [],
               },
@@ -1747,7 +1780,7 @@ const packetHandlers: any = {
           break;
         case 8020:
         case 9250:
-          food = food + 4000;
+          client.character.resources.food = food + 4000;
           server.sendData(client, "ResourceEvent", {
             eventData: {
               type: 3,
@@ -1755,7 +1788,7 @@ const packetHandlers: any = {
                 characterId: client.character.characterId,
                 resourceId: 4, // food
                 resourceType: 4,
-                initialValue: food,
+                initialValue: client.character.resources.food,
                 unknownArray1: [],
                 unknownArray2: [],
               },
@@ -1763,7 +1796,7 @@ const packetHandlers: any = {
           });
           break;
         case 9221:
-          health = health + 10000;
+          client.character.resources.health = health + 10000;
           server.sendData(client, "ResourceEvent", {
             eventData: {
               type: 3,
@@ -1771,7 +1804,7 @@ const packetHandlers: any = {
                 characterId: client.character.characterId,
                 resourceId: 48, // health
                 resourceType: 1,
-                initialValue: health,
+                initialValue: client.character.resources.health,
                 unknownArray1: [],
                 unknownArray2: [],
               },
@@ -2002,7 +2035,11 @@ const packetHandlers: any = {
       server.sendData(client, "PlayerUpdate.LightweightToFullPc", {
         transientId: pcData.transientId,
       });
-    } else if (server._vehicles[guid] && server._vehicles[guid].npcData.vehicleId != 13) { // ignore parachute
+    } else if (
+      server._vehicles[guid] &&
+      server._vehicles[guid].npcData.vehicleId != 13
+    ) {
+      // ignore parachute
       const npcData = {
         transientId: server._vehicles[guid].npcData.transientId,
       };
@@ -2010,6 +2047,7 @@ const packetHandlers: any = {
         npcData: npcData,
         characterId: guid,
       });
+      server._vehicles[guid].onReadyCallback();
     }
   },
 };

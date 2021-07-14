@@ -1,4 +1,4 @@
-const _ = require("lodash");
+const _ = require("../../../utils/utils");
 const debug = require("debug")("zonepacketHandlers");
 import fs from "fs";
 
