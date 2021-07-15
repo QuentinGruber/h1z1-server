@@ -16,7 +16,7 @@ import { default as packetHandlers } from "./zonepackethandlers";
 import { ZoneServer } from "../ZoneServer/zoneserver";
 import { Client, skyData } from "../../types/zoneserver";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
-import _ from "lodash";
+import { _ } from "../../utils/utils";
 
 import {
   //generateRandomGuid,
@@ -37,11 +37,7 @@ const recipes = require("../../../data/2016/sampleData/recipes.json");
 const Z1_POIs = require("../../../data/2015/zoneData/Z1_POIs");
 
 export class ZoneServer2016 extends ZoneServer {
-  constructor(
-    serverPort: number,
-    gatewayKey: Uint8Array,
-    mongoAddress: string = ""
-  ) {
+  constructor(serverPort: number, gatewayKey: Uint8Array, mongoAddress = "") {
     super(serverPort, gatewayKey, mongoAddress);
     this._protocol = new H1Z1Protocol("ClientProtocol_1080");
     this._packetHandlers = packetHandlers;
@@ -292,7 +288,7 @@ export class ZoneServer2016 extends ZoneServer {
   }
 
   sendEquipment(client: Client): void {
-    this.sendData( client, "Equipment.SetCharacterEquipmentSlot", {
+    this.sendData(client, "Equipment.SetCharacterEquipmentSlot", {
       characterData: {
         characterId: client.character.characterId,
       },
@@ -326,7 +322,7 @@ export class ZoneServer2016 extends ZoneServer {
                 resourceType: 1,
                 unknownArray1: [],
                 value: 5000, // 10000 max
-              }
+              },
             },
             {
               resourceId: 6, // stamina
@@ -335,7 +331,7 @@ export class ZoneServer2016 extends ZoneServer {
                 resourceType: 6,
                 unknownArray1: [],
                 value: 600, // 600 max
-              }
+              },
             },
             {
               resourceId: 4, // food
@@ -344,7 +340,7 @@ export class ZoneServer2016 extends ZoneServer {
                 resourceType: 4,
                 unknownArray1: [],
                 value: 5000, // 10000 max
-              }
+              },
             },
             {
               resourceId: 5, // water
@@ -353,7 +349,7 @@ export class ZoneServer2016 extends ZoneServer {
                 resourceType: 5,
                 unknownArray1: [],
                 value: 5000, // 10000 max
-              }
+              },
             },
             {
               resourceId: 68, // comfort
@@ -362,7 +358,7 @@ export class ZoneServer2016 extends ZoneServer {
                 resourceType: 68,
                 unknownArray1: [],
                 value: 5000, // 5000 max
-              }
+              },
             },
             {
               resourceId: 12, // h1z1 virus
@@ -371,9 +367,9 @@ export class ZoneServer2016 extends ZoneServer {
                 resourceType: 12,
                 unknownArray1: [],
                 value: 10000, // 10000 max
-              }
-            }
-          ]
+              },
+            },
+          ],
         },
       },
     });
@@ -670,6 +666,6 @@ export class ZoneServer2016 extends ZoneServer {
 if (process.env.VSCODE_DEBUG === "true") {
   new ZoneServer2016(
     1117,
-    new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", 'base64')
+    new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", "base64")
   ).start();
 }

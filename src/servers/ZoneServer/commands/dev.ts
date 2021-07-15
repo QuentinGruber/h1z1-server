@@ -6,11 +6,41 @@ const debug = require("debug")("zonepacketHandlers");
 
 const dev: any = {
   testpacket: function (server: ZoneServer, client: Client, args: any[]) {
-    const guid = generateRandomGuid();
-    server.sendData(client, "PlayerUpdate.AddProxiedObject", {
-      characterId: guid,
-      transientId: server.getTransientId(client, guid),
-      NetworkObjectComponent: [{ unknown1: 0 }],
+    server.sendData(client, "Equipment.SetCharacterEquipment", {
+      profileId: 3,
+      characterId: client.character.characterId,
+      equipmentSlots: [
+        {
+          equipmentSlotId: 2,
+          equipmentSlotData: { equipmentSlotId: 2, guid: generateRandomGuid() },
+        },
+        {
+          equipmentSlotId: 7,
+          equipmentSlotData: { equipmentSlotId: 7, guid: generateRandomGuid() },
+        },
+        {
+          equipmentSlotId: 3,
+          equipmentSlotData: { equipmentSlotId: 3, guid: generateRandomGuid() },
+        },
+        {
+          equipmentSlotId: 4,
+          equipmentSlotData: { equipmentSlotId: 4, guid: generateRandomGuid() },
+        },
+      ],
+      attachmentData: [
+        { modelName: "Weapon_M16A4.adr", slotId: 2 },
+        { modelName: "SurvivorMale_Ivan_AviatorHat_Base.adr", slotId: 7 },
+        {
+          modelName: "SurvivorMale_Ivan_Shirt_Base.adr",
+          defaultTextureAlias: "Ivan_Tshirt_Army_Green",
+          slotId: 3,
+        },
+        {
+          modelName: "SurvivorMale_Ivan_Pants_Base.adr",
+          defaultTextureAlias: "Ivan_Pants_Jeans_Black",
+          slotId: 4,
+        },
+      ],
     });
   },
   testNpcMove: function (server: ZoneServer, client: Client, args: any[]) {

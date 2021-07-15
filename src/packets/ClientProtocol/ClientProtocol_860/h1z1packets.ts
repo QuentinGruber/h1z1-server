@@ -13,7 +13,6 @@
 import PacketTableBuild from "../../packettable";
 import DataSchema from "h1z1-dataschema";
 import { lz4_decompress } from "../../../utils/utils";
-import { stubFalse } from "lodash";
 
 function readPacketType(data: Buffer, packets: any) {
   let opCode = data[0] >>> 0,
@@ -1014,7 +1013,7 @@ const lightWeightNpcSchema = [
       { name: "b", type: "uint8", defaultValue: 0 },
     ],
   },
-  { name: "unknown30", type: "boolean", defaultValue: stubFalse },
+  { name: "unknown30", type: "boolean", defaultValue: false },
   { name: "unknown31", type: "uint32", defaultValue: 0 },
   { name: "unknown32", type: "uint64", defaultValue: "0x0000000000000000" },
   {
@@ -6086,7 +6085,7 @@ var packets = [
     {
       fields: [
         {
-          name: "profileData",
+          name: "profiles",
           type: "byteswithlength",
           fields: profileDataSchema,
         },
@@ -6096,20 +6095,20 @@ var packets = [
           defaultValue: [],
           fields: [
             { name: "modelName", type: "string", defaultValue: "" },
-            { name: "unknownString1", type: "string", defaultValue: "" },
+            { name: "defaultTextureAlias", type: "string", defaultValue: "" },
             { name: "tintAlias", type: "string", defaultValue: "" },
-            { name: "unknownString2", type: "string", defaultValue: "" },
+            { name: "unknownString2", type: "string", defaultValue: "#" },
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-            { name: "slotId", type: "uint32", defaultValue: 0 },
+            { name: "enableDebug", type: "uint32", defaultValue: 0 },
+            { name: "slotId", type: "uint32", defaultValue: 2 },
           ],
         },
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+        //{ name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword1", type: "uint32", defaultValue: 1 },
+        { name: "unknownDword3", type: "uint32", defaultValue: 1 },
+        { name: "actorModel", type: "uint32", defaultValue: 9240 },
         { name: "unknownString1", type: "string", defaultValue: "" },
-        { name: "unknownString2", type: "string", defaultValue: "" },
+        { name: "unknownString2", type: "string", defaultValue: "#" },
       ],
     },
   ],
@@ -6295,7 +6294,7 @@ var packets = [
       ],
     },
   ],
- // ["ClientUpdate.LoyaltyPoints", 0x112c00, {}],
+  // ["ClientUpdate.LoyaltyPoints", 0x112c00, {}],
   ["ClientUpdate.Membership", 0x112d00, {}],
   ["ClientUpdate.ResetMissionRespawnTimer", 0x112e00, {}],
   [
@@ -8453,8 +8452,15 @@ var packets = [
     {
       fields: [
         { name: "guid", type: "uint64", defaultValue: "0" },
-        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+        { name: "id", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+        { name: "damage", type: "uint32", defaultValue: 0 }, // big values, suggest dividing by like 1,7kk
+        { name: "unknownByte2", type: "uint8", defaultValue: 0 },
+        { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword8", type: "uint32", defaultValue: 0 },
       ],
     },
   ],
@@ -8615,7 +8621,7 @@ var packets = [
                 { name: "equipmentSlotId", type: "uint32", defaultValue: 0 },
                 { name: "guid", type: "uint64", defaultValue: "0" },
                 { name: "unknownString1", type: "string", defaultValue: "" },
-                { name: "unknownString2", type: "string", defaultValue: "" },
+                { name: "unknownString2", type: "string", defaultValue: "#" },
               ],
             },
           ],
@@ -8626,11 +8632,11 @@ var packets = [
           defaultValue: [],
           fields: [
             { name: "modelName", type: "string", defaultValue: "" },
-            { name: "unknownString1", type: "string", defaultValue: "" },
+            { name: "defaultTextureAlias", type: "string", defaultValue: "" },
             { name: "tintAlias", type: "string", defaultValue: "" },
             { name: "unknownString2", type: "string", defaultValue: "" },
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+            { name: "enableDebug", type: "uint32", defaultValue: 0 },
             { name: "slotId", type: "uint32", defaultValue: 0 },
           ],
         },

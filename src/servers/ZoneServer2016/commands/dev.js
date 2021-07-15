@@ -370,7 +370,7 @@ const dev = {
           unknownQword1: server.generateGuid(),
           unknownDword3: 0,
           itemDefinitionId: 1,
-      }
+        },
       ],
       itemDefinitionId: 8,
     });
@@ -405,7 +405,7 @@ const dev = {
       },
     };
 
-    server.sendData(client, "Command.ItemDefinitions", itemDefinitions) // todo: add ClientItemDefinition data
+    server.sendData(client, "Command.ItemDefinitions", itemDefinitions); // todo: add ClientItemDefinition data
   },
 
   seatchange: function (server, client, args) {
