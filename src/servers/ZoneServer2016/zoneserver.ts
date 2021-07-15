@@ -46,6 +46,7 @@ export class ZoneServer2016 extends ZoneServer {
     this._protocol = new H1Z1Protocol("ClientProtocol_1080");
     this._packetHandlers = packetHandlers;
     this._dynamicWeatherEnabled = false;
+    this._cycleSpeed = 100;
   }
   async characterData(client: Client) {
     delete require.cache[
@@ -112,6 +113,7 @@ export class ZoneServer2016 extends ZoneServer {
         throw debug("Unable to authenticate on mongo !");
       }
     }
+
     await this.setupServer();
     this._startTime += Date.now();
     this._startGameTime += Date.now();
@@ -122,6 +124,88 @@ export class ZoneServer2016 extends ZoneServer {
       );
     }
     this._gatewayServer.start();
+  }
+
+  sendInitData(client: Client): void {
+    this.sendData(client, "InitializationParameters", {
+      environment: "LIVE",
+      serverId: 1,
+    });
+
+    this.SendZoneDetailsPacket(client, this._weather);
+
+    this.sendData(client, "ClientUpdate.ZonePopulation", {
+      populations: [0, 0],
+    });
+    this.sendData(client, "ClientUpdate.RespawnLocations", {
+      locations: this._respawnLocations,
+      locations2: this._respawnLocations,
+    });
+
+    this.sendData(client, "ClientGameSettings", {
+      unknownQword1: "0x0000000000000000",
+      unknownBoolean1: true,
+      timescale: 1,
+      unknownQword2: "0x0000000000000000",
+      unknownFloat1: 0,
+      unknownFloat2: 12,
+      unknownFloat3: 110,
+    });
+
+    this.characterData(client);
+
+    this.sendData(client, "Character.SetBattleRank", {
+      characterId: client.character.characterId,
+      battleRank: 100,
+    });
+    /*
+    this.sendData(client, "ClientUpdate.ActivateProfile", {
+      profileData: {
+        profileId: 1,
+        nameId: 12,
+        descriptionId: 13,
+        type: 3,
+        unknownDword1: 0,
+        abilityBgImageSet: 4,
+        badgeImageSet: 5,
+        buttonImageSet: 6,
+        unknownByte1: 0,
+        unknownByte2: 0,
+        unknownDword4: 0,
+        unknownArray1: [],
+        unknownDword5: 0,
+        unknownDword6: 0,
+        unknownByte3: 1,
+        unknownDword7: 0,
+        unknownDword8: 0,
+        unknownDword9: 0,
+        unknownDword10: 0,
+        unknownDword11: 0,
+        unknownDword12: 0,
+        unknownDword13: 0,
+        unknownDword14: 0,
+        unknownDword15: 0,
+        unknownDword16: 0
+      },
+      equipmentModels: [
+        {
+          model: "Weapons_PumpShotgun01_3P.adr",
+          unknownDword1: 0,
+          unknownDword2: 0,
+          effectId: 0,
+          equipmentSlotId: 27,
+          unknownDword4: 0,
+          unknownArray1: [],
+        }
+      ],
+      unknownDword1: 0,
+      unknownDword2: 0,
+      thirdPersonModelId: 9519,
+      //unknownDword4: 0,
+      tintAlias: "",
+      decalAlias: ""
+    });
+    */
   }
 
   POIManager(client: Client) {
@@ -191,6 +275,20 @@ export class ZoneServer2016 extends ZoneServer {
       playerPosition,
       element.position || element.state?.position || element.npcData.position
     );
+  }
+
+  forceTime(time: number): void {
+    this._cycleSpeed = 0.1;
+    this._frozeCycle = true;
+    this._gameTime = time;
+    this.sendSyncToAll();
+  }
+
+  removeForcedTime(): void {
+    this._cycleSpeed = 100;
+    this._frozeCycle = false;
+    this._gameTime = Date.now();
+    this.sendSyncToAll();
   }
 
   sendEquipment(client: Client): void {
@@ -293,7 +391,7 @@ export class ZoneServer2016 extends ZoneServer {
         ? object.characterId
         : object.npcData.characterId;
       if (characterId in this._vehicles) {
-        this.sendData(client, "PlayerUpdate.ManagedObject", {
+        this.sendData(client, "Character.ManagedObject", {
           objectCharacterId: characterId,
           characterId: client.character.characterId,
         });
@@ -301,7 +399,7 @@ export class ZoneServer2016 extends ZoneServer {
 
       this.sendData(
         client,
-        "PlayerUpdate.RemovePlayer",
+        "Character.RemovePlayer",
         {
           characterId,
         },
@@ -312,7 +410,7 @@ export class ZoneServer2016 extends ZoneServer {
 
   despawnEntity(characterId: string) {
     this.sendDataToAll(
-      "PlayerUpdate.RemovePlayer",
+      "Character.RemovePlayer",
       {
         characterId: characterId,
       },
@@ -322,7 +420,7 @@ export class ZoneServer2016 extends ZoneServer {
 
   deleteEntity(characterId: string, dictionnary: any) {
     this.sendDataToAll(
-      "PlayerUpdate.RemovePlayer",
+      "Character.RemovePlayer",
       {
         characterId: characterId,
       },
@@ -397,7 +495,7 @@ export class ZoneServer2016 extends ZoneServer {
           this._vehicles[vehicle],
           1
         );
-        this.sendData(client, "PlayerUpdate.ManagedObject", {
+        this.sendData(client, "Character.ManagedObject", {
           objectCharacterId: this._vehicles[vehicle].npcData.characterId,
           characterId: client.character.characterId,
         });
@@ -479,8 +577,17 @@ export class ZoneServer2016 extends ZoneServer {
     }
   }
 
+  getGameTime(): number {
+    debug("get server time");
+    const delta = Date.now() - this._startGameTime;
+    return this._frozeCycle
+      ? Number(((this._gameTime + delta) / 1000).toFixed(0))
+      : Number((this._gameTime / 1000).toFixed(0));
+  }
+
   sendGameTimeSync(client: Client): void {
-    debug("GameTimeSync");
+    debug(`GameTimeSync ${this._cycleSpeed} ${this.getGameTime()}\n\n\n\n`);
+    //this._gameTime = this.getGameTime();
     this.sendData(client, "GameTimeSync", {
       time: Int64String(this.getGameTime()),
       cycleSpeed: this._cycleSpeed,

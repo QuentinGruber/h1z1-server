@@ -1,30 +1,12 @@
 const debug = require("debug")("zonepacketHandlers");
 // import fs from "fs";
 //const objects = require("../../../../data/2016/zoneData/objects.json");
+import { Int64String } from "../../../utils/utils";
 
 const dev = {
   testpacket: function (server, client, args) {
     const packetName = args[1];
     server.sendData(client, packetName, {});
-  },
-  testNpc: function (server, client, args) {
-    const characterId = server.generateGuid();
-    server.sendData(client, "PlayerUpdate.AddLightweightNpc", {
-      characterId: characterId,
-      modelId: 9001,
-      transientId: server.getTransientId(client, characterId),
-      position: client.character.state.position,
-      array5: [{ unknown1: 0 }],
-      array17: [{ unknown1: 0 }],
-      array18: [{ unknown1: 0 }],
-    });
-    setInterval(() => {
-      server.sendData(client, "PlayerUpdate.SeekTarget", {
-        characterId: characterId,
-        TargetCharacterId: client.character.characterId,
-        position: client.character.state.position,
-      });
-    }, 500);
   },
   findModel: function (server, client, args) {
     const models = require("../../../../data/2016/dataSources/Models.json");
@@ -214,7 +196,6 @@ const dev = {
         characterId: client.character.characterId,
       },
       gameTime: 1,
-      slotsArrayLength: 1,
       slots: [
         {
           index: 1, // needs to be non-zero
@@ -222,7 +203,6 @@ const dev = {
         },
       ],
       unknownDword1: 1,
-      equipmentTexturesArrayLength: 1,
       equipmentTextures: [
         {
           index: 1, // needs to be non-zero
@@ -232,7 +212,6 @@ const dev = {
           unknownString1: "",
         },
       ],
-      equipmentModelsArrayLength: 1,
       equipmentModels: [
         {
           model: "SurvivorMale_Chest_Hoodie_Up_Tintable.adr",
@@ -452,6 +431,19 @@ const dev = {
       unknownDword3: Number(args[3]),
     });
     server.sendChatText(client, `sent seatchange`);
+  },
+
+  gametime: function(server, client, args) {
+    if (!args[1]) {
+      server.sendChatText(client, "Missing 1 arg");
+      return;
+    }
+    debug("GameTimeSync");
+    server.sendData(client, "GameTimeSync", {
+      time: Int64String(server.getGameTime()),
+      cycleSpeed: Number(args[1]),
+      unknownBoolean: false,
+    });
   }
   /*
   proxiedObjects: function(server, client, args) {

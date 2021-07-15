@@ -177,7 +177,7 @@ const hax = {
         positionUpdate: [0, 0, 0, 0],
       };
       server.sendData(client, "AddLightweightVehicle", vehicle);
-      server.sendData(client, "PlayerUpdate.ManagedObject", {
+      server.sendData(client, "Character.ManagedObject", {
         objectCharacterId: characterId,
         characterId: client.character.characterId,
       });
@@ -300,7 +300,7 @@ const hax = {
       positionUpdate: [0, 0, 0, 0],
     };
     server.sendData(client, "AddLightweightVehicle", vehicle);
-    server.sendData(client, "PlayerUpdate.ManagedObject", {
+    server.sendData(client, "Character.ManagedObject", {
       objectCharacterId: characterId,
       characterId: client.character.characterId,
     });
