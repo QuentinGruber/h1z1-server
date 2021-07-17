@@ -81,6 +81,7 @@ const dev: any = {
       const npc = server._npcs[npcKey];
       server.sendData(client, "Ragdoll.UpdatePose", {
         characterId: npc.characterId,
+        positionUpdate: server.createPositionUpdate(new Float32Array([10,10,10,1]))
       });
     }
   },

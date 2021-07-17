@@ -9568,12 +9568,18 @@ var packets = [
     0xd001,
     {
       fields: [
-        { name: "unk", type: "boolean", defaultValue: 0 }, // if set to true it need at lot more fields that seems to be a positionUpdate
+        { name: "usePositionUpdate", type: "boolean", defaultValue: 0 }, // if set to true it need at lot more fields that seems to be a positionUpdate
         {
           name: "characterId",
           type: "uint64",
           defaultValue: "0x0000000000000000",
         },
+        /*{
+          name: "positionUpdate",
+          type: "custom",
+          parser: readPositionUpdateData,
+          packer: packPositionUpdateData,
+        },*/
       ],
     },
   ],
