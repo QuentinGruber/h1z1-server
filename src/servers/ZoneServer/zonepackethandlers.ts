@@ -119,6 +119,7 @@ const packetHandlers: any = {
       "dev",
       "admin",
       "location",
+      "respawn",
       "serverinfo",
       "spawninfo",
       "help",
@@ -489,6 +490,11 @@ const packetHandlers: any = {
     const args: any[] = packet.data.arguments.split(" ");
 
     switch (packet.data.commandHash) {
+      case 3720768430: // /respawn
+        server.sendData(client, "PlayerUpdate.StartMultiStateDeath", {
+          characterId: client.character.characterId
+        });
+        break;
       case 2371122039: // /serverinfo
         if (args[0] === "mem") {
           const used = process.memoryUsage().heapUsed / 1024 / 1024;
