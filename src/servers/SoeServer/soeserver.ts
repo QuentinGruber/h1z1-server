@@ -57,7 +57,9 @@ export class SOEServer extends EventEmitter {
     this._isGatewayServer = isGatewayServer;
     this._clients = {};
     this._connection = dgram.createSocket("udp4");
-
+    this._connection.on('error', (err) => {
+      console.log(`server error:\n${err.stack}`);
+    });
     this._connection.on("message", (data, remote) => {
       try {
         let client: any;

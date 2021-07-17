@@ -2,7 +2,7 @@ import fs from "fs";
 import { Client, Weather } from "types/zoneserver";
 import { ZoneServer } from "../zoneserver";
 
-import _ from "lodash";
+import { _ } from "../../../utils/utils";
 import { generateRandomGuid } from "../../../utils/utils";
 const debug = require("debug")("zonepacketHandlers");
 
@@ -131,27 +131,29 @@ const hax: any = {
       unknownString1: "",
     };
     server.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicleData);
-    server._vehicles[characterId] = vehicleData;
+    server._vehicles[characterId] = {
+      ...vehicleData,
+      onReadyCallback: () => {
+        // doing anything with vehicle before client gets fullvehicle packet breaks it
+        server.sendDataToAll("Mount.MountResponse", {
+          characterId: client.character.characterId,
+          guid: characterId,
+          characterData: [],
+        });
+        server.sendDataToAll("Vehicle.Engine", {
+          guid2: characterId,
+          unknownBoolean: true,
+        });
+        client.vehicle.mountedVehicle = characterId;
+      },
+    };
     server.worldRoutine(client);
-    setTimeout(function () {
-      // doing anything with vehicle before client gets fullvehicle packet breaks it
-      server.sendDataToAll("Mount.MountResponse", {
-        characterId: client.character.characterId,
-        guid: characterId,
-        characterData: [],
-      });
-      server.sendDataToAll("Vehicle.Engine", {
-        guid2: characterId,
-        unknownBoolean: true,
-      });
-      client.vehicle.mountedVehicle = characterId;
-    }, 500);
   },
 
   parachute: function (server: ZoneServer, client: Client, args: any[]) {
     const characterId = server.generateGuid();
     const guid = server.generateGuid();
-    let posY = client.character.state.position[1] + 700;
+    const posY = client.character.state.position[1] + 700;
     const vehicleData = {
       npcData: {
         guid: guid,
@@ -194,7 +196,7 @@ const hax: any = {
   },
 
   time: function (server: ZoneServer, client: Client, args: any[]) {
-    const choosenHour: number = Number(args[1]);
+    const choosenHour = Number(args[1]);
     if (choosenHour < 0) {
       server.sendChatText(client, "You need to specify an hour to set !");
       return;
@@ -217,6 +219,14 @@ const hax: any = {
   realTime: function (server: ZoneServer, client: Client, args: any[]) {
     server.removeForcedTime();
     server.sendChatText(client, "Game time is now based on real time", true);
+  },
+  globalHeartAttack: function (server: ZoneServer, client: Client, args: any[]) {
+    for (const npcKey in server._npcs) {
+      const npc = server._npcs[npcKey];
+      server.sendData(client, "PlayerUpdate.StartMultiStateDeath", {
+        characterId: npc.characterId
+      });
+    }
   },
   tp: function (server: ZoneServer, client: Client, args: any[]) {
     client.isLoading = true;
@@ -439,7 +449,7 @@ const hax: any = {
     }
     const weatherTemplate = server._soloMode
       ? server._weatherTemplates[args[1]]
-      : _.find(server._weatherTemplates, (template) => {
+      : _.find(server._weatherTemplates, (template: { templateName: any }) => {
           return template.templateName === args[1];
         });
     if (!args[1]) {
@@ -453,10 +463,13 @@ const hax: any = {
     } else {
       if (args[1] === "list") {
         server.sendChatText(client, `Weather templates :`);
-        _.forEach(server._weatherTemplates, function (element, key) {
-          console.log(element.templateName);
-          server.sendChatText(client, `- ${element.templateName}`);
-        });
+        _.forEach(
+          server._weatherTemplates,
+          function (element: { templateName: any }) {
+            console.log(element.templateName);
+            server.sendChatText(client, `- ${element.templateName}`);
+          }
+        );
       } else {
         server.sendChatText(client, `"${args[1]}" isn't a weather template`);
         server.sendChatText(
@@ -467,14 +480,14 @@ const hax: any = {
     }
   },
   weapon: function (server: ZoneServer, client: Client, args: any[]) {
-    const choosenWeapon = args[1];
+    const choosenWeapon: string = args[1];
     if (!choosenWeapon) {
       server.sendChatText(
         client,
         "Please define the name of the weapon you wanna use ! see /hax weapon list'"
       );
     } else {
-      switch (choosenWeapon) {
+      switch (choosenWeapon.toLowerCase()) {
         case "list":
           server.sendChatText(
             client,
@@ -485,7 +498,7 @@ const hax: any = {
           client.character.equipment[
             client.character.equipment.findIndex((x) => x.slotId === 7)
           ].modelName = "Weapon_M16A4_3p.adr";
-          server.sendData(client, "Equipment.SetCharacterEquipment", {
+          server.sendDataToAll("Equipment.SetCharacterEquipment", {
             profileId: 3,
             characterId: client.character.characterId,
             equipmentSlots: client.character.equipment.map((equipment) => {
@@ -504,7 +517,7 @@ const hax: any = {
           client.character.equipment[
             client.character.equipment.findIndex((x) => x.slotId === 7)
           ].modelName = "Weapon_Hatchet01_3p.adr";
-          server.sendData(client, "Equipment.SetCharacterEquipment", {
+          server.sendDataToAll("Equipment.SetCharacterEquipment", {
             profileId: 3,
             characterId: client.character.characterId,
             equipmentSlots: client.character.equipment.map((equipment) => {
@@ -523,7 +536,7 @@ const hax: any = {
           client.character.equipment[
             client.character.equipment.findIndex((x) => x.slotId === 7)
           ].modelName = "Weapon_Empty.adr";
-          server.sendData(client, "Equipment.SetCharacterEquipment", {
+          server.sendDataToAll("Equipment.SetCharacterEquipment", {
             profileId: 3,
             characterId: client.character.characterId,
             equipmentSlots: client.character.equipment.map((equipment) => {
@@ -542,7 +555,7 @@ const hax: any = {
           client.character.equipment[
             client.character.equipment.findIndex((x) => x.slotId === 7)
           ].modelName = "Weapon_Torch_3p.adr";
-          server.sendData(client, "Equipment.SetCharacterEquipment", {
+          server.sendDataToAll("Equipment.SetCharacterEquipment", {
             profileId: 3,
             characterId: client.character.characterId,
             equipmentSlots: client.character.equipment.map((equipment) => {
@@ -564,21 +577,21 @@ const hax: any = {
     }
   },
   outfit: function (server: ZoneServer, client: Client, args: any[]) {
-    const choosenOutfit = args[1];
+    const choosenOutfit: string = args[1];
     if (!choosenOutfit) {
       server.sendChatText(
         client,
         "Please define the name of the outfit you wanna use ! see /hax outfit list'"
       );
     } else {
-      switch (choosenOutfit) {
+      switch (choosenOutfit.toLowerCase()) {
         case "list":
           server.sendChatText(
             client,
             "Availables outfits : Aviator, Cowboy, Jinx, Red"
           );
           break;
-        case "Aviator":
+        case "aviator":
           client.character.equipment[
             client.character.equipment.findIndex((x) => x.slotId === 1)
           ].modelName = "SurvivorMale_Ivan_AviatorHat_Base.adr";
@@ -594,7 +607,7 @@ const hax: any = {
           client.character.equipment[
             client.character.equipment.findIndex((x) => x.slotId === 4)
           ].defaultTextureAlias = "Ivan_Pants_Jeans_Black";
-          server.sendData(client, "Equipment.SetCharacterEquipment", {
+          server.sendDataToAll("Equipment.SetCharacterEquipment", {
             profileId: 3,
             characterId: client.character.characterId,
             equipmentSlots: client.character.equipment.map((equipment) => {
@@ -609,7 +622,7 @@ const hax: any = {
             attachmentData: client.character.equipment,
           });
           break;
-        case "Jinx":
+        case "jinx":
           client.character.equipment[
             client.character.equipment.findIndex((x) => x.slotId === 1)
           ].modelName = "Weapon_Empty.adr";
@@ -622,7 +635,7 @@ const hax: any = {
           client.character.equipment[
             client.character.equipment.findIndex((x) => x.slotId === 4)
           ].modelName = "SurvivorMale_Ivan_Pants_Base.adr";
-          server.sendData(client, "Equipment.SetCharacterEquipment", {
+          server.sendDataToAll("Equipment.SetCharacterEquipment", {
             profileId: 3,
             characterId: client.character.characterId,
             equipmentSlots: client.character.equipment.map((equipment) => {
@@ -637,7 +650,7 @@ const hax: any = {
             attachmentData: client.character.equipment,
           });
           break;
-        case "Cowboy":
+        case "cowboy":
           client.character.equipment[
             client.character.equipment.findIndex((x) => x.slotId === 1)
           ].modelName = "SurvivorMale_Ivan_OutbackHat_Base.adr";
@@ -653,7 +666,7 @@ const hax: any = {
           client.character.equipment[
             client.character.equipment.findIndex((x) => x.slotId === 4)
           ].modelName = "SurvivorMale_Ivan_Pants_Base.adr";
-          server.sendData(client, "Equipment.SetCharacterEquipment", {
+          server.sendDataToAll("Equipment.SetCharacterEquipment", {
             profileId: 3,
             characterId: client.character.characterId,
             equipmentSlots: client.character.equipment.map((equipment) => {
@@ -668,7 +681,7 @@ const hax: any = {
             attachmentData: client.character.equipment,
           });
           break;
-        case "Red":
+        case "red":
           client.character.equipment[
             client.character.equipment.findIndex((x) => x.slotId === 1)
           ].modelName = "SurvivorMale_Ivan_Motorcycle_Helmet_Grey.adr";
@@ -684,7 +697,7 @@ const hax: any = {
           client.character.equipment[
             client.character.equipment.findIndex((x) => x.slotId === 4)
           ].modelName = "SurvivorMale_Ivan_Pants_Base.adr";
-          server.sendData(client, "Equipment.SetCharacterEquipment", {
+          server.sendDataToAll("Equipment.SetCharacterEquipment", {
             profileId: 3,
             characterId: client.character.characterId,
             equipmentSlots: client.character.equipment.map((equipment) => {
@@ -718,7 +731,7 @@ const hax: any = {
       );
     } else if (
       server._weatherTemplates[args[1]] ||
-      _.find(server._weatherTemplates, (template) => {
+      _.find(server._weatherTemplates, (template: { templateName: any }) => {
         return template.templateName === args[1];
       })
     ) {

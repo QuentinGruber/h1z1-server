@@ -13,7 +13,6 @@
 import PacketTableBuild from "../../packettable";
 import DataSchema from "h1z1-dataschema";
 import { lz4_decompress } from "../../../utils/utils";
-import { stubFalse } from "lodash";
 
 function readPacketType(data: Buffer, packets: any) {
   let opCode = data[0] >>> 0,
@@ -1014,7 +1013,7 @@ const lightWeightNpcSchema = [
       { name: "b", type: "uint8", defaultValue: 0 },
     ],
   },
-  { name: "unknown30", type: "boolean", defaultValue: stubFalse },
+  { name: "unknown30", type: "boolean", defaultValue: false },
   { name: "unknown31", type: "uint32", defaultValue: 0 },
   { name: "unknown32", type: "uint64", defaultValue: "0x0000000000000000" },
   {
@@ -5940,14 +5939,11 @@ var packets = [
           type: "uint64",
           defaultValue: "0x0000000000000000",
         },
-        { name: "unknown4", type: "byte", defaultValue: 0 },
-        { name: "unknown5", type: "byte", defaultValue: 0 },
-        { name: "unknown6", type: "byte", defaultValue: 0 },
-        {
-          name: "unknown7",
-          type: "uint64",
-          defaultValue: "0x0000000000000000",
-        },
+        { name: "unknown4", type: "uint8", defaultValue: 0 }, // die by falling to there left
+        { name: "unknown5", type: "uint8", defaultValue: 1 }, // weird accrobatic stuff
+        // when unknown4 & unknown5 are > 0 then the animation play in a loop forever
+        { name: "unknown6", type: "uint8", defaultValue: 0 },
+        // seems like some bytes can be added after that but not required
       ],
     },
   ],
@@ -6295,7 +6291,7 @@ var packets = [
       ],
     },
   ],
- // ["ClientUpdate.LoyaltyPoints", 0x112c00, {}],
+  // ["ClientUpdate.LoyaltyPoints", 0x112c00, {}],
   ["ClientUpdate.Membership", 0x112d00, {}],
   ["ClientUpdate.ResetMissionRespawnTimer", 0x112e00, {}],
   [
@@ -9573,12 +9569,18 @@ var packets = [
     0xd001,
     {
       fields: [
-        { name: "unk", type: "boolean", defaultValue: 0 }, // if set to true it need at lot more fields that seems to be a positionUpdate
+        { name: "usePositionUpdate", type: "boolean", defaultValue: 0 }, // if set to true it need at lot more fields that seems to be a positionUpdate
         {
           name: "characterId",
           type: "uint64",
           defaultValue: "0x0000000000000000",
         },
+        /*{
+          name: "positionUpdate",
+          type: "custom",
+          parser: readPositionUpdateData,
+          packer: packPositionUpdateData,
+        },*/
       ],
     },
   ],

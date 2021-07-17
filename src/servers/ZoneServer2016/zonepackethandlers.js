@@ -27,7 +27,7 @@ import { Int64String, isPosInRadius } from "../../utils/utils";
 // TOOD: UPDATE THIS FOR 2016
 // const modelToName = require("../../../data/2015/sampleData/ModelToName.json");
 
-const _ = require("lodash");
+const _ = require("../../utils/utils");
 const debug = require("debug")("zonepacketHandlers");
 
 const packetHandlers = {
@@ -141,12 +141,12 @@ const packetHandlers = {
 
     server.sendEquipment(client);
     server.sendResources(client);
-
   },
   ClientFinishedLoading: function (server, client, packet) {
     client.currentPOI = 0; // clears currentPOI for POIManager
     if (client.firstLoading) {
-      server.sendData(client, "POIChangeMessage", { // welcome POI message
+      server.sendData(client, "POIChangeMessage", {
+        // welcome POI message
         messageStringId: 20,
         id: 99,
       });
@@ -339,14 +339,10 @@ const packetHandlers = {
         Object.keys(dev).forEach((key) => {
           devCommandList.push(`/dev ${key}`);
         });
-        const commandList = [
-          "/help",
-          "/loc",
-          "/spawninfo",
-          "/serverinfo",
-        ];
+        const commandList = ["/help", "/loc", "/spawninfo", "/serverinfo"];
         server.sendChatText(client, `Commands list:`);
-        _.concat(commandList, haxCommandList, devCommandList)
+        commandList
+          .concat(haxCommandList, devCommandList)
           .sort((a, b) => a.localeCompare(b))
           .forEach((command) => {
             server.sendChatText(client, `${command}`);
@@ -1043,7 +1039,7 @@ const packetHandlers = {
         unknownData1: {},
         targetData: {},
         unknownArray1: [],
-        unknownArray2: []
+        unknownArray2: [],
       });
     } else if (server._characters[guid]) {
       server.sendData(client, "LightweightToFullPc", {
@@ -1068,7 +1064,7 @@ const packetHandlers = {
           unknownData1: {},
           targetData: {},
           unknownArray1: [],
-          unknownArray2: []
+          unknownArray2: [],
         },
         unknownArray1: [],
         unknownArray2: [],
@@ -1180,7 +1176,6 @@ const packetHandlers = {
     }})
   }
   */
-
 };
 
 export default packetHandlers;
