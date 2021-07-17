@@ -2053,7 +2053,9 @@ const packetHandlers: any = {
         npcData: npcData,
         characterId: guid,
       });
-      server._vehicles[guid].onReadyCallback();
+      if(server._vehicles[guid].onReadyCallback){
+        server._vehicles[guid].onReadyCallback();
+      }
     }
   },
 };

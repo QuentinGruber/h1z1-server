@@ -5942,12 +5942,8 @@ var packets = [
         { name: "unknown4", type: "uint8", defaultValue: 0 }, // die by falling to there left
         { name: "unknown5", type: "uint8", defaultValue: 1 }, // weird accrobatic stuff
         // when unknown4 & unknown5 are > 0 then the animation play in a loop forever
-        { name: "unknown6", type: "uint8", defaultValue: 0 }, // if is define then unknown7 is required
-        /*{
-          name: "unknown7",
-          type: "uint64",
-          defaultValue: "0x0000000000000000",
-        },*/
+        { name: "unknown6", type: "uint8", defaultValue: 0 },
+        // seems like some bytes can be added after that but not required
       ],
     },
   ],
