@@ -5939,14 +5939,14 @@ var packets = [
           type: "uint64",
           defaultValue: "0x0000000000000000",
         },
-        { name: "unknown4", type: "byte", defaultValue: 0 },
-        { name: "unknown5", type: "byte", defaultValue: 0 },
-        { name: "unknown6", type: "byte", defaultValue: 0 },
-        {
+        { name: "unknown4", type: "uint8", defaultValue: 0 },
+        { name: "unknown5", type: "uint8", defaultValue: 0 },
+        { name: "unknown6", type: "uint8", defaultValue: 0 }, // if is define then unknown7 is required
+        /*{
           name: "unknown7",
           type: "uint64",
           defaultValue: "0x0000000000000000",
-        },
+        },*/
       ],
     },
   ],

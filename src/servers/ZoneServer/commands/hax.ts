@@ -208,6 +208,14 @@ const hax: any = {
     server.removeForcedTime();
     server.sendChatText(client, "Game time is now based on real time", true);
   },
+  globalHeartAttack: function (server: ZoneServer, client: Client, args: any[]) {
+    for (const npcKey in server._npcs) {
+      const npc = server._npcs[npcKey];
+      server.sendData(client, "PlayerUpdate.StartMultiStateDeath", {
+        characterId: npc.characterId
+      });
+    }
+  },
   tp: function (server: ZoneServer, client: Client, args: any[]) {
     client.isLoading = true;
     const choosenSpawnLocation = args[1];
