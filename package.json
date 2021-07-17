@@ -7,7 +7,7 @@
   "main": "h1z1-server.js",
   "dependencies": {
     "@types/json-schema": "^7.0.7",
-    "@types/mongodb": "3.6.12",
+    "@types/mongodb": "^3.6.20",
     "@types/node": "15.0.1",
     "debug": "4.3.2",
     "eul2quat": "^1.0.0",

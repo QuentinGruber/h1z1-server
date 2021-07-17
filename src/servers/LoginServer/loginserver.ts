@@ -394,27 +394,18 @@ export class LoginServer extends EventEmitter {
     debug(`Protocol used : ${this._protocol.protocolName}`);
     if (this._mongoAddress) {
       const mongoClient = (this._mongoClient = new MongoClient(
-        this._mongoAddress,
-        {
-          useUnifiedTopology: true,
-          native_parser: true,
-        }
+        this._mongoAddress
       ));
       try {
         await mongoClient.connect();
       } catch (e) {
         throw debug("[ERROR]Unable to connect to mongo server");
-      }
-      if (mongoClient.isConnected()) {
-        debug("connected to mongo !");
-
+      }        
+      debug("connected to mongo !");
         // if no collections exist on h1server database , fill it with samples
         (await mongoClient.db("h1server").collections()).length ||
           (await initMongo(this._mongoAddress, debugName));
         this._db = mongoClient.db("h1server");
-      } else {
-        throw debug("Unable to authenticate on mongo !");
-      }
     }
 
     (this._soeServer as SoeServer).start(
