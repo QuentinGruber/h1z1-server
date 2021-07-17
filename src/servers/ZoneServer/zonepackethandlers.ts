@@ -2004,6 +2004,24 @@ const packetHandlers: any = {
       }
     }
   },
+  "Construction.PlacementRequest": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
+    debug("Construction.PlacementRequest")
+    // TODO
+    //server.sendData(client, "Construction.PlacementResponse", {model:modelChoosen});
+  },
+  "Construction.PlacementFinalizeRequest": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
+    debug(packet);
+    debug("Construction.PlacementFinalizeRequest")
+    server.sendData(client, "Construction.PlacementFinalizeResponse", {status:true});
+  },
   "PlayerUpdate.Respawn": function (
     server: ZoneServer,
     client: Client,

@@ -9532,24 +9532,28 @@ var packets = [
   ["Container.Error", 0xcb03, {}],
   ["Container.PacketListAll", 0xcb05, {}],
   ["Container.UpdateEquippedContainer", 0xcb06, {}],
-  ["Construction.PlacementRequest", 0xcc01, {}],
+  ["Construction.PlacementRequest", 0xcc01, {fields: [
+   
+  ]}],
   [
     "Construction.PlacementResponse",
     0xcc02,
     {
       fields: [
-        { name: "Unknown1", type: "byte", defaultValue: 0 },
-        { name: "Unknown2", type: "uint16", defaultValue: 0 },
+        { name: "Unknown2", type: "boolean", defaultValue: 0 },
         { name: "Unknown3", type: "uint32", defaultValue: 0 },
-        { name: "Unknown4", type: "uint32", defaultValue: 0 },
+        { name: "model", type: "uint32", defaultValue: 55 },
       ],
     },
   ],
-  ["Construction.PlacementFinalizeRequest", 0xcc03, {}],
+  ["Construction.PlacementFinalizeRequest", 0xcc03, {fields: [
+    { name: "position", type: "floatvector3", defaultValue: [0, 0, 0] },
+    { name: "rotation", type: "floatvector3", defaultValue: [0, 0, 0] },
+  ]}],
   [
     "Construction.PlacementFinalizeResponse",
     0xcc04,
-    { fields: [{ name: "status", type: "boolean", defaultValue: 0 }] },
+    { fields: [{ name: "status", type: "boolean", defaultValue: 1 }] },
   ],
   [
     "SkyChanged",
