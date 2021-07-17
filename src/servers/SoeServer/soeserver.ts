@@ -172,7 +172,7 @@ export class SOEServer extends EventEmitter {
         client.address
       );
     }
-    (client as any).outQueueTimer = setImmediate(()=>this.checkClientOutQueue(client));
+    (client as any).outQueueTimer = setTimeout(()=>this.checkClientOutQueue(client),1);
   };
 
   checkAck(client:Client) {
@@ -188,7 +188,7 @@ export class SOEServer extends EventEmitter {
         true
       );
     }
-    (client as any).ackTimer = setImmediate(()=>this.checkAck(client));
+    (client as any).ackTimer = setTimeout(()=>this.checkAck(client),1);
   };
 
   checkOutOfOrderQueue(client:Client){
@@ -218,7 +218,7 @@ export class SOEServer extends EventEmitter {
       );
     }
     (client as any).outOfOrderTimer =
-      setImmediate(()=>this.checkOutOfOrderQueue(client));
+      setTimeout(()=>this.checkOutOfOrderQueue(client),50);
   };
 
   handlePacket(client: Client, packet: any) {
