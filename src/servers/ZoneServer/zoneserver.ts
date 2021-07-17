@@ -1146,13 +1146,7 @@ export class ZoneServer extends EventEmitter {
       debug("send data", packetName);
     }
     const data = this._protocol.pack(packetName, obj, this._referenceData);
-    if (Array.isArray(client)) {
-      for (let i = 0; i < client.length; i++) {
-        this._gatewayServer.sendTunnelData(client[i], data, channel);
-      }
-    } else {
-      this._gatewayServer.sendTunnelData(client, data, channel);
-    }
+    this._gatewayServer.sendTunnelData(client, data, channel);
   }
 
   sendDataToAll(packetName: string, obj: any, channel = 0): void {
