@@ -119,6 +119,7 @@ const packetHandlers: any = {
       "dev",
       "admin",
       "location",
+      "respawn",
       "serverinfo",
       "spawninfo",
       "help",
@@ -489,6 +490,11 @@ const packetHandlers: any = {
     const args: any[] = packet.data.arguments.split(" ");
 
     switch (packet.data.commandHash) {
+      case 3720768430: // /respawn
+        server.sendData(client, "PlayerUpdate.StartMultiStateDeath", {
+          characterId: client.character.characterId
+        });
+        break;
       case 2371122039: // /serverinfo
         if (args[0] === "mem") {
           const used = process.memoryUsage().heapUsed / 1024 / 1024;
@@ -1998,6 +2004,24 @@ const packetHandlers: any = {
       }
     }
   },
+  "Construction.PlacementRequest": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
+    debug("Construction.PlacementRequest")
+    // TODO
+    //server.sendData(client, "Construction.PlacementResponse", {model:modelChoosen});
+  },
+  "Construction.PlacementFinalizeRequest": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
+    debug(packet);
+    debug("Construction.PlacementFinalizeRequest")
+    server.sendData(client, "Construction.PlacementFinalizeResponse", {status:true});
+  },
   "PlayerUpdate.Respawn": function (
     server: ZoneServer,
     client: Client,
@@ -2047,7 +2071,9 @@ const packetHandlers: any = {
         npcData: npcData,
         characterId: guid,
       });
-      server._vehicles[guid].onReadyCallback();
+      if(server._vehicles[guid].onReadyCallback){
+        server._vehicles[guid].onReadyCallback();
+      }
     }
   },
 };
