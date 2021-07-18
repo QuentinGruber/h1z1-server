@@ -5126,12 +5126,17 @@ var packets = [
       {
         name: "modelId?",
         type: "uint32",
-        defaultValue: 0,
+        defaultValue: 9008,
       },
     ],
   }],
   ["PlayerUpdate.PlayCompositeEffect", 0x0f0b, {}],
-  ["PlayerUpdate.SetLookAt", 0x0f0c, {}],
+  ["PlayerUpdate.SetLookAt", 0x0f0c, {
+    fields: [
+      { name: "characterId", type: "uint64", defaultValue: "0" },
+      { name: "targetCharacterId", type: "uint64", defaultValue: "0" },
+    ],
+  }],
   ["PlayerUpdate.RenamePlayer", 0x0f0d, {}],
   [
     "PlayerUpdate.UpdateCharacterState",
@@ -5235,7 +5240,12 @@ var packets = [
       ],
     },
   ],
-  ["PlayerUpdate.UpdateOwner", 0x0f24, {}],
+  ["PlayerUpdate.UpdateOwner", 0x0f24, {
+    fields: [
+      { name: "characterId", type: "uint64", defaultValue: "0" },
+      { name: "unk", type: "uint8", defaultValue: 0 },
+    ],
+  }],
   ["PlayerUpdate.WeaponStance", 0x0f25, {}],
   ["PlayerUpdate.UpdateTintAlias", 0x0f26, {}],
   [
@@ -5914,7 +5924,7 @@ var packets = [
           type: "uint64",
           defaultValue: "0x0000000000000000",
         },
-        { name: "unknown5", type: "byte", defaultValue: 0 },
+        { name: "isCheater", type: "boolean", defaultValue: 0 },
       ],
     },
   ],
