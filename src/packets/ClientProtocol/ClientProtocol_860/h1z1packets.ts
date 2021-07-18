@@ -5105,9 +5105,9 @@ var packets = [
   ["PlayerUpdate.UpdateTemporaryAppearance", 0x0f09, {
     fields: [
       {
-        name: "id",
+        name: "modelId",
         type: "uint32",
-        defaultValue: 0,
+        defaultValue: 9008,
       },
       {
         name: "characterId",
@@ -5124,7 +5124,7 @@ var packets = [
         defaultValue: "0x0000000000000000",
       },
       {
-        name: "id",
+        name: "modelId?",
         type: "uint32",
         defaultValue: 0,
       },
