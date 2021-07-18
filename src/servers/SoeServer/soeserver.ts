@@ -169,7 +169,12 @@ export class SOEServer extends EventEmitter {
         0,
         data.length,
         client.port,
-        client.address
+        client.address,
+        (err: any) => {
+          if (err) {
+            debug(err);
+          }
+        }
       );
     }
     (client as any).outQueueTimer = setTimeout(()=>this.checkClientOutQueue(client));
