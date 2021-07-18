@@ -5102,8 +5102,34 @@ var packets = [
       ],
     },
   ],
-  ["PlayerUpdate.UpdateTemporaryAppearance", 0x0f09, {}],
-  ["PlayerUpdate.RemoveTemporaryAppearance", 0x0f0a, {}],
+  ["PlayerUpdate.UpdateTemporaryAppearance", 0x0f09, {
+    fields: [
+      {
+        name: "id",
+        type: "uint32",
+        defaultValue: 0,
+      },
+      {
+        name: "characterId",
+        type: "uint64",
+        defaultValue: "0x0000000000000000",
+      },
+    ],
+  }],
+  ["PlayerUpdate.RemoveTemporaryAppearance", 0x0f0a, {
+    fields: [
+      {
+        name: "characterId",
+        type: "uint64",
+        defaultValue: "0x0000000000000000",
+      },
+      {
+        name: "id",
+        type: "uint32",
+        defaultValue: 0,
+      },
+    ],
+  }],
   ["PlayerUpdate.PlayCompositeEffect", 0x0f0b, {}],
   ["PlayerUpdate.SetLookAt", 0x0f0c, {}],
   ["PlayerUpdate.RenamePlayer", 0x0f0d, {}],
