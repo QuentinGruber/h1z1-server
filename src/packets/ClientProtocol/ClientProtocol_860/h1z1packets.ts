@@ -6219,7 +6219,15 @@ var packets = [
       ],
     },
   ],
-  ["ClientUpdate.UpdateManagedLocation", 0x112400, {}],
+  ["ClientUpdate.UpdateManagedLocation", 0x112400, {
+    fields: [
+      { name: "characterId", type: "uint64", defaultValue: "0" },
+      { name: "position", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
+      { name: "rotation", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
+      { name: "unk1", type: "uint8", defaultValue: 1 },
+      { name: "unk2", type: "uint8", defaultValue: 1 },
+    ],
+  }],
   [
     "ClientUpdate.ScreenEffect",
     0x112500,
