@@ -185,21 +185,48 @@ export class ZoneServer2016 extends ZoneServer {
       },
       equipmentModels: [
         {
-          model: "Weapons_PumpShotgun01_3P.adr",
+          model: "SurvivorMale_Head_01.adr",
           unknownDword1: 0,
           unknownDword2: 0,
           effectId: 0,
-          equipmentSlotId: 27,
+          equipmentSlotId: 1,
           unknownDword4: 0,
           unknownArray1: [],
-        }
+        },
+        {
+          model: "SurvivorMale_Chest_Jacket_Farmer.adr",
+          unknownDword1: 0,
+          unknownDword2: 0,
+          effectId: 0,
+          equipmentSlotId: 3,
+          unknownDword4: 0,
+          unknownArray1: [],
+        },
+        {
+          model: "SurvivorMale_Legs_Pants_Underwear.adr",
+          unknownDword1: 0,
+          unknownDword2: 0,
+          effectId: 0,
+          equipmentSlotId: 4,
+          unknownDword4: 0,
+          unknownArray1: [],
+        },
+        {
+          model: "SurvivorMale_Eyes_01.adr",
+          unknownDword1: 0,
+          unknownDword2: 0,
+          effectId: 0,
+          equipmentSlotId: 105,
+          unknownDword4: 0,
+          unknownArray1: [],
+        },
       ],
-      unknownDword1: 0,
-      unknownDword2: 0,
-      thirdPersonModelId: 9519,
+      unknownDword1: 1,
+      unknownDword2: 1,
+      actorModelId: 9240,
       //unknownDword4: 0,
       tintAlias: "",
-      decalAlias: ""
+      decalAlias: "#"
     });
     */
   }
@@ -582,7 +609,7 @@ export class ZoneServer2016 extends ZoneServer {
   }
 
   sendGameTimeSync(client: Client): void {
-    debug(`GameTimeSync ${this._cycleSpeed} ${this.getGameTime()}\n\n\n\n`);
+    debug(`GameTimeSync ${this._cycleSpeed} ${this.getGameTime()}\n`);
     //this._gameTime = this.getGameTime();
     this.sendData(client, "GameTimeSync", {
       time: Int64String(this.getGameTime()),

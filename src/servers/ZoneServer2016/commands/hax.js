@@ -515,7 +515,6 @@ const hax = {
         slot = 15;
         break;
       case "backpack":
-        //model = "SurvivorMale_Back_Backpack_Military.adr";
         model = "SurvivorMale_Back_Backpack_Military_Rasta.adr";
         slot = 10;
         break;
@@ -524,7 +523,6 @@ const hax = {
         slot = 5;
         break;
       case "armor":
-        //model = "SurvivorMale_Armor_Kevlar_Military.adr";
         model = "SurvivorMale_Armor_Kevlar_Basic_Patches.adr";
         slot = 100;
         break;
@@ -566,6 +564,82 @@ const hax = {
       },
     };
     server.sendChatText(client, `Setting character equipment slot: ${args[1]}`);
+    server.sendData(
+      client,
+      "Equipment.SetCharacterEquipmentSlot",
+      equipmentSlot
+    );
+  },
+  weapon: function (server, client, args) {
+    let effect, model;
+    if (!args[1]) {
+      server.sendChatText(client, "[ERROR] Missing weapon name !");
+      server.sendChatText(
+        client,
+        "Valid options: ar, ak, m9, 1911, 308, shotgun, torch, empty, brick"
+      );
+      return;
+    }
+    if (!args[2]) {
+      server.sendChatText(client, "No effect added.");
+      effect = 0;
+    } else {
+      effect = args[2];
+    }
+    switch (args[1]) {
+      case "ar":
+        model = "Weapon_M16A4_3P.adr";
+        break;
+      case "ak":
+        model = "Weapon_AK47_3P.adr";
+        break;
+      case "m9":
+        model = "Weapons_M9Auto_3P.adr";
+        break;
+      case "1911":
+        model = "Weapon_Colt1911.adr"/*"Weapon_Pistol_45Auto_3P.adr"*/;
+        break;
+      case "308":
+        model = "Weapon_M24_3P.adr";
+        break;
+      case "shotgun":
+        model = "Weapons_PumpShotgun01_3P.adr";
+        break;
+      case "torch":
+        model = "Weapon_Torch.adr";
+        break;
+      case "empty":
+        model = "Weapon_Empty.adr";
+        break;
+      case "brick":
+        model = "Weapons_RedBrick01.adr";
+        break;
+      default:
+        server.sendChatText(
+          client,
+          "Valid options: ar, ak, m9, 1911, 308, shotgun, torch, empty, brick"
+        );
+        return;
+    }
+    const equipmentSlot = {
+      characterData: {
+        characterId: client.character.characterId,
+      },
+      equipmentTexture: {
+        index: 1,
+        slotId: 7,
+        unknownQword1: "0x1",
+        textureAlias: "",
+        unknownString1: "",
+      },
+      equipmentModel: {
+        model: model,
+        effectId: Number(effect), // 0 - 16
+        equipmentSlotId: 7,
+        unknownArray1: [],
+      },
+    };
+    server.sendChatText(client, `Setting weapon: ${args[1]}`);
     server.sendData(
       client,
       "Equipment.SetCharacterEquipmentSlot",
