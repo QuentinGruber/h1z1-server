@@ -359,15 +359,27 @@ export class ZoneServer extends EventEmitter {
 
   async fetchWorldData(): Promise<void> {
     if (!this._soloMode) {
-      const worldData:any = await this._db
-        ?.collection("worlds")
-        .findOne({ worldId: this._worldId });
-      this._doors = worldData.doors;
-      this._props = worldData.props;
-      this._vehicles = worldData.vehicles;
-      this._npcs = worldData.npcs;
-      this._objects = worldData.objects;
-      this._weather = worldData.weather;
+      this._doors  = {};
+      const doorArray:any = await this._db
+      ?.collection("doors")
+      .find({ worldId: this._worldId });
+      // do this for all entities
+      for (let index = 0; index < doorArray.length; index++) {
+        const door = doorArray[index];
+        this._doors[door.characterId] = door
+      }
+      this._props  = await this._db
+      ?.collection("props")
+      .find({ worldId: this._worldId });;
+      this._vehicles  = await this._db
+      ?.collection("vehicles")
+      .find({ worldId: this._worldId });;
+      this._npcs  = await this._db
+      ?.collection("npcs")
+      .find({ worldId: this._worldId });;
+      this._objects  = await this._db
+      ?.collection("objects")
+      .find({ worldId: this._worldId });;
       this._transientIds = this.getAllCurrentUsedTransientId();
       debug("World fetched!");
     }
