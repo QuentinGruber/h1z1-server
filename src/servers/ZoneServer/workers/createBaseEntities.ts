@@ -56,6 +56,7 @@ function createEntity(
   }
   server._transientIds[numberOfSpawnedEntity] = characterId;
   dictionnary[characterId] = {
+    worldId: server._worldId,
     zoneId: zoneId,
     characterId: characterId,
     guid: guid,
@@ -120,6 +121,7 @@ function createAllVehicles(server: ZoneServer) {
     numberOfSpawnedEntity++;
     server._transientIds[numberOfSpawnedEntity] = characterId;
     vehicles[characterId] = {
+      worldId: server._worldId,
       npcData: {
         guid: generateRandomGuid(),
         characterId: characterId,

@@ -324,9 +324,6 @@ export class ZoneServer extends EventEmitter {
       await this._db?.collection("worlds").findOne({ worldId: this._worldId })
     ) {
       await this.fetchWorldData();
-      setTimeout(() => {
-        this.saveWorld();
-      }, 30000);
     } else {
       await this._db?.collection(`worlds`)
         .updateOne({ worldId: this._worldId }, { $set: { worldId: this._worldId } });
@@ -381,19 +378,19 @@ export class ZoneServer extends EventEmitter {
       if (this._worldId) {
           this.createAllObjects();
           await this._db
-            ?.collection(`world-${this._worldId}-npcs`)
+            ?.collection(`npcs`)
             .insertMany(Object.values(this._npcs));
             await this._db
-            ?.collection(`world-${this._worldId}-doors`)
+            ?.collection(`doors`)
             .insertMany(Object.values(this._doors));
             await this._db
-            ?.collection(`world-${this._worldId}-props`)
+            ?.collection(`props`)
             .insertMany(Object.values(this._props));
             await this._db
-            ?.collection(`world-${this._worldId}-vehicles`)
+            ?.collection(`vehicles`)
             .insertMany(Object.values(this._vehicles));
             await this._db
-            ?.collection(`world-${this._worldId}-objects`)
+            ?.collection(`objects`)
             .insertMany(Object.values(this._objects));
       } else {
         this.createAllObjects();
@@ -404,19 +401,19 @@ export class ZoneServer extends EventEmitter {
           worldId: this._worldId,
         });
         await this._db
-            ?.collection(`world-${this._worldId}-npcs`)
+            ?.collection(`npcs`)
             .insertMany(Object.values(this._npcs));
             await this._db
-            ?.collection(`world-${this._worldId}-doors`)
+            ?.collection(`doors`)
             .insertMany(Object.values(this._doors));
             await this._db
-            ?.collection(`world-${this._worldId}-props`)
+            ?.collection(`props`)
             .insertMany(Object.values(this._props));
             await this._db
-            ?.collection(`world-${this._worldId}-vehicles`)
+            ?.collection(`vehicles`)
             .insertMany(Object.values(this._vehicles));
             await this._db
-            ?.collection(`world-${this._worldId}-objects`)
+            ?.collection(`objects`)
             .insertMany(Object.values(this._objects));
         debug("World saved!");
       }
