@@ -13,7 +13,6 @@
 import PacketTableBuild from "../../packettable";
 import DataSchema from "h1z1-dataschema";
 import { lz4_decompress } from "../../../utils/utils";
-import { stubFalse } from "lodash";
 
 function readPacketType(data: Buffer, packets: any) {
   let opCode = data[0] >>> 0,
@@ -1014,7 +1013,7 @@ const lightWeightNpcSchema = [
       { name: "b", type: "uint8", defaultValue: 0 },
     ],
   },
-  { name: "unknown30", type: "boolean", defaultValue: stubFalse },
+  { name: "unknown30", type: "boolean", defaultValue: false },
   { name: "unknown31", type: "uint32", defaultValue: 0 },
   { name: "unknown32", type: "uint64", defaultValue: "0x0000000000000000" },
   {
@@ -5103,10 +5102,41 @@ var packets = [
       ],
     },
   ],
-  ["PlayerUpdate.UpdateTemporaryAppearance", 0x0f09, {}],
-  ["PlayerUpdate.RemoveTemporaryAppearance", 0x0f0a, {}],
+  ["PlayerUpdate.UpdateTemporaryAppearance", 0x0f09, {
+    fields: [
+      {
+        name: "modelId",
+        type: "uint32",
+        defaultValue: 9008,
+      },
+      {
+        name: "characterId",
+        type: "uint64",
+        defaultValue: "0x0000000000000000",
+      },
+    ],
+  }],
+  ["PlayerUpdate.RemoveTemporaryAppearance", 0x0f0a, {
+    fields: [
+      {
+        name: "characterId",
+        type: "uint64",
+        defaultValue: "0x0000000000000000",
+      },
+      {
+        name: "modelId?",
+        type: "uint32",
+        defaultValue: 9008,
+      },
+    ],
+  }],
   ["PlayerUpdate.PlayCompositeEffect", 0x0f0b, {}],
-  ["PlayerUpdate.SetLookAt", 0x0f0c, {}],
+  ["PlayerUpdate.SetLookAt", 0x0f0c, {
+    fields: [
+      { name: "characterId", type: "uint64", defaultValue: "0" },
+      { name: "targetCharacterId", type: "uint64", defaultValue: "0" },
+    ],
+  }],
   ["PlayerUpdate.RenamePlayer", 0x0f0d, {}],
   [
     "PlayerUpdate.UpdateCharacterState",
@@ -5210,7 +5240,12 @@ var packets = [
       ],
     },
   ],
-  ["PlayerUpdate.UpdateOwner", 0x0f24, {}],
+  ["PlayerUpdate.UpdateOwner", 0x0f24, {
+    fields: [
+      { name: "characterId", type: "uint64", defaultValue: "0" },
+      { name: "unk", type: "uint8", defaultValue: 0 },
+    ],
+  }],
   ["PlayerUpdate.WeaponStance", 0x0f25, {}],
   ["PlayerUpdate.UpdateTintAlias", 0x0f26, {}],
   [
@@ -5889,7 +5924,7 @@ var packets = [
           type: "uint64",
           defaultValue: "0x0000000000000000",
         },
-        { name: "unknown5", type: "byte", defaultValue: 0 },
+        { name: "isCheater", type: "boolean", defaultValue: 0 },
       ],
     },
   ],
@@ -5940,14 +5975,11 @@ var packets = [
           type: "uint64",
           defaultValue: "0x0000000000000000",
         },
-        { name: "unknown4", type: "byte", defaultValue: 0 },
-        { name: "unknown5", type: "byte", defaultValue: 0 },
-        { name: "unknown6", type: "byte", defaultValue: 0 },
-        {
-          name: "unknown7",
-          type: "uint64",
-          defaultValue: "0x0000000000000000",
-        },
+        { name: "unknown4", type: "uint8", defaultValue: 0 }, // die by falling to there left
+        { name: "unknown5", type: "uint8", defaultValue: 1 }, // weird accrobatic stuff
+        // when unknown4 & unknown5 are > 0 then the animation play in a loop forever
+        { name: "unknown6", type: "uint8", defaultValue: 0 },
+        // seems like some bytes can be added after that but not required
       ],
     },
   ],
@@ -6223,7 +6255,15 @@ var packets = [
       ],
     },
   ],
-  ["ClientUpdate.UpdateManagedLocation", 0x112400, {}],
+  ["ClientUpdate.UpdateManagedLocation", 0x112400, {
+    fields: [
+      { name: "characterId", type: "uint64", defaultValue: "0" },
+      { name: "position", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
+      { name: "rotation", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
+      { name: "unk1", type: "uint8", defaultValue: 1 },
+      { name: "unk2", type: "uint8", defaultValue: 1 },
+    ],
+  }],
   [
     "ClientUpdate.ScreenEffect",
     0x112500,
@@ -6295,7 +6335,7 @@ var packets = [
       ],
     },
   ],
- // ["ClientUpdate.LoyaltyPoints", 0x112c00, {}],
+  // ["ClientUpdate.LoyaltyPoints", 0x112c00, {}],
   ["ClientUpdate.Membership", 0x112d00, {}],
   ["ClientUpdate.ResetMissionRespawnTimer", 0x112e00, {}],
   [
@@ -9536,24 +9576,28 @@ var packets = [
   ["Container.Error", 0xcb03, {}],
   ["Container.PacketListAll", 0xcb05, {}],
   ["Container.UpdateEquippedContainer", 0xcb06, {}],
-  ["Construction.PlacementRequest", 0xcc01, {}],
+  ["Construction.PlacementRequest", 0xcc01, {fields: [
+   
+  ]}],
   [
     "Construction.PlacementResponse",
     0xcc02,
     {
       fields: [
-        { name: "Unknown1", type: "byte", defaultValue: 0 },
-        { name: "Unknown2", type: "uint16", defaultValue: 0 },
+        { name: "Unknown2", type: "boolean", defaultValue: 0 },
         { name: "Unknown3", type: "uint32", defaultValue: 0 },
-        { name: "Unknown4", type: "uint32", defaultValue: 0 },
+        { name: "model", type: "uint32", defaultValue: 55 },
       ],
     },
   ],
-  ["Construction.PlacementFinalizeRequest", 0xcc03, {}],
+  ["Construction.PlacementFinalizeRequest", 0xcc03, {fields: [
+    { name: "position", type: "floatvector3", defaultValue: [0, 0, 0] },
+    { name: "rotation", type: "floatvector3", defaultValue: [0, 0, 0] },
+  ]}],
   [
     "Construction.PlacementFinalizeResponse",
     0xcc04,
-    { fields: [{ name: "status", type: "boolean", defaultValue: 0 }] },
+    { fields: [{ name: "status", type: "boolean", defaultValue: 1 }] },
   ],
   [
     "SkyChanged",
@@ -9569,12 +9613,18 @@ var packets = [
     0xd001,
     {
       fields: [
-        { name: "unk", type: "boolean", defaultValue: 0 }, // if set to true it need at lot more fields that seems to be a positionUpdate
+        { name: "usePositionUpdate", type: "boolean", defaultValue: 0 }, // if set to true it need at lot more fields that seems to be a positionUpdate
         {
           name: "characterId",
           type: "uint64",
           defaultValue: "0x0000000000000000",
         },
+        /*{
+          name: "positionUpdate",
+          type: "custom",
+          parser: readPositionUpdateData,
+          packer: packPositionUpdateData,
+        },*/
       ],
     },
   ],

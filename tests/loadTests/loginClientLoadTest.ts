@@ -11,7 +11,7 @@ function testLoad() {
       "dev",
       "127.0.0.1",
       1115,
-      new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", 'base64'), // <- loginkey
+      new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", "base64"), // <- loginkey
       4851 + index
     );
     console.time("FullLogin" + index);
@@ -25,7 +25,7 @@ function testLoad() {
       client.requestCharacterInfo();
     });
     client.on("characterinfo", (err, res) => {
-      client.requestCharacterLogin("0x0000000000000001", 1, {
+      client.requestCharacterLogin("0x03147cca2a860191", 1, {
         locale: "EnUS",
         localeId: 1,
         preferredGatewayId: 8,
