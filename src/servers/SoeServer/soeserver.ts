@@ -59,7 +59,6 @@ export class SOEServer extends EventEmitter {
     this._clients = {};
     this._connection = new Worker(`${__dirname}/udpServerWorker.js`,{workerData:{serverPort:serverPort}});
     this._connection.on("message", (message) => {
-      console.log(message)
       const {data:dataUint8, remote} = message;
       const data = Buffer.from(dataUint8)
       try {

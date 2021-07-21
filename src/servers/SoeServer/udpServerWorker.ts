@@ -31,8 +31,7 @@ connection.on("message", (data, remote) => {
 parentPort?.on('message', (message:Message) => {
     switch (message.type) {
         case "sendPacket":
-            console.log(message.data)
-            const {packetData,length,port,address} = message.data
+            const {packetData,port,address} = message.data
             connection.send(packetData,port,address)
             break;
         case "bind":
