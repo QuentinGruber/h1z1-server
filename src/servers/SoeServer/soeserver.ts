@@ -14,7 +14,6 @@ import { EventEmitter } from "events";
 import { SOEProtocol } from "../../protocols/soeprotocol";
 import { SOEInputStream } from "./soeinputstream";
 import { SOEOutputStream } from "./soeoutputstream";
-import dgram from "dgram";
 import { Client } from "../../types/soeserver";
 import { Worker } from 'worker_threads';
 
