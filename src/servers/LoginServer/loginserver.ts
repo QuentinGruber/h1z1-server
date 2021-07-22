@@ -132,6 +132,11 @@ export class LoginServer extends EventEmitter {
     );
   }
 
+  sendData(client: Client, packetName: string, obj: any) {
+    const data = this._protocol.pack(packetName, obj);
+    this._soeServer.sendAppData(client, data, true);
+  }
+
   LoginRequest(client: Client, sessionId: string, fingerprint: string) {
     client.loginSessionId = sessionId;
     const falsified_data = {
@@ -142,8 +147,7 @@ export class LoginServer extends EventEmitter {
       namespace: "soe",
       ApplicationPayload: "",
     };
-    const data = this._protocol.pack("LoginReply", falsified_data);
-    this._soeServer.sendAppData(client, data, true);
+    this.sendData(client, "LoginReply", falsified_data);
     if (!this._soloMode) {
       client.serverUpdateTimer = setInterval(
         // TODO: fix the fact that this interval is never cleared
@@ -168,28 +172,24 @@ export class LoginServer extends EventEmitter {
         debug(`Unhandled tunnel packet "${packet.subPacketName}"`);
         break;
     }
-    const data = this._protocol.pack("TunnelAppPacketServerToClient", response);
-    this._soeServer.sendAppData(client, data, true);
+    this.sendData(client, "TunnelAppPacketServerToClient", response);
   }
   async CharacterSelectInfoRequest(client: Client) {
     let CharactersInfo;
     if (this._soloMode) {
-      const SinglePlayerCharacters = require("../../../data/2015/sampleData/single_player_characters.json");
+      let SinglePlayerCharacters;
       if (this._protocol.protocolName == "LoginUdp_9") {
-        CharactersInfo = {
-          status: 1,
-          canBypassServerLock: true,
-          characters: SinglePlayerCharacters,
-        };
-      } else {
-        // LoginUdp_11
-        CharactersInfo = {
-          status: 1,
-          canBypassServerLock: true,
-          characters: new Array(SinglePlayerCharacters[0]),
-        };
+        SinglePlayerCharacters = require("../../../data/2015/sampleData/single_player_characters.json");
+      } else {// LoginUdp_11
+        SinglePlayerCharacters = require("../../../data/2016/sampleData/single_player_characters.json");
       }
-    } else {
+      CharactersInfo = {
+        status: 1,
+        canBypassServerLock: true,
+        characters: SinglePlayerCharacters,
+      };
+    } 
+    else {
       const charactersQuery = { ownerId: client.loginSessionId };
       const characters = await this._db
         .collection("characters")
@@ -201,11 +201,7 @@ export class LoginServer extends EventEmitter {
         characters: characters,
       };
     }
-    const data = this._protocol.pack(
-      "CharacterSelectInfoReply",
-      CharactersInfo
-    );
-    this._soeServer.sendAppData(client, data, true);
+    this.sendData(client, "CharacterSelectInfoReply", CharactersInfo);
     debug("CharacterSelectInfoRequest");
   }
 
@@ -215,8 +211,14 @@ export class LoginServer extends EventEmitter {
       servers = await this._db.collection("servers").find().toArray();
     } else {
       if (this._soloMode) {
-        const SoloServer = require("../../../data/2015/sampleData/single_player_server.json");
-        servers = [SoloServer];
+        if (this._protocol.protocolName == "LoginUdp_9") {
+          const SoloServer = require("../../../data/2015/sampleData/single_player_server.json");
+          servers = [SoloServer];
+        }
+        else { // LoginUdp_11
+          const SoloServer = require("../../../data/2016/sampleData/single_player_server.json");
+          servers = [SoloServer];
+        }
       }
     }
     for (let i = 0; i < servers.length; i++) {
@@ -224,10 +226,7 @@ export class LoginServer extends EventEmitter {
         delete servers[i]._id;
       }
     }
-    const data = this._protocol.pack("ServerListReply", {
-      servers: servers,
-    });
-    this._soeServer.sendAppData(client, data, true);
+    this.sendData(client, "ServerListReply", { servers: servers });
   }
 
   async CharacterDeleteRequest(client: Client, packet: any) {
@@ -236,28 +235,37 @@ export class LoginServer extends EventEmitter {
       status: 1,
       Payload: "\0",
     };
-    const data = this._protocol.pack(
-      "CharacterDeleteReply",
-      characters_delete_info
-    );
-    this._soeServer.sendAppData(client, data, true);
     debug("CharacterDeleteRequest");
-
+    this.sendData(client, "CharacterDeleteReply", characters_delete_info);
     if (this._soloMode) {
-      delete require.cache[
-        require.resolve(
-          "../../../data/2015/sampleData/single_player_characters.json"
-        )
-      ];
-      const singlePlayerCharacters: any[] = require("../../../data/2015/sampleData/single_player_characters.json");
-      const characterIndex = singlePlayerCharacters.findIndex(
-        (character: any) => character.characterId === packet.result.characterId
-      );
-      singlePlayerCharacters.splice(characterIndex, 1);
-      fs.writeFileSync(
-        `${__dirname}/../../../data/2015/sampleData/single_player_characters.json`,
-        JSON.stringify(singlePlayerCharacters)
-      );
+      if (this._protocol.protocolName == "LoginUdp_9") {
+        delete require.cache[
+          require.resolve("../../../data/2015/sampleData/single_player_characters.json")
+        ];
+        const singlePlayerCharacters: any[] = require("../../../data/2015/sampleData/single_player_characters.json");
+        const characterIndex = singlePlayerCharacters.findIndex(
+          (character: any) => character.characterId === packet.result.characterId
+        );
+        singlePlayerCharacters.splice(characterIndex, 1);
+        fs.writeFileSync(
+          `${__dirname}/../../../data/2015/sampleData/single_player_characters.json`,
+          JSON.stringify(singlePlayerCharacters)
+        );
+      }
+      else { // LoginUdp_11
+        delete require.cache[
+          require.resolve("../../../data/2016/sampleData/single_player_characters.json")
+        ];
+        const singlePlayerCharacters: any[] = require("../../../data/2016/sampleData/single_player_characters.json");
+        const characterIndex = singlePlayerCharacters.findIndex(
+          (character: any) => character.characterId === packet.result.characterId
+        );
+        singlePlayerCharacters.splice(characterIndex, 1);
+        fs.writeFileSync(
+          `${__dirname}/../../../data/2016/sampleData/single_player_characters.json`,
+          JSON.stringify(singlePlayerCharacters)
+        );
+      }
     } else {
       await this._db
         .collection("characters")
@@ -302,7 +310,13 @@ export class LoginServer extends EventEmitter {
         },
       };
     } else {
-      const SinglePlayerCharacters = require("../../../data/2015/sampleData/single_player_characters.json");
+      let SinglePlayerCharacters;
+      if (this._protocol.protocolName == "LoginUdp_9") {
+        SinglePlayerCharacters = require("../../../data/2015/sampleData/single_player_characters.json");
+      }
+      else { // LoginUdp_11
+        SinglePlayerCharacters = require("../../../data/2016/sampleData/single_player_characters.json");
+      }
       const character = SinglePlayerCharacters.find(
         (character: any) => character.characterId === characterId
       );
@@ -324,11 +338,7 @@ export class LoginServer extends EventEmitter {
       };
     }
     debug(charactersLoginInfo);
-    const data = this._protocol.pack(
-      "CharacterLoginReply",
-      charactersLoginInfo
-    );
-    this._soeServer.sendAppData(client, data, true);
+    this.sendData(client, "CharacterLoginReply", charactersLoginInfo);
     debug("CharacterLoginRequest");
   }
 
@@ -338,26 +348,39 @@ export class LoginServer extends EventEmitter {
       serverId,
     } = packet.result;
     // create character object
-    try {
-      // delete commands cache if exist so /dev reloadPackets reload them too
-      delete require.cache[
-        require.resolve(
-          "../../../data/2015/sampleData/single_player_characters.json"
-        )
-      ];
-    } catch (e) {}
-    const SinglePlayerCharacter = require("../../../data/2015/sampleData/single_player_character.json");
-    const SinglePlayerCharacters = require("../../../data/2015/sampleData/single_player_characters.json");
+    let SinglePlayerCharacter, SinglePlayerCharacters;
+    if (this._protocol.protocolName == "LoginUdp_9") {
+      try { // delete commands cache if exist so /dev reloadPackets reload them too
+        delete require.cache[require.resolve("../../../data/2015/sampleData/single_player_characters.json")];
+      } catch (e) {}
+      SinglePlayerCharacter = require("../../../data/2015/sampleData/single_player_character.json");
+      SinglePlayerCharacters = require("../../../data/2015/sampleData/single_player_characters.json");
+    }
+    else { // LoginUdp_11
+      try { // delete commands cache if exist so /dev reloadPackets reload them too
+        delete require.cache[require.resolve("../../../data/2016/sampleData/single_player_characters.json")];
+      } catch (e) {}
+      SinglePlayerCharacter = require("../../../data/2016/sampleData/single_player_character.json");
+      SinglePlayerCharacters = require("../../../data/2016/sampleData/single_player_characters.json");
+    }
     const newCharacter = _.cloneDeep(SinglePlayerCharacter);
     newCharacter.serverId = serverId;
     newCharacter.payload.name = characterName;
     newCharacter.characterId = generateRandomGuid();
     if (this._soloMode) {
       SinglePlayerCharacters[SinglePlayerCharacters.length] = newCharacter;
-      fs.writeFileSync(
-        `${__dirname}/../../../data/2015/sampleData/single_player_characters.json`,
-        JSON.stringify(SinglePlayerCharacters)
-      );
+      if (this._protocol.protocolName == "LoginUdp_9") {
+        fs.writeFileSync(
+          `${__dirname}/../../../data/2015/sampleData/single_player_characters.json`,
+          JSON.stringify(SinglePlayerCharacters)
+        );
+      }
+      else { // LoginUdp_11
+        fs.writeFileSync(
+          `${__dirname}/../../../data/2016/sampleData/single_player_characters.json`,
+          JSON.stringify(SinglePlayerCharacters)
+        );
+      }
     } else {
       await this._db
         .collection("characters")
@@ -367,9 +390,7 @@ export class LoginServer extends EventEmitter {
       status: 1,
       characterId: newCharacter.characterId,
     };
-
-    const data = this._protocol.pack("CharacterCreateReply", reply_data);
-    this._soeServer.sendAppData(client, data, true);
+    this.sendData(client, "CharacterCreateReply", reply_data);
   }
 
   async updateServerList(client: Client): Promise<void> {
@@ -381,8 +402,7 @@ export class LoginServer extends EventEmitter {
         .toArray();
 
       for (let i = 0; i < servers.length; i++) {
-        const data = this._protocol.pack("ServerUpdate", servers[i]);
-        this._soeServer.sendAppData(client, data, true);
+        this.sendData(client, "ServerUpdate", servers[i]);
       }
     }
   }
