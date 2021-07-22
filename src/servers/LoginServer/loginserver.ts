@@ -63,15 +63,15 @@ export class LoginServer extends EventEmitter {
     );
     this._protocol = new LoginProtocol();
     this._soeServer.on("connect", (err: string, client: Client) => {
-      debug("Client connected from " + client.address + ":" + client.port);
+      debug(`Client connected from ${client.address}:${client.port}`);
       this.emit("connect", err, client);
     });
     this._soeServer.on("disconnect", (err: string, client: Client) => {
-      debug("Client disconnected from " + client.address + ":" + client.port);
+      debug(`Client disconnected from ${client.address}:${client.port}`);
       this.emit("disconnect", err, client);
     });
     this._soeServer.on("session", (err: string, client: Client) => {
-      debug("Session started for client " + client.address + ":" + client.port);
+      debug(`Session started for client ${client.address}:${client.port}`);
     });
     this._soeServer.on(
       "SendServerUpdate",
