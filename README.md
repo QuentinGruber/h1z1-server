@@ -11,8 +11,10 @@ h1z1-server is a library trying to emulate a h1z1(just survive) server.
 
 ## Motivation
 
-"It's just matter of effort and to have enough people of with interest towards having such private servers to the respected game.
+A redditor said : "It's just matter of effort and to have enough people of with interest towards having such private servers to the respected game.
 I highly doubt that H1Z1 (Just Survive) is one of those."
+
+So we will see :)
 
 ## Current Goal
 
