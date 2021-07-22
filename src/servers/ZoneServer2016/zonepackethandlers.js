@@ -592,7 +592,7 @@ const packetHandlers = {
         unknownData1: {
           transientId: server._characters[guid].transientId,
           equipmentModels: {},
-          array1: [],
+          unknownData1: {},
           effectTags: [],
         },
       });

@@ -43,7 +43,7 @@ const hax = {
         [0, 0, 0, 0]
       ),
     };
-    server.sendData(client, "AddLightweightVehicle", vehicleData);
+    //server.sendData(client, "AddLightweightVehicle", vehicleData);
     server._vehicles[characterId] = vehicleData;
     server.worldRoutine(client);
     server.sendData(client, "Mount.MountResponse", {
@@ -176,11 +176,13 @@ const hax = {
         unknownGuid1: server.generateGuid(),
         positionUpdate: [0, 0, 0, 0],
       };
-      server.sendData(client, "AddLightweightVehicle", vehicle);
+      //server.sendData(client, "AddLightweightVehicle", vehicle);
+      /*
       server.sendData(client, "Character.ManagedObject", {
         objectCharacterId: characterId,
         characterId: client.character.characterId,
       });
+      */
       server._vehicles[characterId] = vehicle; // save vehicle
     }
   },
@@ -209,8 +211,8 @@ const hax = {
       showHealth: Number(args[2]),
       unknownDword4: Number(args[3]),
     };
-    server.sendData(client, "AddSimpleNpc", obj);
-    // server.obj[characterId] = obj; // save npc
+    //server.sendData(client, "AddSimpleNpc", obj);
+    server._objects[characterId] = obj; // save npc
   },
   spawnNpcModel: function (server, client, args) {
     const guid = server.generateGuid();
@@ -241,7 +243,7 @@ const hax = {
       headActor: getHeadActor(choosenModelId),
       attachedObject: {},
     };
-    server.sendData(client, "AddLightweightNpc", npc);
+    //server.sendData(client, "AddLightweightNpc", npc);
     server._npcs[characterId] = npc; // save npc
   },
   spawnVehicle: function (server, client, args) {
@@ -299,11 +301,13 @@ const hax = {
       unknownGuid1: server.generateGuid(),
       positionUpdate: [0, 0, 0, 0],
     };
-    server.sendData(client, "AddLightweightVehicle", vehicle);
+    //server.sendData(client, "AddLightweightVehicle", vehicle);
+    /*
     server.sendData(client, "Character.ManagedObject", {
       objectCharacterId: characterId,
       characterId: client.character.characterId,
     });
+    */
     server._vehicles[characterId] = vehicle; // save vehicle
   },
 
@@ -328,9 +332,16 @@ const hax = {
       ],
       roation: client.character.state.rotation,
       identity: { characterName: args[1] },
+      state: {
+        position: [
+          client.character.state.position[0],
+          client.character.state.position[1],
+          client.character.state.position[2],
+        ]
+      }
     };
-    server.sendData(client, "AddLightweightPc", pc);
-    // server._characters[guid] = pc; // save pc (disabled for now)
+    //server.sendData(client, "AddLightweightPc", pc);
+    server._characters[guid] = pc; // save pc (disabled for now)
   },
   sonic: function (server, client, args) {
     server.sendData(client, "ClientGameSettings", {
