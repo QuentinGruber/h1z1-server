@@ -267,9 +267,7 @@ export class LoginServer extends EventEmitter {
             if (err) {
               debug(err);
             } else {
-              debug(
-                "Character " + (packet.result as any).characterId + " deleted !"
-              );
+              debug( `Character ${(packet.result as any).characterId} deleted !` );
             }
           }
         );

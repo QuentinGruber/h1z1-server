@@ -513,13 +513,7 @@ export class ZoneServer extends EventEmitter {
   checkIfClientStillOnline(client: Client): void {
     if (new Date().getTime() - client.lastPingTime > this._pingTimeoutTime) {
       clearInterval(client.pingTimer);
-      debug(
-        "Client disconnected from " +
-          client.address +
-          ":" +
-          client.port +
-          " ( ping timeout )"
-      );
+      debug( `Client disconnected from ${client.address}:${client.port} ( ping timeout )` );
       clearInterval(client.character?.resourcesUpdater);
       if (client.character?.characterId) {
         delete this._characters[client.character.characterId];
