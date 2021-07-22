@@ -10,6 +10,18 @@ let isSonic = false;
 let isVehicle = false;
 
 const hax: any = {
+  placement:function (server: ZoneServer, client: Client, args: any[]) {
+    const modelChoosen = args[1];
+    if (!modelChoosen) {
+      server.sendChatText(
+        client,
+        "[ERROR] Usage /hax placement {modelId}"
+      );
+      return;
+    }
+    server.sendData(client, "Construction.PlacementResponse", {model:modelChoosen});
+  }
+  ,
   siren: function (server: ZoneServer, client: Client, args: any[]) {
     switch (client.vehicle.mountedVehicleType) {
       case "policecar":
@@ -207,6 +219,14 @@ const hax: any = {
   realTime: function (server: ZoneServer, client: Client, args: any[]) {
     server.removeForcedTime();
     server.sendChatText(client, "Game time is now based on real time", true);
+  },
+  globalHeartAttack: function (server: ZoneServer, client: Client, args: any[]) {
+    for (const npcKey in server._npcs) {
+      const npc = server._npcs[npcKey];
+      server.sendData(client, "PlayerUpdate.StartMultiStateDeath", {
+        characterId: npc.characterId
+      });
+    }
   },
   tp: function (server: ZoneServer, client: Client, args: any[]) {
     client.isLoading = true;

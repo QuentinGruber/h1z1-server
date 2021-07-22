@@ -352,7 +352,7 @@ export class ZoneServer extends EventEmitter {
 
   async fetchWorldData(): Promise<void> {
     if (!this._soloMode) {
-      const worldData = await this._db
+      const worldData:any = await this._db
         ?.collection("worlds")
         .findOne({ worldId: this._worldId });
       this._doors = worldData.doors;
@@ -418,11 +418,12 @@ export class ZoneServer extends EventEmitter {
         };
         const numberOfWorld: number =
           (await this._db?.collection("worlds").find({}).count()) || 0;
-        const createdWorld = await this._db?.collection("worlds").insertOne({
+        const newWorldId = numberOfWorld + 1;
+        await this._db?.collection("worlds").insertOne({
           ...save,
-          worldId: numberOfWorld + 1,
+          worldId: newWorldId,
         });
-        this._worldId = createdWorld?.ops[0].worldId;
+        this._worldId = newWorldId;
         debug("World saved!");
       }
       setTimeout(() => {
@@ -438,26 +439,18 @@ export class ZoneServer extends EventEmitter {
     debug(`Protocol used : ${this._protocol.protocolName}`);
     if (this._mongoAddress) {
       const mongoClient = (this._mongoClient = new MongoClient(
-        this._mongoAddress,
-        {
-          useUnifiedTopology: true,
-          native_parser: true,
-        }
+        this._mongoAddress
       ));
       try {
         await mongoClient.connect();
       } catch (e) {
         throw debug("[ERROR]Unable to connect to mongo server");
       }
-      if (mongoClient.isConnected()) {
         debug("connected to mongo !");
         // if no collections exist on h1server database , fill it with samples
         (await mongoClient.db("h1server").collections()).length ||
           (await initMongo(this._mongoAddress, debugName));
         this._db = mongoClient.db("h1server");
-      } else {
-        throw debug("Unable to authenticate on mongo !");
-      }
     }
     await this.setupServer();
     this._startTime += Date.now();
@@ -574,7 +567,7 @@ export class ZoneServer extends EventEmitter {
     } = this._dummySelf;
 
     let characterName;
-    let character;
+    let character:any;
     if (!this._soloMode) {
       character = await this._db
         ?.collection("characters")
@@ -600,7 +593,7 @@ export class ZoneServer extends EventEmitter {
     client.character.guid = client.character.characterId;
     client.character.name =
       identity.characterFirstName + identity.characterLastName;
-    const characterDataMongo = await this._db
+    const characterDataMongo:any = await this._db
       ?.collection("characters")
       .findOne({ characterId: client.character.characterId });
     client.character.extraModel = characterDataMongo?.extraModelTexture

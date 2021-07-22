@@ -57,7 +57,9 @@ export class SOEServer extends EventEmitter {
     this._isGatewayServer = isGatewayServer;
     this._clients = {};
     this._connection = dgram.createSocket("udp4");
-
+    this._connection.on('error', (err) => {
+      console.log(`server error:\n${err.stack}`);
+    });
     this._connection.on("message", (data, remote) => {
       try {
         let client: any;
@@ -123,69 +125,9 @@ export class SOEServer extends EventEmitter {
               }
             }
           );
-
-          const checkClientOutQueue = () => {
-            const data = client.outQueue.shift();
-            if (data) {
-              this._connection.send(
-                data,
-                0,
-                data.length,
-                client.port,
-                client.address
-              );
-            }
-            (client as any).outQueueTimer = setImmediate(checkClientOutQueue);
-          };
-          checkClientOutQueue();
-
-          const checkAck = () => {
-            if (client.lastAck != client.nextAck) {
-              client.lastAck = client.nextAck;
-              this._sendPacket(
-                client,
-                "Ack",
-                {
-                  channel: 0,
-                  sequence: client.nextAck,
-                },
-                true
-              );
-            }
-            (client as any).ackTimer = setImmediate(checkAck);
-          };
-          checkAck();
-
-          const checkOutOfOrderQueue = () => {
-            if (client.outOfOrderPackets.length) {
-              const packets = [];
-              for (let i = 0; i < this._maxOutOfOrderPacketsPerLoop; i++) {
-                const sequence = client.outOfOrderPackets.shift();
-                packets.push({
-                  name: "OutOfOrder",
-                  soePacket: {
-                    channel: 0,
-                    sequence: sequence,
-                  },
-                });
-                if (!client.outOfOrderPackets.length) {
-                  break;
-                }
-              }
-              debug("Sending " + packets.length + " OutOfOrder packets");
-              this._sendPacket(
-                client,
-                "MultiPacket",
-                {
-                  subPackets: packets,
-                },
-                true
-              );
-            }
-            (client as any).outOfOrderTimer =
-              setImmediate(checkOutOfOrderQueue);
-          };
-          checkOutOfOrderQueue();
+          this.checkClientOutQueue(client);
+          this.checkAck(client);
+          this.checkOutOfOrderQueue(client);
           this.emit("connect", null, this._clients[clientId]);
         }
         client = this._clients[clientId];
@@ -219,6 +161,70 @@ export class SOEServer extends EventEmitter {
       debug("Listening on " + address + ":" + port);
     });
   }
+  checkClientOutQueue(client:Client) {
+    const data = client.outQueue.shift();
+    if (data) {
+      this._connection.send(
+        data,
+        0,
+        data.length,
+        client.port,
+        client.address,
+        (err: any) => {
+          if (err) {
+            debug(err);
+          }
+        }
+      );
+    }
+    (client as any).outQueueTimer = setTimeout(()=>this.checkClientOutQueue(client));
+  };
+
+  checkAck(client:Client) {
+    if (client.lastAck != client.nextAck) {
+      client.lastAck = client.nextAck;
+      this._sendPacket(
+        client,
+        "Ack",
+        {
+          channel: 0,
+          sequence: client.nextAck,
+        },
+        true
+      );
+    }
+    (client as any).ackTimer = setTimeout(()=>this.checkAck(client));
+  };
+
+  checkOutOfOrderQueue(client:Client){
+    if (client.outOfOrderPackets.length) {
+      const packets = [];
+      for (let i = 0; i < this._maxOutOfOrderPacketsPerLoop; i++) {
+        const sequence = client.outOfOrderPackets.shift();
+        packets.push({
+          name: "OutOfOrder",
+          soePacket: {
+            channel: 0,
+            sequence: sequence,
+          },
+        });
+        if (!client.outOfOrderPackets.length) {
+          break;
+        }
+      }
+      debug("Sending " + packets.length + " OutOfOrder packets");
+      this._sendPacket(
+        client,
+        "MultiPacket",
+        {
+          subPackets: packets,
+        },
+        true
+      );
+    }
+    (client as any).outOfOrderTimer =
+      setTimeout(()=>this.checkOutOfOrderQueue(client),50);
+  };
 
   handlePacket(client: Client, packet: any) {
     const {

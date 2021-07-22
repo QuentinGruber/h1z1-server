@@ -95,7 +95,7 @@ export const Int64String = function (value: number): string {
 };
 
 export const generateRandomGuid = function (): string {
-  return "0x" + generate_random_guid().toLocaleLowerCase();
+  return "0x" + generate_random_guid();
 };
 
 export const lz4_decompress = function (
