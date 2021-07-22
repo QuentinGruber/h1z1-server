@@ -94,15 +94,14 @@ const packetHandlers = {
       ],
     });
 
-    server.sendData(client, "PlayerUpdate.CharacterStateDelta", {
+    server.sendData(client, "Character.CharacterStateDelta", {
       guid1: client.character.guid,
       guid2: "0x0000000000000000",
       guid3: "0x0000000040000000",
       guid4: "0x0000000000000000",
       gameTime: (server.getServerTime() & 0xffffffff) >>> 0,
     });
-    server.sendGameTimeSync(client);
-
+    
     client.character.currentLoadoutId = 3;
     /*
     server.sendData(client, "Loadout.SetCurrentLoadout", {
@@ -144,6 +143,7 @@ const packetHandlers = {
   },
   ClientFinishedLoading: function (server, client, packet) {
     client.currentPOI = 0; // clears currentPOI for POIManager
+    server.sendGameTimeSync(client);
     if (client.firstLoading) {
       server.sendData(client, "POIChangeMessage", {
         // welcome POI message
@@ -168,7 +168,6 @@ const packetHandlers = {
     }
 
     client.isLoading = false;
-    client.isMounted = false;
 
     setInterval(function () {
       server.worldRoutine(client);
@@ -193,9 +192,6 @@ const packetHandlers = {
     server.sendData(client, "LobbyGameDefinition.DefinitionsResponse", {
       definitionsData: { data: "" },
     });
-  },
-  "PlayerUpdate.EndCharacterAccess": function (server, client, packet) {
-    debug("EndCharacterAccess");
   },
   KeepAlive: function (server, client, packet) {
     client.lastPingTime = new Date().getTime();
@@ -419,462 +415,7 @@ const packetHandlers = {
     });
   },
   */
-  /*
-  "Vehicle.Spawn": function (server, client, packet) {
-    server.sendData(client, "Vehicle.Expiration", {
-      expireTime: 300000,
-    });
-    const guid = server.generateGuid();
-    server.sendData(client, "Vehicle.Owner", {
-      guid: guid,
-      characterId: client.character.characterId,
-      unknownDword1: 305,
-      vehicleId: 1712,
-      passengers: [
-        {
-          passengerData: {
-            characterId: "0x0000000000000000",
-            characterData: {
-              unknownDword1: 0,
-              unknownDword2: 0,
-              unknownDword3: 0,
-              characterName: "",
-              unknownString1: "",
-            },
-            unknownDword1: 0,
-            unknownString1: "",
-          },
-          unknownByte1: 0,
-        },
-        {
-          passengerData: {
-            characterId: "0x0000000000000000",
-            characterData: {
-              unknownDword1: 0,
-              unknownDword2: 0,
-              unknownDword3: 0,
-              characterName: "",
-              unknownString1: "",
-            },
-            unknownDword1: 0,
-            unknownString1: "",
-          },
-          unknownByte1: 1,
-        },
-      ],
-    });
-    server.sendData(client, "Loadout.SetCurrentLoadout", {
-      type: 2,
-      unknown1: 1,
-      loadoutId: 10,
-      tabId: 256,
-      unknown2: 1,
-    });
-    const position = [
-      client.character.state.position[0],
-      client.character.state.position[1] + 10,
-      client.character.state.position[2],
-    ];
-    const rotation = [-1.570796012878418, 0, 0, 0];
-    server.sendData(client, "AddLightweightVehicle", {
-      guid: guid,
-      unknownUint1: 95,
-      unknownString0: "",
-      nameId: 310,
-      unknownDword2: 0,
-      unknownDword3: 0,
-      unknownByte1: 1,
-      unknownDword4: 20,
-      scale: [1, 1, 1, 1],
-      unknownString1: "",
-      unknownString2: "",
-      unknownDword5: 0,
-      unknownDword6: 0,
-      position: position,
-      unknownVector1: [0, -0.7071066498756409, 0, 0.70710688829422],
-      rotation: rotation,
-      unknownDword7: 0,
-      unknownFloat1: 3,
-      unknownString3: "",
-      unknownString4: "",
-      unknownString5: "",
-      unknownDword8: 4,
-      unknownDword9: 0,
-      unknownDword10: 305,
-      unknownByte2: 2,
-      profileId: 29,
-      unknownBoolean1: false,
-      unknownByte3: 16,
-      unknownByte4: 9,
-      unknownByte5: 0,
-      unknownByte6: 0,
-      unknownDword11: 0,
-      unknownGuid1: "0x0000000000000000",
-      unknownGuid2: "0x0000000000000000",
-      unknownDword12: 2484,
-      unknownDword13: 1528,
-      unknownDword14: 0,
-      unknownByte7: 0,
-      unknownArray1: [],
-      unknownGuid3: "0x0000000000000000",
-      unknownDword15: 0,
-      unknownDword16: 0,
-      positionUpdate: server.createPositionUpdate(position, rotation),
-      unknownString6: "",
-    });
-    server.sendData(client, "PlayerUpdate.SetFaction", {
-      guid: guid,
-      factionId: 1,
-    });
-    server.sendData(client, "Vehicle.SetAutoDrive", {
-      guid: guid,
-    });
-  },
-  "Vehicle.AutoMount": function (server, client, packet) {
-    server.sendData(client, "Mount.MountResponse", {
-      characterId: client.character.characterId,
-      guid: packet.data.guid,
-      unknownDword1: 0,
-      unknownDword2: 1,
-      unknownDword3: 1,
-      unknownDword4: 0,
-      characterData: {
-        unknownDword1: 0,
-        unknownDword2: 0,
-        unknownDword3: 0,
-        characterName: client.character.name,
-        unknownString1: "",
-      },
-      tagString: "",
-      unknownDword5: 19,
-    });
 
-    server.sendData(client, "PlayerUpdate.ManagedObject", {
-      objectCharacterId: packet.data.guid,
-      guid2: "0x0000000000000000",
-      characterId: client.character.characterId,
-    });
-
-    server.sendData(client, "Vehicle.Occupy", {
-      guid: packet.data.guid,
-      characterId: client.character.characterId,
-      vehicleId: 4,
-      unknownDword1: 0,
-      unknownArray1: [
-        {
-          unknownDword1: 0,
-          unknownBoolean1: true,
-        },
-        {
-          unknownDword1: 1,
-          unknownBoolean1: true,
-        },
-      ],
-      passengers: [
-        {
-          passengerData: {
-            characterId: client.character.characterId,
-            characterData: {
-              unknownDword1: 0,
-              unknownDword2: 0,
-              unknownDword3: 0,
-              characterName: "LocalPlayer",
-              unknownString1: "",
-            },
-            unknownDword1: 19,
-            unknownString1: "SCNC",
-          },
-          unknownByte1: 0,
-        },
-        {
-          passengerData: {
-            characterId: "0x0000000000000000",
-            characterData: {
-              unknownDword1: 0,
-              unknownDword2: 0,
-              unknownDword3: 0,
-              characterName: "",
-              unknownString1: "",
-            },
-            unknownDword1: 0,
-            unknownString1: "",
-          },
-          unknownByte1: 1,
-        },
-      ],
-      unknownArray2: [
-        {
-          unknownQword1: "0x29e5d0ef80000003",
-        },
-        {
-          unknownQword1: "0x29e5d0ef80000004",
-        },
-        {
-          unknownQword1: "0x29e5d0ef80000005",
-        },
-        {
-          unknownQword1: "0x29e5d0ef80000006",
-        },
-        {
-          unknownQword1: "0x29e5d0ef80000007",
-        },
-      ],
-      unknownData1: {
-        unknownDword1: 10,
-        unknownData1: {
-          unknownDword1: 4,
-          unknownByte1: 1,
-        },
-        unknownString1: "",
-        unknownDword2: 256,
-        unknownDword3: 76362,
-        unknownDword4: 0,
-        unknownDword5: 0,
-        unknownArray3: [
-          {
-            unknownDword1: 1,
-            unknownData1: {
-              unknownDword1: 1,
-              unknownData1: {
-                unknownDword1: 1401,
-                unknownByte1: 0,
-                unknownArray1: [],
-                unknownArray2: [],
-              },
-              unknownDword2: 0,
-              unknownDword3: 0,
-            },
-          },
-          {
-            unknownDword1: 2,
-            unknownData1: {
-              unknownDword1: 2,
-              unknownData1: {
-                unknownDword1: 3404,
-                unknownByte1: 0,
-                unknownArray1: [],
-                unknownArray2: [],
-              },
-              unknownDword2: 0,
-              unknownDword3: 0,
-            },
-          },
-          {
-            unknownDword1: 3,
-            unknownData1: {
-              unknownDword1: 3,
-              unknownData1: {
-                unknownDword1: 0,
-                unknownByte1: 0,
-                unknownArray1: [],
-                unknownArray2: [],
-              },
-              unknownDword2: 0,
-              unknownDword3: 0,
-            },
-          },
-          {
-            unknownDword1: 4,
-            unknownData1: {
-              unknownDword1: 4,
-              unknownData1: {
-                unknownDword1: 3409,
-                unknownByte1: 0,
-                unknownArray1: [],
-                unknownArray2: [],
-              },
-              unknownDword2: 0,
-              unknownDword3: 0,
-            },
-          },
-          {
-            unknownDword1: 5,
-            unknownData1: {
-              unknownDword1: 5,
-              unknownData1: {
-                unknownDword1: 0,
-                unknownByte1: 0,
-                unknownArray1: [],
-                unknownArray2: [],
-              },
-              unknownDword2: 0,
-              unknownDword3: 0,
-            },
-          },
-          {
-            unknownDword1: 6,
-            unknownData1: {
-              unknownDword1: 6,
-              unknownData1: {
-                unknownDword1: 75436,
-                unknownByte1: 0,
-                unknownArray1: [],
-                unknownArray2: [],
-              },
-              unknownDword2: 0,
-              unknownDword3: 0,
-            },
-          },
-          {
-            unknownDword1: 7,
-            unknownData1: {
-              unknownDword1: 7,
-              unknownData1: {
-                unknownDword1: 0,
-                unknownByte1: 0,
-                unknownArray1: [],
-                unknownArray2: [],
-              },
-              unknownDword2: 0,
-              unknownDword3: 0,
-            },
-          },
-          {
-            unknownDword1: 8,
-            unknownData1: {
-              unknownDword1: 8,
-              unknownData1: {
-                unknownDword1: 0,
-                unknownByte1: 0,
-                unknownArray1: [],
-                unknownArray2: [],
-              },
-              unknownDword2: 0,
-              unknownDword3: 0,
-            },
-          },
-          {
-            unknownDword1: 9,
-            unknownData1: {
-              unknownDword1: 9,
-              unknownData1: {
-                unknownDword1: 5780,
-                unknownByte1: 0,
-                unknownArray1: [],
-                unknownArray2: [],
-              },
-              unknownDword2: 0,
-              unknownDword3: 0,
-            },
-          },
-          {
-            unknownDword1: 14,
-            unknownData1: {
-              unknownDword1: 14,
-              unknownData1: {
-                unknownDword1: 1406,
-                unknownByte1: 0,
-                unknownArray1: [],
-                unknownArray2: [],
-              },
-              unknownDword2: 0,
-              unknownDword3: 0,
-            },
-          },
-          {
-            unknownDword1: 15,
-            unknownData1: {
-              unknownDword1: 15,
-              unknownData1: {
-                unknownDword1: 0,
-                unknownByte1: 0,
-                unknownArray1: [],
-                unknownArray2: [],
-              },
-              unknownDword2: 0,
-              unknownDword3: 0,
-            },
-          },
-          {
-            unknownDword1: 16,
-            unknownData1: {
-              unknownDword1: 16,
-              unknownData1: {
-                unknownDword1: 1428,
-                unknownByte1: 0,
-                unknownArray1: [],
-                unknownArray2: [],
-              },
-              unknownDword2: 0,
-              unknownDword3: 0,
-            },
-          },
-          {
-            unknownDword1: 17,
-            unknownData1: {
-              unknownDword1: 17,
-              unknownData1: {
-                unknownDword1: 0,
-                unknownByte1: 0,
-                unknownArray1: [],
-                unknownArray2: [],
-              },
-              unknownDword2: 0,
-              unknownDword3: 0,
-            },
-          },
-        ],
-      },
-      unknownBytes1: {
-        itemData: {
-          baseItem: {
-            itemId: 3400,
-            unknownDword2: 0,
-            unknownGuid1: "0x29e5d0ef80000001",
-            unknownDword3: 1,
-            unknownDword4: 0,
-            unknownDword5: 0,
-            unknownDword6: 0,
-            unknownDword7: 0,
-            unknownDword8: 0,
-            unknownByte1: 0,
-            unknownData: {
-              type: 0,
-              value: {},
-            },
-          },
-          detail: {
-            unknownBoolean1: false,
-            unknownArray1: [
-              {
-                unknownDword1: 1,
-                unknownDword2: 24,
-              },
-            ],
-            unknownArray2: [
-              {
-                unknownDword1: 300,
-                unknownArray1: [
-                  {
-                    unknownByte1: 0,
-                    unknownDword1: 0,
-                    unknownDword2: 1410,
-                    unknownDword3: 750,
-                  },
-                  {
-                    unknownByte1: 0,
-                    unknownDword1: 0,
-                    unknownDword2: 1410,
-                    unknownDword3: 750,
-                  },
-                ],
-              },
-            ],
-            unknownByte1: 30,
-            unknownByte2: 1,
-            unknownDword1: 0,
-            unknownByte3: 0,
-            unknownFloat1: 0,
-            unknownByte4: 0,
-            unknownDword2: 0,
-            unknownArray3: [],
-            unknownArray4: [],
-          },
-        },
-      },
-    });
-  },
-  */
   "Command.InteractCancel": function (server, client, packet) {
     debug("Interaction Canceled");
   },
@@ -1011,14 +552,14 @@ const packetHandlers = {
       ]);
     }
   },
-  "PlayerUpdate.Respawn": function (server, client, packet) {
+  "Character.Respawn": function (server, client, packet) {
     debug(packet);
-    server.sendData(client, "PlayerUpdate.RespawnReply", {
+    server.sendData(client, "Character.RespawnReply", {
       characterId: client.character.characterId,
       position: [0, 200, 0, 1],
     });
   },
-  "PlayerUpdate.FullCharacterDataRequest": function (server, client, packet) {
+  "Character.FullCharacterDataRequest": function (server, client, packet) {
     const {
       data: { guid },
     } = packet;
@@ -1051,7 +592,7 @@ const packetHandlers = {
         unknownData1: {
           transientId: server._characters[guid].transientId,
           equipmentModels: {},
-          array1: [],
+          unknownData1: {},
           effectTags: [],
         },
       });
@@ -1089,30 +630,17 @@ const packetHandlers = {
   },
 
   "Command.PlayerSelect": function (server, client, packet) {
-    if (server._vehicles[packet.data.guid]) {
-      // checking if vehicle
-      server.sendData(client, "Mount.MountResponse", {
-        // mounts character
-        characterId: client.character.characterId,
-        guid: packet.data.guid, // vehicle guid
-        identity: {},
-      });
-      server.sendData(client, "Vehicle.Engine", {
-        // starts engine
-        guid2: packet.data.guid,
-        unknownBoolean: true,
-      });
-      client.isMounted = true;
+    if (server._vehicles[packet.data.guid] && !client.vehicle.mountedVehicle) {
+      server.mountVehicle(client, packet);
+    }
+    else if (server._vehicles[packet.data.guid] && client.vehicle.mountedVehicle) {// other seats
+      server.dismountVehicle(client);
     }
   },
 
-  "Mount.DismountRequest": function (server, client, packet) {
+  "Mount.DismountRequest": function (server, client, packet) { // only for driver seat
     debug(packet.data);
-    server.sendData(client, "Mount.DismountResponse", {
-      // dismounts character
-      characterId: client.character.characterId,
-    });
-    client.isMounted = false;
+    server.dismountVehicle(client);
   },
   "Command.InteractionString": function (server, client, packet) {
     const { guid } = packet.data;
@@ -1152,7 +680,7 @@ const packetHandlers = {
         vehicleData.npcData.position
       )
     ) {
-      if (!client.isMounted) {
+      if (!client.vehicle.mountedVehicle) {
         server.sendData(client, "Command.InteractionString", {
           guid: guid,
           stringId: 15,
@@ -1160,6 +688,10 @@ const packetHandlers = {
       }
     }
   },
+
+  "Mount.SeatChangeRequest": function (server, client, packet) {
+    server.changeSeat(client, packet);
+  }
 
   /*
   "Command.ItemDefinitionRequest": function (server, client, packet) {

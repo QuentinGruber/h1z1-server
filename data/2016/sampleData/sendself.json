@@ -56,7 +56,7 @@
     "unknownDword25": 0,
     "profiles": [
       {
-        "profileId": 72,
+        "profileId": 1,
         "nameId": 12,
         "descriptionId": 13,
         "type": 3,
@@ -83,7 +83,7 @@
         "unknownDword16": 0
       }
     ],
-    "currentProfile": 72,
+    "currentProfile": 1,
     "unknownArray1": [],
     "collections": [],
     "inventory": {
@@ -107,7 +107,7 @@
       "unknownBoolean1": true,
       "unknownArray1": []
     },
-    "unknownArray10": [],
+    "unknownArray2": [],
     "unknownEffectArray": [],
     "stats": [],
     "playerTitles": [],

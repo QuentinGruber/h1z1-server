@@ -189,11 +189,11 @@ export class ZoneServer extends EventEmitter {
       (client: Client) => {
         this.sendChatText(
           client,
-          "You've almost reach the packet limitation with the server."
+          "You've almost reached the packet limitation for the server."
         );
         this.sendChatText(
           client,
-          "We will disconnect you in 60 seconds ( you can do it yourself )"
+          "We will disconnect you in 60 seconds ( You can also do it yourself )"
         );
         this.sendChatText(client, "Sorry for that.");
         setTimeout(() => {
@@ -213,15 +213,7 @@ export class ZoneServer extends EventEmitter {
         characterId: string,
         loginSessionId: string
       ) => {
-        debug(
-          "Client logged in from " +
-            client.address +
-            ":" +
-            client.port +
-            " with character id " +
-            characterId
-        );
-
+        debug( `Client logged in from ${client.address}:${client.port} with character id: ${characterId}` );
         this._clients[client.sessionId] = client;
         let generatedTransient;
         do {
@@ -280,7 +272,7 @@ export class ZoneServer extends EventEmitter {
     );
 
     this._gatewayServer.on("disconnect", (err: string, client: Client) => {
-      debug("Client disconnected from " + client.address + ":" + client.port);
+      debug(`Client disconnected from ${client.address}:${client.port}`);
       clearInterval(client.pingTimer);
       if (client.character?.characterId) {
         delete this._characters[client.character.characterId];
@@ -290,7 +282,7 @@ export class ZoneServer extends EventEmitter {
     });
 
     this._gatewayServer.on("session", (err: string, client: Client) => {
-      debug("Session started for client " + client.address + ":" + client.port);
+      debug(`Session started for client ${client.address}:${client.port}`);
     });
 
     this._gatewayServer.on(
@@ -514,13 +506,7 @@ export class ZoneServer extends EventEmitter {
   checkIfClientStillOnline(client: Client): void {
     if (new Date().getTime() - client.lastPingTime > this._pingTimeoutTime) {
       clearInterval(client.pingTimer);
-      debug(
-        "Client disconnected from " +
-          client.address +
-          ":" +
-          client.port +
-          " ( ping timeout )"
-      );
+      debug( `Client disconnected from ${client.address}:${client.port} ( ping timeout )` );
       clearInterval(client.character?.resourcesUpdater);
       if (client.character?.characterId) {
         delete this._characters[client.character.characterId];
