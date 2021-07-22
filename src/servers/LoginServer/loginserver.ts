@@ -90,36 +90,29 @@ export class LoginServer extends EventEmitter {
             // if packet parsing succeed
             const { sessionId, systemFingerPrint } = packet.result;
             switch (packet.name) {
-              case "LoginRequest": {
+              case "LoginRequest": 
                 this.LoginRequest(client, sessionId, systemFingerPrint);
                 if (this._protocol.protocolName !== "LoginUdp_11") break;
-              }
-              case "CharacterSelectInfoRequest": {
+              case "CharacterSelectInfoRequest":
                 this.CharacterSelectInfoRequest(client);
                 if (this._protocol.protocolName !== "LoginUdp_11") break;
-              }
               case "ServerListRequest":
                 this.ServerListRequest(client);
                 break;
-
-              case "CharacterDeleteRequest": {
+              case "CharacterDeleteRequest":
                 this.CharacterDeleteRequest(client, packet);
                 break;
-              }
-              case "CharacterLoginRequest": {
+              case "CharacterLoginRequest":
                 this.CharacterLoginRequest(client, packet);
                 break;
-              }
-              case "CharacterCreateRequest": {
+              case "CharacterCreateRequest":
                 this.CharacterCreateRequest(client, packet);
                 break;
-              }
               case "TunnelAppPacketClientToServer": // only used for nameValidation rn
                 this.TunnelAppPacketClientToServer(client, packet);
                 break;
               case "Logout":
-                clearInterval(client.serverUpdateTimer);
-                // this._soeServer.deleteClient(client); this is done too early
+                this.Logout(client, packet);
                 break;
             }
           } else {
@@ -173,6 +166,10 @@ export class LoginServer extends EventEmitter {
         break;
     }
     this.sendData(client, "TunnelAppPacketServerToClient", response);
+  }
+  Logout(client: Client, packet: any) {
+    clearInterval(client.serverUpdateTimer);
+    // this._soeServer.deleteClient(client); this is done too early
   }
   async CharacterSelectInfoRequest(client: Client) {
     let CharactersInfo;
@@ -350,14 +347,14 @@ export class LoginServer extends EventEmitter {
     // create character object
     let SinglePlayerCharacter, SinglePlayerCharacters;
     if (this._protocol.protocolName == "LoginUdp_9") {
-      try { // delete commands cache if exist so /dev reloadPackets reload them too
+      try { // delete old character cache
         delete require.cache[require.resolve("../../../data/2015/sampleData/single_player_characters.json")];
       } catch (e) {}
       SinglePlayerCharacter = require("../../../data/2015/sampleData/single_player_character.json");
       SinglePlayerCharacters = require("../../../data/2015/sampleData/single_player_characters.json");
     }
     else { // LoginUdp_11
-      try { // delete commands cache if exist so /dev reloadPackets reload them too
+      try { // delete old character cache
         delete require.cache[require.resolve("../../../data/2016/sampleData/single_player_characters.json")];
       } catch (e) {}
       SinglePlayerCharacter = require("../../../data/2016/sampleData/single_player_character.json");
