@@ -1,30 +1,12 @@
 const debug = require("debug")("zonepacketHandlers");
 // import fs from "fs";
 //const objects = require("../../../../data/2016/zoneData/objects.json");
+import { Int64String } from "../../../utils/utils";
 
 const dev = {
   testpacket: function (server, client, args) {
     const packetName = args[1];
     server.sendData(client, packetName, {});
-  },
-  testNpc: function (server, client, args) {
-    const characterId = server.generateGuid();
-    server.sendData(client, "PlayerUpdate.AddLightweightNpc", {
-      characterId: characterId,
-      modelId: 9001,
-      transientId: server.getTransientId(client, characterId),
-      position: client.character.state.position,
-      array5: [{ unknown1: 0 }],
-      array17: [{ unknown1: 0 }],
-      array18: [{ unknown1: 0 }],
-    });
-    setInterval(() => {
-      server.sendData(client, "PlayerUpdate.SeekTarget", {
-        characterId: characterId,
-        TargetCharacterId: client.character.characterId,
-        position: client.character.state.position,
-      });
-    }, 500);
   },
   findModel: function (server, client, args) {
     const models = require("../../../../data/2016/dataSources/Models.json");
@@ -214,7 +196,6 @@ const dev = {
         characterId: client.character.characterId,
       },
       gameTime: 1,
-      slotsArrayLength: 1,
       slots: [
         {
           index: 1, // needs to be non-zero
@@ -222,7 +203,6 @@ const dev = {
         },
       ],
       unknownDword1: 1,
-      equipmentTexturesArrayLength: 1,
       equipmentTextures: [
         {
           index: 1, // needs to be non-zero
@@ -232,7 +212,6 @@ const dev = {
           unknownString1: "",
         },
       ],
-      equipmentModelsArrayLength: 1,
       equipmentModels: [
         {
           model: "SurvivorMale_Chest_Hoodie_Up_Tintable.adr",
@@ -429,6 +408,130 @@ const dev = {
     server.sendData(client, "Command.ItemDefinitions", itemDefinitions); // todo: add ClientItemDefinition data
   },
 
+  seatchange: function (server, client, args) {
+    if (!args[3]) {
+      server.sendChatText(client, "Missing 3 args");
+      return;
+    }
+    server.sendData(client, "Mount.SeatChangeResponse", {
+      unknownQword1: client.character.characterId,
+      unknownQword2: client.vehicle.mountedVehicle,
+      identity: {
+        unknownDword1: 0,
+        unknownDword2: 0,
+        unknownDword3: 0,
+        characterFirstName: "",
+        characterLastName: "",
+        unknownString1: "",
+        characterName: "LocalPlayer",
+        unknownQword1: "0"
+      },
+      unknownDword1: Number(args[1]),
+      unknownDword2: Number(args[2]),
+      unknownDword3: Number(args[3]),
+    });
+    server.sendChatText(client, `sent seatchange`);
+  },
+
+  gametime: function(server, client, args) {
+    if (!args[1]) {
+      server.sendChatText(client, "Missing 1 arg");
+      return;
+    }
+    debug("GameTimeSync");
+    server.sendData(client, "GameTimeSync", {
+      time: Int64String(server.getGameTime()),
+      cycleSpeed: Number(args[1]),
+      unknownBoolean: false,
+    });
+  },
+  activateprofile: function(server, client, args) {
+    if (!args[1]) {
+      server.sendChatText(client, "Missing 1 arg");
+      return;
+    }
+    server.sendData(client, "ClientUpdate.ActivateProfile", {
+      profileData: {
+        profileId: 1,
+        nameId: 12,
+        descriptionId: 13,
+        type: 3,
+        unknownDword1: 0,
+        abilityBgImageSet: 4,
+        badgeImageSet: 5,
+        buttonImageSet: 6,
+        unknownByte1: 0,
+        unknownByte2: 0,
+        unknownDword4: 0,
+        unknownArray1: [],
+        unknownDword5: 0,
+        unknownDword6: 0,
+        unknownByte3: 1,
+        unknownDword7: 0,
+        unknownDword8: 0,
+        unknownDword9: 0,
+        unknownDword10: 0,
+        unknownDword11: 0,
+        unknownDword12: 0,
+        unknownDword13: 0,
+        unknownDword14: 0,
+        unknownDword15: 0,
+        unknownDword16: 0
+      },
+      equipmentModels: [
+        {
+          model: "SurvivorMale_Head_01.adr",
+          unknownDword1: 0,
+          unknownDword2: 0,
+          effectId: 0,
+          equipmentSlotId: 1,
+          unknownDword4: 0,
+          unknownArray1: [],
+        },
+        {
+          model: "SurvivorMale_Chest_Jacket_Farmer.adr",
+          unknownDword1: 0,
+          unknownDword2: 0,
+          effectId: 0,
+          equipmentSlotId: 3,
+          unknownDword4: 0,
+          unknownArray1: [],
+        },
+        {
+          model: "SurvivorMale_Legs_Pants_Underwear.adr",
+          unknownDword1: 0,
+          unknownDword2: 0,
+          effectId: 0,
+          equipmentSlotId: 4,
+          unknownDword4: 0,
+          unknownArray1: [],
+        },
+        {
+          model: "SurvivorMale_Eyes_01.adr",
+          unknownDword1: 0,
+          unknownDword2: 0,
+          effectId: 0,
+          equipmentSlotId: 105,
+          unknownDword4: 0,
+          unknownArray1: [],
+        },
+        {
+          model: "Weapons_PumpShotgun01.adr",
+          unknownDword1: 0,
+          unknownDword2: 0,
+          effectId: 0,
+          equipmentSlotId: 14,
+          unknownDword4: 0,
+          unknownArray1: [],
+        },
+      ],
+      unknownDword1: 1,
+      unknownDword2: 1,
+      actorModelId: 9240,
+      tintAlias: "",
+      decalAlias: "#"
+    });
+  }
   /*
   proxiedObjects: function(server, client, args) {
     

@@ -31,7 +31,7 @@ import dynamicWeather from "./workers/dynamicWeather";
 // need to get 2016 lists
 // const spawnLocations = require("../../../data/2015/sampleData/spawnLocations.json");
 // const localWeatherTemplates = require("../../../data/2015/sampleData/weather.json");
-// const stats = require("../../../data/2015/sampleData/stats.json");
+// const stats = require("../../../data/2016/sampleData/stats.json");
 const recipes = require("../../../data/2016/sampleData/recipes.json");
 // const resources = require("../../../data/2015/dataSources/Resources.json");
 const Z1_POIs = require("../../../data/2015/zoneData/Z1_POIs");
@@ -42,6 +42,7 @@ export class ZoneServer2016 extends ZoneServer {
     this._protocol = new H1Z1Protocol("ClientProtocol_1080");
     this._packetHandlers = packetHandlers;
     this._dynamicWeatherEnabled = false;
+    this._cycleSpeed = 100;
   }
   async characterData(client: Client) {
     delete require.cache[
@@ -77,7 +78,8 @@ export class ZoneServer2016 extends ZoneServer {
     }
 
     self.data.recipes = recipes; // load recipes into sendself from file
-
+    // disabled for now
+    //self.data.stats = stats; // load stats into sendself from file
     this.sendData(client, "SendSelfToClient", self);
   }
 
@@ -99,6 +101,7 @@ export class ZoneServer2016 extends ZoneServer {
           (await initMongo(this._mongoAddress, debugName));
         this._db = mongoClient.db("h1server");
     }
+
     await this.setupServer();
     this._startTime += Date.now();
     this._startGameTime += Date.now();
@@ -109,6 +112,115 @@ export class ZoneServer2016 extends ZoneServer {
       );
     }
     this._gatewayServer.start();
+  }
+
+  sendInitData(client: Client): void {
+    this.sendData(client, "InitializationParameters", {
+      environment: "LIVE",
+      serverId: 1,
+    });
+
+    this.SendZoneDetailsPacket(client, this._weather);
+
+    this.sendData(client, "ClientUpdate.ZonePopulation", {
+      populations: [0, 0],
+    });
+    this.sendData(client, "ClientUpdate.RespawnLocations", {
+      locations: this._respawnLocations,
+      locations2: this._respawnLocations,
+    });
+
+    this.sendData(client, "ClientGameSettings", {
+      unknownQword1: "0x0000000000000000",
+      unknownBoolean1: true,
+      timescale: 1,
+      unknownQword2: "0x0000000000000000",
+      unknownFloat1: 0,
+      unknownFloat2: 12,
+      unknownFloat3: 110,
+    });
+
+    this.characterData(client);
+
+    this.sendData(client, "Character.SetBattleRank", {
+      characterId: client.character.characterId,
+      battleRank: 100,
+    });
+    /*
+    this.sendData(client, "ClientUpdate.ActivateProfile", {
+      profileData: {
+        profileId: 1,
+        nameId: 12,
+        descriptionId: 13,
+        type: 3,
+        unknownDword1: 0,
+        abilityBgImageSet: 4,
+        badgeImageSet: 5,
+        buttonImageSet: 6,
+        unknownByte1: 0,
+        unknownByte2: 0,
+        unknownDword4: 0,
+        unknownArray1: [],
+        unknownDword5: 0,
+        unknownDword6: 0,
+        unknownByte3: 1,
+        unknownDword7: 0,
+        unknownDword8: 0,
+        unknownDword9: 0,
+        unknownDword10: 0,
+        unknownDword11: 0,
+        unknownDword12: 0,
+        unknownDword13: 0,
+        unknownDword14: 0,
+        unknownDword15: 0,
+        unknownDword16: 0
+      },
+      equipmentModels: [
+        {
+          model: "SurvivorMale_Head_01.adr",
+          unknownDword1: 0,
+          unknownDword2: 0,
+          effectId: 0,
+          equipmentSlotId: 1,
+          unknownDword4: 0,
+          unknownArray1: [],
+        },
+        {
+          model: "SurvivorMale_Chest_Jacket_Farmer.adr",
+          unknownDword1: 0,
+          unknownDword2: 0,
+          effectId: 0,
+          equipmentSlotId: 3,
+          unknownDword4: 0,
+          unknownArray1: [],
+        },
+        {
+          model: "SurvivorMale_Legs_Pants_Underwear.adr",
+          unknownDword1: 0,
+          unknownDword2: 0,
+          effectId: 0,
+          equipmentSlotId: 4,
+          unknownDword4: 0,
+          unknownArray1: [],
+        },
+        {
+          model: "SurvivorMale_Eyes_01.adr",
+          unknownDword1: 0,
+          unknownDword2: 0,
+          effectId: 0,
+          equipmentSlotId: 105,
+          unknownDword4: 0,
+          unknownArray1: [],
+        },
+      ],
+      unknownDword1: 1,
+      unknownDword2: 1,
+      actorModelId: 9240,
+      //unknownDword4: 0,
+      tintAlias: "",
+      decalAlias: "#"
+    });
+    */
   }
 
   POIManager(client: Client) {
@@ -178,6 +290,20 @@ export class ZoneServer2016 extends ZoneServer {
       playerPosition,
       element.position || element.state?.position || element.npcData.position
     );
+  }
+
+  forceTime(time: number): void {
+    this._cycleSpeed = 0.1;
+    this._frozeCycle = true;
+    this._gameTime = time;
+    this.sendSyncToAll();
+  }
+
+  removeForcedTime(): void {
+    this._cycleSpeed = 100;
+    this._frozeCycle = false;
+    this._gameTime = Date.now();
+    this.sendSyncToAll();
   }
 
   sendEquipment(client: Client): void {
@@ -280,7 +406,7 @@ export class ZoneServer2016 extends ZoneServer {
         ? object.characterId
         : object.npcData.characterId;
       if (characterId in this._vehicles) {
-        this.sendData(client, "PlayerUpdate.ManagedObject", {
+        this.sendData(client, "Character.ManagedObject", {
           objectCharacterId: characterId,
           characterId: client.character.characterId,
         });
@@ -288,7 +414,7 @@ export class ZoneServer2016 extends ZoneServer {
 
       this.sendData(
         client,
-        "PlayerUpdate.RemovePlayer",
+        "Character.RemovePlayer",
         {
           characterId,
         },
@@ -299,7 +425,7 @@ export class ZoneServer2016 extends ZoneServer {
 
   despawnEntity(characterId: string) {
     this.sendDataToAll(
-      "PlayerUpdate.RemovePlayer",
+      "Character.RemovePlayer",
       {
         characterId: characterId,
       },
@@ -309,7 +435,7 @@ export class ZoneServer2016 extends ZoneServer {
 
   deleteEntity(characterId: string, dictionnary: any) {
     this.sendDataToAll(
-      "PlayerUpdate.RemovePlayer",
+      "Character.RemovePlayer",
       {
         characterId: characterId,
       },
@@ -356,10 +482,12 @@ export class ZoneServer2016 extends ZoneServer {
           "AddLightweightPc",
           {
             ...characterObj,
+            /*
             transientId: 1,
             characterFirstName: characterObj.name,
             position: characterObj.state.position,
             rotation: characterObj.state.lookAt,
+            */
           },
           1
         );
@@ -384,7 +512,7 @@ export class ZoneServer2016 extends ZoneServer {
           this._vehicles[vehicle],
           1
         );
-        this.sendData(client, "PlayerUpdate.ManagedObject", {
+        this.sendData(client, "Character.ManagedObject", {
           objectCharacterId: this._vehicles[vehicle].npcData.characterId,
           characterId: client.character.characterId,
         });
@@ -466,13 +594,93 @@ export class ZoneServer2016 extends ZoneServer {
     }
   }
 
+  getGameTime(): number {
+    debug("get server time");
+    const delta = Date.now() - this._startGameTime;
+    return this._frozeCycle
+      ? Number(((this._gameTime + delta) / 1000).toFixed(0))
+      : Number((this._gameTime / 1000).toFixed(0));
+  }
+
   sendGameTimeSync(client: Client): void {
-    debug("GameTimeSync");
+    debug(`GameTimeSync ${this._cycleSpeed} ${this.getGameTime()}\n`);
+    //this._gameTime = this.getGameTime();
     this.sendData(client, "GameTimeSync", {
       time: Int64String(this.getGameTime()),
       cycleSpeed: this._cycleSpeed,
       unknownBoolean: false,
     });
+  }
+  
+  mountVehicle(client: Client, packet: any): void {
+    client.vehicle.mountedVehicle = packet.data.guid;
+    switch (this._vehicles[packet.data.guid].npcData.vehicleId) {
+      case 1:
+        client.vehicle.mountedVehicleType = "offroader";
+        break;
+      case 2:
+        client.vehicle.mountedVehicleType = "pickup";
+        break;
+      case 3:
+        client.vehicle.mountedVehicleType = "policecar";
+        break;
+      case 5:
+        client.vehicle.mountedVehicleType = "atv";
+        break;
+      case 13:
+        client.vehicle.mountedVehicleType = "parachute";
+        break;
+      default:
+        client.vehicle.mountedVehicleType = "unknown";
+        break;
+    }
+    this.sendData(client, "Mount.MountResponse", {// mounts character
+      characterId: client.character.characterId,
+      vehicleGuid: client.vehicle.mountedVehicle, // vehicle guid
+      identity: {},
+    });
+    
+    this.sendData(client, "Vehicle.Engine", {// starts engine
+      guid2: client.vehicle.mountedVehicle,
+      engineOn: true,
+    });
+  }
+
+  dismountVehicle(client: Client): void {
+    this.sendData(client, "Mount.DismountResponse", {// dismounts character
+      characterId: client.character.characterId,
+    });
+    this.sendData(client, "Vehicle.Engine", {// stops engine
+      guid2: client.vehicle.mountedVehicle,
+      engineOn: false,
+    });
+    client.vehicle.mountedVehicle = "";
+  }
+
+  changeSeat(client: Client, packet: any): void {
+    let seatCount;
+    switch (client.vehicle.mountedVehicleType) {
+      case "offroader":
+      case "pickup":
+      case "policecar":
+        seatCount = 5;
+        break;
+      case "atv":
+        seatCount = 2;
+        break;
+      case "parachute":
+      default:
+        seatCount = 1;
+        break;
+    }
+    if(packet.data.seatId < seatCount) {
+      this.sendData(client, "Mount.SeatChangeResponse", {
+        characterId: client.character.characterId,
+        vehicleGuid: client.vehicle.mountedVehicle,
+        identity: {},
+        seatId: packet.data.seatId,
+      });
+    }
   }
 }
 
