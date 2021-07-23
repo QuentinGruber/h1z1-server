@@ -5,6 +5,7 @@ new ZoneServer(
   new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", "base64")
 ).start();
 
+setTimeout(()=>{
 var client = new ZoneClient(
   "127.0.0.1",
   1117,
@@ -23,6 +24,7 @@ client.on("ZoneDoneSendingInitialData", (err, res) => {
   console.log("ZoneDoneSendingInitialData");
   process.exit(0);
 });
+},2000)
 
 setInterval(() => {
   throw new Error("Test timed out!");
