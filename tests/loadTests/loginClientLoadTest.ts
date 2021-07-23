@@ -5,6 +5,7 @@ const loginServer = new Worker(`${__dirname}/workers/loginServer.js`);
 loginServer.on("message", testLoad);
 
 function testLoad() {
+  setTimeout(()=>{
   for (let index = 0; index < 100; index++) {
     const client = new LoginClient(
       295110,
@@ -35,4 +36,5 @@ function testLoad() {
       console.timeEnd("FullLogin" + index);
     });
   }
+},2000)
 }

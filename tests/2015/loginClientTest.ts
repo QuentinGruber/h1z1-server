@@ -2,6 +2,7 @@ import { LoginClient, LoginServer } from "../../h1z1-server";
 
 new LoginServer(1115).start();
 
+setTimeout(()=>{
 var client = new LoginClient(
   295110,
   "dev",
@@ -39,6 +40,7 @@ client.on("characterlogin", (err, res) => {
   process.exit(0);
 });
 
+},2000)
 setInterval(() => {
   throw new Error("Test timed out!");
 }, 15000);
