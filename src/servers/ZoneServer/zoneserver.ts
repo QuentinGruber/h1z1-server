@@ -1248,7 +1248,7 @@ export class ZoneServer extends EventEmitter {
     return obj;
   }
 }
-if (process.env.VSCODE_DEBUG === "true") {
+if (process.env.VSCODE_DEBUG === "true" && process.env.CLIENT_SIXTEEN !== "true") {
   new ZoneServer(
     1117,
     new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", "base64")
