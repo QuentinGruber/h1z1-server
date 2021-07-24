@@ -140,6 +140,44 @@ export interface skyData {
   wind: number;
 }
 
+export interface Weather2016 {
+  templateName?: string;
+  name: string;
+  unknownDword1: number;
+  unknownDword2: number;
+  skyBrightness1: number;
+  skyBrightness2: number;
+  snow: number;
+  snowMap: number;
+  colorGradient: number;
+  unknownDword8: number;
+  unknownDword9: number;
+  unknownDword10: number;
+  unknownDword11: number;
+  unknownDword12: number;
+  sunAxisX: number;
+  sunAxisY: number;
+  unknownDword15: number;
+  disableTrees: number;
+  disableTrees1: number;
+  disableTrees2: number;
+  wind: number;
+  unknownDword20: number;
+  unknownDword21: number;
+  unknownDword22: number;
+  unknownDword23: number;
+  unknownDword24: number;
+  unknownDword25: number;
+  unknownDword26: number;
+  unknownDword27: number;
+  unknownDword28: number;
+  unknownDword29: number;
+  unknownDword30: number;
+  unknownDword31: number;
+  unknownDword32: number;
+  unknownDword33: number;
+}
+
 export interface SoeServer {
   on: (arg0: string, arg1: any) => void;
   start: (

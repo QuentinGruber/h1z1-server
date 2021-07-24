@@ -1,18 +1,18 @@
+import { Client, Weather2016 } from "types/zoneserver";
+import { ZoneServer2016 } from "../zoneserver";
 const debug = require("debug")("zonepacketHandlers");
-// import fs from "fs";
-//const objects = require("../../../../data/2016/zoneData/objects.json");
 import { Int64String } from "../../../utils/utils";
 
-const dev = {
-  testpacket: function (server, client, args) {
+const dev: any = {
+  testpacket: function (server: ZoneServer2016, client: Client, args: any[]) {
     const packetName = args[1];
     server.sendData(client, packetName, {});
   },
-  findModel: function (server, client, args) {
+  findModel: function (server: ZoneServer2016, client: Client, args: any[]) {
     const models = require("../../../../data/2016/dataSources/Models.json");
     const wordFilter = args[1];
     if (wordFilter) {
-      const result = models.filter((word) =>
+      const result = models.filter((word: any) =>
         word?.MODEL_FILE_NAME?.toLowerCase().includes(wordFilter.toLowerCase())
       );
       server.sendChatText(client, `Found models for ${wordFilter}:`);
@@ -24,19 +24,19 @@ const dev = {
       server.sendChatText(client, `missing word filter`);
     }
   },
-  reloadPackets: function (server, client, args) {
+  reloadPackets: function (server: ZoneServer2016, client: Client, args: any[]) {
     if (args[1]) {
       server.reloadPackets(client, args[1]);
     } else {
       server.reloadPackets(client);
     }
   },
-  reloadMongo: function (server, client, args) {
+  reloadMongo: function (server: ZoneServer2016, client: Client, args: any[]) {
     server._soloMode
       ? server.sendChatText(client, "Can't do that in solomode...")
       : server.reloadMongoData(client);
   },
-  systemmessage: function (server, client, args) {
+  systemmessage: function (server: ZoneServer2016, client: Client, args: any[]) {
     if (!args[1]) {
       server.sendChatText(client, "Missing 'message' parameter");
       return;
@@ -50,7 +50,7 @@ const dev = {
     server.sendChatText(client, "Sending system message");
     server.sendData(client, "ShowSystemMessage", msg);
   },
-  setresource: function (server, client, args) {
+  setresource: function (server: ZoneServer2016, client: Client, args: any[]) {
     if (!args[3]) {
       server.sendChatText(
         client,
@@ -74,7 +74,7 @@ const dev = {
     server.sendChatText(client, "Setting character resource");
     server.sendData(client, "ResourceEvent", resourceEvent);
   },
-  selectloadout: function (server, client, args) {
+  selectloadout: function (server: ZoneServer2016, client: Client, args: any[]) {
     if (!args[1]) {
       server.sendChatText(client, "Missing unknownDword1 arg");
       return;
@@ -85,7 +85,7 @@ const dev = {
     server.sendChatText(client, "Sending selectloadout packet");
     server.sendData(client, "Loadout.SelectLoadout", loadout);
   },
-  setcurrentloadout: function (server, client, args) {
+  setcurrentloadout: function (server: ZoneServer2016, client: Client, args: any[]) {
     if (!args[1]) {
       server.sendChatText(client, "Missing loadoutId arg");
       return;
@@ -97,7 +97,7 @@ const dev = {
     server.sendChatText(client, "Sending setcurrentloadout packet");
     server.sendData(client, "Loadout.SetCurrentLoadout", loadout);
   },
-  selectslot: function (server, client, args) {
+  selectslot: function (server: ZoneServer2016, client: Client, args: any[]) {
     const loadout = {
       characterId: client.character.characterId,
       loadoutItemLoadoutId: 5,
@@ -122,7 +122,7 @@ const dev = {
     server.sendData(client, "Loadout.SelectSlot", loadout);
   },
 
-  containerevent: function (server, client, args) {
+  containerevent: function (server: ZoneServer2016, client: Client, args: any[]) {
     const containerData = {
       ignore: client.character.characterId,
       containers: [
@@ -149,7 +149,7 @@ const dev = {
 
     server.sendData(client, "Container.unknown2", containerData);
   },
-  containererror: function (server, client, args) {
+  containererror: function (server: ZoneServer2016, client: Client, args: any[]) {
     if (!args[1]) {
       server.sendChatText(client, "Missing containerError arg");
       return;
@@ -161,7 +161,7 @@ const dev = {
 
     server.sendData(client, "Container.Error", container);
   },
-  setequipment: function (server, client, args) {
+  setequipment: function (server: ZoneServer2016, client: Client, args: any[]) {
     /*
     if(!args[5]) {
       server.sendChatText(client, "Missing 5 args");
@@ -228,7 +228,7 @@ const dev = {
     server.sendData(client, "Equipment.SetCharacterEquipmentSlots", equipment);
   },
 
-  tpVehicle: function (server, client, args) {
+  tpVehicle: function (server: ZoneServer2016, client: Client, args: any[]) {
     if (!args[1]) {
       server.sendChatText(client, "Missing vehicleId arg");
       return;
@@ -256,7 +256,7 @@ const dev = {
     }
   },
 
-  tpNpc: function (server, client, args) {
+  tpNpc: function (server: ZoneServer2016, client: Client, args: any[]) {
     if (!args[1]) {
       server.sendChatText(client, "Missing npc modelId arg");
       return;
@@ -284,7 +284,7 @@ const dev = {
     }
   },
 
-  updateWeather: function (server, client, args) {
+  updateWeather: function (server: ZoneServer2016, client: Client, args: any[]) {
     /*
     if(!args[7]) {
       server.sendChatText(client, "Missing 7 args");
@@ -337,7 +337,7 @@ const dev = {
     server.sendData(client, "UpdateWeatherData", skyData);
   },
 
-  recipe: function (server, client, args) {
+  recipe: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.sendData(client, "Recipe.Add", {
       recipeId: 93,
       nameId: 1536,
@@ -376,7 +376,7 @@ const dev = {
     });
   },
 
-  itemdefinitions: function (server, client, args) {
+  itemdefinitions: function (server: ZoneServer2016, client: Client, args: any[]) {
     console.log("ItemDefinitions\n\n\n\n\n\n\n\n\n");
     if (!args[2]) {
       server.sendChatText(client, "Missing 2 id args");
@@ -408,7 +408,7 @@ const dev = {
     server.sendData(client, "Command.ItemDefinitions", itemDefinitions); // todo: add ClientItemDefinition data
   },
 
-  seatchange: function (server, client, args) {
+  seatchange: function (server: ZoneServer2016, client: Client, args: any[]) {
     if (!args[3]) {
       server.sendChatText(client, "Missing 3 args");
       return;
@@ -433,7 +433,7 @@ const dev = {
     server.sendChatText(client, `sent seatchange`);
   },
 
-  gametime: function(server, client, args) {
+  gametime: function(server: ZoneServer2016, client: Client, args: any[]) {
     if (!args[1]) {
       server.sendChatText(client, "Missing 1 arg");
       return;
@@ -445,7 +445,7 @@ const dev = {
       unknownBoolean: false,
     });
   },
-  activateprofile: function(server, client, args) {
+  activateprofile: function(server: ZoneServer2016, client: Client, args: any[]) {
     if (!args[1]) {
       server.sendChatText(client, "Missing 1 arg");
       return;
@@ -533,7 +533,7 @@ const dev = {
     });
   }
   /*
-  proxiedObjects: function(server, client, args) {
+  proxiedObjects: function(server: ZoneServer2016, client: Client, args: any[]) {
     
     objects.runtime_object.runtime_objects.forEach((object) => {
       if(object.actor_file === "Common_Props_Dryer.adr") {

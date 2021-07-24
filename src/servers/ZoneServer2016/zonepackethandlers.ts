@@ -23,15 +23,16 @@ import dev from "./commands/dev";
 // import admin from "./commands/admin";
 
 import { Int64String, isPosInRadius } from "../../utils/utils";
-
+import { ZoneServer2016 } from "./zoneserver";
+import { Client } from "types/zoneserver";
 // TOOD: UPDATE THIS FOR 2016
 // const modelToName = require("../../../data/2015/sampleData/ModelToName.json");
 
-const _ = require("../../utils/utils");
+import { _ } from "../../utils/utils";
 const debug = require("debug")("zonepacketHandlers");
 
 const packetHandlers = {
-  ClientIsReady: function (server, client, packet) {
+  ClientIsReady: function (server: ZoneServer2016, client: Client, packet: any) {
     server.sendData(client, "ClientBeginZoning", { skyData: {} }); // Needed for trees
 
     server.sendData(client, "QuickChat.SendData", { commands: [] });
@@ -141,7 +142,7 @@ const packetHandlers = {
     server.sendEquipment(client);
     server.sendResources(client);
   },
-  ClientFinishedLoading: function (server, client, packet) {
+  ClientFinishedLoading: function (server: ZoneServer2016, client: Client, packet: any) {
     client.currentPOI = 0; // clears currentPOI for POIManager
     server.sendGameTimeSync(client);
     if (client.firstLoading) {
@@ -173,42 +174,42 @@ const packetHandlers = {
       server.worldRoutine(client);
     }, 3000);
   },
-  Security: function (server, client, packet) {
+  Security: function (server: ZoneServer2016, client: Client, packet: any) {
     debug(packet);
   },
-  "Command.RecipeStart": function (server, client, packet) {
+  "Command.RecipeStart": function (server: ZoneServer2016, client: Client, packet: any) {
     debug(packet);
     server.sendData(client, "Command.RecipeAction", {});
   },
-  "Command.FreeInteractionNpc": function (server, client, packet) {
+  "Command.FreeInteractionNpc": function (server: ZoneServer2016, client: Client, packet: any) {
     debug("FreeInteractionNpc");
     server.sendData(client, "Command.FreeInteractionNpc", {});
   },
-  "Collision.Damage": function (server, client, packet) {
+  "Collision.Damage": function (server: ZoneServer2016, client: Client, packet: any) {
     debug("Collision.Damage");
     debug(packet);
   },
-  "LobbyGameDefinition.DefinitionsRequest": function (server, client, packet) {
+  "LobbyGameDefinition.DefinitionsRequest": function (server: ZoneServer2016, client: Client, packet: any) {
     server.sendData(client, "LobbyGameDefinition.DefinitionsResponse", {
       definitionsData: { data: "" },
     });
   },
-  KeepAlive: function (server, client, packet) {
+  KeepAlive: function (server: ZoneServer2016, client: Client, packet: any) {
     client.lastPingTime = new Date().getTime();
     server.sendData(client, "KeepAlive", {
       gameTime: packet.data.gameTime,
     });
   },
-  ClientLog: function (server, client, packet) {
+  ClientLog: function (server: ZoneServer2016, client: Client, packet: any) {
     debug(packet);
   },
-  "WallOfData.UIEvent": function (server, client, packet) {
+  "WallOfData.UIEvent": function (server: ZoneServer2016, client: Client, packet: any) {
     debug("UIEvent");
   },
-  SetLocale: function (server, client, packet) {
+  SetLocale: function (server: ZoneServer2016, client: Client, packet: any) {
     debug("Do nothing");
   },
-  GetContinentBattleInfo: function (server, client, packet) {
+  GetContinentBattleInfo: function (server: ZoneServer2016, client: Client, packet: any) {
     server.sendData(client, "ContinentBattleInfo", {
       zones: [
         {
@@ -226,12 +227,12 @@ const packetHandlers = {
       ],
     });
   },
-  "Chat.Chat": function (server, client, packet) {
+  "Chat.Chat": function (server: ZoneServer2016, client: Client, packet: any) {
     const { channel, message } = packet.data;
     server.sendChat(client, message, channel);
   },
   /*
-  "Loadout.SelectSlot": function (server, client, packet) {
+  "Loadout.SelectSlot": function (server: ZoneServer2016, client: Client, packet: any) {
     
     if (client.character.currentLoadout) {
       const loadout = client.character.currentLoadout,
@@ -265,13 +266,13 @@ const packetHandlers = {
     
   },
   */
-  ClientInitializationDetails: function (server, client, packet) {
+  ClientInitializationDetails: function (server: ZoneServer2016, client: Client, packet: any) {
     // just in case
     if (packet.data.unknownDword1) {
       debug("ClientInitializationDetails : ", packet.data.unknownDword1);
     }
   },
-  ClientLogout: function (server, client, packet) {
+  ClientLogout: function (server: ZoneServer2016, client: Client, packet: any) {
     debug("ClientLogout");
     server.saveCharacterPosition(client);
     server.deleteEntity(client.character.characterId, server._characters);
@@ -279,10 +280,10 @@ const packetHandlers = {
     delete server._characters[client.character.characterId];
     delete server._clients[client.sessionId];
   },
-  GameTimeSync: function (server, client, packet) {
+  GameTimeSync: function (server: ZoneServer2016, client: Client, packet: any) {
     server.sendGameTimeSync(client);
   },
-  Synchronization: function (server, client, packet) {
+  Synchronization: function (server: ZoneServer2016, client: Client, packet: any) {
     const serverTime = Int64String(server.getServerTime());
     server.sendData(client, "Synchronization", {
       time1: packet.data.time1,
@@ -293,8 +294,8 @@ const packetHandlers = {
       time3: packet.data.clientTime + 2,
     });
   },
-  "Command.ExecuteCommand": async function (server, client, packet) {
-    const args = packet.data.arguments.split(" ");
+  "Command.ExecuteCommand": async function (server: ZoneServer2016, client: Client, packet: any) {
+    const args: any[] = packet.data.arguments.split(" ");
 
     switch (packet.data.commandHash) {
       case 2371122039: // /serverinfo
@@ -327,11 +328,11 @@ const packetHandlers = {
         break;
       case Jenkins.oaat("HELP"):
       case 3575372649: // /help
-        const haxCommandList = [];
+        const haxCommandList: any = [];
         Object.keys(hax).forEach((key) => {
           haxCommandList.push(`/hax ${key}`);
         });
-        const devCommandList = [];
+        const devCommandList: any = [];
         Object.keys(dev).forEach((key) => {
           devCommandList.push(`/dev ${key}`);
         });
@@ -370,7 +371,7 @@ const packetHandlers = {
     }
   },
   /*
-  "Command.SetProfile": function (server, client, packet) {
+  "Command.SetProfile": function (server: ZoneServer2016, client: Client, packet: any) {
     server.sendData(client, "Loadout.SetCurrentLoadout", {
       type: 2,
       unknown1: 0,
@@ -380,7 +381,7 @@ const packetHandlers = {
     });
   },
   */
-  "Command.InteractRequest": function (server, client, packet) {
+  "Command.InteractRequest": function (server: ZoneServer2016, client: Client, packet: any) {
     server.sendData(client, "Command.InteractionString", {
       guid: packet.data.guid,
       stringId: 5463,
@@ -407,7 +408,7 @@ const packetHandlers = {
     });
   },
   /*
-  "Command.InteractionSelect": function (server, client, packet) {
+  "Command.InteractionSelect": function (server: ZoneServer2016, client: Client, packet: any) {
     server.sendData(client, "Loadout.SetLoadouts", {
       type: 2,
       guid: packet.data.guid,
@@ -416,37 +417,37 @@ const packetHandlers = {
   },
   */
 
-  "Command.InteractCancel": function (server, client, packet) {
+  "Command.InteractCancel": function (server: ZoneServer2016, client: Client, packet: any) {
     debug("Interaction Canceled");
   },
-  "Command.StartLogoutRequest": function (server, client, packet) {
-    const logoutTime = 10000;
+  "Command.StartLogoutRequest": function (server: ZoneServer2016, client: Client, packet: any) {
+    const timerTime = 10000;
     server.sendData(client, "ClientUpdate.StartTimer", {
       stringId: 0,
-      time: logoutTime,
+      time: timerTime,
     });
     client.posAtLogoutStart = client.character.state.position;
-    if (client.logoutTimer != null) {
-      clearTimeout(client.logoutTimer);
+    if (client.timer != null) {
+      clearTimeout(client.timer);
     }
-    client.logoutTimer = setTimeout(() => {
+    client.timer = setTimeout(() => {
       server.sendData(client, "ClientUpdate.CompleteLogoutProcess", {});
-    }, logoutTime);
+    }, timerTime);
   },
-  CharacterSelectSessionRequest: function (server, client, packet) {
+  CharacterSelectSessionRequest: function (server: ZoneServer2016, client: Client, packet: any) {
     server.sendData(client, "CharacterSelectSessionResponse", {
       status: 1,
       sessionId: client.loginSessionId,
     });
   },
-  "ProfileStats.GetPlayerProfileStats": function (server, client, packet) {
+  "ProfileStats.GetPlayerProfileStats": function (server: ZoneServer2016, client: Client, packet: any) {
     server.sendData(
       client,
       "ProfileStats.PlayerProfileStats",
       require("../../../data/profilestats.json")
     );
   },
-  Pickup: function (server, client, packet) {
+  Pickup: function (server: ZoneServer2016, client: Client, packet: any) {
     debug(packet);
     const { data: packetData } = packet;
     server.sendData(client, "ClientUpdate.StartTimer", {
@@ -474,7 +475,7 @@ const packetHandlers = {
     });
     */
   },
-  GetRewardBuffInfo: function (server, client, packet) {
+  GetRewardBuffInfo: function (server: ZoneServer2016, client: Client, packet: any) {
     server.sendData(client, "RewardBuffInfo", {
       unknownFloat1: 1,
       unknownFloat2: 2,
@@ -490,7 +491,7 @@ const packetHandlers = {
       unknownFloat12: 12,
     });
   },
-  PlayerUpdateUpdatePositionClientToZone: function (server, client, packet) {
+  PlayerUpdateUpdatePositionClientToZone: function (server: ZoneServer2016, client: Client, packet: any) {
     if (packet.data.position) {
       // TODO: modify array element beside re-creating it
       client.character.state.position = new Float32Array([
@@ -501,15 +502,15 @@ const packetHandlers = {
       ]);
 
       if (
-        client.logoutTimer != null &&
+        client.timer != null &&
         !isPosInRadius(
           1,
           client.character.state.position,
           client.posAtLogoutStart
         )
       ) {
-        clearTimeout(client.logoutTimer);
-        client.logoutTimer = null;
+        clearTimeout(client.timer);
+        client.timer = null;
         server.sendData(client, "ClientUpdate.StartTimer", {
           stringId: 0,
           time: 0,
@@ -552,14 +553,14 @@ const packetHandlers = {
       ]);
     }
   },
-  "Character.Respawn": function (server, client, packet) {
+  "Character.Respawn": function (server: ZoneServer2016, client: Client, packet: any) {
     debug(packet);
     server.sendData(client, "Character.RespawnReply", {
       characterId: client.character.characterId,
       position: [0, 200, 0, 1],
     });
   },
-  "Character.FullCharacterDataRequest": function (server, client, packet) {
+  "Character.FullCharacterDataRequest": function (server: ZoneServer2016, client: Client, packet: any) {
     const {
       data: { guid },
     } = packet;
@@ -629,7 +630,7 @@ const packetHandlers = {
     }
   },
 
-  "Command.PlayerSelect": function (server, client, packet) {
+  "Command.PlayerSelect": function (server: ZoneServer2016, client: Client, packet: any) {
     if (server._vehicles[packet.data.guid] && !client.vehicle.mountedVehicle) {
       server.mountVehicle(client, packet);
     }
@@ -638,11 +639,11 @@ const packetHandlers = {
     }
   },
 
-  "Mount.DismountRequest": function (server, client, packet) { // only for driver seat
+  "Mount.DismountRequest": function (server: ZoneServer2016, client: Client, packet: any) { // only for driver seat
     debug(packet.data);
     server.dismountVehicle(client);
   },
-  "Command.InteractionString": function (server, client, packet) {
+  "Command.InteractionString": function (server: ZoneServer2016, client: Client, packet: any) {
     const { guid } = packet.data;
     const objectData = server._objects[guid];
     const doorData = server._doors[guid];
@@ -689,12 +690,12 @@ const packetHandlers = {
     }
   },
 
-  "Mount.SeatChangeRequest": function (server, client, packet) {
+  "Mount.SeatChangeRequest": function (server: ZoneServer2016, client: Client, packet: any) {
     server.changeSeat(client, packet);
   }
 
   /*
-  "Command.ItemDefinitionRequest": function (server, client, packet) {
+  "Command.ItemDefinitionRequest": function (server: ZoneServer2016, client: Client, packet: any) {
     console.log("ItemDefinitionRequest\n\n\n\n\n\n\n\n\n");
     console.log(packet.data);
 
