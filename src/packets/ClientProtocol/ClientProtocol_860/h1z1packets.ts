@@ -5060,23 +5060,7 @@ var packets = [
       ],
     },
   ],
-  ["PlayerUpdate.Knockback", 0x0f02, {
-    fields: [
-      { name: "characterId", type: "uint64", defaultValue: "0" },
-      { name: "unk", type: "uint32", defaultValue: 1 },
-      {
-        name: "position",
-        type: "floatvector4",
-        defaultValue: [0, 50, 0, 1],
-      },
-      {
-        name: "rotation",
-        type: "floatvector4",
-        defaultValue: [0, 0, 0, 1],
-      },
-      { name: "unk2", type: "uint32", defaultValue: 1 },
-    ],
-  }],
+  ["PlayerUpdate.Knockback", 0x0f02, {}],
   ["PlayerUpdate.UpdateHitpoints", 0x0f03, {}],
   ["PlayerUpdate.PlayAnimation", 0x0f04, {}],
   ["PlayerUpdate.AddNotifications", 0x0f05, {}],
