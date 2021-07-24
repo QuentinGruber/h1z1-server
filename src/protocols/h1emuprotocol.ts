@@ -20,7 +20,7 @@ export class H1emuProtocol {
   }
 
   parse(data: any) {
-    const packetType = data[0];
+    const packetType = data[1];
     let result;
     const packet = this.h1emuPackets.Packets[packetType];
     if (packet) {

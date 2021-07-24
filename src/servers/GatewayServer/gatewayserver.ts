@@ -72,8 +72,7 @@ export class GatewayServer extends EventEmitter {
       debug("Session started for client " + client.address + ":" + client.port);
     });
     this._soeServer.on("remoteSession", (err: string, client: Client) => {
-      debug("okkkkk");
-      this._soeServer.sendAppData(this._loginServer,this._h1emuProtocol.pack("LoginRequest",{sessionId:"test"}),true);
+      this._soeServer.sendAppData(client,this._h1emuProtocol.pack("LoginRequest",{sessionId:"test"}),true);
     });
     this._soeServer.on(
       "appdata",
