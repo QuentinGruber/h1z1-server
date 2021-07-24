@@ -26,7 +26,7 @@ export class H1emuProtocol {
     if (packet) {
       if (packet.schema) {
         debug(packet.name);
-        result = DataSchema.parse(packet.schema, data, 1, undefined).result;
+        result = DataSchema.parse(packet.schema, data, 2, undefined).result;
         debug("[DEBUG] Packet receive :");
         debug(result);
 
@@ -63,9 +63,10 @@ export class H1emuProtocol {
           undefined
         );
         if (payload) {
-          data = new (Buffer.alloc as any)(1 + payload.length);
-          data.writeUInt8(packetType, 0);
-          payload.data.copy(data,1);
+          data = new (Buffer.alloc as any)(2 + payload.length);
+          data.writeUInt8(0x73, 0);
+          data.writeUInt8(packetType, 1);
+          payload.data.copy(data,2);
         } else {
           debug("Could not pack data schema for " + packet.name);
         }
