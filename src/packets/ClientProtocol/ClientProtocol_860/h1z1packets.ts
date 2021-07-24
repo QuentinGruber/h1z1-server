@@ -9396,7 +9396,28 @@ var packets = [
   ["Items.RequestUseItem", 0xaf16, {}],
   ["Items.RequestUseAccountItem", 0xaf17, {}],
 
-  ["PlayerUpdate.AttachObject", 0xb0, {}],
+  ["PlayerUpdate.AttachObject", 0xb0, {
+    fields: [ // WIP
+      {
+        name: "objects",
+        type: "array",
+        defaultValue: [],
+        fields: [
+          {
+            name: "targetObjectId",
+            type: "uint64",
+            defaultValue: "0x0000000000000001",
+          },
+          { name: "position", type: "floatvector4", defaultValue: [0, 50, 0,1] },
+          { name: "rotation", type: "floatvector4", defaultValue: [0, 0, 0, 1] },
+          { name: "unk4", type: "uint32", defaultValue: 9001 },
+          { name: "unk5", type: "uint32", defaultValue: 9851 },
+          { name: "unk6", type: "uint32", defaultValue: 9001 },
+          { name: "unk7", type: "uint32", defaultValue: 9851 },
+        ],
+      },
+    ],
+  }],
   ["PlayerUpdate.DetachObject", 0xb1, {}],
   [
     "ClientSettings",
