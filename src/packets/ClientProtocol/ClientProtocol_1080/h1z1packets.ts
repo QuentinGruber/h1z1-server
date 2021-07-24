@@ -1,4 +1,3 @@
-"use strict";
 // ======================================================================
 //
 //   GNU GENERAL PUBLIC LICENSE
@@ -11,10 +10,11 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 import PacketTableBuild from "../../packettable";
-import { parse, pack } from "h1z1-dataschema";
+import DataSchema from "h1z1-dataschema";
 import { lz4_decompress } from "../../../utils/utils";
-function readPacketType(data, packets) {
-  var opCode = data[0] >>> 0,
+
+function readPacketType(data: Buffer, packets: any) {
+  let opCode = data[0] >>> 0,
     length = 0,
     packet;
   if (packets[opCode]) {
@@ -46,22 +46,22 @@ function readPacketType(data, packets) {
     length: length,
   };
 }
-function writePacketType(packetType) {
-  var packetTypeBytes = [];
+function writePacketType(packetType: number) {
+  const packetTypeBytes = [];
   while (packetType) {
     packetTypeBytes.unshift(packetType & 0xff);
     packetType = packetType >> 8;
   }
-  var data = new Buffer.alloc(packetTypeBytes.length);
-  for (var i = 0; i < packetTypeBytes.length; i++) {
+  const data = new (Buffer.alloc as any)(packetTypeBytes.length);
+  for (let i = 0; i < packetTypeBytes.length; i++) {
     data.writeUInt8(packetTypeBytes[i], i);
   }
   return data;
 }
-function readUnsignedIntWith2bitLengthValue(data, offset) {
-  var value = data.readUInt8(offset);
-  var n = value & 3;
-  for (var i = 0; i < n; i++) {
+function readUnsignedIntWith2bitLengthValue(data: Buffer, offset: number) {
+  let value = data.readUInt8(offset);
+  const n = value & 3;
+  for (let i = 0; i < n; i++) {
     value += data.readUInt8(offset + i + 1) << ((i + 1) * 8);
   }
   value = value >>> 2;
@@ -70,10 +70,10 @@ function readUnsignedIntWith2bitLengthValue(data, offset) {
     length: n + 1,
   };
 }
-function packUnsignedIntWith2bitLengthValue(value) {
+function packUnsignedIntWith2bitLengthValue(value: number) {
   value = Math.round(value);
   value = value << 2;
-  var n = 0;
+  let n = 0;
   if (value > 0xffffff) {
     n = 3;
   } else if (value > 0xffff) {
@@ -82,15 +82,15 @@ function packUnsignedIntWith2bitLengthValue(value) {
     n = 1;
   }
   value |= n;
-  var data = new Buffer.alloc(4);
+  const data = new (Buffer.alloc as any)(4);
   data.writeUInt32LE(value, 0);
   return data.slice(0, n + 1);
 }
-function readSignedIntWith2bitLengthValue(data, offset) {
-  var value = data.readUInt8(offset);
-  var sign = value & 1;
-  var n = (value >> 1) & 3;
-  for (var i = 0; i < n; i++) {
+function readSignedIntWith2bitLengthValue(data: Buffer, offset: number) {
+  let value = data.readUInt8(offset);
+  const sign = value & 1;
+  const n = (value >> 1) & 3;
+  for (let i = 0; i < n; i++) {
     value += data.readUInt8(offset + i + 1) << ((i + 1) * 8);
   }
   value = value >>> 3;
@@ -102,12 +102,12 @@ function readSignedIntWith2bitLengthValue(data, offset) {
     length: n + 1,
   };
 }
-function packSignedIntWith2bitLengthValue(value) {
+function packSignedIntWith2bitLengthValue(value: number): void {
   value = Math.round(value);
-  var sign = value < 0 ? 1 : 0;
+  const sign = value < 0 ? 1 : 0;
   value = sign ? -value : value;
   value = value << 3;
-  var n = 0;
+  let n = 0;
   if (value > 0xffffff) {
     n = 3;
   } else if (value > 0xffff) {
@@ -117,13 +117,14 @@ function packSignedIntWith2bitLengthValue(value) {
   }
   value |= n << 1;
   value |= sign;
-  var data = new Buffer.alloc(4);
+  const data = new (Buffer.alloc as any)(4);
   data.writeUInt32LE(value, 0);
   return data.slice(0, n + 1);
 }
-function readPositionUpdateData(data, offset) {
-  var obj = {},
+function readPositionUpdateData(data: Buffer, offset: number) {
+  const obj: any = {},
     startOffset = offset;
+  let v: any;
   obj["flags"] = data.readUInt16LE(offset);
   offset += 2;
   obj["unknown2_int32"] = data.readUInt32LE(offset);
@@ -131,19 +132,19 @@ function readPositionUpdateData(data, offset) {
   obj["unknown3_int8"] = data.readUInt8(offset);
   offset += 1;
   if (obj.flags && 1) {
-    var v = readUnsignedIntWith2bitLengthValue(data, offset);
+    v = readUnsignedIntWith2bitLengthValue(data, offset);
     obj["unknown4"] = v.value;
     offset += v.length;
   }
   if (obj.flags && 2) {
     obj["position"] = [];
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["position"][0] = v.value / 100;
     offset += v.length;
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["position"][1] = v.value / 100;
     offset += v.length;
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["position"][2] = v.value / 100;
     offset += v.length;
   }
@@ -152,64 +153,64 @@ function readPositionUpdateData(data, offset) {
     offset += 4;
   }
   if (obj.flags && 0x40) {
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["unknown7_float"] = v.value / 100;
     offset += v.length;
   }
   if (obj.flags && 0x80) {
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["unknown8_float"] = v.value / 100;
     offset += v.length;
   }
   if (obj.flags && 4) {
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["unknown9_float"] = v.value / 100;
     offset += v.length;
   }
   if (obj.flags && 0x8) {
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["unknown10_float"] = v.value / 100;
     offset += v.length;
   }
   if (obj.flags && 0x10) {
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["unknown11_float"] = v.value / 10;
     offset += v.length;
   }
   if (obj.flags && 0x100) {
     obj["unknown12_float"] = [];
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["unknown12_float"][0] = v.value / 100;
     offset += v.length;
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["unknown12_float"][1] = v.value / 100;
     offset += v.length;
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["unknown12_float"][2] = v.value / 100;
     offset += v.length;
   }
   if (obj.flags && 0x200) {
     obj["unknown13_float"] = [];
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["unknown13_float"][0] = v.value / 100;
     offset += v.length;
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["unknown13_float"][1] = v.value / 100;
     offset += v.length;
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["unknown13_float"][2] = v.value / 100;
     offset += v.length;
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["unknown13_float"][3] = v.value / 100;
     offset += v.length;
   }
   if (obj.flags && 0x400) {
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["unknown14_float"] = v.value / 10;
     offset += v.length;
   }
   if (obj.flags && 0x800) {
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["unknown15_float"] = v.value / 10;
     offset += v.length;
   }
@@ -220,8 +221,8 @@ function readPositionUpdateData(data, offset) {
     length: offset - startOffset,
   };
 }
-function packPositionUpdateData(obj) {
-  var data = new Buffer.alloc(7),
+function packPositionUpdateData(obj: any) {
+  let data = new (Buffer.alloc as any)(7),
     flags = 0,
     v;
   data.writeUInt32LE(obj["unknown2_int32"], 2);
@@ -242,7 +243,7 @@ function packPositionUpdateData(obj) {
   }
   if ("unknown6_int32" in obj) {
     flags |= 0x20;
-    v = new Buffer.alloc(4);
+    v = new (Buffer.alloc as any)(4);
     v.writeUInt32LE(obj["unknown6_int32"], 0);
     data = Buffer.concat([data, v]);
   }
@@ -595,38 +596,38 @@ const vehicleReferenceDataSchema = [
     ],
   },
 ];
-function parseVehicleReferenceData(data, offset) {
-  var dataLength = data.readUInt32LE(offset);
+function parseVehicleReferenceData(data: Buffer, offset: number) {
+  const dataLength = data.readUInt32LE(offset);
   offset += 4;
   data = data.slice(offset, offset + dataLength);
-  var inSize = data.readUInt32LE(0),
+  const inSize = data.readUInt32LE(0),
     outSize = data.readUInt32LE(4),
     compData = data.slice(8);
   data = lz4_decompress(compData, inSize, outSize);
-  var result = parse(vehicleReferenceDataSchema, data, 0).result;
+  const result = DataSchema.parse(vehicleReferenceDataSchema, data, 0).result;
   return {
     value: result,
     length: dataLength + 4,
   };
 }
-function packVehicleReferenceData(obj) {
-  var data = pack(vehicleReferenceDataSchema, obj);
+function packVehicleReferenceData(obj: any) {
+  const data = DataSchema.pack(vehicleReferenceDataSchema, obj);
   return data;
 }
-function parseItemAddData(data, offset, referenceData) {
-  var itemDataLength = data.readUInt32LE(offset);
+function parseItemAddData(data: Buffer, offset: number, referenceData: any) {
+  const itemDataLength = data.readUInt32LE(offset);
   offset += 4;
-  var itemData = data.slice(offset, offset + itemDataLength);
-  var inSize = itemData.readUInt16LE(0),
+  let itemData: any = data.slice(offset, offset + itemDataLength);
+  const inSize = itemData.readUInt16LE(0),
     outSize = itemData.readUInt16LE(2),
     compData = itemData.slice(4, 4 + inSize),
     decompData = lz4_decompress(compData, inSize, outSize),
-    itemDefinition = parse(baseItemDefinitionSchema, decompData, 0).result;
-  var item = parseItemData(itemData, 4 + inSize, referenceData).value;
+    itemDefinition = DataSchema.parse(baseItemDefinitionSchema, decompData, 0).result;
+  itemData = parseItemData(itemData, 4 + inSize, referenceData).value;
   return {
     value: {
       itemDefinition: itemDefinition,
-      itemData: item,
+      itemData: itemData,
     },
     length: itemDataLength + 4,
   };
@@ -1196,15 +1197,15 @@ const weaponPackets = [
 ];
 const [weaponPacketTypes, weaponPacketDescriptors] =
   PacketTableBuild(weaponPackets);
-function parseMultiWeaponPacket(data, offset) {
-  var startOffset = offset,
+function parseMultiWeaponPacket(data: Buffer, offset: number) {
+  const startOffset = offset,
     packets = [];
-  var n = data.readUInt32LE(offset);
+  const n = data.readUInt32LE(offset);
   offset += 4;
-  for (var i = 0; i < n; i++) {
-    var size = data.readUInt32LE(offset);
+  for (let i = 0; i < n; i++) {
+    const size = data.readUInt32LE(offset);
     offset += 4;
-    var subData = data.slice(offset, offset + size);
+    const subData = data.slice(offset, offset + size);
     offset += size;
     packets.push(parseWeaponPacket(subData, 2).value);
   }
@@ -1214,19 +1215,19 @@ function parseMultiWeaponPacket(data, offset) {
   };
 }
 function packMultiWeaponPacket() {}
-function parseWeaponPacket(data, offset) {
-  var obj = {};
+function parseWeaponPacket(data: Buffer, offset: number) {
+  const obj: any = {};
   obj.gameTime = data.readUInt32LE(offset);
-  var tmpData = data.slice(offset + 4);
-  var weaponPacketData = new Buffer.alloc(tmpData.length + 1);
+  const tmpData = data.slice(offset + 4);
+  const weaponPacketData = new (Buffer.alloc as any)(tmpData.length + 1);
   weaponPacketData.writeUInt8(0x85, 0);
   tmpData.copy(weaponPacketData, 1);
-  var weaponPacket = readPacketType(weaponPacketData, weaponPacketDescriptors);
+  const weaponPacket = readPacketType(weaponPacketData, weaponPacketDescriptors);
   if (weaponPacket.packet) {
     obj.packetType = weaponPacket.packetType;
     obj.packetName = weaponPacket.packet.name;
     if (weaponPacket.packet.schema) {
-      obj.packet = parse(
+      obj.packet = DataSchema.parse(
         weaponPacket.packet.schema,
         weaponPacketData,
         weaponPacket.length,
@@ -1242,17 +1243,17 @@ function parseWeaponPacket(data, offset) {
     length: data.length - offset,
   };
 }
-function packWeaponPacket(obj) {
-  var subObj = obj.packet,
+function packWeaponPacket(obj: any) {
+  const subObj = obj.packet,
     subName = obj.packetName,
     subType = weaponPacketTypes[subName];
-  var data;
+  let data;
   if (weaponPacketDescriptors[subType]) {
-    var subPacket = weaponPacketDescriptors[subType],
+    const subPacket = weaponPacketDescriptors[subType],
       subTypeData = writePacketType(subType);
-    var subData = pack(subPacket.schema, subObj).data;
+    let subData = DataSchema.pack(subPacket.schema, subObj).data;
     subData = Buffer.concat([subTypeData.slice(1), subData]);
-    data = new Buffer.alloc(subData.length + 4);
+    data = new (Buffer.alloc as any)(subData.length + 4);
     data.writeUInt32LE((obj.gameTime & 0xffffffff) >>> 0, 0);
     subData.copy(data, 4);
   } else {
@@ -1260,10 +1261,10 @@ function packWeaponPacket(obj) {
   }
   return data;
 }
-function parseItemData(data, offset, referenceData) {
-  var startOffset = offset;
-  var detailItem, detailSchema;
-  var baseItem = parse(itemBaseSchema, data, offset);
+function parseItemData(data: Buffer, offset: number, referenceData: any) {
+  const startOffset = offset;
+  let detailItem, detailSchema;
+  const baseItem = DataSchema.parse(itemBaseSchema, data, offset);
   offset += baseItem.length;
   if (
     referenceData &&
@@ -1273,7 +1274,7 @@ function parseItemData(data, offset, referenceData) {
   } else {
     detailSchema = itemDetailSchema;
   }
-  detailItem = parse(detailSchema, data, offset);
+  detailItem = DataSchema.parse(detailSchema, data, offset);
   offset += detailItem.length;
   return {
     value: {
@@ -1283,9 +1284,9 @@ function parseItemData(data, offset, referenceData) {
     length: offset - startOffset,
   };
 }
-function packItemData(obj, referenceData) {
-  var baseData = pack(itemBaseSchema, obj.baseItem);
-  var detailData, detailSchema;
+function packItemData(obj: any, referenceData: any) {
+  const baseData = DataSchema.pack(itemBaseSchema, obj.baseItem);
+  let detailData, detailSchema;
   if (
     referenceData &&
     referenceData.itemTypes[obj.baseItem.itemId] === "Weapon"
@@ -1294,7 +1295,7 @@ function packItemData(obj, referenceData) {
   } else {
     detailSchema = itemDetailSchema;
   }
-  detailData = pack(detailSchema, obj.detail);
+  detailData = DataSchema.pack(detailSchema, obj.detail);
   return Buffer.concat([baseData.data, detailData.data]);
 }
 
@@ -6219,10 +6220,11 @@ const packets = [
     "Facility.FacilityUpdate",
     0x8506,
     {
-      fn: function (data, offset) {
-        var result = {},
+      fn: function (data: Buffer, offset: number) {
+        const result: any = {},
           startOffset = offset;
-        var n, i, values, flags;
+        let n, i, values, flags;
+
         result["facilityId"] = data.readUInt32LE(offset);
         flags = data.readUInt16LE(offset + 4);
         result["flags"] = flags;
@@ -8179,5 +8181,5 @@ const packets = [
 
 const [packetTypes, packetDescriptors] = PacketTableBuild(packets);
 
-export const PacketTypes = packetTypes;
-export const Packets = packetDescriptors;
+exports.PacketTypes = packetTypes;
+exports.Packets = packetDescriptors;
