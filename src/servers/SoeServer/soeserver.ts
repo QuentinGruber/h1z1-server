@@ -24,7 +24,7 @@ export class SOEServer extends EventEmitter {
   _serverPort: number;
   _cryptoKey: Uint8Array;
   _compression: number;
-  _protocol: any;
+  _protocol: SOEProtocol;
   _udpLength: number;
   _useEncryption: boolean;
   _isGatewayServer: boolean;
@@ -68,66 +68,7 @@ export class SOEServer extends EventEmitter {
         // if doesn't know the client
         if (!this._clients[clientId]) {
           unknow_client = true;
-          client = this._clients[clientId] = {
-            sessionId: 0,
-            address: remote.address,
-            port: remote.port,
-            crcSeed: this._crcSeed,
-            crcLength: 2,
-            clientUdpLength: 512,
-            serverUdpLength: 512,
-            sequences: [],
-            compression: this._compression,
-            useEncryption: true,
-            outQueue: [],
-            outOfOrderPackets: [],
-            nextAck: -1,
-            lastAck: -1,
-            inputStream: new (SOEInputStream as any)(cryptoKey),
-            outputStream: new (SOEOutputStream as any)(cryptoKey),
-          };
-
-          (client as any).inputStream.on(
-            "data",
-            (err: string, data: Buffer) => {
-              this.emit("appdata", null, client, data);
-            }
-          );
-
-          (client as any).inputStream.on(
-            "ack",
-            (err: string, sequence: number) => {
-              client.nextAck = sequence;
-            }
-          );
-
-          (client as any).inputStream.on(
-            "outoforder",
-            (err: string, expected: any, sequence: number) => {
-              client.outOfOrderPackets.push(sequence);
-            }
-          );
-
-          (client as any).outputStream.on(
-            "data",
-            (err: string, data: Buffer, sequence: number, fragment: any) => {
-              if (fragment) {
-                this._sendPacket(client, "DataFragment", {
-                  sequence: sequence,
-                  data: data,
-                });
-              } else {
-                this._sendPacket(client, "Data", {
-                  sequence: sequence,
-                  data: data,
-                });
-              }
-            }
-          );
-          this.checkClientOutQueue(client);
-          this.checkAck(client);
-          this.checkOutOfOrderQueue(client);
-          this.emit("connect", null, this._clients[clientId]);
+          this.createClient(clientId,remote);
         }
         client = this._clients[clientId];
         const result = this._protocol.parse(
@@ -214,6 +155,68 @@ export class SOEServer extends EventEmitter {
       setTimeout(()=>this.checkOutOfOrderQueue(client),50);
   };
 
+  createClient(clientId:string,remote:{address:string,port:number}):void{
+    let client:any =  this._clients[clientId] = {
+      sessionId: 0,
+      address: remote.address,
+      port: remote.port,
+      crcSeed: this._crcSeed,
+      crcLength: 2,
+      clientUdpLength: 512,
+      serverUdpLength: 512,
+      sequences: [],
+      compression: this._compression,
+      useEncryption: true,
+      outQueue: [],
+      outOfOrderPackets: [],
+      nextAck: -1,
+      lastAck: -1,
+      inputStream: new (SOEInputStream as any)(this._cryptoKey),
+      outputStream: new (SOEOutputStream as any)(this._cryptoKey),
+    };
+
+    (client as any).inputStream.on(
+      "data",
+      (err: string, data: Buffer) => {
+        this.emit("appdata", null, client, data);
+      }
+    );
+
+    (client as any).inputStream.on(
+      "ack",
+      (err: string, sequence: number) => {
+        client.nextAck = sequence;
+      }
+    );
+
+    (client as any).inputStream.on(
+      "outoforder",
+      (err: string, expected: any, sequence: number) => {
+        client.outOfOrderPackets.push(sequence);
+      }
+    );
+
+    (client as any).outputStream.on(
+      "data",
+      (err: string, data: Buffer, sequence: number, fragment: any) => {
+        if (fragment) {
+          this._sendPacket(client, "DataFragment", {
+            sequence: sequence,
+            data: data,
+          });
+        } else {
+          this._sendPacket(client, "Data", {
+            sequence: sequence,
+            data: data,
+          });
+        }
+      }
+    );
+    this.checkClientOutQueue(client);
+    this.checkAck(client);
+    this.checkOutOfOrderQueue(client);
+    this.emit("connect", null, this._clients[clientId]);
+  }
   handlePacket(client: Client, packet: any) {
     const {
       soePacket: { result },
