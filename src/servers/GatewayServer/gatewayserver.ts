@@ -16,6 +16,7 @@ import { GatewayProtocol } from "../../protocols/gatewayprotocol";
 import {
   Client,
 } from "../../types/gatewayserver";
+import { H1emuProtocol } from "../../protocols/h1emuprotocol";
 
 const debug = require("debug")("GatewayServer");
 
@@ -26,7 +27,8 @@ export class GatewayServer extends EventEmitter {
   _crcSeed: number;
   _crcLength: number;
   _udpLength: number;
-
+  _h1emuProtocol: H1emuProtocol;
+  _loginServer:Client;
   constructor(
     protocolName: string,
     serverPort: number,
@@ -46,6 +48,18 @@ export class GatewayServer extends EventEmitter {
       true
     ) as any; // as any since SOEServer isn't typed
     this._protocol = new GatewayProtocol();
+    this._h1emuProtocol = new H1emuProtocol();
+    this._soeServer.createClient("loginServer",{address:"0.0.0.0",port:1115});
+    this._loginServer = this._soeServer._clients["loginServer"];
+    console.log()
+    
+    this._soeServer._sendPacket(this._loginServer,"SessionRequest",{
+      sessionId: this._loginServer.sessionId,
+      crcSeed: this._loginServer.crcSeed,
+      crcLength: this._loginServer.crcLength,
+      protocol: "h1emu",
+      udpLength: this._loginServer.serverUdpLength,
+    },true);
     this._soeServer.on("connect", (err: string, client: Client) => {
       debug("Client connected from " + client.address + ":" + client.port);
       this.emit("connect", err, client);
@@ -57,7 +71,10 @@ export class GatewayServer extends EventEmitter {
     this._soeServer.on("session", (err: string, client: Client) => {
       debug("Session started for client " + client.address + ":" + client.port);
     });
-
+    this._soeServer.on("remoteSession", (err: string, client: Client) => {
+      debug("okkkkk");
+      this._soeServer.sendAppData(this._loginServer,this._h1emuProtocol.pack("LoginRequest",{sessionId:"test"}),true);
+    });
     this._soeServer.on(
       "appdata",
       (err: string, client: Client, data: Buffer) => {
@@ -98,7 +115,12 @@ export class GatewayServer extends EventEmitter {
               );
               break;
           }
-        } else {
+        }
+        else if(data[0] === 0x73){
+          const h1emuPacket: any = this._h1emuProtocol.parse(data);
+          debug("h1emuPacket: ",h1emuPacket);
+        }
+        else {
           debug("Packet parsing was unsuccesful");
         }
       }

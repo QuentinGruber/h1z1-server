@@ -258,6 +258,9 @@ export class SOEServer extends EventEmitter {
           });
           this.emit("session", null, client);
           break;
+        case "SessionReply":
+          this.emit("remoteSession", null, client);
+        break;
         case "Disconnect":
           // hack so updateInterval is cleared even if user badly close the client
           this.emit(

@@ -19,6 +19,7 @@ import { generateRandomGuid, initMongo } from "../../utils/utils";
 import { Client, GameServer, SoeServer } from "../../types/loginserver";
 import fs from "fs";
 import { _ } from "../../utils/utils";
+import { H1emuProtocol } from "../../protocols/h1emuprotocol";
 
 const debugName = "LoginServer";
 const debug = require("debug")(debugName);
@@ -35,6 +36,7 @@ export class LoginServer extends EventEmitter {
   _cryptoKey: Uint8Array;
   _mongoAddress: string;
   _soloMode: boolean;
+  _h1emuProtocol: H1emuProtocol;
 
   constructor(serverPort: number, mongoAddress = "") {
     super();
@@ -62,6 +64,7 @@ export class LoginServer extends EventEmitter {
       0
     );
     this._protocol = new LoginProtocol();
+    this._h1emuProtocol = new H1emuProtocol();
     this._soeServer.on("connect", (err: string, client: Client) => {
       debug(`Client connected from ${client.address}:${client.port}`);
       this.emit("connect", err, client);
@@ -115,7 +118,12 @@ export class LoginServer extends EventEmitter {
                 this.Logout(client, packet);
                 break;
             }
-          } else {
+          }
+          else if(data[0] === 0x73){
+            const h1emuPacket: any = this._h1emuProtocol.parse(data);
+            debug("h1emuPacket: ",h1emuPacket);
+          }
+          else {
             debug("Packet parsing was unsuccesful");
           }
         } catch (error) {
