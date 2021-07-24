@@ -214,8 +214,10 @@ function readPositionUpdateData(data: Buffer, offset: number) {
     obj["unknown15_float"] = v.value / 10;
     offset += v.length;
   }
+  /*
   if (obj.flags && 0xe0) {
   }
+  */
   return {
     value: obj,
     length: offset - startOffset,
@@ -932,9 +934,7 @@ const effectTagsSchema = [
   { name: "unknownQword8", type: "uint64", defaultValue: "0" },
   { name: "unknownDword23", type: "uint32", defaultValue: 0 },
 ];
-const targetDataSchema = [
-  { name: "targetType", type: "uint8", defaultValue: 0 },
-];
+
 const itemDetailSchema = [
   { name: "unknownBoolean1", type: "boolean", defaultValue: false },
 ];
