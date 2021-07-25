@@ -49,7 +49,7 @@ export class GatewayServer extends EventEmitter {
     ) as any; // as any since SOEServer isn't typed
     this._protocol = new GatewayProtocol();
     this._h1emuProtocol = new H1emuProtocol();
-    this._soeServer.createClient("loginServer",{address:"0.0.0.0",port:1115},0x0100,50);
+    (this._soeServer as any).createClient("loginServer",{address:"0.0.0.0",port:1115},0x0100,50);
     this._loginServer = this._soeServer._clients["loginServer"];
     this._soeServer._sendPacket(this._loginServer,"SessionRequest",{
       sessionId: this._loginServer.sessionId,
