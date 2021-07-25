@@ -14,7 +14,7 @@ const debugName = "ZoneServer";
 const debug = require("debug")(debugName);
 import { default as packetHandlers } from "./zonepackethandlers";
 import { ZoneServer } from "../ZoneServer/zoneserver";
-import { Client, skyData } from "../../types/zoneserver";
+import { Client, Weather2016 } from "../../types/zoneserver";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
 import { _ } from "../../utils/utils";
 
@@ -267,11 +267,7 @@ export class ZoneServer2016 extends ZoneServer {
     client.posAtLastRoutine = client.character.state.position;
   }
 
-  SendWeatherUpdatePacket(
-    client: Client,
-    weather: skyData,
-    isGlobal = false
-  ): void {
+  SendWeatherUpdatePacket(client: Client, weather: Weather2016, isGlobal = false): void {
     if (isGlobal) {
       this.sendDataToAll("UpdateWeatherData", weather);
       if (client?.character?.name) {
@@ -682,7 +678,13 @@ export class ZoneServer2016 extends ZoneServer {
       });
     }
   }
+
+  changeWeather2016(client: Client, weather: Weather2016): void {
+    //this._weather = weather; (fix later)
+    this.SendWeatherUpdatePacket(client, weather, this._soloMode ? false : true);
+  }
 }
+
 
 if (process.env.VSCODE_DEBUG === "true") {
   new ZoneServer2016(
