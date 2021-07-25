@@ -120,8 +120,20 @@ export class LoginServer extends EventEmitter {
             }
           }
           else if(data[0] === 0x73){
-            const h1emuPacket: any = this._h1emuProtocol.parse(data);
-            debug("h1emuPacket: ",h1emuPacket);
+            try {
+              const h1emuPacket: any = this._h1emuProtocol.parse(data);
+              debug("h1emuPacket: ",h1emuPacket);
+              switch (h1emuPacket.name) {
+                case "LoginRequest":
+                  this.sendH1emuData(client, "LoginReply", {loggedIn:true});
+                  break;
+              
+                default:
+                  break;
+              }
+            } catch (error) {
+              debug(error)
+            }
           }
           else {
             debug("Packet parsing was unsuccesful");
@@ -131,6 +143,11 @@ export class LoginServer extends EventEmitter {
         }
       }
     );
+  }
+
+  sendH1emuData(client: Client, packetName: string, obj: any) {
+    const data = this._h1emuProtocol.pack(packetName, obj);
+    this._soeServer.sendAppData(client, data, true);
   }
 
   sendData(client: Client, packetName: string, obj: any) {
