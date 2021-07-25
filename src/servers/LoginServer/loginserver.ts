@@ -22,6 +22,7 @@ import { _ } from "../../utils/utils";
 
 const debugName = "LoginServer";
 const debug = require("debug")(debugName);
+const characterItemDefinitionsDummy = require("../../../data/2015/sampleData/characterItemDefinitionsDummy.json")
 
 export class LoginServer extends EventEmitter {
   _soeServer: SoeServer;
@@ -171,6 +172,14 @@ export class LoginServer extends EventEmitter {
     clearInterval(client.serverUpdateTimer);
     // this._soeServer.deleteClient(client); this is done too early
   }
+  addDummyDataToCharacters(characters:any[]){
+
+    for (let index = 0; index < characters.length; index++) { // add required dummy data
+      const PlayerCharacter = characters[index];
+      PlayerCharacter.itemDefinitions = characterItemDefinitionsDummy;
+    }
+    return characters
+  }
   async CharacterSelectInfoRequest(client: Client) {
     let CharactersInfo;
     if (this._soloMode) {
@@ -180,6 +189,7 @@ export class LoginServer extends EventEmitter {
       } else {// LoginUdp_11
         SinglePlayerCharacters = require("../../../data/2016/sampleData/single_player_characters.json");
       }
+      SinglePlayerCharacters = this.addDummyDataToCharacters(SinglePlayerCharacters);
       CharactersInfo = {
         status: 1,
         canBypassServerLock: true,
@@ -188,10 +198,11 @@ export class LoginServer extends EventEmitter {
     } 
     else {
       const charactersQuery = { ownerId: client.loginSessionId };
-      const characters = await this._db
+      let characters = await this._db
         .collection("characters")
         .find(charactersQuery)
         .toArray();
+      characters = this.addDummyDataToCharacters(characters);
       CharactersInfo = {
         status: 1,
         canBypassServerLock: true,
