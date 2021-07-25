@@ -446,11 +446,11 @@ if (process.env.VSCODE_DEBUG === "true") {
   if (process.env.CLIENT_SIXTEEN === "true") {
     const server = new LoginServer(
       1115, // <- server port
-      "mongodb://localhost:27017/" // <- MongoDB address ( if blank server start in solo mode )
+      "" // <- MongoDB address ( if blank server start in solo mode )
     );
     server._protocol = new LoginProtocol("LoginUdp_11");
     server.start();
   } else {
-    new LoginServer(1115, "mongodb://localhost:27017/").start();
+    new LoginServer(1115, "").start();
   }
 }
