@@ -54,7 +54,6 @@ export async function zoneShutdown(
       status: 1,
       sessionId: "0", // TODO: get sessionId from client object
     });
-    await server.saveWorld();
     setTimeout(() => {
       process.exit(0);
     }, 5000);

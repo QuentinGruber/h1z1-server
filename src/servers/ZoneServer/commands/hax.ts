@@ -366,6 +366,7 @@ const hax: any = {
     }
     const npc = {
       characterId: characterId,
+      worldId: server._worldId,
       guid: guid,
       transientId: transientId,
       modelId: choosenModelId,
@@ -380,6 +381,7 @@ const hax: any = {
     };
     isVehicle = false;
     server.sendDataToAll("PlayerUpdate.AddLightweightNpc", npc);
+    server._db?.collection("npcs").insertOne(npc);
     server._npcs[characterId] = npc; // save npc
   },
   sonic: function (server: ZoneServer, client: Client, args: any[]) {
