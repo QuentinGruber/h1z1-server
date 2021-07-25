@@ -1,4 +1,3 @@
-import { SOEOutputStream } from "../servers/SoeServer/soeoutputstream";
 import { Packet } from "./shared";
 
 export interface Client {
@@ -17,7 +16,7 @@ export interface Client {
   nextAck: number;
   lastAck: number;
   inputStream: () => void;
-  outputStream: SOEOutputStream;
+  outputStream: () => void;
   outQueueTimer: () => void;
   ackTimer: () => void;
   outOfOrderTimer: () => void;
