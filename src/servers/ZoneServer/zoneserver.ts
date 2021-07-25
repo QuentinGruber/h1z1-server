@@ -318,7 +318,7 @@ export class ZoneServer extends EventEmitter {
       await this.fetchWorldData();
     } else {
       await this._db?.collection(`worlds`)
-        .updateOne({ worldId: this._worldId }, { $set: { worldId: this._worldId } });
+        .insertOne({ worldId: this._worldId });
       await this.saveWorld();
     }
     debug("Server ready");
@@ -354,24 +354,43 @@ export class ZoneServer extends EventEmitter {
       this._doors  = {};
       const doorArray:any = await this._db
       ?.collection("doors")
-      .find({ worldId: this._worldId });
-      // do this for all entities
+      .find({ worldId: this._worldId }).toArray();
       for (let index = 0; index < doorArray.length; index++) {
         const door = doorArray[index];
         this._doors[door.characterId] = door
       }
-      this._props  = await this._db
+      this._props  = {};
+      const propsArray:any = await this._db
       ?.collection("props")
-      .find({ worldId: this._worldId });;
-      this._vehicles  = await this._db
+      .find({ worldId: this._worldId }).toArray();
+      for (let index = 0; index < propsArray.length; index++) {
+        const prop = propsArray[index];
+        this._props[prop.characterId] = prop
+      }
+      this._vehicles  = {}
+      const vehiclesArray:any = await this._db
       ?.collection("vehicles")
-      .find({ worldId: this._worldId });;
-      this._npcs  = await this._db
+      .find({ worldId: this._worldId }).toArray();
+      for (let index = 0; index < vehiclesArray.length; index++) {
+        const vehicle = vehiclesArray[index];
+        this._vehicles[vehicle.npcData.characterId] = vehicle
+      }
+      this._npcs  = {}
+      const npcsArray:any = await this._db
       ?.collection("npcs")
-      .find({ worldId: this._worldId });;
-      this._objects  = await this._db
+      .find({ worldId: this._worldId }).toArray();
+      for (let index = 0; index < npcsArray.length; index++) {
+        const npc = npcsArray[index];
+        this._npcs[npc.characterId] = npc
+      }
+      this._objects  = {}
+      const objectsArray:any = await this._db
       ?.collection("objects")
-      .find({ worldId: this._worldId });;
+      .find({ worldId: this._worldId }).toArray();
+      for (let index = 0; index < objectsArray.length; index++) {
+        const object = objectsArray[index];
+        this._objects[object.characterId] = object
+      }
       this._transientIds = this.getAllCurrentUsedTransientId();
       debug("World fetched!");
     }
