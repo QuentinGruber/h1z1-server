@@ -26,7 +26,7 @@ export class SOEOutputStream extends EventEmitter {
   constructor(cryptoKey: string, fragmentSize: number) {
     super();
     this._useEncryption = false;
-    this._fragmentSize = fragmentSize;
+    this._fragmentSize = 50;
     this._sequence = -1;
     this._lastAck = -1;
     this._cache = [];

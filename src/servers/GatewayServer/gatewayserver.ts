@@ -35,7 +35,7 @@ export class GatewayServer extends EventEmitter {
     gatewayKey: Uint8Array
   ) {
     super();
-    this._compression = 0x0000;
+    this._compression = 0x0100;
     this._crcSeed = 0;
     this._crcLength = 2;
     this._udpLength = 512;
@@ -49,10 +49,8 @@ export class GatewayServer extends EventEmitter {
     ) as any; // as any since SOEServer isn't typed
     this._protocol = new GatewayProtocol();
     this._h1emuProtocol = new H1emuProtocol();
-    this._soeServer.createClient("loginServer",{address:"0.0.0.0",port:1115});
+    this._soeServer.createClient("loginServer",{address:"0.0.0.0",port:1115},0x0100,50);
     this._loginServer = this._soeServer._clients["loginServer"];
-    console.log()
-    
     this._soeServer._sendPacket(this._loginServer,"SessionRequest",{
       sessionId: this._loginServer.sessionId,
       crcSeed: this._loginServer.crcSeed,
