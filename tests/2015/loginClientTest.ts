@@ -23,16 +23,19 @@ client.on("serverlist", (err, res) => {
   console.log(`Get a serverlist of ${res.servers.length} servers`);
   client.requestCharacterInfo();
 });
-client.on("characterinfo", (err, res) => {
-  console.log(`Get characterinfo`);
-  console.log(res);
+client.on("charactercreate", (err, res) => {
   setTimeout(() => {
-    client.requestCharacterLogin("0x03147cca2a860191", 1, {
+    client.requestCharacterLogin(res.characterId, 1, {
       locale: "EnUS",
       localeId: 1,
       preferredGatewayId: 8,
     });
   }, 2000);
+});
+client.on("characterinfo", (err, res) => {
+  console.log(`Get characterinfo`);
+  console.log(res);
+  client.requestCharacterCreate();
 });
 client.on("characterlogin", (err, res) => {
   console.log(`Get characterlogin`);
