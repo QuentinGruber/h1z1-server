@@ -184,16 +184,18 @@ export class LoginServer extends EventEmitter {
     let CharactersInfo;
     if (this._soloMode) {
       let SinglePlayerCharacters;
-      if (this._protocol.protocolName == "LoginUdp_9") {
-        SinglePlayerCharacters = require("../../../data/2015/dynamicData/single_player_characters.json");
-      } else {// LoginUdp_11
-        SinglePlayerCharacters = require("../../../data/2016/sampleData/single_player_characters.json");
+      if(!process.env.isBin){
+        if (this._protocol.protocolName == "LoginUdp_9") {
+          SinglePlayerCharacters = require("../../../data/2015/dynamicData/single_player_characters.json");
+        } else{// LoginUdp_11
+          SinglePlayerCharacters = require("../../../data/2016/sampleData/single_player_characters.json");
+        }
+        SinglePlayerCharacters = this.addDummyDataToCharacters(SinglePlayerCharacters);
       }
-      SinglePlayerCharacters = this.addDummyDataToCharacters(SinglePlayerCharacters);
       CharactersInfo = {
         status: 1,
         canBypassServerLock: true,
-        characters: SinglePlayerCharacters,
+        characters: process.env.isBin?[]:SinglePlayerCharacters,
       };
     } 
     else {
@@ -333,6 +335,7 @@ export class LoginServer extends EventEmitter {
       const character = SinglePlayerCharacters.find(
         (character: any) => character.characterId === characterId
       );
+      const characterName = character?.payload?.name
       charactersLoginInfo = {
         unknownQword1: "0x0",
         unknownDword1: 0,
@@ -345,7 +348,7 @@ export class LoginServer extends EventEmitter {
           guid: characterId,
           unknownQword2: "0x0",
           stationName: "",
-          characterName: character.payload.name,
+          characterName: characterName?characterName:"LocalPlayer",
           unknownString: "",
         },
       };
@@ -362,47 +365,56 @@ export class LoginServer extends EventEmitter {
     } = packet.result;
     // create character object
     let SinglePlayerCharacter, SinglePlayerCharacters;
-    if (this._protocol.protocolName == "LoginUdp_9") {
-      try { // delete old character cache
-        delete require.cache[require.resolve("../../../data/2015/dynamicData/single_player_characters.json")];
-      } catch (e) {}
-      SinglePlayerCharacter = require("../../../data/2015/sampleData/single_player_character.json");
-      SinglePlayerCharacters = require("../../../data/2015/dynamicData/single_player_characters.json");
+    let reply_data ;
+    if(process.env.isBin){
+      reply_data = {
+        status: 1,
+        characterId: generateRandomGuid(),
+      };
     }
-    else { // LoginUdp_11
-      try { // delete old character cache
-        delete require.cache[require.resolve("../../../data/2016/sampleData/single_player_characters.json")];
-      } catch (e) {}
-      SinglePlayerCharacter = require("../../../data/2016/sampleData/single_player_character.json");
-      SinglePlayerCharacters = require("../../../data/2016/sampleData/single_player_characters.json");
-    }
-    const newCharacter = _.cloneDeep(SinglePlayerCharacter);
-    newCharacter.serverId = serverId;
-    newCharacter.payload.name = characterName;
-    newCharacter.characterId = generateRandomGuid();
-    if (this._soloMode) {
-      SinglePlayerCharacters[SinglePlayerCharacters.length] = newCharacter;
+    else {
       if (this._protocol.protocolName == "LoginUdp_9") {
-        fs.writeFileSync(
-          `${__dirname}/../../../data/2015/dynamicData/single_player_characters.json`,
-          JSON.stringify(SinglePlayerCharacters)
-        );
+        try { // delete old character cache
+          delete require.cache[require.resolve("../../../data/2015/dynamicData/single_player_characters.json")];
+        } catch (e) {}
+        SinglePlayerCharacter = require("../../../data/2015/sampleData/single_player_character.json");
+        SinglePlayerCharacters = require("../../../data/2015/dynamicData/single_player_characters.json");
       }
       else { // LoginUdp_11
-        fs.writeFileSync(
-          `${__dirname}/../../../data/2016/sampleData/single_player_characters.json`,
-          JSON.stringify(SinglePlayerCharacters)
-        );
+        try { // delete old character cache
+          delete require.cache[require.resolve("../../../data/2016/sampleData/single_player_characters.json")];
+        } catch (e) {}
+        SinglePlayerCharacter = require("../../../data/2016/sampleData/single_player_character.json");
+        SinglePlayerCharacters = require("../../../data/2016/sampleData/single_player_characters.json");
       }
-    } else {
-      await this._db
-        .collection("characters")
-        .insertOne({ ...newCharacter, ownerId: client.loginSessionId });
+      const newCharacter = _.cloneDeep(SinglePlayerCharacter);
+      newCharacter.serverId = serverId;
+      newCharacter.payload.name = characterName;
+      newCharacter.characterId = generateRandomGuid();
+      if (this._soloMode) {
+        SinglePlayerCharacters[SinglePlayerCharacters.length] = newCharacter;
+        if (this._protocol.protocolName == "LoginUdp_9") {
+          fs.writeFileSync(
+            `${__dirname}/../../../data/2015/dynamicData/single_player_characters.json`,
+            JSON.stringify(SinglePlayerCharacters)
+          );
+        }
+        else { // LoginUdp_11
+          fs.writeFileSync(
+            `${__dirname}/../../../data/2016/sampleData/single_player_characters.json`,
+            JSON.stringify(SinglePlayerCharacters)
+          );
+        }
+      } else {
+        await this._db
+          .collection("characters")
+          .insertOne({ ...newCharacter, ownerId: client.loginSessionId });
+      }
+      reply_data = {
+        status: 1,
+        characterId: newCharacter.characterId,
+      };
     }
-    const reply_data = {
-      status: 1,
-      characterId: newCharacter.characterId,
-    };
     this.sendData(client, "CharacterCreateReply", reply_data);
   }
 
