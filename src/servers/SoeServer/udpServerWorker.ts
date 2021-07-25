@@ -8,6 +8,7 @@ interface Message {
     data?:any
 }
 
+if(workerData){
 
 const { serverPort } = workerData;
 const connection = dgram.createSocket("udp4");
@@ -43,4 +44,4 @@ parentPort?.on('message', (message:Message) => {
         default:
             break;
     }
-  });
+  });}

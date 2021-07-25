@@ -319,11 +319,16 @@ export class LoginServer extends EventEmitter {
       };
     } else {
       let SinglePlayerCharacters;
-      if (this._protocol.protocolName == "LoginUdp_9") {
-        SinglePlayerCharacters = require("../../../data/2015/dynamicData/single_player_characters.json");
+      if(!process.env.isBin){
+        if (this._protocol.protocolName == "LoginUdp_9") {
+          SinglePlayerCharacters = require("../../../data/2015/dynamicData/single_player_characters.json");
+        }
+        else { // LoginUdp_11
+          SinglePlayerCharacters = require("../../../data/2016/sampleData/single_player_characters.json");
+        }
       }
-      else { // LoginUdp_11
-        SinglePlayerCharacters = require("../../../data/2016/sampleData/single_player_characters.json");
+      else {
+        SinglePlayerCharacters = []
       }
       const character = SinglePlayerCharacters.find(
         (character: any) => character.characterId === characterId
@@ -443,7 +448,7 @@ export class LoginServer extends EventEmitter {
         this._db = mongoClient.db("h1server");
     }
 
-    if(this._soloMode){
+    if(this._soloMode && !process.env.isBin){
       this.setupDynamicData();
     }
     (this._soeServer as SoeServer).start(
