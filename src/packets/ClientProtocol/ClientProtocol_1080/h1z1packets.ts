@@ -1,4 +1,3 @@
-"use strict";
 // ======================================================================
 //
 //   GNU GENERAL PUBLIC LICENSE
@@ -11,10 +10,11 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 import PacketTableBuild from "../../packettable";
-import { parse, pack } from "h1z1-dataschema";
+import DataSchema from "h1z1-dataschema";
 import { lz4_decompress } from "../../../utils/utils";
-function readPacketType(data, packets) {
-  var opCode = data[0] >>> 0,
+
+function readPacketType(data: Buffer, packets: any) {
+  let opCode = data[0] >>> 0,
     length = 0,
     packet;
   if (packets[opCode]) {
@@ -46,22 +46,22 @@ function readPacketType(data, packets) {
     length: length,
   };
 }
-function writePacketType(packetType) {
-  var packetTypeBytes = [];
+function writePacketType(packetType: number) {
+  const packetTypeBytes = [];
   while (packetType) {
     packetTypeBytes.unshift(packetType & 0xff);
     packetType = packetType >> 8;
   }
-  var data = new Buffer.alloc(packetTypeBytes.length);
-  for (var i = 0; i < packetTypeBytes.length; i++) {
+  const data = new (Buffer.alloc as any)(packetTypeBytes.length);
+  for (let i = 0; i < packetTypeBytes.length; i++) {
     data.writeUInt8(packetTypeBytes[i], i);
   }
   return data;
 }
-function readUnsignedIntWith2bitLengthValue(data, offset) {
-  var value = data.readUInt8(offset);
-  var n = value & 3;
-  for (var i = 0; i < n; i++) {
+function readUnsignedIntWith2bitLengthValue(data: Buffer, offset: number) {
+  let value = data.readUInt8(offset);
+  const n = value & 3;
+  for (let i = 0; i < n; i++) {
     value += data.readUInt8(offset + i + 1) << ((i + 1) * 8);
   }
   value = value >>> 2;
@@ -70,10 +70,10 @@ function readUnsignedIntWith2bitLengthValue(data, offset) {
     length: n + 1,
   };
 }
-function packUnsignedIntWith2bitLengthValue(value) {
+function packUnsignedIntWith2bitLengthValue(value: number) {
   value = Math.round(value);
   value = value << 2;
-  var n = 0;
+  let n = 0;
   if (value > 0xffffff) {
     n = 3;
   } else if (value > 0xffff) {
@@ -82,15 +82,15 @@ function packUnsignedIntWith2bitLengthValue(value) {
     n = 1;
   }
   value |= n;
-  var data = new Buffer.alloc(4);
+  const data = new (Buffer.alloc as any)(4);
   data.writeUInt32LE(value, 0);
   return data.slice(0, n + 1);
 }
-function readSignedIntWith2bitLengthValue(data, offset) {
-  var value = data.readUInt8(offset);
-  var sign = value & 1;
-  var n = (value >> 1) & 3;
-  for (var i = 0; i < n; i++) {
+function readSignedIntWith2bitLengthValue(data: Buffer, offset: number) {
+  let value = data.readUInt8(offset);
+  const sign = value & 1;
+  const n = (value >> 1) & 3;
+  for (let i = 0; i < n; i++) {
     value += data.readUInt8(offset + i + 1) << ((i + 1) * 8);
   }
   value = value >>> 3;
@@ -102,12 +102,12 @@ function readSignedIntWith2bitLengthValue(data, offset) {
     length: n + 1,
   };
 }
-function packSignedIntWith2bitLengthValue(value) {
+function packSignedIntWith2bitLengthValue(value: number): void {
   value = Math.round(value);
-  var sign = value < 0 ? 1 : 0;
+  const sign = value < 0 ? 1 : 0;
   value = sign ? -value : value;
   value = value << 3;
-  var n = 0;
+  let n = 0;
   if (value > 0xffffff) {
     n = 3;
   } else if (value > 0xffff) {
@@ -117,13 +117,14 @@ function packSignedIntWith2bitLengthValue(value) {
   }
   value |= n << 1;
   value |= sign;
-  var data = new Buffer.alloc(4);
+  const data = new (Buffer.alloc as any)(4);
   data.writeUInt32LE(value, 0);
   return data.slice(0, n + 1);
 }
-function readPositionUpdateData(data, offset) {
-  var obj = {},
+function readPositionUpdateData(data: Buffer, offset: number) {
+  const obj: any = {},
     startOffset = offset;
+  let v: any;
   obj["flags"] = data.readUInt16LE(offset);
   offset += 2;
   obj["unknown2_int32"] = data.readUInt32LE(offset);
@@ -131,19 +132,19 @@ function readPositionUpdateData(data, offset) {
   obj["unknown3_int8"] = data.readUInt8(offset);
   offset += 1;
   if (obj.flags && 1) {
-    var v = readUnsignedIntWith2bitLengthValue(data, offset);
+    v = readUnsignedIntWith2bitLengthValue(data, offset);
     obj["unknown4"] = v.value;
     offset += v.length;
   }
   if (obj.flags && 2) {
     obj["position"] = [];
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["position"][0] = v.value / 100;
     offset += v.length;
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["position"][1] = v.value / 100;
     offset += v.length;
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["position"][2] = v.value / 100;
     offset += v.length;
   }
@@ -152,76 +153,78 @@ function readPositionUpdateData(data, offset) {
     offset += 4;
   }
   if (obj.flags && 0x40) {
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["unknown7_float"] = v.value / 100;
     offset += v.length;
   }
   if (obj.flags && 0x80) {
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["unknown8_float"] = v.value / 100;
     offset += v.length;
   }
   if (obj.flags && 4) {
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["unknown9_float"] = v.value / 100;
     offset += v.length;
   }
   if (obj.flags && 0x8) {
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["unknown10_float"] = v.value / 100;
     offset += v.length;
   }
   if (obj.flags && 0x10) {
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["unknown11_float"] = v.value / 10;
     offset += v.length;
   }
   if (obj.flags && 0x100) {
     obj["unknown12_float"] = [];
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["unknown12_float"][0] = v.value / 100;
     offset += v.length;
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["unknown12_float"][1] = v.value / 100;
     offset += v.length;
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["unknown12_float"][2] = v.value / 100;
     offset += v.length;
   }
   if (obj.flags && 0x200) {
     obj["unknown13_float"] = [];
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["unknown13_float"][0] = v.value / 100;
     offset += v.length;
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["unknown13_float"][1] = v.value / 100;
     offset += v.length;
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["unknown13_float"][2] = v.value / 100;
     offset += v.length;
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["unknown13_float"][3] = v.value / 100;
     offset += v.length;
   }
   if (obj.flags && 0x400) {
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["unknown14_float"] = v.value / 10;
     offset += v.length;
   }
   if (obj.flags && 0x800) {
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["unknown15_float"] = v.value / 10;
     offset += v.length;
   }
+  /*
   if (obj.flags && 0xe0) {
   }
+  */
   return {
     value: obj,
     length: offset - startOffset,
   };
 }
-function packPositionUpdateData(obj) {
-  var data = new Buffer.alloc(7),
+function packPositionUpdateData(obj: any) {
+  let data = new (Buffer.alloc as any)(7),
     flags = 0,
     v;
   data.writeUInt32LE(obj["unknown2_int32"], 2);
@@ -242,7 +245,7 @@ function packPositionUpdateData(obj) {
   }
   if ("unknown6_int32" in obj) {
     flags |= 0x20;
-    v = new Buffer.alloc(4);
+    v = new (Buffer.alloc as any)(4);
     v.writeUInt32LE(obj["unknown6_int32"], 0);
     data = Buffer.concat([data, v]);
   }
@@ -595,38 +598,38 @@ const vehicleReferenceDataSchema = [
     ],
   },
 ];
-function parseVehicleReferenceData(data, offset) {
-  var dataLength = data.readUInt32LE(offset);
+function parseVehicleReferenceData(data: Buffer, offset: number) {
+  const dataLength = data.readUInt32LE(offset);
   offset += 4;
   data = data.slice(offset, offset + dataLength);
-  var inSize = data.readUInt32LE(0),
+  const inSize = data.readUInt32LE(0),
     outSize = data.readUInt32LE(4),
     compData = data.slice(8);
   data = lz4_decompress(compData, inSize, outSize);
-  var result = parse(vehicleReferenceDataSchema, data, 0).result;
+  const result = DataSchema.parse(vehicleReferenceDataSchema, data, 0).result;
   return {
     value: result,
     length: dataLength + 4,
   };
 }
-function packVehicleReferenceData(obj) {
-  var data = pack(vehicleReferenceDataSchema, obj);
+function packVehicleReferenceData(obj: any) {
+  const data = DataSchema.pack(vehicleReferenceDataSchema, obj);
   return data;
 }
-function parseItemAddData(data, offset, referenceData) {
-  var itemDataLength = data.readUInt32LE(offset);
+function parseItemAddData(data: Buffer, offset: number, referenceData: any) {
+  const itemDataLength = data.readUInt32LE(offset);
   offset += 4;
-  var itemData = data.slice(offset, offset + itemDataLength);
-  var inSize = itemData.readUInt16LE(0),
+  let itemData: any = data.slice(offset, offset + itemDataLength);
+  const inSize = itemData.readUInt16LE(0),
     outSize = itemData.readUInt16LE(2),
     compData = itemData.slice(4, 4 + inSize),
     decompData = lz4_decompress(compData, inSize, outSize),
-    itemDefinition = parse(baseItemDefinitionSchema, decompData, 0).result;
-  var item = parseItemData(itemData, 4 + inSize, referenceData).value;
+    itemDefinition = DataSchema.parse(baseItemDefinitionSchema, decompData, 0).result;
+  itemData = parseItemData(itemData, 4 + inSize, referenceData).value;
   return {
     value: {
       itemDefinition: itemDefinition,
-      itemData: item,
+      itemData: itemData,
     },
     length: itemDataLength + 4,
   };
@@ -931,9 +934,7 @@ const effectTagsSchema = [
   { name: "unknownQword8", type: "uint64", defaultValue: "0" },
   { name: "unknownDword23", type: "uint32", defaultValue: 0 },
 ];
-const targetDataSchema = [
-  { name: "targetType", type: "uint8", defaultValue: 0 },
-];
+
 const itemDetailSchema = [
   { name: "unknownBoolean1", type: "boolean", defaultValue: false },
 ];
@@ -1196,15 +1197,15 @@ const weaponPackets = [
 ];
 const [weaponPacketTypes, weaponPacketDescriptors] =
   PacketTableBuild(weaponPackets);
-function parseMultiWeaponPacket(data, offset) {
-  var startOffset = offset,
+function parseMultiWeaponPacket(data: Buffer, offset: number) {
+  const startOffset = offset,
     packets = [];
-  var n = data.readUInt32LE(offset);
+  const n = data.readUInt32LE(offset);
   offset += 4;
-  for (var i = 0; i < n; i++) {
-    var size = data.readUInt32LE(offset);
+  for (let i = 0; i < n; i++) {
+    const size = data.readUInt32LE(offset);
     offset += 4;
-    var subData = data.slice(offset, offset + size);
+    const subData = data.slice(offset, offset + size);
     offset += size;
     packets.push(parseWeaponPacket(subData, 2).value);
   }
@@ -1214,19 +1215,19 @@ function parseMultiWeaponPacket(data, offset) {
   };
 }
 function packMultiWeaponPacket() {}
-function parseWeaponPacket(data, offset) {
-  var obj = {};
+function parseWeaponPacket(data: Buffer, offset: number) {
+  const obj: any = {};
   obj.gameTime = data.readUInt32LE(offset);
-  var tmpData = data.slice(offset + 4);
-  var weaponPacketData = new Buffer.alloc(tmpData.length + 1);
+  const tmpData = data.slice(offset + 4);
+  const weaponPacketData = new (Buffer.alloc as any)(tmpData.length + 1);
   weaponPacketData.writeUInt8(0x85, 0);
   tmpData.copy(weaponPacketData, 1);
-  var weaponPacket = readPacketType(weaponPacketData, weaponPacketDescriptors);
+  const weaponPacket = readPacketType(weaponPacketData, weaponPacketDescriptors);
   if (weaponPacket.packet) {
     obj.packetType = weaponPacket.packetType;
     obj.packetName = weaponPacket.packet.name;
     if (weaponPacket.packet.schema) {
-      obj.packet = parse(
+      obj.packet = DataSchema.parse(
         weaponPacket.packet.schema,
         weaponPacketData,
         weaponPacket.length,
@@ -1242,17 +1243,17 @@ function parseWeaponPacket(data, offset) {
     length: data.length - offset,
   };
 }
-function packWeaponPacket(obj) {
-  var subObj = obj.packet,
+function packWeaponPacket(obj: any) {
+  const subObj = obj.packet,
     subName = obj.packetName,
     subType = weaponPacketTypes[subName];
-  var data;
+  let data;
   if (weaponPacketDescriptors[subType]) {
-    var subPacket = weaponPacketDescriptors[subType],
+    const subPacket = weaponPacketDescriptors[subType],
       subTypeData = writePacketType(subType);
-    var subData = pack(subPacket.schema, subObj).data;
+    let subData = DataSchema.pack(subPacket.schema, subObj).data;
     subData = Buffer.concat([subTypeData.slice(1), subData]);
-    data = new Buffer.alloc(subData.length + 4);
+    data = new (Buffer.alloc as any)(subData.length + 4);
     data.writeUInt32LE((obj.gameTime & 0xffffffff) >>> 0, 0);
     subData.copy(data, 4);
   } else {
@@ -1260,10 +1261,10 @@ function packWeaponPacket(obj) {
   }
   return data;
 }
-function parseItemData(data, offset, referenceData) {
-  var startOffset = offset;
-  var detailItem, detailSchema;
-  var baseItem = parse(itemBaseSchema, data, offset);
+function parseItemData(data: Buffer, offset: number, referenceData: any) {
+  const startOffset = offset;
+  let detailItem, detailSchema;
+  const baseItem = DataSchema.parse(itemBaseSchema, data, offset);
   offset += baseItem.length;
   if (
     referenceData &&
@@ -1273,7 +1274,7 @@ function parseItemData(data, offset, referenceData) {
   } else {
     detailSchema = itemDetailSchema;
   }
-  detailItem = parse(detailSchema, data, offset);
+  detailItem = DataSchema.parse(detailSchema, data, offset);
   offset += detailItem.length;
   return {
     value: {
@@ -1283,9 +1284,9 @@ function parseItemData(data, offset, referenceData) {
     length: offset - startOffset,
   };
 }
-function packItemData(obj, referenceData) {
-  var baseData = pack(itemBaseSchema, obj.baseItem);
-  var detailData, detailSchema;
+function packItemData(obj: any, referenceData: any) {
+  const baseData = DataSchema.pack(itemBaseSchema, obj.baseItem);
+  let detailData, detailSchema;
   if (
     referenceData &&
     referenceData.itemTypes[obj.baseItem.itemId] === "Weapon"
@@ -1294,7 +1295,7 @@ function packItemData(obj, referenceData) {
   } else {
     detailSchema = itemDetailSchema;
   }
-  detailData = pack(detailSchema, obj.detail);
+  detailData = DataSchema.pack(detailSchema, obj.detail);
   return Buffer.concat([baseData.data, detailData.data]);
 }
 
@@ -2294,11 +2295,7 @@ const packets = [
                 { name: "unknownDword2", type: "uint32", defaultValue: 0 },
                 { name: "unknownDword3", type: "uint32", defaultValue: 0 },
                 { name: "unknownQword1", type: "uint64", defaultValue: 0 },
-                {
-                  name: "unknownBoolean1",
-                  type: "boolean",
-                  defaultValue: true,
-                },
+                { name: "unknownBoolean1", type: "boolean", defaultValue: true },
                 { name: "unknownDword4", type: "uint32", defaultValue: 0 },
                 { name: "unknownString1", type: "string", defaultValue: "" },
               ],
@@ -2323,210 +2320,29 @@ const packets = [
               ],
             },
             {
-              name: "unknownArray10",
+              name: "unknownArray2",
               type: "array",
               defaultValue: [{}],
               fields: [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
               ],
             },
-            /*
             {
               name: "unknownEffectArray",
               type: "array",
               defaultValue: [{}],
               fields: [
+                { name: "effectTag", type: "schema", fields: effectTagsSchema },
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                { name: "unknownBoolean1", type: "boolean", defaultValue: true },
+                { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+                { name: "unknownDword3", type: "uint32", defaultValue: 0 },
                 {
-                  name: "unknownData1",
-                  type: "schema",
+                  name: "unknownArray1",
+                  type: "array",
+                  defaultValue: [{}],
                   fields: [
-                    {
-                      name: "unknownData1",
-                      type: "schema",
-                      fields: [
-                        {
-                          name: "unknownDword1",
-                          type: "uint32",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownDword2",
-                          type: "uint32",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownDword3",
-                          type: "uint32",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownDword4",
-                          type: "uint32",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownDword5",
-                          type: "uint32",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownDword6",
-                          type: "uint32",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownDword7",
-                          type: "uint32",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownDword8",
-                          type: "uint32",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownDword9",
-                          type: "uint32",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownFloat1",
-                          type: "float",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownDword10",
-                          type: "uint32",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownQword1",
-                          type: "uint64",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownQword2",
-                          type: "uint64",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownQword3",
-                          type: "uint64",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownGuid1",
-                          type: "uint64",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownDword11",
-                          type: "uint32",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownDword12",
-                          type: "uint32",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownDword13",
-                          type: "uint32",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownDword14",
-                          type: "uint32",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownDword15",
-                          type: "uint32",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownDword16",
-                          type: "uint32",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownDword17",
-                          type: "uint32",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownGuid2",
-                          type: "uint64",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownDword18",
-                          type: "uint32",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownDword19",
-                          type: "uint32",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownByte1",
-                          type: "uint8",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownDword20",
-                          type: "uint32",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownGuid3",
-                          type: "uint64",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownGuid4",
-                          type: "uint64",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownDword21",
-                          type: "uint32",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownQword4",
-                          type: "uint64",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownDword22",
-                          type: "uint32",
-                          defaultValue: 0,
-                        },
-                      ],
-                    },
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                    {
-                      name: "unknownBoolean1",
-                      type: "boolean",
-                      defaultValue: true,
-                    },
-                    { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                    { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-                    {
-                      name: "unknownArray1",
-                      type: "array",
-                      defaultValue: [{}],
-                      fields: [
-                        {
-                          name: "unknownDword1",
-                          type: "uint32",
-                          defaultValue: 0,
-                        },
-                      ],
-                    },
                   ],
                 },
               ],
@@ -2535,31 +2351,9 @@ const packets = [
               name: "stats",
               type: "array",
               defaultValue: [{}],
-              fields: [
-                { name: "statId", type: "uint32", defaultValue: 0 },
-                {
-                  name: "statData",
-                  type: "schema",
-                  fields: [
-                    { name: "statId", type: "uint32", defaultValue: 0 },
-                    {
-                      name: "statValue",
-                      type: "variabletype8",
-                      types: {
-                        0: [
-                          { name: "base", type: "uint32", defaultValue: 0 },
-                          { name: "modifier", type: "uint32", defaultValue: 0 },
-                        ],
-                        1: [
-                          { name: "base", type: "float", defaultValue: 0 },
-                          { name: "modifier", type: "float", defaultValue: 0 },
-                        ],
-                      },
-                    },
-                  ],
-                },
-              ],
+              fields: statDataSchema,
             },
+            /*
             {
               name: "playerTitles",
               type: "array",
@@ -4709,19 +4503,19 @@ const packets = [
   ["Combat.AttackTargetBlocked", 0x0c0a, {}],
   ["Combat.AttackTargetParried", 0x0c0b, {}],
   ["Mail", 0x0e, {}],
-  ["PlayerUpdate.None", 0x0f00, {}],
+  ["Character.None", 0x0f00, {}],
   [
-    "PlayerUpdate.RemovePlayer",
+    "Character.RemovePlayer",
     0x0f010,
     {
       fields: [{ name: "guid", type: "uint64", defaultValue: "0" }],
     },
   ],
-  ["PlayerUpdate.Knockback", 0x0f02, {}],
-  ["PlayerUpdate.UpdateHitpoints", 0x0f03, {}],
-  ["PlayerUpdate.PlayAnimation", 0x0f04, {}],
+  ["Character.Knockback", 0x0f02, {}],
+  ["Character.UpdateHitpoints", 0x0f03, {}],
+  ["Character.PlayAnimation", 0x0f04, {}],
   [
-    "PlayerUpdate.UpdateScale",
+    "Character.UpdateScale",
     0x0f05,
     {
       fields: [
@@ -4734,12 +4528,12 @@ const packets = [
       ],
     },
   ],
-  ["PlayerUpdate.UpdateTemporaryAppearance", 0x0f06, {}],
-  ["PlayerUpdate.RemoveTemporaryAppearance", 0x0f07, {}],
-  ["PlayerUpdate.SetLookAt", 0x0f08, {}],
-  ["PlayerUpdate.RenamePlayer", 0x0f09, {}],
+  ["Character.UpdateTemporaryAppearance", 0x0f06, {}],
+  ["Character.RemoveTemporaryAppearance", 0x0f07, {}],
+  ["Character.SetLookAt", 0x0f08, {}],
+  ["Character.RenamePlayer", 0x0f09, {}],
   [
-    "PlayerUpdate.UpdateCharacterState",
+    "Character.UpdateCharacterState",
     0x0f0a,
     {
       fields: [
@@ -4750,34 +4544,34 @@ const packets = [
       ],
     },
   ],
-  ["PlayerUpdate.ExpectedSpeed", 0x0f0b, {}],
-  ["PlayerUpdate.ScriptedAnimation", 0x0f0c, {}],
-  ["PlayerUpdate.ThoughtBubble", 0x0f0d, {}],
-  ["PlayerUpdate._REUSE_14", 0x0f0e, {}],
-  ["PlayerUpdate.LootEvent", 0x0f0f, {}],
-  ["PlayerUpdate.SlotCompositeEffectOverride", 0x0f10, {}],
-  ["PlayerUpdate.EffectPackage", 0x0f11, {}],
-  ["PlayerUpdate.PreferredLanguages", 0x0f12, {}],
-  ["PlayerUpdate.CustomizationChange", 0x0f13, {}],
-  ["PlayerUpdate.PlayerTitle", 0x0f14, {}],
-  ["PlayerUpdate.AddEffectTagCompositeEffect", 0x0f15, {}],
-  ["PlayerUpdate.RemoveEffectTagCompositeEffect", 0x0f16, {}],
-  ["PlayerUpdate.SetSpawnAnimation", 0x0f17, {}],
-  ["PlayerUpdate.CustomizeNpc", 0x0f18, {}],
-  ["PlayerUpdate.SetSpawnerActivationEffect", 0x0f19, {}],
-  ["PlayerUpdate.SetComboState", 0x0f1a, {}],
-  ["PlayerUpdate.SetSurpriseState", 0x0f1b, {}],
-  ["PlayerUpdate.RemoveNpcCustomization", 0x0f1c, {}],
-  ["PlayerUpdate.ReplaceBaseModel", 0x0f1d, {}],
-  ["PlayerUpdate.SetCollidable", 0x0f1e, {}],
-  ["PlayerUpdate.UpdateOwner", 0x0f1f, {}],
-  ["PlayerUpdate.WeaponStance", 0x0f20, {}],
-  ["PlayerUpdate.UpdateTintAlias", 0x0f21, {}],
-  ["PlayerUpdate.MoveOnRail", 0x0f22, {}],
-  ["PlayerUpdate.ClearMovementRail", 0x0f23, {}],
-  ["PlayerUpdate.MoveOnRelativeRail", 0x0f24, {}],
+  ["Character.ExpectedSpeed", 0x0f0b, {}],
+  ["Character.ScriptedAnimation", 0x0f0c, {}],
+  ["Character.ThoughtBubble", 0x0f0d, {}],
+  ["Character._REUSE_14", 0x0f0e, {}],
+  ["Character.LootEvent", 0x0f0f, {}],
+  ["Character.SlotCompositeEffectOverride", 0x0f10, {}],
+  ["Character.EffectPackage", 0x0f11, {}],
+  ["Character.PreferredLanguages", 0x0f12, {}],
+  ["Character.CustomizationChange", 0x0f13, {}],
+  ["Character.PlayerTitle", 0x0f14, {}],
+  ["Character.AddEffectTagCompositeEffect", 0x0f15, {}],
+  ["Character.RemoveEffectTagCompositeEffect", 0x0f16, {}],
+  ["Character.SetSpawnAnimation", 0x0f17, {}],
+  ["Character.CustomizeNpc", 0x0f18, {}],
+  ["Character.SetSpawnerActivationEffect", 0x0f19, {}],
+  ["Character.SetComboState", 0x0f1a, {}],
+  ["Character.SetSurpriseState", 0x0f1b, {}],
+  ["Character.RemoveNpcCustomization", 0x0f1c, {}],
+  ["Character.ReplaceBaseModel", 0x0f1d, {}],
+  ["Character.SetCollidable", 0x0f1e, {}],
+  ["Character.UpdateOwner", 0x0f1f, {}],
+  ["Character.WeaponStance", 0x0f20, {}],
+  ["Character.UpdateTintAlias", 0x0f21, {}],
+  ["Character.MoveOnRail", 0x0f22, {}],
+  ["Character.ClearMovementRail", 0x0f23, {}],
+  ["Character.MoveOnRelativeRail", 0x0f24, {}],
   [
-    "PlayerUpdate.Destroyed",
+    "Character.Destroyed",
     0x0f25,
     {
       fields: [
@@ -4789,10 +4583,10 @@ const packets = [
       ],
     },
   ],
-  ["PlayerUpdate.SeekTarget", 0x0f26, {}],
-  ["PlayerUpdate.SeekTargetUpdate", 0x0f27, {}],
+  ["Character.SeekTarget", 0x0f26, {}],
+  ["Character.SeekTargetUpdate", 0x0f27, {}],
   [
-    "PlayerUpdate.UpdateActiveWieldType",
+    "Character.UpdateActiveWieldType",
     0x0f28,
     {
       fields: [
@@ -4801,19 +4595,19 @@ const packets = [
       ],
     },
   ],
-  ["PlayerUpdate.LaunchProjectile", 0x0f29, {}],
-  ["PlayerUpdate.SetSynchronizedAnimations", 0x0f2a, {}],
-  ["PlayerUpdate.MemberStatus", 0x0f2b, {}],
+  ["Character.LaunchProjectile", 0x0f29, {}],
+  ["Character.SetSynchronizedAnimations", 0x0f2a, {}],
+  ["Character.MemberStatus", 0x0f2b, {}],
   [
-    "PlayerUpdate.KnockedOut",
+    "Character.KnockedOut",
     0x0f2c,
     {
       fields: [{ name: "guid", type: "uint64", defaultValue: "0" }],
     },
   ],
-  ["PlayerUpdate.KnockedOutDamageReport", 0x0f2d, {}],
+  ["Character.KnockedOutDamageReport", 0x0f2d, {}],
   [
-    "PlayerUpdate.Respawn",
+    "Character.Respawn",
     0x0f2e,
     {
       fields: [
@@ -4825,7 +4619,7 @@ const packets = [
     },
   ],
   [
-    "PlayerUpdate.RespawnReply",
+    "Character.RespawnReply",
     0x0f2f,
     {
       fields: [
@@ -4834,9 +4628,9 @@ const packets = [
       ],
     },
   ],
-  ["PlayerUpdate.ActivateProfile", 0x0f31, {}],
+  ["Character.ActivateProfile", 0x0f31, {}],
   [
-    "PlayerUpdate.Jet",
+    "Character.Jet",
     0x0f32,
     {
       fields: [
@@ -4845,12 +4639,12 @@ const packets = [
       ],
     },
   ],
-  ["PlayerUpdate.Turbo", 0x0f33, {}],
-  ["PlayerUpdate.StartRevive", 0x0f34, {}],
-  ["PlayerUpdate.StopRevive", 0x0f35, {}],
-  ["PlayerUpdate.ReadyToRevive", 0x0f36, {}],
+  ["Character.Turbo", 0x0f33, {}],
+  ["Character.StartRevive", 0x0f34, {}],
+  ["Character.StopRevive", 0x0f35, {}],
+  ["Character.ReadyToRevive", 0x0f36, {}],
   [
-    "PlayerUpdate.SetFaction",
+    "Character.SetFaction",
     0x0f37,
     {
       fields: [
@@ -4860,7 +4654,7 @@ const packets = [
     },
   ],
   [
-    "PlayerUpdate.SetBattleRank",
+    "Character.SetBattleRank",
     0x0f38,
     {
       fields: [
@@ -4869,10 +4663,10 @@ const packets = [
       ],
     },
   ],
-  ["PlayerUpdate.StartHeal", 0x0f39, {}],
-  ["PlayerUpdate.StopHeal", 0x0f3a, {}],
+  ["Character.StartHeal", 0x0f39, {}],
+  ["Character.StopHeal", 0x0f3a, {}],
   [
-    "PlayerUpdate.ManagedObject",
+    "Character.ManagedObject",
     0x0f3b,
     {
       fields: [
@@ -4882,11 +4676,11 @@ const packets = [
       ],
     },
   ],
-  ["PlayerUpdate.MaterialTypeOverride", 0x0f3c, {}],
-  ["PlayerUpdate.DebrisLaunch", 0x0f3d, {}],
-  ["PlayerUpdate.HideCorpse", 0x0f3e, {}],
+  ["Character.MaterialTypeOverride", 0x0f3c, {}],
+  ["Character.DebrisLaunch", 0x0f3d, {}],
+  ["Character.HideCorpse", 0x0f3e, {}],
   [
-    "PlayerUpdate.CharacterStateDelta",
+    "Character.CharacterStateDelta",
     0x0f3f,
     {
       fields: [
@@ -4898,22 +4692,22 @@ const packets = [
       ],
     },
   ],
-  ["PlayerUpdate.UpdateStat", 0x0f40, {}],
-  ["PlayerUpdate.NonPriorityCharacters", 0x0f42, {}],
-  ["PlayerUpdate.PlayWorldCompositeEffect", 0x0f43, {}],
-  ["PlayerUpdate.AFK", 0x0f44, {}],
+  ["Character.UpdateStat", 0x0f40, {}],
+  ["Character.NonPriorityCharacters", 0x0f42, {}],
+  ["Character.PlayWorldCompositeEffect", 0x0f43, {}],
+  ["Character.AFK", 0x0f44, {}],
   [
-    "PlayerUpdate.FullCharacterDataRequest",
+    "Character.FullCharacterDataRequest",
     0x0f45,
     {
       fields: [{ name: "guid", type: "uint64", defaultValue: "0" }],
     },
   ],
-  ["PlayerUpdate.Deploy", 0x0f46, {}],
-  ["PlayerUpdate.LowAmmoUpdate", 0x0f47, {}],
-  ["PlayerUpdate.KilledBy", 0x0f48, {}],
+  ["Character.Deploy", 0x0f46, {}],
+  ["Character.LowAmmoUpdate", 0x0f47, {}],
+  ["Character.KilledBy", 0x0f48, {}],
   [
-    "PlayerUpdate.MotorRunning",
+    "Character.MotorRunning",
     0x0f49,
     {
       fields: [
@@ -4922,26 +4716,26 @@ const packets = [
       ],
     },
   ],
-  ["PlayerUpdate.DroppedIemNotification", 0x0f4a, {}],
-  ["PlayerUpdate.NoSpaceNotification", 0x0f4b, {}],
-  ["PlayerUpdate.ReloadNotification", 0x0f4c, {}],
-  ["PlayerUpdate.MountBlockedNotification", 0x0f4d, {}],
-  ["PlayerUpdate.StartMultiStateDeath", 0x0f4f, {}],
-  ["PlayerUpdate.AggroLevel", 0x0f50, {}],
-  ["PlayerUpdate.DoorState", 0x0f51, {}],
-  ["PlayerUpdate.RequestToggleDoorState", 0x0f52, {}],
-  ["PlayerUpdate.SetAllowRespawn", 0x0f54, {}],
-  ["PlayerUpdate.UpdateGuildTag", 0x0f55, {}],
-  ["PlayerUpdate.MovementVersion", 0x0f56, {}],
-  ["PlayerUpdate.RequestMovementVersion", 0x0f57, {}],
-  ["PlayerUpdate.DailyRepairMaterials", 0x0f58, {}],
-  ["PlayerUpdate.BeginPreviewInteraction", 0x0f59, {}],
-  ["PlayerUpdate.TransportPlayerToFactionHub", 0x0f5a, {}],
-  ["PlayerUpdate.EnterCache", 0x0f5b, {}],
-  ["PlayerUpdate.ExitCache", 0x0f5c, {}],
-  ["PlayerUpdate.TransportPlayerToGatheringZone", 0x0f5d, {}],
-  ["PlayerUpdate.UpdateTwitchInfo", 0x0f5e, {}],
-  ["PlayerUpdate.UpdateSimpleProxyHealth", 0x0f5f, {}],
+  ["Character.DroppedIemNotification", 0x0f4a, {}],
+  ["Character.NoSpaceNotification", 0x0f4b, {}],
+  ["Character.ReloadNotification", 0x0f4c, {}],
+  ["Character.MountBlockedNotification", 0x0f4d, {}],
+  ["Character.StartMultiStateDeath", 0x0f4f, {}],
+  ["Character.AggroLevel", 0x0f50, {}],
+  ["Character.DoorState", 0x0f51, {}],
+  ["Character.RequestToggleDoorState", 0x0f52, {}],
+  ["Character.SetAllowRespawn", 0x0f54, {}],
+  ["Character.UpdateGuildTag", 0x0f55, {}],
+  ["Character.MovementVersion", 0x0f56, {}],
+  ["Character.RequestMovementVersion", 0x0f57, {}],
+  ["Character.DailyRepairMaterials", 0x0f58, {}],
+  ["Character.BeginPreviewInteraction", 0x0f59, {}],
+  ["Character.TransportPlayerToFactionHub", 0x0f5a, {}],
+  ["Character.EnterCache", 0x0f5b, {}],
+  ["Character.ExitCache", 0x0f5c, {}],
+  ["Character.TransportPlayerToGatheringZone", 0x0f5d, {}],
+  ["Character.UpdateTwitchInfo", 0x0f5e, {}],
+  ["Character.UpdateSimpleProxyHealth", 0x0f5f, {}],
   ["Ability.ClientRequestStartAbility", 0x1001, {}],
   ["Ability.ClientRequestStopAbility", 0x1002, {}],
   ["Ability.ClientMoveAndCast", 0x1003, {}],
@@ -5032,25 +4826,16 @@ const packets = [
           fields: profileDataSchema,
         },
         {
-          name: "attachmentData",
+          name: "equipmentModels",
           type: "array",
           defaultValue: [{}],
-          fields: [
-            { name: "modelName", type: "string", defaultValue: "" },
-            { name: "unknownString1", type: "string", defaultValue: "" },
-            { name: "tintAlias", type: "string", defaultValue: "" },
-            { name: "unknownString2", type: "string", defaultValue: "" },
-            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-            { name: "slotId", type: "uint32", defaultValue: 0 },
-          ],
+          fields: equipmentModelSchema,
         },
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword4", type: "uint32", defaultValue: 0 },
-        { name: "unknownString1", type: "string", defaultValue: "" },
-        { name: "unknownString2", type: "string", defaultValue: "" },
+        { name: "actorModelId", type: "uint32", defaultValue: 0 },
+        { name: "tintAlias", type: "string", defaultValue: "" },
+        { name: "decalAlias", type: "string", defaultValue: "" },
       ],
     },
   ],
@@ -5192,7 +4977,7 @@ const packets = [
       fields: [],
     },
   ],
-  ["ClientUpdate.ProximateItems", 0x113100, []],
+  ["ClientUpdate.ProximateItems", 0x113100, {}],
   [
     "ClientUpdate.TextAlert",
     0x113200,
@@ -5200,8 +4985,8 @@ const packets = [
       fields: [{ name: "message", type: "string", defaultValue: "hello" }],
     },
   ],
-  ["ClientUpdate.ClearEntitlementValues", 0x113300, []],
-  ["ClientUpdate.AddEntitlementValue", 0x113400, []],
+  ["ClientUpdate.ClearEntitlementValues", 0x113300, {}],
+  ["ClientUpdate.AddEntitlementValue", 0x113400, {}],
   [
     "ClientUpdate.NetworkProximityUpdatesComplete",
     0x113500,
@@ -5209,32 +4994,32 @@ const packets = [
       fields: [{ name: "done", type: "boolean", defaultValue: false }],
     },
   ],
-  ["ClientUpdate.FileValidationRequest", 0x113600, []],
-  ["ClientUpdate.FileValidationResponse", 0x113700, []],
-  ["ClientUpdate.DeathMetrics", 0x113800, []],
-  ["ClientUpdate.ManagedObjectRequestControl", 0x113900, []],
-  ["ClientUpdate.ManagedObjectResponseControl", 0x113a00, []],
-  ["ClientUpdate.ManagedObjectReleaseControl", 0x113b00, []],
-  ["ClientUpdate.SetCurrentAdventure", 0x113c00, []],
-  ["ClientUpdate.CharacterSlot", 0x113d00, []],
-  ["ClientUpdate.CustomizationData", 0x113e00, []],
-  ["ClientUpdate.UpdateCurrency", 0x113f00, []],
-  ["ClientUpdate.AddNotifications", 0x114000, []],
-  ["ClientUpdate.RemoveNotifications", 0x114100, []],
-  ["ClientUpdate.NpcRelevance", 0x114200, []],
-  ["ClientUpdate.InitiateNameChange", 0x114300, []],
-  ["ClientUpdate.NameChangeResult", 0x114400, []],
-  ["ClientUpdate.MonitorTimeDrift", 0x114500, []],
-  ["ClientUpdate.NotifyServerOfStalledEvent", 0x114600, []],
-  ["ClientUpdate.UpdateSights", 0x114700, []],
-  ["ClientUpdate.UpdateRewardAndGrinderState", 0x114900, []],
-  ["ClientUpdate.UpdateActivityMetrics", 0x114b00, []],
-  ["ClientUpdate.StopWithError", 0x114c00, []],
-  ["ClientUpdate.SetWorldWipeTimer", 0x114d00, []],
-  ["ClientUpdate.UpdateLockoutTimes", 0x114e00, []],
-  ["ClientUpdate.ZoneStatus", 0x114f00, []],
-  ["ClientUpdate.SetDataCenter", 0x115000, []],
-  ["ClientUpdate.UpdateBattlEyeRegistration", 0x115100, []],
+  ["ClientUpdate.FileValidationRequest", 0x113600, {}],
+  ["ClientUpdate.FileValidationResponse", 0x113700, {}],
+  ["ClientUpdate.DeathMetrics", 0x113800, {}],
+  ["ClientUpdate.ManagedObjectRequestControl", 0x113900, {}],
+  ["ClientUpdate.ManagedObjectResponseControl", 0x113a00, {}],
+  ["ClientUpdate.ManagedObjectReleaseControl", 0x113b00, {}],
+  ["ClientUpdate.SetCurrentAdventure", 0x113c00, {}],
+  ["ClientUpdate.CharacterSlot", 0x113d00, {}],
+  ["ClientUpdate.CustomizationData", 0x113e00, {}],
+  ["ClientUpdate.UpdateCurrency", 0x113f00, {}],
+  ["ClientUpdate.AddNotifications", 0x114000, {}],
+  ["ClientUpdate.RemoveNotifications", 0x114100, {}],
+  ["ClientUpdate.NpcRelevance", 0x114200, {}],
+  ["ClientUpdate.InitiateNameChange", 0x114300, {}],
+  ["ClientUpdate.NameChangeResult", 0x114400, {}],
+  ["ClientUpdate.MonitorTimeDrift", 0x114500, {}],
+  ["ClientUpdate.NotifyServerOfStalledEvent", 0x114600, {}],
+  ["ClientUpdate.UpdateSights", 0x114700, {}],
+  ["ClientUpdate.UpdateRewardAndGrinderState", 0x114900, {}],
+  ["ClientUpdate.UpdateActivityMetrics", 0x114b00, {}],
+  ["ClientUpdate.StopWithError", 0x114c00, {}],
+  ["ClientUpdate.SetWorldWipeTimer", 0x114d00, {}],
+  ["ClientUpdate.UpdateLockoutTimes", 0x114e00, {}],
+  ["ClientUpdate.ZoneStatus", 0x114f00, {}],
+  ["ClientUpdate.SetDataCenter", 0x115000, {}],
+  ["ClientUpdate.UpdateBattlEyeRegistration", 0x115100, {}],
   ["MiniGame", 0x12, {}],
   ["Group", 0x13, {}],
   ["Encounter", 0x14, {}],
@@ -5385,7 +5170,7 @@ const packets = [
     {
       fields: [
         { name: "time", type: "uint64", defaultValue: "0" },
-        { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
+        { name: "cycleSpeed", type: "float", defaultValue: 0.0 },
         { name: "unknownBoolean1", type: "boolean", defaultValue: false },
       ],
     },
@@ -6252,7 +6037,7 @@ const packets = [
     {
       fields: [
         { name: "characterId", type: "uint64", defaultValue: "0" },
-        { name: "guid", type: "uint64", defaultValue: "0" },
+        { name: "vehicleGuid", type: "uint64", defaultValue: "0" },
         { name: "unknownDword1", type: "uint32", defaultValue: 0 }, // seat 0-3
         { name: "unknownDword2", type: "uint32", defaultValue: 1 }, // must be 1 or we dont get into vehicle?
         { name: "unknownDword3", type: "uint32", defaultValue: 1 }, // is driver? (you can be on seat 3 and still have control)
@@ -6275,7 +6060,7 @@ const packets = [
     {
       fields: [
         { name: "characterId", type: "uint64", defaultValue: "0" },
-        { name: "guid", type: "uint64", defaultValue: "0" },
+        { name: "vehicleGuid", type: "uint64", defaultValue: "0" },
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "unknownBoolean1", type: "boolean", defaultValue: false },
         { name: "unknownByte1", type: "uint8", defaultValue: 0 },
@@ -6287,8 +6072,29 @@ const packets = [
   ["Mount.Despawn", 0x7107, {}],
   ["Mount.SpawnByItemDefinitionId", 0x7108, {}],
   ["Mount.OfferUpsell", 0x7109, {}],
-  ["Mount.SeatChangeRequest", 0x710a, {}],
-  ["Mount.SeatChangeResponse", 0x710b, {}],
+  [
+    "Mount.SeatChangeRequest", 
+    0x710a, {
+      fields: [
+        { name: "seatId", type: "uint32", defaultValue: 0 },
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+      ]
+    }
+  ],
+  [
+    "Mount.SeatChangeResponse", 
+    0x710b, 
+    {
+      fields: [
+        { name: "characterId", type: "uint64", defaultValue: "0" },
+        { name: "vehicleGuid", type: "uint64", defaultValue: "0" },
+        { name: "identity", type: "schema", fields: identitySchema },
+        { name: "seatId", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword1", type: "uint32", defaultValue: 1 },// needs to be 1
+        { name: "unknownDword2", type: "uint32", defaultValue: 1 },// needs to be 1
+      ]
+    }
+  ],
   ["Mount.SeatSwapRequest", 0x710c, {}],
   ["Mount.SeatSwapResponse", 0x710d, {}],
   ["Mount.TypeCount", 0x710e, {}],
@@ -6414,10 +6220,11 @@ const packets = [
     "Facility.FacilityUpdate",
     0x8506,
     {
-      fn: function (data, offset) {
-        var result = {},
+      fn: function (data: Buffer, offset: number) {
+        const result: any = {},
           startOffset = offset;
-        var n, i, values, flags;
+        let n, i, values, flags;
+
         result["facilityId"] = data.readUInt32LE(offset);
         flags = data.readUInt16LE(offset + 4);
         result["flags"] = flags;
@@ -7063,7 +6870,7 @@ const packets = [
       fields: [
         { name: "guid1", type: "uint64", defaultValue: "0" },
         { name: "guid2", type: "uint64", defaultValue: "0" },
-        { name: "unknownBoolean", type: "boolean", defaultValue: false },
+        { name: "engineOn", type: "boolean", defaultValue: false },
       ],
     },
   ],
@@ -7229,15 +7036,6 @@ const packets = [
     },
   ],
   ["ProfileStats.GetZonePlayerProfileStats", 0x940100, {}],
-  ["PlayerUpdateUpdateVehicleWeapon", 0x93, {}],
-  [
-    "ProfileStats.GetPlayerProfileStats",
-    0x940000,
-    {
-      fields: [{ name: "characterId", type: "uint64", defaultValue: "0" }],
-    },
-  ],
-  ["ProfileStats.GetZonePlayerProfileStats", 0x940100, {}],
   ["ProfileStats.PlayerProfileStats", 0x940200, {}],
   ["ProfileStats.ZonePlayerProfileStats", 0x940300, {}],
   ["ProfileStats.UpdatePlayerLeaderboards", 0x940400, {}],
@@ -7296,28 +7094,9 @@ const packets = [
     0x9502,
     {
       fields: [
-        {
-          name: "characterData",
-          type: "schema",
-          fields: equipmentCharacterDataSchema,
-        },
-        {
-          name: "equipmentTexture",
-          type: "schema",
-          fields: equipmentTextureSchema,
-        },
-        /*
-                    { name: "unknownDword1", type: "uint32", defaultValue: 252 },
-                    { name: "unknownDword2", type: "uint32", defaultValue: 252 },
-                    { name: "unknownQword1", type: "uint64", defaultValue: "0x11" },
-                    { name: "unknownString1", type: "string", defaultValue: "string0" },
-                    { name: "unknownString2", type: "string", defaultValue: "string1" },
-                    */
-        {
-          name: "equipmentModel",
-          type: "schema",
-          fields: equipmentModelSchema,
-        },
+        { name: "characterData", type: "schema", fields: equipmentCharacterDataSchema },
+        { name: "equipmentTexture", type: "schema", fields: equipmentTextureSchema },
+        { name: "equipmentModel", type: "schema", fields: equipmentModelSchema },
       ],
     },
   ],
@@ -7327,11 +7106,7 @@ const packets = [
     0x9504,
     {
       fields: [
-        {
-          name: "characterData",
-          type: "schema",
-          fields: equipmentCharacterDataSchema,
-        },
+        { name: "characterData", type: "schema", fields: equipmentCharacterDataSchema },
         { name: "gameTime", type: "uint32", defaultValue: 0 },
         {
           name: "slots",
@@ -8406,5 +8181,5 @@ const packets = [
 
 const [packetTypes, packetDescriptors] = PacketTableBuild(packets);
 
-export const PacketTypes = packetTypes;
-export const Packets = packetDescriptors;
+exports.PacketTypes = packetTypes;
+exports.Packets = packetDescriptors;

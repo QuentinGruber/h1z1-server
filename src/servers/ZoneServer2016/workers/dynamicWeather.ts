@@ -1,5 +1,5 @@
-// import {_} from "../../../utils/utils";
-import { Client } from "types/zoneserver";
+// import { _ } from "../../../utils/utils";
+import { Client/*, Weather2016 */} from "types/zoneserver";
 // import { randomIntFromInterval } from "../../../utils/utils";
 import { ZoneServer2016 } from "../zoneserver";
 // const debug = require("debug")("dynamicWeather");
@@ -168,12 +168,44 @@ export default function dynamicWeather(server: ZoneServer2016) {
 */
 
   let weather = {
+    name: "",
+
+    unknownDword1: 0, // breaks the game
+    unknownDword2: 0, // breaks the game
+    skyBrightness1: 1, // breaks the game
+    skyBrightness2: 1, // breaks the game
+
     snow: 0,
-    snowMap: 0,
+    snowMap: 0, // 32 - 35 snow starts thinning, dissapears over 35
     colorGradient: 0,
-    sunAxisX: sunposx,
-    sunAxisY: sunposy,
+    unknownDword8: 0, // AOGamma? sky gets more yellow - test during night
+    unknownDword9: 0, // related to previous value - both do same/similar thing
+    unknownDword10: 0, // related to previous values - both do same/similar thing
+
+    unknownDword11: 0,
+    unknownDword12: 0,
+    sunAxisX: 0, // 0 - 360
+    sunAxisY: 0, // 0 - 360
+    unknownDword15: 0,
+    disableTrees: 0,
+    disableTrees1: 0,
+    disableTrees2: 0,
     wind: 0,
+    // below variables do nothing ig
+    unknownDword20: 0,
+    unknownDword21: 0,
+    unknownDword22: 0,
+    unknownDword23: 0,
+    unknownDword24: 0,
+    unknownDword25: 0,
+    unknownDword26: 0,
+    unknownDword27: 0,
+    unknownDword28: 0,
+    unknownDword29: 0,
+    unknownDword30: 0,
+    unknownDword31: 0,
+    unknownDword32: 0,
+    unknownDword33: 0,
   };
   console.log(weather);
   console.log(`${sunposx}, ${sunposy}`);

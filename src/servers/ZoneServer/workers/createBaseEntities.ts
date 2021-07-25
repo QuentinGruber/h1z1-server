@@ -102,7 +102,7 @@ export function createAllEntities(server: ZoneServer): any {
   };
 }
 
-function getRandomVehicleId() {
+function getRandomVehicleModelId() {
   switch (Math.floor(Math.random() * 3)) {
     case 0:
       return 7225;
@@ -115,23 +115,37 @@ function getRandomVehicleId() {
   }
 }
 
+function getVehicleId(ModelId:number) {
+  switch (ModelId) {
+    case 7225:
+      return 1;
+    case 9301:
+      return 3;
+    case 9258:
+      return 2;
+    default:
+      return 1;
+  }
+}
+
 function createAllVehicles(server: ZoneServer) {
   Z1_vehicles.forEach((vehicle: any) => {
     const characterId = generateRandomGuid();
     numberOfSpawnedEntity++;
     server._transientIds[numberOfSpawnedEntity] = characterId;
+    const modelId = getRandomVehicleModelId();
     vehicles[characterId] = {
       worldId: server._worldId,
       npcData: {
         guid: generateRandomGuid(),
         characterId: characterId,
         transientId: numberOfSpawnedEntity,
-        modelId: getRandomVehicleId(),
+        modelId: modelId,
         scale: [1, 1, 1, 1],
         position: vehicle.position,
         rotation: vehicle.rotation,
         attachedObject: {},
-        vehicleId: 1,
+        vehicleId: getVehicleId(modelId),
         color: {},
         unknownArray1: [],
         array5: [{ unknown1: 0 }],

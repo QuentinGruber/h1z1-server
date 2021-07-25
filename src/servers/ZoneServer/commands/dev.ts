@@ -6,9 +6,10 @@ const debug = require("debug")("zonepacketHandlers");
 
 const dev: any = {
   testpacket: function (server: ZoneServer, client: Client, args: any[]) {
-    server.sendData(client, "PlayerUpdate.KilledBy", {
-      characterId: client.character.characterId,
-      characterId2: client.character.characterId,
+    server.sendData(client, "PlayerUpdate.AttachObject", {objects:[{
+      targetObjectId: client.character.characterId,
+      position: client.character.state.position,
+      rotation: client.character.state.position}]
     });
   },
   testNpcMove: function (server: ZoneServer, client: Client, args: any[]) {

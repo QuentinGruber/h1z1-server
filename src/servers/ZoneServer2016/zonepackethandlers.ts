@@ -23,15 +23,16 @@ import dev from "./commands/dev";
 // import admin from "./commands/admin";
 
 import { Int64String, isPosInRadius } from "../../utils/utils";
-
+import { ZoneServer2016 } from "./zoneserver";
+import { Client } from "types/zoneserver";
 // TOOD: UPDATE THIS FOR 2016
 // const modelToName = require("../../../data/2015/sampleData/ModelToName.json");
 
-const _ = require("../../utils/utils");
+import { _ } from "../../utils/utils";
 const debug = require("debug")("zonepacketHandlers");
 
 const packetHandlers = {
-  ClientIsReady: function (server, client, packet) {
+  ClientIsReady: function (server: ZoneServer2016, client: Client, packet: any) {
     server.sendData(client, "ClientBeginZoning", { skyData: {} }); // Needed for trees
 
     server.sendData(client, "QuickChat.SendData", { commands: [] });
@@ -94,15 +95,14 @@ const packetHandlers = {
       ],
     });
 
-    server.sendData(client, "PlayerUpdate.CharacterStateDelta", {
+    server.sendData(client, "Character.CharacterStateDelta", {
       guid1: client.character.guid,
       guid2: "0x0000000000000000",
       guid3: "0x0000000040000000",
       guid4: "0x0000000000000000",
       gameTime: (server.getServerTime() & 0xffffffff) >>> 0,
     });
-    server.sendGameTimeSync(client);
-
+    
     client.character.currentLoadoutId = 3;
     /*
     server.sendData(client, "Loadout.SetCurrentLoadout", {
@@ -142,8 +142,9 @@ const packetHandlers = {
     server.sendEquipment(client);
     server.sendResources(client);
   },
-  ClientFinishedLoading: function (server, client, packet) {
+  ClientFinishedLoading: function (server: ZoneServer2016, client: Client, packet: any) {
     client.currentPOI = 0; // clears currentPOI for POIManager
+    server.sendGameTimeSync(client);
     if (client.firstLoading) {
       server.sendData(client, "POIChangeMessage", {
         // welcome POI message
@@ -168,51 +169,47 @@ const packetHandlers = {
     }
 
     client.isLoading = false;
-    client.isMounted = false;
 
     setInterval(function () {
       server.worldRoutine(client);
     }, 3000);
   },
-  Security: function (server, client, packet) {
+  Security: function (server: ZoneServer2016, client: Client, packet: any) {
     debug(packet);
   },
-  "Command.RecipeStart": function (server, client, packet) {
+  "Command.RecipeStart": function (server: ZoneServer2016, client: Client, packet: any) {
     debug(packet);
     server.sendData(client, "Command.RecipeAction", {});
   },
-  "Command.FreeInteractionNpc": function (server, client, packet) {
+  "Command.FreeInteractionNpc": function (server: ZoneServer2016, client: Client, packet: any) {
     debug("FreeInteractionNpc");
     server.sendData(client, "Command.FreeInteractionNpc", {});
   },
-  "Collision.Damage": function (server, client, packet) {
+  "Collision.Damage": function (server: ZoneServer2016, client: Client, packet: any) {
     debug("Collision.Damage");
     debug(packet);
   },
-  "LobbyGameDefinition.DefinitionsRequest": function (server, client, packet) {
+  "LobbyGameDefinition.DefinitionsRequest": function (server: ZoneServer2016, client: Client, packet: any) {
     server.sendData(client, "LobbyGameDefinition.DefinitionsResponse", {
       definitionsData: { data: "" },
     });
   },
-  "PlayerUpdate.EndCharacterAccess": function (server, client, packet) {
-    debug("EndCharacterAccess");
-  },
-  KeepAlive: function (server, client, packet) {
+  KeepAlive: function (server: ZoneServer2016, client: Client, packet: any) {
     client.lastPingTime = new Date().getTime();
     server.sendData(client, "KeepAlive", {
       gameTime: packet.data.gameTime,
     });
   },
-  ClientLog: function (server, client, packet) {
+  ClientLog: function (server: ZoneServer2016, client: Client, packet: any) {
     debug(packet);
   },
-  "WallOfData.UIEvent": function (server, client, packet) {
+  "WallOfData.UIEvent": function (server: ZoneServer2016, client: Client, packet: any) {
     debug("UIEvent");
   },
-  SetLocale: function (server, client, packet) {
+  SetLocale: function (server: ZoneServer2016, client: Client, packet: any) {
     debug("Do nothing");
   },
-  GetContinentBattleInfo: function (server, client, packet) {
+  GetContinentBattleInfo: function (server: ZoneServer2016, client: Client, packet: any) {
     server.sendData(client, "ContinentBattleInfo", {
       zones: [
         {
@@ -230,12 +227,12 @@ const packetHandlers = {
       ],
     });
   },
-  "Chat.Chat": function (server, client, packet) {
+  "Chat.Chat": function (server: ZoneServer2016, client: Client, packet: any) {
     const { channel, message } = packet.data;
     server.sendChat(client, message, channel);
   },
   /*
-  "Loadout.SelectSlot": function (server, client, packet) {
+  "Loadout.SelectSlot": function (server: ZoneServer2016, client: Client, packet: any) {
     
     if (client.character.currentLoadout) {
       const loadout = client.character.currentLoadout,
@@ -269,13 +266,13 @@ const packetHandlers = {
     
   },
   */
-  ClientInitializationDetails: function (server, client, packet) {
+  ClientInitializationDetails: function (server: ZoneServer2016, client: Client, packet: any) {
     // just in case
     if (packet.data.unknownDword1) {
       debug("ClientInitializationDetails : ", packet.data.unknownDword1);
     }
   },
-  ClientLogout: function (server, client, packet) {
+  ClientLogout: function (server: ZoneServer2016, client: Client, packet: any) {
     debug("ClientLogout");
     server.saveCharacterPosition(client);
     server.deleteEntity(client.character.characterId, server._characters);
@@ -283,10 +280,10 @@ const packetHandlers = {
     delete server._characters[client.character.characterId];
     delete server._clients[client.sessionId];
   },
-  GameTimeSync: function (server, client, packet) {
+  GameTimeSync: function (server: ZoneServer2016, client: Client, packet: any) {
     server.sendGameTimeSync(client);
   },
-  Synchronization: function (server, client, packet) {
+  Synchronization: function (server: ZoneServer2016, client: Client, packet: any) {
     const serverTime = Int64String(server.getServerTime());
     server.sendData(client, "Synchronization", {
       time1: packet.data.time1,
@@ -297,8 +294,8 @@ const packetHandlers = {
       time3: packet.data.clientTime + 2,
     });
   },
-  "Command.ExecuteCommand": async function (server, client, packet) {
-    const args = packet.data.arguments.split(" ");
+  "Command.ExecuteCommand": async function (server: ZoneServer2016, client: Client, packet: any) {
+    const args: any[] = packet.data.arguments.split(" ");
 
     switch (packet.data.commandHash) {
       case 2371122039: // /serverinfo
@@ -331,11 +328,11 @@ const packetHandlers = {
         break;
       case Jenkins.oaat("HELP"):
       case 3575372649: // /help
-        const haxCommandList = [];
+        const haxCommandList: any = [];
         Object.keys(hax).forEach((key) => {
           haxCommandList.push(`/hax ${key}`);
         });
-        const devCommandList = [];
+        const devCommandList: any = [];
         Object.keys(dev).forEach((key) => {
           devCommandList.push(`/dev ${key}`);
         });
@@ -374,7 +371,7 @@ const packetHandlers = {
     }
   },
   /*
-  "Command.SetProfile": function (server, client, packet) {
+  "Command.SetProfile": function (server: ZoneServer2016, client: Client, packet: any) {
     server.sendData(client, "Loadout.SetCurrentLoadout", {
       type: 2,
       unknown1: 0,
@@ -384,7 +381,7 @@ const packetHandlers = {
     });
   },
   */
-  "Command.InteractRequest": function (server, client, packet) {
+  "Command.InteractRequest": function (server: ZoneServer2016, client: Client, packet: any) {
     server.sendData(client, "Command.InteractionString", {
       guid: packet.data.guid,
       stringId: 5463,
@@ -411,7 +408,7 @@ const packetHandlers = {
     });
   },
   /*
-  "Command.InteractionSelect": function (server, client, packet) {
+  "Command.InteractionSelect": function (server: ZoneServer2016, client: Client, packet: any) {
     server.sendData(client, "Loadout.SetLoadouts", {
       type: 2,
       guid: packet.data.guid,
@@ -419,493 +416,38 @@ const packetHandlers = {
     });
   },
   */
-  /*
-  "Vehicle.Spawn": function (server, client, packet) {
-    server.sendData(client, "Vehicle.Expiration", {
-      expireTime: 300000,
-    });
-    const guid = server.generateGuid();
-    server.sendData(client, "Vehicle.Owner", {
-      guid: guid,
-      characterId: client.character.characterId,
-      unknownDword1: 305,
-      vehicleId: 1712,
-      passengers: [
-        {
-          passengerData: {
-            characterId: "0x0000000000000000",
-            characterData: {
-              unknownDword1: 0,
-              unknownDword2: 0,
-              unknownDword3: 0,
-              characterName: "",
-              unknownString1: "",
-            },
-            unknownDword1: 0,
-            unknownString1: "",
-          },
-          unknownByte1: 0,
-        },
-        {
-          passengerData: {
-            characterId: "0x0000000000000000",
-            characterData: {
-              unknownDword1: 0,
-              unknownDword2: 0,
-              unknownDword3: 0,
-              characterName: "",
-              unknownString1: "",
-            },
-            unknownDword1: 0,
-            unknownString1: "",
-          },
-          unknownByte1: 1,
-        },
-      ],
-    });
-    server.sendData(client, "Loadout.SetCurrentLoadout", {
-      type: 2,
-      unknown1: 1,
-      loadoutId: 10,
-      tabId: 256,
-      unknown2: 1,
-    });
-    const position = [
-      client.character.state.position[0],
-      client.character.state.position[1] + 10,
-      client.character.state.position[2],
-    ];
-    const rotation = [-1.570796012878418, 0, 0, 0];
-    server.sendData(client, "AddLightweightVehicle", {
-      guid: guid,
-      unknownUint1: 95,
-      unknownString0: "",
-      nameId: 310,
-      unknownDword2: 0,
-      unknownDword3: 0,
-      unknownByte1: 1,
-      unknownDword4: 20,
-      scale: [1, 1, 1, 1],
-      unknownString1: "",
-      unknownString2: "",
-      unknownDword5: 0,
-      unknownDword6: 0,
-      position: position,
-      unknownVector1: [0, -0.7071066498756409, 0, 0.70710688829422],
-      rotation: rotation,
-      unknownDword7: 0,
-      unknownFloat1: 3,
-      unknownString3: "",
-      unknownString4: "",
-      unknownString5: "",
-      unknownDword8: 4,
-      unknownDword9: 0,
-      unknownDword10: 305,
-      unknownByte2: 2,
-      profileId: 29,
-      unknownBoolean1: false,
-      unknownByte3: 16,
-      unknownByte4: 9,
-      unknownByte5: 0,
-      unknownByte6: 0,
-      unknownDword11: 0,
-      unknownGuid1: "0x0000000000000000",
-      unknownGuid2: "0x0000000000000000",
-      unknownDword12: 2484,
-      unknownDword13: 1528,
-      unknownDword14: 0,
-      unknownByte7: 0,
-      unknownArray1: [],
-      unknownGuid3: "0x0000000000000000",
-      unknownDword15: 0,
-      unknownDword16: 0,
-      positionUpdate: server.createPositionUpdate(position, rotation),
-      unknownString6: "",
-    });
-    server.sendData(client, "PlayerUpdate.SetFaction", {
-      guid: guid,
-      factionId: 1,
-    });
-    server.sendData(client, "Vehicle.SetAutoDrive", {
-      guid: guid,
-    });
-  },
-  "Vehicle.AutoMount": function (server, client, packet) {
-    server.sendData(client, "Mount.MountResponse", {
-      characterId: client.character.characterId,
-      guid: packet.data.guid,
-      unknownDword1: 0,
-      unknownDword2: 1,
-      unknownDword3: 1,
-      unknownDword4: 0,
-      characterData: {
-        unknownDword1: 0,
-        unknownDword2: 0,
-        unknownDword3: 0,
-        characterName: client.character.name,
-        unknownString1: "",
-      },
-      tagString: "",
-      unknownDword5: 19,
-    });
 
-    server.sendData(client, "PlayerUpdate.ManagedObject", {
-      objectCharacterId: packet.data.guid,
-      guid2: "0x0000000000000000",
-      characterId: client.character.characterId,
-    });
-
-    server.sendData(client, "Vehicle.Occupy", {
-      guid: packet.data.guid,
-      characterId: client.character.characterId,
-      vehicleId: 4,
-      unknownDword1: 0,
-      unknownArray1: [
-        {
-          unknownDword1: 0,
-          unknownBoolean1: true,
-        },
-        {
-          unknownDword1: 1,
-          unknownBoolean1: true,
-        },
-      ],
-      passengers: [
-        {
-          passengerData: {
-            characterId: client.character.characterId,
-            characterData: {
-              unknownDword1: 0,
-              unknownDword2: 0,
-              unknownDword3: 0,
-              characterName: "LocalPlayer",
-              unknownString1: "",
-            },
-            unknownDword1: 19,
-            unknownString1: "SCNC",
-          },
-          unknownByte1: 0,
-        },
-        {
-          passengerData: {
-            characterId: "0x0000000000000000",
-            characterData: {
-              unknownDword1: 0,
-              unknownDword2: 0,
-              unknownDword3: 0,
-              characterName: "",
-              unknownString1: "",
-            },
-            unknownDword1: 0,
-            unknownString1: "",
-          },
-          unknownByte1: 1,
-        },
-      ],
-      unknownArray2: [
-        {
-          unknownQword1: "0x29e5d0ef80000003",
-        },
-        {
-          unknownQword1: "0x29e5d0ef80000004",
-        },
-        {
-          unknownQword1: "0x29e5d0ef80000005",
-        },
-        {
-          unknownQword1: "0x29e5d0ef80000006",
-        },
-        {
-          unknownQword1: "0x29e5d0ef80000007",
-        },
-      ],
-      unknownData1: {
-        unknownDword1: 10,
-        unknownData1: {
-          unknownDword1: 4,
-          unknownByte1: 1,
-        },
-        unknownString1: "",
-        unknownDword2: 256,
-        unknownDword3: 76362,
-        unknownDword4: 0,
-        unknownDword5: 0,
-        unknownArray3: [
-          {
-            unknownDword1: 1,
-            unknownData1: {
-              unknownDword1: 1,
-              unknownData1: {
-                unknownDword1: 1401,
-                unknownByte1: 0,
-                unknownArray1: [],
-                unknownArray2: [],
-              },
-              unknownDword2: 0,
-              unknownDword3: 0,
-            },
-          },
-          {
-            unknownDword1: 2,
-            unknownData1: {
-              unknownDword1: 2,
-              unknownData1: {
-                unknownDword1: 3404,
-                unknownByte1: 0,
-                unknownArray1: [],
-                unknownArray2: [],
-              },
-              unknownDword2: 0,
-              unknownDword3: 0,
-            },
-          },
-          {
-            unknownDword1: 3,
-            unknownData1: {
-              unknownDword1: 3,
-              unknownData1: {
-                unknownDword1: 0,
-                unknownByte1: 0,
-                unknownArray1: [],
-                unknownArray2: [],
-              },
-              unknownDword2: 0,
-              unknownDword3: 0,
-            },
-          },
-          {
-            unknownDword1: 4,
-            unknownData1: {
-              unknownDword1: 4,
-              unknownData1: {
-                unknownDword1: 3409,
-                unknownByte1: 0,
-                unknownArray1: [],
-                unknownArray2: [],
-              },
-              unknownDword2: 0,
-              unknownDword3: 0,
-            },
-          },
-          {
-            unknownDword1: 5,
-            unknownData1: {
-              unknownDword1: 5,
-              unknownData1: {
-                unknownDword1: 0,
-                unknownByte1: 0,
-                unknownArray1: [],
-                unknownArray2: [],
-              },
-              unknownDword2: 0,
-              unknownDword3: 0,
-            },
-          },
-          {
-            unknownDword1: 6,
-            unknownData1: {
-              unknownDword1: 6,
-              unknownData1: {
-                unknownDword1: 75436,
-                unknownByte1: 0,
-                unknownArray1: [],
-                unknownArray2: [],
-              },
-              unknownDword2: 0,
-              unknownDword3: 0,
-            },
-          },
-          {
-            unknownDword1: 7,
-            unknownData1: {
-              unknownDword1: 7,
-              unknownData1: {
-                unknownDword1: 0,
-                unknownByte1: 0,
-                unknownArray1: [],
-                unknownArray2: [],
-              },
-              unknownDword2: 0,
-              unknownDword3: 0,
-            },
-          },
-          {
-            unknownDword1: 8,
-            unknownData1: {
-              unknownDword1: 8,
-              unknownData1: {
-                unknownDword1: 0,
-                unknownByte1: 0,
-                unknownArray1: [],
-                unknownArray2: [],
-              },
-              unknownDword2: 0,
-              unknownDword3: 0,
-            },
-          },
-          {
-            unknownDword1: 9,
-            unknownData1: {
-              unknownDword1: 9,
-              unknownData1: {
-                unknownDword1: 5780,
-                unknownByte1: 0,
-                unknownArray1: [],
-                unknownArray2: [],
-              },
-              unknownDword2: 0,
-              unknownDword3: 0,
-            },
-          },
-          {
-            unknownDword1: 14,
-            unknownData1: {
-              unknownDword1: 14,
-              unknownData1: {
-                unknownDword1: 1406,
-                unknownByte1: 0,
-                unknownArray1: [],
-                unknownArray2: [],
-              },
-              unknownDword2: 0,
-              unknownDword3: 0,
-            },
-          },
-          {
-            unknownDword1: 15,
-            unknownData1: {
-              unknownDword1: 15,
-              unknownData1: {
-                unknownDword1: 0,
-                unknownByte1: 0,
-                unknownArray1: [],
-                unknownArray2: [],
-              },
-              unknownDword2: 0,
-              unknownDword3: 0,
-            },
-          },
-          {
-            unknownDword1: 16,
-            unknownData1: {
-              unknownDword1: 16,
-              unknownData1: {
-                unknownDword1: 1428,
-                unknownByte1: 0,
-                unknownArray1: [],
-                unknownArray2: [],
-              },
-              unknownDword2: 0,
-              unknownDword3: 0,
-            },
-          },
-          {
-            unknownDword1: 17,
-            unknownData1: {
-              unknownDword1: 17,
-              unknownData1: {
-                unknownDword1: 0,
-                unknownByte1: 0,
-                unknownArray1: [],
-                unknownArray2: [],
-              },
-              unknownDword2: 0,
-              unknownDword3: 0,
-            },
-          },
-        ],
-      },
-      unknownBytes1: {
-        itemData: {
-          baseItem: {
-            itemId: 3400,
-            unknownDword2: 0,
-            unknownGuid1: "0x29e5d0ef80000001",
-            unknownDword3: 1,
-            unknownDword4: 0,
-            unknownDword5: 0,
-            unknownDword6: 0,
-            unknownDword7: 0,
-            unknownDword8: 0,
-            unknownByte1: 0,
-            unknownData: {
-              type: 0,
-              value: {},
-            },
-          },
-          detail: {
-            unknownBoolean1: false,
-            unknownArray1: [
-              {
-                unknownDword1: 1,
-                unknownDword2: 24,
-              },
-            ],
-            unknownArray2: [
-              {
-                unknownDword1: 300,
-                unknownArray1: [
-                  {
-                    unknownByte1: 0,
-                    unknownDword1: 0,
-                    unknownDword2: 1410,
-                    unknownDword3: 750,
-                  },
-                  {
-                    unknownByte1: 0,
-                    unknownDword1: 0,
-                    unknownDword2: 1410,
-                    unknownDword3: 750,
-                  },
-                ],
-              },
-            ],
-            unknownByte1: 30,
-            unknownByte2: 1,
-            unknownDword1: 0,
-            unknownByte3: 0,
-            unknownFloat1: 0,
-            unknownByte4: 0,
-            unknownDword2: 0,
-            unknownArray3: [],
-            unknownArray4: [],
-          },
-        },
-      },
-    });
-  },
-  */
-  "Command.InteractCancel": function (server, client, packet) {
+  "Command.InteractCancel": function (server: ZoneServer2016, client: Client, packet: any) {
     debug("Interaction Canceled");
   },
-  "Command.StartLogoutRequest": function (server, client, packet) {
-    const logoutTime = 10000;
+  "Command.StartLogoutRequest": function (server: ZoneServer2016, client: Client, packet: any) {
+    const timerTime = 10000;
     server.sendData(client, "ClientUpdate.StartTimer", {
       stringId: 0,
-      time: logoutTime,
+      time: timerTime,
     });
     client.posAtLogoutStart = client.character.state.position;
-    if (client.logoutTimer != null) {
-      clearTimeout(client.logoutTimer);
+    if (client.timer != null) {
+      clearTimeout(client.timer);
     }
-    client.logoutTimer = setTimeout(() => {
+    client.timer = setTimeout(() => {
       server.sendData(client, "ClientUpdate.CompleteLogoutProcess", {});
-    }, logoutTime);
+    }, timerTime);
   },
-  CharacterSelectSessionRequest: function (server, client, packet) {
+  CharacterSelectSessionRequest: function (server: ZoneServer2016, client: Client, packet: any) {
     server.sendData(client, "CharacterSelectSessionResponse", {
       status: 1,
       sessionId: client.loginSessionId,
     });
   },
-  "ProfileStats.GetPlayerProfileStats": function (server, client, packet) {
+  "ProfileStats.GetPlayerProfileStats": function (server: ZoneServer2016, client: Client, packet: any) {
     server.sendData(
       client,
       "ProfileStats.PlayerProfileStats",
       require("../../../data/profilestats.json")
     );
   },
-  Pickup: function (server, client, packet) {
+  Pickup: function (server: ZoneServer2016, client: Client, packet: any) {
     debug(packet);
     const { data: packetData } = packet;
     server.sendData(client, "ClientUpdate.StartTimer", {
@@ -933,7 +475,7 @@ const packetHandlers = {
     });
     */
   },
-  GetRewardBuffInfo: function (server, client, packet) {
+  GetRewardBuffInfo: function (server: ZoneServer2016, client: Client, packet: any) {
     server.sendData(client, "RewardBuffInfo", {
       unknownFloat1: 1,
       unknownFloat2: 2,
@@ -949,7 +491,7 @@ const packetHandlers = {
       unknownFloat12: 12,
     });
   },
-  PlayerUpdateUpdatePositionClientToZone: function (server, client, packet) {
+  PlayerUpdateUpdatePositionClientToZone: function (server: ZoneServer2016, client: Client, packet: any) {
     if (packet.data.position) {
       // TODO: modify array element beside re-creating it
       client.character.state.position = new Float32Array([
@@ -960,15 +502,15 @@ const packetHandlers = {
       ]);
 
       if (
-        client.logoutTimer != null &&
+        client.timer != null &&
         !isPosInRadius(
           1,
           client.character.state.position,
           client.posAtLogoutStart
         )
       ) {
-        clearTimeout(client.logoutTimer);
-        client.logoutTimer = null;
+        clearTimeout(client.timer);
+        client.timer = null;
         server.sendData(client, "ClientUpdate.StartTimer", {
           stringId: 0,
           time: 0,
@@ -1011,14 +553,14 @@ const packetHandlers = {
       ]);
     }
   },
-  "PlayerUpdate.Respawn": function (server, client, packet) {
+  "Character.Respawn": function (server: ZoneServer2016, client: Client, packet: any) {
     debug(packet);
-    server.sendData(client, "PlayerUpdate.RespawnReply", {
+    server.sendData(client, "Character.RespawnReply", {
       characterId: client.character.characterId,
       position: [0, 200, 0, 1],
     });
   },
-  "PlayerUpdate.FullCharacterDataRequest": function (server, client, packet) {
+  "Character.FullCharacterDataRequest": function (server: ZoneServer2016, client: Client, packet: any) {
     const {
       data: { guid },
     } = packet;
@@ -1051,7 +593,7 @@ const packetHandlers = {
         unknownData1: {
           transientId: server._characters[guid].transientId,
           equipmentModels: {},
-          array1: [],
+          unknownData1: {},
           effectTags: [],
         },
       });
@@ -1088,33 +630,20 @@ const packetHandlers = {
     }
   },
 
-  "Command.PlayerSelect": function (server, client, packet) {
-    if (server._vehicles[packet.data.guid]) {
-      // checking if vehicle
-      server.sendData(client, "Mount.MountResponse", {
-        // mounts character
-        characterId: client.character.characterId,
-        guid: packet.data.guid, // vehicle guid
-        identity: {},
-      });
-      server.sendData(client, "Vehicle.Engine", {
-        // starts engine
-        guid2: packet.data.guid,
-        unknownBoolean: true,
-      });
-      client.isMounted = true;
+  "Command.PlayerSelect": function (server: ZoneServer2016, client: Client, packet: any) {
+    if (server._vehicles[packet.data.guid] && !client.vehicle.mountedVehicle) {
+      server.mountVehicle(client, packet);
+    }
+    else if (server._vehicles[packet.data.guid] && client.vehicle.mountedVehicle) {// other seats
+      server.dismountVehicle(client);
     }
   },
 
-  "Mount.DismountRequest": function (server, client, packet) {
+  "Mount.DismountRequest": function (server: ZoneServer2016, client: Client, packet: any) { // only for driver seat
     debug(packet.data);
-    server.sendData(client, "Mount.DismountResponse", {
-      // dismounts character
-      characterId: client.character.characterId,
-    });
-    client.isMounted = false;
+    server.dismountVehicle(client);
   },
-  "Command.InteractionString": function (server, client, packet) {
+  "Command.InteractionString": function (server: ZoneServer2016, client: Client, packet: any) {
     const { guid } = packet.data;
     const objectData = server._objects[guid];
     const doorData = server._doors[guid];
@@ -1152,7 +681,7 @@ const packetHandlers = {
         vehicleData.npcData.position
       )
     ) {
-      if (!client.isMounted) {
+      if (!client.vehicle.mountedVehicle) {
         server.sendData(client, "Command.InteractionString", {
           guid: guid,
           stringId: 15,
@@ -1161,8 +690,12 @@ const packetHandlers = {
     }
   },
 
+  "Mount.SeatChangeRequest": function (server: ZoneServer2016, client: Client, packet: any) {
+    server.changeSeat(client, packet);
+  }
+
   /*
-  "Command.ItemDefinitionRequest": function (server, client, packet) {
+  "Command.ItemDefinitionRequest": function (server: ZoneServer2016, client: Client, packet: any) {
     console.log("ItemDefinitionRequest\n\n\n\n\n\n\n\n\n");
     console.log(packet.data);
 
