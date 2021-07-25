@@ -586,10 +586,10 @@ export class ZoneServer extends EventEmitter {
     } else {
       delete require.cache[
         require.resolve(
-          "../../../data/2015/sampleData/single_player_characters.json"
+          "../../../data/2015/dynamicData/single_player_characters.json"
         )
       ];
-      const SinglePlayerCharacters = require("../../../data/2015/sampleData/single_player_characters.json");
+      const SinglePlayerCharacters = require("../../../data/2015/dynamicData/single_player_characters.json");
       character = SinglePlayerCharacters.find(
         (character: any) =>
           character.characterId === client.character.characterId
