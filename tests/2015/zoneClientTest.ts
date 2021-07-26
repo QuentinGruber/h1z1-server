@@ -1,5 +1,5 @@
 import { ZoneServer, ZoneClient } from "../../h1z1-server";
-import { getAppDataFolderPath } from "../../src/utils/utils"
+import { getAppDataFolderPath } from "../../out/utils/utils"
 import fs from "fs";
 new ZoneServer(
   1117,
