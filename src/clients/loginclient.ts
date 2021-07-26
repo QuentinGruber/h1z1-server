@@ -104,7 +104,7 @@ export class LoginClient extends EventEmitter {
           break;
         case "CharacterCreateReply":
           if (result.status === 1) {
-            this.emit("charactercreate", null, {});
+            this.emit("charactercreate", null, {characterId:result.characterId});
           } else {
             this.emit("charactercreate", "Character create failed");
           }
@@ -202,5 +202,17 @@ export class LoginClient extends EventEmitter {
 
   requestCharacterDelete = function () {};
 
-  requestCharacterCreate = function () {};
+  requestCharacterCreate() {
+    debug("Requesting character create");
+    var data = this._protocol.pack("CharacterCreateRequest", {
+      serverId: 1,
+      unknown: 0,
+      payload: {empireId:2,headType:1,profileType:3,gender:1,characterName:"test"},
+    });
+    if (data) {
+      this._soeClient.sendAppData(data, true);
+    } else {
+      debug("Could not pack character create request data");
+    }
+  };
 }

@@ -15,13 +15,13 @@ import { EventEmitter } from "events";
 import { SOEServer } from "../SoeServer/soeserver";
 import { LoginProtocol } from "../../protocols/loginprotocol";
 import { MongoClient } from "mongodb";
-import { generateRandomGuid, initMongo } from "../../utils/utils";
+import { generateRandomGuid, getAppDataFolderPath, initMongo, _ , setupAppDataFolder } from "../../utils/utils";
 import { Client, GameServer, SoeServer } from "../../types/loginserver";
 import fs from "fs";
-import { _ } from "../../utils/utils";
 
 const debugName = "LoginServer";
 const debug = require("debug")(debugName);
+const characterItemDefinitionsDummy = require("../../../data/2015/sampleData/characterItemDefinitionsDummy.json")
 
 export class LoginServer extends EventEmitter {
   _soeServer: SoeServer;
@@ -35,7 +35,7 @@ export class LoginServer extends EventEmitter {
   _cryptoKey: Uint8Array;
   _mongoAddress: string;
   _soloMode: boolean;
-
+  _appDataFolder: string;
   constructor(serverPort: number, mongoAddress = "") {
     super();
     this._compression = 0x0100;
@@ -48,6 +48,7 @@ export class LoginServer extends EventEmitter {
     );
     this._soloMode = false;
     this._mongoAddress = mongoAddress;
+    this._appDataFolder = getAppDataFolderPath();
 
     // reminders
     if (!this._mongoAddress) {
@@ -171,15 +172,24 @@ export class LoginServer extends EventEmitter {
     clearInterval(client.serverUpdateTimer);
     // this._soeServer.deleteClient(client); this is done too early
   }
+  addDummyDataToCharacters(characters:any[]){
+
+    for (let index = 0; index < characters.length; index++) { // add required dummy data
+      const PlayerCharacter = characters[index];
+      PlayerCharacter.payload.itemDefinitions = characterItemDefinitionsDummy;
+    }
+    return characters
+  }
   async CharacterSelectInfoRequest(client: Client) {
     let CharactersInfo;
     if (this._soloMode) {
       let SinglePlayerCharacters;
       if (this._protocol.protocolName == "LoginUdp_9") {
-        SinglePlayerCharacters = require("../../../data/2015/sampleData/single_player_characters.json");
+        SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters.json`);
       } else {// LoginUdp_11
-        SinglePlayerCharacters = require("../../../data/2016/sampleData/single_player_characters.json");
+        SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters2016.json`);
       }
+      SinglePlayerCharacters = this.addDummyDataToCharacters(SinglePlayerCharacters);
       CharactersInfo = {
         status: 1,
         canBypassServerLock: true,
@@ -188,10 +198,11 @@ export class LoginServer extends EventEmitter {
     } 
     else {
       const charactersQuery = { ownerId: client.loginSessionId };
-      const characters = await this._db
+      let characters = await this._db
         .collection("characters")
         .find(charactersQuery)
         .toArray();
+      characters = this.addDummyDataToCharacters(characters);
       CharactersInfo = {
         status: 1,
         canBypassServerLock: true,
@@ -237,29 +248,29 @@ export class LoginServer extends EventEmitter {
     if (this._soloMode) {
       if (this._protocol.protocolName == "LoginUdp_9") {
         delete require.cache[
-          require.resolve("../../../data/2015/sampleData/single_player_characters.json")
+          require.resolve(`${this._appDataFolder}/single_player_characters.json`)
         ];
-        const singlePlayerCharacters: any[] = require("../../../data/2015/sampleData/single_player_characters.json");
+        const singlePlayerCharacters: any[] = require(`${this._appDataFolder}/single_player_characters.json`);
         const characterIndex = singlePlayerCharacters.findIndex(
           (character: any) => character.characterId === packet.result.characterId
         );
         singlePlayerCharacters.splice(characterIndex, 1);
         fs.writeFileSync(
-          `${__dirname}/../../../data/2015/sampleData/single_player_characters.json`,
+          `${this._appDataFolder}/single_player_characters.json`,
           JSON.stringify(singlePlayerCharacters)
         );
       }
       else { // LoginUdp_11
         delete require.cache[
-          require.resolve("../../../data/2016/sampleData/single_player_characters.json")
+          require.resolve(`${this._appDataFolder}/single_player_characters2016.json`)
         ];
-        const singlePlayerCharacters: any[] = require("../../../data/2016/sampleData/single_player_characters.json");
+        const singlePlayerCharacters: any[] = require(`${this._appDataFolder}/single_player_characters2016.json`);
         const characterIndex = singlePlayerCharacters.findIndex(
           (character: any) => character.characterId === packet.result.characterId
         );
         singlePlayerCharacters.splice(characterIndex, 1);
         fs.writeFileSync(
-          `${__dirname}/../../../data/2016/sampleData/single_player_characters.json`,
+          `${this._appDataFolder}/single_player_characters2016.json`,
           JSON.stringify(singlePlayerCharacters)
         );
       }
@@ -309,10 +320,10 @@ export class LoginServer extends EventEmitter {
     } else {
       let SinglePlayerCharacters;
       if (this._protocol.protocolName == "LoginUdp_9") {
-        SinglePlayerCharacters = require("../../../data/2015/sampleData/single_player_characters.json");
+        SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters.json`);
       }
       else { // LoginUdp_11
-        SinglePlayerCharacters = require("../../../data/2016/sampleData/single_player_characters.json");
+        SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters2016.json`);
       }
       const character = SinglePlayerCharacters.find(
         (character: any) => character.characterId === characterId
@@ -348,17 +359,17 @@ export class LoginServer extends EventEmitter {
     let SinglePlayerCharacter, SinglePlayerCharacters;
     if (this._protocol.protocolName == "LoginUdp_9") {
       try { // delete old character cache
-        delete require.cache[require.resolve("../../../data/2015/sampleData/single_player_characters.json")];
+        delete require.cache[require.resolve(`${this._appDataFolder}/single_player_characters.json`)];
       } catch (e) {}
       SinglePlayerCharacter = require("../../../data/2015/sampleData/single_player_character.json");
-      SinglePlayerCharacters = require("../../../data/2015/sampleData/single_player_characters.json");
+      SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters.json`);
     }
     else { // LoginUdp_11
       try { // delete old character cache
-        delete require.cache[require.resolve("../../../data/2016/sampleData/single_player_characters.json")];
+        delete require.cache[require.resolve(`${this._appDataFolder}/single_player_characters2016.json`)];
       } catch (e) {}
       SinglePlayerCharacter = require("../../../data/2016/sampleData/single_player_character.json");
-      SinglePlayerCharacters = require("../../../data/2016/sampleData/single_player_characters.json");
+      SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters2016.json`);
     }
     const newCharacter = _.cloneDeep(SinglePlayerCharacter);
     newCharacter.serverId = serverId;
@@ -368,13 +379,13 @@ export class LoginServer extends EventEmitter {
       SinglePlayerCharacters[SinglePlayerCharacters.length] = newCharacter;
       if (this._protocol.protocolName == "LoginUdp_9") {
         fs.writeFileSync(
-          `${__dirname}/../../../data/2015/sampleData/single_player_characters.json`,
+          `${this._appDataFolder}/single_player_characters.json`,
           JSON.stringify(SinglePlayerCharacters)
         );
       }
       else { // LoginUdp_11
         fs.writeFileSync(
-          `${__dirname}/../../../data/2016/sampleData/single_player_characters.json`,
+          `${this._appDataFolder}/single_player_characters2016.json`,
           JSON.stringify(SinglePlayerCharacters)
         );
       }
@@ -423,6 +434,9 @@ export class LoginServer extends EventEmitter {
         this._db = mongoClient.db("h1server");
     }
 
+    if(this._soloMode){ 
+      setupAppDataFolder();
+    }
     (this._soeServer as SoeServer).start(
       this._compression,
       this._crcSeed,
@@ -451,6 +465,6 @@ if (process.env.VSCODE_DEBUG === "true") {
     server._protocol = new LoginProtocol("LoginUdp_11");
     server.start();
   } else {
-    new LoginServer(1115).start();
+    new LoginServer(1115, "").start();
   }
 }

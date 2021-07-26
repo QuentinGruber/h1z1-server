@@ -14,7 +14,7 @@ import { EventEmitter } from "events";
 import { GatewayServer } from "../GatewayServer/gatewayserver";
 import { default as packetHandlers } from "./zonepackethandlers";
 import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
-import { _ } from "../../utils/utils";
+import { getAppDataFolderPath, setupAppDataFolder, _ } from "../../utils/utils";
 import {
   generateRandomGuid,
   initMongo,
@@ -23,7 +23,6 @@ import {
 } from "../../utils/utils";
 import { Client, Weather } from "../../types/zoneserver";
 import { Db, MongoClient } from "mongodb";
-import { Worker } from "worker_threads";
 import dynamicWeather from "./workers/dynamicWeather";
 
 const localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json");
@@ -73,6 +72,7 @@ export class ZoneServer extends EventEmitter {
   _props: any;
   _interactionDistance: number;
   _dummySelf: any;
+  _appDataFolder: string;
 
   constructor(
     serverPort: number,
@@ -115,6 +115,7 @@ export class ZoneServer extends EventEmitter {
     this._pingTimeoutTime = 30000;
     this._dynamicWeatherEnabled = true;
     this._dummySelf = require("../../../data/2015/sampleData/sendself.json");
+    this._appDataFolder = getAppDataFolderPath();
     this._respawnLocations = spawnLocations.map((spawn: any) => {
       return {
         guid: this.generateGuid(),
@@ -279,10 +280,9 @@ export class ZoneServer extends EventEmitter {
       await this._db?.collection("worlds").findOne({ worldId: this._worldId })
     ) {
       await this.fetchWorldData();
-      setTimeout(() => {
-        this.saveWorld();
-      }, 30000);
     } else {
+      await this._db?.collection(`worlds`)
+        .insertOne({ worldId: this._worldId });
       await this.saveWorld();
     }
     debug("Server ready");
@@ -357,15 +357,46 @@ export class ZoneServer extends EventEmitter {
 
   async fetchWorldData(): Promise<void> {
     if (!this._soloMode) {
-      const worldData:any = await this._db
-        ?.collection("worlds")
-        .findOne({ worldId: this._worldId });
-      this._doors = worldData.doors;
-      this._props = worldData.props;
-      this._vehicles = worldData.vehicles;
-      this._npcs = worldData.npcs;
-      this._objects = worldData.objects;
-      this._weather = worldData.weather;
+      this._doors  = {};
+      const doorArray:any = await this._db
+      ?.collection("doors")
+      .find({ worldId: this._worldId }).toArray();
+      for (let index = 0; index < doorArray.length; index++) {
+        const door = doorArray[index];
+        this._doors[door.characterId] = door
+      }
+      this._props  = {};
+      const propsArray:any = await this._db
+      ?.collection("props")
+      .find({ worldId: this._worldId }).toArray();
+      for (let index = 0; index < propsArray.length; index++) {
+        const prop = propsArray[index];
+        this._props[prop.characterId] = prop
+      }
+      this._vehicles  = {}
+      const vehiclesArray:any = await this._db
+      ?.collection("vehicles")
+      .find({ worldId: this._worldId }).toArray();
+      for (let index = 0; index < vehiclesArray.length; index++) {
+        const vehicle = vehiclesArray[index];
+        this._vehicles[vehicle.npcData.characterId] = vehicle
+      }
+      this._npcs  = {}
+      const npcsArray:any = await this._db
+      ?.collection("npcs")
+      .find({ worldId: this._worldId }).toArray();
+      for (let index = 0; index < npcsArray.length; index++) {
+        const npc = npcsArray[index];
+        this._npcs[npc.characterId] = npc
+      }
+      this._objects  = {}
+      const objectsArray:any = await this._db
+      ?.collection("objects")
+      .find({ worldId: this._worldId }).toArray();
+      for (let index = 0; index < objectsArray.length; index++) {
+        const object = objectsArray[index];
+        this._objects[object.characterId] = object
+      }
       this._transientIds = this.getAllCurrentUsedTransientId();
       debug("World fetched!");
     }
@@ -374,66 +405,47 @@ export class ZoneServer extends EventEmitter {
   async saveWorld(): Promise<void> {
     if (!this._soloMode) {
       if (this._worldId) {
-        if (
-          await this._db
-            ?.collection("worlds")
-            .findOne({ worldId: this._worldId })
-        ) {
-          const save = {
-            worldId: this._worldId,
-            npcs: this._npcs,
-            doors: this._doors,
-            props: this._props,
-            vehicles: this._vehicles,
-            weather: this._weather,
-            objects: this._objects,
-          };
-          const worker = new Worker(__dirname + "/workers/saveWorld.js", {
-            workerData: {
-              mongoAddress: this._mongoAddress,
-              worldId: this._worldId,
-              worldSave: JSON.stringify(save),
-            },
-          });
-          worker.on("message", debug);
-          worker.on("error", debug);
-        } else {
           this.createAllObjects();
-          const save = {
-            worldId: this._worldId,
-            npcs: this._npcs,
-            doors: this._doors,
-            props: this._props,
-            vehicles: this._vehicles,
-            weather: this._weather,
-            objects: this._objects,
-          };
-          await this._db?.collection("worlds").insertOne(save);
-        }
+          await this._db
+            ?.collection(`npcs`)
+            .insertMany(Object.values(this._npcs));
+            await this._db
+            ?.collection(`doors`)
+            .insertMany(Object.values(this._doors));
+            await this._db
+            ?.collection(`props`)
+            .insertMany(Object.values(this._props));
+            await this._db
+            ?.collection(`vehicles`)
+            .insertMany(Object.values(this._vehicles));
+            await this._db
+            ?.collection(`objects`)
+            .insertMany(Object.values(this._objects));
       } else {
         this.createAllObjects();
-        const save = {
-          worldId: this._worldId,
-          npcs: this._npcs,
-          doors: this._doors,
-          props: this._props,
-          vehicles: this._vehicles,
-          weather: this._weather,
-          objects: this._objects,
-        };
         const numberOfWorld: number =
           (await this._db?.collection("worlds").find({}).count()) || 0;
-        const newWorldId = numberOfWorld + 1;
+          this._worldId = numberOfWorld + 1;
         await this._db?.collection("worlds").insertOne({
-          ...save,
-          worldId: newWorldId,
+          worldId: this._worldId,
         });
-        this._worldId = newWorldId;
+        await this._db
+            ?.collection(`npcs`)
+            .insertMany(Object.values(this._npcs));
+            await this._db
+            ?.collection(`doors`)
+            .insertMany(Object.values(this._doors));
+            await this._db
+            ?.collection(`props`)
+            .insertMany(Object.values(this._props));
+            await this._db
+            ?.collection(`vehicles`)
+            .insertMany(Object.values(this._vehicles));
+            await this._db
+            ?.collection(`objects`)
+            .insertMany(Object.values(this._objects));
         debug("World saved!");
       }
-      setTimeout(() => {
-        this.saveWorld();
-      }, 30000);
     } else {
       this.createAllObjects();
     }
@@ -460,6 +472,9 @@ export class ZoneServer extends EventEmitter {
     await this.setupServer();
     this._startTime += Date.now();
     this._startGameTime += Date.now();
+    if(this._soloMode){ 
+      setupAppDataFolder();
+    }
     if (this._dynamicWeatherEnabled) {
       this._dynamicWeatherInterval = setInterval(
         () => dynamicWeather(this),
@@ -581,10 +596,10 @@ export class ZoneServer extends EventEmitter {
     } else {
       delete require.cache[
         require.resolve(
-          "../../../data/2015/sampleData/single_player_characters.json"
+          `${this._appDataFolder}/single_player_characters.json`
         )
       ];
-      const SinglePlayerCharacters = require("../../../data/2015/sampleData/single_player_characters.json");
+      const SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters.json`);
       character = SinglePlayerCharacters.find(
         (character: any) =>
           character.characterId === client.character.characterId
