@@ -76,7 +76,7 @@ export const randomIntFromInterval = (min: number, max: number) => {
 
 export const getAppDataFolderPath = ():string => {
   const folderName = "h1emu"
-  return `${process.env.APPDATA || (process.platform == 'darwin' ? process.env.HOME + '/Library/Preferences' : process.env.HOME + "/.local/share")}/${folderName}`
+  return `${process.env.APPDATA || process.env.HOME}/${folderName}`
 };
 
 export const setupAppDataFolder = ():void => {
