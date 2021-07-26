@@ -114,6 +114,68 @@ export class ZoneServer2016 extends ZoneServer {
     this._gatewayServer.start();
   }
 
+  setupCharacter(client: Client, characterId: string) {
+    let generatedTransient;
+    do {
+      generatedTransient = Number((Math.random() * 30000).toFixed(0));
+    } while (this._transientIds[generatedTransient]);
+    client.character = {
+      characterId: characterId,
+      transientId: generatedTransient,
+      isRunning: false,
+      equipment: [
+        {
+          modelName: "SurvivorMale_Head_01.adr",
+          slotId: 1,
+        },
+        {
+          modelName: "SurvivorMale_Chest_Jacket_Farmer.adr",
+          slotId: 3,
+        },
+        {
+          modelName: "SurvivorMale_Legs_Pants_Underwear.adr",
+          slotId: 4,
+        },
+        {
+          modelName: "SurvivorMale_Eyes_01.adr",
+          slotId: 105,
+        },
+        { modelName: "Weapon_Empty.adr", slotId: 2 }, // yeah that's an hack TODO find a better way
+        { modelName: "Weapon_Empty.adr", slotId: 7 },
+        {
+          modelName: "SurvivorMale_Hair_ShortMessy.adr",
+          slotId: 27,
+        },
+        {
+          modelName: "SurvivorMale_Chest_Shirt_TintTshirt.adr",
+          defaultTextureAlias: "Wear.Chest.Shirt.TintTshirt.67",
+          slotId: 3,
+        },
+        {
+          modelName: "SurvivorMale_Legs_Pants_SkinnyLeg.adr",
+          defaultTextureAlias: "Wear.Legs.Pants.SkinnyLeg.Anarchy",
+          slotId: 4,
+        }
+      ],
+      resources: {
+        health: 5000,
+        stamina: 600,
+        food: 5000,
+        water: 5000,
+        virus: 6000,
+      },
+      state: {
+        position: new Float32Array([0, 0, 0, 0]),
+        rotation: new Float32Array([0, 0, 0, 0]),
+        lookAt: new Float32Array([0, 0, 0, 0]),
+        health: 0,
+        shield: 0,
+      },
+    };
+    this._transientIds[generatedTransient] = characterId;
+    this._characters[characterId] = client.character;
+  }
+
   sendInitData(client: Client): void {
     this.sendData(client, "InitializationParameters", {
       environment: "LIVE",
@@ -146,81 +208,6 @@ export class ZoneServer2016 extends ZoneServer {
       characterId: client.character.characterId,
       battleRank: 100,
     });
-    /*
-    this.sendData(client, "ClientUpdate.ActivateProfile", {
-      profileData: {
-        profileId: 1,
-        nameId: 12,
-        descriptionId: 13,
-        type: 3,
-        unknownDword1: 0,
-        abilityBgImageSet: 4,
-        badgeImageSet: 5,
-        buttonImageSet: 6,
-        unknownByte1: 0,
-        unknownByte2: 0,
-        unknownDword4: 0,
-        unknownArray1: [],
-        unknownDword5: 0,
-        unknownDword6: 0,
-        unknownByte3: 1,
-        unknownDword7: 0,
-        unknownDword8: 0,
-        unknownDword9: 0,
-        unknownDword10: 0,
-        unknownDword11: 0,
-        unknownDword12: 0,
-        unknownDword13: 0,
-        unknownDword14: 0,
-        unknownDword15: 0,
-        unknownDword16: 0
-      },
-      equipmentModels: [
-        {
-          model: "SurvivorMale_Head_01.adr",
-          unknownDword1: 0,
-          unknownDword2: 0,
-          effectId: 0,
-          equipmentSlotId: 1,
-          unknownDword4: 0,
-          unknownArray1: [],
-        },
-        {
-          model: "SurvivorMale_Chest_Jacket_Farmer.adr",
-          unknownDword1: 0,
-          unknownDword2: 0,
-          effectId: 0,
-          equipmentSlotId: 3,
-          unknownDword4: 0,
-          unknownArray1: [],
-        },
-        {
-          model: "SurvivorMale_Legs_Pants_Underwear.adr",
-          unknownDword1: 0,
-          unknownDword2: 0,
-          effectId: 0,
-          equipmentSlotId: 4,
-          unknownDword4: 0,
-          unknownArray1: [],
-        },
-        {
-          model: "SurvivorMale_Eyes_01.adr",
-          unknownDword1: 0,
-          unknownDword2: 0,
-          effectId: 0,
-          equipmentSlotId: 105,
-          unknownDword4: 0,
-          unknownArray1: [],
-        },
-      ],
-      unknownDword1: 1,
-      unknownDword2: 1,
-      actorModelId: 9240,
-      //unknownDword4: 0,
-      tintAlias: "",
-      decalAlias: "#"
-    });
-    */
   }
 
   POIManager(client: Client) {
@@ -303,24 +290,57 @@ export class ZoneServer2016 extends ZoneServer {
   }
 
   sendEquipment(client: Client): void {
-    this.sendData(client, "Equipment.SetCharacterEquipmentSlot", {
+    /*
+    const equipmentTextures: any[] = [];
+    const equipmentModels: any[] = [];
+    client.character.equipment.forEach(equipment => {
+      equipmentTextures.push(
+        {
+          index: 1, // needs to be non-zero
+          slotId: 1, // needs to be non-zero
+          unknownQword1: "0x1", // needs to be non-zero
+          textureAlias: "",
+          unknownString1: "",
+        }
+      )
+      equipmentModels.push(
+        {
+          model: equipment.modelName,
+          unknownString2: equipment.defaultTextureAlias || "",
+          unknownString3: equipment.defaultTextureAlias || "",
+          unknownString4: equipment.defaultTextureAlias || "",
+          effectId: 0,
+          equipmentSlotId: equipment.slotId,
+          unknownArray1: [],
+        }
+      )
+    });
+    this.sendData(client, "Equipment.SetCharacterEquipmentSlots", {
       characterData: {
         characterId: client.character.characterId,
       },
-      equipmentTexture: {
-        index: 1, // needs to be non-zero
-        slotId: 1, // needs to be non-zero
-        unknownQword1: "0x1", // needs to be non-zero
-        textureAlias: "",
-        unknownString1: "",
-      },
-      equipmentModel: {
-        model: "SurvivorMale_Hair_ShortMessy.adr",
-        effectId: 0,
-        equipmentSlotId: 27,
-        unknownArray1: [],
-      },
+      slots: [],
+      equipmentTextures: equipmentTextures,
+      equipmentModels: equipmentModels,
     });
+    */
+  }
+
+  getEquipment(client: Client): any {
+    const equipmentModels: any[] = [];
+    client.character.equipment.forEach(equipment => {
+      equipmentModels.push(
+        {
+          model: equipment.modelName,
+          unknownString2: equipment.defaultTextureAlias || "#",
+          //unknownString3: equipment.defaultTextureAlias || "#",
+          //unknownString4: equipment.defaultTextureAlias || "#",
+          equipmentSlotId: equipment.slotId,
+          unknownArray1: [],
+        }
+      )
+    });
+    return equipmentModels;
   }
 
   sendResources(client: Client): void {
@@ -336,7 +356,7 @@ export class ZoneServer2016 extends ZoneServer {
                 resourceId: 1,
                 resourceType: 1,
                 unknownArray1: [],
-                value: 5000, // 10000 max
+                value: client.character.resources.health, // 10000 max
               },
             },
             {
@@ -345,7 +365,7 @@ export class ZoneServer2016 extends ZoneServer {
                 resourceId: 6,
                 resourceType: 6,
                 unknownArray1: [],
-                value: 600, // 600 max
+                value: client.character.resources.stamina, // 600 max
               },
             },
             {
@@ -354,7 +374,7 @@ export class ZoneServer2016 extends ZoneServer {
                 resourceId: 4,
                 resourceType: 4,
                 unknownArray1: [],
-                value: 5000, // 10000 max
+                value: client.character.resources.food, // 10000 max
               },
             },
             {
@@ -363,7 +383,7 @@ export class ZoneServer2016 extends ZoneServer {
                 resourceId: 5,
                 resourceType: 5,
                 unknownArray1: [],
-                value: 5000, // 10000 max
+                value: client.character.resources.water, // 10000 max
               },
             },
             {
@@ -381,7 +401,7 @@ export class ZoneServer2016 extends ZoneServer {
                 resourceId: 12,
                 resourceType: 12,
                 unknownArray1: [],
-                value: 10000, // 10000 max
+                value: client.character.resources.virus, // 10000 max
               },
             },
           ],

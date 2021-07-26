@@ -1569,9 +1569,9 @@ const loadoutDataSubSchema2 = [
 
 const equipmentModelSchema = [
   { name: "model", type: "string", defaultValue: "" },
-  { name: "unknownString2", type: "string", defaultValue: "string3" },
-  { name: "unknownString3", type: "string", defaultValue: "string4" },
-  { name: "unknownString4", type: "string", defaultValue: "string5" },
+  { name: "unknownString2", type: "string", defaultValue: "#" },
+  { name: "unknownString3", type: "string", defaultValue: "" },
+  { name: "unknownString4", type: "string", defaultValue: "#" },
   { name: "unknownDword1", type: "uint32", defaultValue: 0 },
   { name: "unknownDword2", type: "uint32", defaultValue: 0 },
   { name: "effectId", type: "uint32", defaultValue: 0 },

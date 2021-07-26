@@ -37,6 +37,44 @@ const packetHandlers = {
 
     server.sendData(client, "QuickChat.SendData", { commands: [] });
 
+    
+    server.sendData(client, "ClientUpdate.ActivateProfile", {
+      profileData: {
+        profileId: 1,
+        nameId: 12,
+        descriptionId: 13,
+        type: 3,
+        unknownDword1: 0,
+        abilityBgImageSet: 4,
+        badgeImageSet: 5,
+        buttonImageSet: 6,
+        unknownByte1: 0,
+        unknownByte2: 0,
+        unknownDword4: 0,
+        unknownArray1: [],
+        unknownDword5: 0,
+        unknownDword6: 0,
+        unknownByte3: 1,
+        unknownDword7: 0,
+        unknownDword8: 0,
+        unknownDword9: 0,
+        unknownDword10: 0,
+        unknownDword11: 0,
+        unknownDword12: 0,
+        unknownDword13: 0,
+        unknownDword14: 0,
+        unknownDword15: 0,
+        unknownDword16: 0
+      },
+      equipmentModels: server.getEquipment(client),
+      unknownDword1: 1,
+      unknownDword2: 1,
+      actorModelId: 9240,
+      tintAlias: "",
+      decalAlias: "#"
+    });
+    
+
     server.sendData(client, "ClientUpdate.DoneSendingPreloadCharacters", {
       done: true,
     }); // Required for WaitForWorldReady
