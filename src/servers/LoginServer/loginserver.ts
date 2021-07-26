@@ -187,7 +187,7 @@ export class LoginServer extends EventEmitter {
       if (this._protocol.protocolName == "LoginUdp_9") {
         SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters.json`);
       } else {// LoginUdp_11
-        SinglePlayerCharacters = require("../../../data/2016/sampleData/single_player_characters.json");
+        SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters2016.json`);
       }
       SinglePlayerCharacters = this.addDummyDataToCharacters(SinglePlayerCharacters);
       CharactersInfo = {
@@ -262,15 +262,15 @@ export class LoginServer extends EventEmitter {
       }
       else { // LoginUdp_11
         delete require.cache[
-          require.resolve("../../../data/2016/sampleData/single_player_characters.json")
+          require.resolve(`${this._appDataFolder}/single_player_characters2016.json`)
         ];
-        const singlePlayerCharacters: any[] = require("../../../data/2016/sampleData/single_player_characters.json");
+        const singlePlayerCharacters: any[] = require(`${this._appDataFolder}/single_player_characters2016.json`);
         const characterIndex = singlePlayerCharacters.findIndex(
           (character: any) => character.characterId === packet.result.characterId
         );
         singlePlayerCharacters.splice(characterIndex, 1);
         fs.writeFileSync(
-          `${__dirname}/../../../data/2016/sampleData/single_player_characters.json`,
+          `${this._appDataFolder}/single_player_characters2016.json`,
           JSON.stringify(singlePlayerCharacters)
         );
       }
@@ -323,7 +323,7 @@ export class LoginServer extends EventEmitter {
         SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters.json`);
       }
       else { // LoginUdp_11
-        SinglePlayerCharacters = require("../../../data/2016/sampleData/single_player_characters.json");
+        SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters2016.json`);
       }
       const character = SinglePlayerCharacters.find(
         (character: any) => character.characterId === characterId
@@ -366,10 +366,10 @@ export class LoginServer extends EventEmitter {
     }
     else { // LoginUdp_11
       try { // delete old character cache
-        delete require.cache[require.resolve("../../../data/2016/sampleData/single_player_characters.json")];
+        delete require.cache[require.resolve(`${this._appDataFolder}/single_player_characters2016.json`)];
       } catch (e) {}
       SinglePlayerCharacter = require("../../../data/2016/sampleData/single_player_character.json");
-      SinglePlayerCharacters = require("../../../data/2016/sampleData/single_player_characters.json");
+      SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters2016.json`);
     }
     const newCharacter = _.cloneDeep(SinglePlayerCharacter);
     newCharacter.serverId = serverId;
@@ -385,7 +385,7 @@ export class LoginServer extends EventEmitter {
       }
       else { // LoginUdp_11
         fs.writeFileSync(
-          `${__dirname}/../../../data/2016/sampleData/single_player_characters.json`,
+          `${this._appDataFolder}/single_player_characters2016.json`,
           JSON.stringify(SinglePlayerCharacters)
         );
       }

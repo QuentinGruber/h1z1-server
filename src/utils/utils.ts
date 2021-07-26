@@ -92,6 +92,9 @@ export const setupAppDataFolder = ():void => {
   if(!fs.existsSync(`${AppDataFolderPath}/single_player_characters.json`)){
     fs.writeFileSync(`${AppDataFolderPath}/single_player_characters.json`,JSON.stringify([]));
   }
+  if(!fs.existsSync(`${AppDataFolderPath}/single_player_characters2016.json`)){
+    fs.writeFileSync(`${AppDataFolderPath}/single_player_characters2016.json`,JSON.stringify([]));
+  }
 };
 
 
