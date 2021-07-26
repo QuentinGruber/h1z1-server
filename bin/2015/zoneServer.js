@@ -1,4 +1,3 @@
-process.env.isBin = "true"
 const { ZoneServer } = require("../../h1z1-server");
 
 const Zone = new ZoneServer(

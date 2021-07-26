@@ -18,7 +18,6 @@ import { Client } from "../../types/soeserver";
 import { Worker } from 'worker_threads';
 
 const debug = require("debug")("SOEServer");
-process.env.isBin && require("./udpServerWorker")
 
 export class SOEServer extends EventEmitter {
   _protocolName: string;
