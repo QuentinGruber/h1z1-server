@@ -583,7 +583,7 @@ export class ZoneServer extends EventEmitter {
         ?.collection("characters")
         .findOne({ characterId: client.character.characterId });
       characterName = character.payload.name;
-    } else if(!process.env.isBin) {
+    } else {
       delete require.cache[
         require.resolve(
           "../../../data/2015/dynamicData/single_player_characters.json"
@@ -595,10 +595,6 @@ export class ZoneServer extends EventEmitter {
           character.characterId === client.character.characterId
       );
       characterName = character.payload.name;
-    }
-    else{
-      character = {characterId:"0x03147cca2a860191"}
-      characterName = "LocalPlayer";
     }
 
     this._dummySelf.data.identity.characterFirstName = characterName;
