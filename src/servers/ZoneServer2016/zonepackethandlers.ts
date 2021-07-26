@@ -66,7 +66,7 @@ const packetHandlers = {
         unknownDword15: 0,
         unknownDword16: 0
       },
-      equipmentModels: server.getEquipment(client),
+      equipmentModels: client.character.equipment,
       unknownDword1: 1,
       unknownDword2: 1,
       actorModelId: 9240,
@@ -177,7 +177,6 @@ const packetHandlers = {
     });
     */
 
-    server.sendEquipment(client);
     server.sendResources(client);
   },
   ClientFinishedLoading: function (server: ZoneServer2016, client: Client, packet: any) {
@@ -609,10 +608,9 @@ const packetHandlers = {
         transientId: npc.transientId,
         equipmentModels: [
           {
-            model: "SurvivorMale_Chest_Hoodie_Up_Tintable.adr",
+            modelName: "SurvivorMale_Chest_Hoodie_Up_Tintable.adr",
             effectId: 0,
-            equipmentSlotId: 3,
-            unknownArray1: [],
+            slotId: 3,
           },
         ],
         effectTags: [],
@@ -630,7 +628,7 @@ const packetHandlers = {
         array1: [],
         unknownData1: {
           transientId: server._characters[guid].transientId,
-          equipmentModels: {},
+          equipmentModels: [],
           unknownData1: {},
           effectTags: [],
         },

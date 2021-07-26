@@ -129,10 +129,6 @@ export class ZoneServer2016 extends ZoneServer {
           slotId: 1,
         },
         {
-          modelName: "SurvivorMale_Chest_Jacket_Farmer.adr",
-          slotId: 3,
-        },
-        {
           modelName: "SurvivorMale_Legs_Pants_Underwear.adr",
           slotId: 4,
         },
@@ -140,7 +136,7 @@ export class ZoneServer2016 extends ZoneServer {
           modelName: "SurvivorMale_Eyes_01.adr",
           slotId: 105,
         },
-        { modelName: "Weapon_Empty.adr", slotId: 2 }, // yeah that's an hack TODO find a better way
+        { modelName: "Weapon_Empty.adr", slotId: 2 },
         { modelName: "Weapon_Empty.adr", slotId: 7 },
         {
           modelName: "SurvivorMale_Hair_ShortMessy.adr",
@@ -287,60 +283,6 @@ export class ZoneServer2016 extends ZoneServer {
     this._frozeCycle = false;
     this._gameTime = Date.now();
     this.sendSyncToAll();
-  }
-
-  sendEquipment(client: Client): void {
-    /*
-    const equipmentTextures: any[] = [];
-    const equipmentModels: any[] = [];
-    client.character.equipment.forEach(equipment => {
-      equipmentTextures.push(
-        {
-          index: 1, // needs to be non-zero
-          slotId: 1, // needs to be non-zero
-          unknownQword1: "0x1", // needs to be non-zero
-          textureAlias: "",
-          unknownString1: "",
-        }
-      )
-      equipmentModels.push(
-        {
-          model: equipment.modelName,
-          unknownString2: equipment.defaultTextureAlias || "",
-          unknownString3: equipment.defaultTextureAlias || "",
-          unknownString4: equipment.defaultTextureAlias || "",
-          effectId: 0,
-          equipmentSlotId: equipment.slotId,
-          unknownArray1: [],
-        }
-      )
-    });
-    this.sendData(client, "Equipment.SetCharacterEquipmentSlots", {
-      characterData: {
-        characterId: client.character.characterId,
-      },
-      slots: [],
-      equipmentTextures: equipmentTextures,
-      equipmentModels: equipmentModels,
-    });
-    */
-  }
-
-  getEquipment(client: Client): any {
-    const equipmentModels: any[] = [];
-    client.character.equipment.forEach(equipment => {
-      equipmentModels.push(
-        {
-          model: equipment.modelName,
-          unknownString2: equipment.defaultTextureAlias || "#",
-          //unknownString3: equipment.defaultTextureAlias || "#",
-          //unknownString4: equipment.defaultTextureAlias || "#",
-          equipmentSlotId: equipment.slotId,
-          unknownArray1: [],
-        }
-      )
-    });
-    return equipmentModels;
   }
 
   sendResources(client: Client): void {

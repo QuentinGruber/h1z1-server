@@ -179,11 +179,11 @@ const dev: any = {
         unknownString1: ""
       },
       equipmentModel: {
-        model: "SurvivorMale_Chest_Hoodie_Up_Tintable.adr",
+        modelName: "SurvivorMale_Chest_Hoodie_Up_Tintable.adr",
         unknownDword1: Number(args[1]),
         unknownDword2: Number(args[2]), // 1, 2, 4
         effectId: Number(args[3]), // 0 - 16
-        equipmentSlotId: Number(args[4]), // backpack: 10
+        slotId: Number(args[4]), // backpack: 10
         unknownDword4: Number(args[5]),
         unknownArray1: []
       }
@@ -214,11 +214,11 @@ const dev: any = {
       ],
       equipmentModels: [
         {
-          model: "SurvivorMale_Chest_Hoodie_Up_Tintable.adr",
+          modelName: "SurvivorMale_Chest_Hoodie_Up_Tintable.adr",
           unknownDword1: 1,
           unknownDword2: 1, // 1, 2, 4
           effectId: 6, // 0 - 16
-          equipmentSlotId: 3,
+          slotId: 3,
           unknownDword4: 0,
           unknownArray1: [],
         },
@@ -480,47 +480,47 @@ const dev: any = {
       },
       equipmentModels: [
         {
-          model: "SurvivorMale_Head_01.adr",
+          modelName: "SurvivorMale_Head_01.adr",
           unknownDword1: 0,
           unknownDword2: 0,
           effectId: 0,
-          equipmentSlotId: 1,
+          slotId: 1,
           unknownDword4: 0,
           unknownArray1: [],
         },
         {
-          model: "SurvivorMale_Chest_Jacket_Farmer.adr",
+          modelName: "SurvivorMale_Chest_Jacket_Farmer.adr",
           unknownDword1: 0,
           unknownDword2: 0,
           effectId: 0,
-          equipmentSlotId: 3,
+          slotId: 3,
           unknownDword4: 0,
           unknownArray1: [],
         },
         {
-          model: "SurvivorMale_Legs_Pants_Underwear.adr",
+          modelName: "SurvivorMale_Legs_Pants_Underwear.adr",
           unknownDword1: 0,
           unknownDword2: 0,
           effectId: 0,
-          equipmentSlotId: 4,
+          slotId: 4,
           unknownDword4: 0,
           unknownArray1: [],
         },
         {
-          model: "SurvivorMale_Eyes_01.adr",
+          modelName: "SurvivorMale_Eyes_01.adr",
           unknownDword1: 0,
           unknownDword2: 0,
           effectId: 0,
-          equipmentSlotId: 105,
+          slotId: 105,
           unknownDword4: 0,
           unknownArray1: [],
         },
         {
-          model: "Weapons_PumpShotgun01.adr",
+          modelName: "Weapons_PumpShotgun01.adr",
           unknownDword1: 0,
           unknownDword2: 0,
           effectId: 0,
-          equipmentSlotId: 14,
+          slotId: 14,
           unknownDword4: 0,
           unknownArray1: [],
         },
