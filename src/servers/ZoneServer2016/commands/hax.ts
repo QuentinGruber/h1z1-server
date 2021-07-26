@@ -630,7 +630,7 @@ const hax: any = {
         model = "Weapons_M9Auto_3P.adr";
         break;
       case "1911":
-        model = "Weapon_Colt1911.adr"/*"Weapon_Pistol_45Auto_3P.adr"*/;
+        model = "Weapon_Pistol_45Auto_3P.adr";
         break;
       case "308":
         model = "Weapon_M24_3P.adr";
