@@ -1,7 +1,7 @@
 const restore = require("mongodb-restore-dump");
 import { generate_random_guid } from "h1emu-core";
 import v8 from "v8";
-
+import fs from "fs";
 export class customLodash {
   constructor() {}
   cloneDeep(value: any) {
@@ -73,6 +73,28 @@ export const randomIntFromInterval = (min: number, max: number) => {
   // min and max included
   return Math.floor(Math.random() * (max - min + 1) + min);
 };
+
+export const getAppDataFolderPath = ():string => {
+  const folderName = "h1emu"
+  if(process.env.APPDATA){
+    return `${process.env.APPDATA}/${folderName}`
+  }
+  else{
+    return `${process.env.HOME}/${folderName}`
+  }
+};
+
+export const setupAppDataFolder = ():void => {
+  const AppDataFolderPath = getAppDataFolderPath();
+  if(!fs.existsSync(AppDataFolderPath)){
+    fs.mkdirSync(AppDataFolderPath);
+  }
+  if(!fs.existsSync(`${AppDataFolderPath}/single_player_characters.json`)){
+    fs.writeFileSync(`${AppDataFolderPath}/single_player_characters.json`,JSON.stringify([]));
+  }
+};
+
+
 
 const isBetween = (radius: number, value1: number, value2: number): boolean => {
   return value1 <= value2 + radius && value1 >= value2 - radius;

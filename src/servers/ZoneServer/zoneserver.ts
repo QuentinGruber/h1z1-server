@@ -14,7 +14,7 @@ import { EventEmitter } from "events";
 import { GatewayServer } from "../GatewayServer/gatewayserver";
 import { default as packetHandlers } from "./zonepackethandlers";
 import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
-import { _ } from "../../utils/utils";
+import { getAppDataFolderPath, setupAppDataFolder, _ } from "../../utils/utils";
 import {
   generateRandomGuid,
   initMongo,
@@ -72,6 +72,7 @@ export class ZoneServer extends EventEmitter {
   _props: any;
   _interactionDistance: number;
   _dummySelf: any;
+  _appDataFolder: string;
 
   constructor(
     serverPort: number,
@@ -114,6 +115,7 @@ export class ZoneServer extends EventEmitter {
     this._pingTimeoutTime = 30000;
     this._dynamicWeatherEnabled = true;
     this._dummySelf = require("../../../data/2015/sampleData/sendself.json");
+    this._appDataFolder = getAppDataFolderPath();
     this._respawnLocations = spawnLocations.map((spawn: any) => {
       return {
         guid: this.generateGuid(),
@@ -470,6 +472,9 @@ export class ZoneServer extends EventEmitter {
     await this.setupServer();
     this._startTime += Date.now();
     this._startGameTime += Date.now();
+    if(this._soloMode){ 
+      setupAppDataFolder();
+    }
     if (this._dynamicWeatherEnabled) {
       this._dynamicWeatherInterval = setInterval(
         () => dynamicWeather(this),
@@ -591,10 +596,10 @@ export class ZoneServer extends EventEmitter {
     } else {
       delete require.cache[
         require.resolve(
-          "../../../data/2015/dynamicData/single_player_characters.json"
+          `${this._appDataFolder}/single_player_characters.json`
         )
       ];
-      const SinglePlayerCharacters = require("../../../data/2015/dynamicData/single_player_characters.json");
+      const SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters.json`);
       character = SinglePlayerCharacters.find(
         (character: any) =>
           character.characterId === client.character.characterId
