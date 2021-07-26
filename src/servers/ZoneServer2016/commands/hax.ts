@@ -591,10 +591,9 @@ const hax: any = {
         unknownString1: "",
       },
       equipmentModel: {
-        model: model,
+        modelName: model,
         effectId: Number(effect), // 0 - 16
-        equipmentSlotId: slot,
-        unknownArray1: [],
+        slotId: slot,
       },
     };
     server.sendChatText(client, `Setting character equipment slot: ${args[1]}`);
@@ -631,7 +630,7 @@ const hax: any = {
         model = "Weapons_M9Auto_3P.adr";
         break;
       case "1911":
-        model = "Weapon_Colt1911.adr"/*"Weapon_Pistol_45Auto_3P.adr"*/;
+        model = "Weapon_Pistol_45Auto_3P.adr";
         break;
       case "308":
         model = "Weapon_M24_3P.adr";
@@ -667,10 +666,9 @@ const hax: any = {
         unknownString1: "",
       },
       equipmentModel: {
-        model: model,
+        modelName: model,
         effectId: Number(effect), // 0 - 16
-        equipmentSlotId: 7,
-        unknownArray1: [],
+        slotId: 7,
       },
     };
     server.sendChatText(client, `Setting weapon: ${args[1]}`);
