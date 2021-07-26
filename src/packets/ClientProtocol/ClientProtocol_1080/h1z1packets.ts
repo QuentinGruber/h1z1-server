@@ -1568,19 +1568,19 @@ const loadoutDataSubSchema2 = [
 */
 
 const equipmentModelSchema = [
-  { name: "model", type: "string", defaultValue: "" },
-  { name: "unknownString2", type: "string", defaultValue: "string3" },
-  { name: "unknownString3", type: "string", defaultValue: "string4" },
-  { name: "unknownString4", type: "string", defaultValue: "string5" },
+  { name: "modelName", type: "string", defaultValue: "" },
+  { name: "defaultTextureAlias", type: "string", defaultValue: "#" },
+  { name: "unknownString3", type: "string", defaultValue: "" },
+  { name: "unknownString4", type: "string", defaultValue: "#" },
   { name: "unknownDword1", type: "uint32", defaultValue: 0 },
   { name: "unknownDword2", type: "uint32", defaultValue: 0 },
   { name: "effectId", type: "uint32", defaultValue: 0 },
-  { name: "equipmentSlotId", type: "uint32", defaultValue: 0 },
+  { name: "slotId", type: "uint32", defaultValue: 0 },
   { name: "unknownDword4", type: "uint32", defaultValue: 0 },
   {
     name: "unknownArray1",
     type: "array",
-    defaultValue: [{}],
+    defaultValue: [],
     fields: [{ name: "unknownDword1", type: "uint32", defaultValue: 252 }],
   },
   { name: "unknownBool1", type: "boolean", defaultValue: false },
