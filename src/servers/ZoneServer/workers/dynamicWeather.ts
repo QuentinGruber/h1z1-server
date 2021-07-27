@@ -162,7 +162,7 @@ function chooseWeather() {
           sunPositionZ = 60;
           break;
         case "spring":
-          temperature = 0;
+          temperature = 80;
           rainCloudsMin = 30;
           windStrength = randomIntFromInterval(10, 35);
           sunPositionX = 20;
