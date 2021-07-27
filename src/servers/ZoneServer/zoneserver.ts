@@ -1232,7 +1232,6 @@ export class ZoneServer extends EventEmitter {
   getServerTimeTest(): number {
     debug("get server time");
     const delta = Date.now() - this._startTime;
-    const datakur = new Date((this._serverTime + delta) * this._timeMultiplier);
     return Number(
       (((this._serverTime + delta) * this._timeMultiplier) / 1000).toFixed(0)
     );
