@@ -1,7 +1,6 @@
 import { _ } from "../../../utils/utils";
-import { Client } from "types/zoneserver";
 import { randomIntFromInterval } from "../../../utils/utils";
-import { ZoneServer } from "../zoneserver";
+import { parentPort, workerData } from "worker_threads";
 const debug = require("debug")("dynamicWeather");
 
 let weatherChoosen = false;
@@ -195,10 +194,10 @@ function chooseWeather() {
   weatherChoosen = true;
 }
 
-export default function dynamicWeather(serverContext: ZoneServer) {
-  const delta = Date.now() - serverContext._startTime;
+export default function dynamicWeather(serverTime:number,startTime:number,timeMultiplier:number) {
+  const delta = Date.now() - startTime;
   const currentDate = new Date(
-    (serverContext._serverTime + delta) * serverContext._timeMultiplier
+    (serverTime + delta) * timeMultiplier
   );
   const currentHour = currentDate.getHours();
   const currentMonth = currentDate.getMonth();
@@ -270,15 +269,15 @@ export default function dynamicWeather(serverContext: ZoneServer) {
         if (rainchance <= rainchanceReq) {
           rainIncoming = true;
           const rainDelay = randomIntFromInterval(
-            18720072 / serverContext._timeMultiplier,
-            86400000 / serverContext._timeMultiplier
+            18720072 / timeMultiplier,
+            86400000 / timeMultiplier
           );
           const rainTime = randomIntFromInterval(
-            14200000 / serverContext._timeMultiplier,
-            41600000 / serverContext._timeMultiplier
+            14200000 / timeMultiplier,
+            41600000 / timeMultiplier
           );
           const accumulateCloudsDelay =
-            rainDelay - 18720000 / serverContext._timeMultiplier;
+            rainDelay - 18720000 / timeMultiplier;
           setTimeout(function () {
             cloudsAccumulating = 1;
           }, accumulateCloudsDelay);
@@ -292,7 +291,7 @@ export default function dynamicWeather(serverContext: ZoneServer) {
           }, rainDelay + rainTime);
           setTimeout(function () {
             rainIncoming = false;
-          }, rainDelay + rainTime + 187200 / serverContext._timeMultiplier);
+          }, rainDelay + rainTime + 187200 / timeMultiplier);
         }
       }
       break;
@@ -389,5 +388,16 @@ export default function dynamicWeather(serverContext: ZoneServer) {
       unknownDword7: 0,
     }),
   };
-  serverContext.SendSkyChangedPacket({} as Client, rnd_weather, true);
+  parentPort?.postMessage(rnd_weather);
 }
+
+const {startTime,timeMultiplier} = workerData;
+let {serverTime} = workerData;
+dynamicWeather(serverTime,startTime,timeMultiplier)
+setInterval(
+  () => {
+    serverTime +=  Date.now() - startTime;
+    dynamicWeather(serverTime,startTime,timeMultiplier)
+  },
+  (360000 / timeMultiplier)
+);

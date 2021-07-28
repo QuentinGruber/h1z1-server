@@ -435,8 +435,10 @@ const hax: any = {
     client: Client,
     args: any[]
   ) {
-    clearInterval(server._dynamicWeatherInterval);
-    server._dynamicWeatherInterval = null;
+    // old stuff
+    // TODO terminate worker
+    clearInterval(server._dynamicWeatherWorker);
+    server._dynamicWeatherWorker = null;
     server.changeWeather(
       client,
       server._weatherTemplates[server._defaultWeatherTemplate]
@@ -444,9 +446,10 @@ const hax: any = {
     server.sendChatText(client, "Dynamic weather removed !");
   },
   weather: function (server: ZoneServer, client: Client, args: any[]) {
-    if (server._dynamicWeatherInterval) {
-      clearInterval(server._dynamicWeatherInterval);
-      server._dynamicWeatherInterval = null;
+    if (server._dynamicWeatherWorker) {
+      // call hax.removeDynamicWeather here
+      clearInterval(server._dynamicWeatherWorker);
+      server._dynamicWeatherWorker = null;
       server.sendChatText(client, "Dynamic weather removed !");
     }
     const weatherTemplate = server._soloMode
@@ -786,9 +789,9 @@ const hax: any = {
     });
   },
   randomWeather: function (server: ZoneServer, client: Client, args: any[]) {
-    if (server._dynamicWeatherInterval) {
-      clearInterval(server._dynamicWeatherInterval);
-      server._dynamicWeatherInterval = null;
+    if (server._dynamicWeatherWorker) {
+      clearInterval(server._dynamicWeatherWorker);
+      server._dynamicWeatherWorker = null;
       server.sendChatText(client, "Dynamic weather removed !");
     }
     debug("Randomized weather");
