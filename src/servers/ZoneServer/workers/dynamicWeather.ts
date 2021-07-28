@@ -27,6 +27,7 @@ let c2 = 0;
 let c3 = 0;
 let c4 = 0;
 let temperature = 80;
+let rainchanceReq = 20;
 
 var seasonstart = (function () {
   var started = false;
@@ -54,6 +55,7 @@ function chooseWeather() {
           sunPositionX = 15;
           sunPositionY = 90;
           sunPositionZ = 0;
+		  rainchanceReq = 20;
           break;
         case "autumn":
           temperature = 80;
@@ -62,6 +64,7 @@ function chooseWeather() {
           sunPositionX = 30;
           sunPositionY = 110;
           sunPositionZ = 20;
+		  rainchanceReq = 50;
           break;
         case "winter":
           temperature = 0;
@@ -70,6 +73,7 @@ function chooseWeather() {
           sunPositionX = 90;
           sunPositionY = 130;
           sunPositionZ = 60;
+		  rainchanceReq = 50;
           break;
         case "spring":
           temperature = 80;
@@ -78,6 +82,7 @@ function chooseWeather() {
           sunPositionX = 20;
           sunPositionY = 110;
           sunPositionZ = 10;
+		  rainchanceReq = 30;
           break;
         default:
           break;
@@ -99,6 +104,7 @@ function chooseWeather() {
           sunPositionX = 15;
           sunPositionY = 90;
           sunPositionZ = 0;
+		  rainchanceReq = 20;
           break;
         case "autumn":
           temperature = 80;
@@ -107,6 +113,7 @@ function chooseWeather() {
           sunPositionX = 30;
           sunPositionY = 110;
           sunPositionZ = 20;
+		  rainchanceReq = 50;
           break;
         case "winter":
           temperature = 0;
@@ -115,6 +122,7 @@ function chooseWeather() {
           sunPositionX = 90;
           sunPositionY = 130;
           sunPositionZ = 60;
+		  rainchanceReq = 50;
           break;
         case "spring":
           temperature = 80;
@@ -123,6 +131,7 @@ function chooseWeather() {
           sunPositionX = 20;
           sunPositionY = 110;
           sunPositionZ = 10;
+		  rainchanceReq = 30;
           break;
         default:
           break;
@@ -144,6 +153,7 @@ function chooseWeather() {
           sunPositionX = 15;
           sunPositionY = 90;
           sunPositionZ = 0;
+		  rainchanceReq = 20;
           break;
         case "autumn":
           temperature = 80;
@@ -152,6 +162,7 @@ function chooseWeather() {
           sunPositionX = 30;
           sunPositionY = 110;
           sunPositionZ = 20;
+		  rainchanceReq = 50;
           break;
         case "winter":
           temperature = 0;
@@ -160,6 +171,7 @@ function chooseWeather() {
           sunPositionX = 90;
           sunPositionY = 130;
           sunPositionZ = 60;
+		  rainchanceReq = 50;
           break;
         case "spring":
           temperature = 80;
@@ -168,6 +180,7 @@ function chooseWeather() {
           sunPositionX = 20;
           sunPositionY = 110;
           sunPositionZ = 10;
+		  rainchanceReq = 30;
           break;
         default:
           break;
@@ -254,11 +267,11 @@ export default function dynamicWeather(serverContext: ZoneServer) {
       if (!rainChecked && !rainIncoming) {
         rainChecked = true;
         const rainchance = randomIntFromInterval(0, 100);
-        if (rainchance <= 20) {
+        if (rainchance <= rainchanceReq) {
           rainIncoming = true;
-          const rainDelay = randomIntFromInterval(260001, 1200000);
-          const rainTime = randomIntFromInterval(100000, 300000);
-          const accumulateCloudsDelay = rainDelay - 260000;
+          const rainDelay = randomIntFromInterval((18720072 / serverContext._timeMultiplier), (86400000 / serverContext._timeMultiplier));
+          const rainTime = randomIntFromInterval((14200000 / serverContext._timeMultiplier), (41600000  / serverContext._timeMultiplier));
+          const accumulateCloudsDelay = rainDelay - (18720000 / serverContext._timeMultiplier);
           setTimeout(function () {
             cloudsAccumulating = 1;
           }, accumulateCloudsDelay);
@@ -272,7 +285,7 @@ export default function dynamicWeather(serverContext: ZoneServer) {
           }, rainDelay + rainTime);
           setTimeout(function () {
             rainIncoming = false;
-          }, rainDelay + rainTime + 2600);
+          }, rainDelay + rainTime + (187200 / serverContext._timeMultiplier));
         }
       }
       break;
