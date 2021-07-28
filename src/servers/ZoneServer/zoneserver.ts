@@ -51,6 +51,7 @@ export class ZoneServer extends EventEmitter {
   _referenceData: any;
   _startTime: number;
   _startGameTime: number;
+  _timeMultiplier: number;
   _cycleSpeed: number;
   _frozeCycle: boolean;
   _profiles: any[];
@@ -102,6 +103,7 @@ export class ZoneServer extends EventEmitter {
     this._packetHandlers = packetHandlers;
     this._startTime = 0;
     this._startGameTime = 0;
+    this._timeMultiplier = 72;
     this._cycleSpeed = 0;
     this._frozeCycle = false;
     this._reloadPacketsInterval;
@@ -268,7 +270,8 @@ export class ZoneServer extends EventEmitter {
   }
 
   async setupServer(): Promise<void> {
-    this.forceTime(971172000000); // force day time by default
+    this.forceTime(971172000000); // force day time by default - not working for now
+    this._frozeCycle = false;
     await this.loadMongoData();
     this._weather = this._soloMode
       ? this._weatherTemplates[this._defaultWeatherTemplate]
@@ -470,7 +473,7 @@ export class ZoneServer extends EventEmitter {
         this._db = mongoClient.db("h1server");
     }
     await this.setupServer();
-    this._startTime += Date.now();
+    this._startTime += Date.now() + 82201232; // summer start
     this._startGameTime += Date.now();
     if(this._soloMode){ 
       setupAppDataFolder();
@@ -478,7 +481,7 @@ export class ZoneServer extends EventEmitter {
     if (this._dynamicWeatherEnabled) {
       this._dynamicWeatherInterval = setInterval(
         () => dynamicWeather(this),
-        5000
+        (360000 / this._timeMultiplier)
       );
     }
     this._gatewayServer.start();
@@ -1226,14 +1229,30 @@ export class ZoneServer extends EventEmitter {
     const delta = Date.now() - this._startTime;
     return this._serverTime + delta;
   }
+  
+  getServerTimeTest(): number {
+    debug("get server time");
+    const delta = Date.now() - this._startTime;
+    return Number(
+      (((this._serverTime + delta) * this._timeMultiplier) / 1000).toFixed(0)
+    );
+  }
 
   sendGameTimeSync(client: Client): void {
     debug("GameTimeSync");
-    this.sendData(client, "GameTimeSync", {
-      time: Int64String(this.getGameTime()),
-      cycleSpeed: this._cycleSpeed,
-      unknownBoolean: false,
-    });
+    if (!this._frozeCycle) {
+      this.sendData(client, "GameTimeSync", {
+        time: Int64String(this.getServerTimeTest()),
+        cycleSpeed: Math.round(this._timeMultiplier * 0.97222),
+        unknownBoolean: false,
+      });
+    } else if (this._frozeCycle) {
+      this.sendData(client, "GameTimeSync", {
+        time: Int64String(this.getGameTime()),
+        cycleSpeed: 0.1,
+        unknownBoolean: false,
+      });
+    }
   }
 
   sendSyncToAll(): void {

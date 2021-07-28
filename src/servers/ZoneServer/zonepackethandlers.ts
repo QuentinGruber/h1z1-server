@@ -513,13 +513,29 @@ const packetHandlers: any = {
             _doors: doors,
             _props: props,
           } = server;
+          const delta = Date.now() - server._startTime;
+          const datakur = new Date(
+            (server._serverTime + delta) * server._timeMultiplier
+          );
+          const monthNames = [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December",
+          ];
           const serverVersion = require("../../../package.json").version;
           server.sendChatText(client, `h1z1-server V${serverVersion}`, true);
           server.sendChatText(
             client,
-            `connected clients : ${_.size(clients)} characters : ${_.size(
-              characters
-            )}`
+            `clients: ${_.size(clients)} characters : ${_.size(characters)}`
           );
           server.sendChatText(
             client,
@@ -530,6 +546,19 @@ const packetHandlers: any = {
             `objects : ${_.size(objects)} props : ${_.size(
               props
             )} vehicles : ${_.size(vehicles)}`
+          );
+          server.sendChatText(
+            client,
+            "Gametime: " +
+              datakur.getDate() +
+              " " +
+              monthNames[datakur.getMonth()] +
+              " " +
+              (datakur.getFullYear() + 50) +
+              ", " +
+              datakur.getHours() +
+              ":" +
+              datakur.getMinutes()
           );
           break;
         }

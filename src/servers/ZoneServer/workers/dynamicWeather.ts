@@ -4,274 +4,353 @@ import { randomIntFromInterval } from "../../../utils/utils";
 import { ZoneServer } from "../zoneserver";
 const debug = require("debug")("dynamicWeather");
 
-let fog = -10;
-let foggradient = 50;
-let rain = 50; // increasing value for rain to start
-let raintimehalf = 0;
-let raintoggle = 0; // not really a toggle, anables rain and specifies its strength
-let raintimems = 0;
-let raintimemin = 0;
-let rainIncMin = 0;
-let rainIncMax = 0;
-let wintertoggle = 0;
-let winter = 53;
-let raincheck = "OFF";
-let sunposx = 15; // sun position at server start
-let sunposy = 90;
-let sunposz = 0;
-let sunposInc = 0;
-let sunposXmin = 0; // max values of sun axis, changed for every season
-let sunposXmax = 0;
-let sunposYmin = 0;
-let sunposYmax = 0;
-let sunposZmin = 0;
-let sunposZmax = 0;
-let cloud1 = 1;
-let cloud2 = 1;
-let cloud3 = 1;
-let cloud4 = 1;
-let cchancemin = 0;
-let cchancemax = 0;
-let cloudmax = 6; // maximum value of clouds at game start
+let weatherChoosen = false;
+let fogChecked = false;
+let fog = 0; // density
+let foggradient = 0;
+let fogEnabled = false;
 let fchancemin = 0;
 let fchancemax = 0;
-let rchancemin = 0;
-let rchancemax = 0;
-let rreqval = 0; // required value "rain" has to reach to enable it
-let wind = 20;
-let windmax = 30;
-let wchancemin = 0;
-let wchancemax = 0;
-
-function summer() {
-  sunposInc = -0.3;
-  sunposXmin = 15;
-  sunposYmin = 90;
-  sunposZmin = 0;
-  fchancemin = -1;
-  fchancemax = 0;
-  rchancemin = -1;
-  rchancemax = 2;
-  cchancemin = -1;
-  cchancemax = 1;
-  cloudmax = 7;
-  rreqval = 150;
-  wintertoggle = 0;
-  windmax = 30;
-  wchancemin = -2;
-  wchancemax = 1;
-  setTimeout(autumn, 900000);
-  setInterval(summer, 3600000);
-}
-function autumn() {
-  wintertoggle = 0;
-  sunposInc = 0.3;
-  sunposXmax = 30;
-  sunposYmax = 110;
-  sunposZmax = 20;
-  fchancemin = -1;
-  fchancemax = 2;
-  rchancemin = -1;
-  rchancemax = 2;
-  cchancemin = -1;
-  cchancemax = 2;
-  cloudmax = 100;
-  rreqval = 80;
-  windmax = 100;
-  wchancemin = -1;
-  wchancemax = 2;
-  setTimeout(function () {
-    sunposXmax = 90;
-    sunposYmax = 130;
-    sunposZmax = 60;
-    wchancemin = -1;
-    wchancemax = 3;
-  }, 450000);
-  setTimeout(winterr, 900000);
-}
-function winterr() {
-  sunposInc = 0.3;
-  sunposXmax = 90;
-  sunposYmax = 130;
-  sunposZmax = 60;
-  wintertoggle = 1;
-  fchancemin = -1;
-  fchancemax = 1;
-  rchancemin = 0;
-  rchancemax = 1;
-  cchancemin = -1;
-  cchancemax = 2;
-  cloudmax = 100;
-  rreqval = 100;
-  windmax = 200;
-  wchancemin = -1;
-  wchancemax = 3;
-  setTimeout(function () {
-    wchancemin = -3;
-    wchancemax = 1;
-  }, 450000);
-  setTimeout(spring, 900000);
-}
-function spring() {
-  wintertoggle = 0;
-  sunposInc = -0.3;
-  sunposXmin = 20;
-  sunposYmin = 110;
-  sunposZmin = 10;
-  fchancemin = -3;
-  fchancemax = 1;
-  rchancemin = -1;
-  rchancemax = 2;
-  cchancemin = -3;
-  cchancemax = 0;
-  cloudmax = 100;
-  rreqval = 120;
-  windmax = 150;
-  wchancemin = -3;
-  wchancemax = 1;
-}
+let currentSeason = "summer";
+let rainChecked = false;
+let rainIncoming = false;
+let rainEnabled = 0;
+let cloudsAccumulating = -1;
+let cloudsValue = 15;
+let rainCloudsMin = 0;
+let windStrength = 0;
+let sunPositionX = 0;
+let sunPositionY = 0;
+let sunPositionZ = 0;
+let c1 = 0;
+let c2 = 0;
+let c3 = 0;
+let c4 = 0;
+let temperature = 80;
+let rainchanceReq = 20;
 
 var seasonstart = (function () {
   var started = false;
   return function () {
     if (!started) {
       started = true;
-      summer();
+      chooseWeather();
     }
   };
 })();
 
+function chooseWeather() {
+  const weatherType = randomIntFromInterval(1, 3);
+  switch (weatherType) {
+    case 1: // sunny
+      c1 = randomIntFromInterval(0, 5);
+      c1 = randomIntFromInterval(0, 5);
+      c3 = randomIntFromInterval(0, 10);
+      c4 = randomIntFromInterval(0, 5);
+      switch (currentSeason) {
+        case "summer":
+          temperature = 80;
+          rainCloudsMin = 0;
+          windStrength = randomIntFromInterval(0, 15);
+          sunPositionX = 15;
+          sunPositionY = 90;
+          sunPositionZ = 0;
+          rainchanceReq = 20;
+          break;
+        case "autumn":
+          temperature = 80;
+          rainCloudsMin = 40;
+          windStrength = randomIntFromInterval(10, 30);
+          sunPositionX = 30;
+          sunPositionY = 110;
+          sunPositionZ = 20;
+          rainchanceReq = 50;
+          break;
+        case "winter":
+          temperature = 0;
+          rainCloudsMin = 40;
+          windStrength = randomIntFromInterval(20, 40);
+          sunPositionX = 90;
+          sunPositionY = 130;
+          sunPositionZ = 60;
+          rainchanceReq = 50;
+          break;
+        case "spring":
+          temperature = 80;
+          rainCloudsMin = 10;
+          windStrength = randomIntFromInterval(5, 25);
+          sunPositionX = 20;
+          sunPositionY = 110;
+          sunPositionZ = 10;
+          rainchanceReq = 30;
+          break;
+        default:
+          break;
+      }
+      if (cloudsAccumulating != 1 && rainEnabled != 50) {
+        cloudsValue = 0;
+      }
+      break;
+    case 2: // cloudy
+      c1 = randomIntFromInterval(31, 100);
+      c1 = randomIntFromInterval(31, 100);
+      c3 = randomIntFromInterval(31, 100);
+      c4 = randomIntFromInterval(31, 100);
+      switch (currentSeason) {
+        case "summer":
+          temperature = 80;
+          rainCloudsMin = 20;
+          windStrength = randomIntFromInterval(15, 30);
+          sunPositionX = 15;
+          sunPositionY = 90;
+          sunPositionZ = 0;
+          rainchanceReq = 20;
+          break;
+        case "autumn":
+          temperature = 80;
+          rainCloudsMin = 65;
+          windStrength = randomIntFromInterval(30, 60);
+          sunPositionX = 30;
+          sunPositionY = 110;
+          sunPositionZ = 20;
+          rainchanceReq = 50;
+          break;
+        case "winter":
+          temperature = 0;
+          rainCloudsMin = 65;
+          windStrength = randomIntFromInterval(50, 150);
+          sunPositionX = 90;
+          sunPositionY = 130;
+          sunPositionZ = 60;
+          rainchanceReq = 50;
+          break;
+        case "spring":
+          temperature = 80;
+          rainCloudsMin = 40;
+          windStrength = randomIntFromInterval(25, 40);
+          sunPositionX = 20;
+          sunPositionY = 110;
+          sunPositionZ = 10;
+          rainchanceReq = 30;
+          break;
+        default:
+          break;
+      }
+      if (cloudsAccumulating != 1 && rainEnabled != 50) {
+        cloudsValue = 20;
+      }
+      break;
+    case 3: // middle cloudy
+      c1 = randomIntFromInterval(6, 30);
+      c1 = randomIntFromInterval(6, 30);
+      c3 = randomIntFromInterval(6, 30);
+      c4 = randomIntFromInterval(6, 30);
+      switch (currentSeason) {
+        case "summer":
+          temperature = 80;
+          rainCloudsMin = 10;
+          windStrength = randomIntFromInterval(5, 25);
+          sunPositionX = 15;
+          sunPositionY = 90;
+          sunPositionZ = 0;
+          rainchanceReq = 20;
+          break;
+        case "autumn":
+          temperature = 80;
+          rainCloudsMin = 50;
+          windStrength = randomIntFromInterval(15, 45);
+          sunPositionX = 30;
+          sunPositionY = 110;
+          sunPositionZ = 20;
+          rainchanceReq = 50;
+          break;
+        case "winter":
+          temperature = 0;
+          rainCloudsMin = 50;
+          windStrength = randomIntFromInterval(25, 100);
+          sunPositionX = 90;
+          sunPositionY = 130;
+          sunPositionZ = 60;
+          rainchanceReq = 50;
+          break;
+        case "spring":
+          temperature = 80;
+          rainCloudsMin = 30;
+          windStrength = randomIntFromInterval(10, 35);
+          sunPositionX = 20;
+          sunPositionY = 110;
+          sunPositionZ = 10;
+          rainchanceReq = 30;
+          break;
+        default:
+          break;
+      }
+      if (cloudsAccumulating != 1 && rainEnabled != 50) {
+        cloudsValue = 10;
+      }
+      break;
+    default:
+      break;
+  }
+  weatherChoosen = true;
+}
+
 export default function dynamicWeather(serverContext: ZoneServer) {
-  seasonstart();
-  // sun axis
-  sunposx = sunposx + sunposInc;
-  if (sunposx > sunposXmax) {
-    sunposx = sunposXmax;
-  }
-  if (sunposx < sunposXmin) {
-    sunposx = sunposXmin;
-  }
-  sunposy = sunposy + sunposInc;
-  if (sunposy > sunposYmax) {
-    sunposy = sunposYmax;
-  }
-  if (sunposy < sunposYmin) {
-    sunposy = sunposYmin;
-  }
-  sunposz = sunposz + sunposInc;
-  if (sunposz > sunposZmax) {
-    sunposz = sunposZmax;
-  }
-  if (sunposz < sunposZmin) {
-    sunposz = sunposZmin;
-  }
-  //rain strength
-  const rainchancestr = randomIntFromInterval(rainIncMin, rainIncMax); // rain strength increase
-  raintoggle = raintoggle + rainchancestr;
-  if (raintoggle > 101) {
-    raintoggle = 100;
-  }
-  // wind
-  const windchance = randomIntFromInterval(wchancemin, wchancemax);
-  wind = wind + windchance;
-  if (wind < -3) {
-    wind = -2;
-  }
-  if (wind > windmax) {
-    cloud1 = cloudmax - 1;
-  }
-  // clouds
-  const c1chance = randomIntFromInterval(cchancemin, cchancemax);
-  cloud1 = cloud1 + c1chance;
-  if (cloud1 < -3) {
-    cloud1 = -2;
-  }
-  if (cloud1 > cloudmax) {
-    cloud1 = cloudmax - 1;
-  }
-  const c2chance = randomIntFromInterval(cchancemin, cchancemax);
-  cloud2 = cloud2 + c2chance;
-  if (cloud2 < -3) {
-    cloud2 = -2;
-  }
-  if (cloud2 > cloudmax) {
-    cloud2 = cloudmax - 1;
-  }
-  const c3chance = randomIntFromInterval(cchancemin, cchancemax);
-  cloud3 = cloud3 + c3chance;
-  if (cloud3 < -3) {
-    cloud3 = -2;
-  }
-  if (cloud3 > cloudmax) {
-    cloud3 = cloudmax - 1;
-  }
-  const c4chance = randomIntFromInterval(cchancemin, cchancemax);
-  cloud4 = cloud4 + c4chance;
-  if (cloud4 < -3) {
-    cloud4 = -2;
-  }
-  if (cloud4 > cloudmax) {
-    cloud4 = cloudmax - 1;
-  }
-  // fog
-  const fogchance = randomIntFromInterval(fchancemin, fchancemax);
-  fog = fog + fogchance;
-  if (fog < -10) {
-    fog = -9;
-  }
-  if (fog > 90) {
-    fog = 79;
+  const delta = Date.now() - serverContext._startTime;
+  const currentDate = new Date(
+    (serverContext._serverTime + delta) * serverContext._timeMultiplier
+  );
+  const currentHour = currentDate.getHours();
+  const currentMonth = currentDate.getMonth();
+
+  switch (
+    currentMonth // switch seasons 1-12 months
+  ) {
+    case 5:
+      currentSeason = "summer";
+      break;
+    case 6:
+      currentSeason = "summer";
+      break;
+    case 7:
+      currentSeason = "summer";
+      break;
+    case 8:
+      currentSeason = "autumn";
+      break;
+    case 9:
+      currentSeason = "autumn";
+      break;
+    case 10:
+      currentSeason = "autumn";
+      break;
+    case 11:
+      currentSeason = "winter";
+      break;
+    case 0:
+      currentSeason = "winter";
+      break;
+    case 1:
+      currentSeason = "winter";
+      break;
+    case 2:
+      currentSeason = "spring";
+      break;
+    case 3:
+      currentSeason = "spring";
+      break;
+    case 4:
+      currentSeason = "spring";
+      break;
+    default:
+      break;
   }
 
-  const foggchance = randomIntFromInterval(-3, 3);
+  switch (
+    currentHour // switch for enabling weather effects based by in-game time
+  ) {
+    case 1: // start deteriorating fog (fog values wont go below 0 so no need for check if fog was turned on)
+      fogEnabled = false;
+      weatherChoosen = false;
+      fogChecked = false;
+      break;
+    case 2: // Determine weather for next day cycle (sunny,cloudy etc)
+      if (!weatherChoosen) {
+        chooseWeather();
+      }
+      break;
+    case 3: //
+      weatherChoosen = false;
+      rainChecked = false;
+      break;
+    case 4: // start accumulating rain clouds and start rain with a random delay (after clouds accululated) if matched %chance
+      if (!rainChecked && !rainIncoming) {
+        rainChecked = true;
+        const rainchance = randomIntFromInterval(0, 100);
+        if (rainchance <= rainchanceReq) {
+          rainIncoming = true;
+          const rainDelay = randomIntFromInterval(
+            18720072 / serverContext._timeMultiplier,
+            86400000 / serverContext._timeMultiplier
+          );
+          const rainTime = randomIntFromInterval(
+            14200000 / serverContext._timeMultiplier,
+            41600000 / serverContext._timeMultiplier
+          );
+          const accumulateCloudsDelay =
+            rainDelay - 18720000 / serverContext._timeMultiplier;
+          setTimeout(function () {
+            cloudsAccumulating = 1;
+          }, accumulateCloudsDelay);
+          setTimeout(function () {
+            rainEnabled = 50;
+            cloudsAccumulating = 0;
+          }, rainDelay);
+          setTimeout(function () {
+            rainEnabled = 0;
+            cloudsAccumulating = -1;
+          }, rainDelay + rainTime);
+          setTimeout(function () {
+            rainIncoming = false;
+          }, rainDelay + rainTime + 187200 / serverContext._timeMultiplier);
+        }
+      }
+      break;
+    case 19: // start accumulating fog if matching %chance
+      const fogtogglechance = randomIntFromInterval(0, 100);
+      if (!fogChecked) {
+        if (fogtogglechance <= 30) {
+          fogEnabled = true;
+          foggradient = randomIntFromInterval(21, 31);
+        }
+        fogChecked = true;
+      }
+      break;
+    default:
+      break;
+  }
+
+  seasonstart();
+
+  switch (
+    fogEnabled // increase/dicrease fog values with each tick
+  ) {
+    case true:
+      fchancemin = 1;
+      fchancemax = 1;
+      break;
+    case false:
+      fchancemin = -1;
+      fchancemax = -1;
+      break;
+    default:
+      break;
+  }
+
+  cloudsValue = cloudsValue + cloudsAccumulating; // skycolor and cloud1 modifier (looks nice setting it with rain) bigger = darker,
+  if (cloudsValue < rainCloudsMin) {
+    cloudsValue = rainCloudsMin + 1;
+  } else if (cloudsValue > 66) {
+    cloudsValue = 65;
+  }
+
+  const fogchance = randomIntFromInterval(fchancemin, fchancemax);
+  fog = fog + fogchance;
+  if (fog < -1) {
+    fog = 0;
+  }
+  if (fog > 51) {
+    fog = 50;
+  }
+
+  const foggchance = randomIntFromInterval(fchancemin, fchancemax);
   foggradient = foggradient + foggchance;
-  if (foggradient < 0) {
+  if (foggradient < -1) {
     foggradient = 0;
   }
-  if (foggradient > 100) {
-    foggradient = 100;
+  if (foggradient > 21) {
+    foggradient = 20;
   }
-  // rain
-  const rainchance = randomIntFromInterval(rchancemin, rchancemax);
-  rain = rain + rainchance;
-  if (rain < 0) {
-    rain = 0;
-  }
-  if (rain >= rreqval) {
-    raintoggle = 1;
-    raincheck = "ON";
-    rain = 0;
-    rainIncMin = 2;
-    rainIncMax = 2;
-    const raintime = randomIntFromInterval(180000, 300000);
-    raintimehalf = raintime / 2;
-    raintimems = raintime / 60000;
-    raintimemin = Math.floor(raintimems);
-    debug("Rain will last for " + raintimemin + " min");
-    setTimeout(function () {
-      rainIncMin = -2;
-      rainIncMax = -2;
-    }, raintimehalf);
-    setTimeout(function () {
-      rainIncMin = 0;
-      rainIncMax = 0;
-      rain = 0;
-      raincheck = "OFF";
-      raintoggle = 0;
-      debug("Rain ended");
-    }, raintime);
-  }
-  if (wintertoggle === 0) {
-    winter = 53;
-  }
-  if (wintertoggle === 1) {
-    winter = 20;
-  }
-  debug("[WEATHERSYSTEM] FogDensity: " + fog + "/100");
-  debug("[WEATHERSYSTEM] FogGradient: " + foggradient + "/100");
-  debug(
-    "[WEATHERSYSTEM] Rain: " + raincheck + " - Conditions: " + rain + "/100"
-  );
   const rnd_weather = {
     name: "sky",
     unknownDword1: 91,
@@ -280,22 +359,22 @@ export default function dynamicWeather(serverContext: ZoneServer) {
     unknownDword4: 48,
     fogDensity: fog,
     fogGradient: foggradient,
-    fogFloor: 14,
+    fogFloor: 1200,
     unknownDword7: 73,
-    rain: raintoggle,
-    temp: winter,
-    skyColor: 7,
-    cloudWeight0: cloud1,
-    cloudWeight1: cloud2,
-    cloudWeight2: cloud3,
-    cloudWeight3: cloud4,
-    sunAxisX: sunposx,
-    sunAxisY: sunposy,
-    sunAxisZ: sunposz,
+    rain: rainEnabled,
+    temp: temperature,
+    skyColor: cloudsValue,
+    cloudWeight0: c1,
+    cloudWeight1: cloudsValue, // do not change it in other weather effects than rain
+    cloudWeight2: c3,
+    cloudWeight3: c4,
+    sunAxisX: sunPositionX,
+    sunAxisY: sunPositionY,
+    sunAxisZ: sunPositionZ,
     unknownDword18: 76,
     unknownDword19: 74,
     unknownDword20: 59,
-    wind: wind,
+    wind: windStrength,
     unknownDword22: 46,
     unknownDword23: 53,
     unknownDword24: 65,
