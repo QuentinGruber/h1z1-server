@@ -270,7 +270,8 @@ export class ZoneServer extends EventEmitter {
   }
 
   async setupServer(): Promise<void> {
-    this.forceTime(971172000000); // force day time by default
+    this.forceTime(971172000000); // force day time by default - not working for now
+    this._frozeCycle = false;
     await this.loadMongoData();
     this._weather = this._soloMode
       ? this._weatherTemplates[this._defaultWeatherTemplate]
@@ -480,7 +481,7 @@ export class ZoneServer extends EventEmitter {
     if (this._dynamicWeatherEnabled) {
       this._dynamicWeatherInterval = setInterval(
         () => dynamicWeather(this),
-        5000
+        (360000 / this._timeMultiplier)
       );
     }
     this._gatewayServer.start();
@@ -1239,11 +1240,19 @@ export class ZoneServer extends EventEmitter {
 
   sendGameTimeSync(client: Client): void {
     debug("GameTimeSync");
-    this.sendData(client, "GameTimeSync", {
-      time: Int64String(this.getServerTimeTest()),
-      cycleSpeed: Math.round(this._timeMultiplier * 0.97222),
-      unknownBoolean: false,
-    });
+    if (!this._frozeCycle) {
+      this.sendData(client, "GameTimeSync", {
+        time: Int64String(this.getServerTimeTest()),
+        cycleSpeed: Math.round(this._timeMultiplier * 0.97222),
+        unknownBoolean: false,
+      });
+    } else if (this._frozeCycle) {
+      this.sendData(client, "GameTimeSync", {
+        time: Int64String(this.getGameTime()),
+        cycleSpeed: 0.1,
+        unknownBoolean: false,
+      });
+    }
   }
 
   sendSyncToAll(): void {
