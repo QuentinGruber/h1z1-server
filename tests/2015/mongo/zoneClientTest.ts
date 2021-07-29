@@ -29,6 +29,6 @@ async function test() {
 
   setTimeout(() => {
     throw new Error("Test timed out!");
-  }, 60000);
+  }, 600000);
 }
 test();
