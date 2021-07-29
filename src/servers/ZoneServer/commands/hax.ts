@@ -435,9 +435,7 @@ const hax: any = {
     client: Client,
     args: any[]
   ) {
-    // old stuff
-    // TODO terminate worker
-    clearInterval(server._dynamicWeatherWorker);
+    await server._dynamicWeatherWorker.terminate()
     server._dynamicWeatherWorker = null;
     server.changeWeather(
       client,
@@ -447,10 +445,7 @@ const hax: any = {
   },
   weather: function (server: ZoneServer, client: Client, args: any[]) {
     if (server._dynamicWeatherWorker) {
-      // call hax.removeDynamicWeather here
-      clearInterval(server._dynamicWeatherWorker);
-      server._dynamicWeatherWorker = null;
-      server.sendChatText(client, "Dynamic weather removed !");
+      hax["removeDynamicWeather"]();
     }
     const weatherTemplate = server._soloMode
       ? server._weatherTemplates[args[1]]
