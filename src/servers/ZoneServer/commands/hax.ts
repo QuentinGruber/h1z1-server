@@ -437,15 +437,18 @@ const hax: any = {
   ) {
     await server._dynamicWeatherWorker.terminate()
     server._dynamicWeatherWorker = null;
+    // TODO fix this for mongo
+    if(server._soloMode){
     server.changeWeather(
       client,
       server._weatherTemplates[server._defaultWeatherTemplate]
     );
+    }
     server.sendChatText(client, "Dynamic weather removed !");
   },
   weather: function (server: ZoneServer, client: Client, args: any[]) {
     if (server._dynamicWeatherWorker) {
-      hax["removeDynamicWeather"]();
+      hax["removeDynamicWeather"](server, client, args);
     }
     const weatherTemplate = server._soloMode
       ? server._weatherTemplates[args[1]]
