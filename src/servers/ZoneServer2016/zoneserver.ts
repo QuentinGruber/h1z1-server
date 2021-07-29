@@ -106,7 +106,7 @@ export class ZoneServer2016 extends ZoneServer {
     this._startTime += Date.now();
     this._startGameTime += Date.now();
     if (this._dynamicWeatherEnabled) {
-      this._dynamicWeatherInterval = setInterval(
+      this._dynamicWeatherWorker = setInterval(
         () => dynamicWeather(this),
         100
       );

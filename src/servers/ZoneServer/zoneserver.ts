@@ -23,7 +23,7 @@ import {
 } from "../../utils/utils";
 import { Client, Weather } from "../../types/zoneserver";
 import { Db, MongoClient } from "mongodb";
-import dynamicWeather from "./workers/dynamicWeather";
+import { Worker } from "worker_threads";
 
 const localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json");
 
@@ -65,7 +65,7 @@ export class ZoneServer extends EventEmitter {
   _pingTimeoutTime: number;
   _worldId: number;
   _npcRenderDistance: number;
-  _dynamicWeatherInterval: any;
+  _dynamicWeatherWorker: any;
   _dynamicWeatherEnabled: boolean;
   _vehicles: any;
   _respawnLocations: any[];
@@ -479,10 +479,12 @@ export class ZoneServer extends EventEmitter {
       setupAppDataFolder();
     }
     if (this._dynamicWeatherEnabled) {
-      this._dynamicWeatherInterval = setInterval(
-        () => dynamicWeather(this),
-        (360000 / this._timeMultiplier)
-      );
+      this._dynamicWeatherWorker = new Worker(`${__dirname}/workers/dynamicWeather.js`,{
+        workerData:{timeMultiplier:this._timeMultiplier,serverTime:this._serverTime,startTime:this._startTime}
+      });
+      this._dynamicWeatherWorker.on("message",(weather:any)=>{
+        this.SendSkyChangedPacket({} as Client, weather, true);
+      })
     }
     this._gatewayServer.start();
   }
