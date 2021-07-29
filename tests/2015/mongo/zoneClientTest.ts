@@ -8,7 +8,6 @@ async function test() {
     1
   ).start();
 
-  setTimeout(()=>{
   var client = new ZoneClient(
     "127.0.0.1",
     1117,
@@ -27,9 +26,9 @@ async function test() {
     console.log("ZoneDoneSendingInitialData");
     process.exit(0);
   });
-}, 10000);
+
   setTimeout(() => {
     throw new Error("Test timed out!");
-  }, 15000);
+  }, 600000);
 }
 test();

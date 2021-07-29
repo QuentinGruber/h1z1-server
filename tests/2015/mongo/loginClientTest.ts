@@ -3,7 +3,6 @@ import { LoginClient, LoginServer } from "../../../h1z1-server";
 async function test() {
   await new LoginServer(1115, "mongodb://localhost:27017/").start();
 
-  setTimeout(()=>{
   var client = new LoginClient(
     295110,
     "dev",
@@ -43,7 +42,6 @@ async function test() {
 
   setInterval(() => {
     throw new Error("Test timed out!");
-  }, 15000);
-},10000)
+  }, 600000);
 }
 test();
