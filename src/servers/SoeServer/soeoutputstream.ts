@@ -38,11 +38,7 @@ export class SOEOutputStream extends EventEmitter {
     if (this._useEncryption && overrideEncryption !== false) {
       this._rc4.write(data);
       data = this._rc4.read();
-      if (data[0] === 0) {
-        const tmp = new (Buffer as any).alloc(1);
-        tmp[0] = 0;
-        data = Buffer.concat([tmp, data]);
-      }
+      data[0] === 0 ? data = Buffer.concat([new (Buffer as any).from(new Uint8Array([0x00])), data]):data;
     }
 
     if (data.length <= this._fragmentSize) {

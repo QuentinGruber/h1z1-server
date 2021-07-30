@@ -185,22 +185,25 @@ export class SOEServer extends EventEmitter {
     (client as any).ackTimer = setTimeout(()=>this.checkAck(client));
   };
 
+
+  buildOutOfOrderPackets(client:Client): any[]{
+    const packets = [];
+    const nbPacketsToMake = this._maxOutOfOrderPacketsPerLoop > client.outOfOrderPackets.length? this._maxOutOfOrderPacketsPerLoop:client.outOfOrderPackets.length;
+    for (let i = 0; i < nbPacketsToMake; i++) {
+      const sequence = client.outOfOrderPackets.shift();
+      packets.push({
+        name: "OutOfOrder",
+        soePacket: {
+          channel: 0,
+          sequence: sequence,
+        },
+      });
+    }
+    return packets;
+  }
   checkOutOfOrderQueue(client:Client){
     if (client.outOfOrderPackets.length) {
-      const packets = [];
-      for (let i = 0; i < this._maxOutOfOrderPacketsPerLoop; i++) {
-        const sequence = client.outOfOrderPackets.shift();
-        packets.push({
-          name: "OutOfOrder",
-          soePacket: {
-            channel: 0,
-            sequence: sequence,
-          },
-        });
-        if (!client.outOfOrderPackets.length) {
-          break;
-        }
-      }
+      const packets = this.buildOutOfOrderPackets(client);
       debug("Sending " + packets.length + " OutOfOrder packets");
       this._sendPacket(
         client,
