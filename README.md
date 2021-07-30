@@ -8,7 +8,7 @@
 ## Description
 
 Based on the work of @jseidelin on [soe-network](https://github.com/psemu/soe-network),
-h1z1-server is a library that emulate a h1z1(just survive) server.
+h1z1-server is a library that emulates an H1Z1: Just Survive server.
 
 ## Motivation
 
@@ -20,25 +20,25 @@ So we will see :)
 
 ## Thanks list
 
-- Thank to UTIL_TRACELINE for his involvement in the project, the project would not be in this state today without him.
+- Thanks to UTIL_TRACELINE for his involvement in the project, the project would not be in this state today without him.
 
-- Thank to Hax max for his determination and hacking skills :stuck_out_tongue:.
+- Thanks to Hax max for his determination and hacking skills :stuck_out_tongue:.
 
-- Thank to LcplReaper for his interest in the project and the management of the community around the project.
+- Thanks to LcplReaper for his interest in the project and the management of the community around the project.
 
-- Thank to Meme for being an OG/active contributor :smile:.
+- Thanks to Meme for being an OG/active contributor :smile:.
 
-- Thank to Avcio for his dedication on gameplay improvement.
+- Thanks to Avcio for his dedication on gameplay improvement.
 
-- Thank to Rhett for his interest in the project and his research on the Forgelight engine in general.
+- Thanks to Rhett for his interest in the project and his research on the Forgelight engine in general.
 
-- Thank to LegendsNeveerrDie for is work on editing the map.
+- Thanks to LegendsNeveerrDie for his work on editing the map.
 
-- Thank to Chriis who provided the basis for this project by being the first (as far as I know) to try to emulate servers for h1z1 and who inspired me.
+- Thanks to Chriis who provided the basis for this project by being the first (as far as I know) to try to emulate servers for h1z1 and who inspired me.
 
-- Thank to Jacob Seidelin without whom none of this would have been possible.
+- Thanks to Jacob Seidelin without whom none of this would have been possible.
 
-- Thank to all those who sent messages of help and support and perpetuated the hope of playing h1z1 again.
+- Thanks to all those who sent messages of help and support and perpetuated the hope of playing h1z1 again.
 
 ## Setup H1Z1
 
@@ -82,7 +82,7 @@ And change the _Server_ value to the address of your server , probably `localhos
 
 ### Launch the game
 
-If you have followed the step just above this one, this step is no longer necessary you can start the game by double clicking on H1Z1.exe.
+If you have followed the step just above this one, this step is no longer necessary, and you can start the game by double clicking on H1Z1.exe.
 
 Execute this command in CMD/Powershell ( you have to be in your h1z1 game folder ) :
 
@@ -101,4 +101,4 @@ Since v0.2.3 of h1z1-server the npm package [debug](https://www.npmjs.com/packag
 
 * https://github.com/H1emu/h1emu-launcher/releases/latest
 
-* [h1z1-server-QuickStart](https://github.com/H1emu/h1z1-server-QuickStart) and follow the instruction in wrote in his README
+* [h1z1-server-QuickStart](https://github.com/H1emu/h1z1-server-QuickStart) and follow the instructions written in its README
