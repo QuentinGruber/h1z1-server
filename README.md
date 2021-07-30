@@ -2,7 +2,7 @@
 
 ## Versions
 
-This project use Node.js v16.4.1 and the linked npm version to that release.
+This project use Node.js v16.5.0 and the linked npm version to that release.
 
 ## Description
 
