@@ -74,18 +74,22 @@ export class ZoneServer2016 extends ZoneServer {
       characterName = character.payload.name;
     }
 
-    this._dummySelf.data.identity.characterName = characterName;
-    //this._dummySelf.data.guid = character.characterId; // FIX
-    this._dummySelf.data.characterId = character.characterId;
-    client.character.guid = client.character.characterId;
-    //client.character.name = identity.characterFirstName + identity.characterLastName;
+    this._dummySelf.data = {
+      ...this._dummySelf.data,
+      //guid: '', // todo: fix
+      characterId: character.characterId,
+      identity: {
+        characterName: characterName
+      },
+      recipes: recipes,
+      //stats: stats // todo: fix
+    }
+
     client.character.name = characterName;
-
-
-    client.character.guid = this._dummySelf.data.guid;
-    client.character.loadouts = this._dummySelf.data.characterLoadoutData.loadouts;
-    client.character.inventory = this._dummySelf.data.inventory;
-    client.character.factionId = this._dummySelf.data.factionId;
+    client.character.guid = this._dummySelf.data.guid; // default
+    client.character.loadouts = this._dummySelf.data.characterLoadoutData.loadouts; // default
+    client.character.inventory = this._dummySelf.data.inventory; // default
+    client.character.factionId = this._dummySelf.data.factionId; // default
 
     const characterDataMongo:any = await this._db
       ?.collection("characters")
@@ -103,19 +107,6 @@ export class ZoneServer2016 extends ZoneServer {
         this._dummySelf.data.isRandomlySpawning = true;
       }
     }
-
-    /*
-    if (this._dummySelf.data.isRandomlySpawning) {
-      // Take position/rotation from a random spawn location.
-      const randomSpawnIndex = Math.floor(
-        Math.random() * this._spawnLocations.length
-      );
-      this._dummySelf.data.position = this._spawnLocations[randomSpawnIndex].position;
-      this._dummySelf.data.rotation = this._spawnLocations[randomSpawnIndex].rotation;
-      client.character.spawnLocation =
-        this._spawnLocations[randomSpawnIndex].name;
-    }
-    */
    
     if (this._dummySelf.data.isRandomlySpawning) {
       // Take position/rotation from a random spawn location.
@@ -137,12 +128,6 @@ export class ZoneServer2016 extends ZoneServer {
       client.character.state.rotation = this._dummySelf.data.rotation;
     }
 
-
-
-
-    this._dummySelf.data.recipes = recipes; // load recipes into sendself from file
-    // disabled for now
-    //self.data.stats = stats; // load stats into sendself from file
     this.sendData(client, "SendSelfToClient", this._dummySelf);
   }
 
