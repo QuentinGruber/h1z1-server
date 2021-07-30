@@ -49,39 +49,84 @@ export class ZoneServer2016 extends ZoneServer {
     delete require.cache[
       require.resolve("../../../data/2016/sampleData/sendself.json") // reload json
     ];
-    const self = require("../../../data/2016/sampleData/sendself.json"); // dummy self
-    const {
-      data: { identity },
-    } = self;
-    client.character.guid = self.data.guid;
-    client.character.loadouts = self.data.characterLoadoutData.loadouts;
-    client.character.inventory = self.data.inventory;
-    client.character.factionId = self.data.factionId;
-    client.character.name = identity.characterName;
+    this._dummySelf = require("../../../data/2016/sampleData/sendself.json"); // dummy self
 
-    if (
-      _.isEqual(self.data.position, [0, 0, 0, 1]) &&
-      _.isEqual(self.data.rotation, [0, 0, 0, 1])
-    ) {
-      // if position/rotation hasn't be changed
-      self.data.isRandomlySpawning = true;
+    let characterName;
+    let character:any;
+    if (!this._soloMode) {
+      character = await this._db
+        ?.collection("characters")
+        .findOne({ characterId: client.character.characterId });
+      characterName = character.payload.name;
+    } else {
+      delete require.cache[
+        require.resolve(
+          `${this._appDataFolder}/single_player_characters2016.json`
+        )
+      ];
+      const SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters2016.json`);
+      character = SinglePlayerCharacters.find(
+        (character: any) =>
+          character.characterId === client.character.characterId
+      );
+      characterName = character.payload.name;
     }
 
-    if (self.data.isRandomlySpawning) {
+    this._dummySelf.data = {
+      ...this._dummySelf.data,
+      //guid: '', // todo: fix
+      characterId: character.characterId,
+      identity: {
+        characterName: characterName
+      },
+      recipes: recipes,
+      //stats: stats // todo: fix
+    }
+
+    client.character.name = characterName;
+    client.character.guid = this._dummySelf.data.guid; // default
+    client.character.loadouts = this._dummySelf.data.characterLoadoutData.loadouts; // default
+    client.character.inventory = this._dummySelf.data.inventory; // default
+    client.character.factionId = this._dummySelf.data.factionId; // default
+
+    const characterDataMongo:any = await this._db
+      ?.collection("characters")
+      .findOne({ characterId: client.character.characterId });
+    client.character.extraModel = characterDataMongo?.extraModelTexture
+      ? characterDataMongo.extraModelTexture
+      : this._dummySelf.data.extraModelTexture;
+
+    if (
+      _.isEqual(this._dummySelf.data.position, [0, 0, 0, 1]) &&
+      _.isEqual(this._dummySelf.data.rotation, [0, 0, 0, 1])
+    ) {
+      // if position/rotation hasn't be changed
+      if (this._soloMode || !characterDataMongo.position) {
+        this._dummySelf.data.isRandomlySpawning = true;
+      }
+    }
+   
+    if (this._dummySelf.data.isRandomlySpawning) {
       // Take position/rotation from a random spawn location.
       const randomSpawnIndex = Math.floor(
         Math.random() * this._spawnLocations.length
       );
-      self.data.position = this._spawnLocations[randomSpawnIndex].position;
-      self.data.rotation = this._spawnLocations[randomSpawnIndex].rotation;
+      this._dummySelf.data.position = client.character.state.position =
+        this._spawnLocations[randomSpawnIndex].position;
+      this._dummySelf.data.rotation = client.character.state.rotation =
+        this._spawnLocations[randomSpawnIndex].rotation;
       client.character.spawnLocation =
         this._spawnLocations[randomSpawnIndex].name;
+    } else {
+      if (!this._soloMode) {
+        this._dummySelf.data.position = characterDataMongo.position;
+        this._dummySelf.data.rotation = characterDataMongo.rotation;
+      }
+      client.character.state.position = this._dummySelf.data.position;
+      client.character.state.rotation = this._dummySelf.data.rotation;
     }
-    self.data.characterId = client.character.characterId;
-    self.data.recipes = recipes; // load recipes into sendself from file
-    // disabled for now
-    //self.data.stats = stats; // load stats into sendself from file
-    this.sendData(client, "SendSelfToClient", self);
+
+    this.sendData(client, "SendSelfToClient", this._dummySelf);
   }
 
   async start(): Promise<void> {
