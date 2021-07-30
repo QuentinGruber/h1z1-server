@@ -5187,6 +5187,7 @@ const packets = [
   ["Recipe.Add", 0x2601, { fields: recipeData }],
   ["Recipe.ComponentUpdate", 0x2602, {}],
   ["Recipe.Remove", 0x2603, {}],
+  ["Recipe.Discovery", 0x2604, { fields: [] }],
   [
     "Recipe.List",
     0x2609,
