@@ -435,20 +435,19 @@ const hax: any = {
     client: Client,
     args: any[]
   ) {
-    await server._dynamicWeatherWorker.terminate()
-    server._dynamicWeatherWorker = null;
-    // TODO fix this for mongo
-    if(server._soloMode){
+    clearInterval(server._dynamicWeatherInterval);
+    server._dynamicWeatherInterval = null;
     server.changeWeather(
       client,
       server._weatherTemplates[server._defaultWeatherTemplate]
     );
-    }
     server.sendChatText(client, "Dynamic weather removed !");
   },
   weather: function (server: ZoneServer, client: Client, args: any[]) {
-    if (server._dynamicWeatherWorker) {
-      hax["removeDynamicWeather"](server, client, args);
+    if (server._dynamicWeatherInterval) {
+      clearInterval(server._dynamicWeatherInterval);
+      server._dynamicWeatherInterval = null;
+      server.sendChatText(client, "Dynamic weather removed !");
     }
     const weatherTemplate = server._soloMode
       ? server._weatherTemplates[args[1]]
@@ -787,9 +786,9 @@ const hax: any = {
     });
   },
   randomWeather: function (server: ZoneServer, client: Client, args: any[]) {
-    if (server._dynamicWeatherWorker) {
-      clearInterval(server._dynamicWeatherWorker);
-      server._dynamicWeatherWorker = null;
+    if (server._dynamicWeatherInterval) {
+      clearInterval(server._dynamicWeatherInterval);
+      server._dynamicWeatherInterval = null;
       server.sendChatText(client, "Dynamic weather removed !");
     }
     debug("Randomized weather");

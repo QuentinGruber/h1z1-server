@@ -325,9 +325,11 @@ export class LoginServer extends EventEmitter {
       else { // LoginUdp_11
         SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters2016.json`);
       }
+      console.log(SinglePlayerCharacters);
       const character = SinglePlayerCharacters.find(
         (character: any) => character.characterId === characterId
       );
+      console.log(character)
       charactersLoginInfo = {
         unknownQword1: "0x0",
         unknownDword1: 0,
@@ -374,7 +376,8 @@ export class LoginServer extends EventEmitter {
     const newCharacter = _.cloneDeep(SinglePlayerCharacter);
     newCharacter.serverId = serverId;
     newCharacter.payload.name = characterName;
-    newCharacter.characterId = generateRandomGuid();
+    newCharacter.characterId = generateRandomGuid().toLowerCase();
+    console.log(`newCharacter.characterId ${newCharacter.characterId}`)
     if (this._soloMode) {
       SinglePlayerCharacters[SinglePlayerCharacters.length] = newCharacter;
       if (this._protocol.protocolName == "LoginUdp_9") {
