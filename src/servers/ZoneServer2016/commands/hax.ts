@@ -367,10 +367,10 @@ const hax: any = {
       message: " ",
     });
   },
-  weather: function (server: ZoneServer2016, client: Client, args: any[]) {
-    if (server._dynamicWeatherInterval) {
-      clearInterval(server._dynamicWeatherInterval);
-      server._dynamicWeatherInterval = null;
+  weather: async function (server: ZoneServer2016, client: Client, args: any[]) {
+    if (server._dynamicWeatherEnabled) {
+      await server._dynamicWeatherWorker.terminate()
+      server._dynamicWeatherWorker = null;
       server.sendChatText(client, "Dynamic weather removed !");
     }
     const weatherTemplate = server._soloMode

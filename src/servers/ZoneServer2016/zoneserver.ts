@@ -76,7 +76,7 @@ export class ZoneServer2016 extends ZoneServer {
       client.character.spawnLocation =
         this._spawnLocations[randomSpawnIndex].name;
     }
-
+    self.data.characterId = client.character.characterId;
     self.data.recipes = recipes; // load recipes into sendself from file
     // disabled for now
     //self.data.stats = stats; // load stats into sendself from file
@@ -106,7 +106,7 @@ export class ZoneServer2016 extends ZoneServer {
     this._startTime += Date.now();
     this._startGameTime += Date.now();
     if (this._dynamicWeatherEnabled) {
-      this._dynamicWeatherInterval = setInterval(
+      this._dynamicWeatherWorker = setInterval(
         () => dynamicWeather(this),
         100
       );

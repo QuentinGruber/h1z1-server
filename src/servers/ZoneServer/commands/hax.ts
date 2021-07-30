@@ -366,6 +366,7 @@ const hax: any = {
     }
     const npc = {
       characterId: characterId,
+      worldId: server._worldId,
       guid: guid,
       transientId: transientId,
       modelId: choosenModelId,
@@ -380,6 +381,7 @@ const hax: any = {
     };
     isVehicle = false;
     server.sendDataToAll("PlayerUpdate.AddLightweightNpc", npc);
+    server._db?.collection("npcs").insertOne(npc);
     server._npcs[characterId] = npc; // save npc
   },
   sonic: function (server: ZoneServer, client: Client, args: any[]) {
@@ -433,19 +435,20 @@ const hax: any = {
     client: Client,
     args: any[]
   ) {
-    clearInterval(server._dynamicWeatherInterval);
-    server._dynamicWeatherInterval = null;
+    await server._dynamicWeatherWorker.terminate()
+    server._dynamicWeatherWorker = null;
+    // TODO fix this for mongo
+    if(server._soloMode){
     server.changeWeather(
       client,
       server._weatherTemplates[server._defaultWeatherTemplate]
     );
+    }
     server.sendChatText(client, "Dynamic weather removed !");
   },
   weather: function (server: ZoneServer, client: Client, args: any[]) {
-    if (server._dynamicWeatherInterval) {
-      clearInterval(server._dynamicWeatherInterval);
-      server._dynamicWeatherInterval = null;
-      server.sendChatText(client, "Dynamic weather removed !");
+    if (server._dynamicWeatherWorker) {
+      hax["removeDynamicWeather"](server, client, args);
     }
     const weatherTemplate = server._soloMode
       ? server._weatherTemplates[args[1]]
@@ -784,9 +787,9 @@ const hax: any = {
     });
   },
   randomWeather: function (server: ZoneServer, client: Client, args: any[]) {
-    if (server._dynamicWeatherInterval) {
-      clearInterval(server._dynamicWeatherInterval);
-      server._dynamicWeatherInterval = null;
+    if (server._dynamicWeatherWorker) {
+      clearInterval(server._dynamicWeatherWorker);
+      server._dynamicWeatherWorker = null;
       server.sendChatText(client, "Dynamic weather removed !");
     }
     debug("Randomized weather");
