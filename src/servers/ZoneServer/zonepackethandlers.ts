@@ -21,7 +21,7 @@ const Jenkins = require("hash-jenkins");
 import hax from "./commands/hax";
 import dev from "./commands/dev";
 import admin from "./commands/admin";
-import { Int64String, isPosInRadius } from "../../utils/utils";
+import { generateRandomGuid, Int64String, isPosInRadius } from "../../utils/utils";
 import { ZoneServer } from "./zoneserver";
 import { Client } from "types/zoneserver";
 const modelToName = require("../../../data/2015/sampleData/ModelToName.json");
@@ -2088,6 +2088,20 @@ const packetHandlers: any = {
     } else if (server._characters[guid]) {
       server.sendData(client, "PlayerUpdate.LightweightToFullPc", {
         transientId: pcData.transientId,
+      });
+      server.sendData(client,"Equipment.SetCharacterEquipment", {
+        profileId: 3,
+        characterId: server._characters[guid].characterId,
+        equipmentSlots: server._characters[guid].equipment.map((equipment:any) => {
+          return {
+            equipmentSlotId: equipment.slotId,
+            equipmentSlotData: {
+              equipmentSlotId: equipment.slotId,
+              guid: generateRandomGuid(),
+            },
+          };
+        }),
+        attachmentData: server._characters[guid].equipment,
       });
     } else if (
       server._vehicles[guid] &&
