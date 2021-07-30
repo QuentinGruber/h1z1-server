@@ -1,4 +1,7 @@
-# h1z1-server [![npm version](http://img.shields.io/npm/v/h1z1-server.svg?style=flat)](https://npmjs.org/package/h1z1-server "View this project on npm")
+# h1z1-server [![npm version](http://img.shields.io/npm/v/h1z1-server.svg?style=flat)](https://npmjs.org/package/h1z1-server "View this project on npm")[![Discord](https://img.shields.io/discord/707525351357677610.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/RM6jNkj)
+ [![Open in Visual Studio Code](https://open.vscode.dev/badges/open-in-vscode.svg)](https://open.vscode.dev/quentinrgruber/h1z1-server)[![GitHub license](https://img.shields.io/github/license/quentingruber/h1z1-server.svg)](https://github.com/quentingruber/h1z1-server/blob/master/LICENSE)
+
+
 
 ## Description
 
