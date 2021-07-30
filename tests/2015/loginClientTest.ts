@@ -2,6 +2,7 @@ import { LoginClient, LoginServer } from "../../h1z1-server";
 
 new LoginServer(1115).start();
 
+setTimeout(()=>{
 var client = new LoginClient(
   295110,
   "dev",
@@ -22,16 +23,19 @@ client.on("serverlist", (err, res) => {
   console.log(`Get a serverlist of ${res.servers.length} servers`);
   client.requestCharacterInfo();
 });
-client.on("characterinfo", (err, res) => {
-  console.log(`Get characterinfo`);
-  console.log(res);
+client.on("charactercreate", (err, res) => {
   setTimeout(() => {
-    client.requestCharacterLogin("0x03147cca2a860191", 1, {
+    client.requestCharacterLogin(res.characterId, 1, {
       locale: "EnUS",
       localeId: 1,
       preferredGatewayId: 8,
     });
   }, 2000);
+});
+client.on("characterinfo", (err, res) => {
+  console.log(`Get characterinfo`);
+  console.log(res);
+  client.requestCharacterCreate();
 });
 client.on("characterlogin", (err, res) => {
   console.log(`Get characterlogin`);
@@ -39,6 +43,7 @@ client.on("characterlogin", (err, res) => {
   process.exit(0);
 });
 
+},2000)
 setInterval(() => {
   throw new Error("Test timed out!");
 }, 15000);

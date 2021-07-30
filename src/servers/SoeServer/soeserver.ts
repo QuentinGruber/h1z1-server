@@ -14,11 +14,11 @@ import { EventEmitter } from "events";
 import { SOEProtocol } from "../../protocols/soeprotocol";
 import { SOEInputStream } from "./soeinputstream";
 import { SOEOutputStream } from "./soeoutputstream";
-import dgram from "dgram";
 import { Client } from "../../types/soeserver";
+import { Worker } from 'worker_threads';
 
 const debug = require("debug")("SOEServer");
-
+process.env.isBin && require("./udpServerWorker")
 export class SOEServer extends EventEmitter {
   _protocolName: string;
   _serverPort: number;
@@ -29,7 +29,7 @@ export class SOEServer extends EventEmitter {
   _useEncryption: boolean;
   _isGatewayServer: boolean;
   _clients: any;
-  _connection: dgram.Socket;
+  _connection: Worker;
   _crcSeed: number;
   _crcLength: number;
   _maxOutOfOrderPacketsPerLoop: number;
@@ -56,9 +56,10 @@ export class SOEServer extends EventEmitter {
     this._useEncryption = true;
     this._isGatewayServer = isGatewayServer;
     this._clients = {};
-    this._connection = dgram.createSocket("udp4");
-
-    this._connection.on("message", (data, remote) => {
+    this._connection = new Worker(`${__dirname}/udpServerWorker.js`,{workerData:{serverPort:serverPort}});
+    this._connection.on("message", (message) => {
+      const {data:dataUint8, remote} = message;
+      const data = Buffer.from(dataUint8)
       try {
         let client: any;
         const clientId = remote.address + ":" + remote.port;
@@ -123,69 +124,9 @@ export class SOEServer extends EventEmitter {
               }
             }
           );
-
-          const checkClientOutQueue = () => {
-            const data = client.outQueue.shift();
-            if (data) {
-              this._connection.send(
-                data,
-                0,
-                data.length,
-                client.port,
-                client.address
-              );
-            }
-            (client as any).outQueueTimer = setImmediate(checkClientOutQueue);
-          };
-          checkClientOutQueue();
-
-          const checkAck = () => {
-            if (client.lastAck != client.nextAck) {
-              client.lastAck = client.nextAck;
-              this._sendPacket(
-                client,
-                "Ack",
-                {
-                  channel: 0,
-                  sequence: client.nextAck,
-                },
-                true
-              );
-            }
-            (client as any).ackTimer = setImmediate(checkAck);
-          };
-          checkAck();
-
-          const checkOutOfOrderQueue = () => {
-            if (client.outOfOrderPackets.length) {
-              const packets = [];
-              for (let i = 0; i < this._maxOutOfOrderPacketsPerLoop; i++) {
-                const sequence = client.outOfOrderPackets.shift();
-                packets.push({
-                  name: "OutOfOrder",
-                  soePacket: {
-                    channel: 0,
-                    sequence: sequence,
-                  },
-                });
-                if (!client.outOfOrderPackets.length) {
-                  break;
-                }
-              }
-              debug("Sending " + packets.length + " OutOfOrder packets");
-              this._sendPacket(
-                client,
-                "MultiPacket",
-                {
-                  subPackets: packets,
-                },
-                true
-              );
-            }
-            (client as any).outOfOrderTimer =
-              setImmediate(checkOutOfOrderQueue);
-          };
-          checkOutOfOrderQueue();
+          this.checkClientOutQueue(client);
+          this.checkAck(client);
+          this.checkOutOfOrderQueue(client);
           this.emit("connect", null, this._clients[clientId]);
         }
         client = this._clients[clientId];
@@ -213,12 +154,65 @@ export class SOEServer extends EventEmitter {
         console.log(e);
       }
     });
-
-    this._connection.on("listening", () => {
-      const { address, port } = this._connection.address();
-      debug("Listening on " + address + ":" + port);
-    });
   }
+  checkClientOutQueue(client:Client) {
+    const data = client.outQueue.shift();
+    if (data) {
+      this._connection.postMessage({
+        type:"sendPacket",
+        data: {packetData:data,
+        length: data.length,
+        port : client.port,
+        address : client.address}});
+    }
+    (client as any).outQueueTimer = setTimeout(()=>this.checkClientOutQueue(client));
+  };
+
+  checkAck(client:Client) {
+    if (client.lastAck != client.nextAck) {
+      client.lastAck = client.nextAck;
+      this._sendPacket(
+        client,
+        "Ack",
+        {
+          channel: 0,
+          sequence: client.nextAck,
+        },
+        true
+      );
+    }
+    (client as any).ackTimer = setTimeout(()=>this.checkAck(client));
+  };
+
+  checkOutOfOrderQueue(client:Client){
+    if (client.outOfOrderPackets.length) {
+      const packets = [];
+      for (let i = 0; i < this._maxOutOfOrderPacketsPerLoop; i++) {
+        const sequence = client.outOfOrderPackets.shift();
+        packets.push({
+          name: "OutOfOrder",
+          soePacket: {
+            channel: 0,
+            sequence: sequence,
+          },
+        });
+        if (!client.outOfOrderPackets.length) {
+          break;
+        }
+      }
+      debug("Sending " + packets.length + " OutOfOrder packets");
+      this._sendPacket(
+        client,
+        "MultiPacket",
+        {
+          subPackets: packets,
+        },
+        true
+      );
+    }
+    (client as any).outOfOrderTimer =
+      setTimeout(()=>this.checkOutOfOrderQueue(client),50);
+  };
 
   handlePacket(client: Client, packet: any) {
     const {
@@ -374,11 +368,11 @@ export class SOEServer extends EventEmitter {
     this._crcSeed = crcSeed;
     this._crcLength = crcLength;
     this._udpLength = udpLength;
-    this._connection.bind(this._serverPort, function () {});
+    this._connection.postMessage({type:"bind"});
   }
 
   stop(): void {
-    this._connection.close();
+    this._connection.postMessage({type:"close"});
     process.exit(0);
   }
 

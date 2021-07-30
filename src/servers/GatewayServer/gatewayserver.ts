@@ -15,15 +15,13 @@ import { SOEServer } from "../SoeServer/soeserver";
 import { GatewayProtocol } from "../../protocols/gatewayprotocol";
 import {
   Client,
-  GatewayProtocolInterface,
-  SoeServer,
 } from "../../types/gatewayserver";
 
 const debug = require("debug")("GatewayServer");
 
 export class GatewayServer extends EventEmitter {
-  _soeServer: SoeServer;
-  _protocol: GatewayProtocolInterface;
+  _soeServer: SOEServer;
+  _protocol: GatewayProtocol;
   _compression: number;
   _crcSeed: number;
   _crcLength: number;
@@ -47,7 +45,7 @@ export class GatewayServer extends EventEmitter {
       this._compression,
       true
     ) as any; // as any since SOEServer isn't typed
-    this._protocol = new GatewayProtocol() as GatewayProtocolInterface;
+    this._protocol = new GatewayProtocol();
     this._soeServer.on("connect", (err: string, client: Client) => {
       debug("Client connected from " + client.address + ":" + client.port);
       this.emit("connect", err, client);
@@ -76,7 +74,6 @@ export class GatewayServer extends EventEmitter {
               );
 
               if (result && result.characterId) {
-                setImmediate(() => {
                   this.emit(
                     "login",
                     null,
@@ -84,7 +81,6 @@ export class GatewayServer extends EventEmitter {
                     result.characterId,
                     result.ticket
                   );
-                });
               }
               break;
             case "Logout":

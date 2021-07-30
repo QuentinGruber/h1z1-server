@@ -5,6 +5,7 @@ const loginServer = new Worker(`${__dirname}/workers/loginServer.js`);
 loginServer.on("message", testLoad);
 
 function testLoad() {
+  setTimeout(()=>{
   for (let index = 0; index < 100; index++) {
     const client = new LoginClient(
       295110,
@@ -25,7 +26,7 @@ function testLoad() {
       client.requestCharacterInfo();
     });
     client.on("characterinfo", (err, res) => {
-      client.requestCharacterLogin("0x0000000000000001", 1, {
+      client.requestCharacterLogin("0x03147cca2a860191", 1, {
         locale: "EnUS",
         localeId: 1,
         preferredGatewayId: 8,
@@ -35,4 +36,5 @@ function testLoad() {
       console.timeEnd("FullLogin" + index);
     });
   }
+},2000)
 }
