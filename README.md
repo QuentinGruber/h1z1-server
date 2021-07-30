@@ -83,12 +83,6 @@ Execute this command in CMD/Powershell ( you have to be in your h1z1 game folder
 
 `.\H1Z1.exe sessionid=0 server=localhost:1115`
 
-## Demo
-
-* https://github.com/H1emu/h1emu-launcher/releases/latest
-
-* [h1z1-server-QuickStart](https://github.com/H1emu/h1z1-server-QuickStart) and follow the instruction in wrote in his README
-
 ### Enable Debug log
 
 Since v0.2.3 of h1z1-server the npm package [debug](https://www.npmjs.com/package/debug) is used to make debug logs.
@@ -97,3 +91,9 @@ Since v0.2.3 of h1z1-server the npm package [debug](https://www.npmjs.com/packag
 
 * `set DEBUG=* & node loginserver.js`
 * `set DEBUG=ZoneServer & node zoneserver.js`
+
+## Demo
+
+* https://github.com/H1emu/h1emu-launcher/releases/latest
+
+* [h1z1-server-QuickStart](https://github.com/H1emu/h1z1-server-QuickStart) and follow the instruction in wrote in his README
