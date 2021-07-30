@@ -49,9 +49,6 @@ export class ZoneServer2016 extends ZoneServer {
       require.resolve("../../../data/2016/sampleData/sendself.json") // reload json
     ];
     this._dummySelf = require("../../../data/2016/sampleData/sendself.json"); // dummy self
-    const {
-      data: { identity },
-    } = this._dummySelf;
 
     let characterName;
     let character:any;
