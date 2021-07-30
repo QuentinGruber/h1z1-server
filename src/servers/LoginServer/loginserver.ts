@@ -374,7 +374,7 @@ export class LoginServer extends EventEmitter {
     const newCharacter = _.cloneDeep(SinglePlayerCharacter);
     newCharacter.serverId = serverId;
     newCharacter.payload.name = characterName;
-    newCharacter.characterId = generateRandomGuid().toLowerCase();
+    newCharacter.characterId = generateRandomGuid();
     if (this._soloMode) {
       SinglePlayerCharacters[SinglePlayerCharacters.length] = newCharacter;
       if (this._protocol.protocolName == "LoginUdp_9") {
