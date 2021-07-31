@@ -12,7 +12,6 @@ async function connecToMongo() {
     throw console.log("[ERROR]Unable to connect to mongo server");
   }
   return mongoClient.db("h1server");
-
 }
 
 async function saveWorld() {

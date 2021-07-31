@@ -6,10 +6,14 @@ const debug = require("debug")("zonepacketHandlers");
 
 const dev: any = {
   testpacket: function (server: ZoneServer, client: Client, args: any[]) {
-    server.sendData(client, "PlayerUpdate.AttachObject", {objects:[{
-      targetObjectId: client.character.characterId,
-      position: client.character.state.position,
-      rotation: client.character.state.position}]
+    server.sendData(client, "PlayerUpdate.AttachObject", {
+      objects: [
+        {
+          targetObjectId: client.character.characterId,
+          position: client.character.state.position,
+          rotation: client.character.state.position,
+        },
+      ],
     });
   },
   testNpcMove: function (server: ZoneServer, client: Client, args: any[]) {
@@ -50,7 +54,9 @@ const dev: any = {
       const npc = server._npcs[npcKey];
       server.sendData(client, "Ragdoll.UpdatePose", {
         characterId: npc.characterId,
-        positionUpdate: server.createPositionUpdate(new Float32Array([10,10,10,1]))
+        positionUpdate: server.createPositionUpdate(
+          new Float32Array([10, 10, 10, 1])
+        ),
       });
     }
   },

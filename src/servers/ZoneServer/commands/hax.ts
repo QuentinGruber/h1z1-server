@@ -10,18 +10,16 @@ let isSonic = false;
 let isVehicle = false;
 
 const hax: any = {
-  placement:function (server: ZoneServer, client: Client, args: any[]) {
+  placement: function (server: ZoneServer, client: Client, args: any[]) {
     const modelChoosen = args[1];
     if (!modelChoosen) {
-      server.sendChatText(
-        client,
-        "[ERROR] Usage /hax placement {modelId}"
-      );
+      server.sendChatText(client, "[ERROR] Usage /hax placement {modelId}");
       return;
     }
-    server.sendData(client, "Construction.PlacementResponse", {model:modelChoosen});
-  }
-  ,
+    server.sendData(client, "Construction.PlacementResponse", {
+      model: modelChoosen,
+    });
+  },
   siren: function (server: ZoneServer, client: Client, args: any[]) {
     switch (client.vehicle.mountedVehicleType) {
       case "policecar":
@@ -220,11 +218,15 @@ const hax: any = {
     server.removeForcedTime();
     server.sendChatText(client, "Game time is now based on real time", true);
   },
-  globalHeartAttack: function (server: ZoneServer, client: Client, args: any[]) {
+  globalHeartAttack: function (
+    server: ZoneServer,
+    client: Client,
+    args: any[]
+  ) {
     for (const npcKey in server._npcs) {
       const npc = server._npcs[npcKey];
       server.sendData(client, "PlayerUpdate.StartMultiStateDeath", {
-        characterId: npc.characterId
+        characterId: npc.characterId,
       });
     }
   },
@@ -435,14 +437,14 @@ const hax: any = {
     client: Client,
     args: any[]
   ) {
-    await server._dynamicWeatherWorker.terminate()
+    await server._dynamicWeatherWorker.terminate();
     server._dynamicWeatherWorker = null;
     // TODO fix this for mongo
-    if(server._soloMode){
-    server.changeWeather(
-      client,
-      server._weatherTemplates[server._defaultWeatherTemplate]
-    );
+    if (server._soloMode) {
+      server.changeWeather(
+        client,
+        server._weatherTemplates[server._defaultWeatherTemplate]
+      );
     }
     server.sendChatText(client, "Dynamic weather removed !");
   },

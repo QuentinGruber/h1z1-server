@@ -1,50 +1,48 @@
 import dgram from "dgram";
 
-import { workerData,parentPort } from "worker_threads";
+import { workerData, parentPort } from "worker_threads";
 const debug = require("debug")("UDPserver");
 
 interface Message {
-    type:string,
-    data?:any
+  type: string;
+  data?: any;
 }
 
+if (workerData) {
+  const { serverPort } = workerData;
+  const connection = dgram.createSocket("udp4");
 
-if(workerData){
+  connection.on("listening", () => {
+    const { address, port } = connection.address();
+    debug("Listening on " + address + ":" + port);
+  });
 
-    const { serverPort } = workerData;
-    const connection = dgram.createSocket("udp4");
+  connection.on("error", (err) => {
+    console.log(`server error:\n${err.stack}`);
+  });
 
-
-
-    connection.on("listening", () => {
-        const { address, port } = connection.address();
-        debug("Listening on " + address + ":" + port);
+  connection.on("message", (data, remote) => {
+    parentPort?.postMessage({
+      type: "incommingPacket",
+      data: data,
+      remote: remote,
     });
+  });
 
-    connection.on('error', (err) => {
-        console.log(`server error:\n${err.stack}`);
-    });
-
-    connection.on("message", (data, remote) => {
-        parentPort?.postMessage({type:"incommingPacket",data:data,remote:remote});
-    })
-
-
-    parentPort?.on('message', (message:Message) => {
-        switch (message.type) {
-            case "sendPacket":
-                const {packetData,port,address} = message.data
-                connection.send(packetData,port,address)
-                break;
-            case "bind":
-                connection.bind(serverPort, function () {})
-            break;
-            case "close":
-                connection.close();
-                process.exit(0);
-            default:
-                break;
-        }
-    });
-
+  parentPort?.on("message", (message: Message) => {
+    switch (message.type) {
+      case "sendPacket":
+        const { packetData, port, address } = message.data;
+        connection.send(packetData, port, address);
+        break;
+      case "bind":
+        connection.bind(serverPort, function () {});
+        break;
+      case "close":
+        connection.close();
+        process.exit(0);
+      default:
+        break;
+    }
+  });
 }

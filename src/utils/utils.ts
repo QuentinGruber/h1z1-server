@@ -74,25 +74,31 @@ export const randomIntFromInterval = (min: number, max: number) => {
   return Math.floor(Math.random() * (max - min + 1) + min);
 };
 
-export const getAppDataFolderPath = ():string => {
-  const folderName = "h1emu"
-  return `${process.env.APPDATA || process.env.HOME}/${folderName}`
+export const getAppDataFolderPath = (): string => {
+  const folderName = "h1emu";
+  return `${process.env.APPDATA || process.env.HOME}/${folderName}`;
 };
 
-export const setupAppDataFolder = ():void => {
+export const setupAppDataFolder = (): void => {
   const AppDataFolderPath = getAppDataFolderPath();
-  if(!fs.existsSync(AppDataFolderPath)){
+  if (!fs.existsSync(AppDataFolderPath)) {
     fs.mkdirSync(AppDataFolderPath);
   }
-  if(!fs.existsSync(`${AppDataFolderPath}/single_player_characters.json`)){
-    fs.writeFileSync(`${AppDataFolderPath}/single_player_characters.json`,JSON.stringify([]));
+  if (!fs.existsSync(`${AppDataFolderPath}/single_player_characters.json`)) {
+    fs.writeFileSync(
+      `${AppDataFolderPath}/single_player_characters.json`,
+      JSON.stringify([])
+    );
   }
-  if(!fs.existsSync(`${AppDataFolderPath}/single_player_characters2016.json`)){
-    fs.writeFileSync(`${AppDataFolderPath}/single_player_characters2016.json`,JSON.stringify([]));
+  if (
+    !fs.existsSync(`${AppDataFolderPath}/single_player_characters2016.json`)
+  ) {
+    fs.writeFileSync(
+      `${AppDataFolderPath}/single_player_characters2016.json`,
+      JSON.stringify([])
+    );
   }
 };
-
-
 
 const isBetween = (radius: number, value1: number, value2: number): boolean => {
   return value1 <= value2 + radius && value1 >= value2 - radius;

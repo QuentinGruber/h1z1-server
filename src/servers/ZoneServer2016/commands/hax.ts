@@ -4,7 +4,6 @@ import { ZoneServer2016 } from "../zoneserver";
 import { _ } from "../../../utils/utils";
 const debug = require("debug")("zonepacketHandlers");
 
-
 function getHeadActor(modelId: number) {
   switch (modelId) {
     case 9240:
@@ -189,7 +188,11 @@ const hax: any = {
       server._vehicles[characterId] = vehicle; // save vehicle
     }
   },
-  spawnSimpleNpc: function (server: ZoneServer2016, client: Client, args: any[]) {
+  spawnSimpleNpc: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: any[]
+  ) {
     const characterId = server.generateGuid();
     const transientId = server.getTransientId(client, characterId);
     if (!args[1]) {
@@ -217,7 +220,11 @@ const hax: any = {
     //server.sendData(client, "AddSimpleNpc", obj);
     server._objects[characterId] = obj; // save npc
   },
-  spawnNpcModel: function (server: ZoneServer2016, client: Client, args: any[]) {
+  spawnNpcModel: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: any[]
+  ) {
     const guid = server.generateGuid();
     const transientId = server.getTransientId(client, guid);
     if (!args[1]) {
@@ -340,8 +347,8 @@ const hax: any = {
           client.character.state.position[0],
           client.character.state.position[1],
           client.character.state.position[2],
-        ]
-      }
+        ],
+      },
     };
     //server.sendData(client, "AddLightweightPc", pc);
     server._characters[guid] = pc; // save pc (disabled for now)
@@ -367,9 +374,13 @@ const hax: any = {
       message: " ",
     });
   },
-  weather: async function (server: ZoneServer2016, client: Client, args: any[]) {
+  weather: async function (
+    server: ZoneServer2016,
+    client: Client,
+    args: any[]
+  ) {
     if (server._dynamicWeatherEnabled) {
-      await server._dynamicWeatherWorker.terminate()
+      await server._dynamicWeatherWorker.terminate();
       server._dynamicWeatherWorker = null;
       server.sendChatText(client, "Dynamic weather removed !");
     }
@@ -405,7 +416,11 @@ const hax: any = {
       }
     }
   },
-  saveCurrentWeather: async function (server: ZoneServer2016, client: Client, args: any[]) {
+  saveCurrentWeather: async function (
+    server: ZoneServer2016,
+    client: Client,
+    args: any[]
+  ) {
     if (!args[1]) {
       server.sendChatText(
         client,
@@ -465,7 +480,11 @@ const hax: any = {
       runSpeed: speed,
     });
   },
-  randomWeather: function (server: ZoneServer2016, client: Client, args: any[]) {
+  randomWeather: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: any[]
+  ) {
     debug("Randomized weather");
     server.sendChatText(client, `Randomized weather`);
     function rnd_number() {
