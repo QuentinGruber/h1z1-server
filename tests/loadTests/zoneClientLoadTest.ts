@@ -1,5 +1,4 @@
 import { ZoneClient } from "../../h1z1-server";
-import { Int64String } from "../../out/utils/utils.js";
 
 import { Worker } from "worker_threads";
 
