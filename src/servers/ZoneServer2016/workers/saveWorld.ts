@@ -4,21 +4,14 @@ import { MongoClient } from "mongodb";
 async function connecToMongo() {
   const { mongoAddress } = workerData;
 
-  const mongoClient = new MongoClient(mongoAddress, {
-    useUnifiedTopology: true,
-    native_parser: true,
-  });
+  const mongoClient = new MongoClient(mongoAddress);
 
   try {
     await mongoClient.connect();
   } catch (e) {
     throw console.log("[ERROR]Unable to connect to mongo server");
   }
-  if (mongoClient.isConnected()) {
-    return mongoClient.db("h1server");
-  } else {
-    throw console.log("Unable to authenticate on mongo !");
-  }
+  return mongoClient.db("h1server");
 }
 
 async function saveWorld() {

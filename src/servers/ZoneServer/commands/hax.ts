@@ -10,6 +10,16 @@ let isSonic = false;
 let isVehicle = false;
 
 const hax: any = {
+  placement: function (server: ZoneServer, client: Client, args: any[]) {
+    const modelChoosen = args[1];
+    if (!modelChoosen) {
+      server.sendChatText(client, "[ERROR] Usage /hax placement {modelId}");
+      return;
+    }
+    server.sendData(client, "Construction.PlacementResponse", {
+      model: modelChoosen,
+    });
+  },
   siren: function (server: ZoneServer, client: Client, args: any[]) {
     switch (client.vehicle.mountedVehicleType) {
       case "policecar":
@@ -208,6 +218,18 @@ const hax: any = {
     server.removeForcedTime();
     server.sendChatText(client, "Game time is now based on real time", true);
   },
+  globalHeartAttack: function (
+    server: ZoneServer,
+    client: Client,
+    args: any[]
+  ) {
+    for (const npcKey in server._npcs) {
+      const npc = server._npcs[npcKey];
+      server.sendData(client, "PlayerUpdate.StartMultiStateDeath", {
+        characterId: npc.characterId,
+      });
+    }
+  },
   tp: function (server: ZoneServer, client: Client, args: any[]) {
     client.isLoading = true;
     const choosenSpawnLocation = args[1];
@@ -346,6 +368,7 @@ const hax: any = {
     }
     const npc = {
       characterId: characterId,
+      worldId: server._worldId,
       guid: guid,
       transientId: transientId,
       modelId: choosenModelId,
@@ -360,6 +383,7 @@ const hax: any = {
     };
     isVehicle = false;
     server.sendDataToAll("PlayerUpdate.AddLightweightNpc", npc);
+    server._db?.collection("npcs").insertOne(npc);
     server._npcs[characterId] = npc; // save npc
   },
   sonic: function (server: ZoneServer, client: Client, args: any[]) {
@@ -413,19 +437,20 @@ const hax: any = {
     client: Client,
     args: any[]
   ) {
-    clearInterval(server._dynamicWeatherInterval);
-    server._dynamicWeatherInterval = null;
-    server.changeWeather(
-      client,
-      server._weatherTemplates[server._defaultWeatherTemplate]
-    );
+    await server._dynamicWeatherWorker.terminate();
+    server._dynamicWeatherWorker = null;
+    // TODO fix this for mongo
+    if (server._soloMode) {
+      server.changeWeather(
+        client,
+        server._weatherTemplates[server._defaultWeatherTemplate]
+      );
+    }
     server.sendChatText(client, "Dynamic weather removed !");
   },
   weather: function (server: ZoneServer, client: Client, args: any[]) {
-    if (server._dynamicWeatherInterval) {
-      clearInterval(server._dynamicWeatherInterval);
-      server._dynamicWeatherInterval = null;
-      server.sendChatText(client, "Dynamic weather removed !");
+    if (server._dynamicWeatherWorker) {
+      hax["removeDynamicWeather"](server, client, args);
     }
     const weatherTemplate = server._soloMode
       ? server._weatherTemplates[args[1]]
@@ -764,9 +789,9 @@ const hax: any = {
     });
   },
   randomWeather: function (server: ZoneServer, client: Client, args: any[]) {
-    if (server._dynamicWeatherInterval) {
-      clearInterval(server._dynamicWeatherInterval);
-      server._dynamicWeatherInterval = null;
+    if (server._dynamicWeatherWorker) {
+      clearInterval(server._dynamicWeatherWorker);
+      server._dynamicWeatherWorker = null;
       server.sendChatText(client, "Dynamic weather removed !");
     }
     debug("Randomized weather");

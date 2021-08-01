@@ -1,7 +1,7 @@
 const restore = require("mongodb-restore-dump");
 import { generate_random_guid } from "h1emu-core";
 import v8 from "v8";
-
+import fs from "fs";
 export class customLodash {
   constructor() {}
   cloneDeep(value: any) {
@@ -54,7 +54,6 @@ export async function zoneShutdown(
       status: 1,
       sessionId: "0", // TODO: get sessionId from client object
     });
-    await server.saveWorld();
     setTimeout(() => {
       process.exit(0);
     }, 5000);
@@ -73,6 +72,32 @@ export async function zoneShutdown(
 export const randomIntFromInterval = (min: number, max: number) => {
   // min and max included
   return Math.floor(Math.random() * (max - min + 1) + min);
+};
+
+export const getAppDataFolderPath = (): string => {
+  const folderName = "h1emu";
+  return `${process.env.APPDATA || process.env.HOME}/${folderName}`;
+};
+
+export const setupAppDataFolder = (): void => {
+  const AppDataFolderPath = getAppDataFolderPath();
+  if (!fs.existsSync(AppDataFolderPath)) {
+    fs.mkdirSync(AppDataFolderPath);
+  }
+  if (!fs.existsSync(`${AppDataFolderPath}/single_player_characters.json`)) {
+    fs.writeFileSync(
+      `${AppDataFolderPath}/single_player_characters.json`,
+      JSON.stringify([])
+    );
+  }
+  if (
+    !fs.existsSync(`${AppDataFolderPath}/single_player_characters2016.json`)
+  ) {
+    fs.writeFileSync(
+      `${AppDataFolderPath}/single_player_characters2016.json`,
+      JSON.stringify([])
+    );
+  }
 };
 
 const isBetween = (radius: number, value1: number, value2: number): boolean => {
@@ -95,7 +120,7 @@ export const Int64String = function (value: number): string {
 };
 
 export const generateRandomGuid = function (): string {
-  return "0x" + generate_random_guid().toLocaleLowerCase();
+  return "0x" + generate_random_guid();
 };
 
 export const lz4_decompress = function (

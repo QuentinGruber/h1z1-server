@@ -2,7 +2,8 @@
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
-//   copyright (c) 2021 Quentin Gruber
+//   copyright (c) 2020 - 2021 Quentin Gruber
+//   copyright (c) 2021 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -5060,7 +5061,27 @@ var packets = [
       ],
     },
   ],
-  ["PlayerUpdate.Knockback", 0x0f02, {}],
+  [
+    "PlayerUpdate.Knockback",
+    0x0f02,
+    {
+      fields: [
+        { name: "characterId", type: "uint64", defaultValue: "0" },
+        { name: "unk", type: "uint32", defaultValue: 1 },
+        {
+          name: "position",
+          type: "floatvector4",
+          defaultValue: [0, 50, 0, 1],
+        },
+        {
+          name: "rotation",
+          type: "floatvector4",
+          defaultValue: [0, 0, 0, 1],
+        },
+        { name: "unk2", type: "uint32", defaultValue: 1 },
+      ],
+    },
+  ],
   ["PlayerUpdate.UpdateHitpoints", 0x0f03, {}],
   ["PlayerUpdate.PlayAnimation", 0x0f04, {}],
   ["PlayerUpdate.AddNotifications", 0x0f05, {}],
@@ -5102,10 +5123,53 @@ var packets = [
       ],
     },
   ],
-  ["PlayerUpdate.UpdateTemporaryAppearance", 0x0f09, {}],
-  ["PlayerUpdate.RemoveTemporaryAppearance", 0x0f0a, {}],
+  [
+    "PlayerUpdate.UpdateTemporaryAppearance",
+    0x0f09,
+    {
+      fields: [
+        {
+          name: "modelId",
+          type: "uint32",
+          defaultValue: 9008,
+        },
+        {
+          name: "characterId",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+      ],
+    },
+  ],
+  [
+    "PlayerUpdate.RemoveTemporaryAppearance",
+    0x0f0a,
+    {
+      fields: [
+        {
+          name: "characterId",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        {
+          name: "modelId?",
+          type: "uint32",
+          defaultValue: 9008,
+        },
+      ],
+    },
+  ],
   ["PlayerUpdate.PlayCompositeEffect", 0x0f0b, {}],
-  ["PlayerUpdate.SetLookAt", 0x0f0c, {}],
+  [
+    "PlayerUpdate.SetLookAt",
+    0x0f0c,
+    {
+      fields: [
+        { name: "characterId", type: "uint64", defaultValue: "0" },
+        { name: "targetCharacterId", type: "uint64", defaultValue: "0" },
+      ],
+    },
+  ],
   ["PlayerUpdate.RenamePlayer", 0x0f0d, {}],
   [
     "PlayerUpdate.UpdateCharacterState",
@@ -5209,7 +5273,16 @@ var packets = [
       ],
     },
   ],
-  ["PlayerUpdate.UpdateOwner", 0x0f24, {}],
+  [
+    "PlayerUpdate.UpdateOwner",
+    0x0f24,
+    {
+      fields: [
+        { name: "characterId", type: "uint64", defaultValue: "0" },
+        { name: "unk", type: "uint8", defaultValue: 0 },
+      ],
+    },
+  ],
   ["PlayerUpdate.WeaponStance", 0x0f25, {}],
   ["PlayerUpdate.UpdateTintAlias", 0x0f26, {}],
   [
@@ -5302,11 +5375,11 @@ var packets = [
           type: "uint64",
           defaultValue: "0x0000000000000000",
         },
-        { name: "unknown5", type: "uint32", defaultValue: 0 },
-        { name: "unknown6", type: "uint32", defaultValue: 0 },
-        { name: "unknown7", type: "uint32", defaultValue: 0 },
-        { name: "unknown8", type: "uint32", defaultValue: 0 },
-        { name: "unknown9", type: "uint32", defaultValue: 0 },
+        { name: "unknown5", type: "float", defaultValue: 1 },
+        { name: "unknown6", type: "float", defaultValue: 1 },
+        { name: "unknown7", type: "float", defaultValue: 1 },
+        { name: "unknown8", type: "float", defaultValue: 1 },
+        { name: "unknown9", type: "float", defaultValue: 1 },
         {
           name: "rotation",
           type: "floatvector4",
@@ -5524,7 +5597,20 @@ var packets = [
   ],
   ["PlayerUpdate.ReadyToReviveResponse", 0x0f3a, {}],
   ["PlayerUpdate.ActivateProfile", 0x0f3b, {}],
-  ["PlayerUpdate.SetSpotted", 0x0f3c, {}],
+  ["PlayerUpdate.SetSpotted", 0x0f3c, {
+    fields: [
+      {
+        name: "unkArray",
+        type: "array",
+        defaultValue: [],
+        fields: [
+          { name: "guid", type: "uint64", defaultValue: "0" },
+        ],
+      },
+      { name: "unk1", type: "uint32", defaultValue: 100 },
+      { name: "unk2", type: "uint8", defaultValue: 1 },
+    ],
+  }],
   [
     "PlayerUpdate.Jet",
     0x0f3d,
@@ -5888,7 +5974,7 @@ var packets = [
           type: "uint64",
           defaultValue: "0x0000000000000000",
         },
-        { name: "unknown5", type: "byte", defaultValue: 0 },
+        { name: "isCheater", type: "boolean", defaultValue: 0 },
       ],
     },
   ],
@@ -5939,14 +6025,11 @@ var packets = [
           type: "uint64",
           defaultValue: "0x0000000000000000",
         },
-        { name: "unknown4", type: "byte", defaultValue: 0 },
-        { name: "unknown5", type: "byte", defaultValue: 0 },
-        { name: "unknown6", type: "byte", defaultValue: 0 },
-        {
-          name: "unknown7",
-          type: "uint64",
-          defaultValue: "0x0000000000000000",
-        },
+        { name: "unknown4", type: "uint8", defaultValue: 0 }, // die by falling to there left
+        { name: "unknown5", type: "uint8", defaultValue: 1 }, // weird accrobatic stuff
+        // when unknown4 & unknown5 are > 0 then the animation play in a loop forever
+        { name: "unknown6", type: "uint8", defaultValue: 0 },
+        // seems like some bytes can be added after that but not required
       ],
     },
   ],
@@ -6222,7 +6305,19 @@ var packets = [
       ],
     },
   ],
-  ["ClientUpdate.UpdateManagedLocation", 0x112400, {}],
+  [
+    "ClientUpdate.UpdateManagedLocation",
+    0x112400,
+    {
+      fields: [
+        { name: "characterId", type: "uint64", defaultValue: "0" },
+        { name: "position", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
+        { name: "rotation", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
+        { name: "unk1", type: "uint8", defaultValue: 1 },
+        { name: "unk2", type: "uint8", defaultValue: 1 },
+      ],
+    },
+  ],
   [
     "ClientUpdate.ScreenEffect",
     0x112500,
@@ -9355,7 +9450,41 @@ var packets = [
   ["Items.RequestUseItem", 0xaf16, {}],
   ["Items.RequestUseAccountItem", 0xaf17, {}],
 
-  ["PlayerUpdate.AttachObject", 0xb0, {}],
+  [
+    "PlayerUpdate.AttachObject",
+    0xb0,
+    {
+      fields: [
+        // WIP
+        {
+          name: "objects",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            {
+              name: "targetObjectId",
+              type: "uint64",
+              defaultValue: "0x0000000000000001",
+            },
+            {
+              name: "position",
+              type: "floatvector4",
+              defaultValue: [0, 50, 0, 1],
+            },
+            {
+              name: "rotation",
+              type: "floatvector4",
+              defaultValue: [0, 0, 0, 1],
+            },
+            { name: "unk4", type: "uint32", defaultValue: 9001 },
+            { name: "unk5", type: "uint32", defaultValue: 9851 },
+            { name: "unk6", type: "uint32", defaultValue: 9001 },
+            { name: "unk7", type: "uint32", defaultValue: 9851 },
+          ],
+        },
+      ],
+    },
+  ],
   ["PlayerUpdate.DetachObject", 0xb1, {}],
   [
     "ClientSettings",
@@ -9535,24 +9664,32 @@ var packets = [
   ["Container.Error", 0xcb03, {}],
   ["Container.PacketListAll", 0xcb05, {}],
   ["Container.UpdateEquippedContainer", 0xcb06, {}],
-  ["Construction.PlacementRequest", 0xcc01, {}],
+  ["Construction.PlacementRequest", 0xcc01, { fields: [] }],
   [
     "Construction.PlacementResponse",
     0xcc02,
     {
       fields: [
-        { name: "Unknown1", type: "byte", defaultValue: 0 },
-        { name: "Unknown2", type: "uint16", defaultValue: 0 },
+        { name: "Unknown2", type: "boolean", defaultValue: 0 },
         { name: "Unknown3", type: "uint32", defaultValue: 0 },
-        { name: "Unknown4", type: "uint32", defaultValue: 0 },
+        { name: "model", type: "uint32", defaultValue: 55 },
       ],
     },
   ],
-  ["Construction.PlacementFinalizeRequest", 0xcc03, {}],
+  [
+    "Construction.PlacementFinalizeRequest",
+    0xcc03,
+    {
+      fields: [
+        { name: "position", type: "floatvector3", defaultValue: [0, 0, 0] },
+        { name: "rotation", type: "floatvector3", defaultValue: [0, 0, 0] },
+      ],
+    },
+  ],
   [
     "Construction.PlacementFinalizeResponse",
     0xcc04,
-    { fields: [{ name: "status", type: "boolean", defaultValue: 0 }] },
+    { fields: [{ name: "status", type: "boolean", defaultValue: 1 }] },
   ],
   [
     "SkyChanged",
@@ -9568,12 +9705,18 @@ var packets = [
     0xd001,
     {
       fields: [
-        { name: "unk", type: "boolean", defaultValue: 0 }, // if set to true it need at lot more fields that seems to be a positionUpdate
+        { name: "usePositionUpdate", type: "boolean", defaultValue: 0 }, // if set to true it need at lot more fields that seems to be a positionUpdate
         {
           name: "characterId",
           type: "uint64",
           defaultValue: "0x0000000000000000",
         },
+        /*{
+          name: "positionUpdate",
+          type: "custom",
+          parser: readPositionUpdateData,
+          packer: packPositionUpdateData,
+        },*/
       ],
     },
   ],

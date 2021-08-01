@@ -2,7 +2,8 @@
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
-//   copyright (c) 2021 Quentin Gruber
+//   copyright (c) 2020 - 2021 Quentin Gruber
+//   copyright (c) 2021 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -14,7 +15,7 @@ import { EventEmitter } from "events";
 import { GatewayServer } from "../GatewayServer/gatewayserver";
 import { default as packetHandlers } from "./zonepackethandlers";
 import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
-import { _ } from "../../utils/utils";
+import { getAppDataFolderPath, setupAppDataFolder, _ } from "../../utils/utils";
 import {
   generateRandomGuid,
   initMongo,
@@ -24,7 +25,6 @@ import {
 import { Client, Weather } from "../../types/zoneserver";
 import { Db, MongoClient } from "mongodb";
 import { Worker } from "worker_threads";
-import dynamicWeather from "./workers/dynamicWeather";
 
 const localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json");
 
@@ -52,6 +52,7 @@ export class ZoneServer extends EventEmitter {
   _referenceData: any;
   _startTime: number;
   _startGameTime: number;
+  _timeMultiplier: number;
   _cycleSpeed: number;
   _frozeCycle: boolean;
   _profiles: any[];
@@ -65,7 +66,7 @@ export class ZoneServer extends EventEmitter {
   _pingTimeoutTime: number;
   _worldId: number;
   _npcRenderDistance: number;
-  _dynamicWeatherInterval: any;
+  _dynamicWeatherWorker: any;
   _dynamicWeatherEnabled: boolean;
   _vehicles: any;
   _respawnLocations: any[];
@@ -73,6 +74,7 @@ export class ZoneServer extends EventEmitter {
   _props: any;
   _interactionDistance: number;
   _dummySelf: any;
+  _appDataFolder: string;
 
   constructor(
     serverPort: number,
@@ -102,6 +104,7 @@ export class ZoneServer extends EventEmitter {
     this._packetHandlers = packetHandlers;
     this._startTime = 0;
     this._startGameTime = 0;
+    this._timeMultiplier = 72;
     this._cycleSpeed = 0;
     this._frozeCycle = false;
     this._reloadPacketsInterval;
@@ -115,6 +118,7 @@ export class ZoneServer extends EventEmitter {
     this._pingTimeoutTime = 30000;
     this._dynamicWeatherEnabled = true;
     this._dummySelf = require("../../../data/2015/sampleData/sendself.json");
+    this._appDataFolder = getAppDataFolderPath();
     this._respawnLocations = spawnLocations.map((spawn: any) => {
       return {
         guid: this.generateGuid(),
@@ -189,11 +193,11 @@ export class ZoneServer extends EventEmitter {
       (client: Client) => {
         this.sendChatText(
           client,
-          "You've almost reach the packet limitation with the server."
+          "You've almost reached the packet limitation for the server."
         );
         this.sendChatText(
           client,
-          "We will disconnect you in 60 seconds ( you can do it yourself )"
+          "We will disconnect you in 60 seconds ( You can also do it yourself )"
         );
         this.sendChatText(client, "Sorry for that.");
         setTimeout(() => {
@@ -214,20 +218,10 @@ export class ZoneServer extends EventEmitter {
         loginSessionId: string
       ) => {
         debug(
-          "Client logged in from " +
-            client.address +
-            ":" +
-            client.port +
-            " with character id " +
-            characterId
+          `Client logged in from ${client.address}:${client.port} with character id: ${characterId}`
         );
-
         this._clients[client.sessionId] = client;
-        let generatedTransient;
-        do {
-          generatedTransient = Number((Math.random() * 30000).toFixed(0));
-        } while (this._transientIds[generatedTransient]);
-        this._transientIds[generatedTransient] = characterId;
+
         client.isLoading = true;
         client.firstLoading = true;
         client.loginSessionId = loginSessionId;
@@ -235,52 +229,18 @@ export class ZoneServer extends EventEmitter {
           vehicleState: 0,
           falling: -1,
         };
-        client.character = {
-          characterId: characterId,
-          transientId: generatedTransient,
-          isRunning: false,
-          equipment: [
-            { modelName: "Weapon_Empty.adr", slotId: 1 }, // yeah that's an hack TODO find a better way
-            { modelName: "Weapon_Empty.adr", slotId: 7 },
-            {
-              modelName: "SurvivorMale_Ivan_Shirt_Base.adr",
-              defaultTextureAlias: "Ivan_Tshirt_Navy_Shoulder_Stripes",
-              slotId: 3,
-            },
-            {
-              modelName: "SurvivorMale_Ivan_Pants_Base.adr",
-              defaultTextureAlias: "Ivan_Pants_Jeans_Blue",
-              slotId: 4,
-            },
-          ],
-          resources: {
-            health: 5000,
-            stamina: 50,
-            food: 5000,
-            water: 5000,
-            virus: 6000,
-          },
-          state: {
-            position: new Float32Array([0, 0, 0, 0]),
-            rotation: new Float32Array([0, 0, 0, 0]),
-            lookAt: new Float32Array([0, 0, 0, 0]),
-            health: 0,
-            shield: 0,
-          },
-        };
+        this.setupCharacter(client, characterId);
         client.lastPingTime = new Date().getTime() + 120 * 1000;
         client.pingTimer = setInterval(() => {
           this.checkIfClientStillOnline(client);
         }, 20000);
         client.spawnedEntities = [];
-        this._characters[characterId] = client.character;
-
         this.emit("login", err, client);
       }
     );
 
     this._gatewayServer.on("disconnect", (err: string, client: Client) => {
-      debug("Client disconnected from " + client.address + ":" + client.port);
+      debug(`Client disconnected from ${client.address}:${client.port}`);
       clearInterval(client.pingTimer);
       if (client.character?.characterId) {
         delete this._characters[client.character.characterId];
@@ -290,7 +250,7 @@ export class ZoneServer extends EventEmitter {
     });
 
     this._gatewayServer.on("session", (err: string, client: Client) => {
-      debug("Session started for client " + client.address + ":" + client.port);
+      debug(`Session started for client ${client.address}:${client.port}`);
     });
 
     this._gatewayServer.on(
@@ -312,7 +272,8 @@ export class ZoneServer extends EventEmitter {
   }
 
   async setupServer(): Promise<void> {
-    this.forceTime(971172000000); // force day time by default
+    this.forceTime(971172000000); // force day time by default - not working for now
+    this._frozeCycle = false;
     await this.loadMongoData();
     this._weather = this._soloMode
       ? this._weatherTemplates[this._defaultWeatherTemplate]
@@ -324,13 +285,55 @@ export class ZoneServer extends EventEmitter {
       await this._db?.collection("worlds").findOne({ worldId: this._worldId })
     ) {
       await this.fetchWorldData();
-      setTimeout(() => {
-        this.saveWorld();
-      }, 30000);
     } else {
+      await this._db
+        ?.collection(`worlds`)
+        .insertOne({ worldId: this._worldId });
       await this.saveWorld();
     }
     debug("Server ready");
+  }
+
+  setupCharacter(client: Client, characterId: string) {
+    let generatedTransient;
+    do {
+      generatedTransient = Number((Math.random() * 30000).toFixed(0));
+    } while (this._transientIds[generatedTransient]);
+    client.character = {
+      characterId: characterId,
+      transientId: generatedTransient,
+      isRunning: false,
+      equipment: [
+        { modelName: "Weapon_Empty.adr", slotId: 1 }, // yeah that's an hack TODO find a better way
+        { modelName: "Weapon_Empty.adr", slotId: 7 },
+        {
+          modelName: "SurvivorMale_Ivan_Shirt_Base.adr",
+          defaultTextureAlias: "Ivan_Tshirt_Navy_Shoulder_Stripes",
+          slotId: 3,
+        },
+        {
+          modelName: "SurvivorMale_Ivan_Pants_Base.adr",
+          defaultTextureAlias: "Ivan_Pants_Jeans_Blue",
+          slotId: 4,
+        },
+      ],
+      resources: {
+        health: 5000,
+        stamina: 50,
+        food: 5000,
+        water: 5000,
+        virus: 6000,
+      },
+      state: {
+        position: new Float32Array([0, 0, 0, 0]),
+        rotation: new Float32Array([0, 0, 0, 0]),
+        lookAt: new Float32Array([0, 0, 0, 0]),
+        health: 0,
+        shield: 0,
+      },
+    };
+    this._transientIds[generatedTransient] = characterId;
+    this._characters[characterId] = client.character;
   }
 
   getAllCurrentUsedTransientId() {
@@ -360,15 +363,51 @@ export class ZoneServer extends EventEmitter {
 
   async fetchWorldData(): Promise<void> {
     if (!this._soloMode) {
-      const worldData = await this._db
-        ?.collection("worlds")
-        .findOne({ worldId: this._worldId });
-      this._doors = worldData.doors;
-      this._props = worldData.props;
-      this._vehicles = worldData.vehicles;
-      this._npcs = worldData.npcs;
-      this._objects = worldData.objects;
-      this._weather = worldData.weather;
+      this._doors = {};
+      const doorArray: any = await this._db
+        ?.collection("doors")
+        .find({ worldId: this._worldId })
+        .toArray();
+      for (let index = 0; index < doorArray.length; index++) {
+        const door = doorArray[index];
+        this._doors[door.characterId] = door;
+      }
+      this._props = {};
+      const propsArray: any = await this._db
+        ?.collection("props")
+        .find({ worldId: this._worldId })
+        .toArray();
+      for (let index = 0; index < propsArray.length; index++) {
+        const prop = propsArray[index];
+        this._props[prop.characterId] = prop;
+      }
+      this._vehicles = {};
+      const vehiclesArray: any = await this._db
+        ?.collection("vehicles")
+        .find({ worldId: this._worldId })
+        .toArray();
+      for (let index = 0; index < vehiclesArray.length; index++) {
+        const vehicle = vehiclesArray[index];
+        this._vehicles[vehicle.npcData.characterId] = vehicle;
+      }
+      this._npcs = {};
+      const npcsArray: any = await this._db
+        ?.collection("npcs")
+        .find({ worldId: this._worldId })
+        .toArray();
+      for (let index = 0; index < npcsArray.length; index++) {
+        const npc = npcsArray[index];
+        this._npcs[npc.characterId] = npc;
+      }
+      this._objects = {};
+      const objectsArray: any = await this._db
+        ?.collection("objects")
+        .find({ worldId: this._worldId })
+        .toArray();
+      for (let index = 0; index < objectsArray.length; index++) {
+        const object = objectsArray[index];
+        this._objects[object.characterId] = object;
+      }
       this._transientIds = this.getAllCurrentUsedTransientId();
       debug("World fetched!");
     }
@@ -377,65 +416,47 @@ export class ZoneServer extends EventEmitter {
   async saveWorld(): Promise<void> {
     if (!this._soloMode) {
       if (this._worldId) {
-        if (
-          await this._db
-            ?.collection("worlds")
-            .findOne({ worldId: this._worldId })
-        ) {
-          const save = {
-            worldId: this._worldId,
-            npcs: this._npcs,
-            doors: this._doors,
-            props: this._props,
-            vehicles: this._vehicles,
-            weather: this._weather,
-            objects: this._objects,
-          };
-          const worker = new Worker(__dirname + "/workers/saveWorld.js", {
-            workerData: {
-              mongoAddress: this._mongoAddress,
-              worldId: this._worldId,
-              worldSave: JSON.stringify(save),
-            },
-          });
-          worker.on("message", debug);
-          worker.on("error", debug);
-        } else {
-          this.createAllObjects();
-          const save = {
-            worldId: this._worldId,
-            npcs: this._npcs,
-            doors: this._doors,
-            props: this._props,
-            vehicles: this._vehicles,
-            weather: this._weather,
-            objects: this._objects,
-          };
-          await this._db?.collection("worlds").insertOne(save);
-        }
+        this.createAllObjects();
+        await this._db
+          ?.collection(`npcs`)
+          .insertMany(Object.values(this._npcs));
+        await this._db
+          ?.collection(`doors`)
+          .insertMany(Object.values(this._doors));
+        await this._db
+          ?.collection(`props`)
+          .insertMany(Object.values(this._props));
+        await this._db
+          ?.collection(`vehicles`)
+          .insertMany(Object.values(this._vehicles));
+        await this._db
+          ?.collection(`objects`)
+          .insertMany(Object.values(this._objects));
       } else {
         this.createAllObjects();
-        const save = {
-          worldId: this._worldId,
-          npcs: this._npcs,
-          doors: this._doors,
-          props: this._props,
-          vehicles: this._vehicles,
-          weather: this._weather,
-          objects: this._objects,
-        };
         const numberOfWorld: number =
           (await this._db?.collection("worlds").find({}).count()) || 0;
-        const createdWorld = await this._db?.collection("worlds").insertOne({
-          ...save,
-          worldId: numberOfWorld + 1,
+        this._worldId = numberOfWorld + 1;
+        await this._db?.collection("worlds").insertOne({
+          worldId: this._worldId,
         });
-        this._worldId = createdWorld?.ops[0].worldId;
+        await this._db
+          ?.collection(`npcs`)
+          .insertMany(Object.values(this._npcs));
+        await this._db
+          ?.collection(`doors`)
+          .insertMany(Object.values(this._doors));
+        await this._db
+          ?.collection(`props`)
+          .insertMany(Object.values(this._props));
+        await this._db
+          ?.collection(`vehicles`)
+          .insertMany(Object.values(this._vehicles));
+        await this._db
+          ?.collection(`objects`)
+          .insertMany(Object.values(this._objects));
         debug("World saved!");
       }
-      setTimeout(() => {
-        this.saveWorld();
-      }, 30000);
     } else {
       this.createAllObjects();
     }
@@ -446,35 +467,39 @@ export class ZoneServer extends EventEmitter {
     debug(`Protocol used : ${this._protocol.protocolName}`);
     if (this._mongoAddress) {
       const mongoClient = (this._mongoClient = new MongoClient(
-        this._mongoAddress,
-        {
-          useUnifiedTopology: true,
-          native_parser: true,
-        }
+        this._mongoAddress
       ));
       try {
         await mongoClient.connect();
       } catch (e) {
         throw debug("[ERROR]Unable to connect to mongo server");
       }
-      if (mongoClient.isConnected()) {
-        debug("connected to mongo !");
-        // if no collections exist on h1server database , fill it with samples
-        (await mongoClient.db("h1server").collections()).length ||
-          (await initMongo(this._mongoAddress, debugName));
-        this._db = mongoClient.db("h1server");
-      } else {
-        throw debug("Unable to authenticate on mongo !");
-      }
+      debug("connected to mongo !");
+      // if no collections exist on h1server database , fill it with samples
+      (await mongoClient.db("h1server").collections()).length ||
+        (await initMongo(this._mongoAddress, debugName));
+      this._db = mongoClient.db("h1server");
     }
     await this.setupServer();
-    this._startTime += Date.now();
+    this._startTime += Date.now() + 82201232; // summer start
     this._startGameTime += Date.now();
+    if (this._soloMode) {
+      setupAppDataFolder();
+    }
     if (this._dynamicWeatherEnabled) {
-      this._dynamicWeatherInterval = setInterval(
-        () => dynamicWeather(this),
-        5000
+      this._dynamicWeatherWorker = new Worker(
+        `${__dirname}/workers/dynamicWeather.js`,
+        {
+          workerData: {
+            timeMultiplier: this._timeMultiplier,
+            serverTime: this._serverTime,
+            startTime: this._startTime,
+          },
+        }
       );
+      this._dynamicWeatherWorker.on("message", (weather: any) => {
+        this.SendSkyChangedPacket({} as Client, weather, true);
+      });
     }
     this._gatewayServer.start();
   }
@@ -522,11 +547,7 @@ export class ZoneServer extends EventEmitter {
     if (new Date().getTime() - client.lastPingTime > this._pingTimeoutTime) {
       clearInterval(client.pingTimer);
       debug(
-        "Client disconnected from " +
-          client.address +
-          ":" +
-          client.port +
-          " ( ping timeout )"
+        `Client disconnected from ${client.address}:${client.port} ( ping timeout )`
       );
       clearInterval(client.character?.resourcesUpdater);
       if (client.character?.characterId) {
@@ -588,7 +609,7 @@ export class ZoneServer extends EventEmitter {
     } = this._dummySelf;
 
     let characterName;
-    let character;
+    let character: any;
     if (!this._soloMode) {
       character = await this._db
         ?.collection("characters")
@@ -596,11 +617,9 @@ export class ZoneServer extends EventEmitter {
       characterName = character.payload.name;
     } else {
       delete require.cache[
-        require.resolve(
-          "../../../data/2015/sampleData/single_player_characters.json"
-        )
+        require.resolve(`${this._appDataFolder}/single_player_characters.json`)
       ];
-      const SinglePlayerCharacters = require("../../../data/2015/sampleData/single_player_characters.json");
+      const SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters.json`);
       character = SinglePlayerCharacters.find(
         (character: any) =>
           character.characterId === client.character.characterId
@@ -614,7 +633,7 @@ export class ZoneServer extends EventEmitter {
     client.character.guid = client.character.characterId;
     client.character.name =
       identity.characterFirstName + identity.characterLastName;
-    const characterDataMongo = await this._db
+    const characterDataMongo: any = await this._db
       ?.collection("characters")
       .findOne({ characterId: client.character.characterId });
     client.character.extraModel = characterDataMongo?.extraModelTexture
@@ -1146,13 +1165,7 @@ export class ZoneServer extends EventEmitter {
       debug("send data", packetName);
     }
     const data = this._protocol.pack(packetName, obj, this._referenceData);
-    if (Array.isArray(client)) {
-      for (let i = 0; i < client.length; i++) {
-        this._gatewayServer.sendTunnelData(client[i], data, channel);
-      }
-    } else {
-      this._gatewayServer.sendTunnelData(client, data, channel);
-    }
+    this._gatewayServer.sendTunnelData(client, data, channel);
   }
 
   sendDataToAll(packetName: string, obj: any, channel = 0): void {
@@ -1234,13 +1247,29 @@ export class ZoneServer extends EventEmitter {
     return this._serverTime + delta;
   }
 
+  getServerTimeTest(): number {
+    debug("get server time");
+    const delta = Date.now() - this._startTime;
+    return Number(
+      (((this._serverTime + delta) * this._timeMultiplier) / 1000).toFixed(0)
+    );
+  }
+
   sendGameTimeSync(client: Client): void {
     debug("GameTimeSync");
-    this.sendData(client, "GameTimeSync", {
-      time: Int64String(this.getGameTime()),
-      cycleSpeed: this._cycleSpeed,
-      unknownBoolean: false,
-    });
+    if (!this._frozeCycle) {
+      this.sendData(client, "GameTimeSync", {
+        time: Int64String(this.getServerTimeTest()),
+        cycleSpeed: Math.round(this._timeMultiplier * 0.97222),
+        unknownBoolean: false,
+      });
+    } else if (this._frozeCycle) {
+      this.sendData(client, "GameTimeSync", {
+        time: Int64String(this.getGameTime()),
+        cycleSpeed: 0.1,
+        unknownBoolean: false,
+      });
+    }
   }
 
   sendSyncToAll(): void {
@@ -1275,7 +1304,10 @@ export class ZoneServer extends EventEmitter {
     return obj;
   }
 }
-if (process.env.VSCODE_DEBUG === "true") {
+if (
+  process.env.VSCODE_DEBUG === "true" &&
+  process.env.CLIENT_SIXTEEN !== "true"
+) {
   new ZoneServer(
     1117,
     new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", "base64")

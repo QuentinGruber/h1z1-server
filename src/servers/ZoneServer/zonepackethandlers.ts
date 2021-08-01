@@ -2,7 +2,8 @@
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
-//   copyright (c) 2021 Quentin Gruber
+//   copyright (c) 2020 - 2021 Quentin Gruber
+//   copyright (c) 2021 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -20,7 +21,11 @@ const Jenkins = require("hash-jenkins");
 import hax from "./commands/hax";
 import dev from "./commands/dev";
 import admin from "./commands/admin";
-import { Int64String, isPosInRadius } from "../../utils/utils";
+import {
+  generateRandomGuid,
+  Int64String,
+  isPosInRadius,
+} from "../../utils/utils";
 import { ZoneServer } from "./zoneserver";
 import { Client } from "types/zoneserver";
 const modelToName = require("../../../data/2015/sampleData/ModelToName.json");
@@ -119,6 +124,7 @@ const packetHandlers: any = {
       "dev",
       "admin",
       "location",
+      "respawn",
       "serverinfo",
       "spawninfo",
       "help",
@@ -489,6 +495,11 @@ const packetHandlers: any = {
     const args: any[] = packet.data.arguments.split(" ");
 
     switch (packet.data.commandHash) {
+      case 3720768430: // /respawn
+        server.sendData(client, "PlayerUpdate.StartMultiStateDeath", {
+          characterId: client.character.characterId,
+        });
+        break;
       case 2371122039: // /serverinfo
         if (args[0] === "mem") {
           const used = process.memoryUsage().heapUsed / 1024 / 1024;
@@ -507,13 +518,29 @@ const packetHandlers: any = {
             _doors: doors,
             _props: props,
           } = server;
+          const delta = Date.now() - server._startTime;
+          const datakur = new Date(
+            (server._serverTime + delta) * server._timeMultiplier
+          );
+          const monthNames = [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December",
+          ];
           const serverVersion = require("../../../package.json").version;
           server.sendChatText(client, `h1z1-server V${serverVersion}`, true);
           server.sendChatText(
             client,
-            `connected clients : ${_.size(clients)} characters : ${_.size(
-              characters
-            )}`
+            `clients: ${_.size(clients)} characters : ${_.size(characters)}`
           );
           server.sendChatText(
             client,
@@ -524,6 +551,19 @@ const packetHandlers: any = {
             `objects : ${_.size(objects)} props : ${_.size(
               props
             )} vehicles : ${_.size(vehicles)}`
+          );
+          server.sendChatText(
+            client,
+            "Gametime: " +
+              datakur.getDate() +
+              " " +
+              monthNames[datakur.getMonth()] +
+              " " +
+              (datakur.getFullYear() + 50) +
+              ", " +
+              datakur.getHours() +
+              ":" +
+              datakur.getMinutes()
           );
           break;
         }
@@ -1998,6 +2038,26 @@ const packetHandlers: any = {
       }
     }
   },
+  "Construction.PlacementRequest": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
+    debug("Construction.PlacementRequest");
+    // TODO
+    //server.sendData(client, "Construction.PlacementResponse", {model:modelChoosen});
+  },
+  "Construction.PlacementFinalizeRequest": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
+    debug(packet);
+    debug("Construction.PlacementFinalizeRequest");
+    server.sendData(client, "Construction.PlacementFinalizeResponse", {
+      status: true,
+    });
+  },
   "PlayerUpdate.Respawn": function (
     server: ZoneServer,
     client: Client,
@@ -2031,9 +2091,28 @@ const packetHandlers: any = {
         unknownDword3: 1,
         unknownDword6: 100,
       });
+      if (npc.onReadyCallback) {
+        npc.onReadyCallback();
+      }
     } else if (server._characters[guid]) {
       server.sendData(client, "PlayerUpdate.LightweightToFullPc", {
         transientId: pcData.transientId,
+      });
+      server.sendData(client, "Equipment.SetCharacterEquipment", {
+        profileId: 3,
+        characterId: server._characters[guid].characterId,
+        equipmentSlots: server._characters[guid].equipment.map(
+          (equipment: any) => {
+            return {
+              equipmentSlotId: equipment.slotId,
+              equipmentSlotData: {
+                equipmentSlotId: equipment.slotId,
+                guid: generateRandomGuid(),
+              },
+            };
+          }
+        ),
+        attachmentData: server._characters[guid].equipment,
       });
     } else if (
       server._vehicles[guid] &&
@@ -2047,7 +2126,9 @@ const packetHandlers: any = {
         npcData: npcData,
         characterId: guid,
       });
-      server._vehicles[guid].onReadyCallback();
+      if (server._vehicles[guid].onReadyCallback) {
+        server._vehicles[guid].onReadyCallback();
+      }
     }
   },
 };

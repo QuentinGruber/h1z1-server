@@ -39,7 +39,8 @@
             "request": "launch",
             "name": "Launch ZoneServer2016",
             "env":{
-                "VSCODE_DEBUG":"true"
+                "VSCODE_DEBUG":"true",
+                "CLIENT_SIXTEEN":"true"
             },
             "skipFiles": [
                 "<node_internals>/**"

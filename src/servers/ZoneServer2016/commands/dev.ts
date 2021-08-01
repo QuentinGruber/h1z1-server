@@ -1,36 +1,18 @@
+import { Client /*, Weather2016 */ } from "types/zoneserver";
+import { ZoneServer2016 } from "../zoneserver";
 const debug = require("debug")("zonepacketHandlers");
-// import fs from "fs";
-//const objects = require("../../../../data/2016/zoneData/objects.json");
+import { Int64String } from "../../../utils/utils";
 
-const dev = {
-  testpacket: function (server, client, args) {
+const dev: any = {
+  testpacket: function (server: ZoneServer2016, client: Client, args: any[]) {
     const packetName = args[1];
     server.sendData(client, packetName, {});
   },
-  testNpc: function (server, client, args) {
-    const characterId = server.generateGuid();
-    server.sendData(client, "PlayerUpdate.AddLightweightNpc", {
-      characterId: characterId,
-      modelId: 9001,
-      transientId: server.getTransientId(client, characterId),
-      position: client.character.state.position,
-      array5: [{ unknown1: 0 }],
-      array17: [{ unknown1: 0 }],
-      array18: [{ unknown1: 0 }],
-    });
-    setInterval(() => {
-      server.sendData(client, "PlayerUpdate.SeekTarget", {
-        characterId: characterId,
-        TargetCharacterId: client.character.characterId,
-        position: client.character.state.position,
-      });
-    }, 500);
-  },
-  findModel: function (server, client, args) {
+  findModel: function (server: ZoneServer2016, client: Client, args: any[]) {
     const models = require("../../../../data/2016/dataSources/Models.json");
     const wordFilter = args[1];
     if (wordFilter) {
-      const result = models.filter((word) =>
+      const result = models.filter((word: any) =>
         word?.MODEL_FILE_NAME?.toLowerCase().includes(wordFilter.toLowerCase())
       );
       server.sendChatText(client, `Found models for ${wordFilter}:`);
@@ -42,19 +24,27 @@ const dev = {
       server.sendChatText(client, `missing word filter`);
     }
   },
-  reloadPackets: function (server, client, args) {
+  reloadPackets: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: any[]
+  ) {
     if (args[1]) {
       server.reloadPackets(client, args[1]);
     } else {
       server.reloadPackets(client);
     }
   },
-  reloadMongo: function (server, client, args) {
+  reloadMongo: function (server: ZoneServer2016, client: Client, args: any[]) {
     server._soloMode
       ? server.sendChatText(client, "Can't do that in solomode...")
       : server.reloadMongoData(client);
   },
-  systemmessage: function (server, client, args) {
+  systemmessage: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: any[]
+  ) {
     if (!args[1]) {
       server.sendChatText(client, "Missing 'message' parameter");
       return;
@@ -68,7 +58,7 @@ const dev = {
     server.sendChatText(client, "Sending system message");
     server.sendData(client, "ShowSystemMessage", msg);
   },
-  setresource: function (server, client, args) {
+  setresource: function (server: ZoneServer2016, client: Client, args: any[]) {
     if (!args[3]) {
       server.sendChatText(
         client,
@@ -92,7 +82,11 @@ const dev = {
     server.sendChatText(client, "Setting character resource");
     server.sendData(client, "ResourceEvent", resourceEvent);
   },
-  selectloadout: function (server, client, args) {
+  selectloadout: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: any[]
+  ) {
     if (!args[1]) {
       server.sendChatText(client, "Missing unknownDword1 arg");
       return;
@@ -103,7 +97,11 @@ const dev = {
     server.sendChatText(client, "Sending selectloadout packet");
     server.sendData(client, "Loadout.SelectLoadout", loadout);
   },
-  setcurrentloadout: function (server, client, args) {
+  setcurrentloadout: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: any[]
+  ) {
     if (!args[1]) {
       server.sendChatText(client, "Missing loadoutId arg");
       return;
@@ -115,7 +113,7 @@ const dev = {
     server.sendChatText(client, "Sending setcurrentloadout packet");
     server.sendData(client, "Loadout.SetCurrentLoadout", loadout);
   },
-  selectslot: function (server, client, args) {
+  selectslot: function (server: ZoneServer2016, client: Client, args: any[]) {
     const loadout = {
       characterId: client.character.characterId,
       loadoutItemLoadoutId: 5,
@@ -140,7 +138,11 @@ const dev = {
     server.sendData(client, "Loadout.SelectSlot", loadout);
   },
 
-  containerevent: function (server, client, args) {
+  containerevent: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: any[]
+  ) {
     const containerData = {
       ignore: client.character.characterId,
       containers: [
@@ -167,7 +169,11 @@ const dev = {
 
     server.sendData(client, "Container.unknown2", containerData);
   },
-  containererror: function (server, client, args) {
+  containererror: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: any[]
+  ) {
     if (!args[1]) {
       server.sendChatText(client, "Missing containerError arg");
       return;
@@ -179,7 +185,7 @@ const dev = {
 
     server.sendData(client, "Container.Error", container);
   },
-  setequipment: function (server, client, args) {
+  setequipment: function (server: ZoneServer2016, client: Client, args: any[]) {
     /*
     if(!args[5]) {
       server.sendChatText(client, "Missing 5 args");
@@ -197,11 +203,11 @@ const dev = {
         unknownString1: ""
       },
       equipmentModel: {
-        model: "SurvivorMale_Chest_Hoodie_Up_Tintable.adr",
+        modelName: "SurvivorMale_Chest_Hoodie_Up_Tintable.adr",
         unknownDword1: Number(args[1]),
         unknownDword2: Number(args[2]), // 1, 2, 4
         effectId: Number(args[3]), // 0 - 16
-        equipmentSlotId: Number(args[4]), // backpack: 10
+        slotId: Number(args[4]), // backpack: 10
         unknownDword4: Number(args[5]),
         unknownArray1: []
       }
@@ -214,7 +220,6 @@ const dev = {
         characterId: client.character.characterId,
       },
       gameTime: 1,
-      slotsArrayLength: 1,
       slots: [
         {
           index: 1, // needs to be non-zero
@@ -222,7 +227,6 @@ const dev = {
         },
       ],
       unknownDword1: 1,
-      equipmentTexturesArrayLength: 1,
       equipmentTextures: [
         {
           index: 1, // needs to be non-zero
@@ -232,14 +236,13 @@ const dev = {
           unknownString1: "",
         },
       ],
-      equipmentModelsArrayLength: 1,
       equipmentModels: [
         {
-          model: "SurvivorMale_Chest_Hoodie_Up_Tintable.adr",
+          modelName: "SurvivorMale_Chest_Hoodie_Up_Tintable.adr",
           unknownDword1: 1,
           unknownDword2: 1, // 1, 2, 4
           effectId: 6, // 0 - 16
-          equipmentSlotId: 3,
+          slotId: 3,
           unknownDword4: 0,
           unknownArray1: [],
         },
@@ -249,7 +252,7 @@ const dev = {
     server.sendData(client, "Equipment.SetCharacterEquipmentSlots", equipment);
   },
 
-  tpVehicle: function (server, client, args) {
+  tpVehicle: function (server: ZoneServer2016, client: Client, args: any[]) {
     if (!args[1]) {
       server.sendChatText(client, "Missing vehicleId arg");
       return;
@@ -277,7 +280,7 @@ const dev = {
     }
   },
 
-  tpNpc: function (server, client, args) {
+  tpNpc: function (server: ZoneServer2016, client: Client, args: any[]) {
     if (!args[1]) {
       server.sendChatText(client, "Missing npc modelId arg");
       return;
@@ -305,7 +308,11 @@ const dev = {
     }
   },
 
-  updateWeather: function (server, client, args) {
+  updateWeather: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: any[]
+  ) {
     /*
     if(!args[7]) {
       server.sendChatText(client, "Missing 7 args");
@@ -358,7 +365,7 @@ const dev = {
     server.sendData(client, "UpdateWeatherData", skyData);
   },
 
-  recipe: function (server, client, args) {
+  recipe: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.sendData(client, "Recipe.Add", {
       recipeId: 93,
       nameId: 1536,
@@ -397,7 +404,11 @@ const dev = {
     });
   },
 
-  itemdefinitions: function (server, client, args) {
+  itemdefinitions: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: any[]
+  ) {
     console.log("ItemDefinitions\n\n\n\n\n\n\n\n\n");
     if (!args[2]) {
       server.sendChatText(client, "Missing 2 id args");
@@ -429,8 +440,136 @@ const dev = {
     server.sendData(client, "Command.ItemDefinitions", itemDefinitions); // todo: add ClientItemDefinition data
   },
 
+  seatchange: function (server: ZoneServer2016, client: Client, args: any[]) {
+    if (!args[3]) {
+      server.sendChatText(client, "Missing 3 args");
+      return;
+    }
+    server.sendData(client, "Mount.SeatChangeResponse", {
+      unknownQword1: client.character.characterId,
+      unknownQword2: client.vehicle.mountedVehicle,
+      identity: {
+        unknownDword1: 0,
+        unknownDword2: 0,
+        unknownDword3: 0,
+        characterFirstName: "",
+        characterLastName: "",
+        unknownString1: "",
+        characterName: "LocalPlayer",
+        unknownQword1: "0",
+      },
+      unknownDword1: Number(args[1]),
+      unknownDword2: Number(args[2]),
+      unknownDword3: Number(args[3]),
+    });
+    server.sendChatText(client, `sent seatchange`);
+  },
+
+  gametime: function (server: ZoneServer2016, client: Client, args: any[]) {
+    if (!args[1]) {
+      server.sendChatText(client, "Missing 1 arg");
+      return;
+    }
+    debug("GameTimeSync");
+    server.sendData(client, "GameTimeSync", {
+      time: Int64String(server.getGameTime()),
+      cycleSpeed: Number(args[1]),
+      unknownBoolean: false,
+    });
+  },
+  activateprofile: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: any[]
+  ) {
+    if (!args[1]) {
+      server.sendChatText(client, "Missing 1 arg");
+      return;
+    }
+    server.sendData(client, "ClientUpdate.ActivateProfile", {
+      profileData: {
+        profileId: 1,
+        nameId: 12,
+        descriptionId: 13,
+        type: 3,
+        unknownDword1: 0,
+        abilityBgImageSet: 4,
+        badgeImageSet: 5,
+        buttonImageSet: 6,
+        unknownByte1: 0,
+        unknownByte2: 0,
+        unknownDword4: 0,
+        unknownArray1: [],
+        unknownDword5: 0,
+        unknownDword6: 0,
+        unknownByte3: 1,
+        unknownDword7: 0,
+        unknownDword8: 0,
+        unknownDword9: 0,
+        unknownDword10: 0,
+        unknownDword11: 0,
+        unknownDword12: 0,
+        unknownDword13: 0,
+        unknownDword14: 0,
+        unknownDword15: 0,
+        unknownDword16: 0,
+      },
+      equipmentModels: [
+        {
+          modelName: "SurvivorMale_Head_01.adr",
+          unknownDword1: 0,
+          unknownDword2: 0,
+          effectId: 0,
+          slotId: 1,
+          unknownDword4: 0,
+          unknownArray1: [],
+        },
+        {
+          modelName: "SurvivorMale_Chest_Jacket_Farmer.adr",
+          unknownDword1: 0,
+          unknownDword2: 0,
+          effectId: 0,
+          slotId: 3,
+          unknownDword4: 0,
+          unknownArray1: [],
+        },
+        {
+          modelName: "SurvivorMale_Legs_Pants_Underwear.adr",
+          unknownDword1: 0,
+          unknownDword2: 0,
+          effectId: 0,
+          slotId: 4,
+          unknownDword4: 0,
+          unknownArray1: [],
+        },
+        {
+          modelName: "SurvivorMale_Eyes_01.adr",
+          unknownDword1: 0,
+          unknownDword2: 0,
+          effectId: 0,
+          slotId: 105,
+          unknownDword4: 0,
+          unknownArray1: [],
+        },
+        {
+          modelName: "Weapons_PumpShotgun01.adr",
+          unknownDword1: 0,
+          unknownDword2: 0,
+          effectId: 0,
+          slotId: 14,
+          unknownDword4: 0,
+          unknownArray1: [],
+        },
+      ],
+      unknownDword1: 1,
+      unknownDword2: 1,
+      actorModelId: 9240,
+      tintAlias: "",
+      decalAlias: "#",
+    });
+  },
   /*
-  proxiedObjects: function(server, client, args) {
+  proxiedObjects: function(server: ZoneServer2016, client: Client, args: any[]) {
     
     objects.runtime_object.runtime_objects.forEach((object) => {
       if(object.actor_file === "Common_Props_Dryer.adr") {
