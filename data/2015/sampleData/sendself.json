@@ -124,7 +124,8 @@
     },
     "acquireTimers": {
       "unknownArray1": [],
-      "unknownDword1": 0
+      "unknownArray2":[],
+      "unknownWord": 0
     },
     "unknownSchema2525": {
       "unknownDword1": 0,
@@ -191,7 +192,9 @@
       "unknownByte1": 0
     },
     "unknownDword5454qq2sfs44": [],
-    "loadoutStuff": [],
+    "loadoutStuff": {
+      
+    },
     "unknownDword54542sfs44": 0,
     "LocksPermissions": [],
     "missionData": {
