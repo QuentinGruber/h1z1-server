@@ -5375,11 +5375,11 @@ var packets = [
           type: "uint64",
           defaultValue: "0x0000000000000000",
         },
-        { name: "unknown5", type: "uint32", defaultValue: 0 },
-        { name: "unknown6", type: "uint32", defaultValue: 0 },
-        { name: "unknown7", type: "uint32", defaultValue: 0 },
-        { name: "unknown8", type: "uint32", defaultValue: 0 },
-        { name: "unknown9", type: "uint32", defaultValue: 0 },
+        { name: "unknown5", type: "float", defaultValue: 1 },
+        { name: "unknown6", type: "float", defaultValue: 1 },
+        { name: "unknown7", type: "float", defaultValue: 1 },
+        { name: "unknown8", type: "float", defaultValue: 1 },
+        { name: "unknown9", type: "float", defaultValue: 1 },
         {
           name: "rotation",
           type: "floatvector4",
@@ -5597,7 +5597,20 @@ var packets = [
   ],
   ["PlayerUpdate.ReadyToReviveResponse", 0x0f3a, {}],
   ["PlayerUpdate.ActivateProfile", 0x0f3b, {}],
-  ["PlayerUpdate.SetSpotted", 0x0f3c, {}],
+  ["PlayerUpdate.SetSpotted", 0x0f3c, {
+    fields: [
+      {
+        name: "unkArray",
+        type: "array",
+        defaultValue: [],
+        fields: [
+          { name: "guid", type: "uint64", defaultValue: "0" },
+        ],
+      },
+      { name: "unk1", type: "uint32", defaultValue: 100 },
+      { name: "unk2", type: "uint8", defaultValue: 1 },
+    ],
+  }],
   [
     "PlayerUpdate.Jet",
     0x0f3d,

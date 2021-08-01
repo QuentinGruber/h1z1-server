@@ -2091,6 +2091,9 @@ const packetHandlers: any = {
         unknownDword3: 1,
         unknownDword6: 100,
       });
+      if (npc.onReadyCallback) {
+        npc.onReadyCallback();
+      }
     } else if (server._characters[guid]) {
       server.sendData(client, "PlayerUpdate.LightweightToFullPc", {
         transientId: pcData.transientId,
