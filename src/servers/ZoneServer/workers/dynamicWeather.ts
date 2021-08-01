@@ -194,11 +194,13 @@ function chooseWeather() {
   weatherChoosen = true;
 }
 
-export default function dynamicWeather(serverTime:number,startTime:number,timeMultiplier:number) {
+export default function dynamicWeather(
+  serverTime: number,
+  startTime: number,
+  timeMultiplier: number
+) {
   const delta = Date.now() - startTime;
-  const currentDate = new Date(
-    (serverTime + delta) * timeMultiplier
-  );
+  const currentDate = new Date((serverTime + delta) * timeMultiplier);
   const currentHour = currentDate.getHours();
   const currentMonth = currentDate.getMonth();
 
@@ -276,8 +278,7 @@ export default function dynamicWeather(serverTime:number,startTime:number,timeMu
             14200000 / timeMultiplier,
             41600000 / timeMultiplier
           );
-          const accumulateCloudsDelay =
-            rainDelay - 18720000 / timeMultiplier;
+          const accumulateCloudsDelay = rainDelay - 18720000 / timeMultiplier;
           setTimeout(function () {
             cloudsAccumulating = 1;
           }, accumulateCloudsDelay);
@@ -391,13 +392,10 @@ export default function dynamicWeather(serverTime:number,startTime:number,timeMu
   parentPort?.postMessage(rnd_weather);
 }
 
-const {startTime,timeMultiplier} = workerData;
-let {serverTime} = workerData;
-dynamicWeather(serverTime,startTime,timeMultiplier)
-setInterval(
-  () => {
-    serverTime +=  Date.now() - startTime;
-    dynamicWeather(serverTime,startTime,timeMultiplier)
-  },
-  (360000 / timeMultiplier)
-);
+const { startTime, timeMultiplier } = workerData;
+let { serverTime } = workerData;
+dynamicWeather(serverTime, startTime, timeMultiplier);
+setInterval(() => {
+  serverTime += Date.now() - startTime;
+  dynamicWeather(serverTime, startTime, timeMultiplier);
+}, 360000 / timeMultiplier);

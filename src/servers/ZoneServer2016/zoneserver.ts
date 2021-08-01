@@ -52,7 +52,7 @@ export class ZoneServer2016 extends ZoneServer {
     this._dummySelf = require("../../../data/2016/sampleData/sendself.json"); // dummy self
 
     let characterName;
-    let character:any;
+    let character: any;
     if (!this._soloMode) {
       character = await this._db
         ?.collection("characters")
@@ -77,19 +77,20 @@ export class ZoneServer2016 extends ZoneServer {
       //guid: '', // todo: fix
       characterId: character.characterId,
       identity: {
-        characterName: characterName
+        characterName: characterName,
       },
       recipes: recipes,
       //stats: stats // todo: fix
-    }
+    };
 
     client.character.name = characterName;
     client.character.guid = this._dummySelf.data.guid; // default
-    client.character.loadouts = this._dummySelf.data.characterLoadoutData.loadouts; // default
+    client.character.loadouts =
+      this._dummySelf.data.characterLoadoutData.loadouts; // default
     client.character.inventory = this._dummySelf.data.inventory; // default
     client.character.factionId = this._dummySelf.data.factionId; // default
 
-    const characterDataMongo:any = await this._db
+    const characterDataMongo: any = await this._db
       ?.collection("characters")
       .findOne({ characterId: client.character.characterId });
     client.character.extraModel = characterDataMongo?.extraModelTexture
@@ -105,7 +106,7 @@ export class ZoneServer2016 extends ZoneServer {
         this._dummySelf.data.isRandomlySpawning = true;
       }
     }
-   
+
     if (this._dummySelf.data.isRandomlySpawning) {
       // Take position/rotation from a random spawn location.
       const randomSpawnIndex = Math.floor(
@@ -141,21 +142,18 @@ export class ZoneServer2016 extends ZoneServer {
       } catch (e) {
         throw debug("[ERROR]Unable to connect to mongo server");
       }
-        debug("connected to mongo !");
-        // if no collections exist on h1server database , fill it with samples
-        (await mongoClient.db("h1server").collections()).length ||
-          (await initMongo(this._mongoAddress, debugName));
-        this._db = mongoClient.db("h1server");
+      debug("connected to mongo !");
+      // if no collections exist on h1server database , fill it with samples
+      (await mongoClient.db("h1server").collections()).length ||
+        (await initMongo(this._mongoAddress, debugName));
+      this._db = mongoClient.db("h1server");
     }
 
     await this.setupServer();
     this._startTime += Date.now();
     this._startGameTime += Date.now();
     if (this._dynamicWeatherEnabled) {
-      this._dynamicWeatherWorker = setInterval(
-        () => dynamicWeather(this),
-        100
-      );
+      this._dynamicWeatherWorker = setInterval(() => dynamicWeather(this), 100);
     }
     this._gatewayServer.start();
   }
@@ -197,7 +195,7 @@ export class ZoneServer2016 extends ZoneServer {
           modelName: "SurvivorMale_Legs_Pants_SkinnyLeg.adr",
           defaultTextureAlias: "Wear.Legs.Pants.SkinnyLeg.Anarchy",
           slotId: 4,
-        }
+        },
       ],
       resources: {
         health: 5000,
@@ -296,7 +294,11 @@ export class ZoneServer2016 extends ZoneServer {
     client.posAtLastRoutine = client.character.state.position;
   }
 
-  SendWeatherUpdatePacket(client: Client, weather: Weather2016, isGlobal = false): void {
+  SendWeatherUpdatePacket(
+    client: Client,
+    weather: Weather2016,
+    isGlobal = false
+  ): void {
     if (isGlobal) {
       this.sendDataToAll("UpdateWeatherData", weather);
       if (client?.character?.name) {
@@ -615,7 +617,7 @@ export class ZoneServer2016 extends ZoneServer {
       unknownBoolean: false,
     });
   }
-  
+
   mountVehicle(client: Client, packet: any): void {
     client.vehicle.mountedVehicle = packet.data.guid;
     switch (this._vehicles[packet.data.guid].npcData.vehicleId) {
@@ -638,23 +640,27 @@ export class ZoneServer2016 extends ZoneServer {
         client.vehicle.mountedVehicleType = "unknown";
         break;
     }
-    this.sendData(client, "Mount.MountResponse", {// mounts character
+    this.sendData(client, "Mount.MountResponse", {
+      // mounts character
       characterId: client.character.characterId,
       vehicleGuid: client.vehicle.mountedVehicle, // vehicle guid
       identity: {},
     });
-    
-    this.sendData(client, "Vehicle.Engine", {// starts engine
+
+    this.sendData(client, "Vehicle.Engine", {
+      // starts engine
       guid2: client.vehicle.mountedVehicle,
       engineOn: true,
     });
   }
 
   dismountVehicle(client: Client): void {
-    this.sendData(client, "Mount.DismountResponse", {// dismounts character
+    this.sendData(client, "Mount.DismountResponse", {
+      // dismounts character
       characterId: client.character.characterId,
     });
-    this.sendData(client, "Vehicle.Engine", {// stops engine
+    this.sendData(client, "Vehicle.Engine", {
+      // stops engine
       guid2: client.vehicle.mountedVehicle,
       engineOn: false,
     });
@@ -677,7 +683,7 @@ export class ZoneServer2016 extends ZoneServer {
         seatCount = 1;
         break;
     }
-    if(packet.data.seatId < seatCount) {
+    if (packet.data.seatId < seatCount) {
       this.sendData(client, "Mount.SeatChangeResponse", {
         characterId: client.character.characterId,
         vehicleGuid: client.vehicle.mountedVehicle,
@@ -689,10 +695,13 @@ export class ZoneServer2016 extends ZoneServer {
 
   changeWeather2016(client: Client, weather: Weather2016): void {
     //this._weather = weather; (fix later)
-    this.SendWeatherUpdatePacket(client, weather, this._soloMode ? false : true);
+    this.SendWeatherUpdatePacket(
+      client,
+      weather,
+      this._soloMode ? false : true
+    );
   }
 }
-
 
 if (process.env.VSCODE_DEBUG === "true") {
   new ZoneServer2016(

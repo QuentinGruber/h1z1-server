@@ -1,5 +1,3 @@
-import { Packet } from "./shared";
-
 export interface Client {
   sessionId: number;
   address: string;

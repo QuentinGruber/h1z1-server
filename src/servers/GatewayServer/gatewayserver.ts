@@ -14,9 +14,7 @@
 import { EventEmitter } from "events";
 import { SOEServer } from "../SoeServer/soeserver";
 import { GatewayProtocol } from "../../protocols/gatewayprotocol";
-import {
-  Client,
-} from "../../types/gatewayserver";
+import { Client } from "../../types/gatewayserver";
 
 const debug = require("debug")("GatewayServer");
 
@@ -75,13 +73,13 @@ export class GatewayServer extends EventEmitter {
               );
 
               if (result && result.characterId) {
-                  this.emit(
-                    "login",
-                    null,
-                    client,
-                    result.characterId,
-                    result.ticket
-                  );
+                this.emit(
+                  "login",
+                  null,
+                  client,
+                  result.characterId,
+                  result.ticket
+                );
               }
               break;
             case "Logout":

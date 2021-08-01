@@ -21,7 +21,11 @@ const Jenkins = require("hash-jenkins");
 import hax from "./commands/hax";
 import dev from "./commands/dev";
 import admin from "./commands/admin";
-import { generateRandomGuid, Int64String, isPosInRadius } from "../../utils/utils";
+import {
+  generateRandomGuid,
+  Int64String,
+  isPosInRadius,
+} from "../../utils/utils";
 import { ZoneServer } from "./zoneserver";
 import { Client } from "types/zoneserver";
 const modelToName = require("../../../data/2015/sampleData/ModelToName.json");
@@ -493,7 +497,7 @@ const packetHandlers: any = {
     switch (packet.data.commandHash) {
       case 3720768430: // /respawn
         server.sendData(client, "PlayerUpdate.StartMultiStateDeath", {
-          characterId: client.character.characterId
+          characterId: client.character.characterId,
         });
         break;
       case 2371122039: // /serverinfo
@@ -2039,7 +2043,7 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
-    debug("Construction.PlacementRequest")
+    debug("Construction.PlacementRequest");
     // TODO
     //server.sendData(client, "Construction.PlacementResponse", {model:modelChoosen});
   },
@@ -2049,8 +2053,10 @@ const packetHandlers: any = {
     packet: any
   ) {
     debug(packet);
-    debug("Construction.PlacementFinalizeRequest")
-    server.sendData(client, "Construction.PlacementFinalizeResponse", {status:true});
+    debug("Construction.PlacementFinalizeRequest");
+    server.sendData(client, "Construction.PlacementFinalizeResponse", {
+      status: true,
+    });
   },
   "PlayerUpdate.Respawn": function (
     server: ZoneServer,
@@ -2085,22 +2091,27 @@ const packetHandlers: any = {
         unknownDword3: 1,
         unknownDword6: 100,
       });
+      if (npc.onReadyCallback) {
+        npc.onReadyCallback();
+      }
     } else if (server._characters[guid]) {
       server.sendData(client, "PlayerUpdate.LightweightToFullPc", {
         transientId: pcData.transientId,
       });
-      server.sendData(client,"Equipment.SetCharacterEquipment", {
+      server.sendData(client, "Equipment.SetCharacterEquipment", {
         profileId: 3,
         characterId: server._characters[guid].characterId,
-        equipmentSlots: server._characters[guid].equipment.map((equipment:any) => {
-          return {
-            equipmentSlotId: equipment.slotId,
-            equipmentSlotData: {
+        equipmentSlots: server._characters[guid].equipment.map(
+          (equipment: any) => {
+            return {
               equipmentSlotId: equipment.slotId,
-              guid: generateRandomGuid(),
-            },
-          };
-        }),
+              equipmentSlotData: {
+                equipmentSlotId: equipment.slotId,
+                guid: generateRandomGuid(),
+              },
+            };
+          }
+        ),
         attachmentData: server._characters[guid].equipment,
       });
     } else if (
@@ -2115,7 +2126,7 @@ const packetHandlers: any = {
         npcData: npcData,
         characterId: guid,
       });
-      if(server._vehicles[guid].onReadyCallback){
+      if (server._vehicles[guid].onReadyCallback) {
         server._vehicles[guid].onReadyCallback();
       }
     }
