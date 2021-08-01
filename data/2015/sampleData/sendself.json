@@ -75,22 +75,7 @@
       "unknownDword4": 0
     },
     "characterAchievements": [],
-    "acquaintances": [
-      {
-        "guid": "0x0000000000000001",
-        "name": "easter egg 1",
-        "type": 1,
-        "elapsedTime": "0x427794947C610000",
-        "online": true
-      },
-      {
-        "guid": "0x0000000000000002",
-        "name": "easter egg 2",
-        "type": 2,
-        "elapsedTime": "0x427794947C610000",
-        "online": false
-      }
-    ],
+    "acquaintances": [],
     "mounts": [],
     "unknownCoinStoreData": {
       "unknownBoolean1": 0,
@@ -124,7 +109,6 @@
     },
     "acquireTimers": {
       "unknownArray1": [],
-      "unknownArray2":[],
       "unknownWord": 0
     },
     "unknownSchema2525": {
@@ -193,7 +177,7 @@
     },
     "unknownDword5454qq2sfs44": [],
     "loadoutStuff": {
-      
+
     },
     "unknownDword54542sfs44": 0,
     "LocksPermissions": [],
@@ -214,20 +198,7 @@
       "unknownDword1": 0
     },
     "skills": [],
-    "EquippedContainers": [
-      {
-        "unknownDword1": 2,
-        "unknownQword1": "0x0000000000000001",
-        "unknownDword2": 3,
-        "unknownQword2": "0x0000000000000002",
-        "unknownDword3": 4,
-        "unknownArray1": [],
-        "unknownBoolean": true,
-        "unknownDword4": 5,
-        "unknownDword5": 6,
-        "unknownDword6": 7
-      }
-    ],
+    "EquippedContainers": [],
     "unknownBoolean8": true,
     "unknownQword1": "0x0000000000000000",
     "unknownDword37": 0,

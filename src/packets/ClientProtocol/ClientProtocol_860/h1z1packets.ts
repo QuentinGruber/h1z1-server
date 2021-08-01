@@ -2464,12 +2464,12 @@ var packets = [
                 { name: "unknownDword4", type: "uint32", defaultValue: 0 },
               ],
             },
-            /*{ seems to have been removed
+            { 
               name: "characterAchievements",
               type: "array",
               defaultValue: [],
               fields: achievementDataSchema,
-            },*/
+            },
             {
               name: "acquaintances",
               type: "array",
@@ -2905,13 +2905,13 @@ var packets = [
                   defaultValue: [],
                   fields: [],
                 },
-                {
+                /*{
                   name: "unknownArray2",
                   type: "array",
                   defaultValue: [],
                   fields: [],
-                },
-                { name: "unknownWord", type: "uint8", defaultValue: 0 },
+                },*/
+                { name: "unknownWord", type: "uint32", defaultValue: 0 },
               ],
             },
             /*{
