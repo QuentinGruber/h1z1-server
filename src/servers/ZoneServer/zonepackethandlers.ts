@@ -304,7 +304,6 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
-	  console.log(packet.data);
     if (
       packet.data.damage > 99 &&
       client.character.resources.health > 0
