@@ -304,15 +304,9 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
-    if (
-      packet.data.damage > 100000 &&
-      client.character.resources.health > 0 &&
-      client.vehicle.falling < -1
-    ) {
-      const damageFix =
-        (packet.data.damage / 100000) * client.vehicle.falling * -5;
+    if (packet.data.damage > 99 && client.character.resources.health > 0) {
       client.character.resources.health =
-        client.character.resources.health - damageFix;
+        client.character.resources.health - packet.data.damage;
       if (client.character.resources.health < 0) {
         client.character.resources.health = 0;
       }

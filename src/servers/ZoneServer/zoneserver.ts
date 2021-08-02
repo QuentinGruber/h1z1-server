@@ -724,13 +724,15 @@ export class ZoneServer extends EventEmitter {
     });
 
     this.sendData(client, "ClientGameSettings", {
-      unknownQword1: "0x0000000000000000",
-      unknownBoolean1: true,
-      timescale: 1,
-      unknownQword2: "0x0000000000000000",
-      unknownFloat1: 0,
-      unknownFloat2: 12,
-      unknownFloat3: 110,
+      Unknown2: 0,
+      interactGlowAndDist: 3,
+      unknownBoolean1: false,
+      timescale: 1.0,
+      Unknown4: 0,
+      Unknown: 0,
+      unknownFloat1: 0.0,
+      unknownFloat2: 0.0,
+      velDamageMulti: 1.0,
     });
 
     this.characterData(client);

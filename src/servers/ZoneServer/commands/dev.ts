@@ -21,7 +21,7 @@ const dev: any = {
     const characterId = server.generateGuid();
     const transientId = server.getTransientId(client, characterId);
 
-    const npc:any = {
+    const npc: any = {
       characterId: characterId,
       guid: guid,
       transientId: transientId,
@@ -34,34 +34,34 @@ const dev: any = {
       array17: [{ unknown1: 0 }],
       array18: [{ unknown1: 0 }],
     };
-    npc.onReadyCallback = ()=>{
+    npc.onReadyCallback = () => {
       server.sendData(client, "PlayerUpdate.SetSpotted", {
-        unkArray: [{guid:client.character.characterId}],
+        unkArray: [{ guid: client.character.characterId }],
       });
       server.sendData(client, "PlayerUpdate.AggroLevel", {
         characterId: characterId,
         aggroLevel: 1000,
       });
-     /* server.sendData(client, "PlayerUpdate.SeekTarget", {
+      /* server.sendData(client, "PlayerUpdate.SeekTarget", {
         characterId: characterId,
         TargetCharacterId: client.character.characterId,
       });*/
     };
     server.sendDataToAll("PlayerUpdate.AddLightweightNpc", npc);
-      server.sendData(client, "ResourceEvent", {
-        eventData: {
-          type: 3,
-          value: {
-            characterId: npc.characterId,
-            resourceId: 48, // health
-            resourceType: 1,
-            initialValue: 500,
-            unknownArray1: [],
-            unknownArray2: [],
-          },
+    server.sendData(client, "ResourceEvent", {
+      eventData: {
+        type: 3,
+        value: {
+          characterId: npc.characterId,
+          resourceId: 48, // health
+          resourceType: 1,
+          initialValue: 500,
+          unknownArray1: [],
+          unknownArray2: [],
         },
-      });
-      server._npcs[characterId] = npc; // save npc
+      },
+    });
+    server._npcs[characterId] = npc; // save npc
   },
   lol: function (server: ZoneServer, client: Client, args: any[]) {
     for (const npcKey in server._npcs) {
