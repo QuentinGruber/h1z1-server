@@ -396,6 +396,5 @@ const { startTime, timeMultiplier } = workerData;
 let { serverTime } = workerData;
 dynamicWeather(serverTime, startTime, timeMultiplier);
 setInterval(() => {
-  serverTime += Date.now() - startTime;
   dynamicWeather(serverTime, startTime, timeMultiplier);
 }, 360000 / timeMultiplier);
