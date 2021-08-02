@@ -493,7 +493,7 @@ export class ZoneServer extends EventEmitter {
           workerData: {
             timeMultiplier: this._timeMultiplier,
             serverTime: this._serverTime,
-            startTime: this._startTime
+            startTime: this._startTime,
           },
         }
       );
@@ -724,15 +724,15 @@ export class ZoneServer extends EventEmitter {
     });
 
     this.sendData(client, "ClientGameSettings", {
-        Unknown2: 0,
-        interactGlowAndDist: 3,
-        unknownBoolean1: false,
-        timescale: 1.0,
-        Unknown4: 0,
-        Unknown: 0,
-        unknownFloat1: 0.0,
-        unknownFloat2: 0.0,
-        velDamageMulti: 1.0,
+      Unknown2: 0,
+      interactGlowAndDist: 3,
+      unknownBoolean1: false,
+      timescale: 1.0,
+      Unknown4: 0,
+      Unknown: 0,
+      unknownFloat1: 0.0,
+      unknownFloat2: 0.0,
+      velDamageMulti: 1.0,
     });
 
     this.characterData(client);
