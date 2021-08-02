@@ -2,7 +2,8 @@
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
-//   copyright (c) 2021 Quentin Gruber
+//   copyright (c) 2020 - 2021 Quentin Gruber
+//   copyright (c) 2021 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -104,7 +105,9 @@ export class LoginClient extends EventEmitter {
           break;
         case "CharacterCreateReply":
           if (result.status === 1) {
-            this.emit("charactercreate", null, {characterId:result.characterId});
+            this.emit("charactercreate", null, {
+              characterId: result.characterId,
+            });
           } else {
             this.emit("charactercreate", "Character create failed");
           }
@@ -207,12 +210,18 @@ export class LoginClient extends EventEmitter {
     var data = this._protocol.pack("CharacterCreateRequest", {
       serverId: 1,
       unknown: 0,
-      payload: {empireId:2,headType:1,profileType:3,gender:1,characterName:"test"},
+      payload: {
+        empireId: 2,
+        headType: 1,
+        profileType: 3,
+        gender: 1,
+        characterName: "test",
+      },
     });
     if (data) {
       this._soeClient.sendAppData(data, true);
     } else {
       debug("Could not pack character create request data");
     }
-  };
+  }
 }

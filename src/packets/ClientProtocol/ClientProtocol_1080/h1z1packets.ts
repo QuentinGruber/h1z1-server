@@ -2,7 +2,8 @@
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
-//   copyright (c) 2021 Quentin Gruber
+//   copyright (c) 2020 - 2021 Quentin Gruber
+//   copyright (c) 2021 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -624,7 +625,11 @@ function parseItemAddData(data: Buffer, offset: number, referenceData: any) {
     outSize = itemData.readUInt16LE(2),
     compData = itemData.slice(4, 4 + inSize),
     decompData = lz4_decompress(compData, inSize, outSize),
-    itemDefinition = DataSchema.parse(baseItemDefinitionSchema, decompData, 0).result;
+    itemDefinition = DataSchema.parse(
+      baseItemDefinitionSchema,
+      decompData,
+      0
+    ).result;
   itemData = parseItemData(itemData, 4 + inSize, referenceData).value;
   return {
     value: {
@@ -1222,7 +1227,10 @@ function parseWeaponPacket(data: Buffer, offset: number) {
   const weaponPacketData = new (Buffer.alloc as any)(tmpData.length + 1);
   weaponPacketData.writeUInt8(0x85, 0);
   tmpData.copy(weaponPacketData, 1);
-  const weaponPacket = readPacketType(weaponPacketData, weaponPacketDescriptors);
+  const weaponPacket = readPacketType(
+    weaponPacketData,
+    weaponPacketDescriptors
+  );
   if (weaponPacket.packet) {
     obj.packetType = weaponPacket.packetType;
     obj.packetName = weaponPacket.packet.name;
@@ -2295,7 +2303,11 @@ const packets = [
                 { name: "unknownDword2", type: "uint32", defaultValue: 0 },
                 { name: "unknownDword3", type: "uint32", defaultValue: 0 },
                 { name: "unknownQword1", type: "uint64", defaultValue: 0 },
-                { name: "unknownBoolean1", type: "boolean", defaultValue: true },
+                {
+                  name: "unknownBoolean1",
+                  type: "boolean",
+                  defaultValue: true,
+                },
                 { name: "unknownDword4", type: "uint32", defaultValue: 0 },
                 { name: "unknownString1", type: "string", defaultValue: "" },
               ],
@@ -2334,7 +2346,11 @@ const packets = [
               fields: [
                 { name: "effectTag", type: "schema", fields: effectTagsSchema },
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                { name: "unknownBoolean1", type: "boolean", defaultValue: true },
+                {
+                  name: "unknownBoolean1",
+                  type: "boolean",
+                  defaultValue: true,
+                },
                 { name: "unknownDword2", type: "uint32", defaultValue: 0 },
                 { name: "unknownDword3", type: "uint32", defaultValue: 0 },
                 {
@@ -5186,6 +5202,7 @@ const packets = [
   ["Recipe.Add", 0x2601, { fields: recipeData }],
   ["Recipe.ComponentUpdate", 0x2602, {}],
   ["Recipe.Remove", 0x2603, {}],
+  ["Recipe.Discovery", 0x2604, { fields: [] }],
   [
     "Recipe.List",
     0x2609,
@@ -6073,27 +6090,28 @@ const packets = [
   ["Mount.SpawnByItemDefinitionId", 0x7108, {}],
   ["Mount.OfferUpsell", 0x7109, {}],
   [
-    "Mount.SeatChangeRequest", 
-    0x710a, {
+    "Mount.SeatChangeRequest",
+    0x710a,
+    {
       fields: [
         { name: "seatId", type: "uint32", defaultValue: 0 },
         { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-      ]
-    }
+      ],
+    },
   ],
   [
-    "Mount.SeatChangeResponse", 
-    0x710b, 
+    "Mount.SeatChangeResponse",
+    0x710b,
     {
       fields: [
         { name: "characterId", type: "uint64", defaultValue: "0" },
         { name: "vehicleGuid", type: "uint64", defaultValue: "0" },
         { name: "identity", type: "schema", fields: identitySchema },
         { name: "seatId", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword1", type: "uint32", defaultValue: 1 },// needs to be 1
-        { name: "unknownDword2", type: "uint32", defaultValue: 1 },// needs to be 1
-      ]
-    }
+        { name: "unknownDword1", type: "uint32", defaultValue: 1 }, // needs to be 1
+        { name: "unknownDword2", type: "uint32", defaultValue: 1 }, // needs to be 1
+      ],
+    },
   ],
   ["Mount.SeatSwapRequest", 0x710c, {}],
   ["Mount.SeatSwapResponse", 0x710d, {}],
@@ -7094,9 +7112,21 @@ const packets = [
     0x9502,
     {
       fields: [
-        { name: "characterData", type: "schema", fields: equipmentCharacterDataSchema },
-        { name: "equipmentTexture", type: "schema", fields: equipmentTextureSchema },
-        { name: "equipmentModel", type: "schema", fields: equipmentModelSchema },
+        {
+          name: "characterData",
+          type: "schema",
+          fields: equipmentCharacterDataSchema,
+        },
+        {
+          name: "equipmentTexture",
+          type: "schema",
+          fields: equipmentTextureSchema,
+        },
+        {
+          name: "equipmentModel",
+          type: "schema",
+          fields: equipmentModelSchema,
+        },
       ],
     },
   ],
@@ -7106,7 +7136,11 @@ const packets = [
     0x9504,
     {
       fields: [
-        { name: "characterData", type: "schema", fields: equipmentCharacterDataSchema },
+        {
+          name: "characterData",
+          type: "schema",
+          fields: equipmentCharacterDataSchema,
+        },
         { name: "gameTime", type: "uint32", defaultValue: 0 },
         {
           name: "slots",

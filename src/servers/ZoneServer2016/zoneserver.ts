@@ -2,7 +2,8 @@
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
-//   copyright (c) 2021 Quentin Gruber
+//   copyright (c) 2020 - 2021 Quentin Gruber
+//   copyright (c) 2021 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -48,39 +49,85 @@ export class ZoneServer2016 extends ZoneServer {
     delete require.cache[
       require.resolve("../../../data/2016/sampleData/sendself.json") // reload json
     ];
-    const self = require("../../../data/2016/sampleData/sendself.json"); // dummy self
-    const {
-      data: { identity },
-    } = self;
-    client.character.guid = self.data.guid;
-    client.character.loadouts = self.data.characterLoadoutData.loadouts;
-    client.character.inventory = self.data.inventory;
-    client.character.factionId = self.data.factionId;
-    client.character.name = identity.characterName;
+    this._dummySelf = require("../../../data/2016/sampleData/sendself.json"); // dummy self
 
-    if (
-      _.isEqual(self.data.position, [0, 0, 0, 1]) &&
-      _.isEqual(self.data.rotation, [0, 0, 0, 1])
-    ) {
-      // if position/rotation hasn't be changed
-      self.data.isRandomlySpawning = true;
+    let characterName;
+    let character: any;
+    if (!this._soloMode) {
+      character = await this._db
+        ?.collection("characters")
+        .findOne({ characterId: client.character.characterId });
+      characterName = character.payload.name;
+    } else {
+      delete require.cache[
+        require.resolve(
+          `${this._appDataFolder}/single_player_characters2016.json`
+        )
+      ];
+      const SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters2016.json`);
+      character = SinglePlayerCharacters.find(
+        (character: any) =>
+          character.characterId === client.character.characterId
+      );
+      characterName = character.payload.name;
     }
 
-    if (self.data.isRandomlySpawning) {
+    this._dummySelf.data = {
+      ...this._dummySelf.data,
+      //guid: '', // todo: fix
+      characterId: character.characterId,
+      identity: {
+        characterName: characterName,
+      },
+      recipes: recipes,
+      //stats: stats // todo: fix
+    };
+
+    client.character.name = characterName;
+    client.character.guid = this._dummySelf.data.guid; // default
+    client.character.loadouts =
+      this._dummySelf.data.characterLoadoutData.loadouts; // default
+    client.character.inventory = this._dummySelf.data.inventory; // default
+    client.character.factionId = this._dummySelf.data.factionId; // default
+
+    const characterDataMongo: any = await this._db
+      ?.collection("characters")
+      .findOne({ characterId: client.character.characterId });
+    client.character.extraModel = characterDataMongo?.extraModelTexture
+      ? characterDataMongo.extraModelTexture
+      : this._dummySelf.data.extraModelTexture;
+
+    if (
+      _.isEqual(this._dummySelf.data.position, [0, 0, 0, 1]) &&
+      _.isEqual(this._dummySelf.data.rotation, [0, 0, 0, 1])
+    ) {
+      // if position/rotation hasn't be changed
+      if (this._soloMode || !characterDataMongo.position) {
+        this._dummySelf.data.isRandomlySpawning = true;
+      }
+    }
+
+    if (this._dummySelf.data.isRandomlySpawning) {
       // Take position/rotation from a random spawn location.
       const randomSpawnIndex = Math.floor(
         Math.random() * this._spawnLocations.length
       );
-      self.data.position = this._spawnLocations[randomSpawnIndex].position;
-      self.data.rotation = this._spawnLocations[randomSpawnIndex].rotation;
+      this._dummySelf.data.position = client.character.state.position =
+        this._spawnLocations[randomSpawnIndex].position;
+      this._dummySelf.data.rotation = client.character.state.rotation =
+        this._spawnLocations[randomSpawnIndex].rotation;
       client.character.spawnLocation =
         this._spawnLocations[randomSpawnIndex].name;
+    } else {
+      if (!this._soloMode) {
+        this._dummySelf.data.position = characterDataMongo.position;
+        this._dummySelf.data.rotation = characterDataMongo.rotation;
+      }
+      client.character.state.position = this._dummySelf.data.position;
+      client.character.state.rotation = this._dummySelf.data.rotation;
     }
-    self.data.characterId = client.character.characterId;
-    self.data.recipes = recipes; // load recipes into sendself from file
-    // disabled for now
-    //self.data.stats = stats; // load stats into sendself from file
-    this.sendData(client, "SendSelfToClient", self);
+
+    this.sendData(client, "SendSelfToClient", this._dummySelf);
   }
 
   async start(): Promise<void> {
@@ -95,21 +142,18 @@ export class ZoneServer2016 extends ZoneServer {
       } catch (e) {
         throw debug("[ERROR]Unable to connect to mongo server");
       }
-        debug("connected to mongo !");
-        // if no collections exist on h1server database , fill it with samples
-        (await mongoClient.db("h1server").collections()).length ||
-          (await initMongo(this._mongoAddress, debugName));
-        this._db = mongoClient.db("h1server");
+      debug("connected to mongo !");
+      // if no collections exist on h1server database , fill it with samples
+      (await mongoClient.db("h1server").collections()).length ||
+        (await initMongo(this._mongoAddress, debugName));
+      this._db = mongoClient.db("h1server");
     }
 
     await this.setupServer();
     this._startTime += Date.now();
     this._startGameTime += Date.now();
     if (this._dynamicWeatherEnabled) {
-      this._dynamicWeatherWorker = setInterval(
-        () => dynamicWeather(this),
-        100
-      );
+      this._dynamicWeatherWorker = setInterval(() => dynamicWeather(this), 100);
     }
     this._gatewayServer.start();
   }
@@ -151,7 +195,7 @@ export class ZoneServer2016 extends ZoneServer {
           modelName: "SurvivorMale_Legs_Pants_SkinnyLeg.adr",
           defaultTextureAlias: "Wear.Legs.Pants.SkinnyLeg.Anarchy",
           slotId: 4,
-        }
+        },
       ],
       resources: {
         health: 5000,
@@ -250,7 +294,11 @@ export class ZoneServer2016 extends ZoneServer {
     client.posAtLastRoutine = client.character.state.position;
   }
 
-  SendWeatherUpdatePacket(client: Client, weather: Weather2016, isGlobal = false): void {
+  SendWeatherUpdatePacket(
+    client: Client,
+    weather: Weather2016,
+    isGlobal = false
+  ): void {
     if (isGlobal) {
       this.sendDataToAll("UpdateWeatherData", weather);
       if (client?.character?.name) {
@@ -569,7 +617,7 @@ export class ZoneServer2016 extends ZoneServer {
       unknownBoolean: false,
     });
   }
-  
+
   mountVehicle(client: Client, packet: any): void {
     client.vehicle.mountedVehicle = packet.data.guid;
     switch (this._vehicles[packet.data.guid].npcData.vehicleId) {
@@ -592,23 +640,27 @@ export class ZoneServer2016 extends ZoneServer {
         client.vehicle.mountedVehicleType = "unknown";
         break;
     }
-    this.sendData(client, "Mount.MountResponse", {// mounts character
+    this.sendData(client, "Mount.MountResponse", {
+      // mounts character
       characterId: client.character.characterId,
       vehicleGuid: client.vehicle.mountedVehicle, // vehicle guid
       identity: {},
     });
-    
-    this.sendData(client, "Vehicle.Engine", {// starts engine
+
+    this.sendData(client, "Vehicle.Engine", {
+      // starts engine
       guid2: client.vehicle.mountedVehicle,
       engineOn: true,
     });
   }
 
   dismountVehicle(client: Client): void {
-    this.sendData(client, "Mount.DismountResponse", {// dismounts character
+    this.sendData(client, "Mount.DismountResponse", {
+      // dismounts character
       characterId: client.character.characterId,
     });
-    this.sendData(client, "Vehicle.Engine", {// stops engine
+    this.sendData(client, "Vehicle.Engine", {
+      // stops engine
       guid2: client.vehicle.mountedVehicle,
       engineOn: false,
     });
@@ -631,7 +683,7 @@ export class ZoneServer2016 extends ZoneServer {
         seatCount = 1;
         break;
     }
-    if(packet.data.seatId < seatCount) {
+    if (packet.data.seatId < seatCount) {
       this.sendData(client, "Mount.SeatChangeResponse", {
         characterId: client.character.characterId,
         vehicleGuid: client.vehicle.mountedVehicle,
@@ -643,10 +695,13 @@ export class ZoneServer2016 extends ZoneServer {
 
   changeWeather2016(client: Client, weather: Weather2016): void {
     //this._weather = weather; (fix later)
-    this.SendWeatherUpdatePacket(client, weather, this._soloMode ? false : true);
+    this.SendWeatherUpdatePacket(
+      client,
+      weather,
+      this._soloMode ? false : true
+    );
   }
 }
-
 
 if (process.env.VSCODE_DEBUG === "true") {
   new ZoneServer2016(

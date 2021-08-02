@@ -2,7 +2,8 @@
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
-//   copyright (c) 2021 Quentin Gruber
+//   copyright (c) 2020 - 2021 Quentin Gruber
+//   copyright (c) 2021 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -32,12 +33,15 @@ import { _ } from "../../utils/utils";
 const debug = require("debug")("zonepacketHandlers");
 
 const packetHandlers = {
-  ClientIsReady: function (server: ZoneServer2016, client: Client, packet: any) {
+  ClientIsReady: function (
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
     server.sendData(client, "ClientBeginZoning", { skyData: {} }); // Needed for trees
 
     server.sendData(client, "QuickChat.SendData", { commands: [] });
 
-    
     server.sendData(client, "ClientUpdate.ActivateProfile", {
       profileData: {
         profileId: 1,
@@ -64,16 +68,15 @@ const packetHandlers = {
         unknownDword13: 0,
         unknownDword14: 0,
         unknownDword15: 0,
-        unknownDword16: 0
+        unknownDword16: 0,
       },
       equipmentModels: client.character.equipment,
       unknownDword1: 1,
       unknownDword2: 1,
       actorModelId: 9240,
       tintAlias: "",
-      decalAlias: "#"
+      decalAlias: "#",
     });
-    
 
     server.sendData(client, "ClientUpdate.DoneSendingPreloadCharacters", {
       done: true,
@@ -140,7 +143,7 @@ const packetHandlers = {
       guid4: "0x0000000000000000",
       gameTime: (server.getServerTime() & 0xffffffff) >>> 0,
     });
-    
+
     client.character.currentLoadoutId = 3;
     /*
     server.sendData(client, "Loadout.SetCurrentLoadout", {
@@ -179,7 +182,11 @@ const packetHandlers = {
 
     server.sendResources(client);
   },
-  ClientFinishedLoading: function (server: ZoneServer2016, client: Client, packet: any) {
+  ClientFinishedLoading: function (
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
     client.currentPOI = 0; // clears currentPOI for POIManager
     server.sendGameTimeSync(client);
     if (client.firstLoading) {
@@ -214,19 +221,35 @@ const packetHandlers = {
   Security: function (server: ZoneServer2016, client: Client, packet: any) {
     debug(packet);
   },
-  "Command.RecipeStart": function (server: ZoneServer2016, client: Client, packet: any) {
+  "Command.RecipeStart": function (
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
     debug(packet);
     server.sendData(client, "Command.RecipeAction", {});
   },
-  "Command.FreeInteractionNpc": function (server: ZoneServer2016, client: Client, packet: any) {
+  "Command.FreeInteractionNpc": function (
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
     debug("FreeInteractionNpc");
     server.sendData(client, "Command.FreeInteractionNpc", {});
   },
-  "Collision.Damage": function (server: ZoneServer2016, client: Client, packet: any) {
+  "Collision.Damage": function (
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
     debug("Collision.Damage");
     debug(packet);
   },
-  "LobbyGameDefinition.DefinitionsRequest": function (server: ZoneServer2016, client: Client, packet: any) {
+  "LobbyGameDefinition.DefinitionsRequest": function (
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
     server.sendData(client, "LobbyGameDefinition.DefinitionsResponse", {
       definitionsData: { data: "" },
     });
@@ -240,13 +263,21 @@ const packetHandlers = {
   ClientLog: function (server: ZoneServer2016, client: Client, packet: any) {
     debug(packet);
   },
-  "WallOfData.UIEvent": function (server: ZoneServer2016, client: Client, packet: any) {
+  "WallOfData.UIEvent": function (
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
     debug("UIEvent");
   },
   SetLocale: function (server: ZoneServer2016, client: Client, packet: any) {
     debug("Do nothing");
   },
-  GetContinentBattleInfo: function (server: ZoneServer2016, client: Client, packet: any) {
+  GetContinentBattleInfo: function (
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
     server.sendData(client, "ContinentBattleInfo", {
       zones: [
         {
@@ -303,7 +334,11 @@ const packetHandlers = {
     
   },
   */
-  ClientInitializationDetails: function (server: ZoneServer2016, client: Client, packet: any) {
+  ClientInitializationDetails: function (
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
     // just in case
     if (packet.data.unknownDword1) {
       debug("ClientInitializationDetails : ", packet.data.unknownDword1);
@@ -320,7 +355,11 @@ const packetHandlers = {
   GameTimeSync: function (server: ZoneServer2016, client: Client, packet: any) {
     server.sendGameTimeSync(client);
   },
-  Synchronization: function (server: ZoneServer2016, client: Client, packet: any) {
+  Synchronization: function (
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
     const serverTime = Int64String(server.getServerTime());
     server.sendData(client, "Synchronization", {
       time1: packet.data.time1,
@@ -331,7 +370,11 @@ const packetHandlers = {
       time3: packet.data.clientTime + 2,
     });
   },
-  "Command.ExecuteCommand": async function (server: ZoneServer2016, client: Client, packet: any) {
+  "Command.ExecuteCommand": async function (
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
     const args: any[] = packet.data.arguments.split(" ");
 
     switch (packet.data.commandHash) {
@@ -418,7 +461,11 @@ const packetHandlers = {
     });
   },
   */
-  "Command.InteractRequest": function (server: ZoneServer2016, client: Client, packet: any) {
+  "Command.InteractRequest": function (
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
     server.sendData(client, "Command.InteractionString", {
       guid: packet.data.guid,
       stringId: 5463,
@@ -454,10 +501,18 @@ const packetHandlers = {
   },
   */
 
-  "Command.InteractCancel": function (server: ZoneServer2016, client: Client, packet: any) {
+  "Command.InteractCancel": function (
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
     debug("Interaction Canceled");
   },
-  "Command.StartLogoutRequest": function (server: ZoneServer2016, client: Client, packet: any) {
+  "Command.StartLogoutRequest": function (
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
     const timerTime = 10000;
     server.sendData(client, "ClientUpdate.StartTimer", {
       stringId: 0,
@@ -471,13 +526,21 @@ const packetHandlers = {
       server.sendData(client, "ClientUpdate.CompleteLogoutProcess", {});
     }, timerTime);
   },
-  CharacterSelectSessionRequest: function (server: ZoneServer2016, client: Client, packet: any) {
+  CharacterSelectSessionRequest: function (
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
     server.sendData(client, "CharacterSelectSessionResponse", {
       status: 1,
       sessionId: client.loginSessionId,
     });
   },
-  "ProfileStats.GetPlayerProfileStats": function (server: ZoneServer2016, client: Client, packet: any) {
+  "ProfileStats.GetPlayerProfileStats": function (
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
     server.sendData(
       client,
       "ProfileStats.PlayerProfileStats",
@@ -512,7 +575,11 @@ const packetHandlers = {
     });
     */
   },
-  GetRewardBuffInfo: function (server: ZoneServer2016, client: Client, packet: any) {
+  GetRewardBuffInfo: function (
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
     server.sendData(client, "RewardBuffInfo", {
       unknownFloat1: 1,
       unknownFloat2: 2,
@@ -528,7 +595,11 @@ const packetHandlers = {
       unknownFloat12: 12,
     });
   },
-  PlayerUpdateUpdatePositionClientToZone: function (server: ZoneServer2016, client: Client, packet: any) {
+  PlayerUpdateUpdatePositionClientToZone: function (
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
     if (packet.data.position) {
       // TODO: modify array element beside re-creating it
       client.character.state.position = new Float32Array([
@@ -590,14 +661,22 @@ const packetHandlers = {
       ]);
     }
   },
-  "Character.Respawn": function (server: ZoneServer2016, client: Client, packet: any) {
+  "Character.Respawn": function (
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
     debug(packet);
     server.sendData(client, "Character.RespawnReply", {
       characterId: client.character.characterId,
       position: [0, 200, 0, 1],
     });
   },
-  "Character.FullCharacterDataRequest": function (server: ZoneServer2016, client: Client, packet: any) {
+  "Character.FullCharacterDataRequest": function (
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
     const {
       data: { guid },
     } = packet;
@@ -666,20 +745,36 @@ const packetHandlers = {
     }
   },
 
-  "Command.PlayerSelect": function (server: ZoneServer2016, client: Client, packet: any) {
+  "Command.PlayerSelect": function (
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
     if (server._vehicles[packet.data.guid] && !client.vehicle.mountedVehicle) {
       server.mountVehicle(client, packet);
-    }
-    else if (server._vehicles[packet.data.guid] && client.vehicle.mountedVehicle) {// other seats
+    } else if (
+      server._vehicles[packet.data.guid] &&
+      client.vehicle.mountedVehicle
+    ) {
+      // other seats
       server.dismountVehicle(client);
     }
   },
 
-  "Mount.DismountRequest": function (server: ZoneServer2016, client: Client, packet: any) { // only for driver seat
+  "Mount.DismountRequest": function (
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
+    // only for driver seat
     debug(packet.data);
     server.dismountVehicle(client);
   },
-  "Command.InteractionString": function (server: ZoneServer2016, client: Client, packet: any) {
+  "Command.InteractionString": function (
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
     const { guid } = packet.data;
     const objectData = server._objects[guid];
     const doorData = server._doors[guid];
@@ -726,9 +821,13 @@ const packetHandlers = {
     }
   },
 
-  "Mount.SeatChangeRequest": function (server: ZoneServer2016, client: Client, packet: any) {
+  "Mount.SeatChangeRequest": function (
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
     server.changeSeat(client, packet);
-  }
+  },
 
   /*
   "Command.ItemDefinitionRequest": function (server: ZoneServer2016, client: Client, packet: any) {

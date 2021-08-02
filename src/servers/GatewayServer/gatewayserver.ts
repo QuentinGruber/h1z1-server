@@ -2,7 +2,8 @@
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
-//   copyright (c) 2021 Quentin Gruber
+//   copyright (c) 2020 - 2021 Quentin Gruber
+//   copyright (c) 2021 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -13,10 +14,8 @@
 import { EventEmitter } from "events";
 import { SOEServer } from "../SoeServer/soeserver";
 import { GatewayProtocol } from "../../protocols/gatewayprotocol";
-import {
-  Client,
-} from "../../types/gatewayserver";
 import { H1emuProtocol } from "../../protocols/h1emuprotocol";
+import { Client } from "../../types/gatewayserver";
 
 const debug = require("debug")("GatewayServer");
 
@@ -88,13 +87,13 @@ export class GatewayServer extends EventEmitter {
               );
 
               if (result && result.characterId) {
-                  this.emit(
-                    "login",
-                    null,
-                    client,
-                    result.characterId,
-                    result.ticket
-                  );
+                this.emit(
+                  "login",
+                  null,
+                  client,
+                  result.characterId,
+                  result.ticket
+                );
               }
               break;
             case "Logout":

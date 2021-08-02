@@ -2,7 +2,8 @@
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
-//   copyright (c) 2021 Quentin Gruber
+//   copyright (c) 2020 - 2021 Quentin Gruber
+//   copyright (c) 2021 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -216,10 +217,11 @@ export class ZoneServer extends EventEmitter {
         characterId: string,
         loginSessionId: string
       ) => {
-        debug( `Client logged in from ${client.address}:${client.port} with character id: ${characterId}` );
+        debug(
+          `Client logged in from ${client.address}:${client.port} with character id: ${characterId}`
+        );
         this._clients[client.sessionId] = client;
-        
-        
+
         client.isLoading = true;
         client.firstLoading = true;
         client.loginSessionId = loginSessionId;
@@ -284,7 +286,8 @@ export class ZoneServer extends EventEmitter {
     ) {
       await this.fetchWorldData();
     } else {
-      await this._db?.collection(`worlds`)
+      await this._db
+        ?.collection(`worlds`)
         .insertOne({ worldId: this._worldId });
       await this.saveWorld();
     }
@@ -360,45 +363,50 @@ export class ZoneServer extends EventEmitter {
 
   async fetchWorldData(): Promise<void> {
     if (!this._soloMode) {
-      this._doors  = {};
-      const doorArray:any = await this._db
-      ?.collection("doors")
-      .find({ worldId: this._worldId }).toArray();
+      this._doors = {};
+      const doorArray: any = await this._db
+        ?.collection("doors")
+        .find({ worldId: this._worldId })
+        .toArray();
       for (let index = 0; index < doorArray.length; index++) {
         const door = doorArray[index];
-        this._doors[door.characterId] = door
+        this._doors[door.characterId] = door;
       }
-      this._props  = {};
-      const propsArray:any = await this._db
-      ?.collection("props")
-      .find({ worldId: this._worldId }).toArray();
+      this._props = {};
+      const propsArray: any = await this._db
+        ?.collection("props")
+        .find({ worldId: this._worldId })
+        .toArray();
       for (let index = 0; index < propsArray.length; index++) {
         const prop = propsArray[index];
-        this._props[prop.characterId] = prop
+        this._props[prop.characterId] = prop;
       }
-      this._vehicles  = {}
-      const vehiclesArray:any = await this._db
-      ?.collection("vehicles")
-      .find({ worldId: this._worldId }).toArray();
+      this._vehicles = {};
+      const vehiclesArray: any = await this._db
+        ?.collection("vehicles")
+        .find({ worldId: this._worldId })
+        .toArray();
       for (let index = 0; index < vehiclesArray.length; index++) {
         const vehicle = vehiclesArray[index];
-        this._vehicles[vehicle.npcData.characterId] = vehicle
+        this._vehicles[vehicle.npcData.characterId] = vehicle;
       }
-      this._npcs  = {}
-      const npcsArray:any = await this._db
-      ?.collection("npcs")
-      .find({ worldId: this._worldId }).toArray();
+      this._npcs = {};
+      const npcsArray: any = await this._db
+        ?.collection("npcs")
+        .find({ worldId: this._worldId })
+        .toArray();
       for (let index = 0; index < npcsArray.length; index++) {
         const npc = npcsArray[index];
-        this._npcs[npc.characterId] = npc
+        this._npcs[npc.characterId] = npc;
       }
-      this._objects  = {}
-      const objectsArray:any = await this._db
-      ?.collection("objects")
-      .find({ worldId: this._worldId }).toArray();
+      this._objects = {};
+      const objectsArray: any = await this._db
+        ?.collection("objects")
+        .find({ worldId: this._worldId })
+        .toArray();
       for (let index = 0; index < objectsArray.length; index++) {
         const object = objectsArray[index];
-        this._objects[object.characterId] = object
+        this._objects[object.characterId] = object;
       }
       this._transientIds = this.getAllCurrentUsedTransientId();
       debug("World fetched!");
@@ -408,45 +416,45 @@ export class ZoneServer extends EventEmitter {
   async saveWorld(): Promise<void> {
     if (!this._soloMode) {
       if (this._worldId) {
-          this.createAllObjects();
-          await this._db
-            ?.collection(`npcs`)
-            .insertMany(Object.values(this._npcs));
-            await this._db
-            ?.collection(`doors`)
-            .insertMany(Object.values(this._doors));
-            await this._db
-            ?.collection(`props`)
-            .insertMany(Object.values(this._props));
-            await this._db
-            ?.collection(`vehicles`)
-            .insertMany(Object.values(this._vehicles));
-            await this._db
-            ?.collection(`objects`)
-            .insertMany(Object.values(this._objects));
+        this.createAllObjects();
+        await this._db
+          ?.collection(`npcs`)
+          .insertMany(Object.values(this._npcs));
+        await this._db
+          ?.collection(`doors`)
+          .insertMany(Object.values(this._doors));
+        await this._db
+          ?.collection(`props`)
+          .insertMany(Object.values(this._props));
+        await this._db
+          ?.collection(`vehicles`)
+          .insertMany(Object.values(this._vehicles));
+        await this._db
+          ?.collection(`objects`)
+          .insertMany(Object.values(this._objects));
       } else {
         this.createAllObjects();
         const numberOfWorld: number =
           (await this._db?.collection("worlds").find({}).count()) || 0;
-          this._worldId = numberOfWorld + 1;
+        this._worldId = numberOfWorld + 1;
         await this._db?.collection("worlds").insertOne({
           worldId: this._worldId,
         });
         await this._db
-            ?.collection(`npcs`)
-            .insertMany(Object.values(this._npcs));
-            await this._db
-            ?.collection(`doors`)
-            .insertMany(Object.values(this._doors));
-            await this._db
-            ?.collection(`props`)
-            .insertMany(Object.values(this._props));
-            await this._db
-            ?.collection(`vehicles`)
-            .insertMany(Object.values(this._vehicles));
-            await this._db
-            ?.collection(`objects`)
-            .insertMany(Object.values(this._objects));
+          ?.collection(`npcs`)
+          .insertMany(Object.values(this._npcs));
+        await this._db
+          ?.collection(`doors`)
+          .insertMany(Object.values(this._doors));
+        await this._db
+          ?.collection(`props`)
+          .insertMany(Object.values(this._props));
+        await this._db
+          ?.collection(`vehicles`)
+          .insertMany(Object.values(this._vehicles));
+        await this._db
+          ?.collection(`objects`)
+          .insertMany(Object.values(this._objects));
         debug("World saved!");
       }
     } else {
@@ -466,25 +474,32 @@ export class ZoneServer extends EventEmitter {
       } catch (e) {
         throw debug("[ERROR]Unable to connect to mongo server");
       }
-        debug("connected to mongo !");
-        // if no collections exist on h1server database , fill it with samples
-        (await mongoClient.db("h1server").collections()).length ||
-          (await initMongo(this._mongoAddress, debugName));
-        this._db = mongoClient.db("h1server");
+      debug("connected to mongo !");
+      // if no collections exist on h1server database , fill it with samples
+      (await mongoClient.db("h1server").collections()).length ||
+        (await initMongo(this._mongoAddress, debugName));
+      this._db = mongoClient.db("h1server");
     }
     await this.setupServer();
     this._startTime += Date.now() + 82201232; // summer start
     this._startGameTime += Date.now();
-    if(this._soloMode){ 
+    if (this._soloMode) {
       setupAppDataFolder();
     }
     if (this._dynamicWeatherEnabled) {
-      this._dynamicWeatherWorker = new Worker(`${__dirname}/workers/dynamicWeather.js`,{
-        workerData:{timeMultiplier:this._timeMultiplier,serverTime:this._serverTime,startTime:this._startTime}
-      });
-      this._dynamicWeatherWorker.on("message",(weather:any)=>{
+      this._dynamicWeatherWorker = new Worker(
+        `${__dirname}/workers/dynamicWeather.js`,
+        {
+          workerData: {
+            timeMultiplier: this._timeMultiplier,
+            serverTime: this._serverTime,
+            startTime: this._startTime,
+          },
+        }
+      );
+      this._dynamicWeatherWorker.on("message", (weather: any) => {
         this.SendSkyChangedPacket({} as Client, weather, true);
-      })
+      });
     }
     this._gatewayServer.start();
   }
@@ -531,7 +546,9 @@ export class ZoneServer extends EventEmitter {
   checkIfClientStillOnline(client: Client): void {
     if (new Date().getTime() - client.lastPingTime > this._pingTimeoutTime) {
       clearInterval(client.pingTimer);
-      debug( `Client disconnected from ${client.address}:${client.port} ( ping timeout )` );
+      debug(
+        `Client disconnected from ${client.address}:${client.port} ( ping timeout )`
+      );
       clearInterval(client.character?.resourcesUpdater);
       if (client.character?.characterId) {
         delete this._characters[client.character.characterId];
@@ -592,7 +609,7 @@ export class ZoneServer extends EventEmitter {
     } = this._dummySelf;
 
     let characterName;
-    let character:any;
+    let character: any;
     if (!this._soloMode) {
       character = await this._db
         ?.collection("characters")
@@ -600,9 +617,7 @@ export class ZoneServer extends EventEmitter {
       characterName = character.payload.name;
     } else {
       delete require.cache[
-        require.resolve(
-          `${this._appDataFolder}/single_player_characters.json`
-        )
+        require.resolve(`${this._appDataFolder}/single_player_characters.json`)
       ];
       const SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters.json`);
       character = SinglePlayerCharacters.find(
@@ -618,7 +633,7 @@ export class ZoneServer extends EventEmitter {
     client.character.guid = client.character.characterId;
     client.character.name =
       identity.characterFirstName + identity.characterLastName;
-    const characterDataMongo:any = await this._db
+    const characterDataMongo: any = await this._db
       ?.collection("characters")
       .findOne({ characterId: client.character.characterId });
     client.character.extraModel = characterDataMongo?.extraModelTexture
@@ -1231,7 +1246,7 @@ export class ZoneServer extends EventEmitter {
     const delta = Date.now() - this._startTime;
     return this._serverTime + delta;
   }
-  
+
   getServerTimeTest(): number {
     debug("get server time");
     const delta = Date.now() - this._startTime;
@@ -1289,7 +1304,10 @@ export class ZoneServer extends EventEmitter {
     return obj;
   }
 }
-if (process.env.VSCODE_DEBUG === "true" && process.env.CLIENT_SIXTEEN !== "true") {
+if (
+  process.env.VSCODE_DEBUG === "true" &&
+  process.env.CLIENT_SIXTEEN !== "true"
+) {
   new ZoneServer(
     1117,
     new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", "base64")

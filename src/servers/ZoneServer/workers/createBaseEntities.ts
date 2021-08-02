@@ -115,7 +115,7 @@ function getRandomVehicleModelId() {
   }
 }
 
-function getVehicleId(ModelId:number) {
+function getVehicleId(ModelId: number) {
   switch (ModelId) {
     case 7225:
       return 1;
@@ -266,7 +266,7 @@ function createPumpShotgun(server: ZoneServer) {
             itemInstance.position,
             itemInstance.rotation,
             itemInstance.scale,
-itemInstance.id,
+            itemInstance.id,
             objects
           );
         }
@@ -339,7 +339,7 @@ function createTools(server: ZoneServer) {
             itemInstance.position,
             itemInstance.rotation,
             itemInstance.scale,
-itemInstance.id,
+            itemInstance.id,
             objects
           );
         }
@@ -411,7 +411,7 @@ function createM24(server: ZoneServer) {
             itemInstance.position,
             itemInstance.rotation,
             itemInstance.scale,
-itemInstance.id,
+            itemInstance.id,
             objects
           );
         }
@@ -453,7 +453,7 @@ function createConsumables(server: ZoneServer) {
             itemInstance.position,
             itemInstance.rotation,
             itemInstance.scale,
-itemInstance.id,
+            itemInstance.id,
             objects
           );
         }
@@ -497,7 +497,7 @@ function createClothes(server: ZoneServer) {
             itemInstance.position,
             itemInstance.rotation,
             itemInstance.scale,
-itemInstance.id,
+            itemInstance.id,
             objects
           );
         }
@@ -549,7 +549,7 @@ function createResidential(server: ZoneServer) {
             itemInstance.position,
             itemInstance.rotation,
             itemInstance.scale,
-itemInstance.id,
+            itemInstance.id,
             objects
           );
         }
@@ -592,7 +592,7 @@ function createRare(server: ZoneServer) {
             itemInstance.position,
             itemInstance.rotation,
             itemInstance.scale,
-itemInstance.id,
+            itemInstance.id,
             objects
           );
         }
@@ -635,7 +635,7 @@ function createIndustrial(server: ZoneServer) {
             itemInstance.position,
             itemInstance.rotation,
             itemInstance.scale,
-itemInstance.id,
+            itemInstance.id,
             objects
           );
         }
@@ -681,7 +681,7 @@ function createWorld(server: ZoneServer) {
             itemInstance.position,
             itemInstance.rotation,
             itemInstance.scale,
-itemInstance.id,
+            itemInstance.id,
             objects
           );
         }
@@ -716,7 +716,7 @@ function createLog(server: ZoneServer) {
             itemInstance.position,
             itemInstance.rotation,
             itemInstance.scale,
-itemInstance.id,
+            itemInstance.id,
             objects
           );
         }
@@ -756,7 +756,7 @@ function createCommercial(server: ZoneServer) {
             itemInstance.position,
             itemInstance.rotation,
             itemInstance.scale,
-itemInstance.id,
+            itemInstance.id,
             objects
           );
         }
@@ -797,7 +797,7 @@ function createFarm(server: ZoneServer) {
             itemInstance.position,
             itemInstance.rotation,
             itemInstance.scale,
-itemInstance.id,
+            itemInstance.id,
             objects
           );
         }

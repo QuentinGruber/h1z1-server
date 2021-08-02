@@ -2,7 +2,8 @@
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
-//   copyright (c) 2021 Quentin Gruber
+//   copyright (c) 2020 - 2021 Quentin Gruber
+//   copyright (c) 2021 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -15,10 +16,10 @@ import { SOEProtocol } from "../../protocols/soeprotocol";
 import { SOEInputStream } from "./soeinputstream";
 import { SOEOutputStream } from "./soeoutputstream";
 import { Client } from "../../types/soeserver";
-import { Worker } from 'worker_threads';
+import { Worker } from "worker_threads";
 
 const debug = require("debug")("SOEServer");
-process.env.isBin && require("./udpServerWorker")
+process.env.isBin && require("./udpServerWorker");
 export class SOEServer extends EventEmitter {
   _protocolName: string;
   _serverPort: number;
@@ -56,10 +57,12 @@ export class SOEServer extends EventEmitter {
     this._useEncryption = true;
     this._isGatewayServer = isGatewayServer;
     this._clients = {};
-    this._connection = new Worker(`${__dirname}/udpServerWorker.js`,{workerData:{serverPort:serverPort}});
+    this._connection = new Worker(`${__dirname}/udpServerWorker.js`, {
+      workerData: { serverPort: serverPort },
+    });
     this._connection.on("message", (message) => {
-      const {data:dataUint8, remote} = message;
-      const data = Buffer.from(dataUint8)
+      const { data: dataUint8, remote } = message;
+      const data = Buffer.from(dataUint8);
       try {
         let client: any;
         const clientId = remote.address + ":" + remote.port;
@@ -96,20 +99,25 @@ export class SOEServer extends EventEmitter {
       }
     });
   }
-  checkClientOutQueue(client:Client) {
+  checkClientOutQueue(client: Client) {
     const data = client.outQueue.shift();
     if (data) {
       this._connection.postMessage({
-        type:"sendPacket",
-        data: {packetData:data,
-        length: data.length,
-        port : client.port,
-        address : client.address}});
+        type: "sendPacket",
+        data: {
+          packetData: data,
+          length: data.length,
+          port: client.port,
+          address: client.address,
+        },
+      });
     }
-    (client as any).outQueueTimer = setTimeout(()=>this.checkClientOutQueue(client));
-  };
+    (client as any).outQueueTimer = setTimeout(() =>
+      this.checkClientOutQueue(client)
+    );
+  }
 
-  checkAck(client:Client) {
+  checkAck(client: Client) {
     if (client.lastAck != client.nextAck) {
       client.lastAck = client.nextAck;
       this._sendPacket(
@@ -122,10 +130,10 @@ export class SOEServer extends EventEmitter {
         true
       );
     }
-    (client as any).ackTimer = setTimeout(()=>this.checkAck(client));
-  };
+    (client as any).ackTimer = setTimeout(() => this.checkAck(client));
+  }
 
-  checkOutOfOrderQueue(client:Client){
+  checkOutOfOrderQueue(client: Client) {
     if (client.outOfOrderPackets.length) {
       const packets = [];
       for (let i = 0; i < this._maxOutOfOrderPacketsPerLoop; i++) {
@@ -151,9 +159,11 @@ export class SOEServer extends EventEmitter {
         true
       );
     }
-    (client as any).outOfOrderTimer =
-      setTimeout(()=>this.checkOutOfOrderQueue(client),50);
-  };
+    (client as any).outOfOrderTimer = setTimeout(
+      () => this.checkOutOfOrderQueue(client),
+      50
+    );
+  }
 
   createClient(clientId:string,remote:{address:string,port:number}):void{
     let client:any =  this._clients[clientId] = {
@@ -374,11 +384,11 @@ export class SOEServer extends EventEmitter {
     this._crcSeed = crcSeed;
     this._crcLength = crcLength;
     this._udpLength = udpLength;
-    this._connection.postMessage({type:"bind"});
+    this._connection.postMessage({ type: "bind" });
   }
 
   stop(): void {
-    this._connection.postMessage({type:"close"});
+    this._connection.postMessage({ type: "close" });
     process.exit(0);
   }
 
