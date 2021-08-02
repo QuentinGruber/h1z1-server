@@ -5597,20 +5597,22 @@ var packets = [
   ],
   ["PlayerUpdate.ReadyToReviveResponse", 0x0f3a, {}],
   ["PlayerUpdate.ActivateProfile", 0x0f3b, {}],
-  ["PlayerUpdate.SetSpotted", 0x0f3c, {
-    fields: [
-      {
-        name: "unkArray",
-        type: "array",
-        defaultValue: [],
-        fields: [
-          { name: "guid", type: "uint64", defaultValue: "0" },
-        ],
-      },
-      { name: "unk1", type: "uint32", defaultValue: 100 },
-      { name: "unk2", type: "uint8", defaultValue: 1 },
-    ],
-  }],
+  [
+    "PlayerUpdate.SetSpotted",
+    0x0f3c,
+    {
+      fields: [
+        {
+          name: "unkArray",
+          type: "array",
+          defaultValue: [],
+          fields: [{ name: "guid", type: "uint64", defaultValue: "0" }],
+        },
+        { name: "unk1", type: "uint32", defaultValue: 100 },
+        { name: "unk2", type: "uint8", defaultValue: 1 },
+      ],
+    },
+  ],
   [
     "PlayerUpdate.Jet",
     0x0f3d,

@@ -304,10 +304,7 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
-    if (
-      packet.data.damage > 99 &&
-      client.character.resources.health > 0
-    ) {
+    if (packet.data.damage > 99 && client.character.resources.health > 0) {
       client.character.resources.health =
         client.character.resources.health - packet.data.damage;
       if (client.character.resources.health < 0) {

@@ -388,14 +388,14 @@ const hax: any = {
   },
   sonic: function (server: ZoneServer, client: Client, args: any[]) {
     server.sendData(client, "ClientGameSettings", {
-        interactGlowAndDist: 3,
-        unknownBoolean1: false,
-        timescale: isSonic ? 1.0 : 3.0,
-        Unknown4: 0,
-        Unknown: 0,
-        unknownFloat1: 1,
-        unknownFloat2: 1,
-        velDamageMulti: 1.0,
+      interactGlowAndDist: 3,
+      unknownBoolean1: false,
+      timescale: isSonic ? 1.0 : 3.0,
+      Unknown4: 0,
+      Unknown: 0,
+      unknownFloat1: 1,
+      unknownFloat2: 1,
+      velDamageMulti: 1.0,
     });
     server.sendData(client, "Command.RunSpeed", {
       runSpeed: isSonic ? 0 : -100,
