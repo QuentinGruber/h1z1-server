@@ -493,7 +493,7 @@ export class ZoneServer extends EventEmitter {
           workerData: {
             timeMultiplier: this._timeMultiplier,
             serverTime: this._serverTime,
-            startTime: this._startTime,
+            startTime: Number((this._startTime / 1000).toFixed(0)),
           },
         }
       );
