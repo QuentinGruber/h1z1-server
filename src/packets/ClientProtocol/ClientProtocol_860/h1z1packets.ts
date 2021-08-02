@@ -1422,9 +1422,9 @@ const weaponPackets = [
     0x821b,
     {
       fields: [
-        { name: "unknownQword1", type: "uint64", defaultValue: "0" },
-        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+        { name: "characterId", type: "uint64", defaultValue: "0" },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: true },
+        { name: "unknownByte1", type: "uint8", defaultValue: 1 },
       ],
     },
   ],
