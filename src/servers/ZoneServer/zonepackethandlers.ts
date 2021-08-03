@@ -549,15 +549,15 @@ const packetHandlers: any = {
           server.sendChatText(
             client,
             "Gametime: " +
-              datakur.getDate() +
+              datakur.getUTCDate() +
               " " +
-              monthNames[datakur.getMonth()] +
+              monthNames[datakur.getUTCMonth()] +
               " " +
-              (datakur.getFullYear() + 50) +
+              (datakur.getUTCFullYear() + 50) +
               ", " +
-              datakur.getHours() +
+              datakur.getUTCHours() +
               ":" +
-              datakur.getMinutes()
+              datakur.getUTCMinutes()
           );
           break;
         }
