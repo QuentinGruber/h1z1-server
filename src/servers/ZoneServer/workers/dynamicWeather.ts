@@ -201,8 +201,8 @@ export default function dynamicWeather(
 ) {
   const delta = Date.now() - startTime;
   const currentDate = new Date((serverTime + delta) * timeMultiplier);
-  const currentHour = currentDate.getHours();
-  const currentMonth = currentDate.getMonth();
+  const currentHour = currentDate.getUTCHours();
+  const currentMonth = currentDate.getUTCMonth();
 
   switch (
     currentMonth // switch seasons 1-12 months
