@@ -7710,7 +7710,7 @@ var packets = [
   ["ClientMembershipVipInfo", 0x7d, {}],
   [
     "Target.AddTarget",
-    0x7e70,
+    0x7e07,
     {
       fields: [
         {
