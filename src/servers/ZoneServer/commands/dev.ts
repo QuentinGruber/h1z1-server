@@ -6,7 +6,7 @@ const debug = require("debug")("zonepacketHandlers");
 
 const dev: any = {
   testpacket: function (server: ZoneServer, client: Client, args: any[]) {
-    server.sendData(client, "PlayerUpdate.AttachObject", {
+    server.sendData(client, "Target.AddTarget", {
       objects: [
         {
           targetObjectId: client.character.characterId,

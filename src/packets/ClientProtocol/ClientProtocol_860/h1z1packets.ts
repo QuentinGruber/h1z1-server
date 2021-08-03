@@ -7708,7 +7708,24 @@ var packets = [
   ["Quiz", 0x7b, {}],
   ["PlayerUpdate.PositionOnPlatform", 0x7c, {}],
   ["ClientMembershipVipInfo", 0x7d, {}],
-  ["Target", 0x7e, {}],
+  [
+    "Target.AddTarget",
+    0x7e70,
+    {
+      fields: [
+        {
+          name: "Unk1",
+          type: "uint64",
+          defaultValue: "0x0000000000000010",
+        },
+        { name: "Unk2", type: "string", defaultValue: "10" },
+        { name: "Unk3", type: "boolean", defaultValue: 1 },
+      ],
+    },
+  ],
+  ["Target.SetTarget", 0x7e08, {}],
+  ["Target.RemoveTarget", 0x7e09, {}],
+  ["Target.ClearTarget", 0x7eb0, {}],
   ["GuideStone", 0x7f, {}],
   ["Raid", 0x80, {}],
   [
