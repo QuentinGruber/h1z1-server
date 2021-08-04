@@ -13,7 +13,7 @@
     "h1emu-core": "^0.2.1",
     "h1z1-dataschema": "^1.3.5",
     "hash-jenkins": "1.0.1",
-    "mongodb": "4.0.1",
+    "mongodb": "4.1.0",
     "mongodb-restore-dump": "1.0.1",
     "terser-output": "1.0.2",
     "typescript": "4.3.5"
