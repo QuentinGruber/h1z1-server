@@ -7708,7 +7708,57 @@ var packets = [
   ["Quiz", 0x7b, {}],
   ["PlayerUpdate.PositionOnPlatform", 0x7c, {}],
   ["ClientMembershipVipInfo", 0x7d, {}],
-  ["Target", 0x7e, {}],
+  // for some reason the opcode of a Target packet is 0x{BasePacketOpcode byte}{SubPacketOpcode byte}{emptyByte}
+  [
+    "Target.AddTarget",
+    0x7e0700,
+    {
+      fields: [
+        {
+          name: "Unk1",
+          type: "uint64",
+          defaultValue: "0x0000000000000010",
+        },
+        { name: "Unk2", type: "string", defaultValue: "10" },
+        { name: "Unk3", type: "boolean", defaultValue: true }, // the packet is ignored if falsy
+      ],
+    },
+  ],
+  [
+    "Target.SetTarget",
+    0x7e0800,
+    {
+      fields: [
+        {
+          name: "Unk1",
+          type: "uint64",
+          defaultValue: "0x0000000000000010",
+        },
+        { name: "Unk2", type: "string", defaultValue: "10" },
+        { name: "Unk3", type: "boolean", defaultValue: true }, // the packet is ignored if falsy
+      ],
+    },
+  ],
+  [
+    "Target.RemoveTarget",
+    0x7e0900,
+    {
+      fields: [
+        { name: "Unk2", type: "string", defaultValue: "10" },
+        { name: "Unk3", type: "boolean", defaultValue: true }, // the packet is ignored if falsy
+      ],
+    },
+  ],
+  [
+    "Target.ClearTarget",
+    0x7eb000,
+    {
+      fields: [
+        { name: "Unk2", type: "string", defaultValue: "10" },
+        { name: "Unk3", type: "boolean", defaultValue: true }, // the packet is ignored if falsy
+      ],
+    },
+  ],
   ["GuideStone", 0x7f, {}],
   ["Raid", 0x80, {}],
   [
