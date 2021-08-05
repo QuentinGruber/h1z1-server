@@ -5560,20 +5560,22 @@ var packets = [
   ],
   ["PlayerUpdate.ReadyToReviveResponse", 0x0f3a, {}],
   ["PlayerUpdate.ActivateProfile", 0x0f3b, {}],
-  ["PlayerUpdate.SetSpotted", 0x0f3c, {
-    fields: [
-      {
-        name: "unkArray",
-        type: "array",
-        defaultValue: [],
-        fields: [
-          { name: "guid", type: "uint64", defaultValue: "0" },
-        ],
-      },
-      { name: "unk1", type: "uint32", defaultValue: 100 },
-      { name: "unk2", type: "uint8", defaultValue: 1 },
-    ],
-  }],
+  [
+    "PlayerUpdate.SetSpotted",
+    0x0f3c,
+    {
+      fields: [
+        {
+          name: "unkArray",
+          type: "array",
+          defaultValue: [],
+          fields: [{ name: "guid", type: "uint64", defaultValue: "0" }],
+        },
+        { name: "unk1", type: "uint32", defaultValue: 100 },
+        { name: "unk2", type: "uint8", defaultValue: 1 },
+      ],
+    },
+  ],
   [
     "PlayerUpdate.Jet",
     0x0f3d,
@@ -7320,14 +7322,14 @@ var packets = [
       fields: [
         { name: "UnknownByte", type: "byte", defaultValue: 0 },
         { name: "Unknown2", type: "uint32", defaultValue: 0 },
-        { name: "Unknown3", type: "uint32", defaultValue: 0 },
+        { name: "interactGlowAndDist", type: "uint32", defaultValue: 3 }, // client doesnt send interactionstring by distance but still sends interactrequest
         { name: "unknownBoolean1", type: "boolean", defaultValue: 0 },
-        { name: "timescale", type: "float", defaultValue: 1.0 },
+        { name: "timescale", type: "float", defaultValue: 2.0 },
         { name: "Unknown4", type: "uint32", defaultValue: 0 },
         { name: "Unknown5", type: "uint32", defaultValue: 0 },
         { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
         { name: "unknownFloat2", type: "float", defaultValue: 0.0 },
-        { name: "unknownFloat3", type: "float", defaultValue: 0.0 },
+        { name: "velDamageMulti", type: "float", defaultValue: 1.0 }, // 0 = crash
       ],
     },
   ],
@@ -7669,7 +7671,57 @@ var packets = [
   ["Quiz", 0x7b, {}],
   ["PlayerUpdate.PositionOnPlatform", 0x7c, {}],
   ["ClientMembershipVipInfo", 0x7d, {}],
-  ["Target", 0x7e, {}],
+  // for some reason the opcode of a Target packet is 0x{BasePacketOpcode byte}{SubPacketOpcode byte}{emptyByte}
+  [
+    "Target.AddTarget",
+    0x7e0700,
+    {
+      fields: [
+        {
+          name: "Unk1",
+          type: "uint64",
+          defaultValue: "0x0000000000000010",
+        },
+        { name: "Unk2", type: "string", defaultValue: "10" },
+        { name: "Unk3", type: "boolean", defaultValue: true }, // the packet is ignored if falsy
+      ],
+    },
+  ],
+  [
+    "Target.SetTarget",
+    0x7e0800,
+    {
+      fields: [
+        {
+          name: "Unk1",
+          type: "uint64",
+          defaultValue: "0x0000000000000010",
+        },
+        { name: "Unk2", type: "string", defaultValue: "10" },
+        { name: "Unk3", type: "boolean", defaultValue: true }, // the packet is ignored if falsy
+      ],
+    },
+  ],
+  [
+    "Target.RemoveTarget",
+    0x7e0900,
+    {
+      fields: [
+        { name: "Unk2", type: "string", defaultValue: "10" },
+        { name: "Unk3", type: "boolean", defaultValue: true }, // the packet is ignored if falsy
+      ],
+    },
+  ],
+  [
+    "Target.ClearTarget",
+    0x7eb000,
+    {
+      fields: [
+        { name: "Unk2", type: "string", defaultValue: "10" },
+        { name: "Unk3", type: "boolean", defaultValue: true }, // the packet is ignored if falsy
+      ],
+    },
+  ],
   ["GuideStone", 0x7f, {}],
   ["Raid", 0x80, {}],
   [
