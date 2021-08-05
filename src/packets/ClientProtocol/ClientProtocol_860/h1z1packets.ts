@@ -7237,7 +7237,11 @@ var packets = [
       fields: [{ name: "gameTime", type: "uint32", defaultValue: 0 }],
     },
   ],
-  ["ClientExitLaunchUrl", 0x3d, {}],
+  ["ClientExitLaunchUrl", 0x3d, {
+    fields: [
+      { name: "url", type: "string", defaultValue: "0" }
+    ],
+  }],
   ["ClientPath", 0x3e, {}],
   ["ClientPendingKickFromServer", 0x3f, {}],
   [

@@ -845,6 +845,11 @@ const hax: any = {
     debug(JSON.stringify(rnd_weather));
     server.changeWeather(client, rnd_weather);
   },
+  rick: function (server: ZoneServer, client: Client, args: any[]) {
+    server.sendDataToAll("ClientExitLaunchUrl", {
+      url:"www.youtube.com/watch?v=dQw4w9WgXcQ" // that's a very dangerous command, if it was working....
+    });
+  },
   titan: function (server: ZoneServer, client: Client, args: any[]) {
     server.sendDataToAll("PlayerUpdate.UpdateScale", {
       characterId: client.character.characterId,
