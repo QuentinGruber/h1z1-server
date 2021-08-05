@@ -7708,6 +7708,57 @@ var packets = [
   ["Quiz", 0x7b, {}],
   ["PlayerUpdate.PositionOnPlatform", 0x7c, {}],
   ["ClientMembershipVipInfo", 0x7d, {}],
+  // 01 -> 07 are client sided
+  [
+    "Target.CharacterGuid",
+    0x7e01,
+    {
+      fields: [],
+    },
+  ],
+  [
+    "Target.Location",
+    0x7e02,
+    {
+      fields: [],
+    },
+  ],
+  [
+    "Target.CharacterBone",
+    0x7e03,
+    {
+      fields: [],
+    },
+  ],
+  [
+    "Target.CharacterBoneId",
+    0x7e04,
+    {
+      fields: [],
+    },
+  ],
+  [
+    "Target.ActorBone",
+    0x7e05,
+    {
+      fields: [],
+    },
+  ],
+  [
+    "Target.ActorBoneId",
+    0x7e06,
+    {
+      fields: [],
+    },
+  ],
+  [
+    "Target.Facility",
+    0x7e07,
+    {
+      fields: [],
+    },
+  ],
+  
   // for some reason the opcode of a Target packet is 0x{BasePacketOpcode byte}{SubPacketOpcode byte}{emptyByte}
   [
     "Target.AddTarget",
