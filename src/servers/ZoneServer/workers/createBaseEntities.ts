@@ -6,6 +6,7 @@ const Z1_npcs = require("../../../../data/2015/zoneData/Z1_npcs.json");
 const z1_Props = require("../../../../data/2015/zoneData/z1_Props.json");
 const models = require("../../../../data/2015/dataSources/Models.json");
 const modelToName = require("../../../../data/2015/sampleData/ModelToName.json");
+const textures = require("../../../../data/2015/sampleData/textures.json");
 import { _ } from "../../../utils/utils";
 import { generateRandomGuid } from "../../../utils/utils";
 import { ZoneServer } from "../zoneserver";
@@ -38,6 +39,7 @@ function createEntity(
   position: Array<number>,
   rotation: Array<number>,
   scale: Array<number>,
+  texture: string,
   zoneId: number,
   dictionnary: any
 ): void {
@@ -64,6 +66,7 @@ function createEntity(
     nameId: stringNameId,
     modelId: modelID,
     scale: scale,
+    texture: texture,
     position: position,
     rotation: rotation,
     attachedObject: {},
@@ -167,10 +170,12 @@ function createSomeNpcs(server: ZoneServer) {
       case "NPCSpawner_ZombieLazy.adr":
         authorizedModelId.push(9001);
         authorizedModelId.push(9193);
+        authorizedModelId.push(9188);
         break;
       case "NPCSpawner_ZombieWalker.adr":
         authorizedModelId.push(9001);
         authorizedModelId.push(9193);
+        authorizedModelId.push(9188);
         break;
       case "NPCSpawner_Deer001.adr":
         authorizedModelId.push(9002);
@@ -183,14 +188,26 @@ function createSomeNpcs(server: ZoneServer) {
         const spawnchance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (spawnchance <= 40) {
           // temporary spawnchance
-          createEntity(
-            server,
+          const spawnModel =
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
-            ],
+            ];
+          const model_index = textures.findIndex(
+            (x: any) => x.modelName === spawnModel
+          );
+          const texturelist = textures[model_index]?.textures;
+          let randomTexture = "";
+          if (texturelist) {
+            randomTexture =
+              texturelist[Math.floor(Math.random() * texturelist.length)];
+          }
+          createEntity(
+            server,
+            spawnModel,
             itemInstance.position,
             itemInstance.rotation,
             itemInstance.scale,
+            randomTexture,
             itemInstance.id,
             npcs
           );
@@ -222,14 +239,26 @@ function createAR15(server: ZoneServer) {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chanceAR15) {
           // temporary spawnchance
-          createEntity(
-            server,
+          const spawnModel =
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
-            ],
+            ];
+          const model_index = textures.findIndex(
+            (x: any) => x.modelName === spawnModel
+          );
+          const texturelist = textures[model_index]?.textures;
+          let randomTexture = "";
+          if (texturelist) {
+            randomTexture =
+              texturelist[Math.floor(Math.random() * texturelist.length)];
+          }
+          createEntity(
+            server,
+            spawnModel,
             itemInstance.position,
             itemInstance.rotation,
             itemInstance.scale,
+            randomTexture,
             itemInstance.id,
             objects
           );
@@ -258,14 +287,26 @@ function createPumpShotgun(server: ZoneServer) {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chancePumpShotgun) {
           // temporary spawnchance
-          createEntity(
-            server,
+          const spawnModel =
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
-            ],
+            ];
+          const model_index = textures.findIndex(
+            (x: any) => x.modelName === spawnModel
+          );
+          const texturelist = textures[model_index]?.textures;
+          let randomTexture = "";
+          if (texturelist) {
+            randomTexture =
+              texturelist[Math.floor(Math.random() * texturelist.length)];
+          }
+          createEntity(
+            server,
+            spawnModel,
             itemInstance.position,
             itemInstance.rotation,
             itemInstance.scale,
+            randomTexture,
             itemInstance.id,
             objects
           );
@@ -331,14 +372,26 @@ function createTools(server: ZoneServer) {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chanceTools) {
           // temporary spawnchance
-          createEntity(
-            server,
+          const spawnModel =
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
-            ],
+            ];
+          const model_index = textures.findIndex(
+            (x: any) => x.modelName === spawnModel
+          );
+          const texturelist = textures[model_index]?.textures;
+          let randomTexture = "";
+          if (texturelist) {
+            randomTexture =
+              texturelist[Math.floor(Math.random() * texturelist.length)];
+          }
+          createEntity(
+            server,
+            spawnModel,
             itemInstance.position,
             itemInstance.rotation,
             itemInstance.scale,
+            randomTexture,
             itemInstance.id,
             objects
           );
@@ -367,14 +420,26 @@ function create1911(server: ZoneServer) {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chance1911) {
           // temporary spawnchance
-          createEntity(
-            server,
+          const spawnModel =
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
-            ],
+            ];
+          const model_index = textures.findIndex(
+            (x: any) => x.modelName === spawnModel
+          );
+          const texturelist = textures[model_index]?.textures;
+          let randomTexture = "";
+          if (texturelist) {
+            randomTexture =
+              texturelist[Math.floor(Math.random() * texturelist.length)];
+          }
+          createEntity(
+            server,
+            spawnModel,
             itemInstance.position,
             itemInstance.rotation,
             itemInstance.scale,
+            randomTexture,
             itemInstance.id,
             objects
           );
@@ -403,14 +468,26 @@ function createM24(server: ZoneServer) {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chanceM24) {
           // temporary spawnchance
-          createEntity(
-            server,
+          const spawnModel =
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
-            ],
+            ];
+          const model_index = textures.findIndex(
+            (x: any) => x.modelName === spawnModel
+          );
+          const texturelist = textures[model_index]?.textures;
+          let randomTexture = "";
+          if (texturelist) {
+            randomTexture =
+              texturelist[Math.floor(Math.random() * texturelist.length)];
+          }
+          createEntity(
+            server,
+            spawnModel,
             itemInstance.position,
             itemInstance.rotation,
             itemInstance.scale,
+            randomTexture,
             itemInstance.id,
             objects
           );
@@ -445,14 +522,26 @@ function createConsumables(server: ZoneServer) {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chanceConsumables) {
           // temporary spawnchance
-          createEntity(
-            server,
+          const spawnModel =
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
-            ],
+            ];
+          const model_index = textures.findIndex(
+            (x: any) => x.modelName === spawnModel
+          );
+          const texturelist = textures[model_index]?.textures;
+          let randomTexture = "";
+          if (texturelist) {
+            randomTexture =
+              texturelist[Math.floor(Math.random() * texturelist.length)];
+          }
+          createEntity(
+            server,
+            spawnModel,
             itemInstance.position,
             itemInstance.rotation,
             itemInstance.scale,
+            randomTexture,
             itemInstance.id,
             objects
           );
@@ -489,14 +578,26 @@ function createClothes(server: ZoneServer) {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chanceClothes) {
           // temporary spawnchance
-          createEntity(
-            server,
+          const spawnModel =
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
-            ],
+            ];
+          const model_index = textures.findIndex(
+            (x: any) => x.modelName === spawnModel
+          );
+          const texturelist = textures[model_index]?.textures;
+          let randomTexture = "";
+          if (texturelist) {
+            randomTexture =
+              texturelist[Math.floor(Math.random() * texturelist.length)];
+          }
+          createEntity(
+            server,
+            spawnModel,
             itemInstance.position,
             itemInstance.rotation,
             itemInstance.scale,
+            randomTexture,
             itemInstance.id,
             objects
           );
@@ -541,14 +642,26 @@ function createResidential(server: ZoneServer) {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chanceResidential) {
           // temporary spawnchance
-          createEntity(
-            server,
+          const spawnModel =
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
-            ],
+            ];
+          const model_index = textures.findIndex(
+            (x: any) => x.modelName === spawnModel
+          );
+          const texturelist = textures[model_index]?.textures;
+          let randomTexture = "";
+          if (texturelist) {
+            randomTexture =
+              texturelist[Math.floor(Math.random() * texturelist.length)];
+          }
+          createEntity(
+            server,
+            spawnModel,
             itemInstance.position,
             itemInstance.rotation,
             itemInstance.scale,
+            randomTexture,
             itemInstance.id,
             objects
           );
@@ -584,14 +697,26 @@ function createRare(server: ZoneServer) {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chanceRare) {
           // temporary spawnchance
-          createEntity(
-            server,
+          const spawnModel =
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
-            ],
+            ];
+          const model_index = textures.findIndex(
+            (x: any) => x.modelName === spawnModel
+          );
+          const texturelist = textures[model_index]?.textures;
+          let randomTexture = "";
+          if (texturelist) {
+            randomTexture =
+              texturelist[Math.floor(Math.random() * texturelist.length)];
+          }
+          createEntity(
+            server,
+            spawnModel,
             itemInstance.position,
             itemInstance.rotation,
             itemInstance.scale,
+            randomTexture,
             itemInstance.id,
             objects
           );
@@ -627,14 +752,26 @@ function createIndustrial(server: ZoneServer) {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chanceIndustrial) {
           // temporary spawnchance
-          createEntity(
-            server,
+          const spawnModel =
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
-            ],
+            ];
+          const model_index = textures.findIndex(
+            (x: any) => x.modelName === spawnModel
+          );
+          const texturelist = textures[model_index]?.textures;
+          let randomTexture = "";
+          if (texturelist) {
+            randomTexture =
+              texturelist[Math.floor(Math.random() * texturelist.length)];
+          }
+          createEntity(
+            server,
+            spawnModel,
             itemInstance.position,
             itemInstance.rotation,
             itemInstance.scale,
+            randomTexture,
             itemInstance.id,
             objects
           );
@@ -673,14 +810,26 @@ function createWorld(server: ZoneServer) {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chanceWorld) {
           // temporary spawnchance
-          createEntity(
-            server,
+          const spawnModel =
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
-            ],
+            ];
+          const model_index = textures.findIndex(
+            (x: any) => x.modelName === spawnModel
+          );
+          const texturelist = textures[model_index]?.textures;
+          let randomTexture = "";
+          if (texturelist) {
+            randomTexture =
+              texturelist[Math.floor(Math.random() * texturelist.length)];
+          }
+          createEntity(
+            server,
+            spawnModel,
             itemInstance.position,
             itemInstance.rotation,
             itemInstance.scale,
+            randomTexture,
             itemInstance.id,
             objects
           );
@@ -708,14 +857,26 @@ function createLog(server: ZoneServer) {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chanceLog) {
           // temporary spawnchance
-          createEntity(
-            server,
+          const spawnModel =
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
-            ],
+            ];
+          const model_index = textures.findIndex(
+            (x: any) => x.modelName === spawnModel
+          );
+          const texturelist = textures[model_index]?.textures;
+          let randomTexture = "";
+          if (texturelist) {
+            randomTexture =
+              texturelist[Math.floor(Math.random() * texturelist.length)];
+          }
+          createEntity(
+            server,
+            spawnModel,
             itemInstance.position,
             itemInstance.rotation,
             itemInstance.scale,
+            randomTexture,
             itemInstance.id,
             objects
           );
@@ -748,14 +909,26 @@ function createCommercial(server: ZoneServer) {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chanceCommercial) {
           // temporary spawnchance
-          createEntity(
-            server,
+          const spawnModel =
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
-            ],
+            ];
+          const model_index = textures.findIndex(
+            (x: any) => x.modelName === spawnModel
+          );
+          const texturelist = textures[model_index]?.textures;
+          let randomTexture = "";
+          if (texturelist) {
+            randomTexture =
+              texturelist[Math.floor(Math.random() * texturelist.length)];
+          }
+          createEntity(
+            server,
+            spawnModel,
             itemInstance.position,
             itemInstance.rotation,
             itemInstance.scale,
+            randomTexture,
             itemInstance.id,
             objects
           );
@@ -789,14 +962,26 @@ function createFarm(server: ZoneServer) {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chanceFarm) {
           // temporary spawnchance
-          createEntity(
-            server,
+          const spawnModel =
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
-            ],
+            ];
+          const model_index = textures.findIndex(
+            (x: any) => x.modelName === spawnModel
+          );
+          const texturelist = textures[model_index]?.textures;
+          let randomTexture = "";
+          if (texturelist) {
+            randomTexture =
+              texturelist[Math.floor(Math.random() * texturelist.length)];
+          }
+          createEntity(
+            server,
+            spawnModel,
             itemInstance.position,
             itemInstance.rotation,
             itemInstance.scale,
+            randomTexture,
             itemInstance.id,
             objects
           );
@@ -809,16 +994,26 @@ function createFarm(server: ZoneServer) {
 
 function createProps(server: ZoneServer) {
   z1_Props.forEach((propType: any) => {
+    const model_index = textures.findIndex(
+      (x: any) => x.modelName === propType.actorDefinition
+    );
+    const texturelist = textures[model_index]?.textures;
     const modelId: number = _.find(models, (model: any) => {
       return model.MODEL_FILE_NAME === propType.actorDefinition;
     })?.ID;
     propType.instances.forEach((propInstance: any) => {
+      let randomTexture = "";
+      if (texturelist) {
+        randomTexture =
+          texturelist[Math.floor(Math.random() * texturelist.length)];
+      }
       createEntity(
         server,
         modelId,
         propInstance.position,
         propInstance.rotation,
         propInstance.scale,
+        randomTexture,
         propInstance.id,
         props
       );
@@ -843,6 +1038,7 @@ function createAllDoors(server: ZoneServer): void {
         doorInstance.position,
         doorInstance.rotation,
         doorInstance.scale,
+        "",
         doorInstance.id,
         doors
       );
@@ -850,3 +1046,4 @@ function createAllDoors(server: ZoneServer): void {
   });
   debug("All doors objects created");
 }
+
