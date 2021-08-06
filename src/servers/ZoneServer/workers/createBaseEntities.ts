@@ -71,9 +71,6 @@ function createEntity(
     rotation: rotation,
     attachedObject: {},
     color: {},
-    array5: [{ unknown1: 0 }],
-    array17: [{ unknown1: 0 }],
-    array18: [{ unknown1: 0 }],
   };
 }
 
