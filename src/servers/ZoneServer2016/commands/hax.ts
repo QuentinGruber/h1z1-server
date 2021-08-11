@@ -697,6 +697,16 @@ const hax: any = {
       equipmentSlot
     );
   },
+  placement: function (server: ZoneServer2016, client: Client, args: any[]) {
+    const modelChoosen = args[1];
+    if (!modelChoosen) {
+      server.sendChatText(client, "[ERROR] Usage /hax placement {modelId}");
+      return;
+    }
+    server.sendData(client, "Construction.PlacementResponse", {
+      model: modelChoosen,
+    });
+  },
 };
 
 export default hax;

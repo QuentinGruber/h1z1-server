@@ -828,7 +828,16 @@ const packetHandlers = {
   ) {
     server.changeSeat(client, packet);
   },
-
+  "Construction.PlacementFinalizeRequest": function (
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
+    server.sendData(client, "Construction.PlacementFinalizeResponse", {
+      status: 1,
+      unknownString1: ""
+    });
+  },
   /*
   "Command.ItemDefinitionRequest": function (server: ZoneServer2016, client: Client, packet: any) {
     console.log("ItemDefinitionRequest\n\n\n\n\n\n\n\n\n");
