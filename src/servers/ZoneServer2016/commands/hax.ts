@@ -697,6 +697,16 @@ const hax: any = {
       equipmentSlot
     );
   },
+  /*
+  observer: function (server: ZoneServer2016, client: Client, args: any[]) {
+    server.sendDataToAll("Character.RemovePlayer", {
+      characterId: client.character.characterId,
+    });
+    delete server._characters[client.character.characterId];
+    debug(server._characters);
+    server.sendChatText(client, "Delete player, back in observer mode");
+  },
+  */
 };
 
 export default hax;
