@@ -568,6 +568,21 @@ const dev: any = {
       decalAlias: "#",
     });
   },
+  placement: function (server: ZoneServer2016, client: Client, args: any[]) {
+    const modelChoosen = args[1];
+    if (!modelChoosen) {
+      server.sendChatText(client, "[ERROR] Usage /hax placement {modelId}");
+      return;
+    }
+    if (!args[2]) {
+      server.sendChatText(client, "missing 1 arg");
+      return;
+    }
+    server.sendData(client, "Construction.PlacementResponse", {
+      unknownDword1: Number(args[2]),
+      model: modelChoosen,
+    });
+  },
   /*
   proxiedObjects: function(server: ZoneServer2016, client: Client, args: any[]) {
     
