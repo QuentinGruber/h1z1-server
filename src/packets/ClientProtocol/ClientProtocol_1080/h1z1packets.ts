@@ -4522,9 +4522,18 @@ const packets = [
   ["Character.None", 0x0f00, {}],
   [
     "Character.RemovePlayer",
-    0x0f010,
+    0x0f01,
     {
-      fields: [{ name: "guid", type: "uint64", defaultValue: "0" }],
+      fields: [
+        { name: "characterId", type: "uint64", defaultValue: "0" },
+        { name: "unknownWord1", type: "uint16", defaultValue: 0 },
+        { name: "unknownBool1", type: "boolean", defaultValue: 0 },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+      ],
     },
   ],
   ["Character.Knockback", 0x0f02, {}],
