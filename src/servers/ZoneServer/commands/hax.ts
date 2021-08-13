@@ -847,7 +847,7 @@ const hax: any = {
   },
   rick: function (server: ZoneServer, client: Client, args: any[]) {
     server.sendDataToAll("ClientExitLaunchUrl", {
-      url:"www.youtube.com/watch?v=dQw4w9WgXcQ" // that's a very dangerous command, if it was working....
+      url: "www.youtube.com/watch?v=dQw4w9WgXcQ", // that's a very dangerous command, if it was working....
     });
   },
   titan: function (server: ZoneServer, client: Client, args: any[]) {

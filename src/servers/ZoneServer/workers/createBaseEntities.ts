@@ -1043,4 +1043,3 @@ function createAllDoors(server: ZoneServer): void {
   });
   debug("All doors objects created");
 }
-

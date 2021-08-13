@@ -6714,11 +6714,13 @@ var packets = [
       fields: [{ name: "gameTime", type: "uint32", defaultValue: 0 }],
     },
   ],
-  ["ClientExitLaunchUrl", 0x3d, {
-    fields: [
-      { name: "url", type: "string", defaultValue: "0" }
-    ],
-  }],
+  [
+    "ClientExitLaunchUrl",
+    0x3d,
+    {
+      fields: [{ name: "url", type: "string", defaultValue: "0" }],
+    },
+  ],
   ["ClientPath", 0x3e, {}],
   ["ClientPendingKickFromServer", 0x3f, {}],
   [
@@ -7239,7 +7241,7 @@ var packets = [
       fields: [],
     },
   ],
-  
+
   // for some reason the opcode of a Target packet is 0x{BasePacketOpcode byte}{SubPacketOpcode byte}{emptyByte}
   [
     "Target.AddTarget",
