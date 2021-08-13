@@ -340,13 +340,19 @@ const hax: any = {
         client.character.state.position[1],
         client.character.state.position[2],
       ],
-      roation: client.character.state.rotation,
+      rotation: client.character.state.rotation,
       identity: { characterName: args[1] },
+      name: args[1],
       state: {
         position: [
           client.character.state.position[0],
           client.character.state.position[1],
           client.character.state.position[2],
+        ],
+        lookAt: [
+          client.character.state.lookAt[0],
+          client.character.state.lookAt[1],
+          client.character.state.lookAt[2],
         ],
       },
     };
