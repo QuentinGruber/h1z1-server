@@ -513,12 +513,12 @@ export class ZoneServer2016 extends ZoneServer {
           "AddLightweightPc",
           {
             ...characterObj,
-            /*
-            transientId: 1,
-            characterFirstName: characterObj.name,
+            transientId: characterObj.transientId,
+            identity: {
+              characterName: characterObj.name,
+            },
             position: characterObj.state.position,
             rotation: characterObj.state.lookAt,
-            */
           },
           1
         );
