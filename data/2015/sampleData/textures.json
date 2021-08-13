@@ -1,0 +1,34 @@
+[
+ {
+   "modelName": "Common_Props_WreckedCar01.adr", 
+   "textures": ["grey", "brown", "dark_blue", "dark_green", "dark_red", "dark_grey", "royal_blue", "slate_grey", "steel_blue", "Default1", "default0"]
+   },
+   {
+   "modelName": "Common_Props_WreckedTruck01.adr", 
+   "textures": ["brown", "dark_blue", "dark_green", "dark_red", "grey", "slate_grey", "white", "Default1", "default0"]
+   },
+   {
+   "modelName": "Common_Props_WreckedVan01.adr", 
+   "textures": ["grey", "brown", "dark_blue", "dark_green", "dark_red", "gold", "white", "dark_grey", "royal_blue", "slate_grey", "steel_blue", "tan", "Default1", "default0"]
+   },
+   {
+   "modelName": "Common_Props_WreckedCar01_OpenDoors.adr", 
+   "textures": ["grey", "brown", "dark_blue", "dark_green", "dark_red", "gold", "dark_grey", "royal_blue", "slate_grey", "steel_blue", "default0"]
+   },
+   {
+   "modelName": "Common_Props_WreckedTruck01_OpenDoors.adr",
+   "textures": ["grey", "brown", "dark_blue", "dark_green", "dark_red", "grey", "slate_grey", "white", "default0"]
+   },
+   {
+   "modelName": 9001,
+   "textures": ["Longsleeve_Tan", "Longsleeve_BlueJean", "GreenFaded", "default0"]
+   },
+   {
+   "modelName": 9193,
+   "textures": ["Longsleeve Shirt Faded Green", "Longsleeve Shirt Green", "Longsleeve Shirt Faded Blue", "default0"]
+   },
+   {
+   "modelName": 9188,
+   "textures": ["Tshirt Army Green", "Tshirt Blue Grey", "Tshirt Red White Blue Striped", "Tshirt Striped Blue", "Tshirt Dirty Green", "Tshirt Dirty White", "Tshirt Dirty Striped", "default0"]
+   }
+]
