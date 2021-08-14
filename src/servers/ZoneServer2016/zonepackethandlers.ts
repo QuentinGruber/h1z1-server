@@ -597,6 +597,7 @@ const packetHandlers = {
       unknownFloat12: 12,
     });
   },
+  /*
   PlayerUpdateUpdatePositionClientToZone: function (
     server: ZoneServer2016,
     client: Client,
@@ -639,12 +640,123 @@ const packetHandlers = {
         server.worldRoutine(client);
       }
       // todo
-      /*
-      const movingCharacter = server._characters[client.character.characterId];
-      console.log(movingCharacter)
+      
+      //const movingCharacter = server._characters[client.character.characterId];
+      //console.log(movingCharacter)
 
-      server.sendDataToAllOthers(client,"PlayerUpdate.UpdatePosition",{transientId:movingCharacter.transientId,positionUpdate:server.createPositionUpdate(client.character.state.position,[0,0,0,0])})
-      */
+      //server.sendDataToAllOthers(client,"PlayerUpdate.UpdatePosition",{transientId:movingCharacter.transientId,positionUpdate:server.createPositionUpdate(client.character.state.position,[0,0,0,0])})
+      
+    }
+    if (packet.data.rotation) {
+      // TODO: modify array element beside re-creating it
+      client.character.state.rotation = new Float32Array([
+        packet.data.rotation[0],
+        packet.data.rotation[1],
+        packet.data.rotation[2],
+        packet.data.rotation[3],
+      ]);
+
+      client.character.state.lookAt = new Float32Array([
+        packet.data.lookAt[0],
+        packet.data.lookAt[1],
+        packet.data.lookAt[2],
+        packet.data.lookAt[3],
+      ]);
+    }
+  },
+  */
+  PlayerUpdateUpdatePositionClientToZone: function (
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
+    if (packet.data.flags === 510) {
+      client.vehicle.falling = packet.data.unknown10_float;
+    }
+    const movingCharacter = server._characters[client.character.characterId];
+    if (movingCharacter /*&& !server._soloMode*/) {
+      if (client.vehicle.mountedVehicle) {
+        const vehicle = server._vehicles[client.vehicle.mountedVehicle];
+        console.log(vehicle);
+        server.sendRawToAllOthers(
+          client,
+          server._protocol.createPositionBroadcast(
+            packet.data.raw.slice(1),
+            vehicle.npcData.transientId
+          )
+        );
+      } else {
+        /*
+        server.sendRawToAllOthers(
+          client,
+          server._protocol.createPositionBroadcast(
+            packet.data.raw,
+            movingCharacter.transientId
+          )
+        );
+        */
+        server.sendDataToAllOthers(client, "PlayerUpdatePosition", {
+          transientId: movingCharacter.transientId,
+          positionUpdate: server.createPositionUpdate(
+            /*new Float32Array(*/movingCharacter.state.position/*)*/,
+            movingCharacter.state.lookAt
+          ),
+        });
+      }
+    }
+    if (packet.data.position) {
+      // TODO: modify array element beside re-creating it
+      client.character.state.position = new Float32Array([
+        packet.data.position[0],
+        packet.data.position[1],
+        packet.data.position[2],
+        0,
+      ]);
+      if (packet.data.unknown11_float > 6) {
+        client.character.isRunning = true;
+      } else {
+        client.character.isRunning = false;
+      }
+
+      if (
+        client.timer != null &&
+        !isPosInRadius(
+          1,
+          client.character.state.position,
+          client.posAtLogoutStart
+        )
+      ) {
+        clearTimeout(client.timer);
+        client.timer = null;
+        client.isInteracting = false;
+        server.sendData(client, "ClientUpdate.StartTimer", {
+          stringId: 0,
+          time: 0,
+        }); // don't know how it was done so
+      }
+      if (!client.posAtLastRoutine) {
+        server.spawnProps(client);
+      }
+
+      if (
+        !client.posAtLastRoutine ||
+        (!isPosInRadius(
+          server._npcRenderDistance / 2.5,
+          client.character.state.position,
+          client.posAtLastRoutine
+        ) &&
+          !client.isLoading)
+      ) {
+        server.worldRoutine(client);
+      }
+    } else if (packet.data.vehicle_position && client.vehicle.mountedVehicle) {
+      server._vehicles[client.vehicle.mountedVehicle].npcData.position =
+        new Float32Array([
+          packet.data.vehicle_position[0],
+          packet.data.vehicle_position[1],
+          packet.data.vehicle_position[2],
+          0,
+        ]);
     }
     if (packet.data.rotation) {
       // TODO: modify array element beside re-creating it
