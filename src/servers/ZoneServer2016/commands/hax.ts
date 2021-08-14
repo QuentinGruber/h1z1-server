@@ -329,7 +329,6 @@ const hax: any = {
       server.sendChatText(client, "[ERROR] You need to specify a name !");
       return;
     }
-    //const choosenModelId = Number(args[1]);
 
     const pc = {
       guid: guid,
@@ -356,8 +355,7 @@ const hax: any = {
         ],
       },
     };
-    //server.sendData(client, "AddLightweightPc", pc);
-    server._characters[guid] = pc; // save pc (disabled for now)
+    server._characters[guid] = pc; // save pc
   },
   sonic: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.sendData(client, "ClientGameSettings", {
