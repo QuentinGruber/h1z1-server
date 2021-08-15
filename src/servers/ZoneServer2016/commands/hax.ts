@@ -485,9 +485,8 @@ const hax: any = {
     client: Client,
     args: any[]
   ) {
-    debug("Randomized weather");
     server.sendChatText(client, `Randomized weather`);
-    function rnd_number(max: any, fixed: Boolean) {
+    function rnd_number(max: any, fixed: Boolean = false) {
       const num = Math.random() * max
       if(fixed) return Number(num.toFixed(0))
       return Number(num);
@@ -497,26 +496,22 @@ const hax: any = {
       name: "",
       unknownDword1: 0,
       unknownDword2: 0,
-
       skyBrightness1: 1,
       skyBrightness2: 1,
-
       snow: rnd_number(80, true),
       snowMap: rnd_number(40, true),
-      colorGradient: rnd_number(1, false),
-      unknownDword8: rnd_number(1, false),
-      unknownDword9: rnd_number(1, false),
-      unknownDword10: rnd_number(1, false),
+      colorGradient: rnd_number(1),
+      unknownDword8: rnd_number(1),
+      unknownDword9: rnd_number(1),
+      unknownDword10: rnd_number(1),
       unknownDword11: 0,
       unknownDword12: 0,
       sunAxisX: rnd_number(360, true),
       sunAxisY: rnd_number(360, true),
       unknownDword15: 0,
-
       disableTrees: 0,
       disableTrees1: 0,
       disableTrees2: 0,
-
       wind: rnd_number(100, true),
       unknownDword20: 0,
       unknownDword21: 0,
@@ -533,7 +528,6 @@ const hax: any = {
       unknownDword32: 0,
       unknownDword33: 0,
     };
-    debug(JSON.stringify(rnd_weather));
     server.changeWeather2016(client, rnd_weather);
   },
   equipment: function (server: ZoneServer2016, client: Client, args: any[]) {
