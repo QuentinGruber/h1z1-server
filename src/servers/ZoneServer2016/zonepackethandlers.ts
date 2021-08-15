@@ -213,11 +213,6 @@ const packetHandlers = {
     }
 
     client.isLoading = false;
-    /*
-    setInterval(function () {
-      server.worldRoutine(client);
-    }, 3000);
-    */
   },
   Security: function (server: ZoneServer2016, client: Client, packet: any) {
     debug(packet);
@@ -748,7 +743,7 @@ const packetHandlers = {
         ) &&
           !client.isLoading)
       ) {
-        //server.worldRoutine(client);
+        server.worldRoutine_();
       }
     } else if (packet.data.vehicle_position && client.vehicle.mountedVehicle) {
       server._vehicles[client.vehicle.mountedVehicle].npcData.position =

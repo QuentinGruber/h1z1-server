@@ -38,6 +38,7 @@ const recipes = require("../../../data/2016/sampleData/recipes.json");
 const Z1_POIs = require("../../../data/2015/zoneData/Z1_POIs");
 
 export class ZoneServer2016 extends ZoneServer {
+  worldRoutineTimer: any;
   constructor(serverPort: number, gatewayKey: Uint8Array, mongoAddress = "") {
     super(serverPort, gatewayKey, mongoAddress);
     this._protocol = new H1Z1Protocol("ClientProtocol_1080");
@@ -181,8 +182,7 @@ export class ZoneServer2016 extends ZoneServer {
       this._dynamicWeatherWorker = setInterval(() => dynamicWeather(this), 100);
     }
     this._gatewayServer.start();
-    //worldroutine
-    setInterval(this.worldRoutine, 3000);
+    this.worldRoutineTimer = setTimeout(()=>this.worldRoutine_.bind(this)(true), 3000);
   }
 
   setupCharacter(client: Client, characterId: string) {
@@ -309,19 +309,21 @@ export class ZoneServer2016 extends ZoneServer {
     }
   }
 
-  worldRoutine(/*client: Client*/): void {
-    console.log(`CLIENTS: ${this._clients}`)
-    debug("WORLDROUTINE \n\n");
-    /*
-    this.spawnCharacters(client);
-    this.spawnObjects(client);
-    this.spawnDoors(client);
-    this.spawnNpcs(client);
-    this.spawnVehicles(client);
-    this.removeOutOfDistanceEntities(client);
-    this.POIManager(client);
+  setPosAtLastRoutine(client: Client){
     client.posAtLastRoutine = client.character.state.position;
-    */
+  }
+
+  worldRoutine_(refresh = false): void {
+    debug("WORLDROUTINE");
+    this.executeFuncForAllClients("spawnCharacters");
+    this.executeFuncForAllClients("spawnObjects");
+    this.executeFuncForAllClients("spawnDoors");
+    this.executeFuncForAllClients("spawnNpcs");
+    this.executeFuncForAllClients("spawnVehicles");
+    this.executeFuncForAllClients("removeOutOfDistanceEntities");
+    this.executeFuncForAllClients("POIManager");
+    this.executeFuncForAllClients("setPosAtLastRoutine");
+    if(refresh) this.worldRoutineTimer.refresh();
   }
 
   SendWeatherUpdatePacket(
