@@ -260,6 +260,8 @@ const packetHandlers = {
       gameTime: packet.data.gameTime,
     });
   },
+  "ClientUpdate.MonitorTimeDrift": function (server: ZoneServer2016, client: Client, packet: any) {
+  },
   ClientLog: function (server: ZoneServer2016, client: Client, packet: any) {
     debug(packet);
   },
