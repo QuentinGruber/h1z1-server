@@ -44,6 +44,7 @@ export class ZoneServer2016 extends ZoneServer {
     this._packetHandlers = packetHandlers;
     this._dynamicWeatherEnabled = false;
     this._cycleSpeed = 100;
+    /*
     this.on("data", (err, client, packet) => {
       if (err) {
         console.error(err);
@@ -67,6 +68,7 @@ export class ZoneServer2016 extends ZoneServer {
         }
       }
     });
+    */
   }
   onZoneDataEvent(err: any, client: Client, packet: any){
     if (err) {
