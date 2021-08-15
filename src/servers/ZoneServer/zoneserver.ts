@@ -151,29 +151,7 @@ export class ZoneServer extends EventEmitter {
       this._soloMode = true;
       debug("Server in solo mode !");
     }
-    this.on("data", (err, client, packet) => {
-      if (err) {
-        console.error(err);
-      } else {
-        if (
-          packet.name != "KeepAlive" &&
-          packet.name != "PlayerUpdateUpdatePositionClientToZone" &&
-          packet.name != "PlayerUpdateManagedPosition"
-        ) {
-          debug(`Receive Data ${[packet.name]}`);
-        }
-        if (this._packetHandlers[packet.name]) {
-          try {
-            this._packetHandlers[packet.name](this, client, packet);
-          } catch (e) {
-            debug(e);
-          }
-        } else {
-          debug(packet);
-          debug("Packet not implemented in packetHandlers");
-        }
-      }
-    });
+    this.on("data", this.onZoneDataEvent);
 
     this.on("login", (err, client) => {
       if (err) {
@@ -271,7 +249,29 @@ export class ZoneServer extends EventEmitter {
       }
     );
   }
-
+  onZoneDataEvent(err: any, client: Client, packet: any){
+    if (err) {
+      console.error(err);
+    } else {
+      if (
+        packet.name != "KeepAlive" &&
+        packet.name != "PlayerUpdateUpdatePositionClientToZone" &&
+        packet.name != "PlayerUpdateManagedPosition"
+      ) {
+        debug(`Receive Data ${[packet.name]}`);
+      }
+      if (this._packetHandlers[packet.name]) {
+        try {
+          this._packetHandlers[packet.name](this, client, packet);
+        } catch (e) {
+          debug(e);
+        }
+      } else {
+        debug(packet);
+        debug("Packet not implemented in packetHandlers");
+      }
+    }
+  }
   async setupServer(): Promise<void> {
     this.forceTime(971172000000); // force day time by default - not working for now
     this._frozeCycle = false;

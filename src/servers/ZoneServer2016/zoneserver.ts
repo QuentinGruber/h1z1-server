@@ -45,6 +45,31 @@ export class ZoneServer2016 extends ZoneServer {
     this._dynamicWeatherEnabled = false;
     this._cycleSpeed = 100;
   }
+  onZoneDataEvent(err: any, client: Client, packet: any){
+    if (err) {
+      console.error(err);
+    } else {
+      if (
+        packet.name != "KeepAlive" &&
+        packet.name != "PlayerUpdateUpdatePositionClientToZone" &&
+        packet.name != "PlayerUpdateManagedPosition" &&
+        packet.name != "ClientUpdate.MonitorTimeDrift"
+      ) {
+        debug(`Receive Data ${[packet.name]}`);
+      }
+      if (this._packetHandlers[packet.name]) {
+        try {
+          this._packetHandlers[packet.name](this, client, packet);
+        } catch (e) {
+          debug(e);
+        }
+      } else {
+        debug(packet);
+        debug("Packet not implemented in packetHandlers");
+      }
+    }
+  }
+
   async characterData(client: Client) {
     delete require.cache[
       require.resolve("../../../data/2016/sampleData/sendself.json") // reload json
