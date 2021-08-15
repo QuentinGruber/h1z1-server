@@ -181,6 +181,8 @@ export class ZoneServer2016 extends ZoneServer {
       this._dynamicWeatherWorker = setInterval(() => dynamicWeather(this), 100);
     }
     this._gatewayServer.start();
+    //worldroutine
+    setInterval(this.worldRoutine, 3000);
   }
 
   setupCharacter(client: Client, characterId: string) {
@@ -307,8 +309,10 @@ export class ZoneServer2016 extends ZoneServer {
     }
   }
 
-  worldRoutine(client: Client): void {
+  worldRoutine(/*client: Client*/): void {
+    console.log(`CLIENTS: ${this._clients}`)
     debug("WORLDROUTINE \n\n");
+    /*
     this.spawnCharacters(client);
     this.spawnObjects(client);
     this.spawnDoors(client);
@@ -317,6 +321,7 @@ export class ZoneServer2016 extends ZoneServer {
     this.removeOutOfDistanceEntities(client);
     this.POIManager(client);
     client.posAtLastRoutine = client.character.state.position;
+    */
   }
 
   SendWeatherUpdatePacket(
