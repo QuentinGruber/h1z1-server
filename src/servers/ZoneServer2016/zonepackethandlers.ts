@@ -38,7 +38,7 @@ const packetHandlers = {
     client: Client,
     packet: any
   ) {
-    server.sendData(client, "ClientBeginZoning", { skyData: {} }); // Needed for trees
+    server.sendData(client, "ClientBeginZoning", { skyData: server._weather2016 }); // Needed for trees
 
     server.sendData(client, "QuickChat.SendData", { commands: [] });
 

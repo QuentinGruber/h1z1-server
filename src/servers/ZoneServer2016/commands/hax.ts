@@ -125,8 +125,7 @@ const hax: any = {
       position: locationPosition,
       triggerLoadingScreen: true,
     });
-
-    server.sendData(client, "UpdateWeatherData", {});
+    server.updateWeather2016(client);
   },
   time: function (server: ZoneServer2016, client: Client, args: any[]) {
     const choosenHour = Number(args[1]);
@@ -492,7 +491,7 @@ const hax: any = {
       return Number(num);
     }
 
-    const rnd_weather: Weather2016 = {
+    server._weather2016 = {
       name: "",
       unknownDword1: 0,
       unknownDword2: 0,
@@ -528,7 +527,7 @@ const hax: any = {
       unknownDword32: 0,
       unknownDword33: 0,
     };
-    server.changeWeather2016(client, rnd_weather);
+    server.updateWeather2016(client);
   },
   equipment: function (server: ZoneServer2016, client: Client, args: any[]) {
     let effect, model, slot;
