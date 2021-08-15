@@ -487,49 +487,51 @@ const hax: any = {
   ) {
     debug("Randomized weather");
     server.sendChatText(client, `Randomized weather`);
-    function rnd_number() {
-      return Number((Math.random() * 100).toFixed(0));
+    function rnd_number(max: any, fixed: Boolean) {
+      const num = Math.random() * max
+      if(fixed) return Number(num.toFixed(0))
+      return Number(num);
     }
 
     const rnd_weather: Weather2016 = {
-      name: "sky",
-      unknownDword1: rnd_number(),
-      unknownDword2: rnd_number(),
+      name: "",
+      unknownDword1: 0,
+      unknownDword2: 0,
 
       skyBrightness1: 1,
       skyBrightness2: 1,
 
-      snow: rnd_number(),
-      snowMap: rnd_number(),
-      colorGradient: rnd_number(),
-      unknownDword8: rnd_number(),
-      unknownDword9: rnd_number(),
-      unknownDword10: rnd_number(),
-      unknownDword11: rnd_number(),
-      unknownDword12: rnd_number(),
-      sunAxisX: rnd_number(),
-      sunAxisY: rnd_number(),
-      unknownDword15: rnd_number(),
+      snow: rnd_number(80, true),
+      snowMap: rnd_number(40, true),
+      colorGradient: rnd_number(1, false),
+      unknownDword8: rnd_number(1, false),
+      unknownDword9: rnd_number(1, false),
+      unknownDword10: rnd_number(1, false),
+      unknownDword11: 0,
+      unknownDword12: 0,
+      sunAxisX: rnd_number(360, true),
+      sunAxisY: rnd_number(360, true),
+      unknownDword15: 0,
 
       disableTrees: 0,
       disableTrees1: 0,
       disableTrees2: 0,
 
-      wind: rnd_number(),
-      unknownDword20: rnd_number(),
-      unknownDword21: rnd_number(),
-      unknownDword22: rnd_number(),
-      unknownDword23: rnd_number(),
-      unknownDword24: rnd_number(),
-      unknownDword25: rnd_number(),
-      unknownDword26: rnd_number(),
-      unknownDword27: rnd_number(),
-      unknownDword28: rnd_number(),
-      unknownDword29: rnd_number(),
-      unknownDword30: rnd_number(),
-      unknownDword31: rnd_number(),
-      unknownDword32: rnd_number(),
-      unknownDword33: rnd_number(),
+      wind: rnd_number(100, true),
+      unknownDword20: 0,
+      unknownDword21: 0,
+      unknownDword22: 0,
+      unknownDword23: 0,
+      unknownDword24: 0,
+      unknownDword25: 0,
+      unknownDword26: 0,
+      unknownDword27: 0,
+      unknownDword28: 0,
+      unknownDword29: 0,
+      unknownDword30: 0,
+      unknownDword31: 0,
+      unknownDword32: 0,
+      unknownDword33: 0,
     };
     debug(JSON.stringify(rnd_weather));
     server.changeWeather2016(client, rnd_weather);
