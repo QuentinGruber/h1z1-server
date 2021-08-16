@@ -633,7 +633,7 @@ export class ZoneServer2016 extends ZoneServer {
   }
 
   getGameTime(): number {
-    debug("get server time");
+    //debug("get server time");
     const delta = Date.now() - this._startGameTime;
     return this._frozeCycle
       ? Number(((this._gameTime + delta) / 1000).toFixed(0))
