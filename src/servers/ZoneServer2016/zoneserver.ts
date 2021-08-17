@@ -38,6 +38,7 @@ const recipes = require("../../../data/2016/sampleData/recipes.json");
 const Z1_POIs = require("../../../data/2015/zoneData/Z1_POIs");
 
 export class ZoneServer2016 extends ZoneServer {
+  worldRoutineTimer: any;
   _weather2016: Weather2016;
   constructor(serverPort: number, gatewayKey: Uint8Array, mongoAddress = "") {
     super(serverPort, gatewayKey, mongoAddress);
@@ -218,6 +219,7 @@ export class ZoneServer2016 extends ZoneServer {
       this._dynamicWeatherWorker = setInterval(() => dynamicWeather(this), 100);
     }
     this._gatewayServer.start();
+    this.worldRoutineTimer = setTimeout(()=>this.worldRoutine2016.bind(this)(true), 3000);
   }
 
   setupCharacter(client: Client, characterId: string) {
@@ -344,16 +346,21 @@ export class ZoneServer2016 extends ZoneServer {
     }
   }
 
-  worldRoutine(client: Client): void {
-    debug("WORLDROUTINE \n\n");
-    this.spawnCharacters(client);
-    this.spawnObjects(client);
-    this.spawnDoors(client);
-    this.spawnNpcs(client);
-    this.spawnVehicles(client);
-    this.removeOutOfDistanceEntities(client);
-    this.POIManager(client);
+  setPosAtLastRoutine(client: Client){
     client.posAtLastRoutine = client.character.state.position;
+  }
+
+  worldRoutine2016(refresh = false): void {
+    debug("WORLDROUTINE");
+    this.executeFuncForAllClients("spawnCharacters");
+    this.executeFuncForAllClients("spawnObjects");
+    this.executeFuncForAllClients("spawnDoors");
+    this.executeFuncForAllClients("spawnNpcs");
+    this.executeFuncForAllClients("spawnVehicles");
+    this.executeFuncForAllClients("removeOutOfDistanceEntities");
+    this.executeFuncForAllClients("POIManager");
+    this.executeFuncForAllClients("setPosAtLastRoutine");
+    if(refresh) this.worldRoutineTimer.refresh()
   }
 
   SendZoneDetailsPacket2016(client: Client, weather: Weather2016): void {
@@ -564,12 +571,12 @@ export class ZoneServer2016 extends ZoneServer {
           "AddLightweightPc",
           {
             ...characterObj,
-            /*
-            transientId: 1,
-            characterFirstName: characterObj.name,
+            transientId: characterObj.transientId,
+            identity: {
+              characterName: characterObj.name,
+            },
             position: characterObj.state.position,
             rotation: characterObj.state.lookAt,
-            */
           },
           1
         );
@@ -677,7 +684,7 @@ export class ZoneServer2016 extends ZoneServer {
   }
 
   getGameTime(): number {
-    debug("get server time");
+    //debug("get server time");
     const delta = Date.now() - this._startGameTime;
     return this._frozeCycle
       ? Number(((this._gameTime + delta) / 1000).toFixed(0))

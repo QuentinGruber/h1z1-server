@@ -47,7 +47,7 @@ const hax: any = {
     };
     //server.sendData(client, "AddLightweightVehicle", vehicleData);
     server._vehicles[characterId] = vehicleData;
-    server.worldRoutine(client);
+    server.worldRoutine2016();
     server.sendData(client, "Mount.MountResponse", {
       characterId: client.character.characterId,
       vehicleGuid: characterId,
@@ -328,7 +328,6 @@ const hax: any = {
       server.sendChatText(client, "[ERROR] You need to specify a name !");
       return;
     }
-    //const choosenModelId = Number(args[1]);
 
     const pc = {
       guid: guid,
@@ -339,18 +338,23 @@ const hax: any = {
         client.character.state.position[1],
         client.character.state.position[2],
       ],
-      roation: client.character.state.rotation,
+      rotation: client.character.state.rotation,
       identity: { characterName: args[1] },
+      name: args[1],
       state: {
         position: [
           client.character.state.position[0],
           client.character.state.position[1],
           client.character.state.position[2],
         ],
+        lookAt: [
+          client.character.state.lookAt[0],
+          client.character.state.lookAt[1],
+          client.character.state.lookAt[2],
+        ],
       },
     };
-    //server.sendData(client, "AddLightweightPc", pc);
-    server._characters[guid] = pc; // save pc (disabled for now)
+    server._characters[guid] = pc; // save pc
   },
   sonic: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.sendData(client, "ClientGameSettings", {
