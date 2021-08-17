@@ -361,7 +361,8 @@ export class ZoneServer2016 extends ZoneServer {
     this.executeFuncForAllClients("POIManager");
     this.executeFuncForAllClients("setPosAtLastRoutine");
     if(refresh) this.worldRoutineTimer.refresh()
-
+  }
+  
   SendZoneDetailsPacket2016(client: Client, weather: Weather2016): void {
     const SendZoneDetails_packet = {
       zoneName: "Z1",
