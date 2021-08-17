@@ -743,7 +743,7 @@ const packetHandlers = {
         ) &&
           !client.isLoading)
       ) {
-        server.worldRoutine_();
+        server.worldRoutine2016();
       }
     } else if (packet.data.vehicle_position && client.vehicle.mountedVehicle) {
       server._vehicles[client.vehicle.mountedVehicle].npcData.position =

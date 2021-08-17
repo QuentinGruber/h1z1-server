@@ -47,7 +47,7 @@ const hax: any = {
     };
     //server.sendData(client, "AddLightweightVehicle", vehicleData);
     server._vehicles[characterId] = vehicleData;
-    server.worldRoutine_();
+    server.worldRoutine2016();
     server.sendData(client, "Mount.MountResponse", {
       characterId: client.character.characterId,
       vehicleGuid: characterId,

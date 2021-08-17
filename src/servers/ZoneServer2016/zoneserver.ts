@@ -219,7 +219,7 @@ export class ZoneServer2016 extends ZoneServer {
       this._dynamicWeatherWorker = setInterval(() => dynamicWeather(this), 100);
     }
     this._gatewayServer.start();
-    this.worldRoutineTimer = setTimeout(()=>this.worldRoutine_.bind(this)(true), 3000);
+    this.worldRoutineTimer = setTimeout(()=>this.worldRoutine2016.bind(this)(true), 3000);
   }
 
   setupCharacter(client: Client, characterId: string) {
@@ -350,7 +350,7 @@ export class ZoneServer2016 extends ZoneServer {
     client.posAtLastRoutine = client.character.state.position;
   }
 
-  worldRoutine_(refresh = false): void {
+  worldRoutine2016(refresh = false): void {
     debug("WORLDROUTINE");
     this.executeFuncForAllClients("spawnCharacters");
     this.executeFuncForAllClients("spawnObjects");
@@ -362,7 +362,7 @@ export class ZoneServer2016 extends ZoneServer {
     this.executeFuncForAllClients("setPosAtLastRoutine");
     if(refresh) this.worldRoutineTimer.refresh()
   }
-  
+
   SendZoneDetailsPacket2016(client: Client, weather: Weather2016): void {
     const SendZoneDetails_packet = {
       zoneName: "Z1",
