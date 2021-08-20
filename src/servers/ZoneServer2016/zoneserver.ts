@@ -345,7 +345,7 @@ export class ZoneServer2016 extends ZoneServer {
 
   POIManager(client: Client) {
     // sends POIChangeMessage or clears it based on player location
-    let isInAPOIArea = false;
+    let inPOI = false;
     Z1_POIs.forEach((point: any) => {
       if (
         isPosInRadius(
@@ -354,7 +354,7 @@ export class ZoneServer2016 extends ZoneServer {
           point.position
         )
       ) {
-        isInAPOIArea = true;
+        inPOI = true;
         if (client.currentPOI != point.stringId) {
           // checks if player already was sent POIChangeMessage
           this.sendData(client, "POIChangeMessage", {
@@ -365,7 +365,7 @@ export class ZoneServer2016 extends ZoneServer {
         }
       }
     });
-    if (!isInAPOIArea && client.currentPOI != 0) {
+    if (!inPOI && client.currentPOI != 0) {
       // checks if POIChangeMessage was already cleared
       this.sendData(client, "POIChangeMessage", {
         messageStringId: 0,
