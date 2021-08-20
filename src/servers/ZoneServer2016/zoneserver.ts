@@ -135,19 +135,13 @@ export class ZoneServer2016 extends ZoneServer {
     }
   }
 
-  async characterData(client: Client) {
-    delete require.cache[
-      require.resolve("../../../data/2016/sampleData/sendself.json") // reload json
-    ];
-    this._dummySelf = require("../../../data/2016/sampleData/sendself.json"); // dummy self
-
-    let characterName;
+  async loadCharacterData(client: Client) {
     let character: any;
     if (!this._soloMode) {
       character = await this._db
         ?.collection("characters")
         .findOne({ characterId: client.character.characterId });
-      characterName = character.payload.name;
+        client.character.name = character.payload.name;
     } else {
       delete require.cache[
         require.resolve(
@@ -159,21 +153,9 @@ export class ZoneServer2016 extends ZoneServer {
         (character: any) =>
           character.characterId === client.character.characterId
       );
-      characterName = character.payload.name;
+      client.character.name = character.payload.name;
     }
 
-    this._dummySelf.data = {
-      ...this._dummySelf.data,
-      //guid: '', // todo: fix
-      characterId: character.characterId,
-      identity: {
-        characterName: characterName,
-      },
-      recipes: recipes,
-      //stats: stats // todo: fix
-    };
-
-    client.character.name = characterName;
     client.character.guid = this._dummySelf.data.guid; // default
     client.character.loadouts =
       this._dummySelf.data.characterLoadoutData.loadouts; // default
@@ -187,37 +169,57 @@ export class ZoneServer2016 extends ZoneServer {
       ? characterDataMongo.extraModelTexture
       : this._dummySelf.data.extraModelTexture;
 
+    let isRandomlySpawning = false;
     if (
       _.isEqual(this._dummySelf.data.position, [0, 0, 0, 1]) &&
       _.isEqual(this._dummySelf.data.rotation, [0, 0, 0, 1])
     ) {
       // if position/rotation hasn't be changed
       if (this._soloMode || !characterDataMongo.position) {
-        this._dummySelf.data.isRandomlySpawning = true;
+        isRandomlySpawning = true;
       }
     }
 
-    if (this._dummySelf.data.isRandomlySpawning) {
+    if (isRandomlySpawning) {
       // Take position/rotation from a random spawn location.
       const randomSpawnIndex = Math.floor(
         Math.random() * this._spawnLocations.length
       );
-      this._dummySelf.data.position = client.character.state.position =
+      client.character.state.position =
         this._spawnLocations[randomSpawnIndex].position;
-      this._dummySelf.data.rotation = client.character.state.rotation =
+      client.character.state.rotation =
         this._spawnLocations[randomSpawnIndex].rotation;
       client.character.spawnLocation =
         this._spawnLocations[randomSpawnIndex].name;
     } else {
       if (!this._soloMode) {
-        this._dummySelf.data.position = characterDataMongo.position;
-        this._dummySelf.data.rotation = characterDataMongo.rotation;
+        client.character.state.position = characterDataMongo.position;
+        client.character.state.rotation = characterDataMongo.rotation;
       }
-      client.character.state.position = this._dummySelf.data.position;
-      client.character.state.rotation = this._dummySelf.data.rotation;
     }
+  }
 
-    this.sendData(client, "SendSelfToClient", this._dummySelf);
+  async sendCharacterData(client: Client) {
+    delete require.cache[
+      require.resolve("../../../data/2016/sampleData/sendself.json") // reload json
+    ];
+    this._dummySelf = require("../../../data/2016/sampleData/sendself.json"); // dummy self
+    await this.loadCharacterData(client);
+
+    this.sendData(client, "SendSelfToClient", {
+      data: {
+        ...this._dummySelf.data,
+        //guid: '', // todo: fix
+        characterId: client.character.characterId,
+        position: client.character.state.position,
+        rotation: client.character.state.rotation,
+        identity: {
+          characterName: client.character.name,
+        },
+        recipes: recipes,
+        //stats: stats // todo: fix
+      }
+    });
   }
 
   async start(): Promise<void> {
@@ -333,7 +335,7 @@ export class ZoneServer2016 extends ZoneServer {
       unknownFloat3: 110,
     });
 
-    this.characterData(client);
+    this.sendCharacterData(client);
 
     this.sendData(client, "Character.SetBattleRank", {
       characterId: client.character.characterId,
