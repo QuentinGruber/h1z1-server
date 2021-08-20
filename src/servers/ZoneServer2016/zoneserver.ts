@@ -30,12 +30,12 @@ import { /*Db,*/ MongoClient } from "mongodb";
 import dynamicWeather from "./workers/dynamicWeather";
 
 // need to get 2016 lists
-// const spawnLocations = require("../../../data/2015/sampleData/spawnLocations.json");
+const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json");
+const Z1_POIs = require("../../../data/2015/zoneData/Z1_POIs");
+const recipes = require("../../../data/2016/sampleData/recipes.json");
 // const localWeatherTemplates = require("../../../data/2015/sampleData/weather.json");
 // const stats = require("../../../data/2016/sampleData/stats.json");
-const recipes = require("../../../data/2016/sampleData/recipes.json");
 // const resources = require("../../../data/2015/dataSources/Resources.json");
-const Z1_POIs = require("../../../data/2015/zoneData/Z1_POIs");
 
 export class ZoneServer2016 extends ZoneServer {
   worldRoutineTimer: any;
@@ -82,6 +82,33 @@ export class ZoneServer2016 extends ZoneServer {
       unknownDword32: 0,
       unknownDword33: 0,
     };
+    this._respawnLocations = spawnLocations.map((spawn: any) => {
+      return {
+        guid: this.generateGuid(),
+        respawnType: 4,
+        position: spawn.position,
+        unknownDword1: 1,
+        unknownDword2: 1,
+        iconId1: 1,
+        iconId2: 1,
+        respawnTotalTime: 10,
+        respawnTimeMs: 10000,
+        nameId: 1,
+        distance: 1000,
+        unknownByte1: 1,
+        unknownByte2: 1,
+        unknownData1: {
+          unknownByte1: 1,
+          unknownByte2: 1,
+          unknownByte3: 1,
+          unknownByte4: 1,
+          unknownByte5: 1,
+        },
+        unknownDword4: 1,
+        unknownByte3: 1,
+        unknownByte4: 1,
+      };
+    });
   }
   onZoneDataEvent(err: any, client: Client, packet: any){
     if (err) {
