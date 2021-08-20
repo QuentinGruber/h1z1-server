@@ -269,7 +269,7 @@ export class LoginServer extends EventEmitter {
         singlePlayerCharacters.splice(characterIndex, 1);
         fs.writeFileSync(
           `${this._appDataFolder}/single_player_characters.json`,
-          JSON.stringify(singlePlayerCharacters)
+          JSON.stringify(singlePlayerCharacters, null, "\t")
         );
       } else {
         // LoginUdp_11
@@ -286,7 +286,7 @@ export class LoginServer extends EventEmitter {
         singlePlayerCharacters.splice(characterIndex, 1);
         fs.writeFileSync(
           `${this._appDataFolder}/single_player_characters2016.json`,
-          JSON.stringify(singlePlayerCharacters)
+          JSON.stringify(singlePlayerCharacters, null, "\t")
         );
       }
     } else {
@@ -408,13 +408,13 @@ export class LoginServer extends EventEmitter {
       if (this._protocol.protocolName == "LoginUdp_9") {
         fs.writeFileSync(
           `${this._appDataFolder}/single_player_characters.json`,
-          JSON.stringify(SinglePlayerCharacters)
+          JSON.stringify(SinglePlayerCharacters, null, "\t")
         );
       } else {
         // LoginUdp_11
         fs.writeFileSync(
           `${this._appDataFolder}/single_player_characters2016.json`,
-          JSON.stringify(SinglePlayerCharacters)
+          JSON.stringify(SinglePlayerCharacters, null, "\t")
         );
       }
     } else {
