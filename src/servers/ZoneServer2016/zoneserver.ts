@@ -156,12 +156,73 @@ export class ZoneServer2016 extends ZoneServer {
       client.character.name = character.payload.name;
     }
 
-    client.character.guid = this._dummySelf.data.guid; // default
-    client.character.loadouts =
-      this._dummySelf.data.characterLoadoutData.loadouts; // default
-    client.character.inventory = this._dummySelf.data.inventory; // default
-    client.character.factionId = this._dummySelf.data.factionId; // default
-
+    //client.character.guid = this._dummySelf.data.guid; // default
+    //client.character.loadouts =
+    //  this._dummySelf.data.characterLoadoutData.loadouts; // default
+    //client.character.inventory = this._dummySelf.data.inventory; // default
+    //client.character.factionId = this._dummySelf.data.factionId; // default
+    /*
+    let generatedTransient;
+    do {
+      generatedTransient = Number((Math.random() * 30000).toFixed(0));
+    } while (this._transientIds[generatedTransient]);
+    this._transientIds[generatedTransient] = client.character.characterId;
+    */
+    client.character = {
+      ...client.character,
+      guid: this._dummySelf.data.guid, // default,
+      //transientId: generatedTransient,
+      loadouts: this._dummySelf.data.characterLoadoutData.loadouts, // default
+      inventory: this._dummySelf.data.inventory, // default
+      factionId: this._dummySelf.data.factionId, // default
+      /*
+      isRunning: false,
+      equipment: [
+        {
+          modelName: "SurvivorMale_Head_01.adr",
+          slotId: 1,
+        },
+        {
+          modelName: "SurvivorMale_Legs_Pants_Underwear.adr",
+          slotId: 4,
+        },
+        {
+          modelName: "SurvivorMale_Eyes_01.adr",
+          slotId: 105,
+        },
+        { modelName: "Weapon_Empty.adr", slotId: 2 },
+        { modelName: "Weapon_Empty.adr", slotId: 7 },
+        {
+          modelName: "SurvivorMale_Hair_ShortMessy.adr",
+          slotId: 27,
+        },
+        {
+          modelName: "SurvivorMale_Chest_Shirt_TintTshirt.adr",
+          defaultTextureAlias: "Wear.Chest.Shirt.TintTshirt.67",
+          slotId: 3,
+        },
+        {
+          modelName: "SurvivorMale_Legs_Pants_SkinnyLeg.adr",
+          defaultTextureAlias: "Wear.Legs.Pants.SkinnyLeg.Anarchy",
+          slotId: 4,
+        },
+      ],
+      resources: {
+        health: 5000,
+        stamina: 600,
+        food: 5000,
+        water: 5000,
+        virus: 6000,
+      },
+      state: {
+        position: new Float32Array([0, 0, 0, 0]),
+        rotation: new Float32Array([0, 0, 0, 0]),
+        lookAt: new Float32Array([0, 0, 0, 0]),
+        health: 0,
+        shield: 0,
+      },
+      */
+    };
     const characterDataMongo: any = await this._db
       ?.collection("characters")
       .findOne({ characterId: client.character.characterId });
@@ -252,6 +313,7 @@ export class ZoneServer2016 extends ZoneServer {
   }
 
   setupCharacter(client: Client, characterId: string) {
+    
     let generatedTransient;
     do {
       generatedTransient = Number((Math.random() * 30000).toFixed(0));
@@ -305,8 +367,9 @@ export class ZoneServer2016 extends ZoneServer {
         shield: 0,
       },
     };
+    
     this._transientIds[generatedTransient] = characterId;
-    this._characters[characterId] = client.character;
+    this._characters[characterId] = client.character; // character will spawn on other player's screen(s) at this point
   }
 
   sendInitData(client: Client): void {

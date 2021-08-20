@@ -4,7 +4,7 @@ const Z1_items = require("../../../../data/2016/zoneData/Z1_items.json");
 const Z1_doors = require("../../../../data/2016/zoneData/Z1_doors.json");
 const Z1_npcs = require("../../../../data/2016/zoneData/Z1_npcs.json");
 const models = require("../../../../data/2016/dataSources/Models.json");
-const modelToName = require("../../../../data/2016/sampleData/ModelToName.json");
+const modelToName = require("../../../../data/2016/dataSources/ModelToName.json");
 import { _ } from "../../../utils/utils";
 import { generateRandomGuid } from "../../../utils/utils";
 import { ZoneServer2016 } from "../zoneserver";
