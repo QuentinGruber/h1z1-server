@@ -141,7 +141,7 @@ export class ZoneServer2016 extends ZoneServer {
       character = await this._db
         ?.collection("characters")
         .findOne({ characterId: client.character.characterId });
-        client.character.name = character.payload.name;
+        client.character.name = character.characterName;
     } else {
       delete require.cache[
         require.resolve(
@@ -153,7 +153,7 @@ export class ZoneServer2016 extends ZoneServer {
         (character: any) =>
           character.characterId === client.character.characterId
       );
-      client.character.name = character.payload.name;
+      client.character.name = character.characterName;
     }
 
     let generatedTransient;

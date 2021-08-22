@@ -193,18 +193,38 @@ export class LoginServer extends EventEmitter {
       let SinglePlayerCharacters;
       if (this._protocol.protocolName == "LoginUdp_9") {
         SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters.json`);
+        SinglePlayerCharacters = this.addDummyDataToCharacters(
+          SinglePlayerCharacters
+        );
+        CharactersInfo = {
+          status: 1,
+          canBypassServerLock: true,
+          characters: SinglePlayerCharacters,
+        };
       } else {
         // LoginUdp_11
+        let characters: Array<any> = [];
         SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters2016.json`);
+        SinglePlayerCharacters.forEach((character: any) => {
+          characters.push({
+            characterId: character.characterId,
+            serverId: character.serverId,
+            payload: {
+              name: character.characterName,
+              modelId: character.actorModelId,
+              gender: character.gender
+            }
+          })
+        });
+        characters = this.addDummyDataToCharacters(
+          characters
+        );
+        CharactersInfo = {
+          status: 1,
+          canBypassServerLock: true,
+          characters: characters,
+        };
       }
-      SinglePlayerCharacters = this.addDummyDataToCharacters(
-        SinglePlayerCharacters
-      );
-      CharactersInfo = {
-        status: 1,
-        canBypassServerLock: true,
-        characters: SinglePlayerCharacters,
-      };
     } else {
       const charactersQuery = { ownerId: client.loginSessionId };
       let characters = await this._db
@@ -338,29 +358,49 @@ export class LoginServer extends EventEmitter {
       let SinglePlayerCharacters;
       if (this._protocol.protocolName == "LoginUdp_9") {
         SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters.json`);
+        const character = SinglePlayerCharacters.find(
+          (character: any) => character.characterId === characterId
+        );
+        charactersLoginInfo = {
+          unknownQword1: "0x0",
+          unknownDword1: 0,
+          unknownDword2: 0,
+          status: 1,
+          applicationData: {
+            serverAddress: "127.0.0.1:1117",
+            serverTicket: client.loginSessionId,
+            encryptionKey: this._cryptoKey,
+            guid: characterId,
+            unknownQword2: "0x0",
+            stationName: "",
+            characterName: character.payload.name,
+            unknownString: "",
+          },
+        };
       } else {
         // LoginUdp_11
         SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters2016.json`);
+        const character = SinglePlayerCharacters.find(
+          (character: any) => character.characterId === characterId
+        );
+        charactersLoginInfo = {
+          unknownQword1: "0x0",
+          unknownDword1: 0,
+          unknownDword2: 0,
+          status: 1,
+          applicationData: {
+            serverAddress: "127.0.0.1:1117",
+            serverTicket: client.loginSessionId,
+            encryptionKey: this._cryptoKey,
+            guid: characterId,
+            unknownQword2: "0x0",
+            stationName: "",
+            characterName: character.characterName,
+            unknownString: "",
+          },
+        };
       }
-      const character = SinglePlayerCharacters.find(
-        (character: any) => character.characterId === characterId
-      );
-      charactersLoginInfo = {
-        unknownQword1: "0x0",
-        unknownDword1: 0,
-        unknownDword2: 0,
-        status: 1,
-        applicationData: {
-          serverAddress: "127.0.0.1:1117",
-          serverTicket: client.loginSessionId,
-          encryptionKey: this._cryptoKey,
-          guid: characterId,
-          unknownQword2: "0x0",
-          stationName: "",
-          characterName: character.payload.name,
-          unknownString: "",
-        },
-      };
+      
     }
     debug(charactersLoginInfo);
     this.sendData(client, "CharacterLoginReply", charactersLoginInfo);
@@ -373,7 +413,7 @@ export class LoginServer extends EventEmitter {
       serverId,
     } = packet.result;
     // create character object
-    let SinglePlayerCharacter, SinglePlayerCharacters;
+    let SinglePlayerCharacter, SinglePlayerCharacters, newCharacter;
     if (this._protocol.protocolName == "LoginUdp_9") {
       try {
         // delete old character cache
@@ -386,6 +426,10 @@ export class LoginServer extends EventEmitter {
       SinglePlayerCharacter = require("../../../data/2015/sampleData/single_player_character.json");
       if (this._soloMode)
         SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters.json`);
+      newCharacter = _.cloneDeep(SinglePlayerCharacter);
+      newCharacter.serverId = serverId;
+      newCharacter.payload.name = characterName;
+      newCharacter.characterId = generateRandomGuid();
     } else {
       // LoginUdp_11
       try {
@@ -396,13 +440,14 @@ export class LoginServer extends EventEmitter {
           )
         ];
       } catch (e) {}
-      SinglePlayerCharacter = require("../../../data/2016/sampleData/single_player_character.json");
+      SinglePlayerCharacter = require("../../../data/2016/sampleData/character.json");
       SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters2016.json`);
+      newCharacter = _.cloneDeep(SinglePlayerCharacter);
+      newCharacter.serverId = serverId;
+      newCharacter.characterName = characterName;
+      newCharacter.characterId = generateRandomGuid();
     }
-    const newCharacter = _.cloneDeep(SinglePlayerCharacter);
-    newCharacter.serverId = serverId;
-    newCharacter.payload.name = characterName;
-    newCharacter.characterId = generateRandomGuid();
+    
     if (this._soloMode) {
       SinglePlayerCharacters[SinglePlayerCharacters.length] = newCharacter;
       if (this._protocol.protocolName == "LoginUdp_9") {

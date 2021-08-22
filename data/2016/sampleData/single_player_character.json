@@ -6,32 +6,10 @@
   "status": 1,
   "payload": {
     "name": "LocalPlayer",
-    "empireId": 2,
-    "battleRank": 100,
-    "nextBattleRankPercent": 0,
-    "headId": 1,
-    "modelId": 9240,
-    "gender": 1,
-    "profileId": 4,
-    "unknownDword1": 1,
     "loadoutData": {
-      "loadoutId": 3,
-      "unknownData1": {
-        "unknownDword1": 22,
-        "unknownByte1": 1
-      },
-      "unknownDword1": 0,
-      "unknownData2": {
-        "unknownDword1": 0,
-        "loadoutName": ""
-      },
-      "tintItemId": 0,
-      "unknownDword2": 0,
-      "decalItemId": 0,
       "loadoutSlots": []
     },
     "itemDefinitions": [],
-    "attachmentDefinitions": [],
-    "lastUseDate": "0x0000000053da0a5b"
+    "attachmentDefinitions": []
   }
 }
