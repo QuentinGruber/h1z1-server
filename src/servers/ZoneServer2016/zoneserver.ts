@@ -163,11 +163,20 @@ export class ZoneServer2016 extends ZoneServer {
     this._transientIds[generatedTransient] = client.character.characterId;
     client.character = {
       ...client.character,
-      guid: this._dummySelf.data.guid, // default,
+      //...character,
+      guid: "0x665a2bff2b44c034", // default, only matters for multiplayer
       transientId: generatedTransient,
-      loadouts: this._dummySelf.data.characterLoadoutData.loadouts, // default
-      inventory: this._dummySelf.data.inventory, // default
-      factionId: this._dummySelf.data.factionId, // default
+
+      actorModelId: character.actorModelId,
+      headActor: character.headActor,
+      isRespawning: character.isRespawning,
+      gender: character.gender,
+      creationDate: character.creationDate,
+      lastLoginDate: character.lastLoginDate,
+
+      loadouts: [], // default
+      inventory: [], // default
+      factionId: 2, // default
       isRunning: false,
       resources: {
         health: 5000,
@@ -214,20 +223,21 @@ export class ZoneServer2016 extends ZoneServer {
         shield: 0,
       }
     };
+    /*
     const characterDataMongo: any = await this._db
       ?.collection("characters")
       .findOne({ characterId: client.character.characterId });
     client.character.extraModel = characterDataMongo?.extraModelTexture
       ? characterDataMongo.extraModelTexture
       : this._dummySelf.data.extraModelTexture;
-
+    */
     let isRandomlySpawning = false;
     if (
-      _.isEqual(this._dummySelf.data.position, [0, 0, 0, 1]) &&
-      _.isEqual(this._dummySelf.data.rotation, [0, 0, 0, 1])
+      _.isEqual(character.position, [0, 0, 0, 1]) &&
+      _.isEqual(character.rotation, [0, 0, 0, 1])
     ) {
       // if position/rotation hasn't be changed
-      if (this._soloMode || !characterDataMongo.position) {
+      if (this._soloMode /*|| !characterDataMongo.position*/) {
         isRandomlySpawning = true;
       }
     }
@@ -244,10 +254,14 @@ export class ZoneServer2016 extends ZoneServer {
       client.character.spawnLocation =
         this._spawnLocations[randomSpawnIndex].name;
     } else {
+      client.character.state.position = character.position;
+      client.character.state.rotation = character.rotation;
+      /*
       if (!this._soloMode) {
         client.character.state.position = characterDataMongo.position;
         client.character.state.rotation = characterDataMongo.rotation;
       }
+      */
     }
     this._characters[client.character.characterId] = client.character; // character will spawn on other player's screen(s) at this point
   }
@@ -262,8 +276,16 @@ export class ZoneServer2016 extends ZoneServer {
     this.sendData(client, "SendSelfToClient", {
       data: {
         ...this._dummySelf.data,
-        //guid: '', // todo: fix
+        guid: client.character.guid, // todo: guid should be moved to client, instead of character
         characterId: client.character.characterId,
+
+        actorModelId: client.character.actorModelId,
+        headActor: client.character.headActor,
+        isRespawning: client.character.isRespawning,
+        gender: client.character.gender,
+        creationDate: client.character.creationDate,
+        lastLoginDate: client.character.lastLoginDate,
+
         position: client.character.state.position,
         rotation: client.character.state.rotation,
         identity: {
