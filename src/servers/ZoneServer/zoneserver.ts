@@ -116,7 +116,7 @@ export class ZoneServer extends EventEmitter {
     this._profiles = [];
     this._interactionDistance = 4;
     this._npcRenderDistance = 350;
-    this._pingTimeoutTime = 30000;
+    this._pingTimeoutTime = 120000;
     this._dynamicWeatherEnabled = true;
     this._dummySelf = require("../../../data/2015/sampleData/sendself.json");
     this._appDataFolder = getAppDataFolderPath();
