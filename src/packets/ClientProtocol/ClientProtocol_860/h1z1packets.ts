@@ -3877,7 +3877,13 @@ var packets = [
   ["Command.PlaySoundIdOnTarget", 0x092600, {}],
   ["Command.RequestPlayIntroEncounter", 0x092700, {}],
   ["Command.SpotPlayer", 0x092800, {}],
-  ["Command.SpotPlayerReply", 0x092900, {}],
+  ["Command.SpotPlayerReply", 0x092900, {
+    fields: [
+      { name: "guid", type: "uint64", defaultValue: "0" },
+      { name: "unk1", type: "string", defaultValue: "0" },
+      { name: "unk2", type: "string", defaultValue: "0" },
+    ]
+  }],
   ["Command.SpotPrimaryTarget", 0x092a00, {}],
   [
     "Command.InteractionString",
