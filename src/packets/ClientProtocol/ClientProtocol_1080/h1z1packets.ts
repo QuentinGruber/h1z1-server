@@ -2040,7 +2040,7 @@ const packets = [
                 { name: "quantity", type: "uint32", defaultValue: 0 },
               ],
             },
-            { name: "creationDate", type: "uint64", defaultValue: 0 },
+            { name: "creationDate", type: "uint64", defaultValue: "0" },
             { name: "unknownDword15", type: "uint32", defaultValue: 0 },
             { name: "unknownDword16", type: "uint32", defaultValue: 0 },
             { name: "unknownBoolean1", type: "boolean", defaultValue: false },
@@ -2053,8 +2053,8 @@ const packets = [
             { name: "unknownDword21", type: "uint32", defaultValue: 0 },
             { name: "unknownDword22", type: "uint32", defaultValue: 0 },
             { name: "unknownDword23", type: "uint32", defaultValue: 0 },
-            { name: "unknownTime1", type: "uint64", defaultValue: 0 },
-            { name: "unknownTime2", type: "uint64", defaultValue: 0 },
+            { name: "unknownTime1", type: "uint64", defaultValue: "0" },
+            { name: "unknownTime2", type: "uint64", defaultValue: "0" },
             { name: "unknownDword24", type: "uint32", defaultValue: 0 },
             { name: "unknownBoolean5", type: "boolean", defaultValue: false },
             { name: "unknownDword25", type: "uint32", defaultValue: 0 },
@@ -2085,6 +2085,7 @@ const packets = [
               // READ FUNCTION NOT UPDATED, CAN'T FIND READ FUNCTION (length set to 0 for now)
               name: "inventory",
               type: "schema",
+              defaultValue: {},
               fields: [
                 {
                   name: "items",
@@ -2107,6 +2108,7 @@ const packets = [
             {
               name: "characterQuests",
               type: "schema",
+              defaultValue: {},
               fields: [
                 {
                   name: "quests",
@@ -2159,6 +2161,7 @@ const packets = [
                             {
                               name: "unknownData1",
                               type: "schema",
+                              defaultValue: {},
                               fields: [
                                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                                 { name: "unknownDword2", type: "uint32", defaultValue: 0 },

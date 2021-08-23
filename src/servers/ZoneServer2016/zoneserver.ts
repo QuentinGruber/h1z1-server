@@ -163,7 +163,6 @@ export class ZoneServer2016 extends ZoneServer {
     this._transientIds[generatedTransient] = client.character.characterId;
     client.character = {
       ...client.character,
-      //...character,
       guid: "0x665a2bff2b44c034", // default, only matters for multiplayer
       transientId: generatedTransient,
 
@@ -267,25 +266,18 @@ export class ZoneServer2016 extends ZoneServer {
   }
 
   async sendCharacterData(client: Client) {
-    delete require.cache[
-      require.resolve("../../../data/2016/sampleData/sendself.json") // reload json
-    ];
-    this._dummySelf = require("../../../data/2016/sampleData/sendself.json"); // dummy self
     await this.loadCharacterData(client);
-
     this.sendData(client, "SendSelfToClient", {
       data: {
-        ...this._dummySelf.data,
         guid: client.character.guid, // todo: guid should be moved to client, instead of character
         characterId: client.character.characterId,
-
+        transientId: client.character.transientId,
         actorModelId: client.character.actorModelId,
         headActor: client.character.headActor,
         isRespawning: client.character.isRespawning,
         gender: client.character.gender,
         creationDate: client.character.creationDate,
         lastLoginDate: client.character.lastLoginDate,
-
         position: client.character.state.position,
         rotation: client.character.state.rotation,
         identity: {
