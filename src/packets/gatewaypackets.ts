@@ -19,7 +19,7 @@ const packets: any[] = [
     0x01,
     {
       fields: [
-        { name: "characterId", type: "uint64" },
+        { name: "characterId", type: "int64string" },
         { name: "ticket", type: "string" },
         { name: "clientProtocol", type: "string" },
         { name: "clientBuild", type: "string" },
