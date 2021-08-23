@@ -139,6 +139,20 @@ export class LoginServer extends EventEmitter {
   }
 
   LoginRequest(client: Client, sessionId: string, fingerprint: string) {
+    const SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters2016.json`);
+    if(SinglePlayerCharacters[0] && SinglePlayerCharacters[0].payload) { // if character files is old, delete it
+      fs.writeFileSync(
+        `${this._appDataFolder}/single_player_characters2016.json`,
+        JSON.stringify([], null)
+      );
+      debug("Old character save file detected, deleting.");
+    }
+    delete require.cache[
+      require.resolve(
+        `${this._appDataFolder}/single_player_characters2016.json`
+      )
+    ];
+
     client.loginSessionId = sessionId;
     const falsified_data = {
       loggedIn: true,
