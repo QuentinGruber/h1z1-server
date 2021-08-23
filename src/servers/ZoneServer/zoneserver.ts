@@ -25,6 +25,7 @@ import {
 import { Client, Weather } from "../../types/zoneserver";
 import { Db, MongoClient } from "mongodb";
 import { Worker } from "worker_threads";
+process.env.isBin && require("./workers/dynamicWeather");
 
 const localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json");
 
@@ -115,7 +116,7 @@ export class ZoneServer extends EventEmitter {
     this._profiles = [];
     this._interactionDistance = 4;
     this._npcRenderDistance = 350;
-    this._pingTimeoutTime = 30000;
+    this._pingTimeoutTime = 120000;
     this._dynamicWeatherEnabled = true;
     this._dummySelf = require("../../../data/2015/sampleData/sendself.json");
     this._appDataFolder = getAppDataFolderPath();
@@ -150,127 +151,141 @@ export class ZoneServer extends EventEmitter {
       this._soloMode = true;
       debug("Server in solo mode !");
     }
-    this.on("data", (err, client, packet) => {
-      if (err) {
-        console.error(err);
-      } else {
-        if (
-          packet.name != "KeepAlive" &&
-          packet.name != "PlayerUpdateUpdatePositionClientToZone" &&
-          packet.name != "PlayerUpdateManagedPosition"
-        ) {
-          debug(`Receive Data ${[packet.name]}`);
-        }
-        if (this._packetHandlers[packet.name]) {
-          try {
-            this._packetHandlers[packet.name](this, client, packet);
-          } catch (e) {
-            debug(e);
-          }
-        } else {
-          debug(packet);
-          debug("Packet not implemented in packetHandlers");
-        }
-      }
-    });
+    this.on("data", this.onZoneDataEvent);
 
     this.on("login", (err, client) => {
-      if (err) {
-        console.error(err);
-      } else {
-        debug("zone login");
-        try {
-          this.sendInitData(client);
-        } catch (error) {
-          debug(error);
-          this.sendData(client, "LoginFailed", {});
-        }
-      }
+      this.onZoneLoginEvent(err, client);
     });
 
     this._gatewayServer._soeServer.on(
       "PacketLimitationReached",
       (client: Client) => {
-        this.sendChatText(
-          client,
-          "You've almost reached the packet limitation for the server."
-        );
-        this.sendChatText(
-          client,
-          "We will disconnect you in 60 seconds ( You can also do it yourself )"
-        );
-        this.sendChatText(client, "Sorry for that.");
-        setTimeout(() => {
-          this.sendData(client, "CharacterSelectSessionResponse", {
-            status: 1,
-            sessionId: client.loginSessionId,
-          });
-        }, 60000);
+        this.onSoePacketLimitationReachedEvent(client);
       }
     );
 
     this._gatewayServer.on(
       "login",
-      (
-        err: string,
-        client: Client,
-        characterId: string,
-        loginSessionId: string
-      ) => {
-        debug(
-          `Client logged in from ${client.address}:${client.port} with character id: ${characterId}`
-        );
-        this._clients[client.sessionId] = client;
-
-        client.isLoading = true;
-        client.firstLoading = true;
-        client.loginSessionId = loginSessionId;
-        client.vehicle = {
-          vehicleState: 0,
-          falling: -1,
-        };
-        this.setupCharacter(client, characterId);
-        client.lastPingTime = new Date().getTime() + 120 * 1000;
-        client.pingTimer = setInterval(() => {
-          this.checkIfClientStillOnline(client);
-        }, 20000);
-        client.spawnedEntities = [];
-        this.emit("login", err, client);
+      (err: string, client: Client, characterId: string, loginSessionId: string) => {
+        this.onGatewayLoginEvent(err, client, characterId, loginSessionId);
       }
     );
 
     this._gatewayServer.on("disconnect", (err: string, client: Client) => {
-      debug(`Client disconnected from ${client.address}:${client.port}`);
+      this.onGatewayDisconnectEvent(err, client);
+    });
+
+    this._gatewayServer.on("session", (err: string, client: Client) => {
+      this.onGatewaySessionEvent(err, client);
+    });
+
+    this._gatewayServer.on(
+      "tunneldata",
+      (err: string, client: Client, data: Buffer, flags: number) => {
+        this.onGatewayTunnelDataEvent(err, client, data, flags);
+      }
+    );
+  }
+  onZoneDataEvent(err: any, client: Client, packet: any){
+    if (err) {
+      console.error(err);
+    } else {
+      if (
+        packet.name != "KeepAlive" &&
+        packet.name != "PlayerUpdateUpdatePositionClientToZone" &&
+        packet.name != "PlayerUpdateManagedPosition"
+      ) {
+        debug(`Receive Data ${[packet.name]}`);
+      }
+      if (this._packetHandlers[packet.name]) {
+        try {
+          this._packetHandlers[packet.name](this, client, packet);
+        } catch (e) {
+          debug(e);
+        }
+      } else {
+        debug(packet);
+        debug("Packet not implemented in packetHandlers");
+      }
+    }
+  }
+  onZoneLoginEvent(err: any, client: Client){
+    if (err) {
+      console.error(err);
+    } else {
+      debug("zone login");
+      try {
+        this.sendInitData(client);
+      } catch (error) {
+        debug(error);
+        this.sendData(client, "LoginFailed", {});
+      }
+    }
+  }
+  onSoePacketLimitationReachedEvent(client: Client){
+    this.sendChatText(
+      client,
+      "You've almost reached the packet limitation for the server."
+    );
+    this.sendChatText(
+      client,
+      "We will disconnect you in 60 seconds ( You can also do it yourself )"
+    );
+    this.sendChatText(client, "Sorry for that.");
+    setTimeout(() => {
+      this.sendData(client, "CharacterSelectSessionResponse", {
+        status: 1,
+        sessionId: client.loginSessionId,
+      });
+    }, 60000);
+  }
+  onGatewayLoginEvent(err: string, client: Client, characterId: string, loginSessionId: string){
+    debug(
+      `Client logged in from ${client.address}:${client.port} with character id: ${characterId}`
+    );
+    this._clients[client.sessionId] = client;
+
+    client.isLoading = true;
+    client.firstLoading = true;
+    client.loginSessionId = loginSessionId;
+    client.vehicle = {
+      vehicleState: 0,
+      falling: -1,
+    };
+    this.setupCharacter(client, characterId);
+    client.lastPingTime = new Date().getTime() + 120 * 1000;
+    client.pingTimer = setInterval(() => {
+      this.checkIfClientStillOnline(client);
+    }, 20000);
+    client.spawnedEntities = [];
+    this.emit("login", err, client);
+  }
+  onGatewayDisconnectEvent(err: string, client: Client){
+    debug(`Client disconnected from ${client.address}:${client.port}`);
       clearInterval(client.pingTimer);
       if (client.character?.characterId) {
         delete this._characters[client.character.characterId];
       }
       delete this._clients[client.sessionId];
       this.emit("disconnect", err, client);
-    });
-
-    this._gatewayServer.on("session", (err: string, client: Client) => {
-      debug(`Session started for client ${client.address}:${client.port}`);
-    });
-
-    this._gatewayServer.on(
-      "tunneldata",
-      (err: string, client: Client, data: Buffer, flags: number) => {
-        const packet = this._protocol.parse(
-          data,
-          flags,
-          true,
-          this._referenceData
-        );
-        if (packet) {
-          this.emit("data", null, client, packet);
-        } else {
-          debug("zonefailed : ", data);
-        }
-      }
-    );
   }
-
+  onGatewaySessionEvent(err: string, client: Client){
+    debug(`Session started for client ${client.address}:${client.port}`);
+  }
+  onGatewayTunnelDataEvent(err: string, client: Client, data: Buffer, flags: number){
+    const packet = this._protocol.parse(
+      data,
+      flags,
+      true,
+      this._referenceData
+    );
+    if (packet) {
+      this.emit("data", null, client, packet);
+    } else {
+      debug("zonefailed : ", data);
+    }
+  }
+  
   async setupServer(): Promise<void> {
     this.forceTime(971172000000); // force day time by default - not working for now
     this._frozeCycle = false;
@@ -724,13 +739,15 @@ export class ZoneServer extends EventEmitter {
     });
 
     this.sendData(client, "ClientGameSettings", {
-      unknownQword1: "0x0000000000000000",
-      unknownBoolean1: true,
-      timescale: 1,
-      unknownQword2: "0x0000000000000000",
-      unknownFloat1: 0,
-      unknownFloat2: 12,
-      unknownFloat3: 110,
+      Unknown2: 0,
+      interactGlowAndDist: 3,
+      unknownBoolean1: false,
+      timescale: 1.0,
+      Unknown4: 0,
+      Unknown: 0,
+      unknownFloat1: 0.0,
+      unknownFloat2: 0.0,
+      velDamageMulti: 1.0,
     });
 
     this.characterData(client);
