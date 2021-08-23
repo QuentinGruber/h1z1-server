@@ -384,7 +384,7 @@ export class LoginServer extends EventEmitter {
         ];
       } catch (e) {}
       SinglePlayerCharacter = require("../../../data/2015/sampleData/single_player_character.json");
-      if(this._soloMode)
+      if (this._soloMode)
         SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters.json`);
     } else {
       // LoginUdp_11

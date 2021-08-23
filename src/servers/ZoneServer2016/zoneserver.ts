@@ -38,13 +38,76 @@ const recipes = require("../../../data/2016/sampleData/recipes.json");
 const Z1_POIs = require("../../../data/2015/zoneData/Z1_POIs");
 
 export class ZoneServer2016 extends ZoneServer {
+  worldRoutineTimer: any;
+  _weather2016: Weather2016;
   constructor(serverPort: number, gatewayKey: Uint8Array, mongoAddress = "") {
     super(serverPort, gatewayKey, mongoAddress);
     this._protocol = new H1Z1Protocol("ClientProtocol_1080");
     this._packetHandlers = packetHandlers;
     this._dynamicWeatherEnabled = false;
     this._cycleSpeed = 100;
+    this._weather2016 = {
+      name: "",
+      unknownDword1: 0,
+      unknownDword2: 0,
+      skyBrightness1: 1,
+      skyBrightness2: 1,
+      snow: 0,
+      snowMap: 0,
+      colorGradient: .7,
+      unknownDword8: .16,
+      unknownDword9: .68,
+      unknownDword10: .08,
+      unknownDword11: 0,
+      unknownDword12: 0,
+      sunAxisX: 0,
+      sunAxisY: 0,
+      unknownDword15: 0,
+      disableTrees: 0,
+      disableTrees1: 0,
+      disableTrees2: 0,
+      wind: 5,
+      unknownDword20: 0,
+      unknownDword21: 0,
+      unknownDword22: 0,
+      unknownDword23: 0,
+      unknownDword24: 0,
+      unknownDword25: 0,
+      unknownDword26: 0,
+      unknownDword27: 0,
+      unknownDword28: 0,
+      unknownDword29: 0,
+      unknownDword30: 0,
+      unknownDword31: 0,
+      unknownDword32: 0,
+      unknownDword33: 0,
+    };
   }
+  onZoneDataEvent(err: any, client: Client, packet: any){
+    if (err) {
+      console.error(err);
+    } else {
+      if (
+        packet.name != "KeepAlive" &&
+        packet.name != "PlayerUpdateUpdatePositionClientToZone" &&
+        packet.name != "PlayerUpdateManagedPosition" &&
+        packet.name != "ClientUpdate.MonitorTimeDrift"
+      ) {
+        debug(`Receive Data ${[packet.name]}`);
+      }
+      if (this._packetHandlers[packet.name]) {
+        try {
+          this._packetHandlers[packet.name](this, client, packet);
+        } catch (e) {
+          debug(e);
+        }
+      } else {
+        debug(packet);
+        debug("Packet not implemented in packetHandlers");
+      }
+    }
+  }
+
   async characterData(client: Client) {
     delete require.cache[
       require.resolve("../../../data/2016/sampleData/sendself.json") // reload json
@@ -156,6 +219,7 @@ export class ZoneServer2016 extends ZoneServer {
       this._dynamicWeatherWorker = setInterval(() => dynamicWeather(this), 100);
     }
     this._gatewayServer.start();
+    this.worldRoutineTimer = setTimeout(()=>this.worldRoutine2016.bind(this)(true), 3000);
   }
 
   setupCharacter(client: Client, characterId: string) {
@@ -222,7 +286,7 @@ export class ZoneServer2016 extends ZoneServer {
       serverId: 1,
     });
 
-    this.SendZoneDetailsPacket(client, this._weather);
+    this.SendZoneDetailsPacket2016(client, this._weather2016);
 
     this.sendData(client, "ClientUpdate.ZonePopulation", {
       populations: [0, 0],
@@ -282,16 +346,35 @@ export class ZoneServer2016 extends ZoneServer {
     }
   }
 
-  worldRoutine(client: Client): void {
-    debug("WORLDROUTINE \n\n");
-    this.spawnCharacters(client);
-    this.spawnObjects(client);
-    this.spawnDoors(client);
-    this.spawnNpcs(client);
-    this.spawnVehicles(client);
-    this.removeOutOfDistanceEntities(client);
-    this.POIManager(client);
+  setPosAtLastRoutine(client: Client){
     client.posAtLastRoutine = client.character.state.position;
+  }
+
+  worldRoutine2016(refresh = false): void {
+    debug("WORLDROUTINE");
+    this.executeFuncForAllClients("spawnCharacters");
+    this.executeFuncForAllClients("spawnObjects");
+    this.executeFuncForAllClients("spawnDoors");
+    this.executeFuncForAllClients("spawnNpcs");
+    this.executeFuncForAllClients("spawnVehicles");
+    this.executeFuncForAllClients("removeOutOfDistanceEntities");
+    this.executeFuncForAllClients("POIManager");
+    this.executeFuncForAllClients("setPosAtLastRoutine");
+    if(refresh) this.worldRoutineTimer.refresh()
+  }
+
+  SendZoneDetailsPacket2016(client: Client, weather: Weather2016): void {
+    const SendZoneDetails_packet = {
+      zoneName: "Z1",
+      unknownBoolean1: true,
+      zoneType: 4,
+      skyData: weather,
+      zoneId1: 3905829720,
+      zoneId2: 3905829720,
+      nameId: 7699,
+      unknownBoolean7: true,
+    };
+    this.sendData(client, "SendZoneDetails", SendZoneDetails_packet);
   }
 
   SendWeatherUpdatePacket(
@@ -488,12 +571,12 @@ export class ZoneServer2016 extends ZoneServer {
           "AddLightweightPc",
           {
             ...characterObj,
-            /*
-            transientId: 1,
-            characterFirstName: characterObj.name,
+            transientId: characterObj.transientId,
+            identity: {
+              characterName: characterObj.name,
+            },
             position: characterObj.state.position,
             rotation: characterObj.state.lookAt,
-            */
           },
           1
         );
@@ -601,7 +684,7 @@ export class ZoneServer2016 extends ZoneServer {
   }
 
   getGameTime(): number {
-    debug("get server time");
+    //debug("get server time");
     const delta = Date.now() - this._startGameTime;
     return this._frozeCycle
       ? Number(((this._gameTime + delta) / 1000).toFixed(0))
@@ -693,11 +776,10 @@ export class ZoneServer2016 extends ZoneServer {
     }
   }
 
-  changeWeather2016(client: Client, weather: Weather2016): void {
-    //this._weather = weather; (fix later)
+  updateWeather2016(client: Client): void {
     this.SendWeatherUpdatePacket(
       client,
-      weather,
+      this._weather2016,
       this._soloMode ? false : true
     );
   }
