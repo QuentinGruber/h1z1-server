@@ -1674,6 +1674,14 @@ const packetHandlers: any = {
     debug(packet);
     const characterId = server._transientIds[packet.data.transientId];
     if (characterId) {
+        if(!server._soloMode){
+          server.sendRawToAllOthers(
+            client,
+            server._protocol.createVehiclePositionBroadcast(
+              packet.data.PositionUpdate.raw.slice(1)
+            )
+          );
+        }
       if (packet.data.PositionUpdate.position) {
         server._vehicles[characterId].positionUpdate =
           packet.data.PositionUpdate;
@@ -1714,17 +1722,6 @@ const packetHandlers: any = {
     }
     const movingCharacter = server._characters[client.character.characterId];
     if (movingCharacter && !server._soloMode) {
-      if (client.vehicle.mountedVehicle) {
-        const vehicle = server._vehicles[client.vehicle.mountedVehicle];
-        console.log(vehicle);
-        server.sendRawToAllOthers(
-          client,
-          server._protocol.createPositionBroadcast(
-            packet.data.raw.slice(1),
-            vehicle.npcData.transientId
-          )
-        );
-      } else {
         server.sendRawToAllOthers(
           client,
           server._protocol.createPositionBroadcast(
@@ -1732,7 +1729,6 @@ const packetHandlers: any = {
             movingCharacter.transientId
           )
         );
-      }
     }
     if (packet.data.position) {
       // TODO: modify array element beside re-creating it
