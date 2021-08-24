@@ -12,6 +12,7 @@ export interface Client {
   posAtLogoutStart: Float32Array;
   timer: NodeJS.Timeout | null;
   spawnedEntities: any[];
+  managedObjects: any[];
   gameClient: {
     currentWeather: Weather;
   };
