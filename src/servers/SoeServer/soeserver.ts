@@ -19,7 +19,7 @@ import { Client } from "../../types/soeserver";
 import { Worker } from "worker_threads";
 
 const debug = require("debug")("SOEServer");
-process.env.isBin && require("./udpServerWorker");
+process.env.isBin && require("./workers/udpServerWorker");
 export class SOEServer extends EventEmitter {
   _protocolName: string;
   _serverPort: number;
@@ -57,7 +57,7 @@ export class SOEServer extends EventEmitter {
     this._useEncryption = true;
     this._isGatewayServer = isGatewayServer;
     this._clients = {};
-    this._connection = new Worker(`${__dirname}/udpServerWorker.js`, {
+    this._connection = new Worker(`${__dirname}/workers/udpServerWorker.js`, {
       workerData: { serverPort: serverPort },
     });
     this._connection.on("message", (message) => {
