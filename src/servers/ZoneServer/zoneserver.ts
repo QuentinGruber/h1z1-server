@@ -258,6 +258,7 @@ export class ZoneServer extends EventEmitter {
       this.checkIfClientStillOnline(client);
     }, 20000);
     client.spawnedEntities = [];
+    client.managedObjects = [];
     this.emit("login", err, client);
   }
   onGatewayDisconnectEvent(err: string, client: Client){
@@ -862,11 +863,16 @@ export class ZoneServer extends EventEmitter {
           this._vehicles[vehicle],
           1
         );
-        this.sendData(client, "PlayerUpdate.ManagedObject", {
-          guid: this._vehicles[vehicle].npcData.characterId,
-          characterId: client.character.characterId,
-        });
+        if (!this._vehicles[vehicle].isManaged) {
+          this.sendData(client, "PlayerUpdate.ManagedObject", {
+            guid: this._vehicles[vehicle].npcData.characterId,
+            characterId: client.character.characterId,
+          });
+          this._vehicles[vehicle].isManaged = true;
+        }
+
         client.spawnedEntities.push(this._vehicles[vehicle]);
+        client.managedObjects.push(this._vehicles[vehicle]);
       }
     }
   }
@@ -898,6 +904,13 @@ export class ZoneServer extends EventEmitter {
           },
           1
         );
+        const index = client.managedObjects.indexOf(
+          this._vehicles[characterId]
+        );
+        if (index > -1) {
+          client.managedObjects.splice(index, 1);
+          this._vehicles[characterId].isManaged = false;
+        }
       }
     });
   }
