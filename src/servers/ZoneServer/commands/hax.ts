@@ -148,6 +148,7 @@ const hax: any = {
           unknownBoolean: true,
         });
         client.vehicle.mountedVehicle = characterId;
+	client.managedObjects.push(server._vehicles[characterId]);
       },
     };
     server.worldRoutine(client);
@@ -203,6 +204,8 @@ const hax: any = {
       characterData: [],
     });
     client.vehicle.mountedVehicle = characterId;
+	client.managedObjects.push(server._vehicles[characterId]);
+	  
   },
 
   time: function (server: ZoneServer, client: Client, args: any[]) {
