@@ -4668,7 +4668,16 @@ var packets = [
     },
   ],
   ["PlayerUpdate.QueueAnimation", 0x0f0f, {}],
-  ["PlayerUpdate.ExpectedSpeed", 0x0f10, {}],
+  ["PlayerUpdate.ExpectedSpeed", 0x0f10, {
+    fields: [
+      { name: "characterId", type: "uint64string", defaultValue: "0" },
+      {
+        name: "speed",
+        type: "uint32",
+        defaultValue: 0,
+      },
+    ],
+  }],
   ["PlayerUpdate.ScriptedAnimation", 0x0f11, {}],
   ["PlayerUpdate.ThoughtBubble", 0x0f12, {}],
   [
@@ -4719,7 +4728,30 @@ var packets = [
   ["PlayerUpdate.AddEffectTagCompositeEffect", 0x0f1a, {}],
   ["PlayerUpdate.RemoveEffectTagCompositeEffect", 0x0f1b, {}],
   ["PlayerUpdate.SetSpawnAnimation", 0x0f1c, {}],
-  ["PlayerUpdate.CustomizeNpc", 0x0f1d, {}],
+  ["PlayerUpdate.CustomizeNpc", 0x0f1d, {
+    fields: [
+      { name: "characterId", type: "uint64string", defaultValue: "0" },
+      { name: "a", type: "uint32", defaultValue: 15 },
+      { name: "b", type: "uint32", defaultValue: 35 },
+
+      {
+        name: "unk1",
+        type: "string",
+        defaultValue: "0",
+      },
+      {
+        name: "unk2",
+        type: "string",
+        defaultValue: "0",
+      },
+      { name: "c", type: "uint32", defaultValue: 0 },
+      {
+        name: "unk3",
+        type: "boolean",
+        defaultValue: 1,
+      },
+    ],
+  }],
   ["PlayerUpdate.SetSpawnerActivationEffect", 0x0f1e, {}],
   ["PlayerUpdate.SetComboState", 0x0f1f, {}],
   ["PlayerUpdate.SetSurpriseState", 0x0f20, {}],
@@ -5912,7 +5944,7 @@ var packets = [
       fields: [
         {
           name: "Items",
-          type: "array8",
+          type: "array",
           defaultValue: [],
           fields: [
             { name: "unknownWord1", type: "boolean", defaultValue: 0 },
