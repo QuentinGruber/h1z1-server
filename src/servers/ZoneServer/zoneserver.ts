@@ -22,11 +22,11 @@ import {
   Int64String,
   isPosInRadius,
 } from "../../utils/utils";
-import { Client, Weather } from "../../types/zoneserver";
+import { Weather } from "../../types/zoneserver";
 import { Db, MongoClient } from "mongodb";
 import { Worker } from "worker_threads";
 import SOEClient from "servers/SoeServer/soeclient";
-import ZoneClient from "./zoneclient";
+import Client from "./zoneclient";
 process.env.isBin && require("./workers/dynamicWeather");
 
 const localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json");
@@ -245,8 +245,8 @@ export class ZoneServer extends EventEmitter {
     debug(
       `Client logged in from ${client.address}:${client.port} with character id: ${characterId}`
     );
-    const zoneClient = new ZoneClient(client);
-    this._clients[client.sessionId] = zoneClient;
+    const zoneClient = new Client(client);
+    this._clients[client.sessionId] = Client;
 
     zoneClient.isLoading = true;
     zoneClient.firstLoading = true;
@@ -313,7 +313,7 @@ export class ZoneServer extends EventEmitter {
     debug("Server ready");
   }
 
-  setupCharacter(client: ZoneClient, characterId: string) {
+  setupCharacter(client: Client, characterId: string) {
     let generatedTransient;
     do {
       generatedTransient = Number((Math.random() * 30000).toFixed(0));
@@ -562,7 +562,7 @@ export class ZoneServer extends EventEmitter {
     this._packetHandlers = require("./zonepackethandlers").default;
   }
 
-  checkIfClientStillOnline(client: ZoneClient): void {
+  checkIfClientStillOnline(client: Client): void {
     if (new Date().getTime() - client.lastPingTime > this._pingTimeoutTime) {
       clearInterval(client.pingTimer);
       debug(
@@ -1193,7 +1193,7 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
-  sendData(client: ZoneClient, packetName: string, obj: any, channel = 0): void {
+  sendData(client: Client, packetName: string, obj: any, channel = 0): void {
     if (packetName != "KeepAlive") {
       debug("send data", packetName);
     }
@@ -1239,7 +1239,7 @@ export class ZoneServer extends EventEmitter {
     });
   }
 
-  sendRawData(client: ZoneClient, data: Buffer): void {
+  sendRawData(client: Client, data: Buffer): void {
     this._gatewayServer.sendTunnelData(client, data);
   }
 

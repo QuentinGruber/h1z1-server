@@ -13,13 +13,13 @@ export default class ZoneClient extends SOEClient {
     timer: any;
     spawnedEntities: any[] = [];
     managedObjects: any[] = [];
-    vehicle?: {
+    vehicle: {
       falling: number;
       mountedVehicle?: string;
       mountedVehicleType?: string;
       vehicleState: number;
     };
-    character?: {
+    character: {
       characterId: string;
       transientId: number;
       name?: string;
@@ -53,6 +53,7 @@ export default class ZoneClient extends SOEClient {
     loginSessionId?: string;
     lastPingTime: number;
     pingTimer: NodeJS.Timeout;
+  savePositionTimer: NodeJS.Timeout;
   constructor(
     initialClient: SOEClient,
   ) {
