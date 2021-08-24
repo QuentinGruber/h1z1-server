@@ -106,7 +106,7 @@ const hax: any = {
     const vehicleData = {
       npcData: {
         guid: guid,
-        transientId: server.getTransientId(client, guid),
+        transientId: server.getTransientId(client, characterId),
         characterId: characterId,
         modelId: driveModel,
         scale: [1, 1, 1, 1],
@@ -134,6 +134,10 @@ const hax: any = {
       ...vehicleData,
       onReadyCallback: () => {
         // doing anything with vehicle before client gets fullvehicle packet breaks it
+        server.sendData(client, "PlayerUpdate.ManagedObject", {
+          guid: vehicleData.npcData.characterId,
+          characterId: client.character.characterId,
+        });
         server.sendDataToAll("Mount.MountResponse", {
           characterId: client.character.characterId,
           guid: characterId,
@@ -156,7 +160,7 @@ const hax: any = {
     const vehicleData = {
       npcData: {
         guid: guid,
-        transientId: 999999,
+        transientId: server.getTransientId(client,characterId),
         characterId: characterId,
         modelId: 9374,
         scale: [1, 1, 1, 1],
@@ -184,6 +188,10 @@ const hax: any = {
       unknownString1: "",
     };
     server.sendData(client, "PlayerUpdate.AddLightweightVehicle", vehicleData);
+    server.sendData(client, "PlayerUpdate.ManagedObject", {
+      guid: vehicleData.npcData.characterId,
+      characterId: client.character.characterId,
+    });
     server._vehicles[characterId] = {
 		  isManaged: true,
       ...vehicleData,
