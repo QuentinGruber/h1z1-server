@@ -17,6 +17,7 @@ import { SOEInputStream } from "./soeinputstream";
 import { SOEOutputStream } from "./soeoutputstream";
 import { Client } from "../../types/soeserver";
 import { Worker } from "worker_threads";
+import soeClient from "./soeclient";
 
 const debug = require("debug")("SOEServer");
 process.env.isBin && require("./workers/udpServerWorker");
@@ -71,24 +72,7 @@ export class SOEServer extends EventEmitter {
         // if doesn't know the client
         if (!this._clients[clientId]) {
           unknow_client = true;
-          client = this._clients[clientId] = {
-            sessionId: 0,
-            address: remote.address,
-            port: remote.port,
-            crcSeed: this._crcSeed,
-            crcLength: 2,
-            clientUdpLength: 512,
-            serverUdpLength: 512,
-            sequences: [],
-            compression: this._compression,
-            useEncryption: true,
-            outQueue: [],
-            outOfOrderPackets: [],
-            nextAck: -1,
-            lastAck: -1,
-            inputStream: new (SOEInputStream as any)(cryptoKey),
-            outputStream: new (SOEOutputStream as any)(cryptoKey),
-          };
+          client = this._clients[clientId] = new soeClient(remote,this._crcSeed,this._compression,cryptoKey);
 
           (client as any).inputStream.on(
             "data",
