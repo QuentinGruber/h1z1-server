@@ -1,4 +1,4 @@
-interface characterEquipment {
+export interface characterEquipment {
   modelName: string;
   slotId: number;
   defaultTextureAlias?: string;
@@ -13,9 +13,6 @@ export interface Client {
   timer: NodeJS.Timeout | null;
   spawnedEntities: any[];
   managedObjects: any[];
-  gameClient: {
-    currentWeather: Weather;
-  };
   vehicle: {
     falling: number;
     mountedVehicle?: string;

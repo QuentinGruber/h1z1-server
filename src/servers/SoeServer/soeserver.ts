@@ -421,14 +421,8 @@ export class SOEServer extends EventEmitter {
     (client as any).inputStream.toggleEncryption();
   }
 
-  deleteClient(client: Client): void {
-    clearImmediate(
-      this._clients[client.address + ":" + client.port]?.outQueueTimer
-    );
-    clearImmediate(this._clients[client.address + ":" + client.port]?.ackTimer);
-    clearImmediate(
-      this._clients[client.address + ":" + client.port]?.outOfOrderTimer
-    );
+  deleteClient(client: SOEClient): void {
+    client.clearTimers();
     delete this._clients[client.address + ":" + client.port];
     debug("client connection from port : ", client.port, " deleted");
   }

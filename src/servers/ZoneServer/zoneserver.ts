@@ -25,6 +25,8 @@ import {
 import { Client, Weather } from "../../types/zoneserver";
 import { Db, MongoClient } from "mongodb";
 import { Worker } from "worker_threads";
+import SOEClient from "servers/SoeServer/soeclient";
+import ZoneClient from "./zoneclient";
 process.env.isBin && require("./workers/dynamicWeather");
 
 const localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json");
@@ -166,7 +168,7 @@ export class ZoneServer extends EventEmitter {
 
     this._gatewayServer.on(
       "login",
-      (err: string, client: Client, characterId: string, loginSessionId: string) => {
+      (err: string, client: SOEClient, characterId: string, loginSessionId: string) => {
         this.onGatewayLoginEvent(err, client, characterId, loginSessionId);
       }
     );
@@ -239,26 +241,27 @@ export class ZoneServer extends EventEmitter {
       });
     }, 60000);
   }
-  onGatewayLoginEvent(err: string, client: Client, characterId: string, loginSessionId: string){
+  onGatewayLoginEvent(err: string, client: SOEClient, characterId: string, loginSessionId: string){
     debug(
       `Client logged in from ${client.address}:${client.port} with character id: ${characterId}`
     );
-    this._clients[client.sessionId] = client;
+    const zoneClient = new ZoneClient(client);
+    this._clients[client.sessionId] = zoneClient;
 
-    client.isLoading = true;
-    client.firstLoading = true;
-    client.loginSessionId = loginSessionId;
-    client.vehicle = {
+    zoneClient.isLoading = true;
+    zoneClient.firstLoading = true;
+    zoneClient.loginSessionId = loginSessionId;
+    zoneClient.vehicle = {
       vehicleState: 0,
       falling: -1,
     };
-    this.setupCharacter(client, characterId);
-    client.lastPingTime = new Date().getTime() + 120 * 1000;
-    client.pingTimer = setInterval(() => {
-      this.checkIfClientStillOnline(client);
+    this.setupCharacter(zoneClient, characterId);
+    zoneClient.lastPingTime = new Date().getTime() + 120 * 1000;
+    zoneClient.pingTimer = setInterval(() => {
+      this.checkIfClientStillOnline(zoneClient);
     }, 20000);
-    client.spawnedEntities = [];
-    client.managedObjects = [];
+    zoneClient.spawnedEntities = [];
+    zoneClient.managedObjects = [];
     this.emit("login", err, client);
   }
   onGatewayDisconnectEvent(err: string, client: Client){
@@ -310,7 +313,7 @@ export class ZoneServer extends EventEmitter {
     debug("Server ready");
   }
 
-  setupCharacter(client: Client, characterId: string) {
+  setupCharacter(client: ZoneClient, characterId: string) {
     let generatedTransient;
     do {
       generatedTransient = Number((Math.random() * 30000).toFixed(0));
@@ -559,7 +562,7 @@ export class ZoneServer extends EventEmitter {
     this._packetHandlers = require("./zonepackethandlers").default;
   }
 
-  checkIfClientStillOnline(client: Client): void {
+  checkIfClientStillOnline(client: ZoneClient): void {
     if (new Date().getTime() - client.lastPingTime > this._pingTimeoutTime) {
       clearInterval(client.pingTimer);
       debug(
@@ -1190,7 +1193,7 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
-  sendData(client: Client, packetName: string, obj: any, channel = 0): void {
+  sendData(client: ZoneClient, packetName: string, obj: any, channel = 0): void {
     if (packetName != "KeepAlive") {
       debug("send data", packetName);
     }
@@ -1236,7 +1239,7 @@ export class ZoneServer extends EventEmitter {
     });
   }
 
-  sendRawData(client: Client, data: Buffer): void {
+  sendRawData(client: ZoneClient, data: Buffer): void {
     this._gatewayServer.sendTunnelData(client, data);
   }
 

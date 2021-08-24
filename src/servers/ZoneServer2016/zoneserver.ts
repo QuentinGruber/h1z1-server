@@ -28,6 +28,7 @@ import {
 
 import { /*Db,*/ MongoClient } from "mongodb";
 import dynamicWeather from "./workers/dynamicWeather";
+import ZoneClient from "servers/ZoneServer/zoneclient";
 
 // need to get 2016 lists
 // const spawnLocations = require("../../../data/2015/sampleData/spawnLocations.json");
@@ -222,7 +223,7 @@ export class ZoneServer2016 extends ZoneServer {
     this.worldRoutineTimer = setTimeout(()=>this.worldRoutine2016.bind(this)(true), 3000);
   }
 
-  setupCharacter(client: Client, characterId: string) {
+  setupCharacter(client: ZoneClient, characterId: string) {
     let generatedTransient;
     do {
       generatedTransient = Number((Math.random() * 30000).toFixed(0));

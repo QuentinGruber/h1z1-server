@@ -7,22 +7,23 @@ export default class SOEClient {
   address: string;
   port: number;
   crcSeed: number;
-  crcLength: number;
-  clientUdpLength: number;
-  serverUdpLength: number;
+  crcLength: number = 2;
+  clientUdpLength: number = 512;
+  serverUdpLength: number = 512;
   sequences: any;
   compression: number;
-  useEncryption: boolean;
-  outQueue: any[];
+  useEncryption: boolean = true;
+  outQueue: any[] = [];
   protocolName?: string;
   outOfOrderPackets: any;
-  nextAck: number;
-  lastAck: number;
+  nextAck: number = -1;
+  lastAck: number = -1;
   inputStream: () => void;
   outputStream: () => void;
   outQueueTimer: any;
   ackTimer: any;
   outOfOrderTimer: any;
+  cryptoKey: Uint8Array;
   constructor(
     remote: RemoteInfo,
     crcSeed: number,
@@ -33,17 +34,15 @@ export default class SOEClient {
     this.address = remote.address;
     this.port = remote.port;
     this.crcSeed = crcSeed;
-    this.crcLength = 2;
-    this.clientUdpLength = 512;
-    this.serverUdpLength = 512;
-    this.sequences = [];
     this.compression = compression;
-    this.useEncryption = true;
-    this.outQueue = [];
-    this.outOfOrderPackets = [];
-    this.nextAck = -1;
-    this.lastAck = -1;
+    this.cryptoKey = cryptoKey;
     this.inputStream = new (SOEInputStream as any)(cryptoKey);
     this.outputStream = new (SOEOutputStream as any)(cryptoKey);
+  }
+
+  clearTimers(){
+    clearTimeout(this.outQueueTimer);
+    clearTimeout(this.ackTimer);
+    clearTimeout(this.outOfOrderTimer);
   }
 }
