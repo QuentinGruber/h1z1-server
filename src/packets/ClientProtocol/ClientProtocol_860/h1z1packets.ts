@@ -5944,7 +5944,7 @@ var packets = [
       fields: [
         {
           name: "Items",
-          type: "array8",
+          type: "array",
           defaultValue: [],
           fields: [
             { name: "unknownWord1", type: "boolean", defaultValue: 0 },
