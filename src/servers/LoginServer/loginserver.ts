@@ -138,21 +138,42 @@ export class LoginServer extends EventEmitter {
     this._soeServer.sendAppData(client, data, true);
   }
 
-  LoginRequest(client: Client, sessionId: string, fingerprint: string) {
-    const SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters2016.json`);
-    if(SinglePlayerCharacters[0] && SinglePlayerCharacters[0].payload) { // if character files is old, delete it
-      fs.writeFileSync(
-        `${this._appDataFolder}/single_player_characters2016.json`,
-        JSON.stringify([], null)
-      );
-      debug("Old character save file detected, deleting.");
-    }
-    delete require.cache[
-      require.resolve(
-        `${this._appDataFolder}/single_player_characters2016.json`
-      )
-    ];
+  async loadCharacterData(client: Client) {
+    if (this._protocol.protocolName == "LoginUdp_9") {
+      if(this._soloMode) {
 
+      }
+      else {
+
+      }
+    }
+    else { // LoginUdp_11
+      if(this._soloMode) {
+        return require(`${this._appDataFolder}/single_player_characters.json`);
+      }
+      else {
+
+      }
+    }
+  }
+
+  LoginRequest(client: Client, sessionId: string, fingerprint: string) {
+    if(this._protocol.protocolName == "LoginUdp_11"){
+      const SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters2016.json`);
+      if(SinglePlayerCharacters[0] && SinglePlayerCharacters[0].payload) { // if character files is old, delete it
+        fs.writeFileSync(
+          `${this._appDataFolder}/single_player_characters2016.json`,
+          JSON.stringify([], null)
+        );
+        debug("Old character save file detected, deleting.");
+      }
+      delete require.cache[
+        require.resolve(
+          `${this._appDataFolder}/single_player_characters2016.json`
+        )
+      ];
+    }
+    
     client.loginSessionId = sessionId;
     const falsified_data = {
       loggedIn: true,
