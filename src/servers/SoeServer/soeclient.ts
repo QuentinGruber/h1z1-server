@@ -15,7 +15,7 @@ export default class SOEClient {
   useEncryption: boolean = true;
   outQueue: any[] = [];
   protocolName?: string;
-  outOfOrderPackets: any;
+  outOfOrderPackets: any[] = [];
   nextAck: number = -1;
   lastAck: number = -1;
   inputStream: () => void;

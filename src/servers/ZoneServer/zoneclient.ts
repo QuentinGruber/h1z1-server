@@ -51,11 +51,11 @@ export default class ZoneClient extends SOEClient {
       };
     };
     loginSessionId?: string;
-    lastPingTime: number;
-    pingTimer: NodeJS.Timeout;
-  savePositionTimer: NodeJS.Timeout;
+    lastPingTime: number = 0;
+    pingTimer: any;
+    savePositionTimer: any;
   constructor(
-    initialClient: SOEClient,
+    initialClient: SOEClient,loginSessionId:string,characterId:string,generatedTransient:number
   ) {
     super(
         {address:initialClient.address,port:initialClient.port} as RemoteInfo,
@@ -65,8 +65,59 @@ export default class ZoneClient extends SOEClient {
         );
     this.inputStream = initialClient.inputStream;
     this.outputStream = initialClient.outputStream;
-    // @ts-ignore
-    this = {...this,...initialClient}
+    this.crcSeed = initialClient.crcSeed;
+    this.sequences = initialClient.sequences;
+    this.outQueue = initialClient.outQueue;
+    this.protocolName = initialClient.protocolName;
+    this.outOfOrderPackets = initialClient.outOfOrderPackets;
+    this.nextAck = initialClient.nextAck;
+    this.lastAck = initialClient.lastAck;
+    this.outQueueTimer = initialClient.outputStream;
+    this.ackTimer = initialClient.inputStream;
+    this.outOfOrderTimer = initialClient.outputStream;
 
+    this.isLoading = true;
+    this.firstLoading = true;
+    this.loginSessionId = loginSessionId;
+    this.vehicle = {
+      vehicleState: 0,
+      falling: -1,
+    };
+    this.lastPingTime = new Date().getTime() + 120 * 1000;
+    this.character = {
+        characterId: characterId,
+        transientId: generatedTransient,
+        isRunning: false,
+        equipment: [
+          { modelName: "Weapon_Empty.adr", slotId: 1 }, // yeah that's an hack TODO find a better way
+          { modelName: "Weapon_Empty.adr", slotId: 7 },
+          {
+            modelName: "SurvivorMale_Ivan_Shirt_Base.adr",
+            defaultTextureAlias: "Ivan_Tshirt_Navy_Shoulder_Stripes",
+            slotId: 3,
+          },
+          {
+            modelName: "SurvivorMale_Ivan_Pants_Base.adr",
+            defaultTextureAlias: "Ivan_Pants_Jeans_Blue",
+            slotId: 4,
+          },
+        ],
+        resources: {
+          health: 5000,
+          stamina: 50,
+          food: 5000,
+          water: 5000,
+          virus: 6000,
+        },
+        state: {
+          position: new Float32Array([0, 0, 0, 0]),
+          rotation: new Float32Array([0, 0, 0, 0]),
+          lookAt: new Float32Array([0, 0, 0, 0]),
+          health: 0,
+          shield: 0,
+        },
+      };
+    this.spawnedEntities = [];
+    this.managedObjects = [];
   }
 }

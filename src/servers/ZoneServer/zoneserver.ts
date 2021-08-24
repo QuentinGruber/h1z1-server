@@ -245,24 +245,19 @@ export class ZoneServer extends EventEmitter {
     debug(
       `Client logged in from ${client.address}:${client.port} with character id: ${characterId}`
     );
-    const zoneClient = new Client(client);
-    this._clients[client.sessionId] = Client;
+    let generatedTransient;
+    do {
+      generatedTransient = Number((Math.random() * 30000).toFixed(0));
+    } while (this._transientIds[generatedTransient]);
+    const zoneClient = new Client(client,loginSessionId,characterId,generatedTransient);
+    this._clients[client.sessionId] = zoneClient;
 
-    zoneClient.isLoading = true;
-    zoneClient.firstLoading = true;
-    zoneClient.loginSessionId = loginSessionId;
-    zoneClient.vehicle = {
-      vehicleState: 0,
-      falling: -1,
-    };
-    this.setupCharacter(zoneClient, characterId);
-    zoneClient.lastPingTime = new Date().getTime() + 120 * 1000;
+    this._transientIds[generatedTransient] = characterId;
+    this._characters[characterId] = zoneClient.character;
     zoneClient.pingTimer = setInterval(() => {
       this.checkIfClientStillOnline(zoneClient);
     }, 20000);
-    zoneClient.spawnedEntities = [];
-    zoneClient.managedObjects = [];
-    this.emit("login", err, client);
+    this.emit("login", err, zoneClient);
   }
   onGatewayDisconnectEvent(err: string, client: Client){
     debug(`Client disconnected from ${client.address}:${client.port}`);
@@ -311,48 +306,6 @@ export class ZoneServer extends EventEmitter {
       await this.saveWorld();
     }
     debug("Server ready");
-  }
-
-  setupCharacter(client: Client, characterId: string) {
-    let generatedTransient;
-    do {
-      generatedTransient = Number((Math.random() * 30000).toFixed(0));
-    } while (this._transientIds[generatedTransient]);
-    client.character = {
-      characterId: characterId,
-      transientId: generatedTransient,
-      isRunning: false,
-      equipment: [
-        { modelName: "Weapon_Empty.adr", slotId: 1 }, // yeah that's an hack TODO find a better way
-        { modelName: "Weapon_Empty.adr", slotId: 7 },
-        {
-          modelName: "SurvivorMale_Ivan_Shirt_Base.adr",
-          defaultTextureAlias: "Ivan_Tshirt_Navy_Shoulder_Stripes",
-          slotId: 3,
-        },
-        {
-          modelName: "SurvivorMale_Ivan_Pants_Base.adr",
-          defaultTextureAlias: "Ivan_Pants_Jeans_Blue",
-          slotId: 4,
-        },
-      ],
-      resources: {
-        health: 5000,
-        stamina: 50,
-        food: 5000,
-        water: 5000,
-        virus: 6000,
-      },
-      state: {
-        position: new Float32Array([0, 0, 0, 0]),
-        rotation: new Float32Array([0, 0, 0, 0]),
-        lookAt: new Float32Array([0, 0, 0, 0]),
-        health: 0,
-        shield: 0,
-      },
-    };
-    this._transientIds[generatedTransient] = characterId;
-    this._characters[characterId] = client.character;
   }
 
   getAllCurrentUsedTransientId() {
