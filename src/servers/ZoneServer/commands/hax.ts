@@ -130,6 +130,7 @@ const hax: any = {
     };
     server.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicleData);
     server._vehicles[characterId] = {
+      isManaged: true,
       ...vehicleData,
       onReadyCallback: () => {
         // doing anything with vehicle before client gets fullvehicle packet breaks it
@@ -183,7 +184,10 @@ const hax: any = {
       unknownString1: "",
     };
     server.sendData(client, "PlayerUpdate.AddLightweightVehicle", vehicleData);
-    server._vehicles[characterId] = vehicleData;
+    server._vehicles[characterId] = {
+		  isManaged: true,
+      ...vehicleData,
+    };
     server.worldRoutine(client);
     server.sendData(client, "Mount.MountResponse", {
       characterId: client.character.characterId,
