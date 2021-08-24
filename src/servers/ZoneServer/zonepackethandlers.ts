@@ -661,14 +661,8 @@ const packetHandlers: any = {
       guid2: client.vehicle.mountedVehicle,
       unknownBoolean: false,
     });
-    setTimeout(() => {
-      // temp workaround to fix https://github.com/QuentinGruber/h1z1-server/issues/285
-      server._vehicles[
-        client.vehicle.mountedVehicle as string
-      ].npcData.position = client.character.state.position;
-      delete client.vehicle.mountedVehicle;
-      client.vehicle.mountedVehicleType = "0";
-    }, 50);
+    client.vehicle.mountedVehicleType = "0";
+    delete client.vehicle.mountedVehicle;
   },
   "Command.InteractRequest": function (
     server: ZoneServer,
