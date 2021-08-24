@@ -462,6 +462,9 @@ const packetHandlers: any = {
     debug("ClientLogout");
     clearInterval(client.character.resourcesUpdater);
     server.saveCharacterPosition(client);
+    client.managedObjects.forEach((object: any) => {
+      server._vehicles[object.npcData.characterId].isManaged = false;
+    });
     server.deleteEntity(client.character.characterId, server._characters);
     server._gatewayServer._soeServer.deleteClient(client);
     delete server._characters[client.character.characterId];
@@ -1597,6 +1600,9 @@ const packetHandlers: any = {
       clearTimeout(client.timer);
     }
     client.timer = setTimeout(() => {
+      client.managedObjects.forEach((object: any) => {
+        server._vehicles[object.npcData.characterId].isManaged = false;
+      });
       server.sendData(client, "ClientUpdate.CompleteLogoutProcess", {});
     }, timerTime);
   },
@@ -1665,6 +1671,44 @@ const packetHandlers: any = {
       unknownFloat11: 11,
       unknownFloat12: 12,
     });
+  },
+  PlayerUpdateManagedPosition: function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
+    debug(packet);
+    const characterId = server._transientIds[packet.data.transientId];
+    if (characterId) {
+      if (packet.data.PositionUpdate.position) {
+        server._vehicles[characterId].positionUpdate =
+          packet.data.PositionUpdate;
+        server._vehicles[characterId].npcData.position = new Float32Array([
+          packet.data.PositionUpdate.position[0],
+          packet.data.PositionUpdate.position[1],
+          packet.data.PositionUpdate.position[2],
+          0,
+        ]);
+        if (client.vehicle.mountedVehicle === characterId) {
+          client.character.state.position = new Float32Array([
+            packet.data.PositionUpdate.position[0],
+            packet.data.PositionUpdate.position[1],
+            packet.data.PositionUpdate.position[2],
+            0,
+          ]);
+          if (
+            !client.posAtLastRoutine ||
+            !isPosInRadius(
+              server._npcRenderDistance / 2.5,
+              client.character.state.position,
+              client.posAtLastRoutine
+            )
+          ) {
+            server.worldRoutine(client);
+          }
+        }
+      }
+    }
   },
   PlayerUpdateUpdatePositionClientToZone: function (
     server: ZoneServer,
@@ -1886,6 +1930,8 @@ const packetHandlers: any = {
         guid2: vehicleGuid,
         unknownBoolean: true,
       });
+      server._vehicles[vehicleGuid].isManaged = true;
+      client.managedObjects.push(this._vehicles[vehicleGuid]);
     } else if (
       doorToInteractWith &&
       isPosInRadius(
