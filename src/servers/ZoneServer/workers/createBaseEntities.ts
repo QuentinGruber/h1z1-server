@@ -136,6 +136,7 @@ function createAllVehicles(server: ZoneServer) {
     const modelId = getRandomVehicleModelId();
     vehicles[characterId] = {
       worldId: server._worldId,
+      isManaged: false,
       npcData: {
         guid: generateRandomGuid(),
         characterId: characterId,
