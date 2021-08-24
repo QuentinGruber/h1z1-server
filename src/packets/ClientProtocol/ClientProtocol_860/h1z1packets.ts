@@ -4668,7 +4668,16 @@ var packets = [
     },
   ],
   ["PlayerUpdate.QueueAnimation", 0x0f0f, {}],
-  ["PlayerUpdate.ExpectedSpeed", 0x0f10, {}],
+  ["PlayerUpdate.ExpectedSpeed", 0x0f10, {
+    fields: [
+      { name: "characterId", type: "uint64string", defaultValue: "0" },
+      {
+        name: "speed",
+        type: "uint32",
+        defaultValue: 0,
+      },
+    ],
+  }],
   ["PlayerUpdate.ScriptedAnimation", 0x0f11, {}],
   ["PlayerUpdate.ThoughtBubble", 0x0f12, {}],
   [
