@@ -2,7 +2,7 @@ import { RemoteInfo } from "dgram";
 import { SOEInputStream } from "./soeinputstream";
 import { SOEOutputStream } from "./soeoutputstream";
 
-export default class soeClient {
+export default class SOEClient {
   sessionId: number;
   address: string;
   port: number;
