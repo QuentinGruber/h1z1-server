@@ -489,7 +489,7 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
-    const args: any[] = packet.data.arguments.split(" ");
+    const args: any[] = packet.data.arguments.toLowerCase().split(" ");
 
     switch (packet.data.commandHash) {
       case 3720768430: // /respawn
