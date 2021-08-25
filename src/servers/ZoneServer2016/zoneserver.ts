@@ -30,12 +30,12 @@ import { /*Db,*/ MongoClient } from "mongodb";
 import dynamicWeather from "./workers/dynamicWeather";
 
 // need to get 2016 lists
-// const spawnLocations = require("../../../data/2015/sampleData/spawnLocations.json");
+const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json");
+const Z1_POIs = require("../../../data/2015/zoneData/Z1_POIs");
+const recipes = require("../../../data/2016/sampleData/recipes.json");
 // const localWeatherTemplates = require("../../../data/2015/sampleData/weather.json");
 // const stats = require("../../../data/2016/sampleData/stats.json");
-const recipes = require("../../../data/2016/sampleData/recipes.json");
 // const resources = require("../../../data/2015/dataSources/Resources.json");
-const Z1_POIs = require("../../../data/2015/zoneData/Z1_POIs");
 
 export class ZoneServer2016 extends ZoneServer {
   worldRoutineTimer: any;
@@ -82,6 +82,33 @@ export class ZoneServer2016 extends ZoneServer {
       unknownDword32: 0,
       unknownDword33: 0,
     };
+    this._respawnLocations = spawnLocations.map((spawn: any) => {
+      return {
+        guid: this.generateGuid(),
+        respawnType: 4,
+        position: spawn.position,
+        unknownDword1: 1,
+        unknownDword2: 1,
+        iconId1: 1,
+        iconId2: 1,
+        respawnTotalTime: 10,
+        respawnTimeMs: 10000,
+        nameId: 1,
+        distance: 1000,
+        unknownByte1: 1,
+        unknownByte2: 1,
+        unknownData1: {
+          unknownByte1: 1,
+          unknownByte2: 1,
+          unknownByte3: 1,
+          unknownByte4: 1,
+          unknownByte5: 1,
+        },
+        unknownDword4: 1,
+        unknownByte3: 1,
+        unknownByte4: 1,
+      };
+    });
   }
   onZoneDataEvent(err: any, client: Client, packet: any){
     if (err) {
@@ -108,19 +135,13 @@ export class ZoneServer2016 extends ZoneServer {
     }
   }
 
-  async characterData(client: Client) {
-    delete require.cache[
-      require.resolve("../../../data/2016/sampleData/sendself.json") // reload json
-    ];
-    this._dummySelf = require("../../../data/2016/sampleData/sendself.json"); // dummy self
-
-    let characterName;
+  async loadCharacterData(client: Client) {
     let character: any;
     if (!this._soloMode) {
       character = await this._db
         ?.collection("characters")
         .findOne({ characterId: client.character.characterId });
-      characterName = character.payload.name;
+        client.character.name = character.characterName;
     } else {
       delete require.cache[
         require.resolve(
@@ -132,65 +153,140 @@ export class ZoneServer2016 extends ZoneServer {
         (character: any) =>
           character.characterId === client.character.characterId
       );
-      characterName = character.payload.name;
+      client.character.name = character.characterName;
     }
 
-    this._dummySelf.data = {
-      ...this._dummySelf.data,
-      //guid: '', // todo: fix
-      characterId: character.characterId,
-      identity: {
-        characterName: characterName,
+    let generatedTransient;
+    do {
+      generatedTransient = Number((Math.random() * 30000).toFixed(0));
+    } while (this._transientIds[generatedTransient]);
+    this._transientIds[generatedTransient] = client.character.characterId;
+    client.character = {
+      ...client.character,
+      guid: "0x665a2bff2b44c034", // default, only matters for multiplayer
+      transientId: generatedTransient,
+
+      actorModelId: character.actorModelId,
+      headActor: character.headActor,
+      isRespawning: character.isRespawning,
+      gender: character.gender,
+      creationDate: character.creationDate,
+      lastLoginDate: character.lastLoginDate,
+
+      loadouts: [], // default
+      inventory: [], // default
+      factionId: 2, // default
+      isRunning: false,
+      resources: {
+        health: 5000,
+        stamina: 600,
+        food: 5000,
+        water: 5000,
+        virus: 6000,
       },
-      recipes: recipes,
-      //stats: stats // todo: fix
+      equipment: [
+        {
+          modelName: "SurvivorMale_Head_01.adr",
+          slotId: 1,
+        },
+        {
+          modelName: "SurvivorMale_Legs_Pants_Underwear.adr",
+          slotId: 4,
+        },
+        {
+          modelName: "SurvivorMale_Eyes_01.adr",
+          slotId: 105,
+        },
+        { modelName: "Weapon_Empty.adr", slotId: 2 },
+        { modelName: "Weapon_Empty.adr", slotId: 7 },
+        {
+          modelName: "SurvivorMale_Hair_ShortMessy.adr",
+          slotId: 27,
+        },
+        {
+          modelName: "SurvivorMale_Chest_Shirt_TintTshirt.adr",
+          defaultTextureAlias: "Wear.Chest.Shirt.TintTshirt.67",
+          slotId: 3,
+        },
+        {
+          modelName: "SurvivorMale_Legs_Pants_SkinnyLeg.adr",
+          defaultTextureAlias: "Wear.Legs.Pants.SkinnyLeg.Anarchy",
+          slotId: 4,
+        },
+      ],
+      state: {
+        position: new Float32Array([0, 0, 0, 1]),
+        rotation: new Float32Array([0, 0, 0, 1]),
+        lookAt: new Float32Array([0, 0, 0, 1]),
+        health: 0,
+        shield: 0,
+      }
     };
-
-    client.character.name = characterName;
-    client.character.guid = this._dummySelf.data.guid; // default
-    client.character.loadouts =
-      this._dummySelf.data.characterLoadoutData.loadouts; // default
-    client.character.inventory = this._dummySelf.data.inventory; // default
-    client.character.factionId = this._dummySelf.data.factionId; // default
-
+    /*
     const characterDataMongo: any = await this._db
       ?.collection("characters")
       .findOne({ characterId: client.character.characterId });
     client.character.extraModel = characterDataMongo?.extraModelTexture
       ? characterDataMongo.extraModelTexture
       : this._dummySelf.data.extraModelTexture;
-
+    */
+    let isRandomlySpawning = false;
     if (
-      _.isEqual(this._dummySelf.data.position, [0, 0, 0, 1]) &&
-      _.isEqual(this._dummySelf.data.rotation, [0, 0, 0, 1])
+      _.isEqual(character.position, [0, 0, 0, 1]) &&
+      _.isEqual(character.rotation, [0, 0, 0, 1])
     ) {
       // if position/rotation hasn't be changed
-      if (this._soloMode || !characterDataMongo.position) {
-        this._dummySelf.data.isRandomlySpawning = true;
+      if (this._soloMode /*|| !characterDataMongo.position*/) {
+        isRandomlySpawning = true;
       }
     }
 
-    if (this._dummySelf.data.isRandomlySpawning) {
+    if (isRandomlySpawning) {
       // Take position/rotation from a random spawn location.
       const randomSpawnIndex = Math.floor(
         Math.random() * this._spawnLocations.length
       );
-      this._dummySelf.data.position = client.character.state.position =
+      client.character.state.position =
         this._spawnLocations[randomSpawnIndex].position;
-      this._dummySelf.data.rotation = client.character.state.rotation =
+      client.character.state.rotation =
         this._spawnLocations[randomSpawnIndex].rotation;
       client.character.spawnLocation =
         this._spawnLocations[randomSpawnIndex].name;
     } else {
+      client.character.state.position = character.position;
+      client.character.state.rotation = character.rotation;
+      /*
       if (!this._soloMode) {
-        this._dummySelf.data.position = characterDataMongo.position;
-        this._dummySelf.data.rotation = characterDataMongo.rotation;
+        client.character.state.position = characterDataMongo.position;
+        client.character.state.rotation = characterDataMongo.rotation;
       }
-      client.character.state.position = this._dummySelf.data.position;
-      client.character.state.rotation = this._dummySelf.data.rotation;
+      */
     }
+    this._characters[client.character.characterId] = client.character; // character will spawn on other player's screen(s) at this point
+  }
 
-    this.sendData(client, "SendSelfToClient", this._dummySelf);
+  async sendCharacterData(client: Client) {
+    await this.loadCharacterData(client);
+    this.sendData(client, "SendSelfToClient", {
+      data: {
+        guid: client.character.guid, // todo: guid should be moved to client, instead of character
+        characterId: client.character.characterId,
+        transientId: client.character.transientId,
+        actorModelId: client.character.actorModelId,
+        headActor: client.character.headActor,
+        isRespawning: client.character.isRespawning,
+        gender: client.character.gender,
+        creationDate: client.character.creationDate,
+        lastLoginDate: client.character.lastLoginDate,
+        position: client.character.state.position,
+        rotation: client.character.state.rotation,
+        identity: {
+          characterName: client.character.name,
+        },
+        recipes: recipes,
+        //stats: stats // todo: fix
+      }
+    });
   }
 
   async start(): Promise<void> {
@@ -223,61 +319,11 @@ export class ZoneServer2016 extends ZoneServer {
   }
 
   setupCharacter(client: Client, characterId: string) {
-    let generatedTransient;
-    do {
-      generatedTransient = Number((Math.random() * 30000).toFixed(0));
-    } while (this._transientIds[generatedTransient]);
+    // only sets characterId for character selected from login server (probably not needed for 2016)
     client.character = {
+      ...client.character,
       characterId: characterId,
-      transientId: generatedTransient,
-      isRunning: false,
-      equipment: [
-        {
-          modelName: "SurvivorMale_Head_01.adr",
-          slotId: 1,
-        },
-        {
-          modelName: "SurvivorMale_Legs_Pants_Underwear.adr",
-          slotId: 4,
-        },
-        {
-          modelName: "SurvivorMale_Eyes_01.adr",
-          slotId: 105,
-        },
-        { modelName: "Weapon_Empty.adr", slotId: 2 },
-        { modelName: "Weapon_Empty.adr", slotId: 7 },
-        {
-          modelName: "SurvivorMale_Hair_ShortMessy.adr",
-          slotId: 27,
-        },
-        {
-          modelName: "SurvivorMale_Chest_Shirt_TintTshirt.adr",
-          defaultTextureAlias: "Wear.Chest.Shirt.TintTshirt.67",
-          slotId: 3,
-        },
-        {
-          modelName: "SurvivorMale_Legs_Pants_SkinnyLeg.adr",
-          defaultTextureAlias: "Wear.Legs.Pants.SkinnyLeg.Anarchy",
-          slotId: 4,
-        },
-      ],
-      resources: {
-        health: 5000,
-        stamina: 600,
-        food: 5000,
-        water: 5000,
-        virus: 6000,
-      },
-      state: {
-        position: new Float32Array([0, 0, 0, 0]),
-        rotation: new Float32Array([0, 0, 0, 0]),
-        lookAt: new Float32Array([0, 0, 0, 0]),
-        health: 0,
-        shield: 0,
-      },
-    };
-    this._transientIds[generatedTransient] = characterId;
-    this._characters[characterId] = client.character;
+    }
   }
 
   sendInitData(client: Client): void {
@@ -306,7 +352,7 @@ export class ZoneServer2016 extends ZoneServer {
       unknownFloat3: 110,
     });
 
-    this.characterData(client);
+    this.sendCharacterData(client);
 
     this.sendData(client, "Character.SetBattleRank", {
       characterId: client.character.characterId,
@@ -316,7 +362,7 @@ export class ZoneServer2016 extends ZoneServer {
 
   POIManager(client: Client) {
     // sends POIChangeMessage or clears it based on player location
-    let isInAPOIArea = false;
+    let inPOI = false;
     Z1_POIs.forEach((point: any) => {
       if (
         isPosInRadius(
@@ -325,7 +371,7 @@ export class ZoneServer2016 extends ZoneServer {
           point.position
         )
       ) {
-        isInAPOIArea = true;
+        inPOI = true;
         if (client.currentPOI != point.stringId) {
           // checks if player already was sent POIChangeMessage
           this.sendData(client, "POIChangeMessage", {
@@ -336,7 +382,7 @@ export class ZoneServer2016 extends ZoneServer {
         }
       }
     });
-    if (!isInAPOIArea && client.currentPOI != 0) {
+    if (!inPOI && client.currentPOI != 0) {
       // checks if POIChangeMessage was already cleared
       this.sendData(client, "POIChangeMessage", {
         messageStringId: 0,

@@ -27,7 +27,7 @@ import { Int64String, isPosInRadius } from "../../utils/utils";
 import { ZoneServer2016 } from "./zoneserver";
 import { Client } from "types/zoneserver";
 // TOOD: UPDATE THIS FOR 2016
-// const modelToName = require("../../../data/2015/sampleData/ModelToName.json");
+// const modelToName = require("../../../data/2016/dataSources/ModelToName.json");
 
 import { _ } from "../../utils/utils";
 const debug = require("debug")("zonepacketHandlers");
