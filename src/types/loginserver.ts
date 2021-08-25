@@ -15,12 +15,14 @@ export interface Client {
   outOfOrderPackets: any;
   nextAck: number;
   lastAck: number;
+  cryptoKey: Uint8Array;
   serverUpdateTimer: ReturnType<typeof setTimeout>;
   inputStream: () => void;
   outputStream: () => void;
   outQueueTimer: () => void;
   ackTimer: () => void;
   outOfOrderTimer: () => void;
+  clearTimers: () => void;
 }
 
 export interface SoeServer {
