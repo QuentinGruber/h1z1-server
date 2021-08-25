@@ -29,7 +29,6 @@ import {
 
 import { /*Db,*/ MongoClient } from "mongodb";
 import dynamicWeather from "./workers/dynamicWeather";
-import ZoneClient from "servers/ZoneServer/zoneclient";
 
 // need to get 2016 lists
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json");

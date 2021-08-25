@@ -23,7 +23,7 @@ import {
   _,
   setupAppDataFolder,
 } from "../../utils/utils";
-import { Client, GameServer, SoeServer } from "../../types/loginserver";
+import { Client, GameServer } from "../../types/loginserver";
 import fs from "fs";
 
 const debugName = "LoginServer";
