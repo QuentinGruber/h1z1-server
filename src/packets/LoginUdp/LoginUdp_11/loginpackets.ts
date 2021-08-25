@@ -99,7 +99,7 @@ const packets: any[] = [
     {
       fields: [
         { name: "status", type: "uint32" },
-        { name: "characterId", type: "uint64" },
+        { name: "characterId", type: "uint64string" },
       ],
     },
   ],
@@ -108,7 +108,7 @@ const packets: any[] = [
     0x07,
     {
       fields: [
-        { name: "characterId", type: "uint64" },
+        { name: "characterId", type: "uint64string" },
         { name: "serverId", type: "uint32" },
         { name: "status", type: "uint32", defaultValue: 0 },
         {
@@ -128,7 +128,7 @@ const packets: any[] = [
     0x08,
     {
       fields: [
-        { name: "unknownQword1", type: "uint64" },
+        { name: "unknownQword1", type: "uint64string" },
         { name: "unknownDword1", type: "uint32" },
         { name: "unknownDword2", type: "uint32" },
         { name: "status", type: "uint32" },
@@ -140,10 +140,10 @@ const packets: any[] = [
             { name: "serverTicket", type: "string" },
             { name: "encryptionKey", type: "byteswithlength" },
             { name: "encryptionType", type: "uint32", defaultValue: 3 },
-            { name: "guid", type: "uint64" },
+            { name: "guid", type: "uint64string" },
             {
               name: "unknownQword1",
-              type: "uint64",
+              type: "uint64string",
               defaultValue: "0x0000000000000000",
             },
             { name: "unknownString1", type: "string", defaultValue: "" },
@@ -151,7 +151,7 @@ const packets: any[] = [
             { name: "unknownString3", type: "string", defaultValue: "" },
             {
               name: "serverFeatureBit",
-              type: "uint64",
+              type: "uint64string",
               defaultValue: "0x0000000000000000",
             },
           ],
@@ -163,7 +163,7 @@ const packets: any[] = [
     "CharacterDeleteRequest",
     0x09,
     {
-      fields: [{ name: "characterId", type: "uint64" }],
+      fields: [{ name: "characterId", type: "uint64string" }],
     },
   ],
   [
@@ -171,7 +171,7 @@ const packets: any[] = [
     0x0a,
     {
       fields: [
-        { name: "characterId", type: "uint64" },
+        { name: "characterId", type: "uint64string" },
         { name: "status", type: "uint32" },
         { name: "Payload", type: "string" },
       ],
@@ -195,11 +195,11 @@ const packets: any[] = [
           name: "characters",
           type: "array",
           fields: [
-            { name: "characterId", type: "uint64" },
-            { name: "serverId", type: "uint32", defaultValue: 1 },
-            { name: "lastLoginDate", type: "uint64", defaultValue: "" },
-            { name: "nullField", type: "uint32", defaultValue: 0 },
-            { name: "status", type: "uint32", defaultValue: 1 },
+            { name: "characterId", type: "uint64string" },
+            { name: "serverId", type: "uint32" },
+            { name: "lastLoginDate", type: "uint64string" },
+            { name: "nullField", type: "uint32" },
+            { name: "status", type: "uint32" },
             {
               name: "payload",
               type: "byteswithlength",
@@ -390,7 +390,7 @@ const packets: any[] = [
                     },
                   ],
                 },
-                { name: "lastUseDate", type: "uint64", defaultValue: "0x0000000053da0a5b" },
+                { name: "lastUseDate", type: "uint64string" },
               ],
             },
           ],
