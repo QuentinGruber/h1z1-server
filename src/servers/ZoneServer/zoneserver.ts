@@ -184,7 +184,7 @@ export class ZoneServer extends EventEmitter {
     this._gatewayServer.on(
       "tunneldata",
       (err: string, client: Client, data: Buffer, flags: number) => {
-        this.onGatewayTunnelDataEvent(err, client, data, flags);
+        this.onGatewayTunnelDataEvent(err, this._clients[client.sessionId], data, flags);
       }
     );
   }
