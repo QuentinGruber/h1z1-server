@@ -236,9 +236,10 @@ function readPositionUpdateData(data: Buffer, offset: number) {
     obj["unknown15_float"] = v.value / 10;
     offset += v.length;
   }
+  /*
   if (obj.flags && 0xe0) {
   }
-
+  */
   return {
     value: obj,
     length: offset - startOffset,
