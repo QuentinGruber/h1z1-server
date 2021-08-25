@@ -1,0 +1,13 @@
+{
+    "characterId": "0x03147cca2a860191",
+    "serverId": 1,
+    "lastLoginDate": "0x0060B89351",
+    "actorModelId": 9240,
+    "headActor": "SurvivorMale_Head_01.adr",
+    "position": [ 0, 0, 0, 1 ],
+    "rotation": [ 0, 0, 0, 1 ],
+    "characterName": "LocalPlayer",
+    "creationDate": "0x60B89351",
+    "isRespawning": false,
+    "gender": 1
+}

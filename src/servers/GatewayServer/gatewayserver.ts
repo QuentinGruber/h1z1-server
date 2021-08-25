@@ -14,7 +14,7 @@
 import { EventEmitter } from "events";
 import { SOEServer } from "../SoeServer/soeserver";
 import { GatewayProtocol } from "../../protocols/gatewayprotocol";
-import { Client } from "../../types/gatewayserver";
+import SOEClient from "servers/SoeServer/soeclient";
 
 const debug = require("debug")("GatewayServer");
 
@@ -45,21 +45,21 @@ export class GatewayServer extends EventEmitter {
       true
     ) as any; // as any since SOEServer isn't typed
     this._protocol = new GatewayProtocol();
-    this._soeServer.on("connect", (err: string, client: Client) => {
+    this._soeServer.on("connect", (err: string, client: SOEClient) => {
       debug("Client connected from " + client.address + ":" + client.port);
       this.emit("connect", err, client);
     });
-    this._soeServer.on("disconnect", (err: string, client: Client) => {
+    this._soeServer.on("disconnect", (err: string, client: SOEClient) => {
       debug("Client disconnected from " + client.address + ":" + client.port);
       this.emit("disconnect", err, client);
     });
-    this._soeServer.on("session", (err: string, client: Client) => {
+    this._soeServer.on("session", (err: string, client: SOEClient) => {
       debug("Session started for client " + client.address + ":" + client.port);
     });
 
     this._soeServer.on(
       "appdata",
-      (err: string, client: Client, data: Buffer) => {
+      (err: string, client: SOEClient, data: Buffer) => {
         const packet = this._protocol.parse(data);
         if (packet) {
           const result = packet.result;
@@ -102,7 +102,7 @@ export class GatewayServer extends EventEmitter {
         }
       }
     );
-    this.on("logout", (err: string, client: Client) => {
+    this.on("logout", (err: string, client: SOEClient) => {
       this._soeServer.deleteClient(client);
     });
   }
@@ -117,7 +117,7 @@ export class GatewayServer extends EventEmitter {
     );
   }
 
-  sendTunnelData(client: Client, tunnelData: any, channel = 0) {
+  sendTunnelData(client: SOEClient, tunnelData: any, channel = 0) {
     debug("Sending tunnel data to client");
     const data = this._protocol.pack("TunnelPacketToExternalConnection", {
       channel: channel,

@@ -27,7 +27,7 @@ import {
   isPosInRadius,
 } from "../../utils/utils";
 import { ZoneServer } from "./zoneserver";
-import { Client } from "types/zoneserver";
+import Client from "../ZoneServer/zoneclient";
 const modelToName = require("../../../data/2015/sampleData/ModelToName.json");
 
 import { _ } from "../../utils/utils";
@@ -462,6 +462,9 @@ const packetHandlers: any = {
     debug("ClientLogout");
     clearInterval(client.character.resourcesUpdater);
     server.saveCharacterPosition(client);
+    client.managedObjects.forEach((object: any) => {
+      server._vehicles[object.npcData.characterId].isManaged = false;
+    });
     server.deleteEntity(client.character.characterId, server._characters);
     server._gatewayServer._soeServer.deleteClient(client);
     delete server._characters[client.character.characterId];
@@ -486,7 +489,7 @@ const packetHandlers: any = {
     client: Client,
     packet: any
   ) {
-    const args: any[] = packet.data.arguments.split(" ");
+    const args: any[] = packet.data.arguments.toLowerCase().split(" ");
 
     switch (packet.data.commandHash) {
       case 3720768430: // /respawn
@@ -658,14 +661,8 @@ const packetHandlers: any = {
       guid2: client.vehicle.mountedVehicle,
       unknownBoolean: false,
     });
-    setTimeout(() => {
-      // temp workaround to fix https://github.com/QuentinGruber/h1z1-server/issues/285
-      server._vehicles[
-        client.vehicle.mountedVehicle as string
-      ].npcData.position = client.character.state.position;
-      delete client.vehicle.mountedVehicle;
-      client.vehicle.mountedVehicleType = "0";
-    }, 50);
+    client.vehicle.mountedVehicleType = "0";
+    delete client.vehicle.mountedVehicle;
   },
   "Command.InteractRequest": function (
     server: ZoneServer,
@@ -1597,6 +1594,9 @@ const packetHandlers: any = {
       clearTimeout(client.timer);
     }
     client.timer = setTimeout(() => {
+      client.managedObjects.forEach((object: any) => {
+        server._vehicles[object.npcData.characterId].isManaged = false;
+      });
       server.sendData(client, "ClientUpdate.CompleteLogoutProcess", {});
     }, timerTime);
   },
@@ -1666,6 +1666,52 @@ const packetHandlers: any = {
       unknownFloat12: 12,
     });
   },
+  PlayerUpdateManagedPosition: function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
+    debug(packet);
+    const characterId = server._transientIds[packet.data.transientId];
+    if (characterId) {
+        if(!server._soloMode){
+          server.sendRawToAllOthers(
+            client,
+            server._protocol.createVehiclePositionBroadcast(
+              packet.data.PositionUpdate.raw.slice(1)
+            )
+          );
+        }
+      if (packet.data.PositionUpdate.position) {
+        server._vehicles[characterId].positionUpdate =
+          packet.data.PositionUpdate;
+        server._vehicles[characterId].npcData.position = new Float32Array([
+          packet.data.PositionUpdate.position[0],
+          packet.data.PositionUpdate.position[1],
+          packet.data.PositionUpdate.position[2],
+          0,
+        ]);
+        if (client.vehicle.mountedVehicle === characterId) {
+          client.character.state.position = new Float32Array([
+            packet.data.PositionUpdate.position[0],
+            packet.data.PositionUpdate.position[1],
+            packet.data.PositionUpdate.position[2],
+            0,
+          ]);
+          if (
+            !client.posAtLastRoutine ||
+            !isPosInRadius(
+              server._npcRenderDistance / 2.5,
+              client.character.state.position,
+              client.posAtLastRoutine
+            )
+          ) {
+            server.worldRoutine(client);
+          }
+        }
+      }
+    }
+  },
   PlayerUpdateUpdatePositionClientToZone: function (
     server: ZoneServer,
     client: Client,
@@ -1676,17 +1722,6 @@ const packetHandlers: any = {
     }
     const movingCharacter = server._characters[client.character.characterId];
     if (movingCharacter && !server._soloMode) {
-      if (client.vehicle.mountedVehicle) {
-        const vehicle = server._vehicles[client.vehicle.mountedVehicle];
-        console.log(vehicle);
-        server.sendRawToAllOthers(
-          client,
-          server._protocol.createPositionBroadcast(
-            packet.data.raw.slice(1),
-            vehicle.npcData.transientId
-          )
-        );
-      } else {
         server.sendRawToAllOthers(
           client,
           server._protocol.createPositionBroadcast(
@@ -1694,7 +1729,6 @@ const packetHandlers: any = {
             movingCharacter.transientId
           )
         );
-      }
     }
     if (packet.data.position) {
       // TODO: modify array element beside re-creating it
@@ -1886,6 +1920,8 @@ const packetHandlers: any = {
         guid2: vehicleGuid,
         unknownBoolean: true,
       });
+      server._vehicles[vehicleGuid].isManaged = true;
+      client.managedObjects.push(this._vehicles[vehicleGuid]);
     } else if (
       doorToInteractWith &&
       isPosInRadius(

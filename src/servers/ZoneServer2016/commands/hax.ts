@@ -1,5 +1,5 @@
 import fs from "fs";
-import { Client, Weather2016 } from "types/zoneserver";
+import Client from "../zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { _ } from "../../../utils/utils";
 const debug = require("debug")("zonepacketHandlers");
@@ -47,7 +47,7 @@ const hax: any = {
     };
     //server.sendData(client, "AddLightweightVehicle", vehicleData);
     server._vehicles[characterId] = vehicleData;
-    server.worldRoutine(client);
+    server.worldRoutine2016();
     server.sendData(client, "Mount.MountResponse", {
       characterId: client.character.characterId,
       vehicleGuid: characterId,
@@ -125,8 +125,7 @@ const hax: any = {
       position: locationPosition,
       triggerLoadingScreen: true,
     });
-
-    server.sendData(client, "UpdateWeatherData", {});
+    server.updateWeather2016(client);
   },
   time: function (server: ZoneServer2016, client: Client, args: any[]) {
     const choosenHour = Number(args[1]);
@@ -329,7 +328,6 @@ const hax: any = {
       server.sendChatText(client, "[ERROR] You need to specify a name !");
       return;
     }
-    //const choosenModelId = Number(args[1]);
 
     const pc = {
       guid: guid,
@@ -340,18 +338,23 @@ const hax: any = {
         client.character.state.position[1],
         client.character.state.position[2],
       ],
-      roation: client.character.state.rotation,
+      rotation: client.character.state.rotation,
       identity: { characterName: args[1] },
+      name: args[1],
       state: {
         position: [
           client.character.state.position[0],
           client.character.state.position[1],
           client.character.state.position[2],
         ],
+        lookAt: [
+          client.character.state.lookAt[0],
+          client.character.state.lookAt[1],
+          client.character.state.lookAt[2],
+        ],
       },
     };
-    //server.sendData(client, "AddLightweightPc", pc);
-    server._characters[guid] = pc; // save pc (disabled for now)
+    server._characters[guid] = pc; // save pc
   },
   sonic: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.sendData(client, "ClientGameSettings", {
@@ -485,54 +488,50 @@ const hax: any = {
     client: Client,
     args: any[]
   ) {
-    debug("Randomized weather");
     server.sendChatText(client, `Randomized weather`);
-    function rnd_number() {
-      return Number((Math.random() * 100).toFixed(0));
+    function rnd_number(max: any, fixed: Boolean = false) {
+      const num = Math.random() * max
+      if(fixed) return Number(num.toFixed(0))
+      return Number(num);
     }
 
-    const rnd_weather: Weather2016 = {
-      name: "sky",
-      unknownDword1: rnd_number(),
-      unknownDword2: rnd_number(),
-
+    server._weather2016 = {
+      name: "",
+      unknownDword1: 0,
+      unknownDword2: 0,
       skyBrightness1: 1,
       skyBrightness2: 1,
-
-      snow: rnd_number(),
-      snowMap: rnd_number(),
-      colorGradient: rnd_number(),
-      unknownDword8: rnd_number(),
-      unknownDword9: rnd_number(),
-      unknownDword10: rnd_number(),
-      unknownDword11: rnd_number(),
-      unknownDword12: rnd_number(),
-      sunAxisX: rnd_number(),
-      sunAxisY: rnd_number(),
-      unknownDword15: rnd_number(),
-
+      snow: rnd_number(200, true),
+      snowMap: rnd_number(80, true),
+      colorGradient: rnd_number(1),
+      unknownDword8: rnd_number(1),
+      unknownDword9: rnd_number(1),
+      unknownDword10: rnd_number(1),
+      unknownDword11: 0,
+      unknownDword12: 0,
+      sunAxisX: rnd_number(360, true),
+      sunAxisY: rnd_number(360, true),
+      unknownDword15: 0,
       disableTrees: 0,
       disableTrees1: 0,
       disableTrees2: 0,
-
-      wind: rnd_number(),
-      unknownDword20: rnd_number(),
-      unknownDword21: rnd_number(),
-      unknownDword22: rnd_number(),
-      unknownDword23: rnd_number(),
-      unknownDword24: rnd_number(),
-      unknownDword25: rnd_number(),
-      unknownDword26: rnd_number(),
-      unknownDword27: rnd_number(),
-      unknownDword28: rnd_number(),
-      unknownDword29: rnd_number(),
-      unknownDword30: rnd_number(),
-      unknownDword31: rnd_number(),
-      unknownDword32: rnd_number(),
-      unknownDword33: rnd_number(),
+      wind: rnd_number(100, true),
+      unknownDword20: 0,
+      unknownDword21: 0,
+      unknownDword22: 0,
+      unknownDword23: 0,
+      unknownDword24: 0,
+      unknownDword25: 0,
+      unknownDword26: 0,
+      unknownDword27: 0,
+      unknownDword28: 0,
+      unknownDword29: 0,
+      unknownDword30: 0,
+      unknownDword31: 0,
+      unknownDword32: 0,
+      unknownDword33: 0,
     };
-    debug(JSON.stringify(rnd_weather));
-    server.changeWeather2016(client, rnd_weather);
+    server.updateWeather2016(client);
   },
   equipment: function (server: ZoneServer2016, client: Client, args: any[]) {
     let effect, model, slot;

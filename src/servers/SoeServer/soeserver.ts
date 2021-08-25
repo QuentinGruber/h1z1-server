@@ -13,13 +13,12 @@
 
 import { EventEmitter } from "events";
 import { SOEProtocol } from "../../protocols/soeprotocol";
-import { SOEInputStream } from "./soeinputstream";
-import { SOEOutputStream } from "./soeoutputstream";
-import { Client } from "../../types/soeserver";
+import Client from "./soeclient";
 import { Worker } from "worker_threads";
+import SOEClient from "./soeclient";
 
 const debug = require("debug")("SOEServer");
-process.env.isBin && require("./udpServerWorker");
+process.env.isBin && require("./workers/udpServerWorker");
 export class SOEServer extends EventEmitter {
   _protocolName: string;
   _serverPort: number;
@@ -57,7 +56,7 @@ export class SOEServer extends EventEmitter {
     this._useEncryption = true;
     this._isGatewayServer = isGatewayServer;
     this._clients = {};
-    this._connection = new Worker(`${__dirname}/udpServerWorker.js`, {
+    this._connection = new Worker(`${__dirname}/workers/udpServerWorker.js`, {
       workerData: { serverPort: serverPort },
     });
     this._connection.on("message", (message) => {
@@ -71,24 +70,7 @@ export class SOEServer extends EventEmitter {
         // if doesn't know the client
         if (!this._clients[clientId]) {
           unknow_client = true;
-          client = this._clients[clientId] = {
-            sessionId: 0,
-            address: remote.address,
-            port: remote.port,
-            crcSeed: this._crcSeed,
-            crcLength: 2,
-            clientUdpLength: 512,
-            serverUdpLength: 512,
-            sequences: [],
-            compression: this._compression,
-            useEncryption: true,
-            outQueue: [],
-            outOfOrderPackets: [],
-            nextAck: -1,
-            lastAck: -1,
-            inputStream: new (SOEInputStream as any)(cryptoKey),
-            outputStream: new (SOEOutputStream as any)(cryptoKey),
-          };
+          client = this._clients[clientId] = new SOEClient(remote,this._crcSeed,this._compression,cryptoKey);
 
           (client as any).inputStream.on(
             "data",
@@ -163,7 +145,7 @@ export class SOEServer extends EventEmitter {
       }
     });
   }
-  checkClientOutQueue(client: Client) {
+  checkClientOutQueue(client: SOEClient) {
     const data = client.outQueue.shift();
     if (data) {
       this._connection.postMessage({
@@ -224,7 +206,7 @@ export class SOEServer extends EventEmitter {
     (client as any).outOfOrderTimer.refresh();
   }
 
-  handlePacket(client: Client, packet: any) {
+  handlePacket(client: SOEClient, packet: any) {
     const {
       soePacket: { result },
       soePacket,
@@ -439,14 +421,8 @@ export class SOEServer extends EventEmitter {
     (client as any).inputStream.toggleEncryption();
   }
 
-  deleteClient(client: Client): void {
-    clearImmediate(
-      this._clients[client.address + ":" + client.port]?.outQueueTimer
-    );
-    clearImmediate(this._clients[client.address + ":" + client.port]?.ackTimer);
-    clearImmediate(
-      this._clients[client.address + ":" + client.port]?.outOfOrderTimer
-    );
+  deleteClient(client: SOEClient): void {
+    client.clearTimers();
     delete this._clients[client.address + ":" + client.port];
     debug("client connection from port : ", client.port, " deleted");
   }

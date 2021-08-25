@@ -1,4 +1,4 @@
-import { Client /*, Weather2016 */ } from "types/zoneserver";
+import Client from "../zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 const debug = require("debug")("zonepacketHandlers");
 import { Int64String } from "../../../utils/utils";
@@ -268,7 +268,7 @@ const dev: any = {
       if (server._vehicles[v].npcData.modelId === parseInt(args[1])) {
         location.position = server._vehicles[v].npcData.position;
         server.sendData(client, "ClientUpdate.UpdateLocation", location);
-        server.sendData(client, "UpdateWeatherData", {});
+        server.updateWeather2016(client);
         found = true;
         break;
       }
@@ -296,7 +296,7 @@ const dev: any = {
         console.log(server._npcs[n]);
         location.position = server._npcs[n].position;
         server.sendData(client, "ClientUpdate.UpdateLocation", location);
-        server.sendData(client, "UpdateWeatherData", {});
+        server.updateWeather2016(client);
         found = true;
         break;
       }
@@ -362,7 +362,7 @@ const dev: any = {
       unknownDword33: rnd_number(),
     };
     debug(skyData);
-    server.sendData(client, "UpdateWeatherData", skyData);
+    server.updateWeather2016(client);
   },
 
   recipe: function (server: ZoneServer2016, client: Client, args: any[]) {
