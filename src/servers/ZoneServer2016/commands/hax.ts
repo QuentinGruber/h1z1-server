@@ -696,16 +696,16 @@ const hax: any = {
       equipmentSlot
     );
   },
-  /*
-  observer: function (server: ZoneServer2016, client: Client, args: any[]) {
-    server.sendDataToAll("Character.RemovePlayer", {
-      characterId: client.character.characterId,
+  placement: function (server: ZoneServer2016, client: Client, args: any[]) {
+    const modelChoosen = args[1];
+    if (!modelChoosen) {
+      server.sendChatText(client, "[ERROR] Usage /hax placement {modelId}");
+      return;
+    }
+    server.sendData(client, "Construction.PlacementResponse", {
+      model: modelChoosen,
     });
-    delete server._characters[client.character.characterId];
-    debug(server._characters);
-    server.sendChatText(client, "Delete player, back in observer mode");
   },
-  */
 };
 
 export default hax;
