@@ -138,10 +138,18 @@ export class LoginServer extends EventEmitter {
     this._soeServer.sendAppData(client, data, true);
   }
 
-  async loadCharacterData(client: Client) {
+  async loadCharacterData(client: Client): Promise<any> {
     if (this._protocol.protocolName == "LoginUdp_9") {
       if(this._soloMode) {
-
+        try {
+          // delete old character cache
+          delete require.cache[
+            require.resolve(
+              `${this._appDataFolder}/single_player_characters.json`
+            )
+          ];
+        } catch (e) {}
+        return require(`${this._appDataFolder}/single_player_characters.json`);
       }
       else {
 
@@ -149,7 +157,15 @@ export class LoginServer extends EventEmitter {
     }
     else { // LoginUdp_11
       if(this._soloMode) {
-        return require(`${this._appDataFolder}/single_player_characters.json`);
+        try {
+          // delete old character cache
+          delete require.cache[
+            require.resolve(
+              `${this._appDataFolder}/single_player_characters2016.json`
+            )
+          ];
+        } catch (e) {}
+        return require(`${this._appDataFolder}/single_player_characters2016.json`);
       }
       else {
 
@@ -158,7 +174,7 @@ export class LoginServer extends EventEmitter {
   }
 
   LoginRequest(client: Client, sessionId: string, fingerprint: string) {
-    if(this._protocol.protocolName == "LoginUdp_11"){
+    if(this._protocol.protocolName == "LoginUdp_11" && this._soloMode){
       const SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters2016.json`);
       if(SinglePlayerCharacters[0] && SinglePlayerCharacters[0].payload) { // if character files is old, delete it
         fs.writeFileSync(
@@ -173,7 +189,7 @@ export class LoginServer extends EventEmitter {
         )
       ];
     }
-    
+
     client.loginSessionId = sessionId;
     const falsified_data = {
       loggedIn: true,
@@ -225,9 +241,8 @@ export class LoginServer extends EventEmitter {
   async CharacterSelectInfoRequest(client: Client) {
     let CharactersInfo;
     if (this._soloMode) {
-      let SinglePlayerCharacters;
+      let SinglePlayerCharacters = await this.loadCharacterData(client);
       if (this._protocol.protocolName == "LoginUdp_9") {
-        SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters.json`);
         SinglePlayerCharacters = this.addDummyDataToCharacters(
           SinglePlayerCharacters
         );
@@ -239,7 +254,6 @@ export class LoginServer extends EventEmitter {
       } else {
         // LoginUdp_11
         let characters: Array<any> = [];
-        SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters2016.json`);
         SinglePlayerCharacters.forEach((character: any) => {
           characters.push({
             characterId: character.characterId,
@@ -310,38 +324,27 @@ export class LoginServer extends EventEmitter {
     debug("CharacterDeleteRequest");
     this.sendData(client, "CharacterDeleteReply", characters_delete_info);
     if (this._soloMode) {
+      const SinglePlayerCharacters = await this.loadCharacterData(client);
       if (this._protocol.protocolName == "LoginUdp_9") {
-        delete require.cache[
-          require.resolve(
-            `${this._appDataFolder}/single_player_characters.json`
-          )
-        ];
-        const singlePlayerCharacters: any[] = require(`${this._appDataFolder}/single_player_characters.json`);
-        const characterIndex = singlePlayerCharacters.findIndex(
+        const characterIndex = SinglePlayerCharacters.findIndex(
           (character: any) =>
             character.characterId === packet.result.characterId
         );
-        singlePlayerCharacters.splice(characterIndex, 1);
+        SinglePlayerCharacters.splice(characterIndex, 1);
         fs.writeFileSync(
           `${this._appDataFolder}/single_player_characters.json`,
-          JSON.stringify(singlePlayerCharacters, null, "\t")
+          JSON.stringify(SinglePlayerCharacters, null, "\t")
         );
       } else {
         // LoginUdp_11
-        delete require.cache[
-          require.resolve(
-            `${this._appDataFolder}/single_player_characters2016.json`
-          )
-        ];
-        const singlePlayerCharacters: any[] = require(`${this._appDataFolder}/single_player_characters2016.json`);
-        const characterIndex = singlePlayerCharacters.findIndex(
+        const characterIndex = SinglePlayerCharacters.findIndex(
           (character: any) =>
             character.characterId === packet.result.characterId
         );
-        singlePlayerCharacters.splice(characterIndex, 1);
+        SinglePlayerCharacters.splice(characterIndex, 1);
         fs.writeFileSync(
           `${this._appDataFolder}/single_player_characters2016.json`,
-          JSON.stringify(singlePlayerCharacters, null, "\t")
+          JSON.stringify(SinglePlayerCharacters, null, "\t")
         );
       }
     } else {
@@ -392,7 +395,7 @@ export class LoginServer extends EventEmitter {
     } else {
       let SinglePlayerCharacters;
       if (this._protocol.protocolName == "LoginUdp_9") {
-        SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters.json`);
+        SinglePlayerCharacters = await this.loadCharacterData(client);
         const character = SinglePlayerCharacters.find(
           (character: any) => character.characterId === characterId
         );
@@ -414,7 +417,7 @@ export class LoginServer extends EventEmitter {
         };
       } else {
         // LoginUdp_11
-        SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters2016.json`);
+        SinglePlayerCharacters = await this.loadCharacterData(client);
         const character = SinglePlayerCharacters.find(
           (character: any) => character.characterId === characterId
         );
@@ -448,42 +451,22 @@ export class LoginServer extends EventEmitter {
       serverId,
     } = packet.result;
     // create character object
-    let SinglePlayerCharacter, SinglePlayerCharacters, newCharacter;
+    let sampleCharacter, newCharacter;
     if (this._protocol.protocolName == "LoginUdp_9") {
-      try {
-        // delete old character cache
-        delete require.cache[
-          require.resolve(
-            `${this._appDataFolder}/single_player_characters.json`
-          )
-        ];
-      } catch (e) {}
-      SinglePlayerCharacter = require("../../../data/2015/sampleData/single_player_character.json");
-      if (this._soloMode)
-        SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters.json`);
-      newCharacter = _.cloneDeep(SinglePlayerCharacter);
-      newCharacter.serverId = serverId;
+      sampleCharacter = require("../../../data/2015/sampleData/single_player_character.json");
+      newCharacter = _.cloneDeep(sampleCharacter);
       newCharacter.payload.name = characterName;
-      newCharacter.characterId = generateRandomGuid();
     } else {
       // LoginUdp_11
-      try {
-        // delete old character cache
-        delete require.cache[
-          require.resolve(
-            `${this._appDataFolder}/single_player_characters2016.json`
-          )
-        ];
-      } catch (e) {}
-      SinglePlayerCharacter = require("../../../data/2016/sampleData/character.json");
-      SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters2016.json`);
-      newCharacter = _.cloneDeep(SinglePlayerCharacter);
-      newCharacter.serverId = serverId;
+      sampleCharacter = require("../../../data/2016/sampleData/character.json");
+      newCharacter = _.cloneDeep(sampleCharacter);
       newCharacter.characterName = characterName;
-      newCharacter.characterId = generateRandomGuid();
     }
-    
+    newCharacter.serverId = serverId;
+    newCharacter.characterId = generateRandomGuid();
+
     if (this._soloMode) {
+      const SinglePlayerCharacters = await this.loadCharacterData(client);
       SinglePlayerCharacters[SinglePlayerCharacters.length] = newCharacter;
       if (this._protocol.protocolName == "LoginUdp_9") {
         fs.writeFileSync(
