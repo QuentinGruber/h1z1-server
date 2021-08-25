@@ -184,6 +184,7 @@ export class ZoneServer2016 extends ZoneServer {
         food: 5000,
         water: 5000,
         virus: 6000,
+        comfort: 5000
       },
       equipment: [
         {
