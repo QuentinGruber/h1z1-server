@@ -13,7 +13,7 @@
 
 import { EventEmitter } from "events";
 import { SOEProtocol } from "../../protocols/soeprotocol";
-import { Client } from "../../types/soeserver";
+import Client from "./soeclient";
 import { Worker } from "worker_threads";
 import SOEClient from "./soeclient";
 
