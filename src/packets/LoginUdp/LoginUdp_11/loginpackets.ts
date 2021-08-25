@@ -196,10 +196,10 @@ const packets: any[] = [
           type: "array",
           fields: [
             { name: "characterId", type: "uint64string" },
-            { name: "serverId", type: "uint32" },
-            { name: "lastLoginDate", type: "uint64string" },
-            { name: "nullField", type: "uint32" },
-            { name: "status", type: "uint32" },
+            { name: "serverId", type: "uint32", defaultValue: 1 },
+            { name: "lastLoginDate", type: "uint64string", defaultValue: "" },
+            { name: "nullField", type: "uint32", defaultValue: 0 },
+            { name: "status", type: "uint32", defaultValue: 1 },
             {
               name: "payload",
               type: "byteswithlength",
@@ -390,7 +390,7 @@ const packets: any[] = [
                     },
                   ],
                 },
-                { name: "lastUseDate", type: "uint64string" },
+                { name: "lastUseDate", type: "uint64string", defaultValue: "" },
               ],
             },
           ],
