@@ -15,7 +15,8 @@ const debugName = "ZoneServer";
 const debug = require("debug")(debugName);
 import { default as packetHandlers } from "./zonepackethandlers";
 import { ZoneServer } from "../ZoneServer/zoneserver";
-import { Client, Weather2016 } from "../../types/zoneserver";
+import Client from "./zoneclient";
+import { Weather2016 } from "../../types/zoneserver";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
 import { _ } from "../../utils/utils";
 
@@ -318,8 +319,13 @@ export class ZoneServer2016 extends ZoneServer {
     this.worldRoutineTimer = setTimeout(()=>this.worldRoutine2016.bind(this)(true), 3000);
   }
 
+
   setupCharacter(client: Client, characterId: string) {
     // only sets characterId for character selected from login server (probably not needed for 2016)
+  let generatedTransient;
+    do {
+      generatedTransient = Number((Math.random() * 30000).toFixed(0));
+    } while (this._transientIds[generatedTransient]);
     client.character = {
       ...client.character,
       characterId: characterId,

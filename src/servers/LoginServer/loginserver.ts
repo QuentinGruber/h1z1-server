@@ -23,7 +23,7 @@ import {
   _,
   setupAppDataFolder,
 } from "../../utils/utils";
-import { Client, GameServer, SoeServer } from "../../types/loginserver";
+import { Client, GameServer } from "../../types/loginserver";
 import fs from "fs";
 
 const debugName = "LoginServer";
@@ -31,7 +31,7 @@ const debug = require("debug")(debugName);
 const characterItemDefinitionsDummy = require("../../../data/2015/sampleData/characterItemDefinitionsDummy.json");
 
 export class LoginServer extends EventEmitter {
-  _soeServer: SoeServer;
+  _soeServer: SOEServer;
   _protocol: LoginProtocol;
   _db: any;
   _mongoClient: any;
@@ -521,7 +521,7 @@ export class LoginServer extends EventEmitter {
     if (this._soloMode) {
       setupAppDataFolder();
     }
-    (this._soeServer as SoeServer).start(
+    this._soeServer.start(
       this._compression,
       this._crcSeed,
       this._crcLength,

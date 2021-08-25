@@ -1,4 +1,4 @@
-import { Client } from "types/zoneserver";
+import Client from "../../ZoneServer/zoneclient";
 import { generateRandomGuid } from "../../../utils/utils";
 import { ZoneServer } from "../zoneserver";
 
