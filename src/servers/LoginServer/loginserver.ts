@@ -152,7 +152,7 @@ export class LoginServer extends EventEmitter {
         return require(`${this._appDataFolder}/single_player_characters.json`);
       }
       else {
-
+        // 2015 mongo
       }
     }
     else { // LoginUdp_11
@@ -168,7 +168,7 @@ export class LoginServer extends EventEmitter {
         return require(`${this._appDataFolder}/single_player_characters2016.json`);
       }
       else {
-
+        // 2016 mongo
       }
     }
   }
@@ -176,7 +176,8 @@ export class LoginServer extends EventEmitter {
   LoginRequest(client: Client, sessionId: string, fingerprint: string) {
     if(this._protocol.protocolName == "LoginUdp_11" && this._soloMode){
       const SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters2016.json`);
-      if(SinglePlayerCharacters[0] && SinglePlayerCharacters[0].payload) { // if character files is old, delete it
+      // if character file is old, delete it
+      if(SinglePlayerCharacters[0] && SinglePlayerCharacters[0].payload) {
         fs.writeFileSync(
           `${this._appDataFolder}/single_player_characters2016.json`,
           JSON.stringify([], null)
@@ -191,15 +192,14 @@ export class LoginServer extends EventEmitter {
     }
 
     client.loginSessionId = sessionId;
-    const falsified_data = {
+    this.sendData(client, "LoginReply", {
       loggedIn: true,
       status: 1,
       isMember: true,
       isInternal: true,
       namespace: "soe",
       ApplicationPayload: "",
-    };
-    this.sendData(client, "LoginReply", falsified_data);
+    });
     if (!this._soloMode) {
       client.serverUpdateTimer = setInterval(
         // TODO: fix the fact that this interval is never cleared
@@ -316,32 +316,28 @@ export class LoginServer extends EventEmitter {
   }
 
   async CharacterDeleteRequest(client: Client, packet: any) {
-    const characters_delete_info: any = {
+    this.sendData(client, "CharacterDeleteReply", {
       characterId: (packet.result as any).characterId,
       status: 1,
       Payload: "\0",
-    };
+    });
     debug("CharacterDeleteRequest");
-    this.sendData(client, "CharacterDeleteReply", characters_delete_info);
+
     if (this._soloMode) {
       const SinglePlayerCharacters = await this.loadCharacterData(client);
+      const characterIndex = SinglePlayerCharacters.findIndex(
+        (character: any) =>
+          character.characterId === packet.result.characterId
+      );
+      SinglePlayerCharacters.splice(characterIndex, 1);
+      
       if (this._protocol.protocolName == "LoginUdp_9") {
-        const characterIndex = SinglePlayerCharacters.findIndex(
-          (character: any) =>
-            character.characterId === packet.result.characterId
-        );
-        SinglePlayerCharacters.splice(characterIndex, 1);
         fs.writeFileSync(
           `${this._appDataFolder}/single_player_characters.json`,
           JSON.stringify(SinglePlayerCharacters, null, "\t")
         );
       } else {
         // LoginUdp_11
-        const characterIndex = SinglePlayerCharacters.findIndex(
-          (character: any) =>
-            character.characterId === packet.result.characterId
-        );
-        SinglePlayerCharacters.splice(characterIndex, 1);
         fs.writeFileSync(
           `${this._appDataFolder}/single_player_characters2016.json`,
           JSON.stringify(SinglePlayerCharacters, null, "\t")
@@ -393,9 +389,8 @@ export class LoginServer extends EventEmitter {
         },
       };
     } else {
-      let SinglePlayerCharacters;
+      const SinglePlayerCharacters = await this.loadCharacterData(client);;
       if (this._protocol.protocolName == "LoginUdp_9") {
-        SinglePlayerCharacters = await this.loadCharacterData(client);
         const character = SinglePlayerCharacters.find(
           (character: any) => character.characterId === characterId
         );
@@ -417,7 +412,6 @@ export class LoginServer extends EventEmitter {
         };
       } else {
         // LoginUdp_11
-        SinglePlayerCharacters = await this.loadCharacterData(client);
         const character = SinglePlayerCharacters.find(
           (character: any) => character.characterId === characterId
         );
@@ -485,11 +479,10 @@ export class LoginServer extends EventEmitter {
         .collection("characters")
         .insertOne({ ...newCharacter, ownerId: client.loginSessionId });
     }
-    const reply_data = {
+    this.sendData(client, "CharacterCreateReply", {
       status: 1,
       characterId: newCharacter.characterId,
-    };
-    this.sendData(client, "CharacterCreateReply", reply_data);
+    });
   }
 
   async updateServerList(client: Client): Promise<void> {
