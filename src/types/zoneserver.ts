@@ -49,6 +49,13 @@ export interface Client {
       health: number;
       shield: number;
     };
+    // 2016 only
+    actorModelId?: number;
+    headActor?: string;
+    isRespawning?: boolean;
+    gender?: number;
+    creationDate?: string;
+    lastLoginDate?: string;
   };
   loginSessionId?: string;
   sessionId: number;

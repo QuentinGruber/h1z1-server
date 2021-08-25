@@ -196,67 +196,74 @@ const packets: any[] = [
           type: "array",
           fields: [
             { name: "characterId", type: "uint64string" },
-            { name: "serverId", type: "uint32" },
-            { name: "lastLoginDate", type: "uint64string" },
-            { name: "nullField", type: "uint32" },
-            { name: "status", type: "uint32" },
+            { name: "serverId", type: "uint32", defaultValue: 1 },
+            { name: "lastLoginDate", type: "uint64string", defaultValue: "" },
+            { name: "nullField", type: "uint32", defaultValue: 0 },
+            { name: "status", type: "uint32", defaultValue: 1 },
             {
               name: "payload",
               type: "byteswithlength",
               fields: [
                 { name: "name", type: "string" },
-                { name: "empireId", type: "uint8" },
-                { name: "battleRank", type: "uint32" },
-                { name: "nextBattleRankPercent", type: "uint32" },
-                { name: "headId", type: "uint32" },
-                { name: "modelId", type: "uint32" },
-                { name: "gender", type: "uint32" },
-                { name: "profileId", type: "uint32" },
-                { name: "unknownDword1", type: "uint32" },
+                { name: "empireId", type: "uint8", defaultValue: 2 },
+                { name: "battleRank", type: "uint32", defaultValue: 100 },
+                { name: "nextBattleRankPercent", type: "uint32", defaultValue: 0 },
+                { name: "headId", type: "uint32", defaultValue: 1 },
+                { name: "modelId", type: "uint32", defaultValue: 9240 },
+                { name: "gender", type: "uint32", defaultValue: 1 },
+                { name: "profileId", type: "uint32", defaultValue: 4 },
+                { name: "unknownDword1", type: "uint32", defaultValue: 1 },
                 {
                   name: "loadoutData",
                   type: "schema",
+                  defaultValue: {},
                   fields: [
-                    { name: "loadoutId", type: "uint32" },
+                    { name: "loadoutId", type: "uint32", defaultValue: 3 },
                     {
                       name: "unknownData1",
                       type: "schema",
+                      defaultValue: {},
                       fields: [
-                        { name: "unknownDword1", type: "uint32" },
-                        { name: "unknownByte1", type: "uint8" },
+                        { name: "unknownDword1", type: "uint32", defaultValue: 22 },
+                        { name: "unknownByte1", type: "uint8", defaultValue: 1 },
                       ],
                     },
-                    { name: "unknownDword1", type: "uint32" },
+                    { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                     {
                       name: "unknownData2",
                       type: "schema",
+                      defaultValue: {},
                       fields: [
-                        { name: "unknownDword1", type: "uint32" },
-                        { name: "loadoutName", type: "string" },
+                        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                        { name: "loadoutName", type: "string", defaultValue: "" },
                       ],
                     },
-                    { name: "tintItemId", type: "uint32" },
-                    { name: "unknownDword2", type: "uint32" },
-                    { name: "decalItemId", type: "uint32" },
+                    { name: "tintItemId", type: "uint32", defaultValue: 0 },
+                    { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+                    { name: "decalItemId", type: "uint32", defaultValue: 0 },
                     {
                       name: "loadoutSlots",
                       type: "array",
+                      defaultValue: [],
                       fields: [
                         { name: "slotId", type: "uint32" },
                         {
                           name: "loadoutSlotData",
                           type: "schema",
+                          defaultValue: {},
                           fields: [
                             { name: "index", type: "uint32" },
                             {
                               name: "unknownData1",
                               type: "schema",
+                              defaultValue: {},
                               fields: [
                                 { name: "itemLineId", type: "uint32" },
                                 { name: "flags", type: "uint8" },
                                 {
                                   name: "attachments",
                                   type: "array",
+                                  defaultValue: [],
                                   fields: [
                                     { name: "attachmentId", type: "uint32" },
                                   ],
@@ -264,6 +271,7 @@ const packets: any[] = [
                                 {
                                   name: "attachmentClasses",
                                   type: "array",
+                                  defaultValue: [],
                                   fields: [
                                     { name: "classId", type: "uint32" },
                                     { name: "attachmentId", type: "uint32" },
@@ -282,11 +290,13 @@ const packets: any[] = [
                 {
                   name: "itemDefinitions",
                   type: "array",
+                  defaultValue: [],
                   fields: [
                     { name: "itemId", type: "uint32" },
                     {
                       name: "itemDefinitionData",
                       type: "schema",
+                      defaultValue: {},
                       fields: [
                         { name: "itemId", type: "uint32" },
                         { name: "flags", type: "uint16" },
@@ -345,11 +355,13 @@ const packets: any[] = [
                 {
                   name: "attachmentDefinitions",
                   type: "array",
+                  defaultValue: [],
                   fields: [
                     { name: "attachmentId", type: "uint32" },
                     {
                       name: "attachmentData",
                       type: "schema",
+                      defaultValue: {},
                       fields: [
                         { name: "attachmentId", type: "uint32" },
                         { name: "groupId", type: "uint32" },
@@ -371,13 +383,14 @@ const packets: any[] = [
                         {
                           name: "classes",
                           type: "array",
+                          defaultValue: [],
                           elementType: "uint32",
                         },
                       ],
                     },
                   ],
                 },
-                { name: "lastUseDate", type: "uint64string" },
+                { name: "lastUseDate", type: "uint64string", defaultValue: "" },
               ],
             },
           ],
