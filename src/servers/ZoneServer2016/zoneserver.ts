@@ -319,19 +319,6 @@ export class ZoneServer2016 extends ZoneServer {
     this.worldRoutineTimer = setTimeout(()=>this.worldRoutine2016.bind(this)(true), 3000);
   }
 
-
-  setupCharacter(client: Client, characterId: string) {
-    // only sets characterId for character selected from login server (probably not needed for 2016)
-  let generatedTransient;
-    do {
-      generatedTransient = Number((Math.random() * 30000).toFixed(0));
-    } while (this._transientIds[generatedTransient]);
-    client.character = {
-      ...client.character,
-      characterId: characterId,
-    }
-  }
-
   sendInitData(client: Client): void {
     this.sendData(client, "InitializationParameters", {
       environment: "LIVE",
