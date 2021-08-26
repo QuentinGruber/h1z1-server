@@ -2278,11 +2278,11 @@ const packets = [
               defaultValue: [], 
               fields: statDataSchema 
             },
-            /*
+            
             {
               name: "playerTitles",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: [
                 { name: "titleId", type: "uint32", defaultValue: 0 },
                 { name: "titleType", type: "uint32", defaultValue: 0 },
@@ -2290,6 +2290,7 @@ const packets = [
               ],
             },
             { name: "currentPlayerTitle", type: "uint32", defaultValue: 0 },
+            /*
             {
               name: "unknownArray13",
               type: "array",
