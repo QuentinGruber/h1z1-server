@@ -2300,20 +2300,20 @@ const packets = [
                 { name: "unknownDword2", type: "uint32", defaultValue: 0 },
               ],
             },
-            /*
             {
               name: "unknownArray14",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
               ],
             },
             { name: "unknownDword33", type: "uint32", defaultValue: 0 },
+            
             {
               name: "unknownArray15",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
               ],
@@ -2321,11 +2321,12 @@ const packets = [
             {
               name: "unknownArray16",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
               ],
             },
+            /*
             {
               name: "unknownArray17",
               type: "array",
