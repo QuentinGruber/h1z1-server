@@ -287,6 +287,18 @@ export class ZoneServer2016 extends ZoneServer {
         },
         recipes: recipes,
         //stats: stats // todo: fix
+
+        /* testing newly added sendself values */
+        playerTitles: [ // working
+          {
+            titleId: 1,
+            titleType: 1,
+            stringId: 1
+          }
+        ],
+        currentPlayerTitle: 1
+
+        /*                                     */
       }
     });
   }
