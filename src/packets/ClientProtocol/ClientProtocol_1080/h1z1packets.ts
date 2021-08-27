@@ -3453,7 +3453,18 @@ const packets = [
               type: "array",
               defaultValue: [],
               fields: [
-                // todo
+                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+                { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+                {
+                  name: "currency",
+                  type: "array",
+                  defaultValue: [],
+                  fields: [
+                    { name: "currencyId", type: "uint32", defaultValue: 0 },
+                    { name: "quantity", type: "uint32", defaultValue: 0 },
+                  ],
+                },
               ],
             },
             {
@@ -3461,7 +3472,16 @@ const packets = [
               type: "array",
               defaultValue: [],
               fields: [
-                // todo
+                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                {
+                  name: "unknownArray1",
+                  type: "array",
+                  defaultValue: [],
+                  fields: [
+                    { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                    { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+                  ],
+                },
               ],
             },
             { name: "quizComplete", type: "boolean", defaultValue: false },
