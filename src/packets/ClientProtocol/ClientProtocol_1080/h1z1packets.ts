@@ -1867,7 +1867,7 @@ const containerData = [
       {
         name: "items",
         type: "array",
-        defaultValue: [{}],
+        defaultValue: [],
         fields: [
           { name: "unknownDword1", type: "uint32", defaultValue: 0 },
           { name: "itemData", type: "schema", fields: itemData },
@@ -3439,7 +3439,13 @@ const packets = [
               type: "array",
               defaultValue: [],
               fields: [
-                // todo
+                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                {
+                  name: "containers",
+                  type: "schema",
+                  defaultValue: {},
+                  fields: containerData,
+                },
               ],
             },
             {
@@ -7875,7 +7881,7 @@ const packets = [
         {
           name: "containers",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: containerData,
         },
         {
