@@ -3403,7 +3403,7 @@ const packets = [
               type: "array",
               defaultValue: [],
               fields: [
-                { name: "resourceType", type: "uint32", defaultValue: 0 },
+                { name: "resourceId", type: "uint32", defaultValue: 0 },
                 {
                   name: "resourceData",
                   type: "schema",
