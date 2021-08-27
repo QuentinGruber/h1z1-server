@@ -2606,6 +2606,35 @@ const packets = [
                 { name: "unknownByte1", type: "uint8", defaultValue: 0 },
               ],
             },
+            {
+              name: "unknownData2",
+              type: "schema",
+              defaultValue: {},
+              fields: [
+                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                {
+                  name: "unknownData1",
+                  type: "schema",
+                  defaultValue: {},
+                  fields: [
+                    { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                    { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+                    { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+                  ]
+                },
+                {
+                  name: "unknownData1",
+                  type: "schema",
+                  defaultValue: {},
+                  fields: [
+                    { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                    { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+                    { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+                  ]
+                },
+                { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+              ]
+            },
             /*
             {
               name: "unknownArray22",
