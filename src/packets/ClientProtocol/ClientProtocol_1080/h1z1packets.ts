@@ -3398,7 +3398,7 @@ const packets = [
                 },
               ],
             },
-            { // done (2016)
+            {
               name: "characterResources",
               type: "array",
               defaultValue: [],
@@ -3412,7 +3412,7 @@ const packets = [
                 },
               ],
             },
-            { // done (2016)
+            {
               name: "skillPointData",
               type: "schema",
               defaultValue: {},
@@ -3425,7 +3425,7 @@ const packets = [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
               ],
             },
-            { // done (2016)
+            {
               name: "skills",
               type: "array",
               defaultValue: [],
@@ -3434,16 +3434,40 @@ const packets = [
                 { name: "skillId", type: "uint32", defaultValue: 0 },
               ],
             },
-            /*
-            { name: "unknownBoolean8", type: "boolean", defaultValue: true },
+            {
+              name: "containers",
+              type: "array",
+              defaultValue: [],
+              fields: [
+                // todo
+              ],
+            },
+            {
+              name: "unknownArray28",
+              type: "array",
+              defaultValue: [],
+              fields: [
+                // todo
+              ],
+            },
+            {
+              name: "unknownArray29",
+              type: "array",
+              defaultValue: [],
+              fields: [
+                // todo
+              ],
+            },
+            { name: "quizComplete", type: "boolean", defaultValue: false },
             { name: "unknownQword1", type: "uint64string", defaultValue: "" },
             { name: "unknownDword38", type: "uint32", defaultValue: 0 },
             { name: "unknownQword2", type: "uint64string", defaultValue: "" },
             { name: "unknownQword3", type: "uint64string", defaultValue: "" },
             { name: "unknownDword39", type: "uint32", defaultValue: 0 },
             { name: "unknownDword40", type: "uint32", defaultValue: 0 },
-            { name: "unknownBoolean9", type: "boolean", defaultValue: true },
-            */
+            { name: "unknownBoolean9", type: "boolean", defaultValue: false },
+            { name: "firstPersonOnly", type: "boolean", defaultValue: false },
+            { name: "unknownByte1", type: "uint8", defaultValue: 0 },
           ],
         },
       ],
