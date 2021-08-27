@@ -872,72 +872,34 @@ export class ZoneServer extends EventEmitter {
   }
 
   spawnObjects(client: Client): void {
-    setImmediate(() => {
-      for (const object in this._objects) {
-        if (
-          isPosInRadius(
-            this._npcRenderDistance,
-            client.character.state.position,
-            this._objects[object].position
-          ) &&
-          !client.spawnedEntities.includes(this._objects[object])
-        ) {
-          this.sendData(
-            client,
-            "PlayerUpdate.AddLightweightNpc",
-            { ...this._objects[object], profileId: 10 },
-            1
-          );
-          client.spawnedEntities.push(this._objects[object]);
-        }
-      }
-    });
+    this.spawnNpcCollection(client,this._objects);
   }
 
-  spawnDoors(client: Client): void {
-    setImmediate(() => {
-      for (const door in this._doors) {
+  spawnNpcCollection(client: Client,collection:any) {
+    setImmediate(()=>{
+      for (const item in collection) {
+        const itemData = collection[item];
         if (
-          isPosInRadius(
-            this._npcRenderDistance,
-            client.character.state.position,
-            this._doors[door].position
-          ) &&
-          !client.spawnedEntities.includes(this._doors[door])
+          isPosInRadius(this._npcRenderDistance, client.character.state.position, itemData.position) &&
+          !client.spawnedEntities.includes(itemData)
         ) {
-          this.sendData(
-            client,
-            "PlayerUpdate.AddLightweightNpc",
-            this._doors[door],
-            1
-          );
-          client.spawnedEntities.push(this._doors[door]);
+            this.sendData(
+              client,
+              "PlayerUpdate.AddLightweightNpc",
+              itemData,
+              1
+            );
+            client.spawnedEntities.push(itemData);
         }
       }
-    });
+    })
+  }
+  spawnDoors(client: Client): void {
+    this.spawnNpcCollection(client,this._doors);
   }
 
   spawnProps(client: Client): void {
-    setImmediate(() => {
-      for (const prop in this._props) {
-        if (
-          isPosInRadius(
-            this._npcRenderDistance,
-            client.character.state.position,
-            this._props[prop].position
-          ) &&
-          !client.spawnedEntities.includes(this._props[prop])
-        ) {
-          this.sendData(
-            client,
-            "PlayerUpdate.AddLightweightNpc",
-            this._props[prop],
-            1
-          );
-          client.spawnedEntities.push(this._props[prop]);
-        }
-      }
-    });
+    this.spawnNpcCollection(client,this._props);
   }
 
   despawnEntity(characterId: string) {
