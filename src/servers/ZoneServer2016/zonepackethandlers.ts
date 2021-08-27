@@ -179,8 +179,6 @@ const packetHandlers = {
       speed: 11.0,
     });
     */
-
-    server.sendResources(client);
   },
   ClientFinishedLoading: function (
     server: ZoneServer2016,

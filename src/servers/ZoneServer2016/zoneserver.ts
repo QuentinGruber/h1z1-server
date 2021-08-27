@@ -288,17 +288,7 @@ export class ZoneServer2016 extends ZoneServer {
         recipes: recipes,
         //stats: stats // todo: fix
 
-        /* testing newly added sendself values */
-        playerTitles: [ // working
-          {
-            titleId: 1,
-            titleType: 1,
-            stringId: 1
-          }
-        ],
-        currentPlayerTitle: 1,
-
-        characterResources: [
+        characterResources: [ // todo: load characterResource definitions from file, then set value for each only
           {
             resourceId: 1, // health
             resourceData: {
@@ -341,7 +331,7 @@ export class ZoneServer2016 extends ZoneServer {
               resourceId: 68,
               resourceType: 68,
               unknownArray1: [],
-              value: 5000, // 5000 max
+              value: client.character.resources.comfort, // 5000 max
             },
           },
           {
@@ -355,7 +345,18 @@ export class ZoneServer2016 extends ZoneServer {
           },
         ],
 
+        /* testing newly added sendself values */
+        playerTitles: [ // working
+          {
+            titleId: 1,
+            titleType: 1,
+            stringId: 1
+          }
+        ],
+        currentPlayerTitle: 1,
+        
         /*                                     */
+
       }
     });
   }
@@ -523,75 +524,6 @@ export class ZoneServer2016 extends ZoneServer {
     this._frozeCycle = false;
     this._gameTime = Date.now();
     this.sendSyncToAll();
-  }
-
-  sendResources(client: Client): void {
-    /*
-    this.sendData(client, "ResourceEvent", {
-      eventData: {
-        type: 1,
-        value: {
-          characterId: client.character.characterId,
-          characterResources: [
-            {
-              resourceId: 1, // health
-              resourceData: {
-                resourceId: 1,
-                resourceType: 1,
-                unknownArray1: [],
-                value: client.character.resources.health, // 10000 max
-              },
-            },
-            {
-              resourceId: 6, // stamina
-              resourceData: {
-                resourceId: 6,
-                resourceType: 6,
-                unknownArray1: [],
-                value: client.character.resources.stamina, // 600 max
-              },
-            },
-            {
-              resourceId: 4, // food
-              resourceData: {
-                resourceId: 4,
-                resourceType: 4,
-                unknownArray1: [],
-                value: client.character.resources.food, // 10000 max
-              },
-            },
-            {
-              resourceId: 5, // water
-              resourceData: {
-                resourceId: 5,
-                resourceType: 5,
-                unknownArray1: [],
-                value: client.character.resources.water, // 10000 max
-              },
-            },
-            {
-              resourceId: 68, // comfort
-              resourceData: {
-                resourceId: 68,
-                resourceType: 68,
-                unknownArray1: [],
-                value: 5000, // 5000 max
-              },
-            },
-            {
-              resourceId: 12, // h1z1 virus
-              resourceData: {
-                resourceId: 12,
-                resourceType: 12,
-                unknownArray1: [],
-                value: client.character.resources.virus, // 10000 max
-              },
-            },
-          ],
-        },
-      },
-    });
-    */
   }
 
   removeOutOfDistanceEntities(client: Client): void {
