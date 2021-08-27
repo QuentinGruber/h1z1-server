@@ -2928,6 +2928,7 @@ const packets = [
             {
               name: "itemTimerData",
               type: "schema",
+              defaultValue: {},
               fields: [
                 {
                   name: "unknownArray1",
@@ -3184,6 +3185,7 @@ const packets = [
             {
               name: "loadoutRelatedData",
               type: "schema",
+              defaultValue: {},
               fields: [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                 {
@@ -3197,6 +3199,7 @@ const packets = [
                     {
                       name: "unknownData1",
                       type: "schema",
+                      defaultValue: {},
                       fields: [
                         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                         { name: "unknownQword1", type: "uint64string", defaultValue: "" },
@@ -3222,12 +3225,13 @@ const packets = [
             { // done (2016)
               name: "characterResources",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: [
                 { name: "resourceType", type: "uint32", defaultValue: 0 },
                 {
                   name: "resourceData",
                   type: "schema",
+                  defaultValue: {},
                   fields: characterResourceData,
                 },
               ],
