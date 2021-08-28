@@ -1,6 +1,6 @@
 {
   "name": "h1z1-server",
-  "version": "0.13.3",
+  "version": "0.14.0",
   "description": "Library for emulating h1z1 servers",
   "author": "Quentin Gruber <quentingruber@gmail.com> (http://github.com/quentingruber)",
   "license": "GPL-3.0-only",
@@ -16,7 +16,7 @@
     "mongodb": "4.1.1",
     "mongodb-restore-dump": "1.0.1",
     "terser-output": "1.0.2",
-    "typescript": "4.3.5"
+    "typescript": "4.4.2"
   },
   "directories": {
     "src": "./src"
