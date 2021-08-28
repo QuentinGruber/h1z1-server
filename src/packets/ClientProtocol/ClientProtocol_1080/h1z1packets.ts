@@ -103,7 +103,7 @@ function readSignedIntWith2bitLengthValue(data: Buffer, offset: number) {
     length: n + 1,
   };
 }
-function packSignedIntWith2bitLengthValue(value: number): void {
+function packSignedIntWith2bitLengthValue(value: number): Buffer {
   value = Math.round(value);
   const sign = value < 0 ? 1 : 0;
   value = sign ? -value : value;
