@@ -3258,7 +3258,7 @@ var packets = [
                   defaultValue: [],
                   fields: [],
                 },
-                { name: "unknownTime1", type: "uint64", defaultValue: "0" },
+                { name: "unknownTime1", type: "uint64string", defaultValue: "0" },
               ],
             },
             {
