@@ -15,6 +15,7 @@
 		"dbaeumer.vscode-eslint",
 		"mongodb.mongodb-vscode" 
 	],
+	"forwardPorts": [1115,1117],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [3000, 27017],
