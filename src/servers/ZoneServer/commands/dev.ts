@@ -16,7 +16,7 @@ const dev: any = {
       ],
     });
   },
-  testNpcMove: function (server: ZoneServer, client: Client, args: any[]) {
+  testnpcmove: function (server: ZoneServer, client: Client, args: any[]) {
     const guid = server.generateGuid();
     const characterId = server.generateGuid();
     const transientId = server.getTransientId(client, characterId);
@@ -74,7 +74,7 @@ const dev: any = {
       });
     }
   },
-  testManagedObject: function (
+  testmanagedobject: function (
     server: ZoneServer,
     client: Client,
     args: any[]
@@ -110,7 +110,7 @@ const dev: any = {
       characterId: client.character.characterId,
     });
   },
-  testNpcRelevance: function (server: ZoneServer, client: Client, args: any[]) {
+  testnpcrelevance: function (server: ZoneServer, client: Client, args: any[]) {
     const npcs = Object.values(server._npcs).map((npc: any) => {
       return { guid: npc.characterId };
     });
@@ -125,7 +125,7 @@ const dev: any = {
       sessionId: client.loginSessionId,
     });
   },
-  testNpc: function (server: ZoneServer, client: Client, args: any[]) {
+  testnpc: function (server: ZoneServer, client: Client, args: any[]) {
     const characterId = server.generateGuid();
     server.sendData(client, "PlayerUpdate.AddLightweightNpc", {
       characterId: characterId,
@@ -153,7 +153,7 @@ const dev: any = {
       });
     }, 500);*/
   },
-  testVehicle: function (server: ZoneServer, client: Client, args: any[]) {
+  testvehicle: function (server: ZoneServer, client: Client, args: any[]) {
     const characterId = server.generateGuid();
     const vehicleData = {
       npcData: {
@@ -181,7 +181,7 @@ const dev: any = {
 
     server.sendData(client, "PlayerUpdate.AddLightweightVehicle", vehicleData);
   },
-  findModel: function (server: ZoneServer, client: Client, args: any[]) {
+  findmodel: function (server: ZoneServer, client: Client, args: any[]) {
     const models = require("../../../../data/2015/dataSources/Models.json");
     const wordFilter = args[1];
     if (wordFilter) {
@@ -197,14 +197,14 @@ const dev: any = {
       server.sendChatText(client, `missing word filter`);
     }
   },
-  reloadPackets: function (server: ZoneServer, client: Client, args: any[]) {
+  reloadpackets: function (server: ZoneServer, client: Client, args: any[]) {
     if (args[1]) {
       server.reloadPackets(client, args[1]);
     } else {
       server.reloadPackets(client);
     }
   },
-  reloadMongo: function (server: ZoneServer, client: Client, args: any[]) {
+  reloadmongo: function (server: ZoneServer, client: Client, args: any[]) {
     server._soloMode
       ? server.sendChatText(client, "Can't do that in solomode...")
       : server.reloadMongoData(client);
