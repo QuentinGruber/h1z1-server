@@ -64,7 +64,11 @@ export class H1Z1Protocol {
 
   createPositionBroadcast(rawData: Buffer, transientId: number): Buffer {
     const tId = packUnsignedIntWith2bitLengthValue(transientId);
-    return Buffer.concat([new Uint8Array([120]), tId, rawData]);
+    return Buffer.concat([new Uint8Array([120]), tId, rawData]); // why 120 ? i don't remember
+  }
+
+  createVehiclePositionBroadcast(rawData: Buffer): Buffer {
+    return Buffer.concat([new Uint8Array([120]), rawData]);
   }
 
   parseFacilityReferenceData(data: Buffer) {

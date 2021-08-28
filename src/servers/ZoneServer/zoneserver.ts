@@ -22,9 +22,11 @@ import {
   Int64String,
   isPosInRadius,
 } from "../../utils/utils";
-import { Client, Weather } from "../../types/zoneserver";
+import { Weather } from "../../types/zoneserver";
 import { Db, MongoClient } from "mongodb";
 import { Worker } from "worker_threads";
+import SOEClient from "servers/SoeServer/soeclient";
+import Client from "./zoneclient";
 process.env.isBin && require("./workers/dynamicWeather");
 
 const localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json");
@@ -115,7 +117,7 @@ export class ZoneServer extends EventEmitter {
     this._weather = this._weatherTemplates[this._defaultWeatherTemplate];
     this._profiles = [];
     this._interactionDistance = 4;
-    this._npcRenderDistance = 350;
+    this._npcRenderDistance = 200;
     this._pingTimeoutTime = 120000;
     this._dynamicWeatherEnabled = true;
     this._dummySelf = require("../../../data/2015/sampleData/sendself.json");
@@ -166,7 +168,7 @@ export class ZoneServer extends EventEmitter {
 
     this._gatewayServer.on(
       "login",
-      (err: string, client: Client, characterId: string, loginSessionId: string) => {
+      (err: string, client: SOEClient, characterId: string, loginSessionId: string) => {
         this.onGatewayLoginEvent(err, client, characterId, loginSessionId);
       }
     );
@@ -182,7 +184,7 @@ export class ZoneServer extends EventEmitter {
     this._gatewayServer.on(
       "tunneldata",
       (err: string, client: Client, data: Buffer, flags: number) => {
-        this.onGatewayTunnelDataEvent(err, client, data, flags);
+        this.onGatewayTunnelDataEvent(err, this._clients[client.sessionId], data, flags);
       }
     );
   }
@@ -239,26 +241,23 @@ export class ZoneServer extends EventEmitter {
       });
     }, 60000);
   }
-  onGatewayLoginEvent(err: string, client: Client, characterId: string, loginSessionId: string){
+  onGatewayLoginEvent(err: string, client: SOEClient, characterId: string, loginSessionId: string){
     debug(
       `Client logged in from ${client.address}:${client.port} with character id: ${characterId}`
     );
-    this._clients[client.sessionId] = client;
+    let generatedTransient;
+    do {
+      generatedTransient = Number((Math.random() * 30000).toFixed(0));
+    } while (this._transientIds[generatedTransient]);
+    const zoneClient = new Client(client,loginSessionId,characterId,generatedTransient);
+    this._clients[client.sessionId] = zoneClient;
 
-    client.isLoading = true;
-    client.firstLoading = true;
-    client.loginSessionId = loginSessionId;
-    client.vehicle = {
-      vehicleState: 0,
-      falling: -1,
-    };
-    this.setupCharacter(client, characterId);
-    client.lastPingTime = new Date().getTime() + 120 * 1000;
-    client.pingTimer = setInterval(() => {
-      this.checkIfClientStillOnline(client);
+    this._transientIds[generatedTransient] = characterId;
+    this._characters[characterId] = zoneClient.character;
+    zoneClient.pingTimer = setInterval(() => {
+      this.checkIfClientStillOnline(zoneClient);
     }, 20000);
-    client.spawnedEntities = [];
-    this.emit("login", err, client);
+    this.emit("login", err, zoneClient);
   }
   onGatewayDisconnectEvent(err: string, client: Client){
     debug(`Client disconnected from ${client.address}:${client.port}`);
@@ -307,48 +306,6 @@ export class ZoneServer extends EventEmitter {
       await this.saveWorld();
     }
     debug("Server ready");
-  }
-
-  setupCharacter(client: Client, characterId: string) {
-    let generatedTransient;
-    do {
-      generatedTransient = Number((Math.random() * 30000).toFixed(0));
-    } while (this._transientIds[generatedTransient]);
-    client.character = {
-      characterId: characterId,
-      transientId: generatedTransient,
-      isRunning: false,
-      equipment: [
-        { modelName: "Weapon_Empty.adr", slotId: 1 }, // yeah that's an hack TODO find a better way
-        { modelName: "Weapon_Empty.adr", slotId: 7 },
-        {
-          modelName: "SurvivorMale_Ivan_Shirt_Base.adr",
-          defaultTextureAlias: "Ivan_Tshirt_Navy_Shoulder_Stripes",
-          slotId: 3,
-        },
-        {
-          modelName: "SurvivorMale_Ivan_Pants_Base.adr",
-          defaultTextureAlias: "Ivan_Pants_Jeans_Blue",
-          slotId: 4,
-        },
-      ],
-      resources: {
-        health: 5000,
-        stamina: 50,
-        food: 5000,
-        water: 5000,
-        virus: 6000,
-      },
-      state: {
-        position: new Float32Array([0, 0, 0, 0]),
-        rotation: new Float32Array([0, 0, 0, 0]),
-        lookAt: new Float32Array([0, 0, 0, 0]),
-        health: 0,
-        shield: 0,
-      },
-    };
-    this._transientIds[generatedTransient] = characterId;
-    this._characters[characterId] = client.character;
   }
 
   getAllCurrentUsedTransientId() {
@@ -862,11 +819,16 @@ export class ZoneServer extends EventEmitter {
           this._vehicles[vehicle],
           1
         );
-        this.sendData(client, "PlayerUpdate.ManagedObject", {
-          guid: this._vehicles[vehicle].npcData.characterId,
-          characterId: client.character.characterId,
-        });
+        if (!this._vehicles[vehicle].isManaged) {
+          this.sendData(client, "PlayerUpdate.ManagedObject", {
+            guid: this._vehicles[vehicle].npcData.characterId,
+            characterId: client.character.characterId,
+          });
+          this._vehicles[vehicle].isManaged = true;
+        }
+
         client.spawnedEntities.push(this._vehicles[vehicle]);
+        client.managedObjects.push(this._vehicles[vehicle]);
       }
     }
   }
@@ -898,77 +860,46 @@ export class ZoneServer extends EventEmitter {
           },
           1
         );
+        const index = client.managedObjects.indexOf(
+          this._vehicles[characterId]
+        );
+        if (index > -1) {
+          client.managedObjects.splice(index, 1);
+          this._vehicles[characterId].isManaged = false;
+        }
       }
     });
   }
 
   spawnObjects(client: Client): void {
-    setImmediate(() => {
-      for (const object in this._objects) {
-        if (
-          isPosInRadius(
-            this._npcRenderDistance,
-            client.character.state.position,
-            this._objects[object].position
-          ) &&
-          !client.spawnedEntities.includes(this._objects[object])
-        ) {
-          this.sendData(
-            client,
-            "PlayerUpdate.AddLightweightNpc",
-            { ...this._objects[object], profileId: 10 },
-            1
-          );
-          client.spawnedEntities.push(this._objects[object]);
-        }
-      }
-    });
+    this.spawnNpcCollection(client,this._objects);
   }
 
-  spawnDoors(client: Client): void {
-    setImmediate(() => {
-      for (const door in this._doors) {
+  spawnNpcCollection(client: Client,collection:any) {
+    setImmediate(()=>{
+      for (const item in collection) {
+        const itemData = collection[item];
         if (
-          isPosInRadius(
-            this._npcRenderDistance,
-            client.character.state.position,
-            this._doors[door].position
-          ) &&
-          !client.spawnedEntities.includes(this._doors[door])
+          isPosInRadius(this._npcRenderDistance, client.character.state.position, itemData.position) &&
+          !client.spawnedEntities.includes(itemData)
         ) {
-          this.sendData(
-            client,
-            "PlayerUpdate.AddLightweightNpc",
-            this._doors[door],
-            1
-          );
-          client.spawnedEntities.push(this._doors[door]);
+            this.sendData(
+              client,
+              "PlayerUpdate.AddLightweightNpc",
+              itemData,
+              1
+            );
+            client.spawnedEntities.push(itemData);
         }
       }
-    });
+    })
+  }
+  spawnDoors(client: Client): void {
+    this.spawnNpcCollection(client,this._doors);
   }
 
   spawnProps(client: Client): void {
-    setImmediate(() => {
-      for (const prop in this._props) {
-        if (
-          isPosInRadius(
-            this._npcRenderDistance,
-            client.character.state.position,
-            this._props[prop].position
-          ) &&
-          !client.spawnedEntities.includes(this._props[prop])
-        ) {
-          this.sendData(
-            client,
-            "PlayerUpdate.AddLightweightNpc",
-            this._props[prop],
-            1
-          );
-          client.spawnedEntities.push(this._props[prop]);
-        }
-      }
-    });
+    this.spawnNpcCollection(client,this._props);
   }
 
   despawnEntity(characterId: string) {

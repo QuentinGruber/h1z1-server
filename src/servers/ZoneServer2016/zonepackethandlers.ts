@@ -25,9 +25,9 @@ import dev from "./commands/dev";
 
 import { Int64String, isPosInRadius } from "../../utils/utils";
 import { ZoneServer2016 } from "./zoneserver";
-import { Client } from "types/zoneserver";
+import Client from "./zoneclient";
 // TOOD: UPDATE THIS FOR 2016
-// const modelToName = require("../../../data/2015/sampleData/ModelToName.json");
+// const modelToName = require("../../../data/2016/dataSources/ModelToName.json");
 
 import { _ } from "../../utils/utils";
 const debug = require("debug")("zonepacketHandlers");
@@ -938,7 +938,16 @@ const packetHandlers = {
   ) {
     server.changeSeat(client, packet);
   },
-
+  "Construction.PlacementFinalizeRequest": function (
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
+    server.sendData(client, "Construction.PlacementFinalizeResponse", {
+      status: 1,
+      unknownString1: ""
+    });
+  },
   /*
   "Command.ItemDefinitionRequest": function (server: ZoneServer2016, client: Client, packet: any) {
     console.log("ItemDefinitionRequest\n\n\n\n\n\n\n\n\n");
