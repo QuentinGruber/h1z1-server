@@ -127,7 +127,7 @@ export class LoginProtocol {
           undefined
         );
         if (payload) {
-          data = new (Buffer.alloc as any)(1 + payload.length);
+          data = Buffer.alloc(1 + payload.length);
           data.writeUInt8(packetType, 0);
           payload.data.copy(data, 1);
         } else {
