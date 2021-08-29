@@ -38,7 +38,9 @@ const packetHandlers = {
     client: Client,
     packet: any
   ) {
-    server.sendData(client, "ClientBeginZoning", { skyData: server._weather2016 }); // Needed for trees
+    server.sendData(client, "ClientBeginZoning", {
+      skyData: server._weather2016,
+    }); // Needed for trees
 
     server.sendData(client, "QuickChat.SendData", { commands: [] });
 
@@ -246,8 +248,11 @@ const packetHandlers = {
       gameTime: packet.data.gameTime,
     });
   },
-  "ClientUpdate.MonitorTimeDrift": function (server: ZoneServer2016, client: Client, packet: any) {
-  },
+  "ClientUpdate.MonitorTimeDrift": function (
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {},
   ClientLog: function (server: ZoneServer2016, client: Client, packet: any) {
     debug(packet);
   },
@@ -857,7 +862,7 @@ const packetHandlers = {
   ) {
     server.sendData(client, "Construction.PlacementFinalizeResponse", {
       status: 1,
-      unknownString1: ""
+      unknownString1: "",
     });
   },
   /*

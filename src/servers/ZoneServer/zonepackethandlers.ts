@@ -279,6 +279,11 @@ const packetHandlers: any = {
     client.isInteracting = false;
     delete client.vehicle.mountedVehicle;
     client.vehicle.mountedVehicleType = "0";
+    if(!this._soloMode)
+    {
+      const populationNumber = _.size(server._characters);
+      server._db?.collection("servers").findOneAndUpdate({ serverId: server._worldId },{$set: {populationNumber: populationNumber,populationLevel:Number((populationNumber / 1).toFixed(0))}})
+    }
   },
   Security: function (server: ZoneServer, client: Client, packet: any) {
     debug(packet);
@@ -469,6 +474,11 @@ const packetHandlers: any = {
     server._gatewayServer._soeServer.deleteClient(client);
     delete server._characters[client.character.characterId];
     delete server._clients[client.sessionId];
+    if(!this._soloMode)
+        {
+          const populationNumber = _.size(server._characters);
+          server._db?.collection("servers").findOneAndUpdate({ serverId: server._worldId },{$set: {populationNumber: populationNumber,populationLevel:Number((populationNumber / 1).toFixed(0))}})
+        }
   },
   GameTimeSync: function (server: ZoneServer, client: Client, packet: any) {
     server.sendGameTimeSync(client);
@@ -1674,14 +1684,14 @@ const packetHandlers: any = {
     debug(packet);
     const characterId = server._transientIds[packet.data.transientId];
     if (characterId) {
-        if(!server._soloMode){
-          server.sendRawToAllOthers(
-            client,
-            server._protocol.createVehiclePositionBroadcast(
-              packet.data.PositionUpdate.raw.slice(1)
-            )
-          );
-        }
+      if (!server._soloMode) {
+        server.sendRawToAllOthers(
+          client,
+          server._protocol.createVehiclePositionBroadcast(
+            packet.data.PositionUpdate.raw.slice(1)
+          )
+        );
+      }
       if (packet.data.PositionUpdate.position) {
         server._vehicles[characterId].positionUpdate =
           packet.data.PositionUpdate;
@@ -1722,13 +1732,13 @@ const packetHandlers: any = {
     }
     const movingCharacter = server._characters[client.character.characterId];
     if (movingCharacter && !server._soloMode) {
-        server.sendRawToAllOthers(
-          client,
-          server._protocol.createPositionBroadcast(
-            packet.data.raw,
-            movingCharacter.transientId
-          )
-        );
+      server.sendRawToAllOthers(
+        client,
+        server._protocol.createPositionBroadcast(
+          packet.data.raw,
+          movingCharacter.transientId
+        )
+      );
     }
     if (packet.data.position) {
       // TODO: modify array element beside re-creating it

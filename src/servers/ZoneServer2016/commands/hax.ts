@@ -472,8 +472,8 @@ const hax: any = {
   ) {
     server.sendChatText(client, `Randomized weather`);
     function rnd_number(max: any, fixed: Boolean = false) {
-      const num = Math.random() * max
-      if(fixed) return Number(num.toFixed(0))
+      const num = Math.random() * max;
+      if (fixed) return Number(num.toFixed(0));
       return Number(num);
     }
 
