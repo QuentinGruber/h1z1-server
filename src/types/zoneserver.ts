@@ -1,4 +1,4 @@
-interface characterEquipment {
+export interface characterEquipment {
   modelName: string;
   slotId: number;
   defaultTextureAlias?: string;
@@ -12,9 +12,7 @@ export interface Client {
   posAtLogoutStart: Float32Array;
   timer: NodeJS.Timeout | null;
   spawnedEntities: any[];
-  gameClient: {
-    currentWeather: Weather;
-  };
+  managedObjects: any[];
   vehicle: {
     falling: number;
     mountedVehicle?: string;
@@ -51,6 +49,13 @@ export interface Client {
       health: number;
       shield: number;
     };
+    // 2016 only
+    actorModelId?: number;
+    headActor?: string;
+    isRespawning?: boolean;
+    gender?: number;
+    creationDate?: string;
+    lastLoginDate?: string;
   };
   loginSessionId?: string;
   sessionId: number;

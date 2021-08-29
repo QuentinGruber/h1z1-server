@@ -22,9 +22,11 @@ import {
   Int64String,
   isPosInRadius,
 } from "../../utils/utils";
-import { Client, Weather } from "../../types/zoneserver";
+import { Weather } from "../../types/zoneserver";
 import { Db, MongoClient } from "mongodb";
 import { Worker } from "worker_threads";
+import SOEClient from "servers/SoeServer/soeclient";
+import Client from "./zoneclient";
 process.env.isBin && require("./workers/dynamicWeather");
 
 const localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json");
@@ -115,8 +117,8 @@ export class ZoneServer extends EventEmitter {
     this._weather = this._weatherTemplates[this._defaultWeatherTemplate];
     this._profiles = [];
     this._interactionDistance = 4;
-    this._npcRenderDistance = 350;
-    this._pingTimeoutTime = 30000;
+    this._npcRenderDistance = 200;
+    this._pingTimeoutTime = 120000;
     this._dynamicWeatherEnabled = true;
     this._dummySelf = require("../../../data/2015/sampleData/sendself.json");
     this._appDataFolder = getAppDataFolderPath();
@@ -151,62 +153,16 @@ export class ZoneServer extends EventEmitter {
       this._soloMode = true;
       debug("Server in solo mode !");
     }
-    this.on("data", (err, client, packet) => {
-      if (err) {
-        console.error(err);
-      } else {
-        if (
-          packet.name != "KeepAlive" &&
-          packet.name != "PlayerUpdateUpdatePositionClientToZone" &&
-          packet.name != "PlayerUpdateManagedPosition"
-        ) {
-          debug(`Receive Data ${[packet.name]}`);
-        }
-        if (this._packetHandlers[packet.name]) {
-          try {
-            this._packetHandlers[packet.name](this, client, packet);
-          } catch (e) {
-            debug(e);
-          }
-        } else {
-          debug(packet);
-          debug("Packet not implemented in packetHandlers");
-        }
-      }
-    });
+    this.on("data", this.onZoneDataEvent);
 
     this.on("login", (err, client) => {
-      if (err) {
-        console.error(err);
-      } else {
-        debug("zone login");
-        try {
-          this.sendInitData(client);
-        } catch (error) {
-          debug(error);
-          this.sendData(client, "LoginFailed", {});
-        }
-      }
+      this.onZoneLoginEvent(err, client);
     });
 
     this._gatewayServer._soeServer.on(
       "PacketLimitationReached",
       (client: Client) => {
-        this.sendChatText(
-          client,
-          "You've almost reached the packet limitation for the server."
-        );
-        this.sendChatText(
-          client,
-          "We will disconnect you in 60 seconds ( You can also do it yourself )"
-        );
-        this.sendChatText(client, "Sorry for that.");
-        setTimeout(() => {
-          this.sendData(client, "CharacterSelectSessionResponse", {
-            status: 1,
-            sessionId: client.loginSessionId,
-          });
-        }, 60000);
+        this.onSoePacketLimitationReachedEvent(client);
       }
     );
 
@@ -214,62 +170,139 @@ export class ZoneServer extends EventEmitter {
       "login",
       (
         err: string,
-        client: Client,
+        client: SOEClient,
         characterId: string,
         loginSessionId: string
       ) => {
-        debug(
-          `Client logged in from ${client.address}:${client.port} with character id: ${characterId}`
-        );
-        this._clients[client.sessionId] = client;
-
-        client.isLoading = true;
-        client.firstLoading = true;
-        client.loginSessionId = loginSessionId;
-        client.vehicle = {
-          vehicleState: 0,
-          falling: -1,
-        };
-        this.setupCharacter(client, characterId);
-        client.lastPingTime = new Date().getTime() + 120 * 1000;
-        client.pingTimer = setInterval(() => {
-          this.checkIfClientStillOnline(client);
-        }, 20000);
-        client.spawnedEntities = [];
-        this.emit("login", err, client);
+        this.onGatewayLoginEvent(err, client, characterId, loginSessionId);
       }
     );
 
     this._gatewayServer.on("disconnect", (err: string, client: Client) => {
-      debug(`Client disconnected from ${client.address}:${client.port}`);
-      clearInterval(client.pingTimer);
-      if (client.character?.characterId) {
-        delete this._characters[client.character.characterId];
-      }
-      delete this._clients[client.sessionId];
-      this.emit("disconnect", err, client);
+      this.onGatewayDisconnectEvent(err, client);
     });
 
     this._gatewayServer.on("session", (err: string, client: Client) => {
-      debug(`Session started for client ${client.address}:${client.port}`);
+      this.onGatewaySessionEvent(err, client);
     });
 
     this._gatewayServer.on(
       "tunneldata",
       (err: string, client: Client, data: Buffer, flags: number) => {
-        const packet = this._protocol.parse(
+        this.onGatewayTunnelDataEvent(
+          err,
+          this._clients[client.sessionId],
           data,
-          flags,
-          true,
-          this._referenceData
+          flags
         );
-        if (packet) {
-          this.emit("data", null, client, packet);
-        } else {
-          debug("zonefailed : ", data);
-        }
       }
     );
+  }
+  onZoneDataEvent(err: any, client: Client, packet: any) {
+    if (err) {
+      console.error(err);
+    } else {
+      if (
+        packet.name != "KeepAlive" &&
+        packet.name != "PlayerUpdateUpdatePositionClientToZone" &&
+        packet.name != "PlayerUpdateManagedPosition"
+      ) {
+        debug(`Receive Data ${[packet.name]}`);
+      }
+      if (this._packetHandlers[packet.name]) {
+        try {
+          this._packetHandlers[packet.name](this, client, packet);
+        } catch (e) {
+          debug(e);
+        }
+      } else {
+        debug(packet);
+        debug("Packet not implemented in packetHandlers");
+      }
+    }
+  }
+  onZoneLoginEvent(err: any, client: Client) {
+    if (err) {
+      console.error(err);
+    } else {
+      debug("zone login");
+      try {
+        this.sendInitData(client);
+      } catch (error) {
+        debug(error);
+        this.sendData(client, "LoginFailed", {});
+      }
+    }
+  }
+  onSoePacketLimitationReachedEvent(client: Client) {
+    this.sendChatText(
+      client,
+      "You've almost reached the packet limitation for the server."
+    );
+    this.sendChatText(
+      client,
+      "We will disconnect you in 60 seconds ( You can also do it yourself )"
+    );
+    this.sendChatText(client, "Sorry for that.");
+    setTimeout(() => {
+      this.sendData(client, "CharacterSelectSessionResponse", {
+        status: 1,
+        sessionId: client.loginSessionId,
+      });
+    }, 60000);
+  }
+  onGatewayLoginEvent(
+    err: string,
+    client: SOEClient,
+    characterId: string,
+    loginSessionId: string
+  ) {
+    debug(
+      `Client logged in from ${client.address}:${client.port} with character id: ${characterId}`
+    );
+    let generatedTransient;
+    do {
+      generatedTransient = Number((Math.random() * 30000).toFixed(0));
+    } while (this._transientIds[generatedTransient]);
+    const zoneClient = new Client(
+      client,
+      loginSessionId,
+      characterId,
+      generatedTransient
+    );
+    this._clients[client.sessionId] = zoneClient;
+
+    this._transientIds[generatedTransient] = characterId;
+    this._characters[characterId] = zoneClient.character;
+    zoneClient.pingTimer = setInterval(() => {
+      this.checkIfClientStillOnline(zoneClient);
+    }, 20000);
+    this.emit("login", err, zoneClient);
+  }
+  onGatewayDisconnectEvent(err: string, client: Client) {
+    debug(`Client disconnected from ${client.address}:${client.port}`);
+    clearInterval(client.pingTimer);
+    if (client.character?.characterId) {
+      delete this._characters[client.character.characterId];
+    }
+    delete this._clients[client.sessionId];
+    this.emit("disconnect", err, client);
+  }
+  onGatewaySessionEvent(err: string, client: Client) {
+    debug(`Session started for client ${client.address}:${client.port}`);
+  }
+  onGatewayTunnelDataEvent(
+    err: string,
+    client: Client,
+    data: Buffer,
+    flags: number
+  ) {
+    const packet = this._protocol.parse(data, flags, true, this._referenceData);
+    if (packet) {
+      this.emit("data", null, client, packet);
+    } else {
+      debug("zonefailed : ", data);
+    }
   }
 
   async setupServer(): Promise<void> {
@@ -293,48 +326,6 @@ export class ZoneServer extends EventEmitter {
       await this.saveWorld();
     }
     debug("Server ready");
-  }
-
-  setupCharacter(client: Client, characterId: string) {
-    let generatedTransient;
-    do {
-      generatedTransient = Number((Math.random() * 30000).toFixed(0));
-    } while (this._transientIds[generatedTransient]);
-    client.character = {
-      characterId: characterId,
-      transientId: generatedTransient,
-      isRunning: false,
-      equipment: [
-        { modelName: "Weapon_Empty.adr", slotId: 1 }, // yeah that's an hack TODO find a better way
-        { modelName: "Weapon_Empty.adr", slotId: 7 },
-        {
-          modelName: "SurvivorMale_Ivan_Shirt_Base.adr",
-          defaultTextureAlias: "Ivan_Tshirt_Navy_Shoulder_Stripes",
-          slotId: 3,
-        },
-        {
-          modelName: "SurvivorMale_Ivan_Pants_Base.adr",
-          defaultTextureAlias: "Ivan_Pants_Jeans_Blue",
-          slotId: 4,
-        },
-      ],
-      resources: {
-        health: 5000,
-        stamina: 50,
-        food: 5000,
-        water: 5000,
-        virus: 6000,
-      },
-      state: {
-        position: new Float32Array([0, 0, 0, 0]),
-        rotation: new Float32Array([0, 0, 0, 0]),
-        lookAt: new Float32Array([0, 0, 0, 0]),
-        health: 0,
-        shield: 0,
-      },
-    };
-    this._transientIds[generatedTransient] = characterId;
-    this._characters[characterId] = client.character;
   }
 
   getAllCurrentUsedTransientId() {
@@ -848,11 +839,16 @@ export class ZoneServer extends EventEmitter {
           this._vehicles[vehicle],
           1
         );
-        this.sendData(client, "PlayerUpdate.ManagedObject", {
-          guid: this._vehicles[vehicle].npcData.characterId,
-          characterId: client.character.characterId,
-        });
+        if (!this._vehicles[vehicle].isManaged) {
+          this.sendData(client, "PlayerUpdate.ManagedObject", {
+            guid: this._vehicles[vehicle].npcData.characterId,
+            characterId: client.character.characterId,
+          });
+          this._vehicles[vehicle].isManaged = true;
+        }
+
         client.spawnedEntities.push(this._vehicles[vehicle]);
+        client.managedObjects.push(this._vehicles[vehicle]);
       }
     }
   }
@@ -884,77 +880,45 @@ export class ZoneServer extends EventEmitter {
           },
           1
         );
+        const index = client.managedObjects.indexOf(
+          this._vehicles[characterId]
+        );
+        if (index > -1) {
+          client.managedObjects.splice(index, 1);
+          this._vehicles[characterId].isManaged = false;
+        }
       }
     });
   }
 
   spawnObjects(client: Client): void {
+    this.spawnNpcCollection(client, this._objects);
+  }
+
+  spawnNpcCollection(client: Client, collection: any) {
     setImmediate(() => {
-      for (const object in this._objects) {
+      for (const item in collection) {
+        const itemData = collection[item];
         if (
           isPosInRadius(
             this._npcRenderDistance,
             client.character.state.position,
-            this._objects[object].position
+            itemData.position
           ) &&
-          !client.spawnedEntities.includes(this._objects[object])
+          !client.spawnedEntities.includes(itemData)
         ) {
-          this.sendData(
-            client,
-            "PlayerUpdate.AddLightweightNpc",
-            { ...this._objects[object], profileId: 10 },
-            1
-          );
-          client.spawnedEntities.push(this._objects[object]);
+          this.sendData(client, "PlayerUpdate.AddLightweightNpc", itemData, 1);
+          client.spawnedEntities.push(itemData);
         }
       }
     });
   }
-
   spawnDoors(client: Client): void {
-    setImmediate(() => {
-      for (const door in this._doors) {
-        if (
-          isPosInRadius(
-            this._npcRenderDistance,
-            client.character.state.position,
-            this._doors[door].position
-          ) &&
-          !client.spawnedEntities.includes(this._doors[door])
-        ) {
-          this.sendData(
-            client,
-            "PlayerUpdate.AddLightweightNpc",
-            this._doors[door],
-            1
-          );
-          client.spawnedEntities.push(this._doors[door]);
-        }
-      }
-    });
+    this.spawnNpcCollection(client, this._doors);
   }
 
   spawnProps(client: Client): void {
-    setImmediate(() => {
-      for (const prop in this._props) {
-        if (
-          isPosInRadius(
-            this._npcRenderDistance,
-            client.character.state.position,
-            this._props[prop].position
-          ) &&
-          !client.spawnedEntities.includes(this._props[prop])
-        ) {
-          this.sendData(
-            client,
-            "PlayerUpdate.AddLightweightNpc",
-            this._props[prop],
-            1
-          );
-          client.spawnedEntities.push(this._props[prop]);
-        }
-      }
-    });
+    this.spawnNpcCollection(client, this._props);
   }
 
   despawnEntity(characterId: string) {
