@@ -70,7 +70,12 @@ export class SOEServer extends EventEmitter {
         // if doesn't know the client
         if (!this._clients[clientId]) {
           unknow_client = true;
-          client = this._clients[clientId] = new SOEClient(remote,this._crcSeed,this._compression,cryptoKey);
+          client = this._clients[clientId] = new SOEClient(
+            remote,
+            this._crcSeed,
+            this._compression,
+            cryptoKey
+          );
 
           (client as any).inputStream.on(
             "data",
