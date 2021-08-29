@@ -6,12 +6,12 @@
   "license": "GPL-3.0-only",
   "main": "h1z1-server.js",
   "dependencies": {
-    "@types/json-schema": "^7.0.7",
-    "@types/node": "^16.4.8",
+    "@types/json-schema": "7.0.7",
+    "@types/node": "16.4.8",
     "debug": "4.3.2",
-    "eul2quat": "^1.0.0",
-    "h1emu-core": "^0.2.1",
-    "h1z1-dataschema": "^1.4.1",
+    "eul2quat": "1.0.0",
+    "h1emu-core": "0.2.1",
+    "h1z1-dataschema": "1.4.1",
     "hash-jenkins": "1.0.1",
     "mongodb": "4.1.1",
     "mongodb-restore-dump": "1.0.1",
@@ -24,9 +24,9 @@
   "devDependencies": {
     "@swc/cli": "0.1.40",
     "@swc/core": "1.2.57",
-    "chokidar": "^3.5.1",
-    "prettier": "^2.2.1",
-    "ts-node": "^10.0.0"
+    "chokidar": "3.5.1",
+    "prettier": "2.2.1",
+    "ts-node": "10.0.0"
   },
   "scripts": {
     "build-optimized": "npm run build && terser-output ./out",
