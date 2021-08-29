@@ -798,7 +798,6 @@ const packetHandlers = {
     packet: any
   ) {
     // only for driver seat
-    debug(packet.data);
     server.dismountVehicle(client);
   },
   "Command.InteractionString": function (
