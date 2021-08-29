@@ -36,7 +36,7 @@ const Z1_POIs = require("../../../data/2015/zoneData/Z1_POIs");
 const recipes = require("../../../data/2016/sampleData/recipes.json");
 // const localWeatherTemplates = require("../../../data/2015/sampleData/weather.json");
 // const stats = require("../../../data/2016/sampleData/stats.json");
-// const resources = require("../../../data/2015/dataSources/Resources.json");
+const resources = require("../../../data/2016/dataSources/resourceDefinitions.json");
 
 export class ZoneServer2016 extends ZoneServer {
   worldRoutineTimer: any;
@@ -157,16 +157,9 @@ export class ZoneServer2016 extends ZoneServer {
       client.character.name = character.characterName;
     }
 
-    let generatedTransient;
-    do {
-      generatedTransient = Number((Math.random() * 30000).toFixed(0));
-    } while (this._transientIds[generatedTransient]);
-    this._transientIds[generatedTransient] = client.character.characterId;
     client.character = {
       ...client.character,
       guid: "0x665a2bff2b44c034", // default, only matters for multiplayer
-      transientId: generatedTransient,
-
       actorModelId: character.actorModelId,
       headActor: character.headActor,
       isRespawning: character.isRespawning,
@@ -224,23 +217,14 @@ export class ZoneServer2016 extends ZoneServer {
         shield: 0,
       },
     };
-    /*
-    const characterDataMongo: any = await this._db
-      ?.collection("characters")
-      .findOne({ characterId: client.character.characterId });
-    client.character.extraModel = characterDataMongo?.extraModelTexture
-      ? characterDataMongo.extraModelTexture
-      : this._dummySelf.data.extraModelTexture;
-    */
+
     let isRandomlySpawning = false;
     if (
       _.isEqual(character.position, [0, 0, 0, 1]) &&
       _.isEqual(character.rotation, [0, 0, 0, 1])
     ) {
-      // if position/rotation hasn't be changed
-      if (this._soloMode /*|| !characterDataMongo.position*/) {
+      // if position/rotation hasn't changed
         isRandomlySpawning = true;
-      }
     }
 
     if (isRandomlySpawning) {
@@ -257,12 +241,6 @@ export class ZoneServer2016 extends ZoneServer {
     } else {
       client.character.state.position = character.position;
       client.character.state.rotation = character.rotation;
-      /*
-      if (!this._soloMode) {
-        client.character.state.position = characterDataMongo.position;
-        client.character.state.rotation = characterDataMongo.rotation;
-      }
-      */
     }
     this._characters[client.character.characterId] = client.character; // character will spawn on other player's screen(s) at this point
   }
@@ -289,76 +267,50 @@ export class ZoneServer2016 extends ZoneServer {
         //stats: stats // todo: fix
 
         characterResources: [
-          // todo: load characterResource definitions from file, then set value for each only
           {
-            resourceId: 1, // health
-            resourceData: {
-              resourceId: 1,
-              resourceType: 1,
-              unknownArray1: [],
-              value: client.character.resources.health, // 10000 max
-            },
+            ...resources.health,
+            resourceData: { 
+              ...resources.health.resourceData, 
+              value: client.character.resources.health 
+            }
           },
           {
-            resourceId: 6, // stamina
-            resourceData: {
-              resourceId: 6,
-              resourceType: 6,
-              unknownArray1: [],
-              value: client.character.resources.stamina, // 600 max
-            },
+            ...resources.stamina,
+            resourceData: { 
+              ...resources.stamina.resourceData, 
+              value: client.character.resources.stamina 
+            }
           },
           {
-            resourceId: 4, // food
-            resourceData: {
-              resourceId: 4,
-              resourceType: 4,
-              unknownArray1: [],
-              value: client.character.resources.food, // 10000 max
-            },
+            ...resources.food,
+            resourceData: { 
+              ...resources.food.resourceData, 
+              value: client.character.resources.food 
+            }
           },
           {
-            resourceId: 5, // water
-            resourceData: {
-              resourceId: 5,
-              resourceType: 5,
-              unknownArray1: [],
-              value: client.character.resources.water, // 10000 max
-            },
+            ...resources.water,
+            resourceData: { 
+              ...resources.water.resourceData, 
+              value: client.character.resources.water 
+            }
           },
           {
-            resourceId: 68, // comfort
-            resourceData: {
-              resourceId: 68,
-              resourceType: 68,
-              unknownArray1: [],
-              value: client.character.resources.comfort, // 5000 max
-            },
+            ...resources.comfort,
+            resourceData: { 
+              ...resources.comfort.resourceData, 
+              value: client.character.resources.comfort 
+            }
           },
           {
-            resourceId: 12, // h1z1 virus
-            resourceData: {
-              resourceId: 12,
-              resourceType: 12,
-              unknownArray1: [],
-              value: client.character.resources.virus, // 10000 max
-            },
+            ...resources.virus,
+            resourceData: { 
+              ...resources.virus.resourceData, 
+              value: client.character.resources.virus 
+            }
           },
         ],
-
-        /* testing newly added sendself values */
-        playerTitles: [
-          // working
-          {
-            titleId: 1,
-            titleType: 1,
-            stringId: 1,
-          },
-        ],
-        currentPlayerTitle: 1,
-
-        /*                                     */
-      },
+      }
     });
   }
 
@@ -569,7 +521,7 @@ export class ZoneServer2016 extends ZoneServer {
     );
   }
 
-  deleteEntity(characterId: string, dictionnary: any) {
+  deleteEntity(characterId: string, dictionary: any) {
     this.sendDataToAll(
       "Character.RemovePlayer",
       {
@@ -577,7 +529,7 @@ export class ZoneServer2016 extends ZoneServer {
       },
       1
     );
-    delete dictionnary[characterId];
+    delete dictionary[characterId];
   }
 
   spawnNpcs(client: Client): void {
