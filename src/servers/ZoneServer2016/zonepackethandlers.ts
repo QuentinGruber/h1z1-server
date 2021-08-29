@@ -87,8 +87,6 @@ const packetHandlers = {
     }); // Required for WaitForWorldReady
     server.sendData(client, "ClientUpdate.UpdateStat", { stats: [] });
 
-    //server.sendData(client, "Operation.ClientClearMissions", {});
-
     server.sendData(client, "ZoneSetting.Data", {
       settings: [
         {
@@ -144,7 +142,7 @@ const packetHandlers = {
       gameTime: (server.getServerTime() & 0xffffffff) >>> 0,
     });
 
-    client.character.currentLoadoutId = 3;
+    // client.character.currentLoadoutId = 3;
     /*
     server.sendData(client, "Loadout.SetCurrentLoadout", {
       guid: client.character.guid,
@@ -173,12 +171,6 @@ const packetHandlers = {
       serverTime: Int64String(server.getServerTime()),
       serverTime2: Int64String(server.getServerTime()),
     });
-    /*
-    // temp workaround
-    server.sendData(client, "ClientUpdate.ModifyMovementSpeed", {
-      speed: 11.0,
-    });
-    */
   },
   ClientFinishedLoading: function (
     server: ZoneServer2016,

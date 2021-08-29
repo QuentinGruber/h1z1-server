@@ -217,23 +217,14 @@ export class ZoneServer2016 extends ZoneServer {
         shield: 0,
       }
     };
-    /*
-    const characterDataMongo: any = await this._db
-      ?.collection("characters")
-      .findOne({ characterId: client.character.characterId });
-    client.character.extraModel = characterDataMongo?.extraModelTexture
-      ? characterDataMongo.extraModelTexture
-      : this._dummySelf.data.extraModelTexture;
-    */
+
     let isRandomlySpawning = false;
     if (
       _.isEqual(character.position, [0, 0, 0, 1]) &&
       _.isEqual(character.rotation, [0, 0, 0, 1])
     ) {
-      // if position/rotation hasn't be changed
-      if (this._soloMode /*|| !characterDataMongo.position*/) {
+      // if position/rotation hasn't changed
         isRandomlySpawning = true;
-      }
     }
 
     if (isRandomlySpawning) {
@@ -250,12 +241,6 @@ export class ZoneServer2016 extends ZoneServer {
     } else {
       client.character.state.position = character.position;
       client.character.state.rotation = character.rotation;
-      /*
-      if (!this._soloMode) {
-        client.character.state.position = characterDataMongo.position;
-        client.character.state.rotation = characterDataMongo.rotation;
-      }
-      */
     }
     this._characters[client.character.characterId] = client.character; // character will spawn on other player's screen(s) at this point
   }
@@ -533,7 +518,7 @@ export class ZoneServer2016 extends ZoneServer {
     );
   }
 
-  deleteEntity(characterId: string, dictionnary: any) {
+  deleteEntity(characterId: string, dictionary: any) {
     this.sendDataToAll(
       "Character.RemovePlayer",
       {
@@ -541,7 +526,7 @@ export class ZoneServer2016 extends ZoneServer {
       },
       1
     );
-    delete dictionnary[characterId];
+    delete dictionary[characterId];
   }
 
   spawnNpcs(client: Client): void {
