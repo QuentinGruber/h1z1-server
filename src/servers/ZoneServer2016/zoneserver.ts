@@ -47,42 +47,7 @@ export class ZoneServer2016 extends ZoneServer {
     this._packetHandlers = packetHandlers;
     this._dynamicWeatherEnabled = false;
     this._cycleSpeed = 100;
-    this._weather2016 = {
-      name: "",
-      unknownDword1: 0,
-      unknownDword2: 0,
-      skyBrightness1: 1,
-      skyBrightness2: 1,
-      snow: 0,
-      snowMap: 0,
-      colorGradient: 0.7,
-      unknownDword8: 0.16,
-      unknownDword9: 0.68,
-      unknownDword10: 0.08,
-      unknownDword11: 0,
-      unknownDword12: 0,
-      sunAxisX: 0,
-      sunAxisY: 0,
-      unknownDword15: 0,
-      disableTrees: 0,
-      disableTrees1: 0,
-      disableTrees2: 0,
-      wind: 5,
-      unknownDword20: 0,
-      unknownDword21: 0,
-      unknownDword22: 0,
-      unknownDword23: 0,
-      unknownDword24: 0,
-      unknownDword25: 0,
-      unknownDword26: 0,
-      unknownDword27: 0,
-      unknownDword28: 0,
-      unknownDword29: 0,
-      unknownDword30: 0,
-      unknownDword31: 0,
-      unknownDword32: 0,
-      unknownDword33: 0,
-    };
+    this._weather2016 = localWeatherTemplates.default;
     this._respawnLocations = spawnLocations.map((spawn: any) => {
       return {
         guid: this.generateGuid(),
