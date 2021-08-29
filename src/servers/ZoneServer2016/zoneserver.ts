@@ -36,7 +36,7 @@ const Z1_POIs = require("../../../data/2015/zoneData/Z1_POIs");
 const recipes = require("../../../data/2016/sampleData/recipes.json");
 // const localWeatherTemplates = require("../../../data/2015/sampleData/weather.json");
 // const stats = require("../../../data/2016/sampleData/stats.json");
-// const resources = require("../../../data/2015/dataSources/Resources.json");
+const resources = require("../../../data/2016/dataSources/resourceDefinitions.json");
 
 export class ZoneServer2016 extends ZoneServer {
   worldRoutineTimer: any;
@@ -288,75 +288,51 @@ export class ZoneServer2016 extends ZoneServer {
         recipes: recipes,
         //stats: stats // todo: fix
 
-        characterResources: [ // todo: load characterResource definitions from file, then set value for each only
+        characterResources: [
+          
           {
-            resourceId: 1, // health
-            resourceData: {
-              resourceId: 1,
-              resourceType: 1,
-              unknownArray1: [],
-              value: client.character.resources.health, // 10000 max
-            },
+            ...resources.health,
+            resourceData: { 
+              ...resources.health.resourceData, 
+              value: client.character.resources.health 
+            }
           },
           {
-            resourceId: 6, // stamina
-            resourceData: {
-              resourceId: 6,
-              resourceType: 6,
-              unknownArray1: [],
-              value: client.character.resources.stamina, // 600 max
-            },
+            ...resources.stamina,
+            resourceData: { 
+              ...resources.stamina.resourceData, 
+              value: client.character.resources.stamina 
+            }
           },
           {
-            resourceId: 4, // food
-            resourceData: {
-              resourceId: 4,
-              resourceType: 4,
-              unknownArray1: [],
-              value: client.character.resources.food, // 10000 max
-            },
+            ...resources.food,
+            resourceData: { 
+              ...resources.food.resourceData, 
+              value: client.character.resources.food 
+            }
           },
           {
-            resourceId: 5, // water
-            resourceData: {
-              resourceId: 5,
-              resourceType: 5,
-              unknownArray1: [],
-              value: client.character.resources.water, // 10000 max
-            },
+            ...resources.water,
+            resourceData: { 
+              ...resources.water.resourceData, 
+              value: client.character.resources.water 
+            }
           },
           {
-            resourceId: 68, // comfort
-            resourceData: {
-              resourceId: 68,
-              resourceType: 68,
-              unknownArray1: [],
-              value: client.character.resources.comfort, // 5000 max
-            },
+            ...resources.comfort,
+            resourceData: { 
+              ...resources.comfort.resourceData, 
+              value: client.character.resources.comfort 
+            }
           },
           {
-            resourceId: 12, // h1z1 virus
-            resourceData: {
-              resourceId: 12,
-              resourceType: 12,
-              unknownArray1: [],
-              value: client.character.resources.virus, // 10000 max
-            },
+            ...resources.virus,
+            resourceData: { 
+              ...resources.virus.resourceData, 
+              value: client.character.resources.virus 
+            }
           },
         ],
-
-        /* testing newly added sendself values */
-        playerTitles: [ // working
-          {
-            titleId: 1,
-            titleType: 1,
-            stringId: 1
-          }
-        ],
-        currentPlayerTitle: 1,
-        
-        /*                                     */
-
       }
     });
   }
