@@ -157,16 +157,9 @@ export class ZoneServer2016 extends ZoneServer {
       client.character.name = character.characterName;
     }
 
-    let generatedTransient;
-    do {
-      generatedTransient = Number((Math.random() * 30000).toFixed(0));
-    } while (this._transientIds[generatedTransient]);
-    this._transientIds[generatedTransient] = client.character.characterId;
     client.character = {
       ...client.character,
       guid: "0x665a2bff2b44c034", // default, only matters for multiplayer
-      transientId: generatedTransient,
-
       actorModelId: character.actorModelId,
       headActor: character.headActor,
       isRespawning: character.isRespawning,
@@ -289,7 +282,6 @@ export class ZoneServer2016 extends ZoneServer {
         //stats: stats // todo: fix
 
         characterResources: [
-          
           {
             ...resources.health,
             resourceData: { 
