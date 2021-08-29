@@ -10,6 +10,7 @@
 //
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
+require('v8-compile-cache');
 
 const PackageSetting = require("./package.json");
 
