@@ -168,7 +168,12 @@ export class ZoneServer extends EventEmitter {
 
     this._gatewayServer.on(
       "login",
-      (err: string, client: SOEClient, characterId: string, loginSessionId: string) => {
+      (
+        err: string,
+        client: SOEClient,
+        characterId: string,
+        loginSessionId: string
+      ) => {
         this.onGatewayLoginEvent(err, client, characterId, loginSessionId);
       }
     );
@@ -184,11 +189,16 @@ export class ZoneServer extends EventEmitter {
     this._gatewayServer.on(
       "tunneldata",
       (err: string, client: Client, data: Buffer, flags: number) => {
-        this.onGatewayTunnelDataEvent(err, this._clients[client.sessionId], data, flags);
+        this.onGatewayTunnelDataEvent(
+          err,
+          this._clients[client.sessionId],
+          data,
+          flags
+        );
       }
     );
   }
-  onZoneDataEvent(err: any, client: Client, packet: any){
+  onZoneDataEvent(err: any, client: Client, packet: any) {
     if (err) {
       console.error(err);
     } else {
@@ -211,7 +221,7 @@ export class ZoneServer extends EventEmitter {
       }
     }
   }
-  onZoneLoginEvent(err: any, client: Client){
+  onZoneLoginEvent(err: any, client: Client) {
     if (err) {
       console.error(err);
     } else {
@@ -224,7 +234,7 @@ export class ZoneServer extends EventEmitter {
       }
     }
   }
-  onSoePacketLimitationReachedEvent(client: Client){
+  onSoePacketLimitationReachedEvent(client: Client) {
     this.sendChatText(
       client,
       "You've almost reached the packet limitation for the server."
@@ -241,7 +251,12 @@ export class ZoneServer extends EventEmitter {
       });
     }, 60000);
   }
-  onGatewayLoginEvent(err: string, client: SOEClient, characterId: string, loginSessionId: string){
+  onGatewayLoginEvent(
+    err: string,
+    client: SOEClient,
+    characterId: string,
+    loginSessionId: string
+  ) {
     debug(
       `Client logged in from ${client.address}:${client.port} with character id: ${characterId}`
     );
@@ -249,7 +264,12 @@ export class ZoneServer extends EventEmitter {
     do {
       generatedTransient = Number((Math.random() * 30000).toFixed(0));
     } while (this._transientIds[generatedTransient]);
-    const zoneClient = new Client(client,loginSessionId,characterId,generatedTransient);
+    const zoneClient = new Client(
+      client,
+      loginSessionId,
+      characterId,
+      generatedTransient
+    );
     this._clients[client.sessionId] = zoneClient;
 
     this._transientIds[generatedTransient] = characterId;
@@ -259,32 +279,32 @@ export class ZoneServer extends EventEmitter {
     }, 20000);
     this.emit("login", err, zoneClient);
   }
-  onGatewayDisconnectEvent(err: string, client: Client){
+  onGatewayDisconnectEvent(err: string, client: Client) {
     debug(`Client disconnected from ${client.address}:${client.port}`);
-      clearInterval(client.pingTimer);
-      if (client.character?.characterId) {
-        delete this._characters[client.character.characterId];
-      }
-      delete this._clients[client.sessionId];
-      this.emit("disconnect", err, client);
+    clearInterval(client.pingTimer);
+    if (client.character?.characterId) {
+      delete this._characters[client.character.characterId];
+    }
+    delete this._clients[client.sessionId];
+    this.emit("disconnect", err, client);
   }
-  onGatewaySessionEvent(err: string, client: Client){
+  onGatewaySessionEvent(err: string, client: Client) {
     debug(`Session started for client ${client.address}:${client.port}`);
   }
-  onGatewayTunnelDataEvent(err: string, client: Client, data: Buffer, flags: number){
-    const packet = this._protocol.parse(
-      data,
-      flags,
-      true,
-      this._referenceData
-    );
+  onGatewayTunnelDataEvent(
+    err: string,
+    client: Client,
+    data: Buffer,
+    flags: number
+  ) {
+    const packet = this._protocol.parse(data, flags, true, this._referenceData);
     if (packet) {
       this.emit("data", null, client, packet);
     } else {
       debug("zonefailed : ", data);
     }
   }
-  
+
   async setupServer(): Promise<void> {
     this.forceTime(971172000000); // force day time by default - not working for now
     this._frozeCycle = false;
@@ -872,34 +892,33 @@ export class ZoneServer extends EventEmitter {
   }
 
   spawnObjects(client: Client): void {
-    this.spawnNpcCollection(client,this._objects);
+    this.spawnNpcCollection(client, this._objects);
   }
 
-  spawnNpcCollection(client: Client,collection:any) {
-    setImmediate(()=>{
+  spawnNpcCollection(client: Client, collection: any) {
+    setImmediate(() => {
       for (const item in collection) {
         const itemData = collection[item];
         if (
-          isPosInRadius(this._npcRenderDistance, client.character.state.position, itemData.position) &&
+          isPosInRadius(
+            this._npcRenderDistance,
+            client.character.state.position,
+            itemData.position
+          ) &&
           !client.spawnedEntities.includes(itemData)
         ) {
-            this.sendData(
-              client,
-              "PlayerUpdate.AddLightweightNpc",
-              itemData,
-              1
-            );
-            client.spawnedEntities.push(itemData);
+          this.sendData(client, "PlayerUpdate.AddLightweightNpc", itemData, 1);
+          client.spawnedEntities.push(itemData);
         }
       }
-    })
+    });
   }
   spawnDoors(client: Client): void {
-    this.spawnNpcCollection(client,this._doors);
+    this.spawnNpcCollection(client, this._doors);
   }
 
   spawnProps(client: Client): void {
-    this.spawnNpcCollection(client,this._props);
+    this.spawnNpcCollection(client, this._props);
   }
 
   despawnEntity(characterId: string) {

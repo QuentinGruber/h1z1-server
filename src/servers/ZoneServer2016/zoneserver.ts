@@ -55,10 +55,10 @@ export class ZoneServer2016 extends ZoneServer {
       skyBrightness2: 1,
       snow: 0,
       snowMap: 0,
-      colorGradient: .7,
-      unknownDword8: .16,
-      unknownDword9: .68,
-      unknownDword10: .08,
+      colorGradient: 0.7,
+      unknownDword8: 0.16,
+      unknownDword9: 0.68,
+      unknownDword10: 0.08,
       unknownDword11: 0,
       unknownDword12: 0,
       sunAxisX: 0,
@@ -111,7 +111,7 @@ export class ZoneServer2016 extends ZoneServer {
       };
     });
   }
-  onZoneDataEvent(err: any, client: Client, packet: any){
+  onZoneDataEvent(err: any, client: Client, packet: any) {
     if (err) {
       console.error(err);
     } else {
@@ -142,7 +142,7 @@ export class ZoneServer2016 extends ZoneServer {
       character = await this._db
         ?.collection("characters")
         .findOne({ characterId: client.character.characterId });
-        client.character.name = character.characterName;
+      client.character.name = character.characterName;
     } else {
       delete require.cache[
         require.resolve(
@@ -184,7 +184,7 @@ export class ZoneServer2016 extends ZoneServer {
         food: 5000,
         water: 5000,
         virus: 6000,
-        comfort: 5000
+        comfort: 5000,
       },
       equipment: [
         {
@@ -222,7 +222,7 @@ export class ZoneServer2016 extends ZoneServer {
         lookAt: new Float32Array([0, 0, 0, 1]),
         health: 0,
         shield: 0,
-      }
+      },
     };
     /*
     const characterDataMongo: any = await this._db
@@ -288,7 +288,8 @@ export class ZoneServer2016 extends ZoneServer {
         recipes: recipes,
         //stats: stats // todo: fix
 
-        characterResources: [ // todo: load characterResource definitions from file, then set value for each only
+        characterResources: [
+          // todo: load characterResource definitions from file, then set value for each only
           {
             resourceId: 1, // health
             resourceData: {
@@ -346,18 +347,18 @@ export class ZoneServer2016 extends ZoneServer {
         ],
 
         /* testing newly added sendself values */
-        playerTitles: [ // working
+        playerTitles: [
+          // working
           {
             titleId: 1,
             titleType: 1,
-            stringId: 1
-          }
+            stringId: 1,
+          },
         ],
         currentPlayerTitle: 1,
-        
-        /*                                     */
 
-      }
+        /*                                     */
+      },
     });
   }
 
@@ -387,7 +388,10 @@ export class ZoneServer2016 extends ZoneServer {
       this._dynamicWeatherWorker = setInterval(() => dynamicWeather(this), 100);
     }
     this._gatewayServer.start();
-    this.worldRoutineTimer = setTimeout(()=>this.worldRoutine2016.bind(this)(true), 3000);
+    this.worldRoutineTimer = setTimeout(
+      () => this.worldRoutine2016.bind(this)(true),
+      3000
+    );
   }
 
   sendInitData(client: Client): void {
@@ -456,7 +460,7 @@ export class ZoneServer2016 extends ZoneServer {
     }
   }
 
-  setPosAtLastRoutine(client: Client){
+  setPosAtLastRoutine(client: Client) {
     client.posAtLastRoutine = client.character.state.position;
   }
 
@@ -470,7 +474,7 @@ export class ZoneServer2016 extends ZoneServer {
     this.executeFuncForAllClients("removeOutOfDistanceEntities");
     this.executeFuncForAllClients("POIManager");
     this.executeFuncForAllClients("setPosAtLastRoutine");
-    if(refresh) this.worldRoutineTimer.refresh()
+    if (refresh) this.worldRoutineTimer.refresh();
   }
 
   SendZoneDetailsPacket2016(client: Client, weather: Weather2016): void {

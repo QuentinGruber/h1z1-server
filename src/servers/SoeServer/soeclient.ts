@@ -40,7 +40,7 @@ export default class SOEClient {
     this.outputStream = new (SOEOutputStream as any)(cryptoKey);
   }
 
-  clearTimers(){
+  clearTimers() {
     clearTimeout(this.outQueueTimer);
     clearTimeout(this.ackTimer);
     clearTimeout(this.outOfOrderTimer);
