@@ -279,6 +279,11 @@ const packetHandlers: any = {
     client.isInteracting = false;
     delete client.vehicle.mountedVehicle;
     client.vehicle.mountedVehicleType = "0";
+    if(!this._soloMode)
+    {
+      const populationNumber = _.size(server._characters);
+      server._db?.collection("servers").findOneAndUpdate({ serverId: server._worldId },{$set: {populationNumber: populationNumber,populationLevel:Number((populationNumber / 1).toFixed(0))}})
+    }
   },
   Security: function (server: ZoneServer, client: Client, packet: any) {
     debug(packet);
@@ -469,6 +474,11 @@ const packetHandlers: any = {
     server._gatewayServer._soeServer.deleteClient(client);
     delete server._characters[client.character.characterId];
     delete server._clients[client.sessionId];
+    if(!this._soloMode)
+        {
+          const populationNumber = _.size(server._characters);
+          server._db?.collection("servers").findOneAndUpdate({ serverId: server._worldId },{$set: {populationNumber: populationNumber,populationLevel:Number((populationNumber / 1).toFixed(0))}})
+        }
   },
   GameTimeSync: function (server: ZoneServer, client: Client, packet: any) {
     server.sendGameTimeSync(client);

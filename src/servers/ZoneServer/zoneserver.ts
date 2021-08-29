@@ -325,6 +325,8 @@ export class ZoneServer extends EventEmitter {
         .insertOne({ worldId: this._worldId });
       await this.saveWorld();
     }
+    if(!this._soloMode)
+      await this._db?.collection("servers").findOneAndUpdate({ serverId: this._worldId },{$set: {populationNumber: 0,populationLevel:0}})
     debug("Server ready");
   }
 
