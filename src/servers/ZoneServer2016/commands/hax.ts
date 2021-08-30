@@ -395,10 +395,11 @@ const hax: any = {
     if (!args[1]) {
       server.sendChatText(
         client,
-        "Please define a weather template to use (data/sampleData/weather.json)"
+        "Please define a weather template to use (data/2016/dataSources/weather.json)"
       );
     } else if (weatherTemplate) {
-      server.changeWeather(client, weatherTemplate);
+      server._weather2016 = weatherTemplate;
+      server.updateWeather2016(client);
       server.sendChatText(client, `Use "${args[1]}" as a weather template`);
     } else {
       if (args[1] === "list") {
@@ -429,28 +430,23 @@ const hax: any = {
         client,
         "Please define a name for your weather template '/hax saveCurrentWeather {name}'"
       );
-    } else if (
-      server._weatherTemplates[args[1]] ||
-      _.find(server._weatherTemplates, (template: { templateName: any }) => {
-        return template.templateName === args[1];
-      })
-    ) {
-      server.sendChatText(client, `"${args[1]}" already exist !`);
+    } else if (server._weatherTemplates[args[1]]) {
+      server.sendChatText(client, `"${args[1]}" already exists !`);
     } else {
-      const { _weather: currentWeather } = server;
+      const currentWeather = server._weather2016;
       if (currentWeather) {
         currentWeather.templateName = args[1];
         if (server._soloMode) {
           server._weatherTemplates[currentWeather.templateName as string] =
             currentWeather;
           fs.writeFileSync(
-            `${__dirname}/../../../../data/sampleData/weather.json`,
-            JSON.stringify(server._weatherTemplates)
+            `${__dirname}/../../../../data/2016/dataSources/weather.json`,
+            JSON.stringify(server._weatherTemplates, null, "\t")
           );
           delete require.cache[
-            require.resolve("../../../../data/2015/sampleData/weather.json")
+            require.resolve("../../../../data/2016/dataSources/weather.json")
           ];
-          server._weatherTemplates = require("../../../../data/2015/sampleData/weather.json");
+          server._weatherTemplates = require("../../../../data/2016/dataSources/weather.json");
         } else {
           await server._db?.collection("weathers").insertOne(currentWeather);
           server._weatherTemplates = await (server._db as any)
