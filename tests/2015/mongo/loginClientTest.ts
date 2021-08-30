@@ -45,4 +45,4 @@ setTimeout(() => {
 }, 2000);
 setInterval(() => {
   throw new Error("Test timed out!");
-}, 15000);
+}, 60000);
