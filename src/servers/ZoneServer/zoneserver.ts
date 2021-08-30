@@ -1093,6 +1093,18 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
+  sendGlobalTextAlert(message: string): void {
+    for (const a in this._clients) {
+      this.sendTextAlert(this._clients[a],message);
+    }
+  }
+
+  sendTextAlert(client: Client, message: string): void {
+    this.sendData(client, "ClientUpdate.TextAlert", {
+      message: message,
+    });
+  }
+
   sendChatText(client: Client, message: string, clearChat = false): void {
     if (clearChat) {
       for (let index = 0; index <= 6; index++) {
