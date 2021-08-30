@@ -648,7 +648,7 @@ export class ZoneServer extends EventEmitter {
       if (
         this._soloMode ||
         !characterDataMongo.position ||
-        this._respawnOnLastPosition
+        !this._respawnOnLastPosition
       ) {
         this._dummySelf.data.isRandomlySpawning = true;
       }
