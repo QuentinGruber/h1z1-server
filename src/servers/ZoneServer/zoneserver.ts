@@ -78,6 +78,7 @@ export class ZoneServer extends EventEmitter {
   _interactionDistance: number;
   _dummySelf: any;
   _appDataFolder: string;
+  _respawnOnLastPosition: boolean = true;
 
   constructor(
     serverPort: number,
@@ -639,7 +640,7 @@ export class ZoneServer extends EventEmitter {
       _.isEqual(this._dummySelf.data.rotation, [0, 0, 0, 1])
     ) {
       // if position/rotation hasn't be changed
-      if (this._soloMode || !characterDataMongo.position) {
+      if (this._soloMode || !characterDataMongo.position || this._respawnOnLastPosition) {
         this._dummySelf.data.isRandomlySpawning = true;
       }
     }
