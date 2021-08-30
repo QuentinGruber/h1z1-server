@@ -1,8 +1,8 @@
 import { LoginClient, LoginServer } from "../../../h1z1-server";
 
-async function test() {
-  await new LoginServer(1115, "mongodb://localhost:27017/").start();
+new LoginServer(1115,"mongodb://localhost:27017/").start();
 
+setTimeout(() => {
   var client = new LoginClient(
     295110,
     "dev",
@@ -23,25 +23,26 @@ async function test() {
     console.log(`Get a serverlist of ${res.servers.length} servers`);
     client.requestCharacterInfo();
   });
-  client.on("characterinfo", (err, res) => {
-    console.log(`Get characterinfo`);
-    console.log(res);
+  client.on("charactercreate", (err, res) => {
     setTimeout(() => {
-      client.requestCharacterLogin("0x03147cca2a860195", 1, {
+      client.requestCharacterLogin(res.characterId, 1, {
         locale: "EnUS",
         localeId: 1,
         preferredGatewayId: 8,
       });
     }, 2000);
   });
+  client.on("characterinfo", (err, res) => {
+    console.log(`Get characterinfo`);
+    console.log(res);
+    client.requestCharacterCreate();
+  });
   client.on("characterlogin", (err, res) => {
     console.log(`Get characterlogin`);
     console.log(res);
     process.exit(0);
   });
-
-  setInterval(() => {
-    throw new Error("Test timed out!");
-  }, 60000);
-}
-test();
+}, 2000);
+setInterval(() => {
+  throw new Error("Test timed out!");
+}, 15000);
