@@ -326,8 +326,13 @@ export class ZoneServer extends EventEmitter {
         .insertOne({ worldId: this._worldId });
       await this.saveWorld();
     }
-    if(!this._soloMode)
-      await this._db?.collection("servers").findOneAndUpdate({ serverId: this._worldId },{$set: {populationNumber: 0,populationLevel:0}})
+    if (!this._soloMode)
+      await this._db
+        ?.collection("servers")
+        .findOneAndUpdate(
+          { serverId: this._worldId },
+          { $set: { populationNumber: 0, populationLevel: 0 } }
+        );
     debug("Server ready");
   }
 
@@ -640,7 +645,11 @@ export class ZoneServer extends EventEmitter {
       _.isEqual(this._dummySelf.data.rotation, [0, 0, 0, 1])
     ) {
       // if position/rotation hasn't be changed
-      if (this._soloMode || !characterDataMongo.position || this._respawnOnLastPosition) {
+      if (
+        this._soloMode ||
+        !characterDataMongo.position ||
+        this._respawnOnLastPosition
+      ) {
         this._dummySelf.data.isRandomlySpawning = true;
       }
     }
@@ -650,12 +659,15 @@ export class ZoneServer extends EventEmitter {
       const randomSpawnIndex = Math.floor(
         Math.random() * this._spawnLocations.length
       );
-      this._dummySelf.data.position = client.character.state.position =
-        this._spawnLocations[randomSpawnIndex].position;
-      this._dummySelf.data.rotation = client.character.state.rotation =
-        this._spawnLocations[randomSpawnIndex].rotation;
-      client.character.spawnLocation =
-        this._spawnLocations[randomSpawnIndex].name;
+      this._dummySelf.data.position = client.character.state.position = this._spawnLocations[
+        randomSpawnIndex
+      ].position;
+      this._dummySelf.data.rotation = client.character.state.rotation = this._spawnLocations[
+        randomSpawnIndex
+      ].rotation;
+      client.character.spawnLocation = this._spawnLocations[
+        randomSpawnIndex
+      ].name;
     } else {
       if (!this._soloMode) {
         this._dummySelf.data.position = characterDataMongo.position;

@@ -433,15 +433,21 @@ const packetHandlers = {
       case Jenkins.oaat("HAX"):
         hax[args[0]]
           ? hax[args[0]](server, client, args)
-          : ( server.sendChatText(client, `Unknown command: /hax ${args[0]}`),
-              server.sendChatText(client, `/hax commands list: ${Object.keys(hax).join(", ")}`) )
+          : (server.sendChatText(client, `Unknown command: /hax ${args[0]}`),
+            server.sendChatText(
+              client,
+              `/hax commands list: ${Object.keys(hax).join(", ")}`
+            ));
         break;
       case Jenkins.oaat("DEV"):
       case 552078457: // dev
         dev[args[0]]
-        ? dev[args[0]](server, client, args)
-        : ( server.sendChatText(client, `Unknown command: /dev ${args[0]}`),
-            server.sendChatText(client, `/dev commands list: ${Object.keys(dev).join(", ")}`) )
+          ? dev[args[0]](server, client, args)
+          : (server.sendChatText(client, `Unknown command: /dev ${args[0]}`),
+            server.sendChatText(
+              client,
+              `/dev commands list: ${Object.keys(dev).join(", ")}`
+            ));
         break;
     }
   },
@@ -664,13 +670,14 @@ const packetHandlers = {
         server.worldRoutine2016();
       }
     } else if (packet.data.vehicle_position && client.vehicle.mountedVehicle) {
-      server._vehicles[client.vehicle.mountedVehicle].npcData.position =
-        new Float32Array([
-          packet.data.vehicle_position[0],
-          packet.data.vehicle_position[1],
-          packet.data.vehicle_position[2],
-          0,
-        ]);
+      server._vehicles[
+        client.vehicle.mountedVehicle
+      ].npcData.position = new Float32Array([
+        packet.data.vehicle_position[0],
+        packet.data.vehicle_position[1],
+        packet.data.vehicle_position[2],
+        0,
+      ]);
     }
     if (packet.data.rotation) {
       // TODO: modify array element beside re-creating it

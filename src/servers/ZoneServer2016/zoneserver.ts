@@ -224,7 +224,7 @@ export class ZoneServer2016 extends ZoneServer {
       _.isEqual(character.rotation, [0, 0, 0, 1])
     ) {
       // if position/rotation hasn't changed
-        isRandomlySpawning = true;
+      isRandomlySpawning = true;
     }
 
     if (isRandomlySpawning) {
@@ -232,12 +232,15 @@ export class ZoneServer2016 extends ZoneServer {
       const randomSpawnIndex = Math.floor(
         Math.random() * this._spawnLocations.length
       );
-      client.character.state.position =
-        this._spawnLocations[randomSpawnIndex].position;
-      client.character.state.rotation =
-        this._spawnLocations[randomSpawnIndex].rotation;
-      client.character.spawnLocation =
-        this._spawnLocations[randomSpawnIndex].name;
+      client.character.state.position = this._spawnLocations[
+        randomSpawnIndex
+      ].position;
+      client.character.state.rotation = this._spawnLocations[
+        randomSpawnIndex
+      ].rotation;
+      client.character.spawnLocation = this._spawnLocations[
+        randomSpawnIndex
+      ].name;
     } else {
       client.character.state.position = character.position;
       client.character.state.rotation = character.rotation;
@@ -269,48 +272,48 @@ export class ZoneServer2016 extends ZoneServer {
         characterResources: [
           {
             ...resources.health,
-            resourceData: { 
-              ...resources.health.resourceData, 
-              value: client.character.resources.health 
-            }
+            resourceData: {
+              ...resources.health.resourceData,
+              value: client.character.resources.health,
+            },
           },
           {
             ...resources.stamina,
-            resourceData: { 
-              ...resources.stamina.resourceData, 
-              value: client.character.resources.stamina 
-            }
+            resourceData: {
+              ...resources.stamina.resourceData,
+              value: client.character.resources.stamina,
+            },
           },
           {
             ...resources.food,
-            resourceData: { 
-              ...resources.food.resourceData, 
-              value: client.character.resources.food 
-            }
+            resourceData: {
+              ...resources.food.resourceData,
+              value: client.character.resources.food,
+            },
           },
           {
             ...resources.water,
-            resourceData: { 
-              ...resources.water.resourceData, 
-              value: client.character.resources.water 
-            }
+            resourceData: {
+              ...resources.water.resourceData,
+              value: client.character.resources.water,
+            },
           },
           {
             ...resources.comfort,
-            resourceData: { 
-              ...resources.comfort.resourceData, 
-              value: client.character.resources.comfort 
-            }
+            resourceData: {
+              ...resources.comfort.resourceData,
+              value: client.character.resources.comfort,
+            },
           },
           {
             ...resources.virus,
-            resourceData: { 
-              ...resources.virus.resourceData, 
-              value: client.character.resources.virus 
-            }
+            resourceData: {
+              ...resources.virus.resourceData,
+              value: client.character.resources.virus,
+            },
           },
         ],
-      }
+      },
     });
   }
 

@@ -12,10 +12,10 @@
 // ======================================================================
 
 var EventEmitter = require("events").EventEmitter,
-  SOEInputStream =
-    require("../servers/SoeServer/soeinputstream").SOEInputStream,
-  SOEOutputStream =
-    require("../servers/SoeServer/soeoutputstream").SOEOutputStream,
+  SOEInputStream = require("../servers/SoeServer/soeinputstream")
+    .SOEInputStream,
+  SOEOutputStream = require("../servers/SoeServer/soeoutputstream")
+    .SOEOutputStream,
   SOEProtocol = require("../protocols/soeprotocol").SOEProtocol,
   SOEPackets = require("../protocols/soeprotocol").SOEPackets,
   util = require("util"),

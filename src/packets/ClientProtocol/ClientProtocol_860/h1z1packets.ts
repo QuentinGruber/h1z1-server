@@ -716,11 +716,8 @@ function parseItemAddData(data: Buffer, offset: number, referenceData: any) {
     outSize = itemData.readUInt16LE(2),
     compData = itemData.slice(4, 4 + inSize),
     decompData = lz4_decompress(compData, inSize, outSize),
-    itemDefinition = DataSchema.parse(
-      baseItemDefinitionSchema,
-      decompData,
-      0
-    ).result;
+    itemDefinition = DataSchema.parse(baseItemDefinitionSchema, decompData, 0)
+      .result;
 
   itemData = parseItemData(itemData, 4 + inSize, referenceData).value;
   return {
@@ -1479,8 +1476,9 @@ const weaponPackets = [
   ["Weapon.AddDebugLogEntry", 0x8223, {}],
 ];
 
-const [weaponPacketTypes, weaponPacketDescriptors] =
-  PacketTableBuild(weaponPackets);
+const [weaponPacketTypes, weaponPacketDescriptors] = PacketTableBuild(
+  weaponPackets
+);
 
 function parseMultiWeaponPacket(data: Buffer, offset: number) {
   const startOffset = offset,
