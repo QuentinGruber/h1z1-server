@@ -140,7 +140,7 @@ export class LoginServer extends EventEmitter {
 
   async loadCharacterData(client: Client): Promise<any> {
     if (this._protocol.protocolName == "LoginUdp_9") {
-      if(this._soloMode) {
+      if (this._soloMode) {
         try {
           // delete old character cache
           delete require.cache[
@@ -150,13 +150,12 @@ export class LoginServer extends EventEmitter {
           ];
         } catch (e) {}
         return require(`${this._appDataFolder}/single_player_characters.json`);
-      }
-      else {
+      } else {
         // 2015 mongo
       }
-    }
-    else { // LoginUdp_11
-      if(this._soloMode) {
+    } else {
+      // LoginUdp_11
+      if (this._soloMode) {
         try {
           // delete old character cache
           delete require.cache[
@@ -166,18 +165,17 @@ export class LoginServer extends EventEmitter {
           ];
         } catch (e) {}
         return require(`${this._appDataFolder}/single_player_characters2016.json`);
-      }
-      else {
+      } else {
         // 2016 mongo
       }
     }
   }
 
   LoginRequest(client: Client, sessionId: string, fingerprint: string) {
-    if(this._protocol.protocolName == "LoginUdp_11" && this._soloMode){
+    if (this._protocol.protocolName == "LoginUdp_11" && this._soloMode) {
       const SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters2016.json`);
       // if character file is old, delete it
-      if(SinglePlayerCharacters[0] && SinglePlayerCharacters[0].payload) {
+      if (SinglePlayerCharacters[0] && SinglePlayerCharacters[0].payload) {
         fs.writeFileSync(
           `${this._appDataFolder}/single_player_characters2016.json`,
           JSON.stringify([], null)
@@ -261,13 +259,11 @@ export class LoginServer extends EventEmitter {
             payload: {
               name: character.characterName,
               modelId: character.actorModelId,
-              gender: character.gender
-            }
-          })
+              gender: character.gender,
+            },
+          });
         });
-        characters = this.addDummyDataToCharacters(
-          characters
-        );
+        characters = this.addDummyDataToCharacters(characters);
         CharactersInfo = {
           status: 1,
           canBypassServerLock: true,
@@ -326,11 +322,10 @@ export class LoginServer extends EventEmitter {
     if (this._soloMode) {
       const SinglePlayerCharacters = await this.loadCharacterData(client);
       const characterIndex = SinglePlayerCharacters.findIndex(
-        (character: any) =>
-          character.characterId === packet.result.characterId
+        (character: any) => character.characterId === packet.result.characterId
       );
       SinglePlayerCharacters.splice(characterIndex, 1);
-      
+
       if (this._protocol.protocolName == "LoginUdp_9") {
         fs.writeFileSync(
           `${this._appDataFolder}/single_player_characters.json`,
@@ -389,7 +384,7 @@ export class LoginServer extends EventEmitter {
         },
       };
     } else {
-      const SinglePlayerCharacters = await this.loadCharacterData(client);;
+      const SinglePlayerCharacters = await this.loadCharacterData(client);
       if (this._protocol.protocolName == "LoginUdp_9") {
         const character = SinglePlayerCharacters.find(
           (character: any) => character.characterId === characterId
@@ -432,7 +427,6 @@ export class LoginServer extends EventEmitter {
           },
         };
       }
-      
     }
     debug(charactersLoginInfo);
     this.sendData(client, "CharacterLoginReply", charactersLoginInfo);

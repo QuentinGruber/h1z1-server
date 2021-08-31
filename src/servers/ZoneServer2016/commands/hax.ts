@@ -45,7 +45,6 @@ const hax: any = {
         [0, 0, 0, 0]
       ),
     };
-    //server.sendData(client, "AddLightweightVehicle", vehicleData);
     server._vehicles[characterId] = vehicleData;
     server.worldRoutine2016();
     server.sendData(client, "Mount.MountResponse", {
@@ -177,13 +176,6 @@ const hax: any = {
         unknownGuid1: server.generateGuid(),
         positionUpdate: [0, 0, 0, 0],
       };
-      //server.sendData(client, "AddLightweightVehicle", vehicle);
-      /*
-      server.sendData(client, "Character.ManagedObject", {
-        objectCharacterId: characterId,
-        characterId: client.character.characterId,
-      });
-      */
       server._vehicles[characterId] = vehicle; // save vehicle
     }
   },
@@ -206,7 +198,6 @@ const hax: any = {
     const obj = {
       characterId: characterId,
       transientId: transientId,
-      //unknownByte1: Number(args[2]),
       position: [
         client.character.state.position[0],
         client.character.state.position[1],
@@ -216,7 +207,6 @@ const hax: any = {
       showHealth: Number(args[2]),
       unknownDword4: Number(args[3]),
     };
-    //server.sendData(client, "AddSimpleNpc", obj);
     server._objects[characterId] = obj; // save npc
   },
   spawnNpcModel: function (
@@ -252,7 +242,6 @@ const hax: any = {
       headActor: getHeadActor(choosenModelId),
       attachedObject: {},
     };
-    //server.sendData(client, "AddLightweightNpc", npc);
     server._npcs[characterId] = npc; // save npc
   },
   spawnVehicle: function (server: ZoneServer2016, client: Client, args: any[]) {
@@ -310,13 +299,6 @@ const hax: any = {
       unknownGuid1: server.generateGuid(),
       positionUpdate: [0, 0, 0, 0],
     };
-    //server.sendData(client, "AddLightweightVehicle", vehicle);
-    /*
-    server.sendData(client, "Character.ManagedObject", {
-      objectCharacterId: characterId,
-      characterId: client.character.characterId,
-    });
-    */
     server._vehicles[characterId] = vehicle; // save vehicle
   },
 
@@ -441,8 +423,9 @@ const hax: any = {
       if (currentWeather) {
         currentWeather.templateName = args[1];
         if (server._soloMode) {
-          server._weatherTemplates[currentWeather.templateName as string] =
-            currentWeather;
+          server._weatherTemplates[
+            currentWeather.templateName as string
+          ] = currentWeather;
           fs.writeFileSync(
             `${__dirname}/../../../../data/sampleData/weather.json`,
             JSON.stringify(server._weatherTemplates)
@@ -490,8 +473,8 @@ const hax: any = {
   ) {
     server.sendChatText(client, `Randomized weather`);
     function rnd_number(max: any, fixed: Boolean = false) {
-      const num = Math.random() * max
-      if(fixed) return Number(num.toFixed(0))
+      const num = Math.random() * max;
+      if (fixed) return Number(num.toFixed(0));
       return Number(num);
     }
 

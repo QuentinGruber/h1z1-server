@@ -102,6 +102,12 @@ export class SOEInputStream extends EventEmitter {
         data = appData[i];
         if (this._useEncryption) {
           // sometimes there's an extra 0x00 byte in the beginning that trips up the RC4 decyption
+          /* 
+            Hey @jseidelin i've found what's this extra byte :P
+            From the UdpLibrary doc:
+            - Implementation note:  Internally the UdpLibrary needs a way to distinguish internal packets from application packets. 
+            It does this by having all internal packets start with a zero (0) byte.
+          */
           if (data.length > 1 && data.readUInt16LE(0) === 0) {
             this._rc4.write(data.slice(1));
           } else {

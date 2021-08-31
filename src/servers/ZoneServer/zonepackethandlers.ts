@@ -178,8 +178,13 @@ const packetHandlers: any = {
       } else if (client.character.resources.health < 0) {
         client.character.resources.health = 0;
       }
-      const { stamina, food, water, health, virus } =
-        client.character.resources;
+      const {
+        stamina,
+        food,
+        water,
+        health,
+        virus,
+      } = client.character.resources;
 
       server.sendData(client, "ResourceEvent", {
         eventData: {
@@ -279,6 +284,20 @@ const packetHandlers: any = {
     client.isInteracting = false;
     delete client.vehicle.mountedVehicle;
     client.vehicle.mountedVehicleType = "0";
+    if (!this._soloMode) {
+      const populationNumber = _.size(server._characters);
+      server._db
+        ?.collection("servers")
+        .findOneAndUpdate(
+          { serverId: server._worldId },
+          {
+            $set: {
+              populationNumber: populationNumber,
+              populationLevel: Number((populationNumber / 1).toFixed(0)),
+            },
+          }
+        );
+    }
   },
   Security: function (server: ZoneServer, client: Client, packet: any) {
     debug(packet);
@@ -469,6 +488,20 @@ const packetHandlers: any = {
     server._gatewayServer._soeServer.deleteClient(client);
     delete server._characters[client.character.characterId];
     delete server._clients[client.sessionId];
+    if (!this._soloMode) {
+      const populationNumber = _.size(server._characters);
+      server._db
+        ?.collection("servers")
+        .findOneAndUpdate(
+          { serverId: server._worldId },
+          {
+            $set: {
+              populationNumber: populationNumber,
+              populationLevel: Number((populationNumber / 1).toFixed(0)),
+            },
+          }
+        );
+    }
   },
   GameTimeSync: function (server: ZoneServer, client: Client, packet: any) {
     server.sendGameTimeSync(client);
@@ -1464,7 +1497,10 @@ const packetHandlers: any = {
                           unknownDword6: 0,
                           position: packet.data.position,
                           unknownVector1: [
-                            0, -0.7071066498756409, 0, 0.70710688829422,
+                            0,
+                            -0.7071066498756409,
+                            0,
+                            0.70710688829422,
                           ],
                           rotation: [packet.data.heading, 0, 0, 0],
                           unknownDword7: 0,
@@ -1674,14 +1710,14 @@ const packetHandlers: any = {
     debug(packet);
     const characterId = server._transientIds[packet.data.transientId];
     if (characterId) {
-        if(!server._soloMode){
-          server.sendRawToAllOthers(
-            client,
-            server._protocol.createVehiclePositionBroadcast(
-              packet.data.PositionUpdate.raw.slice(1)
-            )
-          );
-        }
+      if (!server._soloMode) {
+        server.sendRawToAllOthers(
+          client,
+          server._protocol.createVehiclePositionBroadcast(
+            packet.data.PositionUpdate.raw.slice(1)
+          )
+        );
+      }
       if (packet.data.PositionUpdate.position) {
         server._vehicles[characterId].positionUpdate =
           packet.data.PositionUpdate;
@@ -1722,13 +1758,13 @@ const packetHandlers: any = {
     }
     const movingCharacter = server._characters[client.character.characterId];
     if (movingCharacter && !server._soloMode) {
-        server.sendRawToAllOthers(
-          client,
-          server._protocol.createPositionBroadcast(
-            packet.data.raw,
-            movingCharacter.transientId
-          )
-        );
+      server.sendRawToAllOthers(
+        client,
+        server._protocol.createPositionBroadcast(
+          packet.data.raw,
+          movingCharacter.transientId
+        )
+      );
     }
     if (packet.data.position) {
       // TODO: modify array element beside re-creating it
@@ -1776,13 +1812,14 @@ const packetHandlers: any = {
         server.worldRoutine(client);
       }
     } else if (packet.data.vehicle_position && client.vehicle.mountedVehicle) {
-      server._vehicles[client.vehicle.mountedVehicle].npcData.position =
-        new Float32Array([
-          packet.data.vehicle_position[0],
-          packet.data.vehicle_position[1],
-          packet.data.vehicle_position[2],
-          0,
-        ]);
+      server._vehicles[
+        client.vehicle.mountedVehicle
+      ].npcData.position = new Float32Array([
+        packet.data.vehicle_position[0],
+        packet.data.vehicle_position[1],
+        packet.data.vehicle_position[2],
+        0,
+      ]);
     }
     if (packet.data.rotation) {
       // TODO: modify array element beside re-creating it
