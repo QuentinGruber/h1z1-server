@@ -6,8 +6,8 @@
   "license": "GPL-3.0-only",
   "main": "h1z1-server.js",
   "dependencies": {
-    "@types/json-schema": "7.0.7",
-    "@types/node": "16.4.8",
+    "@types/json-schema": "7.0.9",
+    "@types/node": "16.7.9",
     "debug": "4.3.2",
     "eul2quat": "1.0.0",
     "h1emu-core": "0.2.1",
