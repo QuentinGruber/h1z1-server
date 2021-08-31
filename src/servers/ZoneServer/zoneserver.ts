@@ -1258,6 +1258,7 @@ if (
 ) {
   new ZoneServer(
     1117,
-    new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", "base64")
+    new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", "base64"),
+    process.env.MONGO_URL
   ).start();
 }
