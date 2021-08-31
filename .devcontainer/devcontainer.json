@@ -13,7 +13,16 @@
 	// Add the IDs of extensions you want installed when the container is created.
 	"extensions": [
 		"dbaeumer.vscode-eslint",
-		"mongodb.mongodb-vscode" 
+		"mongodb.mongodb-vscode",
+		"vivaxy.vscode-conventional-commits",
+		"github.vscode-pull-request-github",
+		"xabikos.javascriptsnippets",
+		"luis.node-project-version",
+		"eg2.vscode-npm-script",
+		"christian-kohler.path-intellisense",
+		"esbenp.prettier-vscode",
+		"lkytal.quicktask",
+		"wix.vscode-import-cost"
 	],
 	"forwardPorts": [1115,1117],
 
