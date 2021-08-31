@@ -24,7 +24,8 @@
 		"lkytal.quicktask",
 		"wix.vscode-import-cost"
 	],
-	"forwardPorts": [1115,1117],
+	//"forwardPorts": [1115,1117],
+	"appPort": ["1115:1115/udp", "1117:1117/udp"],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [3000, 27017],
