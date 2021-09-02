@@ -13,7 +13,7 @@
 
 import { EventEmitter } from "events";
 import { GatewayServer } from "../GatewayServer/gatewayserver";
-import { default as packetHandlers } from "./zonepackethandlers";
+import packetHandlers from "./zonepackethandlers";
 import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
 import { getAppDataFolderPath, setupAppDataFolder, _ } from "../../utils/utils";
 import {
@@ -22,7 +22,7 @@ import {
   Int64String,
   isPosInRadius,
 } from "../../utils/utils";
-import { Weather } from "../../types/zoneserver";
+import { HandledZonePackets, Weather } from "../../types/zoneserver";
 import { Db, MongoClient } from "mongodb";
 import { Worker } from "worker_threads";
 import SOEClient from "servers/SoeServer/soeclient";
@@ -51,7 +51,7 @@ export class ZoneServer extends EventEmitter {
   _gameTime: any;
   _serverTime: any;
   _transientIds: any;
-  _packetHandlers: any;
+  _packetHandlers: HandledZonePackets;
   _referenceData: any;
   _startTime: number;
   _startGameTime: number;
@@ -210,9 +210,9 @@ export class ZoneServer extends EventEmitter {
       ) {
         debug(`Receive Data ${[packet.name]}`);
       }
-      if (this._packetHandlers[packet.name]) {
+      if ((this._packetHandlers  as any)[packet.name]) {
         try {
-          this._packetHandlers[packet.name](this, client, packet);
+          (this._packetHandlers  as any)[packet.name](this, client, packet);
         } catch (e) {
           debug(e);
         }
