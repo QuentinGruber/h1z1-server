@@ -7,8 +7,7 @@ const h1z1packets2016 = require("../src/packets/ClientProtocol/ClientProtocol_10
 
 const packetsFiles:any = {
     h1z1PacketsType:[...Object.keys(h1z1packets2015.PacketTypes),...Object.keys(h1z1packets2016.PacketTypes)],
-    loginPackets2015Type:Object.keys(loginpackets2015.PacketTypes),
-    loginPackets2016Type:Object.keys(loginpackets2016.PacketTypes),
+    loginPacketsType:[...Object.keys(loginpackets2015.PacketTypes),...Object.keys(loginpackets2016.PacketTypes)]
 };
 
 const typePath:string = "./src/types/packets.ts"
