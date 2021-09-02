@@ -11,7 +11,7 @@ const packetsFiles:any = {
     loginPackets2016Type:Object.keys(loginpackets2016.PacketTypes),
 };
 
-const typePath:string = "../src/types/packets.ts"
+const typePath:string = "./src/types/packets.ts"
 let steamString =""; // should use a streamWriter but i'm lazy
 Object.keys(packetsFiles).forEach(packetsFileName => {
     const packetsFile:string[] = packetsFiles[packetsFileName];
