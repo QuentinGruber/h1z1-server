@@ -27,6 +27,7 @@ import { Db, MongoClient } from "mongodb";
 import { Worker } from "worker_threads";
 import SOEClient from "servers/SoeServer/soeclient";
 import Client from "./zoneclient";
+import { h1z1PacketsType } from "types/packets";
 process.env.isBin && require("./workers/dynamicWeather");
 
 const localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json");
@@ -1154,7 +1155,7 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
-  sendData(client: Client, packetName: string, obj: any, channel = 0): void {
+  sendData(client: Client, packetName: h1z1PacketsType, obj: any, channel = 0): void {
     if (packetName != "KeepAlive") {
       debug("send data", packetName);
     }
@@ -1162,7 +1163,7 @@ export class ZoneServer extends EventEmitter {
     this._gatewayServer.sendTunnelData(client, data, channel);
   }
 
-  sendDataToAll(packetName: string, obj: any, channel = 0): void {
+  sendDataToAll(packetName: h1z1PacketsType, obj: any, channel = 0): void {
     for (const a in this._clients) {
       this.sendData(this._clients[a], packetName, obj, channel);
     }
@@ -1170,7 +1171,7 @@ export class ZoneServer extends EventEmitter {
 
   sendDataToAllOthers(
     client: Client,
-    packetName: string,
+    packetName: h1z1PacketsType,
     obj: any,
     channel = 0
   ): void {

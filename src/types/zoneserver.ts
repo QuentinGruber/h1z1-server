@@ -13,7 +13,6 @@ export interface HandledZonePackets {
   "LobbyGameDefinition.DefinitionsRequest":(server: ZoneServer,client: ZoneClient,packet: any) => void;
   "PlayerUpdate.EndCharacterAccess":(server: ZoneServer,client: ZoneClient,packet: any) => void;
   KeepAlive:(server: ZoneServer,client: ZoneClient,packet: any) => void;
-  "AdminCommand.RunSpeed":(server: ZoneServer,client: ZoneClient,packet: any) => void;
   ClientLog:(server: ZoneServer,client: ZoneClient,packet: any) => void;
   "WallOfData.UIEvent":(server: ZoneServer,client: ZoneClient,packet: any) => void;
   SetLocale:(server: ZoneServer,client: ZoneClient,packet: any) => void;
