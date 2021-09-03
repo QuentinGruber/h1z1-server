@@ -6,10 +6,8 @@
 	"dockerComposeFile": "docker-compose.yml",
 	"service": "app",
 	"workspaceFolder": "/workspace",
-
 	// Set *default* container specific settings.json values on container create.
 	"settings": {},
-
 	// Add the IDs of extensions you want installed when the container is created.
 	"extensions": [
 		"dbaeumer.vscode-eslint",
@@ -24,15 +22,7 @@
 		"lkytal.quicktask",
 		"wix.vscode-import-cost"
 	],
-	//"forwardPorts": [1115,1117],
 	"appPort": ["1115:1115/udp", "1117:1117/udp"],
-
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [3000, 27017],
-
-	// Use 'postCreateCommand' to run commands after the container is created.
+	"forwardPorts": [1115, 1117],
 	"postCreateCommand": "npm install",
-
-	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
-	//"remoteUser": "node"
 }
