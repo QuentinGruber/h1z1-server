@@ -35,7 +35,7 @@ const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.js
 const Z1_POIs = require("../../../data/2015/zoneData/Z1_POIs");
 const recipes = require("../../../data/2016/sampleData/recipes.json");
 // const localWeatherTemplates = require("../../../data/2015/sampleData/weather.json");
-// const stats = require("../../../data/2016/sampleData/stats.json");
+const stats = require("../../../data/2016/sampleData/stats.json");
 const resources = require("../../../data/2016/dataSources/resourceDefinitions.json");
 
 export class ZoneServer2016 extends ZoneServer {
@@ -267,7 +267,7 @@ export class ZoneServer2016 extends ZoneServer {
           characterName: client.character.name,
         },
         recipes: recipes,
-        //stats: stats // todo: fix
+        stats: stats,
 
         characterResources: [
           {
