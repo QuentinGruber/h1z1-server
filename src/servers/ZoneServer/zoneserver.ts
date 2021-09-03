@@ -204,6 +204,7 @@ export class ZoneServer extends EventEmitter {
     if (err) {
       console.error(err);
     } else {
+      client.pingTimer?.refresh()
       if (
         packet.name != "KeepAlive" &&
         packet.name != "PlayerUpdateUpdatePositionClientToZone" &&
@@ -276,14 +277,13 @@ export class ZoneServer extends EventEmitter {
 
     this._transientIds[generatedTransient] = characterId;
     this._characters[characterId] = zoneClient.character;
-    zoneClient.pingTimer = setInterval(() => {
-      this.checkIfClientStillOnline(zoneClient);
-    }, 20000);
+    zoneClient.pingTimer = setTimeout(() => {
+      this.timeoutClient(zoneClient);
+    }, this._pingTimeoutTime);
     this.emit("login", err, zoneClient);
   }
   onGatewayDisconnectEvent(err: string, client: Client) {
     debug(`Client disconnected from ${client.address}:${client.port}`);
-    clearInterval(client.pingTimer);
     if (client.character?.characterId) {
       delete this._characters[client.character.characterId];
     }
@@ -544,9 +544,7 @@ export class ZoneServer extends EventEmitter {
     this._packetHandlers = require("./zonepackethandlers").default;
   }
 
-  checkIfClientStillOnline(client: Client): void {
-    if (new Date().getTime() - client.lastPingTime > this._pingTimeoutTime) {
-      clearInterval(client.pingTimer);
+  timeoutClient(client: Client): void {
       debug(
         `Client disconnected from ${client.address}:${client.port} ( ping timeout )`
       );
@@ -557,7 +555,6 @@ export class ZoneServer extends EventEmitter {
       delete this._clients[client.sessionId];
       this._gatewayServer._soeServer.deleteClient(client);
       this.emit("disconnect", null, client);
-    }
   }
 
   generateGuid(): string {

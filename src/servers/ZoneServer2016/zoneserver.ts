@@ -117,6 +117,7 @@ export class ZoneServer2016 extends ZoneServer {
     if (err) {
       console.error(err);
     } else {
+      client.pingTimer?.refresh();
       if (
         packet.name != "KeepAlive" &&
         packet.name != "PlayerUpdateUpdatePositionClientToZone" &&

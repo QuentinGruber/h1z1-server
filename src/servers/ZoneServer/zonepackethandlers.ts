@@ -273,7 +273,7 @@ const packetHandlers = {
         `${client.character.name} has joined the server !`
       );
       client.firstLoading = false;
-      client.lastPingTime = new Date().getTime();
+      client.pingTimer?.refresh();
       client.savePositionTimer = setTimeout(
         () => server.saveCharacterPosition(client, 30000),
         30000
@@ -361,7 +361,6 @@ const packetHandlers = {
     debug("EndCharacterAccess");
   },
   KeepAlive: function (server: ZoneServer, client: Client, packet: any) {
-    client.lastPingTime = new Date().getTime();
     server.sendData(client, "KeepAlive", {
       gameTime: packet.data.gameTime,
     });
