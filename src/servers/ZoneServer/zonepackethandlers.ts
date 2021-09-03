@@ -826,6 +826,18 @@ const packetHandlers = {
       }
     }
   },
+  "Command.SetInWater": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
+  },
+  "Command.ClearInWater": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
+  },
   "Command.InteractionSelect": function (
     server: ZoneServer,
     client: Client,
