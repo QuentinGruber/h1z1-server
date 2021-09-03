@@ -1,6 +1,6 @@
 {
   "name": "h1z1-server",
-  "version": "0.14.1-8",
+  "version": "0.14.1-9",
   "description": "Library for emulating h1z1 servers",
   "author": "Quentin Gruber <quentingruber@gmail.com> (http://github.com/quentingruber)",
   "license": "GPL-3.0-only",
@@ -15,7 +15,7 @@
     "hash-jenkins": "1.0.1",
     "mongodb": "4.1.1",
     "mongodb-restore-dump": "1.0.1",
-    "terser-output": "1.0.2",
+    "terser-output": "1.0.3",
     "typescript": "4.4.2",
     "v8-compile-cache": "2.3.0"
   },
@@ -30,9 +30,12 @@
     "ts-node": "10.0.0"
   },
   "scripts": {
+    "gen-packets-types": "npx ts-node ./scripts/genPacketsNames.ts",
     "build-optimized": "npm run build && terser-output ./out",
     "build": "tsc -p ./tsconfig.json",
     "build-tests": "npx swc tests -d tests_out",
+    "build-docker-images": "npx ts-node ./docker/buildDocker.ts",
+    "build-swc": "npx swc src -d out",
     "test-zone-client": "node tests_out/2015/zoneClientTest.js",
     "test-login-client": "node tests_out/2015/loginClientTest.js",
     "test-load-login-client": "npm run build-swc && npm run build-tests && node tests_out/loadTests/loginClientLoadTest.js",
@@ -42,14 +45,11 @@
     "test-2015": "node tests_out/2015/testRuntime.js && node tests_out/2015/testIssuesInPacketSchemas.js && npm run test-login-client && npm run test-zone-client",
     "test-2016": "node tests_out/2016/testRuntime.js && node tests_out/2016/testIssuesInPacketSchemas.js",
     "test": "npm run build-swc && npm run build-tests && npm run test-2015 && npm run test-2016",
-    "build-docker-images": "npx ts-node ./docker/buildDocker.ts",
-    "build-swc": "npx swc src -d out",
-    "watch-swc": "npx swc --watch src -d out",
     "postinstall": "npm run build-optimized",
-    "before_release": "npm run prettier_sources && echo Do not forget to update package version !",
     "publish_release": "git push --tags && git push origin dev && git push origin master && git checkout dev && npm run publish_release-next",
     "publish_release-next": "npm version prerelease && git add * && git commit -m 'update-packet-version' && npm publish --tag next && git push origin dev",
-    "prettier_sources": "prettier --write ./src && prettier --write ./tests"
+    "prettier_sources": "prettier --write ./src && prettier --write ./tests",
+    "watch-swc": "npx swc --watch src -d out"
   },
   "repository": {
     "type": "git",

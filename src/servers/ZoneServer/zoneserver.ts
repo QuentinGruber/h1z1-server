@@ -13,7 +13,7 @@
 
 import { EventEmitter } from "events";
 import { GatewayServer } from "../GatewayServer/gatewayserver";
-import { default as packetHandlers } from "./zonepackethandlers";
+import packetHandlers from "./zonepackethandlers";
 import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
 import { getAppDataFolderPath, setupAppDataFolder, _ } from "../../utils/utils";
 import {
@@ -22,11 +22,12 @@ import {
   Int64String,
   isPosInRadius,
 } from "../../utils/utils";
-import { Weather } from "../../types/zoneserver";
+import { HandledZonePackets, Weather } from "../../types/zoneserver";
 import { Db, MongoClient } from "mongodb";
 import { Worker } from "worker_threads";
 import SOEClient from "servers/SoeServer/soeclient";
 import Client from "./zoneclient";
+import { h1z1PacketsType } from "types/packets";
 process.env.isBin && require("./workers/dynamicWeather");
 
 const localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json");
@@ -51,7 +52,7 @@ export class ZoneServer extends EventEmitter {
   _gameTime: any;
   _serverTime: any;
   _transientIds: any;
-  _packetHandlers: any;
+  _packetHandlers: HandledZonePackets;
   _referenceData: any;
   _startTime: number;
   _startGameTime: number;
@@ -203,6 +204,7 @@ export class ZoneServer extends EventEmitter {
     if (err) {
       console.error(err);
     } else {
+      client.pingTimer?.refresh()
       if (
         packet.name != "KeepAlive" &&
         packet.name != "PlayerUpdateUpdatePositionClientToZone" &&
@@ -210,9 +212,9 @@ export class ZoneServer extends EventEmitter {
       ) {
         debug(`Receive Data ${[packet.name]}`);
       }
-      if (this._packetHandlers[packet.name]) {
+      if ((this._packetHandlers  as any)[packet.name]) {
         try {
-          this._packetHandlers[packet.name](this, client, packet);
+          (this._packetHandlers  as any)[packet.name](this, client, packet);
         } catch (e) {
           debug(e);
         }
@@ -275,14 +277,13 @@ export class ZoneServer extends EventEmitter {
 
     this._transientIds[generatedTransient] = characterId;
     this._characters[characterId] = zoneClient.character;
-    zoneClient.pingTimer = setInterval(() => {
-      this.checkIfClientStillOnline(zoneClient);
-    }, 20000);
+    zoneClient.pingTimer = setTimeout(() => {
+      this.timeoutClient(zoneClient);
+    }, this._pingTimeoutTime);
     this.emit("login", err, zoneClient);
   }
   onGatewayDisconnectEvent(err: string, client: Client) {
     debug(`Client disconnected from ${client.address}:${client.port}`);
-    clearInterval(client.pingTimer);
     if (client.character?.characterId) {
       delete this._characters[client.character.characterId];
     }
@@ -543,9 +544,7 @@ export class ZoneServer extends EventEmitter {
     this._packetHandlers = require("./zonepackethandlers").default;
   }
 
-  checkIfClientStillOnline(client: Client): void {
-    if (new Date().getTime() - client.lastPingTime > this._pingTimeoutTime) {
-      clearInterval(client.pingTimer);
+  timeoutClient(client: Client): void {
       debug(
         `Client disconnected from ${client.address}:${client.port} ( ping timeout )`
       );
@@ -556,7 +555,6 @@ export class ZoneServer extends EventEmitter {
       delete this._clients[client.sessionId];
       this._gatewayServer._soeServer.deleteClient(client);
       this.emit("disconnect", null, client);
-    }
   }
 
   generateGuid(): string {
@@ -1154,7 +1152,7 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
-  sendData(client: Client, packetName: string, obj: any, channel = 0): void {
+  sendData(client: Client, packetName: h1z1PacketsType, obj: any, channel = 0): void {
     if (packetName != "KeepAlive") {
       debug("send data", packetName);
     }
@@ -1162,7 +1160,7 @@ export class ZoneServer extends EventEmitter {
     this._gatewayServer.sendTunnelData(client, data, channel);
   }
 
-  sendDataToAll(packetName: string, obj: any, channel = 0): void {
+  sendDataToAll(packetName: h1z1PacketsType, obj: any, channel = 0): void {
     for (const a in this._clients) {
       this.sendData(this._clients[a], packetName, obj, channel);
     }
@@ -1170,7 +1168,7 @@ export class ZoneServer extends EventEmitter {
 
   sendDataToAllOthers(
     client: Client,
-    packetName: string,
+    packetName: h1z1PacketsType,
     obj: any,
     channel = 0
   ): void {

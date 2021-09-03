@@ -33,7 +33,7 @@ const modelToName = require("../../../data/2015/sampleData/ModelToName.json");
 import { _ } from "../../utils/utils";
 const debug = require("debug")("zonepacketHandlers");
 
-const packetHandlers: any = {
+const packetHandlers = {
   ClientIsReady: function (server: ZoneServer, client: Client, packet: any) {
     /* still disable
         server.sendData(client, "ClientBeginZoning", {
@@ -273,7 +273,7 @@ const packetHandlers: any = {
         `${client.character.name} has joined the server !`
       );
       client.firstLoading = false;
-      client.lastPingTime = new Date().getTime();
+      client.pingTimer?.refresh();
       client.savePositionTimer = setTimeout(
         () => server.saveCharacterPosition(client, 30000),
         30000
@@ -284,7 +284,7 @@ const packetHandlers: any = {
     client.isInteracting = false;
     delete client.vehicle.mountedVehicle;
     client.vehicle.mountedVehicleType = "0";
-    if (!this._soloMode) {
+    if (!server._soloMode) {
       const populationNumber = _.size(server._characters);
       server._db
         ?.collection("servers")
@@ -361,18 +361,8 @@ const packetHandlers: any = {
     debug("EndCharacterAccess");
   },
   KeepAlive: function (server: ZoneServer, client: Client, packet: any) {
-    client.lastPingTime = new Date().getTime();
     server.sendData(client, "KeepAlive", {
       gameTime: packet.data.gameTime,
-    });
-  },
-  "AdminCommand.RunSpeed": function (
-    server: ZoneServer,
-    client: Client,
-    packet: any
-  ) {
-    server.sendData(client, "AdminCommand.RunSpeed", {
-      runSpeed: packet.data.runSpeed,
     });
   },
   ClientLog: function (server: ZoneServer, client: Client, packet: any) {
@@ -488,7 +478,7 @@ const packetHandlers: any = {
     server._gatewayServer._soeServer.deleteClient(client);
     delete server._characters[client.character.characterId];
     delete server._clients[client.sessionId];
-    if (!this._soloMode) {
+    if (!server._soloMode) {
       const populationNumber = _.size(server._characters);
       server._db
         ?.collection("servers")
@@ -1958,7 +1948,7 @@ const packetHandlers: any = {
         unknownBoolean: true,
       });
       server._vehicles[vehicleGuid].isManaged = true;
-      client.managedObjects.push(this._vehicles[vehicleGuid]);
+      client.managedObjects.push(server._vehicles[vehicleGuid]);
     } else if (
       doorToInteractWith &&
       isPosInRadius(

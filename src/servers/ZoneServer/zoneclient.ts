@@ -20,8 +20,7 @@ export default class ZoneClient extends SOEClient {
   };
   character: Character;
   loginSessionId?: string;
-  lastPingTime: number = 0;
-  pingTimer: any;
+  pingTimer: NodeJS.Timeout | undefined;
   savePositionTimer: any;
   constructor(
     initialClient: SOEClient,
@@ -58,7 +57,6 @@ export default class ZoneClient extends SOEClient {
       vehicleState: 0,
       falling: -1,
     };
-    this.lastPingTime = new Date().getTime() + 120 * 1000;
     this.character = new Character(characterId, generatedTransient);
     this.spawnedEntities = [];
     this.managedObjects = [];

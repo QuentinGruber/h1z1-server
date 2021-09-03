@@ -16,7 +16,7 @@ const debug = require("debug")(debugName);
 import { default as packetHandlers } from "./zonepackethandlers";
 import { ZoneServer } from "../ZoneServer/zoneserver";
 import Client from "./zoneclient";
-import { Weather2016 } from "../../types/zoneserver";
+import { HandledZonePackets2016, Weather2016 } from "../../types/zoneserver";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
 import { _ } from "../../utils/utils";
 
@@ -35,12 +35,14 @@ const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.js
 const Z1_POIs = require("../../../data/2015/zoneData/Z1_POIs");
 const recipes = require("../../../data/2016/sampleData/recipes.json");
 // const localWeatherTemplates = require("../../../data/2015/sampleData/weather.json");
-// const stats = require("../../../data/2016/sampleData/stats.json");
+const stats = require("../../../data/2016/sampleData/stats.json");
 const resources = require("../../../data/2016/dataSources/resourceDefinitions.json");
 
 export class ZoneServer2016 extends ZoneServer {
   worldRoutineTimer: any;
   _weather2016: Weather2016;
+  // @ts-ignore yeah idk how to fix that
+  _packetHandlers: HandledZonePackets2016;
   constructor(serverPort: number, gatewayKey: Uint8Array, mongoAddress = "") {
     super(serverPort, gatewayKey, mongoAddress);
     this._protocol = new H1Z1Protocol("ClientProtocol_1080");
@@ -115,6 +117,7 @@ export class ZoneServer2016 extends ZoneServer {
     if (err) {
       console.error(err);
     } else {
+      client.pingTimer?.refresh();
       if (
         packet.name != "KeepAlive" &&
         packet.name != "PlayerUpdateUpdatePositionClientToZone" &&
@@ -123,9 +126,9 @@ export class ZoneServer2016 extends ZoneServer {
       ) {
         debug(`Receive Data ${[packet.name]}`);
       }
-      if (this._packetHandlers[packet.name]) {
+      if ((this._packetHandlers  as any)[packet.name]) {
         try {
-          this._packetHandlers[packet.name](this, client, packet);
+          (this._packetHandlers  as any)[packet.name](this, client, packet);
         } catch (e) {
           debug(e);
         }
@@ -267,7 +270,7 @@ export class ZoneServer2016 extends ZoneServer {
           characterName: client.character.name,
         },
         recipes: recipes,
-        //stats: stats // todo: fix
+        stats: stats,
 
         characterResources: [
           {
