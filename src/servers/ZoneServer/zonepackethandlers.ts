@@ -366,15 +366,6 @@ const packetHandlers = {
       gameTime: packet.data.gameTime,
     });
   },
-  "AdminCommand.RunSpeed": function (
-    server: ZoneServer,
-    client: Client,
-    packet: any
-  ) {
-    server.sendData(client, "AdminCommand.RunSpeed", {
-      runSpeed: packet.data.runSpeed,
-    });
-  },
   ClientLog: function (server: ZoneServer, client: Client, packet: any) {
     debug(packet);
   },
