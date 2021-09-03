@@ -23,6 +23,5 @@
 		"wix.vscode-import-cost"
 	],
 	"appPort": ["1115:1115/udp", "1117:1117/udp"],
-	"forwardPorts": [1115, 1117],
 	"postCreateCommand": "npm install",
 }
