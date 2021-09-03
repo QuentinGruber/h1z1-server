@@ -1,6 +1,6 @@
 import { LoginClient, LoginServer } from "../../../h1z1-server";
 
-new LoginServer(1115,"mongodb://localhost:27017/").start();
+new LoginServer(1115, "mongodb://localhost:27017/").start();
 
 setTimeout(() => {
   var client = new LoginClient(

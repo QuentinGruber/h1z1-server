@@ -588,14 +588,14 @@ const dev: any = {
       server.sendChatText(client, "missing statId, baseValue, modifierValue");
       return;
     }
-    
+
     server.sendData(client, "ClientUpdate.UpdateStat", {
       statId: Number(args[1]),
       statValue: {
         type: 0,
         value: {
           baseValue: Number(args[2]),
-          modifierValue: Number(args[3])
+          modifierValue: Number(args[3]),
         },
       },
     });

@@ -126,9 +126,9 @@ export class ZoneServer2016 extends ZoneServer {
       ) {
         debug(`Receive Data ${[packet.name]}`);
       }
-      if ((this._packetHandlers  as any)[packet.name]) {
+      if ((this._packetHandlers as any)[packet.name]) {
         try {
-          (this._packetHandlers  as any)[packet.name](this, client, packet);
+          (this._packetHandlers as any)[packet.name](this, client, packet);
         } catch (e) {
           debug(e);
         }

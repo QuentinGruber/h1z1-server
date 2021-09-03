@@ -204,7 +204,7 @@ export class ZoneServer extends EventEmitter {
     if (err) {
       console.error(err);
     } else {
-      client.pingTimer?.refresh()
+      client.pingTimer?.refresh();
       if (
         packet.name != "KeepAlive" &&
         packet.name != "PlayerUpdateUpdatePositionClientToZone" &&
@@ -212,9 +212,9 @@ export class ZoneServer extends EventEmitter {
       ) {
         debug(`Receive Data ${[packet.name]}`);
       }
-      if ((this._packetHandlers  as any)[packet.name]) {
+      if ((this._packetHandlers as any)[packet.name]) {
         try {
-          (this._packetHandlers  as any)[packet.name](this, client, packet);
+          (this._packetHandlers as any)[packet.name](this, client, packet);
         } catch (e) {
           debug(e);
         }
@@ -545,16 +545,16 @@ export class ZoneServer extends EventEmitter {
   }
 
   timeoutClient(client: Client): void {
-      debug(
-        `Client disconnected from ${client.address}:${client.port} ( ping timeout )`
-      );
-      clearInterval(client.character?.resourcesUpdater);
-      if (client.character?.characterId) {
-        delete this._characters[client.character.characterId];
-      }
-      delete this._clients[client.sessionId];
-      this._gatewayServer._soeServer.deleteClient(client);
-      this.emit("disconnect", null, client);
+    debug(
+      `Client disconnected from ${client.address}:${client.port} ( ping timeout )`
+    );
+    clearInterval(client.character?.resourcesUpdater);
+    if (client.character?.characterId) {
+      delete this._characters[client.character.characterId];
+    }
+    delete this._clients[client.sessionId];
+    this._gatewayServer._soeServer.deleteClient(client);
+    this.emit("disconnect", null, client);
   }
 
   generateGuid(): string {
@@ -1093,7 +1093,7 @@ export class ZoneServer extends EventEmitter {
 
   sendGlobalTextAlert(message: string): void {
     for (const a in this._clients) {
-      this.sendTextAlert(this._clients[a],message);
+      this.sendTextAlert(this._clients[a], message);
     }
   }
 
@@ -1152,7 +1152,12 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
-  sendData(client: Client, packetName: h1z1PacketsType, obj: any, channel = 0): void {
+  sendData(
+    client: Client,
+    packetName: h1z1PacketsType,
+    obj: any,
+    channel = 0
+  ): void {
     if (packetName != "KeepAlive") {
       debug("send data", packetName);
     }

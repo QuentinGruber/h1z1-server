@@ -17,11 +17,10 @@ if (workerData) {
     debug("Listening on " + address + ":" + port);
     try {
       // to be honest idk how much i need to alloc to that it's mostly a test
-      connection.setRecvBufferSize(1000000000) 
+      connection.setRecvBufferSize(1000000000);
     } catch (error) {
-     console.log(error) 
+      console.log(error);
     }
-
   });
 
   connection.on("error", (err) => {

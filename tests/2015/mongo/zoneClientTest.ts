@@ -28,7 +28,7 @@ async function test() {
       process.exit(0);
     });
   }, 2000);
-  
+
   setTimeout(() => {
     throw new Error("Test timed out!");
   }, 60000);

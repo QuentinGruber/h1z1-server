@@ -192,7 +192,7 @@ const packetHandlers = {
         `${client.character.name} has joined the server !`
       );
       client.firstLoading = false;
-      client.pingTimer?.refresh()
+      client.pingTimer?.refresh();
       client.savePositionTimer = setTimeout(
         () => server.saveCharacterPosition(client, 30000),
         30000
