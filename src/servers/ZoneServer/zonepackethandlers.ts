@@ -141,13 +141,13 @@ const packetHandlers = {
       serverTime2: Int64String(server.getServerTime()),
     });
 
-    client.character.resourcesUpdater = setInterval(function () {
+    client.character.resourcesUpdater = setTimeout(() => {
       // prototype resource manager
       const { isRunning } = client.character;
       if (!isRunning) {
-        client.character.resources.stamina += 20;
+        client.character.resources.stamina += 10;
       } else {
-        client.character.resources.stamina -= 40;
+        client.character.resources.stamina -= 5;
       }
       // if we had a packets we could modify sprint stat to 0
       // or play exhausted sounds etc
@@ -252,6 +252,7 @@ const packetHandlers = {
           },
         },
       });
+      client.character.resourcesUpdater.refresh()
     }, 3000);
 
     server.sendData(client, "ZoneDoneSendingInitialData", {});

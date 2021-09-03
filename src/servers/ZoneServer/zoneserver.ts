@@ -548,7 +548,7 @@ export class ZoneServer extends EventEmitter {
     debug(
       `Client disconnected from ${client.address}:${client.port} ( ping timeout )`
     );
-    clearInterval(client.character?.resourcesUpdater);
+    clearTimeout(client.character?.resourcesUpdater);
     if (client.character?.characterId) {
       delete this._characters[client.character.characterId];
     }
