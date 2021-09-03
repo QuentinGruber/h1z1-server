@@ -87,7 +87,7 @@ const packetHandlers = {
     server.sendData(client, "ClientUpdate.NetworkProximityUpdatesComplete", {
       done: true,
     }); // Required for WaitForWorldReady
-    server.sendData(client, "ClientUpdate.UpdateStat", { stats: [] });
+    //server.sendData(client, "ClientUpdate.UpdateStat", { stats: [] });
 
     server.sendData(client, "ZoneSetting.Data", {
       settings: [
