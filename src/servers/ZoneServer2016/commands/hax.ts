@@ -479,11 +479,14 @@ const hax: any = {
     }
 
     server._weather2016 = {
-      name: "sky_dome_600.dds",
+      ...server._weather2016,
+      //name: "sky_dome_600.dds", todo: use random template from a list
+      /*
       unknownDword1: 0,
       unknownDword2: 0,
       skyBrightness1: 1,
       skyBrightness2: 1,
+      */
       snow: rnd_number(200, true),
       snowMap: rnd_number(80, true),
       colorGradient: rnd_number(1),
@@ -510,9 +513,9 @@ const hax: any = {
       unknownDword28: 0,
       unknownDword29: 0,
 
-      AOSize: .1,
-      AOGamma: .8,
-      AOBlackpoint: .2,
+      AOSize: rnd_number(0.5),
+      AOGamma: rnd_number(0.2),
+      AOBlackpoint: rnd_number(2),
 
       unknownDword33: 0,
     };
