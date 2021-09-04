@@ -543,9 +543,9 @@ export interface Weather2016 {
   unknownDword27: number;
   unknownDword28: number;
   unknownDword29: number;
-  unknownDword30: number;
-  unknownDword31: number;
-  unknownDword32: number;
+  AOSize: number;
+  AOGamma: number;
+  AOBlackpoint: number;
   unknownDword33: number;
 }
 

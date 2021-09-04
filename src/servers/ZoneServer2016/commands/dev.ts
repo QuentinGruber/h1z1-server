@@ -322,12 +322,20 @@ const dev: any = {
     function rnd_number() {
       return Number((Math.random() * 100).toFixed(0));
     }
-    const skyData = {
+    function rnd_number2(max: any, fixed: Boolean = false) {
+      const num = Math.random() * max;
+      if (fixed) return Number(num.toFixed(0));
+      return Number(num);
+    }
+    server._weather2016 = {
+      ...server._weather2016,
+      /*
       unknownDword1: 0, // breaks the game
       unknownDword2: 0, // breaks the game
 
       skyBrightness1: 1, // breaks the game
       skyBrightness2: 1, // breaks the game
+      
 
       snow: 0,
       snowMap: 0, // 32 - 35 snow starts thinning, dissapears over 35
@@ -345,23 +353,29 @@ const dev: any = {
       disableTrees1: 0,
       disableTrees2: 0,
       wind: 0,
-      // below variables do nothing ig
-      unknownDword20: rnd_number(),
-      unknownDword21: rnd_number(),
-      unknownDword22: rnd_number(),
-      unknownDword23: rnd_number(),
-      unknownDword24: rnd_number(),
-      unknownDword25: rnd_number(),
-      unknownDword26: rnd_number(),
-      unknownDword27: rnd_number(),
-      unknownDword28: rnd_number(),
-      unknownDword29: rnd_number(),
-      unknownDword30: rnd_number(),
-      unknownDword31: rnd_number(),
-      unknownDword32: rnd_number(),
+      */
+
+      //unknownDword20: rnd_number(), // world reflection related?
+      //unknownDword21: rnd_number(), // world reflection related?
+
+      unknownDword22: rnd_number(), // ??
+      unknownDword23: rnd_number(), // ??
+      
+      unknownDword24: rnd_number(), // sky starts blinking?
+      unknownDword25: rnd_number(), // sky starts blinking?
+
+      unknownDword26: rnd_number(), // ??
+      unknownDword27: rnd_number(), // ??
+      unknownDword28: rnd_number(), // ??
+      unknownDword29: rnd_number(), // ??
+
+      //unknownDword30: .1, // done
+      //unknownDword31: .8, // done
+      //unknownDword32: .2, // done
+
       unknownDword33: rnd_number(),
     };
-    debug(skyData);
+    console.log(server._weather2016)
     server.updateWeather2016(client);
   },
 

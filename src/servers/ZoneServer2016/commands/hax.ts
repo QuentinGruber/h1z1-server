@@ -479,7 +479,7 @@ const hax: any = {
     }
 
     server._weather2016 = {
-      name: "",
+      name: "sky_dome_600.dds",
       unknownDword1: 0,
       unknownDword2: 0,
       skyBrightness1: 1,
@@ -509,9 +509,11 @@ const hax: any = {
       unknownDword27: 0,
       unknownDword28: 0,
       unknownDword29: 0,
-      unknownDword30: 0,
-      unknownDword31: 0,
-      unknownDword32: 0,
+
+      AOSize: .1,
+      AOGamma: .8,
+      AOBlackpoint: .2,
+
       unknownDword33: 0,
     };
     server.updateWeather2016(client);
