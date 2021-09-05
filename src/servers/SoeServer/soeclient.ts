@@ -13,6 +13,7 @@ export default class SOEClient {
   sequences: any;
   compression: number;
   useEncryption: boolean = true;
+  waitingQueue: any[] = [];
   outQueue: any[] = [];
   protocolName?: string;
   outOfOrderPackets: any[] = [];
@@ -24,6 +25,7 @@ export default class SOEClient {
   ackTimer: any;
   outOfOrderTimer: any;
   cryptoKey: Uint8Array;
+  waitQueueTimer: any;
   constructor(
     remote: RemoteInfo,
     crcSeed: number,

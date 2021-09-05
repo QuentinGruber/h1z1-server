@@ -117,6 +117,9 @@ export class SOEServer extends EventEmitter {
           (client as any).outQueueTimer = setTimeout(() =>
             this.checkClientOutQueue(client)
           );
+          (client as any).waitQueueTimer = setTimeout(() =>
+            this.sendClientWaitQueue(client),20
+          );
           (client as any).ackTimer = setTimeout(() => this.checkAck(client));
           (client as any).outOfOrderTimer = setTimeout(
             () => this.checkOutOfOrderQueue(client),
@@ -181,7 +184,18 @@ export class SOEServer extends EventEmitter {
     }
     (client as any).ackTimer.refresh();
   }
-
+  sendClientWaitQueue(client: Client) {
+    console.log("send waiting queue")
+    this._sendPacket(
+      client,
+      "MultiPacket",
+      {
+        subPackets: client.waitingQueue,
+      },
+      true
+    );
+    //queueMicrotask(()=>{client.waitingQueue = []})
+  }
   checkOutOfOrderQueue(client: Client) {
     if (client.outOfOrderPackets.length) {
       const packets = [];
@@ -373,7 +387,7 @@ export class SOEServer extends EventEmitter {
     process.exit(0);
   }
 
-  createPacket(client: Client, packetName: string, packet: any): any {
+  createPacket(client: Client, packetName: string, packet: any): Buffer {
     try {
       return this._protocol.pack(
         packetName,
@@ -390,6 +404,7 @@ export class SOEServer extends EventEmitter {
         )}`
       );
       console.error(e);
+      return Buffer.from("0");
     }
   }
 
@@ -403,7 +418,19 @@ export class SOEServer extends EventEmitter {
     if (prioritize) {
       client.outQueue.unshift(data);
     } else {
-      client.outQueue.push(data);
+      if(data.length < 100 && packetName == "Data" || packetName == "DataFragment"){
+        console.log("Pushed to waitingQueue")
+        client.waitingQueue.push({
+          name: packetName,
+          soePacket: packet,
+        })
+        console.log(client.waitQueueTimer)
+        client.waitQueueTimer.refresh()
+      }
+      else{
+        console.log("Pushed to normalqueue")
+        client.outQueue.push(data);
+      }
     }
   }
 
