@@ -1,11 +1,13 @@
 {
   "name": "h1z1-server",
-  "version": "0.14.1-14",
+  "version": "0.14.1-15",
   "description": "Library for emulating h1z1 servers",
   "author": "Quentin Gruber <quentingruber@gmail.com> (http://github.com/quentingruber)",
   "license": "GPL-3.0-only",
   "main": "h1z1-server.js",
-  "bin": "bin/if-env.js",
+  "bin": {
+    "if-env": "bin/if-env.js"
+  },
   "dependencies": {
     "@swc/cli": "0.1.40",
     "@swc/core": "1.2.57",
