@@ -156,6 +156,7 @@ export class SOEServer extends EventEmitter {
   checkClientOutQueue(client: SOEClient) {
     const data = client.outQueue.shift();
     if (data) {
+      console.log("send packet ",data)
       this._connection.postMessage({
         type: "sendPacket",
         data: {
@@ -194,7 +195,7 @@ export class SOEServer extends EventEmitter {
       },
       true
     );
-    //queueMicrotask(()=>{client.waitingQueue = []})
+    queueMicrotask(()=>{client.waitingQueue = []})
   }
   checkOutOfOrderQueue(client: Client) {
     if (client.outOfOrderPackets.length) {
@@ -416,6 +417,8 @@ export class SOEServer extends EventEmitter {
   ): void {
     const data = this.createPacket(client, packetName, packet);
     if (prioritize) {
+      console.log("Pushed to normalqueue ( priority )")
+      console.log(data)
       client.outQueue.unshift(data);
     } else {
       if(data.length < 100 && packetName == "Data" || packetName == "DataFragment"){
@@ -424,11 +427,13 @@ export class SOEServer extends EventEmitter {
           name: packetName,
           soePacket: packet,
         })
-        console.log(client.waitQueueTimer)
+        console.log(packetName)
+        console.log(packet)
         client.waitQueueTimer.refresh()
       }
       else{
         console.log("Pushed to normalqueue")
+        console.log(data)
         client.outQueue.push(data);
       }
     }

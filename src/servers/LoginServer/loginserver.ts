@@ -46,7 +46,7 @@ export class LoginServer extends EventEmitter {
   _appDataFolder: string;
   constructor(serverPort: number, mongoAddress = "") {
     super();
-    this._compression = 0x0100;
+    this._compression = 0;
     this._crcSeed = 0;
     this._crcLength = 2;
     this._udpLength = 512;
