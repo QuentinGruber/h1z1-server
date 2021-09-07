@@ -252,7 +252,7 @@ const packetHandlers = {
           },
         },
       });
-      client.character.resourcesUpdater.refresh()
+      client.character.resourcesUpdater.refresh();
     }, 3000);
 
     server.sendData(client, "ZoneDoneSendingInitialData", {});
@@ -830,14 +830,12 @@ const packetHandlers = {
     server: ZoneServer,
     client: Client,
     packet: any
-  ) {
-  },
+  ) {},
   "Command.ClearInWater": function (
     server: ZoneServer,
     client: Client,
     packet: any
-  ) {
-  },
+  ) {},
   "Command.InteractionSelect": function (
     server: ZoneServer,
     client: Client,

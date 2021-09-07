@@ -275,13 +275,13 @@ export class ZoneServer extends EventEmitter {
       characterId,
       generatedTransient
     );
-    zoneClient.npcsToSpawnTimer = setTimeout(()=>{
+    zoneClient.npcsToSpawnTimer = setTimeout(() => {
       const npcData = zoneClient.npcsToSpawn.shift();
-      if(npcData){
-        this.sendData(zoneClient,"PlayerUpdate.AddLightweightNpc",npcData)
-        zoneClient.npcsToSpawnTimer.refresh()
+      if (npcData) {
+        this.sendData(zoneClient, "PlayerUpdate.AddLightweightNpc", npcData);
+        zoneClient.npcsToSpawnTimer.refresh();
       }
-    },this._spawnTimerMs)
+    }, this._spawnTimerMs);
     this._clients[client.sessionId] = zoneClient;
 
     this._transientIds[generatedTransient] = characterId;
@@ -757,7 +757,6 @@ export class ZoneServer extends EventEmitter {
     });
   }
 
-
   spawnNpcs(client: Client): void {
     for (const npc in this._npcs) {
       if (
@@ -768,7 +767,7 @@ export class ZoneServer extends EventEmitter {
         ) &&
         !client.spawnedEntities.includes(this._npcs[npc])
       ) {
-        client.npcsToSpawn.push({...this._npcs[npc], profileId: 65 })
+        client.npcsToSpawn.push({ ...this._npcs[npc], profileId: 65 });
         client.spawnedEntities.push(this._npcs[npc]);
       }
     }
@@ -926,7 +925,7 @@ export class ZoneServer extends EventEmitter {
           ) &&
           !client.spawnedEntities.includes(itemData)
         ) {
-          client.npcsToSpawn.push(itemData)
+          client.npcsToSpawn.push(itemData);
           client.spawnedEntities.push(itemData);
         }
       }
