@@ -18,6 +18,8 @@ export default class ZoneClient extends SOEClient {
     mountedVehicleType?: string;
     vehicleState: number;
   };
+  npcsToSpawn: any[] = [];
+  npcsToSpawnTimer!: NodeJS.Timeout;
   character: Character;
   loginSessionId?: string;
   pingTimer: NodeJS.Timeout | undefined;
