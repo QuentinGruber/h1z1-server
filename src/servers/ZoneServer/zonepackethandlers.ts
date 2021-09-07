@@ -1720,7 +1720,7 @@ const packetHandlers = {
           if (
             !client.posAtLastRoutine ||
             !isPosInRadius(
-              server._npcRenderDistance / 2.5,
+              server._npcRenderDistance * server._worldRoutineRadiusPercentage,
               client.character.state.position,
               client.posAtLastRoutine
             )
