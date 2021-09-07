@@ -279,7 +279,6 @@ export class ZoneServer extends EventEmitter {
       const npcData = zoneClient.npcsToSpawn.shift();
       if(npcData){
         this.sendData(zoneClient,"PlayerUpdate.AddLightweightNpc",npcData)
-        console.log(zoneClient.npcsToSpawn.length)
         zoneClient.npcsToSpawnTimer.refresh()
       }
     },this._spawnTimerMs)
