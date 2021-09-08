@@ -1,7 +1,7 @@
 [
     {
         "statId": 1,
-        "statName": "unknown1",
+        "statName": "StatId.MaxHp",
         "statData": {
             "statId": 1,
             "statValue": {
@@ -15,7 +15,7 @@
     },
     {
         "statId": 2,
-        "statName": "unknown2",
+        "statName": "StatId.MaxMovementSpeed",
         "statData": {
             "statId": 2,
             "statValue": {
@@ -29,7 +29,7 @@
     },
     {
         "statId": 3,
-        "statName": "backWard",
+        "statName": "StatId.BackpedalSpeedModifier",
         "statData": {
             "statId": 3,
             "statValue": {
@@ -43,7 +43,7 @@
     },
     {
         "statId": 4,
-        "statName": "crouch",
+        "statName": "StatId.CrouchSpeedModifier",
         "statData": {
             "statId": 4,
             "statValue": {
@@ -57,7 +57,7 @@
     },
     {
         "statId": 5,
-        "statName": "run",
+        "statName": "StatId.SprintSpeedModifier",
         "statData": {
             "statId": 5,
             "statValue": {
@@ -71,13 +71,13 @@
     },
     {
         "statId": 6,
-        "statName": "unknown6",
+        "statName": "StatId.SwimSpeedModifier",
         "statData": {
             "statId": 6,
             "statValue": {
                 "type": 1,
                 "value": {
-                    "base": 1,
+                    "base": 0.8,
                     "modifier": 0
                 }
             }
@@ -85,7 +85,7 @@
     },
     {
         "statId": 7,
-        "statName": "leftRight",
+        "statName": "StatId.StrafeSpeedModifier",
         "statData": {
             "statId": 7,
             "statValue": {
@@ -113,7 +113,7 @@
     },
     {
         "statId": 9,
-        "statName": "unknown9",
+        "statName": "StatId.BreathDrainRate",
         "statData": {
             "statId": 9,
             "statValue": {
@@ -127,7 +127,7 @@
     },
     {
         "statId": 10,
-        "statName": "unknown10",
+        "statName": "StatId.BreathInitialCost",
         "statData": {
             "statId": 10,
             "statValue": {
@@ -141,7 +141,7 @@
     },
     {
         "statId": 11,
-        "statName": "unknown11",
+        "statName": "StatId.BreathPenaltyDuration",
         "statData": {
             "statId": 11,
             "statValue": {
@@ -155,7 +155,7 @@
     },
     {
         "statId": 12,
-        "statName": "unknown12",
+        "statName": "StatId.BreathPenaltySwayMultiplier",
         "statData": {
             "statId": 12,
             "statValue": {
@@ -169,7 +169,7 @@
     },
     {
         "statId": 13,
-        "statName": "unknown13",
+        "statName": "StatId.BreathRechargeDelay",
         "statData": {
             "statId": 13,
             "statValue": {
@@ -183,7 +183,7 @@
     },
     {
         "statId": 14,
-        "statName": "unknown14",
+        "statName": "StatId.BreathRechargeRate",
         "statData": {
             "statId": 14,
             "statValue": {
@@ -197,7 +197,7 @@
     },
     {
         "statId": 15,
-        "statName": "unknown15",
+        "statName": "StatId.CurrencyBuff",
         "statData": {
             "statId": 15,
             "statValue": {
@@ -211,7 +211,7 @@
     },
     {
         "statId": 16,
-        "statName": "unknown16",
+        "statName": "StatId.XpBuff",
         "statData": {
             "statId": 16,
             "statValue": {
@@ -225,7 +225,7 @@
     },
     {
         "statId": 17,
-        "statName": "unknown17",
+        "statName": "StatId.CurrencyCapAuraxium",
         "statData": {
             "statId": 17,
             "statValue": {
@@ -239,7 +239,7 @@
     },
     {
         "statId": 18,
-        "statName": "unknown18",
+        "statName": "StatId.CurrencyCapPolymers",
         "statData": {
             "statId": 18,
             "statValue": {
@@ -253,7 +253,7 @@
     },
     {
         "statId": 19,
-        "statName": "unknown19",
+        "statName": "StatId.CurrencyCapCatalysts",
         "statData": {
             "statId": 19,
             "statValue": {
@@ -267,7 +267,7 @@
     },
     {
         "statId": 20,
-        "statName": "unknown20",
+        "statName": "StatId.CurrencyCapAlloys",
         "statData": {
             "statId": 20,
             "statValue": {
@@ -281,7 +281,7 @@
     },
     {
         "statId": 21,
-        "statName": "unknown21",
+        "statName": "StatId.SprintAccelerationTime",
         "statData": {
             "statId": 21,
             "statValue": {
@@ -295,7 +295,7 @@
     },
     {
         "statId": 22,
-        "statName": "unknown22",
+        "statName": "StatId.SprintDecelerationTime",
         "statData": {
             "statId": 22,
             "statValue": {
@@ -309,7 +309,7 @@
     },
     {
         "statId": 23,
-        "statName": "unknown23",
+        "statName": "StatId.WaistTwistLimit",
         "statData": {
             "statId": 23,
             "statValue": {
@@ -323,7 +323,7 @@
     },
     {
         "statId": 24,
-        "statName": "startOfMovementTimeFordWard",
+        "statName": "StatId.ForwardAccelerationTime",
         "statData": {
             "statId": 24,
             "statValue": {
@@ -337,7 +337,7 @@
     },
     {
         "statId": 25,
-        "statName": "startOfMovementTimeBackWard",
+        "statName": "StatId.BackAccelerationTime",
         "statData": {
             "statId": 25,
             "statValue": {
@@ -351,7 +351,7 @@
     },
     {
         "statId": 26,
-        "statName": "startOfMovementTimeLeftRight",
+        "statName": "StatId.StrafeAccelerationTime",
         "statData": {
             "statId": 26,
             "statValue": {
@@ -365,7 +365,7 @@
     },
     {
         "statId": 27,
-        "statName": "endOfMovementTimeBackkWard",
+        "statName": "StatId.ForwardDecelerationTime",
         "statData": {
             "statId": 27,
             "statValue": {
@@ -379,7 +379,7 @@
     },
     {
         "statId": 28,
-        "statName": "endOfMovementTimeForkWard",
+        "statName": "StatId.BackDecelerationTime",
         "statData": {
             "statId": 28,
             "statValue": {
@@ -393,7 +393,7 @@
     },
     {
         "statId": 29,
-        "statName": "endOfMovementTimeLeftRight",
+        "statName": "StatId.StrafeDecelerationTime",
         "statData": {
             "statId": 29,
             "statValue": {
@@ -435,7 +435,7 @@
     },
     {
         "statId": 32,
-        "statName": "unknown32",
+        "statName": "StatId.SquadCurrencyBuff",
         "statData": {
             "statId": 32,
             "statValue": {
@@ -449,7 +449,7 @@
     },
     {
         "statId": 33,
-        "statName": "unknown33",
+        "statName": "StatId.SquadXpBuff",
         "statData": {
             "statId": 33,
             "statValue": {
@@ -463,7 +463,7 @@
     },
     {
         "statId": 34,
-        "statName": "unlockCam",
+        "statName": "StatId.TurnRateMultiplier",
         "statData": {
             "statId": 34,
             "statValue": {
@@ -533,7 +533,7 @@
     },
     {
         "statId": 40,
-        "statName": "unknown40",
+        "statName": "StatId.PassiveAcousticSensitivity",
         "statData": {
             "statId": 40,
             "statValue": {
@@ -547,13 +547,13 @@
     },
     {
         "statId": 41,
-        "statName": "unknown41",
+        "statName": "StatId.AggroAcousticSensitivity",
         "statData": {
             "statId": 41,
             "statValue": {
                 "type": 0,
                 "value": {
-                    "base": 0,
+                    "base": 1,
                     "modifier": 0
                 }
             }
@@ -561,13 +561,13 @@
     },
     {
         "statId": 42,
-        "statName": "unknown42",
+        "statName": "StatId.PassiveVisualSensitivity",
         "statData": {
             "statId": 42,
             "statValue": {
                 "type": 0,
                 "value": {
-                    "base": 0,
+                    "base": 1,
                     "modifier": 0
                 }
             }
@@ -575,13 +575,13 @@
     },
     {
         "statId": 43,
-        "statName": "unknown43",
+        "statName": "StatId.AggroVisualSensitivity",
         "statData": {
             "statId": 43,
             "statValue": {
                 "type": 0,
                 "value": {
-                    "base": 0,
+                    "base": 1,
                     "modifier": 0
                 }
             }
@@ -589,13 +589,13 @@
     },
     {
         "statId": 44,
-        "statName": "unknown44",
+        "statName": "StatId.AggroThreshold",
         "statData": {
             "statId": 44,
             "statValue": {
                 "type": 0,
                 "value": {
-                    "base": 0,
+                    "base": 1,
                     "modifier": 0
                 }
             }
@@ -603,13 +603,13 @@
     },
     {
         "statId": 45,
-        "statName": "unknown45",
+        "statName": "StatId.AggroDecayPerMillisecond",
         "statData": {
             "statId": 45,
             "statValue": {
                 "type": 0,
                 "value": {
-                    "base": 0,
+                    "base": 1,
                     "modifier": 0
                 }
             }
@@ -617,13 +617,13 @@
     },
     {
         "statId": 46,
-        "statName": "unknown46",
+        "statName": "StatId.MinimumAggroIncidentValue",
         "statData": {
             "statId": 46,
             "statValue": {
                 "type": 0,
                 "value": {
-                    "base": 0,
+                    "base": 1,
                     "modifier": 0
                 }
             }
@@ -631,7 +631,7 @@
     },
     {
         "statId": 47,
-        "statName": "unknown47",
+        "statName": "StatId.CameraShakeModifier",
         "statData": {
             "statId": 47,
             "statValue": {
@@ -645,7 +645,7 @@
     },
     {
         "statId": 48,
-        "statName": "unknown48",
+        "statName": "StatId.IffRange",
         "statData": {
             "statId": 48,
             "statValue": {
@@ -659,7 +659,7 @@
     },
     {
         "statId": 49,
-        "statName": "unknown49",
+        "statName": "StatId.FlinchModifier",
         "statData": {
             "statId": 49,
             "statValue": {
@@ -673,13 +673,13 @@
     },
     {
         "statId": 50,
-        "statName": "unknown50",
+        "statName": "StatId.AggroPassiveAcousticScalar",
         "statData": {
             "statId": 50,
             "statValue": {
                 "type": 0,
                 "value": {
-                    "base": 0,
+                    "base": 1,
                     "modifier": 0
                 }
             }
@@ -687,13 +687,13 @@
     },
     {
         "statId": 51,
-        "statName": "unknown51",
+        "statName": "StatId.AggroPassiveVisualScalar",
         "statData": {
             "statId": 51,
             "statValue": {
                 "type": 0,
                 "value": {
-                    "base": 0,
+                    "base": 1,
                     "modifier": 0
                 }
             }
@@ -701,13 +701,13 @@
     },
     {
         "statId": 52,
-        "statName": "blocAllMovementsIfStatId53NotActivate",
+        "statName": "StatId.CriticalStaminaPercent",
         "statData": {
             "statId": 52,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
-                    "base": 0,
+                    "base": 0.1,
                     "modifier": 0
                 }
             }
@@ -715,13 +715,13 @@
     },
     {
         "statId": 53,
-        "statName": "speedMovmentWithStateId52",
+        "statName": "StatId.CriticalStaminaSpeedModifier",
         "statData": {
             "statId": 53,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
-                    "base": 0,
+                    "base": 0.1,
                     "modifier": 0
                 }
             }
@@ -729,13 +729,13 @@
     },
     {
         "statId": 54,
-        "statName": "blocAllMovements",
+        "statName": "StatId.LowStaminaPercent",
         "statData": {
             "statId": 54,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
-                    "base": 0,
+                    "base": 20,
                     "modifier": 0
                 }
             }
@@ -743,13 +743,13 @@
     },
     {
         "statId": 55,
-        "statName": "speedMovmentWithStateId54",
+        "statName": "StatId.LowStaminaSpeedModifier",
         "statData": {
             "statId": 55,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
-                    "base": 0,
+                    "base": 0.8,
                     "modifier": 0
                 }
             }
@@ -757,7 +757,7 @@
     },
     {
         "statId": 56,
-        "statName": "blocAllMovements",
+        "statName": "StatId.NominalStaminaPercent",
         "statData": {
             "statId": 56,
             "statValue": {
@@ -771,7 +771,7 @@
     },
     {
         "statId": 57,
-        "statName": "speedMovmentWithStateId56",
+        "statName": "StatId.NominalStaminaSpeedModifier",
         "statData": {
             "statId": 57,
             "statValue": {
@@ -911,7 +911,7 @@
     },
     {
         "statId": 67,
-        "statName": "moveProne",
+        "statName": "StatId.ProneSpeedModifier",
         "statData": {
             "statId": 67,
             "statValue": {
@@ -925,7 +925,7 @@
     },
     {
         "statId": 68,
-        "statName": "mouseUnlockedProne",
+        "statName": "StatId.ProneTurnRateModifier",
         "statData": {
             "statId": 68,
             "statValue": {

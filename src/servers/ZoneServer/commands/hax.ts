@@ -149,7 +149,7 @@ const hax: any = {
           unknownBoolean: true,
         });
         client.vehicle.mountedVehicle = characterId;
-	client.managedObjects.push(server._vehicles[characterId]);
+        client.managedObjects.push(server._vehicles[characterId]);
       },
     };
     server.worldRoutine(client);
@@ -162,7 +162,7 @@ const hax: any = {
     const vehicleData = {
       npcData: {
         guid: guid,
-        transientId: server.getTransientId(client,characterId),
+        transientId: server.getTransientId(client, characterId),
         characterId: characterId,
         modelId: 9374,
         scale: [1, 1, 1, 1],
@@ -195,7 +195,7 @@ const hax: any = {
       characterId: client.character.characterId,
     });
     server._vehicles[characterId] = {
-		  isManaged: true,
+      isManaged: true,
       ...vehicleData,
     };
     server.worldRoutine(client);
@@ -205,8 +205,7 @@ const hax: any = {
       characterData: [],
     });
     client.vehicle.mountedVehicle = characterId;
-	client.managedObjects.push(server._vehicles[characterId]);
-	  
+    client.managedObjects.push(server._vehicles[characterId]);
   },
 
   time: function (server: ZoneServer, client: Client, args: any[]) {
@@ -763,8 +762,9 @@ const hax: any = {
       if (currentWeather) {
         currentWeather.templateName = args[1];
         if (server._soloMode) {
-          server._weatherTemplates[currentWeather.templateName as string] =
-            currentWeather;
+          server._weatherTemplates[
+            currentWeather.templateName as string
+          ] = currentWeather;
           fs.writeFileSync(
             `${__dirname}/../../../../data/sampleData/weather.json`,
             JSON.stringify(server._weatherTemplates)

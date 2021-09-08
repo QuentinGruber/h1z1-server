@@ -207,7 +207,11 @@ const packets: any[] = [
                 { name: "name", type: "string" },
                 { name: "empireId", type: "uint8", defaultValue: 2 },
                 { name: "battleRank", type: "uint32", defaultValue: 100 },
-                { name: "nextBattleRankPercent", type: "uint32", defaultValue: 0 },
+                {
+                  name: "nextBattleRankPercent",
+                  type: "uint32",
+                  defaultValue: 0,
+                },
                 { name: "headId", type: "uint32", defaultValue: 1 },
                 { name: "modelId", type: "uint32", defaultValue: 9240 },
                 { name: "gender", type: "uint32", defaultValue: 1 },
@@ -224,8 +228,16 @@ const packets: any[] = [
                       type: "schema",
                       defaultValue: {},
                       fields: [
-                        { name: "unknownDword1", type: "uint32", defaultValue: 22 },
-                        { name: "unknownByte1", type: "uint8", defaultValue: 1 },
+                        {
+                          name: "unknownDword1",
+                          type: "uint32",
+                          defaultValue: 22,
+                        },
+                        {
+                          name: "unknownByte1",
+                          type: "uint8",
+                          defaultValue: 1,
+                        },
                       ],
                     },
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
@@ -234,8 +246,16 @@ const packets: any[] = [
                       type: "schema",
                       defaultValue: {},
                       fields: [
-                        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                        { name: "loadoutName", type: "string", defaultValue: "" },
+                        {
+                          name: "unknownDword1",
+                          type: "uint32",
+                          defaultValue: 0,
+                        },
+                        {
+                          name: "loadoutName",
+                          type: "string",
+                          defaultValue: "",
+                        },
                       ],
                     },
                     { name: "tintItemId", type: "uint32", defaultValue: 0 },
