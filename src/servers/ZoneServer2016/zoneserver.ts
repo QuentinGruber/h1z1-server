@@ -50,7 +50,7 @@ export class ZoneServer2016 extends ZoneServer {
     this._dynamicWeatherEnabled = false;
     this._cycleSpeed = 100;
     this._weather2016 = {
-      name: "sky_dome_600.dds",
+      name: "sky_Z_clouds.dds", // sky_dome_600.dds
       unknownDword1: 0,
       unknownDword2: 0,
       skyBrightness1: 1,
@@ -66,9 +66,9 @@ export class ZoneServer2016 extends ZoneServer {
       sunAxisX: 0,
       sunAxisY: 0,
       unknownDword15: 0,
-      disableTrees: 0,
-      disableTrees1: 0,
-      disableTrees2: 0,
+      windDirectionX: 100,
+      windDirectionY: 200,
+      windDirectionZ: 300,
       wind: 5,
       unknownDword20: 0,
       unknownDword21: 0,

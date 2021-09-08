@@ -329,51 +329,48 @@ const dev: any = {
     }
     server._weather2016 = {
       ...server._weather2016,
-      /*
-      unknownDword1: 0, // breaks the game
-      unknownDword2: 0, // breaks the game
+      
+      //unknownDword1: 0, // breaks the game
+      //unknownDword2: 0, // breaks the game
 
-      skyBrightness1: 1, // breaks the game
-      skyBrightness2: 1, // breaks the game
+      //skyBrightness1: 1, // breaks the game
+      //skyBrightness2: 1, // breaks the game
       
 
-      snow: 0,
-      snowMap: 0, // 32 - 35 snow starts thinning, dissapears over 35
-      colorGradient: 0,
-      unknownDword8: 0, // AOGamma? sky gets more yellow - test during night
-      unknownDword9: 0, // related to previous value - both do same/similar thing
-      unknownDword10: 0, // related to previous values - both do same/similar thing
+      //snow: 0,
+      //snowMap: 0, // 32 - 35 snow starts thinning, dissapears over 35
+      //colorGradient: 0,
+      //unknownDword8: 0, // AOGamma? sky gets more yellow - test during night
+      //unknownDword9: 0, // related to previous value - both do same/similar thing
+      //unknownDword10: 0, // related to previous values - both do same/similar thing
 
-      unknownDword11: 0,
-      unknownDword12: 0,
-      sunAxisX: 0, // 0 - 360
-      sunAxisY: 0, // 0 - 360
-      unknownDword15: 0,
-      disableTrees: 0,
-      disableTrees1: 0,
-      disableTrees2: 0,
-      wind: 0,
-      */
+      //unknownDword11: rnd_number(),
+      //unknownDword12: rnd_number(),
+      //sunAxisX: 0, // 0 - 360 // heading?
+      //sunAxisY: 0, // 0 - 360 // pitch?
+      //unknownDword15: rnd_number(),
+
+      //windDirectionX: rnd_number2(360, true),
+      //windDirectionY: rnd_number2(360, true),
+      //windDirectionZ: rnd_number2(360, true),
+
+      //wind: 0,
 
       //unknownDword20: rnd_number(), // world reflection related?
       //unknownDword21: rnd_number(), // world reflection related?
 
-      unknownDword22: rnd_number(), // ??
-      unknownDword23: rnd_number(), // ??
+      //unknownDword22: rnd_number2(1), // ??
+      //unknownDword23: rnd_number2(1), // ??
       
-      unknownDword24: rnd_number(), // sky starts blinking?
-      unknownDword25: rnd_number(), // sky starts blinking?
+      //unknownDword24: rnd_number2(50), // sky starts blinking? (affects clouds) solarFlareFrequency?
 
-      unknownDword26: rnd_number(), // ??
-      unknownDword27: rnd_number(), // ??
-      unknownDword28: rnd_number(), // ??
-      unknownDword29: rnd_number(), // ??
+      //unknownDword25: rnd_number2(1), // sky starts blinking? (affects clouds) solarFlareIntensity? (cloudSpeed?) (rainClouds?)
 
-      //unknownDword30: .1, // done
-      //unknownDword31: .8, // done
-      //unknownDword32: .2, // done
-
-      unknownDword33: rnd_number(),
+      //unknownDword26: rnd_number2(1), // ?? (cloudWeight0?)
+      //unknownDword27: rnd_number2(1), // ?? (cloudWeight1?)
+      //unknownDword28: rnd_number2(1), // ?? (cloudWeight2?)
+      //unknownDword29: rnd_number2(1), // ?? (cloudWeight3?)
+      //unknownDword33: rnd_number2(0.5), // ?? (cloudThickness?)
     };
     console.log(server._weather2016)
     server.updateWeather2016(client);
