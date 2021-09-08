@@ -586,30 +586,34 @@ const packetHandlers = {
   ) {
     console.log(packet);
     console.log(packet.data)
+    if(!packet.data){ // idk man
+      return;
+    }
     const characterId = server._transientIds[packet.data.transientId];
+    return;
     if (characterId) {
       if (!server._soloMode) {
         server.sendRawToAllOthers(
           client,
           server._protocol.createVehiclePositionBroadcast(
-            packet.data.PositionUpdate.raw.slice(1)
+            packet.data.positionUpdate.raw.slice(1)
           )
         );
       }
-      if (packet.data.PositionUpdate.position) {
+      if (packet.data.positionUpdate.position) {
         server._vehicles[characterId].positionUpdate =
-          packet.data.PositionUpdate;
+          packet.data.positionUpdate;
         server._vehicles[characterId].npcData.position = new Float32Array([
-          packet.data.PositionUpdate.position[0],
-          packet.data.PositionUpdate.position[1],
-          packet.data.PositionUpdate.position[2],
+          packet.data.positionUpdate.position[0],
+          packet.data.positionUpdate.position[1],
+          packet.data.positionUpdate.position[2],
           0,
         ]);
         if (client.vehicle.mountedVehicle === characterId) {
           client.character.state.position = new Float32Array([
-            packet.data.PositionUpdate.position[0],
-            packet.data.PositionUpdate.position[1],
-            packet.data.PositionUpdate.position[2],
+            packet.data.positionUpdate.position[0],
+            packet.data.positionUpdate.position[1],
+            packet.data.positionUpdate.position[2],
             0,
           ]);
           if (

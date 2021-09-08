@@ -7766,9 +7766,8 @@ const packets = [
     },
   ],
   ["Leaderboard", 0x90, {}],
-  /*
   [
-    "PlayerUpdateManagedPosition", // *NOT* full packet schema
+    "PlayerUpdateManagedPosition",
     0x91,
     {
       fields: [
@@ -7777,9 +7776,10 @@ const packets = [
           type: "custom",
           parser: readUnsignedIntWith2bitLengthValue,
           packer: packUnsignedIntWith2bitLengthValue,
+          defaultValue: 1,
         },
         {
-          name: "PositionUpdate",
+          name: "positionUpdate",
           type: "custom",
           parser: readPositionUpdateData,
           packer: packPositionUpdateData,
@@ -7788,7 +7788,7 @@ const packets = [
       ],
     },
   ],
-  */
+  
   [
     "AddSimpleNpc",
     0x92,
