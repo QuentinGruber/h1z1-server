@@ -50,7 +50,7 @@ export default class Character {
       ]),
       (this.resources = {
         health: 5000,
-        stamina: 50,
+        stamina: 10000,
         food: 5000,
         water: 5000,
         virus: 6000,

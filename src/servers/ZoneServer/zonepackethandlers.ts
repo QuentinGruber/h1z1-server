@@ -33,7 +33,7 @@ const modelToName = require("../../../data/2015/sampleData/ModelToName.json");
 import { _ } from "../../utils/utils";
 const debug = require("debug")("zonepacketHandlers");
 
-const packetHandlers: any = {
+const packetHandlers = {
   ClientIsReady: function (server: ZoneServer, client: Client, packet: any) {
     /* still disable
         server.sendData(client, "ClientBeginZoning", {
@@ -141,13 +141,13 @@ const packetHandlers: any = {
       serverTime2: Int64String(server.getServerTime()),
     });
 
-    client.character.resourcesUpdater = setInterval(function () {
+    client.character.resourcesUpdater = setTimeout(() => {
       // prototype resource manager
       const { isRunning } = client.character;
       if (!isRunning) {
-        client.character.resources.stamina += 20;
+        client.character.resources.stamina += 10;
       } else {
-        client.character.resources.stamina -= 40;
+        client.character.resources.stamina -= 5;
       }
       // if we had a packets we could modify sprint stat to 0
       // or play exhausted sounds etc
@@ -178,8 +178,13 @@ const packetHandlers: any = {
       } else if (client.character.resources.health < 0) {
         client.character.resources.health = 0;
       }
-      const { stamina, food, water, health, virus } =
-        client.character.resources;
+      const {
+        stamina,
+        food,
+        water,
+        health,
+        virus,
+      } = client.character.resources;
 
       server.sendData(client, "ResourceEvent", {
         eventData: {
@@ -247,6 +252,7 @@ const packetHandlers: any = {
           },
         },
       });
+      client.character.resourcesUpdater.refresh();
     }, 3000);
 
     server.sendData(client, "ZoneDoneSendingInitialData", {});
@@ -268,7 +274,7 @@ const packetHandlers: any = {
         `${client.character.name} has joined the server !`
       );
       client.firstLoading = false;
-      client.lastPingTime = new Date().getTime();
+      client.pingTimer?.refresh();
       client.savePositionTimer = setTimeout(
         () => server.saveCharacterPosition(client, 30000),
         30000
@@ -279,6 +285,18 @@ const packetHandlers: any = {
     client.isInteracting = false;
     delete client.vehicle.mountedVehicle;
     client.vehicle.mountedVehicleType = "0";
+    if (!server._soloMode) {
+      const populationNumber = _.size(server._characters);
+      server._db?.collection("servers").findOneAndUpdate(
+        { serverId: server._worldId },
+        {
+          $set: {
+            populationNumber: populationNumber,
+            populationLevel: Number((populationNumber / 1).toFixed(0)),
+          },
+        }
+      );
+    }
   },
   Security: function (server: ZoneServer, client: Client, packet: any) {
     debug(packet);
@@ -342,18 +360,8 @@ const packetHandlers: any = {
     debug("EndCharacterAccess");
   },
   KeepAlive: function (server: ZoneServer, client: Client, packet: any) {
-    client.lastPingTime = new Date().getTime();
     server.sendData(client, "KeepAlive", {
       gameTime: packet.data.gameTime,
-    });
-  },
-  "AdminCommand.RunSpeed": function (
-    server: ZoneServer,
-    client: Client,
-    packet: any
-  ) {
-    server.sendData(client, "AdminCommand.RunSpeed", {
-      runSpeed: packet.data.runSpeed,
     });
   },
   ClientLog: function (server: ZoneServer, client: Client, packet: any) {
@@ -389,22 +397,6 @@ const packetHandlers: any = {
           isProductionZone: 1,
         },
       ],
-    });
-  },
-  "Command.SetInWater": function (
-    server: ZoneServer,
-    client: Client,
-    packet: any
-  ) {
-    server.sendData(client, "ClientUpdate.ModifyMovementSpeed", { speed: 0.8 });
-  },
-  "Command.ClearInWater": function (
-    server: ZoneServer,
-    client: Client,
-    packet: any
-  ) {
-    server.sendData(client, "ClientUpdate.ModifyMovementSpeed", {
-      speed: 1.25,
     });
   },
   "Chat.Chat": function (server: ZoneServer, client: Client, packet: any) {
@@ -469,6 +461,18 @@ const packetHandlers: any = {
     server._gatewayServer._soeServer.deleteClient(client);
     delete server._characters[client.character.characterId];
     delete server._clients[client.sessionId];
+    if (!server._soloMode) {
+      const populationNumber = _.size(server._characters);
+      server._db?.collection("servers").findOneAndUpdate(
+        { serverId: server._worldId },
+        {
+          $set: {
+            populationNumber: populationNumber,
+            populationLevel: Number((populationNumber / 1).toFixed(0)),
+          },
+        }
+      );
+    }
   },
   GameTimeSync: function (server: ZoneServer, client: Client, packet: any) {
     server.sendGameTimeSync(client);
@@ -822,6 +826,16 @@ const packetHandlers: any = {
       }
     }
   },
+  "Command.SetInWater": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {},
+  "Command.ClearInWater": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {},
   "Command.InteractionSelect": function (
     server: ZoneServer,
     client: Client,
@@ -1464,7 +1478,10 @@ const packetHandlers: any = {
                           unknownDword6: 0,
                           position: packet.data.position,
                           unknownVector1: [
-                            0, -0.7071066498756409, 0, 0.70710688829422,
+                            0,
+                            -0.7071066498756409,
+                            0,
+                            0.70710688829422,
                           ],
                           rotation: [packet.data.heading, 0, 0, 0],
                           unknownDword7: 0,
@@ -1701,7 +1718,7 @@ const packetHandlers: any = {
           if (
             !client.posAtLastRoutine ||
             !isPosInRadius(
-              server._npcRenderDistance / 2.5,
+              server._npcRenderDistance * server._worldRoutineRadiusPercentage,
               client.character.state.position,
               client.posAtLastRoutine
             )
@@ -1776,13 +1793,14 @@ const packetHandlers: any = {
         server.worldRoutine(client);
       }
     } else if (packet.data.vehicle_position && client.vehicle.mountedVehicle) {
-      server._vehicles[client.vehicle.mountedVehicle].npcData.position =
-        new Float32Array([
-          packet.data.vehicle_position[0],
-          packet.data.vehicle_position[1],
-          packet.data.vehicle_position[2],
-          0,
-        ]);
+      server._vehicles[
+        client.vehicle.mountedVehicle
+      ].npcData.position = new Float32Array([
+        packet.data.vehicle_position[0],
+        packet.data.vehicle_position[1],
+        packet.data.vehicle_position[2],
+        0,
+      ]);
     }
     if (packet.data.rotation) {
       // TODO: modify array element beside re-creating it
@@ -1921,7 +1939,7 @@ const packetHandlers: any = {
         unknownBoolean: true,
       });
       server._vehicles[vehicleGuid].isManaged = true;
-      client.managedObjects.push(this._vehicles[vehicleGuid]);
+      client.managedObjects.push(server._vehicles[vehicleGuid]);
     } else if (
       doorToInteractWith &&
       isPosInRadius(

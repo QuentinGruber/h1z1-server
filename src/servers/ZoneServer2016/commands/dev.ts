@@ -583,6 +583,23 @@ const dev: any = {
       model: modelChoosen,
     });
   },
+  stat: function (server: ZoneServer2016, client: Client, args: any[]) {
+    if (!args[3]) {
+      server.sendChatText(client, "missing statId, baseValue, modifierValue");
+      return;
+    }
+
+    server.sendData(client, "ClientUpdate.UpdateStat", {
+      statId: Number(args[1]),
+      statValue: {
+        type: 0,
+        value: {
+          baseValue: Number(args[2]),
+          modifierValue: Number(args[3]),
+        },
+      },
+    });
+  },
   /*
   proxiedObjects: function(server: ZoneServer2016, client: Client, args: any[]) {
     

@@ -53,7 +53,7 @@ function writePacketType(packetType: number) {
     packetTypeBytes.unshift(packetType & 0xff);
     packetType = packetType >> 8;
   }
-  const data = new (Buffer.alloc as any)(packetTypeBytes.length);
+  const data = Buffer.alloc(packetTypeBytes.length);
   for (let i = 0; i < packetTypeBytes.length; i++) {
     data.writeUInt8(packetTypeBytes[i], i);
   }
@@ -83,7 +83,7 @@ function packUnsignedIntWith2bitLengthValue(value: number) {
     n = 1;
   }
   value |= n;
-  const data = new (Buffer.alloc as any)(4);
+  const data = Buffer.alloc(4);
   data.writeUInt32LE(value, 0);
   return data.slice(0, n + 1);
 }
@@ -103,7 +103,7 @@ function readSignedIntWith2bitLengthValue(data: Buffer, offset: number) {
     length: n + 1,
   };
 }
-function packSignedIntWith2bitLengthValue(value: number): void {
+function packSignedIntWith2bitLengthValue(value: number): Buffer {
   value = Math.round(value);
   const sign = value < 0 ? 1 : 0;
   value = sign ? -value : value;
@@ -118,7 +118,7 @@ function packSignedIntWith2bitLengthValue(value: number): void {
   }
   value |= n << 1;
   value |= sign;
-  const data = new (Buffer.alloc as any)(4);
+  const data = Buffer.alloc(4);
   data.writeUInt32LE(value, 0);
   return data.slice(0, n + 1);
 }
@@ -225,7 +225,7 @@ function readPositionUpdateData(data: Buffer, offset: number) {
   };
 }
 function packPositionUpdateData(obj: any) {
-  let data = new (Buffer.alloc as any)(7),
+  let data = Buffer.alloc(7),
     flags = 0,
     v;
   data.writeUInt32LE(obj["unknown2_int32"], 2);
@@ -246,7 +246,7 @@ function packPositionUpdateData(obj: any) {
   }
   if ("unknown6_int32" in obj) {
     flags |= 0x20;
-    v = new (Buffer.alloc as any)(4);
+    v = Buffer.alloc(4);
     v.writeUInt32LE(obj["unknown6_int32"], 0);
     data = Buffer.concat([data, v]);
   }
@@ -625,11 +625,8 @@ function parseItemAddData(data: Buffer, offset: number, referenceData: any) {
     outSize = itemData.readUInt16LE(2),
     compData = itemData.slice(4, 4 + inSize),
     decompData = lz4_decompress(compData, inSize, outSize),
-    itemDefinition = DataSchema.parse(
-      baseItemDefinitionSchema,
-      decompData,
-      0
-    ).result;
+    itemDefinition = DataSchema.parse(baseItemDefinitionSchema, decompData, 0)
+      .result;
   itemData = parseItemData(itemData, 4 + inSize, referenceData).value;
   return {
     value: {
@@ -970,12 +967,12 @@ const statDataSchema = [
     type: "variabletype8",
     types: {
       0: [
-        { name: "baseValue", type: "uint32", defaultValue: 0 },
-        { name: "modifierValue", type: "uint32", defaultValue: 0 },
+        { name: "base", type: "uint32", defaultValue: 0 },
+        { name: "modifier", type: "uint32", defaultValue: 0 },
       ],
       1: [
-        { name: "baseValue", type: "float", defaultValue: 0.0 },
-        { name: "modifierValue", type: "float", defaultValue: 0.0 },
+        { name: "base", type: "float", defaultValue: 0.0 },
+        { name: "modifier", type: "float", defaultValue: 0.0 },
       ],
     },
   },
@@ -1220,8 +1217,9 @@ const weaponPackets = [
   ["Weapon.ProjectileSpawnAttachedNp", 0x8222, {}],
   ["Weapon.AddDebugLogEntry", 0x8223, {}],
 ];
-const [weaponPacketTypes, weaponPacketDescriptors] =
-  PacketTableBuild(weaponPackets);
+const [weaponPacketTypes, weaponPacketDescriptors] = PacketTableBuild(
+  weaponPackets
+);
 function parseMultiWeaponPacket(data: Buffer, offset: number) {
   const startOffset = offset,
     packets = [];
@@ -1244,7 +1242,7 @@ function parseWeaponPacket(data: Buffer, offset: number) {
   const obj: any = {};
   obj.gameTime = data.readUInt32LE(offset);
   const tmpData = data.slice(offset + 4);
-  const weaponPacketData = new (Buffer.alloc as any)(tmpData.length + 1);
+  const weaponPacketData = Buffer.alloc(tmpData.length + 1);
   weaponPacketData.writeUInt8(0x85, 0);
   tmpData.copy(weaponPacketData, 1);
   const weaponPacket = readPacketType(
@@ -1281,7 +1279,7 @@ function packWeaponPacket(obj: any) {
       subTypeData = writePacketType(subType);
     let subData = DataSchema.pack(subPacket.schema, subObj).data;
     subData = Buffer.concat([subTypeData.slice(1), subData]);
-    data = new (Buffer.alloc as any)(subData.length + 4);
+    data = Buffer.alloc(subData.length + 4);
     data.writeUInt32LE((obj.gameTime & 0xffffffff) >>> 0, 0);
     subData.copy(data, 4);
   } else {
@@ -1987,7 +1985,7 @@ const characterResourceData = [
   {
     name: "unknownArray1",
     type: "array",
-    defaultValue: [{}],
+    defaultValue: [],
     fields: [
       { name: "unknownDword1", type: "uint32", defaultValue: 0 },
       { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -2432,7 +2430,15 @@ const packets = [
               name: "stats",
               type: "array",
               defaultValue: [],
-              fields: statDataSchema,
+              fields: [
+                { name: "statId", type: "uint32", defaultValue: 0 },
+                {
+                  name: "statData",
+                  type: "schema",
+                  defaultValue: {},
+                  fields: statDataSchema,
+                },
+              ],
             },
 
             {
@@ -5548,14 +5554,7 @@ const packets = [
     "ClientUpdate.UpdateStat",
     0x110500,
     {
-      fields: [
-        {
-          name: "stats",
-          type: "array",
-          defaultValue: [{}],
-          fields: statDataSchema,
-        },
-      ],
+      fields: statDataSchema,
     },
   ],
   ["ClientUpdate.CollectionStart", 0x110600, {}],

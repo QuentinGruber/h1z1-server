@@ -87,9 +87,7 @@ const packetHandlers = {
     server.sendData(client, "ClientUpdate.NetworkProximityUpdatesComplete", {
       done: true,
     }); // Required for WaitForWorldReady
-    server.sendData(client, "ClientUpdate.UpdateStat", { stats: [] });
-
-    //server.sendData(client, "Operation.ClientClearMissions", {});
+    //server.sendData(client, "ClientUpdate.UpdateStat", { stats: [] });
 
     server.sendData(client, "ZoneSetting.Data", {
       settings: [
@@ -146,7 +144,7 @@ const packetHandlers = {
       gameTime: (server.getServerTime() & 0xffffffff) >>> 0,
     });
 
-    client.character.currentLoadoutId = 3;
+    // client.character.currentLoadoutId = 3;
     /*
     server.sendData(client, "Loadout.SetCurrentLoadout", {
       guid: client.character.guid,
@@ -175,12 +173,6 @@ const packetHandlers = {
       serverTime: Int64String(server.getServerTime()),
       serverTime2: Int64String(server.getServerTime()),
     });
-    /*
-    // temp workaround
-    server.sendData(client, "ClientUpdate.ModifyMovementSpeed", {
-      speed: 11.0,
-    });
-    */
   },
   ClientFinishedLoading: function (
     server: ZoneServer2016,
@@ -200,7 +192,7 @@ const packetHandlers = {
         `${client.character.name} has joined the server !`
       );
       client.firstLoading = false;
-      client.lastPingTime = new Date().getTime();
+      client.pingTimer?.refresh();
       client.savePositionTimer = setTimeout(
         () => server.saveCharacterPosition(client, 30000),
         30000
@@ -251,7 +243,6 @@ const packetHandlers = {
     });
   },
   KeepAlive: function (server: ZoneServer2016, client: Client, packet: any) {
-    client.lastPingTime = new Date().getTime();
     server.sendData(client, "KeepAlive", {
       gameTime: packet.data.gameTime,
     });
@@ -441,13 +432,21 @@ const packetHandlers = {
       case Jenkins.oaat("HAX"):
         hax[args[0]]
           ? hax[args[0]](server, client, args)
-          : server.sendChatText(client, `Unknown command: /hax ${args[0]}`);
+          : (server.sendChatText(client, `Unknown command: /hax ${args[0]}`),
+            server.sendChatText(
+              client,
+              `/hax commands list: ${Object.keys(hax).join(", ")}`
+            ));
         break;
       case Jenkins.oaat("DEV"):
       case 552078457: // dev
         dev[args[0]]
           ? dev[args[0]](server, client, args)
-          : server.sendChatText(client, `Unknown command: /dev ${args[0]}`);
+          : (server.sendChatText(client, `Unknown command: /dev ${args[0]}`),
+            server.sendChatText(
+              client,
+              `/dev commands list: ${Object.keys(dev).join(", ")}`
+            ));
         break;
     }
   },
@@ -564,17 +563,6 @@ const packetHandlers = {
         message: packetData.name.replace("SpeedTree.", ""),
       });
     }
-    // deprecated ?
-    /*
-    server.sendData(client, "PlayerUpdate.StartHarvest", {
-      characterId: client.character.characterId,
-      unknown4: 0,
-      timeMs: 10,
-      unknown6: 0,
-      stringId: 10002,
-      unknownGuid: Int64String(packetData.id),
-    });
-    */
   },
   GetRewardBuffInfo: function (
     server: ZoneServer2016,
@@ -596,74 +584,6 @@ const packetHandlers = {
       unknownFloat12: 12,
     });
   },
-  /*
-  PlayerUpdateUpdatePositionClientToZone: function (
-    server: ZoneServer2016,
-    client: Client,
-    packet: any
-  ) {
-    if (packet.data.position) {
-      // TODO: modify array element beside re-creating it
-      client.character.state.position = new Float32Array([
-        packet.data.position[0],
-        packet.data.position[1],
-        packet.data.position[2],
-        0,
-      ]);
-
-      if (
-        client.timer != null &&
-        !isPosInRadius(
-          1,
-          client.character.state.position,
-          client.posAtLogoutStart
-        )
-      ) {
-        clearTimeout(client.timer);
-        client.timer = null;
-        server.sendData(client, "ClientUpdate.StartTimer", {
-          stringId: 0,
-          time: 0,
-        }); // don't know how it was done so
-      }
-
-      if (
-        !client.posAtLastRoutine ||
-        (!isPosInRadius(
-          server._npcRenderDistance / 2.5,
-          client.character.state.position,
-          client.posAtLastRoutine
-        ) &&
-          !client.isLoading)
-      ) {
-        server.worldRoutine(client);
-      }
-      // todo
-      
-      //const movingCharacter = server._characters[client.character.characterId];
-      //console.log(movingCharacter)
-
-      //server.sendDataToAllOthers(client,"PlayerUpdate.UpdatePosition",{transientId:movingCharacter.transientId,positionUpdate:server.createPositionUpdate(client.character.state.position,[0,0,0,0])})
-      
-    }
-    if (packet.data.rotation) {
-      // TODO: modify array element beside re-creating it
-      client.character.state.rotation = new Float32Array([
-        packet.data.rotation[0],
-        packet.data.rotation[1],
-        packet.data.rotation[2],
-        packet.data.rotation[3],
-      ]);
-
-      client.character.state.lookAt = new Float32Array([
-        packet.data.lookAt[0],
-        packet.data.lookAt[1],
-        packet.data.lookAt[2],
-        packet.data.lookAt[3],
-      ]);
-    }
-  },
-  */
   PlayerUpdateUpdatePositionClientToZone: function (
     server: ZoneServer2016,
     client: Client,
@@ -676,7 +596,7 @@ const packetHandlers = {
     if (movingCharacter /*&& !server._soloMode*/) {
       if (client.vehicle.mountedVehicle) {
         const vehicle = server._vehicles[client.vehicle.mountedVehicle];
-        console.log(vehicle);
+        //console.log(vehicle);
         server.sendRawToAllOthers(
           client,
           server._protocol.createPositionBroadcast(
@@ -697,7 +617,7 @@ const packetHandlers = {
         server.sendDataToAllOthers(client, "PlayerUpdatePosition", {
           transientId: movingCharacter.transientId,
           positionUpdate: server.createPositionUpdate(
-            /*new Float32Array(*/ movingCharacter.state.position /*)*/,
+            movingCharacter.state.position,
             movingCharacter.state.lookAt
           ),
         });
@@ -749,13 +669,14 @@ const packetHandlers = {
         server.worldRoutine2016();
       }
     } else if (packet.data.vehicle_position && client.vehicle.mountedVehicle) {
-      server._vehicles[client.vehicle.mountedVehicle].npcData.position =
-        new Float32Array([
-          packet.data.vehicle_position[0],
-          packet.data.vehicle_position[1],
-          packet.data.vehicle_position[2],
-          0,
-        ]);
+      server._vehicles[
+        client.vehicle.mountedVehicle
+      ].npcData.position = new Float32Array([
+        packet.data.vehicle_position[0],
+        packet.data.vehicle_position[1],
+        packet.data.vehicle_position[2],
+        0,
+      ]);
     }
     if (packet.data.rotation) {
       // TODO: modify array element beside re-creating it
@@ -880,7 +801,6 @@ const packetHandlers = {
     packet: any
   ) {
     // only for driver seat
-    debug(packet.data);
     server.dismountVehicle(client);
   },
   "Command.InteractionString": function (

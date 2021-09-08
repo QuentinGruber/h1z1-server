@@ -421,12 +421,8 @@ export class H1Z1Protocol {
           debug(packet.name);
         }
         try {
-          result = DataSchema.parse(
-            packet.schema,
-            data,
-            offset,
-            referenceData
-          ).result;
+          result = DataSchema.parse(packet.schema, data, offset, referenceData)
+            .result;
         } catch (e) {
           debug(e);
         }
