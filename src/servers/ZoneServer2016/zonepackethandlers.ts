@@ -18,7 +18,7 @@ try {
   delete require.cache[require.resolve("./commands/dev")];
 } catch (e) {}
 
-const Jenkins = require("hash-jenkins");
+import { joaat } from "h1emu-core"
 import hax from "./commands/hax";
 import dev from "./commands/dev";
 // import admin from "./commands/admin";
@@ -92,42 +92,42 @@ const packetHandlers = {
     server.sendData(client, "ZoneSetting.Data", {
       settings: [
         {
-          hash: Jenkins.oaat("zonesetting.deploy.on.login".toUpperCase()),
+          hash: joaat("zonesetting.deploy.on.login".toUpperCase()),
           value: 1,
           settingType: 2,
           unknown1: 0,
           unknown2: 0,
         },
         {
-          hash: Jenkins.oaat("zonesetting.no.acquisition.timers".toUpperCase()),
+          hash: joaat("zonesetting.no.acquisition.timers".toUpperCase()),
           value: 1,
           settingType: 2,
           unknown1: 0,
           unknown2: 0,
         },
         {
-          hash: Jenkins.oaat("zonesetting.XpMultiplier".toUpperCase()),
+          hash: joaat("zonesetting.XpMultiplier".toUpperCase()),
           value: 1,
           settingType: 1,
           unknown1: 0,
           unknown2: 0,
         },
         {
-          hash: Jenkins.oaat("zonesetting.disabletrialitems".toUpperCase()),
+          hash: joaat("zonesetting.disabletrialitems".toUpperCase()),
           value: 1,
           settingType: 2,
           unknown1: 0,
           unknown2: 0,
         },
         {
-          hash: Jenkins.oaat("zonesetting.isvrzone".toUpperCase()),
+          hash: joaat("zonesetting.isvrzone".toUpperCase()),
           value: 0,
           settingType: 2,
           unknown1: 0,
           unknown2: 0,
         },
         {
-          hash: Jenkins.oaat("zonesetting.no.resource.costs".toUpperCase()),
+          hash: joaat("zonesetting.no.resource.costs".toUpperCase()),
           value: 1,
           settingType: 2,
           unknown1: 0,
@@ -398,7 +398,7 @@ const packetHandlers = {
           true
         );
         break;
-      case Jenkins.oaat("HELP"):
+      case joaat("HELP"):
       case 3575372649: // /help
         const haxCommandList: any = [];
         Object.keys(hax).forEach((key) => {
@@ -417,7 +417,7 @@ const packetHandlers = {
             server.sendChatText(client, `${command}`);
           });
         break;
-      case Jenkins.oaat("LOCATION"):
+      case joaat("LOCATION"):
       case 3270589520: // /loc
         const { position, rotation } = client.character.state;
         server.sendChatText(
@@ -429,7 +429,7 @@ const packetHandlers = {
           `rotation: ${rotation[0]},${rotation[1]},${rotation[2]}`
         );
         break;
-      case Jenkins.oaat("HAX"):
+      case joaat("HAX"):
         hax[args[0]]
           ? hax[args[0]](server, client, args)
           : (server.sendChatText(client, `Unknown command: /hax ${args[0]}`),
@@ -438,7 +438,7 @@ const packetHandlers = {
               `/hax commands list: ${Object.keys(hax).join(", ")}`
             ));
         break;
-      case Jenkins.oaat("DEV"):
+      case joaat("DEV"):
       case 552078457: // dev
         dev[args[0]]
           ? dev[args[0]](server, client, args)
