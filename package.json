@@ -14,6 +14,7 @@
     "@types/json-schema": "7.0.9",
     "@types/node": "16.7.9",
     "debug": "4.3.2",
+    "eul2quat": "1.0.0",
     "h1emu-core": "0.4.0",
     "h1z1-dataschema": "1.4.1",
     "mongodb": "4.1.1",
@@ -26,9 +27,9 @@
     "src": "./src"
   },
   "devDependencies": {
-    "chokidar": "3.5.1",
-    "prettier": "2.2.1",
-    "ts-node": "10.0.0"
+    "chokidar": "3.5.2",
+    "prettier": "2.4.0",
+    "ts-node": "10.2.1"
   },
   "scripts": {
     "gen-packets-types": "npx ts-node ./scripts/genPacketsNames.ts && npx prettier -w ./src/types/packets.ts",
