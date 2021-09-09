@@ -616,10 +616,7 @@ const packetHandlers = {
         */
         server.sendDataToAllOthers(client, "PlayerUpdatePosition", {
           transientId: movingCharacter.transientId,
-          positionUpdate: server.createPositionUpdate(
-            movingCharacter.state.position,
-            movingCharacter.state.lookAt
-          ),
+          positionUpdate: {...packet.data},
         });
       }
     }
