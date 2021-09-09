@@ -586,11 +586,9 @@ const packetHandlers = {
   ) {
     console.log(packet);
     console.log(packet.data)
-    if(!packet.data){ // idk man
-      return;
-    }
     const characterId = server._transientIds[packet.data.transientId];
-    return;
+    console.log(characterId)
+    console.log(server._vehicles[characterId])
     if (characterId) {
       if (!server._soloMode) {
         server.sendRawToAllOthers(
@@ -601,8 +599,8 @@ const packetHandlers = {
         );
       }
       if (packet.data.positionUpdate.position) {
-        server._vehicles[characterId].positionUpdate =
-          packet.data.positionUpdate;
+        //server._vehicles[characterId].positionUpdate =
+        //  packet.data.positionUpdate;
         server._vehicles[characterId].npcData.position = new Float32Array([
           packet.data.positionUpdate.position[0],
           packet.data.positionUpdate.position[1],

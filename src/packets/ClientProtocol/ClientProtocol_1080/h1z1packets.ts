@@ -13,6 +13,7 @@
 import PacketTableBuild from "../../packettable";
 import DataSchema from "h1z1-dataschema";
 import { lz4_decompress } from "../../../utils/utils";
+import eul2quat from "eul2quat";
 
 function readPacketType(data: Buffer, packets: any) {
   let opCode = data[0] >>> 0,
@@ -125,93 +126,109 @@ function packSignedIntWith2bitLengthValue(value: number): Buffer {
 function readPositionUpdateData(data: Buffer, offset: number) {
   const obj: any = {},
     startOffset = offset;
-  let v: any;
   obj["flags"] = data.readUInt16LE(offset);
   offset += 2;
+
   obj["unknown2_int32"] = data.readUInt32LE(offset);
   offset += 4;
+
   obj["unknown3_int8"] = data.readUInt8(offset);
   offset += 1;
-  if (obj.flags && 1) {
-    v = readUnsignedIntWith2bitLengthValue(data, offset);
+
+  if (obj.flags & 1) {
+    var v = readUnsignedIntWith2bitLengthValue(data, offset);
     obj["unknown4"] = v.value;
     offset += v.length;
   }
-  if (obj.flags && 2) {
+
+  if (obj.flags & 2) {
     obj["position"] = [];
-    v = readSignedIntWith2bitLengthValue(data, offset);
+    var v = readSignedIntWith2bitLengthValue(data, offset);
     obj["position"][0] = v.value / 100;
     offset += v.length;
-    v = readSignedIntWith2bitLengthValue(data, offset);
+    var v = readSignedIntWith2bitLengthValue(data, offset);
     obj["position"][1] = v.value / 100;
     offset += v.length;
-    v = readSignedIntWith2bitLengthValue(data, offset);
+    var v = readSignedIntWith2bitLengthValue(data, offset);
     obj["position"][2] = v.value / 100;
     offset += v.length;
   }
-  if (obj.flags && 0x20) {
+
+  if (obj.flags & 0x20) {
     obj["unknown6_int32"] = data.readUInt32LE(offset);
     offset += 4;
   }
-  if (obj.flags && 0x40) {
-    v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["unknown7_float"] = v.value / 100;
+
+  if (obj.flags & 0x40) {
+    var v = readSignedIntWith2bitLengthValue(data, offset);
+    obj["frontTilt"] = v.value / 100; // not 100% sure about name
     offset += v.length;
   }
-  if (obj.flags && 0x80) {
-    v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["unknown8_float"] = v.value / 100;
+
+  if (obj.flags & 0x80) {
+    var v = readSignedIntWith2bitLengthValue(data, offset);
+    obj["sideTilt"] = v.value / 100; // not 100% sure
     offset += v.length;
   }
-  if (obj.flags && 4) {
-    v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["unknown9_float"] = v.value / 100;
+
+  if (obj.flags & 4) {
+    var v = readSignedIntWith2bitLengthValue(data, offset);
+    obj["angleChange"] = v.value / 100; // maybe
     offset += v.length;
   }
-  if (obj.flags && 0x8) {
-    v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["unknown10_float"] = v.value / 100;
+
+  if (obj.flags & 0x8) {
+    var v = readSignedIntWith2bitLengthValue(data, offset);
+    obj["verticalSpeed"] = v.value / 100;
     offset += v.length;
   }
-  if (obj.flags && 0x10) {
-    v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["unknown11_float"] = v.value / 10;
+
+  if (obj.flags & 0x10) {
+    var v = readSignedIntWith2bitLengthValue(data, offset);
+    obj["speed"] = v.value / 10;
     offset += v.length;
   }
-  if (obj.flags && 0x100) {
+
+  if (obj.flags & 0x100) {
+    // either the previous one i meantioned is rotation delta or this one cause rotation is almost neved sent by client
     obj["unknown12_float"] = [];
-    v = readSignedIntWith2bitLengthValue(data, offset);
+    var v = readSignedIntWith2bitLengthValue(data, offset);
     obj["unknown12_float"][0] = v.value / 100;
     offset += v.length;
-    v = readSignedIntWith2bitLengthValue(data, offset);
+    var v = readSignedIntWith2bitLengthValue(data, offset);
     obj["unknown12_float"][1] = v.value / 100;
     offset += v.length;
-    v = readSignedIntWith2bitLengthValue(data, offset);
+    var v = readSignedIntWith2bitLengthValue(data, offset);
     obj["unknown12_float"][2] = v.value / 100;
     offset += v.length;
   }
-  if (obj.flags && 0x200) {
-    obj["unknown13_float"] = [];
-    v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["unknown13_float"][0] = v.value / 100;
+
+  if (obj.flags & 0x200) {
+    const rotationEul = [];
+    var v = readSignedIntWith2bitLengthValue(data, offset);
+    rotationEul[0] = v.value / 100;
     offset += v.length;
-    v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["unknown13_float"][1] = v.value / 100;
+    var v = readSignedIntWith2bitLengthValue(data, offset);
+    rotationEul[1] = v.value / 100;
     offset += v.length;
-    v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["unknown13_float"][2] = v.value / 100;
+    var v = readSignedIntWith2bitLengthValue(data, offset);
+    rotationEul[2] = v.value / 100;
     offset += v.length;
-    v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["unknown13_float"][3] = v.value / 100;
+    var v = readSignedIntWith2bitLengthValue(data, offset);
+    rotationEul[3] = v.value / 100;
+    obj["rotation"] = eul2quat(rotationEul);
+    obj["lookAt"] = eul2quat([rotationEul[0], 0, 0, 0]);
     offset += v.length;
   }
-  if (obj.flags && 0x400) {
-    v = readSignedIntWith2bitLengthValue(data, offset);
+
+  if (obj.flags & 0x400) {
+    var v = readSignedIntWith2bitLengthValue(data, offset);
     obj["unknown14_float"] = v.value / 10;
     offset += v.length;
   }
-  if (obj.flags && 0x800) {
-    v = readSignedIntWith2bitLengthValue(data, offset);
+
+  if (obj.flags & 0x800) {
+    var v = readSignedIntWith2bitLengthValue(data, offset);
     obj["unknown15_float"] = v.value / 10;
     offset += v.length;
   }

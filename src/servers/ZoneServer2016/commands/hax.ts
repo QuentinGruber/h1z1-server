@@ -245,8 +245,6 @@ const hax: any = {
     server._npcs[characterId] = npc; // save npc
   },
   spawnVehicle: function (server: ZoneServer2016, client: Client, args: any[]) {
-    const guid = server.generateGuid();
-    const transientId = server.getTransientId(client, guid);
     if (!args[1]) {
       server.sendChatText(
         client,
@@ -279,9 +277,10 @@ const hax: any = {
         break;
     }
     const characterId = server.generateGuid();
+    const transientId = server.getTransientId(client, characterId);
     const vehicle = {
       npcData: {
-        guid: guid,
+        guid: server.generateGuid(),
         characterId: characterId,
         transientId: transientId,
         modelId: driveModel,
