@@ -30,7 +30,7 @@
   "devDependencies": {
     "chokidar": "3.5.1",
     "prettier": "2.2.1",
-    "ts-node": "10.0.0"
+    "ts-node": "10.2.1"
   },
   "scripts": {
     "gen-packets-types": "npx ts-node ./scripts/genPacketsNames.ts && npx prettier -w ./src/types/packets.ts",
