@@ -1,6 +1,6 @@
 {
   "name": "h1z1-server",
-  "version": "0.14.2-0",
+  "version": "0.14.2-1",
   "description": "Library for emulating h1z1 servers",
   "author": "Quentin Gruber <quentingruber@gmail.com> (http://github.com/quentingruber)",
   "license": "GPL-3.0-only",
@@ -34,7 +34,7 @@
   },
   "scripts": {
     "gen-packets-types": "npx ts-node ./scripts/genPacketsNames.ts && npx prettier -w ./src/types/packets.ts",
-    "gen-doc":"npx typedoc",
+    "gen-doc": "npx typedoc",
     "build-optimized": "npm run build && terser-output ./out",
     "build": "tsc -p ./tsconfig.json",
     "build-tests": "npx swc tests -d tests_out",
