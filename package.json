@@ -20,6 +20,7 @@
     "mongodb": "4.1.1",
     "mongodb-restore-dump": "1.0.1",
     "terser-output": "1.0.3",
+    "typedoc": "0.21.9",
     "typescript": "4.4.2",
     "v8-compile-cache": "2.3.0"
   },
@@ -33,6 +34,7 @@
   },
   "scripts": {
     "gen-packets-types": "npx ts-node ./scripts/genPacketsNames.ts && npx prettier -w ./src/types/packets.ts",
+    "gen-doc":"npx typedoc",
     "build-optimized": "npm run build && terser-output ./out",
     "build": "tsc -p ./tsconfig.json",
     "build-tests": "npx swc tests -d tests_out",
