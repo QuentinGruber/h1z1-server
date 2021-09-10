@@ -1,0 +1,14 @@
+node_modules
+.idea
+out
+tests_out
+docs
+.vscode
+.github
+bin
+docker
+scripts
+tests
+.dockerignore
+.gitignore
+typedoc.json
