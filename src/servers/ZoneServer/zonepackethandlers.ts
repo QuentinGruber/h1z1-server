@@ -125,6 +125,7 @@ const packetHandlers = {
       "admin",
       "location",
       "respawn",
+      "clientinfo",
       "serverinfo",
       "spawninfo",
       "help",
@@ -500,6 +501,12 @@ const packetHandlers = {
         server.sendData(client, "PlayerUpdate.StartMultiStateDeath", {
           characterId: client.character.characterId,
         });
+        break;
+      case 3357274581 : // /clientinfo
+        server.sendChatText(
+          client,
+          `Spawned entities count : ${client.spawnedEntities.length}`
+        );
         break;
       case 2371122039: // /serverinfo
         if (args[0] === "mem") {
@@ -1777,10 +1784,6 @@ const packetHandlers = {
           time: 0,
         }); // don't know how it was done so
       }
-      if (!client.posAtLastRoutine) {
-        server.spawnProps(client);
-      }
-
       if (
         !client.posAtLastRoutine ||
         (!isPosInRadius(

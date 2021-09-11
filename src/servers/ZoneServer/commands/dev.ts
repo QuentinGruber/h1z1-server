@@ -16,6 +16,18 @@ const dev: any = {
       ],
     });
   },
+  clearspawnedentities: function (server: ZoneServer, client: Client, args: any[]) {
+    client.spawnedEntities.forEach((entity:any) => {
+      try {
+        server.despawnEntity(entity.characterId);
+      } catch (error) {
+        debug(error)
+      }
+    });
+    client.spawnedEntities = [];
+    server.sendChatText(client,"Entities cleared !",true);
+    server.worldRoutine(client);
+  },
   testnpcmove: function (server: ZoneServer, client: Client, args: any[]) {
     const guid = server.generateGuid();
     const characterId = server.generateGuid();
