@@ -3916,7 +3916,12 @@ var packets = [
     },
   ],
   ["Command.FriendsPositionRequest", 0x091500, {}],
-  ["Command.MoveAndInteract", 0x091600, {}],
+  ["Command.MoveAndInteract", 0x091600, {
+    fields: [
+      { name: "position", type: "floatvector4", defaultValue: [0,0,0,1] },
+      { name: "guid", type: "uint64string", defaultValue: "0x0000" },
+    ] 
+  }],
   ["Command.QuestAbandon", 0x091700, {}],
   [
     "Command.RecipeStart",
