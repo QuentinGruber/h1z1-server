@@ -1746,13 +1746,10 @@ const packetHandlers = {
     }
     const movingCharacter = server._characters[client.character.characterId];
     if (movingCharacter && !server._soloMode) {
-      server.sendRawToAllOthers(
-        client,
-        server._protocol.createPositionBroadcast(
-          packet.data.raw,
-          movingCharacter.transientId
-        )
-      );
+      server.sendDataToAllOthers(client, "PlayerUpdate.UpdatePosition", {
+		  transientId: client.character.transientId,
+		  positionUpdate: packet.data.PositionUpdate
+      });
     }
     if (packet.data.position) {
       // TODO: modify array element beside re-creating it
