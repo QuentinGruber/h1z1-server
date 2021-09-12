@@ -1748,7 +1748,7 @@ const packetHandlers = {
     if (movingCharacter && !server._soloMode) {
       server.sendDataToAllOthers(client, "PlayerUpdate.UpdatePosition", {
 		  transientId: client.character.transientId,
-		  positionUpdate: packet.data.PositionUpdate
+		  positionUpdate: packet.data
       });
     }
     if (packet.data.position) {
