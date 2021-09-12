@@ -13,7 +13,8 @@
         "src/servers/ZoneServer2016/zoneclient.ts",
         "src/servers/ZoneServer2016/zoneserver.ts",
         "src/servers/ZoneServer2016/zonepackethandlers.ts",
-        "src/servers/ZoneServer2016/character.ts"
+        "src/servers/ZoneServer2016/character.ts",
+        "src/utils/utils.ts"
     ],
     "out": "docs"
 }
