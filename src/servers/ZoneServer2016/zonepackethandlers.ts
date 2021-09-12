@@ -593,7 +593,7 @@ const packetHandlers = {
       client.vehicle.falling = packet.data.unknown10_float;
     }
     const movingCharacter = server._characters[client.character.characterId];
-    if (movingCharacter /*&& !server._soloMode*/) {
+    if (movingCharacter && !server._soloMode) {
       if (client.vehicle.mountedVehicle) {
         const vehicle = server._vehicles[client.vehicle.mountedVehicle];
         //console.log(vehicle);
