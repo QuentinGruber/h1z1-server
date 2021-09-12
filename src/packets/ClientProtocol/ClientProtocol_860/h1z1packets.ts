@@ -306,7 +306,7 @@ function packPositionUpdateData(obj: any) {
 
   if ("unknown11_float" in obj) {
     flags |= 0x10;
-    v = packSignedIntWith2bitLengthValue(obj["unknown11_float"] * 10);
+    v = packSignedIntWith2bitLengthValue(obj["unknown11_float"] * 15);
     data = Buffer.concat([data, v]);
   }
 
