@@ -8064,7 +8064,21 @@ var packets = [
       ],
     },
   ],
-  ["Vehicle.StateDamage", 0x8804, {}],
+  ["Vehicle.StateDamage", 0x8804, {
+    fields: [
+      { name: "guid", type: "uint64string", defaultValue: 0 },
+      {
+        name: "unknownVector1",
+        type: "floatvector4",
+        defaultValue: [0, 50, 0, 0],
+      },
+      {
+        name: "unknownVector2",
+        type: "floatvector4",
+        defaultValue: [0, 0, 0, 0],
+      }
+    ],
+  }],
   ["Vehicle.PlayerManager", 0x8805, {}],
   [
     "Vehicle.Spawn",
