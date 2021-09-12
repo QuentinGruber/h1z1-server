@@ -146,8 +146,9 @@ export const generateRandomGuid = function (): string {
 
 export const lz4Comp = lz4_comp;
 export const lz4Decomp = lz4_decomp; // from h1emu-core, be aware that this func crash if the target isn't lz4 compressed
-export const lz4Decompress = function (  // from original implementation
+export const lz4_decompress = function (  // from original implementation
   data: any,
+  inSize: number,
   outSize: number
 ): any {
   const outdata = new (Buffer as any).alloc(outSize);
