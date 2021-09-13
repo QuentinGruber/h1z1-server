@@ -303,8 +303,7 @@ const hax: any = {
   },
 
   spawnPcModel: function (server: ZoneServer2016, client: Client, args: any[]) {
-    const guid = server.generateGuid();
-    const transientId = server.getTransientId(client, guid);
+    const characterId = server.generateGuid();
     debug("spawnPcModel called");
     if (!args[1]) {
       server.sendChatText(client, "[ERROR] You need to specify a name !");
@@ -312,8 +311,8 @@ const hax: any = {
     }
 
     const pc = {
-      guid: guid,
-      transientId: transientId,
+      characterId: characterId,
+      transientId: server.getTransientId(client, characterId),
       //modelId: choosenModelId,
       position: [
         client.character.state.position[0],
@@ -336,7 +335,7 @@ const hax: any = {
         ],
       },
     };
-    server._characters[guid] = pc; // save pc
+    server._characters[characterId] = pc; // save pc
   },
   sonic: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.sendData(client, "ClientGameSettings", {

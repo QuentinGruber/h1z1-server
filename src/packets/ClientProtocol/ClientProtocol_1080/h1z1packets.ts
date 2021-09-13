@@ -770,7 +770,7 @@ const identitySchema = [
 ];
 
 const lightWeightPcSchema = [
-  { name: "guid", type: "uint64string", defaultValue: "0" },
+  { name: "characterId", type: "uint64string", defaultValue: "0" },
   {
     name: "transientId",
     type: "custom",
@@ -1720,29 +1720,24 @@ const fullNpcDataSchema = [
 const fullPcDataSchema = [
   // NOT FINISHED
   { name: "unknownBool1", type: "boolean", defaultValue: false },
-  { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+  { name: "unknownDword1", type: "uint32", defaultValue: 0 },// needs to be less than 1
   {
     name: "positionUpdate",
     type: "custom",
     parser: readPositionUpdateData,
     packer: packPositionUpdateData,
   },
+  { name: "unknownByte1", type: "uint8", defaultValue: 0 },
   { name: "unknownByte2", type: "uint8", defaultValue: 0 },
-  { name: "unknownByte3", type: "uint8", defaultValue: 0 },
   { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
   {
-    name: "array1",
+    name: "stats",
     type: "array",
-    defaultValue: [{}],
-    fields: [
-      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-      { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-      { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-      { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-    ],
+    defaultValue: [],
+    fields: statDataSchema,
   },
   {
-    name: "unknownData1",
+    name: "fullPcData",
     type: "schema",
     fields: [
       {
@@ -1759,7 +1754,7 @@ const fullPcDataSchema = [
       {
         name: "equipmentModels",
         type: "array",
-        defaultValue: [{}],
+        defaultValue: [],
         fields: equipmentModelSchema,
       },
       { name: "unknownString1", type: "string", defaultValue: "" },
@@ -1777,6 +1772,7 @@ const fullPcDataSchema = [
       {
         name: "unknownData1",
         type: "schema",
+        defaultValue: {},
         fields: [
           { name: "unknownDword1", type: "uint32", defaultValue: 0 },
           { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -1786,7 +1782,7 @@ const fullPcDataSchema = [
       {
         name: "effectTags",
         type: "array",
-        defaultValue: [{}],
+        defaultValue: [],
         fields: effectTagsSchema,
       },
       { name: "unknownDword9", type: "uint32", defaultValue: 0 },
@@ -1795,9 +1791,9 @@ const fullPcDataSchema = [
       { name: "unknownDword12", type: "uint32", defaultValue: 0 },
       { name: "unknownDword13", type: "uint32", defaultValue: 0 },
       { name: "unknownDword14", type: "uint32", defaultValue: 0 },
-      { name: "unknownBool1", type: "boolean", defaultValue: 0 },
-      { name: "unknownBool2", type: "boolean", defaultValue: 0 },
-      { name: "unknownBool3", type: "boolean", defaultValue: 0 },
+      { name: "unknownBool1", type: "boolean", defaultValue: false },
+      { name: "unknownBool2", type: "boolean", defaultValue: false },
+      { name: "unknownBool3", type: "boolean", defaultValue: false },
       { name: "unknownDword15", type: "uint32", defaultValue: 0 },
       { name: "unknownDword16", type: "uint32", defaultValue: 0 },
       { name: "unknownBytes1", type: "byteswithlength", defaultValue: null },
@@ -5474,7 +5470,7 @@ const packets = [
     "Character.FullCharacterDataRequest",
     0x0f45,
     {
-      fields: [{ name: "guid", type: "uint64string", defaultValue: "0" }],
+      fields: [{ name: "characterId", type: "uint64string", defaultValue: "0" }],
     },
   ],
   ["Character.Deploy", 0x0f46, {}],

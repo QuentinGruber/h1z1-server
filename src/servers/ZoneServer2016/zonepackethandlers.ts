@@ -28,7 +28,7 @@ import { ZoneServer2016 } from "./zoneserver";
 import Client from "./zoneclient";
 // TOOD: UPDATE THIS FOR 2016
 // const modelToName = require("../../../data/2016/dataSources/ModelToName.json");
-
+const stats = require("../../../data/2016/sampleData/stats.json");
 import { _ } from "../../utils/utils";
 const debug = require("debug")("zonepacketHandlers");
 
@@ -708,11 +708,12 @@ const packetHandlers = {
     client: Client,
     packet: any
   ) {
-    const {
-      data: { guid },
-    } = packet;
+    const characterId = packet.data.characterId
     const npc =
-      server._npcs[guid] || server._objects[guid] || server._doors[guid];
+      server._npcs[characterId] || server._objects[characterId] || server._doors[characterId];
+    console.log(characterId)
+    console.log(server._characters[characterId])
+
     if (npc) {
       server.sendData(client, "LightweightToFullNpc", {
         transientId: npc.transientId,
@@ -729,24 +730,31 @@ const packetHandlers = {
         unknownArray1: [],
         unknownArray2: [],
       });
-    } else if (server._characters[guid]) {
+    } else if (server._characters[characterId]) {
+      const character = server._characters[characterId];
+      console.log('lightweighttofullpc\n\n\n\n\n')
       server.sendData(client, "LightweightToFullPc", {
         positionUpdate: server.createPositionUpdate(
           new Float32Array([0, 0, 0, 0]),
           [0, 0, 0, 0]
         ),
-        array1: [],
-        unknownData1: {
-          transientId: server._characters[guid].transientId,
-          equipmentModels: [],
+        stats: stats.map((stat: any) => {
+          return {
+            statId: stat.statId,
+            statValue: stat.statData.statValue
+          }
+        }),
+        fullPcData: {
+          transientId: character.transientId,
+          //equipmentModels: character.equipment,
           unknownData1: {},
           effectTags: [],
         },
       });
-    } else if (server._vehicles[guid]) {
+    } else if (server._vehicles[characterId]) {
       server.sendData(client, "LightweightToFullVehicle", {
         npcData: {
-          transientId: server._vehicles[guid].npcData.transientId,
+          transientId: server._vehicles[characterId].npcData.transientId,
           equipmentModels: [],
           effectTags: [],
           unknownData1: {},
