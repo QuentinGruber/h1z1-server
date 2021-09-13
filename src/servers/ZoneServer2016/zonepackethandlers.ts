@@ -712,10 +712,10 @@ const packetHandlers = {
     packet: any
   ) {
     const {
-      data: { guid },
+      data: { characterId },
     } = packet;
     const npc =
-      server._npcs[guid] || server._objects[guid] || server._doors[guid];
+      server._npcs[characterId] || server._objects[characterId] || server._doors[characterId];
     if (npc) {
       server.sendData(client, "LightweightToFullNpc", {
         transientId: npc.transientId,
@@ -732,7 +732,7 @@ const packetHandlers = {
         unknownArray1: [],
         unknownArray2: [],
       });
-    } else if (server._characters[guid]) {
+    } else if (server._characters[characterId]) {
       server.sendData(client, "LightweightToFullPc", {
         positionUpdate: server.createPositionUpdate(
           new Float32Array([0, 0, 0, 0]),
@@ -740,16 +740,16 @@ const packetHandlers = {
         ),
         array1: [],
         unknownData1: {
-          transientId: server._characters[guid].transientId,
+          transientId: server._characters[characterId].transientId,
           equipmentModels: [],
           unknownData1: {},
           effectTags: [],
         },
       });
-    } else if (server._vehicles[guid]) {
+    } else if (server._vehicles[characterId]) {
       server.sendData(client, "LightweightToFullVehicle", {
         npcData: {
-          transientId: server._vehicles[guid].npcData.transientId,
+          transientId: server._vehicles[characterId].npcData.transientId,
           equipmentModels: [],
           effectTags: [],
           unknownData1: {},

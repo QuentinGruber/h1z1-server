@@ -2126,14 +2126,14 @@ const packetHandlers = {
     packet: any
   ) {
     const {
-      data: { guid },
+      data: { characterId },
     } = packet;
     const npc =
-      server._npcs[guid] ||
-      server._objects[guid] ||
-      server._doors[guid] ||
-      server._props[guid];
-    const pcData = server._characters[guid];
+      server._npcs[characterId] ||
+      server._objects[characterId] ||
+      server._doors[characterId] ||
+      server._props[characterId];
+    const pcData = server._characters[characterId];
     if (npc) {
       server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
         transientId: npc.transientId,
@@ -2145,14 +2145,14 @@ const packetHandlers = {
       if (npc.onReadyCallback) {
         npc.onReadyCallback();
       }
-    } else if (server._characters[guid]) {
+    } else if (server._characters[characterId]) {
       server.sendData(client, "PlayerUpdate.LightweightToFullPc", {
         transientId: pcData.transientId,
       });
       server.sendData(client, "Equipment.SetCharacterEquipment", {
         profileId: 3,
-        characterId: server._characters[guid].characterId,
-        equipmentSlots: server._characters[guid].equipment.map(
+        characterId: server._characters[characterId].characterId,
+        equipmentSlots: server._characters[characterId].equipment.map(
           (equipment: any) => {
             return {
               equipmentSlotId: equipment.slotId,
@@ -2163,22 +2163,22 @@ const packetHandlers = {
             };
           }
         ),
-        attachmentData: server._characters[guid].equipment,
+        attachmentData: server._characters[characterId].equipment,
       });
     } else if (
-      server._vehicles[guid] &&
-      server._vehicles[guid].npcData.vehicleId != 13
+      server._vehicles[characterId] &&
+      server._vehicles[characterId].npcData.vehicleId != 13
     ) {
       // ignore parachute
       const npcData = {
-        transientId: server._vehicles[guid].npcData.transientId,
+        transientId: server._vehicles[characterId].npcData.transientId,
       };
       server.sendData(client, "PlayerUpdate.LightweightToFullVehicle", {
         npcData: npcData,
-        characterId: guid,
+        characterId: characterId,
       });
-      if (server._vehicles[guid].onReadyCallback) {
-        server._vehicles[guid].onReadyCallback();
+      if (server._vehicles[characterId].onReadyCallback) {
+        server._vehicles[characterId].onReadyCallback();
       }
     }
   },

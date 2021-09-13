@@ -5510,7 +5510,7 @@ var packets = [
     "PlayerUpdate.FullCharacterDataRequest",
     0x0f5d,
     {
-      fields: [{ name: "guid", type: "uint64string", defaultValue: "0" }],
+      fields: [{ name: "characterId", type: "uint64string", defaultValue: "0" }],
     },
   ],
   [

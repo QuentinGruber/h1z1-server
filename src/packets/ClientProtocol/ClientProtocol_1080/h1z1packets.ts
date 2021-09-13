@@ -5474,7 +5474,7 @@ const packets = [
     "Character.FullCharacterDataRequest",
     0x0f45,
     {
-      fields: [{ name: "guid", type: "uint64string", defaultValue: "0" }],
+      fields: [{ name: "characterId", type: "uint64string", defaultValue: "0" }],
     },
   ],
   ["Character.Deploy", 0x0f46, {}],
