@@ -1695,14 +1695,15 @@ const packetHandlers = {
     client: Client,
     packet: any
   ) {
-    debug(packet);
+    console.log(packet);
+    console.log(server._protocol.createVehiclePositionBroadcast(packet.data.raw.slice(1)))
     const characterId = server._transientIds[packet.data.transientId];
     if (characterId) {
-      if (!server._soloMode) {
+      if (!server._soloMode) { // disable that due to the fact that it currently didn't work
         server.sendRawToAllOthers(
           client,
           server._protocol.createVehiclePositionBroadcast(
-            packet.data.PositionUpdate.raw.slice(1)
+            packet.data.raw.slice(1)
           )
         );
       }

@@ -38,7 +38,8 @@ interface UpdatePositionObject {
 }
 
 interface PositionZoneToClient {
-  unknown1_uint: number;
+  raw: Buffer;
+  transientId: number;
   positionData: UpdatePositionObject;
 }
 
@@ -64,11 +65,11 @@ export class H1Z1Protocol {
 
   createPositionBroadcast(rawData: Buffer, transientId: number): Buffer {
     const tId = packUnsignedIntWith2bitLengthValue(transientId);
-    return Buffer.concat([new Uint8Array([120]), tId, rawData]); // why 120 ? i don't remember
+    return Buffer.concat([new Uint8Array([rawData.length + tId.length]), tId, rawData]); // why 120 ? i don't remember
   }
 
   createVehiclePositionBroadcast(rawData: Buffer): Buffer {
-    return Buffer.concat([new Uint8Array([120]), rawData]);
+    return Buffer.concat([new Uint8Array([rawData.length]), rawData]);
   }
 
   parseFacilityReferenceData(data: Buffer) {
@@ -288,6 +289,21 @@ export class H1Z1Protocol {
       result: parseUpdatePositionData(data, offset),
     };
   }
+
+  parseVehicleUpdatePositionClientToZone(data: Buffer, offset: number) {
+    const obj = {} as PositionZoneToClient;
+    obj["raw"] = data;
+    const v = readUnsignedIntWith2bitLengthValue(data, offset);
+    obj["transientId"] = v.value;
+    offset += v.length;
+
+    obj["positionData"] = parseUpdatePositionData(data, offset);
+
+    return {
+      result: obj,
+    };
+  }
+
   parseUpdatePositionRaw(data: Buffer, offset: number) {
     // Temp workaround
     const obj = {} as UpdatePositionObject;
@@ -299,9 +315,9 @@ export class H1Z1Protocol {
 
   parseUpdatePositionZoneToClient(data: Buffer, offset: number) {
     const obj = {} as PositionZoneToClient;
-
+    obj["raw"] = data;
     const v = readUnsignedIntWith2bitLengthValue(data, offset);
-    obj["unknown1_uint"] = v.value;
+    obj["transientId"] = v.value;
     offset += v.length;
 
     obj["positionData"] = parseUpdatePositionData(data, offset);
@@ -362,7 +378,6 @@ export class H1Z1Protocol {
     /* if (flags) {
       debug("Flags = " + flags);
     }*/
-
     if (flags === 2) {
       try {
         if (fromClient) {
@@ -379,12 +394,11 @@ export class H1Z1Protocol {
       } catch (e) {
         debug(e);
       }
-    } else if (flags === 3 && false) {
-      // disabled
+    } else if (flags === 3) {
       try {
         packet = {
-          name: "PlayerUpdateUpdatePositionClientToZone",
-          fn: this.parseUpdatePositionClientToZone,
+          name: "PlayerUpdateManagedPosition",
+          fn: this.parseVehicleUpdatePositionClientToZone,
         };
       } catch (e) {
         debug(e);
