@@ -871,19 +871,30 @@ const packetHandlers = {
       unknownString1: "",
     });
   },
+  
   /*
   "Command.ItemDefinitionRequest": function (server: ZoneServer2016, client: Client, packet: any) {
     console.log("ItemDefinitionRequest\n\n\n\n\n\n\n\n\n");
     console.log(packet.data);
 
-    server.sendData(client, "Command.ItemDefinitionReply", {data: {
-      ID: 2425,
-      unknownArray1: [
-        {
-          unknownData1: {}
+    server.sendData(client, "Command.ItemDefinitionReply", {
+      data: {
+        ID: 2425,
+        definitionData: {
+          ID: 2425,
+          flags: {
+            "FLAG_CAN_EQUIP": 1,
+          },
+          NAME_ID: 32,
+          DESCRIPTION_ID: 609,
+          unknownArray1: [
+            {
+              unknownData1: {}
+            }
+          ]
         }
-      ]
-    }})
+      }
+    })
   }
   */
 };
