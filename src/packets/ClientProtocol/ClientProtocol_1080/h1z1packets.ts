@@ -12,7 +12,7 @@
 // ======================================================================
 import PacketTableBuild from "../../packettable";
 import DataSchema from "h1z1-dataschema";
-import { lz4_decompress } from "../../../utils/utils";
+import { lz4_decompress, lz4Comp } from "../../../utils/utils";
 
 function readPacketType(data: Buffer, packets: any) {
   let opCode = data[0] >>> 0,
@@ -2030,6 +2030,145 @@ const characterResourceData = [
   { name: "unknownByte1", type: "uint8", defaultValue: 0 },
   { name: "unknownByte2", type: "uint8", defaultValue: 0 },
 ];
+
+const itemDefinitionDataSchema: any[] = [
+  { name: "ID", type: "uint32", defaultValue: 0 },
+  {
+    name: "flags",// 2 sets of 8 bytes, the sets might be swapped though
+    type: "bitflags",
+    flags: [
+      { bit: 0, name: "NO_TRADE", defaultValue: 0 },
+      { bit: 1, name: "NO_SALE", defaultValue: 0 },
+      { bit: 2, name: "MEMBERS_ONLY", defaultValue: 0 },
+      { bit: 3, name: "NON_MINI_GAME", defaultValue: 0 },
+      { bit: 4, name: "SINGLE_USE", defaultValue: 0 },
+      { bit: 5, name: "NO_LIVE_GAMER", defaultValue: 0 },
+      { bit: 6, name: "COMBAT_ONLY", defaultValue: 0 },
+      { bit: 7, name: "FORCE_DISABLE_PREVIEW", defaultValue: 0 },
+      { bit: 8, name: "PERSIST_PROFILE_SWITCH", defaultValue: 0 },
+      { bit: 9, name: "FLAG_QUICK_USE", defaultValue: 0 },
+      { bit: 10, name: "FLAG_CAN_EQUIP", defaultValue: 0 },
+      { bit: 11, name: "FLAG_ACCOUNT_SCOPE", defaultValue: 0 },
+      { bit: 12, name: "FLAG_NO_DRAG_DROP", defaultValue: 0 },
+      { bit: 13, name: "bit13", defaultValue: 0 },
+      { bit: 14, name: "bit14", defaultValue: 0 },
+      { bit: 15, name: "bit15", defaultValue: 0 },
+    ],
+  },
+  { name: "NAME_ID", type: "uint32", defaultValue: 6 },
+  { name: "DESCRIPTION_ID", type: "uint32", defaultValue: 7 },
+  { name: "unknownDword4", type: "uint32", defaultValue: 8 },
+  { name: "unknownDword5", type: "uint32", defaultValue: 9 },
+  { name: "unknownDword6", type: "uint32", defaultValue: 10 },
+  { name: "unknownDword7", type: "uint32", defaultValue: 11 },
+  { name: "unknownDword8", type: "uint32", defaultValue: 12 },
+  { name: "unknownDword9", type: "uint32", defaultValue: 13 },
+  { name: "unknownDword10", type: "uint32", defaultValue: 14 },
+  { name: "unknownDword11", type: "uint32", defaultValue: 15 },
+  { name: "unknownDword12", type: "uint32", defaultValue: 16 },
+  { name: "unknownString1", type: "string", defaultValue: "string1" },
+  { name: "unknownString2", type: "string", defaultValue: "string2" },
+  { name: "unknownDword13", type: "uint32", defaultValue: 17 },
+  { name: "unknownDword14", type: "uint32", defaultValue: 18 },
+  { name: "unknownDword15", type: "uint32", defaultValue: 19 },
+  { name: "unknownDword16", type: "uint32", defaultValue: 20 },
+  { name: "unknownDword17", type: "uint32", defaultValue: 21 },
+  { name: "unknownDword18", type: "uint32", defaultValue: 22 },
+  { name: "unknownDword19", type: "uint32", defaultValue: 23 },
+  { name: "unknownDword20", type: "uint32", defaultValue: 24 },
+  { name: "unknownDword21", type: "uint32", defaultValue: 25 },
+  { name: "unknownDword22", type: "uint32", defaultValue: 26 },
+  { name: "unknownDword23", type: "uint32", defaultValue: 27 },
+  { name: "unknownDword24", type: "uint32", defaultValue: 28 },
+  { name: "unknownDword25", type: "uint32", defaultValue: 29 },
+  { name: "unknownDword26", type: "uint32", defaultValue: 30 },
+  { name: "unknownString3", type: "string", defaultValue: "string3" },
+  { name: "unknownDword27", type: "uint32", defaultValue: 31 },
+  { name: "unknownDword28", type: "uint32", defaultValue: 32 },
+  { name: "unknownDword29", type: "uint32", defaultValue: 33 },
+  { name: "unknownDword30", type: "uint32", defaultValue: 34 },
+  { name: "unknownDword31", type: "uint32", defaultValue: 35 },
+  { name: "unknownDword32", type: "uint32", defaultValue: 36 },
+  { name: "unknownDword33", type: "uint32", defaultValue: 37 },
+  { name: "unknownDword34", type: "uint32", defaultValue: 38 },
+  { name: "unknownDword35", type: "uint32", defaultValue: 39 },
+  { name: "unknownDword36", type: "uint32", defaultValue: 40 },
+  { name: "unknownString4", type: "string", defaultValue: "string4" },
+  { name: "unknownString5", type: "string", defaultValue: "string5" },
+  { name: "unknownDword37", type: "uint32", defaultValue: 41 },
+  { name: "unknownDword38", type: "uint32", defaultValue: 42 },
+  { name: "unknownDword39", type: "uint32", defaultValue: 43 },
+  { name: "unknownDword40", type: "uint32", defaultValue: 44 },
+  { name: "unknownString6", type: "string", defaultValue: "string6" },
+  { name: "unknownDword41", type: "uint32", defaultValue: 45 },
+  { name: "unknownDword42", type: "uint32", defaultValue: 46 },
+  { name: "unknownDword43", type: "uint32", defaultValue: 47 },
+  { name: "unknownDword44", type: "uint32", defaultValue: 48 },
+  { name: "unknownDword45", type: "uint32", defaultValue: 49 },
+  { name: "unknownDword46", type: "uint32", defaultValue: 50 },
+  { name: "unknownDword47", type: "uint32", defaultValue: 51 },
+  { name: "unknownDword48", type: "uint32", defaultValue: 52 },
+  { name: "unknownDword49", type: "uint32", defaultValue: 53 },
+  { name: "unknownDword50", type: "uint32", defaultValue: 54 },
+  { name: "unknownDword51", type: "uint32", defaultValue: 55 },
+  { name: "unknownString7", type: "string", defaultValue: "string7" },
+  { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+  { name: "unknownBoolean2", type: "boolean", defaultValue: false },
+  { name: "unknownDword52", type: "uint32", defaultValue: 56 },
+  { name: "unknownDword53", type: "uint32", defaultValue: 57 },
+  { name: "unknownDword54", type: "uint32", defaultValue: 58 },
+  { name: "unknownDword55", type: "uint32", defaultValue: 59 },
+  { name: "unknownString8", type: "string", defaultValue: "string8" },
+  { name: "unknownDword56", type: "uint32", defaultValue: 60 },
+  { name: "unknownDword57", type: "uint32", defaultValue: 61 },
+  { name: "unknownDword58", type: "uint32", defaultValue: 62 },
+  {
+    name: "unknownArray1",
+    type: "array",
+    defaultValue: [{}],
+    fields: [
+      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      {
+        name: "unknownData1",
+        type: "schema",
+        fields: [
+          { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+          { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+          { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+        ],
+      },
+      { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+    ],
+  },
+]
+
+function readItemDefinitionData(data: Buffer, offset: number) {
+  /*
+  const itemDataLength = data.readUInt32LE(offset);
+  offset += 4;
+  let itemData: any = data.slice(offset, offset + itemDataLength);
+  const inSize = itemData.readUInt16LE(0),
+    outSize = itemData.readUInt16LE(2),
+    compData = itemData.slice(4, 4 + inSize),
+    decompData = lz4_decompress(compData, inSize, outSize),
+    itemDefinition = DataSchema.parse(baseItemDefinitionSchema, decompData, 0)
+      .result;
+  itemData = parseItemData(itemData, 4 + inSize, referenceData).value;
+  return {
+    value: {
+      itemDefinition: itemDefinition,
+      itemData: itemData,
+    },
+    length: itemDataLength + 4,
+  };
+  */
+}
+
+function packItemDefinitionData(obj: any) {
+  const itemDefinitionData = DataSchema.pack(itemDefinitionDataSchema, obj);
+  return lz4Comp(itemDefinitionData.data);
+}
 
 const packets = [
   ["Server", 0x01, {}],
@@ -4611,6 +4750,14 @@ const packets = [
           type: "byteswithlength",
           fields: [
             { name: "ID", type: "uint32", defaultValue: 0 },
+            {
+              name: "definitionData",
+              type: "custom",
+              parser: readItemDefinitionData,
+              packer: packItemDefinitionData,
+              defaultValue: 115,
+            },
+            /*
             { name: "unknownWord1", type: "uint16", defaultValue: 1 },
             { name: "unknownWord2", type: "uint16", defaultValue: 2 },
             { name: "unknownDword1", type: "uint32", defaultValue: 3 },
@@ -4702,6 +4849,7 @@ const packets = [
                 { name: "unknownDword2", type: "uint32", defaultValue: 0 },
               ],
             },
+            */
           ],
         },
       ],
