@@ -365,6 +365,22 @@ const dev: any = {
     server.updateWeather2016(client);
   },
 
+
+  testItemDef :function (server: ZoneServer2016, client: Client, args: any[]) {
+
+    let ItemDefinitionsPacket = { data : {itemDefinitions:[]
+    }}
+    const fs = require("fs");
+    const itemDefJson = fs.readFileSync("../../../../data/2016/dataSources/ClientItemDefinitions.json")
+    itemDefJson.forEach((ItemDefinition:any) => {
+      // @ts-ignore
+      ItemDefinitionsPacket.data.itemDefinitions.push(ItemDefinition);
+    });
+    console.log(ItemDefinitionsPacket)
+    server.sendData(client, "Command.ItemDefinitions",ItemDefinitionsPacket)
+
+  },
+
   recipe: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.sendData(client, "Recipe.Add", {
       recipeId: 93,
