@@ -3,7 +3,7 @@ import { Weather } from "types/zoneserver";
 import {ZoneClient as Client} from "../../ZoneServer/zoneclient";
 import { ZoneServer } from "../zoneserver";
 
-import { generateCommandList, _ } from "../../../utils/utils";
+import { _ } from "../../../utils/utils";
 import { generateRandomGuid } from "../../../utils/utils";
 const debug = require("debug")("zonepacketHandlers");
 
@@ -12,13 +12,10 @@ let isVehicle = false;
 
 const hax: any = {
   list: function (server: ZoneServer, client: Client, args: any[]) {
-    const commandObject = this; // necessary tricks
-    const commandList = generateCommandList(commandObject,"hax");
-    commandList
-          .sort((a: string, b: string) => a.localeCompare(b))
-          .forEach((command: string) => {
-            server.sendChatText(client, `${command}`);
-          });
+    server.sendChatText(
+      client,
+      `/hax commands list: \n${Object.keys(this).join("\n")}`
+    );
   },
   placement: function (server: ZoneServer, client: Client, args: any[]) {
     const modelChoosen = args[1];
@@ -48,7 +45,7 @@ const hax: any = {
         break;
     }
   },
-  observer: function (server: ZoneServer, client: Client, args: any[]) {
+  spectate: function (server: ZoneServer, client: Client, args: any[]) {
     const characterId = server.generateGuid();
     const vehicleData = {
       npcData: {
@@ -207,6 +204,76 @@ const hax: any = {
       },
     };
     server.worldRoutine(client);
+  },
+
+  spawnvehicle: function (server: ZoneServer, client: Client, args: any[]) {
+    const guid = server.generateGuid();
+    if (!args[1]) {
+      server.sendChatText(
+        client,
+        "[ERROR] Usage /hax spawnVehicle offroader/pickup/policecar"
+      );
+      return;
+    }
+    let vehicleId, driveModel;
+    switch (args[1]) {
+      case "offroader":
+        vehicleId = 1;
+        driveModel = 7225;
+        break;
+      case "pickup":
+        vehicleId = 2;
+        driveModel = 9258;
+        break;
+      case "policecar":
+        vehicleId = 3;
+        driveModel = 9301;
+        break;
+      default:
+        // offroader default
+        vehicleId = 1;
+        driveModel = 7225;
+        break;
+    }
+    const characterId = server.generateGuid();
+    const vehicle = {
+      npcData: {
+        guid: guid,
+        transientId: server.getTransientId(client, characterId),
+        characterId: characterId,
+        modelId: driveModel,
+        scale: [1, 1, 1, 1],
+        position: client.character.state.position,
+        rotation: client.character.state.lookAt,
+        vehicleId: vehicleId,
+        attachedObject: {},
+        color: {},
+        unknownArray1: [],
+        array5: [{ unknown1: 0 }],
+        array17: [{ unknown1: 0 }],
+        array18: [{ unknown1: 0 }],
+      },
+      unknownDword1: 10,
+      unknownDword2: 10,
+      positionUpdate: server.createPositionUpdate(
+        new Float32Array([0, 0, 0, 0]),
+        [0, 0, 0, 0]
+      ),
+      unknownString1: "",
+    };
+    server.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicle);
+    server._vehicles[characterId] = {
+      isManaged: true,
+      ...vehicle,
+      onReadyCallback: () => {
+        // doing anything with vehicle before client gets fullvehicle packet breaks it
+        server.sendData(client, "PlayerUpdate.ManagedObject", {
+          guid: vehicle.npcData.characterId,
+          characterId: client.character.characterId,
+        });
+        client.managedObjects.push(server._vehicles[characterId]);
+      },
+    };
   },
 
   parachute: function (server: ZoneServer, client: Client, args: any[]) {
