@@ -618,7 +618,7 @@ const hax: any = {
       server.sendChatText(client, "[ERROR] Missing weapon name !");
       server.sendChatText(
         client,
-        "Valid options: ar, ak, m9, 1911, 308, shotgun, torch, empty, brick"
+        "Valid options: ar, ak, m9, 1911, 308, shotgun, torch, molotov, empty"
       );
       return;
     }
@@ -648,13 +648,13 @@ const hax: any = {
         model = "Weapons_PumpShotgun01_3P.adr";
         break;
       case "torch":
-        model = "Weapon_Torch.adr";
+        model = "Weapon_Torch_3p.adr";
         break;
       case "empty":
         model = "Weapon_Empty.adr";
         break;
-      case "brick":
-        model = "Weapons_RedBrick01.adr";
+      case "molotov":
+        model = "Weapons_MolotovCocktail_3P.adr";
         break;
       default:
         server.sendChatText(
