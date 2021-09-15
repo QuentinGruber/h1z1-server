@@ -3,7 +3,7 @@ import { Weather } from "types/zoneserver";
 import {ZoneClient as Client} from "../../ZoneServer/zoneclient";
 import { ZoneServer } from "../zoneserver";
 
-import { _ } from "../../../utils/utils";
+import { generateCommandList, _ } from "../../../utils/utils";
 import { generateRandomGuid } from "../../../utils/utils";
 const debug = require("debug")("zonepacketHandlers");
 
@@ -11,6 +11,15 @@ let isSonic = false;
 let isVehicle = false;
 
 const hax: any = {
+  list: function (server: ZoneServer, client: Client, args: any[]) {
+    const commandObject = this; // necessary tricks
+    const commandList = generateCommandList(commandObject,"hax");
+    commandList
+          .sort((a: string, b: string) => a.localeCompare(b))
+          .forEach((command: string) => {
+            server.sendChatText(client, `${command}`);
+          });
+  },
   placement: function (server: ZoneServer, client: Client, args: any[]) {
     const modelChoosen = args[1];
     if (!modelChoosen) {
