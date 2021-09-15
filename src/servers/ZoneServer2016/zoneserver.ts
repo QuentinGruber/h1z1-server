@@ -289,9 +289,19 @@ export class ZoneServer2016 extends ZoneServer {
     });
   }
 
+  async loadMongoData(): Promise<void> {
+    this._spawnLocations = this._soloMode
+      ? spawnLocations
+      : await this._db?.collection("spawns").find().toArray();
+    this._weatherTemplates = this._soloMode
+      ? localWeatherTemplates
+      : await this._db?.collection("weathers").find().toArray();
+  }
+
   async setupServer(): Promise<void> {
     this.forceTime(971172000000); // force day time by default - not working for now
     this._frozeCycle = false;
+    await this.loadMongoData();
     this._profiles = this.generateProfiles();
     /*
     if (
