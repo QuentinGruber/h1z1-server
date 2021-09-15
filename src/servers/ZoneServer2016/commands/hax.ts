@@ -20,6 +20,12 @@ function getHeadActor(modelId: number) {
 }
 
 const hax: any = {
+  list: function (server: ZoneServer2016, client: Client, args: any[]) {
+    server.sendChatText(
+      client,
+      `/hax commands list: \n${Object.keys(this).join("\n")}`
+    );
+  },
   parachute: function (server: ZoneServer2016, client: Client, args: any[]) {
     const characterId = server.generateGuid();
     const vehicleData = {
@@ -147,11 +153,11 @@ const hax: any = {
       true
     );
   },
-  realTime: function (server: ZoneServer2016, client: Client, args: any[]) {
+  realtime: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.removeForcedTime();
     server.sendChatText(client, "Game time is now based on real time", true);
   },
-  spamAtv: function (server: ZoneServer2016, client: Client, args: any[]) {
+  spamatv: function (server: ZoneServer2016, client: Client, args: any[]) {
     for (let index = 0; index < 50; index++) {
       const guid = server.generateGuid();
       const transientId = server.getTransientId(client, guid);
@@ -179,7 +185,7 @@ const hax: any = {
       server._vehicles[characterId] = vehicle; // save vehicle
     }
   },
-  spawnSimpleNpc: function (
+  spawnsimplenpc: function (
     server: ZoneServer2016,
     client: Client,
     args: any[]
@@ -209,7 +215,7 @@ const hax: any = {
     };
     server._objects[characterId] = obj; // save npc
   },
-  spawnNpcModel: function (
+  spawnnpcmodel: function (
     server: ZoneServer2016,
     client: Client,
     args: any[]
@@ -301,7 +307,7 @@ const hax: any = {
     server._vehicles[characterId] = vehicle; // save vehicle
   },
 
-  spawnPcModel: function (server: ZoneServer2016, client: Client, args: any[]) {
+  spawnpcmodel: function (server: ZoneServer2016, client: Client, args: any[]) {
     const guid = server.generateGuid();
     const transientId = server.getTransientId(client, guid);
     debug("spawnPcModel called");
@@ -401,7 +407,7 @@ const hax: any = {
       }
     }
   },
-  saveCurrentWeather: async function (
+  savecurrentweather: async function (
     server: ZoneServer2016,
     client: Client,
     args: any[]
@@ -462,7 +468,7 @@ const hax: any = {
       runSpeed: speed,
     });
   },
-  randomWeather: function (
+  randomweather: function (
     server: ZoneServer2016,
     client: Client,
     args: any[]
@@ -611,7 +617,7 @@ const hax: any = {
       server.sendChatText(client, "[ERROR] Missing weapon name !");
       server.sendChatText(
         client,
-        "Valid options: ar, ak, m9, 1911, 308, shotgun, torch, empty, brick"
+        "Valid options: ar, ak, m9, 1911, 308, shotgun, torch, molotov, empty"
       );
       return;
     }
@@ -641,13 +647,13 @@ const hax: any = {
         model = "Weapons_PumpShotgun01_3P.adr";
         break;
       case "torch":
-        model = "Weapon_Torch.adr";
+        model = "Weapon_Torch_3p.adr";
         break;
       case "empty":
         model = "Weapon_Empty.adr";
         break;
-      case "brick":
-        model = "Weapons_RedBrick01.adr";
+      case "molotov":
+        model = "Weapons_MolotovCocktail_3P.adr";
         break;
       default:
         server.sendChatText(

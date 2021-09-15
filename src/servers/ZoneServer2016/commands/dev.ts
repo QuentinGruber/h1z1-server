@@ -1,14 +1,20 @@
-import {ZoneClient2016 as Client} from "../zoneclient";
+import { ZoneClient2016 as Client } from "../zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 const debug = require("debug")("zonepacketHandlers");
 import { Int64String } from "../../../utils/utils";
 
 const dev: any = {
+  list: function (server: ZoneServer2016, client: Client, args: any[]) {
+    server.sendChatText(
+      client,
+      `/dev commands list: \n${Object.keys(this).join("\n")}`
+    );
+  },
   testpacket: function (server: ZoneServer2016, client: Client, args: any[]) {
     const packetName = args[1];
     server.sendData(client, packetName, {});
   },
-  findModel: function (server: ZoneServer2016, client: Client, args: any[]) {
+  findmodel: function (server: ZoneServer2016, client: Client, args: any[]) {
     const models = require("../../../../data/2016/dataSources/Models.json");
     const wordFilter = args[1];
     if (wordFilter) {
@@ -24,7 +30,7 @@ const dev: any = {
       server.sendChatText(client, `missing word filter`);
     }
   },
-  reloadPackets: function (
+  reloadpackets: function (
     server: ZoneServer2016,
     client: Client,
     args: any[]
@@ -35,7 +41,7 @@ const dev: any = {
       server.reloadPackets(client);
     }
   },
-  reloadMongo: function (server: ZoneServer2016, client: Client, args: any[]) {
+  reloadmongo: function (server: ZoneServer2016, client: Client, args: any[]) {
     server._soloMode
       ? server.sendChatText(client, "Can't do that in solomode...")
       : server.reloadMongoData(client);
@@ -252,7 +258,7 @@ const dev: any = {
     server.sendData(client, "Equipment.SetCharacterEquipmentSlots", equipment);
   },
 
-  tpVehicle: function (server: ZoneServer2016, client: Client, args: any[]) {
+  tpvehicle: function (server: ZoneServer2016, client: Client, args: any[]) {
     if (!args[1]) {
       server.sendChatText(client, "Missing vehicleId arg");
       return;
@@ -280,7 +286,7 @@ const dev: any = {
     }
   },
 
-  tpNpc: function (server: ZoneServer2016, client: Client, args: any[]) {
+  tpnpc: function (server: ZoneServer2016, client: Client, args: any[]) {
     if (!args[1]) {
       server.sendChatText(client, "Missing npc modelId arg");
       return;
@@ -308,7 +314,7 @@ const dev: any = {
     }
   },
 
-  updateWeather: function (
+  updateweather: function (
     server: ZoneServer2016,
     client: Client,
     args: any[]
@@ -614,7 +620,7 @@ const dev: any = {
     });
   },
   /*
-  proxiedObjects: function(server: ZoneServer2016, client: Client, args: any[]) {
+  proxiedobjects: function(server: ZoneServer2016, client: Client, args: any[]) {
     
     objects.runtime_object.runtime_objects.forEach((object) => {
       if(object.actor_file === "Common_Props_Dryer.adr") {
