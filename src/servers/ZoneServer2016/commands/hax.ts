@@ -689,6 +689,41 @@ const hax: any = {
       model: modelChoosen,
     });
   },
+  spectate: function (server: ZoneServer2016, client: Client, args: any[]) {
+    const characterId = server.generateGuid();
+    const vehicleData = {
+      npcData: {
+        guid: server.generateGuid(),
+        transientId: server.getTransientId(client, characterId),
+        characterId: characterId,
+        modelId: 9371,
+        scale: [1, 1, 1, 1],
+        position: [
+          client.character.state.position[0],
+          client.character.state.position[1],
+          client.character.state.position[2],
+          client.character.state.position[3],
+        ],
+        rotation: client.character.state.lookAt,
+        vehicleId: 1337,
+        attachedObject: {},
+        color: {},
+      },
+      positionUpdate: server.createPositionUpdate(
+        new Float32Array([0, 0, 0, 0]),
+        [0, 0, 0, 0]
+      ),
+    };
+    server._vehicles[characterId] = vehicleData;
+    server.worldRoutine2016();
+    server.sendData(client, "Mount.MountResponse", {
+      characterId: client.character.characterId,
+      vehicleGuid: characterId,
+      identity: {},
+    });
+    client.vehicle.mountedVehicle = characterId;
+    client.vehicle.mountedVehicleType = "spectate";
+  },
 };
 
 export default hax;
