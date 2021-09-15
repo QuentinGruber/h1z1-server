@@ -1931,9 +1931,9 @@ const skyData = [
   { name: "unknownDword27", type: "float", defaultValue: 0 },
   { name: "unknownDword28", type: "float", defaultValue: 0 },
   { name: "unknownDword29", type: "float", defaultValue: 0 },
-  { name: "unknownDword30", type: "float", defaultValue: 0 },
-  { name: "unknownDword31", type: "float", defaultValue: 0 },
-  { name: "unknownDword32", type: "float", defaultValue: 0 },
+  { name: "AOSize", type: "float", defaultValue: 0 },
+  { name: "AOGamma", type: "float", defaultValue: 0 },
+  { name: "AOBlackpoint", type: "float", defaultValue: 0 },
   { name: "unknownDword33", type: "float", defaultValue: 0 },
 ];
 

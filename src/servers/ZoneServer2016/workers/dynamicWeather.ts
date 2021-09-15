@@ -356,5 +356,5 @@ export default function dynamicWeather(server: ZoneServer2016) {
     }),
   };
   */
-  server.SendWeatherUpdatePacket({} as Client, weather, true);
+  server.updateWeather2016({} as Client);
 }

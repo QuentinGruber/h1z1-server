@@ -529,9 +529,9 @@ export interface Weather2016 {
   sunAxisX: number;
   sunAxisY: number;
   unknownDword15: number;
-  disableTrees: number;
-  disableTrees1: number;
-  disableTrees2: number;
+  windDirectionX: number;
+  windDirectionY: number;
+  windDirectionZ: number;
   wind: number;
   unknownDword20: number;
   unknownDword21: number;
@@ -543,9 +543,9 @@ export interface Weather2016 {
   unknownDword27: number;
   unknownDword28: number;
   unknownDword29: number;
-  unknownDword30: number;
-  unknownDword31: number;
-  unknownDword32: number;
+  AOSize: number;
+  AOGamma: number;
+  AOBlackpoint: number;
   unknownDword33: number;
 }
 
