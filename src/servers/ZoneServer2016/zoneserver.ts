@@ -43,6 +43,7 @@ export class ZoneServer2016 extends ZoneServer {
   _weather2016: Weather2016;
   // @ts-ignore yeah idk how to fix that
   _packetHandlers: HandledZonePackets2016;
+  _weatherTemplates: any;
   constructor(serverPort: number, gatewayKey: Uint8Array, mongoAddress = "") {
     super(serverPort, gatewayKey, mongoAddress);
     this._protocol = new H1Z1Protocol("ClientProtocol_1080");
@@ -52,6 +53,7 @@ export class ZoneServer2016 extends ZoneServer {
     this._weatherTemplates = localWeatherTemplates;
     this._defaultWeatherTemplate = "H1emuBaseWeather";
     this._weather2016 = this._weatherTemplates[this._defaultWeatherTemplate];
+    this._spawnLocations = spawnLocations;
     this._respawnLocations = spawnLocations.map((spawn: any) => {
       return {
         guid: this.generateGuid(),
@@ -285,6 +287,42 @@ export class ZoneServer2016 extends ZoneServer {
         ],
       },
     });
+  }
+
+  async loadMongoData(): Promise<void> {
+    this._spawnLocations = this._soloMode
+      ? spawnLocations
+      : await this._db?.collection("spawns").find().toArray();
+    this._weatherTemplates = this._soloMode
+      ? localWeatherTemplates
+      : await this._db?.collection("weathers").find().toArray();
+  }
+
+  async setupServer(): Promise<void> {
+    this.forceTime(971172000000); // force day time by default - not working for now
+    this._frozeCycle = false;
+    await this.loadMongoData();
+    this._profiles = this.generateProfiles();
+    /*
+    if (
+      await this._db?.collection("worlds").findOne({ worldId: this._worldId })
+    ) {
+      await this.fetchWorldData();
+    } else {
+      await this._db
+        ?.collection(`worlds`)
+        .insertOne({ worldId: this._worldId });
+      await this.saveWorld();
+    }
+    if (!this._soloMode)
+      await this._db
+        ?.collection("servers")
+        .findOneAndUpdate(
+          { serverId: this._worldId },
+          { $set: { populationNumber: 0, populationLevel: 0 } }
+        );
+    */
+    debug("Server ready");
   }
 
   async start(): Promise<void> {

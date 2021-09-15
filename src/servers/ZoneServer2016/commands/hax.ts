@@ -382,7 +382,7 @@ const hax: any = {
     } else if (weatherTemplate) {
       server._weather2016 = weatherTemplate;
       server.updateWeather2016(client);
-      server.sendChatText(client, `Use "${args[1]}" as a weather template`);
+      server.sendChatText(client, `Applied weather template: "${args[1]}"`);
     } else {
       if (args[1] === "list") {
         server.sendChatText(client, `Weather templates :`);
@@ -407,6 +407,7 @@ const hax: any = {
     client: Client,
     args: any[]
   ) {
+    console.log(server._weatherTemplates)
     if (!args[1]) {
       server.sendChatText(
         client,
