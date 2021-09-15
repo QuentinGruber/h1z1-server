@@ -319,6 +319,7 @@ const dev: any = {
       return;
     }
     */
+   /*
     function rnd_number() {
       return Number((Math.random() * 100).toFixed(0));
     }
@@ -327,6 +328,7 @@ const dev: any = {
       if (fixed) return Number(num.toFixed(0));
       return Number(num);
     }
+    */
     server._weather2016 = {
       ...server._weather2016,
       
