@@ -1948,9 +1948,9 @@ const skyData = [
   { name: "unknownDword27", type: "float", defaultValue: 0 },
   { name: "unknownDword28", type: "float", defaultValue: 0 },
   { name: "unknownDword29", type: "float", defaultValue: 0 },
-  { name: "unknownDword30", type: "float", defaultValue: 0 },
-  { name: "unknownDword31", type: "float", defaultValue: 0 },
-  { name: "unknownDword32", type: "float", defaultValue: 0 },
+  { name: "AOSize", type: "float", defaultValue: 0 },
+  { name: "AOGamma", type: "float", defaultValue: 0 },
+  { name: "AOBlackpoint", type: "float", defaultValue: 0 },
   { name: "unknownDword33", type: "float", defaultValue: 0 },
 ];
 
@@ -5045,8 +5045,11 @@ const packets = [
   ["Command.Profiler", 0x095604, {}],
   ["Command.WorldKickPending", 0x095704, {}],
   ["Command.ActivateMembership", 0x095804, {}],
+  ["Command.Unknown", 0x0959, {}],
+  /*
   ["Command.JoinLobby", 0x095904, {}],
   ["Command.LeaveLobby", 0x095a04, {}],
+  */
   ["Command.SetMOTD", 0x095b04, {}],
   ["Command.Snoop", 0x095c04, {}],
   ["Command.JoinScheduledActivityRequest", 0x095d04, {}],

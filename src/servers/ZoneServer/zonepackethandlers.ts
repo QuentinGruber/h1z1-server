@@ -640,7 +640,7 @@ const packetHandlers = {
           : server.sendChatText(client, `Unknown command: /dev ${args[0]}`);
         break;
       case joaat("ADMIN"):
-      case 997464845: // dev
+      case 997464845: // admin
         admin[args[0]]
           ? admin[args[0]](server, client, args)
           : server.sendChatText(client, `Unknown command: /admin ${args[0]}`);
@@ -1698,7 +1698,7 @@ const packetHandlers = {
     debug(packet);
     const characterId = server._transientIds[packet.data.transientId];
     if (characterId) {
-      if (!server._soloMode) {
+      if (!server._soloMode && false) { // disable that ( doesn't work )
         server.sendRawToAllOthers(
           client,
           server._protocol.createVehiclePositionBroadcast(

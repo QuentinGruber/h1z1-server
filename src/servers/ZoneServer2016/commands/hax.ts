@@ -376,11 +376,12 @@ const hax: any = {
     if (!args[1]) {
       server.sendChatText(
         client,
-        "Please define a weather template to use (data/sampleData/weather.json)"
+        "Please define a weather template to use (data/2016/dataSources/weather.json)"
       );
     } else if (weatherTemplate) {
-      server.changeWeather(client, weatherTemplate);
-      server.sendChatText(client, `Use "${args[1]}" as a weather template`);
+      server._weather2016 = weatherTemplate;
+      server.updateWeather2016(client);
+      server.sendChatText(client, `Applied weather template: "${args[1]}"`);
     } else {
       if (args[1] === "list") {
         server.sendChatText(client, `Weather templates :`);
@@ -405,20 +406,16 @@ const hax: any = {
     client: Client,
     args: any[]
   ) {
+    console.log(server._weatherTemplates)
     if (!args[1]) {
       server.sendChatText(
         client,
         "Please define a name for your weather template '/hax saveCurrentWeather {name}'"
       );
-    } else if (
-      server._weatherTemplates[args[1]] ||
-      _.find(server._weatherTemplates, (template: { templateName: any }) => {
-        return template.templateName === args[1];
-      })
-    ) {
-      server.sendChatText(client, `"${args[1]}" already exist !`);
+    } else if (server._weatherTemplates[args[1]]) {
+      server.sendChatText(client, `"${args[1]}" already exists !`);
     } else {
-      const { _weather: currentWeather } = server;
+      const currentWeather = server._weather2016;
       if (currentWeather) {
         currentWeather.templateName = args[1];
         if (server._soloMode) {
@@ -426,13 +423,13 @@ const hax: any = {
             currentWeather.templateName as string
           ] = currentWeather;
           fs.writeFileSync(
-            `${__dirname}/../../../../data/sampleData/weather.json`,
-            JSON.stringify(server._weatherTemplates)
+            `${__dirname}/../../../../data/2016/dataSources/weather.json`,
+            JSON.stringify(server._weatherTemplates, null, "\t")
           );
           delete require.cache[
-            require.resolve("../../../../data/2015/sampleData/weather.json")
+            require.resolve("../../../../data/2016/dataSources/weather.json")
           ];
-          server._weatherTemplates = require("../../../../data/2015/sampleData/weather.json");
+          server._weatherTemplates = require("../../../../data/2016/dataSources/weather.json");
         } else {
           await server._db?.collection("weathers").insertOne(currentWeather);
           server._weatherTemplates = await (server._db as any)
@@ -478,11 +475,14 @@ const hax: any = {
     }
 
     server._weather2016 = {
-      name: "",
+      ...server._weather2016,
+      //name: "sky_dome_600.dds", todo: use random template from a list
+      /*
       unknownDword1: 0,
       unknownDword2: 0,
       skyBrightness1: 1,
       skyBrightness2: 1,
+      */
       snow: rnd_number(200, true),
       snowMap: rnd_number(80, true),
       colorGradient: rnd_number(1),
@@ -494,9 +494,9 @@ const hax: any = {
       sunAxisX: rnd_number(360, true),
       sunAxisY: rnd_number(360, true),
       unknownDword15: 0,
-      disableTrees: 0,
-      disableTrees1: 0,
-      disableTrees2: 0,
+      windDirectionX: rnd_number(360, true),
+      windDirectionY: rnd_number(360, true),
+      windDirectionZ: rnd_number(360, true),
       wind: rnd_number(100, true),
       unknownDword20: 0,
       unknownDword21: 0,
@@ -508,9 +508,11 @@ const hax: any = {
       unknownDword27: 0,
       unknownDword28: 0,
       unknownDword29: 0,
-      unknownDword30: 0,
-      unknownDword31: 0,
-      unknownDword32: 0,
+
+      AOSize: rnd_number(0.5),
+      AOGamma: rnd_number(0.2),
+      AOBlackpoint: rnd_number(2),
+
       unknownDword33: 0,
     };
     server.updateWeather2016(client);
@@ -687,6 +689,41 @@ const hax: any = {
     server.sendData(client, "Construction.PlacementResponse", {
       model: modelChoosen,
     });
+  },
+  spectate: function (server: ZoneServer2016, client: Client, args: any[]) {
+    const characterId = server.generateGuid();
+    const vehicleData = {
+      npcData: {
+        guid: server.generateGuid(),
+        transientId: server.getTransientId(client, characterId),
+        characterId: characterId,
+        modelId: 9371,
+        scale: [1, 1, 1, 1],
+        position: [
+          client.character.state.position[0],
+          client.character.state.position[1],
+          client.character.state.position[2],
+          client.character.state.position[3],
+        ],
+        rotation: client.character.state.lookAt,
+        vehicleId: 1337,
+        attachedObject: {},
+        color: {},
+      },
+      positionUpdate: server.createPositionUpdate(
+        new Float32Array([0, 0, 0, 0]),
+        [0, 0, 0, 0]
+      ),
+    };
+    server._vehicles[characterId] = vehicleData;
+    server.worldRoutine2016();
+    server.sendData(client, "Mount.MountResponse", {
+      characterId: client.character.characterId,
+      vehicleGuid: characterId,
+      identity: {},
+    });
+    client.vehicle.mountedVehicle = characterId;
+    client.vehicle.mountedVehicleType = "spectate";
   },
 };
 
