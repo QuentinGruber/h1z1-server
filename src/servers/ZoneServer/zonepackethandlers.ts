@@ -631,19 +631,19 @@ const packetHandlers = {
       case joaat("HAX"):
         hax[args[0]]
           ? hax[args[0]](server, client, args)
-          : server.sendChatText(client, `Unknown command: /hax ${args[0]}`)
+          : server.sendChatText(client, `Unknown command: /hax ${args[0]} , display all hax commands by using /hax list`);
         break;
       case joaat("DEV"):
       case 552078457: // dev
         dev[args[0]]
           ? dev[args[0]](server, client, args)
-          : server.sendChatText(client, `Unknown command: /dev ${args[0]}`)
+          : server.sendChatText(client, `Unknown command: /dev ${args[0]} , display all dev commands by using /dev list`);
         break;
       case joaat("ADMIN"):
       case 997464845: // admin
         admin[args[0]]
           ? admin[args[0]](server, client, args)
-          : server.sendChatText(client, `Unknown command: /admin ${args[0]}`)
+          : server.sendChatText(client, `Unknown command: /admin ${args[0]} , display admin all commands by using /admin list`);
         break;
     }
   },
