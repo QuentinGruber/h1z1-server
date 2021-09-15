@@ -1698,7 +1698,7 @@ const packetHandlers = {
     debug(packet);
     const characterId = server._transientIds[packet.data.transientId];
     if (characterId) {
-      if (!server._soloMode) {
+      if (!server._soloMode && false) { // disable that ( doesn't work )
         server.sendRawToAllOthers(
           client,
           server._protocol.createVehiclePositionBroadcast(
