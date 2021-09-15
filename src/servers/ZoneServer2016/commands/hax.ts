@@ -475,11 +475,14 @@ const hax: any = {
     }
 
     server._weather2016 = {
-      name: "",
+      ...server._weather2016,
+      //name: "sky_dome_600.dds", todo: use random template from a list
+      /*
       unknownDword1: 0,
       unknownDword2: 0,
       skyBrightness1: 1,
       skyBrightness2: 1,
+      */
       snow: rnd_number(200, true),
       snowMap: rnd_number(80, true),
       colorGradient: rnd_number(1),
@@ -491,9 +494,9 @@ const hax: any = {
       sunAxisX: rnd_number(360, true),
       sunAxisY: rnd_number(360, true),
       unknownDword15: 0,
-      disableTrees: 0,
-      disableTrees1: 0,
-      disableTrees2: 0,
+      windDirectionX: rnd_number(360, true),
+      windDirectionY: rnd_number(360, true),
+      windDirectionZ: rnd_number(360, true),
       wind: rnd_number(100, true),
       unknownDword20: 0,
       unknownDword21: 0,
@@ -505,9 +508,11 @@ const hax: any = {
       unknownDword27: 0,
       unknownDword28: 0,
       unknownDword29: 0,
-      unknownDword30: 0,
-      unknownDword31: 0,
-      unknownDword32: 0,
+
+      AOSize: rnd_number(0.5),
+      AOGamma: rnd_number(0.2),
+      AOBlackpoint: rnd_number(2),
+
       unknownDword33: 0,
     };
     server.updateWeather2016(client);
