@@ -368,7 +368,7 @@ const packetHandlers = {
     client: Client,
     packet: any
   ) {
-    const args: any[] = packet.data.arguments.split(" ");
+    const args: any[] = packet.data.arguments.toLowerCase().split(" ");
 
     switch (packet.data.commandHash) {
       case 2371122039: // /serverinfo

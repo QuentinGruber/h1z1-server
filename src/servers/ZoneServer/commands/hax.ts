@@ -45,7 +45,7 @@ const hax: any = {
         break;
     }
   },
-  observer: function (server: ZoneServer, client: Client, args: any[]) {
+  spectate: function (server: ZoneServer, client: Client, args: any[]) {
     const characterId = server.generateGuid();
     const vehicleData = {
       npcData: {

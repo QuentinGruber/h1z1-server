@@ -153,11 +153,11 @@ const hax: any = {
       true
     );
   },
-  realTime: function (server: ZoneServer2016, client: Client, args: any[]) {
+  realtime: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.removeForcedTime();
     server.sendChatText(client, "Game time is now based on real time", true);
   },
-  spamAtv: function (server: ZoneServer2016, client: Client, args: any[]) {
+  spamatv: function (server: ZoneServer2016, client: Client, args: any[]) {
     for (let index = 0; index < 50; index++) {
       const guid = server.generateGuid();
       const transientId = server.getTransientId(client, guid);
@@ -185,7 +185,7 @@ const hax: any = {
       server._vehicles[characterId] = vehicle; // save vehicle
     }
   },
-  spawnSimpleNpc: function (
+  spawnsimplenpc: function (
     server: ZoneServer2016,
     client: Client,
     args: any[]
@@ -215,7 +215,7 @@ const hax: any = {
     };
     server._objects[characterId] = obj; // save npc
   },
-  spawnNpcModel: function (
+  spawnnpcmodel: function (
     server: ZoneServer2016,
     client: Client,
     args: any[]
@@ -250,7 +250,7 @@ const hax: any = {
     };
     server._npcs[characterId] = npc; // save npc
   },
-  spawnVehicle: function (server: ZoneServer2016, client: Client, args: any[]) {
+  spawnvehicle: function (server: ZoneServer2016, client: Client, args: any[]) {
     const guid = server.generateGuid();
     const transientId = server.getTransientId(client, guid);
     if (!args[1]) {
@@ -308,7 +308,7 @@ const hax: any = {
     server._vehicles[characterId] = vehicle; // save vehicle
   },
 
-  spawnPcModel: function (server: ZoneServer2016, client: Client, args: any[]) {
+  spawnpcmodel: function (server: ZoneServer2016, client: Client, args: any[]) {
     const guid = server.generateGuid();
     const transientId = server.getTransientId(client, guid);
     debug("spawnPcModel called");
@@ -408,7 +408,7 @@ const hax: any = {
       }
     }
   },
-  saveCurrentWeather: async function (
+  savecurrentweather: async function (
     server: ZoneServer2016,
     client: Client,
     args: any[]
@@ -469,7 +469,7 @@ const hax: any = {
       runSpeed: speed,
     });
   },
-  randomWeather: function (
+  randomweather: function (
     server: ZoneServer2016,
     client: Client,
     args: any[]
