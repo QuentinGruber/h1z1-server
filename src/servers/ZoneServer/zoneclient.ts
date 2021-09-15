@@ -1,8 +1,8 @@
 import SOEClient from "../SoeServer/soeclient";
 import { RemoteInfo } from "dgram";
-import Character from "./character";
+import {Character} from "./character";
 
-export default class ZoneClient extends SOEClient {
+export class ZoneClient extends SOEClient {
   currentPOI?: number;
   firstLoading: boolean = false;
   isLoading: boolean = false;
@@ -18,10 +18,11 @@ export default class ZoneClient extends SOEClient {
     mountedVehicleType?: string;
     vehicleState: number;
   };
+  npcsToSpawn: any[] = [];
+  npcsToSpawnTimer!: NodeJS.Timeout;
   character: Character;
   loginSessionId?: string;
-  lastPingTime: number = 0;
-  pingTimer: any;
+  pingTimer: NodeJS.Timeout | undefined;
   savePositionTimer: any;
   constructor(
     initialClient: SOEClient,
@@ -58,7 +59,6 @@ export default class ZoneClient extends SOEClient {
       vehicleState: 0,
       falling: -1,
     };
-    this.lastPingTime = new Date().getTime() + 120 * 1000;
     this.character = new Character(characterId, generatedTransient);
     this.spawnedEntities = [];
     this.managedObjects = [];

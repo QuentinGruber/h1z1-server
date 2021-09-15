@@ -642,11 +642,8 @@ function parseItemAddData(data: Buffer, offset: number, referenceData: any) {
     outSize = itemData.readUInt16LE(2),
     compData = itemData.slice(4, 4 + inSize),
     decompData = lz4_decompress(compData, inSize, outSize),
-    itemDefinition = DataSchema.parse(
-      baseItemDefinitionSchema,
-      decompData,
-      0
-    ).result;
+    itemDefinition = DataSchema.parse(baseItemDefinitionSchema, decompData, 0)
+      .result;
   itemData = parseItemData(itemData, 4 + inSize, referenceData).value;
   return {
     value: {
@@ -987,12 +984,12 @@ const statDataSchema = [
     type: "variabletype8",
     types: {
       0: [
-        { name: "baseValue", type: "uint32", defaultValue: 0 },
-        { name: "modifierValue", type: "uint32", defaultValue: 0 },
+        { name: "base", type: "uint32", defaultValue: 0 },
+        { name: "modifier", type: "uint32", defaultValue: 0 },
       ],
       1: [
-        { name: "baseValue", type: "float", defaultValue: 0.0 },
-        { name: "modifierValue", type: "float", defaultValue: 0.0 },
+        { name: "base", type: "float", defaultValue: 0.0 },
+        { name: "modifier", type: "float", defaultValue: 0.0 },
       ],
     },
   },
@@ -1237,8 +1234,9 @@ const weaponPackets = [
   ["Weapon.ProjectileSpawnAttachedNp", 0x8222, {}],
   ["Weapon.AddDebugLogEntry", 0x8223, {}],
 ];
-const [weaponPacketTypes, weaponPacketDescriptors] =
-  PacketTableBuild(weaponPackets);
+const [weaponPacketTypes, weaponPacketDescriptors] = PacketTableBuild(
+  weaponPackets
+);
 function parseMultiWeaponPacket(data: Buffer, offset: number) {
   const startOffset = offset,
     packets = [];
@@ -2449,7 +2447,15 @@ const packets = [
               name: "stats",
               type: "array",
               defaultValue: [],
-              fields: statDataSchema,
+              fields: [
+                { name: "statId", type: "uint32", defaultValue: 0 },
+                {
+                  name: "statData",
+                  type: "schema",
+                  defaultValue: {},
+                  fields: statDataSchema,
+                },
+              ],
             },
 
             {
@@ -5485,7 +5491,7 @@ const packets = [
     "Character.FullCharacterDataRequest",
     0x0f45,
     {
-      fields: [{ name: "guid", type: "uint64string", defaultValue: "0" }],
+      fields: [{ name: "characterId", type: "uint64string", defaultValue: "0" }],
     },
   ],
   ["Character.Deploy", 0x0f46, {}],
@@ -5565,14 +5571,7 @@ const packets = [
     "ClientUpdate.UpdateStat",
     0x110500,
     {
-      fields: [
-        {
-          name: "stats",
-          type: "array",
-          defaultValue: [{}],
-          fields: statDataSchema,
-        },
-      ],
+      fields: statDataSchema,
     },
   ],
   ["ClientUpdate.CollectionStart", 0x110600, {}],

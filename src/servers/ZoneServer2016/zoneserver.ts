@@ -15,8 +15,8 @@ const debugName = "ZoneServer";
 const debug = require("debug")(debugName);
 import { default as packetHandlers } from "./zonepackethandlers";
 import { ZoneServer } from "../ZoneServer/zoneserver";
-import Client from "./zoneclient";
-import { Weather2016 } from "../../types/zoneserver";
+import { ZoneClient2016 as Client} from "./zoneclient";
+import { HandledZonePackets2016, Weather2016 } from "../../types/zoneserver";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
 import { _ } from "../../utils/utils";
 
@@ -35,12 +35,14 @@ const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.js
 const Z1_POIs = require("../../../data/2015/zoneData/Z1_POIs");
 const recipes = require("../../../data/2016/sampleData/recipes.json");
 // const localWeatherTemplates = require("../../../data/2015/sampleData/weather.json");
-// const stats = require("../../../data/2016/sampleData/stats.json");
+const stats = require("../../../data/2016/sampleData/stats.json");
 const resources = require("../../../data/2016/dataSources/resourceDefinitions.json");
 
 export class ZoneServer2016 extends ZoneServer {
   worldRoutineTimer: any;
   _weather2016: Weather2016;
+  // @ts-ignore yeah idk how to fix that
+  _packetHandlers: HandledZonePackets2016;
   constructor(serverPort: number, gatewayKey: Uint8Array, mongoAddress = "") {
     super(serverPort, gatewayKey, mongoAddress);
     this._protocol = new H1Z1Protocol("ClientProtocol_1080");
@@ -115,6 +117,7 @@ export class ZoneServer2016 extends ZoneServer {
     if (err) {
       console.error(err);
     } else {
+      client.pingTimer?.refresh();
       if (
         packet.name != "KeepAlive" &&
         packet.name != "PlayerUpdateUpdatePositionClientToZone" &&
@@ -123,9 +126,9 @@ export class ZoneServer2016 extends ZoneServer {
       ) {
         debug(`Receive Data ${[packet.name]}`);
       }
-      if (this._packetHandlers[packet.name]) {
+      if ((this._packetHandlers as any)[packet.name]) {
         try {
-          this._packetHandlers[packet.name](this, client, packet);
+          (this._packetHandlers as any)[packet.name](this, client, packet);
         } catch (e) {
           debug(e);
         }
@@ -224,7 +227,7 @@ export class ZoneServer2016 extends ZoneServer {
       _.isEqual(character.rotation, [0, 0, 0, 1])
     ) {
       // if position/rotation hasn't changed
-        isRandomlySpawning = true;
+      isRandomlySpawning = true;
     }
 
     if (isRandomlySpawning) {
@@ -232,12 +235,15 @@ export class ZoneServer2016 extends ZoneServer {
       const randomSpawnIndex = Math.floor(
         Math.random() * this._spawnLocations.length
       );
-      client.character.state.position =
-        this._spawnLocations[randomSpawnIndex].position;
-      client.character.state.rotation =
-        this._spawnLocations[randomSpawnIndex].rotation;
-      client.character.spawnLocation =
-        this._spawnLocations[randomSpawnIndex].name;
+      client.character.state.position = this._spawnLocations[
+        randomSpawnIndex
+      ].position;
+      client.character.state.rotation = this._spawnLocations[
+        randomSpawnIndex
+      ].rotation;
+      client.character.spawnLocation = this._spawnLocations[
+        randomSpawnIndex
+      ].name;
     } else {
       client.character.state.position = character.position;
       client.character.state.rotation = character.rotation;
@@ -264,53 +270,53 @@ export class ZoneServer2016 extends ZoneServer {
           characterName: client.character.name,
         },
         recipes: recipes,
-        //stats: stats // todo: fix
+        stats: stats,
 
         characterResources: [
           {
             ...resources.health,
-            resourceData: { 
-              ...resources.health.resourceData, 
-              value: client.character.resources.health 
-            }
+            resourceData: {
+              ...resources.health.resourceData,
+              value: client.character.resources.health,
+            },
           },
           {
             ...resources.stamina,
-            resourceData: { 
-              ...resources.stamina.resourceData, 
-              value: client.character.resources.stamina 
-            }
+            resourceData: {
+              ...resources.stamina.resourceData,
+              value: client.character.resources.stamina,
+            },
           },
           {
             ...resources.food,
-            resourceData: { 
-              ...resources.food.resourceData, 
-              value: client.character.resources.food 
-            }
+            resourceData: {
+              ...resources.food.resourceData,
+              value: client.character.resources.food,
+            },
           },
           {
             ...resources.water,
-            resourceData: { 
-              ...resources.water.resourceData, 
-              value: client.character.resources.water 
-            }
+            resourceData: {
+              ...resources.water.resourceData,
+              value: client.character.resources.water,
+            },
           },
           {
             ...resources.comfort,
-            resourceData: { 
-              ...resources.comfort.resourceData, 
-              value: client.character.resources.comfort 
-            }
+            resourceData: {
+              ...resources.comfort.resourceData,
+              value: client.character.resources.comfort,
+            },
           },
           {
             ...resources.virus,
-            resourceData: { 
-              ...resources.virus.resourceData, 
-              value: client.character.resources.virus 
-            }
+            resourceData: {
+              ...resources.virus.resourceData,
+              value: client.character.resources.virus,
+            },
           },
         ],
-      }
+      },
     });
   }
 

@@ -1,5 +1,5 @@
 import fs from "fs";
-import Client from "../zoneclient";
+import {ZoneClient2016 as Client} from "../zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { _ } from "../../../utils/utils";
 const debug = require("debug")("zonepacketHandlers");
@@ -422,8 +422,9 @@ const hax: any = {
       if (currentWeather) {
         currentWeather.templateName = args[1];
         if (server._soloMode) {
-          server._weatherTemplates[currentWeather.templateName as string] =
-            currentWeather;
+          server._weatherTemplates[
+            currentWeather.templateName as string
+          ] = currentWeather;
           fs.writeFileSync(
             `${__dirname}/../../../../data/sampleData/weather.json`,
             JSON.stringify(server._weatherTemplates)
