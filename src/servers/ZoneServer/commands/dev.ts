@@ -1,10 +1,19 @@
-import Client from "../../ZoneServer/zoneclient";
-import { generateRandomGuid } from "../../../utils/utils";
+import {ZoneClient as Client} from "../../ZoneServer/zoneclient";
+import { generateCommandList, generateRandomGuid } from "../../../utils/utils";
 import { ZoneServer } from "../zoneserver";
 
 const debug = require("debug")("zonepacketHandlers");
 
 const dev: any = {
+  list: function (server: ZoneServer, client: Client, args: any[]) {
+    const commandObject = this; // necessary tricks
+    const commandList = generateCommandList(commandObject,"dev");
+    commandList
+          .sort((a: string, b: string) => a.localeCompare(b))
+          .forEach((command: string) => {
+            server.sendChatText(client, `${command}`);
+          });
+  },
   testpacket: function (server: ZoneServer, client: Client, args: any[]) {
     server.sendData(client, "Target.AddTarget", {
       objects: [
@@ -15,6 +24,18 @@ const dev: any = {
         },
       ],
     });
+  },
+  clearspawnedentities: function (server: ZoneServer, client: Client, args: any[]) {
+    client.spawnedEntities.forEach((entity:any) => {
+      try {
+        server.despawnEntity(entity.characterId);
+      } catch (error) {
+        debug(error)
+      }
+    });
+    client.spawnedEntities = [];
+    server.sendChatText(client,"Entities cleared !",true);
+    server.worldRoutine(client);
   },
   testnpcmove: function (server: ZoneServer, client: Client, args: any[]) {
     const guid = server.generateGuid();

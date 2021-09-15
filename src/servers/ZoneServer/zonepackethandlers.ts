@@ -17,7 +17,7 @@ try {
   delete require.cache[require.resolve("./commands/dev")];
 } catch (e) {}
 
-const Jenkins = require("hash-jenkins");
+import { joaat } from "h1emu-core";
 import hax from "./commands/hax";
 import dev from "./commands/dev";
 import admin from "./commands/admin";
@@ -27,7 +27,7 @@ import {
   isPosInRadius,
 } from "../../utils/utils";
 import { ZoneServer } from "./zoneserver";
-import Client from "../ZoneServer/zoneclient";
+import {ZoneClient as Client} from "../ZoneServer/zoneclient";
 const modelToName = require("../../../data/2015/sampleData/ModelToName.json");
 
 import { _ } from "../../utils/utils";
@@ -58,42 +58,42 @@ const packetHandlers = {
     server.sendData(client, "ZoneSetting.Data", {
       settings: [
         {
-          hash: Jenkins.oaat("zonesetting.deploy.on.login".toUpperCase()),
+          hash: joaat("zonesetting.deploy.on.login".toUpperCase()),
           value: 1,
           settingType: 2,
           unknown1: 0,
           unknown2: 0,
         },
         {
-          hash: Jenkins.oaat("zonesetting.no.acquisition.timers".toUpperCase()),
+          hash: joaat("zonesetting.no.acquisition.timers".toUpperCase()),
           value: 1,
           settingType: 2,
           unknown1: 0,
           unknown2: 0,
         },
         {
-          hash: Jenkins.oaat("zonesetting.XpMultiplier".toUpperCase()),
+          hash: joaat("zonesetting.XpMultiplier".toUpperCase()),
           value: 1,
           settingType: 1,
           unknown1: 0,
           unknown2: 0,
         },
         {
-          hash: Jenkins.oaat("zonesetting.disabletrialitems".toUpperCase()),
+          hash: joaat("zonesetting.disabletrialitems".toUpperCase()),
           value: 1,
           settingType: 2,
           unknown1: 0,
           unknown2: 0,
         },
         {
-          hash: Jenkins.oaat("zonesetting.isvrzone".toUpperCase()),
+          hash: joaat("zonesetting.isvrzone".toUpperCase()),
           value: 0,
           settingType: 2,
           unknown1: 0,
           unknown2: 0,
         },
         {
-          hash: Jenkins.oaat("zonesetting.no.resource.costs".toUpperCase()),
+          hash: joaat("zonesetting.no.resource.costs".toUpperCase()),
           value: 1,
           settingType: 2,
           unknown1: 0,
@@ -125,6 +125,7 @@ const packetHandlers = {
       "admin",
       "location",
       "respawn",
+      "clientinfo",
       "serverinfo",
       "spawninfo",
       "help",
@@ -141,13 +142,13 @@ const packetHandlers = {
       serverTime2: Int64String(server.getServerTime()),
     });
 
-    client.character.resourcesUpdater = setInterval(function () {
+    client.character.resourcesUpdater = setTimeout(() => {
       // prototype resource manager
       const { isRunning } = client.character;
       if (!isRunning) {
-        client.character.resources.stamina += 20;
+        client.character.resources.stamina += 10;
       } else {
-        client.character.resources.stamina -= 40;
+        client.character.resources.stamina -= 5;
       }
       // if we had a packets we could modify sprint stat to 0
       // or play exhausted sounds etc
@@ -252,6 +253,7 @@ const packetHandlers = {
           },
         },
       });
+      client.character.resourcesUpdater.refresh();
     }, 3000);
 
     server.sendData(client, "ZoneDoneSendingInitialData", {});
@@ -286,17 +288,15 @@ const packetHandlers = {
     client.vehicle.mountedVehicleType = "0";
     if (!server._soloMode) {
       const populationNumber = _.size(server._characters);
-      server._db
-        ?.collection("servers")
-        .findOneAndUpdate(
-          { serverId: server._worldId },
-          {
-            $set: {
-              populationNumber: populationNumber,
-              populationLevel: Number((populationNumber / 1).toFixed(0)),
-            },
-          }
-        );
+      server._db?.collection("servers").findOneAndUpdate(
+        { serverId: server._worldId },
+        {
+          $set: {
+            populationNumber: populationNumber,
+            populationLevel: Number((populationNumber / 1).toFixed(0)),
+          },
+        }
+      );
     }
   },
   Security: function (server: ZoneServer, client: Client, packet: any) {
@@ -400,22 +400,6 @@ const packetHandlers = {
       ],
     });
   },
-  "Command.SetInWater": function (
-    server: ZoneServer,
-    client: Client,
-    packet: any
-  ) {
-    server.sendData(client, "ClientUpdate.ModifyMovementSpeed", { speed: 0.8 });
-  },
-  "Command.ClearInWater": function (
-    server: ZoneServer,
-    client: Client,
-    packet: any
-  ) {
-    server.sendData(client, "ClientUpdate.ModifyMovementSpeed", {
-      speed: 1.25,
-    });
-  },
   "Chat.Chat": function (server: ZoneServer, client: Client, packet: any) {
     const { channel, message } = packet.data;
     server.sendChat(client, message, channel);
@@ -480,17 +464,15 @@ const packetHandlers = {
     delete server._clients[client.sessionId];
     if (!server._soloMode) {
       const populationNumber = _.size(server._characters);
-      server._db
-        ?.collection("servers")
-        .findOneAndUpdate(
-          { serverId: server._worldId },
-          {
-            $set: {
-              populationNumber: populationNumber,
-              populationLevel: Number((populationNumber / 1).toFixed(0)),
-            },
-          }
-        );
+      server._db?.collection("servers").findOneAndUpdate(
+        { serverId: server._worldId },
+        {
+          $set: {
+            populationNumber: populationNumber,
+            populationLevel: Number((populationNumber / 1).toFixed(0)),
+          },
+        }
+      );
     }
   },
   GameTimeSync: function (server: ZoneServer, client: Client, packet: any) {
@@ -519,6 +501,12 @@ const packetHandlers = {
         server.sendData(client, "PlayerUpdate.StartMultiStateDeath", {
           characterId: client.character.characterId,
         });
+        break;
+      case 3357274581 : // /clientinfo
+        server.sendChatText(
+          client,
+          `Spawned entities count : ${client.spawnedEntities.length}`
+        );
         break;
       case 2371122039: // /serverinfo
         if (args[0] === "mem") {
@@ -594,7 +582,7 @@ const packetHandlers = {
           true
         );
         break;
-      case Jenkins.oaat("HELP"):
+      case joaat("HELP"):
       case 3575372649: // /help
         const haxCommandList: string[] = [];
         Object.keys(hax).forEach((key) => {
@@ -624,7 +612,7 @@ const packetHandlers = {
             server.sendChatText(client, `${command}`);
           });
         break;
-      case Jenkins.oaat("LOCATION"):
+      case joaat("LOCATION"):
       case 3270589520: // /loc
         const { position, rotation } = client.character.state;
         server.sendChatText(
@@ -640,22 +628,22 @@ const packetHandlers = {
           )},${rotation[2].toFixed(2)}`
         );
         break;
-      case Jenkins.oaat("HAX"):
+      case joaat("HAX"):
         hax[args[0]]
           ? hax[args[0]](server, client, args)
-          : server.sendChatText(client, `Unknown command: /hax ${args[0]}`);
+          : server.sendChatText(client, `Unknown command: /hax ${args[0]} , display all hax commands by using /hax list`);
         break;
-      case Jenkins.oaat("DEV"):
+      case joaat("DEV"):
       case 552078457: // dev
         dev[args[0]]
           ? dev[args[0]](server, client, args)
-          : server.sendChatText(client, `Unknown command: /dev ${args[0]}`);
+          : server.sendChatText(client, `Unknown command: /dev ${args[0]} , display all dev commands by using /hax list`);
         break;
-      case Jenkins.oaat("ADMIN"):
-      case 997464845: // dev
+      case joaat("ADMIN"):
+      case 997464845: // admin
         admin[args[0]]
           ? admin[args[0]](server, client, args)
-          : server.sendChatText(client, `Unknown command: /admin ${args[0]}`);
+          : server.sendChatText(client, `Unknown command: /admin ${args[0]} , display admin all commands by using /hax list`);
         break;
     }
   },
@@ -845,6 +833,16 @@ const packetHandlers = {
       }
     }
   },
+  "Command.SetInWater": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {},
+  "Command.ClearInWater": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {},
   "Command.InteractionSelect": function (
     server: ZoneServer,
     client: Client,
@@ -1700,7 +1698,7 @@ const packetHandlers = {
     debug(packet);
     const characterId = server._transientIds[packet.data.transientId];
     if (characterId) {
-      if (!server._soloMode) {
+      if (!server._soloMode && false) { // disable that ( doesn't work )
         server.sendRawToAllOthers(
           client,
           server._protocol.createVehiclePositionBroadcast(
@@ -1727,7 +1725,7 @@ const packetHandlers = {
           if (
             !client.posAtLastRoutine ||
             !isPosInRadius(
-              server._npcRenderDistance / 2.5,
+              server._npcRenderDistance * server._worldRoutineRadiusPercentage,
               client.character.state.position,
               client.posAtLastRoutine
             )
@@ -1786,10 +1784,6 @@ const packetHandlers = {
           time: 0,
         }); // don't know how it was done so
       }
-      if (!client.posAtLastRoutine) {
-        server.spawnProps(client);
-      }
-
       if (
         !client.posAtLastRoutine ||
         (!isPosInRadius(
@@ -2132,14 +2126,14 @@ const packetHandlers = {
     packet: any
   ) {
     const {
-      data: { guid },
+      data: { characterId },
     } = packet;
     const npc =
-      server._npcs[guid] ||
-      server._objects[guid] ||
-      server._doors[guid] ||
-      server._props[guid];
-    const pcData = server._characters[guid];
+      server._npcs[characterId] ||
+      server._objects[characterId] ||
+      server._doors[characterId] ||
+      server._props[characterId];
+    const pcData = server._characters[characterId];
     if (npc) {
       server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
         transientId: npc.transientId,
@@ -2151,14 +2145,14 @@ const packetHandlers = {
       if (npc.onReadyCallback) {
         npc.onReadyCallback();
       }
-    } else if (server._characters[guid]) {
+    } else if (server._characters[characterId]) {
       server.sendData(client, "PlayerUpdate.LightweightToFullPc", {
         transientId: pcData.transientId,
       });
       server.sendData(client, "Equipment.SetCharacterEquipment", {
         profileId: 3,
-        characterId: server._characters[guid].characterId,
-        equipmentSlots: server._characters[guid].equipment.map(
+        characterId: server._characters[characterId].characterId,
+        equipmentSlots: server._characters[characterId].equipment.map(
           (equipment: any) => {
             return {
               equipmentSlotId: equipment.slotId,
@@ -2169,22 +2163,22 @@ const packetHandlers = {
             };
           }
         ),
-        attachmentData: server._characters[guid].equipment,
+        attachmentData: server._characters[characterId].equipment,
       });
     } else if (
-      server._vehicles[guid] &&
-      server._vehicles[guid].npcData.vehicleId != 13
+      server._vehicles[characterId] &&
+      server._vehicles[characterId].npcData.vehicleId != 13
     ) {
       // ignore parachute
       const npcData = {
-        transientId: server._vehicles[guid].npcData.transientId,
+        transientId: server._vehicles[characterId].npcData.transientId,
       };
       server.sendData(client, "PlayerUpdate.LightweightToFullVehicle", {
         npcData: npcData,
-        characterId: guid,
+        characterId: characterId,
       });
-      if (server._vehicles[guid].onReadyCallback) {
-        server._vehicles[guid].onReadyCallback();
+      if (server._vehicles[characterId].onReadyCallback) {
+        server._vehicles[characterId].onReadyCallback();
       }
     }
   },

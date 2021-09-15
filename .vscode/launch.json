@@ -14,7 +14,7 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/src/servers/ZoneServer/zoneserver.ts",
+            "program": "${workspaceFolder}/out/servers/ZoneServer/zoneserver.js",
             "outFiles": [
                 "${workspaceFolder}/out/**/*.js"
             ]
@@ -45,7 +45,7 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/src/servers/LoginServer/loginserver.ts",
+            "program": "${workspaceFolder}/out/servers/LoginServer/loginserver.js",
             "outFiles": [
                 "${workspaceFolder}/out/**/*.js"
             ]
@@ -77,7 +77,7 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/src/servers/ZoneServer2016/zoneserver.ts",
+            "program": "${workspaceFolder}/out/servers/ZoneServer2016/zoneserver.js",
             "outFiles": [
                 "${workspaceFolder}/out/**/*.js"
             ]
@@ -110,7 +110,7 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/src/servers/LoginServer/loginserver.ts",
+            "program": "${workspaceFolder}/out/servers/LoginServer/loginserver.js",
             "outFiles": [
                 "${workspaceFolder}/out/**/*.js"
             ]
