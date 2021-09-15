@@ -22,9 +22,41 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Launch ZoneServer with MongoDB",
+            "env":{
+                "VSCODE_DEBUG":"true",
+                "MONGO_URL":"mongodb://localhost:27017/"
+            },
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/out/servers/ZoneServer/zoneserver.js",
+            "outFiles": [
+                "${workspaceFolder}/out/**/*.js"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Launch LoginServer",
             "env":{
                 "VSCODE_DEBUG":"true"
+            },
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/out/servers/LoginServer/loginserver.js",
+            "outFiles": [
+                "${workspaceFolder}/out/**/*.js"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch LoginServer with MongoDB",
+            "env":{
+                "VSCODE_DEBUG":"true",
+                "MONGO_URL":"mongodb://localhost:27017/"
             },
             "skipFiles": [
                 "<node_internals>/**"
@@ -53,10 +85,45 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Launch ZoneServer2016 with MongoDB",
+            "env":{
+                "VSCODE_DEBUG":"true",
+                "CLIENT_SIXTEEN":"true",
+                "MONGO_URL":"mongodb://localhost:27017/"
+            },
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/out/servers/ZoneServer2016/zoneserver.js",
+            "outFiles": [
+                "${workspaceFolder}/out/**/*.js"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Launch LoginServer2016",
             "env":{
                 "VSCODE_DEBUG":"true",
                 "CLIENT_SIXTEEN":"true"
+            },
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/out/servers/LoginServer/loginserver.js",
+            "outFiles": [
+                "${workspaceFolder}/out/**/*.js"
+            ]
+        }
+        ,
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch LoginServer2016 with MongoDB",
+            "env":{
+                "VSCODE_DEBUG":"true",
+                "CLIENT_SIXTEEN":"true",
+                "MONGO_URL":"mongodb://localhost:27017/"
             },
             "skipFiles": [
                 "<node_internals>/**"
