@@ -5028,8 +5028,11 @@ const packets = [
   ["Command.Profiler", 0x095604, {}],
   ["Command.WorldKickPending", 0x095704, {}],
   ["Command.ActivateMembership", 0x095804, {}],
+  ["Command.Unknown", 0x0959, {}],
+  /*
   ["Command.JoinLobby", 0x095904, {}],
   ["Command.LeaveLobby", 0x095a04, {}],
+  */
   ["Command.SetMOTD", 0x095b04, {}],
   ["Command.Snoop", 0x095c04, {}],
   ["Command.JoinScheduledActivityRequest", 0x095d04, {}],
