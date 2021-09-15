@@ -206,6 +206,77 @@ const hax: any = {
     server.worldRoutine(client);
   },
 
+  spawnvehicle: function (server: ZoneServer, client: Client, args: any[]) {
+    const guid = server.generateGuid();
+    const transientId = server.getTransientId(client, guid);
+    if (!args[1]) {
+      server.sendChatText(
+        client,
+        "[ERROR] Usage /hax spawnVehicle offroader/pickup/policecar"
+      );
+      return;
+    }
+    let vehicleId, driveModel;
+    switch (args[1]) {
+      case "offroader":
+        vehicleId = 1;
+        driveModel = 7225;
+        break;
+      case "pickup":
+        vehicleId = 2;
+        driveModel = 9258;
+        break;
+      case "policecar":
+        vehicleId = 3;
+        driveModel = 9301;
+        break;
+      default:
+        // offroader default
+        vehicleId = 1;
+        driveModel = 7225;
+        break;
+    }
+    const characterId = server.generateGuid();
+    const vehicle = {
+      npcData: {
+        guid: guid,
+        transientId: server.getTransientId(client, characterId),
+        characterId: characterId,
+        modelId: driveModel,
+        scale: [1, 1, 1, 1],
+        position: client.character.state.position,
+        rotation: client.character.state.lookAt,
+        vehicleId: vehicleId,
+        attachedObject: {},
+        color: {},
+        unknownArray1: [],
+        array5: [{ unknown1: 0 }],
+        array17: [{ unknown1: 0 }],
+        array18: [{ unknown1: 0 }],
+      },
+      unknownDword1: 10,
+      unknownDword2: 10,
+      positionUpdate: server.createPositionUpdate(
+        new Float32Array([0, 0, 0, 0]),
+        [0, 0, 0, 0]
+      ),
+      unknownString1: "",
+    };
+    server.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicle);
+    server._vehicles[characterId] = {
+      isManaged: true,
+      ...vehicle,
+      onReadyCallback: () => {
+        // doing anything with vehicle before client gets fullvehicle packet breaks it
+        server.sendData(client, "PlayerUpdate.ManagedObject", {
+          guid: vehicle.npcData.characterId,
+          characterId: client.character.characterId,
+        });
+        client.managedObjects.push(server._vehicles[characterId]);
+      },
+    };
+  },
+
   parachute: function (server: ZoneServer, client: Client, args: any[]) {
     const characterId = server.generateGuid();
     const guid = server.generateGuid();
