@@ -62,5 +62,9 @@ export class ZoneClient extends SOEClient {
     this.character = new Character(characterId, generatedTransient);
     this.spawnedEntities = [];
     this.managedObjects = [];
+    this.clearTimers = ()=> {
+      super.clearTimers();
+      clearTimeout(this.npcsToSpawnTimer);
+    }
   }
 }

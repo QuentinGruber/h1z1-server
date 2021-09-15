@@ -144,6 +144,16 @@ export const generateRandomGuid = function (): string {
   return "0x" + generate_random_guid();
 };
 
+export const generateCommandList = (commandObject:any,commandNamespace:string):string[] => {
+  const commandList: string[] = [];
+  Object.keys(commandObject).forEach((key) => {
+    commandList.push(`/${commandNamespace} ${key}`);
+  });
+  return commandList;
+}
+
+
+
 export const lz4Comp = lz4_comp;
 export const lz4Decomp = lz4_decomp; // from h1emu-core, be aware that this func crash if the target isn't lz4 compressed
 export const lz4_decompress = function (  // from original implementation

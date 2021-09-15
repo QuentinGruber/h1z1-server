@@ -1,10 +1,19 @@
 import {ZoneClient as Client} from "../../ZoneServer/zoneclient";
-import { generateRandomGuid } from "../../../utils/utils";
+import { generateCommandList, generateRandomGuid } from "../../../utils/utils";
 import { ZoneServer } from "../zoneserver";
 
 const debug = require("debug")("zonepacketHandlers");
 
 const dev: any = {
+  list: function (server: ZoneServer, client: Client, args: any[]) {
+    const commandObject = this; // necessary tricks
+    const commandList = generateCommandList(commandObject,"dev");
+    commandList
+          .sort((a: string, b: string) => a.localeCompare(b))
+          .forEach((command: string) => {
+            server.sendChatText(client, `${command}`);
+          });
+  },
   testpacket: function (server: ZoneServer, client: Client, args: any[]) {
     server.sendData(client, "Target.AddTarget", {
       objects: [
