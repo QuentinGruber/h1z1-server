@@ -208,7 +208,6 @@ const hax: any = {
 
   spawnvehicle: function (server: ZoneServer, client: Client, args: any[]) {
     const guid = server.generateGuid();
-    const transientId = server.getTransientId(client, guid);
     if (!args[1]) {
       server.sendChatText(
         client,
