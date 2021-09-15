@@ -1,9 +1,15 @@
-import {ZoneClient2016 as Client} from "../zoneclient";
+import { ZoneClient2016 as Client } from "../zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 const debug = require("debug")("zonepacketHandlers");
 import { Int64String } from "../../../utils/utils";
 
 const dev: any = {
+  list: function (server: ZoneServer2016, client: Client, args: any[]) {
+    server.sendChatText(
+      client,
+      `/dev commands list: \n${Object.keys(this).join("\n")}`
+    );
+  },
   testpacket: function (server: ZoneServer2016, client: Client, args: any[]) {
     const packetName = args[1];
     server.sendData(client, packetName, {});

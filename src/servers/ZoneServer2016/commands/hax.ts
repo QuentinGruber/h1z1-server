@@ -23,7 +23,7 @@ const hax: any = {
   list: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.sendChatText(
       client,
-      `/hax commands list: ${Object.keys(this).join(", ")}`
+      `/hax commands list: \n${Object.keys(this).join("\n")}`
     );
   },
   parachute: function (server: ZoneServer2016, client: Client, args: any[]) {

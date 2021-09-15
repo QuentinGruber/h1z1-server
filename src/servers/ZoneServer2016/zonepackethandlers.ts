@@ -21,7 +21,7 @@ try {
 import { joaat } from "h1emu-core"
 import hax from "./commands/hax";
 import dev from "./commands/dev";
-// import admin from "./commands/admin";
+import admin from "./commands/admin";
 
 import { Int64String, isPosInRadius } from "../../utils/utils";
 import { ZoneServer2016 } from "./zoneserver";
@@ -157,6 +157,7 @@ const packetHandlers = {
     const commands = [
       "hax",
       "dev",
+      "admin",
       "location",
       "serverinfo",
       "spawninfo",
@@ -432,21 +433,19 @@ const packetHandlers = {
       case joaat("HAX"):
         hax[args[0]]
           ? hax[args[0]](server, client, args)
-          : (server.sendChatText(client, `Unknown command: /hax ${args[0]}`),
-            server.sendChatText(
-              client,
-              `/hax commands list: ${Object.keys(hax).join(", ")}`
-            ));
+          : server.sendChatText(client, `Unknown command: /hax ${args[0]}`)
         break;
       case joaat("DEV"):
       case 552078457: // dev
         dev[args[0]]
           ? dev[args[0]](server, client, args)
-          : (server.sendChatText(client, `Unknown command: /dev ${args[0]}`),
-            server.sendChatText(
-              client,
-              `/dev commands list: ${Object.keys(dev).join(", ")}`
-            ));
+          : server.sendChatText(client, `Unknown command: /dev ${args[0]}`)
+        break;
+      case joaat("ADMIN"):
+      case 997464845: // admin
+        admin[args[0]]
+          ? admin[args[0]](server, client, args)
+          : server.sendChatText(client, `Unknown command: /admin ${args[0]}`)
         break;
     }
   },
