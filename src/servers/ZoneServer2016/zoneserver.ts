@@ -15,8 +15,8 @@ const debugName = "ZoneServer";
 const debug = require("debug")(debugName);
 import { default as packetHandlers } from "./zonepackethandlers";
 import { ZoneServer } from "../ZoneServer/zoneserver";
-import Client from "./zoneclient";
-import { Weather2016 } from "../../types/zoneserver";
+import { ZoneClient2016 as Client} from "./zoneclient";
+import { HandledZonePackets2016, Weather2016 } from "../../types/zoneserver";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
 import { _ } from "../../utils/utils";
 
@@ -35,12 +35,14 @@ const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.js
 const Z1_POIs = require("../../../data/2015/zoneData/Z1_POIs");
 const recipes = require("../../../data/2016/sampleData/recipes.json");
 const localWeatherTemplates = require("../../../data/2016/dataSources/weather.json");
-// const stats = require("../../../data/2016/sampleData/stats.json");
-// const resources = require("../../../data/2015/dataSources/Resources.json");
+const stats = require("../../../data/2016/sampleData/stats.json");
+const resources = require("../../../data/2016/dataSources/resourceDefinitions.json");
 
 export class ZoneServer2016 extends ZoneServer {
   worldRoutineTimer: any;
   _weather2016: Weather2016;
+  // @ts-ignore yeah idk how to fix that
+  _packetHandlers: HandledZonePackets2016;
   constructor(serverPort: number, gatewayKey: Uint8Array, mongoAddress = "") {
     super(serverPort, gatewayKey, mongoAddress);
     this._protocol = new H1Z1Protocol("ClientProtocol_1080");
@@ -82,6 +84,7 @@ export class ZoneServer2016 extends ZoneServer {
     if (err) {
       console.error(err);
     } else {
+      client.pingTimer?.refresh();
       if (
         packet.name != "KeepAlive" &&
         packet.name != "PlayerUpdateUpdatePositionClientToZone" &&
@@ -90,9 +93,9 @@ export class ZoneServer2016 extends ZoneServer {
       ) {
         debug(`Receive Data ${[packet.name]}`);
       }
-      if (this._packetHandlers[packet.name]) {
+      if ((this._packetHandlers as any)[packet.name]) {
         try {
-          this._packetHandlers[packet.name](this, client, packet);
+          (this._packetHandlers as any)[packet.name](this, client, packet);
         } catch (e) {
           debug(e);
         }
@@ -124,16 +127,9 @@ export class ZoneServer2016 extends ZoneServer {
       client.character.name = character.characterName;
     }
 
-    let generatedTransient;
-    do {
-      generatedTransient = Number((Math.random() * 30000).toFixed(0));
-    } while (this._transientIds[generatedTransient]);
-    this._transientIds[generatedTransient] = client.character.characterId;
     client.character = {
       ...client.character,
       guid: "0x665a2bff2b44c034", // default, only matters for multiplayer
-      transientId: generatedTransient,
-
       actorModelId: character.actorModelId,
       headActor: character.headActor,
       isRespawning: character.isRespawning,
@@ -191,23 +187,14 @@ export class ZoneServer2016 extends ZoneServer {
         shield: 0,
       },
     };
-    /*
-    const characterDataMongo: any = await this._db
-      ?.collection("characters")
-      .findOne({ characterId: client.character.characterId });
-    client.character.extraModel = characterDataMongo?.extraModelTexture
-      ? characterDataMongo.extraModelTexture
-      : this._dummySelf.data.extraModelTexture;
-    */
+
     let isRandomlySpawning = false;
     if (
       _.isEqual(character.position, [0, 0, 0, 1]) &&
       _.isEqual(character.rotation, [0, 0, 0, 1])
     ) {
-      // if position/rotation hasn't be changed
-      if (this._soloMode /*|| !characterDataMongo.position*/) {
-        isRandomlySpawning = true;
-      }
+      // if position/rotation hasn't changed
+      isRandomlySpawning = true;
     }
 
     if (isRandomlySpawning) {
@@ -215,21 +202,18 @@ export class ZoneServer2016 extends ZoneServer {
       const randomSpawnIndex = Math.floor(
         Math.random() * this._spawnLocations.length
       );
-      client.character.state.position =
-        this._spawnLocations[randomSpawnIndex].position;
-      client.character.state.rotation =
-        this._spawnLocations[randomSpawnIndex].rotation;
-      client.character.spawnLocation =
-        this._spawnLocations[randomSpawnIndex].name;
+      client.character.state.position = this._spawnLocations[
+        randomSpawnIndex
+      ].position;
+      client.character.state.rotation = this._spawnLocations[
+        randomSpawnIndex
+      ].rotation;
+      client.character.spawnLocation = this._spawnLocations[
+        randomSpawnIndex
+      ].name;
     } else {
       client.character.state.position = character.position;
       client.character.state.rotation = character.rotation;
-      /*
-      if (!this._soloMode) {
-        client.character.state.position = characterDataMongo.position;
-        client.character.state.rotation = characterDataMongo.rotation;
-      }
-      */
     }
     this._characters[client.character.characterId] = client.character; // character will spawn on other player's screen(s) at this point
   }
@@ -253,78 +237,52 @@ export class ZoneServer2016 extends ZoneServer {
           characterName: client.character.name,
         },
         recipes: recipes,
-        //stats: stats // todo: fix
+        stats: stats,
 
         characterResources: [
-          // todo: load characterResource definitions from file, then set value for each only
           {
-            resourceId: 1, // health
+            ...resources.health,
             resourceData: {
-              resourceId: 1,
-              resourceType: 1,
-              unknownArray1: [],
-              value: client.character.resources.health, // 10000 max
+              ...resources.health.resourceData,
+              value: client.character.resources.health,
             },
           },
           {
-            resourceId: 6, // stamina
+            ...resources.stamina,
             resourceData: {
-              resourceId: 6,
-              resourceType: 6,
-              unknownArray1: [],
-              value: client.character.resources.stamina, // 600 max
+              ...resources.stamina.resourceData,
+              value: client.character.resources.stamina,
             },
           },
           {
-            resourceId: 4, // food
+            ...resources.food,
             resourceData: {
-              resourceId: 4,
-              resourceType: 4,
-              unknownArray1: [],
-              value: client.character.resources.food, // 10000 max
+              ...resources.food.resourceData,
+              value: client.character.resources.food,
             },
           },
           {
-            resourceId: 5, // water
+            ...resources.water,
             resourceData: {
-              resourceId: 5,
-              resourceType: 5,
-              unknownArray1: [],
-              value: client.character.resources.water, // 10000 max
+              ...resources.water.resourceData,
+              value: client.character.resources.water,
             },
           },
           {
-            resourceId: 68, // comfort
+            ...resources.comfort,
             resourceData: {
-              resourceId: 68,
-              resourceType: 68,
-              unknownArray1: [],
-              value: client.character.resources.comfort, // 5000 max
+              ...resources.comfort.resourceData,
+              value: client.character.resources.comfort,
             },
           },
           {
-            resourceId: 12, // h1z1 virus
+            ...resources.virus,
             resourceData: {
-              resourceId: 12,
-              resourceType: 12,
-              unknownArray1: [],
-              value: client.character.resources.virus, // 10000 max
+              ...resources.virus.resourceData,
+              value: client.character.resources.virus,
             },
           },
         ],
-
-        /* testing newly added sendself values */
-        playerTitles: [
-          // working
-          {
-            titleId: 1,
-            titleType: 1,
-            stringId: 1,
-          },
-        ],
-        currentPlayerTitle: 1,
-
-        /*                                     */
       },
     });
   }
@@ -536,7 +494,7 @@ export class ZoneServer2016 extends ZoneServer {
     );
   }
 
-  deleteEntity(characterId: string, dictionnary: any) {
+  deleteEntity(characterId: string, dictionary: any) {
     this.sendDataToAll(
       "Character.RemovePlayer",
       {
@@ -544,7 +502,7 @@ export class ZoneServer2016 extends ZoneServer {
       },
       1
     );
-    delete dictionnary[characterId];
+    delete dictionary[characterId];
   }
 
   spawnNpcs(client: Client): void {

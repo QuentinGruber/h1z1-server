@@ -400,10 +400,13 @@ const packets = [
   ["FatalErrorReply", 0x1e, {}],
 ];
 
-export const [SOEPacketsPacketTypes, SOEPacketsPackets] =
-  PacketTableBuild(packets);
-export const [StandAlonePacketsPacketTypes, StandAlonePacketsPackets] =
-  PacketTableBuild(stand_alone_packets);
+export const [SOEPacketsPacketTypes, SOEPacketsPackets] = PacketTableBuild(
+  packets
+);
+export const [
+  StandAlonePacketsPacketTypes,
+  StandAlonePacketsPackets,
+] = PacketTableBuild(stand_alone_packets);
 
 const SOEPackets = {
   PacketTypes: SOEPacketsPacketTypes,

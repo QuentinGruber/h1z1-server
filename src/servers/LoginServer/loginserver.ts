@@ -25,6 +25,7 @@ import {
 } from "../../utils/utils";
 import { Client, GameServer } from "../../types/loginserver";
 import fs from "fs";
+import { loginPacketsType } from "types/packets";
 
 const debugName = "LoginServer";
 const debug = require("debug")(debugName);
@@ -133,7 +134,7 @@ export class LoginServer extends EventEmitter {
     );
   }
 
-  sendData(client: Client, packetName: string, obj: any) {
+  sendData(client: Client, packetName: loginPacketsType, obj: any) {
     const data = this._protocol.pack(packetName, obj);
     this._soeServer.sendAppData(client, data, true);
   }

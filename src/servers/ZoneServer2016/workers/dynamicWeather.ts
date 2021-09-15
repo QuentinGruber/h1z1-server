@@ -1,5 +1,5 @@
 // import { _ } from "../../../utils/utils";
-import Client from "../zoneclient";
+import {ZoneClient2016 as Client} from "../zoneclient";
 // import { randomIntFromInterval } from "../../../utils/utils";
 import { ZoneServer2016 } from "../zoneserver";
 // const debug = require("debug")("dynamicWeather");

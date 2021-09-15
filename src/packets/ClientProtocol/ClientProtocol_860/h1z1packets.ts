@@ -14,7 +14,7 @@
 import PacketTableBuild from "../../packettable";
 import DataSchema from "h1z1-dataschema";
 import { lz4_decompress } from "../../../utils/utils";
-import eul2quat from "eul2quat";
+import { eul2quat } from "../../../utils/utils";
 
 function readPacketType(data: Buffer, packets: any) {
   let opCode = data[0] >>> 0,
@@ -716,11 +716,8 @@ function parseItemAddData(data: Buffer, offset: number, referenceData: any) {
     outSize = itemData.readUInt16LE(2),
     compData = itemData.slice(4, 4 + inSize),
     decompData = lz4_decompress(compData, inSize, outSize),
-    itemDefinition = DataSchema.parse(
-      baseItemDefinitionSchema,
-      decompData,
-      0
-    ).result;
+    itemDefinition = DataSchema.parse(baseItemDefinitionSchema, decompData, 0)
+      .result;
 
   itemData = parseItemData(itemData, 4 + inSize, referenceData).value;
   return {
@@ -1479,8 +1476,9 @@ const weaponPackets = [
   ["Weapon.AddDebugLogEntry", 0x8223, {}],
 ];
 
-const [weaponPacketTypes, weaponPacketDescriptors] =
-  PacketTableBuild(weaponPackets);
+const [weaponPacketTypes, weaponPacketDescriptors] = PacketTableBuild(
+  weaponPackets
+);
 
 function parseMultiWeaponPacket(data: Buffer, offset: number) {
   const startOffset = offset,
@@ -3918,7 +3916,12 @@ var packets = [
     },
   ],
   ["Command.FriendsPositionRequest", 0x091500, {}],
-  ["Command.MoveAndInteract", 0x091600, {}],
+  ["Command.MoveAndInteract", 0x091600, {
+    fields: [
+      { name: "position", type: "floatvector4", defaultValue: [0,0,0,1] },
+      { name: "guid", type: "uint64string", defaultValue: "0x0000" },
+    ] 
+  }],
   ["Command.QuestAbandon", 0x091700, {}],
   [
     "Command.RecipeStart",
@@ -5507,7 +5510,7 @@ var packets = [
     "PlayerUpdate.FullCharacterDataRequest",
     0x0f5d,
     {
-      fields: [{ name: "guid", type: "uint64string", defaultValue: "0" }],
+      fields: [{ name: "characterId", type: "uint64string", defaultValue: "0" }],
     },
   ],
   [
@@ -8061,7 +8064,21 @@ var packets = [
       ],
     },
   ],
-  ["Vehicle.StateDamage", 0x8804, {}],
+  ["Vehicle.StateDamage", 0x8804, {
+    fields: [
+      { name: "guid", type: "uint64string", defaultValue: 0 },
+      {
+        name: "unknownVector1",
+        type: "floatvector4",
+        defaultValue: [0, 50, 0, 0],
+      },
+      {
+        name: "unknownVector2",
+        type: "floatvector4",
+        defaultValue: [0, 0, 0, 0],
+      }
+    ],
+  }],
   ["Vehicle.PlayerManager", 0x8805, {}],
   [
     "Vehicle.Spawn",

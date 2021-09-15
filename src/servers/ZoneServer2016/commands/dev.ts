@@ -1,4 +1,4 @@
-import Client from "../zoneclient";
+import {ZoneClient2016 as Client} from "../zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 const debug = require("debug")("zonepacketHandlers");
 import { Int64String } from "../../../utils/utils";
@@ -581,6 +581,23 @@ const dev: any = {
     server.sendData(client, "Construction.PlacementResponse", {
       unknownDword1: Number(args[2]),
       model: modelChoosen,
+    });
+  },
+  stat: function (server: ZoneServer2016, client: Client, args: any[]) {
+    if (!args[3]) {
+      server.sendChatText(client, "missing statId, baseValue, modifierValue");
+      return;
+    }
+
+    server.sendData(client, "ClientUpdate.UpdateStat", {
+      statId: Number(args[1]),
+      statValue: {
+        type: 0,
+        value: {
+          baseValue: Number(args[2]),
+          modifierValue: Number(args[3]),
+        },
+      },
     });
   },
   /*

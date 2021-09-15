@@ -1,6 +1,6 @@
-import Character from "servers/ZoneServer/character";
+import {Character} from "servers/ZoneServer/character";
 
-export default class Character2016 extends Character {
+export class Character2016 extends Character {
   resources: {
     health: number;
     stamina: number;

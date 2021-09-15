@@ -1,3 +1,369 @@
+import {ZoneClient} from "servers/ZoneServer/zoneclient";
+import { ZoneServer } from "servers/ZoneServer/zoneserver";
+import {ZoneClient2016} from "servers/ZoneServer2016/zoneclient";
+import { ZoneServer2016 } from "servers/ZoneServer2016/zoneserver";
+
+export interface HandledZonePackets {
+  ClientIsReady: (server: ZoneServer, client: ZoneClient, packet: any) => void;
+  ClientFinishedLoading: (
+    server: ZoneServer,
+    client: ZoneClient,
+    packet: any
+  ) => void;
+  Security: (server: ZoneServer, client: ZoneClient, packet: any) => void;
+  "Command.RecipeStart": (
+    server: ZoneServer,
+    client: ZoneClient,
+    packet: any
+  ) => void;
+  "Command.FreeInteractionNpc": (
+    server: ZoneServer,
+    client: ZoneClient,
+    packet: any
+  ) => void;
+  "Collision.Damage": (
+    server: ZoneServer,
+    client: ZoneClient,
+    packet: any
+  ) => void;
+  "LobbyGameDefinition.DefinitionsRequest": (
+    server: ZoneServer,
+    client: ZoneClient,
+    packet: any
+  ) => void;
+  "PlayerUpdate.EndCharacterAccess": (
+    server: ZoneServer,
+    client: ZoneClient,
+    packet: any
+  ) => void;
+  KeepAlive: (server: ZoneServer, client: ZoneClient, packet: any) => void;
+  ClientLog: (server: ZoneServer, client: ZoneClient, packet: any) => void;
+  "WallOfData.UIEvent": (
+    server: ZoneServer,
+    client: ZoneClient,
+    packet: any
+  ) => void;
+  SetLocale: (server: ZoneServer, client: ZoneClient, packet: any) => void;
+  GetContinentBattleInfo: (
+    server: ZoneServer,
+    client: ZoneClient,
+    packet: any
+  ) => void;
+  "Command.SetInWater": (
+    server: ZoneServer,
+    client: ZoneClient,
+    packet: any
+  ) => void;
+  "Command.ClearInWater": (
+    server: ZoneServer,
+    client: ZoneClient,
+    packet: any
+  ) => void;
+  "Chat.Chat": (server: ZoneServer, client: ZoneClient, packet: any) => void;
+  "Loadout.SelectSlot": (
+    server: ZoneServer,
+    client: ZoneClient,
+    packet: any
+  ) => void;
+  ClientInitializationDetails: (
+    server: ZoneServer,
+    client: ZoneClient,
+    packet: any
+  ) => void;
+  ClientLogout: (server: ZoneServer, client: ZoneClient, packet: any) => void;
+  GameTimeSync: (server: ZoneServer, client: ZoneClient, packet: any) => void;
+  Synchronization: (
+    server: ZoneServer,
+    client: ZoneClient,
+    packet: any
+  ) => void;
+  "Command.ExecuteCommand": (
+    server: ZoneServer,
+    client: ZoneClient,
+    packet: any
+  ) => void;
+  "Command.SetProfile": (
+    server: ZoneServer,
+    client: ZoneClient,
+    packet: any
+  ) => void;
+  "Mount.DismountRequest": (
+    server: ZoneServer,
+    client: ZoneClient,
+    packet: any
+  ) => void;
+  "Command.InteractRequest": (
+    server: ZoneServer,
+    client: ZoneClient,
+    packet: any
+  ) => void;
+  "Command.InteractionString": (
+    server: ZoneServer,
+    client: ZoneClient,
+    packet: any
+  ) => void;
+  "Command.InteractionSelect": (
+    server: ZoneServer,
+    client: ZoneClient,
+    packet: any
+  ) => void;
+  "PlayerUpdate.VehicleCollision": (
+    server: ZoneServer,
+    client: ZoneClient,
+    packet: any
+  ) => void;
+  "Vehicle.Dismiss": (
+    server: ZoneServer,
+    client: ZoneClient,
+    packet: any
+  ) => void;
+  "Vehicle.Spawn": (
+    server: ZoneServer,
+    client: ZoneClient,
+    packet: any
+  ) => void;
+  "Vehicle.AutoMount": (
+    server: ZoneServer,
+    client: ZoneClient,
+    packet: any
+  ) => void;
+  "AdminCommand.SpawnVehicle": (
+    server: ZoneServer,
+    client: ZoneClient,
+    packet: any
+  ) => void;
+  "Command.InteractCancel": (
+    server: ZoneServer,
+    client: ZoneClient,
+    packet: any
+  ) => void;
+  "Command.StartLogoutRequest": (
+    server: ZoneServer,
+    client: ZoneClient,
+    packet: any
+  ) => void;
+  CharacterSelectSessionRequest: (
+    server: ZoneServer,
+    client: ZoneClient,
+    packet: any
+  ) => void;
+  "ProfileStats.GetPlayerProfileStats": (
+    server: ZoneServer,
+    client: ZoneClient,
+    packet: any
+  ) => void;
+  Pickup: (server: ZoneServer, client: ZoneClient, packet: any) => void;
+  GetRewardBuffInfo: (
+    server: ZoneServer,
+    client: ZoneClient,
+    packet: any
+  ) => void;
+  PlayerUpdateManagedPosition: (
+    server: ZoneServer,
+    client: ZoneClient,
+    packet: any
+  ) => void;
+  PlayerUpdateUpdatePositionClientToZone: (
+    server: ZoneServer,
+    client: ZoneClient,
+    packet: any
+  ) => void;
+  "Command.PlayerSelect": (
+    server: ZoneServer,
+    client: ZoneClient,
+    packet: any
+  ) => void;
+  "Construction.PlacementRequest": (
+    server: ZoneServer,
+    client: ZoneClient,
+    packet: any
+  ) => void;
+  "Construction.PlacementFinalizeRequest": (
+    server: ZoneServer,
+    client: ZoneClient,
+    packet: any
+  ) => void;
+  "PlayerUpdate.Respawn": (
+    server: ZoneServer,
+    client: ZoneClient,
+    packet: any
+  ) => void;
+  "PlayerUpdate.FullCharacterDataRequest": (
+    server: ZoneServer,
+    client: ZoneClient,
+    packet: any
+  ) => void;
+}
+
+export interface HandledZonePackets2016 {
+  ClientIsReady: (
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    packet: any
+  ) => void;
+  ClientFinishedLoading: (
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    packet: any
+  ) => void;
+  Security: (
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    packet: any
+  ) => void;
+  "Command.RecipeStart": (
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    packet: any
+  ) => void;
+  "Command.FreeInteractionNpc": (
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    packet: any
+  ) => void;
+  "Collision.Damage": (
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    packet: any
+  ) => void;
+  "LobbyGameDefinition.DefinitionsRequest": (
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    packet: any
+  ) => void;
+  KeepAlive: (
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    packet: any
+  ) => void;
+  "ClientUpdate.MonitorTimeDrift": (
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    packet: any
+  ) => void;
+  ClientLog: (
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    packet: any
+  ) => void;
+  "WallOfData.UIEvent": (
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    packet: any
+  ) => void;
+  SetLocale: (
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    packet: any
+  ) => void;
+  GetContinentBattleInfo: (
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    packet: any
+  ) => void;
+  "Chat.Chat": (
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    packet: any
+  ) => void;
+  ClientInitializationDetails: (
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    packet: any
+  ) => void;
+  ClientLogout: (
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    packet: any
+  ) => void;
+  GameTimeSync: (
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    packet: any
+  ) => void;
+  Synchronization: (
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    packet: any
+  ) => void;
+  "Command.ExecuteCommand": (
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    packet: any
+  ) => void;
+  "Command.InteractRequest": (
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    packet: any
+  ) => void;
+  "Command.InteractCancel": (
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    packet: any
+  ) => void;
+  "Command.StartLogoutRequest": (
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    packet: any
+  ) => void;
+  CharacterSelectSessionRequest: (
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    packet: any
+  ) => void;
+  "ProfileStats.GetPlayerProfileStats": (
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    packet: any
+  ) => void;
+  Pickup: (server: ZoneServer2016, client: ZoneClient2016, packet: any) => void;
+  GetRewardBuffInfo: (
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    packet: any
+  ) => void;
+  PlayerUpdateUpdatePositionClientToZone: (
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    packet: any
+  ) => void;
+  "Character.Respawn": (
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    packet: any
+  ) => void;
+  "Character.FullCharacterDataRequest": (
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    packet: any
+  ) => void;
+  "Command.PlayerSelect": (
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    packet: any
+  ) => void;
+  "Mount.DismountRequest": (
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    packet: any
+  ) => void;
+  "Command.InteractionString": (
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    packet: any
+  ) => void;
+  "Mount.SeatChangeRequest": (
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    packet: any
+  ) => void;
+  "Construction.PlacementFinalizeRequest": (
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    packet: any
+  ) => void;
+}
+
 export interface characterEquipment {
   modelName: string;
   slotId: number;
