@@ -1,0 +1,247 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>h1z1-server</title>
+	<meta name="description" content="Documentation for h1z1-server">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="assets/css/main.css">
+	<script async src="assets/js/search.js" id="search-script"></script>
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="assets/js/search.json" data-base=".">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="index.html" class="title">h1z1-server</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<h1>h1z1-server</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<div class="tsd-panel tsd-typography">
+				<a href="#h1z1-server--" id="h1z1-server--" style="color: inherit; text-decoration: none;">
+					<h1>h1z1-server <a href="https://npmjs.org/package/h1z1-server" title="View this project on npm"><img src="http://img.shields.io/npm/v/h1z1-server.svg?style=flat" alt="npm version"></a> <a href="https://github.com/quentingruber/h1z1-server/blob/master/LICENSE"><img src="https://img.shields.io/github/license/quentingruber/h1z1-server.svg" alt="GitHub license"></a></h1>
+				</a>
+				<p><a href="https://discord.gg/RM6jNkj"><img src="https://img.shields.io/discord/707525351357677610.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2" alt="Discord"></a>
+				<a href="https://open.vscode.dev/quentinrgruber/h1z1-server"><img src="https://open.vscode.dev/badges/open-in-vscode.svg" alt="Open in Visual Studio Code"></a></p>
+				<a href="#description" id="description" style="color: inherit; text-decoration: none;">
+					<h2>Description</h2>
+				</a>
+				<p>Based on the work of @jseidelin on <a href="https://github.com/psemu/soe-network">soe-network</a>,
+				h1z1-server is a library that emulates an H1Z1: Just Survive server.</p>
+				<a href="#motivation" id="motivation" style="color: inherit; text-decoration: none;">
+					<h2>Motivation</h2>
+				</a>
+				<p>A redditor said : &quot;It&#39;s just matter of effort and to have enough people of with interest towards having such private servers to the respected game.
+				I highly doubt that H1Z1 (Just Survive) is one of those.&quot;</p>
+				<p>So we will see :)</p>
+				<a href="#thanks-list" id="thanks-list" style="color: inherit; text-decoration: none;">
+					<h2>Thanks list</h2>
+				</a>
+				<ul>
+					<li><p>Thanks to UTIL_TRACELINE for his involvement in the project, the project would not be in this state today without him.</p>
+					</li>
+					<li><p>Thanks to Hax max for his determination and hacking skills :stuck_out_tongue:.</p>
+					</li>
+					<li><p>Thanks to LcplReaper for his interest in the project and the management of the community around the project.</p>
+					</li>
+					<li><p>Thanks to Meme for being an OG/active contributor :smile:.</p>
+					</li>
+					<li><p>Thanks to Avcio for his dedication on gameplay improvement.</p>
+					</li>
+					<li><p>Thanks to Rhett for his interest in the project and his research on the Forgelight engine in general.</p>
+					</li>
+					<li><p>Thanks to LegendsNeveerrDie for his work on editing the map.</p>
+					</li>
+					<li><p>Thanks to Chriis who provided the basis for this project by being the first (as far as I know) to try to emulate servers for h1z1 and who inspired me.</p>
+					</li>
+					<li><p>Thanks to Jacob Seidelin without whom none of this would have been possible.</p>
+					</li>
+					<li><p>Thanks to all those who sent messages of help and support and perpetuated the hope of playing h1z1 again.</p>
+					</li>
+				</ul>
+				<a href="#setup-h1z1" id="setup-h1z1" style="color: inherit; text-decoration: none;">
+					<h2>Setup H1Z1</h2>
+				</a>
+				<a href="#how-to-download-it" id="how-to-download-it" style="color: inherit; text-decoration: none;">
+					<h3>How to download it</h3>
+				</a>
+				<a href="#using-our-custom-implementation-of-depotdownloader" id="using-our-custom-implementation-of-depotdownloader" style="color: inherit; text-decoration: none;">
+					<h4>Using our custom implementation of DepotDownloader</h4>
+				</a>
+				<p><a href="https://github.com/H1emu/H1DepotDownloader/releases">Download the latest version of H1DepotDownloader</a></p>
+				<a href="#using-depotdownloader" id="using-depotdownloader" style="color: inherit; text-decoration: none;">
+					<h4>Using DepotDownloader</h4>
+				</a>
+				<p>Use <a href="https://github.com/SteamRE/DepotDownloader">DepotDownloader</a> ( only work if you&#39;ve bought h1z1 )</p>
+				<p>AppID : 295110 DepotID : 295111 ManifestID : 1930886153446950288</p>
+				<p>How to use DepotDownloader : <a href="https://youtu.be/44HBxzC_RTg">https://youtu.be/44HBxzC_RTg</a></p>
+				<p>cmd : <code>.\DepotDownloader.exe -app 295110 -depot 295111 -manifest 1930886153446950288 -username username -password 1234</code></p>
+				<a href="#h1z1-dependencies" id="h1z1-dependencies" style="color: inherit; text-decoration: none;">
+					<h3>H1Z1 Dependencies</h3>
+				</a>
+				<p>Like all games H1Z1 has C/C++ &amp; DirectX dependencies.</p>
+				<p>You may already have them but just in case</p>
+				<ul>
+					<li><p>VC 2010 Redist</p>
+					</li>
+					<li><p>VC 2015 Redist</p>
+					</li>
+					<li><p>DirectX Jun 2010 Redist</p>
+					</li>
+				</ul>
+				<p>You can download them all <a href="https://mega.nz/file/RtwDWJ7b#QYlxpXz_t0_kp7_S8a7whnWsctJ3Fr5B2sQdnuTR9LQ">here</a></p>
+				<a href="#setup-clientconfigini" id="setup-clientconfigini" style="color: inherit; text-decoration: none;">
+					<h3>Setup ClientConfig.ini</h3>
+				</a>
+				<p>On the H1Z1 game folder there is a file name &quot;ClientConfig.ini&quot;.</p>
+				<p>Add <code>sessionid=0</code> at the beginning of this file.</p>
+				<p>And change the <em>Server</em> value to the address of your server , probably <code>localhost:PORT</code></p>
+				<a href="#launch-the-game" id="launch-the-game" style="color: inherit; text-decoration: none;">
+					<h3>Launch the game</h3>
+				</a>
+				<p>If you have followed the step just above this one, this step is no longer necessary, and you can start the game by double clicking on H1Z1.exe.</p>
+				<p>Execute this command in CMD/Powershell ( you have to be in your h1z1 game folder ) :</p>
+				<p><code>.\H1Z1.exe sessionid=0 server=localhost:1115</code></p>
+				<a href="#enable-debug-log" id="enable-debug-log" style="color: inherit; text-decoration: none;">
+					<h3>Enable Debug log</h3>
+				</a>
+				<p>Since v0.2.3 of h1z1-server the npm package <a href="https://www.npmjs.com/package/debug">debug</a> is used to make debug logs.</p>
+				<a href="#examples-" id="examples-" style="color: inherit; text-decoration: none;">
+					<h5>examples :</h5>
+				</a>
+				<ul>
+					<li><code>set DEBUG=* &amp; node loginserver.js</code></li>
+					<li><code>set DEBUG=ZoneServer &amp; node zoneserver.js</code></li>
+				</ul>
+				<a href="#demo" id="demo" style="color: inherit; text-decoration: none;">
+					<h2>Demo</h2>
+				</a>
+				<ul>
+					<li><p><a href="https://github.com/H1emu/h1emu-launcher/releases/latest">https://github.com/H1emu/h1emu-launcher/releases/latest</a></p>
+					</li>
+					<li><p><a href="https://github.com/H1emu/h1z1-server-QuickStart">h1z1-server-QuickStart</a> and follow the instructions written in its README</p>
+					</li>
+				</ul>
+			</div>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class=" ">
+						<a href="modules.html">Modules</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/servers_GatewayServer_gatewayServer.html">servers/<wbr>Gateway<wbr>Server/gateway<wbr>Server</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/servers_LoginServer_loginServer.html">servers/<wbr>Login<wbr>Server/login<wbr>Server</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/servers_SoeServer_soeclient.html">servers/<wbr>Soe<wbr>Server/soeclient</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/servers_SoeServer_soeinputstream.html">servers/<wbr>Soe<wbr>Server/soeinputstream</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/servers_SoeServer_soeoutputstream.html">servers/<wbr>Soe<wbr>Server/soeoutputstream</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/servers_SoeServer_soeserver.html">servers/<wbr>Soe<wbr>Server/soeserver</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/servers_ZoneServer_character.html">servers/<wbr>Zone<wbr>Server/character</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/servers_ZoneServer_zoneclient.html">servers/<wbr>Zone<wbr>Server/zoneclient</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/servers_ZoneServer_zonepackethandlers.html">servers/<wbr>Zone<wbr>Server/zonepackethandlers</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/servers_ZoneServer_zoneserver.html">servers/<wbr>Zone<wbr>Server/zoneserver</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/servers_ZoneServer2016_character.html">servers/<wbr>Zone<wbr>Server2016/character</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/servers_ZoneServer2016_zoneclient.html">servers/<wbr>Zone<wbr>Server2016/zoneclient</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/servers_ZoneServer2016_zonepackethandlers.html">servers/<wbr>Zone<wbr>Server2016/zonepackethandlers</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/servers_ZoneServer2016_zoneserver.html">servers/<wbr>Zone<wbr>Server2016/zoneserver</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/utils_utils.html">utils/utils</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="assets/js/main.js"></script>
+</body>
+</html>

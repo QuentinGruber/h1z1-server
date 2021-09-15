@@ -14,7 +14,7 @@
 const debug = require("debug")("H1Z1Protocol");
 import DataSchema from "h1z1-dataschema";
 import { lz4_decompress } from "../utils/utils";
-import eul2quat from "eul2quat";
+import { eul2quat } from "../utils/utils";
 import { packUnsignedIntWith2bitLengthValue } from "../packets/ClientProtocol/ClientProtocol_860/h1z1packets";
 
 interface UpdatePositionObject {

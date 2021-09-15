@@ -31,7 +31,7 @@ export class SOEOutputStream extends EventEmitter {
     this._sequence = -1;
     this._lastAck = -1;
     this._cache = {};
-    this._rc4 = crypto.createCipheriv("rc4", cryptoKey, "");
+    this._rc4 = crypto.createCipheriv("rc4", cryptoKey, null);
   }
 
   write(data: Buffer, overrideEncryption: boolean): void {

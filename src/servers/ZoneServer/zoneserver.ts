@@ -26,7 +26,7 @@ import { HandledZonePackets, Weather } from "../../types/zoneserver";
 import { Db, MongoClient } from "mongodb";
 import { Worker } from "worker_threads";
 import SOEClient from "servers/SoeServer/soeclient";
-import Client from "./zoneclient";
+import { ZoneClient as Client} from "./zoneclient";
 import { h1z1PacketsType } from "types/packets";
 process.env.isBin && require("./workers/dynamicWeather");
 
@@ -80,6 +80,8 @@ export class ZoneServer extends EventEmitter {
   _dummySelf: any;
   _appDataFolder: string;
   _respawnOnLastPosition: boolean = true;
+  _spawnTimerMs: number = 10;
+  _worldRoutineRadiusPercentage: number = 0.4;
 
   constructor(
     serverPort: number,
@@ -119,7 +121,7 @@ export class ZoneServer extends EventEmitter {
     this._weather = this._weatherTemplates[this._defaultWeatherTemplate];
     this._profiles = [];
     this._interactionDistance = 4;
-    this._npcRenderDistance = 200;
+    this._npcRenderDistance = 350;
     this._pingTimeoutTime = 120000;
     this._dynamicWeatherEnabled = true;
     this._dummySelf = require("../../../data/2015/sampleData/sendself.json");
@@ -273,6 +275,13 @@ export class ZoneServer extends EventEmitter {
       characterId,
       generatedTransient
     );
+    zoneClient.npcsToSpawnTimer = setTimeout(() => {
+      const npcData = zoneClient.npcsToSpawn.shift();
+      if (npcData) {
+        this.sendData(zoneClient, "PlayerUpdate.AddLightweightNpc", npcData);
+        zoneClient.npcsToSpawnTimer.refresh();
+      }
+    }, this._spawnTimerMs);
     this._clients[client.sessionId] = zoneClient;
 
     this._transientIds[generatedTransient] = characterId;
@@ -548,7 +557,7 @@ export class ZoneServer extends EventEmitter {
     debug(
       `Client disconnected from ${client.address}:${client.port} ( ping timeout )`
     );
-    clearInterval(client.character?.resourcesUpdater);
+    clearTimeout(client.character?.resourcesUpdater);
     if (client.character?.characterId) {
       delete this._characters[client.character.characterId];
     }
@@ -758,12 +767,7 @@ export class ZoneServer extends EventEmitter {
         ) &&
         !client.spawnedEntities.includes(this._npcs[npc])
       ) {
-        this.sendData(
-          client,
-          "PlayerUpdate.AddLightweightNpc",
-          { ...this._npcs[npc], profileId: 65 },
-          1
-        );
+        client.npcsToSpawn.push({ ...this._npcs[npc], profileId: 65 });
         client.spawnedEntities.push(this._npcs[npc]);
       }
     }
@@ -803,6 +807,7 @@ export class ZoneServer extends EventEmitter {
     this.spawnVehicles(client);
     this.removeOutOfDistanceEntities(client);
     this.pointOfInterest(client);
+    client.npcsToSpawnTimer.refresh();
     client.posAtLastRoutine = client.character.state.position;
   }
 
@@ -920,7 +925,7 @@ export class ZoneServer extends EventEmitter {
           ) &&
           !client.spawnedEntities.includes(itemData)
         ) {
-          this.sendData(client, "PlayerUpdate.AddLightweightNpc", itemData, 1);
+          client.npcsToSpawn.push(itemData);
           client.spawnedEntities.push(itemData);
         }
       }

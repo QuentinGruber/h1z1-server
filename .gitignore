@@ -2,5 +2,3 @@ node_modules
 .idea
 out
 tests_out
-.vscode/
-data/2015/dynamicData
