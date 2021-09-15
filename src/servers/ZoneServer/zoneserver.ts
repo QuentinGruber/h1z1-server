@@ -26,7 +26,7 @@ import { HandledZonePackets, Weather } from "../../types/zoneserver";
 import { Db, MongoClient } from "mongodb";
 import { Worker } from "worker_threads";
 import SOEClient from "servers/SoeServer/soeclient";
-import Client from "./zoneclient";
+import { ZoneClient as Client} from "./zoneclient";
 import { h1z1PacketsType } from "types/packets";
 process.env.isBin && require("./workers/dynamicWeather");
 
@@ -121,7 +121,7 @@ export class ZoneServer extends EventEmitter {
     this._weather = this._weatherTemplates[this._defaultWeatherTemplate];
     this._profiles = [];
     this._interactionDistance = 4;
-    this._npcRenderDistance = 200;
+    this._npcRenderDistance = 350;
     this._pingTimeoutTime = 120000;
     this._dynamicWeatherEnabled = true;
     this._dummySelf = require("../../../data/2015/sampleData/sendself.json");

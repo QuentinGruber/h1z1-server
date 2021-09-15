@@ -12,7 +12,7 @@ if (workerData) {
   const { serverPort } = workerData;
   const connection = dgram.createSocket("udp4");
 
-  connection.on("listening", () => {
+  connection.once("listening", () => {
     const { address, port } = connection.address();
     debug("Listening on " + address + ":" + port);
     try {

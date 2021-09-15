@@ -1,6 +1,6 @@
 import { characterEquipment } from "types/zoneserver";
 
-export default class Character {
+export class Character {
   characterId: string;
   transientId: number;
   name?: string;

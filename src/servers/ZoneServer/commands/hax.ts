@@ -1,6 +1,6 @@
 import fs from "fs";
 import { Weather } from "types/zoneserver";
-import Client from "../../ZoneServer/zoneclient";
+import {ZoneClient as Client} from "../../ZoneServer/zoneclient";
 import { ZoneServer } from "../zoneserver";
 
 import { _ } from "../../../utils/utils";

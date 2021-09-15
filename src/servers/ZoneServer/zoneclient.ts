@@ -1,8 +1,8 @@
 import SOEClient from "../SoeServer/soeclient";
 import { RemoteInfo } from "dgram";
-import Character from "./character";
+import {Character} from "./character";
 
-export default class ZoneClient extends SOEClient {
+export class ZoneClient extends SOEClient {
   currentPOI?: number;
   firstLoading: boolean = false;
   isLoading: boolean = false;
