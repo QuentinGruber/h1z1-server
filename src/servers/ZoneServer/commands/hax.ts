@@ -39,6 +39,51 @@ const hax: any = {
         break;
     }
   },
+  observer: function (server: ZoneServer, client: Client, args: any[]) {
+    const characterId = server.generateGuid();
+    const vehicleData = {
+      npcData: {
+        guid: server.generateGuid(),
+        transientId: server.getTransientId(client, characterId),
+        characterId: characterId,
+        modelId: 9371,
+        scale: [1, 1, 1, 1],
+        position: client.character.state.position,
+        rotation: client.character.state.lookAt,
+        vehicleId: 1337,
+        attachedObject: {},
+        color: {},
+      },
+      positionUpdate: server.createPositionUpdate(
+        new Float32Array([0, 0, 0, 0]),
+        [0, 0, 0, 0]
+      ),
+    };
+    server.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicleData);
+    server._vehicles[characterId] = {
+      isManaged: true,
+      ...vehicleData,
+      onReadyCallback: () => {
+        // doing anything with vehicle before client gets fullvehicle packet breaks it
+        server.sendData(client, "PlayerUpdate.ManagedObject", {
+          guid: vehicleData.npcData.characterId,
+          characterId: client.character.characterId,
+        });
+        server.sendDataToAll("Mount.MountResponse", {
+          characterId: client.character.characterId,
+          guid: characterId,
+          characterData: [],
+        });
+        server.sendDataToAll("Vehicle.Engine", {
+          guid2: characterId,
+          unknownBoolean: true,
+        });
+        client.vehicle.mountedVehicle = characterId;
+        client.vehicle.mountedVehicleType = "spectate";
+        client.managedObjects.push(server._vehicles[characterId]);
+      },
+    };
+  },
   headlights: function (server: ZoneServer, client: Client, args: any[]) {
     let headlightType = 0;
     switch (client.vehicle.mountedVehicleType) {
@@ -421,7 +466,8 @@ const hax: any = {
     server.sendChatText(client, messageToMrHedgehog, true);
     isSonic = !isSonic;
   },
-  observer: function (server: ZoneServer, client: Client, args: any[]) {
+  observerold: function (server: ZoneServer, client: Client, args: any[]) {
+    server.sendChatText(client, "[Deprecated] You should use /hax observer, this command will be removed soon!");
     server.sendDataToAll("PlayerUpdate.RemovePlayer", {
       characterId: client.character.characterId,
     });
