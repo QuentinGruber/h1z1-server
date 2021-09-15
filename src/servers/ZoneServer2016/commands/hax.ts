@@ -20,6 +20,12 @@ function getHeadActor(modelId: number) {
 }
 
 const hax: any = {
+  list: function (server: ZoneServer2016, client: Client, args: any[]) {
+    server.sendChatText(
+      client,
+      `/hax commands list: ${Object.keys(this).join(", ")}`
+    );
+  },
   parachute: function (server: ZoneServer2016, client: Client, args: any[]) {
     const characterId = server.generateGuid();
     const vehicleData = {
