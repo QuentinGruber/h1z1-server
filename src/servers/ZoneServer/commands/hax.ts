@@ -542,8 +542,8 @@ const hax: any = {
     server.sendChatText(client, messageToMrHedgehog, true);
     isSonic = !isSonic;
   },
-  observerold: function (server: ZoneServer, client: Client, args: any[]) {
-    server.sendChatText(client, "[Deprecated] You should use /hax observer, this command will be removed soon!");
+  observer: function (server: ZoneServer, client: Client, args: any[]) {
+    server.sendChatText(client, "[Deprecated] You should use /hax spectate, this command will be removed soon!");
     server.sendDataToAll("PlayerUpdate.RemovePlayer", {
       characterId: client.character.characterId,
     });
