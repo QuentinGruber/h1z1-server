@@ -302,7 +302,7 @@ const hax: any = {
       positionUpdate: {},
       unknownString1: "",
     };
-    server.sendData(client, "PlayerUpdate.AddLightweightVehicle", vehicleData);
+    server.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicleData);
     server.sendData(client, "PlayerUpdate.ManagedObject", {
       guid: vehicleData.npcData.characterId,
       characterId: client.character.characterId,
@@ -312,7 +312,7 @@ const hax: any = {
       ...vehicleData,
     };
     server.worldRoutine(client);
-    server.sendData(client, "Mount.MountResponse", {
+    server.sendDataToAll("Mount.MountResponse", {
       characterId: client.character.characterId,
       guid: characterId,
       characterData: [],
