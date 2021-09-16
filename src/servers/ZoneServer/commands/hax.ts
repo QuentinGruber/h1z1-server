@@ -14,7 +14,7 @@ const hax: any = {
   list: function (server: ZoneServer, client: Client, args: any[]) {
     server.sendChatText(
       client,
-      `/hax commands list: \n${Object.keys(this).join("\n")}`
+      `/hax commands list: \n/hax ${Object.keys(this).join("\n/hax ")}`
     );
   },
   placement: function (server: ZoneServer, client: Client, args: any[]) {

@@ -7,7 +7,7 @@ const admin: any = {
   list: function (server: ZoneServer, client: Client, args: any[]) {
     server.sendChatText(
       client,
-      `/admin commands list: \n${Object.keys(this).join("\n")}`
+      `/admin commands list: \n/admin ${Object.keys(this).join("\n/admin ")}`
     );
   },
   shutdown: async function (server: ZoneServer, client: Client, args: any[]) {

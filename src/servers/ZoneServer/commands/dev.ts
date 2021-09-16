@@ -8,7 +8,7 @@ const dev: any = {
   list: function (server: ZoneServer, client: Client, args: any[]) {
     server.sendChatText(
       client,
-      `/dev commands list: \n${Object.keys(this).join("\n")}`
+      `/dev commands list: \n/dev ${Object.keys(this).join("\n/dev ")}`
     );
   },
   testpacket: function (server: ZoneServer, client: Client, args: any[]) {
