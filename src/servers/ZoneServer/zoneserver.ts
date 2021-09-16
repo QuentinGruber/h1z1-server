@@ -635,7 +635,7 @@ export class ZoneServer extends EventEmitter {
     }
 
     this._dummySelf.data.identity.characterFirstName = characterName;
-    this._dummySelf.data.guid = character.characterId;
+    this._dummySelf.data.guid = generateRandomGuid();
     this._dummySelf.data.characterId = character.characterId;
     client.character.guid = client.character.characterId;
     client.character.name =
