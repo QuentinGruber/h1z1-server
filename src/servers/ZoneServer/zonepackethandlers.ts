@@ -1078,7 +1078,7 @@ const packetHandlers = {
       guid: guid,
     });
   },
-  "Vehicle.AutoMount": function (
+  "Vehicle.AutoMount": function ( 
     server: ZoneServer,
     client: Client,
     packet: any
@@ -1924,19 +1924,23 @@ const packetHandlers = {
           client.vehicle.mountedVehicleType = "offroader";
           break;
       }
+	    
       server.sendData(client, "PlayerUpdate.ManagedObject", {
         guid: vehicleGuid,
         characterId: client.character.characterId,
       });
+	    
       server.sendDataToAll("Mount.MountResponse", {
         characterId: client.character.characterId,
         guid: vehicleGuid,
         characterData: [],
       });
+	    
       server.sendDataToAll("Vehicle.Engine", {
         guid2: vehicleGuid,
         unknownBoolean: true,
       });
+	    
       server._vehicles[vehicleGuid].isManaged = true;
       client.managedObjects.push(server._vehicles[vehicleGuid]);
     } else if (
