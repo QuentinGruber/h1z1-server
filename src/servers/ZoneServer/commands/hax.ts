@@ -57,13 +57,11 @@ const hax: any = {
         position: client.character.state.position,
         rotation: client.character.state.lookAt,
         vehicleId: 1337,
+        isVehicle: true,
         attachedObject: {},
         color: {},
       },
-      positionUpdate: server.createPositionUpdate(
-        new Float32Array([0, 0, 0, 0]),
-        [0, 0, 0, 0]
-      ),
+      positionUpdate: {},
     };
     server.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicleData);
     server._vehicles[characterId] = {
@@ -165,6 +163,7 @@ const hax: any = {
         position: client.character.state.position,
         rotation: client.character.state.lookAt,
         vehicleId: vehicleId,
+        isVehicle: true,
         attachedObject: {},
         color: {},
         unknownArray1: [],
@@ -174,10 +173,7 @@ const hax: any = {
       },
       unknownDword1: 10,
       unknownDword2: 10,
-      positionUpdate: server.createPositionUpdate(
-        new Float32Array([0, 0, 0, 0]),
-        [0, 0, 0, 0]
-      ),
+      positionUpdate: {},
       unknownString1: "",
     };
     server.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicleData);
@@ -246,6 +242,7 @@ const hax: any = {
         position: client.character.state.position,
         rotation: client.character.state.lookAt,
         vehicleId: vehicleId,
+        isVehicle: true,
         attachedObject: {},
         color: {},
         unknownArray1: [],
@@ -255,10 +252,7 @@ const hax: any = {
       },
       unknownDword1: 10,
       unknownDword2: 10,
-      positionUpdate: server.createPositionUpdate(
-        new Float32Array([0, 0, 0, 0]),
-        [0, 0, 0, 0]
-      ),
+      positionUpdate: {},
       unknownString1: "",
     };
     server.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicle);
@@ -295,6 +289,7 @@ const hax: any = {
         ],
         rotation: client.character.state.lookAt,
         vehicleId: 13,
+        isVehicle: true,
         attachedObject: {},
         color: {},
         unknownArray1: [],
@@ -304,10 +299,7 @@ const hax: any = {
       },
       unknownDword1: 10,
       unknownDword2: 10,
-      positionUpdate: server.createPositionUpdate(
-        new Float32Array([0, 0, 0, 0]),
-        [0, 0, 0, 0]
-      ),
+      positionUpdate: {},
       unknownString1: "",
     };
     server.sendData(client, "PlayerUpdate.AddLightweightVehicle", vehicleData);

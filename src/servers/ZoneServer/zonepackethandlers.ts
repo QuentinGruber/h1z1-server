@@ -1078,7 +1078,7 @@ const packetHandlers = {
       guid: guid,
     });
   },
-  "Vehicle.AutoMount": function (
+  "Vehicle.AutoMount": function ( 
     server: ZoneServer,
     client: Client,
     packet: any
@@ -1698,14 +1698,10 @@ const packetHandlers = {
     debug(packet);
     const characterId = server._transientIds[packet.data.transientId];
     if (characterId) {
-      if (!server._soloMode && false) { // disable that ( doesn't work )
-        server.sendRawToAllOthers(
-          client,
-          server._protocol.createVehiclePositionBroadcast(
-            packet.data.PositionUpdate.raw.slice(1)
-          )
-        );
-      }
+      server.sendDataToAllOthers(client, "PlayerUpdate.UpdatePosition", {
+		  transientId: packet.data.transientId,
+		  positionUpdate: packet.data.PositionUpdate
+      });
       if (packet.data.PositionUpdate.position) {
         server._vehicles[characterId].positionUpdate =
           packet.data.PositionUpdate;
@@ -1928,19 +1924,23 @@ const packetHandlers = {
           client.vehicle.mountedVehicleType = "offroader";
           break;
       }
+	    
       server.sendData(client, "PlayerUpdate.ManagedObject", {
         guid: vehicleGuid,
         characterId: client.character.characterId,
       });
-      server.sendData(client, "Mount.MountResponse", {
+	    
+      server.sendDataToAll("Mount.MountResponse", {
         characterId: client.character.characterId,
         guid: vehicleGuid,
         characterData: [],
       });
-      server.sendData(client, "Vehicle.Engine", {
+	    
+      server.sendDataToAll("Vehicle.Engine", {
         guid2: vehicleGuid,
         unknownBoolean: true,
       });
+	    
       server._vehicles[vehicleGuid].isManaged = true;
       client.managedObjects.push(server._vehicles[vehicleGuid]);
     } else if (

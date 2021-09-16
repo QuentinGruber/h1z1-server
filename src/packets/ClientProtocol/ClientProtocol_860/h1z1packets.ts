@@ -224,6 +224,7 @@ function readPositionUpdateData(data: Buffer, offset: number) {
     var v = readSignedIntWith2bitLengthValue(data, offset);
     rotationEul[3] = v.value / 100;
     obj["rotation"] = eul2quat(rotationEul);
+	  obj["unknown13_float"] = rotationEul;
     obj["lookAt"] = eul2quat([rotationEul[0], 0, 0, 0]);
     offset += v.length;
   }
@@ -280,33 +281,33 @@ function packPositionUpdateData(obj: any) {
     data = Buffer.concat([data, v]);
   }
 
-  if ("unknown7_float" in obj) {
+  if ("frontTilt" in obj) {
     flags |= 0x40;
-    v = packSignedIntWith2bitLengthValue(obj["unknown7_float"] * 100);
+    v = packSignedIntWith2bitLengthValue(obj["frontTilt"] * 100);
     data = Buffer.concat([data, v]);
   }
 
-  if ("unknown8_float" in obj) {
+  if ("sideTilt" in obj) {
     flags |= 0x80;
-    v = packSignedIntWith2bitLengthValue(obj["unknown8_float"] * 100);
+    v = packSignedIntWith2bitLengthValue(obj["sideTilt"] * 100);
     data = Buffer.concat([data, v]);
   }
 
-  if ("unknown9_float" in obj) {
+  if ("angleChange" in obj) {
     flags |= 4;
-    v = packSignedIntWith2bitLengthValue(obj["unknown9_float"] * 100);
+    v = packSignedIntWith2bitLengthValue(obj["angleChange"] * 100);
     data = Buffer.concat([data, v]);
   }
 
-  if ("unknown10_float" in obj) {
+  if ("verticalSpeed" in obj) {
     flags |= 8;
-    v = packSignedIntWith2bitLengthValue(obj["unknown10_float"] * 100);
+    v = packSignedIntWith2bitLengthValue(obj["verticalSpeed"] * 100);
     data = Buffer.concat([data, v]);
   }
 
-  if ("unknown11_float" in obj) {
+  if ("speed" in obj) {
     flags |= 0x10;
-    v = packSignedIntWith2bitLengthValue(obj["unknown11_float"] * 10);
+    v = packSignedIntWith2bitLengthValue(obj["speed"] * 10);
     data = Buffer.concat([data, v]);
   }
 
@@ -1007,7 +1008,7 @@ const lightWeightNpcSchema = [
   { name: "vehicleId", type: "uint32", defaultValue: 0 },
   { name: "unknown24", type: "uint32", defaultValue: 0 },
   { name: "npcDefinitionId", type: "uint32", defaultValue: 0 },
-  { name: "isVehicle", type: "boolean", defaultValue: false },
+  { name: "isVehicle", type: "boolean", defaultValue: false }, // determine if npc is moving with positionUpdate - Avcio
   { name: "profileId", type: "uint32", defaultValue: 0 },
   { name: "unknown28", type: "boolean", defaultValue: false },
   {

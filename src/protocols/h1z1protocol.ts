@@ -25,11 +25,11 @@ interface UpdatePositionObject {
   unknown4: any;
   position: any;
   unknown6_int32: any;
-  unknown7_float: any;
-  unknown8_float: any;
-  unknown9_float: any;
-  unknown10_float: any;
-  unknown11_float: any;
+  frontTilt: any;
+  sideTilt: any;
+  angleChange: any;
+  verticalSpeed: any;
+  speed: any;
   unknown12_float: any;
   lookAt: any;
   rotation: any;
@@ -545,31 +545,31 @@ const parseUpdatePositionData = function (data: Buffer, offset: number) {
 
     if (obj.flags & 0x40) {
       var v = readSignedIntWith2bitLengthValue(data, offset);
-      obj["unknown7_float"] = v.value / 100;
+      obj["frontTilt"] = v.value / 100;
       offset += v.length;
     }
 
     if (obj.flags & 0x80) {
       var v = readSignedIntWith2bitLengthValue(data, offset);
-      obj["unknown8_float"] = v.value / 100;
+      obj["sideTilt"] = v.value / 100;
       offset += v.length;
     }
 
     if (obj.flags & 4) {
       var v = readSignedIntWith2bitLengthValue(data, offset);
-      obj["unknown9_float"] = v.value / 100;
+      obj["angleChange"] = v.value / 100;
       offset += v.length;
     }
 
     if (obj.flags & 0x8) {
       var v = readSignedIntWith2bitLengthValue(data, offset);
-      obj["unknown10_float"] = v.value / 100;
+      obj["verticalSpeed"] = v.value / 100;
       offset += v.length;
     }
 
     if (obj.flags & 0x10) {
       var v = readSignedIntWith2bitLengthValue(data, offset);
-      obj["unknown11_float"] = v.value / 10;
+      obj["speed"] = v.value / 10;
       offset += v.length;
     }
 
