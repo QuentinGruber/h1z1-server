@@ -96,6 +96,10 @@ Since v0.2.3 of h1z1-server the npm package [debug](https://www.npmjs.com/packag
 
 * `set DEBUG=* & node loginserver.js`
 * `set DEBUG=ZoneServer & node zoneserver.js`
+## Documentations
+
+* https://quentingruber.github.io/h1z1-server/
+
 
 ## Demo
 
