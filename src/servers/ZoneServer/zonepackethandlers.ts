@@ -1702,14 +1702,6 @@ const packetHandlers = {
 		  transientId: packet.data.transientId,
 		  positionUpdate: packet.data.PositionUpdate
       });
-      if (!server._soloMode && false) { // disable that ( doesn't work )
-        server.sendRawToAllOthers(
-          client,
-          server._protocol.createVehiclePositionBroadcast(
-            packet.data.PositionUpdate.raw.slice(1)
-          )
-        );
-      }
       if (packet.data.PositionUpdate.position) {
         server._vehicles[characterId].positionUpdate =
           packet.data.PositionUpdate;
