@@ -147,6 +147,7 @@ function createAllVehicles(server: ZoneServer) {
         rotation: vehicle.rotation,
         attachedObject: {},
         vehicleId: getVehicleId(modelId),
+        isVehicle: true,
         color: {},
         unknownArray1: [],
         array5: [{ unknown1: 0 }],

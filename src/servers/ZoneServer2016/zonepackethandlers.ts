@@ -18,14 +18,14 @@ try {
   delete require.cache[require.resolve("./commands/dev")];
 } catch (e) {}
 
-const Jenkins = require("hash-jenkins");
+import { joaat } from "h1emu-core";
 import hax from "./commands/hax";
 import dev from "./commands/dev";
-// import admin from "./commands/admin";
+import admin from "./commands/admin";
 
 import { Int64String, isPosInRadius } from "../../utils/utils";
 import { ZoneServer2016 } from "./zoneserver";
-import Client from "./zoneclient";
+import { ZoneClient2016 as Client } from "./zoneclient";
 // TOOD: UPDATE THIS FOR 2016
 // const modelToName = require("../../../data/2016/dataSources/ModelToName.json");
 
@@ -92,42 +92,42 @@ const packetHandlers = {
     server.sendData(client, "ZoneSetting.Data", {
       settings: [
         {
-          hash: Jenkins.oaat("zonesetting.deploy.on.login".toUpperCase()),
+          hash: joaat("zonesetting.deploy.on.login".toUpperCase()),
           value: 1,
           settingType: 2,
           unknown1: 0,
           unknown2: 0,
         },
         {
-          hash: Jenkins.oaat("zonesetting.no.acquisition.timers".toUpperCase()),
+          hash: joaat("zonesetting.no.acquisition.timers".toUpperCase()),
           value: 1,
           settingType: 2,
           unknown1: 0,
           unknown2: 0,
         },
         {
-          hash: Jenkins.oaat("zonesetting.XpMultiplier".toUpperCase()),
+          hash: joaat("zonesetting.XpMultiplier".toUpperCase()),
           value: 1,
           settingType: 1,
           unknown1: 0,
           unknown2: 0,
         },
         {
-          hash: Jenkins.oaat("zonesetting.disabletrialitems".toUpperCase()),
+          hash: joaat("zonesetting.disabletrialitems".toUpperCase()),
           value: 1,
           settingType: 2,
           unknown1: 0,
           unknown2: 0,
         },
         {
-          hash: Jenkins.oaat("zonesetting.isvrzone".toUpperCase()),
+          hash: joaat("zonesetting.isvrzone".toUpperCase()),
           value: 0,
           settingType: 2,
           unknown1: 0,
           unknown2: 0,
         },
         {
-          hash: Jenkins.oaat("zonesetting.no.resource.costs".toUpperCase()),
+          hash: joaat("zonesetting.no.resource.costs".toUpperCase()),
           value: 1,
           settingType: 2,
           unknown1: 0,
@@ -157,6 +157,7 @@ const packetHandlers = {
     const commands = [
       "hax",
       "dev",
+      "admin",
       "location",
       "serverinfo",
       "spawninfo",
@@ -367,7 +368,7 @@ const packetHandlers = {
     client: Client,
     packet: any
   ) {
-    const args: any[] = packet.data.arguments.split(" ");
+    const args: any[] = packet.data.arguments.toLowerCase().split(" ");
 
     switch (packet.data.commandHash) {
       case 2371122039: // /serverinfo
@@ -398,7 +399,7 @@ const packetHandlers = {
           true
         );
         break;
-      case Jenkins.oaat("HELP"):
+      case joaat("HELP"):
       case 3575372649: // /help
         const haxCommandList: any = [];
         Object.keys(hax).forEach((key) => {
@@ -417,7 +418,7 @@ const packetHandlers = {
             server.sendChatText(client, `${command}`);
           });
         break;
-      case Jenkins.oaat("LOCATION"):
+      case joaat("LOCATION"):
       case 3270589520: // /loc
         const { position, rotation } = client.character.state;
         server.sendChatText(
@@ -429,24 +430,31 @@ const packetHandlers = {
           `rotation: ${rotation[0]},${rotation[1]},${rotation[2]}`
         );
         break;
-      case Jenkins.oaat("HAX"):
+      case joaat("HAX"):
         hax[args[0]]
           ? hax[args[0]](server, client, args)
-          : (server.sendChatText(client, `Unknown command: /hax ${args[0]}`),
-            server.sendChatText(
+          : server.sendChatText(
               client,
-              `/hax commands list: ${Object.keys(hax).join(", ")}`
-            ));
+              `Unknown command: /dev ${args[0]} , display all dev commands by using /hax list`
+            );
         break;
-      case Jenkins.oaat("DEV"):
+      case joaat("DEV"):
       case 552078457: // dev
         dev[args[0]]
           ? dev[args[0]](server, client, args)
-          : (server.sendChatText(client, `Unknown command: /dev ${args[0]}`),
-            server.sendChatText(
+          : server.sendChatText(
               client,
-              `/dev commands list: ${Object.keys(dev).join(", ")}`
-            ));
+              `Unknown command: /dev ${args[0]} , display all dev commands by using /dev list`
+            );
+        break;
+      case joaat("ADMIN"):
+      case 997464845: // admin
+        admin[args[0]]
+          ? admin[args[0]](server, client, args)
+          : server.sendChatText(
+              client,
+              `Unknown command: /dev ${args[0]} , display all dev commands by using /admin list`
+            );
         break;
     }
   },
@@ -669,14 +677,13 @@ const packetHandlers = {
         server.worldRoutine2016();
       }
     } else if (packet.data.vehicle_position && client.vehicle.mountedVehicle) {
-      server._vehicles[
-        client.vehicle.mountedVehicle
-      ].npcData.position = new Float32Array([
-        packet.data.vehicle_position[0],
-        packet.data.vehicle_position[1],
-        packet.data.vehicle_position[2],
-        0,
-      ]);
+      server._vehicles[client.vehicle.mountedVehicle].npcData.position =
+        new Float32Array([
+          packet.data.vehicle_position[0],
+          packet.data.vehicle_position[1],
+          packet.data.vehicle_position[2],
+          0,
+        ]);
     }
     if (packet.data.rotation) {
       // TODO: modify array element beside re-creating it
@@ -712,10 +719,12 @@ const packetHandlers = {
     packet: any
   ) {
     const {
-      data: { guid },
+      data: { characterId },
     } = packet;
     const npc =
-      server._npcs[guid] || server._objects[guid] || server._doors[guid];
+      server._npcs[characterId] ||
+      server._objects[characterId] ||
+      server._doors[characterId];
     if (npc) {
       server.sendData(client, "LightweightToFullNpc", {
         transientId: npc.transientId,
@@ -732,7 +741,7 @@ const packetHandlers = {
         unknownArray1: [],
         unknownArray2: [],
       });
-    } else if (server._characters[guid]) {
+    } else if (server._characters[characterId]) {
       server.sendData(client, "LightweightToFullPc", {
         positionUpdate: server.createPositionUpdate(
           new Float32Array([0, 0, 0, 0]),
@@ -740,16 +749,16 @@ const packetHandlers = {
         ),
         array1: [],
         unknownData1: {
-          transientId: server._characters[guid].transientId,
+          transientId: server._characters[characterId].transientId,
           equipmentModels: [],
           unknownData1: {},
           effectTags: [],
         },
       });
-    } else if (server._vehicles[guid]) {
+    } else if (server._vehicles[characterId]) {
       server.sendData(client, "LightweightToFullVehicle", {
         npcData: {
-          transientId: server._vehicles[guid].npcData.transientId,
+          transientId: server._vehicles[characterId].npcData.transientId,
           equipmentModels: [],
           effectTags: [],
           unknownData1: {},

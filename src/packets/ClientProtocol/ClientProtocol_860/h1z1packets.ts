@@ -14,7 +14,7 @@
 import PacketTableBuild from "../../packettable";
 import DataSchema from "h1z1-dataschema";
 import { lz4_decompress } from "../../../utils/utils";
-import eul2quat from "eul2quat";
+import { eul2quat } from "../../../utils/utils";
 
 function readPacketType(data: Buffer, packets: any) {
   let opCode = data[0] >>> 0,
@@ -224,6 +224,7 @@ function readPositionUpdateData(data: Buffer, offset: number) {
     var v = readSignedIntWith2bitLengthValue(data, offset);
     rotationEul[3] = v.value / 100;
     obj["rotation"] = eul2quat(rotationEul);
+    obj["unknown13_float"] = rotationEul;
     obj["lookAt"] = eul2quat([rotationEul[0], 0, 0, 0]);
     offset += v.length;
   }
@@ -280,33 +281,33 @@ function packPositionUpdateData(obj: any) {
     data = Buffer.concat([data, v]);
   }
 
-  if ("unknown7_float" in obj) {
+  if ("frontTilt" in obj) {
     flags |= 0x40;
-    v = packSignedIntWith2bitLengthValue(obj["unknown7_float"] * 100);
+    v = packSignedIntWith2bitLengthValue(obj["frontTilt"] * 100);
     data = Buffer.concat([data, v]);
   }
 
-  if ("unknown8_float" in obj) {
+  if ("sideTilt" in obj) {
     flags |= 0x80;
-    v = packSignedIntWith2bitLengthValue(obj["unknown8_float"] * 100);
+    v = packSignedIntWith2bitLengthValue(obj["sideTilt"] * 100);
     data = Buffer.concat([data, v]);
   }
 
-  if ("unknown9_float" in obj) {
+  if ("angleChange" in obj) {
     flags |= 4;
-    v = packSignedIntWith2bitLengthValue(obj["unknown9_float"] * 100);
+    v = packSignedIntWith2bitLengthValue(obj["angleChange"] * 100);
     data = Buffer.concat([data, v]);
   }
 
-  if ("unknown10_float" in obj) {
+  if ("verticalSpeed" in obj) {
     flags |= 8;
-    v = packSignedIntWith2bitLengthValue(obj["unknown10_float"] * 100);
+    v = packSignedIntWith2bitLengthValue(obj["verticalSpeed"] * 100);
     data = Buffer.concat([data, v]);
   }
 
-  if ("unknown11_float" in obj) {
+  if ("speed" in obj) {
     flags |= 0x10;
-    v = packSignedIntWith2bitLengthValue(obj["unknown11_float"] * 10);
+    v = packSignedIntWith2bitLengthValue(obj["speed"] * 10);
     data = Buffer.concat([data, v]);
   }
 
@@ -661,7 +662,7 @@ const vehicleReferenceDataSchema = [
 
 const EquippedContainersSchema = {
   name: "EquippedContainers",
-  type: "array8",
+  type: "array",
   defaultValue: [],
   fields: [
     { name: "unknownWord1", type: "boolean", defaultValue: 0 },
@@ -671,8 +672,8 @@ const EquippedContainersSchema = {
     { name: "unknownQword2", type: "uint64string", defaultValue: "0" },
     { name: "unknownDword3", type: "uint32", defaultValue: 0 },
     {
-      name: "unknownArray1",
-      type: "array8",
+      name: "items",
+      type: "array",
       defaultValue: [],
       fields: [],
     },
@@ -716,8 +717,11 @@ function parseItemAddData(data: Buffer, offset: number, referenceData: any) {
     outSize = itemData.readUInt16LE(2),
     compData = itemData.slice(4, 4 + inSize),
     decompData = lz4_decompress(compData, inSize, outSize),
-    itemDefinition = DataSchema.parse(baseItemDefinitionSchema, decompData, 0)
-      .result;
+    itemDefinition = DataSchema.parse(
+      baseItemDefinitionSchema,
+      decompData,
+      0
+    ).result;
 
   itemData = parseItemData(itemData, 4 + inSize, referenceData).value;
   return {
@@ -733,10 +737,10 @@ function packItemAddData() {}
 
 const currencySchema = {
   name: "currency",
-  type: "array", // TODO : that's an array8
+  type: "array",
   defaultValue: [],
   fields: [
-    { name: "currencyId", type: "uint32", defaultValue: 0 }, // TODO : that's an uint8
+    { name: "currencyId", type: "uint32", defaultValue: 0 },
     { name: "quantity", type: "uint32", defaultValue: 0 },
   ],
 };
@@ -1007,7 +1011,7 @@ const lightWeightNpcSchema = [
   { name: "vehicleId", type: "uint32", defaultValue: 0 },
   { name: "unknown24", type: "uint32", defaultValue: 0 },
   { name: "npcDefinitionId", type: "uint32", defaultValue: 0 },
-  { name: "isVehicle", type: "boolean", defaultValue: false },
+  { name: "isVehicle", type: "boolean", defaultValue: false }, // determine if npc is moving with positionUpdate - Avcio
   { name: "profileId", type: "uint32", defaultValue: 0 },
   { name: "unknown28", type: "boolean", defaultValue: false },
   {
@@ -1476,9 +1480,8 @@ const weaponPackets = [
   ["Weapon.AddDebugLogEntry", 0x8223, {}],
 ];
 
-const [weaponPacketTypes, weaponPacketDescriptors] = PacketTableBuild(
-  weaponPackets
-);
+const [weaponPacketTypes, weaponPacketDescriptors] =
+  PacketTableBuild(weaponPackets);
 
 function parseMultiWeaponPacket(data: Buffer, offset: number) {
   const startOffset = offset,
@@ -2853,7 +2856,7 @@ var packets = [
             },
             { name: "unknownDword33", type: "uint32", defaultValue: 0 },
             {
-              name: "unknownArray15",
+              name: "unknownArray15", // need to check if it can be empty
               type: "array",
               defaultValue: [],
               fields: [
@@ -2861,7 +2864,7 @@ var packets = [
               ],
             },
             {
-              name: "unknownArray16",
+              name: "unknownArray16", // dup of unknownArray15
               type: "array",
               defaultValue: [],
               fields: [
@@ -2869,7 +2872,7 @@ var packets = [
               ],
             },
             {
-              name: "unknownArray17",
+              name: "unknownArray17", // need to check if it can be empty
               type: "array",
               defaultValue: [],
               fields: [
@@ -2894,19 +2897,19 @@ var packets = [
                   fields: [],
                 },
                 {
-                  name: "unknownArray2",
+                  name: "unknownArray2", // same as unknownArray1
                   type: "array",
                   defaultValue: [],
                   fields: [],
                 },
                 {
-                  name: "unknownArray3",
+                  name: "unknownArray3", // same as unknownArray1
                   type: "array",
                   defaultValue: [],
                   fields: [],
                 },
                 {
-                  name: "unknownArray4",
+                  name: "unknownArray4", // same as unknownArray1
                   type: "array",
                   defaultValue: [],
                   fields: [],
@@ -2945,8 +2948,26 @@ var packets = [
                 },
               ],
             },
-
             {
+              name: "acquireTimers",
+              type: "schema",
+              fields: [
+                {
+                  name: "unknownArray1",
+                  type: "array",
+                  defaultValue: [],
+                  fields: [],
+                },
+                /*{
+                  name: "unknownArray2",
+                  type: "array",
+                  defaultValue: [],
+                  fields: [],
+                },*/
+                { name: "unknownWord", type: "uint32", defaultValue: 0 },
+              ],
+            },
+            /*{
               name: "acquireTimers",
               type: "schema",
               fields: [
@@ -2958,7 +2979,7 @@ var packets = [
                 },
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
               ],
-            },
+            },*/
 
             {
               name: "unknownSchema2525",
@@ -3030,7 +3051,7 @@ var packets = [
               fields: [],
             },
             {
-              name: "unknownArrayRank",
+              name: "equipement_slot",
               type: "array",
               defaultValue: [],
               fields: [],
@@ -3288,18 +3309,23 @@ var packets = [
               ],
             },
             {
-              name: "unknownDword5454qq2sfs44",
-              type: "uint32",
-              defaultValue: 0,
-            },
-
-            {
               name: "loadoutStuff",
-              type: "array",
-              defaultValue: [],
-              fields: [],
+              type: "schema",
+              fields: [
+                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                {
+                  name: "unknownArray1",
+                  type: "array",
+                  defaultValue: [],
+                  fields: [],
+                },
+                {
+                  name: "unknownTime1",
+                  type: "uint64string",
+                  defaultValue: "0",
+                },
+              ],
             },
-            { name: "unknownDword54542sfs44", type: "uint32", defaultValue: 0 },
             {
               name: "LocksPermissions",
               type: "array",
@@ -3721,14 +3747,7 @@ var packets = [
             { name: "vehicleLoadoutId", type: "uint32", defaultValue: 0 },
             { name: "unknownDword40", type: "uint32", defaultValue: 0 },
             { name: "unknownBoolean9", type: "boolean", defaultValue: true },
-            { name: "unknownBoolean10", type: "boolean", defaultValue: true },
-            { name: "unknownDwddddord39", type: "uint32", defaultValue: 20 },
-            { name: "unknownqzdsqzDword40", type: "uint32", defaultValue: 50 },
-            {
-              name: "isFirstPersonOnly",
-              type: "boolean",
-              defaultValue: false,
-            },
+            { name: "isFirstPersonOnly", type: "boolean", defaultValue: true },
           ],
         },
       ],
@@ -3916,7 +3935,16 @@ var packets = [
     },
   ],
   ["Command.FriendsPositionRequest", 0x091500, {}],
-  ["Command.MoveAndInteract", 0x091600, {}],
+  [
+    "Command.MoveAndInteract",
+    0x091600,
+    {
+      fields: [
+        { name: "position", type: "floatvector4", defaultValue: [0, 0, 0, 1] },
+        { name: "guid", type: "uint64string", defaultValue: "0x0000" },
+      ],
+    },
+  ],
   ["Command.QuestAbandon", 0x091700, {}],
   [
     "Command.RecipeStart",
@@ -5505,7 +5533,9 @@ var packets = [
     "PlayerUpdate.FullCharacterDataRequest",
     0x0f5d,
     {
-      fields: [{ name: "guid", type: "uint64string", defaultValue: "0" }],
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+      ],
     },
   ],
   [
@@ -8059,7 +8089,25 @@ var packets = [
       ],
     },
   ],
-  ["Vehicle.StateDamage", 0x8804, {}],
+  [
+    "Vehicle.StateDamage",
+    0x8804,
+    {
+      fields: [
+        { name: "guid", type: "uint64string", defaultValue: 0 },
+        {
+          name: "unknownVector1",
+          type: "floatvector4",
+          defaultValue: [0, 50, 0, 0],
+        },
+        {
+          name: "unknownVector2",
+          type: "floatvector4",
+          defaultValue: [0, 0, 0, 0],
+        },
+      ],
+    },
+  ],
   ["Vehicle.PlayerManager", 0x8805, {}],
   [
     "Vehicle.Spawn",
