@@ -26,7 +26,7 @@ import { HandledZonePackets, Weather } from "../../types/zoneserver";
 import { Db, MongoClient } from "mongodb";
 import { Worker } from "worker_threads";
 import SOEClient from "servers/SoeServer/soeclient";
-import { ZoneClient as Client} from "./zoneclient";
+import { ZoneClient as Client } from "./zoneclient";
 import { h1z1PacketsType } from "types/packets";
 process.env.isBin && require("./workers/dynamicWeather");
 
@@ -666,15 +666,12 @@ export class ZoneServer extends EventEmitter {
       const randomSpawnIndex = Math.floor(
         Math.random() * this._spawnLocations.length
       );
-      this._dummySelf.data.position = client.character.state.position = this._spawnLocations[
-        randomSpawnIndex
-      ].position;
-      this._dummySelf.data.rotation = client.character.state.rotation = this._spawnLocations[
-        randomSpawnIndex
-      ].rotation;
-      client.character.spawnLocation = this._spawnLocations[
-        randomSpawnIndex
-      ].name;
+      this._dummySelf.data.position = client.character.state.position =
+        this._spawnLocations[randomSpawnIndex].position;
+      this._dummySelf.data.rotation = client.character.state.rotation =
+        this._spawnLocations[randomSpawnIndex].rotation;
+      client.character.spawnLocation =
+        this._spawnLocations[randomSpawnIndex].name;
     } else {
       if (!this._soloMode) {
         this._dummySelf.data.position = characterDataMongo.position;

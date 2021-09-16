@@ -1,6 +1,6 @@
 const debug = require("debug")("zonepacketHandlers");
 import { zoneShutdown } from "../../../utils/utils";
-import { ZoneClient2016 as Client} from "../zoneclient";
+import { ZoneClient2016 as Client } from "../zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 
 const admin: any = {
@@ -10,7 +10,11 @@ const admin: any = {
       `/admin commands list: \n${Object.keys(this).join("\n")}`
     );
   },
-  shutdown: async function (server: ZoneServer2016, client: Client, args: any[]) {
+  shutdown: async function (
+    server: ZoneServer2016,
+    client: Client,
+    args: any[]
+  ) {
     const timeLeft = args[1] ? args[1] : 0;
     const message = args[2] ? args[2] : " ";
     const startedTime = Date.now();

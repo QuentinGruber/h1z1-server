@@ -1,6 +1,6 @@
-import {ZoneClient} from "servers/ZoneServer/zoneclient";
+import { ZoneClient } from "servers/ZoneServer/zoneclient";
 import { ZoneServer } from "servers/ZoneServer/zoneserver";
-import {ZoneClient2016} from "servers/ZoneServer2016/zoneclient";
+import { ZoneClient2016 } from "servers/ZoneServer2016/zoneclient";
 import { ZoneServer2016 } from "servers/ZoneServer2016/zoneserver";
 
 export interface HandledZonePackets {

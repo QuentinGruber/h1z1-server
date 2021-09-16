@@ -18,14 +18,14 @@ try {
   delete require.cache[require.resolve("./commands/dev")];
 } catch (e) {}
 
-import { joaat } from "h1emu-core"
+import { joaat } from "h1emu-core";
 import hax from "./commands/hax";
 import dev from "./commands/dev";
 import admin from "./commands/admin";
 
 import { Int64String, isPosInRadius } from "../../utils/utils";
 import { ZoneServer2016 } from "./zoneserver";
-import {ZoneClient2016 as Client} from "./zoneclient";
+import { ZoneClient2016 as Client } from "./zoneclient";
 // TOOD: UPDATE THIS FOR 2016
 // const modelToName = require("../../../data/2016/dataSources/ModelToName.json");
 
@@ -433,19 +433,28 @@ const packetHandlers = {
       case joaat("HAX"):
         hax[args[0]]
           ? hax[args[0]](server, client, args)
-          : server.sendChatText(client, `Unknown command: /dev ${args[0]} , display all dev commands by using /hax list`);
+          : server.sendChatText(
+              client,
+              `Unknown command: /dev ${args[0]} , display all dev commands by using /hax list`
+            );
         break;
       case joaat("DEV"):
       case 552078457: // dev
         dev[args[0]]
           ? dev[args[0]](server, client, args)
-          : server.sendChatText(client, `Unknown command: /dev ${args[0]} , display all dev commands by using /dev list`);
+          : server.sendChatText(
+              client,
+              `Unknown command: /dev ${args[0]} , display all dev commands by using /dev list`
+            );
         break;
       case joaat("ADMIN"):
       case 997464845: // admin
         admin[args[0]]
           ? admin[args[0]](server, client, args)
-          : server.sendChatText(client, `Unknown command: /dev ${args[0]} , display all dev commands by using /admin list`);
+          : server.sendChatText(
+              client,
+              `Unknown command: /dev ${args[0]} , display all dev commands by using /admin list`
+            );
         break;
     }
   },
@@ -668,14 +677,13 @@ const packetHandlers = {
         server.worldRoutine2016();
       }
     } else if (packet.data.vehicle_position && client.vehicle.mountedVehicle) {
-      server._vehicles[
-        client.vehicle.mountedVehicle
-      ].npcData.position = new Float32Array([
-        packet.data.vehicle_position[0],
-        packet.data.vehicle_position[1],
-        packet.data.vehicle_position[2],
-        0,
-      ]);
+      server._vehicles[client.vehicle.mountedVehicle].npcData.position =
+        new Float32Array([
+          packet.data.vehicle_position[0],
+          packet.data.vehicle_position[1],
+          packet.data.vehicle_position[2],
+          0,
+        ]);
     }
     if (packet.data.rotation) {
       // TODO: modify array element beside re-creating it
@@ -714,7 +722,9 @@ const packetHandlers = {
       data: { characterId },
     } = packet;
     const npc =
-      server._npcs[characterId] || server._objects[characterId] || server._doors[characterId];
+      server._npcs[characterId] ||
+      server._objects[characterId] ||
+      server._doors[characterId];
     if (npc) {
       server.sendData(client, "LightweightToFullNpc", {
         transientId: npc.transientId,

@@ -1,6 +1,6 @@
 import fs from "fs";
 import { Weather } from "types/zoneserver";
-import {ZoneClient as Client} from "../../ZoneServer/zoneclient";
+import { ZoneClient as Client } from "../../ZoneServer/zoneclient";
 import { ZoneServer } from "../zoneserver";
 
 import { _ } from "../../../utils/utils";
@@ -535,7 +535,10 @@ const hax: any = {
     isSonic = !isSonic;
   },
   observer: function (server: ZoneServer, client: Client, args: any[]) {
-    server.sendChatText(client, "[Deprecated] You should use /hax spectate, this command will be removed soon!");
+    server.sendChatText(
+      client,
+      "[Deprecated] You should use /hax spectate, this command will be removed soon!"
+    );
     server.sendDataToAll("PlayerUpdate.RemovePlayer", {
       characterId: client.character.characterId,
     });
@@ -876,9 +879,8 @@ const hax: any = {
       if (currentWeather) {
         currentWeather.templateName = args[1];
         if (server._soloMode) {
-          server._weatherTemplates[
-            currentWeather.templateName as string
-          ] = currentWeather;
+          server._weatherTemplates[currentWeather.templateName as string] =
+            currentWeather;
           fs.writeFileSync(
             `${__dirname}/../../../../data/sampleData/weather.json`,
             JSON.stringify(server._weatherTemplates)

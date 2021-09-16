@@ -15,7 +15,7 @@ const debugName = "ZoneServer";
 const debug = require("debug")(debugName);
 import { default as packetHandlers } from "./zonepackethandlers";
 import { ZoneServer } from "../ZoneServer/zoneserver";
-import { ZoneClient2016 as Client} from "./zoneclient";
+import { ZoneClient2016 as Client } from "./zoneclient";
 import { HandledZonePackets2016, Weather2016 } from "../../types/zoneserver";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
 import { _ } from "../../utils/utils";
@@ -204,15 +204,12 @@ export class ZoneServer2016 extends ZoneServer {
       const randomSpawnIndex = Math.floor(
         Math.random() * this._spawnLocations.length
       );
-      client.character.state.position = this._spawnLocations[
-        randomSpawnIndex
-      ].position;
-      client.character.state.rotation = this._spawnLocations[
-        randomSpawnIndex
-      ].rotation;
-      client.character.spawnLocation = this._spawnLocations[
-        randomSpawnIndex
-      ].name;
+      client.character.state.position =
+        this._spawnLocations[randomSpawnIndex].position;
+      client.character.state.rotation =
+        this._spawnLocations[randomSpawnIndex].rotation;
+      client.character.spawnLocation =
+        this._spawnLocations[randomSpawnIndex].name;
     } else {
       client.character.state.position = character.position;
       client.character.state.rotation = character.rotation;

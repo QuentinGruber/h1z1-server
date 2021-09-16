@@ -27,7 +27,7 @@ import {
   isPosInRadius,
 } from "../../utils/utils";
 import { ZoneServer } from "./zoneserver";
-import {ZoneClient as Client} from "../ZoneServer/zoneclient";
+import { ZoneClient as Client } from "../ZoneServer/zoneclient";
 const modelToName = require("../../../data/2015/sampleData/ModelToName.json");
 
 import { _ } from "../../utils/utils";
@@ -179,13 +179,8 @@ const packetHandlers = {
       } else if (client.character.resources.health < 0) {
         client.character.resources.health = 0;
       }
-      const {
-        stamina,
-        food,
-        water,
-        health,
-        virus,
-      } = client.character.resources;
+      const { stamina, food, water, health, virus } =
+        client.character.resources;
 
       server.sendData(client, "ResourceEvent", {
         eventData: {
@@ -502,7 +497,7 @@ const packetHandlers = {
           characterId: client.character.characterId,
         });
         break;
-      case 3357274581 : // /clientinfo
+      case 3357274581: // /clientinfo
         server.sendChatText(
           client,
           `Spawned entities count : ${client.spawnedEntities.length}`
@@ -631,19 +626,28 @@ const packetHandlers = {
       case joaat("HAX"):
         hax[args[0]]
           ? hax[args[0]](server, client, args)
-          : server.sendChatText(client, `Unknown command: /hax ${args[0]} , display all hax commands by using /hax list`);
+          : server.sendChatText(
+              client,
+              `Unknown command: /hax ${args[0]} , display all hax commands by using /hax list`
+            );
         break;
       case joaat("DEV"):
       case 552078457: // dev
         dev[args[0]]
           ? dev[args[0]](server, client, args)
-          : server.sendChatText(client, `Unknown command: /dev ${args[0]} , display all dev commands by using /dev list`);
+          : server.sendChatText(
+              client,
+              `Unknown command: /dev ${args[0]} , display all dev commands by using /dev list`
+            );
         break;
       case joaat("ADMIN"):
       case 997464845: // admin
         admin[args[0]]
           ? admin[args[0]](server, client, args)
-          : server.sendChatText(client, `Unknown command: /admin ${args[0]} , display admin all commands by using /admin list`);
+          : server.sendChatText(
+              client,
+              `Unknown command: /admin ${args[0]} , display admin all commands by using /admin list`
+            );
         break;
     }
   },
@@ -1078,7 +1082,7 @@ const packetHandlers = {
       guid: guid,
     });
   },
-  "Vehicle.AutoMount": function ( 
+  "Vehicle.AutoMount": function (
     server: ZoneServer,
     client: Client,
     packet: any
@@ -1485,10 +1489,7 @@ const packetHandlers = {
                           unknownDword6: 0,
                           position: packet.data.position,
                           unknownVector1: [
-                            0,
-                            -0.7071066498756409,
-                            0,
-                            0.70710688829422,
+                            0, -0.7071066498756409, 0, 0.70710688829422,
                           ],
                           rotation: [packet.data.heading, 0, 0, 0],
                           unknownDword7: 0,
@@ -1699,8 +1700,8 @@ const packetHandlers = {
     const characterId = server._transientIds[packet.data.transientId];
     if (characterId) {
       server.sendDataToAllOthers(client, "PlayerUpdate.UpdatePosition", {
-		  transientId: packet.data.transientId,
-		  positionUpdate: packet.data.PositionUpdate
+        transientId: packet.data.transientId,
+        positionUpdate: packet.data.PositionUpdate,
       });
       if (packet.data.PositionUpdate.position) {
         server._vehicles[characterId].positionUpdate =
@@ -1792,14 +1793,13 @@ const packetHandlers = {
         server.worldRoutine(client);
       }
     } else if (packet.data.vehicle_position && client.vehicle.mountedVehicle) {
-      server._vehicles[
-        client.vehicle.mountedVehicle
-      ].npcData.position = new Float32Array([
-        packet.data.vehicle_position[0],
-        packet.data.vehicle_position[1],
-        packet.data.vehicle_position[2],
-        0,
-      ]);
+      server._vehicles[client.vehicle.mountedVehicle].npcData.position =
+        new Float32Array([
+          packet.data.vehicle_position[0],
+          packet.data.vehicle_position[1],
+          packet.data.vehicle_position[2],
+          0,
+        ]);
     }
     if (packet.data.rotation) {
       // TODO: modify array element beside re-creating it
@@ -1924,23 +1924,23 @@ const packetHandlers = {
           client.vehicle.mountedVehicleType = "offroader";
           break;
       }
-	    
+
       server.sendData(client, "PlayerUpdate.ManagedObject", {
         guid: vehicleGuid,
         characterId: client.character.characterId,
       });
-	    
+
       server.sendDataToAll("Mount.MountResponse", {
         characterId: client.character.characterId,
         guid: vehicleGuid,
         characterData: [],
       });
-	    
+
       server.sendDataToAll("Vehicle.Engine", {
         guid2: vehicleGuid,
         unknownBoolean: true,
       });
-	    
+
       server._vehicles[vehicleGuid].isManaged = true;
       client.managedObjects.push(server._vehicles[vehicleGuid]);
     } else if (

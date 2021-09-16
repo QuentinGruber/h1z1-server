@@ -1,4 +1,4 @@
-import { crc32 } from "h1emu-core"
+import { crc32 } from "h1emu-core";
 
 export function appendCRC(data: any, crcSeed: number): Buffer {
   const crc = crc32(data, crcSeed >>> 0);
