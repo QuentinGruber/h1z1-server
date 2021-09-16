@@ -1928,12 +1928,12 @@ const packetHandlers = {
         guid: vehicleGuid,
         characterId: client.character.characterId,
       });
-      server.sendData(client, "Mount.MountResponse", {
+      server.sendDataToAll("Mount.MountResponse", {
         characterId: client.character.characterId,
         guid: vehicleGuid,
         characterData: [],
       });
-      server.sendData(client, "Vehicle.Engine", {
+      server.sendDataToAll("Vehicle.Engine", {
         guid2: vehicleGuid,
         unknownBoolean: true,
       });
