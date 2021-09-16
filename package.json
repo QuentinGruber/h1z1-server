@@ -6,7 +6,9 @@
   "license": "GPL-3.0-only",
   "main": "h1z1-server.js",
   "bin": {
-    "if-env": "scripts/if-env.js"
+    "if-env": "scripts/if-env.js",
+    "h1z1-server-demo": "scripts/h1z1-server-demo.js",
+    "h1z1-server-demo-2016": "scripts/h1z1-server-demo-2016.js"
   },
   "dependencies": {
     "@swc/cli": "0.1.40",
