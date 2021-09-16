@@ -1698,6 +1698,10 @@ const packetHandlers = {
     debug(packet);
     const characterId = server._transientIds[packet.data.transientId];
     if (characterId) {
+      server.sendDataToAllOthers(client, "PlayerUpdate.UpdatePosition", {
+		  transientId: packet.data.transientId,
+		  positionUpdate: packet.data.PositionUpdate
+      });
       if (!server._soloMode && false) { // disable that ( doesn't work )
         server.sendRawToAllOthers(
           client,
