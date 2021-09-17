@@ -13,6 +13,7 @@
 import PacketTableBuild from "../../packettable";
 import DataSchema from "h1z1-dataschema";
 import { lz4_decompress, lz4Comp } from "../../../utils/utils";
+const LZ4 = require('lz4')
 
 function readPacketType(data: Buffer, packets: any) {
   let opCode = data[0] >>> 0,
@@ -2034,9 +2035,9 @@ const characterResourceData = [
 const itemDefinitionDataSchema: any[] = [
   { name: "ID", type: "uint32", defaultValue: 0 },
   {
-    name: "flags",// 2 sets of 8 bytes, the sets might be swapped though
+    name: "flags1",// 2 sets of 8 bits, the sets might be swapped though
     type: "bitflags",
-    defaultValue: {},
+    defaultValue: [],
     flags: [
       { bit: 0, name: "NO_TRADE", defaultValue: 0 },
       { bit: 1, name: "NO_SALE", defaultValue: 0 },
@@ -2046,14 +2047,21 @@ const itemDefinitionDataSchema: any[] = [
       { bit: 5, name: "NO_LIVE_GAMER", defaultValue: 0 },
       { bit: 6, name: "COMBAT_ONLY", defaultValue: 0 },
       { bit: 7, name: "FORCE_DISABLE_PREVIEW", defaultValue: 0 },
-      { bit: 8, name: "PERSIST_PROFILE_SWITCH", defaultValue: 0 },
-      { bit: 9, name: "FLAG_QUICK_USE", defaultValue: 0 },
-      { bit: 10, name: "FLAG_CAN_EQUIP", defaultValue: 1 },
-      { bit: 11, name: "FLAG_ACCOUNT_SCOPE", defaultValue: 0 },
-      { bit: 12, name: "FLAG_NO_DRAG_DROP", defaultValue: 0 },
-      { bit: 13, name: "bit13", defaultValue: 0 },
-      { bit: 14, name: "bit14", defaultValue: 0 },
-      { bit: 15, name: "bit15", defaultValue: 0 },
+    ]
+  },
+  {
+    name: "flags2",
+    type: "bitflags",
+    defaultValue: [],
+    flags: [
+      { bit: 0, name: "PERSIST_PROFILE_SWITCH", defaultValue: 0 },
+      { bit: 1, name: "FLAG_QUICK_USE", defaultValue: 0 },
+      { bit: 2, name: "FLAG_CAN_EQUIP", defaultValue: 1 },
+      { bit: 3, name: "FLAG_ACCOUNT_SCOPE", defaultValue: 0 },
+      { bit: 4, name: "FLAG_NO_DRAG_DROP", defaultValue: 0 },
+      { bit: 5, name: "bit5", defaultValue: 0 },
+      { bit: 6, name: "bit6", defaultValue: 0 },
+      { bit: 7, name: "bit7", defaultValue: 0 },
     ]
   },
   { name: "NAME_ID", type: "uint32", defaultValue: 0 },
@@ -2124,7 +2132,7 @@ const itemDefinitionDataSchema: any[] = [
   { name: "unknownDword57", type: "uint32", defaultValue: 0 },
   { name: "SCRAP_VALUE_OVERRIDE", type: "uint32", defaultValue: 0 },
   {
-    name: "unknownArray1",
+    name: "stats",
     type: "array",
     defaultValue: [],
     fields: [
@@ -2163,8 +2171,18 @@ function readItemDefinitionData(data: Buffer, offset: number) {
 }
 
 function packItemDefinitionData(obj: any) {
-  const itemDefinitionData = DataSchema.pack(itemDefinitionDataSchema, obj);
-  return lz4Comp(itemDefinitionData.data);
+  console.log("packItemDefinitionData")
+  const input = DataSchema.pack(itemDefinitionDataSchema, obj);
+  const inSize = input.length
+  const output = Buffer.alloc( LZ4.encodeBound(input.length) );
+  const outSize = LZ4.encodeBlock(input.data, output);
+  let data = Buffer.alloc(4);
+  data.writeUInt16LE(inSize, 0);
+  data.writeUInt16LE(outSize, 2);
+  //output.slice(0, outSize)
+  data = Buffer.concat([data, output]);
+  console.log(data)
+  return data;
 }
 
 const packets = [

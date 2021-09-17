@@ -872,7 +872,7 @@ const packetHandlers = {
     });
   },
   
-  /*
+  
   "Command.ItemDefinitionRequest": function (server: ZoneServer2016, client: Client, packet: any) {
     console.log("ItemDefinitionRequest\n\n\n\n\n\n\n\n\n");
     console.log(packet.data);
@@ -882,21 +882,32 @@ const packetHandlers = {
         ID: 2425,
         definitionData: {
           ID: 2425,
-          flags: {
+          flags1: {},
+          flags2: {
             "FLAG_CAN_EQUIP": 1,
           },
           NAME_ID: 32,
           DESCRIPTION_ID: 609,
-          unknownArray1: [
+          stats: [
+            /*
             {
-              unknownData1: {}
+              statData: { 
+                statValue: { 
+                  type: 0,
+                  value: {
+                    baseValue: 1,
+                    modifierValue: 1,
+                  } 
+                } 
+              }
             }
+            */
           ]
         }
       }
     })
   }
-  */
+  
 };
 
 export default packetHandlers;
