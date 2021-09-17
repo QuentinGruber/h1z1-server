@@ -168,31 +168,31 @@ function readPositionUpdateData(data: Buffer, offset: number) {
 
   if (obj.flags & 0x40) {
     var v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["frontTilt"] = v.value / 100; // not 100% sure about name
+    obj["unknown7_float"] = v.value / 100; // not 100% sure about name
     offset += v.length;
   }
 
   if (obj.flags & 0x80) {
     var v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["sideTilt"] = v.value / 100; // not 100% sure
+    obj["unknown8_float"] = v.value / 100; // not 100% sure
     offset += v.length;
   }
 
   if (obj.flags & 4) {
     var v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["angleChange"] = v.value / 100; // maybe
+    obj["unknown9_float"] = v.value / 100; // maybe
     offset += v.length;
   }
 
   if (obj.flags & 0x8) {
     var v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["verticalSpeed"] = v.value / 100;
+    obj["unknown10_float"] = v.value / 100;
     offset += v.length;
   }
 
   if (obj.flags & 0x10) {
     var v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["speed"] = v.value / 10;
+    obj["unknown11_float"] = v.value / 10;
     offset += v.length;
   }
 
@@ -224,6 +224,7 @@ function readPositionUpdateData(data: Buffer, offset: number) {
     var v = readSignedIntWith2bitLengthValue(data, offset);
     rotationEul[3] = v.value / 100;
     obj["rotation"] = eul2quat(rotationEul);
+	obj["unknown13_float"] = rotationEul;
     obj["lookAt"] = eul2quat([rotationEul[0], 0, 0, 0]);
     offset += v.length;
   }
