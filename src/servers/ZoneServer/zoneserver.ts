@@ -117,7 +117,7 @@ export class ZoneServer extends EventEmitter {
     this._reloadPacketsInterval;
     this._soloMode = false;
     this._weatherTemplates = localWeatherTemplates;
-    this._defaultWeatherTemplate = "H1emuBaseWeather";
+    this._defaultWeatherTemplate = "h1emubaseweather";
     this._weather = this._weatherTemplates[this._defaultWeatherTemplate];
     this._profiles = [];
     this._interactionDistance = 4;
