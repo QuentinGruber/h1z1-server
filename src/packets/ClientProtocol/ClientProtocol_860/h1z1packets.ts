@@ -4775,7 +4775,7 @@ var packets = [
       { name: "unk2", type: "uint32", defaultValue: 0 },
       { name: "unk3", type: "uint32", defaultValue: 0 },
       { name: "unk4", type: "boolean", defaultValue: 0 },
-      { name: "unk4", type: "boolean", defaultValue: 0 },
+      { name: "unk5", type: "boolean", defaultValue: 0 },
     ],
   }],
   [
