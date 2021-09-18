@@ -3834,9 +3834,9 @@ var packets = [
   ["Command.PlaySoundAtLocation", 0x090600, {
     fields: [
       { name: "soundName", type: "string", defaultValue: "name" },
-      { name: "unk1", type: "uint32", defaultValue: 0 },
-      { name: "unk2", type: "uint32", defaultValue: 0 },
-      { name: "unk3", type: "uint32", defaultValue: 0 }
+      { name: "unk1", type: "uint32", defaultValue: 5048 },
+      { name: "unk2", type: "uint32", defaultValue: 5048 },
+      { name: "unk3", type: "uint32", defaultValue: 5048 }
     ],
   }],
   [
@@ -5387,7 +5387,16 @@ var packets = [
   ],
   ["PlayerUpdate.AnimationRequest", 0x0f51, {}],
   ["PlayerUpdate.NonPriorityCharacters", 0x0f53, {}],
-  ["PlayerUpdate.PlayWorldCompositeEffect", 0x0f54, {}],
+  ["PlayerUpdate.PlayWorldCompositeEffect", 0x0f54, {
+    fields: [
+      { name: "characterId", type: "uint64string", defaultValue: 5048 },
+      { name: "unk1", type: "uint32", defaultValue: 0 },
+      { name: "unk2", type: "uint32", defaultValue: 0 },
+      { name: "unk3", type: "uint32", defaultValue: 0 },
+      { name: "unk4", type: "boolean", defaultValue: 0 },
+      { name: "unk4", type: "boolean", defaultValue: 0 },
+    ],
+  }],
   ["PlayerUpdate.AFK", 0x0f55, {}],
   [
     "PlayerUpdate.AddLightweightPc",
