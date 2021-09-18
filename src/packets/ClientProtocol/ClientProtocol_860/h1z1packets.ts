@@ -4768,7 +4768,16 @@ var packets = [
       ],
     },
   ],
-  ["PlayerUpdate.PlayCompositeEffect", 0x0f0b, {}],
+  ["PlayerUpdate.PlayCompositeEffect", 0x0f0b, {
+    fields: [
+      { name: "characterId", type: "uint64string", defaultValue: "5048" },
+      { name: "unk1", type: "uint32", defaultValue: 0 },
+      { name: "unk2", type: "uint32", defaultValue: 0 },
+      { name: "unk3", type: "uint32", defaultValue: 0 },
+      { name: "unk4", type: "boolean", defaultValue: 0 },
+      { name: "unk4", type: "boolean", defaultValue: 0 },
+    ],
+  }],
   [
     "PlayerUpdate.SetLookAt",
     0x0f0c,
@@ -5389,14 +5398,14 @@ var packets = [
   ["PlayerUpdate.NonPriorityCharacters", 0x0f53, {}],
   ["PlayerUpdate.PlayWorldCompositeEffect", 0x0f54, {
     fields: [
-      { name: "characterId", type: "uint64string", defaultValue: 5048 },
-      { name: "unk1", type: "uint32", defaultValue: 0 },
-      { name: "unk2", type: "uint32", defaultValue: 0 },
-      { name: "unk3", type: "uint32", defaultValue: 0 },
-      { name: "unk4", type: "boolean", defaultValue: 0 },
-      { name: "unk4", type: "boolean", defaultValue: 0 },
-    ],
-  }],
+    { name: "unk1", type: "uint32", defaultValue: 0 },
+    {
+      name: "unknownVector1",
+      type: "floatvector4",
+      defaultValue: [0, 0, 0, 0],
+    },
+    { name: "unk3", type: "uint32", defaultValue: 0 },
+  ],}],
   ["PlayerUpdate.AFK", 0x0f55, {}],
   [
     "PlayerUpdate.AddLightweightPc",
