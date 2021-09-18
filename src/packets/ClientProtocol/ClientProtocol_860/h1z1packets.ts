@@ -3831,7 +3831,14 @@ var packets = [
   ["Command.StartDialog", 0x090300, {}],
   ["Command.PlayerPlaySpeech", 0x090400, {}],
   ["Command.DialogResponse", 0x090500, {}],
-  ["Command.PlaySoundAtLocation", 0x090600, {}],
+  ["Command.PlaySoundAtLocation", 0x090600, {
+    fields: [
+      { name: "soundName", type: "string", defaultValue: "name" },
+      { name: "unk1", type: "uint32", defaultValue: 0 },
+      { name: "unk2", type: "uint32", defaultValue: 0 },
+      { name: "unk3", type: "uint32", defaultValue: 0 }
+    ],
+  }],
   [
     "Command.InteractRequest",
     0x090700,
@@ -3979,7 +3986,12 @@ var packets = [
   ["Command.SetProfileByItemDefinitionId", 0x092300, {}],
   ["Command.RequestRewardPreviewUpdate", 0x092400, {}],
   ["Command.RequestRewardPreviewUpdateReply", 0x092500, {}],
-  ["Command.PlaySoundIdOnTarget", 0x092600, {}],
+  ["Command.PlaySoundIdOnTarget", 0x092600, {
+    fields: [
+      { name: "target", type: "uint32", defaultValue: 4 },
+      { name: "unk", type: "boolean", defaultValue: false },
+    ],
+  }],
   ["Command.RequestPlayIntroEncounter", 0x092700, {}],
   ["Command.SpotPlayer", 0x092800, {}],
   [
@@ -7386,7 +7398,14 @@ var packets = [
     "Target.ActorBone",
     0x7e05,
     {
-      fields: [],
+      fields: [
+        { name: "Unk1", type: "uint32", defaultValue: "10" },
+        {
+          name: "unk2",
+          type: "uint64string",
+          defaultValue: "0x0000000000000010",
+        },
+      ],
     },
   ],
   [
