@@ -817,7 +817,7 @@ const packetHandlers = {
     ) {
       server.sendData(client, "Command.InteractionString", {
         guid: guid,
-        stringId: 31,
+        stringId: 78,
       });
       delete client.vehicle.mountedVehicle;
     } else if (
@@ -1952,7 +1952,6 @@ const packetHandlers = {
       )
     ) {
       debug("tried to open ", doorToInteractWith.characterId);
-      console.log(doorToInteractWith);
       if (doorToInteractWith.isOpen === false) {
         doorToInteractWith.moving = true;
         setTimeout(function () {
