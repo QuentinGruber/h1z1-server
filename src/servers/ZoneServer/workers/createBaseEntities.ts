@@ -8,7 +8,7 @@ const models = require("../../../../data/2015/dataSources/Models.json");
 const modelToName = require("../../../../data/2015/sampleData/ModelToName.json");
 const textures = require("../../../../data/2015/sampleData/textures.json");
 import { _ } from "../../../utils/utils";
-import { generateRandomGuid } from "../../../utils/utils";
+import { generateRandomGuid, eul2quat } from "../../../utils/utils";
 import { ZoneServer } from "../zoneserver";
 const npcs: any = {};
 const objects: any = {};
@@ -71,6 +71,60 @@ function createEntity(
     rotation: rotation,
     attachedObject: {},
     color: {},
+  };
+}
+
+function createDoor(
+  server: ZoneServer,
+  modelID: number,
+  position: Array<number>,
+  rotation: Array<number>,
+  startRot: Array<number>,
+  scale: Array<number>,
+  texture: string,
+  zoneId: number,
+  dictionnary: any
+): void {
+  let stringNameId = 0;
+  modelToName.forEach((spawnername: any) => {
+    if (modelID === spawnername.modelId) {
+      stringNameId = spawnername.NameId;
+    }
+  });
+
+  const guid = generateRandomGuid();
+  const characterId = generateRandomGuid();
+  numberOfSpawnedEntity++;
+  if (numberOfSpawnedEntity > 60000) {
+    numberOfSpawnedEntity = 1;
+  }
+  let openAngle;
+  if (startRot[0] <= 0) {
+    openAngle = startRot[0] - 1.575;
+  } else {
+    openAngle = startRot[0] + 1.575;
+  }
+  server._transientIds[numberOfSpawnedEntity] = characterId;
+  dictionnary[characterId] = {
+    worldId: server._worldId,
+    zoneId: zoneId,
+    isOpen: false,
+    characterId: characterId,
+    guid: guid,
+    transientId: numberOfSpawnedEntity,
+    nameId: stringNameId,
+    modelId: modelID,
+    scale: scale,
+    texture: texture,
+    isVehicle: true,
+    position: position,
+    rotation: rotation,
+    rotationRaw: startRot,
+    openAngle: openAngle,
+    closedAngle: startRot[0],
+    openCounter: 0,
+    attachedObject: {},
+    color: { g: 127 },
   };
 }
 
@@ -1031,10 +1085,11 @@ function createAllDoors(server: ZoneServer): void {
       );
     })?.ID;
     doorType.instances.forEach((doorInstance: any) => {
-      createEntity(
+      createDoor(
         server,
         modelId ? modelId : 9183,
         doorInstance.position,
+        eul2quat(doorInstance.rotation),
         doorInstance.rotation,
         doorInstance.scale,
         "",

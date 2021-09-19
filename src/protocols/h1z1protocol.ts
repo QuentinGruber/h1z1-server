@@ -20,21 +20,22 @@ import { packUnsignedIntWith2bitLengthValue } from "../packets/ClientProtocol/Cl
 interface UpdatePositionObject {
   raw: Buffer;
   flags: any;
-  unknown2_int32: any;
+  sequenceTime: any; // similar to simestamp, allows us to delay/synchronize this packet
   unknown3_int8: any;
-  unknown4: any;
+  stance: any; // crouch, stand, and more
   position: any;
-  unknown6_int32: any;
+  orientation: any; // For PC i believe its related to torso rotation, usefull for rotating all objects like doors
   frontTilt: any;
   sideTilt: any;
-  angleChange: any;
+  angleChange: any; // sometimes send by PC, but mostly by vehicles
   verticalSpeed: any;
-  speed: any;
+  horizontalSpeed: any;
   unknown12_float: any;
+  rotationRaw: any;
   lookAt: any;
   rotation: any;
-  unknown14_float: any;
-  unknown15_float: any;
+  direction: any; // send when pressing of the WSAD keys to provide direction for movement
+  engineRPM: any;
 }
 
 interface PositionZoneToClient {
@@ -517,7 +518,7 @@ const parseUpdatePositionData = function (data: Buffer, offset: number) {
     obj["flags"] = data.readUInt16LE(offset);
     offset += 2;
 
-    obj["unknown2_int32"] = data.readUInt32LE(offset);
+    obj["sequenceTime"] = data.readUInt32LE(offset);
     offset += 4;
 
     obj["unknown3_int8"] = data.readUInt8(offset);
@@ -525,7 +526,7 @@ const parseUpdatePositionData = function (data: Buffer, offset: number) {
 
     if (obj.flags & 1) {
       var v = readUnsignedIntWith2bitLengthValue(data, offset);
-      obj["unknown4"] = v.value;
+      obj["stance"] = v.value;
       offset += v.length;
     }
 
@@ -543,7 +544,7 @@ const parseUpdatePositionData = function (data: Buffer, offset: number) {
     }
 
     if (obj.flags & 0x20) {
-      obj["unknown6_int32"] = data.readUInt32LE(offset);
+      obj["orientation"] = data.readFloatLE(offset);
       offset += 4;
     }
 
@@ -573,7 +574,7 @@ const parseUpdatePositionData = function (data: Buffer, offset: number) {
 
     if (obj.flags & 0x10) {
       var v = readSignedIntWith2bitLengthValue(data, offset);
-      obj["speed"] = v.value / 10;
+      obj["horizontalSpeed"] = v.value / 10;
       offset += v.length;
     }
 
@@ -604,19 +605,20 @@ const parseUpdatePositionData = function (data: Buffer, offset: number) {
       var v = readSignedIntWith2bitLengthValue(data, offset);
       rotationEul[3] = v.value / 100;
       obj["rotation"] = eul2quat(rotationEul);
+      obj["rotationRaw"] = rotationEul;
       obj["lookAt"] = eul2quat([rotationEul[0], 0, 0, 0]);
       offset += v.length;
     }
 
     if (obj.flags & 0x400) {
       var v = readSignedIntWith2bitLengthValue(data, offset);
-      obj["unknown14_float"] = v.value / 10;
+      obj["direction"] = v.value / 10;
       offset += v.length;
     }
 
     if (obj.flags & 0x800) {
       var v = readSignedIntWith2bitLengthValue(data, offset);
-      obj["unknown15_float"] = v.value / 10;
+      obj["engineRPM"] = v.value / 10;
       offset += v.length;
     }
     /*

@@ -136,7 +136,7 @@ function readPositionUpdateData(data: Buffer, offset: number) {
   obj["flags"] = data.readUInt16LE(offset);
   offset += 2;
 
-  obj["unknown2_int32"] = data.readUInt32LE(offset);
+  obj["sequenceTime"] = data.readUInt32LE(offset);
   offset += 4;
 
   obj["unknown3_int8"] = data.readUInt8(offset);
@@ -144,7 +144,7 @@ function readPositionUpdateData(data: Buffer, offset: number) {
 
   if (obj.flags & 1) {
     var v = readUnsignedIntWith2bitLengthValue(data, offset);
-    obj["unknown4"] = v.value;
+    obj["stance"] = v.value;
     offset += v.length;
   }
 
@@ -162,7 +162,7 @@ function readPositionUpdateData(data: Buffer, offset: number) {
   }
 
   if (obj.flags & 0x20) {
-    obj["unknown6_int32"] = data.readUInt32LE(offset);
+    obj["orientation"] = data.readFloatLE(offset);
     offset += 4;
   }
 
@@ -192,7 +192,7 @@ function readPositionUpdateData(data: Buffer, offset: number) {
 
   if (obj.flags & 0x10) {
     var v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["speed"] = v.value / 10;
+    obj["horizontalSpeed"] = v.value / 10;
     offset += v.length;
   }
 
@@ -224,20 +224,20 @@ function readPositionUpdateData(data: Buffer, offset: number) {
     var v = readSignedIntWith2bitLengthValue(data, offset);
     rotationEul[3] = v.value / 100;
     obj["rotation"] = eul2quat(rotationEul);
-    obj["unknown13_float"] = rotationEul;
+    obj["rotationRaw"] = rotationEul;
     obj["lookAt"] = eul2quat([rotationEul[0], 0, 0, 0]);
     offset += v.length;
   }
 
   if (obj.flags & 0x400) {
     var v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["unknown14_float"] = v.value / 10;
+    obj["direction"] = v.value / 10;
     offset += v.length;
   }
 
   if (obj.flags & 0x800) {
     var v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["unknown15_float"] = v.value / 10;
+    obj["engineRPM"] = v.value / 10;
     offset += v.length;
   }
   /*
@@ -255,12 +255,12 @@ function packPositionUpdateData(obj: any) {
     flags = 0,
     v;
 
-  data.writeUInt32LE(obj["unknown2_int32"], 2);
+  data.writeUInt32LE(obj["sequenceTime"], 2);
   data.writeUInt8(obj["unknown3_int8"], 6);
 
-  if ("unknown4" in obj) {
+  if ("stance" in obj) {
     flags |= 1;
-    v = packUnsignedIntWith2bitLengthValue(obj["unknown4"]);
+    v = packUnsignedIntWith2bitLengthValue(obj["stance"]);
     data = Buffer.concat([data, v]);
   }
 
@@ -274,10 +274,10 @@ function packPositionUpdateData(obj: any) {
     data = Buffer.concat([data, v]);
   }
 
-  if ("unknown6_int32" in obj) {
+  if ("orientation" in obj) {
     flags |= 0x20;
     v = Buffer.alloc(4);
-    v.writeUInt32LE(obj["unknown6_int32"], 0);
+    v.writeFloatLE(obj["orientation"], 0);
     data = Buffer.concat([data, v]);
   }
 
@@ -305,9 +305,9 @@ function packPositionUpdateData(obj: any) {
     data = Buffer.concat([data, v]);
   }
 
-  if ("speed" in obj) {
+  if ("horizontalSpeed" in obj) {
     flags |= 0x10;
-    v = packSignedIntWith2bitLengthValue(obj["speed"] * 10);
+    v = packSignedIntWith2bitLengthValue(obj["horizontalSpeed"] * 10);
     data = Buffer.concat([data, v]);
   }
 
@@ -321,27 +321,27 @@ function packPositionUpdateData(obj: any) {
     data = Buffer.concat([data, v]);
   }
 
-  if ("unknown13_float" in obj) {
+  if ("rotationRaw" in obj) {
     flags |= 0x200;
-    v = packSignedIntWith2bitLengthValue(obj["unknown13_float"][0] * 100);
+    v = packSignedIntWith2bitLengthValue(obj["rotationRaw"][0] * 100);
     data = Buffer.concat([data, v]);
-    v = packSignedIntWith2bitLengthValue(obj["unknown13_float"][1] * 100);
+    v = packSignedIntWith2bitLengthValue(obj["rotationRaw"][1] * 100);
     data = Buffer.concat([data, v]);
-    v = packSignedIntWith2bitLengthValue(obj["unknown13_float"][2] * 100);
+    v = packSignedIntWith2bitLengthValue(obj["rotationRaw"][2] * 100);
     data = Buffer.concat([data, v]);
-    v = packSignedIntWith2bitLengthValue(obj["unknown13_float"][3] * 100);
+    v = packSignedIntWith2bitLengthValue(obj["rotationRaw"][3] * 100);
     data = Buffer.concat([data, v]);
   }
 
-  if ("unknown14_float" in obj) {
+  if ("direction" in obj) {
     flags |= 0x400;
-    v = packSignedIntWith2bitLengthValue(obj["unknown14_float"] * 10);
+    v = packSignedIntWith2bitLengthValue(obj["direction"] * 10);
     data = Buffer.concat([data, v]);
   }
 
-  if ("unknown15_float" in obj) {
+  if ("engineRPM" in obj) {
     flags |= 0x800;
-    v = packSignedIntWith2bitLengthValue(obj["unknown15_float"] * 10);
+    v = packSignedIntWith2bitLengthValue(obj["engineRPM"] * 10);
     data = Buffer.concat([data, v]);
   }
 
