@@ -12,12 +12,14 @@ const dev: any = {
     );
   },
   testpacket: function (server: ZoneServer, client: Client, args: any[]) {
-    server.sendData(client, "Target.AddTarget", {
+    server.sendData(client,"Target.AddTarget",{
+      Unk1:"0x6965746961756f00",
+      Unk2:"ouaitest"
+    })
+    server.sendData(client, "Command.PlaySoundIdOnTarget", {
       objects: [
         {
-          targetObjectId: client.character.characterId,
-          position: client.character.state.position,
-          rotation: client.character.state.position,
+          target: 5048,
         },
       ],
     });
