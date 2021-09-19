@@ -1,6 +1,6 @@
 import fs from "fs";
 import { Weather } from "types/zoneserver";
-import {ZoneClient as Client} from "../../ZoneServer/zoneclient";
+import { ZoneClient as Client } from "../../ZoneServer/zoneclient";
 import { ZoneServer } from "../zoneserver";
 
 import { _ } from "../../../utils/utils";
@@ -14,7 +14,7 @@ const hax: any = {
   list: function (server: ZoneServer, client: Client, args: any[]) {
     server.sendChatText(
       client,
-      `/hax commands list: \n${Object.keys(this).join("\n")}`
+      `/hax commands list: \n/hax ${Object.keys(this).join("\n/hax ")}`
     );
   },
   placement: function (server: ZoneServer, client: Client, args: any[]) {
@@ -57,13 +57,11 @@ const hax: any = {
         position: client.character.state.position,
         rotation: client.character.state.lookAt,
         vehicleId: 1337,
+        isVehicle: true,
         attachedObject: {},
         color: {},
       },
-      positionUpdate: server.createPositionUpdate(
-        new Float32Array([0, 0, 0, 0]),
-        [0, 0, 0, 0]
-      ),
+      positionUpdate: {},
     };
     server.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicleData);
     server._vehicles[characterId] = {
@@ -165,6 +163,7 @@ const hax: any = {
         position: client.character.state.position,
         rotation: client.character.state.lookAt,
         vehicleId: vehicleId,
+        isVehicle: true,
         attachedObject: {},
         color: {},
         unknownArray1: [],
@@ -174,10 +173,7 @@ const hax: any = {
       },
       unknownDword1: 10,
       unknownDword2: 10,
-      positionUpdate: server.createPositionUpdate(
-        new Float32Array([0, 0, 0, 0]),
-        [0, 0, 0, 0]
-      ),
+      positionUpdate: {},
       unknownString1: "",
     };
     server.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicleData);
@@ -246,6 +242,7 @@ const hax: any = {
         position: client.character.state.position,
         rotation: client.character.state.lookAt,
         vehicleId: vehicleId,
+        isVehicle: true,
         attachedObject: {},
         color: {},
         unknownArray1: [],
@@ -255,10 +252,7 @@ const hax: any = {
       },
       unknownDword1: 10,
       unknownDword2: 10,
-      positionUpdate: server.createPositionUpdate(
-        new Float32Array([0, 0, 0, 0]),
-        [0, 0, 0, 0]
-      ),
+      positionUpdate: {},
       unknownString1: "",
     };
     server.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicle);
@@ -295,6 +289,7 @@ const hax: any = {
         ],
         rotation: client.character.state.lookAt,
         vehicleId: 13,
+        isVehicle: true,
         attachedObject: {},
         color: {},
         unknownArray1: [],
@@ -304,13 +299,10 @@ const hax: any = {
       },
       unknownDword1: 10,
       unknownDword2: 10,
-      positionUpdate: server.createPositionUpdate(
-        new Float32Array([0, 0, 0, 0]),
-        [0, 0, 0, 0]
-      ),
+      positionUpdate: {},
       unknownString1: "",
     };
-    server.sendData(client, "PlayerUpdate.AddLightweightVehicle", vehicleData);
+    server.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicleData);
     server.sendData(client, "PlayerUpdate.ManagedObject", {
       guid: vehicleData.npcData.characterId,
       characterId: client.character.characterId,
@@ -320,7 +312,7 @@ const hax: any = {
       ...vehicleData,
     };
     server.worldRoutine(client);
-    server.sendData(client, "Mount.MountResponse", {
+    server.sendDataToAll("Mount.MountResponse", {
       characterId: client.character.characterId,
       guid: characterId,
       characterData: [],
@@ -542,8 +534,11 @@ const hax: any = {
     server.sendChatText(client, messageToMrHedgehog, true);
     isSonic = !isSonic;
   },
-  observerold: function (server: ZoneServer, client: Client, args: any[]) {
-    server.sendChatText(client, "[Deprecated] You should use /hax observer, this command will be removed soon!");
+  observer: function (server: ZoneServer, client: Client, args: any[]) {
+    server.sendChatText(
+      client,
+      "[Deprecated] You should use /hax spectate, this command will be removed soon!"
+    );
     server.sendDataToAll("PlayerUpdate.RemovePlayer", {
       characterId: client.character.characterId,
     });
@@ -588,7 +583,7 @@ const hax: any = {
   },
   weather: function (server: ZoneServer, client: Client, args: any[]) {
     if (server._dynamicWeatherWorker) {
-      hax["removeDynamicWeather"](server, client, args);
+      hax["removedynamicweather"](server, client, args);
     }
     const weatherTemplate = server._soloMode
       ? server._weatherTemplates[args[1]]
@@ -609,7 +604,6 @@ const hax: any = {
         _.forEach(
           server._weatherTemplates,
           function (element: { templateName: any }) {
-            console.log(element.templateName);
             server.sendChatText(client, `- ${element.templateName}`);
           }
         );
@@ -884,9 +878,8 @@ const hax: any = {
       if (currentWeather) {
         currentWeather.templateName = args[1];
         if (server._soloMode) {
-          server._weatherTemplates[
-            currentWeather.templateName as string
-          ] = currentWeather;
+          server._weatherTemplates[currentWeather.templateName as string] =
+            currentWeather;
           fs.writeFileSync(
             `${__dirname}/../../../../data/sampleData/weather.json`,
             JSON.stringify(server._weatherTemplates)

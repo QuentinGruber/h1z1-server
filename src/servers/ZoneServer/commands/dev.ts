@@ -1,4 +1,4 @@
-import {ZoneClient as Client} from "../../ZoneServer/zoneclient";
+import { ZoneClient as Client } from "../../ZoneServer/zoneclient";
 import { generateRandomGuid } from "../../../utils/utils";
 import { ZoneServer } from "../zoneserver";
 
@@ -8,30 +8,36 @@ const dev: any = {
   list: function (server: ZoneServer, client: Client, args: any[]) {
     server.sendChatText(
       client,
-      `/dev commands list: \n${Object.keys(this).join("\n")}`
+      `/dev commands list: \n/dev ${Object.keys(this).join("\n/dev ")}`
     );
   },
   testpacket: function (server: ZoneServer, client: Client, args: any[]) {
-    server.sendData(client, "Target.AddTarget", {
+    server.sendData(client,"Target.AddTarget",{
+      Unk1:"0x6965746961756f00",
+      Unk2:"ouaitest"
+    })
+    server.sendData(client, "Command.PlaySoundIdOnTarget", {
       objects: [
         {
-          targetObjectId: client.character.characterId,
-          position: client.character.state.position,
-          rotation: client.character.state.position,
+          target: 5048,
         },
       ],
     });
   },
-  clearspawnedentities: function (server: ZoneServer, client: Client, args: any[]) {
-    client.spawnedEntities.forEach((entity:any) => {
+  clearspawnedentities: function (
+    server: ZoneServer,
+    client: Client,
+    args: any[]
+  ) {
+    client.spawnedEntities.forEach((entity: any) => {
       try {
         server.despawnEntity(entity.characterId);
       } catch (error) {
-        debug(error)
+        debug(error);
       }
     });
     client.spawnedEntities = [];
-    server.sendChatText(client,"Entities cleared !",true);
+    server.sendChatText(client, "Entities cleared !", true);
     server.worldRoutine(client);
   },
   testnpcmove: function (server: ZoneServer, client: Client, args: any[]) {

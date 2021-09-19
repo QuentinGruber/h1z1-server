@@ -1,6 +1,6 @@
 import SOEClient from "../SoeServer/soeclient";
 import { RemoteInfo } from "dgram";
-import {Character} from "./character";
+import { Character } from "./character";
 
 export class ZoneClient extends SOEClient {
   currentPOI?: number;
@@ -62,9 +62,9 @@ export class ZoneClient extends SOEClient {
     this.character = new Character(characterId, generatedTransient);
     this.spawnedEntities = [];
     this.managedObjects = [];
-    this.clearTimers = ()=> {
+    this.clearTimers = () => {
       super.clearTimers();
       clearTimeout(this.npcsToSpawnTimer);
-    }
+    };
   }
 }

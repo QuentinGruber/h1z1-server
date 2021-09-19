@@ -7,7 +7,7 @@ const dev: any = {
   list: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.sendChatText(
       client,
-      `/dev commands list: \n${Object.keys(this).join("\n")}`
+      `/dev commands list: \n/dev ${Object.keys(this).join("\n/dev ")}`
     );
   },
   testpacket: function (server: ZoneServer2016, client: Client, args: any[]) {
@@ -325,7 +325,7 @@ const dev: any = {
       return;
     }
     */
-   /*
+    /*
     function rnd_number() {
       return Number((Math.random() * 100).toFixed(0));
     }
@@ -337,13 +337,12 @@ const dev: any = {
     */
     server._weather2016 = {
       ...server._weather2016,
-      
+
       //unknownDword1: 0, // breaks the game
       //unknownDword2: 0, // breaks the game
 
       //skyBrightness1: 1, // breaks the game
       //skyBrightness2: 1, // breaks the game
-      
 
       //snow: 0,
       //snowMap: 0, // 32 - 35 snow starts thinning, dissapears over 35
@@ -369,7 +368,7 @@ const dev: any = {
 
       //unknownDword22: rnd_number2(1), // ??
       //unknownDword23: rnd_number2(1), // ??
-      
+
       //unknownDword24: rnd_number2(50), // sky starts blinking? (affects clouds) solarFlareFrequency?
 
       //unknownDword25: rnd_number2(1), // sky starts blinking? (affects clouds) solarFlareIntensity? (cloudSpeed?) (rainClouds?)
@@ -380,7 +379,7 @@ const dev: any = {
       //unknownDword29: rnd_number2(1), // ?? (cloudWeight3?)
       //unknownDword33: rnd_number2(0.5), // ?? (cloudThickness?)
     };
-    console.log(server._weather2016)
+    console.log(server._weather2016);
     server.updateWeather2016(client);
   },
 

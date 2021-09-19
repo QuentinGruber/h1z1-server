@@ -26,7 +26,7 @@ import { HandledZonePackets, Weather } from "../../types/zoneserver";
 import { Db, MongoClient } from "mongodb";
 import { Worker } from "worker_threads";
 import SOEClient from "servers/SoeServer/soeclient";
-import { ZoneClient as Client} from "./zoneclient";
+import { ZoneClient as Client } from "./zoneclient";
 import { h1z1PacketsType } from "types/packets";
 process.env.isBin && require("./workers/dynamicWeather");
 
@@ -117,7 +117,7 @@ export class ZoneServer extends EventEmitter {
     this._reloadPacketsInterval;
     this._soloMode = false;
     this._weatherTemplates = localWeatherTemplates;
-    this._defaultWeatherTemplate = "H1emuBaseWeather";
+    this._defaultWeatherTemplate = "h1emubaseweather";
     this._weather = this._weatherTemplates[this._defaultWeatherTemplate];
     this._profiles = [];
     this._interactionDistance = 4;
@@ -635,7 +635,7 @@ export class ZoneServer extends EventEmitter {
     }
 
     this._dummySelf.data.identity.characterFirstName = characterName;
-    this._dummySelf.data.guid = character.characterId;
+    this._dummySelf.data.guid = generateRandomGuid();
     this._dummySelf.data.characterId = character.characterId;
     client.character.guid = client.character.characterId;
     client.character.name =
@@ -666,15 +666,12 @@ export class ZoneServer extends EventEmitter {
       const randomSpawnIndex = Math.floor(
         Math.random() * this._spawnLocations.length
       );
-      this._dummySelf.data.position = client.character.state.position = this._spawnLocations[
-        randomSpawnIndex
-      ].position;
-      this._dummySelf.data.rotation = client.character.state.rotation = this._spawnLocations[
-        randomSpawnIndex
-      ].rotation;
-      client.character.spawnLocation = this._spawnLocations[
-        randomSpawnIndex
-      ].name;
+      this._dummySelf.data.position = client.character.state.position =
+        this._spawnLocations[randomSpawnIndex].position;
+      this._dummySelf.data.rotation = client.character.state.rotation =
+        this._spawnLocations[randomSpawnIndex].rotation;
+      client.character.spawnLocation =
+        this._spawnLocations[randomSpawnIndex].name;
     } else {
       if (!this._soloMode) {
         this._dummySelf.data.position = characterDataMongo.position;
