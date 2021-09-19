@@ -5398,9 +5398,9 @@ var packets = [
   ["PlayerUpdate.NonPriorityCharacters", 0x0f53, {}],
   ["PlayerUpdate.PlayWorldCompositeEffect", 0x0f54, {
     fields: [
-    { name: "unk1", type: "uint32", defaultValue: 0 },
+    { name: "soundId", type: "uint32", defaultValue: 0 },
     {
-      name: "unknownVector1",
+      name: "position",
       type: "floatvector4",
       defaultValue: [0, 0, 0, 0],
     },
