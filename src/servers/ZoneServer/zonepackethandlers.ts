@@ -1952,9 +1952,67 @@ const packetHandlers = {
       )
     ) {
       debug("tried to open ", doorToInteractWith.characterId);
-      server.sendData(client, "PlayerUpdate.DoorState", {
-        characterId: doorToInteractWith.characterId,
-      });
+      console.log(doorToInteractWith);
+      if (doorToInteractWith.isOpen === false) {
+        doorToInteractWith.moving = true;
+        setTimeout(function () {
+          doorToInteractWith.moving = false;
+        }, 500);
+        server.sendDataToAll("PlayerUpdate.UpdatePosition", {
+          transientId: doorToInteractWith.transientId,
+          positionUpdate: {
+            sequenceTime: server.getServerTime(),
+            unknown3_int8: 0,
+            position: doorToInteractWith.position,
+            orientation: doorToInteractWith.openAngle,
+          },
+        });
+        server.sendDataToAll("PlayerUpdate.PlayWorldCompositeEffect", {
+          unk1: 5048,
+          unknownVector1: doorToInteractWith.position,
+          unk3: 0,
+        });
+        doorToInteractWith.isOpen = true;
+        doorToInteractWith.openCounter++;
+      } else {
+        doorToInteractWith.moving = true;
+        setTimeout(function () {
+          doorToInteractWith.moving = false;
+        }, 500);
+        server.sendDataToAll("PlayerUpdate.UpdatePosition", {
+          transientId: doorToInteractWith.transientId,
+          positionUpdate: {
+            sequenceTime: server.getServerTime(),
+            unknown3_int8: 0,
+            stance: 1089,
+            position: doorToInteractWith.position,
+            orientation: doorToInteractWith.closedAngle,
+          },
+        });
+        server.sendDataToAll("PlayerUpdate.PlayWorldCompositeEffect", {
+          unk1: 5049,
+          unknownVector1: doorToInteractWith.position,
+          unk3: 0,
+        });
+        doorToInteractWith.openCounter++;
+        doorToInteractWith.isOpen = false;
+        if (doorToInteractWith.openCounter > 5) {
+          server.sendDataToAll(
+            "PlayerUpdate.RemovePlayerGracefully",
+            {
+              characterId: doorToInteractWith.characterId,
+            },
+            1
+          );
+          setTimeout(function () {
+            server.sendDataToAll(
+              "PlayerUpdate.AddLightweightNpc",
+              doorToInteractWith
+            );
+          }, 150);
+          doorToInteractWith.openCounter = 0;
+        }
+      }
     } else if (
       propToSearch &&
       isPosInRadius(
@@ -2131,9 +2189,10 @@ const packetHandlers = {
     const npc =
       server._npcs[characterId] ||
       server._objects[characterId] ||
-      server._doors[characterId] ||
       server._props[characterId];
     const pcData = server._characters[characterId];
+    const doorData = server._doors[characterId];
+
     if (npc) {
       server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
         transientId: npc.transientId,
@@ -2144,6 +2203,32 @@ const packetHandlers = {
       });
       if (npc.onReadyCallback) {
         npc.onReadyCallback();
+      }
+    }
+
+    if (server._doors[characterId]) {
+      server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
+        transientId: doorData.transientId,
+        unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
+        unknownDword2: 13951728,
+        unknownDword3: 1,
+        unknownDword6: 100,
+      });
+      if (doorData.isOpen === true) {
+        server.sendData(client, "PlayerUpdate.UpdatePosition", {
+          transientId: doorData.transientId,
+          positionUpdate: {
+            sequenceTime: server.getServerTime(),
+            unknown3_int8: 0,
+            stance: 1025,
+            orientation: doorData.openAngle,
+          },
+        });
+        server.sendData(client, "PlayerUpdate.PlayWorldCompositeEffect", {
+          unk1: 5048,
+          unknownVector1: doorData.position,
+          unk3: 0,
+        });
       }
     } else if (server._characters[characterId]) {
       server.sendData(client, "PlayerUpdate.LightweightToFullPc", {
