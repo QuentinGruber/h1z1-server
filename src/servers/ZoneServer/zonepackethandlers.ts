@@ -1989,8 +1989,8 @@ const packetHandlers = {
           },
         });
         server.sendDataToAll("PlayerUpdate.PlayWorldCompositeEffect", {
-          unk1: 5049,
-          unknownVector1: doorToInteractWith.position,
+          soundId: 5049,
+          position: doorToInteractWith.position,
           unk3: 0,
         });
         doorToInteractWith.openCounter++;
