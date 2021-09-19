@@ -302,7 +302,7 @@ const hax: any = {
       positionUpdate: {},
       unknownString1: "",
     };
-    server.sendData(client, "PlayerUpdate.AddLightweightVehicle", vehicleData);
+    server.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicleData);
     server.sendData(client, "PlayerUpdate.ManagedObject", {
       guid: vehicleData.npcData.characterId,
       characterId: client.character.characterId,
@@ -312,7 +312,7 @@ const hax: any = {
       ...vehicleData,
     };
     server.worldRoutine(client);
-    server.sendData(client, "Mount.MountResponse", {
+    server.sendDataToAll("Mount.MountResponse", {
       characterId: client.character.characterId,
       guid: characterId,
       characterData: [],
@@ -583,7 +583,7 @@ const hax: any = {
   },
   weather: function (server: ZoneServer, client: Client, args: any[]) {
     if (server._dynamicWeatherWorker) {
-      hax["removeDynamicWeather"](server, client, args);
+      hax["removedynamicweather"](server, client, args);
     }
     const weatherTemplate = server._soloMode
       ? server._weatherTemplates[args[1]]
@@ -604,7 +604,6 @@ const hax: any = {
         _.forEach(
           server._weatherTemplates,
           function (element: { templateName: any }) {
-            console.log(element.templateName);
             server.sendChatText(client, `- ${element.templateName}`);
           }
         );
