@@ -592,6 +592,55 @@ const packetHandlers = {
       unknownFloat12: 12,
     });
   },
+  PlayerUpdateManagedPosition: function (
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
+    console.log(packet);
+    console.log(packet.data)
+    const characterId = server._transientIds[packet.data.transientId];
+    console.log(characterId)
+    console.log(server._vehicles[characterId])
+    if (characterId) {
+      if (!server._soloMode) {
+        server.sendRawToAllOthers(
+          client,
+          server._protocol.createVehiclePositionBroadcast(
+            packet.data.positionUpdate.raw.slice(1)
+          )
+        );
+      }
+      if (packet.data.positionUpdate.position) {
+        //server._vehicles[characterId].positionUpdate =
+        //  packet.data.positionUpdate;
+        server._vehicles[characterId].npcData.position = new Float32Array([
+          packet.data.positionUpdate.position[0],
+          packet.data.positionUpdate.position[1],
+          packet.data.positionUpdate.position[2],
+          0,
+        ]);
+        if (client.vehicle.mountedVehicle === characterId) {
+          client.character.state.position = new Float32Array([
+            packet.data.positionUpdate.position[0],
+            packet.data.positionUpdate.position[1],
+            packet.data.positionUpdate.position[2],
+            0,
+          ]);
+          if (
+            !client.posAtLastRoutine ||
+            !isPosInRadius(
+              server._npcRenderDistance / 2.5,
+              client.character.state.position,
+              client.posAtLastRoutine
+            )
+          ) {
+            server.worldRoutine2016();
+          }
+        }
+      }
+    }
+  },
   PlayerUpdateUpdatePositionClientToZone: function (
     server: ZoneServer2016,
     client: Client,
