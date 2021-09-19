@@ -98,7 +98,7 @@ function createDoor(
   if (numberOfSpawnedEntity > 60000) {
     numberOfSpawnedEntity = 1;
   }
-  let openAngle = 1.5;
+  let openAngle;
   if (startRot[0] <= 0) {
     openAngle = startRot[0] - 1.575;
   } else {
