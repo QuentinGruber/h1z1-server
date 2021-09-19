@@ -1967,8 +1967,8 @@ const packetHandlers = {
           },
         });
         server.sendDataToAll("PlayerUpdate.PlayWorldCompositeEffect", {
-          unk1: 5048,
-          unknownVector1: doorToInteractWith.position,
+          soundId: 5048,
+          position: doorToInteractWith.position,
           unk3: 0,
         });
         doorToInteractWith.isOpen = true;
@@ -2224,8 +2224,8 @@ const packetHandlers = {
           },
         });
         server.sendData(client, "PlayerUpdate.PlayWorldCompositeEffect", {
-          unk1: 5048,
-          unknownVector1: doorData.position,
+          soundId: 5048,
+          position: doorData.position,
           unk3: 0,
         });
       }
