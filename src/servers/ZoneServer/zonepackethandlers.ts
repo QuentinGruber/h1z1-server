@@ -1691,6 +1691,18 @@ const packetHandlers = {
       unknownFloat12: 12,
     });
   },
+  "Vehicle.StateData": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
+    server.sendDataToAllOthers(client, "Vehicle.StateData", {
+      guid: packet.data.guid,
+      unknown3: packet.data.unknown3,
+      unknown4: packet.data.unknown4,
+      unknown5: packet.data.unknown5,
+    });
+  },
   PlayerUpdateManagedPosition: function (
     server: ZoneServer,
     client: Client,
