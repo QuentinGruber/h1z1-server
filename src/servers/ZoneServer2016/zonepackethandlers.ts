@@ -32,6 +32,8 @@ import {ZoneClient2016 as Client} from "./zoneclient";
 import { _ } from "../../utils/utils";
 const debug = require("debug")("zonepacketHandlers");
 
+const itemDefinitions = require("./../../../data/2016/dataSources/ClientItemDefinitions.json");
+
 const packetHandlers = {
   ClientIsReady: function (
     server: ZoneServer2016,
@@ -877,32 +879,23 @@ const packetHandlers = {
     console.log("ItemDefinitionRequest\n\n\n\n\n\n\n\n\n");
     console.log(packet.data);
 
+    const itemDef = itemDefinitions.find(
+      (itemDef: any) =>
+        itemDef.ID === packet.data.ID
+    );
+
     server.sendData(client, "Command.ItemDefinitionReply", {
       data: {
-        ID: 2425,
+        ID: packet.data.ID,
         definitionData: {
-          ID: 2425,
-          flags1: {},
-          flags2: {
-            "FLAG_CAN_EQUIP": 1,
+          flags1: {
+            ...itemDef,
           },
-          NAME_ID: 32,
-          DESCRIPTION_ID: 609,
-          stats: [
-            /*
-            {
-              statData: { 
-                statValue: { 
-                  type: 0,
-                  value: {
-                    baseValue: 1,
-                    modifierValue: 1,
-                  } 
-                } 
-              }
-            }
-            */
-          ]
+          flags2: {
+            ...itemDef,
+          },
+          ...itemDef,
+          stats: []
         }
       }
     })

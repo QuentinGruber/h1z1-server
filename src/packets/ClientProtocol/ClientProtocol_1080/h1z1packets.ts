@@ -14,6 +14,7 @@ import PacketTableBuild from "../../packettable";
 import DataSchema from "h1z1-dataschema";
 import { lz4_decompress, lz4Comp } from "../../../utils/utils";
 const LZ4 = require('lz4')
+const zlib = require("zlib");
 
 function readPacketType(data: Buffer, packets: any) {
   let opCode = data[0] >>> 0,
@@ -2033,7 +2034,6 @@ const characterResourceData = [
 ];
 
 const itemDefinitionDataSchema: any[] = [
-  { name: "ID", type: "uint32", defaultValue: 0 },
   {
     name: "flags1",// 2 sets of 8 bits, the sets might be swapped though
     type: "bitflags",
@@ -2145,44 +2145,49 @@ const itemDefinitionDataSchema: any[] = [
       },
       { name: "unknownDword2", type: "uint32", defaultValue: 0 },
     ],
-  },
+  }
 ]
 
 function readItemDefinitionData(data: Buffer, offset: number) {
-  /*
-  const itemDataLength = data.readUInt32LE(offset);
+  const dataLength = data.readUInt32LE(offset);
   offset += 4;
-  let itemData: any = data.slice(offset, offset + itemDataLength);
+  let itemData: any = data.slice(offset, offset + dataLength);
   const inSize = itemData.readUInt16LE(0),
     outSize = itemData.readUInt16LE(2),
     compData = itemData.slice(4, 4 + inSize),
     decompData = lz4_decompress(compData, inSize, outSize),
-    itemDefinition = DataSchema.parse(baseItemDefinitionSchema, decompData, 0)
+    itemDefinition = DataSchema.parse(itemDefinitionDataSchema, decompData, 0)
       .result;
-  itemData = parseItemData(itemData, 4 + inSize, referenceData).value;
   return {
-    value: {
-      itemDefinition: itemDefinition,
-      itemData: itemData,
-    },
-    length: itemDataLength + 4,
+    value: itemDefinition,
+    length: dataLength + 4,
   };
-  */
 }
 
 function packItemDefinitionData(obj: any) {
   console.log("packItemDefinitionData")
   const input = DataSchema.pack(itemDefinitionDataSchema, obj);
-  const inSize = input.length
-  const output = Buffer.alloc( LZ4.encodeBound(input.length) );
-  const outSize = LZ4.encodeBlock(input.data, output);
-  let data = Buffer.alloc(4);
-  data.writeUInt16LE(inSize, 0);
-  data.writeUInt16LE(outSize, 2);
-  //output.slice(0, outSize)
-  data = Buffer.concat([data, output]);
-  console.log(data)
-  return data;
+  //inSize = input.length,
+  //output = Buffer.alloc( LZ4.encodeBound(input.length) ),
+  //outSize = LZ4.encodeBlock(input.data, output);
+  //let data = Buffer.alloc(4);
+  //data.writeUInt16LE(inSize, 0);
+  //data.writeUInt16LE(outSize, 2);
+  ////output.slice(0, outSize)
+  //data = Buffer.concat([data, output.slice(0, outSize)]);
+  //console.log(output.slice(0, outSize)) // raw compressed buffer
+
+  /*
+  // DECOMP TEST
+  console.log("DECOMPRESS TEST")
+  console.log(readItemDefinitionData(data, 0).value)
+  //
+  */
+  //zlib test
+  //const fs = require('fs');
+  //const output = fs.readFileSync('C:\\Users\\csm45\\Desktop\\zonepacket_21_Command.ItemDefinitions_server.dat');;
+  //console.log(output);
+  return input.data;
 }
 
 const packets = [
@@ -4765,12 +4770,19 @@ const packets = [
           type: "byteswithlength",
           fields: [
             { name: "ID", type: "uint32", defaultValue: 0 },
-            {
+           /* {
               name: "definitionData",
               type: "custom",
               parser: readItemDefinitionData,
               packer: packItemDefinitionData,
               defaultValue: {}
+            },*/
+            {
+              name: "definitionData",
+              type: "schema",
+              defaultValue: {},
+              fields: itemDefinitionDataSchema,
+              
             },
           ],
         },
