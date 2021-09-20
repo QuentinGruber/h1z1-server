@@ -276,23 +276,24 @@ const packetHandlers = {
         30000
       );
       server.executeFuncForAllClients("spawnCharacters");
+      if (!server._soloMode) {
+        const populationNumber = _.size(server._characters);
+        server._db?.collection("servers").findOneAndUpdate(
+          { serverId: server._worldId },
+          {
+            $set: {
+              populationNumber: populationNumber,
+              populationLevel: Number((populationNumber / 1).toFixed(0)),
+            },
+          }
+        );
+      }
     }
     client.isLoading = false;
     client.isInteracting = false;
     delete client.vehicle.mountedVehicle;
     client.vehicle.mountedVehicleType = "0";
-    if (!server._soloMode) {
-      const populationNumber = _.size(server._characters);
-      server._db?.collection("servers").findOneAndUpdate(
-        { serverId: server._worldId },
-        {
-          $set: {
-            populationNumber: populationNumber,
-            populationLevel: Number((populationNumber / 1).toFixed(0)),
-          },
-        }
-      );
-    }
+
   },
   Security: function (server: ZoneServer, client: Client, packet: any) {
     debug(packet);
