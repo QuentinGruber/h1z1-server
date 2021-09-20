@@ -272,7 +272,7 @@ const packetHandlers = {
       client.firstLoading = false;
       client.pingTimer?.refresh();
       client.savePositionTimer = setTimeout(
-        () => server.saveCharacterPosition(client, 30000),
+        () => server.saveCharacterPosition(client,true),
         30000
       );
       server.executeFuncForAllClients("spawnCharacters");

@@ -588,21 +588,19 @@ export class ZoneServer extends EventEmitter {
     return { itemTypes: undefined };
   }
 
-  async saveCharacterPosition(client: Client, updtTimeMs = 0) {
-    const { position, rotation } = client.character.state;
-    await this._db?.collection("characters").updateOne(
-      { characterId: client.character.characterId },
-      {
-        $set: {
-          position: position,
-          rotation: rotation,
-        },
-      }
-    );
-    if (updtTimeMs) {
-      setTimeout(() => {
-        this.saveCharacterPosition(client, updtTimeMs);
-      }, updtTimeMs);
+  async saveCharacterPosition(client: Client,refreshTimeout = false) {
+    if(client?.character){
+      const { position, rotation } = client.character.state;
+      await this._db?.collection("characters").updateOne(
+        { characterId: client.character.characterId },
+        {
+          $set: {
+            position: position,
+            rotation: rotation,
+          },
+        }
+      );
+      refreshTimeout && client.savePositionTimer.refresh()
     }
   }
 
