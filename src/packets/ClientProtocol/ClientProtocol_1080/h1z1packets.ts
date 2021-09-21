@@ -6872,6 +6872,8 @@ const packets = [
     },
   ],
   ["Voice.LeaveChannel", 0x8202, {}],
+  ["Voice.RadioChannel", 0x8207, {}],
+  ["Voice.LeaveRadio", 0x8208, {}],
   [
     "Weapon.Weapon",
     0x8300,
