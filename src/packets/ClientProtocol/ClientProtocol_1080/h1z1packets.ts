@@ -2165,48 +2165,6 @@ const itemDefinitionDataSchema: any[] = [
   }
 ]
 
-function readItemDefinitionData(data: Buffer, offset: number) {
-  const dataLength = data.readUInt32LE(offset);
-  offset += 4;
-  let itemData: any = data.slice(offset, offset + dataLength);
-  const inSize = itemData.readUInt16LE(0),
-    outSize = itemData.readUInt16LE(2),
-    compData = itemData.slice(4, 4 + inSize),
-    decompData = lz4_decompress(compData, inSize, outSize),
-    itemDefinition = DataSchema.parse(itemDefinitionDataSchema, decompData, 0)
-      .result;
-  return {
-    value: itemDefinition,
-    length: dataLength + 4,
-  };
-}
-
-function packItemDefinitionData(obj: any) {
-  console.log("packItemDefinitionData")
-  const input = DataSchema.pack(itemDefinitionDataSchema, obj);
-  //inSize = input.length,
-  //output = Buffer.alloc( LZ4.encodeBound(input.length) ),
-  //outSize = LZ4.encodeBlock(input.data, output);
-  //let data = Buffer.alloc(4);
-  //data.writeUInt16LE(inSize, 0);
-  //data.writeUInt16LE(outSize, 2);
-  ////output.slice(0, outSize)
-  //data = Buffer.concat([data, output.slice(0, outSize)]);
-  //console.log(output.slice(0, outSize)) // raw compressed buffer
-
-  /*
-  // DECOMP TEST
-  console.log("DECOMPRESS TEST")
-  console.log(readItemDefinitionData(data, 0).value)
-  //
-  */
-  //zlib test
-  //const fs = require('fs');
-  //const output = fs.readFileSync('C:\\Users\\csm45\\Desktop\\zonepacket_21_Command.ItemDefinitions_server.dat');;
-  //console.log(output);
-  return input.data;
-}
-
 const packets = [
   ["Server", 0x01, {}],
   ["ClientFinishedLoading", 0x02, {}],
