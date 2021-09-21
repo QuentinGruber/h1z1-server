@@ -14,6 +14,12 @@
         "src/servers/ZoneServer2016/zoneserver.ts",
         "src/servers/ZoneServer2016/zonepackethandlers.ts",
         "src/servers/ZoneServer2016/character.ts",
+        "src/protocols/gatewayprotocol.ts",
+        "src/protocols/loginprotocol.ts",
+        "src/protocols/gatewayprotocol.ts",
+        "src/types/zoneserver.ts",
+        "src/types/loginserver.ts",
+        "src/types/packets.ts",
         "src/utils/utils.ts"
     ],
     "out": "docs"
