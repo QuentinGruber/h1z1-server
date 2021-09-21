@@ -1,5 +1,5 @@
 import { npcData } from "types/zoneserver";
-import { generateRandomGuid } from "utils/utils";
+import { generateRandomGuid } from "../../utils/utils";
 
 function getVehicleId(ModelId: number) {
     switch (ModelId) {
