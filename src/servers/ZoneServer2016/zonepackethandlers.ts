@@ -810,14 +810,22 @@ const packetHandlers = {
     client: Client,
     packet: any
   ) {
-    if (server._vehicles[packet.data.guid] && !client.vehicle.mountedVehicle) {
+    const { guid } = packet.data;
+    const objectData = server._objects[guid];
+    const doorData = server._doors[guid];
+    const vehicleData = server._vehicles[guid];
+
+    if (vehicleData && !client.vehicle.mountedVehicle) {
       server.mountVehicle(client, packet);
     } else if (
-      server._vehicles[packet.data.guid] &&
+      vehicleData &&
       client.vehicle.mountedVehicle
     ) {
       // other seats
       server.dismountVehicle(client);
+    }
+    if(objectData) {
+      
     }
   },
 
