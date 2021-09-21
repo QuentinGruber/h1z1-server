@@ -114,8 +114,8 @@ const dev: any = {
     server.sendData(client, "Loadout.SetCurrentLoadout", loadout);
   },
   selectslot: function (server: ZoneServer2016, client: Client, args: any[]) {
-    if(!args[1]) {
-      server.sendChatText(client, "Missing itemDefinitionId arg.");
+    if(!args[2]) {
+      server.sendChatText(client, "Missing slotId and itemDefinitionId args.");
       return;
     }
     const loadout = {
@@ -124,11 +124,11 @@ const dev: any = {
       loadoutData: {
         loadoutSlots: [
           {
-            loadoutItemSlotId: 1,
-            itemDefinitionId: Number(args[1]),
-            unknownDword1: 1,
+            loadoutItemSlotId: Number(args[1]),
+            itemDefinitionId: Number(args[2]),
+            unknownDword1: Number(args[1]),
             unknownData1: {
-              itemDefinitionId: Number(args[1]),
+              itemDefinitionId: Number(args[2]),
               loadoutItemOwnerGuid: client.character.characterId,
               unknownByte1: 17,
             },
