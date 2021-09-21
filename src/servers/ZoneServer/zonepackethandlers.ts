@@ -31,6 +31,7 @@ import { ZoneClient as Client } from "../ZoneServer/zoneclient";
 const modelToName = require("../../../data/2015/sampleData/ModelToName.json");
 
 import { _ } from "../../utils/utils";
+import { Vehicle } from "./vehicles";
 const debug = require("debug")("zonepacketHandlers");
 
 const packetHandlers = {
@@ -1841,7 +1842,7 @@ const packetHandlers = {
     const objectToPickup = server._objects[packet.data.guid];
     const doorToInteractWith = server._doors[packet.data.guid];
     const propToSearch = server._props[packet.data.guid];
-    const vehicleToMount = server._vehicles[packet.data.guid];
+    const vehicleToMount:Vehicle = server._vehicles[packet.data.guid];
     if (
       objectToPickup &&
       isPosInRadius(
@@ -2274,9 +2275,7 @@ const packetHandlers = {
         npcData: npcData,
         characterId: characterId,
       });
-      if (server._vehicles[characterId].onReadyCallback) {
-        server._vehicles[characterId].onReadyCallback();
-      }
+      server._vehicles[characterId].onReadyCallback();
     }
   },
 };

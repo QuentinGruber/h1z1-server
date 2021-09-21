@@ -9,6 +9,10 @@ function getVehicleId(ModelId: number) {
         return 3;
       case 9258:
         return 2;
+    case 9374:
+        return 13
+        case 9371:
+            return 1337
       default:
         return 1;
     }
@@ -20,6 +24,7 @@ export class Vehicle {
     npcData:npcData;
     unknownGuid1: string;
     positionUpdate: number[];
+    onReadyCallback!: ()=>void;
     constructor(worldId:number,characterId:string,transientId:number,modelId:number,position:Float32Array,rotation:Float32Array){
         this.worldId = worldId;
         this.npcData = {

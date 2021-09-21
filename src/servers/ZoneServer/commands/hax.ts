@@ -5,6 +5,7 @@ import { ZoneServer } from "../zoneserver";
 
 import { _ } from "../../../utils/utils";
 import { generateRandomGuid } from "../../../utils/utils";
+import { Vehicle } from "../vehicles";
 const debug = require("debug")("zonepacketHandlers");
 
 let isSonic = false;
@@ -47,25 +48,14 @@ const hax: any = {
   },
   spectate: function (server: ZoneServer, client: Client, args: any[]) {
     const characterId = server.generateGuid();
-    const vehicleData = {
-      npcData: {
-        guid: server.generateGuid(),
-        transientId: server.getTransientId(client, characterId),
-        characterId: characterId,
-        modelId: 9371,
-        scale: [1, 1, 1, 1],
-        position: client.character.state.position,
-        rotation: client.character.state.lookAt,
-        vehicleId: 1337,
-        isVehicle: true,
-        attachedObject: {},
-        color: {},
-      },
-      positionUpdate: {},
-    };
+    const vehicleData = new Vehicle(server._worldId,
+      characterId,server.getTransientId(client, characterId),9371,
+      client.character.state.position,client.character.state.lookAt
+      )
+   
     server.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicleData);
+    vehicleData.isManaged = true;
     server._vehicles[characterId] = {
-      isManaged: true,
       ...vehicleData,
       onReadyCallback: () => {
         // doing anything with vehicle before client gets fullvehicle packet breaks it
@@ -152,33 +142,13 @@ const hax: any = {
         break;
     }
     const characterId = server.generateGuid();
-    const guid = server.generateGuid();
-    const vehicleData = {
-      npcData: {
-        guid: guid,
-        transientId: server.getTransientId(client, characterId),
-        characterId: characterId,
-        modelId: driveModel,
-        scale: [1, 1, 1, 1],
-        position: client.character.state.position,
-        rotation: client.character.state.lookAt,
-        vehicleId: vehicleId,
-        isVehicle: true,
-        attachedObject: {},
-        color: {},
-        unknownArray1: [],
-        array5: [{ unknown1: 0 }],
-        array17: [{ unknown1: 0 }],
-        array18: [{ unknown1: 0 }],
-      },
-      unknownDword1: 10,
-      unknownDword2: 10,
-      positionUpdate: {},
-      unknownString1: "",
-    };
+    const vehicleData = new Vehicle(server._worldId,
+      characterId,server.getTransientId(client, characterId),driveModel,
+      client.character.state.position,client.character.state.lookAt
+      )
     server.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicleData);
+    vehicleData.isManaged = true;
     server._vehicles[characterId] = {
-      isManaged: true,
       ...vehicleData,
       onReadyCallback: () => {
         // doing anything with vehicle before client gets fullvehicle packet breaks it
@@ -211,58 +181,35 @@ const hax: any = {
       );
       return;
     }
-    let vehicleId, driveModel;
+    let driveModel;
     switch (args[1]) {
       case "offroader":
-        vehicleId = 1;
         driveModel = 7225;
         break;
       case "pickup":
-        vehicleId = 2;
         driveModel = 9258;
         break;
       case "policecar":
-        vehicleId = 3;
         driveModel = 9301;
         break;
       default:
         // offroader default
-        vehicleId = 1;
         driveModel = 7225;
         break;
     }
     const characterId = server.generateGuid();
-    const vehicle = {
-      npcData: {
-        guid: guid,
-        transientId: server.getTransientId(client, characterId),
-        characterId: characterId,
-        modelId: driveModel,
-        scale: [1, 1, 1, 1],
-        position: client.character.state.position,
-        rotation: client.character.state.lookAt,
-        vehicleId: vehicleId,
-        isVehicle: true,
-        attachedObject: {},
-        color: {},
-        unknownArray1: [],
-        array5: [{ unknown1: 0 }],
-        array17: [{ unknown1: 0 }],
-        array18: [{ unknown1: 0 }],
-      },
-      unknownDword1: 10,
-      unknownDword2: 10,
-      positionUpdate: {},
-      unknownString1: "",
-    };
-    server.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicle);
+    const vehicleData = new Vehicle(server._worldId,
+      characterId,server.getTransientId(client, characterId),driveModel,
+      client.character.state.position,client.character.state.lookAt
+      )
+    server.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicleData);
+      vehicleData.isManaged = true;
     server._vehicles[characterId] = {
-      isManaged: true,
-      ...vehicle,
+      ...vehicleData,
       onReadyCallback: () => {
         // doing anything with vehicle before client gets fullvehicle packet breaks it
         server.sendData(client, "PlayerUpdate.ManagedObject", {
-          guid: vehicle.npcData.characterId,
+          guid: vehicleData.npcData.characterId,
           characterId: client.character.characterId,
         });
         client.managedObjects.push(server._vehicles[characterId]);
@@ -272,45 +219,24 @@ const hax: any = {
 
   parachute: function (server: ZoneServer, client: Client, args: any[]) {
     const characterId = server.generateGuid();
-    const guid = server.generateGuid();
     const posY = client.character.state.position[1] + 700;
-    const vehicleData = {
-      npcData: {
-        guid: guid,
-        transientId: server.getTransientId(client, characterId),
-        characterId: characterId,
-        modelId: 9374,
-        scale: [1, 1, 1, 1],
-        position: [
-          client.character.state.position[0],
-          posY,
-          client.character.state.position[2],
-          client.character.state.position[3],
-        ],
-        rotation: client.character.state.lookAt,
-        vehicleId: 13,
-        isVehicle: true,
-        attachedObject: {},
-        color: {},
-        unknownArray1: [],
-        array5: [{ unknown1: 0 }],
-        array17: [{ unknown1: 0 }],
-        array18: [{ unknown1: 0 }],
-      },
-      unknownDword1: 10,
-      unknownDword2: 10,
-      positionUpdate: {},
-      unknownString1: "",
-    };
+    const vehicleData = new Vehicle(server._worldId,
+      characterId,server.getTransientId(client, characterId),9374,
+      new Float32Array([
+        client.character.state.position[0],
+        posY,
+        client.character.state.position[2],
+        client.character.state.position[3],
+      ]),client.character.state.lookAt
+      )
+  
     server.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicleData);
     server.sendData(client, "PlayerUpdate.ManagedObject", {
       guid: vehicleData.npcData.characterId,
       characterId: client.character.characterId,
     });
-    server._vehicles[characterId] = {
-      isManaged: true,
-      ...vehicleData,
-    };
+    vehicleData.isManaged = true;
+    server._vehicles[characterId] = vehicleData;
     server.worldRoutine(client);
     server.sendDataToAll("Mount.MountResponse", {
       characterId: client.character.characterId,
