@@ -1,12 +1,14 @@
 {
   "name": "h1z1-server",
-  "version": "0.14.2-1",
+  "version": "0.15.1-1",
   "description": "Library for emulating h1z1 servers",
   "author": "Quentin Gruber <quentingruber@gmail.com> (http://github.com/quentingruber)",
   "license": "GPL-3.0-only",
   "main": "h1z1-server.js",
   "bin": {
-    "if-env": "scripts/if-env.js"
+    "if-env": "scripts/if-env.js",
+    "h1z1-server-demo": "scripts/h1z1-server-demo.js",
+    "h1z1-server-demo-2016": "scripts/h1z1-server-demo-2016.js"
   },
   "dependencies": {
     "@swc/cli": "0.1.40",
@@ -17,12 +19,11 @@
     "eul2quat": "1.0.0",
     "fs": "^0.0.1-security",
     "h1emu-core": "0.5.0",
-    "h1z1-dataschema": "1.4.1",
-    "lz4": "^0.6.5",
-    "mongodb": "4.1.1",
+    "h1z1-dataschema": "1.5.4",
+    "mongodb": "4.1.2",
     "mongodb-restore-dump": "1.0.1",
     "terser-output": "1.0.3",
-    "typedoc": "0.21.9",
+    "typedoc": "0.22.3",
     "typescript": "4.4.3",
     "v8-compile-cache": "2.3.0",
     "zlib": "^1.0.5"
@@ -32,7 +33,7 @@
   },
   "devDependencies": {
     "chokidar": "3.5.2",
-    "prettier": "2.4.0",
+    "prettier": "2.4.1",
     "ts-node": "10.2.1"
   },
   "scripts": {
