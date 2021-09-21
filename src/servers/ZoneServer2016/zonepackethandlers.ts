@@ -32,6 +32,8 @@ import { ZoneClient2016 as Client } from "./zoneclient";
 import { _ } from "../../utils/utils";
 const debug = require("debug")("zonepacketHandlers");
 
+const itemDefinitions = require("./../../../data/2016/dataSources/ClientItemDefinitions.json");
+
 const packetHandlers = {
   ClientIsReady: function (
     server: ZoneServer2016,
@@ -174,6 +176,30 @@ const packetHandlers = {
       serverTime: Int64String(server.getServerTime()),
       serverTime2: Int64String(server.getServerTime()),
     });
+
+    /*
+    const defs = itemDefinitions.map((def: any) => {
+      return {
+        ID: def.ID,
+        definitionData: {
+          ...def,
+          flags1: {
+            ...def
+          },
+          flags2: {
+            ...def
+          }
+        }
+      };
+    });
+    console.log(defs)
+    
+    server.sendData(client, "Command.ItemDefinitions", { // sends full list of item definitions
+      data: {
+        itemDefinitions: defs
+      }
+    });
+    */
   },
   ClientFinishedLoading: function (
     server: ZoneServer2016,
@@ -929,21 +955,36 @@ const packetHandlers = {
       unknownString1: "",
     });
   },
-  /*
+  
+  
   "Command.ItemDefinitionRequest": function (server: ZoneServer2016, client: Client, packet: any) {
     console.log("ItemDefinitionRequest\n\n\n\n\n\n\n\n\n");
     console.log(packet.data);
 
-    server.sendData(client, "Command.ItemDefinitionReply", {data: {
-      ID: 2425,
-      unknownArray1: [
-        {
-          unknownData1: {}
+    const itemDef = itemDefinitions.find(
+      (itemDef: any) =>
+        itemDef.ID === packet.data.ID
+    );
+
+    server.sendData(client, "Command.ItemDefinitionReply", {
+      data: {
+        ID: packet.data.ID,
+        definitionData: {
+          ...itemDef,
+          flags1: {
+            //...itemDef,
+
+          },
+          flags2: {
+            //...itemDef,
+            //FLAG_CAN_EQUIP: 1,
+          },
+          stats: []
         }
-      ]
-    }})
+      }
+    })
   }
-  */
+  
 };
 
 export default packetHandlers;

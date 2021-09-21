@@ -224,7 +224,7 @@ function readPositionUpdateData(data: Buffer, offset: number) {
     var v = readSignedIntWith2bitLengthValue(data, offset);
     rotationEul[3] = v.value / 100;
     obj["rotation"] = eul2quat(rotationEul);
-    obj["rotationRaw"] = rotationEul;
+	  obj["rotationRaw"] = rotationEul;
     obj["lookAt"] = eul2quat([rotationEul[0], 0, 0, 0]);
     offset += v.length;
   }
