@@ -195,7 +195,7 @@ const packetHandlers = {
       client.firstLoading = false;
       client.pingTimer?.refresh();
       client.savePositionTimer = setTimeout(
-        () => server.saveCharacterPosition(client, 30000),
+        () => server.saveCharacterPosition(client),
         30000
       );
       server._characters[client.character.characterId] = {
@@ -435,7 +435,7 @@ const packetHandlers = {
           ? hax[args[0]](server, client, args)
           : server.sendChatText(
               client,
-              `Unknown command: /dev ${args[0]} , display all dev commands by using /hax list`
+              `Unknown command: /hax ${args[0]} , display all hax commands by using /hax list`
             );
         break;
       case joaat("DEV"):
@@ -453,7 +453,7 @@ const packetHandlers = {
           ? admin[args[0]](server, client, args)
           : server.sendChatText(
               client,
-              `Unknown command: /dev ${args[0]} , display all dev commands by using /admin list`
+              `Unknown command: /admin ${args[0]} , display all admin commands by using /admin list`
             );
         break;
     }
