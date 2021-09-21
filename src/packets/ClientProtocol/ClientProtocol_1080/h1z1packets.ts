@@ -4801,7 +4801,15 @@ const packets = [
             {
               name: "itemDefinitions",
               type: "array",
-              fields: itemDefinitionDataSchema,
+              fields: [
+                { name: "ID", type: "uint32", defaultValue: 0 },
+                {
+                  name: "definitionData",
+                  type: "schema",
+                  defaultValue: {},
+                  fields: itemDefinitionDataSchema,
+                },
+              ],
             },
           ],
         },
@@ -8667,7 +8675,7 @@ const packets = [
     0xc90300,
     {
       fields: [
-        { name: "ignore", type: "uint64string", defaultValue: "0" },
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
         { name: "containerError", type: "uint32", defaultValue: 0 },
       ],
     },
@@ -8677,7 +8685,7 @@ const packets = [
     0xc90500,
     {
       fields: [
-        { name: "ignore", type: "uint64string", defaultValue: "0" },
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
         {
           name: "containers",
           type: "array",

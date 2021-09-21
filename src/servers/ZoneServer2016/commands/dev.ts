@@ -148,7 +148,7 @@ const dev: any = {
     args: any[]
   ) {
     const containerData = {
-      ignore: client.character.characterId,
+      characterId: client.character.characterId,
       containers: [
         {
           guid: server.generateGuid(),

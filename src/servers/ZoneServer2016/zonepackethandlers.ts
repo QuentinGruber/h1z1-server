@@ -175,6 +175,30 @@ const packetHandlers = {
       serverTime: Int64String(server.getServerTime()),
       serverTime2: Int64String(server.getServerTime()),
     });
+
+    /*
+    const defs = itemDefinitions.map((def: any) => {
+      return {
+        ID: def.ID,
+        definitionData: {
+          ...def,
+          flags1: {
+            ...def
+          },
+          flags2: {
+            ...def
+          }
+        }
+      };
+    });
+    console.log(defs)
+    
+    server.sendData(client, "Command.ItemDefinitions", { // sends full list of item definitions
+      data: {
+        itemDefinitions: defs
+      }
+    });
+    */
   },
   ClientFinishedLoading: function (
     server: ZoneServer2016,
@@ -888,13 +912,15 @@ const packetHandlers = {
       data: {
         ID: packet.data.ID,
         definitionData: {
+          ...itemDef,
           flags1: {
-            ...itemDef,
+            //...itemDef,
+
           },
           flags2: {
-            ...itemDef,
+            //...itemDef,
+            //FLAG_CAN_EQUIP: 1,
           },
-          ...itemDef,
           stats: []
         }
       }
