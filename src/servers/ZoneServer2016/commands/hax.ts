@@ -250,7 +250,7 @@ const hax: any = {
     };
     server._npcs[characterId] = npc; // save npc
   },
-  spawnVehicle: function (server: ZoneServer2016, client: Client, args: any[]) {
+  spawnvehicle: function (server: ZoneServer2016, client: Client, args: any[]) {
     if (!args[1]) {
       server.sendChatText(
         client,
