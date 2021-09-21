@@ -180,19 +180,19 @@ function readPositionUpdateData(data: Buffer, offset: number) {
 
   if (obj.flags & 4) {
     var v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["verticalSpeed"] = v.value / 100; // maybe
+    obj["angleChange"] = v.value / 100; // maybe
     offset += v.length;
   }
 
   if (obj.flags & 0x8) {
     var v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["horizontalSpeed"] = v.value / 100;
+    obj["verticalSpeed"] = v.value / 100;
     offset += v.length;
   }
 
   if (obj.flags & 0x10) {
     var v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["unknown11_float"] = v.value / 10;
+    obj["horizontalSpeed"] = v.value / 10;
     offset += v.length;
   }
 
