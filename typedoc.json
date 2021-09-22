@@ -1,0 +1,26 @@
+{
+    "entryPoints": 
+    [   "src/servers/SoeServer/soeserver.ts",
+        "src/servers/SoeServer/soeinputstream.ts",
+        "src/servers/SoeServer/soeoutputstream.ts",
+        "src/servers/SoeServer/soeclient.ts",
+        "src/servers/LoginServer/loginServer.ts",
+        "src/servers/GatewayServer/gatewayServer.ts",
+        "src/servers/ZoneServer/zoneclient.ts",
+        "src/servers/ZoneServer/zoneserver.ts",
+        "src/servers/ZoneServer/zonepackethandlers.ts",
+        "src/servers/ZoneServer/character.ts",
+        "src/servers/ZoneServer2016/zoneclient.ts",
+        "src/servers/ZoneServer2016/zoneserver.ts",
+        "src/servers/ZoneServer2016/zonepackethandlers.ts",
+        "src/servers/ZoneServer2016/character.ts",
+        "src/protocols/gatewayprotocol.ts",
+        "src/protocols/loginprotocol.ts",
+        "src/protocols/gatewayprotocol.ts",
+        "src/types/zoneserver.ts",
+        "src/types/loginserver.ts",
+        "src/types/packets.ts",
+        "src/utils/utils.ts"
+    ],
+    "out": "docs"
+}

@@ -18,19 +18,21 @@ try {
   delete require.cache[require.resolve("./commands/dev")];
 } catch (e) {}
 
-import { joaat } from "h1emu-core"
+import { joaat } from "h1emu-core";
 import hax from "./commands/hax";
 import dev from "./commands/dev";
-// import admin from "./commands/admin";
+import admin from "./commands/admin";
 
 import { Int64String, isPosInRadius } from "../../utils/utils";
 import { ZoneServer2016 } from "./zoneserver";
-import Client from "./zoneclient";
+import { ZoneClient2016 as Client } from "./zoneclient";
 // TOOD: UPDATE THIS FOR 2016
 // const modelToName = require("../../../data/2016/dataSources/ModelToName.json");
 
 import { _ } from "../../utils/utils";
 const debug = require("debug")("zonepacketHandlers");
+
+const itemDefinitions = require("./../../../data/2016/dataSources/ClientItemDefinitions.json");
 
 const packetHandlers = {
   ClientIsReady: function (
@@ -157,6 +159,7 @@ const packetHandlers = {
     const commands = [
       "hax",
       "dev",
+      "admin",
       "location",
       "serverinfo",
       "spawninfo",
@@ -173,6 +176,30 @@ const packetHandlers = {
       serverTime: Int64String(server.getServerTime()),
       serverTime2: Int64String(server.getServerTime()),
     });
+
+    /*
+    const defs = itemDefinitions.map((def: any) => {
+      return {
+        ID: def.ID,
+        definitionData: {
+          ...def,
+          flags1: {
+            ...def
+          },
+          flags2: {
+            ...def
+          }
+        }
+      };
+    });
+    console.log(defs)
+    
+    server.sendData(client, "Command.ItemDefinitions", { // sends full list of item definitions
+      data: {
+        itemDefinitions: defs
+      }
+    });
+    */
   },
   ClientFinishedLoading: function (
     server: ZoneServer2016,
@@ -194,7 +221,7 @@ const packetHandlers = {
       client.firstLoading = false;
       client.pingTimer?.refresh();
       client.savePositionTimer = setTimeout(
-        () => server.saveCharacterPosition(client, 30000),
+        () => server.saveCharacterPosition(client),
         30000
       );
       server._characters[client.character.characterId] = {
@@ -367,7 +394,7 @@ const packetHandlers = {
     client: Client,
     packet: any
   ) {
-    const args: any[] = packet.data.arguments.split(" ");
+    const args: any[] = packet.data.arguments.toLowerCase().split(" ");
 
     switch (packet.data.commandHash) {
       case 2371122039: // /serverinfo
@@ -432,21 +459,28 @@ const packetHandlers = {
       case joaat("HAX"):
         hax[args[0]]
           ? hax[args[0]](server, client, args)
-          : (server.sendChatText(client, `Unknown command: /hax ${args[0]}`),
-            server.sendChatText(
+          : server.sendChatText(
               client,
-              `/hax commands list: ${Object.keys(hax).join(", ")}`
-            ));
+              `Unknown command: /hax ${args[0]} , display all hax commands by using /hax list`
+            );
         break;
       case joaat("DEV"):
       case 552078457: // dev
         dev[args[0]]
           ? dev[args[0]](server, client, args)
-          : (server.sendChatText(client, `Unknown command: /dev ${args[0]}`),
-            server.sendChatText(
+          : server.sendChatText(
               client,
-              `/dev commands list: ${Object.keys(dev).join(", ")}`
-            ));
+              `Unknown command: /dev ${args[0]} , display all dev commands by using /dev list`
+            );
+        break;
+      case joaat("ADMIN"):
+      case 997464845: // admin
+        admin[args[0]]
+          ? admin[args[0]](server, client, args)
+          : server.sendChatText(
+              client,
+              `Unknown command: /admin ${args[0]} , display all admin commands by using /admin list`
+            );
         break;
     }
   },
@@ -584,6 +618,55 @@ const packetHandlers = {
       unknownFloat12: 12,
     });
   },
+  PlayerUpdateManagedPosition: function (
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
+    console.log(packet);
+    console.log(packet.data)
+    const characterId = server._transientIds[packet.data.transientId];
+    console.log(characterId)
+    console.log(server._vehicles[characterId])
+    if (characterId) {
+      if (!server._soloMode) {
+        server.sendRawToAllOthers(
+          client,
+          server._protocol.createVehiclePositionBroadcast(
+            packet.data.positionUpdate.raw.slice(1)
+          )
+        );
+      }
+      if (packet.data.positionUpdate.position) {
+        //server._vehicles[characterId].positionUpdate =
+        //  packet.data.positionUpdate;
+        server._vehicles[characterId].npcData.position = new Float32Array([
+          packet.data.positionUpdate.position[0],
+          packet.data.positionUpdate.position[1],
+          packet.data.positionUpdate.position[2],
+          0,
+        ]);
+        if (client.vehicle.mountedVehicle === characterId) {
+          client.character.state.position = new Float32Array([
+            packet.data.positionUpdate.position[0],
+            packet.data.positionUpdate.position[1],
+            packet.data.positionUpdate.position[2],
+            0,
+          ]);
+          if (
+            !client.posAtLastRoutine ||
+            !isPosInRadius(
+              server._npcRenderDistance / 2.5,
+              client.character.state.position,
+              client.posAtLastRoutine
+            )
+          ) {
+            server.worldRoutine2016();
+          }
+        }
+      }
+    }
+  },
   PlayerUpdateUpdatePositionClientToZone: function (
     server: ZoneServer2016,
     client: Client,
@@ -669,14 +752,13 @@ const packetHandlers = {
         server.worldRoutine2016();
       }
     } else if (packet.data.vehicle_position && client.vehicle.mountedVehicle) {
-      server._vehicles[
-        client.vehicle.mountedVehicle
-      ].npcData.position = new Float32Array([
-        packet.data.vehicle_position[0],
-        packet.data.vehicle_position[1],
-        packet.data.vehicle_position[2],
-        0,
-      ]);
+      server._vehicles[client.vehicle.mountedVehicle].npcData.position =
+        new Float32Array([
+          packet.data.vehicle_position[0],
+          packet.data.vehicle_position[1],
+          packet.data.vehicle_position[2],
+          0,
+        ]);
     }
     if (packet.data.rotation) {
       // TODO: modify array element beside re-creating it
@@ -712,10 +794,12 @@ const packetHandlers = {
     packet: any
   ) {
     const {
-      data: { guid },
+      data: { characterId },
     } = packet;
     const npc =
-      server._npcs[guid] || server._objects[guid] || server._doors[guid];
+      server._npcs[characterId] ||
+      server._objects[characterId] ||
+      server._doors[characterId];
     if (npc) {
       server.sendData(client, "LightweightToFullNpc", {
         transientId: npc.transientId,
@@ -732,7 +816,7 @@ const packetHandlers = {
         unknownArray1: [],
         unknownArray2: [],
       });
-    } else if (server._characters[guid]) {
+    } else if (server._characters[characterId]) {
       server.sendData(client, "LightweightToFullPc", {
         positionUpdate: server.createPositionUpdate(
           new Float32Array([0, 0, 0, 0]),
@@ -740,16 +824,16 @@ const packetHandlers = {
         ),
         array1: [],
         unknownData1: {
-          transientId: server._characters[guid].transientId,
+          transientId: server._characters[characterId].transientId,
           equipmentModels: [],
           unknownData1: {},
           effectTags: [],
         },
       });
-    } else if (server._vehicles[guid]) {
+    } else if (server._vehicles[characterId]) {
       server.sendData(client, "LightweightToFullVehicle", {
         npcData: {
-          transientId: server._vehicles[guid].npcData.transientId,
+          transientId: server._vehicles[characterId].npcData.transientId,
           equipmentModels: [],
           effectTags: [],
           unknownData1: {},
@@ -871,21 +955,36 @@ const packetHandlers = {
       unknownString1: "",
     });
   },
-  /*
+  
+  
   "Command.ItemDefinitionRequest": function (server: ZoneServer2016, client: Client, packet: any) {
     console.log("ItemDefinitionRequest\n\n\n\n\n\n\n\n\n");
     console.log(packet.data);
 
-    server.sendData(client, "Command.ItemDefinitionReply", {data: {
-      ID: 2425,
-      unknownArray1: [
-        {
-          unknownData1: {}
+    const itemDef = itemDefinitions.find(
+      (itemDef: any) =>
+        itemDef.ID === packet.data.ID
+    );
+
+    server.sendData(client, "Command.ItemDefinitionReply", {
+      data: {
+        ID: packet.data.ID,
+        definitionData: {
+          ...itemDef,
+          flags1: {
+            //...itemDef,
+
+          },
+          flags2: {
+            //...itemDef,
+            //FLAG_CAN_EQUIP: 1,
+          },
+          stats: []
         }
-      ]
-    }})
+      }
+    })
   }
-  */
+  
 };
 
 export default packetHandlers;

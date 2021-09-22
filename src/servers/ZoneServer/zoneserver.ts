@@ -26,7 +26,7 @@ import { HandledZonePackets, Weather } from "../../types/zoneserver";
 import { Db, MongoClient } from "mongodb";
 import { Worker } from "worker_threads";
 import SOEClient from "servers/SoeServer/soeclient";
-import Client from "./zoneclient";
+import { ZoneClient as Client } from "./zoneclient";
 import { h1z1PacketsType } from "types/packets";
 process.env.isBin && require("./workers/dynamicWeather");
 
@@ -117,11 +117,11 @@ export class ZoneServer extends EventEmitter {
     this._reloadPacketsInterval;
     this._soloMode = false;
     this._weatherTemplates = localWeatherTemplates;
-    this._defaultWeatherTemplate = "H1emuBaseWeather";
+    this._defaultWeatherTemplate = "h1emubaseweather";
     this._weather = this._weatherTemplates[this._defaultWeatherTemplate];
     this._profiles = [];
     this._interactionDistance = 4;
-    this._npcRenderDistance = 200;
+    this._npcRenderDistance = 350;
     this._pingTimeoutTime = 120000;
     this._dynamicWeatherEnabled = true;
     this._dummySelf = require("../../../data/2015/sampleData/sendself.json");
@@ -588,21 +588,19 @@ export class ZoneServer extends EventEmitter {
     return { itemTypes: undefined };
   }
 
-  async saveCharacterPosition(client: Client, updtTimeMs = 0) {
-    const { position, rotation } = client.character.state;
-    await this._db?.collection("characters").updateOne(
-      { characterId: client.character.characterId },
-      {
-        $set: {
-          position: position,
-          rotation: rotation,
-        },
-      }
-    );
-    if (updtTimeMs) {
-      setTimeout(() => {
-        this.saveCharacterPosition(client, updtTimeMs);
-      }, updtTimeMs);
+  async saveCharacterPosition(client: Client,refreshTimeout = false) {
+    if(client?.character){
+      const { position, rotation } = client.character.state;
+      await this._db?.collection("characters").updateOne(
+        { characterId: client.character.characterId },
+        {
+          $set: {
+            position: position,
+            rotation: rotation,
+          },
+        }
+      );
+      refreshTimeout && client.savePositionTimer.refresh()
     }
   }
 
@@ -635,7 +633,7 @@ export class ZoneServer extends EventEmitter {
     }
 
     this._dummySelf.data.identity.characterFirstName = characterName;
-    this._dummySelf.data.guid = character.characterId;
+    this._dummySelf.data.guid = generateRandomGuid();
     this._dummySelf.data.characterId = character.characterId;
     client.character.guid = client.character.characterId;
     client.character.name =
@@ -666,15 +664,12 @@ export class ZoneServer extends EventEmitter {
       const randomSpawnIndex = Math.floor(
         Math.random() * this._spawnLocations.length
       );
-      this._dummySelf.data.position = client.character.state.position = this._spawnLocations[
-        randomSpawnIndex
-      ].position;
-      this._dummySelf.data.rotation = client.character.state.rotation = this._spawnLocations[
-        randomSpawnIndex
-      ].rotation;
-      client.character.spawnLocation = this._spawnLocations[
-        randomSpawnIndex
-      ].name;
+      this._dummySelf.data.position = client.character.state.position =
+        this._spawnLocations[randomSpawnIndex].position;
+      this._dummySelf.data.rotation = client.character.state.rotation =
+        this._spawnLocations[randomSpawnIndex].rotation;
+      client.character.spawnLocation =
+        this._spawnLocations[randomSpawnIndex].name;
     } else {
       if (!this._soloMode) {
         this._dummySelf.data.position = characterDataMongo.position;
@@ -1312,6 +1307,7 @@ if (
 ) {
   new ZoneServer(
     1117,
-    new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", "base64")
+    new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", "base64"),
+    process.env.MONGO_URL
   ).start();
 }
