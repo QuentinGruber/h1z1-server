@@ -24,12 +24,16 @@ export class LoginProtocol {
     // Maybe will remove this switch later
     switch (this.protocolName) {
       case "LoginUdp_9":
-        this.loginPackets = require("../packets/LoginUdp/LoginUdp_9/loginpackets").default;
-        this.tunnelLoginPackets = require("../packets/LoginUdp/LoginUdp_9/loginTunnelPackets").default;
+        this.loginPackets =
+          require("../packets/LoginUdp/LoginUdp_9/loginpackets").default;
+        this.tunnelLoginPackets =
+          require("../packets/LoginUdp/LoginUdp_9/loginTunnelPackets").default;
         break;
       case "LoginUdp_11":
-        this.loginPackets = require("../packets/LoginUdp/LoginUdp_11/loginpackets").default;
-        this.tunnelLoginPackets = require("../packets/LoginUdp/LoginUdp_11/loginTunnelPackets").default;
+        this.loginPackets =
+          require("../packets/LoginUdp/LoginUdp_11/loginpackets").default;
+        this.tunnelLoginPackets =
+          require("../packets/LoginUdp/LoginUdp_11/loginTunnelPackets").default;
         break;
       default:
         debug(`Protocol ${this.protocolName} unsupported !`);
@@ -43,9 +47,10 @@ export class LoginProtocol {
     const packet = this.loginPackets.Packets[packetType];
     if (packet) {
       if (packet.name === "TunnelAppPacketClientToServer") {
-        const { schema, name } = this.tunnelLoginPackets.Packets[
-          data.readUint8(this.protocolName == "LoginUdp_11" ? 14 : 13)
-        ];
+        const { schema, name } =
+          this.tunnelLoginPackets.Packets[
+            data.readUint8(this.protocolName == "LoginUdp_11" ? 14 : 13)
+          ];
         const tunnelData = data.slice(
           this.protocolName == "LoginUdp_11" ? 15 : 14
         );

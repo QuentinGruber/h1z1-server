@@ -17,7 +17,7 @@ try {
   delete require.cache[require.resolve("./commands/dev")];
 } catch (e) {}
 
-const Jenkins = require("hash-jenkins");
+import { joaat } from "h1emu-core";
 import hax from "./commands/hax";
 import dev from "./commands/dev";
 import admin from "./commands/admin";
@@ -27,7 +27,7 @@ import {
   isPosInRadius,
 } from "../../utils/utils";
 import { ZoneServer } from "./zoneserver";
-import Client from "../ZoneServer/zoneclient";
+import { ZoneClient as Client } from "../ZoneServer/zoneclient";
 const modelToName = require("../../../data/2015/sampleData/ModelToName.json");
 
 import { _ } from "../../utils/utils";
@@ -58,42 +58,42 @@ const packetHandlers = {
     server.sendData(client, "ZoneSetting.Data", {
       settings: [
         {
-          hash: Jenkins.oaat("zonesetting.deploy.on.login".toUpperCase()),
+          hash: joaat("zonesetting.deploy.on.login".toUpperCase()),
           value: 1,
           settingType: 2,
           unknown1: 0,
           unknown2: 0,
         },
         {
-          hash: Jenkins.oaat("zonesetting.no.acquisition.timers".toUpperCase()),
+          hash: joaat("zonesetting.no.acquisition.timers".toUpperCase()),
           value: 1,
           settingType: 2,
           unknown1: 0,
           unknown2: 0,
         },
         {
-          hash: Jenkins.oaat("zonesetting.XpMultiplier".toUpperCase()),
+          hash: joaat("zonesetting.XpMultiplier".toUpperCase()),
           value: 1,
           settingType: 1,
           unknown1: 0,
           unknown2: 0,
         },
         {
-          hash: Jenkins.oaat("zonesetting.disabletrialitems".toUpperCase()),
+          hash: joaat("zonesetting.disabletrialitems".toUpperCase()),
           value: 1,
           settingType: 2,
           unknown1: 0,
           unknown2: 0,
         },
         {
-          hash: Jenkins.oaat("zonesetting.isvrzone".toUpperCase()),
+          hash: joaat("zonesetting.isvrzone".toUpperCase()),
           value: 0,
           settingType: 2,
           unknown1: 0,
           unknown2: 0,
         },
         {
-          hash: Jenkins.oaat("zonesetting.no.resource.costs".toUpperCase()),
+          hash: joaat("zonesetting.no.resource.costs".toUpperCase()),
           value: 1,
           settingType: 2,
           unknown1: 0,
@@ -125,6 +125,7 @@ const packetHandlers = {
       "admin",
       "location",
       "respawn",
+      "clientinfo",
       "serverinfo",
       "spawninfo",
       "help",
@@ -178,13 +179,8 @@ const packetHandlers = {
       } else if (client.character.resources.health < 0) {
         client.character.resources.health = 0;
       }
-      const {
-        stamina,
-        food,
-        water,
-        health,
-        virus,
-      } = client.character.resources;
+      const { stamina, food, water, health, virus } =
+        client.character.resources;
 
       server.sendData(client, "ResourceEvent", {
         eventData: {
@@ -252,7 +248,7 @@ const packetHandlers = {
           },
         },
       });
-      client.character.resourcesUpdater.refresh()
+      client.character.resourcesUpdater.refresh();
     }, 3000);
 
     server.sendData(client, "ZoneDoneSendingInitialData", {});
@@ -276,27 +272,28 @@ const packetHandlers = {
       client.firstLoading = false;
       client.pingTimer?.refresh();
       client.savePositionTimer = setTimeout(
-        () => server.saveCharacterPosition(client, 30000),
+        () => server.saveCharacterPosition(client,true),
         30000
       );
       server.executeFuncForAllClients("spawnCharacters");
+      if (!server._soloMode) {
+        const populationNumber = _.size(server._characters);
+        server._db?.collection("servers").findOneAndUpdate(
+          { serverId: server._worldId },
+          {
+            $set: {
+              populationNumber: populationNumber,
+              populationLevel: Number((populationNumber / 1).toFixed(0)),
+            },
+          }
+        );
+      }
     }
     client.isLoading = false;
     client.isInteracting = false;
     delete client.vehicle.mountedVehicle;
     client.vehicle.mountedVehicleType = "0";
-    if (!server._soloMode) {
-      const populationNumber = _.size(server._characters);
-      server._db?.collection("servers").findOneAndUpdate(
-        { serverId: server._worldId },
-        {
-          $set: {
-            populationNumber: populationNumber,
-            populationLevel: Number((populationNumber / 1).toFixed(0)),
-          },
-        }
-      );
-    }
+
   },
   Security: function (server: ZoneServer, client: Client, packet: any) {
     debug(packet);
@@ -501,6 +498,12 @@ const packetHandlers = {
           characterId: client.character.characterId,
         });
         break;
+      case 3357274581: // /clientinfo
+        server.sendChatText(
+          client,
+          `Spawned entities count : ${client.spawnedEntities.length}`
+        );
+        break;
       case 2371122039: // /serverinfo
         if (args[0] === "mem") {
           const used = process.memoryUsage().heapUsed / 1024 / 1024;
@@ -575,7 +578,7 @@ const packetHandlers = {
           true
         );
         break;
-      case Jenkins.oaat("HELP"):
+      case joaat("HELP"):
       case 3575372649: // /help
         const haxCommandList: string[] = [];
         Object.keys(hax).forEach((key) => {
@@ -605,7 +608,7 @@ const packetHandlers = {
             server.sendChatText(client, `${command}`);
           });
         break;
-      case Jenkins.oaat("LOCATION"):
+      case joaat("LOCATION"):
       case 3270589520: // /loc
         const { position, rotation } = client.character.state;
         server.sendChatText(
@@ -621,22 +624,31 @@ const packetHandlers = {
           )},${rotation[2].toFixed(2)}`
         );
         break;
-      case Jenkins.oaat("HAX"):
+      case joaat("HAX"):
         hax[args[0]]
           ? hax[args[0]](server, client, args)
-          : server.sendChatText(client, `Unknown command: /hax ${args[0]}`);
+          : server.sendChatText(
+              client,
+              `Unknown command: /hax ${args[0]} , display all hax commands by using /hax list`
+            );
         break;
-      case Jenkins.oaat("DEV"):
+      case joaat("DEV"):
       case 552078457: // dev
         dev[args[0]]
           ? dev[args[0]](server, client, args)
-          : server.sendChatText(client, `Unknown command: /dev ${args[0]}`);
+          : server.sendChatText(
+              client,
+              `Unknown command: /dev ${args[0]} , display all dev commands by using /dev list`
+            );
         break;
-      case Jenkins.oaat("ADMIN"):
-      case 997464845: // dev
+      case joaat("ADMIN"):
+      case 997464845: // admin
         admin[args[0]]
           ? admin[args[0]](server, client, args)
-          : server.sendChatText(client, `Unknown command: /admin ${args[0]}`);
+          : server.sendChatText(
+              client,
+              `Unknown command: /admin ${args[0]} , display admin all commands by using /admin list`
+            );
         break;
     }
   },
@@ -806,7 +818,7 @@ const packetHandlers = {
     ) {
       server.sendData(client, "Command.InteractionString", {
         guid: guid,
-        stringId: 31,
+        stringId: 78,
       });
       delete client.vehicle.mountedVehicle;
     } else if (
@@ -830,14 +842,12 @@ const packetHandlers = {
     server: ZoneServer,
     client: Client,
     packet: any
-  ) {
-  },
+  ) {},
   "Command.ClearInWater": function (
     server: ZoneServer,
     client: Client,
     packet: any
-  ) {
-  },
+  ) {},
   "Command.InteractionSelect": function (
     server: ZoneServer,
     client: Client,
@@ -1480,10 +1490,7 @@ const packetHandlers = {
                           unknownDword6: 0,
                           position: packet.data.position,
                           unknownVector1: [
-                            0,
-                            -0.7071066498756409,
-                            0,
-                            0.70710688829422,
+                            0, -0.7071066498756409, 0, 0.70710688829422,
                           ],
                           rotation: [packet.data.heading, 0, 0, 0],
                           unknownDword7: 0,
@@ -1685,6 +1692,18 @@ const packetHandlers = {
       unknownFloat12: 12,
     });
   },
+  "Vehicle.StateData": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
+    server.sendDataToAllOthers(client, "Vehicle.StateData", {
+      guid: packet.data.guid,
+      unknown3: packet.data.unknown3,
+      unknown4: packet.data.unknown4,
+      unknown5: packet.data.unknown5,
+    });
+  },
   PlayerUpdateManagedPosition: function (
     server: ZoneServer,
     client: Client,
@@ -1693,14 +1712,10 @@ const packetHandlers = {
     debug(packet);
     const characterId = server._transientIds[packet.data.transientId];
     if (characterId) {
-      if (!server._soloMode) {
-        server.sendRawToAllOthers(
-          client,
-          server._protocol.createVehiclePositionBroadcast(
-            packet.data.PositionUpdate.raw.slice(1)
-          )
-        );
-      }
+      server.sendDataToAllOthers(client, "PlayerUpdate.UpdatePosition", {
+        transientId: packet.data.transientId,
+        positionUpdate: packet.data.PositionUpdate,
+      });
       if (packet.data.PositionUpdate.position) {
         server._vehicles[characterId].positionUpdate =
           packet.data.PositionUpdate;
@@ -1720,7 +1735,7 @@ const packetHandlers = {
           if (
             !client.posAtLastRoutine ||
             !isPosInRadius(
-              server._npcRenderDistance / 2.5,
+              server._npcRenderDistance * server._worldRoutineRadiusPercentage,
               client.character.state.position,
               client.posAtLastRoutine
             )
@@ -1779,10 +1794,6 @@ const packetHandlers = {
           time: 0,
         }); // don't know how it was done so
       }
-      if (!client.posAtLastRoutine) {
-        server.spawnProps(client);
-      }
-
       if (
         !client.posAtLastRoutine ||
         (!isPosInRadius(
@@ -1795,14 +1806,13 @@ const packetHandlers = {
         server.worldRoutine(client);
       }
     } else if (packet.data.vehicle_position && client.vehicle.mountedVehicle) {
-      server._vehicles[
-        client.vehicle.mountedVehicle
-      ].npcData.position = new Float32Array([
-        packet.data.vehicle_position[0],
-        packet.data.vehicle_position[1],
-        packet.data.vehicle_position[2],
-        0,
-      ]);
+      server._vehicles[client.vehicle.mountedVehicle].npcData.position =
+        new Float32Array([
+          packet.data.vehicle_position[0],
+          packet.data.vehicle_position[1],
+          packet.data.vehicle_position[2],
+          0,
+        ]);
     }
     if (packet.data.rotation) {
       // TODO: modify array element beside re-creating it
@@ -1927,19 +1937,23 @@ const packetHandlers = {
           client.vehicle.mountedVehicleType = "offroader";
           break;
       }
+
       server.sendData(client, "PlayerUpdate.ManagedObject", {
         guid: vehicleGuid,
         characterId: client.character.characterId,
       });
-      server.sendData(client, "Mount.MountResponse", {
+
+      server.sendDataToAll("Mount.MountResponse", {
         characterId: client.character.characterId,
         guid: vehicleGuid,
         characterData: [],
       });
-      server.sendData(client, "Vehicle.Engine", {
+
+      server.sendDataToAll("Vehicle.Engine", {
         guid2: vehicleGuid,
         unknownBoolean: true,
       });
+
       server._vehicles[vehicleGuid].isManaged = true;
       client.managedObjects.push(server._vehicles[vehicleGuid]);
     } else if (
@@ -1951,9 +1965,66 @@ const packetHandlers = {
       )
     ) {
       debug("tried to open ", doorToInteractWith.characterId);
-      server.sendData(client, "PlayerUpdate.DoorState", {
-        characterId: doorToInteractWith.characterId,
-      });
+      if (doorToInteractWith.isOpen === false) {
+        doorToInteractWith.moving = true;
+        setTimeout(function () {
+          doorToInteractWith.moving = false;
+        }, 500);
+        server.sendDataToAll("PlayerUpdate.UpdatePosition", {
+          transientId: doorToInteractWith.transientId,
+          positionUpdate: {
+            sequenceTime: server.getServerTime(),
+            unknown3_int8: 0,
+            position: doorToInteractWith.position,
+            orientation: doorToInteractWith.openAngle,
+          },
+        });
+        server.sendDataToAll("PlayerUpdate.PlayWorldCompositeEffect", {
+          soundId: 5048,
+          position: doorToInteractWith.position,
+          unk3: 0,
+        });
+        doorToInteractWith.isOpen = true;
+        doorToInteractWith.openCounter++;
+      } else {
+        doorToInteractWith.moving = true;
+        setTimeout(function () {
+          doorToInteractWith.moving = false;
+        }, 500);
+        server.sendDataToAll("PlayerUpdate.UpdatePosition", {
+          transientId: doorToInteractWith.transientId,
+          positionUpdate: {
+            sequenceTime: server.getServerTime(),
+            unknown3_int8: 0,
+            stance: 1089,
+            position: doorToInteractWith.position,
+            orientation: doorToInteractWith.closedAngle,
+          },
+        });
+        server.sendDataToAll("PlayerUpdate.PlayWorldCompositeEffect", {
+          soundId: 5049,
+          position: doorToInteractWith.position,
+          unk3: 0,
+        });
+        doorToInteractWith.openCounter++;
+        doorToInteractWith.isOpen = false;
+        if (doorToInteractWith.openCounter > 5) {
+          server.sendDataToAll(
+            "PlayerUpdate.RemovePlayerGracefully",
+            {
+              characterId: doorToInteractWith.characterId,
+            },
+            1
+          );
+          setTimeout(function () {
+            server.sendDataToAll(
+              "PlayerUpdate.AddLightweightNpc",
+              doorToInteractWith
+            );
+          }, 150);
+          doorToInteractWith.openCounter = 0;
+        }
+      }
     } else if (
       propToSearch &&
       isPosInRadius(
@@ -2125,14 +2196,15 @@ const packetHandlers = {
     packet: any
   ) {
     const {
-      data: { guid },
+      data: { characterId },
     } = packet;
     const npc =
-      server._npcs[guid] ||
-      server._objects[guid] ||
-      server._doors[guid] ||
-      server._props[guid];
-    const pcData = server._characters[guid];
+      server._npcs[characterId] ||
+      server._objects[characterId] ||
+      server._props[characterId];
+    const pcData = server._characters[characterId];
+    const doorData = server._doors[characterId];
+
     if (npc) {
       server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
         transientId: npc.transientId,
@@ -2144,14 +2216,40 @@ const packetHandlers = {
       if (npc.onReadyCallback) {
         npc.onReadyCallback();
       }
-    } else if (server._characters[guid]) {
+    }
+
+    if (server._doors[characterId]) {
+      server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
+        transientId: doorData.transientId,
+        unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
+        unknownDword2: 13951728,
+        unknownDword3: 1,
+        unknownDword6: 100,
+      });
+      if (doorData.isOpen === true) {
+        server.sendData(client, "PlayerUpdate.UpdatePosition", {
+          transientId: doorData.transientId,
+          positionUpdate: {
+            sequenceTime: server.getServerTime(),
+            unknown3_int8: 0,
+            stance: 1025,
+            orientation: doorData.openAngle,
+          },
+        });
+        server.sendData(client, "PlayerUpdate.PlayWorldCompositeEffect", {
+          soundId: 5048,
+          position: doorData.position,
+          unk3: 0,
+        });
+      }
+    } else if (server._characters[characterId]) {
       server.sendData(client, "PlayerUpdate.LightweightToFullPc", {
         transientId: pcData.transientId,
       });
       server.sendData(client, "Equipment.SetCharacterEquipment", {
         profileId: 3,
-        characterId: server._characters[guid].characterId,
-        equipmentSlots: server._characters[guid].equipment.map(
+        characterId: server._characters[characterId].characterId,
+        equipmentSlots: server._characters[characterId].equipment.map(
           (equipment: any) => {
             return {
               equipmentSlotId: equipment.slotId,
@@ -2162,22 +2260,22 @@ const packetHandlers = {
             };
           }
         ),
-        attachmentData: server._characters[guid].equipment,
+        attachmentData: server._characters[characterId].equipment,
       });
     } else if (
-      server._vehicles[guid] &&
-      server._vehicles[guid].npcData.vehicleId != 13
+      server._vehicles[characterId] &&
+      server._vehicles[characterId].npcData.vehicleId != 13
     ) {
       // ignore parachute
       const npcData = {
-        transientId: server._vehicles[guid].npcData.transientId,
+        transientId: server._vehicles[characterId].npcData.transientId,
       };
       server.sendData(client, "PlayerUpdate.LightweightToFullVehicle", {
         npcData: npcData,
-        characterId: guid,
+        characterId: characterId,
       });
-      if (server._vehicles[guid].onReadyCallback) {
-        server._vehicles[guid].onReadyCallback();
+      if (server._vehicles[characterId].onReadyCallback) {
+        server._vehicles[characterId].onReadyCallback();
       }
     }
   },

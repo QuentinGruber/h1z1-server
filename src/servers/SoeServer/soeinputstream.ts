@@ -35,7 +35,7 @@ export class SOEInputStream extends EventEmitter {
     this._lastProcessedFragment = -1;
     this._fragments = [];
     this._useEncryption = false;
-    this._rc4 = createDecipheriv("rc4", cryptoKey, "");
+    this._rc4 = createDecipheriv("rc4", cryptoKey, null);
   }
 
   _processDataFragments(): void {

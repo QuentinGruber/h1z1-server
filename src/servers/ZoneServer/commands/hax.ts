@@ -1,6 +1,6 @@
 import fs from "fs";
 import { Weather } from "types/zoneserver";
-import Client from "../../ZoneServer/zoneclient";
+import { ZoneClient as Client } from "../../ZoneServer/zoneclient";
 import { ZoneServer } from "../zoneserver";
 
 import { _ } from "../../../utils/utils";
@@ -11,6 +11,12 @@ let isSonic = false;
 let isVehicle = false;
 
 const hax: any = {
+  list: function (server: ZoneServer, client: Client, args: any[]) {
+    server.sendChatText(
+      client,
+      `/hax commands list: \n/hax ${Object.keys(this).join("\n/hax ")}`
+    );
+  },
   placement: function (server: ZoneServer, client: Client, args: any[]) {
     const modelChoosen = args[1];
     if (!modelChoosen) {
@@ -38,6 +44,49 @@ const hax: any = {
         server.sendChatText(client, "You are not in a police car");
         break;
     }
+  },
+  spectate: function (server: ZoneServer, client: Client, args: any[]) {
+    const characterId = server.generateGuid();
+    const vehicleData = {
+      npcData: {
+        guid: server.generateGuid(),
+        transientId: server.getTransientId(client, characterId),
+        characterId: characterId,
+        modelId: 9371,
+        scale: [1, 1, 1, 1],
+        position: client.character.state.position,
+        rotation: client.character.state.lookAt,
+        vehicleId: 1337,
+        isVehicle: true,
+        attachedObject: {},
+        color: {},
+      },
+      positionUpdate: {},
+    };
+    server.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicleData);
+    server._vehicles[characterId] = {
+      isManaged: true,
+      ...vehicleData,
+      onReadyCallback: () => {
+        // doing anything with vehicle before client gets fullvehicle packet breaks it
+        server.sendData(client, "PlayerUpdate.ManagedObject", {
+          guid: vehicleData.npcData.characterId,
+          characterId: client.character.characterId,
+        });
+        server.sendDataToAll("Mount.MountResponse", {
+          characterId: client.character.characterId,
+          guid: characterId,
+          characterData: [],
+        });
+        server.sendDataToAll("Vehicle.Engine", {
+          guid2: characterId,
+          unknownBoolean: true,
+        });
+        client.vehicle.mountedVehicle = characterId;
+        client.vehicle.mountedVehicleType = "spectate";
+        client.managedObjects.push(server._vehicles[characterId]);
+      },
+    };
   },
   headlights: function (server: ZoneServer, client: Client, args: any[]) {
     let headlightType = 0;
@@ -114,6 +163,7 @@ const hax: any = {
         position: client.character.state.position,
         rotation: client.character.state.lookAt,
         vehicleId: vehicleId,
+        isVehicle: true,
         attachedObject: {},
         color: {},
         unknownArray1: [],
@@ -123,10 +173,7 @@ const hax: any = {
       },
       unknownDword1: 10,
       unknownDword2: 10,
-      positionUpdate: server.createPositionUpdate(
-        new Float32Array([0, 0, 0, 0]),
-        [0, 0, 0, 0]
-      ),
+      positionUpdate: {},
       unknownString1: "",
     };
     server.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicleData);
@@ -155,6 +202,74 @@ const hax: any = {
     server.worldRoutine(client);
   },
 
+  spawnvehicle: function (server: ZoneServer, client: Client, args: any[]) {
+    const guid = server.generateGuid();
+    if (!args[1]) {
+      server.sendChatText(
+        client,
+        "[ERROR] Usage /hax spawnVehicle offroader/pickup/policecar"
+      );
+      return;
+    }
+    let vehicleId, driveModel;
+    switch (args[1]) {
+      case "offroader":
+        vehicleId = 1;
+        driveModel = 7225;
+        break;
+      case "pickup":
+        vehicleId = 2;
+        driveModel = 9258;
+        break;
+      case "policecar":
+        vehicleId = 3;
+        driveModel = 9301;
+        break;
+      default:
+        // offroader default
+        vehicleId = 1;
+        driveModel = 7225;
+        break;
+    }
+    const characterId = server.generateGuid();
+    const vehicle = {
+      npcData: {
+        guid: guid,
+        transientId: server.getTransientId(client, characterId),
+        characterId: characterId,
+        modelId: driveModel,
+        scale: [1, 1, 1, 1],
+        position: client.character.state.position,
+        rotation: client.character.state.lookAt,
+        vehicleId: vehicleId,
+        isVehicle: true,
+        attachedObject: {},
+        color: {},
+        unknownArray1: [],
+        array5: [{ unknown1: 0 }],
+        array17: [{ unknown1: 0 }],
+        array18: [{ unknown1: 0 }],
+      },
+      unknownDword1: 10,
+      unknownDword2: 10,
+      positionUpdate: {},
+      unknownString1: "",
+    };
+    server.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicle);
+    server._vehicles[characterId] = {
+      isManaged: true,
+      ...vehicle,
+      onReadyCallback: () => {
+        // doing anything with vehicle before client gets fullvehicle packet breaks it
+        server.sendData(client, "PlayerUpdate.ManagedObject", {
+          guid: vehicle.npcData.characterId,
+          characterId: client.character.characterId,
+        });
+        client.managedObjects.push(server._vehicles[characterId]);
+      },
+    };
+  },
+
   parachute: function (server: ZoneServer, client: Client, args: any[]) {
     const characterId = server.generateGuid();
     const guid = server.generateGuid();
@@ -174,6 +289,7 @@ const hax: any = {
         ],
         rotation: client.character.state.lookAt,
         vehicleId: 13,
+        isVehicle: true,
         attachedObject: {},
         color: {},
         unknownArray1: [],
@@ -183,13 +299,10 @@ const hax: any = {
       },
       unknownDword1: 10,
       unknownDword2: 10,
-      positionUpdate: server.createPositionUpdate(
-        new Float32Array([0, 0, 0, 0]),
-        [0, 0, 0, 0]
-      ),
+      positionUpdate: {},
       unknownString1: "",
     };
-    server.sendData(client, "PlayerUpdate.AddLightweightVehicle", vehicleData);
+    server.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicleData);
     server.sendData(client, "PlayerUpdate.ManagedObject", {
       guid: vehicleData.npcData.characterId,
       characterId: client.character.characterId,
@@ -199,7 +312,7 @@ const hax: any = {
       ...vehicleData,
     };
     server.worldRoutine(client);
-    server.sendData(client, "Mount.MountResponse", {
+    server.sendDataToAll("Mount.MountResponse", {
       characterId: client.character.characterId,
       guid: characterId,
       characterData: [],
@@ -422,6 +535,10 @@ const hax: any = {
     isSonic = !isSonic;
   },
   observer: function (server: ZoneServer, client: Client, args: any[]) {
+    server.sendChatText(
+      client,
+      "[Deprecated] You should use /hax spectate, this command will be removed soon!"
+    );
     server.sendDataToAll("PlayerUpdate.RemovePlayer", {
       characterId: client.character.characterId,
     });
@@ -466,7 +583,7 @@ const hax: any = {
   },
   weather: function (server: ZoneServer, client: Client, args: any[]) {
     if (server._dynamicWeatherWorker) {
-      hax["removeDynamicWeather"](server, client, args);
+      hax["removedynamicweather"](server, client, args);
     }
     const weatherTemplate = server._soloMode
       ? server._weatherTemplates[args[1]]
@@ -487,7 +604,6 @@ const hax: any = {
         _.forEach(
           server._weatherTemplates,
           function (element: { templateName: any }) {
-            console.log(element.templateName);
             server.sendChatText(client, `- ${element.templateName}`);
           }
         );
@@ -762,9 +878,8 @@ const hax: any = {
       if (currentWeather) {
         currentWeather.templateName = args[1];
         if (server._soloMode) {
-          server._weatherTemplates[
-            currentWeather.templateName as string
-          ] = currentWeather;
+          server._weatherTemplates[currentWeather.templateName as string] =
+            currentWeather;
           fs.writeFileSync(
             `${__dirname}/../../../../data/sampleData/weather.json`,
             JSON.stringify(server._weatherTemplates)
