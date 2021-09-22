@@ -9,7 +9,7 @@ export class ZoneClient extends SOEClient {
   isInteracting: boolean = false;
   posAtLastRoutine: Float32Array = new Float32Array();
   posAtLogoutStart: Float32Array = new Float32Array();
-  timer: any;
+  logoutTimer!: any;
   spawnedEntities: any[] = [];
   managedObjects: any[] = [];
   vehicle: {
@@ -24,6 +24,8 @@ export class ZoneClient extends SOEClient {
   loginSessionId?: string;
   pingTimer: NodeJS.Timeout | undefined;
   savePositionTimer: any;
+  clearLogoutTimer: () => void;
+  searchTimer!: any;
 
   constructor(
     initialClient: SOEClient,
@@ -66,6 +68,11 @@ export class ZoneClient extends SOEClient {
     this.clearTimers = () => {
       super.clearTimers();
       clearTimeout(this.npcsToSpawnTimer);
+    };
+    this.clearLogoutTimer = () => {
+      clearTimeout(this.logoutTimer);
+      this.logoutTimer = null;
+      this.isInteracting = false;
     };
   }
 }
