@@ -1617,10 +1617,10 @@ const packetHandlers = {
       time: timerTime,
     });
     client.posAtLogoutStart = client.character.state.position;
-    if (client.logoutTimer != null) {
-      clearTimeout(client.logoutTimer);
+    if (client.hudTimer != null) {
+      clearTimeout(client.hudTimer);
     }
-    client.logoutTimer = setTimeout(() => {
+    client.hudTimer = setTimeout(() => {
       client.managedObjects.forEach((object: any) => {
         server._vehicles[object.npcData.characterId].isManaged = false;
       });
@@ -1714,14 +1714,14 @@ const packetHandlers = {
     const characterId = server._transientIds[packet.data.transientId];
     if (characterId) {
       if (
-        client.logoutTimer != null &&
+        client.hudTimer != null &&
         !isPosInRadius(
           1,
           client.character.state.position,
           client.posAtLogoutStart
         )
       ) {
-        client.clearLogoutTimer();
+        client.clearHudTimer();
         server.sendData(client, "ClientUpdate.StartTimer", {
           stringId: 0,
           time: 0,
@@ -1794,14 +1794,14 @@ const packetHandlers = {
       }
 
       if (
-        client.logoutTimer != null &&
+        client.hudTimer != null &&
         !isPosInRadius(
           1,
           client.character.state.position,
           client.posAtLogoutStart
         )
       ) {
-        client.clearLogoutTimer();
+        client.clearHudTimer();
         server.sendData(client, "ClientUpdate.StartTimer", {
           stringId: 0,
           time: 0,
@@ -2122,10 +2122,10 @@ const packetHandlers = {
               time: timerTime,
             });
             client.posAtLogoutStart = client.character.state.position;
-            if (client.logoutTimer != null) {
-              clearTimeout(client.logoutTimer);
+            if (client.hudTimer != null) {
+              clearTimeout(client.hudTimer);
             }
-            client.logoutTimer = setTimeout(() => {
+            client.hudTimer = setTimeout(() => {
               server.sendData(client, "ClientUpdate.TextAlert", {
                 message: "You feel refreshed after sleeping well.",
               });
@@ -2156,10 +2156,10 @@ const packetHandlers = {
               time: timerTime,
             });
             client.posAtLogoutStart = client.character.state.position;
-            if (client.searchTimer != null) {
-              clearTimeout(client.searchTimer);
+            if (client.hudTimer != null) {
+              clearTimeout(client.hudTimer);
             }
-            client.searchTimer = setTimeout(() => {
+            client.hudTimer = setTimeout(() => {
               server.sendData(client, "ClientUpdate.TextAlert", {
                 message: "Nothing in there... yet :P",
               });
