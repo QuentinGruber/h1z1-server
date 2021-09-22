@@ -868,11 +868,10 @@ export class ZoneServer2016 extends ZoneServer {
     const authorizedItemDefinitions = itemDefinitions.filter(
       (def: any) => (def.WORLD_MODEL_ID === objectData.modelId) && def.CODE_FACTORY_NAME !== "AccountRecipe"
     )
-    if(!authorizedItemDefinitions) {
-      debug(`[ERROR] No itemDefinition mapping for object modelId ${objectData.modelId}`);
+    if(!authorizedItemDefinitions.length) {
+      debug(`[ERROR] No item definition mapped to id: ${objectData.modelId}`);
       return;
     }
-    console.log(authorizedItemDefinitions)
     return this.generateItem(client, authorizedItemDefinitions[rnd_number(authorizedItemDefinitions.length-1, true)].ID);
   }
 }

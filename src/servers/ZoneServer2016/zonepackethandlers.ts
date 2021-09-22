@@ -886,7 +886,7 @@ const packetHandlers = {
       const itemGuid = server.generatePickupItem(client, objectData),
       item = server._items[itemGuid];
       if(!item) {
-        server.sendChatText(client, `No item definition mapped for id: ${objectData.modelId}`);
+        server.sendChatText(client, `[ERROR] No item definition mapped to id: ${objectData.modelId}`);
         return;
       }
 
