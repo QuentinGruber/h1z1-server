@@ -109,7 +109,6 @@ const hax: any = {
     }
   },
   drive: function (server: ZoneServer, client: Client, args: any[]) {
-    let vehicleId;
     let driveModel;
     const driveChoosen = args[1];
     if (!args[1]) {
@@ -121,22 +120,18 @@ const hax: any = {
     }
     switch (driveChoosen) {
       case "offroader":
-        vehicleId = 1;
         driveModel = 7225;
         client.vehicle.mountedVehicleType = "offroader";
         break;
       case "pickup":
-        vehicleId = 2;
         driveModel = 9258;
         client.vehicle.mountedVehicleType = "pickup";
         break;
       case "policecar":
-        vehicleId = 3;
         driveModel = 9301;
         client.vehicle.mountedVehicleType = "policecar";
         break;
       default:
-        vehicleId = 1;
         driveModel = 7225;
         client.vehicle.mountedVehicleType = "offroader";
         break;
@@ -173,7 +168,6 @@ const hax: any = {
   },
 
   spawnvehicle: function (server: ZoneServer, client: Client, args: any[]) {
-    const guid = server.generateGuid();
     if (!args[1]) {
       server.sendChatText(
         client,
