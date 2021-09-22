@@ -2056,14 +2056,14 @@ const itemDefinitionDataSchema: any[] = [
     type: "bitflags",
     defaultValue: [],
     flags: [
-      { bit: 0, name: "NO_TRADE", defaultValue: 0 },
-      { bit: 1, name: "NO_SALE", defaultValue: 0 },
-      { bit: 2, name: "MEMBERS_ONLY", defaultValue: 0 },
-      { bit: 3, name: "NON_MINI_GAME", defaultValue: 0 },
-      { bit: 4, name: "SINGLE_USE", defaultValue: 0 },
-      { bit: 5, name: "NO_LIVE_GAMER", defaultValue: 0 },
-      { bit: 6, name: "COMBAT_ONLY", defaultValue: 0 },
-      { bit: 7, name: "FORCE_DISABLE_PREVIEW", defaultValue: 0 },
+      { bit: 0, name: "NO_TRADE", defaultValue: 0 },// does nothing
+      { bit: 1, name: "COMBAT_ONLY", defaultValue: 0 },// does nothing
+      { bit: 2, name: "NO_LIVE_GAMER", defaultValue: 0 },// does nothing
+      { bit: 3, name: "SINGLE_USE", defaultValue: 0 },
+      { bit: 4, name: "NON_MINI_GAME", defaultValue: 0 },// does nothing
+      { bit: 5, name: "MEMBERS_ONLY", defaultValue: 0 },
+      { bit: 6, name: "NO_SALE", defaultValue: 0 },
+      { bit: 7, name: "FORCE_DISABLE_PREVIEW", defaultValue: 0 },// does nothing
     ]
   },
   {
@@ -2071,14 +2071,14 @@ const itemDefinitionDataSchema: any[] = [
     type: "bitflags",
     defaultValue: [],
     flags: [
-      { bit: 0, name: "PERSIST_PROFILE_SWITCH", defaultValue: 0 },
-      { bit: 1, name: "FLAG_QUICK_USE", defaultValue: 0 },
-      { bit: 2, name: "FLAG_CAN_EQUIP", defaultValue: 1 },
-      { bit: 3, name: "FLAG_ACCOUNT_SCOPE", defaultValue: 0 },
-      { bit: 4, name: "FLAG_NO_DRAG_DROP", defaultValue: 0 },
-      { bit: 5, name: "bit5", defaultValue: 0 },
-      { bit: 6, name: "bit6", defaultValue: 0 },
-      { bit: 7, name: "bit7", defaultValue: 0 },
+      { bit: 0, name: "PERSIST_PROFILE_SWITCH", defaultValue: 0 },// does nothing
+      { bit: 1, name: "FLAG_QUICK_USE", defaultValue: 0 },// does nothing
+      { bit: 2, name: "FLAG_NO_DRAG_DROP", defaultValue: 0 },
+      { bit: 3, name: "FLAG_ACCOUNT_SCOPE", defaultValue: 0 },// does nothing
+      { bit: 4, name: "FLAG_CAN_EQUIP", defaultValue: 0 },// does nothing
+      { bit: 5, name: "bit5", defaultValue: 0 },// does nothing
+      { bit: 6, name: "bit6", defaultValue: 0 },// does nothing
+      { bit: 7, name: "bit7", defaultValue: 0 },// does nothing
     ]
   },
   { name: "NAME_ID", type: "uint32", defaultValue: 0 },
@@ -2138,7 +2138,7 @@ const itemDefinitionDataSchema: any[] = [
   { name: "GRINDER_REWARD_SET_ID", type: "uint32", defaultValue: 0 },
   { name: "BUILD_BAR_GROUP_ID", type: "uint32", defaultValue: 0 },
   { name: "unknownString7", type: "string", defaultValue: "" },
-  { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+  { name: "unknownBoolean1", type: "boolean", defaultValue: true },
   { name: "IS_ARMOR", type: "boolean", defaultValue: false },
   { name: "unknownDword52", type: "uint32", defaultValue: 0 },
   { name: "unknownDword53", type: "uint32", defaultValue: 0 },

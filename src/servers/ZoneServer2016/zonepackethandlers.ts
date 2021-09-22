@@ -28,6 +28,7 @@ import { ZoneServer2016 } from "./zoneserver";
 import { ZoneClient2016 as Client } from "./zoneclient";
 // TOOD: UPDATE THIS FOR 2016
 // const modelToName = require("../../../data/2016/dataSources/ModelToName.json");
+const ModelIdMap = require("../../../data/2016/dataSources/ModelIdMap.json");
 
 import { _ } from "../../utils/utils";
 const debug = require("debug")("zonepacketHandlers");
@@ -623,11 +624,11 @@ const packetHandlers = {
     client: Client,
     packet: any
   ) {
-    console.log(packet);
-    console.log(packet.data)
+    //console.log(packet);
+    //console.log(packet.data)
     const characterId = server._transientIds[packet.data.transientId];
-    console.log(characterId)
-    console.log(server._vehicles[characterId])
+    //console.log(characterId)
+    //console.log(server._vehicles[characterId])
     if (characterId) {
       if (!server._soloMode) {
         server.sendRawToAllOthers(
@@ -882,8 +883,16 @@ const packetHandlers = {
       // other seats
       server.dismountVehicle(client);
     }
-    if(objectData) {
-      
+    if(objectData) { // object pickup
+      const itemGuid = server.generatePickupItem(client, objectData),
+      item = server._items[itemGuid];
+      if(!item) {
+        server.sendChatText(client, `No item definition mapped for id: ${objectData.modelId}`);
+        return;
+      }
+
+      server.equipItem(client, itemGuid);
+      server.deleteEntity(guid, server._objects);
     }
   },
 
@@ -979,13 +988,16 @@ const packetHandlers = {
         ID: packet.data.ID,
         definitionData: {
           ...itemDef,
+          HUD_IMAGE_SET_ID: itemDef.IMAGE_SET_ID,
           flags1: {
-            //...itemDef,
-
+            ...itemDef,
+            //SINGLE_USE: 1, // IS_REMOVED_ON_USE
+            //MEMBERS_ONLY: 1, // MEMBERS_ONLY
+            //NO_SALE: 1, // NO_SALE
           },
           flags2: {
-            //...itemDef,
-            //FLAG_CAN_EQUIP: 1,
+            ...itemDef,
+            //FLAG_NO_DRAG_DROP: 1, // FLAG_NO_DRAG_DROP
           },
           stats: []
         }

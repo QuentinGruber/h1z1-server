@@ -126,11 +126,11 @@ const dev: any = {
     }
     const loadout = {
       characterId: client.character.characterId,
-      loadoutItemLoadoutId: 5,
+      loadoutItemLoadoutId: 15,
       loadoutData: {
         loadoutSlots: [
           {
-            loadoutItemSlotId: Number(args[1]),
+            loadoutItemSlotId: 15, // might be loadoutId?
             itemDefinitionId: Number(args[2]),
             unknownDword1: Number(args[1]),
             unknownData1: {

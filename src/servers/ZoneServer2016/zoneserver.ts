@@ -37,6 +37,7 @@ const recipes = require("../../../data/2016/sampleData/recipes.json");
 const localWeatherTemplates = require("../../../data/2016/dataSources/weather.json");
 const stats = require("../../../data/2016/sampleData/stats.json");
 const resources = require("../../../data/2016/dataSources/resourceDefinitions.json");
+const itemDefinitions = require("./../../../data/2016/dataSources/ServerItemDefinitions.json");
 
 export class ZoneServer2016 extends ZoneServer {
   worldRoutineTimer: any;
@@ -44,6 +45,7 @@ export class ZoneServer2016 extends ZoneServer {
   // @ts-ignore yeah idk how to fix that
   _packetHandlers: HandledZonePackets2016;
   _weatherTemplates: any;
+  _items: any;
   constructor(serverPort: number, gatewayKey: Uint8Array, mongoAddress = "") {
     super(serverPort, gatewayKey, mongoAddress);
     this._protocol = new H1Z1Protocol("ClientProtocol_1080");
@@ -81,6 +83,7 @@ export class ZoneServer2016 extends ZoneServer {
         unknownByte4: 1,
       };
     });
+    this._items = {};
   }
   onZoneDataEvent(err: any, client: Client, packet: any) {
     if (err) {
@@ -300,6 +303,7 @@ export class ZoneServer2016 extends ZoneServer {
     this._frozeCycle = false;
     await this.loadMongoData();
     this._profiles = this.generateProfiles();
+    this.createAllObjects();
     /*
     if (
       await this._db?.collection("worlds").findOne({ worldId: this._worldId })
@@ -789,6 +793,98 @@ export class ZoneServer2016 extends ZoneServer {
       this._weather2016,
       this._soloMode ? false : true
     );
+  }
+
+  /********************* INVENTORY *********************/
+
+  equipItem(client: Client, itemGuid: string) {
+    const item = this._items[itemGuid],
+    def = item.itemDefinition;
+    const loadoutSlot = {
+      characterId: client.character.characterId,
+      loadoutItemLoadoutId: 5,
+      loadoutData: {
+        loadoutSlots: [
+          {
+            loadoutItemSlotId: def.LOADOUT_SLOT_ID,
+            itemDefinitionId: def.ID,
+            unknownDword1: def.LOADOUT_SLOT_ID,
+            unknownData1: {
+              itemDefinitionId: def.ID,
+              loadoutItemOwnerGuid: client.character.characterId,
+              unknownByte1: 17,
+            },
+            unknownDword4: 18,
+          },
+        ],
+      },
+      unknownDword2: 19,
+    }
+    this.sendData(client, "Loadout.SelectSlot", loadoutSlot);
+    const equipmentSlot = {
+      characterData: {
+        characterId: client.character.characterId,
+      },
+      equipmentTexture: {
+        index: 1,
+        slotId: def.EQUIP_SLOT_ID,
+        unknownQword1: "0x1",
+        textureAlias: "",
+        unknownString1: "",
+      },
+      equipmentModel: {
+        modelName: def.MODEL_NAME.replace("<gender>", "Male"),
+        effectId: 0,
+        slotId: def.EQUIP_SLOT_ID,
+      },
+    };
+    this.sendChatText(client, `Setting character equipment slot`);
+    this.sendData(
+      client,
+      "Equipment.SetCharacterEquipmentSlot",
+      equipmentSlot
+    );
+  }
+
+  generateItem(client: Client, itemDefinitionId: any) {
+    const generatedGuid = this.generateGuid();
+    this._items[generatedGuid] = {
+      guid: generatedGuid,
+      itemDefinition: itemDefinitions.find(
+        (itemDef: any) =>
+          itemDef.ID === itemDefinitionId
+      )
+    }
+    return generatedGuid;
+  }
+
+  generatePickupItem(client: Client, objectData: any): any {
+    /*
+    let itemDefinitionId, authorizedItemDefinitions: any[] = [];
+    switch(objectData.modelId){
+      case 68: // helmet
+        authorizedItemDefinitions = [2172]
+        itemDefinitionId = 2172;
+        break;
+      default:
+        debug(`[ERROR] No itemDefinition mapping for object modelId ${objectData.modelId}`);
+        return;
+    }
+    */
+    function rnd_number(max: any, fixed: Boolean = false) {
+      const num = Math.random() * max;
+      if (fixed) return Number(num.toFixed(0));
+      return Number(num);
+    }
+
+    const authorizedItemDefinitions = itemDefinitions.filter(
+      (def: any) => (def.WORLD_MODEL_ID === objectData.modelId) && def.CODE_FACTORY_NAME !== "AccountRecipe"
+    )
+    if(!authorizedItemDefinitions) {
+      debug(`[ERROR] No itemDefinition mapping for object modelId ${objectData.modelId}`);
+      return;
+    }
+    return this.generateItem(client, authorizedItemDefinitions[rnd_number(authorizedItemDefinitions.length, true)].ID);
   }
 }
 
