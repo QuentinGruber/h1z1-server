@@ -290,6 +290,7 @@ function createHospital(server: ZoneServer2016) {
         authorizedModelId.push(9543); // vial
         authorizedModelId.push(9540); // syringe
         authorizedModelId.push(9249); // shirt
+        authorizedModelId.push(9736); // pants
         authorizedModelId.push(9296); // water bottle
         authorizedModelId.push(9156); // empty bottle
         break;
@@ -602,7 +603,8 @@ function createClothes(server: ZoneServer2016) {
         authorizedModelId.push(66);
         break;
       case "ItemSpawner_Clothes_FoldedShirt.adr":
-        authorizedModelId.push(9249);
+        authorizedModelId.push(9249); // shirt
+        authorizedModelId.push(9736); // pants
         break;
       case "ItemSpawner_Clothes_Beanie.adr":
         authorizedModelId.push(67);
@@ -639,7 +641,8 @@ function createResidential(server: ZoneServer2016) {
     switch (spawnerType.actorDefinition) {
       case "ItemSpawnerResidential_Tier00.adr":
         authorizedModelId.push(9064);
-        authorizedModelId.push(9249);
+        authorizedModelId.push(9249); // shirt
+        authorizedModelId.push(9736); // pants
         authorizedModelId.push(70);
         authorizedModelId.push(21);
         authorizedModelId.push(66);
@@ -783,7 +786,8 @@ function createWorld(server: ZoneServer2016) {
         authorizedModelId.push(24);
         authorizedModelId.push(9156);
         authorizedModelId.push(9159);
-        authorizedModelId.push(9249);
+        authorizedModelId.push(9249); // shirt
+        authorizedModelId.push(9736); // pants
         authorizedModelId.push(9250);
         authorizedModelId.push(22);
         authorizedModelId.push(66);

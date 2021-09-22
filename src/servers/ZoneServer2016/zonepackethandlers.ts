@@ -200,6 +200,10 @@ const packetHandlers = {
       }
     });
     */
+    const defaultShirt = server._items[server.generateItem(client, 2377)] //grafitti
+    //defaultPants = this.generateItem(client, ),
+    //defaultShoes = this.generateItem(client, )
+    server.equipItem(client, defaultShirt.guid);
   },
   ClientFinishedLoading: function (
     server: ZoneServer2016,

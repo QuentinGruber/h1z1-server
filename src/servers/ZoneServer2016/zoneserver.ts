@@ -135,10 +135,6 @@ export class ZoneServer2016 extends ZoneServer {
       client.character.name = character.characterName;
     }
 
-    //const defaultShirt = this.generateItem(client, ),
-    //defaultPants = this.generateItem(client, ),
-    //defaultShoes = this.generateItem(client, )
-
     client.character = {
       ...client.character,
       guid: "0x665a2bff2b44c034", // default, only matters for multiplayer
@@ -193,21 +189,6 @@ export class ZoneServer2016 extends ZoneServer {
         },
       ],
       loadout: [],
-     /*
-     loadout: [
-      {
-        loadoutItemSlotId: def.LOADOUT_SLOT_ID,
-        itemDefinitionId: def.ID,
-        unknownDword1: def.LOADOUT_SLOT_ID,
-        unknownData1: {
-          itemDefinitionId: def.ID,
-          loadoutItemOwnerGuid: client.character.characterId,
-          unknownByte1: 17,
-        },
-        unknownDword4: 18,
-      }
-     ],
-     */
       state: {
         position: new Float32Array([0, 0, 0, 1]),
         rotation: new Float32Array([0, 0, 0, 1]),
@@ -216,7 +197,6 @@ export class ZoneServer2016 extends ZoneServer {
         shield: 0,
       },
     };
-
     let isRandomlySpawning = false;
     if (
       _.isEqual(character.position, [0, 0, 0, 1]) &&
@@ -836,7 +816,7 @@ export class ZoneServer2016 extends ZoneServer {
         unknownDword1: loadoutSlotId,
         unknownData1: {
           itemDefinitionId: def.ID,
-          loadoutItemOwnerGuid: client.character.characterId,
+          loadoutItemOwnerGuid: item.guid,
           unknownByte1: 17,
         },
         unknownDword4: 18,
@@ -849,7 +829,7 @@ export class ZoneServer2016 extends ZoneServer {
         unknownDword1: loadoutSlotId,
         unknownData1: {
           itemDefinitionId: def.ID,
-          loadoutItemOwnerGuid: client.character.characterId,
+          loadoutItemOwnerGuid: item.guid,
           unknownByte1: 17,
         },
         unknownDword4: 18,
@@ -864,7 +844,6 @@ export class ZoneServer2016 extends ZoneServer {
       },
       unknownDword2: 19,
     });
-    this.sendChatText(client, `Setting character equipment slot`);
     this.sendData( client, "Equipment.SetCharacterEquipmentSlot", {
       characterData: {
         characterId: client.character.characterId,
@@ -872,14 +851,15 @@ export class ZoneServer2016 extends ZoneServer {
       equipmentTexture: {
         index: 1,
         slotId: equipmentSlotId,
-        unknownQword1: "0x1",
-        textureAlias: "",
+        unknownQword1: item.guid,
+        textureAlias: def.TEXTURE_ALIAS,
         unknownString1: "",
       },
       equipmentModel: {
         modelName: def.MODEL_NAME.replace("<gender>", "Male"),
+        defaultTextureAlias: def.TEXTURE_ALIAS,
         effectId: 0,
-        slotId: equipmentSlotId,
+        slotId: equipmentSlotId
       },
     });
   }
