@@ -364,6 +364,23 @@ export interface HandledZonePackets2016 {
   ) => void;
 }
 
+export interface npcData {
+  guid: string;
+  characterId: string;
+  transientId: number;
+  modelId:number;
+  scale: number[];
+  position: Float32Array;
+  rotation: Float32Array;
+  attachedObject: any;
+  vehicleId: number;
+  isVehicle:boolean;
+  color:any;
+  unknownArray1:any[];
+  array5:any[];
+  array17:any[];
+  array18:any[];
+}
 export interface characterEquipment {
   modelName: string;
   slotId: number;

@@ -28,6 +28,7 @@ import { Worker } from "worker_threads";
 import SOEClient from "servers/SoeServer/soeclient";
 import { ZoneClient as Client } from "./zoneclient";
 import { h1z1PacketsType } from "types/packets";
+import { Vehicle } from "./vehicles";
 process.env.isBin && require("./workers/dynamicWeather");
 
 const localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json");
@@ -72,7 +73,7 @@ export class ZoneServer extends EventEmitter {
   _npcRenderDistance: number;
   _dynamicWeatherWorker: any;
   _dynamicWeatherEnabled: boolean;
-  _vehicles: any;
+  _vehicles: {[characterId: string]: Vehicle};
   _respawnLocations: any[];
   _doors: any;
   _props: any;
@@ -82,6 +83,7 @@ export class ZoneServer extends EventEmitter {
   _respawnOnLastPosition: boolean = true;
   _spawnTimerMs: number = 10;
   _worldRoutineRadiusPercentage: number = 0.4;
+  server: any;
 
   constructor(
     serverPort: number,
