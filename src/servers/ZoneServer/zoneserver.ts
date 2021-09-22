@@ -83,7 +83,6 @@ export class ZoneServer extends EventEmitter {
   _respawnOnLastPosition: boolean = true;
   _spawnTimerMs: number = 10;
   _worldRoutineRadiusPercentage: number = 0.4;
-  server: any;
 
   constructor(
     serverPort: number,
