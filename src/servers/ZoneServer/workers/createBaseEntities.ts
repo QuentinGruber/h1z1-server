@@ -9,7 +9,7 @@ const modelToName = require("../../../../data/2015/sampleData/ModelToName.json")
 const textures = require("../../../../data/2015/sampleData/textures.json");
 import { _ } from "../../../utils/utils";
 import { generateRandomGuid, eul2quat } from "../../../utils/utils";
-import { Vehicle } from "../vehicles";
+import { Vehicle } from "../classes/vehicles";
 import { ZoneServer } from "../zoneserver";
 const npcs: any = {};
 const objects: any = {};
