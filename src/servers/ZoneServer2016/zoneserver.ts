@@ -859,18 +859,6 @@ export class ZoneServer2016 extends ZoneServer {
   }
 
   generatePickupItem(client: Client, objectData: any): any {
-    /*
-    let itemDefinitionId, authorizedItemDefinitions: any[] = [];
-    switch(objectData.modelId){
-      case 68: // helmet
-        authorizedItemDefinitions = [2172]
-        itemDefinitionId = 2172;
-        break;
-      default:
-        debug(`[ERROR] No itemDefinition mapping for object modelId ${objectData.modelId}`);
-        return;
-    }
-    */
     function rnd_number(max: any, fixed: Boolean = false) {
       const num = Math.random() * max;
       if (fixed) return Number(num.toFixed(0));
@@ -884,7 +872,8 @@ export class ZoneServer2016 extends ZoneServer {
       debug(`[ERROR] No itemDefinition mapping for object modelId ${objectData.modelId}`);
       return;
     }
-    return this.generateItem(client, authorizedItemDefinitions[rnd_number(authorizedItemDefinitions.length, true)].ID);
+    console.log(authorizedItemDefinitions)
+    return this.generateItem(client, authorizedItemDefinitions[rnd_number(authorizedItemDefinitions.length-1, true)].ID);
   }
 }
 
