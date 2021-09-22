@@ -12,10 +12,10 @@ const dev: any = {
     );
   },
   testpacket: function (server: ZoneServer, client: Client, args: any[]) {
-    server.sendData(client,"Target.AddTarget",{
-      Unk1:"0x6965746961756f00",
-      Unk2:"ouaitest"
-    })
+    server.sendData(client, "Target.AddTarget", {
+      Unk1: "0x6965746961756f00",
+      Unk2: "ouaitest",
+    });
     server.sendData(client, "Command.PlaySoundIdOnTarget", {
       objects: [
         {

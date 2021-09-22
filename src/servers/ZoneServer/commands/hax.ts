@@ -48,11 +48,15 @@ const hax: any = {
   },
   spectate: function (server: ZoneServer, client: Client, args: any[]) {
     const characterId = server.generateGuid();
-    const vehicleData = new Vehicle(server._worldId,
-      characterId,server.getTransientId(client, characterId),9371,
-      client.character.state.position,client.character.state.lookAt
-      )
-   
+    const vehicleData = new Vehicle(
+      server._worldId,
+      characterId,
+      server.getTransientId(client, characterId),
+      9371,
+      client.character.state.position,
+      client.character.state.lookAt
+    );
+
     server.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicleData);
     vehicleData.isManaged = true;
     server._vehicles[characterId] = {
@@ -137,10 +141,14 @@ const hax: any = {
         break;
     }
     const characterId = server.generateGuid();
-    const vehicleData = new Vehicle(server._worldId,
-      characterId,server.getTransientId(client, characterId),driveModel,
-      client.character.state.position,client.character.state.lookAt
-      )
+    const vehicleData = new Vehicle(
+      server._worldId,
+      characterId,
+      server.getTransientId(client, characterId),
+      driveModel,
+      client.character.state.position,
+      client.character.state.lookAt
+    );
     server.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicleData);
     vehicleData.isManaged = true;
     server._vehicles[characterId] = {
@@ -192,12 +200,16 @@ const hax: any = {
         break;
     }
     const characterId = server.generateGuid();
-    const vehicleData = new Vehicle(server._worldId,
-      characterId,server.getTransientId(client, characterId),driveModel,
-      client.character.state.position,client.character.state.lookAt
-      )
+    const vehicleData = new Vehicle(
+      server._worldId,
+      characterId,
+      server.getTransientId(client, characterId),
+      driveModel,
+      client.character.state.position,
+      client.character.state.lookAt
+    );
     server.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicleData);
-      vehicleData.isManaged = true;
+    vehicleData.isManaged = true;
     server._vehicles[characterId] = {
       ...vehicleData,
       onReadyCallback: () => {
@@ -214,16 +226,20 @@ const hax: any = {
   parachute: function (server: ZoneServer, client: Client, args: any[]) {
     const characterId = server.generateGuid();
     const posY = client.character.state.position[1] + 700;
-    const vehicleData = new Vehicle(server._worldId,
-      characterId,server.getTransientId(client, characterId),9374,
+    const vehicleData = new Vehicle(
+      server._worldId,
+      characterId,
+      server.getTransientId(client, characterId),
+      9374,
       new Float32Array([
         client.character.state.position[0],
         posY,
         client.character.state.position[2],
         client.character.state.position[3],
-      ]),client.character.state.lookAt
-      )
-  
+      ]),
+      client.character.state.lookAt
+    );
+
     server.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicleData);
     server.sendData(client, "PlayerUpdate.ManagedObject", {
       guid: vehicleData.npcData.characterId,

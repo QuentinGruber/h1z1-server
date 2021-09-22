@@ -73,7 +73,7 @@ export class ZoneServer extends EventEmitter {
   _npcRenderDistance: number;
   _dynamicWeatherWorker: any;
   _dynamicWeatherEnabled: boolean;
-  _vehicles: {[characterId: string]: Vehicle};
+  _vehicles: { [characterId: string]: Vehicle };
   _respawnLocations: any[];
   _doors: any;
   _props: any;
@@ -589,8 +589,8 @@ export class ZoneServer extends EventEmitter {
     return { itemTypes: undefined };
   }
 
-  async saveCharacterPosition(client: Client,refreshTimeout = false) {
-    if(client?.character){
+  async saveCharacterPosition(client: Client, refreshTimeout = false) {
+    if (client?.character) {
       const { position, rotation } = client.character.state;
       await this._db?.collection("characters").updateOne(
         { characterId: client.character.characterId },
@@ -601,7 +601,7 @@ export class ZoneServer extends EventEmitter {
           },
         }
       );
-      refreshTimeout && client.savePositionTimer.refresh()
+      refreshTimeout && client.savePositionTimer.refresh();
     }
   }
 

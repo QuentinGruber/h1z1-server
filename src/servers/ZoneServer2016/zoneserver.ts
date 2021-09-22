@@ -44,7 +44,7 @@ export class ZoneServer2016 extends ZoneServer {
   // @ts-ignore yeah idk how to fix that
   _packetHandlers: HandledZonePackets2016;
   _weatherTemplates: any;
-  _vehicles:any;
+  _vehicles: any;
   constructor(serverPort: number, gatewayKey: Uint8Array, mongoAddress = "") {
     super(serverPort, gatewayKey, mongoAddress);
     this._protocol = new H1Z1Protocol("ClientProtocol_1080");

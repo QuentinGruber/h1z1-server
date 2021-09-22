@@ -177,7 +177,14 @@ function createAllVehicles(server: ZoneServer) {
     server._transientIds[numberOfSpawnedEntity] = characterId;
     const modelId = getRandomVehicleModelId();
     const { position, rotation } = vehicle;
-    vehicles[characterId] = new Vehicle(server._worldId,characterId,numberOfSpawnedEntity,modelId,position,rotation)
+    vehicles[characterId] = new Vehicle(
+      server._worldId,
+      characterId,
+      numberOfSpawnedEntity,
+      modelId,
+      position,
+      rotation
+    );
   });
   debug("All vehicles created");
 }

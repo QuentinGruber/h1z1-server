@@ -120,7 +120,7 @@ const dev: any = {
     server.sendData(client, "Loadout.SetCurrentLoadout", loadout);
   },
   selectslot: function (server: ZoneServer2016, client: Client, args: any[]) {
-    if(!args[1]) {
+    if (!args[1]) {
       server.sendChatText(client, "Missing itemDefinitionId arg.");
       return;
     }
@@ -387,20 +387,18 @@ const dev: any = {
     server.updateWeather2016(client);
   },
 
-
-  testItemDef :function (server: ZoneServer2016, client: Client, args: any[]) {
-
-    let ItemDefinitionsPacket = { data : {itemDefinitions:[]
-    }}
+  testItemDef: function (server: ZoneServer2016, client: Client, args: any[]) {
+    let ItemDefinitionsPacket = { data: { itemDefinitions: [] } };
     const fs = require("fs");
-    const itemDefJson = fs.readFileSync("../../../../data/2016/dataSources/ClientItemDefinitions.json")
-    itemDefJson.forEach((ItemDefinition:any) => {
+    const itemDefJson = fs.readFileSync(
+      "../../../../data/2016/dataSources/ClientItemDefinitions.json"
+    );
+    itemDefJson.forEach((ItemDefinition: any) => {
       // @ts-ignore
       ItemDefinitionsPacket.data.itemDefinitions.push(ItemDefinition);
     });
-    console.log(ItemDefinitionsPacket)
-    server.sendData(client, "Command.ItemDefinitions",ItemDefinitionsPacket)
-
+    console.log(ItemDefinitionsPacket);
+    server.sendData(client, "Command.ItemDefinitions", ItemDefinitionsPacket);
   },
 
   recipe: function (server: ZoneServer2016, client: Client, args: any[]) {

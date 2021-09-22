@@ -273,7 +273,7 @@ const packetHandlers = {
       client.firstLoading = false;
       client.pingTimer?.refresh();
       client.savePositionTimer = setTimeout(
-        () => server.saveCharacterPosition(client,true),
+        () => server.saveCharacterPosition(client, true),
         30000
       );
       server.executeFuncForAllClients("spawnCharacters");
@@ -294,7 +294,6 @@ const packetHandlers = {
     client.isInteracting = false;
     delete client.vehicle.mountedVehicle;
     client.vehicle.mountedVehicleType = "0";
-
   },
   Security: function (server: ZoneServer, client: Client, packet: any) {
     debug(packet);
@@ -1842,7 +1841,7 @@ const packetHandlers = {
     const objectToPickup = server._objects[packet.data.guid];
     const doorToInteractWith = server._doors[packet.data.guid];
     const propToSearch = server._props[packet.data.guid];
-    const vehicleToMount:Vehicle = server._vehicles[packet.data.guid];
+    const vehicleToMount: Vehicle = server._vehicles[packet.data.guid];
     if (
       objectToPickup &&
       isPosInRadius(

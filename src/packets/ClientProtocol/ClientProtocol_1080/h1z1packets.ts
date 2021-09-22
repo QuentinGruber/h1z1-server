@@ -2052,7 +2052,7 @@ const characterResourceData = [
 
 const itemDefinitionDataSchema: any[] = [
   {
-    name: "flags1",// 2 sets of 8 bits, the sets might be swapped though
+    name: "flags1", // 2 sets of 8 bits, the sets might be swapped though
     type: "bitflags",
     defaultValue: [],
     flags: [
@@ -2064,7 +2064,7 @@ const itemDefinitionDataSchema: any[] = [
       { bit: 5, name: "NO_LIVE_GAMER", defaultValue: 0 },
       { bit: 6, name: "COMBAT_ONLY", defaultValue: 0 },
       { bit: 7, name: "FORCE_DISABLE_PREVIEW", defaultValue: 0 },
-    ]
+    ],
   },
   {
     name: "flags2",
@@ -2079,7 +2079,7 @@ const itemDefinitionDataSchema: any[] = [
       { bit: 5, name: "bit5", defaultValue: 0 },
       { bit: 6, name: "bit6", defaultValue: 0 },
       { bit: 7, name: "bit7", defaultValue: 0 },
-    ]
+    ],
   },
   { name: "NAME_ID", type: "uint32", defaultValue: 0 },
   { name: "DESCRIPTION_ID", type: "uint32", defaultValue: 0 },
@@ -2162,8 +2162,8 @@ const itemDefinitionDataSchema: any[] = [
       },
       { name: "unknownDword2", type: "uint32", defaultValue: 0 },
     ],
-  }
-]
+  },
+];
 
 const packets = [
   ["Server", 0x01, {}],
@@ -4745,7 +4745,7 @@ const packets = [
           type: "byteswithlength",
           fields: [
             { name: "ID", type: "uint32", defaultValue: 0 },
-           /* {
+            /* {
               name: "definitionData",
               type: "custom",
               parser: readItemDefinitionData,
@@ -4757,7 +4757,6 @@ const packets = [
               type: "schema",
               defaultValue: {},
               fields: itemDefinitionDataSchema,
-              
             },
           ],
         },
@@ -7708,7 +7707,7 @@ const packets = [
       ],
     },
   ],
-  
+
   [
     "AddSimpleNpc",
     0x92,

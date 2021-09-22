@@ -624,10 +624,10 @@ const packetHandlers = {
     packet: any
   ) {
     console.log(packet);
-    console.log(packet.data)
+    console.log(packet.data);
     const characterId = server._transientIds[packet.data.transientId];
-    console.log(characterId)
-    console.log(server._vehicles[characterId])
+    console.log(characterId);
+    console.log(server._vehicles[characterId]);
     if (characterId) {
       if (!server._soloMode) {
         server.sendRawToAllOthers(
@@ -955,15 +955,17 @@ const packetHandlers = {
       unknownString1: "",
     });
   },
-  
-  
-  "Command.ItemDefinitionRequest": function (server: ZoneServer2016, client: Client, packet: any) {
+
+  "Command.ItemDefinitionRequest": function (
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
     console.log("ItemDefinitionRequest\n\n\n\n\n\n\n\n\n");
     console.log(packet.data);
 
     const itemDef = itemDefinitions.find(
-      (itemDef: any) =>
-        itemDef.ID === packet.data.ID
+      (itemDef: any) => itemDef.ID === packet.data.ID
     );
 
     server.sendData(client, "Command.ItemDefinitionReply", {
@@ -973,18 +975,16 @@ const packetHandlers = {
           ...itemDef,
           flags1: {
             //...itemDef,
-
           },
           flags2: {
             //...itemDef,
             //FLAG_CAN_EQUIP: 1,
           },
-          stats: []
-        }
-      }
-    })
-  }
-  
+          stats: [],
+        },
+      },
+    });
+  },
 };
 
 export default packetHandlers;
