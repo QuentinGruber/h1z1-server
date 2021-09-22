@@ -37,7 +37,10 @@ const recipes = require("../../../data/2016/sampleData/recipes.json");
 const localWeatherTemplates = require("../../../data/2016/dataSources/weather.json");
 const stats = require("../../../data/2016/sampleData/stats.json");
 const resources = require("../../../data/2016/dataSources/resourceDefinitions.json");
+
 const itemDefinitions = require("./../../../data/2016/dataSources/ServerItemDefinitions.json");
+const loadoutSlotItemClasses = require("./../../../data/2016/dataSources/LoadoutSlotItemClasses.json");
+const loadoutEquipSlots = require("./../../../data/2016/dataSources/loadoutEquipSlots.json");
 
 export class ZoneServer2016 extends ZoneServer {
   worldRoutineTimer: any;
@@ -132,6 +135,10 @@ export class ZoneServer2016 extends ZoneServer {
       client.character.name = character.characterName;
     }
 
+    //const defaultShirt = this.generateItem(client, ),
+    //defaultPants = this.generateItem(client, ),
+    //defaultShoes = this.generateItem(client, )
+
     client.character = {
       ...client.character,
       guid: "0x665a2bff2b44c034", // default, only matters for multiplayer
@@ -154,6 +161,7 @@ export class ZoneServer2016 extends ZoneServer {
         virus: 6000,
         comfort: 5000,
       },
+      
       equipment: [
         {
           modelName: "SurvivorMale_Head_01.adr",
@@ -184,6 +192,22 @@ export class ZoneServer2016 extends ZoneServer {
           slotId: 4,
         },
       ],
+      loadout: [],
+     /*
+     loadout: [
+      {
+        loadoutItemSlotId: def.LOADOUT_SLOT_ID,
+        itemDefinitionId: def.ID,
+        unknownDword1: def.LOADOUT_SLOT_ID,
+        unknownData1: {
+          itemDefinitionId: def.ID,
+          loadoutItemOwnerGuid: client.character.characterId,
+          unknownByte1: 17,
+        },
+        unknownDword4: 18,
+      }
+     ],
+     */
       state: {
         position: new Float32Array([0, 0, 0, 1]),
         rotation: new Float32Array([0, 0, 0, 1]),
@@ -799,35 +823,55 @@ export class ZoneServer2016 extends ZoneServer {
 
   equipItem(client: Client, itemGuid: string) {
     const item = this._items[itemGuid],
-    def = item.itemDefinition;
-    const loadoutSlot = {
+    def = item.itemDefinition,
+    loadoutSlotId = loadoutSlotItemClasses.find((slot:any) => slot.ITEM_CLASS === def.ITEM_CLASS).SLOT,
+    equipmentSlotId = loadoutEquipSlots.find((slot:any) => slot.SLOT_ID === loadoutSlotId).EQUIP_SLOT_ID;
+    
+    const index = client.character.loadout.map((slot:any) => slot.loadoutItemSlotId).indexOf(loadoutSlotId);
+    console.log(index)
+    if(index === -1) { // adds new slot data
+      client.character.loadout.push({
+        loadoutItemSlotId: loadoutSlotId,
+        itemDefinitionId: def.ID,
+        unknownDword1: loadoutSlotId,
+        unknownData1: {
+          itemDefinitionId: def.ID,
+          loadoutItemOwnerGuid: client.character.characterId,
+          unknownByte1: 17,
+        },
+        unknownDword4: 18,
+      })
+    }
+    else { // overwrites slot data if slot is already defined 
+      client.character.loadout[index] = {
+        loadoutItemSlotId: loadoutSlotId,
+        itemDefinitionId: def.ID,
+        unknownDword1: loadoutSlotId,
+        unknownData1: {
+          itemDefinitionId: def.ID,
+          loadoutItemOwnerGuid: client.character.characterId,
+          unknownByte1: 17,
+        },
+        unknownDword4: 18,
+      }
+    }
+
+    this.sendData(client, "Loadout.SelectSlot", {
       characterId: client.character.characterId,
       loadoutItemLoadoutId: 5,
       loadoutData: {
-        loadoutSlots: [
-          {
-            loadoutItemSlotId: def.LOADOUT_SLOT_ID,
-            itemDefinitionId: def.ID,
-            unknownDword1: def.LOADOUT_SLOT_ID,
-            unknownData1: {
-              itemDefinitionId: def.ID,
-              loadoutItemOwnerGuid: client.character.characterId,
-              unknownByte1: 17,
-            },
-            unknownDword4: 18,
-          },
-        ],
+        loadoutSlots: client.character.loadout,
       },
       unknownDword2: 19,
-    }
-    this.sendData(client, "Loadout.SelectSlot", loadoutSlot);
-    const equipmentSlot = {
+    });
+    this.sendChatText(client, `Setting character equipment slot`);
+    this.sendData( client, "Equipment.SetCharacterEquipmentSlot", {
       characterData: {
         characterId: client.character.characterId,
       },
       equipmentTexture: {
         index: 1,
-        slotId: def.EQUIP_SLOT_ID,
+        slotId: equipmentSlotId,
         unknownQword1: "0x1",
         textureAlias: "",
         unknownString1: "",
@@ -835,15 +879,9 @@ export class ZoneServer2016 extends ZoneServer {
       equipmentModel: {
         modelName: def.MODEL_NAME.replace("<gender>", "Male"),
         effectId: 0,
-        slotId: def.EQUIP_SLOT_ID,
+        slotId: equipmentSlotId,
       },
-    };
-    this.sendChatText(client, `Setting character equipment slot`);
-    this.sendData(
-      client,
-      "Equipment.SetCharacterEquipmentSlot",
-      equipmentSlot
-    );
+    });
   }
 
   generateItem(client: Client, itemDefinitionId: any) {
