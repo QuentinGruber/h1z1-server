@@ -25,7 +25,7 @@ import admin from "./commands/admin";
 
 import { Int64String, isPosInRadius } from "../../utils/utils";
 import { ZoneServer2016 } from "./zoneserver";
-import { ZoneClient2016 as Client } from "./zoneclient";
+import { ZoneClient2016 as Client } from "./classes/zoneclient";
 // TOOD: UPDATE THIS FOR 2016
 // const modelToName = require("../../../data/2016/dataSources/ModelToName.json");
 

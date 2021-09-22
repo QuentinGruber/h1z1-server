@@ -27,11 +27,11 @@ import {
   isPosInRadius,
 } from "../../utils/utils";
 import { ZoneServer } from "./zoneserver";
-import { ZoneClient as Client } from "../ZoneServer/zoneclient";
+import { ZoneClient as Client } from "./classes/zoneclient";
 const modelToName = require("../../../data/2015/sampleData/ModelToName.json");
 
 import { _ } from "../../utils/utils";
-import { Vehicle } from "./vehicles";
+import { Vehicle } from "./classes/vehicles";
 const debug = require("debug")("zonepacketHandlers");
 
 const packetHandlers = {

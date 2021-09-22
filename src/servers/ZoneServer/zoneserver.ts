@@ -26,9 +26,9 @@ import { HandledZonePackets, Weather } from "../../types/zoneserver";
 import { Db, MongoClient } from "mongodb";
 import { Worker } from "worker_threads";
 import SOEClient from "servers/SoeServer/soeclient";
-import { ZoneClient as Client } from "./zoneclient";
+import { ZoneClient as Client } from "./classes/zoneclient";
 import { h1z1PacketsType } from "types/packets";
-import { Vehicle } from "./vehicles";
+import { Vehicle } from "./classes/vehicles";
 process.env.isBin && require("./workers/dynamicWeather");
 
 const localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json");

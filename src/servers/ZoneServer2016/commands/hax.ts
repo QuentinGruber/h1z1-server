@@ -1,5 +1,5 @@
 import fs from "fs";
-import { ZoneClient2016 as Client } from "../zoneclient";
+import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { _ } from "../../../utils/utils";
 const debug = require("debug")("zonepacketHandlers");

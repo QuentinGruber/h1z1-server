@@ -1,11 +1,11 @@
 import fs from "fs";
 import { Weather } from "types/zoneserver";
-import { ZoneClient as Client } from "../../ZoneServer/zoneclient";
+import { ZoneClient as Client } from "../classes/zoneclient";
 import { ZoneServer } from "../zoneserver";
 
 import { _ } from "../../../utils/utils";
 import { generateRandomGuid } from "../../../utils/utils";
-import { Vehicle } from "../vehicles";
+import { Vehicle } from "../classes/vehicles";
 const debug = require("debug")("zonepacketHandlers");
 
 let isSonic = false;

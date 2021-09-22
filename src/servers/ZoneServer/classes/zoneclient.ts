@@ -1,4 +1,4 @@
-import SOEClient from "../SoeServer/soeclient";
+import SOEClient from "../../SoeServer/soeclient";
 import { RemoteInfo } from "dgram";
 import { Character } from "./character";
 
