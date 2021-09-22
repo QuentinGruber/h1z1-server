@@ -28,7 +28,6 @@ import { ZoneServer2016 } from "./zoneserver";
 import { ZoneClient2016 as Client } from "./zoneclient";
 // TOOD: UPDATE THIS FOR 2016
 // const modelToName = require("../../../data/2016/dataSources/ModelToName.json");
-const ModelIdMap = require("../../../data/2016/dataSources/ModelIdMap.json");
 
 import { _ } from "../../utils/utils";
 const debug = require("debug")("zonepacketHandlers");
@@ -871,7 +870,7 @@ const packetHandlers = {
   ) {
     const { guid } = packet.data;
     const objectData = server._objects[guid];
-    const doorData = server._doors[guid];
+    // const doorData = server._doors[guid];
     const vehicleData = server._vehicles[guid];
 
     if (vehicleData && !client.vehicle.mountedVehicle) {
