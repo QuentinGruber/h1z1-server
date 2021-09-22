@@ -13,8 +13,7 @@
 
 import PacketTableBuild from "../../packettable";
 import DataSchema from "h1z1-dataschema";
-import { lz4_decompress } from "../../../utils/utils";
-import { eul2quat } from "../../../utils/utils";
+import { eul2quat, lz4_decompress } from "../../../utils/utils";
 
 function readPacketType(data: Buffer, packets: any) {
   let opCode = data[0] >>> 0,

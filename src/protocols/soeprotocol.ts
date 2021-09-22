@@ -14,6 +14,7 @@
 const debug = require("debug")("SOEProtocol");
 import PacketTableBuild from "../packets/packettable";
 import { appendCRC } from "../utils/crc";
+
 const stand_alone_packets = [
   [
     "ZonePing",

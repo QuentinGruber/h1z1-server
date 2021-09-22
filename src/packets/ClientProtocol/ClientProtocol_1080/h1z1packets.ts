@@ -48,6 +48,7 @@ function readPacketType(data: Buffer, packets: any) {
     length: length,
   };
 }
+
 function writePacketType(packetType: number) {
   const packetTypeBytes = [];
   while (packetType) {
@@ -60,6 +61,7 @@ function writePacketType(packetType: number) {
   }
   return data;
 }
+
 function readUnsignedIntWith2bitLengthValue(data: Buffer, offset: number) {
   let value = data.readUInt8(offset);
   const n = value & 3;
@@ -72,6 +74,7 @@ function readUnsignedIntWith2bitLengthValue(data: Buffer, offset: number) {
     length: n + 1,
   };
 }
+
 function packUnsignedIntWith2bitLengthValue(value: number) {
   value = Math.round(value);
   value = value << 2;
@@ -88,6 +91,7 @@ function packUnsignedIntWith2bitLengthValue(value: number) {
   data.writeUInt32LE(value, 0);
   return data.slice(0, n + 1);
 }
+
 function readSignedIntWith2bitLengthValue(data: Buffer, offset: number) {
   let value = data.readUInt8(offset);
   const sign = value & 1;
@@ -104,6 +108,7 @@ function readSignedIntWith2bitLengthValue(data: Buffer, offset: number) {
     length: n + 1,
   };
 }
+
 function packSignedIntWith2bitLengthValue(value: number): Buffer {
   value = Math.round(value);
   const sign = value < 0 ? 1 : 0;
@@ -123,6 +128,7 @@ function packSignedIntWith2bitLengthValue(value: number): Buffer {
   data.writeUInt32LE(value, 0);
   return data.slice(0, n + 1);
 }
+
 function readPositionUpdateData(data: Buffer, offset: number) {
   const obj: any = {},
     startOffset = offset;
@@ -241,6 +247,7 @@ function readPositionUpdateData(data: Buffer, offset: number) {
     length: offset - startOffset,
   };
 }
+
 function packPositionUpdateData(obj: any) {
   let data = Buffer.alloc(7),
     flags = 0,
@@ -325,6 +332,7 @@ function packPositionUpdateData(obj: any) {
   data.writeUInt16LE(flags, 0);
   return data;
 }
+
 const vehicleReferenceDataSchema = [
   {
     name: "move_info",
@@ -616,6 +624,7 @@ const vehicleReferenceDataSchema = [
     ],
   },
 ];
+
 function parseVehicleReferenceData(data: Buffer, offset: number) {
   const dataLength = data.readUInt32LE(offset);
   offset += 4;
@@ -630,10 +639,12 @@ function parseVehicleReferenceData(data: Buffer, offset: number) {
     length: dataLength + 4,
   };
 }
+
 function packVehicleReferenceData(obj: any) {
   const data = DataSchema.pack(vehicleReferenceDataSchema, obj);
   return data;
 }
+
 function parseItemAddData(data: Buffer, offset: number, referenceData: any) {
   const itemDataLength = data.readUInt32LE(offset);
   offset += 4;
@@ -656,7 +667,9 @@ function parseItemAddData(data: Buffer, offset: number, referenceData: any) {
     length: itemDataLength + 4,
   };
 }
+
 function packItemAddData() {}
+
 const profileDataSchema = [
   { name: "profileId", type: "uint32", defaultValue: 0 },
   { name: "nameId", type: "uint32", defaultValue: 0 },
@@ -1239,6 +1252,7 @@ const weaponPackets = [
 ];
 const [weaponPacketTypes, weaponPacketDescriptors] =
   PacketTableBuild(weaponPackets);
+
 function parseMultiWeaponPacket(data: Buffer, offset: number) {
   const startOffset = offset,
     packets = [];
@@ -1256,7 +1270,9 @@ function parseMultiWeaponPacket(data: Buffer, offset: number) {
     length: startOffset - offset,
   };
 }
+
 function packMultiWeaponPacket() {}
+
 function parseWeaponPacket(data: Buffer, offset: number) {
   const obj: any = {};
   obj.gameTime = data.readUInt32LE(offset);
@@ -1288,6 +1304,7 @@ function parseWeaponPacket(data: Buffer, offset: number) {
     length: data.length - offset,
   };
 }
+
 function packWeaponPacket(obj: any) {
   const subObj = obj.packet,
     subName = obj.packetName,
@@ -1306,6 +1323,7 @@ function packWeaponPacket(obj: any) {
   }
   return data;
 }
+
 function parseItemData(data: Buffer, offset: number, referenceData: any) {
   const startOffset = offset;
   let detailItem, detailSchema;
@@ -1329,6 +1347,7 @@ function parseItemData(data: Buffer, offset: number, referenceData: any) {
     length: offset - startOffset,
   };
 }
+
 function packItemData(obj: any, referenceData: any) {
   const baseData = DataSchema.pack(itemBaseSchema, obj.baseItem);
   let detailData, detailSchema;

@@ -22,27 +22,28 @@ import hax from "./commands/hax";
 import dev from "./commands/dev";
 import admin from "./commands/admin";
 import {
+  _,
   generateRandomGuid,
   Int64String,
   isPosInRadius,
 } from "../../utils/utils";
 import { ZoneServer } from "./zoneserver";
 import { ZoneClient as Client } from "./classes/zoneclient";
+import { Vehicle } from "./classes/vehicles";
+
 const modelToName = require("../../../data/2015/sampleData/ModelToName.json");
 
-import { _ } from "../../utils/utils";
-import { Vehicle } from "./classes/vehicles";
 const debug = require("debug")("zonepacketHandlers");
 
 const packetHandlers = {
   ClientIsReady: function (server: ZoneServer, client: Client, packet: any) {
     /* still disable
-        server.sendData(client, "ClientBeginZoning", {
-          position: client.character.state.position,
-          rotation: client.character.state.rotation,
-          skyData: server._weather,
-        });
-        */
+            server.sendData(client, "ClientBeginZoning", {
+              position: client.character.state.position,
+              rotation: client.character.state.rotation,
+              skyData: server._weather,
+            });
+            */
     server.sendData(client, "QuickChat.SendData", { commands: [] });
     server.sendData(client, "ClientUpdate.ActivateProfile", {
       profiles: server._profiles,
@@ -406,36 +407,36 @@ const packetHandlers = {
     packet: any
   ) {
     /*
-    if (client.character.currentLoadout) {
-      const loadout = client.character.currentLoadout,
-        loadoutSlotId = packet.data.loadoutSlotId;
-      client.character.currentLoadoutSlot = packet.data.loadoutSlotId;
-      const loadoutSlots = loadout.loadoutSlots;
-      for (let i = 0; i < loadoutSlots.length; i++) {
-        if (loadoutSlots[i].loadoutSlotId == loadoutSlotId) {
-          const itemLineId =
-            loadoutSlots[i].loadoutSlotData.loadoutSlotItem.itemLineId;
-          server
-            .data("item_line_members")
-            .findOne(
-              { itemLineId: itemLineId, itemLineIndex: 0 },
-              function (err, itemLineMember) {
-                const itemId = itemLineMember.itemId;
-                const inventoryItems = client.character.inventory.items;
-                for (let j = 0; j < inventoryItems.length; j++) {
-                  if (inventoryItems[j].itemData.baseItem.itemId == itemId) {
-                    client.character.currentLoadoutSlotItem =
-                      inventoryItems[j].itemData;
-                    break;
+        if (client.character.currentLoadout) {
+          const loadout = client.character.currentLoadout,
+            loadoutSlotId = packet.data.loadoutSlotId;
+          client.character.currentLoadoutSlot = packet.data.loadoutSlotId;
+          const loadoutSlots = loadout.loadoutSlots;
+          for (let i = 0; i < loadoutSlots.length; i++) {
+            if (loadoutSlots[i].loadoutSlotId == loadoutSlotId) {
+              const itemLineId =
+                loadoutSlots[i].loadoutSlotData.loadoutSlotItem.itemLineId;
+              server
+                .data("item_line_members")
+                .findOne(
+                  { itemLineId: itemLineId, itemLineIndex: 0 },
+                  function (err, itemLineMember) {
+                    const itemId = itemLineMember.itemId;
+                    const inventoryItems = client.character.inventory.items;
+                    for (let j = 0; j < inventoryItems.length; j++) {
+                      if (inventoryItems[j].itemData.baseItem.itemId == itemId) {
+                        client.character.currentLoadoutSlotItem =
+                          inventoryItems[j].itemData;
+                        break;
+                      }
+                    }
                   }
-                }
-              }
-            );
-          break;
+                );
+              break;
+            }
+          }
         }
-      }
-    }
-    */
+        */
   },
   ClientInitializationDetails: function (
     server: ZoneServer,

@@ -7,10 +7,10 @@ const z1_Props = require("../../../../data/2015/zoneData/z1_Props.json");
 const models = require("../../../../data/2015/dataSources/Models.json");
 const modelToName = require("../../../../data/2015/sampleData/ModelToName.json");
 const textures = require("../../../../data/2015/sampleData/textures.json");
-import { _ } from "../../../utils/utils";
-import { generateRandomGuid, eul2quat } from "../../../utils/utils";
+import { _, eul2quat, generateRandomGuid } from "../../../utils/utils";
 import { Vehicle } from "../classes/vehicles";
 import { ZoneServer } from "../zoneserver";
+
 const npcs: any = {};
 const objects: any = {};
 const vehicles: any = {};

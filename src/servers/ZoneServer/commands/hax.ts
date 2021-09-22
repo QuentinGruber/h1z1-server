@@ -3,9 +3,9 @@ import { Weather } from "types/zoneserver";
 import { ZoneClient as Client } from "../classes/zoneclient";
 import { ZoneServer } from "../zoneserver";
 
-import { _ } from "../../../utils/utils";
-import { generateRandomGuid } from "../../../utils/utils";
+import { _, generateRandomGuid } from "../../../utils/utils";
 import { Vehicle } from "../classes/vehicles";
+
 const debug = require("debug")("zonepacketHandlers");
 
 let isSonic = false;
@@ -868,6 +868,7 @@ const hax: any = {
     function rnd_number() {
       return Number((Math.random() * 100).toFixed(0));
     }
+
     const fogEnabled = Math.random() * 3 < 1;
     const rainEnabled = Math.random() * 4 < 1;
     const winterEnabled = Math.random() * 4 < 1;

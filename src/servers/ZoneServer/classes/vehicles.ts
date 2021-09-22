@@ -25,6 +25,7 @@ export class Vehicle {
   unknownGuid1: string;
   positionUpdate: number[];
   onReadyCallback!: () => void;
+
   constructor(
     worldId: number,
     characterId: string,

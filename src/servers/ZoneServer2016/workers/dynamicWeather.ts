@@ -152,20 +152,20 @@ export default function dynamicWeather(server: ZoneServer2016) {
     sunposx = 0;
   }
   /*
-  if (sunposx < sunposXmin) {
-    sunposx = sunposXmax;
-  }
-*/
+    if (sunposx < sunposXmin) {
+      sunposx = sunposXmax;
+    }
+  */
 
   sunposy += sunposYInc;
   if (sunposy === sunposYmax) {
     sunposy = 0;
   }
   /*
-  if (sunposy < sunposYmin) {
-    sunposy = sunposYmin;
-  }
-*/
+    if (sunposy < sunposYmin) {
+      sunposy = sunposYmin;
+    }
+  */
 
   let weather = {
     name: "",
@@ -210,151 +210,151 @@ export default function dynamicWeather(server: ZoneServer2016) {
   console.log(weather);
   console.log(`${sunposx}, ${sunposy}`);
   /*
-  //rain strength
-  const rainchancestr = randomIntFromInterval(rainIncMin, rainIncMax); // rain strength increase
-  raintoggle = raintoggle + rainchancestr;
-  if (raintoggle > 101) {
-    raintoggle = 100;
-  }
-  // wind
-  const windchance = randomIntFromInterval(wchancemin, wchancemax);
-  wind = wind + windchance;
-  if (wind < -3) {
-    wind = -2;
-  }
-  if (wind > windmax) {
-    cloud1 = cloudmax - 1;
-  }
-  // clouds
-  const c1chance = randomIntFromInterval(cchancemin, cchancemax);
-  cloud1 = cloud1 + c1chance;
-  if (cloud1 < -3) {
-    cloud1 = -2;
-  }
-  if (cloud1 > cloudmax) {
-    cloud1 = cloudmax - 1;
-  }
-  const c2chance = randomIntFromInterval(cchancemin, cchancemax);
-  cloud2 = cloud2 + c2chance;
-  if (cloud2 < -3) {
-    cloud2 = -2;
-  }
-  if (cloud2 > cloudmax) {
-    cloud2 = cloudmax - 1;
-  }
-  const c3chance = randomIntFromInterval(cchancemin, cchancemax);
-  cloud3 = cloud3 + c3chance;
-  if (cloud3 < -3) {
-    cloud3 = -2;
-  }
-  if (cloud3 > cloudmax) {
-    cloud3 = cloudmax - 1;
-  }
-  const c4chance = randomIntFromInterval(cchancemin, cchancemax);
-  cloud4 = cloud4 + c4chance;
-  if (cloud4 < -3) {
-    cloud4 = -2;
-  }
-  if (cloud4 > cloudmax) {
-    cloud4 = cloudmax - 1;
-  }
-  // fog
-  const fogchance = randomIntFromInterval(fchancemin, fchancemax);
-  fog = fog + fogchance;
-  if (fog < -10) {
-    fog = -9;
-  }
-  if (fog > 90) {
-    fog = 79;
-  }
+    //rain strength
+    const rainchancestr = randomIntFromInterval(rainIncMin, rainIncMax); // rain strength increase
+    raintoggle = raintoggle + rainchancestr;
+    if (raintoggle > 101) {
+      raintoggle = 100;
+    }
+    // wind
+    const windchance = randomIntFromInterval(wchancemin, wchancemax);
+    wind = wind + windchance;
+    if (wind < -3) {
+      wind = -2;
+    }
+    if (wind > windmax) {
+      cloud1 = cloudmax - 1;
+    }
+    // clouds
+    const c1chance = randomIntFromInterval(cchancemin, cchancemax);
+    cloud1 = cloud1 + c1chance;
+    if (cloud1 < -3) {
+      cloud1 = -2;
+    }
+    if (cloud1 > cloudmax) {
+      cloud1 = cloudmax - 1;
+    }
+    const c2chance = randomIntFromInterval(cchancemin, cchancemax);
+    cloud2 = cloud2 + c2chance;
+    if (cloud2 < -3) {
+      cloud2 = -2;
+    }
+    if (cloud2 > cloudmax) {
+      cloud2 = cloudmax - 1;
+    }
+    const c3chance = randomIntFromInterval(cchancemin, cchancemax);
+    cloud3 = cloud3 + c3chance;
+    if (cloud3 < -3) {
+      cloud3 = -2;
+    }
+    if (cloud3 > cloudmax) {
+      cloud3 = cloudmax - 1;
+    }
+    const c4chance = randomIntFromInterval(cchancemin, cchancemax);
+    cloud4 = cloud4 + c4chance;
+    if (cloud4 < -3) {
+      cloud4 = -2;
+    }
+    if (cloud4 > cloudmax) {
+      cloud4 = cloudmax - 1;
+    }
+    // fog
+    const fogchance = randomIntFromInterval(fchancemin, fchancemax);
+    fog = fog + fogchance;
+    if (fog < -10) {
+      fog = -9;
+    }
+    if (fog > 90) {
+      fog = 79;
+    }
 
-  const foggchance = randomIntFromInterval(-3, 3);
-  foggradient = foggradient + foggchance;
-  if (foggradient < 0) {
-    foggradient = 0;
-  }
-  if (foggradient > 100) {
-    foggradient = 100;
-  }
-  // rain
-  const rainchance = randomIntFromInterval(rchancemin, rchancemax);
-  rain = rain + rainchance;
-  if (rain < 0) {
-    rain = 0;
-  }
-  if (rain >= rreqval) {
-    raintoggle = 1;
-    raincheck = "ON";
-    rain = 0;
-    rainIncMin = 2;
-    rainIncMax = 2;
-    const raintime = randomIntFromInterval(180000, 300000);
-    raintimehalf = raintime / 2;
-    raintimems = raintime / 60000;
-    raintimemin = Math.floor(raintimems);
-    debug("Rain will last for " + raintimemin + " min");
-    setTimeout(function () {
-      rainIncMin = -2;
-      rainIncMax = -2;
-    }, raintimehalf);
-    setTimeout(function () {
-      rainIncMin = 0;
-      rainIncMax = 0;
+    const foggchance = randomIntFromInterval(-3, 3);
+    foggradient = foggradient + foggchance;
+    if (foggradient < 0) {
+      foggradient = 0;
+    }
+    if (foggradient > 100) {
+      foggradient = 100;
+    }
+    // rain
+    const rainchance = randomIntFromInterval(rchancemin, rchancemax);
+    rain = rain + rainchance;
+    if (rain < 0) {
       rain = 0;
-      raincheck = "OFF";
-      raintoggle = 0;
-      debug("Rain ended");
-    }, raintime);
-  }
-  if (wintertoggle === 0) {
-    winter = 53;
-  }
-  if (wintertoggle === 1) {
-    winter = 20;
-  }
-  debug("[WEATHERSYSTEM] FogDensity: " + fog + "/100");
-  debug("[WEATHERSYSTEM] FogGradient: " + foggradient + "/100");
-  debug(
-    "[WEATHERSYSTEM] Rain: " + raincheck + " - Conditions: " + rain + "/100"
-  );
-  const rnd_weather = {
-    name: "sky",
-    unknownDword1: 91,
-    unknownDword2: 68,
-    unknownDword3: 89,
-    unknownDword4: 48,
-    fogDensity: fog,
-    fogGradient: foggradient,
-    fogFloor: 14,
-    unknownDword7: 73,
-    rain: raintoggle,
-    temp: winter,
-    skyColor: 7,
-    cloudWeight0: cloud1,
-    cloudWeight1: cloud2,
-    cloudWeight2: cloud3,
-    cloudWeight3: cloud4,
-    sunAxisX: sunposx,
-    sunAxisY: sunposy,
-    sunAxisZ: sunposz,
-    unknownDword18: 76,
-    unknownDword19: 74,
-    unknownDword20: 59,
-    wind: wind,
-    unknownDword22: 46,
-    unknownDword23: 53,
-    unknownDword24: 65,
-    unknownDword25: 0,
-    unknownArray: _.fill(Array(50), {
-      unknownDword1: 0,
-      unknownDword2: 0,
-      unknownDword3: 0,
-      unknownDword4: 0,
-      unknownDword5: 0,
-      unknownDword6: 0,
-      unknownDword7: 0,
-    }),
-  };
-  */
+    }
+    if (rain >= rreqval) {
+      raintoggle = 1;
+      raincheck = "ON";
+      rain = 0;
+      rainIncMin = 2;
+      rainIncMax = 2;
+      const raintime = randomIntFromInterval(180000, 300000);
+      raintimehalf = raintime / 2;
+      raintimems = raintime / 60000;
+      raintimemin = Math.floor(raintimems);
+      debug("Rain will last for " + raintimemin + " min");
+      setTimeout(function () {
+        rainIncMin = -2;
+        rainIncMax = -2;
+      }, raintimehalf);
+      setTimeout(function () {
+        rainIncMin = 0;
+        rainIncMax = 0;
+        rain = 0;
+        raincheck = "OFF";
+        raintoggle = 0;
+        debug("Rain ended");
+      }, raintime);
+    }
+    if (wintertoggle === 0) {
+      winter = 53;
+    }
+    if (wintertoggle === 1) {
+      winter = 20;
+    }
+    debug("[WEATHERSYSTEM] FogDensity: " + fog + "/100");
+    debug("[WEATHERSYSTEM] FogGradient: " + foggradient + "/100");
+    debug(
+      "[WEATHERSYSTEM] Rain: " + raincheck + " - Conditions: " + rain + "/100"
+    );
+    const rnd_weather = {
+      name: "sky",
+      unknownDword1: 91,
+      unknownDword2: 68,
+      unknownDword3: 89,
+      unknownDword4: 48,
+      fogDensity: fog,
+      fogGradient: foggradient,
+      fogFloor: 14,
+      unknownDword7: 73,
+      rain: raintoggle,
+      temp: winter,
+      skyColor: 7,
+      cloudWeight0: cloud1,
+      cloudWeight1: cloud2,
+      cloudWeight2: cloud3,
+      cloudWeight3: cloud4,
+      sunAxisX: sunposx,
+      sunAxisY: sunposy,
+      sunAxisZ: sunposz,
+      unknownDword18: 76,
+      unknownDword19: 74,
+      unknownDword20: 59,
+      wind: wind,
+      unknownDword22: 46,
+      unknownDword23: 53,
+      unknownDword24: 65,
+      unknownDword25: 0,
+      unknownArray: _.fill(Array(50), {
+        unknownDword1: 0,
+        unknownDword2: 0,
+        unknownDword3: 0,
+        unknownDword4: 0,
+        unknownDword5: 0,
+        unknownDword6: 0,
+        unknownDword7: 0,
+      }),
+    };
+    */
   server.updateWeather2016({} as Client);
 }

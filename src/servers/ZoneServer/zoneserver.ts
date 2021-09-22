@@ -15,12 +15,14 @@ import { EventEmitter } from "events";
 import { GatewayServer } from "../GatewayServer/gatewayserver";
 import packetHandlers from "./zonepackethandlers";
 import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
-import { getAppDataFolderPath, setupAppDataFolder, _ } from "../../utils/utils";
 import {
+  _,
   generateRandomGuid,
+  getAppDataFolderPath,
   initMongo,
   Int64String,
   isPosInRadius,
+  setupAppDataFolder,
 } from "../../utils/utils";
 import { HandledZonePackets, Weather } from "../../types/zoneserver";
 import { Db, MongoClient } from "mongodb";
@@ -29,6 +31,7 @@ import SOEClient from "servers/SoeServer/soeclient";
 import { ZoneClient as Client } from "./classes/zoneclient";
 import { h1z1PacketsType } from "types/packets";
 import { Vehicle } from "./classes/vehicles";
+
 process.env.isBin && require("./workers/dynamicWeather");
 
 const localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json");
@@ -203,6 +206,7 @@ export class ZoneServer extends EventEmitter {
       }
     );
   }
+
   onZoneDataEvent(err: any, client: Client, packet: any) {
     if (err) {
       console.error(err);
@@ -227,6 +231,7 @@ export class ZoneServer extends EventEmitter {
       }
     }
   }
+
   onZoneLoginEvent(err: any, client: Client) {
     if (err) {
       console.error(err);
@@ -240,6 +245,7 @@ export class ZoneServer extends EventEmitter {
       }
     }
   }
+
   onSoePacketLimitationReachedEvent(client: Client) {
     this.sendChatText(
       client,
@@ -257,6 +263,7 @@ export class ZoneServer extends EventEmitter {
       });
     }, 60000);
   }
+
   onGatewayLoginEvent(
     err: string,
     client: SOEClient,
@@ -292,6 +299,7 @@ export class ZoneServer extends EventEmitter {
     }, this._pingTimeoutTime);
     this.emit("login", err, zoneClient);
   }
+
   onGatewayDisconnectEvent(err: string, client: Client) {
     debug(`Client disconnected from ${client.address}:${client.port}`);
     if (client.character?.characterId) {
@@ -300,9 +308,11 @@ export class ZoneServer extends EventEmitter {
     delete this._clients[client.sessionId];
     this.emit("disconnect", err, client);
   }
+
   onGatewaySessionEvent(err: string, client: Client) {
     debug(`Session started for client ${client.address}:${client.port}`);
   }
+
   onGatewayTunnelDataEvent(
     err: string,
     client: Client,
@@ -574,18 +584,18 @@ export class ZoneServer extends EventEmitter {
 
   parseReferenceData(): any {
     /*
-    const itemData = fs.readFileSync(
-        `${__dirname}/../../../data/dataSources/ClientItemDefinitions.txt`,
-        "utf8"
-      ),
-      itemLines = itemData.split("\n"),
-      items = {};
-    for (let i = 1; i < itemLines.length; i++) {
-      const line = itemLines[i].split("^");
-      if (line[0]) {
-        (items as any)[line[0]] = line[1];
-      }
-    }*/
+        const itemData = fs.readFileSync(
+            `${__dirname}/../../../data/dataSources/ClientItemDefinitions.txt`,
+            "utf8"
+          ),
+          itemLines = itemData.split("\n"),
+          items = {};
+        for (let i = 1; i < itemLines.length; i++) {
+          const line = itemLines[i].split("^");
+          if (line[0]) {
+            (items as any)[line[0]] = line[1];
+          }
+        }*/
     return { itemTypes: undefined };
   }
 
@@ -680,23 +690,23 @@ export class ZoneServer extends EventEmitter {
       client.character.state.rotation = this._dummySelf.data.rotation;
     }
     /* const characterResources: any[] = []; DISABLED since it's not read by the game rn + we don't need to send all resources
-    resources.forEach((resource: any) => {
-      characterResources.push({
-        resourceType: resource.RESOURCE_TYPE,
-        resourceData: {
-          subResourceData: {
-            resourceId: resource.ID,
+        resources.forEach((resource: any) => {
+          characterResources.push({
             resourceType: resource.RESOURCE_TYPE,
-            unknownArray1: [],
-          },
-          unknownData2: {
-            max_value: resource.MAX_VALUE,
-            initial_value: resource.INITIAL_VALUE,
-          },
-        },
-      });
-    });
-    this._dummySelf.data.characterResources = characterResources;*/
+            resourceData: {
+              subResourceData: {
+                resourceId: resource.ID,
+                resourceType: resource.RESOURCE_TYPE,
+                unknownArray1: [],
+              },
+              unknownData2: {
+                max_value: resource.MAX_VALUE,
+                initial_value: resource.INITIAL_VALUE,
+              },
+            },
+          });
+        });
+        this._dummySelf.data.characterResources = characterResources;*/
     this._dummySelf.data.profiles = this._profiles;
     this._dummySelf.data.stats = stats;
     this._dummySelf.data.recipes = recipes;
@@ -874,13 +884,14 @@ export class ZoneServer extends EventEmitter {
       element.position || element.state?.position || element.npcData.position
     );
   }
+
   removeOutOfDistanceEntities(client: Client): void {
     const objectsToRemove = client.spawnedEntities.filter((e) =>
       this.filterOutOfDistance(e, client.character.state.position)
     );
     /*client.spawnedEntities = client.spawnedEntities.filter((el) => {
-      return !objectsToRemove.includes(el);
-    });*/
+          return !objectsToRemove.includes(el);
+        });*/
     objectsToRemove.forEach((object: any) => {
       const characterId = object.characterId
         ? object.characterId
@@ -927,6 +938,7 @@ export class ZoneServer extends EventEmitter {
       }
     });
   }
+
   spawnDoors(client: Client): void {
     this.spawnNpcCollection(client, this._doors);
   }
@@ -1302,6 +1314,7 @@ export class ZoneServer extends EventEmitter {
     return obj;
   }
 }
+
 if (
   process.env.VSCODE_DEBUG === "true" &&
   process.env.CLIENT_SIXTEEN !== "true"

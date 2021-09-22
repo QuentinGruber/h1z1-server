@@ -69,10 +69,12 @@ class GatewayClient {
       me.emit("disconnect", err, result);
     });
   }
+
   connect(callback) {
     debug("Connecting to gateway server");
     this._soeClient.connect();
   }
+
   sendTunnelData(tunnelData, channel) {
     channel = channel || 0;
     debug("Sending tunnel data to gateway server");
@@ -83,6 +85,7 @@ class GatewayClient {
     //fs.writeFileSync("dump/out_tunneldata_" + (tunnelCount++) + ".dat", data);
     this._soeClient.sendAppData(data, true);
   }
+
   login(characterId, ticket, clientProtocol, clientBuild) {
     debug("Sending login request");
     var data = this._protocol.pack("LoginRequest", {
@@ -95,6 +98,7 @@ class GatewayClient {
     this._soeClient.sendAppData(data, false);
     this._soeClient.toggleEncryption(true);
   }
+
   disconnect() {}
 }
 

@@ -24,6 +24,7 @@ export class ZoneClient extends SOEClient {
   loginSessionId?: string;
   pingTimer: NodeJS.Timeout | undefined;
   savePositionTimer: any;
+
   constructor(
     initialClient: SOEClient,
     loginSessionId: string,

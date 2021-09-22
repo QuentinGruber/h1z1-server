@@ -67,9 +67,9 @@ const dev: any = {
         aggroLevel: 1000,
       });
       /* server.sendData(client, "PlayerUpdate.SeekTarget", {
-        characterId: characterId,
-        TargetCharacterId: client.character.characterId,
-      });*/
+              characterId: characterId,
+              TargetCharacterId: client.character.characterId,
+            });*/
     };
     server.sendDataToAll("PlayerUpdate.AddLightweightNpc", npc);
     server.sendData(client, "ResourceEvent", {
@@ -170,12 +170,12 @@ const dev: any = {
       array18: [{ unknown1: 0 }],
     });
     /* setInterval(() => {
-      server.sendData(client, "PlayerUpdate.SeekTarget", {
-        characterId: characterId,
-        TargetCharacterId: client.character.characterId,
-        position: client.character.state.position,
-      });
-    }, 500);*/
+          server.sendData(client, "PlayerUpdate.SeekTarget", {
+            characterId: characterId,
+            TargetCharacterId: client.character.characterId,
+            position: client.character.state.position,
+          });
+        }, 500);*/
   },
   testvehicle: function (server: ZoneServer, client: Client, args: any[]) {
     const characterId = server.generateGuid();

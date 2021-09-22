@@ -381,11 +381,13 @@ export interface npcData {
   array17: any[];
   array18: any[];
 }
+
 export interface characterEquipment {
   modelName: string;
   slotId: number;
   defaultTextureAlias?: string;
 }
+
 export interface Client {
   currentPOI?: number;
   firstLoading: boolean;

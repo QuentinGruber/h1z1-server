@@ -15,6 +15,7 @@ export class Character2016 extends Character {
   gender!: number;
   creationDate!: string;
   lastLoginDate!: string;
+
   constructor(characterId: string, generatedTransient: number) {
     super(characterId, generatedTransient);
     this.resources = {
