@@ -1617,10 +1617,10 @@ const packetHandlers = {
       time: timerTime,
     });
     client.posAtLogoutStart = client.character.state.position;
-    if (client.timer != null) {
-      clearTimeout(client.timer);
+    if (client.logoutTimer != null) {
+      clearTimeout(client.logoutTimer);
     }
-    client.timer = setTimeout(() => {
+    client.logoutTimer = setTimeout(() => {
       client.managedObjects.forEach((object: any) => {
         server._vehicles[object.npcData.characterId].isManaged = false;
       });
@@ -1713,6 +1713,20 @@ const packetHandlers = {
     debug(packet);
     const characterId = server._transientIds[packet.data.transientId];
     if (characterId) {
+      if (
+        client.logoutTimer != null &&
+        !isPosInRadius(
+          1,
+          client.character.state.position,
+          client.posAtLogoutStart
+        )
+      ) {
+        client.clearLogoutTimer();
+        server.sendData(client, "ClientUpdate.StartTimer", {
+          stringId: 0,
+          time: 0,
+        }); // don't know how it was done so
+      }
       server.sendDataToAllOthers(client, "PlayerUpdate.UpdatePosition", {
         transientId: packet.data.transientId,
         positionUpdate: packet.data.PositionUpdate,
@@ -1780,16 +1794,14 @@ const packetHandlers = {
       }
 
       if (
-        client.timer != null &&
+        client.logoutTimer != null &&
         !isPosInRadius(
           1,
           client.character.state.position,
           client.posAtLogoutStart
         )
       ) {
-        clearTimeout(client.timer);
-        client.timer = null;
-        client.isInteracting = false;
+        client.clearLogoutTimer();
         server.sendData(client, "ClientUpdate.StartTimer", {
           stringId: 0,
           time: 0,
@@ -2110,10 +2122,10 @@ const packetHandlers = {
               time: timerTime,
             });
             client.posAtLogoutStart = client.character.state.position;
-            if (client.timer != null) {
-              clearTimeout(client.timer);
+            if (client.logoutTimer != null) {
+              clearTimeout(client.logoutTimer);
             }
-            client.timer = setTimeout(() => {
+            client.logoutTimer = setTimeout(() => {
               server.sendData(client, "ClientUpdate.TextAlert", {
                 message: "You feel refreshed after sleeping well.",
               });
@@ -2144,10 +2156,10 @@ const packetHandlers = {
               time: timerTime,
             });
             client.posAtLogoutStart = client.character.state.position;
-            if (client.timer != null) {
-              clearTimeout(client.timer);
+            if (client.searchTimer != null) {
+              clearTimeout(client.searchTimer);
             }
-            client.timer = setTimeout(() => {
+            client.searchTimer = setTimeout(() => {
               server.sendData(client, "ClientUpdate.TextAlert", {
                 message: "Nothing in there... yet :P",
               });
