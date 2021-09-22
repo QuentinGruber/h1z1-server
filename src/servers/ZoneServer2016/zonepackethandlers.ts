@@ -552,10 +552,10 @@ const packetHandlers = {
       time: timerTime,
     });
     client.posAtLogoutStart = client.character.state.position;
-    if (client.logoutTimer != null) {
-      clearTimeout(client.logoutTimer);
+    if (client.hudTimer != null) {
+      clearTimeout(client.hudTimer);
     }
-    client.logoutTimer = setTimeout(() => {
+    client.hudTimer = setTimeout(() => {
       server.sendData(client, "ClientUpdate.CompleteLogoutProcess", {});
     }, timerTime);
   },
@@ -720,15 +720,15 @@ const packetHandlers = {
       }
 
       if (
-        client.logoutTimer != null &&
+        client.hudTimer != null &&
         !isPosInRadius(
           1,
           client.character.state.position,
           client.posAtLogoutStart
         )
       ) {
-        clearTimeout(client.logoutTimer);
-        client.logoutTimer = null;
+        clearTimeout(client.hudTimer);
+        client.hudTimer = null;
         client.isInteracting = false;
         server.sendData(client, "ClientUpdate.StartTimer", {
           stringId: 0,
