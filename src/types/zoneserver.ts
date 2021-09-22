@@ -1,6 +1,6 @@
-import { ZoneClient } from "servers/ZoneServer/zoneclient";
+import { ZoneClient } from "servers/ZoneServer/classes/zoneclient";
 import { ZoneServer } from "servers/ZoneServer/zoneserver";
-import { ZoneClient2016 } from "servers/ZoneServer2016/zoneclient";
+import { ZoneClient2016 } from "servers/ZoneServer2016/classes/zoneclient";
 import { ZoneServer2016 } from "servers/ZoneServer2016/zoneserver";
 
 export interface HandledZonePackets {
@@ -364,11 +364,30 @@ export interface HandledZonePackets2016 {
   ) => void;
 }
 
+export interface npcData {
+  guid: string;
+  characterId: string;
+  transientId: number;
+  modelId: number;
+  scale: number[];
+  position: Float32Array;
+  rotation: Float32Array;
+  attachedObject: any;
+  vehicleId: number;
+  isVehicle: boolean;
+  color: any;
+  unknownArray1: any[];
+  array5: any[];
+  array17: any[];
+  array18: any[];
+}
+
 export interface characterEquipment {
   modelName: string;
   slotId: number;
   defaultTextureAlias?: string;
 }
+
 export interface Client {
   currentPOI?: number;
   firstLoading: boolean;

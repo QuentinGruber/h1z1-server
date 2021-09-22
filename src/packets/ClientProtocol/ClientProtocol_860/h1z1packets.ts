@@ -13,8 +13,7 @@
 
 import PacketTableBuild from "../../packettable";
 import DataSchema from "h1z1-dataschema";
-import { lz4_decompress } from "../../../utils/utils";
-import { eul2quat } from "../../../utils/utils";
+import { eul2quat, lz4_decompress } from "../../../utils/utils";
 
 function readPacketType(data: Buffer, packets: any) {
   let opCode = data[0] >>> 0,
@@ -136,7 +135,7 @@ function readPositionUpdateData(data: Buffer, offset: number) {
   obj["flags"] = data.readUInt16LE(offset);
   offset += 2;
 
-  obj["unknown2_int32"] = data.readUInt32LE(offset);
+  obj["sequenceTime"] = data.readUInt32LE(offset);
   offset += 4;
 
   obj["unknown3_int8"] = data.readUInt8(offset);
@@ -144,7 +143,7 @@ function readPositionUpdateData(data: Buffer, offset: number) {
 
   if (obj.flags & 1) {
     var v = readUnsignedIntWith2bitLengthValue(data, offset);
-    obj["unknown4"] = v.value;
+    obj["stance"] = v.value;
     offset += v.length;
   }
 
@@ -162,7 +161,7 @@ function readPositionUpdateData(data: Buffer, offset: number) {
   }
 
   if (obj.flags & 0x20) {
-    obj["unknown6_int32"] = data.readUInt32LE(offset);
+    obj["orientation"] = data.readFloatLE(offset);
     offset += 4;
   }
 
@@ -192,7 +191,7 @@ function readPositionUpdateData(data: Buffer, offset: number) {
 
   if (obj.flags & 0x10) {
     var v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["speed"] = v.value / 10;
+    obj["horizontalSpeed"] = v.value / 10;
     offset += v.length;
   }
 
@@ -224,20 +223,20 @@ function readPositionUpdateData(data: Buffer, offset: number) {
     var v = readSignedIntWith2bitLengthValue(data, offset);
     rotationEul[3] = v.value / 100;
     obj["rotation"] = eul2quat(rotationEul);
-    obj["unknown13_float"] = rotationEul;
+    obj["rotationRaw"] = rotationEul;
     obj["lookAt"] = eul2quat([rotationEul[0], 0, 0, 0]);
     offset += v.length;
   }
 
   if (obj.flags & 0x400) {
     var v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["unknown14_float"] = v.value / 10;
+    obj["direction"] = v.value / 10;
     offset += v.length;
   }
 
   if (obj.flags & 0x800) {
     var v = readSignedIntWith2bitLengthValue(data, offset);
-    obj["unknown15_float"] = v.value / 10;
+    obj["engineRPM"] = v.value / 10;
     offset += v.length;
   }
   /*
@@ -255,12 +254,12 @@ function packPositionUpdateData(obj: any) {
     flags = 0,
     v;
 
-  data.writeUInt32LE(obj["unknown2_int32"], 2);
+  data.writeUInt32LE(obj["sequenceTime"], 2);
   data.writeUInt8(obj["unknown3_int8"], 6);
 
-  if ("unknown4" in obj) {
+  if ("stance" in obj) {
     flags |= 1;
-    v = packUnsignedIntWith2bitLengthValue(obj["unknown4"]);
+    v = packUnsignedIntWith2bitLengthValue(obj["stance"]);
     data = Buffer.concat([data, v]);
   }
 
@@ -274,10 +273,10 @@ function packPositionUpdateData(obj: any) {
     data = Buffer.concat([data, v]);
   }
 
-  if ("unknown6_int32" in obj) {
+  if ("orientation" in obj) {
     flags |= 0x20;
     v = Buffer.alloc(4);
-    v.writeUInt32LE(obj["unknown6_int32"], 0);
+    v.writeFloatLE(obj["orientation"], 0);
     data = Buffer.concat([data, v]);
   }
 
@@ -305,9 +304,9 @@ function packPositionUpdateData(obj: any) {
     data = Buffer.concat([data, v]);
   }
 
-  if ("speed" in obj) {
+  if ("horizontalSpeed" in obj) {
     flags |= 0x10;
-    v = packSignedIntWith2bitLengthValue(obj["speed"] * 10);
+    v = packSignedIntWith2bitLengthValue(obj["horizontalSpeed"] * 10);
     data = Buffer.concat([data, v]);
   }
 
@@ -321,27 +320,27 @@ function packPositionUpdateData(obj: any) {
     data = Buffer.concat([data, v]);
   }
 
-  if ("unknown13_float" in obj) {
+  if ("rotationRaw" in obj) {
     flags |= 0x200;
-    v = packSignedIntWith2bitLengthValue(obj["unknown13_float"][0] * 100);
+    v = packSignedIntWith2bitLengthValue(obj["rotationRaw"][0] * 100);
     data = Buffer.concat([data, v]);
-    v = packSignedIntWith2bitLengthValue(obj["unknown13_float"][1] * 100);
+    v = packSignedIntWith2bitLengthValue(obj["rotationRaw"][1] * 100);
     data = Buffer.concat([data, v]);
-    v = packSignedIntWith2bitLengthValue(obj["unknown13_float"][2] * 100);
+    v = packSignedIntWith2bitLengthValue(obj["rotationRaw"][2] * 100);
     data = Buffer.concat([data, v]);
-    v = packSignedIntWith2bitLengthValue(obj["unknown13_float"][3] * 100);
+    v = packSignedIntWith2bitLengthValue(obj["rotationRaw"][3] * 100);
     data = Buffer.concat([data, v]);
   }
 
-  if ("unknown14_float" in obj) {
+  if ("direction" in obj) {
     flags |= 0x400;
-    v = packSignedIntWith2bitLengthValue(obj["unknown14_float"] * 10);
+    v = packSignedIntWith2bitLengthValue(obj["direction"] * 10);
     data = Buffer.concat([data, v]);
   }
 
-  if ("unknown15_float" in obj) {
+  if ("engineRPM" in obj) {
     flags |= 0x800;
-    v = packSignedIntWith2bitLengthValue(obj["unknown15_float"] * 10);
+    v = packSignedIntWith2bitLengthValue(obj["engineRPM"] * 10);
     data = Buffer.concat([data, v]);
   }
 
@@ -3831,7 +3830,18 @@ var packets = [
   ["Command.StartDialog", 0x090300, {}],
   ["Command.PlayerPlaySpeech", 0x090400, {}],
   ["Command.DialogResponse", 0x090500, {}],
-  ["Command.PlaySoundAtLocation", 0x090600, {}],
+  [
+    "Command.PlaySoundAtLocation",
+    0x090600,
+    {
+      fields: [
+        { name: "soundName", type: "string", defaultValue: "name" },
+        { name: "unk1", type: "uint32", defaultValue: 5048 },
+        { name: "unk2", type: "uint32", defaultValue: 5048 },
+        { name: "unk3", type: "uint32", defaultValue: 5048 },
+      ],
+    },
+  ],
   [
     "Command.InteractRequest",
     0x090700,
@@ -3979,7 +3989,16 @@ var packets = [
   ["Command.SetProfileByItemDefinitionId", 0x092300, {}],
   ["Command.RequestRewardPreviewUpdate", 0x092400, {}],
   ["Command.RequestRewardPreviewUpdateReply", 0x092500, {}],
-  ["Command.PlaySoundIdOnTarget", 0x092600, {}],
+  [
+    "Command.PlaySoundIdOnTarget",
+    0x092600,
+    {
+      fields: [
+        { name: "target", type: "uint32", defaultValue: 4 },
+        { name: "unk", type: "boolean", defaultValue: false },
+      ],
+    },
+  ],
   ["Command.RequestPlayIntroEncounter", 0x092700, {}],
   ["Command.SpotPlayer", 0x092800, {}],
   [
@@ -4756,7 +4775,20 @@ var packets = [
       ],
     },
   ],
-  ["PlayerUpdate.PlayCompositeEffect", 0x0f0b, {}],
+  [
+    "PlayerUpdate.PlayCompositeEffect",
+    0x0f0b,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "5048" },
+        { name: "unk1", type: "uint32", defaultValue: 0 },
+        { name: "unk2", type: "uint32", defaultValue: 0 },
+        { name: "unk3", type: "uint32", defaultValue: 0 },
+        { name: "unk4", type: "boolean", defaultValue: 0 },
+        { name: "unk5", type: "boolean", defaultValue: 0 },
+      ],
+    },
+  ],
   [
     "PlayerUpdate.SetLookAt",
     0x0f0c,
@@ -5375,7 +5407,21 @@ var packets = [
   ],
   ["PlayerUpdate.AnimationRequest", 0x0f51, {}],
   ["PlayerUpdate.NonPriorityCharacters", 0x0f53, {}],
-  ["PlayerUpdate.PlayWorldCompositeEffect", 0x0f54, {}],
+  [
+    "PlayerUpdate.PlayWorldCompositeEffect",
+    0x0f54,
+    {
+      fields: [
+        { name: "soundId", type: "uint32", defaultValue: 0 },
+        {
+          name: "position",
+          type: "floatvector4",
+          defaultValue: [0, 0, 0, 0],
+        },
+        { name: "unk3", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
   ["PlayerUpdate.AFK", 0x0f55, {}],
   [
     "PlayerUpdate.AddLightweightPc",
@@ -7386,7 +7432,14 @@ var packets = [
     "Target.ActorBone",
     0x7e05,
     {
-      fields: [],
+      fields: [
+        { name: "Unk1", type: "uint32", defaultValue: "10" },
+        {
+          name: "unk2",
+          type: "uint64string",
+          defaultValue: "0x0000000000000010",
+        },
+      ],
     },
   ],
   [

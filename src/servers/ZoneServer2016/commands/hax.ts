@@ -1,7 +1,8 @@
 import fs from "fs";
-import { ZoneClient2016 as Client } from "../zoneclient";
+import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { _ } from "../../../utils/utils";
+
 const debug = require("debug")("zonepacketHandlers");
 
 function getHeadActor(modelId: number) {
@@ -251,8 +252,6 @@ const hax: any = {
     server._npcs[characterId] = npc; // save npc
   },
   spawnvehicle: function (server: ZoneServer2016, client: Client, args: any[]) {
-    const guid = server.generateGuid();
-    const transientId = server.getTransientId(client, guid);
     if (!args[1]) {
       server.sendChatText(
         client,
@@ -285,9 +284,10 @@ const hax: any = {
         break;
     }
     const characterId = server.generateGuid();
+    const transientId = server.getTransientId(client, characterId);
     const vehicle = {
       npcData: {
-        guid: guid,
+        guid: server.generateGuid(),
         characterId: characterId,
         transientId: transientId,
         modelId: driveModel,
@@ -474,6 +474,7 @@ const hax: any = {
     args: any[]
   ) {
     server.sendChatText(client, `Randomized weather`);
+
     function rnd_number(max: any, fixed: Boolean = false) {
       const num = Math.random() * max;
       if (fixed) return Number(num.toFixed(0));
@@ -484,11 +485,11 @@ const hax: any = {
       ...server._weather2016,
       //name: "sky_dome_600.dds", todo: use random template from a list
       /*
-      unknownDword1: 0,
-      unknownDword2: 0,
-      skyBrightness1: 1,
-      skyBrightness2: 1,
-      */
+            unknownDword1: 0,
+            unknownDword2: 0,
+            skyBrightness1: 1,
+            skyBrightness2: 1,
+            */
       snow: rnd_number(200, true),
       snowMap: rnd_number(80, true),
       colorGradient: rnd_number(1),
