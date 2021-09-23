@@ -730,6 +730,14 @@ const hax: any = {
     client.vehicle.mountedVehicle = characterId;
     client.vehicle.mountedVehicleType = "spectate";
   },
+  addloadoutitem: function (server: ZoneServer2016, client: Client, args: any[]) {
+    if (!args[1]) {
+      server.sendChatText(client, "[ERROR] Usage /hax addloadoutitem {itemDefinitionId}"); 
+      return;
+    }
+    server.sendChatText(client, `Adding item with id ${args[1]} to loadout.`);
+    server.equipItem(client, server.generateItem(client, Number(args[1])));
+  }
 };
 
 export default hax;

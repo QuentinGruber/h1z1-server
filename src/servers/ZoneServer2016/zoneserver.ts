@@ -801,10 +801,15 @@ export class ZoneServer2016 extends ZoneServer {
 
   /********************* INVENTORY *********************/
 
-  equipItem(client: Client, itemGuid: string) {
+  equipItem(client: Client, itemGuid: string = "") {
+    if(!itemGuid) {
+      debug("[ERROR] EquipItem: ItemGuid is blank!")
+      return;
+    }
     const item = this._items[itemGuid],
     def = item.itemDefinition,
-    loadoutSlotId = loadoutSlotItemClasses.find((slot:any) => slot.ITEM_CLASS === def.ITEM_CLASS).SLOT,
+    loadoutSlotItemClass = loadoutSlotItemClasses.find((slot:any) => slot.ITEM_CLASS === def.ITEM_CLASS),
+    loadoutSlotId = loadoutSlotItemClass ? loadoutSlotItemClass.SLOT : 1, // use primary slot if ItemClass is invalid
     equipmentSlotId = loadoutEquipSlots.find((slot:any) => slot.SLOT_ID === loadoutSlotId).EQUIP_SLOT_ID;
     
     const index = client.character.loadout.map((slot:any) => slot.loadoutItemSlotId).indexOf(loadoutSlotId);
@@ -873,6 +878,10 @@ export class ZoneServer2016 extends ZoneServer {
           itemDef.ID === itemDefinitionId
       )
     }
+    if(!this._items[generatedGuid].itemDefinition) {
+      debug(`[ERROR] GenerateItem: Invalid item definition: ${itemDefinitionId}`);
+      return;
+    }
     return generatedGuid;
   }
 
@@ -884,10 +893,11 @@ export class ZoneServer2016 extends ZoneServer {
     }
 
     const authorizedItemDefinitions = itemDefinitions.filter(
-      (def: any) => (def.WORLD_MODEL_ID === objectData.modelId) && def.CODE_FACTORY_NAME !== "AccountRecipe"
+      (def: any) => 
+      (def.WORLD_MODEL_ID === objectData.modelId) && def.CODE_FACTORY_NAME !== "AccountRecipe"
     )
     if(!authorizedItemDefinitions.length) {
-      debug(`[ERROR] No item definition mapped to id: ${objectData.modelId}`);
+      debug(`[ERROR] GeneratePickupItem: No item definition mapped to id: ${objectData.modelId}`);
       return;
     }
     return this.generateItem(client, authorizedItemDefinitions[rnd_number(authorizedItemDefinitions.length-1, true)].ID);

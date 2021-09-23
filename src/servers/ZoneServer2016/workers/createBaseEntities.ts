@@ -411,6 +411,7 @@ function createTools(server: ZoneServer2016) {
         break;
       case "ItemSpawner_Weapon_Machete01.adr":
         authorizedModelId.push(24);
+        authorizedModelId.push(9695); // katana
         break;
       case "ItemSpawner_Weapon_Bat01.adr":
         authorizedModelId.push(42);
@@ -444,6 +445,9 @@ function createTools(server: ZoneServer2016) {
         break;
       case "ItemSpawner_Weapon_Bow.adr":
         authorizedModelId.push(9162);
+        authorizedModelId.push(9214);
+        authorizedModelId.push(9398);
+        authorizedModelId.push(9420); // recurve
         break;
       default:
         break;
