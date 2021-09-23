@@ -657,6 +657,45 @@ function parseItemAddData(data: Buffer, offset: number, referenceData: any) {
   };
 }
 function packItemAddData() {}
+
+const itemDataSchema = [
+  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+  { name: "unknownQword1", type: "uint64string", defaultValue: "" },
+  { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+  { 
+    name: "itemSubData", 
+    type: "schema", 
+    defaultValue: {}, 
+    fields: [
+      { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+      // if unknownBoolean1 == false, below values aren't read
+      { name: "unknownDword1", type: "uint32", defaultValue: 1 },
+      // if unknownDword1 == 0, below values aren't read
+      { 
+        name: "unknownData1", 
+        type: "schema", 
+        defaultValue: {}, 
+        fields: [
+          { name: "unknownQword1", type: "uint64string", defaultValue: "" },
+          { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        ]
+      },
+    ]
+  },
+  { name: "unknownQword2", type: "uint64string", defaultValue: "" },
+  { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword8", type: "uint32", defaultValue: 0 },
+  { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+  { name: "unknownQword3", type: "uint64string", defaultValue: "" },
+  { name: "unknownDword9", type: "uint32", defaultValue: 0 },
+  { name: "unknownBoolean2", type: "boolean", defaultValue: false },
+]
+
 const profileDataSchema = [
   { name: "profileId", type: "uint32", defaultValue: 0 },
   { name: "nameId", type: "uint32", defaultValue: 0 },
@@ -5461,12 +5500,19 @@ const packets = [
     {
       fields: [
         {
+          name: "data",
+          type: "byteswithlength",
+          fields: itemDataSchema,
+        }
+        /*
+        {
           name: "itemAddData",
           type: "custom",
           parser: parseItemAddData,
           packer: packItemAddData,
         },
-      ],
+        */
+      ]
     },
   ],
   ["ClientUpdate.ItemUpdate", 0x110300, {}],

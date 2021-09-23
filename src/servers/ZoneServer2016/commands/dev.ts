@@ -387,22 +387,6 @@ const dev: any = {
     server.updateWeather2016(client);
   },
 
-
-  testItemDef :function (server: ZoneServer2016, client: Client, args: any[]) {
-
-    let ItemDefinitionsPacket = { data : {itemDefinitions:[]
-    }}
-    const fs = require("fs");
-    const itemDefJson = fs.readFileSync("../../../../data/2016/dataSources/ClientItemDefinitions.json")
-    itemDefJson.forEach((ItemDefinition:any) => {
-      // @ts-ignore
-      ItemDefinitionsPacket.data.itemDefinitions.push(ItemDefinition);
-    });
-    console.log(ItemDefinitionsPacket)
-    server.sendData(client, "Command.ItemDefinitions",ItemDefinitionsPacket)
-
-  },
-
   recipe: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.sendData(client, "Recipe.Add", {
       recipeId: 93,
@@ -440,42 +424,6 @@ const dev: any = {
       ],
       itemDefinitionId: 8,
     });
-  },
-
-  itemdefinitions: function (
-    server: ZoneServer2016,
-    client: Client,
-    args: any[]
-  ) {
-    console.log("ItemDefinitions\n\n\n\n\n\n\n\n\n");
-    if (!args[2]) {
-      server.sendChatText(client, "Missing 2 id args");
-      return;
-    }
-    const itemDefinitions = {
-      data: {
-        itemDefinitions: [
-          {
-            ID: Number(args[1]),
-            unknownArray1: [
-              {
-                unknownData1: {},
-              },
-            ],
-          },
-          {
-            ID: Number(args[2]),
-            unknownArray1: [
-              {
-                unknownData1: {},
-              },
-            ],
-          },
-        ],
-      },
-    };
-
-    server.sendData(client, "Command.ItemDefinitions", itemDefinitions); // todo: add ClientItemDefinition data
   },
 
   seatchange: function (server: ZoneServer2016, client: Client, args: any[]) {
@@ -638,6 +586,35 @@ const dev: any = {
       },
     });
   },
+  additem: function (server: ZoneServer2016, client: Client, args: any[]) {
+    server.sendData(client, "ClientUpdate.ItemAdd", {
+      data: {
+        unknownDword1: 2425,
+        unknownDword2: 2425,
+        unknownQword1: client.character.characterId,
+        unknownDword3: 2425,
+        itemSubData: {
+          unknownBoolean1: true,
+          unknownDword1: 1,
+          unknownData1: {
+            unknownQword1: server.generateGuid(),
+            unknownDword1: 2425,
+            unknownDword2: 2425
+          }
+        },
+        unknownQword2: server.generateGuid(),
+        unknownDword4: 2425,
+        unknownDword5: 2425,
+        unknownDword6: 2425,
+        unknownDword7: 2425,
+        unknownDword8: 2425,
+        unknownBoolean1: true,
+        unknownQword3: server.generateGuid(),
+        unknownDword9: 2425,
+        unknownBoolean2: true
+      }
+    });
+  }
   /*
   proxiedobjects: function(server: ZoneServer2016, client: Client, args: any[]) {
     
