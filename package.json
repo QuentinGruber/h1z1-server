@@ -17,7 +17,7 @@
     "@types/node": "16.7.9",
     "debug": "4.3.2",
     "eul2quat": "1.0.0",
-    "h1emu-core": "0.5.0",
+    "h1emu-core": "0.6.0",
     "h1z1-dataschema": "1.5.4",
     "mongodb": "4.1.2",
     "mongodb-restore-dump": "1.0.1",
