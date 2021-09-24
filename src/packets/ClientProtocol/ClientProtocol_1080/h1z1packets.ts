@@ -659,10 +659,10 @@ function parseItemAddData(data: Buffer, offset: number, referenceData: any) {
 function packItemAddData() {}
 
 const itemDataSchema = [
-  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-  { name: "unknownQword1", type: "uint64string", defaultValue: "" },
-  { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+  { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
+  { name: "tintId", type: "uint32", defaultValue: 0 },
+  { name: "guid", type: "uint64string", defaultValue: "" },
+  { name: "count", type: "uint32", defaultValue: 1 },
   { 
     name: "itemSubData", 
     type: "schema", 
@@ -670,6 +670,7 @@ const itemDataSchema = [
     fields: [
       { name: "unknownBoolean1", type: "boolean", defaultValue: false },
       // if unknownBoolean1 == false, below values aren't read
+      
       { name: "unknownDword1", type: "uint32", defaultValue: 1 },
       // if unknownDword1 == 0, below values aren't read
       { 
@@ -682,11 +683,12 @@ const itemDataSchema = [
           { name: "unknownDword2", type: "uint32", defaultValue: 0 },
         ]
       },
+      
     ]
   },
   { name: "unknownQword2", type: "uint64string", defaultValue: "" },
   { name: "unknownDword4", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+  { name: "slot", type: "uint32", defaultValue: 0 },
   { name: "unknownDword6", type: "uint32", defaultValue: 0 },
   { name: "unknownDword7", type: "uint32", defaultValue: 0 },
   { name: "unknownDword8", type: "uint32", defaultValue: 0 },
@@ -1897,6 +1899,7 @@ const respawnLocationDataSchema = [
   { name: "unknownByte4", type: "uint8", defaultValue: 0 },
 ];
 
+/*
 const itemData = [
   { name: "unknownDword1", type: "uint32", defaultValue: 0 },
   { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -1929,6 +1932,7 @@ const itemData = [
   { name: "unknownQword3", type: "uint64string", defaultValue: "0" },
   { name: "unknownDword9", type: "uint32", defaultValue: 0 },
 ];
+*/
 
 const containerData = [
   { name: "guid", type: "uint64string", defaultValue: "0" },
@@ -1936,19 +1940,12 @@ const containerData = [
   { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
   { name: "unknownDword2", type: "uint32", defaultValue: 0 },
   {
-    name: "containerItems",
-    type: "schema",
+    name: "items",
+    type: "array",
+    defaultValue: [],
     fields: [
-      // todo
-      {
-        name: "items",
-        type: "array",
-        defaultValue: [],
-        fields: [
-          { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-          { name: "itemData", type: "schema", fields: itemData },
-        ],
-      },
+      { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
+      { name: "itemData", type: "schema", fields: itemDataSchema },
     ],
   },
   { name: "unknownBoolean1", type: "boolean", defaultValue: false },
@@ -2292,8 +2289,7 @@ const packets = [
               defaultValue: [],
               fields: collectionsSchema,
             },
-            {
-              // READ FUNCTION NOT UPDATED, CAN'T FIND READ FUNCTION (length set to 0 for now)
+            { // todo
               name: "inventory",
               type: "schema",
               defaultValue: {},
@@ -4442,9 +4438,9 @@ const packets = [
               type: "array",
               defaultValue: [],
               fields: [
-                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                { name: "unknownDword1", type: "uint32", defaultValue: 0 }, // containerType?
                 {
-                  name: "containers",
+                  name: "containerData",
                   type: "schema",
                   defaultValue: {},
                   fields: containerData,
@@ -5499,6 +5495,7 @@ const packets = [
     0x110200,
     {
       fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
         {
           name: "data",
           type: "byteswithlength",
@@ -8688,20 +8685,20 @@ const packets = [
   ["Score", 0xc7, {}],
   ["Resources", 0xc8, {}],
   [
-    "Container.unknown1",
+    "Container.UpdateEquippedContainers",
     0xc90200,
     {
       fields: [
-        { name: "ignore", type: "uint64string", defaultValue: "0" },
-        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "ignore", type: "uint64string", defaultValue: "" },
+        //{ name: "ignore2", type: "uint64string", defaultValue: "" },
+        { name: "characterId", type: "uint64string", defaultValue: "" },
         {
-          name: "array1",
+          name: "containers",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "itemData", type: "schema", fields: itemData },
-            // not done
+            { name: "containerData", type: "schema", fields: containerData },
           ],
         },
       ],
@@ -8718,11 +8715,11 @@ const packets = [
     },
   ],
   [
-    "Container.unknown2",
+    "Container.ListAll",
     0xc90500,
     {
       fields: [
-        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "characterId", type: "uint64string", defaultValue: "" },
         {
           name: "containers",
           type: "array",
@@ -8732,13 +8729,24 @@ const packets = [
         {
           name: "array1",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
-            { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
+            { name: "unknownQword1", type: "uint64string", defaultValue: "" },
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
           ],
         },
         { name: "unknownDword1", type: "uint32", defaultValue: 1 },
+      ],
+    },
+  ],
+  [
+    "Container.UpdateEquippedContainer",
+    0xc90600,
+    {
+      fields: [
+        { name: "ignore", type: "uint64string", defaultValue: "" },
+        { name: "characterId", type: "uint64string", defaultValue: "" },
+        { name: "containerData", type: "schema", fields: containerData },
       ],
     },
   ],

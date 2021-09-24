@@ -587,33 +587,166 @@ const dev: any = {
     });
   },
   additem: function (server: ZoneServer2016, client: Client, args: any[]) {
+    if(!args[1]) {
+      server.sendChatText(client, "Missing itemDefinitionid");
+      return;
+    }
+    const item = server.generateItem(client, Number(args[1]));
     server.sendData(client, "ClientUpdate.ItemAdd", {
+      characterId: client.character.characterId,
       data: {
-        unknownDword1: 2425,
-        unknownDword2: 2425,
-        unknownQword1: client.character.characterId,
-        unknownDword3: 2425,
+        itemDefinitionId: Number(args[1]),
+        tintId: 5,
+        guid: item,
+        count: 10, // also ammoCount
         itemSubData: {
           unknownBoolean1: true,
+          
           unknownDword1: 1,
           unknownData1: {
-            unknownQword1: server.generateGuid(),
-            unknownDword1: 2425,
-            unknownDword2: 2425
+            unknownQword1: item,
+            unknownDword1: 0,
+            unknownDword2: 0
           }
+          
         },
-        unknownQword2: server.generateGuid(),
-        unknownDword4: 2425,
-        unknownDword5: 2425,
-        unknownDword6: 2425,
-        unknownDword7: 2425,
-        unknownDword8: 2425,
+        unknownQword2: item,
+        unknownDword4: 0,
+        slot: 0,
+        unknownDword6: 0,
+        unknownDword7: 0,
+        unknownDword8: 0,
         unknownBoolean1: true,
-        unknownQword3: server.generateGuid(),
-        unknownDword9: 2425,
+        unknownQword3: item,
+        unknownDword9: 0,
         unknownBoolean2: true
       }
     });
+    server.equipItem(client, item);
+  },
+  addcontainers: function (server: ZoneServer2016, client: Client, args: any[]) {
+    const item: any = server.generateItem(client, 2425),
+    containers = [
+      {
+        unknownDword1: 101, // container itemDefinitionId ?
+        containerData: {
+          guid: server.generateGuid(),
+          unknownDword1: 101,
+          unknownQword1: server.generateGuid(),
+          unknownDword2: 101,
+          items: [
+            {
+              itemDefinitionId: server._items[item].itemDefinitionId,
+              itemData: {
+                itemDefinitionId: server._items[item].itemDefinitionId,
+                tintId: 1,
+                guid: item,
+                count: 1,
+                itemSubData: {
+                  unknownBoolean1: false
+                },
+                unknownQword2: item,
+                unknownDword4: 1,
+                slot: 1,
+                unknownDword6: 1,
+                unknownDword7: 1,
+                unknownDword8: 1,
+                unknownBoolean1: true,
+                unknownQword3: item,
+                unknownDword9: 1,
+                unknownBoolean2: true
+              }
+            }
+          ],
+          unknownBoolean1: true,
+          unknownDword3: 1,
+          unknownDword4: 1,
+          unknownDword5: 1,
+          unknownBoolean2: true,
+        }
+      }
+    ]
+    server.sendData(client, "Container.UpdateEquippedContainers", {
+      ignore: client.character.characterId,
+      //ignore2: client.character.characterId,
+      characterId: client.character.characterId,
+      containers: containers
+    })
+  },
+  addcontainer: function (server: ZoneServer2016, client: Client, args: any[]) {
+    const backpack: any = server.generateItem(client, 1602);
+    server.equipItem(client, backpack);
+    server.sendData(client, "ClientUpdate.ItemAdd", {
+      characterId: client.character.characterId,
+      data: {
+        itemDefinitionId: server._items[backpack].itemDefinition,
+        tintId: 5,
+        guid: backpack,
+        count: 10, // also ammoCount
+        itemSubData: {
+          unknownBoolean1: false,
+          
+          unknownDword1: 1,
+          unknownData1: {
+            unknownQword1: backpack,
+            unknownDword1: 0,
+            unknownDword2: 0
+          }
+          
+        },
+        unknownQword2: backpack,
+        unknownDword4: 0,
+        slot: 1,
+        unknownDword6: 0,
+        unknownDword7: 0,
+        unknownDword8: 0,
+        unknownBoolean1: true,
+        unknownQword3: backpack,
+        unknownDword9: 0,
+        unknownBoolean2: true
+      }
+    });
+    const item: any = server.generateItem(client, 2425),
+    containerData = {
+      guid: backpack,
+      unknownDword1: server._items[backpack].itemDefinition,
+      unknownQword1: backpack,
+      unknownDword2: 2,
+      items: [
+        {
+          itemDefinitionId: server._items[item].itemDefinitionId,
+          itemData: {
+            itemDefinitionId: server._items[item].itemDefinitionId,
+            tintId: 2,
+            guid: item,
+            count: 2,
+            itemSubData: {
+              unknownBoolean1: false
+            },
+            unknownQword2: item,
+            unknownDword4: 2,
+            slot: 1,
+            unknownDword6: 2,
+            unknownDword7: 2,
+            unknownDword8: 2,
+            unknownBoolean1: true,
+            unknownQword3: item,
+            unknownDword9: 2,
+            unknownBoolean2: true
+          }
+        }
+      ],
+      unknownBoolean1: true,
+      unknownDword3: 2,
+      unknownDword4: 2,
+      unknownDword5: 2,
+      unknownBoolean2: true,
+    }
+    server.sendData(client, "Container.UpdateEquippedContainer", {
+      ignore: client.character.characterId,
+      characterId: client.character.characterId,
+      containerData: containerData
+    })
   }
   /*
   proxiedobjects: function(server: ZoneServer2016, client: Client, args: any[]) {

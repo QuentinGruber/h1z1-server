@@ -226,6 +226,48 @@ export class ZoneServer2016 extends ZoneServer {
 
   async sendCharacterData(client: Client) {
     await this.loadCharacterData(client);
+
+    /*
+    const item: any = this.generateItem(client, 2425),
+    containers = [
+      [
+        {
+          unknownDword1: 1501, // container itemDefinitionId ?
+          containerData: {
+            guid: this.generateGuid(),
+            unknownDword1: 0,
+            unknownQword1: this.generateGuid(),
+            unknownDword2: 0,
+            items: [
+              {
+                itemDefinitionId: this._items[item].itemDefinitionId,
+                itemData: {
+                  itemDefinitionId: this._items[item].itemDefinitionId,
+                  tintId: 0,
+                  guid: item,
+                  count: 1,
+                  itemSubData: {
+                    unknownBoolean1: false
+                  },
+                  unknownQword2: item,
+                  unknownDword4: 0,
+                  slot: 0,
+                  unknownDword6: 0,
+                  unknownDword7: 0,
+                  unknownDword8: 0,
+                  unknownBoolean1: true,
+                  unknownQword3: item,
+                  unknownDword9: 0,
+                  unknownBoolean2: true
+                }
+              }
+            ]
+          }
+        }
+      ]
+    ]
+    */
+
     this.sendData(client, "SendSelfToClient", {
       data: {
         guid: client.character.guid, // todo: guid should be moved to client, instead of character
@@ -289,6 +331,7 @@ export class ZoneServer2016 extends ZoneServer {
             },
           },
         ],
+        //containers: containers,
       },
     });
   }

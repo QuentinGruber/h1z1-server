@@ -977,10 +977,8 @@ const packetHandlers = {
     });
   },
   
-  
   "Command.ItemDefinitionRequest": function (server: ZoneServer2016, client: Client, packet: any) {
-    console.log("ItemDefinitionRequest\n\n\n\n\n\n\n\n\n");
-    console.log(packet.data);
+    console.log(`ItemDefinitionRequest ID: ${packet.data.ID}`);
 
     const itemDef = itemDefinitions.find(
       (itemDef: any) =>
