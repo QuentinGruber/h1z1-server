@@ -3,7 +3,7 @@ import { ZoneClient } from "../../h1z1-server";
 import { Worker } from "worker_threads";
 
 const ZoneServer = new Worker(`${__dirname}/workers/zoneServer.js`);
-ZoneServer.on("message", testLoad);
+ZoneServer.on("message", ()=>setTimeout(testLoad,100));
 
 function testLoad() {
   for (let index = 0; index < 100; index++) {
@@ -18,7 +18,7 @@ function testLoad() {
       6457 + index
     );
     console.time("FullConnectToZone" + index);
-    client.connect();
+    queueMicrotask(()=>client.connect())
     client.on("ZoneDoneSendingInitialData", (err, res) => {
       console.timeEnd("FullConnectToZone" + index);
     });

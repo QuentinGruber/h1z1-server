@@ -40,6 +40,7 @@
     "build-optimized": "npm run build && terser-output ./out",
     "build": "tsc -p ./tsconfig.json",
     "build-tests": "npx swc tests -d tests_out",
+    "build-benchs": "npx swc benchmarks -d benchmarks_out",
     "build-docker-images": "npx ts-node ./docker/buildDocker.ts",
     "build-swc": "npx swc src -d out",
     "test-zone-client": "node tests_out/2015/zoneClientTest.js",
