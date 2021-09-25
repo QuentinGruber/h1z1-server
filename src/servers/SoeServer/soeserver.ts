@@ -78,30 +78,36 @@ export class SOEServer extends EventEmitter {
             cryptoKey
           );
 
-          (client as any).inputStream.on(
+          client.inputStream.on(
             "data",
             (err: string, data: Buffer) => {
               this.emit("appdata", null, client, data);
             }
           );
 
-          (client as any).inputStream.on(
+          client.inputStream.on(
             "ack",
             (err: string, sequence: number) => {
               client.nextAck = sequence;
             }
           );
 
-          (client as any).inputStream.on(
+          client.inputStream.on(
             "outoforder",
             (err: string, expected: any, sequence: number) => {
               client.outOfOrderPackets.push(sequence);
             }
           );
-
-          (client as any).outputStream.on(
-            "data",
-            (err: string, data: Buffer, sequence: number, fragment: any) => {
+          interface outputStreamMessage {
+            data: Buffer
+            sequence: number
+            fragment: any
+          }
+          client.outputStream.on(
+            "message",
+            (message: outputStreamMessage) => {
+              const { data:dataUint8 , sequence ,fragment} = message
+              const data = Buffer.from(dataUint8);
               if (fragment) {
                 this._sendPacket(client, "DataFragment", {
                   sequence: sequence,
@@ -115,11 +121,11 @@ export class SOEServer extends EventEmitter {
               }
             }
           );
-          (client as any).outQueueTimer = setTimeout(() =>
+          client.outQueueTimer = setTimeout(() =>
             this.checkClientOutQueue(client)
           );
-          (client as any).ackTimer = setTimeout(() => this.checkAck(client));
-          (client as any).outOfOrderTimer = setTimeout(
+          client.ackTimer = setTimeout(() => this.checkAck(client));
+          client.outOfOrderTimer = setTimeout(
             () => this.checkOutOfOrderQueue(client),
             50
           );
@@ -165,7 +171,7 @@ export class SOEServer extends EventEmitter {
         },
       });
     }
-    (client as any).outQueueTimer.refresh();
+    client.outQueueTimer.refresh();
   }
 
   checkAck(client: Client) {
@@ -181,7 +187,7 @@ export class SOEServer extends EventEmitter {
         true
       );
     }
-    (client as any).ackTimer.refresh();
+    client.ackTimer.refresh();
   }
 
   checkOutOfOrderQueue(client: Client) {
@@ -210,7 +216,7 @@ export class SOEServer extends EventEmitter {
         true
       );
     }
-    (client as any).outOfOrderTimer.refresh();
+    client.outOfOrderTimer.refresh();
   }
 
   handlePacket(client: SOEClient, packet: any) {
@@ -235,15 +241,22 @@ export class SOEServer extends EventEmitter {
           client.crcSeed = this._crcSeed;
           client.crcLength = this._crcLength;
           if (this._isGatewayServer) {
-            (client as any).inputStream.setEncryption(false);
-            (client as any).outputStream.setEncryption(false);
+            client.inputStream.setEncryption(false);
+            client.outputStream.postMessage({
+              type: "setEncryption",
+              data: false,
+            });
           } else {
-            (client as any).inputStream.setEncryption(this._useEncryption);
-            (client as any).outputStream.setEncryption(this._useEncryption);
+            client.inputStream.setEncryption(this._useEncryption);
+            client.outputStream.postMessage({
+              type: "setEncryption",
+              data: this._useEncryption,
+            });
           }
-          (client as any).outputStream.setFragmentSize(
-            client.clientUdpLength - 7
-          );
+          client.outputStream.postMessage({
+            type: "setFragmentSize",
+            data: client.clientUdpLength - 7,
+          });
 
           this._sendPacket(client, "SessionReply", {
             sessionId: client.sessionId,
@@ -291,7 +304,10 @@ export class SOEServer extends EventEmitter {
                 ", sequence " +
                 lastOutOfOrder
             );
-            (client as any).outputStream.resendData(lastOutOfOrder);
+            client.outputStream.postMessage({
+              type: "resendData",
+              data: lastOutOfOrder,
+            });
           }
           break;
         }
@@ -312,7 +328,7 @@ export class SOEServer extends EventEmitter {
           debug(
             "Received data packet from client, sequence " + result.sequence
           );
-          (client as any).inputStream.write(
+          client.inputStream.write(
             result.data,
             result.sequence,
             false
@@ -322,7 +338,7 @@ export class SOEServer extends EventEmitter {
           debug(
             "Received data fragment from client, sequence " + result.sequence
           );
-          (client as any).inputStream.write(result.data, result.sequence, true);
+          client.inputStream.write(result.data, result.sequence, true);
           break;
         case "OutOfOrder":
           debug(
@@ -331,7 +347,10 @@ export class SOEServer extends EventEmitter {
               ", sequence " +
               result.sequence
           );
-          (client as any).outputStream.resendData(result.sequence);
+          client.outputStream.postMessage({
+            type: "resendData",
+            data: result.sequence,
+          });
           break;
         case "Ack":
           if (result.sequence > 50000) {
@@ -339,7 +358,10 @@ export class SOEServer extends EventEmitter {
             this.emit("PacketLimitationReached", client);
           }
           debug("Ack, sequence " + result.sequence);
-          (client as any).outputStream.ack(result.sequence);
+          client.outputStream.postMessage({
+            type: "ack",
+            data: result.sequence,
+          });
           break;
         case "ZonePing":
           debug("Receive Zone Ping ");
@@ -410,22 +432,27 @@ export class SOEServer extends EventEmitter {
   }
 
   sendAppData(client: Client, data: Buffer, overrideEncryption: boolean): void {
-    if ((client as any).outputStream._useEncryption) {
-      debug("Sending app data: " + data.length + " bytes with encryption");
-    } else {
-      debug("Sending app data: " + data.length + " bytes");
-    }
-    (client as any).outputStream.write(data, overrideEncryption);
+    debug("Sending app data: " + data.length + " bytes");
+    client.outputStream.postMessage({
+      type: "write",
+      data: {data:data,overrideEncryption:overrideEncryption},
+    });
   }
 
   setEncryption(client: Client, value: boolean): void {
-    (client as any).outputStream.setEncryption(value);
-    (client as any).inputStream.setEncryption(value);
+    client.outputStream.postMessage({
+      type: "setEncryption",
+      data: value,
+    });
+    client.inputStream.setEncryption(value);
   }
 
   toggleEncryption(client: Client): void {
-    (client as any).outputStream.toggleEncryption();
-    (client as any).inputStream.toggleEncryption();
+    client.outputStream.postMessage({
+      type: "toggleEncryption",
+      data: null,
+    });
+    client.inputStream.toggleEncryption();
   }
 
   deleteClient(client: SOEClient): void {

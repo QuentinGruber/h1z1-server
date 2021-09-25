@@ -1,7 +1,6 @@
 import { RemoteInfo } from "dgram";
 import { SOEInputStream } from "./soeinputstream";
-import { SOEOutputStream } from "./soeoutputstream";
-
+import { Worker, workerData } from "worker_threads";
 export default class SOEClient {
   sessionId: number;
   address: string;
@@ -18,8 +17,8 @@ export default class SOEClient {
   outOfOrderPackets: any[] = [];
   nextAck: number = -1;
   lastAck: number = -1;
-  inputStream: () => void;
-  outputStream: () => void;
+  inputStream: any;
+  outputStream: any;
   outQueueTimer: any;
   ackTimer: any;
   outOfOrderTimer: any;
@@ -38,7 +37,7 @@ export default class SOEClient {
     this.compression = compression;
     this.cryptoKey = cryptoKey;
     this.inputStream = new (SOEInputStream as any)(cryptoKey);
-    this.outputStream = new (SOEOutputStream as any)(cryptoKey);
+    this.outputStream = new Worker(__dirname+"/workers/soeoutputstream.js",{workerData:{cryptoKey:cryptoKey}});
   }
 
   clearTimers() {
