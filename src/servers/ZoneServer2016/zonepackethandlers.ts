@@ -74,13 +74,26 @@ const packetHandlers = {
         unknownDword15: 0,
         unknownDword16: 0,
       },
-      equipmentModels: client.character.equipment,
+      attachmentData: client.character.equipment.map((equipment: any) => {
+        return {
+          ...equipment,
+          textureAlias: equipment.defaultTextureAlias ? equipment.defaultTextureAlias : ""
+        }
+      }),
       unknownDword1: 1,
       unknownDword2: 1,
       actorModelId: 9240,
       tintAlias: "",
       decalAlias: "#",
     });
+
+    server.sendData( client, "Equipment.SetCharacterEquipment", {
+      characterData: {
+        characterId: client.character.characterId,
+      },
+      equipmentSlot: [],
+      attachmentData: [],
+    }); // needed or third person character will be invisible
 
     server.sendData(client, "ClientUpdate.DoneSendingPreloadCharacters", {
       done: true,
@@ -89,7 +102,6 @@ const packetHandlers = {
     server.sendData(client, "ClientUpdate.NetworkProximityUpdatesComplete", {
       done: true,
     }); // Required for WaitForWorldReady
-    //server.sendData(client, "ClientUpdate.UpdateStat", { stats: [] });
 
     server.sendData(client, "ZoneSetting.Data", {
       settings: [
@@ -808,7 +820,7 @@ const packetHandlers = {
     if (npc) {
       server.sendData(client, "LightweightToFullNpc", {
         transientId: npc.transientId,
-        equipmentModels: [
+        attachmentData: [
           {
             modelName: "SurvivorMale_Chest_Hoodie_Up_Tintable.adr",
             effectId: 0,
@@ -830,7 +842,7 @@ const packetHandlers = {
         array1: [],
         unknownData1: {
           transientId: server._characters[characterId].transientId,
-          equipmentModels: [],
+          attachmentData: [],
           unknownData1: {},
           effectTags: [],
         },
@@ -839,7 +851,7 @@ const packetHandlers = {
       server.sendData(client, "LightweightToFullVehicle", {
         npcData: {
           transientId: server._vehicles[characterId].npcData.transientId,
-          equipmentModels: [],
+          attachmentData: [],
           effectTags: [],
           unknownData1: {},
           targetData: {},

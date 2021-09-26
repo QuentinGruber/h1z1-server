@@ -205,14 +205,16 @@ const dev: any = {
       characterData: {
         characterId: client.character.characterId
       },
-      equipmentTexture: {
-        index: 1, // needs to be non-zero
-        slotId: 1, // needs to be non-zero
-        unknownQword1: "0x1", // needs to be non-zero
-        textureAlias: "",
-        unknownString1: ""
+      equipmentSlot: {
+        equipmentSlotId: 3,
+        equipmentSlotData: {
+          equipmentSlotId: 3,
+          guid: "0x1", // needs to be non-zero
+          tintAlias: "",
+          unknownString1: "#"
+        }
       },
-      equipmentModel: {
+      attachmentData: {
         modelName: "SurvivorMale_Chest_Hoodie_Up_Tintable.adr",
         unknownDword1: Number(args[1]),
         unknownDword2: Number(args[2]), // 1, 2, 4
@@ -237,16 +239,18 @@ const dev: any = {
         },
       ],
       unknownDword1: 1,
-      equipmentTextures: [
+      equipmentSlots: [
         {
-          index: 1, // needs to be non-zero
-          slotId: 3, // needs to be non-zero
-          unknownQword1: "0x1", // needs to be non-zero
-          textureAlias: "",
-          unknownString1: "",
-        },
+          equipmentSlotId: 3,
+          equipmentSlotData: {
+            equipmentSlotId: 3,
+            guid: "0x1", // needs to be non-zero
+            tintAlias: "",
+            unknownString1: "#"
+          }
+        }
       ],
-      equipmentModels: [
+      attachmentData: [
         {
           modelName: "SurvivorMale_Chest_Hoodie_Up_Tintable.adr",
           unknownDword1: 1,
@@ -500,7 +504,7 @@ const dev: any = {
         unknownDword15: 0,
         unknownDword16: 0,
       },
-      equipmentModels: [
+      attachmentData: [
         {
           modelName: "SurvivorMale_Head_01.adr",
           unknownDword1: 0,

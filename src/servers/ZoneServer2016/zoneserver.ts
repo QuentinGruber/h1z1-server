@@ -853,9 +853,9 @@ export class ZoneServer2016 extends ZoneServer {
     def = item.itemDefinition,
     loadoutSlotItemClass = loadoutSlotItemClasses.find((slot:any) => slot.ITEM_CLASS === def.ITEM_CLASS),
     loadoutSlotId = loadoutSlotItemClass ? loadoutSlotItemClass.SLOT : 1, // use primary slot if ItemClass is invalid
-    equipmentSlotId = loadoutEquipSlots.find((slot:any) => slot.SLOT_ID === loadoutSlotId).EQUIP_SLOT_ID;
+    equipmentSlotId = loadoutEquipSlots.find((slot:any) => slot.SLOT_ID === loadoutSlotId).EQUIP_SLOT_ID,
+    index = client.character.loadout.map((slot:any) => slot.loadoutItemSlotId).indexOf(loadoutSlotId);
     
-    const index = client.character.loadout.map((slot:any) => slot.loadoutItemSlotId).indexOf(loadoutSlotId);
     console.log(index)
     if(index === -1) { // adds new slot data
       client.character.loadout.push({
@@ -892,24 +892,55 @@ export class ZoneServer2016 extends ZoneServer {
       },
       unknownDword2: 19,
     });
+    
     this.sendData( client, "Equipment.SetCharacterEquipmentSlot", {
       characterData: {
         characterId: client.character.characterId,
       },
-      equipmentTexture: {
-        index: 1,
-        slotId: equipmentSlotId,
-        unknownQword1: item.guid,
-        textureAlias: def.TEXTURE_ALIAS,
-        unknownString1: "",
+      equipmentSlot: {
+        equipmentSlotId: equipmentSlotId,
+        equipmentSlotData: {
+          equipmentSlotId: equipmentSlotId,
+          //guid: "0x1",
+          guid: item.guid,
+          tintAlias: "",
+          unknownString1: "#"
+        }
       },
-      equipmentModel: {
+      attachmentData: {
         modelName: def.MODEL_NAME.replace("<gender>", "Male"),
-        defaultTextureAlias: def.TEXTURE_ALIAS,
+        textureAlias: def.TEXTURE_ALIAS,
         effectId: 0,
         slotId: equipmentSlotId
       },
     });
+    /*
+    this.sendData( client, "Equipment.SetCharacterEquipment", {
+      characterData: {
+        characterId: client.character.characterId,
+      },
+      equipmentSlot: [
+        {
+          equipmentSlotId: equipmentSlotId,
+          equipmentSlotData: {
+            equipmentSlotId: equipmentSlotId,
+            //guid: "0x1",
+            guid: item.guid,
+            tintAlias: "",
+            unknownString1: "#"
+          }
+        }
+      ],
+      attachmentData: [
+        {
+          modelName: def.MODEL_NAME.replace("<gender>", "Male"),
+          textureAlias: def.TEXTURE_ALIAS,
+          effectId: 0,
+          slotId: equipmentSlotId
+        }
+      ],
+    });
+    */
   }
 
   generateItem(client: Client, itemDefinitionId: any) {

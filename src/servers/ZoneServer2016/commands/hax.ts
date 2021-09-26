@@ -590,14 +590,16 @@ const hax: any = {
       characterData: {
         characterId: client.character.characterId,
       },
-      equipmentTexture: {
-        index: 1,
-        slotId: slot,
-        unknownQword1: "0x1",
-        textureAlias: "",
-        unknownString1: "",
+      equipmentSlot: {
+        equipmentSlotId: slot,
+        equipmentSlotData: {
+          equipmentSlotId: slot,
+          guid: "0x1",
+          tintAlias: "",
+          unknownString1: "#"
+        }
       },
-      equipmentModel: {
+      attachmentData: {
         modelName: model,
         effectId: Number(effect), // 0 - 16
         slotId: slot,
@@ -665,14 +667,16 @@ const hax: any = {
       characterData: {
         characterId: client.character.characterId,
       },
-      equipmentTexture: {
-        index: 1,
-        slotId: 7,
-        unknownQword1: "0x1",
-        textureAlias: "",
-        unknownString1: "",
+      equipmentSlot: {
+        equipmentSlotId: 7,
+        equipmentSlotData: {
+          equipmentSlotId: 7,
+          guid: "0x1",
+          tintAlias: "",
+          unknownString1: "#"
+        }
       },
-      equipmentModel: {
+      attachmentData: {
         modelName: model,
         effectId: Number(effect), // 0 - 16
         slotId: 7,

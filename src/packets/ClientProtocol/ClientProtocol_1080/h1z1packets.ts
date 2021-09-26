@@ -1653,10 +1653,10 @@ const loadoutDataSubSchema2 = [
 ];
 */
 
-const equipmentModelSchema = [
+const attachmentDataSchema = [
   { name: "modelName", type: "string", defaultValue: "" },
-  { name: "defaultTextureAlias", type: "string", defaultValue: "#" },
-  { name: "unknownString3", type: "string", defaultValue: "" },
+  { name: "textureAlias", type: "string", defaultValue: "" },
+  { name: "tintAlias", type: "string", defaultValue: "" },
   { name: "unknownString4", type: "string", defaultValue: "#" },
   { name: "unknownDword1", type: "uint32", defaultValue: 0 },
   { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -1684,10 +1684,10 @@ const fullNpcDataSchema = [
   { name: "unknownDword2", type: "uint32", defaultValue: 0 },
   { name: "unknownDword3", type: "uint32", defaultValue: 0 },
   {
-    name: "equipmentModels",
+    name: "attachmentData",
     type: "array",
-    defaultValue: [{}],
-    fields: equipmentModelSchema,
+    defaultValue: [],
+    fields: attachmentDataSchema,
   },
   { name: "unknownString1", type: "string", defaultValue: "" },
   { name: "unknownString2", type: "string", defaultValue: "" },
@@ -1817,10 +1817,10 @@ const fullPcDataSchema = [
       { name: "unknownDword3", type: "uint32", defaultValue: 0 },
       { name: "unknownDword4", type: "uint32", defaultValue: 0 },
       {
-        name: "equipmentModels",
+        name: "attachmentData",
         type: "array",
-        defaultValue: [{}],
-        fields: equipmentModelSchema,
+        defaultValue: [],
+        fields: attachmentDataSchema,
       },
       { name: "unknownString1", type: "string", defaultValue: "" },
       { name: "unknownString2", type: "string", defaultValue: "" },
@@ -2026,12 +2026,18 @@ const equipmentCharacterDataSchema = [
   { name: "characterId", type: "uint64string", defaultValue: "0" },
 ];
 
-const equipmentTextureSchema = [
-  { name: "index", type: "uint32", defaultValue: 1 },
-  { name: "slotId", type: "uint32", defaultValue: 1 },
-  { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
-  { name: "textureAlias", type: "string", defaultValue: "" },
-  { name: "unknownString1", type: "string", defaultValue: "" },
+const equipmentSlotSchema = [
+  { name: "equipmentSlotId", type: "uint32", defaultValue: 0 },
+  {
+    name: "equipmentSlotData",
+    type: "schema",
+    fields: [
+      { name: "equipmentSlotId", type: "uint32", defaultValue: 0 },
+      { name: "guid", type: "uint64string", defaultValue: "0" },
+      { name: "tintAlias", type: "string", defaultValue: "" },
+      { name: "unknownString1", type: "string", defaultValue: "#" },
+    ],
+  },
 ];
 
 const characterResourceData = [
@@ -3470,10 +3476,10 @@ const packets = [
                       defaultValue: "",
                     },
                     {
-                      name: "equipmentTexture",
+                      name: "equipmentSlot",
                       type: "schema",
                       defaultValue: {},
-                      fields: equipmentTextureSchema,
+                      fields: equipmentSlotSchema,
                     },
                   ],
                 },
@@ -5557,10 +5563,10 @@ const packets = [
           fields: profileDataSchema,
         },
         {
-          name: "equipmentModels",
+          name: "attachmentData",
           type: "array",
-          defaultValue: [{}],
-          fields: equipmentModelSchema,
+          defaultValue: [],
+          fields: attachmentDataSchema,
         },
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -7803,42 +7809,25 @@ const packets = [
     0x9501,
     {
       fields: [
-        { name: "profileId", type: "uint32", defaultValue: 0 },
-        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        {
+          name: "characterData",
+          type: "schema",
+          fields: equipmentCharacterDataSchema,
+        },
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "unknownString1", type: "string", defaultValue: "" },
-        { name: "unknownString2", type: "string", defaultValue: "" },
+        { name: "unknownString2", type: "string", defaultValue: "#" },
         {
           name: "equipmentSlots",
           type: "array",
-          defaultValue: [{}],
-          fields: [
-            { name: "equipmentSlotId", type: "uint32", defaultValue: 0 },
-            {
-              name: "equipmentSlotData",
-              type: "schema",
-              fields: [
-                { name: "equipmentSlotId", type: "uint32", defaultValue: 0 },
-                { name: "guid", type: "uint64string", defaultValue: "0" },
-                { name: "unknownString1", type: "string", defaultValue: "" },
-                { name: "unknownString2", type: "string", defaultValue: "" },
-              ],
-            },
-          ],
+          defaultValue: [],
+          fields: equipmentSlotSchema,
         },
         {
           name: "attachmentData",
           type: "array",
-          defaultValue: [{}],
-          fields: [
-            { name: "modelName", type: "string", defaultValue: "" },
-            { name: "unknownString1", type: "string", defaultValue: "" },
-            { name: "tintAlias", type: "string", defaultValue: "" },
-            { name: "unknownString2", type: "string", defaultValue: "" },
-            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-            { name: "slotId", type: "uint32", defaultValue: 0 },
-          ],
+          defaultValue: [],
+          fields: attachmentDataSchema,
         },
       ],
     },
@@ -7854,14 +7843,14 @@ const packets = [
           fields: equipmentCharacterDataSchema,
         },
         {
-          name: "equipmentTexture",
+          name: "equipmentSlot",
           type: "schema",
-          fields: equipmentTextureSchema,
+          fields: equipmentSlotSchema,
         },
         {
-          name: "equipmentModel",
+          name: "attachmentData",
           type: "schema",
-          fields: equipmentModelSchema,
+          fields: attachmentDataSchema,
         },
       ],
     },
@@ -7881,26 +7870,26 @@ const packets = [
         {
           name: "slots",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "index", type: "uint32", defaultValue: 0 },
             { name: "slotId", type: "uint32", defaultValue: 0 },
           ],
         },
         { name: "unknownDword1", type: "uint32", defaultValue: 1 },
-        { name: "unknownString1", type: "string", defaultValue: "string1" },
-        { name: "unknownString2", type: "string", defaultValue: "string2" },
+        { name: "unknownString1", type: "string", defaultValue: "" },
+        { name: "unknownString2", type: "string", defaultValue: "#" },
         {
-          name: "equipmentTextures",
+          name: "equipmentSlots",
           type: "array",
-          defaultValue: [{}],
-          fields: equipmentTextureSchema,
+          defaultValue: [],
+          fields: equipmentSlotSchema,
         },
         {
-          name: "equipmentModels",
+          name: "attachmentData",
           type: "array",
-          defaultValue: [{}],
-          fields: equipmentModelSchema,
+          defaultValue: [],
+          fields: attachmentDataSchema,
         },
       ],
     },
