@@ -1,6 +1,6 @@
 const debug = require("debug")("zonepacketHandlers");
 import { zoneShutdown } from "../../../utils/utils";
-import { ZoneClient2016 as Client } from "../zoneclient";
+import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 
 const admin: any = {

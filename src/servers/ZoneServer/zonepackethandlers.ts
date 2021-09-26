@@ -22,26 +22,28 @@ import hax from "./commands/hax";
 import dev from "./commands/dev";
 import admin from "./commands/admin";
 import {
+  _,
   generateRandomGuid,
   Int64String,
   isPosInRadius,
 } from "../../utils/utils";
 import { ZoneServer } from "./zoneserver";
-import { ZoneClient as Client } from "../ZoneServer/zoneclient";
+import { ZoneClient as Client } from "./classes/zoneclient";
+import { Vehicle } from "./classes/vehicles";
+
 const modelToName = require("../../../data/2015/sampleData/ModelToName.json");
 
-import { _ } from "../../utils/utils";
 const debug = require("debug")("zonepacketHandlers");
 
 const packetHandlers = {
   ClientIsReady: function (server: ZoneServer, client: Client, packet: any) {
     /* still disable
-        server.sendData(client, "ClientBeginZoning", {
-          position: client.character.state.position,
-          rotation: client.character.state.rotation,
-          skyData: server._weather,
-        });
-        */
+            server.sendData(client, "ClientBeginZoning", {
+              position: client.character.state.position,
+              rotation: client.character.state.rotation,
+              skyData: server._weather,
+            });
+            */
     server.sendData(client, "QuickChat.SendData", { commands: [] });
     server.sendData(client, "ClientUpdate.ActivateProfile", {
       profiles: server._profiles,
@@ -272,7 +274,7 @@ const packetHandlers = {
       client.firstLoading = false;
       client.pingTimer?.refresh();
       client.savePositionTimer = setTimeout(
-        () => server.saveCharacterPosition(client,true),
+        () => server.saveCharacterPosition(client, true),
         30000
       );
       server.executeFuncForAllClients("spawnCharacters");
@@ -293,7 +295,6 @@ const packetHandlers = {
     client.isInteracting = false;
     delete client.vehicle.mountedVehicle;
     client.vehicle.mountedVehicleType = "0";
-
   },
   Security: function (server: ZoneServer, client: Client, packet: any) {
     debug(packet);
@@ -406,36 +407,36 @@ const packetHandlers = {
     packet: any
   ) {
     /*
-    if (client.character.currentLoadout) {
-      const loadout = client.character.currentLoadout,
-        loadoutSlotId = packet.data.loadoutSlotId;
-      client.character.currentLoadoutSlot = packet.data.loadoutSlotId;
-      const loadoutSlots = loadout.loadoutSlots;
-      for (let i = 0; i < loadoutSlots.length; i++) {
-        if (loadoutSlots[i].loadoutSlotId == loadoutSlotId) {
-          const itemLineId =
-            loadoutSlots[i].loadoutSlotData.loadoutSlotItem.itemLineId;
-          server
-            .data("item_line_members")
-            .findOne(
-              { itemLineId: itemLineId, itemLineIndex: 0 },
-              function (err, itemLineMember) {
-                const itemId = itemLineMember.itemId;
-                const inventoryItems = client.character.inventory.items;
-                for (let j = 0; j < inventoryItems.length; j++) {
-                  if (inventoryItems[j].itemData.baseItem.itemId == itemId) {
-                    client.character.currentLoadoutSlotItem =
-                      inventoryItems[j].itemData;
-                    break;
+        if (client.character.currentLoadout) {
+          const loadout = client.character.currentLoadout,
+            loadoutSlotId = packet.data.loadoutSlotId;
+          client.character.currentLoadoutSlot = packet.data.loadoutSlotId;
+          const loadoutSlots = loadout.loadoutSlots;
+          for (let i = 0; i < loadoutSlots.length; i++) {
+            if (loadoutSlots[i].loadoutSlotId == loadoutSlotId) {
+              const itemLineId =
+                loadoutSlots[i].loadoutSlotData.loadoutSlotItem.itemLineId;
+              server
+                .data("item_line_members")
+                .findOne(
+                  { itemLineId: itemLineId, itemLineIndex: 0 },
+                  function (err, itemLineMember) {
+                    const itemId = itemLineMember.itemId;
+                    const inventoryItems = client.character.inventory.items;
+                    for (let j = 0; j < inventoryItems.length; j++) {
+                      if (inventoryItems[j].itemData.baseItem.itemId == itemId) {
+                        client.character.currentLoadoutSlotItem =
+                          inventoryItems[j].itemData;
+                        break;
+                      }
+                    }
                   }
-                }
-              }
-            );
-          break;
+                );
+              break;
+            }
+          }
         }
-      }
-    }
-    */
+        */
   },
   ClientInitializationDetails: function (
     server: ZoneServer,
@@ -1616,10 +1617,10 @@ const packetHandlers = {
       time: timerTime,
     });
     client.posAtLogoutStart = client.character.state.position;
-    if (client.timer != null) {
-      clearTimeout(client.timer);
+    if (client.hudTimer != null) {
+      clearTimeout(client.hudTimer);
     }
-    client.timer = setTimeout(() => {
+    client.hudTimer = setTimeout(() => {
       client.managedObjects.forEach((object: any) => {
         server._vehicles[object.npcData.characterId].isManaged = false;
       });
@@ -1712,6 +1713,20 @@ const packetHandlers = {
     debug(packet);
     const characterId = server._transientIds[packet.data.transientId];
     if (characterId) {
+      if (
+        client.hudTimer != null &&
+        !isPosInRadius(
+          1,
+          client.character.state.position,
+          client.posAtLogoutStart
+        )
+      ) {
+        client.clearHudTimer();
+        server.sendData(client, "ClientUpdate.StartTimer", {
+          stringId: 0,
+          time: 0,
+        }); // don't know how it was done so
+      }
       server.sendDataToAllOthers(client, "PlayerUpdate.UpdatePosition", {
         transientId: packet.data.transientId,
         positionUpdate: packet.data.PositionUpdate,
@@ -1779,16 +1794,14 @@ const packetHandlers = {
       }
 
       if (
-        client.timer != null &&
+        client.hudTimer != null &&
         !isPosInRadius(
           1,
           client.character.state.position,
           client.posAtLogoutStart
         )
       ) {
-        clearTimeout(client.timer);
-        client.timer = null;
-        client.isInteracting = false;
+        client.clearHudTimer();
         server.sendData(client, "ClientUpdate.StartTimer", {
           stringId: 0,
           time: 0,
@@ -1841,7 +1854,7 @@ const packetHandlers = {
     const objectToPickup = server._objects[packet.data.guid];
     const doorToInteractWith = server._doors[packet.data.guid];
     const propToSearch = server._props[packet.data.guid];
-    const vehicleToMount = server._vehicles[packet.data.guid];
+    const vehicleToMount: Vehicle = server._vehicles[packet.data.guid];
     if (
       objectToPickup &&
       isPosInRadius(
@@ -2109,10 +2122,10 @@ const packetHandlers = {
               time: timerTime,
             });
             client.posAtLogoutStart = client.character.state.position;
-            if (client.timer != null) {
-              clearTimeout(client.timer);
+            if (client.hudTimer != null) {
+              clearTimeout(client.hudTimer);
             }
-            client.timer = setTimeout(() => {
+            client.hudTimer = setTimeout(() => {
               server.sendData(client, "ClientUpdate.TextAlert", {
                 message: "You feel refreshed after sleeping well.",
               });
@@ -2143,10 +2156,10 @@ const packetHandlers = {
               time: timerTime,
             });
             client.posAtLogoutStart = client.character.state.position;
-            if (client.timer != null) {
-              clearTimeout(client.timer);
+            if (client.hudTimer != null) {
+              clearTimeout(client.hudTimer);
             }
-            client.timer = setTimeout(() => {
+            client.hudTimer = setTimeout(() => {
               server.sendData(client, "ClientUpdate.TextAlert", {
                 message: "Nothing in there... yet :P",
               });
@@ -2274,9 +2287,7 @@ const packetHandlers = {
         npcData: npcData,
         characterId: characterId,
       });
-      if (server._vehicles[characterId].onReadyCallback) {
-        server._vehicles[characterId].onReadyCallback();
-      }
+      server._vehicles[characterId].onReadyCallback();
     }
   },
 };

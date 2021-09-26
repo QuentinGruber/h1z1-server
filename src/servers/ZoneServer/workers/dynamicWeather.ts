@@ -1,6 +1,6 @@
-import { _ } from "../../../utils/utils";
-import { randomIntFromInterval } from "../../../utils/utils";
+import { _, randomIntFromInterval } from "../../../utils/utils";
 import { parentPort, workerData } from "worker_threads";
+
 const debug = require("debug")("dynamicWeather");
 
 let weatherChoosen = false;

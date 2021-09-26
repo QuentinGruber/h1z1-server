@@ -24,6 +24,7 @@ export default class SOEClient {
   ackTimer: any;
   outOfOrderTimer: any;
   cryptoKey: Uint8Array;
+
   constructor(
     remote: RemoteInfo,
     crcSeed: number,

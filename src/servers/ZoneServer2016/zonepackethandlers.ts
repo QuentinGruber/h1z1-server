@@ -23,13 +23,12 @@ import hax from "./commands/hax";
 import dev from "./commands/dev";
 import admin from "./commands/admin";
 
-import { Int64String, isPosInRadius } from "../../utils/utils";
-import { ZoneServer2016 } from "./zoneserver";
-import { ZoneClient2016 as Client } from "./zoneclient";
 // TOOD: UPDATE THIS FOR 2016
 // const modelToName = require("../../../data/2016/dataSources/ModelToName.json");
+import { _, Int64String, isPosInRadius } from "../../utils/utils";
+import { ZoneServer2016 } from "./zoneserver";
+import { ZoneClient2016 as Client } from "./classes/zoneclient";
 
-import { _ } from "../../utils/utils";
 const debug = require("debug")("zonepacketHandlers");
 
 const itemDefinitions = require("./../../../data/2016/dataSources/ClientItemDefinitions.json");
@@ -160,11 +159,11 @@ const packetHandlers = {
 
     // client.character.currentLoadoutId = 3;
     /*
-    server.sendData(client, "Loadout.SetCurrentLoadout", {
-      guid: client.character.guid,
-      loadoutId: client.character.currentLoadoutId,
-    });
-    */
+        server.sendData(client, "Loadout.SetCurrentLoadout", {
+          guid: client.character.guid,
+          loadoutId: client.character.currentLoadoutId,
+        });
+        */
 
     server.sendData(client, "ZoneDoneSendingInitialData", {}); // Required for WaitForWorldReady
 
@@ -190,16 +189,25 @@ const packetHandlers = {
     });
 
     /*
-    const defs = itemDefinitions.map((def: any) => {
-      return {
-        ID: def.ID,
-        definitionData: {
-          ...def,
-          flags1: {
-            ...def
-          },
-          flags2: {
-            ...def
+        const defs = itemDefinitions.map((def: any) => {
+          return {
+            ID: def.ID,
+            definitionData: {
+              ...def,
+              flags1: {
+                ...def
+              },
+              flags2: {
+                ...def
+              }
+            }
+          };
+        });
+        console.log(defs)
+
+        server.sendData(client, "Command.ItemDefinitions", { // sends full list of item definitions
+          data: {
+            itemDefinitions: defs
           }
         }
       };
@@ -336,40 +344,40 @@ const packetHandlers = {
     server.sendChat(client, message, channel);
   },
   /*
-  "Loadout.SelectSlot": function (server: ZoneServer2016, client: Client, packet: any) {
-    
-    if (client.character.currentLoadout) {
-      const loadout = client.character.currentLoadout,
-        loadoutSlotId = packet.data.loadoutSlotId;
-      client.character.currentLoadoutSlot = packet.data.loadoutSlotId;
-      const loadoutSlots = loadout.loadoutSlots;
-      for (let i = 0; i < loadoutSlots.length; i++) {
-        if (loadoutSlots[i].loadoutSlotId == loadoutSlotId) {
-          const itemLineId =
-            loadoutSlots[i].loadoutSlotData.loadoutSlotItem.itemLineId;
-          server
-            .data("item_line_members")
-            .findOne(
-              { itemLineId: itemLineId, itemLineIndex: 0 },
-              function (err, itemLineMember) {
-                const itemId = itemLineMember.itemId;
-                const inventoryItems = client.character.inventory.items;
-                for (let j = 0; j < inventoryItems.length; j++) {
-                  if (inventoryItems[j].itemData.baseItem.itemId == itemId) {
-                    client.character.currentLoadoutSlotItem =
-                      inventoryItems[j].itemData;
-                    break;
+    "Loadout.SelectSlot": function (server: ZoneServer2016, client: Client, packet: any) {
+
+      if (client.character.currentLoadout) {
+        const loadout = client.character.currentLoadout,
+          loadoutSlotId = packet.data.loadoutSlotId;
+        client.character.currentLoadoutSlot = packet.data.loadoutSlotId;
+        const loadoutSlots = loadout.loadoutSlots;
+        for (let i = 0; i < loadoutSlots.length; i++) {
+          if (loadoutSlots[i].loadoutSlotId == loadoutSlotId) {
+            const itemLineId =
+              loadoutSlots[i].loadoutSlotData.loadoutSlotItem.itemLineId;
+            server
+              .data("item_line_members")
+              .findOne(
+                { itemLineId: itemLineId, itemLineIndex: 0 },
+                function (err, itemLineMember) {
+                  const itemId = itemLineMember.itemId;
+                  const inventoryItems = client.character.inventory.items;
+                  for (let j = 0; j < inventoryItems.length; j++) {
+                    if (inventoryItems[j].itemData.baseItem.itemId == itemId) {
+                      client.character.currentLoadoutSlotItem =
+                        inventoryItems[j].itemData;
+                      break;
+                    }
                   }
                 }
-              }
-            );
-          break;
+              );
+            break;
+          }
         }
       }
-    }
-    
-  },
-  */
+
+    },
+    */
   ClientInitializationDetails: function (
     server: ZoneServer2016,
     client: Client,
@@ -502,16 +510,16 @@ const packetHandlers = {
     }
   },
   /*
-  "Command.SetProfile": function (server: ZoneServer2016, client: Client, packet: any) {
-    server.sendData(client, "Loadout.SetCurrentLoadout", {
-      type: 2,
-      unknown1: 0,
-      loadoutId: 15,
-      tabId: 256,
-      unknown2: 1,
-    });
-  },
-  */
+    "Command.SetProfile": function (server: ZoneServer2016, client: Client, packet: any) {
+      server.sendData(client, "Loadout.SetCurrentLoadout", {
+        type: 2,
+        unknown1: 0,
+        loadoutId: 15,
+        tabId: 256,
+        unknown2: 1,
+      });
+    },
+    */
   "Command.InteractRequest": function (
     server: ZoneServer2016,
     client: Client,
@@ -543,14 +551,14 @@ const packetHandlers = {
     });
   },
   /*
-  "Command.InteractionSelect": function (server: ZoneServer2016, client: Client, packet: any) {
-    server.sendData(client, "Loadout.SetLoadouts", {
-      type: 2,
-      guid: packet.data.guid,
-      unknownDword1: 1,
-    });
-  },
-  */
+    "Command.InteractionSelect": function (server: ZoneServer2016, client: Client, packet: any) {
+      server.sendData(client, "Loadout.SetLoadouts", {
+        type: 2,
+        guid: packet.data.guid,
+        unknownDword1: 1,
+      });
+    },
+    */
 
   "Command.InteractCancel": function (
     server: ZoneServer2016,
@@ -570,10 +578,10 @@ const packetHandlers = {
       time: timerTime,
     });
     client.posAtLogoutStart = client.character.state.position;
-    if (client.timer != null) {
-      clearTimeout(client.timer);
+    if (client.hudTimer != null) {
+      clearTimeout(client.hudTimer);
     }
-    client.timer = setTimeout(() => {
+    client.hudTimer = setTimeout(() => {
       server.sendData(client, "ClientUpdate.CompleteLogoutProcess", {});
     }, timerTime);
   },
@@ -706,14 +714,14 @@ const packetHandlers = {
         );
       } else {
         /*
-        server.sendRawToAllOthers(
-          client,
-          server._protocol.createPositionBroadcast(
-            packet.data.raw,
-            movingCharacter.transientId
-          )
-        );
-        */
+                server.sendRawToAllOthers(
+                  client,
+                  server._protocol.createPositionBroadcast(
+                    packet.data.raw,
+                    movingCharacter.transientId
+                  )
+                );
+                */
         server.sendDataToAllOthers(client, "PlayerUpdatePosition", {
           transientId: movingCharacter.transientId,
           positionUpdate: server.createPositionUpdate(
@@ -738,15 +746,15 @@ const packetHandlers = {
       }
 
       if (
-        client.timer != null &&
+        client.hudTimer != null &&
         !isPosInRadius(
           1,
           client.character.state.position,
           client.posAtLogoutStart
         )
       ) {
-        clearTimeout(client.timer);
-        client.timer = null;
+        clearTimeout(client.hudTimer);
+        client.hudTimer = null;
         client.isInteracting = false;
         server.sendData(client, "ClientUpdate.StartTimer", {
           stringId: 0,
@@ -993,8 +1001,7 @@ const packetHandlers = {
     console.log(`ItemDefinitionRequest ID: ${packet.data.ID}`);
 
     const itemDef = itemDefinitions.find(
-      (itemDef: any) =>
-        itemDef.ID === packet.data.ID
+      (itemDef: any) => itemDef.ID === packet.data.ID
     );
 
     server.sendData(client, "Command.ItemDefinitionReply", {
@@ -1013,12 +1020,11 @@ const packetHandlers = {
             ...itemDef,
             //FLAG_NO_DRAG_DROP: 1, // FLAG_NO_DRAG_DROP
           },
-          stats: []
-        }
-      }
-    })
-  }
-  
+          stats: [],
+        },
+      },
+    });
+  },
 };
 
 export default packetHandlers;

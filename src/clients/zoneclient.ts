@@ -14,6 +14,7 @@
 import { EventEmitter } from "events";
 import { GatewayClient } from "./gatewayclient";
 import { H1Z1Protocol as ZoneProtocol } from "../protocols/h1z1protocol";
+
 const debug = require("debug")("ZoneClient");
 
 export class ZoneClient extends EventEmitter {
@@ -26,6 +27,7 @@ export class ZoneClient extends EventEmitter {
   _referenceData: any;
   _environment: string;
   _serverId: number;
+
   constructor(
     serverAddress: string,
     serverPort: number,
@@ -154,12 +156,16 @@ export class ZoneClient extends EventEmitter {
       me.emit("disconnect", err, result);
     });
   }
+
   connect() {
     debug("Connecting to gateway server");
     this._gatewayClient.connect();
   }
+
   login() {}
+
   disconnect() {}
+
   setReferenceData(data: any) {
     this._referenceData = data;
   }

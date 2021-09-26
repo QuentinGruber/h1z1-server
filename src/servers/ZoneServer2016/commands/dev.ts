@@ -1,7 +1,8 @@
-import { ZoneClient2016 as Client } from "../zoneclient";
+import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
-const debug = require("debug")("zonepacketHandlers");
 import { Int64String } from "../../../utils/utils";
+
+const debug = require("debug")("zonepacketHandlers");
 
 const dev: any = {
   list: function (server: ZoneServer2016, client: Client, args: any[]) {
@@ -328,21 +329,21 @@ const dev: any = {
     args: any[]
   ) {
     /*
-    if(!args[7]) {
-      server.sendChatText(client, "Missing 7 args");
-      return;
-    }
-    */
+        if(!args[7]) {
+          server.sendChatText(client, "Missing 7 args");
+          return;
+        }
+        */
     /*
-    function rnd_number() {
-      return Number((Math.random() * 100).toFixed(0));
-    }
-    function rnd_number2(max: any, fixed: Boolean = false) {
-      const num = Math.random() * max;
-      if (fixed) return Number(num.toFixed(0));
-      return Number(num);
-    }
-    */
+        function rnd_number() {
+          return Number((Math.random() * 100).toFixed(0));
+        }
+        function rnd_number2(max: any, fixed: Boolean = false) {
+          const num = Math.random() * max;
+          if (fixed) return Number(num.toFixed(0));
+          return Number(num);
+        }
+        */
     server._weather2016 = {
       ...server._weather2016,
 
@@ -753,26 +754,26 @@ const dev: any = {
     })
   }
   /*
-  proxiedobjects: function(server: ZoneServer2016, client: Client, args: any[]) {
-    
-    objects.runtime_object.runtime_objects.forEach((object) => {
-      if(object.actor_file === "Common_Props_Dryer.adr") {
-        object.instances.forEach((instance) => {
-          console.log("proxied object")
-          const obj = {
-            guid: instance.id,
-            transientId: server.getTransientId(client, instance.id),
-            unknownByte1: 0,
-            position: [instance.position[0], instance.position[1], instance.position[2]],
-            rotation: [instance.rotation[1], instance.rotation[0], instance.rotation[2]],
-          };
-          server.sendData(client, "AddProxiedObject", obj);
-        });
-        server.sendChatText(client, `Sent ${object.instance_count} ProxiedObject Packets`);
-      }
-    });
-  }
-  */
+    proxiedobjects: function(server: ZoneServer2016, client: Client, args: any[]) {
+
+      objects.runtime_object.runtime_objects.forEach((object) => {
+        if(object.actor_file === "Common_Props_Dryer.adr") {
+          object.instances.forEach((instance) => {
+            console.log("proxied object")
+            const obj = {
+              guid: instance.id,
+              transientId: server.getTransientId(client, instance.id),
+              unknownByte1: 0,
+              position: [instance.position[0], instance.position[1], instance.position[2]],
+              rotation: [instance.rotation[1], instance.rotation[0], instance.rotation[2]],
+            };
+            server.sendData(client, "AddProxiedObject", obj);
+          });
+          server.sendChatText(client, `Sent ${object.instance_count} ProxiedObject Packets`);
+        }
+      });
+    }
+    */
 };
 
 export default dev;

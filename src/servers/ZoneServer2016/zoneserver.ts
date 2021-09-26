@@ -15,19 +15,12 @@ const debugName = "ZoneServer";
 const debug = require("debug")(debugName);
 import { default as packetHandlers } from "./zonepackethandlers";
 import { ZoneServer } from "../ZoneServer/zoneserver";
-import { ZoneClient2016 as Client } from "./zoneclient";
+import { ZoneClient2016 as Client } from "./classes/zoneclient";
 import { HandledZonePackets2016, Weather2016 } from "../../types/zoneserver";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
-import { _ } from "../../utils/utils";
+import { _, initMongo, Int64String, isPosInRadius } from "../../utils/utils";
 
-import {
-  //generateRandomGuid,
-  initMongo,
-  Int64String,
-  isPosInRadius,
-} from "../../utils/utils";
-
-import { /*Db,*/ MongoClient } from "mongodb";
+import { MongoClient } from "mongodb";
 import dynamicWeather from "./workers/dynamicWeather";
 
 // need to get 2016 lists
@@ -49,6 +42,8 @@ export class ZoneServer2016 extends ZoneServer {
   _packetHandlers: HandledZonePackets2016;
   _weatherTemplates: any;
   _items: any;
+  _vehicles: any;
+
   constructor(serverPort: number, gatewayKey: Uint8Array, mongoAddress = "") {
     super(serverPort, gatewayKey, mongoAddress);
     this._protocol = new H1Z1Protocol("ClientProtocol_1080");
@@ -88,6 +83,7 @@ export class ZoneServer2016 extends ZoneServer {
     });
     this._items = {};
   }
+
   onZoneDataEvent(err: any, client: Client, packet: any) {
     if (err) {
       console.error(err);
@@ -352,24 +348,24 @@ export class ZoneServer2016 extends ZoneServer {
     this._profiles = this.generateProfiles();
     this.createAllObjects();
     /*
-    if (
-      await this._db?.collection("worlds").findOne({ worldId: this._worldId })
-    ) {
-      await this.fetchWorldData();
-    } else {
-      await this._db
-        ?.collection(`worlds`)
-        .insertOne({ worldId: this._worldId });
-      await this.saveWorld();
-    }
-    if (!this._soloMode)
-      await this._db
-        ?.collection("servers")
-        .findOneAndUpdate(
-          { serverId: this._worldId },
-          { $set: { populationNumber: 0, populationLevel: 0 } }
-        );
-    */
+        if (
+          await this._db?.collection("worlds").findOne({ worldId: this._worldId })
+        ) {
+          await this.fetchWorldData();
+        } else {
+          await this._db
+            ?.collection(`worlds`)
+            .insertOne({ worldId: this._worldId });
+          await this.saveWorld();
+        }
+        if (!this._soloMode)
+          await this._db
+            ?.collection("servers")
+            .findOneAndUpdate(
+              { serverId: this._worldId },
+              { $set: { populationNumber: 0, populationLevel: 0 } }
+            );
+        */
     debug("Server ready");
   }
 

@@ -1,4 +1,4 @@
-import SOEClient from "../SoeServer/soeclient";
+import SOEClient from "../../SoeServer/soeclient";
 import { RemoteInfo } from "dgram";
 import { Character } from "./character";
 
@@ -9,7 +9,7 @@ export class ZoneClient extends SOEClient {
   isInteracting: boolean = false;
   posAtLastRoutine: Float32Array = new Float32Array();
   posAtLogoutStart: Float32Array = new Float32Array();
-  timer: any;
+  hudTimer!: any;
   spawnedEntities: any[] = [];
   managedObjects: any[] = [];
   vehicle: {
@@ -24,6 +24,8 @@ export class ZoneClient extends SOEClient {
   loginSessionId?: string;
   pingTimer: NodeJS.Timeout | undefined;
   savePositionTimer: any;
+  clearHudTimer: () => void;
+
   constructor(
     initialClient: SOEClient,
     loginSessionId: string,
@@ -65,6 +67,11 @@ export class ZoneClient extends SOEClient {
     this.clearTimers = () => {
       super.clearTimers();
       clearTimeout(this.npcsToSpawnTimer);
+    };
+    this.clearHudTimer = () => {
+      clearTimeout(this.hudTimer);
+      this.hudTimer = null;
+      this.isInteracting = false;
     };
   }
 }

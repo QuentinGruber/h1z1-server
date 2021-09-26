@@ -2,14 +2,18 @@ const restore = require("mongodb-restore-dump");
 import { generate_random_guid, lz4_comp, lz4_decomp } from "h1emu-core";
 import v8 from "v8";
 import fs from "fs";
+
 export class customLodash {
   constructor() {}
+
   cloneDeep(value: any) {
     return v8.deserialize(v8.serialize(value));
   }
+
   find(array: any[], filter: any) {
     return array.find(filter);
   }
+
   isEqual(array1: any[], array2: any[]) {
     return (
       Array.isArray(array1) &&
@@ -18,6 +22,7 @@ export class customLodash {
       array1.every((val, index) => val === array2[index])
     );
   }
+
   forEach(object: Object, callback: Function) {
     const objectLength = Object.keys(object).length;
     const objectValues = Object.values(object);
@@ -25,9 +30,11 @@ export class customLodash {
       callback(objectValues[index]);
     }
   }
+
   size(object: Object) {
     return Object.keys(object).length;
   }
+
   fill(array: any[], object: any) {
     for (let index = 0; index < array.length; index++) {
       array[index] = object;
@@ -35,6 +42,7 @@ export class customLodash {
     return array;
   }
 }
+
 export const _ = new customLodash();
 
 // Original code from GuinnessRules
