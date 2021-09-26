@@ -143,6 +143,7 @@ export class SOEServer extends EventEmitter {
             result.soePacket &&
             result.soePacket.name === "SessionRequest"
           ) {
+            this._clients[clientId].clearAll()
             delete this._clients[clientId];
             debug(
               "Delete an old session badly closed by the client (",
@@ -456,7 +457,7 @@ export class SOEServer extends EventEmitter {
   }
 
   deleteClient(client: SOEClient): void {
-    client.clearTimers();
+    client.clearAll();
     delete this._clients[client.address + ":" + client.port];
     debug("client connection from port : ", client.port, " deleted");
   }

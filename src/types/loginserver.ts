@@ -1,3 +1,5 @@
+import { Worker } from "worker_threads";
+
 export interface Client {
   sessionId: number;
   loginSessionId: string;
@@ -18,11 +20,13 @@ export interface Client {
   cryptoKey: Uint8Array;
   serverUpdateTimer: ReturnType<typeof setTimeout>;
   inputStream: () => void;
-  outputStream: () => void;
+  outputStream: Worker;
   outQueueTimer: () => void;
   ackTimer: () => void;
   outOfOrderTimer: () => void;
   clearTimers: () => void;
+  clearAll:() => void;
+  clearWorkers: () => void;
 }
 
 export interface SoeServer {

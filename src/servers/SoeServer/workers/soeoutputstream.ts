@@ -160,10 +160,8 @@ parentPort?.on("message", (message: Message) => {
       outputStream.setFragmentSize(data);
       break;
     }
-    case "ack":{
-      const { data } = message;
-      outputStream.ack(data);
-      break;
+    case "kill":{
+      process.exit(0);
     }
     default:
       break;

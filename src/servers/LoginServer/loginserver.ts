@@ -230,7 +230,7 @@ export class LoginServer extends EventEmitter {
 
   Logout(client: Client, packet: any) {
     clearInterval(client.serverUpdateTimer);
-    // this._soeServer.deleteClient(client); this is done too early
+    setTimeout(()=>this._soeServer.deleteClient(client),10000)
   }
 
   addDummyDataToCharacters(characters: any[]) {
