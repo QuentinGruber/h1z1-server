@@ -1,242 +1,194 @@
 [
   {
     "SLOT_ID": 1,
-    "EQUIP_SLOT_ID": 7,
-    "": ""
+    "EQUIP_SLOT_ID": 7
   },
   {
     "SLOT_ID": 2,
-    "EQUIP_SLOT_ID": 7,
-    "": ""
+    "EQUIP_SLOT_ID": 7
   },
   {
     "SLOT_ID": 3,
-    "EQUIP_SLOT_ID": 7,
-    "": ""
+    "EQUIP_SLOT_ID": 7
   },
   {
     "SLOT_ID": 4,
-    "EQUIP_SLOT_ID": 7,
-    "": ""
+    "EQUIP_SLOT_ID": 7
   },
   {
     "SLOT_ID": 5,
-    "EQUIP_SLOT_ID": 7,
-    "": ""
+    "EQUIP_SLOT_ID": 7
   },
   {
     "SLOT_ID": 6,
-    "EQUIP_SLOT_ID": 12,
-    "": ""
+    "EQUIP_SLOT_ID": 12
   },
   {
     "SLOT_ID": 7,
-    "EQUIP_SLOT_ID": 7,
-    "": ""
+    "EQUIP_SLOT_ID": 7
   },
   {
     "SLOT_ID": 8,
-    "EQUIP_SLOT_ID": 0,
-    "": ""
+    "EQUIP_SLOT_ID": 0
   },
   {
     "SLOT_ID": 9,
-    "EQUIP_SLOT_ID": 13,
-    "": ""
+    "EQUIP_SLOT_ID": 13
   },
   {
     "SLOT_ID": 10,
-    "EQUIP_SLOT_ID": 3,
-    "": ""
+    "EQUIP_SLOT_ID": 3
   },
   {
     "SLOT_ID": 11,
-    "EQUIP_SLOT_ID": 1,
-    "": ""
+    "EQUIP_SLOT_ID": 1
   },
   {
     "SLOT_ID": 12,
-    "EQUIP_SLOT_ID": 10,
-    "": ""
+    "EQUIP_SLOT_ID": 10
   },
   {
     "SLOT_ID": 13,
-    "EQUIP_SLOT_ID": 5,
-    "": ""
+    "EQUIP_SLOT_ID": 5
   },
   {
     "SLOT_ID": 14,
-    "EQUIP_SLOT_ID": 4,
-    "": ""
+    "EQUIP_SLOT_ID": 4
   },
   {
     "SLOT_ID": 15,
-    "EQUIP_SLOT_ID": 0,
-    "": ""
+    "EQUIP_SLOT_ID": 0
   },
   {
     "SLOT_ID": 16,
-    "EQUIP_SLOT_ID": 2,
-    "": ""
+    "EQUIP_SLOT_ID": 2
   },
   {
     "SLOT_ID": 17,
-    "EQUIP_SLOT_ID": 41,
-    "": ""
+    "EQUIP_SLOT_ID": 41
   },
   {
     "SLOT_ID": 18,
-    "EQUIP_SLOT_ID": 45,
-    "": ""
+    "EQUIP_SLOT_ID": 45
   },
   {
     "SLOT_ID": 19,
-    "EQUIP_SLOT_ID": 68,
-    "": ""
+    "EQUIP_SLOT_ID": 68
   },
   {
     "SLOT_ID": 20,
-    "EQUIP_SLOT_ID": 69,
-    "": ""
+    "EQUIP_SLOT_ID": 69
   },
   {
     "SLOT_ID": 21,
-    "EQUIP_SLOT_ID": 0,
-    "": ""
+    "EQUIP_SLOT_ID": 0
   },
   {
     "SLOT_ID": 22,
-    "EQUIP_SLOT_ID": 0,
-    "": ""
+    "EQUIP_SLOT_ID": 0
   },
   {
     "SLOT_ID": 23,
-    "EQUIP_SLOT_ID": 0,
-    "": ""
+    "EQUIP_SLOT_ID": 0
   },
   {
     "SLOT_ID": 24,
-    "EQUIP_SLOT_ID": 0,
-    "": ""
+    "EQUIP_SLOT_ID": 0
   },
   {
     "SLOT_ID": 25,
-    "EQUIP_SLOT_ID": 11,
-    "": ""
+    "EQUIP_SLOT_ID": 11
   },
   {
     "SLOT_ID": 26,
-    "EQUIP_SLOT_ID": 26,
-    "": ""
+    "EQUIP_SLOT_ID": 26
   },
   {
     "SLOT_ID": 27,
-    "EQUIP_SLOT_ID": 27,
-    "": ""
+    "EQUIP_SLOT_ID": 27
   },
   {
     "SLOT_ID": 28,
-    "EQUIP_SLOT_ID": 28,
-    "": ""
+    "EQUIP_SLOT_ID": 28
   },
   {
     "SLOT_ID": 29,
-    "EQUIP_SLOT_ID": 29,
-    "": ""
+    "EQUIP_SLOT_ID": 29
   },
   {
     "SLOT_ID": 30,
-    "EQUIP_SLOT_ID": 101,
-    "": ""
+    "EQUIP_SLOT_ID": 101
   },
   {
     "SLOT_ID": 31,
-    "EQUIP_SLOT_ID": 0,
-    "": ""
+    "EQUIP_SLOT_ID": 0
   },
   {
     "SLOT_ID": 32,
-    "EQUIP_SLOT_ID": 0,
-    "": ""
+    "EQUIP_SLOT_ID": 0
   },
   {
     "SLOT_ID": 33,
-    "EQUIP_SLOT_ID": 70,
-    "": ""
+    "EQUIP_SLOT_ID": 70
   },
   {
     "SLOT_ID": 34,
-    "EQUIP_SLOT_ID": 71,
-    "": ""
+    "EQUIP_SLOT_ID": 71
   },
   {
     "SLOT_ID": 35,
-    "EQUIP_SLOT_ID": 0,
-    "": ""
+    "EQUIP_SLOT_ID": 0
   },
   {
     "SLOT_ID": 36,
-    "EQUIP_SLOT_ID": 73,
-    "": ""
+    "EQUIP_SLOT_ID": 73
   },
   {
     "SLOT_ID": 37,
-    "EQUIP_SLOT_ID": 85,
-    "": ""
+    "EQUIP_SLOT_ID": 85
   },
   {
     "SLOT_ID": 38,
-    "EQUIP_SLOT_ID": 100,
-    "": ""
+    "EQUIP_SLOT_ID": 100
   },
   {
     "SLOT_ID": 39,
-    "EQUIP_SLOT_ID": 104,
-    "": ""
+    "EQUIP_SLOT_ID": 104
   },
   {
     "SLOT_ID": 40,
-    "EQUIP_SLOT_ID": 7,
-    "": ""
+    "EQUIP_SLOT_ID": 7
   },
   {
     "SLOT_ID": 41,
-    "EQUIP_SLOT_ID": 7,
-    "": ""
+    "EQUIP_SLOT_ID": 7
   },
   {
     "SLOT_ID": 42,
-    "EQUIP_SLOT_ID": 43,
-    "": ""
+    "EQUIP_SLOT_ID": 43
   },
   {
     "SLOT_ID": 43,
-    "EQUIP_SLOT_ID": 0,
-    "": ""
+    "EQUIP_SLOT_ID": 0
   },
   {
     "SLOT_ID": 44,
-    "EQUIP_SLOT_ID": 0,
-    "": ""
+    "EQUIP_SLOT_ID": 0
   },
   {
     "SLOT_ID": 45,
-    "EQUIP_SLOT_ID": 0,
-    "": ""
+    "EQUIP_SLOT_ID": 0
   },
   {
     "SLOT_ID": 46,
-    "EQUIP_SLOT_ID": 0,
-    "": ""
+    "EQUIP_SLOT_ID": 0
   },
   {
     "SLOT_ID": 47,
-    "EQUIP_SLOT_ID": 0,
-    "": ""
+    "EQUIP_SLOT_ID": 0
   },
   {
     "SLOT_ID": 48,
-    "EQUIP_SLOT_ID": 0,
-    "": ""
+    "EQUIP_SLOT_ID": 0
   }
 ]
