@@ -1,4 +1,3 @@
-import { LoginClient, LoginServer } from "../h1z1-server";
 import { ZoneServer, ZoneClient } from "../../h1z1-server";
 import { getAppDataFolderPath } from "../out/utils/utils";
 import fs from "fs";
