@@ -1,4 +1,4 @@
-import { LoginServer, SOEClient, SOEServer } from "../h1z1-server";
+import { SOEClient, SOEServer } from "../h1z1-server";
 const cryptoKey = Buffer.from("F70IaxuU8C/w7FPXY1ibXw==", "base64");
 const numberOfClient = 5;
 
