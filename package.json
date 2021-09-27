@@ -41,6 +41,7 @@
     "build-optimized": "npm run build && terser-output ./out",
     "build": "tsc -p ./tsconfig.json",
     "build-tests": "npx swc tests -d tests_out",
+    "build-benchs": "npx swc benchmarks -d benchmarks_out",
     "build-docker-images": "npx ts-node ./docker/buildDocker.ts",
     "build-swc": "npx swc src -d out",
     "test-zone-client": "node tests_out/2015/zoneClientTest.js",
@@ -55,7 +56,7 @@
     "postinstall": "if-env INSTALL_TYPE=launcher &&  npm run build-swc || npm run build-optimized",
     "publish_release": "git push --tags && git push origin dev && git push origin master && git checkout dev && npm run publish_release-next",
     "publish_release-next": "npm version prerelease && git add * && git commit -m 'publish-a-next-version' && npm publish --tag next && git push origin dev",
-    "prettier_sources": "prettier --write ./src && prettier --write ./tests",
+    "prettier_sources": "prettier --write ./src && prettier --write ./tests && prettier --write ./benchmarks",
     "watch-swc": "npx swc --watch src -d out"
   },
   "repository": {
