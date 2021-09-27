@@ -33,7 +33,7 @@ const resources = require("../../../data/2016/dataSources/resourceDefinitions.js
 
 const itemDefinitions = require("./../../../data/2016/dataSources/ServerItemDefinitions.json");
 const loadoutSlotItemClasses = require("./../../../data/2016/dataSources/LoadoutSlotItemClasses.json");
-const loadoutEquipSlots = require("./../../../data/2016/dataSources/loadoutEquipSlots.json");
+const loadoutEquipSlots = require("./../../../data/2016/dataSources/LoadoutEquipSlots.json");
 
 export class ZoneServer2016 extends ZoneServer {
   worldRoutineTimer: any;
@@ -910,33 +910,6 @@ export class ZoneServer2016 extends ZoneServer {
         slotId: equipmentSlotId
       },
     });
-    /*
-    this.sendData( client, "Equipment.SetCharacterEquipment", {
-      characterData: {
-        characterId: client.character.characterId,
-      },
-      equipmentSlot: [
-        {
-          equipmentSlotId: equipmentSlotId,
-          equipmentSlotData: {
-            equipmentSlotId: equipmentSlotId,
-            //guid: "0x1",
-            guid: item.guid,
-            tintAlias: "",
-            unknownString1: "#"
-          }
-        }
-      ],
-      attachmentData: [
-        {
-          modelName: def.MODEL_NAME.replace("<gender>", "Male"),
-          textureAlias: def.TEXTURE_ALIAS,
-          effectId: 0,
-          slotId: equipmentSlotId
-        }
-      ],
-    });
-    */
   }
 
   generateItem(client: Client, itemDefinitionId: any) {

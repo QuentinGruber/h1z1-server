@@ -90,7 +90,7 @@ const packetHandlers = {
       characterData: {
         characterId: client.character.characterId,
       },
-      equipmentSlot: [],
+      equipmentSlots: [],
       attachmentData: [],
     }); // needed or third person character will be invisible
 
