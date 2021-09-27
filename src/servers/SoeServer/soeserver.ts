@@ -86,11 +86,10 @@ export class SOEServer extends EventEmitter {
           client.inputStream.on(
             "message",
             (message: inputStreamMessage) => {
-              const { data:dataUint8 , type, sequence} = message
-              const data = Buffer.from(dataUint8);
+              const { data , type, sequence} = message
               switch (type) {
                 case "data":
-                  this.emit("appdata", null, client, data);
+                  this.emit("appdata", null, client, Buffer.from(data));
                   break;
                 case "ack":
                   client.nextAck = sequence;
