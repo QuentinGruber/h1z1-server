@@ -1,5 +1,4 @@
 import { RemoteInfo } from "dgram";
-import { SOEInputStream } from "./soeinputstream";
 import { Worker } from "worker_threads";
 export default class SOEClient {
   sessionId: number;
@@ -36,7 +35,7 @@ export default class SOEClient {
     this.crcSeed = crcSeed;
     this.compression = compression;
     this.cryptoKey = cryptoKey;
-    this.inputStream = new (SOEInputStream as any)(cryptoKey);
+    this.inputStream = new Worker(__dirname+"/workers/soeinputstream.js",{workerData:{cryptoKey:cryptoKey}});
     this.outputStream = new Worker(__dirname+"/workers/soeoutputstream.js",{workerData:{cryptoKey:cryptoKey}});
   }
 
@@ -45,7 +44,7 @@ export default class SOEClient {
     this.clearTimers();
   }
   clearWorkers() {
-    console.log("cleaaar")
+    this.inputStream.postMessage({type:"kill"});
     this.outputStream.postMessage({type:"kill"});
   }
   clearTimers() {

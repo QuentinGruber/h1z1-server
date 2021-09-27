@@ -12,11 +12,10 @@
 // ======================================================================
 
 import crypto from "crypto";
-import { EventEmitter } from "events";
 import { parentPort, workerData } from "worker_threads";
 const debug = require("debug")("SOEOutputStream");
 
-export class SOEOutputStream extends EventEmitter {
+export class SOEOutputStream {
   _useEncryption: boolean;
   _fragmentSize: number;
   _sequence: number;
@@ -25,7 +24,6 @@ export class SOEOutputStream extends EventEmitter {
   _rc4: crypto.Cipher;
 
   constructor(cryptoKey: string, fragmentSize: number) {
-    super();
     this._useEncryption = false;
     this._fragmentSize = fragmentSize;
     this._sequence = -1;
@@ -88,13 +86,11 @@ export class SOEOutputStream extends EventEmitter {
     const start = this._lastAck + 1;
     for (let i = start; i < sequence; i++) {
       if (this._cache[i]) {
-        this.emit(
-          "data",
-          null,
-          this._cache[i].data,
-          i,
-          this._cache[i].fragment
-        );
+        parentPort?.postMessage({
+          data: this._cache[i].data,
+          sequence: i,
+          fragment:this._cache[i].fragment,
+        });
       } else {
         throw "Cache error, could not resend data!";
       }
