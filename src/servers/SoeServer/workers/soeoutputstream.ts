@@ -132,11 +132,6 @@ parentPort?.on("message", (message: Message) => {
       outputStream.setEncryption(data);
       break;
     }
-    case "write":{
-      const { data:{data,overrideEncryption} } = message;
-      outputStream.write(data,overrideEncryption)
-      break;
-    }
     case "toggleEncryption":{
       outputStream.toggleEncryption();
       break;
