@@ -35,6 +35,9 @@ const itemDefinitions = require("./../../../data/2016/dataSources/ServerItemDefi
 const loadoutSlotItemClasses = require("./../../../data/2016/dataSources/LoadoutSlotItemClasses.json");
 const loadoutEquipSlots = require("./../../../data/2016/dataSources/LoadoutEquipSlots.json");
 
+const firstPersonAttachments = require("./../../../data/2016/dataSources/FirstPersonAttachments.json");
+//const firstPersonSlots = require("./../../../data/2016/dataSources/FirstPersonSlots.json");
+
 export class ZoneServer2016 extends ZoneServer {
   worldRoutineTimer: any;
   _weather2016: Weather2016;
@@ -153,8 +156,7 @@ export class ZoneServer2016 extends ZoneServer {
         virus: 6000,
         comfort: 5000,
       },
-      
-      equipment: [
+      equipment: [// temp
         {
           modelName: "SurvivorMale_Head_01.adr",
           slotId: 1,
@@ -174,13 +176,18 @@ export class ZoneServer2016 extends ZoneServer {
           slotId: 27,
         },
         {
+          modelName: "SurvivorMale_Chest_Bra.adr",
+          defaultTextureAlias: "",
+          slotId: 3,
+        },
+        {
           modelName: "SurvivorMale_Chest_Shirt_TintTshirt.adr",
-          defaultTextureAlias: "Wear.Chest.Shirt.TintTshirt.67",
+          defaultTextureAlias: "",
           slotId: 3,
         },
         {
           modelName: "SurvivorMale_Legs_Pants_SkinnyLeg.adr",
-          defaultTextureAlias: "Wear.Legs.Pants.SkinnyLeg.Anarchy",
+          defaultTextureAlias: "",
           slotId: 4,
         },
       ],
@@ -850,7 +857,8 @@ export class ZoneServer2016 extends ZoneServer {
     loadoutSlotItemClass = loadoutSlotItemClasses.find((slot:any) => slot.ITEM_CLASS === def.ITEM_CLASS),
     loadoutSlotId = loadoutSlotItemClass ? loadoutSlotItemClass.SLOT : 1, // use primary slot if ItemClass is invalid
     equipmentSlotId = loadoutEquipSlots.find((slot:any) => slot.SLOT_ID === loadoutSlotId).EQUIP_SLOT_ID,
-    index = client.character.loadout.map((slot:any) => slot.slotId).indexOf(loadoutSlotId);
+    index = client.character.loadout.map((slot:any) => slot.slotId).indexOf(loadoutSlotId),
+    firstPersonAttachment = firstPersonAttachments.find((e: any) => e.ATTACHMENT_MESH_3P === def.MODEL_NAME);
     
     console.log(index)
     if(index === -1) { // adds new slot data
@@ -908,6 +916,31 @@ export class ZoneServer2016 extends ZoneServer {
         textureAlias: def.TEXTURE_ALIAS,
         effectId: 0,
         slotId: equipmentSlotId
+      },
+    });
+    // TODO COMPACT THIS INTO ONE PACKET
+    console.log(firstPersonAttachment)
+    if(!firstPersonAttachment) return;
+    
+    this.sendData( client, "Equipment.SetCharacterEquipmentSlot", {
+      characterData: {
+        characterId: client.character.characterId,
+      },
+      equipmentSlot: {
+        equipmentSlotId: 2,
+        equipmentSlotData: {
+          equipmentSlotId: 2,
+          //guid: "0x1",
+          guid: item.guid,
+          tintAlias: "",
+          unknownString1: "#"
+        }
+      },
+      attachmentData: {
+        modelName: firstPersonAttachment.ATTACHMENT_MESH_1P,
+        textureAlias: def.TEXTURE_ALIAS,
+        effectId: 0,
+        slotId: 2
       },
     });
   }
