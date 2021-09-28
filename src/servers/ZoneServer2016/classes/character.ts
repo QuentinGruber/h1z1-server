@@ -46,15 +46,17 @@ export class Character2016 extends Character {
         slotId: 27,
       },
       {
-        modelName: "SurvivorMale_Chest_Shirt_TintTshirt.adr",
-        defaultTextureAlias: "Wear.Chest.Shirt.TintTshirt.67",
+        modelName: "SurvivorMale_Chest_Bra.adr",
+        defaultTextureAlias: "",
         slotId: 3,
       },
+      /*
       {
         modelName: "SurvivorMale_Legs_Pants_SkinnyLeg.adr",
         defaultTextureAlias: "Wear.Legs.Pants.SkinnyLeg.Anarchy",
         slotId: 4,
       },
+      */
     ];
   }
 }
