@@ -595,7 +595,7 @@ const dev: any = {
       server.sendChatText(client, "Missing itemDefinitionid");
       return;
     }
-    const item = server.generateItem(client, Number(args[1]));
+    const item = server.generateItem(Number(args[1]));
     server.sendData(client, "ClientUpdate.ItemAdd", {
       characterId: client.character.characterId,
       data: {
@@ -629,7 +629,7 @@ const dev: any = {
     server.equipItem(client, item);
   },
   addcontainers: function (server: ZoneServer2016, client: Client, args: any[]) {
-    const item: any = server.generateItem(client, 2425),
+    const item: any = server.generateItem(2425),
     containers = [
       {
         unknownDword1: 101, // container itemDefinitionId ?
@@ -678,7 +678,7 @@ const dev: any = {
     })
   },
   addcontainer: function (server: ZoneServer2016, client: Client, args: any[]) {
-    const backpack: any = server.generateItem(client, 1602);
+    const backpack: any = server.generateItem(1602);
     server.equipItem(client, backpack);
     server.sendData(client, "ClientUpdate.ItemAdd", {
       characterId: client.character.characterId,
@@ -710,7 +710,7 @@ const dev: any = {
         unknownBoolean2: true
       }
     });
-    const item: any = server.generateItem(client, 2425),
+    const item: any = server.generateItem(2425),
     containerData = {
       guid: backpack,
       unknownDword1: server._items[backpack].itemDefinition,

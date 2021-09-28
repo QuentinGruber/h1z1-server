@@ -945,7 +945,7 @@ export class ZoneServer2016 extends ZoneServer {
     });
   }
 
-  generateItem(client: Client, itemDefinitionId: any) {
+  generateItem(itemDefinitionId: any) {
     const generatedGuid = this.generateGuid();
     this._items[generatedGuid] = {
       guid: generatedGuid,
@@ -961,7 +961,7 @@ export class ZoneServer2016 extends ZoneServer {
     return generatedGuid;
   }
 
-  generatePickupItem(client: Client, objectData: any): any {
+  generatePickupItem(objectData: any): any {
     function rnd_number(max: any, fixed: Boolean = false) {
       const num = Math.random() * max;
       return Number(fixed?num.toFixed(0):num);
@@ -975,7 +975,7 @@ export class ZoneServer2016 extends ZoneServer {
       debug(`[ERROR] GeneratePickupItem: No item definition mapped to id: ${objectData.modelId}`);
       return;
     }
-    return this.generateItem(client, authorizedItemDefinitions[rnd_number(authorizedItemDefinitions.length-1, true)].ID);
+    return this.generateItem(authorizedItemDefinitions[rnd_number(authorizedItemDefinitions.length-1, true)].ID);
   }
 }
 

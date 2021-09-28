@@ -222,8 +222,8 @@ const packetHandlers = {
     */
 
     //defaultShoes = server._items[server.generateItem(client, )]
-    server.equipItem(client, server.generateItem(client, 2377)); // DOA Hoodie
-    server.equipItem(client, server.generateItem(client, 2079)); // golf pants
+    server.equipItem(client, server.generateItem(2377)); // DOA Hoodie
+    server.equipItem(client, server.generateItem(2079)); // golf pants
     
   },
   ClientFinishedLoading: function (
@@ -908,7 +908,7 @@ const packetHandlers = {
       server.dismountVehicle(client);
     }
     if(objectData) { // object pickup
-      const itemGuid = server.generatePickupItem(client, objectData),
+      const itemGuid = server.generatePickupItem(objectData),
       item = server._items[itemGuid];
       if(!item) {
         server.sendChatText(client, `[ERROR] No item definition mapped to id: ${objectData.modelId}`);

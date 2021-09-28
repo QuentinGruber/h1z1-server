@@ -741,7 +741,7 @@ const hax: any = {
       return;
     }
     server.sendChatText(client, `Adding item with id ${args[1]} to loadout.`);
-    server.equipItem(client, server.generateItem(client, Number(args[1])));
+    server.equipItem(client, server.generateItem(Number(args[1])));
   }
 };
 
