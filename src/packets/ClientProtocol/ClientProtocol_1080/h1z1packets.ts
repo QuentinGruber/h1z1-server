@@ -7032,9 +7032,9 @@ const packets = [
               type: "array",
               defaultValue: [{}],
               fields: [
-                { name: "loadoutItemSlotId", type: "uint32", defaultValue: 0 },
-                { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
+                { name: "slotId", type: "uint32", defaultValue: 0 },
                 {
                   name: "unknownData1",
                   type: "schema",

@@ -127,13 +127,13 @@ const dev: any = {
     }
     const loadout = {
       characterId: client.character.characterId,
-      loadoutItemLoadoutId: 15,
+      loadoutItemLoadoutId: 3,
       loadoutData: {
         loadoutSlots: [
           {
-            loadoutItemSlotId: 15, // might be loadoutId?
+            unknownDword1: 3/*15*/, // might be loadoutId?
             itemDefinitionId: Number(args[2]),
-            unknownDword1: Number(args[1]),
+            slotId: Number(args[1]),
             unknownData1: {
               itemDefinitionId: Number(args[2]),
               loadoutItemOwnerGuid: client.character.characterId,
@@ -340,8 +340,7 @@ const dev: any = {
         }
         function rnd_number2(max: any, fixed: Boolean = false) {
           const num = Math.random() * max;
-          if (fixed) return Number(num.toFixed(0));
-          return Number(num);
+          return Number(fixed?num.toFixed(0):num);
         }
         */
     server._weather2016 = {

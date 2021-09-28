@@ -477,8 +477,7 @@ const hax: any = {
 
     function rnd_number(max: any, fixed: Boolean = false) {
       const num = Math.random() * max;
-      if (fixed) return Number(num.toFixed(0));
-      return Number(num);
+      return Number(fixed?num.toFixed(0):num);
     }
 
     server._weather2016 = {

@@ -850,14 +850,14 @@ export class ZoneServer2016 extends ZoneServer {
     loadoutSlotItemClass = loadoutSlotItemClasses.find((slot:any) => slot.ITEM_CLASS === def.ITEM_CLASS),
     loadoutSlotId = loadoutSlotItemClass ? loadoutSlotItemClass.SLOT : 1, // use primary slot if ItemClass is invalid
     equipmentSlotId = loadoutEquipSlots.find((slot:any) => slot.SLOT_ID === loadoutSlotId).EQUIP_SLOT_ID,
-    index = client.character.loadout.map((slot:any) => slot.loadoutItemSlotId).indexOf(loadoutSlotId);
+    index = client.character.loadout.map((slot:any) => slot.slotId).indexOf(loadoutSlotId);
     
     console.log(index)
     if(index === -1) { // adds new slot data
       client.character.loadout.push({
-        loadoutItemSlotId: loadoutSlotId,
+        unknownDword1: 3,
         itemDefinitionId: def.ID,
-        unknownDword1: loadoutSlotId,
+        slotId: loadoutSlotId,
         unknownData1: {
           itemDefinitionId: def.ID,
           loadoutItemOwnerGuid: item.guid,
@@ -868,9 +868,9 @@ export class ZoneServer2016 extends ZoneServer {
     }
     else { // overwrites slot data if slot is already defined 
       client.character.loadout[index] = {
-        loadoutItemSlotId: loadoutSlotId,
+        unknownDword1: 3,
         itemDefinitionId: def.ID,
-        unknownDword1: loadoutSlotId,
+        slotId: loadoutSlotId,
         unknownData1: {
           itemDefinitionId: def.ID,
           loadoutItemOwnerGuid: item.guid,
@@ -931,8 +931,7 @@ export class ZoneServer2016 extends ZoneServer {
   generatePickupItem(client: Client, objectData: any): any {
     function rnd_number(max: any, fixed: Boolean = false) {
       const num = Math.random() * max;
-      if (fixed) return Number(num.toFixed(0));
-      return Number(num);
+      return Number(fixed?num.toFixed(0):num);
     }
 
     const authorizedItemDefinitions = itemDefinitions.filter(

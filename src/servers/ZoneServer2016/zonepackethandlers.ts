@@ -223,7 +223,7 @@ const packetHandlers = {
 
     //defaultShoes = server._items[server.generateItem(client, )]
     server.equipItem(client, server.generateItem(client, 2377)); // DOA Hoodie
-    server.equipItem(client, server.generateItem(client, 2079)); // golf pants (not working rn)
+    server.equipItem(client, server.generateItem(client, 2079)); // golf pants
     
   },
   ClientFinishedLoading: function (

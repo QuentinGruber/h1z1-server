@@ -15,7 +15,7 @@ export class Character2016 extends Character {
   gender!: number;
   creationDate!: string;
   lastLoginDate!: string;
-  loadout: any[];
+  loadout: any[] = [];
   constructor(characterId: string, generatedTransient: number) {
     super(characterId, generatedTransient);
     this.resources = {
@@ -56,6 +56,5 @@ export class Character2016 extends Character {
         slotId: 4,
       },
     ];
-    this.loadout = []
   }
 }
