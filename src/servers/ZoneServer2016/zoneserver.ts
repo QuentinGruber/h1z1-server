@@ -162,18 +162,14 @@ export class ZoneServer2016 extends ZoneServer {
           modelName: "SurvivorMale_Eyes_01.adr",
           slotId: 105,
         },
-        { modelName: "Weapon_Empty.adr", slotId: 2 },
-        { modelName: "Weapon_Empty.adr", slotId: 7 },
         {
           modelName: "SurvivorMale_Hair_ShortMessy.adr",
           slotId: 27,
         },
-        
         {
           modelName: "SurvivorMale_Legs_Pants_Underwear.adr",
           slotId: 4,
         },
-        
         {
           modelName: "SurvivorMale_Chest_Bra.adr",
           textureAlias: "",
@@ -353,6 +349,8 @@ export class ZoneServer2016 extends ZoneServer {
     }); // needed or third person character will be invisible
 
     // default equipment / loadout
+    
+    this.equipItem(client, this.generateItem(85)); // fists weapon
     this.equipItem(client, this.generateItem(2377)); // DOA Hoodie
     this.equipItem(client, this.generateItem(2079)); // golf pants
   }
