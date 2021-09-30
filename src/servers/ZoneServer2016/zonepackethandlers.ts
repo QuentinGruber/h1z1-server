@@ -28,6 +28,7 @@ import admin from "./commands/admin";
 import { _, Int64String, isPosInRadius } from "../../utils/utils";
 import { ZoneServer2016 } from "./zoneserver";
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
+import { characterEquipment } from "types/zoneserver";
 
 const debug = require("debug")("zonepacketHandlers");
 
@@ -45,6 +46,34 @@ const packetHandlers = {
 
     server.sendData(client, "QuickChat.SendData", { commands: [] });
 
+    /*
+    // workaround for activateprofile weirdness
+    const profileEquipment: characterEquipment[] = [
+      {
+        modelName: "SurvivorMale_Head_01.adr",
+        slotId: 1,
+      },
+      {
+        modelName: "SurvivorMale_Eyes_01.adr",
+        slotId: 105,
+      },
+      { modelName: "Weapon_Empty.adr", slotId: 2 },
+      { modelName: "Weapon_Empty.adr", slotId: 7 },
+      {
+        modelName: "SurvivorMale_Hair_ShortMessy.adr",
+        slotId: 27,
+      },
+      {
+        modelName: "SurvivorMale_Chest_Shirt_TintTshirt.adr",
+        textureAlias: "",
+        slotId: 3,
+      },
+      {
+        modelName: "SurvivorMale_Legs_Pants_SkinnyLeg.adr",
+        textureAlias: "",
+        slotId: 4,
+      },
+    ]
     server.sendData(client, "ClientUpdate.ActivateProfile", {
       profileData: {
         profileId: 1,
@@ -73,10 +102,10 @@ const packetHandlers = {
         unknownDword15: 0,
         unknownDword16: 0,
       },
-      attachmentData: client.character.equipment.map((equipment: any) => {
+      attachmentData: profileEquipment.map((equipment: any) => {
         return {
           ...equipment,
-          textureAlias: equipment.defaultTextureAlias ? equipment.defaultTextureAlias : ""
+          textureAlias: equipment.textureAlias || ""
         }
       }),
       unknownDword1: 1,
@@ -85,13 +114,32 @@ const packetHandlers = {
       tintAlias: "",
       decalAlias: "#",
     });
+    */
 
     server.sendData( client, "Equipment.SetCharacterEquipment", {
       characterData: {
         characterId: client.character.characterId,
       },
-      equipmentSlots: [],
-      attachmentData: [],
+      equipmentSlots: client.character.equipment.map((slot: characterEquipment) => {
+        return {
+          equipmentSlotId: slot.slotId,
+          equipmentSlotData: {
+            equipmentSlotId: slot.slotId,
+            guid: slot.guid || "",
+            tintAlias: slot.tintAlias || "",
+            decalAlias: slot.tintAlias || "#",
+          }
+        }
+      }),
+      attachmentData: client.character.equipment.map((slot: characterEquipment) => {
+        return {
+          modelName: slot.modelName,
+          textureAlias: slot.textureAlias || "",
+          tintAlias: slot.tintAlias || "",
+          decalAlias: slot.tintAlias || "#",
+          slotId: slot.slotId
+        }
+      }),
     }); // needed or third person character will be invisible
 
     server.sendData(client, "ClientUpdate.DoneSendingPreloadCharacters", {
@@ -221,9 +269,7 @@ const packetHandlers = {
     });
     */
 
-    //defaultShoes = server._items[server.generateItem(client, )]
-    server.equipItem(client, server.generateItem(2377)); // DOA Hoodie
-    server.equipItem(client, server.generateItem(2079)); // golf pants
+    
     
   },
   ClientFinishedLoading: function (

@@ -597,7 +597,7 @@ const hax: any = {
           equipmentSlotId: slot,
           guid: "0x1",
           tintAlias: "",
-          unknownString1: "#"
+          decalAlias: "#"
         }
       },
       attachmentData: {
@@ -674,7 +674,7 @@ const hax: any = {
           equipmentSlotId: 7,
           guid: "0x1",
           tintAlias: "",
-          unknownString1: "#"
+          decalAlias: "#"
         }
       },
       attachmentData: {

@@ -212,7 +212,7 @@ const dev: any = {
           equipmentSlotId: 3,
           guid: "0x1", // needs to be non-zero
           tintAlias: "",
-          unknownString1: "#"
+          decalAlias: "#"
         }
       },
       attachmentData: {
@@ -247,7 +247,7 @@ const dev: any = {
             equipmentSlotId: 3,
             guid: "0x1", // needs to be non-zero
             tintAlias: "",
-            unknownString1: "#"
+            decalAlias: "#"
           }
         }
       ],

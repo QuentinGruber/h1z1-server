@@ -27,6 +27,7 @@ export class Character2016 extends Character {
       comfort: 6000,
     };
     this.equipment = [
+      /*
       {
         modelName: "SurvivorMale_Head_01.adr",
         slotId: 1,
@@ -60,6 +61,7 @@ export class Character2016 extends Character {
         defaultTextureAlias: "",
         slotId: 4,
       },
+      */
     ];
   }
 }

@@ -16,7 +16,7 @@ const debug = require("debug")(debugName);
 import { default as packetHandlers } from "./zonepackethandlers";
 import { ZoneServer } from "../ZoneServer/zoneserver";
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
-import { HandledZonePackets2016, Weather2016 } from "../../types/zoneserver";
+import { characterEquipment, HandledZonePackets2016, Weather2016 } from "../../types/zoneserver";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
 import { _, initMongo, Int64String, isPosInRadius } from "../../utils/utils";
 
@@ -162,10 +162,6 @@ export class ZoneServer2016 extends ZoneServer {
           slotId: 1,
         },
         {
-          modelName: "SurvivorMale_Legs_Pants_Underwear.adr",
-          slotId: 4,
-        },
-        {
           modelName: "SurvivorMale_Eyes_01.adr",
           slotId: 105,
         },
@@ -175,20 +171,16 @@ export class ZoneServer2016 extends ZoneServer {
           modelName: "SurvivorMale_Hair_ShortMessy.adr",
           slotId: 27,
         },
+        
+        {
+          modelName: "SurvivorMale_Legs_Pants_Underwear.adr",
+          slotId: 4,
+        },
+        
         {
           modelName: "SurvivorMale_Chest_Bra.adr",
-          defaultTextureAlias: "",
+          textureAlias: "",
           slotId: 3,
-        },
-        {
-          modelName: "SurvivorMale_Chest_Shirt_TintTshirt.adr",
-          defaultTextureAlias: "",
-          slotId: 3,
-        },
-        {
-          modelName: "SurvivorMale_Legs_Pants_SkinnyLeg.adr",
-          defaultTextureAlias: "",
-          slotId: 4,
         },
       ],
       loadout: [],
@@ -337,6 +329,10 @@ export class ZoneServer2016 extends ZoneServer {
         //containers: containers,
       },
     });
+    
+    // default equipment / loadout
+    this.equipItem(client, this.generateItem(2377)); // DOA Hoodie
+    this.equipItem(client, this.generateItem(2079)); // golf pants
   }
 
   async loadMongoData(): Promise<void> {
@@ -846,6 +842,45 @@ export class ZoneServer2016 extends ZoneServer {
   }
 
   /********************* INVENTORY *********************/
+  
+  updateLoadout(client: Client) {
+    this.sendData(client, "Loadout.SelectSlot", {
+      characterId: client.character.characterId,
+      loadoutItemLoadoutId: 5,
+      loadoutData: {
+        loadoutSlots: client.character.loadout,
+      },
+      unknownDword2: 19,
+    });
+  }
+
+  updateEquipment(client: Client) {
+    this.sendData( client, "Equipment.SetCharacterEquipment", {
+      characterData: {
+        characterId: client.character.characterId,
+      },
+      equipmentSlots: client.character.equipment.map((slot: characterEquipment) => {
+        return {
+          equipmentSlotId: slot.slotId,
+          equipmentSlotData: {
+            equipmentSlotId: slot.slotId,
+            guid: slot.guid || "",
+            tintAlias: slot.tintAlias || "",
+            decalAlias: slot.tintAlias || "#",
+          }
+        }
+      }),
+      attachmentData: client.character.equipment.map((slot: characterEquipment) => {
+        return {
+          modelName: slot.modelName,
+          textureAlias: slot.textureAlias || "",
+          tintAlias: slot.tintAlias || "",
+          decalAlias: slot.tintAlias || "#",
+          slotId: slot.slotId
+        }
+      }),
+    });
+  }
 
   equipItem(client: Client, itemGuid: string = "") {
     if(!itemGuid) {
@@ -856,93 +891,33 @@ export class ZoneServer2016 extends ZoneServer {
     def = item.itemDefinition,
     loadoutSlotItemClass = loadoutSlotItemClasses.find((slot:any) => slot.ITEM_CLASS === def.ITEM_CLASS),
     loadoutSlotId = loadoutSlotItemClass ? loadoutSlotItemClass.SLOT : 1, // use primary slot if ItemClass is invalid
+    lIndex = client.character.loadout.map((slot:any) => slot.slotId).indexOf(loadoutSlotId),
     equipmentSlotId = loadoutEquipSlots.find((slot:any) => slot.SLOT_ID === loadoutSlotId).EQUIP_SLOT_ID,
-    index = client.character.loadout.map((slot:any) => slot.slotId).indexOf(loadoutSlotId),
-    firstPersonAttachment = firstPersonAttachments.find((e: any) => e.ATTACHMENT_MESH_3P === def.MODEL_NAME);
+    eIndex = client.character.equipment.map((slot:any) => slot.slotId).indexOf(equipmentSlotId),
+    loadoutData = {
+      unknownDword1: 3,
+      itemDefinitionId: def.ID,
+      slotId: loadoutSlotId,
+      unknownData1: {
+        itemDefinitionId: def.ID,
+        loadoutItemOwnerGuid: item.guid,
+        unknownByte1: 17,
+      },
+      unknownDword4: 18,
+    },
+    equipmentData = {
+      modelName: def.MODEL_NAME.replace("<gender>", "Male"),
+      slotId: equipmentSlotId,
+      guid: item.guid,
+      textureAlias: def.TEXTURE_ALIAS,
+      tintAlias: "",
+    };
     
-    console.log(index)
-    if(index === -1) { // adds new slot data
-      client.character.loadout.push({
-        unknownDword1: 3,
-        itemDefinitionId: def.ID,
-        slotId: loadoutSlotId,
-        unknownData1: {
-          itemDefinitionId: def.ID,
-          loadoutItemOwnerGuid: item.guid,
-          unknownByte1: 17,
-        },
-        unknownDword4: 18,
-      })
-    }
-    else { // overwrites slot data if slot is already defined 
-      client.character.loadout[index] = {
-        unknownDword1: 3,
-        itemDefinitionId: def.ID,
-        slotId: loadoutSlotId,
-        unknownData1: {
-          itemDefinitionId: def.ID,
-          loadoutItemOwnerGuid: item.guid,
-          unknownByte1: 17,
-        },
-        unknownDword4: 18,
-      }
-    }
+    lIndex === -1 ? client.character.loadout.push(loadoutData) : client.character.loadout[lIndex] = loadoutData;
+    this.updateLoadout(client);
 
-    this.sendData(client, "Loadout.SelectSlot", {
-      characterId: client.character.characterId,
-      loadoutItemLoadoutId: 5,
-      loadoutData: {
-        loadoutSlots: client.character.loadout,
-      },
-      unknownDword2: 19,
-    });
-    
-    this.sendData( client, "Equipment.SetCharacterEquipmentSlot", {
-      characterData: {
-        characterId: client.character.characterId,
-      },
-      equipmentSlot: {
-        equipmentSlotId: equipmentSlotId,
-        equipmentSlotData: {
-          equipmentSlotId: equipmentSlotId,
-          //guid: "0x1",
-          guid: item.guid,
-          tintAlias: "",
-          unknownString1: "#"
-        }
-      },
-      attachmentData: {
-        modelName: def.MODEL_NAME.replace("<gender>", "Male"),
-        textureAlias: def.TEXTURE_ALIAS,
-        effectId: 0,
-        slotId: equipmentSlotId
-      },
-    });
-    // TODO COMPACT THIS INTO ONE PACKET
-    console.log(firstPersonAttachment)
-    if(!firstPersonAttachment) return;
-    
-    this.sendData( client, "Equipment.SetCharacterEquipmentSlot", {
-      characterData: {
-        characterId: client.character.characterId,
-      },
-      equipmentSlot: {
-        equipmentSlotId: 2,
-        equipmentSlotData: {
-          equipmentSlotId: 2,
-          //guid: "0x1",
-          guid: item.guid,
-          tintAlias: "",
-          unknownString1: "#"
-        }
-      },
-      attachmentData: {
-        modelName: firstPersonAttachment.ATTACHMENT_MESH_1P,
-        textureAlias: def.TEXTURE_ALIAS,
-        effectId: 0,
-        slotId: 2
-      },
-    });
+    eIndex === -1 ? client.character.equipment.push(equipmentData) : client.character.equipment[eIndex] = equipmentData;
+    this.updateEquipment(client);
   }
 
   generateItem(itemDefinitionId: any) {
