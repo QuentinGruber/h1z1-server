@@ -28,7 +28,6 @@ import admin from "./commands/admin";
 import { _, Int64String, isPosInRadius } from "../../utils/utils";
 import { ZoneServer2016 } from "./zoneserver";
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
-import { characterEquipment } from "types/zoneserver";
 
 const debug = require("debug")("zonepacketHandlers");
 
