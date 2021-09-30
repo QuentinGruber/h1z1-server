@@ -612,50 +612,48 @@ const hax: any = {
       "Equipment.SetCharacterEquipmentSlot",
       equipmentSlot
     );
+    //server.sendChatText(client, `[DEPRECEATION WARNING]: Please use '/hax equip {equipmentName} in the future, as this command will be removed in a future update.`);
   },
   weapon: function (server: ZoneServer2016, client: Client, args: any[]) {
-    let effect, model;
+    server.sendChatText(client, `[DEPRECEATION WARNING]: Please use '/hax equip {equipmentName}`);
+  },
+  equip: function (server: ZoneServer2016, client: Client, args: any[]) {
     if (!args[1]) {
-      server.sendChatText(client, "[ERROR] Missing weapon name !");
+      server.sendChatText(client, "[ERROR] Usage /hax equip {equipment}"); 
       server.sendChatText(
         client,
         "Valid options: ar, ak, m9, 1911, 308, shotgun, torch, molotov, empty"
       );
       return;
     }
-    if (!args[2]) {
-      server.sendChatText(client, "No effect added.");
-      effect = 0;
-    } else {
-      effect = args[2];
-    }
-    switch (args[1]) {
+    let definitionId;
+    switch(args[1]) {
       case "ar":
-        model = "Weapon_M16A4_3P.adr";
+        definitionId = 2425;
         break;
       case "ak":
-        model = "Weapon_AK47_3P.adr";
+        definitionId = 2229;
         break;
       case "m9":
-        model = "Weapons_M9Auto_3P.adr";
+        definitionId = 1997;
         break;
       case "1911":
-        model = "Weapon_Pistol_45Auto_3P.adr";
+        definitionId = 2;
         break;
       case "308":
-        model = "Weapon_M24_3P.adr";
+        definitionId = 1899
         break;
       case "shotgun":
-        model = "Weapons_PumpShotgun01_3P.adr";
+        definitionId = 1374;
         break;
       case "torch":
-        model = "Weapon_Torch_3p.adr";
+        definitionId = 5;
         break;
       case "empty":
-        model = "Weapon_Empty.adr";
+        definitionId = 85;
         break;
       case "molotov":
-        model = "Weapons_MolotovCocktail_3P.adr";
+        definitionId = 14;
         break;
       default:
         server.sendChatText(
@@ -664,31 +662,8 @@ const hax: any = {
         );
         return;
     }
-    const equipmentSlot = {
-      characterData: {
-        characterId: client.character.characterId,
-      },
-      equipmentSlot: {
-        equipmentSlotId: 7,
-        equipmentSlotData: {
-          equipmentSlotId: 7,
-          guid: "0x1",
-          tintAlias: "",
-          decalAlias: "#"
-        }
-      },
-      attachmentData: {
-        modelName: model,
-        effectId: Number(effect), // 0 - 16
-        slotId: 7,
-      },
-    };
-    server.sendChatText(client, `Setting weapon: ${args[1]}`);
-    server.sendData(
-      client,
-      "Equipment.SetCharacterEquipmentSlot",
-      equipmentSlot
-    );
+    server.sendChatText(client, `Adding ${args[1]} to loadout.`);
+    server.equipItem(client, server.generateItem(definitionId));
   },
   placement: function (server: ZoneServer2016, client: Client, args: any[]) {
     const modelChoosen = args[1];
