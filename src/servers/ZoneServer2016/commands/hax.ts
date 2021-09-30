@@ -658,7 +658,7 @@ const hax: any = {
       default:
         server.sendChatText(
           client,
-          "Valid options: ar, ak, m9, 1911, 308, shotgun, torch, empty, brick"
+          "Valid options: ar, ak, m9, 1911, 308, shotgun, torch, molotov, empty"
         );
         return;
     }
