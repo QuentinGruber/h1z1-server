@@ -326,6 +326,31 @@ export class ZoneServer2016 extends ZoneServer {
         //containers: containers,
       },
     });
+    this.sendData( client, "Equipment.SetCharacterEquipment", {
+      characterData: {
+        characterId: client.character.characterId,
+      },
+      equipmentSlots: client.character.equipment.map((slot: characterEquipment) => {
+        return {
+          equipmentSlotId: slot.slotId,
+          equipmentSlotData: {
+            equipmentSlotId: slot.slotId,
+            guid: slot.guid || "",
+            tintAlias: slot.tintAlias || "",
+            decalAlias: slot.tintAlias || "#",
+          }
+        }
+      }),
+      attachmentData: client.character.equipment.map((slot: characterEquipment) => {
+        return {
+          modelName: slot.modelName,
+          textureAlias: slot.textureAlias || "",
+          tintAlias: slot.tintAlias || "",
+          decalAlias: slot.tintAlias || "#",
+          slotId: slot.slotId
+        }
+      }),
+    }); // needed or third person character will be invisible
 
     // default equipment / loadout
     this.equipItem(client, this.generateItem(2377)); // DOA Hoodie

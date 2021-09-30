@@ -116,32 +116,6 @@ const packetHandlers = {
     });
     */
 
-    server.sendData( client, "Equipment.SetCharacterEquipment", {
-      characterData: {
-        characterId: client.character.characterId,
-      },
-      equipmentSlots: client.character.equipment.map((slot: characterEquipment) => {
-        return {
-          equipmentSlotId: slot.slotId,
-          equipmentSlotData: {
-            equipmentSlotId: slot.slotId,
-            guid: slot.guid || "",
-            tintAlias: slot.tintAlias || "",
-            decalAlias: slot.tintAlias || "#",
-          }
-        }
-      }),
-      attachmentData: client.character.equipment.map((slot: characterEquipment) => {
-        return {
-          modelName: slot.modelName,
-          textureAlias: slot.textureAlias || "",
-          tintAlias: slot.tintAlias || "",
-          decalAlias: slot.tintAlias || "#",
-          slotId: slot.slotId
-        }
-      }),
-    }); // needed or third person character will be invisible
-
     server.sendData(client, "ClientUpdate.DoneSendingPreloadCharacters", {
       done: true,
     }); // Required for WaitForWorldReady
