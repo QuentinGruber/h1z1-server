@@ -35,9 +35,6 @@ const itemDefinitions = require("./../../../data/2016/dataSources/ServerItemDefi
 const loadoutSlotItemClasses = require("./../../../data/2016/dataSources/LoadoutSlotItemClasses.json");
 const loadoutEquipSlots = require("./../../../data/2016/dataSources/LoadoutEquipSlots.json");
 
-const firstPersonAttachments = require("./../../../data/2016/dataSources/FirstPersonAttachments.json");
-//const firstPersonSlots = require("./../../../data/2016/dataSources/FirstPersonSlots.json");
-
 export class ZoneServer2016 extends ZoneServer {
   worldRoutineTimer: any;
   _weather2016: Weather2016;
@@ -329,7 +326,7 @@ export class ZoneServer2016 extends ZoneServer {
         //containers: containers,
       },
     });
-    
+
     // default equipment / loadout
     this.equipItem(client, this.generateItem(2377)); // DOA Hoodie
     this.equipItem(client, this.generateItem(2079)); // golf pants
