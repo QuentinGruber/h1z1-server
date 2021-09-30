@@ -602,7 +602,7 @@ const dev: any = {
         itemDefinitionId: Number(args[1]),
         tintId: 5,
         guid: item,
-        count: 10, // also ammoCount
+        count: 1, // also ammoCount
         itemSubData: {
           unknownBoolean1: true,
           

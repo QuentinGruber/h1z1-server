@@ -933,6 +933,40 @@ export class ZoneServer2016 extends ZoneServer {
       tintAlias: "",
     };
     
+    /* TODO: keep track of items in the inventory. right now the server does not 
+    keep track of inventory, and the clientside inventory has it's 0th inventory 
+    slot overwritten everytime a loadout item is added */
+    this.sendData(client, "ClientUpdate.ItemAdd", {
+      characterId: client.character.characterId,
+      data: {
+        itemDefinitionId: def.ID,
+        tintId: 5,
+        guid: item.guid,
+        count: 1, // also ammoCount
+        itemSubData: {
+          unknownBoolean1: true,
+          
+          unknownDword1: 1,
+          unknownData1: {
+            unknownQword1: item.guid,
+            unknownDword1: 0,
+            unknownDword2: 0
+          }
+          
+        },
+        unknownQword2: item.guid,
+        unknownDword4: 0,
+        slot: 0,
+        unknownDword6: 0,
+        unknownDword7: 0,
+        unknownDword8: 0,
+        unknownBoolean1: true,
+        unknownQword3: item.guid,
+        unknownDword9: 0,
+        unknownBoolean2: true
+      }
+    });
+
     lIndex === -1 ? client.character.loadout.push(loadoutData) : client.character.loadout[lIndex] = loadoutData;
     this.updateLoadout(client);
 
