@@ -524,63 +524,7 @@ const hax: any = {
     server.updateWeather2016(client);
   },
   equipment: function (server: ZoneServer2016, client: Client, args: any[]) {
-    let effect, model, slot;
-    if (!args[1]) {
-      server.sendChatText(client, "[ERROR] Missing equipment name !");
-      server.sendChatText(
-        client,
-        "Valid options: hoodie, shirt, pants, helmet, backpack, shoes, armor, gloves"
-      );
-      return;
-    }
-    if (!args[2]) {
-      server.sendChatText(client, "No effect added.");
-      effect = 0;
-    } else {
-      effect = args[2];
-    }
-    switch (args[1]) {
-      case "gloves":
-        model = "SurvivorMale_Hands_Gloves_Padded.adr";
-        slot = 2;
-        break;
-      case "bandana":
-        model = "SurvivorMale_Face_Bandana.adr";
-        slot = 28;
-        break;
-      default:
-        server.sendChatText(
-          client,
-          "Valid options: hoodie, shirt, pants, helmet, backpack, shoes, armor, gloves, bandana, ghillie"
-        );
-        return;
-    }
-    const equipmentSlot = {
-      characterData: {
-        characterId: client.character.characterId,
-      },
-      equipmentSlot: {
-        equipmentSlotId: slot,
-        equipmentSlotData: {
-          equipmentSlotId: slot,
-          guid: "0x1",
-          tintAlias: "",
-          decalAlias: "#"
-        }
-      },
-      attachmentData: {
-        modelName: model,
-        effectId: Number(effect), // 0 - 16
-        slotId: slot,
-      },
-    };
-    server.sendChatText(client, `Setting character equipment slot: ${args[1]}`);
-    server.sendData(
-      client,
-      "Equipment.SetCharacterEquipmentSlot",
-      equipmentSlot
-    );
-    //server.sendChatText(client, `[DEPRECEATION WARNING]: Please use '/hax equip {equipmentName} in the future, as this command will be removed in a future update.`);
+    server.sendChatText(client, `[DEPRECEATION WARNING]: Please use '/hax equip {equipmentName}`);
   },
   weapon: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.sendChatText(client, `[DEPRECEATION WARNING]: Please use '/hax equip {equipmentName}`);
@@ -590,7 +534,7 @@ const hax: any = {
       server.sendChatText(client, "[ERROR] Usage /hax equip {equipment}"); 
       server.sendChatText(
         client,
-        "Valid options: ar, ak, m9, 1911, 308, shotgun, torch, molotov, empty"
+        "Valid options: ar, ak, m9, 1911, 308, shotgun, torch, molotov, empty, hoodie, shirt, ghillie, pants, backpack, shoes, helmet, armor, gloves, bandana"
       );
       return;
     }
@@ -626,6 +570,12 @@ const hax: any = {
       case "hoodie":
         definitionId = 2377;
         break;
+      case "shirt":
+        definitionId = 3218;
+        break;
+      case "ghillie":
+        definitionId = 2609;
+        break;
       case "pants":
         definitionId = 2079;
         break;
@@ -638,19 +588,19 @@ const hax: any = {
       case "helmet":
         definitionId = 2045;
         break;
-      case "ghillie":
-        definitionId = 2609;
-        break;
-      case "shirt":
-        definitionId = 3218;
-        break;
       case "armor":
         definitionId = 2274;
+        break;
+      case "gloves":
+        definitionId = 2284;
+        break;
+      case "bandana":
+        definitionId = 2924;
         break;
       default:
         server.sendChatText(
           client,
-          "Valid options: ar, ak, m9, 1911, 308, shotgun, torch, molotov, empty"
+          "Valid options: ar, ak, m9, 1911, 308, shotgun, torch, molotov, empty, hoodie, shirt, ghillie, pants, backpack, shoes, helmet, armor, gloves, bandana"
         );
         return;
     }
