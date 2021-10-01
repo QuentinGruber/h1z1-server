@@ -540,14 +540,6 @@ const hax: any = {
       effect = args[2];
     }
     switch (args[1]) {
-      case "shirt":
-        model = "SurvivorMale_Chest_Shirt_Henley.adr";
-        slot = 3;
-        break;
-      case "armor":
-        model = "SurvivorMale_Armor_Kevlar_Basic_Patches.adr";
-        slot = 100;
-        break;
       case "gloves":
         model = "SurvivorMale_Hands_Gloves_Padded.adr";
         slot = 2;
@@ -648,6 +640,12 @@ const hax: any = {
         break;
       case "ghillie":
         definitionId = 2609;
+        break;
+      case "shirt":
+        definitionId = 3218;
+        break;
+      case "armor":
+        definitionId = 2274;
         break;
       default:
         server.sendChatText(
