@@ -1,6 +1,7 @@
 import dgram from "dgram";
 
-import { workerData, parentPort } from "worker_threads";
+import { parentPort, workerData } from "worker_threads";
+
 const debug = require("debug")("UDPserver");
 
 interface Message {

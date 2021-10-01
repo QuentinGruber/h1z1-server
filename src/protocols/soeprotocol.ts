@@ -13,7 +13,7 @@
 
 const debug = require("debug")("SOEProtocol");
 import PacketTableBuild from "../packets/packettable";
-import { appendCRC } from "../utils/crc";
+import { append_crc as appendCRC } from "h1emu-core";
 const stand_alone_packets = [
   [
     "ZonePing",

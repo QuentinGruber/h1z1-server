@@ -1,7 +1,8 @@
-import { ZoneClient2016 as Client } from "../zoneclient";
+import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
-const debug = require("debug")("zonepacketHandlers");
 import { Int64String } from "../../../utils/utils";
+
+const debug = require("debug")("zonepacketHandlers");
 
 const dev: any = {
   list: function (server: ZoneServer2016, client: Client, args: any[]) {
@@ -120,7 +121,7 @@ const dev: any = {
     server.sendData(client, "Loadout.SetCurrentLoadout", loadout);
   },
   selectslot: function (server: ZoneServer2016, client: Client, args: any[]) {
-    if(!args[1]) {
+    if (!args[1]) {
       server.sendChatText(client, "Missing itemDefinitionId arg.");
       return;
     }
@@ -197,33 +198,33 @@ const dev: any = {
   },
   setequipment: function (server: ZoneServer2016, client: Client, args: any[]) {
     /*
-    if(!args[5]) {
-      server.sendChatText(client, "Missing 5 args");
-      return;
-    }
-    const equipmentEvent = {
-      characterData: {
-        characterId: client.character.characterId
-      },
-      equipmentTexture: {
-        index: 1, // needs to be non-zero
-        slotId: 1, // needs to be non-zero
-        unknownQword1: "0x1", // needs to be non-zero
-        textureAlias: "",
-        unknownString1: ""
-      },
-      equipmentModel: {
-        modelName: "SurvivorMale_Chest_Hoodie_Up_Tintable.adr",
-        unknownDword1: Number(args[1]),
-        unknownDword2: Number(args[2]), // 1, 2, 4
-        effectId: Number(args[3]), // 0 - 16
-        slotId: Number(args[4]), // backpack: 10
-        unknownDword4: Number(args[5]),
-        unknownArray1: []
-      }
-    };
-    server.sendData(client, "Equipment.SetCharacterEquipmentSlot", equipmentEvent);
-    */
+        if(!args[5]) {
+          server.sendChatText(client, "Missing 5 args");
+          return;
+        }
+        const equipmentEvent = {
+          characterData: {
+            characterId: client.character.characterId
+          },
+          equipmentTexture: {
+            index: 1, // needs to be non-zero
+            slotId: 1, // needs to be non-zero
+            unknownQword1: "0x1", // needs to be non-zero
+            textureAlias: "",
+            unknownString1: ""
+          },
+          equipmentModel: {
+            modelName: "SurvivorMale_Chest_Hoodie_Up_Tintable.adr",
+            unknownDword1: Number(args[1]),
+            unknownDword2: Number(args[2]), // 1, 2, 4
+            effectId: Number(args[3]), // 0 - 16
+            slotId: Number(args[4]), // backpack: 10
+            unknownDword4: Number(args[5]),
+            unknownArray1: []
+          }
+        };
+        server.sendData(client, "Equipment.SetCharacterEquipmentSlot", equipmentEvent);
+        */
     const equipment = {
       // not working yet, attachment error (texture related?)
       characterData: {
@@ -324,21 +325,21 @@ const dev: any = {
     args: any[]
   ) {
     /*
-    if(!args[7]) {
-      server.sendChatText(client, "Missing 7 args");
-      return;
-    }
-    */
+        if(!args[7]) {
+          server.sendChatText(client, "Missing 7 args");
+          return;
+        }
+        */
     /*
-    function rnd_number() {
-      return Number((Math.random() * 100).toFixed(0));
-    }
-    function rnd_number2(max: any, fixed: Boolean = false) {
-      const num = Math.random() * max;
-      if (fixed) return Number(num.toFixed(0));
-      return Number(num);
-    }
-    */
+        function rnd_number() {
+          return Number((Math.random() * 100).toFixed(0));
+        }
+        function rnd_number2(max: any, fixed: Boolean = false) {
+          const num = Math.random() * max;
+          if (fixed) return Number(num.toFixed(0));
+          return Number(num);
+        }
+        */
     server._weather2016 = {
       ...server._weather2016,
 
@@ -387,20 +388,18 @@ const dev: any = {
     server.updateWeather2016(client);
   },
 
-
-  testItemDef :function (server: ZoneServer2016, client: Client, args: any[]) {
-
-    let ItemDefinitionsPacket = { data : {itemDefinitions:[]
-    }}
+  testItemDef: function (server: ZoneServer2016, client: Client, args: any[]) {
+    let ItemDefinitionsPacket = { data: { itemDefinitions: [] } };
     const fs = require("fs");
-    const itemDefJson = fs.readFileSync("../../../../data/2016/dataSources/ClientItemDefinitions.json")
-    itemDefJson.forEach((ItemDefinition:any) => {
+    const itemDefJson = fs.readFileSync(
+      "../../../../data/2016/dataSources/ClientItemDefinitions.json"
+    );
+    itemDefJson.forEach((ItemDefinition: any) => {
       // @ts-ignore
       ItemDefinitionsPacket.data.itemDefinitions.push(ItemDefinition);
     });
-    console.log(ItemDefinitionsPacket)
-    server.sendData(client, "Command.ItemDefinitions",ItemDefinitionsPacket)
-
+    console.log(ItemDefinitionsPacket);
+    server.sendData(client, "Command.ItemDefinitions", ItemDefinitionsPacket);
   },
 
   recipe: function (server: ZoneServer2016, client: Client, args: any[]) {
@@ -639,26 +638,26 @@ const dev: any = {
     });
   },
   /*
-  proxiedobjects: function(server: ZoneServer2016, client: Client, args: any[]) {
-    
-    objects.runtime_object.runtime_objects.forEach((object) => {
-      if(object.actor_file === "Common_Props_Dryer.adr") {
-        object.instances.forEach((instance) => {
-          console.log("proxied object")
-          const obj = {
-            guid: instance.id,
-            transientId: server.getTransientId(client, instance.id),
-            unknownByte1: 0,
-            position: [instance.position[0], instance.position[1], instance.position[2]],
-            rotation: [instance.rotation[1], instance.rotation[0], instance.rotation[2]],
-          };
-          server.sendData(client, "AddProxiedObject", obj);
-        });
-        server.sendChatText(client, `Sent ${object.instance_count} ProxiedObject Packets`);
-      }
-    });
-  }
-  */
+    proxiedobjects: function(server: ZoneServer2016, client: Client, args: any[]) {
+
+      objects.runtime_object.runtime_objects.forEach((object) => {
+        if(object.actor_file === "Common_Props_Dryer.adr") {
+          object.instances.forEach((instance) => {
+            console.log("proxied object")
+            const obj = {
+              guid: instance.id,
+              transientId: server.getTransientId(client, instance.id),
+              unknownByte1: 0,
+              position: [instance.position[0], instance.position[1], instance.position[2]],
+              rotation: [instance.rotation[1], instance.rotation[0], instance.rotation[2]],
+            };
+            server.sendData(client, "AddProxiedObject", obj);
+          });
+          server.sendChatText(client, `Sent ${object.instance_count} ProxiedObject Packets`);
+        }
+      });
+    }
+    */
 };
 
 export default dev;

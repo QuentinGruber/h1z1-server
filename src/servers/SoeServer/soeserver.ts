@@ -14,11 +14,12 @@
 import { EventEmitter } from "events";
 import { SOEProtocol } from "../../protocols/soeprotocol";
 import Client from "./soeclient";
-import { Worker } from "worker_threads";
 import SOEClient from "./soeclient";
+import { Worker } from "worker_threads";
 
 const debug = require("debug")("SOEServer");
 process.env.isBin && require("./workers/udpServerWorker");
+
 export class SOEServer extends EventEmitter {
   _protocolName: string;
   _serverPort: number;
@@ -153,6 +154,7 @@ export class SOEServer extends EventEmitter {
       }
     });
   }
+
   checkClientOutQueue(client: SOEClient) {
     const data = client.outQueue.shift();
     if (data) {

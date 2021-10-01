@@ -20,4 +20,4 @@ jobs:
       - name: MongoDB in GitHub Actions
         uses: supercharge/mongodb-github-action@1.6.0
       - run: npm run build-tests
-      # - run: npm run test-mongo disabled due to an error comming from supercharge/mongodb-github-action@1.6.0 maybe we should update it
+      - run: npm run test-mongo

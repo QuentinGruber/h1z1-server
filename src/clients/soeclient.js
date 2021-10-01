@@ -247,6 +247,7 @@ class SOEClient {
       debug("Listening on " + address.address + ":" + address.port);
     });
   }
+
   connect() {
     debug(
       "Setting up connection for " +
@@ -265,6 +266,7 @@ class SOEClient {
       });
     });
   }
+
   disconnect() {
     clearTimeout(this._outQueueTimer);
     clearTimeout(this._ackTimer);
@@ -274,6 +276,7 @@ class SOEClient {
       this._connection.close();
     } catch (e) {}
   }
+
   toggleEncryption(value) {
     value = !!value;
     this._useEncryption = value;
@@ -281,9 +284,11 @@ class SOEClient {
     this._outputStream.toggleEncryption(value);
     this._inputStream.toggleEncryption(value);
   }
+
   toggleDataDump(value) {
     this._dumpData = value;
   }
+
   _sendPacket(packetName, packet, prioritize) {
     var data = this._protocol.pack(
       packetName,
@@ -304,6 +309,7 @@ class SOEClient {
       this._outQueue.push(data);
     }
   }
+
   sendAppData(data, overrideEncryption) {
     debug(this._guid, "Sending app data: " + data.length + " bytes");
     this._outputStream.write(data, overrideEncryption);
