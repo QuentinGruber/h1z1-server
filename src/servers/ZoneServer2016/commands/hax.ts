@@ -540,29 +540,9 @@ const hax: any = {
       effect = args[2];
     }
     switch (args[1]) {
-      case "hoodie":
-        model = "SurvivorMale_Chest_Hoodie_Up_Tintable.adr";
-        slot = 3;
-        break;
       case "shirt":
         model = "SurvivorMale_Chest_Shirt_Henley.adr";
         slot = 3;
-        break;
-      case "pants":
-        model = "SurvivorMale_Legs_Pants_StraightLeg.adr";
-        slot = 4;
-        break;
-      case "helmet":
-        model = "SurvivorMale_Head_Helmet_Motorcycle_Tintable.adr";
-        slot = 15;
-        break;
-      case "backpack":
-        model = "SurvivorMale_Back_Backpack_Military_Rasta.adr";
-        slot = 10;
-        break;
-      case "shoes":
-        model = "SurvivorMale_Feet_Conveys_Tintable.adr";
-        slot = 5;
         break;
       case "armor":
         model = "SurvivorMale_Armor_Kevlar_Basic_Patches.adr";
@@ -575,10 +555,6 @@ const hax: any = {
       case "bandana":
         model = "SurvivorMale_Face_Bandana.adr";
         slot = 28;
-        break;
-      case "ghillie":
-        model = "SurvivorMale_Chest_GhillieSuit.adr";
-        slot = 3;
         break;
       default:
         server.sendChatText(
@@ -649,11 +625,29 @@ const hax: any = {
       case "torch":
         definitionId = 5;
         break;
+      case "molotov":
+        definitionId = 14;
+        break;
       case "empty":
         definitionId = 85;
         break;
-      case "molotov":
-        definitionId = 14;
+      case "hoodie":
+        definitionId = 2377;
+        break;
+      case "pants":
+        definitionId = 2079;
+        break;
+      case "backpack":
+        definitionId = 2393;
+        break;
+      case "shoes":
+        definitionId = 2217;
+        break;
+      case "helmet":
+        definitionId = 2045;
+        break;
+      case "ghillie":
+        definitionId = 2609;
         break;
       default:
         server.sendChatText(

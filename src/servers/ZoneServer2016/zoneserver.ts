@@ -16,7 +16,7 @@ const debug = require("debug")(debugName);
 import { default as packetHandlers } from "./zonepackethandlers";
 import { ZoneServer } from "../ZoneServer/zoneserver";
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
-import { characterEquipment, HandledZonePackets2016, Weather2016 } from "../../types/zoneserver";
+import { characterEquipment, characterLoadout, HandledZonePackets2016, Weather2016 } from "../../types/zoneserver";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
 import { _, initMongo, Int64String, isPosInRadius } from "../../utils/utils";
 
@@ -868,7 +868,19 @@ export class ZoneServer2016 extends ZoneServer {
       characterId: client.character.characterId,
       loadoutItemLoadoutId: 5,
       loadoutData: {
-        loadoutSlots: client.character.loadout,
+        loadoutSlots: client.character.loadout.map((slot: characterLoadout) => {
+          return {
+            unknownDword1: 3,
+            itemDefinitionId: slot.itemDefinitionId,
+            slotId: slot.slotId,
+            unknownData1: {
+              itemDefinitionId: slot.itemDefinitionId,
+              loadoutItemOwnerGuid: slot.itemGuid,
+              unknownByte1: 17,
+            },
+            unknownDword4: 18,
+          }
+        }),
       },
       unknownDword2: 19,
     });
@@ -915,15 +927,9 @@ export class ZoneServer2016 extends ZoneServer {
     equipmentSlotId = loadoutEquipSlots.find((slot:any) => slot.SLOT_ID === loadoutSlotId).EQUIP_SLOT_ID,
     eIndex = client.character.equipment.map((slot:any) => slot.slotId).indexOf(equipmentSlotId),
     loadoutData = {
-      unknownDword1: 3,
       itemDefinitionId: def.ID,
       slotId: loadoutSlotId,
-      unknownData1: {
-        itemDefinitionId: def.ID,
-        loadoutItemOwnerGuid: item.guid,
-        unknownByte1: 17,
-      },
-      unknownDword4: 18,
+      itemGuid: item.guid,
     },
     equipmentData = {
       modelName: def.MODEL_NAME.replace("<gender>", "Male"),
@@ -949,20 +955,20 @@ export class ZoneServer2016 extends ZoneServer {
           unknownDword1: 1,
           unknownData1: {
             unknownQword1: item.guid,
-            unknownDword1: 0,
-            unknownDword2: 0
+            unknownDword1: 1,
+            unknownDword2: 1
           }
           
         },
         unknownQword2: item.guid,
-        unknownDword4: 0,
-        slot: 0,
-        unknownDword6: 0,
-        unknownDword7: 0,
-        unknownDword8: 0,
+        unknownDword4: 1,
+        slot: 1,
+        unknownDword6: 1,
+        unknownDword7: 1,
+        unknownDword8: 1,
         unknownBoolean1: true,
         unknownQword3: item.guid,
-        unknownDword9: 0,
+        unknownDword9: 1,
         unknownBoolean2: true
       }
     });

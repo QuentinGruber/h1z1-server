@@ -1,5 +1,5 @@
 import { Character } from "servers/ZoneServer/classes/character";
-import { characterEquipment } from "types/zoneserver";
+import { characterEquipment, characterLoadout } from "types/zoneserver";
 
 export class Character2016 extends Character {
   resources: {
@@ -16,7 +16,7 @@ export class Character2016 extends Character {
   gender!: number;
   creationDate!: string;
   lastLoginDate!: string;
-  loadout: any[] = [];
+  loadout: characterLoadout[] = [];
   equipment: characterEquipment[] = []
   constructor(characterId: string, generatedTransient: number) {
     super(characterId, generatedTransient);

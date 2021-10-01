@@ -392,6 +392,12 @@ export interface characterEquipment {
   decalAlias?: string;
 }
 
+export interface characterLoadout {
+  itemDefinitionId: number;
+  slotId: number;
+  itemGuid: string;
+}
+
 export interface Client {
   currentPOI?: number;
   firstLoading: boolean;
