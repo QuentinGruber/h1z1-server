@@ -28,6 +28,7 @@ import admin from "./commands/admin";
 import { _, Int64String, isPosInRadius } from "../../utils/utils";
 import { ZoneServer2016 } from "./zoneserver";
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
+import { characterEquipment } from "./../../types/zoneserver"
 
 const debug = require("debug")("zonepacketHandlers");
 
@@ -114,6 +115,38 @@ const packetHandlers = {
       decalAlias: "#",
     });
     */
+
+    server.sendData( client, "Equipment.SetCharacterEquipment", {
+      characterData: {
+        characterId: client.character.characterId,
+      },
+      equipmentSlots: client.character.equipment.map((slot: characterEquipment) => {
+        return {
+          equipmentSlotId: slot.slotId,
+          equipmentSlotData: {
+            equipmentSlotId: slot.slotId,
+            guid: slot.guid || "",
+            tintAlias: slot.tintAlias || "",
+            decalAlias: slot.tintAlias || "#",
+          }
+        }
+      }),
+      attachmentData: client.character.equipment.map((slot: characterEquipment) => {
+        return {
+          modelName: slot.modelName,
+          textureAlias: slot.textureAlias || "",
+          tintAlias: slot.tintAlias || "",
+          decalAlias: slot.tintAlias || "#",
+          slotId: slot.slotId
+        }
+      }),
+    }); // needed or third person character will be invisible
+
+    // default equipment / loadout
+    
+    server.equipItem(client, server.generateItem(85)); // fists weapon
+    server.equipItem(client, server.generateItem(2377)); // DOA Hoodie
+    server.equipItem(client, server.generateItem(2079)); // golf pants
 
     server.sendData(client, "ClientUpdate.DoneSendingPreloadCharacters", {
       done: true,
