@@ -1,12 +1,14 @@
 import { ZoneServer, ZoneClient } from "../../../h1z1-server";
 
 async function test() {
-  await new ZoneServer(
+  const zoneServer = new ZoneServer(
     1117,
     new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", "base64"),
     "mongodb://localhost:27017/",
     1
-  ).start();
+  )
+  zoneServer._gatewayServer._soeServer._useMultiPackets = false;
+  await zoneServer.start();
 
   setTimeout(() => {
     var client = new ZoneClient(
