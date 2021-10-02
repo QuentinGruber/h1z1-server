@@ -19,6 +19,7 @@ export interface Client {
   lastAck: number;
   cryptoKey: Uint8Array;
   serverUpdateTimer: ReturnType<typeof setTimeout>;
+  waitingQueueCurrentByteLength: number;
   inputStream: () => void;
   outputStream: () => void;
   outQueueTimer: () => void;

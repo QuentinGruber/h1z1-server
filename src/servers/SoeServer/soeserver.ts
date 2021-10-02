@@ -158,7 +158,6 @@ export class SOEServer extends EventEmitter {
   checkClientOutQueue(client: SOEClient) {
     const data = client.outQueue.shift();
     if (data) {
-      console.log("send packet ",data)
       this._connection.postMessage({
         type: "sendPacket",
         data: {
@@ -188,18 +187,18 @@ export class SOEServer extends EventEmitter {
     (client as any).ackTimer.refresh();
   }
   sendClientWaitQueue(client: Client) {
-    console.log("send waiting queue")
-    console.log(client.waitingQueueCurrentByteLength);
-    client.waitingQueueCurrentByteLength = 0;
-    this._sendPacket(
-      client,
-      "MultiPacket",
-      {
-        subPackets: client.waitingQueue,
-      },
-      true
-    );
-    client.waitingQueue = [];
+    if(client.waitingQueue.length){
+      client.waitingQueueCurrentByteLength = 0;
+      this._sendPacket(
+        client,
+        "MultiPacket",
+        {
+          subPackets: client.waitingQueue,
+        },
+        true
+      );
+      client.waitingQueue = [];
+    }
   }
   checkOutOfOrderQueue(client: Client) {
     if (client.outOfOrderPackets.length) {
@@ -433,7 +432,6 @@ export class SOEServer extends EventEmitter {
         client.waitQueueTimer.refresh()
       }
       else{
-        client.waitQueueTimer.refresh()
         this.sendClientWaitQueue(client)
         client.outQueue.push(data);
       }
