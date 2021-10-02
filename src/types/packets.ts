@@ -2428,7 +2428,11 @@ export type h1z1PacketsType =
   | "WeaponLagLockParameters"
   | "CrateOpeningBase"
   | "PlayerHeatWarning"
-  | "AnimationBase";
+  | "AnimationBase"
+  | "Container.UpdateEquippedContainers"
+  | "Container.Error"
+  | "Container.ListAll"
+  | "Container.UpdateEquippedContainer";
 export type loginPacketsType =
   | "LoginRequest"
   | "LoginReply"

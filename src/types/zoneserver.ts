@@ -385,7 +385,17 @@ export interface npcData {
 export interface characterEquipment {
   modelName: string;
   slotId: number;
+  guid?: string;
   defaultTextureAlias?: string;
+  textureAlias?: string;
+  tintAlias?: string;
+  decalAlias?: string;
+}
+
+export interface characterLoadout {
+  itemDefinitionId: number;
+  slotId: number;
+  itemGuid: string;
 }
 
 export interface Client {
