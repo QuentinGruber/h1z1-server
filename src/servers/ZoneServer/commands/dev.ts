@@ -1,4 +1,4 @@
-import { ZoneClient as Client } from "../../ZoneServer/zoneclient";
+import { ZoneClient as Client } from "../classes/zoneclient";
 import { generateRandomGuid } from "../../../utils/utils";
 import { ZoneServer } from "../zoneserver";
 
@@ -12,10 +12,10 @@ const dev: any = {
     );
   },
   testpacket: function (server: ZoneServer, client: Client, args: any[]) {
-    server.sendData(client,"Target.AddTarget",{
-      Unk1:"0x6965746961756f00",
-      Unk2:"ouaitest"
-    })
+    server.sendData(client, "Target.AddTarget", {
+      Unk1: "0x6965746961756f00",
+      Unk2: "ouaitest",
+    });
     server.sendData(client, "Command.PlaySoundIdOnTarget", {
       objects: [
         {
@@ -67,9 +67,9 @@ const dev: any = {
         aggroLevel: 1000,
       });
       /* server.sendData(client, "PlayerUpdate.SeekTarget", {
-        characterId: characterId,
-        TargetCharacterId: client.character.characterId,
-      });*/
+              characterId: characterId,
+              TargetCharacterId: client.character.characterId,
+            });*/
     };
     server.sendDataToAll("PlayerUpdate.AddLightweightNpc", npc);
     server.sendData(client, "ResourceEvent", {
@@ -170,12 +170,12 @@ const dev: any = {
       array18: [{ unknown1: 0 }],
     });
     /* setInterval(() => {
-      server.sendData(client, "PlayerUpdate.SeekTarget", {
-        characterId: characterId,
-        TargetCharacterId: client.character.characterId,
-        position: client.character.state.position,
-      });
-    }, 500);*/
+          server.sendData(client, "PlayerUpdate.SeekTarget", {
+            characterId: characterId,
+            TargetCharacterId: client.character.characterId,
+            position: client.character.state.position,
+          });
+        }, 500);*/
   },
   testvehicle: function (server: ZoneServer, client: Client, args: any[]) {
     const characterId = server.generateGuid();

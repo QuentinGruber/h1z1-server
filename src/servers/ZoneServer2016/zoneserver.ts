@@ -15,19 +15,12 @@ const debugName = "ZoneServer";
 const debug = require("debug")(debugName);
 import { default as packetHandlers } from "./zonepackethandlers";
 import { ZoneServer } from "../ZoneServer/zoneserver";
-import { ZoneClient2016 as Client } from "./zoneclient";
-import { HandledZonePackets2016, Weather2016 } from "../../types/zoneserver";
+import { ZoneClient2016 as Client } from "./classes/zoneclient";
+import { characterEquipment, characterLoadout, HandledZonePackets2016, Weather2016 } from "../../types/zoneserver";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
-import { _ } from "../../utils/utils";
+import { _, initMongo, Int64String, isPosInRadius } from "../../utils/utils";
 
-import {
-  //generateRandomGuid,
-  initMongo,
-  Int64String,
-  isPosInRadius,
-} from "../../utils/utils";
-
-import { /*Db,*/ MongoClient } from "mongodb";
+import { MongoClient } from "mongodb";
 import dynamicWeather from "./workers/dynamicWeather";
 
 // need to get 2016 lists
@@ -38,12 +31,19 @@ const localWeatherTemplates = require("../../../data/2016/dataSources/weather.js
 const stats = require("../../../data/2016/sampleData/stats.json");
 const resources = require("../../../data/2016/dataSources/resourceDefinitions.json");
 
+const itemDefinitions = require("./../../../data/2016/dataSources/ServerItemDefinitions.json");
+const loadoutSlotItemClasses = require("./../../../data/2016/dataSources/LoadoutSlotItemClasses.json");
+const loadoutEquipSlots = require("./../../../data/2016/dataSources/LoadoutEquipSlots.json");
+
 export class ZoneServer2016 extends ZoneServer {
   worldRoutineTimer: any;
   _weather2016: Weather2016;
   // @ts-ignore yeah idk how to fix that
   _packetHandlers: HandledZonePackets2016;
   _weatherTemplates: any;
+  _items: any;
+  _vehicles: any;
+
   constructor(serverPort: number, gatewayKey: Uint8Array, mongoAddress = "") {
     super(serverPort, gatewayKey, mongoAddress);
     this._protocol = new H1Z1Protocol("ClientProtocol_1080");
@@ -81,7 +81,9 @@ export class ZoneServer2016 extends ZoneServer {
         unknownByte4: 1,
       };
     });
+    this._items = {};
   }
+
   onZoneDataEvent(err: any, client: Client, packet: any) {
     if (err) {
       console.error(err);
@@ -151,36 +153,30 @@ export class ZoneServer2016 extends ZoneServer {
         virus: 6000,
         comfort: 5000,
       },
-      equipment: [
+      equipment: [// temp
         {
           modelName: "SurvivorMale_Head_01.adr",
           slotId: 1,
+        },
+        {
+          modelName: "SurvivorMale_Eyes_01.adr",
+          slotId: 105,
+        },
+        {
+          modelName: "SurvivorMale_Hair_ShortMessy.adr",
+          slotId: 27,
         },
         {
           modelName: "SurvivorMale_Legs_Pants_Underwear.adr",
           slotId: 4,
         },
         {
-          modelName: "SurvivorMale_Eyes_01.adr",
-          slotId: 105,
-        },
-        { modelName: "Weapon_Empty.adr", slotId: 2 },
-        { modelName: "Weapon_Empty.adr", slotId: 7 },
-        {
-          modelName: "SurvivorMale_Hair_ShortMessy.adr",
-          slotId: 27,
-        },
-        {
-          modelName: "SurvivorMale_Chest_Shirt_TintTshirt.adr",
-          defaultTextureAlias: "Wear.Chest.Shirt.TintTshirt.67",
+          modelName: "SurvivorMale_Chest_Bra.adr",
+          textureAlias: "",
           slotId: 3,
         },
-        {
-          modelName: "SurvivorMale_Legs_Pants_SkinnyLeg.adr",
-          defaultTextureAlias: "Wear.Legs.Pants.SkinnyLeg.Anarchy",
-          slotId: 4,
-        },
       ],
+      loadout: [],
       state: {
         position: new Float32Array([0, 0, 0, 1]),
         rotation: new Float32Array([0, 0, 0, 1]),
@@ -189,7 +185,6 @@ export class ZoneServer2016 extends ZoneServer {
         shield: 0,
       },
     };
-
     let isRandomlySpawning = false;
     if (
       _.isEqual(character.position, [0, 0, 0, 1]) &&
@@ -219,6 +214,48 @@ export class ZoneServer2016 extends ZoneServer {
 
   async sendCharacterData(client: Client) {
     await this.loadCharacterData(client);
+
+    /*
+    const item: any = this.generateItem(client, 2425),
+    containers = [
+      [
+        {
+          unknownDword1: 1501, // container itemDefinitionId ?
+          containerData: {
+            guid: this.generateGuid(),
+            unknownDword1: 0,
+            unknownQword1: this.generateGuid(),
+            unknownDword2: 0,
+            items: [
+              {
+                itemDefinitionId: this._items[item].itemDefinitionId,
+                itemData: {
+                  itemDefinitionId: this._items[item].itemDefinitionId,
+                  tintId: 0,
+                  guid: item,
+                  count: 1,
+                  itemSubData: {
+                    unknownBoolean1: false
+                  },
+                  unknownQword2: item,
+                  unknownDword4: 0,
+                  slot: 0,
+                  unknownDword6: 0,
+                  unknownDword7: 0,
+                  unknownDword8: 0,
+                  unknownBoolean1: true,
+                  unknownQword3: item,
+                  unknownDword9: 0,
+                  unknownBoolean2: true
+                }
+              }
+            ]
+          }
+        }
+      ]
+    ]
+    */
+
     this.sendData(client, "SendSelfToClient", {
       data: {
         guid: client.character.guid, // todo: guid should be moved to client, instead of character
@@ -282,6 +319,7 @@ export class ZoneServer2016 extends ZoneServer {
             },
           },
         ],
+        //containers: containers,
       },
     });
   }
@@ -300,25 +338,26 @@ export class ZoneServer2016 extends ZoneServer {
     this._frozeCycle = false;
     await this.loadMongoData();
     this._profiles = this.generateProfiles();
+    this.createAllObjects();
     /*
-    if (
-      await this._db?.collection("worlds").findOne({ worldId: this._worldId })
-    ) {
-      await this.fetchWorldData();
-    } else {
-      await this._db
-        ?.collection(`worlds`)
-        .insertOne({ worldId: this._worldId });
-      await this.saveWorld();
-    }
-    if (!this._soloMode)
-      await this._db
-        ?.collection("servers")
-        .findOneAndUpdate(
-          { serverId: this._worldId },
-          { $set: { populationNumber: 0, populationLevel: 0 } }
-        );
-    */
+        if (
+          await this._db?.collection("worlds").findOne({ worldId: this._worldId })
+        ) {
+          await this.fetchWorldData();
+        } else {
+          await this._db
+            ?.collection(`worlds`)
+            .insertOne({ worldId: this._worldId });
+          await this.saveWorld();
+        }
+        if (!this._soloMode)
+          await this._db
+            ?.collection("servers")
+            .findOneAndUpdate(
+              { serverId: this._worldId },
+              { $set: { populationNumber: 0, populationLevel: 0 } }
+            );
+        */
     debug("Server ready");
   }
 
@@ -789,6 +828,158 @@ export class ZoneServer2016 extends ZoneServer {
       this._weather2016,
       this._soloMode ? false : true
     );
+  }
+
+  /********************* INVENTORY *********************/
+  
+  updateLoadout(client: Client) {
+    this.sendData(client, "Loadout.SelectSlot", {
+      characterId: client.character.characterId,
+      loadoutItemLoadoutId: 5,
+      loadoutData: {
+        loadoutSlots: client.character.loadout.map((slot: characterLoadout) => {
+          return {
+            unknownDword1: 3,
+            itemDefinitionId: slot.itemDefinitionId,
+            slotId: slot.slotId,
+            unknownData1: {
+              itemDefinitionId: slot.itemDefinitionId,
+              loadoutItemOwnerGuid: slot.itemGuid,
+              unknownByte1: 17,
+            },
+            unknownDword4: 18,
+          }
+        }),
+      },
+      unknownDword2: 19,
+    });
+  }
+
+  updateEquipment(client: Client) {
+    this.sendData( client, "Equipment.SetCharacterEquipment", {
+      characterData: {
+        characterId: client.character.characterId,
+      },
+      equipmentSlots: client.character.equipment.map((slot: characterEquipment) => {
+        return {
+          equipmentSlotId: slot.slotId,
+          equipmentSlotData: {
+            equipmentSlotId: slot.slotId,
+            guid: slot.guid || "",
+            tintAlias: slot.tintAlias || "",
+            decalAlias: slot.tintAlias || "#",
+          }
+        }
+      }),
+      attachmentData: client.character.equipment.map((slot: characterEquipment) => {
+        return {
+          modelName: slot.modelName,
+          textureAlias: slot.textureAlias || "",
+          tintAlias: slot.tintAlias || "",
+          decalAlias: slot.tintAlias || "#",
+          slotId: slot.slotId
+        }
+      }),
+    });
+  }
+
+  equipItem(client: Client, itemGuid: string = "") {
+    if(!itemGuid) {
+      debug("[ERROR] EquipItem: ItemGuid is blank!")
+      return;
+    }
+    const item = this._items[itemGuid],
+    def = item.itemDefinition,
+    loadoutSlotItemClass = loadoutSlotItemClasses.find((slot:any) => slot.ITEM_CLASS === def.ITEM_CLASS),
+    loadoutSlotId = loadoutSlotItemClass ? loadoutSlotItemClass.SLOT : 1, // use primary slot if ItemClass is invalid
+    lIndex = client.character.loadout.map((slot:any) => slot.slotId).indexOf(loadoutSlotId),
+    equipmentSlotId = loadoutEquipSlots.find((slot:any) => slot.SLOT_ID === loadoutSlotId).EQUIP_SLOT_ID,
+    eIndex = client.character.equipment.map((slot:any) => slot.slotId).indexOf(equipmentSlotId),
+    loadoutData = {
+      itemDefinitionId: def.ID,
+      slotId: loadoutSlotId,
+      itemGuid: item.guid,
+    },
+    equipmentData = {
+      modelName: def.MODEL_NAME.replace("<gender>", "Male"),
+      slotId: equipmentSlotId,
+      guid: item.guid,
+      textureAlias: def.TEXTURE_ALIAS,
+      tintAlias: "",
+    };
+    
+    /* TODO: keep track of items in the inventory. right now the server does not 
+    keep track of inventory, and the clientside inventory has it's 0th inventory 
+    slot overwritten everytime a loadout item is added */
+    this.sendData(client, "ClientUpdate.ItemAdd", {
+      characterId: client.character.characterId,
+      data: {
+        itemDefinitionId: def.ID,
+        tintId: 5,
+        guid: item.guid,
+        count: 1, // also ammoCount
+        itemSubData: {
+          unknownBoolean1: true,
+          
+          unknownDword1: 1,
+          unknownData1: {
+            unknownQword1: item.guid,
+            unknownDword1: 1,
+            unknownDword2: 1
+          }
+          
+        },
+        unknownQword2: item.guid,
+        unknownDword4: 1,
+        slot: 1,
+        unknownDword6: 1,
+        unknownDword7: 1,
+        unknownDword8: 1,
+        unknownBoolean1: true,
+        unknownQword3: item.guid,
+        unknownDword9: 1,
+        unknownBoolean2: true
+      }
+    });
+
+    lIndex === -1 ? client.character.loadout.push(loadoutData) : client.character.loadout[lIndex] = loadoutData;
+    this.updateLoadout(client);
+
+    eIndex === -1 ? client.character.equipment.push(equipmentData) : client.character.equipment[eIndex] = equipmentData;
+    this.updateEquipment(client);
+  }
+
+  generateItem(itemDefinitionId: any) {
+    const generatedGuid = this.generateGuid();
+    this._items[generatedGuid] = {
+      guid: generatedGuid,
+      itemDefinition: itemDefinitions.find(
+        (itemDef: any) =>
+          itemDef.ID === itemDefinitionId
+      )
+    }
+    if(!this._items[generatedGuid].itemDefinition) {
+      debug(`[ERROR] GenerateItem: Invalid item definition: ${itemDefinitionId}`);
+      return;
+    }
+    return generatedGuid;
+  }
+
+  generatePickupItem(objectData: any): any {
+    function rnd_number(max: any, fixed: Boolean = false) {
+      const num = Math.random() * max;
+      return Number(fixed?num.toFixed(0):num);
+    }
+
+    const authorizedItemDefinitions = itemDefinitions.filter(
+      (def: any) => 
+      (def.WORLD_MODEL_ID === objectData.modelId) && def.CODE_FACTORY_NAME !== "AccountRecipe"
+    )
+    if(!authorizedItemDefinitions.length) {
+      debug(`[ERROR] GeneratePickupItem: No item definition mapped to id: ${objectData.modelId}`);
+      return;
+    }
+    return this.generateItem(authorizedItemDefinitions[rnd_number(authorizedItemDefinitions.length-1, true)].ID);
   }
 }
 

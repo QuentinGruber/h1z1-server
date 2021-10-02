@@ -13,8 +13,7 @@
 
 const debug = require("debug")("H1Z1Protocol");
 import DataSchema from "h1z1-dataschema";
-import { lz4_decompress } from "../utils/utils";
-import { eul2quat } from "../utils/utils";
+import { eul2quat, lz4_decompress } from "../utils/utils";
 import { packUnsignedIntWith2bitLengthValue } from "../packets/ClientProtocol/ClientProtocol_860/h1z1packets";
 
 interface UpdatePositionObject {
@@ -289,6 +288,7 @@ export class H1Z1Protocol {
       result: parseUpdatePositionData(data, offset),
     };
   }
+
   parseUpdatePositionRaw(data: Buffer, offset: number) {
     // Temp workaround
     const obj = {} as UpdatePositionObject;
@@ -361,8 +361,8 @@ export class H1Z1Protocol {
       result;
 
     /* if (flags) {
-      debug("Flags = " + flags);
-    }*/
+          debug("Flags = " + flags);
+        }*/
 
     if (flags === 2) {
       try {
@@ -460,13 +460,13 @@ export class H1Z1Protocol {
       //fs.writeFileSync("zone_failed_" + Date.now() + "_" + Math.random() + ".dat", data);
     }
     /*
-          var op =  BasePackets.getName(opCode);
-          if (PacketHandlers[op]) {
-              result = PacketHandlers[op](data);
-          } else {
-              debug("Unhandled zone packet:", data[1] & 0x1F, data[1] >> 5, opCode, op);
-          }
-      */
+              var op =  BasePackets.getName(opCode);
+              if (PacketHandlers[op]) {
+                  result = PacketHandlers[op](data);
+              } else {
+                  debug("Unhandled zone packet:", data[1] & 0x1F, data[1] >> 5, opCode, op);
+              }
+          */
   }
 
   reloadPacketDefinitions() {
@@ -622,10 +622,10 @@ const parseUpdatePositionData = function (data: Buffer, offset: number) {
       offset += v.length;
     }
     /*
-        if (obj.flags & 0xe0) {
+            if (obj.flags & 0xe0) {
 
-        }
-        */
+            }
+            */
   } catch (e) {
     debug(e);
   }

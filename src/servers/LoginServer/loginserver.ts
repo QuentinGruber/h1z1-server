@@ -17,10 +17,10 @@ import { SOEServer } from "../SoeServer/soeserver";
 import { LoginProtocol } from "../../protocols/loginprotocol";
 import { MongoClient } from "mongodb";
 import {
+  _,
   generateRandomGuid,
   getAppDataFolderPath,
   initMongo,
-  _,
   setupAppDataFolder,
 } from "../../utils/utils";
 import { Client, GameServer } from "../../types/loginserver";
@@ -44,6 +44,7 @@ export class LoginServer extends EventEmitter {
   _mongoAddress: string;
   _soloMode: boolean;
   _appDataFolder: string;
+
   constructor(serverPort: number, mongoAddress = "") {
     super();
     this._compression = 0x0100;
@@ -207,6 +208,7 @@ export class LoginServer extends EventEmitter {
       );
     }
   }
+
   TunnelAppPacketClientToServer(client: Client, packet: any) {
     const baseResponse = { serverId: packet.serverId };
     let response;
@@ -225,10 +227,12 @@ export class LoginServer extends EventEmitter {
     }
     this.sendData(client, "TunnelAppPacketServerToClient", response);
   }
+
   Logout(client: Client, packet: any) {
     clearInterval(client.serverUpdateTimer);
     // this._soeServer.deleteClient(client); this is done too early
   }
+
   addDummyDataToCharacters(characters: any[]) {
     for (let index = 0; index < characters.length; index++) {
       // add required dummy data
@@ -237,6 +241,7 @@ export class LoginServer extends EventEmitter {
     }
     return characters;
   }
+
   async CharacterSelectInfoRequest(client: Client) {
     let CharactersInfo;
     if (this._soloMode) {
@@ -530,11 +535,18 @@ export class LoginServer extends EventEmitter {
     }
   }
 
+  deleteAllLocalCharacters():void{ // used for testing / benchmarks
+    if(fs.existsSync(`${this._appDataFolder}/single_player_characters.json`)){
+    fs.unlinkSync(
+      `${this._appDataFolder}/single_player_characters.json`)
+    }
+  }
   stop(): void {
     debug("Shutting down");
     process.exit(0);
   }
 }
+
 if (process.env.VSCODE_DEBUG === "true") {
   if (process.env.CLIENT_SIXTEEN === "true") {
     const server = new LoginServer(

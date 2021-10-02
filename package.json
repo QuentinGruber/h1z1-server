@@ -1,6 +1,6 @@
 {
   "name": "h1z1-server",
-  "version": "0.15.1-1",
+  "version": "0.15.2-1",
   "description": "Library for emulating h1z1 servers",
   "author": "Quentin Gruber <quentingruber@gmail.com> (http://github.com/quentingruber)",
   "license": "GPL-3.0-only",
@@ -16,9 +16,8 @@
     "@types/json-schema": "7.0.9",
     "@types/node": "16.7.9",
     "debug": "4.3.2",
-    "eul2quat": "1.0.0",
-    "h1emu-core": "0.5.0",
-    "h1z1-dataschema": "1.5.4",
+    "h1emu-core": "0.6.0",
+    "h1z1-dataschema": "1.5.5",
     "mongodb": "4.1.2",
     "mongodb-restore-dump": "1.0.1",
     "terser-output": "1.0.3",
@@ -40,6 +39,7 @@
     "build-optimized": "npm run build && terser-output ./out",
     "build": "tsc -p ./tsconfig.json",
     "build-tests": "npx swc tests -d tests_out",
+    "build-benchs": "npx swc benchmarks -d benchmarks_out",
     "build-docker-images": "npx ts-node ./docker/buildDocker.ts",
     "build-swc": "npx swc src -d out",
     "test-zone-client": "node tests_out/2015/zoneClientTest.js",
@@ -54,7 +54,7 @@
     "postinstall": "if-env INSTALL_TYPE=launcher &&  npm run build-swc || npm run build-optimized",
     "publish_release": "git push --tags && git push origin dev && git push origin master && git checkout dev && npm run publish_release-next",
     "publish_release-next": "npm version prerelease && git add * && git commit -m 'publish-a-next-version' && npm publish --tag next && git push origin dev",
-    "prettier_sources": "prettier --write ./src && prettier --write ./tests",
+    "prettier_sources": "prettier --write ./src && prettier --write ./tests && prettier --write ./benchmarks",
     "watch-swc": "npx swc --watch src -d out"
   },
   "repository": {

@@ -5,9 +5,9 @@ const Z1_doors = require("../../../../data/2016/zoneData/Z1_doors.json");
 const Z1_npcs = require("../../../../data/2016/zoneData/Z1_npcs.json");
 const models = require("../../../../data/2016/dataSources/Models.json");
 const modelToName = require("../../../../data/2016/dataSources/ModelToName.json");
-import { _ } from "../../../utils/utils";
-import { generateRandomGuid } from "../../../utils/utils";
+import { _, generateRandomGuid } from "../../../utils/utils";
 import { ZoneServer2016 } from "../zoneserver";
+
 const npcs: any = {};
 const objects: any = {};
 const vehicles: any = {};
@@ -290,6 +290,7 @@ function createHospital(server: ZoneServer2016) {
         authorizedModelId.push(9543); // vial
         authorizedModelId.push(9540); // syringe
         authorizedModelId.push(9249); // shirt
+        authorizedModelId.push(9736); // pants
         authorizedModelId.push(9296); // water bottle
         authorizedModelId.push(9156); // empty bottle
         break;
@@ -410,6 +411,7 @@ function createTools(server: ZoneServer2016) {
         break;
       case "ItemSpawner_Weapon_Machete01.adr":
         authorizedModelId.push(24);
+        authorizedModelId.push(9695); // katana
         break;
       case "ItemSpawner_Weapon_Bat01.adr":
         authorizedModelId.push(42);
@@ -443,6 +445,9 @@ function createTools(server: ZoneServer2016) {
         break;
       case "ItemSpawner_Weapon_Bow.adr":
         authorizedModelId.push(9162);
+        authorizedModelId.push(9214);
+        authorizedModelId.push(9398);
+        authorizedModelId.push(9420); // recurve
         break;
       default:
         break;
@@ -602,7 +607,8 @@ function createClothes(server: ZoneServer2016) {
         authorizedModelId.push(66);
         break;
       case "ItemSpawner_Clothes_FoldedShirt.adr":
-        authorizedModelId.push(9249);
+        authorizedModelId.push(9249); // shirt
+        authorizedModelId.push(9736); // pants
         break;
       case "ItemSpawner_Clothes_Beanie.adr":
         authorizedModelId.push(67);
@@ -639,7 +645,8 @@ function createResidential(server: ZoneServer2016) {
     switch (spawnerType.actorDefinition) {
       case "ItemSpawnerResidential_Tier00.adr":
         authorizedModelId.push(9064);
-        authorizedModelId.push(9249);
+        authorizedModelId.push(9249); // shirt
+        authorizedModelId.push(9736); // pants
         authorizedModelId.push(70);
         authorizedModelId.push(21);
         authorizedModelId.push(66);
@@ -783,7 +790,8 @@ function createWorld(server: ZoneServer2016) {
         authorizedModelId.push(24);
         authorizedModelId.push(9156);
         authorizedModelId.push(9159);
-        authorizedModelId.push(9249);
+        authorizedModelId.push(9249); // shirt
+        authorizedModelId.push(9736); // pants
         authorizedModelId.push(9250);
         authorizedModelId.push(22);
         authorizedModelId.push(66);
