@@ -28,6 +28,7 @@ import admin from "./commands/admin";
 import { _, Int64String, isPosInRadius } from "../../utils/utils";
 import { ZoneServer2016 } from "./zoneserver";
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
+import { characterEquipment } from "./../../types/zoneserver"
 
 const debug = require("debug")("zonepacketHandlers");
 
@@ -45,6 +46,34 @@ const packetHandlers = {
 
     server.sendData(client, "QuickChat.SendData", { commands: [] });
 
+    /*
+    // workaround for activateprofile weirdness
+    const profileEquipment: characterEquipment[] = [
+      {
+        modelName: "SurvivorMale_Head_01.adr",
+        slotId: 1,
+      },
+      {
+        modelName: "SurvivorMale_Eyes_01.adr",
+        slotId: 105,
+      },
+      { modelName: "Weapon_Empty.adr", slotId: 2 },
+      { modelName: "Weapon_Empty.adr", slotId: 7 },
+      {
+        modelName: "SurvivorMale_Hair_ShortMessy.adr",
+        slotId: 27,
+      },
+      {
+        modelName: "SurvivorMale_Chest_Shirt_TintTshirt.adr",
+        textureAlias: "",
+        slotId: 3,
+      },
+      {
+        modelName: "SurvivorMale_Legs_Pants_SkinnyLeg.adr",
+        textureAlias: "",
+        slotId: 4,
+      },
+    ]
     server.sendData(client, "ClientUpdate.ActivateProfile", {
       profileData: {
         profileId: 1,
@@ -73,13 +102,51 @@ const packetHandlers = {
         unknownDword15: 0,
         unknownDword16: 0,
       },
-      equipmentModels: client.character.equipment,
+      attachmentData: profileEquipment.map((equipment: any) => {
+        return {
+          ...equipment,
+          textureAlias: equipment.textureAlias || ""
+        }
+      }),
       unknownDword1: 1,
       unknownDword2: 1,
       actorModelId: 9240,
       tintAlias: "",
       decalAlias: "#",
     });
+    */
+
+    server.sendData( client, "Equipment.SetCharacterEquipment", {
+      characterData: {
+        characterId: client.character.characterId,
+      },
+      equipmentSlots: client.character.equipment.map((slot: characterEquipment) => {
+        return {
+          equipmentSlotId: slot.slotId,
+          equipmentSlotData: {
+            equipmentSlotId: slot.slotId,
+            guid: slot.guid || "",
+            tintAlias: slot.tintAlias || "",
+            decalAlias: slot.tintAlias || "#",
+          }
+        }
+      }),
+      attachmentData: client.character.equipment.map((slot: characterEquipment) => {
+        return {
+          modelName: slot.modelName,
+          textureAlias: slot.textureAlias || "",
+          tintAlias: slot.tintAlias || "",
+          decalAlias: slot.tintAlias || "#",
+          slotId: slot.slotId
+        }
+      }),
+    }); // needed or third person character will be invisible
+
+    // default equipment / loadout
+    
+    server.equipItem(client, server.generateItem(85)); // fists weapon
+    server.equipItem(client, server.generateItem(2377)); // DOA Hoodie
+    server.equipItem(client, server.generateItem(2079)); // golf pants
 
     server.sendData(client, "ClientUpdate.DoneSendingPreloadCharacters", {
       done: true,
@@ -88,7 +155,6 @@ const packetHandlers = {
     server.sendData(client, "ClientUpdate.NetworkProximityUpdatesComplete", {
       done: true,
     }); // Required for WaitForWorldReady
-    //server.sendData(client, "ClientUpdate.UpdateStat", { stats: [] });
 
     server.sendData(client, "ZoneSetting.Data", {
       settings: [
@@ -197,8 +263,20 @@ const packetHandlers = {
           data: {
             itemDefinitions: defs
           }
-        });
-        */
+        }
+      };
+    });
+    console.log(defs)
+    
+    server.sendData(client, "Command.ItemDefinitions", { // sends full list of item definitions
+      data: {
+        itemDefinitions: defs
+      }
+    });
+    */
+
+    
+    
   },
   ClientFinishedLoading: function (
     server: ZoneServer2016,
@@ -241,7 +319,7 @@ const packetHandlers = {
     packet: any
   ) {
     debug(packet);
-    server.sendData(client, "Command.RecipeAction", {});
+    //server.sendData(client, "Command.RecipeAction", {});
   },
   "Command.FreeInteractionNpc": function (
     server: ZoneServer2016,
@@ -622,11 +700,11 @@ const packetHandlers = {
     client: Client,
     packet: any
   ) {
-    console.log(packet);
-    console.log(packet.data);
+    //console.log(packet);
+    //console.log(packet.data)
     const characterId = server._transientIds[packet.data.transientId];
-    console.log(characterId);
-    console.log(server._vehicles[characterId]);
+    //console.log(characterId)
+    //console.log(server._vehicles[characterId])
     if (characterId) {
       if (!server._soloMode) {
         server.sendRawToAllOthers(
@@ -802,7 +880,7 @@ const packetHandlers = {
     if (npc) {
       server.sendData(client, "LightweightToFullNpc", {
         transientId: npc.transientId,
-        equipmentModels: [
+        attachmentData: [
           {
             modelName: "SurvivorMale_Chest_Hoodie_Up_Tintable.adr",
             effectId: 0,
@@ -824,7 +902,7 @@ const packetHandlers = {
         array1: [],
         unknownData1: {
           transientId: server._characters[characterId].transientId,
-          equipmentModels: [],
+          attachmentData: [],
           unknownData1: {},
           effectTags: [],
         },
@@ -833,7 +911,7 @@ const packetHandlers = {
       server.sendData(client, "LightweightToFullVehicle", {
         npcData: {
           transientId: server._vehicles[characterId].npcData.transientId,
-          equipmentModels: [],
+          attachmentData: [],
           effectTags: [],
           unknownData1: {},
           targetData: {},
@@ -867,14 +945,30 @@ const packetHandlers = {
     client: Client,
     packet: any
   ) {
-    if (server._vehicles[packet.data.guid] && !client.vehicle.mountedVehicle) {
+    const { guid } = packet.data;
+    const objectData = server._objects[guid];
+    // const doorData = server._doors[guid];
+    const vehicleData = server._vehicles[guid];
+
+    if (vehicleData && !client.vehicle.mountedVehicle) {
       server.mountVehicle(client, packet);
     } else if (
-      server._vehicles[packet.data.guid] &&
+      vehicleData &&
       client.vehicle.mountedVehicle
     ) {
       // other seats
       server.dismountVehicle(client);
+    }
+    if(objectData) { // object pickup
+      const itemGuid = server.generatePickupItem(objectData),
+      item = server._items[itemGuid];
+      if(!item) {
+        server.sendChatText(client, `[ERROR] No item definition mapped to id: ${objectData.modelId}`);
+        return;
+      }
+
+      server.equipItem(client, itemGuid);
+      server.deleteEntity(guid, server._objects);
     }
   },
 
@@ -954,14 +1048,9 @@ const packetHandlers = {
       unknownString1: "",
     });
   },
-
-  "Command.ItemDefinitionRequest": function (
-    server: ZoneServer2016,
-    client: Client,
-    packet: any
-  ) {
-    console.log("ItemDefinitionRequest\n\n\n\n\n\n\n\n\n");
-    console.log(packet.data);
+  
+  "Command.ItemDefinitionRequest": function (server: ZoneServer2016, client: Client, packet: any) {
+    console.log(`ItemDefinitionRequest ID: ${packet.data.ID}`);
 
     const itemDef = itemDefinitions.find(
       (itemDef: any) => itemDef.ID === packet.data.ID
@@ -972,12 +1061,16 @@ const packetHandlers = {
         ID: packet.data.ID,
         definitionData: {
           ...itemDef,
+          HUD_IMAGE_SET_ID: itemDef.IMAGE_SET_ID,
           flags1: {
-            //...itemDef,
+            ...itemDef,
+            //SINGLE_USE: 1, // IS_REMOVED_ON_USE
+            //MEMBERS_ONLY: 1, // MEMBERS_ONLY
+            //NO_SALE: 1, // NO_SALE
           },
           flags2: {
-            //...itemDef,
-            //FLAG_CAN_EQUIP: 1,
+            ...itemDef,
+            //FLAG_NO_DRAG_DROP: 1, // FLAG_NO_DRAG_DROP
           },
           stats: [],
         },
