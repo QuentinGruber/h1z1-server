@@ -28,7 +28,7 @@ export class SOEServer extends EventEmitter {
   _protocol: any;
   _udpLength: number;
   _useEncryption: boolean;
-  _isGatewayServer: boolean;
+  _useMultiPackets: boolean;
   _clients: any;
   _connection: Worker;
   _crcSeed: number;
@@ -40,7 +40,7 @@ export class SOEServer extends EventEmitter {
     serverPort: number,
     cryptoKey: Uint8Array,
     compression: number,
-    isGatewayServer = false
+    useMultiPackets = false
   ) {
     super();
     EventEmitter.call(this);
@@ -55,7 +55,7 @@ export class SOEServer extends EventEmitter {
     this._protocol = new SOEProtocol();
     this._udpLength = 512;
     this._useEncryption = true;
-    this._isGatewayServer = isGatewayServer;
+    this._useMultiPackets = useMultiPackets;
     this._clients = {};
     this._connection = new Worker(`${__dirname}/workers/udpServerWorker.js`, {
       workerData: { serverPort: serverPort },
@@ -118,9 +118,11 @@ export class SOEServer extends EventEmitter {
           (client as any).outQueueTimer = setTimeout(() =>
             this.checkClientOutQueue(client)
           );
-          (client as any).waitQueueTimer = setTimeout(() =>
-            this.sendClientWaitQueue(client),20
-          );
+          if(this._useMultiPackets){
+            (client as any).waitQueueTimer = setTimeout(() =>
+              this.sendClientWaitQueue(client),20
+            );
+          }
           (client as any).ackTimer = setTimeout(() => this.checkAck(client));
           (client as any).outOfOrderTimer = setTimeout(
             () => this.checkOutOfOrderQueue(client),
@@ -250,13 +252,8 @@ export class SOEServer extends EventEmitter {
           client.serverUdpLength = this._udpLength;
           client.crcSeed = this._crcSeed;
           client.crcLength = this._crcLength;
-          if (this._isGatewayServer) {
-            (client as any).inputStream.setEncryption(false);
-            (client as any).outputStream.setEncryption(false);
-          } else {
-            (client as any).inputStream.setEncryption(this._useEncryption);
-            (client as any).outputStream.setEncryption(this._useEncryption);
-          }
+          (client as any).inputStream.setEncryption(this._useEncryption);
+          (client as any).outputStream.setEncryption(this._useEncryption);
           (client as any).outputStream.setFragmentSize(
             client.clientUdpLength - 7
           );
@@ -422,7 +419,7 @@ export class SOEServer extends EventEmitter {
     if (prioritize) {
       client.outQueue.unshift(data);
     } else {
-      if(data.length < 50 && ((client.waitingQueueCurrentByteLength+data.length)  < 510) && (packetName == "Data" || packetName == "DataFragment")){
+      if( this._useMultiPackets && data.length < 50 && ((client.waitingQueueCurrentByteLength+data.length)  < 510) && (packetName == "Data" || packetName == "DataFragment")){
         console.log("Pushed to waitingQueue")
         client.waitingQueue.push({
           name: packetName,
