@@ -1,10 +1,13 @@
 import { ZoneServer, ZoneClient } from "../../h1z1-server";
 import { getAppDataFolderPath } from "../../out/utils/utils";
 import fs from "fs";
-new ZoneServer(
+const zoneServer = new ZoneServer(
   1117,
   new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", "base64")
-).start();
+)
+zoneServer._gatewayServer._soeServer._useMultiPackets = false;
+
+zoneServer.start();
 
 fs.writeFileSync(
   `${getAppDataFolderPath()}/single_player_characters.json`,

@@ -32,7 +32,7 @@ export class GatewayServer extends EventEmitter {
     gatewayKey: Uint8Array
   ) {
     super();
-    this._compression = 0x0000;
+    this._compression = 0;
     this._crcSeed = 0;
     this._crcLength = 2;
     this._udpLength = 512;
@@ -44,6 +44,7 @@ export class GatewayServer extends EventEmitter {
       this._compression,
       true
     ) as any; // as any since SOEServer isn't typed
+    this._soeServer._useEncryption = false; // communication is encrypted only after loginRequest
     this._protocol = new GatewayProtocol();
     this._soeServer.on("connect", (err: string, client: SOEClient) => {
       debug("Client connected from " + client.address + ":" + client.port);
