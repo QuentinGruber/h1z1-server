@@ -422,7 +422,6 @@ export class SOEServer extends EventEmitter {
       client.outQueue.unshift(data);
     } else {
       if( this._useMultiPackets && data.length < 50 && ((client.waitingQueueCurrentByteLength+data.length)  < 510) && (packetName == "Data" || packetName == "DataFragment")){
-        console.log("Pushed to waitingQueue")
         client.waitingQueue.push({
           name: packetName,
           soePacket: packet,
