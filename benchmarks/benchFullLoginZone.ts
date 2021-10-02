@@ -5,7 +5,9 @@ const cryptoKey = Buffer.from("F70IaxuU8C/w7FPXY1ibXw==", "base64");
 const numberOfClient = 10;
 
 (async function benchFullLogin() {
-  new ZoneServer(1117, cryptoKey).start();
+  const zoneServer = new ZoneServer(1117, cryptoKey);
+  zoneServer._gatewayServer._soeServer._useMultiPackets = false;
+  zoneServer.start();
 
   fs.writeFileSync(
     `${getAppDataFolderPath()}/single_player_characters.json`,
