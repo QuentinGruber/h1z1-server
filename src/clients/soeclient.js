@@ -207,7 +207,6 @@ class SOEClient {
           break;
         case "Data":
           debug("Received data packet from server");
-          console.log(result.data)
           inputStream.write(result.data, result.sequence, false);
           break;
         case "DataFragment":
