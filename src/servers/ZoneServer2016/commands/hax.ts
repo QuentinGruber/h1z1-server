@@ -62,7 +62,6 @@ const hax: any = {
     client.vehicle.mountedVehicle = characterId;
     client.vehicle.mountedVehicleType = "parachute";
   },
-
   tp: function (server: ZoneServer2016, client: Client, args: any[]) {
     let locationPosition;
     switch (args[1]) {
@@ -307,7 +306,6 @@ const hax: any = {
     };
     server._vehicles[characterId] = vehicle; // save vehicle
   },
-
   spawnpcmodel: function (server: ZoneServer2016, client: Client, args: any[]) {
     const guid = server.generateGuid();
     const transientId = server.getTransientId(client, guid);
@@ -358,12 +356,6 @@ const hax: any = {
       runSpeed: -100,
     });
     server.sendChatText(client, "Welcome MR.Hedgehog");
-  },
-  shutdown: function (server: ZoneServer2016, client: Client, args: any[]) {
-    server.sendData(client, "WorldShutdownNotice", {
-      timeLeft: 0,
-      message: " ",
-    });
   },
   weather: async function (
     server: ZoneServer2016,

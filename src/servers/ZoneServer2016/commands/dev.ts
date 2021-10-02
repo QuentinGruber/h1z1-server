@@ -751,7 +751,13 @@ const dev: any = {
       characterId: client.character.characterId,
       containerData: containerData
     })
-  }
+  },
+  shutdown: function (server: ZoneServer2016, client: Client, args: any[]) {
+    server.sendData(client, "WorldShutdownNotice", {
+      timeLeft: 0,
+      message: " ",
+    });
+  },
   /*
     proxiedobjects: function(server: ZoneServer2016, client: Client, args: any[]) {
 

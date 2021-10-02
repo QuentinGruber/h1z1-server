@@ -286,7 +286,7 @@ const packetHandlers = {
     packet: any
   ) {
     debug(packet);
-    server.sendData(client, "Command.RecipeAction", {});
+    //server.sendData(client, "Command.RecipeAction", {});
   },
   "Command.FreeInteractionNpc": function (
     server: ZoneServer2016,
