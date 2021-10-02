@@ -535,10 +535,10 @@ export class LoginServer extends EventEmitter {
     }
   }
 
-  deleteAllLocalCharacters():void{ // used for testing / benchmarks
-    if(fs.existsSync(`${this._appDataFolder}/single_player_characters.json`)){
-    fs.unlinkSync(
-      `${this._appDataFolder}/single_player_characters.json`)
+  deleteAllLocalCharacters(): void {
+    // used for testing / benchmarks
+    if (fs.existsSync(`${this._appDataFolder}/single_player_characters.json`)) {
+      fs.unlinkSync(`${this._appDataFolder}/single_player_characters.json`);
     }
   }
   stop(): void {

@@ -469,7 +469,7 @@ const hax: any = {
 
     function rnd_number(max: any, fixed: Boolean = false) {
       const num = Math.random() * max;
-      return Number(fixed?num.toFixed(0):num);
+      return Number(fixed ? num.toFixed(0) : num);
     }
 
     server._weather2016 = {
@@ -516,14 +516,20 @@ const hax: any = {
     server.updateWeather2016(client);
   },
   equipment: function (server: ZoneServer2016, client: Client, args: any[]) {
-    server.sendChatText(client, `[DEPRECEATION WARNING]: Please use '/hax equip {equipmentName}`);
+    server.sendChatText(
+      client,
+      `[DEPRECEATION WARNING]: Please use '/hax equip {equipmentName}`
+    );
   },
   weapon: function (server: ZoneServer2016, client: Client, args: any[]) {
-    server.sendChatText(client, `[DEPRECEATION WARNING]: Please use '/hax equip {equipmentName}`);
+    server.sendChatText(
+      client,
+      `[DEPRECEATION WARNING]: Please use '/hax equip {equipmentName}`
+    );
   },
   equip: function (server: ZoneServer2016, client: Client, args: any[]) {
     if (!args[1]) {
-      server.sendChatText(client, "[ERROR] Usage /hax equip {equipment}"); 
+      server.sendChatText(client, "[ERROR] Usage /hax equip {equipment}");
       server.sendChatText(
         client,
         "Valid options: ar, ak, m9, 1911, 308, shotgun, torch, molotov, empty, hoodie, shirt, ghillie, pants, backpack, shoes, helmet, armor, gloves, bandana"
@@ -531,7 +537,7 @@ const hax: any = {
       return;
     }
     let definitionId;
-    switch(args[1]) {
+    switch (args[1]) {
       case "ar":
         definitionId = 2425;
         break;
@@ -545,7 +551,7 @@ const hax: any = {
         definitionId = 2;
         break;
       case "308":
-        definitionId = 1899
+        definitionId = 1899;
         break;
       case "shotgun":
         definitionId = 1374;
@@ -644,29 +650,42 @@ const hax: any = {
     client.vehicle.mountedVehicle = characterId;
     client.vehicle.mountedVehicleType = "spectate";
   },
-  addloadoutitem: function (server: ZoneServer2016, client: Client, args: any[]) {
+  addloadoutitem: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: any[]
+  ) {
     if (!args[1]) {
-      server.sendChatText(client, "[ERROR] Usage /hax addloadoutitem {itemDefinitionId}"); 
+      server.sendChatText(
+        client,
+        "[ERROR] Usage /hax addloadoutitem {itemDefinitionId}"
+      );
       return;
     }
     server.sendChatText(client, `Adding item with id ${args[1]} to loadout.`);
     server.equipItem(client, server.generateItem(Number(args[1])));
   },
   hood: function (server: ZoneServer2016, client: Client) {
-    const eIndex = client.character.equipment.map((slot:any) => slot.slotId).indexOf(3),
-    equipment = client.character.equipment[eIndex] || {},
-    equipmentModel = equipment.modelName || "";
+    const eIndex = client.character.equipment
+        .map((slot: any) => slot.slotId)
+        .indexOf(3),
+      equipment = client.character.equipment[eIndex] || {},
+      equipmentModel = equipment.modelName || "";
 
-    if(eIndex === -1 || !client.character.equipment[eIndex].modelName.includes("Hoodie")) {
+    if (
+      eIndex === -1 ||
+      !client.character.equipment[eIndex].modelName.includes("Hoodie")
+    ) {
       server.sendChatText(client, "[ERROR] You aren't wearing a hoodie.");
-    }
-    else {
-      equipmentModel.includes("Up") ? 
-        client.character.equipment[eIndex].modelName = equipmentModel.replace("Up", "Down") : 
-        client.character.equipment[eIndex].modelName = equipmentModel.replace("Down", "Up");
+    } else {
+      equipmentModel.includes("Up")
+        ? (client.character.equipment[eIndex].modelName =
+            equipmentModel.replace("Up", "Down"))
+        : (client.character.equipment[eIndex].modelName =
+            equipmentModel.replace("Down", "Up"));
       server.updateEquipment(client);
     }
-  }
+  },
 };
 
 export default hax;

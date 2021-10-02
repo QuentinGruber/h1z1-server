@@ -28,7 +28,7 @@ import admin from "./commands/admin";
 import { _, Int64String, isPosInRadius } from "../../utils/utils";
 import { ZoneServer2016 } from "./zoneserver";
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
-import { characterEquipment } from "./../../types/zoneserver"
+import { characterEquipment } from "./../../types/zoneserver";
 
 const debug = require("debug")("zonepacketHandlers");
 
@@ -116,34 +116,38 @@ const packetHandlers = {
     });
     */
 
-    server.sendData( client, "Equipment.SetCharacterEquipment", {
+    server.sendData(client, "Equipment.SetCharacterEquipment", {
       characterData: {
         characterId: client.character.characterId,
       },
-      equipmentSlots: client.character.equipment.map((slot: characterEquipment) => {
-        return {
-          equipmentSlotId: slot.slotId,
-          equipmentSlotData: {
+      equipmentSlots: client.character.equipment.map(
+        (slot: characterEquipment) => {
+          return {
             equipmentSlotId: slot.slotId,
-            guid: slot.guid || "",
+            equipmentSlotData: {
+              equipmentSlotId: slot.slotId,
+              guid: slot.guid || "",
+              tintAlias: slot.tintAlias || "",
+              decalAlias: slot.tintAlias || "#",
+            },
+          };
+        }
+      ),
+      attachmentData: client.character.equipment.map(
+        (slot: characterEquipment) => {
+          return {
+            modelName: slot.modelName,
+            textureAlias: slot.textureAlias || "",
             tintAlias: slot.tintAlias || "",
             decalAlias: slot.tintAlias || "#",
-          }
+            slotId: slot.slotId,
+          };
         }
-      }),
-      attachmentData: client.character.equipment.map((slot: characterEquipment) => {
-        return {
-          modelName: slot.modelName,
-          textureAlias: slot.textureAlias || "",
-          tintAlias: slot.tintAlias || "",
-          decalAlias: slot.tintAlias || "#",
-          slotId: slot.slotId
-        }
-      }),
+      ),
     }); // needed or third person character will be invisible
 
     // default equipment / loadout
-    
+
     server.equipItem(client, server.generateItem(85)); // fists weapon
     server.equipItem(client, server.generateItem(2377)); // DOA Hoodie
     server.equipItem(client, server.generateItem(2079)); // golf pants
@@ -274,9 +278,6 @@ const packetHandlers = {
       }
     });
     */
-
-    
-    
   },
   ClientFinishedLoading: function (
     server: ZoneServer2016,
@@ -952,18 +953,19 @@ const packetHandlers = {
 
     if (vehicleData && !client.vehicle.mountedVehicle) {
       server.mountVehicle(client, packet);
-    } else if (
-      vehicleData &&
-      client.vehicle.mountedVehicle
-    ) {
+    } else if (vehicleData && client.vehicle.mountedVehicle) {
       // other seats
       server.dismountVehicle(client);
     }
-    if(objectData) { // object pickup
+    if (objectData) {
+      // object pickup
       const itemGuid = server.generatePickupItem(objectData),
-      item = server._items[itemGuid];
-      if(!item) {
-        server.sendChatText(client, `[ERROR] No item definition mapped to id: ${objectData.modelId}`);
+        item = server._items[itemGuid];
+      if (!item) {
+        server.sendChatText(
+          client,
+          `[ERROR] No item definition mapped to id: ${objectData.modelId}`
+        );
         return;
       }
 
@@ -1048,8 +1050,12 @@ const packetHandlers = {
       unknownString1: "",
     });
   },
-  
-  "Command.ItemDefinitionRequest": function (server: ZoneServer2016, client: Client, packet: any) {
+
+  "Command.ItemDefinitionRequest": function (
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
     console.log(`ItemDefinitionRequest ID: ${packet.data.ID}`);
 
     const itemDef = itemDefinitions.find(

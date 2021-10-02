@@ -16,7 +16,12 @@ const debug = require("debug")(debugName);
 import { default as packetHandlers } from "./zonepackethandlers";
 import { ZoneServer } from "../ZoneServer/zoneserver";
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
-import { characterEquipment, characterLoadout, HandledZonePackets2016, Weather2016 } from "../../types/zoneserver";
+import {
+  characterEquipment,
+  characterLoadout,
+  HandledZonePackets2016,
+  Weather2016,
+} from "../../types/zoneserver";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
 import { _, initMongo, Int64String, isPosInRadius } from "../../utils/utils";
 
@@ -153,7 +158,8 @@ export class ZoneServer2016 extends ZoneServer {
         virus: 6000,
         comfort: 5000,
       },
-      equipment: [// temp
+      equipment: [
+        // temp
         {
           modelName: "SurvivorMale_Head_01.adr",
           slotId: 1,
@@ -831,7 +837,7 @@ export class ZoneServer2016 extends ZoneServer {
   }
 
   /********************* INVENTORY *********************/
-  
+
   updateLoadout(client: Client) {
     this.sendData(client, "Loadout.SelectSlot", {
       characterId: client.character.characterId,
@@ -848,7 +854,7 @@ export class ZoneServer2016 extends ZoneServer {
               unknownByte1: 17,
             },
             unknownDword4: 18,
-          }
+          };
         }),
       },
       unknownDword2: 19,
@@ -856,58 +862,70 @@ export class ZoneServer2016 extends ZoneServer {
   }
 
   updateEquipment(client: Client) {
-    this.sendData( client, "Equipment.SetCharacterEquipment", {
+    this.sendData(client, "Equipment.SetCharacterEquipment", {
       characterData: {
         characterId: client.character.characterId,
       },
-      equipmentSlots: client.character.equipment.map((slot: characterEquipment) => {
-        return {
-          equipmentSlotId: slot.slotId,
-          equipmentSlotData: {
+      equipmentSlots: client.character.equipment.map(
+        (slot: characterEquipment) => {
+          return {
             equipmentSlotId: slot.slotId,
-            guid: slot.guid || "",
+            equipmentSlotData: {
+              equipmentSlotId: slot.slotId,
+              guid: slot.guid || "",
+              tintAlias: slot.tintAlias || "",
+              decalAlias: slot.tintAlias || "#",
+            },
+          };
+        }
+      ),
+      attachmentData: client.character.equipment.map(
+        (slot: characterEquipment) => {
+          return {
+            modelName: slot.modelName,
+            textureAlias: slot.textureAlias || "",
             tintAlias: slot.tintAlias || "",
             decalAlias: slot.tintAlias || "#",
-          }
+            slotId: slot.slotId,
+          };
         }
-      }),
-      attachmentData: client.character.equipment.map((slot: characterEquipment) => {
-        return {
-          modelName: slot.modelName,
-          textureAlias: slot.textureAlias || "",
-          tintAlias: slot.tintAlias || "",
-          decalAlias: slot.tintAlias || "#",
-          slotId: slot.slotId
-        }
-      }),
+      ),
     });
   }
 
   equipItem(client: Client, itemGuid: string = "") {
-    if(!itemGuid) {
-      debug("[ERROR] EquipItem: ItemGuid is blank!")
+    if (!itemGuid) {
+      debug("[ERROR] EquipItem: ItemGuid is blank!");
       return;
     }
     const item = this._items[itemGuid],
-    def = item.itemDefinition,
-    loadoutSlotItemClass = loadoutSlotItemClasses.find((slot:any) => slot.ITEM_CLASS === def.ITEM_CLASS),
-    loadoutSlotId = loadoutSlotItemClass ? loadoutSlotItemClass.SLOT : 1, // use primary slot if ItemClass is invalid
-    lIndex = client.character.loadout.map((slot:any) => slot.slotId).indexOf(loadoutSlotId),
-    equipmentSlotId = loadoutEquipSlots.find((slot:any) => slot.SLOT_ID === loadoutSlotId).EQUIP_SLOT_ID,
-    eIndex = client.character.equipment.map((slot:any) => slot.slotId).indexOf(equipmentSlotId),
-    loadoutData = {
-      itemDefinitionId: def.ID,
-      slotId: loadoutSlotId,
-      itemGuid: item.guid,
-    },
-    equipmentData = {
-      modelName: def.MODEL_NAME.replace("<gender>", "Male"),
-      slotId: equipmentSlotId,
-      guid: item.guid,
-      textureAlias: def.TEXTURE_ALIAS,
-      tintAlias: "",
-    };
-    
+      def = item.itemDefinition,
+      loadoutSlotItemClass = loadoutSlotItemClasses.find(
+        (slot: any) => slot.ITEM_CLASS === def.ITEM_CLASS
+      ),
+      loadoutSlotId = loadoutSlotItemClass ? loadoutSlotItemClass.SLOT : 1, // use primary slot if ItemClass is invalid
+      lIndex = client.character.loadout
+        .map((slot: any) => slot.slotId)
+        .indexOf(loadoutSlotId),
+      equipmentSlotId = loadoutEquipSlots.find(
+        (slot: any) => slot.SLOT_ID === loadoutSlotId
+      ).EQUIP_SLOT_ID,
+      eIndex = client.character.equipment
+        .map((slot: any) => slot.slotId)
+        .indexOf(equipmentSlotId),
+      loadoutData = {
+        itemDefinitionId: def.ID,
+        slotId: loadoutSlotId,
+        itemGuid: item.guid,
+      },
+      equipmentData = {
+        modelName: def.MODEL_NAME.replace("<gender>", "Male"),
+        slotId: equipmentSlotId,
+        guid: item.guid,
+        textureAlias: def.TEXTURE_ALIAS,
+        tintAlias: "",
+      };
+
     /* TODO: keep track of items in the inventory. right now the server does not 
     keep track of inventory, and the clientside inventory has it's 0th inventory 
     slot overwritten everytime a loadout item is added */
@@ -920,14 +938,13 @@ export class ZoneServer2016 extends ZoneServer {
         count: 1, // also ammoCount
         itemSubData: {
           unknownBoolean1: true,
-          
+
           unknownDword1: 1,
           unknownData1: {
             unknownQword1: item.guid,
             unknownDword1: 1,
-            unknownDword2: 1
-          }
-          
+            unknownDword2: 1,
+          },
         },
         unknownQword2: item.guid,
         unknownDword4: 1,
@@ -938,14 +955,18 @@ export class ZoneServer2016 extends ZoneServer {
         unknownBoolean1: true,
         unknownQword3: item.guid,
         unknownDword9: 1,
-        unknownBoolean2: true
-      }
+        unknownBoolean2: true,
+      },
     });
 
-    lIndex === -1 ? client.character.loadout.push(loadoutData) : client.character.loadout[lIndex] = loadoutData;
+    lIndex === -1
+      ? client.character.loadout.push(loadoutData)
+      : (client.character.loadout[lIndex] = loadoutData);
     this.updateLoadout(client);
 
-    eIndex === -1 ? client.character.equipment.push(equipmentData) : client.character.equipment[eIndex] = equipmentData;
+    eIndex === -1
+      ? client.character.equipment.push(equipmentData)
+      : (client.character.equipment[eIndex] = equipmentData);
     this.updateEquipment(client);
   }
 
@@ -954,12 +975,13 @@ export class ZoneServer2016 extends ZoneServer {
     this._items[generatedGuid] = {
       guid: generatedGuid,
       itemDefinition: itemDefinitions.find(
-        (itemDef: any) =>
-          itemDef.ID === itemDefinitionId
-      )
-    }
-    if(!this._items[generatedGuid].itemDefinition) {
-      debug(`[ERROR] GenerateItem: Invalid item definition: ${itemDefinitionId}`);
+        (itemDef: any) => itemDef.ID === itemDefinitionId
+      ),
+    };
+    if (!this._items[generatedGuid].itemDefinition) {
+      debug(
+        `[ERROR] GenerateItem: Invalid item definition: ${itemDefinitionId}`
+      );
       return;
     }
     return generatedGuid;
@@ -968,18 +990,25 @@ export class ZoneServer2016 extends ZoneServer {
   generatePickupItem(objectData: any): any {
     function rnd_number(max: any, fixed: Boolean = false) {
       const num = Math.random() * max;
-      return Number(fixed?num.toFixed(0):num);
+      return Number(fixed ? num.toFixed(0) : num);
     }
 
     const authorizedItemDefinitions = itemDefinitions.filter(
-      (def: any) => 
-      (def.WORLD_MODEL_ID === objectData.modelId) && def.CODE_FACTORY_NAME !== "AccountRecipe"
-    )
-    if(!authorizedItemDefinitions.length) {
-      debug(`[ERROR] GeneratePickupItem: No item definition mapped to id: ${objectData.modelId}`);
+      (def: any) =>
+        def.WORLD_MODEL_ID === objectData.modelId &&
+        def.CODE_FACTORY_NAME !== "AccountRecipe"
+    );
+    if (!authorizedItemDefinitions.length) {
+      debug(
+        `[ERROR] GeneratePickupItem: No item definition mapped to id: ${objectData.modelId}`
+      );
       return;
     }
-    return this.generateItem(authorizedItemDefinitions[rnd_number(authorizedItemDefinitions.length-1, true)].ID);
+    return this.generateItem(
+      authorizedItemDefinitions[
+        rnd_number(authorizedItemDefinitions.length - 1, true)
+      ].ID
+    );
   }
 }
 

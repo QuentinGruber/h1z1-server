@@ -17,7 +17,7 @@ export class Character2016 extends Character {
   creationDate!: string;
   lastLoginDate!: string;
   loadout: characterLoadout[] = [];
-  equipment: characterEquipment[] = []
+  equipment: characterEquipment[] = [];
   constructor(characterId: string, generatedTransient: number) {
     super(characterId, generatedTransient);
     this.resources = {

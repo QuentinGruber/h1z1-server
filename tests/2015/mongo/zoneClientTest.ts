@@ -6,7 +6,7 @@ async function test() {
     new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", "base64"),
     "mongodb://localhost:27017/",
     1
-  )
+  );
   zoneServer._gatewayServer._soeServer._useMultiPackets = false;
   await zoneServer.start();
 

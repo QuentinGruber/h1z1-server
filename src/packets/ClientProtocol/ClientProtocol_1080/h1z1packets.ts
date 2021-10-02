@@ -12,7 +12,7 @@
 // ======================================================================
 import PacketTableBuild from "../../packettable";
 import DataSchema from "h1z1-dataschema";
-import { lz4_decompress , eul2quat} from "../../../utils/utils";
+import { lz4_decompress, eul2quat } from "../../../utils/utils";
 
 function readPacketType(data: Buffer, packets: any) {
   let opCode = data[0] >>> 0,
@@ -649,28 +649,27 @@ const itemDataSchema = [
   { name: "tintId", type: "uint32", defaultValue: 0 },
   { name: "guid", type: "uint64string", defaultValue: "" },
   { name: "count", type: "uint32", defaultValue: 1 },
-  { 
-    name: "itemSubData", 
-    type: "schema", 
-    defaultValue: {}, 
+  {
+    name: "itemSubData",
+    type: "schema",
+    defaultValue: {},
     fields: [
       { name: "unknownBoolean1", type: "boolean", defaultValue: false },
       // if unknownBoolean1 == false, below values aren't read
-      
+
       { name: "unknownDword1", type: "uint32", defaultValue: 1 },
       // if unknownDword1 == 0, below values aren't read
-      { 
-        name: "unknownData1", 
-        type: "schema", 
-        defaultValue: {}, 
+      {
+        name: "unknownData1",
+        type: "schema",
+        defaultValue: {},
         fields: [
           { name: "unknownQword1", type: "uint64string", defaultValue: "" },
           { name: "unknownDword1", type: "uint32", defaultValue: 0 },
           { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-        ]
+        ],
       },
-      
-    ]
+    ],
   },
   { name: "unknownQword2", type: "uint64string", defaultValue: "" },
   { name: "unknownDword4", type: "uint32", defaultValue: 0 },
@@ -682,7 +681,7 @@ const itemDataSchema = [
   { name: "unknownQword3", type: "uint64string", defaultValue: "" },
   { name: "unknownDword9", type: "uint32", defaultValue: 0 },
   { name: "unknownBoolean2", type: "boolean", defaultValue: false },
-]
+];
 
 const profileDataSchema = [
   { name: "profileId", type: "uint32", defaultValue: 0 },
@@ -2006,30 +2005,30 @@ const itemDefinitionDataSchema: any[] = [
     type: "bitflags",
     defaultValue: [],
     flags: [
-      { bit: 0, name: "NO_TRADE", defaultValue: 0 },// does nothing
-      { bit: 1, name: "COMBAT_ONLY", defaultValue: 0 },// does nothing
-      { bit: 2, name: "NO_LIVE_GAMER", defaultValue: 0 },// does nothing
+      { bit: 0, name: "NO_TRADE", defaultValue: 0 }, // does nothing
+      { bit: 1, name: "COMBAT_ONLY", defaultValue: 0 }, // does nothing
+      { bit: 2, name: "NO_LIVE_GAMER", defaultValue: 0 }, // does nothing
       { bit: 3, name: "SINGLE_USE", defaultValue: 0 },
-      { bit: 4, name: "NON_MINI_GAME", defaultValue: 0 },// does nothing
+      { bit: 4, name: "NON_MINI_GAME", defaultValue: 0 }, // does nothing
       { bit: 5, name: "MEMBERS_ONLY", defaultValue: 0 },
       { bit: 6, name: "NO_SALE", defaultValue: 0 },
-      { bit: 7, name: "FORCE_DISABLE_PREVIEW", defaultValue: 0 },// does nothing
-    ]
+      { bit: 7, name: "FORCE_DISABLE_PREVIEW", defaultValue: 0 }, // does nothing
+    ],
   },
   {
     name: "flags2",
     type: "bitflags",
     defaultValue: [],
     flags: [
-      { bit: 0, name: "PERSIST_PROFILE_SWITCH", defaultValue: 0 },// does nothing
-      { bit: 1, name: "FLAG_QUICK_USE", defaultValue: 0 },// does nothing
+      { bit: 0, name: "PERSIST_PROFILE_SWITCH", defaultValue: 0 }, // does nothing
+      { bit: 1, name: "FLAG_QUICK_USE", defaultValue: 0 }, // does nothing
       { bit: 2, name: "FLAG_NO_DRAG_DROP", defaultValue: 0 },
-      { bit: 3, name: "FLAG_ACCOUNT_SCOPE", defaultValue: 0 },// does nothing
-      { bit: 4, name: "FLAG_CAN_EQUIP", defaultValue: 0 },// does nothing
-      { bit: 5, name: "bit5", defaultValue: 0 },// does nothing
-      { bit: 6, name: "bit6", defaultValue: 0 },// does nothing
-      { bit: 7, name: "bit7", defaultValue: 0 },// does nothing
-    ]
+      { bit: 3, name: "FLAG_ACCOUNT_SCOPE", defaultValue: 0 }, // does nothing
+      { bit: 4, name: "FLAG_CAN_EQUIP", defaultValue: 0 }, // does nothing
+      { bit: 5, name: "bit5", defaultValue: 0 }, // does nothing
+      { bit: 6, name: "bit6", defaultValue: 0 }, // does nothing
+      { bit: 7, name: "bit7", defaultValue: 0 }, // does nothing
+    ],
   },
   { name: "NAME_ID", type: "uint32", defaultValue: 0 },
   { name: "DESCRIPTION_ID", type: "uint32", defaultValue: 0 },
@@ -2203,7 +2202,8 @@ const packets = [
               defaultValue: [],
               fields: collectionsSchema,
             },
-            { // todo
+            {
+              // todo
               name: "inventory",
               type: "schema",
               defaultValue: {},
@@ -5413,8 +5413,8 @@ const packets = [
           name: "data",
           type: "byteswithlength",
           fields: itemDataSchema,
-        }
-      ]
+        },
+      ],
     },
   ],
   ["ClientUpdate.ItemUpdate", 0x110300, {}],

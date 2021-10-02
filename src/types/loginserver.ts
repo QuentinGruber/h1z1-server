@@ -6,7 +6,7 @@ export interface Client {
   crcSeed: number;
   crcLength: number;
   waitingQueue: any[];
-  waitQueueTimer: NodeJS.Timeout
+  waitQueueTimer: NodeJS.Timeout;
   clientUdpLength: number;
   serverUdpLength: number;
   sequences: any;

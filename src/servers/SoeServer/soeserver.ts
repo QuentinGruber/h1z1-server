@@ -121,9 +121,10 @@ export class SOEServer extends EventEmitter {
           (client as any).outQueueTimer = setTimeout(() =>
             this.checkClientOutQueue(client)
           );
-          if(this._useMultiPackets){
-            (client as any).waitQueueTimer = setTimeout(() =>
-              this.sendClientWaitQueue(client),this._waitQueueTimeMs
+          if (this._useMultiPackets) {
+            (client as any).waitQueueTimer = setTimeout(
+              () => this.sendClientWaitQueue(client),
+              this._waitQueueTimeMs
             );
           }
           (client as any).ackTimer = setTimeout(() => this.checkAck(client));
@@ -192,7 +193,7 @@ export class SOEServer extends EventEmitter {
     (client as any).ackTimer.refresh();
   }
   sendClientWaitQueue(client: Client) {
-    if(client.waitingQueue.length){
+    if (client.waitingQueue.length) {
       client.waitingQueueCurrentByteLength = 0;
       this._sendPacket(
         client,
@@ -422,16 +423,21 @@ export class SOEServer extends EventEmitter {
     if (prioritize) {
       client.outQueue.unshift(data);
     } else {
-      if( this._useMultiPackets && data.length < this._smallPacketsSize && ((client.waitingQueueCurrentByteLength+data.length)  < this._udpLength -2 ) && (packetName == "Data" || packetName == "DataFragment")){
+      if (
+        this._useMultiPackets &&
+        data.length < this._smallPacketsSize &&
+        client.waitingQueueCurrentByteLength + data.length <
+          this._udpLength - 2 &&
+        (packetName == "Data" || packetName == "DataFragment")
+      ) {
         client.waitingQueue.push({
           name: packetName,
           soePacket: packet,
         });
         client.waitingQueueCurrentByteLength += data.length;
-        client.waitQueueTimer.refresh()
-      }
-      else{
-        this.sendClientWaitQueue(client)
+        client.waitQueueTimer.refresh();
+      } else {
+        this.sendClientWaitQueue(client);
         client.outQueue.push(data);
       }
     }

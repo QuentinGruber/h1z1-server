@@ -121,7 +121,7 @@ const dev: any = {
     server.sendData(client, "Loadout.SetCurrentLoadout", loadout);
   },
   selectslot: function (server: ZoneServer2016, client: Client, args: any[]) {
-    if(!args[2]) {
+    if (!args[2]) {
       server.sendChatText(client, "Missing slotId and itemDefinitionId args.");
       return;
     }
@@ -131,7 +131,7 @@ const dev: any = {
       loadoutData: {
         loadoutSlots: [
           {
-            unknownDword1: 3/*15*/, // might be loadoutId?
+            unknownDword1: 3 /*15*/, // might be loadoutId?
             itemDefinitionId: Number(args[2]),
             slotId: Number(args[1]),
             unknownData1: {
@@ -247,9 +247,9 @@ const dev: any = {
             equipmentSlotId: 3,
             guid: "0x1", // needs to be non-zero
             tintAlias: "",
-            decalAlias: "#"
-          }
-        }
+            decalAlias: "#",
+          },
+        },
       ],
       attachmentData: [
         {
@@ -591,7 +591,7 @@ const dev: any = {
     });
   },
   additem: function (server: ZoneServer2016, client: Client, args: any[]) {
-    if(!args[1]) {
+    if (!args[1]) {
       server.sendChatText(client, "Missing itemDefinitionid");
       return;
     }
@@ -605,14 +605,13 @@ const dev: any = {
         count: 1, // also ammoCount
         itemSubData: {
           unknownBoolean1: true,
-          
+
           unknownDword1: 1,
           unknownData1: {
             unknownQword1: item,
             unknownDword1: 0,
-            unknownDword2: 0
-          }
-          
+            unknownDword2: 0,
+          },
         },
         unknownQword2: item,
         unknownDword4: 0,
@@ -623,59 +622,63 @@ const dev: any = {
         unknownBoolean1: true,
         unknownQword3: item,
         unknownDword9: 0,
-        unknownBoolean2: true
-      }
+        unknownBoolean2: true,
+      },
     });
     server.equipItem(client, item);
   },
-  addcontainers: function (server: ZoneServer2016, client: Client, args: any[]) {
+  addcontainers: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: any[]
+  ) {
     const item: any = server.generateItem(2425),
-    containers = [
-      {
-        unknownDword1: 101, // container itemDefinitionId ?
-        containerData: {
-          guid: server.generateGuid(),
-          unknownDword1: 101,
-          unknownQword1: server.generateGuid(),
-          unknownDword2: 101,
-          items: [
-            {
-              itemDefinitionId: server._items[item].itemDefinitionId,
-              itemData: {
+      containers = [
+        {
+          unknownDword1: 101, // container itemDefinitionId ?
+          containerData: {
+            guid: server.generateGuid(),
+            unknownDword1: 101,
+            unknownQword1: server.generateGuid(),
+            unknownDword2: 101,
+            items: [
+              {
                 itemDefinitionId: server._items[item].itemDefinitionId,
-                tintId: 1,
-                guid: item,
-                count: 1,
-                itemSubData: {
-                  unknownBoolean1: false
+                itemData: {
+                  itemDefinitionId: server._items[item].itemDefinitionId,
+                  tintId: 1,
+                  guid: item,
+                  count: 1,
+                  itemSubData: {
+                    unknownBoolean1: false,
+                  },
+                  unknownQword2: item,
+                  unknownDword4: 1,
+                  slot: 1,
+                  unknownDword6: 1,
+                  unknownDword7: 1,
+                  unknownDword8: 1,
+                  unknownBoolean1: true,
+                  unknownQword3: item,
+                  unknownDword9: 1,
+                  unknownBoolean2: true,
                 },
-                unknownQword2: item,
-                unknownDword4: 1,
-                slot: 1,
-                unknownDword6: 1,
-                unknownDword7: 1,
-                unknownDword8: 1,
-                unknownBoolean1: true,
-                unknownQword3: item,
-                unknownDword9: 1,
-                unknownBoolean2: true
-              }
-            }
-          ],
-          unknownBoolean1: true,
-          unknownDword3: 1,
-          unknownDword4: 1,
-          unknownDword5: 1,
-          unknownBoolean2: true,
-        }
-      }
-    ]
+              },
+            ],
+            unknownBoolean1: true,
+            unknownDword3: 1,
+            unknownDword4: 1,
+            unknownDword5: 1,
+            unknownBoolean2: true,
+          },
+        },
+      ];
     server.sendData(client, "Container.UpdateEquippedContainers", {
       ignore: client.character.characterId,
       //ignore2: client.character.characterId,
       characterId: client.character.characterId,
-      containers: containers
-    })
+      containers: containers,
+    });
   },
   addcontainer: function (server: ZoneServer2016, client: Client, args: any[]) {
     const backpack: any = server.generateItem(1602);
@@ -689,14 +692,13 @@ const dev: any = {
         count: 10, // also ammoCount
         itemSubData: {
           unknownBoolean1: false,
-          
+
           unknownDword1: 1,
           unknownData1: {
             unknownQword1: backpack,
             unknownDword1: 0,
-            unknownDword2: 0
-          }
-          
+            unknownDword2: 0,
+          },
         },
         unknownQword2: backpack,
         unknownDword4: 0,
@@ -707,50 +709,50 @@ const dev: any = {
         unknownBoolean1: true,
         unknownQword3: backpack,
         unknownDword9: 0,
-        unknownBoolean2: true
-      }
+        unknownBoolean2: true,
+      },
     });
     const item: any = server.generateItem(2425),
-    containerData = {
-      guid: backpack,
-      unknownDword1: server._items[backpack].itemDefinition,
-      unknownQword1: backpack,
-      unknownDword2: 2,
-      items: [
-        {
-          itemDefinitionId: server._items[item].itemDefinitionId,
-          itemData: {
+      containerData = {
+        guid: backpack,
+        unknownDword1: server._items[backpack].itemDefinition,
+        unknownQword1: backpack,
+        unknownDword2: 2,
+        items: [
+          {
             itemDefinitionId: server._items[item].itemDefinitionId,
-            tintId: 2,
-            guid: item,
-            count: 2,
-            itemSubData: {
-              unknownBoolean1: false
+            itemData: {
+              itemDefinitionId: server._items[item].itemDefinitionId,
+              tintId: 2,
+              guid: item,
+              count: 2,
+              itemSubData: {
+                unknownBoolean1: false,
+              },
+              unknownQword2: item,
+              unknownDword4: 2,
+              slot: 1,
+              unknownDword6: 2,
+              unknownDword7: 2,
+              unknownDword8: 2,
+              unknownBoolean1: true,
+              unknownQword3: item,
+              unknownDword9: 2,
+              unknownBoolean2: true,
             },
-            unknownQword2: item,
-            unknownDword4: 2,
-            slot: 1,
-            unknownDword6: 2,
-            unknownDword7: 2,
-            unknownDword8: 2,
-            unknownBoolean1: true,
-            unknownQword3: item,
-            unknownDword9: 2,
-            unknownBoolean2: true
-          }
-        }
-      ],
-      unknownBoolean1: true,
-      unknownDword3: 2,
-      unknownDword4: 2,
-      unknownDword5: 2,
-      unknownBoolean2: true,
-    }
+          },
+        ],
+        unknownBoolean1: true,
+        unknownDword3: 2,
+        unknownDword4: 2,
+        unknownDword5: 2,
+        unknownBoolean2: true,
+      };
     server.sendData(client, "Container.UpdateEquippedContainer", {
       ignore: client.character.characterId,
       characterId: client.character.characterId,
-      containerData: containerData
-    })
+      containerData: containerData,
+    });
   },
   shutdown: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.sendData(client, "WorldShutdownNotice", {
