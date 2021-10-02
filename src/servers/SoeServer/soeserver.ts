@@ -34,6 +34,7 @@ export class SOEServer extends EventEmitter {
   _crcSeed: number;
   _crcLength: number;
   _maxOutOfOrderPacketsPerLoop: number;
+  _waitQueueTimeMs: number;
 
   constructor(
     protocolName: string,
@@ -56,6 +57,7 @@ export class SOEServer extends EventEmitter {
     this._udpLength = 512;
     this._useEncryption = true;
     this._useMultiPackets = useMultiPackets;
+    this._waitQueueTimeMs = 20;
     this._clients = {};
     this._connection = new Worker(`${__dirname}/workers/udpServerWorker.js`, {
       workerData: { serverPort: serverPort },
@@ -120,7 +122,7 @@ export class SOEServer extends EventEmitter {
           );
           if(this._useMultiPackets){
             (client as any).waitQueueTimer = setTimeout(() =>
-              this.sendClientWaitQueue(client),20
+              this.sendClientWaitQueue(client),this._waitQueueTimeMs
             );
           }
           (client as any).ackTimer = setTimeout(() => this.checkAck(client));
