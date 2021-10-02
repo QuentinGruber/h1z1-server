@@ -26,6 +26,7 @@ export default class SOEClient {
   outOfOrderTimer: any;
   cryptoKey: Uint8Array;
   waitQueueTimer: any;
+  waitingQueueCurrentByteLength: number = 0;
   constructor(
     remote: RemoteInfo,
     crcSeed: number,

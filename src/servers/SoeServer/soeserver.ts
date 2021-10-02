@@ -189,6 +189,8 @@ export class SOEServer extends EventEmitter {
   }
   sendClientWaitQueue(client: Client) {
     console.log("send waiting queue")
+    console.log(client.waitingQueueCurrentByteLength);
+    client.waitingQueueCurrentByteLength = 0;
     this._sendPacket(
       client,
       "MultiPacket",
@@ -197,7 +199,7 @@ export class SOEServer extends EventEmitter {
       },
       true
     );
-    queueMicrotask(()=>{client.waitingQueue = []})
+    client.waitingQueue = [];
   }
   checkOutOfOrderQueue(client: Client) {
     if (client.outOfOrderPackets.length) {
@@ -419,23 +421,20 @@ export class SOEServer extends EventEmitter {
   ): void {
     const data = this.createPacket(client, packetName, packet);
     if (prioritize) {
-      console.log("Pushed to normalqueue ( priority )")
-      console.log(data)
       client.outQueue.unshift(data);
     } else {
-      if(data.length < 100 && packetName == "Data" || packetName == "DataFragment"){
+      if(data.length < 50 && ((client.waitingQueueCurrentByteLength+data.length)  < 510) && (packetName == "Data" || packetName == "DataFragment")){
         console.log("Pushed to waitingQueue")
         client.waitingQueue.push({
           name: packetName,
           soePacket: packet,
-        })
-        console.log(packetName)
-        console.log(packet)
+        });
+        client.waitingQueueCurrentByteLength += data.length;
         client.waitQueueTimer.refresh()
       }
       else{
-        console.log("Pushed to normalqueue")
-        console.log(data)
+        client.waitQueueTimer.refresh()
+        this.sendClientWaitQueue(client)
         client.outQueue.push(data);
       }
     }
