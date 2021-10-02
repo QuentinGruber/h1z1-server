@@ -35,6 +35,7 @@ export class SOEServer extends EventEmitter {
   _crcLength: number;
   _maxOutOfOrderPacketsPerLoop: number;
   _waitQueueTimeMs: number;
+  _smallPacketsSize: number = 50;
 
   constructor(
     protocolName: string,
@@ -421,7 +422,7 @@ export class SOEServer extends EventEmitter {
     if (prioritize) {
       client.outQueue.unshift(data);
     } else {
-      if( this._useMultiPackets && data.length < 50 && ((client.waitingQueueCurrentByteLength+data.length)  < 510) && (packetName == "Data" || packetName == "DataFragment")){
+      if( this._useMultiPackets && data.length < this._smallPacketsSize && ((client.waitingQueueCurrentByteLength+data.length)  < this._udpLength -2 ) && (packetName == "Data" || packetName == "DataFragment")){
         client.waitingQueue.push({
           name: packetName,
           soePacket: packet,
