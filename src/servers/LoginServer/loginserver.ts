@@ -26,6 +26,7 @@ import {
 import { Client, GameServer } from "../../types/loginserver";
 import fs from "fs";
 import { loginPacketsType } from "types/packets";
+import { Worker } from "worker_threads";
 
 const debugName = "LoginServer";
 const debug = require("debug")(debugName);
@@ -44,6 +45,9 @@ export class LoginServer extends EventEmitter {
   _mongoAddress: string;
   _soloMode: boolean;
   _appDataFolder: string;
+  _httpServer!: Worker;
+  _enableHttpServer: boolean;
+  _httpServerPort: number = 1116;
 
   constructor(serverPort: number, mongoAddress = "") {
     super();
@@ -58,6 +62,7 @@ export class LoginServer extends EventEmitter {
     this._soloMode = false;
     this._mongoAddress = mongoAddress;
     this._appDataFolder = getAppDataFolderPath();
+    this._enableHttpServer = true;
 
     // reminders
     if (!this._mongoAddress) {
@@ -527,6 +532,14 @@ export class LoginServer extends EventEmitter {
       this._crcLength,
       this._udpLength
     );
+    if(this._mongoAddress && this._enableHttpServer){
+      this._httpServer = new Worker(`${__dirname}/workers/httpServer.js`, {
+        workerData: { MONGO_URL: this._mongoAddress, SERVER_PORT : this._httpServerPort},
+      });
+      this._httpServer.on("message", (message) => {
+          // currently unused
+       })
+    }
   }
 
   data(collectionName: string): any | undefined {

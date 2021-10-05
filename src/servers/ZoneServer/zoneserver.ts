@@ -86,6 +86,9 @@ export class ZoneServer extends EventEmitter {
   _respawnOnLastPosition: boolean = true;
   _spawnTimerMs: number = 10;
   _worldRoutineRadiusPercentage: number = 0.4;
+  _httpServer!: Worker;
+  _enableHttpServer: boolean = true;
+  _httpServerPort: any;
 
   constructor(
     serverPort: number,
@@ -347,13 +350,22 @@ export class ZoneServer extends EventEmitter {
         .insertOne({ worldId: this._worldId });
       await this.saveWorld();
     }
-    if (!this._soloMode)
+    if (!this._soloMode){
       await this._db
         ?.collection("servers")
         .findOneAndUpdate(
           { serverId: this._worldId },
           { $set: { populationNumber: 0, populationLevel: 0 } }
         );
+      }
+    if(this._mongoAddress && this._enableHttpServer){
+      this._httpServer = new Worker(`${__dirname}/workers/httpServer.js`, {
+        workerData: { MONGO_URL: this._mongoAddress, SERVER_PORT : this._httpServerPort},
+      });
+      this._httpServer.on("message", (message) => {
+          // currently unused
+        })
+      }
     debug("Server ready");
   }
 
