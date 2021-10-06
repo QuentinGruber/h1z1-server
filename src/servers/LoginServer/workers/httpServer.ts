@@ -1,6 +1,6 @@
 import express from 'express'
 import { MongoClient } from 'mongodb'
-import { parentPort, workerData } from "worker_threads";
+import { workerData } from "worker_threads";
 
 const app = express()
 app.use(
