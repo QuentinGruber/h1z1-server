@@ -13,9 +13,10 @@
   "dependencies": {
     "@swc/cli": "0.1.40",
     "@swc/core": "1.2.57",
+    "@types/express": "^4.17.13",
     "@types/json-schema": "7.0.9",
     "@types/node": "16.7.9",
-    "@types/express": "^4.17.13",
+    "axios": "^0.22.0",
     "debug": "4.3.2",
     "express": "^4.17.1",
     "h1emu-core": "0.6.0",

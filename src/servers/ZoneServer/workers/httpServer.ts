@@ -26,16 +26,16 @@ app.get('/queue', async function (req:any, res:any) {
 
 
 interface CharacterCreateRequest{
-    characterId:string;
     characterObj:string;
 }
 app.post('/character', async function (req:any, res:any) {
     try {
-      const { characterId, characterObj } = req.body as CharacterCreateRequest;
+      const { characterObj } = req.body as CharacterCreateRequest;
+      const characterObjJson = JSON.parse(characterObj);
       const collection = db.collection('characters')
-      const charactersArray = await collection.findOne({ characterId: characterId });
+      const charactersArray = await collection.findOne({ characterId: characterObjJson.characterId });
       if(!charactersArray){
-        await collection.insertOne(JSON.parse(characterObj));
+        await collection.insertOne(characterObjJson);
       }
       res.send(true)
     } catch (error) {

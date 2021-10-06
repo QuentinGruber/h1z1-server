@@ -27,6 +27,7 @@ import { Client, GameServer } from "../../types/loginserver";
 import fs from "fs";
 import { loginPacketsType } from "types/packets";
 import { Worker } from "worker_threads";
+import axios from 'axios';
 
 const debugName = "LoginServer";
 const debug = require("debug")(debugName);
@@ -463,7 +464,7 @@ export class LoginServer extends EventEmitter {
     }
     newCharacter.serverId = serverId;
     newCharacter.characterId = generateRandomGuid();
-
+    let creationStatus = 1;
     if (this._soloMode) {
       const SinglePlayerCharacters = await this.loadCharacterData(client);
       SinglePlayerCharacters[SinglePlayerCharacters.length] = newCharacter;
@@ -480,12 +481,20 @@ export class LoginServer extends EventEmitter {
         );
       }
     } else {
+      const newCharacterData = { ...newCharacter, ownerId: client.loginSessionId };
       await this._db
         .collection("characters")
-        .insertOne({ ...newCharacter, ownerId: client.loginSessionId });
+        .insertOne(newCharacterData);
+      const serverHttpAddress = (await this._db.collection("servers").findOne({serverId:serverId})).serverHttpAddress
+      creationStatus = (await axios.post(serverHttpAddress,{characterObj:JSON.stringify(newCharacterData)}))?1:0;
+      if(creationStatus == 0){
+        await this._db
+        .collection("characters")
+        .deleteOne({characterId:newCharacterData.characterId});
+      }
     }
     this.sendData(client, "CharacterCreateReply", {
-      status: 1,
+      status: creationStatus,
       characterId: newCharacter.characterId,
     });
   }
