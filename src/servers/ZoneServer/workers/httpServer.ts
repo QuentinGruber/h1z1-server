@@ -1,6 +1,12 @@
 import express from 'express'
 import { MongoClient } from 'mongodb'
-import { workerData } from "worker_threads";
+import { workerData, parentPort } from "worker_threads";
+import { httpServerMessage } from "types/shared";
+
+function sendMessageToServer(type:string,data:any){
+    const message:httpServerMessage =  {type:type,data:data}
+    parentPort?.postMessage(message);
+}
 
 const app = express()
 app.use(
@@ -14,6 +20,8 @@ const { MONGO_URL, SERVER_PORT } = workerData;
 const client = new MongoClient(MONGO_URL)
 const dbName = "h1server"
 const db = client.db(dbName)
+
+
 app.get('/queue', async function (req:any, res:any) {
   const collection = db.collection('servers')
   const serversArray = await collection.find().toArray();
@@ -21,7 +29,10 @@ app.get('/queue', async function (req:any, res:any) {
 })
 
 app.get('/ping', async function (req:any, res:any) {
-  res.send("pong")
+  parentPort?.once(`message`,(data:string)=>{
+    res.send(data)
+  })  
+  sendMessageToServer("ping",null);
 })
 
 
