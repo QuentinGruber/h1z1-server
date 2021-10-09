@@ -27,24 +27,5 @@ app.get('/servers', async function (req:any, res:any) {
 app.get('/ping', async function (req:any, res:any) {
   res.send("pong")
 })
-
-
-interface CharacterDeleteRequest{
-    characterId:string
-}
-app.delete('/character', async function (req:any, res:any) {
-    try {
-      const { characterId } = req.body as CharacterDeleteRequest;
-      const collection = db.collection('characters')
-      const charactersArray = await collection.find({ characterId: characterId }).toArray();
-      if(charactersArray.length > 1){// dup id ? not good
-        res.send(false)
-      }
-      await collection.deleteOne({ characterId: characterId })
-      res.send(true)
-    } catch (error) {
-      res.send(false)
-    }
-  })
  
 app.listen(SERVER_PORT)
