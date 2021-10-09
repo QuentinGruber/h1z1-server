@@ -13,10 +13,6 @@ const { MONGO_URL, SERVER_PORT } = workerData;
 
 const client = new MongoClient(MONGO_URL)
 const dbName = "h1server"
-console.log(MONGO_URL)
-client.connect().then(()=>{
-    console.log('Connected successfully to server')
-})
 const db = client.db(dbName)
 app.get('/queue', async function (req:any, res:any) {
   const collection = db.collection('servers')
