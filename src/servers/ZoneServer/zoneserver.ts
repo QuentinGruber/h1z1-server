@@ -88,7 +88,7 @@ export class ZoneServer extends EventEmitter {
   _worldRoutineRadiusPercentage: number = 0.4;
   _httpServer!: Worker;
   _enableHttpServer: boolean = true;
-  _httpServerPort: any;
+  _httpServerPort: any = 1118;
   _enableGarbageCollection: boolean = true;
 
   constructor(
