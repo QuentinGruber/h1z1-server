@@ -486,7 +486,7 @@ export class LoginServer extends EventEmitter {
         .collection("characters")
         .insertOne(newCharacterData);
       const serverHttpAddress = (await this._db.collection("servers").findOne({serverId:serverId})).serverHttpAddress
-      creationStatus = (await axios.post(serverHttpAddress,{characterObj:JSON.stringify(newCharacterData)}))?1:0;
+      creationStatus = (await axios.post(serverHttpAddress+"/character",{characterObj:JSON.stringify(newCharacterData)}))?1:0;
       if(creationStatus == 0){
         await this._db
         .collection("characters")
