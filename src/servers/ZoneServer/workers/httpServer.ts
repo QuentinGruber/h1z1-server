@@ -24,6 +24,10 @@ app.get('/queue', async function (req:any, res:any) {
   res.send(JSON.stringify(serversArray))
 })
 
+app.get('/ping', async function (req:any, res:any) {
+  res.send("pong")
+})
+
 
 interface CharacterCreateRequest{
     characterObj:string;
