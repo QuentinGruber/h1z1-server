@@ -86,6 +86,7 @@ export class ZoneServer extends EventEmitter {
   _respawnOnLastPosition: boolean = true;
   _spawnTimerMs: number = 10;
   _worldRoutineRadiusPercentage: number = 0.4;
+  _enableGarbageCollection: boolean = true;
 
   constructor(
     serverPort: number,
@@ -302,11 +303,13 @@ export class ZoneServer extends EventEmitter {
 
   onGatewayDisconnectEvent(err: string, client: Client) {
     debug(`Client disconnected from ${client.address}:${client.port}`);
+    clearTimeout(client.character?.resourcesUpdater);
     if (client.character?.characterId) {
       delete this._characters[client.character.characterId];
     }
     delete this._clients[client.sessionId];
-    this.emit("disconnect", err, client);
+    this._gatewayServer._soeServer.deleteClient(client);
+    this.emit("disconnect", null, client);
   }
 
   onGatewaySessionEvent(err: string, client: Client) {
@@ -354,6 +357,9 @@ export class ZoneServer extends EventEmitter {
           { serverId: this._worldId },
           { $set: { populationNumber: 0, populationLevel: 0 } }
         );
+    if(this._enableGarbageCollection){
+      setInterval(()=>{this.garbageCollection()},120000);
+    }
     debug("Server ready");
   }
 
@@ -564,6 +570,16 @@ export class ZoneServer extends EventEmitter {
     this._packetHandlers = require("./zonepackethandlers").default;
   }
 
+  garbageCollection(): void { // backup plan to free memory
+    for (const clientKey in this._clients) {
+      //@ts-ignore
+      if(this._clients[clientKey]._destroyed ){
+        console.log(`${clientKey} removed by garbage collection`);
+        delete this._clients[clientKey];
+      }
+    }
+  }
+  
   timeoutClient(client: Client): void {
     debug(
       `Client disconnected from ${client.address}:${client.port} ( ping timeout )`
