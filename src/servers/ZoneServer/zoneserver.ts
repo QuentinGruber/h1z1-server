@@ -161,6 +161,8 @@ export class ZoneServer extends EventEmitter {
     if (!this._mongoAddress) {
       this._soloMode = true;
       debug("Server in solo mode !");
+      this._enableGarbageCollection = false;
+      this._spawnTimerMs = 5;
     }
     this.on("data", this.onZoneDataEvent);
 
