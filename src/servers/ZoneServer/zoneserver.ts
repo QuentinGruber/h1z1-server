@@ -528,7 +528,7 @@ export class ZoneServer extends EventEmitter {
         this.SendSkyChangedPacket({} as Client, weather, true);
       });
     }
-    this._gatewayServer.start();
+    this._gatewayServer.start(this._soloMode);
   }
 
   async loadMongoData(): Promise<void> {

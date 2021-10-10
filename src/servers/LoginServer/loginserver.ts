@@ -520,6 +520,7 @@ export class LoginServer extends EventEmitter {
 
     if (this._soloMode) {
       setupAppDataFolder();
+      this._soeServer._isLocal = true;
     }
     this._soeServer.start(
       this._compression,
