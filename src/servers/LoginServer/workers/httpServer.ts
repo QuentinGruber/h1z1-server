@@ -10,9 +10,7 @@ function sendMessageToServer(type:string,requestId:number,data:any){
 
 const app = express()
 app.use(
-  express.urlencoded({
-    extended: true,
-  }),
+  express.json(),
 );
 
 const { MONGO_URL, SERVER_PORT } = workerData;

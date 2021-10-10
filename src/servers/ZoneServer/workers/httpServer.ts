@@ -10,9 +10,7 @@ function sendMessageToServer(type:string,requestId:number,data:any){
 
 const app = express()
 app.use(
-  express.urlencoded({
-    extended: true,
-  }),
+  express.json(),
 );
 
 const { MONGO_URL, SERVER_PORT } = workerData;
@@ -39,16 +37,15 @@ app.get('/ping', async function (req:any, res:any) {
 
 
 interface CharacterCreateRequest{
-    characterObj:string;
+    characterObj:any;
 }
 app.post('/character', async function (req:any, res:any) {
     try {
       const { characterObj } = req.body as CharacterCreateRequest;
-      const characterObjJson = JSON.parse(characterObj);
       const collection = db.collection('characters')
-      const charactersArray = await collection.findOne({ characterId: characterObjJson.characterId });
+      const charactersArray = await collection.findOne({ characterId: characterObj.characterId });
       if(!charactersArray){
-        await collection.insertOne(characterObjJson);
+        await collection.insertOne(characterObj);
       }
       res.send(true)
     } catch (error) {
