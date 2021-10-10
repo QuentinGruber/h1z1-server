@@ -585,7 +585,7 @@ export class LoginServer extends EventEmitter {
         workerData: { MONGO_URL: this._mongoAddress, SERVER_PORT : this._httpServerPort},
       });
       this._httpServer.on("message", (message:httpServerMessage) => {
-        const {type,requestId,data} = message;
+        const {type,requestId} = message;
         switch (type) {
           case "ping":
             const response:httpServerMessage = {type:"ping",requestId:requestId,data:"pong"}
