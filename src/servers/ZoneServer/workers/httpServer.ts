@@ -20,6 +20,7 @@ const { MONGO_URL, SERVER_PORT } = workerData;
 const client = new MongoClient(MONGO_URL)
 const dbName = "h1server"
 const db = client.db(dbName)
+client.connect()
 let requestCount = 0;
 const pendingRequest:any = {};
 
@@ -56,18 +57,24 @@ app.post('/character', async function (req:any, res:any) {
   })
  
 interface CharacterDeleteRequest{
-    characterId:string
+    characterId: string
+    ownerId: string
 }
 app.delete('/character', async function (req:any, res:any) {
     try {
-      const { characterId } = req.body as CharacterDeleteRequest;
+      const { characterId, ownerId } = req.query as CharacterDeleteRequest;
       const collection = db.collection('characters')
       const charactersArray = await collection.find({ characterId: characterId }).toArray();
       if(charactersArray.length > 1){// dup id ? not good
         res.send(false)
       }
-      await collection.deleteOne({ characterId: characterId })
-      res.send(true)
+      if(charactersArray[0].ownerId != ownerId){
+        res.send(false)
+      }
+      else{
+        await collection.deleteOne({ characterId: characterId })
+        res.send(true)
+      }
     } catch (error) {
       res.send(false)
     }

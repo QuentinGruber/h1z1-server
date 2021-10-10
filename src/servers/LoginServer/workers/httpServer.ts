@@ -14,6 +14,7 @@ const { MONGO_URL, SERVER_PORT } = workerData;
 const client = new MongoClient(MONGO_URL)
 const dbName = "h1server"
 const db = client.db(dbName)
+client.connect()
 app.get('/servers', async function (req:any, res:any) {
   const collection = db.collection('servers')
   const serversArray = await collection.find().toArray();

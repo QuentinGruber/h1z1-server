@@ -351,20 +351,29 @@ export class LoginServer extends EventEmitter {
         );
       }
     } else {
-      await this._db
+      const characterId = (packet.result as any).characterId;
+      const characterQuery = { characterId: characterId};
+      const {serverId, ownerId} = await this._db
         .collection("characters")
-        .deleteOne(
-          { characterId: (packet.result as any).characterId },
-          function (err: string) {
-            if (err) {
-              debug(err);
-            } else {
-              debug(
-                `Character ${(packet.result as any).characterId} deleted !`
-              );
+        .findOne(characterQuery);
+      const serverHttpAddress = (await this._db.collection("servers").findOne({serverId:serverId})).serverHttpAddress
+      const deletionStatus = (await axios.delete(`${serverHttpAddress}/character?characterId=${characterId}&ownerId=${ownerId}`));
+      if(deletionStatus){
+        await this._db
+          .collection("characters")
+          .deleteOne(
+            characterQuery,
+            function (err: string) {
+              if (err) {
+                debug(err);
+              } else {
+                debug(
+                  `Character ${(packet.result as any).characterId} deleted !`
+                );
+              }
             }
-          }
-        );
+          );
+        }
     }
   }
 
