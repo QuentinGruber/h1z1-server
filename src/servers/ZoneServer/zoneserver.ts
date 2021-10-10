@@ -161,6 +161,8 @@ export class ZoneServer extends EventEmitter {
     if (!this._mongoAddress) {
       this._soloMode = true;
       debug("Server in solo mode !");
+      this._enableGarbageCollection = false;
+      this._spawnTimerMs = 5;
     }
     this.on("data", this.onZoneDataEvent);
 
@@ -528,7 +530,7 @@ export class ZoneServer extends EventEmitter {
         this.SendSkyChangedPacket({} as Client, weather, true);
       });
     }
-    this._gatewayServer.start();
+    this._gatewayServer.start(this._soloMode);
   }
 
   async loadMongoData(): Promise<void> {
