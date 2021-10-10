@@ -36,6 +36,7 @@ export class SOEServer extends EventEmitter {
   _maxOutOfOrderPacketsPerLoop: number;
   _waitQueueTimeMs: number;
   _smallPacketsSize: number = 50;
+  _isLocal: boolean = false;
 
   constructor(
     protocolName: string,
@@ -62,102 +63,6 @@ export class SOEServer extends EventEmitter {
     this._clients = {};
     this._connection = new Worker(`${__dirname}/workers/udpServerWorker.js`, {
       workerData: { serverPort: serverPort },
-    });
-    this._connection.on("message", (message) => {
-      const { data: dataUint8, remote } = message;
-      const data = Buffer.from(dataUint8);
-      try {
-        let client: any;
-        const clientId = remote.address + ":" + remote.port;
-        debug(data.length + " bytes from ", clientId);
-        let unknow_client;
-        // if doesn't know the client
-        if (!this._clients[clientId]) {
-          unknow_client = true;
-          client = this._clients[clientId] = new SOEClient(
-            remote,
-            this._crcSeed,
-            this._compression,
-            cryptoKey
-          );
-
-          (client as any).inputStream.on(
-            "data",
-            (err: string, data: Buffer) => {
-              this.emit("appdata", null, client, data);
-            }
-          );
-
-          (client as any).inputStream.on(
-            "ack",
-            (err: string, sequence: number) => {
-              client.nextAck = sequence;
-            }
-          );
-
-          (client as any).inputStream.on(
-            "outoforder",
-            (err: string, expected: any, sequence: number) => {
-              client.outOfOrderPackets.push(sequence);
-            }
-          );
-
-          (client as any).outputStream.on(
-            "data",
-            (err: string, data: Buffer, sequence: number, fragment: any) => {
-              if (fragment) {
-                this._sendPacket(client, "DataFragment", {
-                  sequence: sequence,
-                  data: data,
-                });
-              } else {
-                this._sendPacket(client, "Data", {
-                  sequence: sequence,
-                  data: data,
-                });
-              }
-            }
-          );
-          (client as any).outQueueTimer = setTimeout(() =>
-            this.checkClientOutQueue(client)
-          );
-          if (this._useMultiPackets) {
-            (client as any).waitQueueTimer = setTimeout(
-              () => this.sendClientWaitQueue(client),
-              this._waitQueueTimeMs
-            );
-          }
-          (client as any).ackTimer = setTimeout(() => this.checkAck(client));
-          (client as any).outOfOrderTimer = setTimeout(
-            () => this.checkOutOfOrderQueue(client),
-            50
-          );
-          this.emit("connect", null, this._clients[clientId]);
-        }
-        client = this._clients[clientId];
-        const result = this._protocol.parse(
-          data,
-          client.crcSeed,
-          client.compression
-        );
-        if (result !== undefined && result !== null) {
-          if (
-            !unknow_client &&
-            result.soePacket &&
-            result.soePacket.name === "SessionRequest"
-          ) {
-            delete this._clients[clientId];
-            debug(
-              "Delete an old session badly closed by the client (",
-              clientId,
-              ") )"
-            );
-          }
-          this.handlePacket(client, result);
-        }
-      } catch (e) {
-        console.log(e);
-      }
     });
   }
 
@@ -382,6 +287,108 @@ export class SOEServer extends EventEmitter {
     this._crcSeed = crcSeed;
     this._crcLength = crcLength;
     this._udpLength = udpLength;
+    if(this._isLocal){
+      this._useMultiPackets = false;
+    }
+    this._connection.on("message", (message) => {
+      const { data: dataUint8, remote } = message;
+      const data = Buffer.from(dataUint8);
+      try {
+        let client: any;
+        const clientId = remote.address + ":" + remote.port;
+        debug(data.length + " bytes from ", clientId);
+        let unknow_client;
+        // if doesn't know the client
+        if (!this._clients[clientId]) {
+          unknow_client = true;
+          client = this._clients[clientId] = new SOEClient(
+            remote,
+            this._crcSeed,
+            this._compression,
+            this._cryptoKey
+          );
+
+          (client as any).inputStream.on(
+            "data",
+            (err: string, data: Buffer) => {
+              this.emit("appdata", null, client, data);
+            }
+          );
+
+          (client as any).inputStream.on(
+            "ack",
+            (err: string, sequence: number) => {
+              client.nextAck = sequence;
+            }
+          );
+
+          (client as any).inputStream.on(
+            "outoforder",
+            (err: string, expected: any, sequence: number) => {
+              client.outOfOrderPackets.push(sequence);
+            }
+          );
+
+          (client as any).outputStream.on(
+            "data",
+            (err: string, data: Buffer, sequence: number, fragment: any) => {
+              if (fragment) {
+                this._sendPacket(client, "DataFragment", {
+                  sequence: sequence,
+                  data: data,
+                });
+              } else {
+                this._sendPacket(client, "Data", {
+                  sequence: sequence,
+                  data: data,
+                });
+              }
+            }
+          );
+          (client as any).outQueueTimer = setTimeout(() =>
+            this.checkClientOutQueue(client)
+          );
+          if (this._useMultiPackets) {
+            (client as any).waitQueueTimer = setTimeout(
+              () => this.sendClientWaitQueue(client),
+              this._waitQueueTimeMs
+            );
+          }
+          (client as any).ackTimer = setTimeout(() => this.checkAck(client));
+
+          if(!this._isLocal){
+            (client as any).outOfOrderTimer = setTimeout(
+              () => this.checkOutOfOrderQueue(client),
+              50
+            );
+          }
+          this.emit("connect", null, this._clients[clientId]);
+        }
+        client = this._clients[clientId];
+        const result = this._protocol.parse(
+          data,
+          client.crcSeed,
+          client.compression
+        );
+        if (result !== undefined && result !== null) {
+          if (
+            !unknow_client &&
+            result.soePacket &&
+            result.soePacket.name === "SessionRequest"
+          ) {
+            delete this._clients[clientId];
+            debug(
+              "Delete an old session badly closed by the client (",
+              clientId,
+              ") )"
+            );
+          }
+          this.handlePacket(client, result);
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    });
     this._connection.postMessage({ type: "bind" });
   }
 
