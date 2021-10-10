@@ -294,7 +294,7 @@ export class SOEServer extends EventEmitter {
       const { data: dataUint8, remote } = message;
       const data = Buffer.from(dataUint8);
       try {
-        let client: any;
+        let client: SOEClient;
         const clientId = remote.address + ":" + remote.port;
         debug(data.length + " bytes from ", clientId);
         let unknow_client;
@@ -307,6 +307,10 @@ export class SOEServer extends EventEmitter {
             this._compression,
             this._cryptoKey
           );
+
+          if(this._isLocal){
+            client.outputStream._enableCaching = false;
+          }
 
           (client as any).inputStream.on(
             "data",
