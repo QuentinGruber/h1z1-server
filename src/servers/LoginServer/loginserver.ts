@@ -384,7 +384,7 @@ export class LoginServer extends EventEmitter {
     }
     this.sendData(client, "CharacterDeleteReply", {
       characterId: (packet.result as any).characterId,
-      status: 1,
+      status: deletionStatus,
       Payload: "\0",
     });
   }
