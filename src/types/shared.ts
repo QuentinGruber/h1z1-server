@@ -6,5 +6,6 @@ export interface Packet {
 }
 export interface httpServerMessage {
     type:string
+    requestId:number
     data:any
 }

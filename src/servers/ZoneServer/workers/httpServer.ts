@@ -3,8 +3,8 @@ import { MongoClient } from 'mongodb'
 import { workerData, parentPort } from "worker_threads";
 import { httpServerMessage } from "types/shared";
 
-function sendMessageToServer(type:string,data:any){
-    const message:httpServerMessage =  {type:type,data:data}
+function sendMessageToServer(type:string,requestId:number,data:any){
+    const message:httpServerMessage =  {type:type,requestId:requestId,data:data}
     parentPort?.postMessage(message);
 }
 
@@ -20,6 +20,8 @@ const { MONGO_URL, SERVER_PORT } = workerData;
 const client = new MongoClient(MONGO_URL)
 const dbName = "h1server"
 const db = client.db(dbName)
+let requestCount = 0;
+const pendingRequest:any = {};
 
 
 app.get('/queue', async function (req:any, res:any) {
@@ -29,10 +31,9 @@ app.get('/queue', async function (req:any, res:any) {
 })
 
 app.get('/ping', async function (req:any, res:any) {
-  parentPort?.once(`message`,(data:string)=>{
-    res.send(data)
-  })  
-  sendMessageToServer("ping",null);
+  requestCount++;
+  sendMessageToServer("ping",requestCount,null);
+  pendingRequest[requestCount] = res;
 })
 
 
@@ -72,3 +73,17 @@ app.delete('/character', async function (req:any, res:any) {
     }
   })
 app.listen(SERVER_PORT)
+
+
+
+parentPort?.on(`message`,(message:httpServerMessage)=>{
+    const {type,requestId,data} = message
+    switch (type) {
+      case "ping":
+        pendingRequest[requestId].send(data)
+        delete pendingRequest[requestId];
+      break;
+      default:
+        break;
+    }
+})  

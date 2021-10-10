@@ -367,10 +367,11 @@ export class ZoneServer extends EventEmitter {
         workerData: { MONGO_URL: this._mongoAddress, SERVER_PORT : this._httpServerPort},
       });
       this._httpServer.on("message", (message:httpServerMessage) => {
-        const {type,data} = message;
+        const {type,requestId,data} = message;
         switch (type) {
           case "ping":
-            this._httpServer.postMessage("pong");
+            const response:httpServerMessage = {type:"ping",requestId:requestId,data:"pong"}
+            this._httpServer.postMessage(response);
             break;
           default:
             break;
