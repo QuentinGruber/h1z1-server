@@ -5,7 +5,6 @@ const zoneServer = new ZoneServer(
   1117,
   new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", "base64")
 );
-zoneServer._gatewayServer._soeServer._useMultiPackets = false;
 
 zoneServer.start();
 

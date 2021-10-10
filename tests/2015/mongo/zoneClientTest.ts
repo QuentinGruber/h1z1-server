@@ -10,7 +10,6 @@ async function test() {
     "mongodb://localhost:27017/",
     1
   );
-  zoneServer._gatewayServer._soeServer._useMultiPackets = false;
   await zoneServer.start();
 
   setTimeout(async () => {
