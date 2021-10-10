@@ -297,6 +297,19 @@ export class LoginServer extends EventEmitter {
     let servers;
     if (!this._soloMode) {
       servers = await this._db.collection("servers").find().toArray();
+      const userWhiteList = await this._db.collection("servers-whitelist").find({userId:client.loginSessionId}).toArray()
+      if(userWhiteList){
+        for (let i = 0; i < servers.length; i++) {
+          if (!servers[i].allowedAccess) {
+            for (let y = 0; y < userWhiteList.length; y++) {
+              if(servers[i].serverId == userWhiteList[y].serverId){
+                servers[i].allowedAccess = true;
+              }
+            }
+            delete servers[i]._id;
+          }
+        }
+      }
     } else {
       if (this._soloMode) {
         if (this._protocol.protocolName == "LoginUdp_9") {
@@ -307,11 +320,6 @@ export class LoginServer extends EventEmitter {
           const SoloServer = require("../../../data/2016/sampleData/single_player_server.json");
           servers = [SoloServer];
         }
-      }
-    }
-    for (let i = 0; i < servers.length; i++) {
-      if (servers[i]._id) {
-        delete servers[i]._id;
       }
     }
     this.sendData(client, "ServerListReply", { servers: servers });
