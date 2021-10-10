@@ -24,9 +24,8 @@ const pendingRequest:any = {};
 
 
 app.get('/queue', async function (req:any, res:any) {
-  const collection = db.collection('servers')
-  const serversArray = await collection.find().toArray();
-  res.send(JSON.stringify(serversArray))
+  // unimplemented
+  res.send(true)
 })
 
 app.get('/ping', async function (req:any, res:any) {
