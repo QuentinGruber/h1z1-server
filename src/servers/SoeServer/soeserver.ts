@@ -217,13 +217,7 @@ export class SOEServer extends EventEmitter {
         }
         case "Ping":
           debug("Received ping from client");
-          this._sendPacket(client, "Ping", {
-            sessionId: client.sessionId,
-            crcSeed: client.crcSeed,
-            crcLength: client.crcLength,
-            compression: client.compression,
-            udpLength: client.serverUdpLength,
-          });
+          this._sendPacket(client, "Ping", {});
           break;
         case "NetStatusRequest":
           debug("Received net status request from client");
