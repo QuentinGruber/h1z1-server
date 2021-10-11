@@ -19,29 +19,66 @@ console.log(
 );
 console.log(`Node ${process.version}`);
 
-exports.SOEInputStream =
-  require("./out/servers/SoeServer/soeinputstream.js").SOEInputStream;
-exports.SOEOutputStream =
-  require("./out/servers/SoeServer/soeoutputstream.js").SOEOutputStream;
 
-exports.SOEProtocol = require("./out/protocols/soeprotocol.js").SOEProtocol;
-exports.LoginProtocol =
-  require("./out/protocols/loginprotocol.js").LoginProtocol;
-exports.GatewayProtocol =
-  require("./out/protocols/gatewayprotocol.js").GatewayProtocol;
-exports.H1Z1Protocol = require("./out/protocols/h1z1protocol.js").H1Z1Protocol;
+const h1z1Server = module.exports;
 
-exports.SOEClient = require("./out/clients/soeclient.js").SOEClient;
-exports.LoginClient = require("./out/clients/loginclient.js").LoginClient;
-exports.GatewayClient = require("./out/clients/gatewayclient.js").GatewayClient;
-exports.ZoneClient = require("./out/clients/zoneclient.js").ZoneClient;
+// Lazy load only on usage
+h1z1Server.__defineGetter__("SOEInputStream", function () {
+    return require("./out/servers/SoeServer/soeinputstream.js").SOEInputStream;
+});
 
-exports.SOEServer = require("./out/servers/SoeServer/soeserver.js").SOEServer;
-exports.LoginServer =
-  require("./out/servers/LoginServer/loginserver.js").LoginServer;
-exports.GatewayServer =
-  require("./out/servers/GatewayServer/gatewayserver.js").GatewayServer;
-exports.ZoneServer =
-  require("./out/servers/ZoneServer/zoneserver.js").ZoneServer;
-exports.ZoneServer2016 =
-  require("./out/servers/ZoneServer2016/zoneserver.js").ZoneServer2016;
+h1z1Server.__defineGetter__("SOEOutputStream", function () {
+    return require("./out/servers/SoeServer/soeoutputstream.js").SOEOutputStream;
+});  
+
+h1z1Server.__defineGetter__("SOEProtocol", function () {
+  return require("./out/protocols/soeprotocol.js").SOEProtocol;
+});  
+
+h1z1Server.__defineGetter__("LoginProtocol", function () {
+  return require("./out/protocols/loginprotocol.js").LoginProtocol;
+});  
+
+h1z1Server.__defineGetter__("GatewayProtocol", function () {
+  return require("./out/protocols/gatewayprotocol.js").GatewayProtocol;
+});  
+
+h1z1Server.__defineGetter__("H1Z1Protocol", function () {
+  return require("./out/protocols/h1z1protocol.js").H1Z1Protocol;
+});  
+
+h1z1Server.__defineGetter__("SOEClient", function () {
+  return require("./out/clients/soeclient.js").SOEClient;
+});  
+
+h1z1Server.__defineGetter__("LoginClient", function () {
+  return require("./out/clients/loginclient.js").LoginClient;
+}); 
+
+h1z1Server.__defineGetter__("GatewayClient", function () {
+  return require("./out/clients/gatewayclient.js").GatewayClient;
+});  
+
+h1z1Server.__defineGetter__("ZoneClient", function () {
+  return require("./out/clients/zoneclient.js").ZoneClient;
+});  
+
+h1z1Server.__defineGetter__("SOEServer", function () {
+  return require("./out/servers/SoeServer/soeserver.js").SOEServer;
+});  
+
+h1z1Server.__defineGetter__("LoginServer", function () {
+  return require("./out/servers/LoginServer/loginserver.js").LoginServer;
+});  
+
+h1z1Server.__defineGetter__("GatewayServer", function () {
+  return require("./out/servers/GatewayServer/gatewayserver.js").GatewayServer;
+});  
+
+h1z1Server.__defineGetter__("ZoneServer", function () {
+  return require("./out/servers/ZoneServer/zoneserver.js").ZoneServer;
+});  
+
+h1z1Server.__defineGetter__("ZoneServer2016", function () {
+  return require("./out/servers/ZoneServer2016/zoneserver.js").ZoneServer2016;
+});
