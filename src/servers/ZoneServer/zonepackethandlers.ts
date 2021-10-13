@@ -507,7 +507,7 @@ const packetHandlers = {
         break;
       case 2371122039: // /serverinfo
         if (args[0] === "mem") {
-          const used = process.memoryUsage().heapUsed / 1024 / 1024;
+          const used = process.memoryUsage().rss / 1024 / 1024;
           server.sendChatText(
             client,
             `Used memory ${Math.round(used * 100) / 100} MB`

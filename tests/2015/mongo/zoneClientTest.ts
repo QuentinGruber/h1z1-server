@@ -1,5 +1,8 @@
 import { ZoneServer, ZoneClient } from "../../../h1z1-server";
 
+const character = {"characterId":"0x3bc1e27032c82ed6","serverId":1,"lastLoginDate":"0x0000000053da0a5b","nullField":0,"status":1,"payload":{"name":"cool","empireId":2,"battleRank":100,"nextBattleRankPercent":0,"headId":1,"modelId":9240,"gender":1,"profileId":4,"unknownDword1":1,"loadoutData":{"loadoutId":3,"unknownData1":{"unknownDword1":22,"unknownByte1":1},"unknownDword1":0,"unknownData2":{"unknownDword1":0,"loadoutName":""},"tintItemId":0,"unknownDword2":0,"decalItemId":0,"loadoutSlots":[]},"attachmentDefinitions":[],"lastUseDate":"0x0000000053da0a5b"},"ownerId":"someone","position":{"0":-41.59000015258789,"1":16.1200008392334,"2":-72.55999755859375,"3":0},"rotation":{"0":0,"1":0.9978362321853638,"2":0,"3":0.06574886292219162}}
+
+
 async function test() {
   const zoneServer = new ZoneServer(
     1117,
@@ -7,15 +10,15 @@ async function test() {
     "mongodb://localhost:27017/",
     1
   );
-  zoneServer._gatewayServer._soeServer._useMultiPackets = false;
   await zoneServer.start();
 
-  setTimeout(() => {
+  setTimeout(async () => {
+    await zoneServer._db.collection("characters").insertOne(character);
     var client = new ZoneClient(
       "127.0.0.1",
       1117,
       new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", "base64"),
-      "0x03147cca2a860195",
+      character.characterId,
       "0",
       "",
       "",
@@ -35,4 +38,4 @@ async function test() {
     throw new Error("Test timed out!");
   }, 60000);
 }
-test();
+//test();
