@@ -22,7 +22,7 @@
     "mongodb-restore-dump": "1.0.1",
     "terser-output": "1.0.3",
     "typedoc": "0.22.5",
-    "typescript": "4.4.3",
+    "typescript": "4.4.4",
     "v8-compile-cache": "2.3.0"
   },
   "directories": {
