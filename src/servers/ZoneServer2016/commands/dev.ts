@@ -1,7 +1,6 @@
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { Int64String } from "../../../utils/utils";
-import { ZoneServer } from "servers/ZoneServer/zoneserver";
 
 const debug = require("debug")("zonepacketHandlers");
 
