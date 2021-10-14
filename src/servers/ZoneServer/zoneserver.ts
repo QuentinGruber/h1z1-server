@@ -15,6 +15,9 @@ import { EventEmitter } from "events";
 import { GatewayServer } from "../GatewayServer/gatewayserver";
 import packetHandlers from "./zonepackethandlers";
 import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
+import { H1emuServer } from "../H1emuServer/h1emuserver";
+import { H1emuClient } from "../H1emuServer/h1emuclient";
+import { RemoteInfo } from "dgram";
 import {
   _,
   generateRandomGuid,
@@ -91,6 +94,8 @@ export class ZoneServer extends EventEmitter {
   _enableHttpServer: boolean = true;
   _httpServerPort: number = 1118;
   _enableGarbageCollection: boolean = true;
+  _h1emuServer: H1emuServer;
+  _h1emuclient: H1emuClient;
 
   constructor(
     serverPort: number,
@@ -212,6 +217,30 @@ export class ZoneServer extends EventEmitter {
         );
       }
     );
+
+    this._h1emuServer = new H1emuServer()
+    this._h1emuclient = new H1emuClient({port: 1110, address: "127.0.0.1"} as RemoteInfo)
+    
+    this._h1emuServer.on("data", (err: string, client: H1emuClient, packet: any) => {
+      if (err) {
+        console.error(err);
+      } else {
+        switch(packet.name) {
+          case "SessionReply":
+            debug(`Received session reply from ${client.address}:${client.port}`);
+            break;
+          default:
+            debug(`Unhandled h1emu packet: ${packet.name}`)
+            break;
+        }
+      }
+    });
+
+    this._h1emuServer.on("connect", (err: string, client: Client) => {
+      debug(`Login connected from ${client.address}:${client.port}`);
+    });
+    
+    this._h1emuServer.start()
   }
 
   onZoneDataEvent(err: any, client: Client, packet: any) {

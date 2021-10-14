@@ -13,7 +13,7 @@
 
 import { EventEmitter } from "events";
 import { H1emuProtocol } from "../../protocols/h1emuprotocol";
-import Client from "./h1emuclient";
+import { H1emuClient as Client } from "./h1emuclient";
 import { Worker } from "worker_threads";
 
 const debug = require("debug")("H1emuServer");
@@ -89,20 +89,12 @@ export class H1emuServer extends EventEmitter {
       type: "sendPacket",
       data: {
         packetData: data,
-        //length: data.length,
         port: client.port,
         address: client.address,
       },
     });
   }
 
-  /*
-  deleteClient(client: Client): void {
-    client.clearTimers();
-    delete this._clients[client.address + ":" + client.port];
-    debug("client connection from port : ", client.port, " deleted");
-  }
-  */
 }
 
 exports.H1emuServer = H1emuServer;

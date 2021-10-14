@@ -1,6 +1,6 @@
 import { RemoteInfo } from "dgram";
 
-export default class H1emuClient {
+export class H1emuClient {
   sessionId: number;
   address: string;
   port: number;
