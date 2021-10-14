@@ -28,7 +28,6 @@ export class H1emuServer extends EventEmitter {
 
   constructor(serverPort?: number) {
     super();
-    EventEmitter.call(this);
     this._serverPort = serverPort;
     this._protocol = new H1emuProtocol();
     this._udpLength = 512;

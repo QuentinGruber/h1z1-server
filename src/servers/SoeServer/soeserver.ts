@@ -46,8 +46,6 @@ export class SOEServer extends EventEmitter {
     useMultiPackets = false
   ) {
     super();
-    EventEmitter.call(this);
-
     this._protocolName = protocolName;
     this._serverPort = serverPort;
     this._cryptoKey = cryptoKey;
