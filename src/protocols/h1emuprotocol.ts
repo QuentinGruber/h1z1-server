@@ -79,24 +79,14 @@ function packH1emuPacket(
 ) {
   let packetType = H1emuPackets.PacketTypes[packetName],
     packet = H1emuPackets.Packets[packetType],
-    packetData,
-    data,
-    packetTypeBytes: any[] = [];
+    data
   if (packet) {
-    while (packetType) {
-        packetTypeBytes.unshift(packetType & 0xff);
-        packetType = packetType >> 8;
-    }
     if (packet.schema) {
-      packetData = DataSchema.pack(packet.schema, object);
+      const packetData = DataSchema.pack(packet.schema, object);
       if (packetData) {
-        data = new (Buffer as any).alloc(
-          packetTypeBytes.length + packetData.length
-        );
-        for (let i = 0; i < packetTypeBytes.length; i++) {
-          data.writeUInt8(packetTypeBytes[i], i);
-        }
-        packetData.data.copy(data, packetTypeBytes.length);
+        data = Buffer.alloc(1 + packetData.length);
+        data.writeUInt8(packetType, 0);
+        packetData.data.copy(data, 1);
       } else {
         debug("Could not pack data schema for " + packet.name);
       }
