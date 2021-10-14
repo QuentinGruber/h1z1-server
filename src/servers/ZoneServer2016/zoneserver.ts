@@ -97,13 +97,23 @@ export class ZoneServer2016 extends ZoneServer {
     this._h1emuServer = new H1emuServer()
     this._h1emuclient = new H1emuClient({port: 1110, address: "127.0.0.1"} as RemoteInfo)
     
-    this._h1emuServer.on("SessionReply", (err: string, client: H1emuClient, data: any) => {
-      debug(`Received session reply from ${client.address}:${client.port}`);
+    this._h1emuServer.on("data", (err: string, client: H1emuClient, packet: any) => {
+      if (err) {
+        console.error(err);
+      } else {
+        switch(packet.name) {
+          case "SessionReply":
+            debug(`Received session reply from ${client.address}:${client.port}`);
+            break;
+          default:
+            debug(`Unhandled h1emu packet: ${packet.name}`)
+            break;
+        }
+      }
     });
 
     this._h1emuServer.on("connect", (err: string, client: Client) => {
       debug(`Login connected from ${client.address}:${client.port}`);
-      this.emit("loginconnect", err, client);
     });
     
     this._h1emuServer.start()

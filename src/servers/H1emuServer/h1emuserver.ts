@@ -38,28 +38,7 @@ export class H1emuServer extends EventEmitter {
     });
   }
 
-  handlePacket(client: Client, packet: any) {
-    const result = packet.result;
-    if (result) {
-      switch (packet.name) {
-        case "SessionRequest":
-          this.emit("SessionRequest", null, client, result)
-          break;
-        case "SessionReply":
-          this.emit("SessionReply", null, client, result)
-          break;
-        case "test":
-          this.emit("test", null, client, result);
-          break;
-        default:
-          debug(`Unhandled h1emu packet: ${packet.name}`)
-          break;
-      }
-    }
-  }
-
   start(): void {
-
     this._connection.on("message", (message) => {
       const { data: dataUint8, remote } = message;
       const data = Buffer.from(dataUint8);
@@ -78,12 +57,11 @@ export class H1emuServer extends EventEmitter {
 
       switch(message.type) {
         case "incomingPacket":
-          //debug(`received ${data.length} bytes from ${remote.address}:${remote.port}`);
           const result = this._protocol.parse(
             data
           );
           if (result) {
-            this.handlePacket(client, result);
+            this.emit("data", null, client, result)
           }
           break;
         default:

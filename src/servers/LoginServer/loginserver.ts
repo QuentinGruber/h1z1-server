@@ -81,22 +81,6 @@ export class LoginServer extends EventEmitter {
       0
     );
 
-    this._h1emuServer = new H1emuServer(
-      1110 // temp port
-    )
-    this._h1emuServer.on("SessionRequest", (err: string, client: H1emuClient, msg: any) => {
-      debug(`Received session request from ${client.address}:${client.port}`);
-      this._h1emuServer.sendData(client, "SessionReply", { 
-        status: 1// todo: add logic here 
-      });
-    });
-    this._h1emuServer.on("connect", (err: string, client: H1emuClient) => {
-      debug(`Zone connected from ${client.address}:${client.port}`);
-      this.emit("zoneconnect", err, client);
-    });
-    
-    this._h1emuServer.start();
-
     this._protocol = new LoginProtocol();
     this._soeServer.on("connect", (err: string, client: Client) => {
       debug(`Client connected from ${client.address}:${client.port}`);
@@ -159,6 +143,34 @@ export class LoginServer extends EventEmitter {
         }
       }
     );
+
+    this._h1emuServer = new H1emuServer(
+      1110 // temp port
+    )
+
+    this._h1emuServer.on("data", (err: string, client: H1emuClient, packet: any) => {
+      if (err) {
+        console.error(err);
+      } else {
+        switch(packet.name) {
+          case "SessionRequest":
+            debug(`Received session request from ${client.address}:${client.port}`);
+            this._h1emuServer.sendData(client, "SessionReply", { 
+              status: 1 // todo: add logic here 
+            });
+            break;
+          default:
+            debug(`Unhandled h1emu packet: ${packet.name}`)
+            break;
+        }
+      }
+    });
+
+    this._h1emuServer.on("connect", (err: string, client: H1emuClient) => {
+      debug(`Zone connected from ${client.address}:${client.port}`);
+    });
+
+    this._h1emuServer.start();
   }
 
   sendData(client: Client, packetName: loginPacketsType, obj: any) {
