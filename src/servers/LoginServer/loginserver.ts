@@ -15,7 +15,7 @@ import { EventEmitter } from "events";
 
 import { SOEServer } from "../SoeServer/soeserver";
 import { H1emuServer } from "../H1emuServer/h1emuserver";
-import H1emuClient from "./../../servers/H1emuServer/h1emuclient";
+import { H1emuClient} from "./../../servers/H1emuServer/h1emuclient";
 import { LoginProtocol } from "../../protocols/loginprotocol";
 import { MongoClient } from "mongodb";
 import {
