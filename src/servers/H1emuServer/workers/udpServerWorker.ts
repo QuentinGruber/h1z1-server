@@ -29,7 +29,7 @@ if (workerData) {
   });
 
   connection.on("message", (data, remote) => {
-    debug(`received ${data.length} bytes from ${remote.address}:${remote.port}`)
+    //debug(`received ${data.length} bytes from ${remote.address}:${remote.port}`)
     parentPort?.postMessage({
       type: "incomingPacket",
       data: data,

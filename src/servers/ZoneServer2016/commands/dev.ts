@@ -1,6 +1,7 @@
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { Int64String } from "../../../utils/utils";
+import { ZoneServer } from "servers/ZoneServer/zoneserver";
 
 const debug = require("debug")("zonepacketHandlers");
 
@@ -760,6 +761,11 @@ const dev: any = {
       message: " ",
     });
   },
+  loginmsg: function (server: ZoneServer2016, client: Client, args: any[]) {
+    server._h1emuServer.sendData( server._h1emuclient, "test", { 
+      msg: Number(args[1]) | 99 
+    });
+  }
   /*
     proxiedobjects: function(server: ZoneServer2016, client: Client, args: any[]) {
 

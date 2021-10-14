@@ -96,19 +96,16 @@ export class ZoneServer2016 extends ZoneServer {
     this._items = {};
     this._h1emuServer = new H1emuServer()
     this._h1emuclient = new H1emuClient({port: 1110, address: "127.0.0.1"} as RemoteInfo)
-    this._h1emuServer.sendData( this._h1emuclient, "test", { 
-      msg: 123 
+    
+    this._h1emuServer.on("SessionReply", (err: string, client: H1emuClient, data: any) => {
+      debug(`Received session reply from ${client.address}:${client.port}`);
     });
-
-    debug("Sent test packet to loginserver");
 
     this._h1emuServer.on("connect", (err: string, client: Client) => {
       debug(`Login connected from ${client.address}:${client.port}`);
       this.emit("loginconnect", err, client);
     });
-    this._h1emuServer.on("test", (err: string, client: Client, msg: any) => {
-      debug(`test message from ${client.address}:${client.port}: ${msg}`);
-    });
+    
     this._h1emuServer.start()
   }
 
@@ -387,6 +384,9 @@ export class ZoneServer2016 extends ZoneServer {
               { $set: { populationNumber: 0, populationLevel: 0 } }
             );
         */
+    this._h1emuServer.sendData(this._h1emuclient, "SessionRequest", {
+      serverId: 1
+    })
     debug("Server ready");
   }
 

@@ -12,8 +12,8 @@
 // ======================================================================
 
 import { EventEmitter } from "events";
-import { H1emuProtocol } from "../../protocols/h1emuprotocol"; // todo
-import Client from "./h1emuclient"; // todo
+import { H1emuProtocol } from "../../protocols/h1emuprotocol";
+import Client from "./h1emuclient";
 import { Worker } from "worker_threads";
 
 const debug = require("debug")("H1emuServer");
@@ -43,13 +43,13 @@ export class H1emuServer extends EventEmitter {
     if (result) {
       switch (packet.name) {
         case "SessionRequest":
-          debug(`Received session request from ${client.address}:${client.port}`);
-
-          this.emit("session")
+          this.emit("SessionRequest", null, client, result)
+          break;
+        case "SessionReply":
+          this.emit("SessionReply", null, client, result)
           break;
         case "test":
-          debug(result)
-          this.emit("test", null, client, result.msg);
+          this.emit("test", null, client, result);
           break;
         default:
           debug(`Unhandled h1emu packet: ${packet.name}`)
@@ -66,19 +66,19 @@ export class H1emuServer extends EventEmitter {
       let client: any;
       const clientId = remote.address + ":" + remote.port;
 
-      let newClient;
       if (!this._clients[clientId]) {
-        newClient = true;
         client = this._clients[clientId] = new Client(
           remote
         );
-
         this.emit("connect", null, this._clients[clientId]);
+      }
+      else {
+        client = this._clients[clientId]
       }
 
       switch(message.type) {
         case "incomingPacket":
-          debug(`received ${data.length} bytes from ${remote.address}:${remote.port}`);
+          //debug(`received ${data.length} bytes from ${remote.address}:${remote.port}`);
           const result = this._protocol.parse(
             data
           );
@@ -92,7 +92,7 @@ export class H1emuServer extends EventEmitter {
       }
 
     });
-    if(this._serverPort) {
+    if(this._serverPort) { // only server (loginserver) has its port bound
       this._connection.postMessage({ type: "bind" });
     }
   }
@@ -119,7 +119,7 @@ export class H1emuServer extends EventEmitter {
   }
 
   /*
-  deleteClient(client: SOEClient): void {
+  deleteClient(client: Client): void {
     client.clearTimers();
     delete this._clients[client.address + ":" + client.port];
     debug("client connection from port : ", client.port, " deleted");

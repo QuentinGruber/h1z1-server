@@ -12,65 +12,55 @@
 // ======================================================================
 
 const debug = require("debug")("H1emuProtocol");
+import DataSchema from "h1z1-dataschema";
 import PacketTableBuild from "../packets/packettable";
-const packets = [/*
+const packets = [
   [
     "SessionRequest",
     0x01,
     {
-      parse: function (
-        data: any,
-        crcSeed: number,
-        compression: number,
-        isSubPacket: boolean
-      ) {
-        const clientCRCLength = data.readUInt32BE(2);
-        const clientSessionId = data.readUInt32BE(6);
-        const clientUDPLength = data.readUInt32BE(10);
-        const protocol = data.readNullTerminatedString(14);
-        return {
-          crcLength: clientCRCLength,
-          sessionId: clientSessionId,
-          udpLength: clientUDPLength,
-          protocol: protocol,
-        };
-      },
-      pack: function (
-        packet: any,
-        crcSeed: number,
-        compression: number,
-        isSubPacket: boolean
-      ) {
-        const data = new (Buffer as any).alloc(14 + packet.protocol.length + 1);
-        data.writeUInt16BE(0x01, 0);
-        data.writeUInt32BE(packet.crcLength, 2);
-        data.writeUInt32BE(packet.sessionId, 6);
-        data.writeUInt32BE(packet.udpLength, 10);
-        data.write(packet.protocol, 14);
-        return data;
-      },
+        fields: [
+            { name: "serverId", type: "uint32", defaultValue: 0 },
+        ]
     }
-  ],*/
+  ],
+  [
+    "SessionReply",
+    0x02,
+    {
+        fields: [
+            { name: "status", type: "uint8", defaultValue: 0 },
+        ]
+    }
+  ],
+  [
+    "Ping",
+    0x03,
+    {}
+  ],
+  [
+    "ZoneInfoRequest",
+    0x04,
+    {
+        fields: [
+        ]
+    }
+  ],
+  [
+    "ZoneInfoReply",
+    0x05,
+    {
+        fields: [
+        ]
+    }
+  ],
   [
     "test",
-    0x01,
+    0xff,
     {
-      parse: function (
-        data: any
-      ) {
-        const msg = data.readUInt32LE(1);
-        return {
-          msg: msg
-        };
-      },
-      pack: function (
-        packet: any
-      ) {
-        const data = new (Buffer as any).alloc(1+4); // opcode byte + dword
-        data.writeUInt8(0x01, 0); // opcode
-        data.writeUint32LE(packet.msg, 1); // msg dword
-        return data;
-      },
+        fields: [
+            { name: "msg", type: "uint32", defaultValue: 0 },
+        ]
     }
   ]
 ];
@@ -87,12 +77,29 @@ function packH1emuPacket(
   packetName: string,
   object: any
 ) {
-  let packetType = (H1emuPackets as any).PacketTypes[packetName],
-    packet = (H1emuPackets as any).Packets[packetType],
-    data;
+  let packetType = H1emuPackets.PacketTypes[packetName],
+    packet = H1emuPackets.Packets[packetType],
+    packetData,
+    data,
+    packetTypeBytes: any[] = [];
   if (packet) {
-    if (packet.pack) {
-      data = packet.pack(object);
+    while (packetType) {
+        packetTypeBytes.unshift(packetType & 0xff);
+        packetType = packetType >> 8;
+    }
+    if (packet.schema) {
+      packetData = DataSchema.pack(packet.schema, object);
+      if (packetData) {
+        data = new (Buffer as any).alloc(
+          packetTypeBytes.length + packetData.length
+        );
+        for (let i = 0; i < packetTypeBytes.length; i++) {
+          data.writeUInt8(packetTypeBytes[i], i);
+        }
+        packetData.data.copy(data, packetTypeBytes.length);
+      } else {
+        debug("Could not pack data schema for " + packet.name);
+      }
       debug("Packing data for " + packet.name);
     } else {
       debug("pack()", "No pack function for packet " + packet.name);
@@ -108,11 +115,11 @@ function parseH1emuPacket(
 ) {
   const packetType = data.readUInt8(0);
   let result,
-    packet = (H1emuPackets as any).Packets[packetType];
+    packet = H1emuPackets.Packets[packetType];
   if (packet) {
-    if (packet.parse) {
+    if (packet.schema) {
       //debug(packet.name);
-      result = packet.parse(data);
+      result = DataSchema.parse(packet.schema, data, 1).result;
       return {
         type: packet.type,
         name: packet.name,
