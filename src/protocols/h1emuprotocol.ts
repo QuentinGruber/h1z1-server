@@ -108,7 +108,6 @@ function parseH1emuPacket(
     packet = H1emuPackets.Packets[packetType];
   if (packet) {
     if (packet.schema) {
-      //debug(packet.name);
       result = DataSchema.parse(packet.schema, data, 1).result;
       return {
         type: packet.type,
@@ -127,7 +126,7 @@ function parseH1emuPacket(
 }
 
 export class H1emuProtocol {
-  parse(data: any) {
+  parse(data: Buffer) {
     return parseH1emuPacket(data);
   }
 

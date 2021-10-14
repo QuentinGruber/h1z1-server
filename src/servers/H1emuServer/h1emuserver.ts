@@ -17,7 +17,7 @@ import { H1emuClient as Client } from "./h1emuclient";
 import { Worker } from "worker_threads";
 
 const debug = require("debug")("H1emuServer");
-process.env.isBin && require("./workers/udpServerWorker");
+process.env.isBin && require("../shared/workers/udpServerWorker.js");
 
 export class H1emuServer extends EventEmitter {
   _serverPort?: number;
