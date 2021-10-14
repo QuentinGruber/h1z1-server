@@ -412,6 +412,10 @@ export class ZoneServer extends EventEmitter {
     if(this._enableGarbageCollection){
       setInterval(()=>{this.garbageCollection()},120000);
     }
+    
+    this._h1emuServer.sendData(this._h1emuclient, "SessionRequest", {
+      serverId: 1
+    })
     debug("Server ready");
   }
 
