@@ -14,6 +14,7 @@
 import { EventEmitter } from "events";
 
 import { SOEServer } from "../SoeServer/soeserver";
+import { H1emuServer } from "../H1emuServer/h1emuserver";
 import { LoginProtocol } from "../../protocols/loginprotocol";
 import { MongoClient } from "mongodb";
 import {
@@ -49,6 +50,7 @@ export class LoginServer extends EventEmitter {
   _httpServer!: Worker;
   _enableHttpServer: boolean;
   _httpServerPort: number = 1116;
+  _h1emuServer: H1emuServer;
 
   constructor(serverPort: number, mongoAddress = "") {
     super();
@@ -77,6 +79,25 @@ export class LoginServer extends EventEmitter {
       this._cryptoKey,
       0
     );
+
+    this._h1emuServer = new H1emuServer(
+      1110 // temp port
+    )
+    this._h1emuServer.on("connect", (err: string, client: Client) => {
+      debug(`Zone connected from ${client.address}:${client.port}`);
+      this.emit("zoneconnect", err, client);
+    });
+    this._h1emuServer.on("test", (err: string, client: Client, msg: any) => {
+      debug(`test message from ${client.address}:${client.port}: ${msg}`);
+      this._h1emuServer.sendData(
+        {port: client.port, address: client.address},
+        "test",
+        { msg: 456 }
+      )
+      debug("Sent test packet to zoneserver")
+    });
+    this._h1emuServer.start();
+
     this._protocol = new LoginProtocol();
     this._soeServer.on("connect", (err: string, client: Client) => {
       debug(`Client connected from ${client.address}:${client.port}`);

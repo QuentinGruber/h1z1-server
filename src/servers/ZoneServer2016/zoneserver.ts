@@ -16,6 +16,9 @@ const debug = require("debug")(debugName);
 import { default as packetHandlers } from "./zonepackethandlers";
 import { ZoneServer } from "../ZoneServer/zoneserver";
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
+
+import { H1emuServer } from "../H1emuServer/h1emuserver";
+
 import {
   characterEquipment,
   characterLoadout,
@@ -27,6 +30,8 @@ import { _, initMongo, Int64String, isPosInRadius } from "../../utils/utils";
 
 import { MongoClient } from "mongodb";
 import dynamicWeather from "./workers/dynamicWeather";
+import H1emuClient from "../../servers/H1emuServer/h1emuclient";
+import { RemoteInfo } from "dgram";
 
 // need to get 2016 lists
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json");
@@ -48,6 +53,8 @@ export class ZoneServer2016 extends ZoneServer {
   _weatherTemplates: any;
   _items: any;
   _vehicles: any;
+  _h1emuServer: H1emuServer;
+  _h1emuclient: H1emuClient;
 
   constructor(serverPort: number, gatewayKey: Uint8Array, mongoAddress = "") {
     super(serverPort, gatewayKey, mongoAddress);
@@ -87,6 +94,22 @@ export class ZoneServer2016 extends ZoneServer {
       };
     });
     this._items = {};
+    this._h1emuServer = new H1emuServer()
+    this._h1emuclient = new H1emuClient({port: 1110, address: "127.0.0.1"} as RemoteInfo)
+    this._h1emuServer.sendData( this._h1emuclient, "test", { 
+      msg: 123 
+    });
+
+    debug("Sent test packet to loginserver");
+
+    this._h1emuServer.on("connect", (err: string, client: Client) => {
+      debug(`Login connected from ${client.address}:${client.port}`);
+      this.emit("loginconnect", err, client);
+    });
+    this._h1emuServer.on("test", (err: string, client: Client, msg: any) => {
+      debug(`test message from ${client.address}:${client.port}: ${msg}`);
+    });
+    this._h1emuServer.start()
   }
 
   onZoneDataEvent(err: any, client: Client, packet: any) {
