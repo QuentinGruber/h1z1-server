@@ -56,11 +56,18 @@ export class H1emuServer extends EventEmitter {
 
       switch(message.type) {
         case "incomingPacket":
-          const result = this._protocol.parse(
-            data
-          );
-          if (result) {
-            this.emit("data", null, client, result)
+          const packet = this._protocol.parse(data);
+          if (!packet) return;
+          switch(packet.name) {
+            //case "SessionRequest":
+            case "Ping":
+              break;
+            case "SessionReply":
+              this.emit("session", null, client, packet.data.status);
+              break;
+            default:
+              this.emit("data", null, client, packet);
+              break;
           }
           break;
         default:

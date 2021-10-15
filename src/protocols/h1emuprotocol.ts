@@ -39,8 +39,13 @@ const packets = [
     {}
   ],
   [
-    "ZoneInfoRequest",
+    "Ack",
     0x04,
+    {}
+  ],
+  [
+    "ZoneInfoRequest",
+    0x05,
     {
         fields: [
         ]
@@ -48,7 +53,7 @@ const packets = [
   ],
   [
     "ZoneInfoReply",
-    0x05,
+    0x06,
     {
         fields: [
         ]
@@ -112,7 +117,7 @@ function parseH1emuPacket(
       return {
         type: packet.type,
         name: packet.name,
-        result: result,
+        data: result,
       };
     } else {
       debug("parse()", "No parser for packet " + packet.name);
@@ -120,7 +125,7 @@ function parseH1emuPacket(
   } else {
     debug("parse()", "Unknown or unhandled H1emu packet type: " + packetType);
     return {
-      result: null,
+      data: null,
     };
   }
 }

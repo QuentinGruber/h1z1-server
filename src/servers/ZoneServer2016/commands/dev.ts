@@ -761,7 +761,7 @@ const dev: any = {
     });
   },
   loginmsg: function (server: ZoneServer2016, client: Client, args: any[]) {
-    server._h1emuServer.sendData( server._h1emuclient, "test", { 
+    server._h1emuServer.sendData( server._loginConnection, "test", { 
       msg: Number(args[1]) | 99 
     });
   }

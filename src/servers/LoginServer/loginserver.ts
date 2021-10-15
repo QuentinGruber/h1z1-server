@@ -52,6 +52,8 @@ export class LoginServer extends EventEmitter {
   _enableHttpServer: boolean;
   _httpServerPort: number = 1116;
   _h1emuServer: H1emuServer;
+  _zoneConnections: string[];
+  _zoneWhitelist: any[];
 
   constructor(serverPort: number, mongoAddress = "") {
     super();
@@ -143,6 +145,8 @@ export class LoginServer extends EventEmitter {
         }
       }
     );
+    this._zoneConnections = [];
+    this._zoneWhitelist = [{serverId: 1, address: "127.0.0.1"}];
 
     this._h1emuServer = new H1emuServer(
       1110 // temp port
@@ -152,12 +156,23 @@ export class LoginServer extends EventEmitter {
       if (err) {
         console.error(err);
       } else {
+        const connectionEstablished = this._zoneConnections.includes(client.address);
+        if(!connectionEstablished && packet.name !== "SessionRequest") return;
         switch(packet.name) {
           case "SessionRequest":
+            let { serverId } = packet.data;
             debug(`Received session request from ${client.address}:${client.port}`);
+            const status = this._zoneWhitelist.find(e => e.serverId === serverId)?.address === client.address?0:1;
             this._h1emuServer.sendData(client, "SessionReply", { 
-              status: 1 // todo: add logic here 
+              status: status
             });
+            if(connectionEstablished) {
+              debug("Zone already had connection established!");
+            }
+            else if(status === 0) {
+              debug(`ZoneConnection established`);
+              this._zoneConnections.push(client.address);
+            }
             break;
           default:
             debug(`Unhandled h1emu packet: ${packet.name}`)
@@ -524,6 +539,10 @@ export class LoginServer extends EventEmitter {
     }
   }
 
+  async requestZoneCharacterCreation(zoneAddress: string, characterData: any) {
+    // todo
+  }
+
   async CharacterCreateRequest(client: Client, packet: any) {
     const {
       payload: { characterName },
@@ -621,22 +640,6 @@ export class LoginServer extends EventEmitter {
       this._crcLength,
       this._udpLength
     );
-    if(this._mongoAddress && this._enableHttpServer){
-      this._httpServer = new Worker(`${__dirname}/workers/httpServer.js`, {
-        workerData: { MONGO_URL: this._mongoAddress, SERVER_PORT : this._httpServerPort},
-      });
-      this._httpServer.on("message", (message:httpServerMessage) => {
-        const {type,requestId} = message;
-        switch (type) {
-          case "ping":
-            const response:httpServerMessage = {type:"ping",requestId:requestId,data:"pong"}
-            this._httpServer.postMessage(response);
-            break;
-          default:
-            break;
-        }
-      })
-    }
   }
 
   data(collectionName: string): any | undefined {

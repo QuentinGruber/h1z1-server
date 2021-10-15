@@ -34,7 +34,6 @@ import SOEClient from "servers/SoeServer/soeclient";
 import { ZoneClient as Client } from "./classes/zoneclient";
 import { h1z1PacketsType } from "types/packets";
 import { Vehicle } from "./classes/vehicles";
-import { httpServerMessage } from "types/shared";
 
 process.env.isBin && require("./workers/dynamicWeather");
 
@@ -90,12 +89,9 @@ export class ZoneServer extends EventEmitter {
   _respawnOnLastPosition: boolean = true;
   _spawnTimerMs: number = 10;
   _worldRoutineRadiusPercentage: number = 0.4;
-  _httpServer!: Worker;
-  _enableHttpServer: boolean = true;
-  _httpServerPort: number = 1118;
   _enableGarbageCollection: boolean = true;
   _h1emuServer: H1emuServer;
-  _h1emuclient: H1emuClient;
+  _loginConnection?: H1emuClient;
 
   constructor(
     serverPort: number,
@@ -219,16 +215,34 @@ export class ZoneServer extends EventEmitter {
     );
 
     this._h1emuServer = new H1emuServer()
-    this._h1emuclient = new H1emuClient({port: 1110, address: "127.0.0.1"} as RemoteInfo)
+    this._loginConnection = new H1emuClient({port: 1110, address: "127.0.0.1"} as RemoteInfo)
     
+    this._h1emuServer.on("session", (err: string, client: H1emuClient, status: number) => {
+      if (err) {
+        console.error(err);
+      } else {
+        debug(`Received session reply from ${client.address}:${client.port}`);
+        let connectionError = "Unknown error"
+        switch(status) {
+          case 0:
+            debug(`LoginConnection established`);
+            // start pingtimer here
+            break;
+          case 1:
+            connectionError = "Zone not whitelisted"
+          default:
+            debug(`LoginConnection refused: ${connectionError}`);
+            break;
+        }
+      }
+    });
+
     this._h1emuServer.on("data", (err: string, client: H1emuClient, packet: any) => {
       if (err) {
         console.error(err);
       } else {
         switch(packet.name) {
-          case "SessionReply":
-            debug(`Received session reply from ${client.address}:${client.port}`);
-            break;
+
           default:
             debug(`Unhandled h1emu packet: ${packet.name}`)
             break;
@@ -393,27 +407,11 @@ export class ZoneServer extends EventEmitter {
           { $set: { populationNumber: 0, populationLevel: 0 } }
         );
       }
-    if(this._mongoAddress && this._enableHttpServer){
-      this._httpServer = new Worker(`${__dirname}/workers/httpServer.js`, {
-        workerData: { MONGO_URL: this._mongoAddress, SERVER_PORT : this._httpServerPort},
-      });
-      this._httpServer.on("message", (message:httpServerMessage) => {
-        const {type,requestId} = message;
-        switch (type) {
-          case "ping":
-            const response:httpServerMessage = {type:"ping",requestId:requestId,data:"pong"}
-            this._httpServer.postMessage(response);
-            break;
-          default:
-            break;
-        }
-      })
-      }
     if(this._enableGarbageCollection){
       setInterval(()=>{this.garbageCollection()},120000);
     }
-    
-    this._h1emuServer.sendData(this._h1emuclient, "SessionRequest", {
+
+    this._h1emuServer.sendData(this._loginConnection, "SessionRequest", {
       serverId: 1
     })
     debug("Server ready");
