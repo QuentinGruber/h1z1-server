@@ -30,7 +30,6 @@ import fs from "fs";
 import { loginPacketsType } from "types/packets";
 import { Worker } from "worker_threads";
 import axios from 'axios';
-import { httpServerMessage } from "types/shared";
 
 const debugName = "LoginServer";
 const debug = require("debug")(debugName);
@@ -152,7 +151,7 @@ export class LoginServer extends EventEmitter {
       1110 // temp port
     )
 
-    this._h1emuServer.on("data", (err: string, client: any, packet: any) => {
+    this._h1emuServer.on("data", (err: string, client: H1emuClient, packet: any) => {
       if (err) {
         console.error(err);
       } else {
@@ -189,11 +188,11 @@ export class LoginServer extends EventEmitter {
       }
     });
 
-    this._h1emuServer.on("connect", (err: string, client: any) => {
+    this._h1emuServer.on("connect", (err: string, client: H1emuClient) => {
       debug(`Zone connected from ${client.address}:${client.port}`);
     });
 
-    this._h1emuServer.on("disconnect", (err: string, client: any, reason: number) => {
+    this._h1emuServer.on("disconnect", (err: string, client: H1emuClient, reason: number) => {
       debug(`ZoneConnection dropped: ${reason?"Connection Lost":"Unknown Error"}`);
       _.delete(this._zoneConnections, client.clientId);
     });

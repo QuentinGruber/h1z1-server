@@ -122,7 +122,7 @@ export class H1emuServer extends EventEmitter {
     process.exit(0);
   }
 
-  sendData(client: any, packetName: any, obj: any) {
+  sendData(client: Client = {} as Client, packetName: any, obj: any) {
     // blocks zone from sending packet without open session
     if(!client || !client.session && packetName !== "SessionRequest") return; 
     const data = this._protocol.pack(
@@ -140,7 +140,7 @@ export class H1emuServer extends EventEmitter {
   }
 
   connect(serverInfo: any, obj: any) {
-    this.sendData({address: serverInfo.address, port: serverInfo.port}, "SessionRequest", obj)
+    this.sendData({address: serverInfo.address, port: serverInfo.port} as Client, "SessionRequest", obj)
   }
 
   ping(client: any) {

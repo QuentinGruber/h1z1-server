@@ -17,7 +17,6 @@ import packetHandlers from "./zonepackethandlers";
 import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
 import { H1emuServer } from "../H1emuServer/h1emuserver";
 import { H1emuClient } from "../H1emuServer/h1emuclient";
-import { RemoteInfo } from "dgram";
 import {
   _,
   generateRandomGuid,
@@ -225,8 +224,8 @@ export class ZoneServer extends EventEmitter {
       }
     });
 
-    this._h1emuServer.on("disconnect", (err: string, client: any, reason: number) => {
-      debug(`LoginConnection dropped: ${reason?"Unknown Error":"Connection Lost"}`);
+    this._h1emuServer.on("disconnect", (err: string, client: H1emuClient, reason: number) => {
+      debug(`LoginConnection dropped: ${reason?"Connection Lost":"Unknown Error"}`);
       delete this._loginConnection;
     });
 
@@ -404,7 +403,6 @@ export class ZoneServer extends EventEmitter {
       setInterval(()=>{this.garbageCollection()},120000);
     }
 
-    //this._h1emuServer.sendData(this._loginConnection, "SessionRequest", )
     this._h1emuServer.connect(this._loginInfo, {
       serverId: 1
     });
