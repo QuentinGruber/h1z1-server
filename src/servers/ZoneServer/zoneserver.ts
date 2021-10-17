@@ -91,6 +91,7 @@ export class ZoneServer extends EventEmitter {
   _worldRoutineRadiusPercentage: number = 0.4;
   _enableGarbageCollection: boolean = true;
   _h1emuServer: H1emuServer;
+  _loginInfo: {} = {address: "127.0.0.1", port: 1110}
   _loginConnection?: H1emuClient;
 
   constructor(
@@ -214,27 +215,19 @@ export class ZoneServer extends EventEmitter {
       }
     );
 
-    this._h1emuServer = new H1emuServer()
-    this._loginConnection = new H1emuClient({port: 1110, address: "127.0.0.1"} as RemoteInfo)
+    this._h1emuServer = new H1emuServer() // opens local socket to connect to loginserver
     
     this._h1emuServer.on("session", (err: string, client: H1emuClient, status: number) => {
       if (err) {
         console.error(err);
       } else {
-        debug(`Received session reply from ${client.address}:${client.port}`);
-        let connectionError = "Unknown error"
-        switch(status) {
-          case 0:
-            debug(`LoginConnection established`);
-            // start pingtimer here
-            break;
-          case 1:
-            connectionError = "Zone not whitelisted"
-          default:
-            debug(`LoginConnection refused: ${connectionError}`);
-            break;
-        }
+        this._loginConnection = client;
       }
+    });
+
+    this._h1emuServer.on("disconnect", (err: string, client: any, reason: number) => {
+      debug(`LoginConnection dropped: ${reason?"Unknown Error":"Connection Lost"}`);
+      delete this._loginConnection;
     });
 
     this._h1emuServer.on("data", (err: string, client: H1emuClient, packet: any) => {
@@ -411,9 +404,10 @@ export class ZoneServer extends EventEmitter {
       setInterval(()=>{this.garbageCollection()},120000);
     }
 
-    this._h1emuServer.sendData(this._loginConnection, "SessionRequest", {
+    //this._h1emuServer.sendData(this._loginConnection, "SessionRequest", )
+    this._h1emuServer.connect(this._loginInfo, {
       serverId: 1
-    })
+    });
     debug("Server ready");
   }
 

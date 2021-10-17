@@ -152,27 +152,35 @@ export class LoginServer extends EventEmitter {
       1110 // temp port
     )
 
-    this._h1emuServer.on("data", (err: string, client: H1emuClient, packet: any) => {
+    this._h1emuServer.on("data", (err: string, client: any, packet: any) => {
       if (err) {
         console.error(err);
       } else {
-        const connectionEstablished = this._zoneConnections.includes(client.address);
+        const connectionEstablished = this._zoneConnections.includes(client.clientId);
         if(!connectionEstablished && packet.name !== "SessionRequest") return;
         switch(packet.name) {
           case "SessionRequest":
             let { serverId } = packet.data;
             debug(`Received session request from ${client.address}:${client.port}`);
             const status = this._zoneWhitelist.find(e => e.serverId === serverId)?.address === client.address?0:1;
-            this._h1emuServer.sendData(client, "SessionReply", { 
-              status: status
-            });
+            
+            if(status === 1) {
+              delete this._h1emuServer._clients[client.clientId];
+              return;
+            }
+            
             if(connectionEstablished) {
               debug("Zone already had connection established!");
             }
             else if(status === 0) {
               debug(`ZoneConnection established`);
-              this._zoneConnections.push(client.address);
+              client.session = true;
+              this._zoneConnections.push(client.clientId);
             }
+            this._h1emuServer.sendData(client, "SessionReply", { 
+              status: status
+            });
+
             break;
           default:
             debug(`Unhandled h1emu packet: ${packet.name}`)
@@ -181,8 +189,13 @@ export class LoginServer extends EventEmitter {
       }
     });
 
-    this._h1emuServer.on("connect", (err: string, client: H1emuClient) => {
+    this._h1emuServer.on("connect", (err: string, client: any) => {
       debug(`Zone connected from ${client.address}:${client.port}`);
+    });
+
+    this._h1emuServer.on("disconnect", (err: string, client: any, reason: number) => {
+      debug(`ZoneConnection dropped: ${reason?"Connection Lost":"Unknown Error"}`);
+      _.delete(this._zoneConnections, client.clientId);
     });
 
     this._h1emuServer.start();

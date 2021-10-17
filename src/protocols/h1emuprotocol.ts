@@ -36,7 +36,9 @@ const packets = [
   [
     "Ping",
     0x03,
-    {}
+    {
+      fields: []
+    }
   ],
   [
     "Ack",
