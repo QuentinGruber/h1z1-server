@@ -12,13 +12,13 @@
 // ======================================================================
 
 import { EventEmitter } from "events";
-import { H1emuProtocol } from "../../protocols/h1emuprotocol";
+import { H1emuProtocol } from "../../../protocols/h1emuprotocol";
 import { H1emuClient as Client, H1emuClient } from "./h1emuclient";
 import { Worker } from "worker_threads";
 import { RemoteInfo } from "dgram";
 
 const debug = require("debug")("H1emuServer");
-process.env.isBin && require("../shared/workers/udpServerWorker.js");
+process.env.isBin && require("../../shared/workers/udpServerWorker.js");
 
 export class H1emuServer extends EventEmitter {
   _serverPort?: number;
@@ -35,7 +35,7 @@ export class H1emuServer extends EventEmitter {
     super();
     this._serverPort = serverPort;
     this._protocol = new H1emuProtocol();
-    this._connection = new Worker(`${__dirname}/workers/udpServerWorker.js`, {
+    this._connection = new Worker(`${__dirname}/../workers/udpServerWorker.js`, {
       workerData: { serverPort: serverPort },
     });
     this._isLogin = serverPort?true:false;

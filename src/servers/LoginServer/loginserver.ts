@@ -14,8 +14,8 @@
 import { EventEmitter } from "events";
 
 import { SOEServer } from "../SoeServer/soeserver";
-import { H1emuServer } from "../H1emuServer/h1emuserver";
-import { H1emuClient} from "./../../servers/H1emuServer/h1emuclient";
+import { H1emuLoginServer } from "../H1emuServer/h1emuLoginServer";
+import { H1emuClient} from "../H1emuServer/shared/h1emuclient";
 import { LoginProtocol } from "../../protocols/loginprotocol";
 import { MongoClient } from "mongodb";
 import {
@@ -30,7 +30,6 @@ import fs from "fs";
 import { loginPacketsType } from "types/packets";
 import { Worker } from "worker_threads";
 import { httpServerMessage } from "types/shared";
-import axios from 'axios';
 
 const debugName = "LoginServer";
 const debug = require("debug")(debugName);
@@ -51,7 +50,7 @@ export class LoginServer extends EventEmitter {
   _httpServer!: Worker;
   _enableHttpServer: boolean;
   _httpServerPort: number = 8126;
-  _h1emuServer: H1emuServer;
+  _h1emuLoginServer: H1emuLoginServer;
   _zoneConnections: { [h1emuClientId: string]: {serverId:number} } = {};
   _zoneWhitelist: any[];
 
@@ -147,11 +146,11 @@ export class LoginServer extends EventEmitter {
     );
     this._zoneWhitelist = [{serverId: 1, address: "127.0.0.1"}];
 
-    this._h1emuServer = new H1emuServer(
+    this._h1emuLoginServer = new H1emuLoginServer(
       1110 // temp port
     )
 
-    this._h1emuServer.on("data", (err: string, client: H1emuClient, packet: any) => {
+    this._h1emuLoginServer.on("data", (err: string, client: H1emuClient, packet: any) => {
       if (err) {
         console.error(err);
       } else {
@@ -169,10 +168,10 @@ export class LoginServer extends EventEmitter {
                   this._zoneConnections[client.clientId] = serverId;
                 }
                 else{
-                  delete this._h1emuServer._clients[client.clientId];
+                  delete this._h1emuLoginServer._clients[client.clientId];
                   return;
                 }
-                this._h1emuServer.sendData(client, "SessionReply", { 
+                this._h1emuLoginServer.sendData(client, "SessionReply", { 
                   status: status
                 });
               }
@@ -186,16 +185,16 @@ export class LoginServer extends EventEmitter {
       }
     });
 
-    this._h1emuServer.on("connect", (err: string, client: H1emuClient) => {
+    this._h1emuLoginServer.on("connect", (err: string, client: H1emuClient) => {
       debug(`Zone connected from ${client.address}:${client.port}`);
     });
 
-    this._h1emuServer.on("disconnect", (err: string, client: H1emuClient, reason: number) => {
+    this._h1emuLoginServer.on("disconnect", (err: string, client: H1emuClient, reason: number) => {
       debug(`ZoneConnection dropped: ${reason?"Connection Lost":"Unknown Error"}`);
       delete this._zoneConnections[client.clientId];
     });
 
-    this._h1emuServer.start();
+    this._h1emuLoginServer.start();
   }
 
   sendData(client: Client, packetName: loginPacketsType, obj: any) {
@@ -389,12 +388,8 @@ export class LoginServer extends EventEmitter {
   }
 
 
-  async askZoneForDeletion(zoneHttpAddress:string,characterId:string,ownerId:string):Promise<number>{
-    try {
-      return (await axios.delete(`${zoneHttpAddress}/character?characterId=${characterId}&ownerId=${ownerId}`))?1:0;
-    } catch (error) {
-      return 0
-    }
+  askZoneForDeletion(zoneHttpAddress:string,characterId:string,ownerId:string):number{
+    return 1
   }
 
   async CharacterDeleteRequest(client: Client, packet: any) {
@@ -454,13 +449,8 @@ export class LoginServer extends EventEmitter {
     });
   }
 
-  async askZoneForLogin(zoneHttpAddress:string):Promise<number>{
-    // we will use the queue logic for that instead of a ping
-    try {
-      return await axios.get(zoneHttpAddress + "/ping")?1:0;
-    } catch (error) {
-      return 0
-    }
+  askZoneForLogin(zoneHttpAddress:string):number{
+    return 1
   }
 
   async CharacterLoginRequest(client: Client, packet: any) {
@@ -542,16 +532,16 @@ export class LoginServer extends EventEmitter {
   }
 
 
-  async askZoneForCreation(zoneHttpAddress:string,characterData:any):Promise<number>{
-    try {
-      return (await axios.post(zoneHttpAddress+"/character",{characterObj:{...characterData}}))?1:0
-    } catch (error) {
-      return 0
-    }
+  async askZoneForCreation(serverId:number,characterData:any):Promise<number>{
+    const askZoneForCreationPromise = await new Promise((resolve, reject) => {
+      resolve(1)
+      this._h1emuLoginServer.sendData({} as H1emuClient,"CharacterCreateRequest",{characterObjStringify:JSON.stringify(characterData)})
+    });
+    return askZoneForCreationPromise as number;
   }
 
-  async requestZoneCharacterCreation(zoneAddress: string, characterData: any) {
-    // todo
+  requestZoneCharacterCreation(zoneAddress: string, characterData: any):number {
+    return 1;
   }
 
   async CharacterCreateRequest(client: Client, packet: any) {
@@ -594,8 +584,7 @@ export class LoginServer extends EventEmitter {
       await this._db
         .collection("characters")
         .insertOne(newCharacterData);
-      const serverHttpAddress = (await this._db.collection("servers").findOne({serverId:serverId})).serverHttpAddress
-      creationStatus = await this.askZoneForCreation(serverHttpAddress,newCharacterData)?1:0;
+      creationStatus = await this.askZoneForCreation(serverId,newCharacterData)?1:0;
       if(creationStatus == 0){
         await this._db
         .collection("characters")

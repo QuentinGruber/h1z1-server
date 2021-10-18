@@ -365,7 +365,7 @@ export class ZoneServer2016 extends ZoneServer {
               { $set: { populationNumber: 0, populationLevel: 0 } }
             );
         */
-    this._h1emuServer.connect(this._loginServerInfo, {
+    this._h1emuZoneServer.connect(this._loginServerInfo, {
       serverId: 1
     });
     debug("Server ready");

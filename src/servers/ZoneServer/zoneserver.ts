@@ -15,8 +15,8 @@ import { EventEmitter } from "events";
 import { GatewayServer } from "../GatewayServer/gatewayserver";
 import packetHandlers from "./zonepackethandlers";
 import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
-import { H1emuServer } from "../H1emuServer/h1emuserver";
-import { H1emuClient } from "../H1emuServer/h1emuclient";
+import { H1emuZoneServer } from "../H1emuServer/h1emuZoneServer";
+import { H1emuClient } from "../H1emuServer/shared/h1emuclient";
 import {
   _,
   generateRandomGuid,
@@ -89,7 +89,7 @@ export class ZoneServer extends EventEmitter {
   _spawnTimerMs: number = 10;
   _worldRoutineRadiusPercentage: number = 0.4;
   _enableGarbageCollection: boolean = true;
-  _h1emuServer: H1emuServer;
+  _h1emuZoneServer: H1emuZoneServer;
   // TODO: "_loginServerInfo" by default that should be empty and result in a crash if it's not specified before the server start() function ( if in !solomode )
   _loginServerInfo: {} = {address: "127.0.0.1", port: 1110} 
   _loginConnection?: H1emuClient;
@@ -215,9 +215,9 @@ export class ZoneServer extends EventEmitter {
       }
     );
 
-    this._h1emuServer = new H1emuServer() // opens local socket to connect to loginserver
+    this._h1emuZoneServer = new H1emuZoneServer() // opens local socket to connect to loginserver
     
-    this._h1emuServer.on("session", (err: string, client: H1emuClient, status: number) => {
+    this._h1emuZoneServer.on("session", (err: string, client: H1emuClient, status: number) => {
       if (err) {
         console.error(err);
       } else {
@@ -225,17 +225,17 @@ export class ZoneServer extends EventEmitter {
       }
     });
 
-    this._h1emuServer.on("sessionfailed", (err: string, client: H1emuClient, status: number) => {
+    this._h1emuZoneServer.on("sessionfailed", (err: string, client: H1emuClient, status: number) => {
       console.error("h1emuServer sessionfailed")
       process.exit(1)
     });
 
-    this._h1emuServer.on("disconnect", (err: string, client: H1emuClient, reason: number) => {
+    this._h1emuZoneServer.on("disconnect", (err: string, client: H1emuClient, reason: number) => {
       debug(`LoginConnection dropped: ${reason?"Connection Lost":"Unknown Error"}`);
       delete this._loginConnection;
     });
 
-    this._h1emuServer.on("data", async (err: string, client: H1emuClient, packet: any) => {
+    this._h1emuZoneServer.on("data", async (err: string, client: H1emuClient, packet: any) => {
       if (err) {
         console.error(err);
       } else {
@@ -249,9 +249,9 @@ export class ZoneServer extends EventEmitter {
               if(!charactersArray){
                 await collection.insertOne(characterObj);
               }
-              this._h1emuServer.sendData(client,"CharacterCreateReply",{status:1})
+              this._h1emuZoneServer.sendData(client,"CharacterCreateReply",{status:1})
             } catch (error) {
-              this._h1emuServer.sendData(client,"CharacterCreateReply",{status:0})
+              this._h1emuZoneServer.sendData(client,"CharacterCreateReply",{status:0})
             }
             break;
            }
@@ -262,13 +262,13 @@ export class ZoneServer extends EventEmitter {
             const charactersArray = await collection.find({ characterId: characterId }).toArray();
             if ( charactersArray[0].ownerId === ownerId && charactersArray.length === 1) {
               await collection.deleteOne({ characterId: characterId })
-              this._h1emuServer.sendData(client,"CharacterDeleteReply",{status:1})
+              this._h1emuZoneServer.sendData(client,"CharacterDeleteReply",{status:1})
             }
             else{
-              this._h1emuServer.sendData(client,"CharacterDeleteReply",{status:0})
+              this._h1emuZoneServer.sendData(client,"CharacterDeleteReply",{status:0})
             }
           } catch (error) {
-            this._h1emuServer.sendData(client,"CharacterDeleteReply",{status:0})
+            this._h1emuZoneServer.sendData(client,"CharacterDeleteReply",{status:0})
           }
           break;
          }
@@ -279,11 +279,11 @@ export class ZoneServer extends EventEmitter {
       }
     });
 
-    this._h1emuServer.on("connect", (err: string, client: Client) => {
+    this._h1emuZoneServer.on("connect", (err: string, client: Client) => {
       debug(`Login connected from ${client.address}:${client.port}`);
     });
     
-    this._h1emuServer.start()
+    this._h1emuZoneServer.start()
   }
 
   onZoneDataEvent(err: any, client: Client, packet: any) {
@@ -440,7 +440,7 @@ export class ZoneServer extends EventEmitter {
       setInterval(()=>{this.garbageCollection()},120000);
     }
 
-    this._h1emuServer.connect(this._loginServerInfo, {
+    this._h1emuZoneServer.connect(this._loginServerInfo, {
       serverId: 1
     });
     debug("Server ready");
