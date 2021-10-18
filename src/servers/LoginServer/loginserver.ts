@@ -29,6 +29,7 @@ import { Client, GameServer } from "../../types/loginserver";
 import fs from "fs";
 import { loginPacketsType } from "types/packets";
 import { Worker } from "worker_threads";
+import { httpServerMessage } from "types/shared";
 import axios from 'axios';
 
 const debugName = "LoginServer";
@@ -652,6 +653,22 @@ export class LoginServer extends EventEmitter {
       this._crcLength,
       this._udpLength
     );
+    if(this._mongoAddress && this._enableHttpServer){
+      this._httpServer = new Worker(`${__dirname}/workers/httpServer.js`, {
+        workerData: { MONGO_URL: this._mongoAddress, SERVER_PORT : this._httpServerPort},
+      });
+      this._httpServer.on("message", (message:httpServerMessage) => {
+        const {type,requestId} = message;
+        switch (type) {
+          case "ping":
+            const response:httpServerMessage = {type:"ping",requestId:requestId,data:"pong"}
+            this._httpServer.postMessage(response);
+            break;
+          default:
+            break;
+        }
+      })
+    }
   }
 
   data(collectionName: string): any | undefined {
