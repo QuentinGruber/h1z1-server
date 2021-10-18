@@ -29,8 +29,6 @@ export class H1emuServer extends EventEmitter {
   _pingTime: number = 10000; // ms
   _pingTimeout: number = 60000;
   _pingTimer!: NodeJS.Timeout;
-  _isLogin: boolean;
-
   constructor(serverPort?: number) {
     super();
     this._serverPort = serverPort;
@@ -38,7 +36,6 @@ export class H1emuServer extends EventEmitter {
     this._connection = new Worker(`${__dirname}/../../shared/workers/udpServerWorker.js`, {
       workerData: { serverPort: serverPort },
     });
-    this._isLogin = serverPort?true:false;
   }
 
 
@@ -57,42 +54,7 @@ export class H1emuServer extends EventEmitter {
   }
 
   messageHandler(messageType:string,data:Buffer,client:H1emuClient):void{
-    switch(messageType) {
-      case "incomingPacket":
-        const packet = this._protocol.parse(data);
-        console.log(packet)
-        if (!packet) return;
-        switch(packet.name) {
-          case "Ping":
-            if(this._isLogin) this.ping(client);
-            client.lastPing = Date.now();
-            break;
-          case "SessionReply":{
-            debug(`Received session reply from ${client.address}:${client.port}`);
-            if(packet.data.status === 1 ){
-              debug(`LoginConnection established`);
-              client.session = true;
-              this._pingTimer = setTimeout(
-                () => this.ping(client),
-                this._pingTime
-              );
-              this.emit("session", null, client, packet.data.status);
-            }
-            else{
-              debug(`LoginConnection refused: Zone not whitelisted`);
-              this.emit("sessionfailed", null, client, packet.data.status);
-            }
-            break;
-          }
-          default:
-            this.emit("data", null, client, packet);
-            break;
-        }
-        break;
-      default:
-        debug(`Unknown message type ${messageType}`)
-        break;
-    }
+    throw new Error("You need to implement messageHandler !");
   }
 
   connectionHandler(message:any):void{
@@ -106,22 +68,6 @@ export class H1emuServer extends EventEmitter {
     this._connection.on("message", (message)=>this.connectionHandler(message));
 
     this._connection.postMessage({ type: "bind" });
-
-    if(this._isLogin) {
-      const zonePings = setTimeout(
-        () => {
-          for (const key in this._clients) {
-            const client = this._clients[key];
-            if(Date.now() > client.lastPing + this._pingTimeout) {
-              this.emit("disconnect", null, client, 1);
-              delete this._clients[client.clientId];
-            }
-          }
-          zonePings.refresh();
-        },
-        this._pingTime
-      );
-    }
   }
 
   stop(): void {
@@ -152,12 +98,6 @@ export class H1emuServer extends EventEmitter {
 
   ping(client: any) {
     this.sendData(client, "Ping", {});
-    if(this._isLogin) return;
-    if(Date.now() > client.lastPing + this._pingTimeout) {
-      this.emit("disconnect", null, client, 1);
-      delete this._clients[client.clientId];
-      return;
-    }
     this._pingTimer.refresh();
   }
 
