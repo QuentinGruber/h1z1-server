@@ -46,18 +46,39 @@ const packets = [
     {}
   ],
   [
-    "ZoneInfoRequest",
+    "CharacterCreateRequest",
     0x05,
     {
         fields: [
+          { name: "characterObjStringify", type: "string", defaultValue: "" },
         ]
     }
   ],
   [
-    "ZoneInfoReply",
+    "CharacterCreateReply",
     0x06,
     {
         fields: [
+          { name: "status", type: "boolean", defaultValue: 0 },
+        ]
+    }
+  ],
+  [
+    "CharacterDeleteRequest",
+    0x07,
+    {
+        fields: [
+          { name: "characterId", type: "uint32", defaultValue: 0 },
+          { name: "ownerId", type: "uint32", defaultValue: 0 },
+        ]
+    }
+  ],
+  [
+    "CharacterDeleteReply",
+    0x08,
+    {
+        fields: [
+          { name: "status", type: "boolean", defaultValue: 0 },
         ]
     }
   ],
