@@ -28,7 +28,7 @@ export class H1emuServer extends EventEmitter {
   _connection: Worker;
   _pingTime: number = 10000; // ms
   _pingTimeout: number = 60000;
-  _pingTimer: any;
+  _pingTimer!: NodeJS.Timeout;
   _isLogin: boolean;
 
   constructor(serverPort?: number) {
@@ -68,12 +68,10 @@ export class H1emuServer extends EventEmitter {
             client.lastPing = Date.now();
             break;
           case "SessionReply":{
-            if(packet.data.status === 0) {
-              client.session = true;
-            }
             debug(`Received session reply from ${client.address}:${client.port}`);
             if(packet.data.status === 1 ){
               debug(`LoginConnection established`);
+              client.session = true;
               this._pingTimer = setTimeout(
                 () => this.ping(client),
                 this._pingTime
