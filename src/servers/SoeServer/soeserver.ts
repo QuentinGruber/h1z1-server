@@ -59,7 +59,7 @@ export class SOEServer extends EventEmitter {
     this._useMultiPackets = useMultiPackets;
     this._waitQueueTimeMs = 20;
     this._clients = {};
-    this._connection = new Worker(`${__dirname}/workers/udpServerWorker.js`, {
+    this._connection = new Worker(`${__dirname}/../shared/workers/udpServerWorker.js`, {
       workerData: { serverPort: serverPort },
     });
   }
