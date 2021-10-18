@@ -229,12 +229,43 @@ export class ZoneServer extends EventEmitter {
       delete this._loginConnection;
     });
 
-    this._h1emuServer.on("data", (err: string, client: H1emuClient, packet: any) => {
+    this._h1emuServer.on("data", async (err: string, client: H1emuClient, packet: any) => {
       if (err) {
         console.error(err);
       } else {
         switch(packet.name) {
-
+          case "CharacterCreateRequest":{
+            try {
+              const { characterObjStringify } = packet;
+              const characterObj = JSON.parse(characterObjStringify);
+              const collection = (this._db as Db).collection('characters')
+              const charactersArray = await collection.findOne({ characterId: characterObj.characterId });
+              if(!charactersArray){
+                await collection.insertOne(characterObj);
+              }
+              this._h1emuServer.sendData(client,"CharacterCreateReply",{status:1})
+            } catch (error) {
+              this._h1emuServer.sendData(client,"CharacterCreateReply",{status:0})
+            }
+            break;
+           }
+         case "CharacterDeleteRequest":{
+          try {
+            const { characterId, ownerId } = packet;
+            const collection = (this._db as Db).collection('characters')
+            const charactersArray = await collection.find({ characterId: characterId }).toArray();
+            if ( charactersArray[0].ownerId === ownerId && charactersArray.length === 1) {
+              await collection.deleteOne({ characterId: characterId })
+              this._h1emuServer.sendData(client,"CharacterDeleteReply",{status:1})
+            }
+            else{
+              this._h1emuServer.sendData(client,"CharacterDeleteReply",{status:0})
+            }
+          } catch (error) {
+            this._h1emuServer.sendData(client,"CharacterDeleteReply",{status:0})
+          }
+          break;
+         }
           default:
             debug(`Unhandled h1emu packet: ${packet.name}`)
             break;
