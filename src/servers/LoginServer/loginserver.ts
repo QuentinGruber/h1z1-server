@@ -27,7 +27,7 @@ import { Client, GameServer } from "../../types/loginserver";
 import fs from "fs";
 import { loginPacketsType } from "types/packets";
 import { Worker } from "worker_threads";
-import axios from "axios";
+import axios from 'axios';
 import { httpServerMessage } from "types/shared";
 
 const debugName = "LoginServer";
@@ -303,15 +303,12 @@ export class LoginServer extends EventEmitter {
     let servers;
     if (!this._soloMode) {
       servers = await this._db.collection("servers").find().toArray();
-      const userWhiteList = await this._db
-        .collection("servers-whitelist")
-        .find({ userId: client.loginSessionId })
-        .toArray();
-      if (userWhiteList) {
+      const userWhiteList = await this._db.collection("servers-whitelist").find({userId:client.loginSessionId}).toArray()
+      if(userWhiteList){
         for (let i = 0; i < servers.length; i++) {
           if (!servers[i].allowedAccess) {
             for (let y = 0; y < userWhiteList.length; y++) {
-              if (servers[i].serverId == userWhiteList[y].serverId) {
+              if(servers[i].serverId == userWhiteList[y].serverId){
                 servers[i].allowedAccess = true;
               }
             }
@@ -334,19 +331,12 @@ export class LoginServer extends EventEmitter {
     this.sendData(client, "ServerListReply", { servers: servers });
   }
 
-  async askZoneForDeletion(
-    zoneHttpAddress: string,
-    characterId: string,
-    ownerId: string
-  ): Promise<number> {
+
+  async askZoneForDeletion(zoneHttpAddress:string,characterId:string,ownerId:string):Promise<number>{
     try {
-      return (await axios.delete(
-        `${zoneHttpAddress}/character?characterId=${characterId}&ownerId=${ownerId}`
-      ))
-        ? 1
-        : 0;
+      return (await axios.delete(`${zoneHttpAddress}/character?characterId=${characterId}&ownerId=${ownerId}`))?1:0;
     } catch (error) {
-      return 0;
+      return 0
     }
   }
 
@@ -374,34 +364,31 @@ export class LoginServer extends EventEmitter {
       }
     } else {
       const characterId = (packet.result as any).characterId;
-      const characterQuery = { characterId: characterId };
+      const characterQuery = { characterId: characterId};
       const charracterToDelete = await this._db
         .collection("characters")
         .findOne(characterQuery);
-      if (charracterToDelete) {
-        const { serverId, ownerId } = charracterToDelete;
-        const serverHttpAddress = (
-          await this._db.collection("servers").findOne({ serverId: serverId })
-        ).serverHttpAddress;
-        deletionStatus = await this.askZoneForDeletion(
-          serverHttpAddress,
-          characterId,
-          ownerId
-        );
-        if (deletionStatus) {
+      if(charracterToDelete){
+        const {serverId, ownerId} = charracterToDelete;
+        const serverHttpAddress = (await this._db.collection("servers").findOne({serverId:serverId})).serverHttpAddress
+        deletionStatus = await this.askZoneForDeletion(serverHttpAddress,characterId,ownerId);
+        if(deletionStatus){
           await this._db
             .collection("characters")
-            .deleteOne(characterQuery, function (err: string) {
-              if (err) {
-                debug(err);
-              } else {
-                debug(
-                  `Character ${(packet.result as any).characterId} deleted !`
-                );
+            .deleteOne(
+              characterQuery,
+              function (err: string) {
+                if (err) {
+                  debug(err);
+                } else {
+                  debug(
+                    `Character ${(packet.result as any).characterId} deleted !`
+                  );
+                }
               }
-            });
+            );
+          }
         }
-      }
     }
     this.sendData(client, "CharacterDeleteReply", {
       characterId: (packet.result as any).characterId,
@@ -410,12 +397,12 @@ export class LoginServer extends EventEmitter {
     });
   }
 
-  async askZoneForLogin(zoneHttpAddress: string): Promise<number> {
+  async askZoneForLogin(zoneHttpAddress:string):Promise<number>{
     // we will use the queue logic for that instead of a ping
     try {
-      return (await axios.get(zoneHttpAddress + "/ping")) ? 1 : 0;
+      return await axios.get(zoneHttpAddress + "/ping")?1:0;
     } catch (error) {
-      return 0;
+      return 0
     }
   }
 
@@ -496,18 +483,12 @@ export class LoginServer extends EventEmitter {
     debug("CharacterLoginRequest");
   }
 
-  async askZoneForCreation(
-    zoneHttpAddress: string,
-    characterData: any
-  ): Promise<number> {
+
+  async askZoneForCreation(zoneHttpAddress:string,characterData:any):Promise<number>{
     try {
-      return (await axios.post(zoneHttpAddress + "/character", {
-        characterObj: { ...characterData },
-      }))
-        ? 1
-        : 0;
+      return (await axios.post(zoneHttpAddress+"/character",{characterObj:{...characterData}}))?1:0
     } catch (error) {
-      return 0;
+      return 0
     }
   }
 
@@ -547,24 +528,16 @@ export class LoginServer extends EventEmitter {
         );
       }
     } else {
-      const newCharacterData = {
-        ...newCharacter,
-        ownerId: client.loginSessionId,
-      };
-      await this._db.collection("characters").insertOne(newCharacterData);
-      const serverHttpAddress = (
-        await this._db.collection("servers").findOne({ serverId: serverId })
-      ).serverHttpAddress;
-      creationStatus = (await this.askZoneForCreation(
-        serverHttpAddress,
-        newCharacterData
-      ))
-        ? 1
-        : 0;
-      if (creationStatus == 0) {
+      const newCharacterData = { ...newCharacter, ownerId: client.loginSessionId };
+      await this._db
+        .collection("characters")
+        .insertOne(newCharacterData);
+      const serverHttpAddress = (await this._db.collection("servers").findOne({serverId:serverId})).serverHttpAddress
+      creationStatus = await this.askZoneForCreation(serverHttpAddress,newCharacterData)?1:0;
+      if(creationStatus == 0){
         await this._db
-          .collection("characters")
-          .deleteOne({ characterId: newCharacterData.characterId });
+        .collection("characters")
+        .deleteOne({characterId:newCharacterData.characterId});
       }
     }
     this.sendData(client, "CharacterCreateReply", {
@@ -616,28 +589,21 @@ export class LoginServer extends EventEmitter {
       this._crcLength,
       this._udpLength
     );
-    if (this._mongoAddress && this._enableHttpServer) {
+    if(this._mongoAddress && this._enableHttpServer){
       this._httpServer = new Worker(`${__dirname}/workers/httpServer.js`, {
-        workerData: {
-          MONGO_URL: this._mongoAddress,
-          SERVER_PORT: this._httpServerPort,
-        },
+        workerData: { MONGO_URL: this._mongoAddress, SERVER_PORT : this._httpServerPort},
       });
-      this._httpServer.on("message", (message: httpServerMessage) => {
-        const { type, requestId } = message;
+      this._httpServer.on("message", (message:httpServerMessage) => {
+        const {type,requestId} = message;
         switch (type) {
           case "ping":
-            const response: httpServerMessage = {
-              type: "ping",
-              requestId: requestId,
-              data: "pong",
-            };
+            const response:httpServerMessage = {type:"ping",requestId:requestId,data:"pong"}
             this._httpServer.postMessage(response);
             break;
           default:
             break;
         }
-      });
+      })
     }
   }
 

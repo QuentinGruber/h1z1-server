@@ -48,12 +48,12 @@ export class SOEOutputStream extends EventEmitter {
     }
     if (data.length <= this._fragmentSize) {
       this._sequence++;
-      if (this._enableCaching) {
+      if(this._enableCaching){
         this._cache[this._sequence] = {
           data: data,
           fragment: false,
         };
-      }
+    }
       this.emit("data", null, data, this._sequence, false);
     } else {
       const header = new (Buffer as any).alloc(4);
@@ -62,7 +62,7 @@ export class SOEOutputStream extends EventEmitter {
       for (let i = 0; i < data.length; i += this._fragmentSize) {
         this._sequence++;
         const fragmentData = data.slice(i, i + this._fragmentSize);
-        if (this._enableCaching) {
+        if(this._enableCaching){
           this._cache[this._sequence] = {
             data: fragmentData,
             fragment: true,

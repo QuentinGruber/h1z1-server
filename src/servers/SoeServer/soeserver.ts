@@ -142,7 +142,7 @@ export class SOEServer extends EventEmitter {
 
   handlePacket(client: SOEClient, packet: any) {
     const { soePacket } = packet;
-    const result = soePacket.result;
+    const result =  soePacket.result;
     if (result) {
       switch (soePacket.name) {
         case "SessionRequest":
@@ -248,8 +248,7 @@ export class SOEServer extends EventEmitter {
           (client as any).outputStream.resendData(result.sequence);
           break;
         case "Ack":
-          if (result.sequence > 63000) {
-            // see https://github.com/QuentinGruber/h1z1-server/issues/363
+          if (result.sequence > 63000) { // see https://github.com/QuentinGruber/h1z1-server/issues/363
             console.log("Warn Ack, sequence ", result.sequence);
             this.emit("PacketLimitationReached", client);
           }
@@ -282,7 +281,7 @@ export class SOEServer extends EventEmitter {
     this._crcSeed = crcSeed;
     this._crcLength = crcLength;
     this._udpLength = udpLength;
-    if (this._isLocal) {
+    if(this._isLocal){
       this._useMultiPackets = false;
     }
     this._connection.on("message", (message) => {
@@ -303,7 +302,7 @@ export class SOEServer extends EventEmitter {
             this._cryptoKey
           );
 
-          if (this._isLocal) {
+          if(this._isLocal){
             client.outputStream._enableCaching = false;
           }
 
@@ -355,7 +354,7 @@ export class SOEServer extends EventEmitter {
           }
           (client as any).ackTimer = setTimeout(() => this.checkAck(client));
 
-          if (!this._isLocal) {
+          if(!this._isLocal){
             (client as any).outOfOrderTimer = setTimeout(
               () => this.checkOutOfOrderQueue(client),
               50

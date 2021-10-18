@@ -5,7 +5,7 @@ export interface Packet {
   flags: any;
 }
 export interface httpServerMessage {
-  type: string;
-  requestId: number;
-  data: any;
+    type:string
+    requestId:number
+    data:any
 }

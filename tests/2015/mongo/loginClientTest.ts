@@ -6,8 +6,9 @@ const zoneServer = new ZoneServer(
   1
 );
 zoneServer._gatewayServer._soeServer._useMultiPackets = false;
-zoneServer.start().then(() => {
-  new LoginServer(1115, "mongodb://localhost:27017/").start().then(() => {
+zoneServer.start().then(()=>{
+  new LoginServer(1115, "mongodb://localhost:27017/").start().then(()=>{
+
     setTimeout(() => {
       var client = new LoginClient(
         295110,
@@ -51,6 +52,8 @@ zoneServer.start().then(() => {
     }, 2000);
   });
 });
+
+
 
 setInterval(() => {
   throw new Error("Test timed out!");
