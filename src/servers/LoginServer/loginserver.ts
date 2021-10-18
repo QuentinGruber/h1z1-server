@@ -50,9 +50,9 @@ export class LoginServer extends EventEmitter {
   _appDataFolder: string;
   _httpServer!: Worker;
   _enableHttpServer: boolean;
-  _httpServerPort: number = 1116;
+  _httpServerPort: number = 8126;
   _h1emuServer: H1emuServer;
-  _zoneConnections: string[];
+  _zoneConnections: { [h1emuClientId: string]: {serverId:number} } = {};
   _zoneWhitelist: any[];
 
   constructor(serverPort: number, mongoAddress = "") {
@@ -145,7 +145,6 @@ export class LoginServer extends EventEmitter {
         }
       }
     );
-    this._zoneConnections = [];
     this._zoneWhitelist = [{serverId: 1, address: "127.0.0.1"}];
 
     this._h1emuServer = new H1emuServer(
@@ -156,35 +155,33 @@ export class LoginServer extends EventEmitter {
       if (err) {
         console.error(err);
       } else {
-        const connectionEstablished = this._zoneConnections.includes(client.clientId);
-        if(!connectionEstablished && packet.name !== "SessionRequest") return;
-        switch(packet.name) {
-          case "SessionRequest":
-            let { serverId } = packet.data;
-            debug(`Received session request from ${client.address}:${client.port}`);
-            const status = this._zoneWhitelist.find(e => e.serverId === serverId)?.address === client.address?0:1;
-            
-            if(status === 1) {
-              delete this._h1emuServer._clients[client.clientId];
-              return;
+        const connectionEstablished = this._zoneConnections[client.clientId]?1:0;
+        if(connectionEstablished || packet.name === "SessionRequest" ) {
+          switch(packet.name) {
+            case "SessionRequest":{
+              if(!connectionEstablished){
+                let { serverId } = packet.data;
+                debug(`Received session request from ${client.address}:${client.port}`);
+                const status = this._zoneWhitelist.find(e => e.serverId === serverId)?.address === client.address?1:0;
+                if(status === 1) {
+                  debug(`ZoneConnection established`);
+                  client.session = true;
+                  this._zoneConnections[client.clientId] = serverId;
+                }
+                else{
+                  delete this._h1emuServer._clients[client.clientId];
+                  return;
+                }
+                this._h1emuServer.sendData(client, "SessionReply", { 
+                  status: status
+                });
+              }
+              break;
             }
-            
-            if(connectionEstablished) {
-              debug("Zone already had connection established!");
-            }
-            else if(status === 0) {
-              debug(`ZoneConnection established`);
-              client.session = true;
-              this._zoneConnections.push(client.clientId);
-            }
-            this._h1emuServer.sendData(client, "SessionReply", { 
-              status: status
-            });
-
-            break;
-          default:
-            debug(`Unhandled h1emu packet: ${packet.name}`)
-            break;
+            default:
+              debug(`Unhandled h1emu packet: ${packet.name}`)
+              break;
+          }
         }
       }
     });
@@ -195,7 +192,7 @@ export class LoginServer extends EventEmitter {
 
     this._h1emuServer.on("disconnect", (err: string, client: H1emuClient, reason: number) => {
       debug(`ZoneConnection dropped: ${reason?"Connection Lost":"Unknown Error"}`);
-      _.delete(this._zoneConnections, client.clientId);
+      delete this._zoneConnections[client.clientId];
     });
 
     this._h1emuServer.start();
@@ -470,13 +467,14 @@ export class LoginServer extends EventEmitter {
     let charactersLoginInfo: any;
     const { serverId, characterId } = packet.result;
     if (!this._soloMode) {
-      const { serverAddress, serverHttpAddress } = await this._db
+      const { serverAddress } = await this._db
         .collection("servers")
         .findOne({ serverId: serverId });
       const character = await this._db
         .collection("characters")
         .findOne({ characterId: characterId });
-      const connectionStatus = await this.askZoneForLogin(serverHttpAddress);
+        console.log(this._zoneConnections)
+      const connectionStatus = Object.values(this._zoneConnections).includes(serverId);
       charactersLoginInfo = {
         unknownQword1: "0x0",
         unknownDword1: 0,

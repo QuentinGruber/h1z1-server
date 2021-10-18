@@ -13,8 +13,9 @@
 
 import { EventEmitter } from "events";
 import { H1emuProtocol } from "../../protocols/h1emuprotocol";
-import { H1emuClient as Client } from "./h1emuclient";
+import { H1emuClient as Client, H1emuClient } from "./h1emuclient";
 import { Worker } from "worker_threads";
+import { RemoteInfo } from "dgram";
 
 const debug = require("debug")("H1emuServer");
 process.env.isBin && require("../shared/workers/udpServerWorker.js");
@@ -40,67 +41,75 @@ export class H1emuServer extends EventEmitter {
     this._isLogin = serverPort?true:false;
   }
 
-  start(): void {
-    this._connection.on("message", (message) => {
-      const { data: dataUint8, remote } = message;
-      const data = Buffer.from(dataUint8);
-      let client: any;
-      const clientId = `${remote.address}:${remote.port}`
 
-      if (!this._clients[clientId]) {
-        client = this._clients[clientId] = new Client(remote);
-        this.emit("connect", null, this._clients[clientId]);
-      }
-      else {
-        client = this._clients[clientId]
-      }
+  clientHandler(remote:RemoteInfo):H1emuClient{
+    let client: any;
+    const clientId = `${remote.address}:${remote.port}`
 
-      switch(message.type) {
-        case "incomingPacket":
-          const packet = this._protocol.parse(data);
-          if (!packet) return;
-          switch(packet.name) {
-            case "Ping":
-              if(this._isLogin) this.ping(client);
-              client.lastPing = Date.now();
-              break;
-            case "SessionReply":
-              if(packet.data.status === 0) {
-                client.session = true;
-              }
-              debug(`Received session reply from ${client.address}:${client.port}`);
-              let connectionError = "Unknown error"
-              switch(packet.data.status) {
-                case 0:
-                  console.log(`LoginConnection established`);
-                  this._pingTimer = setTimeout(
-                    () => this.ping(client),
-                    this._pingTime
-                  );
-                  this.emit("session", null, client, packet.data.status);
-                  break;
-                case 1:
-                  connectionError = "Zone not whitelisted"
-                default:
-                  debug(`LoginConnection refused: ${connectionError}`);
-                  this.emit("sessionfailed", null, client, packet.data.status);
-                  break;
-              }
-              break;
-            default:
-              this.emit("data", null, client, packet);
-              break;
+    if (!this._clients[clientId]) {
+      client = this._clients[clientId] = new Client(remote);
+      this.emit("connect", null, this._clients[clientId]);
+    }
+    else {
+      client = this._clients[clientId]
+    }
+    return client;
+  }
+
+  messageHandler(messageType:string,data:Buffer,client:H1emuClient):void{
+    switch(messageType) {
+      case "incomingPacket":
+        const packet = this._protocol.parse(data);
+        console.log(packet)
+        if (!packet) return;
+        switch(packet.name) {
+          case "Ping":
+            if(this._isLogin) this.ping(client);
+            client.lastPing = Date.now();
+            break;
+          case "SessionReply":{
+            if(packet.data.status === 0) {
+              client.session = true;
+            }
+            debug(`Received session reply from ${client.address}:${client.port}`);
+            if(packet.data.status === 1 ){
+              debug(`LoginConnection established`);
+              this._pingTimer = setTimeout(
+                () => this.ping(client),
+                this._pingTime
+              );
+              this.emit("session", null, client, packet.data.status);
+            }
+            else{
+              debug(`LoginConnection refused: Zone not whitelisted`);
+              this.emit("sessionfailed", null, client, packet.data.status);
+            }
+            break;
           }
-          break;
-        default:
-          debug(`Unknown message type ${message.type}`)
-          break;
-      }
+          default:
+            this.emit("data", null, client, packet);
+            break;
+        }
+        break;
+      default:
+        debug(`Unknown message type ${messageType}`)
+        break;
+    }
+  }
 
-    });
-    if(this._isLogin) { // only server (loginserver) has its port bound
-      this._connection.postMessage({ type: "bind" });
+  connectionHandler(message:any):void{
+    const { data: dataUint8, remote } = message;
+    const client = this.clientHandler(remote);
+    const data = Buffer.from(dataUint8);
+    this.messageHandler(message.type,data,client);
+  }
 
+  start(): void {
+    this._connection.on("message", (message)=>this.connectionHandler(message));
+
+    this._connection.postMessage({ type: "bind" });
+
+    if(this._isLogin) {
       const zonePings = setTimeout(
         () => {
           for (const key in this._clients) {
@@ -140,7 +149,7 @@ export class H1emuServer extends EventEmitter {
   }
 
   connect(serverInfo: any, obj: any) {
-    this.sendData({address: serverInfo.address, port: serverInfo.port} as Client, "SessionRequest", obj)
+    this.sendData(serverInfo as Client, "SessionRequest", obj)
   }
 
   ping(client: any) {

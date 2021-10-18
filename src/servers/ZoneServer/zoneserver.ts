@@ -225,6 +225,11 @@ export class ZoneServer extends EventEmitter {
       }
     });
 
+    this._h1emuServer.on("sessionfailed", (err: string, client: H1emuClient, status: number) => {
+      console.error("h1emuServer sessionfailed")
+      process.exit(1)
+    });
+
     this._h1emuServer.on("disconnect", (err: string, client: H1emuClient, reason: number) => {
       debug(`LoginConnection dropped: ${reason?"Connection Lost":"Unknown Error"}`);
       delete this._loginConnection;
