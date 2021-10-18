@@ -90,7 +90,8 @@ export class ZoneServer extends EventEmitter {
   _worldRoutineRadiusPercentage: number = 0.4;
   _enableGarbageCollection: boolean = true;
   _h1emuServer: H1emuServer;
-  _loginInfo: {} = {address: "127.0.0.1", port: 1110}
+  // TODO: "_loginServerInfo" by default that should be empty and result in a crash if it's not specified before the server start() function ( if in !solomode )
+  _loginServerInfo: {} = {address: "127.0.0.1", port: 1110} 
   _loginConnection?: H1emuClient;
 
   constructor(
@@ -434,7 +435,7 @@ export class ZoneServer extends EventEmitter {
       setInterval(()=>{this.garbageCollection()},120000);
     }
 
-    this._h1emuServer.connect(this._loginInfo, {
+    this._h1emuServer.connect(this._loginServerInfo, {
       serverId: 1
     });
     debug("Server ready");
