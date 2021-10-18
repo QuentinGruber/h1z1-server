@@ -98,7 +98,6 @@ export class H1emuServer extends EventEmitter {
 
   ping(client: any) {
     this.sendData(client, "Ping", {});
-    this._pingTimer.refresh();
   }
 
 }

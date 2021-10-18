@@ -47,7 +47,9 @@ export class H1emuZoneServer extends H1emuServer{
             if(Date.now() > client.lastPing + this._pingTimeout) {
               this.emit("disconnect", null, client, 1);
               delete this._clients[client.clientId];
-              clearTimeout(this._pingTimer)
+            }
+            else{
+                this._pingTimer.refresh();
             }
         }
     }

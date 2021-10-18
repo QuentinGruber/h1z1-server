@@ -3,7 +3,7 @@ import { H1emuServer } from "./shared/h1emuserver";
 const debug = require("debug")("H1emuServer");
 
 export class H1emuLoginServer extends H1emuServer {
-  characterCreationPending: { [requestId: number]: any } = {};
+  zonePings: NodeJS.Timeout;
   constructor(serverPort?: number) {
     super(serverPort);
     this.messageHandler = function (
@@ -49,7 +49,7 @@ export class H1emuLoginServer extends H1emuServer {
           break;
       }
     };
-    const zonePings = setTimeout(() => {
+    this.zonePings = setTimeout(() => {
       for (const key in this._clients) {
         const client = this._clients[key];
         if (Date.now() > client.lastPing + this._pingTimeout) {
@@ -57,7 +57,7 @@ export class H1emuLoginServer extends H1emuServer {
           delete this._clients[client.clientId];
         }
       }
-      zonePings.refresh();
+      this.zonePings.refresh();
     }, this._pingTime);
   }
 }
