@@ -35,7 +35,7 @@ export class H1emuServer extends EventEmitter {
     super();
     this._serverPort = serverPort;
     this._protocol = new H1emuProtocol();
-    this._connection = new Worker(`${__dirname}/../workers/udpServerWorker.js`, {
+    this._connection = new Worker(`${__dirname}/../../shared/workers/udpServerWorker.js`, {
       workerData: { serverPort: serverPort },
     });
     this._isLogin = serverPort?true:false;
