@@ -356,32 +356,41 @@ export class ZoneServer extends EventEmitter {
         .insertOne({ worldId: this._worldId });
       await this.saveWorld();
     }
-    if (!this._soloMode){
+    if (!this._soloMode) {
       await this._db
         ?.collection("servers")
         .findOneAndUpdate(
           { serverId: this._worldId },
           { $set: { populationNumber: 0, populationLevel: 0 } }
         );
-      }
-    if(this._mongoAddress && this._enableHttpServer){
+    }
+    if (this._mongoAddress && this._enableHttpServer) {
       this._httpServer = new Worker(`${__dirname}/workers/httpServer.js`, {
-        workerData: { MONGO_URL: this._mongoAddress, SERVER_PORT : this._httpServerPort},
+        workerData: {
+          MONGO_URL: this._mongoAddress,
+          SERVER_PORT: this._httpServerPort,
+        },
       });
-      this._httpServer.on("message", (message:httpServerMessage) => {
-        const {type,requestId} = message;
+      this._httpServer.on("message", (message: httpServerMessage) => {
+        const { type, requestId } = message;
         switch (type) {
           case "ping":
-            const response:httpServerMessage = {type:"ping",requestId:requestId,data:"pong"}
+            const response: httpServerMessage = {
+              type: "ping",
+              requestId: requestId,
+              data: "pong",
+            };
             this._httpServer.postMessage(response);
             break;
           default:
             break;
         }
-      })
-      }
-    if(this._enableGarbageCollection){
-      setInterval(()=>{this.garbageCollection()},120000);
+      });
+    }
+    if (this._enableGarbageCollection) {
+      setInterval(() => {
+        this.garbageCollection();
+      }, 120000);
     }
     debug("Server ready");
   }
@@ -593,16 +602,17 @@ export class ZoneServer extends EventEmitter {
     this._packetHandlers = require("./zonepackethandlers").default;
   }
 
-  garbageCollection(): void { // backup plan to free memory
+  garbageCollection(): void {
+    // backup plan to free memory
     for (const clientKey in this._clients) {
       //@ts-ignore
-      if(this._clients[clientKey]._destroyed ){
+      if (this._clients[clientKey]._destroyed) {
         console.log(`${clientKey} removed by garbage collection`);
         delete this._clients[clientKey];
       }
     }
   }
-  
+
   timeoutClient(client: Client): void {
     debug(
       `Client disconnected from ${client.address}:${client.port} ( ping timeout )`
