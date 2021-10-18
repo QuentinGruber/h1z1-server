@@ -14,30 +14,15 @@ export class H1emuLoginServer extends H1emuServer {
       switch (messageType) {
         case "incomingPacket":
           const packet = this._protocol.parse(data);
-          console.log(packet);
           if (!packet) return;
           switch (packet.name) {
             case "Ping":
               this.ping(client);
               client.lastPing = Date.now();
               break;
-            case "SessionReply": {
-              debug(
-                `Received session reply from ${client.address}:${client.port}`
-              );
-              if (packet.data.status === 1) {
-                debug(`LoginConnection established`);
-                client.session = true;
-                this._pingTimer = setTimeout(
-                  () => this.ping(client),
-                  this._pingTime
-                );
-                this.emit("session", null, client, packet.data.status);
-              } else {
-                debug(`LoginConnection refused: Zone not whitelisted`);
-                this.emit("sessionfailed", null, client, packet.data.status);
-              }
-              break;
+            case "CharacterCreateReply":{
+                this.emit("characterCreation",packet)
+                break;
             }
             default:
               this.emit("data", null, client, packet);

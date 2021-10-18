@@ -241,17 +241,17 @@ export class ZoneServer extends EventEmitter {
       } else {
         switch(packet.name) {
           case "CharacterCreateRequest":{
+            const { characterObjStringify,reqId } = packet.data;
             try {
-              const { characterObjStringify } = packet;
               const characterObj = JSON.parse(characterObjStringify);
               const collection = (this._db as Db).collection('characters')
               const charactersArray = await collection.findOne({ characterId: characterObj.characterId });
               if(!charactersArray){
                 await collection.insertOne(characterObj);
               }
-              this._h1emuZoneServer.sendData(client,"CharacterCreateReply",{status:1})
+              this._h1emuZoneServer.sendData(client,"CharacterCreateReply",{reqId:reqId,status:1})
             } catch (error) {
-              this._h1emuZoneServer.sendData(client,"CharacterCreateReply",{status:0})
+              this._h1emuZoneServer.sendData(client,"CharacterCreateReply",{reqId:reqId,status:0})
             }
             break;
            }
