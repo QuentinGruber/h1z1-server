@@ -190,9 +190,6 @@ export class LoginServer extends EventEmitter {
       this._characterCreationPending[packet.data.reqId](packet.data.status)
       delete this._characterCreationPending[packet.data.reqId];
     });
-    this._h1emuLoginServer.on("connect", (err: string, client: H1emuClient) => {
-      debug(`Zone connected from ${client.address}:${client.port}`);
-    });
 
     this._h1emuLoginServer.on("disconnect", (err: string, client: H1emuClient, reason: number) => {
       debug(`ZoneConnection dropped: ${reason?"Connection Lost":"Unknown Error"}`);

@@ -279,10 +279,6 @@ export class ZoneServer extends EventEmitter {
         }
       }
     });
-
-    this._h1emuZoneServer.on("connect", (err: string, client: Client) => {
-      debug(`Login connected from ${client.address}:${client.port}`);
-    });
     
     this._h1emuZoneServer.start()
   }

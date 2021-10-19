@@ -47,7 +47,6 @@ export class H1emuServer extends EventEmitter {
       // if client doesn't exist yet, only accept sessionrequest or sessionreply
       if(opcode !== 0x01 && opcode !== 0x02) return;
       client = this._clients[clientId] = new H1emuClient(remote);
-      this.emit("connect", null, this._clients[clientId]);
     }
     else {
       client = this._clients[clientId]
