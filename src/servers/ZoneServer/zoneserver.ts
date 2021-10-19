@@ -439,7 +439,7 @@ export class ZoneServer extends EventEmitter {
       await this.saveWorld();
     }
     if (!this._soloMode){
-      debug("Start H1emuZoneServer")
+      debug("Starting H1emuZoneServer")
       if(!this._loginServerInfo.address){
         await this.fetchLoginInfo()
       }
