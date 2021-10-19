@@ -222,6 +222,7 @@ export class ZoneServer extends EventEmitter {
         console.error(err);
       } else {
         this._loginConnection = client;
+        debug(`LoginConnection established`);
       }
     });
 

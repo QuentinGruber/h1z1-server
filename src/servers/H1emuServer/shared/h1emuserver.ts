@@ -13,7 +13,7 @@
 
 import { EventEmitter } from "events";
 import { H1emuProtocol } from "../../../protocols/h1emuprotocol";
-import { H1emuClient as Client, H1emuClient } from "./h1emuclient";
+import { H1emuClient as H1emuClient } from "./h1emuclient";
 import { Worker } from "worker_threads";
 import { RemoteInfo } from "dgram";
 
@@ -39,12 +39,14 @@ export class H1emuServer extends EventEmitter {
   }
 
 
-  clientHandler(remote:RemoteInfo):H1emuClient{
+  clientHandler(remote:RemoteInfo, opcode: number):H1emuClient|void{
     let client: any;
     const clientId = `${remote.address}:${remote.port}`
 
     if (!this._clients[clientId]) {
-      client = this._clients[clientId] = new Client(remote);
+      // if client doesn't exist yet, only accept sessionrequest or sessionreply
+      if(opcode !== 0x01 && opcode !== 0x02) return;
+      client = this._clients[clientId] = new H1emuClient(remote);
       this.emit("connect", null, this._clients[clientId]);
     }
     else {
@@ -59,9 +61,9 @@ export class H1emuServer extends EventEmitter {
 
   connectionHandler(message:any):void{
     const { data: dataUint8, remote } = message;
-    const client = this.clientHandler(remote);
     const data = Buffer.from(dataUint8);
-    this.messageHandler(message.type,data,client);
+    const client = this.clientHandler(remote, dataUint8[0]);
+    client?this.messageHandler(message.type,data,client):debug(`Connection rejected from remote ${remote.address}:${remote.port}`);
   }
 
   start(): void {
@@ -75,7 +77,7 @@ export class H1emuServer extends EventEmitter {
     process.exit(0);
   }
 
-  sendData(client: Client = {} as Client, packetName: any, obj: any) {
+  sendData(client: H1emuClient|undefined, packetName: any, obj: any) {
     // blocks zone from sending packet without open session
     if(!client || !client.session && packetName !== "SessionRequest") return; 
     const data = this._protocol.pack(
@@ -92,13 +94,8 @@ export class H1emuServer extends EventEmitter {
     });
   }
 
-  connect(serverInfo: any, obj: any) {
-    this.sendData(serverInfo as Client, "SessionRequest", obj)
-  }
-
   ping(client: any) {
     this.sendData(client, "Ping", {});
-    this._pingTimer.refresh();
   }
 
 }

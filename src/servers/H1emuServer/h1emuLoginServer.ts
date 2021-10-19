@@ -21,24 +21,6 @@ export class H1emuLoginServer extends H1emuServer {
               this.ping(client);
               client.lastPing = Date.now();
               break;
-            case "SessionReply": {
-              debug(
-                `Received session reply from ${client.address}:${client.port}`
-              );
-              if (packet.data.status === 1) {
-                debug(`LoginConnection established`);
-                client.session = true;
-                this._pingTimer = setTimeout(
-                  () => this.ping(client),
-                  this._pingTime
-                );
-                this.emit("session", null, client, packet.data.status);
-              } else {
-                debug(`LoginConnection refused: Zone not whitelisted`);
-                this.emit("sessionfailed", null, client, packet.data.status);
-              }
-              break;
-            }
             default:
               this.emit("data", null, client, packet);
               break;
@@ -49,7 +31,7 @@ export class H1emuLoginServer extends H1emuServer {
           break;
       }
     };
-    const zonePings = setTimeout(() => {
+    this._pingTimer = setTimeout(() => {
       for (const key in this._clients) {
         const client = this._clients[key];
         if (Date.now() > client.lastPing + this._pingTimeout) {
@@ -57,7 +39,7 @@ export class H1emuLoginServer extends H1emuServer {
           delete this._clients[client.clientId];
         }
       }
-      zonePings.refresh();
+      this._pingTimer.refresh();
     }, this._pingTime);
   }
 }
