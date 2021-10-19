@@ -50,9 +50,9 @@ export class LoginServer extends EventEmitter {
   _httpServer!: Worker;
   _enableHttpServer: boolean;
   _httpServerPort: number = 80;
-  _h1emuLoginServer: H1emuLoginServer;
+  _h1emuLoginServer!: H1emuLoginServer;
   _zoneConnections: { [h1emuClientId: string]: number } = {};
-  _zoneWhitelist: any[];
+  _zoneWhitelist!: any[];
   _internalReqCount:number = 0;
   _characterCreationPending: { [requestId: number]: any } = {};
 
@@ -146,57 +146,58 @@ export class LoginServer extends EventEmitter {
         }
       }
     );
-    this._zoneWhitelist = [{serverId: 1, address: "127.0.0.1"}];
 
-    this._h1emuLoginServer = new H1emuLoginServer(
-      1110 // temp port
-    )
+    if(!this._soloMode){
+      this._zoneWhitelist = [{serverId: 1, address: "127.0.0.1"}]; // TODO: this should be fetched from mongo
+      
+      this._h1emuLoginServer = new H1emuLoginServer(1110)
 
-    this._h1emuLoginServer.on("data", (err: string, client: H1emuClient, packet: any) => {
-      if (err) {
-        console.error(err);
-      } else {
-        const connectionEstablished = this._zoneConnections[client.clientId]?1:0;
-        if(connectionEstablished || packet.name === "SessionRequest" ) {
-          switch(packet.name) {
-            case "SessionRequest":{
-              if(!connectionEstablished){
-                let { serverId } = packet.data;
-                debug(`Received session request from ${client.address}:${client.port}`);
-                const status = this._zoneWhitelist.find(e => e.serverId === serverId)?.address === client.address?1:0;
-                if(status === 1) {
-                  debug(`ZoneConnection established`);
-                  client.session = true;
-                  this._zoneConnections[client.clientId] = serverId;
+      this._h1emuLoginServer.on("data", (err: string, client: H1emuClient, packet: any) => {
+        if (err) {
+          console.error(err);
+        } else {
+          const connectionEstablished = this._zoneConnections[client.clientId]?1:0;
+          if(connectionEstablished || packet.name === "SessionRequest" ) {
+            switch(packet.name) {
+              case "SessionRequest":{
+                if(!connectionEstablished){
+                  let { serverId } = packet.data;
+                  debug(`Received session request from ${client.address}:${client.port}`);
+                  const status = this._zoneWhitelist.find(e => e.serverId === serverId)?.address === client.address?1:0;
+                  if(status === 1) {
+                    debug(`ZoneConnection established`);
+                    client.session = true;
+                    this._zoneConnections[client.clientId] = serverId;
+                  }
+                  else{
+                    delete this._h1emuLoginServer._clients[client.clientId];
+                    return;
+                  }
+                  this._h1emuLoginServer.sendData(client, "SessionReply", { 
+                    status: status
+                  });
                 }
-                else{
-                  delete this._h1emuLoginServer._clients[client.clientId];
-                  return;
-                }
-                this._h1emuLoginServer.sendData(client, "SessionReply", { 
-                  status: status
-                });
+                break;
               }
-              break;
+              default:
+                debug(`Unhandled h1emu packet: ${packet.name}`)
+                break;
             }
-            default:
-              debug(`Unhandled h1emu packet: ${packet.name}`)
-              break;
           }
         }
-      }
-    });
-    this._h1emuLoginServer.on("characterCreation", (packet:any) => {
-      this._characterCreationPending[packet.data.reqId](packet.data.status)
-      delete this._characterCreationPending[packet.data.reqId];
-    });
+      });
+      this._h1emuLoginServer.on("characterCreation", (packet:any) => {
+        this._characterCreationPending[packet.data.reqId](packet.data.status)
+        delete this._characterCreationPending[packet.data.reqId];
+      });
 
-    this._h1emuLoginServer.on("disconnect", (err: string, client: H1emuClient, reason: number) => {
-      debug(`ZoneConnection dropped: ${reason?"Connection Lost":"Unknown Error"}`);
-      delete this._zoneConnections[client.clientId];
-    });
+      this._h1emuLoginServer.on("disconnect", (err: string, client: H1emuClient, reason: number) => {
+        debug(`ZoneConnection dropped: ${reason?"Connection Lost":"Unknown Error"}`);
+        delete this._zoneConnections[client.clientId];
+      });
 
-    this._h1emuLoginServer.start();
+      this._h1emuLoginServer.start();
+  }
   }
 
   sendData(client: Client, packetName: loginPacketsType, obj: any) {

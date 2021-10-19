@@ -89,7 +89,7 @@ export class ZoneServer extends EventEmitter {
   _spawnTimerMs: number = 10;
   _worldRoutineRadiusPercentage: number = 0.4;
   _enableGarbageCollection: boolean = true;
-  _h1emuZoneServer: H1emuZoneServer;
+  _h1emuZoneServer!: H1emuZoneServer;
   // TODO: "_loginServerInfo" by default that should be empty and result in a crash if it's not specified before the server start() function ( if in !solomode )
   _loginServerInfo: {} = {address: "127.0.0.1", port: 1110} 
 
@@ -214,73 +214,75 @@ export class ZoneServer extends EventEmitter {
       }
     );
 
-    this._h1emuZoneServer = new H1emuZoneServer() // opens local socket to connect to loginserver
-    
-    this._h1emuZoneServer.on("session", (err: string, client: H1emuClient, status: number) => {
-      if (err) {
-        console.error(err);
-      } else {
-        debug(`LoginConnection established`);
-      }
-    });
+    if(!this._soloMode){
+      this._h1emuZoneServer = new H1emuZoneServer() // opens local socket to connect to loginserver
+      
+      this._h1emuZoneServer.on("session", (err: string, client: H1emuClient, status: number) => {
+        if (err) {
+          console.error(err);
+        } else {
+          debug(`LoginConnection established`);
+        }
+      });
 
-    this._h1emuZoneServer.on("sessionfailed", (err: string, client: H1emuClient, status: number) => {
-      console.error("h1emuServer sessionfailed")
-      process.exit(1)
-    });
+      this._h1emuZoneServer.on("sessionfailed", (err: string, client: H1emuClient, status: number) => {
+        console.error("h1emuServer sessionfailed")
+        process.exit(1)
+      });
 
-    this._h1emuZoneServer.on("disconnect", (err: string, client: H1emuClient, reason: number) => {
-      debug(`LoginConnection dropped: ${reason?"Connection Lost":"Unknown Error"}`);
-    });
+      this._h1emuZoneServer.on("disconnect", (err: string, client: H1emuClient, reason: number) => {
+        debug(`LoginConnection dropped: ${reason?"Connection Lost":"Unknown Error"}`);
+      });
 
-    this._h1emuZoneServer.on("data", async (err: string, client: H1emuClient, packet: any) => {
-      if (err) {
-        console.error(err);
-      } else {
-        switch(packet.name) {
-          case "CharacterCreateRequest":{
-            const { characterObjStringify,reqId } = packet.data;
-            try {
-              const characterObj = JSON.parse(characterObjStringify);
-              const collection = (this._db as Db).collection('characters')
-              const charactersArray = await collection.findOne({ characterId: characterObj.characterId });
-              if(!charactersArray){
-                await collection.insertOne(characterObj);
+      this._h1emuZoneServer.on("data", async (err: string, client: H1emuClient, packet: any) => {
+        if (err) {
+          console.error(err);
+        } else {
+          switch(packet.name) {
+            case "CharacterCreateRequest":{
+              const { characterObjStringify,reqId } = packet.data;
+              try {
+                const characterObj = JSON.parse(characterObjStringify);
+                const collection = (this._db as Db).collection('characters')
+                const charactersArray = await collection.findOne({ characterId: characterObj.characterId });
+                if(!charactersArray){
+                  await collection.insertOne(characterObj);
+                }
+                this._h1emuZoneServer.sendData(client,"CharacterCreateReply",{reqId:reqId,status:1})
+              } catch (error) {
+                this._h1emuZoneServer.sendData(client,"CharacterCreateReply",{reqId:reqId,status:0})
               }
-              this._h1emuZoneServer.sendData(client,"CharacterCreateReply",{reqId:reqId,status:1})
+              break;
+            }
+          case "CharacterDeleteRequest":{
+            try {
+              const { characterId, ownerId } = packet;
+              const collection = (this._db as Db).collection('characters')
+              const charactersArray = await collection.find({ characterId: characterId }).toArray();
+              if ( charactersArray[0].ownerId === ownerId && charactersArray.length === 1) {
+                await collection.deleteOne({ characterId: characterId })
+                this._h1emuZoneServer.sendData(client,"CharacterDeleteReply",{status:1})
+              }
+              else{
+                this._h1emuZoneServer.sendData(client,"CharacterDeleteReply",{status:0})
+              }
             } catch (error) {
-              this._h1emuZoneServer.sendData(client,"CharacterCreateReply",{reqId:reqId,status:0})
-            }
-            break;
-           }
-         case "CharacterDeleteRequest":{
-          try {
-            const { characterId, ownerId } = packet;
-            const collection = (this._db as Db).collection('characters')
-            const charactersArray = await collection.find({ characterId: characterId }).toArray();
-            if ( charactersArray[0].ownerId === ownerId && charactersArray.length === 1) {
-              await collection.deleteOne({ characterId: characterId })
-              this._h1emuZoneServer.sendData(client,"CharacterDeleteReply",{status:1})
-            }
-            else{
               this._h1emuZoneServer.sendData(client,"CharacterDeleteReply",{status:0})
             }
-          } catch (error) {
-            this._h1emuZoneServer.sendData(client,"CharacterDeleteReply",{status:0})
-          }
-          break;
-         }
-          default:
-            debug(`Unhandled h1emu packet: ${packet.name}`)
             break;
+          }
+            default:
+              debug(`Unhandled h1emu packet: ${packet.name}`)
+              break;
+          }
         }
-      }
-    });
-    
-    this._h1emuZoneServer.setLoginInfo(this._loginServerInfo, {
-      serverId: 1
-    })
-  }
+      });
+      
+      this._h1emuZoneServer.setLoginInfo(this._loginServerInfo, {
+        serverId: 1
+      })
+    }
+}
 
   onZoneDataEvent(err: any, client: Client, packet: any) {
     if (err) {
@@ -425,6 +427,7 @@ export class ZoneServer extends EventEmitter {
       await this.saveWorld();
     }
     if (!this._soloMode){
+      this._h1emuZoneServer.start()
       await this._db
         ?.collection("servers")
         .findOneAndUpdate(
@@ -435,7 +438,6 @@ export class ZoneServer extends EventEmitter {
     if(this._enableGarbageCollection){
       setInterval(()=>{this.garbageCollection()},120000);
     }
-    this._h1emuZoneServer.start()
     debug("Server ready");
   }
 
