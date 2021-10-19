@@ -26,8 +26,8 @@ export class H1emuServer extends EventEmitter {
   _udpLength: number = 512;
   _clients: any = {};
   _connection: Worker;
-  _pingTime: number = 10000; // ms
-  _pingTimeout: number = 60000;
+  _pingTime: number = 5000; // ms
+  _pingTimeout: number = 12000;
   _pingTimer!: NodeJS.Timeout;
   constructor(serverPort?: number) {
     super();
@@ -42,7 +42,6 @@ export class H1emuServer extends EventEmitter {
   clientHandler(remote:RemoteInfo, opcode: number):H1emuClient|void{
     let client: any;
     const clientId = `${remote.address}:${remote.port}`
-
     if (!this._clients[clientId]) {
       // if client doesn't exist yet, only accept sessionrequest or sessionreply
       if(opcode !== 0x01 && opcode !== 0x02) return;

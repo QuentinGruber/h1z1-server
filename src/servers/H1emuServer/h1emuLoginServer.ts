@@ -12,12 +12,12 @@ export class H1emuLoginServer extends H1emuServer {
     ): void {
       switch (messageType) {
         case "incomingPacket":
+          client.lastPing = Date.now();
           const packet = this._protocol.parse(data);
           if (!packet) return;
           switch (packet.name) {
             case "Ping":
               this.ping(client);
-              client.lastPing = Date.now();
               break;
             case "CharacterCreateReply":{
                 this.emit("characterCreation",packet)

@@ -92,7 +92,6 @@ export class ZoneServer extends EventEmitter {
   _h1emuZoneServer: H1emuZoneServer;
   // TODO: "_loginServerInfo" by default that should be empty and result in a crash if it's not specified before the server start() function ( if in !solomode )
   _loginServerInfo: {} = {address: "127.0.0.1", port: 1110} 
-  _loginConnection?: H1emuClient;
 
   constructor(
     serverPort: number,
@@ -221,7 +220,6 @@ export class ZoneServer extends EventEmitter {
       if (err) {
         console.error(err);
       } else {
-        this._loginConnection = client;
         debug(`LoginConnection established`);
       }
     });
@@ -233,7 +231,6 @@ export class ZoneServer extends EventEmitter {
 
     this._h1emuZoneServer.on("disconnect", (err: string, client: H1emuClient, reason: number) => {
       debug(`LoginConnection dropped: ${reason?"Connection Lost":"Unknown Error"}`);
-      delete this._loginConnection;
     });
 
     this._h1emuZoneServer.on("data", async (err: string, client: H1emuClient, packet: any) => {
@@ -280,7 +277,9 @@ export class ZoneServer extends EventEmitter {
       }
     });
     
-    this._h1emuZoneServer.start()
+    this._h1emuZoneServer.setLoginInfo(this._loginServerInfo, {
+      serverId: 1
+    })
   }
 
   onZoneDataEvent(err: any, client: Client, packet: any) {
@@ -436,10 +435,7 @@ export class ZoneServer extends EventEmitter {
     if(this._enableGarbageCollection){
       setInterval(()=>{this.garbageCollection()},120000);
     }
-
-    this._h1emuZoneServer.connect(this._loginServerInfo, {
-      serverId: 1
-    });
+    this._h1emuZoneServer.start()
     debug("Server ready");
   }
 

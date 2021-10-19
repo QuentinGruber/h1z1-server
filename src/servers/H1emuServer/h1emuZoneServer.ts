@@ -4,17 +4,19 @@ const debug = require("debug")("H1emuServer");
 
 export class H1emuZoneServer extends H1emuServer{
   _loginServerInfo: any;
+  _sessionData: any;
+  _loginConnection?: H1emuClient;
   constructor(serverPort?:number){
     super(serverPort)
     this.messageHandler = (messageType:string,data:Buffer,client:H1emuClient):void => {
       switch(messageType) {
         case "incomingPacket":
+          client.lastPing = Date.now();
           const packet = this._protocol.parse(data);
-          console.log(packet)
+          debug(packet)
           if (!packet) return;
           switch(packet.name) {
             case "Ping":
-              client.lastPing = Date.now();
               break;
             case "SessionReply":{
               debug(`Received session reply from ${client.address}:${client.port}`);
@@ -30,10 +32,7 @@ export class H1emuZoneServer extends H1emuServer{
               }
               if( packet.data.status === 1 ){
                 client.session = true;
-                this._pingTimer = setTimeout(
-                  () => {this.ping(client);this._pingTimer.refresh();},
-                  this._pingTime
-                );
+                this._loginConnection = client;
                 this.emit("session", null, client, packet.data.status);
               }
               else{
@@ -52,17 +51,41 @@ export class H1emuZoneServer extends H1emuServer{
           break;
       }
     }
-    this.ping = (client:H1emuClient)=> {
-      super.ping(client);
-      if(Date.now() > client.lastPing + this._pingTimeout) {
-        this.emit("disconnect", null, client, 1);
-        delete this._clients[client.clientId];
-        clearTimeout(this._pingTimer)
+    this.ping = (clientId: string)=> {
+      const client = this._clients[clientId];
+      if(this._clients[clientId] && client.session){
+        super.ping(client);
+        if(Date.now() > client.lastPing + this._pingTimeout) {
+          this.emit("disconnect", null, client, 1);
+          delete this._loginConnection;
+          delete this._clients[client.clientId];
+        }
       }
+      else {
+        this.connect();
+      }
+      this._pingTimer.refresh();
     }
   }
-  connect(serverInfo: any, obj: any){
+  connect(){
+    this.sendData(this._loginServerInfo as H1emuClient, "SessionRequest", this._sessionData)
+  }
+
+  setLoginInfo(serverInfo: any, obj: any){
     this._loginServerInfo = serverInfo;
-    this.sendData(serverInfo as H1emuClient, "SessionRequest", obj)
+    this._sessionData = obj;
+  }
+
+  start(){
+    if(!this._loginServerInfo && !this._sessionData) {
+      debug("[ERROR] H1emuZoneServer started without setting login info!");
+      return;
+    }
+    super.start();
+    this.connect();
+    this._pingTimer = setTimeout(
+      () => {this.ping(`${this._loginServerInfo.address}:${this._loginServerInfo.port}`);},
+      this._pingTime
+    );
   }
 }
