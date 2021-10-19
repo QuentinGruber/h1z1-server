@@ -51,8 +51,10 @@ export class LoginServer extends EventEmitter {
   _enableHttpServer: boolean;
   _httpServerPort: number = 8126;
   _h1emuLoginServer: H1emuLoginServer;
-  _zoneConnections: { [h1emuClientId: string]: {serverId:number} } = {};
+  _zoneConnections: { [h1emuClientId: string]: number } = {};
   _zoneWhitelist: any[];
+  _internalReqCount:number = 0;
+  _characterCreationPending: { [requestId: number]: any } = {};
 
   constructor(serverPort: number, mongoAddress = "") {
     super();
@@ -184,7 +186,10 @@ export class LoginServer extends EventEmitter {
         }
       }
     });
-
+    this._h1emuLoginServer.on("characterCreation", (packet:any) => {
+      this._characterCreationPending[packet.data.reqId](packet.data.status)
+      delete this._characterCreationPending[packet.data.reqId];
+    });
     this._h1emuLoginServer.on("connect", (err: string, client: H1emuClient) => {
       debug(`Zone connected from ${client.address}:${client.port}`);
     });
@@ -534,8 +539,13 @@ export class LoginServer extends EventEmitter {
 
   async askZoneForCreation(serverId:number,characterData:any):Promise<number>{
     const askZoneForCreationPromise = await new Promise((resolve, reject) => {
-      resolve(1)
-      this._h1emuLoginServer.sendData({} as H1emuClient,"CharacterCreateRequest",{characterObjStringify:JSON.stringify(characterData)})
+      this._internalReqCount++;
+      const reqId = this._internalReqCount;
+      const zoneConnectionIndex = Object.values(this._zoneConnections).findIndex(e => e === serverId);
+      const zoneConnectionString = Object.keys(this._zoneConnections)[zoneConnectionIndex]
+      const [address,port] = zoneConnectionString.split(":");
+      this._h1emuLoginServer.sendData({address:address,port:port,clientId:zoneConnectionString,session:true} as any,"CharacterCreateRequest",{reqId:reqId,characterObjStringify:JSON.stringify(characterData)})
+      this._characterCreationPending[reqId] = resolve;
     });
     return askZoneForCreationPromise as number;
   }

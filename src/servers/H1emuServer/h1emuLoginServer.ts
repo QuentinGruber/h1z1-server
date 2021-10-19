@@ -3,7 +3,6 @@ import { H1emuServer } from "./shared/h1emuserver";
 const debug = require("debug")("H1emuServer");
 
 export class H1emuLoginServer extends H1emuServer {
-  characterCreationPending: { [requestId: number]: any } = {};
   constructor(serverPort?: number) {
     super(serverPort);
     this.messageHandler = function (
@@ -14,13 +13,16 @@ export class H1emuLoginServer extends H1emuServer {
       switch (messageType) {
         case "incomingPacket":
           const packet = this._protocol.parse(data);
-          console.log(packet);
           if (!packet) return;
           switch (packet.name) {
             case "Ping":
               this.ping(client);
               client.lastPing = Date.now();
               break;
+            case "CharacterCreateReply":{
+                this.emit("characterCreation",packet)
+                break;
+            }
             default:
               this.emit("data", null, client, packet);
               break;

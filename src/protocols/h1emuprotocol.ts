@@ -50,6 +50,7 @@ const packets = [
     0x05,
     {
         fields: [
+          { name: "reqId", type: "uint32", defaultValue: 0 },
           { name: "characterObjStringify", type: "string", defaultValue: "" },
         ]
     }
@@ -59,6 +60,7 @@ const packets = [
     0x06,
     {
         fields: [
+          { name: "reqId", type: "uint32", defaultValue: 0 },
           { name: "status", type: "boolean", defaultValue: 0 },
         ]
     }
