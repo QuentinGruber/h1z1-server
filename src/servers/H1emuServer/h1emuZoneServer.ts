@@ -6,6 +6,7 @@ export class H1emuZoneServer extends H1emuServer{
   _loginServerInfo: any;
   _sessionData: any;
   _loginConnection?: H1emuClient;
+  _maxConnectionRetry:number = 0;
   constructor(serverPort?:number){
     super(serverPort)
     this.messageHandler = (messageType:string,data:Buffer,client:H1emuClient):void => {
@@ -69,6 +70,10 @@ export class H1emuZoneServer extends H1emuServer{
   }
   connect(){
     this.sendData(this._loginServerInfo as H1emuClient, "SessionRequest", this._sessionData)
+    this._maxConnectionRetry++;
+    if(this._maxConnectionRetry > 10){
+      throw new Error("Can't connect to loginServer");
+    }
   }
 
   setLoginInfo(serverInfo: any, obj: any){
