@@ -1,0 +1,1 @@
+{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_"}],"uuid":"a1e97f749e9c4622ada4658958a7eee7","collectionName":"zone-whitelist"}

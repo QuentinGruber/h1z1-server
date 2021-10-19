@@ -148,7 +148,6 @@ export class LoginServer extends EventEmitter {
     );
 
     if(!this._soloMode){
-      this._zoneWhitelist = [{serverId: 1, address: "127.0.0.1"}]; // TODO: this should be fetched from mongo
       
       this._h1emuLoginServer = new H1emuLoginServer(1110)
 
@@ -640,6 +639,7 @@ export class LoginServer extends EventEmitter {
       (await mongoClient.db("h1server").collections()).length ||
         (await initMongo(this._mongoAddress, debugName));
       this._db = mongoClient.db("h1server");
+      this._zoneWhitelist = await this._db.collection("zone-whitelist").find({}).toArray();
     }
 
     if (this._soloMode) {
