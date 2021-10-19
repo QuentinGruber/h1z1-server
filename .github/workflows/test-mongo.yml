@@ -17,7 +17,6 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm i
-      - run: npm run build
       - name: MongoDB in GitHub Actions
         uses: supercharge/mongodb-github-action@1.6.0
       - run: npm run build-tests
