@@ -425,7 +425,7 @@ export class LoginServer extends EventEmitter {
       if(charracterToDelete){
         const {serverId, ownerId} = charracterToDelete;
         const serverHttpAddress = (await this._db.collection("servers").findOne({serverId:serverId})).serverHttpAddress
-        deletionStatus = await this.askZoneForDeletion(serverHttpAddress,characterId,ownerId);
+        deletionStatus = this.askZoneForDeletion(serverHttpAddress,characterId,ownerId);
         if(deletionStatus){
           await this._db
             .collection("characters")
