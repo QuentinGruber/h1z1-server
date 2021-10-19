@@ -49,7 +49,7 @@ export class LoginServer extends EventEmitter {
   _appDataFolder: string;
   _httpServer!: Worker;
   _enableHttpServer: boolean;
-  _httpServerPort: number = 8126;
+  _httpServerPort: number = 80;
   _h1emuLoginServer: H1emuLoginServer;
   _zoneConnections: { [h1emuClientId: string]: number } = {};
   _zoneWhitelist: any[];
@@ -423,9 +423,8 @@ export class LoginServer extends EventEmitter {
         .collection("characters")
         .findOne(characterQuery);
       if(charracterToDelete){
-        const {serverId, ownerId} = charracterToDelete;
-        const serverHttpAddress = (await this._db.collection("servers").findOne({serverId:serverId})).serverHttpAddress
-        deletionStatus = this.askZoneForDeletion(serverHttpAddress,characterId,ownerId);
+        const {ownerId} = charracterToDelete;
+        deletionStatus = this.askZoneForDeletion("serverHttpAddress",characterId,ownerId);
         if(deletionStatus){
           await this._db
             .collection("characters")
