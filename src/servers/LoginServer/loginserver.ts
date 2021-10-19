@@ -538,11 +538,16 @@ export class LoginServer extends EventEmitter {
     const askZoneForCreationPromise = await new Promise((resolve, reject) => {
       this._internalReqCount++;
       const reqId = this._internalReqCount;
-      const zoneConnectionIndex = Object.values(this._zoneConnections).findIndex(e => e === serverId);
-      const zoneConnectionString = Object.keys(this._zoneConnections)[zoneConnectionIndex]
-      const [address,port] = zoneConnectionString.split(":");
-      this._h1emuLoginServer.sendData({address:address,port:port,clientId:zoneConnectionString,session:true} as any,"CharacterCreateRequest",{reqId:reqId,characterObjStringify:JSON.stringify(characterData)})
-      this._characterCreationPending[reqId] = resolve;
+      try{
+        const zoneConnectionIndex = Object.values(this._zoneConnections).findIndex(e => e === serverId);
+        const zoneConnectionString = Object.keys(this._zoneConnections)[zoneConnectionIndex]
+        const [address,port] = zoneConnectionString.split(":");
+        this._h1emuLoginServer.sendData({address:address,port:port,clientId:zoneConnectionString,session:true} as any,"CharacterCreateRequest",{reqId:reqId,characterObjStringify:JSON.stringify(characterData)})
+        this._characterCreationPending[reqId] = resolve;
+      }
+      catch(e){
+        resolve(0)
+      }
     });
     return askZoneForCreationPromise as number;
   }
