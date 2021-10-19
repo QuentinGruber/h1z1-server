@@ -33,6 +33,7 @@ import SOEClient from "servers/SoeServer/soeclient";
 import { ZoneClient as Client } from "./classes/zoneclient";
 import { h1z1PacketsType } from "types/packets";
 import { Vehicle } from "./classes/vehicles";
+import { Resolver } from 'dns';
 
 process.env.isBin && require("./workers/dynamicWeather");
 
@@ -90,8 +91,7 @@ export class ZoneServer extends EventEmitter {
   _worldRoutineRadiusPercentage: number = 0.4;
   _enableGarbageCollection: boolean = true;
   _h1emuZoneServer!: H1emuZoneServer;
-  // TODO: "_loginServerInfo" by default that should be empty and result in a crash if it's not specified before the server start() function ( if in !solomode )
-  _loginServerInfo: {} = {address: "127.0.0.1", port: 1110} 
+  _loginServerInfo: {address?:string,port:number} = {port: 1110} 
 
   constructor(
     serverPort: number,
@@ -278,11 +278,23 @@ export class ZoneServer extends EventEmitter {
         }
       });
       
-      this._h1emuZoneServer.setLoginInfo(this._loginServerInfo, {
-        serverId: 1
-      })
     }
 }
+
+  async fetchLoginInfo(){
+      const resolver = new Resolver();
+      const loginServerAddress = await new Promise((resolve, reject) => {
+      resolver.resolve4('loginserver.h1emu.com', (err, addresses) => {
+        if(!err){
+          resolve(addresses[0])
+        }
+        else{
+          throw err; 
+        }
+      });
+    })
+    this._loginServerInfo.address =  loginServerAddress as string;
+  }
 
   onZoneDataEvent(err: any, client: Client, packet: any) {
     if (err) {
@@ -427,6 +439,13 @@ export class ZoneServer extends EventEmitter {
       await this.saveWorld();
     }
     if (!this._soloMode){
+      debug("Start H1emuZoneServer")
+      if(!this._loginServerInfo.address){
+        await this.fetchLoginInfo()
+      }
+      this._h1emuZoneServer.setLoginInfo(this._loginServerInfo, {
+        serverId: this._worldId
+      })
       this._h1emuZoneServer.start()
       await this._db
         ?.collection("servers")
@@ -1413,9 +1432,11 @@ if (
   process.env.VSCODE_DEBUG === "true" &&
   process.env.CLIENT_SIXTEEN !== "true"
 ) {
-  new ZoneServer(
+  const zoneServer = new ZoneServer(
     1117,
     new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", "base64"),
-    process.env.MONGO_URL
-  ).start();
+    process.env.MONGO_URL,1
+  )
+  zoneServer._loginServerInfo.address = "127.0.0.1";
+  zoneServer.start();
 }
