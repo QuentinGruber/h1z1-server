@@ -41,6 +41,12 @@ export class customLodash {
     }
     return array;
   }
+  delete(array: any[], entry: any) {
+    const index = array.indexOf(entry);
+    if (index > -1) {
+      array.splice(index, 1);
+    }
+  }
 }
 
 export const _ = new customLodash();
