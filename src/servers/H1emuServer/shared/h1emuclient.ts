@@ -8,12 +8,10 @@ export class H1emuClient {
   lastPing: number = Date.now();
   clientId: string;
 
-  constructor(
-    remote: RemoteInfo,
-  ) {
+  constructor(remote: RemoteInfo) {
     this.sessionId = 0;
     this.address = remote.address;
     this.port = remote.port;
-    this.clientId = `${remote.address}:${remote.port}`
+    this.clientId = `${remote.address}:${remote.port}`;
   }
 }
