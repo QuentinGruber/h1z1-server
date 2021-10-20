@@ -256,18 +256,18 @@ export class ZoneServer extends EventEmitter {
             }
           case "CharacterDeleteRequest":{
             try {
-              const { characterId, ownerId } = packet;
+              const { characterId, reqId } = packet.data;
               const collection = (this._db as Db).collection('characters')
               const charactersArray = await collection.find({ characterId: characterId }).toArray();
-              if ( charactersArray[0].ownerId === ownerId && charactersArray.length === 1) {
+              if (charactersArray.length === 1) {
                 await collection.deleteOne({ characterId: characterId })
-                this._h1emuZoneServer.sendData(client,"CharacterDeleteReply",{status:1})
+                this._h1emuZoneServer.sendData(client,"CharacterDeleteReply",{status:1,reqId:reqId})
               }
               else{
-                this._h1emuZoneServer.sendData(client,"CharacterDeleteReply",{status:0})
+                this._h1emuZoneServer.sendData(client,"CharacterDeleteReply",{status:0,reqId:reqId})
               }
             } catch (error) {
-              this._h1emuZoneServer.sendData(client,"CharacterDeleteReply",{status:0})
+              this._h1emuZoneServer.sendData(client,"CharacterDeleteReply",{status:0,reqId:reqId})
             }
             break;
           }
