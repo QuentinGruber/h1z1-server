@@ -10,6 +10,7 @@ async function test() {
     "mongodb://localhost:27017/",
     1
   );
+  zoneServer._loginServerInfo.address = "127.0.0.1";
   await zoneServer.start();
 
   setTimeout(async () => {

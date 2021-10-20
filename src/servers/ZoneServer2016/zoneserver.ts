@@ -16,6 +16,7 @@ const debug = require("debug")(debugName);
 import { default as packetHandlers } from "./zonepackethandlers";
 import { ZoneServer } from "../ZoneServer/zoneserver";
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
+
 import {
   characterEquipment,
   characterLoadout,
@@ -363,6 +364,9 @@ export class ZoneServer2016 extends ZoneServer {
               { $set: { populationNumber: 0, populationLevel: 0 } }
             );
         */
+    if(!this._soloMode){
+      this._h1emuZoneServer.start()
+    }
     debug("Server ready");
   }
 

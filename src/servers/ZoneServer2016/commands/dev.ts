@@ -760,6 +760,11 @@ const dev: any = {
       message: " ",
     });
   },
+  loginmsg: function (server: ZoneServer2016, client: Client, args: any[]) {
+    server._h1emuZoneServer.sendData( server._h1emuZoneServer._loginConnection, "test", { 
+      msg: Number(args[1]) | 99 
+    });
+  }
   /*
     proxiedobjects: function(server: ZoneServer2016, client: Client, args: any[]) {
 

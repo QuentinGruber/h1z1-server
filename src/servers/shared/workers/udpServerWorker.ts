@@ -30,7 +30,7 @@ if (workerData) {
 
   connection.on("message", (data, remote) => {
     parentPort?.postMessage({
-      type: "incommingPacket",
+      type: "incomingPacket",
       data: data,
       remote: remote,
     });

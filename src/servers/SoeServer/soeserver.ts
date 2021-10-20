@@ -18,7 +18,7 @@ import SOEClient from "./soeclient";
 import { Worker } from "worker_threads";
 
 const debug = require("debug")("SOEServer");
-process.env.isBin && require("./workers/udpServerWorker");
+process.env.isBin && require("../shared/workers/udpServerWorker.js");
 
 export class SOEServer extends EventEmitter {
   _protocolName: string;
@@ -46,8 +46,6 @@ export class SOEServer extends EventEmitter {
     useMultiPackets = false
   ) {
     super();
-    EventEmitter.call(this);
-
     this._protocolName = protocolName;
     this._serverPort = serverPort;
     this._cryptoKey = cryptoKey;
@@ -61,7 +59,7 @@ export class SOEServer extends EventEmitter {
     this._useMultiPackets = useMultiPackets;
     this._waitQueueTimeMs = 20;
     this._clients = {};
-    this._connection = new Worker(`${__dirname}/workers/udpServerWorker.js`, {
+    this._connection = new Worker(`${__dirname}/../shared/workers/udpServerWorker.js`, {
       workerData: { serverPort: serverPort },
     });
   }
