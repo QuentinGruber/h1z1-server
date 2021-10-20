@@ -92,6 +92,7 @@ export class ZoneServer extends EventEmitter {
   _httpServerPort: number = 1118;
   _enableGarbageCollection: boolean = true;
   worldRoutineTimer: any;
+  tickRate: number = 3000;
   
   constructor(
     serverPort: number,
@@ -555,7 +556,7 @@ export class ZoneServer extends EventEmitter {
     this._gatewayServer.start(this._soloMode);
     this.worldRoutineTimer = setTimeout(
       () => this.worldRoutine.bind(this)(true),
-      3000
+      this.tickRate
     );
   }
 

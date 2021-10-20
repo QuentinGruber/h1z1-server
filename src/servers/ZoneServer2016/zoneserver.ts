@@ -395,7 +395,7 @@ export class ZoneServer2016 extends ZoneServer {
     this._gatewayServer.start();
     this.worldRoutineTimer = setTimeout(
       () => this.worldRoutine.bind(this)(true),
-      3000
+      this.tickRate
     );
   }
 
