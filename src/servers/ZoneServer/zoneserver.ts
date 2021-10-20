@@ -15,6 +15,8 @@ import { EventEmitter } from "events";
 import { GatewayServer } from "../GatewayServer/gatewayserver";
 import packetHandlers from "./zonepackethandlers";
 import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
+import { H1emuZoneServer } from "../H1emuServer/h1emuZoneServer";
+import { H1emuClient } from "../H1emuServer/shared/h1emuclient";
 import {
   _,
   generateRandomGuid,
@@ -31,7 +33,7 @@ import SOEClient from "servers/SoeServer/soeclient";
 import { ZoneClient as Client } from "./classes/zoneclient";
 import { h1z1PacketsType } from "types/packets";
 import { Vehicle } from "./classes/vehicles";
-import { httpServerMessage } from "types/shared";
+import { Resolver } from 'dns';
 
 process.env.isBin && require("./workers/dynamicWeather");
 
@@ -86,12 +88,11 @@ export class ZoneServer extends EventEmitter {
   _respawnOnLastPosition: boolean = true;
   _spawnTimerMs: number = 10;
   _worldRoutineRadiusPercentage: number = 0.4;
-  _httpServer!: Worker;
-  _enableHttpServer: boolean = true;
-  _httpServerPort: number = 1118;
   _enableGarbageCollection: boolean = true;
   worldRoutineTimer: any;
   tickRate: number = 3000;
+  _h1emuZoneServer!: H1emuZoneServer;
+  _loginServerInfo: {address?:string,port:number} = {port: 1110} 
 
   constructor(
     serverPort: number,
@@ -211,6 +212,87 @@ export class ZoneServer extends EventEmitter {
         );
       }
     );
+
+    if(!this._soloMode){
+      this._h1emuZoneServer = new H1emuZoneServer() // opens local socket to connect to loginserver
+      
+      this._h1emuZoneServer.on("session", (err: string, client: H1emuClient, status: number) => {
+        if (err) {
+          console.error(err);
+        } else {
+          debug(`LoginConnection established`);
+        }
+      });
+
+      this._h1emuZoneServer.on("sessionfailed", (err: string, client: H1emuClient, status: number) => {
+        console.error("h1emuServer sessionfailed")
+        process.exit(1)
+      });
+
+      this._h1emuZoneServer.on("disconnect", (err: string, client: H1emuClient, reason: number) => {
+        debug(`LoginConnection dropped: ${reason?"Connection Lost":"Unknown Error"}`);
+      });
+
+      this._h1emuZoneServer.on("data", async (err: string, client: H1emuClient, packet: any) => {
+        if (err) {
+          console.error(err);
+        } else {
+          switch(packet.name) {
+            case "CharacterCreateRequest":{
+              const { characterObjStringify,reqId } = packet.data;
+              try {
+                const characterObj = JSON.parse(characterObjStringify);
+                const collection = (this._db as Db).collection('characters')
+                const charactersArray = await collection.findOne({ characterId: characterObj.characterId });
+                if(!charactersArray){
+                  await collection.insertOne(characterObj);
+                }
+                this._h1emuZoneServer.sendData(client,"CharacterCreateReply",{reqId:reqId,status:1})
+              } catch (error) {
+                this._h1emuZoneServer.sendData(client,"CharacterCreateReply",{reqId:reqId,status:0})
+              }
+              break;
+            }
+          case "CharacterDeleteRequest":{
+            const { characterId, reqId } = packet.data;
+            try {
+              const collection = (this._db as Db).collection('characters')
+              const charactersArray = await collection.find({ characterId: characterId }).toArray();
+              if (charactersArray.length === 1) {
+                await collection.deleteOne({ characterId: characterId })
+                this._h1emuZoneServer.sendData(client,"CharacterDeleteReply",{status:1,reqId:reqId})
+              }
+              else{
+                this._h1emuZoneServer.sendData(client,"CharacterDeleteReply",{status:0,reqId:reqId})
+              }
+            } catch (error) {
+              this._h1emuZoneServer.sendData(client,"CharacterDeleteReply",{status:0,reqId:reqId})
+            }
+            break;
+          }
+            default:
+              debug(`Unhandled h1emu packet: ${packet.name}`)
+              break;
+          }
+        }
+      });
+      
+    }
+}
+
+  async fetchLoginInfo(){
+      const resolver = new Resolver();
+      const loginServerAddress = await new Promise((resolve, reject) => {
+      resolver.resolve4('loginserver.h1emu.com', (err, addresses) => {
+        if(!err){
+          resolve(addresses[0])
+        }
+        else{
+          throw err; 
+        }
+      });
+    })
+    this._loginServerInfo.address =  loginServerAddress as string;
   }
 
   onZoneDataEvent(err: any, client: Client, packet: any) {
@@ -356,28 +438,20 @@ export class ZoneServer extends EventEmitter {
       await this.saveWorld();
     }
     if (!this._soloMode){
+      debug("Starting H1emuZoneServer")
+      if(!this._loginServerInfo.address){
+        await this.fetchLoginInfo()
+      }
+      this._h1emuZoneServer.setLoginInfo(this._loginServerInfo, {
+        serverId: this._worldId
+      })
+      this._h1emuZoneServer.start()
       await this._db
         ?.collection("servers")
         .findOneAndUpdate(
           { serverId: this._worldId },
           { $set: { populationNumber: 0, populationLevel: 0 } }
         );
-      }
-    if(this._mongoAddress && this._enableHttpServer){
-      this._httpServer = new Worker(`${__dirname}/workers/httpServer.js`, {
-        workerData: { MONGO_URL: this._mongoAddress, SERVER_PORT : this._httpServerPort},
-      });
-      this._httpServer.on("message", (message:httpServerMessage) => {
-        const {type,requestId} = message;
-        switch (type) {
-          case "ping":
-            const response:httpServerMessage = {type:"ping",requestId:requestId,data:"pong"}
-            this._httpServer.postMessage(response);
-            break;
-          default:
-            break;
-        }
-      })
       }
     if(this._enableGarbageCollection){
       setInterval(()=>{this.garbageCollection()},120000);
@@ -1356,9 +1430,11 @@ if (
   process.env.VSCODE_DEBUG === "true" &&
   process.env.CLIENT_SIXTEEN !== "true"
 ) {
-  new ZoneServer(
+  const zoneServer = new ZoneServer(
     1117,
     new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", "base64"),
-    process.env.MONGO_URL
-  ).start();
+    process.env.MONGO_URL,1
+  )
+  zoneServer._loginServerInfo.address = "127.0.0.1";
+  zoneServer.start();
 }
