@@ -394,7 +394,7 @@ export class ZoneServer2016 extends ZoneServer {
     }
     this._gatewayServer.start();
     this.worldRoutineTimer = setTimeout(
-      () => this.worldRoutine2016.bind(this)(true),
+      () => this.worldRoutine.bind(this)(true),
       3000
     );
   }
@@ -433,7 +433,7 @@ export class ZoneServer2016 extends ZoneServer {
     });
   }
 
-  worldRoutine2016(refresh = false): void {
+  worldRoutine(refresh = false): void {
     debug("WORLDROUTINE");
     this.executeFuncForAllClients((client: Client) => {
       this.spawnCharacters(client);

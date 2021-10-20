@@ -53,7 +53,7 @@ const hax: any = {
       ),
     };
     server._vehicles[characterId] = vehicleData;
-    server.worldRoutine2016();
+    server.worldRoutine();
     server.sendData(client, "Mount.MountResponse", {
       characterId: client.character.characterId,
       vehicleGuid: characterId,
@@ -641,7 +641,7 @@ const hax: any = {
       ),
     };
     server._vehicles[characterId] = vehicleData;
-    server.worldRoutine2016();
+    server.worldRoutine();
     server.sendData(client, "Mount.MountResponse", {
       characterId: client.character.characterId,
       vehicleGuid: characterId,

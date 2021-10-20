@@ -1850,326 +1850,310 @@ const packetHandlers = {
     packet: any
   ) {
     debug(packet);
-    // Maybe we should move all that logic to Command.InteractionSelect
-    const objectToPickup = server._objects[packet.data.guid];
-    const doorToInteractWith = server._doors[packet.data.guid];
-    const propToSearch = server._props[packet.data.guid];
-    const vehicleToMount: Vehicle = server._vehicles[packet.data.guid];
-    if (
-      objectToPickup &&
-      isPosInRadius(
-        server._interactionDistance,
-        client.character.state.position,
-        objectToPickup.position
-      )
-    ) {
-      // TODO : use strings from the game, will add to h1z1-string-finder the option to export to JSON
-      const model_index = modelToName.findIndex(
-        (x: any) => x.modelId === objectToPickup.modelId
-      );
-      const pickupMessage = modelToName[model_index]?.itemName;
-      server.sendData(client, "ClientUpdate.TextAlert", {
-        message: pickupMessage,
-      });
-      const { water, health, food } = client.character.resources;
-      switch (objectToPickup.modelId) {
-        case 9159:
-          client.character.resources.water = water + 4000;
-          server.sendData(client, "ResourceEvent", {
-            eventData: {
-              type: 3,
-              value: {
-                characterId: client.character.characterId,
-                resourceId: 5, // water
-                resourceType: 5,
-                initialValue: client.character.resources.water,
-                unknownArray1: [],
-                unknownArray2: [],
+    const { guid } = packet.data,
+    entityData = server._objects[guid] || server._vehicles[guid] || server._doors[guid] || server._props[guid],
+    entityType = server._objects[guid]?1:0 || server._vehicles[guid]?2:0 || server._doors[guid]?3:0 || server._props[guid]?4:0;
+
+    if(!entityData || !isPosInRadius(
+      server._interactionDistance,
+      client.character.state.position,
+      entityData.npcData?entityData.npcData.position:entityData.position
+    )) return;
+      
+    switch (entityType) {
+      case 1: // object
+        // TODO : use strings from the game, will add to h1z1-string-finder the option to export to JSON
+        const model_index = modelToName.findIndex(
+          (x: any) => x.modelId === entityData.modelId
+        );
+        const pickupMessage = modelToName[model_index]?.itemName;
+        server.sendData(client, "ClientUpdate.TextAlert", {
+          message: pickupMessage,
+        });
+        const { water, health, food } = client.character.resources;
+        switch (entityData.modelId) {
+          case 9159:
+            client.character.resources.water = water + 4000;
+            server.sendData(client, "ResourceEvent", {
+              eventData: {
+                type: 3,
+                value: {
+                  characterId: client.character.characterId,
+                  resourceId: 5, // water
+                  resourceType: 5,
+                  initialValue: client.character.resources.water,
+                  unknownArray1: [],
+                  unknownArray2: [],
+                },
               },
-            },
-          });
-          break;
-        case 8020:
-        case 9250:
-          client.character.resources.food = food + 4000;
-          server.sendData(client, "ResourceEvent", {
-            eventData: {
-              type: 3,
-              value: {
-                characterId: client.character.characterId,
-                resourceId: 4, // food
-                resourceType: 4,
-                initialValue: client.character.resources.food,
-                unknownArray1: [],
-                unknownArray2: [],
+            });
+            break;
+          case 8020:
+          case 9250:
+            client.character.resources.food = food + 4000;
+            server.sendData(client, "ResourceEvent", {
+              eventData: {
+                type: 3,
+                value: {
+                  characterId: client.character.characterId,
+                  resourceId: 4, // food
+                  resourceType: 4,
+                  initialValue: client.character.resources.food,
+                  unknownArray1: [],
+                  unknownArray2: [],
+                },
               },
-            },
-          });
-          break;
-        case 9221:
-          client.character.resources.health = health + 10000;
-          server.sendData(client, "ResourceEvent", {
-            eventData: {
-              type: 3,
-              value: {
-                characterId: client.character.characterId,
-                resourceId: 48, // health
-                resourceType: 1,
-                initialValue: client.character.resources.health,
-                unknownArray1: [],
-                unknownArray2: [],
+            });
+            break;
+          case 9221:
+            client.character.resources.health = health + 10000;
+            server.sendData(client, "ResourceEvent", {
+              eventData: {
+                type: 3,
+                value: {
+                  characterId: client.character.characterId,
+                  resourceId: 48, // health
+                  resourceType: 1,
+                  initialValue: client.character.resources.health,
+                  unknownArray1: [],
+                  unknownArray2: [],
+                },
               },
-            },
-          });
-          break;
-        default:
-          break;
-      }
-      server.deleteEntity(objectToPickup.characterId, server._objects);
-    } else if (
-      vehicleToMount &&
-      isPosInRadius(
-        server._interactionDistance,
-        client.character.state.position,
-        vehicleToMount.npcData.position
-      )
-    ) {
-      const { characterId: vehicleGuid } = vehicleToMount.npcData;
-      const { modelId: vehicleModelId } = vehicleToMount.npcData;
-      switch (vehicleModelId) {
-        case 7225:
-          client.vehicle.mountedVehicleType = "offroader";
-          break;
-        case 9258:
-          client.vehicle.mountedVehicleType = "pickup";
-          break;
-        case 9301:
-          client.vehicle.mountedVehicleType = "policecar";
-          break;
-        default:
-          client.vehicle.mountedVehicleType = "offroader";
-          break;
-      }
-
-      server.sendData(client, "PlayerUpdate.ManagedObject", {
-        guid: vehicleGuid,
-        characterId: client.character.characterId,
-      });
-
-      server.sendDataToAll("Mount.MountResponse", {
-        characterId: client.character.characterId,
-        guid: vehicleGuid,
-        characterData: [],
-      });
-
-      server.sendDataToAll("Vehicle.Engine", {
-        guid2: vehicleGuid,
-        unknownBoolean: true,
-      });
-
-      server._vehicles[vehicleGuid].isManaged = true;
-      client.managedObjects.push(server._vehicles[vehicleGuid]);
-    } else if (
-      doorToInteractWith &&
-      isPosInRadius(
-        server._interactionDistance,
-        client.character.state.position,
-        doorToInteractWith.position
-      )
-    ) {
-      debug("tried to open ", doorToInteractWith.characterId);
-      if (doorToInteractWith.isOpen === false) {
-        doorToInteractWith.moving = true;
-        setTimeout(function () {
-          doorToInteractWith.moving = false;
-        }, 500);
-        server.sendDataToAll("PlayerUpdate.UpdatePosition", {
-          transientId: doorToInteractWith.transientId,
-          positionUpdate: {
-            sequenceTime: server.getServerTime(),
-            unknown3_int8: 0,
-            position: doorToInteractWith.position,
-            orientation: doorToInteractWith.openAngle,
-          },
-        });
-        server.sendDataToAll("PlayerUpdate.PlayWorldCompositeEffect", {
-          soundId: 5048,
-          position: doorToInteractWith.position,
-          unk3: 0,
-        });
-        doorToInteractWith.isOpen = true;
-        doorToInteractWith.openCounter++;
-      } else {
-        doorToInteractWith.moving = true;
-        setTimeout(function () {
-          doorToInteractWith.moving = false;
-        }, 500);
-        server.sendDataToAll("PlayerUpdate.UpdatePosition", {
-          transientId: doorToInteractWith.transientId,
-          positionUpdate: {
-            sequenceTime: server.getServerTime(),
-            unknown3_int8: 0,
-            stance: 1089,
-            position: doorToInteractWith.position,
-            orientation: doorToInteractWith.closedAngle,
-          },
-        });
-        server.sendDataToAll("PlayerUpdate.PlayWorldCompositeEffect", {
-          soundId: 5049,
-          position: doorToInteractWith.position,
-          unk3: 0,
-        });
-        doorToInteractWith.openCounter++;
-        doorToInteractWith.isOpen = false;
-        if (doorToInteractWith.openCounter > 5) {
-          server.sendDataToAll(
-            "PlayerUpdate.RemovePlayerGracefully",
-            {
-              characterId: doorToInteractWith.characterId,
-            },
-            1
-          );
-          setTimeout(function () {
-            server.sendDataToAll(
-              "PlayerUpdate.AddLightweightNpc",
-              doorToInteractWith
-            );
-          }, 150);
-          doorToInteractWith.openCounter = 0;
+            });
+            break;
+          default:
+            break;
         }
-      }
-    } else if (
-      propToSearch &&
-      isPosInRadius(
-        server._interactionDistance,
-        client.character.state.position,
-        propToSearch.position
-      )
-    ) {
-      let interactType;
-      let timerTime = 0;
-      switch (propToSearch.modelId) {
-        case 8013:
-          interactType = "destroy";
-          break;
-        case 8014:
-          interactType = "destroy";
-          break;
-        case 9088:
-          interactType = "destroy";
-          break;
-        case 9328:
-          interactType = "sleep";
-          timerTime = 20000;
-          break;
-        case 9330:
-          interactType = "sleep";
-          timerTime = 20000;
-          break;
-        case 9329:
-          interactType = "sleep";
-          timerTime = 20000;
-          break;
-        case 9331:
-          interactType = "sleep";
-          timerTime = 20000;
-          break;
-        case 9336:
-          interactType = "sleep";
-          timerTime = 20000;
-          break;
-        case 36:
-          interactType = "use";
-          break;
-        case 9205:
-          interactType = "use";
-          break;
-        case 9041:
-          interactType = "use";
-          break;
-        case 57:
-          interactType = "open";
-          break;
-        case 9127:
-          interactType = "open";
-          break;
-        case 9032:
-          interactType = "collectWater";
-          break;
-        case 9033:
-          interactType = "collectWater";
-          break;
-        default:
-          interactType = "search";
-          timerTime = 1500;
-          break;
-      }
-      switch (interactType) {
-        case "destroy":
-          server.sendData(client, "PlayerUpdate.Destroyed", {
-            characterId: propToSearch.characterId,
-            unknown1: 242,
-            unknown2: 8015,
-            unknown3: 0,
-            disableWeirdPhysics: true,
+        server.deleteEntity(entityData.characterId, server._objects);
+        break;
+      case 2: // vehicle
+        const { characterId: vehicleGuid } = entityData.npcData;
+        const { modelId: vehicleModelId } = entityData.npcData;
+        switch (vehicleModelId) {
+          case 7225:
+            client.vehicle.mountedVehicleType = "offroader";
+            break;
+          case 9258:
+            client.vehicle.mountedVehicleType = "pickup";
+            break;
+          case 9301:
+            client.vehicle.mountedVehicleType = "policecar";
+            break;
+          default:
+            client.vehicle.mountedVehicleType = "offroader";
+            break;
+        }
+
+        server.sendData(client, "PlayerUpdate.ManagedObject", {
+          guid: vehicleGuid,
+          characterId: client.character.characterId,
+        });
+
+        server.sendDataToAll("Mount.MountResponse", {
+          characterId: client.character.characterId,
+          guid: vehicleGuid,
+          characterData: [],
+        });
+
+        server.sendDataToAll("Vehicle.Engine", {
+          guid2: vehicleGuid,
+          unknownBoolean: true,
+        });
+
+        server._vehicles[vehicleGuid].isManaged = true;
+        client.managedObjects.push(server._vehicles[vehicleGuid]);
+        break;
+      case 3: // door
+        debug("tried to open ", entityData.characterId);
+        if (entityData.isOpen === false) {
+          entityData.moving = true;
+          setTimeout(function () {
+            entityData.moving = false;
+          }, 500);
+          server.sendDataToAll("PlayerUpdate.UpdatePosition", {
+            transientId: entityData.transientId,
+            positionUpdate: {
+              sequenceTime: server.getServerTime(),
+              unknown3_int8: 0,
+              position: entityData.position,
+              orientation: entityData.openAngle,
+            },
           });
-          break;
-        case "sleep":
-          if (!client.isInteracting) {
-            client.isInteracting = true;
-            server.sendData(client, "ClientUpdate.StartTimer", {
-              stringId: 9051,
-              time: timerTime,
-            });
-            client.posAtLogoutStart = client.character.state.position;
-            if (client.hudTimer != null) {
-              clearTimeout(client.hudTimer);
-            }
-            client.hudTimer = setTimeout(() => {
-              server.sendData(client, "ClientUpdate.TextAlert", {
-                message: "You feel refreshed after sleeping well.",
-              });
-              client.isInteracting = false;
-            }, timerTime);
+          server.sendDataToAll("PlayerUpdate.PlayWorldCompositeEffect", {
+            soundId: 5048,
+            position: entityData.position,
+            unk3: 0,
+          });
+          entityData.isOpen = true;
+          entityData.openCounter++;
+        } else {
+          entityData.moving = true;
+          setTimeout(function () {
+            entityData.moving = false;
+          }, 500);
+          server.sendDataToAll("PlayerUpdate.UpdatePosition", {
+            transientId: entityData.transientId,
+            positionUpdate: {
+              sequenceTime: server.getServerTime(),
+              unknown3_int8: 0,
+              stance: 1089,
+              position: entityData.position,
+              orientation: entityData.closedAngle,
+            },
+          });
+          server.sendDataToAll("PlayerUpdate.PlayWorldCompositeEffect", {
+            soundId: 5049,
+            position: entityData.position,
+            unk3: 0,
+          });
+          entityData.openCounter++;
+          entityData.isOpen = false;
+          if (entityData.openCounter > 5) {
+            server.sendDataToAll(
+              "PlayerUpdate.RemovePlayerGracefully",
+              {
+                characterId: entityData.characterId,
+              },
+              1
+            );
+            setTimeout(function () {
+              server.sendDataToAll(
+                "PlayerUpdate.AddLightweightNpc",
+                entityData
+              );
+            }, 150);
+            entityData.openCounter = 0;
           }
-          break;
-        case "use":
-          server.sendData(client, "ClientUpdate.TextAlert", {
-            message: "Nothing in there... yet :P",
-          });
-          break;
-        case "open":
-          server.sendData(client, "ClientUpdate.TextAlert", {
-            message: "Nothing in there... yet :P",
-          });
-          break;
-        case "collectWater":
-          server.sendData(client, "ClientUpdate.TextAlert", {
-            message: "You dont have an Empty Bottle",
-          });
-          break;
-        case "search":
-          if (!client.isInteracting) {
-            client.isInteracting = true;
-            server.sendData(client, "ClientUpdate.StartTimer", {
-              stringId: propToSearch.nameId,
-              time: timerTime,
+        }
+        break;
+      case 4: // prop
+        let interactType;
+        let timerTime = 0;
+        switch (entityData.modelId) {
+          case 8013:
+            interactType = "destroy";
+            break;
+          case 8014:
+            interactType = "destroy";
+            break;
+          case 9088:
+            interactType = "destroy";
+            break;
+          case 9328:
+            interactType = "sleep";
+            timerTime = 20000;
+            break;
+          case 9330:
+            interactType = "sleep";
+            timerTime = 20000;
+            break;
+          case 9329:
+            interactType = "sleep";
+            timerTime = 20000;
+            break;
+          case 9331:
+            interactType = "sleep";
+            timerTime = 20000;
+            break;
+          case 9336:
+            interactType = "sleep";
+            timerTime = 20000;
+            break;
+          case 36:
+            interactType = "use";
+            break;
+          case 9205:
+            interactType = "use";
+            break;
+          case 9041:
+            interactType = "use";
+            break;
+          case 57:
+            interactType = "open";
+            break;
+          case 9127:
+            interactType = "open";
+            break;
+          case 9032:
+            interactType = "collectWater";
+            break;
+          case 9033:
+            interactType = "collectWater";
+            break;
+          default:
+            interactType = "search";
+            timerTime = 1500;
+            break;
+        }
+        switch (interactType) {
+          case "destroy":
+            server.sendData(client, "PlayerUpdate.Destroyed", {
+              characterId: entityData.characterId,
+              unknown1: 242,
+              unknown2: 8015,
+              unknown3: 0,
+              disableWeirdPhysics: true,
             });
-            client.posAtLogoutStart = client.character.state.position;
-            if (client.hudTimer != null) {
-              clearTimeout(client.hudTimer);
-            }
-            client.hudTimer = setTimeout(() => {
-              server.sendData(client, "ClientUpdate.TextAlert", {
-                message: "Nothing in there... yet :P",
+            break;
+          case "sleep":
+            if (!client.isInteracting) {
+              client.isInteracting = true;
+              server.sendData(client, "ClientUpdate.StartTimer", {
+                stringId: 9051,
+                time: timerTime,
               });
-              client.isInteracting = false;
-            }, timerTime);
-          }
-          break;
-        default:
-          break;
-      }
+              client.posAtLogoutStart = client.character.state.position;
+              if (client.hudTimer != null) {
+                clearTimeout(client.hudTimer);
+              }
+              client.hudTimer = setTimeout(() => {
+                server.sendData(client, "ClientUpdate.TextAlert", {
+                  message: "You feel refreshed after sleeping well.",
+                });
+                client.isInteracting = false;
+              }, timerTime);
+            }
+            break;
+          case "use":
+            server.sendData(client, "ClientUpdate.TextAlert", {
+              message: "Nothing in there... yet :P",
+            });
+            break;
+          case "open":
+            server.sendData(client, "ClientUpdate.TextAlert", {
+              message: "Nothing in there... yet :P",
+            });
+            break;
+          case "collectWater":
+            server.sendData(client, "ClientUpdate.TextAlert", {
+              message: "You dont have an Empty Bottle",
+            });
+            break;
+          case "search":
+            if (!client.isInteracting) {
+              client.isInteracting = true;
+              server.sendData(client, "ClientUpdate.StartTimer", {
+                stringId: entityData.nameId,
+                time: timerTime,
+              });
+              client.posAtLogoutStart = client.character.state.position;
+              if (client.hudTimer != null) {
+                clearTimeout(client.hudTimer);
+              }
+              client.hudTimer = setTimeout(() => {
+                server.sendData(client, "ClientUpdate.TextAlert", {
+                  message: "Nothing in there... yet :P",
+                });
+                client.isInteracting = false;
+              }, timerTime);
+            }
+            break;
+          default:
+            break;
+        }
+        break;
+      default:
+        break;
     }
   },
   "Construction.PlacementRequest": function (

@@ -701,11 +701,7 @@ const packetHandlers = {
     client: Client,
     packet: any
   ) {
-    //console.log(packet);
-    //console.log(packet.data)
     const characterId = server._transientIds[packet.data.transientId];
-    //console.log(characterId)
-    //console.log(server._vehicles[characterId])
     if (characterId) {
       if (!server._soloMode) {
         server.sendRawToAllOthers(
@@ -716,8 +712,6 @@ const packetHandlers = {
         );
       }
       if (packet.data.positionUpdate.position) {
-        //server._vehicles[characterId].positionUpdate =
-        //  packet.data.positionUpdate;
         server._vehicles[characterId].npcData.position = new Float32Array([
           packet.data.positionUpdate.position[0],
           packet.data.positionUpdate.position[1],
@@ -739,7 +733,7 @@ const packetHandlers = {
               client.posAtLastRoutine
             )
           ) {
-            server.worldRoutine2016();
+            server.executeFuncForAllClients(()=>server.spawnVehicles);
           }
         }
       }
@@ -813,21 +807,6 @@ const packetHandlers = {
           stringId: 0,
           time: 0,
         }); // don't know how it was done so
-      }
-      if (!client.posAtLastRoutine) {
-        server.spawnProps(client);
-      }
-
-      if (
-        !client.posAtLastRoutine ||
-        (!isPosInRadius(
-          server._npcRenderDistance / 2.5,
-          client.character.state.position,
-          client.posAtLastRoutine
-        ) &&
-          !client.isLoading)
-      ) {
-        server.worldRoutine2016();
       }
     } else if (packet.data.vehicle_position && client.vehicle.mountedVehicle) {
       server._vehicles[client.vehicle.mountedVehicle].npcData.position =
@@ -946,31 +925,42 @@ const packetHandlers = {
     client: Client,
     packet: any
   ) {
-    const { guid } = packet.data;
-    const objectData = server._objects[guid];
-    // const doorData = server._doors[guid];
-    const vehicleData = server._vehicles[guid];
+    const { guid } = packet.data,
+    entityData: any = server._objects[guid] || server._vehicles[guid] || server._doors[guid] || 0,
+    entityType = server._objects[guid]?1:0 || server._vehicles[guid]?2:0 || server._doors[guid]?3:0;
 
-    if (vehicleData && !client.vehicle.mountedVehicle) {
-      server.mountVehicle(client, packet);
-    } else if (vehicleData && client.vehicle.mountedVehicle) {
-      // other seats
-      server.dismountVehicle(client);
-    }
-    if (objectData) {
-      // object pickup
-      const itemGuid = server.generatePickupItem(objectData),
-        item = server._items[itemGuid];
-      if (!item) {
-        server.sendChatText(
-          client,
-          `[ERROR] No item definition mapped to id: ${objectData.modelId}`
-        );
-        return;
-      }
+    if(!entityData || !isPosInRadius(
+        server._interactionDistance,
+        client.character.state.position,
+        entityData.npcData?entityData.npcData.position:entityData.position
+    )) return;
 
-      server.equipItem(client, itemGuid);
-      server.deleteEntity(guid, server._objects);
+    switch (entityType) {
+        case 1: // object
+            const itemGuid = server.generatePickupItem(entityData),
+            item = server._items[itemGuid];
+            if (!item) {
+                server.sendChatText(
+                client,
+                `[ERROR] No item definition mapped to id: ${entityData.modelId}`
+                );
+                return;
+            }
+
+            server.equipItem(client, itemGuid);
+            server.deleteEntity(guid, server._objects);
+            break;
+        case 2: // vehicle
+            !client.vehicle.mountedVehicle?server.mountVehicle(client, packet):server.dismountVehicle(client);
+            break;
+        case 3: // door
+            server.sendChatText(
+                client,
+                `Tell @Meme#2744 to add door opening/closing ;)`
+            );
+            break;
+        default:
+            break;
     }
   },
 
