@@ -1755,7 +1755,7 @@ const packetHandlers = {
               client.posAtLastRoutine
             )
           ) {
-            server.worldRoutine(client);
+            server.worldRoutine();
           }
         }
       }
@@ -1816,7 +1816,7 @@ const packetHandlers = {
         ) &&
           !client.isLoading)
       ) {
-        server.worldRoutine(client);
+        server.worldRoutine();
       }
     } else if (packet.data.vehicle_position && client.vehicle.mountedVehicle) {
       server._vehicles[client.vehicle.mountedVehicle].npcData.position =

@@ -41,7 +41,7 @@ const loadoutSlotItemClasses = require("./../../../data/2016/dataSources/Loadout
 const loadoutEquipSlots = require("./../../../data/2016/dataSources/LoadoutEquipSlots.json");
 
 export class ZoneServer2016 extends ZoneServer {
-  worldRoutineTimer: any;
+  //worldRoutineTimer: any;
   _weather2016: Weather2016;
   // @ts-ignore yeah idk how to fix that
   _packetHandlers: HandledZonePackets2016;
@@ -433,6 +433,7 @@ export class ZoneServer2016 extends ZoneServer {
     });
   }
 
+  /*
   POIManager(client: Client) {
     // sends POIChangeMessage or clears it based on player location
     let inPOI = false;
@@ -464,6 +465,7 @@ export class ZoneServer2016 extends ZoneServer {
       client.currentPOI = 0;
     }
   }
+  */
 
   setPosAtLastRoutine(client: Client) {
     client.posAtLastRoutine = client.character.state.position;
@@ -471,6 +473,7 @@ export class ZoneServer2016 extends ZoneServer {
 
   worldRoutine2016(refresh = false): void {
     debug("WORLDROUTINE");
+    /*
     this.executeFuncForAllClients("spawnCharacters");
     this.executeFuncForAllClients("spawnObjects");
     this.executeFuncForAllClients("spawnDoors");
@@ -479,6 +482,18 @@ export class ZoneServer2016 extends ZoneServer {
     this.executeFuncForAllClients("removeOutOfDistanceEntities");
     this.executeFuncForAllClients("POIManager");
     this.executeFuncForAllClients("setPosAtLastRoutine");
+    */
+
+    for (const client in this._clients) {
+      this.spawnCharacters(this._clients[client]);
+      this.spawnObjects(this._clients[client]);
+      this.spawnDoors(this._clients[client]);
+      this.spawnNpcs(this._clients[client]);
+      this.spawnVehicles(this._clients[client]);
+      this.removeOutOfDistanceEntities(this._clients[client]);
+      this.POIManager(this._clients[client]);
+      this.setPosAtLastRoutine(this._clients[client]);
+    }
     if (refresh) this.worldRoutineTimer.refresh();
   }
 

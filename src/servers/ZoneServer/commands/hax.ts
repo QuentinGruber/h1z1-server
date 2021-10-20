@@ -172,7 +172,7 @@ const hax: any = {
         client.managedObjects.push(server._vehicles[characterId]);
       },
     };
-    server.worldRoutine(client);
+    server.worldRoutine();
   },
 
   spawnvehicle: function (server: ZoneServer, client: Client, args: any[]) {
@@ -247,7 +247,7 @@ const hax: any = {
     });
     vehicleData.isManaged = true;
     server._vehicles[characterId] = vehicleData;
-    server.worldRoutine(client);
+    server.worldRoutine();
     server.sendDataToAll("Mount.MountResponse", {
       characterId: client.character.characterId,
       guid: characterId,

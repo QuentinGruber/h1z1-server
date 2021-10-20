@@ -91,7 +91,8 @@ export class ZoneServer extends EventEmitter {
   _enableHttpServer: boolean = true;
   _httpServerPort: number = 1118;
   _enableGarbageCollection: boolean = true;
-
+  worldRoutineTimer: any;
+  
   constructor(
     serverPort: number,
     gatewayKey: Uint8Array,
@@ -552,6 +553,10 @@ export class ZoneServer extends EventEmitter {
       });
     }
     this._gatewayServer.start(this._soloMode);
+    this.worldRoutineTimer = setTimeout(
+      () => this.worldRoutine.bind(this)(true),
+      3000
+    );
   }
 
   async loadMongoData(): Promise<void> {
@@ -818,8 +823,9 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
-  pointOfInterest(client: Client) {
-    let isInAPOIArea = false;
+  POIManager(client: Client) {
+    // sends POIChangeMessage or clears it based on player location
+    let inPOI = false;
     Z1_POIs.forEach((point: any) => {
       if (
         isPosInRadius(
@@ -828,32 +834,42 @@ export class ZoneServer extends EventEmitter {
           point.position
         )
       ) {
-        this.sendData(client, "POIChangeMessage", {
-          messageStringId: point.stringId,
-          id: point.POIid,
-        });
-        isInAPOIArea = true;
+        inPOI = true;
+        if (client.currentPOI != point.stringId) {
+          // checks if player already was sent POIChangeMessage
+          this.sendData(client, "POIChangeMessage", {
+            messageStringId: point.stringId,
+            id: point.POIid,
+          });
+          client.currentPOI = point.stringId;
+        }
       }
     });
-    if (!isInAPOIArea) {
+    if (!inPOI && client.currentPOI != 0) {
+      // checks if POIChangeMessage was already cleared
       this.sendData(client, "POIChangeMessage", {
         messageStringId: 0,
         id: 115,
       });
+      client.currentPOI = 0;
     }
   }
 
-  worldRoutine(client: Client): void {
-    this.spawnCharacters(client);
-    this.spawnObjects(client);
-    this.spawnDoors(client);
-    this.spawnProps(client);
-    this.spawnNpcs(client);
-    this.spawnVehicles(client);
-    this.removeOutOfDistanceEntities(client);
-    this.pointOfInterest(client);
-    client.npcsToSpawnTimer.refresh();
-    client.posAtLastRoutine = client.character.state.position;
+  worldRoutine(refresh = false): void {
+    debug("WORLDROUTINE");
+    for (const client in this._clients) {
+      this.spawnCharacters(this._clients[client]);
+      this.spawnObjects(this._clients[client]);
+      this.spawnDoors(this._clients[client]);
+      this.spawnProps(this._clients[client]);
+      this.spawnNpcs(this._clients[client]);
+      this.spawnVehicles(this._clients[client]);
+      this.removeOutOfDistanceEntities(this._clients[client]);
+      this.POIManager(this._clients[client]);
+      this._clients[client].npcsToSpawnTimer.refresh();
+      this._clients[client].posAtLastRoutine = this._clients[client].character.state.position;
+    }
+    if (refresh) this.worldRoutineTimer.refresh();
   }
 
   executeFuncForAllClients(zoneServerFuncName: string): void {
