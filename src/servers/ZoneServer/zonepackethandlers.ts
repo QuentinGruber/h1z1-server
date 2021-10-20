@@ -29,7 +29,6 @@ import {
 } from "../../utils/utils";
 import { ZoneServer } from "./zoneserver";
 import { ZoneClient as Client } from "./classes/zoneclient";
-import { Vehicle } from "./classes/vehicles";
 
 const modelToName = require("../../../data/2015/sampleData/ModelToName.json");
 

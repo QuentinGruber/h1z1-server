@@ -30,7 +30,6 @@ import dynamicWeather from "./workers/dynamicWeather";
 
 // need to get 2016 lists
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json");
-const Z1_POIs = require("../../../data/2015/zoneData/Z1_POIs");
 const recipes = require("../../../data/2016/sampleData/recipes.json");
 const localWeatherTemplates = require("../../../data/2016/dataSources/weather.json");
 const stats = require("../../../data/2016/sampleData/stats.json");

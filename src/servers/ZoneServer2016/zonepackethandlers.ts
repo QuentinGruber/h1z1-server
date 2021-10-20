@@ -1015,12 +1015,10 @@ const packetHandlers = {
         vehicleData.npcData.position
       )
     ) {
-      if (!client.vehicle.mountedVehicle) {
         server.sendData(client, "Command.InteractionString", {
           guid: guid,
           stringId: 15,
         });
-      }
     }
   },
 
