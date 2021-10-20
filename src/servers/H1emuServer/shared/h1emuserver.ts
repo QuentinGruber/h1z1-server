@@ -40,7 +40,7 @@ export class H1emuServer extends EventEmitter {
 
 
   clientHandler(remote:RemoteInfo, opcode: number):H1emuClient|void{
-    let client: any;
+    let client: H1emuClient;
     const clientId = `${remote.address}:${remote.port}`
     if (!this._clients[clientId]) {
       // if client doesn't exist yet, only accept sessionrequest or sessionreply

@@ -498,7 +498,6 @@ export class LoginServer extends EventEmitter {
       const character = await this._db
         .collection("characters")
         .findOne({ characterId: characterId });
-        console.log(this._zoneConnections)
       const connectionStatus = Object.values(this._zoneConnections).includes(serverId);
       charactersLoginInfo = {
         unknownQword1: "0x0",
