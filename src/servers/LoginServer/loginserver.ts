@@ -55,6 +55,7 @@ export class LoginServer extends EventEmitter {
   _zoneWhitelist!: any[];
   _internalReqCount:number = 0;
   _pendingInternalReq: { [requestId: number]: any } = {};
+  _pendingInternalReqTimeouts: { [requestId: number]: NodeJS.Timeout } = {};
 
   constructor(serverPort: number, mongoAddress = "") {
     super();
@@ -186,8 +187,11 @@ export class LoginServer extends EventEmitter {
         }
       });
       this._h1emuLoginServer.on("processInternalReq", (packet:any) => {
-        this._pendingInternalReq[packet.data.reqId](packet.data.status)
-        delete this._pendingInternalReq[packet.data.reqId];
+        const {reqId,status} = packet.data;
+        clearTimeout(this._pendingInternalReqTimeouts[reqId]);
+        delete this._pendingInternalReqTimeouts[reqId];
+        this._pendingInternalReq[reqId](status);
+        delete this._pendingInternalReq[reqId];
       });
       this._h1emuLoginServer.on("disconnect", (err: string, client: H1emuClient, reason: number) => {
         debug(`ZoneConnection dropped: ${reason?"Connection Lost":"Unknown Error"}`);
@@ -416,6 +420,11 @@ export class LoginServer extends EventEmitter {
         const [address,port] = zoneConnectionString.split(":");
         this._h1emuLoginServer.sendData({address:address,port:port,clientId:zoneConnectionString,session:true} as any,"CharacterDeleteRequest",{reqId:reqId,characterId:characterId,})
         this._pendingInternalReq[reqId] = resolve;
+        this._pendingInternalReqTimeouts[reqId] = setTimeout(()=>{
+          delete this._pendingInternalReq[reqId];
+          delete this._pendingInternalReqTimeouts[reqId];
+          resolve(0)
+        },10000)
       }
       catch(e){
         resolve(0)
@@ -568,6 +577,11 @@ export class LoginServer extends EventEmitter {
         const [address,port] = zoneConnectionString.split(":");
         this._h1emuLoginServer.sendData({address:address,port:port,clientId:zoneConnectionString,session:true} as any,"CharacterCreateRequest",{reqId:reqId,characterObjStringify:JSON.stringify(characterData)})
         this._pendingInternalReq[reqId] = resolve;
+        this._pendingInternalReqTimeouts[reqId] = setTimeout(()=>{
+          delete this._pendingInternalReq[reqId];
+          delete this._pendingInternalReqTimeouts[reqId];
+          resolve(0)
+        },10000)
       }
       catch(e){
         resolve(0)
