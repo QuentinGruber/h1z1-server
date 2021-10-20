@@ -58,12 +58,11 @@ export class ZoneServer extends EventEmitter {
   _serverTime: any;
   _transientIds: any;
   _packetHandlers: HandledZonePackets;
-  _referenceData: any;
   _startTime: number;
   _startGameTime: number;
   _timeMultiplier: number;
   _cycleSpeed: number;
-  _frozeCycle: boolean;
+  _frozeCycle: boolean = false;
   _profiles: any[];
   _weather: Weather;
   _spawnLocations: any;
@@ -93,7 +92,7 @@ export class ZoneServer extends EventEmitter {
   _enableGarbageCollection: boolean = true;
   worldRoutineTimer: any;
   tickRate: number = 3000;
-  
+
   constructor(
     serverPort: number,
     gatewayKey: Uint8Array,
@@ -118,13 +117,11 @@ export class ZoneServer extends EventEmitter {
     this._props = {};
     this._serverTime = this.getCurrentTime();
     this._transientIds = {};
-    this._referenceData = this.parseReferenceData();
     this._packetHandlers = packetHandlers;
     this._startTime = 0;
     this._startGameTime = 0;
     this._timeMultiplier = 72;
     this._cycleSpeed = 0;
-    this._frozeCycle = false;
     this._reloadPacketsInterval;
     this._soloMode = false;
     this._weatherTemplates = localWeatherTemplates;
@@ -330,7 +327,7 @@ export class ZoneServer extends EventEmitter {
     data: Buffer,
     flags: number
   ) {
-    const packet = this._protocol.parse(data, flags, true, this._referenceData);
+    const packet = this._protocol.parse(data, flags, true);
     if (packet) {
       this.emit("data", null, client, packet);
     } else {
@@ -340,7 +337,6 @@ export class ZoneServer extends EventEmitter {
 
   async setupServer(): Promise<void> {
     this.forceTime(971172000000); // force day time by default - not working for now
-    this._frozeCycle = false;
     await this.loadMongoData();
     this._weather = this._soloMode
       ? this._weatherTemplates[this._defaultWeatherTemplate]
@@ -623,25 +619,7 @@ export class ZoneServer extends EventEmitter {
   }
 
   generateGuid(): string {
-    const guid = generateRandomGuid();
-    return guid;
-  }
-
-  parseReferenceData(): any {
-    /*
-        const itemData = fs.readFileSync(
-            `${__dirname}/../../../data/dataSources/ClientItemDefinitions.txt`,
-            "utf8"
-          ),
-          itemLines = itemData.split("\n"),
-          items = {};
-        for (let i = 1; i < itemLines.length; i++) {
-          const line = itemLines[i].split("^");
-          if (line[0]) {
-            (items as any)[line[0]] = line[1];
-          }
-        }*/
-    return { itemTypes: undefined };
+    return generateRandomGuid();
   }
 
   async saveCharacterPosition(client: Client, refreshTimeout = false) {
@@ -1232,7 +1210,7 @@ export class ZoneServer extends EventEmitter {
     if (packetName != "KeepAlive") {
       debug("send data", packetName);
     }
-    const data = this._protocol.pack(packetName, obj, this._referenceData);
+    const data = this._protocol.pack(packetName, obj);
     this._gatewayServer.sendTunnelData(client, data, channel);
   }
 

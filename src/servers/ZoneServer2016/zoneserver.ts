@@ -341,7 +341,6 @@ export class ZoneServer2016 extends ZoneServer {
 
   async setupServer(): Promise<void> {
     this.forceTime(971172000000); // force day time by default - not working for now
-    this._frozeCycle = false;
     await this.loadMongoData();
     this._profiles = this.generateProfiles();
     this.createAllObjects();
