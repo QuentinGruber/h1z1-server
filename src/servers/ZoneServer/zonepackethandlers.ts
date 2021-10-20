@@ -824,19 +824,18 @@ const packetHandlers = {
       delete client.vehicle.mountedVehicle;
     } else if (
       vehicleData &&
+      !client.vehicle.mountedVehicle &&
       isPosInRadius(
         server._interactionDistance,
         client.character.state.position,
         vehicleData.npcData.position
       )
     ) {
-      if (!client.vehicle.mountedVehicle) {
         server.sendData(client, "Command.InteractionString", {
           guid: guid,
           stringId: 15,
         });
         client.vehicle.mountedVehicle = guid;
-      }
     }
   },
   "Command.SetInWater": function (
@@ -1962,6 +1961,7 @@ const packetHandlers = {
 
         server._vehicles[vehicleGuid].isManaged = true;
         client.managedObjects.push(server._vehicles[vehicleGuid]);
+        client.vehicle.mountedVehicle = guid;
         break;
       case 3: // door
         debug("tried to open ", entityData.characterId);

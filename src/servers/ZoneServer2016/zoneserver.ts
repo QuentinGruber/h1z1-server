@@ -341,6 +341,7 @@ export class ZoneServer2016 extends ZoneServer {
 
   async setupServer(): Promise<void> {
     this.forceTime(971172000000); // force day time by default - not working for now
+    this._frozeCycle = true;
     await this.loadMongoData();
     this._profiles = this.generateProfiles();
     this.createAllObjects();
@@ -461,12 +462,11 @@ export class ZoneServer2016 extends ZoneServer {
     this.sendData(client, "SendZoneDetails", SendZoneDetails_packet);
   }
 
-  SendWeatherUpdatePacket(
+  sendWeatherUpdatePacket(
     client: Client,
-    weather: Weather2016,
-    isGlobal = false
+    weather: Weather2016
   ): void {
-    if (isGlobal) {
+    if (!this._soloMode) {
       this.sendDataToAll("UpdateWeatherData", weather);
       if (client?.character?.name) {
         this.sendGlobalChatText(
@@ -791,14 +791,6 @@ export class ZoneServer2016 extends ZoneServer {
         seatId: packet.data.seatId,
       });
     }
-  }
-
-  updateWeather2016(client: Client): void {
-    this.SendWeatherUpdatePacket(
-      client,
-      this._weather2016,
-      this._soloMode ? false : true
-    );
   }
 
 //#region ********************INVENTORY********************

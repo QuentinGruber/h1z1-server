@@ -356,5 +356,5 @@ export default function dynamicWeather(server: ZoneServer2016) {
       }),
     };
     */
-  server.updateWeather2016({} as Client);
+  server.sendWeatherUpdatePacket({} as Client, server._weather2016);
 }

@@ -130,7 +130,7 @@ const hax: any = {
       position: locationPosition,
       triggerLoadingScreen: true,
     });
-    server.updateWeather2016(client);
+    server.sendWeatherUpdatePacket(client, server._weather2016);
   },
   time: function (server: ZoneServer2016, client: Client, args: any[]) {
     const choosenHour = Number(args[1]);
@@ -379,7 +379,7 @@ const hax: any = {
       );
     } else if (weatherTemplate) {
       server._weather2016 = weatherTemplate;
-      server.updateWeather2016(client);
+      server.sendWeatherUpdatePacket(client, server._weather2016);
       server.sendChatText(client, `Applied weather template: "${args[1]}"`);
     } else {
       if (args[1] === "list") {
@@ -513,7 +513,7 @@ const hax: any = {
 
       unknownDword33: 0,
     };
-    server.updateWeather2016(client);
+    server.sendWeatherUpdatePacket(client, server._weather2016);
   },
   equipment: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.sendChatText(

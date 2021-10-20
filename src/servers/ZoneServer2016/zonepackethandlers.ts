@@ -1008,6 +1008,7 @@ const packetHandlers = {
       });
     } else if (
       vehicleData &&
+      !client.vehicle.mountedVehicle &&
       isPosInRadius(
         server._interactionDistance,
         client.character.state.position,
