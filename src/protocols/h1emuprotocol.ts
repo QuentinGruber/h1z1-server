@@ -70,8 +70,8 @@ const packets = [
     0x07,
     {
         fields: [
-          { name: "characterId", type: "uint32", defaultValue: 0 },
-          { name: "ownerId", type: "uint32", defaultValue: 0 },
+          { name: "reqId", type: "uint32", defaultValue: 0 },
+          { name: "characterId", type: "uint64string", defaultValue: 0 },
         ]
     }
   ],
@@ -80,16 +80,8 @@ const packets = [
     0x08,
     {
         fields: [
+          { name: "reqId", type: "uint32", defaultValue: 0 },
           { name: "status", type: "boolean", defaultValue: 0 },
-        ]
-    }
-  ],
-  [
-    "test",
-    0xff,
-    {
-        fields: [
-            { name: "msg", type: "uint32", defaultValue: 0 },
         ]
     }
   ]
