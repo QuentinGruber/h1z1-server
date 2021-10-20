@@ -255,8 +255,8 @@ export class ZoneServer extends EventEmitter {
               break;
             }
           case "CharacterDeleteRequest":{
+            const { characterId, reqId } = packet.data;
             try {
-              const { characterId, reqId } = packet.data;
               const collection = (this._db as Db).collection('characters')
               const charactersArray = await collection.find({ characterId: characterId }).toArray();
               if (charactersArray.length === 1) {
