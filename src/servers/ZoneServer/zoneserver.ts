@@ -855,28 +855,30 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
+  executeFuncForAllClients(callback: any): void {
+    for (const client in this._clients) {
+      callback(this._clients[client]);
+    }
+  }
+
   worldRoutine(refresh = false): void {
     debug("WORLDROUTINE");
-    for (const client in this._clients) {
-      this.spawnCharacters(this._clients[client]);
-      this.spawnObjects(this._clients[client]);
-      this.spawnDoors(this._clients[client]);
-      this.spawnProps(this._clients[client]);
-      this.spawnNpcs(this._clients[client]);
-      this.spawnVehicles(this._clients[client]);
-      this.removeOutOfDistanceEntities(this._clients[client]);
-      this.POIManager(this._clients[client]);
-      this._clients[client].npcsToSpawnTimer.refresh();
-      this._clients[client].posAtLastRoutine = this._clients[client].character.state.position;
-    }
+    this.executeFuncForAllClients((client: Client) => {
+      this.spawnCharacters(client);
+      this.spawnObjects(client);
+      this.spawnDoors(client);
+      this.spawnProps(client);
+      this.spawnNpcs(client);
+      this.spawnVehicles(client);
+      this.removeOutOfDistanceEntities(client);
+      this.POIManager(client);
+      client.npcsToSpawnTimer.refresh();
+      client.posAtLastRoutine = client.character.state.position;
+    });
     if (refresh) this.worldRoutineTimer.refresh();
   }
 
-  executeFuncForAllClients(zoneServerFuncName: string): void {
-    for (const client in this._clients) {
-      (this as any)[zoneServerFuncName](this._clients[client]);
-    }
-  }
+  
 
   spawnCharacters(client: Client) {
     for (const character in this._characters) {

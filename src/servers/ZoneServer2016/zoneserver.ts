@@ -433,67 +433,18 @@ export class ZoneServer2016 extends ZoneServer {
     });
   }
 
-  /*
-  POIManager(client: Client) {
-    // sends POIChangeMessage or clears it based on player location
-    let inPOI = false;
-    Z1_POIs.forEach((point: any) => {
-      if (
-        isPosInRadius(
-          point.range,
-          client.character.state.position,
-          point.position
-        )
-      ) {
-        inPOI = true;
-        if (client.currentPOI != point.stringId) {
-          // checks if player already was sent POIChangeMessage
-          this.sendData(client, "POIChangeMessage", {
-            messageStringId: point.stringId,
-            id: point.POIid,
-          });
-          client.currentPOI = point.stringId;
-        }
-      }
-    });
-    if (!inPOI && client.currentPOI != 0) {
-      // checks if POIChangeMessage was already cleared
-      this.sendData(client, "POIChangeMessage", {
-        messageStringId: 0,
-        id: 115,
-      });
-      client.currentPOI = 0;
-    }
-  }
-  */
-
-  setPosAtLastRoutine(client: Client) {
-    client.posAtLastRoutine = client.character.state.position;
-  }
-
   worldRoutine2016(refresh = false): void {
     debug("WORLDROUTINE");
-    /*
-    this.executeFuncForAllClients("spawnCharacters");
-    this.executeFuncForAllClients("spawnObjects");
-    this.executeFuncForAllClients("spawnDoors");
-    this.executeFuncForAllClients("spawnNpcs");
-    this.executeFuncForAllClients("spawnVehicles");
-    this.executeFuncForAllClients("removeOutOfDistanceEntities");
-    this.executeFuncForAllClients("POIManager");
-    this.executeFuncForAllClients("setPosAtLastRoutine");
-    */
-
-    for (const client in this._clients) {
-      this.spawnCharacters(this._clients[client]);
-      this.spawnObjects(this._clients[client]);
-      this.spawnDoors(this._clients[client]);
-      this.spawnNpcs(this._clients[client]);
-      this.spawnVehicles(this._clients[client]);
-      this.removeOutOfDistanceEntities(this._clients[client]);
-      this.POIManager(this._clients[client]);
-      this.setPosAtLastRoutine(this._clients[client]);
-    }
+    this.executeFuncForAllClients((client: Client) => {
+      this.spawnCharacters(client);
+      this.spawnObjects(client);
+      this.spawnDoors(client);
+      this.spawnNpcs(client);
+      this.spawnVehicles(client);
+      this.removeOutOfDistanceEntities(client);
+      this.POIManager(client);
+      client.posAtLastRoutine = client.character.state.position;
+    });
     if (refresh) this.worldRoutineTimer.refresh();
   }
 
@@ -851,7 +802,7 @@ export class ZoneServer2016 extends ZoneServer {
     );
   }
 
-  /********************* INVENTORY *********************/
+//#region ********************INVENTORY********************
 
   updateLoadout(client: Client) {
     this.sendData(client, "Loadout.SelectSlot", {
@@ -1025,6 +976,8 @@ export class ZoneServer2016 extends ZoneServer {
       ].ID
     );
   }
+//#endregion
+
 }
 
 if (process.env.VSCODE_DEBUG === "true") {

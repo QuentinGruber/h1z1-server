@@ -306,7 +306,7 @@ const packetHandlers = {
         ...client.character,
         identity: {},
       };
-      server.executeFuncForAllClients("spawnCharacters");
+      server.executeFuncForAllClients(()=>server.spawnCharacters);
     }
 
     client.isLoading = false;
