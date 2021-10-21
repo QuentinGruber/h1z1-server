@@ -31,7 +31,6 @@ import dynamicWeather from "./workers/dynamicWeather";
 
 // need to get 2016 lists
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json");
-const Z1_POIs = require("../../../data/2015/zoneData/Z1_POIs");
 const recipes = require("../../../data/2016/sampleData/recipes.json");
 const localWeatherTemplates = require("../../../data/2016/dataSources/weather.json");
 const stats = require("../../../data/2016/sampleData/stats.json");
@@ -42,7 +41,6 @@ const loadoutSlotItemClasses = require("./../../../data/2016/dataSources/Loadout
 const loadoutEquipSlots = require("./../../../data/2016/dataSources/LoadoutEquipSlots.json");
 
 export class ZoneServer2016 extends ZoneServer {
-  worldRoutineTimer: any;
   _weather2016: Weather2016;
   // @ts-ignore yeah idk how to fix that
   _packetHandlers: HandledZonePackets2016;
@@ -398,8 +396,8 @@ export class ZoneServer2016 extends ZoneServer {
     }
     this._gatewayServer.start();
     this.worldRoutineTimer = setTimeout(
-      () => this.worldRoutine2016.bind(this)(true),
-      3000
+      () => this.worldRoutine.bind(this)(true),
+      this.tickRate
     );
   }
 
@@ -437,52 +435,18 @@ export class ZoneServer2016 extends ZoneServer {
     });
   }
 
-  POIManager(client: Client) {
-    // sends POIChangeMessage or clears it based on player location
-    let inPOI = false;
-    Z1_POIs.forEach((point: any) => {
-      if (
-        isPosInRadius(
-          point.range,
-          client.character.state.position,
-          point.position
-        )
-      ) {
-        inPOI = true;
-        if (client.currentPOI != point.stringId) {
-          // checks if player already was sent POIChangeMessage
-          this.sendData(client, "POIChangeMessage", {
-            messageStringId: point.stringId,
-            id: point.POIid,
-          });
-          client.currentPOI = point.stringId;
-        }
-      }
-    });
-    if (!inPOI && client.currentPOI != 0) {
-      // checks if POIChangeMessage was already cleared
-      this.sendData(client, "POIChangeMessage", {
-        messageStringId: 0,
-        id: 115,
-      });
-      client.currentPOI = 0;
-    }
-  }
-
-  setPosAtLastRoutine(client: Client) {
-    client.posAtLastRoutine = client.character.state.position;
-  }
-
-  worldRoutine2016(refresh = false): void {
+  worldRoutine(refresh = false): void {
     debug("WORLDROUTINE");
-    this.executeFuncForAllClients("spawnCharacters");
-    this.executeFuncForAllClients("spawnObjects");
-    this.executeFuncForAllClients("spawnDoors");
-    this.executeFuncForAllClients("spawnNpcs");
-    this.executeFuncForAllClients("spawnVehicles");
-    this.executeFuncForAllClients("removeOutOfDistanceEntities");
-    this.executeFuncForAllClients("POIManager");
-    this.executeFuncForAllClients("setPosAtLastRoutine");
+    this.executeFuncForAllClients((client: Client) => {
+      this.spawnCharacters(client);
+      this.spawnObjects(client);
+      this.spawnDoors(client);
+      this.spawnNpcs(client);
+      this.spawnVehicles(client);
+      this.removeOutOfDistanceEntities(client);
+      this.POIManager(client);
+      client.posAtLastRoutine = client.character.state.position;
+    });
     if (refresh) this.worldRoutineTimer.refresh();
   }
 
@@ -500,12 +464,11 @@ export class ZoneServer2016 extends ZoneServer {
     this.sendData(client, "SendZoneDetails", SendZoneDetails_packet);
   }
 
-  SendWeatherUpdatePacket(
+  sendWeatherUpdatePacket(
     client: Client,
-    weather: Weather2016,
-    isGlobal = false
+    weather: Weather2016
   ): void {
-    if (isGlobal) {
+    if (!this._soloMode) {
       this.sendDataToAll("UpdateWeatherData", weather);
       if (client?.character?.name) {
         this.sendGlobalChatText(
@@ -832,15 +795,7 @@ export class ZoneServer2016 extends ZoneServer {
     }
   }
 
-  updateWeather2016(client: Client): void {
-    this.SendWeatherUpdatePacket(
-      client,
-      this._weather2016,
-      this._soloMode ? false : true
-    );
-  }
-
-  /********************* INVENTORY *********************/
+//#region ********************INVENTORY********************
 
   updateLoadout(client: Client) {
     this.sendData(client, "Loadout.SelectSlot", {
@@ -1014,6 +969,8 @@ export class ZoneServer2016 extends ZoneServer {
       ].ID
     );
   }
+//#endregion
+
 }
 
 if (process.env.VSCODE_DEBUG === "true") {
