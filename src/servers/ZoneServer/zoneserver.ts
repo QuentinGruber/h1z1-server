@@ -91,6 +91,7 @@ export class ZoneServer extends EventEmitter {
   _worldRoutineRadiusPercentage: number = 0.4;
   _enableGarbageCollection: boolean = true;
   _h1emuZoneServer!: H1emuZoneServer;
+  _h1emuZoneServerPort: number = 0;
   _loginServerInfo: { address?: string; port: number } = { port: 1110 };
 
   constructor(
@@ -215,7 +216,7 @@ export class ZoneServer extends EventEmitter {
     );
 
     if (!this._soloMode) {
-      this._h1emuZoneServer = new H1emuZoneServer(); // opens local socket to connect to loginserver
+      this._h1emuZoneServer = new H1emuZoneServer(this._h1emuZoneServerPort); // opens local socket to connect to loginserver
 
       this._h1emuZoneServer.on(
         "session",
