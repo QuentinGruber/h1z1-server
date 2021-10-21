@@ -20,10 +20,10 @@ export class H1emuLoginServer extends H1emuServer {
               this.ping(client);
               break;
             case "CharacterCreateReply":
-            case "CharacterDeleteReply":{
-              this.emit("processInternalReq",packet)
+            case "CharacterDeleteReply": {
+              this.emit("processInternalReq", packet);
               break;
-          }
+            }
             default:
               this.emit("data", null, client, packet);
               break;

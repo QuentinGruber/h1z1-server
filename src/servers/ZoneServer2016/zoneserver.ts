@@ -363,8 +363,8 @@ export class ZoneServer2016 extends ZoneServer {
               { $set: { populationNumber: 0, populationLevel: 0 } }
             );
         */
-    if(!this._soloMode){
-      this._h1emuZoneServer.start()
+    if (!this._soloMode) {
+      this._h1emuZoneServer.start();
     }
     debug("Server ready");
   }
