@@ -456,7 +456,7 @@ export class ZoneServer extends EventEmitter {
 
   async setupServer(): Promise<void> {
     this.forceTime(971172000000); // force day time by default - not working for now
-    this._frozeCycle = true;
+    this._frozeCycle = false;
     await this.loadMongoData();
     this._weather = this._soloMode
       ? this._weatherTemplates[this._defaultWeatherTemplate]
