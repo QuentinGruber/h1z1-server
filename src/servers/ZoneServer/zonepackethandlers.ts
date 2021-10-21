@@ -29,7 +29,6 @@ import {
 } from "../../utils/utils";
 import { ZoneServer } from "./zoneserver";
 import { ZoneClient as Client } from "./classes/zoneclient";
-import { Vehicle } from "./classes/vehicles";
 
 const modelToName = require("../../../data/2015/sampleData/ModelToName.json");
 
@@ -277,7 +276,7 @@ const packetHandlers = {
         () => server.saveCharacterPosition(client, true),
         30000
       );
-      server.executeFuncForAllClients("spawnCharacters");
+      server.executeFuncForAllClients(()=>server.spawnCharacters);
       if (!server._soloMode) {
         const populationNumber = _.size(server._characters);
         server._db?.collection("servers").findOneAndUpdate(
@@ -718,125 +717,108 @@ const packetHandlers = {
     client: Client,
     packet: any
   ) {
-    debug(packet.data);
-    let { guid } = packet.data;
-    const objectData = server._objects[guid];
-    const doorData = server._doors[guid];
-    const vehicleData = server._vehicles[guid];
-    const propData = server._props[guid];
+    const { guid } = packet.data,
+    entityData = server._objects[guid] || server._vehicles[guid] || server._doors[guid] || server._props[guid],
+    entityType = server._objects[guid]?1:0 || server._vehicles[guid]?2:0 || server._doors[guid]?3:0 || server._props[guid]?4:0;
 
-    if (
-      objectData &&
-      isPosInRadius(
+    if(!entityData || !isPosInRadius(
         server._interactionDistance,
         client.character.state.position,
-        objectData.position
-      )
-    ) {
-      server.sendData(client, "Command.InteractionString", {
-        guid: guid,
-        stringId: 29,
-      });
-      delete client.vehicle.mountedVehicle;
-    } else if (
-      propData &&
-      isPosInRadius(
-        server._interactionDistance,
-        client.character.state.position,
-        propData.position
-      )
-    ) {
-      let stringId = 0;
-      switch (propData.modelId) {
-        case 9330: // beds
-          stringId = 9041;
+        entityData.npcData?entityData.npcData.position:entityData.position
+    )) return;
+
+    switch (entityType) {
+        case 1: // object
+          server.sendData(client, "Command.InteractionString", {
+            guid: guid,
+            stringId: 29,
+          });
+          delete client.vehicle.mountedVehicle;
           break;
-        case 9329:
-          stringId = 9041;
+        case 2: // vehicle
+          if(!client.vehicle.mountedVehicle){
+            server.sendData(client, "Command.InteractionString", {
+              guid: guid,
+              stringId: 15,
+            });
+          }
           break;
-        case 9328:
-          stringId = 9041;
+        case 3: // door
+          server.sendData(client, "Command.InteractionString", {
+            guid: guid,
+            stringId: 78,
+          });
+          delete client.vehicle.mountedVehicle;
           break;
-        case 9331:
-          stringId = 9041;
-          break;
-        case 9336:
-          stringId = 9041;
-          break;
-        case 57: // Openable
-          stringId = 31;
-          break;
-        case 36: // interactables
-          stringId = 1186;
-          break;
-        case 9205:
-          stringId = 1186;
-          break;
-        case 9041:
-          stringId = 1186;
-          break;
-        case 8014: // NoString
-          guid = "0";
-          break;
-        case 8013:
-          guid = "0";
-          break;
-        case 9088:
-          guid = "0";
-          break;
-        case 8012: // NoString
-          guid = "0";
-          break;
-        case 9069:
-          guid = "0";
-          break;
-        case 9061:
-          guid = "0";
-          break;
-        case 9032: // collect water
-          stringId = 1008;
-          break;
-        case 9033:
-          stringId = 1008;
-          break;
+        case 4: // prop
+          let stringId = 0;
+          switch (entityData.modelId) {
+            case 9330: // beds
+              stringId = 9041;
+              break;
+            case 9329:
+              stringId = 9041;
+              break;
+            case 9328:
+              stringId = 9041;
+              break;
+            case 9331:
+              stringId = 9041;
+              break;
+            case 9336:
+              stringId = 9041;
+              break;
+            case 57: // Openable
+              stringId = 31;
+              break;
+            case 36: // interactables
+              stringId = 1186;
+              break;
+            case 9205:
+              stringId = 1186;
+              break;
+            case 9041:
+              stringId = 1186;
+              break;
+            case 8014: // NoString
+              stringId = 0;
+              break;
+            case 8013:
+              stringId = 0;
+              break;
+            case 9088:
+              stringId = 0;
+              break;
+            case 8012: // NoString
+              stringId = 0;
+              break;
+            case 9069:
+              stringId = 0;
+              break;
+            case 9061:
+              stringId = 0;
+              break;
+            case 9032: // collect water
+              stringId = 1008;
+              break;
+            case 9033:
+              stringId = 1008;
+              break;
+            default:
+              // searchable
+              stringId = 1191;
+              break;
+          }
+          if(stringId) {
+            server.sendData(client, "Command.InteractionString", {
+              guid: guid,
+              stringId: stringId,
+            });
+          }
+          delete client.vehicle.mountedVehicle;
+            break;
         default:
-          // searchable
-          stringId = 1191;
-          break;
-      }
-      server.sendData(client, "Command.InteractionString", {
-        guid: guid,
-        stringId: stringId,
-      });
-      delete client.vehicle.mountedVehicle;
-    } else if (
-      doorData &&
-      isPosInRadius(
-        server._interactionDistance,
-        client.character.state.position,
-        doorData.position
-      )
-    ) {
-      server.sendData(client, "Command.InteractionString", {
-        guid: guid,
-        stringId: 78,
-      });
-      delete client.vehicle.mountedVehicle;
-    } else if (
-      vehicleData &&
-      isPosInRadius(
-        server._interactionDistance,
-        client.character.state.position,
-        vehicleData.npcData.position
-      )
-    ) {
-      if (!client.vehicle.mountedVehicle) {
-        server.sendData(client, "Command.InteractionString", {
-          guid: guid,
-          stringId: 15,
-        });
-        client.vehicle.mountedVehicle = guid;
-      }
+            break;
     }
   },
   "Command.SetInWater": function (
@@ -1755,7 +1737,7 @@ const packetHandlers = {
               client.posAtLastRoutine
             )
           ) {
-            server.worldRoutine(client);
+            server.worldRoutine();
           }
         }
       }
@@ -1816,7 +1798,7 @@ const packetHandlers = {
         ) &&
           !client.isLoading)
       ) {
-        server.worldRoutine(client);
+        server.worldRoutine();
       }
     } else if (packet.data.vehicle_position && client.vehicle.mountedVehicle) {
       server._vehicles[client.vehicle.mountedVehicle].npcData.position =
@@ -1850,326 +1832,311 @@ const packetHandlers = {
     packet: any
   ) {
     debug(packet);
-    // Maybe we should move all that logic to Command.InteractionSelect
-    const objectToPickup = server._objects[packet.data.guid];
-    const doorToInteractWith = server._doors[packet.data.guid];
-    const propToSearch = server._props[packet.data.guid];
-    const vehicleToMount: Vehicle = server._vehicles[packet.data.guid];
-    if (
-      objectToPickup &&
-      isPosInRadius(
-        server._interactionDistance,
-        client.character.state.position,
-        objectToPickup.position
-      )
-    ) {
-      // TODO : use strings from the game, will add to h1z1-string-finder the option to export to JSON
-      const model_index = modelToName.findIndex(
-        (x: any) => x.modelId === objectToPickup.modelId
-      );
-      const pickupMessage = modelToName[model_index]?.itemName;
-      server.sendData(client, "ClientUpdate.TextAlert", {
-        message: pickupMessage,
-      });
-      const { water, health, food } = client.character.resources;
-      switch (objectToPickup.modelId) {
-        case 9159:
-          client.character.resources.water = water + 4000;
-          server.sendData(client, "ResourceEvent", {
-            eventData: {
-              type: 3,
-              value: {
-                characterId: client.character.characterId,
-                resourceId: 5, // water
-                resourceType: 5,
-                initialValue: client.character.resources.water,
-                unknownArray1: [],
-                unknownArray2: [],
+    const { guid } = packet.data,
+    entityData = server._objects[guid] || server._vehicles[guid] || server._doors[guid] || server._props[guid],
+    entityType = server._objects[guid]?1:0 || server._vehicles[guid]?2:0 || server._doors[guid]?3:0 || server._props[guid]?4:0;
+
+    if(!entityData || !isPosInRadius(
+      server._interactionDistance,
+      client.character.state.position,
+      entityData.npcData?entityData.npcData.position:entityData.position
+    )) return;
+      
+    switch (entityType) {
+      case 1: // object
+        // TODO : use strings from the game, will add to h1z1-string-finder the option to export to JSON
+        const model_index = modelToName.findIndex(
+          (x: any) => x.modelId === entityData.modelId
+        );
+        const pickupMessage = modelToName[model_index]?.itemName;
+        server.sendData(client, "ClientUpdate.TextAlert", {
+          message: pickupMessage,
+        });
+        const { water, health, food } = client.character.resources;
+        switch (entityData.modelId) {
+          case 9159:
+            client.character.resources.water = water + 4000;
+            server.sendData(client, "ResourceEvent", {
+              eventData: {
+                type: 3,
+                value: {
+                  characterId: client.character.characterId,
+                  resourceId: 5, // water
+                  resourceType: 5,
+                  initialValue: client.character.resources.water,
+                  unknownArray1: [],
+                  unknownArray2: [],
+                },
               },
-            },
-          });
-          break;
-        case 8020:
-        case 9250:
-          client.character.resources.food = food + 4000;
-          server.sendData(client, "ResourceEvent", {
-            eventData: {
-              type: 3,
-              value: {
-                characterId: client.character.characterId,
-                resourceId: 4, // food
-                resourceType: 4,
-                initialValue: client.character.resources.food,
-                unknownArray1: [],
-                unknownArray2: [],
+            });
+            break;
+          case 8020:
+          case 9250:
+            client.character.resources.food = food + 4000;
+            server.sendData(client, "ResourceEvent", {
+              eventData: {
+                type: 3,
+                value: {
+                  characterId: client.character.characterId,
+                  resourceId: 4, // food
+                  resourceType: 4,
+                  initialValue: client.character.resources.food,
+                  unknownArray1: [],
+                  unknownArray2: [],
+                },
               },
-            },
-          });
-          break;
-        case 9221:
-          client.character.resources.health = health + 10000;
-          server.sendData(client, "ResourceEvent", {
-            eventData: {
-              type: 3,
-              value: {
-                characterId: client.character.characterId,
-                resourceId: 48, // health
-                resourceType: 1,
-                initialValue: client.character.resources.health,
-                unknownArray1: [],
-                unknownArray2: [],
+            });
+            break;
+          case 9221:
+            client.character.resources.health = health + 10000;
+            server.sendData(client, "ResourceEvent", {
+              eventData: {
+                type: 3,
+                value: {
+                  characterId: client.character.characterId,
+                  resourceId: 48, // health
+                  resourceType: 1,
+                  initialValue: client.character.resources.health,
+                  unknownArray1: [],
+                  unknownArray2: [],
+                },
               },
-            },
-          });
-          break;
-        default:
-          break;
-      }
-      server.deleteEntity(objectToPickup.characterId, server._objects);
-    } else if (
-      vehicleToMount &&
-      isPosInRadius(
-        server._interactionDistance,
-        client.character.state.position,
-        vehicleToMount.npcData.position
-      )
-    ) {
-      const { characterId: vehicleGuid } = vehicleToMount.npcData;
-      const { modelId: vehicleModelId } = vehicleToMount.npcData;
-      switch (vehicleModelId) {
-        case 7225:
-          client.vehicle.mountedVehicleType = "offroader";
-          break;
-        case 9258:
-          client.vehicle.mountedVehicleType = "pickup";
-          break;
-        case 9301:
-          client.vehicle.mountedVehicleType = "policecar";
-          break;
-        default:
-          client.vehicle.mountedVehicleType = "offroader";
-          break;
-      }
-
-      server.sendData(client, "PlayerUpdate.ManagedObject", {
-        guid: vehicleGuid,
-        characterId: client.character.characterId,
-      });
-
-      server.sendDataToAll("Mount.MountResponse", {
-        characterId: client.character.characterId,
-        guid: vehicleGuid,
-        characterData: [],
-      });
-
-      server.sendDataToAll("Vehicle.Engine", {
-        guid2: vehicleGuid,
-        unknownBoolean: true,
-      });
-
-      server._vehicles[vehicleGuid].isManaged = true;
-      client.managedObjects.push(server._vehicles[vehicleGuid]);
-    } else if (
-      doorToInteractWith &&
-      isPosInRadius(
-        server._interactionDistance,
-        client.character.state.position,
-        doorToInteractWith.position
-      )
-    ) {
-      debug("tried to open ", doorToInteractWith.characterId);
-      if (doorToInteractWith.isOpen === false) {
-        doorToInteractWith.moving = true;
-        setTimeout(function () {
-          doorToInteractWith.moving = false;
-        }, 500);
-        server.sendDataToAll("PlayerUpdate.UpdatePosition", {
-          transientId: doorToInteractWith.transientId,
-          positionUpdate: {
-            sequenceTime: server.getServerTime(),
-            unknown3_int8: 0,
-            position: doorToInteractWith.position,
-            orientation: doorToInteractWith.openAngle,
-          },
-        });
-        server.sendDataToAll("PlayerUpdate.PlayWorldCompositeEffect", {
-          soundId: 5048,
-          position: doorToInteractWith.position,
-          unk3: 0,
-        });
-        doorToInteractWith.isOpen = true;
-        doorToInteractWith.openCounter++;
-      } else {
-        doorToInteractWith.moving = true;
-        setTimeout(function () {
-          doorToInteractWith.moving = false;
-        }, 500);
-        server.sendDataToAll("PlayerUpdate.UpdatePosition", {
-          transientId: doorToInteractWith.transientId,
-          positionUpdate: {
-            sequenceTime: server.getServerTime(),
-            unknown3_int8: 0,
-            stance: 1089,
-            position: doorToInteractWith.position,
-            orientation: doorToInteractWith.closedAngle,
-          },
-        });
-        server.sendDataToAll("PlayerUpdate.PlayWorldCompositeEffect", {
-          soundId: 5049,
-          position: doorToInteractWith.position,
-          unk3: 0,
-        });
-        doorToInteractWith.openCounter++;
-        doorToInteractWith.isOpen = false;
-        if (doorToInteractWith.openCounter > 5) {
-          server.sendDataToAll(
-            "PlayerUpdate.RemovePlayerGracefully",
-            {
-              characterId: doorToInteractWith.characterId,
-            },
-            1
-          );
-          setTimeout(function () {
-            server.sendDataToAll(
-              "PlayerUpdate.AddLightweightNpc",
-              doorToInteractWith
-            );
-          }, 150);
-          doorToInteractWith.openCounter = 0;
+            });
+            break;
+          default:
+            break;
         }
-      }
-    } else if (
-      propToSearch &&
-      isPosInRadius(
-        server._interactionDistance,
-        client.character.state.position,
-        propToSearch.position
-      )
-    ) {
-      let interactType;
-      let timerTime = 0;
-      switch (propToSearch.modelId) {
-        case 8013:
-          interactType = "destroy";
-          break;
-        case 8014:
-          interactType = "destroy";
-          break;
-        case 9088:
-          interactType = "destroy";
-          break;
-        case 9328:
-          interactType = "sleep";
-          timerTime = 20000;
-          break;
-        case 9330:
-          interactType = "sleep";
-          timerTime = 20000;
-          break;
-        case 9329:
-          interactType = "sleep";
-          timerTime = 20000;
-          break;
-        case 9331:
-          interactType = "sleep";
-          timerTime = 20000;
-          break;
-        case 9336:
-          interactType = "sleep";
-          timerTime = 20000;
-          break;
-        case 36:
-          interactType = "use";
-          break;
-        case 9205:
-          interactType = "use";
-          break;
-        case 9041:
-          interactType = "use";
-          break;
-        case 57:
-          interactType = "open";
-          break;
-        case 9127:
-          interactType = "open";
-          break;
-        case 9032:
-          interactType = "collectWater";
-          break;
-        case 9033:
-          interactType = "collectWater";
-          break;
-        default:
-          interactType = "search";
-          timerTime = 1500;
-          break;
-      }
-      switch (interactType) {
-        case "destroy":
-          server.sendData(client, "PlayerUpdate.Destroyed", {
-            characterId: propToSearch.characterId,
-            unknown1: 242,
-            unknown2: 8015,
-            unknown3: 0,
-            disableWeirdPhysics: true,
+        server.deleteEntity(entityData.characterId, server._objects);
+        break;
+      case 2: // vehicle
+        const { characterId: vehicleGuid } = entityData.npcData;
+        const { modelId: vehicleModelId } = entityData.npcData;
+        switch (vehicleModelId) {
+          case 7225:
+            client.vehicle.mountedVehicleType = "offroader";
+            break;
+          case 9258:
+            client.vehicle.mountedVehicleType = "pickup";
+            break;
+          case 9301:
+            client.vehicle.mountedVehicleType = "policecar";
+            break;
+          default:
+            client.vehicle.mountedVehicleType = "offroader";
+            break;
+        }
+
+        server.sendData(client, "PlayerUpdate.ManagedObject", {
+          guid: vehicleGuid,
+          characterId: client.character.characterId,
+        });
+
+        server.sendDataToAll("Mount.MountResponse", {
+          characterId: client.character.characterId,
+          guid: vehicleGuid,
+          characterData: [],
+        });
+
+        server.sendDataToAll("Vehicle.Engine", {
+          guid2: vehicleGuid,
+          unknownBoolean: true,
+        });
+
+        server._vehicles[vehicleGuid].isManaged = true;
+        client.managedObjects.push(server._vehicles[vehicleGuid]);
+        client.vehicle.mountedVehicle = guid;
+        break;
+      case 3: // door
+        debug("tried to open ", entityData.characterId);
+        if (entityData.isOpen === false) {
+          entityData.moving = true;
+          setTimeout(function () {
+            entityData.moving = false;
+          }, 500);
+          server.sendDataToAll("PlayerUpdate.UpdatePosition", {
+            transientId: entityData.transientId,
+            positionUpdate: {
+              sequenceTime: server.getServerTime(),
+              unknown3_int8: 0,
+              position: entityData.position,
+              orientation: entityData.openAngle,
+            },
           });
-          break;
-        case "sleep":
-          if (!client.isInteracting) {
-            client.isInteracting = true;
-            server.sendData(client, "ClientUpdate.StartTimer", {
-              stringId: 9051,
-              time: timerTime,
-            });
-            client.posAtLogoutStart = client.character.state.position;
-            if (client.hudTimer != null) {
-              clearTimeout(client.hudTimer);
-            }
-            client.hudTimer = setTimeout(() => {
-              server.sendData(client, "ClientUpdate.TextAlert", {
-                message: "You feel refreshed after sleeping well.",
-              });
-              client.isInteracting = false;
-            }, timerTime);
+          server.sendDataToAll("PlayerUpdate.PlayWorldCompositeEffect", {
+            soundId: 5048,
+            position: entityData.position,
+            unk3: 0,
+          });
+          entityData.isOpen = true;
+          entityData.openCounter++;
+        } else {
+          entityData.moving = true;
+          setTimeout(function () {
+            entityData.moving = false;
+          }, 500);
+          server.sendDataToAll("PlayerUpdate.UpdatePosition", {
+            transientId: entityData.transientId,
+            positionUpdate: {
+              sequenceTime: server.getServerTime(),
+              unknown3_int8: 0,
+              stance: 1089,
+              position: entityData.position,
+              orientation: entityData.closedAngle,
+            },
+          });
+          server.sendDataToAll("PlayerUpdate.PlayWorldCompositeEffect", {
+            soundId: 5049,
+            position: entityData.position,
+            unk3: 0,
+          });
+          entityData.openCounter++;
+          entityData.isOpen = false;
+          if (entityData.openCounter > 5) {
+            server.sendDataToAll(
+              "PlayerUpdate.RemovePlayerGracefully",
+              {
+                characterId: entityData.characterId,
+              },
+              1
+            );
+            setTimeout(function () {
+              server.sendDataToAll(
+                "PlayerUpdate.AddLightweightNpc",
+                entityData
+              );
+            }, 150);
+            entityData.openCounter = 0;
           }
-          break;
-        case "use":
-          server.sendData(client, "ClientUpdate.TextAlert", {
-            message: "Nothing in there... yet :P",
-          });
-          break;
-        case "open":
-          server.sendData(client, "ClientUpdate.TextAlert", {
-            message: "Nothing in there... yet :P",
-          });
-          break;
-        case "collectWater":
-          server.sendData(client, "ClientUpdate.TextAlert", {
-            message: "You dont have an Empty Bottle",
-          });
-          break;
-        case "search":
-          if (!client.isInteracting) {
-            client.isInteracting = true;
-            server.sendData(client, "ClientUpdate.StartTimer", {
-              stringId: propToSearch.nameId,
-              time: timerTime,
+        }
+        break;
+      case 4: // prop
+        let interactType;
+        let timerTime = 0;
+        switch (entityData.modelId) {
+          case 8013:
+            interactType = "destroy";
+            break;
+          case 8014:
+            interactType = "destroy";
+            break;
+          case 9088:
+            interactType = "destroy";
+            break;
+          case 9328:
+            interactType = "sleep";
+            timerTime = 20000;
+            break;
+          case 9330:
+            interactType = "sleep";
+            timerTime = 20000;
+            break;
+          case 9329:
+            interactType = "sleep";
+            timerTime = 20000;
+            break;
+          case 9331:
+            interactType = "sleep";
+            timerTime = 20000;
+            break;
+          case 9336:
+            interactType = "sleep";
+            timerTime = 20000;
+            break;
+          case 36:
+            interactType = "use";
+            break;
+          case 9205:
+            interactType = "use";
+            break;
+          case 9041:
+            interactType = "use";
+            break;
+          case 57:
+            interactType = "open";
+            break;
+          case 9127:
+            interactType = "open";
+            break;
+          case 9032:
+            interactType = "collectWater";
+            break;
+          case 9033:
+            interactType = "collectWater";
+            break;
+          default:
+            interactType = "search";
+            timerTime = 1500;
+            break;
+        }
+        switch (interactType) {
+          case "destroy":
+            server.sendData(client, "PlayerUpdate.Destroyed", {
+              characterId: entityData.characterId,
+              unknown1: 242,
+              unknown2: 8015,
+              unknown3: 0,
+              disableWeirdPhysics: true,
             });
-            client.posAtLogoutStart = client.character.state.position;
-            if (client.hudTimer != null) {
-              clearTimeout(client.hudTimer);
-            }
-            client.hudTimer = setTimeout(() => {
-              server.sendData(client, "ClientUpdate.TextAlert", {
-                message: "Nothing in there... yet :P",
+            break;
+          case "sleep":
+            if (!client.isInteracting) {
+              client.isInteracting = true;
+              server.sendData(client, "ClientUpdate.StartTimer", {
+                stringId: 9051,
+                time: timerTime,
               });
-              client.isInteracting = false;
-            }, timerTime);
-          }
-          break;
-        default:
-          break;
-      }
+              client.posAtLogoutStart = client.character.state.position;
+              if (client.hudTimer != null) {
+                clearTimeout(client.hudTimer);
+              }
+              client.hudTimer = setTimeout(() => {
+                server.sendData(client, "ClientUpdate.TextAlert", {
+                  message: "You feel refreshed after sleeping well.",
+                });
+                client.isInteracting = false;
+              }, timerTime);
+            }
+            break;
+          case "use":
+            server.sendData(client, "ClientUpdate.TextAlert", {
+              message: "Nothing in there... yet :P",
+            });
+            break;
+          case "open":
+            server.sendData(client, "ClientUpdate.TextAlert", {
+              message: "Nothing in there... yet :P",
+            });
+            break;
+          case "collectWater":
+            server.sendData(client, "ClientUpdate.TextAlert", {
+              message: "You dont have an Empty Bottle",
+            });
+            break;
+          case "search":
+            if (!client.isInteracting) {
+              client.isInteracting = true;
+              server.sendData(client, "ClientUpdate.StartTimer", {
+                stringId: entityData.nameId,
+                time: timerTime,
+              });
+              client.posAtLogoutStart = client.character.state.position;
+              if (client.hudTimer != null) {
+                clearTimeout(client.hudTimer);
+              }
+              client.hudTimer = setTimeout(() => {
+                server.sendData(client, "ClientUpdate.TextAlert", {
+                  message: "Nothing in there... yet :P",
+                });
+                client.isInteracting = false;
+              }, timerTime);
+            }
+            break;
+          default:
+            break;
+        }
+        break;
+      default:
+        break;
     }
   },
   "Construction.PlacementRequest": function (
@@ -2208,86 +2175,120 @@ const packetHandlers = {
     client: Client,
     packet: any
   ) {
-    const {
-      data: { characterId },
-    } = packet;
-    const npc =
-      server._npcs[characterId] ||
-      server._objects[characterId] ||
-      server._props[characterId];
-    const pcData = server._characters[characterId];
-    const doorData = server._doors[characterId];
-
-    if (npc) {
-      server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
-        transientId: npc.transientId,
-        unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
-        unknownDword2: 13951728,
-        unknownDword3: 1,
-        unknownDword6: 100,
-      });
-      if (npc.onReadyCallback) {
-        npc.onReadyCallback();
-      }
-    }
-
-    if (server._doors[characterId]) {
-      server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
-        transientId: doorData.transientId,
-        unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
-        unknownDword2: 13951728,
-        unknownDword3: 1,
-        unknownDword6: 100,
-      });
-      if (doorData.isOpen === true) {
-        server.sendData(client, "PlayerUpdate.UpdatePosition", {
-          transientId: doorData.transientId,
-          positionUpdate: {
-            sequenceTime: server.getServerTime(),
-            unknown3_int8: 0,
-            stance: 1025,
-            orientation: doorData.openAngle,
-          },
+    const { characterId } = packet.data,
+    entityData: any = 
+        server._npcs[characterId] || 
+        server._vehicles[characterId] || 
+        server._characters[characterId] ||
+        server._objects[characterId] ||
+        server._props[characterId] ||
+        server._doors[characterId] ||
+        0,
+    entityType = 
+        server._npcs[characterId]?1:0 || 
+        server._vehicles[characterId]?2:0 || 
+        server._characters[characterId]?3:0 ||
+        server._objects[characterId]?4:0 ||
+        server._props[characterId]?5:0 ||
+        server._doors[characterId]?6:0;
+    
+    if(!entityType) return;
+    
+    switch(entityType) {
+      case 1: // npc
+        server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
+          transientId: entityData.transientId,
+          unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
+          unknownDword2: 13951728,
+          unknownDword3: 1,
+          unknownDword6: 100,
         });
-        server.sendData(client, "PlayerUpdate.PlayWorldCompositeEffect", {
-          soundId: 5048,
-          position: doorData.position,
-          unk3: 0,
+        if (entityData.onReadyCallback) {
+          entityData.onReadyCallback();
+        }
+        break;
+      case 2: // vehicle
+        if(entityData.npcData.vehicleId === 13) return;
+          // ignore parachute
+          const npcData = {
+            transientId: entityData.npcData.transientId,
+          };
+          server.sendData(client, "PlayerUpdate.LightweightToFullVehicle", {
+            npcData: npcData,
+            characterId: characterId,
+          });
+          entityData.onReadyCallback();
+        break;
+      case 3: // character
+        server.sendData(client, "PlayerUpdate.LightweightToFullPc", {
+          transientId: entityData.transientId,
         });
-      }
-    } else if (server._characters[characterId]) {
-      server.sendData(client, "PlayerUpdate.LightweightToFullPc", {
-        transientId: pcData.transientId,
-      });
-      server.sendData(client, "Equipment.SetCharacterEquipment", {
-        profileId: 3,
-        characterId: server._characters[characterId].characterId,
-        equipmentSlots: server._characters[characterId].equipment.map(
-          (equipment: any) => {
-            return {
-              equipmentSlotId: equipment.slotId,
-              equipmentSlotData: {
+        server.sendData(client, "Equipment.SetCharacterEquipment", {
+          profileId: 3,
+          characterId: entityData.characterId,
+          equipmentSlots: entityData.equipment.map(
+            (equipment: any) => {
+              return {
                 equipmentSlotId: equipment.slotId,
-                guid: generateRandomGuid(),
-              },
-            };
-          }
-        ),
-        attachmentData: server._characters[characterId].equipment,
-      });
-    } else if (
-      server._vehicles[characterId] &&
-      server._vehicles[characterId].npcData.vehicleId != 13
-    ) {
-      // ignore parachute
-      const npcData = {
-        transientId: server._vehicles[characterId].npcData.transientId,
-      };
-      server.sendData(client, "PlayerUpdate.LightweightToFullVehicle", {
-        npcData: npcData,
-        characterId: characterId,
-      });
-      server._vehicles[characterId].onReadyCallback();
+                equipmentSlotData: {
+                  equipmentSlotId: equipment.slotId,
+                  guid: generateRandomGuid(),
+                },
+              };
+            }
+          ),
+          attachmentData: entityData.equipment,
+        });
+        break;
+      case 4: // object
+        server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
+          transientId: entityData.transientId,
+          unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
+          unknownDword2: 13951728,
+          unknownDword3: 1,
+          unknownDword6: 100,
+        });
+        if (entityData.onReadyCallback) {
+          entityData.onReadyCallback();
+        }
+        break;
+      case 5: // prop
+        server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
+          transientId: entityData.transientId,
+          unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
+          unknownDword2: 13951728,
+          unknownDword3: 1,
+          unknownDword6: 100,
+        });
+        if (entityData.onReadyCallback) {
+          entityData.onReadyCallback();
+        }
+        break;
+      case 6: // door
+        server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
+          transientId: entityData.transientId,
+          unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
+          unknownDword2: 13951728,
+          unknownDword3: 1,
+          unknownDword6: 100,
+        });
+        if (entityData.isOpen === true) {
+          server.sendData(client, "PlayerUpdate.UpdatePosition", {
+            transientId: entityData.transientId,
+            positionUpdate: {
+              sequenceTime: server.getServerTime(),
+              unknown3_int8: 0,
+              stance: 1025,
+              orientation: entityData.openAngle,
+            },
+          });
+          server.sendData(client, "PlayerUpdate.PlayWorldCompositeEffect", {
+            soundId: 5048,
+            position: entityData.position,
+            unk3: 0,
+          });
+        }
+        break;
     }
   },
 };

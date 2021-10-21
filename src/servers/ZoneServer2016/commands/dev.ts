@@ -283,7 +283,7 @@ const dev: any = {
       if (server._vehicles[v].npcData.modelId === parseInt(args[1])) {
         location.position = server._vehicles[v].npcData.position;
         server.sendData(client, "ClientUpdate.UpdateLocation", location);
-        server.updateWeather2016(client);
+        server.sendWeatherUpdatePacket(client, server._weather2016);
         found = true;
         break;
       }
@@ -311,7 +311,7 @@ const dev: any = {
         console.log(server._npcs[n]);
         location.position = server._npcs[n].position;
         server.sendData(client, "ClientUpdate.UpdateLocation", location);
-        server.updateWeather2016(client);
+        server.sendWeatherUpdatePacket(client, server._weather2016);
         found = true;
         break;
       }
@@ -388,7 +388,7 @@ const dev: any = {
       //unknownDword33: rnd_number2(0.5), // ?? (cloudThickness?)
     };
     console.log(server._weather2016);
-    server.updateWeather2016(client);
+    server.sendWeatherUpdatePacket(client, server._weather2016);
   },
 
   recipe: function (server: ZoneServer2016, client: Client, args: any[]) {

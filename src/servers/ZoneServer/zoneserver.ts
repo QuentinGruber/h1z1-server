@@ -60,12 +60,11 @@ export class ZoneServer extends EventEmitter {
   _serverTime: any;
   _transientIds: any;
   _packetHandlers: HandledZonePackets;
-  _referenceData: any;
   _startTime: number;
   _startGameTime: number;
   _timeMultiplier: number;
   _cycleSpeed: number;
-  _frozeCycle: boolean;
+  _frozeCycle: boolean = false;
   _profiles: any[];
   _weather: Weather;
   _spawnLocations: any;
@@ -90,6 +89,8 @@ export class ZoneServer extends EventEmitter {
   _spawnTimerMs: number = 10;
   _worldRoutineRadiusPercentage: number = 0.4;
   _enableGarbageCollection: boolean = true;
+  worldRoutineTimer: any;
+  tickRate: number = 3000;
   _h1emuZoneServer!: H1emuZoneServer;
   _loginServerInfo: { address?: string; port: number } = { port: 1110 };
 
@@ -117,13 +118,11 @@ export class ZoneServer extends EventEmitter {
     this._props = {};
     this._serverTime = this.getCurrentTime();
     this._transientIds = {};
-    this._referenceData = this.parseReferenceData();
     this._packetHandlers = packetHandlers;
     this._startTime = 0;
     this._startGameTime = 0;
     this._timeMultiplier = 72;
     this._cycleSpeed = 0;
-    this._frozeCycle = false;
     this._reloadPacketsInterval;
     this._soloMode = false;
     this._weatherTemplates = localWeatherTemplates;
@@ -447,7 +446,7 @@ export class ZoneServer extends EventEmitter {
     data: Buffer,
     flags: number
   ) {
-    const packet = this._protocol.parse(data, flags, true, this._referenceData);
+    const packet = this._protocol.parse(data, flags, true);
     if (packet) {
       this.emit("data", null, client, packet);
     } else {
@@ -665,6 +664,10 @@ export class ZoneServer extends EventEmitter {
       });
     }
     this._gatewayServer.start(this._soloMode);
+    this.worldRoutineTimer = setTimeout(
+      () => this.worldRoutine.bind(this)(true),
+      this.tickRate
+    );
   }
 
   async loadMongoData(): Promise<void> {
@@ -731,25 +734,7 @@ export class ZoneServer extends EventEmitter {
   }
 
   generateGuid(): string {
-    const guid = generateRandomGuid();
-    return guid;
-  }
-
-  parseReferenceData(): any {
-    /*
-        const itemData = fs.readFileSync(
-            `${__dirname}/../../../data/dataSources/ClientItemDefinitions.txt`,
-            "utf8"
-          ),
-          itemLines = itemData.split("\n"),
-          items = {};
-        for (let i = 1; i < itemLines.length; i++) {
-          const line = itemLines[i].split("^");
-          if (line[0]) {
-            (items as any)[line[0]] = line[1];
-          }
-        }*/
-    return { itemTypes: undefined };
+    return generateRandomGuid();
   }
 
   async saveCharacterPosition(client: Client, refreshTimeout = false) {
@@ -932,8 +917,9 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
-  pointOfInterest(client: Client) {
-    let isInAPOIArea = false;
+  POIManager(client: Client) {
+    // sends POIChangeMessage or clears it based on player location
+    let inPOI = false;
     Z1_POIs.forEach((point: any) => {
       if (
         isPosInRadius(
@@ -942,39 +928,51 @@ export class ZoneServer extends EventEmitter {
           point.position
         )
       ) {
-        this.sendData(client, "POIChangeMessage", {
-          messageStringId: point.stringId,
-          id: point.POIid,
-        });
-        isInAPOIArea = true;
+        inPOI = true;
+        if (client.currentPOI != point.stringId) {
+          // checks if player already was sent POIChangeMessage
+          this.sendData(client, "POIChangeMessage", {
+            messageStringId: point.stringId,
+            id: point.POIid,
+          });
+          client.currentPOI = point.stringId;
+        }
       }
     });
-    if (!isInAPOIArea) {
+    if (!inPOI && client.currentPOI != 0) {
+      // checks if POIChangeMessage was already cleared
       this.sendData(client, "POIChangeMessage", {
         messageStringId: 0,
         id: 115,
       });
+      client.currentPOI = 0;
     }
   }
 
-  worldRoutine(client: Client): void {
-    this.spawnCharacters(client);
-    this.spawnObjects(client);
-    this.spawnDoors(client);
-    this.spawnProps(client);
-    this.spawnNpcs(client);
-    this.spawnVehicles(client);
-    this.removeOutOfDistanceEntities(client);
-    this.pointOfInterest(client);
-    client.npcsToSpawnTimer.refresh();
-    client.posAtLastRoutine = client.character.state.position;
-  }
-
-  executeFuncForAllClients(zoneServerFuncName: string): void {
+  executeFuncForAllClients(callback: any): void {
     for (const client in this._clients) {
-      (this as any)[zoneServerFuncName](this._clients[client]);
+      callback(this._clients[client]);
     }
   }
+
+  worldRoutine(refresh = false): void {
+    debug("WORLDROUTINE");
+    this.executeFuncForAllClients((client: Client) => {
+      this.spawnCharacters(client);
+      this.spawnObjects(client);
+      this.spawnDoors(client);
+      this.spawnProps(client);
+      this.spawnNpcs(client);
+      this.spawnVehicles(client);
+      this.removeOutOfDistanceEntities(client);
+      this.POIManager(client);
+      client.npcsToSpawnTimer.refresh();
+      client.posAtLastRoutine = client.character.state.position;
+    });
+    if (refresh) this.worldRoutineTimer.refresh();
+  }
+
+  
 
   spawnCharacters(client: Client) {
     for (const character in this._characters) {
@@ -1327,7 +1325,7 @@ export class ZoneServer extends EventEmitter {
     if (packetName != "KeepAlive") {
       debug("send data", packetName);
     }
-    const data = this._protocol.pack(packetName, obj, this._referenceData);
+    const data = this._protocol.pack(packetName, obj);
     this._gatewayServer.sendTunnelData(client, data, channel);
   }
 

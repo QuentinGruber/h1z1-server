@@ -38,7 +38,7 @@ const dev: any = {
     });
     client.spawnedEntities = [];
     server.sendChatText(client, "Entities cleared !", true);
-    server.worldRoutine(client);
+    server.worldRoutine();
   },
   testnpcmove: function (server: ZoneServer, client: Client, args: any[]) {
     const guid = server.generateGuid();
