@@ -12,3 +12,6 @@ tests
 .dockerignore
 .gitignore
 typedoc.json
+.devcontainer
+benchmarks
+benchmarks_out

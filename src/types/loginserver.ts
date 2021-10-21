@@ -5,6 +5,8 @@ export interface Client {
   port: number;
   crcSeed: number;
   crcLength: number;
+  waitingQueue: any[];
+  waitQueueTimer: NodeJS.Timeout;
   clientUdpLength: number;
   serverUdpLength: number;
   sequences: any;
@@ -17,6 +19,7 @@ export interface Client {
   lastAck: number;
   cryptoKey: Uint8Array;
   serverUpdateTimer: ReturnType<typeof setTimeout>;
+  waitingQueueCurrentByteLength: number;
   inputStream: () => void;
   outputStream: () => void;
   outQueueTimer: () => void;

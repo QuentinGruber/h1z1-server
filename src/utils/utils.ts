@@ -2,14 +2,18 @@ const restore = require("mongodb-restore-dump");
 import { generate_random_guid, lz4_comp, lz4_decomp } from "h1emu-core";
 import v8 from "v8";
 import fs from "fs";
+
 export class customLodash {
   constructor() {}
+
   cloneDeep(value: any) {
     return v8.deserialize(v8.serialize(value));
   }
+
   find(array: any[], filter: any) {
     return array.find(filter);
   }
+
   isEqual(array1: any[], array2: any[]) {
     return (
       Array.isArray(array1) &&
@@ -18,6 +22,7 @@ export class customLodash {
       array1.every((val, index) => val === array2[index])
     );
   }
+
   forEach(object: Object, callback: Function) {
     const objectLength = Object.keys(object).length;
     const objectValues = Object.values(object);
@@ -25,20 +30,29 @@ export class customLodash {
       callback(objectValues[index]);
     }
   }
+
   size(object: Object) {
     return Object.keys(object).length;
   }
+
   fill(array: any[], object: any) {
     for (let index = 0; index < array.length; index++) {
       array[index] = object;
     }
     return array;
   }
+  delete(array: any[], entry: any) {
+    const index = array.indexOf(entry);
+    if (index > -1) {
+      array.splice(index, 1);
+    }
+  }
 }
+
 export const _ = new customLodash();
 
 // Original code from GuinnessRules
-export function eul2quat(angle:number[]) {
+export function eul2quat(angle: number[]) {
   // Assuming the angles are in radians.
   const heading = angle[0],
     attitude = angle[1],
@@ -144,9 +158,21 @@ export const generateRandomGuid = function (): string {
   return "0x" + generate_random_guid();
 };
 
+export const generateCommandList = (
+  commandObject: any,
+  commandNamespace: string
+): string[] => {
+  const commandList: string[] = [];
+  Object.keys(commandObject).forEach((key) => {
+    commandList.push(`/${commandNamespace} ${key}`);
+  });
+  return commandList;
+};
+
 export const lz4Comp = lz4_comp;
 export const lz4Decomp = lz4_decomp; // from h1emu-core, be aware that this func crash if the target isn't lz4 compressed
-export const lz4_decompress = function (  // from original implementation
+export const lz4_decompress = function (
+  // from original implementation
   data: any,
   inSize: number,
   outSize: number

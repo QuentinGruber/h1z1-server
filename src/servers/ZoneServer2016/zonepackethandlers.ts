@@ -18,19 +18,22 @@ try {
   delete require.cache[require.resolve("./commands/dev")];
 } catch (e) {}
 
-import { joaat } from "h1emu-core"
+import { joaat } from "h1emu-core";
 import hax from "./commands/hax";
 import dev from "./commands/dev";
-// import admin from "./commands/admin";
+import admin from "./commands/admin";
 
-import { Int64String, isPosInRadius } from "../../utils/utils";
-import { ZoneServer2016 } from "./zoneserver";
-import {ZoneClient2016 as Client} from "./zoneclient";
 // TOOD: UPDATE THIS FOR 2016
 // const modelToName = require("../../../data/2016/dataSources/ModelToName.json");
-const stats = require("../../../data/2016/sampleData/stats.json");
-import { _ } from "../../utils/utils";
+
+import { _, Int64String, isPosInRadius } from "../../utils/utils";
+import { ZoneServer2016 } from "./zoneserver";
+import { ZoneClient2016 as Client } from "./classes/zoneclient";
+import { characterEquipment } from "./../../types/zoneserver";
+
 const debug = require("debug")("zonepacketHandlers");
+
+const itemDefinitions = require("./../../../data/2016/dataSources/ClientItemDefinitions.json");
 
 const packetHandlers = {
   ClientIsReady: function (
@@ -44,6 +47,34 @@ const packetHandlers = {
 
     server.sendData(client, "QuickChat.SendData", { commands: [] });
 
+    /*
+    // workaround for activateprofile weirdness
+    const profileEquipment: characterEquipment[] = [
+      {
+        modelName: "SurvivorMale_Head_01.adr",
+        slotId: 1,
+      },
+      {
+        modelName: "SurvivorMale_Eyes_01.adr",
+        slotId: 105,
+      },
+      { modelName: "Weapon_Empty.adr", slotId: 2 },
+      { modelName: "Weapon_Empty.adr", slotId: 7 },
+      {
+        modelName: "SurvivorMale_Hair_ShortMessy.adr",
+        slotId: 27,
+      },
+      {
+        modelName: "SurvivorMale_Chest_Shirt_TintTshirt.adr",
+        textureAlias: "",
+        slotId: 3,
+      },
+      {
+        modelName: "SurvivorMale_Legs_Pants_SkinnyLeg.adr",
+        textureAlias: "",
+        slotId: 4,
+      },
+    ]
     server.sendData(client, "ClientUpdate.ActivateProfile", {
       profileData: {
         profileId: 1,
@@ -72,13 +103,55 @@ const packetHandlers = {
         unknownDword15: 0,
         unknownDword16: 0,
       },
-      equipmentModels: client.character.equipment,
+      attachmentData: profileEquipment.map((equipment: any) => {
+        return {
+          ...equipment,
+          textureAlias: equipment.textureAlias || ""
+        }
+      }),
       unknownDword1: 1,
       unknownDword2: 1,
       actorModelId: 9240,
       tintAlias: "",
       decalAlias: "#",
     });
+    */
+
+    server.sendData(client, "Equipment.SetCharacterEquipment", {
+      characterData: {
+        characterId: client.character.characterId,
+      },
+      equipmentSlots: client.character.equipment.map(
+        (slot: characterEquipment) => {
+          return {
+            equipmentSlotId: slot.slotId,
+            equipmentSlotData: {
+              equipmentSlotId: slot.slotId,
+              guid: slot.guid || "",
+              tintAlias: slot.tintAlias || "",
+              decalAlias: slot.tintAlias || "#",
+            },
+          };
+        }
+      ),
+      attachmentData: client.character.equipment.map(
+        (slot: characterEquipment) => {
+          return {
+            modelName: slot.modelName,
+            textureAlias: slot.textureAlias || "",
+            tintAlias: slot.tintAlias || "",
+            decalAlias: slot.tintAlias || "#",
+            slotId: slot.slotId,
+          };
+        }
+      ),
+    }); // needed or third person character will be invisible
+
+    // default equipment / loadout
+
+    server.equipItem(client, server.generateItem(85)); // fists weapon
+    server.equipItem(client, server.generateItem(2377)); // DOA Hoodie
+    server.equipItem(client, server.generateItem(2079)); // golf pants
 
     server.sendData(client, "ClientUpdate.DoneSendingPreloadCharacters", {
       done: true,
@@ -87,7 +160,6 @@ const packetHandlers = {
     server.sendData(client, "ClientUpdate.NetworkProximityUpdatesComplete", {
       done: true,
     }); // Required for WaitForWorldReady
-    //server.sendData(client, "ClientUpdate.UpdateStat", { stats: [] });
 
     server.sendData(client, "ZoneSetting.Data", {
       settings: [
@@ -146,17 +218,18 @@ const packetHandlers = {
 
     // client.character.currentLoadoutId = 3;
     /*
-    server.sendData(client, "Loadout.SetCurrentLoadout", {
-      guid: client.character.guid,
-      loadoutId: client.character.currentLoadoutId,
-    });
-    */
+        server.sendData(client, "Loadout.SetCurrentLoadout", {
+          guid: client.character.guid,
+          loadoutId: client.character.currentLoadoutId,
+        });
+        */
 
     server.sendData(client, "ZoneDoneSendingInitialData", {}); // Required for WaitForWorldReady
 
     const commands = [
       "hax",
       "dev",
+      "admin",
       "location",
       "serverinfo",
       "spawninfo",
@@ -173,6 +246,39 @@ const packetHandlers = {
       serverTime: Int64String(server.getServerTime()),
       serverTime2: Int64String(server.getServerTime()),
     });
+
+    /*
+        const defs = itemDefinitions.map((def: any) => {
+          return {
+            ID: def.ID,
+            definitionData: {
+              ...def,
+              flags1: {
+                ...def
+              },
+              flags2: {
+                ...def
+              }
+            }
+          };
+        });
+        console.log(defs)
+
+        server.sendData(client, "Command.ItemDefinitions", { // sends full list of item definitions
+          data: {
+            itemDefinitions: defs
+          }
+        }
+      };
+    });
+    console.log(defs)
+    
+    server.sendData(client, "Command.ItemDefinitions", { // sends full list of item definitions
+      data: {
+        itemDefinitions: defs
+      }
+    });
+    */
   },
   ClientFinishedLoading: function (
     server: ZoneServer2016,
@@ -194,7 +300,7 @@ const packetHandlers = {
       client.firstLoading = false;
       client.pingTimer?.refresh();
       client.savePositionTimer = setTimeout(
-        () => server.saveCharacterPosition(client, 30000),
+        () => server.saveCharacterPosition(client),
         30000
       );
       server._characters[client.character.characterId] = {
@@ -215,7 +321,7 @@ const packetHandlers = {
     packet: any
   ) {
     debug(packet);
-    server.sendData(client, "Command.RecipeAction", {});
+    //server.sendData(client, "Command.RecipeAction", {});
   },
   "Command.FreeInteractionNpc": function (
     server: ZoneServer2016,
@@ -292,40 +398,40 @@ const packetHandlers = {
     server.sendChat(client, message, channel);
   },
   /*
-  "Loadout.SelectSlot": function (server: ZoneServer2016, client: Client, packet: any) {
-    
-    if (client.character.currentLoadout) {
-      const loadout = client.character.currentLoadout,
-        loadoutSlotId = packet.data.loadoutSlotId;
-      client.character.currentLoadoutSlot = packet.data.loadoutSlotId;
-      const loadoutSlots = loadout.loadoutSlots;
-      for (let i = 0; i < loadoutSlots.length; i++) {
-        if (loadoutSlots[i].loadoutSlotId == loadoutSlotId) {
-          const itemLineId =
-            loadoutSlots[i].loadoutSlotData.loadoutSlotItem.itemLineId;
-          server
-            .data("item_line_members")
-            .findOne(
-              { itemLineId: itemLineId, itemLineIndex: 0 },
-              function (err, itemLineMember) {
-                const itemId = itemLineMember.itemId;
-                const inventoryItems = client.character.inventory.items;
-                for (let j = 0; j < inventoryItems.length; j++) {
-                  if (inventoryItems[j].itemData.baseItem.itemId == itemId) {
-                    client.character.currentLoadoutSlotItem =
-                      inventoryItems[j].itemData;
-                    break;
+    "Loadout.SelectSlot": function (server: ZoneServer2016, client: Client, packet: any) {
+
+      if (client.character.currentLoadout) {
+        const loadout = client.character.currentLoadout,
+          loadoutSlotId = packet.data.loadoutSlotId;
+        client.character.currentLoadoutSlot = packet.data.loadoutSlotId;
+        const loadoutSlots = loadout.loadoutSlots;
+        for (let i = 0; i < loadoutSlots.length; i++) {
+          if (loadoutSlots[i].loadoutSlotId == loadoutSlotId) {
+            const itemLineId =
+              loadoutSlots[i].loadoutSlotData.loadoutSlotItem.itemLineId;
+            server
+              .data("item_line_members")
+              .findOne(
+                { itemLineId: itemLineId, itemLineIndex: 0 },
+                function (err, itemLineMember) {
+                  const itemId = itemLineMember.itemId;
+                  const inventoryItems = client.character.inventory.items;
+                  for (let j = 0; j < inventoryItems.length; j++) {
+                    if (inventoryItems[j].itemData.baseItem.itemId == itemId) {
+                      client.character.currentLoadoutSlotItem =
+                        inventoryItems[j].itemData;
+                      break;
+                    }
                   }
                 }
-              }
-            );
-          break;
+              );
+            break;
+          }
         }
       }
-    }
-    
-  },
-  */
+
+    },
+    */
   ClientInitializationDetails: function (
     server: ZoneServer2016,
     client: Client,
@@ -367,7 +473,7 @@ const packetHandlers = {
     client: Client,
     packet: any
   ) {
-    const args: any[] = packet.data.arguments.split(" ");
+    const args: any[] = packet.data.arguments.toLowerCase().split(" ");
 
     switch (packet.data.commandHash) {
       case 2371122039: // /serverinfo
@@ -432,35 +538,42 @@ const packetHandlers = {
       case joaat("HAX"):
         hax[args[0]]
           ? hax[args[0]](server, client, args)
-          : (server.sendChatText(client, `Unknown command: /hax ${args[0]}`),
-            server.sendChatText(
+          : server.sendChatText(
               client,
-              `/hax commands list: ${Object.keys(hax).join(", ")}`
-            ));
+              `Unknown command: /hax ${args[0]} , display all hax commands by using /hax list`
+            );
         break;
       case joaat("DEV"):
       case 552078457: // dev
         dev[args[0]]
           ? dev[args[0]](server, client, args)
-          : (server.sendChatText(client, `Unknown command: /dev ${args[0]}`),
-            server.sendChatText(
+          : server.sendChatText(
               client,
-              `/dev commands list: ${Object.keys(dev).join(", ")}`
-            ));
+              `Unknown command: /dev ${args[0]} , display all dev commands by using /dev list`
+            );
+        break;
+      case joaat("ADMIN"):
+      case 997464845: // admin
+        admin[args[0]]
+          ? admin[args[0]](server, client, args)
+          : server.sendChatText(
+              client,
+              `Unknown command: /admin ${args[0]} , display all admin commands by using /admin list`
+            );
         break;
     }
   },
   /*
-  "Command.SetProfile": function (server: ZoneServer2016, client: Client, packet: any) {
-    server.sendData(client, "Loadout.SetCurrentLoadout", {
-      type: 2,
-      unknown1: 0,
-      loadoutId: 15,
-      tabId: 256,
-      unknown2: 1,
-    });
-  },
-  */
+    "Command.SetProfile": function (server: ZoneServer2016, client: Client, packet: any) {
+      server.sendData(client, "Loadout.SetCurrentLoadout", {
+        type: 2,
+        unknown1: 0,
+        loadoutId: 15,
+        tabId: 256,
+        unknown2: 1,
+      });
+    },
+    */
   "Command.InteractRequest": function (
     server: ZoneServer2016,
     client: Client,
@@ -492,14 +605,14 @@ const packetHandlers = {
     });
   },
   /*
-  "Command.InteractionSelect": function (server: ZoneServer2016, client: Client, packet: any) {
-    server.sendData(client, "Loadout.SetLoadouts", {
-      type: 2,
-      guid: packet.data.guid,
-      unknownDword1: 1,
-    });
-  },
-  */
+    "Command.InteractionSelect": function (server: ZoneServer2016, client: Client, packet: any) {
+      server.sendData(client, "Loadout.SetLoadouts", {
+        type: 2,
+        guid: packet.data.guid,
+        unknownDword1: 1,
+      });
+    },
+    */
 
   "Command.InteractCancel": function (
     server: ZoneServer2016,
@@ -519,10 +632,10 @@ const packetHandlers = {
       time: timerTime,
     });
     client.posAtLogoutStart = client.character.state.position;
-    if (client.timer != null) {
-      clearTimeout(client.timer);
+    if (client.hudTimer != null) {
+      clearTimeout(client.hudTimer);
     }
-    client.timer = setTimeout(() => {
+    client.hudTimer = setTimeout(() => {
       server.sendData(client, "ClientUpdate.CompleteLogoutProcess", {});
     }, timerTime);
   },
@@ -584,6 +697,55 @@ const packetHandlers = {
       unknownFloat12: 12,
     });
   },
+  PlayerUpdateManagedPosition: function (
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
+    //console.log(packet);
+    //console.log(packet.data)
+    const characterId = server._transientIds[packet.data.transientId];
+    //console.log(characterId)
+    //console.log(server._vehicles[characterId])
+    if (characterId) {
+      if (!server._soloMode) {
+        server.sendRawToAllOthers(
+          client,
+          server._protocol.createVehiclePositionBroadcast(
+            packet.data.positionUpdate.raw.slice(1)
+          )
+        );
+      }
+      if (packet.data.positionUpdate.position) {
+        //server._vehicles[characterId].positionUpdate =
+        //  packet.data.positionUpdate;
+        server._vehicles[characterId].npcData.position = new Float32Array([
+          packet.data.positionUpdate.position[0],
+          packet.data.positionUpdate.position[1],
+          packet.data.positionUpdate.position[2],
+          0,
+        ]);
+        if (client.vehicle.mountedVehicle === characterId) {
+          client.character.state.position = new Float32Array([
+            packet.data.positionUpdate.position[0],
+            packet.data.positionUpdate.position[1],
+            packet.data.positionUpdate.position[2],
+            0,
+          ]);
+          if (
+            !client.posAtLastRoutine ||
+            !isPosInRadius(
+              server._npcRenderDistance / 2.5,
+              client.character.state.position,
+              client.posAtLastRoutine
+            )
+          ) {
+            server.worldRoutine2016();
+          }
+        }
+      }
+    }
+  },
   PlayerUpdateUpdatePositionClientToZone: function (
     server: ZoneServer2016,
     client: Client,
@@ -606,14 +768,14 @@ const packetHandlers = {
         );
       } else {
         /*
-        server.sendRawToAllOthers(
-          client,
-          server._protocol.createPositionBroadcast(
-            packet.data.raw,
-            movingCharacter.transientId
-          )
-        );
-        */
+                server.sendRawToAllOthers(
+                  client,
+                  server._protocol.createPositionBroadcast(
+                    packet.data.raw,
+                    movingCharacter.transientId
+                  )
+                );
+                */
         server.sendDataToAllOthers(client, "PlayerUpdatePosition", {
           transientId: movingCharacter.transientId,
           positionUpdate: {...packet.data},
@@ -635,15 +797,15 @@ const packetHandlers = {
       }
 
       if (
-        client.timer != null &&
+        client.hudTimer != null &&
         !isPosInRadius(
           1,
           client.character.state.position,
           client.posAtLogoutStart
         )
       ) {
-        clearTimeout(client.timer);
-        client.timer = null;
+        clearTimeout(client.hudTimer);
+        client.hudTimer = null;
         client.isInteracting = false;
         server.sendData(client, "ClientUpdate.StartTimer", {
           stringId: 0,
@@ -666,14 +828,13 @@ const packetHandlers = {
         server.worldRoutine2016();
       }
     } else if (packet.data.vehicle_position && client.vehicle.mountedVehicle) {
-      server._vehicles[
-        client.vehicle.mountedVehicle
-      ].npcData.position = new Float32Array([
-        packet.data.vehicle_position[0],
-        packet.data.vehicle_position[1],
-        packet.data.vehicle_position[2],
-        0,
-      ]);
+      server._vehicles[client.vehicle.mountedVehicle].npcData.position =
+        new Float32Array([
+          packet.data.vehicle_position[0],
+          packet.data.vehicle_position[1],
+          packet.data.vehicle_position[2],
+          0,
+        ]);
     }
     if (packet.data.rotation) {
       // TODO: modify array element beside re-creating it
@@ -710,13 +871,13 @@ const packetHandlers = {
   ) {
     const characterId = packet.data.characterId
     const npc =
-      server._npcs[characterId] || server._objects[characterId] || server._doors[characterId];
-    console.log(characterId)
-    console.log(server._characters[characterId])
+      server._npcs[characterId] ||
+      server._objects[characterId] ||
+      server._doors[characterId];
     if (npc) {
       server.sendData(client, "LightweightToFullNpc", {
         transientId: npc.transientId,
-        equipmentModels: [
+        attachmentData: [
           {
             modelName: "SurvivorMale_Chest_Hoodie_Up_Tintable.adr",
             effectId: 0,
@@ -737,15 +898,10 @@ const packetHandlers = {
           new Float32Array([0, 0, 0, 0]),
           [0, 0, 0, 0]
         ),
-        stats: stats.map((stat: any) => {
-          return {
-            statId: stat.statId,
-            statValue: stat.statData.statValue
-          }
-        }),
-        fullPcData: {
-          transientId: character.transientId,
-          //equipmentModels: character.equipment,
+        array1: [],
+        unknownData1: {
+          transientId: server._characters[characterId].transientId,
+          attachmentData: [],
           unknownData1: {},
           effectTags: [],
         },
@@ -754,7 +910,7 @@ const packetHandlers = {
       server.sendData(client, "LightweightToFullVehicle", {
         npcData: {
           transientId: server._vehicles[characterId].npcData.transientId,
-          equipmentModels: [],
+          attachmentData: [],
           effectTags: [],
           unknownData1: {},
           targetData: {},
@@ -788,14 +944,31 @@ const packetHandlers = {
     client: Client,
     packet: any
   ) {
-    if (server._vehicles[packet.data.guid] && !client.vehicle.mountedVehicle) {
+    const { guid } = packet.data;
+    const objectData = server._objects[guid];
+    // const doorData = server._doors[guid];
+    const vehicleData = server._vehicles[guid];
+
+    if (vehicleData && !client.vehicle.mountedVehicle) {
       server.mountVehicle(client, packet);
-    } else if (
-      server._vehicles[packet.data.guid] &&
-      client.vehicle.mountedVehicle
-    ) {
+    } else if (vehicleData && client.vehicle.mountedVehicle) {
       // other seats
       server.dismountVehicle(client);
+    }
+    if (objectData) {
+      // object pickup
+      const itemGuid = server.generatePickupItem(objectData),
+        item = server._items[itemGuid];
+      if (!item) {
+        server.sendChatText(
+          client,
+          `[ERROR] No item definition mapped to id: ${objectData.modelId}`
+        );
+        return;
+      }
+
+      server.equipItem(client, itemGuid);
+      server.deleteEntity(guid, server._objects);
     }
   },
 
@@ -875,21 +1048,39 @@ const packetHandlers = {
       unknownString1: "",
     });
   },
-  /*
-  "Command.ItemDefinitionRequest": function (server: ZoneServer2016, client: Client, packet: any) {
-    console.log("ItemDefinitionRequest\n\n\n\n\n\n\n\n\n");
-    console.log(packet.data);
 
-    server.sendData(client, "Command.ItemDefinitionReply", {data: {
-      ID: 2425,
-      unknownArray1: [
-        {
-          unknownData1: {}
-        }
-      ]
-    }})
-  }
-  */
+  "Command.ItemDefinitionRequest": function (
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
+    console.log(`ItemDefinitionRequest ID: ${packet.data.ID}`);
+
+    const itemDef = itemDefinitions.find(
+      (itemDef: any) => itemDef.ID === packet.data.ID
+    );
+
+    server.sendData(client, "Command.ItemDefinitionReply", {
+      data: {
+        ID: packet.data.ID,
+        definitionData: {
+          ...itemDef,
+          HUD_IMAGE_SET_ID: itemDef.IMAGE_SET_ID,
+          flags1: {
+            ...itemDef,
+            //SINGLE_USE: 1, // IS_REMOVED_ON_USE
+            //MEMBERS_ONLY: 1, // MEMBERS_ONLY
+            //NO_SALE: 1, // NO_SALE
+          },
+          flags2: {
+            ...itemDef,
+            //FLAG_NO_DRAG_DROP: 1, // FLAG_NO_DRAG_DROP
+          },
+          stats: [],
+        },
+      },
+    });
+  },
 };
 
 export default packetHandlers;

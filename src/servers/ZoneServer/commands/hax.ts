@@ -1,16 +1,23 @@
 import fs from "fs";
 import { Weather } from "types/zoneserver";
-import {ZoneClient as Client} from "../../ZoneServer/zoneclient";
+import { ZoneClient as Client } from "../classes/zoneclient";
 import { ZoneServer } from "../zoneserver";
 
-import { _ } from "../../../utils/utils";
-import { generateRandomGuid } from "../../../utils/utils";
+import { _, generateRandomGuid } from "../../../utils/utils";
+import { Vehicle } from "../classes/vehicles";
+
 const debug = require("debug")("zonepacketHandlers");
 
 let isSonic = false;
 let isVehicle = false;
 
 const hax: any = {
+  list: function (server: ZoneServer, client: Client, args: any[]) {
+    server.sendChatText(
+      client,
+      `/hax commands list: \n/hax ${Object.keys(this).join("\n/hax ")}`
+    );
+  },
   placement: function (server: ZoneServer, client: Client, args: any[]) {
     const modelChoosen = args[1];
     if (!modelChoosen) {
@@ -38,6 +45,42 @@ const hax: any = {
         server.sendChatText(client, "You are not in a police car");
         break;
     }
+  },
+  spectate: function (server: ZoneServer, client: Client, args: any[]) {
+    const characterId = server.generateGuid();
+    const vehicleData = new Vehicle(
+      server._worldId,
+      characterId,
+      server.getTransientId(client, characterId),
+      9371,
+      client.character.state.position,
+      client.character.state.lookAt
+    );
+
+    server.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicleData);
+    vehicleData.isManaged = true;
+    server._vehicles[characterId] = {
+      ...vehicleData,
+      onReadyCallback: () => {
+        // doing anything with vehicle before client gets fullvehicle packet breaks it
+        server.sendData(client, "PlayerUpdate.ManagedObject", {
+          guid: vehicleData.npcData.characterId,
+          characterId: client.character.characterId,
+        });
+        server.sendDataToAll("Mount.MountResponse", {
+          characterId: client.character.characterId,
+          guid: characterId,
+          characterData: [],
+        });
+        server.sendDataToAll("Vehicle.Engine", {
+          guid2: characterId,
+          unknownBoolean: true,
+        });
+        client.vehicle.mountedVehicle = characterId;
+        client.vehicle.mountedVehicleType = "spectate";
+        client.managedObjects.push(server._vehicles[characterId]);
+      },
+    };
   },
   headlights: function (server: ZoneServer, client: Client, args: any[]) {
     let headlightType = 0;
@@ -70,7 +113,6 @@ const hax: any = {
     }
   },
   drive: function (server: ZoneServer, client: Client, args: any[]) {
-    let vehicleId;
     let driveModel;
     const driveChoosen = args[1];
     if (!args[1]) {
@@ -82,56 +124,34 @@ const hax: any = {
     }
     switch (driveChoosen) {
       case "offroader":
-        vehicleId = 1;
         driveModel = 7225;
         client.vehicle.mountedVehicleType = "offroader";
         break;
       case "pickup":
-        vehicleId = 2;
         driveModel = 9258;
         client.vehicle.mountedVehicleType = "pickup";
         break;
       case "policecar":
-        vehicleId = 3;
         driveModel = 9301;
         client.vehicle.mountedVehicleType = "policecar";
         break;
       default:
-        vehicleId = 1;
         driveModel = 7225;
         client.vehicle.mountedVehicleType = "offroader";
         break;
     }
     const characterId = server.generateGuid();
-    const guid = server.generateGuid();
-    const vehicleData = {
-      npcData: {
-        guid: guid,
-        transientId: server.getTransientId(client, characterId),
-        characterId: characterId,
-        modelId: driveModel,
-        scale: [1, 1, 1, 1],
-        position: client.character.state.position,
-        rotation: client.character.state.lookAt,
-        vehicleId: vehicleId,
-        attachedObject: {},
-        color: {},
-        unknownArray1: [],
-        array5: [{ unknown1: 0 }],
-        array17: [{ unknown1: 0 }],
-        array18: [{ unknown1: 0 }],
-      },
-      unknownDword1: 10,
-      unknownDword2: 10,
-      positionUpdate: server.createPositionUpdate(
-        new Float32Array([0, 0, 0, 0]),
-        [0, 0, 0, 0]
-      ),
-      unknownString1: "",
-    };
+    const vehicleData = new Vehicle(
+      server._worldId,
+      characterId,
+      server.getTransientId(client, characterId),
+      driveModel,
+      client.character.state.position,
+      client.character.state.lookAt
+    );
     server.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicleData);
+    vehicleData.isManaged = true;
     server._vehicles[characterId] = {
-      isManaged: true,
       ...vehicleData,
       onReadyCallback: () => {
         // doing anything with vehicle before client gets fullvehicle packet breaks it
@@ -155,51 +175,80 @@ const hax: any = {
     server.worldRoutine(client);
   },
 
+  spawnvehicle: function (server: ZoneServer, client: Client, args: any[]) {
+    if (!args[1]) {
+      server.sendChatText(
+        client,
+        "[ERROR] Usage /hax spawnVehicle offroader/pickup/policecar"
+      );
+      return;
+    }
+    let driveModel;
+    switch (args[1]) {
+      case "offroader":
+        driveModel = 7225;
+        break;
+      case "pickup":
+        driveModel = 9258;
+        break;
+      case "policecar":
+        driveModel = 9301;
+        break;
+      default:
+        // offroader default
+        driveModel = 7225;
+        break;
+    }
+    const characterId = server.generateGuid();
+    const vehicleData = new Vehicle(
+      server._worldId,
+      characterId,
+      server.getTransientId(client, characterId),
+      driveModel,
+      client.character.state.position,
+      client.character.state.lookAt
+    );
+    server.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicleData);
+    vehicleData.isManaged = true;
+    server._vehicles[characterId] = {
+      ...vehicleData,
+      onReadyCallback: () => {
+        // doing anything with vehicle before client gets fullvehicle packet breaks it
+        server.sendData(client, "PlayerUpdate.ManagedObject", {
+          guid: vehicleData.npcData.characterId,
+          characterId: client.character.characterId,
+        });
+        client.managedObjects.push(server._vehicles[characterId]);
+      },
+    };
+  },
+
   parachute: function (server: ZoneServer, client: Client, args: any[]) {
     const characterId = server.generateGuid();
-    const guid = server.generateGuid();
     const posY = client.character.state.position[1] + 700;
-    const vehicleData = {
-      npcData: {
-        guid: guid,
-        transientId: server.getTransientId(client, characterId),
-        characterId: characterId,
-        modelId: 9374,
-        scale: [1, 1, 1, 1],
-        position: [
-          client.character.state.position[0],
-          posY,
-          client.character.state.position[2],
-          client.character.state.position[3],
-        ],
-        rotation: client.character.state.lookAt,
-        vehicleId: 13,
-        attachedObject: {},
-        color: {},
-        unknownArray1: [],
-        array5: [{ unknown1: 0 }],
-        array17: [{ unknown1: 0 }],
-        array18: [{ unknown1: 0 }],
-      },
-      unknownDword1: 10,
-      unknownDword2: 10,
-      positionUpdate: server.createPositionUpdate(
-        new Float32Array([0, 0, 0, 0]),
-        [0, 0, 0, 0]
-      ),
-      unknownString1: "",
-    };
-    server.sendData(client, "PlayerUpdate.AddLightweightVehicle", vehicleData);
+    const vehicleData = new Vehicle(
+      server._worldId,
+      characterId,
+      server.getTransientId(client, characterId),
+      9374,
+      new Float32Array([
+        client.character.state.position[0],
+        posY,
+        client.character.state.position[2],
+        client.character.state.position[3],
+      ]),
+      client.character.state.lookAt
+    );
+
+    server.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicleData);
     server.sendData(client, "PlayerUpdate.ManagedObject", {
       guid: vehicleData.npcData.characterId,
       characterId: client.character.characterId,
     });
-    server._vehicles[characterId] = {
-      isManaged: true,
-      ...vehicleData,
-    };
+    vehicleData.isManaged = true;
+    server._vehicles[characterId] = vehicleData;
     server.worldRoutine(client);
-    server.sendData(client, "Mount.MountResponse", {
+    server.sendDataToAll("Mount.MountResponse", {
       characterId: client.character.characterId,
       guid: characterId,
       characterData: [],
@@ -422,6 +471,10 @@ const hax: any = {
     isSonic = !isSonic;
   },
   observer: function (server: ZoneServer, client: Client, args: any[]) {
+    server.sendChatText(
+      client,
+      "[Deprecated] You should use /hax spectate, this command will be removed soon!"
+    );
     server.sendDataToAll("PlayerUpdate.RemovePlayer", {
       characterId: client.character.characterId,
     });
@@ -466,7 +519,7 @@ const hax: any = {
   },
   weather: function (server: ZoneServer, client: Client, args: any[]) {
     if (server._dynamicWeatherWorker) {
-      hax["removeDynamicWeather"](server, client, args);
+      hax["removedynamicweather"](server, client, args);
     }
     const weatherTemplate = server._soloMode
       ? server._weatherTemplates[args[1]]
@@ -487,7 +540,6 @@ const hax: any = {
         _.forEach(
           server._weatherTemplates,
           function (element: { templateName: any }) {
-            console.log(element.templateName);
             server.sendChatText(client, `- ${element.templateName}`);
           }
         );
@@ -762,9 +814,8 @@ const hax: any = {
       if (currentWeather) {
         currentWeather.templateName = args[1];
         if (server._soloMode) {
-          server._weatherTemplates[
-            currentWeather.templateName as string
-          ] = currentWeather;
+          server._weatherTemplates[currentWeather.templateName as string] =
+            currentWeather;
           fs.writeFileSync(
             `${__dirname}/../../../../data/sampleData/weather.json`,
             JSON.stringify(server._weatherTemplates)
@@ -817,6 +868,7 @@ const hax: any = {
     function rnd_number() {
       return Number((Math.random() * 100).toFixed(0));
     }
+
     const fogEnabled = Math.random() * 3 < 1;
     const rainEnabled = Math.random() * 4 < 1;
     const winterEnabled = Math.random() * 4 < 1;

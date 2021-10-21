@@ -1,31 +1,43 @@
-import {ZoneClient as Client} from "../../ZoneServer/zoneclient";
+import { ZoneClient as Client } from "../classes/zoneclient";
 import { generateRandomGuid } from "../../../utils/utils";
 import { ZoneServer } from "../zoneserver";
 
 const debug = require("debug")("zonepacketHandlers");
 
 const dev: any = {
+  list: function (server: ZoneServer, client: Client, args: any[]) {
+    server.sendChatText(
+      client,
+      `/dev commands list: \n/dev ${Object.keys(this).join("\n/dev ")}`
+    );
+  },
   testpacket: function (server: ZoneServer, client: Client, args: any[]) {
     server.sendData(client, "Target.AddTarget", {
+      Unk1: "0x6965746961756f00",
+      Unk2: "ouaitest",
+    });
+    server.sendData(client, "Command.PlaySoundIdOnTarget", {
       objects: [
         {
-          targetObjectId: client.character.characterId,
-          position: client.character.state.position,
-          rotation: client.character.state.position,
+          target: 5048,
         },
       ],
     });
   },
-  clearspawnedentities: function (server: ZoneServer, client: Client, args: any[]) {
-    client.spawnedEntities.forEach((entity:any) => {
+  clearspawnedentities: function (
+    server: ZoneServer,
+    client: Client,
+    args: any[]
+  ) {
+    client.spawnedEntities.forEach((entity: any) => {
       try {
         server.despawnEntity(entity.characterId);
       } catch (error) {
-        debug(error)
+        debug(error);
       }
     });
     client.spawnedEntities = [];
-    server.sendChatText(client,"Entities cleared !",true);
+    server.sendChatText(client, "Entities cleared !", true);
     server.worldRoutine(client);
   },
   testnpcmove: function (server: ZoneServer, client: Client, args: any[]) {
@@ -55,9 +67,9 @@ const dev: any = {
         aggroLevel: 1000,
       });
       /* server.sendData(client, "PlayerUpdate.SeekTarget", {
-        characterId: characterId,
-        TargetCharacterId: client.character.characterId,
-      });*/
+              characterId: characterId,
+              TargetCharacterId: client.character.characterId,
+            });*/
     };
     server.sendDataToAll("PlayerUpdate.AddLightweightNpc", npc);
     server.sendData(client, "ResourceEvent", {
@@ -158,12 +170,12 @@ const dev: any = {
       array18: [{ unknown1: 0 }],
     });
     /* setInterval(() => {
-      server.sendData(client, "PlayerUpdate.SeekTarget", {
-        characterId: characterId,
-        TargetCharacterId: client.character.characterId,
-        position: client.character.state.position,
-      });
-    }, 500);*/
+          server.sendData(client, "PlayerUpdate.SeekTarget", {
+            characterId: characterId,
+            TargetCharacterId: client.character.characterId,
+            position: client.character.state.position,
+          });
+        }, 500);*/
   },
   testvehicle: function (server: ZoneServer, client: Client, args: any[]) {
     const characterId = server.generateGuid();

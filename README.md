@@ -96,9 +96,17 @@ Since v0.2.3 of h1z1-server the npm package [debug](https://www.npmjs.com/packag
 
 * `set DEBUG=* & node loginserver.js`
 * `set DEBUG=ZoneServer & node zoneserver.js`
+## Documentations
+
+* https://quentingruber.github.io/h1z1-server/
+
 
 ## Demo
 
 * https://github.com/H1emu/h1emu-launcher/releases/latest
 
 * [h1z1-server-QuickStart](https://github.com/H1emu/h1z1-server-QuickStart) and follow the instructions written in its README
+
+* `npx -p h1z1-server h1z1-server-demo` to try the 2015 server via npx.
+
+* `npx -p h1z1-server h1z1-server-demo-2016` to try the 2016 server via npx.

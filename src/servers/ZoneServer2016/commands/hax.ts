@@ -1,7 +1,8 @@
 import fs from "fs";
-import {ZoneClient2016 as Client} from "../zoneclient";
+import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { _ } from "../../../utils/utils";
+
 const debug = require("debug")("zonepacketHandlers");
 
 function getHeadActor(modelId: number) {
@@ -20,6 +21,12 @@ function getHeadActor(modelId: number) {
 }
 
 const hax: any = {
+  list: function (server: ZoneServer2016, client: Client, args: any[]) {
+    server.sendChatText(
+      client,
+      `/hax commands list: \n/hax ${Object.keys(this).join("\n/hax ")}`
+    );
+  },
   parachute: function (server: ZoneServer2016, client: Client, args: any[]) {
     const characterId = server.generateGuid();
     const vehicleData = {
@@ -55,7 +62,6 @@ const hax: any = {
     client.vehicle.mountedVehicle = characterId;
     client.vehicle.mountedVehicleType = "parachute";
   },
-
   tp: function (server: ZoneServer2016, client: Client, args: any[]) {
     let locationPosition;
     switch (args[1]) {
@@ -147,11 +153,11 @@ const hax: any = {
       true
     );
   },
-  realTime: function (server: ZoneServer2016, client: Client, args: any[]) {
+  realtime: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.removeForcedTime();
     server.sendChatText(client, "Game time is now based on real time", true);
   },
-  spamAtv: function (server: ZoneServer2016, client: Client, args: any[]) {
+  spamatv: function (server: ZoneServer2016, client: Client, args: any[]) {
     for (let index = 0; index < 50; index++) {
       const guid = server.generateGuid();
       const transientId = server.getTransientId(client, guid);
@@ -179,7 +185,7 @@ const hax: any = {
       server._vehicles[characterId] = vehicle; // save vehicle
     }
   },
-  spawnSimpleNpc: function (
+  spawnsimplenpc: function (
     server: ZoneServer2016,
     client: Client,
     args: any[]
@@ -209,7 +215,7 @@ const hax: any = {
     };
     server._objects[characterId] = obj; // save npc
   },
-  spawnNpcModel: function (
+  spawnnpcmodel: function (
     server: ZoneServer2016,
     client: Client,
     args: any[]
@@ -244,9 +250,7 @@ const hax: any = {
     };
     server._npcs[characterId] = npc; // save npc
   },
-  spawnVehicle: function (server: ZoneServer2016, client: Client, args: any[]) {
-    const guid = server.generateGuid();
-    const transientId = server.getTransientId(client, guid);
+  spawnvehicle: function (server: ZoneServer2016, client: Client, args: any[]) {
     if (!args[1]) {
       server.sendChatText(
         client,
@@ -279,9 +283,10 @@ const hax: any = {
         break;
     }
     const characterId = server.generateGuid();
+    const transientId = server.getTransientId(client, characterId);
     const vehicle = {
       npcData: {
-        guid: guid,
+        guid: server.generateGuid(),
         characterId: characterId,
         transientId: transientId,
         modelId: driveModel,
@@ -352,12 +357,6 @@ const hax: any = {
     });
     server.sendChatText(client, "Welcome MR.Hedgehog");
   },
-  shutdown: function (server: ZoneServer2016, client: Client, args: any[]) {
-    server.sendData(client, "WorldShutdownNotice", {
-      timeLeft: 0,
-      message: " ",
-    });
-  },
   weather: async function (
     server: ZoneServer2016,
     client: Client,
@@ -376,11 +375,12 @@ const hax: any = {
     if (!args[1]) {
       server.sendChatText(
         client,
-        "Please define a weather template to use (data/sampleData/weather.json)"
+        "Please define a weather template to use (data/2016/dataSources/weather.json)"
       );
     } else if (weatherTemplate) {
-      server.changeWeather(client, weatherTemplate);
-      server.sendChatText(client, `Use "${args[1]}" as a weather template`);
+      server._weather2016 = weatherTemplate;
+      server.updateWeather2016(client);
+      server.sendChatText(client, `Applied weather template: "${args[1]}"`);
     } else {
       if (args[1] === "list") {
         server.sendChatText(client, `Weather templates :`);
@@ -400,39 +400,34 @@ const hax: any = {
       }
     }
   },
-  saveCurrentWeather: async function (
+  savecurrentweather: async function (
     server: ZoneServer2016,
     client: Client,
     args: any[]
   ) {
+    console.log(server._weatherTemplates);
     if (!args[1]) {
       server.sendChatText(
         client,
         "Please define a name for your weather template '/hax saveCurrentWeather {name}'"
       );
-    } else if (
-      server._weatherTemplates[args[1]] ||
-      _.find(server._weatherTemplates, (template: { templateName: any }) => {
-        return template.templateName === args[1];
-      })
-    ) {
-      server.sendChatText(client, `"${args[1]}" already exist !`);
+    } else if (server._weatherTemplates[args[1]]) {
+      server.sendChatText(client, `"${args[1]}" already exists !`);
     } else {
-      const { _weather: currentWeather } = server;
+      const currentWeather = server._weather2016;
       if (currentWeather) {
         currentWeather.templateName = args[1];
         if (server._soloMode) {
-          server._weatherTemplates[
-            currentWeather.templateName as string
-          ] = currentWeather;
+          server._weatherTemplates[currentWeather.templateName as string] =
+            currentWeather;
           fs.writeFileSync(
-            `${__dirname}/../../../../data/sampleData/weather.json`,
-            JSON.stringify(server._weatherTemplates)
+            `${__dirname}/../../../../data/2016/dataSources/weather.json`,
+            JSON.stringify(server._weatherTemplates, null, "\t")
           );
           delete require.cache[
-            require.resolve("../../../../data/2015/sampleData/weather.json")
+            require.resolve("../../../../data/2016/dataSources/weather.json")
           ];
-          server._weatherTemplates = require("../../../../data/2015/sampleData/weather.json");
+          server._weatherTemplates = require("../../../../data/2016/dataSources/weather.json");
         } else {
           await server._db?.collection("weathers").insertOne(currentWeather);
           server._weatherTemplates = await (server._db as any)
@@ -465,24 +460,27 @@ const hax: any = {
       runSpeed: speed,
     });
   },
-  randomWeather: function (
+  randomweather: function (
     server: ZoneServer2016,
     client: Client,
     args: any[]
   ) {
     server.sendChatText(client, `Randomized weather`);
+
     function rnd_number(max: any, fixed: Boolean = false) {
       const num = Math.random() * max;
-      if (fixed) return Number(num.toFixed(0));
-      return Number(num);
+      return Number(fixed ? num.toFixed(0) : num);
     }
 
     server._weather2016 = {
-      name: "",
-      unknownDword1: 0,
-      unknownDword2: 0,
-      skyBrightness1: 1,
-      skyBrightness2: 1,
+      ...server._weather2016,
+      //name: "sky_dome_600.dds", todo: use random template from a list
+      /*
+            unknownDword1: 0,
+            unknownDword2: 0,
+            skyBrightness1: 1,
+            skyBrightness2: 1,
+            */
       snow: rnd_number(200, true),
       snowMap: rnd_number(80, true),
       colorGradient: rnd_number(1),
@@ -494,9 +492,9 @@ const hax: any = {
       sunAxisX: rnd_number(360, true),
       sunAxisY: rnd_number(360, true),
       unknownDword15: 0,
-      disableTrees: 0,
-      disableTrees1: 0,
-      disableTrees2: 0,
+      windDirectionX: rnd_number(360, true),
+      windDirectionY: rnd_number(360, true),
+      windDirectionZ: rnd_number(360, true),
       wind: rnd_number(100, true),
       unknownDword20: 0,
       unknownDword21: 0,
@@ -508,175 +506,104 @@ const hax: any = {
       unknownDword27: 0,
       unknownDword28: 0,
       unknownDword29: 0,
-      unknownDword30: 0,
-      unknownDword31: 0,
-      unknownDword32: 0,
+
+      AOSize: rnd_number(0.5),
+      AOGamma: rnd_number(0.2),
+      AOBlackpoint: rnd_number(2),
+
       unknownDword33: 0,
     };
     server.updateWeather2016(client);
   },
   equipment: function (server: ZoneServer2016, client: Client, args: any[]) {
-    let effect, model, slot;
-    if (!args[1]) {
-      server.sendChatText(client, "[ERROR] Missing equipment name !");
-      server.sendChatText(
-        client,
-        "Valid options: hoodie, shirt, pants, helmet, backpack, shoes, armor, gloves"
-      );
-      return;
-    }
-    if (!args[2]) {
-      server.sendChatText(client, "No effect added.");
-      effect = 0;
-    } else {
-      effect = args[2];
-    }
-    switch (args[1]) {
-      case "hoodie":
-        model = "SurvivorMale_Chest_Hoodie_Up_Tintable.adr";
-        slot = 3;
-        break;
-      case "shirt":
-        model = "SurvivorMale_Chest_Shirt_Henley.adr";
-        slot = 3;
-        break;
-      case "pants":
-        model = "SurvivorMale_Legs_Pants_StraightLeg.adr";
-        slot = 4;
-        break;
-      case "helmet":
-        model = "SurvivorMale_Head_Helmet_Motorcycle_Tintable.adr";
-        slot = 15;
-        break;
-      case "backpack":
-        model = "SurvivorMale_Back_Backpack_Military_Rasta.adr";
-        slot = 10;
-        break;
-      case "shoes":
-        model = "SurvivorMale_Feet_Conveys_Tintable.adr";
-        slot = 5;
-        break;
-      case "armor":
-        model = "SurvivorMale_Armor_Kevlar_Basic_Patches.adr";
-        slot = 100;
-        break;
-      case "gloves":
-        model = "SurvivorMale_Hands_Gloves_Padded.adr";
-        slot = 2;
-        break;
-      case "bandana":
-        model = "SurvivorMale_Face_Bandana.adr";
-        slot = 28;
-        break;
-      case "ghillie":
-        model = "SurvivorMale_Chest_GhillieSuit.adr";
-        slot = 3;
-        break;
-      default:
-        server.sendChatText(
-          client,
-          "Valid options: hoodie, shirt, pants, helmet, backpack, shoes, armor, gloves, bandana, ghillie"
-        );
-        return;
-    }
-    const equipmentSlot = {
-      characterData: {
-        characterId: client.character.characterId,
-      },
-      equipmentTexture: {
-        index: 1,
-        slotId: slot,
-        unknownQword1: "0x1",
-        textureAlias: "",
-        unknownString1: "",
-      },
-      equipmentModel: {
-        modelName: model,
-        effectId: Number(effect), // 0 - 16
-        slotId: slot,
-      },
-    };
-    server.sendChatText(client, `Setting character equipment slot: ${args[1]}`);
-    server.sendData(
+    server.sendChatText(
       client,
-      "Equipment.SetCharacterEquipmentSlot",
-      equipmentSlot
+      `[DEPRECEATION WARNING]: Please use '/hax equip {equipmentName}`
     );
   },
   weapon: function (server: ZoneServer2016, client: Client, args: any[]) {
-    let effect, model;
+    server.sendChatText(
+      client,
+      `[DEPRECEATION WARNING]: Please use '/hax equip {equipmentName}`
+    );
+  },
+  equip: function (server: ZoneServer2016, client: Client, args: any[]) {
     if (!args[1]) {
-      server.sendChatText(client, "[ERROR] Missing weapon name !");
+      server.sendChatText(client, "[ERROR] Usage /hax equip {equipment}");
       server.sendChatText(
         client,
-        "Valid options: ar, ak, m9, 1911, 308, shotgun, torch, empty, brick"
+        "Valid options: ar, ak, m9, 1911, 308, shotgun, torch, molotov, empty, hoodie, shirt, ghillie, pants, backpack, shoes, helmet, armor, gloves, bandana"
       );
       return;
     }
-    if (!args[2]) {
-      server.sendChatText(client, "No effect added.");
-      effect = 0;
-    } else {
-      effect = args[2];
-    }
+    let definitionId;
     switch (args[1]) {
       case "ar":
-        model = "Weapon_M16A4_3P.adr";
+        definitionId = 2425;
         break;
       case "ak":
-        model = "Weapon_AK47_3P.adr";
+        definitionId = 2229;
         break;
       case "m9":
-        model = "Weapons_M9Auto_3P.adr";
+        definitionId = 1997;
         break;
       case "1911":
-        model = "Weapon_Pistol_45Auto_3P.adr";
+        definitionId = 2;
         break;
       case "308":
-        model = "Weapon_M24_3P.adr";
+        definitionId = 1899;
         break;
       case "shotgun":
-        model = "Weapons_PumpShotgun01_3P.adr";
+        definitionId = 1374;
         break;
       case "torch":
-        model = "Weapon_Torch.adr";
+        definitionId = 5;
+        break;
+      case "molotov":
+        definitionId = 14;
         break;
       case "empty":
-        model = "Weapon_Empty.adr";
+        definitionId = 85;
         break;
-      case "brick":
-        model = "Weapons_RedBrick01.adr";
+      case "hoodie":
+        definitionId = 2377;
+        break;
+      case "shirt":
+        definitionId = 3218;
+        break;
+      case "ghillie":
+        definitionId = 2609;
+        break;
+      case "pants":
+        definitionId = 2079;
+        break;
+      case "backpack":
+        definitionId = 2393;
+        break;
+      case "shoes":
+        definitionId = 2217;
+        break;
+      case "helmet":
+        definitionId = 2045;
+        break;
+      case "armor":
+        definitionId = 2274;
+        break;
+      case "gloves":
+        definitionId = 2284;
+        break;
+      case "bandana":
+        definitionId = 2924;
         break;
       default:
         server.sendChatText(
           client,
-          "Valid options: ar, ak, m9, 1911, 308, shotgun, torch, empty, brick"
+          "Valid options: ar, ak, m9, 1911, 308, shotgun, torch, molotov, empty, hoodie, shirt, ghillie, pants, backpack, shoes, helmet, armor, gloves, bandana"
         );
         return;
     }
-    const equipmentSlot = {
-      characterData: {
-        characterId: client.character.characterId,
-      },
-      equipmentTexture: {
-        index: 1,
-        slotId: 7,
-        unknownQword1: "0x1",
-        textureAlias: "",
-        unknownString1: "",
-      },
-      equipmentModel: {
-        modelName: model,
-        effectId: Number(effect), // 0 - 16
-        slotId: 7,
-      },
-    };
-    server.sendChatText(client, `Setting weapon: ${args[1]}`);
-    server.sendData(
-      client,
-      "Equipment.SetCharacterEquipmentSlot",
-      equipmentSlot
-    );
+    server.sendChatText(client, `Adding ${args[1]} to loadout.`);
+    server.equipItem(client, server.generateItem(definitionId));
   },
   placement: function (server: ZoneServer2016, client: Client, args: any[]) {
     const modelChoosen = args[1];
@@ -687,6 +614,77 @@ const hax: any = {
     server.sendData(client, "Construction.PlacementResponse", {
       model: modelChoosen,
     });
+  },
+  spectate: function (server: ZoneServer2016, client: Client, args: any[]) {
+    const characterId = server.generateGuid();
+    const vehicleData = {
+      npcData: {
+        guid: server.generateGuid(),
+        transientId: server.getTransientId(client, characterId),
+        characterId: characterId,
+        modelId: 9371,
+        scale: [1, 1, 1, 1],
+        position: [
+          client.character.state.position[0],
+          client.character.state.position[1],
+          client.character.state.position[2],
+          client.character.state.position[3],
+        ],
+        rotation: client.character.state.lookAt,
+        vehicleId: 1337,
+        attachedObject: {},
+        color: {},
+      },
+      positionUpdate: server.createPositionUpdate(
+        new Float32Array([0, 0, 0, 0]),
+        [0, 0, 0, 0]
+      ),
+    };
+    server._vehicles[characterId] = vehicleData;
+    server.worldRoutine2016();
+    server.sendData(client, "Mount.MountResponse", {
+      characterId: client.character.characterId,
+      vehicleGuid: characterId,
+      identity: {},
+    });
+    client.vehicle.mountedVehicle = characterId;
+    client.vehicle.mountedVehicleType = "spectate";
+  },
+  addloadoutitem: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: any[]
+  ) {
+    if (!args[1]) {
+      server.sendChatText(
+        client,
+        "[ERROR] Usage /hax addloadoutitem {itemDefinitionId}"
+      );
+      return;
+    }
+    server.sendChatText(client, `Adding item with id ${args[1]} to loadout.`);
+    server.equipItem(client, server.generateItem(Number(args[1])));
+  },
+  hood: function (server: ZoneServer2016, client: Client) {
+    const eIndex = client.character.equipment
+        .map((slot: any) => slot.slotId)
+        .indexOf(3),
+      equipment = client.character.equipment[eIndex] || {},
+      equipmentModel = equipment.modelName || "";
+
+    if (
+      eIndex === -1 ||
+      !client.character.equipment[eIndex].modelName.includes("Hoodie")
+    ) {
+      server.sendChatText(client, "[ERROR] You aren't wearing a hoodie.");
+    } else {
+      equipmentModel.includes("Up")
+        ? (client.character.equipment[eIndex].modelName =
+            equipmentModel.replace("Up", "Down"))
+        : (client.character.equipment[eIndex].modelName =
+            equipmentModel.replace("Down", "Up"));
+      server.updateEquipment(client);
+    }
   },
 };
 

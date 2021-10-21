@@ -7,9 +7,10 @@ const z1_Props = require("../../../../data/2015/zoneData/z1_Props.json");
 const models = require("../../../../data/2015/dataSources/Models.json");
 const modelToName = require("../../../../data/2015/sampleData/ModelToName.json");
 const textures = require("../../../../data/2015/sampleData/textures.json");
-import { _ } from "../../../utils/utils";
-import { generateRandomGuid } from "../../../utils/utils";
+import { _, eul2quat, generateRandomGuid } from "../../../utils/utils";
+import { Vehicle } from "../classes/vehicles";
 import { ZoneServer } from "../zoneserver";
+
 const npcs: any = {};
 const objects: any = {};
 const vehicles: any = {};
@@ -74,6 +75,60 @@ function createEntity(
   };
 }
 
+function createDoor(
+  server: ZoneServer,
+  modelID: number,
+  position: Array<number>,
+  rotation: Array<number>,
+  startRot: Array<number>,
+  scale: Array<number>,
+  texture: string,
+  zoneId: number,
+  dictionnary: any
+): void {
+  let stringNameId = 0;
+  modelToName.forEach((spawnername: any) => {
+    if (modelID === spawnername.modelId) {
+      stringNameId = spawnername.NameId;
+    }
+  });
+
+  const guid = generateRandomGuid();
+  const characterId = generateRandomGuid();
+  numberOfSpawnedEntity++;
+  if (numberOfSpawnedEntity > 60000) {
+    numberOfSpawnedEntity = 1;
+  }
+  let openAngle;
+  if (startRot[0] <= 0) {
+    openAngle = startRot[0] - 1.575;
+  } else {
+    openAngle = startRot[0] + 1.575;
+  }
+  server._transientIds[numberOfSpawnedEntity] = characterId;
+  dictionnary[characterId] = {
+    worldId: server._worldId,
+    zoneId: zoneId,
+    isOpen: false,
+    characterId: characterId,
+    guid: guid,
+    transientId: numberOfSpawnedEntity,
+    nameId: stringNameId,
+    modelId: modelID,
+    scale: scale,
+    texture: texture,
+    isVehicle: true,
+    position: position,
+    rotation: rotation,
+    rotationRaw: startRot,
+    openAngle: openAngle,
+    closedAngle: startRot[0],
+    openCounter: 0,
+    attachedObject: {},
+    color: { g: 127 },
+  };
+}
+
 export function createAllEntities(server: ZoneServer): any {
   createAllDoors(server);
   createAR15(server);
@@ -115,47 +170,21 @@ function getRandomVehicleModelId() {
   }
 }
 
-function getVehicleId(ModelId: number) {
-  switch (ModelId) {
-    case 7225:
-      return 1;
-    case 9301:
-      return 3;
-    case 9258:
-      return 2;
-    default:
-      return 1;
-  }
-}
-
 function createAllVehicles(server: ZoneServer) {
   Z1_vehicles.forEach((vehicle: any) => {
     const characterId = generateRandomGuid();
     numberOfSpawnedEntity++;
     server._transientIds[numberOfSpawnedEntity] = characterId;
     const modelId = getRandomVehicleModelId();
-    vehicles[characterId] = {
-      worldId: server._worldId,
-      isManaged: false,
-      npcData: {
-        guid: generateRandomGuid(),
-        characterId: characterId,
-        transientId: numberOfSpawnedEntity,
-        modelId: modelId,
-        scale: [1, 1, 1, 1],
-        position: vehicle.position,
-        rotation: vehicle.rotation,
-        attachedObject: {},
-        vehicleId: getVehicleId(modelId),
-        color: {},
-        unknownArray1: [],
-        array5: [{ unknown1: 0 }],
-        array17: [{ unknown1: 0 }],
-        array18: [{ unknown1: 0 }],
-      },
-      unknownGuid1: generateRandomGuid(),
-      positionUpdate: [0, 0, 0, 0],
-    };
+    const { position, rotation } = vehicle;
+    vehicles[characterId] = new Vehicle(
+      server._worldId,
+      characterId,
+      numberOfSpawnedEntity,
+      modelId,
+      position,
+      rotation
+    );
   });
   debug("All vehicles created");
 }
@@ -1030,10 +1059,11 @@ function createAllDoors(server: ZoneServer): void {
       );
     })?.ID;
     doorType.instances.forEach((doorInstance: any) => {
-      createEntity(
+      createDoor(
         server,
         modelId ? modelId : 9183,
         doorInstance.position,
+        eul2quat(doorInstance.rotation),
         doorInstance.rotation,
         doorInstance.scale,
         "",

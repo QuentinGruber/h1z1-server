@@ -15,19 +15,26 @@ import { EventEmitter } from "events";
 import { GatewayServer } from "../GatewayServer/gatewayserver";
 import packetHandlers from "./zonepackethandlers";
 import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
-import { getAppDataFolderPath, setupAppDataFolder, _ } from "../../utils/utils";
+import { H1emuZoneServer } from "../H1emuServer/h1emuZoneServer";
+import { H1emuClient } from "../H1emuServer/shared/h1emuclient";
 import {
+  _,
   generateRandomGuid,
+  getAppDataFolderPath,
   initMongo,
   Int64String,
   isPosInRadius,
+  setupAppDataFolder,
 } from "../../utils/utils";
 import { HandledZonePackets, Weather } from "../../types/zoneserver";
 import { Db, MongoClient } from "mongodb";
 import { Worker } from "worker_threads";
 import SOEClient from "servers/SoeServer/soeclient";
-import { ZoneClient as Client} from "./zoneclient";
+import { ZoneClient as Client } from "./classes/zoneclient";
 import { h1z1PacketsType } from "types/packets";
+import { Vehicle } from "./classes/vehicles";
+import { Resolver } from 'dns';
+
 process.env.isBin && require("./workers/dynamicWeather");
 
 const localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json");
@@ -72,7 +79,7 @@ export class ZoneServer extends EventEmitter {
   _npcRenderDistance: number;
   _dynamicWeatherWorker: any;
   _dynamicWeatherEnabled: boolean;
-  _vehicles: any;
+  _vehicles: { [characterId: string]: Vehicle };
   _respawnLocations: any[];
   _doors: any;
   _props: any;
@@ -82,6 +89,9 @@ export class ZoneServer extends EventEmitter {
   _respawnOnLastPosition: boolean = true;
   _spawnTimerMs: number = 10;
   _worldRoutineRadiusPercentage: number = 0.4;
+  _enableGarbageCollection: boolean = true;
+  _h1emuZoneServer!: H1emuZoneServer;
+  _loginServerInfo: {address?:string,port:number} = {port: 1110} 
 
   constructor(
     serverPort: number,
@@ -117,7 +127,7 @@ export class ZoneServer extends EventEmitter {
     this._reloadPacketsInterval;
     this._soloMode = false;
     this._weatherTemplates = localWeatherTemplates;
-    this._defaultWeatherTemplate = "H1emuBaseWeather";
+    this._defaultWeatherTemplate = "h1emubaseweather";
     this._weather = this._weatherTemplates[this._defaultWeatherTemplate];
     this._profiles = [];
     this._interactionDistance = 4;
@@ -156,6 +166,8 @@ export class ZoneServer extends EventEmitter {
     if (!this._mongoAddress) {
       this._soloMode = true;
       debug("Server in solo mode !");
+      this._enableGarbageCollection = false;
+      this._spawnTimerMs = 5;
     }
     this.on("data", this.onZoneDataEvent);
 
@@ -201,7 +213,89 @@ export class ZoneServer extends EventEmitter {
         );
       }
     );
+
+    if(!this._soloMode){
+      this._h1emuZoneServer = new H1emuZoneServer() // opens local socket to connect to loginserver
+      
+      this._h1emuZoneServer.on("session", (err: string, client: H1emuClient, status: number) => {
+        if (err) {
+          console.error(err);
+        } else {
+          debug(`LoginConnection established`);
+        }
+      });
+
+      this._h1emuZoneServer.on("sessionfailed", (err: string, client: H1emuClient, status: number) => {
+        console.error("h1emuServer sessionfailed")
+        process.exit(1)
+      });
+
+      this._h1emuZoneServer.on("disconnect", (err: string, client: H1emuClient, reason: number) => {
+        debug(`LoginConnection dropped: ${reason?"Connection Lost":"Unknown Error"}`);
+      });
+
+      this._h1emuZoneServer.on("data", async (err: string, client: H1emuClient, packet: any) => {
+        if (err) {
+          console.error(err);
+        } else {
+          switch(packet.name) {
+            case "CharacterCreateRequest":{
+              const { characterObjStringify,reqId } = packet.data;
+              try {
+                const characterObj = JSON.parse(characterObjStringify);
+                const collection = (this._db as Db).collection('characters')
+                const charactersArray = await collection.findOne({ characterId: characterObj.characterId });
+                if(!charactersArray){
+                  await collection.insertOne(characterObj);
+                }
+                this._h1emuZoneServer.sendData(client,"CharacterCreateReply",{reqId:reqId,status:1})
+              } catch (error) {
+                this._h1emuZoneServer.sendData(client,"CharacterCreateReply",{reqId:reqId,status:0})
+              }
+              break;
+            }
+          case "CharacterDeleteRequest":{
+            const { characterId, reqId } = packet.data;
+            try {
+              const collection = (this._db as Db).collection('characters')
+              const charactersArray = await collection.find({ characterId: characterId }).toArray();
+              if (charactersArray.length === 1) {
+                await collection.deleteOne({ characterId: characterId })
+                this._h1emuZoneServer.sendData(client,"CharacterDeleteReply",{status:1,reqId:reqId})
+              }
+              else{
+                this._h1emuZoneServer.sendData(client,"CharacterDeleteReply",{status:0,reqId:reqId})
+              }
+            } catch (error) {
+              this._h1emuZoneServer.sendData(client,"CharacterDeleteReply",{status:0,reqId:reqId})
+            }
+            break;
+          }
+            default:
+              debug(`Unhandled h1emu packet: ${packet.name}`)
+              break;
+          }
+        }
+      });
+      
+    }
+}
+
+  async fetchLoginInfo(){
+      const resolver = new Resolver();
+      const loginServerAddress = await new Promise((resolve, reject) => {
+      resolver.resolve4('loginserver.h1emu.com', (err, addresses) => {
+        if(!err){
+          resolve(addresses[0])
+        }
+        else{
+          throw err; 
+        }
+      });
+    })
+    this._loginServerInfo.address =  loginServerAddress as string;
   }
+
   onZoneDataEvent(err: any, client: Client, packet: any) {
     if (err) {
       console.error(err);
@@ -226,6 +320,7 @@ export class ZoneServer extends EventEmitter {
       }
     }
   }
+
   onZoneLoginEvent(err: any, client: Client) {
     if (err) {
       console.error(err);
@@ -239,6 +334,7 @@ export class ZoneServer extends EventEmitter {
       }
     }
   }
+
   onSoePacketLimitationReachedEvent(client: Client) {
     this.sendChatText(
       client,
@@ -256,6 +352,7 @@ export class ZoneServer extends EventEmitter {
       });
     }, 60000);
   }
+
   onGatewayLoginEvent(
     err: string,
     client: SOEClient,
@@ -291,17 +388,22 @@ export class ZoneServer extends EventEmitter {
     }, this._pingTimeoutTime);
     this.emit("login", err, zoneClient);
   }
+
   onGatewayDisconnectEvent(err: string, client: Client) {
     debug(`Client disconnected from ${client.address}:${client.port}`);
+    clearTimeout(client.character?.resourcesUpdater);
     if (client.character?.characterId) {
       delete this._characters[client.character.characterId];
     }
     delete this._clients[client.sessionId];
-    this.emit("disconnect", err, client);
+    this._gatewayServer._soeServer.deleteClient(client);
+    this.emit("disconnect", null, client);
   }
+
   onGatewaySessionEvent(err: string, client: Client) {
     debug(`Session started for client ${client.address}:${client.port}`);
   }
+
   onGatewayTunnelDataEvent(
     err: string,
     client: Client,
@@ -336,13 +438,25 @@ export class ZoneServer extends EventEmitter {
         .insertOne({ worldId: this._worldId });
       await this.saveWorld();
     }
-    if (!this._soloMode)
+    if (!this._soloMode){
+      debug("Starting H1emuZoneServer")
+      if(!this._loginServerInfo.address){
+        await this.fetchLoginInfo()
+      }
+      this._h1emuZoneServer.setLoginInfo(this._loginServerInfo, {
+        serverId: this._worldId
+      })
+      this._h1emuZoneServer.start()
       await this._db
         ?.collection("servers")
         .findOneAndUpdate(
           { serverId: this._worldId },
           { $set: { populationNumber: 0, populationLevel: 0 } }
         );
+      }
+    if(this._enableGarbageCollection){
+      setInterval(()=>{this.garbageCollection()},120000);
+    }
     debug("Server ready");
   }
 
@@ -511,7 +625,7 @@ export class ZoneServer extends EventEmitter {
         this.SendSkyChangedPacket({} as Client, weather, true);
       });
     }
-    this._gatewayServer.start();
+    this._gatewayServer.start(this._soloMode);
   }
 
   async loadMongoData(): Promise<void> {
@@ -553,6 +667,16 @@ export class ZoneServer extends EventEmitter {
     this._packetHandlers = require("./zonepackethandlers").default;
   }
 
+  garbageCollection(): void { // backup plan to free memory
+    for (const clientKey in this._clients) {
+      //@ts-ignore
+      if(this._clients[clientKey]._destroyed ){
+        console.log(`${clientKey} removed by garbage collection`);
+        delete this._clients[clientKey];
+      }
+    }
+  }
+  
   timeoutClient(client: Client): void {
     debug(
       `Client disconnected from ${client.address}:${client.port} ( ping timeout )`
@@ -573,36 +697,34 @@ export class ZoneServer extends EventEmitter {
 
   parseReferenceData(): any {
     /*
-    const itemData = fs.readFileSync(
-        `${__dirname}/../../../data/dataSources/ClientItemDefinitions.txt`,
-        "utf8"
-      ),
-      itemLines = itemData.split("\n"),
-      items = {};
-    for (let i = 1; i < itemLines.length; i++) {
-      const line = itemLines[i].split("^");
-      if (line[0]) {
-        (items as any)[line[0]] = line[1];
-      }
-    }*/
+        const itemData = fs.readFileSync(
+            `${__dirname}/../../../data/dataSources/ClientItemDefinitions.txt`,
+            "utf8"
+          ),
+          itemLines = itemData.split("\n"),
+          items = {};
+        for (let i = 1; i < itemLines.length; i++) {
+          const line = itemLines[i].split("^");
+          if (line[0]) {
+            (items as any)[line[0]] = line[1];
+          }
+        }*/
     return { itemTypes: undefined };
   }
 
-  async saveCharacterPosition(client: Client, updtTimeMs = 0) {
-    const { position, rotation } = client.character.state;
-    await this._db?.collection("characters").updateOne(
-      { characterId: client.character.characterId },
-      {
-        $set: {
-          position: position,
-          rotation: rotation,
-        },
-      }
-    );
-    if (updtTimeMs) {
-      setTimeout(() => {
-        this.saveCharacterPosition(client, updtTimeMs);
-      }, updtTimeMs);
+  async saveCharacterPosition(client: Client, refreshTimeout = false) {
+    if (client?.character) {
+      const { position, rotation } = client.character.state;
+      await this._db?.collection("characters").updateOne(
+        { characterId: client.character.characterId },
+        {
+          $set: {
+            position: position,
+            rotation: rotation,
+          },
+        }
+      );
+      refreshTimeout && client.savePositionTimer.refresh();
     }
   }
 
@@ -635,7 +757,7 @@ export class ZoneServer extends EventEmitter {
     }
 
     this._dummySelf.data.identity.characterFirstName = characterName;
-    this._dummySelf.data.guid = character.characterId;
+    this._dummySelf.data.guid = generateRandomGuid();
     this._dummySelf.data.characterId = character.characterId;
     client.character.guid = client.character.characterId;
     client.character.name =
@@ -666,15 +788,12 @@ export class ZoneServer extends EventEmitter {
       const randomSpawnIndex = Math.floor(
         Math.random() * this._spawnLocations.length
       );
-      this._dummySelf.data.position = client.character.state.position = this._spawnLocations[
-        randomSpawnIndex
-      ].position;
-      this._dummySelf.data.rotation = client.character.state.rotation = this._spawnLocations[
-        randomSpawnIndex
-      ].rotation;
-      client.character.spawnLocation = this._spawnLocations[
-        randomSpawnIndex
-      ].name;
+      this._dummySelf.data.position = client.character.state.position =
+        this._spawnLocations[randomSpawnIndex].position;
+      this._dummySelf.data.rotation = client.character.state.rotation =
+        this._spawnLocations[randomSpawnIndex].rotation;
+      client.character.spawnLocation =
+        this._spawnLocations[randomSpawnIndex].name;
     } else {
       if (!this._soloMode) {
         this._dummySelf.data.position = characterDataMongo.position;
@@ -684,23 +803,23 @@ export class ZoneServer extends EventEmitter {
       client.character.state.rotation = this._dummySelf.data.rotation;
     }
     /* const characterResources: any[] = []; DISABLED since it's not read by the game rn + we don't need to send all resources
-    resources.forEach((resource: any) => {
-      characterResources.push({
-        resourceType: resource.RESOURCE_TYPE,
-        resourceData: {
-          subResourceData: {
-            resourceId: resource.ID,
+        resources.forEach((resource: any) => {
+          characterResources.push({
             resourceType: resource.RESOURCE_TYPE,
-            unknownArray1: [],
-          },
-          unknownData2: {
-            max_value: resource.MAX_VALUE,
-            initial_value: resource.INITIAL_VALUE,
-          },
-        },
-      });
-    });
-    this._dummySelf.data.characterResources = characterResources;*/
+            resourceData: {
+              subResourceData: {
+                resourceId: resource.ID,
+                resourceType: resource.RESOURCE_TYPE,
+                unknownArray1: [],
+              },
+              unknownData2: {
+                max_value: resource.MAX_VALUE,
+                initial_value: resource.INITIAL_VALUE,
+              },
+            },
+          });
+        });
+        this._dummySelf.data.characterResources = characterResources;*/
     this._dummySelf.data.profiles = this._profiles;
     this._dummySelf.data.stats = stats;
     this._dummySelf.data.recipes = recipes;
@@ -878,13 +997,14 @@ export class ZoneServer extends EventEmitter {
       element.position || element.state?.position || element.npcData.position
     );
   }
+
   removeOutOfDistanceEntities(client: Client): void {
     const objectsToRemove = client.spawnedEntities.filter((e) =>
       this.filterOutOfDistance(e, client.character.state.position)
     );
     /*client.spawnedEntities = client.spawnedEntities.filter((el) => {
-      return !objectsToRemove.includes(el);
-    });*/
+          return !objectsToRemove.includes(el);
+        });*/
     objectsToRemove.forEach((object: any) => {
       const characterId = object.characterId
         ? object.characterId
@@ -931,6 +1051,7 @@ export class ZoneServer extends EventEmitter {
       }
     });
   }
+
   spawnDoors(client: Client): void {
     this.spawnNpcCollection(client, this._doors);
   }
@@ -1306,12 +1427,16 @@ export class ZoneServer extends EventEmitter {
     return obj;
   }
 }
+
 if (
   process.env.VSCODE_DEBUG === "true" &&
   process.env.CLIENT_SIXTEEN !== "true"
 ) {
-  new ZoneServer(
+  const zoneServer = new ZoneServer(
     1117,
-    new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", "base64")
-  ).start();
+    new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", "base64"),
+    process.env.MONGO_URL,1
+  )
+  zoneServer._loginServerInfo.address = "127.0.0.1";
+  zoneServer.start();
 }
