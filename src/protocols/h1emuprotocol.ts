@@ -19,72 +19,64 @@ const packets = [
     "SessionRequest",
     0x01,
     {
-        fields: [
-            { name: "serverId", type: "uint32", defaultValue: 0 },
-        ]
-    }
+      fields: [{ name: "serverId", type: "uint32", defaultValue: 0 }],
+    },
   ],
   [
     "SessionReply",
     0x02,
     {
-        fields: [
-            { name: "status", type: "uint8", defaultValue: 0 },
-        ]
-    }
+      fields: [{ name: "status", type: "uint8", defaultValue: 0 }],
+    },
   ],
   [
     "Ping",
     0x03,
     {
-      fields: []
-    }
+      fields: [],
+    },
   ],
-  [
-    "Ack",
-    0x04,
-    {}
-  ],
+  ["Ack", 0x04, {}],
   [
     "CharacterCreateRequest",
     0x05,
     {
-        fields: [
-          { name: "reqId", type: "uint32", defaultValue: 0 },
-          { name: "characterObjStringify", type: "string", defaultValue: "" },
-        ]
-    }
+      fields: [
+        { name: "reqId", type: "uint32", defaultValue: 0 },
+        { name: "characterObjStringify", type: "string", defaultValue: "" },
+      ],
+    },
   ],
   [
     "CharacterCreateReply",
     0x06,
     {
-        fields: [
-          { name: "reqId", type: "uint32", defaultValue: 0 },
-          { name: "status", type: "boolean", defaultValue: 0 },
-        ]
-    }
+      fields: [
+        { name: "reqId", type: "uint32", defaultValue: 0 },
+        { name: "status", type: "boolean", defaultValue: 0 },
+      ],
+    },
   ],
   [
     "CharacterDeleteRequest",
     0x07,
     {
-        fields: [
-          { name: "reqId", type: "uint32", defaultValue: 0 },
-          { name: "characterId", type: "uint64string", defaultValue: 0 },
-        ]
-    }
+      fields: [
+        { name: "reqId", type: "uint32", defaultValue: 0 },
+        { name: "characterId", type: "uint64string", defaultValue: 0 },
+      ],
+    },
   ],
   [
     "CharacterDeleteReply",
     0x08,
     {
-        fields: [
-          { name: "reqId", type: "uint32", defaultValue: 0 },
-          { name: "status", type: "boolean", defaultValue: 0 },
-        ]
-    }
-  ]
+      fields: [
+        { name: "reqId", type: "uint32", defaultValue: 0 },
+        { name: "status", type: "boolean", defaultValue: 0 },
+      ],
+    },
+  ],
 ];
 
 export const [H1emuPacketsPacketTypes, H1emuPacketsPackets] =
@@ -95,13 +87,10 @@ const H1emuPackets = {
   Packets: H1emuPacketsPackets,
 };
 
-function packH1emuPacket(
-  packetName: string,
-  object: any
-) {
+function packH1emuPacket(packetName: string, object: any) {
   let packetType = H1emuPackets.PacketTypes[packetName],
     packet = H1emuPackets.Packets[packetType],
-    data
+    data;
   if (packet) {
     if (packet.schema) {
       const packetData = DataSchema.pack(packet.schema, object);
@@ -122,9 +111,7 @@ function packH1emuPacket(
   return data;
 }
 
-function parseH1emuPacket(
-  data: any
-) {
+function parseH1emuPacket(data: any) {
   const packetType = data.readUInt8(0);
   let result,
     packet = H1emuPackets.Packets[packetType];
