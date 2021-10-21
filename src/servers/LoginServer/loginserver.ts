@@ -14,6 +14,8 @@
 import { EventEmitter } from "events";
 
 import { SOEServer } from "../SoeServer/soeserver";
+import { H1emuLoginServer } from "../H1emuServer/h1emuLoginServer";
+import { H1emuClient } from "../H1emuServer/shared/h1emuclient";
 import { LoginProtocol } from "../../protocols/loginprotocol";
 import { MongoClient } from "mongodb";
 import {
@@ -26,11 +28,12 @@ import {
 import { Client, GameServer } from "../../types/loginserver";
 import fs from "fs";
 import { loginPacketsType } from "types/packets";
+import { Worker } from "worker_threads";
+import { httpServerMessage } from "types/shared";
 
 const debugName = "LoginServer";
 const debug = require("debug")(debugName);
 const characterItemDefinitionsDummy = require("../../../data/2015/sampleData/characterItemDefinitionsDummy.json");
-
 export class LoginServer extends EventEmitter {
   _soeServer: SOEServer;
   _protocol: LoginProtocol;
@@ -44,6 +47,15 @@ export class LoginServer extends EventEmitter {
   _mongoAddress: string;
   _soloMode: boolean;
   _appDataFolder: string;
+  _httpServer!: Worker;
+  _enableHttpServer: boolean;
+  _httpServerPort: number = 80;
+  _h1emuLoginServer!: H1emuLoginServer;
+  _zoneConnections: { [h1emuClientId: string]: number } = {};
+  _zoneWhitelist!: any[];
+  _internalReqCount: number = 0;
+  _pendingInternalReq: { [requestId: number]: any } = {};
+  _pendingInternalReqTimeouts: { [requestId: number]: NodeJS.Timeout } = {};
 
   constructor(serverPort: number, mongoAddress = "") {
     super();
@@ -58,6 +70,7 @@ export class LoginServer extends EventEmitter {
     this._soloMode = false;
     this._mongoAddress = mongoAddress;
     this._appDataFolder = getAppDataFolderPath();
+    this._enableHttpServer = true;
 
     // reminders
     if (!this._mongoAddress) {
@@ -71,6 +84,7 @@ export class LoginServer extends EventEmitter {
       this._cryptoKey,
       0
     );
+
     this._protocol = new LoginProtocol();
     this._soeServer.on("connect", (err: string, client: Client) => {
       debug(`Client connected from ${client.address}:${client.port}`);
@@ -133,6 +147,75 @@ export class LoginServer extends EventEmitter {
         }
       }
     );
+
+    if (!this._soloMode) {
+      this._h1emuLoginServer = new H1emuLoginServer(1110);
+
+      this._h1emuLoginServer.on(
+        "data",
+        (err: string, client: H1emuClient, packet: any) => {
+          if (err) {
+            console.error(err);
+          } else {
+            const connectionEstablished = this._zoneConnections[client.clientId]
+              ? 1
+              : 0;
+            if (connectionEstablished || packet.name === "SessionRequest") {
+              switch (packet.name) {
+                case "SessionRequest": {
+                  if (!connectionEstablished) {
+                    let { serverId } = packet.data;
+                    debug(
+                      `Received session request from ${client.address}:${client.port}`
+                    );
+                    const status =
+                      this._zoneWhitelist.find((e) => e.serverId === serverId)
+                        ?.address === client.address
+                        ? 1
+                        : 0;
+                    if (status === 1) {
+                      debug(`ZoneConnection established`);
+                      client.session = true;
+                      this._zoneConnections[client.clientId] = serverId;
+                    } else {
+                      delete this._h1emuLoginServer._clients[client.clientId];
+                      return;
+                    }
+                    this._h1emuLoginServer.sendData(client, "SessionReply", {
+                      status: status,
+                    });
+                  }
+                  break;
+                }
+                default:
+                  debug(`Unhandled h1emu packet: ${packet.name}`);
+                  break;
+              }
+            }
+          }
+        }
+      );
+      this._h1emuLoginServer.on("processInternalReq", (packet: any) => {
+        const { reqId, status } = packet.data;
+        clearTimeout(this._pendingInternalReqTimeouts[reqId]);
+        delete this._pendingInternalReqTimeouts[reqId];
+        this._pendingInternalReq[reqId](status);
+        delete this._pendingInternalReq[reqId];
+      });
+      this._h1emuLoginServer.on(
+        "disconnect",
+        (err: string, client: H1emuClient, reason: number) => {
+          debug(
+            `ZoneConnection dropped: ${
+              reason ? "Connection Lost" : "Unknown Error"
+            }`
+          );
+          delete this._zoneConnections[client.clientId];
+        }
+      );
+
+      this._h1emuLoginServer.start();
+    }
   }
 
   sendData(client: Client, packetName: loginPacketsType, obj: any) {
@@ -238,6 +321,23 @@ export class LoginServer extends EventEmitter {
       // add required dummy data
       const PlayerCharacter = characters[index];
       PlayerCharacter.payload.itemDefinitions = characterItemDefinitionsDummy;
+      PlayerCharacter.payload.loadoutData = {
+        loadoutId: 3,
+        unknownData1: {
+          unknownDword1: 22,
+          unknownByte1: 1,
+        },
+        unknownDword1: 0,
+        unknownData2: {
+          unknownDword1: 0,
+          loadoutName: "",
+        },
+        tintItemId: 0,
+        unknownDword2: 0,
+        decalItemId: 0,
+        loadoutSlots: [],
+      };
+      PlayerCharacter.payload.attachmentDefinitions = [];
     }
     return characters;
   }
@@ -277,9 +377,9 @@ export class LoginServer extends EventEmitter {
         };
       }
     } else {
-      const charactersQuery = { ownerId: client.loginSessionId };
+      const charactersQuery = { authKey: client.loginSessionId };
       let characters = await this._db
-        .collection("characters")
+        .collection("characters-light")
         .find(charactersQuery)
         .toArray();
       characters = this.addDummyDataToCharacters(characters);
@@ -297,6 +397,22 @@ export class LoginServer extends EventEmitter {
     let servers;
     if (!this._soloMode) {
       servers = await this._db.collection("servers").find().toArray();
+      const userWhiteList = await this._db
+        .collection("servers-whitelist")
+        .find({ userId: client.loginSessionId })
+        .toArray();
+      if (userWhiteList) {
+        for (let i = 0; i < servers.length; i++) {
+          if (!servers[i].allowedAccess) {
+            for (let y = 0; y < userWhiteList.length; y++) {
+              if (servers[i].serverId == userWhiteList[y].serverId) {
+                servers[i].allowedAccess = true;
+              }
+            }
+            delete servers[i]._id;
+          }
+        }
+      }
     } else {
       if (this._soloMode) {
         if (this._protocol.protocolName == "LoginUdp_9") {
@@ -309,22 +425,50 @@ export class LoginServer extends EventEmitter {
         }
       }
     }
-    for (let i = 0; i < servers.length; i++) {
-      if (servers[i]._id) {
-        delete servers[i]._id;
-      }
-    }
     this.sendData(client, "ServerListReply", { servers: servers });
   }
 
-  async CharacterDeleteRequest(client: Client, packet: any) {
-    this.sendData(client, "CharacterDeleteReply", {
-      characterId: (packet.result as any).characterId,
-      status: 1,
-      Payload: "\0",
+  async askZoneForDeletion(
+    serverId: number,
+    characterId: string
+  ): Promise<number> {
+    const status = await new Promise((resolve, reject) => {
+      this._internalReqCount++;
+      const reqId = this._internalReqCount;
+      try {
+        const zoneConnectionIndex = Object.values(
+          this._zoneConnections
+        ).findIndex((e) => e === serverId);
+        const zoneConnectionString = Object.keys(this._zoneConnections)[
+          zoneConnectionIndex
+        ];
+        const [address, port] = zoneConnectionString.split(":");
+        this._h1emuLoginServer.sendData(
+          {
+            address: address,
+            port: port,
+            clientId: zoneConnectionString,
+            session: true,
+          } as any,
+          "CharacterDeleteRequest",
+          { reqId: reqId, characterId: characterId }
+        );
+        this._pendingInternalReq[reqId] = resolve;
+        this._pendingInternalReqTimeouts[reqId] = setTimeout(() => {
+          delete this._pendingInternalReq[reqId];
+          delete this._pendingInternalReqTimeouts[reqId];
+          resolve(0);
+        }, 10000);
+      } catch (e) {
+        resolve(0);
+      }
     });
-    debug("CharacterDeleteRequest");
+    return status as number;
+  }
 
+  async CharacterDeleteRequest(client: Client, packet: any) {
+    debug("CharacterDeleteRequest");
+    let deletionStatus = 1;
     if (this._soloMode) {
       const SinglePlayerCharacters = await this.loadCharacterData(client);
       const characterIndex = SinglePlayerCharacters.findIndex(
@@ -345,21 +489,39 @@ export class LoginServer extends EventEmitter {
         );
       }
     } else {
-      await this._db
-        .collection("characters")
-        .deleteOne(
-          { characterId: (packet.result as any).characterId },
-          function (err: string) {
-            if (err) {
-              debug(err);
-            } else {
-              debug(
-                `Character ${(packet.result as any).characterId} deleted !`
-              );
-            }
-          }
+      const characterId = (packet.result as any).characterId;
+      const characterQuery = { characterId: characterId };
+      const charracterToDelete = await this._db
+        .collection("characters-light")
+        .findOne(characterQuery);
+      if (
+        charracterToDelete &&
+        charracterToDelete.authKey === client.loginSessionId
+      ) {
+        deletionStatus = await this.askZoneForDeletion(
+          charracterToDelete.serverId,
+          characterId
         );
+        if (deletionStatus) {
+          await this._db
+            .collection("characters-light")
+            .deleteOne(characterQuery, function (err: string) {
+              if (err) {
+                debug(err);
+              } else {
+                debug(
+                  `Character ${(packet.result as any).characterId} deleted !`
+                );
+              }
+            });
+        }
+      }
     }
+    this.sendData(client, "CharacterDeleteReply", {
+      characterId: (packet.result as any).characterId,
+      status: deletionStatus,
+      Payload: "\0",
+    });
   }
 
   async CharacterLoginRequest(client: Client, packet: any) {
@@ -372,12 +534,14 @@ export class LoginServer extends EventEmitter {
       const character = await this._db
         .collection("characters")
         .findOne({ characterId: characterId });
-
+      const connectionStatus = Object.values(this._zoneConnections).includes(
+        serverId
+      );
       charactersLoginInfo = {
         unknownQword1: "0x0",
         unknownDword1: 0,
         unknownDword2: 0,
-        status: 1,
+        status: connectionStatus,
         applicationData: {
           serverAddress: serverAddress,
           serverTicket: client.loginSessionId,
@@ -439,6 +603,51 @@ export class LoginServer extends EventEmitter {
     debug("CharacterLoginRequest");
   }
 
+  async askZoneForCreation(
+    serverId: number,
+    characterData: any
+  ): Promise<number> {
+    const askZoneForCreationPromise = await new Promise((resolve, reject) => {
+      this._internalReqCount++;
+      const reqId = this._internalReqCount;
+      try {
+        const zoneConnectionIndex = Object.values(
+          this._zoneConnections
+        ).findIndex((e) => e === serverId);
+        const zoneConnectionString = Object.keys(this._zoneConnections)[
+          zoneConnectionIndex
+        ];
+        const [address, port] = zoneConnectionString.split(":");
+        this._h1emuLoginServer.sendData(
+          {
+            address: address,
+            port: port,
+            clientId: zoneConnectionString,
+            session: true,
+          } as any,
+          "CharacterCreateRequest",
+          { reqId: reqId, characterObjStringify: JSON.stringify(characterData) }
+        );
+        this._pendingInternalReq[reqId] = resolve;
+        this._pendingInternalReqTimeouts[reqId] = setTimeout(() => {
+          delete this._pendingInternalReq[reqId];
+          delete this._pendingInternalReqTimeouts[reqId];
+          resolve(0);
+        }, 10000);
+      } catch (e) {
+        resolve(0);
+      }
+    });
+    return askZoneForCreationPromise as number;
+  }
+
+  requestZoneCharacterCreation(
+    zoneAddress: string,
+    characterData: any
+  ): number {
+    return 1;
+  }
+
   async CharacterCreateRequest(client: Client, packet: any) {
     const {
       payload: { characterName },
@@ -458,7 +667,7 @@ export class LoginServer extends EventEmitter {
     }
     newCharacter.serverId = serverId;
     newCharacter.characterId = generateRandomGuid();
-
+    let creationStatus = 1;
     if (this._soloMode) {
       const SinglePlayerCharacters = await this.loadCharacterData(client);
       SinglePlayerCharacters[SinglePlayerCharacters.length] = newCharacter;
@@ -475,12 +684,42 @@ export class LoginServer extends EventEmitter {
         );
       }
     } else {
-      await this._db
-        .collection("characters")
-        .insertOne({ ...newCharacter, ownerId: client.loginSessionId });
+      let sessionObj;
+      const storedUserSession = await this._db
+        ?.collection("user-sessions")
+        .findOne({ authKey: client.loginSessionId, serverId: serverId });
+      if (storedUserSession) {
+        sessionObj = storedUserSession;
+      } else {
+        sessionObj = {
+          serverId: serverId,
+          authKey: client.loginSessionId,
+          guid: generateRandomGuid(),
+        };
+        await this._db?.collection("user-sessions").insertOne(sessionObj);
+      }
+      const newCharacterData = { ...newCharacter, ownerId: sessionObj.guid };
+      creationStatus = (await this.askZoneForCreation(
+        serverId,
+        newCharacterData
+      ))
+        ? 1
+        : 0;
+
+      if (creationStatus === 1) {
+        await this._db
+          .collection("characters-light")
+          .insertOne({
+            authKey: client.loginSessionId,
+            serverId: serverId,
+            payload: { name: characterName },
+            characterId: newCharacter.characterId,
+          });
+      }
+      newCharacter;
     }
     this.sendData(client, "CharacterCreateReply", {
-      status: 1,
+      status: creationStatus,
       characterId: newCharacter.characterId,
     });
   }
@@ -516,10 +755,22 @@ export class LoginServer extends EventEmitter {
       (await mongoClient.db("h1server").collections()).length ||
         (await initMongo(this._mongoAddress, debugName));
       this._db = mongoClient.db("h1server");
+      this._zoneWhitelist = await this._db
+        .collection("zone-whitelist")
+        .find({})
+        .toArray();
+
+        setInterval(()=>{
+          this._zoneWhitelist = this._db // refresh zoneWhitelist every 30minutes
+          .collection("zone-whitelist")
+          .find({})
+          .toArray();
+        },1800000)
     }
 
     if (this._soloMode) {
       setupAppDataFolder();
+      this._soeServer._isLocal = true;
     }
     this._soeServer.start(
       this._compression,
@@ -527,6 +778,29 @@ export class LoginServer extends EventEmitter {
       this._crcLength,
       this._udpLength
     );
+    if (this._mongoAddress && this._enableHttpServer) {
+      this._httpServer = new Worker(`${__dirname}/workers/httpServer.js`, {
+        workerData: {
+          MONGO_URL: this._mongoAddress,
+          SERVER_PORT: this._httpServerPort,
+        },
+      });
+      this._httpServer.on("message", (message: httpServerMessage) => {
+        const { type, requestId } = message;
+        switch (type) {
+          case "ping":
+            const response: httpServerMessage = {
+              type: "ping",
+              requestId: requestId,
+              data: "pong",
+            };
+            this._httpServer.postMessage(response);
+            break;
+          default:
+            break;
+        }
+      });
+    }
   }
 
   data(collectionName: string): any | undefined {

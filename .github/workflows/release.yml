@@ -42,10 +42,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Use Node.js 16.9.0
+      - name: Use Node.js 16.11.0
         uses: actions/setup-node@v2
         with:
-          node-version: 16.9.0
+          node-version: 16.11.0
       - uses: olegtarasov/get-tag@v2.1
         id: tagName
       - run: npm i --production
@@ -105,10 +105,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Use Node.js 16.9.0
+      - name: Use Node.js 16.11.0
         uses: actions/setup-node@v2
         with:
-          node-version: 16.9.0
+          node-version: 16.11.0
       - uses: olegtarasov/get-tag@v2.1
         id: tagName
       - uses: docker-practice/actions-setup-docker@master

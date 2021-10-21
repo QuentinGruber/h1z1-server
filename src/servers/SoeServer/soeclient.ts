@@ -20,7 +20,7 @@ export default class SOEClient {
   nextAck: number = -1;
   lastAck: number = -1;
   inputStream: () => void;
-  outputStream: () => void;
+  outputStream: any;
   outQueueTimer: any;
   ackTimer: any;
   outOfOrderTimer: any;

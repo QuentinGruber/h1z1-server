@@ -4,3 +4,8 @@ export interface Packet {
   tunnelData: any;
   flags: any;
 }
+export interface httpServerMessage {
+  type: string;
+  requestId: number;
+  data: any;
+}

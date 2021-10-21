@@ -108,8 +108,11 @@ export class GatewayServer extends EventEmitter {
     });
   }
 
-  start() {
+  start(useLocalConfig: boolean = false) {
     debug("Starting server");
+    if (useLocalConfig) {
+      this._soeServer._isLocal = true;
+    }
     this._soeServer.start(
       this._compression,
       this._crcSeed,

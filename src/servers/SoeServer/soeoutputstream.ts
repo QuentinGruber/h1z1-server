@@ -23,6 +23,7 @@ export class SOEOutputStream extends EventEmitter {
   _lastAck: number;
   _cache: any;
   _rc4: crypto.Cipher;
+  _enableCaching: boolean;
 
   constructor(cryptoKey: string, fragmentSize: number) {
     super();
@@ -31,6 +32,7 @@ export class SOEOutputStream extends EventEmitter {
     this._sequence = -1;
     this._lastAck = -1;
     this._cache = {};
+    this._enableCaching = true;
     this._rc4 = crypto.createCipheriv("rc4", cryptoKey, null);
   }
 
@@ -46,10 +48,12 @@ export class SOEOutputStream extends EventEmitter {
     }
     if (data.length <= this._fragmentSize) {
       this._sequence++;
-      this._cache[this._sequence] = {
-        data: data,
-        fragment: false,
-      };
+      if (this._enableCaching) {
+        this._cache[this._sequence] = {
+          data: data,
+          fragment: false,
+        };
+      }
       this.emit("data", null, data, this._sequence, false);
     } else {
       const header = new (Buffer as any).alloc(4);
@@ -58,10 +62,12 @@ export class SOEOutputStream extends EventEmitter {
       for (let i = 0; i < data.length; i += this._fragmentSize) {
         this._sequence++;
         const fragmentData = data.slice(i, i + this._fragmentSize);
-        this._cache[this._sequence] = {
-          data: fragmentData,
-          fragment: true,
-        };
+        if (this._enableCaching) {
+          this._cache[this._sequence] = {
+            data: fragmentData,
+            fragment: true,
+          };
+        }
         this.emit("data", null, fragmentData, this._sequence, true);
       }
     }
@@ -69,7 +75,7 @@ export class SOEOutputStream extends EventEmitter {
 
   ack(sequence: number): void {
     while (this._lastAck <= sequence) {
-      if (this._cache[this._lastAck]) {
+      if (this._enableCaching && this._cache[this._lastAck]) {
         delete this._cache[this._lastAck];
       }
       this._lastAck++;

@@ -178,7 +178,7 @@ const dev: any = {
       array1: [{ unknownQword1: server.generateGuid(), unknownDword1: 2 }],
     };
 
-   //! server.sendData(client, "Container.unknown2", containerData); i disable that since the "Container.unknown2" don't exist and idk which one you want
+    //! server.sendData(client, "Container.unknown2", containerData); i disable that since the "Container.unknown2" don't exist and idk which one you want
   },
   containererror: function (
     server: ZoneServer2016,
@@ -759,6 +759,15 @@ const dev: any = {
       timeLeft: 0,
       message: " ",
     });
+  },
+  loginmsg: function (server: ZoneServer2016, client: Client, args: any[]) {
+    server._h1emuZoneServer.sendData(
+      server._h1emuZoneServer._loginConnection,
+      "test",
+      {
+        msg: Number(args[1]) | 99,
+      }
+    );
   },
   /*
     proxiedobjects: function(server: ZoneServer2016, client: Client, args: any[]) {
