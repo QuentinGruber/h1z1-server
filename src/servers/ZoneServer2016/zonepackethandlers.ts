@@ -900,7 +900,7 @@ const packetHandlers = {
         ),
         array1: [],
         unknownData1: {
-          transientId: server._characters[characterId].transientId,
+          transientId: character.transientId,
           attachmentData: [],
           unknownData1: {},
           effectTags: [],
