@@ -41,7 +41,6 @@ const loadoutSlotItemClasses = require("./../../../data/2016/dataSources/Loadout
 const loadoutEquipSlots = require("./../../../data/2016/dataSources/LoadoutEquipSlots.json");
 
 export class ZoneServer2016 extends ZoneServer {
-  //worldRoutineTimer: any;
   _weather2016: Weather2016;
   // @ts-ignore yeah idk how to fix that
   _packetHandlers: HandledZonePackets2016;
