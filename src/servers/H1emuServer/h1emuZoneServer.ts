@@ -2,43 +2,53 @@ import { H1emuClient } from "./shared/h1emuclient";
 import { H1emuServer } from "./shared/h1emuserver";
 const debug = require("debug")("H1emuServer");
 
-export class H1emuZoneServer extends H1emuServer{
+export class H1emuZoneServer extends H1emuServer {
   _loginServerInfo: any;
   _sessionData: any;
   _loginConnection?: H1emuClient;
-  _maxConnectionRetry:number = 0;
+  _maxConnectionRetry: number = 0;
   _hasBeenConnectedToLogin: boolean = false;
-  constructor(serverPort?:number){
-    super(serverPort)
-    this.messageHandler = (messageType:string,data:Buffer,client:H1emuClient):void => {
-      switch(messageType) {
+  constructor(serverPort?: number) {
+    super(serverPort);
+    this.messageHandler = (
+      messageType: string,
+      data: Buffer,
+      client: H1emuClient
+    ): void => {
+      switch (messageType) {
         case "incomingPacket":
           client.lastPing = Date.now();
           const packet = this._protocol.parse(data);
-          debug(packet)
+          debug(packet);
           if (!packet) return;
-          switch(packet.name) {
+          switch (packet.name) {
             case "Ping":
               break;
-            case "SessionReply":{
-              debug(`Received session reply from ${client.address}:${client.port}`);
-              if(client.clientId !== `${this._loginServerInfo.address}:${this._loginServerInfo.port}`) {
+            case "SessionReply": {
+              debug(
+                `Received session reply from ${client.address}:${client.port}`
+              );
+              if (
+                client.clientId !==
+                `${this._loginServerInfo.address}:${this._loginServerInfo.port}`
+              ) {
                 // blocks unknown sessionreplies
                 debug(`LoginConnection refused: Unknown login address / port`);
                 return;
-              };
-              if(client.session) {
+              }
+              if (client.session) {
                 // ignores sessionreplies with an already open session
-                debug(`LoginConnection already had open session, ignoring SessionReply`);
+                debug(
+                  `LoginConnection already had open session, ignoring SessionReply`
+                );
                 return;
               }
-              if( packet.data.status === 1 ){
+              if (packet.data.status === 1) {
                 this._hasBeenConnectedToLogin = true;
                 client.session = true;
                 this._loginConnection = client;
                 this.emit("session", null, client, packet.data.status);
-              }
-              else{
+              } else {
                 debug(`LoginConnection refused: Zone not whitelisted`);
                 this.emit("sessionfailed", null, client, packet.data.status);
               }
@@ -50,49 +60,53 @@ export class H1emuZoneServer extends H1emuServer{
           }
           break;
         default:
-          debug(`Unknown message type ${messageType}`)
+          debug(`Unknown message type ${messageType}`);
           break;
       }
-    }
-    this.ping = (clientId: string)=> {
+    };
+    this.ping = (clientId: string) => {
       const client = this._clients[clientId];
-      if(this._clients[clientId] && client.session){
+      if (this._clients[clientId] && client.session) {
         super.ping(client);
-        if(Date.now() > client.lastPing + this._pingTimeout) {
+        if (Date.now() > client.lastPing + this._pingTimeout) {
           this.emit("disconnect", null, client, 1);
           delete this._loginConnection;
           delete this._clients[client.clientId];
         }
-      }
-      else {
+      } else {
         this.connect();
       }
       this._pingTimer.refresh();
-    }
+    };
   }
-  connect(){
-    this.sendData(this._loginServerInfo as H1emuClient, "SessionRequest", this._sessionData)
+  connect() {
+    this.sendData(
+      this._loginServerInfo as H1emuClient,
+      "SessionRequest",
+      this._sessionData
+    );
     this._maxConnectionRetry++;
-    if(!this._hasBeenConnectedToLogin && this._maxConnectionRetry > 10 ){
+    if (!this._hasBeenConnectedToLogin && this._maxConnectionRetry > 10) {
       throw new Error("Can't connect to loginServer");
     }
   }
 
-  setLoginInfo(serverInfo: any, obj: any){
+  setLoginInfo(serverInfo: any, obj: any) {
     this._loginServerInfo = serverInfo;
     this._sessionData = obj;
   }
 
-  start(){
-    if(!this._loginServerInfo && !this._sessionData) {
+  start() {
+    if (!this._loginServerInfo && !this._sessionData) {
       debug("[ERROR] H1emuZoneServer started without setting login info!");
       return;
     }
     super.start();
     this.connect();
-    this._pingTimer = setTimeout(
-      () => {this.ping(`${this._loginServerInfo.address}:${this._loginServerInfo.port}`);},
-      this._pingTime
-    );
+    this._pingTimer = setTimeout(() => {
+      this.ping(
+        `${this._loginServerInfo.address}:${this._loginServerInfo.port}`
+      );
+    }, this._pingTime);
   }
 }
