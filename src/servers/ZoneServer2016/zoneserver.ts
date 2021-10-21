@@ -24,7 +24,12 @@ import {
   Weather2016,
 } from "../../types/zoneserver";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
-import { _, initMongo, Int64String, isPosInRadius } from "../../utils/utils";
+import { 
+  _, 
+  initMongo, 
+  Int64String, 
+  isPosInRadius 
+} from "../../utils/utils";
 
 import { MongoClient } from "mongodb";
 import dynamicWeather from "./workers/dynamicWeather";
@@ -331,49 +336,7 @@ export class ZoneServer2016 extends ZoneServer {
     });
   }
 
-  async loadMongoData(): Promise<void> {
-    this._spawnLocations = this._soloMode
-      ? spawnLocations
-      : await this._db?.collection("spawns").find().toArray();
-    this._weatherTemplates = this._soloMode
-      ? localWeatherTemplates
-      : await this._db?.collection("weathers").find().toArray();
-  }
-
-  async setupServer(): Promise<void> {
-    this.forceTime(971172000000); // force day time by default - not working for now
-    this._frozeCycle = false;
-    await this.loadMongoData();
-    this._profiles = this.generateProfiles();
-    this.createAllObjects();
-    /*
-        if (
-          await this._db?.collection("worlds").findOne({ worldId: this._worldId })
-        ) {
-          await this.fetchWorldData();
-        } else {
-          await this._db
-            ?.collection(`worlds`)
-            .insertOne({ worldId: this._worldId });
-          await this.saveWorld();
-        }
-        if (!this._soloMode)
-          await this._db
-            ?.collection("servers")
-            .findOneAndUpdate(
-              { serverId: this._worldId },
-              { $set: { populationNumber: 0, populationLevel: 0 } }
-            );
-        */
-    if(!this._soloMode){
-      this._h1emuZoneServer.start()
-    }
-    debug("Server ready");
-  }
-
-  async start(): Promise<void> {
-    debug("Starting server");
-    debug(`Protocol used : ${this._protocol.protocolName}`);
+  async fetchZoneData(): Promise<void> {
     if (this._mongoAddress) {
       const mongoClient = (this._mongoClient = new MongoClient(
         this._mongoAddress
@@ -390,6 +353,162 @@ export class ZoneServer2016 extends ZoneServer {
       this._db = mongoClient.db("h1server");
     }
 
+    this._spawnLocations = this._soloMode
+      ? spawnLocations
+      : await this._db?.collection("spawns").find().toArray();
+    this._weatherTemplates = this._soloMode
+      ? localWeatherTemplates
+      : await this._db?.collection("weathers").find().toArray();
+  }
+
+  async fetchWorldData(): Promise<void> {
+    if (!this._soloMode) {
+      this._doors = {};
+      const doorArray: any = await this._db
+        ?.collection("doors")
+        .find({ worldId: this._worldId })
+        .toArray();
+      for (let index = 0; index < doorArray.length; index++) {
+        const door = doorArray[index];
+        this._doors[door.characterId] = door;
+      }
+      /*
+      this._props = {};
+      const propsArray: any = await this._db
+        ?.collection("props")
+        .find({ worldId: this._worldId })
+        .toArray();
+      for (let index = 0; index < propsArray.length; index++) {
+        const prop = propsArray[index];
+        this._props[prop.characterId] = prop;
+      }
+      */
+      this._vehicles = {};
+      const vehiclesArray: any = await this._db
+        ?.collection("vehicles")
+        .find({ worldId: this._worldId })
+        .toArray();
+      for (let index = 0; index < vehiclesArray.length; index++) {
+        const vehicle = vehiclesArray[index];
+        this._vehicles[vehicle.npcData.characterId] = vehicle;
+      }
+      this._npcs = {};
+      const npcsArray: any = await this._db
+        ?.collection("npcs")
+        .find({ worldId: this._worldId })
+        .toArray();
+      for (let index = 0; index < npcsArray.length; index++) {
+        const npc = npcsArray[index];
+        this._npcs[npc.characterId] = npc;
+      }
+      this._objects = {};
+      const objectsArray: any = await this._db
+        ?.collection("objects")
+        .find({ worldId: this._worldId })
+        .toArray();
+      for (let index = 0; index < objectsArray.length; index++) {
+        const object = objectsArray[index];
+        this._objects[object.characterId] = object;
+      }
+      this._transientIds = this.getAllCurrentUsedTransientId();
+      debug("World fetched!");
+    }
+  }
+
+  async saveWorld(): Promise<void> {
+    if (!this._soloMode) {
+      if (this._worldId) {
+        this.createAllObjects();
+        await this._db
+          ?.collection(`npcs`)
+          .insertMany(Object.values(this._npcs));
+        await this._db
+          ?.collection(`doors`)
+          .insertMany(Object.values(this._doors));
+        /*
+        await this._db
+          ?.collection(`props`)
+          .insertMany(Object.values(this._props));
+        */
+        await this._db
+          ?.collection(`vehicles`)
+          .insertMany(Object.values(this._vehicles));
+        await this._db
+          ?.collection(`objects`)
+          .insertMany(Object.values(this._objects));
+      } else {
+        this.createAllObjects();
+        const numberOfWorld: number =
+          (await this._db?.collection("worlds").find({}).count()) || 0;
+        this._worldId = numberOfWorld + 1;
+        await this._db?.collection("worlds").insertOne({
+          worldId: this._worldId,
+        });
+        await this._db
+          ?.collection(`npcs`)
+          .insertMany(Object.values(this._npcs));
+        await this._db
+          ?.collection(`doors`)
+          .insertMany(Object.values(this._doors));
+        /*
+        await this._db
+          ?.collection(`props`)
+          .insertMany(Object.values(this._props));
+        */
+        await this._db
+          ?.collection(`vehicles`)
+          .insertMany(Object.values(this._vehicles));
+        await this._db
+          ?.collection(`objects`)
+          .insertMany(Object.values(this._objects));
+        debug("World saved!");
+      }
+    } else {
+      this.createAllObjects();
+    }
+  }
+
+  async setupServer(): Promise<void> {
+    this.forceTime(971172000000); // force day time by default - not working for now
+    this._frozeCycle = false;
+    await this.fetchZoneData();
+    this._profiles = this.generateProfiles();
+    //this.createAllObjects();
+    
+    if (
+      await this._db?.collection("worlds").findOne({ worldId: this._worldId })
+    ) {
+      await this.fetchWorldData();
+    } else {
+      await this._db
+        ?.collection(`worlds`)
+        .insertOne({ worldId: this._worldId });
+      await this.saveWorld();
+    }
+
+    if (!this._soloMode){
+      debug("Starting H1emuZoneServer")
+      if(!this._loginServerInfo.address){
+        await this.fetchLoginInfo()
+      }
+      this._h1emuZoneServer.setLoginInfo(this._loginServerInfo, {
+        serverId: this._worldId
+      })
+      this._h1emuZoneServer.start()
+      await this._db
+        ?.collection("servers")
+        .findOneAndUpdate(
+          { serverId: this._worldId },
+          { $set: { populationNumber: 0, populationLevel: 0 } }
+        );
+    }
+    debug("Server ready");
+  }
+
+  async start(): Promise<void> {
+    debug("Starting server");
+    debug(`Protocol used : ${this._protocol.protocolName}`);
+    
     await this.setupServer();
     this._startTime += Date.now();
     this._startGameTime += Date.now();
