@@ -759,6 +759,13 @@ export class LoginServer extends EventEmitter {
         .collection("zone-whitelist")
         .find({})
         .toArray();
+
+        setInterval(()=>{
+          this._zoneWhitelist = this._db // refresh zoneWhitelist every 30minutes
+          .collection("zone-whitelist")
+          .find({})
+          .toArray();
+        },1800000)
     }
 
     if (this._soloMode) {
