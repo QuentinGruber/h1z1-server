@@ -850,73 +850,84 @@ const packetHandlers = {
     client: Client,
     packet: any
   ) {
-    const {
-      data: { characterId },
-    } = packet;
-    const npc =
-      server._npcs[characterId] ||
-      server._objects[characterId] ||
-      server._doors[characterId];
-    if (npc) {
-      server.sendData(client, "LightweightToFullNpc", {
-        transientId: npc.transientId,
-        attachmentData: [
-          {
-            modelName: "SurvivorMale_Chest_Hoodie_Up_Tintable.adr",
-            effectId: 0,
-            slotId: 3,
-          },
-        ],
-        effectTags: [],
-        unknownData1: {},
-        targetData: {},
-        unknownArray1: [],
-        unknownArray2: [],
-      });
-    } else if (server._characters[characterId]) {
-      server.sendData(client, "LightweightToFullPc", {
-        positionUpdate: server.createPositionUpdate(
-          new Float32Array([0, 0, 0, 0]),
-          [0, 0, 0, 0]
-        ),
-        array1: [],
-        unknownData1: {
-          transientId: server._characters[characterId].transientId,
-          attachmentData: [],
-          unknownData1: {},
-          effectTags: [],
-        },
-      });
-    } else if (server._vehicles[characterId]) {
-      server.sendData(client, "LightweightToFullVehicle", {
-        npcData: {
-          transientId: server._vehicles[characterId].npcData.transientId,
-          attachmentData: [],
-          effectTags: [],
-          unknownData1: {},
-          targetData: {},
-          unknownArray1: [],
-          unknownArray2: [],
-        },
-        unknownArray1: [],
-        unknownArray2: [],
-        unknownArray3: [],
-        unknownArray4: [],
-        unknownArray5: [
-          {
-            unknownData1: {
-              unknownData1: {},
-            },
-          },
-        ],
-        unknownArray6: [],
-        unknownArray7: [],
-        unknownArray8: [
-          {
-            unknownArray1: [],
-          },
-        ],
-      });
+    const { characterId } = packet.data,
+    entityData: any = 
+        server._npcs[characterId] || 
+        server._vehicles[characterId] || 
+        server._characters[characterId] ||
+        0,
+    entityType = 
+        server._npcs[characterId]?1:0 || 
+        server._vehicles[characterId]?2:0 || 
+        server._characters[characterId]?3:0;
+    
+    if(!entityType) return;
+    switch(entityType) {
+        case 1: // npcs
+            server.sendData(client, "LightweightToFullNpc", {
+                transientId: entityData.transientId,
+                attachmentData: [
+                {
+                    modelName: "SurvivorMale_Chest_Hoodie_Up_Tintable.adr",
+                    effectId: 0,
+                    slotId: 3,
+                },
+                ],
+                effectTags: [],
+                unknownData1: {},
+                targetData: {},
+                unknownArray1: [],
+                unknownArray2: [],
+            });
+            break;
+        case 2: // vehicles
+            server.sendData(client, "LightweightToFullVehicle", {
+                npcData: {
+                transientId: server._vehicles[characterId].npcData.transientId,
+                attachmentData: [],
+                effectTags: [],
+                unknownData1: {},
+                targetData: {},
+                unknownArray1: [],
+                unknownArray2: [],
+                },
+                unknownArray1: [],
+                unknownArray2: [],
+                unknownArray3: [],
+                unknownArray4: [],
+                unknownArray5: [
+                {
+                    unknownData1: {
+                    unknownData1: {},
+                    },
+                },
+                ],
+                unknownArray6: [],
+                unknownArray7: [],
+                unknownArray8: [
+                {
+                    unknownArray1: [],
+                },
+                ],
+            });
+            break;
+        case 3: // characters
+            server.sendData(client, "LightweightToFullPc", {
+                positionUpdate: server.createPositionUpdate(
+                new Float32Array([0, 0, 0, 0]),
+                [0, 0, 0, 0]
+                ),
+                array1: [],
+                unknownData1: {
+                transientId: server._characters[characterId].transientId,
+                attachmentData: [],
+                unknownData1: {},
+                effectTags: [],
+                },
+            });
+            break;
+        default:
+            break;
     }
   },
 
@@ -977,48 +988,39 @@ const packetHandlers = {
     client: Client,
     packet: any
   ) {
-    const { guid } = packet.data;
-    const objectData = server._objects[guid];
-    const doorData = server._doors[guid];
-    const vehicleData = server._vehicles[guid];
+    const { guid } = packet.data,
+    entityData: any = server._objects[guid] || server._vehicles[guid] || server._doors[guid] || 0,
+    entityType = server._objects[guid]?1:0 || server._vehicles[guid]?2:0 || server._doors[guid]?3:0;
 
-    if (
-      objectData &&
-      isPosInRadius(
+    if(!entityData || !isPosInRadius(
         server._interactionDistance,
         client.character.state.position,
-        objectData.position
-      )
-    ) {
-      server.sendData(client, "Command.InteractionString", {
-        guid: guid,
-        stringId: 29,
-      });
-    } else if (
-      doorData &&
-      isPosInRadius(
-        server._interactionDistance,
-        client.character.state.position,
-        doorData.position
-      )
-    ) {
-      server.sendData(client, "Command.InteractionString", {
-        guid: guid,
-        stringId: 31,
-      });
-    } else if (
-      vehicleData &&
-      !client.vehicle.mountedVehicle &&
-      isPosInRadius(
-        server._interactionDistance,
-        client.character.state.position,
-        vehicleData.npcData.position
-      )
-    ) {
-        server.sendData(client, "Command.InteractionString", {
-          guid: guid,
-          stringId: 15,
-        });
+        entityData.npcData?entityData.npcData.position:entityData.position
+    )) return;
+
+    switch (entityType) {
+        case 1: // object
+            server.sendData(client, "Command.InteractionString", {
+                guid: guid,
+                stringId: 29,
+            });
+            break;
+        case 2: // vehicle
+            if(!client.vehicle.mountedVehicle){
+                server.sendData(client, "Command.InteractionString", {
+                    guid: guid,
+                    stringId: 15,
+                })
+            }
+            break;
+        case 3: // door
+            server.sendData(client, "Command.InteractionString", {
+                guid: guid,
+                stringId: 31,
+            });
+            break;
+        default:
+            break;
     }
   },
 
@@ -1059,13 +1061,9 @@ const packetHandlers = {
           HUD_IMAGE_SET_ID: itemDef.IMAGE_SET_ID,
           flags1: {
             ...itemDef,
-            //SINGLE_USE: 1, // IS_REMOVED_ON_USE
-            //MEMBERS_ONLY: 1, // MEMBERS_ONLY
-            //NO_SALE: 1, // NO_SALE
           },
           flags2: {
             ...itemDef,
-            //FLAG_NO_DRAG_DROP: 1, // FLAG_NO_DRAG_DROP
           },
           stats: [],
         },
