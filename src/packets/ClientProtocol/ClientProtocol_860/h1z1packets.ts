@@ -4699,7 +4699,35 @@ var packets = [
     },
   ],
   ["PlayerUpdate.UpdateHitpoints", 0x0f03, {}],
-  ["PlayerUpdate.PlayAnimation", 0x0f04, {}],
+  ["PlayerUpdate.PlayAnimation", 0x0f04, {
+    fields: [
+      {
+        name: "characterId",
+        type: "uint64string",
+        defaultValue: "0x0000000000000000",
+      },
+      {
+        name: "unk1",
+        type: "uint32",
+        defaultValue: 1,
+      },
+      {
+        name: "unk2",
+        type: "uint32",
+        defaultValue: 2,
+      },
+      {
+        name: "unk3",
+        type: "uint8",
+        defaultValue: 3,
+      },
+      {
+        name: "unk4",
+        type: "uint32",
+        defaultValue: 4,
+      },
+    ],
+  }],
   ["PlayerUpdate.AddNotifications", 0x0f05, {}],
   ["PlayerUpdate.RemoveNotifications", 0x0f06, {}],
   [
