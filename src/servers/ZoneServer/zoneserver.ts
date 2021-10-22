@@ -92,14 +92,14 @@ export class ZoneServer extends EventEmitter {
   worldRoutineTimer: any;
   tickRate: number = 3000;
   _h1emuZoneServer!: H1emuZoneServer;
-  _h1emuZoneServerPort: number = 0;
   _loginServerInfo: { address?: string; port: number } = { port: 1110 };
 
   constructor(
     serverPort: number,
     gatewayKey: Uint8Array,
     mongoAddress = "",
-    worldId = 0
+    worldId = 0,
+    internalServerPort = 0
   ) {
     super();
     this._gatewayServer = new GatewayServer(
@@ -215,7 +215,7 @@ export class ZoneServer extends EventEmitter {
     );
 
     if (!this._soloMode) {
-      this._h1emuZoneServer = new H1emuZoneServer(this._h1emuZoneServerPort); // opens local socket to connect to loginserver
+      this._h1emuZoneServer = new H1emuZoneServer(internalServerPort); // opens local socket to connect to loginserver
 
       this._h1emuZoneServer.on(
         "session",
