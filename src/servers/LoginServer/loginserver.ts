@@ -160,6 +160,7 @@ export class LoginServer extends EventEmitter {
             const connectionEstablished = this._zoneConnections[client.clientId]
               ? 1
               : 0;
+            this._db?.collection("internal-connections-logs").insertOne({...packet,connectionEstablished:connectionEstablished,timestamp : Date.now()});
             if (connectionEstablished || packet.name === "SessionRequest") {
               switch (packet.name) {
                 case "SessionRequest": {
