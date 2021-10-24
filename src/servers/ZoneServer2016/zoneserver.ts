@@ -513,7 +513,7 @@ export class ZoneServer2016 extends ZoneServer {
     if (this._dynamicWeatherEnabled) {
       this._dynamicWeatherWorker = setInterval(() => dynamicWeather(this), 100);
     }
-    this._gatewayServer.start();
+    this._gatewayServer.start(true); // SET TO TRUE OR ELSE MULTIPLAYER PACKETS ARE BROKEN
     this.worldRoutineTimer = setTimeout(
       () => this.worldRoutine.bind(this)(true),
       this.tickRate
@@ -557,12 +557,12 @@ export class ZoneServer2016 extends ZoneServer {
   worldRoutine(refresh = false): void {
     debug("WORLDROUTINE");
     this.executeFuncForAllClients((client: Client) => {
+      this.removeOutOfDistanceEntities(client);
       this.spawnCharacters(client);
       this.spawnObjects(client);
       this.spawnDoors(client);
       this.spawnNpcs(client);
       this.spawnVehicles(client);
-      this.removeOutOfDistanceEntities(client);
       this.POIManager(client);
       client.posAtLastRoutine = client.character.state.position;
     });
@@ -939,12 +939,12 @@ export class ZoneServer2016 extends ZoneServer {
     });
   }
 
-  updateEquipment(client: Client, characterId = client.character.characterId) {
+  updateEquipment(client: Client, character = client.character) {
     this.sendData(client, "Equipment.SetCharacterEquipment", {
       characterData: {
-        characterId: characterId,
+        characterId: character.characterId,
       },
-      equipmentSlots: client.character.equipment.map(
+      equipmentSlots: character.equipment.map(
         (slot: characterEquipment) => {
           return {
             equipmentSlotId: slot.slotId,
@@ -957,7 +957,7 @@ export class ZoneServer2016 extends ZoneServer {
           };
         }
       ),
-      attachmentData: client.character.equipment.map(
+      attachmentData: character.equipment.map(
         (slot: characterEquipment) => {
           return {
             modelName: slot.modelName,

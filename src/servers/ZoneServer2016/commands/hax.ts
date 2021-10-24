@@ -126,6 +126,7 @@ const hax: any = {
     }
 
     client.character.state.position = locationPosition;
+    
     server.sendData(client, "ClientUpdate.UpdateLocation", {
       position: locationPosition,
       triggerLoadingScreen: true,

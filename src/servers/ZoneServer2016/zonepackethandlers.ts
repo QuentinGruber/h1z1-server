@@ -303,10 +303,7 @@ const packetHandlers = {
         () => server.saveCharacterPosition(client),
         30000
       );
-      server._characters[client.character.characterId] = {
-        ...client.character,
-        identity: {},
-      };
+      //server._characters[client.character.characterId] = client.character;
       server.executeFuncForAllClients(()=>server.spawnCharacters);
     }
 
@@ -901,7 +898,7 @@ const packetHandlers = {
         case 2: // vehicles
             server.sendData(client, "LightweightToFullVehicle", {
                 npcData: {
-                transientId: server._vehicles[characterId].npcData.transientId,
+                transientId: entityData.npcData.transientId,
                 attachmentData: [],
                 effectTags: [],
                 unknownData1: {},
@@ -932,18 +929,18 @@ const packetHandlers = {
         case 3: // characters
             server.sendData(client, "LightweightToFullPc", {
                 positionUpdate: server.createPositionUpdate(
-                new Float32Array([0, 0, 0, 0]),
-                [0, 0, 0, 0]
+                entityData.state.position,
+                entityData.state.rotation
                 ),
                 stats: [],
                 fullPcData: {
-                    transientId: server._characters[characterId].transientId,
+                    transientId: entityData.transientId,
                     attachmentData: [],
                     unknownData1: {},
                     effectTags: [],
                 },
             });
-            server.updateEquipment(client, characterId);
+            server.updateEquipment(client, entityData);
             break;
         default:
             break;
