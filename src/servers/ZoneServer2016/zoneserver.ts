@@ -939,10 +939,10 @@ export class ZoneServer2016 extends ZoneServer {
     });
   }
 
-  updateEquipment(client: Client) {
+  updateEquipment(client: Client, characterId = client.character.characterId) {
     this.sendData(client, "Equipment.SetCharacterEquipment", {
       characterData: {
-        characterId: client.character.characterId,
+        characterId: characterId,
       },
       equipmentSlots: client.character.equipment.map(
         (slot: characterEquipment) => {

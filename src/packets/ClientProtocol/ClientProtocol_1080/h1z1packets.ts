@@ -131,6 +131,9 @@ function packSignedIntWith2bitLengthValue(value: number): Buffer {
 function readPositionUpdateData(data: Buffer, offset: number) {
   const obj: any = {},
     startOffset = offset;
+  
+  obj.raw = data;
+  
   obj["flags"] = data.readUInt16LE(offset);
   offset += 2;
 

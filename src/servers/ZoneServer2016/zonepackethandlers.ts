@@ -703,16 +703,43 @@ const packetHandlers = {
     packet: any
   ) {
     const characterId = server._transientIds[packet.data.transientId];
-    if (characterId) {
-      if (!server._soloMode) {
+    if (!characterId) return;
+    //if (!server._soloMode) {
+        // TODO
+        /*
         server.sendRawToAllOthers(
           client,
           server._protocol.createVehiclePositionBroadcast(
             packet.data.positionUpdate.raw.slice(1)
           )
         );
-      }
-      if (packet.data.positionUpdate.position) {
+        */
+        /*
+        server.sendRawToAllOthers(
+            client,
+            server._protocol.createVehiclePositionBroadcast2016(
+              packet.data.positionUpdate.raw,
+              packet.data.transientId
+            )
+        );
+        */
+       /*
+       server.sendDataToAllOthers(client, "PlayerUpdatePosition", {
+           transientId: packet.data.transientId,
+           positionUpdate: packet.data.positionUpdate
+       })
+       */
+      /*
+       server.sendRawToAllOthers(
+            client,
+            server._protocol.createVehiclePositionBroadcast2016(
+                packet.data.positionUpdate.raw,
+                packet.data.transientId
+            )
+        );
+        */
+    //}
+    if (packet.data.positionUpdate.position) {
         server._vehicles[characterId].npcData.position = new Float32Array([
           packet.data.positionUpdate.position[0],
           packet.data.positionUpdate.position[1],
@@ -737,7 +764,6 @@ const packetHandlers = {
             server.executeFuncForAllClients(()=>server.spawnVehicles);
           }
         }
-      }
     }
   },
   PlayerUpdateUpdatePositionClientToZone: function (
@@ -754,26 +780,20 @@ const packetHandlers = {
         const vehicle = server._vehicles[client.vehicle.mountedVehicle];
         //console.log(vehicle);
         server.sendRawToAllOthers(
-          client,
-          server._protocol.createPositionBroadcast(
-            packet.data.raw.slice(1),
-            vehicle.npcData.transientId
-          )
+            client,
+            server._protocol.createPositionBroadcast2016(
+                packet.data.raw,
+                vehicle.transientId
+            )
         );
       } else {
-        /*
-                server.sendRawToAllOthers(
-                  client,
-                  server._protocol.createPositionBroadcast(
-                    packet.data.raw,
-                    movingCharacter.transientId
-                  )
-                );
-                */
-        server.sendDataToAllOthers(client, "PlayerUpdatePosition", {
-          transientId: movingCharacter.transientId,
-          positionUpdate: {...packet.data},
-        });
+        server.sendRawToAllOthers(
+            client,
+            server._protocol.createPositionBroadcast2016(
+                packet.data.raw,
+                movingCharacter.transientId
+            )
+        );
       }
     }
     if (packet.data.position) {
@@ -915,14 +935,15 @@ const packetHandlers = {
                 new Float32Array([0, 0, 0, 0]),
                 [0, 0, 0, 0]
                 ),
-                array1: [],
-                unknownData1: {
-                transientId: server._characters[characterId].transientId,
-                attachmentData: [],
-                unknownData1: {},
-                effectTags: [],
+                stats: [],
+                fullPcData: {
+                    transientId: server._characters[characterId].transientId,
+                    attachmentData: [],
+                    unknownData1: {},
+                    effectTags: [],
                 },
             });
+            server.updateEquipment(client, characterId);
             break;
         default:
             break;
