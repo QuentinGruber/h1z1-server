@@ -5205,7 +5205,16 @@ const packets = [
   ["Character.ReplaceBaseModel", 0x0f1d, {}],
   ["Character.SetCollidable", 0x0f1e, {}],
   ["Character.UpdateOwner", 0x0f1f, {}],
-  ["Character.WeaponStance", 0x0f20, {}],
+  [
+    "Character.WeaponStance", 
+    0x0f20, 
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "stance", type: "uint32", defaultValue: 0 },
+      ]
+    }
+  ],
   ["Character.UpdateTintAlias", 0x0f21, {}],
   ["Character.MoveOnRail", 0x0f22, {}],
   ["Character.ClearMovementRail", 0x0f23, {}],

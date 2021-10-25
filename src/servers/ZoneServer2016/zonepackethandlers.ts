@@ -279,6 +279,10 @@ const packetHandlers = {
       }
     });
     */
+    server.sendData(client, "Character.WeaponStance", { // activates weaponstance key
+        characterId: client.character.characterId,
+        stance: 1
+    });
   },
   ClientFinishedLoading: function (
     server: ZoneServer2016,
@@ -1088,6 +1092,16 @@ const packetHandlers = {
       },
     });
   },
+  "Character.WeaponStance": function (
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
+    server.sendDataToAllOthers(client, "Character.WeaponStance", {
+        characterId: client.character.characterId,
+        stance: packet.data.stance
+    });
+  }
 };
 
 export default packetHandlers;
