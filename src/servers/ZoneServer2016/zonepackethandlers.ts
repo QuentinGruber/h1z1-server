@@ -776,16 +776,18 @@ const packetHandlers = {
       if (client.vehicle.mountedVehicle) {
         const vehicle = server._vehicles[client.vehicle.mountedVehicle];
         //console.log(vehicle);
-        server.sendRawToAllOthers(
+        server.sendRawToAllOthersWithSpawnedCharacter(
             client,
+            movingCharacter.characterId,
             server._protocol.createPositionBroadcast2016(
                 packet.data.raw,
                 vehicle.transientId
             )
         );
       } else {
-        server.sendRawToAllOthers(
+        server.sendRawToAllOthersWithSpawnedCharacter(
             client,
+            movingCharacter.characterId,
             server._protocol.createPositionBroadcast2016(
                 packet.data.raw,
                 movingCharacter.transientId

@@ -839,6 +839,59 @@ export class ZoneServer2016 extends ZoneServer {
     });
   }
 
+  /*
+  sendDataToAllWithSpawnedEntity(entityCharacterId: string = "", packetName: any, obj: any, channel = 0): void {
+    if(!entityCharacterId) return;
+    for (const a in this._clients) {
+      if(this._clients[a].spawnedEntities.includes(
+        this._doors[entityCharacterId] || 
+        this._objects[entityCharacterId]) ||
+        this._vehicles[entityCharacterId] ||
+        this._npcs[entityCharacterId] ||
+        this._characters[entityCharacterId]
+      ){
+        this.sendData(this._clients[a], packetName, obj, channel);
+      }
+    }
+  }
+  */
+  /*
+  sendRawToAllOthersWithSpawnedEntity(client: Client, entityCharacterId: string = "", data: any): void {
+    for (const a in this._clients) {
+      if (client != this._clients[a] && 
+        this._clients[a].spawnedEntities.includes(
+          this._doors[entityCharacterId] || 
+          this._objects[entityCharacterId]) ||
+          this._vehicles[entityCharacterId] ||
+          this._npcs[entityCharacterId] ||
+          this._characters[entityCharacterId]
+        ) {
+        this.sendRawData(this._clients[a], data);
+      }
+    }
+  }
+  */
+
+  sendDataToAllWithSpawnedVehicle(entityCharacterId: string = "", packetName: any, obj: any, channel = 0): void {
+    if(!entityCharacterId) return;
+    for (const a in this._clients) {
+      if(this._clients[a].spawnedEntities.includes(this._vehicles[entityCharacterId])
+      ){
+        this.sendData(this._clients[a], packetName, obj, channel);
+      }
+    }
+  }
+
+  sendRawToAllOthersWithSpawnedCharacter(client: Client, entityCharacterId: string = "", data: any): void {
+    for (const a in this._clients) {
+      if (client != this._clients[a] && 
+        this._clients[a].spawnedEntities.includes(this._characters[entityCharacterId])
+          ) {
+        this.sendRawData(this._clients[a], data);
+      }
+    }
+  }
+//#region ********************VEHICLE********************
   mountVehicle(client: Client, packet: any): void {
     client.vehicle.mountedVehicle = packet.data.guid;
     switch (this._vehicles[packet.data.guid].npcData.vehicleId) {
@@ -861,14 +914,14 @@ export class ZoneServer2016 extends ZoneServer {
         client.vehicle.mountedVehicleType = "unknown";
         break;
     }
-    this.sendData(client, "Mount.MountResponse", {
+    this.sendDataToAllWithSpawnedVehicle(packet.data.guid, "Mount.MountResponse", {
       // mounts character
       characterId: client.character.characterId,
       vehicleGuid: client.vehicle.mountedVehicle, // vehicle guid
       identity: {},
     });
 
-    this.sendData(client, "Vehicle.Engine", {
+    this.sendDataToAllWithSpawnedVehicle(packet.data.guid, "Vehicle.Engine", {
       // starts engine
       guid2: client.vehicle.mountedVehicle,
       engineOn: true,
@@ -876,11 +929,11 @@ export class ZoneServer2016 extends ZoneServer {
   }
 
   dismountVehicle(client: Client): void {
-    this.sendData(client, "Mount.DismountResponse", {
+    this.sendDataToAllWithSpawnedVehicle(client.vehicle.mountedVehicle, "Mount.DismountResponse", {
       // dismounts character
       characterId: client.character.characterId,
     });
-    this.sendData(client, "Vehicle.Engine", {
+    this.sendDataToAllWithSpawnedVehicle(client.vehicle.mountedVehicle, "Vehicle.Engine", {
       // stops engine
       guid2: client.vehicle.mountedVehicle,
       engineOn: false,
@@ -905,7 +958,7 @@ export class ZoneServer2016 extends ZoneServer {
         break;
     }
     if (packet.data.seatId < seatCount) {
-      this.sendData(client, "Mount.SeatChangeResponse", {
+      this.sendDataToAllWithSpawnedVehicle(client.vehicle.mountedVehicle, "Mount.SeatChangeResponse", {
         characterId: client.character.characterId,
         vehicleGuid: client.vehicle.mountedVehicle,
         identity: {},
@@ -913,7 +966,7 @@ export class ZoneServer2016 extends ZoneServer {
       });
     }
   }
-
+//#endregion
 //#region ********************INVENTORY********************
 
   updateLoadout(client: Client) {
