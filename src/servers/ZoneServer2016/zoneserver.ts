@@ -839,39 +839,16 @@ export class ZoneServer2016 extends ZoneServer {
     });
   }
 
-  /*
-  sendDataToAllWithSpawnedEntity(entityCharacterId: string = "", packetName: any, obj: any, channel = 0): void {
-    if(!entityCharacterId) return;
-    for (const a in this._clients) {
-      if(this._clients[a].spawnedEntities.includes(
-        this._doors[entityCharacterId] || 
-        this._objects[entityCharacterId]) ||
-        this._vehicles[entityCharacterId] ||
-        this._npcs[entityCharacterId] ||
-        this._characters[entityCharacterId]
-      ){
-        this.sendData(this._clients[a], packetName, obj, channel);
-      }
-    }
-  }
-  */
-  /*
-  sendRawToAllOthersWithSpawnedEntity(client: Client, entityCharacterId: string = "", data: any): void {
+  sendRawToAllOthersWithSpawnedCharacter(client: Client, entityCharacterId: string = "", data: any): void {
     for (const a in this._clients) {
       if (client != this._clients[a] && 
-        this._clients[a].spawnedEntities.includes(
-          this._doors[entityCharacterId] || 
-          this._objects[entityCharacterId]) ||
-          this._vehicles[entityCharacterId] ||
-          this._npcs[entityCharacterId] ||
-          this._characters[entityCharacterId]
-        ) {
+        this._clients[a].spawnedEntities.includes(this._characters[entityCharacterId])
+      ) {
         this.sendRawData(this._clients[a], data);
       }
     }
   }
-  */
-
+//#region ********************VEHICLE********************
   sendDataToAllWithSpawnedVehicle(entityCharacterId: string = "", packetName: any, obj: any, channel = 0): void {
     if(!entityCharacterId) return;
     for (const a in this._clients) {
@@ -881,17 +858,6 @@ export class ZoneServer2016 extends ZoneServer {
       }
     }
   }
-
-  sendRawToAllOthersWithSpawnedCharacter(client: Client, entityCharacterId: string = "", data: any): void {
-    for (const a in this._clients) {
-      if (client != this._clients[a] && 
-        this._clients[a].spawnedEntities.includes(this._characters[entityCharacterId])
-          ) {
-        this.sendRawData(this._clients[a], data);
-      }
-    }
-  }
-//#region ********************VEHICLE********************
   mountVehicle(client: Client, packet: any): void {
     client.vehicle.mountedVehicle = packet.data.guid;
     switch (this._vehicles[packet.data.guid].npcData.vehicleId) {
