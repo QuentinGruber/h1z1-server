@@ -29,6 +29,7 @@ import { _, Int64String, isPosInRadius } from "../../utils/utils";
 import { ZoneServer2016 } from "./zoneserver";
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
 import { characterEquipment } from "./../../types/zoneserver";
+import { servicesVersion } from "typescript";
 
 const debug = require("debug")("zonepacketHandlers");
 
@@ -278,6 +279,10 @@ const packetHandlers = {
       }
     });
     */
+    server.sendData(client, "Character.WeaponStance", { // activates weaponstance key
+        characterId: client.character.characterId,
+        stance: 1
+    });
   },
   ClientFinishedLoading: function (
     server: ZoneServer2016,
@@ -1070,6 +1075,16 @@ const packetHandlers = {
       },
     });
   },
+  "Character.WeaponStance": function (
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
+    server.sendDataToAllOthers(client, "Character.WeaponStance", {
+        characterId: client.character.characterId,
+        stance: packet.data.stance
+    });
+  }
 };
 
 export default packetHandlers;
