@@ -5357,7 +5357,22 @@ const packets = [
   ],
   ["Character.UpdateStat", 0x0f40, {}],
   ["Character.NonPriorityCharacters", 0x0f42, {}],
-  ["Character.PlayWorldCompositeEffect", 0x0f43, {}],
+  [
+    "Character.PlayWorldCompositeEffect", 
+    0x0f43, 
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: 0 },
+        { name: "soundId", type: "uint32", defaultValue: 0 },
+        {
+          name: "position",
+          type: "floatvector4",
+          defaultValue: [0, 0, 0, 0],
+        },
+        { name: "unk3", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
   ["Character.AFK", 0x0f44, {}],
   [
     "Character.FullCharacterDataRequest",
@@ -5387,7 +5402,17 @@ const packets = [
   ["Character.MountBlockedNotification", 0x0f4d, {}],
   ["Character.StartMultiStateDeath", 0x0f4f, {}],
   ["Character.AggroLevel", 0x0f50, {}],
-  ["Character.DoorState", 0x0f51, {}],
+  [
+    "Character.DoorState", 
+    0x0f51, 
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownBool1", type: "boolean", defaultValue: false },
+      ]
+    }
+  ],
   ["Character.RequestToggleDoorState", 0x0f52, {}],
   ["Character.SetAllowRespawn", 0x0f54, {}],
   ["Character.UpdateGuildTag", 0x0f55, {}],
@@ -7696,13 +7721,13 @@ const packets = [
         { name: "unknownByte1", type: "uint8", defaultValue: 50 },
         { name: "position", type: "floatvector3", defaultValue: [0, 0, 0] },
         { name: "rotation", type: "floatvector3", defaultValue: [0, 0, 0] },
-        { name: "unknownDword1", type: "uint32", defaultValue: 9000 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 9000 },
+        { name: "unknownDword1", type: "uint32", defaultValue: 23 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 23 },
         { name: "modelId", type: "uint32", defaultValue: 0 },
         { name: "scale", type: "floatvector4", defaultValue: [1, 1, 1, 1] },
-        { name: "unknownDword3", type: "uint32", defaultValue: 9000 },
+        { name: "unknownDword3", type: "uint32", defaultValue: 23 },
         { name: "showHealth", type: "boolean", defaultValue: false },
-        { name: "unknownDword4", type: "uint32", defaultValue: 9000 },
+        { name: "unknownDword4", type: "uint32", defaultValue: 23 },
       ],
     },
   ],
