@@ -742,7 +742,7 @@ const packetHandlers = {
         server.sendDataToAllOthers(client, "PlayerUpdatePosition", {
             transientId: packet.data.transientId,
             positionUpdate: packet.data.positionUpdate,
-          });
+        });
     //}
     if (packet.data.positionUpdate.position) {
         server._vehicles[characterId].npcData.position = new Float32Array([
@@ -766,7 +766,7 @@ const packetHandlers = {
               client.posAtLastRoutine
             )
           ) {
-            server.executeFuncForAllClients(()=>server.spawnVehicles);
+            server.executeFuncForAllClients(()=>server.vehicleManager);
           }
         }
     }
@@ -798,7 +798,7 @@ const packetHandlers = {
             movingCharacter.characterId,
             server._protocol.createPositionBroadcast2016(
                 packet.data.raw,
-                vehicle.transientId
+                vehicle.npcData.transientId
             )
         );
       } else {

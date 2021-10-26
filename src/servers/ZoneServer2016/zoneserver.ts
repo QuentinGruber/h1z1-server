@@ -16,6 +16,7 @@ const debug = require("debug")(debugName);
 import { default as packetHandlers } from "./zonepackethandlers";
 import { ZoneServer } from "../ZoneServer/zoneserver";
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
+import { Vehicle2016 as Vehicle } from "./classes/vehicle";
 
 import {
   characterEquipment,
@@ -51,7 +52,7 @@ export class ZoneServer2016 extends ZoneServer {
   _packetHandlers: HandledZonePackets2016;
   _weatherTemplates: any;
   _items: any;
-  _vehicles: any;
+  _vehicles: {[characterId: string]: Vehicle} = {};
 
   constructor(serverPort: number, gatewayKey: Uint8Array, mongoAddress = "") {
     super(serverPort, gatewayKey, mongoAddress);
@@ -559,12 +560,12 @@ export class ZoneServer2016 extends ZoneServer {
   worldRoutine(refresh = false): void {
     debug("WORLDROUTINE");
     this.executeFuncForAllClients((client: Client) => {
+      this.vehicleManager(client);
       this.removeOutOfDistanceEntities(client);
       this.spawnCharacters(client);
       this.spawnObjects(client);
       this.spawnDoors(client);
       this.spawnNpcs(client);
-      this.spawnVehicles(client);
       this.POIManager(client);
       client.posAtLastRoutine = client.character.state.position;
     });
@@ -634,23 +635,17 @@ export class ZoneServer2016 extends ZoneServer {
       const characterId = object.characterId
         ? object.characterId
         : object.npcData.characterId;
-        /*
-      if (characterId in this._vehicles) {
-        this.sendData(client, "Character.ManagedObject", {
-          objectCharacterId: characterId,
-          characterId: client.character.characterId,
-        });
-      }
-      */
+      /*
       if (characterId in this._vehicles) {
         const index = client.managedObjects.indexOf(
           this._vehicles[characterId]
         );
         if (index > -1) {
-          client.managedObjects.splice(index, 1);
-          this._vehicles[characterId].isManaged = false;
+          this.dropManagedObject(client, this._vehicles[characterId], index);
+          
         }
       }
+      */
       this.sendData(
         client,
         "Character.RemovePlayer",
@@ -735,38 +730,77 @@ export class ZoneServer2016 extends ZoneServer {
     }
   }
 
-  spawnVehicles(client: Client) {
-    for (const vehicle in this._vehicles) {
-      if (
+  vehicleManager(client: Client) {
+    for (const key in this._vehicles) {
+      const vehicle = this._vehicles[key];
+      if ( // vehicle spawning / managed object assignment logic
         isPosInRadius(
           this._npcRenderDistance,
           client.character.state.position,
-          this._vehicles[vehicle].npcData.position
-        ) &&
-        !client.spawnedEntities.includes(this._vehicles[vehicle])
+          vehicle.npcData.position
+        )
       ) {
-        this.sendData(
-          client,
-          "AddLightweightVehicle",
-          this._vehicles[vehicle],
-          1
-        );
-        /*
-        this.sendData(client, "Character.ManagedObject", {
-          objectCharacterId: this._vehicles[vehicle].npcData.characterId,
-          characterId: client.character.characterId,
-        });
-        */
-        if (!this._vehicles[vehicle].isManaged) {
-          this.sendData(client, "Character.ManagedObject", {
-            objectCharacterId: this._vehicles[vehicle].npcData.characterId,
-            characterId: client.character.characterId,
+        if(!client.spawnedEntities.includes(vehicle)){
+          this.sendData(
+            client,
+            "AddLightweightVehicle",
+            vehicle,
+            1
+          );
+          /*
+          this.sendData(client, "PlayerUpdatePosition", {
+            transientId: vehicle.npcData.transientId,
+            positionUpdate: this.createPositionUpdate(vehicle.npcData.position, vehicle.npcData.rotation),
           });
-          this._vehicles[vehicle].isManaged = true;
+          */
+          client.spawnedEntities.push(vehicle);
         }
-        client.spawnedEntities.push(this._vehicles[vehicle]);
-        client.managedObjects.push(this._vehicles[vehicle]);
+        if (!vehicle.isManaged) { // assigns management to first client within radius
+          this.assignManagedObject(client, vehicle);
+        }
       }
+      else { // vehicle despawning / managed object drop logic
+        
+        const index = client.spawnedEntities.indexOf(vehicle);
+        if(index > -1){
+          if(vehicle.isManaged) {
+            this.dropManagedObject(client, vehicle);
+          }
+          this.sendData(
+            client,
+            "Character.RemovePlayer",
+            {
+              characterId: vehicle.npcData.characterId,
+            },
+            1
+          );
+          client.spawnedEntities.splice(index, 1);
+        }
+      }
+    }
+  }
+
+  assignManagedObject(client: Client, vehicle: Vehicle) {
+    // todo: vehicle seat swap managed object assignment logic
+    debug("\n\n\n\n\n\n\n\n\n\n assign managed object")
+    this.sendDataToAllWithSpawnedVehicle(vehicle.npcData.characterId, "Character.ManagedObject", {
+      objectCharacterId: vehicle.npcData.characterId,
+      characterId: client.character.characterId,
+    });
+    client.managedObjects.push(vehicle);
+    vehicle.isManaged = true;
+  }
+
+  dropManagedObject(client: Client, vehicle: Vehicle) {
+    const index = client.managedObjects.indexOf(vehicle);
+    if(index > -1) { // todo: vehicle seat swap managed object drop logic
+      debug("\n\n\n\n\n\n\n\n\n\n drop managed object")
+      this.sendDataToAllWithSpawnedVehicle(vehicle.npcData.characterId, "Character.ManagedObject", {
+        objectCharacterId: vehicle.npcData.characterId,
+        characterId: client.character.characterId,
+      });
+      client.managedObjects.splice(index, 1);
+      vehicle.isManaged = false;
     }
   }
 

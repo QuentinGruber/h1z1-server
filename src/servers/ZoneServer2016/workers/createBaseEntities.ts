@@ -7,6 +7,7 @@ const models = require("../../../../data/2016/dataSources/Models.json");
 const modelToName = require("../../../../data/2016/dataSources/ModelToName.json");
 import { _, generateRandomGuid } from "../../../utils/utils";
 import { ZoneServer2016 } from "../zoneserver";
+import { Vehicle2016 as Vehicle } from "./../classes/vehicle"
 
 const npcs: any = {};
 const objects: any = {};
@@ -128,6 +129,17 @@ function createAllVehicles(server: ZoneServer2016) {
     const v = getRandomVehicleId();
     numberOfSpawnedEntity++;
     server._transientIds[numberOfSpawnedEntity] = characterId;
+    const vehicleData = new Vehicle(
+      server._worldId, 
+      characterId, 
+      numberOfSpawnedEntity, 
+      v.modelId, 
+      vehicle.position, 
+      vehicle.rotation,
+      server.createPositionUpdate(vehicle.position, vehicle.rotation)
+    )
+    vehicles[characterId] = vehicleData; // save vehicle
+    /*
     vehicles[characterId] = {
       npcData: {
         guid: generateRandomGuid(),
@@ -145,6 +157,7 @@ function createAllVehicles(server: ZoneServer2016) {
       unknownGuid1: generateRandomGuid(),
       positionUpdate: [0, 0, 0, 0],
     };
+    */
   });
   debug("All vehicles created");
 }

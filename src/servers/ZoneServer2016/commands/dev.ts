@@ -273,7 +273,7 @@ const dev: any = {
       return;
     }
     const location = {
-      position: [0, 80, 0, 1],
+      position: new Float32Array([0, 80, 0, 1]),
       rotation: [0, 0, 0, 1],
       triggerLoadingScreen: true,
     };
