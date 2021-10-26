@@ -139,25 +139,6 @@ function createAllVehicles(server: ZoneServer2016) {
       server.createPositionUpdate(vehicle.position, vehicle.rotation)
     )
     vehicles[characterId] = vehicleData; // save vehicle
-    /*
-    vehicles[characterId] = {
-      npcData: {
-        guid: generateRandomGuid(),
-        characterId: characterId,
-        transientId: numberOfSpawnedEntity,
-        modelId: v.modelId,
-        scale: [1, 1, 1, 1],
-        position: vehicle.position,
-        rotation: vehicle.rotation,
-        isVehicle: true,
-        attachedObject: {},
-        vehicleId: v.vehicleId,
-        color: {},
-      },
-      unknownGuid1: generateRandomGuid(),
-      positionUpdate: [0, 0, 0, 0],
-    };
-    */
   });
   debug("All vehicles created");
 }

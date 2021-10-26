@@ -160,28 +160,6 @@ const hax: any = {
       const guid = server.generateGuid();
       const transientId = server.getTransientId(client, guid);
       const characterId = server.generateGuid();
-      /*
-      const vehicle = {
-        npcData: {
-          guid: guid,
-          characterId: characterId,
-          transientId: transientId,
-          modelId: 9588,
-          scale: [1, 1, 1, 1],
-          position: [
-            client.character.state.position[0],
-            client.character.state.position[1],
-            client.character.state.position[2],
-          ],
-          rotation: client.character.state.lookAt,
-          attachedObject: {},
-          vehicleId: 5,
-          color: {},
-        },
-        unknownGuid1: server.generateGuid(),
-        positionUpdate: [0, 0, 0, 0],
-      };
-      */
      const vehicle = new Vehicle(
        server._worldId, 
        characterId, 
@@ -267,54 +245,27 @@ const hax: any = {
       );
       return;
     }
-    let vehicleId, driveModel;
+    let driveModel;
     switch (args[1]) {
       case "offroader":
-        vehicleId = 1;
         driveModel = 7225;
         break;
       case "pickup":
-        vehicleId = 2;
         driveModel = 9258;
         break;
       case "policecar":
-        vehicleId = 3;
         driveModel = 9301;
         break;
       case "atv":
-        vehicleId = 5;
         driveModel = 9588;
         break;
       default:
         // offroader default
-        vehicleId = 1;
         driveModel = 7225;
         break;
     }
     const characterId = server.generateGuid();
     const transientId = server.getTransientId(client, characterId);
-    /*
-    const vehicle = {
-      npcData: {
-        guid: server.generateGuid(),
-        characterId: characterId,
-        transientId: transientId,
-        modelId: driveModel,
-        scale: [1, 1, 1, 1],
-        position: [
-          client.character.state.position[0],
-          client.character.state.position[1],
-          client.character.state.position[2],
-        ],
-        rotation: [0, 0, 0, 0],
-        isVehicle: true,
-        attachedObject: {},
-        vehicleId: vehicleId,
-        color: {},
-      },
-      unknownGuid1: server.generateGuid(),
-      positionUpdate: [0, 0, 0, 0]
-    };*/
     const vehicle = new Vehicle(
       server._worldId, 
       characterId, 
@@ -334,11 +285,10 @@ const hax: any = {
       server.sendChatText(client, "[ERROR] You need to specify a name !");
       return;
     }
-
+    
     const pc = {
       characterId: characterId,
       transientId: server.getTransientId(client, characterId),
-      //modelId: choosenModelId,
       position: [
         client.character.state.position[0],
         client.character.state.position[1],
@@ -637,30 +587,6 @@ const hax: any = {
   },
   spectate: function (server: ZoneServer2016, client: Client, args: any[]) {
     const characterId = server.generateGuid();
-    const vehicleData = {
-      npcData: {
-        guid: server.generateGuid(),
-        transientId: server.getTransientId(client, characterId),
-        characterId: characterId,
-        modelId: 9371,
-        scale: [1, 1, 1, 1],
-        position: [
-          client.character.state.position[0],
-          client.character.state.position[1],
-          client.character.state.position[2],
-          client.character.state.position[3],
-        ],
-        rotation: client.character.state.lookAt,
-        vehicleId: 1337,
-        attachedObject: {},
-        color: {},
-      },
-      positionUpdate: server.createPositionUpdate(
-        new Float32Array([0, 0, 0, 0]),
-        [0, 0, 0, 0]
-      ),
-      isManaged: true
-    };
     const vehicle = new Vehicle(
       server._worldId, 
       characterId, 
@@ -669,9 +595,9 @@ const hax: any = {
       client.character.state.position, 
       client.character.state.lookAt,
       server.createPositionUpdate(client.character.state.position, client.character.state.lookAt)
-    )
+    );
     server._vehicles[characterId] = vehicle;
-    server.worldRoutine();
+    server.vehicleManager(client);
     server.sendData(client, "Mount.MountResponse", {
       characterId: client.character.characterId,
       vehicleGuid: characterId,

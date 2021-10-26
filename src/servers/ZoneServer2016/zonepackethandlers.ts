@@ -706,39 +706,6 @@ const packetHandlers = {
     const characterId = server._transientIds[packet.data.transientId];
     if (!characterId) return;
     //if (!server._soloMode) {
-        // TODO
-        /*
-        server.sendRawToAllOthers(
-          client,
-          server._protocol.createVehiclePositionBroadcast(
-            packet.data.positionUpdate.raw.slice(1)
-          )
-        );
-        */
-        /*
-        server.sendRawToAllOthers(
-            client,
-            server._protocol.createVehiclePositionBroadcast2016(
-              packet.data.positionUpdate.raw,
-              packet.data.transientId
-            )
-        );
-        */
-       /*
-       server.sendDataToAllOthers(client, "PlayerUpdatePosition", {
-           transientId: packet.data.transientId,
-           positionUpdate: packet.data.positionUpdate
-       })
-       */
-      /*
-       server.sendRawToAllOthers(
-            client,
-            server._protocol.createPositionBroadcast2016(
-                packet.data.positionUpdate.raw,
-                packet.data.transientId
-            )
-        );
-        */
         server.sendDataToAllOthers(client, "PlayerUpdatePosition", {
             transientId: packet.data.transientId,
             positionUpdate: packet.data.positionUpdate,
@@ -792,7 +759,6 @@ const packetHandlers = {
     if (movingCharacter /*&& !server._soloMode*/) {
       if (client.vehicle.mountedVehicle) {
         const vehicle = server._vehicles[client.vehicle.mountedVehicle];
-        //console.log(vehicle);
         server.sendRawToAllOthersWithSpawnedCharacter(
             client,
             movingCharacter.characterId,

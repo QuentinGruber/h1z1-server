@@ -2,15 +2,17 @@ import { Vehicle } from "../../ZoneServer/classes/vehicles";
 
 function getVehicleId(ModelId: number) {
   switch (ModelId) {
-    case 7225:
+    case 7225: // offroader
       return 1;
-    case 9301:
+    case 9301: // policecar
       return 3;
-    case 9258:
+    case 9258: // pickup
       return 2;
-    case 9374:
+    case 9588: // atv
+      return 5;
+    case 9374: // parachute
       return 13;
-    case 9371:
+    case 9371: // spectate
       return 1337;
     default:
       return 1;
