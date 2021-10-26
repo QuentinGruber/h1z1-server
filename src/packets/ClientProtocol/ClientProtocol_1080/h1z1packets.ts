@@ -6540,13 +6540,15 @@ const packets = [
     0x61,
     {
       fields: [
-        { name: "unknownQword1", type: "uint64string", defaultValue: "" },
+        { name: "Unknown2", type: "uint32", defaultValue: 0 },
+        { name: "interactGlowAndDist", type: "uint32", defaultValue: 3 }, // client doesnt send interactionstring by distance but still sends interactrequest
         { name: "unknownBoolean1", type: "boolean", defaultValue: 0 },
-        { name: "timescale", type: "float", defaultValue: 1.0 },
-        { name: "unknownQword2", type: "uint64string", defaultValue: "" },
+        { name: "timescale", type: "float", defaultValue: 2.0 },
+        { name: "Unknown4", type: "uint32", defaultValue: 0 },
+        { name: "Unknown5", type: "uint32", defaultValue: 0 },
         { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
         { name: "unknownFloat2", type: "float", defaultValue: 0.0 },
-        { name: "unknownFloat3", type: "float", defaultValue: 0.0 },
+        { name: "velDamageMulti", type: "float", defaultValue: 1.0 }, // 0 = crash
       ],
     },
   ],
@@ -7676,9 +7678,15 @@ const packets = [
     0x8f01,
     {
       fields: [
-        { name: "guid", type: "uint64string", defaultValue: "0" },
-        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+        { name: "collisionGuid", type: "uint64string", defaultValue: "0" },
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+        { name: "damage", type: "uint32", defaultValue: 0 }, // big values, suggest dividing by like 1,7kk
+        { name: "unknownByte2", type: "uint8", defaultValue: 0 },
+        { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword8", type: "uint32", defaultValue: 0 },
       ],
     },
   ],

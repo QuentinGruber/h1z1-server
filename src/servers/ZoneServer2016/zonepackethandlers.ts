@@ -337,8 +337,8 @@ const packetHandlers = {
     client: Client,
     packet: any
   ) {
-    debug("Collision.Damage");
-    debug(packet);
+    console.log("Collision.Damage");
+    console.log(packet);
   },
   "LobbyGameDefinition.DefinitionsRequest": function (
     server: ZoneServer2016,
