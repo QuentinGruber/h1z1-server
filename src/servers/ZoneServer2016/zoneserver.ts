@@ -625,8 +625,9 @@ export class ZoneServer2016 extends ZoneServer {
   }
 
   removeOutOfDistanceEntities(client: Client): void {
+    // does not include vehicles
     const objectsToRemove = client.spawnedEntities.filter((e) =>
-      this.filterOutOfDistance(e, client.character.state.position)
+      this.filterOutOfDistance(e, client.character.state.position) && !e.npcData?.isVehicle
     );
     client.spawnedEntities = client.spawnedEntities.filter((el) => {
       return !objectsToRemove.includes(el);
@@ -635,17 +636,6 @@ export class ZoneServer2016 extends ZoneServer {
       const characterId = object.characterId
         ? object.characterId
         : object.npcData.characterId;
-      /*
-      if (characterId in this._vehicles) {
-        const index = client.managedObjects.indexOf(
-          this._vehicles[characterId]
-        );
-        if (index > -1) {
-          this.dropManagedObject(client, this._vehicles[characterId], index);
-          
-        }
-      }
-      */
       this.sendData(
         client,
         "Character.RemovePlayer",
@@ -934,8 +924,10 @@ export class ZoneServer2016 extends ZoneServer {
     }
   }
   mountVehicle(client: Client, packet: any): void {
-    client.vehicle.mountedVehicle = packet.data.guid;
-    switch (this._vehicles[packet.data.guid].npcData.vehicleId) {
+    const vehicle = this._vehicles[packet.data.guid];
+    if(!vehicle) return;
+    client.vehicle.mountedVehicle = vehicle.npcData.characterId;
+    switch (vehicle.npcData.vehicleId) {
       case 1:
         client.vehicle.mountedVehicleType = "offroader";
         break;
@@ -955,56 +947,63 @@ export class ZoneServer2016 extends ZoneServer {
         client.vehicle.mountedVehicleType = "unknown";
         break;
     }
+    const seatId = vehicle.getNextSeatId()
+    if(!seatId) return; // no available seats in vehicle
+    vehicle.seats[seatId] = client.character.characterId;
     this.sendDataToAllWithSpawnedVehicle(packet.data.guid, "Mount.MountResponse", {
       // mounts character
       characterId: client.character.characterId,
-      vehicleGuid: client.vehicle.mountedVehicle, // vehicle guid
+      vehicleGuid: vehicle.npcData.characterId, // vehicle guid
+      seatId: Number(seatId),
+      unknownDword3: seatId==="0"?1:0, //isDriver
       identity: {},
     });
-
-    this.sendDataToAllWithSpawnedVehicle(packet.data.guid, "Vehicle.Engine", {
-      // starts engine
-      guid2: client.vehicle.mountedVehicle,
-      engineOn: true,
-    });
+    if(seatId === "0") {
+      this.sendDataToAllWithSpawnedVehicle(packet.data.guid, "Vehicle.Engine", {
+        // starts engine
+        guid2: client.vehicle.mountedVehicle,
+        engineOn: true,
+      });
+    }
+    
   }
 
   dismountVehicle(client: Client): void {
+    if(!client.vehicle.mountedVehicle) return;
+    const vehicle = this._vehicles[client.vehicle.mountedVehicle];
+    if(!vehicle) return;
+    const seatId = vehicle.getCharacterSeat(client.character.characterId);
+    if(!seatId) return;
+    vehicle.seats[seatId] = "";
     this.sendDataToAllWithSpawnedVehicle(client.vehicle.mountedVehicle, "Mount.DismountResponse", {
       // dismounts character
       characterId: client.character.characterId,
     });
-    this.sendDataToAllWithSpawnedVehicle(client.vehicle.mountedVehicle, "Vehicle.Engine", {
-      // stops engine
-      guid2: client.vehicle.mountedVehicle,
-      engineOn: false,
-    });
+    if(seatId === "0") {
+      this.sendDataToAllWithSpawnedVehicle(client.vehicle.mountedVehicle, "Vehicle.Engine", {
+        // stops engine
+        guid2: client.vehicle.mountedVehicle,
+        engineOn: false,
+      });
+    }
     client.vehicle.mountedVehicle = "";
   }
 
   changeSeat(client: Client, packet: any): void {
-    let seatCount;
-    switch (client.vehicle.mountedVehicleType) {
-      case "offroader":
-      case "pickup":
-      case "policecar":
-        seatCount = 5;
-        break;
-      case "atv":
-        seatCount = 2;
-        break;
-      case "parachute":
-      default:
-        seatCount = 1;
-        break;
-    }
-    if (packet.data.seatId < seatCount) {
+    if(!client.vehicle.mountedVehicle) return;
+    const vehicle = this._vehicles[client.vehicle.mountedVehicle],
+    seatCount = vehicle.getSeatCount(),
+    oldSeatId = vehicle.getCharacterSeat(client.character.characterId);
+
+    if (packet.data.seatId < seatCount && !vehicle.seats[packet.data.seatId] && oldSeatId) {
       this.sendDataToAllWithSpawnedVehicle(client.vehicle.mountedVehicle, "Mount.SeatChangeResponse", {
         characterId: client.character.characterId,
-        vehicleGuid: client.vehicle.mountedVehicle,
+        vehicleGuid: vehicle.npcData.characterId,
         identity: {},
         seatId: packet.data.seatId,
       });
+      vehicle.seats[oldSeatId] = "";
+      vehicle.seats[packet.data.seatId] = client.character.characterId;
     }
   }
 //#endregion
