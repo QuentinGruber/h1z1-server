@@ -137,6 +137,7 @@ function createAllVehicles(server: ZoneServer2016) {
         scale: [1, 1, 1, 1],
         position: vehicle.position,
         rotation: vehicle.rotation,
+        isVehicle: true,
         attachedObject: {},
         vehicleId: v.vehicleId,
         color: {},

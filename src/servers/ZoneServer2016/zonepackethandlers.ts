@@ -733,12 +733,16 @@ const packetHandlers = {
       /*
        server.sendRawToAllOthers(
             client,
-            server._protocol.createVehiclePositionBroadcast2016(
+            server._protocol.createPositionBroadcast2016(
                 packet.data.positionUpdate.raw,
                 packet.data.transientId
             )
         );
         */
+        server.sendDataToAllOthers(client, "PlayerUpdatePosition", {
+            transientId: packet.data.transientId,
+            positionUpdate: packet.data.positionUpdate,
+          });
     //}
     if (packet.data.positionUpdate.position) {
         server._vehicles[characterId].npcData.position = new Float32Array([
@@ -766,6 +770,15 @@ const packetHandlers = {
           }
         }
     }
+  },
+  "Vehicle.StateData":function (
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
+    server.sendDataToAllOthersWithSpawnedVehicle(client, packet.data.guid, "Vehicle.StateData", {
+        ...packet.data
+    })
   },
   PlayerUpdateUpdatePositionClientToZone: function (
     server: ZoneServer2016,
@@ -947,6 +960,10 @@ const packetHandlers = {
                 },
             });
             server.updateEquipment(client, entityData);
+            server.sendData(client, "Character.WeaponStance", { // activates weaponstance key
+                characterId: entityData.characterId,
+                stance: 1
+            });
             break;
         default:
             break;
@@ -1097,7 +1114,7 @@ const packetHandlers = {
     client: Client,
     packet: any
   ) {
-    server.sendDataToAllOthers(client, "Character.WeaponStance", {
+    server.sendDataToAllOthersWithSpawnedCharacter(client, "Character.WeaponStance", {
         characterId: client.character.characterId,
         stance: packet.data.stance
     });

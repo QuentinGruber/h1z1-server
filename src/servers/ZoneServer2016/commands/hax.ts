@@ -51,6 +51,7 @@ const hax: any = {
         new Float32Array([0, 0, 0, 0]),
         [0, 0, 0, 0]
       ),
+      isManaged: true
     };
     server._vehicles[characterId] = vehicleData;
     server.worldRoutine();
@@ -298,12 +299,13 @@ const hax: any = {
           client.character.state.position[2],
         ],
         rotation: [0, 0, 0, 0],
+        isVehicle: true,
         attachedObject: {},
         vehicleId: vehicleId,
         color: {},
       },
       unknownGuid1: server.generateGuid(),
-      positionUpdate: [0, 0, 0, 0],
+      positionUpdate: [0, 0, 0, 0]
     };
     server._vehicles[characterId] = vehicle; // save vehicle
   },
@@ -640,6 +642,7 @@ const hax: any = {
         new Float32Array([0, 0, 0, 0]),
         [0, 0, 0, 0]
       ),
+      isManaged: true
     };
     server._vehicles[characterId] = vehicleData;
     server.worldRoutine();

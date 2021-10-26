@@ -632,13 +632,23 @@ export class ZoneServer2016 extends ZoneServer {
       const characterId = object.characterId
         ? object.characterId
         : object.npcData.characterId;
+        /*
       if (characterId in this._vehicles) {
         this.sendData(client, "Character.ManagedObject", {
           objectCharacterId: characterId,
           characterId: client.character.characterId,
         });
       }
-
+      */
+      if (characterId in this._vehicles) {
+        const index = client.managedObjects.indexOf(
+          this._vehicles[characterId]
+        );
+        if (index > -1) {
+          client.managedObjects.splice(index, 1);
+          this._vehicles[characterId].isManaged = false;
+        }
+      }
       this.sendData(
         client,
         "Character.RemovePlayer",
@@ -739,11 +749,21 @@ export class ZoneServer2016 extends ZoneServer {
           this._vehicles[vehicle],
           1
         );
+        /*
         this.sendData(client, "Character.ManagedObject", {
           objectCharacterId: this._vehicles[vehicle].npcData.characterId,
           characterId: client.character.characterId,
         });
+        */
+        if (!this._vehicles[vehicle].isManaged) {
+          this.sendData(client, "Character.ManagedObject", {
+            objectCharacterId: this._vehicles[vehicle].npcData.characterId,
+            characterId: client.character.characterId,
+          });
+          this._vehicles[vehicle].isManaged = true;
+        }
         client.spawnedEntities.push(this._vehicles[vehicle]);
+        client.managedObjects.push(this._vehicles[vehicle]);
       }
     }
   }
@@ -848,11 +868,30 @@ export class ZoneServer2016 extends ZoneServer {
       }
     }
   }
+  sendDataToAllOthersWithSpawnedCharacter(client: Client, packetName: any, obj: any, channel = 0): void {
+    for (const a in this._clients) {
+      if(client != this._clients[a] &&
+        this._clients[a].spawnedEntities.includes(this._characters[client.character.characterId])
+      ){
+        this.sendData(this._clients[a], packetName, obj, channel);
+      }
+    }
+  }
 //#region ********************VEHICLE********************
   sendDataToAllWithSpawnedVehicle(entityCharacterId: string = "", packetName: any, obj: any, channel = 0): void {
     if(!entityCharacterId) return;
     for (const a in this._clients) {
       if(this._clients[a].spawnedEntities.includes(this._vehicles[entityCharacterId])
+      ){
+        this.sendData(this._clients[a], packetName, obj, channel);
+      }
+    }
+  }
+  sendDataToAllOthersWithSpawnedVehicle(client: Client, entityCharacterId: string = "", packetName: any, obj: any, channel = 0): void {
+    if(!entityCharacterId) return;
+    for (const a in this._clients) {
+      if(client != this._clients[a] &&
+        this._clients[a].spawnedEntities.includes(this._vehicles[entityCharacterId])
       ){
         this.sendData(this._clients[a], packetName, obj, channel);
       }
