@@ -294,6 +294,10 @@ const packetHandlers = {
     client.isInteracting = false;
     delete client.vehicle.mountedVehicle;
     client.vehicle.mountedVehicleType = "0";
+    server.sendDataToAll("PlayerUpdate.WeaponStance", {
+            characterId: client.character.characterId,
+            stance: 1,
+        });
   },
   Security: function (server: ZoneServer, client: Client, packet: any) {
     debug(packet);
