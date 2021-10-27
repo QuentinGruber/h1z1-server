@@ -972,6 +972,133 @@ export class ZoneServer extends EventEmitter {
     });
     if (refresh) this.worldRoutineTimer.refresh();
   }
+  
+  killCharacter(client: Client) {
+    debug(client.character.name + " has died");
+    this.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
+      characterId: client.character.characterId,
+      state: "0000000000000000C00",
+      gameTime: Int64String(this.getServerTime()),
+    });
+    if (!client.vehicle.mountedVehicle) {
+      this.sendDataToAll("Ragdoll.UpdatePose", {
+        characterId: client.character.characterId,
+        positionUpdate: {
+          sequenceTime: this.getServerTime(),
+          unknown3_int8: 1,
+          stance: 1089,
+          position: client.character.state.position,
+          orientation: 0,
+          frontTilt: 0,
+          sideTilt: 0,
+          angleChange: 0,
+          verticalSpeed: 0,
+          horizontalSpeed: 0,
+          unknown12_float: [0, 0, 0],
+          rotationRaw: [0, 0, -0, 1],
+          direction: 0,
+          engineRPM: 0,
+        },
+      });
+    } else {
+      this.sendDataToAllOthers(client, "PlayerUpdate.RemovePlayerGracefully", {
+        characterId: client.character.characterId,
+      });
+    }
+  }
+
+  playerDamage(client: Client) {
+    if (client.character.resources.health <= 0) {
+      this.killCharacter(client);
+    }
+  }
+
+  respawnPlayer(client: Client) {
+    client.character.resources.health = 10000;
+    client.character.resources.food = 10000;
+    client.character.resources.water = 10000;
+    client.character.resources.stamina = 600;
+    client.character.resourcesUpdater.refresh();
+	const randomSpawnIndex = Math.floor(
+      Math.random() * this._spawnLocations.length
+    );
+    client.character.state.position =
+      this._spawnLocations[randomSpawnIndex].position;
+    this.sendData(client, "ClientUpdate.UpdateLocation", {
+      position: client.character.state.position,
+    });
+    this.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
+      characterId: client.character.characterId,
+      state: "000000000000000000",
+      gameTime: Int64String(this.getServerTime()),
+    });
+    this.sendData(client, "ResourceEvent", {
+      eventData: {
+        type: 3,
+        value: {
+          characterId: client.character.characterId,
+          resourceId: 48, // health
+          resourceType: 1,
+          initialValue: client.character.resources.health,
+          unknownArray1: [],
+          unknownArray2: [],
+        },
+      },
+    });
+
+    this.sendData(client, "ResourceEvent", {
+      eventData: {
+        type: 3,
+        value: {
+          characterId: client.character.characterId,
+          resourceId: 6, // stamina
+          resourceType: 6,
+          initialValue: client.character.resources.stamina,
+          unknownArray1: [],
+          unknownArray2: [],
+        },
+      },
+    });
+    this.sendData(client, "ResourceEvent", {
+      eventData: {
+        type: 3,
+        value: {
+          characterId: client.character.characterId,
+          resourceId: 4, // food
+          resourceType: 4,
+          initialValue: client.character.resources.food,
+          unknownArray1: [],
+          unknownArray2: [],
+        },
+      },
+    });
+    this.sendData(client, "ResourceEvent", {
+      eventData: {
+        type: 3,
+        value: {
+          characterId: client.character.characterId,
+          resourceId: 5, // water
+          resourceType: 5,
+          initialValue: client.character.resources.water,
+          unknownArray1: [],
+          unknownArray2: [],
+        },
+      },
+    });
+    this.sendData(client, "ResourceEvent", {
+      eventData: {
+        type: 3,
+        value: {
+          characterId: client.character.characterId,
+          resourceId: 9, // VIRUS
+          resourceType: 12,
+          initialValue: client.character.resources.virus,
+          unknownArray1: [],
+          unknownArray2: [],
+        },
+      },
+    });
+  }
 
   
 
