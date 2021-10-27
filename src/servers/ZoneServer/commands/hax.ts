@@ -173,79 +173,48 @@ const hax: any = {
     };
     server.worldRoutine();
   },
-    state: function (server: ZoneServer, client: Client, args: any[]) {
-        if (args[1] === "default") {
-            server.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
-                characterId: client.character.characterId,
-                state: "000000000000000000",
-                gameTime: server.getGameTime().toString(16),
-            });
-        } else{
-        }
-        if (args[1] === "hidden") {
-            server.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
-                characterId: client.character.characterId,
-                state: "0000000000F0000000",
-                gameTime: server.getGameTime().toString(16),
-            });
-        } else {
-        }
-        if (args[1] === "sit") {
-            server.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
-                characterId: client.character.characterId,
-                state: "00000F000000000F00",
-                gameTime: server.getGameTime().toString(16),
-            });
-        } else {
-        }
-        if(args[1] === "autorun") {
-        server.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
-            characterId: client.character.characterId,
-            state: "000000000001000000",
-            gameTime: server.getGameTime().toString(16),
-        });
-        } else {
-}
-        if (args[1] === "cuffed") {
-            server.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
-                characterId: client.character.characterId,
-                state: "000000000000000010",
-                gameTime: server.getGameTime().toString(16),
-            });
-        } else {
-        }
-        if (args[1] === "godmode") {
-            server.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
-                characterId: client.character.characterId,
-                state: "00000000000A000000",
-                gameTime: server.getGameTime().toString(16),
-            });
-        } else {
-        }
-        if (args[1] === "handsup") {
-            server.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
-                characterId: client.character.characterId,
-                state: "0000F0000000000000",
-                gameTime: server.getGameTime().toString(16),
-            });
-        } else {
-        }
-        if (args[1] === "disfunctional") {
-            server.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
-                characterId: client.character.characterId,
-                state: "FFFFFFFFFFFFFFFFFF",
-                gameTime: server.getGameTime().toString(16),
-            });
-        } else {
-        }
-        if (args[1] === "dead") {
-            server.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
-                characterId: client.character.characterId,
-                state: "0000000000000000C00",
-                gameTime: server.getGameTime().toString(16),
-            });
-        } else {
-        }
+       state: function (server: ZoneServer, client: Client, args: any[]) {
+        const state = args[1];
+        let stateId = "";
+        switch(state) {
+        case "list":
+                // Adding this later
+            break;
+        case "default":
+                stateId = "000000000000000000";
+            break;
+        case "hidden":
+                stateId = "0000000000F0000000";
+            break;
+        case "sit":
+                stateId = "00000F000000000F00";
+            break;
+        case "autorun":
+                stateId = "000000000001000000";
+            break;
+        case "cuffed":
+                stateId = "000000000000000010";
+            break;
+        case "godmode":
+                stateId = "00000000000A000000";
+            break;
+        case "handsup":
+                stateId = "0000F0000000000000";
+            break;
+         case "disfunctional":
+                stateId = "FFFFFFFFFFFFFFFFFF";
+            break;
+         case "dead":
+                stateId = "0000000000000000C00";
+         default:
+                server.sendChatText(client, `Incorrect characterstate! use /hax state list`);
+            break;
+         }
+         server.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
+         characterId: client.character.characterId,
+         state: stateId,
+         gameTime: server.getServerTime().toString(16),
+      });
     },
   spawnvehicle: function (server: ZoneServer, client: Client, args: any[]) {
     if (!args[1]) {
