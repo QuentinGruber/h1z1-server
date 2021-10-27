@@ -669,6 +669,16 @@ const packetHandlers = {
       unknown2: 1,
     });
   },
+    "PlayerUpdate.WeaponStance": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
+      server.sendDataToAll("PlayerUpdate.WeaponStance", {
+       characterId: client.character.characterId,
+       stance: packet.data.stance,
+    });
+  },
   "Mount.DismountRequest": function (
     server: ZoneServer,
     client: Client,
