@@ -56,7 +56,6 @@ const hax: any = {
       client.character.state.position,
       client.character.state.lookAt
     );
-
     server.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicleData);
     vehicleData.isManaged = true;
     server._vehicles[characterId] = {
@@ -174,7 +173,80 @@ const hax: any = {
     };
     server.worldRoutine();
   },
-
+    state: function (server: ZoneServer, client: Client, args: any[]) {
+        if (args[1] === "default") {
+            server.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
+                characterId: client.character.characterId,
+                state: "000000000000000000",
+                gameTime: server.getGameTime().toString(16),
+            });
+        } else{
+        }
+        if (args[1] === "hidden") {
+            server.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
+                characterId: client.character.characterId,
+                state: "0000000000F0000000",
+                gameTime: server.getGameTime().toString(16),
+            });
+        } else {
+        }
+        if (args[1] === "sit") {
+            server.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
+                characterId: client.character.characterId,
+                state: "00000F000000000F00",
+                gameTime: server.getGameTime().toString(16),
+            });
+        } else {
+        }
+        if(args[1] === "autorun") {
+        server.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
+            characterId: client.character.characterId,
+            state: "000000000001000000",
+            gameTime: server.getGameTime().toString(16),
+        });
+        } else {
+}
+        if (args[1] === "cuffed") {
+            server.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
+                characterId: client.character.characterId,
+                state: "000000000000000010",
+                gameTime: server.getGameTime().toString(16),
+            });
+        } else {
+        }
+        if (args[1] === "godmode") {
+            server.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
+                characterId: client.character.characterId,
+                state: "00000000000A000000",
+                gameTime: server.getGameTime().toString(16),
+            });
+        } else {
+        }
+        if (args[1] === "handsup") {
+            server.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
+                characterId: client.character.characterId,
+                state: "0000F0000000000000",
+                gameTime: server.getGameTime().toString(16),
+            });
+        } else {
+        }
+        if (args[1] === "disfunctional") {
+            server.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
+                characterId: client.character.characterId,
+                state: "FFFFFFFFFFFFFFFFFF",
+                gameTime: server.getGameTime().toString(16),
+            });
+        } else {
+        }
+        if (args[1] === "dead") {
+            server.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
+                characterId: client.character.characterId,
+                state: "0000000000000000C00",
+                gameTime: server.getGameTime().toString(16),
+            });
+        } else {
+        }
+    },
   spawnvehicle: function (server: ZoneServer, client: Client, args: any[]) {
     if (!args[1]) {
       server.sendChatText(
