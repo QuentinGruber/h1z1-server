@@ -4835,7 +4835,7 @@ var packets = [
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
         { name: "state", type: "uint64string", defaultValue: "0" },
-        { name: "gameTime", type: "uint32", defaultValue: 0 },
+        { name: "gameTime", type: "uint32", defaultValue: 1 },
       ],
     },
   ],
