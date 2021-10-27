@@ -249,10 +249,17 @@ const packetHandlers = {
           },
         },
       });
+      server.playerDamage(client);
       client.character.resourcesUpdater.refresh();
     }, 3000);
 
     server.sendData(client, "ZoneDoneSendingInitialData", {});
+
+    server.sendData(client, "PlayerUpdate.UpdateCharacterState", {
+      characterId: client.character.characterId,
+      state: "000000000000000000",
+      gameTime: Int64String(server.getGameTime()),
+    });
   },
   ClientFinishedLoading: function (
     server: ZoneServer,
