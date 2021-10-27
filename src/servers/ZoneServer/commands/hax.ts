@@ -173,7 +173,7 @@ const hax: any = {
     };
     server.worldRoutine();
   },
-       state: function (server: ZoneServer, client: Client, args: any[]) {
+           state: function (server: ZoneServer, client: Client, args: any[]) {
         const state = args[1];
         let stateId = "";
         switch(state) {
@@ -206,6 +206,7 @@ const hax: any = {
             break;
          case "dead":
                 stateId = "0000000000000000C00";
+            break;
          default:
                 server.sendChatText(client, `Incorrect characterstate! use /hax state list`);
             break;
