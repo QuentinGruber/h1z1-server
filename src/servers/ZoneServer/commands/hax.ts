@@ -173,6 +173,31 @@ const hax: any = {
     };
     server.worldRoutine();
   },
+    weaponstance: function (server: ZoneServer, client: Client, args: any[]) {
+        const stance = args[1];
+        let weaponStance;
+        switch(stance){
+        case "0":
+            weaponStance = 0;
+            break;
+        case "1":
+            weaponStance = 1;
+            break;
+        case "2":
+            weaponStance = 2;
+            break;
+        case "list":
+            server.sendChatText(client, `Avaible weaponstances: "0, 1, 2"`);
+            break;
+        default:
+            server.sendChatText(client, `Incorrect weaponstance! use /hax weaponstance list`);
+            break;
+        }
+        server.sendDataToAll("PlayerUpdate.WeaponStance", {
+            characterId: client.character.characterId,
+            stance: weaponStance,
+        });
+    },
            state: function (server: ZoneServer, client: Client, args: any[]) {
         const state = args[1];
         let stateId = "";
