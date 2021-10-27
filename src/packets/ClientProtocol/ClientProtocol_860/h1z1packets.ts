@@ -4979,7 +4979,15 @@ var packets = [
       ],
     },
   ],
-  ["PlayerUpdate.WeaponStance", 0x0f25, {}],
+  ["PlayerUpdate.WeaponStance", 
+   0x0f25,
+       {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "stance", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
   ["PlayerUpdate.UpdateTintAlias", 0x0f26, {}],
   [
     "PlayerUpdate.MoveOnRail",
