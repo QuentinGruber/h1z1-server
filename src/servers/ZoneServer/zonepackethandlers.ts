@@ -253,11 +253,6 @@ const packetHandlers = {
     }, 3000);
 
     server.sendData(client, "ZoneDoneSendingInitialData", {});
-
-    server.sendData(client, "PlayerUpdate.UpdateCharacterState", {
-      characterId: client.character.characterId,
-      gameTime: Int64String(server.getGameTime()),
-    });
   },
   ClientFinishedLoading: function (
     server: ZoneServer,
@@ -338,6 +333,7 @@ const packetHandlers = {
           },
         },
       });
+      server.playerDamage(client);
     }
   },
   "LobbyGameDefinition.DefinitionsRequest": function (
@@ -887,17 +883,38 @@ const packetHandlers = {
       server.sendData(client, "Mount.DismountResponse", {
         characterId: client.character.characterId,
       });
-      server.sendData(client, "Vehicle.Engine", {
+      server.sendDataToAll("Vehicle.Engine", {
         guid2: client.vehicle.mountedVehicle,
         unknownBoolean: false,
       });
-      server.sendData(client, "PlayerUpdate.Destroyed", {
+      server.sendDataToAll("PlayerUpdate.Destroyed", {
         characterId: client.vehicle.mountedVehicle,
         unknown1: destroyedVehicleEffect, // destroyed offroader effect
         unknown2: destroyedVehicleModel, // destroyed offroader model
         unknown3: 0,
         disableWeirdPhysics: false,
       });
+      for (const character in server._clients) {
+        const characterObj = server._clients[character];
+        if (
+          isPosInRadius(
+            5,
+            characterObj.character.state.position,
+            client.character.state.position
+          )
+        ) {
+          const p1 = client.character.state.position;
+          const p2 = characterObj.character.state.position;
+          const a = p1[0] - p2[0];
+          const b = p1[1] - p2[1];
+          const c = p1[2] - p2[2];
+
+          const distance = Math.sqrt(a * a + b * b + c * c);
+          const damage = 20000 / distance;
+          server._clients[character].character.resources.health -= damage;
+          server.playerDamage(server._clients[character]);
+        }
+      }
       setTimeout(function () {
         server.sendDataToAll(
           "PlayerUpdate.RemovePlayerGracefully",
