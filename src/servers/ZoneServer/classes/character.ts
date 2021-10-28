@@ -23,7 +23,7 @@ export class Character {
   inventory?: Array<any>;
   factionId?: number;
   spawnLocation?: string;
-  sonic: boolean;
+  godMode: boolean;
   state: {
     position: Float32Array;
     rotation: Float32Array;
@@ -57,7 +57,7 @@ export class Character {
         water: 5000,
         virus: 6000,
       });
-    this.sonic = false;
+    this.godMode = false;
     this.state = {
       position: new Float32Array([0, 0, 0, 0]),
       rotation: new Float32Array([0, 0, 0, 0]),
