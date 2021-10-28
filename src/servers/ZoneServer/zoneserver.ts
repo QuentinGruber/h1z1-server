@@ -1240,10 +1240,7 @@ damageVehicle(client: Client, damage: number, vehicle: Vehicle) {
           characterData: {},
         });
       }
-    } else if (
-      vehicle.npcData.resources.health <= 2000 &&
-      vehicle.npcData.resources.health > 0
-    ) {
+    } else if (vehicle.npcData.resources.health <= 2000) {
       if (vehicle.npcData.destroyedState != 3) {
         vehicle.npcData.destroyedState = 3;
         this.sendData(client, "Mount.DismountResponse", {
