@@ -5791,7 +5791,11 @@ var packets = [
     "PlayerUpdate.BeginCharacterAccess",
     0x0f6c,
     {
-      fields: [],
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "state", type: "boolean", defaultValue: 0 },
+        { name: "unk1", type: "uint32", defaultValue: 0 },
+      ],
     },
   ],
   [
