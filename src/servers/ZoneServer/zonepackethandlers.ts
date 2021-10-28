@@ -166,14 +166,14 @@ const packetHandlers = {
         client.character.resources.food = 10000;
       } else if (client.character.resources.food < 0) {
         client.character.resources.food = 0;
-        client.character.resources.health -= 100;
+        server.playerDamage(client, 100);
       }
 
       if (client.character.resources.water > 10000) {
         client.character.resources.water = 10000;
       } else if (client.character.resources.water < 0) {
         client.character.resources.water = 0;
-        client.character.resources.health -= 100;
+        server.playerDamage(client, 100);
       }
 
       if (client.character.resources.health > 10000) {
@@ -183,20 +183,6 @@ const packetHandlers = {
       }
       const { stamina, food, water, health, virus } =
         client.character.resources;
-
-      server.sendData(client, "ResourceEvent", {
-        eventData: {
-          type: 3,
-          value: {
-            characterId: client.character.characterId,
-            resourceId: 48, // health
-            resourceType: 1,
-            initialValue: health,
-            unknownArray1: [],
-            unknownArray2: [],
-          },
-        },
-      });
 
       server.sendData(client, "ResourceEvent", {
         eventData: {
@@ -250,10 +236,9 @@ const packetHandlers = {
           },
         },
       });
-      server.playerDamage(client);
       client.character.resourcesUpdater.refresh();
     }, 3000);
-
+    
     server.sendData(client, "ZoneDoneSendingInitialData", {});
 
     server.sendData(client, "PlayerUpdate.UpdateCharacterState", {
@@ -297,6 +282,19 @@ const packetHandlers = {
     client.isInteracting = false;
     delete client.vehicle.mountedVehicle;
     client.vehicle.mountedVehicleType = "0";
+	server.sendData(client, "ResourceEvent", {
+        eventData: {
+          type: 3,
+          value: {
+            characterId: client.character.characterId,
+            resourceId: 48, // health
+            resourceType: 1,
+            initialValue: client.character.resources.health,
+            unknownArray1: [],
+            unknownArray2: [],
+          },
+        },
+      });
   },
   Security: function (server: ZoneServer, client: Client, packet: any) {
     debug(packet);
@@ -322,27 +320,7 @@ const packetHandlers = {
     client: Client,
     packet: any
   ) {
-    if (packet.data.damage > 99 && client.character.resources.health > 0) {
-      client.character.resources.health =
-        client.character.resources.health - packet.data.damage;
-      if (client.character.resources.health < 0) {
-        client.character.resources.health = 0;
-      }
-      server.sendData(client, "ResourceEvent", {
-        eventData: {
-          type: 3,
-          value: {
-            characterId: client.character.characterId,
-            resourceId: 48, // health
-            resourceType: 1,
-            initialValue: client.character.resources.health,
-            unknownArray1: [],
-            unknownArray2: [],
-          },
-        },
-      });
-      server.playerDamage(client);
-    }
+      server.playerDamage(client, packet.data.damage);
   },
   "LobbyGameDefinition.DefinitionsRequest": function (
     server: ZoneServer,
@@ -902,21 +880,7 @@ const packetHandlers = {
         unknown3: 0,
         disableWeirdPhysics: false,
       });
-      for (const character in server._clients) {
-        const characterObj = server._clients[character];
-        if (
-          isPosInRadius(
-            5,
-            characterObj.character.state.position,
-            client.character.state.position
-          )
-        ) {
-          const distance = getDistance(client.character.state.position, characterObj.character.state.position);
-          const damage = 20000 / distance;
-          server._clients[character].character.resources.health -= damage;
-          server.playerDamage(server._clients[character]);
-        }
-      }
+          server.explosionDamage(client.character.state.position);
       setTimeout(function () {
         server.sendDataToAll(
           "PlayerUpdate.RemovePlayerGracefully",
@@ -2184,10 +2148,7 @@ const packetHandlers = {
     packet: any
   ) {
     debug(packet);
-    server.sendData(client, "PlayerUpdate.RespawnReply", {
-      characterId: client.character.characterId,
-      position: [0, 200, 0, 1],
-    });
+    server.respawnPlayer(client);
   },
   "PlayerUpdate.FullCharacterDataRequest": function (
     server: ZoneServer,
