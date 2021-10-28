@@ -51,10 +51,10 @@ export class Character {
         },
       ]),
       (this.resources = {
-        health: 5000,
+        health: 10000,
         stamina: 10000,
-        food: 5000,
-        water: 5000,
+        food: 10000,
+        water: 10000,
         virus: 6000,
       });
     this.godMode = false;
