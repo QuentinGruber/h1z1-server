@@ -9278,7 +9278,7 @@ var packets = [
           parser: readUnsignedIntWith2bitLengthValue,
           packer: packUnsignedIntWith2bitLengthValue,
         },
-        { name: "unk", type: "uint32", defaultValue: 0.0 },
+        { name: "damage", type: "float", defaultValue: 0.0 },
       ],
     },
   ],
