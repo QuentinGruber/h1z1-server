@@ -294,6 +294,11 @@ const packetHandlers = {
           },
         },
       });
+	    
+	    server.sendDataToAll("PlayerUpdate.WeaponStance", {
+            characterId: client.character.characterId,
+            stance: 1,
+        });
   },
   Security: function (server: ZoneServer, client: Client, packet: any) {
     debug(packet);
