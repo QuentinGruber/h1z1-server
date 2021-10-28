@@ -1007,10 +1007,29 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
-  playerDamage(client: Client) {
+  playerDamage(client: Client, damage: number) {
+	  if (damage > 99) {
+	  client.character.resources.health -= damage;
+	  }
     if (client.character.resources.health <= 0) {
       this.killCharacter(client);
     }
+	if (client.character.resources.health < 0) {
+        client.character.resources.health = 0;
+      }
+	  this.sendData(client, "ResourceEvent", {
+        eventData: {
+          type: 3,
+          value: {
+            characterId: client.character.characterId,
+            resourceId: 48, // health
+            resourceType: 1,
+            initialValue: client.character.resources.health,
+            unknownArray1: [],
+            unknownArray2: [],
+          },
+        },
+      });
   }
 
   respawnPlayer(client: Client) {
@@ -1019,19 +1038,19 @@ export class ZoneServer extends EventEmitter {
     client.character.resources.water = 10000;
     client.character.resources.stamina = 600;
     client.character.resourcesUpdater.refresh();
-	const randomSpawnIndex = Math.floor(
-      Math.random() * this._spawnLocations.length
-    );
-    client.character.state.position =
-      this._spawnLocations[randomSpawnIndex].position;
-    this.sendData(client, "ClientUpdate.UpdateLocation", {
-      position: client.character.state.position,
-    });
-    this.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
+	this.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
       characterId: client.character.characterId,
       state: "000000000000000000",
       gameTime: Int64String(this.getServerTime()),
     });
+	const randomSpawnIndex = Math.floor(
+      Math.random() * this._spawnLocations.length
+    );
+    this.sendData(client, "ClientUpdate.UpdateLocation", {
+      position: this._spawnLocations[randomSpawnIndex].position,
+    });
+	client.character.state.position =
+      this._spawnLocations[randomSpawnIndex].position;
     this.sendData(client, "ResourceEvent", {
       eventData: {
         type: 3,
@@ -1099,8 +1118,25 @@ export class ZoneServer extends EventEmitter {
       },
     });
   }
-
   
+  
+  explosionDamage(position: Float32Array) {
+    for (const character in this._clients) {
+        const characterObj = this._clients[character];
+        if (
+          isPosInRadius(
+            5,
+            characterObj.character.state.position,
+            position
+          )
+        ) {
+          const distance = getDistance(position, characterObj.character.state.position);
+          const damage = 20000 / distance;
+          this.playerDamage(this._clients[character], damage);
+        }
+      }
+  }
+
 
   spawnCharacters(client: Client) {
     for (const character in this._characters) {
