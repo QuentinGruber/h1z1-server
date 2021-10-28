@@ -2117,9 +2117,11 @@ const packetHandlers = {
             });
             break;
           case "open":
-            server.sendData(client, "ClientUpdate.TextAlert", {
-              message: "Nothing in there... yet :P",
-            });
+            server.sendData(client, "PlayerUpdate.BeginCharacterAccess", {
+                                characterId: entityData.characterId,
+                                state: true,
+                                unk1: 0,
+                            });
             break;
           case "collectWater":
             server.sendData(client, "ClientUpdate.TextAlert", {
@@ -2138,9 +2140,11 @@ const packetHandlers = {
                 clearTimeout(client.hudTimer);
               }
               client.hudTimer = setTimeout(() => {
-                server.sendData(client, "ClientUpdate.TextAlert", {
-                  message: "Nothing in there... yet :P",
-                });
+                server.sendData(client, "PlayerUpdate.BeginCharacterAccess", {
+                                characterId: entityData.characterId,
+                                state: true,
+                                unk1: 0,
+                            });
                 client.isInteracting = false;
               }, timerTime);
             }
