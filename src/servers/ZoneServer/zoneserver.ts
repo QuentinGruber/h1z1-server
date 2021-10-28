@@ -1009,16 +1009,17 @@ export class ZoneServer extends EventEmitter {
   }
 
   playerDamage(client: Client, damage: number) {
-	  if (damage > 99) {
-	  client.character.resources.health -= damage;
-	  }
-    if (client.character.resources.health <= 0) {
-      this.killCharacter(client);
-    }
-	if (client.character.resources.health < 0) {
+    if (!client.character.godMode) {
+      if (damage > 99) {
+        client.character.resources.health -= damage;
+      }
+      if (client.character.resources.health <= 0) {
+        this.killCharacter(client);
+      }
+      if (client.character.resources.health < 0) {
         client.character.resources.health = 0;
       }
-	  this.sendData(client, "ResourceEvent", {
+      this.sendData(client, "ResourceEvent", {
         eventData: {
           type: 3,
           value: {
@@ -1031,6 +1032,7 @@ export class ZoneServer extends EventEmitter {
           },
         },
       });
+    }
   }
 
   respawnPlayer(client: Client) {
@@ -1123,19 +1125,18 @@ export class ZoneServer extends EventEmitter {
   
   explosionDamage(position: Float32Array) {
     for (const character in this._clients) {
-        const characterObj = this._clients[character];
-        if (
-          isPosInRadius(
-            5,
-            characterObj.character.state.position,
-            position
-          )
-        ) {
-          const distance = getDistance(position, characterObj.character.state.position);
+      const characterObj = this._clients[character];
+      if (!characterObj.character.godMode) {
+        if (isPosInRadius(5, characterObj.character.state.position, position)) {
+          const distance = getDistance(
+            position,
+            characterObj.character.state.position
+          );
           const damage = 20000 / distance;
           this.playerDamage(this._clients[character], damage);
         }
       }
+    }
   }
 
 
