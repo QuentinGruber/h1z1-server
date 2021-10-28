@@ -281,6 +281,10 @@ const packetHandlers = {
     client.isInteracting = false;
     delete client.vehicle.mountedVehicle;
     client.vehicle.mountedVehicleType = "0";
+    server.sendDataToAll("PlayerUpdate.WeaponStance", {
+            characterId: client.character.characterId,
+            stance: 1,
+        });
   },
   Security: function (server: ZoneServer, client: Client, packet: any) {
     debug(packet);
@@ -631,6 +635,16 @@ const packetHandlers = {
       loadoutId: 15,
       tabId: 256,
       unknown2: 1,
+    });
+  },
+    "PlayerUpdate.WeaponStance": function (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
+      server.sendDataToAll("PlayerUpdate.WeaponStance", {
+       characterId: client.character.characterId,
+       stance: packet.data.stance,
     });
   },
   "Mount.DismountRequest": function (
@@ -1975,9 +1989,11 @@ const packetHandlers = {
             });
             break;
           case "open":
-            server.sendData(client, "ClientUpdate.TextAlert", {
-              message: "Nothing in there... yet :P",
-            });
+            server.sendData(client, "PlayerUpdate.BeginCharacterAccess", {
+                                characterId: entityData.characterId,
+                                state: true,
+                                unk1: 0,
+                            });
             break;
           case "collectWater":
             server.sendData(client, "ClientUpdate.TextAlert", {
@@ -1996,9 +2012,11 @@ const packetHandlers = {
                 clearTimeout(client.hudTimer);
               }
               client.hudTimer = setTimeout(() => {
-                server.sendData(client, "ClientUpdate.TextAlert", {
-                  message: "Nothing in there... yet :P",
-                });
+                server.sendData(client, "PlayerUpdate.BeginCharacterAccess", {
+                                characterId: entityData.characterId,
+                                state: true,
+                                unk1: 0,
+                            });
                 client.isInteracting = false;
               }, timerTime);
             }
