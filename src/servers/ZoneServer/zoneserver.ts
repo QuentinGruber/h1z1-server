@@ -1139,6 +1139,126 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
+damageVehicle(client: Client, damage: number, vehicle: Vehicle) {
+    let destroyedVehicleEffect = 0;
+    let destroyedVehicleModel = 0;
+    let minorDamageEffect = 0;
+    let majorDamageEffect = 0;
+    let criticalDamageEffect = 0;
+    switch (client.vehicle.mountedVehicleType) {
+      case "offroader":
+        destroyedVehicleEffect = 135;
+        destroyedVehicleModel = 7226;
+        minorDamageEffect = 182;
+        majorDamageEffect = 181;
+        criticalDamageEffect = 180;
+        break;
+      case "pickup":
+        destroyedVehicleEffect = 326;
+        destroyedVehicleModel = 9315;
+        minorDamageEffect = 325;
+        majorDamageEffect = 324;
+        criticalDamageEffect = 323;
+        break;
+      case "policecar":
+        destroyedVehicleEffect = 286;
+        destroyedVehicleModel = 9316;
+        minorDamageEffect = 285;
+        majorDamageEffect = 284;
+        criticalDamageEffect = 283;
+        break;
+      default:
+        destroyedVehicleEffect = 135;
+        destroyedVehicleModel = 7226;
+        minorDamageEffect = 182;
+        majorDamageEffect = 181;
+        criticalDamageEffect = 180;
+        break;
+    }
+    vehicle.npcData.resources.health -= Math.floor(damage);
+
+    if (vehicle.npcData.resources.health <= 0) {
+      vehicle.npcData.resources.health = 0;
+      this.vehicleDelete(client);
+      this.sendDataToAll("Vehicle.Engine", {
+        guid2: client.vehicle.mountedVehicle,
+        unknownBoolean: false,
+      });
+      this.sendData(client, "Mount.DismountResponse", {
+        characterId: client.character.characterId,
+      });
+      this.sendDataToAll("PlayerUpdate.Destroyed", {
+        characterId: client.vehicle.mountedVehicle,
+        unknown1: destroyedVehicleEffect, // destroyed offroader effect
+        unknown2: destroyedVehicleModel, // destroyed offroader model
+        unknown3: 0,
+        disableWeirdPhysics: false,
+      });
+      this.explosionDamage(vehicle.npcData.position);
+      vehicle.npcData.destroyedState = 4;
+      this.sendDataToAll(
+        "PlayerUpdate.RemovePlayerGracefully",
+        {
+          characterId: vehicle.npcData.characterId,
+          timeToDisappear: 13000,
+          stickyEffectId: 156,
+        },
+        1
+      );
+      client.vehicle.mountedVehicleType = "0";
+      delete client.vehicle.mountedVehicle;
+      client.vehicle.vehicleState = 0;
+    } else if (
+      vehicle.npcData.resources.health <= 5000 &&
+      vehicle.npcData.resources.health > 3500
+    ) {
+      if (vehicle.npcData.destroyedState != 1) {
+        vehicle.npcData.destroyedState = 1;
+        this.sendData(client, "Mount.DismountResponse", {
+          characterId: client.character.characterId,
+        });
+        this.sendData(client, "Mount.MountResponse", {
+          characterId: client.character.characterId,
+          guid: client.vehicle.mountedVehicle,
+          unknownDword4: minorDamageEffect,
+          characterData: {},
+        });
+      }
+    } else if (
+      vehicle.npcData.resources.health <= 3500 &&
+      vehicle.npcData.resources.health > 2000
+    ) {
+      if (vehicle.npcData.destroyedState != 2) {
+        vehicle.npcData.destroyedState = 2;
+        this.sendData(client, "Mount.DismountResponse", {
+          characterId: client.character.characterId,
+        });
+        this.sendData(client, "Mount.MountResponse", {
+          characterId: client.character.characterId,
+          guid: client.vehicle.mountedVehicle,
+          unknownDword4: majorDamageEffect,
+          characterData: {},
+        });
+      }
+    } else if (
+      vehicle.npcData.resources.health <= 2000 &&
+      vehicle.npcData.resources.health > 0
+    ) {
+      if (vehicle.npcData.destroyedState != 3) {
+        vehicle.npcData.destroyedState = 3;
+        this.sendData(client, "Mount.DismountResponse", {
+          characterId: client.character.characterId,
+        });
+        this.sendData(client, "Mount.MountResponse", {
+          characterId: client.character.characterId,
+          guid: client.vehicle.mountedVehicle,
+          unknownDword4: criticalDamageEffect,
+          characterData: {},
+        });
+      }
+    }
+  }
+
 
   spawnCharacters(client: Client) {
     for (const character in this._characters) {
