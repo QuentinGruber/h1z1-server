@@ -26,7 +26,6 @@ import {
   generateRandomGuid,
   Int64String,
   isPosInRadius,
-  getDistance,
 } from "../../utils/utils";
 import { ZoneServer } from "./zoneserver";
 import { ZoneClient as Client } from "./classes/zoneclient";
@@ -181,7 +180,7 @@ const packetHandlers = {
       } else if (client.character.resources.health < 0) {
         client.character.resources.health = 0;
       }
-      const { stamina, food, water, health, virus } =
+      const { stamina, food, water, virus } =
         client.character.resources;
 
       server.sendData(client, "ResourceEvent", {
