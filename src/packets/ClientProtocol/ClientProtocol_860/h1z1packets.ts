@@ -4834,9 +4834,8 @@ var packets = [
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "unknownDword1", type: "uint32", defaultValue: 1 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 8192 },
-        { name: "gameTime", type: "uint32", defaultValue: 0 },
+        { name: "state", type: "uint64string", defaultValue: "0" },
+        { name: "gameTime", type: "uint32", defaultValue: 1 },
       ],
     },
   ],
@@ -4980,7 +4979,15 @@ var packets = [
       ],
     },
   ],
-  ["PlayerUpdate.WeaponStance", 0x0f25, {}],
+  ["PlayerUpdate.WeaponStance", 
+   0x0f25,
+       {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "stance", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
   ["PlayerUpdate.UpdateTintAlias", 0x0f26, {}],
   [
     "PlayerUpdate.MoveOnRail",
@@ -5784,7 +5791,11 @@ var packets = [
     "PlayerUpdate.BeginCharacterAccess",
     0x0f6c,
     {
-      fields: [],
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "state", type: "boolean", defaultValue: 0 },
+        { name: "unk1", type: "uint32", defaultValue: 0 },
+      ],
     },
   ],
   [
