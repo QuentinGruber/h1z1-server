@@ -25,6 +25,7 @@ import {
   Int64String,
   isPosInRadius,
   setupAppDataFolder,
+  getDistance,
 } from "../../utils/utils";
 import { HandledZonePackets, Weather } from "../../types/zoneserver";
 import { Db, MongoClient } from "mongodb";
