@@ -26,6 +26,7 @@ import {
   generateRandomGuid,
   Int64String,
   isPosInRadius,
+  getDistance,
 } from "../../utils/utils";
 import { ZoneServer } from "./zoneserver";
 import { ZoneClient as Client } from "./classes/zoneclient";
@@ -910,13 +911,7 @@ const packetHandlers = {
             client.character.state.position
           )
         ) {
-          const p1 = client.character.state.position;
-          const p2 = characterObj.character.state.position;
-          const a = p1[0] - p2[0];
-          const b = p1[1] - p2[1];
-          const c = p1[2] - p2[2];
-
-          const distance = Math.sqrt(a * a + b * b + c * c);
+          const distance = getDistance(client.character.state.position, characterObj.character.state.position);
           const damage = 20000 / distance;
           server._clients[character].character.resources.health -= damage;
           server.playerDamage(server._clients[character]);
