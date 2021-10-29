@@ -1015,16 +1015,8 @@ const hax: any = {
   },
   godmode: function (server: ZoneServer, client: Client, args: any[]) {
     let godmode = "";
-    switch (client.character.godMode) {
-      case false:
-        client.character.godMode = true;
-        godmode = "ON";
-        break;
-      case true:
-        client.character.godMode = false;
-        godmode = "OFF";
-        break;
-    }
+    client.character.godMode = client.character.godMode ? false : true;
+    godmode = client.character.godMode ? "ON" : "OFF";
     server.sendChatText(client, "GODMODE: " + godmode);
   },
 };
