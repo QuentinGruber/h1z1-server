@@ -1,4 +1,5 @@
 import { Vehicle } from "../../ZoneServer/classes/vehicles";
+import { createPositionUpdate} from "./../../../utils/utils"
 
 function getVehicleId(ModelId: number) {
   switch (ModelId) {
@@ -22,6 +23,7 @@ function getVehicleId(ModelId: number) {
 export class Vehicle2016 extends Vehicle {
   vehicleManager?: string;
   seats: {[seatId: string]: any} = {};
+  gameTime: number;
   constructor(
     worldId: number,
     characterId: string,
@@ -29,7 +31,7 @@ export class Vehicle2016 extends Vehicle {
     modelId: number,
     position: Float32Array,
     rotation: Float32Array,
-    positionUpdate: any
+    gameTime: number
   ) {
     super(worldId, characterId, transientId, modelId, position, rotation);
     this.npcData.vehicleId = getVehicleId(modelId);
@@ -59,7 +61,8 @@ export class Vehicle2016 extends Vehicle {
         break;
     }
     Object.seal(this.seats); // object can't be edited, but properties can
-    this.positionUpdate = positionUpdate;
+    this.gameTime = gameTime;
+    this.positionUpdate = createPositionUpdate(this.npcData.position, this.npcData.rotation, this.gameTime);
   }
   getSeatCount() {
     return Object.keys(this.seats).length;

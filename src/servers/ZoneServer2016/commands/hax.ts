@@ -42,12 +42,7 @@ const hax: any = {
         client.character.state.position[3],
       ]),
       client.character.state.lookAt,
-      server.createPositionUpdate(new Float32Array([
-        client.character.state.position[0],
-        client.character.state.position[1] + 700,
-        client.character.state.position[2],
-        client.character.state.position[3],
-      ]), client.character.state.lookAt)
+      server.getGameTime()
     );
     server._vehicles[characterId] = vehicle;
     server.worldRoutine();
@@ -167,7 +162,7 @@ const hax: any = {
        9588, 
        client.character.state.position,
        client.character.state.lookAt,
-       server.createPositionUpdate(client.character.state.position, client.character.state.lookAt)
+       server.getGameTime()
       )
       server._vehicles[characterId] = vehicle; // save vehicle
     }
@@ -273,12 +268,12 @@ const hax: any = {
       driveModel, 
       client.character.state.position, 
       client.character.state.lookAt,
-      server.createPositionUpdate(client.character.state.position, client.character.state.lookAt)
+      server.getGameTime()
     )
     server._vehicles[characterId] = vehicle; // save vehicle
   },
 
-  spawnPcModel: function (server: ZoneServer2016, client: Client, args: any[]) {
+  spawnpcmodel: function (server: ZoneServer2016, client: Client, args: any[]) {
     const characterId = server.generateGuid();
     debug("spawnPcModel called");
     if (!args[1]) {
@@ -594,7 +589,7 @@ const hax: any = {
       9371, 
       client.character.state.position, 
       client.character.state.lookAt,
-      server.createPositionUpdate(client.character.state.position, client.character.state.lookAt)
+      server.getGameTime()
     );
     server._vehicles[characterId] = vehicle;
     server.vehicleManager(client);

@@ -737,12 +737,6 @@ export class ZoneServer2016 extends ZoneServer {
             vehicle,
             1
           );
-          /*
-          this.sendData(client, "PlayerUpdatePosition", {
-            transientId: vehicle.npcData.transientId,
-            positionUpdate: this.createPositionUpdate(vehicle.npcData.position, vehicle.npcData.rotation),
-          });
-          */
           client.spawnedEntities.push(vehicle);
         }
         if (!vehicle.isManaged) { // assigns management to first client within radius
@@ -773,24 +767,51 @@ export class ZoneServer2016 extends ZoneServer {
   assignManagedObject(client: Client, vehicle: Vehicle) {
     // todo: vehicle seat swap managed object assignment logic
     debug("\n\n\n\n\n\n\n\n\n\n assign managed object")
-    this.sendDataToAllWithSpawnedVehicle(vehicle.npcData.characterId, "Character.ManagedObject", {
+    
+    this.sendData(client, "Character.ManagedObject", {
       objectCharacterId: vehicle.npcData.characterId,
       characterId: client.character.characterId,
+    });
+    this.sendData(client, "ClientUpdate.ManagedObjectResponseControl", {
+      control: true,
+      objectCharacterId: vehicle.npcData.characterId
     });
     client.managedObjects.push(vehicle);
     vehicle.isManaged = true;
   }
 
-  dropManagedObject(client: Client, vehicle: Vehicle) {
+  dropManagedObject(client: Client, vehicle: Vehicle, keepManaged: boolean = false) {
     const index = client.managedObjects.indexOf(vehicle);
     if(index > -1) { // todo: vehicle seat swap managed object drop logic
       debug("\n\n\n\n\n\n\n\n\n\n drop managed object")
-      this.sendDataToAllWithSpawnedVehicle(vehicle.npcData.characterId, "Character.ManagedObject", {
+      
+      this.sendData(client, "Character.ManagedObject", {
         objectCharacterId: vehicle.npcData.characterId,
         characterId: client.character.characterId,
       });
+      this.sendData(client, "ClientUpdate.ManagedObjectResponseControl", {
+        control: false,
+        objectCharacterId: vehicle.npcData.characterId
+      });
       client.managedObjects.splice(index, 1);
-      vehicle.isManaged = false;
+      // blocks vehicleManager from taking over management during a takeover
+      if(!keepManaged) vehicle.isManaged = false;
+    }
+  }
+
+  takeoverManagedObject(newClient: Client, vehicle: Vehicle) {
+    const index = newClient.managedObjects.indexOf(vehicle);
+    if(index === -1) { // if object is already managed by client, do nothing
+      debug("\n\n\n\n\n\n\n\n\n\n takeover managed object")
+      for(const characterId in this._clients) {
+        const oldClient = this._clients[characterId];
+        const idx = oldClient.managedObjects.indexOf(vehicle);
+        if(idx > -1) {
+          this.dropManagedObject(oldClient, vehicle, true);
+          break;
+        }
+      }
+      this.assignManagedObject(newClient, vehicle)
     }
   }
 
@@ -959,6 +980,7 @@ export class ZoneServer2016 extends ZoneServer {
       identity: {},
     });
     if(seatId === "0") {
+      this.takeoverManagedObject(client, vehicle);
       this.sendDataToAllWithSpawnedVehicle(packet.data.guid, "Vehicle.Engine", {
         // starts engine
         guid2: client.vehicle.mountedVehicle,
@@ -1004,6 +1026,21 @@ export class ZoneServer2016 extends ZoneServer {
       });
       vehicle.seats[oldSeatId] = "";
       vehicle.seats[packet.data.seatId] = client.character.characterId;
+      if(oldSeatId === "0") {
+        this.sendDataToAllWithSpawnedVehicle(client.vehicle.mountedVehicle, "Vehicle.Engine", {
+          // stops engine
+          guid2: client.vehicle.mountedVehicle,
+          engineOn: false,
+        });
+      }
+      if(packet.data.seatId === 0) {
+        this.takeoverManagedObject(client, vehicle);
+        this.sendDataToAllWithSpawnedVehicle(client.vehicle.mountedVehicle, "Vehicle.Engine", {
+          // stops engine
+          guid2: client.vehicle.mountedVehicle,
+          engineOn: true,
+        });
+      }
     }
   }
 //#endregion
@@ -1182,6 +1219,31 @@ export class ZoneServer2016 extends ZoneServer {
     );
   }
 //#endregion
+
+  reloadPackets(client: Client, intervalTime = -1): void {
+    if (intervalTime > 0) {
+      if (this._reloadPacketsInterval)
+        clearInterval(this._reloadPacketsInterval);
+      this._reloadPacketsInterval = setInterval(
+        () => this.reloadPackets(client),
+        intervalTime * 1000
+      );
+      this.sendChatText(
+        client,
+        `[DEV] Packets reload interval is set to ${intervalTime} seconds`,
+        true
+      );
+    } else {
+      this.reloadZonePacketHandlers();
+      this._protocol.reloadPacketDefinitions();
+      this.sendChatText(client, "[DEV] Packets reloaded", true);
+    }
+  }
+
+  reloadZonePacketHandlers(): void {
+    delete require.cache[require.resolve("./zonepackethandlers")];
+    this._packetHandlers = require("./zonepackethandlers").default;
+  }
 
 }
 

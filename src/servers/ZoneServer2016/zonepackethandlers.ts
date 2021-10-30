@@ -703,14 +703,18 @@ const packetHandlers = {
     client: Client,
     packet: any
   ) {
-    const characterId = server._transientIds[packet.data.transientId];
+    const characterId = server._transientIds[packet.data.transientId],
+    vehicle = server._vehicles[characterId];
+
     if (!characterId) return;
     //if (!server._soloMode) {
-        server.sendDataToAllOthers(client, "PlayerUpdatePosition", {
+        server.sendDataToAllOthersWithSpawnedVehicle(client, characterId, "PlayerUpdatePosition", {
             transientId: packet.data.transientId,
             positionUpdate: packet.data.positionUpdate,
         });
+        
     //}
+    vehicle.positionUpdate = packet.data.positionUpdate;
     if (packet.data.positionUpdate.position) {
         server._vehicles[characterId].npcData.position = new Float32Array([
           packet.data.positionUpdate.position[0],

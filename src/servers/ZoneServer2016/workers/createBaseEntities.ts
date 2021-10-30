@@ -136,7 +136,7 @@ function createAllVehicles(server: ZoneServer2016) {
       v.modelId, 
       vehicle.position, 
       vehicle.rotation,
-      server.createPositionUpdate(vehicle.position, vehicle.rotation)
+      server.getGameTime()
     )
     vehicles[characterId] = vehicleData; // save vehicle
   });

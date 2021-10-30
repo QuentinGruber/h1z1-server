@@ -673,10 +673,61 @@ const dev: any = {
           },
         },
       ];
-    server.sendData(client, "Container.UpdateEquippedContainers", {
+    server.sendData(client, "Container.InitEquippedContainers", {
       ignore: client.character.characterId,
       //ignore2: client.character.characterId,
       characterId: client.character.characterId,
+      containers: containers,
+    });
+  },
+  listcontainers: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: any[]
+  ) {
+    const item: any = server.generateItem(2425),
+      containers = [
+        {
+          unknownDword1: 1, // container itemDefinitionId ?
+          containerData: {
+            guid: client.character.characterId,
+            unknownDword1: 1,
+            unknownQword1: client.character.characterId,
+            unknownDword2: 1,
+            items: [
+              {
+                itemDefinitionId: server._items[item].itemDefinitionId,
+                itemData: {
+                  itemDefinitionId: server._items[item].itemDefinitionId,
+                  tintId: 1,
+                  guid: item,
+                  count: 1,
+                  itemSubData: {
+                    unknownBoolean1: false,
+                  },
+                  unknownQword2: item,
+                  unknownDword4: 1,
+                  slot: 1,
+                  unknownDword6: 1,
+                  unknownDword7: 1,
+                  unknownDword8: 1,
+                  unknownBoolean1: true,
+                  unknownQword3: item,
+                  unknownDword9: 1,
+                  unknownBoolean2: true,
+                },
+              },
+            ],
+            unknownBoolean1: true,
+            unknownDword3: 1,
+            unknownDword4: 1,
+            unknownDword5: 1,
+            unknownBoolean2: true,
+          },
+        },
+      ];
+    server.sendData(client, "Container.ListAll", {
+      characterId: "0x123",
       containers: containers,
     });
   },
@@ -768,6 +819,144 @@ const dev: any = {
         msg: Number(args[1]) | 99,
       }
     );
+  },
+  begincharacteraccess: function (server: ZoneServer2016, client: Client, args: any[]) {
+    const backpack: any = server.generateItem(1602);
+    server.equipItem(client, backpack);
+    server.sendData(client, "ClientUpdate.ItemAdd", {
+      characterId: client.character.characterId,
+      data: {
+        itemDefinitionId: server._items[backpack].itemDefinition,
+        tintId: 5,
+        guid: backpack,
+        count: 10, // also ammoCount
+        itemSubData: {
+          unknownBoolean1: false,
+
+          unknownDword1: 1,
+          unknownData1: {
+            unknownQword1: backpack,
+            unknownDword1: 0,
+            unknownDword2: 0,
+          },
+        },
+        unknownQword2: backpack,
+        unknownDword4: 0,
+        slot: 1,
+        unknownDword6: 0,
+        unknownDword7: 0,
+        unknownDword8: 0,
+        unknownBoolean1: true,
+        unknownQword3: backpack,
+        unknownDword9: 0,
+        unknownBoolean2: true,
+      },
+    });
+    const item: any = server.generateItem(2425),
+    containerGuid = server.generateGuid(),
+    containers = [
+      {
+        unknownDword1: 101, // container itemDefinitionId ?
+        containerData: {
+          guid: containerGuid,
+          unknownDword1: 101,
+          unknownQword1: containerGuid,
+          unknownDword2: 101,
+          items: [
+            {
+              itemDefinitionId: server._items[item].itemDefinitionId,
+              itemData: {
+                itemDefinitionId: server._items[item].itemDefinitionId,
+                tintId: 1,
+                guid: item,
+                count: 1,
+                itemSubData: {
+                  unknownBoolean1: false,
+                },
+                unknownQword2: item,
+                unknownDword4: 1,
+                slot: 1,
+                unknownDword6: 1,
+                unknownDword7: 1,
+                unknownDword8: 1,
+                unknownBoolean1: true,
+                unknownQword3: item,
+                unknownDword9: 1,
+                unknownBoolean2: true,
+              },
+            },
+          ],
+          unknownBoolean1: true,
+          unknownDword3: 1,
+          unknownDword4: 1,
+          unknownDword5: 1,
+          unknownBoolean2: true,
+        },
+      },
+    ];
+    server.sendData(client, "Container.InitEquippedContainers", {
+      ignore: client.character.characterId,
+      //ignore2: client.character.characterId,
+      characterId: client.character.characterId,
+      containers: containers,
+    });
+    const characterId = server.generateGuid();
+    const npc = {
+      characterId: characterId,
+      guid: server.generateGuid(),
+      transientId: 9999,
+      modelId: 9034,
+      position: [
+        client.character.state.position[0],
+        client.character.state.position[1],
+        client.character.state.position[2],
+      ],
+      rotation: [
+        client.character.state.rotation[0],
+        client.character.state.rotation[1],
+        client.character.state.rotation[2],
+      ],
+      color: {},
+      unknownData1: { unknownData1: {} },
+      attachedObject: {},
+    };
+    server._npcs[characterId] = npc; // save npc
+    server.worldRoutine();
+    server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
+      characterId: characterId,
+      containerGuid: characterId,
+      unknownBool1: false,
+      itemsData: {
+        items: [
+          {
+            item: {
+              itemDefinitionId: server._items[item].itemDefinitionId,
+              itemData: {
+                itemDefinitionId: server._items[item].itemDefinitionId,
+                tintId: 2,
+                guid: item,
+                count: 2,
+                itemSubData: {
+                  unknownBoolean1: false,
+                },
+                unknownQword2: item,
+                unknownDword4: 2,
+                slot: 1,
+                unknownDword6: 2,
+                unknownDword7: 2,
+                unknownDword8: 2,
+                unknownBoolean1: true,
+                unknownQword3: item,
+                unknownDword9: 2,
+                unknownBoolean2: true,
+              },
+            },
+            unknownBool1: true
+          }
+        ],
+        unknownDword1: 40
+      }
+    });
   },
   /*
     proxiedobjects: function(server: ZoneServer2016, client: Client, args: any[]) {

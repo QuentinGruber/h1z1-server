@@ -2430,7 +2430,9 @@ export type h1z1PacketsType =
   | "WeaponLagLockParameters"
   | "CrateOpeningBase"
   | "PlayerHeatWarning"
-  | "AnimationBase";
+  | "AnimationBase"
+  | "AccessedCharacter.BeginCharacterAccess"
+  | "AccessedCharacter.Unknown1";
 export type loginPacketsType =
   | "LoginRequest"
   | "LoginReply"

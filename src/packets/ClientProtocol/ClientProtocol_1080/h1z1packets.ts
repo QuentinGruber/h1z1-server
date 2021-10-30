@@ -673,7 +673,7 @@ const itemDataSchema = [
     fields: [
       { name: "unknownBoolean1", type: "boolean", defaultValue: false },
       // if unknownBoolean1 == false, below values aren't read
-
+      /*
       { name: "unknownDword1", type: "uint32", defaultValue: 1 },
       // if unknownDword1 == 0, below values aren't read
       {
@@ -685,7 +685,7 @@ const itemDataSchema = [
           { name: "unknownDword1", type: "uint32", defaultValue: 0 },
           { name: "unknownDword2", type: "uint32", defaultValue: 0 },
         ],
-      },
+      },*/
     ],
   },
   { name: "unknownQword2", type: "uint64string", defaultValue: "" },
@@ -5681,7 +5681,16 @@ const packets = [
   ["ClientUpdate.FileValidationResponse", 0x113700, {}],
   ["ClientUpdate.DeathMetrics", 0x113800, {}],
   ["ClientUpdate.ManagedObjectRequestControl", 0x113900, {}],
-  ["ClientUpdate.ManagedObjectResponseControl", 0x113a00, {}],
+  [
+    "ClientUpdate.ManagedObjectResponseControl", 
+    0x113a00, 
+    {
+      fields: [
+        { name: "control", type: "boolean", defaultValue: false },
+        { name: "objectCharacterId", type: "uint64string", defaultValue: "0" }
+      ]
+    }
+  ],
   ["ClientUpdate.ManagedObjectReleaseControl", 0x113b00, {}],
   ["ClientUpdate.SetCurrentAdventure", 0x113c00, {}],
   ["ClientUpdate.CharacterSlot", 0x113d00, {}],
@@ -8628,7 +8637,7 @@ const packets = [
   ["Score", 0xc7, {}],
   ["Resources", 0xc8, {}],
   [
-    "Container.UpdateEquippedContainers",
+    "Container.InitEquippedContainers",
     0xc90200,
     {
       fields: [
@@ -8942,7 +8951,59 @@ const packets = [
   ["PlayerWorldTransferReply", 0xee, {}],
   ["CancelQueueOnWorld", 0xef, {}],
   ["DeclineEnterGameOnWorld", 0xf0, {}],
-  ["AccessedCharacterBase", 0xf1, {}],
+  [
+    "AccessedCharacter.BeginCharacterAccess", 
+    0xf10100, 
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "containerGuid", type: "uint64string", defaultValue: "0" },
+        { name: "unknownBool1", type: "boolean", defaultValue: false },
+        {
+          name: "itemsData",
+          type: "byteswithlength",
+          defaultValue: null,
+          fields: [
+            {
+              name: "items",
+              type: "array",
+              defaultValue: [],
+              fields: [
+                {
+                  name: "item",
+                  type: "schema",
+                  defaultValue: {},
+                  fields: itemDataSchema,
+                },
+                { name: "unknownBool1", type: "boolean", defaultValue: false },
+              ],
+            },
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+          ]
+        }
+      ]
+    }
+  ],
+  [
+    "AccessedCharacter.EndCharacterAccess", 
+    0xf10200, 
+    {
+      fields: [
+       
+      ]
+    }
+  ],
+  [
+    "AccessedCharacter.Unknown1", 
+    0xf10400, 
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "containerGuid", type: "uint64string", defaultValue: "0" }
+      ]
+    }
+  ],
+  //["AccessedCharacterBase", 0xf1, {}],
   ["ShaderParameterOverrideBase", 0xf2, {}],
   ["VehicleSkinBase", 0xf3, {}],
   ["WeaponLagLockParameters", 0xf5, {}],
