@@ -852,6 +852,26 @@ const dev: any = {
         unknownBoolean2: true,
       },
     });
+    const objectCharacterId = server.generateGuid(),
+    npc = {
+      characterId: objectCharacterId,
+      guid: server.generateGuid(),
+      transientId: 9999,
+      modelId: 9034,
+      position: [
+        client.character.state.position[0],
+        client.character.state.position[1],
+        client.character.state.position[2],
+      ],
+      rotation: [
+        client.character.state.rotation[0],
+        client.character.state.rotation[1],
+        client.character.state.rotation[2],
+      ],
+      color: {},
+      unknownData1: { unknownData1: {} },
+      attachedObject: {},
+    };
     const item: any = server.generateItem(2425),
     containerGuid = server.generateGuid(),
     containers = [
@@ -900,31 +920,12 @@ const dev: any = {
       characterId: client.character.characterId,
       containers: containers,
     });
-    const characterId = server.generateGuid();
-    const npc = {
-      characterId: characterId,
-      guid: server.generateGuid(),
-      transientId: 9999,
-      modelId: 9034,
-      position: [
-        client.character.state.position[0],
-        client.character.state.position[1],
-        client.character.state.position[2],
-      ],
-      rotation: [
-        client.character.state.rotation[0],
-        client.character.state.rotation[1],
-        client.character.state.rotation[2],
-      ],
-      color: {},
-      unknownData1: { unknownData1: {} },
-      attachedObject: {},
-    };
-    server._npcs[characterId] = npc; // save npc
+    
+    server._npcs[objectCharacterId] = npc; // save npc
     server.worldRoutine();
     server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
-      characterId: characterId,
-      containerGuid: characterId,
+      objectCharacterId: objectCharacterId,
+      containerGuid: containerGuid,
       unknownBool1: false,
       itemsData: {
         items: [

@@ -4425,9 +4425,9 @@ const packets = [
               defaultValue: 0,
             },
             { name: "unknownDword40", type: "uint32", defaultValue: 0 },
-            { name: "unknownBoolean9", type: "boolean", defaultValue: false },
+            { name: "isAdmin", type: "boolean", defaultValue: true },
             { name: "firstPersonOnly", type: "boolean", defaultValue: false },
-            { name: "isSpectator", type: "boolean", defaultValue: false },
+            { name: "spectatorFlags", type: "uint8", defaultValue: 0 },
           ],
         },
       ],
@@ -8956,7 +8956,7 @@ const packets = [
     0xf10100, 
     {
       fields: [
-        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "objectCharacterId", type: "uint64string", defaultValue: "0" },
         { name: "containerGuid", type: "uint64string", defaultValue: "0" },
         { name: "unknownBool1", type: "boolean", defaultValue: false },
         {
