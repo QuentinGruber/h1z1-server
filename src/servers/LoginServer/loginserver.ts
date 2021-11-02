@@ -160,7 +160,6 @@ export class LoginServer extends EventEmitter {
             const connectionEstablished = this._zoneConnections[client.clientId]
               ? 1
               : 0;
-            this._db?.collection("internal-connections-logs").insertOne({...packet,connectionEstablished:connectionEstablished,client,timestamp : Date.now()});
             if (connectionEstablished || packet.name === "SessionRequest") {
               switch (packet.name) {
                 case "SessionRequest": {
@@ -533,16 +532,19 @@ export class LoginServer extends EventEmitter {
         .collection("servers")
         .findOne({ serverId: serverId });
       const character = await this._db
-        .collection("characters")
+        .collection("characters-light")
         .findOne({ characterId: characterId });
       const connectionStatus = Object.values(this._zoneConnections).includes(
         serverId
       );
+      if(!character){
+        console.error(`CharacterId "${characterId}" unfound on serverId: "${serverId}"`)
+      }
       charactersLoginInfo = {
         unknownQword1: "0x0",
         unknownDword1: 0,
         unknownDword2: 0,
-        status: connectionStatus,
+        status: character ? connectionStatus:false,
         applicationData: {
           serverAddress: serverAddress,
           serverTicket: client.loginSessionId,
@@ -550,7 +552,7 @@ export class LoginServer extends EventEmitter {
           guid: characterId,
           unknownQword2: "0x0",
           stationName: "",
-          characterName: character.payload.name,
+          characterName: character? character.payload.name: "error",
           unknownString: "",
         },
       };
