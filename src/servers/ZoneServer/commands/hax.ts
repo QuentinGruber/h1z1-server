@@ -1014,10 +1014,8 @@ const hax: any = {
     server.sendChatText(client, "Back to normal size");
   },
   godmode: function (server: ZoneServer, client: Client, args: any[]) {
-    let godmode = "";
-    client.character.godMode = client.character.godMode ? false : true;
-    godmode = client.character.godMode ? "ON" : "OFF";
-    server.sendChatText(client, "GODMODE: " + godmode);
+    client.character.godMode = !client.character.godMode;
+    server.sendChatText(client,`GODMODE: ${client.character.godMode ? "ON" : "OFF"}`);
   },
 };
 
