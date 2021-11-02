@@ -9289,7 +9289,7 @@ var packets = [
           parser: readUnsignedIntWith2bitLengthValue,
           packer: packUnsignedIntWith2bitLengthValue,
         },
-        { name: "unk", type: "uint32", defaultValue: 0.0 },
+        { name: "damage", type: "float", defaultValue: 0.0 },
       ],
     },
   ],
@@ -9597,18 +9597,18 @@ var packets = [
     0xd001,
     {
       fields: [
-        { name: "usePositionUpdate", type: "boolean", defaultValue: 0 }, // if set to true it need at lot more fields that seems to be a positionUpdate
+        { name: "usePositionUpdate", type: "boolean", defaultValue: true }, // if set to true it need at lot more fields that seems to be a positionUpdate
         {
           name: "characterId",
           type: "uint64string",
           defaultValue: "0x0000000000000000",
         },
-        /*{
+        {
           name: "positionUpdate",
           type: "custom",
           parser: readPositionUpdateData,
           packer: packPositionUpdateData,
-        },*/
+        },
       ],
     },
   ],

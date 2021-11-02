@@ -165,14 +165,14 @@ const packetHandlers = {
         client.character.resources.food = 10000;
       } else if (client.character.resources.food < 0) {
         client.character.resources.food = 0;
-        client.character.resources.health -= 100;
+        server.playerDamage(client, 100);
       }
 
       if (client.character.resources.water > 10000) {
         client.character.resources.water = 10000;
       } else if (client.character.resources.water < 0) {
         client.character.resources.water = 0;
-        client.character.resources.health -= 100;
+        server.playerDamage(client, 100);
       }
 
       if (client.character.resources.health > 10000) {
@@ -180,22 +180,8 @@ const packetHandlers = {
       } else if (client.character.resources.health < 0) {
         client.character.resources.health = 0;
       }
-      const { stamina, food, water, health, virus } =
+      const { stamina, food, water, virus } =
         client.character.resources;
-
-      server.sendData(client, "ResourceEvent", {
-        eventData: {
-          type: 3,
-          value: {
-            characterId: client.character.characterId,
-            resourceId: 48, // health
-            resourceType: 1,
-            initialValue: health,
-            unknownArray1: [],
-            unknownArray2: [],
-          },
-        },
-      });
 
       server.sendData(client, "ResourceEvent", {
         eventData: {
@@ -251,11 +237,12 @@ const packetHandlers = {
       });
       client.character.resourcesUpdater.refresh();
     }, 3000);
-
+    
     server.sendData(client, "ZoneDoneSendingInitialData", {});
 
     server.sendData(client, "PlayerUpdate.UpdateCharacterState", {
       characterId: client.character.characterId,
+      state: "000000000000000000",
       gameTime: Int64String(server.getGameTime()),
     });
   },
@@ -294,6 +281,19 @@ const packetHandlers = {
     client.isInteracting = false;
     delete client.vehicle.mountedVehicle;
     client.vehicle.mountedVehicleType = "0";
+	server.sendData(client, "ResourceEvent", {
+        eventData: {
+          type: 3,
+          value: {
+            characterId: client.character.characterId,
+            resourceId: 48, // health
+            resourceType: 1,
+            initialValue: client.character.resources.health,
+            unknownArray1: [],
+            unknownArray2: [],
+          },
+        },
+      });
     server.sendDataToAll("PlayerUpdate.WeaponStance", {
             characterId: client.character.characterId,
             stance: 1,
@@ -323,26 +323,7 @@ const packetHandlers = {
     client: Client,
     packet: any
   ) {
-    if (packet.data.damage > 99 && client.character.resources.health > 0) {
-      client.character.resources.health =
-        client.character.resources.health - packet.data.damage;
-      if (client.character.resources.health < 0) {
-        client.character.resources.health = 0;
-      }
-      server.sendData(client, "ResourceEvent", {
-        eventData: {
-          type: 3,
-          value: {
-            characterId: client.character.characterId,
-            resourceId: 48, // health
-            resourceType: 1,
-            initialValue: client.character.resources.health,
-            unknownArray1: [],
-            unknownArray2: [],
-          },
-        },
-      });
-    }
+      server.playerDamage(client, packet.data.damage);
   },
   "LobbyGameDefinition.DefinitionsRequest": function (
     server: ZoneServer,
@@ -859,104 +840,8 @@ const packetHandlers = {
     packet: any
   ) {
     debug(packet);
-    let destroyedVehicleEffect = 0;
-    let destroyedVehicleModel = 0;
-    let minorDamageEffect = 0;
-    let majorDamageEffect = 0;
-    let criticalDamageEffect = 0;
-    client.vehicle.vehicleState++;
-    switch (client.vehicle.mountedVehicleType) {
-      case "offroader":
-        destroyedVehicleEffect = 135;
-        destroyedVehicleModel = 7226;
-        minorDamageEffect = 182;
-        majorDamageEffect = 181;
-        criticalDamageEffect = 180;
-        break;
-      case "pickup":
-        destroyedVehicleEffect = 326;
-        destroyedVehicleModel = 9315;
-        minorDamageEffect = 325;
-        majorDamageEffect = 324;
-        criticalDamageEffect = 323;
-        break;
-      case "policecar":
-        destroyedVehicleEffect = 286;
-        destroyedVehicleModel = 9316;
-        minorDamageEffect = 285;
-        majorDamageEffect = 284;
-        criticalDamageEffect = 283;
-        break;
-      default:
-        destroyedVehicleEffect = 135;
-        destroyedVehicleModel = 7226;
-        minorDamageEffect = 182;
-        majorDamageEffect = 181;
-        criticalDamageEffect = 180;
-        break;
-    }
-    if (client.vehicle.vehicleState === 1000) {
-      const vehicleToDestroy = client.vehicle.mountedVehicle;
-      server.vehicleDelete(client);
-      server.sendData(client, "Mount.DismountResponse", {
-        characterId: client.character.characterId,
-      });
-      server.sendData(client, "Vehicle.Engine", {
-        guid2: client.vehicle.mountedVehicle,
-        unknownBoolean: false,
-      });
-      server.sendData(client, "PlayerUpdate.Destroyed", {
-        characterId: client.vehicle.mountedVehicle,
-        unknown1: destroyedVehicleEffect, // destroyed offroader effect
-        unknown2: destroyedVehicleModel, // destroyed offroader model
-        unknown3: 0,
-        disableWeirdPhysics: false,
-      });
-      setTimeout(function () {
-        server.sendDataToAll(
-          "PlayerUpdate.RemovePlayerGracefully",
-          {
-            characterId: vehicleToDestroy,
-            timeToDisappear: 13000,
-            stickyEffectId: 156,
-          },
-          1
-        );
-      }, 2000);
-      client.vehicle.mountedVehicleType = "0";
-      delete client.vehicle.mountedVehicle;
-      client.vehicle.vehicleState = 0;
-    } else if (client.vehicle.vehicleState === 500) {
-      server.sendData(client, "Mount.DismountResponse", {
-        characterId: client.character.characterId,
-      });
-      server.sendData(client, "Mount.MountResponse", {
-        characterId: client.character.characterId,
-        guid: client.vehicle.mountedVehicle,
-        unknownDword4: minorDamageEffect,
-        characterData: {},
-      });
-    } else if (client.vehicle.vehicleState === 700) {
-      server.sendData(client, "Mount.DismountResponse", {
-        characterId: client.character.characterId,
-      });
-      server.sendData(client, "Mount.MountResponse", {
-        characterId: client.character.characterId,
-        guid: client.vehicle.mountedVehicle,
-        unknownDword4: majorDamageEffect,
-        characterData: {},
-      });
-    } else if (client.vehicle.vehicleState === 850) {
-      server.sendData(client, "Mount.DismountResponse", {
-        characterId: client.character.characterId,
-      });
-      server.sendData(client, "Mount.MountResponse", {
-        characterId: client.character.characterId,
-        guid: client.vehicle.mountedVehicle,
-        unknownDword4: criticalDamageEffect,
-        characterData: {},
-      });
-    }
+	const vehicleData = server._vehicles[server._transientIds[packet.data.transientId]];
+	server.damageVehicle(client, packet.data.damage, vehicleData);
   },
   "Vehicle.Dismiss": function (
     server: ZoneServer,
@@ -2183,10 +2068,7 @@ const packetHandlers = {
     packet: any
   ) {
     debug(packet);
-    server.sendData(client, "PlayerUpdate.RespawnReply", {
-      characterId: client.character.characterId,
-      position: [0, 200, 0, 1],
-    });
+    server.respawnPlayer(client);
   },
   "PlayerUpdate.FullCharacterDataRequest": function (
     server: ZoneServer,

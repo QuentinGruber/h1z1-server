@@ -121,6 +121,8 @@ const hax: any = {
       );
       return;
     }
+    let wasAlreadyGod = client.character.godMode;
+    client.character.godMode = true;
     switch (driveChoosen) {
       case "offroader":
         driveModel = 7225;
@@ -169,6 +171,7 @@ const hax: any = {
         });
         client.vehicle.mountedVehicle = characterId;
         client.managedObjects.push(server._vehicles[characterId]);
+        setTimeout(()=>{client.character.godMode = wasAlreadyGod?true:false},1000)
       },
     };
     server.worldRoutine();
@@ -1012,6 +1015,10 @@ const hax: any = {
       scale: [1, 1, 1, 1],
     });
     server.sendChatText(client, "Back to normal size");
+  },
+  godmode: function (server: ZoneServer, client: Client, args: any[]) {
+    client.character.godMode = !client.character.godMode;
+    server.sendChatText(client,`GODMODE: ${client.character.godMode ? "ON" : "OFF"}`);
   },
 };
 

@@ -25,6 +25,7 @@ import {
   Int64String,
   isPosInRadius,
   setupAppDataFolder,
+  getDistance,
 } from "../../utils/utils";
 import { HandledZonePackets, Weather } from "../../types/zoneserver";
 import { Db, MongoClient } from "mongodb";
@@ -972,8 +973,289 @@ export class ZoneServer extends EventEmitter {
     });
     if (refresh) this.worldRoutineTimer.refresh();
   }
-
   
+  killCharacter(client: Client) {
+    debug(client.character.name + " has died");
+    this.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
+      characterId: client.character.characterId,
+      state: "0000000000000000C00",
+      gameTime: Int64String(this.getServerTime()),
+    });
+    if (!client.vehicle.mountedVehicle) {
+      this.sendDataToAll("Ragdoll.UpdatePose", {
+        characterId: client.character.characterId,
+        positionUpdate: {
+          sequenceTime: this.getServerTime(),
+          unknown3_int8: 1,
+          stance: 1089,
+          position: client.character.state.position,
+          orientation: 0,
+          frontTilt: 0,
+          sideTilt: 0,
+          angleChange: 0,
+          verticalSpeed: 0,
+          horizontalSpeed: 0,
+          unknown12_float: [0, 0, 0],
+          rotationRaw: [0, 0, -0, 1],
+          direction: 0,
+          engineRPM: 0,
+        },
+      });
+    } else {
+      this.sendDataToAllOthers(client, "PlayerUpdate.RemovePlayerGracefully", {
+        characterId: client.character.characterId,
+      });
+    }
+  }
+
+  playerDamage(client: Client, damage: number) {
+    if (!client.character.godMode) {
+      if (damage > 99) {
+        client.character.resources.health -= damage;
+      }
+      if (client.character.resources.health <= 0) {
+        this.killCharacter(client);
+      }
+      if (client.character.resources.health < 0) {
+        client.character.resources.health = 0;
+      }
+      this.sendData(client, "ResourceEvent", {
+        eventData: {
+          type: 3,
+          value: {
+            characterId: client.character.characterId,
+            resourceId: 48, // health
+            resourceType: 1,
+            initialValue: client.character.resources.health,
+            unknownArray1: [],
+            unknownArray2: [],
+          },
+        },
+      });
+    }
+  }
+
+  respawnPlayer(client: Client) {
+    client.character.resources.health = 10000;
+    client.character.resources.food = 10000;
+    client.character.resources.water = 10000;
+    client.character.resources.stamina = 600;
+    client.character.resourcesUpdater.refresh();
+	this.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
+      characterId: client.character.characterId,
+      state: "000000000000000000",
+      gameTime: Int64String(this.getServerTime()),
+    });
+	const randomSpawnIndex = Math.floor(
+      Math.random() * this._spawnLocations.length
+    );
+    this.sendData(client, "ClientUpdate.UpdateLocation", {
+      position: this._spawnLocations[randomSpawnIndex].position,
+    });
+	client.character.state.position =
+      this._spawnLocations[randomSpawnIndex].position;
+    this.sendData(client, "ResourceEvent", {
+      eventData: {
+        type: 3,
+        value: {
+          characterId: client.character.characterId,
+          resourceId: 48, // health
+          resourceType: 1,
+          initialValue: client.character.resources.health,
+          unknownArray1: [],
+          unknownArray2: [],
+        },
+      },
+    });
+
+    this.sendData(client, "ResourceEvent", {
+      eventData: {
+        type: 3,
+        value: {
+          characterId: client.character.characterId,
+          resourceId: 6, // stamina
+          resourceType: 6,
+          initialValue: client.character.resources.stamina,
+          unknownArray1: [],
+          unknownArray2: [],
+        },
+      },
+    });
+    this.sendData(client, "ResourceEvent", {
+      eventData: {
+        type: 3,
+        value: {
+          characterId: client.character.characterId,
+          resourceId: 4, // food
+          resourceType: 4,
+          initialValue: client.character.resources.food,
+          unknownArray1: [],
+          unknownArray2: [],
+        },
+      },
+    });
+    this.sendData(client, "ResourceEvent", {
+      eventData: {
+        type: 3,
+        value: {
+          characterId: client.character.characterId,
+          resourceId: 5, // water
+          resourceType: 5,
+          initialValue: client.character.resources.water,
+          unknownArray1: [],
+          unknownArray2: [],
+        },
+      },
+    });
+    this.sendData(client, "ResourceEvent", {
+      eventData: {
+        type: 3,
+        value: {
+          characterId: client.character.characterId,
+          resourceId: 9, // VIRUS
+          resourceType: 12,
+          initialValue: client.character.resources.virus,
+          unknownArray1: [],
+          unknownArray2: [],
+        },
+      },
+    });
+  }
+  
+  
+  explosionDamage(position: Float32Array) {
+    for (const character in this._clients) {
+      const characterObj = this._clients[character];
+      if (!characterObj.character.godMode) {
+        if (isPosInRadius(5, characterObj.character.state.position, position)) {
+          const distance = getDistance(
+            position,
+            characterObj.character.state.position
+          );
+          const damage = 20000 / distance;
+          this.playerDamage(this._clients[character], damage);
+        }
+      }
+    }
+  }
+
+damageVehicle(client: Client, damage: number, vehicle: Vehicle) {
+    let destroyedVehicleEffect = 0;
+    let destroyedVehicleModel = 0;
+    let minorDamageEffect = 0;
+    let majorDamageEffect = 0;
+    let criticalDamageEffect = 0;
+    switch (client.vehicle.mountedVehicleType) {
+      case "offroader":
+        destroyedVehicleEffect = 135;
+        destroyedVehicleModel = 7226;
+        minorDamageEffect = 182;
+        majorDamageEffect = 181;
+        criticalDamageEffect = 180;
+        break;
+      case "pickup":
+        destroyedVehicleEffect = 326;
+        destroyedVehicleModel = 9315;
+        minorDamageEffect = 325;
+        majorDamageEffect = 324;
+        criticalDamageEffect = 323;
+        break;
+      case "policecar":
+        destroyedVehicleEffect = 286;
+        destroyedVehicleModel = 9316;
+        minorDamageEffect = 285;
+        majorDamageEffect = 284;
+        criticalDamageEffect = 283;
+        break;
+      default:
+        destroyedVehicleEffect = 135;
+        destroyedVehicleModel = 7226;
+        minorDamageEffect = 182;
+        majorDamageEffect = 181;
+        criticalDamageEffect = 180;
+        break;
+    }
+    vehicle.npcData.resources.health -= Math.floor(damage);
+
+    if (vehicle.npcData.resources.health <= 0) {
+      vehicle.npcData.resources.health = 0;
+      this.vehicleDelete(client);
+      this.sendDataToAll("Vehicle.Engine", {
+        guid2: client.vehicle.mountedVehicle,
+        unknownBoolean: false,
+      });
+      this.sendData(client, "Mount.DismountResponse", {
+        characterId: client.character.characterId,
+      });
+      this.sendDataToAll("PlayerUpdate.Destroyed", {
+        characterId: client.vehicle.mountedVehicle,
+        unknown1: destroyedVehicleEffect, // destroyed offroader effect
+        unknown2: destroyedVehicleModel, // destroyed offroader model
+        unknown3: 0,
+        disableWeirdPhysics: false,
+      });
+      this.explosionDamage(vehicle.npcData.position);
+      vehicle.npcData.destroyedState = 4;
+      this.sendDataToAll(
+        "PlayerUpdate.RemovePlayerGracefully",
+        {
+          characterId: vehicle.npcData.characterId,
+          timeToDisappear: 13000,
+          stickyEffectId: 156,
+        },
+        1
+      );
+      client.vehicle.mountedVehicleType = "0";
+      delete client.vehicle.mountedVehicle;
+      client.vehicle.vehicleState = 0;
+    } else if (
+      vehicle.npcData.resources.health <= 5000 &&
+      vehicle.npcData.resources.health > 3500
+    ) {
+      if (vehicle.npcData.destroyedState != 1) {
+        vehicle.npcData.destroyedState = 1;
+        this.sendData(client, "Mount.DismountResponse", {
+          characterId: client.character.characterId,
+        });
+        this.sendData(client, "Mount.MountResponse", {
+          characterId: client.character.characterId,
+          guid: client.vehicle.mountedVehicle,
+          unknownDword4: minorDamageEffect,
+          characterData: {},
+        });
+      }
+    } else if (
+      vehicle.npcData.resources.health <= 3500 &&
+      vehicle.npcData.resources.health > 2000
+    ) {
+      if (vehicle.npcData.destroyedState != 2) {
+        vehicle.npcData.destroyedState = 2;
+        this.sendData(client, "Mount.DismountResponse", {
+          characterId: client.character.characterId,
+        });
+        this.sendData(client, "Mount.MountResponse", {
+          characterId: client.character.characterId,
+          guid: client.vehicle.mountedVehicle,
+          unknownDword4: majorDamageEffect,
+          characterData: {},
+        });
+      }
+    } else if (vehicle.npcData.resources.health <= 2000) {
+      if (vehicle.npcData.destroyedState != 3) {
+        vehicle.npcData.destroyedState = 3;
+        this.sendData(client, "Mount.DismountResponse", {
+          characterId: client.character.characterId,
+        });
+        this.sendData(client, "Mount.MountResponse", {
+          characterId: client.character.characterId,
+          guid: client.vehicle.mountedVehicle,
+          unknownDword4: criticalDamageEffect,
+          characterData: {},
+        });
+      }
+    }
+  }
+
 
   spawnCharacters(client: Client) {
     for (const character in this._characters) {
