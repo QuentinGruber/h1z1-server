@@ -640,8 +640,11 @@ export class ZoneServer extends EventEmitter {
       }
       debug("connected to mongo !");
       // if no collections exist on h1server database , fill it with samples
-      (await mongoClient.db("h1server").collections()).length ||
-        (await initMongo(this._mongoAddress, debugName));
+      const dbIsEmpty = (await mongoClient.db("h1server").collections()).length < 1
+      if(dbIsEmpty){
+        await initMongo(this._mongoAddress, debugName)
+      }
+      delete require.cache[require.resolve('mongodb-restore-dump')]
       this._db = mongoClient.db("h1server");
     }
     await this.setupServer();
