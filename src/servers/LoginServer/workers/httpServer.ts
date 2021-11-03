@@ -54,6 +54,7 @@ parentPort?.on(`message`, (message: httpServerMessage) => {
       else {
         pendingRequest[requestId].sendStatus(404)
       }
+      break;
     }
     case "ping":
       pendingRequest[requestId].send(data);
