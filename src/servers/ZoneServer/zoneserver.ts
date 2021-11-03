@@ -862,6 +862,11 @@ export class ZoneServer extends EventEmitter {
         nameId: profile.NAME_ID,
       });
     });
+    delete require.cache[
+      require.resolve(
+        "../../../data/2015/dataSources/ProfileTypes.json"
+      )
+    ];
     debug("Generated profiles");
     return profiles;
   }
