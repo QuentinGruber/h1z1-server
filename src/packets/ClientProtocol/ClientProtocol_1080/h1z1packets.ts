@@ -668,25 +668,9 @@ const itemDataSchema = [
   { name: "count", type: "uint32", defaultValue: 1 },
   {
     name: "itemSubData",
-    type: "schema",
+    type: "custom",
     defaultValue: {},
-    fields: [
-      { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-      // if unknownBoolean1 == false, below values aren't read
-      /*
-      { name: "unknownDword1", type: "uint32", defaultValue: 1 },
-      // if unknownDword1 == 0, below values aren't read
-      {
-        name: "unknownData1",
-        type: "schema",
-        defaultValue: {},
-        fields: [
-          { name: "unknownQword1", type: "uint64string", defaultValue: "" },
-          { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-          { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-        ],
-      },*/
-    ],
+    packer: packItemSubData,
   },
   { name: "unknownQword2", type: "uint64string", defaultValue: "" },
   { name: "unknownDword4", type: "uint32", defaultValue: 0 },
@@ -1294,19 +1278,22 @@ function parseItemData(data: Buffer, offset: number, referenceData: any) {
   };
 }
 
-function packItemData(obj: any, referenceData: any) {
-  const baseData = DataSchema.pack(itemBaseSchema, obj.baseItem);
-  let detailData, detailSchema;
-  if (
-    referenceData &&
-    referenceData.itemTypes[obj.baseItem.itemId] === "Weapon"
-  ) {
-    detailSchema = itemWeaponDetailSchema;
-  } else {
-    detailSchema = itemDetailSchema;
-  }
-  detailData = DataSchema.pack(detailSchema, obj.detail);
-  return Buffer.concat([baseData.data, detailData.data]);
+function packItemSubData(obj: any) {
+
+  const unknownData1Schema = [
+    { name: "unknownQword1", type: "uint64string", defaultValue: "" },
+    { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+    { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+  ]
+  let data = Buffer.alloc(1);
+  data.writeUInt8(obj["hasSubData"]?1:0, 0)
+  if(!obj.hasSubData) return data;
+  const v = Buffer.alloc(4);
+  v.writeUInt32LE(obj["unknownDword1"], 0);
+  data = Buffer.concat([data, v]);
+  if(obj.unknownDword1 <= 0) return data;
+  const unknownData1Obj = DataSchema.pack(unknownData1Schema, obj["unknownData1"]).data;
+  return Buffer.concat([data, unknownData1Obj]);
 }
 
 const rewardBundleDataSchema = [
@@ -1818,41 +1805,6 @@ const respawnLocationDataSchema = [
   { name: "unknownByte3", type: "uint8", defaultValue: 0 },
   { name: "unknownByte4", type: "uint8", defaultValue: 0 },
 ];
-
-/*
-const itemData = [
-  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-  { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
-  { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-  {
-    name: "itemSubData",
-    type: "schema",
-    fields: [
-      { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-      { name: "unknownDword1", type: "uint32", defaultValue: 1 },
-      {
-        name: "unknownData1",
-        type: "schema",
-        fields: [
-          { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
-          { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-          { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-        ],
-      },
-    ],
-  },
-  { name: "unknownQword2", type: "uint64string", defaultValue: "0" },
-  { name: "unknownDword4", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword5", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword6", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword7", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword8", type: "uint32", defaultValue: 0 },
-  { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-  { name: "unknownQword3", type: "uint64string", defaultValue: "0" },
-  { name: "unknownDword9", type: "uint32", defaultValue: 0 },
-];
-*/
 
 const containerData = [
   { name: "guid", type: "uint64string", defaultValue: "0" },
@@ -7430,8 +7382,8 @@ const packets = [
             {
               name: "itemData",
               type: "custom",
-              parser: parseItemData,
-              packer: packItemData,
+              //parser: parseItemData,
+              //packer: packItemData,
             },
           ],
         },

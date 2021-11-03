@@ -291,7 +291,13 @@ export class ZoneServer2016 extends ZoneServer {
               guid: item,
               count: 1, // also ammoCount
               itemSubData: {
-                unknownBoolean1: false,
+                hasSubData: false,/*
+                unknownDword1: 1,
+                unknownData1: {
+                  unknownQword1: item,
+                  unknownDword1: 1,
+                  unknownDword2: 1
+                }*/
               },
               unknownQword2: item,
               unknownDword4: 1,
