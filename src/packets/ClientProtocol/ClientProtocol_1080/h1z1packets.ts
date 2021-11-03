@@ -861,30 +861,6 @@ const lightWeightNpcSchema = [
   { name: "unknownDword15", type: "uint32", defaultValue: 0 },
 ];
 
-const itemBaseSchema = [
-  { name: "itemId", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-  { name: "unknownGuid1", type: "uint64string", defaultValue: "0" },
-  { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword4", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword5", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword6", type: "uint32", defaultValue: 0 },
-  { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-  { name: "unknownDword7", type: "uint32", defaultValue: 0 },
-  { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-  {
-    name: "unknownData",
-    type: "variabletype8",
-    types: {
-      0: [],
-      1: [
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-      ],
-    },
-  },
-];
 const effectTagsSchema = [
   { name: "unknownDword1", type: "uint32", defaultValue: 0 },
   { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -920,9 +896,6 @@ const effectTagsSchema = [
   { name: "unknownDword23", type: "uint32", defaultValue: 0 },
 ];
 
-const itemDetailSchema = [
-  { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-];
 const statDataSchema = [
   { name: "statId", type: "uint32", defaultValue: 0 },
   {
@@ -961,54 +934,7 @@ const itemWeaponDetailSubSchema2 = [
     ],
   },
 ];
-const itemWeaponDetailSchema = [
-  { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-  {
-    name: "unknownArray1",
-    type: "array",
-    defaultValue: [{}],
-    fields: [
-      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-      { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-    ],
-  },
-  {
-    name: "unknownArray2",
-    type: "array8",
-    fields: [
-      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-      {
-        name: "unknownArray1",
-        type: "array8",
-        fields: [
-          { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-          { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-          { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-          { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-        ],
-      },
-    ],
-  },
-  { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-  { name: "unknownByte2", type: "uint8", defaultValue: 0 },
-  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-  { name: "unknownByte3", type: "uint8", defaultValue: 0 },
-  { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
-  { name: "unknownByte4", type: "uint8", defaultValue: 0 },
-  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-  {
-    name: "unknownArray3",
-    type: "array",
-    defaultValue: [{}],
-    fields: itemWeaponDetailSubSchema1,
-  },
-  {
-    name: "unknownArray4",
-    type: "array",
-    defaultValue: [{}],
-    fields: itemWeaponDetailSubSchema2,
-  },
-];
+
 const weaponPackets = [
   [
     "Weapon.FireStateUpdate",
