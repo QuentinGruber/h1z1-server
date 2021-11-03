@@ -93,7 +93,7 @@ export class ZoneServer extends EventEmitter {
   worldRoutineTimer: any;
   tickRate: number = 3000;
   _h1emuZoneServer!: H1emuZoneServer;
-  _loginServerInfo: { address?: string; port: number } = { port: 1110 };
+  _loginServerInfo: { address?: string; port: number } = { address: process.env.LOGINSERVER_IP, port: 1110 };
 
   constructor(
     serverPort: number,
@@ -1787,6 +1787,5 @@ if (
     process.env.MONGO_URL,
     1
   );
-  zoneServer._loginServerInfo.address = "127.0.0.1";
   zoneServer.start();
 }
