@@ -36,11 +36,25 @@ app.get("/ping", async function (req: any, res: any) {
   pendingRequest[requestCount] = res;
 });
 
+
+app.get("/pingzone", async function (req: any, res: any) {
+  requestCount++;
+  sendMessageToServer("pingzone", requestCount, req.query.serverId);
+  pendingRequest[requestCount] = res;
+});
+
 app.listen(SERVER_PORT);
 
 parentPort?.on(`message`, (message: httpServerMessage) => {
   const { type, requestId, data } = message;
   switch (type) {
+    case "pingzone":{
+      if(data === "pong")
+        pendingRequest[requestId].send(data)
+      else {
+        pendingRequest[requestId].sendStatus(404)
+      }
+    }
     case "ping":
       pendingRequest[requestId].send(data);
       delete pendingRequest[requestId];
