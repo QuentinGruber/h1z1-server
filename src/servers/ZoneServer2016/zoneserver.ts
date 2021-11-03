@@ -677,6 +677,11 @@ export class ZoneServer2016 extends ZoneServer {
     this._objects = objects;
     this._doors = doors;
     this._vehicles = vehicles;
+    delete require.cache[
+      require.resolve(
+        "./workers/createBaseEntities"
+      )
+    ];
     debug("All entities created");
   }
 
