@@ -1462,6 +1462,11 @@ damageVehicle(client: Client, damage: number, vehicle: Vehicle) {
     this._doors = doors;
     this._vehicles = vehicles;
     this._props = props;
+    delete require.cache[
+      require.resolve(
+        "./workers/createBaseEntities"
+      )
+    ];
     debug("All entities created");
   }
 
