@@ -68,7 +68,7 @@ export class Vehicle2016 extends Vehicle {
     return Object.keys(this.seats).length;
   }
   getNextSeatId() {
-    for(const seatId in Object.keys(this.seats)) {
+    for(const seatId in this.seats) {
       if(!this.seats[seatId]) {
         return seatId;
       }
@@ -76,7 +76,7 @@ export class Vehicle2016 extends Vehicle {
     return 0;
   }
   getCharacterSeat(characterId: string) {
-    for(const seatId in Object.keys(this.seats)) {
+    for(const seatId in this.seats) {
       if(this.seats[seatId] === characterId) {
         return seatId;
       }

@@ -1254,32 +1254,7 @@ function packWeaponPacket(obj: any) {
   return data;
 }
 
-function parseItemData(data: Buffer, offset: number, referenceData: any) {
-  const startOffset = offset;
-  let detailItem, detailSchema;
-  const baseItem = DataSchema.parse(itemBaseSchema, data, offset);
-  offset += baseItem.length;
-  if (
-    referenceData &&
-    referenceData.itemTypes[baseItem.result.itemId] === "Weapon"
-  ) {
-    detailSchema = itemWeaponDetailSchema;
-  } else {
-    detailSchema = itemDetailSchema;
-  }
-  detailItem = DataSchema.parse(detailSchema, data, offset);
-  offset += detailItem.length;
-  return {
-    value: {
-      baseItem: baseItem.result,
-      detail: detailItem.result,
-    },
-    length: offset - startOffset,
-  };
-}
-
 function packItemSubData(obj: any) {
-
   const unknownData1Schema = [
     { name: "unknownQword1", type: "uint64string", defaultValue: "" },
     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
