@@ -120,7 +120,7 @@ const dev: any = {
     server.sendChatText(client, "Sending setcurrentloadout packet");
     server.sendData(client, "Loadout.SetCurrentLoadout", loadout);
   },
-  selectslot: function (server: ZoneServer2016, client: Client, args: any[]) {
+  setslot: function (server: ZoneServer2016, client: Client, args: any[]) {
     if (!args[2]) {
       server.sendChatText(client, "Missing slotId and itemDefinitionId args.");
       return;
@@ -146,7 +146,7 @@ const dev: any = {
       unknownDword2: 19,
     };
     server.sendChatText(client, "Sending selectslot packet");
-    server.sendData(client, "Loadout.SelectSlot", loadout);
+    server.sendData(client, "Loadout.SetLoadoutSlots", loadout);
   },
 
   containerevent: function (
@@ -635,12 +635,12 @@ const dev: any = {
     const item: any = server.generateItem(2425),
       containers = [
         {
-          unknownDword1: 101, // container itemDefinitionId ?
+          unknownDword1: 4, // container itemDefinitionId ?
           containerData: {
             guid: server.generateGuid(),
-            unknownDword1: 101,
+            unknownDword1: 4,
             unknownQword1: server.generateGuid(),
-            unknownDword2: 101,
+            unknownDword2: 4,
             items: [
               {
                 itemDefinitionId: server._items[item].itemDefinitionId,
@@ -674,9 +674,9 @@ const dev: any = {
         },
       ];
     server.sendData(client, "Container.InitEquippedContainers", {
-      ignore: client.character.characterId,
+      ignore: "0x123",
       //ignore2: client.character.characterId,
-      characterId: client.character.characterId,
+      characterId: "0x123",
       containers: containers,
     });
   },
@@ -876,12 +876,12 @@ const dev: any = {
     containerGuid = server.generateGuid(),
     containers = [
       {
-        unknownDword1: 101, // container itemDefinitionId ?
+        unknownDword1: 1, // container itemDefinitionId ?
         containerData: {
           guid: containerGuid,
-          unknownDword1: 101,
+          unknownDword1: 1,
           unknownQword1: containerGuid,
-          unknownDword2: 101,
+          unknownDword2: 1,
           items: [
             {
               itemDefinitionId: server._items[item].itemDefinitionId,
@@ -893,14 +893,14 @@ const dev: any = {
                 itemSubData: {
                   unknownBoolean1: false,
                 },
-                unknownQword2: item,
+                unknownQword2: containerGuid,
                 unknownDword4: 1,
                 slot: 1,
                 unknownDword6: 1,
                 unknownDword7: 1,
                 unknownDword8: 1,
                 unknownBoolean1: true,
-                unknownQword3: item,
+                unknownQword3: containerGuid,
                 unknownDword9: 1,
                 unknownBoolean2: true,
               },
@@ -914,50 +914,55 @@ const dev: any = {
         },
       },
     ];
-    server.sendData(client, "Container.InitEquippedContainers", {
-      ignore: client.character.characterId,
-      //ignore2: client.character.characterId,
-      characterId: client.character.characterId,
-      containers: containers,
-    });
-    
+
     server._npcs[objectCharacterId] = npc; // save npc
     server.worldRoutine();
-    server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
-      objectCharacterId: objectCharacterId,
-      containerGuid: containerGuid,
-      unknownBool1: false,
-      itemsData: {
-        items: [
-          {
-            item: {
-              itemDefinitionId: server._items[item].itemDefinitionId,
-              itemData: {
+    setTimeout(()=> {
+      server.sendData(client, "Container.InitEquippedContainers", {
+        ignore: client.character.characterId,
+        //ignore2: client.character.characterId,
+        characterId: client.character.characterId,
+        containers: containers,
+      });
+      
+      
+      server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
+        objectCharacterId: objectCharacterId,
+        containerGuid: containerGuid,
+        unknownBool1: false,
+        itemsData: {
+          items: [
+            {
+              item: {
                 itemDefinitionId: server._items[item].itemDefinitionId,
-                tintId: 2,
-                guid: item,
-                count: 2,
-                itemSubData: {
+                itemData: {
+                  itemDefinitionId: server._items[item].itemDefinitionId,
+                  tintId: 2,
+                  guid: item,
+                  count: 2,
+                  itemSubData: {
+                    unknownBoolean1: false,
+                  },
+                  unknownQword2: objectCharacterId,
+                  unknownDword4: 2,
+                  slot: 1,
+                  unknownDword6: 2,
+                  unknownDword7: 2,
+                  unknownDword8: 2,
                   unknownBoolean1: false,
+                  unknownQword3: containerGuid,
+                  unknownDword9: 2,
+                  unknownBoolean2: false,
                 },
-                unknownQword2: item,
-                unknownDword4: 2,
-                slot: 1,
-                unknownDword6: 2,
-                unknownDword7: 2,
-                unknownDword8: 2,
-                unknownBoolean1: true,
-                unknownQword3: item,
-                unknownDword9: 2,
-                unknownBoolean2: true,
               },
-            },
-            unknownBool1: true
-          }
-        ],
-        unknownDword1: 40
-      }
-    });
+              unknownBool1: false
+            }
+          ],
+          unknownDword1: 1
+        }
+      });
+    }, 3000)
+    
   },
   /*
     proxiedobjects: function(server: ZoneServer2016, client: Client, args: any[]) {

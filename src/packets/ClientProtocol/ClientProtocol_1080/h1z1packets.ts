@@ -7074,7 +7074,7 @@ const packets = [
     },
   ],
   [
-    "Loadout.SelectSlot",
+    "Loadout.SetLoadoutSlots",
     0x8704,
     {
       fields: [

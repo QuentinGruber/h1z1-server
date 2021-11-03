@@ -2117,7 +2117,7 @@ export type h1z1PacketsType =
   | "Skill.ReportDeprecatedSkillLine"
   | "Loadout.SelectLoadout"
   | "Loadout.SetCurrentLoadout"
-  | "Loadout.SelectSlot"
+  | "Loadout.SetLoadoutSlots"
   | "Loadout.SelectClientSlot"
   | "Loadout.CreateCustomLoadout"
   | "Experience.SetExperience"

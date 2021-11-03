@@ -1047,7 +1047,7 @@ export class ZoneServer2016 extends ZoneServer {
 //#region ********************INVENTORY********************
 
   updateLoadout(client: Client) {
-    this.sendData(client, "Loadout.SelectSlot", {
+    this.sendData(client, "Loadout.SetLoadoutSlots", {
       characterId: client.character.characterId,
       loadoutItemLoadoutId: 5,
       loadoutData: {
