@@ -759,10 +759,6 @@ export class ZoneServer extends EventEmitter {
   }
 
   async characterData(client: Client): Promise<void> {
-    delete require.cache[
-      require.resolve("../../../data/2015/sampleData/sendself.json") // reload json
-    ];
-    this._dummySelf = require("../../../data/2015/sampleData/sendself.json"); // dummy this._dummySelf
     const {
       data: { identity },
     } = this._dummySelf;
