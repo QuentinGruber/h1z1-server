@@ -127,7 +127,7 @@ const dev: any = {
     }
     const loadout = {
       characterId: client.character.characterId,
-      loadoutItemLoadoutId: 3,
+      loadoutId: 3,
       loadoutData: {
         loadoutSlots: [
           {

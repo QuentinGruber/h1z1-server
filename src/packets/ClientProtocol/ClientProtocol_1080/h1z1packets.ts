@@ -2127,6 +2127,45 @@ const itemDefinitionDataSchema: any[] = [
   },
 ];
 
+const loadoutSlotsSchema = [
+  { name: "loadoutId", type: "uint32", defaultValue: 0 },
+  {
+    name: "loadoutData",
+    type: "schema",
+    fields: [
+      {
+        name: "loadoutSlots",
+        type: "array",
+        defaultValue: [],
+        fields: [
+          { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+          { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
+          { name: "slotId", type: "uint32", defaultValue: 0 },
+          {
+            name: "unknownData1",
+            type: "schema",
+            fields: [
+              {
+                name: "itemDefinitionId",
+                type: "uint32",
+                defaultValue: 0,
+              },
+              {
+                name: "loadoutItemOwnerGuid",
+                type: "uint64string",
+                defaultValue: "0",
+              },
+              { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+            ],
+          },
+          { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+        ],
+      },
+    ],
+  },
+  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+]
+
 const packets = [
   ["Server", 0x01, {}],
   ["ClientFinishedLoading", 0x02, {}],
@@ -2216,7 +2255,6 @@ const packets = [
               fields: collectionsSchema,
             },
             {
-              // todo
               name: "inventory",
               type: "schema",
               defaultValue: {},
@@ -2225,15 +2263,7 @@ const packets = [
                   name: "items",
                   type: "array",
                   defaultValue: [],
-                  fields: [
-                    {
-                      name: "itemData",
-                      type: "custom",
-                      parser: parseItemData,
-                      packer: packItemData,
-                      defaultValue: 0,
-                    },
-                  ],
+                  fields: itemDataSchema
                 },
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
               ],
@@ -3933,46 +3963,10 @@ const packets = [
               ],
             },
             {
-              name: "loadoutRelatedData",
+              name: "loadoutSlots",
               type: "schema",
               defaultValue: {},
-              fields: [
-                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                {
-                  name: "unknownArray1",
-                  type: "array",
-                  defaultValue: [],
-                  fields: [
-                    { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                    { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                    { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-                    {
-                      name: "unknownData1",
-                      type: "schema",
-                      defaultValue: {},
-                      fields: [
-                        {
-                          name: "unknownDword1",
-                          type: "uint32",
-                          defaultValue: 0,
-                        },
-                        {
-                          name: "unknownQword1",
-                          type: "uint64string",
-                          defaultValue: "",
-                        },
-                        {
-                          name: "unknownByte1",
-                          type: "uint8",
-                          defaultValue: 0,
-                        },
-                      ],
-                    },
-                    { name: "unknownDword4", type: "uint32", defaultValue: 0 },
-                  ],
-                },
-                { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-              ],
+              fields: loadoutSlotsSchema,
             },
             {
               name: "unknownArray27",
@@ -5465,7 +5459,16 @@ const packets = [
     },
   ],
   ["ClientUpdate.ItemUpdate", 0x110300, {}],
-  ["ClientUpdate.ItemDelete", 0x110400, {}],
+  [
+    "ClientUpdate.ItemDelete", 
+    0x110400, 
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "itemGuid", type: "uint64string", defaultValue: "0" },
+      ]
+    }
+  ],
   [
     "ClientUpdate.UpdateStat",
     0x110500,
@@ -7079,42 +7082,7 @@ const packets = [
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "loadoutItemLoadoutId", type: "uint32", defaultValue: 0 },
-        {
-          name: "loadoutData",
-          type: "schema",
-          fields: [
-            {
-              name: "loadoutSlots",
-              type: "array",
-              defaultValue: [{}],
-              fields: [
-                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
-                { name: "slotId", type: "uint32", defaultValue: 0 },
-                {
-                  name: "unknownData1",
-                  type: "schema",
-                  fields: [
-                    {
-                      name: "itemDefinitionId",
-                      type: "uint32",
-                      defaultValue: 0,
-                    },
-                    {
-                      name: "loadoutItemOwnerGuid",
-                      type: "uint64string",
-                      defaultValue: "0",
-                    },
-                    { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-                  ],
-                },
-                { name: "unknownDword4", type: "uint32", defaultValue: 0 },
-              ],
-            },
-          ],
-        },
-        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        ...loadoutSlotsSchema,
       ],
     },
   ],

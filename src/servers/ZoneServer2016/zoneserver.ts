@@ -152,7 +152,7 @@ export class ZoneServer2016 extends ZoneServer {
       lastLoginDate: character.lastLoginDate,
 
       loadouts: [], // default
-      inventory: [], // default
+      _inventory: {}, // default
       factionId: 2, // default
       isRunning: false,
       resources: {
@@ -267,6 +267,11 @@ export class ZoneServer2016 extends ZoneServer {
     ]
     */
 
+    // default equipment / loadout
+
+    this.equipItem(client, this.generateItem(85), false); // fists weapon
+    this.equipItem(client, this.generateItem(2377), false); // DOA Hoodie
+    this.equipItem(client, this.generateItem(2079), false); // golf pants
     this.sendData(client, "SendSelfToClient", {
       data: {
         guid: client.character.guid, // todo: guid should be moved to client, instead of character
@@ -283,9 +288,50 @@ export class ZoneServer2016 extends ZoneServer {
         identity: {
           characterName: client.character.name,
         },
+        inventory: {
+          items: Object.keys(client.character._inventory).map((item: any) => {
+            return {
+              itemDefinitionId: this._items[item].itemDefinition.ID,
+              tintId: 5,
+              guid: item,
+              count: 1, // also ammoCount
+              itemSubData: {
+                unknownBoolean1: false,
+              },
+              unknownQword2: item,
+              unknownDword4: 1,
+              slot: 1,
+              unknownDword6: 1,
+              unknownDword7: 1,
+              unknownDword8: 1,
+              unknownBoolean1: true,
+              unknownQword3: item,
+              unknownDword9: 1,
+              unknownBoolean2: true,
+            }
+          })
+        },
         recipes: recipes,
         stats: stats,
-
+        loadoutSlots: {
+          loadoutId: 5,
+          loadoutData: {
+            loadoutSlots: client.character.loadout.map((slot: characterLoadout) => {
+              return {
+                unknownDword1: 3,
+                itemDefinitionId: slot.itemDefinitionId,
+                slotId: slot.slotId,
+                unknownData1: {
+                  itemDefinitionId: slot.itemDefinitionId,
+                  loadoutItemOwnerGuid: slot.itemGuid,
+                  unknownByte1: 17,
+                },
+                unknownDword4: 18,
+              };
+            }),
+          },
+          unknownDword2: 19,
+        },
         characterResources: [
           {
             ...resources.health,
@@ -333,6 +379,35 @@ export class ZoneServer2016 extends ZoneServer {
         //containers: containers,
       },
     });
+    this.sendData(client, "Equipment.SetCharacterEquipment", {
+      characterData: {
+        characterId: client.character.characterId,
+      },
+      equipmentSlots: client.character.equipment.map(
+        (slot: characterEquipment) => {
+          return {
+            equipmentSlotId: slot.slotId,
+            equipmentSlotData: {
+              equipmentSlotId: slot.slotId,
+              guid: slot.guid || "",
+              tintAlias: slot.tintAlias || "",
+              decalAlias: slot.tintAlias || "#",
+            },
+          };
+        }
+      ),
+      attachmentData: client.character.equipment.map(
+        (slot: characterEquipment) => {
+          return {
+            modelName: slot.modelName,
+            textureAlias: slot.textureAlias || "",
+            tintAlias: slot.tintAlias || "",
+            decalAlias: slot.tintAlias || "#",
+            slotId: slot.slotId,
+          };
+        }
+      ),
+    }); // needed or third person character will be invisible
   }
 
   async fetchZoneData(): Promise<void> {
@@ -1049,7 +1124,7 @@ export class ZoneServer2016 extends ZoneServer {
   updateLoadout(client: Client) {
     this.sendData(client, "Loadout.SetLoadoutSlots", {
       characterId: client.character.characterId,
-      loadoutItemLoadoutId: 5,
+      loadoutId: 5,
       loadoutData: {
         loadoutSlots: client.character.loadout.map((slot: characterLoadout) => {
           return {
@@ -1100,8 +1175,33 @@ export class ZoneServer2016 extends ZoneServer {
       ),
     });
   }
+  
+  addItem(client: Client, itemGuid: string) {
+    this.sendData(client, "ClientUpdate.ItemAdd", {
+      characterId: client.character.characterId,
+      data: {
+        itemDefinitionId: this._items[itemGuid].itemDefinition.ID,
+        tintId: 5,
+        guid: itemGuid,
+        count: 1, // also ammoCount
+        itemSubData: {
+          unknownBoolean1: false,
+        },
+        unknownQword2: itemGuid,
+        unknownDword4: 1,
+        slot: 1,
+        unknownDword6: 1,
+        unknownDword7: 1,
+        unknownDword8: 1,
+        unknownBoolean1: true,
+        unknownQword3: itemGuid,
+        unknownDword9: 1,
+        unknownBoolean2: true,
+      },
+    });
+  }
 
-  equipItem(client: Client, itemGuid: string = "") {
+  equipItem(client: Client, itemGuid: string = "", sendPacket: boolean = true) {
     if (!itemGuid) {
       debug("[ERROR] EquipItem: ItemGuid is blank!");
       return;
@@ -1133,49 +1233,32 @@ export class ZoneServer2016 extends ZoneServer {
         textureAlias: def.TEXTURE_ALIAS,
         tintAlias: "",
       };
-
-    /* TODO: keep track of items in the inventory. right now the server does not 
-    keep track of inventory, and the clientside inventory has it's 0th inventory 
-    slot overwritten everytime a loadout item is added */
-    this.sendData(client, "ClientUpdate.ItemAdd", {
-      characterId: client.character.characterId,
-      data: {
-        itemDefinitionId: def.ID,
-        tintId: 5,
-        guid: item.guid,
-        count: 1, // also ammoCount
-        itemSubData: {
-          unknownBoolean1: true,
-
-          unknownDword1: 1,
-          unknownData1: {
-            unknownQword1: item.guid,
-            unknownDword1: 1,
-            unknownDword2: 1,
-          },
-        },
-        unknownQword2: item.guid,
-        unknownDword4: 1,
-        slot: 1,
-        unknownDword6: 1,
-        unknownDword7: 1,
-        unknownDword8: 1,
-        unknownBoolean1: true,
-        unknownQword3: item.guid,
-        unknownDword9: 1,
-        unknownBoolean2: true,
-      },
-    });
+      
 
     lIndex === -1
       ? client.character.loadout.push(loadoutData)
       : (client.character.loadout[lIndex] = loadoutData);
-    this.updateLoadout(client);
-
     eIndex === -1
       ? client.character.equipment.push(equipmentData)
       : (client.character.equipment[eIndex] = equipmentData);
+    
+    const existingItem = Object.keys(client.character._inventory).find(
+      (guid: any) => client.character._inventory[guid].loadoutSlotId === loadoutSlotId);
+    if(existingItem && sendPacket) {
+      delete client.character._inventory[existingItem];
+      this.sendData(client, "ClientUpdate.ItemDelete", {
+        characterId: client.character.characterId,
+        itemGuid: existingItem
+      })
+    }
+    client.character._inventory[item.guid] = item;
+
+    // put this above ItemAdd function when inventory items are tracked in client.character
+    if(!sendPacket) return;
+
+    this.updateLoadout(client);
     this.updateEquipment(client);
+    this.addItem(client, item.guid);
   }
 
   generateItem(itemDefinitionId: any) {
