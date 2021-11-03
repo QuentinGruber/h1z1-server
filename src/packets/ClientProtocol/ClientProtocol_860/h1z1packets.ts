@@ -55,7 +55,7 @@ function writePacketType(packetType: number) {
     packetTypeBytes.unshift(packetType & 0xff);
     packetType = packetType >> 8;
   }
-  const data = Buffer.alloc(packetTypeBytes.length);
+  const data = Buffer.allocUnsafe(packetTypeBytes.length);
   for (let i = 0; i < packetTypeBytes.length; i++) {
     data.writeUInt8(packetTypeBytes[i], i);
   }
@@ -87,7 +87,7 @@ export function packUnsignedIntWith2bitLengthValue(value: number) {
     n = 1;
   }
   value |= n;
-  const data = Buffer.alloc(4);
+  const data = Buffer.allocUnsafe(4);
   data.writeUInt32LE(value, 0);
   return data.slice(0, n + 1);
 }
@@ -124,7 +124,7 @@ function packSignedIntWith2bitLengthValue(value: number) {
   }
   value |= n << 1;
   value |= sign;
-  const data = Buffer.alloc(4);
+  const data = Buffer.allocUnsafe(4);
   data.writeUInt32LE(value, 0);
   return data.slice(0, n + 1);
 }
@@ -250,7 +250,7 @@ function readPositionUpdateData(data: Buffer, offset: number) {
 }
 
 function packPositionUpdateData(obj: any) {
-  let data = Buffer.alloc(7),
+  let data = Buffer.allocUnsafe(7),
     flags = 0,
     v;
 
@@ -275,7 +275,7 @@ function packPositionUpdateData(obj: any) {
 
   if ("orientation" in obj) {
     flags |= 0x20;
-    v = Buffer.alloc(4);
+    v = Buffer.allocUnsafe(4);
     v.writeFloatLE(obj["orientation"], 0);
     data = Buffer.concat([data, v]);
   }
@@ -1511,7 +1511,7 @@ function parseWeaponPacket(data: Buffer, offset: number) {
   obj.gameTime = data.readUInt32LE(offset);
   const tmpData = data.slice(offset + 4);
 
-  const weaponPacketData = Buffer.alloc(tmpData.length + 1);
+  const weaponPacketData = Buffer.allocUnsafe(tmpData.length + 1);
   weaponPacketData.writeUInt8(0x85, 0);
   tmpData.copy(weaponPacketData, 1);
 
@@ -1550,7 +1550,7 @@ function packWeaponPacket(obj: any) {
       subTypeData = writePacketType(subType);
     let subData = DataSchema.pack(subPacket.schema, subObj).data;
     subData = Buffer.concat([subTypeData.slice(1), subData]);
-    data = Buffer.alloc(subData.length + 4);
+    data = Buffer.allocUnsafe(subData.length + 4);
     data.writeUInt32LE((obj.gameTime & 0xffffffff) >>> 0, 0);
     subData.copy(data, 4);
   } else {

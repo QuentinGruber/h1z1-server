@@ -41,7 +41,7 @@ export class SOEOutputStream extends EventEmitter {
       this._rc4.write(data);
       data = this._rc4.read();
       if (data[0] === 0) {
-        const tmp = Buffer.alloc(1);
+        const tmp = Buffer.allocUnsafe(1);
         tmp[0] = 0;
         data = Buffer.concat([tmp, data]);
       }
