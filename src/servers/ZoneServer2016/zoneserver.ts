@@ -49,15 +49,14 @@ const loadoutEquipSlots = require("./../../../data/2016/dataSources/LoadoutEquip
 export class ZoneServer2016 extends ZoneServer {
   _weather2016: Weather2016;
   // @ts-ignore yeah idk how to fix that
-  _packetHandlers: HandledZonePackets2016;
+  _packetHandlers: HandledZonePackets2016 = packetHandlers;
   _weatherTemplates: any;
-  _items: any;
+  _items: any = {};
   _vehicles: {[characterId: string]: Vehicle} = {};
 
   constructor(serverPort: number, gatewayKey: Uint8Array, mongoAddress = "") {
     super(serverPort, gatewayKey, mongoAddress);
     this._protocol = new H1Z1Protocol("ClientProtocol_1080");
-    this._packetHandlers = packetHandlers;
     this._dynamicWeatherEnabled = false;
     this._cycleSpeed = 100;
     this._weatherTemplates = localWeatherTemplates;
@@ -91,7 +90,6 @@ export class ZoneServer2016 extends ZoneServer {
         unknownByte4: 1,
       };
     });
-    this._items = {};
   }
 
   onZoneDataEvent(err: any, client: Client, packet: any) {
@@ -150,8 +148,6 @@ export class ZoneServer2016 extends ZoneServer {
       gender: character.gender,
       creationDate: character.creationDate,
       lastLoginDate: character.lastLoginDate,
-
-      loadouts: [], // default
       _inventory: {}, // default
       factionId: 2, // default
       isRunning: false,
@@ -164,7 +160,7 @@ export class ZoneServer2016 extends ZoneServer {
         comfort: 5000,
       },
       equipment: [
-        // temp
+        // default SurvivorMale equipment
         {
           modelName: "SurvivorMale_Head_01.adr",
           slotId: 1,
@@ -220,7 +216,11 @@ export class ZoneServer2016 extends ZoneServer {
       client.character.state.position = character.position;
       client.character.state.rotation = character.rotation;
     }
-    this._characters[client.character.characterId] = client.character; // character will spawn on other player's screen(s) at this point
+
+    // default equipment / loadout
+    this.equipItem(client, this.generateItem(85), false); // fists weapon
+    this.equipItem(client, this.generateItem(2377), false); // DOA Hoodie
+    this.equipItem(client, this.generateItem(2079), false); // golf pants
   }
 
   async sendCharacterData(client: Client) {
@@ -267,11 +267,6 @@ export class ZoneServer2016 extends ZoneServer {
     ]
     */
 
-    // default equipment / loadout
-
-    this.equipItem(client, this.generateItem(85), false); // fists weapon
-    this.equipItem(client, this.generateItem(2377), false); // DOA Hoodie
-    this.equipItem(client, this.generateItem(2079), false); // golf pants
     this.sendData(client, "SendSelfToClient", {
       data: {
         guid: client.character.guid, // todo: guid should be moved to client, instead of character
@@ -408,6 +403,8 @@ export class ZoneServer2016 extends ZoneServer {
         }
       ),
     }); // needed or third person character will be invisible
+
+    this._characters[client.character.characterId] = client.character; // character will spawn on other player's screen(s) at this point
   }
 
   async fetchZoneData(): Promise<void> {
