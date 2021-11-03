@@ -39,7 +39,7 @@ app.get("/ping", async function (req: any, res: any) {
 
 app.get("/pingzone", async function (req: any, res: any) {
   requestCount++;
-  sendMessageToServer("pingzone", requestCount, req.query.serverId);
+  sendMessageToServer("pingzone", requestCount, Number(req.query.serverId));
   pendingRequest[requestCount] = res;
 });
 

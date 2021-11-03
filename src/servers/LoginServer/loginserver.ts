@@ -793,9 +793,9 @@ export class LoginServer extends EventEmitter {
         switch (type) {
           case "pingzone":{
             const response: httpServerMessage = {
-              type: "ping",
+              type: "pingzone",
               requestId: requestId,
-              data: this._zoneConnections[data]?"pong":"error",
+              data: Object.values(this._zoneConnections).includes(data)?"pong":"error",
             };
             this._httpServer.postMessage(response);
             break;
