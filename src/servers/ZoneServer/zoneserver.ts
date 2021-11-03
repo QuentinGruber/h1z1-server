@@ -640,8 +640,11 @@ export class ZoneServer extends EventEmitter {
       }
       debug("connected to mongo !");
       // if no collections exist on h1server database , fill it with samples
-      (await mongoClient.db("h1server").collections()).length ||
-        (await initMongo(this._mongoAddress, debugName));
+      const dbIsEmpty = (await mongoClient.db("h1server").collections()).length < 1
+      if(dbIsEmpty){
+        await initMongo(this._mongoAddress, debugName)
+      }
+      delete require.cache[require.resolve('mongodb-restore-dump')]
       this._db = mongoClient.db("h1server");
     }
     await this.setupServer();
@@ -756,10 +759,6 @@ export class ZoneServer extends EventEmitter {
   }
 
   async characterData(client: Client): Promise<void> {
-    delete require.cache[
-      require.resolve("../../../data/2015/sampleData/sendself.json") // reload json
-    ];
-    this._dummySelf = require("../../../data/2015/sampleData/sendself.json"); // dummy this._dummySelf
     const {
       data: { identity },
     } = this._dummySelf;
@@ -863,6 +862,11 @@ export class ZoneServer extends EventEmitter {
         nameId: profile.NAME_ID,
       });
     });
+    delete require.cache[
+      require.resolve(
+        "../../../data/2015/dataSources/ProfileTypes.json"
+      )
+    ];
     debug("Generated profiles");
     return profiles;
   }
@@ -1458,6 +1462,11 @@ damageVehicle(client: Client, damage: number, vehicle: Vehicle) {
     this._doors = doors;
     this._vehicles = vehicles;
     this._props = props;
+    delete require.cache[
+      require.resolve(
+        "./workers/createBaseEntities"
+      )
+    ];
     debug("All entities created");
   }
 
