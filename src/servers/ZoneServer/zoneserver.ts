@@ -94,6 +94,7 @@ export class ZoneServer extends EventEmitter {
   tickRate: number = 3000;
   _h1emuZoneServer!: H1emuZoneServer;
   _loginServerInfo: { address?: string; port: number } = { port: 1110 };
+  _clientProtocol: string = "ClientProtocol_860";
 
   constructor(
     serverPort: number,
@@ -189,9 +190,10 @@ export class ZoneServer extends EventEmitter {
         err: string,
         client: SOEClient,
         characterId: string,
-        loginSessionId: string
+        loginSessionId: string,
+        clientProtocol: string
       ) => {
-        this.onGatewayLoginEvent(err, client, characterId, loginSessionId);
+        this.onGatewayLoginEvent(err, client, characterId, loginSessionId, clientProtocol);
       }
     );
 
@@ -395,8 +397,14 @@ export class ZoneServer extends EventEmitter {
     err: string,
     client: SOEClient,
     characterId: string,
-    loginSessionId: string
+    loginSessionId: string,
+    clientProtocol: string
   ) {
+    if(clientProtocol !== this._clientProtocol){
+      debug(`${client.address} is using the wrong client protocol`);
+      this.sendData(client as Client, "LoginFailed", {});
+      return
+    }
     debug(
       `Client logged in from ${client.address}:${client.port} with character id: ${characterId}`
     );

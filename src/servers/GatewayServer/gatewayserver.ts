@@ -79,7 +79,8 @@ export class GatewayServer extends EventEmitter {
                   null,
                   client,
                   result.characterId,
-                  result.ticket
+                  result.ticket,
+                  result.clientProtocol
                 );
               }
               break;
