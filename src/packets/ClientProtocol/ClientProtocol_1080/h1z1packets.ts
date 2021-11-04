@@ -4263,7 +4263,7 @@ const packets = [
             {
               name: "vehicleLoadoutRelatedQword",
               type: "uint64string",
-              defaultValue: "",
+              defaultValue: "0x0",
             },
             { name: "unknownQword3", type: "uint64string", defaultValue: "" },
             {
@@ -4554,13 +4554,6 @@ const packets = [
           type: "byteswithlength",
           fields: [
             { name: "ID", type: "uint32", defaultValue: 0 },
-            /* {
-              name: "definitionData",
-              type: "custom",
-              parser: readItemDefinitionData,
-              packer: packItemDefinitionData,
-              defaultValue: {}
-            },*/
             {
               name: "definitionData",
               type: "schema",

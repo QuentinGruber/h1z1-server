@@ -140,38 +140,27 @@ const packetHandlers = {
       serverTime2: Int64String(server.getServerTime()),
     });
 
-    /*
-        const defs = itemDefinitions.map((def: any) => {
-          return {
-            ID: def.ID,
-            definitionData: {
-              ...def,
-              flags1: {
-                ...def
-              },
-              flags2: {
-                ...def
-              }
-            }
-          };
-        });
-        console.log(defs)
-
-        server.sendData(client, "Command.ItemDefinitions", { // sends full list of item definitions
-          data: {
-            itemDefinitions: defs
-          }
-        }
-      };
-    });
-    console.log(defs)
-    
     server.sendData(client, "Command.ItemDefinitions", { // sends full list of item definitions
       data: {
-        itemDefinitions: defs
+        itemDefinitions: itemDefinitions.map((itemDef: any) => {
+            return {
+                ID: itemDef.ID,
+                definitionData: {
+                  ...itemDef,
+                  HUD_IMAGE_SET_ID: itemDef.IMAGE_SET_ID,
+                  flags1: {
+                    ...itemDef,
+                  },
+                  flags2: {
+                    ...itemDef,
+                  },
+                  stats: [],
+                },
+            }
+        })
       }
     });
-    */
+    
     server.sendData(client, "Character.WeaponStance", { // activates weaponstance key
         characterId: client.character.characterId,
         stance: 1
