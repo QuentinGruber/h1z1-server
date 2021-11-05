@@ -22,17 +22,19 @@ function foundBody(keyProvided:string){
   );
   const nextKey = (PacketHandlersObjKeys[keyIndex+1]?.includes('.')?'"'+PacketHandlersObjKeys[keyIndex+1]+'"':PacketHandlersObjKeys[keyIndex+1])+":"
   const start = functionIndex+key.length+1;
-  const end = funcOnlyString.indexOf(nextKey) -1;
+  const end = nextKey !== "undefined:"?funcOnlyString.indexOf(nextKey) -1:funcOnlyString.length -3;
   const functionBody = funcOnlyString.substring(start,end);
-  console.log("nouvelle etape : "+keyProvided)
-  console.log(functionIndex)
-  console.log(keyIndex)
-  console.log("suivante: "+nextKey)
-  console.log(start)
-  console.log(end)
   const aller = functionBody.substring(0,functionBody.lastIndexOf(","))
-  if(end == -2 ||keyIndex == -1)
+  if(end == -2 ||keyIndex == -1){
+    console.log("fail : "+keyProvided)
+    console.log("nouvelle etape : "+keyProvided)
+    console.log(functionIndex)
+    console.log(keyIndex)
+    console.log("suivante: "+nextKey)
+    console.log(start)
+    console.log(end)
     return "function (server: ZoneServer, client: Client, packet: any) {}"
+  }
   else
     return aller
 }
@@ -55,14 +57,14 @@ function camelCaseConvert(text:string){
   let packetHandlersFunctionStr = ` 
   import { ZoneClient as Client } from "./classes/zoneclient";\n
 import { ZoneServer } from "./zoneserver";\n
-import { _ } from "../../utils/utils";\n
 const debug = require("debug")("zonepacketHandlers");\n
 import { joaat } from "h1emu-core";\n
-let hax = require("./commands/hax");\n
-let dev = require("./commands/dev");\n
+let hax = require("./commands/hax").default;\n
+let dev = require("./commands/dev").default;\n
 import admin from "./commands/admin";\n
 import {
   _,
+  generateRandomGuid,
   Int64String,
   isPosInRadius,
 } from "../../utils/utils";\n
