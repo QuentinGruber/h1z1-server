@@ -2117,7 +2117,9 @@ const packetHandlers = {
             npcData: npcData,
             characterId: characterId,
           });
-          entityData.onReadyCallback();
+          if (entityData.onReadyCallback) {
+            entityData.onReadyCallback();
+          }
         break;
       case 3: // character
         server.sendData(client, "PlayerUpdate.LightweightToFullPc", {
