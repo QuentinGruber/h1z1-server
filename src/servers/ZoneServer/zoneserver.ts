@@ -16,6 +16,7 @@ import { GatewayServer } from "../GatewayServer/gatewayserver";
 import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
 import { H1emuZoneServer } from "../H1emuServer/h1emuZoneServer";
 import { H1emuClient } from "../H1emuServer/shared/h1emuclient";
+import { zonePacketHandlers } from "./zonepackethandlers";
 import {
   _,
   generateRandomGuid,
@@ -25,7 +26,6 @@ import {
   isPosInRadius,
   setupAppDataFolder,
   getDistance,
-  genZonePacketHandlersString,
 } from "../../utils/utils";
 import { Weather } from "../../types/zoneserver";
 import { Db, MongoClient } from "mongodb";
@@ -122,7 +122,7 @@ export class ZoneServer extends EventEmitter {
     this._props = {};
     this._serverTime = this.getCurrentTime();
     this._transientIds = {};
-    this._packetHandlersMap = require("./zonepackethandlers").default;
+    this._packetHandlersMap = require("./zonepackethandlersMap").default;
     this._packetHandlers = null;
     this._startTime = 0;
     this._startGameTime = 0;
@@ -350,7 +350,7 @@ export class ZoneServer extends EventEmitter {
       ) {
         debug(`Receive Data ${[packet.name]}`);
       }
-      this._packetHandlers(this, client, packet);
+      this._packetHandlers.processPacket(this, client, packet);
     }
   }
 
@@ -459,9 +459,9 @@ export class ZoneServer extends EventEmitter {
 
   async setupServer(): Promise<void> {
      // _packetHandlers is defined here to allow ppl using the lib to modify the packetHandlersMap
-    this._packetHandlers = genZonePacketHandlersString(this._packetHandlersMap);
+    this._packetHandlers = new zonePacketHandlers(this._packetHandlersMap);
     delete this._packetHandlersMap;
-    delete require.cache[require.resolve('./zonepackethandlers')]
+    delete require.cache[require.resolve('./zonepackethandlersMap')]
     this.forceTime(971172000000); // force day time by default - not working for now
     this._frozeCycle = false;
     await this.loadMongoData();
@@ -715,8 +715,8 @@ export class ZoneServer extends EventEmitter {
   }
 
   reloadZonePacketHandlers(): void {
-    delete require.cache[require.resolve("./zonepackethandlers")];
-    this._packetHandlers = genZonePacketHandlersString(require("./zonepackethandlers").default);
+    delete require.cache[require.resolve("./zonepackethandlersMap")];
+    this._packetHandlers = new zonePacketHandlers(require("./zonepackethandlersMap").default);
   }
 
   garbageCollection(): void {

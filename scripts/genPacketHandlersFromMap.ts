@@ -1,11 +1,6 @@
 import PacketHandlersObj from "../src/servers/ZoneServer/zonepackethandlersMap"
 import fs from "fs";
-  let packetHandlersFunctionStr = ` 
-  import { ZoneClient } from "./classes/zoneclient";\n
-import { ZoneServer } from "./zoneserver";\n
-import packetHandlerMap from "./zonepackethandlersMap";\n
-const debug = require("debug")("zonepacketHandlers");\n
-`;
+
 
 function camelCaseConvert(text:string){
     if(text.includes(".")){
@@ -15,7 +10,6 @@ function camelCaseConvert(text:string){
         txtArray[0] = text[0].toLowerCase();
         txtArray[dotIndex] = text[dotIndex].toUpperCase();
         text = txtArray.join("");
-        console.log(txtArray)
         return text;
     }
     else{
@@ -23,19 +17,30 @@ function camelCaseConvert(text:string){
     }
 }
 
-// create vars from map
+  let packetHandlersFunctionStr = ` 
+  import { ZoneClient } from "./classes/zoneclient";\n
+import { ZoneServer } from "./zoneserver";\n
+const debug = require("debug")("zonepacketHandlers");\n
+
+export class zonePacketHandlers{
+`;
+
 Object.keys(PacketHandlersObj).forEach((key:string) => {
-    packetHandlersFunctionStr += `const ${camelCaseConvert(key)} = packetHandlerMap["${key}"];\n`
+    packetHandlersFunctionStr += `${camelCaseConvert(key)}:any;\n`
   });
 
-packetHandlersFunctionStr += `export function packetHandlerSwitch(server:ZoneServer,client:ZoneClient,packet:any){\n
+  packetHandlersFunctionStr += "constructor(packetHandlerMap:any){"
+// create vars from map
+Object.keys(PacketHandlersObj).forEach((key:string) => {
+    packetHandlersFunctionStr += `this.${camelCaseConvert(key)} = packetHandlerMap["${key}"];\n`
+  });
+
+packetHandlersFunctionStr += `}processPacket(server:ZoneServer,client:ZoneClient,packet:any){\n
     switch(packet.name){\n`
 // create switch
   Object.keys(PacketHandlersObj).forEach((key:string) => {
-    const entireFunction = (PacketHandlersObj as any)[key].toString();
-    const functionBody = entireFunction.slice(entireFunction.indexOf("{"), entireFunction.lastIndexOf("}")+1);
-    packetHandlersFunctionStr += `case "${key}":\n${camelCaseConvert(key)}(server,client,packet);\nbreak\n`
+    packetHandlersFunctionStr += `case "${key}":\nthis.${camelCaseConvert(key)}(server,client,packet);\nbreak\n`
   });
 
-  packetHandlersFunctionStr += `default:debug(packet);debug('Packet not implemented in packetHandlers');break;}}exports.packetHandlerSwitch = packetHandlerSwitch;`
+  packetHandlersFunctionStr += `default:debug(packet);debug('Packet not implemented in packetHandlers');break;}}}`
   fs.writeFileSync(__dirname+"/../src/servers/ZoneServer/zonepackethandlers.ts",packetHandlersFunctionStr)

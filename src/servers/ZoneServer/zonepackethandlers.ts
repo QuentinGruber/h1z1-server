@@ -2,221 +2,269 @@ import { ZoneClient } from "./classes/zoneclient";
 
 import { ZoneServer } from "./zoneserver";
 
-import packetHandlerMap from "./zonepackethandlersMap";
-
 const debug = require("debug")("zonepacketHandlers");
 
-const ClientIsReady = packetHandlerMap["ClientIsReady"];
-const ClientFinishedLoading = packetHandlerMap["ClientFinishedLoading"];
-const Security = packetHandlerMap["Security"];
-const commandRecipeStart = packetHandlerMap["Command.RecipeStart"];
-const commandFreeInteractionNpc =
-  packetHandlerMap["Command.FreeInteractionNpc"];
-const collisionDamage = packetHandlerMap["Collision.Damage"];
-const lobbyGameDefinitionDefinitionsRequest =
-  packetHandlerMap["LobbyGameDefinition.DefinitionsRequest"];
-const playerUpdateEndCharacterAccess =
-  packetHandlerMap["PlayerUpdate.EndCharacterAccess"];
-const KeepAlive = packetHandlerMap["KeepAlive"];
-const ClientLog = packetHandlerMap["ClientLog"];
-const wallOfDataUIEvent = packetHandlerMap["WallOfData.UIEvent"];
-const SetLocale = packetHandlerMap["SetLocale"];
-const GetContinentBattleInfo = packetHandlerMap["GetContinentBattleInfo"];
-const chatChat = packetHandlerMap["Chat.Chat"];
-const loadoutSelectSlot = packetHandlerMap["Loadout.SelectSlot"];
-const ClientInitializationDetails =
-  packetHandlerMap["ClientInitializationDetails"];
-const ClientLogout = packetHandlerMap["ClientLogout"];
-const GameTimeSync = packetHandlerMap["GameTimeSync"];
-const Synchronization = packetHandlerMap["Synchronization"];
-const commandExecuteCommand = packetHandlerMap["Command.ExecuteCommand"];
-const commandSetProfile = packetHandlerMap["Command.SetProfile"];
-const playerUpdateWeaponStance = packetHandlerMap["PlayerUpdate.WeaponStance"];
-const mountDismountRequest = packetHandlerMap["Mount.DismountRequest"];
-const commandInteractRequest = packetHandlerMap["Command.InteractRequest"];
-const commandInteractionString = packetHandlerMap["Command.InteractionString"];
-const commandSetInWater = packetHandlerMap["Command.SetInWater"];
-const commandClearInWater = packetHandlerMap["Command.ClearInWater"];
-const commandInteractionSelect = packetHandlerMap["Command.InteractionSelect"];
-const playerUpdateVehicleCollision =
-  packetHandlerMap["PlayerUpdate.VehicleCollision"];
-const vehicleDismiss = packetHandlerMap["Vehicle.Dismiss"];
-const vehicleSpawn = packetHandlerMap["Vehicle.Spawn"];
-const vehicleAutoMount = packetHandlerMap["Vehicle.AutoMount"];
-const adminCommandSpawnVehicle = packetHandlerMap["AdminCommand.SpawnVehicle"];
-const commandInteractCancel = packetHandlerMap["Command.InteractCancel"];
-const commandStartLogoutRequest =
-  packetHandlerMap["Command.StartLogoutRequest"];
-const CharacterSelectSessionRequest =
-  packetHandlerMap["CharacterSelectSessionRequest"];
-const profileStatsGetPlayerProfileStats =
-  packetHandlerMap["ProfileStats.GetPlayerProfileStats"];
-const Pickup = packetHandlerMap["Pickup"];
-const GetRewardBuffInfo = packetHandlerMap["GetRewardBuffInfo"];
-const vehicleStateData = packetHandlerMap["Vehicle.StateData"];
-const PlayerUpdateManagedPosition =
-  packetHandlerMap["PlayerUpdateManagedPosition"];
-const PlayerUpdateUpdatePositionClientToZone =
-  packetHandlerMap["PlayerUpdateUpdatePositionClientToZone"];
-const commandPlayerSelect = packetHandlerMap["Command.PlayerSelect"];
-const constructionPlacementRequest =
-  packetHandlerMap["Construction.PlacementRequest"];
-const constructionPlacementFinalizeRequest =
-  packetHandlerMap["Construction.PlacementFinalizeRequest"];
-const playerUpdateRespawn = packetHandlerMap["PlayerUpdate.Respawn"];
-const playerUpdateFullCharacterDataRequest =
-  packetHandlerMap["PlayerUpdate.FullCharacterDataRequest"];
-export function packetHandlerSwitch(
-  server: ZoneServer,
-  client: ZoneClient,
-  packet: any
-) {
-  switch (packet.name) {
-    case "ClientIsReady":
-      ClientIsReady(server, client, packet);
-      break;
-    case "ClientFinishedLoading":
-      ClientFinishedLoading(server, client, packet);
-      break;
-    case "Security":
-      Security(server, client, packet);
-      break;
-    case "Command.RecipeStart":
-      commandRecipeStart(server, client, packet);
-      break;
-    case "Command.FreeInteractionNpc":
-      commandFreeInteractionNpc(server, client, packet);
-      break;
-    case "Collision.Damage":
-      collisionDamage(server, client, packet);
-      break;
-    case "LobbyGameDefinition.DefinitionsRequest":
-      lobbyGameDefinitionDefinitionsRequest(server, client, packet);
-      break;
-    case "PlayerUpdate.EndCharacterAccess":
-      playerUpdateEndCharacterAccess(server, client, packet);
-      break;
-    case "KeepAlive":
-      KeepAlive(server, client, packet);
-      break;
-    case "ClientLog":
-      ClientLog(server, client, packet);
-      break;
-    case "WallOfData.UIEvent":
-      wallOfDataUIEvent(server, client, packet);
-      break;
-    case "SetLocale":
-      SetLocale(server, client, packet);
-      break;
-    case "GetContinentBattleInfo":
-      GetContinentBattleInfo(server, client, packet);
-      break;
-    case "Chat.Chat":
-      chatChat(server, client, packet);
-      break;
-    case "Loadout.SelectSlot":
-      loadoutSelectSlot(server, client, packet);
-      break;
-    case "ClientInitializationDetails":
-      ClientInitializationDetails(server, client, packet);
-      break;
-    case "ClientLogout":
-      ClientLogout(server, client, packet);
-      break;
-    case "GameTimeSync":
-      GameTimeSync(server, client, packet);
-      break;
-    case "Synchronization":
-      Synchronization(server, client, packet);
-      break;
-    case "Command.ExecuteCommand":
-      commandExecuteCommand(server, client, packet);
-      break;
-    case "Command.SetProfile":
-      commandSetProfile(server, client, packet);
-      break;
-    case "PlayerUpdate.WeaponStance":
-      playerUpdateWeaponStance(server, client, packet);
-      break;
-    case "Mount.DismountRequest":
-      mountDismountRequest(server, client, packet);
-      break;
-    case "Command.InteractRequest":
-      commandInteractRequest(server, client, packet);
-      break;
-    case "Command.InteractionString":
-      commandInteractionString(server, client, packet);
-      break;
-    case "Command.SetInWater":
-      commandSetInWater(server, client, packet);
-      break;
-    case "Command.ClearInWater":
-      commandClearInWater(server, client, packet);
-      break;
-    case "Command.InteractionSelect":
-      commandInteractionSelect(server, client, packet);
-      break;
-    case "PlayerUpdate.VehicleCollision":
-      playerUpdateVehicleCollision(server, client, packet);
-      break;
-    case "Vehicle.Dismiss":
-      vehicleDismiss(server, client, packet);
-      break;
-    case "Vehicle.Spawn":
-      vehicleSpawn(server, client, packet);
-      break;
-    case "Vehicle.AutoMount":
-      vehicleAutoMount(server, client, packet);
-      break;
-    case "AdminCommand.SpawnVehicle":
-      adminCommandSpawnVehicle(server, client, packet);
-      break;
-    case "Command.InteractCancel":
-      commandInteractCancel(server, client, packet);
-      break;
-    case "Command.StartLogoutRequest":
-      commandStartLogoutRequest(server, client, packet);
-      break;
-    case "CharacterSelectSessionRequest":
-      CharacterSelectSessionRequest(server, client, packet);
-      break;
-    case "ProfileStats.GetPlayerProfileStats":
-      profileStatsGetPlayerProfileStats(server, client, packet);
-      break;
-    case "Pickup":
-      Pickup(server, client, packet);
-      break;
-    case "GetRewardBuffInfo":
-      GetRewardBuffInfo(server, client, packet);
-      break;
-    case "Vehicle.StateData":
-      vehicleStateData(server, client, packet);
-      break;
-    case "PlayerUpdateManagedPosition":
-      PlayerUpdateManagedPosition(server, client, packet);
-      break;
-    case "PlayerUpdateUpdatePositionClientToZone":
-      PlayerUpdateUpdatePositionClientToZone(server, client, packet);
-      break;
-    case "Command.PlayerSelect":
-      commandPlayerSelect(server, client, packet);
-      break;
-    case "Construction.PlacementRequest":
-      constructionPlacementRequest(server, client, packet);
-      break;
-    case "Construction.PlacementFinalizeRequest":
-      constructionPlacementFinalizeRequest(server, client, packet);
-      break;
-    case "PlayerUpdate.Respawn":
-      playerUpdateRespawn(server, client, packet);
-      break;
-    case "PlayerUpdate.FullCharacterDataRequest":
-      playerUpdateFullCharacterDataRequest(server, client, packet);
-      break;
-    default:
-      debug(packet);
-      debug("Packet not implemented in packetHandlers");
-      break;
+export class zonePacketHandlers {
+  ClientIsReady: any;
+  ClientFinishedLoading: any;
+  Security: any;
+  commandRecipeStart: any;
+  commandFreeInteractionNpc: any;
+  collisionDamage: any;
+  lobbyGameDefinitionDefinitionsRequest: any;
+  playerUpdateEndCharacterAccess: any;
+  KeepAlive: any;
+  ClientLog: any;
+  wallOfDataUIEvent: any;
+  SetLocale: any;
+  GetContinentBattleInfo: any;
+  chatChat: any;
+  loadoutSelectSlot: any;
+  ClientInitializationDetails: any;
+  ClientLogout: any;
+  GameTimeSync: any;
+  Synchronization: any;
+  commandExecuteCommand: any;
+  commandSetProfile: any;
+  playerUpdateWeaponStance: any;
+  mountDismountRequest: any;
+  commandInteractRequest: any;
+  commandInteractionString: any;
+  commandSetInWater: any;
+  commandClearInWater: any;
+  commandInteractionSelect: any;
+  playerUpdateVehicleCollision: any;
+  vehicleDismiss: any;
+  vehicleSpawn: any;
+  vehicleAutoMount: any;
+  adminCommandSpawnVehicle: any;
+  commandInteractCancel: any;
+  commandStartLogoutRequest: any;
+  CharacterSelectSessionRequest: any;
+  profileStatsGetPlayerProfileStats: any;
+  Pickup: any;
+  GetRewardBuffInfo: any;
+  vehicleStateData: any;
+  PlayerUpdateManagedPosition: any;
+  PlayerUpdateUpdatePositionClientToZone: any;
+  commandPlayerSelect: any;
+  constructionPlacementRequest: any;
+  constructionPlacementFinalizeRequest: any;
+  playerUpdateRespawn: any;
+  playerUpdateFullCharacterDataRequest: any;
+  constructor(packetHandlerMap: any) {
+    this.ClientIsReady = packetHandlerMap["ClientIsReady"];
+    this.ClientFinishedLoading = packetHandlerMap["ClientFinishedLoading"];
+    this.Security = packetHandlerMap["Security"];
+    this.commandRecipeStart = packetHandlerMap["Command.RecipeStart"];
+    this.commandFreeInteractionNpc =
+      packetHandlerMap["Command.FreeInteractionNpc"];
+    this.collisionDamage = packetHandlerMap["Collision.Damage"];
+    this.lobbyGameDefinitionDefinitionsRequest =
+      packetHandlerMap["LobbyGameDefinition.DefinitionsRequest"];
+    this.playerUpdateEndCharacterAccess =
+      packetHandlerMap["PlayerUpdate.EndCharacterAccess"];
+    this.KeepAlive = packetHandlerMap["KeepAlive"];
+    this.ClientLog = packetHandlerMap["ClientLog"];
+    this.wallOfDataUIEvent = packetHandlerMap["WallOfData.UIEvent"];
+    this.SetLocale = packetHandlerMap["SetLocale"];
+    this.GetContinentBattleInfo = packetHandlerMap["GetContinentBattleInfo"];
+    this.chatChat = packetHandlerMap["Chat.Chat"];
+    this.loadoutSelectSlot = packetHandlerMap["Loadout.SelectSlot"];
+    this.ClientInitializationDetails =
+      packetHandlerMap["ClientInitializationDetails"];
+    this.ClientLogout = packetHandlerMap["ClientLogout"];
+    this.GameTimeSync = packetHandlerMap["GameTimeSync"];
+    this.Synchronization = packetHandlerMap["Synchronization"];
+    this.commandExecuteCommand = packetHandlerMap["Command.ExecuteCommand"];
+    this.commandSetProfile = packetHandlerMap["Command.SetProfile"];
+    this.playerUpdateWeaponStance =
+      packetHandlerMap["PlayerUpdate.WeaponStance"];
+    this.mountDismountRequest = packetHandlerMap["Mount.DismountRequest"];
+    this.commandInteractRequest = packetHandlerMap["Command.InteractRequest"];
+    this.commandInteractionString =
+      packetHandlerMap["Command.InteractionString"];
+    this.commandSetInWater = packetHandlerMap["Command.SetInWater"];
+    this.commandClearInWater = packetHandlerMap["Command.ClearInWater"];
+    this.commandInteractionSelect =
+      packetHandlerMap["Command.InteractionSelect"];
+    this.playerUpdateVehicleCollision =
+      packetHandlerMap["PlayerUpdate.VehicleCollision"];
+    this.vehicleDismiss = packetHandlerMap["Vehicle.Dismiss"];
+    this.vehicleSpawn = packetHandlerMap["Vehicle.Spawn"];
+    this.vehicleAutoMount = packetHandlerMap["Vehicle.AutoMount"];
+    this.adminCommandSpawnVehicle =
+      packetHandlerMap["AdminCommand.SpawnVehicle"];
+    this.commandInteractCancel = packetHandlerMap["Command.InteractCancel"];
+    this.commandStartLogoutRequest =
+      packetHandlerMap["Command.StartLogoutRequest"];
+    this.CharacterSelectSessionRequest =
+      packetHandlerMap["CharacterSelectSessionRequest"];
+    this.profileStatsGetPlayerProfileStats =
+      packetHandlerMap["ProfileStats.GetPlayerProfileStats"];
+    this.Pickup = packetHandlerMap["Pickup"];
+    this.GetRewardBuffInfo = packetHandlerMap["GetRewardBuffInfo"];
+    this.vehicleStateData = packetHandlerMap["Vehicle.StateData"];
+    this.PlayerUpdateManagedPosition =
+      packetHandlerMap["PlayerUpdateManagedPosition"];
+    this.PlayerUpdateUpdatePositionClientToZone =
+      packetHandlerMap["PlayerUpdateUpdatePositionClientToZone"];
+    this.commandPlayerSelect = packetHandlerMap["Command.PlayerSelect"];
+    this.constructionPlacementRequest =
+      packetHandlerMap["Construction.PlacementRequest"];
+    this.constructionPlacementFinalizeRequest =
+      packetHandlerMap["Construction.PlacementFinalizeRequest"];
+    this.playerUpdateRespawn = packetHandlerMap["PlayerUpdate.Respawn"];
+    this.playerUpdateFullCharacterDataRequest =
+      packetHandlerMap["PlayerUpdate.FullCharacterDataRequest"];
+  }
+  processPacket(server: ZoneServer, client: ZoneClient, packet: any) {
+    switch (packet.name) {
+      case "ClientIsReady":
+        this.ClientIsReady(server, client, packet);
+        break;
+      case "ClientFinishedLoading":
+        this.ClientFinishedLoading(server, client, packet);
+        break;
+      case "Security":
+        this.Security(server, client, packet);
+        break;
+      case "Command.RecipeStart":
+        this.commandRecipeStart(server, client, packet);
+        break;
+      case "Command.FreeInteractionNpc":
+        this.commandFreeInteractionNpc(server, client, packet);
+        break;
+      case "Collision.Damage":
+        this.collisionDamage(server, client, packet);
+        break;
+      case "LobbyGameDefinition.DefinitionsRequest":
+        this.lobbyGameDefinitionDefinitionsRequest(server, client, packet);
+        break;
+      case "PlayerUpdate.EndCharacterAccess":
+        this.playerUpdateEndCharacterAccess(server, client, packet);
+        break;
+      case "KeepAlive":
+        this.KeepAlive(server, client, packet);
+        break;
+      case "ClientLog":
+        this.ClientLog(server, client, packet);
+        break;
+      case "WallOfData.UIEvent":
+        this.wallOfDataUIEvent(server, client, packet);
+        break;
+      case "SetLocale":
+        this.SetLocale(server, client, packet);
+        break;
+      case "GetContinentBattleInfo":
+        this.GetContinentBattleInfo(server, client, packet);
+        break;
+      case "Chat.Chat":
+        this.chatChat(server, client, packet);
+        break;
+      case "Loadout.SelectSlot":
+        this.loadoutSelectSlot(server, client, packet);
+        break;
+      case "ClientInitializationDetails":
+        this.ClientInitializationDetails(server, client, packet);
+        break;
+      case "ClientLogout":
+        this.ClientLogout(server, client, packet);
+        break;
+      case "GameTimeSync":
+        this.GameTimeSync(server, client, packet);
+        break;
+      case "Synchronization":
+        this.Synchronization(server, client, packet);
+        break;
+      case "Command.ExecuteCommand":
+        this.commandExecuteCommand(server, client, packet);
+        break;
+      case "Command.SetProfile":
+        this.commandSetProfile(server, client, packet);
+        break;
+      case "PlayerUpdate.WeaponStance":
+        this.playerUpdateWeaponStance(server, client, packet);
+        break;
+      case "Mount.DismountRequest":
+        this.mountDismountRequest(server, client, packet);
+        break;
+      case "Command.InteractRequest":
+        this.commandInteractRequest(server, client, packet);
+        break;
+      case "Command.InteractionString":
+        this.commandInteractionString(server, client, packet);
+        break;
+      case "Command.SetInWater":
+        this.commandSetInWater(server, client, packet);
+        break;
+      case "Command.ClearInWater":
+        this.commandClearInWater(server, client, packet);
+        break;
+      case "Command.InteractionSelect":
+        this.commandInteractionSelect(server, client, packet);
+        break;
+      case "PlayerUpdate.VehicleCollision":
+        this.playerUpdateVehicleCollision(server, client, packet);
+        break;
+      case "Vehicle.Dismiss":
+        this.vehicleDismiss(server, client, packet);
+        break;
+      case "Vehicle.Spawn":
+        this.vehicleSpawn(server, client, packet);
+        break;
+      case "Vehicle.AutoMount":
+        this.vehicleAutoMount(server, client, packet);
+        break;
+      case "AdminCommand.SpawnVehicle":
+        this.adminCommandSpawnVehicle(server, client, packet);
+        break;
+      case "Command.InteractCancel":
+        this.commandInteractCancel(server, client, packet);
+        break;
+      case "Command.StartLogoutRequest":
+        this.commandStartLogoutRequest(server, client, packet);
+        break;
+      case "CharacterSelectSessionRequest":
+        this.CharacterSelectSessionRequest(server, client, packet);
+        break;
+      case "ProfileStats.GetPlayerProfileStats":
+        this.profileStatsGetPlayerProfileStats(server, client, packet);
+        break;
+      case "Pickup":
+        this.Pickup(server, client, packet);
+        break;
+      case "GetRewardBuffInfo":
+        this.GetRewardBuffInfo(server, client, packet);
+        break;
+      case "Vehicle.StateData":
+        this.vehicleStateData(server, client, packet);
+        break;
+      case "PlayerUpdateManagedPosition":
+        this.PlayerUpdateManagedPosition(server, client, packet);
+        break;
+      case "PlayerUpdateUpdatePositionClientToZone":
+        this.PlayerUpdateUpdatePositionClientToZone(server, client, packet);
+        break;
+      case "Command.PlayerSelect":
+        this.commandPlayerSelect(server, client, packet);
+        break;
+      case "Construction.PlacementRequest":
+        this.constructionPlacementRequest(server, client, packet);
+        break;
+      case "Construction.PlacementFinalizeRequest":
+        this.constructionPlacementFinalizeRequest(server, client, packet);
+        break;
+      case "PlayerUpdate.Respawn":
+        this.playerUpdateRespawn(server, client, packet);
+        break;
+      case "PlayerUpdate.FullCharacterDataRequest":
+        this.playerUpdateFullCharacterDataRequest(server, client, packet);
+        break;
+      default:
+        debug(packet);
+        debug("Packet not implemented in packetHandlers");
+        break;
+    }
   }
 }
-exports.packetHandlerSwitch = packetHandlerSwitch;
