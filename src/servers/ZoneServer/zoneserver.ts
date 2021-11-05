@@ -60,7 +60,7 @@ export class ZoneServer extends EventEmitter {
   _gameTime: any;
   _serverTime: any;
   _transientIds: any;
-  _packetHandlers: any;
+  _packetHandlers: zonePacketHandlers;
   _startTime: number;
   _startGameTime: number;
   _timeMultiplier: number;
@@ -694,6 +694,7 @@ export class ZoneServer extends EventEmitter {
   }
 
   async reloadZonePacketHandlers(){
+    //@ts-ignore
     delete this._packetHandlers;
     delete require.cache[
       require.resolve("./zonepackethandlers")
