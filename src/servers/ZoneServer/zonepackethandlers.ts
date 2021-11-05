@@ -6,9 +6,9 @@ const debug = require("debug")("zonepacketHandlers");
 
 import { joaat } from "h1emu-core";
 
-let hax = require("./commands/hax");
+let hax = require("./commands/hax").default;
 
-let dev = require("./commands/dev");
+let dev = require("./commands/dev").default;
 
 import admin from "./commands/admin";
 
