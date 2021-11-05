@@ -226,17 +226,16 @@ export class ZoneServer2016 extends ZoneServer {
   async sendCharacterData(client: Client) {
     await this.loadCharacterData(client);
 
-    /*
-    const item: any = this.generateItem(client, 2425),
+    const item: any = this.generateItem(2425),
     containers = [
       [
         {
-          unknownDword1: 1501, // container itemDefinitionId ?
+          unknownDword1: 3, // container itemDefinitionId ?
           containerData: {
             guid: this.generateGuid(),
-            unknownDword1: 0,
+            unknownDword1: 3,
             unknownQword1: this.generateGuid(),
-            unknownDword2: 0,
+            unknownDword2: 3,
             items: [
               {
                 itemDefinitionId: this._items[item].itemDefinitionId,
@@ -260,12 +259,16 @@ export class ZoneServer2016 extends ZoneServer {
                   unknownBoolean2: true
                 }
               }
-            ]
+            ],
+            unknownBoolean1: true,
+            unknownDword3: 3,
+            unknownDword4: 3,
+            unknownDword5: 3,
+            unknownBoolean2: true,
           }
         }
       ]
     ]
-    */
 
     this.sendData(client, "SendSelfToClient", {
       data: {
@@ -377,7 +380,13 @@ export class ZoneServer2016 extends ZoneServer {
             },
           },
         ],
-        //containers: containers,
+        containers: containers,
+        //unknownQword1: client.character.characterId,
+        //unknownDword38: 1,
+        //vehicleLoadoutRelatedQword: client.character.characterId,
+        //unknownQword3: client.character.characterId,
+        //vehicleLoadoutRelatedDword: 1,
+        //unknownDword40: 1
       },
     });
     this.sendData(client, "Equipment.SetCharacterEquipment", {

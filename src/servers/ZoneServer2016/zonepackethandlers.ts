@@ -189,7 +189,6 @@ const packetHandlers = {
         () => server.saveCharacterPosition(client),
         30000
       );
-      //server._characters[client.character.characterId] = client.character;
       server.executeFuncForAllClients(()=>server.spawnCharacters);
     }
 

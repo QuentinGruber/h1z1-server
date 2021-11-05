@@ -632,34 +632,37 @@ const dev: any = {
     client: Client,
     args: any[]
   ) {
+    const backpack: any = server.generateItem(1602);
+    server.equipItem(client, backpack);
     const item: any = server.generateItem(2425),
+    containerGuid = server.generateGuid(),
       containers = [
         {
-          unknownDword1: 4, // container itemDefinitionId ?
+          unknownDword1: server._items[backpack].itemDefinition.ID, // container itemDefinitionId ?
           containerData: {
-            guid: server.generateGuid(),
-            unknownDword1: 4,
-            unknownQword1: server.generateGuid(),
-            unknownDword2: 4,
+            guid: backpack,
+            unknownDword1: 1,
+            unknownQword1: backpack,
+            unknownDword2: 1,
             items: [
               {
-                itemDefinitionId: server._items[item].itemDefinitionId,
+                itemDefinitionId: server._items[item].itemDefinition.ID,
                 itemData: {
-                  itemDefinitionId: server._items[item].itemDefinitionId,
+                  itemDefinitionId: server._items[item].itemDefinition.ID,
                   tintId: 1,
-                  guid: item,
+                  guid: containerGuid,
                   count: 1,
                   itemSubData: {
                     unknownBoolean1: false,
                   },
-                  unknownQword2: item,
+                  unknownQword2: containerGuid,
                   unknownDword4: 1,
                   slot: 1,
                   unknownDword6: 1,
                   unknownDword7: 1,
                   unknownDword8: 1,
                   unknownBoolean1: true,
-                  unknownQword3: item,
+                  unknownQword3: containerGuid,
                   unknownDword9: 1,
                   unknownBoolean2: true,
                 },
@@ -674,9 +677,8 @@ const dev: any = {
         },
       ];
     server.sendData(client, "Container.InitEquippedContainers", {
-      ignore: "0x123",
-      //ignore2: client.character.characterId,
-      characterId: "0x123",
+      ignore: client.character.characterId,
+      characterId: client.character.characterId,
       containers: containers,
     });
   },
@@ -696,9 +698,9 @@ const dev: any = {
             unknownDword2: 1,
             items: [
               {
-                itemDefinitionId: server._items[item].itemDefinitionId,
+                itemDefinitionId: server._items[item].itemDefinition.ID,
                 itemData: {
-                  itemDefinitionId: server._items[item].itemDefinitionId,
+                  itemDefinitionId: server._items[item].itemDefinition.ID,
                   tintId: 1,
                   guid: item,
                   count: 1,
@@ -734,46 +736,17 @@ const dev: any = {
   addcontainer: function (server: ZoneServer2016, client: Client, args: any[]) {
     const backpack: any = server.generateItem(1602);
     server.equipItem(client, backpack);
-    server.sendData(client, "ClientUpdate.ItemAdd", {
-      characterId: client.character.characterId,
-      data: {
-        itemDefinitionId: server._items[backpack].itemDefinition,
-        tintId: 5,
-        guid: backpack,
-        count: 10, // also ammoCount
-        itemSubData: {
-          unknownBoolean1: false,
-
-          unknownDword1: 1,
-          unknownData1: {
-            unknownQword1: backpack,
-            unknownDword1: 0,
-            unknownDword2: 0,
-          },
-        },
-        unknownQword2: backpack,
-        unknownDword4: 0,
-        slot: 1,
-        unknownDword6: 0,
-        unknownDword7: 0,
-        unknownDword8: 0,
-        unknownBoolean1: true,
-        unknownQword3: backpack,
-        unknownDword9: 0,
-        unknownBoolean2: true,
-      },
-    });
     const item: any = server.generateItem(2425),
       containerData = {
         guid: backpack,
-        unknownDword1: server._items[backpack].itemDefinition,
+        unknownDword1: server._items[backpack].itemDefinition.ID,
         unknownQword1: backpack,
         unknownDword2: 2,
         items: [
           {
-            itemDefinitionId: server._items[item].itemDefinitionId,
+            itemDefinitionId: server._items[item].itemDefinition.ID,
             itemData: {
-              itemDefinitionId: server._items[item].itemDefinitionId,
+              itemDefinitionId: server._items[item].itemDefinition.ID,
               tintId: 2,
               guid: item,
               count: 2,
@@ -823,35 +796,6 @@ const dev: any = {
   begincharacteraccess: function (server: ZoneServer2016, client: Client, args: any[]) {
     const backpack: any = server.generateItem(1602);
     server.equipItem(client, backpack);
-    server.sendData(client, "ClientUpdate.ItemAdd", {
-      characterId: client.character.characterId,
-      data: {
-        itemDefinitionId: server._items[backpack].itemDefinition,
-        tintId: 5,
-        guid: backpack,
-        count: 10, // also ammoCount
-        itemSubData: {
-          unknownBoolean1: false,
-
-          unknownDword1: 1,
-          unknownData1: {
-            unknownQword1: backpack,
-            unknownDword1: 0,
-            unknownDword2: 0,
-          },
-        },
-        unknownQword2: backpack,
-        unknownDword4: 0,
-        slot: 1,
-        unknownDword6: 0,
-        unknownDword7: 0,
-        unknownDword8: 0,
-        unknownBoolean1: true,
-        unknownQword3: backpack,
-        unknownDword9: 0,
-        unknownBoolean2: true,
-      },
-    });
     const objectCharacterId = server.generateGuid(),
     npc = {
       characterId: objectCharacterId,
@@ -884,9 +828,9 @@ const dev: any = {
           unknownDword2: 1,
           items: [
             {
-              itemDefinitionId: server._items[item].itemDefinitionId,
+              itemDefinitionId: server._items[item].itemDefinition.ID,
               itemData: {
-                itemDefinitionId: server._items[item].itemDefinitionId,
+                itemDefinitionId: server._items[item].itemDefinition.ID,
                 tintId: 1,
                 guid: item,
                 count: 1,
@@ -934,9 +878,9 @@ const dev: any = {
           items: [
             {
               item: {
-                itemDefinitionId: server._items[item].itemDefinitionId,
+                itemDefinitionId: server._items[item].itemDefinition.ID,
                 itemData: {
-                  itemDefinitionId: server._items[item].itemDefinitionId,
+                  itemDefinitionId: server._items[item].itemDefinition.ID,
                   tintId: 2,
                   guid: item,
                   count: 2,
