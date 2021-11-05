@@ -8280,9 +8280,25 @@ var packets = [
       ],
     },
   ],
-  ["Vehicle.AccessType", 0x881c, {}],
+  ["Vehicle.AccessType", 
+   0x881c, 
+     {
+      fields: [
+        { name: "vehicleGuid", type: "uint64string", defaultValue: "0x000000000000000000" },
+        { name: "accessType", type: "uint16", defaultValue: 0 },
+      ],
+    },
+  ],
   ["Vehicle.KickPlayer", 0x881d, {}],
-  ["Vehicle.HealthUpdateOwner", 0x881e, {}],
+  ["Vehicle.HealthUpdateOwner", 
+   0x881e, 
+   {
+      fields: [
+         { name: "vehicleGuid", type: "uint64string", defaultValue: "0" },
+         { name: "health", type: "float", defaultValue: 0 },
+       ],
+     }
+  ],
   ["Vehicle.OwnerPassengerList", 0x881f, {}],
   ["Vehicle.Kick", 0x8820, {}],
   ["Vehicle.NoAccess", 0x8821, {}],
