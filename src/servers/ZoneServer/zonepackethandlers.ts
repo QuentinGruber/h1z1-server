@@ -69,7 +69,7 @@ export class zonePacketHandlers {
   constructionPlacementFinalizeRequest: any;
   playerUpdateRespawn: any;
   playerUpdateFullCharacterDataRequest: any;
-  constructor(packetHandlerMap: any) {
+  constructor() {
     this.ClientIsReady = function (
       server: ZoneServer,
       client: Client,
@@ -2454,7 +2454,7 @@ export class zonePacketHandlers {
   async reloadCommandCache() {
     delete require.cache[require.resolve("./commands/hax")];
     delete require.cache[require.resolve("./commands/dev")];
-    hax = await import("./commands/hax");
-    dev = await import("./commands/dev");
+    hax = require("./commands/hax").default;
+    dev = require("./commands/dev").default;
   }
 }

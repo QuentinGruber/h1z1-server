@@ -78,7 +78,7 @@ Object.keys(PacketHandlersObj).forEach((key:string) => {
     packetHandlersFunctionStr += `${camelCaseConvert(key)}:any;\n`
   });
 
-  packetHandlersFunctionStr += "constructor(packetHandlerMap:any){"
+  packetHandlersFunctionStr += "constructor(){"
 // create vars from map
 Object.keys(PacketHandlersObj).forEach((key:string) => {
     packetHandlersFunctionStr += `this.${camelCaseConvert(key)} = ${foundBody((key))}\n`
@@ -96,8 +96,8 @@ packetHandlersFunctionStr += `}processPacket(server:ZoneServer,client:Client,pac
   packetHandlersFunctionStr += `async reloadCommandCache(){
     delete require.cache[require.resolve("./commands/hax")];
     delete require.cache[require.resolve("./commands/dev")];
-    hax = await import("./commands/hax");
-    dev = await import("./commands/dev");
+    hax = require("./commands/hax").default;
+    dev = require("./commands/dev").default;
   }`
   packetHandlersFunctionStr += `}`
 
