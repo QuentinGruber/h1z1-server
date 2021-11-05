@@ -94,7 +94,6 @@ export class ZoneServer extends EventEmitter {
   _h1emuZoneServer!: H1emuZoneServer;
   _loginServerInfo: { address?: string; port: number } = { port: 1110 };
   _clientProtocol: string = "ClientProtocol_860";
-  _packetHandlersMap: any;
 
   constructor(
     serverPort: number,
