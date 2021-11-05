@@ -95,6 +95,7 @@ export class ZoneServer extends EventEmitter {
   _h1emuZoneServer!: H1emuZoneServer;
   _loginServerInfo: { address?: string; port: number } = { port: 1110 };
   _clientProtocol: string = "ClientProtocol_860";
+  _packetHandlersMap: any;
 
   constructor(
     serverPort: number,
@@ -121,8 +122,8 @@ export class ZoneServer extends EventEmitter {
     this._props = {};
     this._serverTime = this.getCurrentTime();
     this._transientIds = {};
-    this._packetHandlers = genZonePacketHandlersString(require("./zonepackethandlers").default);
-    delete require.cache[require.resolve('./zonepackethandlers')]
+    this._packetHandlersMap = require("./zonepackethandlers").default;
+    this._packetHandlers = null;
     this._startTime = 0;
     this._startGameTime = 0;
     this._timeMultiplier = 72;
@@ -457,6 +458,10 @@ export class ZoneServer extends EventEmitter {
   }
 
   async setupServer(): Promise<void> {
+     // _packetHandlers is defined here to allow ppl using the lib to modify the packetHandlersMap
+    this._packetHandlers = genZonePacketHandlersString(this._packetHandlersMap);
+    delete this._packetHandlersMap;
+    delete require.cache[require.resolve('./zonepackethandlers')]
     this.forceTime(971172000000); // force day time by default - not working for now
     this._frozeCycle = false;
     await this.loadMongoData();
