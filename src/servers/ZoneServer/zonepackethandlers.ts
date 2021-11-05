@@ -6,6 +6,18 @@ import { _ } from "../../utils/utils";
 
 const debug = require("debug")("zonepacketHandlers");
 
+import { joaat } from "h1emu-core";
+
+let hax = require("./commands/hax");
+
+let dev = require("./commands/dev");
+
+import admin from "./commands/admin";
+
+import { _, Int64String, isPosInRadius } from "../../utils/utils";
+
+const modelToName = require("../../../data/2015/sampleData/ModelToName.json");
+
 export class zonePacketHandlers {
   ClientIsReady: any;
   ClientFinishedLoading: any;
@@ -2313,5 +2325,11 @@ export class zonePacketHandlers {
         debug("Packet not implemented in packetHandlers");
         break;
     }
+  }
+  async reloadCommandCache() {
+    delete require.cache[require.resolve("./commands/hax")];
+    delete require.cache[require.resolve("./commands/dev")];
+    hax = await import("./commands/hax");
+    dev = await import("./commands/dev");
   }
 }

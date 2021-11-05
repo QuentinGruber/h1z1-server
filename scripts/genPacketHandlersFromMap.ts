@@ -57,6 +57,16 @@ function camelCaseConvert(text:string){
 import { ZoneServer } from "./zoneserver";\n
 import { _ } from "../../utils/utils";\n
 const debug = require("debug")("zonepacketHandlers");\n
+import { joaat } from "h1emu-core";\n
+let hax = require("./commands/hax");\n
+let dev = require("./commands/dev");\n
+import admin from "./commands/admin";\n
+import {
+  _,
+  Int64String,
+  isPosInRadius,
+} from "../../utils/utils";\n
+const modelToName = require("../../../data/2015/sampleData/ModelToName.json");
 
 
 export class zonePacketHandlers{
@@ -79,6 +89,15 @@ packetHandlersFunctionStr += `}processPacket(server:ZoneServer,client:Client,pac
     packetHandlersFunctionStr += `case "${key}":\nthis.${camelCaseConvert(key)}(server,client,packet);\nbreak\n`
   });
 
-  packetHandlersFunctionStr += `default:debug(packet);debug('Packet not implemented in packetHandlers');break;}}}`
+  packetHandlersFunctionStr += `default:debug(packet);debug('Packet not implemented in packetHandlers');break;}}`
+
+  packetHandlersFunctionStr += `async reloadCommandCache(){
+    delete require.cache[require.resolve("./commands/hax")];
+    delete require.cache[require.resolve("./commands/dev")];
+    hax = await import("./commands/hax");
+    dev = await import("./commands/dev");
+  }`
+  packetHandlersFunctionStr += `}`
+
 
   fs.writeFileSync(__dirname+"/../src/servers/ZoneServer/zonepackethandlers.ts",packetHandlersFunctionStr)
