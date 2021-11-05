@@ -248,3 +248,38 @@ export const initMongo = async function (
   });
   debug("h1server database was missing... created one with samples.");
 };
+
+export const genZonePacketHandlersString = (PacketHandlersObj:any):string => {
+
+  let packetHandlersFunctionStr = ` // yeah that's shitty i need to do that in a better way
+  var _h1EmuCore = require("h1emu-core");
+var _hax = _interopRequireDefault(require("../servers/ZoneServer/commands/hax"));
+var _dev = _interopRequireDefault(require("../servers/ZoneServer/commands/dev"));
+var _admin = _interopRequireDefault(require("../servers/ZoneServer/commands/admin"));
+var _utils = require("./utils");
+function _interopRequireDefault(obj) {
+    return obj && obj.__esModule ? obj : {
+        default: obj
+    };
+}
+try {
+    // delete commands cache if exist so /dev reloadPackets reload them too
+    delete require.cache[require.resolve("./commands/hax")];
+    delete require.cache[require.resolve("./commands/dev")];
+} catch (e) {
+}
+const modelToName = require("../../data/2015/sampleData/ModelToName.json");
+const debug = require("debug")("zonepacketHandlers");
+  function packetHandlerSwitch(server,client,packet){
+    switch(packet.name){`;
+
+  Object.keys(PacketHandlersObj).forEach((key:string) => {
+    const entireFunction = PacketHandlersObj[key].toString();
+    const functionBody = entireFunction.slice(entireFunction.indexOf("{"), entireFunction.lastIndexOf("}")+1);
+    packetHandlersFunctionStr += `case "${key}":${functionBody};break;`
+  });
+
+  packetHandlersFunctionStr += `default:debug(packet);debug('Packet not implemented in packetHandlers');break;}}exports.packetHandlerSwitch = packetHandlerSwitch;`
+  fs.writeFileSync(__dirname+"/test.js",packetHandlersFunctionStr)
+  return require("./test.js").packetHandlerSwitch;
+}

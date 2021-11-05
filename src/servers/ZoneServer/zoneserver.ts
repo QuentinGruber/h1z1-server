@@ -13,7 +13,6 @@
 
 import { EventEmitter } from "events";
 import { GatewayServer } from "../GatewayServer/gatewayserver";
-import packetHandlers from "./zonepackethandlers";
 import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
 import { H1emuZoneServer } from "../H1emuServer/h1emuZoneServer";
 import { H1emuClient } from "../H1emuServer/shared/h1emuclient";
@@ -26,8 +25,9 @@ import {
   isPosInRadius,
   setupAppDataFolder,
   getDistance,
+  genZonePacketHandlersString,
 } from "../../utils/utils";
-import { HandledZonePackets, Weather } from "../../types/zoneserver";
+import { Weather } from "../../types/zoneserver";
 import { Db, MongoClient } from "mongodb";
 import { Worker } from "worker_threads";
 import SOEClient from "servers/SoeServer/soeclient";
@@ -60,7 +60,7 @@ export class ZoneServer extends EventEmitter {
   _gameTime: any;
   _serverTime: any;
   _transientIds: any;
-  _packetHandlers: HandledZonePackets;
+  _packetHandlers: any;
   _startTime: number;
   _startGameTime: number;
   _timeMultiplier: number;
@@ -121,7 +121,8 @@ export class ZoneServer extends EventEmitter {
     this._props = {};
     this._serverTime = this.getCurrentTime();
     this._transientIds = {};
-    this._packetHandlers = packetHandlers;
+    this._packetHandlers = genZonePacketHandlersString(require("./zonepackethandlers").default);
+    delete require.cache[require.resolve('./zonepackethandlers')]
     this._startTime = 0;
     this._startGameTime = 0;
     this._timeMultiplier = 72;
@@ -348,16 +349,7 @@ export class ZoneServer extends EventEmitter {
       ) {
         debug(`Receive Data ${[packet.name]}`);
       }
-      if ((this._packetHandlers as any)[packet.name]) {
-        try {
-          (this._packetHandlers as any)[packet.name](this, client, packet);
-        } catch (e) {
-          debug(e);
-        }
-      } else {
-        debug(packet);
-        debug("Packet not implemented in packetHandlers");
-      }
+      this._packetHandlers(this, client, packet);
     }
   }
 
@@ -719,7 +711,7 @@ export class ZoneServer extends EventEmitter {
 
   reloadZonePacketHandlers(): void {
     delete require.cache[require.resolve("./zonepackethandlers")];
-    this._packetHandlers = require("./zonepackethandlers").default;
+    this._packetHandlers = genZonePacketHandlersString(require("./zonepackethandlers").default);
   }
 
   garbageCollection(): void {
