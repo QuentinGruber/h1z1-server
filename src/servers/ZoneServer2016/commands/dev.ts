@@ -95,14 +95,13 @@ const dev: any = {
     args: any[]
   ) {
     if (!args[1]) {
-      server.sendChatText(client, "Missing unknownDword1 arg");
+      server.sendChatText(client, "Missing loadoutSlotId arg");
       return;
     }
-    const loadout = {
-      unknownDword1: Number(args[1]),
-    };
     server.sendChatText(client, "Sending selectloadout packet");
-    server.sendData(client, "Loadout.SelectLoadout", loadout);
+    server.sendData(client, "Loadout.SelectLoadout", {
+      loadoutSlotId: Number(args[1]),
+    });
   },
   setcurrentloadout: function (
     server: ZoneServer2016,
@@ -110,12 +109,12 @@ const dev: any = {
     args: any[]
   ) {
     if (!args[1]) {
-      server.sendChatText(client, "Missing loadoutId arg");
+      server.sendChatText(client, "Missing loadoutSlotId arg");
       return;
     }
     const loadout = {
       characterId: client.character.characterId,
-      loadoutId: Number(args[1]),
+      loadoutSlotId: Number(args[1]),
     };
     server.sendChatText(client, "Sending setcurrentloadout packet");
     server.sendData(client, "Loadout.SetCurrentLoadout", loadout);
@@ -125,28 +124,21 @@ const dev: any = {
       server.sendChatText(client, "Missing slotId and itemDefinitionId args.");
       return;
     }
-    const loadout = {
-      characterId: client.character.characterId,
-      loadoutId: 3,
-      loadoutData: {
-        loadoutSlots: [
-          {
-            unknownDword1: 3 /*15*/, // might be loadoutId?
-            itemDefinitionId: Number(args[2]),
-            slotId: Number(args[1]),
-            unknownData1: {
-              itemDefinitionId: Number(args[2]),
-              loadoutItemOwnerGuid: client.character.characterId,
-              unknownByte1: 17,
-            },
-            unknownDword4: 18,
-          },
-        ],
-      },
-      unknownDword2: 19,
-    };
     server.sendChatText(client, "Sending selectslot packet");
-    server.sendData(client, "Loadout.SetLoadoutSlots", loadout);
+    server.sendData(client, "Loadout.SetLoadoutSlot", {
+      characterId: client.character.characterId,
+      loadoutSlot: {
+        itemDefinitionId: Number(args[2]),
+        slotId: Number(args[1]),
+        unknownData1: {
+          itemDefinitionId: Number(args[2]),
+          loadoutItemOwnerGuid: client.character.characterId,
+          unknownByte1: 17,
+        },
+        unknownDword1: 16,
+      },
+      unknownDword1: 18,
+    });
   },
 
   containerevent: function (
@@ -160,8 +152,8 @@ const dev: any = {
         {
           guid: server.generateGuid(),
           unknownDword1: 1,
-          unknownQword1: server.generateGuid(),
-          unknownDword2: 2,
+          associatedCharacterId: server.generateGuid(),
+          slots: 2,
           containerItems: {
             items: [
               {
@@ -642,8 +634,8 @@ const dev: any = {
           containerData: {
             guid: backpack,
             unknownDword1: 1,
-            unknownQword1: backpack,
-            unknownDword2: 1,
+            associatedCharacterId: backpack,
+            slots: 1,
             items: [
               {
                 itemDefinitionId: server._items[item].itemDefinition.ID,
@@ -694,8 +686,8 @@ const dev: any = {
           containerData: {
             guid: client.character.characterId,
             unknownDword1: 1,
-            unknownQword1: client.character.characterId,
-            unknownDword2: 1,
+            associatedCharacterId: client.character.characterId,
+            slots: 1,
             items: [
               {
                 itemDefinitionId: server._items[item].itemDefinition.ID,
@@ -740,8 +732,8 @@ const dev: any = {
       containerData = {
         guid: backpack,
         unknownDword1: server._items[backpack].itemDefinition.ID,
-        unknownQword1: backpack,
-        unknownDword2: 2,
+        associatedCharacterId: backpack,
+        slots: 2,
         items: [
           {
             itemDefinitionId: server._items[item].itemDefinition.ID,
@@ -824,8 +816,8 @@ const dev: any = {
         containerData: {
           guid: containerGuid,
           unknownDword1: 1,
-          unknownQword1: containerGuid,
-          unknownDword2: 1,
+          associatedCharacterId: containerGuid,
+          slots: 1,
           items: [
             {
               itemDefinitionId: server._items[item].itemDefinition.ID,
@@ -908,6 +900,17 @@ const dev: any = {
     }, 3000)
     
   },
+  fte: function (server: ZoneServer2016, client: Client, args: any[]) {
+    if(!args[3]){
+      server.sendChatText(client, "Missing 3 args");
+      return;
+    }
+    server.sendData(client, "FirstTimeEvent.State", {
+      unknownDword1: Number(args[1]),
+      unknownDword2: Number(args[2]),
+      unknownBoolean1: Boolean(args[3])
+    });
+  }
   /*
     proxiedobjects: function(server: ZoneServer2016, client: Client, args: any[]) {
 

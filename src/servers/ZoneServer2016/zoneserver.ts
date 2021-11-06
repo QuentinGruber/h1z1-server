@@ -226,9 +226,9 @@ export class ZoneServer2016 extends ZoneServer {
           containerData: {
             guid: this.generateGuid(),
             unknownDword1: 3,
-            unknownQword1: this.generateGuid(),
-            unknownDword2: 3,
-            items: [
+            associatedCharacterId: client.character.characterId,
+            slots: 9999,
+            items: [/*
               {
                 itemDefinitionId: this._items[item].itemDefinitionId,
                 itemData: {
@@ -241,7 +241,7 @@ export class ZoneServer2016 extends ZoneServer {
                   },
                   unknownQword2: item,
                   unknownDword4: 0,
-                  slot: 0,
+                  slot: 1,
                   unknownDword6: 0,
                   unknownDword7: 0,
                   unknownDword8: 0,
@@ -250,7 +250,7 @@ export class ZoneServer2016 extends ZoneServer {
                   unknownDword9: 0,
                   unknownBoolean2: true
                 }
-              }
+              }*/
             ],
             unknownBoolean1: true,
             unknownDword3: 3,
@@ -279,7 +279,7 @@ export class ZoneServer2016 extends ZoneServer {
           characterName: client.character.name,
         },
         inventory: {
-          items: Object.keys(client.character._inventory).map((item: any) => {
+          items: Object.keys(client.character._inventory).map((item: any, index: number) => {
             return {
               itemDefinitionId: this._items[item].itemDefinition.ID,
               tintId: 5,
@@ -310,7 +310,7 @@ export class ZoneServer2016 extends ZoneServer {
         recipes: recipes,
         stats: stats,
         loadoutSlots: {
-          loadoutId: 5,
+          loadoutId: 3,
           loadoutData: {
             loadoutSlots: client.character.loadout.map((slot: characterLoadout) => {
               return {
@@ -326,7 +326,7 @@ export class ZoneServer2016 extends ZoneServer {
               };
             }),
           },
-          unknownDword2: 19,
+          loadoutSlotId: 3,
         },
         characterResources: [
           {
@@ -989,7 +989,7 @@ export class ZoneServer2016 extends ZoneServer {
       unknownBoolean: false,
     });
   }
-
+  
   sendRawToAllOthersWithSpawnedCharacter(client: Client, entityCharacterId: string = "", data: any): void {
     for (const a in this._clients) {
       if (client != this._clients[a] && 
@@ -1133,7 +1133,7 @@ export class ZoneServer2016 extends ZoneServer {
   updateLoadout(client: Client) {
     this.sendData(client, "Loadout.SetLoadoutSlots", {
       characterId: client.character.characterId,
-      loadoutId: 5,
+      loadoutId: 3,
       loadoutData: {
         loadoutSlots: client.character.loadout.map((slot: characterLoadout) => {
           return {
@@ -1149,7 +1149,7 @@ export class ZoneServer2016 extends ZoneServer {
           };
         }),
       },
-      unknownDword2: 19,
+      loadoutSlotId: 3,
     });
   }
 

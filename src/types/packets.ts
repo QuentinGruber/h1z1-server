@@ -879,7 +879,7 @@ export type h1z1PacketsType =
   | "Loadout.SelectLoadout"
   | "Loadout.SetCurrentLoadout"
   | "Loadout.SelectSlot"
-  | "Loadout.SelectClientSlot"
+  | "Loadout.SetLoadoutSlot"
   | "Loadout.SetCurrentSlot"
   | "Loadout.CreateCustomLoadout"
   | "Loadout.SelectSlotItem"
@@ -2432,7 +2432,9 @@ export type h1z1PacketsType =
   | "PlayerHeatWarning"
   | "AnimationBase"
   | "AccessedCharacter.BeginCharacterAccess"
-  | "AccessedCharacter.Unknown1";
+  | "AccessedCharacter.Unknown1"
+  | "FirstTimeEvent.State"
+  | "FirstTimeEvent.Script";
 export type loginPacketsType =
   | "LoginRequest"
   | "LoginReply"
