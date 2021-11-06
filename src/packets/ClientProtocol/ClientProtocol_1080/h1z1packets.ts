@@ -276,7 +276,7 @@ function packPositionUpdateData(obj: any) {
   if ("orientation" in obj) {
     flags |= 0x20;
     v = Buffer.allocUnsafe(4);
-    v.writeUInt32LE(obj["orientation"], 0);
+    v.writeFloatLE(obj["orientation"], 0);
     data = Buffer.concat([data, v]);
   }
 
