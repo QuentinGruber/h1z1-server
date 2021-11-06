@@ -474,6 +474,7 @@ export class ZoneServer extends EventEmitter {
       await this.saveWorld();
     }
     if (!this._soloMode) {
+      this.sendZonePopulationUpdate();
       debug("Starting H1emuZoneServer");
       if (!this._loginServerInfo.address) {
         await this.fetchLoginInfo();
@@ -520,6 +521,19 @@ export class ZoneServer extends EventEmitter {
       allTransient[object.transientId] = key;
     }
     return allTransient;
+  }
+
+
+  sendZonePopulationUpdate(){
+    const populationNumber = _.size(this._characters);
+    this._h1emuZoneServer.sendData(
+            {
+              ...this._loginServerInfo,
+              session: true,
+            } as any,
+            "UpdateZonePopulation",
+            { population: populationNumber }
+          );
   }
 
   async fetchWorldData(): Promise<void> {
