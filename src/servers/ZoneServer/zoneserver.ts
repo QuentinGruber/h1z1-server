@@ -483,12 +483,6 @@ export class ZoneServer extends EventEmitter {
         serverId: this._worldId,
       });
       this._h1emuZoneServer.start();
-      await this._db
-        ?.collection("servers")
-        .findOneAndUpdate(
-          { serverId: this._worldId },
-          { $set: { populationNumber: 0, populationLevel: 0 } }
-        );
     }
     if (this._enableGarbageCollection) {
       setInterval(() => {
