@@ -370,6 +370,7 @@ export interface npcData {
   transientId: number;
   modelId: number;
   scale: number[];
+  resources: any;
   position: Float32Array;
   rotation: Float32Array;
   attachedObject: any;
@@ -377,6 +378,7 @@ export interface npcData {
   isVehicle: boolean;
   color: any;
   unknownArray1: any[];
+  destroyedState: number;
   array5: any[];
   array17: any[];
   array18: any[];

@@ -1,8 +1,7 @@
-import express from "express";
 import { MongoClient } from "mongodb";
 import { httpServerMessage } from "types/shared";
 import { parentPort, workerData } from "worker_threads";
-
+import http from "http";
 function sendMessageToServer(type: string, requestId: number, data: any) {
   const message: httpServerMessage = {
     type: type,
@@ -11,9 +10,6 @@ function sendMessageToServer(type: string, requestId: number, data: any) {
   };
   parentPort?.postMessage(message);
 }
-
-const app = express();
-app.use(express.json());
 
 const { MONGO_URL, SERVER_PORT } = workerData;
 
@@ -24,25 +20,74 @@ client.connect();
 let requestCount = 0;
 const pendingRequest: any = {};
 
-app.get("/servers", async function (req: any, res: any) {
-  const collection = db.collection("servers");
-  const serversArray = await collection.find().toArray();
-  res.send(JSON.stringify(serversArray));
-});
+function parseQueryString(queryString: string) {
+  const queryObject: any = {};
+  const elementArray = queryString.split("&");
+  elementArray.forEach((element: string) => {
+    const [key, value] = element.split("=");
+    queryObject[key] = value;
+  });
+  return queryObject;
+}
 
-app.get("/ping", async function (req: any, res: any) {
-  requestCount++;
-  sendMessageToServer("ping", requestCount, null);
-  pendingRequest[requestCount] = res;
-});
-
-app.listen(SERVER_PORT);
+http
+  .createServer(async function (req, res) {
+    const url = req.url ? req.url.substr(1, req.url.length - 1) : "";
+    const [path, queryString] = url.split("?");
+    const queryObject: any = queryString ? parseQueryString(queryString) : null;
+    switch (path) {
+      case "servers": {
+        const collection = db.collection("servers");
+        const serversArray = await collection.find().toArray();
+        res.writeHead(200, { "Content-Type": "text/json" });
+        res.write(JSON.stringify(serversArray));
+        res.end();
+        break;
+      }
+      case "ping": {
+        requestCount++;
+        sendMessageToServer("ping", requestCount, null);
+        pendingRequest[requestCount] = res;
+        break;
+      }
+      case "pingzone": {
+        requestCount++;
+        sendMessageToServer(
+          "pingzone",
+          requestCount,
+          Number(queryObject?.serverId)
+        );
+        pendingRequest[requestCount] = res;
+        break;
+      }
+      default:
+        res.writeHead(404, { "Content-Type": "text/json" });
+        res.end();
+        break;
+    }
+  })
+  .listen(SERVER_PORT);
 
 parentPort?.on(`message`, (message: httpServerMessage) => {
   const { type, requestId, data } = message;
   switch (type) {
+    case "pingzone": {
+      const res = pendingRequest[requestId];
+      if (data === "pong") {
+        res.writeHead(200, { "Content-Type": "text/json" });
+        res.write(data);
+      } else {
+        res.writeHead(404, { "Content-Type": "text/json" });
+      }
+      res.end();
+      delete pendingRequest[requestId];
+      break;
+    }
     case "ping":
-      pendingRequest[requestId].send(data);
+      const res = pendingRequest[requestId];
+      res.writeHead(200, { "Content-Type": "text/json" });
+      res.write(data);
+      res.end();
       delete pendingRequest[requestId];
       break;
     default:

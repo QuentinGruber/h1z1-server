@@ -55,7 +55,7 @@ function writePacketType(packetType: number) {
     packetTypeBytes.unshift(packetType & 0xff);
     packetType = packetType >> 8;
   }
-  const data = Buffer.alloc(packetTypeBytes.length);
+  const data = Buffer.allocUnsafe(packetTypeBytes.length);
   for (let i = 0; i < packetTypeBytes.length; i++) {
     data.writeUInt8(packetTypeBytes[i], i);
   }
@@ -87,7 +87,7 @@ export function packUnsignedIntWith2bitLengthValue(value: number) {
     n = 1;
   }
   value |= n;
-  const data = Buffer.alloc(4);
+  const data = Buffer.allocUnsafe(4);
   data.writeUInt32LE(value, 0);
   return data.slice(0, n + 1);
 }
@@ -124,7 +124,7 @@ function packSignedIntWith2bitLengthValue(value: number) {
   }
   value |= n << 1;
   value |= sign;
-  const data = Buffer.alloc(4);
+  const data = Buffer.allocUnsafe(4);
   data.writeUInt32LE(value, 0);
   return data.slice(0, n + 1);
 }
@@ -250,7 +250,7 @@ function readPositionUpdateData(data: Buffer, offset: number) {
 }
 
 function packPositionUpdateData(obj: any) {
-  let data = Buffer.alloc(7),
+  let data = Buffer.allocUnsafe(7),
     flags = 0,
     v;
 
@@ -275,7 +275,7 @@ function packPositionUpdateData(obj: any) {
 
   if ("orientation" in obj) {
     flags |= 0x20;
-    v = Buffer.alloc(4);
+    v = Buffer.allocUnsafe(4);
     v.writeFloatLE(obj["orientation"], 0);
     data = Buffer.concat([data, v]);
   }
@@ -1511,7 +1511,7 @@ function parseWeaponPacket(data: Buffer, offset: number) {
   obj.gameTime = data.readUInt32LE(offset);
   const tmpData = data.slice(offset + 4);
 
-  const weaponPacketData = Buffer.alloc(tmpData.length + 1);
+  const weaponPacketData = Buffer.allocUnsafe(tmpData.length + 1);
   weaponPacketData.writeUInt8(0x85, 0);
   tmpData.copy(weaponPacketData, 1);
 
@@ -1550,7 +1550,7 @@ function packWeaponPacket(obj: any) {
       subTypeData = writePacketType(subType);
     let subData = DataSchema.pack(subPacket.schema, subObj).data;
     subData = Buffer.concat([subTypeData.slice(1), subData]);
-    data = Buffer.alloc(subData.length + 4);
+    data = Buffer.allocUnsafe(subData.length + 4);
     data.writeUInt32LE((obj.gameTime & 0xffffffff) >>> 0, 0);
     subData.copy(data, 4);
   } else {
@@ -4699,7 +4699,35 @@ var packets = [
     },
   ],
   ["PlayerUpdate.UpdateHitpoints", 0x0f03, {}],
-  ["PlayerUpdate.PlayAnimation", 0x0f04, {}],
+  ["PlayerUpdate.PlayAnimation", 0x0f04, {
+    fields: [
+      {
+        name: "characterId",
+        type: "uint64string",
+        defaultValue: "0x0000000000000000",
+      },
+      {
+        name: "unk1",
+        type: "uint32",
+        defaultValue: 1,
+      },
+      {
+        name: "unk2",
+        type: "uint32",
+        defaultValue: 2,
+      },
+      {
+        name: "unk3",
+        type: "uint8",
+        defaultValue: 3,
+      },
+      {
+        name: "unk4",
+        type: "uint32",
+        defaultValue: 4,
+      },
+    ],
+  }],
   ["PlayerUpdate.AddNotifications", 0x0f05, {}],
   ["PlayerUpdate.RemoveNotifications", 0x0f06, {}],
   [
@@ -4806,9 +4834,8 @@ var packets = [
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "unknownDword1", type: "uint32", defaultValue: 1 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 8192 },
-        { name: "gameTime", type: "uint32", defaultValue: 0 },
+        { name: "state", type: "uint64string", defaultValue: "0" },
+        { name: "gameTime", type: "uint32", defaultValue: 1 },
       ],
     },
   ],
@@ -4952,7 +4979,15 @@ var packets = [
       ],
     },
   ],
-  ["PlayerUpdate.WeaponStance", 0x0f25, {}],
+  ["PlayerUpdate.WeaponStance", 
+   0x0f25,
+       {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "stance", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
   ["PlayerUpdate.UpdateTintAlias", 0x0f26, {}],
   [
     "PlayerUpdate.MoveOnRail",
@@ -5756,7 +5791,11 @@ var packets = [
     "PlayerUpdate.BeginCharacterAccess",
     0x0f6c,
     {
-      fields: [],
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "state", type: "boolean", defaultValue: 0 },
+        { name: "unk1", type: "uint32", defaultValue: 0 },
+      ],
     },
   ],
   [
@@ -8241,9 +8280,25 @@ var packets = [
       ],
     },
   ],
-  ["Vehicle.AccessType", 0x881c, {}],
+  ["Vehicle.AccessType", 
+   0x881c, 
+     {
+      fields: [
+        { name: "vehicleGuid", type: "uint64string", defaultValue: "0x000000000000000000" },
+        { name: "accessType", type: "uint16", defaultValue: 0 },
+      ],
+    },
+  ],
   ["Vehicle.KickPlayer", 0x881d, {}],
-  ["Vehicle.HealthUpdateOwner", 0x881e, {}],
+  ["Vehicle.HealthUpdateOwner", 
+   0x881e, 
+   {
+      fields: [
+         { name: "vehicleGuid", type: "uint64string", defaultValue: "0" },
+         { name: "health", type: "float", defaultValue: 0 },
+       ],
+     }
+  ],
   ["Vehicle.OwnerPassengerList", 0x881f, {}],
   ["Vehicle.Kick", 0x8820, {}],
   ["Vehicle.NoAccess", 0x8821, {}],
@@ -8373,16 +8428,14 @@ var packets = [
     0x8e01,
     {
       fields: [
-        { name: "guid", type: "uint64string", defaultValue: "0" },
         { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-        { name: "id", type: "uint32", defaultValue: 0 },
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "objectCharacterId", type: "uint64string", defaultValue: 0 },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "damage", type: "uint32", defaultValue: 0 }, 
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-        { name: "damage", type: "uint32", defaultValue: 0 }, // big values, suggest dividing by like 1,7kk
+        { name: "position", type: "floatvector3", defaultValue: 0 },
         { name: "unknownByte2", type: "uint8", defaultValue: 0 },
-        { name: "unknownDword6", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword7", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword8", type: "uint32", defaultValue: 0 },
       ],
     },
   ],
@@ -9250,7 +9303,7 @@ var packets = [
           parser: readUnsignedIntWith2bitLengthValue,
           packer: packUnsignedIntWith2bitLengthValue,
         },
-        { name: "unk", type: "uint32", defaultValue: 0.0 },
+        { name: "damage", type: "float", defaultValue: 0.0 },
       ],
     },
   ],
@@ -9558,18 +9611,18 @@ var packets = [
     0xd001,
     {
       fields: [
-        { name: "usePositionUpdate", type: "boolean", defaultValue: 0 }, // if set to true it need at lot more fields that seems to be a positionUpdate
+        { name: "usePositionUpdate", type: "boolean", defaultValue: true }, // if set to true it need at lot more fields that seems to be a positionUpdate
         {
           name: "characterId",
           type: "uint64string",
           defaultValue: "0x0000000000000000",
         },
-        /*{
+        {
           name: "positionUpdate",
           type: "custom",
           parser: readPositionUpdateData,
           packer: packPositionUpdateData,
-        },*/
+        },
       ],
     },
   ],
