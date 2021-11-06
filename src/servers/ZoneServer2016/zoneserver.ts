@@ -53,7 +53,8 @@ export class ZoneServer2016 extends ZoneServer {
   _weatherTemplates: any;
   _items: any = {};
   _vehicles: {[characterId: string]: Vehicle} = {};
-
+  _reloadPacketsInterval: any;
+  
   constructor(serverPort: number, gatewayKey: Uint8Array, mongoAddress = "") {
     super(serverPort, gatewayKey, mongoAddress);
     this._protocol = new H1Z1Protocol("ClientProtocol_1080");
@@ -1336,13 +1337,13 @@ export class ZoneServer2016 extends ZoneServer {
         true
       );
     } else {
-      this.reloadZonePacketHandlers();
+      this.reloadZonePacketHandlers_();
       this._protocol.reloadPacketDefinitions();
       this.sendChatText(client, "[DEV] Packets reloaded", true);
     }
   }
 
-  reloadZonePacketHandlers(): void {
+  reloadZonePacketHandlers_(): void {
     delete require.cache[require.resolve("./zonepackethandlers")];
     this._packetHandlers = require("./zonepackethandlers").default;
   }
