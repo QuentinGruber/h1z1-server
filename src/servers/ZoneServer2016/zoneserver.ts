@@ -49,7 +49,7 @@ const loadoutEquipSlots = require("./../../../data/2016/dataSources/LoadoutEquip
 export class ZoneServer2016 extends ZoneServer {
   _weather2016: Weather2016;
   // @ts-ignore yeah idk how to fix that
-  _packetHandlers: HandledZonePackets2016 = new zonePacketHandlers();
+  _packetHandlers: zonePacketHandlers = new zonePacketHandlers();
   _weatherTemplates: any;
   _items: any = {};
   _vehicles: {[characterId: string]: Vehicle} = {};
@@ -107,16 +107,7 @@ export class ZoneServer2016 extends ZoneServer {
       ) {
         debug(`Receive Data ${[packet.name]}`);
       }
-      if ((this._packetHandlers as any)[packet.name]) {
-        try {
-          (this._packetHandlers as any)[packet.name](this, client, packet);
-        } catch (e) {
-          debug(e);
-        }
-      } else {
-        debug(packet);
-        debug("Packet not implemented in packetHandlers");
-      }
+      this._packetHandlers.processPacket(this, client, packet);
     }
   }
 
