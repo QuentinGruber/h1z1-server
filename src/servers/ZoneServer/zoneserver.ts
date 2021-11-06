@@ -474,7 +474,6 @@ export class ZoneServer extends EventEmitter {
       await this.saveWorld();
     }
     if (!this._soloMode) {
-      this.sendZonePopulationUpdate();
       debug("Starting H1emuZoneServer");
       if (!this._loginServerInfo.address) {
         await this.fetchLoginInfo();
@@ -483,6 +482,7 @@ export class ZoneServer extends EventEmitter {
         serverId: this._worldId,
       });
       this._h1emuZoneServer.start();
+      this.sendZonePopulationUpdate();
     }
     if (this._enableGarbageCollection) {
       setInterval(() => {
