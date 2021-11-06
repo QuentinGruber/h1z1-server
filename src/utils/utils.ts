@@ -241,17 +241,3 @@ export const initMongo = async function (
   });
   debug("h1server database was missing... created one with samples.");
 };
-
-export function createPositionUpdate(position: Float32Array, rotation: any, gameTime: any): any {
-  const obj: any = {
-    flags: 4095,
-    unknown2_int32: gameTime,
-    unknown3_int8: 0,
-    unknown4: 1,
-    position: position,
-  };
-  if (rotation) {
-    obj.unknown13_float = rotation;
-  }
-  return obj;
-}
