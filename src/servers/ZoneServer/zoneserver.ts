@@ -13,7 +13,6 @@
 
 import { EventEmitter } from "events";
 import { GatewayServer } from "../GatewayServer/gatewayserver";
-import packetHandlers from "./zonepackethandlers";
 import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
 import { H1emuZoneServer } from "../H1emuServer/h1emuZoneServer";
 import { H1emuClient } from "../H1emuServer/shared/h1emuclient";
@@ -27,7 +26,7 @@ import {
   setupAppDataFolder,
   getDistance,
 } from "../../utils/utils";
-import { HandledZonePackets, Weather } from "../../types/zoneserver";
+import { Weather } from "../../types/zoneserver";
 import { Db, MongoClient } from "mongodb";
 import { Worker } from "worker_threads";
 import SOEClient from "servers/SoeServer/soeclient";
@@ -38,6 +37,7 @@ import { Resolver } from "dns";
 
 process.env.isBin && require("./workers/dynamicWeather");
 
+import { zonePacketHandlers } from "./zonepackethandlers";
 const localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json");
 
 const debugName = "ZoneServer";
@@ -60,7 +60,7 @@ export class ZoneServer extends EventEmitter {
   _gameTime: any;
   _serverTime: any;
   _transientIds: any;
-  _packetHandlers: HandledZonePackets;
+  _packetHandlers: zonePacketHandlers;
   _startTime: number;
   _startGameTime: number;
   _timeMultiplier: number;
@@ -73,7 +73,6 @@ export class ZoneServer extends EventEmitter {
   _weatherTemplates: any;
   _npcs: any;
   _objects: any;
-  _reloadPacketsInterval: any;
   _pingTimeoutTime: number;
   _worldId: number;
   _npcRenderDistance: number;
@@ -121,12 +120,11 @@ export class ZoneServer extends EventEmitter {
     this._props = {};
     this._serverTime = this.getCurrentTime();
     this._transientIds = {};
-    this._packetHandlers = packetHandlers;
+    this._packetHandlers = new zonePacketHandlers();
     this._startTime = 0;
     this._startGameTime = 0;
     this._timeMultiplier = 72;
     this._cycleSpeed = 0;
-    this._reloadPacketsInterval;
     this._soloMode = false;
     this._weatherTemplates = localWeatherTemplates;
     this._defaultWeatherTemplate = "h1emubaseweather";
@@ -348,16 +346,7 @@ export class ZoneServer extends EventEmitter {
       ) {
         debug(`Receive Data ${[packet.name]}`);
       }
-      if ((this._packetHandlers as any)[packet.name]) {
-        try {
-          (this._packetHandlers as any)[packet.name](this, client, packet);
-        } catch (e) {
-          debug(e);
-        }
-      } else {
-        debug(packet);
-        debug("Packet not implemented in packetHandlers");
-      }
+      this._packetHandlers.processPacket(this, client, packet);
     }
   }
 
@@ -698,28 +687,20 @@ export class ZoneServer extends EventEmitter {
   }
 
   reloadPackets(client: Client, intervalTime = -1): void {
-    if (intervalTime > 0) {
-      if (this._reloadPacketsInterval)
-        clearInterval(this._reloadPacketsInterval);
-      this._reloadPacketsInterval = setInterval(
-        () => this.reloadPackets(client),
-        intervalTime * 1000
-      );
-      this.sendChatText(
-        client,
-        `[DEV] Packets reload interval is set to ${intervalTime} seconds`,
-        true
-      );
-    } else {
       this.reloadZonePacketHandlers();
       this._protocol.reloadPacketDefinitions();
       this.sendChatText(client, "[DEV] Packets reloaded", true);
-    }
   }
 
-  reloadZonePacketHandlers(): void {
-    delete require.cache[require.resolve("./zonepackethandlers")];
-    this._packetHandlers = require("./zonepackethandlers").default;
+  async reloadZonePacketHandlers(){
+    //@ts-ignore
+    delete this._packetHandlers;
+    delete require.cache[
+      require.resolve("./zonepackethandlers")
+    ];
+    ;
+    this._packetHandlers = new (require("./zonepackethandlers") as any).zonePacketHandlers();
+    await this._packetHandlers.reloadCommandCache();
   }
 
   garbageCollection(): void {
