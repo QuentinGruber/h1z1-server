@@ -1,7 +1,7 @@
-import PacketHandlersObj from "../src/servers/ZoneServer/zonepackethandlersMap"
+import PacketHandlersObj from "../src/servers/ZoneServer2016/zonepackethandlersMap"
 import fs from "fs";
 
-const mapFile = fs.readFileSync(__dirname+"/../src/servers/ZoneServer/zonepackethandlersMap.ts").toString()
+const mapFile = fs.readFileSync(__dirname+"/../src/servers/ZoneServer2016/zonepackethandlersMap.ts").toString()
 const funcOnly = mapFile.split("const packetHandlers = {")
 funcOnly.shift();
 let funcOnlyString = funcOnly[0];
@@ -102,4 +102,4 @@ packetHandlersFunctionStr += `}processPacket(server:ZoneServer,client:Client,pac
   packetHandlersFunctionStr += `}`
 
 
-  fs.writeFileSync(__dirname+"/../src/servers/ZoneServer/zonepackethandlers.ts",packetHandlersFunctionStr)
+  fs.writeFileSync(__dirname+"/../src/servers/ZoneServer2016/zonepackethandlers.ts",packetHandlersFunctionStr)
