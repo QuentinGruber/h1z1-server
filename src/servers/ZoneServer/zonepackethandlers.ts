@@ -316,16 +316,7 @@ export class zonePacketHandlers {
         );
         server.executeFuncForAllClients(() => server.spawnCharacters);
         if (!server._soloMode) {
-          const populationNumber = _.size(server._characters);
-          server._db?.collection("servers").findOneAndUpdate(
-            { serverId: server._worldId },
-            {
-              $set: {
-                populationNumber: populationNumber,
-                populationLevel: Number((populationNumber / 1).toFixed(0)),
-              },
-            }
-          );
+         server.sendZonePopulationUpdate();
         }
       }
       client.isLoading = false;
@@ -511,16 +502,7 @@ export class zonePacketHandlers {
       delete server._characters[client.character.characterId];
       delete server._clients[client.sessionId];
       if (!server._soloMode) {
-        const populationNumber = _.size(server._characters);
-        server._db?.collection("servers").findOneAndUpdate(
-          { serverId: server._worldId },
-          {
-            $set: {
-              populationNumber: populationNumber,
-              populationLevel: Number((populationNumber / 1).toFixed(0)),
-            },
-          }
-        );
+        server.sendZonePopulationUpdate();
       }
     };
     this.GameTimeSync = function (

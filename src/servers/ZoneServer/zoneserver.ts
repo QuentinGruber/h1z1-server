@@ -482,12 +482,7 @@ export class ZoneServer extends EventEmitter {
         serverId: this._worldId,
       });
       this._h1emuZoneServer.start();
-      await this._db
-        ?.collection("servers")
-        .findOneAndUpdate(
-          { serverId: this._worldId },
-          { $set: { populationNumber: 0, populationLevel: 0 } }
-        );
+      this.sendZonePopulationUpdate();
     }
     if (this._enableGarbageCollection) {
       setInterval(() => {
@@ -520,6 +515,19 @@ export class ZoneServer extends EventEmitter {
       allTransient[object.transientId] = key;
     }
     return allTransient;
+  }
+
+
+  sendZonePopulationUpdate(){
+    const populationNumber = _.size(this._characters);
+    this._h1emuZoneServer.sendData(
+            {
+              ...this._loginServerInfo,
+              session: true,
+            } as any,
+            "UpdateZonePopulation",
+            { population: populationNumber }
+          );
   }
 
   async fetchWorldData(): Promise<void> {
