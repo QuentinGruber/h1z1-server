@@ -13,7 +13,7 @@
 
 const debugName = "ZoneServer";
 const debug = require("debug")(debugName);
-import { default as packetHandlers } from "./zonepackethandlers";
+import { zonePacketHandlers } from "./zonepackethandlers";
 import { ZoneServer } from "../ZoneServer/zoneserver";
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
 import { Vehicle2016 as Vehicle } from "./classes/vehicle";
@@ -21,7 +21,6 @@ import { Vehicle2016 as Vehicle } from "./classes/vehicle";
 import {
   characterEquipment,
   characterLoadout,
-  HandledZonePackets2016,
   Weather2016,
 } from "../../types/zoneserver";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
@@ -49,7 +48,7 @@ const loadoutEquipSlots = require("./../../../data/2016/dataSources/LoadoutEquip
 export class ZoneServer2016 extends ZoneServer {
   _weather2016: Weather2016;
   // @ts-ignore yeah idk how to fix that
-  _packetHandlers: HandledZonePackets2016 = packetHandlers;
+  _packetHandlers: zonePacketHandlers = new zonePacketHandlers();
   _weatherTemplates: any;
   _items: any = {};
   _vehicles: {[characterId: string]: Vehicle} = {};
@@ -59,7 +58,6 @@ export class ZoneServer2016 extends ZoneServer {
     super(serverPort, gatewayKey, mongoAddress);
     this._protocol = new H1Z1Protocol("ClientProtocol_1080");
     this._clientProtocol = "ClientProtocol_1080";
-    this._packetHandlers = packetHandlers;
     this._dynamicWeatherEnabled = false;
     this._cycleSpeed = 100;
     this._weatherTemplates = localWeatherTemplates;
@@ -108,16 +106,7 @@ export class ZoneServer2016 extends ZoneServer {
       ) {
         debug(`Receive Data ${[packet.name]}`);
       }
-      if ((this._packetHandlers as any)[packet.name]) {
-        try {
-          (this._packetHandlers as any)[packet.name](this, client, packet);
-        } catch (e) {
-          debug(e);
-        }
-      } else {
-        debug(packet);
-        debug("Packet not implemented in packetHandlers");
-      }
+      this._packetHandlers.processPacket(this, client, packet);
     }
   }
 
@@ -1322,32 +1311,6 @@ export class ZoneServer2016 extends ZoneServer {
     );
   }
 //#endregion
-
-  reloadPackets(client: Client, intervalTime = -1): void {
-    if (intervalTime > 0) {
-      if (this._reloadPacketsInterval)
-        clearInterval(this._reloadPacketsInterval);
-      this._reloadPacketsInterval = setInterval(
-        () => this.reloadPackets(client),
-        intervalTime * 1000
-      );
-      this.sendChatText(
-        client,
-        `[DEV] Packets reload interval is set to ${intervalTime} seconds`,
-        true
-      );
-    } else {
-      this.reloadZonePacketHandlers_();
-      this._protocol.reloadPacketDefinitions();
-      this.sendChatText(client, "[DEV] Packets reloaded", true);
-    }
-  }
-
-  reloadZonePacketHandlers_(): void {
-    delete require.cache[require.resolve("./zonepackethandlers")];
-    this._packetHandlers = require("./zonepackethandlers").default;
-  }
-
 }
 
 if (process.env.VSCODE_DEBUG === "true") {
