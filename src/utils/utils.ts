@@ -150,6 +150,13 @@ export const isPosInRadius = (
   );
 };
 
+export function getDistance(p1: Float32Array, p2: Float32Array) {
+          const a = p1[0] - p2[0];
+          const b = p1[1] - p2[1];
+          const c = p1[2] - p2[2];
+  return Math.sqrt(a * a + b * b + c * c);
+}
+
 export const Int64String = function (value: number): string {
   return "0x" + ("0000000000000000" + value.toString(16)).substr(-16);
 };
@@ -240,7 +247,6 @@ export const initMongo = async function (
     from: `${__dirname}/../../mongodb/h1server/`,
   });
   debug("h1server database was missing... created one with samples.");
-};
 
 export function createPositionUpdate(position: Float32Array, rotation: any, gameTime: any): any {
   const obj: any = {
@@ -255,3 +261,5 @@ export function createPositionUpdate(position: Float32Array, rotation: any, game
   }
   return obj;
 }
+=======
+};

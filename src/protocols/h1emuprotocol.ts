@@ -95,7 +95,7 @@ function packH1emuPacket(packetName: string, object: any) {
     if (packet.schema) {
       const packetData = DataSchema.pack(packet.schema, object);
       if (packetData) {
-        data = Buffer.alloc(1 + packetData.length);
+        data = Buffer.allocUnsafe(1 + packetData.length);
         data.writeUInt8(packetType, 0);
         packetData.data.copy(data, 1);
       } else {
