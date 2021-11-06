@@ -1,5 +1,6 @@
 import fs from "fs";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
+import { Vehicle2016 as Vehicle } from "../classes/vehicle";
 import { ZoneServer2016 } from "../zoneserver";
 import { _ } from "../../../utils/utils";
 
@@ -29,30 +30,21 @@ const hax: any = {
   },
   parachute: function (server: ZoneServer2016, client: Client, args: any[]) {
     const characterId = server.generateGuid();
-    const vehicleData = {
-      npcData: {
-        guid: server.generateGuid(),
-        transientId: 999999,
-        characterId: characterId,
-        modelId: 9374,
-        scale: [1, 1, 1, 1],
-        position: [
-          client.character.state.position[0],
-          client.character.state.position[1] + 700,
-          client.character.state.position[2],
-          client.character.state.position[3],
-        ],
-        rotation: client.character.state.lookAt,
-        vehicleId: 13,
-        attachedObject: {},
-        color: {},
-      },
-      positionUpdate: server.createPositionUpdate(
-        new Float32Array([0, 0, 0, 0]),
-        [0, 0, 0, 0]
-      ),
-    };
-    server._vehicles[characterId] = vehicleData;
+    const vehicle = new Vehicle(
+      server._worldId,
+      characterId,
+      999999,
+      9374,
+      new Float32Array([
+        client.character.state.position[0],
+        client.character.state.position[1] + 700,
+        client.character.state.position[2],
+        client.character.state.position[3],
+      ]),
+      client.character.state.lookAt,
+      server.getGameTime()
+    );
+    server._vehicles[characterId] = vehicle;
     server.worldRoutine();
     server.sendData(client, "Mount.MountResponse", {
       characterId: client.character.characterId,
@@ -126,6 +118,7 @@ const hax: any = {
     }
 
     client.character.state.position = locationPosition;
+    
     server.sendData(client, "ClientUpdate.UpdateLocation", {
       position: locationPosition,
       triggerLoadingScreen: true,
@@ -162,26 +155,15 @@ const hax: any = {
       const guid = server.generateGuid();
       const transientId = server.getTransientId(client, guid);
       const characterId = server.generateGuid();
-      const vehicle = {
-        npcData: {
-          guid: guid,
-          characterId: characterId,
-          transientId: transientId,
-          modelId: 9588,
-          scale: [1, 1, 1, 1],
-          position: [
-            client.character.state.position[0],
-            client.character.state.position[1],
-            client.character.state.position[2],
-          ],
-          rotation: client.character.state.lookAt,
-          attachedObject: {},
-          vehicleId: 5,
-          color: {},
-        },
-        unknownGuid1: server.generateGuid(),
-        positionUpdate: [0, 0, 0, 0],
-      };
+     const vehicle = new Vehicle(
+       server._worldId, 
+       characterId, 
+       transientId, 
+       9588, 
+       client.character.state.position,
+       client.character.state.lookAt,
+       server.getGameTime()
+      )
       server._vehicles[characterId] = vehicle; // save vehicle
     }
   },
@@ -258,67 +240,50 @@ const hax: any = {
       );
       return;
     }
-    let vehicleId, driveModel;
+    let driveModel;
     switch (args[1]) {
       case "offroader":
-        vehicleId = 1;
         driveModel = 7225;
         break;
       case "pickup":
-        vehicleId = 2;
         driveModel = 9258;
         break;
       case "policecar":
-        vehicleId = 3;
         driveModel = 9301;
         break;
       case "atv":
-        vehicleId = 5;
         driveModel = 9588;
         break;
       default:
         // offroader default
-        vehicleId = 1;
         driveModel = 7225;
         break;
     }
     const characterId = server.generateGuid();
     const transientId = server.getTransientId(client, characterId);
-    const vehicle = {
-      npcData: {
-        guid: server.generateGuid(),
-        characterId: characterId,
-        transientId: transientId,
-        modelId: driveModel,
-        scale: [1, 1, 1, 1],
-        position: [
-          client.character.state.position[0],
-          client.character.state.position[1],
-          client.character.state.position[2],
-        ],
-        rotation: [0, 0, 0, 0],
-        attachedObject: {},
-        vehicleId: vehicleId,
-        color: {},
-      },
-      unknownGuid1: server.generateGuid(),
-      positionUpdate: [0, 0, 0, 0],
-    };
+    const vehicle = new Vehicle(
+      server._worldId, 
+      characterId, 
+      transientId, 
+      driveModel, 
+      client.character.state.position, 
+      client.character.state.lookAt,
+      server.getGameTime()
+    )
     server._vehicles[characterId] = vehicle; // save vehicle
   },
+
   spawnpcmodel: function (server: ZoneServer2016, client: Client, args: any[]) {
-    const guid = server.generateGuid();
-    const transientId = server.getTransientId(client, guid);
+    const characterId = server.generateGuid();
     debug("spawnPcModel called");
     if (!args[1]) {
       server.sendChatText(client, "[ERROR] You need to specify a name !");
       return;
     }
-
+    
     const pc = {
-      guid: guid,
-      transientId: transientId,
-      //modelId: choosenModelId,
+      characterId: characterId,
+      transientId: server.getTransientId(client, characterId),
       position: [
         client.character.state.position[0],
         client.character.state.position[1],
@@ -340,7 +305,7 @@ const hax: any = {
         ],
       },
     };
-    server._characters[guid] = pc; // save pc
+    server._characters[characterId] = pc; // save pc
   },
   sonic: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.sendData(client, "ClientGameSettings", {
@@ -617,31 +582,17 @@ const hax: any = {
   },
   spectate: function (server: ZoneServer2016, client: Client, args: any[]) {
     const characterId = server.generateGuid();
-    const vehicleData = {
-      npcData: {
-        guid: server.generateGuid(),
-        transientId: server.getTransientId(client, characterId),
-        characterId: characterId,
-        modelId: 9371,
-        scale: [1, 1, 1, 1],
-        position: [
-          client.character.state.position[0],
-          client.character.state.position[1],
-          client.character.state.position[2],
-          client.character.state.position[3],
-        ],
-        rotation: client.character.state.lookAt,
-        vehicleId: 1337,
-        attachedObject: {},
-        color: {},
-      },
-      positionUpdate: server.createPositionUpdate(
-        new Float32Array([0, 0, 0, 0]),
-        [0, 0, 0, 0]
-      ),
-    };
-    server._vehicles[characterId] = vehicleData;
-    server.worldRoutine();
+    const vehicle = new Vehicle(
+      server._worldId, 
+      characterId, 
+      server.getTransientId(client, characterId),
+      9371, 
+      client.character.state.position, 
+      client.character.state.lookAt,
+      server.getGameTime()
+    );
+    server._vehicles[characterId] = vehicle;
+    server.vehicleManager(client);
     server.sendData(client, "Mount.MountResponse", {
       characterId: client.character.characterId,
       vehicleGuid: characterId,
