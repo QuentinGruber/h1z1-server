@@ -1,68 +1,41 @@
- 
-  import { ZoneClient2016 as Client } from "./classes/zoneclient";
+// ======================================================================
+//
+//   GNU GENERAL PUBLIC LICENSE
+//   Version 3, 29 June 2007
+//   copyright (c) 2020 - 2021 Quentin Gruber
+//   copyright (c) 2021 H1emu community
+//
+//   https://github.com/QuentinGruber/h1z1-server
+//   https://www.npmjs.com/package/h1z1-server
+//
+//   Based on https://github.com/psemu/soe-network
+// ======================================================================
 
-import { ZoneServer2016} from "./zoneserver";
+// delete commands cache if exist so /dev reloadPackets reload them too
+try {
+  // delete commands cache if exist so /dev reloadPackets reload them too
+  delete require.cache[require.resolve("./commands/hax")];
+  delete require.cache[require.resolve("./commands/dev")];
+} catch (e) {}
+
+import { joaat } from "h1emu-core";
+import hax from "./commands/hax";
+import dev from "./commands/dev";
+import admin from "./commands/admin";
+
+// TOOD: UPDATE THIS FOR 2016
+// const modelToName = require("../../../data/2016/dataSources/ModelToName.json");
+
+import { _, Int64String, isPosInRadius } from "../../utils/utils";
+import { ZoneServer2016 } from "./zoneserver";
+import { ZoneClient2016 as Client } from "./classes/zoneclient";
 
 const debug = require("debug")("zonepacketHandlers");
 
-import { joaat } from "h1emu-core";
-
-let hax = require("./commands/hax").default;
-
-let dev = require("./commands/dev").default;
-
-import admin from "./commands/admin";
-
-import {
-  _,
-  generateRandomGuid,
-  Int64String,
-  isPosInRadius,
-} from "../../utils/utils";
-
 const itemDefinitions = require("./../../../data/2016/dataSources/ClientItemDefinitions.json");
 
-
-export class zonePacketHandlers{
-ClientIsReady:any;
-ClientFinishedLoading:any;
-Security:any;
-commandRecipeStart:any;
-commandFreeInteractionNpc:any;
-collisionDamage:any;
-lobbyGameDefinitionDefinitionsRequest:any;
-KeepAlive:any;
-clientUpdateMonitorTimeDrift:any;
-ClientLog:any;
-wallOfDataUIEvent:any;
-SetLocale:any;
-GetContinentBattleInfo:any;
-chatChat:any;
-ClientInitializationDetails:any;
-ClientLogout:any;
-GameTimeSync:any;
-Synchronization:any;
-commandExecuteCommand:any;
-commandInteractRequest:any;
-commandInteractCancel:any;
-commandStartLogoutRequest:any;
-CharacterSelectSessionRequest:any;
-profileStatsGetPlayerProfileStats:any;
-Pickup:any;
-GetRewardBuffInfo:any;
-PlayerUpdateManagedPosition:any;
-vehicleStateData:any;
-PlayerUpdateUpdatePositionClientToZone:any;
-characterRespawn:any;
-characterFullCharacterDataRequest:any;
-commandPlayerSelect:any;
-mountDismountRequest:any;
-commandInteractionString:any;
-mountSeatChangeRequest:any;
-constructionPlacementFinalizeRequest:any;
-commandItemDefinitionRequest:any;
-characterWeaponStance:any;
-constructor(){this.ClientIsReady = function (
+const packetHandlers = {
+  ClientIsReady: function (
     server: ZoneServer2016,
     client: Client,
     packet: any
@@ -192,8 +165,8 @@ constructor(){this.ClientIsReady = function (
         characterId: client.character.characterId,
         stance: 1
     });
-  }
-this.ClientFinishedLoading = function (
+  },
+  ClientFinishedLoading: function (
     server: ZoneServer2016,
     client: Client,
     packet: any
@@ -220,35 +193,35 @@ this.ClientFinishedLoading = function (
     }
 
     client.isLoading = false;
-  }
-this.Security = function (server: ZoneServer2016, client: Client, packet: any) {
+  },
+  Security: function (server: ZoneServer2016, client: Client, packet: any) {
     debug(packet);
-  }
-this.commandRecipeStart = function (
+  },
+  "Command.RecipeStart": function (
     server: ZoneServer2016,
     client: Client,
     packet: any
   ) {
     debug(packet);
     //server.sendData(client, "Command.RecipeAction", {});
-  }
-this.commandFreeInteractionNpc = function (
+  },
+  "Command.FreeInteractionNpc": function (
     server: ZoneServer2016,
     client: Client,
     packet: any
   ) {
     debug("FreeInteractionNpc");
     server.sendData(client, "Command.FreeInteractionNpc", {});
-  }
-this.collisionDamage = function (
+  },
+  "Collision.Damage": function (
     server: ZoneServer2016,
     client: Client,
     packet: any
   ) {
     console.log("Collision.Damage");
     console.log(packet);
-  }
-this.lobbyGameDefinitionDefinitionsRequest = function (
+  },
+  "LobbyGameDefinition.DefinitionsRequest": function (
     server: ZoneServer2016,
     client: Client,
     packet: any
@@ -256,31 +229,31 @@ this.lobbyGameDefinitionDefinitionsRequest = function (
     server.sendData(client, "LobbyGameDefinition.DefinitionsResponse", {
       definitionsData: { data: "" },
     });
-  }
-this.KeepAlive = function (server: ZoneServer2016, client: Client, packet: any) {
+  },
+  KeepAlive: function (server: ZoneServer2016, client: Client, packet: any) {
     server.sendData(client, "KeepAlive", {
       gameTime: packet.data.gameTime,
     });
-  }
-this.clientUpdateMonitorTimeDrift = function (
+  },
+  "ClientUpdate.MonitorTimeDrift": function (
     server: ZoneServer2016,
     client: Client,
     packet: any
-  ) {}
-this.ClientLog = function (server: ZoneServer2016, client: Client, packet: any) {
+  ) {},
+  ClientLog: function (server: ZoneServer2016, client: Client, packet: any) {
     debug(packet);
-  }
-this.wallOfDataUIEvent = function (
+  },
+  "WallOfData.UIEvent": function (
     server: ZoneServer2016,
     client: Client,
     packet: any
   ) {
     debug("UIEvent");
-  }
-this.SetLocale = function (server: ZoneServer2016, client: Client, packet: any) {
+  },
+  SetLocale: function (server: ZoneServer2016, client: Client, packet: any) {
     debug("Do nothing");
-  }
-this.GetContinentBattleInfo = function (
+  },
+  GetContinentBattleInfo: function (
     server: ZoneServer2016,
     client: Client,
     packet: any
@@ -301,8 +274,8 @@ this.GetContinentBattleInfo = function (
         },
       ],
     });
-  }
-this.chatChat = function (server: ZoneServer2016, client: Client, packet: any) {
+  },
+  "Chat.Chat": function (server: ZoneServer2016, client: Client, packet: any) {
     const { channel, message } = packet.data;
     server.sendChat(client, message, channel);
   },
@@ -339,8 +312,9 @@ this.chatChat = function (server: ZoneServer2016, client: Client, packet: any) {
         }
       }
 
-    }
-this.ClientInitializationDetails = function (
+    },
+    */
+  ClientInitializationDetails: function (
     server: ZoneServer2016,
     client: Client,
     packet: any
@@ -349,19 +323,19 @@ this.ClientInitializationDetails = function (
     if (packet.data.unknownDword1) {
       debug("ClientInitializationDetails : ", packet.data.unknownDword1);
     }
-  }
-this.ClientLogout = function (server: ZoneServer2016, client: Client, packet: any) {
+  },
+  ClientLogout: function (server: ZoneServer2016, client: Client, packet: any) {
     debug("ClientLogout");
     server.saveCharacterPosition(client);
     server.deleteEntity(client.character.characterId, server._characters);
     server._gatewayServer._soeServer.deleteClient(client);
     delete server._characters[client.character.characterId];
     delete server._clients[client.sessionId];
-  }
-this.GameTimeSync = function (server: ZoneServer2016, client: Client, packet: any) {
+  },
+  GameTimeSync: function (server: ZoneServer2016, client: Client, packet: any) {
     server.sendGameTimeSync(client);
-  }
-this.Synchronization = function (
+  },
+  Synchronization: function (
     server: ZoneServer2016,
     client: Client,
     packet: any
@@ -375,8 +349,8 @@ this.Synchronization = function (
       serverTime2: serverTime,
       time3: packet.data.clientTime + 2,
     });
-  }
-this.commandExecuteCommand = async function (
+  },
+  "Command.ExecuteCommand": async function (
     server: ZoneServer2016,
     client: Client,
     packet: any
@@ -480,8 +454,9 @@ this.commandExecuteCommand = async function (
         tabId: 256,
         unknown2: 1,
       });
-    }
-this.commandInteractRequest = function (
+    },
+    */
+  "Command.InteractRequest": function (
     server: ZoneServer2016,
     client: Client,
     packet: any
@@ -518,15 +493,17 @@ this.commandInteractRequest = function (
         guid: packet.data.guid,
         unknownDword1: 1,
       });
-    }
-this.commandInteractCancel = function (
+    },
+    */
+
+  "Command.InteractCancel": function (
     server: ZoneServer2016,
     client: Client,
     packet: any
   ) {
     debug("Interaction Canceled");
-  }
-this.commandStartLogoutRequest = function (
+  },
+  "Command.StartLogoutRequest": function (
     server: ZoneServer2016,
     client: Client,
     packet: any
@@ -543,8 +520,8 @@ this.commandStartLogoutRequest = function (
     client.hudTimer = setTimeout(() => {
       server.sendData(client, "ClientUpdate.CompleteLogoutProcess", {});
     }, timerTime);
-  }
-this.CharacterSelectSessionRequest = function (
+  },
+  CharacterSelectSessionRequest: function (
     server: ZoneServer2016,
     client: Client,
     packet: any
@@ -553,8 +530,8 @@ this.CharacterSelectSessionRequest = function (
       status: 1,
       sessionId: client.loginSessionId,
     });
-  }
-this.profileStatsGetPlayerProfileStats = function (
+  },
+  "ProfileStats.GetPlayerProfileStats": function (
     server: ZoneServer2016,
     client: Client,
     packet: any
@@ -564,8 +541,8 @@ this.profileStatsGetPlayerProfileStats = function (
       "ProfileStats.PlayerProfileStats",
       require("../../../data/profilestats.json")
     );
-  }
-this.Pickup = function (server: ZoneServer2016, client: Client, packet: any) {
+  },
+  Pickup: function (server: ZoneServer2016, client: Client, packet: any) {
     debug(packet);
     const { data: packetData } = packet;
     server.sendData(client, "ClientUpdate.StartTimer", {
@@ -581,8 +558,8 @@ this.Pickup = function (server: ZoneServer2016, client: Client, packet: any) {
         message: packetData.name.replace("SpeedTree.", ""),
       });
     }
-  }
-this.GetRewardBuffInfo = function (
+  },
+  GetRewardBuffInfo: function (
     server: ZoneServer2016,
     client: Client,
     packet: any
@@ -601,8 +578,8 @@ this.GetRewardBuffInfo = function (
       unknownFloat11: 11,
       unknownFloat12: 12,
     });
-  }
-this.PlayerUpdateManagedPosition = function (
+  },
+  PlayerUpdateManagedPosition: function (
     server: ZoneServer2016,
     client: Client,
     packet: any
@@ -645,8 +622,8 @@ this.PlayerUpdateManagedPosition = function (
           }
         }
     }
-  }
-this.vehicleStateData = unction (
+  },
+  "Vehicle.StateData":function (
     server: ZoneServer2016,
     client: Client,
     packet: any
@@ -654,8 +631,8 @@ this.vehicleStateData = unction (
     server.sendDataToAllOthersWithSpawnedVehicle(client, packet.data.guid, "Vehicle.StateData", {
         ...packet.data
     })
-  }
-this.PlayerUpdateUpdatePositionClientToZone = function (
+  },
+  PlayerUpdateUpdatePositionClientToZone: function (
     server: ZoneServer2016,
     client: Client,
     packet: any
@@ -741,8 +718,8 @@ this.PlayerUpdateUpdatePositionClientToZone = function (
         packet.data.lookAt[3],
       ]);
     }
-  }
-this.characterRespawn = function (
+  },
+  "Character.Respawn": function (
     server: ZoneServer2016,
     client: Client,
     packet: any
@@ -752,8 +729,8 @@ this.characterRespawn = function (
       characterId: client.character.characterId,
       position: [0, 200, 0, 1],
     });
-  }
-this.characterFullCharacterDataRequest = function (
+  },
+  "Character.FullCharacterDataRequest": function (
     server: ZoneServer2016,
     client: Client,
     packet: any
@@ -842,8 +819,9 @@ this.characterFullCharacterDataRequest = function (
         default:
             break;
     }
-  }
-this.commandPlayerSelect = function (
+  },
+
+  "Command.PlayerSelect": function (
     server: ZoneServer2016,
     client: Client,
     packet: any
@@ -885,16 +863,17 @@ this.commandPlayerSelect = function (
         default:
             break;
     }
-  }
-this.mountDismountRequest = function (
+  },
+
+  "Mount.DismountRequest": function (
     server: ZoneServer2016,
     client: Client,
     packet: any
   ) {
     // only for driver seat
     server.dismountVehicle(client);
-  }
-this.commandInteractionString = function (
+  },
+  "Command.InteractionString": function (
     server: ZoneServer2016,
     client: Client,
     packet: any
@@ -933,15 +912,16 @@ this.commandInteractionString = function (
         default:
             break;
     }
-  }
-this.mountSeatChangeRequest = function (
+  },
+
+  "Mount.SeatChangeRequest": function (
     server: ZoneServer2016,
     client: Client,
     packet: any
   ) {
     server.changeSeat(client, packet);
-  }
-this.constructionPlacementFinalizeRequest = function (
+  },
+  "Construction.PlacementFinalizeRequest": function (
     server: ZoneServer2016,
     client: Client,
     packet: any
@@ -950,8 +930,9 @@ this.constructionPlacementFinalizeRequest = function (
       status: 1,
       unknownString1: "",
     });
-  }
-this.commandItemDefinitionRequest = function (
+  },
+
+  "Command.ItemDefinitionRequest": function (
     server: ZoneServer2016,
     client: Client,
     packet: any
@@ -978,134 +959,17 @@ this.commandItemDefinitionRequest = function (
         },
       },
     });
-  }
-this.characterWeaponStance = function (
+  },
+  "Character.WeaponStance": function (
     server: ZoneServer2016,
     client: Client,
     packet: any
   ) {
     server.sendDataToAllOthersWithSpawnedCharacter(client, "Character.WeaponStance", {
-        characterId: client.character.characterId
-}processPacket(server:ZoneServer,client:Client,packet:any){
+        characterId: client.character.characterId,
+        stance: packet.data.stance
+    });
+  }
+};
 
-    switch(packet.name){
-case "ClientIsReady":
-this.ClientIsReady(server,client,packet);
-break
-case "ClientFinishedLoading":
-this.ClientFinishedLoading(server,client,packet);
-break
-case "Security":
-this.Security(server,client,packet);
-break
-case "Command.RecipeStart":
-this.commandRecipeStart(server,client,packet);
-break
-case "Command.FreeInteractionNpc":
-this.commandFreeInteractionNpc(server,client,packet);
-break
-case "Collision.Damage":
-this.collisionDamage(server,client,packet);
-break
-case "LobbyGameDefinition.DefinitionsRequest":
-this.lobbyGameDefinitionDefinitionsRequest(server,client,packet);
-break
-case "KeepAlive":
-this.KeepAlive(server,client,packet);
-break
-case "ClientUpdate.MonitorTimeDrift":
-this.clientUpdateMonitorTimeDrift(server,client,packet);
-break
-case "ClientLog":
-this.ClientLog(server,client,packet);
-break
-case "WallOfData.UIEvent":
-this.wallOfDataUIEvent(server,client,packet);
-break
-case "SetLocale":
-this.SetLocale(server,client,packet);
-break
-case "GetContinentBattleInfo":
-this.GetContinentBattleInfo(server,client,packet);
-break
-case "Chat.Chat":
-this.chatChat(server,client,packet);
-break
-case "ClientInitializationDetails":
-this.ClientInitializationDetails(server,client,packet);
-break
-case "ClientLogout":
-this.ClientLogout(server,client,packet);
-break
-case "GameTimeSync":
-this.GameTimeSync(server,client,packet);
-break
-case "Synchronization":
-this.Synchronization(server,client,packet);
-break
-case "Command.ExecuteCommand":
-this.commandExecuteCommand(server,client,packet);
-break
-case "Command.InteractRequest":
-this.commandInteractRequest(server,client,packet);
-break
-case "Command.InteractCancel":
-this.commandInteractCancel(server,client,packet);
-break
-case "Command.StartLogoutRequest":
-this.commandStartLogoutRequest(server,client,packet);
-break
-case "CharacterSelectSessionRequest":
-this.CharacterSelectSessionRequest(server,client,packet);
-break
-case "ProfileStats.GetPlayerProfileStats":
-this.profileStatsGetPlayerProfileStats(server,client,packet);
-break
-case "Pickup":
-this.Pickup(server,client,packet);
-break
-case "GetRewardBuffInfo":
-this.GetRewardBuffInfo(server,client,packet);
-break
-case "PlayerUpdateManagedPosition":
-this.PlayerUpdateManagedPosition(server,client,packet);
-break
-case "Vehicle.StateData":
-this.vehicleStateData(server,client,packet);
-break
-case "PlayerUpdateUpdatePositionClientToZone":
-this.PlayerUpdateUpdatePositionClientToZone(server,client,packet);
-break
-case "Character.Respawn":
-this.characterRespawn(server,client,packet);
-break
-case "Character.FullCharacterDataRequest":
-this.characterFullCharacterDataRequest(server,client,packet);
-break
-case "Command.PlayerSelect":
-this.commandPlayerSelect(server,client,packet);
-break
-case "Mount.DismountRequest":
-this.mountDismountRequest(server,client,packet);
-break
-case "Command.InteractionString":
-this.commandInteractionString(server,client,packet);
-break
-case "Mount.SeatChangeRequest":
-this.mountSeatChangeRequest(server,client,packet);
-break
-case "Construction.PlacementFinalizeRequest":
-this.constructionPlacementFinalizeRequest(server,client,packet);
-break
-case "Command.ItemDefinitionRequest":
-this.commandItemDefinitionRequest(server,client,packet);
-break
-case "Character.WeaponStance":
-this.characterWeaponStance(server,client,packet);
-break
-default:debug(packet);debug('Packet not implemented in packetHandlers');break;}}async reloadCommandCache(){
-    delete require.cache[require.resolve("./commands/hax")];
-    delete require.cache[require.resolve("./commands/dev")];
-    hax = require("./commands/hax").default;
-    dev = require("./commands/dev").default;
-  }}
+export default packetHandlers;
