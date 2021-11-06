@@ -21,7 +21,6 @@ import { Vehicle2016 as Vehicle } from "./classes/vehicle";
 import {
   characterEquipment,
   characterLoadout,
-  HandledZonePackets2016,
   Weather2016,
 } from "../../types/zoneserver";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";

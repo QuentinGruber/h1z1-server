@@ -404,7 +404,7 @@ export class zonePacketHandlers {
         time3: packet.data.clientTime + 2,
       });
     };
-    (this.commandExecuteCommand = async function (
+    this.commandExecuteCommand = async function (
       server: ZoneServer2016,
       client: Client,
       packet: any
@@ -501,7 +501,7 @@ export class zonePacketHandlers {
               );
           break;
       }
-    }),
+    },
       /*
     "Command.SetProfile": function (server: ZoneServer2016, client: Client, packet: any) {
       server.sendData(client, "Loadout.SetCurrentLoadout", {
