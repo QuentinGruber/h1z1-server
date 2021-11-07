@@ -26,7 +26,7 @@ export class Vehicle {
   isLocked: number = 0;
   unknownGuid1: string;
   positionUpdate: positionUpdate;
-  seats: seats;
+  seat: seats;
   passengers: passengers;
   fuelUpdater: any;
   onReadyCallback!: () => void;
