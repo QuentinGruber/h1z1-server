@@ -5818,9 +5818,35 @@ var packets = [
   ["PlayerUpdate.SetAllowRespawn", 0x0f71, {}],
   ["Ability.ClientRequestStartAbility", 0x1001, {}],
   ["Ability.ClientRequestStopAbility", 0x1002, {}],
-  ["Ability.ClientMoveAndCast", 0x1003, {}],
-  ["Ability.Failed", 0x1004, {}],
-  ["Ability.StartCasting", 0x1005, {}],
+  ["Ability.ClientMoveAndCast", 0x1003, {
+    fields: [
+      { name: "position", type: "floatvector4", defaultValue: [0, 50, 0, 1] },
+      { name: "unk1", type: "uint32", defaultValue: 0 },
+      { name: "unk2", type: "uint32", defaultValue: 0 },
+      // maybe also an uint16
+    ],
+  }],
+  ["Ability.Failed", 0x1004, {
+    fields: [],
+  }],
+  ["Ability.StartCasting", 0x1005, {
+    fields: [
+      { name: "characterId", type: "uint64string", defaultValue: "0" },
+      { name: "unkGuid", type: "uint64string", defaultValue: "0" },
+      { name: "unk1", type: "uint32", defaultValue: 0 },
+      { name: "unk2", type: "uint32", defaultValue: 0 },
+      { name: "unk3", type: "uint32", defaultValue: 0 },
+      {
+        name: "unkArray1",
+        type: "array",
+        defaultValue: [],
+        fields: [],
+      },
+      { name: "unk4", type: "uint32", defaultValue: 0 },
+      { name: "unk5", type: "uint32", defaultValue: 0 },
+      { name: "unk6", type: "uint32", defaultValue: 0 },
+    ],
+  }],
   ["Ability.Launch", 0x1006, {}],
   ["Ability.Land", 0x1007, {}],
   ["Ability.StartChanneling", 0x1008, {}],
