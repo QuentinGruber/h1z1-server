@@ -5892,7 +5892,7 @@ var packets = [
       { name: "weirdAskedByte", type: "uint8", defaultValue: 0 }, // linked to targets i'm not sure about this one
       { name: "position", type: "floatvector4", defaultValue: [0, 50, 0, 1] },
       { name: "unknown7", type: "uint32", defaultValue: 0 } ,
-      { name: "position", type: "floatvector4", defaultValue: [0, 50, 0, 1] },
+      { name: "position2", type: "floatvector4", defaultValue: [0, 50, 0, 1] },
       { name: "unknown9", type: "uint8", defaultValue: 0 } ,
       { name: "unknown10", type: "uint8", defaultValue: 0 } ,
       { name: "unknown11", type: "uint8", defaultValue: 0 } ,
