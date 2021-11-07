@@ -16,7 +16,9 @@ export class ZoneClient extends SOEClient {
     falling: number;
     mountedVehicle?: string;
     mountedVehicleType?: string;
+    mountedVehicleSeat?: number;
     vehicleState: number;
+    vehicleSeat;
   };
   npcsToSpawn: any[] = [];
   npcsToSpawnTimer!: NodeJS.Timeout;
