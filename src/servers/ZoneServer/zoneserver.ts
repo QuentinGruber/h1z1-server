@@ -1334,7 +1334,6 @@ export class ZoneServer extends EventEmitter {
 
   enterVehicle(client: Client, entityData: any) {
     console.log(entityData);
-    const characterId = entityData.npcData.characterId;
     let allowedAccess;
     let seat;
     let isDriver;
