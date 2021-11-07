@@ -87,7 +87,7 @@ export class H1emuZoneServer extends H1emuServer {
     );
     this._maxConnectionRetry++;
     if (!this._hasBeenConnectedToLogin && this._maxConnectionRetry > 10) {
-      throw new Error("Can't connect to loginServer");
+      throw new Error("Can't connect to loginServer "+ JSON.stringify(this._loginServerInfo) );
     }
   }
 
