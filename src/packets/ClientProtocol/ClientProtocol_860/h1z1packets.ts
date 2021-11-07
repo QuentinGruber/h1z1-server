@@ -5885,10 +5885,48 @@ var packets = [
       { name: "unk22", type: "boolean", defaultValue: 0 },
     ],
   }],
-  ["Ability.Land", 0x1007, {}],
-  ["Ability.StartChanneling", 0x1008, {}],
-  ["Ability.StopCasting", 0x1009, {}],
-  ["Ability.StopAura", 0x100a, {}],
+  ["Ability.Land", 0x1007, {
+    fields : [
+      { name: "unknown3", type: "uint64", defaultValue: "0x0000000000000000" } ,
+      { name: "unknown4", type: "uint8", defaultValue: 0 } ,
+      { name: "weirdAskedByte", type: "uint8", defaultValue: 0 }, // linked to targets i'm not sure about this one
+      { name: "position", type: "floatvector4", defaultValue: [0, 50, 0, 1] },
+      { name: "unknown7", type: "uint32", defaultValue: 0 } ,
+      { name: "position", type: "floatvector4", defaultValue: [0, 50, 0, 1] },
+      { name: "unknown9", type: "uint8", defaultValue: 0 } ,
+      { name: "unknown10", type: "uint8", defaultValue: 0 } ,
+      { name: "unknown11", type: "uint8", defaultValue: 0 } ,
+      { name: "unknown12", type: "uint8", defaultValue: 0 } ,
+      { name: "unknown13", type: "uint8", defaultValue: 0 } ,
+      { name: "unknown14", type: "uint8", defaultValue: 0 } ,
+    ]
+  }],
+  ["Ability.StartChanneling", 0x1008, { fields : [
+    { name: "unknown3", type: "uint64", defaultValue: "0x0000000000000000" } ,
+    { name: "unknown4", type: "uint64", defaultValue: "0x0000000000000000" } ,
+    { name: "unknown5", type: "uint32", defaultValue: 0 } ,
+    { name: "unknown6", type: "uint32", defaultValue: 0 } ,
+    { name: "unknown7", type: "uint32", defaultValue: 0 } ,
+    { name: "position", type: "floatvector4", defaultValue: [0, 50, 0, 1] },
+    { name: "unknown9", type: "uint32", defaultValue: 0 } ,
+    { name: "unknown10", type: "uint32", defaultValue: 0 } ,
+    ]}
+  ],
+  ["Ability.StopCasting", 0x1009, {
+    fields: [
+      { name: "characterId", type: "uint64string", defaultValue: "0" },
+      { name: "unkGuid", type: "uint64string", defaultValue: "0" },
+      { name: "unk1", type: "uint32", defaultValue: 0 },
+      { name: "unk2", type: "uint32", defaultValue: 0 },
+      { name: "unk3", type: "uint32", defaultValue: 0 },
+    ],
+  }],
+  ["Ability.StopAura", 0x100a, {
+    fields : [
+      { name: "unknown1", type: "uint32", defaultValue: 0 } ,
+      { name: "unknown2", type: "uint32", defaultValue: 0 } ,
+    ]}
+  ],
   ["Ability.MeleeRefresh", 0x100b, {}],
   ["Ability.AbilityDetails", 0x100c, {
     fields: [
@@ -5905,7 +5943,22 @@ var packets = [
   }],
   ["Ability.PurchaseAbility", 0x100d, {}],
   ["Ability.UpdateAbilityExperience", 0x100e, {}],
-  ["Ability.SetDefinition", 0x100f, {}],
+  ["Ability.SetDefinition", 0x100f, { 
+    fields : [
+      { name: "unknown1", type: "uint32", defaultValue: 0 } ,
+      { name: "unknown2", type: "boolean", defaultValue: 0 } ,
+      { name: "unknown3", type: "uint32", defaultValue: 0 } ,
+      { name: "unknown4", type: "uint32", defaultValue: 0 } ,
+      { name: "unknown5", type: "boolean", defaultValue: 0 } ,
+      { name: "unknown6", type: "uint64", defaultValue: "0x0000000000000000" } ,
+      { name: "unknown7", type: "uint32", defaultValue: 0 } ,
+      { name: "unknown8", type: "uint32", defaultValue: 0 } ,
+      { name: "unknown9", type: "uint32", defaultValue: 0 } ,
+      { name: "unknown10", type: "uint32", defaultValue: 0 } ,
+      { name: "unknown11", type: "uint32", defaultValue: 0 } ,
+      { name: "unknown12", type: "uint32", defaultValue: 0 } ,
+    ]}
+  ],
   ["Ability.RequestAbilityDefinition", 0x1010, {}],
   ["Ability.AddAbilityDefinition", 0x1011, {  // auto-reversed using an homemade tool , so some fields are missing
     fields : [
