@@ -671,20 +671,12 @@ export class zonePacketHandlers {
       });
     };
     this.mountDismountRequest = function (
-      server: ZoneServer,
-      client: Client,
-      packet: any
-    ) {
-      server.sendDataToAll("Mount.DismountResponse", {
-        characterId: client.character.characterId,
-      });
-      server.sendDataToAll("Vehicle.Engine", {
-        guid2: client.vehicle.mountedVehicle,
-        unknownBoolean: false,
-      });
-      client.vehicle.mountedVehicleType = "0";
-      delete client.vehicle.mountedVehicle;
-    };
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
+    server.dismountVehicle(client, client.vehicle.mountedVehicle);
+  },
     this.commandInteractRequest = function (
       server: ZoneServer,
       client: Client,
