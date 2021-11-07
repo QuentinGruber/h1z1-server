@@ -314,7 +314,7 @@ const packets = [
   ],
   [
     "OutOfOrder",
-    0x11,
+    0x11, // 0x11, 0x12, 0x13, 0x14
     {
       parse: function (
         data: any,
@@ -356,7 +356,7 @@ const packets = [
   ],
   [
     "Ack",
-    0x15,
+    0x15, // 0x15, 0x16, 0x17, 0x18
     {
       parse: function (
         data: any,
@@ -396,8 +396,10 @@ const packets = [
       },
     },
   ],
+  ["MultiAppPacket", 0x19, {}],
+  ["PacketOrdered", 0x1a, {}],
+  ["PacketOrdered2", 0x1b, {}],
   ["FatalError", 0x1d, {}],
-  ["FatalErrorReply", 0x1e, {}],
 ];
 
 export const [SOEPacketsPacketTypes, SOEPacketsPackets] =
