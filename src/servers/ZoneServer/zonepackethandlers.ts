@@ -1842,43 +1842,8 @@ export class zonePacketHandlers {
         server.deleteEntity(entityData.characterId, server._objects);
         break;
         case 2: // vehicle
-          const { characterId: vehicleGuid } = entityData.npcData;
-          const { modelId: vehicleModelId } = entityData.npcData;
-          switch (vehicleModelId) {
-            case 7225:
-              client.vehicle.mountedVehicleType = "offroader";
-              break;
-            case 9258:
-              client.vehicle.mountedVehicleType = "pickup";
-              break;
-            case 9301:
-              client.vehicle.mountedVehicleType = "policecar";
-              break;
-            default:
-              client.vehicle.mountedVehicleType = "offroader";
-              break;
-          }
-
-          server.sendData(client, "PlayerUpdate.ManagedObject", {
-            guid: vehicleGuid,
-            characterId: client.character.characterId,
-          });
-
-          server.sendDataToAll("Mount.MountResponse", {
-            characterId: client.character.characterId,
-            guid: vehicleGuid,
-            characterData: [],
-          });
-
-          server.sendDataToAll("Vehicle.Engine", {
-            guid2: vehicleGuid,
-            unknownBoolean: true,
-          });
-
-          server._vehicles[vehicleGuid].isManaged = true;
-          client.managedObjects.push(server._vehicles[vehicleGuid]);
-          client.vehicle.mountedVehicle = guid;
-          break;
+        server.enterVehicle(client, entityData);
+        break;
         case 3: // door
           debug("tried to open ", entityData.characterId);
           if (entityData.isOpen === false) {
