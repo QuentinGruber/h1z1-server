@@ -1140,7 +1140,7 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
-damageVehicle(client: Client, damage: number, vehicle: Vehicle) {
+  damageVehicle(client: Client, damage: number, vehicle: Vehicle) {
     let destroyedVehicleEffect = 0;
     let destroyedVehicleModel = 0;
     let minorDamageEffect = 0;
@@ -1176,7 +1176,44 @@ damageVehicle(client: Client, damage: number, vehicle: Vehicle) {
         criticalDamageEffect = 180;
         break;
     }
-    vehicle.npcData.resources.health -= Math.floor(damage);
+    vehicle.npcData.resources.health -= 10 * Math.floor(damage);
+
+    if (vehicle.passengers.passenger1) {
+      this.updateResource(
+        vehicle.passengers.passenger1,
+        vehicle.npcData.characterId,
+        vehicle.npcData.resources.health,
+        561,
+        1
+      );
+    }
+    if (vehicle.passengers.passenger2) {
+      this.updateResource(
+        vehicle.passengers.passenger2,
+        vehicle.npcData.characterId,
+        vehicle.npcData.resources.health,
+        561,
+        1
+      );
+    }
+    if (vehicle.passengers.passenger3) {
+      this.updateResource(
+        vehicle.passengers.passenger3,
+        vehicle.npcData.characterId,
+        vehicle.npcData.resources.health,
+        561,
+        1
+      );
+    }
+    if (vehicle.passengers.passenger4) {
+      this.updateResource(
+        vehicle.passengers.passenger4,
+        vehicle.npcData.characterId,
+        vehicle.npcData.resources.health,
+        561,
+        1
+      );
+    }
 
     if (vehicle.npcData.resources.health <= 0) {
       vehicle.npcData.resources.health = 0;
@@ -1210,53 +1247,439 @@ damageVehicle(client: Client, damage: number, vehicle: Vehicle) {
       delete client.vehicle.mountedVehicle;
       client.vehicle.vehicleState = 0;
     } else if (
-      vehicle.npcData.resources.health <= 5000 &&
-      vehicle.npcData.resources.health > 3500
+      vehicle.npcData.resources.health <= 50000 &&
+      vehicle.npcData.resources.health > 35000
     ) {
       if (vehicle.npcData.destroyedState != 1) {
         vehicle.npcData.destroyedState = 1;
-        this.sendData(client, "Mount.DismountResponse", {
-          characterId: client.character.characterId,
-        });
-        this.sendData(client, "Mount.MountResponse", {
-          characterId: client.character.characterId,
-          guid: client.vehicle.mountedVehicle,
-          unknownDword4: minorDamageEffect,
-          characterData: {},
+        this.sendDataToAll("PlayerUpdate.SetSpawnerActivationEffect", {
+          characterId: client.vehicle.mountedVehicle,
+          effectId: minorDamageEffect,
         });
       }
     } else if (
-      vehicle.npcData.resources.health <= 3500 &&
-      vehicle.npcData.resources.health > 2000
+      vehicle.npcData.resources.health <= 35000 &&
+      vehicle.npcData.resources.health > 20000
     ) {
       if (vehicle.npcData.destroyedState != 2) {
         vehicle.npcData.destroyedState = 2;
-        this.sendData(client, "Mount.DismountResponse", {
-          characterId: client.character.characterId,
-        });
-        this.sendData(client, "Mount.MountResponse", {
-          characterId: client.character.characterId,
-          guid: client.vehicle.mountedVehicle,
-          unknownDword4: majorDamageEffect,
-          characterData: {},
+        this.sendData(client, "PlayerUpdate.SetSpawnerActivationEffect", {
+          characterId: client.vehicle.mountedVehicle,
+          effectId: majorDamageEffect,
         });
       }
-    } else if (vehicle.npcData.resources.health <= 2000) {
+    } else if (vehicle.npcData.resources.health <= 20000) {
       if (vehicle.npcData.destroyedState != 3) {
         vehicle.npcData.destroyedState = 3;
-        this.sendData(client, "Mount.DismountResponse", {
-          characterId: client.character.characterId,
-        });
-        this.sendData(client, "Mount.MountResponse", {
-          characterId: client.character.characterId,
-          guid: client.vehicle.mountedVehicle,
-          unknownDword4: criticalDamageEffect,
-          characterData: {},
+        this.sendData(client, "PlayerUpdate.SetSpawnerActivationEffect", {
+          characterId: client.vehicle.mountedVehicle,
+          effectId: criticalDamageEffect,
         });
       }
     }
   }
 
+  updateResource(
+    client: Client,
+    entityId: string,
+    value: number,
+    resource: number,
+    resourceType: number
+  ) {
+    this.sendData(client, "ResourceEvent", {
+      eventData: {
+        type: 3,
+        value: {
+          characterId: entityId,
+          resourceId: resource,
+          resourceType: resourceType,
+          initialValue: value,
+          unknownArray1: [],
+          unknownArray2: [],
+        },
+      },
+    });
+  }
+
+  turnOnEngine(vehicleGuid: string) {
+    if (this._vehicles[vehicleGuid].npcData.resources.fuel > 0) {
+      this.sendDataToAll("Vehicle.Engine", {
+        guid2: vehicleGuid,
+        unknownBoolean: true,
+      });
+      this._vehicles[vehicleGuid].engineOn = true;
+      this._vehicles[vehicleGuid].resourcesUpdater = setInterval(() => {
+        const fuelLoss =
+          this._vehicles[vehicleGuid].positionUpdate.engineRPM * 0.005;
+        console.log(fuelLoss);
+        console.log(fuelLoss);
+        console.log(fuelLoss);
+        console.log(fuelLoss);
+        console.log(fuelLoss);
+        console.log(this._vehicles[vehicleGuid].positionUpdate);
+        this._vehicles[vehicleGuid].npcData.resources.fuel -= fuelLoss;
+        if (this._vehicles[vehicleGuid].npcData.resources.fuel < 0) {
+          this._vehicles[vehicleGuid].npcData.resources.fuel = 0;
+        }
+        if (
+          this._vehicles[vehicleGuid].engineOn &&
+          this._vehicles[vehicleGuid].npcData.resources.fuel <= 0
+        ) {
+          this.turnOffEngine(vehicleGuid);
+        }
+        if (this._vehicles[vehicleGuid].passengers.passenger1) {
+          this.updateResource(
+            this._vehicles[vehicleGuid].passengers.passenger1,
+            this._vehicles[vehicleGuid].npcData.characterId,
+            this._vehicles[vehicleGuid].npcData.resources.fuel,
+            396,
+            50
+          );
+        }
+        if (this._vehicles[vehicleGuid].passengers.passenger2) {
+          this.updateResource(
+            this._vehicles[vehicleGuid].passengers.passenger2,
+            this._vehicles[vehicleGuid].npcData.characterId,
+            this._vehicles[vehicleGuid].npcData.resources.fuel,
+            396,
+            50
+          );
+        }
+        if (this._vehicles[vehicleGuid].passengers.passenger3) {
+          this.updateResource(
+            this._vehicles[vehicleGuid].passengers.passenger3,
+            this._vehicles[vehicleGuid].npcData.characterId,
+            this._vehicles[vehicleGuid].npcData.resources.fuel,
+            396,
+            50
+          );
+        }
+        if (this._vehicles[vehicleGuid].passengers.passenger4) {
+          this.updateResource(
+            this._vehicles[vehicleGuid].passengers.passenger4,
+            this._vehicles[vehicleGuid].npcData.characterId,
+            this._vehicles[vehicleGuid].npcData.resources.fuel,
+            396,
+            50
+          );
+        }
+      }, 3000);
+    }
+  }
+
+  turnOffEngine(vehicleGuid: string) {
+    this._vehicles[vehicleGuid].engineOn = false;
+    this.sendDataToAll("Vehicle.Engine", {
+      guid2: vehicleGuid,
+      unknownBoolean: false,
+    });
+    clearInterval(this._vehicles[vehicleGuid].resourcesUpdater);
+  }
+
+  enterVehicle(client: Client, entityData: any) {
+    console.log(entityData);
+    const characterId = entityData.npcData.characterId;
+    let allowedAccess;
+    let seat;
+    let isDriver;
+    if (!entityData.seats.seat1) {
+      isDriver = 1;
+      seat = 0;
+      allowedAccess = 1;
+      entityData.isLocked = 0;
+      client.vehicle.mountedVehicleSeat = 1;
+    } else if (!entityData.seats.seat2) {
+      isDriver = 0;
+      seat = 1;
+      allowedAccess = 1;
+      client.vehicle.mountedVehicleSeat = 2;
+    } else if (!entityData.seats.seat3) {
+      isDriver = 0;
+      seat = 2;
+      allowedAccess = 1;
+      client.vehicle.mountedVehicleSeat = 3;
+    } else if (!entityData.seats.seat4) {
+      isDriver = 0;
+      seat = 3;
+      allowedAccess = 1;
+      client.vehicle.mountedVehicleSeat = 4;
+    } else {
+      allowedAccess = 3;
+    }
+    if (allowedAccess === 1 && entityData.isLocked != 2) {
+      const { characterId: vehicleGuid } = entityData.npcData;
+      const { modelId: vehicleModelId } = entityData.npcData;
+      switch (vehicleModelId) {
+        case 7225:
+          client.vehicle.mountedVehicleType = "offroader";
+          break;
+        case 9258:
+          client.vehicle.mountedVehicleType = "pickup";
+          break;
+        case 9301:
+          client.vehicle.mountedVehicleType = "policecar";
+          break;
+        default:
+          client.vehicle.mountedVehicleType = "offroader";
+          break;
+      }
+
+      switch (seat) {
+        case 0:
+          entityData.seats.seat1 = true;
+          this._vehicles[vehicleGuid].isManaged = true;
+          client.managedObjects.push(this._vehicles[vehicleGuid]);
+          this.sendData(client, "PlayerUpdate.ManagedObject", {
+            guid: vehicleGuid,
+            characterId: client.character.characterId,
+          });
+
+          this.turnOnEngine(vehicleGuid);
+          this._vehicles[vehicleGuid].passengers.passenger1 = client;
+
+          break;
+        case 1:
+          entityData.seats.seat2 = true;
+          this._vehicles[vehicleGuid].passengers.passenger2 = client;
+          break;
+        case 2:
+          entityData.seats.seat3 = true;
+          this._vehicles[vehicleGuid].passengers.passenger3 = client;
+          break;
+        case 3:
+          entityData.seats.seat4 = true;
+          this._vehicles[vehicleGuid].passengers.passenger4 = client;
+          break;
+      }
+
+      this.sendDataToAll("Mount.MountResponse", {
+        characterId: client.character.characterId,
+        guid: vehicleGuid,
+        unknownDword1: seat,
+        unknownDword3: isDriver,
+        characterData: [],
+      });
+      this.updateResource(
+        client,
+        vehicleGuid,
+        entityData.npcData.resources.fuel,
+        396,
+        50
+      );
+      this.updateResource(
+        client,
+        vehicleGuid,
+        entityData.npcData.resources.health,
+        561,
+        1
+      );
+      if (isDriver === 1) {
+        this.sendDataToAll("Vehicle.Owner", {
+          guid: vehicleGuid,
+          characterId: client.character.characterId,
+          unknownDword1: 0,
+          vehicleId: entityData.npcData.vehicleId,
+          passengers: [
+            {
+              passengerData: {
+                characterId: client.character.characterId,
+                characterData: {
+                  unknownDword1: 1,
+                  unknownDword2: 1,
+                  unknownDword3: 1,
+                  characterName: client.character.name,
+                  unknownString1: "",
+                },
+                unknownDword1: 1,
+                unknownString1: "",
+              },
+              unknownByte1: 1,
+            },
+          ],
+        });
+      }
+      this.sendData(client, "Vehicle.Occupy", {
+        guid: entityData.npcData.characterId,
+        characterId: client.character.characterId,
+        vehicleId: entityData.npcData.vehicleId,
+        unknownDword1: 0,
+        unknownArray1: [
+          {
+            unknownDword1: 0,
+            unknownBoolean1: 0,
+          },
+        ],
+        passengers: [
+          {
+            passengerData: {
+              characterId: client.character.characterId,
+              characterData: {
+                unknownDword1: 0,
+                unknownDword2: 0,
+                unknownDword3: 0,
+                characterName: client.character.name,
+              },
+            },
+            unknownDword1: 0,
+          },
+        ],
+        unknownArray2: [{}],
+        unknownData1: {
+          unknownData1: {
+            unknownArray1: [{}],
+            unknownArray2: [{}],
+          },
+        },
+      });
+
+      client.vehicle.mountedVehicle = vehicleGuid;
+    } else if (entityData.isLocked === 2) {
+      this.sendData(client, "ClientUpdate.TextAlert", {
+        message: "Vehicle is locked",
+      });
+    }
+  }
+
+  dismountVehicle(client: Client, vehicleGuid: any) {
+    const vehicleData = this._vehicles[vehicleGuid];
+    if (client.vehicle.mountedVehicleSeat === 1) {
+      if (
+        vehicleData.passengers.passenger2 &&
+        vehicleData.passengers.passenger2 != client
+      ) {
+        this.sendData(
+          vehicleData.passengers.passenger2,
+          "Mount.DismountResponse",
+          {
+            characterId:
+              vehicleData.passengers.passenger2.character.characterId,
+            guid: vehicleData.npcData.characterId,
+          }
+        );
+      }
+      if (
+        vehicleData.passengers.passenger3 &&
+        vehicleData.passengers.passenger3 != client
+      ) {
+        this.sendData(
+          vehicleData.passengers.passenger3,
+          "Mount.DismountResponse",
+          {
+            characterId:
+              vehicleData.passengers.passenger1.character.characterId,
+            guid: vehicleData.npcData.characterId,
+          }
+        );
+      }
+      if (
+        vehicleData.passengers.passenger4 &&
+        vehicleData.passengers.passenger4 != client
+      ) {
+        this.sendData(
+          vehicleData.passengers.passenger4,
+          "Mount.DismountResponse",
+          {
+            characterId: client.character.characterId,
+            guid: vehicleData.npcData.characterId,
+          }
+        );
+      }
+      this.sendDataToAll("Mount.DismountResponse", {
+        characterId: client.character.characterId,
+        guid: vehicleData.npcData.characterId,
+      });
+
+      if (vehicleData.passengers.passenger2) {
+        this.sendDataToAll("Mount.MountResponse", {
+          characterId: vehicleData.passengers.passenger2.character.characterId,
+          guid: vehicleData.npcData.characterId,
+          unknownDword1: 1,
+          unknownDword3: 0,
+          characterData: [],
+        });
+      }
+      if (vehicleData.passengers.passenger3) {
+        this.sendDataToAll("Mount.MountResponse", {
+          characterId: vehicleData.passengers.passenger3.character.characterId,
+          guid: vehicleData.npcData.characterId,
+          unknownDword1: 2,
+          unknownDword3: 0,
+          characterData: [],
+        });
+      }
+      if (vehicleData.passengers.passenger4) {
+        this.sendDataToAll("Mount.MountResponse", {
+          characterId: vehicleData.passengers.passenger4.character.characterId,
+          guid: vehicleData.npcData.characterId,
+          unknownDword1: 3,
+          unknownDword3: 0,
+          characterData: [],
+        });
+      }
+    } else {
+      this.sendDataToAll("Mount.DismountResponse", {
+        characterId: client.character.characterId,
+        guid: vehicleData.npcData.characterId,
+      });
+    }
+
+    this.sendDataToAll("Mount.DismountResponse", {
+      characterId: client.character.characterId,
+      guid: vehicleData.npcData.characterId,
+    });
+    this.sendData(client, "Vehicle.Occupy", {
+      guid: "",
+      characterId: client.character.characterId,
+      vehicleId: 0,
+      unknownDword1: 1,
+      unknownArray1: [
+        {
+          unknownDword1: 1,
+          unknownBoolean1: 1,
+        },
+      ],
+      passengers: [
+        {
+          passengerData: { characterData: {} },
+        },
+      ],
+      unknownArray2: [{}],
+      unknownData1: {
+        unknownData1: {
+          unknownArray1: [{}],
+          unknownArray2: [{}],
+        },
+      },
+    });
+    client.vehicle.mountedVehicleType = "0";
+    delete client.vehicle.mountedVehicle;
+    switch (client.vehicle.mountedVehicleSeat) {
+      case 1:
+        this._vehicles[vehicleGuid].seats.seat1 = false;
+        delete this._vehicles[vehicleGuid].passengers.passenger1;
+        this.sendDataToAll("Vehicle.Engine", {
+          guid2: vehicleData.npcData.characterId,
+          unknownBoolean: false,
+        });
+        break;
+      case 2:
+        this._vehicles[vehicleGuid].seats.seat2 = false;
+        delete this._vehicles[vehicleGuid].passengers.passenger2;
+        break;
+      case 3:
+        this._vehicles[vehicleGuid].seats.seat3 = false;
+        delete this._vehicles[vehicleGuid].passengers.passenger3;
+        break;
+      case 4:
+        this._vehicles[vehicleGuid].seats.seat4 = false;
+        delete this._vehicles[vehicleGuid].passengers.passenger4;
+        break;
+    }
+  }
+
+  updatePosition(client: Client, position: Float32Array) {
+    client.character.state.position = position;
+  }
 
   spawnCharacters(client: Client) {
     for (const character in this._characters) {
