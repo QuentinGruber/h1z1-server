@@ -62,7 +62,7 @@ export class Vehicle {
     };
     this.unknownGuid1 = generateRandomGuid();
     this.positionUpdate = {};
-    this.seats = {
+    this.seat = {
       seat1: false,
       seat2: false,
       seat3: false,
