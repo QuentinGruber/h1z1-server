@@ -422,7 +422,7 @@ export class ZoneServer2016 extends ZoneServer {
       try {
         await mongoClient.connect();
       } catch (e) {
-        throw debug("[ERROR]Unable to connect to mongo server");
+        throw debug("[ERROR]Unable to connect to mongo server "+this._mongoAddress);
       }
       debug("connected to mongo !");
       // if no collections exist on h1server database , fill it with samples
