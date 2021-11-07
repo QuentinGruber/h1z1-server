@@ -314,7 +314,7 @@ const packets = [
   ],
   [
     "OutOfOrder",
-    0x11,
+    0x11, // 0x11, 0x12, 0x13, 0x14
     {
       parse: function (
         data: any,
@@ -356,7 +356,7 @@ const packets = [
   ],
   [
     "Ack",
-    0x15,
+    0x15, // 0x15, 0x16, 0x17, 0x18
     {
       parse: function (
         data: any,
@@ -396,6 +396,77 @@ const packets = [
       },
     },
   ],
+  ["MultiAppPacket", 0x19, { // unreversed
+    parse: function (
+      data: any,
+      crcSeed: number,
+      compression: number,
+      isSubPacket: boolean,
+      appData: any
+    ) {
+      let offset = 2 + (compression ? 1 : 0),
+        dataLength;
+      const subPackets = [];
+      while (offset < data.length - 2) {
+        dataLength = readDataLength(data, offset);
+        offset += dataLength.numBytes;
+        subPackets.push(
+          parseSOEPacket(
+            data.slice(offset, offset + dataLength.value),
+            crcSeed,
+            compression,
+            true,
+            appData
+          )
+        );
+        offset += dataLength.value;
+      }
+      return {
+        subPackets: subPackets,
+      };
+    },
+    pack: function (
+      packet: any,
+      crcSeed: number,
+      compression: number,
+      isSubPacket: boolean
+    ) {
+      const dataParts = [];
+      let subData,
+        data = new (Buffer as any).alloc(2 + (compression ? 1 : 0));
+      data.writeUInt16BE(0x19, 0);
+      if (compression) {
+        data.writeUInt8(0, 2);
+      }
+      dataParts.push(data);
+      for (let i = 0; i < packet.subPackets.length; i++) {
+        subData = packSOEPacket(
+          packet.subPackets[i].name,
+          packet.subPackets[i].soePacket,
+          crcSeed,
+          compression,
+          true
+        );
+        dataParts.push(writeDataLength(subData.length), subData);
+      }
+      data = Buffer.concat(dataParts);
+      data = appendCRC(data, crcSeed);
+      return data;
+    },
+  }],
+  ["PacketOrdered", 0x1a, {
+    parse: function (data: any) {
+      const sequence = data.readUInt16BE(0);
+      return sequence;
+    },
+    pack: function () {
+      const data = Buffer.alloc(4);
+      data.writeUInt16BE(0x1a, 0);
+      data.writeUInt16BE(1, 0);
+      return data;
+    },
+  }],
+  ["PacketOrdered2", 0x1b, {}],
   ["FatalError", 0x1d, {}],
   ["FatalErrorReply", 0x1e, {}],
 ];

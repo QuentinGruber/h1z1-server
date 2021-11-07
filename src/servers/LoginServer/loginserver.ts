@@ -164,7 +164,7 @@ export class LoginServer extends EventEmitter {
               switch (packet.name) {
                 case "SessionRequest": {
                   if (!connectionEstablished) {
-                    let { serverId } = packet.data;
+                    const { serverId } = packet.data;
                     debug(
                       `Received session request from ${client.address}:${client.port}`
                     );
@@ -185,6 +185,20 @@ export class LoginServer extends EventEmitter {
                       status: status,
                     });
                   }
+                  break;
+                }
+                case "UpdateZonePopulation":{
+                  const { population } = packet.data;
+                  const serverId = this._zoneConnections[client.clientId]
+                  this._db?.collection("servers").findOneAndUpdate(
+                    { serverId: serverId },
+                    {
+                      $set: {
+                        populationNumber: population,
+                        populationLevel: Number((population / 1).toFixed(0)),
+                      },
+                    }
+                  );
                   break;
                 }
                 default:

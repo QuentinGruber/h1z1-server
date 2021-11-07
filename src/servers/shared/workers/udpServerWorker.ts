@@ -25,8 +25,7 @@ if (workerData) {
   });
 
   connection.on("error", (err) => {
-    console.log(`server error:\n${err.stack}`);
-    process.exit(1);
+    throw new Error(`server error:\n${err.stack}`);
   });
 
   connection.on("message", (data, remote) => {

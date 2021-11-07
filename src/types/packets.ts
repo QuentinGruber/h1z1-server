@@ -2117,7 +2117,7 @@ export type h1z1PacketsType =
   | "Skill.ReportDeprecatedSkillLine"
   | "Loadout.SelectLoadout"
   | "Loadout.SetCurrentLoadout"
-  | "Loadout.SelectSlot"
+  | "Loadout.SetLoadoutSlots"
   | "Loadout.SelectClientSlot"
   | "Loadout.CreateCustomLoadout"
   | "Experience.SetExperience"
@@ -2430,7 +2430,9 @@ export type h1z1PacketsType =
   | "WeaponLagLockParameters"
   | "CrateOpeningBase"
   | "PlayerHeatWarning"
-  | "AnimationBase";
+  | "AnimationBase"
+  | "AccessedCharacter.BeginCharacterAccess"
+  | "AccessedCharacter.Unknown1";
 export type loginPacketsType =
   | "LoginRequest"
   | "LoginReply"

@@ -201,7 +201,7 @@ setTimeout(() => {
     new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", "base64"),
     "0x69cf9098124bdb33",
     "0",
-    "",
+    "ClientProtocol_860",
     "",
     6457
   );
