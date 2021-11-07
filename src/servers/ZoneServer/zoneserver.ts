@@ -1382,23 +1382,23 @@ export class ZoneServer extends EventEmitter {
     let allowedAccess;
     let seat;
     let isDriver;
-    if (!entityData.seats.seat1) {
+    if (!entityData.seat.seat1) {
       isDriver = 1;
       seat = 0;
       allowedAccess = 1;
       entityData.isLocked = 0;
       client.vehicle.mountedVehicleSeat = 1;
-    } else if (!entityData.seats.seat2) {
+    } else if (!entityData.seat.seat2) {
       isDriver = 0;
       seat = 1;
       allowedAccess = 1;
       client.vehicle.mountedVehicleSeat = 2;
-    } else if (!entityData.seats.seat3) {
+    } else if (!entityData.seat.seat3) {
       isDriver = 0;
       seat = 2;
       allowedAccess = 1;
       client.vehicle.mountedVehicleSeat = 3;
-    } else if (!entityData.seats.seat4) {
+    } else if (!entityData.seat.seat4) {
       isDriver = 0;
       seat = 3;
       allowedAccess = 1;
@@ -1426,7 +1426,7 @@ export class ZoneServer extends EventEmitter {
 
       switch (seat) {
         case 0:
-          entityData.seats.seat1 = true;
+          entityData.seat.seat1 = true;
           this._vehicles[vehicleGuid].isManaged = true;
           client.managedObjects.push(this._vehicles[vehicleGuid]);
           this.sendData(client, "PlayerUpdate.ManagedObject", {
@@ -1439,15 +1439,15 @@ export class ZoneServer extends EventEmitter {
 
           break;
         case 1:
-          entityData.seats.seat2 = true;
+          entityData.seat.seat2 = true;
           this._vehicles[vehicleGuid].passengers.passenger2 = client;
           break;
         case 2:
-          entityData.seats.seat3 = true;
+          entityData.seat.seat3 = true;
           this._vehicles[vehicleGuid].passengers.passenger3 = client;
           break;
         case 3:
-          entityData.seats.seat4 = true;
+          entityData.seat.seat4 = true;
           this._vehicles[vehicleGuid].passengers.passenger4 = client;
           break;
       }
@@ -1655,7 +1655,7 @@ export class ZoneServer extends EventEmitter {
     delete client.vehicle.mountedVehicle;
     switch (client.vehicle.mountedVehicleSeat) {
       case 1:
-        this._vehicles[vehicleGuid].seats.seat1 = false;
+        this._vehicles[vehicleGuid].seat.seat1 = false;
         delete this._vehicles[vehicleGuid].passengers.passenger1;
         this.sendDataToAll("Vehicle.Engine", {
           guid2: vehicleData.npcData.characterId,
@@ -1663,15 +1663,15 @@ export class ZoneServer extends EventEmitter {
         });
         break;
       case 2:
-        this._vehicles[vehicleGuid].seats.seat2 = false;
+        this._vehicles[vehicleGuid].seat.seat2 = false;
         delete this._vehicles[vehicleGuid].passengers.passenger2;
         break;
       case 3:
-        this._vehicles[vehicleGuid].seats.seat3 = false;
+        this._vehicles[vehicleGuid].seat.seat3 = false;
         delete this._vehicles[vehicleGuid].passengers.passenger3;
         break;
       case 4:
-        this._vehicles[vehicleGuid].seats.seat4 = false;
+        this._vehicles[vehicleGuid].seat.seat4 = false;
         delete this._vehicles[vehicleGuid].passengers.passenger4;
         break;
     }
