@@ -1020,19 +1020,13 @@ export class ZoneServer extends EventEmitter {
       if (client.character.resources.health < 0) {
         client.character.resources.health = 0;
       }
-      this.sendData(client, "ResourceEvent", {
-        eventData: {
-          type: 3,
-          value: {
-            characterId: client.character.characterId,
-            resourceId: 48, // health
-            resourceType: 1,
-            initialValue: client.character.resources.health,
-            unknownArray1: [],
-            unknownArray2: [],
-          },
-        },
-      });
+      this.updateResource(
+        client,
+        client.character.characterId,
+        client.character.resources.health,
+        48,
+        1
+      );
     }
   }
 
@@ -1042,85 +1036,47 @@ export class ZoneServer extends EventEmitter {
     client.character.resources.water = 10000;
     client.character.resources.stamina = 600;
     client.character.resourcesUpdater.refresh();
-	this.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
+    this.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
       characterId: client.character.characterId,
       state: "000000000000000000",
       gameTime: Int64String(this.getServerTime()),
     });
-	const randomSpawnIndex = Math.floor(
+    const randomSpawnIndex = Math.floor(
       Math.random() * this._spawnLocations.length
     );
     this.sendData(client, "ClientUpdate.UpdateLocation", {
       position: this._spawnLocations[randomSpawnIndex].position,
     });
-	client.character.state.position =
+    client.character.state.position =
       this._spawnLocations[randomSpawnIndex].position;
-    this.sendData(client, "ResourceEvent", {
-      eventData: {
-        type: 3,
-        value: {
-          characterId: client.character.characterId,
-          resourceId: 48, // health
-          resourceType: 1,
-          initialValue: client.character.resources.health,
-          unknownArray1: [],
-          unknownArray2: [],
-        },
-      },
-    });
-
-    this.sendData(client, "ResourceEvent", {
-      eventData: {
-        type: 3,
-        value: {
-          characterId: client.character.characterId,
-          resourceId: 6, // stamina
-          resourceType: 6,
-          initialValue: client.character.resources.stamina,
-          unknownArray1: [],
-          unknownArray2: [],
-        },
-      },
-    });
-    this.sendData(client, "ResourceEvent", {
-      eventData: {
-        type: 3,
-        value: {
-          characterId: client.character.characterId,
-          resourceId: 4, // food
-          resourceType: 4,
-          initialValue: client.character.resources.food,
-          unknownArray1: [],
-          unknownArray2: [],
-        },
-      },
-    });
-    this.sendData(client, "ResourceEvent", {
-      eventData: {
-        type: 3,
-        value: {
-          characterId: client.character.characterId,
-          resourceId: 5, // water
-          resourceType: 5,
-          initialValue: client.character.resources.water,
-          unknownArray1: [],
-          unknownArray2: [],
-        },
-      },
-    });
-    this.sendData(client, "ResourceEvent", {
-      eventData: {
-        type: 3,
-        value: {
-          characterId: client.character.characterId,
-          resourceId: 9, // VIRUS
-          resourceType: 12,
-          initialValue: client.character.resources.virus,
-          unknownArray1: [],
-          unknownArray2: [],
-        },
-      },
-    });
+    this.updateResource(
+      client,
+      client.character.characterId,
+      client.character.resources.health,
+      48,
+      1
+    );
+    this.updateResource(
+      client,
+      client.character.characterId,
+      client.character.resources.stamina,
+      6,
+      6
+    );
+    this.updateResource(
+      client,
+      client.character.characterId,
+      client.character.resources.food,
+      4,
+      4
+    );
+    this.updateResource(
+      client,
+      client.character.characterId,
+      client.character.resources.water,
+      5,
+      5
+    );
   }
   
   
