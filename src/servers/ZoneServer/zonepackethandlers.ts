@@ -234,60 +234,10 @@ export class zonePacketHandlers {
         }
         const { stamina, food, water, virus } = client.character.resources;
 
-        server.sendData(client, "ResourceEvent", {
-          eventData: {
-            type: 3,
-            value: {
-              characterId: client.character.characterId,
-              resourceId: 6, // stamina
-              resourceType: 6,
-              initialValue: stamina,
-              unknownArray1: [],
-              unknownArray2: [],
-            },
-          },
-        });
-        server.sendData(client, "ResourceEvent", {
-          eventData: {
-            type: 3,
-            value: {
-              characterId: client.character.characterId,
-              resourceId: 4, // food
-              resourceType: 4,
-              initialValue: food,
-              unknownArray1: [],
-              unknownArray2: [],
-            },
-          },
-        });
-        server.sendData(client, "ResourceEvent", {
-          eventData: {
-            type: 3,
-            value: {
-              characterId: client.character.characterId,
-              resourceId: 5, // water
-              resourceType: 5,
-              initialValue: water,
-              unknownArray1: [],
-              unknownArray2: [],
-            },
-          },
-        });
-        server.sendData(client, "ResourceEvent", {
-          eventData: {
-            type: 3,
-            value: {
-              characterId: client.character.characterId,
-              resourceId: 9, // VIRUS
-              resourceType: 12,
-              initialValue: virus,
-              unknownArray1: [],
-              unknownArray2: [],
-            },
-          },
-        });
-        client.character.resourcesUpdater.refresh();
-      }, 3000);
+      server.updateResource(client, client.character.characterId, food, 4, 4);
+      server.updateResource(client, client.character.characterId, water, 5, 5);
+      client.character.resourcesUpdater.refresh();
+    }, 3000);
 
       server.sendData(client, "ZoneDoneSendingInitialData", {});
 
@@ -323,19 +273,20 @@ export class zonePacketHandlers {
       client.isInteracting = false;
       delete client.vehicle.mountedVehicle;
       client.vehicle.mountedVehicleType = "0";
-      server.sendData(client, "ResourceEvent", {
-        eventData: {
-          type: 3,
-          value: {
-            characterId: client.character.characterId,
-            resourceId: 48, // health
-            resourceType: 1,
-            initialValue: client.character.resources.health,
-            unknownArray1: [],
-            unknownArray2: [],
-          },
-        },
-      });
+      server.updateResource(
+      client,
+      client.character.characterId,
+      client.character.resources.health,
+      48,
+      1
+    );
+    server.updateResource(
+      client,
+      client.character.characterId,
+      client.character.resources.stamina,
+      6,
+      6
+    );
       server.sendDataToAll("PlayerUpdate.WeaponStance", {
         characterId: client.character.characterId,
         stance: 1,
@@ -361,12 +312,14 @@ export class zonePacketHandlers {
       server.sendData(client, "Command.FreeInteractionNpc", {});
     };
     this.collisionDamage = function (
-      server: ZoneServer,
-      client: Client,
-      packet: any
-    ) {
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
+    if (packet.data.characterId === client.character.characterId) {
       server.playerDamage(client, packet.data.damage);
-    };
+    }
+  },
     this.lobbyGameDefinitionDefinitionsRequest = function (
       server: ZoneServer,
       client: Client,
@@ -908,15 +861,15 @@ export class zonePacketHandlers {
       debug("select");
     };
     this.playerUpdateVehicleCollision = function (
-      server: ZoneServer,
-      client: Client,
-      packet: any
-    ) {
-      debug(packet);
-      const vehicleData =
-        server._vehicles[server._transientIds[packet.data.transientId]];
-      server.damageVehicle(client, packet.data.damage, vehicleData);
-    };
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
+    debug(packet);
+    const vehicleData =
+      server._vehicles[server._transientIds[packet.data.transientId]];
+    server.damageVehicle(client, packet.data.damage, vehicleData);
+  },
     this.vehicleDismiss = function (
       server: ZoneServer,
       client: Client,
@@ -1841,71 +1794,53 @@ export class zonePacketHandlers {
         return;
 
       switch (entityType) {
-        case 1: // object
-          // TODO : use strings from the game, will add to h1z1-string-finder the option to export to JSON
-          const model_index = modelToName.findIndex(
-            (x: any) => x.modelId === entityData.modelId
-          );
-          const pickupMessage = modelToName[model_index]?.itemName;
-          server.sendData(client, "ClientUpdate.TextAlert", {
-            message: pickupMessage,
-          });
-          const { water, health, food } = client.character.resources;
-          switch (entityData.modelId) {
-            case 9159:
-              client.character.resources.water = water + 4000;
-              server.sendData(client, "ResourceEvent", {
-                eventData: {
-                  type: 3,
-                  value: {
-                    characterId: client.character.characterId,
-                    resourceId: 5, // water
-                    resourceType: 5,
-                    initialValue: client.character.resources.water,
-                    unknownArray1: [],
-                    unknownArray2: [],
-                  },
-                },
-              });
-              break;
-            case 8020:
-            case 9250:
-              client.character.resources.food = food + 4000;
-              server.sendData(client, "ResourceEvent", {
-                eventData: {
-                  type: 3,
-                  value: {
-                    characterId: client.character.characterId,
-                    resourceId: 4, // food
-                    resourceType: 4,
-                    initialValue: client.character.resources.food,
-                    unknownArray1: [],
-                    unknownArray2: [],
-                  },
-                },
-              });
-              break;
-            case 9221:
-              client.character.resources.health = health + 10000;
-              server.sendData(client, "ResourceEvent", {
-                eventData: {
-                  type: 3,
-                  value: {
-                    characterId: client.character.characterId,
-                    resourceId: 48, // health
-                    resourceType: 1,
-                    initialValue: client.character.resources.health,
-                    unknownArray1: [],
-                    unknownArray2: [],
-                  },
-                },
-              });
-              break;
-            default:
-              break;
-          }
-          server.deleteEntity(entityData.characterId, server._objects);
-          break;
+      case 1: // object
+        // TODO : use strings from the game, will add to h1z1-string-finder the option to export to JSON
+        const model_index = modelToName.findIndex(
+          (x: any) => x.modelId === entityData.modelId
+        );
+        const pickupMessage = modelToName[model_index]?.itemName;
+        server.sendData(client, "ClientUpdate.TextAlert", {
+          message: pickupMessage,
+        });
+        const { water, health, food } = client.character.resources;
+        switch (entityData.modelId) {
+          case 9159:
+            client.character.resources.water = water + 4000;
+            server.updateResource(
+              client,
+              client.character.characterId,
+              client.character.resources.water,
+              5,
+              5
+            );
+            break;
+          case 8020:
+          case 9250:
+            client.character.resources.food = food + 4000;
+            server.updateResource(
+              client,
+              client.character.characterId,
+              client.character.resources.food,
+              4,
+              4
+            );
+            break;
+          case 9221:
+            client.character.resources.health = health + 10000;
+            server.updateResource(
+              client,
+              client.character.characterId,
+              client.character.resources.health,
+              48,
+              1
+            );
+            break;
+          default:
+            break;
+        }
+        server.deleteEntity(entityData.characterId, server._objects);
+        break;
         case 2: // vehicle
           const { characterId: vehicleGuid } = entityData.npcData;
           const { modelId: vehicleModelId } = entityData.npcData;
