@@ -1617,7 +1617,6 @@ export class zonePacketHandlers {
   ) {
     debug(packet);
     const characterId = server._transientIds[packet.data.transientId];
-    const vehicle = server._vehicles[characterId];
     if (characterId) {
       if (
         client.hudTimer != null &&
