@@ -1381,7 +1381,7 @@ export class ZoneServer extends EventEmitter {
             guid: vehicleGuid,
             characterId: client.character.characterId,
           });
-
+          this._vehicles[vehicleGuid].isLocked = 0;
           this.turnOnEngine(vehicleGuid);
           this._vehicles[vehicleGuid].passengers.passenger1 = client;
 
