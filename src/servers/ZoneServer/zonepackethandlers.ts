@@ -319,7 +319,7 @@ export class zonePacketHandlers {
     if (packet.data.characterId === client.character.characterId) {
       server.playerDamage(client, packet.data.damage);
     }
-  },
+  };
     this.lobbyGameDefinitionDefinitionsRequest = function (
       server: ZoneServer,
       client: Client,
@@ -1611,62 +1611,101 @@ export class zonePacketHandlers {
       });
     };
     this.PlayerUpdateManagedPosition = function (
-      server: ZoneServer,
-      client: Client,
-      packet: any
-    ) {
-      debug(packet);
-      const characterId = server._transientIds[packet.data.transientId];
-      if (characterId) {
-        if (
-          client.hudTimer != null &&
-          !isPosInRadius(
-            1,
-            client.character.state.position,
-            client.posAtLogoutStart
-          )
-        ) {
-          client.clearHudTimer();
-          server.sendData(client, "ClientUpdate.StartTimer", {
-            stringId: 0,
-            time: 0,
-          }); // don't know how it was done so
-        }
-        server.sendDataToAllOthers(client, "PlayerUpdate.UpdatePosition", {
-          transientId: packet.data.transientId,
-          positionUpdate: packet.data.PositionUpdate,
-        });
-        if (packet.data.PositionUpdate.position) {
-          server._vehicles[characterId].positionUpdate =
-            packet.data.PositionUpdate;
-          server._vehicles[characterId].npcData.position = new Float32Array([
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) {
+    debug(packet);
+    const characterId = server._transientIds[packet.data.transientId];
+    const vehicle = server._vehicles[characterId];
+    if (characterId) {
+      if (
+        client.hudTimer != null &&
+        !isPosInRadius(
+          1,
+          client.character.state.position,
+          client.posAtLogoutStart
+        )
+      ) {
+        client.clearHudTimer();
+        server.sendData(client, "ClientUpdate.StartTimer", {
+          stringId: 0,
+          time: 0,
+        }); // don't know how it was done so
+      }
+      server.sendDataToAllOthers(client, "PlayerUpdate.UpdatePosition", {
+        transientId: packet.data.transientId,
+        positionUpdate: packet.data.PositionUpdate,
+      });
+
+      if (packet.data.PositionUpdate.engineRPM) {
+        server._vehicles[characterId].positionUpdate.engineRPM =
+          packet.data.PositionUpdate.engineRPM;
+      }
+
+      if (packet.data.PositionUpdate.position) {
+        server._vehicles[characterId].positionUpdate.position =
+          packet.data.PositionUpdate.position;
+        server._vehicles[characterId].npcData.position = new Float32Array([
+          packet.data.PositionUpdate.position[0],
+          packet.data.PositionUpdate.position[1],
+          packet.data.PositionUpdate.position[2],
+          0,
+        ]);
+        if (client.vehicle.mountedVehicle === characterId) {
+          client.character.state.position = new Float32Array([
             packet.data.PositionUpdate.position[0],
             packet.data.PositionUpdate.position[1],
             packet.data.PositionUpdate.position[2],
             0,
           ]);
-          if (client.vehicle.mountedVehicle === characterId) {
-            client.character.state.position = new Float32Array([
-              packet.data.PositionUpdate.position[0],
-              packet.data.PositionUpdate.position[1],
-              packet.data.PositionUpdate.position[2],
-              0,
-            ]);
-            if (
-              !client.posAtLastRoutine ||
-              !isPosInRadius(
-                server._npcRenderDistance *
-                  server._worldRoutineRadiusPercentage,
-                client.character.state.position,
-                client.posAtLastRoutine
-              )
-            ) {
-              server.worldRoutine();
-            }
+          if (server._vehicles[characterId].passengers.passenger1) {
+            const character =
+              server._vehicles[characterId].passengers.passenger1;
+            server.updatePosition(
+              character,
+              packet.data.PositionUpdate.position
+            );
+          }
+          if (server._vehicles[characterId].passengers.passenger2) {
+            const character =
+              server._vehicles[characterId].passengers.passenger2;
+            server.updatePosition(
+              character,
+              packet.data.PositionUpdate.position
+            );
+          }
+          if (server._vehicles[characterId].passengers.passenger3) {
+            const character =
+              server._vehicles[characterId].passengers.passenger3;
+            server.updatePosition(
+              character,
+              packet.data.PositionUpdate.position
+            );
+          }
+          if (server._vehicles[characterId].passengers.passenger4) {
+            const character =
+              server._vehicles[characterId].passengers.passenger4;
+            server.updatePosition(
+              character,
+              packet.data.PositionUpdate.position
+            );
+          }
+
+          if (
+            !client.posAtLastRoutine ||
+            !isPosInRadius(
+              server._npcRenderDistance * server._worldRoutineRadiusPercentage,
+              client.character.state.position,
+              client.posAtLastRoutine
+            )
+          ) {
+            server.worldRoutine();
           }
         }
       }
-    };
+    }
+  };
     this.PlayerUpdateUpdatePositionClientToZone = function (
       server: ZoneServer,
       client: Client,
