@@ -1610,20 +1610,20 @@ export class ZoneServer extends EventEmitter {
     delete client.vehicle.mountedVehicle;
     switch (client.vehicle.mountedVehicleSeat) {
       case 1:
-        this._vehicles[vehicleGuid].seats.seat1 = false;
+        this._vehicles[vehicleGuid].seat.seat1 = false;
         delete this._vehicles[vehicleGuid].passengers.passenger1;
         this.turnOffEngine(vehicleData.npcData.characterId);
         break;
       case 2:
-        this._vehicles[vehicleGuid].seats.seat2 = false;
+        this._vehicles[vehicleGuid].seat.seat2 = false;
         delete this._vehicles[vehicleGuid].passengers.passenger2;
         break;
       case 3:
-        this._vehicles[vehicleGuid].seats.seat3 = false;
+        this._vehicles[vehicleGuid].seat.seat3 = false;
         delete this._vehicles[vehicleGuid].passengers.passenger3;
         break;
       case 4:
-        this._vehicles[vehicleGuid].seats.seat4 = false;
+        this._vehicles[vehicleGuid].seat.seat4 = false;
         delete this._vehicles[vehicleGuid].passengers.passenger4;
         break;
     }
