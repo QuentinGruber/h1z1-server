@@ -4932,7 +4932,15 @@ var packets = [
       ],
     },
   ],
-  ["PlayerUpdate.SetSpawnerActivationEffect", 0x0f1e, {}],
+  ["PlayerUpdate.SetSpawnerActivationEffect", 
+   0x0f1e,
+      {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "effectId", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
   ["PlayerUpdate.SetComboState", 0x0f1f, {}],
   ["PlayerUpdate.SetSurpriseState", 0x0f20, {}],
   ["PlayerUpdate.RemoveNpcCustomization", 0x0f21, {}],
