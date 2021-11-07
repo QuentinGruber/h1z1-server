@@ -232,7 +232,7 @@ export class zonePacketHandlers {
         } else if (client.character.resources.health < 0) {
           client.character.resources.health = 0;
         }
-        const { stamina, food, water, virus } = client.character.resources;
+        const {food, water} = client.character.resources;
 
       server.updateResource(client, client.character.characterId, food, 4, 4);
       server.updateResource(client, client.character.characterId, water, 5, 5);
