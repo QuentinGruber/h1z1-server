@@ -1,6 +1,6 @@
 import fs from "fs";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
-import { Vehicle2016 as Vehicle } from "../classes/vehicle";
+import { Vehicle2016 as Vehicle, Vehicle2016 } from "../classes/vehicle";
 import { ZoneServer2016 } from "../zoneserver";
 import { _ } from "../../../utils/utils";
 
@@ -53,6 +53,150 @@ const hax: any = {
     });
     client.vehicle.mountedVehicle = characterId;
     client.vehicle.mountedVehicleType = "parachute";
+  },
+  drive: function (server: ZoneServer2016, client: Client, args: any[]) {
+    let driveModel;
+    const driveChoosen = args[1];
+    if (!args[1]) {
+      server.sendChatText(
+        client,
+        "[ERROR] Usage /hax drive offroader/pickup/policecar"
+      );
+      return;
+    }
+    let wasAlreadyGod = client.character.godMode;
+    client.character.godMode = true;
+    switch (driveChoosen) {
+      case "offroader":
+        driveModel = 7225;
+        client.vehicle.mountedVehicleType = "offroader";
+        break;
+      case "pickup":
+        driveModel = 9258;
+        client.vehicle.mountedVehicleType = "pickup";
+        break;
+      case "policecar":
+        driveModel = 9301;
+        client.vehicle.mountedVehicleType = "policecar";
+        break;
+      default:
+        driveModel = 7225;
+        client.vehicle.mountedVehicleType = "offroader";
+        break;
+    }
+    const characterId = server.generateGuid();
+    const vehicleData = new Vehicle2016(
+      server._worldId,
+      characterId,
+      server.getTransientId(client, characterId),
+      driveModel,
+      client.character.state.position,
+      client.character.state.lookAt,
+      server.getServerTime()
+    );
+    server.sendDataToAll("AddLightweightVehicle", vehicleData);
+    vehicleData.isManaged = true;
+    vehicleData.onReadyCallback = () => {
+      // doing anything with vehicle before client gets fullvehicle packet breaks it
+      server.sendData(client, "Character.ManagedObject", {
+        guid: vehicleData.npcData.characterId,
+        characterId: client.character.characterId,
+      });
+      server.sendData(client, "ClientUpdate.ManagedObjectResponseControl", {
+        control: true,
+        objectCharacterId: characterId
+      });
+      server.sendDataToAll("Mount.MountResponse", {
+        characterId: client.character.characterId,
+        guid: characterId,
+        characterData: [],
+      });
+      server.sendDataToAll("Vehicle.Engine", {
+        guid2: characterId,
+        unknownBoolean: true,
+      });
+      client.vehicle.mountedVehicle = characterId;
+      client.managedObjects.push(server._vehicles[characterId]);
+      setTimeout(()=>{client.character.godMode = wasAlreadyGod?true:false},1000)
+    },
+    server._vehicles[characterId] = vehicleData;
+    server.worldRoutine();
+  },
+  titan: function (server: ZoneServer2016, client: Client, args: any[]) {
+    server.sendDataToAll("Character.UpdateScale", {
+      characterId: client.character.characterId,
+      scale: [20, 20, 20, 1],
+    });
+    server.sendChatText(client, "TITAN size");
+  },
+  poutine: function (server: ZoneServer2016, client: Client, args: any[]) {
+    server.sendDataToAll("Character.UpdateScale", {
+      characterId: client.character.characterId,
+      scale: [20, 5, 20, 1],
+    });
+    server.sendChatText(client, "The meme become a reality.....");
+  },
+  rat: function (server: ZoneServer2016, client: Client, args: any[]) {
+    server.sendDataToAll("Character.UpdateScale", {
+      characterId: client.character.characterId,
+      scale: [0.2, 0.2, 0.2, 1],
+    });
+    server.sendChatText(client, "Rat size");
+  },
+  normalsize: function (server: ZoneServer2016, client: Client, args: any[]) {
+    server.sendDataToAll("Character.UpdateScale", {
+      characterId: client.character.characterId,
+      scale: [1, 1, 1, 1],
+    });
+    server.sendChatText(client, "Back to normal size");
+  },
+  spamoffroader: function (server: ZoneServer2016, client: Client, args: any[]) {
+    for (let index = 0; index < 50; index++) {
+      const guid = server.generateGuid();
+      const transientId = server.getTransientId(client, guid);
+      const characterId = server.generateGuid();
+     const vehicle = new Vehicle(
+       server._worldId, 
+       characterId, 
+       transientId, 
+       7225, 
+       client.character.state.position,
+       client.character.state.lookAt,
+       server.getGameTime()
+      )
+      server._vehicles[characterId] = vehicle; // save vehicle
+    }
+  },
+  spampolicecar: function (server: ZoneServer2016, client: Client, args: any[]) {
+    for (let index = 0; index < 50; index++) {
+      const guid = server.generateGuid();
+      const transientId = server.getTransientId(client, guid);
+      const characterId = server.generateGuid();
+     const vehicle = new Vehicle(
+       server._worldId, 
+       characterId, 
+       transientId, 
+       9301, 
+       client.character.state.position,
+       client.character.state.lookAt,
+       server.getGameTime()
+      )
+      server._vehicles[characterId] = vehicle; // save vehicle
+    }
+  },
+  despawnobjects: function (server: ZoneServer2016, client: Client, args: any[]) {
+    client.spawnedEntities.forEach((object) => {
+      server.despawnEntity(
+        object.characterId ? object.characterId : object.npcData.characterId
+      );
+    });
+    client.spawnedEntities = [];
+    server._props = {};
+    server._npcs = {};
+    server._objects = {};
+    server._vehicles = {};
+    server._doors = {};
+    server.sendChatText(client, "Objects removed from the game.", true);
   },
   tp: function (server: ZoneServer2016, client: Client, args: any[]) {
     let locationPosition;

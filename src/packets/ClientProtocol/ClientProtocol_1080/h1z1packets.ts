@@ -5937,7 +5937,6 @@ const packets = [
             },
           ],
         },
-        { name: "offset", type: "debugoffset" },
       ],
     },
   ],
