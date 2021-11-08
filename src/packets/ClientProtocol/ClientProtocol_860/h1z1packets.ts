@@ -6882,7 +6882,6 @@ var packets = [
             },
           ],
         },
-        { name: "offset", type: "debugoffset" },
       ],
     },
   ],
