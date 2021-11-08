@@ -216,7 +216,7 @@ export class zonePacketHandlers {
           () => server.saveCharacterPosition(client),
           30000
         );
-        server.executeFuncForAllClients(() => server.spawnCharacters);
+        server.executeFuncForAllReadyClients(() => server.spawnCharacters);
       }
 
       client.isLoading = false;
@@ -681,7 +681,7 @@ export class zonePacketHandlers {
               client.posAtLastRoutine
             )
           ) {
-            server.executeFuncForAllClients(() => server.vehicleManager);
+            server.executeFuncForAllReadyClients(() => server.vehicleManager);
           }
         }
       }
