@@ -9895,9 +9895,7 @@ var packets = [
     0xd002,
     {
       fields: [
-        { name: "unknown1", type: "placeholder", defaultValue: 0 },
-        { name: "unknown2", type: "placeholder", defaultValue: 0 },
-        { name: "unknown3", type: "placeholder", defaultValue: 0 },
+        { name: "unknown3", type: "uint8", defaultValue: 0 },
         {
           name: "unknown4",
           type: "uint64string",
@@ -9907,7 +9905,7 @@ var packets = [
           name: "array1",
           type: "array",
           fields: [
-            { name: "unknown5", type: "placeholder", defaultValue: 0 },
+            { name: "unknown5", type: "uint8", defaultValue: 0 },
             { name: "unknown6", type: "uint32", defaultValue: 0 },
           ],
         },

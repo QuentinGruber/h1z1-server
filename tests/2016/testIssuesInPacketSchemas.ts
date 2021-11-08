@@ -1,7 +1,7 @@
 import { H1Z1Protocol } from "../../h1z1-server";
 const { H1Z1Packets } = new H1Z1Protocol("ClientProtocol_1080");
 
-const allowedTypes:string[] = ["placeholder","uint8","int8","uint16","int16","uint32","int32","uint64","bytes","rgb","variabletype8","custom","int64","float","schema","array","array8","uint64string","floatvector3","floatvector4","byteswithlength","string","boolean"];
+const allowedTypes:string[] = ["uint8","int8","uint16","int16","uint32","int32","uint64","bytes","rgb","variabletype8","custom","int64","float","schema","array","array8","uint64string","floatvector3","floatvector4","byteswithlength","string","boolean"];
 
 Object.values(H1Z1Packets.Packets).forEach((packet: any) => {
   const { schema } = packet;
