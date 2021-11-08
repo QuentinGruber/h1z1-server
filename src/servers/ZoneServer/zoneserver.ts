@@ -1374,7 +1374,7 @@ export class ZoneServer extends EventEmitter {
 
       switch (seat) {
         case 0:
-          entityData.seat.seat1 = true;
+          this._vehicles[vehicleGuid].seat.seat1 = true;
           this._vehicles[vehicleGuid].isManaged = true;
           client.managedObjects.push(this._vehicles[vehicleGuid]);
           this.sendData(client, "PlayerUpdate.ManagedObject", {
@@ -1387,15 +1387,15 @@ export class ZoneServer extends EventEmitter {
 
           break;
         case 1:
-          entityData.seat.seat2 = true;
+          this._vehicles[vehicleGuid].seat.seat2 = true;
           this._vehicles[vehicleGuid].passengers.passenger2 = client;
           break;
         case 2:
-          entityData.seat.seat3 = true;
+          this._vehicles[vehicleGuid].seat.seat3 = true;
           this._vehicles[vehicleGuid].passengers.passenger3 = client;
           break;
         case 3:
-          entityData.seat.seat4 = true;
+          this._vehicles[vehicleGuid].seat.seat4 = true;
           this._vehicles[vehicleGuid].passengers.passenger4 = client;
           break;
       }
