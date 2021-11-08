@@ -291,7 +291,7 @@ export class LoginServer extends EventEmitter {
       client.loginSessionId = sessionId;
     }
     else{
-      const realSession = await this._db.collection("users-session").findOne({guid:sessionId});
+      const realSession = await this._db.collection("user-sessions").findOne({guid:sessionId});
       client.loginSessionId = realSession?realSession.authKey:sessionId;
     }
     this.sendData(client, "LoginReply", {
@@ -559,7 +559,7 @@ export class LoginServer extends EventEmitter {
       if(!character){
         console.error(`CharacterId "${characterId}" unfound on serverId: "${serverId}"`)
       }
-      const hiddenSession = await this._db.collection("users-session").findOne({authKey:client.loginSessionId});
+      const hiddenSession = await this._db.collection("user-sessions").findOne({authKey:client.loginSessionId});
       charactersLoginInfo = {
         unknownQword1: "0x0",
         unknownDword1: 0,
