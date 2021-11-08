@@ -67,7 +67,6 @@ export class zonePacketHandlers {
   vehicleDismiss: any;
   vehicleSpawn: any;
   vehicleAutoMount: any;
-  adminCommandSpawnVehicle: any;
   commandInteractCancel: any;
   commandStartLogoutRequest: any;
   CharacterSelectSessionRequest: any;
@@ -698,7 +697,7 @@ export class zonePacketHandlers {
           });
           delete client.vehicle.mountedVehicle;
           break;
-        case 4: // prop
+        case 4: { // prop
           let stringId = 0;
           switch (entityData.modelId) {
             case 9330: // beds
@@ -757,14 +756,13 @@ export class zonePacketHandlers {
               stringId = 1191;
               break;
           }
-          if (stringId) {
             server.sendData(client, "Command.InteractionString", {
               guid: guid,
               stringId: stringId,
             });
-          }
           delete client.vehicle.mountedVehicle;
           break;
+        }
         default:
           break;
       }
@@ -1270,174 +1268,6 @@ export class zonePacketHandlers {
           },
         },
       });
-    };
-    this.adminCommandSpawnVehicle = function (
-      server: ZoneServer,
-      client: Client,
-      packet: any
-    ) {
-      const guid = server.generateGuid(),
-        transientId = server.getTransientId(client, guid);
-
-      server
-        .data("vehicles")
-        .findOne(
-          { id: packet.data.vehicleId },
-          function (err: string, vehicle: any) {
-            if (err || !vehicle) {
-              server.sendChatText(client, "No such vehicle");
-              return;
-            }
-            server
-              .data("npc_vehicle_mappings")
-              .findOne(
-                { vehicle_id: packet.data.vehicleId },
-                function (err: string, npcDefinitionMapping: any) {
-                  if (err || !npcDefinitionMapping) {
-                    server.sendChatText(client, "Vehicle has no NPC mapping");
-                    return;
-                  }
-                  server
-                    .data("npcs")
-                    .findOne(
-                      { id: npcDefinitionMapping.npc_definition_id },
-                      function (err: string, npc: any) {
-                        if (err || !npc) {
-                          server.sendChatText(
-                            client,
-                            "NPC definition " +
-                              npcDefinitionMapping.npc_definition_id +
-                              " not found"
-                          );
-                          return;
-                        }
-                        const nameId =
-                            vehicle.name_id > 0 ? vehicle.name_id : 0,
-                          modelId = npc.model_id;
-                        const vehicleData = {
-                          npcData: {
-                            guid: guid,
-                            transientId: transientId,
-                            unknownString0: "",
-                            nameId: nameId,
-                            unknownDword2: 0,
-                            unknownDword3: 0,
-                            unknownByte1: 1,
-                            modelId: modelId,
-                            scale: [1, 1, 1, 1],
-                            unknownString1: "",
-                            unknownString2: "",
-                            unknownDword5: 0,
-                            unknownDword6: 0,
-                            position: packet.data.position,
-                            unknownVector1: [
-                              0, -0.7071066498756409, 0, 0.70710688829422,
-                            ],
-                            rotation: [packet.data.heading, 0, 0, 0],
-                            unknownDword7: 0,
-                            unknownFloat1: 3,
-                            unknownString3: "",
-                            unknownString4: "",
-                            unknownString5: "",
-                            vehicleId: packet.data.vehicleId,
-                            unknownDword9: 0,
-                            npcDefinitionId: npc.id,
-                            unknownByte2: 2,
-                            profileId: npc.profile_id,
-                            unknownBoolean1: false,
-                            unknownData1: {
-                              unknownByte1: 16,
-                              unknownByte2: 9,
-                              unknownByte3: 0,
-                            },
-                            unknownByte6: 0,
-                            unknownDword11: 0,
-                            unknownGuid1: "0x0000000000000000",
-                            unknownData2: {
-                              unknownGuid1: "0x0000000000000000",
-                            },
-                            unknownDword12: 2484,
-                            unknownDword13: 1528,
-                            unknownDword14: 0,
-                            unknownByte7: 0,
-                            unknownArray1: [],
-                          },
-                          unknownGuid1: "0x0000000000000000",
-                          unknownDword1: 0,
-                          unknownDword2: 0,
-                          positionUpdate: server.createPositionUpdate(
-                            packet.data.position,
-                            [packet.data.heading, 0, 0, 0]
-                          ),
-                          unknownString1: "",
-                        };
-                        console.log(JSON.stringify(vehicleData, null, 2));
-
-                        server.sendData(
-                          client,
-                          "PlayerUpdate.AddLightweightVehicle",
-                          vehicleData
-                        );
-                        server.sendData(client, "PlayerUpdate.SetFaction", {
-                          guid: guid,
-                          factionId:
-                            packet.data.factionId || client.character.factionId,
-                        });
-
-                        server.sendData(client, "Vehicle.Owner", {
-                          guid: guid,
-                          characterId: client.character.characterId,
-                          unknownDword1: 305,
-                          vehicleId: packet.data.vehicleId,
-                          passengers: [
-                            {
-                              passengerData: {
-                                characterId: "0x0000000000000000",
-                                characterData: {
-                                  unknownDword1: 0,
-                                  unknownDword2: 0,
-                                  unknownDword3: 0,
-                                  characterName: "",
-                                  unknownString1: "",
-                                },
-                                unknownDword1: 0,
-                                unknownString1: "",
-                              },
-                              unknownByte1: 0,
-                            },
-                            {
-                              passengerData: {
-                                characterId: "0x0000000000000000",
-                                characterData: {
-                                  unknownDword1: 0,
-                                  unknownDword2: 0,
-                                  unknownDword3: 0,
-                                  characterName: "",
-                                  unknownString1: "",
-                                },
-                                unknownDword1: 0,
-                                unknownString1: "",
-                              },
-                              unknownByte1: 1,
-                            },
-                          ],
-                        });
-
-                        server.sendData(client, "Vehicle.SetAutoDrive", {
-                          guid: guid,
-                        });
-
-                        server.sendData(client, "PlayerUpdate.ManagedObject", {
-                          guid: guid,
-                          guid2: "0x0000000000000000",
-                          characterId: client.character.characterId,
-                        });
-                      }
-                    );
-                }
-              );
-          }
-        );
     };
     this.commandInteractCancel = function (
       server: ZoneServer,
@@ -2257,9 +2087,6 @@ export class zonePacketHandlers {
         break;
       case "Vehicle.AutoMount":
         this.vehicleAutoMount(server, client, packet);
-        break;
-      case "AdminCommand.SpawnVehicle":
-        this.adminCommandSpawnVehicle(server, client, packet);
         break;
       case "Command.InteractCancel":
         this.commandInteractCancel(server, client, packet);
