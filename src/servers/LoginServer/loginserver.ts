@@ -270,7 +270,7 @@ export class LoginServer extends EventEmitter {
     }
   }
 
-  LoginRequest(client: Client, sessionId: string, fingerprint: string) {
+  async LoginRequest(client: Client, sessionId: string, fingerprint: string) {
     if (this._protocol.protocolName == "LoginUdp_11" && this._soloMode) {
       const SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters2016.json`);
       // if character file is old, delete it
@@ -287,8 +287,13 @@ export class LoginServer extends EventEmitter {
         )
       ];
     }
-
-    client.loginSessionId = sessionId;
+    if(this._soloMode){
+      client.loginSessionId = sessionId;
+    }
+    else{
+      const realSession = await this._db.collection("users-session").findOne({guid:sessionId});
+      client.loginSessionId = realSession?realSession.authKey:sessionId;
+    }
     this.sendData(client, "LoginReply", {
       loggedIn: true,
       status: 1,
@@ -554,6 +559,7 @@ export class LoginServer extends EventEmitter {
       if(!character){
         console.error(`CharacterId "${characterId}" unfound on serverId: "${serverId}"`)
       }
+      const hiddenSession = await this._db.collection("users-session").findOne({authKey:client.loginSessionId});
       charactersLoginInfo = {
         unknownQword1: "0x0",
         unknownDword1: 0,
@@ -561,7 +567,7 @@ export class LoginServer extends EventEmitter {
         status: character ? connectionStatus:false,
         applicationData: {
           serverAddress: serverAddress,
-          serverTicket: client.loginSessionId,
+          serverTicket: hiddenSession?.guid,
           encryptionKey: this._cryptoKey,
           guid: characterId,
           unknownQword2: "0x0",
