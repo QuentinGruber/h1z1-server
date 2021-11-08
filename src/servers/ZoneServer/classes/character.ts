@@ -34,7 +34,6 @@ export class Character {
     health: number;
     shield: number;
   };
-
   constructor(characterId: string, generatedTransient: number) {
     (this.characterId = characterId),
       (this.transientId = generatedTransient),

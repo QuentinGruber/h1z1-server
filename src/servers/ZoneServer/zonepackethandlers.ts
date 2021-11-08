@@ -194,7 +194,7 @@ export class zonePacketHandlers {
         serverTime: Int64String(server.getServerTime()),
         serverTime2: Int64String(server.getServerTime()),
       });
-      client.character.startRessourceUpdater(client,server);
+      client.character.startRessourceUpdater(client, server);
       server.sendDataToAll("PlayerUpdate.WeaponStance", {
         characterId: client.character.characterId,
         stance: 1,
@@ -391,8 +391,8 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      const args: any[] = packet.data.arguments.toLowerCase().split(" ");
-
+      const args: string[] = packet.data.arguments.toLowerCase().split(" ");
+      const commandName = args[0];
       switch (packet.data.commandHash) {
         case 3720768430: // /respawn
           server.sendData(client, "PlayerUpdate.StartMultiStateDeath", {
@@ -406,7 +406,7 @@ export class zonePacketHandlers {
           );
           break;
         case 2371122039: // /serverinfo
-          if (args[0] === "mem") {
+          if (commandName === "mem") {
             const used = process.memoryUsage().rss / 1024 / 1024;
             server.sendChatText(
               client,
@@ -526,30 +526,51 @@ export class zonePacketHandlers {
           );
           break;
         case joaat("HAX"):
-          hax[args[0]]
-            ? hax[args[0]](server, client, args)
-            : server.sendChatText(
-                client,
-                `Unknown command: /hax ${args[0]} , display all hax commands by using /hax list`
-              );
+          if (
+            (server._allowedCommands.length === 0 ||
+              server._allowedCommands.includes(commandName)) &&
+            !!hax[commandName]
+          ) {
+            // using !! is faster but ugly
+            hax[commandName](server, client, args);
+          } else {
+            server.sendChatText(
+              client,
+              `Unknown command: /hax ${commandName} , display hax all commands by using /admin list`
+            );
+          }
           break;
         case joaat("DEV"):
         case 552078457: // dev
-          dev[args[0]]
-            ? dev[args[0]](server, client, args)
-            : server.sendChatText(
-                client,
-                `Unknown command: /dev ${args[0]} , display all dev commands by using /dev list`
-              );
+          if (
+            (server._allowedCommands.length === 0 ||
+              server._allowedCommands.includes(commandName)) &&
+            !!dev[commandName]
+          ) {
+            // using !! is faster but ugly
+            dev[commandName](server, client, args);
+          } else {
+            server.sendChatText(
+              client,
+              `Unknown command: /dev ${commandName} , display dev all commands by using /admin list`
+            );
+          }
           break;
         case joaat("ADMIN"):
         case 997464845: // admin
-          admin[args[0]]
-            ? admin[args[0]](server, client, args)
-            : server.sendChatText(
-                client,
-                `Unknown command: /admin ${args[0]} , display admin all commands by using /admin list`
-              );
+          if (
+            (server._allowedCommands.length === 0 ||
+              server._allowedCommands.includes(commandName)) &&
+            !!admin[commandName]
+          ) {
+            // using !! is faster but ugly
+            admin[commandName](server, client, args);
+          } else {
+            server.sendChatText(
+              client,
+              `Unknown command: /admin ${commandName} , display admin all commands by using /admin list`
+            );
+          }
           break;
       }
     };
