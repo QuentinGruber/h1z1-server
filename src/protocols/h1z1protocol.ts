@@ -16,7 +16,7 @@ import DataSchema from "h1z1-dataschema";
 import { eul2quat, lz4_decompress } from "../utils/utils";
 import { packUnsignedIntWith2bitLengthValue } from "../packets/ClientProtocol/ClientProtocol_860/h1z1packets";
 
-interface UpdatePositionObject {
+export interface UpdatePositionObject {
   raw: Buffer;
   flags: any;
   sequenceTime: any; // similar to simestamp, allows us to delay/synchronize this packet

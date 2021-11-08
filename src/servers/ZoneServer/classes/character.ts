@@ -34,6 +34,7 @@ export class Character {
     health: number;
     shield: number;
   };
+  isExhausted: boolean = false;
   constructor(characterId: string, generatedTransient: number) {
     (this.characterId = characterId),
       (this.transientId = generatedTransient),
@@ -74,9 +75,15 @@ export class Character {
       // prototype resource manager
       const { isRunning } = this;
       if (!isRunning) {
-        this.resources.stamina += 10;
+        this.resources.stamina += 30;
       } else {
-        this.resources.stamina -= 5;
+        this.resources.stamina -= 20;
+        if(this.resources.stamina < 120){
+          this.isExhausted = true;
+        }
+        else{
+          this.isExhausted = false
+        }
       }
       // if we had a packets we could modify sprint stat to 0
       // or play exhausted sounds etc

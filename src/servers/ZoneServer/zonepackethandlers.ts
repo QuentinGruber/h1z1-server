@@ -32,6 +32,7 @@ import {
   isPosInRadius,
 } from "../../utils/utils";
 
+import { UpdatePositionObject } from "../../protocols/h1z1protocol"
 const modelToName = require("../../../data/2015/sampleData/ModelToName.json");
 
 export class zonePacketHandlers {
@@ -1432,13 +1433,16 @@ export class zonePacketHandlers {
         }
       }
     };
+    interface PlayerUpdateUpdatePositionClientToZoneData {
+      data:UpdatePositionObject
+    }
     this.PlayerUpdateUpdatePositionClientToZone = function (
       server: ZoneServer,
       client: Client,
-      packet: any
+      packet: PlayerUpdateUpdatePositionClientToZoneData
     ) {
       if (packet.data.flags === 510) {
-        client.vehicle.falling = packet.data.unknown10_float;
+        client.vehicle.falling = packet.data.verticalSpeed;
       }
       const movingCharacter = server._characters[client.character.characterId];
       if (movingCharacter && !server._soloMode) {
@@ -1458,7 +1462,7 @@ export class zonePacketHandlers {
           packet.data.position[2],
           0,
         ]);
-        if (packet.data.unknown11_float > 6) {
+        if (packet.data.horizontalSpeed > (client.character.isExhausted? 5 : 6)) {
           client.character.isRunning = true;
         } else {
           client.character.isRunning = false;
@@ -1489,17 +1493,6 @@ export class zonePacketHandlers {
         ) {
           server.worldRoutine();
         }
-      } else if (
-        packet.data.vehicle_position &&
-        client.vehicle.mountedVehicle
-      ) {
-        server._vehicles[client.vehicle.mountedVehicle].npcData.position =
-          new Float32Array([
-            packet.data.vehicle_position[0],
-            packet.data.vehicle_position[1],
-            packet.data.vehicle_position[2],
-            0,
-          ]);
       }
       if (packet.data.rotation) {
         // TODO: modify array element beside re-creating it
