@@ -1,4 +1,4 @@
-import { entitySpawner } from "./entitySpawner";
+/*import { entitySpawner } from "./entitySpawner";
 
 class groundLootSpawner extends entitySpawner{
     chancePumpShotgun = 50;
@@ -18,4 +18,4 @@ class groundLootSpawner extends entitySpawner{
     constructor(numberOfSpawnedEntity:number){
         super(numberOfSpawnedEntity);
     }
-}
+}*/

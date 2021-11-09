@@ -1,48 +1,60 @@
-const debug = require("debug")("baseEntityCreator");
-const Z1_vehicles = require("../../../../data/2015/sampleData/vehicleLocations.json");
-const Z1_items = require("../../../../data/2015/zoneData/Z1_items.json");
-const Z1_doors = require("../../../../data/2015/zoneData/Z1_doors.json");
-const Z1_npcs = require("../../../../data/2015/zoneData/Z1_npcs.json");
-const z1_Props = require("../../../../data/2015/zoneData/z1_Props.json");
-const models = require("../../../../../data/2015/dataSources/Models.json");
 const modelToName = require("../../../../../data/2015/sampleData/ModelToName.json");
-const textures = require("../../../../../data/2015/sampleData/textures.json");
-import { _, eul2quat, generateRandomGuid } from "../../../../utils/utils";
-import { Vehicle } from "../vehicles";
-import { ZoneServer } from "../../zoneserver";
+import { generateRandomGuid } from "../../../../utils/utils";
 import { parentPort } from "worker_threads";
 
-export class entitySpawner {
+export abstract class EntitySpawner {
     numberOfSpawnedEntity = 0;
     refreshInterval = 1000;
+    canProcess:boolean = true;
     processEntitiesSpawnTimeout:any;
     spawnedIds:number[] = [];
-    nextSpawnBuffer: SharedArrayBuffer;
+    nextSpawnBuffer: Buffer;
     nextSpawnBufferOffset: number = 0;
-    nextSpawnBufferSize: number;
+    nextSpawnBufferSize: number = 2000;
     entitiesSpawnList: any[];
-    entitiesSpawnIdList: number[];
+    entitiesSpawnChances: { [spawnName: string]: number } 
+    entitiesSpawnParsed: { [spawnName: string]: any[] } = {} ;
     worldId: number;
-    constructor(numberOfSpawnedEntity:number,entitiesSpawnList:any[],nextSpawnBuffer:SharedArrayBuffer,worldId:number){
+    constructor(numberOfSpawnedEntity:number,entitiesSpawnList:any[],entitiesSpawnChances: { [spawnName: string]: number },worldId:number){
         this.numberOfSpawnedEntity = numberOfSpawnedEntity;
         this.entitiesSpawnList = entitiesSpawnList;
+        this.entitiesSpawnChances = entitiesSpawnChances;
         this.worldId = worldId;
-        this.entitiesSpawnIdList = entitiesSpawnList.map((e:any)=>{return e.id});
-        this.processEntitiesSpawnTimeout = setTimeout(this.processEntitiesSpawn, this.refreshInterval);
-        this.nextSpawnBuffer = nextSpawnBuffer
-        this.nextSpawnBufferSize = nextSpawnBuffer.byteLength;
+        Object.keys(entitiesSpawnChances).forEach((spawnType:string) => {
+            this.entitiesSpawnParsed[spawnType] = entitiesSpawnList.filter((e:any)=>{return e.actorDefinition === spawnType});
+        });
+        this.processEntitiesSpawnTimeout = setTimeout(this.processEntitiesSpawnTimeoutCb, this.refreshInterval);
+        this.nextSpawnBuffer = Buffer.alloc(this.nextSpawnBufferSize)
+    }
+    processEntitiesSpawnTimeoutCb(){
+        if(this.canProcess){
+            this.processEntitiesSpawn();
+            this.processEntitiesSpawnTimeout.refresh();
+        }
     }
     processEntitiesSpawn(){
-        this.processEntitiesSpawnTimeout.refresh()
+        Object.keys(this.entitiesSpawnParsed).forEach((entityType:string) => {
+            const allEntities = this.entitiesSpawnParsed[entityType]
+            const totalEntities = allEntities.length;
+            const nbToSpawn = this.entitiesSpawnChances[entityType] * totalEntities;
+            const startingIndex = Math.floor(Math.random()* totalEntities) - nbToSpawn; // TODO: need to find a better way because rn index = 0 can't exist
+            for (let index = startingIndex; index < nbToSpawn; index++) {
+                const entity = allEntities[index];
+                this.createEntity(entity.modelId)
+                
+            }
+        });
+        
     }
     askParentToSpawnEntities(){
-        parentPort.postMessage(this.nextSpawnBuffer)
+        parentPort?.postMessage(this.nextSpawnBuffer)
     }
     addBufferedEntityToNextSpawn(bufferedEntity:Buffer){
         if(this.nextSpawnBufferOffset + bufferedEntity.byteLength < this.nextSpawnBufferSize){
             for (let index = this.nextSpawnBufferOffset; index < this.nextSpawnBufferSize; index++) {
                 const bufferedEntityOffset = index - this.nextSpawnBufferOffset;
-                this.nextSpawnBuffer[index] = bufferedEntity[bufferedEntityOffset];
+                this.nextSpawnBuffer.writeInt8(bufferedEntity.readUInt8(bufferedEntityOffset),index)
+                // or this way ? => this.nextSpawnBuffer[index] = bufferedEntity[bufferedEntityOffset];
             }
             this.nextSpawnBufferOffset += bufferedEntity.byteLength;
         }
