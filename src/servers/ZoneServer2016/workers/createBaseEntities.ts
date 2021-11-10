@@ -104,6 +104,10 @@ export function createAllEntities(server: ZoneServer2016): any {
 
   createAllVehicles(server);
   createSomeNpcs(server);
+  delete require.cache[require.resolve("../../../../data/2016/zoneData/Z1_vehicleLocations.json")];
+  delete require.cache[require.resolve("../../../../data/2016/zoneData/Z1_items.json")];
+  delete require.cache[require.resolve("../../../../data/2016/zoneData/Z1_doors.json")];
+  delete require.cache[require.resolve("../../../../data/2016/zoneData/Z1_npcs.json")];
   return { npcs: npcs, objects: objects, vehicles: vehicles, doors: doors };
 }
 
