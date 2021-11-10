@@ -21,6 +21,7 @@ function getVehicleId(ModelId: number) {
 export class Vehicle {
   worldId: number;
   isManaged: boolean = false;
+  manager?: any;
   engineOn: boolean = false;
   npcData: npcData;
   isLocked: number = 0;
