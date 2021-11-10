@@ -157,54 +157,59 @@ export class LoginServer extends EventEmitter {
           if (err) {
             console.error(err);
           } else {
-            const connectionEstablished = this._zoneConnections[client.clientId]
-              ? 1
-              : 0;
-            if (connectionEstablished || packet.name === "SessionRequest") {
-              switch (packet.name) {
-                case "SessionRequest": {
-                  if (!connectionEstablished) {
-                    const { serverId } = packet.data;
-                    debug(
-                      `Received session request from ${client.address}:${client.port}`
-                    );
-                    const status =
-                      this._zoneWhitelist.find((e) => e.serverId === serverId)
-                        ?.address === client.address
-                        ? 1
-                        : 0;
-                    if (status === 1) {
-                      debug(`ZoneConnection established`);
-                      client.session = true;
-                      this._zoneConnections[client.clientId] = serverId;
-                    } else {
-                      delete this._h1emuLoginServer._clients[client.clientId];
-                      return;
+            try {
+              const connectionEstablished = this._zoneConnections[client.clientId]
+                ? 1
+                : 0;
+              if (connectionEstablished || packet.name === "SessionRequest") {
+                switch (packet.name) {
+                  case "SessionRequest": {
+                    if (!connectionEstablished) {
+                      const { serverId } = packet.data;
+                      debug(
+                        `Received session request from ${client.address}:${client.port}`
+                      );
+                      const status =
+                        this._zoneWhitelist.find((e) => e.serverId === serverId)
+                          ?.address === client.address
+                          ? 1
+                          : 0;
+                      if (status === 1) {
+                        debug(`ZoneConnection established`);
+                        client.session = true;
+                        this._zoneConnections[client.clientId] = serverId;
+                      } else {
+                        delete this._h1emuLoginServer._clients[client.clientId];
+                        return;
+                      }
+                      this._h1emuLoginServer.sendData(client, "SessionReply", {
+                        status: status,
+                      });
                     }
-                    this._h1emuLoginServer.sendData(client, "SessionReply", {
-                      status: status,
-                    });
+                    break;
                   }
-                  break;
+                  case "UpdateZonePopulation":{
+                    const { population } = packet.data;
+                    const serverId = this._zoneConnections[client.clientId]
+                    this._db?.collection("servers").findOneAndUpdate(
+                      { serverId: serverId },
+                      {
+                        $set: {
+                          populationNumber: population,
+                          populationLevel: Number((population / 1).toFixed(0)),
+                        },
+                      }
+                    );
+                    break;
+                  }
+                  default:
+                    debug(`Unhandled h1emu packet: ${packet.name}`);
+                    break;
                 }
-                case "UpdateZonePopulation":{
-                  const { population } = packet.data;
-                  const serverId = this._zoneConnections[client.clientId]
-                  this._db?.collection("servers").findOneAndUpdate(
-                    { serverId: serverId },
-                    {
-                      $set: {
-                        populationNumber: population,
-                        populationLevel: Number((population / 1).toFixed(0)),
-                      },
-                    }
-                  );
-                  break;
-                }
-                default:
-                  debug(`Unhandled h1emu packet: ${packet.name}`);
-                  break;
               }
+            }
+            catch(e){
+                console.log(e)
             }
           }
         }

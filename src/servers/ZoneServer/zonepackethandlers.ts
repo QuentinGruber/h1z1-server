@@ -200,6 +200,32 @@ export class zonePacketHandlers {
         stance: 1,
       });
     };
+    this.ClientFinishedLoading = (
+      server: ZoneServer,
+      client: Client,
+      packet: any
+    ) => {
+      server.sendGameTimeSync(client);
+      if (client.firstLoading) {
+        server.sendChatText(client, "Welcome to H1emu ! :D", true);
+        server.sendGlobalChatText(
+          `${client.character.name} has joined the server !`
+        );
+        client.firstLoading = false;
+        client.pingTimer?.refresh();
+        client.savePositionTimer = setTimeout(
+          () => server.saveCharacterPosition(client, true),
+          30000
+        );
+        if (!server._soloMode) {
+          server.sendZonePopulationUpdate();
+        }
+      }
+      client.isLoading = false;
+      client.isInteracting = false;
+      delete client.vehicle.mountedVehicle;
+      client.vehicle.mountedVehicleType = "0";
+    }
     this.Security = function (server: ZoneServer, client: Client, packet: any) {
       debug(packet);
     };

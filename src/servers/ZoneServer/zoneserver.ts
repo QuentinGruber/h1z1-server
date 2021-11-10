@@ -972,15 +972,17 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
-  executeFuncForAllClients(callback: any): void {
+  executeFuncForAllReadyClients(callback: any): void {
     for (const client in this._clients) {
-      callback(this._clients[client]);
+      const clientObj:Client = this._clients[client];
+      if(!clientObj.isLoading){
+        callback(clientObj);
+      }
     }
   }
 
   worldRoutine(refresh = false): void {
-    debug("WORLDROUTINE");
-    this.executeFuncForAllClients((client: Client) => {
+    this.executeFuncForAllReadyClients((client: Client) => {
       this.spawnCharacters(client);
       this.spawnObjects(client);
       this.spawnDoors(client);
