@@ -1326,6 +1326,26 @@ export class ZoneServer extends EventEmitter {
     clearInterval(this._vehicles[vehicleGuid].resourcesUpdater);
   }
 
+manageVehicle(client: Client, vehicleGuid: string) {
+    if (this._vehicles[vehicleGuid].manager) {
+      this.dropVehicleManager(this._vehicles[vehicleGuid].manager, vehicleGuid);
+    }
+    this._vehicles[vehicleGuid].isManaged = true;
+    this._vehicles[vehicleGuid].manager = client;
+    this.sendData(client, "PlayerUpdate.ManagedObject", {
+      guid: vehicleGuid,
+      characterId: client.character.characterId,
+    });
+  }
+
+  dropVehicleManager(client: Client, vehicleGuid: string) {
+    this.sendData(client, "PlayerUpdate.ManagedObjectResponseControl", {
+      unk: 0,
+      characterId: vehicleGuid,
+    });
+    delete this._vehicles[vehicleGuid].manager;
+  }
+
   enterVehicle(client: Client, entityData: any) {
     let allowedAccess;
     let seat;
@@ -1375,12 +1395,7 @@ export class ZoneServer extends EventEmitter {
       switch (seat) {
         case 0:
           this._vehicles[vehicleGuid].seat.seat1 = true;
-          this._vehicles[vehicleGuid].isManaged = true;
-          client.managedObjects.push(this._vehicles[vehicleGuid]);
-          this.sendData(client, "PlayerUpdate.ManagedObject", {
-            guid: vehicleGuid,
-            characterId: client.character.characterId,
-          });
+          this.manageVehicle(client, vehicleGuid);
           this._vehicles[vehicleGuid].isLocked = 0;
           this.turnOnEngine(vehicleGuid);
           this._vehicles[vehicleGuid].passengers.passenger1 = client;
@@ -1691,10 +1706,10 @@ export class ZoneServer extends EventEmitter {
             characterId: client.character.characterId,
           });
           this._vehicles[vehicle].isManaged = true;
+          this._vehicles[vehicle].manager = client;
         }
 
         client.spawnedEntities.push(this._vehicles[vehicle]);
-        client.managedObjects.push(this._vehicles[vehicle]);
       }
     }
   }
@@ -1711,30 +1726,27 @@ export class ZoneServer extends EventEmitter {
     const objectsToRemove = client.spawnedEntities.filter((e) =>
       this.filterOutOfDistance(e, client.character.state.position)
     );
-    /*client.spawnedEntities = client.spawnedEntities.filter((el) => {
-          return !objectsToRemove.includes(el);
-        });*/
+    client.spawnedEntities = client.spawnedEntities.filter((el) => {
+      return !objectsToRemove.includes(el);
+    });
     objectsToRemove.forEach((object: any) => {
       const characterId = object.characterId
         ? object.characterId
         : object.npcData.characterId;
       if (characterId in this._vehicles) {
-        this.sendData(
-          client,
-          "PlayerUpdate.RemovePlayerGracefully",
-          {
-            characterId,
-          },
-          1
-        );
-        const index = client.managedObjects.indexOf(
-          this._vehicles[characterId]
-        );
-        if (index > -1) {
-          client.managedObjects.splice(index, 1);
+        if (this._vehicles[characterId].manager === client) {
           this._vehicles[characterId].isManaged = false;
+          this.dropVehicleManager(client, characterId);
         }
       }
+      this.sendData(
+        client,
+        "PlayerUpdate.RemovePlayerGracefully",
+        {
+          characterId,
+        },
+        1
+      );
     });
   }
 
