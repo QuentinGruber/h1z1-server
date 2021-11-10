@@ -383,6 +383,24 @@ export interface npcData {
   array17: any[];
   array18: any[];
 }
+export interface seats {
+  seat1: boolean;
+  seat2: boolean;
+  seat3: boolean;
+  seat4: boolean;
+}
+
+export interface passengers {
+  passenger1?: any;
+  passenger2?: any;
+  passenger3?: any;
+  passenger4?: any;
+}
+
+export interface positionUpdate {
+  position?: any;
+  engineRPM?: any;
+}
 
 export interface characterEquipment {
   modelName: string;

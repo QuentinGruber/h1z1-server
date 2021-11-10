@@ -114,7 +114,7 @@ export class Character {
       } else if (this.resources.health < 0) {
         this.resources.health = 0;
       }
-      const { stamina, food, water, virus } = this.resources;
+      const { stamina, food, water} = this.resources;
 
       server.sendData(client, "ResourceEvent", {
         eventData: {
@@ -155,7 +155,7 @@ export class Character {
           },
         },
       });
-      server.sendData(client, "ResourceEvent", {
+      /*server.sendData(client, "ResourceEvent", {
         eventData: {
           type: 3,
           value: {
@@ -167,7 +167,7 @@ export class Character {
             unknownArray2: [],
           },
         },
-      });
+      });*/
       this.resourcesUpdater.refresh();
     }, 3000);
 
