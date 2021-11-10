@@ -156,22 +156,10 @@ const hax: any = {
       ...vehicleData,
       onReadyCallback: () => {
         // doing anything with vehicle before client gets fullvehicle packet breaks it
-        server.sendData(client, "PlayerUpdate.ManagedObject", {
-          guid: vehicleData.npcData.characterId,
-          characterId: client.character.characterId,
-        });
-        server.sendDataToAll("Mount.MountResponse", {
-          characterId: client.character.characterId,
-          guid: characterId,
-          characterData: [],
-        });
-        server.sendDataToAll("Vehicle.Engine", {
-          guid2: characterId,
-          unknownBoolean: true,
-        });
-        client.vehicle.mountedVehicle = characterId;
-        client.managedObjects.push(server._vehicles[characterId]);
-        setTimeout(()=>{client.character.godMode = wasAlreadyGod?true:false},1000)
+        server.enterVehicle(client, vehicleData);
+        setTimeout(() => {
+          client.character.godMode = wasAlreadyGod ? true : false;
+        }, 1000);
       },
     };
     server.worldRoutine();
@@ -269,6 +257,8 @@ const hax: any = {
         driveModel = 7225;
         break;
     }
+    let wasAlreadyGod = client.character.godMode;
+    client.character.godMode = true;
     const characterId = server.generateGuid();
     const vehicleData = new Vehicle(
       server._worldId,
@@ -288,9 +278,12 @@ const hax: any = {
           guid: vehicleData.npcData.characterId,
           characterId: client.character.characterId,
         });
-        client.managedObjects.push(server._vehicles[characterId]);
+        setTimeout(() => {
+          client.character.godMode = wasAlreadyGod ? true : false;
+        }, 1000);
       },
     };
+    server.worldRoutine();
   },
 
   parachute: function (server: ZoneServer, client: Client, args: any[]) {
