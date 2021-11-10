@@ -95,6 +95,7 @@ export class ZoneServer extends EventEmitter {
   _loginServerInfo: { address?: string; port: number } = { address: process.env.LOGINSERVER_IP, port: 1110 };
   _clientProtocol: string = "ClientProtocol_860";
   _allowedCommands: string[] = [];
+  _maxAllowedPing: number = 200;
   constructor(
     serverPort: number,
     gatewayKey: Uint8Array,
@@ -255,6 +256,28 @@ export class ZoneServer extends EventEmitter {
             console.error(err);
           } else {
             switch (packet.name) {
+              case "ZonePingRequest": {
+                const { address, reqId } = packet.data;
+                try {
+                  // TODO: improve this
+                  const soeClient:SOEClient = (Object.values(this._gatewayServer._soeServer._clients).find((client)=>{return (client as SOEClient).address === address})as SOEClient);
+                  const clientPingMs = soeClient.zonePingTimeMs;
+                  
+                  console.log("user ping ",clientPingMs)
+                  this._h1emuZoneServer.sendData(
+                    client,
+                    "ZonePingReply",
+                    { reqId: reqId, status: clientPingMs > this._maxAllowedPing ? 0 : 1 }
+                  );
+                } catch (error) {
+                  this._h1emuZoneServer.sendData(
+                    client,
+                    "ZonePingReply",
+                    { reqId: reqId, status: 0 }
+                  );
+                }
+                break;
+              }
               case "CharacterCreateRequest": {
                 const { characterObjStringify, reqId } = packet.data;
                 try {

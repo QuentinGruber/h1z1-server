@@ -482,7 +482,7 @@ export class LoginServer extends EventEmitter {
           delete this._pendingInternalReq[reqId];
           delete this._pendingInternalReqTimeouts[reqId];
           resolve(0);
-        }, 10000);
+        }, 5000);
       } catch (e) {
         resolve(0);
       }
@@ -547,7 +547,44 @@ export class LoginServer extends EventEmitter {
       Payload: "\0",
     });
   }
-
+  
+  async askZoneForPing(
+    serverId: number,
+    clientAddress: string
+  ): Promise<boolean> {
+    const status = await new Promise((resolve, reject) => {
+      this._internalReqCount++;
+      const reqId = this._internalReqCount;
+      try {
+        const zoneConnectionIndex = Object.values(
+          this._zoneConnections
+        ).findIndex((e) => e === serverId);
+        const zoneConnectionString = Object.keys(this._zoneConnections)[
+          zoneConnectionIndex
+        ];
+        const [address, port] = zoneConnectionString.split(":");
+        this._h1emuLoginServer.sendData(
+          {
+            address: address,
+            port: port,
+            clientId: zoneConnectionString,
+            session: true,
+          } as any,
+          "ZonePingRequest",
+          { reqId: reqId, address: clientAddress }
+        );
+        this._pendingInternalReq[reqId] = resolve;
+        this._pendingInternalReqTimeouts[reqId] = setTimeout(() => {
+          delete this._pendingInternalReq[reqId];
+          delete this._pendingInternalReqTimeouts[reqId];
+          resolve(0);
+        }, 5000);
+      } catch (e) {
+        resolve(0);
+      }
+    });
+    return status as boolean;
+  }
   async CharacterLoginRequest(client: Client, packet: any) {
     let charactersLoginInfo: any;
     const { serverId, characterId } = packet.result;
@@ -558,13 +595,15 @@ export class LoginServer extends EventEmitter {
       const character = await this._db
         .collection("characters-light")
         .findOne({ characterId: characterId });
-      const connectionStatus = Object.values(this._zoneConnections).includes(
+      let connectionStatus = Object.values(this._zoneConnections).includes(
         serverId
       );
       if(!character){
         console.error(`CharacterId "${characterId}" unfound on serverId: "${serverId}"`)
       }
-      const hiddenSession = await this._db.collection("user-sessions").findOne({authKey:client.loginSessionId});
+
+      connectionStatus = await this.askZoneForPing(serverId,client.address);
+      const hiddenSession = connectionStatus?await this._db.collection("user-sessions").findOne({authKey:client.loginSessionId}):{guid:""};
       charactersLoginInfo = {
         unknownQword1: "0x0",
         unknownDword1: 0,
@@ -661,7 +700,7 @@ export class LoginServer extends EventEmitter {
           delete this._pendingInternalReq[reqId];
           delete this._pendingInternalReqTimeouts[reqId];
           resolve(0);
-        }, 10000);
+        }, 5000);
       } catch (e) {
         resolve(0);
       }

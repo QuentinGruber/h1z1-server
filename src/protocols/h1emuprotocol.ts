@@ -85,7 +85,27 @@ const packets = [
         { name: "population", type: "uint8", defaultValue: 0 },
       ],
     },
-  ],  
+  ],
+  [
+    "ZonePingRequest",
+    0x10,
+    {
+      fields: [
+        { name: "reqId", type: "uint32", defaultValue: 0 },
+        { name: "address", type: "string", defaultValue: 0 },
+      ],
+    },
+  ],
+  [
+    "ZonePingReply",
+    0x11,
+    {
+      fields: [
+        { name: "reqId", type: "uint32", defaultValue: 0 },
+        { name: "status", type: "boolean", defaultValue: 0 },
+      ],
+    },
+  ] 
 ];
 
 export const [H1emuPacketsPacketTypes, H1emuPacketsPackets] =
