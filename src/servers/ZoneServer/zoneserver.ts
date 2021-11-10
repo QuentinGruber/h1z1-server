@@ -1021,6 +1021,7 @@ export class ZoneServer extends EventEmitter {
   
   killCharacter(client: Client) {
     debug(client.character.name + " has died");
+    client.character.isAlive = false;
     this.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
       characterId: client.character.characterId,
       state: "0000000000000000C00",
@@ -1075,6 +1076,7 @@ export class ZoneServer extends EventEmitter {
   }
 
   respawnPlayer(client: Client) {
+    client.character.isAlive = true;
     client.character.resources.health = 10000;
     client.character.resources.food = 10000;
     client.character.resources.water = 10000;

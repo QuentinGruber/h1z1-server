@@ -35,6 +35,7 @@ export class Character {
     shield: number;
   };
   isExhausted: boolean = false;
+  isAlive: boolean = true;
   constructor(characterId: string, generatedTransient: number) {
     (this.characterId = characterId),
       (this.transientId = generatedTransient),
@@ -58,7 +59,7 @@ export class Character {
         stamina: 10000,
         food: 10000,
         water: 10000,
-        virus: 6000,
+        virus: 0,
       });
     this.godMode = false;
     this.state = {
@@ -114,7 +115,7 @@ export class Character {
       } else if (this.resources.health < 0) {
         this.resources.health = 0;
       }
-      const { stamina, food, water} = this.resources;
+      const { stamina, food, water, virus} = this.resources;
 
       server.sendData(client, "ResourceEvent", {
         eventData: {

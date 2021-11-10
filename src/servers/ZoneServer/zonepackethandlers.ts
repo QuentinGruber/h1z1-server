@@ -1302,7 +1302,7 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      const timerTime = 10000;
+      const timerTime = client.character.isAlive?10000:0;
       server.sendData(client, "ClientUpdate.StartTimer", {
         stringId: 0,
         time: timerTime,
