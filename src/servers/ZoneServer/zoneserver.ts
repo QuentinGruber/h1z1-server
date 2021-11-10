@@ -94,7 +94,7 @@ export class ZoneServer extends EventEmitter {
   _h1emuZoneServer!: H1emuZoneServer;
   _loginServerInfo: { address?: string; port: number } = { address: process.env.LOGINSERVER_IP, port: 1110 };
   _clientProtocol: string = "ClientProtocol_860";
-
+  _allowedCommands: string[] = [];
   constructor(
     serverPort: number,
     gatewayKey: Uint8Array,
@@ -518,6 +518,26 @@ export class ZoneServer extends EventEmitter {
   }
 
 
+  getEntityType(entityKey:string):number{
+    if(!!this._npcs[entityKey]){
+      return 1
+    }
+    else if(!!this._vehicles[entityKey]){
+      return 2;
+    }
+    else if(!!this._characters[entityKey]){
+      return 3;
+    }
+    else if(!!this._objects[entityKey]){
+      return 4;
+    }
+    else if(!!this._props[entityKey]){
+      return 5;
+    }
+    else {
+      return 6; // doors
+    }
+  }
   sendZonePopulationUpdate(){
     const populationNumber = _.size(this._characters);
     this._h1emuZoneServer.sendData(

@@ -32,6 +32,7 @@ import {
   isPosInRadius,
 } from "../../utils/utils";
 
+import { UpdatePositionObject } from "../../protocols/h1z1protocol"
 const modelToName = require("../../../data/2015/sampleData/ModelToName.json");
 
 export class zonePacketHandlers {
@@ -67,7 +68,6 @@ export class zonePacketHandlers {
   vehicleDismiss: any;
   vehicleSpawn: any;
   vehicleAutoMount: any;
-  adminCommandSpawnVehicle: any;
   commandInteractCancel: any;
   commandStartLogoutRequest: any;
   CharacterSelectSessionRequest: any;
@@ -194,99 +194,7 @@ export class zonePacketHandlers {
         serverTime: Int64String(server.getServerTime()),
         serverTime2: Int64String(server.getServerTime()),
       });
-
-      client.character.resourcesUpdater = setTimeout(() => {
-        // prototype resource manager
-        const { isRunning } = client.character;
-        if (!isRunning) {
-          client.character.resources.stamina += 10;
-        } else {
-          client.character.resources.stamina -= 5;
-        }
-        // if we had a packets we could modify sprint stat to 0
-        // or play exhausted sounds etc
-        client.character.resources.food -= 10;
-        client.character.resources.water -= 20;
-        if (client.character.resources.stamina > 600) {
-          client.character.resources.stamina = 600;
-        } else if (client.character.resources.stamina < 0) {
-          client.character.resources.stamina = 0;
-        }
-
-        if (client.character.resources.food > 10000) {
-          client.character.resources.food = 10000;
-        } else if (client.character.resources.food < 0) {
-          client.character.resources.food = 0;
-          server.playerDamage(client, 100);
-        }
-
-        if (client.character.resources.water > 10000) {
-          client.character.resources.water = 10000;
-        } else if (client.character.resources.water < 0) {
-          client.character.resources.water = 0;
-          server.playerDamage(client, 100);
-        }
-
-        if (client.character.resources.health > 10000) {
-          client.character.resources.health = 10000;
-        } else if (client.character.resources.health < 0) {
-          client.character.resources.health = 0;
-        }
-        const {food, water} = client.character.resources;
-
-      server.updateResource(client, client.character.characterId, food, 4, 4);
-      server.updateResource(client, client.character.characterId, water, 5, 5);
-      client.character.resourcesUpdater.refresh();
-    }, 3000);
-
-      server.sendData(client, "ZoneDoneSendingInitialData", {});
-
-      server.sendData(client, "PlayerUpdate.UpdateCharacterState", {
-        characterId: client.character.characterId,
-        state: "000000000000000000",
-        gameTime: Int64String(server.getGameTime()),
-      });
-    };
-    this.ClientFinishedLoading = function (
-      server: ZoneServer,
-      client: Client,
-      packet: any
-    ) {
-      server.sendGameTimeSync(client);
-      if (client.firstLoading) {
-        server.sendChatText(client, "Welcome to H1emu ! :D", true);
-        server.sendGlobalChatText(
-          `${client.character.name} has joined the server !`
-        );
-        client.firstLoading = false;
-        client.pingTimer?.refresh();
-        client.savePositionTimer = setTimeout(
-          () => server.saveCharacterPosition(client, true),
-          30000
-        );
-        server.executeFuncForAllClients(() => server.spawnCharacters);
-        if (!server._soloMode) {
-         server.sendZonePopulationUpdate();
-        }
-      }
-      client.isLoading = false;
-      client.isInteracting = false;
-      delete client.vehicle.mountedVehicle;
-      client.vehicle.mountedVehicleType = "0";
-      server.updateResource(
-      client,
-      client.character.characterId,
-      client.character.resources.health,
-      48,
-      1
-    );
-    server.updateResource(
-      client,
-      client.character.characterId,
-      client.character.resources.stamina,
-      6,
-      6
-    );
+      client.character.startRessourceUpdater(client, server);
       server.sendDataToAll("PlayerUpdate.WeaponStance", {
         characterId: client.character.characterId,
         stance: 1,
@@ -485,8 +393,8 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      const args: any[] = packet.data.arguments.toLowerCase().split(" ");
-
+      const args: string[] = packet.data.arguments.toLowerCase().split(" ");
+      const commandName = args[0];
       switch (packet.data.commandHash) {
         case 3720768430: // /respawn
           server.sendData(client, "PlayerUpdate.StartMultiStateDeath", {
@@ -500,7 +408,7 @@ export class zonePacketHandlers {
           );
           break;
         case 2371122039: // /serverinfo
-          if (args[0] === "mem") {
+          if (commandName === "mem") {
             const used = process.memoryUsage().rss / 1024 / 1024;
             server.sendChatText(
               client,
@@ -620,30 +528,51 @@ export class zonePacketHandlers {
           );
           break;
         case joaat("HAX"):
-          hax[args[0]]
-            ? hax[args[0]](server, client, args)
-            : server.sendChatText(
-                client,
-                `Unknown command: /hax ${args[0]} , display all hax commands by using /hax list`
-              );
+          if (
+            (server._allowedCommands.length === 0 ||
+              server._allowedCommands.includes(commandName)) &&
+            !!hax[commandName]
+          ) {
+            // using !! is faster but ugly
+            hax[commandName](server, client, args);
+          } else {
+            server.sendChatText(
+              client,
+              `Unknown command: /hax ${commandName} , display hax all commands by using /hax list`
+            );
+          }
           break;
         case joaat("DEV"):
         case 552078457: // dev
-          dev[args[0]]
-            ? dev[args[0]](server, client, args)
-            : server.sendChatText(
-                client,
-                `Unknown command: /dev ${args[0]} , display all dev commands by using /dev list`
-              );
+          if (
+            (server._allowedCommands.length === 0 ||
+              server._allowedCommands.includes(commandName)) &&
+            !!dev[commandName]
+          ) {
+            // using !! is faster but ugly
+            dev[commandName](server, client, args);
+          } else {
+            server.sendChatText(
+              client,
+              `Unknown command: /dev ${commandName} , display dev all commands by using /dev list`
+            );
+          }
           break;
         case joaat("ADMIN"):
         case 997464845: // admin
-          admin[args[0]]
-            ? admin[args[0]](server, client, args)
-            : server.sendChatText(
-                client,
-                `Unknown command: /admin ${args[0]} , display admin all commands by using /admin list`
-              );
+          if (
+            (server._allowedCommands.length === 0 ||
+              server._allowedCommands.includes(commandName)) &&
+            !!admin[commandName]
+          ) {
+            // using !! is faster but ugly
+            admin[commandName](server, client, args);
+          } else {
+            server.sendChatText(
+              client,
+              `Unknown command: /admin ${commandName} , display admin all commands by using /admin list`
+            );
+          }
           break;
       }
     };
@@ -763,7 +692,7 @@ export class zonePacketHandlers {
           });
           delete client.vehicle.mountedVehicle;
           break;
-        case 4: // prop
+        case 4: { // prop
           let stringId = 0;
           switch (entityData.modelId) {
             case 9330: // beds
@@ -822,14 +751,13 @@ export class zonePacketHandlers {
               stringId = 1191;
               break;
           }
-          if (stringId) {
             server.sendData(client, "Command.InteractionString", {
               guid: guid,
               stringId: stringId,
             });
-          }
           delete client.vehicle.mountedVehicle;
           break;
+        }
         default:
           break;
       }
@@ -1336,174 +1264,6 @@ export class zonePacketHandlers {
         },
       });
     };
-    this.adminCommandSpawnVehicle = function (
-      server: ZoneServer,
-      client: Client,
-      packet: any
-    ) {
-      const guid = server.generateGuid(),
-        transientId = server.getTransientId(client, guid);
-
-      server
-        .data("vehicles")
-        .findOne(
-          { id: packet.data.vehicleId },
-          function (err: string, vehicle: any) {
-            if (err || !vehicle) {
-              server.sendChatText(client, "No such vehicle");
-              return;
-            }
-            server
-              .data("npc_vehicle_mappings")
-              .findOne(
-                { vehicle_id: packet.data.vehicleId },
-                function (err: string, npcDefinitionMapping: any) {
-                  if (err || !npcDefinitionMapping) {
-                    server.sendChatText(client, "Vehicle has no NPC mapping");
-                    return;
-                  }
-                  server
-                    .data("npcs")
-                    .findOne(
-                      { id: npcDefinitionMapping.npc_definition_id },
-                      function (err: string, npc: any) {
-                        if (err || !npc) {
-                          server.sendChatText(
-                            client,
-                            "NPC definition " +
-                              npcDefinitionMapping.npc_definition_id +
-                              " not found"
-                          );
-                          return;
-                        }
-                        const nameId =
-                            vehicle.name_id > 0 ? vehicle.name_id : 0,
-                          modelId = npc.model_id;
-                        const vehicleData = {
-                          npcData: {
-                            guid: guid,
-                            transientId: transientId,
-                            unknownString0: "",
-                            nameId: nameId,
-                            unknownDword2: 0,
-                            unknownDword3: 0,
-                            unknownByte1: 1,
-                            modelId: modelId,
-                            scale: [1, 1, 1, 1],
-                            unknownString1: "",
-                            unknownString2: "",
-                            unknownDword5: 0,
-                            unknownDword6: 0,
-                            position: packet.data.position,
-                            unknownVector1: [
-                              0, -0.7071066498756409, 0, 0.70710688829422,
-                            ],
-                            rotation: [packet.data.heading, 0, 0, 0],
-                            unknownDword7: 0,
-                            unknownFloat1: 3,
-                            unknownString3: "",
-                            unknownString4: "",
-                            unknownString5: "",
-                            vehicleId: packet.data.vehicleId,
-                            unknownDword9: 0,
-                            npcDefinitionId: npc.id,
-                            unknownByte2: 2,
-                            profileId: npc.profile_id,
-                            unknownBoolean1: false,
-                            unknownData1: {
-                              unknownByte1: 16,
-                              unknownByte2: 9,
-                              unknownByte3: 0,
-                            },
-                            unknownByte6: 0,
-                            unknownDword11: 0,
-                            unknownGuid1: "0x0000000000000000",
-                            unknownData2: {
-                              unknownGuid1: "0x0000000000000000",
-                            },
-                            unknownDword12: 2484,
-                            unknownDword13: 1528,
-                            unknownDword14: 0,
-                            unknownByte7: 0,
-                            unknownArray1: [],
-                          },
-                          unknownGuid1: "0x0000000000000000",
-                          unknownDword1: 0,
-                          unknownDword2: 0,
-                          positionUpdate: server.createPositionUpdate(
-                            packet.data.position,
-                            [packet.data.heading, 0, 0, 0]
-                          ),
-                          unknownString1: "",
-                        };
-                        console.log(JSON.stringify(vehicleData, null, 2));
-
-                        server.sendData(
-                          client,
-                          "PlayerUpdate.AddLightweightVehicle",
-                          vehicleData
-                        );
-                        server.sendData(client, "PlayerUpdate.SetFaction", {
-                          guid: guid,
-                          factionId:
-                            packet.data.factionId || client.character.factionId,
-                        });
-
-                        server.sendData(client, "Vehicle.Owner", {
-                          guid: guid,
-                          characterId: client.character.characterId,
-                          unknownDword1: 305,
-                          vehicleId: packet.data.vehicleId,
-                          passengers: [
-                            {
-                              passengerData: {
-                                characterId: "0x0000000000000000",
-                                characterData: {
-                                  unknownDword1: 0,
-                                  unknownDword2: 0,
-                                  unknownDword3: 0,
-                                  characterName: "",
-                                  unknownString1: "",
-                                },
-                                unknownDword1: 0,
-                                unknownString1: "",
-                              },
-                              unknownByte1: 0,
-                            },
-                            {
-                              passengerData: {
-                                characterId: "0x0000000000000000",
-                                characterData: {
-                                  unknownDword1: 0,
-                                  unknownDword2: 0,
-                                  unknownDword3: 0,
-                                  characterName: "",
-                                  unknownString1: "",
-                                },
-                                unknownDword1: 0,
-                                unknownString1: "",
-                              },
-                              unknownByte1: 1,
-                            },
-                          ],
-                        });
-
-                        server.sendData(client, "Vehicle.SetAutoDrive", {
-                          guid: guid,
-                        });
-
-                        server.sendData(client, "PlayerUpdate.ManagedObject", {
-                          guid: guid,
-                          guid2: "0x0000000000000000",
-                          characterId: client.character.characterId,
-                        });
-                      }
-                    );
-                }
-              );
-          }
-        );
-    };
     this.commandInteractCancel = function (
       server: ZoneServer,
       client: Client,
@@ -1705,13 +1465,16 @@ export class zonePacketHandlers {
       }
     }
   };
+    interface PlayerUpdateUpdatePositionClientToZoneData {
+      data:UpdatePositionObject
+    }
     this.PlayerUpdateUpdatePositionClientToZone = function (
       server: ZoneServer,
       client: Client,
-      packet: any
+      packet: PlayerUpdateUpdatePositionClientToZoneData
     ) {
       if (packet.data.flags === 510) {
-        client.vehicle.falling = packet.data.unknown10_float;
+        client.vehicle.falling = packet.data.verticalSpeed;
       }
       const movingCharacter = server._characters[client.character.characterId];
       if (movingCharacter && !server._soloMode) {
@@ -1731,7 +1494,7 @@ export class zonePacketHandlers {
           packet.data.position[2],
           0,
         ]);
-        if (packet.data.unknown11_float > 6) {
+        if (packet.data.horizontalSpeed > (client.character.isExhausted? 5 : 6)) {
           client.character.isRunning = true;
         } else {
           client.character.isRunning = false;
@@ -1762,17 +1525,6 @@ export class zonePacketHandlers {
         ) {
           server.worldRoutine();
         }
-      } else if (
-        packet.data.vehicle_position &&
-        client.vehicle.mountedVehicle
-      ) {
-        server._vehicles[client.vehicle.mountedVehicle].npcData.position =
-          new Float32Array([
-            packet.data.vehicle_position[0],
-            packet.data.vehicle_position[1],
-            packet.data.vehicle_position[2],
-            0,
-          ]);
       }
       if (packet.data.rotation) {
         // TODO: modify array element beside re-creating it
@@ -2104,33 +1856,11 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      const { characterId } = packet.data,
-        entityData: any =
-          server._npcs[characterId] ||
-          server._vehicles[characterId] ||
-          server._characters[characterId] ||
-          server._objects[characterId] ||
-          server._props[characterId] ||
-          server._doors[characterId] ||
-          0,
-        entityType = server._npcs[characterId]
-          ? 1
-          : 0 || server._vehicles[characterId]
-          ? 2
-          : 0 || server._characters[characterId]
-          ? 3
-          : 0 || server._objects[characterId]
-          ? 4
-          : 0 || server._props[characterId]
-          ? 5
-          : 0 || server._doors[characterId]
-          ? 6
-          : 0;
-
-      if (!entityType) return;
-
+      const { characterId } = packet.data;
+      const entityType: number = server.getEntityType(characterId); 
       switch (entityType) {
-        case 1: // npc
+        case 1: {// npc
+          const entityData = server._npcs[characterId];
           server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
             transientId: entityData.transientId,
             unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
@@ -2141,8 +1871,9 @@ export class zonePacketHandlers {
           if (entityData.onReadyCallback) {
             entityData.onReadyCallback();
           }
-          break;
-        case 2: // vehicle
+          break;}
+        case 2: {// vehicle
+          const entityData = server._vehicles[characterId];
           if (entityData.npcData.vehicleId === 13) return;
           // ignore parachute
           const npcData = {
@@ -2155,8 +1886,9 @@ export class zonePacketHandlers {
           if (entityData.onReadyCallback) {
             entityData.onReadyCallback();
           }
-          break;
-        case 3: // character
+          break;}
+        case 3: {// character
+          const entityData = server._characters[characterId];
           server.sendData(client, "PlayerUpdate.LightweightToFullPc", {
             transientId: entityData.transientId,
           });
@@ -2174,8 +1906,9 @@ export class zonePacketHandlers {
             }),
             attachmentData: entityData.equipment,
           });
-          break;
-        case 4: // object
+          break;}
+        case 4:{ // object
+          const entityData = server._objects[characterId];
           server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
             transientId: entityData.transientId,
             unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
@@ -2186,8 +1919,9 @@ export class zonePacketHandlers {
           if (entityData.onReadyCallback) {
             entityData.onReadyCallback();
           }
-          break;
-        case 5: // prop
+          break;}
+        case 5: {// prop
+          const entityData = server._props[characterId];
           server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
             transientId: entityData.transientId,
             unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
@@ -2198,8 +1932,9 @@ export class zonePacketHandlers {
           if (entityData.onReadyCallback) {
             entityData.onReadyCallback();
           }
-          break;
-        case 6: // door
+          break;}
+        case 6:{ // door
+          const entityData = server._doors[characterId];
           server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
             transientId: entityData.transientId,
             unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
@@ -2223,7 +1958,7 @@ export class zonePacketHandlers {
               unk3: 0,
             });
           }
-          break;
+          break;}
       }
     };
   }
@@ -2324,9 +2059,6 @@ export class zonePacketHandlers {
         break;
       case "Vehicle.AutoMount":
         this.vehicleAutoMount(server, client, packet);
-        break;
-      case "AdminCommand.SpawnVehicle":
-        this.adminCommandSpawnVehicle(server, client, packet);
         break;
       case "Command.InteractCancel":
         this.commandInteractCancel(server, client, packet);
