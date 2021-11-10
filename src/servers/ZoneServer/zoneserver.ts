@@ -263,7 +263,6 @@ export class ZoneServer extends EventEmitter {
                   const soeClient:SOEClient = (Object.values(this._gatewayServer._soeServer._clients).find((client)=>{return (client as SOEClient).address === address})as SOEClient);
                   const clientPingMs = soeClient.zonePingTimeMs;
                   
-                  console.log("user ping ",clientPingMs)
                   this._h1emuZoneServer.sendData(
                     client,
                     "ZonePingReply",
