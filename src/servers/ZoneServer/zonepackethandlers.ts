@@ -1885,6 +1885,7 @@ export class zonePacketHandlers {
           });
           if (entityData.onReadyCallback) {
             entityData.onReadyCallback();
+            server._vehicles[characterId].onReadyCallback = () => {};
           }
           break;}
         case 3: {// character
