@@ -601,8 +601,9 @@ export class LoginServer extends EventEmitter {
       if(!character){
         console.error(`CharacterId "${characterId}" unfound on serverId: "${serverId}"`)
       }
-
-      connectionStatus = await this.askZoneForPing(serverId,client.address);
+      if(connectionStatus){
+        connectionStatus = await this.askZoneForPing(serverId,client.address);
+      }
       const hiddenSession = connectionStatus?await this._db.collection("user-sessions").findOne({authKey:client.loginSessionId}):{guid:""};
       charactersLoginInfo = {
         unknownQword1: "0x0",
