@@ -257,6 +257,8 @@ const hax: any = {
         driveModel = 7225;
         break;
     }
+    let wasAlreadyGod = client.character.godMode;
+    client.character.godMode = true;
     const characterId = server.generateGuid();
     const vehicleData = new Vehicle(
       server._worldId,
@@ -276,9 +278,12 @@ const hax: any = {
           guid: vehicleData.npcData.characterId,
           characterId: client.character.characterId,
         });
-        client.managedObjects.push(server._vehicles[characterId]);
+        setTimeout(() => {
+          client.character.godMode = wasAlreadyGod ? true : false;
+        }, 1000);
       },
     };
+    server.worldRoutine();
   },
 
   parachute: function (server: ZoneServer, client: Client, args: any[]) {
