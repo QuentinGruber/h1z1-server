@@ -155,7 +155,7 @@ export class Character {
           },
         },
       });
-      server.sendData(client, "ResourceEvent", {
+      /*server.sendData(client, "ResourceEvent", {
         eventData: {
           type: 3,
           value: {
@@ -167,7 +167,7 @@ export class Character {
             unknownArray2: [],
           },
         },
-      });
+      });*/
       this.resourcesUpdater.refresh();
     }, 3000);
 
