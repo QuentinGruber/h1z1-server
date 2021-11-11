@@ -52,7 +52,7 @@ const numberOfClient = 10;
       cryptoKey,
       "0x69cf9098124bdb33",
       "0",
-      "",
+      "ClientProtocol_860",
       "",
       6457 + index
     );

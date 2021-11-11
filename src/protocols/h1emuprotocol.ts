@@ -77,6 +77,35 @@ const packets = [
       ],
     },
   ],
+  [
+    "UpdateZonePopulation",
+    0x09,
+    {
+      fields: [
+        { name: "population", type: "uint8", defaultValue: 0 },
+      ],
+    },
+  ],
+  [
+    "ZonePingRequest",
+    0x10,
+    {
+      fields: [
+        { name: "reqId", type: "uint32", defaultValue: 0 },
+        { name: "address", type: "string", defaultValue: 0 },
+      ],
+    },
+  ],
+  [
+    "ZonePingReply",
+    0x11,
+    {
+      fields: [
+        { name: "reqId", type: "uint32", defaultValue: 0 },
+        { name: "status", type: "boolean", defaultValue: 0 },
+      ],
+    },
+  ] 
 ];
 
 export const [H1emuPacketsPacketTypes, H1emuPacketsPackets] =
@@ -95,7 +124,7 @@ function packH1emuPacket(packetName: string, object: any) {
     if (packet.schema) {
       const packetData = DataSchema.pack(packet.schema, object);
       if (packetData) {
-        data = Buffer.alloc(1 + packetData.length);
+        data = Buffer.allocUnsafe(1 + packetData.length);
         data.writeUInt8(packetType, 0);
         packetData.data.copy(data, 1);
       } else {

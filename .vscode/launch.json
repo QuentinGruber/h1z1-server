@@ -25,7 +25,8 @@
             "name": "Launch ZoneServer with MongoDB",
             "env":{
                 "VSCODE_DEBUG":"true",
-                "MONGO_URL":"mongodb://localhost:27017/"
+                "MONGO_URL":"mongodb://localhost:27017/",
+                "LOGINSERVER_IP":"127.0.0.1"
             },
             "skipFiles": [
                 "<node_internals>/**"
@@ -89,7 +90,8 @@
             "env":{
                 "VSCODE_DEBUG":"true",
                 "CLIENT_SIXTEEN":"true",
-                "MONGO_URL":"mongodb://localhost:27017/"
+                "MONGO_URL":"mongodb://localhost:27017/",
+                "LOGINSERVER_IP":"127.0.0.1"
             },
             "skipFiles": [
                 "<node_internals>/**"

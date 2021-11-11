@@ -55,7 +55,7 @@ function writePacketType(packetType: number) {
     packetTypeBytes.unshift(packetType & 0xff);
     packetType = packetType >> 8;
   }
-  const data = Buffer.alloc(packetTypeBytes.length);
+  const data = Buffer.allocUnsafe(packetTypeBytes.length);
   for (let i = 0; i < packetTypeBytes.length; i++) {
     data.writeUInt8(packetTypeBytes[i], i);
   }
@@ -87,7 +87,7 @@ export function packUnsignedIntWith2bitLengthValue(value: number) {
     n = 1;
   }
   value |= n;
-  const data = Buffer.alloc(4);
+  const data = Buffer.allocUnsafe(4);
   data.writeUInt32LE(value, 0);
   return data.slice(0, n + 1);
 }
@@ -124,7 +124,7 @@ function packSignedIntWith2bitLengthValue(value: number) {
   }
   value |= n << 1;
   value |= sign;
-  const data = Buffer.alloc(4);
+  const data = Buffer.allocUnsafe(4);
   data.writeUInt32LE(value, 0);
   return data.slice(0, n + 1);
 }
@@ -250,7 +250,7 @@ function readPositionUpdateData(data: Buffer, offset: number) {
 }
 
 function packPositionUpdateData(obj: any) {
-  let data = Buffer.alloc(7),
+  let data = Buffer.allocUnsafe(7),
     flags = 0,
     v;
 
@@ -275,7 +275,7 @@ function packPositionUpdateData(obj: any) {
 
   if ("orientation" in obj) {
     flags |= 0x20;
-    v = Buffer.alloc(4);
+    v = Buffer.allocUnsafe(4);
     v.writeFloatLE(obj["orientation"], 0);
     data = Buffer.concat([data, v]);
   }
@@ -745,7 +745,6 @@ const currencySchema = {
 };
 
 const lootItemSchema = [
-  { name: "unknown1", type: "byte", defaultValue: 1 },
   currencySchema,
   { name: "unknown2", type: "uint32", defaultValue: 2 },
   { name: "unknown3", type: "uint32", defaultValue: 3 },
@@ -967,8 +966,6 @@ const lightWeightPcSchema = [
 ];
 
 const lightWeightNpcSchema = [
-  { name: "unknown1", type: "byte", defaultValue: 0 },
-  { name: "unknown2", type: "byte", defaultValue: 0 },
   {
     name: "characterId",
     type: "uint64string",
@@ -1511,7 +1508,7 @@ function parseWeaponPacket(data: Buffer, offset: number) {
   obj.gameTime = data.readUInt32LE(offset);
   const tmpData = data.slice(offset + 4);
 
-  const weaponPacketData = Buffer.alloc(tmpData.length + 1);
+  const weaponPacketData = Buffer.allocUnsafe(tmpData.length + 1);
   weaponPacketData.writeUInt8(0x85, 0);
   tmpData.copy(weaponPacketData, 1);
 
@@ -1550,7 +1547,7 @@ function packWeaponPacket(obj: any) {
       subTypeData = writePacketType(subType);
     let subData = DataSchema.pack(subPacket.schema, subObj).data;
     subData = Buffer.concat([subTypeData.slice(1), subData]);
-    data = Buffer.alloc(subData.length + 4);
+    data = Buffer.allocUnsafe(subData.length + 4);
     data.writeUInt32LE((obj.gameTime & 0xffffffff) >>> 0, 0);
     subData.copy(data, 4);
   } else {
@@ -1999,8 +1996,6 @@ const fullPcDataSchema = [
 ];
 
 const fullNpcDataSchema = [
-  { name: "unknown1", type: "byte", defaultValue: 0 },
-  { name: "unknown2", type: "byte", defaultValue: 0 },
   {
     name: "transientId",
     type: "custom",
@@ -3975,7 +3970,6 @@ var packets = [
     0x091e00,
     {
       fields: [
-        { name: "unknown1", type: "byte", defaultValue: 0 },
         { name: "unknown2", type: "uint16", defaultValue: 0 },
         { name: "unknown3", type: "uint32", defaultValue: 0 },
         { name: "vehicleId", type: "uint64string", defaultValue: "0x0000" },
@@ -4136,7 +4130,6 @@ var packets = [
     0x094f00,
     {
       fields: [
-        { name: "unk1", type: "byte", defaultValue: 0 },
         { name: "color", type: "uint16", defaultValue: 1 },
         { name: "status", type: "uint16", defaultValue: 0 },
         { name: "unkString", type: "string", defaultValue: "hello dude" },
@@ -4454,7 +4447,6 @@ var packets = [
     0x0b,
     {
       fields: [
-        { name: "unknownByte1", type: "byte", defaultValue: 0 },
         { name: "zoneName", type: "string", defaultValue: "Z1" },
         { name: "zoneType", type: "int32", defaultValue: 4 },
 
@@ -4578,7 +4570,6 @@ var packets = [
     0x0c09,
     {
       fields: [
-        { name: "unknown1", type: "byte", defaultValue: true },
         { name: "unknown2", type: "uint16", defaultValue: 1 },
         {
           name: "characterId",
@@ -4594,7 +4585,6 @@ var packets = [
     0x0c0a,
     {
       fields: [
-        { name: "unknown1", type: "byte", defaultValue: true },
         { name: "unknown2", type: "uint16", defaultValue: 1 },
         {
           name: "characterId",
@@ -4614,7 +4604,6 @@ var packets = [
     0x0c0b,
     {
       fields: [
-        { name: "unknown1", type: "byte", defaultValue: true },
         { name: "unknown2", type: "uint16", defaultValue: 1 },
         {
           name: "characterId",
@@ -4699,7 +4688,39 @@ var packets = [
     },
   ],
   ["PlayerUpdate.UpdateHitpoints", 0x0f03, {}],
-  ["PlayerUpdate.PlayAnimation", 0x0f04, {}],
+  [
+    "PlayerUpdate.PlayAnimation",
+    0x0f04,
+    {
+      fields: [
+        {
+          name: "characterId",
+          type: "uint64string",
+          defaultValue: "0x0000000000000000",
+        },
+        {
+          name: "unk1",
+          type: "uint32",
+          defaultValue: 1,
+        },
+        {
+          name: "unk2",
+          type: "uint32",
+          defaultValue: 2,
+        },
+        {
+          name: "unk3",
+          type: "uint8",
+          defaultValue: 3,
+        },
+        {
+          name: "unk4",
+          type: "uint32",
+          defaultValue: 4,
+        },
+      ],
+    },
+  ],
   ["PlayerUpdate.AddNotifications", 0x0f05, {}],
   ["PlayerUpdate.RemoveNotifications", 0x0f06, {}],
   [
@@ -4806,9 +4827,8 @@ var packets = [
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "unknownDword1", type: "uint32", defaultValue: 1 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 8192 },
-        { name: "gameTime", type: "uint32", defaultValue: 0 },
+        { name: "state", type: "uint64string", defaultValue: "0" },
+        { name: "gameTime", type: "uint32", defaultValue: 1 },
       ],
     },
   ],
@@ -4912,7 +4932,16 @@ var packets = [
       ],
     },
   ],
-  ["PlayerUpdate.SetSpawnerActivationEffect", 0x0f1e, {}],
+  [
+    "PlayerUpdate.SetSpawnerActivationEffect",
+    0x0f1e,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "effectId", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
   ["PlayerUpdate.SetComboState", 0x0f1f, {}],
   ["PlayerUpdate.SetSurpriseState", 0x0f20, {}],
   ["PlayerUpdate.RemoveNpcCustomization", 0x0f21, {}],
@@ -4921,8 +4950,6 @@ var packets = [
     0x0f22,
     {
       fields: [
-        { name: "unknown1", type: "byte", defaultValue: 0 },
-        { name: "unknown2", type: "byte", defaultValue: 0 },
         {
           name: "characterId",
           type: "uint64string",
@@ -4938,8 +4965,6 @@ var packets = [
     0x0f23,
     {
       fields: [
-        { name: "unknown1", type: "byte", defaultValue: 0 },
-        { name: "unknown2", type: "byte", defaultValue: 0 },
         {
           name: "characterId",
           type: "uint64string",
@@ -4959,15 +4984,22 @@ var packets = [
       ],
     },
   ],
-  ["PlayerUpdate.WeaponStance", 0x0f25, {}],
+  [
+    "PlayerUpdate.WeaponStance",
+    0x0f25,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "stance", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
   ["PlayerUpdate.UpdateTintAlias", 0x0f26, {}],
   [
     "PlayerUpdate.MoveOnRail",
     0x0f27,
     {
       fields: [
-        { name: "unknown1", type: "byte", defaultValue: 0 },
-        { name: "unknown2", type: "byte", defaultValue: 0 },
         {
           name: "characterId",
           type: "uint64string",
@@ -5001,8 +5033,6 @@ var packets = [
     0x0f29,
     {
       fields: [
-        { name: "unknown1", type: "byte", defaultValue: 0 },
-        { name: "unknown2", type: "byte", defaultValue: 0 },
         {
           name: "characterId",
           type: "uint64string",
@@ -5039,8 +5069,6 @@ var packets = [
     0x0f2b,
     {
       fields: [
-        { name: "unknown1", type: "byte", defaultValue: 0 },
-        { name: "unknown2", type: "byte", defaultValue: 0 },
         {
           name: "characterId",
           type: "uint64string",
@@ -5069,8 +5097,6 @@ var packets = [
     0x0f2c,
     {
       fields: [
-        { name: "unknown1", type: "byte", defaultValue: 0 },
-        { name: "unknown2", type: "byte", defaultValue: 0 },
         {
           name: "characterId",
           type: "uint64string",
@@ -5142,8 +5168,6 @@ var packets = [
     0x0f34,
     {
       fields: [
-        { name: "unknownBoolean1", type: "byte", defaultValue: 0 },
-        { name: "unknownBoolean2", type: "byte", defaultValue: 0 },
         {
           name: "characterId",
           type: "uint64string",
@@ -5379,8 +5403,6 @@ var packets = [
     0x0f4e,
     {
       fields: [
-        { name: "unknown1", type: "byte", defaultValue: 0 },
-        { name: "unknown2", type: "byte", defaultValue: 0 },
         { name: "characterId", type: "uint64string", defaultValue: "0" },
         { name: "unknownBoolean", type: "boolean", defaultValue: 0 },
       ],
@@ -5470,8 +5492,6 @@ var packets = [
     0x0f59,
     {
       fields: [
-        { name: "unknown1", type: "byte", defaultValue: 0 },
-        { name: "unknown2", type: "byte", defaultValue: 0 },
         {
           name: "characterId",
           type: "uint64string",
@@ -5611,8 +5631,6 @@ var packets = [
     0x0f5f,
     {
       fields: [
-        { name: "unknown1", type: "byte", defaultValue: 0 },
-        { name: "unknown2", type: "byte", defaultValue: 0 },
         {
           name: "characterId",
           type: "uint64string",
@@ -5658,8 +5676,6 @@ var packets = [
     0x0f63,
     {
       fields: [
-        { name: "unknown1", type: "byte", defaultValue: 0 },
-        { name: "unknown2", type: "byte", defaultValue: 0 },
         {
           name: "characterId",
           type: "uint64string",
@@ -5697,8 +5713,6 @@ var packets = [
     0x0f65,
     {
       fields: [
-        { name: "unknown1", type: "byte", defaultValue: 0 },
-        { name: "unknown2", type: "byte", defaultValue: 0 },
         {
           name: "itemId",
           type: "uint32",
@@ -5714,8 +5728,6 @@ var packets = [
     0x0f68,
     {
       fields: [
-        { name: "unknown1", type: "byte", defaultValue: 0 },
-        { name: "unknown2", type: "byte", defaultValue: 0 },
         {
           name: "characterId",
           type: "uint64string",
@@ -5748,8 +5760,6 @@ var packets = [
     0x0f6a,
     {
       fields: [
-        { name: "unknown1", type: "byte", defaultValue: 0 },
-        { name: "unknown2", type: "byte", defaultValue: 0 },
         {
           name: "characterId",
           type: "uint64string",
@@ -5765,7 +5775,11 @@ var packets = [
     "PlayerUpdate.BeginCharacterAccess",
     0x0f6c,
     {
-      fields: [],
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "state", type: "boolean", defaultValue: 0 },
+        { name: "unk1", type: "uint32", defaultValue: 0 },
+      ],
     },
   ],
   [
@@ -5780,21 +5794,344 @@ var packets = [
   ["PlayerUpdate.SetAllowRespawn", 0x0f71, {}],
   ["Ability.ClientRequestStartAbility", 0x1001, {}],
   ["Ability.ClientRequestStopAbility", 0x1002, {}],
-  ["Ability.ClientMoveAndCast", 0x1003, {}],
-  ["Ability.Failed", 0x1004, {}],
-  ["Ability.StartCasting", 0x1005, {}],
-  ["Ability.Launch", 0x1006, {}],
-  ["Ability.Land", 0x1007, {}],
-  ["Ability.StartChanneling", 0x1008, {}],
-  ["Ability.StopCasting", 0x1009, {}],
-  ["Ability.StopAura", 0x100a, {}],
+  [
+    "Ability.ClientMoveAndCast",
+    0x1003,
+    {
+      fields: [
+        { name: "position", type: "floatvector4", defaultValue: [0, 50, 0, 1] },
+        { name: "unk1", type: "uint32", defaultValue: 0 },
+        { name: "unk2", type: "uint32", defaultValue: 0 },
+        // maybe also an uint16
+      ],
+    },
+  ],
+  [
+    "Ability.Failed",
+    0x1004,
+    {
+      fields: [],
+    },
+  ],
+  [
+    "Ability.StartCasting",
+    0x1005,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "unkGuid", type: "uint64string", defaultValue: "0" },
+        { name: "unk1", type: "uint32", defaultValue: 0 },
+        { name: "unk2", type: "uint32", defaultValue: 0 },
+        { name: "unk3", type: "uint32", defaultValue: 0 },
+        {
+          name: "unkArray1",
+          type: "array",
+          defaultValue: [],
+          fields: [],
+        },
+        { name: "unk4", type: "uint32", defaultValue: 0 },
+        { name: "unk5", type: "uint32", defaultValue: 0 },
+        { name: "unk6", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
+  [
+    "Ability.Launch",
+    0x1006,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "unkGuid", type: "uint64string", defaultValue: "0" },
+        { name: "unk1", type: "uint32", defaultValue: 0 },
+        { name: "weirdAskedByte", type: "uint8", defaultValue: 0 }, // linked to targets i'm not sure about this one
+        { name: "position", type: "floatvector4", defaultValue: [0, 50, 0, 1] },
+        {
+          name: "unkArray1",
+          type: "array",
+          defaultValue: [],
+          fields: [],
+        },
+        { name: "unk2", type: "uint32", defaultValue: 0 },
+        { name: "unk3", type: "uint32", defaultValue: 0 },
+        { name: "unk4", type: "uint32", defaultValue: 0 },
+        { name: "unk5", type: "uint32", defaultValue: 0 },
+        { name: "unk6", type: "uint32", defaultValue: 0 },
+        { name: "unk7", type: "uint32", defaultValue: 0 },
+        { name: "unk8", type: "uint32", defaultValue: 0 },
+        { name: "unk9", type: "uint32", defaultValue: 0 },
+        { name: "unk10", type: "uint32", defaultValue: 0 },
+        { name: "unk11", type: "uint32", defaultValue: 0 },
+        { name: "unkstring", type: "string", defaultValue: "" },
+        { name: "unk12", type: "uint32", defaultValue: 0 },
+        { name: "unk13", type: "uint32", defaultValue: 0 },
+        { name: "unk14", type: "uint32", defaultValue: 0 },
+        { name: "unk15", type: "uint8", defaultValue: 0 },
+        { name: "unk16", type: "uint8", defaultValue: 0 },
+        { name: "unk17", type: "uint32", defaultValue: 0 },
+        { name: "unk18", type: "uint8", defaultValue: 0 },
+        { name: "unk19", type: "uint8", defaultValue: 0 },
+        { name: "unk20", type: "uint32", defaultValue: 0 },
+        { name: "unkGuid2", type: "uint64string", defaultValue: "0" },
+        { name: "unk21", type: "boolean", defaultValue: 0 },
+        { name: "unk22", type: "boolean", defaultValue: 0 },
+      ],
+    },
+  ],
+  [
+    "Ability.Land",
+    0x1007,
+    {
+      fields: [
+        {
+          name: "unknown3",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        { name: "unknown4", type: "uint8", defaultValue: 0 },
+        { name: "weirdAskedByte", type: "uint8", defaultValue: 0 }, // linked to targets i'm not sure about this one
+        { name: "position", type: "floatvector4", defaultValue: [0, 50, 0, 1] },
+        { name: "unknown7", type: "uint32", defaultValue: 0 },
+        {
+          name: "position2",
+          type: "floatvector4",
+          defaultValue: [0, 50, 0, 1],
+        },
+        { name: "unknown9", type: "uint8", defaultValue: 0 },
+        { name: "unknown10", type: "uint8", defaultValue: 0 },
+        { name: "unknown11", type: "uint8", defaultValue: 0 },
+        { name: "unknown12", type: "uint8", defaultValue: 0 },
+        { name: "unknown13", type: "uint8", defaultValue: 0 },
+        { name: "unknown14", type: "uint8", defaultValue: 0 },
+      ],
+    },
+  ],
+  [
+    "Ability.StartChanneling",
+    0x1008,
+    {
+      fields: [
+        {
+          name: "unknown3",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        {
+          name: "unknown4",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        { name: "unknown5", type: "uint32", defaultValue: 0 },
+        { name: "unknown6", type: "uint32", defaultValue: 0 },
+        { name: "unknown7", type: "uint32", defaultValue: 0 },
+        { name: "position", type: "floatvector4", defaultValue: [0, 50, 0, 1] },
+        { name: "unknown9", type: "uint32", defaultValue: 0 },
+        { name: "unknown10", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
+  [
+    "Ability.StopCasting",
+    0x1009,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "unkGuid", type: "uint64string", defaultValue: "0" },
+        { name: "unk1", type: "uint32", defaultValue: 0 },
+        { name: "unk2", type: "uint32", defaultValue: 0 },
+        { name: "unk3", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
+  [
+    "Ability.StopAura",
+    0x100a,
+    {
+      fields: [
+        { name: "unknown1", type: "uint32", defaultValue: 0 },
+        { name: "unknown2", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
   ["Ability.MeleeRefresh", 0x100b, {}],
-  ["Ability.AbilityDetails", 0x100c, {}],
+  [
+    "Ability.AbilityDetails",
+    0x100c,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "unkGuid", type: "uint64string", defaultValue: "0" },
+        { name: "unkGuid2", type: "uint64string", defaultValue: "0" },
+        { name: "unk1", type: "uint32", defaultValue: 0 },
+        { name: "unk2", type: "uint32", defaultValue: 0 },
+        { name: "unk3", type: "uint32", defaultValue: 0 },
+        { name: "unk4", type: "boolean", defaultValue: 0 },
+        { name: "unk5", type: "boolean", defaultValue: 0 },
+        { name: "unk6", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
   ["Ability.PurchaseAbility", 0x100d, {}],
   ["Ability.UpdateAbilityExperience", 0x100e, {}],
-  ["Ability.SetDefinition", 0x100f, {}],
+  [
+    "Ability.SetDefinition",
+    0x100f,
+    {
+      fields: [
+        { name: "unknown1", type: "uint32", defaultValue: 0 },
+        { name: "unknown2", type: "boolean", defaultValue: 0 },
+        { name: "unknown3", type: "uint32", defaultValue: 0 },
+        { name: "unknown4", type: "uint32", defaultValue: 0 },
+        { name: "unknown5", type: "boolean", defaultValue: 0 },
+        {
+          name: "unknown6",
+          type: "uint64",
+          defaultValue: "0x0000000000000000",
+        },
+        { name: "unknown7", type: "uint32", defaultValue: 0 },
+        { name: "unknown8", type: "uint32", defaultValue: 0 },
+        { name: "unknown9", type: "uint32", defaultValue: 0 },
+        { name: "unknown10", type: "uint32", defaultValue: 0 },
+        { name: "unknown11", type: "uint32", defaultValue: 0 },
+        { name: "unknown12", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
   ["Ability.RequestAbilityDefinition", 0x1010, {}],
-  ["Ability.AddAbilityDefinition", 0x1011, {}],
+  [
+    "Ability.AddAbilityDefinition",
+    0x1011,
+    {
+      // auto-reversed using an homemade tool , so some fields are missing
+      fields: [
+        { name: "unknown1", type: "uint32", defaultValue: 0 },
+        {
+          name: "array1",
+          type: "array",
+          fields: [{ name: "unknown2", type: "boolean", defaultValue: 0 }],
+        },
+        { name: "unknown3", type: "uint32", defaultValue: 0 },
+        { name: "unknown4", type: "uint32", defaultValue: 0 },
+        { name: "unknown5", type: "uint32", defaultValue: 0 },
+        { name: "unknown6", type: "uint32", defaultValue: 0 },
+        { name: "unknown7", type: "uint32", defaultValue: 0 },
+        { name: "unknown8", type: "uint32", defaultValue: 0 },
+        { name: "unknown9", type: "uint32", defaultValue: 0 },
+        { name: "unknown10", type: "uint32", defaultValue: 0 },
+        { name: "unknown11", type: "uint32", defaultValue: 0 },
+        { name: "unknown12", type: "uint32", defaultValue: 0 },
+        { name: "unknown13", type: "uint32", defaultValue: 0 },
+        { name: "unknown14", type: "uint32", defaultValue: 0 },
+        { name: "unknown15", type: "uint32", defaultValue: 0 },
+        { name: "unknown16", type: "uint32", defaultValue: 0 },
+        { name: "unknown17", type: "uint32", defaultValue: 0 },
+        { name: "unknown18", type: "uint32", defaultValue: 0 },
+        { name: "unknown19", type: "uint32", defaultValue: 0 },
+        { name: "unknown20", type: "uint32", defaultValue: 0 },
+        { name: "unknown21", type: "uint32", defaultValue: 0 },
+        { name: "unknown22", type: "uint32", defaultValue: 0 },
+        { name: "unknown23", type: "uint32", defaultValue: 0 },
+        { name: "unknown24", type: "uint32", defaultValue: 0 },
+        { name: "unknown25", type: "uint32", defaultValue: 0 },
+        { name: "unknown26", type: "uint32", defaultValue: 0 },
+        { name: "unknown27", type: "uint32", defaultValue: 0 },
+        { name: "unknown28", type: "uint32", defaultValue: 0 },
+        { name: "unknown29", type: "uint32", defaultValue: 0 },
+        { name: "unknown30", type: "uint32", defaultValue: 0 },
+        { name: "unknown31", type: "uint32", defaultValue: 0 },
+        { name: "unknown32", type: "uint32", defaultValue: 0 },
+        { name: "unknown33", type: "uint32", defaultValue: 0 },
+        { name: "unknown34", type: "uint32", defaultValue: 0 },
+        { name: "unknown35", type: "uint32", defaultValue: 0 },
+        { name: "unknown36", type: "uint32", defaultValue: 0 },
+        { name: "unknown37", type: "uint32", defaultValue: 0 },
+        { name: "unknown38", type: "uint32", defaultValue: 0 },
+        { name: "unknown39", type: "uint32", defaultValue: 0 },
+        { name: "unknown40", type: "uint32", defaultValue: 0 },
+        { name: "unknown41", type: "uint32", defaultValue: 0 },
+        { name: "unknown42", type: "uint32", defaultValue: 0 },
+        { name: "unknown43", type: "uint32", defaultValue: 0 },
+        { name: "unknown44", type: "uint32", defaultValue: 0 },
+        { name: "unknown45", type: "uint32", defaultValue: 0 },
+        { name: "unknown46", type: "uint32", defaultValue: 0 },
+        { name: "unknown47", type: "uint32", defaultValue: 0 },
+        { name: "unknown48", type: "uint32", defaultValue: 0 },
+        { name: "unknown49", type: "uint32", defaultValue: 0 },
+        { name: "unknown50", type: "uint32", defaultValue: 0 },
+        { name: "unknown51", type: "uint32", defaultValue: 0 },
+        { name: "unknown52", type: "uint32", defaultValue: 0 },
+        { name: "unknown53", type: "uint32", defaultValue: 0 },
+        { name: "unknown54", type: "uint32", defaultValue: 0 },
+        { name: "unknown55", type: "uint32", defaultValue: 0 },
+        { name: "unknown56", type: "uint32", defaultValue: 0 },
+        { name: "unknown57", type: "uint32", defaultValue: 0 },
+        { name: "string19", type: "string", defaultValue: "unknownString" },
+        {
+          name: "array4",
+          type: "array",
+          fields: [
+            { name: "unknown1", type: "uint32", defaultValue: 0 },
+            { name: "unknown2", type: "boolean", defaultValue: 0 },
+            { name: "unknown3", type: "uint32", defaultValue: 0 },
+            { name: "unknown4", type: "uint32", defaultValue: 0 },
+            { name: "unknown5", type: "uint32", defaultValue: 0 },
+            { name: "unknown6", type: "uint32", defaultValue: 0 },
+            { name: "unknown7", type: "uint32", defaultValue: 0 },
+            { name: "unknown8", type: "uint32", defaultValue: 0 },
+            { name: "unknown9", type: "uint32", defaultValue: 0 },
+            { name: "unknown10", type: "uint32", defaultValue: 0 },
+            { name: "unknown11", type: "uint32", defaultValue: 0 },
+            { name: "unknown12", type: "uint32", defaultValue: 0 },
+            { name: "unknown13", type: "uint32", defaultValue: 0 },
+            { name: "unknown14", type: "uint32", defaultValue: 0 },
+            { name: "unknown15", type: "uint32", defaultValue: 0 },
+            { name: "unknown16", type: "uint32", defaultValue: 0 },
+            { name: "unknown17", type: "uint32", defaultValue: 0 },
+            { name: "unknown18", type: "uint32", defaultValue: 0 },
+            { name: "unknown20", type: "uint32", defaultValue: 0 },
+            { name: "unknown21", type: "uint32", defaultValue: 0 },
+            { name: "unknown22", type: "uint32", defaultValue: 0 },
+            { name: "unknown23", type: "uint32", defaultValue: 0 },
+            { name: "unknown24", type: "uint32", defaultValue: 0 },
+            { name: "unknown25", type: "uint32", defaultValue: 0 },
+            { name: "unknown26", type: "uint32", defaultValue: 0 },
+            { name: "unknown27", type: "uint32", defaultValue: 0 },
+            { name: "unknown28", type: "uint32", defaultValue: 0 },
+            { name: "unknown29", type: "uint32", defaultValue: 0 },
+            { name: "unknown30", type: "uint32", defaultValue: 0 },
+            { name: "unknown31", type: "uint32", defaultValue: 0 },
+            { name: "unknown32", type: "uint32", defaultValue: 0 },
+            { name: "unknown33", type: "uint32", defaultValue: 0 },
+            { name: "unknown34", type: "uint32", defaultValue: 0 },
+            { name: "unknown35", type: "uint32", defaultValue: 0 },
+            { name: "unknown36", type: "uint32", defaultValue: 0 },
+            { name: "unknown37", type: "uint32", defaultValue: 0 },
+            { name: "unknown38", type: "uint32", defaultValue: 0 },
+            { name: "unknown39", type: "uint32", defaultValue: 0 },
+            { name: "unknown40", type: "uint32", defaultValue: 0 },
+            { name: "unknown41", type: "uint32", defaultValue: 0 },
+            { name: "unknown42", type: "uint32", defaultValue: 0 },
+            { name: "unknown43", type: "uint32", defaultValue: 0 },
+            { name: "unknown44", type: "uint32", defaultValue: 0 },
+            { name: "unknown45", type: "uint32", defaultValue: 0 },
+            { name: "unknown46", type: "uint32", defaultValue: 0 },
+            { name: "unknown47", type: "uint32", defaultValue: 0 },
+            { name: "unknown48", type: "uint32", defaultValue: 0 },
+          ],
+        },
+        {
+          name: "array7",
+          type: "array",
+          fields: [
+            { name: "unknown1", type: "uint32", defaultValue: 0 },
+            { name: "unknown2", type: "uint32", defaultValue: 0 },
+            { name: "unknown3", type: "uint32", defaultValue: 0 },
+            { name: "unknown4", type: "uint32", defaultValue: 0 },
+            { name: "unknown5", type: "uint32", defaultValue: 0 },
+          ],
+        },
+      ],
+    },
+  ],
   ["Ability.PulseLocationTargeting", 0x1012, {}],
   ["Ability.ReceivePulseLocation", 0x1013, {}],
   ["Ability.ActivateItemAbility", 0x1014, {}],
@@ -6274,8 +6611,6 @@ var packets = [
     0x1a11,
     {
       fields: [
-        { name: "Unknown1", type: "byte", defaultValue: 0 }, // maybe useless
-        { name: "Unknown2", type: "byte", defaultValue: 0 }, // maybe useless
         { name: "Unknown3", type: "boolean", defaultValue: 0 },
         { name: "Unknown4", type: "boolean", defaultValue: 0 },
       ],
@@ -6587,7 +6922,6 @@ var packets = [
             },
           ],
         },
-        { name: "offset", type: "debugoffset" },
       ],
     },
   ],
@@ -6901,7 +7235,6 @@ var packets = [
     0x35,
     {
       fields: [
-        { name: "Unknown1", type: "byte", defaultValue: 0 },
         { name: "Unknown2", type: "uint32", defaultValue: 0 },
         { name: "Unknown3", type: "boolean", defaultValue: 0 },
         { name: "Unknown4", type: "uint32", defaultValue: 0 },
@@ -7057,7 +7390,6 @@ var packets = [
     0x60,
     {
       fields: [
-        { name: "UnknownByte", type: "byte", defaultValue: 0 },
         { name: "Unknown2", type: "uint32", defaultValue: 0 },
         { name: "interactGlowAndDist", type: "uint32", defaultValue: 3 }, // client doesnt send interactionstring by distance but still sends interactrequest
         { name: "unknownBoolean1", type: "boolean", defaultValue: 0 },
@@ -7366,7 +7698,6 @@ var packets = [
     0x72,
     {
       fields: [
-        { name: "Unknown1", type: "byte", defaultValue: 0 },
         { name: "Unknown2", type: "uint32", defaultValue: 10 },
         { name: "Unknown3", type: "uint32", defaultValue: 10 },
         {
@@ -8250,9 +8581,31 @@ var packets = [
       ],
     },
   ],
-  ["Vehicle.AccessType", 0x881c, {}],
+  [
+    "Vehicle.AccessType",
+    0x881c,
+    {
+      fields: [
+        {
+          name: "vehicleGuid",
+          type: "uint64string",
+          defaultValue: "0x000000000000000000",
+        },
+        { name: "accessType", type: "uint16", defaultValue: 0 },
+      ],
+    },
+  ],
   ["Vehicle.KickPlayer", 0x881d, {}],
-  ["Vehicle.HealthUpdateOwner", 0x881e, {}],
+  [
+    "Vehicle.HealthUpdateOwner",
+    0x881e,
+    {
+      fields: [
+        { name: "vehicleGuid", type: "uint64string", defaultValue: "0" },
+        { name: "health", type: "float", defaultValue: 0 },
+      ],
+    },
+  ],
   ["Vehicle.OwnerPassengerList", 0x881f, {}],
   ["Vehicle.Kick", 0x8820, {}],
   ["Vehicle.NoAccess", 0x8821, {}],
@@ -8382,16 +8735,14 @@ var packets = [
     0x8e01,
     {
       fields: [
-        { name: "guid", type: "uint64string", defaultValue: "0" },
         { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-        { name: "id", type: "uint32", defaultValue: 0 },
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "objectCharacterId", type: "uint64string", defaultValue: 0 },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "damage", type: "uint32", defaultValue: 0 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-        { name: "damage", type: "uint32", defaultValue: 0 }, // big values, suggest dividing by like 1,7kk
+        { name: "position", type: "floatvector3", defaultValue: 0 },
         { name: "unknownByte2", type: "uint8", defaultValue: 0 },
-        { name: "unknownDword6", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword7", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword8", type: "uint32", defaultValue: 0 },
       ],
     },
   ],
@@ -9259,7 +9610,7 @@ var packets = [
           parser: readUnsignedIntWith2bitLengthValue,
           packer: packUnsignedIntWith2bitLengthValue,
         },
-        { name: "unk", type: "uint32", defaultValue: 0.0 },
+        { name: "damage", type: "float", defaultValue: 0.0 },
       ],
     },
   ],
@@ -9567,18 +9918,18 @@ var packets = [
     0xd001,
     {
       fields: [
-        { name: "usePositionUpdate", type: "boolean", defaultValue: 0 }, // if set to true it need at lot more fields that seems to be a positionUpdate
+        { name: "usePositionUpdate", type: "boolean", defaultValue: true }, // if set to true it need at lot more fields that seems to be a positionUpdate
         {
           name: "characterId",
           type: "uint64string",
           defaultValue: "0x0000000000000000",
         },
-        /*{
+        {
           name: "positionUpdate",
           type: "custom",
           parser: readPositionUpdateData,
           packer: packPositionUpdateData,
-        },*/
+        },
       ],
     },
   ],
@@ -9587,9 +9938,7 @@ var packets = [
     0xd002,
     {
       fields: [
-        { name: "unknown1", type: "byte", defaultValue: 0 },
-        { name: "unknown2", type: "byte", defaultValue: 0 },
-        { name: "unknown3", type: "byte", defaultValue: 0 },
+        { name: "unknown3", type: "uint8", defaultValue: 0 },
         {
           name: "unknown4",
           type: "uint64string",
@@ -9599,7 +9948,7 @@ var packets = [
           name: "array1",
           type: "array",
           fields: [
-            { name: "unknown5", type: "byte", defaultValue: 0 },
+            { name: "unknown5", type: "uint8", defaultValue: 0 },
             { name: "unknown6", type: "uint32", defaultValue: 0 },
           ],
         },

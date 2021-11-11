@@ -25,7 +25,7 @@ if (workerData) {
   });
 
   connection.on("error", (err) => {
-    console.log(`server error:\n${err.stack}`);
+    throw new Error(`server error:\n${err.stack}`);
   });
 
   connection.on("message", (data, remote) => {

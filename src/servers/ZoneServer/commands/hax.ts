@@ -56,7 +56,6 @@ const hax: any = {
       client.character.state.position,
       client.character.state.lookAt
     );
-
     server.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicleData);
     vehicleData.isManaged = true;
     server._vehicles[characterId] = {
@@ -122,6 +121,8 @@ const hax: any = {
       );
       return;
     }
+    let wasAlreadyGod = client.character.godMode;
+    client.character.godMode = true;
     switch (driveChoosen) {
       case "offroader":
         driveModel = 7225;
@@ -155,26 +156,83 @@ const hax: any = {
       ...vehicleData,
       onReadyCallback: () => {
         // doing anything with vehicle before client gets fullvehicle packet breaks it
-        server.sendData(client, "PlayerUpdate.ManagedObject", {
-          guid: vehicleData.npcData.characterId,
-          characterId: client.character.characterId,
-        });
-        server.sendDataToAll("Mount.MountResponse", {
-          characterId: client.character.characterId,
-          guid: characterId,
-          characterData: [],
-        });
-        server.sendDataToAll("Vehicle.Engine", {
-          guid2: characterId,
-          unknownBoolean: true,
-        });
-        client.vehicle.mountedVehicle = characterId;
-        client.managedObjects.push(server._vehicles[characterId]);
+        server.enterVehicle(client, vehicleData);
+        setTimeout(() => {
+          client.character.godMode = wasAlreadyGod ? true : false;
+        }, 1000);
       },
     };
-    server.worldRoutine(client);
+    server.worldRoutine();
   },
-
+    weaponstance: function (server: ZoneServer, client: Client, args: any[]) {
+        const stance = args[1];
+        let weaponStance;
+        switch(stance){
+        case "0":
+            weaponStance = 0;
+            break;
+        case "1":
+            weaponStance = 1;
+            break;
+        case "2":
+            weaponStance = 2;
+            break;
+        case "list":
+            server.sendChatText(client, `Avaible weaponstances: "0, 1, 2"`);
+            break;
+        default:
+            server.sendChatText(client, `Incorrect weaponstance! use /hax weaponstance list`);
+            break;
+        }
+        server.sendDataToAll("PlayerUpdate.WeaponStance", {
+            characterId: client.character.characterId,
+            stance: weaponStance,
+        });
+    },
+           state: function (server: ZoneServer, client: Client, args: any[]) {
+        const state = args[1];
+        let stateId = "";
+        switch(state) {
+        case "list":
+                // Adding this later
+            break;
+        case "default":
+                stateId = "000000000000000000";
+            break;
+        case "hidden":
+                stateId = "0000000000F0000000";
+            break;
+        case "sit":
+                stateId = "00000F000000000F00";
+            break;
+        case "autorun":
+                stateId = "000000000001000000";
+            break;
+        case "cuffed":
+                stateId = "000000000000000010";
+            break;
+        case "godmode":
+                stateId = "00000000000A000000";
+            break;
+        case "handsup":
+                stateId = "0000F0000000000000";
+            break;
+         case "disfunctional":
+                stateId = "FFFFFFFFFFFFFFFFFF";
+            break;
+         case "dead":
+                stateId = "0000000000000000C00";
+            break;
+         default:
+                server.sendChatText(client, `Incorrect characterstate! use /hax state list`);
+            break;
+         }
+         server.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
+         characterId: client.character.characterId,
+         state: stateId,
+         gameTime: server.getServerTime().toString(16),
+      });
+    },
   spawnvehicle: function (server: ZoneServer, client: Client, args: any[]) {
     if (!args[1]) {
       server.sendChatText(
@@ -199,6 +257,8 @@ const hax: any = {
         driveModel = 7225;
         break;
     }
+    let wasAlreadyGod = client.character.godMode;
+    client.character.godMode = true;
     const characterId = server.generateGuid();
     const vehicleData = new Vehicle(
       server._worldId,
@@ -218,9 +278,12 @@ const hax: any = {
           guid: vehicleData.npcData.characterId,
           characterId: client.character.characterId,
         });
-        client.managedObjects.push(server._vehicles[characterId]);
+        setTimeout(() => {
+          client.character.godMode = wasAlreadyGod ? true : false;
+        }, 1000);
       },
     };
+    server.worldRoutine();
   },
 
   parachute: function (server: ZoneServer, client: Client, args: any[]) {
@@ -247,7 +310,7 @@ const hax: any = {
     });
     vehicleData.isManaged = true;
     server._vehicles[characterId] = vehicleData;
-    server.worldRoutine(client);
+    server.worldRoutine();
     server.sendDataToAll("Mount.MountResponse", {
       characterId: client.character.characterId,
       guid: characterId,
@@ -945,6 +1008,10 @@ const hax: any = {
       scale: [1, 1, 1, 1],
     });
     server.sendChatText(client, "Back to normal size");
+  },
+  godmode: function (server: ZoneServer, client: Client, args: any[]) {
+    client.character.godMode = !client.character.godMode;
+    server.sendChatText(client,`GODMODE: ${client.character.godMode ? "ON" : "OFF"}`);
   },
 };
 
