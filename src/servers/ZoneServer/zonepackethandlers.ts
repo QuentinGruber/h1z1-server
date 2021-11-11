@@ -171,6 +171,14 @@ export class zonePacketHandlers {
         guid: client.character.guid,
         loadoutId: client.character.currentLoadoutId,
       });
+      
+      server.updateResource( // send health once or it wont show in hud later
+        client,
+        client.character.characterId,
+        client.character.resources.health,
+        48,
+        1
+      );
 
       const commands = [
         "hax",
