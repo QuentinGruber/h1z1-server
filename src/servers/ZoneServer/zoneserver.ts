@@ -58,6 +58,7 @@ export class ZoneServer extends EventEmitter {
   _clients: any;
   _characters: any;
   _gameTime: any;
+  _time: number;
   _serverTime: any;
   _transientIds: any;
   _packetHandlers: zonePacketHandlers;
@@ -123,6 +124,7 @@ export class ZoneServer extends EventEmitter {
     this._transientIds = {};
     this._packetHandlers = new zonePacketHandlers();
     this._startTime = 0;
+	this._time = Date.now();
     this._startGameTime = 0;
     this._timeMultiplier = 72;
     this._cycleSpeed = 0;
@@ -1025,13 +1027,13 @@ export class ZoneServer extends EventEmitter {
     this.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
       characterId: client.character.characterId,
       state: "0000000000000000C00",
-      gameTime: Int64String(this.getServerTime()),
+      gameTime: Int64String(this.getSequenceTime()),
     });
     if (!client.vehicle.mountedVehicle) {
       this.sendDataToAll("Ragdoll.UpdatePose", {
         characterId: client.character.characterId,
         positionUpdate: {
-          sequenceTime: this.getServerTime(),
+          sequenceTime: this.getSequenceTime(),
           unknown3_int8: 1,
           stance: 1089,
           position: client.character.state.position,
@@ -1085,7 +1087,7 @@ export class ZoneServer extends EventEmitter {
     this.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
       characterId: client.character.characterId,
       state: "000000000000000000",
-      gameTime: Int64String(this.getServerTime()),
+      gameTime: Int64String(this.getSequenceTime()),
     });
     const randomSpawnIndex = Math.floor(
       Math.random() * this._spawnLocations.length
@@ -1707,25 +1709,6 @@ manageVehicle(client: Client, vehicleGuid: string) {
           1
         );
         client.spawnedEntities.push(this._characters[character]);
-        this.sendData(client, "PlayerUpdate.UpdatePosition", {
-          transientId: characterObj.transientId,
-          positionUpdate: {
-            sequenceTime: this.getServerTime(),
-            unknown3_int8: 1,
-            stance: 1089,
-            position: characterObj.state.position,
-            orientation: 0,
-            frontTilt: 0,
-            sideTilt: 0,
-            angleChange: 0,
-            verticalSpeed: 0,
-            horizontalSpeed: 0,
-            unknown12_float: [0, 0, 0],
-            rotationRaw: [0, 0, -0, 1],
-            direction: 0,
-            engineRPM: 0,
-          },
-        });
       }
     }
   }
@@ -2092,7 +2075,7 @@ manageVehicle(client: Client, vehicleGuid: string) {
 
   sendWeaponPacket(client: Client, packetName: string, obj: any): void {
     const weaponPacket = {
-      gameTime: this.getServerTime(),
+      gameTime: this.getSequenceTime(),
       packetName: packetName,
       packet: obj,
     };
@@ -2141,6 +2124,10 @@ manageVehicle(client: Client, vehicleGuid: string) {
     const delta = Date.now() - this._startTime;
     return this._serverTime + delta;
   }
+  
+  getSequenceTime(): number {
+    return Date.now() - this._time;
+  }
 
   getServerTimeTest(): number {
     debug("get server time");
@@ -2171,8 +2158,8 @@ manageVehicle(client: Client, vehicleGuid: string) {
     // TODO: this do not seems to work
     debug("Synchronization");
     this.sendDataToAll("Synchronization", {
-      serverTime: Int64String(this.getServerTime()),
-      serverTime2: Int64String(this.getServerTime()),
+      serverTime: Int64String(this.getSequenceTime()),
+      serverTime2: Int64String(this.getSequenceTime()),
     });
   }
 
