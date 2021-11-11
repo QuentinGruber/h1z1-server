@@ -117,58 +117,34 @@ export class Character {
       }
       const { stamina, food, water, virus} = this.resources;
 
-      server.sendData(client, "ResourceEvent", {
-        eventData: {
-          type: 3,
-          value: {
-            characterId: this.characterId,
-            resourceId: 6, // stamina
-            resourceType: 6,
-            initialValue: stamina,
-            unknownArray1: [],
-            unknownArray2: [],
-          },
-        },
-      });
-      server.sendData(client, "ResourceEvent", {
-        eventData: {
-          type: 3,
-          value: {
-            characterId: this.characterId,
-            resourceId: 4, // food
-            resourceType: 4,
-            initialValue: food,
-            unknownArray1: [],
-            unknownArray2: [],
-          },
-        },
-      });
-      server.sendData(client, "ResourceEvent", {
-        eventData: {
-          type: 3,
-          value: {
-            characterId: this.characterId,
-            resourceId: 5, // water
-            resourceType: 5,
-            initialValue: water,
-            unknownArray1: [],
-            unknownArray2: [],
-          },
-        },
-      });
-      server.sendData(client, "ResourceEvent", {
-        eventData: {
-          type: 3,
-          value: {
-            characterId: this.characterId,
-            resourceId: 9, // VIRUS
-            resourceType: 12,
-            initialValue: virus,
-            unknownArray1: [],
-            unknownArray2: [],
-          },
-        },
-      });
+	  server.updateResource(
+        client,
+        this.characterId,
+        stamina,
+        6,
+        6
+      );
+	  server.updateResource(
+        client,
+        this.characterId,
+        food,
+        4,
+        4
+      );
+	  server.updateResource(
+        client,
+        this.characterId,
+        water,
+        5,
+        5
+      );
+      server.updateResource(
+        client,
+        this.characterId,
+        virus,
+        9,
+        12
+      );
       this.resourcesUpdater.refresh();
     }, 3000);
 
