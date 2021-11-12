@@ -6411,7 +6411,17 @@ var packets = [
     },
   ],
   ["ClientUpdate.SpotProbation", 0x112900, {}],
-  ["ClientUpdate.DailyRibbonCount", 0x112a00, {}],
+   [
+        "ClientUpdate.DailyRibbonCount",
+        0x112a00,
+        {
+            fields: [
+                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+                { name: "unknownBoolean1", type: "boolean", defaultValue: 0 },
+            ]
+        }
+    ],
   [
     "ClientUpdate.DespawnNpcUpdate",
     0x112c00,
