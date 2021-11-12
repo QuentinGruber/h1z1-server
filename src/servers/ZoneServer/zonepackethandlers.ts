@@ -1927,6 +1927,33 @@ export class zonePacketHandlers {
           server.sendData(client, "PlayerUpdate.LightweightToFullPc", {
             transientId: entityData.transientId,
           });
+		  server.sendData(client, "PlayerUpdate.UpdatePosition", {
+          transientId: entityData.transientId,
+          positionUpdate: {
+            sequenceTime: server.getSequenceTime(),
+            unknown3_int8: 0,
+            stance: 1089,
+            position: entityData.state.position,
+            orientation: 0,
+            frontTilt: 0,
+            sideTilt: 0,
+            angleChange: 0,
+            verticalSpeed: 0,
+            horizontalSpeed: 0,
+            unknown12_float: [0, 0, 0],
+            rotationRaw: [0, 0, -0, 1],
+            direction: 0,
+            engineRPM: 0,
+          },
+        });
+		server.sendData(client, "PlayerUpdate.UpdatePosition", {
+          transientId: entityData.transientId,
+          positionUpdate: {
+            sequenceTime: 1,
+            unknown3_int8: 0,
+            stance: 81,
+          },
+        });
           server.sendData(client, "Equipment.SetCharacterEquipment", {
             profileId: 3,
             characterId: entityData.characterId,
