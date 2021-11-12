@@ -1729,6 +1729,11 @@ export class ZoneServer extends EventEmitter {
     for (const character in this._characters) {
       const characterObj = this._characters[character];
       if (
+        isPosInRadius(
+          this._npcRenderDistance,
+          client.character.state.position,
+          characterObj.state.position
+        ),
         client.character.characterId != character &&
         !client.spawnedEntities.includes(characterObj)
       ) {
@@ -1744,25 +1749,6 @@ export class ZoneServer extends EventEmitter {
           },
           1
         );
-        this.sendData(client, "PlayerUpdate.UpdatePosition", {
-          transientId: characterObj.transientId,
-          positionUpdate: {
-            sequenceTime: this.getSequenceTime(),
-            unknown3_int8: 1,
-            stance: 1089,
-            position: characterObj.state.position,
-            orientation: 0,
-            frontTilt: 0,
-            sideTilt: 0,
-            angleChange: 0,
-            verticalSpeed: 0,
-            horizontalSpeed: 0,
-            unknown12_float: [0, 0, 0],
-            rotationRaw: [0, 0, -0, 1],
-            direction: 0,
-            engineRPM: 0,
-          },
-        });
         client.spawnedEntities.push(this._characters[character]);
       }
     }
