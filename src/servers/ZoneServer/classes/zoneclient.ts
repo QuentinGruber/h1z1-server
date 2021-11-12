@@ -11,7 +11,6 @@ export class ZoneClient extends SOEClient {
   posAtLogoutStart: Float32Array = new Float32Array();
   hudTimer!: any;
   spawnedEntities: any[] = [];
-  spawnedCharacters: any[] = [];
   managedObjects: any[] = [];
   vehicle: {
     falling: number;
