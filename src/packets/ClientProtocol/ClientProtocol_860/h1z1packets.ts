@@ -4889,7 +4889,14 @@ var packets = [
       ],
     },
   ],
-  ["PlayerUpdate.SlotCompositeEffectOverride", 0x0f15, {}],
+  ["PlayerUpdate.SlotCompositeEffectOverride", 0x0f15, {
+    fields: [
+                { name: "characterId", type: "uint64string", defaultValue: "0x000" },
+                { name: "slotId", type: "uint32", defaultValue: 1 },
+                { name: "effectId", type: "uint32", defaultValue: 0 },
+            ]
+        }
+  ],
   ["PlayerUpdate.EffectPackage", 0x0f16, {}],
   ["PlayerUpdate.PreferredLanguages", 0x0f17, {}],
   ["PlayerUpdate.CustomizationChange", 0x0f18, {}],
@@ -5289,7 +5296,9 @@ var packets = [
     },
   ],
   ["PlayerUpdate.ReadyToReviveResponse", 0x0f3a, {}],
-  ["PlayerUpdate.ActivateProfile", 0x0f3b, {}],
+  ["PlayerUpdate.ActivateProfile", 0x0f3b, {
+   }
+  ],
   [
     "PlayerUpdate.SetSpotted",
     0x0f3c,
@@ -6402,7 +6411,17 @@ var packets = [
     },
   ],
   ["ClientUpdate.SpotProbation", 0x112900, {}],
-  ["ClientUpdate.DailyRibbonCount", 0x112a00, {}],
+   [
+        "ClientUpdate.DailyRibbonCount",
+        0x112a00,
+        {
+            fields: [
+                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+                { name: "unknownBoolean1", type: "boolean", defaultValue: 0 },
+            ]
+        }
+    ],
   [
     "ClientUpdate.DespawnNpcUpdate",
     0x112c00,
