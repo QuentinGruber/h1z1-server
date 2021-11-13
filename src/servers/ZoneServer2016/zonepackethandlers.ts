@@ -246,7 +246,7 @@ export class zonePacketHandlers {
             ),
           }); // needed or third person character will be invisible
 
-        server.executeFuncForAllClients(() => server.spawnCharacters);
+        server.executeFuncForAllReadyClients(() => server.spawnCharacters);
       }
 
       client.isLoading = false;
