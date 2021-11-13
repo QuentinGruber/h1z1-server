@@ -840,8 +840,8 @@ export class LoginServer extends EventEmitter {
         .find({})
         .toArray();
 
-      setInterval(() => {
-        this._zoneWhitelist = this._db // refresh zoneWhitelist every 30minutes
+      setInterval(async () => {
+        this._zoneWhitelist = await this._db // refresh zoneWhitelist every 30minutes
           .collection("zone-whitelist")
           .find({})
           .toArray();
