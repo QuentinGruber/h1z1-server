@@ -75,6 +75,7 @@ export class zonePacketHandlers {
   Pickup: any;
   GetRewardBuffInfo: any;
   vehicleStateData: any;
+  VehicleAccessType: any
   PlayerUpdateManagedPosition: any;
   PlayerUpdateUpdatePositionClientToZone: any;
   commandPlayerSelect: any;
@@ -1419,6 +1420,17 @@ export class zonePacketHandlers {
         unknown5: packet.data.unknown5,
       });
     };
+    this.VehicleAccessType = function (
+      server: ZoneServer,
+      client: Client,
+      packet: any
+    ) {
+      server._vehicles[packet.data.vehicleGuid].isLocked = packet.data.accessType;
+      server.sendData(client, "Vehicle.AccessType", {
+      vehicleGuid: client.vehicle.mountedVehicle,
+      accessType: packet.data.accessType,
+    });
+    };
     this.PlayerUpdateManagedPosition = function (
       server: ZoneServer,
       client: Client,
@@ -2172,6 +2184,9 @@ export class zonePacketHandlers {
         break;
       case "Vehicle.StateData":
         this.vehicleStateData(server, client, packet);
+        break;
+      case "Vehicle.AccessType":
+        this.VehicleAccessType(server, client, packet);
         break;
       case "PlayerUpdateManagedPosition":
         this.PlayerUpdateManagedPosition(server, client, packet);
