@@ -1,5 +1,5 @@
 import { Vehicle } from "../../ZoneServer/classes/vehicles";
-import { createPositionUpdate} from "./../../../utils/utils"
+import { createPositionUpdate } from "./../../../utils/utils";
 
 function getVehicleId(ModelId: number) {
   switch (ModelId) {
@@ -22,7 +22,7 @@ function getVehicleId(ModelId: number) {
 
 export class Vehicle2016 extends Vehicle {
   vehicleManager?: string;
-  seats: {[seatId: string]: any} = {};
+  seats: { [seatId: string]: any } = {};
   gameTime: number;
   constructor(
     worldId: number,
@@ -36,48 +36,52 @@ export class Vehicle2016 extends Vehicle {
     super(worldId, characterId, transientId, modelId, position, rotation);
     this.npcData.vehicleId = getVehicleId(modelId);
     //this.isManaged = true;
-    switch(this.npcData.vehicleId) {
+    switch (this.npcData.vehicleId) {
       case 1: // offroader
       case 2: // pickup
       case 3: // policecar
-      this.seats = {
-        0: "",
-        1: "",
-        2: "",
-        3: "",
-        4: "",
-      }
+        this.seats = {
+          0: "",
+          1: "",
+          2: "",
+          3: "",
+          4: "",
+        };
         break;
       case 5: // atv
         this.seats = {
           0: "",
           1: "",
-        }
+        };
         break;
       default:
         this.seats = {
-          0: ""
-        }
+          0: "",
+        };
         break;
     }
     Object.seal(this.seats); // object can't be edited, but properties can
     this.gameTime = gameTime;
-    this.positionUpdate = createPositionUpdate(this.npcData.position, this.npcData.rotation, this.gameTime);
+    this.positionUpdate = createPositionUpdate(
+      this.npcData.position,
+      this.npcData.rotation,
+      this.gameTime
+    );
   }
   getSeatCount() {
     return Object.keys(this.seats).length;
   }
   getNextSeatId() {
-    for(const seatId in this.seats) {
-      if(!this.seats[seatId]) {
+    for (const seatId in this.seats) {
+      if (!this.seats[seatId]) {
         return seatId;
       }
     }
     return 0;
   }
   getCharacterSeat(characterId: string) {
-    for(const seatId in this.seats) {
-      if(this.seats[seatId] === characterId) {
+    for (const seatId in this.seats) {
+      if (this.seats[seatId] === characterId) {
         return seatId;
       }
     }

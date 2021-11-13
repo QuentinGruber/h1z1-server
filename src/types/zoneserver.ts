@@ -1,7 +1,7 @@
-import { ZoneClient } from "servers/ZoneServer/classes/zoneclient";
-import { ZoneServer } from "servers/ZoneServer/zoneserver";
-import { ZoneClient2016 } from "servers/ZoneServer2016/classes/zoneclient";
-import { ZoneServer2016 } from "servers/ZoneServer2016/zoneserver";
+import { ZoneClient } from "../servers/ZoneServer/classes/zoneclient";
+import { ZoneServer } from "../servers/ZoneServer/zoneserver";
+import { ZoneClient2016 } from "../servers/ZoneServer2016/classes/zoneclient";
+import { ZoneServer2016 } from "../servers/ZoneServer2016/zoneserver";
 
 export interface HandledZonePackets {
   ClientIsReady: (server: ZoneServer, client: ZoneClient, packet: any) => void;

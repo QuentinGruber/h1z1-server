@@ -1,4 +1,4 @@
-import { characterEquipment } from "types/zoneserver";
+import { characterEquipment } from "../../../types/zoneserver";
 import { Int64String } from "../../../utils/utils";
 import { ZoneServer } from "../zoneserver";
 import { ZoneClient } from "./zoneclient";
@@ -71,7 +71,7 @@ export class Character {
     };
   }
 
-  startRessourceUpdater(client:ZoneClient,server:ZoneServer){
+  startRessourceUpdater(client: ZoneClient, server: ZoneServer) {
     this.resourcesUpdater = setTimeout(() => {
       // prototype resource manager
       const { isRunning } = this;
@@ -79,11 +79,10 @@ export class Character {
         this.resources.stamina += 30;
       } else {
         this.resources.stamina -= 20;
-        if(this.resources.stamina < 120){
+        if (this.resources.stamina < 120) {
           this.isExhausted = true;
-        }
-        else{
-          this.isExhausted = false
+        } else {
+          this.isExhausted = false;
         }
       }
       // if we had a packets we could modify sprint stat to 0
@@ -115,36 +114,12 @@ export class Character {
       } else if (this.resources.health < 0) {
         this.resources.health = 0;
       }
-      const { stamina, food, water, virus} = this.resources;
+      const { stamina, food, water, virus } = this.resources;
 
-	  server.updateResource(
-        client,
-        this.characterId,
-        stamina,
-        6,
-        6
-      );
-	  server.updateResource(
-        client,
-        this.characterId,
-        food,
-        4,
-        4
-      );
-	  server.updateResource(
-        client,
-        this.characterId,
-        water,
-        5,
-        5
-      );
-      server.updateResource(
-        client,
-        this.characterId,
-        virus,
-        9,
-        12
-      );
+      server.updateResource(client, this.characterId, stamina, 6, 6);
+      server.updateResource(client, this.characterId, food, 4, 4);
+      server.updateResource(client, this.characterId, water, 5, 5);
+      server.updateResource(client, this.characterId, virus, 9, 12);
       this.resourcesUpdater.refresh();
     }, 3000);
 
@@ -155,5 +130,5 @@ export class Character {
       state: "000000000000000000",
       gameTime: Int64String(server.getGameTime()),
     });
-  };
+  }
 }

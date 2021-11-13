@@ -158,7 +158,9 @@ export class LoginServer extends EventEmitter {
             console.error(err);
           } else {
             try {
-              const connectionEstablished = this._zoneConnections[client.clientId]
+              const connectionEstablished = this._zoneConnections[
+                client.clientId
+              ]
                 ? 1
                 : 0;
               if (connectionEstablished || packet.name === "SessionRequest") {
@@ -188,9 +190,9 @@ export class LoginServer extends EventEmitter {
                     }
                     break;
                   }
-                  case "UpdateZonePopulation":{
+                  case "UpdateZonePopulation": {
                     const { population } = packet.data;
-                    const serverId = this._zoneConnections[client.clientId]
+                    const serverId = this._zoneConnections[client.clientId];
                     this._db?.collection("servers").findOneAndUpdate(
                       { serverId: serverId },
                       {
@@ -207,9 +209,8 @@ export class LoginServer extends EventEmitter {
                     break;
                 }
               }
-            }
-            catch(e){
-                console.log(e)
+            } catch (e) {
+              console.log(e);
             }
           }
         }
@@ -292,12 +293,13 @@ export class LoginServer extends EventEmitter {
         )
       ];
     }
-    if(this._soloMode){
+    if (this._soloMode) {
       client.loginSessionId = sessionId;
-    }
-    else{
-      const realSession = await this._db.collection("user-sessions").findOne({guid:sessionId});
-      client.loginSessionId = realSession?realSession.authKey:sessionId;
+    } else {
+      const realSession = await this._db
+        .collection("user-sessions")
+        .findOne({ guid: sessionId });
+      client.loginSessionId = realSession ? realSession.authKey : sessionId;
     }
     this.sendData(client, "LoginReply", {
       loggedIn: true,
@@ -547,7 +549,7 @@ export class LoginServer extends EventEmitter {
       Payload: "\0",
     });
   }
-  
+
   async askZoneForPing(
     serverId: number,
     clientAddress: string
@@ -598,18 +600,24 @@ export class LoginServer extends EventEmitter {
       let connectionStatus = Object.values(this._zoneConnections).includes(
         serverId
       );
-      if(!character){
-        console.error(`CharacterId "${characterId}" unfound on serverId: "${serverId}"`)
+      if (!character) {
+        console.error(
+          `CharacterId "${characterId}" unfound on serverId: "${serverId}"`
+        );
       }
-      if(connectionStatus){
-        connectionStatus = await this.askZoneForPing(serverId,client.address);
+      if (connectionStatus) {
+        connectionStatus = await this.askZoneForPing(serverId, client.address);
       }
-      const hiddenSession = connectionStatus?await this._db.collection("user-sessions").findOne({authKey:client.loginSessionId}):{guid:""};
+      const hiddenSession = connectionStatus
+        ? await this._db
+            .collection("user-sessions")
+            .findOne({ authKey: client.loginSessionId })
+        : { guid: "" };
       charactersLoginInfo = {
         unknownQword1: "0x0",
         unknownDword1: 0,
         unknownDword2: 0,
-        status: character ? connectionStatus:false,
+        status: character ? connectionStatus : false,
         applicationData: {
           serverAddress: serverAddress,
           serverTicket: hiddenSession?.guid,
@@ -617,7 +625,7 @@ export class LoginServer extends EventEmitter {
           guid: characterId,
           unknownQword2: "0x0",
           stationName: "",
-          characterName: character? character.payload.name: "error",
+          characterName: character ? character.payload.name : "error",
           unknownString: "",
         },
       };
@@ -775,14 +783,12 @@ export class LoginServer extends EventEmitter {
         : 0;
 
       if (creationStatus === 1) {
-        await this._db
-          .collection("characters-light")
-          .insertOne({
-            authKey: client.loginSessionId,
-            serverId: serverId,
-            payload: { name: characterName },
-            characterId: newCharacter.characterId,
-          });
+        await this._db.collection("characters-light").insertOne({
+          authKey: client.loginSessionId,
+          serverId: serverId,
+          payload: { name: characterName },
+          characterId: newCharacter.characterId,
+        });
       }
       newCharacter;
     }
@@ -816,27 +822,30 @@ export class LoginServer extends EventEmitter {
       try {
         await mongoClient.connect();
       } catch (e) {
-        throw debug("[ERROR]Unable to connect to mongo server "+this._mongoAddress);
+        throw debug(
+          "[ERROR]Unable to connect to mongo server " + this._mongoAddress
+        );
       }
       debug("connected to mongo !");
       // if no collections exist on h1server database , fill it with samples
-      const dbIsEmpty = (await mongoClient.db("h1server").collections()).length < 1
-      if(dbIsEmpty){
-        await initMongo(this._mongoAddress, debugName)
+      const dbIsEmpty =
+        (await mongoClient.db("h1server").collections()).length < 1;
+      if (dbIsEmpty) {
+        await initMongo(this._mongoAddress, debugName);
       }
-      delete require.cache[require.resolve('mongodb-restore-dump')]
+      delete require.cache[require.resolve("mongodb-restore-dump")];
       this._db = mongoClient.db("h1server");
       this._zoneWhitelist = await this._db
         .collection("zone-whitelist")
         .find({})
         .toArray();
 
-        setInterval(()=>{
-          this._zoneWhitelist = this._db // refresh zoneWhitelist every 30minutes
+      setInterval(() => {
+        this._zoneWhitelist = this._db // refresh zoneWhitelist every 30minutes
           .collection("zone-whitelist")
           .find({})
           .toArray();
-        },1800000)
+      }, 1800000);
     }
 
     if (this._soloMode) {
@@ -859,16 +868,18 @@ export class LoginServer extends EventEmitter {
       this._httpServer.on("message", (message: httpServerMessage) => {
         const { type, requestId, data } = message;
         switch (type) {
-          case "pingzone":{
+          case "pingzone": {
             const response: httpServerMessage = {
               type: "pingzone",
               requestId: requestId,
-              data: Object.values(this._zoneConnections).includes(data)?"pong":"error",
+              data: Object.values(this._zoneConnections).includes(data)
+                ? "pong"
+                : "error",
             };
             this._httpServer.postMessage(response);
             break;
           }
-          case "ping":{
+          case "ping": {
             const response: httpServerMessage = {
               type: "ping",
               requestId: requestId,

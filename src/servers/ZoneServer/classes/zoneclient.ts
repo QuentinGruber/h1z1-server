@@ -7,6 +7,7 @@ export class ZoneClient extends SOEClient {
   firstLoading: boolean = false;
   isLoading: boolean = false;
   isInteracting: boolean = false;
+  isAdmin: boolean = false;
   posAtLastRoutine: Float32Array = new Float32Array();
   posAtLogoutStart: Float32Array = new Float32Array();
   hudTimer!: any;

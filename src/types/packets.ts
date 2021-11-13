@@ -2384,7 +2384,7 @@ export type h1z1PacketsType =
   | "Stats"
   | "Score"
   | "Resources"
-  | "Container.UpdateEquippedContainers"
+  | "Container.InitEquippedContainers"
   | "Container.Error"
   | "Container.ListAll"
   | "Container.UpdateEquippedContainer"
@@ -2424,15 +2424,15 @@ export type h1z1PacketsType =
   | "PlayerWorldTransferReply"
   | "CancelQueueOnWorld"
   | "DeclineEnterGameOnWorld"
-  | "AccessedCharacterBase"
+  | "AccessedCharacter.BeginCharacterAccess"
+  | "AccessedCharacter.EndCharacterAccess"
+  | "AccessedCharacter.Unknown1"
   | "ShaderParameterOverrideBase"
   | "VehicleSkinBase"
   | "WeaponLagLockParameters"
   | "CrateOpeningBase"
   | "PlayerHeatWarning"
-  | "AnimationBase"
-  | "AccessedCharacter.BeginCharacterAccess"
-  | "AccessedCharacter.Unknown1";
+  | "AnimationBase";
 export type loginPacketsType =
   | "LoginRequest"
   | "LoginReply"
