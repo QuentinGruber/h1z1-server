@@ -1,4 +1,4 @@
-import { characterEquipment } from "types/zoneserver";
+import { characterEquipment } from "../../../types/zoneserver";
 import { Int64String } from "../../../utils/utils";
 import { ZoneServer } from "../zoneserver";
 import { ZoneClient } from "./zoneclient";

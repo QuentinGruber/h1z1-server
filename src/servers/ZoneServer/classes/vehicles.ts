@@ -1,4 +1,4 @@
-import { npcData, seats, passengers, positionUpdate } from "types/zoneserver";
+import { npcData, seats, passengers, positionUpdate } from "../../../types/zoneserver";
 import { generateRandomGuid } from "../../../utils/utils";
 
 function getVehicleId(ModelId: number) {

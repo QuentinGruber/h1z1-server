@@ -29,9 +29,9 @@ import {
 import { Weather } from "../../types/zoneserver";
 import { Db, MongoClient } from "mongodb";
 import { Worker } from "worker_threads";
-import SOEClient from "servers/SoeServer/soeclient";
+import SOEClient from "../SoeServer/soeclient";
 import { ZoneClient as Client } from "./classes/zoneclient";
-import { h1z1PacketsType } from "types/packets";
+import { h1z1PacketsType } from "../../types/packets";
 import { Vehicle } from "./classes/vehicles";
 import { Resolver } from "dns";
 
