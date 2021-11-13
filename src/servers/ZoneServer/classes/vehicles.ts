@@ -1,4 +1,4 @@
-import { npcData } from "types/zoneserver";
+import { npcData, seats, passengers, positionUpdate } from "../../../types/zoneserver";
 import { generateRandomGuid } from "../../../utils/utils";
 
 function getVehicleId(ModelId: number) {
@@ -21,10 +21,17 @@ function getVehicleId(ModelId: number) {
 export class Vehicle {
   worldId: number;
   isManaged: boolean = false;
+  manager?: any;
+  engineOn: boolean = false;
   npcData: npcData;
+  isLocked: number = 0;
   unknownGuid1: string;
-  positionUpdate: number[];
+  positionUpdate: positionUpdate;
+  seat: seats;
+  passengers: passengers;
+  fuelUpdater: any;
   onReadyCallback!: () => void;
+  resourcesUpdater?: any;
 
   constructor(
     worldId: number,
@@ -41,6 +48,7 @@ export class Vehicle {
       transientId: transientId,
       modelId: modelId,
       scale: [1, 1, 1, 1],
+      resources: { health: 100000, fuel: 7590 },
       position: position,
       rotation: rotation,
       attachedObject: {},
@@ -48,11 +56,19 @@ export class Vehicle {
       isVehicle: true,
       color: {},
       unknownArray1: [],
+      destroyedState: 0,
       array5: [{ unknown1: 0 }],
       array17: [{ unknown1: 0 }],
       array18: [{ unknown1: 0 }],
     };
     this.unknownGuid1 = generateRandomGuid();
-    this.positionUpdate = [0, 0, 0, 0];
+    this.positionUpdate = {};
+    this.seat = {
+      seat1: false,
+      seat2: false,
+      seat3: false,
+      seat4: false,
+    };
+    this.passengers = {};
   }
 }

@@ -27,6 +27,8 @@ export default class SOEClient {
   cryptoKey: Uint8Array;
   waitQueueTimer: any;
   waitingQueueCurrentByteLength: number = 0;
+  lastZonePingTimestamp?: number;
+  zonePingTimeMs: number = 1000;
   constructor(
     remote: RemoteInfo,
     crcSeed: number,

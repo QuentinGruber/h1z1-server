@@ -7,6 +7,7 @@ const models = require("../../../../data/2016/dataSources/Models.json");
 const modelToName = require("../../../../data/2016/dataSources/ModelToName.json");
 import { _, generateRandomGuid } from "../../../utils/utils";
 import { ZoneServer2016 } from "../zoneserver";
+import { Vehicle2016 as Vehicle } from "./../classes/vehicle";
 
 const npcs: any = {};
 const objects: any = {};
@@ -103,6 +104,18 @@ export function createAllEntities(server: ZoneServer2016): any {
 
   createAllVehicles(server);
   createSomeNpcs(server);
+  delete require.cache[
+    require.resolve("../../../../data/2016/zoneData/Z1_vehicleLocations.json")
+  ];
+  delete require.cache[
+    require.resolve("../../../../data/2016/zoneData/Z1_items.json")
+  ];
+  delete require.cache[
+    require.resolve("../../../../data/2016/zoneData/Z1_doors.json")
+  ];
+  delete require.cache[
+    require.resolve("../../../../data/2016/zoneData/Z1_npcs.json")
+  ];
   return { npcs: npcs, objects: objects, vehicles: vehicles, doors: doors };
 }
 
@@ -128,22 +141,16 @@ function createAllVehicles(server: ZoneServer2016) {
     const v = getRandomVehicleId();
     numberOfSpawnedEntity++;
     server._transientIds[numberOfSpawnedEntity] = characterId;
-    vehicles[characterId] = {
-      npcData: {
-        guid: generateRandomGuid(),
-        characterId: characterId,
-        transientId: numberOfSpawnedEntity,
-        modelId: v.modelId,
-        scale: [1, 1, 1, 1],
-        position: vehicle.position,
-        rotation: vehicle.rotation,
-        attachedObject: {},
-        vehicleId: v.vehicleId,
-        color: {},
-      },
-      unknownGuid1: generateRandomGuid(),
-      positionUpdate: [0, 0, 0, 0],
-    };
+    const vehicleData = new Vehicle(
+      server._worldId,
+      characterId,
+      numberOfSpawnedEntity,
+      v.modelId,
+      vehicle.position,
+      vehicle.rotation,
+      server.getGameTime()
+    );
+    vehicles[characterId] = vehicleData; // save vehicle
   });
   debug("All vehicles created");
 }

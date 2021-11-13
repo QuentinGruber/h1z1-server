@@ -13,7 +13,6 @@
 
 import { EventEmitter } from "events";
 import { GatewayServer } from "../GatewayServer/gatewayserver";
-import packetHandlers from "./zonepackethandlers";
 import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
 import { H1emuZoneServer } from "../H1emuServer/h1emuZoneServer";
 import { H1emuClient } from "../H1emuServer/shared/h1emuclient";
@@ -25,18 +24,20 @@ import {
   Int64String,
   isPosInRadius,
   setupAppDataFolder,
+  getDistance,
 } from "../../utils/utils";
-import { HandledZonePackets, Weather } from "../../types/zoneserver";
+import { Weather } from "../../types/zoneserver";
 import { Db, MongoClient } from "mongodb";
 import { Worker } from "worker_threads";
-import SOEClient from "servers/SoeServer/soeclient";
+import SOEClient from "../SoeServer/soeclient";
 import { ZoneClient as Client } from "./classes/zoneclient";
-import { h1z1PacketsType } from "types/packets";
+import { h1z1PacketsType } from "../../types/packets";
 import { Vehicle } from "./classes/vehicles";
 import { Resolver } from "dns";
 
 process.env.isBin && require("./workers/dynamicWeather");
 
+import { zonePacketHandlers } from "./zonepackethandlers";
 const localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json");
 
 const debugName = "ZoneServer";
@@ -57,15 +58,15 @@ export class ZoneServer extends EventEmitter {
   _clients: any;
   _characters: any;
   _gameTime: any;
+  _time: number;
   _serverTime: any;
   _transientIds: any;
-  _packetHandlers: HandledZonePackets;
-  _referenceData: any;
+  _packetHandlers: zonePacketHandlers;
   _startTime: number;
   _startGameTime: number;
   _timeMultiplier: number;
   _cycleSpeed: number;
-  _frozeCycle: boolean;
+  _frozeCycle: boolean = false;
   _profiles: any[];
   _weather: Weather;
   _spawnLocations: any;
@@ -73,7 +74,6 @@ export class ZoneServer extends EventEmitter {
   _weatherTemplates: any;
   _npcs: any;
   _objects: any;
-  _reloadPacketsInterval: any;
   _pingTimeoutTime: number;
   _worldId: number;
   _npcRenderDistance: number;
@@ -90,14 +90,22 @@ export class ZoneServer extends EventEmitter {
   _spawnTimerMs: number = 10;
   _worldRoutineRadiusPercentage: number = 0.4;
   _enableGarbageCollection: boolean = true;
+  worldRoutineTimer: any;
+  tickRate: number = 3000;
   _h1emuZoneServer!: H1emuZoneServer;
-  _loginServerInfo: { address?: string; port: number } = { port: 1110 };
-
+  _loginServerInfo: { address?: string; port: number } = {
+    address: process.env.LOGINSERVER_IP,
+    port: 1110,
+  };
+  _clientProtocol: string = "ClientProtocol_860";
+  _allowedCommands: string[] = [];
+  _maxAllowedPing: number = 200;
   constructor(
     serverPort: number,
     gatewayKey: Uint8Array,
     mongoAddress = "",
-    worldId = 0
+    worldId = 0,
+    internalServerPort = 0
   ) {
     super();
     this._gatewayServer = new GatewayServer(
@@ -117,14 +125,12 @@ export class ZoneServer extends EventEmitter {
     this._props = {};
     this._serverTime = this.getCurrentTime();
     this._transientIds = {};
-    this._referenceData = this.parseReferenceData();
-    this._packetHandlers = packetHandlers;
+    this._packetHandlers = new zonePacketHandlers();
     this._startTime = 0;
+    this._time = Date.now();
     this._startGameTime = 0;
     this._timeMultiplier = 72;
     this._cycleSpeed = 0;
-    this._frozeCycle = false;
-    this._reloadPacketsInterval;
     this._soloMode = false;
     this._weatherTemplates = localWeatherTemplates;
     this._defaultWeatherTemplate = "h1emubaseweather";
@@ -188,9 +194,16 @@ export class ZoneServer extends EventEmitter {
         err: string,
         client: SOEClient,
         characterId: string,
-        loginSessionId: string
+        loginSessionId: string,
+        clientProtocol: string
       ) => {
-        this.onGatewayLoginEvent(err, client, characterId, loginSessionId);
+        this.onGatewayLoginEvent(
+          err,
+          client,
+          characterId,
+          loginSessionId,
+          clientProtocol
+        );
       }
     );
 
@@ -215,7 +228,7 @@ export class ZoneServer extends EventEmitter {
     );
 
     if (!this._soloMode) {
-      this._h1emuZoneServer = new H1emuZoneServer(); // opens local socket to connect to loginserver
+      this._h1emuZoneServer = new H1emuZoneServer(internalServerPort); // opens local socket to connect to loginserver
 
       this._h1emuZoneServer.on(
         "session",
@@ -254,6 +267,29 @@ export class ZoneServer extends EventEmitter {
             console.error(err);
           } else {
             switch (packet.name) {
+              case "ZonePingRequest": {
+                const { address, reqId } = packet.data;
+                try {
+                  // TODO: improve this
+                  const soeClient: SOEClient = Object.values(
+                    this._gatewayServer._soeServer._clients
+                  ).find((client) => {
+                    return (client as SOEClient).address === address;
+                  }) as SOEClient;
+                  const clientPingMs = soeClient.zonePingTimeMs;
+
+                  this._h1emuZoneServer.sendData(client, "ZonePingReply", {
+                    reqId: reqId,
+                    status: clientPingMs > this._maxAllowedPing ? 0 : 1,
+                  });
+                } catch (error) {
+                  this._h1emuZoneServer.sendData(client, "ZonePingReply", {
+                    reqId: reqId,
+                    status: 0,
+                  });
+                }
+                break;
+              }
               case "CharacterCreateRequest": {
                 const { characterObjStringify, reqId } = packet.data;
                 try {
@@ -345,16 +381,7 @@ export class ZoneServer extends EventEmitter {
       ) {
         debug(`Receive Data ${[packet.name]}`);
       }
-      if ((this._packetHandlers as any)[packet.name]) {
-        try {
-          (this._packetHandlers as any)[packet.name](this, client, packet);
-        } catch (e) {
-          debug(e);
-        }
-      } else {
-        debug(packet);
-        debug("Packet not implemented in packetHandlers");
-      }
+      this._packetHandlers.processPacket(this, client, packet);
     }
   }
 
@@ -394,8 +421,14 @@ export class ZoneServer extends EventEmitter {
     err: string,
     client: SOEClient,
     characterId: string,
-    loginSessionId: string
+    loginSessionId: string,
+    clientProtocol: string
   ) {
+    if (clientProtocol !== this._clientProtocol) {
+      debug(`${client.address} is using the wrong client protocol`);
+      this.sendData(client as Client, "LoginFailed", {});
+      return;
+    }
     debug(
       `Client logged in from ${client.address}:${client.port} with character id: ${characterId}`
     );
@@ -447,7 +480,7 @@ export class ZoneServer extends EventEmitter {
     data: Buffer,
     flags: number
   ) {
-    const packet = this._protocol.parse(data, flags, true, this._referenceData);
+    const packet = this._protocol.parse(data, flags, true);
     if (packet) {
       this.emit("data", null, client, packet);
     } else {
@@ -484,12 +517,7 @@ export class ZoneServer extends EventEmitter {
         serverId: this._worldId,
       });
       this._h1emuZoneServer.start();
-      await this._db
-        ?.collection("servers")
-        .findOneAndUpdate(
-          { serverId: this._worldId },
-          { $set: { populationNumber: 0, populationLevel: 0 } }
-        );
+      this.sendZonePopulationUpdate();
     }
     if (this._enableGarbageCollection) {
       setInterval(() => {
@@ -522,6 +550,33 @@ export class ZoneServer extends EventEmitter {
       allTransient[object.transientId] = key;
     }
     return allTransient;
+  }
+
+  getEntityType(entityKey: string): number {
+    if (!!this._npcs[entityKey]) {
+      return 1;
+    } else if (!!this._vehicles[entityKey]) {
+      return 2;
+    } else if (!!this._characters[entityKey]) {
+      return 3;
+    } else if (!!this._objects[entityKey]) {
+      return 4;
+    } else if (!!this._props[entityKey]) {
+      return 5;
+    } else {
+      return 6; // doors
+    }
+  }
+  sendZonePopulationUpdate() {
+    const populationNumber = _.size(this._characters);
+    this._h1emuZoneServer.sendData(
+      {
+        ...this._loginServerInfo,
+        session: true,
+      } as any,
+      "UpdateZonePopulation",
+      { population: populationNumber }
+    );
   }
 
   async fetchWorldData(): Promise<void> {
@@ -635,12 +690,18 @@ export class ZoneServer extends EventEmitter {
       try {
         await mongoClient.connect();
       } catch (e) {
-        throw debug("[ERROR]Unable to connect to mongo server");
+        throw debug(
+          "[ERROR]Unable to connect to mongo server " + this._mongoAddress
+        );
       }
       debug("connected to mongo !");
       // if no collections exist on h1server database , fill it with samples
-      (await mongoClient.db("h1server").collections()).length ||
-        (await initMongo(this._mongoAddress, debugName));
+      const dbIsEmpty =
+        (await mongoClient.db("h1server").collections()).length < 1;
+      if (dbIsEmpty) {
+        await initMongo(this._mongoAddress, debugName);
+      }
+      delete require.cache[require.resolve("mongodb-restore-dump")];
       this._db = mongoClient.db("h1server");
     }
     await this.setupServer();
@@ -665,6 +726,10 @@ export class ZoneServer extends EventEmitter {
       });
     }
     this._gatewayServer.start(this._soloMode);
+    this.worldRoutineTimer = setTimeout(
+      () => this.worldRoutine.bind(this)(true),
+      this.tickRate
+    );
   }
 
   async loadMongoData(): Promise<void> {
@@ -682,28 +747,19 @@ export class ZoneServer extends EventEmitter {
   }
 
   reloadPackets(client: Client, intervalTime = -1): void {
-    if (intervalTime > 0) {
-      if (this._reloadPacketsInterval)
-        clearInterval(this._reloadPacketsInterval);
-      this._reloadPacketsInterval = setInterval(
-        () => this.reloadPackets(client),
-        intervalTime * 1000
-      );
-      this.sendChatText(
-        client,
-        `[DEV] Packets reload interval is set to ${intervalTime} seconds`,
-        true
-      );
-    } else {
-      this.reloadZonePacketHandlers();
-      this._protocol.reloadPacketDefinitions();
-      this.sendChatText(client, "[DEV] Packets reloaded", true);
-    }
+    this.reloadZonePacketHandlers();
+    this._protocol.reloadPacketDefinitions();
+    this.sendChatText(client, "[DEV] Packets reloaded", true);
   }
 
-  reloadZonePacketHandlers(): void {
+  async reloadZonePacketHandlers() {
+    //@ts-ignore
+    delete this._packetHandlers;
     delete require.cache[require.resolve("./zonepackethandlers")];
-    this._packetHandlers = require("./zonepackethandlers").default;
+    this._packetHandlers = new (
+      require("./zonepackethandlers") as any
+    ).zonePacketHandlers();
+    await this._packetHandlers.reloadCommandCache();
   }
 
   garbageCollection(): void {
@@ -731,25 +787,7 @@ export class ZoneServer extends EventEmitter {
   }
 
   generateGuid(): string {
-    const guid = generateRandomGuid();
-    return guid;
-  }
-
-  parseReferenceData(): any {
-    /*
-        const itemData = fs.readFileSync(
-            `${__dirname}/../../../data/dataSources/ClientItemDefinitions.txt`,
-            "utf8"
-          ),
-          itemLines = itemData.split("\n"),
-          items = {};
-        for (let i = 1; i < itemLines.length; i++) {
-          const line = itemLines[i].split("^");
-          if (line[0]) {
-            (items as any)[line[0]] = line[1];
-          }
-        }*/
-    return { itemTypes: undefined };
+    return generateRandomGuid();
   }
 
   async saveCharacterPosition(client: Client, refreshTimeout = false) {
@@ -769,10 +807,6 @@ export class ZoneServer extends EventEmitter {
   }
 
   async characterData(client: Client): Promise<void> {
-    delete require.cache[
-      require.resolve("../../../data/2015/sampleData/sendself.json") // reload json
-    ];
-    this._dummySelf = require("../../../data/2015/sampleData/sendself.json"); // dummy this._dummySelf
     const {
       data: { identity },
     } = this._dummySelf;
@@ -876,6 +910,9 @@ export class ZoneServer extends EventEmitter {
         nameId: profile.NAME_ID,
       });
     });
+    delete require.cache[
+      require.resolve("../../../data/2015/dataSources/ProfileTypes.json")
+    ];
     debug("Generated profiles");
     return profiles;
   }
@@ -932,8 +969,9 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
-  pointOfInterest(client: Client) {
-    let isInAPOIArea = false;
+  POIManager(client: Client) {
+    // sends POIChangeMessage or clears it based on player location
+    let inPOI = false;
     Z1_POIs.forEach((point: any) => {
       if (
         isPosInRadius(
@@ -942,46 +980,764 @@ export class ZoneServer extends EventEmitter {
           point.position
         )
       ) {
-        this.sendData(client, "POIChangeMessage", {
-          messageStringId: point.stringId,
-          id: point.POIid,
-        });
-        isInAPOIArea = true;
+        inPOI = true;
+        if (client.currentPOI != point.stringId) {
+          // checks if player already was sent POIChangeMessage
+          this.sendData(client, "POIChangeMessage", {
+            messageStringId: point.stringId,
+            id: point.POIid,
+          });
+          client.currentPOI = point.stringId;
+        }
       }
     });
-    if (!isInAPOIArea) {
+    if (!inPOI && client.currentPOI != 0) {
+      // checks if POIChangeMessage was already cleared
       this.sendData(client, "POIChangeMessage", {
         messageStringId: 0,
         id: 115,
       });
+      client.currentPOI = 0;
     }
   }
 
-  worldRoutine(client: Client): void {
-    this.spawnCharacters(client);
-    this.spawnObjects(client);
-    this.spawnDoors(client);
-    this.spawnProps(client);
-    this.spawnNpcs(client);
-    this.spawnVehicles(client);
-    this.removeOutOfDistanceEntities(client);
-    this.pointOfInterest(client);
-    client.npcsToSpawnTimer.refresh();
-    client.posAtLastRoutine = client.character.state.position;
-  }
-
-  executeFuncForAllClients(zoneServerFuncName: string): void {
+  executeFuncForAllReadyClients(callback: any): void {
     for (const client in this._clients) {
-      (this as any)[zoneServerFuncName](this._clients[client]);
+      const clientObj: Client = this._clients[client];
+      if (!clientObj.isLoading) {
+        callback(clientObj);
+      }
     }
+  }
+
+  worldRoutine(refresh = false): void {
+    this.executeFuncForAllReadyClients((client: Client) => {
+      this.spawnCharacters(client);
+      this.spawnObjects(client);
+      this.spawnDoors(client);
+      this.spawnProps(client);
+      this.spawnNpcs(client);
+      this.spawnVehicles(client);
+      this.removeOutOfDistanceEntities(client);
+      this.POIManager(client);
+      client.npcsToSpawnTimer.refresh();
+      client.posAtLastRoutine = client.character.state.position;
+    });
+    if (refresh) this.worldRoutineTimer.refresh();
+  }
+
+  killCharacter(client: Client) {
+    debug(client.character.name + " has died");
+    client.character.isAlive = false;
+    this.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
+      characterId: client.character.characterId,
+      state: "0000000000000000C00",
+      gameTime: Int64String(this.getSequenceTime()),
+    });
+    if (!client.vehicle.mountedVehicle) {
+      this.sendDataToAll("Ragdoll.UpdatePose", {
+        characterId: client.character.characterId,
+        positionUpdate: {
+          sequenceTime: this.getSequenceTime(),
+          unknown3_int8: 1,
+          stance: 1089,
+          position: client.character.state.position,
+          orientation: 0,
+          frontTilt: 0,
+          sideTilt: 0,
+          angleChange: 0,
+          verticalSpeed: 0,
+          horizontalSpeed: 0,
+          unknown12_float: [0, 0, 0],
+          rotationRaw: [0, 0, -0, 1],
+          direction: 0,
+          engineRPM: 0,
+        },
+      });
+    } else {
+      this.sendDataToAllOthers(client, "PlayerUpdate.RemovePlayerGracefully", {
+        characterId: client.character.characterId,
+      });
+    }
+  }
+
+  playerDamage(client: Client, damage: number) {
+    if (!client.character.godMode) {
+      if (damage > 99) {
+        client.character.resources.health -= damage;
+      }
+      if (client.character.resources.health <= 0) {
+        this.killCharacter(client);
+      }
+      if (client.character.resources.health < 0) {
+        client.character.resources.health = 0;
+      }
+      this.updateResource(
+        client,
+        client.character.characterId,
+        client.character.resources.health,
+        48,
+        1
+      );
+    }
+  }
+
+  respawnPlayer(client: Client) {
+    client.character.isAlive = true;
+    client.character.resources.health = 10000;
+    client.character.resources.food = 10000;
+    client.character.resources.water = 10000;
+    client.character.resources.stamina = 600;
+    client.character.resourcesUpdater.refresh();
+    this.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
+      characterId: client.character.characterId,
+      state: "000000000000000000",
+      gameTime: Int64String(this.getSequenceTime()),
+    });
+    const randomSpawnIndex = Math.floor(
+      Math.random() * this._spawnLocations.length
+    );
+    this.sendData(client, "ClientUpdate.UpdateLocation", {
+      position: this._spawnLocations[randomSpawnIndex].position,
+    });
+    client.character.state.position =
+      this._spawnLocations[randomSpawnIndex].position;
+    this.updateResource(
+      client,
+      client.character.characterId,
+      client.character.resources.health,
+      48,
+      1
+    );
+    this.updateResource(
+      client,
+      client.character.characterId,
+      client.character.resources.stamina,
+      6,
+      6
+    );
+    this.updateResource(
+      client,
+      client.character.characterId,
+      client.character.resources.food,
+      4,
+      4
+    );
+    this.updateResource(
+      client,
+      client.character.characterId,
+      client.character.resources.water,
+      5,
+      5
+    );
+  }
+
+  explosionDamage(position: Float32Array) {
+    for (const character in this._clients) {
+      const characterObj = this._clients[character];
+      if (!characterObj.character.godMode) {
+        if (isPosInRadius(5, characterObj.character.state.position, position)) {
+          const distance = getDistance(
+            position,
+            characterObj.character.state.position
+          );
+          const damage = 20000 / distance;
+          this.playerDamage(this._clients[character], damage);
+        }
+      }
+    }
+  }
+
+  damageVehicle(client: Client, damage: number, vehicle: Vehicle) {
+    let destroyedVehicleEffect = 0;
+    let destroyedVehicleModel = 0;
+    let minorDamageEffect = 0;
+    let majorDamageEffect = 0;
+    let criticalDamageEffect = 0;
+    switch (client.vehicle.mountedVehicleType) {
+      case "offroader":
+        destroyedVehicleEffect = 135;
+        destroyedVehicleModel = 7226;
+        minorDamageEffect = 182;
+        majorDamageEffect = 181;
+        criticalDamageEffect = 180;
+        break;
+      case "pickup":
+        destroyedVehicleEffect = 326;
+        destroyedVehicleModel = 9315;
+        minorDamageEffect = 325;
+        majorDamageEffect = 324;
+        criticalDamageEffect = 323;
+        break;
+      case "policecar":
+        destroyedVehicleEffect = 286;
+        destroyedVehicleModel = 9316;
+        minorDamageEffect = 285;
+        majorDamageEffect = 284;
+        criticalDamageEffect = 283;
+        break;
+      default:
+        destroyedVehicleEffect = 135;
+        destroyedVehicleModel = 7226;
+        minorDamageEffect = 182;
+        majorDamageEffect = 181;
+        criticalDamageEffect = 180;
+        break;
+    }
+    vehicle.npcData.resources.health -= 10 * Math.floor(damage);
+
+    if (vehicle.npcData.resources.health <= 0) {
+      vehicle.npcData.resources.health = 0;
+      if (vehicle.passengers.passenger2) {
+        this.dismountVehicle(
+          vehicle.passengers.passenger2,
+          vehicle.npcData.characterId
+        );
+      }
+      if (vehicle.passengers.passenger3) {
+        this.dismountVehicle(
+          vehicle.passengers.passenger3,
+          vehicle.npcData.characterId
+        );
+      }
+      if (vehicle.passengers.passenger4) {
+        this.dismountVehicle(
+          vehicle.passengers.passenger4,
+          vehicle.npcData.characterId
+        );
+      }
+      this.dismountVehicle(client, vehicle.npcData.characterId);
+      this.sendDataToAll("PlayerUpdate.Destroyed", {
+        characterId: vehicle.npcData.characterId,
+        unknown1: destroyedVehicleEffect, // destroyed offroader effect
+        unknown2: destroyedVehicleModel, // destroyed offroader model
+        unknown3: 0,
+        disableWeirdPhysics: false,
+      });
+      this.explosionDamage(vehicle.npcData.position);
+      vehicle.npcData.destroyedState = 4;
+      this.sendDataToAll(
+        "PlayerUpdate.RemovePlayerGracefully",
+        {
+          characterId: vehicle.npcData.characterId,
+          timeToDisappear: 13000,
+          stickyEffectId: 156,
+        },
+        1
+      );
+      client.vehicle.mountedVehicleType = "0";
+      delete client.vehicle.mountedVehicle;
+      client.vehicle.vehicleState = 0;
+      this.vehicleDelete(client);
+    } else if (
+      vehicle.npcData.resources.health <= 50000 &&
+      vehicle.npcData.resources.health > 35000
+    ) {
+      if (vehicle.npcData.destroyedState != 1) {
+        vehicle.npcData.destroyedState = 1;
+        this.sendDataToAll("PlayerUpdate.SetSpawnerActivationEffect", {
+          characterId: client.vehicle.mountedVehicle,
+          effectId: minorDamageEffect,
+        });
+      }
+    } else if (
+      vehicle.npcData.resources.health <= 35000 &&
+      vehicle.npcData.resources.health > 20000
+    ) {
+      if (vehicle.npcData.destroyedState != 2) {
+        vehicle.npcData.destroyedState = 2;
+        this.sendData(client, "PlayerUpdate.SetSpawnerActivationEffect", {
+          characterId: client.vehicle.mountedVehicle,
+          effectId: majorDamageEffect,
+        });
+      }
+    } else if (vehicle.npcData.resources.health <= 20000) {
+      if (vehicle.npcData.destroyedState != 3) {
+        vehicle.npcData.destroyedState = 3;
+        this.sendData(client, "PlayerUpdate.SetSpawnerActivationEffect", {
+          characterId: client.vehicle.mountedVehicle,
+          effectId: criticalDamageEffect,
+        });
+      }
+    }
+    if (vehicle.passengers.passenger1) {
+      this.updateResource(
+        vehicle.passengers.passenger1,
+        vehicle.npcData.characterId,
+        vehicle.npcData.resources.health,
+        561,
+        1
+      );
+    }
+    if (vehicle.passengers.passenger2) {
+      this.updateResource(
+        vehicle.passengers.passenger2,
+        vehicle.npcData.characterId,
+        vehicle.npcData.resources.health,
+        561,
+        1
+      );
+    }
+    if (vehicle.passengers.passenger3) {
+      this.updateResource(
+        vehicle.passengers.passenger3,
+        vehicle.npcData.characterId,
+        vehicle.npcData.resources.health,
+        561,
+        1
+      );
+    }
+    if (vehicle.passengers.passenger4) {
+      this.updateResource(
+        vehicle.passengers.passenger4,
+        vehicle.npcData.characterId,
+        vehicle.npcData.resources.health,
+        561,
+        1
+      );
+    }
+  }
+
+  updateResource(
+    client: Client,
+    entityId: string,
+    value: number,
+    resource: number,
+    resourceType: number
+  ) {
+    this.sendData(client, "ResourceEvent", {
+      eventData: {
+        type: 3,
+        value: {
+          characterId: entityId,
+          resourceId: resource,
+          resourceType: resourceType,
+          initialValue: value,
+          unknownArray1: [],
+          unknownArray2: [],
+        },
+      },
+    });
+  }
+
+  turnOnEngine(vehicleGuid: string) {
+    if (this._vehicles[vehicleGuid].npcData.resources.fuel > 0) {
+      this.sendDataToAll("Vehicle.Engine", {
+        guid2: vehicleGuid,
+        unknownBoolean: true,
+      });
+      this._vehicles[vehicleGuid].engineOn = true;
+      this._vehicles[vehicleGuid].resourcesUpdater = setInterval(() => {
+        const fuelLoss =
+          this._vehicles[vehicleGuid].positionUpdate.engineRPM * 0.005;
+        this._vehicles[vehicleGuid].npcData.resources.fuel -= fuelLoss;
+        if (this._vehicles[vehicleGuid].npcData.resources.fuel < 0) {
+          this._vehicles[vehicleGuid].npcData.resources.fuel = 0;
+        }
+        if (
+          this._vehicles[vehicleGuid].engineOn &&
+          this._vehicles[vehicleGuid].npcData.resources.fuel <= 0
+        ) {
+          this.turnOffEngine(vehicleGuid);
+        }
+        if (this._vehicles[vehicleGuid].passengers.passenger1) {
+          this.updateResource(
+            this._vehicles[vehicleGuid].passengers.passenger1,
+            this._vehicles[vehicleGuid].npcData.characterId,
+            this._vehicles[vehicleGuid].npcData.resources.fuel,
+            396,
+            50
+          );
+        }
+        if (this._vehicles[vehicleGuid].passengers.passenger2) {
+          this.updateResource(
+            this._vehicles[vehicleGuid].passengers.passenger2,
+            this._vehicles[vehicleGuid].npcData.characterId,
+            this._vehicles[vehicleGuid].npcData.resources.fuel,
+            396,
+            50
+          );
+        }
+        if (this._vehicles[vehicleGuid].passengers.passenger3) {
+          this.updateResource(
+            this._vehicles[vehicleGuid].passengers.passenger3,
+            this._vehicles[vehicleGuid].npcData.characterId,
+            this._vehicles[vehicleGuid].npcData.resources.fuel,
+            396,
+            50
+          );
+        }
+        if (this._vehicles[vehicleGuid].passengers.passenger4) {
+          this.updateResource(
+            this._vehicles[vehicleGuid].passengers.passenger4,
+            this._vehicles[vehicleGuid].npcData.characterId,
+            this._vehicles[vehicleGuid].npcData.resources.fuel,
+            396,
+            50
+          );
+        }
+      }, 3000);
+    }
+  }
+
+  turnOffEngine(vehicleGuid: string) {
+    this._vehicles[vehicleGuid].engineOn = false;
+    this.sendDataToAll("Vehicle.Engine", {
+      guid2: vehicleGuid,
+      unknownBoolean: false,
+    });
+    clearInterval(this._vehicles[vehicleGuid].resourcesUpdater);
+  }
+
+  manageVehicle(client: Client, vehicleGuid: string) {
+    if (this._vehicles[vehicleGuid].manager) {
+      this.dropVehicleManager(this._vehicles[vehicleGuid].manager, vehicleGuid);
+    }
+    this._vehicles[vehicleGuid].isManaged = true;
+    this._vehicles[vehicleGuid].manager = client;
+    this.sendData(client, "PlayerUpdate.ManagedObject", {
+      guid: vehicleGuid,
+      characterId: client.character.characterId,
+    });
+  }
+
+  dropVehicleManager(client: Client, vehicleGuid: string) {
+    this.sendData(client, "PlayerUpdate.ManagedObjectResponseControl", {
+      unk: 0,
+      characterId: vehicleGuid,
+    });
+    delete this._vehicles[vehicleGuid].manager;
+  }
+
+  enterVehicle(client: Client, entityData: any) {
+    let allowedAccess;
+    let seat;
+    let isDriver;
+    if (!entityData.seat.seat1) {
+      isDriver = 1;
+      seat = 0;
+      allowedAccess = 1;
+      entityData.isLocked = 0;
+      client.vehicle.mountedVehicleSeat = 1;
+    } else if (!entityData.seat.seat2) {
+      isDriver = 0;
+      seat = 1;
+      allowedAccess = 1;
+      client.vehicle.mountedVehicleSeat = 2;
+    } else if (!entityData.seat.seat3) {
+      isDriver = 0;
+      seat = 2;
+      allowedAccess = 1;
+      client.vehicle.mountedVehicleSeat = 3;
+    } else if (!entityData.seat.seat4) {
+      isDriver = 0;
+      seat = 3;
+      allowedAccess = 1;
+      client.vehicle.mountedVehicleSeat = 4;
+    } else {
+      allowedAccess = 3;
+    }
+    if (allowedAccess === 1 && entityData.isLocked != 2) {
+      const { characterId: vehicleGuid } = entityData.npcData;
+      const { modelId: vehicleModelId } = entityData.npcData;
+      switch (vehicleModelId) {
+        case 7225:
+          client.vehicle.mountedVehicleType = "offroader";
+          break;
+        case 9258:
+          client.vehicle.mountedVehicleType = "pickup";
+          break;
+        case 9301:
+          client.vehicle.mountedVehicleType = "policecar";
+          break;
+        default:
+          client.vehicle.mountedVehicleType = "offroader";
+          break;
+      }
+
+      switch (seat) {
+        case 0:
+          this._vehicles[vehicleGuid].seat.seat1 = true;
+          this.manageVehicle(client, vehicleGuid);
+          this._vehicles[vehicleGuid].isLocked = 0;
+          this.turnOnEngine(vehicleGuid);
+          this._vehicles[vehicleGuid].passengers.passenger1 = client;
+
+          break;
+        case 1:
+          this._vehicles[vehicleGuid].seat.seat2 = true;
+          this._vehicles[vehicleGuid].passengers.passenger2 = client;
+          break;
+        case 2:
+          this._vehicles[vehicleGuid].seat.seat3 = true;
+          this._vehicles[vehicleGuid].passengers.passenger3 = client;
+          break;
+        case 3:
+          this._vehicles[vehicleGuid].seat.seat4 = true;
+          this._vehicles[vehicleGuid].passengers.passenger4 = client;
+          break;
+      }
+
+      this.sendDataToAll("Mount.MountResponse", {
+        characterId: client.character.characterId,
+        guid: vehicleGuid,
+        unknownDword1: seat,
+        unknownDword3: isDriver,
+        characterData: [],
+      });
+      this.updateResource(
+        client,
+        vehicleGuid,
+        entityData.npcData.resources.fuel,
+        396,
+        50
+      );
+      this.updateResource(
+        client,
+        vehicleGuid,
+        entityData.npcData.resources.health,
+        561,
+        1
+      );
+      if (isDriver === 1) {
+        this.sendDataToAll("Vehicle.Owner", {
+          guid: vehicleGuid,
+          characterId: client.character.characterId,
+          unknownDword1: 0,
+          vehicleId: entityData.npcData.vehicleId,
+          passengers: [
+            {
+              passengerData: {
+                characterId: client.character.characterId,
+                characterData: {
+                  unknownDword1: 1,
+                  unknownDword2: 1,
+                  unknownDword3: 1,
+                  characterName: client.character.name,
+                  unknownString1: "",
+                },
+                unknownDword1: 1,
+                unknownString1: "",
+              },
+              unknownByte1: 1,
+            },
+          ],
+        });
+      }
+      this.sendData(client, "Vehicle.Occupy", {
+        guid: entityData.npcData.characterId,
+        characterId: client.character.characterId,
+        vehicleId: entityData.npcData.vehicleId,
+        unknownDword1: 0,
+        unknownArray1: [
+          {
+            unknownDword1: 0,
+            unknownBoolean1: 0,
+          },
+        ],
+        passengers: [
+          {
+            passengerData: {
+              characterId: client.character.characterId,
+              characterData: {
+                unknownDword1: 0,
+                unknownDword2: 0,
+                unknownDword3: 0,
+                characterName: client.character.name,
+              },
+            },
+            unknownDword1: 0,
+          },
+        ],
+        unknownArray2: [{}],
+        unknownData1: {
+          unknownData1: {
+            unknownArray1: [{}],
+            unknownArray2: [{}],
+          },
+        },
+      });
+
+      client.vehicle.mountedVehicle = vehicleGuid;
+      client.character.isRunning = false;
+    } else if (entityData.isLocked === 2) {
+      this.sendData(client, "ClientUpdate.TextAlert", {
+        message: "Vehicle is locked",
+      });
+    }
+  }
+
+  dismountVehicle(client: Client, vehicleGuid: any) {
+    const vehicleData = this._vehicles[vehicleGuid];
+    if (
+      vehicleData.passengers.passenger1 &&
+      vehicleData.passengers.passenger1 != client
+    ) {
+      this.sendData(
+        vehicleData.passengers.passenger1,
+        "Mount.DismountResponse",
+        {
+          characterId: vehicleData.passengers.passenger1.character.characterId,
+          guid: vehicleData.npcData.characterId,
+        }
+      );
+    }
+    if (
+      vehicleData.passengers.passenger2 &&
+      vehicleData.passengers.passenger2 != client
+    ) {
+      this.sendData(
+        vehicleData.passengers.passenger2,
+        "Mount.DismountResponse",
+        {
+          characterId: vehicleData.passengers.passenger2.character.characterId,
+          guid: vehicleData.npcData.characterId,
+        }
+      );
+    }
+    if (
+      vehicleData.passengers.passenger3 &&
+      vehicleData.passengers.passenger3 != client
+    ) {
+      this.sendData(
+        vehicleData.passengers.passenger3,
+        "Mount.DismountResponse",
+        {
+          characterId: vehicleData.passengers.passenger3.character.characterId,
+          guid: vehicleData.npcData.characterId,
+        }
+      );
+    }
+    if (
+      vehicleData.passengers.passenger4 &&
+      vehicleData.passengers.passenger4 != client
+    ) {
+      this.sendData(
+        vehicleData.passengers.passenger4,
+        "Mount.DismountResponse",
+        {
+          characterId: vehicleData.passengers.passenger4.character.characterId,
+          guid: vehicleData.npcData.characterId,
+        }
+      );
+    }
+
+    this.sendDataToAll("Mount.DismountResponse", {
+      characterId: client.character.characterId,
+      guid: vehicleData.npcData.characterId,
+    });
+
+    if (
+      vehicleData.passengers.passenger1 &&
+      vehicleData.passengers.passenger1 != client
+    ) {
+      this.sendDataToAll("Mount.MountResponse", {
+        characterId: vehicleData.passengers.passenger1.character.characterId,
+        guid: vehicleData.npcData.characterId,
+        unknownDword1: 0,
+        unknownDword3: 1,
+        characterData: [],
+      });
+    }
+    if (
+      vehicleData.passengers.passenger2 &&
+      vehicleData.passengers.passenger2 != client
+    ) {
+      this.sendDataToAll("Mount.MountResponse", {
+        characterId: vehicleData.passengers.passenger2.character.characterId,
+        guid: vehicleData.npcData.characterId,
+        unknownDword1: 1,
+        unknownDword3: 0,
+        characterData: [],
+      });
+    }
+    if (
+      vehicleData.passengers.passenger3 &&
+      vehicleData.passengers.passenger3 != client
+    ) {
+      this.sendDataToAll("Mount.MountResponse", {
+        characterId: vehicleData.passengers.passenger3.character.characterId,
+        guid: vehicleData.npcData.characterId,
+        unknownDword1: 2,
+        unknownDword3: 0,
+        characterData: [],
+      });
+    }
+    if (
+      vehicleData.passengers.passenger4 &&
+      vehicleData.passengers.passenger4 != client
+    ) {
+      this.sendDataToAll("Mount.MountResponse", {
+        characterId: vehicleData.passengers.passenger4.character.characterId,
+        guid: vehicleData.npcData.characterId,
+        unknownDword1: 3,
+        unknownDword3: 0,
+        characterData: [],
+      });
+    }
+
+    this.sendData(client, "Vehicle.Occupy", {
+      guid: "",
+      characterId: client.character.characterId,
+      vehicleId: 0,
+      unknownDword1: 1,
+      unknownArray1: [
+        {
+          unknownDword1: 1,
+          unknownBoolean1: 1,
+        },
+      ],
+      passengers: [
+        {
+          passengerData: { characterData: {} },
+        },
+      ],
+      unknownArray2: [{}],
+      unknownData1: {
+        unknownData1: {
+          unknownArray1: [{}],
+          unknownArray2: [{}],
+        },
+      },
+    });
+    client.vehicle.mountedVehicleType = "0";
+    delete client.vehicle.mountedVehicle;
+    switch (client.vehicle.mountedVehicleSeat) {
+      case 1:
+        this._vehicles[vehicleGuid].seat.seat1 = false;
+        delete this._vehicles[vehicleGuid].passengers.passenger1;
+        this.turnOffEngine(vehicleData.npcData.characterId);
+        break;
+      case 2:
+        this._vehicles[vehicleGuid].seat.seat2 = false;
+        delete this._vehicles[vehicleGuid].passengers.passenger2;
+        break;
+      case 3:
+        this._vehicles[vehicleGuid].seat.seat3 = false;
+        delete this._vehicles[vehicleGuid].passengers.passenger3;
+        break;
+      case 4:
+        this._vehicles[vehicleGuid].seat.seat4 = false;
+        delete this._vehicles[vehicleGuid].passengers.passenger4;
+        break;
+    }
+  }
+
+  updatePosition(client: Client, position: Float32Array) {
+    client.character.state.position = position;
   }
 
   spawnCharacters(client: Client) {
     for (const character in this._characters) {
       const characterObj = this._characters[character];
       if (
+        (isPosInRadius(
+          this._npcRenderDistance,
+          client.character.state.position,
+          characterObj.state.position
+        ),
         client.character.characterId != character &&
-        !client.spawnedEntities.includes(characterObj)
+          !client.spawnedEntities.includes(characterObj))
       ) {
         this.sendData(
           client,
@@ -1022,10 +1778,10 @@ export class ZoneServer extends EventEmitter {
             characterId: client.character.characterId,
           });
           this._vehicles[vehicle].isManaged = true;
+          this._vehicles[vehicle].manager = client;
         }
 
         client.spawnedEntities.push(this._vehicles[vehicle]);
-        client.managedObjects.push(this._vehicles[vehicle]);
       }
     }
   }
@@ -1042,30 +1798,27 @@ export class ZoneServer extends EventEmitter {
     const objectsToRemove = client.spawnedEntities.filter((e) =>
       this.filterOutOfDistance(e, client.character.state.position)
     );
-    /*client.spawnedEntities = client.spawnedEntities.filter((el) => {
-          return !objectsToRemove.includes(el);
-        });*/
+    client.spawnedEntities = client.spawnedEntities.filter((el) => {
+      return !objectsToRemove.includes(el);
+    });
     objectsToRemove.forEach((object: any) => {
       const characterId = object.characterId
         ? object.characterId
         : object.npcData.characterId;
       if (characterId in this._vehicles) {
-        this.sendData(
-          client,
-          "PlayerUpdate.RemovePlayerGracefully",
-          {
-            characterId,
-          },
-          1
-        );
-        const index = client.managedObjects.indexOf(
-          this._vehicles[characterId]
-        );
-        if (index > -1) {
-          client.managedObjects.splice(index, 1);
+        if (this._vehicles[characterId].manager === client) {
           this._vehicles[characterId].isManaged = false;
+          this.dropVehicleManager(client, characterId);
         }
       }
+      this.sendData(
+        client,
+        "PlayerUpdate.RemovePlayerGracefully",
+        {
+          characterId,
+        },
+        1
+      );
     });
   }
 
@@ -1158,6 +1911,7 @@ export class ZoneServer extends EventEmitter {
     this._doors = doors;
     this._vehicles = vehicles;
     this._props = props;
+    delete require.cache[require.resolve("./workers/createBaseEntities")];
     debug("All entities created");
   }
 
@@ -1327,7 +2081,7 @@ export class ZoneServer extends EventEmitter {
     if (packetName != "KeepAlive") {
       debug("send data", packetName);
     }
-    const data = this._protocol.pack(packetName, obj, this._referenceData);
+    const data = this._protocol.pack(packetName, obj);
     this._gatewayServer.sendTunnelData(client, data, channel);
   }
 
@@ -1360,7 +2114,7 @@ export class ZoneServer extends EventEmitter {
 
   sendWeaponPacket(client: Client, packetName: string, obj: any): void {
     const weaponPacket = {
-      gameTime: this.getServerTime(),
+      gameTime: this.getSequenceTime(),
       packetName: packetName,
       packet: obj,
     };
@@ -1410,6 +2164,10 @@ export class ZoneServer extends EventEmitter {
     return this._serverTime + delta;
   }
 
+  getSequenceTime(): number {
+    return Date.now() - this._time;
+  }
+
   getServerTimeTest(): number {
     debug("get server time");
     const delta = Date.now() - this._startTime;
@@ -1439,8 +2197,8 @@ export class ZoneServer extends EventEmitter {
     // TODO: this do not seems to work
     debug("Synchronization");
     this.sendDataToAll("Synchronization", {
-      serverTime: Int64String(this.getServerTime()),
-      serverTime2: Int64String(this.getServerTime()),
+      serverTime: Int64String(this.getSequenceTime()),
+      serverTime2: Int64String(this.getSequenceTime()),
     });
   }
 
@@ -1478,6 +2236,5 @@ if (
     process.env.MONGO_URL,
     1
   );
-  zoneServer._loginServerInfo.address = "127.0.0.1";
   zoneServer.start();
 }

@@ -46,6 +46,7 @@ export class SOEServer extends EventEmitter {
     useMultiPackets = false
   ) {
     super();
+    Buffer.poolSize = 8192 * 4;
     this._protocolName = protocolName;
     this._serverPort = serverPort;
     this._cryptoKey = cryptoKey;
@@ -259,10 +260,16 @@ export class SOEServer extends EventEmitter {
           break;
         case "ZonePing":
           debug("Receive Zone Ping ");
-          this._sendPacket(client, "ZonePing", {
+          const pingTime = Date.now();
+          /* this._sendPacket(client, "ZonePing", { respond to it is currently useless ( at least on the 2015 version )
             PingId: result.PingId,
             Data: result.Data,
-          });
+          });*/
+          if (client.lastZonePingTimestamp) {
+            client.zonePingTimeMs =
+              pingTime - client.lastZonePingTimestamp - 5000; // zonepings are sent every 5 sec by the game
+          }
+          client.lastZonePingTimestamp = pingTime;
           break;
         case "FatalError":
           debug("Received fatal error from client");

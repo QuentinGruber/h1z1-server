@@ -1,7 +1,7 @@
-import { ZoneClient } from "servers/ZoneServer/classes/zoneclient";
-import { ZoneServer } from "servers/ZoneServer/zoneserver";
-import { ZoneClient2016 } from "servers/ZoneServer2016/classes/zoneclient";
-import { ZoneServer2016 } from "servers/ZoneServer2016/zoneserver";
+import { ZoneClient } from "../servers/ZoneServer/classes/zoneclient";
+import { ZoneServer } from "../servers/ZoneServer/zoneserver";
+import { ZoneClient2016 } from "../servers/ZoneServer2016/classes/zoneclient";
+import { ZoneServer2016 } from "../servers/ZoneServer2016/zoneserver";
 
 export interface HandledZonePackets {
   ClientIsReady: (server: ZoneServer, client: ZoneClient, packet: any) => void;
@@ -370,6 +370,7 @@ export interface npcData {
   transientId: number;
   modelId: number;
   scale: number[];
+  resources: any;
   position: Float32Array;
   rotation: Float32Array;
   attachedObject: any;
@@ -377,9 +378,28 @@ export interface npcData {
   isVehicle: boolean;
   color: any;
   unknownArray1: any[];
+  destroyedState: number;
   array5: any[];
   array17: any[];
   array18: any[];
+}
+export interface seats {
+  seat1: boolean;
+  seat2: boolean;
+  seat3: boolean;
+  seat4: boolean;
+}
+
+export interface passengers {
+  passenger1?: any;
+  passenger2?: any;
+  passenger3?: any;
+  passenger4?: any;
+}
+
+export interface positionUpdate {
+  position?: any;
+  engineRPM?: any;
 }
 
 export interface characterEquipment {

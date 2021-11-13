@@ -150,6 +150,31 @@ export const isPosInRadius = (
   );
 };
 
+export function getDistance(p1: Float32Array, p2: Float32Array) {
+  const a = p1[0] - p2[0];
+  const b = p1[1] - p2[1];
+  const c = p1[2] - p2[2];
+  return Math.sqrt(a * a + b * b + c * c);
+}
+
+export function createPositionUpdate(
+  position: Float32Array,
+  rotation: any,
+  gameTime: any
+): any {
+  const obj: any = {
+    flags: 4095,
+    unknown2_int32: gameTime,
+    unknown3_int8: 0,
+    unknown4: 1,
+    position: position,
+  };
+  if (rotation) {
+    obj.unknown13_float = rotation;
+  }
+  return obj;
+}
+
 export const Int64String = function (value: number): string {
   return "0x" + ("0000000000000000" + value.toString(16)).substr(-16);
 };
