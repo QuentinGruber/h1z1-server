@@ -432,9 +432,7 @@ export class zonePacketHandlers {
       const commandName = args[0];
       switch (packet.data.commandHash) {
         case 3720768430: // /respawn
-          server.sendData(client, "PlayerUpdate.StartMultiStateDeath", {
-            characterId: client.character.characterId,
-          });
+          server.killCharacter(client)
           break;
         case 3357274581: // /clientinfo
           server.sendChatText(
