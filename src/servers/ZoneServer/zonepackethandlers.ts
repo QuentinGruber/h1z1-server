@@ -432,7 +432,7 @@ export class zonePacketHandlers {
       const commandName = args[0];
       switch (packet.data.commandHash) {
         case 3720768430: // /respawn
-          server.killCharacter(client)
+          server.killCharacter(client);
           break;
         case 3357274581: // /clientinfo
           server.sendChatText(
@@ -569,10 +569,14 @@ export class zonePacketHandlers {
             // using !! is faster but ugly
             hax[commandName](server, client, args);
           } else {
-            server.sendChatText(
-              client,
-              `Unknown command: /hax ${commandName} , display hax all commands by using /hax list`
-            );
+            if (server._allowedCommands.includes(commandName)) {
+              server.sendChatText(client, "You don't have access to that.");
+            } else {
+              server.sendChatText(
+                client,
+                `Unknown command: /hax ${commandName} , display hax all commands by using /hax list`
+              );
+            }
           }
           break;
         case joaat("DEV"):
@@ -585,10 +589,14 @@ export class zonePacketHandlers {
             // using !! is faster but ugly
             dev[commandName](server, client, args);
           } else {
-            server.sendChatText(
-              client,
-              `Unknown command: /dev ${commandName} , display dev all commands by using /dev list`
-            );
+            if (server._allowedCommands.includes(commandName)) {
+              server.sendChatText(client, "You don't have access to that.");
+            } else {
+              server.sendChatText(
+                client,
+                `Unknown command: /dev ${commandName} , display dev all commands by using /dev list`
+              );
+            }
           }
           break;
         case joaat("ADMIN"):
@@ -601,10 +609,14 @@ export class zonePacketHandlers {
             // using !! is faster but ugly
             admin[commandName](server, client, args);
           } else {
-            server.sendChatText(
-              client,
-              `Unknown command: /admin ${commandName} , display admin all commands by using /admin list`
-            );
+            if (server._allowedCommands.includes(commandName)) {
+              server.sendChatText(client, "You don't have access to that.");
+            } else {
+              server.sendChatText(
+                client,
+                `Unknown command: /admin ${commandName} , display admin all commands by using /admin list`
+              );
+            }
           }
           break;
       }
