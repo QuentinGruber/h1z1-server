@@ -12,11 +12,7 @@ let dev = require("./commands/dev").default;
 
 import admin from "./commands/admin";
 
-import {
-  _,
-  Int64String,
-  isPosInRadius,
-} from "../../utils/utils";
+import { _, Int64String, isPosInRadius } from "../../utils/utils";
 
 import {
     characterEquipment
@@ -220,7 +216,6 @@ export class zonePacketHandlers {
           () => server.saveCharacterPosition(client),
           30000
         );
-
         server.sendData(client, "Equipment.SetCharacterEquipment", {
             characterData: {
               characterId: client.character.characterId,
@@ -439,7 +434,7 @@ export class zonePacketHandlers {
         time3: packet.data.clientTime + 2,
       });
     };
-    this.commandExecuteCommand = async function (
+    (this.commandExecuteCommand = async function (
       server: ZoneServer2016,
       client: Client,
       packet: any
@@ -536,7 +531,7 @@ export class zonePacketHandlers {
               );
           break;
       }
-    },
+    }),
       /*
     "Command.SetProfile": function (server: ZoneServer2016, client: Client, packet: any) {
       server.sendData(client, "Loadout.SetCurrentLoadout", {
@@ -716,7 +711,7 @@ export class zonePacketHandlers {
               client.posAtLastRoutine
             )
           ) {
-            server.executeFuncForAllClients(() => server.vehicleManager);
+            server.executeFuncForAllReadyClients(() => server.vehicleManager);
           }
         }
       }

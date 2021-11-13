@@ -24,12 +24,7 @@ import {
   Weather2016,
 } from "../../types/zoneserver";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
-import { 
-  _, 
-  initMongo, 
-  Int64String, 
-  isPosInRadius 
-} from "../../utils/utils";
+import { _, initMongo, Int64String, isPosInRadius } from "../../utils/utils";
 
 import { MongoClient } from "mongodb";
 import dynamicWeather from "./workers/dynamicWeather";
@@ -51,9 +46,9 @@ export class ZoneServer2016 extends ZoneServer {
   _packetHandlers: zonePacketHandlers = new zonePacketHandlers();
   _weatherTemplates: any;
   _items: any = {};
-  _vehicles: {[characterId: string]: Vehicle} = {};
+  _vehicles: { [characterId: string]: Vehicle } = {};
   _reloadPacketsInterval: any;
-  
+
   constructor(serverPort: number, gatewayKey: Uint8Array, mongoAddress = "") {
     super(serverPort, gatewayKey, mongoAddress);
     this._protocol = new H1Z1Protocol("ClientProtocol_1080");
@@ -234,11 +229,24 @@ export class ZoneServer2016 extends ZoneServer {
                 itemDefinitionId: this._items[item].itemDefinitionId,
                 itemData: {
                   itemDefinitionId: this._items[item].itemDefinitionId,
-                  tintId: 0,
-                  guid: item,
-                  count: 1,
-                  itemSubData: {
-                    unknownBoolean1: false
+                  itemData: {
+                    itemDefinitionId: this._items[item].itemDefinitionId,
+                    tintId: 0,
+                    guid: item,
+                    count: 1,
+                    itemSubData: {
+                      unknownBoolean1: false,
+                    },
+                    unknownQword2: item,
+                    unknownDword4: 0,
+                    slot: 0,
+                    unknownDword6: 0,
+                    unknownDword7: 0,
+                    unknownDword8: 0,
+                    unknownBoolean1: true,
+                    unknownQword3: item,
+                    unknownDword9: 0,
+                    unknownBoolean2: true,
                   },
                   containerGuid: containerGuid,
                   containerDefinitionId: 3,
@@ -262,7 +270,7 @@ export class ZoneServer2016 extends ZoneServer {
         }
       ]
     ]
-
+    
     this.sendData(client, "SendSelfToClient", {
       data: {
         guid: client.character.guid, // todo: guid should be moved to client, instead of character
@@ -287,13 +295,13 @@ export class ZoneServer2016 extends ZoneServer {
               guid: item,
               count: 1, // also ammoCount
               itemSubData: {
-                hasSubData: false,/*
+                hasSubData: false /*
                 unknownDword1: 1,
                 unknownData1: {
                   unknownQword1: item,
                   unknownDword1: 1,
                   unknownDword2: 1
-                }*/
+                }*/,
               },
               containerGuid: item,
               containerDefinitionId: 1,
@@ -305,27 +313,29 @@ export class ZoneServer2016 extends ZoneServer {
               unknownQword3: item,
               unknownDword9: 1,
               unknownBoolean2: true,
-            }
-          })
+            };
+          }),
         },
         recipes: recipes,
         stats: stats,
         loadoutSlots: {
           loadoutId: 3,
           loadoutData: {
-            loadoutSlots: client.character.loadout.map((slot: characterLoadout) => {
-              return {
-                unknownDword1: 3,
-                itemDefinitionId: slot.itemDefinitionId,
-                slotId: slot.slotId,
-                unknownData1: {
+            loadoutSlots: client.character.loadout.map(
+              (slot: characterLoadout) => {
+                return {
+                  unknownDword1: 3,
                   itemDefinitionId: slot.itemDefinitionId,
-                  loadoutItemOwnerGuid: slot.itemGuid,
-                  unknownByte1: 17,
-                },
-                unknownDword4: 18,
-              };
-            }),
+                  slotId: slot.slotId,
+                  unknownData1: {
+                    itemDefinitionId: slot.itemDefinitionId,
+                    loadoutItemOwnerGuid: slot.itemGuid,
+                    unknownByte1: 17,
+                  },
+                  unknownDword4: 18,
+                };
+              }
+            ),
           },
           loadoutSlotId: 3,
         },
@@ -393,7 +403,9 @@ export class ZoneServer2016 extends ZoneServer {
       try {
         await mongoClient.connect();
       } catch (e) {
-        throw debug("[ERROR]Unable to connect to mongo server");
+        throw debug(
+          "[ERROR]Unable to connect to mongo server " + this._mongoAddress
+        );
       }
       debug("connected to mongo !");
       // if no collections exist on h1server database , fill it with samples
@@ -523,7 +535,7 @@ export class ZoneServer2016 extends ZoneServer {
     await this.fetchZoneData();
     this._profiles = this.generateProfiles();
     //this.createAllObjects();
-    
+
     if (
       await this._db?.collection("worlds").findOne({ worldId: this._worldId })
     ) {
@@ -535,15 +547,15 @@ export class ZoneServer2016 extends ZoneServer {
       await this.saveWorld();
     }
 
-    if (!this._soloMode){
-      debug("Starting H1emuZoneServer")
-      if(!this._loginServerInfo.address){
-        await this.fetchLoginInfo()
+    if (!this._soloMode) {
+      debug("Starting H1emuZoneServer");
+      if (!this._loginServerInfo.address) {
+        await this.fetchLoginInfo();
       }
       this._h1emuZoneServer.setLoginInfo(this._loginServerInfo, {
-        serverId: this._worldId
-      })
-      this._h1emuZoneServer.start()
+        serverId: this._worldId,
+      });
+      this._h1emuZoneServer.start();
       await this._db
         ?.collection("servers")
         .findOneAndUpdate(
@@ -557,7 +569,7 @@ export class ZoneServer2016 extends ZoneServer {
   async start(): Promise<void> {
     debug("Starting server");
     debug(`Protocol used : ${this._protocol.protocolName}`);
-    
+
     await this.setupServer();
     this._startTime += Date.now();
     this._startGameTime += Date.now();
@@ -609,7 +621,7 @@ export class ZoneServer2016 extends ZoneServer {
 
   worldRoutine(refresh = false): void {
     debug("WORLDROUTINE");
-    this.executeFuncForAllClients((client: Client) => {
+    this.executeFuncForAllReadyClients((client: Client) => {
       this.vehicleManager(client);
       this.removeOutOfDistanceEntities(client);
       this.spawnCharacters(client);
@@ -636,10 +648,7 @@ export class ZoneServer2016 extends ZoneServer {
     this.sendData(client, "SendZoneDetails", SendZoneDetails_packet);
   }
 
-  sendWeatherUpdatePacket(
-    client: Client,
-    weather: Weather2016
-  ): void {
+  sendWeatherUpdatePacket(client: Client, weather: Weather2016): void {
     if (!this._soloMode) {
       this.sendDataToAll("UpdateWeatherData", weather);
       if (client?.character?.name) {
@@ -676,8 +685,10 @@ export class ZoneServer2016 extends ZoneServer {
 
   removeOutOfDistanceEntities(client: Client): void {
     // does not include vehicles
-    const objectsToRemove = client.spawnedEntities.filter((e) =>
-      this.filterOutOfDistance(e, client.character.state.position) && !e.npcData?.isVehicle
+    const objectsToRemove = client.spawnedEntities.filter(
+      (e) =>
+        this.filterOutOfDistance(e, client.character.state.position) &&
+        !e.npcData?.isVehicle
     );
     client.spawnedEntities = client.spawnedEntities.filter((el) => {
       return !objectsToRemove.includes(el);
@@ -773,31 +784,28 @@ export class ZoneServer2016 extends ZoneServer {
   vehicleManager(client: Client) {
     for (const key in this._vehicles) {
       const vehicle = this._vehicles[key];
-      if ( // vehicle spawning / managed object assignment logic
+      if (
+        // vehicle spawning / managed object assignment logic
         isPosInRadius(
           this._npcRenderDistance,
           client.character.state.position,
           vehicle.npcData.position
         )
       ) {
-        if(!client.spawnedEntities.includes(vehicle)){
-          this.sendData(
-            client,
-            "AddLightweightVehicle",
-            vehicle,
-            1
-          );
+        if (!client.spawnedEntities.includes(vehicle)) {
+          this.sendData(client, "AddLightweightVehicle", vehicle, 1);
           client.spawnedEntities.push(vehicle);
         }
-        if (!vehicle.isManaged) { // assigns management to first client within radius
+        if (!vehicle.isManaged) {
+          // assigns management to first client within radius
           this.assignManagedObject(client, vehicle);
         }
-      }
-      else { // vehicle despawning / managed object drop logic
-        
+      } else {
+        // vehicle despawning / managed object drop logic
+
         const index = client.spawnedEntities.indexOf(vehicle);
-        if(index > -1){
-          if(vehicle.isManaged) {
+        if (index > -1) {
+          if (vehicle.isManaged) {
             this.dropManagedObject(client, vehicle);
           }
           this.sendData(
@@ -816,52 +824,58 @@ export class ZoneServer2016 extends ZoneServer {
 
   assignManagedObject(client: Client, vehicle: Vehicle) {
     // todo: vehicle seat swap managed object assignment logic
-    debug("\n\n\n\n\n\n\n\n\n\n assign managed object")
-    
+    debug("\n\n\n\n\n\n\n\n\n\n assign managed object");
+
     this.sendData(client, "Character.ManagedObject", {
       objectCharacterId: vehicle.npcData.characterId,
       characterId: client.character.characterId,
     });
     this.sendData(client, "ClientUpdate.ManagedObjectResponseControl", {
       control: true,
-      objectCharacterId: vehicle.npcData.characterId
+      objectCharacterId: vehicle.npcData.characterId,
     });
     client.managedObjects.push(vehicle);
     vehicle.isManaged = true;
   }
 
-  dropManagedObject(client: Client, vehicle: Vehicle, keepManaged: boolean = false) {
+  dropManagedObject(
+    client: Client,
+    vehicle: Vehicle,
+    keepManaged: boolean = false
+  ) {
     const index = client.managedObjects.indexOf(vehicle);
-    if(index > -1) { // todo: vehicle seat swap managed object drop logic
-      debug("\n\n\n\n\n\n\n\n\n\n drop managed object")
-      
+    if (index > -1) {
+      // todo: vehicle seat swap managed object drop logic
+      debug("\n\n\n\n\n\n\n\n\n\n drop managed object");
+
       this.sendData(client, "Character.ManagedObject", {
         objectCharacterId: vehicle.npcData.characterId,
         characterId: client.character.characterId,
       });
       this.sendData(client, "ClientUpdate.ManagedObjectResponseControl", {
         control: false,
-        objectCharacterId: vehicle.npcData.characterId
+        objectCharacterId: vehicle.npcData.characterId,
       });
       client.managedObjects.splice(index, 1);
       // blocks vehicleManager from taking over management during a takeover
-      if(!keepManaged) vehicle.isManaged = false;
+      if (!keepManaged) vehicle.isManaged = false;
     }
   }
 
   takeoverManagedObject(newClient: Client, vehicle: Vehicle) {
     const index = newClient.managedObjects.indexOf(vehicle);
-    if(index === -1) { // if object is already managed by client, do nothing
-      debug("\n\n\n\n\n\n\n\n\n\n takeover managed object")
-      for(const characterId in this._clients) {
+    if (index === -1) {
+      // if object is already managed by client, do nothing
+      debug("\n\n\n\n\n\n\n\n\n\n takeover managed object");
+      for (const characterId in this._clients) {
         const oldClient = this._clients[characterId];
         const idx = oldClient.managedObjects.indexOf(vehicle);
-        if(idx > -1) {
+        if (idx > -1) {
           this.dropManagedObject(oldClient, vehicle, true);
           break;
         }
       }
-      this.assignManagedObject(newClient, vehicle)
+      this.assignManagedObject(newClient, vehicle);
     }
   }
 
@@ -913,11 +927,7 @@ export class ZoneServer2016 extends ZoneServer {
     this._objects = objects;
     this._doors = doors;
     this._vehicles = vehicles;
-    delete require.cache[
-      require.resolve(
-        "./workers/createBaseEntities"
-      )
-    ];
+    delete require.cache[require.resolve("./workers/createBaseEntities")];
     debug("All entities created");
   }
 
@@ -960,48 +970,76 @@ export class ZoneServer2016 extends ZoneServer {
       unknownBoolean: false,
     });
   }
-  
+
   sendRawToAllOthersWithSpawnedCharacter(client: Client, entityCharacterId: string = "", data: any): void {
     for (const a in this._clients) {
-      if (client != this._clients[a] && 
-        this._clients[a].spawnedEntities.includes(this._characters[entityCharacterId])
+      if (
+        client != this._clients[a] &&
+        this._clients[a].spawnedEntities.includes(
+          this._characters[entityCharacterId]
+        )
       ) {
         this.sendRawData(this._clients[a], data);
       }
     }
   }
-  sendDataToAllOthersWithSpawnedCharacter(client: Client, packetName: any, obj: any, channel = 0): void {
+  sendDataToAllOthersWithSpawnedCharacter(
+    client: Client,
+    packetName: any,
+    obj: any,
+    channel = 0
+  ): void {
     for (const a in this._clients) {
-      if(client != this._clients[a] &&
-        this._clients[a].spawnedEntities.includes(this._characters[client.character.characterId])
-      ){
+      if (
+        client != this._clients[a] &&
+        this._clients[a].spawnedEntities.includes(
+          this._characters[client.character.characterId]
+        )
+      ) {
         this.sendData(this._clients[a], packetName, obj, channel);
       }
     }
   }
-//#region ********************VEHICLE********************
-  sendDataToAllWithSpawnedVehicle(entityCharacterId: string = "", packetName: any, obj: any, channel = 0): void {
-    if(!entityCharacterId) return;
+  //#region ********************VEHICLE********************
+  sendDataToAllWithSpawnedVehicle(
+    entityCharacterId: string = "",
+    packetName: any,
+    obj: any,
+    channel = 0
+  ): void {
+    if (!entityCharacterId) return;
     for (const a in this._clients) {
-      if(this._clients[a].spawnedEntities.includes(this._vehicles[entityCharacterId])
-      ){
+      if (
+        this._clients[a].spawnedEntities.includes(
+          this._vehicles[entityCharacterId]
+        )
+      ) {
         this.sendData(this._clients[a], packetName, obj, channel);
       }
     }
   }
-  sendDataToAllOthersWithSpawnedVehicle(client: Client, entityCharacterId: string = "", packetName: any, obj: any, channel = 0): void {
-    if(!entityCharacterId) return;
+  sendDataToAllOthersWithSpawnedVehicle(
+    client: Client,
+    entityCharacterId: string = "",
+    packetName: any,
+    obj: any,
+    channel = 0
+  ): void {
+    if (!entityCharacterId) return;
     for (const a in this._clients) {
-      if(client != this._clients[a] &&
-        this._clients[a].spawnedEntities.includes(this._vehicles[entityCharacterId])
-      ){
+      if (
+        client != this._clients[a] &&
+        this._clients[a].spawnedEntities.includes(
+          this._vehicles[entityCharacterId]
+        )
+      ) {
         this.sendData(this._clients[a], packetName, obj, channel);
       }
     }
   }
   mountVehicle(client: Client, packet: any): void {
     const vehicle = this._vehicles[packet.data.guid];
-    if(!vehicle) return;
+    if (!vehicle) return;
     client.vehicle.mountedVehicle = vehicle.npcData.characterId;
     switch (vehicle.npcData.vehicleId) {
       case 1:
@@ -1023,18 +1061,22 @@ export class ZoneServer2016 extends ZoneServer {
         client.vehicle.mountedVehicleType = "unknown";
         break;
     }
-    const seatId = vehicle.getNextSeatId()
-    if(!seatId) return; // no available seats in vehicle
+    const seatId = vehicle.getNextSeatId();
+    if (!seatId) return; // no available seats in vehicle
     vehicle.seats[seatId] = client.character.characterId;
-    this.sendDataToAllWithSpawnedVehicle(packet.data.guid, "Mount.MountResponse", {
-      // mounts character
-      characterId: client.character.characterId,
-      vehicleGuid: vehicle.npcData.characterId, // vehicle guid
-      seatId: Number(seatId),
-      unknownDword3: seatId==="0"?1:0, //isDriver
-      identity: {},
-    });
-    if(seatId === "0") {
+    this.sendDataToAllWithSpawnedVehicle(
+      packet.data.guid,
+      "Mount.MountResponse",
+      {
+        // mounts character
+        characterId: client.character.characterId,
+        vehicleGuid: vehicle.npcData.characterId, // vehicle guid
+        seatId: Number(seatId),
+        unknownDword3: seatId === "0" ? 1 : 0, //isDriver
+        identity: {},
+      }
+    );
+    if (seatId === "0") {
       this.takeoverManagedObject(client, vehicle);
       this.sendDataToAllWithSpawnedVehicle(packet.data.guid, "Vehicle.Engine", {
         // starts engine
@@ -1042,64 +1084,87 @@ export class ZoneServer2016 extends ZoneServer {
         engineOn: true,
       });
     }
-    
   }
 
   dismountVehicle(client: Client): void {
-    if(!client.vehicle.mountedVehicle) return;
+    if (!client.vehicle.mountedVehicle) return;
     const vehicle = this._vehicles[client.vehicle.mountedVehicle];
-    if(!vehicle) return;
+    if (!vehicle) return;
     const seatId = vehicle.getCharacterSeat(client.character.characterId);
-    if(!seatId) return;
+    if (!seatId) return;
     vehicle.seats[seatId] = "";
-    this.sendDataToAllWithSpawnedVehicle(client.vehicle.mountedVehicle, "Mount.DismountResponse", {
-      // dismounts character
-      characterId: client.character.characterId,
-    });
-    if(seatId === "0") {
-      this.sendDataToAllWithSpawnedVehicle(client.vehicle.mountedVehicle, "Vehicle.Engine", {
-        // stops engine
-        guid2: client.vehicle.mountedVehicle,
-        engineOn: false,
-      });
+    this.sendDataToAllWithSpawnedVehicle(
+      client.vehicle.mountedVehicle,
+      "Mount.DismountResponse",
+      {
+        // dismounts character
+        characterId: client.character.characterId,
+      }
+    );
+    if (seatId === "0") {
+      this.sendDataToAllWithSpawnedVehicle(
+        client.vehicle.mountedVehicle,
+        "Vehicle.Engine",
+        {
+          // stops engine
+          guid2: client.vehicle.mountedVehicle,
+          engineOn: false,
+        }
+      );
     }
     client.vehicle.mountedVehicle = "";
   }
 
   changeSeat(client: Client, packet: any): void {
-    if(!client.vehicle.mountedVehicle) return;
+    if (!client.vehicle.mountedVehicle) return;
     const vehicle = this._vehicles[client.vehicle.mountedVehicle],
-    seatCount = vehicle.getSeatCount(),
-    oldSeatId = vehicle.getCharacterSeat(client.character.characterId);
+      seatCount = vehicle.getSeatCount(),
+      oldSeatId = vehicle.getCharacterSeat(client.character.characterId);
 
-    if (packet.data.seatId < seatCount && !vehicle.seats[packet.data.seatId] && oldSeatId) {
-      this.sendDataToAllWithSpawnedVehicle(client.vehicle.mountedVehicle, "Mount.SeatChangeResponse", {
-        characterId: client.character.characterId,
-        vehicleGuid: vehicle.npcData.characterId,
-        identity: {},
-        seatId: packet.data.seatId,
-      });
+    if (
+      packet.data.seatId < seatCount &&
+      !vehicle.seats[packet.data.seatId] &&
+      oldSeatId
+    ) {
+      this.sendDataToAllWithSpawnedVehicle(
+        client.vehicle.mountedVehicle,
+        "Mount.SeatChangeResponse",
+        {
+          characterId: client.character.characterId,
+          vehicleGuid: vehicle.npcData.characterId,
+          identity: {},
+          seatId: packet.data.seatId,
+        }
+      );
       vehicle.seats[oldSeatId] = "";
       vehicle.seats[packet.data.seatId] = client.character.characterId;
-      if(oldSeatId === "0") {
-        this.sendDataToAllWithSpawnedVehicle(client.vehicle.mountedVehicle, "Vehicle.Engine", {
-          // stops engine
-          guid2: client.vehicle.mountedVehicle,
-          engineOn: false,
-        });
+      if (oldSeatId === "0") {
+        this.sendDataToAllWithSpawnedVehicle(
+          client.vehicle.mountedVehicle,
+          "Vehicle.Engine",
+          {
+            // stops engine
+            guid2: client.vehicle.mountedVehicle,
+            engineOn: false,
+          }
+        );
       }
-      if(packet.data.seatId === 0) {
+      if (packet.data.seatId === 0) {
         this.takeoverManagedObject(client, vehicle);
-        this.sendDataToAllWithSpawnedVehicle(client.vehicle.mountedVehicle, "Vehicle.Engine", {
-          // stops engine
-          guid2: client.vehicle.mountedVehicle,
-          engineOn: true,
-        });
+        this.sendDataToAllWithSpawnedVehicle(
+          client.vehicle.mountedVehicle,
+          "Vehicle.Engine",
+          {
+            // stops engine
+            guid2: client.vehicle.mountedVehicle,
+            engineOn: true,
+          }
+        );
       }
     }
   }
-//#endregion
-//#region ********************INVENTORY********************
+  //#endregion
+  //#region ********************INVENTORY********************
 
   updateLoadout(client: Client) {
     this.sendData(client, "Loadout.SetLoadoutSlots", {
@@ -1129,33 +1194,29 @@ export class ZoneServer2016 extends ZoneServer {
       characterData: {
         characterId: character.characterId,
       },
-      equipmentSlots: character.equipment.map(
-        (slot: characterEquipment) => {
-          return {
+      equipmentSlots: character.equipment.map((slot: characterEquipment) => {
+        return {
+          equipmentSlotId: slot.slotId,
+          equipmentSlotData: {
             equipmentSlotId: slot.slotId,
-            equipmentSlotData: {
-              equipmentSlotId: slot.slotId,
-              guid: slot.guid || "",
-              tintAlias: slot.tintAlias || "",
-              decalAlias: slot.tintAlias || "#",
-            },
-          };
-        }
-      ),
-      attachmentData: character.equipment.map(
-        (slot: characterEquipment) => {
-          return {
-            modelName: slot.modelName,
-            textureAlias: slot.textureAlias || "",
+            guid: slot.guid || "",
             tintAlias: slot.tintAlias || "",
             decalAlias: slot.tintAlias || "#",
-            slotId: slot.slotId,
-          };
-        }
-      ),
+          },
+        };
+      }),
+      attachmentData: character.equipment.map((slot: characterEquipment) => {
+        return {
+          modelName: slot.modelName,
+          textureAlias: slot.textureAlias || "",
+          tintAlias: slot.tintAlias || "",
+          decalAlias: slot.tintAlias || "#",
+          slotId: slot.slotId,
+        };
+      }),
     });
   }
-  
+
   addItem(client: Client, itemGuid: string) {
     this.sendData(client, "ClientUpdate.ItemAdd", {
       characterId: client.character.characterId,
@@ -1213,7 +1274,6 @@ export class ZoneServer2016 extends ZoneServer {
         textureAlias: def.TEXTURE_ALIAS,
         tintAlias: "",
       };
-      
 
     lIndex === -1
       ? client.character.loadout.push(loadoutData)
@@ -1221,20 +1281,22 @@ export class ZoneServer2016 extends ZoneServer {
     eIndex === -1
       ? client.character.equipment.push(equipmentData)
       : (client.character.equipment[eIndex] = equipmentData);
-    
+
     const existingItem = Object.keys(client.character._inventory).find(
-      (guid: any) => client.character._inventory[guid].loadoutSlotId === loadoutSlotId);
-    if(existingItem && sendPacket) {
+      (guid: any) =>
+        client.character._inventory[guid].loadoutSlotId === loadoutSlotId
+    );
+    if (existingItem && sendPacket) {
       delete client.character._inventory[existingItem];
       this.sendData(client, "ClientUpdate.ItemDelete", {
         characterId: client.character.characterId,
-        itemGuid: existingItem
-      })
+        itemGuid: existingItem,
+      });
     }
     client.character._inventory[item.guid] = item;
 
     // put this above ItemAdd function when inventory items are tracked in client.character
-    if(!sendPacket) return;
+    if (!sendPacket) return;
 
     this.updateLoadout(client);
     this.updateEquipment(client);

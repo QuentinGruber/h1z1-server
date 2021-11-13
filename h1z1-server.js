@@ -51,6 +51,10 @@ h1z1Server.__defineGetter__("SOEClient", function () {
   return require("./out/clients/soeclient.js").SOEClient;
 });  
 
+h1z1Server.__defineGetter__("SOEClientClass", function () {
+  return require("./out/servers/SoeServer/soeclient.js").default;
+});  
+
 h1z1Server.__defineGetter__("LoginClient", function () {
   return require("./out/clients/loginclient.js").LoginClient;
 }); 
@@ -62,6 +66,14 @@ h1z1Server.__defineGetter__("GatewayClient", function () {
 h1z1Server.__defineGetter__("ZoneClient", function () {
   return require("./out/clients/zoneclient.js").ZoneClient;
 });  
+
+h1z1Server.__defineGetter__("ZoneClientClass", function () {
+  return require("./out/servers/ZoneServer/classes/zoneclient.js").ZoneClient;
+});
+
+h1z1Server.__defineGetter__("Utils", function () {
+  return require("./out/utils/utils");
+});
 
 h1z1Server.__defineGetter__("SOEServer", function () {
   return require("./out/servers/SoeServer/soeserver.js").SOEServer;

@@ -16,7 +16,7 @@ import DataSchema from "h1z1-dataschema";
 import { eul2quat, lz4_decompress } from "../utils/utils";
 import { packUnsignedIntWith2bitLengthValue } from "../packets/ClientProtocol/ClientProtocol_860/h1z1packets";
 
-interface UpdatePositionObject {
+export interface UpdatePositionObject {
   raw: Buffer;
   flags: any;
   sequenceTime: any; // similar to simestamp, allows us to delay/synchronize this packet
@@ -69,16 +69,19 @@ export class H1Z1Protocol {
 
   createPositionBroadcast2016(rawData: Buffer, transientId: number): Buffer {
     const tId = packUnsignedIntWith2bitLengthValue(transientId);
-    return Buffer.concat([Buffer.from([0x79]),tId,rawData]); //0x79 = opcode
+    return Buffer.concat([Buffer.from([0x79]), tId, rawData]); //0x79 = opcode
   }
 
   createVehiclePositionBroadcast(rawData: Buffer): Buffer {
     return Buffer.concat([new Uint8Array([120]), rawData]);
   }
 
-  createVehiclePositionBroadcast2016(rawData: Buffer, transientId: number): Buffer {
+  createVehiclePositionBroadcast2016(
+    rawData: Buffer,
+    transientId: number
+  ): Buffer {
     const tId = packUnsignedIntWith2bitLengthValue(transientId);
-    return Buffer.concat([Buffer.from([0x91]),tId,rawData]); //0x91 = opcode
+    return Buffer.concat([Buffer.from([0x91]), tId, rawData]); //0x91 = opcode
   }
 
   parseFacilityReferenceData(data: Buffer) {

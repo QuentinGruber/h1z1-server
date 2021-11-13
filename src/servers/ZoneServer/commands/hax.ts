@@ -111,6 +111,49 @@ const hax: any = {
       server.sendChatText(client, "You are not in a vehicle");
     }
   },
+  vehicleaction: function (server: ZoneServer, client: Client, args: any[]) {
+    if (client.vehicle.mountedVehicle) {
+      const type = args[1];
+      if (!args[1]) {
+        server.sendChatText(client, "[ERROR] Specify action (repair/refuel)");
+        return;
+      }
+      const vehicle = server._vehicles[client.vehicle.mountedVehicle];
+      switch (type) {
+        case "refuel":
+          server._vehicles[
+            client.vehicle.mountedVehicle
+          ].npcData.resources.fuel = 10000;
+          server.updateResource(
+            client,
+            vehicle.npcData.characterId,
+            vehicle.npcData.resources.fuel,
+            396,
+            50
+          );
+          server.sendChatText(client, "Vehicle refueled");
+          break;
+        case "repair":
+          server._vehicles[
+            client.vehicle.mountedVehicle
+          ].npcData.resources.health = 100000;
+          server.updateResource(
+            client,
+            vehicle.npcData.characterId,
+            vehicle.npcData.resources.health,
+            561,
+            1
+          );
+          server.sendChatText(client, "Vehicle repaired");
+          break;
+        default:
+          server.sendChatText(client, "[ERROR] Usage: /hax repair/refuel");
+          break;
+      }
+    } else {
+      server.sendChatText(client, "[ERROR] You are not in a vehicle");
+    }
+  },
   drive: function (server: ZoneServer, client: Client, args: any[]) {
     let driveModel;
     const driveChoosen = args[1];
@@ -156,95 +199,89 @@ const hax: any = {
       ...vehicleData,
       onReadyCallback: () => {
         // doing anything with vehicle before client gets fullvehicle packet breaks it
-        server.sendData(client, "PlayerUpdate.ManagedObject", {
-          guid: vehicleData.npcData.characterId,
-          characterId: client.character.characterId,
-        });
-        server.sendDataToAll("Mount.MountResponse", {
-          characterId: client.character.characterId,
-          guid: characterId,
-          characterData: [],
-        });
-        server.sendDataToAll("Vehicle.Engine", {
-          guid2: characterId,
-          unknownBoolean: true,
-        });
-        client.vehicle.mountedVehicle = characterId;
-        client.managedObjects.push(server._vehicles[characterId]);
-        setTimeout(()=>{client.character.godMode = wasAlreadyGod?true:false},1000)
+        server.enterVehicle(client, vehicleData);
+        setTimeout(() => {
+          client.character.godMode = wasAlreadyGod ? true : false;
+        }, 1000);
       },
     };
     server.worldRoutine();
   },
-    weaponstance: function (server: ZoneServer, client: Client, args: any[]) {
-        const stance = args[1];
-        let weaponStance;
-        switch(stance){
-        case "0":
-            weaponStance = 0;
-            break;
-        case "1":
-            weaponStance = 1;
-            break;
-        case "2":
-            weaponStance = 2;
-            break;
-        case "list":
-            server.sendChatText(client, `Avaible weaponstances: "0, 1, 2"`);
-            break;
-        default:
-            server.sendChatText(client, `Incorrect weaponstance! use /hax weaponstance list`);
-            break;
-        }
-        server.sendDataToAll("PlayerUpdate.WeaponStance", {
-            characterId: client.character.characterId,
-            stance: weaponStance,
-        });
-    },
-           state: function (server: ZoneServer, client: Client, args: any[]) {
-        const state = args[1];
-        let stateId = "";
-        switch(state) {
-        case "list":
-                // Adding this later
-            break;
-        case "default":
-                stateId = "000000000000000000";
-            break;
-        case "hidden":
-                stateId = "0000000000F0000000";
-            break;
-        case "sit":
-                stateId = "00000F000000000F00";
-            break;
-        case "autorun":
-                stateId = "000000000001000000";
-            break;
-        case "cuffed":
-                stateId = "000000000000000010";
-            break;
-        case "godmode":
-                stateId = "00000000000A000000";
-            break;
-        case "handsup":
-                stateId = "0000F0000000000000";
-            break;
-         case "disfunctional":
-                stateId = "FFFFFFFFFFFFFFFFFF";
-            break;
-         case "dead":
-                stateId = "0000000000000000C00";
-            break;
-         default:
-                server.sendChatText(client, `Incorrect characterstate! use /hax state list`);
-            break;
-         }
-         server.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
-         characterId: client.character.characterId,
-         state: stateId,
-         gameTime: server.getServerTime().toString(16),
-      });
-    },
+  weaponstance: function (server: ZoneServer, client: Client, args: any[]) {
+    const stance = args[1];
+    let weaponStance;
+    switch (stance) {
+      case "0":
+        weaponStance = 0;
+        break;
+      case "1":
+        weaponStance = 1;
+        break;
+      case "2":
+        weaponStance = 2;
+        break;
+      case "list":
+        server.sendChatText(client, `Avaible weaponstances: "0, 1, 2"`);
+        break;
+      default:
+        server.sendChatText(
+          client,
+          `Incorrect weaponstance! use /hax weaponstance list`
+        );
+        break;
+    }
+    server.sendDataToAll("PlayerUpdate.WeaponStance", {
+      characterId: client.character.characterId,
+      stance: weaponStance,
+    });
+  },
+  state: function (server: ZoneServer, client: Client, args: any[]) {
+    const state = args[1];
+    let stateId = "";
+    switch (state) {
+      case "list":
+        // Adding this later
+        break;
+      case "default":
+        stateId = "000000000000000000";
+        break;
+      case "hidden":
+        stateId = "0000000000F0000000";
+        break;
+      case "sit":
+        stateId = "00000F000000000F00";
+        break;
+      case "autorun":
+        stateId = "000000000001000000";
+        break;
+      case "cuffed":
+        stateId = "000000000000000010";
+        break;
+      case "godmode":
+        stateId = "00000000000A000000";
+        break;
+      case "handsup":
+        stateId = "0000F0000000000000";
+        break;
+      case "disfunctional":
+        stateId = "FFFFFFFFFFFFFFFFFF";
+        break;
+      case "dead":
+        stateId = "0000000000000000C00";
+        break;
+      default:
+        server.sendChatText(
+          client,
+          `Incorrect characterstate! use /hax state list`
+        );
+        break;
+    }
+    server.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
+      characterId: client.character.characterId,
+      state: stateId,
+      gameTime: server.getServerTime().toString(16),
+    });
+  },
   spawnvehicle: function (server: ZoneServer, client: Client, args: any[]) {
     if (!args[1]) {
       server.sendChatText(
@@ -269,6 +306,8 @@ const hax: any = {
         driveModel = 7225;
         break;
     }
+    let wasAlreadyGod = client.character.godMode;
+    client.character.godMode = true;
     const characterId = server.generateGuid();
     const vehicleData = new Vehicle(
       server._worldId,
@@ -288,9 +327,12 @@ const hax: any = {
           guid: vehicleData.npcData.characterId,
           characterId: client.character.characterId,
         });
-        client.managedObjects.push(server._vehicles[characterId]);
+        setTimeout(() => {
+          client.character.godMode = wasAlreadyGod ? true : false;
+        }, 1000);
       },
     };
+    server.worldRoutine();
   },
 
   parachute: function (server: ZoneServer, client: Client, args: any[]) {
@@ -1018,7 +1060,10 @@ const hax: any = {
   },
   godmode: function (server: ZoneServer, client: Client, args: any[]) {
     client.character.godMode = !client.character.godMode;
-    server.sendChatText(client,`GODMODE: ${client.character.godMode ? "ON" : "OFF"}`);
+    server.sendChatText(
+      client,
+      `GODMODE: ${client.character.godMode ? "ON" : "OFF"}`
+    );
   },
 };
 

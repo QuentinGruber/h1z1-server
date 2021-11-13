@@ -595,7 +595,7 @@ const dev: any = {
     const backpack: any = server.generateItem(1602);
     server.equipItem(client, backpack);
     const item: any = server.generateItem(2425),
-    containerGuid = server.generateGuid(),
+      containerGuid = server.generateGuid(),
       containers = [
         {
           unknownDword1: 3, // container itemDefinitionId ?
@@ -750,29 +750,33 @@ const dev: any = {
       }
     );
   },
-  begincharacteraccess: function (server: ZoneServer2016, client: Client, args: any[]) {
+  begincharacteraccess: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: any[]
+  ) {
     const backpack: any = server.generateItem(1602);
     server.equipItem(client, backpack);
     const objectCharacterId = server.generateGuid(),
-    npc = {
-      characterId: objectCharacterId,
-      guid: server.generateGuid(),
-      transientId: 9999,
-      modelId: 9034,
-      position: [
-        client.character.state.position[0],
-        client.character.state.position[1],
-        client.character.state.position[2],
-      ],
-      rotation: [
-        client.character.state.rotation[0],
-        client.character.state.rotation[1],
-        client.character.state.rotation[2],
-      ],
-      color: {},
-      unknownData1: { unknownData1: {} },
-      attachedObject: {},
-    };
+      npc = {
+        characterId: objectCharacterId,
+        guid: server.generateGuid(),
+        transientId: 9999,
+        modelId: 9034,
+        position: [
+          client.character.state.position[0],
+          client.character.state.position[1],
+          client.character.state.position[2],
+        ],
+        rotation: [
+          client.character.state.rotation[0],
+          client.character.state.rotation[1],
+          client.character.state.rotation[2],
+        ],
+        color: {},
+        unknownData1: { unknownData1: {} },
+        attachedObject: {},
+      };
     const item: any = server.generateItem(2425),
     containerGuid = server.generateGuid(),
     containers = [
@@ -788,11 +792,24 @@ const dev: any = {
               itemDefinitionId: server._items[item].itemDefinition.ID,
               itemData: {
                 itemDefinitionId: server._items[item].itemDefinition.ID,
-                tintId: 1,
-                guid: item,
-                count: 1,
-                itemSubData: {
-                  unknownBoolean1: false,
+                itemData: {
+                  itemDefinitionId: server._items[item].itemDefinition.ID,
+                  tintId: 1,
+                  guid: item,
+                  count: 1,
+                  itemSubData: {
+                    unknownBoolean1: false,
+                  },
+                  unknownQword2: containerGuid,
+                  unknownDword4: 1,
+                  slot: 1,
+                  unknownDword6: 1,
+                  unknownDword7: 1,
+                  unknownDword8: 1,
+                  unknownBoolean1: true,
+                  unknownQword3: containerGuid,
+                  unknownDword9: 1,
+                  unknownBoolean2: true,
                 },
                 containerGuid: containerGuid,
                 containerDefinitionId: 1,
@@ -804,28 +821,26 @@ const dev: any = {
                 unknownQword3: containerGuid,
                 unknownDword9: 1,
               },
-            },
-          ],
-          unknownBoolean1: true,
-          unknownDword3: 1,
-          unknownDword4: 1,
-          unknownDword5: 1,
-          unknownBoolean2: true,
+            ],
+            unknownBoolean1: true,
+            unknownDword3: 1,
+            unknownDword4: 1,
+            unknownDword5: 1,
+            unknownBoolean2: true,
+          },
         },
-      },
-    ];
+      ];
 
     server._npcs[objectCharacterId] = npc; // save npc
     server.worldRoutine();
-    setTimeout(()=> {
+    setTimeout(() => {
       server.sendData(client, "Container.InitEquippedContainers", {
         ignore: client.character.characterId,
         //ignore2: client.character.characterId,
         characterId: objectCharacterId,
         containers: containers,
       });
-      
-      
+
       server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
         objectCharacterId: objectCharacterId,
         containerGuid: containerGuid,
@@ -857,14 +872,13 @@ const dev: any = {
                   },
                 },
               },
-              unknownBool1: false
-            }
+              unknownBool1: false,
+            },
           ],
-          unknownDword1: 1
-        }
+          unknownDword1: 1,
+        },
       });
-    }, 3000)
-    
+    }, 3000);
   },
   fte: function (server: ZoneServer2016, client: Client, args: any[]) {
     if(!args[3]){

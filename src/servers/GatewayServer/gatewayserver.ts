@@ -14,7 +14,7 @@
 import { EventEmitter } from "events";
 import { SOEServer } from "../SoeServer/soeserver";
 import { GatewayProtocol } from "../../protocols/gatewayprotocol";
-import SOEClient from "servers/SoeServer/soeclient";
+import SOEClient from "../SoeServer/soeclient";
 
 const debug = require("debug")("GatewayServer");
 
