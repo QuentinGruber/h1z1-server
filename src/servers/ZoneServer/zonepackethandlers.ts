@@ -562,9 +562,10 @@ export class zonePacketHandlers {
           break;
         case joaat("HAX"):
           if (
-            (server._allowedCommands.length === 0 ||
+            client.isAdmin ||
+            ((server._allowedCommands.length === 0 ||
               server._allowedCommands.includes(commandName)) &&
-            !!hax[commandName]
+              !!hax[commandName])
           ) {
             // using !! is faster but ugly
             hax[commandName](server, client, args);
@@ -582,9 +583,10 @@ export class zonePacketHandlers {
         case joaat("DEV"):
         case 552078457: // dev
           if (
-            (server._allowedCommands.length === 0 ||
+            client.isAdmin ||
+            ((server._allowedCommands.length === 0 ||
               server._allowedCommands.includes(commandName)) &&
-            !!dev[commandName]
+              !!dev[commandName])
           ) {
             // using !! is faster but ugly
             dev[commandName](server, client, args);
@@ -602,9 +604,10 @@ export class zonePacketHandlers {
         case joaat("ADMIN"):
         case 997464845: // admin
           if (
-            (server._allowedCommands.length === 0 ||
+            client.isAdmin ||
+            ((server._allowedCommands.length === 0 ||
               server._allowedCommands.includes(commandName)) &&
-            !!admin[commandName]
+              !!admin[commandName])
           ) {
             // using !! is faster but ugly
             admin[commandName](server, client, args);
