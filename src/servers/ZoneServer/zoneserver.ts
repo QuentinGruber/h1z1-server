@@ -58,6 +58,7 @@ export class ZoneServer extends EventEmitter {
   _clients: any;
   _characters: any;
   _gameTime: any;
+  _time: number;
   _serverTime: any;
   _transientIds: any;
   _packetHandlers: zonePacketHandlers;
@@ -92,7 +93,10 @@ export class ZoneServer extends EventEmitter {
   worldRoutineTimer: any;
   tickRate: number = 3000;
   _h1emuZoneServer!: H1emuZoneServer;
-  _loginServerInfo: { address?: string; port: number } = { address: process.env.LOGINSERVER_IP, port: 1110 };
+  _loginServerInfo: { address?: string; port: number } = {
+    address: process.env.LOGINSERVER_IP,
+    port: 1110,
+  };
   _clientProtocol: string = "ClientProtocol_860";
   _allowedCommands: string[] = [];
   _maxAllowedPing: number = 200;
@@ -123,6 +127,7 @@ export class ZoneServer extends EventEmitter {
     this._transientIds = {};
     this._packetHandlers = new zonePacketHandlers();
     this._startTime = 0;
+    this._time = Date.now();
     this._startGameTime = 0;
     this._timeMultiplier = 72;
     this._cycleSpeed = 0;
@@ -192,7 +197,13 @@ export class ZoneServer extends EventEmitter {
         loginSessionId: string,
         clientProtocol: string
       ) => {
-        this.onGatewayLoginEvent(err, client, characterId, loginSessionId, clientProtocol);
+        this.onGatewayLoginEvent(
+          err,
+          client,
+          characterId,
+          loginSessionId,
+          clientProtocol
+        );
       }
     );
 
@@ -260,20 +271,22 @@ export class ZoneServer extends EventEmitter {
                 const { address, reqId } = packet.data;
                 try {
                   // TODO: improve this
-                  const soeClient:SOEClient = (Object.values(this._gatewayServer._soeServer._clients).find((client)=>{return (client as SOEClient).address === address})as SOEClient);
+                  const soeClient: SOEClient = Object.values(
+                    this._gatewayServer._soeServer._clients
+                  ).find((client) => {
+                    return (client as SOEClient).address === address;
+                  }) as SOEClient;
                   const clientPingMs = soeClient.zonePingTimeMs;
-                  
-                  this._h1emuZoneServer.sendData(
-                    client,
-                    "ZonePingReply",
-                    { reqId: reqId, status: clientPingMs > this._maxAllowedPing ? 0 : 1 }
-                  );
+
+                  this._h1emuZoneServer.sendData(client, "ZonePingReply", {
+                    reqId: reqId,
+                    status: clientPingMs > this._maxAllowedPing ? 0 : 1,
+                  });
                 } catch (error) {
-                  this._h1emuZoneServer.sendData(
-                    client,
-                    "ZonePingReply",
-                    { reqId: reqId, status: 0 }
-                  );
+                  this._h1emuZoneServer.sendData(client, "ZonePingReply", {
+                    reqId: reqId,
+                    status: 0,
+                  });
                 }
                 break;
               }
@@ -411,10 +424,10 @@ export class ZoneServer extends EventEmitter {
     loginSessionId: string,
     clientProtocol: string
   ) {
-    if(clientProtocol !== this._clientProtocol){
+    if (clientProtocol !== this._clientProtocol) {
       debug(`${client.address} is using the wrong client protocol`);
       this.sendData(client as Client, "LoginFailed", {});
-      return
+      return;
     }
     debug(
       `Client logged in from ${client.address}:${client.port} with character id: ${characterId}`
@@ -539,37 +552,31 @@ export class ZoneServer extends EventEmitter {
     return allTransient;
   }
 
-
-  getEntityType(entityKey:string):number{
-    if(!!this._npcs[entityKey]){
-      return 1
-    }
-    else if(!!this._vehicles[entityKey]){
+  getEntityType(entityKey: string): number {
+    if (!!this._npcs[entityKey]) {
+      return 1;
+    } else if (!!this._vehicles[entityKey]) {
       return 2;
-    }
-    else if(!!this._characters[entityKey]){
+    } else if (!!this._characters[entityKey]) {
       return 3;
-    }
-    else if(!!this._objects[entityKey]){
+    } else if (!!this._objects[entityKey]) {
       return 4;
-    }
-    else if(!!this._props[entityKey]){
+    } else if (!!this._props[entityKey]) {
       return 5;
-    }
-    else {
+    } else {
       return 6; // doors
     }
   }
-  sendZonePopulationUpdate(){
+  sendZonePopulationUpdate() {
     const populationNumber = _.size(this._characters);
     this._h1emuZoneServer.sendData(
-            {
-              ...this._loginServerInfo,
-              session: true,
-            } as any,
-            "UpdateZonePopulation",
-            { population: populationNumber }
-          );
+      {
+        ...this._loginServerInfo,
+        session: true,
+      } as any,
+      "UpdateZonePopulation",
+      { population: populationNumber }
+    );
   }
 
   async fetchWorldData(): Promise<void> {
@@ -683,15 +690,18 @@ export class ZoneServer extends EventEmitter {
       try {
         await mongoClient.connect();
       } catch (e) {
-        throw debug("[ERROR]Unable to connect to mongo server "+this._mongoAddress);
+        throw debug(
+          "[ERROR]Unable to connect to mongo server " + this._mongoAddress
+        );
       }
       debug("connected to mongo !");
       // if no collections exist on h1server database , fill it with samples
-      const dbIsEmpty = (await mongoClient.db("h1server").collections()).length < 1
-      if(dbIsEmpty){
-        await initMongo(this._mongoAddress, debugName)
+      const dbIsEmpty =
+        (await mongoClient.db("h1server").collections()).length < 1;
+      if (dbIsEmpty) {
+        await initMongo(this._mongoAddress, debugName);
       }
-      delete require.cache[require.resolve('mongodb-restore-dump')]
+      delete require.cache[require.resolve("mongodb-restore-dump")];
       this._db = mongoClient.db("h1server");
     }
     await this.setupServer();
@@ -737,19 +747,18 @@ export class ZoneServer extends EventEmitter {
   }
 
   reloadPackets(client: Client, intervalTime = -1): void {
-      this.reloadZonePacketHandlers();
-      this._protocol.reloadPacketDefinitions();
-      this.sendChatText(client, "[DEV] Packets reloaded", true);
+    this.reloadZonePacketHandlers();
+    this._protocol.reloadPacketDefinitions();
+    this.sendChatText(client, "[DEV] Packets reloaded", true);
   }
 
-  async reloadZonePacketHandlers(){
+  async reloadZonePacketHandlers() {
     //@ts-ignore
     delete this._packetHandlers;
-    delete require.cache[
-      require.resolve("./zonepackethandlers")
-    ];
-    ;
-    this._packetHandlers = new (require("./zonepackethandlers") as any).zonePacketHandlers();
+    delete require.cache[require.resolve("./zonepackethandlers")];
+    this._packetHandlers = new (
+      require("./zonepackethandlers") as any
+    ).zonePacketHandlers();
     await this._packetHandlers.reloadCommandCache();
   }
 
@@ -902,9 +911,7 @@ export class ZoneServer extends EventEmitter {
       });
     });
     delete require.cache[
-      require.resolve(
-        "../../../data/2015/dataSources/ProfileTypes.json"
-      )
+      require.resolve("../../../data/2015/dataSources/ProfileTypes.json")
     ];
     debug("Generated profiles");
     return profiles;
@@ -996,8 +1003,8 @@ export class ZoneServer extends EventEmitter {
 
   executeFuncForAllReadyClients(callback: any): void {
     for (const client in this._clients) {
-      const clientObj:Client = this._clients[client];
-      if(!clientObj.isLoading){
+      const clientObj: Client = this._clients[client];
+      if (!clientObj.isLoading) {
         callback(clientObj);
       }
     }
@@ -1018,20 +1025,20 @@ export class ZoneServer extends EventEmitter {
     });
     if (refresh) this.worldRoutineTimer.refresh();
   }
-  
+
   killCharacter(client: Client) {
     debug(client.character.name + " has died");
     client.character.isAlive = false;
     this.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
       characterId: client.character.characterId,
       state: "0000000000000000C00",
-      gameTime: Int64String(this.getServerTime()),
+      gameTime: Int64String(this.getSequenceTime()),
     });
     if (!client.vehicle.mountedVehicle) {
       this.sendDataToAll("Ragdoll.UpdatePose", {
         characterId: client.character.characterId,
         positionUpdate: {
-          sequenceTime: this.getServerTime(),
+          sequenceTime: this.getSequenceTime(),
           unknown3_int8: 1,
           stance: 1089,
           position: client.character.state.position,
@@ -1085,7 +1092,7 @@ export class ZoneServer extends EventEmitter {
     this.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
       characterId: client.character.characterId,
       state: "000000000000000000",
-      gameTime: Int64String(this.getServerTime()),
+      gameTime: Int64String(this.getSequenceTime()),
     });
     const randomSpawnIndex = Math.floor(
       Math.random() * this._spawnLocations.length
@@ -1124,8 +1131,7 @@ export class ZoneServer extends EventEmitter {
       5
     );
   }
-  
-  
+
   explosionDamage(position: Float32Array) {
     for (const character in this._clients) {
       const characterObj = this._clients[character];
@@ -1375,7 +1381,7 @@ export class ZoneServer extends EventEmitter {
     clearInterval(this._vehicles[vehicleGuid].resourcesUpdater);
   }
 
-manageVehicle(client: Client, vehicleGuid: string) {
+  manageVehicle(client: Client, vehicleGuid: string) {
     if (this._vehicles[vehicleGuid].manager) {
       this.dropVehicleManager(this._vehicles[vehicleGuid].manager, vehicleGuid);
     }
@@ -1723,6 +1729,11 @@ manageVehicle(client: Client, vehicleGuid: string) {
     for (const character in this._characters) {
       const characterObj = this._characters[character];
       if (
+        isPosInRadius(
+          this._npcRenderDistance,
+          client.character.state.position,
+          characterObj.state.position
+        ),
         client.character.characterId != character &&
         !client.spawnedEntities.includes(characterObj)
       ) {
@@ -1739,25 +1750,6 @@ manageVehicle(client: Client, vehicleGuid: string) {
           1
         );
         client.spawnedEntities.push(this._characters[character]);
-        this.sendData(client, "PlayerUpdate.UpdatePosition", {
-          transientId: characterObj.transientId,
-          positionUpdate: {
-            sequenceTime: this.getServerTime(),
-            unknown3_int8: 1,
-            stance: 1089,
-            position: characterObj.state.position,
-            orientation: 0,
-            frontTilt: 0,
-            sideTilt: 0,
-            angleChange: 0,
-            verticalSpeed: 0,
-            horizontalSpeed: 0,
-            unknown12_float: [0, 0, 0],
-            rotationRaw: [0, 0, -0, 1],
-            direction: 0,
-            engineRPM: 0,
-          },
-        });
       }
     }
   }
@@ -1917,11 +1909,7 @@ manageVehicle(client: Client, vehicleGuid: string) {
     this._doors = doors;
     this._vehicles = vehicles;
     this._props = props;
-    delete require.cache[
-      require.resolve(
-        "./workers/createBaseEntities"
-      )
-    ];
+    delete require.cache[require.resolve("./workers/createBaseEntities")];
     debug("All entities created");
   }
 
@@ -2124,7 +2112,7 @@ manageVehicle(client: Client, vehicleGuid: string) {
 
   sendWeaponPacket(client: Client, packetName: string, obj: any): void {
     const weaponPacket = {
-      gameTime: this.getServerTime(),
+      gameTime: this.getSequenceTime(),
       packetName: packetName,
       packet: obj,
     };
@@ -2174,6 +2162,10 @@ manageVehicle(client: Client, vehicleGuid: string) {
     return this._serverTime + delta;
   }
 
+  getSequenceTime(): number {
+    return Date.now() - this._time;
+  }
+
   getServerTimeTest(): number {
     debug("get server time");
     const delta = Date.now() - this._startTime;
@@ -2203,8 +2195,8 @@ manageVehicle(client: Client, vehicleGuid: string) {
     // TODO: this do not seems to work
     debug("Synchronization");
     this.sendDataToAll("Synchronization", {
-      serverTime: Int64String(this.getServerTime()),
-      serverTime2: Int64String(this.getServerTime()),
+      serverTime: Int64String(this.getSequenceTime()),
+      serverTime2: Int64String(this.getSequenceTime()),
     });
   }
 

@@ -160,7 +160,7 @@ export class zonePacketHandlers {
         guid2: "0x0000000000000000",
         guid3: "0x0000000040000000",
         guid4: "0x0000000000000000",
-        gameTime: (server.getServerTime() & 0xffffffff) >>> 0,
+        gameTime: (server.getSequenceTime() & 0xffffffff) >>> 0,
       });
       server.sendData(client, "ReferenceData.ClientProfileData", {
         profiles: server._profiles,
@@ -199,8 +199,8 @@ export class zonePacketHandlers {
       });
 
       server.sendData(client, "Synchronization", {
-        serverTime: Int64String(server.getServerTime()),
-        serverTime2: Int64String(server.getServerTime()),
+        serverTime: Int64String(server.getSequenceTime()),
+        serverTime2: Int64String(server.getSequenceTime()),
       });
       client.character.startRessourceUpdater(client, server);
       server.sendDataToAll("PlayerUpdate.WeaponStance", {
@@ -412,14 +412,14 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      const serverTime = Int64String(server.getServerTime());
+      const serverTime = Int64String(server.getSequenceTime());
       server.sendData(client, "Synchronization", {
         time1: packet.data.time1,
         time2: packet.data.time2,
-        clientTime: packet.data.clientTime,
+        clientTime: serverTime,
         serverTime: serverTime,
         serverTime2: serverTime,
-        time3: packet.data.clientTime + 2,
+        time3: serverTime,
       });
     };
     this.commandExecuteCommand = async function (
@@ -1670,7 +1670,7 @@ export class zonePacketHandlers {
             server.sendDataToAll("PlayerUpdate.UpdatePosition", {
               transientId: entityData.transientId,
               positionUpdate: {
-                sequenceTime: server.getServerTime(),
+                sequenceTime: server.getSequenceTime(),
                 unknown3_int8: 0,
                 position: entityData.position,
                 orientation: entityData.openAngle,
@@ -1691,7 +1691,7 @@ export class zonePacketHandlers {
             server.sendDataToAll("PlayerUpdate.UpdatePosition", {
               transientId: entityData.transientId,
               positionUpdate: {
-                sequenceTime: server.getServerTime(),
+                sequenceTime: server.getSequenceTime(),
                 unknown3_int8: 0,
                 stance: 1089,
                 position: entityData.position,
@@ -1927,6 +1927,33 @@ export class zonePacketHandlers {
           server.sendData(client, "PlayerUpdate.LightweightToFullPc", {
             transientId: entityData.transientId,
           });
+		  server.sendData(client, "PlayerUpdate.UpdatePosition", {
+          transientId: entityData.transientId,
+          positionUpdate: {
+            sequenceTime: server.getSequenceTime(),
+            unknown3_int8: 0,
+            stance: 1089,
+            position: entityData.state.position,
+            orientation: 0,
+            frontTilt: 0,
+            sideTilt: 0,
+            angleChange: 0,
+            verticalSpeed: 0,
+            horizontalSpeed: 0,
+            unknown12_float: [0, 0, 0],
+            rotationRaw: [0, 0, -0, 1],
+            direction: 0,
+            engineRPM: 0,
+          },
+        });
+		server.sendData(client, "PlayerUpdate.UpdatePosition", {
+          transientId: entityData.transientId,
+          positionUpdate: {
+            sequenceTime: 1,
+            unknown3_int8: 0,
+            stance: 81,
+          },
+        });
           server.sendData(client, "Equipment.SetCharacterEquipment", {
             profileId: 3,
             characterId: entityData.characterId,
@@ -1981,7 +2008,7 @@ export class zonePacketHandlers {
             server.sendData(client, "PlayerUpdate.UpdatePosition", {
               transientId: entityData.transientId,
               positionUpdate: {
-                sequenceTime: server.getServerTime(),
+                sequenceTime: server.getSequenceTime(),
                 unknown3_int8: 0,
                 stance: 1025,
                 orientation: entityData.openAngle,
