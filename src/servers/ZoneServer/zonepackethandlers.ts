@@ -32,7 +32,7 @@ import {
   isPosInRadius,
 } from "../../utils/utils";
 
-import { UpdatePositionObject } from "../../protocols/h1z1protocol"
+import { UpdatePositionObject } from "../../protocols/h1z1protocol";
 const modelToName = require("../../../data/2015/sampleData/ModelToName.json");
 
 export class zonePacketHandlers {
@@ -171,8 +171,9 @@ export class zonePacketHandlers {
         guid: client.character.guid,
         loadoutId: client.character.currentLoadoutId,
       });
-      
-      server.updateResource( // send health once or it wont show in hud later
+
+      server.updateResource(
+        // send health once or it wont show in hud later
         client,
         client.character.characterId,
         client.character.resources.health,
@@ -233,7 +234,7 @@ export class zonePacketHandlers {
       client.isInteracting = false;
       delete client.vehicle.mountedVehicle;
       client.vehicle.mountedVehicleType = "0";
-    }
+    };
     this.Security = function (server: ZoneServer, client: Client, packet: any) {
       debug(packet);
     };
@@ -254,14 +255,14 @@ export class zonePacketHandlers {
       server.sendData(client, "Command.FreeInteractionNpc", {});
     };
     this.collisionDamage = function (
-    server: ZoneServer,
-    client: Client,
-    packet: any
-  ) {
-    if (packet.data.characterId === client.character.characterId) {
-      server.playerDamage(client, packet.data.damage);
-    }
-  };
+      server: ZoneServer,
+      client: Client,
+      packet: any
+    ) {
+      if (packet.data.characterId === client.character.characterId) {
+        server.playerDamage(client, packet.data.damage);
+      }
+    };
     this.lobbyGameDefinitionDefinitionsRequest = function (
       server: ZoneServer,
       client: Client,
@@ -633,45 +634,45 @@ export class zonePacketHandlers {
         stance: packet.data.stance,
       });
     };
-    this.mountDismountRequest = function (
-    server: ZoneServer,
-    client: Client,
-    packet: any
-  ) {
-    server.dismountVehicle(client, client.vehicle.mountedVehicle);
-  },
-    this.commandInteractRequest = function (
+    (this.mountDismountRequest = function (
       server: ZoneServer,
       client: Client,
       packet: any
     ) {
-      server.sendData(client, "Command.InteractionList", {
-        guid: packet.data.guid,
-        unknownArray1: [
-          {
-            unknownDword1: 0,
-            unknownDword2: 0,
-            unknownDword3: 0,
-            unknownDword4: 0,
-            unknownDword5: 0,
-            unknownDword6: 0,
-            unknownDword7: 0,
-          },
-        ],
-        unknownArray2: [
-          {
-            unknownString1: "test",
-            unknownDword1: 0,
-            unknownDword2: 0,
-            unknownDword3: 0,
-            unknownDword4: 0,
-            unknownDword5: 0,
-            unknownDword6: 0,
-            unknownDword7: 0,
-          },
-        ],
+      server.dismountVehicle(client, client.vehicle.mountedVehicle);
+    }),
+      (this.commandInteractRequest = function (
+        server: ZoneServer,
+        client: Client,
+        packet: any
+      ) {
+        server.sendData(client, "Command.InteractionList", {
+          guid: packet.data.guid,
+          unknownArray1: [
+            {
+              unknownDword1: 0,
+              unknownDword2: 0,
+              unknownDword3: 0,
+              unknownDword4: 0,
+              unknownDword5: 0,
+              unknownDword6: 0,
+              unknownDword7: 0,
+            },
+          ],
+          unknownArray2: [
+            {
+              unknownString1: "test",
+              unknownDword1: 0,
+              unknownDword2: 0,
+              unknownDword3: 0,
+              unknownDword4: 0,
+              unknownDword5: 0,
+              unknownDword6: 0,
+              unknownDword7: 0,
+            },
+          ],
+        });
       });
-    };
     this.commandInteractionString = function (
       server: ZoneServer,
       client: Client,
@@ -726,7 +727,8 @@ export class zonePacketHandlers {
           });
           delete client.vehicle.mountedVehicle;
           break;
-        case 4: { // prop
+        case 4: {
+          // prop
           let stringId = 0;
           switch (entityData.modelId) {
             case 9330: // beds
@@ -785,10 +787,10 @@ export class zonePacketHandlers {
               stringId = 1191;
               break;
           }
-            server.sendData(client, "Command.InteractionString", {
-              guid: guid,
-              stringId: stringId,
-            });
+          server.sendData(client, "Command.InteractionString", {
+            guid: guid,
+            stringId: stringId,
+          });
           delete client.vehicle.mountedVehicle;
           break;
         }
@@ -814,28 +816,28 @@ export class zonePacketHandlers {
       debug(packet);
       debug("select");
     };
-    this.playerUpdateVehicleCollision = function (
-    server: ZoneServer,
-    client: Client,
-    packet: any
-  ) {
-    debug(packet);
-    const vehicleData =
-      server._vehicles[server._transientIds[packet.data.transientId]];
-    server.damageVehicle(client, packet.data.damage, vehicleData);
-  },
-    this.vehicleDismiss = function (
+    (this.playerUpdateVehicleCollision = function (
       server: ZoneServer,
       client: Client,
       packet: any
     ) {
-      server.sendDataToAll("Mount.DismountResponse", {
-        characterId: client.character.characterId,
+      debug(packet);
+      const vehicleData =
+        server._vehicles[server._transientIds[packet.data.transientId]];
+      server.damageVehicle(client, packet.data.damage, vehicleData);
+    }),
+      (this.vehicleDismiss = function (
+        server: ZoneServer,
+        client: Client,
+        packet: any
+      ) {
+        server.sendDataToAll("Mount.DismountResponse", {
+          characterId: client.character.characterId,
+        });
+        server.sendDataToAll("PlayerUpdate.RemovePlayerGracefully", {
+          characterId: client.vehicle.mountedVehicle,
+        });
       });
-      server.sendDataToAll("PlayerUpdate.RemovePlayerGracefully", {
-        characterId: client.vehicle.mountedVehicle,
-      });
-    };
     this.vehicleSpawn = function (
       server: ZoneServer,
       client: Client,
@@ -1310,7 +1312,7 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      const timerTime = client.character.isAlive?10000:0;
+      const timerTime = client.character.isAlive ? 10000 : 0;
       server.sendData(client, "ClientUpdate.StartTimer", {
         stringId: 0,
         time: timerTime,
@@ -1405,102 +1407,103 @@ export class zonePacketHandlers {
       });
     };
     this.PlayerUpdateManagedPosition = function (
-    server: ZoneServer,
-    client: Client,
-    packet: any
-  ) {
-    debug(packet);
-    const characterId = server._transientIds[packet.data.transientId];
-    if (characterId) {
-      if (
-        client.hudTimer != null &&
-        !isPosInRadius(
-          1,
-          client.character.state.position,
-          client.posAtLogoutStart
-        )
-      ) {
-        client.clearHudTimer();
-        server.sendData(client, "ClientUpdate.StartTimer", {
-          stringId: 0,
-          time: 0,
-        }); // don't know how it was done so
-      }
-      server.sendDataToAllOthers(client, "PlayerUpdate.UpdatePosition", {
-        transientId: packet.data.transientId,
-        positionUpdate: packet.data.PositionUpdate,
-      });
+      server: ZoneServer,
+      client: Client,
+      packet: any
+    ) {
+      debug(packet);
+      const characterId = server._transientIds[packet.data.transientId];
+      if (characterId) {
+        if (
+          client.hudTimer != null &&
+          !isPosInRadius(
+            1,
+            client.character.state.position,
+            client.posAtLogoutStart
+          )
+        ) {
+          client.clearHudTimer();
+          server.sendData(client, "ClientUpdate.StartTimer", {
+            stringId: 0,
+            time: 0,
+          }); // don't know how it was done so
+        }
+        server.sendDataToAllOthers(client, "PlayerUpdate.UpdatePosition", {
+          transientId: packet.data.transientId,
+          positionUpdate: packet.data.PositionUpdate,
+        });
 
-      if (packet.data.PositionUpdate.engineRPM) {
-        server._vehicles[characterId].positionUpdate.engineRPM =
-          packet.data.PositionUpdate.engineRPM;
-      }
+        if (packet.data.PositionUpdate.engineRPM) {
+          server._vehicles[characterId].positionUpdate.engineRPM =
+            packet.data.PositionUpdate.engineRPM;
+        }
 
-      if (packet.data.PositionUpdate.position) {
-        server._vehicles[characterId].positionUpdate.position =
-          packet.data.PositionUpdate.position;
-        server._vehicles[characterId].npcData.position = new Float32Array([
-          packet.data.PositionUpdate.position[0],
-          packet.data.PositionUpdate.position[1],
-          packet.data.PositionUpdate.position[2],
-          0,
-        ]);
-        if (client.vehicle.mountedVehicle === characterId) {
-          client.character.state.position = new Float32Array([
+        if (packet.data.PositionUpdate.position) {
+          server._vehicles[characterId].positionUpdate.position =
+            packet.data.PositionUpdate.position;
+          server._vehicles[characterId].npcData.position = new Float32Array([
             packet.data.PositionUpdate.position[0],
             packet.data.PositionUpdate.position[1],
             packet.data.PositionUpdate.position[2],
             0,
           ]);
-          if (server._vehicles[characterId].passengers.passenger1) {
-            const character =
-              server._vehicles[characterId].passengers.passenger1;
-            server.updatePosition(
-              character,
-              packet.data.PositionUpdate.position
-            );
-          }
-          if (server._vehicles[characterId].passengers.passenger2) {
-            const character =
-              server._vehicles[characterId].passengers.passenger2;
-            server.updatePosition(
-              character,
-              packet.data.PositionUpdate.position
-            );
-          }
-          if (server._vehicles[characterId].passengers.passenger3) {
-            const character =
-              server._vehicles[characterId].passengers.passenger3;
-            server.updatePosition(
-              character,
-              packet.data.PositionUpdate.position
-            );
-          }
-          if (server._vehicles[characterId].passengers.passenger4) {
-            const character =
-              server._vehicles[characterId].passengers.passenger4;
-            server.updatePosition(
-              character,
-              packet.data.PositionUpdate.position
-            );
-          }
+          if (client.vehicle.mountedVehicle === characterId) {
+            client.character.state.position = new Float32Array([
+              packet.data.PositionUpdate.position[0],
+              packet.data.PositionUpdate.position[1],
+              packet.data.PositionUpdate.position[2],
+              0,
+            ]);
+            if (server._vehicles[characterId].passengers.passenger1) {
+              const character =
+                server._vehicles[characterId].passengers.passenger1;
+              server.updatePosition(
+                character,
+                packet.data.PositionUpdate.position
+              );
+            }
+            if (server._vehicles[characterId].passengers.passenger2) {
+              const character =
+                server._vehicles[characterId].passengers.passenger2;
+              server.updatePosition(
+                character,
+                packet.data.PositionUpdate.position
+              );
+            }
+            if (server._vehicles[characterId].passengers.passenger3) {
+              const character =
+                server._vehicles[characterId].passengers.passenger3;
+              server.updatePosition(
+                character,
+                packet.data.PositionUpdate.position
+              );
+            }
+            if (server._vehicles[characterId].passengers.passenger4) {
+              const character =
+                server._vehicles[characterId].passengers.passenger4;
+              server.updatePosition(
+                character,
+                packet.data.PositionUpdate.position
+              );
+            }
 
-          if (
-            !client.posAtLastRoutine ||
-            !isPosInRadius(
-              server._npcRenderDistance * server._worldRoutineRadiusPercentage,
-              client.character.state.position,
-              client.posAtLastRoutine
-            )
-          ) {
-            server.worldRoutine();
+            if (
+              !client.posAtLastRoutine ||
+              !isPosInRadius(
+                server._npcRenderDistance *
+                  server._worldRoutineRadiusPercentage,
+                client.character.state.position,
+                client.posAtLastRoutine
+              )
+            ) {
+              server.worldRoutine();
+            }
           }
         }
       }
-    }
-  };
+    };
     interface PlayerUpdateUpdatePositionClientToZoneData {
-      data:UpdatePositionObject
+      data: UpdatePositionObject;
     }
     this.PlayerUpdateUpdatePositionClientToZone = function (
       server: ZoneServer,
@@ -1528,7 +1531,9 @@ export class zonePacketHandlers {
           packet.data.position[2],
           0,
         ]);
-        if (packet.data.horizontalSpeed > (client.character.isExhausted? 5 : 6)) {
+        if (
+          packet.data.horizontalSpeed > (client.character.isExhausted ? 5 : 6)
+        ) {
           client.character.isRunning = true;
         } else {
           client.character.isRunning = false;
@@ -1610,56 +1615,56 @@ export class zonePacketHandlers {
         return;
 
       switch (entityType) {
-      case 1: // object
-        // TODO : use strings from the game, will add to h1z1-string-finder the option to export to JSON
-        const model_index = modelToName.findIndex(
-          (x: any) => x.modelId === entityData.modelId
-        );
-        const pickupMessage = modelToName[model_index]?.itemName;
-        server.sendData(client, "ClientUpdate.TextAlert", {
-          message: pickupMessage,
-        });
-        const { water, health, food } = client.character.resources;
-        switch (entityData.modelId) {
-          case 9159:
-            client.character.resources.water = water + 4000;
-            server.updateResource(
-              client,
-              client.character.characterId,
-              client.character.resources.water,
-              5,
-              5
-            );
-            break;
-          case 8020:
-          case 9250:
-            client.character.resources.food = food + 4000;
-            server.updateResource(
-              client,
-              client.character.characterId,
-              client.character.resources.food,
-              4,
-              4
-            );
-            break;
-          case 9221:
-            client.character.resources.health = health + 10000;
-            server.updateResource(
-              client,
-              client.character.characterId,
-              client.character.resources.health,
-              48,
-              1
-            );
-            break;
-          default:
-            break;
-        }
-        server.deleteEntity(entityData.characterId, server._objects);
-        break;
+        case 1: // object
+          // TODO : use strings from the game, will add to h1z1-string-finder the option to export to JSON
+          const model_index = modelToName.findIndex(
+            (x: any) => x.modelId === entityData.modelId
+          );
+          const pickupMessage = modelToName[model_index]?.itemName;
+          server.sendData(client, "ClientUpdate.TextAlert", {
+            message: pickupMessage,
+          });
+          const { water, health, food } = client.character.resources;
+          switch (entityData.modelId) {
+            case 9159:
+              client.character.resources.water = water + 4000;
+              server.updateResource(
+                client,
+                client.character.characterId,
+                client.character.resources.water,
+                5,
+                5
+              );
+              break;
+            case 8020:
+            case 9250:
+              client.character.resources.food = food + 4000;
+              server.updateResource(
+                client,
+                client.character.characterId,
+                client.character.resources.food,
+                4,
+                4
+              );
+              break;
+            case 9221:
+              client.character.resources.health = health + 10000;
+              server.updateResource(
+                client,
+                client.character.characterId,
+                client.character.resources.health,
+                48,
+                1
+              );
+              break;
+            default:
+              break;
+          }
+          server.deleteEntity(entityData.characterId, server._objects);
+          break;
         case 2: // vehicle
-        server.enterVehicle(client, entityData);
-        break;
+          server.enterVehicle(client, entityData);
+          break;
         case 3: // door
           debug("tried to open ", entityData.characterId);
           if (entityData.isOpen === false) {
@@ -1891,9 +1896,10 @@ export class zonePacketHandlers {
       packet: any
     ) {
       const { characterId } = packet.data;
-      const entityType: number = server.getEntityType(characterId); 
+      const entityType: number = server.getEntityType(characterId);
       switch (entityType) {
-        case 1: {// npc
+        case 1: {
+          // npc
           const entityData = server._npcs[characterId];
           server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
             transientId: entityData.transientId,
@@ -1905,8 +1911,10 @@ export class zonePacketHandlers {
           if (entityData.onReadyCallback) {
             entityData.onReadyCallback();
           }
-          break;}
-        case 2: {// vehicle
+          break;
+        }
+        case 2: {
+          // vehicle
           const entityData = server._vehicles[characterId];
           if (entityData.npcData.vehicleId === 13) return;
           // ignore parachute
@@ -1921,39 +1929,41 @@ export class zonePacketHandlers {
             entityData.onReadyCallback();
             server._vehicles[characterId].onReadyCallback = () => {};
           }
-          break;}
-        case 3: {// character
+          break;
+        }
+        case 3: {
+          // character
           const entityData = server._characters[characterId];
           server.sendData(client, "PlayerUpdate.LightweightToFullPc", {
             transientId: entityData.transientId,
           });
-		  server.sendData(client, "PlayerUpdate.UpdatePosition", {
-          transientId: entityData.transientId,
-          positionUpdate: {
-            sequenceTime: server.getSequenceTime(),
-            unknown3_int8: 0,
-            stance: 1089,
-            position: entityData.state.position,
-            orientation: 0,
-            frontTilt: 0,
-            sideTilt: 0,
-            angleChange: 0,
-            verticalSpeed: 0,
-            horizontalSpeed: 0,
-            unknown12_float: [0, 0, 0],
-            rotationRaw: [0, 0, -0, 1],
-            direction: 0,
-            engineRPM: 0,
-          },
-        });
-		server.sendData(client, "PlayerUpdate.UpdatePosition", {
-          transientId: entityData.transientId,
-          positionUpdate: {
-            sequenceTime: 1,
-            unknown3_int8: 0,
-            stance: 81,
-          },
-        });
+          server.sendData(client, "PlayerUpdate.UpdatePosition", {
+            transientId: entityData.transientId,
+            positionUpdate: {
+              sequenceTime: server.getSequenceTime(),
+              unknown3_int8: 0,
+              stance: 1089,
+              position: entityData.state.position,
+              orientation: 0,
+              frontTilt: 0,
+              sideTilt: 0,
+              angleChange: 0,
+              verticalSpeed: 0,
+              horizontalSpeed: 0,
+              unknown12_float: [0, 0, 0],
+              rotationRaw: [0, 0, -0, 1],
+              direction: 0,
+              engineRPM: 0,
+            },
+          });
+          server.sendData(client, "PlayerUpdate.UpdatePosition", {
+            transientId: entityData.transientId,
+            positionUpdate: {
+              sequenceTime: 1,
+              unknown3_int8: 0,
+              stance: 81,
+            },
+          });
           server.sendData(client, "Equipment.SetCharacterEquipment", {
             profileId: 3,
             characterId: entityData.characterId,
@@ -1968,8 +1978,10 @@ export class zonePacketHandlers {
             }),
             attachmentData: entityData.equipment,
           });
-          break;}
-        case 4:{ // object
+          break;
+        }
+        case 4: {
+          // object
           const entityData = server._objects[characterId];
           server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
             transientId: entityData.transientId,
@@ -1981,8 +1993,10 @@ export class zonePacketHandlers {
           if (entityData.onReadyCallback) {
             entityData.onReadyCallback();
           }
-          break;}
-        case 5: {// prop
+          break;
+        }
+        case 5: {
+          // prop
           const entityData = server._props[characterId];
           server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
             transientId: entityData.transientId,
@@ -1994,8 +2008,10 @@ export class zonePacketHandlers {
           if (entityData.onReadyCallback) {
             entityData.onReadyCallback();
           }
-          break;}
-        case 6:{ // door
+          break;
+        }
+        case 6: {
+          // door
           const entityData = server._doors[characterId];
           server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
             transientId: entityData.transientId,
@@ -2020,7 +2036,8 @@ export class zonePacketHandlers {
               unk3: 0,
             });
           }
-          break;}
+          break;
+        }
       }
     };
   }

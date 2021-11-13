@@ -261,12 +261,13 @@ export class SOEServer extends EventEmitter {
         case "ZonePing":
           debug("Receive Zone Ping ");
           const pingTime = Date.now();
-         /* this._sendPacket(client, "ZonePing", { respond to it is currently useless ( at least on the 2015 version )
+          /* this._sendPacket(client, "ZonePing", { respond to it is currently useless ( at least on the 2015 version )
             PingId: result.PingId,
             Data: result.Data,
           });*/
-          if(client.lastZonePingTimestamp){
-            client.zonePingTimeMs = (pingTime - client.lastZonePingTimestamp) - 5000; // zonepings are sent every 5 sec by the game
+          if (client.lastZonePingTimestamp) {
+            client.zonePingTimeMs =
+              pingTime - client.lastZonePingTimestamp - 5000; // zonepings are sent every 5 sec by the game
           }
           client.lastZonePingTimestamp = pingTime;
           break;

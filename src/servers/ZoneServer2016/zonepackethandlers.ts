@@ -12,11 +12,7 @@ let dev = require("./commands/dev").default;
 
 import admin from "./commands/admin";
 
-import {
-  _,
-  Int64String,
-  isPosInRadius,
-} from "../../utils/utils";
+import { _, Int64String, isPosInRadius } from "../../utils/utils";
 
 const itemDefinitions = require("./../../../data/2016/dataSources/ClientItemDefinitions.json");
 
@@ -404,7 +400,7 @@ export class zonePacketHandlers {
         time3: packet.data.clientTime + 2,
       });
     };
-    this.commandExecuteCommand = async function (
+    (this.commandExecuteCommand = async function (
       server: ZoneServer2016,
       client: Client,
       packet: any
@@ -501,7 +497,7 @@ export class zonePacketHandlers {
               );
           break;
       }
-    },
+    }),
       /*
     "Command.SetProfile": function (server: ZoneServer2016, client: Client, packet: any) {
       server.sendData(client, "Loadout.SetCurrentLoadout", {

@@ -96,7 +96,7 @@ const hax: any = {
     );
     server.sendDataToAll("AddLightweightVehicle", vehicleData);
     vehicleData.isManaged = true;
-    vehicleData.onReadyCallback = () => {
+    (vehicleData.onReadyCallback = () => {
       // doing anything with vehicle before client gets fullvehicle packet breaks it
       server.sendData(client, "Character.ManagedObject", {
         guid: vehicleData.npcData.characterId,
@@ -104,7 +104,7 @@ const hax: any = {
       });
       server.sendData(client, "ClientUpdate.ManagedObjectResponseControl", {
         control: true,
-        objectCharacterId: characterId
+        objectCharacterId: characterId,
       });
       server.sendDataToAll("Mount.MountResponse", {
         characterId: client.character.characterId,
@@ -117,9 +117,11 @@ const hax: any = {
       });
       client.vehicle.mountedVehicle = characterId;
       client.managedObjects.push(server._vehicles[characterId]);
-      setTimeout(()=>{client.character.godMode = wasAlreadyGod?true:false},1000)
-    },
-    server._vehicles[characterId] = vehicleData;
+      setTimeout(() => {
+        client.character.godMode = wasAlreadyGod ? true : false;
+      }, 1000);
+    }),
+      (server._vehicles[characterId] = vehicleData);
     server.worldRoutine();
   },
   titan: function (server: ZoneServer2016, client: Client, args: any[]) {
@@ -150,41 +152,53 @@ const hax: any = {
     });
     server.sendChatText(client, "Back to normal size");
   },
-  spamoffroader: function (server: ZoneServer2016, client: Client, args: any[]) {
+  spamoffroader: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: any[]
+  ) {
     for (let index = 0; index < 50; index++) {
       const guid = server.generateGuid();
       const transientId = server.getTransientId(client, guid);
       const characterId = server.generateGuid();
-     const vehicle = new Vehicle(
-       server._worldId, 
-       characterId, 
-       transientId, 
-       7225, 
-       client.character.state.position,
-       client.character.state.lookAt,
-       server.getGameTime()
-      )
+      const vehicle = new Vehicle(
+        server._worldId,
+        characterId,
+        transientId,
+        7225,
+        client.character.state.position,
+        client.character.state.lookAt,
+        server.getGameTime()
+      );
       server._vehicles[characterId] = vehicle; // save vehicle
     }
   },
-  spampolicecar: function (server: ZoneServer2016, client: Client, args: any[]) {
+  spampolicecar: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: any[]
+  ) {
     for (let index = 0; index < 50; index++) {
       const guid = server.generateGuid();
       const transientId = server.getTransientId(client, guid);
       const characterId = server.generateGuid();
-     const vehicle = new Vehicle(
-       server._worldId, 
-       characterId, 
-       transientId, 
-       9301, 
-       client.character.state.position,
-       client.character.state.lookAt,
-       server.getGameTime()
-      )
+      const vehicle = new Vehicle(
+        server._worldId,
+        characterId,
+        transientId,
+        9301,
+        client.character.state.position,
+        client.character.state.lookAt,
+        server.getGameTime()
+      );
       server._vehicles[characterId] = vehicle; // save vehicle
     }
   },
-  despawnobjects: function (server: ZoneServer2016, client: Client, args: any[]) {
+  despawnobjects: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: any[]
+  ) {
     client.spawnedEntities.forEach((object) => {
       server.despawnEntity(
         object.characterId ? object.characterId : object.npcData.characterId
@@ -262,7 +276,7 @@ const hax: any = {
     }
 
     client.character.state.position = locationPosition;
-    
+
     server.sendData(client, "ClientUpdate.UpdateLocation", {
       position: locationPosition,
       triggerLoadingScreen: true,
@@ -299,15 +313,15 @@ const hax: any = {
       const guid = server.generateGuid();
       const transientId = server.getTransientId(client, guid);
       const characterId = server.generateGuid();
-     const vehicle = new Vehicle(
-       server._worldId, 
-       characterId, 
-       transientId, 
-       9588, 
-       client.character.state.position,
-       client.character.state.lookAt,
-       server.getGameTime()
-      )
+      const vehicle = new Vehicle(
+        server._worldId,
+        characterId,
+        transientId,
+        9588,
+        client.character.state.position,
+        client.character.state.lookAt,
+        server.getGameTime()
+      );
       server._vehicles[characterId] = vehicle; // save vehicle
     }
   },
@@ -406,14 +420,14 @@ const hax: any = {
     const characterId = server.generateGuid();
     const transientId = server.getTransientId(client, characterId);
     const vehicle = new Vehicle(
-      server._worldId, 
-      characterId, 
-      transientId, 
-      driveModel, 
-      client.character.state.position, 
+      server._worldId,
+      characterId,
+      transientId,
+      driveModel,
+      client.character.state.position,
       client.character.state.lookAt,
       server.getGameTime()
-    )
+    );
     server._vehicles[characterId] = vehicle; // save vehicle
   },
 
@@ -424,7 +438,7 @@ const hax: any = {
       server.sendChatText(client, "[ERROR] You need to specify a name !");
       return;
     }
-    
+
     const pc = {
       characterId: characterId,
       transientId: server.getTransientId(client, characterId),
@@ -727,11 +741,11 @@ const hax: any = {
   spectate: function (server: ZoneServer2016, client: Client, args: any[]) {
     const characterId = server.generateGuid();
     const vehicle = new Vehicle(
-      server._worldId, 
-      characterId, 
+      server._worldId,
+      characterId,
       server.getTransientId(client, characterId),
-      9371, 
-      client.character.state.position, 
+      9371,
+      client.character.state.position,
       client.character.state.lookAt,
       server.getGameTime()
     );

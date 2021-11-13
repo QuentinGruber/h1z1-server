@@ -13,7 +13,7 @@ const dev: any = {
   },
   testpacket: function (server: ZoneServer, client: Client, args: any[]) {
     server.sendData(client, "PlayerUpdate.PlayAnimation", {
-      characterId:client.character.characterId,
+      characterId: client.character.characterId,
     });
   },
   clearspawnedentities: function (

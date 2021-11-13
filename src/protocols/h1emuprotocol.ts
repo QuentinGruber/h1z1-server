@@ -81,9 +81,7 @@ const packets = [
     "UpdateZonePopulation",
     0x09,
     {
-      fields: [
-        { name: "population", type: "uint8", defaultValue: 0 },
-      ],
+      fields: [{ name: "population", type: "uint8", defaultValue: 0 }],
     },
   ],
   [
@@ -105,7 +103,7 @@ const packets = [
         { name: "status", type: "boolean", defaultValue: 0 },
       ],
     },
-  ] 
+  ],
 ];
 
 export const [H1emuPacketsPacketTypes, H1emuPacketsPackets] =

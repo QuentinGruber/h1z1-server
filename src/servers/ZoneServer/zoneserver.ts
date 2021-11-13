@@ -1186,18 +1186,26 @@ export class ZoneServer extends EventEmitter {
     }
     vehicle.npcData.resources.health -= 10 * Math.floor(damage);
 
-
     if (vehicle.npcData.resources.health <= 0) {
       vehicle.npcData.resources.health = 0;
-	  if (vehicle.passengers.passenger2) {
-		  this.dismountVehicle(vehicle.passengers.passenger2, vehicle.npcData.characterId);
-	  }
-	  if (vehicle.passengers.passenger3) {
-		  this.dismountVehicle(vehicle.passengers.passenger3, vehicle.npcData.characterId);
-	  }
-	  if (vehicle.passengers.passenger4) {
-		  this.dismountVehicle(vehicle.passengers.passenger4, vehicle.npcData.characterId);
-	  }
+      if (vehicle.passengers.passenger2) {
+        this.dismountVehicle(
+          vehicle.passengers.passenger2,
+          vehicle.npcData.characterId
+        );
+      }
+      if (vehicle.passengers.passenger3) {
+        this.dismountVehicle(
+          vehicle.passengers.passenger3,
+          vehicle.npcData.characterId
+        );
+      }
+      if (vehicle.passengers.passenger4) {
+        this.dismountVehicle(
+          vehicle.passengers.passenger4,
+          vehicle.npcData.characterId
+        );
+      }
       this.dismountVehicle(client, vehicle.npcData.characterId);
       this.sendDataToAll("PlayerUpdate.Destroyed", {
         characterId: vehicle.npcData.characterId,
@@ -1220,7 +1228,7 @@ export class ZoneServer extends EventEmitter {
       client.vehicle.mountedVehicleType = "0";
       delete client.vehicle.mountedVehicle;
       client.vehicle.vehicleState = 0;
-	  this.vehicleDelete(client);
+      this.vehicleDelete(client);
     } else if (
       vehicle.npcData.resources.health <= 50000 &&
       vehicle.npcData.resources.health > 35000
@@ -1252,7 +1260,7 @@ export class ZoneServer extends EventEmitter {
         });
       }
     }
-	if (vehicle.passengers.passenger1) {
+    if (vehicle.passengers.passenger1) {
       this.updateResource(
         vehicle.passengers.passenger1,
         vehicle.npcData.characterId,
@@ -1560,120 +1568,113 @@ export class ZoneServer extends EventEmitter {
 
   dismountVehicle(client: Client, vehicleGuid: any) {
     const vehicleData = this._vehicles[vehicleGuid];
-      if (
-        vehicleData.passengers.passenger1 &&
-        vehicleData.passengers.passenger1 != client
-      ) {
-        this.sendData(
-          vehicleData.passengers.passenger1,
-          "Mount.DismountResponse",
-          {
-            characterId:
-              vehicleData.passengers.passenger1.character.characterId,
-            guid: vehicleData.npcData.characterId,
-          }
-        );
-      }
-	  if (
-        vehicleData.passengers.passenger2 &&
-        vehicleData.passengers.passenger2 != client
-      ) {
-        this.sendData(
-          vehicleData.passengers.passenger2,
-          "Mount.DismountResponse",
-          {
-            characterId:
-              vehicleData.passengers.passenger2.character.characterId,
-            guid: vehicleData.npcData.characterId,
-          }
-        );
-      }
-	  if (
-        vehicleData.passengers.passenger3 &&
-        vehicleData.passengers.passenger3 != client
-      ) {
-        this.sendData(
-          vehicleData.passengers.passenger3,
-          "Mount.DismountResponse",
-          {
-            characterId:
-              vehicleData.passengers.passenger3.character.characterId,
-            guid: vehicleData.npcData.characterId,
-          }
-        );
-      }
-	  if (
-        vehicleData.passengers.passenger4 &&
-        vehicleData.passengers.passenger4 != client
-      ) {
-        this.sendData(
-          vehicleData.passengers.passenger4,
-          "Mount.DismountResponse",
-          {
-            characterId:
-              vehicleData.passengers.passenger4.character.characterId,
-            guid: vehicleData.npcData.characterId,
-          }
-        );
-      }
+    if (
+      vehicleData.passengers.passenger1 &&
+      vehicleData.passengers.passenger1 != client
+    ) {
+      this.sendData(
+        vehicleData.passengers.passenger1,
+        "Mount.DismountResponse",
+        {
+          characterId: vehicleData.passengers.passenger1.character.characterId,
+          guid: vehicleData.npcData.characterId,
+        }
+      );
+    }
+    if (
+      vehicleData.passengers.passenger2 &&
+      vehicleData.passengers.passenger2 != client
+    ) {
+      this.sendData(
+        vehicleData.passengers.passenger2,
+        "Mount.DismountResponse",
+        {
+          characterId: vehicleData.passengers.passenger2.character.characterId,
+          guid: vehicleData.npcData.characterId,
+        }
+      );
+    }
+    if (
+      vehicleData.passengers.passenger3 &&
+      vehicleData.passengers.passenger3 != client
+    ) {
+      this.sendData(
+        vehicleData.passengers.passenger3,
+        "Mount.DismountResponse",
+        {
+          characterId: vehicleData.passengers.passenger3.character.characterId,
+          guid: vehicleData.npcData.characterId,
+        }
+      );
+    }
+    if (
+      vehicleData.passengers.passenger4 &&
+      vehicleData.passengers.passenger4 != client
+    ) {
+      this.sendData(
+        vehicleData.passengers.passenger4,
+        "Mount.DismountResponse",
+        {
+          characterId: vehicleData.passengers.passenger4.character.characterId,
+          guid: vehicleData.npcData.characterId,
+        }
+      );
+    }
 
     this.sendDataToAll("Mount.DismountResponse", {
       characterId: client.character.characterId,
       guid: vehicleData.npcData.characterId,
     });
-	
-	
-	if (
-        vehicleData.passengers.passenger1 &&
-        vehicleData.passengers.passenger1 != client
-      ) {
-        this.sendDataToAll("Mount.MountResponse", {
-          characterId: vehicleData.passengers.passenger1.character.characterId,
-          guid: vehicleData.npcData.characterId,
-          unknownDword1: 0,
-          unknownDword3: 1,
-          characterData: [],
-        });
-      }
-	  if (
-        vehicleData.passengers.passenger2 &&
-        vehicleData.passengers.passenger2 != client
-      ) {		
-		this.sendDataToAll("Mount.MountResponse", {
-          characterId: vehicleData.passengers.passenger2.character.characterId,
-          guid: vehicleData.npcData.characterId,
-          unknownDword1: 1,
-          unknownDword3: 0,
-          characterData: [],
-        });
-      }
-	  if (
-        vehicleData.passengers.passenger3 &&
-        vehicleData.passengers.passenger3 != client
-      ) {
-        this.sendDataToAll("Mount.MountResponse", {
-          characterId: vehicleData.passengers.passenger3.character.characterId,
-          guid: vehicleData.npcData.characterId,
-          unknownDword1: 2,
-          unknownDword3: 0,
-          characterData: [],
-        });
-      }
-	  if (
-        vehicleData.passengers.passenger4 &&
-        vehicleData.passengers.passenger4 != client
-      ) {
-        this.sendDataToAll("Mount.MountResponse", {
-          characterId: vehicleData.passengers.passenger4.character.characterId,
-          guid: vehicleData.npcData.characterId,
-          unknownDword1: 3,
-          unknownDword3: 0,
-          characterData: [],
-        });
-      }
-	  
-	  
-	  
+
+    if (
+      vehicleData.passengers.passenger1 &&
+      vehicleData.passengers.passenger1 != client
+    ) {
+      this.sendDataToAll("Mount.MountResponse", {
+        characterId: vehicleData.passengers.passenger1.character.characterId,
+        guid: vehicleData.npcData.characterId,
+        unknownDword1: 0,
+        unknownDword3: 1,
+        characterData: [],
+      });
+    }
+    if (
+      vehicleData.passengers.passenger2 &&
+      vehicleData.passengers.passenger2 != client
+    ) {
+      this.sendDataToAll("Mount.MountResponse", {
+        characterId: vehicleData.passengers.passenger2.character.characterId,
+        guid: vehicleData.npcData.characterId,
+        unknownDword1: 1,
+        unknownDword3: 0,
+        characterData: [],
+      });
+    }
+    if (
+      vehicleData.passengers.passenger3 &&
+      vehicleData.passengers.passenger3 != client
+    ) {
+      this.sendDataToAll("Mount.MountResponse", {
+        characterId: vehicleData.passengers.passenger3.character.characterId,
+        guid: vehicleData.npcData.characterId,
+        unknownDword1: 2,
+        unknownDword3: 0,
+        characterData: [],
+      });
+    }
+    if (
+      vehicleData.passengers.passenger4 &&
+      vehicleData.passengers.passenger4 != client
+    ) {
+      this.sendDataToAll("Mount.MountResponse", {
+        characterId: vehicleData.passengers.passenger4.character.characterId,
+        guid: vehicleData.npcData.characterId,
+        unknownDword1: 3,
+        unknownDword3: 0,
+        characterData: [],
+      });
+    }
+
     this.sendData(client, "Vehicle.Occupy", {
       guid: "",
       characterId: client.character.characterId,
@@ -1729,13 +1730,13 @@ export class ZoneServer extends EventEmitter {
     for (const character in this._characters) {
       const characterObj = this._characters[character];
       if (
-        isPosInRadius(
+        (isPosInRadius(
           this._npcRenderDistance,
           client.character.state.position,
           characterObj.state.position
         ),
         client.character.characterId != character &&
-        !client.spawnedEntities.includes(characterObj)
+          !client.spawnedEntities.includes(characterObj))
       ) {
         this.sendData(
           client,

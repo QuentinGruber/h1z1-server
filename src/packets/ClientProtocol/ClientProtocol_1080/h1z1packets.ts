@@ -128,7 +128,6 @@ function packSignedIntWith2bitLengthValue(value: number): Buffer {
   return data.slice(0, n + 1);
 }
 
-
 function readPositionUpdateData(data: Buffer, offset: number) {
   const obj: any = {},
     startOffset = offset;
@@ -1185,15 +1184,18 @@ function packItemSubData(obj: any) {
     { name: "unknownQword1", type: "uint64string", defaultValue: "" },
     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
     { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-  ]
+  ];
   let data = Buffer.alloc(1);
-  data.writeUInt8(obj["hasSubData"]?1:0, 0)
-  if(!obj.hasSubData) return data;
+  data.writeUInt8(obj["hasSubData"] ? 1 : 0, 0);
+  if (!obj.hasSubData) return data;
   const v = Buffer.alloc(4);
   v.writeUInt32LE(obj["unknownDword1"], 0);
   data = Buffer.concat([data, v]);
-  if(obj.unknownDword1 <= 0) return data;
-  const unknownData1Obj = DataSchema.pack(unknownData1Schema, obj["unknownData1"]).data;
+  if (obj.unknownDword1 <= 0) return data;
+  const unknownData1Obj = DataSchema.pack(
+    unknownData1Schema,
+    obj["unknownData1"]
+  ).data;
   return Buffer.concat([data, unknownData1Obj]);
 }
 
@@ -1592,7 +1594,7 @@ const fullNpcDataSchema = [
 const fullPcDataSchema = [
   // NOT FINISHED
   { name: "unknownBool1", type: "boolean", defaultValue: false },
-  { name: "unknownDword1", type: "uint32", defaultValue: 0 },// needs to be less than 1
+  { name: "unknownDword1", type: "uint32", defaultValue: 0 }, // needs to be less than 1
   {
     name: "positionUpdate",
     type: "custom",
@@ -2017,7 +2019,7 @@ const loadoutSlotsSchema = [
     ],
   },
   { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-]
+];
 
 const packets = [
   ["Server", 0x01, {}],
@@ -2116,7 +2118,7 @@ const packets = [
                   name: "items",
                   type: "array",
                   defaultValue: [],
-                  fields: itemDataSchema
+                  fields: itemDataSchema,
                 },
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
               ],
@@ -5060,14 +5062,14 @@ const packets = [
   ["Character.SetCollidable", 0x0f1e, {}],
   ["Character.UpdateOwner", 0x0f1f, {}],
   [
-    "Character.WeaponStance", 
-    0x0f20, 
+    "Character.WeaponStance",
+    0x0f20,
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
         { name: "stance", type: "uint32", defaultValue: 0 },
-      ]
-    }
+      ],
+    },
   ],
   ["Character.UpdateTintAlias", 0x0f21, {}],
   ["Character.MoveOnRail", 0x0f22, {}],
@@ -5198,8 +5200,8 @@ const packets = [
   ["Character.UpdateStat", 0x0f40, {}],
   ["Character.NonPriorityCharacters", 0x0f42, {}],
   [
-    "Character.PlayWorldCompositeEffect", 
-    0x0f43, 
+    "Character.PlayWorldCompositeEffect",
+    0x0f43,
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: 0 },
@@ -5243,15 +5245,15 @@ const packets = [
   ["Character.StartMultiStateDeath", 0x0f4f, {}],
   ["Character.AggroLevel", 0x0f50, {}],
   [
-    "Character.DoorState", 
-    0x0f51, 
+    "Character.DoorState",
+    0x0f51,
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "unknownBool1", type: "boolean", defaultValue: false },
-      ]
-    }
+      ],
+    },
   ],
   ["Character.RequestToggleDoorState", 0x0f52, {}],
   ["Character.SetAllowRespawn", 0x0f54, {}],
@@ -5306,14 +5308,14 @@ const packets = [
   ],
   ["ClientUpdate.ItemUpdate", 0x110300, {}],
   [
-    "ClientUpdate.ItemDelete", 
-    0x110400, 
+    "ClientUpdate.ItemDelete",
+    0x110400,
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
         { name: "itemGuid", type: "uint64string", defaultValue: "0" },
-      ]
-    }
+      ],
+    },
   ],
   [
     "ClientUpdate.UpdateStat",
@@ -5531,14 +5533,14 @@ const packets = [
   ["ClientUpdate.DeathMetrics", 0x113800, {}],
   ["ClientUpdate.ManagedObjectRequestControl", 0x113900, {}],
   [
-    "ClientUpdate.ManagedObjectResponseControl", 
-    0x113a00, 
+    "ClientUpdate.ManagedObjectResponseControl",
+    0x113a00,
     {
       fields: [
         { name: "control", type: "boolean", defaultValue: false },
-        { name: "objectCharacterId", type: "uint64string", defaultValue: "0" }
-      ]
-    }
+        { name: "objectCharacterId", type: "uint64string", defaultValue: "0" },
+      ],
+    },
   ],
   ["ClientUpdate.ManagedObjectReleaseControl", 0x113b00, {}],
   ["ClientUpdate.SetCurrentAdventure", 0x113c00, {}],
@@ -8765,8 +8767,8 @@ const packets = [
   ["CancelQueueOnWorld", 0xef, {}],
   ["DeclineEnterGameOnWorld", 0xf0, {}],
   [
-    "AccessedCharacter.BeginCharacterAccess", 
-    0xf10100, 
+    "AccessedCharacter.BeginCharacterAccess",
+    0xf10100,
     {
       fields: [
         { name: "objectCharacterId", type: "uint64string", defaultValue: "0" },
@@ -8792,29 +8794,27 @@ const packets = [
               ],
             },
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-          ]
-        }
-      ]
-    }
+          ],
+        },
+      ],
+    },
   ],
   [
-    "AccessedCharacter.EndCharacterAccess", 
-    0xf10200, 
+    "AccessedCharacter.EndCharacterAccess",
+    0xf10200,
     {
-      fields: [
-       
-      ]
-    }
+      fields: [],
+    },
   ],
   [
-    "AccessedCharacter.Unknown1", 
-    0xf10400, 
+    "AccessedCharacter.Unknown1",
+    0xf10400,
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "containerGuid", type: "uint64string", defaultValue: "0" }
-      ]
-    }
+        { name: "containerGuid", type: "uint64string", defaultValue: "0" },
+      ],
+    },
   ],
   //["AccessedCharacterBase", 0xf1, {}],
   ["ShaderParameterOverrideBase", 0xf2, {}],
