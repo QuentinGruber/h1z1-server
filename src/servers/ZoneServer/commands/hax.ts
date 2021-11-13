@@ -111,6 +111,49 @@ const hax: any = {
       server.sendChatText(client, "You are not in a vehicle");
     }
   },
+  vehicleaction: function (server: ZoneServer, client: Client, args: any[]) {
+    if (client.vehicle.mountedVehicle) {
+      const type = args[1];
+      if (!args[1]) {
+        server.sendChatText(client, "[ERROR] Specify action (repair/refuel)");
+        return;
+      }
+      const vehicle = server._vehicles[client.vehicle.mountedVehicle];
+      switch (type) {
+        case "refuel":
+          server._vehicles[
+            client.vehicle.mountedVehicle
+          ].npcData.resources.fuel = 10000;
+          server.updateResource(
+            client,
+            vehicle.npcData.characterId,
+            vehicle.npcData.resources.fuel,
+            396,
+            50
+          );
+          server.sendChatText(client, "Vehicle refueled");
+          break;
+        case "repair":
+          server._vehicles[
+            client.vehicle.mountedVehicle
+          ].npcData.resources.health = 100000;
+          server.updateResource(
+            client,
+            vehicle.npcData.characterId,
+            vehicle.npcData.resources.health,
+            561,
+            1
+          );
+          server.sendChatText(client, "Vehicle repaired");
+          break;
+        default:
+          server.sendChatText(client, "[ERROR] Usage: /hax repair/refuel");
+          break;
+      }
+    } else {
+      server.sendChatText(client, "[ERROR] You are not in a vehicle");
+    }
+  },
   drive: function (server: ZoneServer, client: Client, args: any[]) {
     let driveModel;
     const driveChoosen = args[1];
