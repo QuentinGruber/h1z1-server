@@ -140,38 +140,6 @@ const dev: any = {
       unknownDword1: 18,
     });
   },
-
-  containerevent: function (
-    server: ZoneServer2016,
-    client: Client,
-    args: any[]
-  ) {
-    const containerData = {
-      characterId: client.character.characterId,
-      containers: [
-        {
-          guid: server.generateGuid(),
-          unknownDword1: 1,
-          associatedCharacterId: server.generateGuid(),
-          slots: 2,
-          containerItems: {
-            items: [
-              {
-                itemData: {
-                  itemSubData: {
-                    unknownData1: {},
-                  },
-                },
-              },
-            ],
-          },
-        },
-      ],
-      array1: [{ unknownQword1: server.generateGuid(), unknownDword1: 2 }],
-    };
-
-    //! server.sendData(client, "Container.unknown2", containerData); i disable that since the "Container.unknown2" don't exist and idk which one you want
-  },
   containererror: function (
     server: ZoneServer2016,
     client: Client,
@@ -630,40 +598,39 @@ const dev: any = {
     containerGuid = server.generateGuid(),
       containers = [
         {
-          unknownDword1: server._items[backpack].itemDefinition.ID, // container itemDefinitionId ?
+          unknownDword1: 3, // container itemDefinitionId ?
           containerData: {
-            guid: backpack,
+            guid: containerGuid,
             unknownDword1: 1,
             associatedCharacterId: backpack,
-            slots: 1,
+            slots: 9999,
             items: [
               {
                 itemDefinitionId: server._items[item].itemDefinition.ID,
                 itemData: {
                   itemDefinitionId: server._items[item].itemDefinition.ID,
                   tintId: 1,
-                  guid: containerGuid,
+                  guid: item,
                   count: 1,
                   itemSubData: {
                     unknownBoolean1: false,
                   },
-                  unknownQword2: containerGuid,
-                  unknownDword4: 1,
-                  slot: 1,
-                  unknownDword6: 1,
-                  unknownDword7: 1,
-                  unknownDword8: 1,
+                  containerGuid: containerGuid,
+                  containerDefinitionId: 1,
+                  containerSlotId: 1,
+                  baseDurability: 1,
+                  currentDurability: 1,
+                  maxDurabilityFromDefinition: 1,
                   unknownBoolean1: true,
                   unknownQword3: containerGuid,
                   unknownDword9: 1,
-                  unknownBoolean2: true,
                 },
               },
             ],
             unknownBoolean1: true,
-            unknownDword3: 1,
-            unknownDword4: 1,
-            unknownDword5: 1,
+            unknownDword3: 3,
+            unknownDword4: 3,
+            unknownDword5: 3,
             unknownBoolean2: true,
           },
         },
@@ -682,13 +649,13 @@ const dev: any = {
     const item: any = server.generateItem(2425),
       containers = [
         {
-          unknownDword1: 1, // container itemDefinitionId ?
+          unknownDword1: 3, // container itemDefinitionId ?
           containerData: {
-            guid: client.character.characterId,
-            unknownDword1: 1,
+            guid: "0x123",
+            unknownDword1: 3,
             associatedCharacterId: client.character.characterId,
-            slots: 1,
-            items: [
+            slots: 9999,
+            items: [/*
               {
                 itemDefinitionId: server._items[item].itemDefinition.ID,
                 itemData: {
@@ -699,24 +666,23 @@ const dev: any = {
                   itemSubData: {
                     unknownBoolean1: false,
                   },
-                  unknownQword2: item,
-                  unknownDword4: 1,
-                  slot: 1,
-                  unknownDword6: 1,
-                  unknownDword7: 1,
-                  unknownDword8: 1,
+                  containerGuid: containerGuid,
+                  containerDefinitionId: 1,
+                  containerSlotId: 1,
+                  baseDurability: 1,
+                  currentDurability: 1,
+                  maxDurabilityFromDefinition: 1,
                   unknownBoolean1: true,
-                  unknownQword3: item,
+                  unknownQword3: "",
                   unknownDword9: 1,
-                  unknownBoolean2: true,
                 },
-              },
+              },*/
             ],
             unknownBoolean1: true,
-            unknownDword3: 1,
-            unknownDword4: 1,
-            unknownDword5: 1,
-            unknownBoolean2: true,
+            unknownDword3: 565,
+            unknownDword4: 999,
+            unknownDword5: 999,
+            unknownBoolean2: false,
           },
         },
       ];
@@ -739,22 +705,21 @@ const dev: any = {
             itemDefinitionId: server._items[item].itemDefinition.ID,
             itemData: {
               itemDefinitionId: server._items[item].itemDefinition.ID,
-              tintId: 2,
+              tintId: 1,
               guid: item,
-              count: 2,
+              count: 1,
               itemSubData: {
                 unknownBoolean1: false,
               },
-              unknownQword2: item,
-              unknownDword4: 2,
-              slot: 1,
-              unknownDword6: 2,
-              unknownDword7: 2,
-              unknownDword8: 2,
+              containerGuid: "",
+              containerDefinitionId: 1,
+              containerSlotId: 1,
+              baseDurability: 1,
+              currentDurability: 1,
+              maxDurabilityFromDefinition: 1,
               unknownBoolean1: true,
-              unknownQword3: item,
-              unknownDword9: 2,
-              unknownBoolean2: true,
+              unknownQword3: "",
+              unknownDword9: 1,
             },
           },
         ],
@@ -812,12 +777,12 @@ const dev: any = {
     containerGuid = server.generateGuid(),
     containers = [
       {
-        unknownDword1: 1, // container itemDefinitionId ?
+        unknownDword1: 3, // container itemDefinitionId ?
         containerData: {
           guid: containerGuid,
-          unknownDword1: 1,
-          associatedCharacterId: containerGuid,
-          slots: 1,
+          unknownDword1: 3,
+          associatedCharacterId: client.character.characterId,
+          slots: 9999,
           items: [
             {
               itemDefinitionId: server._items[item].itemDefinition.ID,
@@ -829,16 +794,15 @@ const dev: any = {
                 itemSubData: {
                   unknownBoolean1: false,
                 },
-                unknownQword2: containerGuid,
-                unknownDword4: 1,
-                slot: 1,
-                unknownDword6: 1,
-                unknownDword7: 1,
-                unknownDword8: 1,
+                containerGuid: containerGuid,
+                containerDefinitionId: 1,
+                containerSlotId: 1,
+                baseDurability: 1,
+                currentDurability: 1,
+                maxDurabilityFromDefinition: 1,
                 unknownBoolean1: true,
                 unknownQword3: containerGuid,
                 unknownDword9: 1,
-                unknownBoolean2: true,
               },
             },
           ],
@@ -857,7 +821,7 @@ const dev: any = {
       server.sendData(client, "Container.InitEquippedContainers", {
         ignore: client.character.characterId,
         //ignore2: client.character.characterId,
-        characterId: client.character.characterId,
+        characterId: objectCharacterId,
         containers: containers,
       });
       
@@ -873,22 +837,24 @@ const dev: any = {
                 itemDefinitionId: server._items[item].itemDefinition.ID,
                 itemData: {
                   itemDefinitionId: server._items[item].itemDefinition.ID,
-                  tintId: 2,
-                  guid: item,
-                  count: 2,
-                  itemSubData: {
-                    unknownBoolean1: false,
+                  itemData: {
+                    itemDefinitionId: server._items[item].itemDefinition.ID,
+                    tintId: 1,
+                    guid: item,
+                    count: 1,
+                    itemSubData: {
+                      unknownBoolean1: false,
+                    },
+                    containerGuid: containerGuid,
+                    containerDefinitionId: 1,
+                    containerSlotId: 1,
+                    baseDurability: 1,
+                    currentDurability: 1,
+                    maxDurabilityFromDefinition: 1,
+                    unknownBoolean1: true,
+                    unknownQword3: containerGuid,
+                    unknownDword9: 1,
                   },
-                  unknownQword2: objectCharacterId,
-                  unknownDword4: 2,
-                  slot: 1,
-                  unknownDword6: 2,
-                  unknownDword7: 2,
-                  unknownDword8: 2,
-                  unknownBoolean1: false,
-                  unknownQword3: containerGuid,
-                  unknownDword9: 2,
-                  unknownBoolean2: false,
                 },
               },
               unknownBool1: false
@@ -909,6 +875,45 @@ const dev: any = {
       unknownDword1: Number(args[1]),
       unknownDword2: Number(args[2]),
       unknownBoolean1: Boolean(args[3])
+    });
+  },
+  proximateitems: function (server: ZoneServer2016, client: Client, args: any[]) {
+    const item: any = server.generateItem(2425),
+    guid1 = server.generateGuid(),
+    guid2 = server.generateGuid(),
+    guid3 = server.generateGuid()
+    console.log(`item: ${item}, guid1: ${guid1}, guid2: ${guid2}, guid3: ${guid3}`)
+    server.sendData(client, "ClientUpdate.ProximateItems", {
+      items: [
+        {
+            itemDefinitionId: server._items[item].itemDefinition.ID,
+            itemData: {
+              itemDefinitionId: server._items[item].itemDefinition.ID,
+              tintId: 43,
+              guid: item,
+              count: 44,
+              itemSubData: {
+                unknownBoolean1: false,/*
+                unknownDword1: 1,
+                unknownData1: {
+                  unknownQword1: guid4,
+                  unknownDword1: 99,
+                  unknownDword2: 101,
+                }*/
+              },
+              containerGuid: guid1,
+              containerDefinitionId: 45,
+              containerSlotId: 46,
+              baseDurability: 47,
+              currentDurability: 48,
+              maxDurabilityFromDefinition: 49,
+              unknownBoolean1: true,
+              unknownQword3: guid2,
+              unknownDword9: 54,
+            },
+          associatedCharacterGuid: guid3
+        }
+      ]
     });
   }
   /*

@@ -672,16 +672,15 @@ const itemDataSchema = [
     defaultValue: {},
     packer: packItemSubData,
   },
-  { name: "unknownQword2", type: "uint64string", defaultValue: "" },
-  { name: "unknownDword4", type: "uint32", defaultValue: 0 },
-  { name: "slot", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword6", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword7", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword8", type: "uint32", defaultValue: 0 },
+  { name: "containerGuid", type: "uint64string", defaultValue: "" },
+  { name: "containerDefinitionId", type: "uint32", defaultValue: 0 },
+  { name: "containerSlotId", type: "uint32", defaultValue: 0 },
+  { name: "baseDurability", type: "uint32", defaultValue: 0 },
+  { name: "currentDurability", type: "uint32", defaultValue: 0 },
+  { name: "maxDurabilityFromDefinition", type: "uint32", defaultValue: 0 },
   { name: "unknownBoolean1", type: "boolean", defaultValue: false },
   { name: "unknownQword3", type: "uint64string", defaultValue: "" },
   { name: "unknownDword9", type: "uint32", defaultValue: 0 },
-  { name: "unknownBoolean2", type: "boolean", defaultValue: false },
 ];
 
 const profileDataSchema = [
@@ -2116,7 +2115,10 @@ const packets = [
                   name: "items",
                   type: "array",
                   defaultValue: [],
-                  fields: itemDataSchema
+                  fields: [
+                    ...itemDataSchema,
+                    { name: "unknownBoolean2", type: "boolean", defaultValue: false },// detail bool?
+                  ]
                 },
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
               ],
@@ -2726,7 +2728,7 @@ const packets = [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                 { name: "unknownDword2", type: "uint32", defaultValue: 0 },
                 {
-                  name: "unknownArray1",
+                  name: "unknownArray1", // inventory / items related (ps2 dump)
                   type: "array",
                   defaultValue: [],
                   fields: [
@@ -3258,7 +3260,7 @@ const packets = [
               ],
             },
             {
-              name: "unknownArray24",
+              name: "unknownArray24",// equipment probably
               type: "array",
               defaultValue: [],
               fields: [
@@ -3290,7 +3292,7 @@ const packets = [
               ],
             },
             {
-              name: "unknownArray25",
+              name: "unknownArray25",// playerRanks (from ps2 sendself dump)
               type: "array",
               defaultValue: [],
               fields: [
@@ -5299,7 +5301,10 @@ const packets = [
         {
           name: "data",
           type: "byteswithlength",
-          fields: itemDataSchema,
+          fields: [
+            ...itemDataSchema,
+            { name: "unknownBoolean2", type: "boolean", defaultValue: false },
+          ],
         },
       ],
     },
@@ -5509,7 +5514,29 @@ const packets = [
       fields: [],
     },
   ],
-  ["ClientUpdate.ProximateItems", 0x113100, {}],
+  [
+    "ClientUpdate.ProximateItems", 
+    0x113100, 
+    {
+      fields: [
+        {
+          name: "items",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
+            {
+              name: "itemData",
+              type: "schema",
+              defaultValue: {},
+              fields: itemDataSchema,
+            },
+            { name: "associatedCharacterGuid", type: "uint64string", defaultValue: "0" },
+          ],
+        },
+      ]
+    }
+  ],
   [
     "ClientUpdate.TextAlert",
     0x113200,
