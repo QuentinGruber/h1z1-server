@@ -1559,6 +1559,7 @@ export class ZoneServer extends EventEmitter {
       });
 
       client.vehicle.mountedVehicle = vehicleGuid;
+      client.character.isRunning = false;
     } else if (entityData.isLocked === 2) {
       this.sendData(client, "ClientUpdate.TextAlert", {
         message: "Vehicle is locked",
