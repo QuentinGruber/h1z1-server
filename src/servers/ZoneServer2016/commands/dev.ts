@@ -646,7 +646,7 @@ const dev: any = {
     client: Client,
     args: any[]
   ) {
-    const item: any = server.generateItem(2425),
+    const //item: any = server.generateItem(2425),
       containers = [
         {
           unknownDword1: 3, // container itemDefinitionId ?
