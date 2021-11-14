@@ -1,5 +1,6 @@
 import { npcData, seats, passengers, positionUpdate } from "../../../types/zoneserver";
 import { generateRandomGuid } from "../../../utils/utils";
+import { ZoneClient } from "./zoneclient";
 
 function getVehicleId(ModelId: number) {
   switch (ModelId) {
@@ -30,7 +31,7 @@ export class Vehicle {
   seat: seats;
   passengers: passengers;
   fuelUpdater: any;
-  onReadyCallback!: () => void;
+  onReadyCallback?: (clientTriggered:ZoneClient) => boolean;
   resourcesUpdater?: any;
 
   constructor(
