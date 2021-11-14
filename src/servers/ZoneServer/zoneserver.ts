@@ -99,7 +99,7 @@ export class ZoneServer extends EventEmitter {
   };
   _clientProtocol: string = "ClientProtocol_860";
   _allowedCommands: string[] = [];
-  _maxAllowedPing: number = 200;
+  _maxAllowedPing: number = 300;
   constructor(
     serverPort: number,
     gatewayKey: Uint8Array,
