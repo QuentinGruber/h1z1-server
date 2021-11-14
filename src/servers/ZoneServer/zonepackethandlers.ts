@@ -571,7 +571,7 @@ export class zonePacketHandlers {
             // using !! is faster but ugly
             hax[commandName](server, client, args);
           } else {
-            if (server._allowedCommands.includes(commandName)) {
+            if (!!hax[commandName]) {
               server.sendChatText(client, "You don't have access to that.");
             } else {
               server.sendChatText(
