@@ -5790,7 +5790,14 @@ var packets = [
       fields: [],
     },
   ],
-  ["PlayerUpdate.UpdateMutateRights", 0x0f6e, {}],
+    ["PlayerUpdate.UpdateMutateRights", 0x0f6e,
+    {
+      fields: [
+        { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+      ]
+    }
+  ],
   ["PlayerUpdate.UpdateFogOfWar", 0x0f70, {}],
   ["PlayerUpdate.SetAllowRespawn", 0x0f71, {}],
   ["Ability.ClientRequestStartAbility", 0x1001, {}],
