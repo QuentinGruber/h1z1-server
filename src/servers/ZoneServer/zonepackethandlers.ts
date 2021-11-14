@@ -653,7 +653,8 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      server.dismountVehicle(client, client.vehicle.mountedVehicle);
+      if(client?.vehicle?.mountedVehicle) // TODO: fix that in a better way
+        server.dismountVehicle(client, client.vehicle.mountedVehicle);
     }),
       (this.commandInteractRequest = function (
         server: ZoneServer,
