@@ -37,7 +37,7 @@ export class SOEOutputStream extends EventEmitter {
   }
 
   write(data: Buffer, overrideEncryption: boolean): void {
-    if (this._useEncryption && overrideEncryption !== false) {
+    if (this._useEncryption && overrideEncryption) {
       this._rc4.write(data);
       data = this._rc4.read();
       if (data[0] === 0) {

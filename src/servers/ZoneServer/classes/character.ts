@@ -79,11 +79,7 @@ export class Character {
         this.resources.stamina += 30;
       } else {
         this.resources.stamina -= 20;
-        if (this.resources.stamina < 120) {
-          this.isExhausted = true;
-        } else {
-          this.isExhausted = false;
-        }
+        this.isExhausted = this.resources.stamina < 120;
       }
       // if we had a packets we could modify sprint stat to 0
       // or play exhausted sounds etc

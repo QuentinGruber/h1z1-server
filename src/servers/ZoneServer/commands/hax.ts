@@ -201,7 +201,7 @@ const hax: any = {
         // doing anything with vehicle before client gets fullvehicle packet breaks it
         server.enterVehicle(client, vehicleData);
         setTimeout(() => {
-          client.character.godMode = wasAlreadyGod ? true : false;
+          client.character.godMode = wasAlreadyGod;
         }, 1000);
       },
     };
@@ -328,7 +328,7 @@ const hax: any = {
           characterId: client.character.characterId,
         });
         setTimeout(() => {
-          client.character.godMode = wasAlreadyGod ? true : false;
+          client.character.godMode = wasAlreadyGod;
         }, 1000);
       },
     };

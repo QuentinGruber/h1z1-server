@@ -1954,7 +1954,7 @@ export class ZoneServer extends EventEmitter {
 
   changeWeather(client: Client, weather: Weather): void {
     this._weather = weather;
-    this.SendSkyChangedPacket(client, weather, this._soloMode ? false : true);
+    this.SendSkyChangedPacket(client, weather, !this._soloMode);
   }
 
   sendSystemMessage(message: string): void {
