@@ -1,4 +1,9 @@
-import { npcData, seats, passengers, positionUpdate } from "../../../types/zoneserver";
+import {
+  npcData,
+  seats,
+  passengers,
+  positionUpdate,
+} from "../../../types/zoneserver";
 import { generateRandomGuid } from "../../../utils/utils";
 import { ZoneClient } from "./zoneclient";
 
@@ -31,7 +36,7 @@ export class Vehicle {
   seat: seats;
   passengers: passengers;
   fuelUpdater: any;
-  onReadyCallback?: (clientTriggered:ZoneClient) => boolean;
+  onReadyCallback?: (clientTriggered: ZoneClient) => boolean;
   resourcesUpdater?: any;
 
   constructor(

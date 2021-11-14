@@ -277,9 +277,8 @@ export class SOEServer extends EventEmitter {
         case "FatalErrorReply":
           break;
       }
-    }
-    else{
-      console.error("handlePacket failed : ",packet)
+    } else {
+      console.error("handlePacket failed : ", packet);
     }
   }
 

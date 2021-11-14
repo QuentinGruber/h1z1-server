@@ -1,5 +1,8 @@
 import { Character } from "../../ZoneServer/classes/character";
-import { characterEquipment, characterLoadout } from "../../../types/zoneserver";
+import {
+  characterEquipment,
+  characterLoadout,
+} from "../../../types/zoneserver";
 
 export class Character2016 extends Character {
   resources: {
