@@ -87,7 +87,7 @@ class SOEClient {
       outOfOrderPackets = [];
 
     function checkAck() {
-      if (lastAck != nextAck) {
+      if (lastAck !== nextAck) {
         lastAck = nextAck;
         me._sendPacket("Ack", {
           channel: 0,
