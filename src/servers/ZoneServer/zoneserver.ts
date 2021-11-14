@@ -817,6 +817,10 @@ export class ZoneServer extends EventEmitter {
       character = await this._db
         ?.collection("characters")
         .findOne({ characterId: client.character.characterId });
+      if(!character){
+        this.sendData(client,"LoginFailed",{})
+        return;
+      }
       characterName = character.payload.name;
     } else {
       delete require.cache[
