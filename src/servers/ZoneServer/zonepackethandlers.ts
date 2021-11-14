@@ -1426,11 +1426,11 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      server._vehicles[packet.data.vehicleGuid].isLocked =
-        packet.data.accessType;
+      const { vehicleGuid, accessType } = packet.data
+      server._vehicles[vehicleGuid].isLocked = accessType;
       server.sendData(client, "Vehicle.AccessType", {
-        vehicleGuid: client.vehicle.mountedVehicle,
-        accessType: packet.data.accessType,
+        vehicleGuid: vehicleGuid,
+        accessType: accessType,
       });
     };
     this.PlayerUpdateManagedPosition = function (
