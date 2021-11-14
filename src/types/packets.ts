@@ -879,7 +879,7 @@ export type h1z1PacketsType =
   | "Loadout.SelectLoadout"
   | "Loadout.SetCurrentLoadout"
   | "Loadout.SelectSlot"
-  | "Loadout.SelectClientSlot"
+  | "Loadout.SetLoadoutSlot"
   | "Loadout.SetCurrentSlot"
   | "Loadout.CreateCustomLoadout"
   | "Loadout.SelectSlotItem"
@@ -965,6 +965,7 @@ export type h1z1PacketsType =
   | "Vehicle.ItemDefinitionRequest"
   | "Vehicle.ItemDefinitionReply"
   | "Vehicle.InventoryItems"
+  | "Vehicle.AccessType"
   | "Grief"
   | "SpotPlayer"
   | "Faction"
@@ -2432,7 +2433,11 @@ export type h1z1PacketsType =
   | "WeaponLagLockParameters"
   | "CrateOpeningBase"
   | "PlayerHeatWarning"
-  | "AnimationBase";
+  | "AnimationBase"
+  | "AccessedCharacter.BeginCharacterAccess"
+  | "AccessedCharacter.Unknown1"
+  | "FirstTimeEvent.State"
+  | "FirstTimeEvent.Script";
 export type loginPacketsType =
   | "LoginRequest"
   | "LoginReply"
