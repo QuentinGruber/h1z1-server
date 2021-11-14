@@ -82,7 +82,7 @@ const hax: any = {
     };
   },
   headlights: function (server: ZoneServer, client: Client, args: any[]) {
-    let headlightType = 0;
+    let headlightType: number;
     switch (client.vehicle.mountedVehicleType) {
       case "offroader":
         headlightType = 273;
