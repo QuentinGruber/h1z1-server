@@ -214,17 +214,20 @@ export class ZoneServer2016 extends ZoneServer {
     await this.loadCharacterData(client);
 
     const item: any = this.generateItem(2425),
-      containers = [
-        [
-          {
-            unknownDword1: 3, // container itemDefinitionId ?
-            containerData: {
-              guid: this.generateGuid(),
-              unknownDword1: 3,
-              unknownQword1: this.generateGuid(),
-              unknownDword2: 3,
-              items: [
-                {
+    containerGuid = this.generateGuid(),
+    containers = [
+      [
+        {
+          unknownDword1: 3, // container itemDefinitionId ?
+          containerData: {
+            guid: containerGuid,
+            unknownDword1: 3,
+            associatedCharacterId: client.character.characterId,
+            slots: 9999,
+            items: [
+              {
+                itemDefinitionId: this._items[item].itemDefinitionId,
+                itemData: {
                   itemDefinitionId: this._items[item].itemDefinitionId,
                   itemData: {
                     itemDefinitionId: this._items[item].itemDefinitionId,
@@ -245,18 +248,29 @@ export class ZoneServer2016 extends ZoneServer {
                     unknownDword9: 0,
                     unknownBoolean2: true,
                   },
-                },
-              ],
-              unknownBoolean1: true,
-              unknownDword3: 3,
-              unknownDword4: 3,
-              unknownDword5: 3,
-              unknownBoolean2: true,
-            },
-          },
-        ],
-      ];
-
+                  containerGuid: containerGuid,
+                  containerDefinitionId: 3,
+                  containerSlotId: 1,
+                  baseDurability: 0,
+                  currentDurability: 0,
+                  maxDurabilityFromDefinition: 0,
+                  unknownBoolean1: true,
+                  unknownQword3: containerGuid,
+                  unknownDword9: 0,
+                  unknownBoolean2: true
+                }
+              }
+            ],
+            unknownBoolean1: false,
+            unknownDword3: 999,
+            unknownDword4: 3,
+            unknownDword5: 777,
+            unknownBoolean2: true,
+          }
+        }
+      ]
+    ]
+    
     this.sendData(client, "SendSelfToClient", {
       data: {
         guid: client.character.guid, // todo: guid should be moved to client, instead of character
@@ -274,7 +288,7 @@ export class ZoneServer2016 extends ZoneServer {
           characterName: client.character.name,
         },
         inventory: {
-          items: Object.keys(client.character._inventory).map((item: any) => {
+          items: Object.keys(client.character._inventory).map((item: any, index: number) => {
             return {
               itemDefinitionId: this._items[item].itemDefinition.ID,
               tintId: 5,
@@ -289,12 +303,12 @@ export class ZoneServer2016 extends ZoneServer {
                   unknownDword2: 1
                 }*/,
               },
-              unknownQword2: item,
-              unknownDword4: 1,
-              slot: 1,
-              unknownDword6: 1,
-              unknownDword7: 1,
-              unknownDword8: 1,
+              containerGuid: item,
+              containerDefinitionId: 1,
+              containerSlotId: 1,
+              baseDurability: 1,
+              currentDurability: 1,
+              maxDurabilityFromDefinition: 1,
               unknownBoolean1: true,
               unknownQword3: item,
               unknownDword9: 1,
@@ -305,7 +319,7 @@ export class ZoneServer2016 extends ZoneServer {
         recipes: recipes,
         stats: stats,
         loadoutSlots: {
-          loadoutId: 5,
+          loadoutId: 3,
           loadoutData: {
             loadoutSlots: client.character.loadout.map(
               (slot: characterLoadout) => {
@@ -323,7 +337,7 @@ export class ZoneServer2016 extends ZoneServer {
               }
             ),
           },
-          unknownDword2: 19,
+          loadoutSlotId: 3,
         },
         characterResources: [
           {
@@ -378,36 +392,6 @@ export class ZoneServer2016 extends ZoneServer {
         //unknownDword40: 1
       },
     });
-    this.sendData(client, "Equipment.SetCharacterEquipment", {
-      characterData: {
-        characterId: client.character.characterId,
-      },
-      equipmentSlots: client.character.equipment.map(
-        (slot: characterEquipment) => {
-          return {
-            equipmentSlotId: slot.slotId,
-            equipmentSlotData: {
-              equipmentSlotId: slot.slotId,
-              guid: slot.guid || "",
-              tintAlias: slot.tintAlias || "",
-              decalAlias: slot.tintAlias || "#",
-            },
-          };
-        }
-      ),
-      attachmentData: client.character.equipment.map(
-        (slot: characterEquipment) => {
-          return {
-            modelName: slot.modelName,
-            textureAlias: slot.textureAlias || "",
-            tintAlias: slot.tintAlias || "",
-            decalAlias: slot.tintAlias || "#",
-            slotId: slot.slotId,
-          };
-        }
-      ),
-    }); // needed or third person character will be invisible
-
     this._characters[client.character.characterId] = client.character; // character will spawn on other player's screen(s) at this point
   }
 
@@ -987,11 +971,7 @@ export class ZoneServer2016 extends ZoneServer {
     });
   }
 
-  sendRawToAllOthersWithSpawnedCharacter(
-    client: Client,
-    entityCharacterId: string = "",
-    data: any
-  ): void {
+  sendRawToAllOthersWithSpawnedCharacter(client: Client, entityCharacterId: string = "", data: any): void {
     for (const a in this._clients) {
       if (
         client != this._clients[a] &&
@@ -1189,7 +1169,7 @@ export class ZoneServer2016 extends ZoneServer {
   updateLoadout(client: Client) {
     this.sendData(client, "Loadout.SetLoadoutSlots", {
       characterId: client.character.characterId,
-      loadoutId: 5,
+      loadoutId: 3,
       loadoutData: {
         loadoutSlots: client.character.loadout.map((slot: characterLoadout) => {
           return {
@@ -1205,7 +1185,7 @@ export class ZoneServer2016 extends ZoneServer {
           };
         }),
       },
-      unknownDword2: 19,
+      loadoutSlotId: 3,
     });
   }
 
@@ -1248,12 +1228,12 @@ export class ZoneServer2016 extends ZoneServer {
         itemSubData: {
           unknownBoolean1: false,
         },
-        unknownQword2: itemGuid,
-        unknownDword4: 1,
-        slot: 1,
-        unknownDword6: 1,
-        unknownDword7: 1,
-        unknownDword8: 1,
+        containerGuid: itemGuid,
+        containerDefinitionId: 1,
+        containerSlotId: 1,
+        baseDurability: 1,
+        currentDurability: 1,
+        maxDurabilityFromDefinition: 1,
         unknownBoolean1: true,
         unknownQword3: itemGuid,
         unknownDword9: 1,
@@ -1363,7 +1343,24 @@ export class ZoneServer2016 extends ZoneServer {
       ].ID
     );
   }
-  //#endregion
+//#endregion
+
+  async reloadZonePacketHandlers(){
+    //@ts-ignore
+    delete this._packetHandlers;
+    delete require.cache[
+      require.resolve("./zonepackethandlers")
+    ];
+    ;
+    this._packetHandlers = new (require("./zonepackethandlers") as any).zonePacketHandlers();
+    await this._packetHandlers.reloadCommandCache();
+  }
+
+  reloadPackets(client: Client, intervalTime = -1): void {
+    this.reloadZonePacketHandlers();
+    this._protocol.reloadPacketDefinitions();
+    this.sendChatText(client, "[DEV] Packets reloaded", true);
+  }
 }
 
 if (process.env.VSCODE_DEBUG === "true") {
