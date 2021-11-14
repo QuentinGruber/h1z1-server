@@ -144,7 +144,7 @@ export class SOEServer extends EventEmitter {
 
   handlePacket(client: SOEClient, packet: any) {
     const { soePacket } = packet;
-    const result = soePacket.result;
+    const result = soePacket?.result;
     if (result) {
       switch (soePacket.name) {
         case "SessionRequest":
@@ -277,6 +277,9 @@ export class SOEServer extends EventEmitter {
         case "FatalErrorReply":
           break;
       }
+    }
+    else{
+      console.error("handlePacket failed : ",packet)
     }
   }
 
