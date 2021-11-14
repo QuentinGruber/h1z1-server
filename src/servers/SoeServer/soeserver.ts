@@ -278,6 +278,9 @@ export class SOEServer extends EventEmitter {
           break;
       }
     }
+    else{
+      console.error("handlePacket failed : ",packet)
+    }
   }
 
   start(
