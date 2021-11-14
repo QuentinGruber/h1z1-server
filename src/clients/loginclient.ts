@@ -63,8 +63,8 @@ export class LoginClient extends EventEmitter {
       localPort
     );
     this._protocol = new LoginProtocol();
-    var n = 0;
-    this._soeClient.on("connect", (err: string, result: string) => {
+      let n = 0;
+      this._soeClient.on("connect", (err: string, result: string) => {
       debug("Connected to login server");
       this.login("FiNgErPrInT");
     });
@@ -73,8 +73,8 @@ export class LoginClient extends EventEmitter {
     });
     this._soeClient.on("appdata", (err: string, data: Buffer) => {
       n++;
-      var packet, result;
-      try {
+        let packet, result;
+        try {
         packet = this._protocol.parse(data);
       } catch (e) {
         debug("Failed parsing app data loginclient_appdata_" + n + ".dat");
@@ -156,11 +156,11 @@ export class LoginClient extends EventEmitter {
       sessionId: any,
       protocol: any
     ) {
-      var data = await protocol.pack("LoginRequest", {
-        sessionId: sessionId,
-        systemFingerPrint: fingerprint,
-      });
-      return data;
+        const data = await protocol.pack("LoginRequest", {
+            sessionId: sessionId,
+            systemFingerPrint: fingerprint,
+        });
+        return data;
     }
 
     var data = await SetupLoginRequest(
@@ -180,24 +180,24 @@ export class LoginClient extends EventEmitter {
 
   requestServerList() {
     debug("Requesting server list");
-    var data = this._protocol.pack("ServerListRequest");
-    this._soeClient.sendAppData(data, true);
+      const data = this._protocol.pack("ServerListRequest");
+      this._soeClient.sendAppData(data, true);
   }
 
   requestCharacterInfo() {
     debug("Requesting character info");
-    var data = this._protocol.pack("CharacterSelectInfoRequest");
-    this._soeClient.sendAppData(data, true);
+      const data = this._protocol.pack("CharacterSelectInfoRequest");
+      this._soeClient.sendAppData(data, true);
   }
 
   requestCharacterLogin(characterId: string, serverId: number, payload: any) {
     debug("Requesting character login");
-    var data = this._protocol.pack("CharacterLoginRequest", {
-      characterId: characterId,
-      serverId: serverId,
-      payload: payload,
-    });
-    if (data) {
+      const data = this._protocol.pack("CharacterLoginRequest", {
+          characterId: characterId,
+          serverId: serverId,
+          payload: payload,
+      });
+      if (data) {
       this._soeClient.sendAppData(data, true);
     } else {
       debug("Could not pack character login request data");
@@ -208,18 +208,18 @@ export class LoginClient extends EventEmitter {
 
   requestCharacterCreate() {
     debug("Requesting character create");
-    var data = this._protocol.pack("CharacterCreateRequest", {
-      serverId: 1,
-      unknown: 0,
-      payload: {
-        empireId: 2,
-        headType: 1,
-        profileType: 3,
-        gender: 1,
-        characterName: "test",
-      },
-    });
-    if (data) {
+      const data = this._protocol.pack("CharacterCreateRequest", {
+          serverId: 1,
+          unknown: 0,
+          payload: {
+              empireId: 2,
+              headType: 1,
+              profileType: 3,
+              gender: 1,
+              characterName: "test",
+          },
+      });
+      if (data) {
       this._soeClient.sendAppData(data, true);
     } else {
       debug("Could not pack character create request data");

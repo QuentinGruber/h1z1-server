@@ -11,13 +11,13 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-var EventEmitter = require("events").EventEmitter,
-  SOEClient = require("./soeclient").SOEClient,
-  fs = require("fs"),
-  util = require("util"),
-  GatewayProtocol = require("../protocols/gatewayprotocol").GatewayProtocol,
-  GatewayPackets = require("../protocols/gatewayprotocol").GatewayPackets,
-  debug = require("debug")("GatewayClient");
+const EventEmitter = require("events").EventEmitter,
+    SOEClient = require("./soeclient").SOEClient,
+    fs = require("fs"),
+    util = require("util"),
+    GatewayProtocol = require("../protocols/gatewayprotocol").GatewayProtocol,
+    GatewayPackets = require("../protocols/gatewayprotocol").GatewayPackets,
+    debug = require("debug")("GatewayClient");
 
 function GatewayClientError(message) {
   this.name = this.constructor.name;
@@ -30,21 +30,21 @@ class GatewayClient {
   constructor(serverAddress, serverPort, key, localPort) {
     EventEmitter.call(this);
 
-    var soeClient = (this._soeClient = new SOEClient(
-      "ExternalGatewayApi_3",
-      serverAddress,
-      serverPort,
-      key,
-      localPort
-    ));
-    var protocol = (this._protocol = new GatewayProtocol());
-    var me = this;
+      const soeClient = (this._soeClient = new SOEClient(
+          "ExternalGatewayApi_3",
+          serverAddress,
+          serverPort,
+          key,
+          localPort
+      ));
+      const protocol = (this._protocol = new GatewayProtocol());
+      const me = this;
 
-    soeClient.on("appdata", function (err, data) {
-      var packet = protocol.parse(data);
-      var result = packet.result;
+      soeClient.on("appdata", function (err, data) {
+        const packet = protocol.parse(data);
+        const result = packet.result;
 
-      switch (packet.name) {
+        switch (packet.name) {
         case "LoginReply":
           if (result.loggedIn) {
             me.emit("login", null, result);
@@ -78,23 +78,23 @@ class GatewayClient {
   sendTunnelData(tunnelData, channel) {
     channel = channel || 0;
     debug("Sending tunnel data to gateway server");
-    var data = this._protocol.pack("TunnelPacketFromExternalConnection", {
-      channel: channel,
-      tunnelData: tunnelData,
-    });
-    //fs.writeFileSync("dump/out_tunneldata_" + (tunnelCount++) + ".dat", data);
+      const data = this._protocol.pack("TunnelPacketFromExternalConnection", {
+          channel: channel,
+          tunnelData: tunnelData,
+      });
+      //fs.writeFileSync("dump/out_tunneldata_" + (tunnelCount++) + ".dat", data);
     this._soeClient.sendAppData(data, true);
   }
 
   login(characterId, ticket, clientProtocol, clientBuild) {
     debug("Sending login request");
-    var data = this._protocol.pack("LoginRequest", {
-      characterId: characterId,
-      ticket: ticket,
-      clientProtocol: clientProtocol,
-      clientBuild: clientBuild,
-    });
-    //fs.writeFileSync("loginrequest.dat", data);
+      const data = this._protocol.pack("LoginRequest", {
+          characterId: characterId,
+          ticket: ticket,
+          clientProtocol: clientProtocol,
+          clientBuild: clientBuild,
+      });
+      //fs.writeFileSync("loginrequest.dat", data);
     this._soeClient.sendAppData(data, false);
     this._soeClient.toggleEncryption(true);
   }
@@ -104,6 +104,6 @@ class GatewayClient {
 
 util.inherits(GatewayClient, EventEmitter);
 
-var tunnelCount = 0;
+const tunnelCount = 0;
 
 exports.GatewayClient = GatewayClient;
