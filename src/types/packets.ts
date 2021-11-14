@@ -965,6 +965,7 @@ export type h1z1PacketsType =
   | "Vehicle.ItemDefinitionRequest"
   | "Vehicle.ItemDefinitionReply"
   | "Vehicle.InventoryItems"
+  | "Vehicle.AccessType"
   | "Grief"
   | "SpotPlayer"
   | "Faction"
