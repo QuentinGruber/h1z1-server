@@ -1557,7 +1557,10 @@ export class ZoneServer extends EventEmitter {
           },
         },
       });
-
+      this.sendData(client, "PlayerUpdate.UpdateMutateRights", {
+        unknownQword1: "1",
+        unknownBoolean1: true,
+       }); 
       client.vehicle.mountedVehicle = vehicleGuid;
       client.character.isRunning = false;
     } else if (entityData.isLocked === 2) {
