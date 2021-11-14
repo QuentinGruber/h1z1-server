@@ -1951,8 +1951,9 @@ export class zonePacketHandlers {
             characterId: characterId,
           });
           if (entityData.onReadyCallback) {
-            entityData.onReadyCallback();
-            server._vehicles[characterId].onReadyCallback = () => {};
+            if(entityData.onReadyCallback(client)){
+              delete server._vehicles[characterId].onReadyCallback;
+            }
           }
           break;
         }
