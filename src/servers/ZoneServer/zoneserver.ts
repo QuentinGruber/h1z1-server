@@ -86,7 +86,7 @@ export class ZoneServer extends EventEmitter {
   _interactionDistance: number;
   _dummySelf: any;
   _appDataFolder: string;
-  _respawnOnLastPosition: boolean = true;
+  _respawnOnLastPosition: boolean = false;
   _spawnTimerMs: number = 10;
   _worldRoutineRadiusPercentage: number = 0.4;
   _enableGarbageCollection: boolean = true;
@@ -847,21 +847,16 @@ export class ZoneServer extends EventEmitter {
       ? characterDataMongo.extraModelTexture
       : this._dummySelf.data.extraModelTexture;
 
-    if (
-      _.isEqual(this._dummySelf.data.position, [0, 0, 0, 1]) &&
-      _.isEqual(this._dummySelf.data.rotation, [0, 0, 0, 1])
-    ) {
-      // if position/rotation hasn't be changed
+      let isRandomlySpawning = false;
       if (
         this._soloMode ||
         !characterDataMongo.position ||
         !this._respawnOnLastPosition
       ) {
-        this._dummySelf.data.isRandomlySpawning = true;
+        isRandomlySpawning = true;
       }
-    }
 
-    if (this._dummySelf.data.isRandomlySpawning) {
+    if (isRandomlySpawning) {
       // Take position/rotation from a random spawn location.
       const randomSpawnIndex = Math.floor(
         Math.random() * this._spawnLocations.length
@@ -2240,5 +2235,6 @@ if (
     process.env.MONGO_URL,
     1
   );
+  zoneServer._maxAllowedPing = 9999;
   zoneServer.start();
 }
