@@ -75,7 +75,7 @@ export class zonePacketHandlers {
   Pickup: any;
   GetRewardBuffInfo: any;
   vehicleStateData: any;
-  VehicleAccessType: any
+  VehicleAccessType: any;
   PlayerUpdateManagedPosition: any;
   PlayerUpdateUpdatePositionClientToZone: any;
   commandPlayerSelect: any;
@@ -571,7 +571,7 @@ export class zonePacketHandlers {
             // using !! is faster but ugly
             hax[commandName](server, client, args);
           } else {
-            if (server._allowedCommands.includes(commandName)) {
+            if (!!hax[commandName]) {
               server.sendChatText(client, "You don't have access to that.");
             } else {
               server.sendChatText(
@@ -653,7 +653,8 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      server.dismountVehicle(client, client.vehicle.mountedVehicle);
+      if(client?.vehicle?.mountedVehicle) // TODO: fix that in a better way
+        server.dismountVehicle(client, client.vehicle.mountedVehicle);
     }),
       (this.commandInteractRequest = function (
         server: ZoneServer,
@@ -1432,11 +1433,12 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      server._vehicles[packet.data.vehicleGuid].isLocked = packet.data.accessType;
+      const { vehicleGuid, accessType } = packet.data
+      server._vehicles[vehicleGuid].isLocked = accessType;
       server.sendData(client, "Vehicle.AccessType", {
-      vehicleGuid: client.vehicle.mountedVehicle,
-      accessType: packet.data.accessType,
-    });
+        vehicleGuid: vehicleGuid,
+        accessType: accessType,
+      });
     };
     this.PlayerUpdateManagedPosition = function (
       server: ZoneServer,
@@ -1958,7 +1960,7 @@ export class zonePacketHandlers {
             characterId: characterId,
           });
           if (entityData.onReadyCallback) {
-            if(entityData.onReadyCallback(client)){
+            if (entityData.onReadyCallback(client)) {
               delete server._vehicles[characterId].onReadyCallback;
             }
           }

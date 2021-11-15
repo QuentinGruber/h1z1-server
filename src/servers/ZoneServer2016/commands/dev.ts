@@ -655,7 +655,8 @@ const dev: any = {
             unknownDword1: 3,
             associatedCharacterId: client.character.characterId,
             slots: 9999,
-            items: [/*
+            items: [
+              /*
               {
                 itemDefinitionId: server._items[item].itemDefinition.ID,
                 itemData: {
@@ -778,46 +779,46 @@ const dev: any = {
         attachedObject: {},
       };
     const item: any = server.generateItem(2425),
-    containerGuid = server.generateGuid(),
-    containers = [
-      {
-        unknownDword1: 3, // container itemDefinitionId ?
-        containerData: {
-          guid: containerGuid,
-          unknownDword1: 3,
-          associatedCharacterId: client.character.characterId,
-          slots: 9999,
-          items: [
-            {
-              itemDefinitionId: server._items[item].itemDefinition.ID,
-              itemData: {
+      containerGuid = server.generateGuid(),
+      containers = [
+        {
+          unknownDword1: 3, // container itemDefinitionId ?
+          containerData: {
+            guid: containerGuid,
+            unknownDword1: 3,
+            associatedCharacterId: client.character.characterId,
+            slots: 9999,
+            items: [
+              {
                 itemDefinitionId: server._items[item].itemDefinition.ID,
                 itemData: {
                   itemDefinitionId: server._items[item].itemDefinition.ID,
-                  tintId: 1,
-                  guid: item,
-                  count: 1,
-                  itemSubData: {
-                    unknownBoolean1: false,
+                  itemData: {
+                    itemDefinitionId: server._items[item].itemDefinition.ID,
+                    tintId: 1,
+                    guid: item,
+                    count: 1,
+                    itemSubData: {
+                      unknownBoolean1: false,
+                    },
+                    containerGuid: containerGuid,
+                    containerDefinitionId: 1,
+                    containerSlotId: 1,
+                    baseDurability: 1,
+                    currentDurability: 1,
+                    maxDurabilityFromDefinition: 1,
+                    unknownBoolean1: true,
+                    unknownQword3: containerGuid,
+                    unknownDword9: 1,
                   },
-                  containerGuid: containerGuid,
-                  containerDefinitionId: 1,
-                  containerSlotId: 1,
-                  baseDurability: 1,
-                  currentDurability: 1,
-                  maxDurabilityFromDefinition: 1,
-                  unknownBoolean1: true,
-                  unknownQword3: containerGuid,
-                  unknownDword9: 1,
-                }
+                },
               },
-            }
-          ],
-          unknownBoolean1: true,
-          unknownDword3: 1,
-          unknownDword4: 1,
-          unknownDword5: 1,
-          unknownBoolean2: true,
+            ],
+            unknownBoolean1: true,
+            unknownDword3: 1,
+            unknownDword4: 1,
+            unknownDword5: 1,
+            unknownBoolean2: true,
           },
         },
       ];
@@ -872,55 +873,61 @@ const dev: any = {
     }, 3000);
   },
   fte: function (server: ZoneServer2016, client: Client, args: any[]) {
-    if(!args[3]){
+    if (!args[3]) {
       server.sendChatText(client, "Missing 3 args");
       return;
     }
     server.sendData(client, "FirstTimeEvent.State", {
       unknownDword1: Number(args[1]),
       unknownDword2: Number(args[2]),
-      unknownBoolean1: Boolean(args[3])
+      unknownBoolean1: Boolean(args[3]),
     });
   },
-  proximateitems: function (server: ZoneServer2016, client: Client, args: any[]) {
+  proximateitems: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: any[]
+  ) {
     const item: any = server.generateItem(2425),
-    guid1 = server.generateGuid(),
-    guid2 = server.generateGuid(),
-    guid3 = server.generateGuid()
-    console.log(`item: ${item}, guid1: ${guid1}, guid2: ${guid2}, guid3: ${guid3}`)
+      guid1 = server.generateGuid(),
+      guid2 = server.generateGuid(),
+      guid3 = server.generateGuid();
+    console.log(
+      `item: ${item}, guid1: ${guid1}, guid2: ${guid2}, guid3: ${guid3}`
+    );
     server.sendData(client, "ClientUpdate.ProximateItems", {
       items: [
         {
+          itemDefinitionId: server._items[item].itemDefinition.ID,
+          itemData: {
             itemDefinitionId: server._items[item].itemDefinition.ID,
-            itemData: {
-              itemDefinitionId: server._items[item].itemDefinition.ID,
-              tintId: 43,
-              guid: item,
-              count: 44,
-              itemSubData: {
-                unknownBoolean1: false,/*
+            tintId: 43,
+            guid: item,
+            count: 44,
+            itemSubData: {
+              unknownBoolean1: false /*
                 unknownDword1: 1,
                 unknownData1: {
                   unknownQword1: guid4,
                   unknownDword1: 99,
                   unknownDword2: 101,
-                }*/
-              },
-              containerGuid: guid1,
-              containerDefinitionId: 45,
-              containerSlotId: 46,
-              baseDurability: 47,
-              currentDurability: 48,
-              maxDurabilityFromDefinition: 49,
-              unknownBoolean1: true,
-              unknownQword3: guid2,
-              unknownDword9: 54,
+                }*/,
             },
-          associatedCharacterGuid: guid3
-        }
-      ]
+            containerGuid: guid1,
+            containerDefinitionId: 45,
+            containerSlotId: 46,
+            baseDurability: 47,
+            currentDurability: 48,
+            maxDurabilityFromDefinition: 49,
+            unknownBoolean1: true,
+            unknownQword3: guid2,
+            unknownDword9: 54,
+          },
+          associatedCharacterGuid: guid3,
+        },
+      ],
     });
-  }
+  },
   /*
     proxiedobjects: function(server: ZoneServer2016, client: Client, args: any[]) {
 

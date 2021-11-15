@@ -2018,7 +2018,7 @@ const loadoutSlotsSchema = [
     ],
   },
   { name: "loadoutSlotId", type: "uint32", defaultValue: 3 },
-]
+];
 
 const packets = [
   ["Server", 0x01, {}],
@@ -2119,8 +2119,12 @@ const packets = [
                   defaultValue: [],
                   fields: [
                     ...itemDataSchema,
-                    { name: "unknownBoolean2", type: "boolean", defaultValue: false },// detail bool?
-                  ]
+                    {
+                      name: "unknownBoolean2",
+                      type: "boolean",
+                      defaultValue: false,
+                    }, // detail bool?
+                  ],
                 },
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
               ],
@@ -3262,7 +3266,7 @@ const packets = [
               ],
             },
             {
-              name: "unknownArray24",// equipment probably
+              name: "unknownArray24", // equipment probably
               type: "array",
               defaultValue: [],
               fields: [
@@ -3294,7 +3298,7 @@ const packets = [
               ],
             },
             {
-              name: "unknownArray25",// playerRanks (from ps2 sendself dump)
+              name: "unknownArray25", // playerRanks (from ps2 sendself dump)
               type: "array",
               defaultValue: [],
               fields: [
@@ -5517,8 +5521,8 @@ const packets = [
     },
   ],
   [
-    "ClientUpdate.ProximateItems", 
-    0x113100, 
+    "ClientUpdate.ProximateItems",
+    0x113100,
     {
       fields: [
         {
@@ -5533,11 +5537,15 @@ const packets = [
               defaultValue: {},
               fields: itemDataSchema,
             },
-            { name: "associatedCharacterGuid", type: "uint64string", defaultValue: "0" },
+            {
+              name: "associatedCharacterGuid",
+              type: "uint64string",
+              defaultValue: "0",
+            },
           ],
         },
-      ]
-    }
+      ],
+    },
   ],
   [
     "ClientUpdate.TextAlert",
@@ -6365,46 +6373,40 @@ const packets = [
   ],
   ["ClientMetrics", 0x45, {}],
   [
-    "FirstTimeEvent.Unknown1", 
-    0x4601, 
+    "FirstTimeEvent.Unknown1",
+    0x4601,
     {
-      fields: [
-
-      ]
-    }
+      fields: [],
+    },
   ],
   [
-    "FirstTimeEvent.State", 
-    0x4602, 
+    "FirstTimeEvent.State",
+    0x4602,
     {
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
         { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-      ]
-    }
+      ],
+    },
   ],
   [
-    "FirstTimeEvent.Unknown2", 
-    0x4603, 
+    "FirstTimeEvent.Unknown2",
+    0x4603,
     {
-      fields: [
-        
-      ]
-    }
+      fields: [],
+    },
   ],
   [
-    "FirstTimeEvent.Unknown3", 
-    0x4604, 
+    "FirstTimeEvent.Unknown3",
+    0x4604,
     {
-      fields: [
-        
-      ]
-    }
+      fields: [],
+    },
   ],
   [
-    "FirstTimeEvent.Script", 
-    0x4605, 
+    "FirstTimeEvent.Script",
+    0x4605,
     {
       fields: [
         { name: "unknownString1", type: "string", defaultValue: "" },
@@ -6412,14 +6414,12 @@ const packets = [
           name: "unknownArray1",
           type: "array",
           defaultValue: [],
-          fields: [
-            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-          ],
+          fields: [{ name: "unknownDword1", type: "uint32", defaultValue: 0 }],
         },
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-      ]
-    }
+      ],
+    },
   ],
   ["Claim", 0x47, {}],
   [
@@ -6990,9 +6990,7 @@ const packets = [
     "Loadout.SelectLoadout",
     0x8702,
     {
-      fields: [
-        { name: "loadoutSlotId", type: "uint32", defaultValue: 0 }
-      ],
+      fields: [{ name: "loadoutSlotId", type: "uint32", defaultValue: 0 }],
     },
   ],
 
@@ -7017,8 +7015,8 @@ const packets = [
     },
   ],
   [
-    "Loadout.SetLoadoutSlot", 
-    0x8705, 
+    "Loadout.SetLoadoutSlot",
+    0x8705,
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
@@ -7034,7 +7032,11 @@ const packets = [
               type: "schema",
               fields: [
                 { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
-                { name: "loadoutItemOwnerGuid", type: "uint64string", defaultValue: "0" },
+                {
+                  name: "loadoutItemOwnerGuid",
+                  type: "uint64string",
+                  defaultValue: "0",
+                },
                 { name: "unknownByte1", type: "uint8", defaultValue: 0 },
               ],
             },
@@ -7042,18 +7044,18 @@ const packets = [
           ],
         },
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-      ]
-    }
+      ],
+    },
   ],
   [
-    "Loadout.CreateCustomLoadout", 
-    0x8707, 
+    "Loadout.CreateCustomLoadout",
+    0x8707,
     {
       fields: [
         { name: "slotId", type: "uint32", defaultValue: 0 },
         { name: "loadoutId", type: "uint32", defaultValue: 0 },
-      ]
-    }
+      ],
+    },
   ],
   ["Experience.SetExperience", 0x8801, {}],
   [
@@ -7554,7 +7556,7 @@ const packets = [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
         { name: "objectCharacterId", type: "uint64string", defaultValue: 0 },
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "damage", type: "uint32", defaultValue: 0 }, 
+        { name: "damage", type: "uint32", defaultValue: 0 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
         { name: "position", type: "floatvector3", defaultValue: 0 },
         { name: "unknownByte2", type: "uint8", defaultValue: 0 },

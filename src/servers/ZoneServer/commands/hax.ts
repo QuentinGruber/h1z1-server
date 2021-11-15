@@ -60,28 +60,28 @@ const hax: any = {
     vehicleData.isManaged = true;
     server._vehicles[characterId] = {
       ...vehicleData,
-      onReadyCallback: (clientTriggered:Client) => {
-        if(clientTriggered === client){
-        // doing anything with vehicle before client gets fullvehicle packet breaks it
-        server.sendData(client, "PlayerUpdate.ManagedObject", {
-          guid: vehicleData.npcData.characterId,
-          characterId: client.character.characterId,
-        });
-        server.sendDataToAll("Mount.MountResponse", {
-          characterId: client.character.characterId,
-          guid: characterId,
-          characterData: [],
-        });
-        server.sendDataToAll("Vehicle.Engine", {
-          guid2: characterId,
-          unknownBoolean: true,
-        });
-        client.vehicle.mountedVehicle = characterId;
-        client.vehicle.mountedVehicleType = "spectate";
-        client.managedObjects.push(server._vehicles[characterId]);
-        return true;
-      }
-      return false;
+      onReadyCallback: (clientTriggered: Client) => {
+        if (clientTriggered === client) {
+          // doing anything with vehicle before client gets fullvehicle packet breaks it
+          server.sendData(client, "PlayerUpdate.ManagedObject", {
+            guid: vehicleData.npcData.characterId,
+            characterId: client.character.characterId,
+          });
+          server.sendDataToAll("Mount.MountResponse", {
+            characterId: client.character.characterId,
+            guid: characterId,
+            characterData: [],
+          });
+          server.sendDataToAll("Vehicle.Engine", {
+            guid2: characterId,
+            unknownBoolean: true,
+          });
+          client.vehicle.mountedVehicle = characterId;
+          client.vehicle.mountedVehicleType = "spectate";
+          client.managedObjects.push(server._vehicles[characterId]);
+          return true;
+        }
+        return false;
       },
     };
   },
@@ -201,16 +201,16 @@ const hax: any = {
     vehicleData.isManaged = true;
     server._vehicles[characterId] = {
       ...vehicleData,
-      onReadyCallback: (clientTriggered:Client) => {
-        if(clientTriggered === client){
-        // doing anything with vehicle before client gets fullvehicle packet breaks it
-        server.enterVehicle(client, vehicleData);
-        setTimeout(() => {
-          client.character.godMode = wasAlreadyGod ? true : false;
-        }, 1000);
-        return true;
-      }
-      return false;
+      onReadyCallback: (clientTriggered: Client) => {
+        if (clientTriggered === client) {
+          // doing anything with vehicle before client gets fullvehicle packet breaks it
+          server.enterVehicle(client, vehicleData);
+          setTimeout(() => {
+            client.character.godMode = wasAlreadyGod ? true : false;
+          }, 1000);
+          return true;
+        }
+        return false;
       },
     };
     server.worldRoutine();
@@ -329,20 +329,20 @@ const hax: any = {
     vehicleData.isManaged = true;
     server._vehicles[characterId] = {
       ...vehicleData,
-      onReadyCallback: (clientTriggered:Client) => {
-        if(clientTriggered === client){
-        // doing anything with vehicle before client gets fullvehicle packet breaks it
-        server.sendData(client, "PlayerUpdate.ManagedObject", {
-          guid: vehicleData.npcData.characterId,
-          characterId: client.character.characterId,
-        });
-        setTimeout(() => {
-          client.character.godMode = wasAlreadyGod ? true : false;
-        }, 1000);
-        return true;
-      }
-      return false;
-    }
+      onReadyCallback: (clientTriggered: Client) => {
+        if (clientTriggered === client) {
+          // doing anything with vehicle before client gets fullvehicle packet breaks it
+          server.sendData(client, "PlayerUpdate.ManagedObject", {
+            guid: vehicleData.npcData.characterId,
+            characterId: client.character.characterId,
+          });
+          setTimeout(() => {
+            client.character.godMode = wasAlreadyGod ? true : false;
+          }, 1000);
+          return true;
+        }
+        return false;
+      },
     };
     server.worldRoutine();
   },

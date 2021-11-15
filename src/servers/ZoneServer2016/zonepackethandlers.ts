@@ -14,9 +14,7 @@ import admin from "./commands/admin";
 
 import { _, Int64String, isPosInRadius } from "../../utils/utils";
 
-import {
-    characterEquipment
-  } from "../../types/zoneserver";
+import { characterEquipment } from "../../types/zoneserver";
 
 const itemDefinitions = require("./../../../data/2016/dataSources/ClientItemDefinitions.json");
 
@@ -217,34 +215,34 @@ export class zonePacketHandlers {
           30000
         );
         server.sendData(client, "Equipment.SetCharacterEquipment", {
-            characterData: {
-              characterId: client.character.characterId,
-            },
-            equipmentSlots: client.character.equipment.map(
-              (slot: characterEquipment) => {
-                return {
+          characterData: {
+            characterId: client.character.characterId,
+          },
+          equipmentSlots: client.character.equipment.map(
+            (slot: characterEquipment) => {
+              return {
+                equipmentSlotId: slot.slotId,
+                equipmentSlotData: {
                   equipmentSlotId: slot.slotId,
-                  equipmentSlotData: {
-                    equipmentSlotId: slot.slotId,
-                    guid: slot.guid || "",
-                    tintAlias: slot.tintAlias || "",
-                    decalAlias: slot.tintAlias || "#",
-                  },
-                };
-              }
-            ),
-            attachmentData: client.character.equipment.map(
-              (slot: characterEquipment) => {
-                return {
-                  modelName: slot.modelName,
-                  textureAlias: slot.textureAlias || "",
+                  guid: slot.guid || "",
                   tintAlias: slot.tintAlias || "",
                   decalAlias: slot.tintAlias || "#",
-                  slotId: slot.slotId,
-                };
-              }
-            ),
-          }); // needed or third person character will be invisible
+                },
+              };
+            }
+          ),
+          attachmentData: client.character.equipment.map(
+            (slot: characterEquipment) => {
+              return {
+                modelName: slot.modelName,
+                textureAlias: slot.textureAlias || "",
+                tintAlias: slot.tintAlias || "",
+                decalAlias: slot.tintAlias || "#",
+                slotId: slot.slotId,
+              };
+            }
+          ),
+        }); // needed or third person character will be invisible
 
         server.executeFuncForAllReadyClients(() => server.spawnCharacters);
       }
