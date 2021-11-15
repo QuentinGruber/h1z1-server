@@ -1387,6 +1387,13 @@ export class zonePacketHandlers {
         stringId: 10002,
         unknownGuid: Int64String(packetData.id),
       });
+      server.sendData(client, "DtoSateChange", { // WIP
+        objectId: packetData.id,
+        name: packetData.name,
+        unk2: 0,
+        unk3: 0,
+        unk4: false,
+       });
     };
     this.GetRewardBuffInfo = function (
       server: ZoneServer,
