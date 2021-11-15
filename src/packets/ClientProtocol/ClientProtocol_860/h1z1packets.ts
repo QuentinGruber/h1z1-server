@@ -9790,7 +9790,7 @@ var packets = [
   ["RequestStationCashActivePromoUpdate", 0xbb, {}],
   ["CharacterSlot", 0xbc, {}],
   [
-        "Pickup", // <- DtoHitSpeedTreeReportPacket
+        "Pickup", //
         0xbe, // <- Dunno if packet opcode should be 0xbe or 0xbe0400
         {
             fields: [
@@ -9802,7 +9802,7 @@ var packets = [
         },
     ],
     [
-        "DtoSateChange",
+        "DtoStateChange",
         0xbe0200,
         {
             fields: [
