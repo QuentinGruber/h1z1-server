@@ -86,7 +86,7 @@ export class ZoneServer extends EventEmitter {
   _interactionDistance: number;
   _dummySelf: any;
   _appDataFolder: string;
-  _respawnOnLastPosition: boolean = true;
+  _respawnOnLastPosition: boolean = false;
   _spawnTimerMs: number = 10;
   _worldRoutineRadiusPercentage: number = 0.4;
   _enableGarbageCollection: boolean = true;
@@ -99,7 +99,7 @@ export class ZoneServer extends EventEmitter {
   };
   _clientProtocol: string = "ClientProtocol_860";
   _allowedCommands: string[] = [];
-  _maxAllowedPing: number = 200;
+  _maxAllowedPing: number = 300;
   constructor(
     serverPort: number,
     gatewayKey: Uint8Array,
@@ -817,6 +817,10 @@ export class ZoneServer extends EventEmitter {
       character = await this._db
         ?.collection("characters")
         .findOne({ characterId: client.character.characterId });
+      if (!character) {
+        this.sendData(client, "LoginFailed", {});
+        return;
+      }
       characterName = character.payload.name;
     } else {
       delete require.cache[
@@ -843,21 +847,16 @@ export class ZoneServer extends EventEmitter {
       ? characterDataMongo.extraModelTexture
       : this._dummySelf.data.extraModelTexture;
 
+    let isRandomlySpawning = false;
     if (
-      _.isEqual(this._dummySelf.data.position, [0, 0, 0, 1]) &&
-      _.isEqual(this._dummySelf.data.rotation, [0, 0, 0, 1])
+      this._soloMode ||
+      !characterDataMongo.position ||
+      !this._respawnOnLastPosition
     ) {
-      // if position/rotation hasn't be changed
-      if (
-        this._soloMode ||
-        !characterDataMongo.position ||
-        !this._respawnOnLastPosition
-      ) {
-        this._dummySelf.data.isRandomlySpawning = true;
-      }
+      isRandomlySpawning = true;
     }
 
-    if (this._dummySelf.data.isRandomlySpawning) {
+    if (isRandomlySpawning) {
       // Take position/rotation from a random spawn location.
       const randomSpawnIndex = Math.floor(
         Math.random() * this._spawnLocations.length
@@ -2236,5 +2235,6 @@ if (
     process.env.MONGO_URL,
     1
   );
+  zoneServer._maxAllowedPing = 9999;
   zoneServer.start();
 }
