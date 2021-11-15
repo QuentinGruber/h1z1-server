@@ -72,7 +72,7 @@ export class zonePacketHandlers {
   commandStartLogoutRequest: any;
   CharacterSelectSessionRequest: any;
   profileStatsGetPlayerProfileStats: any;
-  Pickup: any;
+  DtoHitSpeedTreeReport: any;
   GetRewardBuffInfo: any;
   vehicleStateData: any;
   VehicleAccessType: any;
@@ -1366,35 +1366,23 @@ export class zonePacketHandlers {
         require("../../../data/2015/sampleData/profilestats.json")
       );
     };
-    this.Pickup = function (server: ZoneServer, client: Client, packet: any) {
+    this.DtoHitSpeedTreeReport = function (server: ZoneServer, client: Client, packet: any) {
       debug(packet);
-      const { data: packetData } = packet;
-      server.sendData(client, "ClientUpdate.StartTimer", {
-        stringId: 582,
-        time: 100,
-      });
-      if (packetData.name === "SpeedTree.Blackberry") {
+      const { id, treeId, name } = packet.data;
+      if (name === "SpeedTree.Blackberry") {
         server.sendData(client, "ClientUpdate.TextAlert", {
           message: "Blackberries...miss you...",
         });
       } else {
         server.sendData(client, "ClientUpdate.TextAlert", {
-          message: packetData.name.replace("SpeedTree.", ""),
+          message: name.replace("SpeedTree.", ""),
         });
       }
-      server.sendData(client, "PlayerUpdate.StartHarvest", {
-        characterId: client.character.characterId,
-        unknown4: 0,
-        timeMs: 10,
-        unknown6: 0,
-        stringId: 10002,
-        unknownGuid: Int64String(packetData.id),
-      });
       server.sendData(client, "DtoStateChange", { // WIP
-        objectId: packetData.id,
-        name: packetData.name,
-        unk2: 0,
-        unk3: 0,
+        objectId: id,
+        name: name,
+        unk2: treeId,
+        unk3: 9001,
         unk4: false,
        });
     };
@@ -2200,8 +2188,8 @@ export class zonePacketHandlers {
       case "ProfileStats.GetPlayerProfileStats":
         this.profileStatsGetPlayerProfileStats(server, client, packet);
         break;
-      case "Pickup":
-        this.Pickup(server, client, packet);
+      case "DtoHitSpeedTreeReport":
+        this.DtoHitSpeedTreeReport(server, client, packet);
         break;
       case "GetRewardBuffInfo":
         this.GetRewardBuffInfo(server, client, packet);

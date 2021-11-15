@@ -9807,7 +9807,7 @@ var packets = [
         { name: "name", type: "string" },
         { name: "unk2", type: "uint32" },
         { name: "unk3", type: "uint32" },
-        { name: "unk4", type: "boolean" },
+        { name: "unk4", type: "boolean" }, // changing this boolean change how the packet is processed 
       ],
     },
   ],
