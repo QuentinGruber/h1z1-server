@@ -1388,7 +1388,7 @@ export class zonePacketHandlers {
         stringId: 10002,
         unknownGuid: Int64String(packetData.id),
       });
-      server.sendData(client, "DtoSateChange", { // WIP
+      server.sendData(client, "DtoStateChange", { // WIP
         objectId: packetData.id,
         name: packetData.name,
         unk2: 0,
