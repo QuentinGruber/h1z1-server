@@ -392,7 +392,9 @@ export class zonePacketHandlers {
       clearInterval(client.character.resourcesUpdater);
       server.saveCharacterPosition(client);
       client.managedObjects.forEach((object: any) => {
-        server._vehicles[object.npcData.characterId].isManaged = false;
+        const vehicle = server._vehicles[object.npcData.characterId]
+        if(vehicle)
+          vehicle.isManaged = false;
       });
       server.deleteEntity(client.character.characterId, server._characters);
       server._gatewayServer._soeServer.deleteClient(client);
@@ -1928,40 +1930,45 @@ export class zonePacketHandlers {
         case 1: {
           // npc
           const entityData = server._npcs[characterId];
-          server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
-            transientId: entityData.transientId,
-            unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
-            unknownDword2: 13951728,
-            unknownDword3: 1,
-            unknownDword6: 100,
-          });
-          if (entityData.onReadyCallback) {
-            entityData.onReadyCallback();
-          }
+          if(entityData){
+            server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
+              transientId: entityData.transientId,
+              unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
+              unknownDword2: 13951728,
+              unknownDword3: 1,
+              unknownDword6: 100,
+            });
+            if (entityData.onReadyCallback) {
+              entityData.onReadyCallback();
+            }
+        }
           break;
         }
         case 2: {
           // vehicle
           const entityData = server._vehicles[characterId];
-          if (entityData.npcData.vehicleId === 13) return;
-          // ignore parachute
-          const npcData = {
-            transientId: entityData.npcData.transientId,
-          };
-          server.sendData(client, "PlayerUpdate.LightweightToFullVehicle", {
-            npcData: npcData,
-            characterId: characterId,
-          });
-          if (entityData.onReadyCallback) {
-            if (entityData.onReadyCallback(client)) {
-              delete server._vehicles[characterId].onReadyCallback;
+          if(entityData){
+            if (entityData.npcData.vehicleId === 13) return;
+            // ignore parachute
+            const npcData = {
+              transientId: entityData.npcData.transientId,
+            };
+            server.sendData(client, "PlayerUpdate.LightweightToFullVehicle", {
+              npcData: npcData,
+              characterId: characterId,
+            });
+            if (entityData.onReadyCallback) {
+              if (entityData.onReadyCallback(client)) {
+                delete server._vehicles[characterId].onReadyCallback;
+              }
             }
-          }
+        }
           break;
         }
         case 3: {
           // character
           const entityData = server._characters[characterId];
+          if(entityData){
           server.sendData(client, "PlayerUpdate.LightweightToFullPc", {
             transientId: entityData.transientId,
           });
@@ -2006,11 +2013,13 @@ export class zonePacketHandlers {
             }),
             attachmentData: entityData.equipment,
           });
+        }
           break;
         }
         case 4: {
           // object
           const entityData = server._objects[characterId];
+          if(entityData){
           server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
             transientId: entityData.transientId,
             unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
@@ -2021,11 +2030,13 @@ export class zonePacketHandlers {
           if (entityData.onReadyCallback) {
             entityData.onReadyCallback();
           }
+        }
           break;
         }
         case 5: {
           // prop
           const entityData = server._props[characterId];
+          if(entityData){
           server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
             transientId: entityData.transientId,
             unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
@@ -2036,11 +2047,13 @@ export class zonePacketHandlers {
           if (entityData.onReadyCallback) {
             entityData.onReadyCallback();
           }
+        }
           break;
         }
         case 6: {
           // door
           const entityData = server._doors[characterId];
+          if(entityData){
           server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
             transientId: entityData.transientId,
             unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
@@ -2064,6 +2077,7 @@ export class zonePacketHandlers {
               unk3: 0,
             });
           }
+        }
           break;
         }
       }
