@@ -9841,7 +9841,11 @@ var packets = [
     "DtoHitSpeedTreeReport",
     0xbe0400,
     {
-      fields: [],
+      fields: [
+        { name: "id", type: "uint32" },
+        { name: "treeId", type: "uint32" },
+        { name: "name", type: "string" },
+      ],
     },
   ],
   ["Operation.RequestCreate", 0xbf01, {}],
