@@ -268,7 +268,8 @@ export class SOEServer extends EventEmitter {
           if (client.lastZonePingTimestamp) {
             client.zonePingTimeMs =
               pingTime - client.lastZonePingTimestamp - 5000; // zonepings are sent every 5 sec by the game
-              client.zonePingTimeMs = client.zonePingTimeMs< 0?0:client.zonePingTimeMs;
+            client.zonePingTimeMs =
+              client.zonePingTimeMs < 0 ? 0 : client.zonePingTimeMs;
           }
           client.lastZonePingTimestamp = pingTime;
           break;

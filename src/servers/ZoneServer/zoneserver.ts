@@ -817,8 +817,8 @@ export class ZoneServer extends EventEmitter {
       character = await this._db
         ?.collection("characters")
         .findOne({ characterId: client.character.characterId });
-      if(!character){
-        this.sendData(client,"LoginFailed",{})
+      if (!character) {
+        this.sendData(client, "LoginFailed", {});
         return;
       }
       characterName = character.payload.name;
@@ -847,14 +847,14 @@ export class ZoneServer extends EventEmitter {
       ? characterDataMongo.extraModelTexture
       : this._dummySelf.data.extraModelTexture;
 
-      let isRandomlySpawning = false;
-      if (
-        this._soloMode ||
-        !characterDataMongo.position ||
-        !this._respawnOnLastPosition
-      ) {
-        isRandomlySpawning = true;
-      }
+    let isRandomlySpawning = false;
+    if (
+      this._soloMode ||
+      !characterDataMongo.position ||
+      !this._respawnOnLastPosition
+    ) {
+      isRandomlySpawning = true;
+    }
 
     if (isRandomlySpawning) {
       // Take position/rotation from a random spawn location.
