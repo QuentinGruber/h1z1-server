@@ -1071,11 +1071,26 @@ const hax: any = {
     server.sendChatText(client, "Back to normal size");
   },
   godmode: function (server: ZoneServer, client: Client, args: any[]) {
+    let godModeState;
     client.character.godMode = !client.character.godMode;
     server.sendChatText(
       client,
       `GODMODE: ${client.character.godMode ? "ON" : "OFF"}`
     );
+    switch(client.character.godMode)
+        {
+            case true: 
+                godModeState = "00000000000A000000";
+                break;
+            case false:
+                godModeState = "000000000000000000"
+                break;
+        }
+        server.sendData(client, "PlayerUpdate.UpdateCharacterState", {
+            characterId: client.character.characterId,
+            state: godModeState,
+            gameTime: server.getServerTime().toString(16),
+      });
   },
 };
 
