@@ -2240,5 +2240,6 @@ if (
     process.env.MONGO_URL,
     1
   );
+  zoneServer._maxAllowedPing = 9999;
   zoneServer.start();
 }
