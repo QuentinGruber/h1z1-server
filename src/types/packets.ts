@@ -1172,7 +1172,7 @@ export type h1z1PacketsType =
   | "RequestStationCashActivePromoUpdate"
   | "CharacterSlot"
   | "Pickup"
-  | "DtoSateChange"
+  | "DtoStateChange"
   | "DtoHitReportPacket"
   | "DtoObjectInitialDataPacket"
   | "Operation.RequestCreate"
