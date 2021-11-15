@@ -5790,13 +5790,15 @@ var packets = [
       fields: [],
     },
   ],
-    ["PlayerUpdate.UpdateMutateRights", 0x0f6e,
+  [
+    "PlayerUpdate.UpdateMutateRights",
+    0x0f6e,
     {
       fields: [
         { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
         { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-      ]
-    }
+      ],
+    },
   ],
   ["PlayerUpdate.UpdateFogOfWar", 0x0f70, {}],
   ["PlayerUpdate.SetAllowRespawn", 0x0f71, {}],
@@ -9790,52 +9792,58 @@ var packets = [
   ["RequestStationCashActivePromoUpdate", 0xbb, {}],
   ["CharacterSlot", 0xbc, {}],
   [
-        "DtoStateChange",
-        0xbe0200,
+    "DtoHitReportPacket",
+    0xbe0100,
+    {
+      fields: [],
+    },
+  ],
+  [
+    "DtoStateChange",
+    0xbe0200,
+    {
+      fields: [
+        { name: "objectId", type: "uint32" },
+        { name: "name", type: "string" },
+        { name: "unk2", type: "uint32" },
+        { name: "unk3", type: "uint32" },
+        { name: "unk4", type: "boolean" },
+      ],
+    },
+  ],
+  [
+    "DtoObjectInitialData",
+    0xbe0300,
+    {
+      fields: [
         {
-            fields: [
-                { name: "objectId", type: "uint32" },
-                { name: "name", type: "string" },
-                { name: "unk2", type: "uint32" },
-                { name: "unk3", type: "uint32" },
-                { name: "unk4", type: "boolean" },
-                
-            ],
+          name: "unknownArray1",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            { name: "unknownString1", type: "string", defaultValue: "0" },
+          ],
         },
-    ],
-    [
-        "DtoHitReportPacket",
-        0xbe0100,
         {
+          name: "unknownArray2",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+          ],
         },
-    ],
-    [
-        "DtoObjectInitialDataPacket",
-        0xbe0300,
-        {
-            fields: [
-               {
-                    name: "unknownArray1",
-                    type: "array",
-                    defaultValue: [],
-                    fields: [
-                        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                        { name: "unknownString1", type: "string", defaultValue: "0" },
-                    ],
-                },
-                {
-                    name: "unknownArray2",
-                    type: "array",
-                    defaultValue: [],
-                    fields: [
-                        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                    ],
-                },
-                
-            ],
-        },
-    ],
+      ],
+    },
+  ],
+  [
+    "DtoHitSpeedTreeReport",
+    0xbe0400,
+    {
+      fields: [],
+    },
+  ],
   ["Operation.RequestCreate", 0xbf01, {}],
   ["Operation.RequestDestroy", 0xbf02, {}],
   ["Operation.RequestJoin", 0xbf03, {}],
