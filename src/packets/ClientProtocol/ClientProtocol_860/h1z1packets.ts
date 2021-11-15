@@ -9790,17 +9790,64 @@ var packets = [
   ["RequestStationCashActivePromoUpdate", 0xbb, {}],
   ["CharacterSlot", 0xbc, {}],
   [
-    "Pickup",
-    0xbe,
-    {
-      fields: [
-        { name: "type", type: "uint16" },
-        { name: "id", type: "uint32" },
-        { name: "treeId", type: "uint32" },
-        { name: "name", type: "string" },
-      ],
-    },
-  ],
+        "Pickup", // <- DtoHitSpeedTreeReportPacket
+        0xbe, // <- Dunno if packet opcode should be 0xbe or 0xbe0400
+        {
+            fields: [
+                { name: "type", type: "uint16" },
+                { name: "id", type: "uint32" }, 
+                { name: "treeId", type: "uint32" }, // treeId is off by one number according to resources/assets/trees?
+                { name: "name", type: "string" },
+            ],
+        },
+    ],
+    [
+        "DtoSateChange",
+        0xbe0200,
+        {
+            fields: [
+                { name: "objectId", type: "uint32" },
+                { name: "name", type: "string" },
+                { name: "unk2", type: "uint32" },
+                { name: "unk3", type: "uint32" },
+                { name: "unk4", type: "boolean" },
+                
+            ],
+        },
+    ],
+    [
+        "DtoHitReportPacket",
+        0xbe0100,
+        {
+        },
+    ],
+    [
+        "DtoObjectInitialDataPacket",
+        0xbe0300,
+        {
+            fields: [
+               {
+                    name: "unknownArray1",
+                    type: "array",
+                    defaultValue: [],
+                    fields: [
+                        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                        { name: "unknownString1", type: "string", defaultValue: "0" },
+                    ],
+                },
+                {
+                    name: "unknownArray2",
+                    type: "array",
+                    defaultValue: [],
+                    fields: [
+                        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+                    ],
+                },
+                
+            ],
+        },
+    ],
   ["Operation.RequestCreate", 0xbf01, {}],
   ["Operation.RequestDestroy", 0xbf02, {}],
   ["Operation.RequestJoin", 0xbf03, {}],
