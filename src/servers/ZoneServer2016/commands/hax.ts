@@ -96,6 +96,7 @@ const hax: any = {
     );
     server.sendDataToAll("AddLightweightVehicle", vehicleData);
     vehicleData.isManaged = true;
+    //@ts-ignore
     (vehicleData.onReadyCallback = () => {
       // doing anything with vehicle before client gets fullvehicle packet breaks it
       server.sendData(client, "Character.ManagedObject", {

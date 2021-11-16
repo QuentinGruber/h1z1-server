@@ -5790,7 +5790,16 @@ var packets = [
       fields: [],
     },
   ],
-  ["PlayerUpdate.UpdateMutateRights", 0x0f6e, {}],
+  [
+    "PlayerUpdate.UpdateMutateRights",
+    0x0f6e,
+    {
+      fields: [
+        { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+      ],
+    },
+  ],
   ["PlayerUpdate.UpdateFogOfWar", 0x0f70, {}],
   ["PlayerUpdate.SetAllowRespawn", 0x0f71, {}],
   ["Ability.ClientRequestStartAbility", 0x1001, {}],
@@ -9783,11 +9792,56 @@ var packets = [
   ["RequestStationCashActivePromoUpdate", 0xbb, {}],
   ["CharacterSlot", 0xbc, {}],
   [
-    "Pickup",
-    0xbe,
+    "DtoHitReportPacket",
+    0xbe0100,
+    {
+      fields: [],
+    },
+  ],
+  [
+    "DtoStateChange",
+    0xbe0200,
     {
       fields: [
-        { name: "type", type: "uint16" },
+        { name: "objectId", type: "uint32" },
+        { name: "name", type: "string" },
+        { name: "unk2", type: "uint32" },
+        { name: "unk3", type: "uint32" },
+        { name: "unk4", type: "boolean" }, // changing this boolean change how the packet is processed 
+      ],
+    },
+  ],
+  [
+    "DtoObjectInitialData",
+    0xbe0300,
+    {
+      fields: [
+        {
+          name: "unknownArray1",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            { name: "unknownString1", type: "string", defaultValue: "0" },
+          ],
+        },
+        {
+          name: "unknownArray2",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+          ],
+        },
+      ],
+    },
+  ],
+  [
+    "DtoHitSpeedTreeReport",
+    0xbe0400,
+    {
+      fields: [
         { name: "id", type: "uint32" },
         { name: "treeId", type: "uint32" },
         { name: "name", type: "string" },
