@@ -767,11 +767,7 @@ export class zonePacketHandlers {
           packet.data.position[2],
           0,
         ]);
-        if (packet.data.unknown11_float > 6) {
-          client.character.isRunning = true;
-        } else {
-          client.character.isRunning = false;
-        }
+        client.character.isRunning = packet.data.unknown11_float > 6;
 
         if (
           client.hudTimer != null &&

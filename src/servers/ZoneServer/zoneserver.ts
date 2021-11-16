@@ -1148,11 +1148,11 @@ export class ZoneServer extends EventEmitter {
   }
 
   damageVehicle(client: Client, damage: number, vehicle: Vehicle) {
-    let destroyedVehicleEffect = 0;
-    let destroyedVehicleModel = 0;
-    let minorDamageEffect = 0;
-    let majorDamageEffect = 0;
-    let criticalDamageEffect = 0;
+    let destroyedVehicleEffect: number;
+    let destroyedVehicleModel: number;
+    let minorDamageEffect: number;
+    let majorDamageEffect: number;
+    let criticalDamageEffect: number;
     switch (client.vehicle.mountedVehicleType) {
       case "offroader":
         destroyedVehicleEffect = 135;
@@ -1956,7 +1956,7 @@ export class ZoneServer extends EventEmitter {
 
   changeWeather(client: Client, weather: Weather): void {
     this._weather = weather;
-    this.SendSkyChangedPacket(client, weather, this._soloMode ? false : true);
+    this.SendSkyChangedPacket(client, weather, !this._soloMode);
   }
 
   sendSystemMessage(message: string): void {

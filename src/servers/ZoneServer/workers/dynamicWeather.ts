@@ -28,14 +28,14 @@ let c4 = 0;
 let temperature = 80;
 let rainchanceReq = 20;
 
-var seasonstart = (function () {
-  var started = false;
-  return function () {
-    if (!started) {
-      started = true;
-      chooseWeather();
-    }
-  };
+const seasonstart = (function () {
+    let started = false;
+    return function () {
+        if (!started) {
+            started = true;
+            chooseWeather();
+        }
+    };
 })();
 
 function chooseWeather() {

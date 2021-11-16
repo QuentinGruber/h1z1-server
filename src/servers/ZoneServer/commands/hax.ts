@@ -86,7 +86,7 @@ const hax: any = {
     };
   },
   headlights: function (server: ZoneServer, client: Client, args: any[]) {
-    let headlightType = 0;
+    let headlightType: number;
     switch (client.vehicle.mountedVehicleType) {
       case "offroader":
         headlightType = 273;
@@ -206,7 +206,7 @@ const hax: any = {
           // doing anything with vehicle before client gets fullvehicle packet breaks it
           server.enterVehicle(client, vehicleData);
           setTimeout(() => {
-            client.character.godMode = wasAlreadyGod ? true : false;
+            client.character.godMode = wasAlreadyGod;
           }, 1000);
           return true;
         }
@@ -337,7 +337,7 @@ const hax: any = {
             characterId: client.character.characterId,
           });
           setTimeout(() => {
-            client.character.godMode = wasAlreadyGod ? true : false;
+            client.character.godMode = wasAlreadyGod;
           }, 1000);
           return true;
         }

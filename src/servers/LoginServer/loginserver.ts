@@ -100,7 +100,7 @@ export class LoginServer extends EventEmitter {
     this._soeServer.on(
       "SendServerUpdate",
       async (err: string, client: Client) => {
-        this.updateServerList(client);
+        await this.updateServerList(client);
       }
     );
 
@@ -115,22 +115,22 @@ export class LoginServer extends EventEmitter {
             const { sessionId, systemFingerPrint } = packet.result;
             switch (packet.name) {
               case "LoginRequest":
-                this.LoginRequest(client, sessionId, systemFingerPrint);
+                await this.LoginRequest(client, sessionId, systemFingerPrint);
                 if (this._protocol.protocolName !== "LoginUdp_11") break;
               case "CharacterSelectInfoRequest":
-                this.CharacterSelectInfoRequest(client);
+                await this.CharacterSelectInfoRequest(client);
                 if (this._protocol.protocolName !== "LoginUdp_11") break;
               case "ServerListRequest":
-                this.ServerListRequest(client);
+                await this.ServerListRequest(client);
                 break;
               case "CharacterDeleteRequest":
-                this.CharacterDeleteRequest(client, packet);
+                await this.CharacterDeleteRequest(client, packet);
                 break;
               case "CharacterLoginRequest":
-                this.CharacterLoginRequest(client, packet);
+                await this.CharacterLoginRequest(client, packet);
                 break;
               case "CharacterCreateRequest":
-                this.CharacterCreateRequest(client, packet);
+                await this.CharacterCreateRequest(client, packet);
                 break;
               case "TunnelAppPacketClientToServer": // only used for nameValidation rn
                 this.TunnelAppPacketClientToServer(client, packet);
