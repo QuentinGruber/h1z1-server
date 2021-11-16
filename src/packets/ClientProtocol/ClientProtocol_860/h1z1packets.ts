@@ -9839,6 +9839,7 @@ var packets = [
     0xbe0300,
     {
       fields: [
+        { name: "objectId", type: "uint32" },
         {
           name: "unknownArray1",
           type: "array",
