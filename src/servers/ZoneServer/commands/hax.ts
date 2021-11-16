@@ -1076,6 +1076,12 @@ const hax: any = {
       client,
       `GODMODE: ${client.character.godMode ? "ON" : "OFF"}`
     );
+    const godModeState = client.character.godMode?"00000000000A000000": "000000000000000000";
+        server.sendData(client, "PlayerUpdate.UpdateCharacterState", {
+            characterId: client.character.characterId,
+            state: godModeState,
+            gameTime: server.getServerTime().toString(16),
+      });
   },
 };
 
