@@ -4832,7 +4832,7 @@ var packets = [
       ],
     },
   ],
-  ["PlayerUpdate.QueueAnimation", 0x0f0f, {}],
+  ["PlayerUpdate.QueueAnimation", 0x0f0f, {}], // have been removed from the game
   [
     "PlayerUpdate.ExpectedSpeed",
     0x0f10,
@@ -4847,8 +4847,31 @@ var packets = [
       ],
     },
   ],
-  ["PlayerUpdate.ScriptedAnimation", 0x0f11, {}],
-  ["PlayerUpdate.ThoughtBubble", 0x0f12, {}],
+  ["PlayerUpdate.ScriptedAnimation", 0x0f11, {}], // have been removed from the game
+  [
+    "PlayerUpdate.ThoughtBubble",
+    0x0f12,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        {
+          name: "unk1",
+          type: "uint32",
+          defaultValue: 0,
+        },
+        {
+          name: "unk2",
+          type: "uint32",
+          defaultValue: 0,
+        },
+        {
+          name: "unk3",
+          type: "boolean",
+          defaultValue: false,
+        },
+      ],
+    },
+  ],
   [
     "PlayerUpdate.SetDisposition",
     0x0f13,
@@ -9807,7 +9830,7 @@ var packets = [
         { name: "name", type: "string" },
         { name: "unk2", type: "uint32" },
         { name: "unk3", type: "uint32" },
-        { name: "unk4", type: "boolean" }, // changing this boolean change how the packet is processed 
+        { name: "unk4", type: "boolean" }, // changing this boolean change how the packet is processed
       ],
     },
   ],
