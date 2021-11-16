@@ -104,6 +104,5 @@ class GatewayClient {
 
 util.inherits(GatewayClient, EventEmitter);
 
-const tunnelCount = 0;
 
 exports.GatewayClient = GatewayClient;

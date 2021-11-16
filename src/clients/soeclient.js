@@ -49,7 +49,6 @@ class SOEClient {
       const inputStream = (this._inputStream = new SOEInputStream(cryptoKey));
       const outputStream = (this._outputStream = new SOEOutputStream(cryptoKey));
 
-      const n0 = 0;
       let n1 = 0,
           n2 = 0;
 
