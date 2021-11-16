@@ -50,7 +50,7 @@ export class ZoneServer2016 extends ZoneServer {
   _reloadPacketsInterval: any;
 
   constructor(serverPort: number, gatewayKey: Uint8Array, mongoAddress = "") {
-    super(serverPort, gatewayKey, mongoAddress);
+    super(serverPort, gatewayKey, mongoAddress, 0);
     this._protocol = new H1Z1Protocol("ClientProtocol_1080");
     this._clientProtocol = "ClientProtocol_1080";
     this._dynamicWeatherEnabled = false;
@@ -86,6 +86,10 @@ export class ZoneServer2016 extends ZoneServer {
         unknownByte4: 1,
       };
     });
+    this._loginServerInfo = {
+      address: "127.0.0.1",
+      port: 1110,
+    };
   }
 
   onZoneDataEvent(err: any, client: Client, packet: any) {

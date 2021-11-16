@@ -2,7 +2,7 @@ import { ZoneClient2016 as Client } from "./classes/zoneclient";
 
 import { ZoneServer2016 } from "./zoneserver";
 
-const debug = require("debug")("zonepacketHandlers");
+const debug = require("debug")("ZoneServer");
 
 import { joaat } from "h1emu-core";
 
