@@ -3,3 +3,4 @@ node_modules
 out
 tests_out
 benchmarks_out
+bin/*.exe
