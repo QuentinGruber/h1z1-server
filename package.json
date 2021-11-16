@@ -43,7 +43,7 @@
     "build-benchs": "npx swc benchmarks -d benchmarks_out",
     "build-docker-images": "npx ts-node ./docker/buildDocker.ts",
     "build-binaries-win": "cd ./bin/ && build.bat",
-    "build-binaries-unix": "./bin/build.sh",
+    "build-binaries-unix": "chmod +x ./bin/build.sh && ./bin/build.sh",
     "build-swc": "npx swc src -d out",
     "test-zone-client": "node tests_out/2015/zoneClientTest.js",
     "test-login-client": "node tests_out/2015/loginClientTest.js",
