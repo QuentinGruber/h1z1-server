@@ -287,7 +287,7 @@ const hax: any = {
     server.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
       characterId: client.character.characterId,
       state: stateId,
-      gameTime: server.getServerTime().toString(16),
+      gameTime: server.getSequenceTime(),
     });
   },
   spawnvehicle: function (server: ZoneServer, client: Client, args: any[]) {
@@ -1080,7 +1080,7 @@ const hax: any = {
         server.sendData(client, "PlayerUpdate.UpdateCharacterState", {
             characterId: client.character.characterId,
             state: godModeState,
-            gameTime: server.getServerTime().toString(16),
+            gameTime: server.getSequenceTime(),
       });
   },
 };
