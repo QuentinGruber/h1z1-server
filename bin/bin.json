@@ -1,0 +1,33 @@
+[
+    {
+      "name": "loginServer",
+      "fileName": "LoginServer",
+      "version": "2015"
+    },
+    {
+      "name": "zoneServer",
+      "fileName": "ZoneServer",
+      "version": "2015"
+    },
+    {
+      "name": "h1emuServer",
+      "fileName": "H1emuServer",
+      "version": "2015"
+    },
+    {
+      "name": "loginServer-2016",
+      "fileName": "LoginServer-2016",
+      "version": "2016"
+    },
+    {
+      "name": "zoneServer",
+      "fileName": "ZoneServer-2016",
+      "version": "2016"
+    },
+    {
+      "name": "h1emuServer",
+      "fileName": "H1emuServer-2016",
+      "version": "2016"
+    }
+  ]
+  
