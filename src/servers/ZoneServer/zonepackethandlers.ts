@@ -83,6 +83,7 @@ export class zonePacketHandlers {
   constructionPlacementFinalizeRequest: any;
   playerUpdateRespawn: any;
   playerUpdateFullCharacterDataRequest: any;
+  commandRedeploy: any;
   constructor() {
     this.ClientIsReady = function (
       server: ZoneServer,
@@ -1317,6 +1318,17 @@ export class zonePacketHandlers {
         },
       });
     };
+    this.commandRedeploy = function (
+      server: ZoneServer,
+      client: Client,
+      packet: any
+    ) {
+      debug("Redeploy");
+      server.sendData(client, "ClientUpdate.UpdateLocation", {
+        position: new Float32Array([0,50,0,1]),
+        triggerLoadingScreen: true,
+      });
+    };
     this.commandInteractCancel = function (
       server: ZoneServer,
       client: Client,
@@ -2175,6 +2187,9 @@ export class zonePacketHandlers {
         break;
       case "Vehicle.AutoMount":
         this.vehicleAutoMount(server, client, packet);
+        break;
+      case "Command.Redeploy":
+        this.commandRedeploy(server, client, packet);
         break;
       case "Command.InteractCancel":
         this.commandInteractCancel(server, client, packet);
