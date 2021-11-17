@@ -291,28 +291,7 @@ export class ZoneServer extends EventEmitter {
                 break;
               }
               case "CharacterCreateRequest": {
-                const { characterObjStringify, reqId } = packet.data;
-                try {
-                  const characterObj = JSON.parse(characterObjStringify);
-                  const collection = (this._db as Db).collection("characters");
-                  const charactersArray = await collection.findOne({
-                    characterId: characterObj.characterId,
-                  });
-                  if (!charactersArray) {
-                    await collection.insertOne(characterObj);
-                  }
-                  this._h1emuZoneServer.sendData(
-                    client,
-                    "CharacterCreateReply",
-                    { reqId: reqId, status: 1 }
-                  );
-                } catch (error) {
-                  this._h1emuZoneServer.sendData(
-                    client,
-                    "CharacterCreateReply",
-                    { reqId: reqId, status: 0 }
-                  );
-                }
+                this.onCharacterCreateRequest(client, packet);
                 break;
               }
               case "CharacterDeleteRequest": {
@@ -351,6 +330,31 @@ export class ZoneServer extends EventEmitter {
             }
           }
         }
+      );
+    }
+  }
+
+  async onCharacterCreateRequest(client: any, packet: any) {
+    const { characterObjStringify, reqId } = packet.data;
+    try {
+      const characterObj = JSON.parse(characterObjStringify);
+      const collection = (this._db as Db).collection("characters");
+      const charactersArray = await collection.findOne({
+        characterId: characterObj.characterId,
+      });
+      if (!charactersArray) {
+        await collection.insertOne(characterObj);
+      }
+      this._h1emuZoneServer.sendData(
+        client,
+        "CharacterCreateReply",
+        { reqId: reqId, status: 1 }
+      );
+    } catch (error) {
+      this._h1emuZoneServer.sendData(
+        client,
+        "CharacterCreateReply",
+        { reqId: reqId, status: 0 }
       );
     }
   }

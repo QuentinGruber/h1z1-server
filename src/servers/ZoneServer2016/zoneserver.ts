@@ -26,7 +26,7 @@ import {
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
 import { _, initMongo, Int64String, isPosInRadius } from "../../utils/utils";
 
-import { MongoClient } from "mongodb";
+import { Db, MongoClient } from "mongodb";
 import dynamicWeather from "./workers/dynamicWeather";
 
 // need to get 2016 lists
@@ -109,6 +109,63 @@ export class ZoneServer2016 extends ZoneServer {
     }
   }
 
+  
+  async onCharacterCreateRequest(client: any, packet: any) {
+    function getCharacterModelData(payload: any): any {
+      switch(payload.headType){
+        case 6: // black female
+          return {modelId: 9474, headActor: "SurvivorFemale_Head_03.adr", hairModel: "SurvivorFemale_Hair_ShortMessy.adr"};
+        case 5: // black male
+          return {modelId: 9240, headActor: "SurvivorMale_Head_04.adr", hairModel: "SurvivorMale_HatHair_Short.adr"};
+        case 4: // older white female
+          return {modelId: 9474, headActor: "SurvivorFemale_Head_02.adr", hairModel: "SurvivorFemale_Hair_ShortBun.adr"};
+        case 3: // young white female
+          return {modelId: 9474, headActor: "SurvivorFemale_Head_02.adr", hairModel: "SurvivorFemale_Hair_ShortBun.adr"};
+        case 2: // bald white male
+          return {modelId: 9240, headActor: "SurvivorMale_Head_01.adr", hairModel: "SurvivorMale_HatHair_Short.adr"};
+        case 1: // white male
+        default:
+          return {modelId: 9240, headActor: "SurvivorMale_Head_01.adr", hairModel: "SurvivorMale_Hair_ShortMessy.adr"};
+      }
+    }
+
+    const { characterObjStringify, reqId } = packet.data;
+    try {
+      const characterData = JSON.parse(characterObjStringify),
+      characterModelData = getCharacterModelData(characterData.payload);
+      let character = require("../../../data/2016/sampleData/character.json");
+      character = {
+        ...character,
+        characterId: characterData.characterId,
+        serverId: characterData.serverId,
+        ownerId: characterData.ownerId,
+        gender: characterData.payload.gender,
+        characterName: characterData.payload.characterName,
+        actorModelId: characterModelData.modelId,
+        headActor: characterModelData.headActor,
+        hairModel: characterModelData.hairModel
+      }
+      const collection = (this._db as Db).collection("characters");
+      const charactersArray = await collection.findOne({
+        characterId: character.characterId,
+      });
+      if (!charactersArray) {
+        await collection.insertOne(character);
+      }
+      this._h1emuZoneServer.sendData(
+        client,
+        "CharacterCreateReply",
+        { reqId: reqId, status: 1 }
+      );
+    } catch (error) {
+      this._h1emuZoneServer.sendData(
+        client,
+        "CharacterCreateReply",
+        { reqId: reqId, status: 0 }
+      );
+    }
+  }
+
   async loadCharacterData(client: Client) {
     let character: any;
     if (!this._soloMode) {
@@ -153,23 +210,19 @@ export class ZoneServer2016 extends ZoneServer {
       equipment: [
         // default SurvivorMale equipment
         {
-          modelName: "SurvivorMale_Head_01.adr",
+          modelName: character.headActor,
           slotId: 1,
         },
         {
-          modelName: "SurvivorMale_Eyes_01.adr",
+          modelName: `Survivor${client.character.gender==1?"Male":"Female"}_Eyes_01.adr`,
           slotId: 105,
         },
         {
-          modelName: "SurvivorMale_Hair_ShortMessy.adr",
-          slotId: 27,
-        },
-        {
-          modelName: "SurvivorMale_Legs_Pants_Underwear.adr",
+          modelName: `Survivor${client.character.gender==1?"Male":"Female"}_Legs_Pants_Underwear.adr`,
           slotId: 4,
         },
         {
-          modelName: "SurvivorMale_Chest_Bra.adr",
+          modelName: `Survivor${client.character.gender==1?"Male":"Female"}_Chest_Bra.adr`,
           textureAlias: "",
           slotId: 3,
         },
@@ -183,6 +236,12 @@ export class ZoneServer2016 extends ZoneServer {
         shield: 0,
       },
     };
+    if(character.hairModel) {
+      client.character.equipment.push({
+        modelName: character.hairModel,
+        slotId: 27,
+      })
+    }
     let isRandomlySpawning = false;
     if (
       _.isEqual(character.position, [0, 0, 0, 1]) &&
@@ -1282,7 +1341,7 @@ export class ZoneServer2016 extends ZoneServer {
         itemGuid: item.guid,
       },
       equipmentData = {
-        modelName: def.MODEL_NAME.replace("<gender>", "Male"),
+        modelName: def.MODEL_NAME.replace("<gender>", client.character.gender==1?"Male":"Female"),
         slotId: equipmentSlotId,
         guid: item.guid,
         textureAlias: def.TEXTURE_ALIAS,

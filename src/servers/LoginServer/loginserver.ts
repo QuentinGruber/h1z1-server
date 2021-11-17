@@ -280,7 +280,6 @@ export class LoginServer extends EventEmitter {
         return require(`${this._appDataFolder}/single_player_characters2016.json`);
       } else { // 2016 mongo
         const charactersQuery = { authKey: client.loginSessionId };
-        console.log(charactersQuery)
         return await this._db
         .collection("characters-light")
         .find(charactersQuery)
@@ -383,8 +382,6 @@ export class LoginServer extends EventEmitter {
   }
 
   async CharacterSelectInfoRequest(client: Client) {
-    console.log(client)
-    console.log(client.loginSessionId)
     let characters = await this.loadCharacterData(client);
     if (this._soloMode) {
       if (this._protocol.protocolName == "LoginUdp_9") {
@@ -406,9 +403,7 @@ export class LoginServer extends EventEmitter {
         characters = this.addDummyDataToCharacters(characterList);
       }
     } else {
-      console.log(characters)
       characters = this.addDummyDataToCharacters(characters);
-      console.log(characters)
     }
     this.sendData(client, "CharacterSelectInfoReply", {
       status: 1,
@@ -720,13 +715,6 @@ export class LoginServer extends EventEmitter {
     return askZoneForCreationPromise as number;
   }
 
-  requestZoneCharacterCreation(
-    zoneAddress: string,
-    characterData: any
-  ): number {
-    return 1;
-  }
-
   async CharacterCreateRequest(client: Client, packet: any) {
     const {
       payload: { characterName },
@@ -777,7 +765,14 @@ export class LoginServer extends EventEmitter {
         };
         await this._db?.collection("user-sessions").insertOne(sessionObj);
       }
-      const newCharacterData = { ...newCharacter, ownerId: sessionObj.guid };
+      const newCharacterData = this._protocol.protocolName == "LoginUdp_9"?
+        { ...newCharacter, ownerId: sessionObj.guid }:
+        { 
+          characterId: newCharacter.characterId, 
+          serverId: newCharacter.serverId,
+          ownerId: sessionObj.guid,
+          payload: packet.result.payload
+        };
       creationStatus = (await this.askZoneForCreation(
         serverId,
         newCharacterData

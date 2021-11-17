@@ -11,7 +11,8 @@ export class Character2016 extends Character {
     comfort: number;
   };
   actorModelId!: number;
-  headActor!: number;
+  headActor!: string;
+  hairModel!: string;
   isRespawning: boolean = false;
   gender!: number;
   creationDate!: string;
