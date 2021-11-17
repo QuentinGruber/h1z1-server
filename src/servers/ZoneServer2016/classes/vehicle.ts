@@ -35,7 +35,6 @@ export class Vehicle2016 extends Vehicle {
   ) {
     super(worldId, characterId, transientId, modelId, position, rotation);
     this.npcData.vehicleId = getVehicleId(modelId);
-    //this.isManaged = true;
     switch (this.npcData.vehicleId) {
       case 1: // offroader
       case 2: // pickup

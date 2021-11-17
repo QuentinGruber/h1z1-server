@@ -455,7 +455,17 @@ export class ZoneServer2016 extends ZoneServer {
         .toArray();
       for (let index = 0; index < vehiclesArray.length; index++) {
         const vehicle = vehiclesArray[index];
-        this._vehicles[vehicle.npcData.characterId] = vehicle;
+        this._vehicles[vehicle.npcData.characterId] = new Vehicle(
+          this._worldId, 
+          vehicle.npcData.characterId, 
+          vehicle.npcData.transientId,
+          vehicle.npcData.modelId,
+          vehicle.npcData.position,
+          vehicle.npcData.rotation,
+          this._gameTime
+        )
+        this._vehicles[vehicle.npcData.characterId].npcData = vehicle.npcData;
+        this._vehicles[vehicle.npcData.characterId].positionUpdate = vehicle.positionUpdate;
       }
       this._npcs = {};
       const npcsArray: any = await this._db
@@ -652,10 +662,10 @@ export class ZoneServer2016 extends ZoneServer {
     this.sendData(client, "SendZoneDetails", SendZoneDetails_packet);
   }
 
-  sendWeatherUpdatePacket(client: Client, weather: Weather2016): void {
+  sendWeatherUpdatePacket(client: Client, weather: Weather2016, broadcast = false): void {
     if (!this._soloMode) {
       this.sendDataToAll("UpdateWeatherData", weather);
-      if (client?.character?.name) {
+      if (broadcast && client?.character?.name) {
         this.sendGlobalChatText(
           `User "${client.character.name}" has changed weather.`
         );

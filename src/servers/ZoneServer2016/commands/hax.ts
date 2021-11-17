@@ -502,7 +502,7 @@ const hax: any = {
       );
     } else if (weatherTemplate) {
       server._weather2016 = weatherTemplate;
-      server.sendWeatherUpdatePacket(client, server._weather2016);
+      server.sendWeatherUpdatePacket(client, server._weather2016, true);
       server.sendChatText(client, `Applied weather template: "${args[1]}"`);
     } else {
       if (args[1] === "list") {
@@ -636,7 +636,7 @@ const hax: any = {
 
       unknownDword33: 0,
     };
-    server.sendWeatherUpdatePacket(client, server._weather2016);
+    server.sendWeatherUpdatePacket(client, server._weather2016, true);
   },
   equipment: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.sendChatText(
