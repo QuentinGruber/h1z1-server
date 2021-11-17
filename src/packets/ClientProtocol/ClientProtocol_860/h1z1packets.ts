@@ -9844,9 +9844,9 @@ var packets = [
     {
       fields: [
         { name: "objectId", type: "uint32" },
-        { name: "name", type: "string" },
-        { name: "unk2", type: "uint32" },
-        { name: "unk3", type: "uint32" },
+        { name: "modelName", type: "string" },
+        { name: "effectId", type: "uint32" },
+        { name: "unk3", type: "float" },
         { name: "unk4", type: "boolean" }, // changing this boolean change how the packet is processed
       ],
     },
