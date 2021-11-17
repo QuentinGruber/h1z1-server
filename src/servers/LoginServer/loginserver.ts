@@ -115,8 +115,15 @@ export class LoginServer extends EventEmitter {
             const { sessionId, systemFingerPrint } = packet.result;
             switch (packet.name) {
               case "LoginRequest":
-                this.LoginRequest(client, sessionId, systemFingerPrint);
-                if (this._protocol.protocolName !== "LoginUdp_11") break;
+                if (this._protocol.protocolName === "LoginUdp_9"){
+                  this.LoginRequest(client, sessionId, systemFingerPrint);
+                  break;
+                }
+                else { 
+                  /* 2016 client does not send CharacterSelectInfoRequest or ServerListRequest,
+                  so all 3 replies need to be sent at the same time */
+                  await this.LoginRequest(client, sessionId, systemFingerPrint);
+                }
               case "CharacterSelectInfoRequest":
                 this.CharacterSelectInfoRequest(client);
                 if (this._protocol.protocolName !== "LoginUdp_11") break;
@@ -246,8 +253,7 @@ export class LoginServer extends EventEmitter {
   async loadCharacterData(client: Client): Promise<any> {
     if (this._protocol.protocolName == "LoginUdp_9") {
       if (this._soloMode) {
-        try {
-          // delete old character cache
+        try { // delete old character cache
           delete require.cache[
             require.resolve(
               `${this._appDataFolder}/single_player_characters.json`
@@ -255,14 +261,16 @@ export class LoginServer extends EventEmitter {
           ];
         } catch (e) {}
         return require(`${this._appDataFolder}/single_player_characters.json`);
-      } else {
-        // 2015 mongo
+      } else { // 2015 mongo
+        const charactersQuery = { authKey: client.loginSessionId };
+        return await this._db
+        .collection("characters-light")
+        .find(charactersQuery)
+        .toArray();
       }
-    } else {
-      // LoginUdp_11
+    } else { // LoginUdp_11
       if (this._soloMode) {
-        try {
-          // delete old character cache
+        try { // delete old character cache
           delete require.cache[
             require.resolve(
               `${this._appDataFolder}/single_player_characters2016.json`
@@ -270,8 +278,13 @@ export class LoginServer extends EventEmitter {
           ];
         } catch (e) {}
         return require(`${this._appDataFolder}/single_player_characters2016.json`);
-      } else {
-        // 2016 mongo
+      } else { // 2016 mongo
+        const charactersQuery = { authKey: client.loginSessionId };
+        console.log(charactersQuery)
+        return await this._db
+        .collection("characters-light")
+        .find(charactersQuery)
+        .toArray();
       }
     }
   }
@@ -300,6 +313,7 @@ export class LoginServer extends EventEmitter {
         .collection("user-sessions")
         .findOne({ guid: sessionId });
       client.loginSessionId = realSession ? realSession.authKey : sessionId;
+      
     }
     this.sendData(client, "LoginReply", {
       loggedIn: true,
@@ -369,23 +383,17 @@ export class LoginServer extends EventEmitter {
   }
 
   async CharacterSelectInfoRequest(client: Client) {
-    let CharactersInfo;
+    console.log(client)
+    console.log(client.loginSessionId)
+    let characters = await this.loadCharacterData(client);
     if (this._soloMode) {
-      let SinglePlayerCharacters = await this.loadCharacterData(client);
       if (this._protocol.protocolName == "LoginUdp_9") {
-        SinglePlayerCharacters = this.addDummyDataToCharacters(
-          SinglePlayerCharacters
-        );
-        CharactersInfo = {
-          status: 1,
-          canBypassServerLock: true,
-          characters: SinglePlayerCharacters,
-        };
+        characters = this.addDummyDataToCharacters(characters);
       } else {
         // LoginUdp_11
-        let characters: Array<any> = [];
-        SinglePlayerCharacters.forEach((character: any) => {
-          characters.push({
+        let characterList: Array<any> = [];
+        characterList = characters.map((character: any) => {
+          return {
             characterId: character.characterId,
             serverId: character.serverId,
             payload: {
@@ -393,29 +401,20 @@ export class LoginServer extends EventEmitter {
               modelId: character.actorModelId,
               gender: character.gender,
             },
-          });
+          }
         });
-        characters = this.addDummyDataToCharacters(characters);
-        CharactersInfo = {
-          status: 1,
-          canBypassServerLock: true,
-          characters: characters,
-        };
+        characters = this.addDummyDataToCharacters(characterList);
       }
     } else {
-      const charactersQuery = { authKey: client.loginSessionId };
-      let characters = await this._db
-        .collection("characters-light")
-        .find(charactersQuery)
-        .toArray();
+      console.log(characters)
       characters = this.addDummyDataToCharacters(characters);
-      CharactersInfo = {
-        status: 1,
-        canBypassServerLock: true,
-        characters: characters,
-      };
+      console.log(characters)
     }
-    this.sendData(client, "CharacterSelectInfoReply", CharactersInfo);
+    this.sendData(client, "CharacterSelectInfoReply", {
+      status: 1,
+      canBypassServerLock: true,
+      characters: characters,
+    });
     debug("CharacterSelectInfoRequest");
   }
 
