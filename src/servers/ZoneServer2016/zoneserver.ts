@@ -23,6 +23,7 @@ import {
   characterLoadout,
   Weather2016,
 } from "../../types/zoneserver";
+import { Character2016 as Character } from "./classes/character"
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
 import { _, initMongo, Int64String, isPosInRadius } from "../../utils/utils";
 
@@ -48,6 +49,7 @@ export class ZoneServer2016 extends ZoneServer {
   _items: any = {};
   _vehicles: { [characterId: string]: Vehicle } = {};
   _reloadPacketsInterval: any;
+  _characters: { [characterId: string]: Character } = {};
 
   constructor(serverPort: number, gatewayKey: Uint8Array, mongoAddress = "") {
     super(serverPort, gatewayKey, mongoAddress, 0);
@@ -825,7 +827,7 @@ export class ZoneServer2016 extends ZoneServer {
 
   spawnCharacters(client: Client) {
     for (const character in this._characters) {
-      const characterObj = this._characters[character];
+      const characterObj: Character = this._characters[character];
       if (
         client.character.characterId != character &&
         isPosInRadius(
@@ -840,6 +842,7 @@ export class ZoneServer2016 extends ZoneServer {
           "AddLightweightPc",
           {
             ...characterObj,
+            modelId: characterObj.actorModelId,
             transientId: characterObj.transientId,
             identity: {
               characterName: characterObj.name,

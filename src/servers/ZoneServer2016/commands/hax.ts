@@ -1,6 +1,7 @@
 import fs from "fs";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { Vehicle2016 as Vehicle, Vehicle2016 } from "../classes/vehicle";
+import { Character2016 as Character } from "../classes/character"
 import { ZoneServer2016 } from "../zoneserver";
 import { _ } from "../../../utils/utils";
 
@@ -439,28 +440,24 @@ const hax: any = {
       return;
     }
 
-    const pc = {
+    let pc = new Character(characterId, server.getTransientId(client, characterId))
+    pc = {
+      ...pc,
       characterId: characterId,
       transientId: server.getTransientId(client, characterId),
-      position: [
-        client.character.state.position[0],
-        client.character.state.position[1],
-        client.character.state.position[2],
-      ],
-      rotation: client.character.state.rotation,
-      identity: { characterName: args[1] },
       name: args[1],
       state: {
-        position: [
+        ...pc.state,
+        position: new Float32Array([
           client.character.state.position[0],
           client.character.state.position[1],
           client.character.state.position[2],
-        ],
-        lookAt: [
+        ]),
+        lookAt: new Float32Array([
           client.character.state.lookAt[0],
           client.character.state.lookAt[1],
           client.character.state.lookAt[2],
-        ],
+        ]),
       },
     };
     server._characters[characterId] = pc; // save pc
