@@ -663,10 +663,19 @@ export class ZoneServer2016 extends ZoneServer {
   sendInitData(client: Client): void {
     this.sendData(client, "InitializationParameters", {
       environment: "LIVE",
-      serverId: 1,
+      serverId: this._worldId,
     });
 
-    this.SendZoneDetailsPacket2016(client, this._weather2016);
+    this.sendData(client, "SendZoneDetails", {
+      zoneName: "Z1",
+      unknownBoolean1: true,
+      zoneType: 4,
+      skyData: this._weather2016,
+      zoneId1: 3905829720,
+      zoneId2: 3905829720,
+      nameId: 7699,
+      unknownBoolean7: true,
+    });
 
     this.sendData(client, "ClientUpdate.ZonePopulation", {
       populations: [0, 0],
@@ -709,20 +718,6 @@ export class ZoneServer2016 extends ZoneServer {
       client.posAtLastRoutine = client.character.state.position;
     });
     if (refresh) this.worldRoutineTimer.refresh();
-  }
-
-  SendZoneDetailsPacket2016(client: Client, weather: Weather2016): void {
-    const SendZoneDetails_packet = {
-      zoneName: "Z1",
-      unknownBoolean1: true,
-      zoneType: 4,
-      skyData: weather,
-      zoneId1: 3905829720,
-      zoneId2: 3905829720,
-      nameId: 7699,
-      unknownBoolean7: true,
-    };
-    this.sendData(client, "SendZoneDetails", SendZoneDetails_packet);
   }
 
   sendWeatherUpdatePacket(client: Client, weather: Weather2016, broadcast = false): void {
