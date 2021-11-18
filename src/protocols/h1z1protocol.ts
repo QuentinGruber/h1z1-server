@@ -45,6 +45,7 @@ interface PositionZoneToClient {
 export class H1Z1Protocol {
   H1Z1Packets: any;
   protocolName: string;
+  PlayerUpdateManagedPositionOpcode: number;
 
   constructor(protocolName = "ClientProtocol_860") {
     this.protocolName = protocolName;
@@ -52,9 +53,11 @@ export class H1Z1Protocol {
     switch (this.protocolName) {
       case "ClientProtocol_860": // normal client from 15 january 2015
         this.H1Z1Packets = require("../packets/ClientProtocol/ClientProtocol_860/h1z1packets");
+        this.PlayerUpdateManagedPositionOpcode = 0x90;
         break;
       case "ClientProtocol_1080": // normal client from 22 december 2016
         this.H1Z1Packets = require("../packets/ClientProtocol/ClientProtocol_1080/h1z1packets");
+        this.PlayerUpdateManagedPositionOpcode = 0x91;
         break;
       default:
         debug(`Protocol ${this.protocolName} unsupported !`);
@@ -422,7 +425,7 @@ export class H1Z1Protocol {
         break;
       }
       case 3: {
-          packet = H1Z1Packets.Packets[0x90];
+          packet = H1Z1Packets.Packets[this.PlayerUpdateManagedPositionOpcode];
           offset = 1;
           break;
       }
