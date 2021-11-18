@@ -38,10 +38,10 @@ export class Character {
   isAlive: boolean = true;
   isSonic: boolean = false;
   constructor(characterId: string, generatedTransient: number) {
-    (this.characterId = characterId),
-      (this.transientId = generatedTransient),
-      (this.isRunning = false),
-      (this.equipment = [
+    this.characterId = characterId
+      this.transientId = generatedTransient
+      this.isRunning = false
+      this.equipment = [
         { modelName: "Weapon_Empty.adr", slotId: 1 }, // yeah that's an hack TODO find a better way
         { modelName: "Weapon_Empty.adr", slotId: 7 },
         {
@@ -54,14 +54,14 @@ export class Character {
           defaultTextureAlias: "Ivan_Pants_Jeans_Blue",
           slotId: 4,
         },
-      ]),
-      (this.resources = {
+      ]
+      this.resources = {
         health: 10000,
         stamina: 10000,
         food: 10000,
         water: 10000,
         virus: 0,
-      });
+      }
     this.godMode = false;
     this.state = {
       position: new Float32Array([0, 0, 0, 0]),

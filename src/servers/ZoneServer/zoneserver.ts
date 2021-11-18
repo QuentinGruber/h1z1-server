@@ -1791,13 +1791,13 @@ export class ZoneServer extends EventEmitter {
     for (const character in this._characters) {
       const characterObj = this._characters[character];
       if (
-        (isPosInRadius(
+        isPosInRadius(
           this._npcRenderDistance,
           client.character.state.position,
           characterObj.state.position
-        ),
+        ) &&
         client.character.characterId != character &&
-          !client.spawnedEntities.includes(characterObj))
+          !client.spawnedEntities.includes(characterObj)
       ) {
         this.sendData(
           client,

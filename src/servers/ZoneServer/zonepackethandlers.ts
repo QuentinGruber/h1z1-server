@@ -650,7 +650,7 @@ export class zonePacketHandlers {
         stance: packet.data.stance,
       });
     };
-    (this.mountDismountRequest = function (
+    this.mountDismountRequest = function (
       server: ZoneServer,
       client: Client,
       packet: any
@@ -658,8 +658,8 @@ export class zonePacketHandlers {
       if (client?.vehicle?.mountedVehicle)
         // TODO: fix that in a better way
         server.dismountVehicle(client, client.vehicle.mountedVehicle);
-    }),
-      (this.commandInteractRequest = function (
+    }
+      this.commandInteractRequest = function (
         server: ZoneServer,
         client: Client,
         packet: any
@@ -690,7 +690,7 @@ export class zonePacketHandlers {
             },
           ],
         });
-      });
+      }
     this.commandInteractionString = function (
       server: ZoneServer,
       client: Client,
@@ -834,7 +834,7 @@ export class zonePacketHandlers {
       debug(packet);
       debug("select");
     };
-    (this.playerUpdateVehicleCollision = function (
+    this.playerUpdateVehicleCollision = function (
       server: ZoneServer,
       client: Client,
       packet: any
@@ -843,8 +843,8 @@ export class zonePacketHandlers {
       const vehicleData =
         server._vehicles[server._transientIds[packet.data.transientId]];
       server.damageVehicle(client, packet.data.damage, vehicleData);
-    }),
-      (this.vehicleDismiss = function (
+    }
+      this.vehicleDismiss = function (
         server: ZoneServer,
         client: Client,
         packet: any
@@ -854,7 +854,7 @@ export class zonePacketHandlers {
           server.dismountVehicle(client,vehicleGuid)
           server.dismissVehicle(vehicleGuid);
         }
-      });
+      }
     this.vehicleSpawn = function (
       server: ZoneServer,
       client: Client,
