@@ -8,8 +8,6 @@ import { Vehicle } from "../classes/vehicles";
 
 const debug = require("debug")("zonepacketHandlers");
 
-let isSonic = false;
-let isVehicle = false;
 
 const hax: any = {
   list: function (server: ZoneServer, client: Client, args: any[]) {
@@ -547,6 +545,7 @@ const hax: any = {
     }
     const choosenModelId = Number(args[1]);
     const characterId = server.generateGuid();
+    let isVehicle = false;
     if (
       choosenModelId === 7225 ||
       choosenModelId === 9301 ||
@@ -575,10 +574,13 @@ const hax: any = {
     server._npcs[characterId] = npc; // save npc
   },
   sonic: function (server: ZoneServer, client: Client, args: any[]) {
+    let isSonic = client.character.isSonic;
+    isSonic = !isSonic;
+    server.setGodMode(client,isSonic);
     server.sendData(client, "ClientGameSettings", {
       interactGlowAndDist: 3,
       unknownBoolean1: false,
-      timescale: isSonic ? 1.0 : 3.0,
+      timescale: isSonic ? 3.0 : 1.0,
       Unknown4: 0,
       Unknown: 0,
       unknownFloat1: 1,
@@ -586,13 +588,12 @@ const hax: any = {
       velDamageMulti: 1.0,
     });
     server.sendData(client, "Command.RunSpeed", {
-      runSpeed: isSonic ? 0 : -100,
+      runSpeed: isSonic ? -100 : 0,
     });
     const messageToMrHedgehog = isSonic
-      ? "Goodbye MR.Hedgehog"
-      : "Welcome MR.Hedgehog";
+      ? "Welcome MR.Hedgehog"
+      : "Goodbye MR.Hedgehog";
     server.sendChatText(client, messageToMrHedgehog, true);
-    isSonic = !isSonic;
   },
   observer: function (server: ZoneServer, client: Client, args: any[]) {
     server.sendChatText(
@@ -1071,17 +1072,7 @@ const hax: any = {
     server.sendChatText(client, "Back to normal size");
   },
   godmode: function (server: ZoneServer, client: Client, args: any[]) {
-    client.character.godMode = !client.character.godMode;
-    server.sendChatText(
-      client,
-      `GODMODE: ${client.character.godMode ? "ON" : "OFF"}`
-    );
-    const godModeState = client.character.godMode?"00000000000A000000": "000000000000000000";
-        server.sendData(client, "PlayerUpdate.UpdateCharacterState", {
-            characterId: client.character.characterId,
-            state: godModeState,
-            gameTime: server.getSequenceTime(),
-      });
+    server.setGodMode(client,!client.character.godMode);
   },
 };
 
