@@ -454,44 +454,6 @@ export class LoginServer extends EventEmitter {
     this.sendData(client, "ServerListReply", { servers: servers });
   }
 
-  async askZoneForDeletion(
-    serverId: number,
-    characterId: string
-  ): Promise<number> {
-    const status = await new Promise((resolve, reject) => {
-      this._internalReqCount++;
-      const reqId = this._internalReqCount;
-      try {
-        const zoneConnectionIndex = Object.values(
-          this._zoneConnections
-        ).findIndex((e) => e === serverId);
-        const zoneConnectionString = Object.keys(this._zoneConnections)[
-          zoneConnectionIndex
-        ];
-        const [address, port] = zoneConnectionString.split(":");
-        this._h1emuLoginServer.sendData(
-          {
-            address: address,
-            port: port,
-            clientId: zoneConnectionString,
-            session: true,
-          } as any,
-          "CharacterDeleteRequest",
-          { reqId: reqId, characterId: characterId }
-        );
-        this._pendingInternalReq[reqId] = resolve;
-        this._pendingInternalReqTimeouts[reqId] = setTimeout(() => {
-          delete this._pendingInternalReq[reqId];
-          delete this._pendingInternalReqTimeouts[reqId];
-          resolve(0);
-        }, 5000);
-      } catch (e) {
-        resolve(0);
-      }
-    });
-    return status as number;
-  }
-
   async CharacterDeleteRequest(client: Client, packet: any) {
     debug("CharacterDeleteRequest");
     let deletionStatus = 1;
@@ -524,9 +486,10 @@ export class LoginServer extends EventEmitter {
         charracterToDelete &&
         charracterToDelete.authKey === client.loginSessionId
       ) {
-        deletionStatus = await this.askZoneForDeletion(
+        deletionStatus = await this.askZone(
           charracterToDelete.serverId,
-          characterId
+          "CharacterDeleteRequest",
+          { characterId: characterId }
         );
         if (deletionStatus) {
           await this._db
@@ -550,43 +513,6 @@ export class LoginServer extends EventEmitter {
     });
   }
 
-  async askZoneForPing(
-    serverId: number,
-    clientAddress: string
-  ): Promise<boolean> {
-    const status = await new Promise((resolve, reject) => {
-      this._internalReqCount++;
-      const reqId = this._internalReqCount;
-      try {
-        const zoneConnectionIndex = Object.values(
-          this._zoneConnections
-        ).findIndex((e) => e === serverId);
-        const zoneConnectionString = Object.keys(this._zoneConnections)[
-          zoneConnectionIndex
-        ];
-        const [address, port] = zoneConnectionString.split(":");
-        this._h1emuLoginServer.sendData(
-          {
-            address: address,
-            port: port,
-            clientId: zoneConnectionString,
-            session: true,
-          } as any,
-          "ZonePingRequest",
-          { reqId: reqId, address: clientAddress }
-        );
-        this._pendingInternalReq[reqId] = resolve;
-        this._pendingInternalReqTimeouts[reqId] = setTimeout(() => {
-          delete this._pendingInternalReq[reqId];
-          delete this._pendingInternalReqTimeouts[reqId];
-          resolve(0);
-        }, 5000);
-      } catch (e) {
-        resolve(0);
-      }
-    });
-    return status as boolean;
-  }
   async CharacterLoginRequest(client: Client, packet: any) {
     let charactersLoginInfo: any;
     const { serverId, characterId } = packet.result;
@@ -606,7 +532,7 @@ export class LoginServer extends EventEmitter {
         );
       }
       if (connectionStatus) {
-        connectionStatus = await this.askZoneForPing(serverId, client.address);
+        connectionStatus = !!(await this.askZone(serverId, "ZonePingRequest",{address: client.address }));
       }
       const hiddenSession = connectionStatus
         ? await this._db
@@ -679,11 +605,8 @@ export class LoginServer extends EventEmitter {
     debug("CharacterLoginRequest");
   }
 
-  async askZoneForCreation(
-    serverId: number,
-    characterData: any
-  ): Promise<number> {
-    const askZoneForCreationPromise = await new Promise((resolve, reject) => {
+  async askZone(serverId:number,packetName:string,packetObj:any): Promise<number> {
+    const askZonePromise = await new Promise((resolve, reject) => {
       this._internalReqCount++;
       const reqId = this._internalReqCount;
       try {
@@ -701,8 +624,8 @@ export class LoginServer extends EventEmitter {
             clientId: zoneConnectionString,
             session: true,
           } as any,
-          "CharacterCreateRequest",
-          { reqId: reqId, characterObjStringify: JSON.stringify(characterData) }
+          packetName,
+          { reqId: reqId, ...packetObj }
         );
         this._pendingInternalReq[reqId] = resolve;
         this._pendingInternalReqTimeouts[reqId] = setTimeout(() => {
@@ -714,7 +637,7 @@ export class LoginServer extends EventEmitter {
         resolve(0);
       }
     });
-    return askZoneForCreationPromise as number;
+    return askZonePromise as number;
   }
 
   requestZoneCharacterCreation(
@@ -775,9 +698,10 @@ export class LoginServer extends EventEmitter {
         await this._db?.collection("user-sessions").insertOne(sessionObj);
       }
       const newCharacterData = { ...newCharacter, ownerId: sessionObj.guid };
-      creationStatus = (await this.askZoneForCreation(
+      creationStatus = (await this.askZone(
         serverId,
-        newCharacterData
+        "CharacterCreateRequest",
+        { characterObjStringify: JSON.stringify(newCharacterData) }
       ))
         ? 1
         : 0;
