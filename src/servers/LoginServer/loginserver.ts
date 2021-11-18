@@ -403,7 +403,7 @@ export class LoginServer extends EventEmitter {
         };
       }
     } else {
-      const charactersQuery = { authKey: client.loginSessionId };
+      const charactersQuery = { authKey: client.loginSessionId, status: 1 };
       let characters = await this._db
         .collection("characters-light")
         .find(charactersQuery)
@@ -494,15 +494,12 @@ export class LoginServer extends EventEmitter {
         if (deletionStatus) {
           await this._db
             .collection("characters-light")
-            .deleteOne(characterQuery, function (err: string) {
-              if (err) {
-                debug(err);
-              } else {
-                debug(
-                  `Character ${(packet.result as any).characterId} deleted !`
-                );
-              }
-            });
+            .updateOne(characterQuery,{$set: {
+              status: 0
+            }});
+            debug(
+              `Character ${(packet.result as any).characterId} deleted !`
+            );
         }
       }
     }
@@ -712,6 +709,7 @@ export class LoginServer extends EventEmitter {
           serverId: serverId,
           payload: { name: characterName },
           characterId: newCharacter.characterId,
+          status: 1
         });
       }
       newCharacter;
