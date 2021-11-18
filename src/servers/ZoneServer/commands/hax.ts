@@ -56,6 +56,7 @@ const hax: any = {
     );
     server.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicleData);
     vehicleData.isManaged = true;
+    vehicleData.isInvulnerable = true;
     server._vehicles[characterId] = {
       ...vehicleData,
       onReadyCallback: (clientTriggered: Client) => {
@@ -368,6 +369,7 @@ const hax: any = {
       characterId: client.character.characterId,
     });
     vehicleData.isManaged = true;
+    vehicleData.isInvulnerable = true;
     server._vehicles[characterId] = vehicleData;
     server.worldRoutine();
     server.sendDataToAll("Mount.MountResponse", {
