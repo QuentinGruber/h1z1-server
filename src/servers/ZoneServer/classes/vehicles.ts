@@ -36,7 +36,9 @@ export class Vehicle {
   seat: seats;
   passengers: passengers;
   fuelUpdater: any;
+  isInvulnerable:boolean = false;
   onReadyCallback?: (clientTriggered: ZoneClient) => boolean;
+  onDismount?:any;
   resourcesUpdater?: any;
 
   constructor(

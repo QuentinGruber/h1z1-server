@@ -849,12 +849,11 @@ export class zonePacketHandlers {
         client: Client,
         packet: any
       ) {
-        server.sendDataToAll("Mount.DismountResponse", {
-          characterId: client.character.characterId,
-        });
-        server.sendDataToAll("PlayerUpdate.RemovePlayerGracefully", {
-          characterId: client.vehicle.mountedVehicle,
-        });
+        const vehicleGuid = client.vehicle.mountedVehicle
+        if(vehicleGuid){
+          server.dismountVehicle(client,vehicleGuid)
+          server.dismissVehicle(vehicleGuid);
+        }
       });
     this.vehicleSpawn = function (
       server: ZoneServer,
@@ -1390,13 +1389,14 @@ export class zonePacketHandlers {
           message: name.replace("SpeedTree.", ""),
         });
       }
-      server.sendData(client, "DtoStateChange", { // WIP
+      // temp disable that, since it make weird stuff in game
+     /* server.sendData(client, "DtoStateChange", { // WIP
         objectId: id,
         name: name,
         unk2: treeId,
         unk3: 9001,
         unk4: false,
-       });
+       });*/
     };
     this.GetRewardBuffInfo = function (
       server: ZoneServer,
