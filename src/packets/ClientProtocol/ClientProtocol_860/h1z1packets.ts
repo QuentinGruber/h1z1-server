@@ -9856,13 +9856,13 @@ var packets = [
     0xbe0300,
     {
       fields: [
-        { name: "objectId", type: "uint32" },
+        { name: "unknownDword1", type: "uint32" },
         {
           name: "unknownArray1",
           type: "array",
           defaultValue: [],
           fields: [
-            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            { name: "objectId", type: "uint32", defaultValue: 0 },
             { name: "unknownString1", type: "string", defaultValue: "0" },
           ],
         },
