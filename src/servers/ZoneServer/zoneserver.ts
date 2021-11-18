@@ -1024,23 +1024,27 @@ export class ZoneServer extends EventEmitter {
     });
     if (refresh) this.worldRoutineTimer.refresh();
   }
-  setGodMode(client: Client,godMode:boolean){
+  setGodMode(client: Client, godMode: boolean) {
     client.character.godMode = godMode;
     this.sendChatText(
       client,
       `GODMODE: ${client.character.godMode ? "ON" : "OFF"}`
     );
-    const godModeState = client.character.godMode?"00000000000A000000": "000000000000000000";
-        this.sendData(client, "PlayerUpdate.UpdateCharacterState", {
-            characterId: client.character.characterId,
-            state: godModeState,
-            gameTime: this.getSequenceTime(),
-      });
+    const godModeState = client.character.godMode
+      ? "00000000000A000000"
+      : "000000000000000000";
+    this.sendData(client, "PlayerUpdate.UpdateCharacterState", {
+      characterId: client.character.characterId,
+      state: godModeState,
+      gameTime: this.getSequenceTime(),
+    });
   }
-  tempGodMode(client: Client,durationMs:number) {
-    if(!client.character.godMode){
+  tempGodMode(client: Client, durationMs: number) {
+    if (!client.character.godMode) {
       client.character.godMode = true;
-      setTimeout(()=>{client.character.godMode = false},durationMs)
+      setTimeout(() => {
+        client.character.godMode = false;
+      }, durationMs);
     }
   }
   killCharacter(client: Client) {
@@ -1166,7 +1170,7 @@ export class ZoneServer extends EventEmitter {
   }
 
   damageVehicle(client: Client, damage: number, vehicle: Vehicle) {
-    if(!vehicle.isInvulnerable){
+    if (!vehicle.isInvulnerable) {
       let destroyedVehicleEffect: number;
       let destroyedVehicleModel: number;
       let minorDamageEffect: number;
@@ -1579,7 +1583,7 @@ export class ZoneServer extends EventEmitter {
       this.sendData(client, "PlayerUpdate.UpdateMutateRights", {
         unknownQword1: "1",
         unknownBoolean1: true,
-       }); 
+      });
       client.vehicle.mountedVehicle = vehicleGuid;
       client.character.isRunning = false;
     } else if (entityData.isLocked === 2) {
@@ -1743,18 +1747,18 @@ export class ZoneServer extends EventEmitter {
         delete this._vehicles[vehicleGuid].passengers.passenger4;
         break;
     }
-    if(vehicleData.onDismount){
+    if (vehicleData.onDismount) {
       vehicleData.onDismount();
     }
   }
-  dismissVehicle(vehicleGuid:string){
+  dismissVehicle(vehicleGuid: string) {
     this.sendDataToAll("PlayerUpdate.RemovePlayerGracefully", {
       characterId: vehicleGuid,
     });
-    this.deleteEntity(vehicleGuid,this._vehicles)
+    this.deleteEntity(vehicleGuid, this._vehicles);
   }
 
-  dropPlayerInParachute(client: Client,position:Float32Array){
+  dropPlayerInParachute(client: Client, position: Float32Array) {
     const characterId = this.generateGuid();
     const vehicleData = new Vehicle(
       this._worldId,
@@ -1791,13 +1795,13 @@ export class ZoneServer extends EventEmitter {
     for (const character in this._characters) {
       const characterObj = this._characters[character];
       if (
-        (isPosInRadius(
+        isPosInRadius(
           this._npcRenderDistance,
           client.character.state.position,
           characterObj.state.position
-        ),
+        ) &&
         client.character.characterId != character &&
-          !client.spawnedEntities.includes(characterObj))
+        !client.spawnedEntities.includes(characterObj)
       ) {
         this.sendData(
           client,

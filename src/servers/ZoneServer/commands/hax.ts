@@ -8,7 +8,6 @@ import { Vehicle } from "../classes/vehicles";
 
 const debug = require("debug")("zonepacketHandlers");
 
-
 const hax: any = {
   list: function (server: ZoneServer, client: Client, args: any[]) {
     server.sendChatText(
@@ -59,7 +58,7 @@ const hax: any = {
     vehicleData.isInvulnerable = true;
     server._vehicles[characterId] = {
       ...vehicleData,
-      onDismount:()=>{
+      onDismount: () => {
         server.dismissVehicle(characterId);
       },
       onReadyCallback: (clientTriggered: Client) => {
@@ -350,14 +349,13 @@ const hax: any = {
   },
 
   parachute: function (server: ZoneServer, client: Client, args: any[]) {
-    const dropPosition = 
-    new Float32Array([
+    const dropPosition = new Float32Array([
       client.character.state.position[0],
       client.character.state.position[1] + 700,
       client.character.state.position[2],
       client.character.state.position[3],
     ]);
-    server.dropPlayerInParachute(client,dropPosition)
+    server.dropPlayerInParachute(client, dropPosition);
   },
 
   time: function (server: ZoneServer, client: Client, args: any[]) {
@@ -557,7 +555,7 @@ const hax: any = {
   sonic: function (server: ZoneServer, client: Client, args: any[]) {
     let character = client.character;
     character.isSonic = !character.isSonic;
-    server.setGodMode(client,character.isSonic);
+    server.setGodMode(client, character.isSonic);
     server.sendData(client, "ClientGameSettings", {
       interactGlowAndDist: 3,
       unknownBoolean1: false,
@@ -1053,7 +1051,7 @@ const hax: any = {
     server.sendChatText(client, "Back to normal size");
   },
   godmode: function (server: ZoneServer, client: Client, args: any[]) {
-    server.setGodMode(client,!client.character.godMode);
+    server.setGodMode(client, !client.character.godMode);
   },
 };
 

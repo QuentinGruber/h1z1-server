@@ -8811,24 +8811,28 @@ var packets = [
       ],
     },
   ],
-  ["PlayerUpdateNetworkObjectComponents", 0x91, { // wip
-    fields: [
-      {
-        name: "transientId",
-        type: "custom",
-        parser: readUnsignedIntWith2bitLengthValue,
-        packer: packUnsignedIntWith2bitLengthValue,
-      },
-      { name: "unk1", type: "uint32", defaultValue: 0 },
-      {
-        name: "unknownArray1",
-        type: "array",
-        defaultValue: [],
-        fields: [
-        ],
-      },
-    ],
-  }],
+  [
+    "PlayerUpdateNetworkObjectComponents",
+    0x91,
+    {
+      // wip
+      fields: [
+        {
+          name: "transientId",
+          type: "custom",
+          parser: readUnsignedIntWith2bitLengthValue,
+          packer: packUnsignedIntWith2bitLengthValue,
+        },
+        { name: "unk1", type: "uint32", defaultValue: 0 },
+        {
+          name: "unknownArray1",
+          type: "array",
+          defaultValue: [],
+          fields: [],
+        },
+      ],
+    },
+  ],
   ["PlayerUpdateUpdateVehicleWeapon", 0x92, {}],
   [
     "ProfileStats.GetPlayerProfileStats",
