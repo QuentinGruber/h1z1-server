@@ -23,6 +23,7 @@ import {
   characterLoadout,
   Weather2016,
 } from "../../types/zoneserver";
+import { h1z1PacketsType } from "../../types/packets";
 import { Character2016 as Character } from "./classes/character"
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
 import { _, initMongo, Int64String, isPosInRadius } from "../../utils/utils";
@@ -670,7 +671,7 @@ export class ZoneServer2016 extends ZoneServer {
       populations: [0, 0],
     });
     this.sendData(client, "ClientUpdate.RespawnLocations", {
-      locations: this._respawnLocations,
+      locations: this._respawnLocations, 
       locations2: this._respawnLocations,
     });
 
@@ -857,6 +858,147 @@ export class ZoneServer2016 extends ZoneServer {
     }
   }
 
+  spawnObjects(client: Client): void {
+    setImmediate(() => {
+      for (const object in this._objects) {
+        if (
+          isPosInRadius(
+            this._npcRenderDistance,
+            client.character.state.position,
+            this._objects[object].position
+          ) &&
+          !client.spawnedEntities.includes(this._objects[object])
+        ) {
+          this.sendData(
+            client,
+            "AddSimpleNpc",
+            { ...this._objects[object] },
+            1
+          );
+          client.spawnedEntities.push(this._objects[object]);
+        }
+      }
+    });
+  }
+
+  spawnDoors(client: Client): void {
+    setImmediate(() => {
+      for (const door in this._doors) {
+        if (
+          isPosInRadius(
+            this._npcRenderDistance,
+            client.character.state.position,
+            this._doors[door].position
+          ) &&
+          !client.spawnedEntities.includes(this._doors[door])
+        ) {
+          this.sendData(client, "AddSimpleNpc", this._doors[door], 1);
+          client.spawnedEntities.push(this._doors[door]);
+        }
+      }
+    });
+  }
+
+  createAllObjects(): void {
+    const { createAllEntities } = require("./workers/createBaseEntities");
+    const { npcs, objects, vehicles, doors } = createAllEntities(this);
+    this._npcs = npcs;
+    this._objects = objects;
+    this._doors = doors;
+    this._vehicles = vehicles;
+    delete require.cache[require.resolve("./workers/createBaseEntities")];
+    debug("All entities created");
+  }
+
+  sendData(
+    client: Client,
+    packetName: h1z1PacketsType,
+    obj: any,
+    channel = 0
+  ): void {
+    switch(packetName) {
+      case "KeepAlive":
+      case "PlayerUpdatePosition":
+      case "GameTimeSync":
+      case "Synchronization":
+      case "Vehicle.StateData":
+        break;
+      default:
+        debug("send data", packetName);
+    }
+    const data = this._protocol.pack(packetName, obj);
+    this._gatewayServer.sendTunnelData(client, data, channel);
+  }
+  sendChat(client: Client, message: string, channel: number) {
+    if (!this._soloMode) {
+      this.sendDataToAll("Chat.ChatText", {
+        message: `${client.character.name}: ${message}`,
+        unknownDword1: 0,
+        color: [255, 255, 255, 0],
+        unknownDword2: 13951728,
+        unknownByte3: 0,
+        unknownByte4: 1,
+      });
+    } else {
+      this.sendData(client, "Chat.ChatText", {
+        message: `${client.character.name}: ${message}`,
+        unknownDword1: 0,
+        color: [255, 255, 255, 0],
+        unknownDword2: 13951728,
+        unknownByte3: 0,
+        unknownByte4: 1,
+      });
+    }
+  }
+
+  getGameTime(): number {
+    //debug("get server time");
+    const delta = Date.now() - this._startGameTime;
+    return this._frozeCycle
+      ? Number(((this._gameTime + delta) / 1000).toFixed(0))
+      : Number((this._gameTime / 1000).toFixed(0));
+  }
+
+  sendGameTimeSync(client: Client): void {
+    debug(`GameTimeSync ${this._cycleSpeed} ${this.getGameTime()}\n`);
+    //this._gameTime = this.getGameTime();
+    this.sendData(client, "GameTimeSync", {
+      time: Int64String(this.getGameTime()),
+      cycleSpeed: this._cycleSpeed,
+      unknownBoolean: false,
+    });
+  }
+
+  sendRawToAllOthersWithSpawnedCharacter(client: Client, entityCharacterId: string = "", data: any): void {
+    for (const a in this._clients) {
+      if (
+        client != this._clients[a] &&
+        this._clients[a].spawnedEntities.includes(
+          this._characters[entityCharacterId]
+        )
+      ) {
+        this.sendRawData(this._clients[a], data);
+      }
+    }
+  }
+  sendDataToAllOthersWithSpawnedCharacter(
+    client: Client,
+    packetName: any,
+    obj: any,
+    channel = 0
+  ): void {
+    for (const a in this._clients) {
+      if (
+        client != this._clients[a] &&
+        this._clients[a].spawnedEntities.includes(
+          this._characters[client.character.characterId]
+        )
+      ) {
+        this.sendData(this._clients[a], packetName, obj, channel);
+      }
+    }
+  }
+  //#region ********************VEHICLE********************
   vehicleManager(client: Client) {
     for (const key in this._vehicles) {
       const vehicle = this._vehicles[key];
@@ -955,128 +1097,6 @@ export class ZoneServer2016 extends ZoneServer {
     }
   }
 
-  spawnObjects(client: Client): void {
-    setImmediate(() => {
-      for (const object in this._objects) {
-        if (
-          isPosInRadius(
-            this._npcRenderDistance,
-            client.character.state.position,
-            this._objects[object].position
-          ) &&
-          !client.spawnedEntities.includes(this._objects[object])
-        ) {
-          this.sendData(
-            client,
-            "AddSimpleNpc",
-            { ...this._objects[object] },
-            1
-          );
-          client.spawnedEntities.push(this._objects[object]);
-        }
-      }
-    });
-  }
-
-  spawnDoors(client: Client): void {
-    setImmediate(() => {
-      for (const door in this._doors) {
-        if (
-          isPosInRadius(
-            this._npcRenderDistance,
-            client.character.state.position,
-            this._doors[door].position
-          ) &&
-          !client.spawnedEntities.includes(this._doors[door])
-        ) {
-          this.sendData(client, "AddSimpleNpc", this._doors[door], 1);
-          client.spawnedEntities.push(this._doors[door]);
-        }
-      }
-    });
-  }
-
-  createAllObjects(): void {
-    const { createAllEntities } = require("./workers/createBaseEntities");
-    const { npcs, objects, vehicles, doors } = createAllEntities(this);
-    this._npcs = npcs;
-    this._objects = objects;
-    this._doors = doors;
-    this._vehicles = vehicles;
-    delete require.cache[require.resolve("./workers/createBaseEntities")];
-    debug("All entities created");
-  }
-
-  sendChat(client: Client, message: string, channel: number) {
-    if (!this._soloMode) {
-      this.sendDataToAll("Chat.ChatText", {
-        message: `${client.character.name}: ${message}`,
-        unknownDword1: 0,
-        color: [255, 255, 255, 0],
-        unknownDword2: 13951728,
-        unknownByte3: 0,
-        unknownByte4: 1,
-      });
-    } else {
-      this.sendData(client, "Chat.ChatText", {
-        message: `${client.character.name}: ${message}`,
-        unknownDword1: 0,
-        color: [255, 255, 255, 0],
-        unknownDword2: 13951728,
-        unknownByte3: 0,
-        unknownByte4: 1,
-      });
-    }
-  }
-
-  getGameTime(): number {
-    //debug("get server time");
-    const delta = Date.now() - this._startGameTime;
-    return this._frozeCycle
-      ? Number(((this._gameTime + delta) / 1000).toFixed(0))
-      : Number((this._gameTime / 1000).toFixed(0));
-  }
-
-  sendGameTimeSync(client: Client): void {
-    debug(`GameTimeSync ${this._cycleSpeed} ${this.getGameTime()}\n`);
-    //this._gameTime = this.getGameTime();
-    this.sendData(client, "GameTimeSync", {
-      time: Int64String(this.getGameTime()),
-      cycleSpeed: this._cycleSpeed,
-      unknownBoolean: false,
-    });
-  }
-
-  sendRawToAllOthersWithSpawnedCharacter(client: Client, entityCharacterId: string = "", data: any): void {
-    for (const a in this._clients) {
-      if (
-        client != this._clients[a] &&
-        this._clients[a].spawnedEntities.includes(
-          this._characters[entityCharacterId]
-        )
-      ) {
-        this.sendRawData(this._clients[a], data);
-      }
-    }
-  }
-  sendDataToAllOthersWithSpawnedCharacter(
-    client: Client,
-    packetName: any,
-    obj: any,
-    channel = 0
-  ): void {
-    for (const a in this._clients) {
-      if (
-        client != this._clients[a] &&
-        this._clients[a].spawnedEntities.includes(
-          this._characters[client.character.characterId]
-        )
-      ) {
-        this.sendData(this._clients[a], packetName, obj, channel);
-      }
-    }
-  }
-  //#region ********************VEHICLE********************
   sendDataToAllWithSpawnedVehicle(
     entityCharacterId: string = "",
     packetName: any,

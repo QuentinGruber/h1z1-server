@@ -673,9 +673,9 @@ export class zonePacketHandlers {
       packet: any
     ) {
       const characterId = server._transientIds[packet.data.transientId],
-        vehicle = server._vehicles[characterId];
-
-      if (!characterId) return;
+      vehicle = characterId?server._vehicles[characterId]:false;
+      if(!vehicle) return;
+      
       //if (!server._soloMode) {
       server.sendDataToAllOthersWithSpawnedVehicle(
         client,
@@ -690,19 +690,21 @@ export class zonePacketHandlers {
       //}
       vehicle.positionUpdate = packet.data.positionUpdate;
       if (packet.data.positionUpdate.position) {
-        server._vehicles[characterId].npcData.position = new Float32Array([
+        vehicle.npcData.position = new Float32Array([
           packet.data.positionUpdate.position[0],
           packet.data.positionUpdate.position[1],
           packet.data.positionUpdate.position[2],
           0,
         ]);
-        if (client.vehicle.mountedVehicle === characterId) {
-          client.character.state.position = new Float32Array([
+        vehicle.getPassengerList().forEach((passenger: any) => {
+          server._characters[passenger].state.position = new Float32Array([
             packet.data.positionUpdate.position[0],
             packet.data.positionUpdate.position[1],
             packet.data.positionUpdate.position[2],
             0,
           ]);
+        })
+        if (client.vehicle.mountedVehicle === characterId) {
           if (
             !client.posAtLastRoutine ||
             !isPosInRadius(
