@@ -36,6 +36,7 @@ export class Character {
   };
   isExhausted: boolean = false;
   isAlive: boolean = true;
+  isSonic: boolean = false;
   constructor(characterId: string, generatedTransient: number) {
     (this.characterId = characterId),
       (this.transientId = generatedTransient),
