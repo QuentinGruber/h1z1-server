@@ -1447,7 +1447,9 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      debug(packet);
+      if(!packet.data){
+        return
+      }
       const characterId = server._transientIds[packet.data.transientId];
       if (characterId) {
         if (
