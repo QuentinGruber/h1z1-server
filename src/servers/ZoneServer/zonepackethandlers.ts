@@ -658,39 +658,39 @@ export class zonePacketHandlers {
       if (client?.vehicle?.mountedVehicle)
         // TODO: fix that in a better way
         server.dismountVehicle(client, client.vehicle.mountedVehicle);
-    }
-      this.commandInteractRequest = function (
-        server: ZoneServer,
-        client: Client,
-        packet: any
-      ) {
-        server.sendData(client, "Command.InteractionList", {
-          guid: packet.data.guid,
-          unknownArray1: [
-            {
-              unknownDword1: 0,
-              unknownDword2: 0,
-              unknownDword3: 0,
-              unknownDword4: 0,
-              unknownDword5: 0,
-              unknownDword6: 0,
-              unknownDword7: 0,
-            },
-          ],
-          unknownArray2: [
-            {
-              unknownString1: "test",
-              unknownDword1: 0,
-              unknownDword2: 0,
-              unknownDword3: 0,
-              unknownDword4: 0,
-              unknownDword5: 0,
-              unknownDword6: 0,
-              unknownDword7: 0,
-            },
-          ],
-        });
-      }
+    };
+    this.commandInteractRequest = function (
+      server: ZoneServer,
+      client: Client,
+      packet: any
+    ) {
+      server.sendData(client, "Command.InteractionList", {
+        guid: packet.data.guid,
+        unknownArray1: [
+          {
+            unknownDword1: 0,
+            unknownDword2: 0,
+            unknownDword3: 0,
+            unknownDword4: 0,
+            unknownDword5: 0,
+            unknownDword6: 0,
+            unknownDword7: 0,
+          },
+        ],
+        unknownArray2: [
+          {
+            unknownString1: "test",
+            unknownDword1: 0,
+            unknownDword2: 0,
+            unknownDword3: 0,
+            unknownDword4: 0,
+            unknownDword5: 0,
+            unknownDword6: 0,
+            unknownDword7: 0,
+          },
+        ],
+      });
+    };
     this.commandInteractionString = function (
       server: ZoneServer,
       client: Client,
@@ -843,18 +843,18 @@ export class zonePacketHandlers {
       const vehicleData =
         server._vehicles[server._transientIds[packet.data.transientId]];
       server.damageVehicle(client, packet.data.damage, vehicleData);
-    }
-      this.vehicleDismiss = function (
-        server: ZoneServer,
-        client: Client,
-        packet: any
-      ) {
-        const vehicleGuid = client.vehicle.mountedVehicle
-        if(vehicleGuid){
-          server.dismountVehicle(client,vehicleGuid)
-          server.dismissVehicle(vehicleGuid);
-        }
+    };
+    this.vehicleDismiss = function (
+      server: ZoneServer,
+      client: Client,
+      packet: any
+    ) {
+      const vehicleGuid = client.vehicle.mountedVehicle;
+      if (vehicleGuid) {
+        server.dismountVehicle(client, vehicleGuid);
+        server.dismissVehicle(vehicleGuid);
       }
+    };
     this.vehicleSpawn = function (
       server: ZoneServer,
       client: Client,
@@ -1324,7 +1324,7 @@ export class zonePacketHandlers {
     ) {
       debug("Redeploy");
       server.sendData(client, "ClientUpdate.UpdateLocation", {
-        position: new Float32Array([0,50,0,1]),
+        position: new Float32Array([0, 50, 0, 1]),
         triggerLoadingScreen: true,
       });
     };
@@ -1377,7 +1377,11 @@ export class zonePacketHandlers {
         require("../../../data/2015/sampleData/profilestats.json")
       );
     };
-    this.DtoHitSpeedTreeReport = function (server: ZoneServer, client: Client, packet: any) {
+    this.DtoHitSpeedTreeReport = function (
+      server: ZoneServer,
+      client: Client,
+      packet: any
+    ) {
       debug(packet);
       const { name } = packet.data;
       if (name === "SpeedTree.Blackberry") {
@@ -1390,7 +1394,7 @@ export class zonePacketHandlers {
         });
       }
       // temp disable that, since it make weird stuff in game
-     /* server.sendData(client, "DtoStateChange", { // WIP
+      /* server.sendData(client, "DtoStateChange", { // WIP
         objectId: id,
         name: name,
         unk2: treeId,
@@ -1567,7 +1571,8 @@ export class zonePacketHandlers {
           packet.data.position[2],
           0,
         ]);
-        client.character.isRunning = packet.data.horizontalSpeed > (client.character.isExhausted ? 5 : 6);
+        client.character.isRunning =
+          packet.data.horizontalSpeed > (client.character.isExhausted ? 5 : 6);
 
         if (
           client.hudTimer != null &&

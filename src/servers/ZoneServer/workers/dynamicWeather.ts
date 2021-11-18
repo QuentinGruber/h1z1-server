@@ -29,13 +29,13 @@ let temperature = 80;
 let rainchanceReq = 20;
 
 const seasonstart = (function () {
-    let started = false;
-    return function () {
-        if (!started) {
-            started = true;
-            chooseWeather();
-        }
-    };
+  let started = false;
+  return function () {
+    if (!started) {
+      started = true;
+      chooseWeather();
+    }
+  };
 })();
 
 function chooseWeather() {
