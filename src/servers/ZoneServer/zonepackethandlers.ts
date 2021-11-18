@@ -1379,7 +1379,7 @@ export class zonePacketHandlers {
     };
     this.DtoHitSpeedTreeReport = function (server: ZoneServer, client: Client, packet: any) {
       debug(packet);
-      const { id, treeId, name } = packet.data;
+      const { name } = packet.data;
       if (name === "SpeedTree.Blackberry") {
         server.sendData(client, "ClientUpdate.TextAlert", {
           message: "Blackberries...miss you...",
