@@ -76,7 +76,7 @@ export class Vehicle2016 extends Vehicle {
         return seatId;
       }
     }
-    return 0;
+    return -1;
   }
   getCharacterSeat(characterId: string) {
     for (const seatId in this.seats) {

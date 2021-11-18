@@ -508,7 +508,6 @@ const hax: any = {
         _.forEach(
           server._weatherTemplates,
           function (element: { templateName: any }) {
-            console.log(element.templateName);
             server.sendChatText(client, `- ${element.templateName}`);
           }
         );
@@ -526,7 +525,6 @@ const hax: any = {
     client: Client,
     args: any[]
   ) {
-    console.log(server._weatherTemplates);
     if (!args[1]) {
       server.sendChatText(
         client,

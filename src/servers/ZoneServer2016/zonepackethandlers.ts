@@ -277,8 +277,7 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      console.log("Collision.Damage");
-      console.log(packet);
+      debug("Collision.Damage");
     };
     this.lobbyGameDefinitionDefinitionsRequest = function (
       server: ZoneServer2016,
@@ -1064,7 +1063,7 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      console.log(`ItemDefinitionRequest ID: ${packet.data.ID}`);
+      debug(`ItemDefinitionRequest ID: ${packet.data.ID}`);
 
       const itemDef = itemDefinitions.find(
         (itemDef: any) => itemDef.ID === packet.data.ID

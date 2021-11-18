@@ -1194,7 +1194,7 @@ export class ZoneServer2016 extends ZoneServer {
         break;
     }
     const seatId = vehicle.getNextSeatId();
-    if (!seatId) return; // no available seats in vehicle
+    if (seatId < 0) return; // no available seats in vehicle
     vehicle.seats[seatId] = client.character.characterId;
     this.sendDataToAllWithSpawnedVehicle(
       packet.data.guid,
