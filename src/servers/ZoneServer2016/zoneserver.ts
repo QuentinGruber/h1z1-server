@@ -50,6 +50,7 @@ export class ZoneServer2016 extends ZoneServer {
   _items: any = {};
   _vehicles: { [characterId: string]: Vehicle } = {};
   _reloadPacketsInterval: any;
+  _clients: { [characterId: string]: Client } = {};
   _characters: { [characterId: string]: Character } = {};
 
   constructor(serverPort: number, gatewayKey: Uint8Array, mongoAddress = "") {
@@ -998,6 +999,22 @@ export class ZoneServer2016 extends ZoneServer {
       }
     }
   }
+  sendDataToAllWithSpawnedCharacter(
+    client: Client,
+    packetName: any,
+    obj: any,
+    channel = 0
+  ): void {
+    for (const a in this._clients) {
+      if (
+        this._clients[a].spawnedEntities.includes(
+          this._characters[client.character.characterId]
+        ) || this._clients[a] === client
+      ) {
+        this.sendData(this._clients[a], packetName, obj, channel);
+      }
+    }
+  }
   //#region ********************VEHICLE********************
   vehicleManager(client: Client) {
     for (const key in this._vehicles) {
@@ -1286,7 +1303,7 @@ export class ZoneServer2016 extends ZoneServer {
   }
 
   updateEquipment(client: Client, character = client.character) {
-    this.sendData(client, "Equipment.SetCharacterEquipment", {
+    this.sendDataToAllWithSpawnedCharacter(client, "Equipment.SetCharacterEquipment", {
       characterData: {
         characterId: character.characterId,
       },

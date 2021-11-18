@@ -55,7 +55,7 @@ export class ZoneServer extends EventEmitter {
   _soloMode: any;
   _mongoClient: any;
   _mongoAddress: string;
-  _clients: any;
+  _clients: { [characterId: string]: Client } = {};
   _characters: any;
   _gameTime: any;
   _time: number;
