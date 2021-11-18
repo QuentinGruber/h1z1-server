@@ -97,6 +97,7 @@ const hax: any = {
     );
     server.sendDataToAll("AddLightweightVehicle", vehicleData);
     vehicleData.isManaged = true;
+    //@ts-ignore
     (vehicleData.onReadyCallback = () => {
       // doing anything with vehicle before client gets fullvehicle packet breaks it
       server.sendData(client, "Character.ManagedObject", {
@@ -119,7 +120,7 @@ const hax: any = {
       client.vehicle.mountedVehicle = characterId;
       client.managedObjects.push(server._vehicles[characterId]);
       setTimeout(() => {
-        client.character.godMode = wasAlreadyGod ? true : false;
+        client.character.godMode = wasAlreadyGod;
       }, 1000);
     }),
       (server._vehicles[characterId] = vehicleData);

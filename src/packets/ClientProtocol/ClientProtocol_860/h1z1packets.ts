@@ -4832,7 +4832,7 @@ var packets = [
       ],
     },
   ],
-  ["PlayerUpdate.QueueAnimation", 0x0f0f, {}],
+  ["PlayerUpdate.QueueAnimation", 0x0f0f, {}], // have been removed from the game
   [
     "PlayerUpdate.ExpectedSpeed",
     0x0f10,
@@ -4847,8 +4847,31 @@ var packets = [
       ],
     },
   ],
-  ["PlayerUpdate.ScriptedAnimation", 0x0f11, {}],
-  ["PlayerUpdate.ThoughtBubble", 0x0f12, {}],
+  ["PlayerUpdate.ScriptedAnimation", 0x0f11, {}], // have been removed from the game
+  [
+    "PlayerUpdate.ThoughtBubble",
+    0x0f12,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        {
+          name: "unk1",
+          type: "uint32",
+          defaultValue: 0,
+        },
+        {
+          name: "unk2",
+          type: "uint32",
+          defaultValue: 0,
+        },
+        {
+          name: "unk3",
+          type: "boolean",
+          defaultValue: false,
+        },
+      ],
+    },
+  ],
   [
     "PlayerUpdate.SetDisposition",
     0x0f13,
@@ -5790,7 +5813,16 @@ var packets = [
       fields: [],
     },
   ],
-  ["PlayerUpdate.UpdateMutateRights", 0x0f6e, {}],
+  [
+    "PlayerUpdate.UpdateMutateRights",
+    0x0f6e,
+    {
+      fields: [
+        { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+      ],
+    },
+  ],
   ["PlayerUpdate.UpdateFogOfWar", 0x0f70, {}],
   ["PlayerUpdate.SetAllowRespawn", 0x0f71, {}],
   ["Ability.ClientRequestStartAbility", 0x1001, {}],
@@ -8779,7 +8811,24 @@ var packets = [
       ],
     },
   ],
-  ["PlayerUpdateNetworkObjectComponents", 0x91, {}],
+  ["PlayerUpdateNetworkObjectComponents", 0x91, { // wip
+    fields: [
+      {
+        name: "transientId",
+        type: "custom",
+        parser: readUnsignedIntWith2bitLengthValue,
+        packer: packUnsignedIntWith2bitLengthValue,
+      },
+      { name: "unk1", type: "uint32", defaultValue: 0 },
+      {
+        name: "unknownArray1",
+        type: "array",
+        defaultValue: [],
+        fields: [
+        ],
+      },
+    ],
+  }],
   ["PlayerUpdateUpdateVehicleWeapon", 0x92, {}],
   [
     "ProfileStats.GetPlayerProfileStats",
@@ -9783,11 +9832,57 @@ var packets = [
   ["RequestStationCashActivePromoUpdate", 0xbb, {}],
   ["CharacterSlot", 0xbc, {}],
   [
-    "Pickup",
-    0xbe,
+    "DtoHitReportPacket",
+    0xbe0100,
+    {
+      fields: [],
+    },
+  ],
+  [
+    "DtoStateChange",
+    0xbe0200,
     {
       fields: [
-        { name: "type", type: "uint16" },
+        { name: "objectId", type: "uint32" },
+        { name: "modelName", type: "string" },
+        { name: "effectId", type: "uint32" },
+        { name: "unk3", type: "float" },
+        { name: "unk4", type: "boolean" }, // changing this boolean change how the packet is processed
+      ],
+    },
+  ],
+  [
+    "DtoObjectInitialData",
+    0xbe0300,
+    {
+      fields: [
+        { name: "objectId", type: "uint32" },
+        {
+          name: "unknownArray1",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            { name: "unknownString1", type: "string", defaultValue: "0" },
+          ],
+        },
+        {
+          name: "unknownArray2",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+          ],
+        },
+      ],
+    },
+  ],
+  [
+    "DtoHitSpeedTreeReport",
+    0xbe0400,
+    {
+      fields: [
         { name: "id", type: "uint32" },
         { name: "treeId", type: "uint32" },
         { name: "name", type: "string" },

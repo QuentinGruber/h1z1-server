@@ -1,5 +1,5 @@
 import { Vehicle } from "../../ZoneServer/classes/vehicles";
-import { createPositionUpdate } from "./../../../utils/utils";
+import { createPositionUpdate } from "../../../utils/utils";
 
 function getVehicleId(ModelId: number) {
   switch (ModelId) {

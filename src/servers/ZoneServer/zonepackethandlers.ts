@@ -72,10 +72,10 @@ export class zonePacketHandlers {
   commandStartLogoutRequest: any;
   CharacterSelectSessionRequest: any;
   profileStatsGetPlayerProfileStats: any;
-  Pickup: any;
+  DtoHitSpeedTreeReport: any;
   GetRewardBuffInfo: any;
   vehicleStateData: any;
-  VehicleAccessType: any
+  VehicleAccessType: any;
   PlayerUpdateManagedPosition: any;
   PlayerUpdateUpdatePositionClientToZone: any;
   commandPlayerSelect: any;
@@ -83,6 +83,7 @@ export class zonePacketHandlers {
   constructionPlacementFinalizeRequest: any;
   playerUpdateRespawn: any;
   playerUpdateFullCharacterDataRequest: any;
+  commandRedeploy: any;
   constructor() {
     this.ClientIsReady = function (
       server: ZoneServer,
@@ -392,7 +393,8 @@ export class zonePacketHandlers {
       clearInterval(client.character.resourcesUpdater);
       server.saveCharacterPosition(client);
       client.managedObjects.forEach((object: any) => {
-        server._vehicles[object.npcData.characterId].isManaged = false;
+        const vehicle = server._vehicles[object.npcData.characterId];
+        if (vehicle) vehicle.isManaged = false;
       });
       server.deleteEntity(client.character.characterId, server._characters);
       server._gatewayServer._soeServer.deleteClient(client);
@@ -571,7 +573,7 @@ export class zonePacketHandlers {
             // using !! is faster but ugly
             hax[commandName](server, client, args);
           } else {
-            if (server._allowedCommands.includes(commandName)) {
+            if (!!hax[commandName]) {
               server.sendChatText(client, "You don't have access to that.");
             } else {
               server.sendChatText(
@@ -653,7 +655,9 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      server.dismountVehicle(client, client.vehicle.mountedVehicle);
+      if (client?.vehicle?.mountedVehicle)
+        // TODO: fix that in a better way
+        server.dismountVehicle(client, client.vehicle.mountedVehicle);
     }),
       (this.commandInteractRequest = function (
         server: ZoneServer,
@@ -1314,6 +1318,17 @@ export class zonePacketHandlers {
         },
       });
     };
+    this.commandRedeploy = function (
+      server: ZoneServer,
+      client: Client,
+      packet: any
+    ) {
+      debug("Redeploy");
+      server.sendData(client, "ClientUpdate.UpdateLocation", {
+        position: new Float32Array([0,50,0,1]),
+        triggerLoadingScreen: true,
+      });
+    };
     this.commandInteractCancel = function (
       server: ZoneServer,
       client: Client,
@@ -1363,30 +1378,25 @@ export class zonePacketHandlers {
         require("../../../data/2015/sampleData/profilestats.json")
       );
     };
-    this.Pickup = function (server: ZoneServer, client: Client, packet: any) {
+    this.DtoHitSpeedTreeReport = function (server: ZoneServer, client: Client, packet: any) {
       debug(packet);
-      const { data: packetData } = packet;
-      server.sendData(client, "ClientUpdate.StartTimer", {
-        stringId: 582,
-        time: 100,
-      });
-      if (packetData.name === "SpeedTree.Blackberry") {
+      const { id, treeId, name } = packet.data;
+      if (name === "SpeedTree.Blackberry") {
         server.sendData(client, "ClientUpdate.TextAlert", {
           message: "Blackberries...miss you...",
         });
       } else {
         server.sendData(client, "ClientUpdate.TextAlert", {
-          message: packetData.name.replace("SpeedTree.", ""),
+          message: name.replace("SpeedTree.", ""),
         });
       }
-      server.sendData(client, "PlayerUpdate.StartHarvest", {
-        characterId: client.character.characterId,
-        unknown4: 0,
-        timeMs: 10,
-        unknown6: 0,
-        stringId: 10002,
-        unknownGuid: Int64String(packetData.id),
-      });
+      server.sendData(client, "DtoStateChange", { // WIP
+        objectId: id,
+        name: name,
+        unk2: treeId,
+        unk3: 9001,
+        unk4: false,
+       });
     };
     this.GetRewardBuffInfo = function (
       server: ZoneServer,
@@ -1425,11 +1435,12 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      server._vehicles[packet.data.vehicleGuid].isLocked = packet.data.accessType;
+      const { vehicleGuid, accessType } = packet.data;
+      server._vehicles[vehicleGuid].isLocked = accessType;
       server.sendData(client, "Vehicle.AccessType", {
-      vehicleGuid: client.vehicle.mountedVehicle,
-      accessType: packet.data.accessType,
-    });
+        vehicleGuid: vehicleGuid,
+        accessType: accessType,
+      });
     };
     this.PlayerUpdateManagedPosition = function (
       server: ZoneServer,
@@ -1556,13 +1567,7 @@ export class zonePacketHandlers {
           packet.data.position[2],
           0,
         ]);
-        if (
-          packet.data.horizontalSpeed > (client.character.isExhausted ? 5 : 6)
-        ) {
-          client.character.isRunning = true;
-        } else {
-          client.character.isRunning = false;
-        }
+        client.character.isRunning = packet.data.horizontalSpeed > (client.character.isExhausted ? 5 : 6);
 
         if (
           client.hudTimer != null &&
@@ -1926,140 +1931,153 @@ export class zonePacketHandlers {
         case 1: {
           // npc
           const entityData = server._npcs[characterId];
-          server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
-            transientId: entityData.transientId,
-            unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
-            unknownDword2: 13951728,
-            unknownDword3: 1,
-            unknownDword6: 100,
-          });
-          if (entityData.onReadyCallback) {
-            entityData.onReadyCallback();
+          if (entityData) {
+            server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
+              transientId: entityData.transientId,
+              unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
+              unknownDword2: 13951728,
+              unknownDword3: 1,
+              unknownDword6: 100,
+            });
+            if (entityData.onReadyCallback) {
+              entityData.onReadyCallback();
+            }
           }
           break;
         }
         case 2: {
           // vehicle
           const entityData = server._vehicles[characterId];
-          if (entityData.npcData.vehicleId === 13) return;
-          // ignore parachute
-          const npcData = {
-            transientId: entityData.npcData.transientId,
-          };
-          server.sendData(client, "PlayerUpdate.LightweightToFullVehicle", {
-            npcData: npcData,
-            characterId: characterId,
-          });
-          if (entityData.onReadyCallback) {
-            entityData.onReadyCallback();
-            server._vehicles[characterId].onReadyCallback = () => {};
+          if (entityData) {
+            if (entityData.npcData.vehicleId === 13) return;
+            // ignore parachute
+            const npcData = {
+              transientId: entityData.npcData.transientId,
+            };
+            server.sendData(client, "PlayerUpdate.LightweightToFullVehicle", {
+              npcData: npcData,
+              characterId: characterId,
+            });
+            if (entityData.onReadyCallback) {
+              if (entityData.onReadyCallback(client)) {
+                delete server._vehicles[characterId].onReadyCallback;
+              }
+            }
           }
           break;
         }
         case 3: {
           // character
           const entityData = server._characters[characterId];
-          server.sendData(client, "PlayerUpdate.LightweightToFullPc", {
-            transientId: entityData.transientId,
-          });
-          server.sendData(client, "PlayerUpdate.UpdatePosition", {
-            transientId: entityData.transientId,
-            positionUpdate: {
-              sequenceTime: server.getSequenceTime(),
-              unknown3_int8: 0,
-              stance: 1089,
-              position: entityData.state.position,
-              orientation: 0,
-              frontTilt: 0,
-              sideTilt: 0,
-              angleChange: 0,
-              verticalSpeed: 0,
-              horizontalSpeed: 0,
-              unknown12_float: [0, 0, 0],
-              rotationRaw: [0, 0, -0, 1],
-              direction: 0,
-              engineRPM: 0,
-            },
-          });
-          server.sendData(client, "PlayerUpdate.UpdatePosition", {
-            transientId: entityData.transientId,
-            positionUpdate: {
-              sequenceTime: 1,
-              unknown3_int8: 0,
-              stance: 81,
-            },
-          });
-          server.sendData(client, "Equipment.SetCharacterEquipment", {
-            profileId: 3,
-            characterId: entityData.characterId,
-            equipmentSlots: entityData.equipment.map((equipment: any) => {
-              return {
-                equipmentSlotId: equipment.slotId,
-                equipmentSlotData: {
+          if (entityData) {
+            server.sendData(client, "PlayerUpdate.LightweightToFullPc", {
+              transientId: entityData.transientId,
+            });
+            server.sendData(client, "PlayerUpdate.UpdatePosition", {
+              transientId: entityData.transientId,
+              positionUpdate: {
+                sequenceTime: server.getSequenceTime(),
+                unknown3_int8: 0,
+                stance: 1089,
+                position: entityData.state.position,
+                orientation: 0,
+                frontTilt: 0,
+                sideTilt: 0,
+                angleChange: 0,
+                verticalSpeed: 0,
+                horizontalSpeed: 0,
+                unknown12_float: [0, 0, 0],
+                rotationRaw: [0, 0, -0, 1],
+                direction: 0,
+                engineRPM: 0,
+              },
+            });
+            server.sendData(client, "PlayerUpdate.UpdatePosition", {
+              transientId: entityData.transientId,
+              positionUpdate: {
+                sequenceTime: 1,
+                unknown3_int8: 0,
+                stance: 81,
+              },
+            });
+            server.sendData(client, "Equipment.SetCharacterEquipment", {
+              profileId: 3,
+              characterId: entityData.characterId,
+              equipmentSlots: entityData.equipment.map((equipment: any) => {
+                return {
                   equipmentSlotId: equipment.slotId,
-                  guid: generateRandomGuid(),
-                },
-              };
-            }),
-            attachmentData: entityData.equipment,
-          });
+                  equipmentSlotData: {
+                    equipmentSlotId: equipment.slotId,
+                    guid: generateRandomGuid(),
+                  },
+                };
+              }),
+              attachmentData: entityData.equipment,
+            });
+          }
           break;
         }
         case 4: {
           // object
           const entityData = server._objects[characterId];
-          server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
-            transientId: entityData.transientId,
-            unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
-            unknownDword2: 13951728,
-            unknownDword3: 1,
-            unknownDword6: 100,
-          });
-          if (entityData.onReadyCallback) {
-            entityData.onReadyCallback();
+          if (entityData) {
+            server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
+              transientId: entityData.transientId,
+              unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
+              unknownDword2: 13951728,
+              unknownDword3: 1,
+              unknownDword6: 100,
+            });
+            if (entityData.onReadyCallback) {
+              entityData.onReadyCallback();
+            }
           }
           break;
         }
         case 5: {
           // prop
           const entityData = server._props[characterId];
-          server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
-            transientId: entityData.transientId,
-            unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
-            unknownDword2: 13951728,
-            unknownDword3: 1,
-            unknownDword6: 100,
-          });
-          if (entityData.onReadyCallback) {
-            entityData.onReadyCallback();
+          if (entityData) {
+            server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
+              transientId: entityData.transientId,
+              unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
+              unknownDword2: 13951728,
+              unknownDword3: 1,
+              unknownDword6: 100,
+            });
+            if (entityData.onReadyCallback) {
+              entityData.onReadyCallback();
+            }
           }
           break;
         }
         case 6: {
           // door
           const entityData = server._doors[characterId];
-          server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
-            transientId: entityData.transientId,
-            unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
-            unknownDword2: 13951728,
-            unknownDword3: 1,
-            unknownDword6: 100,
-          });
-          if (entityData.isOpen === true) {
-            server.sendData(client, "PlayerUpdate.UpdatePosition", {
+          if (entityData) {
+            server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
               transientId: entityData.transientId,
-              positionUpdate: {
-                sequenceTime: server.getSequenceTime(),
-                unknown3_int8: 0,
-                stance: 1025,
-                orientation: entityData.openAngle,
-              },
+              unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
+              unknownDword2: 13951728,
+              unknownDword3: 1,
+              unknownDword6: 100,
             });
-            server.sendData(client, "PlayerUpdate.PlayWorldCompositeEffect", {
-              soundId: 5048,
-              position: entityData.position,
-              unk3: 0,
-            });
+            if (entityData.isOpen === true) {
+              server.sendData(client, "PlayerUpdate.UpdatePosition", {
+                transientId: entityData.transientId,
+                positionUpdate: {
+                  sequenceTime: server.getSequenceTime(),
+                  unknown3_int8: 0,
+                  stance: 1025,
+                  orientation: entityData.openAngle,
+                },
+              });
+              server.sendData(client, "PlayerUpdate.PlayWorldCompositeEffect", {
+                soundId: 5048,
+                position: entityData.position,
+                unk3: 0,
+              });
+            }
           }
           break;
         }
@@ -2164,6 +2182,9 @@ export class zonePacketHandlers {
       case "Vehicle.AutoMount":
         this.vehicleAutoMount(server, client, packet);
         break;
+      case "Command.Redeploy":
+        this.commandRedeploy(server, client, packet);
+        break;
       case "Command.InteractCancel":
         this.commandInteractCancel(server, client, packet);
         break;
@@ -2176,8 +2197,8 @@ export class zonePacketHandlers {
       case "ProfileStats.GetPlayerProfileStats":
         this.profileStatsGetPlayerProfileStats(server, client, packet);
         break;
-      case "Pickup":
-        this.Pickup(server, client, packet);
+      case "DtoHitSpeedTreeReport":
+        this.DtoHitSpeedTreeReport(server, client, packet);
         break;
       case "GetRewardBuffInfo":
         this.GetRewardBuffInfo(server, client, packet);

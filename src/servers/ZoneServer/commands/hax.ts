@@ -60,29 +60,33 @@ const hax: any = {
     vehicleData.isManaged = true;
     server._vehicles[characterId] = {
       ...vehicleData,
-      onReadyCallback: () => {
-        // doing anything with vehicle before client gets fullvehicle packet breaks it
-        server.sendData(client, "PlayerUpdate.ManagedObject", {
-          guid: vehicleData.npcData.characterId,
-          characterId: client.character.characterId,
-        });
-        server.sendDataToAll("Mount.MountResponse", {
-          characterId: client.character.characterId,
-          guid: characterId,
-          characterData: [],
-        });
-        server.sendDataToAll("Vehicle.Engine", {
-          guid2: characterId,
-          unknownBoolean: true,
-        });
-        client.vehicle.mountedVehicle = characterId;
-        client.vehicle.mountedVehicleType = "spectate";
-        client.managedObjects.push(server._vehicles[characterId]);
+      onReadyCallback: (clientTriggered: Client) => {
+        if (clientTriggered === client) {
+          // doing anything with vehicle before client gets fullvehicle packet breaks it
+          server.sendData(client, "PlayerUpdate.ManagedObject", {
+            guid: vehicleData.npcData.characterId,
+            characterId: client.character.characterId,
+          });
+          server.sendDataToAll("Mount.MountResponse", {
+            characterId: client.character.characterId,
+            guid: characterId,
+            characterData: [],
+          });
+          server.sendDataToAll("Vehicle.Engine", {
+            guid2: characterId,
+            unknownBoolean: true,
+          });
+          client.vehicle.mountedVehicle = characterId;
+          client.vehicle.mountedVehicleType = "spectate";
+          client.managedObjects.push(server._vehicles[characterId]);
+          return true;
+        }
+        return false;
       },
     };
   },
   headlights: function (server: ZoneServer, client: Client, args: any[]) {
-    let headlightType = 0;
+    let headlightType: number;
     switch (client.vehicle.mountedVehicleType) {
       case "offroader":
         headlightType = 273;
@@ -197,12 +201,16 @@ const hax: any = {
     vehicleData.isManaged = true;
     server._vehicles[characterId] = {
       ...vehicleData,
-      onReadyCallback: () => {
-        // doing anything with vehicle before client gets fullvehicle packet breaks it
-        server.enterVehicle(client, vehicleData);
-        setTimeout(() => {
-          client.character.godMode = wasAlreadyGod ? true : false;
-        }, 1000);
+      onReadyCallback: (clientTriggered: Client) => {
+        if (clientTriggered === client) {
+          // doing anything with vehicle before client gets fullvehicle packet breaks it
+          server.enterVehicle(client, vehicleData);
+          setTimeout(() => {
+            client.character.godMode = wasAlreadyGod;
+          }, 1000);
+          return true;
+        }
+        return false;
       },
     };
     server.worldRoutine();
@@ -279,7 +287,7 @@ const hax: any = {
     server.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
       characterId: client.character.characterId,
       state: stateId,
-      gameTime: server.getServerTime().toString(16),
+      gameTime: server.getSequenceTime(),
     });
   },
   spawnvehicle: function (server: ZoneServer, client: Client, args: any[]) {
@@ -321,15 +329,19 @@ const hax: any = {
     vehicleData.isManaged = true;
     server._vehicles[characterId] = {
       ...vehicleData,
-      onReadyCallback: () => {
-        // doing anything with vehicle before client gets fullvehicle packet breaks it
-        server.sendData(client, "PlayerUpdate.ManagedObject", {
-          guid: vehicleData.npcData.characterId,
-          characterId: client.character.characterId,
-        });
-        setTimeout(() => {
-          client.character.godMode = wasAlreadyGod ? true : false;
-        }, 1000);
+      onReadyCallback: (clientTriggered: Client) => {
+        if (clientTriggered === client) {
+          // doing anything with vehicle before client gets fullvehicle packet breaks it
+          server.sendData(client, "PlayerUpdate.ManagedObject", {
+            guid: vehicleData.npcData.characterId,
+            characterId: client.character.characterId,
+          });
+          setTimeout(() => {
+            client.character.godMode = wasAlreadyGod;
+          }, 1000);
+          return true;
+        }
+        return false;
       },
     };
     server.worldRoutine();
@@ -1064,6 +1076,12 @@ const hax: any = {
       client,
       `GODMODE: ${client.character.godMode ? "ON" : "OFF"}`
     );
+    const godModeState = client.character.godMode?"00000000000A000000": "000000000000000000";
+        server.sendData(client, "PlayerUpdate.UpdateCharacterState", {
+            characterId: client.character.characterId,
+            state: godModeState,
+            gameTime: server.getSequenceTime(),
+      });
   },
 };
 
