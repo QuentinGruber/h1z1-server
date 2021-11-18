@@ -1389,6 +1389,7 @@ export class zonePacketHandlers {
           message: name.replace("SpeedTree.", ""),
         });
       }
+      return // temp disable that, since it make weird stuff in game
       server.sendData(client, "DtoStateChange", { // WIP
         objectId: id,
         name: name,
