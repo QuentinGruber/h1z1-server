@@ -849,12 +849,11 @@ export class zonePacketHandlers {
         client: Client,
         packet: any
       ) {
-        server.sendDataToAll("Mount.DismountResponse", {
-          characterId: client.character.characterId,
-        });
-        server.sendDataToAll("PlayerUpdate.RemovePlayerGracefully", {
-          characterId: client.vehicle.mountedVehicle,
-        });
+        const vehicleGuid = client.vehicle.mountedVehicle
+        if(vehicleGuid){
+          server.dismountVehicle(client,vehicleGuid)
+          server.dismissVehicle(vehicleGuid);
+        }
       });
     this.vehicleSpawn = function (
       server: ZoneServer,

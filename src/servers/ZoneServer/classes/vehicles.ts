@@ -38,6 +38,7 @@ export class Vehicle {
   fuelUpdater: any;
   isInvulnerable:boolean = false;
   onReadyCallback?: (clientTriggered: ZoneClient) => boolean;
+  onDismount?:any;
   resourcesUpdater?: any;
 
   constructor(

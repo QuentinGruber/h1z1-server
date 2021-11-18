@@ -59,6 +59,9 @@ const hax: any = {
     vehicleData.isInvulnerable = true;
     server._vehicles[characterId] = {
       ...vehicleData,
+      onDismount:()=>{
+        server.dismissVehicle(characterId);
+      },
       onReadyCallback: (clientTriggered: Client) => {
         if (clientTriggered === client) {
           // doing anything with vehicle before client gets fullvehicle packet breaks it
@@ -347,38 +350,14 @@ const hax: any = {
   },
 
   parachute: function (server: ZoneServer, client: Client, args: any[]) {
-    const characterId = server.generateGuid();
-    const posY = client.character.state.position[1] + 700;
-    const vehicleData = new Vehicle(
-      server._worldId,
-      characterId,
-      server.getTransientId(client, characterId),
-      9374,
-      new Float32Array([
-        client.character.state.position[0],
-        posY,
-        client.character.state.position[2],
-        client.character.state.position[3],
-      ]),
-      client.character.state.lookAt
-    );
-
-    server.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicleData);
-    server.sendData(client, "PlayerUpdate.ManagedObject", {
-      guid: vehicleData.npcData.characterId,
-      characterId: client.character.characterId,
-    });
-    vehicleData.isManaged = true;
-    vehicleData.isInvulnerable = true;
-    server._vehicles[characterId] = vehicleData;
-    server.worldRoutine();
-    server.sendDataToAll("Mount.MountResponse", {
-      characterId: client.character.characterId,
-      guid: characterId,
-      characterData: [],
-    });
-    client.vehicle.mountedVehicle = characterId;
-    client.managedObjects.push(server._vehicles[characterId]);
+    const dropPosition = 
+    new Float32Array([
+      client.character.state.position[0],
+      client.character.state.position[1] + 700,
+      client.character.state.position[2],
+      client.character.state.position[3],
+    ]);
+    server.dropPlayerInParachute(client,dropPosition)
   },
 
   time: function (server: ZoneServer, client: Client, args: any[]) {

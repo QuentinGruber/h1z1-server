@@ -1743,6 +1743,44 @@ export class ZoneServer extends EventEmitter {
         delete this._vehicles[vehicleGuid].passengers.passenger4;
         break;
     }
+    if(vehicleData.onDismount){
+      vehicleData.onDismount();
+    }
+  }
+  dismissVehicle(vehicleGuid:string){
+    this.sendDataToAll("PlayerUpdate.RemovePlayerGracefully", {
+      characterId: vehicleGuid,
+    });
+    this.deleteEntity(vehicleGuid,this._vehicles)
+  }
+
+  dropPlayerInParachute(client: Client,position:Float32Array){
+    const characterId = this.generateGuid();
+    const vehicleData = new Vehicle(
+      this._worldId,
+      characterId,
+      this.getTransientId(client, characterId),
+      9374,
+      position,
+      client.character.state.lookAt
+    );
+
+    this.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicleData);
+    this.sendData(client, "PlayerUpdate.ManagedObject", {
+      guid: vehicleData.npcData.characterId,
+      characterId: client.character.characterId,
+    });
+    vehicleData.isManaged = true;
+    vehicleData.isInvulnerable = true;
+    this._vehicles[characterId] = vehicleData;
+    this.worldRoutine();
+    this.sendDataToAll("Mount.MountResponse", {
+      characterId: client.character.characterId,
+      guid: characterId,
+      characterData: [],
+    });
+    client.vehicle.mountedVehicle = characterId;
+    client.managedObjects.push(this._vehicles[characterId]);
   }
 
   updatePosition(client: Client, position: Float32Array) {
