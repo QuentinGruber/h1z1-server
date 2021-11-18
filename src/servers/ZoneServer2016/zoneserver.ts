@@ -1173,7 +1173,7 @@ export class ZoneServer2016 extends ZoneServer {
       }
     );
     if (seatId === "0") {
-      this.takeoverManagedObject(client, vehicle);
+      //this.takeoverManagedObject(client, vehicle); // disabled for now, client won't drop management
       this.sendDataToAllWithSpawnedVehicle(packet.data.guid, "Vehicle.Engine", {
         // starts engine
         guid2: client.vehicle.mountedVehicle,
@@ -1246,7 +1246,7 @@ export class ZoneServer2016 extends ZoneServer {
         );
       }
       if (packet.data.seatId === 0) {
-        this.takeoverManagedObject(client, vehicle);
+        //this.takeoverManagedObject(client, vehicle); // disabled for now, client won't drop management
         this.sendDataToAllWithSpawnedVehicle(
           client.vehicle.mountedVehicle,
           "Vehicle.Engine",
