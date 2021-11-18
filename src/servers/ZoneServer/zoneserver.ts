@@ -323,7 +323,9 @@ export class ZoneServer extends EventEmitter {
                     .find({ characterId: characterId })
                     .toArray();
                   if (charactersArray.length === 1) {
-                    await collection.deleteOne({ characterId: characterId });
+                    await collection.updateOne({ characterId: characterId },{$set: {
+                      status: 0
+                    }});
                     this._h1emuZoneServer.sendData(
                       client,
                       "CharacterDeleteReply",
