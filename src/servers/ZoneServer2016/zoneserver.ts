@@ -823,10 +823,10 @@ export class ZoneServer2016 extends ZoneServer {
   }
 
   spawnCharacters(client: Client) {
-    for (const character in this._characters) {
-      const characterObj: Character = this._characters[character];
+    for (const c in this._clients) {
+      const characterObj: Character = this._clients[c].character;
       if (
-        client.character.characterId != character &&
+        client.character.characterId != characterObj.characterId &&
         isPosInRadius(
           this._npcRenderDistance,
           client.character.state.position,
@@ -849,7 +849,24 @@ export class ZoneServer2016 extends ZoneServer {
           },
           1
         );
-        client.spawnedEntities.push(this._characters[character]);
+        const vehicleId = this._clients[c].vehicle.mountedVehicle,
+        vehicle = vehicleId?this._vehicles[vehicleId]:false;
+        if(vehicle) {
+          const seatId = vehicle.getCharacterSeat(characterObj.characterId);
+          this.sendData(
+            client,
+            "Mount.MountResponse",
+            {
+              // mounts character
+              characterId: characterObj.characterId,
+              vehicleGuid: vehicle.npcData.characterId, // vehicle guid
+              seatId: Number(seatId),
+              unknownDword3: seatId === "0" ? 1 : 0, //isDriver
+              identity: {},
+            }
+          );
+        }
+        client.spawnedEntities.push(this._characters[characterObj.characterId]);
       }
     }
   }
@@ -1024,6 +1041,19 @@ export class ZoneServer2016 extends ZoneServer {
       ) {
         if (!client.spawnedEntities.includes(vehicle)) {
           this.sendData(client, "AddLightweightVehicle", vehicle, 1);
+          this.sendData(client, "Vehicle.OwnerPassengerList", {
+            characterId: client.character.characterId,
+            passengers: vehicle.getPassengerList().map((characterId) => {
+              return {
+                characterId: characterId,
+                identity: {
+                  characterName: this._characters[characterId].name
+                },
+                unknownString1:this._characters[characterId].name,
+                unknownByte1: 1
+              }
+            })
+          })
           client.spawnedEntities.push(vehicle);
         }
         if (!vehicle.isManaged) {

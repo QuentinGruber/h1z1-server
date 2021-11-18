@@ -7446,7 +7446,31 @@ const packets = [
   ["Vehicle.AccessType", 0x891c, {}],
   ["Vehicle.KickPlayer", 0x891d, {}],
   ["Vehicle.HealthUpdateOwner", 0x891e, {}],
-  ["Vehicle.OwnerPassengerList", 0x891f, {}],
+  [
+    "Vehicle.OwnerPassengerList", 
+    0x891f, 
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { 
+          name: "passengers", 
+          type: "array", 
+          defaultValue: [], 
+          fields: [
+            { name: "characterId", type: "uint64string", defaultValue: "0" },
+            {
+              name: "identity",
+              type: "schema",
+              defaultValue: {},
+              fields: identitySchema
+            },
+            { name: "unknownString1", type: "string", defaultValue: "" },
+            { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+          ] 
+        },
+      ]
+    }
+  ],
   ["Vehicle.Kick", 0x8920, {}],
   ["Vehicle.NoAccess", 0x8921, {}],
   [
@@ -7497,7 +7521,7 @@ const packets = [
               {
                 name: "characterResources",
                 type: "array",
-                defaultValue: [{}],
+                defaultValue: [],
                 fields: [
                   { name: "resourceId", type: "uint32", defaultValue: 0 },
                   {

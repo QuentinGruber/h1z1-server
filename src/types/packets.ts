@@ -2437,7 +2437,8 @@ export type h1z1PacketsType =
   | "AccessedCharacter.BeginCharacterAccess"
   | "AccessedCharacter.Unknown1"
   | "FirstTimeEvent.State"
-  | "FirstTimeEvent.Script";
+  | "FirstTimeEvent.Script"
+  | "Vehicle.OwnerPassengerList";
 export type loginPacketsType =
   | "LoginRequest"
   | "LoginReply"
