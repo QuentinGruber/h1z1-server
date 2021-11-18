@@ -1389,14 +1389,14 @@ export class zonePacketHandlers {
           message: name.replace("SpeedTree.", ""),
         });
       }
-      return // temp disable that, since it make weird stuff in game
-      server.sendData(client, "DtoStateChange", { // WIP
+      // temp disable that, since it make weird stuff in game
+     /* server.sendData(client, "DtoStateChange", { // WIP
         objectId: id,
         name: name,
         unk2: treeId,
         unk3: 9001,
         unk4: false,
-       });
+       });*/
     };
     this.GetRewardBuffInfo = function (
       server: ZoneServer,
