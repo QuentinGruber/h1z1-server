@@ -1024,7 +1024,25 @@ export class ZoneServer extends EventEmitter {
     });
     if (refresh) this.worldRoutineTimer.refresh();
   }
-
+  setGodMode(client: Client,godMode:boolean){
+    client.character.godMode = godMode;
+    this.sendChatText(
+      client,
+      `GODMODE: ${client.character.godMode ? "ON" : "OFF"}`
+    );
+    const godModeState = client.character.godMode?"00000000000A000000": "000000000000000000";
+        this.sendData(client, "PlayerUpdate.UpdateCharacterState", {
+            characterId: client.character.characterId,
+            state: godModeState,
+            gameTime: this.getSequenceTime(),
+      });
+  }
+  tempGodMode(client: Client,durationMs:number) {
+    if(!client.character.godMode){
+      client.character.godMode = true;
+      setTimeout(()=>{client.character.godMode = false},durationMs)
+    }
+  }
   killCharacter(client: Client) {
     debug(client.character.name + " has died");
     client.character.isAlive = false;
