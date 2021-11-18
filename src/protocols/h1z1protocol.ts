@@ -366,69 +366,71 @@ export class H1Z1Protocol {
     return data;
   }
 
-  parse(data: Buffer, flags: any, fromClient: boolean, referenceData: any) {
+  parse(data: Buffer, flag: number, fromClient: boolean, referenceData: any) {
     const { H1Z1Packets } = this;
     let opCode = data[0],
       offset = 0,
       packet,
       result;
 
-    /* if (flags) {
-          debug("Flags = " + flags);
-        }*/
-
-    if (flags === 2) {
-      try {
-        if (fromClient) {
-          packet = {
-            name: "PlayerUpdateUpdatePositionClientToZone",
-            fn: this.parseUpdatePositionClientToZone,
-          };
-        } else {
-          packet = {
-            name: "PlayerUpdateUpdatePositionZoneToClient",
-            fn: this.parseUpdatePositionZoneToClient,
-          };
-        }
-      } catch (e) {
-        debug(e);
-      }
-    } else if (flags === 3 && false) {
-      // disabled
-      try {
-        packet = {
-          name: "PlayerUpdateUpdatePositionClientToZone",
-          fn: this.parseUpdatePositionClientToZone,
-        };
-      } catch (e) {
-        debug(e);
-      }
-    } else {
-      if ((H1Z1Packets as any).Packets[opCode]) {
-        packet = (H1Z1Packets as any).Packets[opCode];
-        offset = 1;
-      } else if (data.length > 1) {
-        opCode = (data[0] << 8) + data[1];
-        if ((H1Z1Packets as any).Packets[opCode]) {
-          packet = (H1Z1Packets as any).Packets[opCode];
-          offset = 2;
-        } else if (data.length > 2) {
-          opCode = (data[0] << 16) + (data[1] << 8) + data[2];
-          if ((H1Z1Packets as any).Packets[opCode]) {
-            packet = (H1Z1Packets as any).Packets[opCode];
-            offset = 3;
-          } else if (data.length > 3) {
-            opCode =
-              (data[0] << 24) + (data[1] << 16) + (data[2] << 8) + data[3];
-            if ((H1Z1Packets as any).Packets[opCode]) {
-              packet = (H1Z1Packets as any).Packets[opCode];
-              offset = 4;
+    switch (flag) {
+      case 1:
+        console.log(`flag 1 used for : ${data}`)
+      case 0:{
+        {
+          if (H1Z1Packets.Packets[opCode]) {
+            packet = H1Z1Packets.Packets[opCode];
+            offset = 1;
+          } else if (data.length > 1) {
+            opCode = (data[0] << 8) + data[1];
+            if (H1Z1Packets.Packets[opCode]) {
+              packet = H1Z1Packets.Packets[opCode];
+              offset = 2;
+            } else if (data.length > 2) {
+              opCode = (data[0] << 16) + (data[1] << 8) + data[2];
+              if (H1Z1Packets.Packets[opCode]) {
+                packet = H1Z1Packets.Packets[opCode];
+                offset = 3;
+              } else if (data.length > 3) {
+                opCode =
+                  (data[0] << 24) + (data[1] << 16) + (data[2] << 8) + data[3];
+                if (H1Z1Packets.Packets[opCode]) {
+                  packet = H1Z1Packets.Packets[opCode];
+                  offset = 4;
+                }
+              }
             }
           }
+          break;
         }
       }
+      case 2: {
+        try {
+          if (fromClient) {
+            packet = {
+              name: "PlayerUpdateUpdatePositionClientToZone",
+              fn: this.parseUpdatePositionClientToZone,
+            };
+          } else {
+            packet = {
+              name: "PlayerUpdateUpdatePositionZoneToClient",
+              fn: this.parseUpdatePositionZoneToClient,
+            };
+          }
+        } catch (e) {
+          debug(e);
+        }
+        break;
+      }
+      case 3: {
+          packet = H1Z1Packets.Packets[0x90];
+          offset = 1;
+          break;
+      }
+      default:
+        console.error(`unknown flag used : ${flag} for packet : ${data}`)
+        break;
     }
-
     if (packet) {
       if (packet.schema) {
         if (packet.name != "KeepAlive") {
