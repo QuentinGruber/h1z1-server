@@ -576,13 +576,13 @@ const hax: any = {
     server._npcs[characterId] = npc; // save npc
   },
   sonic: function (server: ZoneServer, client: Client, args: any[]) {
-    let isSonic = client.character.isSonic;
-    isSonic = !isSonic;
-    server.setGodMode(client,isSonic);
+    let character = client.character;
+    character.isSonic = !character.isSonic;
+    server.setGodMode(client,character.isSonic);
     server.sendData(client, "ClientGameSettings", {
       interactGlowAndDist: 3,
       unknownBoolean1: false,
-      timescale: isSonic ? 3.0 : 1.0,
+      timescale: character.isSonic ? 3.0 : 1.0,
       Unknown4: 0,
       Unknown: 0,
       unknownFloat1: 1,
@@ -590,9 +590,9 @@ const hax: any = {
       velDamageMulti: 1.0,
     });
     server.sendData(client, "Command.RunSpeed", {
-      runSpeed: isSonic ? -100 : 0,
+      runSpeed: character.isSonic ? -100 : 0,
     });
-    const messageToMrHedgehog = isSonic
+    const messageToMrHedgehog = character.isSonic
       ? "Welcome MR.Hedgehog"
       : "Goodbye MR.Hedgehog";
     server.sendChatText(client, messageToMrHedgehog, true);
