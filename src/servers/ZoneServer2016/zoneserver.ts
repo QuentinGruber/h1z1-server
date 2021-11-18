@@ -834,6 +834,8 @@ export class ZoneServer2016 extends ZoneServer {
         ) &&
         !client.spawnedEntities.includes(characterObj)
       ) {
+        const vehicleId = this._clients[c].vehicle.mountedVehicle,
+        vehicle = vehicleId?this._vehicles[vehicleId]:false;
         this.sendData(
           client,
           "AddLightweightPc",
@@ -846,26 +848,12 @@ export class ZoneServer2016 extends ZoneServer {
             },
             position: characterObj.state.position,
             rotation: characterObj.state.lookAt,
+            mountGuid: vehicleId || "",
+            mountSeatId: vehicle?vehicle.getCharacterSeat(characterObj.characterId):0,
+            mountRelatedDword1: vehicle?1:0,
           },
           1
         );
-        const vehicleId = this._clients[c].vehicle.mountedVehicle,
-        vehicle = vehicleId?this._vehicles[vehicleId]:false;
-        if(vehicle) {
-          const seatId = vehicle.getCharacterSeat(characterObj.characterId);
-          this.sendData(
-            client,
-            "Mount.MountResponse",
-            {
-              // mounts character
-              characterId: characterObj.characterId,
-              vehicleGuid: vehicle.npcData.characterId, // vehicle guid
-              seatId: Number(seatId),
-              unknownDword3: seatId === "0" ? 1 : 0, //isDriver
-              identity: {},
-            }
-          );
-        }
         client.spawnedEntities.push(this._characters[characterObj.characterId]);
       }
     }
