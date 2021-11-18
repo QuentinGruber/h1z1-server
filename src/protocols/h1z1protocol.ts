@@ -374,8 +374,7 @@ export class H1Z1Protocol {
       result;
 
     switch (flag) {
-      case 1:
-        console.log(`flag 1 used for : ${data}`)
+      case 1: // don't know the purpose of that flag, is used for some logs and exec command
       case 0:{
         {
           if (H1Z1Packets.Packets[opCode]) {
