@@ -46,6 +46,7 @@ export class H1Z1Protocol {
   H1Z1Packets: any;
   protocolName: string;
   PlayerUpdateManagedPositionOpcode: number;
+  VehicleCollisionOpcode: number;
 
   constructor(protocolName = "ClientProtocol_860") {
     this.protocolName = protocolName;
@@ -54,10 +55,12 @@ export class H1Z1Protocol {
       case "ClientProtocol_860": // normal client from 15 january 2015
         this.H1Z1Packets = require("../packets/ClientProtocol/ClientProtocol_860/h1z1packets");
         this.PlayerUpdateManagedPositionOpcode = 0x90;
+        this.VehicleCollisionOpcode = 0xac;
         break;
       case "ClientProtocol_1080": // normal client from 22 december 2016
         this.H1Z1Packets = require("../packets/ClientProtocol/ClientProtocol_1080/h1z1packets");
         this.PlayerUpdateManagedPositionOpcode = 0x91;
+        this.VehicleCollisionOpcode = 0xac;
         break;
       default:
         debug(`Protocol ${this.protocolName} unsupported !`);
@@ -430,8 +433,8 @@ export class H1Z1Protocol {
               offset = 1;
               break;
             }
-            case 0xac:{
-              packet = H1Z1Packets.Packets[0xac];
+            case this.VehicleCollisionOpcode:{
+              packet = H1Z1Packets.Packets[this.VehicleCollisionOpcode];
               offset = 1;
               break;
             }
