@@ -2198,14 +2198,12 @@ export class ZoneServer extends EventEmitter {
     this._cycleSpeed = 0.1;
     this._frozeCycle = true;
     this._gameTime = time;
-    this.sendSyncToAll();
   }
 
   removeForcedTime(): void {
     this._cycleSpeed = 0.1;
     this._frozeCycle = false;
     this._gameTime = Date.now();
-    this.sendSyncToAll();
   }
 
   getCurrentTime(): number {
@@ -2253,15 +2251,6 @@ export class ZoneServer extends EventEmitter {
         unknownBoolean: false,
       });
     }
-  }
-
-  sendSyncToAll(): void {
-    // TODO: this do not seems to work
-    debug("Synchronization");
-    this.sendDataToAll("Synchronization", {
-      serverTime: Int64String(this.getSequenceTime()),
-      serverTime2: Int64String(this.getSequenceTime()),
-    });
   }
 
   getTransientId(client: any, guid: string): number {

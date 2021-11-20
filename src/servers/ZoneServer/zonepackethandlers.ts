@@ -1566,7 +1566,7 @@ export class zonePacketHandlers {
         );
       }
       if (packet.data.position) {
-        // TODO: modify array element beside re-creating it
+        
         client.character.state.position = new Float32Array([
           packet.data.position[0],
           packet.data.position[1],
@@ -1603,7 +1603,7 @@ export class zonePacketHandlers {
         }
       }
       if (packet.data.rotation) {
-        // TODO: modify array element beside re-creating it
+        
         client.character.state.rotation = new Float32Array([
           packet.data.rotation[0],
           packet.data.rotation[1],
