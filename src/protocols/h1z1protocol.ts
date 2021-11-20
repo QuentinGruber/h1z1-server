@@ -332,7 +332,7 @@ export class H1Z1Protocol {
   }
 
   pack(packetName: string, object?: any, referenceData?: any) {
-    const { H1Z1Packets } = this;
+    const H1Z1Packets = this.H1Z1Packets;
     let packetType: number = H1Z1Packets.PacketTypes[packetName],
       packet = H1Z1Packets.Packets[packetType],
       packetData,
@@ -369,7 +369,7 @@ export class H1Z1Protocol {
   }
 
   resolveOpcode(opCode:number,data: Buffer){
-    const { H1Z1Packets } = this;
+    const H1Z1Packets = this.H1Z1Packets;
     let packet,offset;
     if (H1Z1Packets.Packets[opCode]) {
       packet = H1Z1Packets.Packets[opCode];
@@ -398,7 +398,7 @@ export class H1Z1Protocol {
   }
 
   parse(data: Buffer, flag: number, fromClient: boolean, referenceData: any) {
-    const { H1Z1Packets } = this;
+    const H1Z1Packets = this.H1Z1Packets;
     let opCode = data[0],
       offset = 0,
       packet,
