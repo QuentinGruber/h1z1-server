@@ -87,7 +87,6 @@ export class ZoneServer extends EventEmitter {
   _dummySelf: any;
   _appDataFolder: string;
   _respawnOnLastPosition: boolean = false;
-  _spawnTimerMs: number = 4;
   _worldRoutineRadiusPercentage: number = 0.4;
   _enableGarbageCollection: boolean = true;
   worldRoutineTimer: any;
@@ -173,7 +172,6 @@ export class ZoneServer extends EventEmitter {
       this._soloMode = true;
       debug("Server in solo mode !");
       this._enableGarbageCollection = false;
-      this._spawnTimerMs = 5;
     }
     this.on("data", this.onZoneDataEvent);
 
@@ -450,7 +448,7 @@ export class ZoneServer extends EventEmitter {
         this.sendData(zoneClient, "PlayerUpdate.AddLightweightNpc", npcData);
         zoneClient.npcsToSpawnTimer.refresh();
       }
-    }, this._spawnTimerMs);
+    });
     this._clients[client.sessionId] = zoneClient;
 
     this._transientIds[generatedTransient] = characterId;
