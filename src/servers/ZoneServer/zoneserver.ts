@@ -723,8 +723,8 @@ export class ZoneServer extends EventEmitter {
           },
         }
       );
-      this._dynamicWeatherWorker.on("message", (weather: any) => {
-        this.SendSkyChangedPacket({} as Client, weather, true);
+      this._dynamicWeatherWorker.on("message", (weather: Uint8Array) => {
+        this.sendRawToAll(Buffer.from(weather))
       });
     }
     this._gatewayServer.start(this._soloMode);
@@ -2170,7 +2170,13 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
-  sendRawToAllOthers(client: Client, data: any): void {
+  sendRawToAll(data: Buffer): void {
+    for (const a in this._clients) {
+      this.sendRawData(this._clients[a], data);
+    }
+  }
+
+  sendRawToAllOthers(client: Client, data: Buffer): void {
     for (const a in this._clients) {
       if (client != this._clients[a]) {
         this.sendRawData(this._clients[a], data);
