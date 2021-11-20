@@ -379,9 +379,10 @@ export class SOEServer extends EventEmitter {
           client.crcSeed,
           client.compression
         );
+        if(result?.soePacket){
           if (
             !unknow_client &&
-            result?.soePacket?.name === "SessionRequest"
+            result.soePacket.name === "SessionRequest"
           ) {
             delete this._clients[clientId];
             debug(
@@ -391,6 +392,7 @@ export class SOEServer extends EventEmitter {
             );
           }
           this.handlePacket(client, result);
+        }
       } catch (e) {
         console.log(e);
       }
