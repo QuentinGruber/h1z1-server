@@ -404,7 +404,7 @@ export class H1Z1Protocol {
   parse(data: Buffer, flag: number, fromClient: boolean, referenceData: any) {
     const { H1Z1Packets } = this;
     let opCode = data[0],
-      offset = 1,
+      offset = 0,
       packet,
       result;
     switch (flag) {
@@ -430,10 +430,12 @@ export class H1Z1Protocol {
           switch (opCode) {
             case this.PlayerUpdateManagedPositionOpcode:{
               packet = H1Z1Packets.Packets[this.PlayerUpdateManagedPositionOpcode];
+              offset = 1;
               break;
             }
             case this.VehicleCollisionOpcode:{
               packet = H1Z1Packets.Packets[this.VehicleCollisionOpcode];
+              offset = 1;
               break;
             }
             default:{
