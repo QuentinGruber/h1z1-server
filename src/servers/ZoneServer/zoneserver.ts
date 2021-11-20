@@ -87,7 +87,7 @@ export class ZoneServer extends EventEmitter {
   _dummySelf: any;
   _appDataFolder: string;
   _respawnOnLastPosition: boolean = false;
-  _spawnTimerMs: number = 10;
+  _spawnTimerMs: number = 4;
   _worldRoutineRadiusPercentage: number = 0.4;
   _enableGarbageCollection: boolean = true;
   worldRoutineTimer: any;
@@ -1893,7 +1893,6 @@ export class ZoneServer extends EventEmitter {
   }
 
   spawnNpcCollection(client: Client, collection: any) {
-    setImmediate(() => {
       for (const item in collection) {
         const itemData = collection[item];
         if (
@@ -1908,7 +1907,6 @@ export class ZoneServer extends EventEmitter {
           client.spawnedEntities.push(itemData);
         }
       }
-    });
   }
 
   spawnDoors(client: Client): void {
