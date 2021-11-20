@@ -93,7 +93,7 @@ export class H1emuServer extends EventEmitter {
         port: client.port,
         address: client.address,
       },
-    });
+    },[data.buffer]);
   }
 
   ping(client: any) {

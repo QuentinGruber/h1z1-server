@@ -79,7 +79,7 @@ export class SOEServer extends EventEmitter {
           port: client.port,
           address: client.address,
         },
-      });
+      },[data.buffer]);
     }
     (client as any).outQueueTimer.refresh();
   }
