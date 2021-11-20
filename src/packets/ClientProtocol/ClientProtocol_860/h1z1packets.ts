@@ -13,7 +13,7 @@
 
 import PacketTableBuild from "../../packettable";
 import DataSchema from "h1z1-dataschema";
-import { eul2quat, lz4_decompress } from "../../../utils/utils";
+import { eul2quat, getPacketTypeBytes, lz4_decompress } from "../../../utils/utils";
 
 function readPacketType(data: Buffer, packets: any) {
   let opCode = data[0] >>> 0,
@@ -50,11 +50,8 @@ function readPacketType(data: Buffer, packets: any) {
 }
 
 function writePacketType(packetType: number) {
-  const packetTypeBytes = [];
-  while (packetType) {
-    packetTypeBytes.unshift(packetType & 0xff);
-    packetType = packetType >> 8;
-  }
+  const packetTypeBytes = getPacketTypeBytes(packetType);
+
   const data = Buffer.allocUnsafe(packetTypeBytes.length);
   for (let i = 0; i < packetTypeBytes.length; i++) {
     data.writeUInt8(packetTypeBytes[i], i);
