@@ -28,7 +28,7 @@ export default class SOEClient {
   waitQueueTimer: any;
   waitingQueueCurrentByteLength: number = 0;
   lastZonePingTimestamp?: number;
-  zonePingTimeMs: number = 1000;
+  zonePingTimeMs: number = 1; // since this feature is experimental, if it fail it allow the user anyway
   constructor(
     remote: RemoteInfo,
     crcSeed: number,
