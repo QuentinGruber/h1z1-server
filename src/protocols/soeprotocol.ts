@@ -529,7 +529,7 @@ function parseSOEPacket(
   appData: any
 ) {
   let packet;
-  if(data.readUInt8(0)) {
+  if(data[0] !== 0) {
       packet = (StandAlonePackets as any).Packets[data.readUInt8(0)];
   }
     else{
