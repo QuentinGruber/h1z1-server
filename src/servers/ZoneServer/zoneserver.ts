@@ -1418,6 +1418,7 @@ export class ZoneServer extends EventEmitter {
     }
     this._vehicles[vehicleGuid].isManaged = true;
     this._vehicles[vehicleGuid].manager = client;
+    client.managedObjects.push(vehicleGuid);
     this.sendData(client, "PlayerUpdate.ManagedObject", {
       guid: vehicleGuid,
       characterId: client.character.characterId,
@@ -1429,7 +1430,8 @@ export class ZoneServer extends EventEmitter {
       unk: 0,
       characterId: vehicleGuid,
     });
-    delete this._vehicles[vehicleGuid].manager;
+    client.managedObjects.splice(client.managedObjects.findIndex((e:string)=> e === vehicleGuid),1) ;
+    delete this._vehicles[vehicleGuid]?.manager;
   }
 
   enterVehicle(client: Client, entityData: any) {
@@ -1784,7 +1786,7 @@ export class ZoneServer extends EventEmitter {
       characterData: [],
     });
     client.vehicle.mountedVehicle = characterId;
-    client.managedObjects.push(this._vehicles[characterId]);
+    client.managedObjects.push(characterId);
   }
 
   updatePosition(client: Client, position: Float32Array) {

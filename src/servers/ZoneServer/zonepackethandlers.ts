@@ -392,9 +392,8 @@ export class zonePacketHandlers {
       debug("ClientLogout");
       clearInterval(client.character.resourcesUpdater);
       server.saveCharacterPosition(client);
-      client.managedObjects.forEach((object: any) => {
-        const vehicle = server._vehicles[object.npcData.characterId];
-        if (vehicle) vehicle.isManaged = false;
+      client.managedObjects.forEach((characterId: any) => {
+        server.dropVehicleManager(client,characterId)
       });
       server.deleteEntity(client.character.characterId, server._characters);
       server._gatewayServer._soeServer.deleteClient(client);

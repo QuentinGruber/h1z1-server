@@ -79,7 +79,7 @@ const hax: any = {
           });
           client.vehicle.mountedVehicle = characterId;
           client.vehicle.mountedVehicleType = "spectate";
-          client.managedObjects.push(server._vehicles[characterId]);
+          client.managedObjects.push(characterId);
           return true;
         }
         return false;
