@@ -249,7 +249,10 @@ const hax: any = {
     let stateId = "";
     switch (state) {
       case "list":
-        server.sendChatText(client, "Availables states : default, hidden, sit, autorun, cuffed, handsup");
+        server.sendChatText(client,
+          server.sendChatText(client, 
+             "Availables states : default, hidden, sit, autorun, cuffed, handsup"
+            );
         break;
       case "default":
         stateId = "000000000000000000";
