@@ -523,11 +523,16 @@ const packets = [
     "PacketOrdered",
     0x1a,
     {
-      parse: function (data: any) {
-        const sequence = data.readUInt16BE(0);
+      parse: function (data: Buffer) {
+        const sequence = data.readUInt16BE(1);
         return sequence;
       },
-      pack: function () {
+      pack: function (
+        packet: any,
+        crcSeed: number,
+        compression: number,
+        isSubPacket: boolean
+      ) {
         const data = Buffer.alloc(4);
         data.writeUInt16BE(0x1a, 0);
         data.writeUInt16BE(1, 0);
@@ -535,7 +540,18 @@ const packets = [
       },
     },
   ],
-  ["PacketOrdered2", 0x1b, {}],
+  ["PacketOrdered2", 0x1b,  {
+    parse: function (data: Buffer) {
+      const sequence = data.readUInt16BE(1);
+      return sequence;
+    },
+    pack: function () {
+      const data = Buffer.alloc(4);
+      data.writeUInt16BE(0x1a, 0);
+      data.writeUInt16BE(1, 31000);
+      return data;
+    },
+  }],
   ["FatalError", 0x1d, {}],
   ["FatalErrorReply", 0x1e, {}],
 ];
