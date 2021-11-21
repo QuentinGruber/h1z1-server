@@ -4,6 +4,7 @@ import { Character2016 } from "./character";
 
 export class ZoneClient2016 extends ZoneClient {
   character: Character2016;
+  managedObjects: any[] = [];
 
   constructor(
     initialClient: SOEClient,

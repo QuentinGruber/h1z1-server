@@ -12,7 +12,7 @@ export class ZoneClient extends SOEClient {
   posAtLogoutStart: Float32Array = new Float32Array();
   hudTimer!: any;
   spawnedEntities: any[] = [];
-  managedObjects: any[] = [];
+  managedObjects: string[] = [];
   vehicle: {
     falling: number;
     mountedVehicle?: string;
