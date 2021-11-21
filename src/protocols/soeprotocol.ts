@@ -204,7 +204,43 @@ const packets = [
       },
     },
   ],
-  ["NetStatusRequest", 0x07, {}],
+  ["NetStatusRequest", 0x07, {
+    parse: function (
+      data: any,
+      crcSeed: number,
+      compression: number,
+      isSubPacket: boolean,
+      appData: any
+    ) {},
+    pack: function (
+      packet: any,
+      crcSeed: number,
+      compression: number,
+      isSubPacket: boolean
+    ) {
+      let data = Buffer.alloc(40);
+      let offset = 0;
+      data.writeUInt16BE(0x07, offset);
+      offset += 2;
+      data.writeUInt16BE(10, offset);
+      offset += 2;
+      data.writeInt32BE(0x07, offset);
+      offset += 4;
+      data.writeInt32BE(0x07, offset);
+      offset += 4;
+      data.writeInt32BE(0x07, offset);
+      offset += 4;
+      data.writeInt32BE(0x07, offset);
+      offset += 4;
+      data.writeInt32BE(0x07, offset);
+      offset += 4;
+      data.writeBigInt64BE(0x07n, offset);
+      offset += 8
+      data.writeBigInt64BE(0x07n, offset);
+      offset += 8;
+      return data;
+    },
+  }],
   ["NetStatusReply", 0x08, {}],
   [
     "Data",
