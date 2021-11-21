@@ -610,14 +610,24 @@ const hax: any = {
     client: Client,
     args: any[]
   ) {
-    await server._dynamicWeatherWorker.terminate();
-    server._dynamicWeatherWorker = null;
-    // TODO fix this for mongo
+    if(server._dynamicWeatherWorker){
+      await server._dynamicWeatherWorker.terminate();
+      server._dynamicWeatherWorker = null;
+    }
     if (server._soloMode) {
       server.changeWeather(
         client,
         server._weatherTemplates[server._defaultWeatherTemplate]
       );
+    }
+    else{
+      const weatherTemplate = await server._db?.collection("weathers").findOne({templateName:server._defaultWeatherTemplate})
+      if(weatherTemplate){
+        server.changeWeather(
+          client,
+          weatherTemplate as any
+        ); 
+    }
     }
     server.sendChatText(client, "Dynamic weather removed !");
   },

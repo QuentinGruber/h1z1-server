@@ -34,7 +34,7 @@ export class SOEServer extends EventEmitter {
   _crcSeed: number;
   _crcLength: number;
   _maxOutOfOrderPacketsPerLoop: number;
-  _waitQueueTimeMs: number;
+  _waitQueueTimeMs: number = 25;
   _smallPacketsSize: number = 50;
   _isLocal: boolean = false;
 
@@ -58,7 +58,6 @@ export class SOEServer extends EventEmitter {
     this._udpLength = 512;
     this._useEncryption = true;
     this._useMultiPackets = useMultiPackets;
-    this._waitQueueTimeMs = 20;
     this._clients = {};
     this._connection = new Worker(
       `${__dirname}/../shared/workers/udpServerWorker.js`,
@@ -79,7 +78,7 @@ export class SOEServer extends EventEmitter {
           port: client.port,
           address: client.address,
         },
-      });
+      },[data.buffer]);
     }
     (client as any).outQueueTimer.refresh();
   }
@@ -298,18 +297,17 @@ export class SOEServer extends EventEmitter {
       this._useMultiPackets = false;
     }
     this._connection.on("message", (message) => {
-      const { data: dataUint8, remote } = message;
-      const data = Buffer.from(dataUint8);
+      const data = Buffer.from(message.data);
       try {
         let client: SOEClient;
-        const clientId = remote.address + ":" + remote.port;
+        const clientId = message.remote.address + ":" + message.remote.port;
         debug(data.length + " bytes from ", clientId);
         let unknow_client;
         // if doesn't know the client
         if (!this._clients[clientId]) {
           unknow_client = true;
           client = this._clients[clientId] = new SOEClient(
-            remote,
+            message.remote,
             this._crcSeed,
             this._compression,
             this._cryptoKey
@@ -317,6 +315,12 @@ export class SOEServer extends EventEmitter {
 
           if (this._isLocal) {
             client.outputStream._enableCaching = false;
+          }
+          else{
+            (client as any).outOfOrderTimer = setTimeout(
+              () => this.checkOutOfOrderQueue(client),
+              50
+            );
           }
 
           (client as any).inputStream.on(
@@ -367,12 +371,6 @@ export class SOEServer extends EventEmitter {
           }
           (client as any).ackTimer = setTimeout(() => this.checkAck(client));
 
-          if (!this._isLocal) {
-            (client as any).outOfOrderTimer = setTimeout(
-              () => this.checkOutOfOrderQueue(client),
-              50
-            );
-          }
           this.emit("connect", null, this._clients[clientId]);
         }
         client = this._clients[clientId];
@@ -381,10 +379,9 @@ export class SOEServer extends EventEmitter {
           client.crcSeed,
           client.compression
         );
-        if (result !== undefined && result !== null) {
+        if(result?.soePacket){
           if (
             !unknow_client &&
-            result.soePacket &&
             result.soePacket.name === "SessionRequest"
           ) {
             delete this._clients[clientId];

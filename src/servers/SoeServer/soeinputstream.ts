@@ -159,7 +159,7 @@ export class SOEInputStream extends EventEmitter {
         this._lastAck = ack;
         this.emit("ack", null, ack);
       }
-      this._nextSequence = (this._lastAck + 1) & 0xffff;
+      this._nextSequence = this._lastAck + 1;
 
       this._processDataFragments();
     }
