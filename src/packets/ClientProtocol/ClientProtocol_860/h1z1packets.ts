@@ -7151,7 +7151,15 @@ var packets = [
   ],
   ["QuickChat.SendTell", 0x2802, {}],
   ["QuickChat.SendChatToChannel", 0x2803, {}],
-  ["Report", 0x29, {}],
+  ["ReportReply",
+      0x093600,
+        {
+            fields: [
+               { name: "unknownDword1", type: "uint32", defaultValue: 0  },
+              { name: "unknownDword2", type: "uint32", defaultValue: 0  },
+          ]
+      }
+  ],
   ["LiveGamer", 0x2a, {}],
   ["Acquaintance", 0x2b, {}],
   ["AcquaintanceAdd",
