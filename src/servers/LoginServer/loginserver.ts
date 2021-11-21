@@ -97,12 +97,6 @@ export class LoginServer extends EventEmitter {
     this._soeServer.on("session", (err: string, client: Client) => {
       debug(`Session started for client ${client.address}:${client.port}`);
     });
-    this._soeServer.on(
-      "SendServerUpdate",
-      async (err: string, client: Client) => {
-        await this.updateServerList(client);
-      }
-    );
 
     this._soeServer.on(
       "appdata",
@@ -310,9 +304,11 @@ export class LoginServer extends EventEmitter {
       ApplicationPayload: "",
     });
     if (!this._soloMode) {
-      client.serverUpdateTimer = setInterval(
-        // TODO: fix the fact that this interval is never cleared
-        () => this.updateServerList(client),
+      client.serverUpdateTimer = setTimeout(
+        async () => {
+         await this.updateServerList(client)
+          client.serverUpdateTimer.refresh()
+        },
         30000
       );
     }
@@ -338,8 +334,7 @@ export class LoginServer extends EventEmitter {
   }
 
   Logout(client: Client, packet: any) {
-    clearInterval(client.serverUpdateTimer);
-    // this._soeServer.deleteClient(client); this is done too early
+    clearTimeout(client.serverUpdateTimer);
   }
 
   addDummyDataToCharacters(characters: any[]) {
@@ -723,11 +718,25 @@ export class LoginServer extends EventEmitter {
   async updateServerList(client: Client): Promise<void> {
     if (!this._soloMode) {
       // useless if in solomode ( never get called either)
-      const servers: Array<GameServer> = await this._db
+      let servers: Array<GameServer> = await this._db
         .collection("servers")
         .find()
         .toArray();
-
+      const userWhiteList = await this._db
+        .collection("servers-whitelist")
+        .find({ userId: client.loginSessionId })
+        .toArray();
+      if (userWhiteList) {
+        for (let i = 0; i < servers.length; i++) {
+          if (!servers[i].allowedAccess) {
+            for (let y = 0; y < userWhiteList.length; y++) {
+              if (servers[i].serverId == userWhiteList[y].serverId) {
+                servers[i].allowedAccess = true;
+              }
+            }
+          }
+        }
+      }
       for (let i = 0; i < servers.length; i++) {
         this.sendData(client, "ServerUpdate", servers[i]);
       }
