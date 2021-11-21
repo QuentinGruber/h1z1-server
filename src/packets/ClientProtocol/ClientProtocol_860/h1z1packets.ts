@@ -7148,9 +7148,45 @@ var packets = [
   ],
   ["QuickChat.SendTell", 0x2802, {}],
   ["QuickChat.SendChatToChannel", 0x2803, {}],
-  ["Report", 0x29, {}],
+  ["ReportReply",
+      0x093600,
+        {
+            fields: [
+               { name: "unknownDword1", type: "uint32", defaultValue: 0  },
+              { name: "unknownDword2", type: "uint32", defaultValue: 0  },
+          ]
+      }
+  ],
   ["LiveGamer", 0x2a, {}],
   ["Acquaintance", 0x2b, {}],
+  ["AcquaintanceAdd",
+    0x2b01,
+    {
+        fields: [
+            { name: "characterId", type: "uint64string", defaultValue: "0x000" },
+            { name: "characterName", type: "string", defaultValue: "0" },
+            { name: "type", type: "uint32", defaultValue: 0 },
+            { name: "elapsedTime", type: "uint64string", defaultValue: "0x000" },
+            { name: "isOnline", type: "uint8", defaultValue: 0 },
+          ],
+       },
+    ],
+    ["AcquaintanceRemove",
+    0x2b02,
+    {
+        fields: [
+          ],
+       },
+    ],
+    ["AcquaintanceOnline",
+    0x2b03,
+    {
+        fields: [
+            { name: "characterId", type: "uint64string", defaultValue: "0x000" },
+            { name: "isOnline", type: "boolean", defaultValue: 0 },
+        ],
+     },
+  ],
   ["ClientServerShuttingDown", 0x2c, {}],
   [
     "Friend.List",
@@ -8100,12 +8136,42 @@ var packets = [
   ["Facility.EmpireScoreValueUpdate", 0x8417, {}],
   ["Skill.Echo", 0x8501, {}],
   ["Skill.SelectSkillSet", 0x8502, {}],
-  ["Skill.SelectSkill", 0x8503, {}],
+  ["Skill.SelectSkill", 0x8503,
+          {
+            fields: [
+                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                { name: "unknownWord1", type: "uint8", defaultValue: 0 },
+                { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+          ]
+      },
+  ],
   ["Skill.GetSkillPointManager", 0x8504, {}],
   ["Skill.SetLoyaltyPoints", 0x8505, {}],
   ["Skill.LoadSkillDefinitionManager", 0x8506, {}],
-  ["Skill.SetSkillPointManager", 0x8507, {}],
-  [
+  ["Skill.SetSkillPointManager",
+        0x8507,
+        {
+            fields: [
+                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+
+                {
+                    name: "unknownSchema1",
+                    type: "schema",
+                    defaultValue: [],
+                    fields: [
+                        { name: "unknownQword1", type: "uint64string", defaultValue: "0x000" },
+                        { name: "unknownQword2", type: "uint64string", defaultValue: "0x000" },
+                        { name: "unknownQword3", type: "uint64string", defaultValue: "0x000" },
+                        { name: "unknownQword4", type: "uint64string", defaultValue: "0x000" },
+                        { name: "unknownQword5", type: "uint64string", defaultValue: "0x000" },
+                        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+
+                      ],
+                  },
+              ],
+          },
+      ],
+    [
     "Skill.SetSkillPointProgress",
     0x8508,
     {
@@ -9396,7 +9462,83 @@ var packets = [
   ["RewardBuffs.AddBonus", 0x9f03, {}],
   ["RewardBuffs.RemoveBonus", 0x9f04, {}],
   ["RewardBuffs.GiveRewardToPlayer", 0x9f05, {}],
-  ["Abilities.InitAbility", 0xa001, {}],
+  ["Abilities.InitAbility",
+        0xa001,
+         {
+            fields: [
+                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+                { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+                { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+                { name: "unknownQword1", type: "uint64string", defaultValue: "0x000" },
+                { name: "unknownQword2", type: "uint64string", defaultValue: "0x000" },
+                {
+                    name: "unknownSchema1",
+                    type: "schema",
+                    defaultValue: [],
+                    fields: [
+                        { name: "unknownQword3", type: "uint64string", defaultValue: "0x000" },
+                        { name: "unknownQword4", type: "uint64string", defaultValue: "0x000" },
+                        { name: "unknownFloatVector1", type: "floatvector4", defaultValue: 0 },
+                    ],
+                },
+                { name: "unknownWord1", type: "uint8", defaultValue: 0 },
+                {
+                    name: "unknownArray6",
+                    type: "schema",
+                    defaultValue: [],
+                    fields: [
+                        { name: "unknownWord2", type: "uint8", defaultValue: 0 },
+                        {
+                            name: "unknownArray1",
+                            type: "array",
+                            defaultValue: [],
+                            fields: [
+                                { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+                                { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+                            ],
+                        },
+                        {
+                            name: "unknownArray2",
+                            type: "array",
+                            defaultValue: [],
+                            fields: [
+                                { name: "unknownDword8", type: "uint32", defaultValue: 0 },
+                                { name: "unknownDword9", type: "uint32", defaultValue: 0 },
+                            ],
+                        },
+                        {
+                            name: "unknownArray3",
+                            type: "array",
+                            defaultValue: [],
+                            fields: [
+                                { name: "unknownDword10", type: "uint32", defaultValue: 0 },
+                                { name: "unknownWord1", type: "uint8", defaultValue: 0 },
+                            ],
+                        },
+                        {
+                            name: "unknownArray4",
+                            type: "array",
+                            defaultValue: [],
+                            fields: [
+                                { name: "unknownDword11", type: "uint32", defaultValue: 0 },
+                                { name: "unknownFloatVector2", type: "floatvector4", defaultValue: 0 },
+                            ],
+                        },
+                        {
+                            name: "unknownArray5",
+                            type: "array",
+                            defaultValue: [],
+                            fields: [
+                                { name: "unknownDword13", type: "uint32", defaultValue: 0 },
+                                { name: "unknownString1", type: "string", defaultValue: "0" },
+                          ],
+                      },
+                  ],
+              },
+          ],
+      },
+  ],
   ["Abilities.UpdateAbility", 0xa002, {}],
   ["Abilities.UninitAbility", 0xa003, {}],
   ["Abilities.SetAbilityActivationManager", 0xa004, {}],
