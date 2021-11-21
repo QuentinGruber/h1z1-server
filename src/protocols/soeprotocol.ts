@@ -14,6 +14,28 @@
 const debug = require("debug")("SOEProtocol");
 import PacketTableBuild from "../packets/packettable";
 import { append_crc as appendCRC } from "h1emu-core";
+
+
+enum disconnectReasonEnum {
+  DisconnectReasonIcmpError = 0,
+  DisconnectReasonTimeout = 1,
+  DisconnectReasonNone = 2,
+  DisconnectReasonOtherSideTerminated = 3,
+  DisconnectReasonManagerDeleted = 4,
+  DisconnectReasonConnectFail = 5,
+  DisconnectReasonApplication = 6,
+  DisconnectReasonUnreachableConnection = 7,
+  DisconnectReasonUnacknowledgedTimeout = 8,
+  DisconnectReasonNewConnectionAttempt = 9,
+  DisconnectReasonConnectionRefused = 10,
+  DisconnectReasonConnectErro = 11,
+  DisconnectReasonConnectingToSelf = 12,
+  DisconnectReasonReliableOverflow = 13,
+  DisconnectReasonApplicationReleased = 14,
+  DisconnectReasonCorruptPacket = 15,
+  DisconnectReasonProtocolMismatch = 16
+};
+
 const stand_alone_packets = [
   [
     "ZonePing",
@@ -181,7 +203,9 @@ const packets = [
     0x05,
     {
       parse: function (data: any) {
-        return {};
+        const disconnectReason = disconnectReasonEnum[data.readUInt16BE(7)]
+        console.log(disconnectReason);
+        return data;
       },
       pack: function () {
         const data = new (Buffer as any).alloc(2);
