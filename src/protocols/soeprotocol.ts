@@ -500,27 +500,25 @@ function packSOEPacket(
   object: any,
   crcSeed: number,
   compression: number,
-  isSubPacket: boolean = false
+  isSubPacket: boolean = false,
+  isStandalone:boolean = false
 ) {
-  let packetType = (SOEPackets as any).PacketTypes[packetName],
-    packet = (SOEPackets as any).Packets[packetType],
-    data;
-  if (!packet) {
-    // try if packet is a stand-alone packet
-    packetType = (StandAlonePackets as any).PacketTypes[packetName];
-    packet = (StandAlonePackets as any).Packets[packetType];
+  
+  let packet;
+  if (!isStandalone) {
+    packet = (SOEPackets as any).Packets[(SOEPackets as any).PacketTypes[packetName]]    
+  }
+  else{
+    packet = (StandAlonePackets as any).Packets[(SOEPackets as any).PacketTypes[packetName]];
   }
   if (packet) {
-    if (packet.pack) {
-      data = packet.pack(object, crcSeed, compression, isSubPacket);
+      const data = packet.pack(object, crcSeed, compression, isSubPacket);
       debug("Packing data for " + packet.name);
-    } else {
-      debug("pack()", "No pack function for packet " + packet.name);
-    }
+      return data;
   } else {
-    debug("pack()", "Unknown or unhandled SOE packet type: " + packetType);
+    debug("pack()", "Unknown or unhandled SOE packet type: " + packetName);
+    return Buffer.from("0")
   }
-  return data;
 }
 
 function parseSOEPacket(
@@ -530,27 +528,22 @@ function parseSOEPacket(
   isSubPacket: boolean,
   appData: any
 ) {
-  const packetType = data.readUInt16BE(0);
-  let result,
-    packet = (SOEPackets as any).Packets[packetType];
-  if (!packet) {
-    // try with Int8 opcode
-    packet = (StandAlonePackets as any).Packets[data.readUInt8(0)];
+  let packet;
+  if(data.readUInt8(0)) {
+      packet = (StandAlonePackets as any).Packets[data.readUInt8(0)];
   }
+    else{
+      packet = (SOEPackets as any).Packets[data.readUInt16BE(0)];
+    }
   if (packet) {
-    if (packet.parse) {
-      //debug(packet.name);
-      result = packet.parse(data, crcSeed, compression, isSubPacket, appData);
+      const result = packet.parse(data, crcSeed, compression, isSubPacket, appData);
       return {
         type: packet.type,
         name: packet.name,
         result: result,
       };
-    } else {
-      debug("parse()", "No parser for packet " + packet.name);
-    }
   } else {
-    debug("parse()", "Unknown or unhandled SOE packet type: " + packetType);
+    debug("parse()", "Unknown or unhandled SOE packet type: " + data.readUInt16BE(0));
     return {
       result: null,
     };

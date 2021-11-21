@@ -87,7 +87,6 @@ export class ZoneServer extends EventEmitter {
   _dummySelf: any;
   _appDataFolder: string;
   _respawnOnLastPosition: boolean = false;
-  _spawnTimerMs: number = 10;
   _worldRoutineRadiusPercentage: number = 0.4;
   _enableGarbageCollection: boolean = true;
   worldRoutineTimer: any;
@@ -173,7 +172,6 @@ export class ZoneServer extends EventEmitter {
       this._soloMode = true;
       debug("Server in solo mode !");
       this._enableGarbageCollection = false;
-      this._spawnTimerMs = 5;
     }
     this.on("data", this.onZoneDataEvent);
 
@@ -450,7 +448,7 @@ export class ZoneServer extends EventEmitter {
         this.sendData(zoneClient, "PlayerUpdate.AddLightweightNpc", npcData);
         zoneClient.npcsToSpawnTimer.refresh();
       }
-    }, this._spawnTimerMs);
+    });
     this._clients[client.sessionId] = zoneClient;
 
     this._transientIds[generatedTransient] = characterId;
@@ -1893,7 +1891,6 @@ export class ZoneServer extends EventEmitter {
   }
 
   spawnNpcCollection(client: Client, collection: any) {
-    setImmediate(() => {
       for (const item in collection) {
         const itemData = collection[item];
         if (
@@ -1908,7 +1905,6 @@ export class ZoneServer extends EventEmitter {
           client.spawnedEntities.push(itemData);
         }
       }
-    });
   }
 
   spawnDoors(client: Client): void {
@@ -2208,14 +2204,12 @@ export class ZoneServer extends EventEmitter {
     this._cycleSpeed = 0.1;
     this._frozeCycle = true;
     this._gameTime = time;
-    this.sendSyncToAll();
   }
 
   removeForcedTime(): void {
     this._cycleSpeed = 0.1;
     this._frozeCycle = false;
     this._gameTime = Date.now();
-    this.sendSyncToAll();
   }
 
   getCurrentTime(): number {
@@ -2263,15 +2257,6 @@ export class ZoneServer extends EventEmitter {
         unknownBoolean: false,
       });
     }
-  }
-
-  sendSyncToAll(): void {
-    // TODO: this do not seems to work
-    debug("Synchronization");
-    this.sendDataToAll("Synchronization", {
-      serverTime: Int64String(this.getSequenceTime()),
-      serverTime2: Int64String(this.getSequenceTime()),
-    });
   }
 
   getTransientId(client: any, guid: string): number {

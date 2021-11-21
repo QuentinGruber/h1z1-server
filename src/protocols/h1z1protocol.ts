@@ -13,7 +13,7 @@
 
 const debug = require("debug")("H1Z1Protocol");
 import DataSchema from "h1z1-dataschema";
-import { eul2quat, lz4_decompress } from "../utils/utils";
+import { eul2quat, getPacketTypeBytes, lz4_decompress } from "../utils/utils";
 import { packUnsignedIntWith2bitLengthValue } from "../packets/ClientProtocol/ClientProtocol_860/h1z1packets";
 
 export interface UpdatePositionObject {
@@ -332,17 +332,13 @@ export class H1Z1Protocol {
   }
 
   pack(packetName: string, object?: any, referenceData?: any) {
-    const { H1Z1Packets } = this;
+    const H1Z1Packets = this.H1Z1Packets;
     let packetType: number = H1Z1Packets.PacketTypes[packetName],
       packet = H1Z1Packets.Packets[packetType],
       packetData,
-      data,
-      packetTypeBytes = [];
+      data
     if (packet) {
-      while (packetType) {
-        packetTypeBytes.unshift(packetType & 0xff);
-        packetType = packetType >> 8;
-      }
+      const packetTypeBytes = getPacketTypeBytes(packetType);
       if (packet.schema) {
         packetData = DataSchema.pack(
           packet.schema,
@@ -373,7 +369,7 @@ export class H1Z1Protocol {
   }
 
   resolveOpcode(opCode:number,data: Buffer){
-    const { H1Z1Packets } = this;
+    const H1Z1Packets = this.H1Z1Packets;
     let packet,offset;
     if (H1Z1Packets.Packets[opCode]) {
       packet = H1Z1Packets.Packets[opCode];
@@ -402,7 +398,7 @@ export class H1Z1Protocol {
   }
 
   parse(data: Buffer, flag: number, fromClient: boolean, referenceData: any) {
-    const { H1Z1Packets } = this;
+    const H1Z1Packets = this.H1Z1Packets;
     let opCode = data[0],
       offset = 0,
       packet,
