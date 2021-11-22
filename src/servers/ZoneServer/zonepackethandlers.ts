@@ -236,7 +236,6 @@ export class zonePacketHandlers {
       client.isInteracting = false;
       delete client.vehicle.mountedVehicle;
       client.vehicle.mountedVehicleType = "0";
-      server.sendData(client, "SendSelfToClient", server._dummySelf);
     };
     this.Security = function (server: ZoneServer, client: Client, packet: any) {
       debug(packet);
