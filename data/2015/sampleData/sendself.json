@@ -47,7 +47,7 @@
     "unknownDword18": 0,
     "unknownBoolean3": false,
     "unknownDword19": 0,
-    "gender": 1,
+    "unknownDword20": 0,
     "unknownDword21": 0,
     "unknownDword22": 0,
     "unknownDword23": 0,
@@ -65,7 +65,7 @@
       "items": [],
       "unknownDword1": 0
     },
-    "unknownDword28": 0,
+    "gender": 1,
     "characterQuests": {
       "quests": [],
       "unknownDword1": 0,
