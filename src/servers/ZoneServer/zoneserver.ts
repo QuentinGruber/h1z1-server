@@ -42,8 +42,8 @@ const localSpawnList = require("../../../data/2015/sampleData/spawnLocations.jso
 
 const debugName = "ZoneServer";
 const debug = require("debug")(debugName);
-const spawnLocations = require("../../../data/2015/sampleData/spawnLocations.json");
-const localWeatherTemplates = require("../../../data/2015/sampleData/weather.json");
+let spawnLocations = require("../../../data/2015/sampleData/spawnLocations.json");
+let localWeatherTemplates = require("../../../data/2015/sampleData/weather.json");
 const stats = require("../../../data/2015/sampleData/stats.json");
 const recipes = require("../../../data/2015/sampleData/recipes.json");
 const Z1_POIs = require("../../../data/2015/zoneData/Z1_POIs");
@@ -488,6 +488,13 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
+  removeSoloCache(){
+    spawnLocations = null;
+    localWeatherTemplates = null;
+    delete require.cache[require.resolve("../../../data/2015/sampleData/spawnLocations.json")];
+    delete require.cache[require.resolve("../../../data/2015/sampleData/weather.json")];
+  }
+
   async setupServer(): Promise<void> {
     this.forceTime(971172000000); // force day time by default - not working for now
     this._frozeCycle = false;
@@ -509,6 +516,7 @@ export class ZoneServer extends EventEmitter {
       await this.saveWorld();
     }
     if (!this._soloMode) {
+      this.removeSoloCache();
       debug("Starting H1emuZoneServer");
       if (!this._loginServerInfo.address) {
         await this.fetchLoginInfo();
