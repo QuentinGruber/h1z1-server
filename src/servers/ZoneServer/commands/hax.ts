@@ -1,4 +1,3 @@
-import fs from "fs";
 import { Weather } from "types/zoneserver";
 import { ZoneClient as Client } from "../classes/zoneclient";
 import { ZoneServer } from "../zoneserver";
