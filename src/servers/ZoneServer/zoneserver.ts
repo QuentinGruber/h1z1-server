@@ -1176,7 +1176,7 @@ export class ZoneServer extends EventEmitter {
       let minorDamageEffect: number;
       let majorDamageEffect: number;
       let criticalDamageEffect: number;
-      switch (client.vehicle.mountedVehicleType) {
+      switch (vehicle.vehicleType) {
         case "offroader":
           destroyedVehicleEffect = 135;
           destroyedVehicleModel = 7226;

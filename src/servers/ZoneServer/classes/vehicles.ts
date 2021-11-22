@@ -7,7 +7,7 @@ import {
 import { generateRandomGuid } from "../../../utils/utils";
 import { ZoneClient } from "./zoneclient";
 
-function getVehicleId(ModelId: number) {
+function getVehicleId(ModelId: number):number {
   switch (ModelId) {
     case 7225:
       return 1;
@@ -24,8 +24,26 @@ function getVehicleId(ModelId: number) {
   }
 }
 
+function getVehicleType(ModelId: number):string {
+  switch (ModelId) {
+    case 7225:
+      return "offroader";
+    case 9301:
+      return "policecar";
+    case 9258:
+      return "pickup";
+    case 9374:
+      return "parachute";
+    case 9371:
+      return "spectate";
+    default:
+      return "offroader";
+  }
+}
+
 export class Vehicle {
   worldId: number;
+  vehicleType:string;
   isManaged: boolean = false;
   manager?: any;
   engineOn: boolean = false;
@@ -78,5 +96,6 @@ export class Vehicle {
       seat4: false,
     };
     this.passengers = {};
+    this.vehicleType = getVehicleType(modelId);
   }
 }
