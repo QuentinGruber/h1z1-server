@@ -35,7 +35,7 @@ const dev: any = {
   testnpcmove: function (server: ZoneServer, client: Client, args: any[]) {
     const guid = server.generateGuid();
     const characterId = server.generateGuid();
-    const transientId = server.getTransientId(client, characterId);
+    const transientId = server.getTransientId(characterId);
 
     const npc: any = {
       characterId: characterId,
@@ -146,7 +146,7 @@ const dev: any = {
     server.sendData(client, "PlayerUpdate.AddLightweightNpc", {
       characterId: characterId,
       modelId: 9001,
-      transientId: server.getTransientId(client, characterId),
+      transientId: server.getTransientId(characterId),
       position: client.character.state.position,
       extraModel: "SurvivorMale_Ivan_AviatorHat_Base.adr",
       attachedObject: {

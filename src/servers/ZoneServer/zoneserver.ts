@@ -2208,7 +2208,7 @@ export class ZoneServer extends EventEmitter {
     });
   }
 
-  getTransientId(client: any, guid: string): number {
+  getTransientId(guid: string): number {
     let generatedTransient;
     do {
       generatedTransient = Number((Math.random() * 30000).toFixed(0));

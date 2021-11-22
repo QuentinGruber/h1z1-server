@@ -1,9 +1,7 @@
 const debug = require("debug")("baseEntityCreator");
 const Z1_vehicles = require("../../../../data/2016/zoneData/Z1_vehicleLocations.json");
 const Z1_items = require("../../../../data/2016/zoneData/Z1_items.json");
-const Z1_doors = require("../../../../data/2016/zoneData/Z1_doors.json");
 const Z1_npcs = require("../../../../data/2016/zoneData/Z1_npcs.json");
-const models = require("../../../../data/2016/dataSources/Models.json");
 const modelToName = require("../../../../data/2016/dataSources/ModelToName.json");
 import { _, generateRandomGuid } from "../../../utils/utils";
 import { ZoneServer2016 } from "../zoneserver";
@@ -12,7 +10,6 @@ import { Vehicle2016 as Vehicle } from "./../classes/vehicle";
 const npcs: any = {};
 const objects: any = {};
 const vehicles: any = {};
-const doors: any = {};
 
 const chancePumpShotgun = 50;
 const chanceAR15 = 50;
@@ -84,7 +81,7 @@ function createEntity(
 }
 
 export function createAllEntities(server: ZoneServer2016): any {
-  createAllDoors(server);
+  
   createAR15(server);
   createPumpShotgun(server);
   createTools(server);
@@ -111,12 +108,9 @@ export function createAllEntities(server: ZoneServer2016): any {
     require.resolve("../../../../data/2016/zoneData/Z1_items.json")
   ];
   delete require.cache[
-    require.resolve("../../../../data/2016/zoneData/Z1_doors.json")
-  ];
-  delete require.cache[
     require.resolve("../../../../data/2016/zoneData/Z1_npcs.json")
   ];
-  return { npcs: npcs, objects: objects, vehicles: vehicles, doors: doors };
+  return { npcs: npcs, objects: objects, vehicles: vehicles };
 }
 
 function getRandomVehicleId() {
@@ -946,26 +940,4 @@ function createFarm(server: ZoneServer2016) {
     }
   });
   debug("Farm Areas items objects created. Spawnrate:" + chanceFarm + "%");
-}
-
-function createAllDoors(server: ZoneServer2016): void {
-  Z1_doors.forEach((doorType: any) => {
-    const modelId: number = _.find(models, (model: any) => {
-      return (
-        model.MODEL_FILE_NAME ===
-        doorType.actorDefinition.replace("_Placer", "")
-      );
-    })?.ID;
-    doorType.instances.forEach((doorInstance: any) => {
-      const r = doorInstance.rotation;
-      createEntity(
-        server,
-        modelId ? modelId : 9183,
-        doorInstance.position,
-        [0, r[0] + -1.5707963705062866, 0],
-        doors
-      );
-    });
-  });
-  debug("All doors objects created");
 }

@@ -89,7 +89,7 @@ const hax: any = {
     const vehicleData = new Vehicle2016(
       server._worldId,
       characterId,
-      server.getTransientId(client, characterId),
+      server.getTransientId(characterId),
       driveModel,
       client.character.state.position,
       client.character.state.lookAt,
@@ -161,7 +161,7 @@ const hax: any = {
   ) {
     for (let index = 0; index < 50; index++) {
       const guid = server.generateGuid();
-      const transientId = server.getTransientId(client, guid);
+      const transientId = server.getTransientId(guid);
       const characterId = server.generateGuid();
       const vehicle = new Vehicle(
         server._worldId,
@@ -182,7 +182,7 @@ const hax: any = {
   ) {
     for (let index = 0; index < 50; index++) {
       const guid = server.generateGuid();
-      const transientId = server.getTransientId(client, guid);
+      const transientId = server.getTransientId(guid);
       const characterId = server.generateGuid();
       const vehicle = new Vehicle(
         server._worldId,
@@ -313,7 +313,7 @@ const hax: any = {
   spamatv: function (server: ZoneServer2016, client: Client, args: any[]) {
     for (let index = 0; index < 50; index++) {
       const guid = server.generateGuid();
-      const transientId = server.getTransientId(client, guid);
+      const transientId = server.getTransientId(guid);
       const characterId = server.generateGuid();
       const vehicle = new Vehicle(
         server._worldId,
@@ -333,7 +333,7 @@ const hax: any = {
     args: any[]
   ) {
     const characterId = server.generateGuid();
-    const transientId = server.getTransientId(client, characterId);
+    const transientId = server.getTransientId(characterId);
     if (!args[1]) {
       server.sendChatText(client, "[ERROR] You need to specify a model id !");
       return;
@@ -363,7 +363,7 @@ const hax: any = {
     args: any[]
   ) {
     const guid = server.generateGuid();
-    const transientId = server.getTransientId(client, guid);
+    const transientId = server.getTransientId(guid);
     if (!args[1]) {
       server.sendChatText(client, "[ERROR] You need to specify a model id !");
       return;
@@ -420,7 +420,7 @@ const hax: any = {
         break;
     }
     const characterId = server.generateGuid();
-    const transientId = server.getTransientId(client, characterId);
+    const transientId = server.getTransientId(characterId);
     const vehicle = new Vehicle(
       server._worldId,
       characterId,
@@ -441,11 +441,11 @@ const hax: any = {
       return;
     }
 
-    let pc = new Character(characterId, server.getTransientId(client, characterId))
+    let pc = new Character(characterId, server.getTransientId(characterId))
     pc = {
       ...pc,
       characterId: characterId,
-      transientId: server.getTransientId(client, characterId),
+      transientId: server.getTransientId(characterId),
       name: args[1],
       state: {
         ...pc.state,
@@ -739,7 +739,7 @@ const hax: any = {
     const vehicle = new Vehicle(
       server._worldId,
       characterId,
-      server.getTransientId(client, characterId),
+      server.getTransientId(characterId),
       9371,
       client.character.state.position,
       client.character.state.lookAt,

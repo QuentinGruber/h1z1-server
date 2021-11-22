@@ -17,6 +17,7 @@ import { zonePacketHandlers } from "./zonepackethandlers";
 import { ZoneServer } from "../ZoneServer/zoneserver";
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
 import { Vehicle2016 as Vehicle } from "./classes/vehicle";
+import { WorldObjectManager } from "./classes/worldobjectmanager";
 
 import {
   characterEquipment,
@@ -52,6 +53,7 @@ export class ZoneServer2016 extends ZoneServer {
   _reloadPacketsInterval: any;
   _clients: { [characterId: string]: Client } = {};
   _characters: { [characterId: string]: Character } = {};
+  worldObjectManager: WorldObjectManager;
 
   constructor(serverPort: number, gatewayKey: Uint8Array, mongoAddress = "") {
     super(serverPort, gatewayKey, mongoAddress, 0);
@@ -94,6 +96,7 @@ export class ZoneServer2016 extends ZoneServer {
       address: "127.0.0.1",
       port: 1110,
     };
+    this.worldObjectManager = new WorldObjectManager();
   }
 
   onZoneDataEvent(err: any, client: Client, packet: any) {
@@ -491,6 +494,28 @@ export class ZoneServer2016 extends ZoneServer {
       : await this._db?.collection("weathers").find().toArray();
   }
 
+  async loadVehicleData() {
+    this._vehicles = {};
+      const vehiclesArray: any = await this._db
+        ?.collection("vehicles")
+        .find({ worldId: this._worldId })
+        .toArray();
+      for (let index = 0; index < vehiclesArray.length; index++) {
+        const vehicle = vehiclesArray[index];
+        this._vehicles[vehicle.npcData.characterId] = new Vehicle(
+          this._worldId, 
+          vehicle.npcData.characterId, 
+          vehicle.npcData.transientId,
+          vehicle.npcData.modelId,
+          vehicle.npcData.position,
+          vehicle.npcData.rotation,
+          this._gameTime
+        )
+        this._vehicles[vehicle.npcData.characterId].npcData = vehicle.npcData;
+        this._vehicles[vehicle.npcData.characterId].positionUpdate = vehicle.positionUpdate;
+      }
+  }
+
   async fetchWorldData(): Promise<void> {
     if (!this._soloMode) {
       this._doors = {};
@@ -513,25 +538,9 @@ export class ZoneServer2016 extends ZoneServer {
         this._props[prop.characterId] = prop;
       }
       */
-      this._vehicles = {};
-      const vehiclesArray: any = await this._db
-        ?.collection("vehicles")
-        .find({ worldId: this._worldId })
-        .toArray();
-      for (let index = 0; index < vehiclesArray.length; index++) {
-        const vehicle = vehiclesArray[index];
-        this._vehicles[vehicle.npcData.characterId] = new Vehicle(
-          this._worldId, 
-          vehicle.npcData.characterId, 
-          vehicle.npcData.transientId,
-          vehicle.npcData.modelId,
-          vehicle.npcData.position,
-          vehicle.npcData.rotation,
-          this._gameTime
-        )
-        this._vehicles[vehicle.npcData.characterId].npcData = vehicle.npcData;
-        this._vehicles[vehicle.npcData.characterId].positionUpdate = vehicle.positionUpdate;
-      }
+      
+      await this.loadVehicleData();
+
       this._npcs = {};
       const npcsArray: any = await this._db
         ?.collection("npcs")
@@ -719,6 +728,7 @@ export class ZoneServer2016 extends ZoneServer {
       this.POIManager(client);
       client.posAtLastRoutine = client.character.state.position;
     });
+    this.worldObjectManager.run(this); 
     if (refresh) this.worldRoutineTimer.refresh();
   }
 
@@ -904,10 +914,9 @@ export class ZoneServer2016 extends ZoneServer {
 
   createAllObjects(): void {
     const { createAllEntities } = require("./workers/createBaseEntities");
-    const { npcs, objects, vehicles, doors } = createAllEntities(this);
+    const { npcs, objects, vehicles } = createAllEntities(this);
     this._npcs = npcs;
     this._objects = objects;
-    this._doors = doors;
     this._vehicles = vehicles;
     delete require.cache[require.resolve("./workers/createBaseEntities")];
     debug("All entities created");
