@@ -261,8 +261,14 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      if (packet.data.characterId === client.character.characterId) {
-        server.playerDamage(client, packet.data.damage);
+      const characterId = packet.data.characterId;
+      const damage = packet.data.damage;
+      if (characterId === client.character.characterId) {
+        server.playerDamage(client, damage);
+      }
+      else{
+        const vehicle = server._vehicles[characterId]
+        server.damageVehicle(damage/500,vehicle)
       }
     };
     this.lobbyGameDefinitionDefinitionsRequest = function (
@@ -841,7 +847,7 @@ export class zonePacketHandlers {
       debug(packet);
       const vehicleData =
         server._vehicles[server._transientIds[packet.data.transientId]];
-      server.damageVehicle(client, packet.data.damage, vehicleData);
+      server.damageVehicle(packet.data.damage, vehicleData);
     };
     this.vehicleDismiss = function (
       server: ZoneServer,
@@ -1349,8 +1355,8 @@ export class zonePacketHandlers {
         clearTimeout(client.hudTimer);
       }
       client.hudTimer = setTimeout(() => {
-        client.managedObjects.forEach((object: any) => {
-          server._vehicles[object.npcData.characterId].isManaged = false;
+        client.managedObjects.forEach((object: string) => {
+          server._vehicles[object].isManaged = false;
         });
         server.sendData(client, "ClientUpdate.CompleteLogoutProcess", {});
       }, timerTime);
