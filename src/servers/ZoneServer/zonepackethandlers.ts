@@ -216,6 +216,7 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) => {
+      server.sendData(client, "SendSelfToClient", server._dummySelf);
       server.sendGameTimeSync(client);
       if (client.firstLoading) {
         server.sendChatText(client, "Welcome to H1emu ! :D", true);
