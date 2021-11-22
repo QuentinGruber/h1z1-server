@@ -216,7 +216,6 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) => {
-      server.sendData(client, "SendSelfToClient", server._dummySelf);
       server.sendGameTimeSync(client);
       if (client.firstLoading) {
         server.sendChatText(client, "Welcome to H1emu ! :D", true);
@@ -237,6 +236,7 @@ export class zonePacketHandlers {
       client.isInteracting = false;
       delete client.vehicle.mountedVehicle;
       client.vehicle.mountedVehicleType = "0";
+      server.sendData(client, "SendSelfToClient", server._dummySelf);
     };
     this.Security = function (server: ZoneServer, client: Client, packet: any) {
       debug(packet);
