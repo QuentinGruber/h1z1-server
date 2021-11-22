@@ -1,5 +1,5 @@
 const restore = require("mongodb-restore-dump");
-import { generate_random_guid, lz4_comp, lz4_decomp } from "h1emu-core";
+import { generate_random_guid } from "h1emu-core";
 import v8 from "v8";
 import fs from "fs";
 
@@ -194,8 +194,6 @@ export const generateCommandList = (
   return commandList;
 };
 
-export const lz4Comp = lz4_comp;
-export const lz4Decomp = lz4_decomp; // from h1emu-core, be aware that this func crash if the target isn't lz4 compressed
 export const lz4_decompress = function (
   // from original implementation
   data: any,
