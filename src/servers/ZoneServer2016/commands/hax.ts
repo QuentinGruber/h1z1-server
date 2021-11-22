@@ -420,11 +420,10 @@ const hax: any = {
         break;
     }
     const characterId = server.generateGuid();
-    const transientId = server.getTransientId(characterId);
     const vehicle = new Vehicle(
       server._worldId,
       characterId,
-      transientId,
+      server.getTransientId(characterId),
       driveModel,
       client.character.state.position,
       client.character.state.lookAt,

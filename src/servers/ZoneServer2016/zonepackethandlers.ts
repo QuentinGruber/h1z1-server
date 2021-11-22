@@ -669,10 +669,12 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      const characterId = server._transientIds[packet.data.transientId],
-      vehicle = characterId?server._vehicles[characterId]:false;
+      const characterId: string = server._transientIds[packet.data.transientId],
+      vehicle = characterId?server._vehicles[characterId]:undefined;
+      console.log(characterId)
+      console.log(server._vehicles[characterId])
       if(!vehicle) return;
-      
+      console.log(`########\n\n\n vehicle`)
       //if (!server._soloMode) {
       server.sendDataToAllOthersWithSpawnedVehicle(
         client,

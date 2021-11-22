@@ -493,9 +493,12 @@ export class ZoneServer2016 extends ZoneServer {
       ? localWeatherTemplates
       : await this._db?.collection("weathers").find().toArray();
   }
+  
+  addDoor(obj: {}, characterId: string) {
+    this._doors[characterId] = obj;
+  }
 
   async loadVehicleData() {
-    this._vehicles = {};
       const vehiclesArray: any = await this._db
         ?.collection("vehicles")
         .find({ worldId: this._worldId })
@@ -507,8 +510,8 @@ export class ZoneServer2016 extends ZoneServer {
           vehicle.npcData.characterId, 
           vehicle.npcData.transientId,
           vehicle.npcData.modelId,
-          vehicle.npcData.position,
-          vehicle.npcData.rotation,
+          new Float32Array(vehicle.npcData.position),
+          new Float32Array(vehicle.npcData.rotation),
           this._gameTime
         )
         this._vehicles[vehicle.npcData.characterId].npcData = vehicle.npcData;
@@ -567,7 +570,6 @@ export class ZoneServer2016 extends ZoneServer {
   async saveWorld(): Promise<void> {
     if (!this._soloMode) {
       if (this._worldId) {
-        this.createAllObjects();
         await this._db
           ?.collection(`npcs`)
           .insertMany(Object.values(this._npcs));
@@ -586,7 +588,6 @@ export class ZoneServer2016 extends ZoneServer {
           ?.collection(`objects`)
           .insertMany(Object.values(this._objects));
       } else {
-        this.createAllObjects();
         const numberOfWorld: number =
           (await this._db?.collection("worlds").find({}).count()) || 0;
         this._worldId = numberOfWorld + 1;
@@ -613,7 +614,6 @@ export class ZoneServer2016 extends ZoneServer {
         debug("World saved!");
       }
     } else {
-      this.createAllObjects();
     }
   }
 
@@ -622,7 +622,6 @@ export class ZoneServer2016 extends ZoneServer {
     this._frozeCycle = false;
     await this.fetchZoneData();
     this._profiles = this.generateProfiles();
-    //this.createAllObjects();
 
     if (
       await this._db?.collection("worlds").findOne({ worldId: this._worldId })
@@ -634,7 +633,6 @@ export class ZoneServer2016 extends ZoneServer {
         .insertOne({ worldId: this._worldId });
       await this.saveWorld();
     }
-
     if (!this._soloMode) {
       debug("Starting H1emuZoneServer");
       if (!this._loginServerInfo.address) {
@@ -910,16 +908,6 @@ export class ZoneServer2016 extends ZoneServer {
         }
       }
     });
-  }
-
-  createAllObjects(): void {
-    const { createAllEntities } = require("./workers/createBaseEntities");
-    const { npcs, objects, vehicles } = createAllEntities(this);
-    this._npcs = npcs;
-    this._objects = objects;
-    this._vehicles = vehicles;
-    delete require.cache[require.resolve("./workers/createBaseEntities")];
-    debug("All entities created");
   }
 
   sendData(
