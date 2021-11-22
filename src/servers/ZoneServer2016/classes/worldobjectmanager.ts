@@ -31,15 +31,15 @@ export class WorldObjectManager {
     }
     run(server: ZoneServer2016) {
         if(this.firstRun) {
-            this.createAllDoors(server);
+            this.createDoors(server);
             this.firstRun = false;
         }
         if(this.lastLootRespawnTime + this.lootRespawnTimer >= Date.now()) {
-            this.respawnLoot(server);
+            this.createLoot(server);
         }
     }
 
-    respawnLoot(server: ZoneServer2016) {
+    createLoot(server: ZoneServer2016) {
         // todo:
         /*
             - iterate through all loot respawn locations and check if they have an item spawned
@@ -79,7 +79,7 @@ export class WorldObjectManager {
         };
       }
 
-    createAllDoors(server: ZoneServer2016): void {
+    createDoors(server: ZoneServer2016): void {
         Z1_doors.forEach((doorType: any) => {
           const modelId: number = _.find(models, (model: any) => {
             return (

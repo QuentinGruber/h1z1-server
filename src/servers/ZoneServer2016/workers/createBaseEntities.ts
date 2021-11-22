@@ -1,4 +1,4 @@
-const debug = require("debug")("baseEntityCreator");
+const debug = require("debug")("ZoneServer");
 const Z1_vehicles = require("../../../../data/2016/zoneData/Z1_vehicleLocations.json");
 const Z1_items = require("../../../../data/2016/zoneData/Z1_items.json");
 const Z1_npcs = require("../../../../data/2016/zoneData/Z1_npcs.json");
@@ -81,24 +81,7 @@ function createEntity(
 }
 
 export function createAllEntities(server: ZoneServer2016): any {
-  
-  createAR15(server);
-  createPumpShotgun(server);
-  createTools(server);
-  createPistols(server);
-  createM24(server);
-  createConsumables(server);
-  createClothes(server);
-  createResidential(server);
-  createRare(server);
-  createIndustrial(server);
-  createWorld(server);
-  createLog(server);
-  createCommercial(server);
-  createFarm(server);
-  createHospital(server);
-  createMilitary(server);
-
+  createLoot(server);
   createAllVehicles(server);
   createSomeNpcs(server);
   delete require.cache[
@@ -127,6 +110,43 @@ function getRandomVehicleId() {
       // pickup
       return { modelId: 9258, vehicleId: 2 };
   }
+}
+
+function createLoot(server: ZoneServer2016) {
+  Z1_items.forEach((spawnerType: any) => {
+    createAR15(server, spawnerType);
+    createPumpShotgun(server, spawnerType);
+    createTools(server, spawnerType);
+    createPistols(server, spawnerType);
+    createM24(server, spawnerType);
+    createConsumables(server, spawnerType);
+    createClothes(server, spawnerType);
+    createResidential(server, spawnerType);
+    createRare(server, spawnerType);
+    createIndustrial(server, spawnerType);
+    createWorld(server, spawnerType);
+    createLog(server, spawnerType);
+    createCommercial(server, spawnerType);
+    createFarm(server, spawnerType);
+    createHospital(server, spawnerType);
+    createMilitary(server, spawnerType);
+  });
+  debug(`AR15 and ammo items objects created. Spawnrate: ${chanceAR15}%`);
+  debug(`PumpShotgun and ammo items objects created. Spawnrate: ${chancePumpShotgun}%`);
+  debug(`Tools items objects created. Spawnrate: ${chanceTools}%`);
+  debug(`1911, M9, 380 and ammo items objects created. Spawnrate: ${chancePistols}%`);
+  debug(`308Rifle and ammo items objects created. Spawnrate: ${chanceM24}%`);
+  debug(`Consumable items objects created. Spawnrate: ${chanceConsumables}%`);
+  debug(`Clothes items objects created. Spawnrate: ${chanceClothes}%`);
+  debug(`Residential Areas items objects created. Spawnrate: ${chanceResidential}%`);
+  debug(`Rare items objects created. Spawnrate: ${chanceRare}%`);
+  debug(`Industrial Areas items objects created. Spawnrate: ${chanceIndustrial}%`);
+  debug(`World Areas items objects created. Spawnrate: ${chanceWorld}%`);
+  debug(`Log Areas items objects created. Spawnrate: ${chanceWorld}%`);
+  debug(`Commercial Areas items objects created. Spawnrate: ${chanceCommercial}%`);
+  debug(`Farm Areas items objects created. Spawnrate: ${chanceFarm}%`);
+  debug(`Hospital objects created. Spawnrate: ${chanceHospital}%`);
+  debug(`Military objects created. Spawnrate: ${chanceMilitary}%`);
 }
 
 function createAllVehicles(server: ZoneServer2016) {
@@ -193,8 +213,7 @@ function createSomeNpcs(server: ZoneServer2016) {
   debug("All npcs objects created");
 }
 
-function createMilitary(server: ZoneServer2016) {
-  Z1_items.forEach((spawnerType: any) => {
+function createMilitary(server: ZoneServer2016, spawnerType: any) {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_Z1_MilitaryBase_Tents1.adr": // uncommon
@@ -276,12 +295,9 @@ function createMilitary(server: ZoneServer2016) {
         }
       });
     }
-  });
-  debug("Military objects created. Spawnrate:" + chanceMilitary + "%");
 }
 
-function createHospital(server: ZoneServer2016) {
-  Z1_items.forEach((spawnerType: any) => {
+function createHospital(server: ZoneServer2016, spawnerType: any) {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawnerHospital.adr":
@@ -317,12 +333,9 @@ function createHospital(server: ZoneServer2016) {
         }
       });
     }
-  });
-  debug("Hospital objects created. Spawnrate:" + chanceHospital + "%");
 }
 
-function createAR15(server: ZoneServer2016) {
-  Z1_items.forEach((spawnerType: any) => {
+function createAR15(server: ZoneServer2016, spawnerType: any) {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_Weapon_M16A4.adr":
@@ -356,12 +369,9 @@ function createAR15(server: ZoneServer2016) {
         }
       });
     }
-  });
-  debug("AR15 and ammo items objects created. Spawnrate:" + chanceAR15 + "%");
 }
 
-function createPumpShotgun(server: ZoneServer2016) {
-  Z1_items.forEach((spawnerType: any) => {
+function createPumpShotgun(server: ZoneServer2016, spawnerType: any) {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_Weapon_PumpShotgun01.adr":
@@ -392,16 +402,9 @@ function createPumpShotgun(server: ZoneServer2016) {
         }
       });
     }
-  });
-  debug(
-    "PumpShotgun and ammo items objects created. Spawnrate:" +
-      chancePumpShotgun +
-      "%"
-  );
 }
 
-function createTools(server: ZoneServer2016) {
-  Z1_items.forEach((spawnerType: any) => {
+function createTools(server: ZoneServer2016, spawnerType: any) {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_Weapon_Crowbar01.adr":
@@ -472,12 +475,9 @@ function createTools(server: ZoneServer2016) {
         }
       });
     }
-  });
-  debug("Tools items objects created. Spawnrate:" + chanceTools + "%");
 }
 
-function createPistols(server: ZoneServer2016) {
-  Z1_items.forEach((spawnerType: any) => {
+function createPistols(server: ZoneServer2016, spawnerType: any) {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_Weapon_45Auto.adr":
@@ -511,14 +511,9 @@ function createPistols(server: ZoneServer2016) {
         }
       });
     }
-  });
-  debug(
-    "1911, M9 and ammo items objects created. Spawnrate:" + chancePistols + "%"
-  );
 }
 
-function createM24(server: ZoneServer2016) {
-  Z1_items.forEach((spawnerType: any) => {
+function createM24(server: ZoneServer2016, spawnerType: any) {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_Weapon_M24.adr":
@@ -549,14 +544,9 @@ function createM24(server: ZoneServer2016) {
         }
       });
     }
-  });
-  debug(
-    "SniperRifle and ammo items objects created. Spawnrate:" + chanceM24 + "%"
-  );
 }
 
-function createConsumables(server: ZoneServer2016) {
-  Z1_items.forEach((spawnerType: any) => {
+function createConsumables(server: ZoneServer2016, spawnerType: any) {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_FirstAidKit.adr":
@@ -591,14 +581,9 @@ function createConsumables(server: ZoneServer2016) {
         }
       });
     }
-  });
-  debug(
-    "Consumable items objects created. Spawnrate:" + chanceConsumables + "%"
-  );
 }
 
-function createClothes(server: ZoneServer2016) {
-  Z1_items.forEach((spawnerType: any) => {
+function createClothes(server: ZoneServer2016, spawnerType: any) {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_Clothes_MotorcycleHelmet.adr":
@@ -636,12 +621,9 @@ function createClothes(server: ZoneServer2016) {
         }
       });
     }
-  });
-  debug("Clothes items objects created. Spawnrate:" + chanceClothes + "%");
 }
 
-function createResidential(server: ZoneServer2016) {
-  Z1_items.forEach((spawnerType: any) => {
+function createResidential(server: ZoneServer2016, spawnerType: any) {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawnerResidential_Tier00.adr":
@@ -689,16 +671,9 @@ function createResidential(server: ZoneServer2016) {
         }
       });
     }
-  });
-  debug(
-    "Residential Areas items objects created. Spawnrate:" +
-      chanceResidential +
-      "%"
-  );
 }
 
-function createRare(server: ZoneServer2016) {
-  Z1_items.forEach((spawnerType: any) => {
+function createRare(server: ZoneServer2016, spawnerType: any) {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawnerRare_Tier00.adr":
@@ -732,12 +707,9 @@ function createRare(server: ZoneServer2016) {
         }
       });
     }
-  });
-  debug("Rare items objects created. Spawnrate:" + chanceRare + "%");
 }
 
-function createIndustrial(server: ZoneServer2016) {
-  Z1_items.forEach((spawnerType: any) => {
+function createIndustrial(server: ZoneServer2016, spawnerType: any) {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawnerIndustrial_Tier00.adr":
@@ -775,16 +747,9 @@ function createIndustrial(server: ZoneServer2016) {
         }
       });
     }
-  });
-  debug(
-    "Industrial Areas items objects created. Spawnrate:" +
-      chanceIndustrial +
-      "%"
-  );
 }
 
-function createWorld(server: ZoneServer2016) {
-  Z1_items.forEach((spawnerType: any) => {
+function createWorld(server: ZoneServer2016, spawnerType: any) {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawnerWorld_Tier00.adr":
@@ -822,12 +787,9 @@ function createWorld(server: ZoneServer2016) {
         }
       });
     }
-  });
-  debug("World Areas items objects created. Spawnrate:" + chanceWorld + "%");
 }
 
-function createLog(server: ZoneServer2016) {
-  Z1_items.forEach((spawnerType: any) => {
+function createLog(server: ZoneServer2016, spawnerType: any) {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_Log01.adr":
@@ -857,12 +819,9 @@ function createLog(server: ZoneServer2016) {
         }
       });
     }
-  });
-  debug("Log Areas items objects created. Spawnrate:" + chanceWorld + "%");
 }
 
-function createCommercial(server: ZoneServer2016) {
-  Z1_items.forEach((spawnerType: any) => {
+function createCommercial(server: ZoneServer2016, spawnerType: any) {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawnerCommercial_Tier00.adr":
@@ -897,16 +856,9 @@ function createCommercial(server: ZoneServer2016) {
         }
       });
     }
-  });
-  debug(
-    "Commercial Areas items objects created. Spawnrate:" +
-      chanceCommercial +
-      "%"
-  );
 }
 
-function createFarm(server: ZoneServer2016) {
-  Z1_items.forEach((spawnerType: any) => {
+function createFarm(server: ZoneServer2016, spawnerType: any) {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawnerFarm.adr":
@@ -938,6 +890,4 @@ function createFarm(server: ZoneServer2016) {
         }
       });
     }
-  });
-  debug("Farm Areas items objects created. Spawnrate:" + chanceFarm + "%");
 }
