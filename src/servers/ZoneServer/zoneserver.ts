@@ -1153,7 +1153,7 @@ export class ZoneServer extends EventEmitter {
     );
   }
 
-  explosionDamage(position: Float32Array) {
+  explosionDamage(position: Float32Array,npcTriggered:string) {
     for (const character in this._clients) {
       const characterObj = this._clients[character];
       if (!characterObj.character.godMode) {
@@ -1167,16 +1167,29 @@ export class ZoneServer extends EventEmitter {
         }
       }
     }
+    for (const vehicleKey in this._vehicles) {
+      const vehicle = this._vehicles[vehicleKey];
+      if (!vehicle.isInvulnerable && vehicle.npcData.characterId != npcTriggered) {
+        if (isPosInRadius(5, vehicle.npcData.position, position)) {
+          const distance = getDistance(
+            position,
+            vehicle.npcData.position
+          );
+          const damage = 20000 / distance;
+          this.damageVehicle(damage,vehicle)
+        }
+      }
+    }
   }
 
-  damageVehicle(client: Client, damage: number, vehicle: Vehicle) {
+  damageVehicle(damage: number, vehicle: Vehicle) {
     if (!vehicle.isInvulnerable) {
       let destroyedVehicleEffect: number;
       let destroyedVehicleModel: number;
       let minorDamageEffect: number;
       let majorDamageEffect: number;
       let criticalDamageEffect: number;
-      switch (client.vehicle.mountedVehicleType) {
+      switch (vehicle.vehicleType) {
         case "offroader":
           destroyedVehicleEffect = 135;
           destroyedVehicleModel = 7226;
@@ -1210,6 +1223,12 @@ export class ZoneServer extends EventEmitter {
 
       if (vehicle.npcData.resources.health <= 0) {
         vehicle.npcData.resources.health = 0;
+        if (vehicle.passengers.passenger1) {
+          this.dismountVehicle(
+            vehicle.passengers.passenger1,
+            vehicle.npcData.characterId
+          );
+        }
         if (vehicle.passengers.passenger2) {
           this.dismountVehicle(
             vehicle.passengers.passenger2,
@@ -1228,7 +1247,6 @@ export class ZoneServer extends EventEmitter {
             vehicle.npcData.characterId
           );
         }
-        this.dismountVehicle(client, vehicle.npcData.characterId);
         this.sendDataToAll("PlayerUpdate.Destroyed", {
           characterId: vehicle.npcData.characterId,
           unknown1: destroyedVehicleEffect, // destroyed offroader effect
@@ -1236,7 +1254,7 @@ export class ZoneServer extends EventEmitter {
           unknown3: 0,
           disableWeirdPhysics: false,
         });
-        this.explosionDamage(vehicle.npcData.position);
+        this.explosionDamage(vehicle.npcData.position,vehicle.npcData.characterId);
         vehicle.npcData.destroyedState = 4;
         this.sendDataToAll(
           "PlayerUpdate.RemovePlayerGracefully",
@@ -1247,10 +1265,13 @@ export class ZoneServer extends EventEmitter {
           },
           1
         );
-        client.vehicle.mountedVehicleType = "0";
-        delete client.vehicle.mountedVehicle;
-        client.vehicle.vehicleState = 0;
-        this.vehicleDelete(client);
+        if(vehicle.passengers.passenger1){
+          const client = this._clients[vehicle.passengers.passenger1];
+          client.vehicle.mountedVehicleType = "0";
+          delete client.vehicle.mountedVehicle;
+          client.vehicle.vehicleState = 0;
+          this.vehicleDelete(client);
+        }
       } else if (
         vehicle.npcData.resources.health <= 50000 &&
         vehicle.npcData.resources.health > 35000
@@ -1258,7 +1279,7 @@ export class ZoneServer extends EventEmitter {
         if (vehicle.npcData.destroyedState != 1) {
           vehicle.npcData.destroyedState = 1;
           this.sendDataToAll("PlayerUpdate.SetSpawnerActivationEffect", {
-            characterId: client.vehicle.mountedVehicle,
+            characterId: vehicle.npcData.characterId,
             effectId: minorDamageEffect,
           });
         }
@@ -1268,16 +1289,16 @@ export class ZoneServer extends EventEmitter {
       ) {
         if (vehicle.npcData.destroyedState != 2) {
           vehicle.npcData.destroyedState = 2;
-          this.sendData(client, "PlayerUpdate.SetSpawnerActivationEffect", {
-            characterId: client.vehicle.mountedVehicle,
+          this.sendDataToAll( "PlayerUpdate.SetSpawnerActivationEffect", {
+            characterId: vehicle.npcData.characterId,
             effectId: majorDamageEffect,
           });
         }
       } else if (vehicle.npcData.resources.health <= 20000) {
         if (vehicle.npcData.destroyedState != 3) {
           vehicle.npcData.destroyedState = 3;
-          this.sendData(client, "PlayerUpdate.SetSpawnerActivationEffect", {
-            characterId: client.vehicle.mountedVehicle,
+          this.sendDataToAll("PlayerUpdate.SetSpawnerActivationEffect", {
+            characterId: vehicle.npcData.characterId,
             effectId: criticalDamageEffect,
           });
         }
