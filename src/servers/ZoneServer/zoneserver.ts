@@ -83,6 +83,8 @@ export class ZoneServer extends EventEmitter {
   _respawnLocations: any[];
   _doors: any;
   _props: any;
+  _destroyablePS: any;
+  _destroyable: any;
   _interactionDistance: number;
   _dummySelf: any;
   _appDataFolder: string;
@@ -122,6 +124,8 @@ export class ZoneServer extends EventEmitter {
     this._doors = {};
     this._vehicles = {};
     this._props = {};
+    this._destroyablePS = {};
+    this._destroyable = {};
     this._serverTime = this.getCurrentTime();
     this._transientIds = {};
     this._packetHandlers = new zonePacketHandlers();
@@ -537,6 +541,10 @@ export class ZoneServer extends EventEmitter {
       const prop = this._props[key];
       allTransient[prop.transientId] = key;
     }
+    for (const key in this._destroyablePS) {
+      const prop = this._destroyablePS[key];
+      allTransient[prop.transientId] = key;
+    }
     for (const key in this._vehicles) {
       const vehicle = this._vehicles[key];
       allTransient[vehicle.npcData.transientId] = key;
@@ -563,8 +571,20 @@ export class ZoneServer extends EventEmitter {
       return 4;
     } else if (!!this._props[entityKey]) {
       return 5;
-    } else {
+    } else if (!!this._doors[entityKey]) {
       return 6; // doors
+    } else {
+      return 7;
+    }
+  }
+
+getCollisionEntityType(entityKey: string): number {
+    if (!!this._destroyablePS[entityKey]) {
+      return 1;
+    } else if (!!this._destroyable[entityKey]) {
+      return 2;
+    } else {
+      return 3;
     }
   }
   sendZonePopulationUpdate() {
@@ -1916,6 +1936,74 @@ export class ZoneServer extends EventEmitter {
   spawnProps(client: Client): void {
     this.spawnNpcCollection(client, this._props);
   }
+  
+  customizeDTO(client: Client): void {
+    const DTOArray: any = [];
+    for (const object in this._destroyable) {
+      const DTO = this._destroyable[object];
+      const DTOinstance = {
+        objectId: DTO.zoneId,
+        unknownString1: "Weapon_Empty.adr",
+      };
+      DTOArray.push(DTOinstance);
+    }
+    for (const object in this._destroyablePS) {
+      const DTO = this._destroyablePS[object];
+      const DTOinstance = {
+        objectId: DTO.zoneId,
+        unknownString1: "Weapon_Empty.adr",
+      };
+      DTOArray.push(DTOinstance);
+    }
+    for (const object in this._props) {
+      const DTO = this._props[object];
+      const DTOinstance = {
+        objectId: DTO.zoneId,
+        unknownString1: "Weapon_Empty.adr",
+      };
+      DTOArray.push(DTOinstance);
+    }
+    this.sendData(client, "DtoObjectInitialData", {
+      unknownDword1: 1,
+      unknownArray1: DTOArray,
+      unknownArray2: [{}],
+    });
+  }
+  
+  spawnDTOs(client: Client): void {
+    for (const DTO in this._destroyable) {
+      const DTOObject = this._destroyable[DTO];
+      if (!DTOObject.destroyed) {
+        if (
+          isPosInRadius(
+            DTOObject.renderDistance,
+            client.character.state.position,
+            DTOObject.position
+          ) &&
+          !client.spawnedDTOs.includes(DTOObject)
+        ) {
+          client.npcsToSpawn.push(DTOObject);
+          client.spawnedDTOs.push(DTOObject);
+        }
+      }
+    }
+    for (const DTO in this._destroyablePS) {
+      const DTOObject = this._destroyablePS[DTO];
+      if (!DTOObject.destroyed) {
+        if (
+          isPosInRadius(
+            DTOObject.renderDistance,
+            client.character.state.position,
+            DTOObject.position
+          ) &&
+          !client.spawnedDTOs.includes(DTOObject)
+        ) {
+          client.npcsToSpawn.push(DTOObject);
+          client.spawnedDTOs.push(DTOObject);
+        }
+      }
+    }
+  }
 
   despawnEntity(characterId: string) {
     this.sendDataToAll(
@@ -1969,12 +2057,22 @@ export class ZoneServer extends EventEmitter {
 
   createAllObjects(): void {
     const { createAllEntities } = require("./workers/createBaseEntities");
-    const { npcs, objects, vehicles, doors, props } = createAllEntities(this);
+    const {
+      npcs,
+      objects,
+      vehicles,
+      doors,
+      props,
+      destroyable,
+      destroyablePS,
+    } = createAllEntities(this);
     this._npcs = npcs;
     this._objects = objects;
     this._doors = doors;
     this._vehicles = vehicles;
     this._props = props;
+    this._destroyable = destroyable;
+    this._destroyablePS = destroyablePS;
     delete require.cache[require.resolve("./workers/createBaseEntities")];
     debug("All entities created");
   }
