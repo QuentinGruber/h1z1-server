@@ -97,6 +97,7 @@ export class zonePacketHandlers {
               skyData: server._weather,
             });
             */
+      server.customizeDTO(client);
       server.sendData(client, "QuickChat.SendData", { commands: [] });
       server.sendData(client, "ClientUpdate.ActivateProfile", {
         profiles: server._profiles,
@@ -261,8 +262,53 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
+      console.log(packet);
       if (packet.data.characterId === client.character.characterId) {
+        client.character.state.position = new Float32Array([
+          packet.data.position[0],
+          packet.data.position[1],
+          packet.data.position[2],
+          1,
+        ]);
         server.playerDamage(client, packet.data.damage);
+      } else {
+        if (
+          packet.data.objectCharacterId != client.vehicle.mountedVehicle &&
+          packet.data.damage > 100000
+        ) {
+          const entityType: number = server.getCollisionEntityType(
+            packet.data.objectCharacterId
+          );
+          switch (entityType) {
+            case 1:
+              const DTO = server._destroyablePS[packet.data.objectCharacterId];
+
+              server.sendDataToAll("PlayerUpdate.UpdatePosition", {
+                transientId: DTO.transientId,
+                positionUpdate: {
+                  sequenceTime: server.getSequenceTime(),
+                  unknown3_int8: 0,
+                  position: DTO.position,
+                  orientation:
+                    server._vehicles[packet.data.characterId].positionUpdate
+                      .orientation,
+                  frontTilt: 1.52,
+                },
+              });
+              delete server._destroyablePS[DTO.characterId];
+              break;
+            case 2:
+              const DTO2 = server._destroyable[packet.data.objectCharacterId];
+              server.sendDataToAll("PlayerUpdate.RemovePlayerGracefully", {
+                characterId: packet.data.objectCharacterId,
+                effectId: 242,
+              });
+              delete server._destroyable[DTO2.characterId];
+              break;
+            default:
+              break;
+          }
+        }
       }
     };
     this.lobbyGameDefinitionDefinitionsRequest = function (
@@ -2084,6 +2130,20 @@ export class zonePacketHandlers {
                 unk3: 0,
               });
             }
+          }
+          break;
+        }
+        case 7: {
+          // DTO
+          const entityData = server._destroyablePS[characterId];
+          if (entityData) {
+            server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
+              transientId: entityData.transientId,
+              unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
+              unknownDword2: 13951728,
+              unknownDword3: 1,
+              unknownDword6: 100,
+            });
           }
           break;
         }
