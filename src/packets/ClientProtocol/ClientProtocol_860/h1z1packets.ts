@@ -2199,7 +2199,7 @@ var packets = [
             { name: "unknownDword18", type: "uint32", defaultValue: 0 },
             { name: "unknownBoolean3", type: "boolean", defaultValue: true },
             { name: "unknownDword19", type: "uint32", defaultValue: 0 },
-            { name: "gender", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword20", type: "uint32", defaultValue: 0 },
             { name: "unknownDword21", type: "uint32", defaultValue: 0 },
             { name: "unknownDword22", type: "uint32", defaultValue: 0 },
             { name: "unknownDword23", type: "uint32", defaultValue: 0 },
@@ -2358,7 +2358,7 @@ var packets = [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
               ],
             },
-            { name: "unknownDword28", type: "uint32", defaultValue: 0 },
+            { name: "gender", type: "uint32", defaultValue: 0 },
             {
               name: "characterQuests",
               type: "schema",
