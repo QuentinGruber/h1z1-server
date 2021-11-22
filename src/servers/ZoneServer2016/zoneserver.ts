@@ -613,7 +613,6 @@ export class ZoneServer2016 extends ZoneServer {
           .insertMany(Object.values(this._objects));
         debug("World saved!");
       }
-    } else {
     }
   }
 

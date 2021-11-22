@@ -394,7 +394,7 @@ export class LoginServer extends EventEmitter {
       }
     } else {
       const charactersQuery = { authKey: client.loginSessionId, status: 1 };
-      let characters = await this._db
+      characters = await this._db
         .collection("characters-light")
         .find(charactersQuery)
         .toArray();
