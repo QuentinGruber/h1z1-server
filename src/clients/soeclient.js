@@ -12,16 +12,16 @@
 // ======================================================================
 
 const EventEmitter = require("events").EventEmitter,
-    SOEInputStream =
-        require("../servers/SoeServer/soeinputstream").SOEInputStream,
-    SOEOutputStream =
-        require("../servers/SoeServer/soeoutputstream").SOEOutputStream,
-    SOEProtocol = require("../protocols/soeprotocol").SOEProtocol,
-    SOEPackets = require("../protocols/soeprotocol").SOEPackets,
-    util = require("util"),
-    fs = require("fs"),
-    dgram = require("dgram"),
-    debug = require("debug")("SOEClient");
+  SOEInputStream =
+    require("../servers/SoeServer/soeinputstream").SOEInputStream,
+  SOEOutputStream =
+    require("../servers/SoeServer/soeoutputstream").SOEOutputStream,
+  SOEProtocol = require("../protocols/soeprotocol").SOEProtocol,
+  SOEPackets = require("../protocols/soeprotocol").SOEPackets,
+  util = require("util"),
+  fs = require("fs"),
+  dgram = require("dgram"),
+  debug = require("debug")("SOEClient");
 
 function createSessionId() {
   return (Math.random() * 0xffffffff) >>> 0;
@@ -30,9 +30,9 @@ function createSessionId() {
 class SOEClient {
   constructor(protocolName, serverAddress, serverPort, cryptoKey, localPort) {
     EventEmitter.call(this);
-      const me = this;
+    const me = this;
 
-      this._guid = ((Math.random() * 0xffffffff) >>> 0).toString(16);
+    this._guid = ((Math.random() * 0xffffffff) >>> 0).toString(16);
     debug(this._guid, "Creating new SOEClient instance");
     this._protocolName = protocolName;
     this._serverAddress = serverAddress;
@@ -44,15 +44,15 @@ class SOEClient {
 
     this._outQueue = [];
 
-      const connection = (this._connection = dgram.createSocket("udp4"));
-      const protocol = (this._protocol = new SOEProtocol());
-      const inputStream = (this._inputStream = new SOEInputStream(cryptoKey));
-      const outputStream = (this._outputStream = new SOEOutputStream(cryptoKey));
+    const connection = (this._connection = dgram.createSocket("udp4"));
+    const protocol = (this._protocol = new SOEProtocol());
+    const inputStream = (this._inputStream = new SOEInputStream(cryptoKey));
+    const outputStream = (this._outputStream = new SOEOutputStream(cryptoKey));
 
-      let n1 = 0,
-          n2 = 0;
+    let n1 = 0,
+      n2 = 0;
 
-      inputStream.on("data", function (err, data) {
+    inputStream.on("data", function (err, data) {
       if (me._dumpData) {
         fs.writeFileSync("soeclient_apppacket_" + n2++ + ".dat", data);
       }
@@ -100,10 +100,10 @@ class SOEClient {
 
     function checkOutOfOrderQueue() {
       if (outOfOrderPackets.length) {
-          const packets = [];
-          for (let i = 0; i < 20; i++) {
-            const sequence = outOfOrderPackets.shift();
-            packets.push({
+        const packets = [];
+        for (let i = 0; i < 20; i++) {
+          const sequence = outOfOrderPackets.shift();
+          packets.push({
             name: "OutOfOrder",
             soePacket: {
               channel: 0,
@@ -130,8 +130,8 @@ class SOEClient {
 
     function checkOutQueue() {
       if (me._outQueue.length) {
-          const data = me._outQueue.shift();
-          if (me._dumpData) {
+        const data = me._outQueue.shift();
+        if (me._dumpData) {
           fs.writeFileSync("debug/soeclient_" + n1++ + "_out.dat", data);
         }
         me._connection.send(
@@ -149,9 +149,9 @@ class SOEClient {
     checkOutQueue();
 
     function handlePacket(packet) {
-        const soePacket = packet.soePacket,
-            result = soePacket.result;
-        switch (soePacket.name) {
+      const soePacket = packet.soePacket,
+        result = soePacket.result;
+      switch (soePacket.name) {
         case "SessionReply":
           debug("Received session reply from server");
 
@@ -172,11 +172,11 @@ class SOEClient {
           me.emit("disconnect");
           break;
         case "MultiPacket":
-            let lastOutOfOrder = 0;
-            const channel = 0;
-            for (let i = 0; i < result.subPackets.length; i++) {
-              const subPacket = result.subPackets[i];
-              switch (subPacket.name) {
+          let lastOutOfOrder = 0;
+          const channel = 0;
+          for (let i = 0; i < result.subPackets.length; i++) {
+            const subPacket = result.subPackets[i];
+            switch (subPacket.name) {
               case "OutOfOrder":
                 if (subPacket.sequence > lastOutOfOrder) {
                   lastOutOfOrder = subPacket.sequence;
@@ -236,13 +236,13 @@ class SOEClient {
       if (me._dumpData) {
         fs.writeFileSync("debug/soeclient_" + n1++ + "_in.dat", data);
       }
-        const result = protocol.parse(data, me._crcSeed, me._compression);
-        handlePacket(result);
+      const result = protocol.parse(data, me._crcSeed, me._compression);
+      handlePacket(result);
     });
 
     connection.on("listening", function () {
-        const address = this.address();
-        debug("Listening on " + address.address + ":" + address.port);
+      const address = this.address();
+      debug("Listening on " + address.address + ":" + address.port);
     });
   }
 
@@ -254,8 +254,8 @@ class SOEClient {
         this._serverPort
     );
     this._sessionId = createSessionId();
-      const me = this;
-      this._connection.bind(this._localPort, function () {
+    const me = this;
+    this._connection.bind(this._localPort, function () {
       me._sendPacket("SessionRequest", {
         protocol: me._protocolName,
         crcLength: 3,
@@ -288,13 +288,13 @@ class SOEClient {
   }
 
   _sendPacket(packetName, packet, prioritize) {
-      const data = this._protocol.pack(
-          packetName,
-          packet,
-          this._crcSeed,
-          this._compression
-      );
-      debug(this._guid, "Sending " + packetName + " packet to server");
+    const data = this._protocol.pack(
+      packetName,
+      packet,
+      this._crcSeed,
+      this._compression
+    );
+    debug(this._guid, "Sending " + packetName + " packet to server");
     if (this._dumpData) {
       fs.writeFileSync(
         "debug/soeclient_" + this._guid + "_outpacket_" + q++ + ".dat",

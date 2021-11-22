@@ -755,14 +755,12 @@ export class ZoneServer2016 extends ZoneServer {
     this._cycleSpeed = 0.1;
     this._frozeCycle = true;
     this._gameTime = time;
-    this.sendSyncToAll();
   }
 
   removeForcedTime(): void {
     this._cycleSpeed = 100;
     this._frozeCycle = false;
     this._gameTime = Date.now();
-    this.sendSyncToAll();
   }
 
   removeOutOfDistanceEntities(client: Client): void {

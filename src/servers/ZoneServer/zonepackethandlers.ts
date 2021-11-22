@@ -392,9 +392,8 @@ export class zonePacketHandlers {
       debug("ClientLogout");
       clearInterval(client.character.resourcesUpdater);
       server.saveCharacterPosition(client);
-      client.managedObjects.forEach((object: any) => {
-        const vehicle = server._vehicles[object.npcData.characterId];
-        if (vehicle) vehicle.isManaged = false;
+      client.managedObjects.forEach((characterId: any) => {
+        server.dropVehicleManager(client,characterId)
       });
       server.deleteEntity(client.character.characterId, server._characters);
       server._gatewayServer._soeServer.deleteClient(client);
@@ -650,7 +649,7 @@ export class zonePacketHandlers {
         stance: packet.data.stance,
       });
     };
-    (this.mountDismountRequest = function (
+    this.mountDismountRequest = function (
       server: ZoneServer,
       client: Client,
       packet: any
@@ -658,39 +657,39 @@ export class zonePacketHandlers {
       if (client?.vehicle?.mountedVehicle)
         // TODO: fix that in a better way
         server.dismountVehicle(client, client.vehicle.mountedVehicle);
-    }),
-      (this.commandInteractRequest = function (
-        server: ZoneServer,
-        client: Client,
-        packet: any
-      ) {
-        server.sendData(client, "Command.InteractionList", {
-          guid: packet.data.guid,
-          unknownArray1: [
-            {
-              unknownDword1: 0,
-              unknownDword2: 0,
-              unknownDword3: 0,
-              unknownDword4: 0,
-              unknownDword5: 0,
-              unknownDword6: 0,
-              unknownDword7: 0,
-            },
-          ],
-          unknownArray2: [
-            {
-              unknownString1: "test",
-              unknownDword1: 0,
-              unknownDword2: 0,
-              unknownDword3: 0,
-              unknownDword4: 0,
-              unknownDword5: 0,
-              unknownDword6: 0,
-              unknownDword7: 0,
-            },
-          ],
-        });
+    };
+    this.commandInteractRequest = function (
+      server: ZoneServer,
+      client: Client,
+      packet: any
+    ) {
+      server.sendData(client, "Command.InteractionList", {
+        guid: packet.data.guid,
+        unknownArray1: [
+          {
+            unknownDword1: 0,
+            unknownDword2: 0,
+            unknownDword3: 0,
+            unknownDword4: 0,
+            unknownDword5: 0,
+            unknownDword6: 0,
+            unknownDword7: 0,
+          },
+        ],
+        unknownArray2: [
+          {
+            unknownString1: "test",
+            unknownDword1: 0,
+            unknownDword2: 0,
+            unknownDword3: 0,
+            unknownDword4: 0,
+            unknownDword5: 0,
+            unknownDword6: 0,
+            unknownDword7: 0,
+          },
+        ],
       });
+    };
     this.commandInteractionString = function (
       server: ZoneServer,
       client: Client,
@@ -834,7 +833,7 @@ export class zonePacketHandlers {
       debug(packet);
       debug("select");
     };
-    (this.playerUpdateVehicleCollision = function (
+    this.playerUpdateVehicleCollision = function (
       server: ZoneServer,
       client: Client,
       packet: any
@@ -843,19 +842,18 @@ export class zonePacketHandlers {
       const vehicleData =
         server._vehicles[server._transientIds[packet.data.transientId]];
       server.damageVehicle(client, packet.data.damage, vehicleData);
-    }),
-      (this.vehicleDismiss = function (
-        server: ZoneServer,
-        client: Client,
-        packet: any
-      ) {
-        server.sendDataToAll("Mount.DismountResponse", {
-          characterId: client.character.characterId,
-        });
-        server.sendDataToAll("PlayerUpdate.RemovePlayerGracefully", {
-          characterId: client.vehicle.mountedVehicle,
-        });
-      });
+    };
+    this.vehicleDismiss = function (
+      server: ZoneServer,
+      client: Client,
+      packet: any
+    ) {
+      const vehicleGuid = client.vehicle.mountedVehicle;
+      if (vehicleGuid) {
+        server.dismountVehicle(client, vehicleGuid);
+        server.dismissVehicle(vehicleGuid);
+      }
+    };
     this.vehicleSpawn = function (
       server: ZoneServer,
       client: Client,
@@ -1325,7 +1323,7 @@ export class zonePacketHandlers {
     ) {
       debug("Redeploy");
       server.sendData(client, "ClientUpdate.UpdateLocation", {
-        position: new Float32Array([0,50,0,1]),
+        position: new Float32Array([0, 50, 0, 1]),
         triggerLoadingScreen: true,
       });
     };
@@ -1378,9 +1376,13 @@ export class zonePacketHandlers {
         require("../../../data/2015/sampleData/profilestats.json")
       );
     };
-    this.DtoHitSpeedTreeReport = function (server: ZoneServer, client: Client, packet: any) {
+    this.DtoHitSpeedTreeReport = function (
+      server: ZoneServer,
+      client: Client,
+      packet: any
+    ) {
       debug(packet);
-      const { id, treeId, name } = packet.data;
+      const { name } = packet.data;
       if (name === "SpeedTree.Blackberry") {
         server.sendData(client, "ClientUpdate.TextAlert", {
           message: "Blackberries...miss you...",
@@ -1390,13 +1392,14 @@ export class zonePacketHandlers {
           message: name.replace("SpeedTree.", ""),
         });
       }
-      server.sendData(client, "DtoStateChange", { // WIP
+      // temp disable that, since it make weird stuff in game
+      /* server.sendData(client, "DtoStateChange", { // WIP
         objectId: id,
         name: name,
         unk2: treeId,
         unk3: 9001,
         unk4: false,
-       });
+       });*/
     };
     this.GetRewardBuffInfo = function (
       server: ZoneServer,
@@ -1447,7 +1450,9 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      debug(packet);
+      if(!packet.data){
+        return
+      }
       const characterId = server._transientIds[packet.data.transientId];
       if (characterId) {
         if (
@@ -1560,14 +1565,15 @@ export class zonePacketHandlers {
         );
       }
       if (packet.data.position) {
-        // TODO: modify array element beside re-creating it
+        
         client.character.state.position = new Float32Array([
           packet.data.position[0],
           packet.data.position[1],
           packet.data.position[2],
           0,
         ]);
-        client.character.isRunning = packet.data.horizontalSpeed > (client.character.isExhausted ? 5 : 6);
+        client.character.isRunning =
+          packet.data.horizontalSpeed > (client.character.isExhausted ? 5 : 6);
 
         if (
           client.hudTimer != null &&
@@ -1596,7 +1602,7 @@ export class zonePacketHandlers {
         }
       }
       if (packet.data.rotation) {
-        // TODO: modify array element beside re-creating it
+        
         client.character.state.rotation = new Float32Array([
           packet.data.rotation[0],
           packet.data.rotation[1],
