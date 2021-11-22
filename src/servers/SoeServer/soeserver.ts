@@ -249,13 +249,17 @@ export class SOEServer extends EventEmitter {
           (client as any).outputStream.resendData(result.sequence);
           break;
         case "Ack":
-          if (result.sequence > 63000) {
-            // see https://github.com/QuentinGruber/h1z1-server/issues/363
+          if (result.sequence > 40000) {
             console.log("Warn Ack, sequence ", result.sequence);
-            this.emit("PacketLimitationReached", client);
+            this._sendPacket(client, "PacketOrdered",{},true);
+            // see https://github.com/QuentinGruber/h1z1-server/issues/363
+           // this.emit("PacketLimitationReached", client);
           }
-          debug("Ack, sequence " + result.sequence);
-          (client as any).outputStream.ack(result.sequence);
+          else{
+            debug("Ack, sequence " + result.sequence);
+            (client as any).outputStream.ack(result.sequence);
+          }
+
           break;
         case "ZonePing":
           debug("Receive Zone Ping ");
