@@ -16,7 +16,7 @@
     "@types/json-schema": "7.0.9",
     "@types/node": "16.7.9",
     "debug": "4.3.2",
-    "h1emu-core": "0.6.0",
+    "h1emu-core": "0.6.1",
     "h1z1-dataschema": "1.5.6",
     "mongodb": "4.2.0",
     "mongodb-restore-dump": "1.0.1",
