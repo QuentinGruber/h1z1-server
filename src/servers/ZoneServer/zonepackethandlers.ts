@@ -36,6 +36,9 @@ import { UpdatePositionObject } from "../../protocols/h1z1protocol";
 const modelToName = require("../../../data/2015/sampleData/ModelToName.json");
 
 export class zonePacketHandlers {
+  hax:any = hax;
+  dev:any = dev;
+  admin:any = admin;
   ClientIsReady: any;
   ClientFinishedLoading: any;
   Security: any;
@@ -525,15 +528,15 @@ export class zonePacketHandlers {
         case joaat("HELP"):
         case 3575372649: // /help
           const haxCommandList: string[] = [];
-          Object.keys(hax).forEach((key) => {
+          Object.keys(this.hax).forEach((key) => {
             haxCommandList.push(`/hax ${key}`);
           });
           const devCommandList: string[] = [];
-          Object.keys(dev).forEach((key) => {
+          Object.keys(this.dev).forEach((key) => {
             devCommandList.push(`/dev ${key}`);
           });
           const adminCommandList: string[] = [];
-          Object.keys(admin).forEach((key) => {
+          Object.keys(this.admin).forEach((key) => {
             adminCommandList.push(`/admin ${key}`);
           });
           const commandList = [
@@ -573,12 +576,12 @@ export class zonePacketHandlers {
             client.isAdmin ||
             ((server._allowedCommands.length === 0 ||
               server._allowedCommands.includes(commandName)) &&
-              !!hax[commandName])
+              !!this.hax[commandName])
           ) {
             // using !! is faster but ugly
-            hax[commandName](server, client, args);
+            this.hax[commandName](server, client, args);
           } else {
-            if (!!hax[commandName]) {
+            if (server._allowedCommands.includes(commandName)) {
               server.sendChatText(client, "You don't have access to that.");
             } else {
               server.sendChatText(
@@ -594,10 +597,10 @@ export class zonePacketHandlers {
             client.isAdmin ||
             ((server._allowedCommands.length === 0 ||
               server._allowedCommands.includes(commandName)) &&
-              !!dev[commandName])
+              !!this.dev[commandName])
           ) {
             // using !! is faster but ugly
-            dev[commandName](server, client, args);
+            this.dev[commandName](server, client, args);
           } else {
             if (server._allowedCommands.includes(commandName)) {
               server.sendChatText(client, "You don't have access to that.");
@@ -615,10 +618,10 @@ export class zonePacketHandlers {
             client.isAdmin ||
             ((server._allowedCommands.length === 0 ||
               server._allowedCommands.includes(commandName)) &&
-              !!admin[commandName])
+              !!this.admin[commandName])
           ) {
             // using !! is faster but ugly
-            admin[commandName](server, client, args);
+            this.admin[commandName](server, client, args);
           } else {
             if (server._allowedCommands.includes(commandName)) {
               server.sendChatText(client, "You don't have access to that.");
