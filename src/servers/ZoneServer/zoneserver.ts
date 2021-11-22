@@ -68,10 +68,9 @@ export class ZoneServer extends EventEmitter {
   _cycleSpeed: number;
   _frozeCycle: boolean = false;
   _profiles: any[];
-  _weather: Weather;
+  _weather!: Weather;
   _spawnLocations: any;
   _defaultWeatherTemplate: string;
-  _weatherTemplates: any;
   _npcs: any;
   _objects: any;
   _pingTimeoutTime: number;
@@ -131,9 +130,7 @@ export class ZoneServer extends EventEmitter {
     this._timeMultiplier = 72;
     this._cycleSpeed = 0;
     this._soloMode = false;
-    this._weatherTemplates = localWeatherTemplates;
     this._defaultWeatherTemplate = "h1emubaseweather";
-    this._weather = this._weatherTemplates[this._defaultWeatherTemplate];
     this._profiles = [];
     this._interactionDistance = 4;
     this._npcRenderDistance = 350;
@@ -491,12 +488,9 @@ export class ZoneServer extends EventEmitter {
   async setupServer(): Promise<void> {
     this.forceTime(971172000000); // force day time by default - not working for now
     this._frozeCycle = false;
-    await this.loadMongoData();
     this._weather = this._soloMode
-      ? this._weatherTemplates[this._defaultWeatherTemplate]
-      : _.find(this._weatherTemplates, (template: { templateName: string }) => {
-          return template.templateName === this._defaultWeatherTemplate;
-        });
+      ? localWeatherTemplates[this._defaultWeatherTemplate]
+      : await this._db?.collection("weathers").findOne({ templateName: this._defaultWeatherTemplate });
     this._profiles = this.generateProfiles();
     if (
       await this._db?.collection("worlds").findOne({ worldId: this._worldId })
@@ -732,20 +726,6 @@ export class ZoneServer extends EventEmitter {
     );
   }
 
-  async loadMongoData(): Promise<void> {
-    this._spawnLocations = this._soloMode
-      ? localSpawnList
-      : await this._db?.collection("spawns").find().toArray();
-    this._weatherTemplates = this._soloMode
-      ? localWeatherTemplates
-      : await this._db?.collection("weathers").find().toArray();
-  }
-
-  async reloadMongoData(client: Client): Promise<void> {
-    await this.loadMongoData();
-    this.sendChatText(client, "[DEV] Mongo data reloaded", true);
-  }
-
   reloadPackets(client: Client, intervalTime = -1): void {
     this.reloadZonePacketHandlers();
     this._protocol.reloadPacketDefinitions();
@@ -858,15 +838,18 @@ export class ZoneServer extends EventEmitter {
 
     if (isRandomlySpawning) {
       // Take position/rotation from a random spawn location.
+      const spawnLocations = this._soloMode
+      ? localSpawnList
+      : await this._db?.collection("spawns").find().toArray();
       const randomSpawnIndex = Math.floor(
-        Math.random() * this._spawnLocations.length
+        Math.random() * spawnLocations.length
       );
       this._dummySelf.data.position = client.character.state.position =
-        this._spawnLocations[randomSpawnIndex].position;
+        spawnLocations[randomSpawnIndex].position;
       this._dummySelf.data.rotation = client.character.state.rotation =
-        this._spawnLocations[randomSpawnIndex].rotation;
+        spawnLocations[randomSpawnIndex].rotation;
       client.character.spawnLocation =
-        this._spawnLocations[randomSpawnIndex].name;
+        spawnLocations[randomSpawnIndex].name;
     } else {
       if (!this._soloMode) {
         this._dummySelf.data.position = characterDataMongo.position;
@@ -1103,7 +1086,7 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
-  respawnPlayer(client: Client) {
+  async respawnPlayer(client: Client) {
     client.character.isAlive = true;
     client.character.resources.health = 10000;
     client.character.resources.food = 10000;
@@ -1115,14 +1098,17 @@ export class ZoneServer extends EventEmitter {
       state: "000000000000000000",
       gameTime: Int64String(this.getSequenceTime()),
     });
+    const spawnLocations = this._soloMode
+    ? localSpawnList
+    : await this._db?.collection("spawns").find().toArray();
     const randomSpawnIndex = Math.floor(
-      Math.random() * this._spawnLocations.length
+      Math.random() * spawnLocations.length
     );
     this.sendData(client, "ClientUpdate.UpdateLocation", {
-      position: this._spawnLocations[randomSpawnIndex].position,
+      position: spawnLocations[randomSpawnIndex].position,
     });
     client.character.state.position =
-      this._spawnLocations[randomSpawnIndex].position;
+    spawnLocations[randomSpawnIndex].position;
     this.updateResource(
       client,
       client.character.characterId,
@@ -2034,6 +2020,21 @@ export class ZoneServer extends EventEmitter {
       }
     } else {
       this.sendData(client, "SkyChanged", weather);
+    }
+  }
+
+  async changeWeatherWithTemplate(client: Client, weatherTemplate: string): Promise<void> {
+    const weather = this._soloMode ? localSpawnList[weatherTemplate]: await this._db?.collection("weathers").findOne({ templateName: weatherTemplate });
+    if(weather){
+      this._weather = weather;
+      this.SendSkyChangedPacket(client, weather, !this._soloMode);
+    }
+    else{
+      this.sendChatText(client, `"${weatherTemplate}" isn't a weather template`);
+      this.sendChatText(
+          client,
+          `Use "/hax weather list" to know all available templates`
+        );
     }
   }
 

@@ -611,9 +611,9 @@ const hax: any = {
       server._dynamicWeatherWorker = null;
     }
     if (server._soloMode) {
-      server.changeWeather(
+      server.changeWeatherWithTemplate(
         client,
-        server._weatherTemplates[server._defaultWeatherTemplate]
+        server._defaultWeatherTemplate
       );
     }
     else{
@@ -631,35 +631,14 @@ const hax: any = {
     if (server._dynamicWeatherWorker) {
       hax["removedynamicweather"](server, client, args);
     }
-    const weatherTemplate = server._soloMode
-      ? server._weatherTemplates[args[1]]
-      : _.find(server._weatherTemplates, (template: { templateName: any }) => {
-          return template.templateName === args[1];
-        });
-    if (!args[1]) {
+    const choosenTemplate = args[1];
+    if (!choosenTemplate) {
       server.sendChatText(
         client,
         "Please define a weather template to use (data/sampleData/weather.json)"
       );
-    } else if (weatherTemplate) {
-      server.changeWeather(client, weatherTemplate);
-      server.sendChatText(client, `Use "${args[1]}" as a weather template`);
-    } else {
-      if (args[1] === "list") {
-        server.sendChatText(client, `Weather templates :`);
-        _.forEach(
-          server._weatherTemplates,
-          function (element: { templateName: any }) {
-            server.sendChatText(client, `- ${element.templateName}`);
-          }
-        );
-      } else {
-        server.sendChatText(client, `"${args[1]}" isn't a weather template`);
-        server.sendChatText(
-          client,
-          `Use "/hax weather list" to know all available templates`
-        );
-      }
+    }else {
+      server.changeWeatherWithTemplate(client,choosenTemplate)
     }
   },
   weapon: function (server: ZoneServer, client: Client, args: any[]) {
@@ -913,33 +892,17 @@ const hax: any = {
         "Please define a name for your weather template '/hax saveCurrentWeather {name}'"
       );
     } else if (
-      server._weatherTemplates[args[1]] ||
-      _.find(server._weatherTemplates, (template: { templateName: any }) => {
-        return template.templateName === args[1];
-      })
+      await this._db?.collection("weathers").findOne({ templateName: this._defaultWeatherTemplate })
     ) {
       server.sendChatText(client, `"${args[1]}" already exist !`);
     } else {
       const { _weather: currentWeather } = server;
       if (currentWeather) {
         currentWeather.templateName = args[1];
-        if (server._soloMode) {
-          server._weatherTemplates[currentWeather.templateName as string] =
-            currentWeather;
-          fs.writeFileSync(
-            `${__dirname}/../../../../data/sampleData/weather.json`,
-            JSON.stringify(server._weatherTemplates)
-          );
-          delete require.cache[
-            require.resolve("../../../../data/2015/sampleData/weather.json")
-          ];
-          server._weatherTemplates = require("../../../../data/2015/sampleData/weather.json");
-        } else {
+        if (!server._soloMode) {
           await server._db?.collection("weathers").insertOne(currentWeather);
-          server._weatherTemplates = await (server._db as any)
-            .collection("weathers")
-            .find()
-            .toArray();
+        } else {
+          console.error("You can't do that in solomode anymore... sorry")
         }
         server.sendChatText(client, `template "${args[1]}" saved !`);
       } else {

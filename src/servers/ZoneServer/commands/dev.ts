@@ -220,11 +220,6 @@ const dev: any = {
       server.reloadPackets(client);
     }
   },
-  reloadmongo: function (server: ZoneServer, client: Client, args: any[]) {
-    server._soloMode
-      ? server.sendChatText(client, "Can't do that in solomode...")
-      : server.reloadMongoData(client);
-  },
 };
 
 export default dev;
