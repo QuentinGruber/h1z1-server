@@ -57,7 +57,7 @@
     "unknownTime3": "0x0000000000000000",
     "unknownDword24": 0,
     "unknownBoolean5": false,
-    "unknownDword25": 0,
+    "dailyRibbonCount": 1,
     "currentProfile": 3,
     "unknownArray2": [],
     "collections": [],
