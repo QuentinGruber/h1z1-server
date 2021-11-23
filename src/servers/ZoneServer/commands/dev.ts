@@ -126,7 +126,7 @@ const dev: any = {
       characterId: client.character.characterId,
     });
   },
-      hideme: function (server: ZoneServer, client: Client, args: any[]) {
+     hideme: function (server: ZoneServer, client: Client, args: any[]) {
         let state;
         client.character.isHidden = !client.character.isHidden;
         switch(client.character.isHidden)
