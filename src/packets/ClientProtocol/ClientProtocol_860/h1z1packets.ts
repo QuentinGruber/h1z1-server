@@ -2208,7 +2208,7 @@ var packets = [
             { name: "unknownTime2", type: "uint64string", defaultValue: 0 },
             { name: "unknownDword24", type: "uint32", defaultValue: 0 },
             { name: "unknownBoolean5", type: "boolean", defaultValue: true },
-            { name: "unknownDword25", type: "uint32", defaultValue: 0 },
+            { name: "dailyRibbonCount", type: "uint32", defaultValue: 0 },
             {
               name: "profiles",
               type: "array",
