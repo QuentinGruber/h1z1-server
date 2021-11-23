@@ -11,6 +11,7 @@ export class Character {
   extraModel?: string;
   isRunning: boolean;
   isHidden: boolean;
+  isBleeding: boolean;
   resourcesUpdater?: any;
   equipment: characterEquipment[];
   resources: {
@@ -43,6 +44,7 @@ export class Character {
     this.transientId = generatedTransient;
     this.isRunning = false;
     this.isHidden = false;
+    this.isBleeding = false,
     this.equipment = [
       { modelName: "Weapon_Empty.adr", slotId: 1 }, // yeah that's an hack TODO find a better way
       { modelName: "Weapon_Empty.adr", slotId: 7 },
@@ -112,6 +114,9 @@ export class Character {
         this.resources.health = 10000;
       } else if (this.resources.health < 0) {
         this.resources.health = 0;
+      }
+      if (this.isBleeding == true) {
+        server.playerDamage(client, 100);
       }
       const { stamina, food, water, virus } = this.resources;
 
