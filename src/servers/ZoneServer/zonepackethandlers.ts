@@ -2256,5 +2256,7 @@ export class zonePacketHandlers {
     delete require.cache[require.resolve("./commands/dev")];
     hax = require("./commands/hax").default;
     dev = require("./commands/dev").default;
+    this.hax =  require("./commands/hax").default;
+    this.dev = require("./commands/dev").default;
   }
 }
