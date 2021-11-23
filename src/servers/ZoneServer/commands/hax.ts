@@ -342,11 +342,11 @@ const hax: any = {
     };
     server.worldRoutine();
   },
-   bandage: function (server, client, args) {
-        const noEffect = 0;
+   bandage: function (server: ZoneServer, client: Client, args: any[]) {
         if(client.character.resources.health < 10000){
         client.character.resources.health += 3000;
-           if(client.character.isBleeding = true && client.character.resources.health > 4000 ){ 
+           if(client.character.isBleeding == true && client.character.resources.health > 4000 ){ 
+                  const noEffect = 0;
                   client.character.isBleeding = false;
                   server.sendData(client, "Command.PlayDialogEffect", {
                     characterId: client.character.characterId, effectId: noEffect,
