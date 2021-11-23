@@ -398,8 +398,9 @@ export interface passengers {
 }
 
 export interface positionUpdate {
-  position?: any;
-  engineRPM?: any;
+  position?: Float32Array;
+  orientation?:number
+  engineRPM?: number;
 }
 
 export interface characterEquipment {

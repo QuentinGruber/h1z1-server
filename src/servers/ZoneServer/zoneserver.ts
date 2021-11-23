@@ -1387,7 +1387,7 @@ getCollisionEntityType(entityKey: string): number {
       this._vehicles[vehicleGuid].engineOn = true;
       this._vehicles[vehicleGuid].resourcesUpdater = setInterval(() => {
         const fuelLoss =
-          this._vehicles[vehicleGuid].positionUpdate.engineRPM * 0.005;
+          this._vehicles[vehicleGuid].positionUpdate.engineRPM || 0 * 0.005;
         this._vehicles[vehicleGuid].npcData.resources.fuel -= fuelLoss;
         if (this._vehicles[vehicleGuid].npcData.resources.fuel < 0) {
           this._vehicles[vehicleGuid].npcData.resources.fuel = 0;
