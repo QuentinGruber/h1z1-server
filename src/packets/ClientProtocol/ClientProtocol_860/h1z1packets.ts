@@ -6212,7 +6212,15 @@ var packets = [
           ]
       }
   ],
-  ["ClientUpdate.CollectionRemoveEntry", 0x110900, {}],
+  ["ClientUpdate.CollectionRemoveEntry", 
+    0x110900,
+    {
+        fields: [
+              { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+              { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+          ]
+      }
+  ],
   [
     "ClientUpdate.UpdateLocation",
     0x110a00,
