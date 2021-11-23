@@ -36,6 +36,9 @@ import { UpdatePositionObject } from "../../protocols/h1z1protocol";
 const modelToName = require("../../../data/2015/sampleData/ModelToName.json");
 
 export class zonePacketHandlers {
+  hax:any = hax;
+  dev:any = dev;
+  admin:any = admin;
   ClientIsReady: any;
   ClientFinishedLoading: any;
   Security: any;
@@ -262,16 +265,17 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      console.log(packet);
-      if (packet.data.characterId === client.character.characterId) {
-        client.character.state.position = new Float32Array([
-          packet.data.position[0],
-          packet.data.position[1],
-          packet.data.position[2],
-          1,
-        ]);
-        server.playerDamage(client, packet.data.damage);
-      } else {
+      const characterId = packet.data.characterId;
+      const damage = packet.data.damage;
+      const vehicle = server._vehicles[characterId]
+      if (characterId === client.character.characterId) {
+        server.playerDamage(client, damage);
+      }
+      else if(vehicle){
+        const vehicle = server._vehicles[characterId]
+        server.damageVehicle(damage/500,vehicle)
+      }
+       else {
         if (
           packet.data.objectCharacterId != client.vehicle.mountedVehicle &&
           packet.data.damage > 100000
@@ -565,15 +569,15 @@ export class zonePacketHandlers {
         case joaat("HELP"):
         case 3575372649: // /help
           const haxCommandList: string[] = [];
-          Object.keys(hax).forEach((key) => {
+          Object.keys(this.hax).forEach((key) => {
             haxCommandList.push(`/hax ${key}`);
           });
           const devCommandList: string[] = [];
-          Object.keys(dev).forEach((key) => {
+          Object.keys(this.dev).forEach((key) => {
             devCommandList.push(`/dev ${key}`);
           });
           const adminCommandList: string[] = [];
-          Object.keys(admin).forEach((key) => {
+          Object.keys(this.admin).forEach((key) => {
             adminCommandList.push(`/admin ${key}`);
           });
           const commandList = [
@@ -613,12 +617,12 @@ export class zonePacketHandlers {
             client.isAdmin ||
             ((server._allowedCommands.length === 0 ||
               server._allowedCommands.includes(commandName)) &&
-              !!hax[commandName])
+              !!this.hax[commandName])
           ) {
             // using !! is faster but ugly
-            hax[commandName](server, client, args);
+            this.hax[commandName](server, client, args);
           } else {
-            if (!!hax[commandName]) {
+            if (server._allowedCommands.includes(commandName)) {
               server.sendChatText(client, "You don't have access to that.");
             } else {
               server.sendChatText(
@@ -634,10 +638,10 @@ export class zonePacketHandlers {
             client.isAdmin ||
             ((server._allowedCommands.length === 0 ||
               server._allowedCommands.includes(commandName)) &&
-              !!dev[commandName])
+              !!this.dev[commandName])
           ) {
             // using !! is faster but ugly
-            dev[commandName](server, client, args);
+            this.dev[commandName](server, client, args);
           } else {
             if (server._allowedCommands.includes(commandName)) {
               server.sendChatText(client, "You don't have access to that.");
@@ -655,10 +659,10 @@ export class zonePacketHandlers {
             client.isAdmin ||
             ((server._allowedCommands.length === 0 ||
               server._allowedCommands.includes(commandName)) &&
-              !!admin[commandName])
+              !!this.admin[commandName])
           ) {
             // using !! is faster but ugly
-            admin[commandName](server, client, args);
+            this.admin[commandName](server, client, args);
           } else {
             if (server._allowedCommands.includes(commandName)) {
               server.sendChatText(client, "You don't have access to that.");
@@ -887,7 +891,7 @@ export class zonePacketHandlers {
       debug(packet);
       const vehicleData =
         server._vehicles[server._transientIds[packet.data.transientId]];
-      server.damageVehicle(client, packet.data.damage, vehicleData);
+      server.damageVehicle(packet.data.damage, vehicleData);
     };
     this.vehicleDismiss = function (
       server: ZoneServer,
@@ -1395,8 +1399,8 @@ export class zonePacketHandlers {
         clearTimeout(client.hudTimer);
       }
       client.hudTimer = setTimeout(() => {
-        client.managedObjects.forEach((object: any) => {
-          server._vehicles[object.npcData.characterId].isManaged = false;
+        client.managedObjects.forEach((object: string) => {
+          server._vehicles[object].isManaged = false;
         });
         server.sendData(client, "ClientUpdate.CompleteLogoutProcess", {});
       }, timerTime);
@@ -2307,5 +2311,7 @@ export class zonePacketHandlers {
     delete require.cache[require.resolve("./commands/dev")];
     hax = require("./commands/hax").default;
     dev = require("./commands/dev").default;
+    this.hax =  require("./commands/hax").default;
+    this.dev = require("./commands/dev").default;
   }
 }

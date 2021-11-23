@@ -42,8 +42,8 @@ const localSpawnList = require("../../../data/2015/sampleData/spawnLocations.jso
 
 const debugName = "ZoneServer";
 const debug = require("debug")(debugName);
-const spawnLocations = require("../../../data/2015/sampleData/spawnLocations.json");
-const localWeatherTemplates = require("../../../data/2015/sampleData/weather.json");
+let spawnLocations = require("../../../data/2015/sampleData/spawnLocations.json");
+let localWeatherTemplates = require("../../../data/2015/sampleData/weather.json");
 const stats = require("../../../data/2015/sampleData/stats.json");
 const recipes = require("../../../data/2015/sampleData/recipes.json");
 const Z1_POIs = require("../../../data/2015/zoneData/Z1_POIs");
@@ -68,10 +68,9 @@ export class ZoneServer extends EventEmitter {
   _cycleSpeed: number;
   _frozeCycle: boolean = false;
   _profiles: any[];
-  _weather: Weather;
+  _weather!: Weather;
   _spawnLocations: any;
   _defaultWeatherTemplate: string;
-  _weatherTemplates: any;
   _npcs: any;
   _objects: any;
   _pingTimeoutTime: number;
@@ -135,9 +134,7 @@ export class ZoneServer extends EventEmitter {
     this._timeMultiplier = 72;
     this._cycleSpeed = 0;
     this._soloMode = false;
-    this._weatherTemplates = localWeatherTemplates;
     this._defaultWeatherTemplate = "h1emubaseweather";
-    this._weather = this._weatherTemplates[this._defaultWeatherTemplate];
     this._profiles = [];
     this._interactionDistance = 4;
     this._npcRenderDistance = 350;
@@ -492,15 +489,19 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
+  removeSoloCache(){
+    spawnLocations = null;
+    localWeatherTemplates = null;
+    delete require.cache[require.resolve("../../../data/2015/sampleData/spawnLocations.json")];
+    delete require.cache[require.resolve("../../../data/2015/sampleData/weather.json")];
+  }
+
   async setupServer(): Promise<void> {
     this.forceTime(971172000000); // force day time by default - not working for now
     this._frozeCycle = false;
-    await this.loadMongoData();
     this._weather = this._soloMode
-      ? this._weatherTemplates[this._defaultWeatherTemplate]
-      : _.find(this._weatherTemplates, (template: { templateName: string }) => {
-          return template.templateName === this._defaultWeatherTemplate;
-        });
+      ? localWeatherTemplates[this._defaultWeatherTemplate]
+      : await this._db?.collection("weathers").findOne({ templateName: this._defaultWeatherTemplate });
     this._profiles = this.generateProfiles();
     if (
       await this._db?.collection("worlds").findOne({ worldId: this._worldId })
@@ -513,6 +514,7 @@ export class ZoneServer extends EventEmitter {
       await this.saveWorld();
     }
     if (!this._soloMode) {
+      this.removeSoloCache();
       debug("Starting H1emuZoneServer");
       if (!this._loginServerInfo.address) {
         await this.fetchLoginInfo();
@@ -752,20 +754,6 @@ getCollisionEntityType(entityKey: string): number {
     );
   }
 
-  async loadMongoData(): Promise<void> {
-    this._spawnLocations = this._soloMode
-      ? localSpawnList
-      : await this._db?.collection("spawns").find().toArray();
-    this._weatherTemplates = this._soloMode
-      ? localWeatherTemplates
-      : await this._db?.collection("weathers").find().toArray();
-  }
-
-  async reloadMongoData(client: Client): Promise<void> {
-    await this.loadMongoData();
-    this.sendChatText(client, "[DEV] Mongo data reloaded", true);
-  }
-
   reloadPackets(client: Client, intervalTime = -1): void {
     this.reloadZonePacketHandlers();
     this._protocol.reloadPacketDefinitions();
@@ -878,15 +866,18 @@ getCollisionEntityType(entityKey: string): number {
 
     if (isRandomlySpawning) {
       // Take position/rotation from a random spawn location.
+      const spawnLocations = this._soloMode
+      ? localSpawnList
+      : await this._db?.collection("spawns").find().toArray();
       const randomSpawnIndex = Math.floor(
-        Math.random() * this._spawnLocations.length
+        Math.random() * spawnLocations.length
       );
       this._dummySelf.data.position = client.character.state.position =
-        this._spawnLocations[randomSpawnIndex].position;
+        spawnLocations[randomSpawnIndex].position;
       this._dummySelf.data.rotation = client.character.state.rotation =
-        this._spawnLocations[randomSpawnIndex].rotation;
+        spawnLocations[randomSpawnIndex].rotation;
       client.character.spawnLocation =
-        this._spawnLocations[randomSpawnIndex].name;
+        spawnLocations[randomSpawnIndex].name;
     } else {
       if (!this._soloMode) {
         this._dummySelf.data.position = characterDataMongo.position;
@@ -1123,7 +1114,7 @@ getCollisionEntityType(entityKey: string): number {
     }
   }
 
-  respawnPlayer(client: Client) {
+  async respawnPlayer(client: Client) {
     client.character.isAlive = true;
     client.character.resources.health = 10000;
     client.character.resources.food = 10000;
@@ -1135,14 +1126,17 @@ getCollisionEntityType(entityKey: string): number {
       state: "000000000000000000",
       gameTime: Int64String(this.getSequenceTime()),
     });
+    const spawnLocations = this._soloMode
+    ? localSpawnList
+    : await this._db?.collection("spawns").find().toArray();
     const randomSpawnIndex = Math.floor(
-      Math.random() * this._spawnLocations.length
+      Math.random() * spawnLocations.length
     );
     this.sendData(client, "ClientUpdate.UpdateLocation", {
-      position: this._spawnLocations[randomSpawnIndex].position,
+      position: spawnLocations[randomSpawnIndex].position,
     });
     client.character.state.position =
-      this._spawnLocations[randomSpawnIndex].position;
+    spawnLocations[randomSpawnIndex].position;
     this.updateResource(
       client,
       client.character.characterId,
@@ -1173,7 +1167,7 @@ getCollisionEntityType(entityKey: string): number {
     );
   }
 
-  explosionDamage(position: Float32Array) {
+  explosionDamage(position: Float32Array,npcTriggered:string) {
     for (const character in this._clients) {
       const characterObj = this._clients[character];
       if (!characterObj.character.godMode) {
@@ -1187,16 +1181,29 @@ getCollisionEntityType(entityKey: string): number {
         }
       }
     }
+    for (const vehicleKey in this._vehicles) {
+      const vehicle = this._vehicles[vehicleKey];
+      if (!vehicle.isInvulnerable && vehicle.npcData.characterId != npcTriggered) {
+        if (isPosInRadius(5, vehicle.npcData.position, position)) {
+          const distance = getDistance(
+            position,
+            vehicle.npcData.position
+          );
+          const damage = 20000 / distance;
+          this.damageVehicle(damage,vehicle)
+        }
+      }
+    }
   }
 
-  damageVehicle(client: Client, damage: number, vehicle: Vehicle) {
+  damageVehicle(damage: number, vehicle: Vehicle) {
     if (!vehicle.isInvulnerable) {
       let destroyedVehicleEffect: number;
       let destroyedVehicleModel: number;
       let minorDamageEffect: number;
       let majorDamageEffect: number;
       let criticalDamageEffect: number;
-      switch (client.vehicle.mountedVehicleType) {
+      switch (vehicle.vehicleType) {
         case "offroader":
           destroyedVehicleEffect = 135;
           destroyedVehicleModel = 7226;
@@ -1230,6 +1237,12 @@ getCollisionEntityType(entityKey: string): number {
 
       if (vehicle.npcData.resources.health <= 0) {
         vehicle.npcData.resources.health = 0;
+        if (vehicle.passengers.passenger1) {
+          this.dismountVehicle(
+            vehicle.passengers.passenger1,
+            vehicle.npcData.characterId
+          );
+        }
         if (vehicle.passengers.passenger2) {
           this.dismountVehicle(
             vehicle.passengers.passenger2,
@@ -1248,7 +1261,6 @@ getCollisionEntityType(entityKey: string): number {
             vehicle.npcData.characterId
           );
         }
-        this.dismountVehicle(client, vehicle.npcData.characterId);
         this.sendDataToAll("PlayerUpdate.Destroyed", {
           characterId: vehicle.npcData.characterId,
           unknown1: destroyedVehicleEffect, // destroyed offroader effect
@@ -1256,7 +1268,7 @@ getCollisionEntityType(entityKey: string): number {
           unknown3: 0,
           disableWeirdPhysics: false,
         });
-        this.explosionDamage(vehicle.npcData.position);
+        this.explosionDamage(vehicle.npcData.position,vehicle.npcData.characterId);
         vehicle.npcData.destroyedState = 4;
         this.sendDataToAll(
           "PlayerUpdate.RemovePlayerGracefully",
@@ -1267,10 +1279,13 @@ getCollisionEntityType(entityKey: string): number {
           },
           1
         );
-        client.vehicle.mountedVehicleType = "0";
-        delete client.vehicle.mountedVehicle;
-        client.vehicle.vehicleState = 0;
-        this.vehicleDelete(client);
+        if(vehicle.passengers.passenger1){
+          const client = this._clients[vehicle.passengers.passenger1];
+          client.vehicle.mountedVehicleType = "0";
+          delete client.vehicle.mountedVehicle;
+          client.vehicle.vehicleState = 0;
+          this.vehicleDelete(client);
+        }
       } else if (
         vehicle.npcData.resources.health <= 50000 &&
         vehicle.npcData.resources.health > 35000
@@ -1278,7 +1293,7 @@ getCollisionEntityType(entityKey: string): number {
         if (vehicle.npcData.destroyedState != 1) {
           vehicle.npcData.destroyedState = 1;
           this.sendDataToAll("PlayerUpdate.SetSpawnerActivationEffect", {
-            characterId: client.vehicle.mountedVehicle,
+            characterId: vehicle.npcData.characterId,
             effectId: minorDamageEffect,
           });
         }
@@ -1288,16 +1303,16 @@ getCollisionEntityType(entityKey: string): number {
       ) {
         if (vehicle.npcData.destroyedState != 2) {
           vehicle.npcData.destroyedState = 2;
-          this.sendData(client, "PlayerUpdate.SetSpawnerActivationEffect", {
-            characterId: client.vehicle.mountedVehicle,
+          this.sendDataToAll( "PlayerUpdate.SetSpawnerActivationEffect", {
+            characterId: vehicle.npcData.characterId,
             effectId: majorDamageEffect,
           });
         }
       } else if (vehicle.npcData.resources.health <= 20000) {
         if (vehicle.npcData.destroyedState != 3) {
           vehicle.npcData.destroyedState = 3;
-          this.sendData(client, "PlayerUpdate.SetSpawnerActivationEffect", {
-            characterId: client.vehicle.mountedVehicle,
+          this.sendDataToAll("PlayerUpdate.SetSpawnerActivationEffect", {
+            characterId: vehicle.npcData.characterId,
             effectId: criticalDamageEffect,
           });
         }
@@ -2111,6 +2126,21 @@ getCollisionEntityType(entityKey: string): number {
       }
     } else {
       this.sendData(client, "SkyChanged", weather);
+    }
+  }
+
+  async changeWeatherWithTemplate(client: Client, weatherTemplate: string): Promise<void> {
+    const weather = this._soloMode ? localSpawnList[weatherTemplate]: await this._db?.collection("weathers").findOne({ templateName: weatherTemplate });
+    if(weather){
+      this._weather = weather;
+      this.SendSkyChangedPacket(client, weather, !this._soloMode);
+    }
+    else{
+      this.sendChatText(client, `"${weatherTemplate}" isn't a weather template`);
+      this.sendChatText(
+          client,
+          `Use "/hax weather list" to know all available templates`
+        );
     }
   }
 
