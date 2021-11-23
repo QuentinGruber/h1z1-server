@@ -6242,7 +6242,15 @@ var packets = [
   ],
   ["ClientUpdate.UpdateProfileExperience", 0x110c00, {}],
   ["ClientUpdate.AddProfileAbilitySetApl", 0x110d00, {}],
-  ["ClientUpdate.AddEffectTag", 0x110e00, {}],
+  ["ClientUpdate.AddEffectTag",
+    0x110e00,
+        {
+            fields: [
+              { name: "unknownDword1", type: "uint32", defaultValue: 1 },
+              { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+          ],
+      },
+  ],
   ["ClientUpdate.RemoveEffectTag", 0x110f00, {}],
   ["ClientUpdate.UpdateProfileRank", 0x111000, {}],
   ["ClientUpdate.CoinCount", 0x111100, {}],
