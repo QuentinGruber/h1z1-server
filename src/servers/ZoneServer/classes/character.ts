@@ -42,6 +42,7 @@ export class Character {
     this.characterId = characterId;
     this.transientId = generatedTransient;
     this.isRunning = false;
+    this.isHidden = false;
     this.equipment = [
       { modelName: "Weapon_Empty.adr", slotId: 1 }, // yeah that's an hack TODO find a better way
       { modelName: "Weapon_Empty.adr", slotId: 7 },
