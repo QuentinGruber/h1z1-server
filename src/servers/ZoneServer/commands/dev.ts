@@ -130,7 +130,7 @@ const dev: any = {
         let state;
         client.character.isHidden = !client.character.isHidden;
         switch(client.character.isHidden)
-        {
+          {
             case true:
                 state = "0000000000A000000";
                 server.sendDataToAllOthers(client, "PlayerUpdate.RemovePlayer", {
