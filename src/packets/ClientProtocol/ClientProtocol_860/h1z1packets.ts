@@ -6197,7 +6197,21 @@ var packets = [
   ],
   ["ClientUpdate.CollectionStart", 0x110600, {}],
   ["ClientUpdate.CollectionRemove", 0x110700, {}],
-  ["ClientUpdate.CollectionAddEntry", 0x110800, {}],
+  ["ClientUpdate.CollectionAddEntry", 
+        0x110800,
+        {
+            fields: [
+              { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+              { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+              { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+              { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+              { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+              { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+              { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+              { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+          ]
+      }
+  ],
   ["ClientUpdate.CollectionRemoveEntry", 0x110900, {}],
   [
     "ClientUpdate.UpdateLocation",
