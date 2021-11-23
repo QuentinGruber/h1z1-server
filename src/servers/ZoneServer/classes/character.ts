@@ -27,6 +27,7 @@ export class Character {
   factionId?: number;
   spawnLocation?: string;
   godMode: boolean;
+  isHidden: boolean,
   state: {
     position: Float32Array;
     rotation: Float32Array;
