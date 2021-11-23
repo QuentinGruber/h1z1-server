@@ -6241,7 +6241,20 @@ var packets = [
     },
   ],
   ["ClientUpdate.UpdateProfileExperience", 0x110c00, {}],
-  ["ClientUpdate.AddProfileAbilitySetApl", 0x110d00, {}],
+  ["ClientUpdate.AddProfileAbilitySetApl", 
+    0x110d00, 
+        {
+            fields: [
+                { name: "unknownDword1", type: "uint32", defaultValue: 4 },
+                {
+                    name: "profiles",
+                    type: "array",
+                    defaultValue: [],
+                    fields: profileDataSchema,
+              },
+          ]
+      }
+  ],
   ["ClientUpdate.AddEffectTag",
     0x110e00,
         {
