@@ -126,6 +126,37 @@ const dev: any = {
       characterId: client.character.characterId,
     });
   },
+      hideme: function (server: ZoneServer, client: Client, args: any[]) {
+        let state;
+        client.character.isHidden = !client.character.isHidden;
+        switch(client.character.isHidden)
+        {
+            case true:
+                state = "0000000000A000000";
+                server.sendDataToAllOthers(client, "PlayerUpdate.RemovePlayer", {
+                    characterId: client.character.characterId,
+                });
+                break;
+            case false:
+                state = "000000000000000000";
+                server.sendDataToAllOthers(client, "PlayerUpdate.AddLightweightPc", {
+                    characterId: client.character.characterId,
+                    transientId: client.character.transientId,
+                    characterFirstName: client.character.name,
+                    position: client.character.state.position,
+                    rotation: client.character.state.rotation,
+                });
+                server.sendDataToAllOthers(client, "PlayerUpdate.LightweightToFullPc", {
+                    transientId: client.character.transientId,
+                });
+                break;
+        }
+        server.sendData(client, "PlayerUpdate.UpdateCharacterState", {
+            characterId: client.character.characterId,
+            state: state,
+            gameTime: server.getSequenceTime(),
+        });
+    },
   testnpcrelevance: function (server: ZoneServer, client: Client, args: any[]) {
     const npcs = Object.values(server._npcs).map((npc: any) => {
       return { guid: npc.characterId };
