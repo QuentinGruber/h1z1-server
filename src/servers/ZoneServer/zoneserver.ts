@@ -1039,21 +1039,22 @@ export class ZoneServer extends EventEmitter {
     }
   }
   killCharacter(client: Client) {
-    debug(client.character.name + " has died");
-    client.character.isAlive = false;
+    const character = client.character;
+    debug(character.name + " has died");
+    character.isAlive = false;
     this.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
-      characterId: client.character.characterId,
+      characterId: character.characterId,
       state: "0000000000000000C00",
       gameTime: Int64String(this.getSequenceTime()),
     });
     if (!client.vehicle.mountedVehicle) {
       this.sendDataToAll("Ragdoll.UpdatePose", {
-        characterId: client.character.characterId,
+        characterId: character.characterId,
         positionUpdate: {
           sequenceTime: this.getSequenceTime(),
           unknown3_int8: 1,
           stance: 1089,
-          position: client.character.state.position,
+          position: character.state.position,
           orientation: 0,
           frontTilt: 0,
           sideTilt: 0,
@@ -1068,9 +1069,32 @@ export class ZoneServer extends EventEmitter {
       });
     } else {
       this.sendDataToAllOthers(client, "PlayerUpdate.RemovePlayerGracefully", {
-        characterId: client.character.characterId,
+        characterId: character.characterId,
       });
     }
+    const guid = this.generateGuid();
+        const transientId = 1;
+        const burlapbag = this.generateGuid();
+        const character = client.character;
+        const prop = {
+            characterId: burlapbag,
+            worldId: this._worldId,
+            guid: guid,
+            transientId: transientId,
+            modelId: 9,
+            position: character.state.position,
+            rotation: [0, 0, 0, 0,],
+            scale: [1,1,1,1],
+            attachedObject: {},
+            isVehicle: false,
+            color: {},
+            array5: [{ unknown1: 0 }],
+            array17: [{ unknown1: 0 }],
+            array18: [{ unknown1: 0 }],
+        };
+        this.sendDataToAll("PlayerUpdate.AddLightweightNpc", prop);
+        this._db?.collection("props").insertOne(prop);
+        this._props[burlapbag] = prop;
   }
 
   playerDamage(client: Client, damage: number) {
