@@ -348,7 +348,7 @@ const hax: any = {
            if(client.character.isBleeding == true && client.character.resources.health > 4000 ){ 
                   const noEffect = 0;
                   client.character.isBleeding = false;
-                  server.sendData(client, "Command.PlayDialogEffect", {
+                  server.sendDataToAll("Command.PlayDialogEffect", {
                     characterId: client.character.characterId, effectId: noEffect,
                   });
                 }
