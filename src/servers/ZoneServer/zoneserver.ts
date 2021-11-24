@@ -1836,6 +1836,7 @@ export class ZoneServer extends EventEmitter {
         client.character.characterId != character &&
         !client.spawnedEntities.includes(characterObj)
       ) {
+         if(!characterObj.isHidden){
         this.sendData(
           client,
           "PlayerUpdate.AddLightweightPc",
@@ -1852,6 +1853,7 @@ export class ZoneServer extends EventEmitter {
       }
     }
   }
+}
 
   spawnVehicles(client: Client) {
     for (const vehicle in this._vehicles) {
