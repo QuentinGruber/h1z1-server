@@ -14,9 +14,9 @@ function getHeadActor(modelId: number) {
     case 9474:
       return "SurvivorFemale_Head_01.adr";
     case 9510:
-      return "ZombieFemale_Head_01.adr";
+      return `ZombieFemale_Head_0${Math.floor(Math.random()*3)+1}.adr`;
     case 9634:
-      return "ZombieMale_Head_01.adr";
+      return `ZombieMale_Head_0${Math.floor(Math.random()*4)+1}.adr`;
     default:
       return "";
   }
@@ -370,24 +370,18 @@ const hax: any = {
     }
     const choosenModelId = Number(args[1]);
     const characterId = server.generateGuid();
+    const headactor = getHeadActor(choosenModelId)
+    console.log(headactor)
     const npc = {
       characterId: characterId,
       guid: guid,
       transientId: transientId,
       modelId: choosenModelId,
-      position: [
-        client.character.state.position[0],
-        client.character.state.position[1],
-        client.character.state.position[2],
-      ],
-      rotation: [
-        client.character.state.rotation[0],
-        client.character.state.rotation[1],
-        client.character.state.rotation[2],
-      ],
+      position: client.character.state.position,
+      rotation: client.character.state.lookAt,
       color: {},
       unknownData1: { unknownData1: {} },
-      headActor: getHeadActor(choosenModelId),
+      headActor: headactor,
       attachedObject: {},
     };
     server._npcs[characterId] = npc; // save npc
@@ -448,16 +442,8 @@ const hax: any = {
       name: args[1],
       state: {
         ...pc.state,
-        position: new Float32Array([
-          client.character.state.position[0],
-          client.character.state.position[1],
-          client.character.state.position[2],
-        ]),
-        lookAt: new Float32Array([
-          client.character.state.lookAt[0],
-          client.character.state.lookAt[1],
-          client.character.state.lookAt[2],
-        ]),
+        position: client.character.state.position,
+        lookAt: client.character.state.lookAt,
       },
     };
     server._characters[characterId] = pc; // save pc

@@ -11,9 +11,9 @@ const debug = require("debug")("ZoneServer");
 function getHeadActor(modelId: number): any {
     switch (modelId) {
       case 9510:
-        return `ZombieFemale_Head_0${Math.floor(Math.random()*3)}.adr`;
+        return `ZombieFemale_Head_0${Math.floor(Math.random()*2)+1}.adr`;
       case 9634:
-        return `ZombieMale_Head_0${Math.floor(Math.random()*4)}.adr`;
+        return `ZombieMale_Head_0${Math.floor(Math.random()*3)+1}.adr`;
       default:
         return "";
     }
