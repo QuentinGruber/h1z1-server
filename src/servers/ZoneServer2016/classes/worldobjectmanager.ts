@@ -4,7 +4,6 @@ const Z1_items = require("../../../../data/2016/zoneData/Z1_items.json");
 const Z1_vehicles = require("../../../../data/2016/zoneData/Z1_vehicleLocations.json");
 const Z1_npcs = require("../../../../data/2016/zoneData/Z1_npcs.json");
 const models = require("../../../../data/2016/dataSources/Models.json");
-const modelToName = require("../../../../data/2016/dataSources/ModelToName.json");
 import { _, generateRandomGuid, isPosInRadius } from "../../../utils/utils";
 import { Vehicle2016 as Vehicle } from "./../classes/vehicle";
 const debug = require("debug")("ZoneServer");
@@ -106,15 +105,6 @@ export class WorldObjectManager {
         dictionary: any,
         itemSpawnerId: number = -1
       ): void {
-        /*
-        let stringNameId = 0;
-        modelToName.forEach((spawnername: any) => {
-          if (modelID === spawnername.modelId) {
-            stringNameId = spawnername.NameId;
-          }
-        });
-        */
-
         const guid = generateRandomGuid(),
         characterId = generateRandomGuid();
         dictionary[characterId] = {
