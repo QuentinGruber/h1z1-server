@@ -5,7 +5,7 @@ const Z1_vehicles = require("../../../../data/2016/zoneData/Z1_vehicleLocations.
 const Z1_npcs = require("../../../../data/2016/zoneData/Z1_npcs.json");
 const models = require("../../../../data/2016/dataSources/Models.json");
 const modelToName = require("../../../../data/2016/dataSources/ModelToName.json");
-import { _, generateRandomGuid } from "../../../utils/utils";
+import { _, generateRandomGuid, isPosInRadius } from "../../../utils/utils";
 import { Vehicle2016 as Vehicle } from "./../classes/vehicle";
 const debug = require("debug")("ZoneServer");
 
@@ -37,13 +37,20 @@ function getRandomVehicleId() {
 }
 
 export class WorldObjectManager {
-    firstRun: boolean = true;
+    spawnedObjects: { [spawnerId: number]: string } = {};
+
     lastLootRespawnTime: number = 0;
     lastVehicleRespawnTime: number = 0;
     lastNpcRespawnTime: number = 0;
     lootRespawnTimer: number = 600000; // 10 minutes
-    vehicleRespawnTimer: number = 600000; // 10 minutes
+    vehicleRespawnTimer: number = 600000; // 10 minutes // 600000
     npcRespawnTimer: number = 600000; // 10 minutes
+
+    // objects won't spawn if another object is within this radius
+    vehicleSpawnRadius: number = 50;
+    npcSpawnRadius: number = 10;
+    // only really used to check if another loot object is already spawned in the same exact spot
+    lootSpawnRadius: number = 1; 
 
     chancePumpShotgun: number = 50;
     chanceAR15: number = 50;
@@ -68,60 +75,62 @@ export class WorldObjectManager {
     constructor() {
 
     }
-    run(server: ZoneServer2016) {
-        if(this.firstRun) {
-            //this.createDoors(server);
 
-            // TEMPORARY UNTIL RESPAWNS WORK
-            this.createVehicles(server);
-            this.createNpcs(server);
-            this.createLoot(server);
-            ////////////////////////////////
-            this.firstRun = false;
-        }
-        /*
-        if(this.lastLootRespawnTime + this.lootRespawnTimer >= Date.now()) {
+    spawnAll(server: ZoneServer2016) {
+      this.createDoors(server);
+      this.createVehicles(server);
+      this.createNpcs(server);
+      this.createLoot(server);
+    }
+
+    run(server: ZoneServer2016) {
+      debug("WOM::Run")
+        if(this.lastLootRespawnTime + this.lootRespawnTimer <= Date.now()) {
             this.createLoot(server);
             this.lastLootRespawnTime = Date.now();
         }
-        if(this.lastNpcRespawnTime + this.npcRespawnTimer >= Date.now()) {
+        if(this.lastNpcRespawnTime + this.npcRespawnTimer <= Date.now()) {
             this.createNpcs(server);
             this.lastNpcRespawnTime = Date.now();
         }
-        if(this.lastVehicleRespawnTime + this.vehicleRespawnTimer >= Date.now()) {
+        if(this.lastVehicleRespawnTime + this.vehicleRespawnTimer <= Date.now()) {
             this.createVehicles(server);
             this.lastVehicleRespawnTime = Date.now();
         }
-        */
     }
     createEntity(// todo: clean this up
         server: ZoneServer2016,
         modelID: number,
         position: Array<number>,
         rotation: Array<number>,
-        dictionary: any
+        dictionary: any,
+        itemSpawnerId: number = -1
       ): void {
+        /*
         let stringNameId = 0;
         modelToName.forEach((spawnername: any) => {
           if (modelID === spawnername.modelId) {
             stringNameId = spawnername.NameId;
           }
         });
-      
-        const guid = generateRandomGuid();
-        const characterId = generateRandomGuid();
+        */
+
+        const guid = generateRandomGuid(),
+        characterId = generateRandomGuid();
         dictionary[characterId] = {
           characterId: characterId,
           guid: guid,
           transientId: server.getTransientId(characterId),
-          nameId: stringNameId,
+          nameId: 0,
           modelId: modelID,
           position: position,
           rotation: rotation,
           headActor: getHeadActor(modelID),
           attachedObject: {},
           color: {},
+          spawnerId: itemSpawnerId || 0
         };
+        if(itemSpawnerId) this.spawnedObjects[itemSpawnerId] = characterId;
     }
 
     createDoors(server: ZoneServer2016): void {
@@ -143,11 +152,20 @@ export class WorldObjectManager {
             );
           });
         });
-        debug("All doors objects created");
+        debug("All door objects created");
     }
 
     createVehicles(server: ZoneServer2016) {
         Z1_vehicles.forEach((vehicle: any) => {
+            let spawn = true;
+            _.forEach(server._vehicles, (spawnedVehicle: Vehicle) => {
+                if(isPosInRadius(
+                    this.vehicleSpawnRadius, 
+                    vehicle.position, 
+                    spawnedVehicle.npcData.position)
+                ) spawn = false; return; 
+            })
+          if(!spawn) return;
           const characterId = generateRandomGuid();
           const vehicleData = new Vehicle(
             server._worldId,
@@ -183,20 +201,29 @@ export class WorldObjectManager {
               break;
           }
           if (authorizedModelId.length) {
-            spawnerType.instances.forEach((itemInstance: any) => {
+            let spawn = true;
+            spawnerType.instances.forEach((npcInstance: any) => {
+              _.forEach(server._npcs, (spawnedNpc: any) => {
+                if(isPosInRadius(
+                    this.npcSpawnRadius, 
+                    npcInstance.position, 
+                    spawnedNpc.position)
+                  )  spawn = false; return; 
+              })
+              if(!spawn) return;
               const spawnchance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
               if (spawnchance <= this.chanceNpc) {
                 const screamerChance = Math.floor(Math.random() * 1000) + 1; // temporary spawnchance
                 if (screamerChance <= this.chanceScreamer) {
                   authorizedModelId.push(9667);
                 }
-                const r = itemInstance.rotation;
+                const r = npcInstance.rotation;
                 this.createEntity(
                   server,
                   authorizedModelId[
                     Math.floor(Math.random() * authorizedModelId.length)
                   ],
-                  itemInstance.position,
+                  npcInstance.position,
                   [0, r[0], 0],
                   server._npcs
                 );
@@ -267,6 +294,7 @@ export class WorldObjectManager {
         }
         if (authorizedModelId.length) {
           spawnerType.instances.forEach((itemInstance: any) => {
+            if(this.spawnedObjects[itemInstance.id]) return;
             const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
             if (chance <= this.chanceAR15) {
               // temporary spawnchance
@@ -279,7 +307,8 @@ export class WorldObjectManager {
                 itemInstance.position,
                 //itemInstance.rotation,
                 [r[1], r[0], r[2]],
-                server._objects
+                server._objects,
+                itemInstance.id
               );
             }
           });
@@ -299,6 +328,7 @@ export class WorldObjectManager {
         }
         if (authorizedModelId.length) {
           spawnerType.instances.forEach((itemInstance: any) => {
+            if(this.spawnedObjects[itemInstance.id]) return;
             const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
             if (chance <= this.chancePumpShotgun) {
               // temporary spawnchance
@@ -311,7 +341,8 @@ export class WorldObjectManager {
                 itemInstance.position,
                 //itemInstance.rotation,
                 [r[1], r[0], r[2]],
-                server._objects
+                server._objects,
+                itemInstance.id
               );
             }
           });
@@ -372,6 +403,7 @@ export class WorldObjectManager {
         }
         if (authorizedModelId.length) {
           spawnerType.instances.forEach((itemInstance: any) => {
+            if(this.spawnedObjects[itemInstance.id]) return;
             const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
             if (chance <= this.chanceTools) {
               // temporary spawnchance
@@ -384,7 +416,8 @@ export class WorldObjectManager {
                 itemInstance.position,
                 //itemInstance.rotation,
                 [r[1], r[0], r[2]],
-                server._objects
+                server._objects,
+                itemInstance.id
               );
             }
           });
@@ -408,6 +441,7 @@ export class WorldObjectManager {
         }
         if (authorizedModelId.length) {
           spawnerType.instances.forEach((itemInstance: any) => {
+            if(this.spawnedObjects[itemInstance.id]) return;
             const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
             if (chance <= this.chancePistols) {
               // temporary spawnchance
@@ -420,7 +454,8 @@ export class WorldObjectManager {
                 itemInstance.position,
                 //itemInstance.rotation,
                 [r[1], r[0], r[2]],
-                server._objects
+                server._objects,
+                itemInstance.id
               );
             }
           });
@@ -441,6 +476,7 @@ export class WorldObjectManager {
         }
         if (authorizedModelId.length) {
           spawnerType.instances.forEach((itemInstance: any) => {
+            if(this.spawnedObjects[itemInstance.id]) return;
             const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
             if (chance <= this.chanceM24) {
               // temporary spawnchance
@@ -453,7 +489,8 @@ export class WorldObjectManager {
                 itemInstance.position,
                 //itemInstance.rotation,
                 [r[1], r[0], r[2]],
-                server._objects
+                server._objects,
+                itemInstance.id
               );
             }
           });
@@ -478,6 +515,7 @@ export class WorldObjectManager {
         }
         if (authorizedModelId.length) {
           spawnerType.instances.forEach((itemInstance: any) => {
+            if(this.spawnedObjects[itemInstance.id]) return;
             const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
             if (chance <= this.chanceConsumables) {
               // temporary spawnchance
@@ -490,7 +528,8 @@ export class WorldObjectManager {
                 itemInstance.position,
                 //itemInstance.rotation,
                 [r[1], r[0], r[2]],
-                server._objects
+                server._objects,
+                itemInstance.id
               );
             }
           });
@@ -518,6 +557,7 @@ export class WorldObjectManager {
         }
         if (authorizedModelId.length) {
           spawnerType.instances.forEach((itemInstance: any) => {
+            if(this.spawnedObjects[itemInstance.id]) return;
             const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
             if (chance <= this.chanceClothes) {
               // temporary spawnchance
@@ -530,7 +570,8 @@ export class WorldObjectManager {
                 itemInstance.position,
                 //itemInstance.rotation,
                 [r[1], r[0], r[2]],
-                server._objects
+                server._objects,
+                itemInstance.id
               );
             }
           });
@@ -568,6 +609,7 @@ export class WorldObjectManager {
         }
         if (authorizedModelId.length) {
           spawnerType.instances.forEach((itemInstance: any) => {
+            if(this.spawnedObjects[itemInstance.id]) return;
             const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
             if (chance <= this.chanceResidential) {
               // temporary spawnchance
@@ -580,7 +622,8 @@ export class WorldObjectManager {
                 itemInstance.position,
                 //itemInstance.rotation,
                 [r[1], r[0], r[2]],
-                server._objects
+                server._objects,
+                itemInstance.id
               );
             }
           });
@@ -604,6 +647,7 @@ export class WorldObjectManager {
         }
         if (authorizedModelId.length) {
           spawnerType.instances.forEach((itemInstance: any) => {
+            if(this.spawnedObjects[itemInstance.id]) return;
             const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
             if (chance <= this.chanceRare) {
               // temporary spawnchance
@@ -616,7 +660,8 @@ export class WorldObjectManager {
                 itemInstance.position,
                 //itemInstance.rotation,
                 [r[1], r[0], r[2]],
-                server._objects
+                server._objects,
+                itemInstance.id
               );
             }
           });
@@ -644,6 +689,7 @@ export class WorldObjectManager {
         }
         if (authorizedModelId.length) {
           spawnerType.instances.forEach((itemInstance: any) => {
+            if(this.spawnedObjects[itemInstance.id]) return;
             const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
             if (chance <= this.chanceIndustrial) {
               // temporary spawnchance
@@ -656,7 +702,8 @@ export class WorldObjectManager {
                 itemInstance.position,
                 //itemInstance.rotation,
                 [r[1], r[0], r[2]],
-                server._objects
+                server._objects,
+                itemInstance.id
               );
             }
           });
@@ -684,6 +731,7 @@ export class WorldObjectManager {
         }
         if (authorizedModelId.length) {
           spawnerType.instances.forEach((itemInstance: any) => {
+            if(this.spawnedObjects[itemInstance.id]) return;
             const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
             if (chance <= this.chanceWorld) {
               // temporary spawnchance
@@ -696,7 +744,8 @@ export class WorldObjectManager {
                 itemInstance.position,
                 //itemInstance.rotation,
                 [r[1], r[0], r[2]],
-                server._objects
+                server._objects,
+                itemInstance.id
               );
             }
           });
@@ -716,6 +765,7 @@ export class WorldObjectManager {
         }
         if (authorizedModelId.length) {
           spawnerType.instances.forEach((itemInstance: any) => {
+            if(this.spawnedObjects[itemInstance.id]) return;
             const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
             if (chance <= this.chanceLog) {
               // temporary spawnchance
@@ -728,7 +778,8 @@ export class WorldObjectManager {
                 itemInstance.position,
                 //itemInstance.rotation,
                 [r[1], r[0], r[2]],
-                server._objects
+                server._objects,
+                itemInstance.id
               );
             }
           });
@@ -753,6 +804,7 @@ export class WorldObjectManager {
         }
         if (authorizedModelId.length) {
           spawnerType.instances.forEach((itemInstance: any) => {
+            if(this.spawnedObjects[itemInstance.id]) return;
             const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
             if (chance <= this.chanceCommercial) {
               // temporary spawnchance
@@ -765,7 +817,8 @@ export class WorldObjectManager {
                 itemInstance.position,
                 //itemInstance.rotation,
                 [r[1], r[0], r[2]],
-                server._objects
+                server._objects,
+                itemInstance.id
               );
             }
           });
@@ -787,6 +840,7 @@ export class WorldObjectManager {
         }
         if (authorizedModelId.length) {
           spawnerType.instances.forEach((itemInstance: any) => {
+            if(this.spawnedObjects[itemInstance.id]) return;
             const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
             if (chance <= this.chanceFarm) {
               // temporary spawnchance
@@ -799,7 +853,8 @@ export class WorldObjectManager {
                 itemInstance.position,
                 //itemInstance.rotation,
                 [r[1], r[0], r[2]],
-                server._objects
+                server._objects,
+                itemInstance.id
               );
             }
           });
@@ -824,6 +879,7 @@ export class WorldObjectManager {
         }
         if (authorizedModelId.length) {
           spawnerType.instances.forEach((itemInstance: any) => {
+            if(this.spawnedObjects[itemInstance.id]) return;
             const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
             if (chance <= this.chanceHospital) {
               // temporary spawnchance
@@ -836,7 +892,8 @@ export class WorldObjectManager {
                 itemInstance.position,
                 //itemInstance.rotation,
                 [r[1], r[0], r[2]],
-                server._objects
+                server._objects,
+                itemInstance.id
               );
             }
           });
@@ -907,6 +964,7 @@ export class WorldObjectManager {
         }
         if (authorizedModelId.length) {
           spawnerType.instances.forEach((itemInstance: any) => {
+            if(this.spawnedObjects[itemInstance.id]) return;
             const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
             if (chance <= this.chanceMilitary) {
               // temporary spawnchance
@@ -919,7 +977,8 @@ export class WorldObjectManager {
                 itemInstance.position,
                 //itemInstance.rotation,
                 [r[1], r[0], r[2]],
-                server._objects
+                server._objects,
+                itemInstance.id
               );
             }
           });

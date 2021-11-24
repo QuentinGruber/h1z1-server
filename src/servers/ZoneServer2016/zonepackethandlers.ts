@@ -10,7 +10,7 @@ let hax = require("./commands/hax").default;
 
 let dev = require("./commands/dev").default;
 
-import admin from "./commands/admin";
+let admin = require("./commands/dev").default;
 
 import { _, Int64String, isPosInRadius } from "../../utils/utils";
 
@@ -965,6 +965,7 @@ export class zonePacketHandlers {
 
           server.equipItem(client, itemGuid);
           server.deleteEntity(guid, server._objects);
+          delete server.worldObjectManager.spawnedObjects[entityData.spawnerId];
           break;
         case 2: // vehicle
           !client.vehicle.mountedVehicle
@@ -1227,7 +1228,9 @@ export class zonePacketHandlers {
   async reloadCommandCache() {
     delete require.cache[require.resolve("./commands/hax")];
     delete require.cache[require.resolve("./commands/dev")];
+    delete require.cache[require.resolve("./commands/admin")];
     hax = require("./commands/hax").default;
     dev = require("./commands/dev").default;
+    admin = require("./commands/admin").default;
   }
 }

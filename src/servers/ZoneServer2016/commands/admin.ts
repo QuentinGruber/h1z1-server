@@ -20,6 +20,29 @@ const admin: any = {
     const startedTime = Date.now();
     await zoneShutdown(server, startedTime, timeLeft, message);
   },
+  // respawnloot, respawnnpcs, respawnvehicles
+  // lootrespawntime, npcrespawntime, vehiclerespawntime
+  respawnloot: function (server: ZoneServer2016, client: Client, args: any[]) {
+    server.worldObjectManager.createLoot(server);
+    server.sendChatText(
+      client,
+      `Respawned loot`
+    );
+  },
+  respawnnpcs: function (server: ZoneServer2016, client: Client, args: any[]) {
+    server.worldObjectManager.createNpcs(server);
+    server.sendChatText(
+      client,
+      `Respawned npcs`
+    );
+  },
+  respawnvehicles: function (server: ZoneServer2016, client: Client, args: any[]) {
+    server.worldObjectManager.createVehicles(server);
+    server.sendChatText(
+      client,
+      `Respawned vehicles`
+    );
+  }
 };
 
 export default admin;

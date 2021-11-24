@@ -54,6 +54,7 @@ export class ZoneServer2016 extends ZoneServer {
   _clients: { [characterId: string]: Client } = {};
   _characters: { [characterId: string]: Character } = {};
   worldObjectManager: WorldObjectManager;
+  _ready: boolean = false;
 
   constructor(serverPort: number, gatewayKey: Uint8Array, mongoAddress = "") {
     super(serverPort, gatewayKey, mongoAddress, 0);
@@ -597,9 +598,11 @@ export class ZoneServer2016 extends ZoneServer {
         await this._db
           ?.collection(`npcs`)
           .insertMany(Object.values(this._npcs));
+          /*
         await this._db
           ?.collection(`doors`)
           .insertMany(Object.values(this._doors));
+          */
         /*
         await this._db
           ?.collection(`props`)
@@ -621,7 +624,6 @@ export class ZoneServer2016 extends ZoneServer {
     this._frozeCycle = false;
     await this.fetchZoneData();
     this._profiles = this.generateProfiles();
-
     if (
       await this._db?.collection("worlds").findOne({ worldId: this._worldId })
     ) {
@@ -632,6 +634,10 @@ export class ZoneServer2016 extends ZoneServer {
         .insertOne({ worldId: this._worldId });
       await this.saveWorld();
     }
+
+    // spawns all initial objects
+    this.worldObjectManager.spawnAll(this);
+
     if (!this._soloMode) {
       debug("Starting H1emuZoneServer");
       if (!this._loginServerInfo.address) {
@@ -648,6 +654,7 @@ export class ZoneServer2016 extends ZoneServer {
           { $set: { populationNumber: 0, populationLevel: 0 } }
         );
     }
+    this._ready = true;
     debug("Server ready");
   }
 
@@ -725,7 +732,7 @@ export class ZoneServer2016 extends ZoneServer {
       this.POIManager(client);
       client.posAtLastRoutine = client.character.state.position;
     });
-    this.worldObjectManager.run(this); 
+    if (this._ready) this.worldObjectManager.run(this); 
     if (refresh) this.worldRoutineTimer.refresh();
   }
 
@@ -806,6 +813,7 @@ export class ZoneServer2016 extends ZoneServer {
       1
     );
     delete dictionary[characterId];
+    delete this._transientIds[characterId];
   }
 
   spawnNpcs(client: Client): void {
@@ -964,6 +972,15 @@ export class ZoneServer2016 extends ZoneServer {
       cycleSpeed: this._cycleSpeed,
       unknownBoolean: false,
     });
+  }
+
+  getTransientId(guid: string): number {
+    let generatedTransient;
+    do {
+      generatedTransient = Number((Math.random() * 30000).toFixed(0));
+    } while (this._transientIds[generatedTransient]);
+    this._transientIds[generatedTransient] = guid;
+    return generatedTransient;
   }
 
   sendRawToAllOthersWithSpawnedCharacter(
