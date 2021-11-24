@@ -1075,7 +1075,6 @@ export class ZoneServer extends EventEmitter {
     const guid = this.generateGuid();
         const transientId = 1;
         const burlapbag = this.generateGuid();
-        const character = client.character;
         const prop = {
             characterId: burlapbag,
             worldId: this._worldId,
