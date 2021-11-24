@@ -128,6 +128,7 @@ const dev: any = {
   },
      hideme: function (server: ZoneServer, client: Client, args: any[]) {
         let state;
+        const characterObj = server._characters[client.character.characterId];
         client.character.isHidden = !client.character.isHidden;
         switch(client.character.isHidden)
           {
@@ -140,11 +141,11 @@ const dev: any = {
             case false:
                 state = "000000000000000000";
                 server.sendDataToAllOthers(client, "PlayerUpdate.AddLightweightPc", {
-                    characterId: client.character.characterId,
-                    transientId: client.character.transientId,
-                    characterFirstName: client.character.name,
-                    position: client.character.state.position,
-                    rotation: client.character.state.rotation,
+                    characterId: characterObj.characterId,
+                    transientId: characterObj.transientId,
+                    characterFirstName: characterObj.name,
+                    position: characterObj.position,
+                    rotation: characterObj.lookAt,
                 });
                 server.sendDataToAllOthers(client, "PlayerUpdate.LightweightToFullPc", {
                     transientId: client.character.transientId,
