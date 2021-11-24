@@ -1088,7 +1088,7 @@ export class ZoneServer extends EventEmitter {
         const chanceOfBleeding = Math.floor(Math.random() * 100) + 1;
         const moderateBleeding = 5042;
         if(chanceOfBleeding <= 40){
-          this.sendData(client, "Command.PlayDialogEffect", {
+          this.sendDataToAll("Command.PlayDialogEffect", {
           characterId: client.character.characterId, effectId: moderateBleeding,
            });
           client.character.isBleeding = true;
@@ -1112,7 +1112,7 @@ export class ZoneServer extends EventEmitter {
     client.character.resources.stamina = 600;
     client.character.resourcesUpdater.refresh();
     if(client.character.isBleeding == true){
-      this.sendData(client, "Command.PlayDialogEffect", {
+      this.sendDataToAll("Command.PlayDialogEffect", {
          characterId: client.character.characterId, effectId: 0,
        });
       client.character.isBleeding = false;
