@@ -343,17 +343,18 @@ const hax: any = {
     server.worldRoutine();
   },
    bandage: function (server: ZoneServer, client: Client, args: any[]) {
-        if(client.character.resources.health < 10000){
-        client.character.resources.health += 3000;
-           if(client.character.isBleeding == true && client.character.resources.health > 4000 ){ 
+     const character = client.character;
+        if(character.resources.health < 10000){
+        character.resources.health += 3000;
+           if(character.isBleeding == true && character.resources.health > 4000 ){ 
                   const noEffect = 0;
-                  client.character.isBleeding = false;
-                  server.sendDataToAll("Command.PlayDialogEffect", {
-                    characterId: client.character.characterId, effectId: noEffect,
+                  character.isBleeding = false;
+                  server.sendDataToAll("PlayerUpdate.SetSpawnerActivationEffect", {
+                    characterId: character.characterId, effectId: noEffect,
                   });
                 }
-            server.updateResource(client, client.character.characterId, 
-          client.character.resources.health, 48, 1);
+            server.updateResource(client, character.characterId, 
+          character.resources.health, 48, 1);
         }
     },
   parachute: function (server: ZoneServer, client: Client, args: any[]) {
