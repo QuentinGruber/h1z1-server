@@ -349,7 +349,7 @@ const hax: any = {
            if(character.isBleeding == true && character.resources.health > 4000 ){ 
                   const noEffect = 0;
                   character.isBleeding = false;
-                  server.sendDataToAll("PlayerUpdate.SetSpawnerActivationEffect", {
+                  server.sendDataToAll("Command.PlayDialogEffect", {
                     characterId: character.characterId, effectId: noEffect,
                   });
                 }
