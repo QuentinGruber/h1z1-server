@@ -109,7 +109,6 @@ export class Character {
         this.resources.water = 0;
         server.playerDamage(client, 100);
       }
-
       if (this.resources.health > 10000) {
         this.resources.health = 10000;
       } else if (this.resources.health < 0) {
