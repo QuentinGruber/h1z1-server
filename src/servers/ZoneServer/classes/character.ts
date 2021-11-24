@@ -124,15 +124,15 @@ export class Character {
       }
       if (this.isBleeding == true) {
         server.playerDamage(client, 100);
-        if(this.resources.stamina > 0 && isRunning)
-      {
+      if(this.resources.stamina > 0 && isRunning)
+       {
         this.resources.stamina -= 100; 
-      }
-      else if (this.resources.stamina <= 130) {
+       }
+       else if (this.resources.stamina <= 130) {
         this.resources.stamina = 0;
-      }  
+       } 
+       }
       const { stamina, food, water, virus } = this.resources;
-
       server.updateResource(client, this.characterId, stamina, 6, 6);
       server.updateResource(client, this.characterId, food, 4, 4);
       server.updateResource(client, this.characterId, water, 5, 5);
