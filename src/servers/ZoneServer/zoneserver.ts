@@ -1106,6 +1106,7 @@ export class ZoneServer extends EventEmitter {
   }
 
   async respawnPlayer(client: Client) {
+    const character = client.character;
     character.isAlive = true;
     character.resources.health = 10000;
     character.resources.food = 10000;
