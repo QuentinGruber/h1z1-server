@@ -11,9 +11,9 @@ const debug = require("debug")("ZoneServer");
 function getHeadActor(modelId: number): any {
     switch (modelId) {
       case 9510:
-        return "ZombieFemale_Head_01.adr";
+        return `ZombieFemale_Head_0${Math.floor(Math.random()*3)}.adr`;
       case 9634:
-        return "ZombieMale_Head_01.adr";
+        return `ZombieMale_Head_0${Math.floor(Math.random()*4)}.adr`;
       default:
         return "";
     }
@@ -37,6 +37,7 @@ function getRandomVehicleId() {
 
 export class WorldObjectManager {
     spawnedObjects: { [spawnerId: number]: string } = {};
+    vehicleSpawnCap: number = 100;
 
     lastLootRespawnTime: number = 0;
     lastVehicleRespawnTime: number = 0;
@@ -47,7 +48,7 @@ export class WorldObjectManager {
 
     // objects won't spawn if another object is within this radius
     vehicleSpawnRadius: number = 50;
-    npcSpawnRadius: number = 10;
+    npcSpawnRadius: number = 3;
     // only really used to check if another loot object is already spawned in the same exact spot
     lootSpawnRadius: number = 1; 
 
@@ -146,6 +147,7 @@ export class WorldObjectManager {
     }
 
     createVehicles(server: ZoneServer2016) {
+        if(Object.keys(server._vehicles).length >= this.vehicleSpawnCap) return;
         Z1_vehicles.forEach((vehicle: any) => {
             let spawn = true;
             _.forEach(server._vehicles, (spawnedVehicle: Vehicle) => {
