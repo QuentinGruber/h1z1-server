@@ -79,12 +79,14 @@ export class Character {
   startRessourceUpdater(client: ZoneClient, server: ZoneServer) {
     this.resourcesUpdater = setTimeout(() => {
       // prototype resource manager
-      const { isRunning } = this;
-      if (!isRunning) {
-        this.resources.stamina += 30;
-      } else {
-        this.resources.stamina -= 20;
-        this.isExhausted = this.resources.stamina < 120;
+    const { isRunning } = this;
+    if(!this.isBleeding) {
+        if (!isRunning) {
+           this.resources.stamina += 30;
+         } else {
+           this.resources.stamina -= 20;
+           this.isExhausted = this.resources.stamina < 120;
+         }
       }
       // if we had a packets we could modify sprint stat to 0
       // or play exhausted sounds etc
@@ -95,14 +97,12 @@ export class Character {
       } else if (this.resources.stamina < 0) {
         this.resources.stamina = 0;
       }
-
       if (this.resources.food > 10000) {
         this.resources.food = 10000;
       } else if (this.resources.food < 0) {
         this.resources.food = 0;
         server.playerDamage(client, 100);
       }
-
       if (this.resources.water > 10000) {
         this.resources.water = 10000;
       } else if (this.resources.water < 0) {
@@ -117,7 +117,13 @@ export class Character {
       }
       if (this.isBleeding == true) {
         server.playerDamage(client, 100);
+        if(this.resources.stamina > 0 && isRunning)
+      {
+        this.resources.stamina -= 100; 
       }
+      else if (this.resources.stamina <= 130) {
+        this.resources.stamina = 0;
+      }  
       const { stamina, food, water, virus } = this.resources;
 
       server.updateResource(client, this.characterId, stamina, 6, 6);
