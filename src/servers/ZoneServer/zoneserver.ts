@@ -1074,30 +1074,31 @@ export class ZoneServer extends EventEmitter {
   }
 
   playerDamage(client: Client, damage: number) {
-    if (!client.character.godMode) {
+    const character = client.character;
+    if (!character.godMode) {
       if (damage > 99) {
-        client.character.resources.health -= damage;
+        character.resources.health -= damage;
       }
-      if (client.character.resources.health <= 0) {
+      if (character.resources.health <= 0) {
         this.killCharacter(client);
       }
-      if (client.character.resources.health < 0) {
-        client.character.resources.health = 0;
+      if (character.resources.health < 0) {
+        character.resources.health = 0;
       }
-      if (damage > 3999 && !client.character.isBleeding){
-        const chanceOfBleeding = Math.floor(Math.random() * 100) + 1;
+      if (damage > 3999 && !character.isBleeding){
+        const chanceOfBleeding = Math.floor(Math.random() * 90) + 1;
         const moderateBleeding = 5042;
         if(chanceOfBleeding <= 40){
           this.sendDataToAll("Command.PlayDialogEffect", {
-          characterId: client.character.characterId, effectId: moderateBleeding,
+          characterId: character.characterId, effectId: moderateBleeding,
            });
-          client.character.isBleeding = true;
+          character.isBleeding = true;
          }
       }
       this.updateResource(
         client,
-        client.character.characterId,
-        client.character.resources.health,
+        character.characterId,
+        character.resources.health,
         48,
         1
       );
@@ -1105,20 +1106,20 @@ export class ZoneServer extends EventEmitter {
   }
 
   async respawnPlayer(client: Client) {
-    client.character.isAlive = true;
-    client.character.resources.health = 10000;
-    client.character.resources.food = 10000;
-    client.character.resources.water = 10000;
-    client.character.resources.stamina = 600;
-    client.character.resourcesUpdater.refresh();
-    if(client.character.isBleeding == true){
+    character.isAlive = true;
+    character.resources.health = 10000;
+    character.resources.food = 10000;
+    character.resources.water = 10000;
+    character.resources.stamina = 600;
+    character.resourcesUpdater.refresh();
+    if(character.isBleeding == true){
       this.sendDataToAll("Command.PlayDialogEffect", {
-         characterId: client.character.characterId, effectId: 0,
+         characterId: character.characterId, effectId: 0,
        });
-      client.character.isBleeding = false;
+      character.isBleeding = false;
     }
     this.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
-      characterId: client.character.characterId,
+      characterId: character.characterId,
       state: "000000000000000000",
       gameTime: Int64String(this.getSequenceTime()),
     });
@@ -1131,33 +1132,33 @@ export class ZoneServer extends EventEmitter {
     this.sendData(client, "ClientUpdate.UpdateLocation", {
       position: spawnLocations[randomSpawnIndex].position,
     });
-    client.character.state.position =
+    character.state.position =
     spawnLocations[randomSpawnIndex].position;
     this.updateResource(
       client,
-      client.character.characterId,
-      client.character.resources.health,
+      character.characterId,
+      character.resources.health,
       48,
       1
     );
     this.updateResource(
       client,
-      client.character.characterId,
-      client.character.resources.stamina,
+      character.characterId,
+      character.resources.stamina,
       6,
       6
     );
     this.updateResource(
       client,
-      client.character.characterId,
-      client.character.resources.food,
+      character.characterId,
+      character.resources.food,
       4,
       4
     );
     this.updateResource(
       client,
-      client.character.characterId,
-      client.character.resources.water,
+      character.characterId,
+      character.resources.water,
       5,
       5
     );
