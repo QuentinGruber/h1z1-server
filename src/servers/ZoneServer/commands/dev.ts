@@ -141,14 +141,11 @@ const dev: any = {
             case false:
                 state = "000000000000000000";
                 server.sendDataToAllOthers(client, "PlayerUpdate.AddLightweightPc", {
-                    characterId: characterObj.characterId,
+                    ...characterObj,
                     transientId: characterObj.transientId,
                     characterFirstName: characterObj.name,
                     position: characterObj.position,
                     rotation: characterObj.lookAt,
-                });
-                server.sendDataToAllOthers(client, "PlayerUpdate.LightweightToFullPc", {
-                    transientId: client.character.transientId,
                 });
                 break;
         }
