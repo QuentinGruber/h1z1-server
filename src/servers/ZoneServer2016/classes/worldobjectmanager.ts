@@ -76,7 +76,7 @@ export class WorldObjectManager {
 
     }
 
-    spawnAll(server: ZoneServer2016) {
+    createWorldObjects(server: ZoneServer2016) {
       this.createDoors(server);
       this.createVehicles(server);
       this.createNpcs(server);

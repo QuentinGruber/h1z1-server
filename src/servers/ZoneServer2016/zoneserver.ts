@@ -635,8 +635,8 @@ export class ZoneServer2016 extends ZoneServer {
       await this.saveWorld();
     }
 
-    // spawns all initial objects
-    this.worldObjectManager.spawnAll(this);
+    // creates all initial objects
+    this.worldObjectManager.createWorldObjects(this);
 
     if (!this._soloMode) {
       debug("Starting H1emuZoneServer");

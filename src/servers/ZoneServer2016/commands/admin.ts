@@ -42,7 +42,49 @@ const admin: any = {
       client,
       `Respawned vehicles`
     );
-  }
+  },
+  lootrespawntimer: function (server: ZoneServer2016, client: Client, args: any[]) {
+    if(!args[1]) {
+      server.sendChatText(
+        client,
+        `Correct usage: /admin lootrespawntimer <time>`
+      );
+      return;
+    }
+    server.worldObjectManager.lootRespawnTimer = Number(args[1]);
+    server.sendChatText(
+      client,
+      `Loot respawn timer set to ${Number(args[1])}`
+    );
+  },
+  npcrespawntimer: function (server: ZoneServer2016, client: Client, args: any[]) {
+    if(!args[1]) {
+      server.sendChatText(
+        client,
+        `Correct usage: /admin npcrespawntimer <time>`
+      );
+      return;
+    }
+    server.worldObjectManager.npcRespawnTimer = Number(args[1]);
+    server.sendChatText(
+      client,
+      `Npc respawn timer set to ${Number(args[1])}`
+    );
+  },
+  vehiclerespawntimer: function (server: ZoneServer2016, client: Client, args: any[]) {
+    if(!args[1]) {
+      server.sendChatText(
+        client,
+        `Correct usage: /admin vehiclerespawntimer <time>`
+      );
+      return;
+    }
+    server.worldObjectManager.vehicleRespawnTimer = Number(args[1]);
+    server.sendChatText(
+      client,
+      `Vehicle respawn timer set to ${Number(args[1])}`
+    );
+  },
 };
 
 export default admin;

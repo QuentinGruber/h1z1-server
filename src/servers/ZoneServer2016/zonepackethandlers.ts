@@ -10,7 +10,7 @@ let hax = require("./commands/hax").default;
 
 let dev = require("./commands/dev").default;
 
-let admin = require("./commands/dev").default;
+let admin = require("./commands/admin").default;
 
 import { _, Int64String, isPosInRadius } from "../../utils/utils";
 
@@ -671,10 +671,7 @@ export class zonePacketHandlers {
     ) {
       const characterId: string = server._transientIds[packet.data.transientId],
       vehicle = characterId?server._vehicles[characterId]:undefined;
-      console.log(characterId)
-      console.log(server._vehicles[characterId])
       if(!vehicle) return;
-      console.log(`########\n\n\n vehicle`)
       //if (!server._soloMode) {
       server.sendDataToAllOthersWithSpawnedVehicle(
         client,
@@ -685,8 +682,8 @@ export class zonePacketHandlers {
           positionUpdate: packet.data.positionUpdate,
         }
       );
-
       //}
+      
       vehicle.positionUpdate = packet.data.positionUpdate;
       if (packet.data.positionUpdate.position) {
         vehicle.npcData.position = new Float32Array([
