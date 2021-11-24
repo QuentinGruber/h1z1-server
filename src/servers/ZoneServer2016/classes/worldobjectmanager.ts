@@ -235,12 +235,6 @@ export class WorldObjectManager {
       }
 
     createLoot(server: ZoneServer2016) {
-        // todo:
-        /*
-            - iterate through all loot respawn locations and check if they have an item spawned
-            - if a location has an item spawned already, do nothing
-            - if not, normal spawnchance should apply
-        */
         Z1_items.forEach((spawnerType: any) => {
             this.createAR15(server, spawnerType);
             this.createPumpShotgun(server, spawnerType);
@@ -305,7 +299,6 @@ export class WorldObjectManager {
                   Math.floor(Math.random() * authorizedModelId.length)
                 ],
                 itemInstance.position,
-                //itemInstance.rotation,
                 [r[1], r[0], r[2]],
                 server._objects,
                 itemInstance.id
@@ -339,7 +332,6 @@ export class WorldObjectManager {
                   Math.floor(Math.random() * authorizedModelId.length)
                 ],
                 itemInstance.position,
-                //itemInstance.rotation,
                 [r[1], r[0], r[2]],
                 server._objects,
                 itemInstance.id
@@ -414,7 +406,6 @@ export class WorldObjectManager {
                   Math.floor(Math.random() * authorizedModelId.length)
                 ],
                 itemInstance.position,
-                //itemInstance.rotation,
                 [r[1], r[0], r[2]],
                 server._objects,
                 itemInstance.id
@@ -452,7 +443,6 @@ export class WorldObjectManager {
                   Math.floor(Math.random() * authorizedModelId.length)
                 ],
                 itemInstance.position,
-                //itemInstance.rotation,
                 [r[1], r[0], r[2]],
                 server._objects,
                 itemInstance.id
@@ -487,7 +477,6 @@ export class WorldObjectManager {
                   Math.floor(Math.random() * authorizedModelId.length)
                 ],
                 itemInstance.position,
-                //itemInstance.rotation,
                 [r[1], r[0], r[2]],
                 server._objects,
                 itemInstance.id
@@ -526,7 +515,6 @@ export class WorldObjectManager {
                   Math.floor(Math.random() * authorizedModelId.length)
                 ],
                 itemInstance.position,
-                //itemInstance.rotation,
                 [r[1], r[0], r[2]],
                 server._objects,
                 itemInstance.id
@@ -568,7 +556,6 @@ export class WorldObjectManager {
                   Math.floor(Math.random() * authorizedModelId.length)
                 ],
                 itemInstance.position,
-                //itemInstance.rotation,
                 [r[1], r[0], r[2]],
                 server._objects,
                 itemInstance.id
@@ -620,7 +607,6 @@ export class WorldObjectManager {
                   Math.floor(Math.random() * authorizedModelId.length)
                 ],
                 itemInstance.position,
-                //itemInstance.rotation,
                 [r[1], r[0], r[2]],
                 server._objects,
                 itemInstance.id
@@ -658,7 +644,6 @@ export class WorldObjectManager {
                   Math.floor(Math.random() * authorizedModelId.length)
                 ],
                 itemInstance.position,
-                //itemInstance.rotation,
                 [r[1], r[0], r[2]],
                 server._objects,
                 itemInstance.id
@@ -700,7 +685,6 @@ export class WorldObjectManager {
                   Math.floor(Math.random() * authorizedModelId.length)
                 ],
                 itemInstance.position,
-                //itemInstance.rotation,
                 [r[1], r[0], r[2]],
                 server._objects,
                 itemInstance.id
@@ -742,7 +726,6 @@ export class WorldObjectManager {
                   Math.floor(Math.random() * authorizedModelId.length)
                 ],
                 itemInstance.position,
-                //itemInstance.rotation,
                 [r[1], r[0], r[2]],
                 server._objects,
                 itemInstance.id
@@ -776,7 +759,6 @@ export class WorldObjectManager {
                   Math.floor(Math.random() * authorizedModelId.length)
                 ],
                 itemInstance.position,
-                //itemInstance.rotation,
                 [r[1], r[0], r[2]],
                 server._objects,
                 itemInstance.id
@@ -815,7 +797,6 @@ export class WorldObjectManager {
                   Math.floor(Math.random() * authorizedModelId.length)
                 ],
                 itemInstance.position,
-                //itemInstance.rotation,
                 [r[1], r[0], r[2]],
                 server._objects,
                 itemInstance.id
@@ -851,7 +832,6 @@ export class WorldObjectManager {
                   Math.floor(Math.random() * authorizedModelId.length)
                 ],
                 itemInstance.position,
-                //itemInstance.rotation,
                 [r[1], r[0], r[2]],
                 server._objects,
                 itemInstance.id
@@ -890,7 +870,6 @@ export class WorldObjectManager {
                   Math.floor(Math.random() * authorizedModelId.length)
                 ],
                 itemInstance.position,
-                //itemInstance.rotation,
                 [r[1], r[0], r[2]],
                 server._objects,
                 itemInstance.id
@@ -975,7 +954,6 @@ export class WorldObjectManager {
                   Math.floor(Math.random() * authorizedModelId.length)
                 ],
                 itemInstance.position,
-                //itemInstance.rotation,
                 [r[1], r[0], r[2]],
                 server._objects,
                 itemInstance.id
