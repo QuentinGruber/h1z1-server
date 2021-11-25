@@ -1092,7 +1092,9 @@ export class ZoneServer extends EventEmitter {
             array18: [{ unknown1: 0 }],
         };
         this.sendDataToAll("PlayerUpdate.AddLightweightNpc", prop);
-        this._db?.collection("props").insertOne(prop);
+        if(!this._soloMode){
+          this._db?.collection("props").insertOne(prop);
+        }
         this._props[characterId] = prop;
   }
 
