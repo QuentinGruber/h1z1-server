@@ -1224,7 +1224,7 @@ getCollisionEntityType(entityKey: string): number {
           criticalDamageEffect = 180;
           break;
       }
-      vehicle.npcData.resources.health -= 10 * Math.floor(damage);
+      vehicle.npcData.resources.health -= damage;
 
       if (vehicle.npcData.resources.health <= 0) {
         vehicle.npcData.resources.health = 0;
