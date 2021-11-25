@@ -1040,6 +1040,7 @@ export class ZoneServer extends EventEmitter {
   }
   killCharacter(client: Client) {
     const character = client.character;
+    if(character.isAlive){
     debug(character.name + " has died");
     character.isAlive = false;
     this.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
@@ -1096,6 +1097,7 @@ export class ZoneServer extends EventEmitter {
           this._db?.collection("props").insertOne(prop);
         }
         this._props[characterId] = prop;
+    }
   }
 
   playerDamage(client: Client, damage: number) {
