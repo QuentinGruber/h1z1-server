@@ -99,10 +99,9 @@ function createDTO(
 
   const guid = generateRandomGuid();
   const characterId = generateRandomGuid();
-  const oldTransient = numberOfSpawnedEntity;
   server._transientIds[numberOfSpawnedEntity] = characterId;
   dictionnary[characterId] = {
-	  timestamp: 0,
+    timestamp: 0,
     worldId: server._worldId,
     zoneId: zoneId,
     characterId: characterId,
@@ -110,14 +109,14 @@ function createDTO(
     transientId: numberOfSpawnedEntity,
     nameId: stringNameId,
     modelId: modelID,
-	extraModel: extraModel,
+    extraModel: extraModel,
     scale: scale,
     position: position,
     rotation: rotation,
-	isVehicle: true,
-	renderDistance: renderDistance,
+    isVehicle: true,
+    renderDistance: renderDistance,
     attachedObject: {},
-    color: {g: 127},
+    color: { g: 127 },
   };
 }
 
@@ -202,7 +201,7 @@ export function createAllEntities(server: ZoneServer): any {
     vehicles: vehicles,
     doors: doors,
     props: props,
-	destroyable: destroyable,
+    destroyable: destroyable,
   };
 }
 
@@ -232,16 +231,16 @@ function createDestroyable(server: ZoneServer) {
       case "Common_Props_Fences_WoodPlanksGreyPosts1x2.adr":
         authorizedModelId.push(8037);
         break;
-		case "Common_Props_Fences_WoodPlanksGrey1x1.adr":
+      case "Common_Props_Fences_WoodPlanksGrey1x1.adr":
         authorizedModelId.push(8033);
         break;
-		case "Common_Props_Fences_WoodPlanksGreyPlank.adr":
+      case "Common_Props_Fences_WoodPlanksGreyPlank.adr":
         authorizedModelId.push(8035);
         break;
-		case "Common_Props_Fences_WoodPlanksGreyGap1x1.adr":
+      case "Common_Props_Fences_WoodPlanksGreyGap1x1.adr":
         authorizedModelId.push(8034);
         break;
-		case "Common_Props_Fences_WoodPlanksGreyPosts1x1.adr":
+      case "Common_Props_Fences_WoodPlanksGreyPosts1x1.adr":
         authorizedModelId.push(8036);
         break;
       default:
@@ -249,21 +248,21 @@ function createDestroyable(server: ZoneServer) {
     }
     if (authorizedModelId.length) {
       DTOType.instances.forEach((DTOInstance: any) => {
-          const spawnModel =
-            authorizedModelId[
-              Math.floor(Math.random() * authorizedModelId.length)
-            ];
-          createDTO(
-            server,
-            spawnModel,
-			"",
-            DTOInstance.position,
-            eul2quat(DTOInstance.rotation),
-            DTOInstance.scale,
-            DTOInstance.id,
-			DTOType.renderDistance,
-            destroyable
-          );
+        const spawnModel =
+          authorizedModelId[
+            Math.floor(Math.random() * authorizedModelId.length)
+          ];
+        createDTO(
+          server,
+          spawnModel,
+          "",
+          DTOInstance.position,
+          eul2quat(DTOInstance.rotation),
+          DTOInstance.scale,
+          DTOInstance.id,
+          DTOType.renderDistance,
+          destroyable
+        );
       });
     }
   });
@@ -272,23 +271,16 @@ function createDestroyable(server: ZoneServer) {
 
 function createDestroyablePS(server: ZoneServer) {
   Z1_destroyablePS.forEach((propType: any) => {
-    const model_index = textures.findIndex(
-      (x: any) => x.modelName === propType.actorDefinition
-    );
-    const texturelist = textures[model_index]?.textures;
-    const modelId: number = _.find(models, (model: any) => {
-      return model.MODEL_FILE_NAME === propType.actorDefinition;
-    })?.ID;
     propType.instances.forEach((propInstance: any) => {
       createDTO(
         server,
         modelId,
-		propType.actorDefinition,
+        propType.actorDefinition,
         propInstance.position,
         propInstance.rotation,
         propInstance.scale,
         propInstance.id,
-		propType.renderDistance,
+        propType.renderDistance,
         destroyable
       );
     });
