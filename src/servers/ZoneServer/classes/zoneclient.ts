@@ -11,6 +11,7 @@ export class ZoneClient extends SOEClient {
   posAtLastRoutine: Float32Array = new Float32Array();
   posAtLogoutStart: Float32Array = new Float32Array();
   hudTimer!: any;
+  spawnedDTOs: any[] = [];
   spawnedEntities: any[] = [];
   managedObjects: string[] = [];
   vehicle: {
