@@ -21,7 +21,7 @@
     "mongodb": "4.2.0",
     "mongodb-restore-dump": "1.0.1",
     "terser-output": "1.0.3",
-    "typedoc": "0.22.9",
+    "typedoc": "0.22.10",
     "typescript": "4.5.2",
     "v8-compile-cache": "2.3.0"
   },
@@ -30,7 +30,7 @@
   },
   "devDependencies": {
     "chokidar": "3.5.2",
-    "prettier": "2.4.1",
+    "prettier": "2.5.0",
     "ts-node": "10.4.0"
   },
   "scripts": {
