@@ -852,9 +852,6 @@ export class zonePacketHandlers {
       packet: any
     ) {
       debug(packet);
-      const vehicleData =
-        server._vehicles[server._transientIds[packet.data.transientId]];
-      server.damageVehicle(packet.data.damage, vehicleData);
     };
     this.vehicleDismiss = function (
       server: ZoneServer,
