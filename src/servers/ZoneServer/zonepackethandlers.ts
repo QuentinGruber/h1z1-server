@@ -266,17 +266,13 @@ export class zonePacketHandlers {
       packet: any
     ) {
       const characterId = packet.data.characterId;
+      const damage = packet.data.damage;
       if (characterId === client.character.characterId) {
-        server.playerDamage(client, packet.data.damage);
+        server.playerDamage(client, damage);
       }
-      /*  else if(vehicle){
-        const vehicle = server._vehicles[characterId] 
-        server.damageVehicle(damage/10000,vehicle)
-      }*/
-      // applies the damage twice and with crazy values, disabled for now
-      // we use vehicleCollision to apply damage to vehicles currently
-      else {
-        server.DTOhit(client, packet);
+      else{
+        const vehicle = server._vehicles[characterId]
+        server.damageVehicle(damage/500,vehicle)
       }
     };
     this.lobbyGameDefinitionDefinitionsRequest = function (
