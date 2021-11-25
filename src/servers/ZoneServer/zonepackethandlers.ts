@@ -266,13 +266,17 @@ export class zonePacketHandlers {
       packet: any
     ) {
       const characterId = packet.data.characterId;
+      const objectCharacterId = packet.data.objectCharacterId 
       const damage = packet.data.damage;
+      const vehicle = server._vehicles[objectCharacterId]
       if (characterId === client.character.characterId) {
         server.playerDamage(client, damage);
       }
-      else{
-        const vehicle = server._vehicles[characterId]
+      if (vehicle){
         server.damageVehicle(damage/500,vehicle)
+      }
+      else {
+        server.DTOhit(client, packet);
       }
     };
     this.lobbyGameDefinitionDefinitionsRequest = function (
