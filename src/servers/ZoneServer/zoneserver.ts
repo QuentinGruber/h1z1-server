@@ -82,8 +82,8 @@ export class ZoneServer extends EventEmitter {
   _respawnLocations: any[];
   _doors: any;
   _props: any;
-  _destroyableTimestamp: any;
-  _destroyable: any;
+  _destroyablesTimestamps: any;
+  _destroyables: any;
   _interactionDistance: number;
   _dummySelf: any;
   _appDataFolder: string;
@@ -123,8 +123,8 @@ export class ZoneServer extends EventEmitter {
     this._doors = {};
     this._vehicles = {};
     this._props = {};
-    this._destroyableTimestamp = {};
-    this._destroyable = {};
+    this._destroyablesTimestamps = {};
+    this._destroyables = {};
     this._serverTime = this.getCurrentTime();
     this._transientIds = {};
     this._packetHandlers = new zonePacketHandlers();
@@ -575,11 +575,7 @@ export class ZoneServer extends EventEmitter {
   }
 
 getCollisionEntityType(entityKey: string): number {
-    if (!!this._destroyable[entityKey]) {
-      return 1;
-    } else {
-      return 2;
-    }
+    return !!this._destroyables[entityKey] ? 1 : 2;
   }
 
   sendZonePopulationUpdate() {
@@ -1361,25 +1357,25 @@ DTOhit(client: Client, packet: any) {
       );
       switch (entityType) {
         case 1:
-          const DTO2 = this._destroyable[packet.data.objectCharacterId];
+          const DTO2 = this._destroyables[packet.data.objectCharacterId];
           this.sendDataToAll("PlayerUpdate.RemovePlayerGracefully", {
             characterId: packet.data.objectCharacterId,
             effectId: 242,
           });
           for (const object in this._clients) {
             const clientData = this._clients[object];
-            const objectToRemove = this._destroyable[DTO2.characterId];
+            const objectToRemove = this._destroyables[DTO2.characterId];
             if (clientData.spawnedDTOs.includes(objectToRemove)) {
               this._clients[object].spawnedDTOs = this._clients[
                 object
               ].spawnedDTOs.filter((e: any) => e !== objectToRemove);
             }
           }
-          this._destroyableTimestamp[DTO2.characterId] =
-            this._destroyable[DTO2.characterId];
-          this._destroyableTimestamp[DTO2.characterId].timestamp =
+          this._destroyablesTimestamps[DTO2.characterId] =
+            this._destroyables[DTO2.characterId];
+          this._destroyablesTimestamps[DTO2.characterId].timestamp =
             Date.now() + 1800000;
-          delete this._destroyable[DTO2.characterId];
+          delete this._destroyables[DTO2.characterId];
           break;
         default:
           break;
@@ -1985,8 +1981,8 @@ DTOhit(client: Client, packet: any) {
   
   customizeDTO(client: Client): void {
     const DTOArray: any = [];
-    for (const object in this._destroyable) {
-      const DTO = this._destroyable[object];
+    for (const object in this._destroyables) {
+      const DTO = this._destroyables[object];
       const DTOinstance = {
         objectId: DTO.zoneId,
         unknownString1: "Weapon_Empty.adr",
@@ -2009,8 +2005,8 @@ DTOhit(client: Client, packet: any) {
   }
   
   spawnDTOs(client: Client): void {
-    for (const DTO in this._destroyable) {
-      const DTOObject = this._destroyable[DTO];
+    for (const DTO in this._destroyables) {
+      const DTOObject = this._destroyables[DTO];
       if (
         isPosInRadius(
           DTOObject.renderDistance,
@@ -2026,8 +2022,8 @@ DTOhit(client: Client, packet: any) {
   }
 
   respawnDTOs(): void {
-    for (const DTO in this._destroyableTimestamp) {
-      const DTOObject = this._destroyableTimestamp[DTO];
+    for (const DTO in this._destroyablesTimestamps) {
+      const DTOObject = this._destroyablesTimestamps[DTO];
       if (DTOObject.timestamp < Date.now()) {
         let isColliding = false;
         for (const vehicle in this._vehicles) {
@@ -2039,9 +2035,9 @@ DTOhit(client: Client, packet: any) {
           }
         }
         if (!isColliding) {
-          this._destroyable[DTOObject.characterId] =
-            this._destroyableTimestamp[DTO];
-          delete this._destroyableTimestamp[DTO];
+          this._destroyables[DTOObject.characterId] =
+            this._destroyablesTimestamps[DTO];
+          delete this._destroyablesTimestamps[DTO];
         }
       }
     }
@@ -2106,7 +2102,7 @@ DTOhit(client: Client, packet: any) {
     this._doors = doors;
     this._vehicles = vehicles;
     this._props = props;
-    this._destroyable = destroyable;
+    this._destroyables = destroyable;
     delete require.cache[require.resolve("./workers/createBaseEntities")];
     debug("All entities created");
   }
