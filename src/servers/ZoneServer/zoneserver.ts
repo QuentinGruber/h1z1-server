@@ -1108,19 +1108,19 @@ export class ZoneServer extends EventEmitter {
       if (character.resources.health < 0) {
         character.resources.health = 0;
       }
-      if (damage > 3999 && !character.isBleeding){
-        const chanceOfBleeding = Math.floor(Math.random() * 90) + 1;
-        const moderateBleeding = 5042;
-        const impactSound = 5050;
-        if(chanceOfBleeding <= 40){
-          this.sendDataToAll("Command.PlayDialogEffect", {
-          characterId: character.characterId, effectId: moderateBleeding,
-          });
-          this.sendDataToAll("PlayerUpdate.SetSpawnerActivationEffect", {
-          characterId: character.characterId, effectId: impactSound,
-          });
-          character.isBleeding = true;
-         }
+      // Character bleeding prototype
+      if (damage > 3999 && !character.isBleeding || character.resources.health < 2000) {
+         const moderateBleeding = 5042;
+         const impactSound = 5050;
+         this.sendDataToAll("Command.PlayDialogEffect", {
+         characterId: character.characterId, effectId: moderateBleeding,
+         });
+         if (damage > 3999) {
+            this.sendDataToAll("PlayerUpdate.SetSpawnerActivationEffect", {
+            characterId: character.characterId, effectId: impactSound,
+         });
+        }
+         character.isBleeding = true;
       }
       this.updateResource(
         client,
