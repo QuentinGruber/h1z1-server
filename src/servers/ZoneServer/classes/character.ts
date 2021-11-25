@@ -124,7 +124,7 @@ export class Character {
         this.resources.health = 0;
       }
       if (this.isBandaged == true && this.resources.health < 10000)
-         {
+           {
            this.resources.health += 100;
             server.updateResource(client, this.characterId, this.resources.health, 48, 1);
           if (this.isBleeding == true && this.resources.health >= 2000) {
@@ -143,10 +143,10 @@ export class Character {
           this.resources.stamina = 0; 
         } 
       }
-      if(this.resources.health < 10000 && !this.isBleeding && this.isBandaged){
+      if (this.resources.health < 10000 && !this.isBleeding && this.isBandaged){
           this.resources.health += 400;
           server.updateResource(client, this.characterId, this.resources.health, 48, 1);
-      if(this.resources.health >= 10000){
+      if (this.resources.health >= 10000){
           this.isBandaged = false; 
         }
       }
