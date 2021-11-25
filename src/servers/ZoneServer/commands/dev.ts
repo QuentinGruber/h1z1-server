@@ -126,36 +126,34 @@ const dev: any = {
       characterId: client.character.characterId,
     });
   },
-     hideme: function (server: ZoneServer, client: Client, args: any[]) {
-        let state;
-        const characterObj = server._characters[client.character.characterId];
-        client.character.isHidden = !client.character.isHidden;
-        switch(client.character.isHidden)
-          {
-            case true:
-                state = "0000000000A000000";
-                for (const client in server._clients) {
-                  const clientData = server._clients[client];
-                if (clientData.spawnedEntities.includes(characterObj)) {
-                  const index = clientData.spawnedEntities.indexOf(characterObj)
-                if (index > -1) {
-                  server._clients[client].spawnedEntities.splice(index, 1); }
-                }
-                }
-                server.sendDataToAllOthers(client, "PlayerUpdate.RemovePlayer", {
-                    characterId: client.character.characterId,
-                });
-                break;
-            case false:
-                state = "000000000000000000";
-                break;
-        }
-        server.sendData(client, "PlayerUpdate.UpdateCharacterState", {
-            characterId: client.character.characterId,
-            state: state,
-            gameTime: server.getSequenceTime(),
+  hideme: function (server, client, args) {
+    let state;
+    const characterObj = server._characters[client.character.characterId];
+    client.character.isHidden = !client.character.isHidden;
+    switch (client.character.isHidden) {
+      case true:
+        state = "0000000000A000000";
+        server.sendDataToAllOthers(client, "PlayerUpdate.RemovePlayer", {
+          characterId: client.character.characterId,
         });
-    },
+        break;
+      case false:
+        state = "000000000000000000";
+        server.sendDataToAllOthers(client, "PlayerUpdate.AddLightweightPc", {
+          ...characterObj,
+          transientId: characterObj.transientId,
+          characterFirstName: characterObj.name,
+          position: characterObj.state.position,
+          rotation: characterObj.state.lookAt,
+        });
+        break;
+    }
+    server.sendData(client, "PlayerUpdate.UpdateCharacterState", {
+      characterId: client.character.characterId,
+      state: state,
+      gameTime: server.getSequenceTime(),
+    });
+  },
   testnpcrelevance: function (server: ZoneServer, client: Client, args: any[]) {
     const npcs = Object.values(server._npcs).map((npc: any) => {
       return { guid: npc.characterId };
