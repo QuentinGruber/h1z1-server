@@ -274,7 +274,7 @@ function createDestroyablePS(server: ZoneServer) {
     propType.instances.forEach((propInstance: any) => {
       createDTO(
         server,
-        modelId,
+        9084,
         propType.actorDefinition,
         propInstance.position,
         propInstance.rotation,
