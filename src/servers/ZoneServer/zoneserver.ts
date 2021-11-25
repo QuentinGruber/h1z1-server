@@ -1349,7 +1349,6 @@ getCollisionEntityType(entityKey: string): number {
 
 DTOhit(client: Client, packet: any) {
     if (
-      packet.data.objectCharacterId != client.vehicle.mountedVehicle &&
       packet.data.damage > 100000
     ) {
       const entityType: number = this.getCollisionEntityType(

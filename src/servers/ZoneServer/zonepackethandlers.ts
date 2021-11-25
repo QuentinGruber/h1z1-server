@@ -266,13 +266,12 @@ export class zonePacketHandlers {
       packet: any
     ) {
       const characterId = packet.data.characterId;
-      const objectCharacterId = packet.data.objectCharacterId 
       const damage = packet.data.damage;
-      const vehicle = server._vehicles[objectCharacterId]
+      const vehicle = server._vehicles[characterId]
       if (characterId === client.character.characterId) {
         server.playerDamage(client, damage);
       }
-      if (vehicle){
+      if (vehicle && characterId != client.vehicle.mountedVehicle ){
         server.damageVehicle(damage/500,vehicle)
       }
       else {
