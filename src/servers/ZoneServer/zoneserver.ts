@@ -1287,6 +1287,7 @@ getCollisionEntityType(entityKey: string): number {
             characterId: vehicle.npcData.characterId,
             effectId: minorDamageEffect,
           });
+		  this._vehicles[vehicle.npcData.characterId].destroyedEffect = minorDamageEffect;
         }
       } else if (
         vehicle.npcData.resources.health <= 35000 &&
@@ -1298,6 +1299,7 @@ getCollisionEntityType(entityKey: string): number {
             characterId: vehicle.npcData.characterId,
             effectId: majorDamageEffect,
           });
+		  this._vehicles[vehicle.npcData.characterId].destroyedEffect = majorDamageEffect;
         }
       } else if (vehicle.npcData.resources.health <= 20000) {
         if (vehicle.npcData.destroyedState != 3) {
@@ -1306,6 +1308,7 @@ getCollisionEntityType(entityKey: string): number {
             characterId: vehicle.npcData.characterId,
             effectId: criticalDamageEffect,
           });
+		  this._vehicles[vehicle.npcData.characterId].destroyedEffect = criticalDamageEffect;
         }
       } else if (vehicle.npcData.resources.health > 50000 && vehicle.npcData.destroyedState != 0) {
 		  vehicle.npcData.destroyedState = 0;
@@ -1313,6 +1316,7 @@ getCollisionEntityType(entityKey: string): number {
             characterId: vehicle.npcData.characterId,
             effectId: 0,
           });
+		  this._vehicles[vehicle.npcData.characterId].destroyedEffect = 0;
 	  }
       if (vehicle.passengers.passenger1) {
         this.updateResource(
