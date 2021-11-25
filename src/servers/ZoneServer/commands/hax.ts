@@ -346,7 +346,7 @@ const hax: any = {
      const character = client.character;
         if(character.resources.health < 10000){
         character.resources.health += 3000;
-           if(character.isBleeding == true && character.resources.health > 4000 ){ 
+           if(character.isBleeding && character.resources.health > 4000 ){ 
                   const noEffect = 0;
                   character.isBleeding = false;
                   server.sendDataToAll("Command.PlayDialogEffect", {

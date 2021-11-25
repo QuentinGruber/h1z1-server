@@ -1074,9 +1074,9 @@ export class ZoneServer extends EventEmitter {
     }
     const guid = this.generateGuid();
         const transientId = 1;
-        const burlapbag = this.generateGuid();
+        const characterId = this.generateGuid();
         const prop = {
-            characterId: burlapbag,
+            characterId: characterId,
             worldId: this._worldId,
             guid: guid,
             transientId: transientId,
@@ -1093,7 +1093,7 @@ export class ZoneServer extends EventEmitter {
         };
         this.sendDataToAll("PlayerUpdate.AddLightweightNpc", prop);
         this._db?.collection("props").insertOne(prop);
-        this._props[burlapbag] = prop;
+        this._props[characterId] = prop;
   }
 
   playerDamage(client: Client, damage: number) {
@@ -1857,9 +1857,9 @@ export class ZoneServer extends EventEmitter {
           characterObj.state.position
         ) &&
         client.character.characterId != character &&
-        !client.spawnedEntities.includes(characterObj)
+        !client.spawnedEntities.includes(characterObj) &&
+        !characterObj.isHidden
       ) {
-         if(!characterObj.isHidden){
         this.sendData(
           client,
           "PlayerUpdate.AddLightweightPc",
@@ -1874,7 +1874,6 @@ export class ZoneServer extends EventEmitter {
         );
         client.spawnedEntities.push(this._characters[character]);
       }
-    }
   }
 }
 

@@ -9,10 +9,6 @@ export class Character {
   name?: string;
   loadouts?: any;
   extraModel?: string;
-  isRunning: boolean;
-  isHidden: boolean;
-  isBleeding: boolean;
-  isBandaged: boolean;
   resourcesUpdater?: any;
   equipment: characterEquipment[];
   resources: {
@@ -37,16 +33,16 @@ export class Character {
     health: number;
     shield: number;
   };
+  isRunning: boolean = false;
+  isHidden: boolean = false;
+  isBleeding: boolean = false;
+  isBandaged: boolean = false;
   isExhausted: boolean = false;
   isAlive: boolean = true;
   isSonic: boolean = false;
   constructor(characterId: string, generatedTransient: number) {
     this.characterId = characterId;
     this.transientId = generatedTransient;
-    this.isRunning = false;
-    this.isHidden = false;
-    this.isBleeding = false,
-    this.isBandaged = false,
     this.equipment = [
       { modelName: "Weapon_Empty.adr", slotId: 1 }, // yeah that's an hack TODO find a better way
       { modelName: "Weapon_Empty.adr", slotId: 7 },
@@ -82,21 +78,23 @@ export class Character {
    this.resourcesUpdater = setTimeout(() => {
     // prototype resource manager
      const { isRunning } = this;
-      if(!this.isBleeding) {
-      if (!isRunning) {
+      if (isRunning) 
+      {
+          this.resources.stamina -= 20;
+        if (this.resources.stamina < 120) {
+          this.isExhausted = true;
+        }
+        else 
+        {
+          this.isExhausted = false; 
+        }
+      }
+      else if(!this.isBleeding)
+      {
         this.resources.stamina += 30;
       }
-      else
-      {
-        this.resources.stamina -= 20;
-      if (this.resources.stamina < 120) {
-        this.isExhausted = true;
-      }
-      else 
-      {
-        this.isExhausted = false; }
-      }
-      }
+      
+      
       // if we had a packets we could modify sprint stat to 0
       // or play exhausted sounds etc
       this.resources.food -= 10;
@@ -124,11 +122,11 @@ export class Character {
         this.resources.health = 0;
       }
        // Prototype bleeding
-      if (this.isBleeding == true) {
+      if (this.isBleeding) {
       if (!this.isBandaged) {
         server.playerDamage(client, 100);
       }
-      if (this.isBandaged == true && this.resources.health < 10000) {
+      if (this.isBandaged && this.resources.health < 10000) {
         this.resources.health += 100;
         server.updateResource(client, this.characterId, this.resources.health, 48, 1);
       if (this.resources.health >= 2000) {
