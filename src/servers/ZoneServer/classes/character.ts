@@ -40,6 +40,7 @@ export class Character {
   isExhausted: boolean = false;
   isAlive: boolean = true;
   isSonic: boolean = false;
+  isMoving: boolean = false;
   constructor(characterId: string, generatedTransient: number) {
     this.characterId = characterId;
     this.transientId = generatedTransient;
@@ -89,7 +90,7 @@ export class Character {
           this.isExhausted = false; 
         }
       }
-      else if(!this.isBleeding)
+      else if(!this.isBleeding || !this.isMoving)
       {
         this.resources.stamina += 30;
       }
