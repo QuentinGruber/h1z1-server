@@ -266,7 +266,6 @@ export class zonePacketHandlers {
       packet: any
     ) {
       const characterId = packet.data.characterId;
-      const vehicle = server._vehicles[characterId];
       if (characterId === client.character.characterId) {
         server.playerDamage(client, packet.data.damage);
       }
