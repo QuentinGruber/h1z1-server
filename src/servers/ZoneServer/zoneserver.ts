@@ -1145,7 +1145,9 @@ export class ZoneServer extends EventEmitter {
     this.sendDataToAll("Command.PlayDialogEffect", {
       characterId: character.characterId, effectId: 0,
     });
-    character.isBleeding = false;
+    if (character.isBleeding) {
+      character.isBleeding = false;
+    }
     this.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
       characterId: character.characterId,
       state: "000000000000000000",
