@@ -1283,7 +1283,7 @@ getCollisionEntityType(entityKey: string): number {
       ) {
         if (vehicle.npcData.destroyedState != 1) {
           vehicle.npcData.destroyedState = 1;
-          this.sendDataToAll("PlayerUpdate.SetSpawnerActivationEffect", {
+          this.sendDataToAll("Command.PlayDialogEffect", {
             characterId: vehicle.npcData.characterId,
             effectId: minorDamageEffect,
           });
@@ -1294,7 +1294,7 @@ getCollisionEntityType(entityKey: string): number {
       ) {
         if (vehicle.npcData.destroyedState != 2) {
           vehicle.npcData.destroyedState = 2;
-          this.sendDataToAll( "PlayerUpdate.SetSpawnerActivationEffect", {
+          this.sendDataToAll( "Command.PlayDialogEffect", {
             characterId: vehicle.npcData.characterId,
             effectId: majorDamageEffect,
           });
@@ -1302,12 +1302,18 @@ getCollisionEntityType(entityKey: string): number {
       } else if (vehicle.npcData.resources.health <= 20000) {
         if (vehicle.npcData.destroyedState != 3) {
           vehicle.npcData.destroyedState = 3;
-          this.sendDataToAll("PlayerUpdate.SetSpawnerActivationEffect", {
+          this.sendDataToAll("Command.PlayDialogEffect", {
             characterId: vehicle.npcData.characterId,
             effectId: criticalDamageEffect,
           });
         }
-      }
+      } else if (vehicle.npcData.resources.health > 50000 && vehicle.npcData.destroyedState != 0) {
+		  vehicle.npcData.destroyedState = 0;
+          this.sendDataToAll("Command.PlayDialogEffect", {
+            characterId: vehicle.npcData.characterId,
+            effectId: 0,
+          });
+	  }
       if (vehicle.passengers.passenger1) {
         this.updateResource(
           vehicle.passengers.passenger1,
