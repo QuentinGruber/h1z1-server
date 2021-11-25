@@ -1971,51 +1971,11 @@ export class zonePacketHandlers {
               npcData: npcData,
               characterId: characterId,
             });
-            let minorDamageEffect: number;
-            let majorDamageEffect: number;
-            let criticalDamageEffect: number;
-            switch (entityData.vehicleType) {
-              case "offroader":
-                minorDamageEffect = 182;
-                majorDamageEffect = 181;
-                criticalDamageEffect = 180;
-                break;
-              case "pickup":
-                minorDamageEffect = 325;
-                majorDamageEffect = 324;
-                criticalDamageEffect = 323;
-                break;
-              case "policecar":
-                minorDamageEffect = 285;
-                majorDamageEffect = 284;
-                criticalDamageEffect = 283;
-                break;
-              default:
-                minorDamageEffect = 182;
-                majorDamageEffect = 181;
-                criticalDamageEffect = 180;
-                break;
-            }
-
-            switch (entityData.npcData.destroyedState) {
-              case 1:
-                server.sendDataToAll("Command.PlayDialogEffect", {
-                  characterId: entityData.npcData.characterId,
-                  effectId: minorDamageEffect,
-                });
-                break;
-              case 2:
-                server.sendDataToAll("Command.PlayDialogEffect", {
-                  characterId: entityData.npcData.characterId,
-                  effectId: majorDamageEffect,
-                });
-                break;
-              case 3:
-                server.sendDataToAll("Command.PlayDialogEffect", {
-                  characterId: entityData.npcData.characterId,
-                  effectId: criticalDamageEffect,
-                });
-                break;
+            if (entityData.destroyedEffect != 0) {
+              server.sendData(client, "Command.PlayDialogEffect", {
+                characterId: entityData.npcData.characterId,
+                effectId: entityData.destroyedEffect,
+              });
             }
             if (entityData.onReadyCallback) {
               if (entityData.onReadyCallback(client)) {
