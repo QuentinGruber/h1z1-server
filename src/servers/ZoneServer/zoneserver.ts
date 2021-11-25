@@ -1140,6 +1140,10 @@ export class ZoneServer extends EventEmitter {
     character.resources.water = 10000;
     character.resources.stamina = 600;
     character.resourcesUpdater.refresh();
+    this.sendDataToAll("Command.PlayDialogEffect", {
+      characterId: character.characterId, effectId: 0,
+    });
+    character.isBleeding = false;
     this.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
       characterId: character.characterId,
       state: "000000000000000000",

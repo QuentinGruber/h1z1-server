@@ -143,12 +143,6 @@ export class Character {
       else if (this.resources.stamina <= 130) {
         this.resources.stamina = 0; 
       }
-      if (!this.isAlive) 
-      {
-        server.sendDataToAll("Command.PlayDialogEffect", {
-        characterId: this.characterId, effectId: 0, });
-        this.isBleeding = false;
-      }
       }
       if (this.resources.health < 10000 && !this.isBleeding && this.isBandaged) {
         this.resources.health += 400;
