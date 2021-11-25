@@ -141,6 +141,9 @@ const hax: any = {
           server._vehicles[
             client.vehicle.mountedVehicle
           ].npcData.resources.health = 100000;
+		  server._vehicles[
+            client.vehicle.mountedVehicle
+          ].npcData.destroyedState = 0;
           server.updateResource(
             client,
             vehicle.npcData.characterId,
@@ -148,6 +151,10 @@ const hax: any = {
             561,
             1
           );
+		  server.sendDataToAll("Command.PlayDialogEffect", {
+            characterId: vehicle.npcData.characterId,
+            effectId: 0,
+          });
           server.sendChatText(client, "Vehicle repaired");
           break;
         default:
