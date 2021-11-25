@@ -123,7 +123,7 @@ export class Character {
       } else if (this.resources.health < 0) {
         this.resources.health = 0;
       }
-     // Prototype bleeding
+       // Prototype bleeding
       if (this.isBleeding == true) {
       if (!this.isBandaged) {
         server.playerDamage(client, 100);
@@ -141,7 +141,14 @@ export class Character {
         this.resources.stamina -= 100;
       }
       else if (this.resources.stamina <= 130) {
-        this.resources.stamina = 0; }
+        this.resources.stamina = 0; 
+      }
+      if (!this.isAlive) 
+      {
+        server.sendDataToAll("Command.PlayDialogEffect", {
+        characterId: this.characterId, effectId: 0, });
+        this.isBleeding = false;
+      }
       }
       if (this.resources.health < 10000 && !this.isBleeding && this.isBandaged) {
         this.resources.health += 400;
