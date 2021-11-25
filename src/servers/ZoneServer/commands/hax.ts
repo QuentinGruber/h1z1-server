@@ -432,6 +432,13 @@ const hax: any = {
         locationPosition = new Float32Array([0, 50, 0, 1]);
         break;
     }
+    client.managedObjects.forEach((object) => {
+      const vehicle = server._vehicles[object];
+      server.sendData(client, "PlayerUpdate.ManagedObjectResponseControl", {
+        unk: 0,
+        characterId: vehicle.npcData.characterId,
+      });
+    });
     client.character.state.position = locationPosition;
     server.sendData(client, "ClientUpdate.UpdateLocation", {
       position: locationPosition,
