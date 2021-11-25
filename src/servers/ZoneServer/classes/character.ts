@@ -123,7 +123,7 @@ export class Character {
       } else if (this.resources.health < 0) {
         this.resources.health = 0;
       }
-     // Player bleeding prototype
+     // Prototype bleeding
       if (this.isBleeding == true) {
       if (!this.isBandaged) {
         server.playerDamage(client, 100);
