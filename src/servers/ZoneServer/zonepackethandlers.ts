@@ -271,9 +271,7 @@ export class zonePacketHandlers {
       if (characterId === client.character.characterId) {
         server.playerDamage(client, damage);
       }else if (vehicle){
-        server.damageVehicle(damage/150,vehicle)
-      }
-      else {
+        server.damageVehicle(damage/100,vehicle)
         server.DTOhit(client, packet);
       }
     };
