@@ -100,6 +100,7 @@ export class zonePacketHandlers {
               skyData: server._weather,
             });
             */
+      server.customizeDTO(client);
       server.sendData(client, "QuickChat.SendData", { commands: [] });
       server.sendData(client, "ClientUpdate.ActivateProfile", {
         profiles: server._profiles,
@@ -265,13 +266,18 @@ export class zonePacketHandlers {
       packet: any
     ) {
       const characterId = packet.data.characterId;
-      const damage = packet.data.damage;
+      const vehicle = server._vehicles[characterId];
       if (characterId === client.character.characterId) {
-        server.playerDamage(client, damage);
+        server.playerDamage(client, packet.data.damage);
       }
-      else{
-        const vehicle = server._vehicles[characterId]
-        server.damageVehicle(damage/500,vehicle)
+      /*  else if(vehicle){
+        const vehicle = server._vehicles[characterId] 
+        server.damageVehicle(damage/10000,vehicle)
+      }*/
+      // applies the damage twice and with crazy values, disabled for now
+      // we use vehicleCollision to apply damage to vehicles currently
+      else {
+        server.DTOhit(client, packet);
       }
     };
     this.lobbyGameDefinitionDefinitionsRequest = function (
