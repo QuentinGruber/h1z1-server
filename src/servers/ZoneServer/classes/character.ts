@@ -131,7 +131,7 @@ export class Character {
       if (this.isBandaged == true && this.resources.health < 10000) {
         this.resources.health += 100;
         server.updateResource(client, this.characterId, this.resources.health, 48, 1);
-      if (this.isBleeding == true && this.resources.health >= 2000) {
+      if (this.resources.health >= 2000) {
         const noEffect = 0;
         this.isBleeding = false;
         server.sendDataToAll("Command.PlayDialogEffect", {
