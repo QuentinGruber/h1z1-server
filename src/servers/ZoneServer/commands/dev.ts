@@ -136,10 +136,10 @@ const dev: any = {
                 state = "0000000000A000000";
                 for (const client in server._clients) {
                   const clientData = server._clients[client];
-                if (clientData.spawnedEntities.includes(server._characters[client.character.characterId])) {
-                  const index = clientData.spawnedEntities.indexOf(server._characters[client.character.characterId])
+                if (clientData.spawnedEntities.includes(characterObj)) {
+                  const index = clientData.spawnedEntities.indexOf(characterObj)
                 if (index > -1) {
-                  this._clients[client].spawnedEntities.splice(index, 1); }
+                  server._clients[client].spawnedEntities.splice(index, 1); }
                 }
                 }
                 server.sendDataToAllOthers(client, "PlayerUpdate.RemovePlayer", {
