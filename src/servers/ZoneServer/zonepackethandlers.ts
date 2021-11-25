@@ -1971,8 +1971,6 @@ export class zonePacketHandlers {
               npcData: npcData,
               characterId: characterId,
             });
-            let destroyedVehicleEffect: number;
-            let destroyedVehicleModel: number;
             let minorDamageEffect: number;
             let majorDamageEffect: number;
             let criticalDamageEffect: number;
