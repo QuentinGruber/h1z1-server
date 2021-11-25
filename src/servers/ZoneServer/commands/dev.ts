@@ -134,19 +134,21 @@ const dev: any = {
           {
             case true:
                 state = "0000000000A000000";
+                for (const client in this._clients) {
+                  const clientData = this._clients[client];
+                  if (clientData.spawnedEntities.includes(this._characters[client.character.characterId])) {
+                  const index = clientData.spawnedEntities.indexOf(this._characters[client.character.characterId])
+                  if (index > -1) {
+                  this._clients[client].spawnedEntities.splice(index, 1);
+                  }
+                }
+              }
                 server.sendDataToAllOthers(client, "PlayerUpdate.RemovePlayer", {
                     characterId: client.character.characterId,
                 });
                 break;
             case false:
                 state = "000000000000000000";
-                server.sendDataToAllOthers(client, "PlayerUpdate.AddLightweightPc", {
-                    ...characterObj,
-                    transientId: characterObj.transientId,
-                    characterFirstName: characterObj.name,
-                    position: characterObj.position,
-                    rotation: characterObj.lookAt,
-                });
                 break;
         }
         server.sendData(client, "PlayerUpdate.UpdateCharacterState", {
