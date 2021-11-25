@@ -270,9 +270,8 @@ export class zonePacketHandlers {
       const vehicle = server._vehicles[characterId]
       if (characterId === client.character.characterId) {
         server.playerDamage(client, damage);
-      }
-      if (vehicle && characterId != client.vehicle.mountedVehicle ){
-        server.damageVehicle(damage/500,vehicle)
+      }else if (vehicle){
+        server.damageVehicle(damage/150,vehicle)
       }
       else {
         server.DTOhit(client, packet);
