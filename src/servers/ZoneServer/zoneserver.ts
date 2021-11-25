@@ -1021,6 +1021,8 @@ getCollisionEntityType(entityKey: string): number {
       this.spawnProps(client);
       this.spawnNpcs(client);
       this.spawnVehicles(client);
+      this.respawnDTOs();
+      this.spawnDTOs(client);
       this.removeOutOfDistanceEntities(client);
       this.POIManager(client);
       client.npcsToSpawnTimer.refresh();
