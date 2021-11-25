@@ -123,30 +123,32 @@ export class Character {
       } else if (this.resources.health < 0) {
         this.resources.health = 0;
       }
-      if(this.isBandaged == true && this.resources.health < 10000)
-      {
-        this.resources.health += 100;
-        server.updateResource(client, this.characterId, this.resources.health, 48, 1);
-      if (this.isBleeding == true && this.resources.health >= 2000) {
-        const noEffect = 0;
-        this.isBleeding = false;
-        server.sendDataToAll("Command.PlayDialogEffect", {
-        characterId: this.characterId, effectId: noEffect, }); 
-      }
+      if (this.isBandaged == true && this.resources.health < 10000)
+         {
+           this.resources.health += 100;
+            server.updateResource(client, this.characterId, this.resources.health, 48, 1);
+          if (this.isBleeding == true && this.resources.health >= 2000) {
+            const noEffect = 0;
+            this.isBleeding = false;
+            server.sendDataToAll("Command.PlayDialogEffect", {
+            characterId: this.characterId, effectId: noEffect, 
+          }); 
+        }
       }
       if(this.resources.stamina > 0 && isRunning)
       {
-        this.resources.stamina -= 100; 
+          this.resources.stamina -= 100; 
       }
       else if (this.resources.stamina <= 130) {
-        this.resources.stamina = 0; 
-      } 
+          this.resources.stamina = 0; 
+        } 
       }
       if(this.resources.health < 10000 && !this.isBleeding && this.isBandaged){
-        this.resources.health += 400;
-        server.updateResource(client, this.characterId, this.resources.health, 48, 1);
+          this.resources.health += 400;
+          server.updateResource(client, this.characterId, this.resources.health, 48, 1);
       if(this.resources.health >= 10000){
-        this.isBandaged = false; }
+          this.isBandaged = false; 
+        }
       }
       const { stamina, food, water, virus } = this.resources;
       server.updateResource(client, this.characterId, stamina, 6, 6);
