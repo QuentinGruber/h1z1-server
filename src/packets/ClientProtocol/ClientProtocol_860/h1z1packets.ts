@@ -3959,7 +3959,15 @@ var packets = [
     { fields: [{ name: "characterId", type: "uint32", defaultValue: 0 }] },
   ],
   ["Command.ActivateProfileFailed", 0x091a00, {}],
-  ["Command.PlayDialogEffect", 0x091b00, {}],
+  ["Command.PlayDialogEffect",
+        0x091b00,
+        {
+            fields: [
+                { name: "characterId", type: "uint64string", defaultValue: "0x000" },
+                { name: "effectId", type: "uint32", defaultValue: 0 },
+            ]
+        }
+  ],
   ["Command.ForceClearDialog", 0x091c00, {}],
   ["Command.IgnoreRequest", 0x091d00, {}],
   [
