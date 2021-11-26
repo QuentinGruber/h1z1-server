@@ -683,7 +683,7 @@ export class zonePacketHandlers {
         }
       );
       //}
-      
+
       vehicle.positionUpdate = packet.data.positionUpdate;
       if (packet.data.positionUpdate.position) {
         vehicle.npcData.position = new Float32Array([
@@ -718,7 +718,7 @@ export class zonePacketHandlers {
       server: ZoneServer2016,
       client: Client,
       packet: any
-    ) {
+    ) {/*
       server.sendDataToAllOthersWithSpawnedVehicle(
         client,
         packet.data.guid,
@@ -726,7 +726,7 @@ export class zonePacketHandlers {
         {
           ...packet.data,
         }
-      );
+      );*/
     };
     this.PlayerUpdateUpdatePositionClientToZone = function (
       server: ZoneServer2016,

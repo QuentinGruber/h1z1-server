@@ -7338,23 +7338,23 @@ const packets = [
     {
       fields: [
         { name: "guid", type: "uint64string", defaultValue: "0" },
-        { name: "unknown3", type: "float", defaultValue: 0.0 },
+        { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
         {
-          name: "unknown4",
+          name: "unknownArray1",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
-            { name: "unknown1", type: "uint32", defaultValue: 0 },
-            { name: "unknown2", type: "uint8", defaultValue: 0 },
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            { name: "unknownBoolean1", type: "boolean", defaultValue: false },
           ],
         },
         {
-          name: "unknown5",
+          name: "unknownArray2",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
-            { name: "unknown1", type: "uint32", defaultValue: 0 },
-            { name: "unknown2", type: "uint8", defaultValue: 0 },
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            { name: "unknownByte1", type: "uint8", defaultValue: 0 },
           ],
         },
       ],
