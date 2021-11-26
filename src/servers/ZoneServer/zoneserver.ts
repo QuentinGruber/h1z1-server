@@ -1135,21 +1135,20 @@ export class ZoneServer extends EventEmitter {
   }
 
   async respawnPlayer(client: Client) {
-    const character = client.character;
-    character.isAlive = true;
-    character.resources.health = 10000;
-    character.resources.food = 10000;
-    character.resources.water = 10000;
-    character.resources.stamina = 600;
-    character.resourcesUpdater.refresh();
+    client.character.isAlive = true;
+    client.character.resources.health = 10000;
+    client.character.resources.food = 10000;
+    client.character.resources.water = 10000;
+    client.character.resources.stamina = 600;
+    client.character.resourcesUpdater.refresh();
     this.sendDataToAll("Command.PlayDialogEffect", {
-      characterId: character.characterId, effectId: 0,
+      characterId: client.character.characterId, effectId: 0,
     });
-    if (character.isBleeding) {
-      character.isBleeding = false;
+    if (client.character.isBleeding) {
+      client.character.isBleeding = false;
     }
     this.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
-      characterId: character.characterId,
+      characterId: client.character.characterId,
       state: "000000000000000000",
       gameTime: Int64String(this.getSequenceTime()),
     });
@@ -1162,33 +1161,33 @@ export class ZoneServer extends EventEmitter {
     this.sendData(client, "ClientUpdate.UpdateLocation", {
       position: spawnLocations[randomSpawnIndex].position,
     });
-    character.state.position =
+    client.character.state.position =
     spawnLocations[randomSpawnIndex].position;
     this.updateResource(
       client,
-      character.characterId,
-      character.resources.health,
+      client.character.characterId,
+      client.character.resources.health,
       48,
       1
     );
     this.updateResource(
       client,
-      character.characterId,
-      character.resources.stamina,
+      client.character.characterId,
+      client.character.resources.stamina,
       6,
       6
     );
     this.updateResource(
       client,
-      character.characterId,
-      character.resources.food,
+      client.character.characterId,
+      client.character.resources.food,
       4,
       4
     );
     this.updateResource(
       client,
-      character.characterId,
-      character.resources.water,
+      client.character.characterId,
+      client.character.resources.water,
       5,
       5
     );
