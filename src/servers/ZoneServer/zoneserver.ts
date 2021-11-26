@@ -1102,15 +1102,13 @@ export class ZoneServer extends EventEmitter {
 
   playerDamage(client: Client, damage: number) {
     const character = client.character;
-    if (!character.godMode) {
+    if (!character.godMode && character.isAlive) {
       if (damage > 99) {
         character.resources.health -= damage;
       }
-      if (character.resources.health <= 0 && character.isAlive) {
-        this.killCharacter(client);
-      }
-      if (character.resources.health < 0) {
+      if (character.resources.health <= 0) {
         character.resources.health = 0;
+        this.killCharacter(client);
       }
       // Character bleeding prototype
       if (damage > 3999 && !character.isBleeding || character.resources.health < 2000) {
