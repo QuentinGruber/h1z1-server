@@ -1050,21 +1050,22 @@ getCollisionEntityType(entityKey: string): number {
     }
   }
   killCharacter(client: Client) {
-    debug(client.character.name + " has died");
-    client.character.isAlive = false;
+    const character = client.character;
+    if(character.isAlive){
+    debug(character.name + " has died");
     this.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
-      characterId: client.character.characterId,
+      characterId: character.characterId,
       state: "0000000000000000C00",
       gameTime: Int64String(this.getSequenceTime()),
     });
     if (!client.vehicle.mountedVehicle) {
       this.sendDataToAll("Ragdoll.UpdatePose", {
-        characterId: client.character.characterId,
+        characterId: character.characterId,
         positionUpdate: {
           sequenceTime: this.getSequenceTime(),
           unknown3_int8: 1,
           stance: 1089,
-          position: client.character.state.position,
+          position: character.state.position,
           orientation: 0,
           frontTilt: 0,
           sideTilt: 0,
@@ -1079,26 +1080,65 @@ getCollisionEntityType(entityKey: string): number {
       });
     } else {
       this.sendDataToAllOthers(client, "PlayerUpdate.RemovePlayerGracefully", {
-        characterId: client.character.characterId,
+        characterId: character.characterId,
       });
     }
+    const guid = this.generateGuid();
+        const transientId = 1;
+        const characterId = this.generateGuid();
+        const prop = {
+            characterId: characterId,
+            worldId: this._worldId,
+            guid: guid,
+            transientId: transientId,
+            modelId: 9,
+            position: character.state.position,
+            rotation: [0, 0, 0, 0,],
+            scale: [1,1,1,1],
+            attachedObject: {},
+            isVehicle: false,
+            color: {},
+            array5: [{ unknown1: 0 }],
+            array17: [{ unknown1: 0 }],
+            array18: [{ unknown1: 0 }],
+        };
+        this.sendDataToAll("PlayerUpdate.AddLightweightNpc", prop);
+        if(!this._soloMode){
+          this._db?.collection("props").insertOne(prop);
+        }
+        this._props[characterId] = prop;
+    }
+    character.isAlive = false;
   }
 
   playerDamage(client: Client, damage: number) {
-    if (!client.character.godMode) {
+    const character = client.character;
+    if (!character.godMode && character.isAlive) {
       if (damage > 99) {
-        client.character.resources.health -= damage;
+        character.resources.health -= damage;
       }
-      if (client.character.resources.health <= 0) {
+      if (character.resources.health <= 0) {
+        character.resources.health = 0;
         this.killCharacter(client);
       }
-      if (client.character.resources.health < 0) {
-        client.character.resources.health = 0;
+      // Character bleeding prototype
+      if (damage > 3999 && !character.isBleeding || character.resources.health < 2000) {
+         const moderateBleeding = 5042;
+         const impactSound = 5050;
+         this.sendDataToAll("Command.PlayDialogEffect", {
+         characterId: character.characterId, effectId: moderateBleeding,
+         });
+         if (damage > 3999) {
+            this.sendDataToAll("PlayerUpdate.SetSpawnerActivationEffect", {
+            characterId: character.characterId, effectId: impactSound,
+         });
+        }
+         character.isBleeding = true;
       }
       this.updateResource(
         client,
-        client.character.characterId,
-        client.character.resources.health,
+        character.characterId,
+        character.resources.health,
         48,
         1
       );
@@ -1112,6 +1152,12 @@ getCollisionEntityType(entityKey: string): number {
     client.character.resources.water = 10000;
     client.character.resources.stamina = 600;
     client.character.resourcesUpdater.refresh();
+    this.sendDataToAll("Command.PlayDialogEffect", {
+      characterId: client.character.characterId, effectId: 0,
+    });
+    if (client.character.isBleeding) {
+      client.character.isBleeding = false;
+    }
     this.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
       characterId: client.character.characterId,
       state: "000000000000000000",
@@ -1874,7 +1920,8 @@ DTOhit(client: Client, packet: any) {
           characterObj.state.position
         ) &&
         client.character.characterId != character &&
-        !client.spawnedEntities.includes(characterObj)
+        !client.spawnedEntities.includes(characterObj) &&
+        !characterObj.isHidden
       ) {
         this.sendData(
           client,
@@ -1890,8 +1937,8 @@ DTOhit(client: Client, packet: any) {
         );
         client.spawnedEntities.push(this._characters[character]);
       }
-    }
   }
+}
 
   spawnVehicles(client: Client) {
     for (const vehicle in this._vehicles) {

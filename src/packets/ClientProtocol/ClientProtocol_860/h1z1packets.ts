@@ -3960,13 +3960,13 @@ var packets = [
   ],
   ["Command.ActivateProfileFailed", 0x091a00, {}],
   ["Command.PlayDialogEffect",
-        0x091b00,
-        {
-            fields: [
-                { name: "characterId", type: "uint64string", defaultValue: "0x000" },
-                { name: "effectId", type: "uint32", defaultValue: 0 },
-            ]
-        }
+    0x091b00,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0x000" },
+        { name: "effectId", type: "uint32", defaultValue: 0 },
+      ]
+    }
   ],
   ["Command.ForceClearDialog", 0x091c00, {}],
   ["Command.IgnoreRequest", 0x091d00, {}],
@@ -6205,8 +6205,30 @@ var packets = [
   ],
   ["ClientUpdate.CollectionStart", 0x110600, {}],
   ["ClientUpdate.CollectionRemove", 0x110700, {}],
-  ["ClientUpdate.CollectionAddEntry", 0x110800, {}],
-  ["ClientUpdate.CollectionRemoveEntry", 0x110900, {}],
+  ["ClientUpdate.CollectionAddEntry", 
+        0x110800,
+        {
+            fields: [
+              { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+              { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+              { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+              { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+              { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+              { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+              { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+              { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+          ]
+      }
+  ],
+  ["ClientUpdate.CollectionRemoveEntry", 
+    0x110900,
+    {
+        fields: [
+              { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+              { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+          ]
+      }
+  ],
   [
     "ClientUpdate.UpdateLocation",
     0x110a00,
@@ -6227,8 +6249,29 @@ var packets = [
     },
   ],
   ["ClientUpdate.UpdateProfileExperience", 0x110c00, {}],
-  ["ClientUpdate.AddProfileAbilitySetApl", 0x110d00, {}],
-  ["ClientUpdate.AddEffectTag", 0x110e00, {}],
+  ["ClientUpdate.AddProfileAbilitySetApl", 
+    0x110d00, 
+        {
+            fields: [
+                { name: "unknownDword1", type: "uint32", defaultValue: 4 },
+                {
+                    name: "profiles",
+                    type: "array",
+                    defaultValue: [],
+                    fields: profileDataSchema,
+              },
+          ]
+      }
+  ],
+  ["ClientUpdate.AddEffectTag",
+    0x110e00,
+        {
+            fields: [
+              { name: "unknownDword1", type: "uint32", defaultValue: 1 },
+              { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+          ],
+      },
+  ],
   ["ClientUpdate.RemoveEffectTag", 0x110f00, {}],
   ["ClientUpdate.UpdateProfileRank", 0x111000, {}],
   ["ClientUpdate.CoinCount", 0x111100, {}],

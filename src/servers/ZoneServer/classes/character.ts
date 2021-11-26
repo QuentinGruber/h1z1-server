@@ -9,7 +9,6 @@ export class Character {
   name?: string;
   loadouts?: any;
   extraModel?: string;
-  isRunning: boolean;
   resourcesUpdater?: any;
   equipment: characterEquipment[];
   resources: {
@@ -34,13 +33,17 @@ export class Character {
     health: number;
     shield: number;
   };
+  isRunning: boolean = false;
+  isHidden: boolean = false;
+  isBleeding: boolean = false;
+  isBandaged: boolean = false;
   isExhausted: boolean = false;
   isAlive: boolean = true;
   isSonic: boolean = false;
+  isMoving: boolean = false;
   constructor(characterId: string, generatedTransient: number) {
     this.characterId = characterId;
     this.transientId = generatedTransient;
-    this.isRunning = false;
     this.equipment = [
       { modelName: "Weapon_Empty.adr", slotId: 1 }, // yeah that's an hack TODO find a better way
       { modelName: "Weapon_Empty.adr", slotId: 7 },
@@ -73,15 +76,26 @@ export class Character {
   }
 
   startRessourceUpdater(client: ZoneClient, server: ZoneServer) {
-    this.resourcesUpdater = setTimeout(() => {
-      // prototype resource manager
-      const { isRunning } = this;
-      if (!isRunning) {
-        this.resources.stamina += 30;
-      } else {
-        this.resources.stamina -= 20;
-        this.isExhausted = this.resources.stamina < 120;
+   this.resourcesUpdater = setTimeout(() => {
+    // prototype resource manager
+     const { isRunning } = this;
+      if (isRunning) 
+      {
+          this.resources.stamina -= 20;
+        if (this.resources.stamina < 120) {
+          this.isExhausted = true;
+        }
+        else 
+        {
+          this.isExhausted = false; 
+        }
       }
+      else if(!this.isBleeding || !this.isMoving)
+      {
+        this.resources.stamina += 30;
+      }
+      
+      
       // if we had a packets we could modify sprint stat to 0
       // or play exhausted sounds etc
       this.resources.food -= 10;
@@ -91,28 +105,51 @@ export class Character {
       } else if (this.resources.stamina < 0) {
         this.resources.stamina = 0;
       }
-
       if (this.resources.food > 10000) {
         this.resources.food = 10000;
       } else if (this.resources.food < 0) {
         this.resources.food = 0;
         server.playerDamage(client, 100);
       }
-
       if (this.resources.water > 10000) {
         this.resources.water = 10000;
       } else if (this.resources.water < 0) {
         this.resources.water = 0;
         server.playerDamage(client, 100);
       }
-
       if (this.resources.health > 10000) {
         this.resources.health = 10000;
       } else if (this.resources.health < 0) {
         this.resources.health = 0;
       }
+       // Prototype bleeding
+      if (this.isBleeding) {
+      if (!this.isBandaged) {
+        server.playerDamage(client, 100);
+      }
+      if (this.isBandaged && this.resources.health < 10000) {
+        this.resources.health += 100;
+        server.updateResource(client, this.characterId, this.resources.health, 48, 1);
+      if (this.resources.health >= 2000) {
+        const noEffect = 0;
+        this.isBleeding = false;
+        server.sendDataToAll("Command.PlayDialogEffect", {
+        characterId: this.characterId, effectId: noEffect, }); }
+      }
+      if (this.resources.stamina > 0 && isRunning) {
+        this.resources.stamina -= 100;
+      }
+      else if (this.resources.stamina <= 130) {
+        this.resources.stamina = 0; 
+      }
+      }
+      if (this.resources.health < 10000 && !this.isBleeding && this.isBandaged) {
+        this.resources.health += 400;
+        server.updateResource(client, this.characterId, this.resources.health, 48, 1);
+      if (this.resources.health >= 10000) {
+        this.isBandaged = false; }
+      }
       const { stamina, food, water, virus } = this.resources;
-
       server.updateResource(client, this.characterId, stamina, 6, 6);
       server.updateResource(client, this.characterId, food, 4, 4);
       server.updateResource(client, this.characterId, water, 5, 5);
