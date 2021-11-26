@@ -772,6 +772,9 @@ export class zonePacketHandlers {
             case 9336:
               stringId = 9041;
               break;
+            case 9: 
+              stringId = 31;
+              break;
             case 57: // Openable
               stringId = 31;
               break;
@@ -1573,6 +1576,7 @@ export class zonePacketHandlers {
           )
         );
       }
+      client.character.isMoving = !!packet.data.horizontalSpeed;
       if (packet.data.position) {
         
         client.character.state.position = new Float32Array([

@@ -342,7 +342,21 @@ const hax: any = {
     };
     server.worldRoutine();
   },
-
+   bandage: function (server: ZoneServer, client: Client, args: any[]) {
+     const character = client.character;
+        if(character.resources.health < 10000){
+        character.resources.health += 3000;
+           if(character.isBleeding && character.resources.health > 4000 ){ 
+                  const noEffect = 0;
+                  character.isBleeding = false;
+                  server.sendDataToAll("Command.PlayDialogEffect", {
+                    characterId: character.characterId, effectId: noEffect,
+                  });
+                }
+            server.updateResource(client, character.characterId, 
+          character.resources.health, 48, 1);
+        }
+    },
   parachute: function (server: ZoneServer, client: Client, args: any[]) {
     const dropPosition = new Float32Array([
       client.character.state.position[0],
