@@ -1042,7 +1042,6 @@ export class ZoneServer extends EventEmitter {
     const character = client.character;
     if(character.isAlive){
     debug(character.name + " has died");
-    character.isAlive = false;
     this.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
       characterId: character.characterId,
       state: "0000000000000000C00",
@@ -1098,6 +1097,7 @@ export class ZoneServer extends EventEmitter {
         }
         this._props[characterId] = prop;
     }
+    character.isAlive = false;
   }
 
   playerDamage(client: Client, damage: number) {
