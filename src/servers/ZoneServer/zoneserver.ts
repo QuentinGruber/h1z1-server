@@ -1033,7 +1033,7 @@ getCollisionEntityType(entityKey: string): number {
       `GODMODE: ${client.character.godMode ? "ON" : "OFF"}`
     );
     const godModeState = client.character.godMode
-      ? "00000000000A000000"
+      ? "000000000002000000"
       : "000000000000000000";
     this.sendData(client, "PlayerUpdate.UpdateCharacterState", {
       characterId: client.character.characterId,
