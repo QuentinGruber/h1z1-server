@@ -754,7 +754,7 @@ export class ZoneServer2016 extends ZoneServer {
     return !isPosInRadius(
       this._npcRenderDistance,
       playerPosition,
-      element.position || element.state.position || element.npcData.position
+      element.position || element.state?.position || element.npcData?.position
     );
   }
 

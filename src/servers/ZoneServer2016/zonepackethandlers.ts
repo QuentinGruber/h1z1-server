@@ -321,7 +321,7 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      debug("Do nothing");
+      debug("SetLocale");
     };
     this.GetContinentBattleInfo = function (
       server: ZoneServer2016,
