@@ -634,6 +634,7 @@ export class LoginServer extends EventEmitter {
     const {
       payload: { characterName },
       serverId,
+      payload
     } = packet.result;
     // create character object
     let sampleCharacter, newCharacter;
@@ -652,14 +653,40 @@ export class LoginServer extends EventEmitter {
     let creationStatus = 1;
     if (this._soloMode) {
       const SinglePlayerCharacters = await this.loadCharacterData(client);
-      SinglePlayerCharacters[SinglePlayerCharacters.length] = newCharacter;
       if (this._protocol.protocolName == "LoginUdp_9") {
+        SinglePlayerCharacters[SinglePlayerCharacters.length] = newCharacter;
         fs.writeFileSync(
           `${this._appDataFolder}/single_player_characters.json`,
           JSON.stringify(SinglePlayerCharacters, null, "\t")
         );
       } else {
         // LoginUdp_11
+        function getCharacterModelData(payload: any): any {
+          switch(payload.headType){
+            case 6: // black female
+              return {modelId: 9474, headActor: "SurvivorFemale_Head_03.adr", hairModel: "SurvivorFemale_Hair_ShortMessy.adr"};
+            case 5: // black male
+              return {modelId: 9240, headActor: "SurvivorMale_Head_04.adr", hairModel: "SurvivorMale_HatHair_Short.adr"};
+            case 4: // older white female
+              return {modelId: 9474, headActor: "SurvivorFemale_Head_02.adr", hairModel: "SurvivorFemale_Hair_ShortBun.adr"};
+            case 3: // young white female
+              return {modelId: 9474, headActor: "SurvivorFemale_Head_02.adr", hairModel: "SurvivorFemale_Hair_ShortBun.adr"};
+            case 2: // bald white male
+              return {modelId: 9240, headActor: "SurvivorMale_Head_01.adr", hairModel: "SurvivorMale_HatHair_Short.adr"};
+            case 1: // white male
+            default:
+              return {modelId: 9240, headActor: "SurvivorMale_Head_01.adr", hairModel: "SurvivorMale_Hair_ShortMessy.adr"};
+          }
+        }
+        const characterModelData = getCharacterModelData(payload);
+        newCharacter = {
+          ...newCharacter,
+          actorModelId: characterModelData.modelId,
+          headActor: characterModelData.headActor,
+          gender: payload.gender,
+          hairModel: characterModelData.hairModel
+        }
+        SinglePlayerCharacters[SinglePlayerCharacters.length] = newCharacter;
         fs.writeFileSync(
           `${this._appDataFolder}/single_player_characters2016.json`,
           JSON.stringify(SinglePlayerCharacters, null, "\t")
@@ -680,7 +707,7 @@ export class LoginServer extends EventEmitter {
         };
         await this._db?.collection("user-sessions").insertOne(sessionObj);
       }
-      const newCharacterData =  this._protocol.protocolName == "LoginUdp_9"?
+      const newCharacterData = this._protocol.protocolName == "LoginUdp_9"?
       { ...newCharacter, ownerId: sessionObj.guid }:
       { 
         characterId: newCharacter.characterId, 

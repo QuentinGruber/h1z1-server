@@ -118,7 +118,7 @@ const hax: any = {
         unknownBoolean: true,
       });
       client.vehicle.mountedVehicle = characterId;
-      client.managedObjects.push(server._vehicles[characterId]);
+      //client.managedObjects.push(server._vehicles[characterId]);
       setTimeout(() => {
         client.character.godMode = wasAlreadyGod;
       }, 1000);

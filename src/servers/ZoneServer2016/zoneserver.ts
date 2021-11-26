@@ -635,8 +635,8 @@ export class ZoneServer2016 extends ZoneServer {
       await this.saveWorld();
     }
 
-    // creates all initial objects
-    this.worldObjectManager.createWorldObjects(this);
+    // other entities are handled by worldRoutine
+    this.worldObjectManager.createDoors(this);
 
     if (!this._soloMode) {
       debug("Starting H1emuZoneServer");
@@ -753,7 +753,7 @@ export class ZoneServer2016 extends ZoneServer {
     return !isPosInRadius(
       this._npcRenderDistance,
       playerPosition,
-      element.position || element.state?.position || element.npcData.position
+      element?.position || element?.state?.position || element?.npcData.position
     );
   }
 
