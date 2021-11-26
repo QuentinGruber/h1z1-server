@@ -76,13 +76,6 @@ export class WorldObjectManager {
 
     }
 
-    createWorldObjects(server: ZoneServer2016) {
-      this.createDoors(server);
-      this.createVehicles(server);
-      this.createNpcs(server);
-      this.createLoot(server);
-    }
-
     run(server: ZoneServer2016) {
       debug("WOM::Run")
         if(this.lastLootRespawnTime + this.lootRespawnTimer <= Date.now()) {
