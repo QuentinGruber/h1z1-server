@@ -1017,7 +1017,6 @@ getCollisionEntityType(entityKey: string): number {
       this.spawnProps(client);
       this.spawnNpcs(client);
       this.spawnVehicles(client);
-      this.respawnDTOs();
       this.spawnDTOs(client);
       this.removeOutOfDistanceEntities(client);
       this.POIManager(client);
@@ -1405,6 +1404,7 @@ getCollisionEntityType(entityKey: string): number {
 
 DTOhit(client: Client, packet: any) {
     if (
+      packet.data.objectCharacterId != client.vehicle.mountedVehicle &&
       packet.data.damage > 100000
     ) {
       const entityType: number = this.getCollisionEntityType(
@@ -1426,11 +1426,10 @@ DTOhit(client: Client, packet: any) {
               ].spawnedDTOs.filter((e: any) => e !== objectToRemove);
             }
           }
-          this._destroyablesTimestamps[DTO2.characterId] =
+          this._destroyablesTimeout[DTO2.characterId] =
             this._destroyables[DTO2.characterId];
-          this._destroyablesTimestamps[DTO2.characterId].timestamp =
-            Date.now() + 1800000;
           delete this._destroyables[DTO2.characterId];
+          this.setDTOrespawnTimeout(DTO2.characterId);
           break;
         default:
           break;
@@ -2077,26 +2076,27 @@ DTOhit(client: Client, packet: any) {
     }
   }
 
-  respawnDTOs(): void {
-    for (const DTO in this._destroyablesTimestamps) {
-      const DTOObject = this._destroyablesTimestamps[DTO];
-      if (DTOObject.timestamp < Date.now()) {
-        let isColliding = false;
-        for (const vehicle in this._vehicles) {
-          const vehicleData = this._vehicles[vehicle];
-          if (
-            isPosInRadius(5, DTOObject.position, vehicleData.npcData.position)
-          ) {
-            isColliding = true;
-          }
-        }
-        if (!isColliding) {
-          this._destroyables[DTOObject.characterId] =
-            this._destroyablesTimestamps[DTO];
-          delete this._destroyablesTimestamps[DTO];
-        }
+  respawnDTO(DTO: string) {
+    const DTOData = this._destroyablesTimeout[DTO];
+    let isColliding = false;
+    for (const vehicle in this._vehicles) {
+      const vehicleData = this._vehicles[vehicle];
+      if (isPosInRadius(5, DTOData.position, vehicleData.npcData.position)) {
+        isColliding = true;
       }
     }
+    if (!isColliding) {
+      this._destroyables[DTO] = this._destroyablesTimeout[DTO];
+      delete this._destroyablesTimeout[DTO];
+    } else {
+      this.setDTOrespawnTimeout(DTO);
+    }
+  }
+
+  setDTOrespawnTimeout(DTO: any) {
+    setTimeout(() => {
+      this.respawnDTO(DTO);
+    }, 1800000);
   }
 
   despawnEntity(characterId: string) {
