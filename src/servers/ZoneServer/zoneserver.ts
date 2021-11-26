@@ -82,7 +82,7 @@ export class ZoneServer extends EventEmitter {
   _respawnLocations: any[];
   _doors: any;
   _props: any;
-  _destroyablesTimestamps: any;
+  _destroyablesTimeout: any;
   _destroyables: any;
   _interactionDistance: number;
   _dummySelf: any;
@@ -123,7 +123,7 @@ export class ZoneServer extends EventEmitter {
     this._doors = {};
     this._vehicles = {};
     this._props = {};
-    this._destroyablesTimestamps = {};
+    this._destroyablesTimeout = {};
     this._destroyables = {};
     this._serverTime = this.getCurrentTime();
     this._transientIds = {};
