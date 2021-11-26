@@ -1106,7 +1106,7 @@ export class ZoneServer extends EventEmitter {
       if (damage > 99) {
         character.resources.health -= damage;
       }
-      if (character.resources.health <= 0) {
+      if (character.resources.health <= 0 && character.isAlive) {
         this.killCharacter(client);
       }
       if (character.resources.health < 0) {
