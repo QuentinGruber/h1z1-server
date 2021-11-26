@@ -774,8 +774,9 @@ export class ZoneServer2016 extends ZoneServer {
     // does not include vehicles
     const objectsToRemove = client.spawnedEntities.filter(
       (e) =>
-        this.filterOutOfDistance(e, client.character.state.position) &&
-        !e.npcData?.isVehicle
+        !e.npcData?.isVehicle &&
+        this.filterOutOfDistance(e, client.character.state.position)
+        
     );
     client.spawnedEntities = client.spawnedEntities.filter((el) => {
       return !objectsToRemove.includes(el);
