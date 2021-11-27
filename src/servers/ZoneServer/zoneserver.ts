@@ -1132,6 +1132,25 @@ export class ZoneServer extends EventEmitter {
   }
 
   async respawnPlayer(client: Client) {
+    this.sendDataToAll("Ragdoll.UpdatePose", {
+      characterId: client.character.characterId,
+      positionUpdate: {
+        sequenceTime: this.getSequenceTime(),
+        unknown3_int8: 0,
+        stance: 0,
+        position: client.character.state.position,
+        orientation: 0,
+        frontTilt: 0,
+        sideTilt: 0,
+        angleChange: 0,
+        verticalSpeed: 0,
+        horizontalSpeed: 0,
+        unknown12_float: [0, 0, 0],
+        rotationRaw: [0, 0, 0, 0],
+        direction: 0,
+        engineRPM: 0,
+      },
+    });
     client.character.isAlive = true;
     client.character.resources.health = 10000;
     client.character.resources.food = 10000;
