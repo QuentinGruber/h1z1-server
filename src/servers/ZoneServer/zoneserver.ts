@@ -2090,7 +2090,7 @@ DTOhit(client: Client, packet: any) {
     }
   }
 
-  setDTOrespawnTimeout(DTO: any) {
+  setDTOrespawnTimeout(DTO: string) {
     setTimeout(() => {
       this.respawnDTO(DTO);
     }, 1800000);
