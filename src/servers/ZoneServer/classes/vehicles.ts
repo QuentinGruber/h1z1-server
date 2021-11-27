@@ -46,6 +46,7 @@ export class Vehicle {
   vehicleType:string;
   isManaged: boolean = false;
   manager?: any;
+  destroyedEffect: number = 0;
   engineOn: boolean = false;
   npcData: npcData;
   isLocked: number = 0;

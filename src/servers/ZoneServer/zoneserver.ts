@@ -82,6 +82,8 @@ export class ZoneServer extends EventEmitter {
   _respawnLocations: any[];
   _doors: any;
   _props: any;
+  _destroyablesTimeout: any;
+  _destroyables: any;
   _interactionDistance: number;
   _dummySelf: any;
   _appDataFolder: string;
@@ -121,6 +123,8 @@ export class ZoneServer extends EventEmitter {
     this._doors = {};
     this._vehicles = {};
     this._props = {};
+    this._destroyablesTimeout = {};
+    this._destroyables = {};
     this._serverTime = this.getCurrentTime();
     this._transientIds = {};
     this._packetHandlers = new zonePacketHandlers();
@@ -567,6 +571,11 @@ export class ZoneServer extends EventEmitter {
       return 6; // doors
     }
   }
+
+getCollisionEntityType(entityKey: string): number {
+    return !!this._destroyables[entityKey] ? 1 : 2;
+  }
+
   sendZonePopulationUpdate() {
     const populationNumber = _.size(this._characters);
     this._h1emuZoneServer.sendData(
@@ -1006,6 +1015,7 @@ export class ZoneServer extends EventEmitter {
       this.spawnProps(client);
       this.spawnNpcs(client);
       this.spawnVehicles(client);
+      this.spawnDTOs(client);
       this.removeOutOfDistanceEntities(client);
       this.POIManager(client);
       client.npcsToSpawnTimer.refresh();
@@ -1261,7 +1271,7 @@ export class ZoneServer extends EventEmitter {
           criticalDamageEffect = 180;
           break;
       }
-      vehicle.npcData.resources.health -= 10 * Math.floor(damage);
+      vehicle.npcData.resources.health -= damage;
 
       if (vehicle.npcData.resources.health <= 0) {
         vehicle.npcData.resources.health = 0;
@@ -1320,10 +1330,11 @@ export class ZoneServer extends EventEmitter {
       ) {
         if (vehicle.npcData.destroyedState != 1) {
           vehicle.npcData.destroyedState = 1;
-          this.sendDataToAll("PlayerUpdate.SetSpawnerActivationEffect", {
+          this.sendDataToAll("Command.PlayDialogEffect", {
             characterId: vehicle.npcData.characterId,
             effectId: minorDamageEffect,
           });
+		  this._vehicles[vehicle.npcData.characterId].destroyedEffect = minorDamageEffect;
         }
       } else if (
         vehicle.npcData.resources.health <= 35000 &&
@@ -1331,20 +1342,29 @@ export class ZoneServer extends EventEmitter {
       ) {
         if (vehicle.npcData.destroyedState != 2) {
           vehicle.npcData.destroyedState = 2;
-          this.sendDataToAll( "PlayerUpdate.SetSpawnerActivationEffect", {
+          this.sendDataToAll( "Command.PlayDialogEffect", {
             characterId: vehicle.npcData.characterId,
             effectId: majorDamageEffect,
           });
+		  this._vehicles[vehicle.npcData.characterId].destroyedEffect = majorDamageEffect;
         }
       } else if (vehicle.npcData.resources.health <= 20000) {
         if (vehicle.npcData.destroyedState != 3) {
           vehicle.npcData.destroyedState = 3;
-          this.sendDataToAll("PlayerUpdate.SetSpawnerActivationEffect", {
+          this.sendDataToAll("Command.PlayDialogEffect", {
             characterId: vehicle.npcData.characterId,
             effectId: criticalDamageEffect,
           });
+		  this._vehicles[vehicle.npcData.characterId].destroyedEffect = criticalDamageEffect;
         }
-      }
+      } else if (vehicle.npcData.resources.health > 50000 && vehicle.npcData.destroyedState != 0) {
+		  vehicle.npcData.destroyedState = 0;
+          this.sendDataToAll("Command.PlayDialogEffect", {
+            characterId: vehicle.npcData.characterId,
+            effectId: 0,
+          });
+		  this._vehicles[vehicle.npcData.characterId].destroyedEffect = 0;
+	  }
       if (vehicle.passengers.passenger1) {
         this.updateResource(
           vehicle.passengers.passenger1,
@@ -1380,6 +1400,38 @@ export class ZoneServer extends EventEmitter {
           561,
           1
         );
+      }
+    }
+  }
+
+DTOhit(client: Client, packet: any) {
+    if (packet.data.damage > 100000) {
+      const entityType: number = this.getCollisionEntityType(
+        packet.data.objectCharacterId
+      );
+      switch (entityType) {
+        case 1:
+          const DTO2 = this._destroyables[packet.data.objectCharacterId];
+          this.sendDataToAll("PlayerUpdate.RemovePlayerGracefully", {
+            characterId: packet.data.objectCharacterId,
+            effectId: 242,
+          });
+          for (const object in this._clients) {
+            const clientData = this._clients[object];
+            const objectToRemove = this._destroyables[DTO2.characterId];
+            if (clientData.spawnedDTOs.includes(objectToRemove)) {
+              this._clients[object].spawnedDTOs = this._clients[
+                object
+              ].spawnedDTOs.filter((e: any) => e !== objectToRemove);
+            }
+          }
+          this._destroyablesTimeout[DTO2.characterId] =
+            this._destroyables[DTO2.characterId];
+          delete this._destroyables[DTO2.characterId];
+          this.setDTOrespawnTimeout(DTO2.characterId);
+          break;
+        default:
+          break;
       }
     }
   }
@@ -1980,6 +2032,71 @@ export class ZoneServer extends EventEmitter {
   spawnProps(client: Client): void {
     this.spawnNpcCollection(client, this._props);
   }
+  
+  customizeDTO(client: Client): void {
+    const DTOArray: any = [];
+    for (const object in this._destroyables) {
+      const DTO = this._destroyables[object];
+      const DTOinstance = {
+        objectId: DTO.zoneId,
+        unknownString1: "Weapon_Empty.adr",
+      };
+      DTOArray.push(DTOinstance);
+    }
+    for (const object in this._props) {
+      const DTO = this._props[object];
+      const DTOinstance = {
+        objectId: DTO.zoneId,
+        unknownString1: "Weapon_Empty.adr",
+      };
+      DTOArray.push(DTOinstance);
+    }
+    this.sendData(client, "DtoObjectInitialData", {
+      unknownDword1: 1,
+      unknownArray1: DTOArray,
+      unknownArray2: [{}],
+    });
+  }
+  
+  spawnDTOs(client: Client): void {
+    for (const DTO in this._destroyables) {
+      const DTOObject = this._destroyables[DTO];
+      if (
+        isPosInRadius(
+          DTOObject.renderDistance,
+          client.character.state.position,
+          DTOObject.position
+        ) &&
+        !client.spawnedDTOs.includes(DTOObject)
+      ) {
+        client.npcsToSpawn.push(DTOObject);
+        client.spawnedDTOs.push(DTOObject);
+      }
+    }
+  }
+
+  respawnDTO(DTO: string) {
+    const DTOData = this._destroyablesTimeout[DTO];
+    let isColliding = false;
+    for (const vehicle in this._vehicles) {
+      const vehicleData = this._vehicles[vehicle];
+      if (isPosInRadius(5, DTOData.position, vehicleData.npcData.position)) {
+        isColliding = true;
+      }
+    }
+    if (!isColliding) {
+      this._destroyables[DTO] = this._destroyablesTimeout[DTO];
+      delete this._destroyablesTimeout[DTO];
+    } else {
+      this.setDTOrespawnTimeout(DTO);
+    }
+  }
+
+  setDTOrespawnTimeout(DTO: string) {
+    setTimeout(() => {
+      this.respawnDTO(DTO);
+    }, 1800000);
+  }
 
   despawnEntity(characterId: string) {
     this.sendDataToAll(
@@ -2033,12 +2150,14 @@ export class ZoneServer extends EventEmitter {
 
   createAllObjects(): void {
     const { createAllEntities } = require("./workers/createBaseEntities");
-    const { npcs, objects, vehicles, doors, props } = createAllEntities(this);
+    const { npcs, objects, vehicles, doors, props, destroyable } =
+      createAllEntities(this);
     this._npcs = npcs;
     this._objects = objects;
     this._doors = doors;
     this._vehicles = vehicles;
     this._props = props;
+    this._destroyables = destroyable;
     delete require.cache[require.resolve("./workers/createBaseEntities")];
     debug("All entities created");
   }

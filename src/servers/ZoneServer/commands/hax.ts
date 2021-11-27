@@ -141,6 +141,9 @@ const hax: any = {
           server._vehicles[
             client.vehicle.mountedVehicle
           ].npcData.resources.health = 100000;
+		  server._vehicles[
+            client.vehicle.mountedVehicle
+          ].npcData.destroyedState = 0;
           server.updateResource(
             client,
             vehicle.npcData.characterId,
@@ -148,6 +151,10 @@ const hax: any = {
             561,
             1
           );
+		  server.sendDataToAll("Command.PlayDialogEffect", {
+            characterId: vehicle.npcData.characterId,
+            effectId: 0,
+          });
           server.sendChatText(client, "Vehicle repaired");
           break;
         default:
@@ -446,6 +453,13 @@ const hax: any = {
         locationPosition = new Float32Array([0, 50, 0, 1]);
         break;
     }
+    client.managedObjects.forEach((object) => {
+      const vehicle = server._vehicles[object];
+      server.sendData(client, "PlayerUpdate.ManagedObjectResponseControl", {
+        unk: 0,
+        characterId: vehicle.npcData.characterId,
+      });
+    });
     client.character.state.position = locationPosition;
     server.sendData(client, "ClientUpdate.UpdateLocation", {
       position: locationPosition,
