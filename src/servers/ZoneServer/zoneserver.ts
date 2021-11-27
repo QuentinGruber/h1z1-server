@@ -145,28 +145,26 @@ export class ZoneServer extends EventEmitter {
     this._respawnLocations = spawnLocations.map((spawn: any) => {
       return {
         guid: this.generateGuid(),
-        respawnType: 4,
+        respawnType: 1,
         position: spawn.position,
+        iconId: 1,
+        respawnTypeIconId: 1,
+        respawnTotalTimeMS: 1,
         unknownDword1: 1,
-        unknownDword2: 1,
-        iconId1: 1,
-        iconId2: 1,
-        respawnTotalTime: 10,
-        respawnTimeMs: 10000,
         nameId: 1,
-        distance: 1000,
-        unknownByte1: 1,
-        unknownByte2: 1,
+        distance: 3000,
+        unknownByte1: 0,
+        isActive: 1,
         unknownData1: {
-          unknownByte1: 1,
-          unknownByte2: 1,
-          unknownByte3: 1,
-          unknownByte4: 1,
-          unknownByte5: 1,
+          unknownByte1: 0,
+          unknownByte2: 0,
+          unknownByte3: 0,
+          unknownByte4: 0,
+          unknownByte5: 0,
         },
-        unknownDword4: 1,
-        unknownByte3: 1,
-        unknownByte4: 1,
+        zoneId: 1,
+        unknownByte3: 0,
+        unknownByte4: 0,
       };
     });
     if (!this._mongoAddress) {
@@ -1157,6 +1155,10 @@ getCollisionEntityType(entityKey: string): number {
     if (client.character.isBleeding) {
       client.character.isBleeding = false;
     }
+    this.sendData(client, "PlayerUpdate.RespawnReply", {
+        characterId: client.character.characterId,
+		    unk: 1,
+      });
     this.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
       characterId: client.character.characterId,
       state: "000000000000000000",
@@ -2172,8 +2174,8 @@ DTOhit(client: Client, packet: any) {
       unknownBoolean1: true,
       zoneType: 4,
       skyData: weather,
-      zoneId1: 3905829720,
-      zoneId2: 3905829720,
+      zoneId1: 1,
+      zoneId2: 1,
       nameId: 7699,
       unknownBoolean7: true,
     };
