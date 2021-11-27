@@ -1100,7 +1100,7 @@ export class ZoneServer extends EventEmitter {
     character.isAlive = false;
   }
 
-  playerDamage(client, damage) {
+  playerDamage(client: Client, damage: number) {
     if (!client.character.godMode && client.character.isAlive) {
       if (damage > 99) {
         client.character.resources.health -= damage;
