@@ -1100,37 +1100,34 @@ export class ZoneServer extends EventEmitter {
     character.isAlive = false;
   }
 
-  playerDamage(client: Client, damage: number) {
-    const character = client.character;
-    if (!character.godMode && character.isAlive) {
+  playerDamage(client, damage) {
+    if (!client.character.godMode && client.character.isAlive) {
       if (damage > 99) {
-        character.resources.health -= damage;
+        client.character.resources.health -= damage;
       }
-      if (character.resources.health <= 0) {
-        character.resources.health = 0;
+      if (client.character.resources.health <= 0) {
+        client.character.resources.health = 0;
         this.killCharacter(client);
       }
       // Character bleeding prototype
-      if (damage > 3999 && !character.isBleeding || character.resources.health < 2000) {
-         const moderateBleeding = 5042;
-         const impactSound = 5050;
-         this.sendDataToAll("Command.PlayDialogEffect", {
-         characterId: character.characterId, effectId: moderateBleeding,
-         });
-         if (damage > 3999) {
-            this.sendDataToAll("PlayerUpdate.SetSpawnerActivationEffect", {
-            characterId: character.characterId, effectId: impactSound,
-         });
+      if (damage > 3999 && !client.character.isBleeding || client.character.resources.health < 2000 && damage > 100) {
+        const moderateBleeding = 5042;
+        const impactSound = 5050;
+        if (damage > 3999) {
+          this.sendDataToAll("PlayerUpdate.EffectPackage", {
+            unknownQword2: client.character.characterId,
+            stringId: 1,
+            effectId: impactSound,
+          });
         }
-         character.isBleeding = true;
+        this.sendDataToAll("PlayerUpdate.EffectPackage", {
+          unknownQword2: client.character.characterId,
+          stringId: 1,
+          effectId: moderateBleeding,
+        });
+        client.character.isBleeding = true;
       }
-      this.updateResource(
-        client,
-        character.characterId,
-        character.resources.health,
-        48,
-        1
-      );
+      this.updateResource(client, client.character.characterId, client.character.resources.health, 48, 1);
     }
   }
 
@@ -1141,9 +1138,6 @@ export class ZoneServer extends EventEmitter {
     client.character.resources.water = 10000;
     client.character.resources.stamina = 600;
     client.character.resourcesUpdater.refresh();
-    this.sendDataToAll("Command.PlayDialogEffect", {
-      characterId: client.character.characterId, effectId: 0,
-    });
     if (client.character.isBleeding) {
       client.character.isBleeding = false;
     }

@@ -123,7 +123,7 @@ export class Character {
         this.resources.health = 0;
       }
        // Prototype bleeding
-      if (this.isBleeding) {
+      if (this.isBleeding && this.isAlive) {
       if (!this.isBandaged) {
         server.playerDamage(client, 100);
       }
@@ -131,10 +131,8 @@ export class Character {
         this.resources.health += 100;
         server.updateResource(client, this.characterId, this.resources.health, 48, 1);
       if (this.resources.health >= 2000) {
-        const noEffect = 0;
         this.isBleeding = false;
-        server.sendDataToAll("Command.PlayDialogEffect", {
-        characterId: this.characterId, effectId: noEffect, }); }
+      }
       }
       if (this.resources.stamina > 0 && isRunning) {
         this.resources.stamina -= 100;
@@ -142,6 +140,13 @@ export class Character {
       else if (this.resources.stamina <= 130) {
         this.resources.stamina = 0; 
       }
+        setTimeout(() => { // Better way of doing this i guess
+          server.sendDataToAll("PlayerUpdate.EffectPackage", {
+            unknownQword2: this.characterId,
+            stringId: 1,
+            effectId: 5042,
+          });
+        }, 500);
       }
       if (this.resources.health < 10000 && !this.isBleeding && this.isBandaged) {
         this.resources.health += 400;
