@@ -148,6 +148,9 @@ export class Character {
           });
         }, 500);
       }
+      if (this.isBleeding && !this.isAlive) {
+        this.isBleeding = false;
+      }
       if (this.resources.health < 10000 && !this.isBleeding && this.isBandaged) {
         this.resources.health += 400;
         server.updateResource(client, this.characterId, this.resources.health, 48, 1);
