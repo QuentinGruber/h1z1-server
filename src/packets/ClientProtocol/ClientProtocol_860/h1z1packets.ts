@@ -4928,7 +4928,8 @@ var packets = [
       ],
     },
   ],
-  ["PlayerUpdate.EffectPackage", 
+  [
+    "PlayerUpdate.EffectPackage", 
   0x0f16, 
       {
           fields: [
@@ -4941,8 +4942,8 @@ var packets = [
               { name: "effectId", type: "uint32", defaultValue: 0 },
               { name: "unknownDword4", type: "float", defaultValue: 0 },
               { name: "unknownDword5", type: "float", defaultValue: 0 },
-          ]
-      }
+          ],
+      },
   ],
   ["PlayerUpdate.PreferredLanguages", 0x0f17, {}],
   ["PlayerUpdate.CustomizationChange", 0x0f18, {}],
