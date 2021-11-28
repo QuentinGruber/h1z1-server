@@ -54,7 +54,10 @@ export class LoginProtocol {
         const tunnelData = data.slice(
           this.protocolName == "LoginUdp_11" ? 15 : 14
         );
-        result = DataSchema.parse(schema, tunnelData, 0, undefined).result;
+        try {
+          result = DataSchema.parse(schema, tunnelData, 0, undefined).result;
+        } catch (error) {
+          console.error(`${packet.name} : ${error}`)        }
         return {
           serverId: data.readUInt32LE(1),
           unknown: data.readUInt32LE(5),
@@ -65,7 +68,11 @@ export class LoginProtocol {
         };
       } else if (packet.schema) {
         debug(packet.name);
-        result = DataSchema.parse(packet.schema, data, 1, undefined).result;
+        try {
+          result = DataSchema.parse(packet.schema, data, 1, undefined).result;
+        } catch (error) {
+          console.error(`${packet.name} : ${error}`)      
+        }
         debug("[DEBUG] Packet receive :");
         debug(result);
 
@@ -86,7 +93,7 @@ export class LoginProtocol {
     }
   }
 
-  pack(packetName: string, object: any) {
+  pack(packetName: string, object: any):Buffer {
     const packetType = this.loginPackets.PacketTypes[packetName];
     const packet = this.loginPackets.Packets[packetType];
     let payload;
@@ -95,13 +102,20 @@ export class LoginProtocol {
       if (packet.name === "TunnelAppPacketServerToClient") {
         const { subPacketOpcode } = object;
         const { schema } = this.tunnelLoginPackets.Packets[subPacketOpcode];
-        const tunnelData = DataSchema.pack(
-          schema,
-          object,
-          undefined,
-          undefined,
-          undefined
-        );
+        let tunnelData;
+        try {
+          tunnelData = DataSchema.pack(
+            schema,
+            object,
+            undefined,
+            undefined,
+            undefined
+          );
+        } catch (error){
+          console.error(`${subPacketOpcode} : ${error}`)
+          return Buffer.from("0");
+        }
+        
         const basePacketLength = this.protocolName == "LoginUdp_11" ? 15 : 14;
         const opcodesLength = this.protocolName == "LoginUdp_11" ? 2 : 1;
         data = new (Buffer as any).alloc(basePacketLength + tunnelData.length);
@@ -119,13 +133,17 @@ export class LoginProtocol {
         debug("tunnelpacket send data :", object);
       } else if (packet.schema) {
         debug("Packing data for " + packet.name);
-        payload = DataSchema.pack(
-          packet.schema,
-          object,
-          undefined,
-          undefined,
-          undefined
-        );
+        try {
+          payload = DataSchema.pack(
+            packet.schema,
+            object,
+            undefined,
+            undefined,
+            undefined
+          );
+        } catch (error) {
+          console.error(`${packet.name} : ${error}`)
+        }
         if (payload) {
           data = Buffer.allocUnsafe(1 + payload.length);
           data.writeUInt8(packetType, 0);
