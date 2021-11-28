@@ -1124,7 +1124,7 @@ getCollisionEntityType(entityKey: string): number {
          var moderateBleeding = 5042;
          var impactSound = 5050;
       if (damage >= 4000) {
-         this.sendDataToAll("PlayerUpdate.EffectPackage", {
+        this.sendDataToAll("PlayerUpdate.EffectPackage", {
          characterId: client.character.characterId,
          stringId: 1,
          effectId: impactSound, });
@@ -1137,7 +1137,7 @@ getCollisionEntityType(entityKey: string): number {
       if (!client.character.isBleeding) {
          client.character.isBleeding = true;}
          }
-      this.updateResource(
+        this.updateResource(
         client,
         character.characterId,
         character.resources.health,
