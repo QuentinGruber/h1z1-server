@@ -1131,12 +1131,12 @@ getCollisionEntityType(entityKey: string): number {
         });
         }
         this.sendDataToAll("PlayerUpdate.EffectPackage", {
-          characterId: client.character.characterId,
-          stringId: 1,
-          effectId: moderateBleeding,
+         characterId: client.character.characterId,
+         stringId: 1,
+         effectId: moderateBleeding,
         });
         if (!client.character.isBleeding) {
-          client.character.isBleeding = true;
+         client.character.isBleeding = true;
         }
       }
       this.updateResource(
