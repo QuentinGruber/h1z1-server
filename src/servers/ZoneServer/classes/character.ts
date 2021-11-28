@@ -138,7 +138,7 @@ export class Character {
         this.resources.stamina -= 100;
       }
       server.sendDataToAll("PlayerUpdate.EffectPackage", {
-        unknownQword2: this.characterId,
+        characterId: this.characterId,
         stringId: 1,
         effectId: 5042,
       });
