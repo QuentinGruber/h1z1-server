@@ -1094,7 +1094,7 @@ getCollisionEntityType(entityKey: string): number {
             scale: [1,1,1,1],
             attachedObject: {},
             isVehicle: true,
-            color: {},
+            color: { r: 127, g: 127, b: 127 },
             array5: [{ unknown1: 0 }],
             array17: [{ unknown1: 0 }],
             array18: [{ unknown1: 0 }],
