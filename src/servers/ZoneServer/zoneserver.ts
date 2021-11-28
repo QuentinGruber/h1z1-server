@@ -1113,11 +1113,11 @@ getCollisionEntityType(entityKey: string): number {
     if (!client.character.godMode && client.character.isAlive && client.character.characterId) {
       if (damage > 99) {
         character.resources.health -= damage;
-      }
+         }
       if (character.resources.health <= 0) {
         character.resources.health = 0;
         this.killCharacter(client);
-      }
+         }
       // Character bleeding prototype
       if (damage >= 4000 && !client.character.isBleeding
          || !client.character.isBleeding && client.character.resources.health < 2000 && damage > 100) {
@@ -1127,18 +1127,16 @@ getCollisionEntityType(entityKey: string): number {
          this.sendDataToAll("PlayerUpdate.EffectPackage", {
          characterId: client.character.characterId,
          stringId: 1,
-         effectId: impactSound,
-        });
-        }
+         effectId: impactSound, });
+         }
         this.sendDataToAll("PlayerUpdate.EffectPackage", {
          characterId: client.character.characterId,
          stringId: 1,
-         effectId: moderateBleeding,
+         effectId: moderateBleeding, 
         });
         if (!client.character.isBleeding) {
-         client.character.isBleeding = true;
-        }
-      }
+         client.character.isBleeding = true;}
+         }
       this.updateResource(
         client,
         character.characterId,
