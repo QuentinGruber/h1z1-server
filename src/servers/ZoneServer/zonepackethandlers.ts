@@ -100,6 +100,7 @@ export class zonePacketHandlers {
               skyData: server._weather,
             });
             */
+      server.customizeDTO(client);
       server.sendData(client, "QuickChat.SendData", { commands: [] });
       server.sendData(client, "ClientUpdate.ActivateProfile", {
         profiles: server._profiles,
@@ -266,12 +267,12 @@ export class zonePacketHandlers {
     ) {
       const characterId = packet.data.characterId;
       const damage = packet.data.damage;
+      const vehicle = server._vehicles[characterId]
       if (characterId === client.character.characterId) {
         server.playerDamage(client, damage);
-      }
-      else{
-        const vehicle = server._vehicles[characterId]
-        server.damageVehicle(damage/500,vehicle)
+      }else if (vehicle){
+        server.damageVehicle(damage/100,vehicle)
+        server.DTOhit(client, packet);
       }
     };
     this.lobbyGameDefinitionDefinitionsRequest = function (
@@ -851,9 +852,6 @@ export class zonePacketHandlers {
       packet: any
     ) {
       debug(packet);
-      const vehicleData =
-        server._vehicles[server._transientIds[packet.data.transientId]];
-      server.damageVehicle(packet.data.damage, vehicleData);
     };
     this.vehicleDismiss = function (
       server: ZoneServer,
@@ -1977,6 +1975,12 @@ export class zonePacketHandlers {
               npcData: npcData,
               characterId: characterId,
             });
+            if (entityData.destroyedEffect != 0) {
+              server.sendData(client, "Command.PlayDialogEffect", {
+                characterId: entityData.npcData.characterId,
+                effectId: entityData.destroyedEffect,
+              });
+            }
             if (entityData.onReadyCallback) {
               if (entityData.onReadyCallback(client)) {
                 delete server._vehicles[characterId].onReadyCallback;

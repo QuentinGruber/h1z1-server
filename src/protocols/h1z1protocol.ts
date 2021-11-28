@@ -343,13 +343,17 @@ export class H1Z1Protocol {
     if (packet) {
       const packetTypeBytes = getPacketTypeBytes(packetType);
       if (packet.schema) {
-        packetData = DataSchema.pack(
-          packet.schema,
-          object,
-          null,
-          null,
-          referenceData
-        );
+        try {
+          packetData = DataSchema.pack(
+            packet.schema,
+            object,
+            null,
+            null,
+            referenceData
+          );
+        } catch (error) {
+          console.error(`${packetName} : ${error}`)
+        }
         if (packetData) {
           data = new (Buffer as any).alloc(
             packetTypeBytes.length + packetData.length
@@ -466,7 +470,7 @@ export class H1Z1Protocol {
             referenceData
           ).result;
         } catch (e) {
-          debug(e);
+          console.error(`${packet.name} : ${e}`);
         }
 
         switch (packet.name) {
