@@ -123,31 +123,35 @@ export class Character {
         this.resources.health = 0;
       }
        // Prototype bleeding
-      if (this.isBleeding) {
-      if (!this.isBandaged) {
-        server.playerDamage(client, 100);
+      if (this.isBleeding && this.isAlive) {
+        if (!this.isBandaged) {
+          server.playerDamage(client, 100);
+        }
+        if (this.isBandaged) {
+          this.resources.health += 100;
+          server.updateResource(client, this.characterId, this.resources.health, 48, 1);
+        }
+        if (this.resources.health >= 2000) {
+          this.isBleeding = false;
+        }
+        if (this.resources.stamina > 130 && isRunning) {
+          this.resources.stamina -= 100;
+        }
+        server.sendDataToAll("PlayerUpdate.EffectPackage", {
+          characterId: this.characterId,
+          stringId: 1,
+          effectId: 5042,
+        });
+        if (this.resources.health < 10000 && !this.isBleeding && this.isBandaged) {
+          this.resources.health += 400;
+          server.updateResource(client, this.characterId, this.resources.health, 48, 1);
+        }
+        if (this.resources.health >= 10000) {
+          this.isBandaged = false; 
+        }
       }
-      if (this.isBandaged && this.resources.health < 10000) {
-        this.resources.health += 100;
-        server.updateResource(client, this.characterId, this.resources.health, 48, 1);
-      if (this.resources.health >= 2000) {
-        const noEffect = 0;
+      if (this.isBleeding && !this.isAlive) {
         this.isBleeding = false;
-        server.sendDataToAll("Command.PlayDialogEffect", {
-        characterId: this.characterId, effectId: noEffect, }); }
-      }
-      if (this.resources.stamina > 0 && isRunning) {
-        this.resources.stamina -= 100;
-      }
-      else if (this.resources.stamina <= 130) {
-        this.resources.stamina = 0; 
-      }
-      }
-      if (this.resources.health < 10000 && !this.isBleeding && this.isBandaged) {
-        this.resources.health += 400;
-        server.updateResource(client, this.characterId, this.resources.health, 48, 1);
-      if (this.resources.health >= 10000) {
-        this.isBandaged = false; }
       }
       const { stamina, food, water, virus } = this.resources;
       server.updateResource(client, this.characterId, stamina, 6, 6);
