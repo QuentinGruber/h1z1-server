@@ -137,15 +137,11 @@ export class Character {
       if (this.resources.stamina > 130 && isRunning) {
         this.resources.stamina -= 100;
       }
-      for (var i = 0; i < 2; i++) {
-        setTimeout(() => {
-            server.sendDataToAll("PlayerUpdate.EffectPackage", {
-             unknownQword2: this.characterId,
-             stringId: 1,
-             effectId: 5042,
-          });
-        }, 500);
-      }
+      server.sendDataToAll("PlayerUpdate.EffectPackage", {
+        unknownQword2: this.characterId,
+        stringId: 1,
+        effectId: 5042,
+      });
       if (this.resources.health < 10000 && !this.isBleeding && this.isBandaged) {
         this.resources.health += 400;
         server.updateResource(client, this.characterId, this.resources.health, 48, 1);
