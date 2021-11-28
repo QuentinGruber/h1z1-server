@@ -1125,13 +1125,13 @@ getCollisionEntityType(entityKey: string): number {
         var impactSound = 5050;
         if (damage > 3999) {
           this.sendDataToAll("PlayerUpdate.EffectPackage", {
-            unknownQword2: client.character.characterId,
+            characterId: client.character.characterId,
             stringId: 1,
             effectId: impactSound,
           });
         }
         this.sendDataToAll("PlayerUpdate.EffectPackage", {
-          unknownQword2: client.character.characterId,
+          characterId: client.character.characterId,
           stringId: 1,
           effectId: moderateBleeding,
         });
