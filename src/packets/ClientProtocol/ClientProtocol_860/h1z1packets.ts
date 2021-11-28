@@ -4934,7 +4934,7 @@ var packets = [
       {
           fields: [
               { name: "unknownQword1", type: "uint64string", defaultValue: "0x000" },
-              { name: "unknownQword2", type: "uint64string", defaultValue: "0x000" },
+              { name: "characterId", type: "uint64string", defaultValue: "0x000" },
               { name: "unknownBoolean1", type: "boolean", defaultValue: false },
               { name: "unknownDword1", type: "float", defaultValue: 0 },
               { name: "stringId", type: "uint32", defaultValue: 0 },
