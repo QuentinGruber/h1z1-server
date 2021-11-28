@@ -32,8 +32,6 @@ So we will see :)
 
 - Thanks to Rhett for his interest in the project and his research on the Forgelight engine in general.
 
-- Thanks to LegendsNeveerrDie for his work on editing the map.
-
 - Thanks to Chriis who provided the basis for this project by being the first (as far as I know) to try to emulate servers for h1z1 and who inspired me.
 
 - Thanks to Jacob Seidelin without whom none of this would have been possible.

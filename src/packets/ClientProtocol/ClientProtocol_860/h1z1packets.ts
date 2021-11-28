@@ -2134,7 +2134,7 @@ const respawnLocationDataSchema = [
   { name: "nameId", type: "uint32", defaultValue: 6 },
   { name: "distance", type: "float", defaultValue: 7 },
   { name: "unknownByte1", type: "uint8", defaultValue: 1 },
-  { name: "unknownByte2", type: "uint8", defaultValue: 1 },
+  { name: "isActive", type: "uint8", defaultValue: 1 },
   {
     name: "unknownData1",
     type: "schema",
@@ -2146,9 +2146,9 @@ const respawnLocationDataSchema = [
       { name: "unknownByte5", type: "uint8", defaultValue: 0 },
     ],
   },
-  { name: "zoneId", type: "uint32", defaultValue: 8 },
-  { name: "unknownByte3", type: "uint8", defaultValue: 0 },
-  { name: "unknownByte4", type: "uint8", defaultValue: 0 },
+  { name: "zoneId", type: "uint32", defaultValue: 1 },
+  { name: "seatCount", type: "uint8", defaultValue: 0 },
+  { name: "seatOccupiedCount", type: "uint8", defaultValue: 0 },
 ];
 
 var packets = [
