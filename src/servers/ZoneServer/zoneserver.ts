@@ -1097,8 +1097,8 @@ getCollisionEntityType(entityKey: string): number {
             rotation: [0, 0, 0, 0,],
             scale: [1,1,1,1],
             attachedObject: {},
-            isVehicle: false,
-            color: {},
+            isVehicle: true,
+            color: { r: 127, g: 127, b: 127 },
             array5: [{ unknown1: 0 }],
             array17: [{ unknown1: 0 }],
             array18: [{ unknown1: 0 }],
@@ -1114,29 +1114,34 @@ getCollisionEntityType(entityKey: string): number {
 
   playerDamage(client: Client, damage: number) {
     const character = client.character;
-    if (!character.godMode && character.isAlive) {
+    if (!client.character.godMode && client.character.isAlive && client.character.characterId) {
       if (damage > 99) {
         character.resources.health -= damage;
-      }
+         }
       if (character.resources.health <= 0) {
         character.resources.health = 0;
         this.killCharacter(client);
-      }
+         }
       // Character bleeding prototype
-      if (damage > 3999 && !character.isBleeding || character.resources.health < 2000) {
-         const moderateBleeding = 5042;
-         const impactSound = 5050;
-         this.sendDataToAll("Command.PlayDialogEffect", {
-         characterId: character.characterId, effectId: moderateBleeding,
+      if (damage >= 4000 && !client.character.isBleeding
+         || !client.character.isBleeding && client.character.resources.health < 2000 && damage > 100) {
+         var moderateBleeding = 5042;
+         var impactSound = 5050;
+      if (damage >= 4000) {
+        this.sendDataToAll("PlayerUpdate.EffectPackage", {
+         characterId: client.character.characterId,
+         stringId: 1,
+         effectId: impactSound, });
+         }
+        this.sendDataToAll("PlayerUpdate.EffectPackage", {
+         characterId: client.character.characterId,
+         stringId: 1,
+         effectId: moderateBleeding, 
          });
-         if (damage > 3999) {
-            this.sendDataToAll("PlayerUpdate.SetSpawnerActivationEffect", {
-            characterId: character.characterId, effectId: impactSound,
-         });
-        }
-         character.isBleeding = true;
-      }
-      this.updateResource(
+      if (!client.character.isBleeding) {
+         client.character.isBleeding = true;}
+         }
+        this.updateResource(
         client,
         character.characterId,
         character.resources.health,
@@ -1153,12 +1158,6 @@ getCollisionEntityType(entityKey: string): number {
     client.character.resources.water = 10000;
     client.character.resources.stamina = 600;
     client.character.resourcesUpdater.refresh();
-    this.sendDataToAll("Command.PlayDialogEffect", {
-      characterId: client.character.characterId, effectId: 0,
-    });
-    if (client.character.isBleeding) {
-      client.character.isBleeding = false;
-    }
     this.sendData(client, "PlayerUpdate.RespawnReply", {
         characterId: client.character.characterId,
 		    unk: 1,
