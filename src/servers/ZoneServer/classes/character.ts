@@ -130,6 +130,7 @@ export class Character {
       if (this.isBandaged) {
         this.resources.health += 100;
         server.updateResource(client, this.characterId, this.resources.health, 48, 1);
+      }
       if (this.resources.health >= 2000) {
         this.isBleeding = false;
       }
@@ -139,18 +140,19 @@ export class Character {
       for (var i = 0; i < 2; i++) {
         setTimeout(() => {
             server.sendDataToAll("PlayerUpdate.EffectPackage", {
-                unknownQword2: this.characterId,
-                stringId: 1,
-                effectId: 5042,
-            });
-          }, 500);
-        }
+             unknownQword2: this.characterId,
+             stringId: 1,
+             effectId: 5042,
+          });
+        }, 500);
       }
       if (this.resources.health < 10000 && !this.isBleeding && this.isBandaged) {
         this.resources.health += 400;
         server.updateResource(client, this.characterId, this.resources.health, 48, 1);
+      }
       if (this.resources.health >= 10000) {
-        this.isBandaged = false; }
+        this.isBandaged = false; 
+      }
       }
       if (this.isBleeding && !this.isAlive) {
         this.isBleeding = false;
