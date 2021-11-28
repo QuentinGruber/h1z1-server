@@ -1134,7 +1134,7 @@ getCollisionEntityType(entityKey: string): number {
          stringId: 1,
          effectId: moderateBleeding, 
         });
-        if (!client.character.isBleeding) {
+      if (!client.character.isBleeding) {
          client.character.isBleeding = true;}
          }
       this.updateResource(
