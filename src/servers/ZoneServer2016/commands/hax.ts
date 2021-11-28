@@ -1,6 +1,7 @@
 import fs from "fs";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { Vehicle2016 as Vehicle, Vehicle2016 } from "../classes/vehicle";
+import { Character2016 as Character } from "../classes/character"
 import { ZoneServer2016 } from "../zoneserver";
 import { _ } from "../../../utils/utils";
 
@@ -13,9 +14,9 @@ function getHeadActor(modelId: number) {
     case 9474:
       return "SurvivorFemale_Head_01.adr";
     case 9510:
-      return "ZombieFemale_Head_01.adr";
+      return `ZombieFemale_Head_0${Math.floor(Math.random()*3)+1}.adr`;
     case 9634:
-      return "ZombieMale_Head_01.adr";
+      return `ZombieMale_Head_0${Math.floor(Math.random()*4)+1}.adr`;
     default:
       return "";
   }
@@ -88,7 +89,7 @@ const hax: any = {
     const vehicleData = new Vehicle2016(
       server._worldId,
       characterId,
-      server.getTransientId(client, characterId),
+      server.getTransientId(characterId),
       driveModel,
       client.character.state.position,
       client.character.state.lookAt,
@@ -117,7 +118,7 @@ const hax: any = {
         unknownBoolean: true,
       });
       client.vehicle.mountedVehicle = characterId;
-      client.managedObjects.push(server._vehicles[characterId]);
+      //client.managedObjects.push(server._vehicles[characterId]);
       setTimeout(() => {
         client.character.godMode = wasAlreadyGod;
       }, 1000);
@@ -160,7 +161,7 @@ const hax: any = {
   ) {
     for (let index = 0; index < 50; index++) {
       const guid = server.generateGuid();
-      const transientId = server.getTransientId(client, guid);
+      const transientId = server.getTransientId(guid);
       const characterId = server.generateGuid();
       const vehicle = new Vehicle(
         server._worldId,
@@ -181,7 +182,7 @@ const hax: any = {
   ) {
     for (let index = 0; index < 50; index++) {
       const guid = server.generateGuid();
-      const transientId = server.getTransientId(client, guid);
+      const transientId = server.getTransientId(guid);
       const characterId = server.generateGuid();
       const vehicle = new Vehicle(
         server._worldId,
@@ -312,7 +313,7 @@ const hax: any = {
   spamatv: function (server: ZoneServer2016, client: Client, args: any[]) {
     for (let index = 0; index < 50; index++) {
       const guid = server.generateGuid();
-      const transientId = server.getTransientId(client, guid);
+      const transientId = server.getTransientId(guid);
       const characterId = server.generateGuid();
       const vehicle = new Vehicle(
         server._worldId,
@@ -332,7 +333,7 @@ const hax: any = {
     args: any[]
   ) {
     const characterId = server.generateGuid();
-    const transientId = server.getTransientId(client, characterId);
+    const transientId = server.getTransientId(characterId);
     if (!args[1]) {
       server.sendChatText(client, "[ERROR] You need to specify a model id !");
       return;
@@ -362,31 +363,25 @@ const hax: any = {
     args: any[]
   ) {
     const guid = server.generateGuid();
-    const transientId = server.getTransientId(client, guid);
+    const transientId = server.getTransientId(guid);
     if (!args[1]) {
       server.sendChatText(client, "[ERROR] You need to specify a model id !");
       return;
     }
     const choosenModelId = Number(args[1]);
     const characterId = server.generateGuid();
+    const headactor = getHeadActor(choosenModelId)
+    console.log(headactor)
     const npc = {
       characterId: characterId,
       guid: guid,
       transientId: transientId,
       modelId: choosenModelId,
-      position: [
-        client.character.state.position[0],
-        client.character.state.position[1],
-        client.character.state.position[2],
-      ],
-      rotation: [
-        client.character.state.rotation[0],
-        client.character.state.rotation[1],
-        client.character.state.rotation[2],
-      ],
+      position: client.character.state.position,
+      rotation: client.character.state.lookAt,
       color: {},
       unknownData1: { unknownData1: {} },
-      headActor: getHeadActor(choosenModelId),
+      headActor: headactor,
       attachedObject: {},
     };
     server._npcs[characterId] = npc; // save npc
@@ -419,11 +414,10 @@ const hax: any = {
         break;
     }
     const characterId = server.generateGuid();
-    const transientId = server.getTransientId(client, characterId);
     const vehicle = new Vehicle(
       server._worldId,
       characterId,
-      transientId,
+      server.getTransientId(characterId),
       driveModel,
       client.character.state.position,
       client.character.state.lookAt,
@@ -440,28 +434,16 @@ const hax: any = {
       return;
     }
 
-    const pc = {
+    let pc = new Character(characterId, server.getTransientId(characterId))
+    pc = {
+      ...pc,
       characterId: characterId,
-      transientId: server.getTransientId(client, characterId),
-      position: [
-        client.character.state.position[0],
-        client.character.state.position[1],
-        client.character.state.position[2],
-      ],
-      rotation: client.character.state.rotation,
-      identity: { characterName: args[1] },
+      transientId: server.getTransientId(characterId),
       name: args[1],
       state: {
-        position: [
-          client.character.state.position[0],
-          client.character.state.position[1],
-          client.character.state.position[2],
-        ],
-        lookAt: [
-          client.character.state.lookAt[0],
-          client.character.state.lookAt[1],
-          client.character.state.lookAt[2],
-        ],
+        ...pc.state,
+        position: client.character.state.position,
+        lookAt: client.character.state.lookAt,
       },
     };
     server._characters[characterId] = pc; // save pc
@@ -503,7 +485,7 @@ const hax: any = {
       );
     } else if (weatherTemplate) {
       server._weather2016 = weatherTemplate;
-      server.sendWeatherUpdatePacket(client, server._weather2016);
+      server.sendWeatherUpdatePacket(client, server._weather2016, true);
       server.sendChatText(client, `Applied weather template: "${args[1]}"`);
     } else {
       if (args[1] === "list") {
@@ -511,7 +493,6 @@ const hax: any = {
         _.forEach(
           server._weatherTemplates,
           function (element: { templateName: any }) {
-            console.log(element.templateName);
             server.sendChatText(client, `- ${element.templateName}`);
           }
         );
@@ -529,7 +510,6 @@ const hax: any = {
     client: Client,
     args: any[]
   ) {
-    console.log(server._weatherTemplates);
     if (!args[1]) {
       server.sendChatText(
         client,
@@ -637,7 +617,7 @@ const hax: any = {
 
       unknownDword33: 0,
     };
-    server.sendWeatherUpdatePacket(client, server._weather2016);
+    server.sendWeatherUpdatePacket(client, server._weather2016, true);
   },
   equipment: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.sendChatText(
@@ -744,7 +724,7 @@ const hax: any = {
     const vehicle = new Vehicle(
       server._worldId,
       characterId,
-      server.getTransientId(client, characterId),
+      server.getTransientId(characterId),
       9371,
       client.character.state.position,
       client.character.state.lookAt,

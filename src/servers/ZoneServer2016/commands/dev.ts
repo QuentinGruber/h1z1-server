@@ -343,7 +343,7 @@ const dev: any = {
       //unknownDword33: rnd_number2(0.5), // ?? (cloudThickness?)
     };
     console.log(server._weather2016);
-    server.sendWeatherUpdatePacket(client, server._weather2016);
+    server.sendWeatherUpdatePacket(client, server._weather2016, true);
   },
 
   recipe: function (server: ZoneServer2016, client: Client, args: any[]) {

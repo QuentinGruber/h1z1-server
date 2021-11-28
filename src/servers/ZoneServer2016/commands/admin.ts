@@ -20,6 +20,71 @@ const admin: any = {
     const startedTime = Date.now();
     await zoneShutdown(server, startedTime, timeLeft, message);
   },
+  // respawnloot, respawnnpcs, respawnvehicles
+  // lootrespawntime, npcrespawntime, vehiclerespawntime
+  respawnloot: function (server: ZoneServer2016, client: Client, args: any[]) {
+    server.worldObjectManager.createLoot(server);
+    server.sendChatText(
+      client,
+      `Respawned loot`
+    );
+  },
+  respawnnpcs: function (server: ZoneServer2016, client: Client, args: any[]) {
+    server.worldObjectManager.createNpcs(server);
+    server.sendChatText(
+      client,
+      `Respawned npcs`
+    );
+  },
+  respawnvehicles: function (server: ZoneServer2016, client: Client, args: any[]) {
+    server.worldObjectManager.createVehicles(server);
+    server.sendChatText(
+      client,
+      `Respawned vehicles`
+    );
+  },
+  lootrespawntimer: function (server: ZoneServer2016, client: Client, args: any[]) {
+    if(!args[1]) {
+      server.sendChatText(
+        client,
+        `Correct usage: /admin lootrespawntimer <time>`
+      );
+      return;
+    }
+    server.worldObjectManager.lootRespawnTimer = Number(args[1]);
+    server.sendChatText(
+      client,
+      `Loot respawn timer set to ${Number(args[1])}`
+    );
+  },
+  npcrespawntimer: function (server: ZoneServer2016, client: Client, args: any[]) {
+    if(!args[1]) {
+      server.sendChatText(
+        client,
+        `Correct usage: /admin npcrespawntimer <time>`
+      );
+      return;
+    }
+    server.worldObjectManager.npcRespawnTimer = Number(args[1]);
+    server.sendChatText(
+      client,
+      `Npc respawn timer set to ${Number(args[1])}`
+    );
+  },
+  vehiclerespawntimer: function (server: ZoneServer2016, client: Client, args: any[]) {
+    if(!args[1]) {
+      server.sendChatText(
+        client,
+        `Correct usage: /admin vehiclerespawntimer <time>`
+      );
+      return;
+    }
+    server.worldObjectManager.vehicleRespawnTimer = Number(args[1]);
+    server.sendChatText(
+      client,
+      `Vehicle respawn timer set to ${Number(args[1])}`
+    );
+  },
 };
 
 export default admin;

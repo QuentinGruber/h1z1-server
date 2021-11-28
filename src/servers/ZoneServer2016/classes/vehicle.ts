@@ -35,7 +35,6 @@ export class Vehicle2016 extends Vehicle {
   ) {
     super(worldId, characterId, transientId, modelId, position, rotation);
     this.npcData.vehicleId = getVehicleId(modelId);
-    //this.isManaged = true;
     switch (this.npcData.vehicleId) {
       case 1: // offroader
       case 2: // pickup
@@ -77,7 +76,7 @@ export class Vehicle2016 extends Vehicle {
         return seatId;
       }
     }
-    return 0;
+    return -1;
   }
   getCharacterSeat(characterId: string) {
     for (const seatId in this.seats) {
@@ -85,5 +84,15 @@ export class Vehicle2016 extends Vehicle {
         return seatId;
       }
     }
+  }
+
+  getPassengerList(): string[] {
+    let passengers: string[] = [];
+    for(const seatId in this.seats) {
+      if(this.seats[seatId]) {
+        passengers.push(this.seats[seatId])
+      }
+    }
+    return passengers;
   }
 }

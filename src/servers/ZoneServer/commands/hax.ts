@@ -47,7 +47,7 @@ const hax: any = {
     const vehicleData = new Vehicle(
       server._worldId,
       characterId,
-      server.getTransientId(client, characterId),
+      server.getTransientId(characterId),
       9371,
       client.character.state.position,
       client.character.state.lookAt
@@ -199,7 +199,7 @@ const hax: any = {
     const vehicleData = new Vehicle(
       server._worldId,
       characterId,
-      server.getTransientId(client, characterId),
+      server.getTransientId(characterId),
       driveModel,
       client.character.state.position,
       client.character.state.lookAt
@@ -323,7 +323,7 @@ const hax: any = {
     const vehicleData = new Vehicle(
       server._worldId,
       characterId,
-      server.getTransientId(client, characterId),
+      server.getTransientId(characterId),
       driveModel,
       client.character.state.position,
       client.character.state.lookAt

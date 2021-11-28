@@ -55,7 +55,7 @@ export class ZoneServer extends EventEmitter {
   _soloMode: any;
   _mongoClient: any;
   _mongoAddress: string;
-  _clients: any;
+  _clients: { [characterId: string]: Client } = {};
   _characters: any;
   _gameTime: any;
   _time: number;
@@ -288,28 +288,7 @@ export class ZoneServer extends EventEmitter {
                 break;
               }
               case "CharacterCreateRequest": {
-                const { characterObjStringify, reqId } = packet.data;
-                try {
-                  const characterObj = JSON.parse(characterObjStringify);
-                  const collection = (this._db as Db).collection("characters");
-                  const charactersArray = await collection.findOne({
-                    characterId: characterObj.characterId,
-                  });
-                  if (!charactersArray) {
-                    await collection.insertOne(characterObj);
-                  }
-                  this._h1emuZoneServer.sendData(
-                    client,
-                    "CharacterCreateReply",
-                    { reqId: reqId, status: 1 }
-                  );
-                } catch (error) {
-                  this._h1emuZoneServer.sendData(
-                    client,
-                    "CharacterCreateReply",
-                    { reqId: reqId, status: 0 }
-                  );
-                }
+                this.onCharacterCreateRequest(client, packet);
                 break;
               }
               case "CharacterDeleteRequest": {
@@ -350,6 +329,31 @@ export class ZoneServer extends EventEmitter {
             }
           }
         }
+      );
+    }
+  }
+
+  async onCharacterCreateRequest(client: any, packet: any) {
+    const { characterObjStringify, reqId } = packet.data;
+    try {
+      const characterObj = JSON.parse(characterObjStringify);
+      const collection = (this._db as Db).collection("characters");
+      const charactersArray = await collection.findOne({
+        characterId: characterObj.characterId,
+      });
+      if (!charactersArray) {
+        await collection.insertOne(characterObj);
+      }
+      this._h1emuZoneServer.sendData(
+        client,
+        "CharacterCreateReply",
+        { reqId: reqId, status: 1 }
+      );
+    } catch (error) {
+      this._h1emuZoneServer.sendData(
+        client,
+        "CharacterCreateReply",
+        { reqId: reqId, status: 0 }
       );
     }
   }
@@ -1879,7 +1883,7 @@ DTOhit(client: Client, packet: any) {
     const vehicleData = new Vehicle(
       this._worldId,
       characterId,
-      this.getTransientId(client, characterId),
+      this.getTransientId(characterId),
       9374,
       position,
       client.character.state.lookAt
@@ -2458,7 +2462,7 @@ DTOhit(client: Client, packet: any) {
     }
   }
 
-  getTransientId(client: any, guid: string): number {
+  getTransientId(guid: string): number {
     let generatedTransient;
     do {
       generatedTransient = Number((Math.random() * 30000).toFixed(0));
