@@ -4928,7 +4928,22 @@ var packets = [
       ],
     },
   ],
-  ["PlayerUpdate.EffectPackage", 0x0f16, {}],
+  ["PlayerUpdate.EffectPackage", 
+  0x0f16, 
+      {
+          fields: [
+              { name: "unknownQword1", type: "uint64string", defaultValue: "0x000" },
+              { name: "unknownQword2", type: "uint64string", defaultValue: "0x000" },
+              { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+              { name: "unknownDword1", type: "float", defaultValue: 0 },
+              { name: "stringId", type: "uint32", defaultValue: 0 },
+              { name: "unknownBoolean2", type: "boolean", defaultValue: false },
+              { name: "effectId", type: "uint32", defaultValue: 0 },
+              { name: "unknownDword4", type: "float", defaultValue: 0 },
+              { name: "unknownDword5", type: "float", defaultValue: 0 },
+          ]
+      }
+  ],
   ["PlayerUpdate.PreferredLanguages", 0x0f17, {}],
   ["PlayerUpdate.CustomizationChange", 0x0f18, {}],
   ["PlayerUpdate.PlayerTitle", 0x0f19, {}],
