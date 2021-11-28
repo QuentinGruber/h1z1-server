@@ -1119,16 +1119,16 @@ getCollisionEntityType(entityKey: string): number {
         this.killCharacter(client);
       }
       // Character bleeding prototype
-      if (damage > 3999 && !client.character.isBleeding
-        || !client.character.isBleeding && client.character.resources.health < 2000 && damage > 100) {
-        var moderateBleeding = 5042;
-        var impactSound = 5050;
-        if (damage > 3999) {
-          this.sendDataToAll("PlayerUpdate.EffectPackage", {
-            characterId: client.character.characterId,
-            stringId: 1,
-            effectId: impactSound,
-          });
+      if (damage >= 4000 && !client.character.isBleeding
+         || !client.character.isBleeding && client.character.resources.health < 2000 && damage > 100) {
+         var moderateBleeding = 5042;
+         var impactSound = 5050;
+      if (damage >= 4000) {
+         this.sendDataToAll("PlayerUpdate.EffectPackage", {
+         characterId: client.character.characterId,
+         stringId: 1,
+         effectId: impactSound,
+        });
         }
         this.sendDataToAll("PlayerUpdate.EffectPackage", {
           characterId: client.character.characterId,
