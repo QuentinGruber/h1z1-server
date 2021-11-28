@@ -751,10 +751,11 @@ export class ZoneServer2016 extends ZoneServer {
 
   filterOutOfDistance(element: any, playerPosition: Float32Array): boolean {
     if(!element) return false;
+    const elementPos = element.position || element.state?.position || element.npcData?.position;
     return !isPosInRadius(
       this._npcRenderDistance,
       playerPosition,
-      element.position || element.state?.position || element.npcData?.position
+      elementPos
     );
   }
 
