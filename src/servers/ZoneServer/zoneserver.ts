@@ -1133,7 +1133,7 @@ getCollisionEntityType(entityKey: string): number {
          characterId: client.character.characterId,
          stringId: 1,
          effectId: moderateBleeding, 
-        });
+         });
       if (!client.character.isBleeding) {
          client.character.isBleeding = true;}
          }
