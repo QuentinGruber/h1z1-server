@@ -452,6 +452,7 @@ export class H1Z1Protocol {
       case 5: {
         packet = H1Z1Packets.Packets[this.VehicleDimissOpcode];
         offset = 2;
+        break;
     }
       default:
         console.error(`unknown flag used : ${flag} for packet : ${opCode}`)
