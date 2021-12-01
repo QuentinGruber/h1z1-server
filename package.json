@@ -18,7 +18,7 @@
     "debug": "4.3.3",
     "h1emu-core": "0.6.2",
     "h1z1-dataschema": "1.5.7",
-    "mongodb": "4.2.0",
+    "mongodb": "4.2.1",
     "mongodb-restore-dump": "1.0.1",
     "terser-output": "1.0.4",
     "typedoc": "0.22.10",
