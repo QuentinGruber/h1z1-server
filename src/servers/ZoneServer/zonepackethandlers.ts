@@ -1981,10 +1981,8 @@ export class zonePacketHandlers {
                 effectId: entityData.destroyedEffect,
               });
             }
-            if (entityData.onReadyCallback) {
-              if (entityData.onReadyCallback(client)) {
-                delete server._vehicles[characterId].onReadyCallback;
-              }
+            if (entityData.onReadyCallback && entityData.onReadyCallback(client)) {
+              delete server._vehicles[characterId].onReadyCallback;
             }
           }
           break;
