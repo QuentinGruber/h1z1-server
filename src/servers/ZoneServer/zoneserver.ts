@@ -639,30 +639,46 @@ getCollisionEntityType(entityKey: string): number {
         const object = objectsArray[index];
         this._objects[object.characterId] = object;
       }
+      this._destroyables = {};
+      const destroyablesArray: any = await this._db
+        ?.collection("destroyables")
+        .find({ worldId: this._worldId })
+        .toArray();
+      for (let index = 0; index < destroyablesArray.length; index++) {
+        const destroyable = destroyablesArray[index];
+        this._destroyables[destroyable.characterId] = destroyable;
+      }
       this._transientIds = this.getAllCurrentUsedTransientId();
       debug("World fetched!");
     }
+  }
+
+  async saveCollections(): Promise<void> {
+    await this._db
+    ?.collection(`npcs`)
+    .insertMany(Object.values(this._npcs));
+  await this._db
+    ?.collection(`doors`)
+    .insertMany(Object.values(this._doors));
+  await this._db
+    ?.collection(`props`)
+    .insertMany(Object.values(this._props));
+  await this._db
+    ?.collection(`vehicles`)
+    .insertMany(Object.values(this._vehicles));
+  await this._db
+    ?.collection(`objects`)
+    .insertMany(Object.values(this._objects));
+  await this._db
+    ?.collection(`destroyables`)
+    .insertMany(Object.values(this._destroyables));
   }
 
   async saveWorld(): Promise<void> {
     if (!this._soloMode) {
       if (this._worldId) {
         this.createAllObjects();
-        await this._db
-          ?.collection(`npcs`)
-          .insertMany(Object.values(this._npcs));
-        await this._db
-          ?.collection(`doors`)
-          .insertMany(Object.values(this._doors));
-        await this._db
-          ?.collection(`props`)
-          .insertMany(Object.values(this._props));
-        await this._db
-          ?.collection(`vehicles`)
-          .insertMany(Object.values(this._vehicles));
-        await this._db
-          ?.collection(`objects`)
-          .insertMany(Object.values(this._objects));
+        await this.saveCollections()
       } else {
         this.createAllObjects();
         const numberOfWorld: number =
@@ -671,21 +687,7 @@ getCollisionEntityType(entityKey: string): number {
         await this._db?.collection("worlds").insertOne({
           worldId: this._worldId,
         });
-        await this._db
-          ?.collection(`npcs`)
-          .insertMany(Object.values(this._npcs));
-        await this._db
-          ?.collection(`doors`)
-          .insertMany(Object.values(this._doors));
-        await this._db
-          ?.collection(`props`)
-          .insertMany(Object.values(this._props));
-        await this._db
-          ?.collection(`vehicles`)
-          .insertMany(Object.values(this._vehicles));
-        await this._db
-          ?.collection(`objects`)
-          .insertMany(Object.values(this._objects));
+        await this.saveCollections();
         debug("World saved!");
       }
     } else {
