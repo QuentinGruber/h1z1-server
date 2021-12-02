@@ -47,9 +47,8 @@ export class SOEOutputStream extends EventEmitter {
     }
     if (data.length <= this._fragmentSize) {
       this._sequence++;
-      const sequence = this._sequence;
       if (this._enableCaching) {
-        this._cache[sequence] = {
+        this._cache[this._sequence] = {
           data: data,
           fragment: false
         };
@@ -63,8 +62,7 @@ export class SOEOutputStream extends EventEmitter {
         this._sequence++;
         const fragmentData = data.slice(i, i + this._fragmentSize);
         if (this._enableCaching) {
-          const sequence = this._sequence;
-          this._cache[sequence] = {
+          this._cache[this._sequence] = {
             data: fragmentData,
             fragment: true
           };
@@ -77,7 +75,6 @@ export class SOEOutputStream extends EventEmitter {
   ack(sequence: number): void {
     while (this._lastAck <= sequence) {
       if (this._enableCaching && !!this._cache[this._lastAck]) {
-        clearTimeout(this._cache[this._lastAck].timeout)
         delete this._cache[this._lastAck];
       }
       this._lastAck++;
