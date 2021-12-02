@@ -1,3 +1,16 @@
+// ======================================================================
+//
+//   GNU GENERAL PUBLIC LICENSE
+//   Version 3, 29 June 2007
+//   copyright (c) 2020 - 2021 Quentin Gruber
+//   copyright (c) 2021 H1emu community
+//
+//   https://github.com/QuentinGruber/h1z1-server
+//   https://www.npmjs.com/package/h1z1-server
+//
+//   Based on https://github.com/psemu/soe-network
+// ======================================================================
+
 import { ZoneServer2016 } from "../zoneserver";
 const Z1_doors = require("../../../../data/2016/zoneData/Z1_doors.json");
 const Z1_items = require("../../../../data/2016/zoneData/Z1_items.json");
