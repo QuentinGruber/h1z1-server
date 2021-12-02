@@ -1,3 +1,16 @@
+// ======================================================================
+//
+//   GNU GENERAL PUBLIC LICENSE
+//   Version 3, 29 June 2007
+//   copyright (c) 2020 - 2021 Quentin Gruber
+//   copyright (c) 2021 H1emu community
+//
+//   https://github.com/QuentinGruber/h1z1-server
+//   https://www.npmjs.com/package/h1z1-server
+//
+//   Based on https://github.com/psemu/soe-network
+// ======================================================================
+
 const debug = require("debug")("baseEntityCreator");
 const Z1_vehicles = require("../../../../data/2015/sampleData/vehicleLocations.json");
 const Z1_items = require("../../../../data/2015/zoneData/Z1_items.json");
