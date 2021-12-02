@@ -1,3 +1,16 @@
+// ======================================================================
+//
+//   GNU GENERAL PUBLIC LICENSE
+//   Version 3, 29 June 2007
+//   copyright (c) 2020 - 2021 Quentin Gruber
+//   copyright (c) 2021 H1emu community
+//
+//   https://github.com/QuentinGruber/h1z1-server
+//   https://www.npmjs.com/package/h1z1-server
+//
+//   Based on https://github.com/psemu/soe-network
+// ======================================================================
+
 const debug = require("debug")("baseEntityCreator");
 const Z1_vehicles = require("../../../../data/2015/sampleData/vehicleLocations.json");
 const Z1_items = require("../../../../data/2015/zoneData/Z1_items.json");
@@ -7,6 +20,8 @@ const z1_Props = require("../../../../data/2015/zoneData/z1_Props.json");
 const models = require("../../../../data/2015/dataSources/Models.json");
 const modelToName = require("../../../../data/2015/sampleData/ModelToName.json");
 const textures = require("../../../../data/2015/sampleData/textures.json");
+const Z1_destroyablePS = require("../../../../data/2015/zoneData/Z1_destroyablePS.json");
+const Z1_destroyable = require("../../../../data/2015/zoneData/Z1_destroyable.json");
 import { zoneObject, zoneObjectInstance } from "types/zonedata";
 import { _, eul2quat, generateRandomGuid } from "../../../utils/utils";
 import { Vehicle } from "../classes/vehicles";
@@ -17,6 +32,7 @@ const objects: any = {};
 const vehicles: any = {};
 const doors: any = {};
 const props: any = {};
+const destroyable: any = {};
 
 const chancePumpShotgun = 50;
 const chanceAR15 = 50;
@@ -73,6 +89,47 @@ function createEntity(
     rotation: rotation,
     attachedObject: {},
     color: {},
+  };
+}
+
+function createDTO(
+  server: ZoneServer,
+  modelID: number,
+  extraModel: string,
+  position: Array<number>,
+  rotation: Array<number>,
+  scale: Array<number>,
+  zoneId: number,
+  renderDistance: number,
+  dictionnary: any
+): void {
+  let stringNameId = 0;
+  modelToName.forEach((spawnername: any) => {
+    if (modelID === spawnername.modelId) {
+      stringNameId = spawnername.NameId;
+    }
+  });
+
+  const guid = generateRandomGuid();
+  const characterId = generateRandomGuid();
+  server._transientIds[numberOfSpawnedEntity] = characterId;
+  dictionnary[characterId] = {
+    timestamp: 0,
+    worldId: server._worldId,
+    zoneId: zoneId,
+    characterId: characterId,
+    guid: guid,
+    transientId: numberOfSpawnedEntity,
+    nameId: stringNameId,
+    modelId: modelID,
+    extraModel: extraModel,
+    scale: scale,
+    position: position,
+    rotation: rotation,
+    isVehicle: true,
+    renderDistance: renderDistance,
+    attachedObject: {},
+    color: { g: 127 },
   };
 }
 
@@ -149,12 +206,15 @@ export function createAllEntities(server: ZoneServer): any {
   createProps(server);
   createAllVehicles(server);
   createSomeNpcs(server);
+  createDestroyable(server);
+  createDestroyablePS(server);
   return {
     npcs: npcs,
     objects: objects,
     vehicles: vehicles,
     doors: doors,
     props: props,
+    destroyable: destroyable,
   };
 }
 
@@ -169,6 +229,76 @@ function getRandomVehicleModelId() {
     default:
       return 9258;
   }
+}
+
+function createDestroyable(server: ZoneServer) {
+  Z1_destroyable.forEach((DTOType: any) => {
+    const authorizedModelId: number[] = [];
+    switch (DTOType.actorDefinition) {
+      case "Common_Props_BarbedWireFence1x2.adr":
+        authorizedModelId.push(9114);
+        break;
+      case "Common_Props_BarbedWireFence1x1.adr":
+        authorizedModelId.push(9113);
+        break;
+      case "Common_Props_Fences_WoodPlanksGreyPosts1x2.adr":
+        authorizedModelId.push(8037);
+        break;
+      case "Common_Props_Fences_WoodPlanksGrey1x1.adr":
+        authorizedModelId.push(8033);
+        break;
+      case "Common_Props_Fences_WoodPlanksGreyPlank.adr":
+        authorizedModelId.push(8035);
+        break;
+      case "Common_Props_Fences_WoodPlanksGreyGap1x1.adr":
+        authorizedModelId.push(8034);
+        break;
+      case "Common_Props_Fences_WoodPlanksGreyPosts1x1.adr":
+        authorizedModelId.push(8036);
+        break;
+      default:
+        break;
+    }
+    if (authorizedModelId.length) {
+      DTOType.instances.forEach((DTOInstance: any) => {
+        const spawnModel =
+          authorizedModelId[
+            Math.floor(Math.random() * authorizedModelId.length)
+          ];
+        createDTO(
+          server,
+          spawnModel,
+          "",
+          DTOInstance.position,
+          eul2quat(DTOInstance.rotation),
+          DTOInstance.scale,
+          DTOInstance.id,
+          DTOType.renderDistance,
+          destroyable
+        );
+      });
+    }
+  });
+  debug("AR15 and ammo items objects created. Spawnrate:" + chanceAR15 + "%");
+}
+
+function createDestroyablePS(server: ZoneServer) {
+  Z1_destroyablePS.forEach((propType: any) => {
+    propType.instances.forEach((propInstance: any) => {
+      createDTO(
+        server,
+        9084,
+        propType.actorDefinition,
+        propInstance.position,
+        propInstance.rotation,
+        propInstance.scale,
+        propInstance.id,
+        propType.renderDistance,
+        destroyable
+      );
+    });
+  });
+  debug("Props objects created");
 }
 
 function createAllVehicles(server: ZoneServer) {

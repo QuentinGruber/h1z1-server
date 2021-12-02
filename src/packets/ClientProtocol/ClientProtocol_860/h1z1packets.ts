@@ -2134,7 +2134,7 @@ const respawnLocationDataSchema = [
   { name: "nameId", type: "uint32", defaultValue: 6 },
   { name: "distance", type: "float", defaultValue: 7 },
   { name: "unknownByte1", type: "uint8", defaultValue: 1 },
-  { name: "unknownByte2", type: "uint8", defaultValue: 1 },
+  { name: "isActive", type: "uint8", defaultValue: 1 },
   {
     name: "unknownData1",
     type: "schema",
@@ -2146,9 +2146,9 @@ const respawnLocationDataSchema = [
       { name: "unknownByte5", type: "uint8", defaultValue: 0 },
     ],
   },
-  { name: "zoneId", type: "uint32", defaultValue: 8 },
-  { name: "unknownByte3", type: "uint8", defaultValue: 0 },
-  { name: "unknownByte4", type: "uint8", defaultValue: 0 },
+  { name: "zoneId", type: "uint32", defaultValue: 1 },
+  { name: "seatCount", type: "uint8", defaultValue: 0 },
+  { name: "seatOccupiedCount", type: "uint8", defaultValue: 0 },
 ];
 
 var packets = [
@@ -2199,7 +2199,7 @@ var packets = [
             { name: "unknownDword18", type: "uint32", defaultValue: 0 },
             { name: "unknownBoolean3", type: "boolean", defaultValue: true },
             { name: "unknownDword19", type: "uint32", defaultValue: 0 },
-            { name: "gender", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword20", type: "uint32", defaultValue: 0 },
             { name: "unknownDword21", type: "uint32", defaultValue: 0 },
             { name: "unknownDword22", type: "uint32", defaultValue: 0 },
             { name: "unknownDword23", type: "uint32", defaultValue: 0 },
@@ -2208,7 +2208,7 @@ var packets = [
             { name: "unknownTime2", type: "uint64string", defaultValue: 0 },
             { name: "unknownDword24", type: "uint32", defaultValue: 0 },
             { name: "unknownBoolean5", type: "boolean", defaultValue: true },
-            { name: "unknownDword25", type: "uint32", defaultValue: 0 },
+            { name: "dailyRibbonCount", type: "uint32", defaultValue: 0 },
             {
               name: "profiles",
               type: "array",
@@ -2358,7 +2358,7 @@ var packets = [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
               ],
             },
-            { name: "unknownDword28", type: "uint32", defaultValue: 0 },
+            { name: "gender", type: "uint32", defaultValue: 0 },
             {
               name: "characterQuests",
               type: "schema",
@@ -3959,7 +3959,15 @@ var packets = [
     { fields: [{ name: "characterId", type: "uint32", defaultValue: 0 }] },
   ],
   ["Command.ActivateProfileFailed", 0x091a00, {}],
-  ["Command.PlayDialogEffect", 0x091b00, {}],
+  ["Command.PlayDialogEffect",
+    0x091b00,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0x000" },
+        { name: "effectId", type: "uint32", defaultValue: 0 },
+      ]
+    }
+  ],
   ["Command.ForceClearDialog", 0x091c00, {}],
   ["Command.IgnoreRequest", 0x091d00, {}],
   [
@@ -4920,7 +4928,23 @@ var packets = [
       ],
     },
   ],
-  ["PlayerUpdate.EffectPackage", 0x0f16, {}],
+  [
+    "PlayerUpdate.EffectPackage", 
+  0x0f16, 
+      {
+          fields: [
+              { name: "unknownQword1", type: "uint64string", defaultValue: "0x000" },
+              { name: "characterId", type: "uint64string", defaultValue: "0x000" },
+              { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+              { name: "unknownDword1", type: "float", defaultValue: 0 },
+              { name: "stringId", type: "uint32", defaultValue: 0 },
+              { name: "unknownBoolean2", type: "boolean", defaultValue: false },
+              { name: "effectId", type: "uint32", defaultValue: 0 },
+              { name: "unknownDword4", type: "float", defaultValue: 0 },
+              { name: "unknownDword5", type: "float", defaultValue: 0 },
+          ],
+      },
+  ],
   ["PlayerUpdate.PreferredLanguages", 0x0f17, {}],
   ["PlayerUpdate.CustomizationChange", 0x0f18, {}],
   ["PlayerUpdate.PlayerTitle", 0x0f19, {}],
@@ -6197,8 +6221,30 @@ var packets = [
   ],
   ["ClientUpdate.CollectionStart", 0x110600, {}],
   ["ClientUpdate.CollectionRemove", 0x110700, {}],
-  ["ClientUpdate.CollectionAddEntry", 0x110800, {}],
-  ["ClientUpdate.CollectionRemoveEntry", 0x110900, {}],
+  ["ClientUpdate.CollectionAddEntry", 
+        0x110800,
+        {
+            fields: [
+              { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+              { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+              { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+              { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+              { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+              { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+              { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+              { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+          ]
+      }
+  ],
+  ["ClientUpdate.CollectionRemoveEntry", 
+    0x110900,
+    {
+        fields: [
+              { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+              { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+          ]
+      }
+  ],
   [
     "ClientUpdate.UpdateLocation",
     0x110a00,
@@ -6219,8 +6265,29 @@ var packets = [
     },
   ],
   ["ClientUpdate.UpdateProfileExperience", 0x110c00, {}],
-  ["ClientUpdate.AddProfileAbilitySetApl", 0x110d00, {}],
-  ["ClientUpdate.AddEffectTag", 0x110e00, {}],
+  ["ClientUpdate.AddProfileAbilitySetApl", 
+    0x110d00, 
+        {
+            fields: [
+                { name: "unknownDword1", type: "uint32", defaultValue: 4 },
+                {
+                    name: "profiles",
+                    type: "array",
+                    defaultValue: [],
+                    fields: profileDataSchema,
+              },
+          ]
+      }
+  ],
+  ["ClientUpdate.AddEffectTag",
+    0x110e00,
+        {
+            fields: [
+              { name: "unknownDword1", type: "uint32", defaultValue: 1 },
+              { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+          ],
+      },
+  ],
   ["ClientUpdate.RemoveEffectTag", 0x110f00, {}],
   ["ClientUpdate.UpdateProfileRank", 0x111000, {}],
   ["ClientUpdate.CoinCount", 0x111100, {}],
@@ -7347,7 +7414,24 @@ var packets = [
       fields: [{ name: "url", type: "string", defaultValue: "0" }],
     },
   ],
-  ["ClientPath", 0x3e, {}],
+  ["ClientPath",
+        0x3e02,
+        {
+            fields: [
+                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+
+                {
+                    name: "unknownArray1",
+                    type: "array",
+                    defaultValue: [],
+                    fields: [
+                        { name: "unknownfloatVector1", type: "floatvector4", defaultValue: [0,0,0,0] },
+                    ],
+                },
+           ]
+       }
+  ],
   ["ClientPendingKickFromServer", 0x3f, {}],
   [
     "MembershipActivation",

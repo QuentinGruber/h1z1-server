@@ -1,3 +1,16 @@
+// ======================================================================
+//
+//   GNU GENERAL PUBLIC LICENSE
+//   Version 3, 29 June 2007
+//   copyright (c) 2020 - 2021 Quentin Gruber
+//   copyright (c) 2021 H1emu community
+//
+//   https://github.com/QuentinGruber/h1z1-server
+//   https://www.npmjs.com/package/h1z1-server
+//
+//   Based on https://github.com/psemu/soe-network
+// ======================================================================
+
 import {
   npcData,
   seats,
@@ -7,7 +20,7 @@ import {
 import { generateRandomGuid } from "../../../utils/utils";
 import { ZoneClient } from "./zoneclient";
 
-function getVehicleId(ModelId: number) {
+function getVehicleId(ModelId: number):number {
   switch (ModelId) {
     case 7225:
       return 1;
@@ -24,10 +37,29 @@ function getVehicleId(ModelId: number) {
   }
 }
 
+function getVehicleType(ModelId: number):string {
+  switch (ModelId) {
+    case 7225:
+      return "offroader";
+    case 9301:
+      return "policecar";
+    case 9258:
+      return "pickup";
+    case 9374:
+      return "parachute";
+    case 9371:
+      return "spectate";
+    default:
+      return "offroader";
+  }
+}
+
 export class Vehicle {
   worldId: number;
+  vehicleType:string;
   isManaged: boolean = false;
   manager?: any;
+  destroyedEffect: number = 0;
   engineOn: boolean = false;
   npcData: npcData;
   isLocked: number = 0;
@@ -78,5 +110,6 @@ export class Vehicle {
       seat4: false,
     };
     this.passengers = {};
+    this.vehicleType = getVehicleType(modelId);
   }
 }

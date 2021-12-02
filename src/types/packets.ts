@@ -2439,7 +2439,12 @@ export type h1z1PacketsType =
   | "WeaponLagLockParameters"
   | "CrateOpeningBase"
   | "PlayerHeatWarning"
-  | "AnimationBase";
+  | "AnimationBase"
+  | "AccessedCharacter.BeginCharacterAccess"
+  | "AccessedCharacter.Unknown1"
+  | "FirstTimeEvent.State"
+  | "FirstTimeEvent.Script"
+  | "Vehicle.OwnerPassengerList";
 export type loginPacketsType =
   | "LoginRequest"
   | "LoginReply"
