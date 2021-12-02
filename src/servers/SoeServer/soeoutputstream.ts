@@ -24,7 +24,7 @@ export class SOEOutputStream extends EventEmitter {
   _cache: any;
   _rc4: crypto.Cipher;
   _enableCaching: boolean;
-  _ackValidationTimersTimeout: number = 1500;
+  _ackValidationTimersTimeout: number = 500;
   constructor(cryptoKey: string, fragmentSize: number) {
     super();
     this._useEncryption = false;
@@ -53,7 +53,7 @@ export class SOEOutputStream extends EventEmitter {
         this._cache[sequence] = {
           data: data,
           fragment: false,
-          timeout: setTimeout(()=>{this.resendData(sequence)},this._ackValidationTimersTimeout)
+          timeout: setTimeout(()=>{this.resendSequence(sequence)},this._ackValidationTimersTimeout)
         };
       }
       this.emit("data", null, data, this._sequence, false);
@@ -69,7 +69,7 @@ export class SOEOutputStream extends EventEmitter {
           this._cache[sequence] = {
             data: fragmentData,
             fragment: true,
-            timeout: setTimeout(()=>{this.resendData(sequence)},this._ackValidationTimersTimeout)
+            timeout: setTimeout(()=>{this.resendSequence(sequence)},this._ackValidationTimersTimeout)
           };
         }
         this.emit("data", null, fragmentData, this._sequence, true);
@@ -87,21 +87,25 @@ export class SOEOutputStream extends EventEmitter {
     }
   }
 
+  resendSequence(sequence: number): void {
+    if (this._cache[sequence]) {
+      this.emit(
+        "data",
+        null,
+        this._cache[sequence].data,
+        sequence,
+        this._cache[sequence].fragment
+      );
+      this._cache[sequence].timeout.refresh()
+    } else {
+      console.error("Cache error, could not resend data!");
+    }
+  }
+
   resendData(sequence: number): void {
     const start = this._lastAck + 1;
     for (let i = start; i < sequence; i++) {
-      if (this._cache[i]) {
-        this.emit(
-          "data",
-          null,
-          this._cache[i].data,
-          i,
-          this._cache[i].fragment
-        );
-        this._cache[i].timeout.refresh()
-      } else {
-        console.error("Cache error, could not resend data!");
-      }
+      this.resendSequence(sequence);
     }
   }
 
