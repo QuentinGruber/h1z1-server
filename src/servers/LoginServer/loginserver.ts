@@ -818,7 +818,7 @@ export class LoginServer extends EventEmitter {
         },
       });
       this._httpServer.on("message", (message: httpServerMessage) => {
-        const { type, requestId, data } = message;
+        const { type, requestId } = message;
         switch (type) {
           case "ping": {
             const response: httpServerMessage = {
