@@ -520,10 +520,6 @@ export class LoginServer extends EventEmitter {
           `CharacterId "${characterId}" unfound on serverId: "${serverId}"`
         );
       }
-      if (this._protocol.protocolName == "LoginUdp_9" && connectionStatus) {
-        connectionStatus = !!(await this.askZone(serverId, "ZonePingRequest",{address: client.address }));
-        debug(`connectionStatus2 ${connectionStatus}`);
-      }
       const hiddenSession = connectionStatus
         ? await this._db
             .collection("user-sessions")
@@ -824,17 +820,6 @@ export class LoginServer extends EventEmitter {
       this._httpServer.on("message", (message: httpServerMessage) => {
         const { type, requestId, data } = message;
         switch (type) {
-          case "pingzone": {
-            const response: httpServerMessage = {
-              type: "pingzone",
-              requestId: requestId,
-              data: Object.values(this._zoneConnections).includes(data)
-                ? "pong"
-                : "error",
-            };
-            this._httpServer.postMessage(response);
-            break;
-          }
           case "ping": {
             const response: httpServerMessage = {
               type: "ping",
