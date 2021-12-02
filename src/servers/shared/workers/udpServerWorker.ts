@@ -30,8 +30,8 @@ if (workerData) {
     const { address, port } = connection.address();
     debug("Listening on " + address + ":" + port);
     try {
-      // to be honest idk how much i need to alloc to that it's mostly a test
-      connection.setRecvBufferSize(1000000000);
+      connection.setRecvBufferSize(64 * 1024);
+      connection.setSendBufferSize(64 * 1024);
     } catch (error) {
       console.log(error);
     }
