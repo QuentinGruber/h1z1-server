@@ -818,8 +818,19 @@ export class LoginServer extends EventEmitter {
         },
       });
       this._httpServer.on("message", (message: httpServerMessage) => {
-        const { type, requestId } = message;
+        const { type, requestId, data } = message;
         switch (type) {
+          case "pingzone": {
+            const response: httpServerMessage = {
+              type: "pingzone",
+              requestId: requestId,
+              data: Object.values(this._zoneConnections).includes(data)
+                ? "pong"
+                : "error",
+            };
+            this._httpServer.postMessage(response);
+            break;
+          }
           case "ping": {
             const response: httpServerMessage = {
               type: "ping",
