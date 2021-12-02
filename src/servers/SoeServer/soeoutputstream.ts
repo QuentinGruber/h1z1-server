@@ -24,7 +24,6 @@ export class SOEOutputStream extends EventEmitter {
   _cache: any;
   _rc4: crypto.Cipher;
   _enableCaching: boolean;
-  _ackValidationTimersTimeout: number = 500;
   constructor(cryptoKey: string, fragmentSize: number) {
     super();
     this._useEncryption = false;
@@ -52,8 +51,7 @@ export class SOEOutputStream extends EventEmitter {
       if (this._enableCaching) {
         this._cache[sequence] = {
           data: data,
-          fragment: false,
-          timeout: setTimeout(()=>{this.resendSequence(sequence)},this._ackValidationTimersTimeout)
+          fragment: false
         };
       }
       this.emit("data", null, data, this._sequence, false);
@@ -68,8 +66,7 @@ export class SOEOutputStream extends EventEmitter {
           const sequence = this._sequence;
           this._cache[sequence] = {
             data: fragmentData,
-            fragment: true,
-            timeout: setTimeout(()=>{this.resendSequence(sequence)},this._ackValidationTimersTimeout)
+            fragment: true
           };
         }
         this.emit("data", null, fragmentData, this._sequence, true);
@@ -96,7 +93,6 @@ export class SOEOutputStream extends EventEmitter {
         sequence,
         this._cache[sequence].fragment
       );
-      this._cache[sequence].timeout.refresh()
     } else {
       console.error("Cache error, could not resend data!");
     }
