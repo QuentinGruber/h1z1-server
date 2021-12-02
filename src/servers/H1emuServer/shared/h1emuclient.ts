@@ -18,7 +18,6 @@ export class H1emuClient {
   address: string;
   port: number;
   session: boolean = false;
-  lastPing: number = Date.now();
   clientId: string;
 
   constructor(remote: RemoteInfo) {
