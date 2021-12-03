@@ -30,7 +30,6 @@ export class H1emuZoneServer extends H1emuServer {
     ): void => {
       switch (messageType) {
         case "incomingPacket":
-          client.lastPing = Date.now();
           const packet = this._protocol.parse(data);
           debug(packet);
           if (!packet) return;

@@ -520,10 +520,6 @@ export class LoginServer extends EventEmitter {
           `CharacterId "${characterId}" unfound on serverId: "${serverId}"`
         );
       }
-      if (this._protocol.protocolName == "LoginUdp_9" && connectionStatus) {
-        connectionStatus = !!(await this.askZone(serverId, "ZonePingRequest",{address: client.address }));
-        debug(`connectionStatus2 ${connectionStatus}`);
-      }
       const hiddenSession = connectionStatus
         ? await this._db
             .collection("user-sessions")
