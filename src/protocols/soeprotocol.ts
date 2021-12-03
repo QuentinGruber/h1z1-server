@@ -261,7 +261,6 @@ const packets = [
       data.writeBigInt64BE(0x07n, offset);
       offset += 8
       data.writeBigInt64BE(0x07n, offset);
-      offset += 8;
       return data;
     },
   }],
