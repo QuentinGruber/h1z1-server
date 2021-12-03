@@ -34,8 +34,8 @@ export class SOEServer extends EventEmitter {
   _crcSeed: number;
   _crcLength: number;
   _maxOutOfOrderPacketsPerLoop: number;
-  _waitQueueTimeMs: number = 25;
-  _smallPacketsSize: number = 50;
+  _waitQueueTimeMs: number = 50;
+  _smallPacketsSize: number = 255;
   _isLocal: boolean = false;
 
   constructor(
@@ -57,7 +57,7 @@ export class SOEServer extends EventEmitter {
     this._protocol = new SOEProtocol();
     this._udpLength = 512;
     this._useEncryption = true;
-    this._useMultiPackets = false; // force disable multiPackets until a better system is made
+    this._useMultiPackets = useMultiPackets; // force disable multiPackets until a better system is made
     this._clients = {};
     this._connection = new Worker(
       `${__dirname}/../shared/workers/udpServerWorker.js`,
