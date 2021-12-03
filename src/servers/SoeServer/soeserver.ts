@@ -176,14 +176,6 @@ export class SOEServer extends EventEmitter {
           this.emit("session", null, client);
           break;
         case "Disconnect":
-          // hack so updateInterval is cleared even if user badly close the client
-          this.emit(
-            "appdata",
-            null,
-            client,
-            Buffer.from(new Uint8Array([0x03]))
-          ); // trigger "Logout"
-
           debug("Received disconnect from client");
           delete this._clients[client.address + ":" + client.port];
           this.emit("disconnect", null, client);
