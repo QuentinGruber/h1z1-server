@@ -6338,20 +6338,19 @@ var packets = [
     0x111e00,
     {
       fields: [
-        { name: "unknownBoolean1", type: "boolean", defaultValue: 0 },
-        { name: "unknownWord", type: "uint16", defaultValue: 0 },
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+	  { name: "unknownDword1", type: "uint32", defaultValue: 1 },
         {
-          name: "unknownUint1",
+          name: "transientId", // not sure if its used
           type: "custom",
           parser: readUnsignedIntWith2bitLengthValue,
           packer: packUnsignedIntWith2bitLengthValue,
+          defaultValue: 1,
         },
-        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "int32", defaultValue: 1 }, // cant be 0
+        { name: "orientationToSource", type: "float", defaultValue: -1.7 },
         { name: "unknownDword4", type: "uint32", defaultValue: 0 },
-        { name: "unknownBoolean2", type: "boolean", defaultValue: 0 },
-        { name: "unknownBoolean3", type: "boolean", defaultValue: 0 },
+        { name: "unknownBoolean2", type: "boolean", defaultValue: 1 },
+        { name: "unknownBoolean3", type: "boolean", defaultValue: 1 },
         { name: "unknownDword5", type: "uint32", defaultValue: 0 },
         { name: "unknownDword6", type: "uint32", defaultValue: 0 },
       ],

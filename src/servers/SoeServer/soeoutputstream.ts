@@ -24,7 +24,6 @@ export class SOEOutputStream extends EventEmitter {
   _cache: any;
   _rc4: crypto.Cipher;
   _enableCaching: boolean;
-
   constructor(cryptoKey: string, fragmentSize: number) {
     super();
     this._useEncryption = false;
@@ -51,7 +50,7 @@ export class SOEOutputStream extends EventEmitter {
       if (this._enableCaching) {
         this._cache[this._sequence] = {
           data: data,
-          fragment: false,
+          fragment: false
         };
       }
       this.emit("data", null, data, this._sequence, false);
@@ -65,7 +64,7 @@ export class SOEOutputStream extends EventEmitter {
         if (this._enableCaching) {
           this._cache[this._sequence] = {
             data: fragmentData,
-            fragment: true,
+            fragment: true
           };
         }
         this.emit("data", null, fragmentData, this._sequence, true);
@@ -82,20 +81,24 @@ export class SOEOutputStream extends EventEmitter {
     }
   }
 
+  resendSequence(sequence: number): void {
+    if (this._cache[sequence]) {
+      this.emit(
+        "data",
+        null,
+        this._cache[sequence].data,
+        sequence,
+        this._cache[sequence].fragment
+      );
+    } else {
+      console.error("Cache error, could not resend data!");
+    }
+  }
+
   resendData(sequence: number): void {
     const start = this._lastAck + 1;
     for (let i = start; i < sequence; i++) {
-      if (this._cache[i]) {
-        this.emit(
-          "data",
-          null,
-          this._cache[i].data,
-          i,
-          this._cache[i].fragment
-        );
-      } else {
-        console.error("Cache error, could not resend data!");
-      }
+      this.resendSequence(sequence);
     }
   }
 

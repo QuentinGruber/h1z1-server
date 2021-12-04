@@ -1,3 +1,16 @@
+// ======================================================================
+//
+//   GNU GENERAL PUBLIC LICENSE
+//   Version 3, 29 June 2007
+//   copyright (c) 2020 - 2021 Quentin Gruber
+//   copyright (c) 2021 H1emu community
+//
+//   https://github.com/QuentinGruber/h1z1-server
+//   https://www.npmjs.com/package/h1z1-server
+//
+//   Based on https://github.com/psemu/soe-network
+// ======================================================================
+
 import { ZoneClient as Client } from "../classes/zoneclient";
 import { generateRandomGuid } from "../../../utils/utils";
 import { ZoneServer } from "../zoneserver";
@@ -35,7 +48,7 @@ const dev: any = {
   testnpcmove: function (server: ZoneServer, client: Client, args: any[]) {
     const guid = server.generateGuid();
     const characterId = server.generateGuid();
-    const transientId = server.getTransientId(client, characterId);
+    const transientId = server.getTransientId(characterId);
 
     const npc: any = {
       characterId: characterId,
@@ -172,7 +185,7 @@ const dev: any = {
     server.sendData(client, "PlayerUpdate.AddLightweightNpc", {
       characterId: characterId,
       modelId: 9001,
-      transientId: server.getTransientId(client, characterId),
+      transientId: server.getTransientId(characterId),
       position: client.character.state.position,
       extraModel: "SurvivorMale_Ivan_AviatorHat_Base.adr",
       attachedObject: {

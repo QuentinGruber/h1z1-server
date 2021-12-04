@@ -110,6 +110,8 @@ export class LoginServer extends EventEmitter {
             switch (packet.name) {
               case "LoginRequest":
                 await this.LoginRequest(client, sessionId, systemFingerPrint);
+                /* 2016 client does not send CharacterSelectInfoRequest or ServerListRequest,
+                  so all 3 replies need to be sent at the same time */
                 if (this._protocol.protocolName !== "LoginUdp_11") break;
               case "CharacterSelectInfoRequest":
                 await this.CharacterSelectInfoRequest(client);
@@ -240,8 +242,7 @@ export class LoginServer extends EventEmitter {
   async loadCharacterData(client: Client): Promise<any> {
     if (this._protocol.protocolName == "LoginUdp_9") {
       if (this._soloMode) {
-        try {
-          // delete old character cache
+        try { // delete old character cache
           delete require.cache[
             require.resolve(
               `${this._appDataFolder}/single_player_characters.json`
@@ -249,14 +250,16 @@ export class LoginServer extends EventEmitter {
           ];
         } catch (e) {}
         return require(`${this._appDataFolder}/single_player_characters.json`);
-      } else {
-        // 2015 mongo
+      } else { // 2015 mongo
+        const charactersQuery = { authKey: client.loginSessionId };
+        return await this._db
+        .collection("characters-light")
+        .find(charactersQuery)
+        .toArray();
       }
-    } else {
-      // LoginUdp_11
+    } else { // LoginUdp_11
       if (this._soloMode) {
-        try {
-          // delete old character cache
+        try { // delete old character cache
           delete require.cache[
             require.resolve(
               `${this._appDataFolder}/single_player_characters2016.json`
@@ -264,8 +267,12 @@ export class LoginServer extends EventEmitter {
           ];
         } catch (e) {}
         return require(`${this._appDataFolder}/single_player_characters2016.json`);
-      } else {
-        // 2016 mongo
+      } else { // 2016 mongo
+        const charactersQuery = { authKey: client.loginSessionId };
+        return await this._db
+        .collection("characters-light")
+        .find(charactersQuery)
+        .toArray();
       }
     }
   }
@@ -294,6 +301,7 @@ export class LoginServer extends EventEmitter {
         .collection("user-sessions")
         .findOne({ guid: sessionId });
       client.loginSessionId = realSession ? realSession.authKey : sessionId;
+      
     }
     this.sendData(client, "LoginReply", {
       loggedIn: true,
@@ -364,23 +372,15 @@ export class LoginServer extends EventEmitter {
   }
 
   async CharacterSelectInfoRequest(client: Client) {
-    let CharactersInfo;
+    let characters = await this.loadCharacterData(client);
     if (this._soloMode) {
-      let SinglePlayerCharacters = await this.loadCharacterData(client);
       if (this._protocol.protocolName == "LoginUdp_9") {
-        SinglePlayerCharacters = this.addDummyDataToCharacters(
-          SinglePlayerCharacters
-        );
-        CharactersInfo = {
-          status: 1,
-          canBypassServerLock: true,
-          characters: SinglePlayerCharacters,
-        };
+        characters = this.addDummyDataToCharacters(characters);
       } else {
         // LoginUdp_11
-        let characters: Array<any> = [];
-        SinglePlayerCharacters.forEach((character: any) => {
-          characters.push({
+        let characterList: Array<any> = [];
+        characterList = characters.map((character: any) => {
+          return {
             characterId: character.characterId,
             serverId: character.serverId,
             payload: {
@@ -388,29 +388,23 @@ export class LoginServer extends EventEmitter {
               modelId: character.actorModelId,
               gender: character.gender,
             },
-          });
+          }
         });
-        characters = this.addDummyDataToCharacters(characters);
-        CharactersInfo = {
-          status: 1,
-          canBypassServerLock: true,
-          characters: characters,
-        };
+        characters = this.addDummyDataToCharacters(characterList);
       }
     } else {
       const charactersQuery = { authKey: client.loginSessionId, status: 1 };
-      let characters = await this._db
+      characters = await this._db
         .collection("characters-light")
         .find(charactersQuery)
         .toArray();
       characters = this.addDummyDataToCharacters(characters);
-      CharactersInfo = {
-        status: 1,
-        canBypassServerLock: true,
-        characters: characters,
-      };
     }
-    this.sendData(client, "CharacterSelectInfoReply", CharactersInfo);
+    this.sendData(client, "CharacterSelectInfoReply", {
+      status: 1,
+      canBypassServerLock: true,
+      characters: characters,
+    });
     debug("CharacterSelectInfoRequest");
   }
 
@@ -518,13 +512,13 @@ export class LoginServer extends EventEmitter {
       let connectionStatus = Object.values(this._zoneConnections).includes(
         serverId
       );
+      debug(`connectionStatus ${connectionStatus}`);
+      debug(`Object.values(this._zoneConnections) ${Object.values(this._zoneConnections)}`);
+
       if (!character) {
         console.error(
           `CharacterId "${characterId}" unfound on serverId: "${serverId}"`
         );
-      }
-      if (connectionStatus) {
-        connectionStatus = !!(await this.askZone(serverId, "ZonePingRequest",{address: client.address }));
       }
       const hiddenSession = connectionStatus
         ? await this._db
@@ -632,17 +626,11 @@ export class LoginServer extends EventEmitter {
     return askZonePromise as number;
   }
 
-  requestZoneCharacterCreation(
-    zoneAddress: string,
-    characterData: any
-  ): number {
-    return 1;
-  }
-
   async CharacterCreateRequest(client: Client, packet: any) {
     const {
       payload: { characterName },
       serverId,
+      payload
     } = packet.result;
     // create character object
     let sampleCharacter, newCharacter;
@@ -661,14 +649,40 @@ export class LoginServer extends EventEmitter {
     let creationStatus = 1;
     if (this._soloMode) {
       const SinglePlayerCharacters = await this.loadCharacterData(client);
-      SinglePlayerCharacters[SinglePlayerCharacters.length] = newCharacter;
       if (this._protocol.protocolName == "LoginUdp_9") {
+        SinglePlayerCharacters[SinglePlayerCharacters.length] = newCharacter;
         fs.writeFileSync(
           `${this._appDataFolder}/single_player_characters.json`,
           JSON.stringify(SinglePlayerCharacters, null, "\t")
         );
       } else {
         // LoginUdp_11
+        function getCharacterModelData(payload: any): any {
+          switch(payload.headType){
+            case 6: // black female
+              return {modelId: 9474, headActor: "SurvivorFemale_Head_03.adr", hairModel: "SurvivorFemale_Hair_ShortMessy.adr"};
+            case 5: // black male
+              return {modelId: 9240, headActor: "SurvivorMale_Head_04.adr", hairModel: "SurvivorMale_HatHair_Short.adr"};
+            case 4: // older white female
+              return {modelId: 9474, headActor: "SurvivorFemale_Head_02.adr", hairModel: "SurvivorFemale_Hair_ShortBun.adr"};
+            case 3: // young white female
+              return {modelId: 9474, headActor: "SurvivorFemale_Head_02.adr", hairModel: "SurvivorFemale_Hair_ShortBun.adr"};
+            case 2: // bald white male
+              return {modelId: 9240, headActor: "SurvivorMale_Head_01.adr", hairModel: "SurvivorMale_HatHair_Short.adr"};
+            case 1: // white male
+            default:
+              return {modelId: 9240, headActor: "SurvivorMale_Head_01.adr", hairModel: "SurvivorMale_Hair_ShortMessy.adr"};
+          }
+        }
+        const characterModelData = getCharacterModelData(payload);
+        newCharacter = {
+          ...newCharacter,
+          actorModelId: characterModelData.modelId,
+          headActor: characterModelData.headActor,
+          gender: payload.gender,
+          hairModel: characterModelData.hairModel
+        }
+        SinglePlayerCharacters[SinglePlayerCharacters.length] = newCharacter;
         fs.writeFileSync(
           `${this._appDataFolder}/single_player_characters2016.json`,
           JSON.stringify(SinglePlayerCharacters, null, "\t")
@@ -689,7 +703,14 @@ export class LoginServer extends EventEmitter {
         };
         await this._db?.collection("user-sessions").insertOne(sessionObj);
       }
-      const newCharacterData = { ...newCharacter, ownerId: sessionObj.guid };
+      const newCharacterData = this._protocol.protocolName == "LoginUdp_9"?
+      { ...newCharacter, ownerId: sessionObj.guid }:
+      { 
+        characterId: newCharacter.characterId, 
+        serverId: newCharacter.serverId,
+        ownerId: sessionObj.guid,
+        payload: packet.result.payload
+      };
       creationStatus = (await this.askZone(
         serverId,
         "CharacterCreateRequest",

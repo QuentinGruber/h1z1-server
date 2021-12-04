@@ -1,3 +1,16 @@
+// ======================================================================
+//
+//   GNU GENERAL PUBLIC LICENSE
+//   Version 3, 29 June 2007
+//   copyright (c) 2020 - 2021 Quentin Gruber
+//   copyright (c) 2021 H1emu community
+//
+//   https://github.com/QuentinGruber/h1z1-server
+//   https://www.npmjs.com/package/h1z1-server
+//
+//   Based on https://github.com/psemu/soe-network
+// ======================================================================
+
 import { characterEquipment } from "../../../types/zoneserver";
 import { Int64String } from "../../../utils/utils";
 import { ZoneServer } from "../zoneserver";
@@ -123,32 +136,32 @@ export class Character {
         this.resources.health = 0;
       }
        // Prototype bleeding
-      if (this.isBleeding && this.isAlive && this.characterId) {
-      if (!this.isBandaged) {
-        server.playerDamage(client, 100);
-      }
-      if (this.isBandaged) {
-        this.resources.health += 100;
-        server.updateResource(client, this.characterId, this.resources.health, 48, 1);
-      }
-      if (this.resources.health >= 2000) {
-        this.isBleeding = false;
-      }
-      if (this.resources.stamina > 130 && isRunning) {
-        this.resources.stamina -= 100;
-      }
-      server.sendDataToAll("PlayerUpdate.EffectPackage", {
-        characterId: this.characterId,
-        stringId: 1,
-        effectId: 5042,
-      });
-      if (this.resources.health < 10000 && !this.isBleeding && this.isBandaged) {
-        this.resources.health += 400;
-        server.updateResource(client, this.characterId, this.resources.health, 48, 1);
-      }
-      if (this.resources.health >= 10000) {
-        this.isBandaged = false; 
-      }
+      if (this.isBleeding && this.isAlive) {
+        if (!this.isBandaged) {
+          server.playerDamage(client, 100);
+        }
+        if (this.isBandaged) {
+          this.resources.health += 100;
+          server.updateResource(client, this.characterId, this.resources.health, 48, 1);
+        }
+        if (this.resources.health >= 2000) {
+          this.isBleeding = false;
+        }
+        if (this.resources.stamina > 130 && isRunning) {
+          this.resources.stamina -= 100;
+        }
+        server.sendDataToAll("PlayerUpdate.EffectPackage", {
+          characterId: this.characterId,
+          stringId: 1,
+          effectId: 5042,
+        });
+        if (this.resources.health < 10000 && !this.isBleeding && this.isBandaged) {
+          this.resources.health += 400;
+          server.updateResource(client, this.characterId, this.resources.health, 48, 1);
+        }
+        if (this.resources.health >= 10000) {
+          this.isBandaged = false; 
+        }
       }
       if (this.isBleeding && !this.isAlive) {
         this.isBleeding = false;

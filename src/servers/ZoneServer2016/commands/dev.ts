@@ -1,3 +1,16 @@
+// ======================================================================
+//
+//   GNU GENERAL PUBLIC LICENSE
+//   Version 3, 29 June 2007
+//   copyright (c) 2020 - 2021 Quentin Gruber
+//   copyright (c) 2021 H1emu community
+//
+//   https://github.com/QuentinGruber/h1z1-server
+//   https://www.npmjs.com/package/h1z1-server
+//
+//   Based on https://github.com/psemu/soe-network
+// ======================================================================
+
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { Int64String } from "../../../utils/utils";
@@ -343,7 +356,7 @@ const dev: any = {
       //unknownDword33: rnd_number2(0.5), // ?? (cloudThickness?)
     };
     console.log(server._weather2016);
-    server.sendWeatherUpdatePacket(client, server._weather2016);
+    server.sendWeatherUpdatePacket(client, server._weather2016, true);
   },
 
   recipe: function (server: ZoneServer2016, client: Client, args: any[]) {

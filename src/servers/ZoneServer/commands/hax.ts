@@ -1,3 +1,16 @@
+// ======================================================================
+//
+//   GNU GENERAL PUBLIC LICENSE
+//   Version 3, 29 June 2007
+//   copyright (c) 2020 - 2021 Quentin Gruber
+//   copyright (c) 2021 H1emu community
+//
+//   https://github.com/QuentinGruber/h1z1-server
+//   https://www.npmjs.com/package/h1z1-server
+//
+//   Based on https://github.com/psemu/soe-network
+// ======================================================================
+
 import { Weather } from "types/zoneserver";
 import { ZoneClient as Client } from "../classes/zoneclient";
 import { ZoneServer } from "../zoneserver";
@@ -47,7 +60,7 @@ const hax: any = {
     const vehicleData = new Vehicle(
       server._worldId,
       characterId,
-      server.getTransientId(client, characterId),
+      server.getTransientId(characterId),
       9371,
       client.character.state.position,
       client.character.state.lookAt
@@ -199,7 +212,7 @@ const hax: any = {
     const vehicleData = new Vehicle(
       server._worldId,
       characterId,
-      server.getTransientId(client, characterId),
+      server.getTransientId(characterId),
       driveModel,
       client.character.state.position,
       client.character.state.lookAt
@@ -323,7 +336,7 @@ const hax: any = {
     const vehicleData = new Vehicle(
       server._worldId,
       characterId,
-      server.getTransientId(client, characterId),
+      server.getTransientId(characterId),
       driveModel,
       client.character.state.position,
       client.character.state.lookAt

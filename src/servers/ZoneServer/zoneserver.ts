@@ -55,7 +55,7 @@ export class ZoneServer extends EventEmitter {
   _soloMode: any;
   _mongoClient: any;
   _mongoAddress: string;
-  _clients: any;
+  _clients: { [characterId: string]: Client } = {};
   _characters: any;
   _gameTime: any;
   _time: number;
@@ -264,52 +264,8 @@ export class ZoneServer extends EventEmitter {
             console.error(err);
           } else {
             switch (packet.name) {
-              case "ZonePingRequest": {
-                const { address, reqId } = packet.data;
-                try {
-                  // TODO: improve this
-                  const soeClient: SOEClient = Object.values(
-                    this._gatewayServer._soeServer._clients
-                  ).find((client) => {
-                    return (client as SOEClient).address === address;
-                  }) as SOEClient;
-                  const clientPingMs = soeClient.zonePingTimeMs;
-
-                  this._h1emuZoneServer.sendData(client, "ZonePingReply", {
-                    reqId: reqId,
-                    status: clientPingMs > this._maxAllowedPing ? 0 : 1,
-                  });
-                } catch (error) {
-                  this._h1emuZoneServer.sendData(client, "ZonePingReply", {
-                    reqId: reqId,
-                    status: 0,
-                  });
-                }
-                break;
-              }
               case "CharacterCreateRequest": {
-                const { characterObjStringify, reqId } = packet.data;
-                try {
-                  const characterObj = JSON.parse(characterObjStringify);
-                  const collection = (this._db as Db).collection("characters");
-                  const charactersArray = await collection.findOne({
-                    characterId: characterObj.characterId,
-                  });
-                  if (!charactersArray) {
-                    await collection.insertOne(characterObj);
-                  }
-                  this._h1emuZoneServer.sendData(
-                    client,
-                    "CharacterCreateReply",
-                    { reqId: reqId, status: 1 }
-                  );
-                } catch (error) {
-                  this._h1emuZoneServer.sendData(
-                    client,
-                    "CharacterCreateReply",
-                    { reqId: reqId, status: 0 }
-                  );
-                }
+                this.onCharacterCreateRequest(client, packet);
                 break;
               }
               case "CharacterDeleteRequest": {
@@ -350,6 +306,31 @@ export class ZoneServer extends EventEmitter {
             }
           }
         }
+      );
+    }
+  }
+
+  async onCharacterCreateRequest(client: any, packet: any) {
+    const { characterObjStringify, reqId } = packet.data;
+    try {
+      const characterObj = JSON.parse(characterObjStringify);
+      const collection = (this._db as Db).collection("characters");
+      const charactersArray = await collection.findOne({
+        characterId: characterObj.characterId,
+      });
+      if (!charactersArray) {
+        await collection.insertOne(characterObj);
+      }
+      this._h1emuZoneServer.sendData(
+        client,
+        "CharacterCreateReply",
+        { reqId: reqId, status: 1 }
+      );
+    } catch (error) {
+      this._h1emuZoneServer.sendData(
+        client,
+        "CharacterCreateReply",
+        { reqId: reqId, status: 0 }
       );
     }
   }
@@ -635,30 +616,46 @@ getCollisionEntityType(entityKey: string): number {
         const object = objectsArray[index];
         this._objects[object.characterId] = object;
       }
+      this._destroyables = {};
+      const destroyablesArray: any = await this._db
+        ?.collection("destroyables")
+        .find({ worldId: this._worldId })
+        .toArray();
+      for (let index = 0; index < destroyablesArray.length; index++) {
+        const destroyable = destroyablesArray[index];
+        this._destroyables[destroyable.characterId] = destroyable;
+      }
       this._transientIds = this.getAllCurrentUsedTransientId();
       debug("World fetched!");
     }
+  }
+
+  async saveCollections(): Promise<void> {
+    await this._db
+    ?.collection(`npcs`)
+    .insertMany(Object.values(this._npcs));
+  await this._db
+    ?.collection(`doors`)
+    .insertMany(Object.values(this._doors));
+  await this._db
+    ?.collection(`props`)
+    .insertMany(Object.values(this._props));
+  await this._db
+    ?.collection(`vehicles`)
+    .insertMany(Object.values(this._vehicles));
+  await this._db
+    ?.collection(`objects`)
+    .insertMany(Object.values(this._objects));
+  await this._db
+    ?.collection(`destroyables`)
+    .insertMany(Object.values(this._destroyables));
   }
 
   async saveWorld(): Promise<void> {
     if (!this._soloMode) {
       if (this._worldId) {
         this.createAllObjects();
-        await this._db
-          ?.collection(`npcs`)
-          .insertMany(Object.values(this._npcs));
-        await this._db
-          ?.collection(`doors`)
-          .insertMany(Object.values(this._doors));
-        await this._db
-          ?.collection(`props`)
-          .insertMany(Object.values(this._props));
-        await this._db
-          ?.collection(`vehicles`)
-          .insertMany(Object.values(this._vehicles));
-        await this._db
-          ?.collection(`objects`)
-          .insertMany(Object.values(this._objects));
+        await this.saveCollections()
       } else {
         this.createAllObjects();
         const numberOfWorld: number =
@@ -667,21 +664,7 @@ getCollisionEntityType(entityKey: string): number {
         await this._db?.collection("worlds").insertOne({
           worldId: this._worldId,
         });
-        await this._db
-          ?.collection(`npcs`)
-          .insertMany(Object.values(this._npcs));
-        await this._db
-          ?.collection(`doors`)
-          .insertMany(Object.values(this._doors));
-        await this._db
-          ?.collection(`props`)
-          .insertMany(Object.values(this._props));
-        await this._db
-          ?.collection(`vehicles`)
-          .insertMany(Object.values(this._vehicles));
-        await this._db
-          ?.collection(`objects`)
-          .insertMany(Object.values(this._objects));
+        await this.saveCollections();
         debug("World saved!");
       }
     } else {
@@ -1879,7 +1862,7 @@ DTOhit(client: Client, packet: any) {
     const vehicleData = new Vehicle(
       this._worldId,
       characterId,
-      this.getTransientId(client, characterId),
+      this.getTransientId(characterId),
       9374,
       position,
       client.character.state.lookAt
@@ -2458,7 +2441,7 @@ DTOhit(client: Client, packet: any) {
     }
   }
 
-  getTransientId(client: any, guid: string): number {
+  getTransientId(guid: string): number {
     let generatedTransient;
     do {
       generatedTransient = Number((Math.random() * 30000).toFixed(0));
