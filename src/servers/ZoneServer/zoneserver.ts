@@ -1031,7 +1031,7 @@ getCollisionEntityType(entityKey: string): number {
         unk4: true,
       });
       delete this._speedTrees[objectId];
-    }, 5000);
+    }, 1800000);
   }
 
   speedTreeUse(client: Client, packet: any) {
