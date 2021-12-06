@@ -1392,24 +1392,7 @@ export class zonePacketHandlers {
       packet: any
     ) {
       debug(packet);
-      const { name } = packet.data;
-      if (name === "SpeedTree.Blackberry") {
-        server.sendData(client, "ClientUpdate.TextAlert", {
-          message: "Blackberries...miss you...",
-        });
-      } else {
-        server.sendData(client, "ClientUpdate.TextAlert", {
-          message: name.replace("SpeedTree.", ""),
-        });
-      }
-      // temp disable that, since it make weird stuff in game
-      /* server.sendData(client, "DtoStateChange", { // WIP
-        objectId: id,
-        name: name,
-        unk2: treeId,
-        unk3: 9001,
-        unk4: false,
-       });*/
+	    server.speedTreeUse(client, packet);
     };
     this.GetRewardBuffInfo = function (
       server: ZoneServer,

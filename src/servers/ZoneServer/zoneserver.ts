@@ -84,6 +84,7 @@ export class ZoneServer extends EventEmitter {
   _props: any;
   _destroyablesTimeout: any;
   _destroyables: any;
+  _speedTrees: any;
   _interactionDistance: number;
   _dummySelf: any;
   _appDataFolder: string;
@@ -124,6 +125,7 @@ export class ZoneServer extends EventEmitter {
     this._vehicles = {};
     this._props = {};
     this._destroyablesTimeout = {};
+    this._speedTrees = {};
     this._destroyables = {};
     this._serverTime = this.getCurrentTime();
     this._transientIds = {};
@@ -1006,6 +1008,74 @@ getCollisionEntityType(entityKey: string): number {
     });
     if (refresh) this.worldRoutineTimer.refresh();
   }
+  
+  speedTreeDestroy(packet: any) {
+    this.sendDataToAll("DtoStateChange", {
+      objectId: packet.data.id,
+      modelName: packet.data.name.concat(".Stump"),
+      effectId: 0,
+      unk3: 0,
+      unk4: true,
+    });
+    const {id: objectId,name} = packet.data;
+    this._speedTrees[packet.data.id] = {
+      objectId: objectId,
+      modelName: name,
+    };
+    setTimeout(() => {
+      this.sendDataToAll("DtoStateChange", {
+        objectId: objectId,
+        modelName: this._speedTrees[objectId].modelName,
+        effectId: 0,
+        unk3: 0,
+        unk4: true,
+      });
+      delete this._speedTrees[objectId];
+    }, 1800000);
+  }
+
+  speedTreeUse(client: Client, packet: any) {
+    const elo = this._speedTrees[packet.data.id];
+    if (elo) {
+      debug(
+        "\x1b[32m",
+        client.character.name + "\x1b[0m",
+        "tried to use destroyed speedTree id:" + "\x1b[32m",
+        packet.data.id
+      );
+    } else {
+      switch (packet.data.name) {
+        case "SpeedTree.Blackberry":
+          this.sendData(client, "ClientUpdate.TextAlert", {
+            message: packet.data.name.replace("SpeedTree.", ""),
+          });
+          client.character.resources.water += 200;
+          this.updateResource(
+            client,
+            client.character.characterId,
+            client.character.resources.water,
+            5,
+            5
+          );
+          client.character.resources.food += 200;
+          this.updateResource(
+            client,
+            client.character.characterId,
+            client.character.resources.food,
+            4,
+            4
+          );
+          break;
+        default:
+          this.sendData(client, "ClientUpdate.TextAlert", {
+            message: packet.data.name.replace("SpeedTree.", ""),
+          });
+          break;
+      }
+      this.speedTreeDestroy(packet);
+    }
+  }
+  
   setGodMode(client: Client, godMode: boolean) {
     client.character.godMode = godMode;
     this.sendChatText(
@@ -2030,6 +2100,14 @@ DTOhit(client: Client, packet: any) {
       const DTOinstance = {
         objectId: DTO.zoneId,
         unknownString1: "Weapon_Empty.adr",
+      };
+      DTOArray.push(DTOinstance);
+    }
+    for (const object in this._speedTrees) {
+      const DTO = this._speedTrees[object];
+      const DTOinstance = {
+        objectId: DTO.objectId,
+        unknownString1: DTO.modelName.concat(".Stump"),
       };
       DTOArray.push(DTOinstance);
     }
