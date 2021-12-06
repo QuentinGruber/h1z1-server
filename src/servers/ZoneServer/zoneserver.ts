@@ -84,6 +84,7 @@ export class ZoneServer extends EventEmitter {
   _props: any;
   _destroyablesTimeout: any;
   _destroyables: any;
+  _speedTrees: any;
   _interactionDistance: number;
   _dummySelf: any;
   _appDataFolder: string;
@@ -124,6 +125,7 @@ export class ZoneServer extends EventEmitter {
     this._vehicles = {};
     this._props = {};
     this._destroyablesTimeout = {};
+    this._speedTrees = {};
     this._destroyables = {};
     this._serverTime = this.getCurrentTime();
     this._transientIds = {};
@@ -483,7 +485,7 @@ export class ZoneServer extends EventEmitter {
       : await this._db?.collection("weathers").findOne({ templateName: this._defaultWeatherTemplate });
     this._profiles = this.generateProfiles();
     if (
-      await this._db?.collection("worlds").findOne({ worldId: this._worldId })
+      !this._soloMode && await this._db?.collection("worlds").findOne({ worldId: this._worldId })
     ) {
       await this.fetchWorldData();
     } else {
@@ -570,16 +572,14 @@ getCollisionEntityType(entityKey: string): number {
   }
 
   async fetchWorldData(): Promise<void> {
-    if (!this._soloMode) {
-      this._doors = {};
-      const doorArray: any = await this._db
-        ?.collection("doors")
-        .find({ worldId: this._worldId })
-        .toArray();
-      for (let index = 0; index < doorArray.length; index++) {
-        const door = doorArray[index];
-        this._doors[door.characterId] = door;
-      }
+    const { createAllEntities } = require("./workers/createBaseEntities");
+    const { npcs, doors, destroyable } =
+      createAllEntities(this);
+    this._npcs = npcs;
+    this._doors = doors;
+    this._destroyables = destroyable;
+    delete require.cache[require.resolve("./workers/createBaseEntities")];
+    debug("All entities created");
       this._props = {};
       const propsArray: any = await this._db
         ?.collection("props")
@@ -598,15 +598,6 @@ getCollisionEntityType(entityKey: string): number {
         const vehicle = vehiclesArray[index];
         this._vehicles[vehicle.npcData.characterId] = vehicle;
       }
-      this._npcs = {};
-      const npcsArray: any = await this._db
-        ?.collection("npcs")
-        .find({ worldId: this._worldId })
-        .toArray();
-      for (let index = 0; index < npcsArray.length; index++) {
-        const npc = npcsArray[index];
-        this._npcs[npc.characterId] = npc;
-      }
       this._objects = {};
       const objectsArray: any = await this._db
         ?.collection("objects")
@@ -616,27 +607,11 @@ getCollisionEntityType(entityKey: string): number {
         const object = objectsArray[index];
         this._objects[object.characterId] = object;
       }
-      this._destroyables = {};
-      const destroyablesArray: any = await this._db
-        ?.collection("destroyables")
-        .find({ worldId: this._worldId })
-        .toArray();
-      for (let index = 0; index < destroyablesArray.length; index++) {
-        const destroyable = destroyablesArray[index];
-        this._destroyables[destroyable.characterId] = destroyable;
-      }
       this._transientIds = this.getAllCurrentUsedTransientId();
       debug("World fetched!");
-    }
   }
 
   async saveCollections(): Promise<void> {
-    await this._db
-    ?.collection(`npcs`)
-    .insertMany(Object.values(this._npcs));
-  await this._db
-    ?.collection(`doors`)
-    .insertMany(Object.values(this._doors));
   await this._db
     ?.collection(`props`)
     .insertMany(Object.values(this._props));
@@ -646,9 +621,6 @@ getCollisionEntityType(entityKey: string): number {
   await this._db
     ?.collection(`objects`)
     .insertMany(Object.values(this._objects));
-  await this._db
-    ?.collection(`destroyables`)
-    .insertMany(Object.values(this._destroyables));
   }
 
   async saveWorld(): Promise<void> {
@@ -672,29 +644,33 @@ getCollisionEntityType(entityKey: string): number {
     }
   }
 
+  async connectMongo(){
+    const mongoClient = (this._mongoClient = new MongoClient(
+      this._mongoAddress
+    ));
+    try {
+      await mongoClient.connect();
+    } catch (e) {
+      throw debug(
+        "[ERROR]Unable to connect to mongo server " + this._mongoAddress
+      );
+    }
+    debug("connected to mongo !");
+    // if no collections exist on h1server database , fill it with samples
+    const dbIsEmpty =
+      (await mongoClient.db("h1server").collections()).length < 1;
+    if (dbIsEmpty) {
+      await initMongo(this._mongoAddress, debugName);
+    }
+    delete require.cache[require.resolve("mongodb-restore-dump")];
+    this._db = mongoClient.db("h1server");
+  }
+
   async start(): Promise<void> {
     debug("Starting server");
     debug(`Protocol used : ${this._protocol.protocolName}`);
     if (this._mongoAddress) {
-      const mongoClient = (this._mongoClient = new MongoClient(
-        this._mongoAddress
-      ));
-      try {
-        await mongoClient.connect();
-      } catch (e) {
-        throw debug(
-          "[ERROR]Unable to connect to mongo server " + this._mongoAddress
-        );
-      }
-      debug("connected to mongo !");
-      // if no collections exist on h1server database , fill it with samples
-      const dbIsEmpty =
-        (await mongoClient.db("h1server").collections()).length < 1;
-      if (dbIsEmpty) {
-        await initMongo(this._mongoAddress, debugName);
-      }
-      delete require.cache[require.resolve("mongodb-restore-dump")];
-      this._db = mongoClient.db("h1server");
+      await this.connectMongo();
     }
     await this.setupServer();
     this._startTime += Date.now() + 82201232; // summer start
@@ -1006,6 +982,74 @@ getCollisionEntityType(entityKey: string): number {
     });
     if (refresh) this.worldRoutineTimer.refresh();
   }
+  
+  speedTreeDestroy(packet: any) {
+    this.sendDataToAll("DtoStateChange", {
+      objectId: packet.data.id,
+      modelName: packet.data.name.concat(".Stump"),
+      effectId: 0,
+      unk3: 0,
+      unk4: true,
+    });
+    const {id: objectId,name} = packet.data;
+    this._speedTrees[packet.data.id] = {
+      objectId: objectId,
+      modelName: name,
+    };
+    setTimeout(() => {
+      this.sendDataToAll("DtoStateChange", {
+        objectId: objectId,
+        modelName: this._speedTrees[objectId].modelName,
+        effectId: 0,
+        unk3: 0,
+        unk4: true,
+      });
+      delete this._speedTrees[objectId];
+    }, 1800000);
+  }
+
+  speedTreeUse(client: Client, packet: any) {
+    const elo = this._speedTrees[packet.data.id];
+    if (elo) {
+      debug(
+        "\x1b[32m",
+        client.character.name + "\x1b[0m",
+        "tried to use destroyed speedTree id:" + "\x1b[32m",
+        packet.data.id
+      );
+    } else {
+      switch (packet.data.name) {
+        case "SpeedTree.Blackberry":
+          this.sendData(client, "ClientUpdate.TextAlert", {
+            message: packet.data.name.replace("SpeedTree.", ""),
+          });
+          client.character.resources.water += 200;
+          this.updateResource(
+            client,
+            client.character.characterId,
+            client.character.resources.water,
+            5,
+            5
+          );
+          client.character.resources.food += 200;
+          this.updateResource(
+            client,
+            client.character.characterId,
+            client.character.resources.food,
+            4,
+            4
+          );
+          break;
+        default:
+          this.sendData(client, "ClientUpdate.TextAlert", {
+            message: packet.data.name.replace("SpeedTree.", ""),
+          });
+          break;
+      }
+      this.speedTreeDestroy(packet);
+    }
+  }
+  
   setGodMode(client: Client, godMode: boolean) {
     client.character.godMode = godMode;
     this.sendChatText(
@@ -2030,6 +2074,14 @@ DTOhit(client: Client, packet: any) {
       const DTOinstance = {
         objectId: DTO.zoneId,
         unknownString1: "Weapon_Empty.adr",
+      };
+      DTOArray.push(DTOinstance);
+    }
+    for (const object in this._speedTrees) {
+      const DTO = this._speedTrees[object];
+      const DTOinstance = {
+        objectId: DTO.objectId,
+        unknownString1: DTO.modelName.concat(".Stump"),
       };
       DTOArray.push(DTOinstance);
     }
