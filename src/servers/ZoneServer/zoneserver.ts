@@ -1017,20 +1017,21 @@ getCollisionEntityType(entityKey: string): number {
       unk3: 0,
       unk4: true,
     });
+    const {id: objectId,name} = packet.data;
     this._speedTrees[packet.data.id] = {
-      objectId: packet.data.id,
-      modelName: packet.data.name,
+      objectId: objectId,
+      modelName: name,
     };
     setTimeout(() => {
       this.sendDataToAll("DtoStateChange", {
-        objectId: packet.data.id,
-        modelName: packet.data.name,
+        objectId: objectId,
+        modelName: this._speedTrees[objectId].modelName,
         effectId: 0,
         unk3: 0,
         unk4: true,
       });
-      delete this._speedTrees[packet.data.id];
-    }, 1800000);
+      delete this._speedTrees[objectId];
+    }, 5000);
   }
 
   speedTreeUse(client: Client, packet: any) {
