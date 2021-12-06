@@ -215,8 +215,10 @@ export class LoginServer extends EventEmitter {
         const { reqId, status } = packet.data;
         clearTimeout(this._pendingInternalReqTimeouts[reqId]);
         delete this._pendingInternalReqTimeouts[reqId];
-        this._pendingInternalReq[reqId](status);
-        delete this._pendingInternalReq[reqId];
+        if(this._pendingInternalReq[reqId]){
+          this._pendingInternalReq[reqId](status);
+          delete this._pendingInternalReq[reqId];
+        }
       });
       this._h1emuLoginServer.on(
         "disconnect",
