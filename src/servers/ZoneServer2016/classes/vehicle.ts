@@ -1,5 +1,18 @@
+// ======================================================================
+//
+//   GNU GENERAL PUBLIC LICENSE
+//   Version 3, 29 June 2007
+//   copyright (c) 2020 - 2021 Quentin Gruber
+//   copyright (c) 2021 H1emu community
+//
+//   https://github.com/QuentinGruber/h1z1-server
+//   https://www.npmjs.com/package/h1z1-server
+//
+//   Based on https://github.com/psemu/soe-network
+// ======================================================================
+
 import { Vehicle } from "../../ZoneServer/classes/vehicles";
-import { createPositionUpdate } from "./../../../utils/utils";
+import { createPositionUpdate } from "../../../utils/utils";
 
 function getVehicleId(ModelId: number) {
   switch (ModelId) {
@@ -35,7 +48,6 @@ export class Vehicle2016 extends Vehicle {
   ) {
     super(worldId, characterId, transientId, modelId, position, rotation);
     this.npcData.vehicleId = getVehicleId(modelId);
-    //this.isManaged = true;
     switch (this.npcData.vehicleId) {
       case 1: // offroader
       case 2: // pickup
@@ -77,7 +89,7 @@ export class Vehicle2016 extends Vehicle {
         return seatId;
       }
     }
-    return 0;
+    return -1;
   }
   getCharacterSeat(characterId: string) {
     for (const seatId in this.seats) {
@@ -85,5 +97,15 @@ export class Vehicle2016 extends Vehicle {
         return seatId;
       }
     }
+  }
+
+  getPassengerList(): string[] {
+    let passengers: string[] = [];
+    for (const seatId in this.seats) {
+      if (this.seats[seatId]) {
+        passengers.push(this.seats[seatId]);
+      }
+    }
+    return passengers;
   }
 }

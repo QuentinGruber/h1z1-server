@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-var EventEmitter = require("events").EventEmitter,
+const EventEmitter = require("events").EventEmitter,
   SOEClient = require("./soeclient").SOEClient,
   fs = require("fs"),
   util = require("util"),
@@ -30,19 +30,19 @@ class GatewayClient {
   constructor(serverAddress, serverPort, key, localPort) {
     EventEmitter.call(this);
 
-    var soeClient = (this._soeClient = new SOEClient(
+    const soeClient = (this._soeClient = new SOEClient(
       "ExternalGatewayApi_3",
       serverAddress,
       serverPort,
       key,
       localPort
     ));
-    var protocol = (this._protocol = new GatewayProtocol());
-    var me = this;
+    const protocol = (this._protocol = new GatewayProtocol());
+    const me = this;
 
     soeClient.on("appdata", function (err, data) {
-      var packet = protocol.parse(data);
-      var result = packet.result;
+      const packet = protocol.parse(data);
+      const result = packet.result;
 
       switch (packet.name) {
         case "LoginReply":
@@ -78,7 +78,7 @@ class GatewayClient {
   sendTunnelData(tunnelData, channel) {
     channel = channel || 0;
     debug("Sending tunnel data to gateway server");
-    var data = this._protocol.pack("TunnelPacketFromExternalConnection", {
+    const data = this._protocol.pack("TunnelPacketFromExternalConnection", {
       channel: channel,
       tunnelData: tunnelData,
     });
@@ -88,7 +88,7 @@ class GatewayClient {
 
   login(characterId, ticket, clientProtocol, clientBuild) {
     debug("Sending login request");
-    var data = this._protocol.pack("LoginRequest", {
+    const data = this._protocol.pack("LoginRequest", {
       characterId: characterId,
       ticket: ticket,
       clientProtocol: clientProtocol,
@@ -103,7 +103,5 @@ class GatewayClient {
 }
 
 util.inherits(GatewayClient, EventEmitter);
-
-var tunnelCount = 0;
 
 exports.GatewayClient = GatewayClient;

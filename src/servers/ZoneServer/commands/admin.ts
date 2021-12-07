@@ -1,3 +1,16 @@
+// ======================================================================
+//
+//   GNU GENERAL PUBLIC LICENSE
+//   Version 3, 29 June 2007
+//   copyright (c) 2020 - 2021 Quentin Gruber
+//   copyright (c) 2021 H1emu community
+//
+//   https://github.com/QuentinGruber/h1z1-server
+//   https://www.npmjs.com/package/h1z1-server
+//
+//   Based on https://github.com/psemu/soe-network
+// ======================================================================
+
 const debug = require("debug")("zonepacketHandlers");
 import { zoneShutdown } from "../../../utils/utils";
 import { ZoneClient as Client } from "../classes/zoneclient";
@@ -14,7 +27,7 @@ const admin: any = {
     const timeLeft = args[1] ? args[1] : 0;
     const message = args[2] ? args[2] : " ";
     const startedTime = Date.now();
-    zoneShutdown(server, startedTime, timeLeft, message);
+    await zoneShutdown(server, startedTime, timeLeft, message);
   },
 };
 

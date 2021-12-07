@@ -399,6 +399,7 @@ export interface passengers {
 
 export interface positionUpdate {
   position?: any;
+  orientation?: any;
   engineRPM?: any;
 }
 

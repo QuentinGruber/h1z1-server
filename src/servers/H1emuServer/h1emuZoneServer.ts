@@ -1,3 +1,16 @@
+// ======================================================================
+//
+//   GNU GENERAL PUBLIC LICENSE
+//   Version 3, 29 June 2007
+//   copyright (c) 2020 - 2021 Quentin Gruber
+//   copyright (c) 2021 H1emu community
+//
+//   https://github.com/QuentinGruber/h1z1-server
+//   https://www.npmjs.com/package/h1z1-server
+//
+//   Based on https://github.com/psemu/soe-network
+// ======================================================================
+
 import { H1emuClient } from "./shared/h1emuclient";
 import { H1emuServer } from "./shared/h1emuserver";
 const debug = require("debug")("H1emuServer");
@@ -17,7 +30,6 @@ export class H1emuZoneServer extends H1emuServer {
     ): void => {
       switch (messageType) {
         case "incomingPacket":
-          client.lastPing = Date.now();
           const packet = this._protocol.parse(data);
           debug(packet);
           if (!packet) return;
@@ -64,9 +76,8 @@ export class H1emuZoneServer extends H1emuServer {
           break;
       }
     };
-    this.ping = (clientId: string) => {
-      const client = this._clients[clientId];
-      if (this._clients[clientId] && client.session) {
+    this.ping = (client: H1emuClient) => {
+      if (client?.session) {
         super.ping(client);
         if (Date.now() > client.lastPing + this._pingTimeout) {
           this.emit("disconnect", null, client, 1);
@@ -106,9 +117,7 @@ export class H1emuZoneServer extends H1emuServer {
     super.start();
     this.connect();
     this._pingTimer = setTimeout(() => {
-      this.ping(
-        `${this._loginServerInfo.address}:${this._loginServerInfo.port}`
-      );
+      this.ping(this._loginConnection as H1emuClient);
     }, this._pingTime);
   }
 }

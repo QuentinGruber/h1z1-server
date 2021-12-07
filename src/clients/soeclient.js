@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-var EventEmitter = require("events").EventEmitter,
+const EventEmitter = require("events").EventEmitter,
   SOEInputStream =
     require("../servers/SoeServer/soeinputstream").SOEInputStream,
   SOEOutputStream =
@@ -30,7 +30,7 @@ function createSessionId() {
 class SOEClient {
   constructor(protocolName, serverAddress, serverPort, cryptoKey, localPort) {
     EventEmitter.call(this);
-    var me = this;
+    const me = this;
 
     this._guid = ((Math.random() * 0xffffffff) >>> 0).toString(16);
     debug(this._guid, "Creating new SOEClient instance");
@@ -44,13 +44,12 @@ class SOEClient {
 
     this._outQueue = [];
 
-    var connection = (this._connection = dgram.createSocket("udp4"));
-    var protocol = (this._protocol = new SOEProtocol());
-    var inputStream = (this._inputStream = new SOEInputStream(cryptoKey));
-    var outputStream = (this._outputStream = new SOEOutputStream(cryptoKey));
+    const connection = (this._connection = dgram.createSocket("udp4"));
+    const protocol = (this._protocol = new SOEProtocol());
+    const inputStream = (this._inputStream = new SOEInputStream(cryptoKey));
+    const outputStream = (this._outputStream = new SOEOutputStream(cryptoKey));
 
-    var n0 = 0,
-      n1 = 0,
+    let n1 = 0,
       n2 = 0;
 
     inputStream.on("data", function (err, data) {
@@ -87,7 +86,7 @@ class SOEClient {
       outOfOrderPackets = [];
 
     function checkAck() {
-      if (lastAck != nextAck) {
+      if (lastAck !== nextAck) {
         lastAck = nextAck;
         me._sendPacket("Ack", {
           channel: 0,
@@ -101,9 +100,9 @@ class SOEClient {
 
     function checkOutOfOrderQueue() {
       if (outOfOrderPackets.length) {
-        var packets = [];
-        for (var i = 0; i < 20; i++) {
-          var sequence = outOfOrderPackets.shift();
+        const packets = [];
+        for (let i = 0; i < 20; i++) {
+          const sequence = outOfOrderPackets.shift();
           packets.push({
             name: "OutOfOrder",
             soePacket: {
@@ -131,7 +130,7 @@ class SOEClient {
 
     function checkOutQueue() {
       if (me._outQueue.length) {
-        var data = me._outQueue.shift();
+        const data = me._outQueue.shift();
         if (me._dumpData) {
           fs.writeFileSync("debug/soeclient_" + n1++ + "_out.dat", data);
         }
@@ -150,7 +149,7 @@ class SOEClient {
     checkOutQueue();
 
     function handlePacket(packet) {
-      var soePacket = packet.soePacket,
+      const soePacket = packet.soePacket,
         result = soePacket.result;
       switch (soePacket.name) {
         case "SessionReply":
@@ -173,10 +172,10 @@ class SOEClient {
           me.emit("disconnect");
           break;
         case "MultiPacket":
-          var lastOutOfOrder = 0,
-            channel = 0;
-          for (var i = 0; i < result.subPackets.length; i++) {
-            var subPacket = result.subPackets[i];
+          let lastOutOfOrder = 0;
+          const channel = 0;
+          for (let i = 0; i < result.subPackets.length; i++) {
+            const subPacket = result.subPackets[i];
             switch (subPacket.name) {
               case "OutOfOrder":
                 if (subPacket.sequence > lastOutOfOrder) {
@@ -237,12 +236,12 @@ class SOEClient {
       if (me._dumpData) {
         fs.writeFileSync("debug/soeclient_" + n1++ + "_in.dat", data);
       }
-      var result = protocol.parse(data, me._crcSeed, me._compression);
+      const result = protocol.parse(data, me._crcSeed, me._compression);
       handlePacket(result);
     });
 
     connection.on("listening", function () {
-      var address = this.address();
+      const address = this.address();
       debug("Listening on " + address.address + ":" + address.port);
     });
   }
@@ -255,7 +254,7 @@ class SOEClient {
         this._serverPort
     );
     this._sessionId = createSessionId();
-    var me = this;
+    const me = this;
     this._connection.bind(this._localPort, function () {
       me._sendPacket("SessionRequest", {
         protocol: me._protocolName,
@@ -289,7 +288,7 @@ class SOEClient {
   }
 
   _sendPacket(packetName, packet, prioritize) {
-    var data = this._protocol.pack(
+    const data = this._protocol.pack(
       packetName,
       packet,
       this._crcSeed,

@@ -1,3 +1,16 @@
+// ======================================================================
+//
+//   GNU GENERAL PUBLIC LICENSE
+//   Version 3, 29 June 2007
+//   copyright (c) 2020 - 2021 Quentin Gruber
+//   copyright (c) 2021 H1emu community
+//
+//   https://github.com/QuentinGruber/h1z1-server
+//   https://www.npmjs.com/package/h1z1-server
+//
+//   Based on https://github.com/psemu/soe-network
+// ======================================================================
+
 import { RemoteInfo } from "dgram";
 import { SOEInputStream } from "./soeinputstream";
 import { SOEOutputStream } from "./soeoutputstream";
@@ -28,7 +41,7 @@ export default class SOEClient {
   waitQueueTimer: any;
   waitingQueueCurrentByteLength: number = 0;
   lastZonePingTimestamp?: number;
-  zonePingTimeMs: number = 1000;
+  zonePingTimeMs: number = 1; // since this feature is experimental, if it fail it allow the user anyway
   constructor(
     remote: RemoteInfo,
     crcSeed: number,

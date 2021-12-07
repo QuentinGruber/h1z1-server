@@ -1,12 +1,28 @@
+// ======================================================================
+//
+//   GNU GENERAL PUBLIC LICENSE
+//   Version 3, 29 June 2007
+//   copyright (c) 2020 - 2021 Quentin Gruber
+//   copyright (c) 2021 H1emu community
+//
+//   https://github.com/QuentinGruber/h1z1-server
+//   https://www.npmjs.com/package/h1z1-server
+//
+//   Based on https://github.com/psemu/soe-network
+// ======================================================================
+
 const debug = require("debug")("baseEntityCreator");
 const Z1_vehicles = require("../../../../data/2015/sampleData/vehicleLocations.json");
 const Z1_items = require("../../../../data/2015/zoneData/Z1_items.json");
-const Z1_doors = require("../../../../data/2015/zoneData/Z1_doors.json");
+const z1_doors = require("../../../../data/2015/zoneData/Z1_doors.json");
 const Z1_npcs = require("../../../../data/2015/zoneData/Z1_npcs.json");
 const z1_Props = require("../../../../data/2015/zoneData/z1_Props.json");
 const models = require("../../../../data/2015/dataSources/Models.json");
 const modelToName = require("../../../../data/2015/sampleData/ModelToName.json");
 const textures = require("../../../../data/2015/sampleData/textures.json");
+const Z1_destroyablePS = require("../../../../data/2015/zoneData/Z1_destroyablePS.json");
+const Z1_destroyable = require("../../../../data/2015/zoneData/Z1_destroyable.json");
+import { zoneObject, zoneObjectInstance } from "types/zonedata";
 import { _, eul2quat, generateRandomGuid } from "../../../utils/utils";
 import { Vehicle } from "../classes/vehicles";
 import { ZoneServer } from "../zoneserver";
@@ -16,6 +32,7 @@ const objects: any = {};
 const vehicles: any = {};
 const doors: any = {};
 const props: any = {};
+const destroyable: any = {};
 
 const chancePumpShotgun = 50;
 const chanceAR15 = 50;
@@ -72,6 +89,47 @@ function createEntity(
     rotation: rotation,
     attachedObject: {},
     color: {},
+  };
+}
+
+function createDTO(
+  server: ZoneServer,
+  modelID: number,
+  extraModel: string,
+  position: Array<number>,
+  rotation: Array<number>,
+  scale: Array<number>,
+  zoneId: number,
+  renderDistance: number,
+  dictionnary: any
+): void {
+  let stringNameId = 0;
+  modelToName.forEach((spawnername: any) => {
+    if (modelID === spawnername.modelId) {
+      stringNameId = spawnername.NameId;
+    }
+  });
+
+  const guid = generateRandomGuid();
+  const characterId = generateRandomGuid();
+  server._transientIds[numberOfSpawnedEntity] = characterId;
+  dictionnary[characterId] = {
+    timestamp: 0,
+    worldId: server._worldId,
+    zoneId: zoneId,
+    characterId: characterId,
+    guid: guid,
+    transientId: numberOfSpawnedEntity,
+    nameId: stringNameId,
+    modelId: modelID,
+    extraModel: extraModel,
+    scale: scale,
+    position: position,
+    rotation: rotation,
+    isVehicle: true,
+    renderDistance: renderDistance,
+    attachedObject: {},
+    color: { g: 127 },
   };
 }
 
@@ -148,12 +206,15 @@ export function createAllEntities(server: ZoneServer): any {
   createProps(server);
   createAllVehicles(server);
   createSomeNpcs(server);
+  createDestroyable(server);
+  createDestroyablePS(server);
   return {
     npcs: npcs,
     objects: objects,
     vehicles: vehicles,
     doors: doors,
     props: props,
+    destroyable: destroyable,
   };
 }
 
@@ -170,8 +231,78 @@ function getRandomVehicleModelId() {
   }
 }
 
+function createDestroyable(server: ZoneServer) {
+  Z1_destroyable.forEach((DTOType: any) => {
+    const authorizedModelId: number[] = [];
+    switch (DTOType.actorDefinition) {
+      case "Common_Props_BarbedWireFence1x2.adr":
+        authorizedModelId.push(9114);
+        break;
+      case "Common_Props_BarbedWireFence1x1.adr":
+        authorizedModelId.push(9113);
+        break;
+      case "Common_Props_Fences_WoodPlanksGreyPosts1x2.adr":
+        authorizedModelId.push(8037);
+        break;
+      case "Common_Props_Fences_WoodPlanksGrey1x1.adr":
+        authorizedModelId.push(8033);
+        break;
+      case "Common_Props_Fences_WoodPlanksGreyPlank.adr":
+        authorizedModelId.push(8035);
+        break;
+      case "Common_Props_Fences_WoodPlanksGreyGap1x1.adr":
+        authorizedModelId.push(8034);
+        break;
+      case "Common_Props_Fences_WoodPlanksGreyPosts1x1.adr":
+        authorizedModelId.push(8036);
+        break;
+      default:
+        break;
+    }
+    if (authorizedModelId.length) {
+      DTOType.instances.forEach((DTOInstance: any) => {
+        const spawnModel =
+          authorizedModelId[
+            Math.floor(Math.random() * authorizedModelId.length)
+          ];
+        createDTO(
+          server,
+          spawnModel,
+          "",
+          DTOInstance.position,
+          eul2quat(DTOInstance.rotation),
+          DTOInstance.scale,
+          DTOInstance.id,
+          DTOType.renderDistance,
+          destroyable
+        );
+      });
+    }
+  });
+  debug("AR15 and ammo items objects created. Spawnrate:" + chanceAR15 + "%");
+}
+
+function createDestroyablePS(server: ZoneServer) {
+  Z1_destroyablePS.forEach((propType: any) => {
+    propType.instances.forEach((propInstance: any) => {
+      createDTO(
+        server,
+        9084,
+        propType.actorDefinition,
+        propInstance.position,
+        propInstance.rotation,
+        propInstance.scale,
+        propInstance.id,
+        propType.renderDistance,
+        destroyable
+      );
+    });
+  });
+  debug("Props objects created");
+}
+
 function createAllVehicles(server: ZoneServer) {
-  Z1_vehicles.forEach((vehicle: any) => {
+  Z1_vehicles.forEach((vehicle: zoneObjectInstance) => {
     const characterId = generateRandomGuid();
     numberOfSpawnedEntity++;
     server._transientIds[numberOfSpawnedEntity] = characterId;
@@ -182,8 +313,8 @@ function createAllVehicles(server: ZoneServer) {
       characterId,
       numberOfSpawnedEntity,
       modelId,
-      position,
-      rotation
+      new Float32Array(position),
+      new Float32Array(rotation)
     );
   });
   debug("All vehicles created");
@@ -191,7 +322,7 @@ function createAllVehicles(server: ZoneServer) {
 
 function createSomeNpcs(server: ZoneServer) {
   // This is only for giving the world some life
-  Z1_npcs.forEach((spawnerType: any) => {
+  Z1_npcs.forEach((spawnerType: zoneObject) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "NPCSpawner_ZombieLazy.adr":
@@ -211,7 +342,7 @@ function createSomeNpcs(server: ZoneServer) {
         break;
     }
     if (authorizedModelId.length) {
-      spawnerType.instances.forEach((itemInstance: any) => {
+      spawnerType.instances.forEach((itemInstance: zoneObjectInstance) => {
         const spawnchance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (spawnchance <= 40) {
           // temporary spawnchance
@@ -246,7 +377,7 @@ function createSomeNpcs(server: ZoneServer) {
 }
 
 function createAR15(server: ZoneServer) {
-  Z1_items.forEach((spawnerType: any) => {
+  Z1_items.forEach((spawnerType: zoneObject) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_Weapon_M16A4.adr":
@@ -262,7 +393,7 @@ function createAR15(server: ZoneServer) {
         break;
     }
     if (authorizedModelId.length) {
-      spawnerType.instances.forEach((itemInstance: any) => {
+      spawnerType.instances.forEach((itemInstance: zoneObjectInstance) => {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chanceAR15) {
           // temporary spawnchance
@@ -297,7 +428,7 @@ function createAR15(server: ZoneServer) {
 }
 
 function createPumpShotgun(server: ZoneServer) {
-  Z1_items.forEach((spawnerType: any) => {
+  Z1_items.forEach((spawnerType: zoneObject) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_Weapon_PumpShotgun01.adr":
@@ -310,7 +441,7 @@ function createPumpShotgun(server: ZoneServer) {
         break;
     }
     if (authorizedModelId.length) {
-      spawnerType.instances.forEach((itemInstance: any) => {
+      spawnerType.instances.forEach((itemInstance: zoneObjectInstance) => {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chancePumpShotgun) {
           // temporary spawnchance
@@ -349,7 +480,7 @@ function createPumpShotgun(server: ZoneServer) {
 }
 
 function createTools(server: ZoneServer) {
-  Z1_items.forEach((spawnerType: any) => {
+  Z1_items.forEach((spawnerType: zoneObject) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_Weapon_Crowbar01.adr":
@@ -395,7 +526,7 @@ function createTools(server: ZoneServer) {
         break;
     }
     if (authorizedModelId.length) {
-      spawnerType.instances.forEach((itemInstance: any) => {
+      spawnerType.instances.forEach((itemInstance: zoneObjectInstance) => {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chanceTools) {
           // temporary spawnchance
@@ -430,7 +561,7 @@ function createTools(server: ZoneServer) {
 }
 
 function create1911(server: ZoneServer) {
-  Z1_items.forEach((spawnerType: any) => {
+  Z1_items.forEach((spawnerType: zoneObject) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_Weapon_45Auto.adr":
@@ -443,7 +574,7 @@ function create1911(server: ZoneServer) {
         break;
     }
     if (authorizedModelId.length) {
-      spawnerType.instances.forEach((itemInstance: any) => {
+      spawnerType.instances.forEach((itemInstance: zoneObjectInstance) => {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chance1911) {
           // temporary spawnchance
@@ -478,7 +609,7 @@ function create1911(server: ZoneServer) {
 }
 
 function createM24(server: ZoneServer) {
-  Z1_items.forEach((spawnerType: any) => {
+  Z1_items.forEach((spawnerType: zoneObject) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_Weapon_M24.adr":
@@ -491,7 +622,7 @@ function createM24(server: ZoneServer) {
         break;
     }
     if (authorizedModelId.length) {
-      spawnerType.instances.forEach((itemInstance: any) => {
+      spawnerType.instances.forEach((itemInstance: zoneObjectInstance) => {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chanceM24) {
           // temporary spawnchance
@@ -528,7 +659,7 @@ function createM24(server: ZoneServer) {
 }
 
 function createConsumables(server: ZoneServer) {
-  Z1_items.forEach((spawnerType: any) => {
+  Z1_items.forEach((spawnerType: zoneObject) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_FirstAidKit.adr":
@@ -545,7 +676,7 @@ function createConsumables(server: ZoneServer) {
         break;
     }
     if (authorizedModelId.length) {
-      spawnerType.instances.forEach((itemInstance: any) => {
+      spawnerType.instances.forEach((itemInstance: zoneObjectInstance) => {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chanceConsumables) {
           // temporary spawnchance
@@ -582,7 +713,7 @@ function createConsumables(server: ZoneServer) {
 }
 
 function createClothes(server: ZoneServer) {
-  Z1_items.forEach((spawnerType: any) => {
+  Z1_items.forEach((spawnerType: zoneObject) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_Clothes_MotorcycleHelmet.adr":
@@ -601,7 +732,7 @@ function createClothes(server: ZoneServer) {
         break;
     }
     if (authorizedModelId.length) {
-      spawnerType.instances.forEach((itemInstance: any) => {
+      spawnerType.instances.forEach((itemInstance: zoneObjectInstance) => {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chanceClothes) {
           // temporary spawnchance
@@ -636,7 +767,7 @@ function createClothes(server: ZoneServer) {
 }
 
 function createResidential(server: ZoneServer) {
-  Z1_items.forEach((spawnerType: any) => {
+  Z1_items.forEach((spawnerType: zoneObject) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawnerResidential_Tier00.adr":
@@ -665,7 +796,7 @@ function createResidential(server: ZoneServer) {
         break;
     }
     if (authorizedModelId.length) {
-      spawnerType.instances.forEach((itemInstance: any) => {
+      spawnerType.instances.forEach((itemInstance: zoneObjectInstance) => {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chanceResidential) {
           // temporary spawnchance
@@ -704,7 +835,7 @@ function createResidential(server: ZoneServer) {
 }
 
 function createRare(server: ZoneServer) {
-  Z1_items.forEach((spawnerType: any) => {
+  Z1_items.forEach((spawnerType: zoneObject) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawnerRare_Tier00.adr":
@@ -755,7 +886,7 @@ function createRare(server: ZoneServer) {
 }
 
 function createIndustrial(server: ZoneServer) {
-  Z1_items.forEach((spawnerType: any) => {
+  Z1_items.forEach((spawnerType: zoneObject) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawnerIndustrial_Tier00.adr":
@@ -775,7 +906,7 @@ function createIndustrial(server: ZoneServer) {
         break;
     }
     if (authorizedModelId.length) {
-      spawnerType.instances.forEach((itemInstance: any) => {
+      spawnerType.instances.forEach((itemInstance: zoneObjectInstance) => {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= chanceIndustrial) {
           // temporary spawnchance
@@ -814,7 +945,7 @@ function createIndustrial(server: ZoneServer) {
 }
 
 function createWorld(server: ZoneServer) {
-  Z1_items.forEach((spawnerType: any) => {
+  Z1_items.forEach((spawnerType: zoneObject) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawnerWorld_Tier00.adr":
@@ -868,7 +999,7 @@ function createWorld(server: ZoneServer) {
 }
 
 function createLog(server: ZoneServer) {
-  Z1_items.forEach((spawnerType: any) => {
+  Z1_items.forEach((spawnerType: zoneObject) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_Log01.adr":
@@ -915,7 +1046,7 @@ function createLog(server: ZoneServer) {
 }
 
 function createCommercial(server: ZoneServer) {
-  Z1_items.forEach((spawnerType: any) => {
+  Z1_items.forEach((spawnerType: zoneObject) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawnerCommercial_Tier00.adr":
@@ -971,7 +1102,7 @@ function createCommercial(server: ZoneServer) {
 }
 
 function createFarm(server: ZoneServer) {
-  Z1_items.forEach((spawnerType: any) => {
+  Z1_items.forEach((spawnerType: zoneObject) => {
     const authorizedModelId: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawnerFarm.adr":
@@ -1020,7 +1151,7 @@ function createFarm(server: ZoneServer) {
 }
 
 function createProps(server: ZoneServer) {
-  z1_Props.forEach((propType: any) => {
+  z1_Props.forEach((propType: zoneObject) => {
     const model_index = textures.findIndex(
       (x: any) => x.modelName === propType.actorDefinition
     );
@@ -1050,8 +1181,7 @@ function createProps(server: ZoneServer) {
 }
 
 function createAllDoors(server: ZoneServer): void {
-  Z1_doors.forEach((doorType: any) => {
-    // TODO: add types for Z1_doors
+  z1_doors.forEach((doorType: zoneObject) => {
     const modelId: number = _.find(models, (model: any) => {
       return (
         model.MODEL_FILE_NAME ===

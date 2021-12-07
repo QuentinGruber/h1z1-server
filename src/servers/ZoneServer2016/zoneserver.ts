@@ -17,16 +17,19 @@ import { zonePacketHandlers } from "./zonepackethandlers";
 import { ZoneServer } from "../ZoneServer/zoneserver";
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
 import { Vehicle2016 as Vehicle } from "./classes/vehicle";
+import { WorldObjectManager } from "./classes/worldobjectmanager";
 
 import {
   characterEquipment,
   characterLoadout,
   Weather2016,
 } from "../../types/zoneserver";
+import { h1z1PacketsType } from "../../types/packets";
+import { Character2016 as Character } from "./classes/character";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
 import { _, initMongo, Int64String, isPosInRadius } from "../../utils/utils";
 
-import { MongoClient } from "mongodb";
+import { Db, MongoClient } from "mongodb";
 import dynamicWeather from "./workers/dynamicWeather";
 
 // need to get 2016 lists
@@ -48,9 +51,13 @@ export class ZoneServer2016 extends ZoneServer {
   _items: any = {};
   _vehicles: { [characterId: string]: Vehicle } = {};
   _reloadPacketsInterval: any;
+  _clients: { [characterId: string]: Client } = {};
+  _characters: { [characterId: string]: Character } = {};
+  worldObjectManager: WorldObjectManager;
+  _ready: boolean = false;
 
   constructor(serverPort: number, gatewayKey: Uint8Array, mongoAddress = "") {
-    super(serverPort, gatewayKey, mongoAddress);
+    super(serverPort, gatewayKey, mongoAddress, 0);
     this._protocol = new H1Z1Protocol("ClientProtocol_1080");
     this._clientProtocol = "ClientProtocol_1080";
     this._dynamicWeatherEnabled = false;
@@ -86,6 +93,11 @@ export class ZoneServer2016 extends ZoneServer {
         unknownByte4: 1,
       };
     });
+    this._loginServerInfo = {
+      address: "127.0.0.1",
+      port: 1110,
+    };
+    this.worldObjectManager = new WorldObjectManager();
   }
 
   onZoneDataEvent(err: any, client: Client, packet: any) {
@@ -102,6 +114,84 @@ export class ZoneServer2016 extends ZoneServer {
         debug(`Receive Data ${[packet.name]}`);
       }
       this._packetHandlers.processPacket(this, client, packet);
+    }
+  }
+
+  async onCharacterCreateRequest(client: any, packet: any) {
+    function getCharacterModelData(payload: any): any {
+      switch (payload.headType) {
+        case 6: // black female
+          return {
+            modelId: 9474,
+            headActor: "SurvivorFemale_Head_03.adr",
+            hairModel: "SurvivorFemale_Hair_ShortMessy.adr",
+          };
+        case 5: // black male
+          return {
+            modelId: 9240,
+            headActor: "SurvivorMale_Head_04.adr",
+            hairModel: "SurvivorMale_HatHair_Short.adr",
+          };
+        case 4: // older white female
+          return {
+            modelId: 9474,
+            headActor: "SurvivorFemale_Head_02.adr",
+            hairModel: "SurvivorFemale_Hair_ShortBun.adr",
+          };
+        case 3: // young white female
+          return {
+            modelId: 9474,
+            headActor: "SurvivorFemale_Head_02.adr",
+            hairModel: "SurvivorFemale_Hair_ShortBun.adr",
+          };
+        case 2: // bald white male
+          return {
+            modelId: 9240,
+            headActor: "SurvivorMale_Head_01.adr",
+            hairModel: "SurvivorMale_HatHair_Short.adr",
+          };
+        case 1: // white male
+        default:
+          return {
+            modelId: 9240,
+            headActor: "SurvivorMale_Head_01.adr",
+            hairModel: "SurvivorMale_Hair_ShortMessy.adr",
+          };
+      }
+    }
+
+    const { characterObjStringify, reqId } = packet.data;
+    try {
+      const characterData = JSON.parse(characterObjStringify),
+        characterModelData = getCharacterModelData(characterData.payload);
+      let character = require("../../../data/2016/sampleData/character.json");
+      character = {
+        ...character,
+        characterId: characterData.characterId,
+        serverId: characterData.serverId,
+        ownerId: characterData.ownerId,
+        gender: characterData.payload.gender,
+        characterName: characterData.payload.characterName,
+        actorModelId: characterModelData.modelId,
+        headActor: characterModelData.headActor,
+        hairModel: characterModelData.hairModel,
+      };
+      const collection = (this._db as Db).collection("characters");
+      const charactersArray = await collection.findOne({
+        characterId: character.characterId,
+      });
+      if (!charactersArray) {
+        await collection.insertOne(character);
+      }
+      this._h1emuZoneServer.sendData(client, "CharacterCreateReply", {
+        reqId: reqId,
+        status: 1,
+      });
+    } catch (error) {
+      this._h1emuZoneServer.sendData(client, "CharacterCreateReply", {
+        reqId: reqId,
+        status: 0,
+      });
     }
   }
 
@@ -149,23 +239,25 @@ export class ZoneServer2016 extends ZoneServer {
       equipment: [
         // default SurvivorMale equipment
         {
-          modelName: "SurvivorMale_Head_01.adr",
+          modelName: character.headActor,
           slotId: 1,
         },
         {
-          modelName: "SurvivorMale_Eyes_01.adr",
+          modelName: `Survivor${
+            client.character.gender == 1 ? "Male" : "Female"
+          }_Eyes_01.adr`,
           slotId: 105,
         },
         {
-          modelName: "SurvivorMale_Hair_ShortMessy.adr",
-          slotId: 27,
-        },
-        {
-          modelName: "SurvivorMale_Legs_Pants_Underwear.adr",
+          modelName: `Survivor${
+            client.character.gender == 1 ? "Male" : "Female"
+          }_Legs_Pants_Underwear.adr`,
           slotId: 4,
         },
         {
-          modelName: "SurvivorMale_Chest_Bra.adr",
+          modelName: `Survivor${
+            client.character.gender == 1 ? "Male" : "Female"
+          }_Chest_Bra.adr`,
           textureAlias: "",
           slotId: 3,
         },
@@ -179,6 +271,12 @@ export class ZoneServer2016 extends ZoneServer {
         shield: 0,
       },
     };
+    if (character.hairModel) {
+      client.character.equipment.push({
+        modelName: character.hairModel,
+        slotId: 27,
+      });
+    }
     let isRandomlySpawning = false;
     if (
       _.isEqual(character.position, [0, 0, 0, 1]) &&
@@ -424,6 +522,32 @@ export class ZoneServer2016 extends ZoneServer {
       : await this._db?.collection("weathers").find().toArray();
   }
 
+  addDoor(obj: {}, characterId: string) {
+    this._doors[characterId] = obj;
+  }
+
+  async loadVehicleData() {
+    const vehiclesArray: any = await this._db
+      ?.collection("vehicles")
+      .find({ worldId: this._worldId })
+      .toArray();
+    for (let index = 0; index < vehiclesArray.length; index++) {
+      const vehicle = vehiclesArray[index];
+      this._vehicles[vehicle.npcData.characterId] = new Vehicle(
+        this._worldId,
+        vehicle.npcData.characterId,
+        vehicle.npcData.transientId,
+        vehicle.npcData.modelId,
+        new Float32Array(vehicle.npcData.position),
+        new Float32Array(vehicle.npcData.rotation),
+        this._gameTime
+      );
+      this._vehicles[vehicle.npcData.characterId].npcData = vehicle.npcData;
+      this._vehicles[vehicle.npcData.characterId].positionUpdate =
+        vehicle.positionUpdate;
+    }
+  }
+
   async fetchWorldData(): Promise<void> {
     if (!this._soloMode) {
       this._doors = {};
@@ -446,15 +570,9 @@ export class ZoneServer2016 extends ZoneServer {
         this._props[prop.characterId] = prop;
       }
       */
-      this._vehicles = {};
-      const vehiclesArray: any = await this._db
-        ?.collection("vehicles")
-        .find({ worldId: this._worldId })
-        .toArray();
-      for (let index = 0; index < vehiclesArray.length; index++) {
-        const vehicle = vehiclesArray[index];
-        this._vehicles[vehicle.npcData.characterId] = vehicle;
-      }
+
+      await this.loadVehicleData();
+
       this._npcs = {};
       const npcsArray: any = await this._db
         ?.collection("npcs")
@@ -481,7 +599,6 @@ export class ZoneServer2016 extends ZoneServer {
   async saveWorld(): Promise<void> {
     if (!this._soloMode) {
       if (this._worldId) {
-        this.createAllObjects();
         await this._db
           ?.collection(`npcs`)
           .insertMany(Object.values(this._npcs));
@@ -500,7 +617,6 @@ export class ZoneServer2016 extends ZoneServer {
           ?.collection(`objects`)
           .insertMany(Object.values(this._objects));
       } else {
-        this.createAllObjects();
         const numberOfWorld: number =
           (await this._db?.collection("worlds").find({}).count()) || 0;
         this._worldId = numberOfWorld + 1;
@@ -510,9 +626,11 @@ export class ZoneServer2016 extends ZoneServer {
         await this._db
           ?.collection(`npcs`)
           .insertMany(Object.values(this._npcs));
+        /*
         await this._db
           ?.collection(`doors`)
           .insertMany(Object.values(this._doors));
+          */
         /*
         await this._db
           ?.collection(`props`)
@@ -526,8 +644,6 @@ export class ZoneServer2016 extends ZoneServer {
           .insertMany(Object.values(this._objects));
         debug("World saved!");
       }
-    } else {
-      this.createAllObjects();
     }
   }
 
@@ -536,8 +652,6 @@ export class ZoneServer2016 extends ZoneServer {
     this._frozeCycle = false;
     await this.fetchZoneData();
     this._profiles = this.generateProfiles();
-    //this.createAllObjects();
-
     if (
       await this._db?.collection("worlds").findOne({ worldId: this._worldId })
     ) {
@@ -548,6 +662,9 @@ export class ZoneServer2016 extends ZoneServer {
         .insertOne({ worldId: this._worldId });
       await this.saveWorld();
     }
+
+    // other entities are handled by worldRoutine
+    this.worldObjectManager.createDoors(this);
 
     if (!this._soloMode) {
       debug("Starting H1emuZoneServer");
@@ -565,6 +682,7 @@ export class ZoneServer2016 extends ZoneServer {
           { $set: { populationNumber: 0, populationLevel: 0 } }
         );
     }
+    this._ready = true;
     debug("Server ready");
   }
 
@@ -588,10 +706,19 @@ export class ZoneServer2016 extends ZoneServer {
   sendInitData(client: Client): void {
     this.sendData(client, "InitializationParameters", {
       environment: "LIVE",
-      serverId: 1,
+      serverId: this._worldId,
     });
 
-    this.SendZoneDetailsPacket2016(client, this._weather2016);
+    this.sendData(client, "SendZoneDetails", {
+      zoneName: "Z1",
+      unknownBoolean1: true,
+      zoneType: 4,
+      skyData: this._weather2016,
+      zoneId1: 3905829720,
+      zoneId2: 3905829720,
+      nameId: 7699,
+      unknownBoolean7: true,
+    });
 
     this.sendData(client, "ClientUpdate.ZonePopulation", {
       populations: [0, 0],
@@ -633,27 +760,18 @@ export class ZoneServer2016 extends ZoneServer {
       this.POIManager(client);
       client.posAtLastRoutine = client.character.state.position;
     });
+    if (this._ready) this.worldObjectManager.run(this);
     if (refresh) this.worldRoutineTimer.refresh();
   }
 
-  SendZoneDetailsPacket2016(client: Client, weather: Weather2016): void {
-    const SendZoneDetails_packet = {
-      zoneName: "Z1",
-      unknownBoolean1: true,
-      zoneType: 4,
-      skyData: weather,
-      zoneId1: 3905829720,
-      zoneId2: 3905829720,
-      nameId: 7699,
-      unknownBoolean7: true,
-    };
-    this.sendData(client, "SendZoneDetails", SendZoneDetails_packet);
-  }
-
-  sendWeatherUpdatePacket(client: Client, weather: Weather2016): void {
+  sendWeatherUpdatePacket(
+    client: Client,
+    weather: Weather2016,
+    broadcast = false
+  ): void {
     if (!this._soloMode) {
       this.sendDataToAll("UpdateWeatherData", weather);
-      if (client?.character?.name) {
+      if (broadcast && client?.character?.name) {
         this.sendGlobalChatText(
           `User "${client.character.name}" has changed weather.`
         );
@@ -663,34 +781,24 @@ export class ZoneServer2016 extends ZoneServer {
     }
   }
 
-  filterOutOfDistance(element: any, playerPosition: Float32Array): boolean {
-    return !isPosInRadius(
-      this._npcRenderDistance,
-      playerPosition,
-      element.position || element.state?.position || element.npcData.position
-    );
-  }
-
   forceTime(time: number): void {
     this._cycleSpeed = 0.1;
     this._frozeCycle = true;
     this._gameTime = time;
-    this.sendSyncToAll();
   }
 
   removeForcedTime(): void {
     this._cycleSpeed = 100;
     this._frozeCycle = false;
     this._gameTime = Date.now();
-    this.sendSyncToAll();
   }
 
   removeOutOfDistanceEntities(client: Client): void {
     // does not include vehicles
     const objectsToRemove = client.spawnedEntities.filter(
       (e) =>
-        this.filterOutOfDistance(e, client.character.state.position) &&
-        !e.npcData?.isVehicle
+        !e.npcData?.isVehicle &&
+        this.filterOutOfDistance(e, client.character.state.position)
     );
     client.spawnedEntities = client.spawnedEntities.filter((el) => {
       return !objectsToRemove.includes(el);
@@ -729,6 +837,7 @@ export class ZoneServer2016 extends ZoneServer {
       1
     );
     delete dictionary[characterId];
+    delete this._transientIds[characterId];
   }
 
   spawnNpcs(client: Client): void {
@@ -753,10 +862,10 @@ export class ZoneServer2016 extends ZoneServer {
   }
 
   spawnCharacters(client: Client) {
-    for (const character in this._characters) {
-      const characterObj = this._characters[character];
+    for (const c in this._clients) {
+      const characterObj: Character = this._clients[c].character;
       if (
-        client.character.characterId != character &&
+        client.character.characterId != characterObj.characterId &&
         isPosInRadius(
           this._npcRenderDistance,
           client.character.state.position,
@@ -764,25 +873,193 @@ export class ZoneServer2016 extends ZoneServer {
         ) &&
         !client.spawnedEntities.includes(characterObj)
       ) {
+        const vehicleId = this._clients[c].vehicle.mountedVehicle,
+          vehicle = vehicleId ? this._vehicles[vehicleId] : false;
         this.sendData(
           client,
           "AddLightweightPc",
           {
             ...characterObj,
+            modelId: characterObj.actorModelId,
             transientId: characterObj.transientId,
             identity: {
               characterName: characterObj.name,
             },
             position: characterObj.state.position,
             rotation: characterObj.state.lookAt,
+            mountGuid: vehicleId || "",
+            mountSeatId: vehicle
+              ? vehicle.getCharacterSeat(characterObj.characterId)
+              : 0,
+            mountRelatedDword1: vehicle ? 1 : 0,
           },
           1
         );
-        client.spawnedEntities.push(this._characters[character]);
+        client.spawnedEntities.push(this._characters[characterObj.characterId]);
       }
     }
   }
 
+  spawnObjects(client: Client): void {
+    setImmediate(() => {
+      for (const object in this._objects) {
+        if (
+          isPosInRadius(
+            this._npcRenderDistance,
+            client.character.state.position,
+            this._objects[object].position
+          ) &&
+          !client.spawnedEntities.includes(this._objects[object])
+        ) {
+          this.sendData(
+            client,
+            "AddSimpleNpc",
+            { ...this._objects[object] },
+            1
+          );
+          client.spawnedEntities.push(this._objects[object]);
+        }
+      }
+    });
+  }
+
+  spawnDoors(client: Client): void {
+    setImmediate(() => {
+      for (const door in this._doors) {
+        if (
+          isPosInRadius(
+            this._npcRenderDistance,
+            client.character.state.position,
+            this._doors[door].position
+          ) &&
+          !client.spawnedEntities.includes(this._doors[door])
+        ) {
+          this.sendData(client, "AddSimpleNpc", this._doors[door], 1);
+          client.spawnedEntities.push(this._doors[door]);
+        }
+      }
+    });
+  }
+
+  sendData(
+    client: Client,
+    packetName: h1z1PacketsType,
+    obj: any,
+    channel = 0
+  ): void {
+    switch (packetName) {
+      case "KeepAlive":
+      case "PlayerUpdatePosition":
+      case "GameTimeSync":
+      case "Synchronization":
+      case "Vehicle.StateData":
+        break;
+      default:
+        debug("send data", packetName);
+    }
+    const data = this._protocol.pack(packetName, obj);
+    this._gatewayServer.sendTunnelData(client, data, channel);
+  }
+  sendChat(client: Client, message: string, channel: number) {
+    if (!this._soloMode) {
+      this.sendDataToAll("Chat.ChatText", {
+        message: `${client.character.name}: ${message}`,
+        unknownDword1: 0,
+        color: [255, 255, 255, 0],
+        unknownDword2: 13951728,
+        unknownByte3: 0,
+        unknownByte4: 1,
+      });
+    } else {
+      this.sendData(client, "Chat.ChatText", {
+        message: `${client.character.name}: ${message}`,
+        unknownDword1: 0,
+        color: [255, 255, 255, 0],
+        unknownDword2: 13951728,
+        unknownByte3: 0,
+        unknownByte4: 1,
+      });
+    }
+  }
+
+  getGameTime(): number {
+    //debug("get server time");
+    const delta = Date.now() - this._startGameTime;
+    return this._frozeCycle
+      ? Number(((this._gameTime + delta) / 1000).toFixed(0))
+      : Number((this._gameTime / 1000).toFixed(0));
+  }
+
+  sendGameTimeSync(client: Client): void {
+    debug(`GameTimeSync ${this._cycleSpeed} ${this.getGameTime()}\n`);
+    //this._gameTime = this.getGameTime();
+    this.sendData(client, "GameTimeSync", {
+      time: Int64String(this.getGameTime()),
+      cycleSpeed: this._cycleSpeed,
+      unknownBoolean: false,
+    });
+  }
+
+  getTransientId(guid: string): number {
+    let generatedTransient;
+    do {
+      generatedTransient = Number((Math.random() * 30000).toFixed(0));
+    } while (this._transientIds[generatedTransient]);
+    this._transientIds[generatedTransient] = guid;
+    return generatedTransient;
+  }
+
+  sendRawToAllOthersWithSpawnedCharacter(
+    client: Client,
+    entityCharacterId: string = "",
+    data: any
+  ): void {
+    for (const a in this._clients) {
+      if (
+        client != this._clients[a] &&
+        this._clients[a].spawnedEntities.includes(
+          this._characters[entityCharacterId]
+        )
+      ) {
+        this.sendRawData(this._clients[a], data);
+      }
+    }
+  }
+  sendDataToAllOthersWithSpawnedCharacter(
+    client: Client,
+    packetName: any,
+    obj: any,
+    channel = 0
+  ): void {
+    for (const a in this._clients) {
+      if (
+        client != this._clients[a] &&
+        this._clients[a].spawnedEntities.includes(
+          this._characters[client.character.characterId]
+        )
+      ) {
+        this.sendData(this._clients[a], packetName, obj, channel);
+      }
+    }
+  }
+  sendDataToAllWithSpawnedCharacter(
+    client: Client,
+    packetName: any,
+    obj: any,
+    channel = 0
+  ): void {
+    for (const a in this._clients) {
+      if (
+        this._clients[a].spawnedEntities.includes(
+          this._characters[client.character.characterId]
+        ) ||
+        this._clients[a] === client
+      ) {
+        this.sendData(this._clients[a], packetName, obj, channel);
+      }
+    }
+  }
+  //#region ********************VEHICLE********************
   vehicleManager(client: Client) {
     for (const key in this._vehicles) {
       const vehicle = this._vehicles[key];
@@ -796,6 +1073,19 @@ export class ZoneServer2016 extends ZoneServer {
       ) {
         if (!client.spawnedEntities.includes(vehicle)) {
           this.sendData(client, "AddLightweightVehicle", vehicle, 1);
+          this.sendData(client, "Vehicle.OwnerPassengerList", {
+            characterId: client.character.characterId,
+            passengers: vehicle.getPassengerList().map((characterId) => {
+              return {
+                characterId: characterId,
+                identity: {
+                  characterName: this._characters[characterId].name,
+                },
+                unknownString1: this._characters[characterId].name,
+                unknownByte1: 1,
+              };
+            }),
+          });
           client.spawnedEntities.push(vehicle);
         }
         if (!vehicle.isManaged) {
@@ -881,132 +1171,6 @@ export class ZoneServer2016 extends ZoneServer {
     }
   }
 
-  spawnObjects(client: Client): void {
-    setImmediate(() => {
-      for (const object in this._objects) {
-        if (
-          isPosInRadius(
-            this._npcRenderDistance,
-            client.character.state.position,
-            this._objects[object].position
-          ) &&
-          !client.spawnedEntities.includes(this._objects[object])
-        ) {
-          this.sendData(
-            client,
-            "AddSimpleNpc",
-            { ...this._objects[object] },
-            1
-          );
-          client.spawnedEntities.push(this._objects[object]);
-        }
-      }
-    });
-  }
-
-  spawnDoors(client: Client): void {
-    setImmediate(() => {
-      for (const door in this._doors) {
-        if (
-          isPosInRadius(
-            this._npcRenderDistance,
-            client.character.state.position,
-            this._doors[door].position
-          ) &&
-          !client.spawnedEntities.includes(this._doors[door])
-        ) {
-          this.sendData(client, "AddSimpleNpc", this._doors[door], 1);
-          client.spawnedEntities.push(this._doors[door]);
-        }
-      }
-    });
-  }
-
-  createAllObjects(): void {
-    const { createAllEntities } = require("./workers/createBaseEntities");
-    const { npcs, objects, vehicles, doors } = createAllEntities(this);
-    this._npcs = npcs;
-    this._objects = objects;
-    this._doors = doors;
-    this._vehicles = vehicles;
-    delete require.cache[require.resolve("./workers/createBaseEntities")];
-    debug("All entities created");
-  }
-
-  sendChat(client: Client, message: string, channel: number) {
-    if (!this._soloMode) {
-      this.sendDataToAll("Chat.ChatText", {
-        message: `${client.character.name}: ${message}`,
-        unknownDword1: 0,
-        color: [255, 255, 255, 0],
-        unknownDword2: 13951728,
-        unknownByte3: 0,
-        unknownByte4: 1,
-      });
-    } else {
-      this.sendData(client, "Chat.ChatText", {
-        message: `${client.character.name}: ${message}`,
-        unknownDword1: 0,
-        color: [255, 255, 255, 0],
-        unknownDword2: 13951728,
-        unknownByte3: 0,
-        unknownByte4: 1,
-      });
-    }
-  }
-
-  getGameTime(): number {
-    //debug("get server time");
-    const delta = Date.now() - this._startGameTime;
-    return this._frozeCycle
-      ? Number(((this._gameTime + delta) / 1000).toFixed(0))
-      : Number((this._gameTime / 1000).toFixed(0));
-  }
-
-  sendGameTimeSync(client: Client): void {
-    debug(`GameTimeSync ${this._cycleSpeed} ${this.getGameTime()}\n`);
-    //this._gameTime = this.getGameTime();
-    this.sendData(client, "GameTimeSync", {
-      time: Int64String(this.getGameTime()),
-      cycleSpeed: this._cycleSpeed,
-      unknownBoolean: false,
-    });
-  }
-
-  sendRawToAllOthersWithSpawnedCharacter(
-    client: Client,
-    entityCharacterId: string = "",
-    data: any
-  ): void {
-    for (const a in this._clients) {
-      if (
-        client != this._clients[a] &&
-        this._clients[a].spawnedEntities.includes(
-          this._characters[entityCharacterId]
-        )
-      ) {
-        this.sendRawData(this._clients[a], data);
-      }
-    }
-  }
-  sendDataToAllOthersWithSpawnedCharacter(
-    client: Client,
-    packetName: any,
-    obj: any,
-    channel = 0
-  ): void {
-    for (const a in this._clients) {
-      if (
-        client != this._clients[a] &&
-        this._clients[a].spawnedEntities.includes(
-          this._characters[client.character.characterId]
-        )
-      ) {
-        this.sendData(this._clients[a], packetName, obj, channel);
-      }
-    }
-  }
-  //#region ********************VEHICLE********************
   sendDataToAllWithSpawnedVehicle(
     entityCharacterId: string = "",
     packetName: any,
@@ -1068,7 +1232,7 @@ export class ZoneServer2016 extends ZoneServer {
         break;
     }
     const seatId = vehicle.getNextSeatId();
-    if (!seatId) return; // no available seats in vehicle
+    if (seatId < 0) return; // no available seats in vehicle
     vehicle.seats[seatId] = client.character.characterId;
     this.sendDataToAllWithSpawnedVehicle(
       packet.data.guid,
@@ -1083,7 +1247,7 @@ export class ZoneServer2016 extends ZoneServer {
       }
     );
     if (seatId === "0") {
-      this.takeoverManagedObject(client, vehicle);
+      //this.takeoverManagedObject(client, vehicle); // disabled for now, client won't drop management
       this.sendDataToAllWithSpawnedVehicle(packet.data.guid, "Vehicle.Engine", {
         // starts engine
         guid2: client.vehicle.mountedVehicle,
@@ -1156,7 +1320,7 @@ export class ZoneServer2016 extends ZoneServer {
         );
       }
       if (packet.data.seatId === 0) {
-        this.takeoverManagedObject(client, vehicle);
+        //this.takeoverManagedObject(client, vehicle); // disabled for now, client won't drop management
         this.sendDataToAllWithSpawnedVehicle(
           client.vehicle.mountedVehicle,
           "Vehicle.Engine",
@@ -1196,31 +1360,35 @@ export class ZoneServer2016 extends ZoneServer {
   }
 
   updateEquipment(client: Client, character = client.character) {
-    this.sendData(client, "Equipment.SetCharacterEquipment", {
-      characterData: {
-        characterId: character.characterId,
-      },
-      equipmentSlots: character.equipment.map((slot: characterEquipment) => {
-        return {
-          equipmentSlotId: slot.slotId,
-          equipmentSlotData: {
+    this.sendDataToAllWithSpawnedCharacter(
+      client,
+      "Equipment.SetCharacterEquipment",
+      {
+        characterData: {
+          characterId: character.characterId,
+        },
+        equipmentSlots: character.equipment.map((slot: characterEquipment) => {
+          return {
             equipmentSlotId: slot.slotId,
-            guid: slot.guid || "",
+            equipmentSlotData: {
+              equipmentSlotId: slot.slotId,
+              guid: slot.guid || "",
+              tintAlias: slot.tintAlias || "",
+              decalAlias: slot.tintAlias || "#",
+            },
+          };
+        }),
+        attachmentData: character.equipment.map((slot: characterEquipment) => {
+          return {
+            modelName: slot.modelName,
+            textureAlias: slot.textureAlias || "",
             tintAlias: slot.tintAlias || "",
             decalAlias: slot.tintAlias || "#",
-          },
-        };
-      }),
-      attachmentData: character.equipment.map((slot: characterEquipment) => {
-        return {
-          modelName: slot.modelName,
-          textureAlias: slot.textureAlias || "",
-          tintAlias: slot.tintAlias || "",
-          decalAlias: slot.tintAlias || "#",
-          slotId: slot.slotId,
-        };
-      }),
-    });
+            slotId: slot.slotId,
+          };
+        }),
+      }
+    );
   }
 
   addItem(client: Client, itemGuid: string) {
@@ -1274,7 +1442,10 @@ export class ZoneServer2016 extends ZoneServer {
         itemGuid: item.guid,
       },
       equipmentData = {
-        modelName: def.MODEL_NAME.replace("<gender>", "Male"),
+        modelName: def.MODEL_NAME.replace(
+          "<gender>",
+          client.character.gender == 1 ? "Male" : "Female"
+        ),
         slotId: equipmentSlotId,
         guid: item.guid,
         textureAlias: def.TEXTURE_ALIAS,

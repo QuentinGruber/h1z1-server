@@ -1,8 +1,22 @@
+// ======================================================================
+//
+//   GNU GENERAL PUBLIC LICENSE
+//   Version 3, 29 June 2007
+//   copyright (c) 2020 - 2021 Quentin Gruber
+//   copyright (c) 2021 H1emu community
+//
+//   https://github.com/QuentinGruber/h1z1-server
+//   https://www.npmjs.com/package/h1z1-server
+//
+//   Based on https://github.com/psemu/soe-network
+// ======================================================================
+
 import { _, randomIntFromInterval } from "../../../utils/utils";
 import { parentPort, workerData } from "worker_threads";
-
+import { H1Z1Protocol } from "../../../protocols/h1z1protocol";
 const debug = require("debug")("dynamicWeather");
 
+const protocol = new H1Z1Protocol("ClientProtocol_860");
 let weatherChoosen = false;
 let fogChecked = false;
 let fog = 0; // density
@@ -28,8 +42,8 @@ let c4 = 0;
 let temperature = 80;
 let rainchanceReq = 20;
 
-var seasonstart = (function () {
-  var started = false;
+const seasonstart = (function () {
+  let started = false;
   return function () {
     if (!started) {
       started = true;
@@ -389,7 +403,9 @@ export default function dynamicWeather(
       unknownDword7: 0,
     }),
   };
-  parentPort?.postMessage(rnd_weather);
+
+  const data: Buffer = protocol.pack("SkyChanged", rnd_weather);
+  parentPort?.postMessage(data);
 }
 
 const { startTime, timeMultiplier } = workerData;

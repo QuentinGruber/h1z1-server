@@ -12,7 +12,11 @@
 // ======================================================================
 import PacketTableBuild from "../../packettable";
 import DataSchema from "h1z1-dataschema";
-import { lz4_decompress, eul2quat } from "../../../utils/utils";
+import {
+  lz4_decompress,
+  eul2quat,
+  getPacketTypeBytes,
+} from "../../../utils/utils";
 
 function readPacketType(data: Buffer, packets: any) {
   let opCode = data[0] >>> 0,
@@ -49,11 +53,7 @@ function readPacketType(data: Buffer, packets: any) {
 }
 
 function writePacketType(packetType: number) {
-  const packetTypeBytes = [];
-  while (packetType) {
-    packetTypeBytes.unshift(packetType & 0xff);
-    packetType = packetType >> 8;
-  }
+  const packetTypeBytes = getPacketTypeBytes(packetType);
   const data = Buffer.allocUnsafe(packetTypeBytes.length);
   for (let i = 0; i < packetTypeBytes.length; i++) {
     data.writeUInt8(packetTypeBytes[i], i);
@@ -754,8 +754,8 @@ const lightWeightPcSchema = [
     type: "uint64string",
     defaultValue: "0x0000000000000000",
   },
+  { name: "mountSeatId", type: "uint32", defaultValue: 0 },
   { name: "mountRelatedDword1", type: "uint32", defaultValue: 0 },
-  { name: "mountRelatedDword2", type: "uint32", defaultValue: 0 },
   { name: "unknownByte3", type: "uint8", defaultValue: 0 },
   { name: "unknownDword6", type: "uint32", defaultValue: 0 },
   { name: "unknownDword7", type: "uint32", defaultValue: 0 },
@@ -7342,23 +7342,23 @@ const packets = [
     {
       fields: [
         { name: "guid", type: "uint64string", defaultValue: "0" },
-        { name: "unknown3", type: "float", defaultValue: 0.0 },
+        { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
         {
-          name: "unknown4",
+          name: "unknownArray1",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
-            { name: "unknown1", type: "uint32", defaultValue: 0 },
-            { name: "unknown2", type: "uint8", defaultValue: 0 },
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            { name: "unknownBoolean1", type: "boolean", defaultValue: false },
           ],
         },
         {
-          name: "unknown5",
+          name: "unknownArray2",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
-            { name: "unknown1", type: "uint32", defaultValue: 0 },
-            { name: "unknown2", type: "uint8", defaultValue: 0 },
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            { name: "unknownByte1", type: "uint8", defaultValue: 0 },
           ],
         },
       ],
@@ -7448,7 +7448,31 @@ const packets = [
   ["Vehicle.AccessType", 0x891c, {}],
   ["Vehicle.KickPlayer", 0x891d, {}],
   ["Vehicle.HealthUpdateOwner", 0x891e, {}],
-  ["Vehicle.OwnerPassengerList", 0x891f, {}],
+  [
+    "Vehicle.OwnerPassengerList",
+    0x891f,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        {
+          name: "passengers",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "characterId", type: "uint64string", defaultValue: "0" },
+            {
+              name: "identity",
+              type: "schema",
+              defaultValue: {},
+              fields: identitySchema,
+            },
+            { name: "unknownString1", type: "string", defaultValue: "" },
+            { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+          ],
+        },
+      ],
+    },
+  ],
   ["Vehicle.Kick", 0x8920, {}],
   ["Vehicle.NoAccess", 0x8921, {}],
   [
@@ -7499,7 +7523,7 @@ const packets = [
               {
                 name: "characterResources",
                 type: "array",
-                defaultValue: [{}],
+                defaultValue: [],
                 fields: [
                   { name: "resourceId", type: "uint32", defaultValue: 0 },
                   {

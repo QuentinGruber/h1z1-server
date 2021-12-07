@@ -9,5 +9,7 @@
     "characterName": "LocalPlayer",
     "creationDate": "0x60B89351",
     "isRespawning": false,
-    "gender": 1
+    "gender": 1,
+    "ownerId": "0x0",
+    "hairModel": "SurvivorMale_Hair_ShortMessy.adr"
 }

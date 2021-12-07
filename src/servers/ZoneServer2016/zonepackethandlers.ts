@@ -1,8 +1,21 @@
+// ======================================================================
+//
+//   GNU GENERAL PUBLIC LICENSE
+//   Version 3, 29 June 2007
+//   copyright (c) 2020 - 2021 Quentin Gruber
+//   copyright (c) 2021 H1emu community
+//
+//   https://github.com/QuentinGruber/h1z1-server
+//   https://www.npmjs.com/package/h1z1-server
+//
+//   Based on https://github.com/psemu/soe-network
+// ======================================================================
+
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
 
 import { ZoneServer2016 } from "./zoneserver";
 
-const debug = require("debug")("zonepacketHandlers");
+const debug = require("debug")("ZoneServer");
 
 import { joaat } from "h1emu-core";
 
@@ -10,7 +23,7 @@ let hax = require("./commands/hax").default;
 
 let dev = require("./commands/dev").default;
 
-import admin from "./commands/admin";
+let admin = require("./commands/admin").default;
 
 import { _, Int64String, isPosInRadius } from "../../utils/utils";
 
@@ -277,8 +290,7 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      console.log("Collision.Damage");
-      console.log(packet);
+      debug("Collision.Damage");
     };
     this.lobbyGameDefinitionDefinitionsRequest = function (
       server: ZoneServer2016,
@@ -322,7 +334,7 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      debug("Do nothing");
+      debug("SetLocale");
     };
     this.GetContinentBattleInfo = function (
       server: ZoneServer2016,
@@ -670,10 +682,9 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      const characterId = server._transientIds[packet.data.transientId],
-        vehicle = server._vehicles[characterId];
-
-      if (!characterId) return;
+      const characterId: string = server._transientIds[packet.data.transientId],
+        vehicle = characterId ? server._vehicles[characterId] : undefined;
+      if (!vehicle) return;
       //if (!server._soloMode) {
       server.sendDataToAllOthersWithSpawnedVehicle(
         client,
@@ -684,23 +695,25 @@ export class zonePacketHandlers {
           positionUpdate: packet.data.positionUpdate,
         }
       );
-
       //}
+
       vehicle.positionUpdate = packet.data.positionUpdate;
       if (packet.data.positionUpdate.position) {
-        server._vehicles[characterId].npcData.position = new Float32Array([
+        vehicle.npcData.position = new Float32Array([
           packet.data.positionUpdate.position[0],
           packet.data.positionUpdate.position[1],
           packet.data.positionUpdate.position[2],
           0,
         ]);
-        if (client.vehicle.mountedVehicle === characterId) {
-          client.character.state.position = new Float32Array([
+        vehicle.getPassengerList().forEach((passenger: any) => {
+          server._characters[passenger].state.position = new Float32Array([
             packet.data.positionUpdate.position[0],
             packet.data.positionUpdate.position[1],
             packet.data.positionUpdate.position[2],
             0,
           ]);
+        });
+        if (client.vehicle.mountedVehicle === characterId) {
           if (
             !client.posAtLastRoutine ||
             !isPosInRadius(
@@ -760,18 +773,13 @@ export class zonePacketHandlers {
         }
       }
       if (packet.data.position) {
-        // TODO: modify array element beside re-creating it
         client.character.state.position = new Float32Array([
           packet.data.position[0],
           packet.data.position[1],
           packet.data.position[2],
           0,
         ]);
-        if (packet.data.unknown11_float > 6) {
-          client.character.isRunning = true;
-        } else {
-          client.character.isRunning = false;
-        }
+        client.character.isRunning = packet.data.unknown11_float > 6;
 
         if (
           client.hudTimer != null &&
@@ -802,7 +810,6 @@ export class zonePacketHandlers {
           ]);
       }
       if (packet.data.rotation) {
-        // TODO: modify array element beside re-creating it
         client.character.state.rotation = new Float32Array([
           packet.data.rotation[0],
           packet.data.rotation[1],
@@ -966,6 +973,7 @@ export class zonePacketHandlers {
 
           server.equipItem(client, itemGuid);
           server.deleteEntity(guid, server._objects);
+          delete server.worldObjectManager.spawnedObjects[entityData.spawnerId];
           break;
         case 2: // vehicle
           !client.vehicle.mountedVehicle
@@ -1066,7 +1074,7 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      console.log(`ItemDefinitionRequest ID: ${packet.data.ID}`);
+      debug(`ItemDefinitionRequest ID: ${packet.data.ID}`);
 
       const itemDef = itemDefinitions.find(
         (itemDef: any) => itemDef.ID === packet.data.ID
@@ -1228,7 +1236,9 @@ export class zonePacketHandlers {
   async reloadCommandCache() {
     delete require.cache[require.resolve("./commands/hax")];
     delete require.cache[require.resolve("./commands/dev")];
+    delete require.cache[require.resolve("./commands/admin")];
     hax = require("./commands/hax").default;
     dev = require("./commands/dev").default;
+    admin = require("./commands/admin").default;
   }
 }

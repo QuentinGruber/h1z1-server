@@ -1,4 +1,16 @@
-import fs from "fs";
+// ======================================================================
+//
+//   GNU GENERAL PUBLIC LICENSE
+//   Version 3, 29 June 2007
+//   copyright (c) 2020 - 2021 Quentin Gruber
+//   copyright (c) 2021 H1emu community
+//
+//   https://github.com/QuentinGruber/h1z1-server
+//   https://www.npmjs.com/package/h1z1-server
+//
+//   Based on https://github.com/psemu/soe-network
+// ======================================================================
+
 import { Weather } from "types/zoneserver";
 import { ZoneClient as Client } from "../classes/zoneclient";
 import { ZoneServer } from "../zoneserver";
@@ -7,9 +19,6 @@ import { _, generateRandomGuid } from "../../../utils/utils";
 import { Vehicle } from "../classes/vehicles";
 
 const debug = require("debug")("zonepacketHandlers");
-
-let isSonic = false;
-let isVehicle = false;
 
 const hax: any = {
   list: function (server: ZoneServer, client: Client, args: any[]) {
@@ -51,15 +60,19 @@ const hax: any = {
     const vehicleData = new Vehicle(
       server._worldId,
       characterId,
-      server.getTransientId(client, characterId),
+      server.getTransientId(characterId),
       9371,
       client.character.state.position,
       client.character.state.lookAt
     );
     server.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicleData);
     vehicleData.isManaged = true;
+    vehicleData.isInvulnerable = true;
     server._vehicles[characterId] = {
       ...vehicleData,
+      onDismount: () => {
+        server.dismissVehicle(characterId);
+      },
       onReadyCallback: (clientTriggered: Client) => {
         if (clientTriggered === client) {
           // doing anything with vehicle before client gets fullvehicle packet breaks it
@@ -78,7 +91,7 @@ const hax: any = {
           });
           client.vehicle.mountedVehicle = characterId;
           client.vehicle.mountedVehicleType = "spectate";
-          client.managedObjects.push(server._vehicles[characterId]);
+          client.managedObjects.push(characterId);
           return true;
         }
         return false;
@@ -86,7 +99,7 @@ const hax: any = {
     };
   },
   headlights: function (server: ZoneServer, client: Client, args: any[]) {
-    let headlightType = 0;
+    let headlightType: number;
     switch (client.vehicle.mountedVehicleType) {
       case "offroader":
         headlightType = 273;
@@ -141,6 +154,9 @@ const hax: any = {
           server._vehicles[
             client.vehicle.mountedVehicle
           ].npcData.resources.health = 100000;
+          server._vehicles[
+            client.vehicle.mountedVehicle
+          ].npcData.destroyedState = 0;
           server.updateResource(
             client,
             vehicle.npcData.characterId,
@@ -148,6 +164,10 @@ const hax: any = {
             561,
             1
           );
+          server.sendDataToAll("Command.PlayDialogEffect", {
+            characterId: vehicle.npcData.characterId,
+            effectId: 0,
+          });
           server.sendChatText(client, "Vehicle repaired");
           break;
         default:
@@ -192,7 +212,7 @@ const hax: any = {
     const vehicleData = new Vehicle(
       server._worldId,
       characterId,
-      server.getTransientId(client, characterId),
+      server.getTransientId(characterId),
       driveModel,
       client.character.state.position,
       client.character.state.lookAt
@@ -206,7 +226,7 @@ const hax: any = {
           // doing anything with vehicle before client gets fullvehicle packet breaks it
           server.enterVehicle(client, vehicleData);
           setTimeout(() => {
-            client.character.godMode = wasAlreadyGod ? true : false;
+            client.character.godMode = wasAlreadyGod;
           }, 1000);
           return true;
         }
@@ -248,7 +268,10 @@ const hax: any = {
     let stateId = "";
     switch (state) {
       case "list":
-        // Adding this later
+        server.sendChatText(
+          client,
+          "Availables states : default, hidden, sit, autorun, cuffed, handsup"
+        );
         break;
       case "default":
         stateId = "000000000000000000";
@@ -265,17 +288,11 @@ const hax: any = {
       case "cuffed":
         stateId = "000000000000000010";
         break;
-      case "godmode":
-        stateId = "00000000000A000000";
-        break;
       case "handsup":
         stateId = "0000F0000000000000";
         break;
       case "disfunctional":
         stateId = "FFFFFFFFFFFFFFFFFF";
-        break;
-      case "dead":
-        stateId = "0000000000000000C00";
         break;
       default:
         server.sendChatText(
@@ -287,7 +304,7 @@ const hax: any = {
     server.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
       characterId: client.character.characterId,
       state: stateId,
-      gameTime: server.getServerTime().toString(16),
+      gameTime: server.getSequenceTime(),
     });
   },
   spawnvehicle: function (server: ZoneServer, client: Client, args: any[]) {
@@ -320,7 +337,7 @@ const hax: any = {
     const vehicleData = new Vehicle(
       server._worldId,
       characterId,
-      server.getTransientId(client, characterId),
+      server.getTransientId(characterId),
       driveModel,
       client.character.state.position,
       client.character.state.lookAt
@@ -337,7 +354,7 @@ const hax: any = {
             characterId: client.character.characterId,
           });
           setTimeout(() => {
-            client.character.godMode = wasAlreadyGod ? true : false;
+            client.character.godMode = wasAlreadyGod;
           }, 1000);
           return true;
         }
@@ -346,39 +363,35 @@ const hax: any = {
     };
     server.worldRoutine();
   },
-
+  bandage: function (server: ZoneServer, client: Client, args: any[]) {
+    const character = client.character;
+    if (character.resources.health < 10000) {
+      character.resources.health += 3000;
+      if (character.isBleeding && character.resources.health > 4000) {
+        const noEffect = 0;
+        character.isBleeding = false;
+        server.sendDataToAll("Command.PlayDialogEffect", {
+          characterId: character.characterId,
+          effectId: noEffect,
+        });
+      }
+      server.updateResource(
+        client,
+        character.characterId,
+        character.resources.health,
+        48,
+        1
+      );
+    }
+  },
   parachute: function (server: ZoneServer, client: Client, args: any[]) {
-    const characterId = server.generateGuid();
-    const posY = client.character.state.position[1] + 700;
-    const vehicleData = new Vehicle(
-      server._worldId,
-      characterId,
-      server.getTransientId(client, characterId),
-      9374,
-      new Float32Array([
-        client.character.state.position[0],
-        posY,
-        client.character.state.position[2],
-        client.character.state.position[3],
-      ]),
-      client.character.state.lookAt
-    );
-
-    server.sendDataToAll("PlayerUpdate.AddLightweightVehicle", vehicleData);
-    server.sendData(client, "PlayerUpdate.ManagedObject", {
-      guid: vehicleData.npcData.characterId,
-      characterId: client.character.characterId,
-    });
-    vehicleData.isManaged = true;
-    server._vehicles[characterId] = vehicleData;
-    server.worldRoutine();
-    server.sendDataToAll("Mount.MountResponse", {
-      characterId: client.character.characterId,
-      guid: characterId,
-      characterData: [],
-    });
-    client.vehicle.mountedVehicle = characterId;
-    client.managedObjects.push(server._vehicles[characterId]);
+    const dropPosition = new Float32Array([
+      client.character.state.position[0],
+      client.character.state.position[1] + 700,
+      client.character.state.position[2],
+      client.character.state.position[3],
+    ]);
+    server.dropPlayerInParachute(client, dropPosition);
   },
 
   time: function (server: ZoneServer, client: Client, args: any[]) {
@@ -460,6 +473,13 @@ const hax: any = {
         locationPosition = new Float32Array([0, 50, 0, 1]);
         break;
     }
+    client.managedObjects.forEach((object) => {
+      const vehicle = server._vehicles[object];
+      server.sendData(client, "PlayerUpdate.ManagedObjectResponseControl", {
+        unk: 0,
+        characterId: vehicle.npcData.characterId,
+      });
+    });
     client.character.state.position = locationPosition;
     server.sendData(client, "ClientUpdate.UpdateLocation", {
       position: locationPosition,
@@ -547,6 +567,7 @@ const hax: any = {
     }
     const choosenModelId = Number(args[1]);
     const characterId = server.generateGuid();
+    let isVehicle = false;
     if (
       choosenModelId === 7225 ||
       choosenModelId === 9301 ||
@@ -575,10 +596,13 @@ const hax: any = {
     server._npcs[characterId] = npc; // save npc
   },
   sonic: function (server: ZoneServer, client: Client, args: any[]) {
+    let character = client.character;
+    character.isSonic = !character.isSonic;
+    server.setGodMode(client, character.isSonic);
     server.sendData(client, "ClientGameSettings", {
       interactGlowAndDist: 3,
       unknownBoolean1: false,
-      timescale: isSonic ? 1.0 : 3.0,
+      timescale: character.isSonic ? 3.0 : 1.0,
       Unknown4: 0,
       Unknown: 0,
       unknownFloat1: 1,
@@ -586,13 +610,12 @@ const hax: any = {
       velDamageMulti: 1.0,
     });
     server.sendData(client, "Command.RunSpeed", {
-      runSpeed: isSonic ? 0 : -100,
+      runSpeed: character.isSonic ? -100 : 0,
     });
-    const messageToMrHedgehog = isSonic
-      ? "Goodbye MR.Hedgehog"
-      : "Welcome MR.Hedgehog";
+    const messageToMrHedgehog = character.isSonic
+      ? "Welcome MR.Hedgehog"
+      : "Goodbye MR.Hedgehog";
     server.sendChatText(client, messageToMrHedgehog, true);
-    isSonic = !isSonic;
   },
   observer: function (server: ZoneServer, client: Client, args: any[]) {
     server.sendChatText(
@@ -630,14 +653,19 @@ const hax: any = {
     client: Client,
     args: any[]
   ) {
-    await server._dynamicWeatherWorker.terminate();
-    server._dynamicWeatherWorker = null;
-    // TODO fix this for mongo
+    if (server._dynamicWeatherWorker) {
+      await server._dynamicWeatherWorker.terminate();
+      server._dynamicWeatherWorker = null;
+    }
     if (server._soloMode) {
-      server.changeWeather(
-        client,
-        server._weatherTemplates[server._defaultWeatherTemplate]
-      );
+      server.changeWeatherWithTemplate(client, server._defaultWeatherTemplate);
+    } else {
+      const weatherTemplate = await server._db
+        ?.collection("weathers")
+        .findOne({ templateName: server._defaultWeatherTemplate });
+      if (weatherTemplate) {
+        server.changeWeather(client, weatherTemplate as any);
+      }
     }
     server.sendChatText(client, "Dynamic weather removed !");
   },
@@ -645,35 +673,14 @@ const hax: any = {
     if (server._dynamicWeatherWorker) {
       hax["removedynamicweather"](server, client, args);
     }
-    const weatherTemplate = server._soloMode
-      ? server._weatherTemplates[args[1]]
-      : _.find(server._weatherTemplates, (template: { templateName: any }) => {
-          return template.templateName === args[1];
-        });
-    if (!args[1]) {
+    const choosenTemplate = args[1];
+    if (!choosenTemplate) {
       server.sendChatText(
         client,
         "Please define a weather template to use (data/sampleData/weather.json)"
       );
-    } else if (weatherTemplate) {
-      server.changeWeather(client, weatherTemplate);
-      server.sendChatText(client, `Use "${args[1]}" as a weather template`);
     } else {
-      if (args[1] === "list") {
-        server.sendChatText(client, `Weather templates :`);
-        _.forEach(
-          server._weatherTemplates,
-          function (element: { templateName: any }) {
-            server.sendChatText(client, `- ${element.templateName}`);
-          }
-        );
-      } else {
-        server.sendChatText(client, `"${args[1]}" isn't a weather template`);
-        server.sendChatText(
-          client,
-          `Use "/hax weather list" to know all available templates`
-        );
-      }
+      server.changeWeatherWithTemplate(client, choosenTemplate);
     }
   },
   weapon: function (server: ZoneServer, client: Client, args: any[]) {
@@ -927,33 +934,19 @@ const hax: any = {
         "Please define a name for your weather template '/hax saveCurrentWeather {name}'"
       );
     } else if (
-      server._weatherTemplates[args[1]] ||
-      _.find(server._weatherTemplates, (template: { templateName: any }) => {
-        return template.templateName === args[1];
-      })
+      await this._db
+        ?.collection("weathers")
+        .findOne({ templateName: this._defaultWeatherTemplate })
     ) {
       server.sendChatText(client, `"${args[1]}" already exist !`);
     } else {
       const { _weather: currentWeather } = server;
       if (currentWeather) {
         currentWeather.templateName = args[1];
-        if (server._soloMode) {
-          server._weatherTemplates[currentWeather.templateName as string] =
-            currentWeather;
-          fs.writeFileSync(
-            `${__dirname}/../../../../data/sampleData/weather.json`,
-            JSON.stringify(server._weatherTemplates)
-          );
-          delete require.cache[
-            require.resolve("../../../../data/2015/sampleData/weather.json")
-          ];
-          server._weatherTemplates = require("../../../../data/2015/sampleData/weather.json");
-        } else {
+        if (!server._soloMode) {
           await server._db?.collection("weathers").insertOne(currentWeather);
-          server._weatherTemplates = await (server._db as any)
-            .collection("weathers")
-            .find()
-            .toArray();
+        } else {
+          console.error("You can't do that in solomode anymore... sorry");
         }
         server.sendChatText(client, `template "${args[1]}" saved !`);
       } else {
@@ -1071,11 +1064,7 @@ const hax: any = {
     server.sendChatText(client, "Back to normal size");
   },
   godmode: function (server: ZoneServer, client: Client, args: any[]) {
-    client.character.godMode = !client.character.godMode;
-    server.sendChatText(
-      client,
-      `GODMODE: ${client.character.godMode ? "ON" : "OFF"}`
-    );
+    server.setGodMode(client, !client.character.godMode);
   },
 };
 
