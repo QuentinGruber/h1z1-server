@@ -62,11 +62,14 @@ export class H1emuServer extends EventEmitter {
     const { data: dataUint8, remote } = message;
     const data = Buffer.from(dataUint8);
     const client = this.clientHandler(remote, dataUint8[0]);
-    client
-      ? this.messageHandler(message.type, data, client)
-      : debug(
-          `Connection rejected from remote ${remote.address}:${remote.port}`
-        );
+    if(client){
+      this.messageHandler(message.type, data, client)
+    }
+    else{
+      debug(
+        `Connection rejected from remote ${remote.address}:${remote.port}`
+      );
+    }    
   }
 
   start(): void {
