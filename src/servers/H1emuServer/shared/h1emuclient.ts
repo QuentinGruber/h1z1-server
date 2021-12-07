@@ -14,14 +14,14 @@
 import { RemoteInfo } from "dgram";
 
 export class H1emuClient {
-  sessionId: number;
+  sessionId: number = 0;
   address: string;
   port: number;
   session: boolean = false;
   clientId: string;
+  lastPing: number = 0;
 
   constructor(remote: RemoteInfo) {
-    this.sessionId = 0;
     this.address = remote.address;
     this.port = remote.port;
     this.clientId = `${remote.address}:${remote.port}`;

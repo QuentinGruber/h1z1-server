@@ -98,6 +98,7 @@ export class ZoneServer extends EventEmitter {
     address: process.env.LOGINSERVER_IP,
     port: 1110,
   };
+  _hasBeenAuthenticated: boolean = false;
   _clientProtocol: string = "ClientProtocol_860";
   _allowedCommands: string[] = [];
   _maxAllowedPing: number = 300;
@@ -106,7 +107,7 @@ export class ZoneServer extends EventEmitter {
     gatewayKey: Uint8Array,
     mongoAddress = "",
     worldId = 0,
-    internalServerPort = 0
+    internalServerPort = 1118
   ) {
     super();
     this._gatewayServer = new GatewayServer(

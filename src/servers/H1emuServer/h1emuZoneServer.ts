@@ -76,9 +76,8 @@ export class H1emuZoneServer extends H1emuServer {
           break;
       }
     };
-    this.ping = (clientId: string) => {
-      const client = this._clients[clientId];
-      if (this._clients[clientId] && client.session) {
+    this.ping = (client: H1emuClient) => {
+      if (client?.session) {
         super.ping(client);
         if (Date.now() > client.lastPing + this._pingTimeout) {
           this.emit("disconnect", null, client, 1);
@@ -118,8 +117,9 @@ export class H1emuZoneServer extends H1emuServer {
     super.start();
     this.connect();
     this._pingTimer = setTimeout(() => {
+      
       this.ping(
-        `${this._loginServerInfo.address}:${this._loginServerInfo.port}`
+        this._loginConnection as H1emuClient
       );
     }, this._pingTime);
   }
