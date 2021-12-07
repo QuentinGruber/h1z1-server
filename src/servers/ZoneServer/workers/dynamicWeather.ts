@@ -16,8 +16,7 @@ import { parentPort, workerData } from "worker_threads";
 import { H1Z1Protocol } from "../../../protocols/h1z1protocol";
 const debug = require("debug")("dynamicWeather");
 
-
-const protocol = new H1Z1Protocol("ClientProtocol_860")
+const protocol = new H1Z1Protocol("ClientProtocol_860");
 let weatherChoosen = false;
 let fogChecked = false;
 let fog = 0; // density
@@ -405,7 +404,7 @@ export default function dynamicWeather(
     }),
   };
 
-  const data:Buffer = protocol.pack("SkyChanged",rnd_weather);
+  const data: Buffer = protocol.pack("SkyChanged", rnd_weather);
   parentPort?.postMessage(data);
 }
 

@@ -154,7 +154,7 @@ const hax: any = {
           server._vehicles[
             client.vehicle.mountedVehicle
           ].npcData.resources.health = 100000;
-		  server._vehicles[
+          server._vehicles[
             client.vehicle.mountedVehicle
           ].npcData.destroyedState = 0;
           server.updateResource(
@@ -164,7 +164,7 @@ const hax: any = {
             561,
             1
           );
-		  server.sendDataToAll("Command.PlayDialogEffect", {
+          server.sendDataToAll("Command.PlayDialogEffect", {
             characterId: vehicle.npcData.characterId,
             effectId: 0,
           });
@@ -268,9 +268,10 @@ const hax: any = {
     let stateId = "";
     switch (state) {
       case "list":
-          server.sendChatText(client, 
-             "Availables states : default, hidden, sit, autorun, cuffed, handsup"
-            );
+        server.sendChatText(
+          client,
+          "Availables states : default, hidden, sit, autorun, cuffed, handsup"
+        );
         break;
       case "default":
         stateId = "000000000000000000";
@@ -362,21 +363,27 @@ const hax: any = {
     };
     server.worldRoutine();
   },
-   bandage: function (server: ZoneServer, client: Client, args: any[]) {
-     const character = client.character;
-        if(character.resources.health < 10000){
-        character.resources.health += 3000;
-           if(character.isBleeding && character.resources.health > 4000 ){ 
-                  const noEffect = 0;
-                  character.isBleeding = false;
-                  server.sendDataToAll("Command.PlayDialogEffect", {
-                    characterId: character.characterId, effectId: noEffect,
-                  });
-                }
-            server.updateResource(client, character.characterId, 
-          character.resources.health, 48, 1);
-        }
-    },
+  bandage: function (server: ZoneServer, client: Client, args: any[]) {
+    const character = client.character;
+    if (character.resources.health < 10000) {
+      character.resources.health += 3000;
+      if (character.isBleeding && character.resources.health > 4000) {
+        const noEffect = 0;
+        character.isBleeding = false;
+        server.sendDataToAll("Command.PlayDialogEffect", {
+          characterId: character.characterId,
+          effectId: noEffect,
+        });
+      }
+      server.updateResource(
+        client,
+        character.characterId,
+        character.resources.health,
+        48,
+        1
+      );
+    }
+  },
   parachute: function (server: ZoneServer, client: Client, args: any[]) {
     const dropPosition = new Float32Array([
       client.character.state.position[0],
@@ -646,24 +653,19 @@ const hax: any = {
     client: Client,
     args: any[]
   ) {
-    if(server._dynamicWeatherWorker){
+    if (server._dynamicWeatherWorker) {
       await server._dynamicWeatherWorker.terminate();
       server._dynamicWeatherWorker = null;
     }
     if (server._soloMode) {
-      server.changeWeatherWithTemplate(
-        client,
-        server._defaultWeatherTemplate
-      );
-    }
-    else{
-      const weatherTemplate = await server._db?.collection("weathers").findOne({templateName:server._defaultWeatherTemplate})
-      if(weatherTemplate){
-        server.changeWeather(
-          client,
-          weatherTemplate as any
-        ); 
-    }
+      server.changeWeatherWithTemplate(client, server._defaultWeatherTemplate);
+    } else {
+      const weatherTemplate = await server._db
+        ?.collection("weathers")
+        .findOne({ templateName: server._defaultWeatherTemplate });
+      if (weatherTemplate) {
+        server.changeWeather(client, weatherTemplate as any);
+      }
     }
     server.sendChatText(client, "Dynamic weather removed !");
   },
@@ -677,8 +679,8 @@ const hax: any = {
         client,
         "Please define a weather template to use (data/sampleData/weather.json)"
       );
-    }else {
-      server.changeWeatherWithTemplate(client,choosenTemplate)
+    } else {
+      server.changeWeatherWithTemplate(client, choosenTemplate);
     }
   },
   weapon: function (server: ZoneServer, client: Client, args: any[]) {
@@ -932,7 +934,9 @@ const hax: any = {
         "Please define a name for your weather template '/hax saveCurrentWeather {name}'"
       );
     } else if (
-      await this._db?.collection("weathers").findOne({ templateName: this._defaultWeatherTemplate })
+      await this._db
+        ?.collection("weathers")
+        .findOne({ templateName: this._defaultWeatherTemplate })
     ) {
       server.sendChatText(client, `"${args[1]}" already exist !`);
     } else {
@@ -942,7 +946,7 @@ const hax: any = {
         if (!server._soloMode) {
           await server._db?.collection("weathers").insertOne(currentWeather);
         } else {
-          console.error("You can't do that in solomode anymore... sorry")
+          console.error("You can't do that in solomode anymore... sorry");
         }
         server.sendChatText(client, `template "${args[1]}" saved !`);
       } else {

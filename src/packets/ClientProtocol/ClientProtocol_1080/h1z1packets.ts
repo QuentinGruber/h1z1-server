@@ -12,7 +12,11 @@
 // ======================================================================
 import PacketTableBuild from "../../packettable";
 import DataSchema from "h1z1-dataschema";
-import { lz4_decompress, eul2quat, getPacketTypeBytes } from "../../../utils/utils";
+import {
+  lz4_decompress,
+  eul2quat,
+  getPacketTypeBytes,
+} from "../../../utils/utils";
 
 function readPacketType(data: Buffer, packets: any) {
   let opCode = data[0] >>> 0,
@@ -7445,29 +7449,29 @@ const packets = [
   ["Vehicle.KickPlayer", 0x891d, {}],
   ["Vehicle.HealthUpdateOwner", 0x891e, {}],
   [
-    "Vehicle.OwnerPassengerList", 
-    0x891f, 
+    "Vehicle.OwnerPassengerList",
+    0x891f,
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { 
-          name: "passengers", 
-          type: "array", 
-          defaultValue: [], 
+        {
+          name: "passengers",
+          type: "array",
+          defaultValue: [],
           fields: [
             { name: "characterId", type: "uint64string", defaultValue: "0" },
             {
               name: "identity",
               type: "schema",
               defaultValue: {},
-              fields: identitySchema
+              fields: identitySchema,
             },
             { name: "unknownString1", type: "string", defaultValue: "" },
             { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-          ] 
+          ],
         },
-      ]
-    }
+      ],
+    },
   ],
   ["Vehicle.Kick", 0x8920, {}],
   ["Vehicle.NoAccess", 0x8921, {}],

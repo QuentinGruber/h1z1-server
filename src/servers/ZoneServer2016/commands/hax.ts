@@ -14,7 +14,7 @@
 import fs from "fs";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { Vehicle2016 as Vehicle, Vehicle2016 } from "../classes/vehicle";
-import { Character2016 as Character } from "../classes/character"
+import { Character2016 as Character } from "../classes/character";
 import { ZoneServer2016 } from "../zoneserver";
 import { _ } from "../../../utils/utils";
 
@@ -27,9 +27,9 @@ function getHeadActor(modelId: number) {
     case 9474:
       return "SurvivorFemale_Head_01.adr";
     case 9510:
-      return `ZombieFemale_Head_0${Math.floor(Math.random()*3)+1}.adr`;
+      return `ZombieFemale_Head_0${Math.floor(Math.random() * 3) + 1}.adr`;
     case 9634:
-      return `ZombieMale_Head_0${Math.floor(Math.random()*4)+1}.adr`;
+      return `ZombieMale_Head_0${Math.floor(Math.random() * 4) + 1}.adr`;
     default:
       return "";
   }
@@ -383,8 +383,8 @@ const hax: any = {
     }
     const choosenModelId = Number(args[1]);
     const characterId = server.generateGuid();
-    const headactor = getHeadActor(choosenModelId)
-    console.log(headactor)
+    const headactor = getHeadActor(choosenModelId);
+    console.log(headactor);
     const npc = {
       characterId: characterId,
       guid: guid,
@@ -447,7 +447,7 @@ const hax: any = {
       return;
     }
 
-    let pc = new Character(characterId, server.getTransientId(characterId))
+    let pc = new Character(characterId, server.getTransientId(characterId));
     pc = {
       ...pc,
       characterId: characterId,

@@ -20,7 +20,7 @@ import {
 import { generateRandomGuid } from "../../../utils/utils";
 import { ZoneClient } from "./zoneclient";
 
-function getVehicleId(ModelId: number):number {
+function getVehicleId(ModelId: number): number {
   switch (ModelId) {
     case 7225:
       return 1;
@@ -37,7 +37,7 @@ function getVehicleId(ModelId: number):number {
   }
 }
 
-function getVehicleType(ModelId: number):string {
+function getVehicleType(ModelId: number): string {
   switch (ModelId) {
     case 7225:
       return "offroader";
@@ -56,7 +56,7 @@ function getVehicleType(ModelId: number):string {
 
 export class Vehicle {
   worldId: number;
-  vehicleType:string;
+  vehicleType: string;
   isManaged: boolean = false;
   manager?: any;
   destroyedEffect: number = 0;

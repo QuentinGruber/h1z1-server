@@ -89,26 +89,20 @@ export class Character {
   }
 
   startRessourceUpdater(client: ZoneClient, server: ZoneServer) {
-   this.resourcesUpdater = setTimeout(() => {
-    // prototype resource manager
-     const { isRunning } = this;
-      if (isRunning) 
-      {
-          this.resources.stamina -= 20;
+    this.resourcesUpdater = setTimeout(() => {
+      // prototype resource manager
+      const { isRunning } = this;
+      if (isRunning) {
+        this.resources.stamina -= 20;
         if (this.resources.stamina < 120) {
           this.isExhausted = true;
+        } else {
+          this.isExhausted = false;
         }
-        else 
-        {
-          this.isExhausted = false; 
-        }
-      }
-      else if(!this.isBleeding || !this.isMoving)
-      {
+      } else if (!this.isBleeding || !this.isMoving) {
         this.resources.stamina += 30;
       }
-      
-      
+
       // if we had a packets we could modify sprint stat to 0
       // or play exhausted sounds etc
       this.resources.food -= 10;
@@ -135,14 +129,20 @@ export class Character {
       } else if (this.resources.health < 0) {
         this.resources.health = 0;
       }
-       // Prototype bleeding
+      // Prototype bleeding
       if (this.isBleeding && this.isAlive) {
         if (!this.isBandaged) {
           server.playerDamage(client, 100);
         }
         if (this.isBandaged) {
           this.resources.health += 100;
-          server.updateResource(client, this.characterId, this.resources.health, 48, 1);
+          server.updateResource(
+            client,
+            this.characterId,
+            this.resources.health,
+            48,
+            1
+          );
         }
         if (this.resources.health >= 2000) {
           this.isBleeding = false;
@@ -155,12 +155,22 @@ export class Character {
           stringId: 1,
           effectId: 5042,
         });
-        if (this.resources.health < 10000 && !this.isBleeding && this.isBandaged) {
+        if (
+          this.resources.health < 10000 &&
+          !this.isBleeding &&
+          this.isBandaged
+        ) {
           this.resources.health += 400;
-          server.updateResource(client, this.characterId, this.resources.health, 48, 1);
+          server.updateResource(
+            client,
+            this.characterId,
+            this.resources.health,
+            48,
+            1
+          );
         }
         if (this.resources.health >= 10000) {
-          this.isBandaged = false; 
+          this.isBandaged = false;
         }
       }
       if (this.isBleeding && !this.isAlive) {

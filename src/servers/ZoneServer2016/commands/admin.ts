@@ -37,27 +37,26 @@ const admin: any = {
   // lootrespawntime, npcrespawntime, vehiclerespawntime
   respawnloot: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.worldObjectManager.createLoot(server);
-    server.sendChatText(
-      client,
-      `Respawned loot`
-    );
+    server.sendChatText(client, `Respawned loot`);
   },
   respawnnpcs: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.worldObjectManager.createNpcs(server);
-    server.sendChatText(
-      client,
-      `Respawned npcs`
-    );
+    server.sendChatText(client, `Respawned npcs`);
   },
-  respawnvehicles: function (server: ZoneServer2016, client: Client, args: any[]) {
+  respawnvehicles: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: any[]
+  ) {
     server.worldObjectManager.createVehicles(server);
-    server.sendChatText(
-      client,
-      `Respawned vehicles`
-    );
+    server.sendChatText(client, `Respawned vehicles`);
   },
-  lootrespawntimer: function (server: ZoneServer2016, client: Client, args: any[]) {
-    if(!args[1]) {
+  lootrespawntimer: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: any[]
+  ) {
+    if (!args[1]) {
       server.sendChatText(
         client,
         `Correct usage: /admin lootrespawntimer <time>`
@@ -65,13 +64,14 @@ const admin: any = {
       return;
     }
     server.worldObjectManager.lootRespawnTimer = Number(args[1]);
-    server.sendChatText(
-      client,
-      `Loot respawn timer set to ${Number(args[1])}`
-    );
+    server.sendChatText(client, `Loot respawn timer set to ${Number(args[1])}`);
   },
-  npcrespawntimer: function (server: ZoneServer2016, client: Client, args: any[]) {
-    if(!args[1]) {
+  npcrespawntimer: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: any[]
+  ) {
+    if (!args[1]) {
       server.sendChatText(
         client,
         `Correct usage: /admin npcrespawntimer <time>`
@@ -79,13 +79,14 @@ const admin: any = {
       return;
     }
     server.worldObjectManager.npcRespawnTimer = Number(args[1]);
-    server.sendChatText(
-      client,
-      `Npc respawn timer set to ${Number(args[1])}`
-    );
+    server.sendChatText(client, `Npc respawn timer set to ${Number(args[1])}`);
   },
-  vehiclerespawntimer: function (server: ZoneServer2016, client: Client, args: any[]) {
-    if(!args[1]) {
+  vehiclerespawntimer: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: any[]
+  ) {
+    if (!args[1]) {
       server.sendChatText(
         client,
         `Correct usage: /admin vehiclerespawntimer <time>`
