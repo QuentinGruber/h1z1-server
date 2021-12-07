@@ -1977,14 +1977,6 @@ export class zonePacketHandlers {
             server.sendData(client, "PlayerUpdate.LightweightToFullPc", {
               transientId: entityData.transientId,
             });
-            server.sendData(client, "PlayerUpdate.UpdatePosition", {
-              transientId: entityData.transientId,
-              positionUpdate: {
-                sequenceTime: 1,
-                unknown3_int8: 0,
-                stance: 81,
-              },
-            });
             server.sendData(client, "Equipment.SetCharacterEquipment", {
               profileId: 3,
               characterId: entityData.characterId,
