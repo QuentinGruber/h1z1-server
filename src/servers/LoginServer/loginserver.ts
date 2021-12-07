@@ -154,15 +154,12 @@ export class LoginServer extends EventEmitter {
             console.error(err);
           } else {
             try {
-              const connectionEstablished = this._zoneConnections[
+              const connectionEstablished:boolean = !!this._zoneConnections[
                 client.clientId
               ]
-                ? 1
-                : 0;
               if (connectionEstablished || packet.name === "SessionRequest") {
                 switch (packet.name) {
                   case "SessionRequest": {
-                    if (!connectionEstablished) {
                       const { serverId } = packet.data;
                       debug(
                         `Received session request from ${client.address}:${client.port}`
@@ -183,7 +180,6 @@ export class LoginServer extends EventEmitter {
                       this._h1emuLoginServer.sendData(client, "SessionReply", {
                         status: status,
                       });
-                    }
                     break;
                   }
                   case "UpdateZonePopulation": {

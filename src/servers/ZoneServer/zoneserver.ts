@@ -98,6 +98,7 @@ export class ZoneServer extends EventEmitter {
     address: process.env.LOGINSERVER_IP,
     port: 1110,
   };
+  _hasBeenAuthenticated: boolean = false;
   _clientProtocol: string = "ClientProtocol_860";
   _allowedCommands: string[] = [];
   _maxAllowedPing: number = 300;

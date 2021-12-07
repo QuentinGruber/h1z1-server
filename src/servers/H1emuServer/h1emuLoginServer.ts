@@ -46,6 +46,10 @@ export class H1emuLoginServer extends H1emuServer {
           break;
       }
     };
+    this.ping = (client: H1emuClient) => {
+      this.updateClientLastPing(client.clientId);
+      super.ping(client);
+    };
     this._pingTimer = setTimeout(() => {
       for (const key in this._clients) {
         const client = this._clients[key];
