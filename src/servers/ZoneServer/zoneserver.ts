@@ -107,7 +107,7 @@ export class ZoneServer extends EventEmitter {
     gatewayKey: Uint8Array,
     mongoAddress = "",
     worldId = 0,
-    internalServerPort = 0
+    internalServerPort = 1118
   ) {
     super();
     this._gatewayServer = new GatewayServer(
