@@ -6239,7 +6239,7 @@ var packets = [
         { name: "position", type: "floatvector4", defaultValue: [0, 50, 0, 1] },
         { name: "rotation", type: "floatvector4", defaultValue: [0, 0, 0, 1] },
         { name: "unknownBool1", type: "boolean", defaultValue: true },
-        { name: "unknownBool2", type: "boolean", defaultValue: true },
+        { name: "movementVersion", type: "uint8", defaultValue: 0 },
       ],
     },
   ],
