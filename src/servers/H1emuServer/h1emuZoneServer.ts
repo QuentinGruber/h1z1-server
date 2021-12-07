@@ -117,8 +117,9 @@ export class H1emuZoneServer extends H1emuServer {
     super.start();
     this.connect();
     this._pingTimer = setTimeout(() => {
+      
       this.ping(
-        `${this._loginServerInfo.address}:${this._loginServerInfo.port}`
+        this._loginConnection as H1emuClient
       );
     }, this._pingTime);
   }
