@@ -50,7 +50,7 @@ export class SOEOutputStream extends EventEmitter {
       if (this._enableCaching) {
         this._cache[this._sequence] = {
           data: data,
-          fragment: false
+          fragment: false,
         };
       }
       this.emit("data", null, data, this._sequence, false);
@@ -64,7 +64,7 @@ export class SOEOutputStream extends EventEmitter {
         if (this._enableCaching) {
           this._cache[this._sequence] = {
             data: fragmentData,
-            fragment: true
+            fragment: true,
           };
         }
         this.emit("data", null, fragmentData, this._sequence, true);

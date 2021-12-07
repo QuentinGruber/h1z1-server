@@ -43,7 +43,7 @@ export abstract class H1emuServer extends EventEmitter {
 
   clientHandler(remote: RemoteInfo, opcode: number): H1emuClient | void {
     let client: H1emuClient;
-    const clientId:string = `${remote.address}:${remote.port}`;
+    const clientId: string = `${remote.address}:${remote.port}`;
     if (!this._clients[clientId]) {
       // if client doesn't exist yet, only accept sessionrequest or sessionreply
       if (opcode !== 0x01 && opcode !== 0x02) return;
@@ -63,14 +63,11 @@ export abstract class H1emuServer extends EventEmitter {
     const { data: dataUint8, remote } = message;
     const data = Buffer.from(dataUint8);
     const client = this.clientHandler(remote, dataUint8[0]);
-    if(client){
-      this.messageHandler(message.type, data, client)
+    if (client) {
+      this.messageHandler(message.type, data, client);
+    } else {
+      debug(`Connection rejected from remote ${remote.address}:${remote.port}`);
     }
-    else{
-      debug(
-        `Connection rejected from remote ${remote.address}:${remote.port}`
-      );
-    }    
   }
 
   start(): void {
@@ -90,22 +87,25 @@ export abstract class H1emuServer extends EventEmitter {
     // blocks zone from sending packet without open session
     if (!client || (!client.session && packetName !== "SessionRequest")) return;
     const data = this._protocol.pack(packetName, obj);
-    this._connection.postMessage({
-      type: "sendPacket",
-      data: {
-        packetData: data,
-        port: client.port,
-        address: client.address,
+    this._connection.postMessage(
+      {
+        type: "sendPacket",
+        data: {
+          packetData: data,
+          port: client.port,
+          address: client.address,
+        },
       },
-    },[data.buffer]);
+      [data.buffer]
+    );
   }
 
   ping(client: H1emuClient) {
     this.sendData(client, "Ping", {});
   }
-  
-  updateClientLastPing(clientId:string) {
-      this._clients[clientId].lastPing = Date.now();
+
+  updateClientLastPing(clientId: string) {
+    this._clients[clientId].lastPing = Date.now();
   }
 }
 

@@ -42,7 +42,7 @@ export class GatewayProtocol {
           try {
             result = DataSchema.parse(packet.schema, data, 1).result;
           } catch (e) {
-            console.error(`${packet.name} : ${e}`)
+            console.error(`${packet.name} : ${e}`);
           }
           return {
             type: packet.type,
@@ -92,7 +92,7 @@ export class GatewayProtocol {
               undefined
             );
           } catch (error) {
-            console.error(`${packetName} : ${error}`)
+            console.error(`${packetName} : ${error}`);
           }
           if (payload) {
             data = new (Buffer as any).alloc(1 + payload.length);
