@@ -305,6 +305,9 @@ export class SOEServer extends EventEmitter {
         let unknow_client;
         // if doesn't know the client
         if (!this._clients[clientId]) {
+          if(data[1] !== 1){
+            return;
+          }
           unknow_client = true;
           client = this._clients[clientId] = new SOEClient(
             message.remote,
