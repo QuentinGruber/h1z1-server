@@ -425,6 +425,7 @@ export class LoginServer extends EventEmitter {
   async ServerListRequest(client: Client) {
     let servers;
     if (!this._soloMode) {
+      await this.updateServersStatus();
       servers = await this._db.collection("servers").find().toArray();
       const userWhiteList = await this._db
         .collection("servers-whitelist")
@@ -783,6 +784,7 @@ export class LoginServer extends EventEmitter {
 
   async updateServerList(client: Client): Promise<void> {
     if (!this._soloMode) {
+      await this.updateServersStatus();
       // useless if in solomode ( never get called either)
       let servers: Array<GameServer> = await this._db
         .collection("servers")
