@@ -414,7 +414,7 @@ export class LoginServer extends EventEmitter {
 
     for (let index = 0; index < servers.length; index++) {
       const server:GameServer = servers[index];
-      if(server.allowedAccess && !this._zoneConnections[server.serverId]){
+      if(server.allowedAccess && !Object.values(this._zoneConnections).includes(server.serverId)){
         await this._db.collection("servers").updateOne(
           { "serverId" : server.serverId },
           { $set: { "allowedAccess" : false } })
