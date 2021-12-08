@@ -101,9 +101,9 @@ export class Vehicle2016 extends Vehicle {
 
   getPassengerList(): string[] {
     let passengers: string[] = [];
-    for(const seatId in this.seats) {
-      if(this.seats[seatId]) {
-        passengers.push(this.seats[seatId])
+    for (const seatId in this.seats) {
+      if (this.seats[seatId]) {
+        passengers.push(this.seats[seatId]);
       }
     }
     return passengers;

@@ -143,13 +143,12 @@ const dev: any = {
     let state;
     const characterObj = server._characters[client.character.characterId];
     client.character.isHidden = !client.character.isHidden;
-    if(client.character.isHidden){
+    if (client.character.isHidden) {
       state = "0000000000A000000";
       server.sendDataToAllOthers(client, "PlayerUpdate.RemovePlayer", {
         characterId: client.character.characterId,
       });
-    }
-    else{
+    } else {
       state = "000000000000000000";
       server.sendDataToAllOthers(client, "PlayerUpdate.AddLightweightPc", {
         ...characterObj,

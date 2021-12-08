@@ -278,9 +278,7 @@ export const initMongo = async function (
   debug("h1server database was missing... created one with samples.");
 };
 
-export const getPacketTypeBytes = function (
-  packetType: number,
-):number[] {
+export const getPacketTypeBytes = function (packetType: number): number[] {
   const packetTypeBytes = [];
   while (packetType) {
     packetTypeBytes.unshift(packetType & 0xff);

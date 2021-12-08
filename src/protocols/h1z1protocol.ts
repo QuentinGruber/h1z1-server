@@ -339,7 +339,7 @@ export class H1Z1Protocol {
     let packetType: number = H1Z1Packets.PacketTypes[packetName],
       packet = H1Z1Packets.Packets[packetType],
       packetData,
-      data
+      data;
     if (packet) {
       const packetTypeBytes = getPacketTypeBytes(packetType);
       if (packet.schema) {
@@ -352,7 +352,7 @@ export class H1Z1Protocol {
             referenceData
           );
         } catch (error) {
-          console.error(`${packetName} : ${error}`)
+          console.error(`${packetName} : ${error}`);
         }
         if (packetData) {
           data = new (Buffer as any).alloc(
@@ -375,9 +375,9 @@ export class H1Z1Protocol {
     return data;
   }
 
-  resolveOpcode(opCode:number,data: Buffer){
+  resolveOpcode(opCode: number, data: Buffer) {
     const H1Z1Packets = this.H1Z1Packets;
-    let packet,offset;
+    let packet, offset;
     if (H1Z1Packets.Packets[opCode]) {
       packet = H1Z1Packets.Packets[opCode];
       offset = 1;
@@ -392,8 +392,7 @@ export class H1Z1Protocol {
           packet = H1Z1Packets.Packets[opCode];
           offset = 3;
         } else if (data.length > 3) {
-          opCode =
-            (data[0] << 24) + (data[1] << 16) + (data[2] << 8) + data[3];
+          opCode = (data[0] << 24) + (data[1] << 16) + (data[2] << 8) + data[3];
           if (H1Z1Packets.Packets[opCode]) {
             packet = H1Z1Packets.Packets[opCode];
             offset = 4;
@@ -401,7 +400,7 @@ export class H1Z1Protocol {
         }
       }
     }
-    return [packet,offset]
+    return [packet, offset];
   }
 
   parse(data: Buffer, flag: number, fromClient: boolean, referenceData: any) {
@@ -412,9 +411,9 @@ export class H1Z1Protocol {
       result;
     switch (flag) {
       case 1: // don't know the purpose of that flag, is used for some logs and exec command
-      case 0:{
+      case 0: {
         {
-          [packet,offset] = this.resolveOpcode(opCode,data);
+          [packet, offset] = this.resolveOpcode(opCode, data);
           break;
         }
       }
@@ -430,32 +429,33 @@ export class H1Z1Protocol {
         break;
       }
       case 3: {
-          switch (opCode) {
-            case this.PlayerUpdateManagedPositionOpcode:{
-              packet = H1Z1Packets.Packets[this.PlayerUpdateManagedPositionOpcode];
-              offset = 1;
-              break;
-            }
-            case this.VehicleCollisionOpcode:{
-              packet = H1Z1Packets.Packets[this.VehicleCollisionOpcode];
-              offset = 1;
-              break;
-            }
-            default:{
-              console.error(`unknown packet use flag 3 : ${opCode}`);
-              [packet,offset] = this.resolveOpcode(opCode,data);
-              break;
-            }
+        switch (opCode) {
+          case this.PlayerUpdateManagedPositionOpcode: {
+            packet =
+              H1Z1Packets.Packets[this.PlayerUpdateManagedPositionOpcode];
+            offset = 1;
+            break;
           }
-          break;
+          case this.VehicleCollisionOpcode: {
+            packet = H1Z1Packets.Packets[this.VehicleCollisionOpcode];
+            offset = 1;
+            break;
+          }
+          default: {
+            console.error(`unknown packet use flag 3 : ${opCode}`);
+            [packet, offset] = this.resolveOpcode(opCode, data);
+            break;
+          }
+        }
+        break;
       }
       case 5: {
         packet = H1Z1Packets.Packets[this.VehicleDimissOpcode];
         offset = 2;
         break;
-    }
+      }
       default:
-        console.error(`unknown flag used : ${flag} for packet : ${opCode}`)
+        console.error(`unknown flag used : ${flag} for packet : ${opCode}`);
         break;
     }
     if (packet) {

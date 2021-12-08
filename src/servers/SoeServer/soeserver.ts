@@ -70,15 +70,18 @@ export class SOEServer extends EventEmitter {
   checkClientOutQueue(client: SOEClient) {
     const data = client.outQueue.shift();
     if (data) {
-      this._connection.postMessage({
-        type: "sendPacket",
-        data: {
-          packetData: data,
-          length: data.length,
-          port: client.port,
-          address: client.address,
+      this._connection.postMessage(
+        {
+          type: "sendPacket",
+          data: {
+            packetData: data,
+            length: data.length,
+            port: client.port,
+            address: client.address,
+          },
         },
-      },[data.buffer]);
+        [data.buffer]
+      );
     }
     (client as any).outQueueTimer.refresh();
   }
@@ -301,6 +304,9 @@ export class SOEServer extends EventEmitter {
         let unknow_client;
         // if doesn't know the client
         if (!this._clients[clientId]) {
+          if (data[1] !== 1) {
+            return;
+          }
           unknow_client = true;
           client = this._clients[clientId] = new SOEClient(
             message.remote,
@@ -311,8 +317,7 @@ export class SOEServer extends EventEmitter {
 
           if (this._isLocal) {
             client.outputStream._enableCaching = false;
-          }
-          else{
+          } else {
             (client as any).outOfOrderTimer = setTimeout(
               () => this.checkOutOfOrderQueue(client),
               50
@@ -375,11 +380,8 @@ export class SOEServer extends EventEmitter {
           client.crcSeed,
           client.compression
         );
-        if(result?.soePacket){
-          if (
-            !unknow_client &&
-            result.soePacket.name === "SessionRequest"
-          ) {
+        if (result?.soePacket) {
+          if (!unknow_client && result.soePacket.name === "SessionRequest") {
             delete this._clients[clientId];
             debug(
               "Delete an old session badly closed by the client (",

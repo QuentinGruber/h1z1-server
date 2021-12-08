@@ -36,9 +36,9 @@ import { UpdatePositionObject } from "../../protocols/h1z1protocol";
 const modelToName = require("../../../data/2015/sampleData/ModelToName.json");
 
 export class zonePacketHandlers {
-  hax:any = hax;
-  dev:any = dev;
-  admin:any = admin;
+  hax: any = hax;
+  dev: any = dev;
+  admin: any = admin;
   ClientIsReady: any;
   ClientFinishedLoading: any;
   Security: any;
@@ -267,11 +267,11 @@ export class zonePacketHandlers {
     ) {
       const characterId = packet.data.characterId;
       const damage = packet.data.damage;
-      const vehicle = server._vehicles[characterId]
+      const vehicle = server._vehicles[characterId];
       if (characterId === client.character.characterId) {
         server.playerDamage(client, damage);
-      }else if (vehicle){
-        server.damageVehicle(damage/100,vehicle)
+      } else if (vehicle) {
+        server.damageVehicle(damage / 100, vehicle);
         server.DTOhit(client, packet);
       }
     };
@@ -403,7 +403,7 @@ export class zonePacketHandlers {
       clearInterval(client.character.resourcesUpdater);
       server.saveCharacterPosition(client);
       client.managedObjects.forEach((characterId: any) => {
-        server.dropVehicleManager(client,characterId)
+        server.dropVehicleManager(client, characterId);
       });
       server.deleteEntity(client.character.characterId, server._characters);
       server._gatewayServer._soeServer.deleteClient(client);
@@ -773,7 +773,7 @@ export class zonePacketHandlers {
             case 9336:
               stringId = 9041;
               break;
-            case 9: 
+            case 9:
               stringId = 31;
               break;
             case 57: // Openable
@@ -1392,24 +1392,7 @@ export class zonePacketHandlers {
       packet: any
     ) {
       debug(packet);
-      const { name } = packet.data;
-      if (name === "SpeedTree.Blackberry") {
-        server.sendData(client, "ClientUpdate.TextAlert", {
-          message: "Blackberries...miss you...",
-        });
-      } else {
-        server.sendData(client, "ClientUpdate.TextAlert", {
-          message: name.replace("SpeedTree.", ""),
-        });
-      }
-      // temp disable that, since it make weird stuff in game
-      /* server.sendData(client, "DtoStateChange", { // WIP
-        objectId: id,
-        name: name,
-        unk2: treeId,
-        unk3: 9001,
-        unk4: false,
-       });*/
+      server.speedTreeUse(client, packet);
     };
     this.GetRewardBuffInfo = function (
       server: ZoneServer,
@@ -1460,8 +1443,8 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      if(!packet.data){
-        return
+      if (!packet.data) {
+        return;
       }
       const characterId = server._transientIds[packet.data.transientId];
       if (characterId) {
@@ -1576,7 +1559,6 @@ export class zonePacketHandlers {
       }
       client.character.isMoving = !!packet.data.horizontalSpeed;
       if (packet.data.position) {
-        
         client.character.state.position = new Float32Array([
           packet.data.position[0],
           packet.data.position[1],
@@ -1613,7 +1595,6 @@ export class zonePacketHandlers {
         }
       }
       if (packet.data.rotation) {
-        
         client.character.state.rotation = new Float32Array([
           packet.data.rotation[0],
           packet.data.rotation[1],
@@ -1981,7 +1962,10 @@ export class zonePacketHandlers {
                 effectId: entityData.destroyedEffect,
               });
             }
-            if (entityData.onReadyCallback && entityData.onReadyCallback(client)) {
+            if (
+              entityData.onReadyCallback &&
+              entityData.onReadyCallback(client)
+            ) {
               delete server._vehicles[characterId].onReadyCallback;
             }
           }
@@ -1993,33 +1977,6 @@ export class zonePacketHandlers {
           if (entityData) {
             server.sendData(client, "PlayerUpdate.LightweightToFullPc", {
               transientId: entityData.transientId,
-            });
-            server.sendData(client, "PlayerUpdate.UpdatePosition", {
-              transientId: entityData.transientId,
-              positionUpdate: {
-                sequenceTime: server.getSequenceTime(),
-                unknown3_int8: 0,
-                stance: 1089,
-                position: entityData.state.position,
-                orientation: 0,
-                frontTilt: 0,
-                sideTilt: 0,
-                angleChange: 0,
-                verticalSpeed: 0,
-                horizontalSpeed: 0,
-                unknown12_float: [0, 0, 0],
-                rotationRaw: [0, 0, -0, 1],
-                direction: 0,
-                engineRPM: 0,
-              },
-            });
-            server.sendData(client, "PlayerUpdate.UpdatePosition", {
-              transientId: entityData.transientId,
-              positionUpdate: {
-                sequenceTime: 1,
-                unknown3_int8: 0,
-                stance: 81,
-              },
             });
             server.sendData(client, "Equipment.SetCharacterEquipment", {
               profileId: 3,
@@ -2262,7 +2219,7 @@ export class zonePacketHandlers {
     delete require.cache[require.resolve("./commands/dev")];
     hax = require("./commands/hax").default;
     dev = require("./commands/dev").default;
-    this.hax =  require("./commands/hax").default;
+    this.hax = require("./commands/hax").default;
     this.dev = require("./commands/dev").default;
   }
 }

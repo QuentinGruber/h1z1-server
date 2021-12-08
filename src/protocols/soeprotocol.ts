@@ -576,23 +576,25 @@ function packSOEPacket(
   crcSeed: number,
   compression: number,
   isSubPacket: boolean = false,
-  isStandalone:boolean = false
+  isStandalone: boolean = false
 ) {
-  
   let packet;
   if (!isStandalone) {
-    packet = (SOEPackets as any).Packets[(SOEPackets as any).PacketTypes[packetName]]    
-  }
-  else{
-    packet = (StandAlonePackets as any).Packets[(SOEPackets as any).PacketTypes[packetName]];
+    packet = (SOEPackets as any).Packets[
+      (SOEPackets as any).PacketTypes[packetName]
+    ];
+  } else {
+    packet = (StandAlonePackets as any).Packets[
+      (SOEPackets as any).PacketTypes[packetName]
+    ];
   }
   if (packet) {
-      const data = packet.pack(object, crcSeed, compression, isSubPacket);
-      debug("Packing data for " + packet.name);
-      return data;
+    const data = packet.pack(object, crcSeed, compression, isSubPacket);
+    debug("Packing data for " + packet.name);
+    return data;
   } else {
     debug("pack()", "Unknown or unhandled SOE packet type: " + packetName);
-    return Buffer.from("0")
+    return Buffer.from("0");
   }
 }
 
@@ -606,19 +608,27 @@ function parseSOEPacket(
   let packet;
   if(data[0] !== 0) {
       packet = (StandAlonePackets as any).Packets[data.readUInt8(0)];
+} else {
+    packet = (SOEPackets as any).Packets[data.readUInt16BE(0)];
   }
-    else{
-      packet = (SOEPackets as any).Packets[data.readUInt16BE(0)];
-    }
   if (packet) {
-      const result = packet.parse(data, crcSeed, compression, isSubPacket, appData);
-      return {
-        type: packet.type,
-        name: packet.name,
-        result: result,
-      };
+    const result = packet.parse(
+      data,
+      crcSeed,
+      compression,
+      isSubPacket,
+      appData
+    );
+    return {
+      type: packet.type,
+      name: packet.name,
+      result: result,
+    };
   } else {
-    debug("parse()", "Unknown or unhandled SOE packet type: " + data.readUInt16BE(0));
+    debug(
+      "parse()",
+      "Unknown or unhandled SOE packet type: " + data.readUInt16BE(0)
+    );
     return {
       result: null,
     };

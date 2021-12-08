@@ -154,36 +154,31 @@ export class LoginServer extends EventEmitter {
             console.error(err);
           } else {
             try {
-              const connectionEstablished = this._zoneConnections[
-                client.clientId
-              ]
-                ? 1
-                : 0;
+              const connectionEstablished: boolean =
+                !!this._zoneConnections[client.clientId];
               if (connectionEstablished || packet.name === "SessionRequest") {
                 switch (packet.name) {
                   case "SessionRequest": {
-                    if (!connectionEstablished) {
-                      const { serverId } = packet.data;
-                      debug(
-                        `Received session request from ${client.address}:${client.port}`
-                      );
-                      const status =
-                        this._zoneWhitelist.find((e) => e.serverId === serverId)
-                          ?.address === client.address
-                          ? 1
-                          : 0;
-                      if (status === 1) {
-                        debug(`ZoneConnection established`);
-                        client.session = true;
-                        this._zoneConnections[client.clientId] = serverId;
-                      } else {
-                        delete this._h1emuLoginServer._clients[client.clientId];
-                        return;
-                      }
-                      this._h1emuLoginServer.sendData(client, "SessionReply", {
-                        status: status,
-                      });
+                    const { serverId } = packet.data;
+                    debug(
+                      `Received session request from ${client.address}:${client.port}`
+                    );
+                    const status =
+                      this._zoneWhitelist.find((e) => e.serverId === serverId)
+                        ?.address === client.address
+                        ? 1
+                        : 0;
+                    if (status === 1) {
+                      debug(`ZoneConnection established`);
+                      client.session = true;
+                      this._zoneConnections[client.clientId] = serverId;
+                    } else {
+                      delete this._h1emuLoginServer._clients[client.clientId];
+                      return;
                     }
+                    this._h1emuLoginServer.sendData(client, "SessionReply", {
+                      status: status,
+                    });
                     break;
                   }
                   case "UpdateZonePopulation": {
@@ -215,8 +210,10 @@ export class LoginServer extends EventEmitter {
         const { reqId, status } = packet.data;
         clearTimeout(this._pendingInternalReqTimeouts[reqId]);
         delete this._pendingInternalReqTimeouts[reqId];
-        this._pendingInternalReq[reqId](status);
-        delete this._pendingInternalReq[reqId];
+        if (this._pendingInternalReq[reqId]) {
+          this._pendingInternalReq[reqId](status);
+          delete this._pendingInternalReq[reqId];
+        }
       });
       this._h1emuLoginServer.on(
         "disconnect",
@@ -242,7 +239,8 @@ export class LoginServer extends EventEmitter {
   async loadCharacterData(client: Client): Promise<any> {
     if (this._protocol.protocolName == "LoginUdp_9") {
       if (this._soloMode) {
-        try { // delete old character cache
+        try {
+          // delete old character cache
           delete require.cache[
             require.resolve(
               `${this._appDataFolder}/single_player_characters.json`
@@ -250,16 +248,19 @@ export class LoginServer extends EventEmitter {
           ];
         } catch (e) {}
         return require(`${this._appDataFolder}/single_player_characters.json`);
-      } else { // 2015 mongo
+      } else {
+        // 2015 mongo
         const charactersQuery = { authKey: client.loginSessionId };
         return await this._db
-        .collection("characters-light")
-        .find(charactersQuery)
-        .toArray();
+          .collection("characters-light")
+          .find(charactersQuery)
+          .toArray();
       }
-    } else { // LoginUdp_11
+    } else {
+      // LoginUdp_11
       if (this._soloMode) {
-        try { // delete old character cache
+        try {
+          // delete old character cache
           delete require.cache[
             require.resolve(
               `${this._appDataFolder}/single_player_characters2016.json`
@@ -267,12 +268,13 @@ export class LoginServer extends EventEmitter {
           ];
         } catch (e) {}
         return require(`${this._appDataFolder}/single_player_characters2016.json`);
-      } else { // 2016 mongo
+      } else {
+        // 2016 mongo
         const charactersQuery = { authKey: client.loginSessionId };
         return await this._db
-        .collection("characters-light")
-        .find(charactersQuery)
-        .toArray();
+          .collection("characters-light")
+          .find(charactersQuery)
+          .toArray();
       }
     }
   }
@@ -301,7 +303,6 @@ export class LoginServer extends EventEmitter {
         .collection("user-sessions")
         .findOne({ guid: sessionId });
       client.loginSessionId = realSession ? realSession.authKey : sessionId;
-      
     }
     this.sendData(client, "LoginReply", {
       loggedIn: true,
@@ -312,13 +313,10 @@ export class LoginServer extends EventEmitter {
       ApplicationPayload: "",
     });
     if (!this._soloMode) {
-      client.serverUpdateTimer = setTimeout(
-        async () => {
-         await this.updateServerList(client)
-          client.serverUpdateTimer.refresh()
-        },
-        30000
-      );
+      client.serverUpdateTimer = setTimeout(async () => {
+        await this.updateServerList(client);
+        client.serverUpdateTimer.refresh();
+      }, 30000);
     }
   }
 
@@ -388,7 +386,7 @@ export class LoginServer extends EventEmitter {
               modelId: character.actorModelId,
               gender: character.gender,
             },
-          }
+          };
         });
         characters = this.addDummyDataToCharacters(characterList);
       }
@@ -483,12 +481,12 @@ export class LoginServer extends EventEmitter {
         if (deletionStatus) {
           await this._db
             .collection("characters-light")
-            .updateOne(characterQuery,{$set: {
-              status: 0
-            }});
-            debug(
-              `Character ${(packet.result as any).characterId} deleted !`
-            );
+            .updateOne(characterQuery, {
+              $set: {
+                status: 0,
+              },
+            });
+          debug(`Character ${(packet.result as any).characterId} deleted !`);
         }
       }
     }
@@ -513,7 +511,11 @@ export class LoginServer extends EventEmitter {
         serverId
       );
       debug(`connectionStatus ${connectionStatus}`);
-      debug(`Object.values(this._zoneConnections) ${Object.values(this._zoneConnections)}`);
+      debug(
+        `Object.values(this._zoneConnections) ${Object.values(
+          this._zoneConnections
+        )}`
+      );
 
       if (!character) {
         console.error(
@@ -591,7 +593,11 @@ export class LoginServer extends EventEmitter {
     debug("CharacterLoginRequest");
   }
 
-  async askZone(serverId:number,packetName:string,packetObj:any): Promise<number> {
+  async askZone(
+    serverId: number,
+    packetName: string,
+    packetObj: any
+  ): Promise<number> {
     const askZonePromise = await new Promise((resolve, reject) => {
       this._internalReqCount++;
       const reqId = this._internalReqCount;
@@ -630,7 +636,7 @@ export class LoginServer extends EventEmitter {
     const {
       payload: { characterName },
       serverId,
-      payload
+      payload,
     } = packet.result;
     // create character object
     let sampleCharacter, newCharacter;
@@ -658,20 +664,44 @@ export class LoginServer extends EventEmitter {
       } else {
         // LoginUdp_11
         function getCharacterModelData(payload: any): any {
-          switch(payload.headType){
+          switch (payload.headType) {
             case 6: // black female
-              return {modelId: 9474, headActor: "SurvivorFemale_Head_03.adr", hairModel: "SurvivorFemale_Hair_ShortMessy.adr"};
+              return {
+                modelId: 9474,
+                headActor: "SurvivorFemale_Head_03.adr",
+                hairModel: "SurvivorFemale_Hair_ShortMessy.adr",
+              };
             case 5: // black male
-              return {modelId: 9240, headActor: "SurvivorMale_Head_04.adr", hairModel: "SurvivorMale_HatHair_Short.adr"};
+              return {
+                modelId: 9240,
+                headActor: "SurvivorMale_Head_04.adr",
+                hairModel: "SurvivorMale_HatHair_Short.adr",
+              };
             case 4: // older white female
-              return {modelId: 9474, headActor: "SurvivorFemale_Head_02.adr", hairModel: "SurvivorFemale_Hair_ShortBun.adr"};
+              return {
+                modelId: 9474,
+                headActor: "SurvivorFemale_Head_02.adr",
+                hairModel: "SurvivorFemale_Hair_ShortBun.adr",
+              };
             case 3: // young white female
-              return {modelId: 9474, headActor: "SurvivorFemale_Head_02.adr", hairModel: "SurvivorFemale_Hair_ShortBun.adr"};
+              return {
+                modelId: 9474,
+                headActor: "SurvivorFemale_Head_02.adr",
+                hairModel: "SurvivorFemale_Hair_ShortBun.adr",
+              };
             case 2: // bald white male
-              return {modelId: 9240, headActor: "SurvivorMale_Head_01.adr", hairModel: "SurvivorMale_HatHair_Short.adr"};
+              return {
+                modelId: 9240,
+                headActor: "SurvivorMale_Head_01.adr",
+                hairModel: "SurvivorMale_HatHair_Short.adr",
+              };
             case 1: // white male
             default:
-              return {modelId: 9240, headActor: "SurvivorMale_Head_01.adr", hairModel: "SurvivorMale_Hair_ShortMessy.adr"};
+              return {
+                modelId: 9240,
+                headActor: "SurvivorMale_Head_01.adr",
+                hairModel: "SurvivorMale_Hair_ShortMessy.adr",
+              };
           }
         }
         const characterModelData = getCharacterModelData(payload);
@@ -680,8 +710,8 @@ export class LoginServer extends EventEmitter {
           actorModelId: characterModelData.modelId,
           headActor: characterModelData.headActor,
           gender: payload.gender,
-          hairModel: characterModelData.hairModel
-        }
+          hairModel: characterModelData.hairModel,
+        };
         SinglePlayerCharacters[SinglePlayerCharacters.length] = newCharacter;
         fs.writeFileSync(
           `${this._appDataFolder}/single_player_characters2016.json`,
@@ -703,19 +733,18 @@ export class LoginServer extends EventEmitter {
         };
         await this._db?.collection("user-sessions").insertOne(sessionObj);
       }
-      const newCharacterData = this._protocol.protocolName == "LoginUdp_9"?
-      { ...newCharacter, ownerId: sessionObj.guid }:
-      { 
-        characterId: newCharacter.characterId, 
-        serverId: newCharacter.serverId,
-        ownerId: sessionObj.guid,
-        payload: packet.result.payload
-      };
-      creationStatus = (await this.askZone(
-        serverId,
-        "CharacterCreateRequest",
-        { characterObjStringify: JSON.stringify(newCharacterData) }
-      ))
+      const newCharacterData =
+        this._protocol.protocolName == "LoginUdp_9"
+          ? { ...newCharacter, ownerId: sessionObj.guid }
+          : {
+              characterId: newCharacter.characterId,
+              serverId: newCharacter.serverId,
+              ownerId: sessionObj.guid,
+              payload: packet.result.payload,
+            };
+      creationStatus = (await this.askZone(serverId, "CharacterCreateRequest", {
+        characterObjStringify: JSON.stringify(newCharacterData),
+      }))
         ? 1
         : 0;
 
@@ -725,7 +754,7 @@ export class LoginServer extends EventEmitter {
           serverId: serverId,
           payload: { name: characterName },
           characterId: newCharacter.characterId,
-          status: 1
+          status: 1,
         });
       }
       newCharacter;

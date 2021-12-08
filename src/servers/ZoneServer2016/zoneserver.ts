@@ -25,7 +25,7 @@ import {
   Weather2016,
 } from "../../types/zoneserver";
 import { h1z1PacketsType } from "../../types/packets";
-import { Character2016 as Character } from "./classes/character"
+import { Character2016 as Character } from "./classes/character";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
 import { _, initMongo, Int64String, isPosInRadius } from "../../utils/utils";
 
@@ -117,30 +117,53 @@ export class ZoneServer2016 extends ZoneServer {
     }
   }
 
-  
   async onCharacterCreateRequest(client: any, packet: any) {
     function getCharacterModelData(payload: any): any {
-      switch(payload.headType){
+      switch (payload.headType) {
         case 6: // black female
-          return {modelId: 9474, headActor: "SurvivorFemale_Head_03.adr", hairModel: "SurvivorFemale_Hair_ShortMessy.adr"};
+          return {
+            modelId: 9474,
+            headActor: "SurvivorFemale_Head_03.adr",
+            hairModel: "SurvivorFemale_Hair_ShortMessy.adr",
+          };
         case 5: // black male
-          return {modelId: 9240, headActor: "SurvivorMale_Head_04.adr", hairModel: "SurvivorMale_HatHair_Short.adr"};
+          return {
+            modelId: 9240,
+            headActor: "SurvivorMale_Head_04.adr",
+            hairModel: "SurvivorMale_HatHair_Short.adr",
+          };
         case 4: // older white female
-          return {modelId: 9474, headActor: "SurvivorFemale_Head_02.adr", hairModel: "SurvivorFemale_Hair_ShortBun.adr"};
+          return {
+            modelId: 9474,
+            headActor: "SurvivorFemale_Head_02.adr",
+            hairModel: "SurvivorFemale_Hair_ShortBun.adr",
+          };
         case 3: // young white female
-          return {modelId: 9474, headActor: "SurvivorFemale_Head_02.adr", hairModel: "SurvivorFemale_Hair_ShortBun.adr"};
+          return {
+            modelId: 9474,
+            headActor: "SurvivorFemale_Head_02.adr",
+            hairModel: "SurvivorFemale_Hair_ShortBun.adr",
+          };
         case 2: // bald white male
-          return {modelId: 9240, headActor: "SurvivorMale_Head_01.adr", hairModel: "SurvivorMale_HatHair_Short.adr"};
+          return {
+            modelId: 9240,
+            headActor: "SurvivorMale_Head_01.adr",
+            hairModel: "SurvivorMale_HatHair_Short.adr",
+          };
         case 1: // white male
         default:
-          return {modelId: 9240, headActor: "SurvivorMale_Head_01.adr", hairModel: "SurvivorMale_Hair_ShortMessy.adr"};
+          return {
+            modelId: 9240,
+            headActor: "SurvivorMale_Head_01.adr",
+            hairModel: "SurvivorMale_Hair_ShortMessy.adr",
+          };
       }
     }
 
     const { characterObjStringify, reqId } = packet.data;
     try {
       const characterData = JSON.parse(characterObjStringify),
-      characterModelData = getCharacterModelData(characterData.payload);
+        characterModelData = getCharacterModelData(characterData.payload);
       let character = require("../../../data/2016/sampleData/character.json");
       character = {
         ...character,
@@ -151,8 +174,8 @@ export class ZoneServer2016 extends ZoneServer {
         characterName: characterData.payload.characterName,
         actorModelId: characterModelData.modelId,
         headActor: characterModelData.headActor,
-        hairModel: characterModelData.hairModel
-      }
+        hairModel: characterModelData.hairModel,
+      };
       const collection = (this._db as Db).collection("characters");
       const charactersArray = await collection.findOne({
         characterId: character.characterId,
@@ -160,17 +183,15 @@ export class ZoneServer2016 extends ZoneServer {
       if (!charactersArray) {
         await collection.insertOne(character);
       }
-      this._h1emuZoneServer.sendData(
-        client,
-        "CharacterCreateReply",
-        { reqId: reqId, status: 1 }
-      );
+      this._h1emuZoneServer.sendData(client, "CharacterCreateReply", {
+        reqId: reqId,
+        status: 1,
+      });
     } catch (error) {
-      this._h1emuZoneServer.sendData(
-        client,
-        "CharacterCreateReply",
-        { reqId: reqId, status: 0 }
-      );
+      this._h1emuZoneServer.sendData(client, "CharacterCreateReply", {
+        reqId: reqId,
+        status: 0,
+      });
     }
   }
 
@@ -222,15 +243,21 @@ export class ZoneServer2016 extends ZoneServer {
           slotId: 1,
         },
         {
-          modelName: `Survivor${client.character.gender==1?"Male":"Female"}_Eyes_01.adr`,
+          modelName: `Survivor${
+            client.character.gender == 1 ? "Male" : "Female"
+          }_Eyes_01.adr`,
           slotId: 105,
         },
         {
-          modelName: `Survivor${client.character.gender==1?"Male":"Female"}_Legs_Pants_Underwear.adr`,
+          modelName: `Survivor${
+            client.character.gender == 1 ? "Male" : "Female"
+          }_Legs_Pants_Underwear.adr`,
           slotId: 4,
         },
         {
-          modelName: `Survivor${client.character.gender==1?"Male":"Female"}_Chest_Bra.adr`,
+          modelName: `Survivor${
+            client.character.gender == 1 ? "Male" : "Female"
+          }_Chest_Bra.adr`,
           textureAlias: "",
           slotId: 3,
         },
@@ -244,11 +271,11 @@ export class ZoneServer2016 extends ZoneServer {
         shield: 0,
       },
     };
-    if(character.hairModel) {
+    if (character.hairModel) {
       client.character.equipment.push({
         modelName: character.hairModel,
         slotId: 27,
-      })
+      });
     }
     let isRandomlySpawning = false;
     if (
@@ -494,30 +521,31 @@ export class ZoneServer2016 extends ZoneServer {
       ? localWeatherTemplates
       : await this._db?.collection("weathers").find().toArray();
   }
-  
+
   addDoor(obj: {}, characterId: string) {
     this._doors[characterId] = obj;
   }
 
   async loadVehicleData() {
-      const vehiclesArray: any = await this._db
-        ?.collection("vehicles")
-        .find({ worldId: this._worldId })
-        .toArray();
-      for (let index = 0; index < vehiclesArray.length; index++) {
-        const vehicle = vehiclesArray[index];
-        this._vehicles[vehicle.npcData.characterId] = new Vehicle(
-          this._worldId, 
-          vehicle.npcData.characterId, 
-          vehicle.npcData.transientId,
-          vehicle.npcData.modelId,
-          new Float32Array(vehicle.npcData.position),
-          new Float32Array(vehicle.npcData.rotation),
-          this._gameTime
-        )
-        this._vehicles[vehicle.npcData.characterId].npcData = vehicle.npcData;
-        this._vehicles[vehicle.npcData.characterId].positionUpdate = vehicle.positionUpdate;
-      }
+    const vehiclesArray: any = await this._db
+      ?.collection("vehicles")
+      .find({ worldId: this._worldId })
+      .toArray();
+    for (let index = 0; index < vehiclesArray.length; index++) {
+      const vehicle = vehiclesArray[index];
+      this._vehicles[vehicle.npcData.characterId] = new Vehicle(
+        this._worldId,
+        vehicle.npcData.characterId,
+        vehicle.npcData.transientId,
+        vehicle.npcData.modelId,
+        new Float32Array(vehicle.npcData.position),
+        new Float32Array(vehicle.npcData.rotation),
+        this._gameTime
+      );
+      this._vehicles[vehicle.npcData.characterId].npcData = vehicle.npcData;
+      this._vehicles[vehicle.npcData.characterId].positionUpdate =
+        vehicle.positionUpdate;
+    }
   }
 
   async fetchWorldData(): Promise<void> {
@@ -542,7 +570,7 @@ export class ZoneServer2016 extends ZoneServer {
         this._props[prop.characterId] = prop;
       }
       */
-      
+
       await this.loadVehicleData();
 
       this._npcs = {};
@@ -598,7 +626,7 @@ export class ZoneServer2016 extends ZoneServer {
         await this._db
           ?.collection(`npcs`)
           .insertMany(Object.values(this._npcs));
-          /*
+        /*
         await this._db
           ?.collection(`doors`)
           .insertMany(Object.values(this._doors));
@@ -696,7 +724,7 @@ export class ZoneServer2016 extends ZoneServer {
       populations: [0, 0],
     });
     this.sendData(client, "ClientUpdate.RespawnLocations", {
-      locations: this._respawnLocations, 
+      locations: this._respawnLocations,
       locations2: this._respawnLocations,
     });
 
@@ -732,11 +760,15 @@ export class ZoneServer2016 extends ZoneServer {
       this.POIManager(client);
       client.posAtLastRoutine = client.character.state.position;
     });
-    if (this._ready) this.worldObjectManager.run(this); 
+    if (this._ready) this.worldObjectManager.run(this);
     if (refresh) this.worldRoutineTimer.refresh();
   }
 
-  sendWeatherUpdatePacket(client: Client, weather: Weather2016, broadcast = false): void {
+  sendWeatherUpdatePacket(
+    client: Client,
+    weather: Weather2016,
+    broadcast = false
+  ): void {
     if (!this._soloMode) {
       this.sendDataToAll("UpdateWeatherData", weather);
       if (broadcast && client?.character?.name) {
@@ -767,7 +799,6 @@ export class ZoneServer2016 extends ZoneServer {
       (e) =>
         !e.npcData?.isVehicle &&
         this.filterOutOfDistance(e, client.character.state.position)
-        
     );
     client.spawnedEntities = client.spawnedEntities.filter((el) => {
       return !objectsToRemove.includes(el);
@@ -843,7 +874,7 @@ export class ZoneServer2016 extends ZoneServer {
         !client.spawnedEntities.includes(characterObj)
       ) {
         const vehicleId = this._clients[c].vehicle.mountedVehicle,
-        vehicle = vehicleId?this._vehicles[vehicleId]:false;
+          vehicle = vehicleId ? this._vehicles[vehicleId] : false;
         this.sendData(
           client,
           "AddLightweightPc",
@@ -857,8 +888,10 @@ export class ZoneServer2016 extends ZoneServer {
             position: characterObj.state.position,
             rotation: characterObj.state.lookAt,
             mountGuid: vehicleId || "",
-            mountSeatId: vehicle?vehicle.getCharacterSeat(characterObj.characterId):0,
-            mountRelatedDword1: vehicle?1:0,
+            mountSeatId: vehicle
+              ? vehicle.getCharacterSeat(characterObj.characterId)
+              : 0,
+            mountRelatedDword1: vehicle ? 1 : 0,
           },
           1
         );
@@ -914,7 +947,7 @@ export class ZoneServer2016 extends ZoneServer {
     obj: any,
     channel = 0
   ): void {
-    switch(packetName) {
+    switch (packetName) {
       case "KeepAlive":
       case "PlayerUpdatePosition":
       case "GameTimeSync":
@@ -1019,7 +1052,8 @@ export class ZoneServer2016 extends ZoneServer {
       if (
         this._clients[a].spawnedEntities.includes(
           this._characters[client.character.characterId]
-        ) || this._clients[a] === client
+        ) ||
+        this._clients[a] === client
       ) {
         this.sendData(this._clients[a], packetName, obj, channel);
       }
@@ -1045,13 +1079,13 @@ export class ZoneServer2016 extends ZoneServer {
               return {
                 characterId: characterId,
                 identity: {
-                  characterName: this._characters[characterId].name
+                  characterName: this._characters[characterId].name,
                 },
-                unknownString1:this._characters[characterId].name,
-                unknownByte1: 1
-              }
-            })
-          })
+                unknownString1: this._characters[characterId].name,
+                unknownByte1: 1,
+              };
+            }),
+          });
           client.spawnedEntities.push(vehicle);
         }
         if (!vehicle.isManaged) {
@@ -1326,31 +1360,35 @@ export class ZoneServer2016 extends ZoneServer {
   }
 
   updateEquipment(client: Client, character = client.character) {
-    this.sendDataToAllWithSpawnedCharacter(client, "Equipment.SetCharacterEquipment", {
-      characterData: {
-        characterId: character.characterId,
-      },
-      equipmentSlots: character.equipment.map((slot: characterEquipment) => {
-        return {
-          equipmentSlotId: slot.slotId,
-          equipmentSlotData: {
+    this.sendDataToAllWithSpawnedCharacter(
+      client,
+      "Equipment.SetCharacterEquipment",
+      {
+        characterData: {
+          characterId: character.characterId,
+        },
+        equipmentSlots: character.equipment.map((slot: characterEquipment) => {
+          return {
             equipmentSlotId: slot.slotId,
-            guid: slot.guid || "",
+            equipmentSlotData: {
+              equipmentSlotId: slot.slotId,
+              guid: slot.guid || "",
+              tintAlias: slot.tintAlias || "",
+              decalAlias: slot.tintAlias || "#",
+            },
+          };
+        }),
+        attachmentData: character.equipment.map((slot: characterEquipment) => {
+          return {
+            modelName: slot.modelName,
+            textureAlias: slot.textureAlias || "",
             tintAlias: slot.tintAlias || "",
             decalAlias: slot.tintAlias || "#",
-          },
-        };
-      }),
-      attachmentData: character.equipment.map((slot: characterEquipment) => {
-        return {
-          modelName: slot.modelName,
-          textureAlias: slot.textureAlias || "",
-          tintAlias: slot.tintAlias || "",
-          decalAlias: slot.tintAlias || "#",
-          slotId: slot.slotId,
-        };
-      }),
-    });
+            slotId: slot.slotId,
+          };
+        }),
+      }
+    );
   }
 
   addItem(client: Client, itemGuid: string) {
@@ -1404,7 +1442,10 @@ export class ZoneServer2016 extends ZoneServer {
         itemGuid: item.guid,
       },
       equipmentData = {
-        modelName: def.MODEL_NAME.replace("<gender>", client.character.gender==1?"Male":"Female"),
+        modelName: def.MODEL_NAME.replace(
+          "<gender>",
+          client.character.gender == 1 ? "Male" : "Female"
+        ),
         slotId: equipmentSlotId,
         guid: item.guid,
         textureAlias: def.TEXTURE_ALIAS,
