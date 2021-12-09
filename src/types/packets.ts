@@ -667,9 +667,12 @@ export type h1z1PacketsType =
   | "QuickChat.SendData"
   | "QuickChat.SendTell"
   | "QuickChat.SendChatToChannel"
-  | "Report"
+  | "ReportReply"
   | "LiveGamer"
   | "Acquaintance"
+  | "AcquaintanceAdd"
+  | "AcquaintanceRemove"
+  | "AcquaintanceOnline"
   | "ClientServerShuttingDown"
   | "Friend.List"
   | "Friend.Online"
@@ -2439,12 +2442,7 @@ export type h1z1PacketsType =
   | "WeaponLagLockParameters"
   | "CrateOpeningBase"
   | "PlayerHeatWarning"
-  | "AnimationBase"
-  | "AccessedCharacter.BeginCharacterAccess"
-  | "AccessedCharacter.Unknown1"
-  | "FirstTimeEvent.State"
-  | "FirstTimeEvent.Script"
-  | "Vehicle.OwnerPassengerList";
+  | "AnimationBase";
 export type loginPacketsType =
   | "LoginRequest"
   | "LoginReply"

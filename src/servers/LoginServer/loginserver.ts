@@ -172,9 +172,12 @@ export class LoginServer extends EventEmitter {
                       debug(`ZoneConnection established`);
                       client.session = true;
                       this._zoneConnections[client.clientId] = serverId;
-                      await this._db.collection("servers").updateOne(
-                        { "serverId" : serverId },
-                        { $set: { "allowedAccess" : true } })
+                      await this._db
+                        .collection("servers")
+                        .updateOne(
+                          { serverId: serverId },
+                          { $set: { allowedAccess: true } }
+                        );
                     } else {
                       delete this._h1emuLoginServer._clients[client.clientId];
                       return;
@@ -413,11 +416,17 @@ export class LoginServer extends EventEmitter {
     const servers = await this._db.collection("servers").find().toArray();
 
     for (let index = 0; index < servers.length; index++) {
-      const server:GameServer = servers[index];
-      if(server.allowedAccess && !Object.values(this._zoneConnections).includes(server.serverId)){
-        await this._db.collection("servers").updateOne(
-          { "serverId" : server.serverId },
-          { $set: { "allowedAccess" : false } })
+      const server: GameServer = servers[index];
+      if (
+        server.allowedAccess &&
+        !Object.values(this._zoneConnections).includes(server.serverId)
+      ) {
+        await this._db
+          .collection("servers")
+          .updateOne(
+            { serverId: server.serverId },
+            { $set: { allowedAccess: false } }
+          );
       }
     }
   }
