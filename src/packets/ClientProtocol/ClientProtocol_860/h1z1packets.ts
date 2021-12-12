@@ -5158,7 +5158,130 @@ var packets = [
       ],
     },
   ],
-  ["PlayerUpdate.LaunchProjectile", 0x0f2e, {}],
+  ["PlayerUpdate.LaunchProjectile", 0x0f2e, {
+    fields: [
+      {
+        name: "projectile",
+        type: "schema",
+        fields: [
+          { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
+          { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+  
+          { name: "unknownWord3", type: "boolean", defaultValue: 0 },
+          { name: "unknownWord4", type: "boolean", defaultValue: 0 },
+         
+          {
+            name: "unknownVector1",
+            type: "floatvector4",
+            defaultValue: [0, 0, 0, 1],
+          },
+          {
+            name: "unknownVector2",
+            type: "floatvector4",
+            defaultValue: [0, 0, 0, 1],
+          },
+          {
+            name: "unknownVector3",
+            type: "floatvector3",
+            defaultValue: [0, 0, 0, 1],
+          },
+          {
+            name: "unknownVector4",
+            type: "floatvector3",
+            defaultValue: [0, 0, 0, 1],
+          },
+          { name: "unkstring", type: "string", defaultValue: "test" },
+          {
+            name: "unknownVector5",
+            type: "floatvector4",
+            defaultValue: [0, 0, 0, 1],
+          },
+
+          { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword8", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword9", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword10", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword11", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword12", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword13", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword14", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword15", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword16", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword17", type: "uint32", defaultValue: 0 },
+          { name: "unkstring2", type: "string", defaultValue: "test" },
+
+
+          { name: "unknownDword18", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword19", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword20", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword21", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword22", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword23", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword24", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword25", type: "uint32", defaultValue: 0 },
+
+          { name: "unknown26", type: "boolean", defaultValue: 0 },
+          { name: "unknown27", type: "boolean", defaultValue: 0 },
+
+          { name: "unknownDword28", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword29", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword30", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword31", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword32", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword33", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword34", type: "uint32", defaultValue: 0 },
+
+          // vector2 ? ( a non sense but it's read the same way)
+          { name: "unknownDword35", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword36", type: "uint32", defaultValue: 0 },
+
+
+          // 3 bytes read in a standalone function
+          { name: "unknown37", type: "uint8", defaultValue: 0 },
+          { name: "unknown38", type: "uint8", defaultValue: 0 },
+          { name: "unknown39", type: "uint8", defaultValue: 0 },
+
+          { name: "unknownDword40", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword41", type: "uint32", defaultValue: 0 },
+
+          { name: "unknownQword42", type: "uint64string", defaultValue: 0 },
+
+
+          { name: "unknownDword42", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword43", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword44", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword45", type: "uint32", defaultValue: 0 },
+
+          {
+            name: "unknownVector6",
+            type: "floatvector4",
+            defaultValue: [0, 0, 0, 1],
+          },
+
+          { name: "unknownDword46", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword47", type: "uint32", defaultValue: 0 },
+
+          { name: "unknownDword48", type: "uint8", defaultValue: 0 },
+
+          // 9 4 
+
+          { name: "unknownDword49", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword50", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword51", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword52", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword53", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword54", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword55", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword56", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword57", type: "uint32", defaultValue: 0 },
+
+        ],
+      },
+      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+    ],
+  }],
   ["PlayerUpdate.SetSynchronizedAnimations", 0x0f2f, {}],
   [
     "PlayerUpdate.HudMessage",
