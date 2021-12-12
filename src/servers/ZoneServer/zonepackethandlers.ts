@@ -1975,8 +1975,12 @@ export class zonePacketHandlers {
           // character
           const entityData = server._characters[characterId];
           if (entityData) {
-            server.sendData(client, "PlayerUpdate.LightweightToFullPc", {
+            server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
               transientId: entityData.transientId,
+              unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
+              unknownDword2: 13951728,
+              unknownDword3: 1,
+              unknownDword6: 100,
             });
             server.sendData(client, "Equipment.SetCharacterEquipment", {
               profileId: 3,
