@@ -5246,7 +5246,7 @@ var packets = [
           { name: "unknownDword40", type: "uint32", defaultValue: 0 },
           { name: "unknownDword41", type: "uint32", defaultValue: 0 },
 
-          { name: "unknownQword42", type: "uint64string", defaultValue: 0 },
+          { name: "unknownQword42", type: "uint64string", defaultValue: "0" },
 
 
           { name: "unknownDword42", type: "uint32", defaultValue: 0 },
