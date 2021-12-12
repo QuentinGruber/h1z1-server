@@ -2213,8 +2213,8 @@ export class zonePacketHandlers {
         this.playerUpdateFullCharacterDataRequest(server, client, packet);
         break;
       default:
-        debug(packet);
-        debug("Packet not implemented in packetHandlers");
+        console.error(packet);
+        console.error("Packet not implemented in packetHandlers");
         break;
     }
   }
