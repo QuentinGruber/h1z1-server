@@ -129,6 +129,7 @@ function createDTO(
     isVehicle: true,
     renderDistance: renderDistance,
     attachedObject: {},
+    dontRequestFullData: true,
     color: { g: 127 },
   };
 }

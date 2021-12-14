@@ -1010,7 +1010,7 @@ const lightWeightNpcSchema = [
   { name: "npcDefinitionId", type: "uint32", defaultValue: 0 },
   { name: "isVehicle", type: "boolean", defaultValue: false }, // determine if npc is moving with positionUpdate - Avcio
   { name: "profileId", type: "uint32", defaultValue: 0 },
-  { name: "unknown28", type: "boolean", defaultValue: false },
+  { name: "dontRequestFullData", type: "boolean", defaultValue: false },
   {
     name: "color",
     type: "rgb",
@@ -10288,15 +10288,97 @@ var packets = [
   ["NavGen", 0xce, {}],
   ["Locks", 0xcf, {}],
   [
-    "Ragdoll.UpdatePose",
-    0xd001,
+    "Ragdoll.Start",
+    0xd00100,
     {
       fields: [
-        { name: "usePositionUpdate", type: "boolean", defaultValue: true }, // if set to true it need at lot more fields that seems to be a positionUpdate
         {
           name: "characterId",
           type: "uint64string",
           defaultValue: "0x0000000000000000",
+        },
+      ],
+    },
+  ],
+  [
+    "Ragdoll.UpdatePose",
+    0xd00101,
+    {
+      fields: [
+        {
+          name: "characterId",
+          type: "uint64string",
+          defaultValue: "0x0000000000000000",
+        },
+        {
+          name: "positionUpdate",
+          type: "custom",
+          parser: readPositionUpdateData,
+          packer: packPositionUpdateData,
+        },
+      ],
+    },
+  ],
+  [
+    "Ragdoll.Unk", 
+    0xd00118,
+    {
+      fields: [
+        {
+          name: "characterId",
+          type: "uint64string",
+          defaultValue: "0x0000000000000000",
+        },
+        { name: "unk1", type: "int32", defaultValue: 1 },
+        {
+          name: "unkArray1",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+            {
+              name: "position",
+              type: "floatvector3",
+              defaultValue: [0, 50, 0],
+            },
+            {
+              name: "rotation",
+              type: "floatvector4",
+              defaultValue: [0, 0, 0, 0],
+            },
+          ],
+        },
+      ],
+    },
+  ],
+  [
+    "Ragdoll.Unk2",
+    0xd0010b,
+    {
+      fields: [
+        {
+          name: "characterId",
+          type: "uint64string",
+          defaultValue: "0x0000000000000000",
+        },
+        { name: "unk1", type: "int32", defaultValue: 1 },
+        {
+          name: "unkArray1",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "unknownByte1", type: "uint8", defaultValue: 1 },
+            {
+              name: "position",
+              type: "floatvector3",
+              defaultValue: [0, 50, 0],
+            },
+            {
+              name: "rotation",
+              type: "floatvector4",
+              defaultValue: [0, 0, 0, 0],
+            },
+          ],
         },
         {
           name: "positionUpdate",
