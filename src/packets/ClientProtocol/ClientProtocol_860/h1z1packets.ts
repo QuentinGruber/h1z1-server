@@ -802,6 +802,49 @@ const profileDataSchema = [
   { name: "unknownDword18", type: "uint32", defaultValue: 0 },
 ];
 
+function packItemSubData(obj: any) {
+  const unknownData1Schema = [
+    { name: "unknownQword1", type: "uint64string", defaultValue: "" },
+    { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+    { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+  ];
+  let data = Buffer.alloc(1);
+  data.writeUInt8(obj["hasSubData"] ? 1 : 0, 0);
+  if (!obj.hasSubData) return data;
+  const v = Buffer.alloc(4);
+  v.writeUInt32LE(obj["unknownDword1"], 0);
+  data = Buffer.concat([data, v]);
+  if (obj.unknownDword1 <= 0) return data;
+  const unknownData1Obj = DataSchema.pack(
+    unknownData1Schema,
+    obj["unknownData1"]
+  ).data;
+  return Buffer.concat([data, unknownData1Obj]);
+}
+
+const itemDataSchema = [
+  { name: "itemDefinitionId", type: "uint32", defaultValue: 145 },
+  { name: "tintId", type: "uint32", defaultValue: 0 },
+  { name: "guid", type: "uint64string", defaultValue: "" },
+  { name: "count", type: "uint32", defaultValue: 1 },
+  { name: "unknownDword5", type: "uint32", defaultValue: 1 },
+  {
+    name: "itemSubData",
+    type: "custom",
+    defaultValue: {},
+    packer: packItemSubData,
+  },
+  { name: "containerGuid", type: "uint64string", defaultValue: "" },
+  { name: "containerDefinitionId", type: "uint32", defaultValue: 3 },
+  { name: "containerSlotId", type: "uint32", defaultValue: 1 },
+  { name: "baseDurability", type: "uint32", defaultValue: 1 },
+  { name: "currentDurability", type: "uint32", defaultValue: 1 },
+  { name: "maxDurabilityFromDefinition", type: "uint32", defaultValue: 1 },
+  { name: "unknownBoolean1", type: "boolean", defaultValue: true },
+  { name: "unknownQword3", type: "uint64string", defaultValue: "0x0" }, // names from 2016 could be the same
+];
+
+
 var baseItemDefinitionSchema = [
   { name: "itemId", type: "uint32", defaultValue: 0 },
   {
@@ -6559,31 +6602,22 @@ var packets = [
     {
       fields: [
         {
-          name: "Items",
+          name: "items",
           type: "array",
           defaultValue: [],
           fields: [
-            { name: "unknownWord1", type: "boolean", defaultValue: 0 },
-
-            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-            { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
-            { name: "unknownDword4", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword5", type: "uint32", defaultValue: 0 },
-            { name: "unknownBoolean1", type: "boolean", defaultValue: true },
-            { name: "unknownQword2", type: "uint64string", defaultValue: "0" },
-            { name: "unknownDword6", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword7", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword8", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword9", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword10", type: "uint32", defaultValue: 0 },
-            { name: "unknownWord2", type: "boolean", defaultValue: 0 },
-            { name: "unknownQword3", type: "uint64string", defaultValue: "0" },
-            { name: "unknown11", type: "uint16", defaultValue: 0 },
+          { name: "itemDefId", type: "uint32", defaultValue: 6 },
+            {
+              name: "itemData",
+              type: "schema",
+              defaultValue: {},
+              fields: itemDataSchema,
+            },
+          { name: "unknownQword1", type: "uint64string", defaultValue: "0x0" },
           ],
         },
       ],
-    },
+    }
   ],
   [
     "ClientUpdate.TextAlert",
