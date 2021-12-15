@@ -17,6 +17,8 @@ import { ZoneServer } from "./zoneserver";
 
 const debug = require("debug")("zonepacketHandlers");
 
+const debugWOD = require("debug")("wallOfData");
+
 import { joaat } from "h1emu-core";
 
 let hax = require("./commands/hax").default;
@@ -49,6 +51,9 @@ export class zonePacketHandlers {
   playerUpdateEndCharacterAccess: any;
   KeepAlive: any;
   ClientLog: any;
+  ClientMetrics: any;
+  WallOfDataClientSystemInfo: any;
+  WallOfDataLaunchPadFingerprint: any;
   wallOfDataUIEvent: any;
   SetLocale: any;
   GetContinentBattleInfo: any;
@@ -299,6 +304,27 @@ export class zonePacketHandlers {
       server.sendData(client, "KeepAlive", {
         gameTime: packet.data.gameTime,
       });
+    };
+    this.ClientMetrics = function (
+      server: ZoneServer,
+      client: Client,
+      packet: any
+    ) {
+      debugWOD(packet);
+    };
+    this.WallOfDataClientSystemInfo = function (
+      server: ZoneServer,
+      client: Client,
+      packet: any
+    ) {
+      debugWOD(packet.data.ClientSystemInfo);
+    };
+    this.WallOfDataLaunchPadFingerprint = function (
+      server: ZoneServer,
+      client: Client,
+      packet: any
+    ) {
+      debugWOD(`LaunchPadFingerprint : ${packet.data.LaunchPadFingerprint}`);
     };
     this.ClientLog = function (
       server: ZoneServer,
@@ -2094,6 +2120,15 @@ export class zonePacketHandlers {
         break;
       case "KeepAlive":
         this.KeepAlive(server, client, packet);
+        break;
+      case "WallOfData.ClientSystemInfo":
+        this.WallOfDataClientSystemInfo(server, client, packet);
+        break;
+      case "WallOfData.LaunchPadFingerprint":
+        this.WallOfDataLaunchPadFingerprint(server, client, packet);
+        break;
+      case "ClientMetrics":
+        this.ClientMetrics(server, client, packet);
         break;
       case "ClientLog":
         this.ClientLog(server, client, packet);

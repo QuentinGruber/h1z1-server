@@ -7498,7 +7498,31 @@ var packets = [
       ],
     },
   ],
-  ["ClientMetrics", 0x45, {}],
+  ["ClientMetrics", 0x45, {
+    fields: [
+      { name: "unknown1", type: "uint64string", defaultValue: "0" },
+      { name: "unknown2", type: "uint32", defaultValue: 0 },
+      { name: "unknown3", type: "uint32", defaultValue: 0 },
+      { name: "unknown4", type: "uint32", defaultValue: 0 },
+      { name: "unknown5", type: "uint32", defaultValue: 0 },
+      { name: "unknown6", type: "uint32", defaultValue: 0 },
+      { name: "unknown7", type: "uint32", defaultValue: 0 },
+      { name: "unknown8", type: "uint32", defaultValue: 0 },
+      { name: "unknown9", type: "uint32", defaultValue: 0 },
+      { name: "unknown10", type: "uint32", defaultValue: 0 },
+      { name: "unknown11", type: "uint32", defaultValue: 0 },
+      { name: "unknown12", type: "uint32", defaultValue: 0 },
+      { name: "unknown13", type: "uint32", defaultValue: 0 },
+      { name: "unknown14", type: "uint32", defaultValue: 0 },
+      { name: "unknown15", type: "uint32", defaultValue: 0 },
+      { name: "unknown16", type: "uint32", defaultValue: 0 },
+      { name: "unknown17", type: "uint32", defaultValue: 0 },
+      { name: "unknown18", type: "uint32", defaultValue: 0 },
+      { name: "unknown19", type: "uint32", defaultValue: 0 },
+      { name: "unknown20", type: "uint32", defaultValue: 0 },
+      { name: "unknown21", type: "uint32", defaultValue: 0 },
+    ],
+  }],
   ["FirstTimeEvent", 0x46, {}],
   ["Claim", 0x47, {}],
   [
@@ -9363,10 +9387,18 @@ var packets = [
       ],
     },
   ],
-  ["WallOfData.ClientSystemInfo", 0x9906, {}],
+  ["WallOfData.ClientSystemInfo", 0x9906, {
+    fields: [
+      { name: "ClientSystemInfo", type: "string", defaultValue: "" },
+    ],
+  }],
   ["WallOfData.VoiceChatEvent", 0x9907, {}],
   ["WallOfData.NudgeEvent", 0x9909, {}],
-  ["WallOfData.LaunchPadFingerprint", 0x990a, {}],
+  ["WallOfData.LaunchPadFingerprint", 0x990a, {
+    fields: [
+      { name: "LaunchPadFingerprint", type: "uint64string", defaultValue: "0" },
+    ],
+  }],
   ["WallOfData.VideoCapture", 0x990b, {}],
   [
     "WallOfData.ClientTransition",
