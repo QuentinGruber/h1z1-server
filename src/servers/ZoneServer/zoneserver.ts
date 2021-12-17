@@ -1084,11 +1084,13 @@ export class ZoneServer extends EventEmitter {
     const character = client.character;
     if (character.isAlive) {
       debug(character.name + " has died");
-      this.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
-        characterId: character.characterId,
-        state: "0000000000000000C00",
-        gameTime: Int64String(this.getSequenceTime()),
-      });
+      client.character.characterStates.knockedOut = true;
+      this.updateCharacterState(
+        client,
+        client.character.characterId,
+        client.character.characterStates,
+        false
+      );
       if (!client.vehicle.mountedVehicle) {
         this.sendDataToAll("Ragdoll.UpdatePose", {
           characterId: character.characterId,
@@ -1202,14 +1204,16 @@ export class ZoneServer extends EventEmitter {
     client.character.resources.water = 10000;
     client.character.resources.stamina = 600;
     client.character.resourcesUpdater.refresh();
+    delete client.character.characterStates.knockedOut;
+    this.updateCharacterState(
+      client,
+      client.character.characterId,
+      client.character.characterStates,
+      false
+    );
     this.sendData(client, "PlayerUpdate.RespawnReply", {
       characterId: client.character.characterId,
       unk: 1,
-    });
-    this.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
-      characterId: client.character.characterId,
-      state: "000000000000000000",
-      gameTime: Int64String(this.getSequenceTime()),
     });
     const spawnLocations = this._soloMode
       ? localSpawnList
@@ -1509,6 +1513,212 @@ export class ZoneServer extends EventEmitter {
         },
       },
     });
+  }
+
+updateCharacterState(
+    client: Client,
+    characterId: string,
+    object: any,
+    sendToAll: boolean
+  ) {
+    let states1: any = {};
+    let states2: any = {};
+    let states3: any = {};
+    let states4: any = {};
+    let states5: any = {};
+    let states6: any = {};
+    let states7: any = {};
+    if (object.visible) {
+      states1.visible = true;
+    }
+    if (object.afraid) {
+      states1.afraid = true;
+    }
+    if (object.asleep) {
+      states1.asleep = true;
+    }
+    if (object.silenced) {
+      states1.silenced = true;
+    }
+    if (object.bound) {
+      states1.bound = true;
+    }
+    if (object.rooted) {
+      states1.rooted = true;
+    }
+    if (object.stunned) {
+      states1.stunned = true;
+    }
+    if (object.knockedOut) {
+      states1.knockedOut = true;
+    }
+    if (object.nonAttackable) {
+      states2.nonAttackable = true;
+    }
+    if (object.knockedBack) {
+      states2.knockedBack = true;
+    }
+    if (object.confused) {
+      states2.confused = true;
+    }
+    if (object.goinghome) {
+      states2.goinghome = true;
+    }
+    if (object.inCombat) {
+      states2.inCombat = true;
+    }
+    if (object.frozen) {
+      states2.frozen = true;
+    }
+    if (object.berserk) {
+      states2.berserk = true;
+    }
+    if (object.inScriptedAnimation) {
+      states2.inScriptedAnimation = true;
+    }
+    if (object.pull) {
+      states3.pull = true;
+    }
+    if (object.revivable) {
+      states3.revivable = true;
+    }
+    if (object.beingRevived) {
+      states3.beingRevived = true;
+    }
+    if (object.cloaked) {
+      states3.cloaked = true;
+    }
+    if (object.interactBlocked) {
+      states3.interactBlocked = true;
+    }
+    if (object.nonHealable) {
+      states3.nonHealable = true;
+    }
+    if (object.weaponFireBlocked) {
+      states3.weaponFireBlocked = true;
+    }
+    if (object.nonResuppliable) {
+      states3.nonResuppliable = true;
+    }
+    if (object.charging) {
+      states4.charging = true;
+    }
+    if (object.invincibility) {
+      states4.invincibility = true;
+    }
+    if (object.thrustPadded) {
+      states4.thrustPadded = true;
+    }
+    if (object.castingAbility) {
+      states4.castingAbility = true;
+    }
+    if (object.userMovementDisabled) {
+      states4.userMovementDisabled = true;
+    }
+    if (object.flying) {
+      states4.flying = true;
+    }
+    if (object.hideCorpse) {
+      states4.hideCorpse = true;
+    }
+    if (object.gmHidden) {
+      states4.gmHidden = true;
+    }
+    if (object.griefInvulnerability) {
+      states5.griefInvulnerability = true;
+    }
+    if (object.canSpawnTank) {
+      states5.canSpawnTank = true;
+    }
+    if (object.inGravityField) {
+      states5.inGravityField = true;
+    }
+    if (object.invulnerable) {
+      states5.invulnerable = true;
+    }
+    if (object.friendlyFireImmunity) {
+      states5.friendlyFireImmunity = true;
+    }
+    if (object.riotShielded) {
+      states5.riotShielded = true;
+    }
+    if (object.supplyingAmmo) {
+      states5.supplyingAmmo = true;
+    }
+    if (object.supplyingRepairs) {
+      states5.supplyingRepairs = true;
+    }
+    if (object.REUSE_ME_2) {
+      states6.REUSE_ME_2 = true;
+    }
+    if (object.REUSE_ME_3) {
+      states6.REUSE_ME_3 = true;
+    }
+    if (object.hidesHeat) {
+      states6.hidesHeat = true;
+    }
+    if (object.nearDeath) {
+      states6.nearDeath = true;
+    }
+    if (object.dormant) {
+      states6.dormant = true;
+    }
+    if (object.ignoreStatusNotUsed) {
+      states6.ignoreStatusNotUsed = true;
+    }
+    if (object.inWater) {
+      states6.inWater = true;
+    }
+    if (object.disarmed) {
+      states6.disarmed = true;
+    }
+    if (object.doorState) {
+      states7.doorState = true;
+    }
+    if (object.sitting) {
+      states7.sitting = true;
+    }
+    if (object.error1) {
+      states7.error1 = true;
+    }
+    if (object.error2) {
+      states7.error2 = true;
+    }
+    if (object.handsUp) {
+      states7.handsUp = true;
+    }
+    if (object.bit5) {
+      states7.bit5 = true;
+    }
+    if (object.bit6) {
+      states7.bit6 = true;
+    }
+    if (object.bit7) {
+      states7.bit7 = true;
+    }
+    if (!sendToAll) {
+      this.sendData(client, "PlayerUpdate.UpdateCharacterState", {
+        characterId: characterId,
+        states1: states1,
+        states2: states2,
+        states3: states3,
+        states4: states4,
+        states5: states5,
+        states6: states6,
+        states7: states7,
+      });
+    } else {
+      this.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
+        characterId: characterId,
+        states1: states1,
+        states2: states2,
+        states3: states3,
+        states4: states4,
+        states5: states5,
+        states6: states6,
+        states7: states7,
+      });
+    }
   }
 
   turnOnEngine(vehicleGuid: string) {
