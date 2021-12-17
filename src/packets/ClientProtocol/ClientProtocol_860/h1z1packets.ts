@@ -4885,7 +4885,7 @@ var packets = [
           type: "bitflags",
           flags: [
             { bit: 0, name: "nonAttackable", defaultValue: false },
-            { bit: 1, name: "KnockedBack", defaultValue: false },
+            { bit: 1, name: "knockedBack", defaultValue: false },
             { bit: 2, name: "confused", defaultValue: false },
             { bit: 3, name: "goinghome", defaultValue: false },
             { bit: 4, name: "inCombat", defaultValue: false },
@@ -4956,9 +4956,9 @@ var packets = [
           flags: [
             { bit: 0, name: "doorState", defaultValue: false },
             { bit: 1, name: "sitting", defaultValue: false },
-            { bit: 2, name: "handsUp", defaultValue: false },
-            { bit: 3, name: "nearDeath", defaultValue: false },
-            { bit: 4, name: "error", defaultValue: false },
+            { bit: 2, name: "error1", defaultValue: false },
+            { bit: 3, name: "error2", defaultValue: false },
+            { bit: 4, name: "handsUp", defaultValue: false },
             { bit: 5, name: "bit5", defaultValue: false },
             { bit: 6, name: "bit6", defaultValue: false },
             { bit: 7, name: "bit7", defaultValue: false },
