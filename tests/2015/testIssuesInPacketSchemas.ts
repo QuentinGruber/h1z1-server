@@ -12,6 +12,7 @@ const allowedTypes: string[] = [
   "bytes",
   "rgb",
   "variabletype8",
+  "bitflags",
   "custom",
   "int64",
   "float",

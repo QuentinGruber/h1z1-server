@@ -1084,11 +1084,13 @@ export class ZoneServer extends EventEmitter {
     const character = client.character;
     if (character.isAlive) {
       debug(character.name + " has died");
-      this.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
-        characterId: character.characterId,
-        state: "0000000000000000C00",
-        gameTime: Int64String(this.getSequenceTime()),
-      });
+      client.character.characterStates.knockedOut = true;
+      this.updateCharacterState(
+        client,
+        client.character.characterId,
+        client.character.characterStates,
+        false
+      );
       if (!client.vehicle.mountedVehicle) {
         this.sendDataToAll("Ragdoll.UpdatePose", {
           characterId: character.characterId,
@@ -1202,14 +1204,16 @@ export class ZoneServer extends EventEmitter {
     client.character.resources.water = 10000;
     client.character.resources.stamina = 600;
     client.character.resourcesUpdater.refresh();
+    delete client.character.characterStates.knockedOut;
+    this.updateCharacterState(
+      client,
+      client.character.characterId,
+      client.character.characterStates,
+      false
+    );
     this.sendData(client, "PlayerUpdate.RespawnReply", {
       characterId: client.character.characterId,
       unk: 1,
-    });
-    this.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
-      characterId: client.character.characterId,
-      state: "000000000000000000",
-      gameTime: Int64String(this.getSequenceTime()),
     });
     const spawnLocations = this._soloMode
       ? localSpawnList
@@ -1509,6 +1513,30 @@ export class ZoneServer extends EventEmitter {
         },
       },
     });
+  }
+
+updateCharacterState(
+    client: Client,
+    characterId: string,
+    object: any,
+    sendToAll: boolean
+  ) {
+    const updateCharacterStateBody = {
+      characterId: characterId,
+      states1: object,
+      states2: object,
+      states3: object,
+      states4: object,
+      states5: object,
+      states6: object,
+      states7: object,
+    }
+    
+    if (!sendToAll) {
+      this.sendData(client, "PlayerUpdate.UpdateCharacterState", updateCharacterStateBody );
+    } else {
+      this.sendDataToAll("PlayerUpdate.UpdateCharacterState", updateCharacterStateBody );
+    }
   }
 
   turnOnEngine(vehicleGuid: string) {
