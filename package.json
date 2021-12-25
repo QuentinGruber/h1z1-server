@@ -5,6 +5,9 @@
   "author": "Quentin Gruber <quentingruber@gmail.com> (http://github.com/quentingruber)",
   "license": "GPL-3.0-only",
   "main": "h1z1-server.js",
+  "engines": {
+    "node": ">=0.14.0 <17"
+  },
   "bin": {
     "if-env": "scripts/if-env.js",
     "h1z1-server-demo": "scripts/h1z1-server-demo.js",
