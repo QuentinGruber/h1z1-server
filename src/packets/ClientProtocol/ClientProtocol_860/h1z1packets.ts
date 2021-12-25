@@ -23,8 +23,8 @@ import {
 } from "../../../utils/utils";
 
 function packItemDefinitionData(obj: any) {
+  let compressionData = Buffer.allocUnsafe(4);
   let data = Buffer.allocUnsafe(4),
-    flags = 0,
     v;
   data.writeUInt32LE(obj["unknownDword1"], 0); // could be the actual item id idk
   (v = Buffer.allocUnsafe(1)), v.writeUInt8(obj["unknownByte1"], 0);
@@ -157,9 +157,11 @@ function packItemDefinitionData(obj: any) {
   let output = Buffer.alloc(LZ4.encodeBound(input.length));
   const compressedSize = LZ4.encodeBlock(input, output);
   output = output.slice(0, compressedSize);
-  console.log("decompressed length " + data.length);
-  console.log("compressed length " + output.length); // for now to know which values to put in compressed and decompressed lengths
-  return output;
+  compressionData.writeUInt16LE(output.length, 0);
+  compressionData.writeUInt16LE(data.length, 2);
+  let finalData = Buffer.allocUnsafe(data.length + 4);
+  finalData = Buffer.concat([compressionData, output]);
+  return finalData;
 }
 
 function readPacketType(data: Buffer, packets: any) {
