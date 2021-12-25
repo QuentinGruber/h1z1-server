@@ -22,6 +22,119 @@ import {
   lz4_decompress,
 } from "../../../utils/utils";
 
+
+
+function readPacketType(data: Buffer, packets: any) {
+  let opCode = data[0] >>> 0,
+    length = 0,
+    packet;
+  if (packets[opCode]) {
+    packet = packets[opCode];
+    length = 1;
+  } else if (data.length > 1) {
+    opCode = ((data[0] << 8) + data[1]) >>> 0;
+    if (packets[opCode]) {
+      packet = packets[opCode];
+      length = 2;
+    } else if (data.length > 2) {
+      opCode = ((data[0] << 16) + (data[1] << 8) + data[2]) >>> 0;
+      if (packets[opCode]) {
+        packet = packets[opCode];
+        length = 3;
+      } else if (data.length > 3) {
+        opCode =
+          ((data[0] << 24) + (data[1] << 16) + (data[2] << 8) + data[3]) >>> 0;
+        if (packets[opCode]) {
+          packet = packets[opCode];
+          length = 4;
+        }
+      }
+    }
+  }
+  return {
+    packetType: opCode,
+    packet: packet,
+    length: length,
+  };
+}
+
+function writePacketType(packetType: number) {
+  const packetTypeBytes = getPacketTypeBytes(packetType);
+
+  const data = Buffer.allocUnsafe(packetTypeBytes.length);
+  for (let i = 0; i < packetTypeBytes.length; i++) {
+    data.writeUInt8(packetTypeBytes[i], i);
+  }
+  return data;
+}
+
+function readUnsignedIntWith2bitLengthValue(data: Buffer, offset: number) {
+  let value = data.readUInt8(offset);
+  const n = value & 3;
+  for (let i = 0; i < n; i++) {
+    value += data.readUInt8(offset + i + 1) << ((i + 1) * 8);
+  }
+  value = value >>> 2;
+  return {
+    value: value,
+    length: n + 1,
+  };
+}
+
+export function packUnsignedIntWith2bitLengthValue(value: number) {
+  value = Math.round(value);
+  value = value << 2;
+  let n = 0;
+  if (value > 0xffffff) {
+    n = 3;
+  } else if (value > 0xffff) {
+    n = 2;
+  } else if (value > 0xff) {
+    n = 1;
+  }
+  value |= n;
+  const data = Buffer.allocUnsafe(4);
+  data.writeUInt32LE(value, 0);
+  return data.slice(0, n + 1);
+}
+
+function readSignedIntWith2bitLengthValue(data: Buffer, offset: number) {
+  let value = data.readUInt8(offset);
+  const sign = value & 1;
+  const n = (value >> 1) & 3;
+  for (let i = 0; i < n; i++) {
+    value += data.readUInt8(offset + i + 1) << ((i + 1) * 8);
+  }
+  value = value >>> 3;
+  if (sign) {
+    value = -value;
+  }
+  return {
+    value: value,
+    length: n + 1,
+  };
+}
+
+function packSignedIntWith2bitLengthValue(value: number) {
+  value = Math.round(value);
+  const sign = value < 0 ? 1 : 0;
+  value = sign ? -value : value;
+  value = value << 3;
+  let n = 0;
+  if (value > 0xffffff) {
+    n = 3;
+  } else if (value > 0xffff) {
+    n = 2;
+  } else if (value > 0xff) {
+    n = 1;
+  }
+  value |= n << 1;
+  value |= sign;
+  const data = Buffer.allocUnsafe(4);
+  data.writeUInt32LE(value, 0);
+  return data.slice(0, n + 1);
+}
+
 function packItemDefinitionData(obj: any) {
   let compressionData = Buffer.allocUnsafe(4);
   let data = Buffer.allocUnsafe(4),
@@ -162,117 +275,6 @@ function packItemDefinitionData(obj: any) {
   let finalData = Buffer.allocUnsafe(data.length + 4);
   finalData = Buffer.concat([compressionData, output]);
   return finalData;
-}
-
-function readPacketType(data: Buffer, packets: any) {
-  let opCode = data[0] >>> 0,
-    length = 0,
-    packet;
-  if (packets[opCode]) {
-    packet = packets[opCode];
-    length = 1;
-  } else if (data.length > 1) {
-    opCode = ((data[0] << 8) + data[1]) >>> 0;
-    if (packets[opCode]) {
-      packet = packets[opCode];
-      length = 2;
-    } else if (data.length > 2) {
-      opCode = ((data[0] << 16) + (data[1] << 8) + data[2]) >>> 0;
-      if (packets[opCode]) {
-        packet = packets[opCode];
-        length = 3;
-      } else if (data.length > 3) {
-        opCode =
-          ((data[0] << 24) + (data[1] << 16) + (data[2] << 8) + data[3]) >>> 0;
-        if (packets[opCode]) {
-          packet = packets[opCode];
-          length = 4;
-        }
-      }
-    }
-  }
-  return {
-    packetType: opCode,
-    packet: packet,
-    length: length,
-  };
-}
-
-function writePacketType(packetType: number) {
-  const packetTypeBytes = getPacketTypeBytes(packetType);
-
-  const data = Buffer.allocUnsafe(packetTypeBytes.length);
-  for (let i = 0; i < packetTypeBytes.length; i++) {
-    data.writeUInt8(packetTypeBytes[i], i);
-  }
-  return data;
-}
-
-function readUnsignedIntWith2bitLengthValue(data: Buffer, offset: number) {
-  let value = data.readUInt8(offset);
-  const n = value & 3;
-  for (let i = 0; i < n; i++) {
-    value += data.readUInt8(offset + i + 1) << ((i + 1) * 8);
-  }
-  value = value >>> 2;
-  return {
-    value: value,
-    length: n + 1,
-  };
-}
-
-export function packUnsignedIntWith2bitLengthValue(value: number) {
-  value = Math.round(value);
-  value = value << 2;
-  let n = 0;
-  if (value > 0xffffff) {
-    n = 3;
-  } else if (value > 0xffff) {
-    n = 2;
-  } else if (value > 0xff) {
-    n = 1;
-  }
-  value |= n;
-  const data = Buffer.allocUnsafe(4);
-  data.writeUInt32LE(value, 0);
-  return data.slice(0, n + 1);
-}
-
-function readSignedIntWith2bitLengthValue(data: Buffer, offset: number) {
-  let value = data.readUInt8(offset);
-  const sign = value & 1;
-  const n = (value >> 1) & 3;
-  for (let i = 0; i < n; i++) {
-    value += data.readUInt8(offset + i + 1) << ((i + 1) * 8);
-  }
-  value = value >>> 3;
-  if (sign) {
-    value = -value;
-  }
-  return {
-    value: value,
-    length: n + 1,
-  };
-}
-
-function packSignedIntWith2bitLengthValue(value: number) {
-  value = Math.round(value);
-  const sign = value < 0 ? 1 : 0;
-  value = sign ? -value : value;
-  value = value << 3;
-  let n = 0;
-  if (value > 0xffffff) {
-    n = 3;
-  } else if (value > 0xffff) {
-    n = 2;
-  } else if (value > 0xff) {
-    n = 1;
-  }
-  value |= n << 1;
-  value |= sign;
-  const data = Buffer.allocUnsafe(4);
-  data.writeUInt32LE(value, 0);
-  return data.slice(0, n + 1);
 }
 
 function readPositionUpdateData(data: Buffer, offset: number) {
