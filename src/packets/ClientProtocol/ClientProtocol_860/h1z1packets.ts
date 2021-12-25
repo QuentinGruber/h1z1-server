@@ -11,6 +11,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+const Buffer = require("buffer").Buffer;
+const LZ4 = require("lz4");
+
 import PacketTableBuild from "../../packettable";
 import DataSchema from "h1z1-dataschema";
 import {
@@ -18,6 +21,146 @@ import {
   getPacketTypeBytes,
   lz4_decompress,
 } from "../../../utils/utils";
+
+function packItemDefinitionData(obj: any) {
+  let data = Buffer.allocUnsafe(4),
+    flags = 0,
+    v;
+  data.writeUInt32LE(obj["unknownDword1"], 0); // could be the actual item id idk
+  (v = Buffer.allocUnsafe(1)), v.writeUInt8(obj["unknownByte1"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(1)), v.writeUInt8(obj["unknownByte1"], 0); // flags
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["nameId"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["descriptionId"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["unknownDword4"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["iconId"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["tintId"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["hudImageSetId"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["unknownDword8"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["unknownDword9"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["coinPurchasePrice"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["itemClass"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["unknownDword12"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["slot"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4 + obj["modelName"].length)),
+    v.writePrefixedStringLE(obj["modelName"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4 + obj["textureAlias"].length)),
+    v.writePrefixedStringLE(obj["textureAlias"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["genderUsage"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["itemType"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["categoryId"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["unknownDword17"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["compositeEffectId"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["powerRating"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["minProfileRank"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["unknownDword21"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["unknownDword22"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["unknownDword23"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["unknownDword24"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["unknownDword25"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["maxStackSize"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["unknownDword27"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4 + obj["unknownString3"].length)),
+    v.writePrefixedStringLE(obj["unknownString3"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["unknownDword28"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["unknownDword29"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["VipRankRequirement"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["unknownDword31"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["unknownDword32"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["equipCountMax"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["currencyType"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["unknownDword35"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["unknownDword36"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["unknownDword37"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4 + obj["unknownString4"].length)),
+    v.writePrefixedStringLE(obj["unknownString4"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4 + obj["unknownString5"].length)),
+    v.writePrefixedStringLE(obj["unknownString5"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["unknownDword38"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["unknownDword39"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["unknownDword40"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["unknownDword41"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4 + obj["unknownString6"].length)),
+    v.writePrefixedStringLE(obj["unknownString6"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["overrideCameraId"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["unknownDword43"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["unknownDword44"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["unknownDword45"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["bulk"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["unknownDword47"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["unknownDword48"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["unknownDword49"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["unknownDword50"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["unknownDword51"], 0); // seems to break it if > or < 9
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["unknownDword52"], 0);
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["arrayLength"], 0); // skipping this array for now
+  data = Buffer.concat([data, v]);
+  const input = data;
+  let output = Buffer.alloc(LZ4.encodeBound(input.length));
+  const compressedSize = LZ4.encodeBlock(input, output);
+  output = output.slice(0, compressedSize);
+  console.log("decompressed length " + data.length);
+  console.log("compressed length " + output.length); // for now to know which values to put in compressed and decompressed lengths
+  return output;
+}
 
 function readPacketType(data: Buffer, packets: any) {
   let opCode = data[0] >>> 0,
@@ -4153,7 +4296,34 @@ var packets = [
   ["Command.RequestStripEffect", 0x094200, {}],
   ["Command.ItemDefinitionRequest", 0x094300, {}],
   ["Command.ItemDefinitionReply", 0x094400, {}],
-  ["Command.ItemDefinitions", 0x094500, {}],
+  [
+    "Command.ItemDefinitions",
+    0x094500,
+    {
+      fields: [
+        {
+          name: "definitionsData",
+          type: "byteswithlength",
+          fields: [
+            {
+              name: "itemDefinitions",
+              type: "array",
+              defaultValue: [],
+              fields: [
+                { name: "compressedLength", type: "uint16", defaultValue: 1 },
+                { name: "decompressedLength", type: "uint16", defaultValue: 1 },
+                {
+                  name: "definitionData",
+                  type: "custom",
+                  packer: packItemDefinitionData,
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  ],
   [
     "Command.EnableCompositeEffects",
     0x094600,
