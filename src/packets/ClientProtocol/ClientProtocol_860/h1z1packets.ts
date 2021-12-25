@@ -134,8 +134,8 @@ function packSignedIntWith2bitLengthValue(value: number) {
 
 function packItemDefinitionData(obj: any) {
   let compressionData = Buffer.allocUnsafe(4);
-  let data = Buffer.allocUnsafe(4),
-    v;
+  let data = Buffer.allocUnsafe(4);
+  let v: any;
   data.writeUInt32LE(obj["ID"], 0); // could be the actual item id idk
   (v = Buffer.allocUnsafe(1)), v.writeUInt8(obj["unknownByte1"], 0);
   data = Buffer.concat([data, v]);
