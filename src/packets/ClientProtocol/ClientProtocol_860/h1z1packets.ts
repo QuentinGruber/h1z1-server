@@ -4312,8 +4312,6 @@ var packets = [
               type: "array",
               defaultValue: [],
               fields: [
-                { name: "compressedLength", type: "uint16", defaultValue: 1 },
-                { name: "decompressedLength", type: "uint16", defaultValue: 1 },
                 {
                   name: "definitionData",
                   type: "custom",
