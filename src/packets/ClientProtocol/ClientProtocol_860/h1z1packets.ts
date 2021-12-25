@@ -11,8 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-const Buffer = require("buffer").Buffer;
-const LZ4 = require("lz4");
+import LZ4 from "lz4";
 
 import PacketTableBuild from "../../packettable";
 import DataSchema from "h1z1-dataschema";
