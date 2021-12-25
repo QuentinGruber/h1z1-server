@@ -294,8 +294,7 @@ function packItemDefinitionData(obj: any) {
   output = output.slice(0, compressedSize);
   compressionData.writeUInt16LE(output.length, 0);
   compressionData.writeUInt16LE(data.length, 2);
-  let finalData = Buffer.allocUnsafe(data.length + 4);
-  finalData = Buffer.concat([compressionData, output]);
+  const finalData = Buffer.concat([compressionData, output]);
   return finalData;
 }
 
