@@ -60,8 +60,6 @@ const hax: any = {
       definitionsData: {
         itemDefinitions: [
           {
-            compressedLength: 224,
-            decompressedLength: 254,
             definitionData: {
               unknownDword1: 1,
               unknownByte1: 2,
