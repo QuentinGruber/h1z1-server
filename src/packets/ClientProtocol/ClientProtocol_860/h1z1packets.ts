@@ -147,7 +147,7 @@ function packItemDefinitionData(obj: any) {
   data = Buffer.concat([data, v]);
   (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["unknownDword50"], 0);
   data = Buffer.concat([data, v]);
-  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["unknownDword51"], 0); // seems to break it if > or < 9
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["unknownDword51"], 0); // seems to break it if > or < 0
   data = Buffer.concat([data, v]);
   (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["unknownDword52"], 0);
   data = Buffer.concat([data, v]);
