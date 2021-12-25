@@ -22,8 +22,6 @@ import {
   lz4_decompress,
 } from "../../../utils/utils";
 
-
-
 function readPacketType(data: Buffer, packets: any) {
   let opCode = data[0] >>> 0,
     length = 0,
@@ -139,7 +137,7 @@ function packItemDefinitionData(obj: any) {
   let compressionData = Buffer.allocUnsafe(4);
   let data = Buffer.allocUnsafe(4),
     v;
-  data.writeUInt32LE(obj["unknownDword1"], 0); // could be the actual item id idk
+  data.writeUInt32LE(obj["ID"], 0); // could be the actual item id idk
   (v = Buffer.allocUnsafe(1)), v.writeUInt8(obj["unknownByte1"], 0);
   data = Buffer.concat([data, v]);
   v.writeUInt8(obj["unknownByte1"], 0); // flags
@@ -168,11 +166,19 @@ function packItemDefinitionData(obj: any) {
   data = Buffer.concat([data, v]);
   v.writeUInt32LE(obj["slot"], 0);
   data = Buffer.concat([data, v]);
-  (v = Buffer.allocUnsafe(4 + obj["modelName"].length)),
-    v.writePrefixedStringLE(obj["modelName"], 0);
+  if (obj["modelName"]) {
+    (v = Buffer.allocUnsafe(4 + obj["modelName"].length)),
+      v.writePrefixedStringLE(obj["modelName"], 0);
+  } else {
+    (v = Buffer.allocUnsafe(4)), v.writePrefixedStringLE("", 0);
+  }
   data = Buffer.concat([data, v]);
-  (v = Buffer.allocUnsafe(4 + obj["textureAlias"].length)),
-    v.writePrefixedStringLE(obj["textureAlias"], 0);
+  if (obj["textureAlias"]) {
+    (v = Buffer.allocUnsafe(4 + obj["textureAlias"].length)),
+      v.writePrefixedStringLE(obj["textureAlias"], 0);
+  } else {
+    (v = Buffer.allocUnsafe(4)), v.writePrefixedStringLE("", 0);
+  }
   data = Buffer.concat([data, v]);
   (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["genderUsage"], 0);
   data = Buffer.concat([data, v]);
@@ -202,8 +208,12 @@ function packItemDefinitionData(obj: any) {
   data = Buffer.concat([data, v]);
   v.writeUInt32LE(obj["unknownDword27"], 0);
   data = Buffer.concat([data, v]);
-  (v = Buffer.allocUnsafe(4 + obj["unknownString3"].length)),
-    v.writePrefixedStringLE(obj["unknownString3"], 0);
+  if (obj["tintAlias"]) {
+    (v = Buffer.allocUnsafe(4 + obj["tintAlias"].length)),
+      v.writePrefixedStringLE(obj["tintAlias"], 0);
+  } else {
+    (v = Buffer.allocUnsafe(4)), v.writePrefixedStringLE("", 0);
+  }
   data = Buffer.concat([data, v]);
   (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["unknownDword28"], 0);
   data = Buffer.concat([data, v]);
@@ -225,11 +235,19 @@ function packItemDefinitionData(obj: any) {
   data = Buffer.concat([data, v]);
   v.writeUInt32LE(obj["unknownDword37"], 0);
   data = Buffer.concat([data, v]);
-  (v = Buffer.allocUnsafe(4 + obj["unknownString4"].length)),
-    v.writePrefixedStringLE(obj["unknownString4"], 0);
+  if (obj["overlayTexture"]) {
+    (v = Buffer.allocUnsafe(4 + obj["overlayTexture"].length)),
+      v.writePrefixedStringLE(obj["overlayTexture"], 0);
+  } else {
+    (v = Buffer.allocUnsafe(4)), v.writePrefixedStringLE("", 0);
+  }
   data = Buffer.concat([data, v]);
-  (v = Buffer.allocUnsafe(4 + obj["unknownString5"].length)),
-    v.writePrefixedStringLE(obj["unknownString5"], 0);
+  if (obj["decalSlot"]) {
+    (v = Buffer.allocUnsafe(4 + obj["decalSlot"].length)),
+      v.writePrefixedStringLE(obj["decalSlot"], 0);
+  } else {
+    (v = Buffer.allocUnsafe(4)), v.writePrefixedStringLE("", 0);
+  }
   data = Buffer.concat([data, v]);
   (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["unknownDword38"], 0);
   data = Buffer.concat([data, v]);
@@ -239,8 +257,12 @@ function packItemDefinitionData(obj: any) {
   data = Buffer.concat([data, v]);
   v.writeUInt32LE(obj["unknownDword41"], 0);
   data = Buffer.concat([data, v]);
-  (v = Buffer.allocUnsafe(4 + obj["unknownString6"].length)),
-    v.writePrefixedStringLE(obj["unknownString6"], 0);
+  if (obj["overrideAppearance"]) {
+    (v = Buffer.allocUnsafe(4 + obj["overrideAppearance"].length)),
+      v.writePrefixedStringLE(obj["overrideAppearance"], 0);
+  } else {
+    (v = Buffer.allocUnsafe(4)), v.writePrefixedStringLE("", 0);
+  }
   data = Buffer.concat([data, v]);
   (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["overrideCameraId"], 0);
   data = Buffer.concat([data, v]);
@@ -276,6 +298,7 @@ function packItemDefinitionData(obj: any) {
   finalData = Buffer.concat([compressionData, output]);
   return finalData;
 }
+
 
 function readPositionUpdateData(data: Buffer, offset: number) {
   const obj: any = {},
