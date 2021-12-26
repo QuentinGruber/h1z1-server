@@ -312,6 +312,10 @@ function packItemDefinitionData(obj: any) {
     data = Buffer.concat([data, v]);
     v.writeUInt32LE(obj["stats"][step]["statData"]["statId"], 0);
     data = Buffer.concat([data, v]);
+    v = Buffer.allocUnsafe(1);
+    v.writeUInt8(obj["stats"][step]["statData"]["statValue"]["type"], 0);
+    data = Buffer.concat([data, v]);
+    v = Buffer.allocUnsafe(4);
     switch (obj["stats"][step]["statData"]["statValue"]["type"]) {
       case 0:
         v.writeUInt32LE(
