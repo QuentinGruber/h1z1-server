@@ -137,9 +137,28 @@ function packItemDefinitionData(obj: any) {
   let data = Buffer.allocUnsafe(4);
   let v: any;
   data.writeUInt32LE(obj["ID"], 0); // could be the actual item id idk
-  (v = Buffer.allocUnsafe(1)), v.writeUInt8(obj["unknownByte1"], 0);
+  v = Buffer.allocUnsafe(1);
+  let flagValue = 0;
+  let flagNum = 0;
+  for (const key in obj["flags"]) {
+    const flag = obj["flags"][key];
+    if (flag) {
+      flagValue = flagValue | (1 << flagNum);
+    }
+    flagNum++;
+  }
+  v.writeUInt8(flagValue, 0);
   data = Buffer.concat([data, v]);
-  v.writeUInt8(obj["unknownByte1"], 0); // flags
+  flagValue = 0;
+  flagNum = 0;
+  for (const key in obj["flags2"]) {
+    const flag = obj["flags2"][key];
+    if (flag) {
+      flagValue = flagValue | (1 << flagNum);
+    }
+    flagNum++;
+  }
+  v.writeUInt8(flagValue, 0); // flags
   data = Buffer.concat([data, v]);
   (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["nameId"], 0);
   data = Buffer.concat([data, v]);
@@ -285,8 +304,44 @@ function packItemDefinitionData(obj: any) {
   data = Buffer.concat([data, v]);
   v.writeUInt32LE(obj["unknownDword52"], 0);
   data = Buffer.concat([data, v]);
-  v.writeUInt32LE(obj["arrayLength"], 0); // skipping this array for now
+  v.writeUInt32LE(obj["stats"].length, 0);
   data = Buffer.concat([data, v]);
+  let step;
+  for (step = 0; step < obj["stats"].length; step++) {
+    v.writeUInt32LE(obj["stats"][step]["statId"], 0);
+    data = Buffer.concat([data, v]);
+    v.writeUInt32LE(obj["stats"][step]["statData"]["statId"], 0);
+    data = Buffer.concat([data, v]);
+    switch (obj["stats"][step]["statData"]["statValue"]["type"]) {
+      case 0:
+        v.writeUInt32LE(
+          obj["stats"][step]["statData"]["statValue"]["value"]["base"],
+          0
+        );
+        data = Buffer.concat([data, v]);
+        v.writeUInt32LE(
+          obj["stats"][step]["statData"]["statValue"]["value"]["modifier"],
+          0
+        );
+        data = Buffer.concat([data, v]);
+        break;
+      case 1:
+        v.writeFloatLE(
+          obj["stats"][step]["statData"]["statValue"]["value"]["base"],
+          0
+        );
+        data = Buffer.concat([data, v]);
+        v.writeFloatLE(
+          obj["stats"][step]["statData"]["statValue"]["value"]["modifier"],
+          0
+        );
+        data = Buffer.concat([data, v]);
+        break;
+      default:
+    }
+    v.writeUInt32LE(obj["stats"][step]["unknownDword1"], 0);
+    data = Buffer.concat([data, v]);
+  }
   const input = data;
   let output = Buffer.alloc(LZ4.encodeBound(input.length));
   const compressedSize = LZ4.encodeBlock(input, output);
