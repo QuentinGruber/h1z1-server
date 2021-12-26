@@ -890,8 +890,26 @@ export class ZoneServer extends EventEmitter {
       items.push({
         definitionData: {
           ID: item.ID,
-          unknownByte1: 0,
-          unknownByte2: 0,
+          flags: {
+            NO_TRADE: item.NO_TRADE,
+            COMBAT_ONLY: item.COMBAT_ONLY,
+            NO_LIVE_GAMER: item.NO_LIVE_GAMER,
+            SINGLE_USE: item.SINGLE_USE,
+            NON_MINI_GAME: item.NON_MINI_GAME,
+            MEMBERS_ONLY: item.MEMBERS_ONLY,
+            NO_SALE: item.NO_SALE,
+            FORCE_DISABLE_PREVIEW: item.FORCE_DISABLE_PREVIEW,
+          },
+          flags2: {
+            PERSIST_PROFILE_SWITCH: item.PERSIST_PROFILE_SWITCH,
+            FLAG_QUICK_USE: item.FLAG_QUICK_USE,
+            FLAG_NO_DRAG_DROP: false,
+            FLAG_ACCOUNT_SCOPE: item.FLAG_ACCOUNT_SCOPE,
+            FLAG_CAN_EQUIP: item.FLAG_CAN_EQUIP,
+            bit5: false,
+            bit6: false,
+            bit7: false,
+          },
           nameId: item.NAME_ID,
           descriptionId: item.DESCRIPTION_ID,
           unknownDword4: 6,
@@ -949,11 +967,11 @@ export class ZoneServer extends EventEmitter {
           unknownDword50: 0,
           unknownDword51: 0,
           unknownDword52: 0,
-          arrayLength: 0,
+          stats: [],
         },
       });
     });
-    debug("Generated Items");
+    debug("Generated " +items.length +" items");
     return items;
   }
 
