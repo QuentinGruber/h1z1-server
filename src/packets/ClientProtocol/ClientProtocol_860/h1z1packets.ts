@@ -7113,13 +7113,13 @@ var packets = [
     },
   ],
   [
-    "InGamePurchase.AcccountInfoRequest",
+    "InGamePurchase.AccountInfoRequest",
     0x271900,
     {
       fields: [{ name: "locale", type: "string", defaultValue: "" }],
     },
   ],
-  ["InGamePurchase.AcccountInfoResponse", 0x271a00, {}],
+  ["InGamePurchase.AccountInfoResponse", 0x271a00, {}],
   ["InGamePurchase.StoreBundleContentRequest", 0x271b00, {}],
   ["InGamePurchase.StoreBundleContentResponse", 0x271c00, {}],
   ["InGamePurchase.ClientStatistics", 0x271d00, {}],
