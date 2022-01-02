@@ -15,6 +15,7 @@ const restore = require("mongodb-restore-dump");
 import { generate_random_guid } from "h1emu-core";
 import v8 from "v8";
 import fs from "fs";
+import {compress, compressBound} from "./lz4/lz4";
 
 export class customLodash {
   constructor() {}
@@ -206,6 +207,15 @@ export const generateCommandList = (
   });
   return commandList;
 };
+
+export class LZ4 {
+  encodeBlock: (src: any, dst: any[], sIdx: any, eIdx: any) => number;
+  encodeBound: (isize: number) => number;
+  constructor(){
+    this.encodeBlock = compress
+    this.encodeBound = compressBound
+  }
+}
 
 export const lz4_decompress = function (
   // from original implementation
