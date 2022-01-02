@@ -633,7 +633,7 @@ the "copyright" line and a pointer to where the full notice is found.
 
     h1z1-server is a library that emulate a h1z1 server
     Copyright (C) 2020 - 2021 Quentin Gruber
-    Copyright (C) 2021 H1emu community 
+    copyright (C) 2021 - 2022 H1emu community 
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -654,7 +654,7 @@ Also add information on how to contact you by electronic and paper mail.
 notice like this when it starts in an interactive mode:
 
     h1z1-server  Copyright (C) 2020 - 2021 Quentin Gruber 
-    h1z1-server  Copyright (C) 2021 H1emu community
+    h1z1-server  copyright (C) 2021 - 2022 H1emu community
     This program comes with ABSOLUTELY NO WARRANTY; for details type `show w'.
     This is free software, and you are welcome to redistribute it
     under certain conditions; type `show c' for details.

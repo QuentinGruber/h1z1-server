@@ -2,8 +2,8 @@
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
-//   copyright (c) 2020 - 2021 Quentin Gruber
-//   copyright (c) 2021 H1emu community
+//   copyright (C) 2020 - 2021 Quentin Gruber
+//   copyright (C) 2021 - 2022 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -12,7 +12,6 @@
 // ======================================================================
 
 import { characterEquipment } from "../../../types/zoneserver";
-import { Int64String } from "../../../utils/utils";
 import { ZoneServer } from "../zoneserver";
 import { ZoneClient } from "./zoneclient";
 
@@ -46,6 +45,7 @@ export class Character {
     health: number;
     shield: number;
   };
+  characterStates: any;
   isRunning: boolean = false;
   isHidden: boolean = false;
   isBleeding: boolean = false;
@@ -85,6 +85,10 @@ export class Character {
       lookAt: new Float32Array([0, 0, 0, 0]),
       health: 0,
       shield: 0,
+    };
+    this.characterStates = {
+      visible: true,
+      revivable: true,
     };
   }
 
@@ -186,10 +190,11 @@ export class Character {
 
     server.sendData(client, "ZoneDoneSendingInitialData", {});
 
-    server.sendData(client, "PlayerUpdate.UpdateCharacterState", {
-      characterId: this.characterId,
-      state: "000000000000000000",
-      gameTime: Int64String(server.getGameTime()),
-    });
+    server.updateCharacterState(
+      client,
+      client.character.characterId,
+      this.characterStates,
+      false
+    );
   }
 }
