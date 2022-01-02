@@ -5158,7 +5158,7 @@ var packets = [
       ],
     },
   ],
-  ["PlayerUpdate.LaunchProjectile", 0x0f2e, {
+  ["PlayerUpdate.LaunchProjectile", 0x0f2e, { // half done
     fields: [
       {
         name: "projectile",
