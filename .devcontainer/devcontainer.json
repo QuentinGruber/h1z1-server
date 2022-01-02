@@ -10,7 +10,6 @@
 	"settings": {},
 	// Add the IDs of extensions you want installed when the container is created.
 	"extensions": [
-		"dbaeumer.vscode-eslint",
 		"mongodb.mongodb-vscode",
 		"vivaxy.vscode-conventional-commits",
 		"github.vscode-pull-request-github",
@@ -18,10 +17,8 @@
 		"luis.node-project-version",
 		"eg2.vscode-npm-script",
 		"christian-kohler.path-intellisense",
-		"esbenp.prettier-vscode",
 		"lkytal.quicktask",
 		"wix.vscode-import-cost"
 	],
-	"appPort": ["1115:1115/udp", "1117:1117/udp"],
 	"postCreateCommand": "npm install",
 }
