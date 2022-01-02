@@ -2161,6 +2161,8 @@ export class zonePacketHandlers {
       case "SetLocale":
         this.SetLocale(server, client, packet);
         break;
+      case "Combat.AutoAttackOff":
+        break;
       case "GetRespawnLocations":
         break;
       case "GetContinentBattleInfo":
