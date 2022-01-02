@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import LZ4 from "lz4";
+import { LZ4 } from "../../../utils/utils";
 
 import PacketTableBuild from "../../packettable";
 import DataSchema from "h1z1-dataschema";
