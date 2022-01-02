@@ -7368,13 +7368,13 @@ var packets = [
     },
   ],
   [
-    "InGamePurchase.AcccountInfoRequest",
+    "InGamePurchase.AccountInfoRequest",
     0x271900,
     {
       fields: [{ name: "locale", type: "string", defaultValue: "" }],
     },
   ],
-  ["InGamePurchase.AcccountInfoResponse", 0x271a00, {}],
+  ["InGamePurchase.AccountInfoResponse", 0x271a00, {}],
   ["InGamePurchase.StoreBundleContentRequest", 0x271b00, {}],
   ["InGamePurchase.StoreBundleContentResponse", 0x271c00, {}],
   ["InGamePurchase.ClientStatistics", 0x271d00, {}],
@@ -7753,7 +7753,31 @@ var packets = [
       ],
     },
   ],
-  ["ClientMetrics", 0x45, {}],
+  ["ClientMetrics", 0x45, {
+    fields: [
+      { name: "unknown1", type: "uint64string", defaultValue: "0" },
+      { name: "unknown2", type: "uint32", defaultValue: 0 },
+      { name: "unknown3", type: "uint32", defaultValue: 0 },
+      { name: "unknown4", type: "uint32", defaultValue: 0 },
+      { name: "unknown5", type: "uint32", defaultValue: 0 },
+      { name: "unknown6", type: "uint32", defaultValue: 0 },
+      { name: "unknown7", type: "uint32", defaultValue: 0 },
+      { name: "unknown8", type: "uint32", defaultValue: 0 },
+      { name: "unknown9", type: "uint32", defaultValue: 0 },
+      { name: "unknown10", type: "uint32", defaultValue: 0 },
+      { name: "unknown11", type: "uint32", defaultValue: 0 },
+      { name: "unknown12", type: "uint32", defaultValue: 0 },
+      { name: "unknown13", type: "uint32", defaultValue: 0 },
+      { name: "unknown14", type: "uint32", defaultValue: 0 },
+      { name: "unknown15", type: "uint32", defaultValue: 0 },
+      { name: "unknown16", type: "uint32", defaultValue: 0 },
+      { name: "unknown17", type: "uint32", defaultValue: 0 },
+      { name: "unknown18", type: "uint32", defaultValue: 0 },
+      { name: "unknown19", type: "uint32", defaultValue: 0 },
+      { name: "unknown20", type: "uint32", defaultValue: 0 },
+      { name: "unknown21", type: "uint32", defaultValue: 0 },
+    ],
+  }],
   ["FirstTimeEvent", 0x46, {}],
   ["Claim", 0x47, {}],
   [
@@ -7879,7 +7903,9 @@ var packets = [
       ],
     },
   ],
-  ["Fotomat", 0x67, {}],
+  ["Fotomat", 0x67, {
+    fields: [],
+  }],
   ["UpdateUserAge", 0x68, {}],
   [
     "Loot.Reply",
@@ -9089,8 +9115,15 @@ var packets = [
   ["Vehicle.DeployResponse", 0x8824, {}],
   ["Vehicle.ExitPoints", 0x8825, {}],
   ["Vehicle.ControllerLogOut", 0x8826, {}],
-  ["Vehicle.CurrentMoveMode", 0x8827, {}],
-  ["Vehicle.ItemDefinitionRequest", 0x8828, {}],
+  ["Vehicle.CurrentMoveMode", 0x8827, {
+    fields: [
+      { name: "characterId", type: "uint64string", defaultValue: "0" },
+      { name: "moveMode", type: "uint8", defaultValue: 0 },
+    ],
+  }],
+  ["Vehicle.ItemDefinitionRequest", 0x8828, {
+    fields: []
+  }],
   ["Vehicle.ItemDefinitionReply", 0x8829, {}],
   ["Vehicle.InventoryItems", 0x882a, {}],
   ["Grief", 0x89, {}],
@@ -9618,10 +9651,18 @@ var packets = [
       ],
     },
   ],
-  ["WallOfData.ClientSystemInfo", 0x9906, {}],
+  ["WallOfData.ClientSystemInfo", 0x9906, {
+    fields: [
+      { name: "ClientSystemInfo", type: "string", defaultValue: "" },
+    ],
+  }],
   ["WallOfData.VoiceChatEvent", 0x9907, {}],
   ["WallOfData.NudgeEvent", 0x9909, {}],
-  ["WallOfData.LaunchPadFingerprint", 0x990a, {}],
+  ["WallOfData.LaunchPadFingerprint", 0x990a, {
+    fields: [
+      { name: "LaunchPadFingerprint", type: "uint64string", defaultValue: "0" },
+    ],
+  }],
   ["WallOfData.VideoCapture", 0x990b, {}],
   [
     "WallOfData.ClientTransition",
