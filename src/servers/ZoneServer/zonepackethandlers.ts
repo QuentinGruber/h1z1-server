@@ -48,6 +48,7 @@ export class zonePacketHandlers {
   commandFreeInteractionNpc: any;
   collisionDamage: any;
   VehicleItemDefinitionRequest: any;
+  CurrentMoveMode: any;
   lobbyGameDefinitionDefinitionsRequest: any;
   playerUpdateEndCharacterAccess: any;
   KeepAlive: any;
@@ -296,6 +297,13 @@ export class zonePacketHandlers {
       packet: any
     ) {
       debug(`Character "${client.character.name}" (${client.character.characterId}) ask for VehicleItemDefinition`)
+    };
+    this.CurrentMoveMode = function (
+      server: ZoneServer,
+      client: Client,
+      packet: any
+    ) {
+      debug(`Vehicle "${packet.data.characterId}" move mode : ${packet.data.moveMode}`)
     };
     this.playerUpdateEndCharacterAccess = function (
       server: ZoneServer,
@@ -2119,6 +2127,9 @@ export class zonePacketHandlers {
         break;
       case "Collision.Damage":
         this.collisionDamage(server, client, packet);
+        break;
+      case "Vehicle.CurrentMoveMode":
+        this.CurrentMoveMode(server, client, packet);
         break;
       case "Vehicle.ItemDefinitionRequest":
         this.VehicleItemDefinitionRequest(server, client, packet);
