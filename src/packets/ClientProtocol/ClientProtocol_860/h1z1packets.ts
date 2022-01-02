@@ -7648,7 +7648,9 @@ var packets = [
       ],
     },
   ],
-  ["Fotomat", 0x67, {}],
+  ["Fotomat", 0x67, {
+    fields: [],
+  }],
   ["UpdateUserAge", 0x68, {}],
   [
     "Loot.Reply",

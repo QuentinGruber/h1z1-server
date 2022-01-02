@@ -2161,6 +2161,8 @@ export class zonePacketHandlers {
       case "SetLocale":
         this.SetLocale(server, client, packet);
         break;
+      case "GetRespawnLocations":
+        break;
       case "GetContinentBattleInfo":
         this.GetContinentBattleInfo(server, client, packet);
         break;
@@ -2268,6 +2270,8 @@ export class zonePacketHandlers {
         break;
       case "PlayerUpdate.FullCharacterDataRequest":
         this.playerUpdateFullCharacterDataRequest(server, client, packet);
+        break;
+      case "Fotomat":
         break;
       default:
         console.error(packet);
