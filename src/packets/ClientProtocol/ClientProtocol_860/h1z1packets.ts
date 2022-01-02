@@ -2,8 +2,8 @@
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
-//   copyright (c) 2020 - 2021 Quentin Gruber
-//   copyright (c) 2021 H1emu community
+//   copyright (C) 2020 - 2021 Quentin Gruber
+//   copyright (C) 2021 - 2022 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -5551,7 +5551,130 @@ var packets = [
       ],
     },
   ],
-  ["PlayerUpdate.LaunchProjectile", 0x0f2e, {}],
+  ["PlayerUpdate.LaunchProjectile", 0x0f2e, { // half done
+    fields: [
+      {
+        name: "projectile",
+        type: "schema",
+        fields: [
+          { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
+          { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+  
+          { name: "unknownWord3", type: "boolean", defaultValue: 0 },
+          { name: "unknownWord4", type: "boolean", defaultValue: 0 },
+         
+          {
+            name: "unknownVector1",
+            type: "floatvector4",
+            defaultValue: [0, 0, 0, 1],
+          },
+          {
+            name: "unknownVector2",
+            type: "floatvector4",
+            defaultValue: [0, 0, 0, 1],
+          },
+          {
+            name: "unknownVector3",
+            type: "floatvector3",
+            defaultValue: [0, 0, 0, 1],
+          },
+          {
+            name: "unknownVector4",
+            type: "floatvector3",
+            defaultValue: [0, 0, 0, 1],
+          },
+          { name: "unkstring", type: "string", defaultValue: "test" },
+          {
+            name: "unknownVector5",
+            type: "floatvector4",
+            defaultValue: [0, 0, 0, 1],
+          },
+
+          { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword8", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword9", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword10", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword11", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword12", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword13", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword14", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword15", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword16", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword17", type: "uint32", defaultValue: 0 },
+          { name: "unkstring2", type: "string", defaultValue: "test" },
+
+
+          { name: "unknownDword18", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword19", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword20", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword21", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword22", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword23", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword24", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword25", type: "uint32", defaultValue: 0 },
+
+          { name: "unknown26", type: "boolean", defaultValue: 0 },
+          { name: "unknown27", type: "boolean", defaultValue: 0 },
+
+          { name: "unknownDword28", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword29", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword30", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword31", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword32", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword33", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword34", type: "uint32", defaultValue: 0 },
+
+          // vector2 ? ( a non sense but it's read the same way)
+          { name: "unknownDword35", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword36", type: "uint32", defaultValue: 0 },
+
+
+          // 3 bytes read in a standalone function
+          { name: "unknown37", type: "uint8", defaultValue: 0 },
+          { name: "unknown38", type: "uint8", defaultValue: 0 },
+          { name: "unknown39", type: "uint8", defaultValue: 0 },
+
+          { name: "unknownDword40", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword41", type: "uint32", defaultValue: 0 },
+
+          { name: "unknownQword42", type: "uint64string", defaultValue: "0" },
+
+
+          { name: "unknownDword42", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword43", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword44", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword45", type: "uint32", defaultValue: 0 },
+
+          {
+            name: "unknownVector6",
+            type: "floatvector4",
+            defaultValue: [0, 0, 0, 1],
+          },
+
+          { name: "unknownDword46", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword47", type: "uint32", defaultValue: 0 },
+
+          { name: "unknownDword48", type: "uint8", defaultValue: 0 },
+
+          // 9 4 
+
+          { name: "unknownDword49", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword50", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword51", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword52", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword53", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword54", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword55", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword56", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword57", type: "uint32", defaultValue: 0 },
+
+        ],
+      },
+      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+    ],
+  }],
   ["PlayerUpdate.SetSynchronizedAnimations", 0x0f2f, {}],
   [
     "PlayerUpdate.HudMessage",
@@ -7497,13 +7620,13 @@ var packets = [
     },
   ],
   [
-    "InGamePurchase.AcccountInfoRequest",
+    "InGamePurchase.AccountInfoRequest",
     0x271900,
     {
       fields: [{ name: "locale", type: "string", defaultValue: "" }],
     },
   ],
-  ["InGamePurchase.AcccountInfoResponse", 0x271a00, {}],
+  ["InGamePurchase.AccountInfoResponse", 0x271a00, {}],
   ["InGamePurchase.StoreBundleContentRequest", 0x271b00, {}],
   ["InGamePurchase.StoreBundleContentResponse", 0x271c00, {}],
   ["InGamePurchase.ClientStatistics", 0x271d00, {}],
@@ -7882,7 +8005,31 @@ var packets = [
       ],
     },
   ],
-  ["ClientMetrics", 0x45, {}],
+  ["ClientMetrics", 0x45, {
+    fields: [
+      { name: "unknown1", type: "uint64string", defaultValue: "0" },
+      { name: "unknown2", type: "uint32", defaultValue: 0 },
+      { name: "unknown3", type: "uint32", defaultValue: 0 },
+      { name: "unknown4", type: "uint32", defaultValue: 0 },
+      { name: "unknown5", type: "uint32", defaultValue: 0 },
+      { name: "unknown6", type: "uint32", defaultValue: 0 },
+      { name: "unknown7", type: "uint32", defaultValue: 0 },
+      { name: "unknown8", type: "uint32", defaultValue: 0 },
+      { name: "unknown9", type: "uint32", defaultValue: 0 },
+      { name: "unknown10", type: "uint32", defaultValue: 0 },
+      { name: "unknown11", type: "uint32", defaultValue: 0 },
+      { name: "unknown12", type: "uint32", defaultValue: 0 },
+      { name: "unknown13", type: "uint32", defaultValue: 0 },
+      { name: "unknown14", type: "uint32", defaultValue: 0 },
+      { name: "unknown15", type: "uint32", defaultValue: 0 },
+      { name: "unknown16", type: "uint32", defaultValue: 0 },
+      { name: "unknown17", type: "uint32", defaultValue: 0 },
+      { name: "unknown18", type: "uint32", defaultValue: 0 },
+      { name: "unknown19", type: "uint32", defaultValue: 0 },
+      { name: "unknown20", type: "uint32", defaultValue: 0 },
+      { name: "unknown21", type: "uint32", defaultValue: 0 },
+    ],
+  }],
   ["FirstTimeEvent", 0x46, {}],
   ["Claim", 0x47, {}],
   [
@@ -8008,7 +8155,9 @@ var packets = [
       ],
     },
   ],
-  ["Fotomat", 0x67, {}],
+  ["Fotomat", 0x67, {
+    fields: [],
+  }],
   ["UpdateUserAge", 0x68, {}],
   [
     "Loot.Reply",
@@ -9218,8 +9367,15 @@ var packets = [
   ["Vehicle.DeployResponse", 0x8824, {}],
   ["Vehicle.ExitPoints", 0x8825, {}],
   ["Vehicle.ControllerLogOut", 0x8826, {}],
-  ["Vehicle.CurrentMoveMode", 0x8827, {}],
-  ["Vehicle.ItemDefinitionRequest", 0x8828, {}],
+  ["Vehicle.CurrentMoveMode", 0x8827, {
+    fields: [
+      { name: "characterId", type: "uint64string", defaultValue: "0" },
+      { name: "moveMode", type: "uint8", defaultValue: 0 },
+    ],
+  }],
+  ["Vehicle.ItemDefinitionRequest", 0x8828, {
+    fields: []
+  }],
   ["Vehicle.ItemDefinitionReply", 0x8829, {}],
   ["Vehicle.InventoryItems", 0x882a, {}],
   ["Grief", 0x89, {}],
@@ -9747,10 +9903,18 @@ var packets = [
       ],
     },
   ],
-  ["WallOfData.ClientSystemInfo", 0x9906, {}],
+  ["WallOfData.ClientSystemInfo", 0x9906, {
+    fields: [
+      { name: "ClientSystemInfo", type: "string", defaultValue: "" },
+    ],
+  }],
   ["WallOfData.VoiceChatEvent", 0x9907, {}],
   ["WallOfData.NudgeEvent", 0x9909, {}],
-  ["WallOfData.LaunchPadFingerprint", 0x990a, {}],
+  ["WallOfData.LaunchPadFingerprint", 0x990a, {
+    fields: [
+      { name: "LaunchPadFingerprint", type: "uint64string", defaultValue: "0" },
+    ],
+  }],
   ["WallOfData.VideoCapture", 0x990b, {}],
   [
     "WallOfData.ClientTransition",
