@@ -209,13 +209,11 @@ export const generateCommandList = (
 };
 
 export class LZ4 {
-  encodeBlock: (src: any, dst: any[], sIdx: any, eIdx: any) => number;
-  encodeBound: (isize: number) => number;
-  constructor(){
-    this.encodeBlock = compress
-    this.encodeBound = compressBound
-  }
+  static encodeBlock: (src: any, dst: any, sIdx?: any, eIdx?: any) => number;
+  static encodeBound: (isize: number) => number;
 }
+LZ4.encodeBlock = compress
+LZ4.encodeBound = compressBound
 
 export const lz4_decompress = function (
   // from original implementation
