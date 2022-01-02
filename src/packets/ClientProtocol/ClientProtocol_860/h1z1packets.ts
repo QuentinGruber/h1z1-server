@@ -8858,8 +8858,15 @@ var packets = [
   ["Vehicle.DeployResponse", 0x8824, {}],
   ["Vehicle.ExitPoints", 0x8825, {}],
   ["Vehicle.ControllerLogOut", 0x8826, {}],
-  ["Vehicle.CurrentMoveMode", 0x8827, {}],
-  ["Vehicle.ItemDefinitionRequest", 0x8828, {}],
+  ["Vehicle.CurrentMoveMode", 0x8827, {
+    fields: [
+      { name: "characterId", type: "uint64string", defaultValue: "0" },
+      { name: "moveMode", type: "uint8", defaultValue: 0 },
+    ],
+  }],
+  ["Vehicle.ItemDefinitionRequest", 0x8828, {
+    fields: []
+  }],
   ["Vehicle.ItemDefinitionReply", 0x8829, {}],
   ["Vehicle.InventoryItems", 0x882a, {}],
   ["Grief", 0x89, {}],
