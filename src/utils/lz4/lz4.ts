@@ -31,6 +31,7 @@
     export const uncompress = (input: string | any[], output: any[], sIdx: number, eIdx: number): number => {
         sIdx = sIdx || 0
         eIdx = eIdx || (input.length - sIdx)
+        let end;
         // Process each sequence in the incoming data
         for (var i = sIdx, n = eIdx, j = 0; i < n;) {
             var token = input[i++]
@@ -46,7 +47,7 @@
                 }
     
                 // Copy the literals
-                var end = i + literals_length
+                end = i + literals_length
                 while (i < end) output[j++] = input[i++]
     
                 // End of buffer?
@@ -70,7 +71,7 @@
     
             // Copy the match
             var pos = j - offset // position of the match copy in the current output
-            var end = j + match_length + 4 // minmatch = 4
+            end = j + match_length + 4 // minmatch = 4
             while (j < end) output[j++] = output[pos++]
         }
     
@@ -80,13 +81,11 @@
     var
         maxInputSize	= 0x7E000000
     ,	minMatch		= 4
-    // uint32() optimization
     ,	hashLog			= 16
     ,	hashShift		= (minMatch * 8) - hashLog
     ,	hashSize		= 1 << hashLog
     
     ,	copyLength		= 8
-    ,	lastLiterals	= 5
     ,	mfLimit			= copyLength + minMatch
     ,	skipStrength	= 6
     
@@ -126,8 +125,7 @@
             if ( dlen < n ) throw Error("output too small: " + dlen + " < " + n)
     
             var 
-                step  = 1
-            ,	findMatchAttempts = (1 << skipStrength) + 3
+        	findMatchAttempts = (1 << skipStrength) + 3
             // Keep last few bytes incompressible (LZ4 specs):
             // last 5 bytes must be literals
             ,	srcLength = src.length - mfLimit
@@ -156,7 +154,7 @@
                     )
                 ) {
                     // increase step if nothing found within limit
-                    step = findMatchAttempts++ >> skipStrength
+                    const step = findMatchAttempts++ >> skipStrength
                     pos += step
                     continue
                 }
