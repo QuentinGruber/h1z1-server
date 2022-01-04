@@ -8312,7 +8312,7 @@ var packets = [
       fields: [
         { name: "roomType", type: "uint8", defaultValue: 0 },
         { name: "uri", type: "string", defaultValue: "" },
-        { name: "unknown1", type: "uint32", defaultValue: 0 },
+        { name: "unknown1", type: "string", defaultValue: "" },
       ],
     },
   ],
