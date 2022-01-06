@@ -6542,8 +6542,9 @@ var packets = [
     0x110e00,
     {
       fields: [
-        { name: "unknownDword1", type: "uint32", defaultValue: 1 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword1", type: "uint32", defaultValue: 1111389 }, // 1111389 = id of EmoteWaveHello
+        { name: "unknownDword2", type: "uint32", defaultValue: 4 }, // number of byte of unknownDword3
+        { name: "unknownDword3", type: "uint32", defaultValue: 3 },
       ],
     },
   ],
