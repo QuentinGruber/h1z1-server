@@ -5295,7 +5295,8 @@ var packets = [
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        //  "Melee"=0,"Handgun"=1,"SubmachineGun"=2,"Rifle"=3,"Shoulder"=4,"Heavy"=5,"Hip"=6 
+        { name: "filterType", type: "uint32", defaultValue: 0 }, 
       ],
     },
   ],
