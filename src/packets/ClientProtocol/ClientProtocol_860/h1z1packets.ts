@@ -1050,8 +1050,8 @@ const lightWeightNpcSchema = [
   { name: "string22", type: "string", defaultValue: "" },
   { name: "vehicleId", type: "uint32", defaultValue: 0 },
   { name: "unknown24", type: "uint32", defaultValue: 0 },
-  { name: "npcDefinitionId", type: "uint32", defaultValue: 0 },
-  { name: "isVehicle", type: "boolean", defaultValue: false }, // determine if npc is moving with positionUpdate - Avcio
+  { name: "npcDefinitionId", type: "uint32", defaultValue: 3 },
+  { name: "isVehicle", type: "uint8", defaultValue: false }, // determine if npc is moving with positionUpdate - Avcio
   { name: "profileId", type: "uint32", defaultValue: 0 },
   { name: "dontRequestFullData", type: "boolean", defaultValue: false },
   {
@@ -1063,7 +1063,7 @@ const lightWeightNpcSchema = [
       { name: "b", type: "uint8", defaultValue: 0 },
     ],
   },
-  { name: "unknown30", type: "boolean", defaultValue: false },
+  { name: "MRversion", type: "uint8", defaultValue: 9 },
   { name: "unknown31", type: "uint32", defaultValue: 0 },
   {
     name: "unknown32",
