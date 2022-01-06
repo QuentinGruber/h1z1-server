@@ -1757,7 +1757,6 @@ export class zonePacketHandlers {
               unk3: 0,
             });
             entityData.isOpen = true;
-            entityData.openCounter++;
           } else {
             entityData.moving = true;
             setTimeout(function () {
@@ -1778,24 +1777,7 @@ export class zonePacketHandlers {
               position: entityData.position,
               unk3: 0,
             });
-            entityData.openCounter++;
             entityData.isOpen = false;
-            if (entityData.openCounter > 5) {
-              server.sendDataToAll(
-                "PlayerUpdate.RemovePlayerGracefully",
-                {
-                  characterId: entityData.characterId,
-                },
-                1
-              );
-              setTimeout(function () {
-                server.sendDataToAll(
-                  "PlayerUpdate.AddLightweightNpc",
-                  entityData
-                );
-              }, 150);
-              entityData.openCounter = 0;
-            }
           }
           break;
         case 4: // prop
