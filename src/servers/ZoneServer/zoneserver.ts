@@ -1065,19 +1065,20 @@ export class ZoneServer extends EventEmitter {
 
   setGodMode(client: Client, godMode: boolean) {
     client.character.godMode = godMode;
+    client.character.characterStates.invincibility = godMode
     this.sendChatText(
       client,
       `GODMODE: ${client.character.godMode ? "ON" : "OFF"}`
     );
-    const godModeState = client.character.godMode
-      ? "000000000002000000"
-      : "000000000000000000";
-    this.sendData(client, "PlayerUpdate.UpdateCharacterState", {
-      characterId: client.character.characterId,
-      state: godModeState,
-      gameTime: this.getSequenceTime(),
-    });
+    this.updateCharacterState(client,client.character.characterId,client.character.characterStates,false)
   }
+
+  toggleHiddenMode(client: Client) {
+    client.character.isHidden = !client.character.isHidden
+    client.character.characterStates.gmHidden = client.character.isHidden
+    this.updateCharacterState(client,client.character.characterId,client.character.characterStates,false)
+  }
+
   tempGodMode(client: Client, durationMs: number) {
     if (!client.character.godMode) {
       client.character.godMode = true;
