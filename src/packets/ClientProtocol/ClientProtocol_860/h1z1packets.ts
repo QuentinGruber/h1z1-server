@@ -1063,7 +1063,7 @@ const lightWeightNpcSchema = [
       { name: "b", type: "uint8", defaultValue: 0 },
     ],
   },
-  { name: "MRversion", type: "uint8", defaultValue: 9 },
+  { name: "MRversion", type: "uint8", defaultValue: 0 },
   { name: "unknown31", type: "uint32", defaultValue: 0 },
   {
     name: "unknown32",
