@@ -5080,7 +5080,16 @@ var packets = [
   ["PlayerUpdate.PreferredLanguages", 0x0f17, {}],
   ["PlayerUpdate.CustomizationChange", 0x0f18, {}],
   ["PlayerUpdate.PlayerTitle", 0x0f19, {}],
-  ["PlayerUpdate.AddEffectTagCompositeEffect", 0x0f1a, {}],
+  ["PlayerUpdate.AddEffectTagCompositeEffect", 0x0f1a, {
+    fields: [
+      { name: "characterId", type: "uint64string", defaultValue: "0" },
+      { name: "unk1", type: "uint32", defaultValue: 2 },
+      { name: "unk2", type: "uint32", defaultValue: 3 },
+      { name: "unk3", type: "uint64string", defaultValue: "0" },
+      { name: "unk4", type: "uint64string", defaultValue: "0" },
+      { name: "unk5", type: "uint32", defaultValue: 4 },
+    ],
+  }],
   ["PlayerUpdate.RemoveEffectTagCompositeEffect", 0x0f1b, {}],
   ["PlayerUpdate.SetSpawnAnimation", 0x0f1c, {}],
   [
