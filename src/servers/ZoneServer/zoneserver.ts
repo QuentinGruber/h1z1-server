@@ -1140,7 +1140,7 @@ export class ZoneServer extends EventEmitter {
         rotation: [0, 0, 0, 0],
         scale: [1, 1, 1, 1],
         attachedObject: {},
-        isVehicle: true,
+        positionUpdateType: 1,
         color: { r: 127, g: 127, b: 127 },
         array5: [{ unknown1: 0 }],
         array17: [{ unknown1: 0 }],

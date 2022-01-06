@@ -797,7 +797,7 @@ export class ZoneServer2016 extends ZoneServer {
     // does not include vehicles
     const objectsToRemove = client.spawnedEntities.filter(
       (e) =>
-        !e.npcData?.isVehicle &&
+        !e.npcData?.positionUpdateType && // TODO: change this behavior this will cause issues
         this.filterOutOfDistance(e, client.character.state.position)
     );
     client.spawnedEntities = client.spawnedEntities.filter((el) => {

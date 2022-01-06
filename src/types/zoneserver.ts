@@ -375,7 +375,7 @@ export interface npcData {
   rotation: Float32Array;
   attachedObject: any;
   vehicleId: number;
-  isVehicle: boolean;
+  positionUpdateType: number;
   color: any;
   unknownArray1: any[];
   destroyedState: number;
