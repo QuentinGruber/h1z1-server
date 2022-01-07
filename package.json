@@ -21,7 +21,7 @@
     "debug": "4.3.3",
     "h1emu-core": "0.6.3",
     "h1z1-dataschema": "1.5.8",
-    "mongodb": "4.2.2",
+    "mongodb": "4.3.0",
     "mongodb-restore-dump": "1.0.1",
     "typedoc": "0.22.10",
     "typescript": "4.5.4",
