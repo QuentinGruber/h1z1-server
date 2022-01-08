@@ -23,6 +23,8 @@ export default function PacketTableBuild(
       name = prefix + packet[0],
       type = packet[1] >>> 0,
       packetDesc = packet[2];
+      console.log(packetDesc)
+
     packetTypes[name] = type;
     packetDescriptors[type] = {
       type: type,

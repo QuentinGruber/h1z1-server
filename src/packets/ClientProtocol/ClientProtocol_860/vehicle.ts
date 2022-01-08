@@ -1,4 +1,4 @@
-import { packItemData, parseItemData } from "./shared/functions";
+import { packItemData, parseItemData } from "./shared/shared";
 
 
 

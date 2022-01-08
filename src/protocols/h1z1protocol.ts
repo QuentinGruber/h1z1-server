@@ -13,7 +13,7 @@
 
 const debug = require("debug")("H1Z1Protocol");
 import DataSchema from "h1z1-dataschema";
-import { packUnsignedIntWith2bitLengthValue } from "../packets/ClientProtocol/ClientProtocol_860/shared/functions";
+import { packUnsignedIntWith2bitLengthValue } from "../packets/ClientProtocol/ClientProtocol_860/shared/shared";
 import { eul2quat, getPacketTypeBytes, lz4_decompress } from "../utils/utils";
 
 export interface UpdatePositionObject {

@@ -1,4 +1,4 @@
-import { facilityStatsDataSchema, profileStatsSubSchema1, vehicleStatsDataSchema, weaponStatsDataSchema } from "./shared/schemas";
+import { facilityStatsDataSchema, profileStatsSubSchema1, vehicleStatsDataSchema, weaponStatsDataSchema } from "./shared/shared";
 
 
 

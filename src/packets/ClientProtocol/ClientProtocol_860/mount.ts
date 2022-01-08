@@ -1,4 +1,4 @@
-import { identitySchema } from "./shared/schemas";
+import { identitySchema } from "./shared/shared";
 
 
 

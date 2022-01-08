@@ -1,4 +1,4 @@
-import { lootItemSchema } from "./shared/schemas";
+import { lootItemSchema } from "./shared/shared";
 
 
 

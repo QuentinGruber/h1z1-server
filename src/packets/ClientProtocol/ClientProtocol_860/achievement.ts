@@ -1,4 +1,4 @@
-import { achievementDataSchema, objectiveDataSchema } from "./shared/schemas";
+import { achievementDataSchema, objectiveDataSchema } from "./shared/shared";
 
 
 

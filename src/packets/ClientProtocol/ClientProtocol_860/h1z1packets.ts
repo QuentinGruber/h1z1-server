@@ -40,6 +40,7 @@ import { friendPackets } from "./friend";
 import { guildPackets } from "./guild";
 import { implantPackets } from "./implant";
 import { inGamePurchasePackets } from "./inGamePurchase";
+import { itemsPackets } from "./items";
 import { loadoutPackets } from "./loadout";
 import { lobbyPackets } from "./lobby";
 import { lobbyGameDefinitionPackets } from "./lobbyGameDefinition";
@@ -56,7 +57,6 @@ import { ragdollPackets } from "./ragdoll";
 import { recipePackets } from "./recipe";
 import { referenceDataPackets } from "./referenceData";
 import { rewardBuffsPackets } from "./rewardBuffs";
-import { itemBaseSchema } from "./shared/schemas";
 import { skillPackets } from "./skill";
 import { staticFacilityInfoPackets } from "./staticFacilityInfo";
 import { targetPackets } from "./target";
@@ -99,7 +99,7 @@ const packets:any = [
   ,...friendPackets
   ,...guildPackets
   ,...inGamePurchasePackets
-  ,...itemBaseSchema
+  ,...itemsPackets
   ,...loadoutPackets
   ,...lobbyPackets
   ,...lobbyGameDefinitionPackets

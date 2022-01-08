@@ -1,5 +1,5 @@
-import { packPositionUpdateData, packUnsignedIntWith2bitLengthValue, readPositionUpdateData, readUnsignedIntWith2bitLengthValue } from "./shared/functions";
-import { achievementDataSchema, currencySchema, EquippedContainersSchema, identitySchema, profileDataSchema, resourceEventDataSubSchema, rewardBundleDataSchema, skyData, statDataSchema } from "./shared/schemas";
+import { packPositionUpdateData, packUnsignedIntWith2bitLengthValue, readPositionUpdateData, readUnsignedIntWith2bitLengthValue } from "./shared/shared";
+import { achievementDataSchema, currencySchema, EquippedContainersSchema, identitySchema, profileDataSchema, resourceEventDataSubSchema, rewardBundleDataSchema, skyData, statDataSchema } from "./shared/shared";
 import { packWeaponPacket, parseWeaponPacket } from "./weapon";
 
 
@@ -1647,7 +1647,7 @@ export const basePackets:any = [
         ],
       },
     ],
-    ["Mail", 0x0e, {}],,
+    ["Mail", 0x0e, {}],
     ["MiniGame", 0x12, {}],
     ["Group", 0x13, {}],
     ["Encounter", 0x14, {}],
@@ -1674,7 +1674,6 @@ export const basePackets:any = [
     ],
     ["Objective", 0x18, {}],
     ["Debug", 0x19, {}],
-   
     ["Quest", 0x1b, {}],
     ["Reward", 0x1c, {}],
     [

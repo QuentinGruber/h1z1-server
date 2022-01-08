@@ -1,5 +1,5 @@
-import { packVehicleReferenceData, parseVehicleReferenceData } from "./shared/functions";
-import { profileDataSchema } from "./shared/schemas";
+import { packVehicleReferenceData, parseVehicleReferenceData } from "./shared/shared";
+import { profileDataSchema } from "./shared/shared";
 
 
 
