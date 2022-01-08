@@ -1,5 +1,5 @@
-import { packUnsignedIntWith2bitLengthValue, readUnsignedIntWith2bitLengthValue } from "./shared/shared";
-import { itemDataSchema, profileDataSchema, respawnLocationDataSchema, statDataSchema } from "./shared/shared";
+import { packUnsignedIntWith2bitLengthValue, readUnsignedIntWith2bitLengthValue } from "./shared";
+import { itemDataSchema, profileDataSchema, respawnLocationDataSchema, statDataSchema } from "./shared";
 
 
 

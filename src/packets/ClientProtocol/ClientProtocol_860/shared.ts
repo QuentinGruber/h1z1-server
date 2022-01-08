@@ -1,4 +1,4 @@
-import { eul2quat, getPacketTypeBytes, lz4_decompress } from "../../../../utils/utils";
+import { eul2quat, getPacketTypeBytes, lz4_decompress } from "../../../utils/utils";
 import DataSchema from "h1z1-dataschema";
 
 export function readPacketType(data: Buffer, packets: any) {

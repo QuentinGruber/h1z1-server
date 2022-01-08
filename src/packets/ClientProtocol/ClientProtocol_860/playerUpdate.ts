@@ -1,4 +1,4 @@
-import { statDataSchema, lightWeightPcSchema, lightWeightNpcSchema, readPositionUpdateData, packPositionUpdateData, readUnsignedIntWith2bitLengthValue, packUnsignedIntWith2bitLengthValue, fullPcDataSchema, fullNpcDataSchema } from "./shared/shared";
+import { statDataSchema, lightWeightPcSchema, lightWeightNpcSchema, readPositionUpdateData, packPositionUpdateData, readUnsignedIntWith2bitLengthValue, packUnsignedIntWith2bitLengthValue, fullPcDataSchema, fullNpcDataSchema } from "./shared";
 
   
 

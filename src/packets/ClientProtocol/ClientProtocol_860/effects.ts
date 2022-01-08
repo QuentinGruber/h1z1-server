@@ -1,4 +1,4 @@
-import { effectTagDataSchema } from "./shared/shared";
+import { effectTagDataSchema } from "./shared";
 
 
 

@@ -1,7 +1,7 @@
 import DataSchema from "h1z1-dataschema"
 import PacketTableBuild from "../../packettable";
-import { packUnsignedIntWith2bitLengthValue, readPacketType, readUnsignedIntWith2bitLengthValue, writePacketType } from "./shared/shared";
-import { itemWeaponDetailSubSchema1 } from "./shared/shared";
+import { packUnsignedIntWith2bitLengthValue, readPacketType, readUnsignedIntWith2bitLengthValue, writePacketType } from "./shared";
+import { itemWeaponDetailSubSchema1 } from "./shared";
 
 const weaponPackets:any = [
     [

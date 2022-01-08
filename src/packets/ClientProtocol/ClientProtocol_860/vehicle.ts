@@ -1,4 +1,4 @@
-import { packItemData, parseItemData } from "./shared/shared";
+import { packItemData, parseItemData } from "./shared";
 
 
 

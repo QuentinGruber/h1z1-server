@@ -1,4 +1,4 @@
-import { packPositionUpdateData, readPositionUpdateData } from "./shared/shared";
+import { packPositionUpdateData, readPositionUpdateData } from "./shared";
 
 
 

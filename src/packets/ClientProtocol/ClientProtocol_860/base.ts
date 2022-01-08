@@ -1,5 +1,5 @@
-import { packPositionUpdateData, packUnsignedIntWith2bitLengthValue, readPositionUpdateData, readUnsignedIntWith2bitLengthValue } from "./shared/shared";
-import { achievementDataSchema, currencySchema, EquippedContainersSchema, identitySchema, profileDataSchema, resourceEventDataSubSchema, rewardBundleDataSchema, skyData, statDataSchema } from "./shared/shared";
+import { packPositionUpdateData, packUnsignedIntWith2bitLengthValue, readPositionUpdateData, readUnsignedIntWith2bitLengthValue } from "./shared";
+import { achievementDataSchema, currencySchema, EquippedContainersSchema, identitySchema, profileDataSchema, resourceEventDataSubSchema, rewardBundleDataSchema, skyData, statDataSchema } from "./shared";
 import { packWeaponPacket, parseWeaponPacket } from "./weapon";
 
 

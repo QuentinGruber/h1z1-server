@@ -1,4 +1,4 @@
-import { EquippedContainersSchema } from "./shared/shared";
+import { EquippedContainersSchema } from "./shared";
 
 
 
