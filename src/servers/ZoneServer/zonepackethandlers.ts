@@ -1926,9 +1926,6 @@ export class zonePacketHandlers {
             guid2: "0x0000000000000000",
             characterId: client.character.characterId,
           });
-          server.sendData(client, "PlayerUpdate.SetCollidable", {
-            characterId: entityData.characterId
-          });
           server.sendData(client, "PlayerUpdate.SeekTarget", {
             TargetCharacterId: client.character.characterId,
             characterId: entityData.characterId
