@@ -1,7 +1,4 @@
-
-
-
-export const zoneSettingPackets:any = [
+export const zoneSettingPackets: any = [
   [
     "ZoneSetting.Data",
     0xb601,
@@ -22,4 +19,4 @@ export const zoneSettingPackets:any = [
       ],
     },
   ],
-]
+];

@@ -1,9 +1,6 @@
-
-
-
-export const targetPackets:any = [
- // 01 -> 07 are client sided
- [
+export const targetPackets: any = [
+  // 01 -> 07 are client sided
+  [
     "Target.CharacterGuid",
     0x7e01,
     {
@@ -111,5 +108,4 @@ export const targetPackets:any = [
       ],
     },
   ],
-
-]
+];

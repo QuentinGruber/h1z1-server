@@ -1,8 +1,4 @@
-
-
-
-export const wordFilterPackets:any = [
-
+export const wordFilterPackets: any = [
   [
     "WordFilter.Data",
     0xc001,
@@ -10,4 +6,4 @@ export const wordFilterPackets:any = [
       fields: [{ name: "wordFilterData", type: "byteswithlength" }],
     },
   ],
-]
+];
