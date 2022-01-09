@@ -31,13 +31,16 @@
     "src": "./src"
   },
   "devDependencies": {
+    "@types/glob": "^7.2.0",
     "chokidar": "3.5.2",
+    "glob": "^7.2.0",
     "prettier": "2.5.1",
     "ts-node": "10.4.0"
   },
   "scripts": {
     "gen-packets-types": "npx ts-node ./scripts/genPacketsNames.ts && npx prettier -w ./src/types/packets.ts",
     "gen-packets-handler": "npx ts-node ./scripts/genPacketHandlersFromMap.ts && npx prettier -w ./src/servers/ZoneServer/zonepackethandlers.ts",
+    "fix-signatures": "npx ts-node ./scripts/fixSignatures.ts && npm run prettier_sources",
     "gen-doc": "npx typedoc",
     "build": "tsc -p ./tsconfig.json",
     "build-tests": "npx swc tests -d tests_out",
