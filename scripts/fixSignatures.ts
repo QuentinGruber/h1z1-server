@@ -1,3 +1,4 @@
+// @ts-ignore
 import glob from "glob";
 import fs from "fs";
 
