@@ -623,7 +623,7 @@ export const playerUpdatePackets: any = [
         {
           name: "rotation",
           type: "floatvector4",
-          defaultValue: [0, 0, 0, 0],
+          defaultValue: [20, 0, 0, 1],
         },
       ],
     },

@@ -1494,6 +1494,7 @@ export class zonePacketHandlers {
       }
       const characterId = server._transientIds[packet.data.transientId];
       if (characterId) {
+        const isVehicle = Boolean(server._vehicles[characterId]);
         if (
           client.hudTimer != null &&
           !isPosInRadius(
@@ -1513,70 +1514,74 @@ export class zonePacketHandlers {
           positionUpdate: packet.data.PositionUpdate,
         });
 
-        if (packet.data.PositionUpdate.engineRPM) {
-          server._vehicles[characterId].positionUpdate.engineRPM =
-            packet.data.PositionUpdate.engineRPM;
-        }
+        console.log(packet.data)
 
-        if (packet.data.PositionUpdate.position) {
-          server._vehicles[characterId].positionUpdate.position =
-            packet.data.PositionUpdate.position;
-          server._vehicles[characterId].npcData.position = new Float32Array([
-            packet.data.PositionUpdate.position[0],
-            packet.data.PositionUpdate.position[1],
-            packet.data.PositionUpdate.position[2],
-            0,
-          ]);
-          if (client.vehicle.mountedVehicle === characterId) {
-            client.character.state.position = new Float32Array([
+        if(isVehicle){
+
+          if (packet.data.PositionUpdate.engineRPM) {
+            server._vehicles[characterId].positionUpdate.engineRPM =
+              packet.data.PositionUpdate.engineRPM;
+          }
+
+          if (packet.data.PositionUpdate.position) {
+            server._vehicles[characterId].positionUpdate.position =
+              packet.data.PositionUpdate.position;
+            server._vehicles[characterId].npcData.position = new Float32Array([
               packet.data.PositionUpdate.position[0],
               packet.data.PositionUpdate.position[1],
               packet.data.PositionUpdate.position[2],
               0,
             ]);
-            if (server._vehicles[characterId].passengers.passenger1) {
-              const character =
-                server._vehicles[characterId].passengers.passenger1;
-              server.updatePosition(
-                character,
-                packet.data.PositionUpdate.position
-              );
-            }
-            if (server._vehicles[characterId].passengers.passenger2) {
-              const character =
-                server._vehicles[characterId].passengers.passenger2;
-              server.updatePosition(
-                character,
-                packet.data.PositionUpdate.position
-              );
-            }
-            if (server._vehicles[characterId].passengers.passenger3) {
-              const character =
-                server._vehicles[characterId].passengers.passenger3;
-              server.updatePosition(
-                character,
-                packet.data.PositionUpdate.position
-              );
-            }
-            if (server._vehicles[characterId].passengers.passenger4) {
-              const character =
-                server._vehicles[characterId].passengers.passenger4;
-              server.updatePosition(
-                character,
-                packet.data.PositionUpdate.position
-              );
-            }
-
-            if (
-              !client.posAtLastRoutine ||
-              !isPosInRadius(
-                server._npcRenderDistance *
-                  server._worldRoutineRadiusPercentage,
-                client.character.state.position,
-                client.posAtLastRoutine
-              )
-            ) {
-              server.worldRoutine();
+            if (client.vehicle.mountedVehicle === characterId) {
+              client.character.state.position = new Float32Array([
+                packet.data.PositionUpdate.position[0],
+                packet.data.PositionUpdate.position[1],
+                packet.data.PositionUpdate.position[2],
+                0,
+              ]);
+              if (server._vehicles[characterId].passengers.passenger1) {
+                const character =
+                  server._vehicles[characterId].passengers.passenger1;
+                server.updatePosition(
+                  character,
+                  packet.data.PositionUpdate.position
+                );
+              }
+              if (server._vehicles[characterId].passengers.passenger2) {
+                const character =
+                  server._vehicles[characterId].passengers.passenger2;
+                server.updatePosition(
+                  character,
+                  packet.data.PositionUpdate.position
+                );
+              }
+              if (server._vehicles[characterId].passengers.passenger3) {
+                const character =
+                  server._vehicles[characterId].passengers.passenger3;
+                server.updatePosition(
+                  character,
+                  packet.data.PositionUpdate.position
+                );
+              }
+              if (server._vehicles[characterId].passengers.passenger4) {
+                const character =
+                  server._vehicles[characterId].passengers.passenger4;
+                server.updatePosition(
+                  character,
+                  packet.data.PositionUpdate.position
+                );
+              }
+              if (
+                !client.posAtLastRoutine ||
+                !isPosInRadius(
+                  server._npcRenderDistance *
+                    server._worldRoutineRadiusPercentage,
+                  client.character.state.position,
+                  client.posAtLastRoutine
+                )
+              ) {
+                server.worldRoutine(); //TODO: investigate if this worldRoutine call isn't degrading performance
+              }
             }
           }
         }
@@ -1667,7 +1672,8 @@ export class zonePacketHandlers {
           server._objects[guid] ||
           server._vehicles[guid] ||
           server._doors[guid] ||
-          server._props[guid],
+          server._props[guid] ||
+          server._npcs[guid],
         entityType = server._objects[guid]
           ? 1
           : 0 || server._vehicles[guid]
@@ -1676,6 +1682,8 @@ export class zonePacketHandlers {
           ? 3
           : 0 || server._props[guid]
           ? 4
+          : 0 || server._npcs[guid]
+          ? 5
           : 0;
 
       if (
@@ -1914,7 +1922,20 @@ export class zonePacketHandlers {
               break;
           }
           break;
+        case 5:
+          
+          server.sendData(client, "PlayerUpdate.ManagedObject",{
+            guid: entityData.characterId,
+            guid2: "0x0000000000000000",
+            characterId: client.character.characterId,
+          });
+          server.sendData(client, "PlayerUpdate.SeekTarget", {
+            TargetCharacterId: client.character.characterId,
+            characterId: entityData.characterId,
+          });
+          break;
         default:
+         
           break;
       }
     };
