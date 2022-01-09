@@ -1513,9 +1513,6 @@ export class zonePacketHandlers {
           transientId: packet.data.transientId,
           positionUpdate: packet.data.PositionUpdate,
         });
-
-        console.log(packet.data)
-
         if(isVehicle){
 
           if (packet.data.PositionUpdate.engineRPM) {
