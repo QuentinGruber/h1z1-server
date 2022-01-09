@@ -13,7 +13,7 @@ glob("src/**/*", (err: any, res: any) => {
     });
     files.forEach((filePath: string) => {
       fs.readFile(`${filePath}`, (err: any, data: any) => {
-        var dataHeader:Buffer = data.slice(0, signatureHeader.length);
+        const dataHeader:Buffer = data.slice(0, signatureHeader.length);
         if (Buffer.compare(dataHeader, signatureHeader) > 0) {
           console.log(filePath);
           const newData = signatureHeader + data;
