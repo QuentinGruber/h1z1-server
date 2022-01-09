@@ -403,13 +403,13 @@ export class ZoneServer extends EventEmitter {
     }, 60000);
   }
 
-  generateTransientId(characterId:string): number{
+  generateTransientId(characterId: string): number {
     let generatedTransient;
     do {
       generatedTransient = Number((Math.random() * 30000).toFixed(0));
     } while (this._transientIds[generatedTransient]);
     this._transientIds[generatedTransient] = characterId;
-    return generatedTransient
+    return generatedTransient;
   }
 
   onGatewayLoginEvent(
@@ -1065,18 +1065,28 @@ export class ZoneServer extends EventEmitter {
 
   setGodMode(client: Client, godMode: boolean) {
     client.character.godMode = godMode;
-    client.character.characterStates.invincibility = godMode
+    client.character.characterStates.invincibility = godMode;
     this.sendChatText(
       client,
       `GODMODE: ${client.character.godMode ? "ON" : "OFF"}`
     );
-    this.updateCharacterState(client,client.character.characterId,client.character.characterStates,false)
+    this.updateCharacterState(
+      client,
+      client.character.characterId,
+      client.character.characterStates,
+      false
+    );
   }
 
   toggleHiddenMode(client: Client) {
-    client.character.isHidden = !client.character.isHidden
-    client.character.characterStates.gmHidden = client.character.isHidden
-    this.updateCharacterState(client,client.character.characterId,client.character.characterStates,false)
+    client.character.isHidden = !client.character.isHidden;
+    client.character.characterStates.gmHidden = client.character.isHidden;
+    this.updateCharacterState(
+      client,
+      client.character.characterId,
+      client.character.characterStates,
+      false
+    );
   }
 
   tempGodMode(client: Client, durationMs: number) {
@@ -1522,7 +1532,7 @@ export class ZoneServer extends EventEmitter {
     });
   }
 
-updateCharacterState(
+  updateCharacterState(
     client: Client,
     characterId: string,
     object: any,
@@ -1537,12 +1547,19 @@ updateCharacterState(
       states5: object,
       states6: object,
       states7: object,
-    }
-    
+    };
+
     if (!sendToAll) {
-      this.sendData(client, "PlayerUpdate.UpdateCharacterState", updateCharacterStateBody );
+      this.sendData(
+        client,
+        "PlayerUpdate.UpdateCharacterState",
+        updateCharacterStateBody
+      );
     } else {
-      this.sendDataToAll("PlayerUpdate.UpdateCharacterState", updateCharacterStateBody );
+      this.sendDataToAll(
+        "PlayerUpdate.UpdateCharacterState",
+        updateCharacterStateBody
+      );
     }
   }
 

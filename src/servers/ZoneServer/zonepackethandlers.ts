@@ -296,14 +296,18 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      debug(`Character "${client.character.name}" (${client.character.characterId}) ask for VehicleItemDefinition`)
+      debug(
+        `Character "${client.character.name}" (${client.character.characterId}) ask for VehicleItemDefinition`
+      );
     };
     this.CurrentMoveMode = function (
       server: ZoneServer,
       client: Client,
       packet: any
     ) {
-      debug(`Vehicle "${packet.data.characterId}" move mode : ${packet.data.moveMode}`)
+      debug(
+        `Vehicle "${packet.data.characterId}" move mode : ${packet.data.moveMode}`
+      );
     };
     this.playerUpdateEndCharacterAccess = function (
       server: ZoneServer,
