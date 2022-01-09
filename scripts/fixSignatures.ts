@@ -3,7 +3,7 @@ import fs from "fs";
 
 const signatureHeader = fs
   .readFileSync(`${__dirname}/../signature-header.txt`)
-  .toString();
+
 glob("src/**/*", (err: any, res: any) => {
   if (err) {
     console.log("Error", err);
@@ -13,8 +13,11 @@ glob("src/**/*", (err: any, res: any) => {
     });
     files.forEach((filePath: string) => {
       fs.readFile(`${filePath}`, (err: any, data: any) => {
-        if (!data.toString().includes(signatureHeader)) {
-          console.log(data.toString());
+        var dataHeader:Buffer = data.slice(0, signatureHeader.length);
+        if (Buffer.compare(dataHeader, signatureHeader) > 0) {
+          console.log(filePath);
+          const newData = signatureHeader + data;
+          fs.writeFile(filePath,newData,()=>{})
         }
       });
     });
