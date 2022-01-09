@@ -15,6 +15,7 @@ const restore = require("mongodb-restore-dump");
 import { generate_random_guid } from "h1emu-core";
 import v8 from "v8";
 import fs from "fs";
+import { readdir } from 'fs/promises';
 
 export class customLodash {
   constructor() {}
@@ -194,6 +195,18 @@ export const Int64String = function (value: number): string {
 
 export const generateRandomGuid = function (): string {
   return "0x" + generate_random_guid();
+};
+
+export const removeCacheFullDir = async function (directoryPath:string): Promise<void> {
+  const files = await readdir(directoryPath);
+  for (const file of files){
+    if(!file.includes(".")){ // if it's a folder ( this feature isn't tested but should work well )
+      await removeCacheFullDir(`${directoryPath}/${file}`)
+    }
+    if(file.substring(file.length - 3) === ".js"){
+      delete require.cache[`${directoryPath}/${file}`];
+    }
+  }
 };
 
 export const generateCommandList = (

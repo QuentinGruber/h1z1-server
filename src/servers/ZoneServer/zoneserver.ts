@@ -25,6 +25,7 @@ import {
   isPosInRadius,
   setupAppDataFolder,
   getDistance,
+  removeCacheFullDir,
 } from "../../utils/utils";
 import { Weather } from "../../types/zoneserver";
 import { Db, MongoClient } from "mongodb";
@@ -724,6 +725,7 @@ export class ZoneServer extends EventEmitter {
     //@ts-ignore
     delete this._packetHandlers;
     delete require.cache[require.resolve("./zonepackethandlers")];
+    await removeCacheFullDir(`${__dirname}/../../../packets/ClientProtocol/ClientProtocol_860/`)
     this._packetHandlers = new (
       require("./zonepackethandlers") as any
     ).zonePacketHandlers();
