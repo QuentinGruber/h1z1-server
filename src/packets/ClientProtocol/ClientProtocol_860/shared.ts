@@ -619,7 +619,7 @@ export const lightWeightNpcSchema = [
         */
     ],
   },
-  { name: "unknown34", type: "uint32", defaultValue: 0 },
+  { name: "debugMode", type: "uint32", defaultValue: 0 },
   { name: "unknown35", type: "uint32", defaultValue: 0 },
   { name: "unknown37", type: "uint32", defaultValue: 0 },
   {
