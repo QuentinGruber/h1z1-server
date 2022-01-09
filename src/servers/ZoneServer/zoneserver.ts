@@ -725,7 +725,7 @@ export class ZoneServer extends EventEmitter {
     //@ts-ignore
     delete this._packetHandlers;
     delete require.cache[require.resolve("./zonepackethandlers")];
-    await removeCacheFullDir(`${__dirname}/../../../packets/ClientProtocol/ClientProtocol_860/`)
+    removeCacheFullDir(`${__dirname}/../../packets/ClientProtocol/ClientProtocol_860/`)
     this._packetHandlers = new (
       require("./zonepackethandlers") as any
     ).zonePacketHandlers();
