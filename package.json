@@ -16,7 +16,6 @@
   "dependencies": {
     "@swc/cli": "0.1.55",
     "@swc/core": "1.2.127",
-    "@types/json-schema": "7.0.9",
     "@types/node": "17.0.8",
     "debug": "4.3.3",
     "h1emu-core": "0.6.3",
