@@ -8,7 +8,7 @@ const zoneServer = new ZoneServer(
 );
 
 
-zoneServer._loginServerInfo = {port:1110,address:"127.0.0.1"}
+zoneServer._loginServerInfo.address = "127.0.0.1";
 
 zoneServer.start().then(()=>{
   setTimeout(() => {
