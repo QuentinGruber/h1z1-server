@@ -1,6 +1,8 @@
 import { LoginClient, LoginServer, ZoneServer } from "../../../h1z1-server";
 
-new LoginServer(1115,"mongodb://localhost:27017/").start();
+new LoginServer(1115,"mongodb://localhost:27017/").start().then(()=>{
+
+
 
 const zoneServer = new ZoneServer(
   1117,
@@ -60,5 +62,4 @@ zoneServer.start().then(()=>{
 
 
 })
-
-
+});
