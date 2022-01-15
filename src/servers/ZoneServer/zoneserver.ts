@@ -25,6 +25,7 @@ import {
   isPosInRadius,
   setupAppDataFolder,
   getDistance,
+  removeCacheFullDir,
 } from "../../utils/utils";
 import { Weather } from "../../types/zoneserver";
 import { Db, MongoClient } from "mongodb";
@@ -405,6 +406,15 @@ export class ZoneServer extends EventEmitter {
     }, 60000);
   }
 
+  generateTransientId(characterId: string): number {
+    let generatedTransient;
+    do {
+      generatedTransient = Number((Math.random() * 30000).toFixed(0));
+    } while (this._transientIds[generatedTransient]);
+    this._transientIds[generatedTransient] = characterId;
+    return generatedTransient;
+  }
+
   onGatewayLoginEvent(
     err: string,
     client: SOEClient,
@@ -420,10 +430,7 @@ export class ZoneServer extends EventEmitter {
     debug(
       `Client logged in from ${client.address}:${client.port} with character id: ${characterId}`
     );
-    let generatedTransient;
-    do {
-      generatedTransient = Number((Math.random() * 30000).toFixed(0));
-    } while (this._transientIds[generatedTransient]);
+    const generatedTransient = this.generateTransientId(characterId);
     const zoneClient = new Client(
       client,
       loginSessionId,
@@ -721,6 +728,7 @@ export class ZoneServer extends EventEmitter {
     //@ts-ignore
     delete this._packetHandlers;
     delete require.cache[require.resolve("./zonepackethandlers")];
+    removeCacheFullDir(`${__dirname}/../../packets/ClientProtocol/ClientProtocol_860/`)
     this._packetHandlers = new (
       require("./zonepackethandlers") as any
     ).zonePacketHandlers();
@@ -1160,19 +1168,30 @@ export class ZoneServer extends EventEmitter {
 
   setGodMode(client: Client, godMode: boolean) {
     client.character.godMode = godMode;
+    client.character.characterStates.invincibility = godMode;
     this.sendChatText(
       client,
       `GODMODE: ${client.character.godMode ? "ON" : "OFF"}`
     );
-    const godModeState = client.character.godMode
-      ? "000000000002000000"
-      : "000000000000000000";
-    this.sendData(client, "PlayerUpdate.UpdateCharacterState", {
-      characterId: client.character.characterId,
-      state: godModeState,
-      gameTime: this.getSequenceTime(),
-    });
+    this.updateCharacterState(
+      client,
+      client.character.characterId,
+      client.character.characterStates,
+      false
+    );
   }
+
+  toggleHiddenMode(client: Client) {
+    client.character.isHidden = !client.character.isHidden;
+    client.character.characterStates.gmHidden = client.character.isHidden;
+    this.updateCharacterState(
+      client,
+      client.character.characterId,
+      client.character.characterStates,
+      false
+    );
+  }
+
   tempGodMode(client: Client, durationMs: number) {
     if (!client.character.godMode) {
       client.character.godMode = true;
@@ -1234,7 +1253,7 @@ export class ZoneServer extends EventEmitter {
         rotation: [0, 0, 0, 0],
         scale: [1, 1, 1, 1],
         attachedObject: {},
-        isVehicle: true,
+        positionUpdateType: 1,
         color: { r: 127, g: 127, b: 127 },
         array5: [{ unknown1: 0 }],
         array17: [{ unknown1: 0 }],
@@ -1616,7 +1635,7 @@ export class ZoneServer extends EventEmitter {
     });
   }
 
-updateCharacterState(
+  updateCharacterState(
     client: Client,
     characterId: string,
     object: any,
@@ -1631,12 +1650,19 @@ updateCharacterState(
       states5: object,
       states6: object,
       states7: object,
-    }
-    
+    };
+
     if (!sendToAll) {
-      this.sendData(client, "PlayerUpdate.UpdateCharacterState", updateCharacterStateBody );
+      this.sendData(
+        client,
+        "PlayerUpdate.UpdateCharacterState",
+        updateCharacterStateBody
+      );
     } else {
-      this.sendDataToAll("PlayerUpdate.UpdateCharacterState", updateCharacterStateBody );
+      this.sendDataToAll(
+        "PlayerUpdate.UpdateCharacterState",
+        updateCharacterStateBody
+      );
     }
   }
 

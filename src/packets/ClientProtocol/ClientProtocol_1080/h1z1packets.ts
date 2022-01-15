@@ -803,7 +803,7 @@ const lightWeightNpcSchema = [
   { name: "vehicleId", type: "uint32", defaultValue: 0 },
   { name: "unknownDword5", type: "uint32", defaultValue: 0 },
   { name: "npcDefinitionId", type: "uint32", defaultValue: 0 },
-  { name: "isVehicle", type: "boolean", defaultValue: false }, // determine if npc is moving with positionUpdate - Avcio
+  { name: "positionUpdateType", type: "boolean", defaultValue: 0 }, // determine if npc is moving with positionUpdate - Avcio
   { name: "unknownDword7", type: "uint32", defaultValue: 0 },
   { name: "unknownBoolean1", type: "boolean", defaultValue: 0 },
   {

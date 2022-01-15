@@ -93,7 +93,7 @@ export class Vehicle {
       rotation: rotation,
       attachedObject: {},
       vehicleId: getVehicleId(modelId),
-      isVehicle: true,
+      positionUpdateType: 1,
       color: {},
       unknownArray1: [],
       destroyedState: 0,

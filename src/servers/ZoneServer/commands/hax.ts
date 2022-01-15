@@ -584,13 +584,13 @@ const hax: any = {
     }
     const choosenModelId = Number(args[1]);
     const characterId = server.generateGuid();
-    let isVehicle = false;
+    let positionUpdateType = false;
     if (
       choosenModelId === 7225 ||
       choosenModelId === 9301 ||
       choosenModelId === 9258
     ) {
-      isVehicle = true;
+      positionUpdateType = true;
     }
     const npc = {
       characterId: characterId,
@@ -601,13 +601,13 @@ const hax: any = {
       position: client.character.state.position,
       rotation: client.character.state.lookAt,
       attachedObject: {},
-      isVehicle: isVehicle,
+      positionUpdateType: positionUpdateType,
       color: {},
       array5: [{ unknown1: 0 }],
       array17: [{ unknown1: 0 }],
       array18: [{ unknown1: 0 }],
     };
-    isVehicle = false;
+    positionUpdateType = false;
     server.sendDataToAll("PlayerUpdate.AddLightweightNpc", npc);
     server._db?.collection("npcs").insertOne(npc);
     server._npcs[characterId] = npc; // save npc

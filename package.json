@@ -15,15 +15,13 @@
   },
   "dependencies": {
     "@swc/cli": "0.1.55",
-    "@swc/core": "1.2.122",
-    "@types/json-schema": "7.0.9",
-    "@types/node": "16.7.9",
+    "@swc/core": "1.2.127",
+    "@types/node": "17.0.8",
     "debug": "4.3.3",
-    "h1emu-core": "0.6.2",
+    "h1emu-core": "0.6.3",
     "h1z1-dataschema": "1.5.8",
-    "mongodb": "4.2.2",
+    "mongodb": "4.3.0",
     "mongodb-restore-dump": "1.0.1",
-    "typedoc": "0.22.10",
     "typescript": "4.5.4",
     "v8-compile-cache": "2.3.0"
   },
@@ -31,15 +29,22 @@
     "src": "./src"
   },
   "devDependencies": {
-    "chokidar": "3.5.2",
+    "glob": "7.2.0",
     "prettier": "2.5.1",
-    "ts-node": "10.4.0"
+    "ts-node": "10.4.0",
+    "typedoc": "0.22.10"
   },
   "scripts": {
     "gen-packets-types": "npx ts-node ./scripts/genPacketsNames.ts && npx prettier -w ./src/types/packets.ts",
     "gen-packets-handler": "npx ts-node ./scripts/genPacketHandlersFromMap.ts && npx prettier -w ./src/servers/ZoneServer/zonepackethandlers.ts",
+    "fix-signatures": "npx ts-node ./scripts/fixSignatures.ts && npm run prettier_sources",
     "gen-doc": "npx typedoc",
-    "build": "tsc -p ./tsconfig.json",
+    "build": "npm run build-all",
+    "build-all": "tsc -p ./tsconfig.json",
+    "build-login-2015": "tsc -p ./tsconfig-2015-login.json",
+    "build-login-2016": "tsc -p ./tsconfig-2016-login.json",
+    "build-zone-2015": "tsc -p ./tsconfig-2015-zone.json",
+    "build-zone-2016": "tsc -p ./tsconfig-2016-zone.json",
     "build-tests": "npx swc tests -d tests_out",
     "build-benchs": "npx swc benchmarks -d benchmarks_out",
     "build-docker-images": "npx ts-node ./docker/buildDocker.ts",
@@ -56,8 +61,7 @@
     "postinstall": "if-env INSTALL_TYPE=launcher &&  npm run build-swc || npm run build",
     "publish_release": "git push --tags && git push origin dev && git push origin master && git checkout dev && npm run publish_release-next",
     "publish_release-next": "npm version prerelease && git add * && git commit -m 'publish-a-next-version' && npm publish --tag next && git push origin dev",
-    "prettier_sources": "prettier --write ./src && prettier --write ./tests && prettier --write ./benchmarks",
-    "watch-swc": "npx swc --watch src -d out"
+    "prettier_sources": "prettier --write ./src && prettier --write ./tests && prettier --write ./benchmarks"
   },
   "repository": {
     "type": "git",

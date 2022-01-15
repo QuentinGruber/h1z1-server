@@ -1,4 +1,5 @@
-import { ZoneServer, ZoneClient } from "../../../h1z1-server";
+import { ZoneServer, ZoneClient, LoginServer } from "../../../h1z1-server";
+
 
 const character = {
   characterId: "0x3bc1e27032c82ed6",
@@ -44,6 +45,7 @@ const character = {
   },
 };
 
+
 async function test() {
   const zoneServer = new ZoneServer(
     1117,
@@ -56,13 +58,14 @@ async function test() {
 
   setTimeout(async () => {
     await zoneServer._db.collection("characters").insertOne(character);
+    //await zoneServer._db.collection("user-sessions").insertOne(usersession);
     var client = new ZoneClient(
       "127.0.0.1",
       1117,
-      new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", "base64"),
+      Buffer.from("F70IaxuU8C/w7FPXY1ibXw==", "base64"),
       character.characterId,
-      "0",
-      "",
+      character.ownerId,
+      "ClientProtocol_860",
       "",
       6457
     );
@@ -75,9 +78,9 @@ async function test() {
       process.exit(0);
     });
   }, 2000);
-
   setTimeout(() => {
     throw new Error("Test timed out!");
-  }, 60000);
+  }, 15000);
 }
-test();
+
+new LoginServer(1115,"mongodb://localhost:27017/").start().then(test);

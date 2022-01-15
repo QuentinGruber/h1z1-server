@@ -1,3 +1,16 @@
+// ======================================================================
+//
+//   GNU GENERAL PUBLIC LICENSE
+//   Version 3, 29 June 2007
+//   copyright (C) 2020 - 2021 Quentin Gruber
+//   copyright (C) 2021 - 2022 H1emu community
+//
+//   https://github.com/QuentinGruber/h1z1-server
+//   https://www.npmjs.com/package/h1z1-server
+//
+//   Based on https://github.com/psemu/soe-network
+// ======================================================================
+
 import { ZoneClient } from "../servers/ZoneServer/classes/zoneclient";
 import { ZoneServer } from "../servers/ZoneServer/zoneserver";
 import { ZoneClient2016 } from "../servers/ZoneServer2016/classes/zoneclient";
@@ -375,7 +388,7 @@ export interface npcData {
   rotation: Float32Array;
   attachedObject: any;
   vehicleId: number;
-  isVehicle: boolean;
+  positionUpdateType: number;
   color: any;
   unknownArray1: any[];
   destroyedState: number;
