@@ -11,6 +11,8 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { packItemDefinitionData } from "./shared";
+
 export const commandPackets: any = [
   ["Command.ShowDialog", 0x090100, {}],
   ["Command.EndDialog", 0x090200, {}],
@@ -301,7 +303,32 @@ export const commandPackets: any = [
   ["Command.RequestStripEffect", 0x094200, {}],
   ["Command.ItemDefinitionRequest", 0x094300, {}],
   ["Command.ItemDefinitionReply", 0x094400, {}],
-  ["Command.ItemDefinitions", 0x094500, {}],
+  [
+    "Command.ItemDefinitions",
+    0x094500,
+    {
+      fields: [
+        {
+          name: "definitionsData",
+          type: "byteswithlength",
+          fields: [
+            {
+              name: "itemDefinitions",
+              type: "array",
+              defaultValue: [],
+              fields: [
+                {
+                  name: "definitionData",
+                  type: "custom",
+                  packer: packItemDefinitionData,
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  ],
   [
     "Command.EnableCompositeEffects",
     0x094600,
