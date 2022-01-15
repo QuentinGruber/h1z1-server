@@ -20,7 +20,6 @@ import { activityManagerPackets } from "./activityManager";
 import { activityServicePackets } from "./activityService";
 import { basePackets } from "./base";
 import { chatPackets } from "./chat";
-import { clientPcDataPackets } from "./clientPcData";
 import { clientUpdatePackets } from "./clientUpdate";
 import { coinStorePackets } from "./coinStore";
 import { collisionPackets } from "./collision";
@@ -31,7 +30,6 @@ import { containerPackets } from "./container";
 import { currencyPackets } from "./currency";
 import { definitionFilterPackets } from "./definitionFilter";
 import { deployablePackets } from "./deployable";
-import { dtoPackets } from "./dto";
 import { effectsPackets } from "./effects";
 import { equipmentPackets } from "./equipment";
 import { experiencePackets } from "./experience";
@@ -50,7 +48,7 @@ import { MetaGameEventPackets } from "./metaGameEvent";
 import { missionsPackets } from "./missions";
 import { mountPackets } from "./mount";
 import { operationPackets } from "./operation";
-import { playerUpdatePackets } from "./playerUpdate";
+import { characterPackets } from "./character";
 import { profileStatsPackets } from "./profileStats";
 import { quickChatPackets } from "./quickChat";
 import { ragdollPackets } from "./ragdoll";
@@ -60,12 +58,10 @@ import { rewardBuffsPackets } from "./rewardBuffs";
 import { skillPackets } from "./skill";
 import { staticFacilityInfoPackets } from "./staticFacilityInfo";
 import { targetPackets } from "./target";
-import { ThrustPadPackets } from "./thrustPad";
 import { uiPackets } from "./ui";
 import { vehiclePackets } from "./vehicle";
 import { voicePackets } from "./voice";
 import { wallOfDataPackets } from "./wallOfData";
-import { warpgatePackets } from "./warpgate";
 import { wordFilterPackets } from "./wordFilter";
 import { zoneSettingPackets } from "./zoneSetting";
 
@@ -78,7 +74,6 @@ const packets: any = [
   ...activityManagerPackets,
   ...activityServicePackets,
   ...chatPackets,
-  ...clientPcDataPackets,
   ...clientUpdatePackets,
   ...implantPackets,
   ...coinStorePackets,
@@ -90,7 +85,6 @@ const packets: any = [
   ...currencyPackets,
   ...definitionFilterPackets,
   ...deployablePackets,
-  ...dtoPackets,
   ...effectsPackets,
   ...equipmentPackets,
   ...experiencePackets,
@@ -108,7 +102,7 @@ const packets: any = [
   ...missionsPackets,
   ...mountPackets,
   ...operationPackets,
-  ...playerUpdatePackets,
+  ...characterPackets,
   ...profileStatsPackets,
   ...quickChatPackets,
   ...ragdollPackets,
@@ -118,12 +112,10 @@ const packets: any = [
   ...skillPackets,
   ...staticFacilityInfoPackets,
   ...targetPackets,
-  ...ThrustPadPackets,
   ...uiPackets,
   ...vehiclePackets,
   ...voicePackets,
   ...wallOfDataPackets,
-  ...warpgatePackets,
   ...wordFilterPackets,
   ...zoneSettingPackets,
 ];

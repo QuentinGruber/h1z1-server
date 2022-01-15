@@ -12,28 +12,28 @@
 // ======================================================================
 
 export const experiencePackets: any = [
-  ["Experience.SetExperience", 0x8701, {}],
+  ["Experience.SetExperience", 0x8801, {}],
   [
     "Experience.SetExperienceRanks",
-    0x8702,
+    0x8802,
     {
       fields: [
         {
           name: "experienceRanks",
           type: "array",
-          defaultValue: [],
+          defaultValue: [{}],
           fields: [
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
             {
               name: "experienceRankData",
               type: "array",
-              defaultValue: [],
+              defaultValue: [{}],
               fields: [
                 { name: "experienceRequired", type: "uint32", defaultValue: 0 },
                 {
                   name: "factionRanks",
                   type: "array",
-                  defaultValue: [],
+                  defaultValue: [{}],
                   length: 4,
                   fields: [
                     { name: "nameId", type: "uint32", defaultValue: 0 },
@@ -42,7 +42,7 @@ export const experiencePackets: any = [
                     {
                       name: "rewards",
                       type: "array",
-                      defaultValue: [],
+                      defaultValue: [{}],
                       fields: [
                         { name: "itemId", type: "uint32", defaultValue: 0 },
                         { name: "nameId", type: "uint32", defaultValue: 0 },
@@ -71,7 +71,7 @@ export const experiencePackets: any = [
   ],
   [
     "Experience.SetExperienceRateTier",
-    0x8703,
+    0x8803,
     {
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },

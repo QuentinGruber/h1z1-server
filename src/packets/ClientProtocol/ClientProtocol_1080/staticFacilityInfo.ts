@@ -12,17 +12,17 @@
 // ======================================================================
 
 export const staticFacilityInfoPackets: any = [
-  ["StaticFacilityInfo.Request", 0xc101, {}],
-  ["StaticFacilityInfo.Reply", 0xc102, {}],
+  ["StaticFacilityInfo.Request", 0xbe01, {}],
+  ["StaticFacilityInfo.Reply", 0xbe02, {}],
   [
     "StaticFacilityInfo.AllZones",
-    0xc103,
+    0xbe03,
     {
       fields: [
         {
           name: "facilities",
           type: "array",
-          defaultValue: [],
+          defaultValue: [{}],
           fields: [
             { name: "zoneId", type: "uint32", defaultValue: 0 },
             { name: "facilityId", type: "uint32", defaultValue: 0 },
@@ -36,6 +36,6 @@ export const staticFacilityInfoPackets: any = [
       ],
     },
   ],
-  ["StaticFacilityInfo.ReplyWarpgate", 0xc104, {}],
-  ["StaticFacilityInfo.AllWarpgateRespawns", 0xc105, {}],
+  ["StaticFacilityInfo.ReplyWarpgate", 0xbe04, {}],
+  ["StaticFacilityInfo.AllWarpgateRespawns", 0xbe05, {}],
 ];

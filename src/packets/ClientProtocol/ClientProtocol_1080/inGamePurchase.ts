@@ -37,7 +37,7 @@ export const inGamePurchasePackets: any = [
         {
           name: "storeBundles",
           type: "array",
-          defaultValue: [],
+          defaultValue: [{}],
           fields: [
             { name: "bundleId", type: "uint32", defaultValue: 0 },
             {
@@ -130,7 +130,7 @@ export const inGamePurchasePackets: any = [
                         {
                           name: "itemListDetails",
                           type: "array",
-                          defaultValue: [],
+                          defaultValue: [{}],
                           fields: [
                             {
                               name: "unknownDword1",
@@ -221,7 +221,7 @@ export const inGamePurchasePackets: any = [
         {
           name: "categories",
           type: "array",
-          defaultValue: [],
+          defaultValue: [{}],
           fields: [
             { name: "categoryId", type: "uint32", defaultValue: 0 },
             {
@@ -241,7 +241,7 @@ export const inGamePurchasePackets: any = [
                 {
                   name: "unknownArray1",
                   type: "array",
-                  defaultValue: [],
+                  defaultValue: [{}],
                   fields: [
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                     { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -297,13 +297,13 @@ export const inGamePurchasePackets: any = [
     },
   ],
   [
-    "InGamePurchase.AccountInfoRequest",
+    "InGamePurchase.AcccountInfoRequest",
     0x271900,
     {
       fields: [{ name: "locale", type: "string", defaultValue: "" }],
     },
   ],
-  ["InGamePurchase.AccountInfoResponse", 0x271a00, {}],
+  ["InGamePurchase.AcccountInfoResponse", 0x271a00, {}],
   ["InGamePurchase.StoreBundleContentRequest", 0x271b00, {}],
   ["InGamePurchase.StoreBundleContentResponse", 0x271c00, {}],
   ["InGamePurchase.ClientStatistics", 0x271d00, {}],
@@ -330,14 +330,14 @@ export const inGamePurchasePackets: any = [
         {
           name: "unknown1",
           type: "array",
-          defaultValue: [],
+          defaultValue: [{}],
           fields: [{ name: "id", type: "uint32", defaultValue: 0 }],
         },
         { name: "unknown2", type: "uint32", defaultValue: 0 },
         {
           name: "unknown3",
           type: "array",
-          defaultValue: [],
+          defaultValue: [{}],
           fields: [
             { name: "scheduleId", type: "uint32", defaultValue: 0 },
             { name: "time", type: "uint32", defaultValue: 0 },

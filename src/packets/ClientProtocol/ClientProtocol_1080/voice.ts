@@ -14,7 +14,7 @@
 export const voicePackets: any = [
   [
     "Voice.Login",
-    0x8100,
+    0x8200,
     {
       fields: [
         { name: "clientName", type: "string", defaultValue: "" },
@@ -26,14 +26,16 @@ export const voicePackets: any = [
   ],
   [
     "Voice.JoinChannel",
-    0x8101,
+    0x8201,
     {
       fields: [
         { name: "roomType", type: "uint8", defaultValue: 0 },
         { name: "uri", type: "string", defaultValue: "" },
-        { name: "unknown1", type: "string", defaultValue: "" },
+        { name: "unknown1", type: "uint32", defaultValue: 0 },
       ],
     },
   ],
-  ["Voice.LeaveChannel", 0x8102, {}],
+  ["Voice.LeaveChannel", 0x8202, {}],
+  ["Voice.RadioChannel", 0x8207, {}],
+  ["Voice.LeaveRadio", 0x8208, {}],
 ];

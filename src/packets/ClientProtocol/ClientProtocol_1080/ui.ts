@@ -12,65 +12,19 @@
 // ======================================================================
 
 export const uiPackets: any = [
-  [
-    "Ui.TaskAdd",
-    0x1a01,
-    {
-      fields: [
-        { name: "Unknown1", type: "boolean", defaultValue: 0 },
-        { name: "Unknown2", type: "boolean", defaultValue: 0 },
-        { name: "Unknown3", type: "boolean", defaultValue: 0 },
-
-        { name: "Unknown4", type: "uint32", defaultValue: 0 },
-        { name: "Unknown5", type: "uint32", defaultValue: 0 },
-        { name: "Unknown6", type: "boolean", defaultValue: 0 },
-        { name: "Unknown7", type: "boolean", defaultValue: 0 },
-        { name: "Unknown8", type: "uint32", defaultValue: 0 },
-        { name: "Unknown9", type: "boolean", defaultValue: 0 },
-        { name: "Unknown10", type: "uint32", defaultValue: 0 },
-        { name: "Unknown11", type: "uint32", defaultValue: 0 },
-      ],
-    },
-  ],
+  ["Ui.TaskAdd", 0x1a01, {}],
   ["Ui.TaskUpdate", 0x1a02, {}],
   ["Ui.TaskComplete", 0x1a03, {}],
   ["Ui.TaskFail", 0x1a04, {}],
   ["Ui.Unknown", 0x1a05, {}],
   ["Ui.ExecuteScript", 0x1a07, {}],
-  [
-    "Ui.StartTimer",
-    0x1a09,
-    { fields: [{ name: "time", type: "uint32", defaultValue: 0 }] },
-  ],
-  ["Ui.ResetTimer", 0x1a0a, { fields: [] }],
+  ["Ui.StartTimer", 0x1a09, {}],
+  ["Ui.ResetTimer", 0x1a0a, {}],
   ["Ui.ObjectiveTargetUpdate", 0x1a0d, {}],
-  [
-    "Ui.Message",
-    0x1a0e,
-    { fields: [{ name: "stringId", type: "uint32", defaultValue: 0 }] },
-  ],
+  ["Ui.Message", 0x1a0e, {}],
   ["Ui.CinematicStartLookAt", 0x1a0f, {}],
-  [
-    "Ui.WeaponHitFeedback",
-    0x1a10,
-    {
-      fields: [
-        { name: "Unknown1", type: "uint32", defaultValue: 0 },
-        { name: "isEnemy", type: "boolean", defaultValue: 0 },
-        { name: "Unknown2", type: "uint32", defaultValue: 0 },
-      ],
-    },
-  ],
-  [
-    "Ui.HeadShotFeedback",
-    0x1a11,
-    {
-      fields: [
-        { name: "Unknown3", type: "boolean", defaultValue: 0 },
-        { name: "Unknown4", type: "boolean", defaultValue: 0 },
-      ],
-    },
-  ],
+  ["Ui.WeaponHitFeedback", 0x1a10, {}],
+  ["Ui.HeadShotFeedback", 0x1a11, {}],
   ["Ui.WaypointCooldown", 0x1a14, {}],
   ["Ui.ZoneWaypoint", 0x1a15, {}],
   ["Ui.WaypointNotify", 0x1a16, {}],

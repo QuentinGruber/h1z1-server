@@ -16,7 +16,7 @@ import { achievementDataSchema, objectiveDataSchema } from "./shared";
 export const achievementPackets: any = [
   [
     "Achievement.Add",
-    0x6502,
+    0x6602,
     {
       fields: [
         { name: "achievementId", type: "uint32", defaultValue: 0 },
@@ -30,13 +30,13 @@ export const achievementPackets: any = [
   ],
   [
     "Achievement.Initialize",
-    0x6503,
+    0x6603,
     {
       fields: [
         {
           name: "clientAchievements",
           type: "array",
-          defaultValue: [],
+          defaultValue: [{}],
           fields: achievementDataSchema,
         },
         {
@@ -46,7 +46,7 @@ export const achievementPackets: any = [
             {
               name: "achievements",
               type: "array",
-              defaultValue: [],
+              defaultValue: [{}],
               fields: achievementDataSchema,
             },
           ],
@@ -54,9 +54,9 @@ export const achievementPackets: any = [
       ],
     },
   ],
-  ["Achievement.Complete", 0x6504, {}],
-  ["Achievement.ObjectiveAdded", 0x6505, {}],
-  ["Achievement.ObjectiveActivated", 0x6506, {}],
-  ["Achievement.ObjectiveUpdate", 0x6507, {}],
-  ["Achievement.ObjectiveComplete", 0x6508, {}],
+  ["Achievement.Complete", 0x6604, {}],
+  ["Achievement.ObjectiveAdded", 0x6605, {}],
+  ["Achievement.ObjectiveActivated", 0x6606, {}],
+  ["Achievement.ObjectiveUpdate", 0x6607, {}],
+  ["Achievement.ObjectiveComplete", 0x6608, {}],
 ];

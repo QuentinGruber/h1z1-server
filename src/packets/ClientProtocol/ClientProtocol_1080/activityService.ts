@@ -12,7 +12,7 @@
 // ======================================================================
 
 export const activityServicePackets: any = [
-  ["ActivityService.Activity.ListOfActivities", 0x6f0101, {}],
-  ["ActivityService.Activity.UpdateActivityFeaturedStatus", 0x6f0105, {}],
-  ["ActivityService.ScheduledActivity.ListOfActivities", 0x6f0201, {}],
+  ["Activity.Activity.ListOfActivities", 0x700101, {}],
+  ["Activity.Activity.UpdateActivityFeaturedStatus", 0x700105, {}],
+  ["Activity.ScheduledActivity.ListOfActivities", 0x700201, {}],
 ];

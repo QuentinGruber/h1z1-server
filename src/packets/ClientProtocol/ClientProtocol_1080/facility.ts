@@ -14,20 +14,20 @@
 export const facilityPackets: any = [
   [
     "Facility.ReferenceData",
-    0x8401,
+    0x8501,
     {
       fields: [{ name: "data", type: "byteswithlength" }],
     },
   ],
   [
     "Facility.FacilityData",
-    0x8402,
+    0x8502,
     {
       fields: [
         {
           name: "facilities",
           type: "array",
-          defaultValue: [],
+          defaultValue: [{}],
           fields: [
             { name: "facilityId", type: "uint32", defaultValue: 0 },
             { name: "facilityType", type: "uint8", defaultValue: 0 },
@@ -48,12 +48,12 @@ export const facilityPackets: any = [
       ],
     },
   ],
-  ["Facility.CurrentFacilityUpdate", 0x8403, {}],
-  ["Facility.SpawnDataRequest", 0x8404, {}],
-  ["Facility.FacilitySpawnData", 0x8405, {}],
+  ["Facility.CurrentFacilityUpdate", 0x8503, {}],
+  ["Facility.SpawnDataRequest", 0x8504, {}],
+  ["Facility.FacilitySpawnData", 0x8505, {}],
   [
     "Facility.FacilityUpdate",
-    0x8406,
+    0x8506,
     {
       fn: function (data: Buffer, offset: number) {
         const result: any = {},
@@ -141,34 +141,20 @@ export const facilityPackets: any = [
       },
     },
   ],
-  ["Facility.FacilitySpawnStatus", 0x8407, {}],
-  ["Facility.FacilitySpawnStatusTracked", 0x8408, {}],
-  ["Facility.NotificationFacilityCaptured", 0x8409, {}],
-  ["Facility.NotificationFacilitySignificantCaptureProgress", 0x840a, {}],
-  ["Facility.NotificationFacilityCloseToCapture", 0x840b, {}],
-  ["Facility.NotificationFacilitySpawnBeginCapture", 0x840c, {}],
-  ["Facility.NotificationFacilitySpawnFinishCapture", 0x840d, {}],
-  ["Facility.NotificationLeavingFacilityDuringContention", 0x840e, {}],
-  [
-    "Facility.ProximitySpawnCaptureUpdate",
-    0x840f,
-    {
-      fields: [
-        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-        { name: "unknownBoolean2", type: "boolean", defaultValue: false },
-        { name: "unknown1", type: "uint16", defaultValue: 0 },
-        { name: "unknownBoolean3", type: "boolean", defaultValue: false },
-        { name: "unknownBoolean4", type: "boolean", defaultValue: false },
-        { name: "unknownBoolean5", type: "boolean", defaultValue: false },
-        { name: "unknownBoolean6", type: "boolean", defaultValue: false },
-      ],
-    },
-  ],
-  ["Facility.ClearProximitySpawn", 0x8410, {}],
-  ["Facility.GridStabilizeTimerUpdated", 0x8411, {}],
+  ["Facility.FacilitySpawnStatus", 0x8507, {}],
+  ["Facility.FacilitySpawnStatusTracked", 0x8508, {}],
+  ["Facility.NotificationFacilityCaptured", 0x8509, {}],
+  ["Facility.NotificationFacilitySignificantCaptureProgress", 0x850a, {}],
+  ["Facility.NotificationFacilityCloseToCapture", 0x850b, {}],
+  ["Facility.NotificationFacilitySpawnBeginCapture", 0x850c, {}],
+  ["Facility.NotificationFacilitySpawnFinishCapture", 0x850d, {}],
+  ["Facility.NotificationLeavingFacilityDuringContention", 0x850e, {}],
+  ["Facility.ProximitySpawnCaptureUpdate", 0x850f, {}],
+  ["Facility.ClearProximitySpawn", 0x8510, {}],
+  ["Facility.GridStabilizeTimerUpdated", 0x8511, {}],
   [
     "Facility.SpawnCollisionChanged",
-    0x8412,
+    0x8512,
     {
       fields: [
         { name: "unknown1", type: "uint32", defaultValue: 0 },
@@ -177,9 +163,9 @@ export const facilityPackets: any = [
       ],
     },
   ],
-  ["Facility.NotificationFacilitySecondaryObjectiveEventPacket", 0x8413, {}],
-  ["Facility.PenetrateShieldEffect", 0x8414, {}],
-  ["Facility.SpawnUpdateGuid", 0x8415, {}],
-  ["Facility.FacilityUpdateRequest", 0x8416, {}],
-  ["Facility.EmpireScoreValueUpdate", 0x8417, {}],
+  ["Facility.NotificationFacilitySecondaryObjectiveEventPacket", 0x8513, {}],
+  ["Facility.PenetrateShieldEffect", 0x8514, {}],
+  ["Facility.SpawnUpdateGuid", 0x8515, {}],
+  ["Facility.FacilityUpdateRequest", 0x8516, {}],
+  ["Facility.EmpireScoreValueUpdate", 0x8517, {}],
 ];

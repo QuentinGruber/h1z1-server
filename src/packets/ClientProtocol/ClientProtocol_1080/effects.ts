@@ -11,12 +11,12 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { effectTagDataSchema } from "./shared";
+import { effectTagsSchema } from "./shared";
 
 export const effectsPackets: any = [
   [
     "Effect.AddEffect",
-    0x9e01,
+    0x9f01,
     {
       fields: [
         {
@@ -54,7 +54,7 @@ export const effectsPackets: any = [
   ],
   [
     "Effect.UpdateEffect",
-    0x9e02,
+    0x9f02,
     {
       fields: [
         {
@@ -92,7 +92,7 @@ export const effectsPackets: any = [
   ],
   [
     "Effect.RemoveEffect",
-    0x9e03,
+    0x9f03,
     {
       fields: [
         {
@@ -129,14 +129,14 @@ export const effectsPackets: any = [
   ],
   [
     "Effect.AddEffectTag",
-    0x9e04,
+    0x9f04,
     {
-      fields: effectTagDataSchema,
+      fields: effectTagsSchema,
     },
   ],
   [
     "Effect.RemoveEffectTag",
-    0x9e05,
+    0x9f05,
     {
       fields: [
         {
@@ -160,7 +160,7 @@ export const effectsPackets: any = [
   ],
   [
     "Effect.TargetBlockedEffect",
-    0x9e06,
+    0x9f06,
     {
       fields: [
         {

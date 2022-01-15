@@ -14,7 +14,7 @@
 export const collisionPackets: any = [
   [
     "Collision.Damage",
-    0x8e01,
+    0x8f01,
     {
       fields: [
         { name: "unknownByte1", type: "uint8", defaultValue: 0 },

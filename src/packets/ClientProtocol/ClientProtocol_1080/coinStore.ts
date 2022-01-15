@@ -14,13 +14,13 @@
 export const coinStorePackets: any = [
   [
     "CoinStore.ItemList",
-    0x6d0100,
+    0x6e0100,
     {
       fields: [
         {
           name: "items",
           type: "array",
-          defaultValue: [],
+          defaultValue: [{}],
           fields: [
             { name: "itemId", type: "uint32", defaultValue: 0 },
             {
@@ -47,11 +47,11 @@ export const coinStorePackets: any = [
       ],
     },
   ],
-  ["CoinStore.ItemDefinitionsRequest", 0x6d0200, {}],
-  ["CoinStore.ItemDefinitionsResponse", 0x6d0300, {}],
+  ["CoinStore.ItemDefinitionsRequest", 0x6e0200, {}],
+  ["CoinStore.ItemDefinitionsResponse", 0x6e0300, {}],
   [
     "CoinStore.SellToClientRequest",
-    0x6d0400,
+    0x6e0400,
     {
       fields: [
         { name: "unknown1", type: "uint32", defaultValue: 0 },
@@ -63,10 +63,10 @@ export const coinStorePackets: any = [
       ],
     },
   ],
-  ["CoinStore.BuyFromClientRequest", 0x6d0500, {}],
+  ["CoinStore.BuyFromClientRequest", 0x6e0500, {}],
   [
     "CoinStore.TransactionComplete",
-    0x6d0600,
+    0x6e0600,
     {
       fields: [
         { name: "unknown1", type: "uint32", defaultValue: 0 },
@@ -87,14 +87,14 @@ export const coinStorePackets: any = [
       ],
     },
   ],
-  ["CoinStore.Open", 0x6d0700, {}],
-  ["CoinStore.ItemDynamicListUpdateRequest", 0x6d0800, {}],
-  ["CoinStore.ItemDynamicListUpdateResponse", 0x6d0900, {}],
-  ["CoinStore.MerchantList", 0x6d0a00, {}],
-  ["CoinStore.ClearTransactionHistory", 0x6d0b00, {}],
-  ["CoinStore.BuyBackRequest", 0x6d0c00, {}],
-  ["CoinStore.BuyBackResponse", 0x6d0d00, {}],
-  ["CoinStore.SellToClientAndGiftRequest", 0x6d0e00, {}],
-  ["CoinStore.ReceiveGiftItem", 0x6d1100, {}],
-  ["CoinStore.GiftTransactionComplete", 0x6d1200, {}],
+  ["CoinStore.Open", 0x6e0700, {}],
+  ["CoinStore.ItemDynamicListUpdateRequest", 0x6e0800, {}],
+  ["CoinStore.ItemDynamicListUpdateResponse", 0x6e0900, {}],
+  ["CoinStore.MerchantList", 0x6e0a00, {}],
+  ["CoinStore.ClearTransactionHistory", 0x6e0b00, {}],
+  ["CoinStore.BuyBackRequest", 0x6e0c00, {}],
+  ["CoinStore.BuyBackResponse", 0x6e0d00, {}],
+  ["CoinStore.SellToClientAndGiftRequest", 0x6e0e00, {}],
+  ["CoinStore.ReceiveGiftItem", 0x6e1100, {}],
+  ["CoinStore.GiftTransactionComplete", 0x6e1200, {}],
 ];

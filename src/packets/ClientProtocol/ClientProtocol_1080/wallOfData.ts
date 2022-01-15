@@ -12,10 +12,10 @@
 // ======================================================================
 
 export const wallOfDataPackets: any = [
-  ["WallOfData.PlayerKeyboard", 0x9903, {}],
+  ["WallOfData.PlayerKeyboard", 0x9b03, {}],
   [
     "WallOfData.UIEvent",
-    0x9905,
+    0x9b05,
     {
       fields: [
         { name: "object", type: "string", defaultValue: "" },
@@ -24,32 +24,14 @@ export const wallOfDataPackets: any = [
       ],
     },
   ],
-  [
-    "WallOfData.ClientSystemInfo",
-    0x9906,
-    {
-      fields: [{ name: "ClientSystemInfo", type: "string", defaultValue: "" }],
-    },
-  ],
-  ["WallOfData.VoiceChatEvent", 0x9907, {}],
-  ["WallOfData.NudgeEvent", 0x9909, {}],
-  [
-    "WallOfData.LaunchPadFingerprint",
-    0x990a,
-    {
-      fields: [
-        {
-          name: "LaunchPadFingerprint",
-          type: "uint64string",
-          defaultValue: "0",
-        },
-      ],
-    },
-  ],
-  ["WallOfData.VideoCapture", 0x990b, {}],
+  ["WallOfData.ClientSystemInfo", 0x9b06, {}],
+  ["WallOfData.VoiceChatEvent", 0x9b07, {}],
+  ["WallOfData.NudgeEvent", 0x9b09, {}],
+  ["WallOfData.LaunchPadFingerprint", 0x9b0a, {}],
+  ["WallOfData.VideoCapture", 0x9b0b, {}],
   [
     "WallOfData.ClientTransition",
-    0x990c,
+    0x9b0c,
     {
       fields: [
         { name: "oldState", type: "uint32", defaultValue: 0 },

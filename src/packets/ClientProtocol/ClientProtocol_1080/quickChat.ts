@@ -20,7 +20,7 @@ export const quickChatPackets: any = [
         {
           name: "commands",
           type: "array",
-          defaultValue: [],
+          defaultValue: [{}],
           fields: [
             { name: "commandId", type: "uint32", defaultValue: 0 },
             {

@@ -14,7 +14,7 @@
 export const mapRegionPackets: any = [
   [
     "MapRegion.GlobalData",
-    0xa301,
+    0xa401,
     {
       fields: [
         { name: "unknown1", type: "float", defaultValue: 0.0 },
@@ -24,7 +24,7 @@ export const mapRegionPackets: any = [
   ],
   [
     "MapRegion.Data",
-    0xa302,
+    0xa402,
     {
       fields: [
         { name: "unknown1", type: "float", defaultValue: 0.0 },
@@ -32,7 +32,7 @@ export const mapRegionPackets: any = [
         {
           name: "regions",
           type: "array",
-          defaultValue: [],
+          defaultValue: [{}],
           fields: [
             { name: "regionId", type: "uint32", defaultValue: 0 },
             { name: "regionId2", type: "uint32", defaultValue: 0 },
@@ -44,7 +44,7 @@ export const mapRegionPackets: any = [
             {
               name: "hexes",
               type: "array",
-              defaultValue: [],
+              defaultValue: [{}],
               fields: [
                 { name: "x", type: "int32", defaultValue: 0 },
                 { name: "y", type: "int32", defaultValue: 0 },
@@ -55,19 +55,19 @@ export const mapRegionPackets: any = [
             {
               name: "unknown4",
               type: "array",
-              defaultValue: [],
+              defaultValue: [{}],
               elementType: "uint8",
             },
             {
               name: "unknown5",
               type: "array",
-              defaultValue: [],
+              defaultValue: [{}],
               elementType: "uint8",
             },
             {
               name: "unknown6",
               type: "array",
-              defaultValue: [],
+              defaultValue: [{}],
               elementType: "uint8",
             },
             { name: "connectionFacilityId", type: "uint32", defaultValue: 0 },
@@ -76,12 +76,12 @@ export const mapRegionPackets: any = [
       ],
     },
   ],
-  ["MapRegion.ExternalData", 0xa303, {}],
-  ["MapRegion.Update", 0xa304, {}],
-  ["MapRegion.UpdateAll", 0xa305, {}],
+  ["MapRegion.ExternalData", 0xa403, {}],
+  ["MapRegion.Update", 0xa404, {}],
+  ["MapRegion.UpdateAll", 0xa405, {}],
   [
     "MapRegion.MapOutOfBounds",
-    0xa306,
+    0xa406,
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
@@ -90,21 +90,21 @@ export const mapRegionPackets: any = [
       ],
     },
   ],
-  ["MapRegion.Population", 0xa307, {}],
+  ["MapRegion.Population", 0xa407, {}],
   [
     "MapRegion.RequestContinentData",
-    0xa308,
+    0xa408,
     {
       fields: [{ name: "zoneId", type: "uint32", defaultValue: 0 }],
     },
   ],
-  ["MapRegion.InfoRequest", 0xa309, {}],
-  ["MapRegion.InfoReply", 0xa30a, {}],
-  ["MapRegion.ExternalFacilityData", 0xa30b, {}],
-  ["MapRegion.ExternalFacilityUpdate", 0xa30c, {}],
-  ["MapRegion.ExternalFacilityUpdateAll", 0xa30d, {}],
-  ["MapRegion.ExternalFacilityEmpireScoreUpdate", 0xa30e, {}],
-  ["MapRegion.NextTick", 0xa30f, {}],
-  ["MapRegion.HexActivityUpdate", 0xa310, {}],
-  ["MapRegion.ConquerFactionUpdate", 0xa311, {}],
+  ["MapRegion.InfoRequest", 0xa409, {}],
+  ["MapRegion.InfoReply", 0xa40a, {}],
+  ["MapRegion.ExternalFacilityData", 0xa40b, {}],
+  ["MapRegion.ExternalFacilityUpdate", 0xa40c, {}],
+  ["MapRegion.ExternalFacilityUpdateAll", 0xa40d, {}],
+  ["MapRegion.ExternalFacilityEmpireScoreUpdate", 0xa40e, {}],
+  ["MapRegion.NextTick", 0xa40f, {}],
+  ["MapRegion.HexActivityUpdate", 0xa410, {}],
+  ["MapRegion.ConquerFactionUpdate", 0xa411, {}],
 ];

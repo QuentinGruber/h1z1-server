@@ -12,10 +12,10 @@
 // ======================================================================
 
 export const definitionFilterPackets: any = [
-  ["DefinitionFilter.ListDefinitionVariables", 0x9501, {}],
+  ["DefinitionFilter.ListDefinitionVariables", 0x9601, {}],
   [
     "DefinitionFilter.SetDefinitionVariable",
-    0x9502,
+    0x9602,
     {
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
@@ -33,7 +33,7 @@ export const definitionFilterPackets: any = [
   ],
   [
     "DefinitionFilter.SetDefinitionIntSet",
-    0x9503,
+    0x9603,
     {
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
@@ -41,7 +41,7 @@ export const definitionFilterPackets: any = [
         {
           name: "unknownData1",
           type: "array",
-          defaultValue: [],
+          defaultValue: [{}],
           fields: [
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
             { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -52,7 +52,7 @@ export const definitionFilterPackets: any = [
   ],
   [
     "DefinitionFilter.UnknownWithVariable1",
-    0x9504,
+    0x9604,
     {
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
@@ -62,7 +62,7 @@ export const definitionFilterPackets: any = [
   ],
   [
     "DefinitionFilter.UnknownWithVariable2",
-    0x9505,
+    0x9605,
     {
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },

@@ -12,21 +12,20 @@
 // ======================================================================
 
 export const constructionPackets: any = [
-  ["Construction.PlacementRequest", 0xcc01, { fields: [] }],
+  ["Construction.PlacementRequest", 0xca0100, { fields: [] }],
   [
     "Construction.PlacementResponse",
-    0xcc02,
+    0xca0200,
     {
       fields: [
-        { name: "Unknown2", type: "boolean", defaultValue: 0 },
-        { name: "Unknown3", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "model", type: "uint32", defaultValue: 55 },
       ],
     },
   ],
   [
     "Construction.PlacementFinalizeRequest",
-    0xcc03,
+    0xca0300,
     {
       fields: [
         { name: "position", type: "floatvector3", defaultValue: [0, 0, 0] },
@@ -36,7 +35,22 @@ export const constructionPackets: any = [
   ],
   [
     "Construction.PlacementFinalizeResponse",
-    0xcc04,
-    { fields: [{ name: "status", type: "boolean", defaultValue: 1 }] },
+    0xca0400,
+    {
+      fields: [
+        { name: "status", type: "boolean", defaultValue: 1 },
+        { name: "unknownString1", type: "string", defaultValue: "" },
+      ],
+    },
+  ],
+  [
+    "Construction.Unknown",
+    0xca0400,
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        // not finished, read func is aids
+      ],
+    },
   ],
 ];

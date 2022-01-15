@@ -14,13 +14,13 @@
 export const zoneSettingPackets: any = [
   [
     "ZoneSetting.Data",
-    0xb601,
+    0xb401,
     {
       fields: [
         {
           name: "settings",
           type: "array",
-          defaultValue: [],
+          defaultValue: [{}],
           fields: [
             { name: "hash", type: "uint32", defaultValue: 0 },
             { name: "unknown1", type: "uint32", defaultValue: 0 },

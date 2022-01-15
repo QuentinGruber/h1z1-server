@@ -12,6 +12,7 @@
 // ======================================================================
 
 import {
+  attachmentDataSchema,
   packUnsignedIntWith2bitLengthValue,
   readUnsignedIntWith2bitLengthValue,
 } from "./shared";
@@ -29,101 +30,57 @@ export const clientUpdatePackets: any = [
     0x110200,
     {
       fields: [
-        { name: "guid", type: "uint64string", defaultValue: "0" },
-        { name: "unknown1", type: "uint32", defaultValue: 7 }, // need to be > 0
-      ],
-    },
-  ],
-  ["ClientUpdate.ItemUpdate", 0x110300, {}],
-  ["ClientUpdate.ItemDelete", 0x110400, {}],
-  [
-    "ClientUpdate.UpdateStat",
-    0x110500,
-    {
-      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
         {
-          name: "stats",
-          type: "array",
-          defaultValue: [],
-          fields: statDataSchema,
+          name: "data",
+          type: "byteswithlength",
+          fields: [
+            ...itemDataSchema,
+            { name: "unknownBoolean2", type: "boolean", defaultValue: false },
+          ],
         },
       ],
     },
   ],
+  ["ClientUpdate.ItemUpdate", 0x110300, {}],
+  [
+    "ClientUpdate.ItemDelete",
+    0x110400,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "itemGuid", type: "uint64string", defaultValue: "0" },
+      ],
+    },
+  ],
+  [
+    "ClientUpdate.UpdateStat",
+    0x110500,
+    {
+      fields: statDataSchema,
+    },
+  ],
   ["ClientUpdate.CollectionStart", 0x110600, {}],
   ["ClientUpdate.CollectionRemove", 0x110700, {}],
-  [
-    "ClientUpdate.CollectionAddEntry",
-    0x110800,
-    {
-      fields: [
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword4", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword5", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword6", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword7", type: "uint32", defaultValue: 0 },
-        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-      ],
-    },
-  ],
-  [
-    "ClientUpdate.CollectionRemoveEntry",
-    0x110900,
-    {
-      fields: [
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-      ],
-    },
-  ],
+  ["ClientUpdate.CollectionAddEntry", 0x110800, {}],
+  ["ClientUpdate.CollectionRemoveEntry", 0x110900, {}],
   [
     "ClientUpdate.UpdateLocation",
     0x110a00,
     {
       fields: [
-        { name: "position", type: "floatvector4", defaultValue: [0, 50, 0, 1] },
+        { name: "position", type: "floatvector4", defaultValue: [0, 0, 0, 1] },
         { name: "rotation", type: "floatvector4", defaultValue: [0, 0, 0, 1] },
-        { name: "unknownBool1", type: "boolean", defaultValue: true },
-        { name: "movementVersion", type: "uint8", defaultValue: 0 },
+        { name: "triggerLoadingScreen", type: "boolean", defaultValue: false },
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+        { name: "unknownBool2", type: "boolean", defaultValue: false },
       ],
     },
   ],
-  [
-    "ClientUpdate.Mana",
-    0x110b00,
-    {
-      fields: [{ name: "mana", type: "uint32", defaultValue: 10 }],
-    },
-  ],
+  ["ClientUpdate.Mana", 0x110b00, {}],
   ["ClientUpdate.UpdateProfileExperience", 0x110c00, {}],
-  [
-    "ClientUpdate.AddProfileAbilitySetApl",
-    0x110d00,
-    {
-      fields: [
-        { name: "unknownDword1", type: "uint32", defaultValue: 4 },
-        {
-          name: "profiles",
-          type: "array",
-          defaultValue: [],
-          fields: profileDataSchema,
-        },
-      ],
-    },
-  ],
-  [
-    "ClientUpdate.AddEffectTag",
-    0x110e00,
-    {
-      fields: [
-        { name: "unknownDword1", type: "uint32", defaultValue: 1111389 }, // 1111389 = id of EmoteWaveHello
-        { name: "unknownDword2", type: "uint32", defaultValue: 4 }, // number of byte of unknownDword3
-        { name: "unknownDword3", type: "uint32", defaultValue: 3 },
-      ],
-    },
-  ],
+  ["ClientUpdate.AddProfileAbilitySetApl", 0x110d00, {}],
+  ["ClientUpdate.AddEffectTag", 0x110e00, {}],
   ["ClientUpdate.RemoveEffectTag", 0x110f00, {}],
   ["ClientUpdate.UpdateProfileRank", 0x111000, {}],
   ["ClientUpdate.CoinCount", 0x111100, {}],
@@ -134,7 +91,7 @@ export const clientUpdatePackets: any = [
     {
       fields: [
         {
-          name: "profiles",
+          name: "profileData",
           type: "byteswithlength",
           fields: profileDataSchema,
         },
@@ -142,33 +99,18 @@ export const clientUpdatePackets: any = [
           name: "attachmentData",
           type: "array",
           defaultValue: [],
-          fields: [
-            { name: "modelName", type: "string", defaultValue: "" },
-            { name: "defaultTextureAlias", type: "string", defaultValue: "" },
-            { name: "tintAlias", type: "string", defaultValue: "" },
-            { name: "unknownString2", type: "string", defaultValue: "#" },
-            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "enableDebug", type: "uint32", defaultValue: 0 },
-            { name: "slotId", type: "uint32", defaultValue: 2 },
-          ],
+          fields: attachmentDataSchema,
         },
-        //{ name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword1", type: "uint32", defaultValue: 1 },
-        { name: "unknownDword3", type: "uint32", defaultValue: 1 },
-        { name: "actorModel", type: "uint32", defaultValue: 9240 },
-        { name: "unknownString1", type: "string", defaultValue: "" },
-        { name: "unknownString2", type: "string", defaultValue: "#" },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "actorModelId", type: "uint32", defaultValue: 0 },
+        { name: "tintAlias", type: "string", defaultValue: "" },
+        { name: "decalAlias", type: "string", defaultValue: "" },
       ],
     },
   ],
   ["ClientUpdate.AddAbility", 0x111400, {}],
-  [
-    "ClientUpdate.NotifyPlayer",
-    0x111500,
-    {
-      fields: [{ name: "message", type: "string", defaultValue: "hello" }],
-    },
-  ],
+  ["ClientUpdate.NotifyPlayer", 0x111500, {}],
   ["ClientUpdate.UpdateProfileAbilitySetApl", 0x111600, {}],
   ["ClientUpdate.RemoveActionBars", 0x111700, {}],
   ["ClientUpdate.UpdateActionBarSlot", 0x111800, {}],
@@ -176,73 +118,56 @@ export const clientUpdatePackets: any = [
     "ClientUpdate.DoneSendingPreloadCharacters",
     0x111900,
     {
-      fields: [{ name: "unknownBoolean1", type: "uint8", defaultValue: 0 }],
+      fields: [{ name: "done", type: "boolean", defaultValue: false }],
     },
   ],
   ["ClientUpdate.SetGrandfatheredStatus", 0x111a00, {}],
   ["ClientUpdate.UpdateActionBarSlotUsed", 0x111b00, {}],
   ["ClientUpdate.PhaseChange", 0x111c00, {}],
   ["ClientUpdate.UpdateKingdomExperience", 0x111d00, {}],
-  [
-    "ClientUpdate.DamageInfo",
-    0x111e00,
-    {
-      fields: [
-        { name: "unknownDword1", type: "uint32", defaultValue: 1 },
-        {
-          name: "transientId", // not sure if its used
-          type: "custom",
-          parser: readUnsignedIntWith2bitLengthValue,
-          packer: packUnsignedIntWith2bitLengthValue,
-          defaultValue: 1,
-        },
-        { name: "unknownDword2", type: "int32", defaultValue: 1 }, // cant be 0
-        { name: "orientationToSource", type: "float", defaultValue: -1.7 },
-        { name: "unknownDword4", type: "uint32", defaultValue: 0 },
-        { name: "unknownBoolean2", type: "boolean", defaultValue: 1 },
-        { name: "unknownBoolean3", type: "boolean", defaultValue: 1 },
-        { name: "unknownDword5", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword6", type: "uint32", defaultValue: 0 },
-      ],
-    },
-  ],
+  ["ClientUpdate.DamageInfo", 0x111e00, {}],
   [
     "ClientUpdate.ZonePopulation",
-    0x111f00,
+    0x112f00,
     {
       fields: [
         {
           name: "populations",
           type: "array",
-          defaultValue: [],
+          defaultValue: [{}],
           elementType: "uint8",
         },
       ],
     },
   ],
   [
+    // 2016
     "ClientUpdate.RespawnLocations",
-    0x112000,
+    0x111f00,
     {
       fields: [
+        { name: "unknownFlags", type: "uint8", defaultValue: 0 },
         {
           name: "locations",
           type: "array",
-          defaultValue: [],
+          defaultValue: [{}],
           fields: respawnLocationDataSchema,
         },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
         {
           name: "locations2",
           type: "array",
-          defaultValue: [],
+          defaultValue: [{}],
           fields: respawnLocationDataSchema,
         },
       ],
     },
   ],
   [
+    // 2016
     "ClientUpdate.ModifyMovementSpeed",
-    0x112100,
+    0x112000,
     {
       fields: [
         { name: "speed", type: "float", defaultValue: 10 },
@@ -252,7 +177,7 @@ export const clientUpdatePackets: any = [
   ],
   [
     "ClientUpdate.ModifyTurnRate",
-    0x112200,
+    0x112100,
     {
       fields: [
         { name: "speed", type: "float", defaultValue: 10 },
@@ -262,7 +187,7 @@ export const clientUpdatePackets: any = [
   ],
   [
     "ClientUpdate.ModifyStrafeSpeed",
-    0x112300,
+    0x112200,
     {
       fields: [
         { name: "speed", type: "float", defaultValue: 10 },
@@ -270,56 +195,10 @@ export const clientUpdatePackets: any = [
       ],
     },
   ],
-  [
-    "ClientUpdate.UpdateManagedLocation",
-    0x112400,
-    {
-      fields: [
-        { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "position", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
-        { name: "rotation", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
-        { name: "unk1", type: "uint8", defaultValue: 1 },
-        { name: "unk2", type: "uint8", defaultValue: 1 },
-      ],
-    },
-  ],
-  [
-    "ClientUpdate.ScreenEffect",
-    0x112500,
-    {
-      fields: [
-        { name: "unknown1", type: "uint32", defaultValue: 0 },
-        {
-          name: "unknownUint",
-          type: "custom",
-          parser: readUnsignedIntWith2bitLengthValue,
-          packer: packUnsignedIntWith2bitLengthValue,
-        },
-        { name: "unknown2", type: "boolean", defaultValue: 0 },
-        { name: "unknown3", type: "boolean", defaultValue: 0 },
-        { name: "unknown4", type: "boolean", defaultValue: 0 },
-        { name: "unknown5", type: "boolean", defaultValue: 0 },
-        { name: "unknown6", type: "boolean", defaultValue: 0 },
-        { name: "unknown7", type: "uint32", defaultValue: 0 },
-        { name: "unknown8", type: "uint32", defaultValue: 0 },
-        {
-          name: "vector1",
-          type: "floatvector4",
-          defaultValue: [0, 0, 0, 1],
-        },
-      ],
-    },
-  ],
-  [
-    "ClientUpdate.MovementVersion",
-    0x112600,
-    {
-      fields: [{ name: "version", type: "uint32", defaultValue: 0 }],
-    },
-  ],
+  ["ClientUpdate.UpdateManagedLocation", 0x112300, {}],
   [
     "ClientUpdate.ManagedMovementVersion",
-    0x112700,
+    0x112400,
     {
       fields: [
         {
@@ -333,7 +212,7 @@ export const clientUpdatePackets: any = [
   ],
   [
     "ClientUpdate.UpdateWeaponAddClips",
-    0x112800,
+    0x112500,
     {
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
@@ -342,43 +221,17 @@ export const clientUpdatePackets: any = [
       ],
     },
   ],
-  ["ClientUpdate.SpotProbation", 0x112900, {}],
-  [
-    "ClientUpdate.DailyRibbonCount",
-    0x112a00,
-    {
-      fields: [
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-        { name: "unknownBoolean1", type: "boolean", defaultValue: 0 },
-      ],
-    },
-  ],
-  [
-    "ClientUpdate.DespawnNpcUpdate",
-    0x112c00,
-    {
-      fields: [
-        { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "timeBeforeDespawn", type: "uint32", defaultValue: 0 },
-      ],
-    },
-  ],
-  // ["ClientUpdate.LoyaltyPoints", 0x112c00, {}],
-  ["ClientUpdate.Membership", 0x112d00, {}],
-  ["ClientUpdate.ResetMissionRespawnTimer", 0x112e00, {}],
-  [
-    "ClientUpdate.Freeze",
-    0x112f00,
-    {
-      fields: [{ name: "frozen", type: "uint8", defaultValue: 1 }], // 0 unfreeze jump & > 1 freeze jump ( don't know how it was used )
-    },
-  ],
-  ["ClientUpdate.InGamePurchaseResult", 0x113000, {}],
-  ["ClientUpdate.QuizComplete", 0x113100, {}],
+  ["ClientUpdate.SpotProbation", 0x112600, {}],
+  ["ClientUpdate.DailyRibbonCount", 0x112700, {}],
+  ["ClientUpdate.DespawnNpcUpdate", 0x112900, {}],
+  ["ClientUpdate.LoyaltyPoints", 0x112a00, {}],
+  ["ClientUpdate.ResetMissionRespawnTimer", 0x112b00, {}],
+  ["ClientUpdate.Freeze", 0x112c00, {}],
+  ["ClientUpdate.InGamePurchaseResult", 0x112d00, {}],
+  ["ClientUpdate.QuizComplete", 0x112e00, {}],
   [
     "ClientUpdate.StartTimer",
-    0x113200,
+    0x112f00,
     {
       fields: [
         { name: "stringId", type: "uint32", defaultValue: 0 },
@@ -389,14 +242,14 @@ export const clientUpdatePackets: any = [
   ],
   [
     "ClientUpdate.CompleteLogoutProcess",
-    0x113300,
+    0x113000,
     {
       fields: [],
     },
   ],
   [
     "ClientUpdate.ProximateItems",
-    0x113400,
+    0x113100,
     {
       fields: [
         {
@@ -404,7 +257,7 @@ export const clientUpdatePackets: any = [
           type: "array",
           defaultValue: [],
           fields: [
-            { name: "itemDefId", type: "uint32", defaultValue: 6 },
+            { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
             {
               name: "itemData",
               type: "schema",
@@ -412,9 +265,9 @@ export const clientUpdatePackets: any = [
               fields: itemDataSchema,
             },
             {
-              name: "unknownQword1",
+              name: "associatedCharacterGuid",
               type: "uint64string",
-              defaultValue: "0x0",
+              defaultValue: "0",
             },
           ],
         },
@@ -423,11 +276,53 @@ export const clientUpdatePackets: any = [
   ],
   [
     "ClientUpdate.TextAlert",
-    0x113500,
+    0x113200,
     {
       fields: [{ name: "message", type: "string", defaultValue: "hello" }],
     },
   ],
-  ["ClientUpdate.ClearEntitlementValues", 0x113600, []],
-  ["ClientUpdate.AddEntitlementValue", 0x113700, []],
+  ["ClientUpdate.ClearEntitlementValues", 0x113300, {}],
+  ["ClientUpdate.AddEntitlementValue", 0x113400, {}],
+  [
+    "ClientUpdate.NetworkProximityUpdatesComplete",
+    0x113500,
+    {
+      fields: [{ name: "done", type: "boolean", defaultValue: false }],
+    },
+  ],
+  ["ClientUpdate.FileValidationRequest", 0x113600, {}],
+  ["ClientUpdate.FileValidationResponse", 0x113700, {}],
+  ["ClientUpdate.DeathMetrics", 0x113800, {}],
+  ["ClientUpdate.ManagedObjectRequestControl", 0x113900, {}],
+  [
+    "ClientUpdate.ManagedObjectResponseControl",
+    0x113a00,
+    {
+      fields: [
+        { name: "control", type: "boolean", defaultValue: false },
+        { name: "objectCharacterId", type: "uint64string", defaultValue: "0" },
+      ],
+    },
+  ],
+  ["ClientUpdate.ManagedObjectReleaseControl", 0x113b00, {}],
+  ["ClientUpdate.SetCurrentAdventure", 0x113c00, {}],
+  ["ClientUpdate.CharacterSlot", 0x113d00, {}],
+  ["ClientUpdate.CustomizationData", 0x113e00, {}],
+  ["ClientUpdate.UpdateCurrency", 0x113f00, {}],
+  ["ClientUpdate.AddNotifications", 0x114000, {}],
+  ["ClientUpdate.RemoveNotifications", 0x114100, {}],
+  ["ClientUpdate.NpcRelevance", 0x114200, {}],
+  ["ClientUpdate.InitiateNameChange", 0x114300, {}],
+  ["ClientUpdate.NameChangeResult", 0x114400, {}],
+  ["ClientUpdate.MonitorTimeDrift", 0x114500, {}],
+  ["ClientUpdate.NotifyServerOfStalledEvent", 0x114600, {}],
+  ["ClientUpdate.UpdateSights", 0x114700, {}],
+  ["ClientUpdate.UpdateRewardAndGrinderState", 0x114900, {}],
+  ["ClientUpdate.UpdateActivityMetrics", 0x114b00, {}],
+  ["ClientUpdate.StopWithError", 0x114c00, {}],
+  ["ClientUpdate.SetWorldWipeTimer", 0x114d00, {}],
+  ["ClientUpdate.UpdateLockoutTimes", 0x114e00, {}],
+  ["ClientUpdate.ZoneStatus", 0x114f00, {}],
+  ["ClientUpdate.SetDataCenter", 0x115000, {}],
+  ["ClientUpdate.UpdateBattlEyeRegistration", 0x115100, {}],
 ];

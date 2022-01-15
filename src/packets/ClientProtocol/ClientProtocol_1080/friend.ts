@@ -20,7 +20,7 @@ export const friendPackets: any = [
         {
           name: "friends",
           type: "array",
-          defaultValue: [],
+          defaultValue: [{}],
           fields: [
             { name: "unknown1", type: "uint32", defaultValue: 0 },
             { name: "unknown2", type: "uint32", defaultValue: 0 },
