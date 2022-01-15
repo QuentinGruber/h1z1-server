@@ -11,7 +11,6 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { packPositionUpdateData, readPositionUpdateData } from "./shared";
 
 export const ragdollPackets: any = [
   ["Ragdoll", 0xce, {}],
