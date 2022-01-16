@@ -2,8 +2,8 @@
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
-//   copyright (c) 2020 - 2021 Quentin Gruber
-//   copyright (c) 2021 H1emu community
+//   copyright (C) 2020 - 2021 Quentin Gruber
+//   copyright (C) 2021 - 2022 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -797,7 +797,7 @@ export class ZoneServer2016 extends ZoneServer {
     // does not include vehicles
     const objectsToRemove = client.spawnedEntities.filter(
       (e) =>
-        !e.npcData?.isVehicle &&
+        !e.npcData?.positionUpdateType && // TODO: change this behavior this will cause issues
         this.filterOutOfDistance(e, client.character.state.position)
     );
     client.spawnedEntities = client.spawnedEntities.filter((el) => {

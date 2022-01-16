@@ -2,8 +2,8 @@
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
-//   copyright (c) 2020 - 2021 Quentin Gruber
-//   copyright (c) 2021 H1emu community
+//   copyright (C) 2020 - 2021 Quentin Gruber
+//   copyright (C) 2021 - 2022 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -803,7 +803,7 @@ const lightWeightNpcSchema = [
   { name: "vehicleId", type: "uint32", defaultValue: 0 },
   { name: "unknownDword5", type: "uint32", defaultValue: 0 },
   { name: "npcDefinitionId", type: "uint32", defaultValue: 0 },
-  { name: "isVehicle", type: "boolean", defaultValue: false }, // determine if npc is moving with positionUpdate - Avcio
+  { name: "positionUpdateType", type: "boolean", defaultValue: 0 }, // determine if npc is moving with positionUpdate - Avcio
   { name: "unknownDword7", type: "uint32", defaultValue: 0 },
   { name: "unknownBoolean1", type: "boolean", defaultValue: 0 },
   {

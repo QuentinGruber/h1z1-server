@@ -2,8 +2,8 @@
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
-//   copyright (c) 2020 - 2021 Quentin Gruber
-//   copyright (c) 2021 H1emu community
+//   copyright (C) 2020 - 2021 Quentin Gruber
+//   copyright (C) 2021 - 2022 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -16,6 +16,8 @@ import { ZoneClient as Client } from "./classes/zoneclient";
 import { ZoneServer } from "./zoneserver";
 
 const debug = require("debug")("zonepacketHandlers");
+
+const debugWOD = require("debug")("wallOfData");
 
 import { joaat } from "h1emu-core";
 
@@ -45,10 +47,15 @@ export class zonePacketHandlers {
   commandRecipeStart: any;
   commandFreeInteractionNpc: any;
   collisionDamage: any;
+  VehicleItemDefinitionRequest: any;
+  CurrentMoveMode: any;
   lobbyGameDefinitionDefinitionsRequest: any;
   playerUpdateEndCharacterAccess: any;
   KeepAlive: any;
   ClientLog: any;
+  ClientMetrics: any;
+  WallOfDataClientSystemInfo: any;
+  WallOfDataLaunchPadFingerprint: any;
   wallOfDataUIEvent: any;
   SetLocale: any;
   GetContinentBattleInfo: any;
@@ -284,6 +291,24 @@ export class zonePacketHandlers {
         definitionsData: { data: "" },
       });
     };
+    this.VehicleItemDefinitionRequest = function (
+      server: ZoneServer,
+      client: Client,
+      packet: any
+    ) {
+      debug(
+        `Character "${client.character.name}" (${client.character.characterId}) ask for VehicleItemDefinition`
+      );
+    };
+    this.CurrentMoveMode = function (
+      server: ZoneServer,
+      client: Client,
+      packet: any
+    ) {
+      debug(
+        `Vehicle "${packet.data.characterId}" move mode : ${packet.data.moveMode}`
+      );
+    };
     this.playerUpdateEndCharacterAccess = function (
       server: ZoneServer,
       client: Client,
@@ -299,6 +324,27 @@ export class zonePacketHandlers {
       server.sendData(client, "KeepAlive", {
         gameTime: packet.data.gameTime,
       });
+    };
+    this.ClientMetrics = function (
+      server: ZoneServer,
+      client: Client,
+      packet: any
+    ) {
+      debugWOD(packet);
+    };
+    this.WallOfDataClientSystemInfo = function (
+      server: ZoneServer,
+      client: Client,
+      packet: any
+    ) {
+      debugWOD(packet.data.ClientSystemInfo);
+    };
+    this.WallOfDataLaunchPadFingerprint = function (
+      server: ZoneServer,
+      client: Client,
+      packet: any
+    ) {
+      debugWOD(`LaunchPadFingerprint : ${packet.data.LaunchPadFingerprint}`);
     };
     this.ClientLog = function (
       server: ZoneServer,
@@ -1715,7 +1761,6 @@ export class zonePacketHandlers {
               unk3: 0,
             });
             entityData.isOpen = true;
-            entityData.openCounter++;
           } else {
             entityData.moving = true;
             setTimeout(function () {
@@ -1736,24 +1781,7 @@ export class zonePacketHandlers {
               position: entityData.position,
               unk3: 0,
             });
-            entityData.openCounter++;
             entityData.isOpen = false;
-            if (entityData.openCounter > 5) {
-              server.sendDataToAll(
-                "PlayerUpdate.RemovePlayerGracefully",
-                {
-                  characterId: entityData.characterId,
-                },
-                1
-              );
-              setTimeout(function () {
-                server.sendDataToAll(
-                  "PlayerUpdate.AddLightweightNpc",
-                  entityData
-                );
-              }, 150);
-              entityData.openCounter = 0;
-            }
           }
           break;
         case 4: // prop
@@ -1975,8 +2003,12 @@ export class zonePacketHandlers {
           // character
           const entityData = server._characters[characterId];
           if (entityData) {
-            server.sendData(client, "PlayerUpdate.LightweightToFullPc", {
+            server.sendData(client, "PlayerUpdate.LightweightToFullNpc", {
               transientId: entityData.transientId,
+              unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
+              unknownDword2: 13951728,
+              unknownDword3: 1,
+              unknownDword6: 100,
             });
             server.sendData(client, "Equipment.SetCharacterEquipment", {
               profileId: 3,
@@ -2082,6 +2114,12 @@ export class zonePacketHandlers {
       case "Collision.Damage":
         this.collisionDamage(server, client, packet);
         break;
+      case "Vehicle.CurrentMoveMode":
+        this.CurrentMoveMode(server, client, packet);
+        break;
+      case "Vehicle.ItemDefinitionRequest":
+        this.VehicleItemDefinitionRequest(server, client, packet);
+        break;
       case "LobbyGameDefinition.DefinitionsRequest":
         this.lobbyGameDefinitionDefinitionsRequest(server, client, packet);
         break;
@@ -2091,6 +2129,15 @@ export class zonePacketHandlers {
       case "KeepAlive":
         this.KeepAlive(server, client, packet);
         break;
+      case "WallOfData.ClientSystemInfo":
+        this.WallOfDataClientSystemInfo(server, client, packet);
+        break;
+      case "WallOfData.LaunchPadFingerprint":
+        this.WallOfDataLaunchPadFingerprint(server, client, packet);
+        break;
+      case "ClientMetrics":
+        this.ClientMetrics(server, client, packet);
+        break;
       case "ClientLog":
         this.ClientLog(server, client, packet);
         break;
@@ -2099,6 +2146,10 @@ export class zonePacketHandlers {
         break;
       case "SetLocale":
         this.SetLocale(server, client, packet);
+        break;
+      case "Combat.AutoAttackOff":
+        break;
+      case "GetRespawnLocations":
         break;
       case "GetContinentBattleInfo":
         this.GetContinentBattleInfo(server, client, packet);
@@ -2208,9 +2259,11 @@ export class zonePacketHandlers {
       case "PlayerUpdate.FullCharacterDataRequest":
         this.playerUpdateFullCharacterDataRequest(server, client, packet);
         break;
+      case "Fotomat":
+        break;
       default:
-        debug(packet);
-        debug("Packet not implemented in packetHandlers");
+        console.error(packet);
+        console.error("Packet not implemented in packetHandlers");
         break;
     }
   }

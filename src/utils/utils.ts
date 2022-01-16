@@ -2,8 +2,8 @@
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
-//   copyright (c) 2020 - 2021 Quentin Gruber
-//   copyright (c) 2021 H1emu community
+//   copyright (C) 2020 - 2021 Quentin Gruber
+//   copyright (C) 2021 - 2022 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -14,7 +14,8 @@
 const restore = require("mongodb-restore-dump");
 import { generate_random_guid } from "h1emu-core";
 import v8 from "v8";
-import fs from "fs";
+import fs, { readdirSync } from "fs";
+import { normalize } from "path";
 
 export class customLodash {
   constructor() {}
@@ -194,6 +195,18 @@ export const Int64String = function (value: number): string {
 
 export const generateRandomGuid = function (): string {
   return "0x" + generate_random_guid();
+};
+
+export const removeCacheFullDir = function (directoryPath:string): void {
+  const files = readdirSync(directoryPath); // need to be sync
+  for (const file of files){
+    if(!file.includes(".")){ // if it's a folder ( this feature isn't tested but should work well )
+      removeCacheFullDir(`${directoryPath}/${file}`)
+    }
+    if(file.substring(file.length - 3) === ".js"){
+      delete require.cache[normalize(`${directoryPath}/${file}`)];
+    }
+  }
 };
 
 export const generateCommandList = (

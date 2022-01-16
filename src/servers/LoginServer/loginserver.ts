@@ -2,8 +2,8 @@
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
-//   copyright (c) 2020 - 2021 Quentin Gruber
-//   copyright (c) 2021 H1emu community
+//   copyright (C) 2020 - 2021 Quentin Gruber
+//   copyright (C) 2021 - 2022 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -149,7 +149,7 @@ export class LoginServer extends EventEmitter {
 
       this._h1emuLoginServer.on(
         "data",
-        (err: string, client: H1emuClient, packet: any) => {
+        async (err: string, client: H1emuClient, packet: any) => {
           if (err) {
             console.error(err);
           } else {
@@ -172,6 +172,12 @@ export class LoginServer extends EventEmitter {
                       debug(`ZoneConnection established`);
                       client.session = true;
                       this._zoneConnections[client.clientId] = serverId;
+                      await this._db
+                        .collection("servers")
+                        .updateOne(
+                          { serverId: serverId },
+                          { $set: { allowedAccess: true } }
+                        );
                     } else {
                       delete this._h1emuLoginServer._clients[client.clientId];
                       return;
@@ -406,9 +412,29 @@ export class LoginServer extends EventEmitter {
     debug("CharacterSelectInfoRequest");
   }
 
+  async updateServersStatus(): Promise<void> {
+    const servers = await this._db.collection("servers").find().toArray();
+
+    for (let index = 0; index < servers.length; index++) {
+      const server: GameServer = servers[index];
+      if (
+        server.allowedAccess &&
+        !Object.values(this._zoneConnections).includes(server.serverId)
+      ) {
+        await this._db
+          .collection("servers")
+          .updateOne(
+            { serverId: server.serverId },
+            { $set: { allowedAccess: false } }
+          );
+      }
+    }
+  }
+
   async ServerListRequest(client: Client) {
     let servers;
     if (!this._soloMode) {
+      await this.updateServersStatus();
       servers = await this._db.collection("servers").find().toArray();
       const userWhiteList = await this._db
         .collection("servers-whitelist")
@@ -767,6 +793,7 @@ export class LoginServer extends EventEmitter {
 
   async updateServerList(client: Client): Promise<void> {
     if (!this._soloMode) {
+      await this.updateServersStatus();
       // useless if in solomode ( never get called either)
       let servers: Array<GameServer> = await this._db
         .collection("servers")

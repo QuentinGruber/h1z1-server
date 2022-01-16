@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [14.x, 16.11.0, 16.x]
+        node-version: [14.x, 16.13.1, 16.x]
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }}
@@ -20,4 +20,6 @@ jobs:
       - name: MongoDB in GitHub Actions
         uses: supercharge/mongodb-github-action@1.6.0
       - run: npm run build-tests
-     # - run: npm run test-mongo
+      - ports:
+        - '80:80'
+      - run: npm run test-mongo

@@ -2,8 +2,8 @@
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
-//   copyright (c) 2020 - 2021 Quentin Gruber
-//   copyright (c) 2021 H1emu community
+//   copyright (C) 2020 - 2021 Quentin Gruber
+//   copyright (C) 2021 - 2022 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -270,29 +270,45 @@ const hax: any = {
       case "list":
         server.sendChatText(
           client,
-          "Availables states : default, hidden, sit, autorun, cuffed, handsup"
+          "Availables states : hidden, sit, autorun, cuffed, handsup"
         );
         break;
-      case "default":
-        stateId = "000000000000000000";
-        break;
       case "hidden":
-        stateId = "0000000000F0000000";
+        if (client.character.characterStates.gmHidden) {
+          delete client.character.characterStates.gmHidden;
+        } else {
+          client.character.characterStates.gmHidden = true;
+        }
         break;
       case "sit":
-        stateId = "00000F000000000F00";
+        if (client.character.characterStates.sitting) {
+          delete client.character.characterStates.sitting;
+          delete client.character.characterStates.userMovementDisabled;
+        } else {
+          client.character.characterStates.sitting = true;
+          client.character.characterStates.userMovementDisabled = true;
+        }
         break;
       case "autorun":
-        stateId = "000000000001000000";
+        if (client.character.characterStates.charging) {
+          delete client.character.characterStates.charging;
+        } else {
+          client.character.characterStates.charging = true;
+        }
         break;
       case "cuffed":
-        stateId = "000000000000000010";
+        if (client.character.characterStates.bound) {
+          delete client.character.characterStates.bound;
+        } else {
+          client.character.characterStates.bound = true;
+        }
         break;
       case "handsup":
-        stateId = "0000F0000000000000";
-        break;
-      case "disfunctional":
-        stateId = "FFFFFFFFFFFFFFFFFF";
+        if (client.character.characterStates.handsUp) {
+          delete client.character.characterStates.handsUp;
+        } else {
+          client.character.characterStates.handsUp = true;
+        }
         break;
       default:
         server.sendChatText(
@@ -301,11 +317,12 @@ const hax: any = {
         );
         break;
     }
-    server.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
-      characterId: client.character.characterId,
-      state: stateId,
-      gameTime: server.getSequenceTime(),
-    });
+    server.updateCharacterState(
+      client,
+      client.character.characterId,
+      client.character.characterStates,
+      true
+    );
   },
   spawnvehicle: function (server: ZoneServer, client: Client, args: any[]) {
     if (!args[1]) {
@@ -567,13 +584,13 @@ const hax: any = {
     }
     const choosenModelId = Number(args[1]);
     const characterId = server.generateGuid();
-    let isVehicle = false;
+    let positionUpdateType = false;
     if (
       choosenModelId === 7225 ||
       choosenModelId === 9301 ||
       choosenModelId === 9258
     ) {
-      isVehicle = true;
+      positionUpdateType = true;
     }
     const npc = {
       characterId: characterId,
@@ -584,13 +601,13 @@ const hax: any = {
       position: client.character.state.position,
       rotation: client.character.state.lookAt,
       attachedObject: {},
-      isVehicle: isVehicle,
+      positionUpdateType: positionUpdateType,
       color: {},
       array5: [{ unknown1: 0 }],
       array17: [{ unknown1: 0 }],
       array18: [{ unknown1: 0 }],
     };
-    isVehicle = false;
+    positionUpdateType = false;
     server.sendDataToAll("PlayerUpdate.AddLightweightNpc", npc);
     server._db?.collection("npcs").insertOne(npc);
     server._npcs[characterId] = npc; // save npc

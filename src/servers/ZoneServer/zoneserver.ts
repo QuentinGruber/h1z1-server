@@ -2,8 +2,8 @@
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
-//   copyright (c) 2020 - 2021 Quentin Gruber
-//   copyright (c) 2021 H1emu community
+//   copyright (C) 2020 - 2021 Quentin Gruber
+//   copyright (C) 2021 - 2022 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -25,6 +25,7 @@ import {
   isPosInRadius,
   setupAppDataFolder,
   getDistance,
+  removeCacheFullDir,
 } from "../../utils/utils";
 import { Weather } from "../../types/zoneserver";
 import { Db, MongoClient } from "mongodb";
@@ -403,6 +404,15 @@ export class ZoneServer extends EventEmitter {
     }, 60000);
   }
 
+  generateTransientId(characterId: string): number {
+    let generatedTransient;
+    do {
+      generatedTransient = Number((Math.random() * 30000).toFixed(0));
+    } while (this._transientIds[generatedTransient]);
+    this._transientIds[generatedTransient] = characterId;
+    return generatedTransient;
+  }
+
   onGatewayLoginEvent(
     err: string,
     client: SOEClient,
@@ -418,10 +428,7 @@ export class ZoneServer extends EventEmitter {
     debug(
       `Client logged in from ${client.address}:${client.port} with character id: ${characterId}`
     );
-    let generatedTransient;
-    do {
-      generatedTransient = Number((Math.random() * 30000).toFixed(0));
-    } while (this._transientIds[generatedTransient]);
+    const generatedTransient = this.generateTransientId(characterId);
     const zoneClient = new Client(
       client,
       loginSessionId,
@@ -718,6 +725,7 @@ export class ZoneServer extends EventEmitter {
     //@ts-ignore
     delete this._packetHandlers;
     delete require.cache[require.resolve("./zonepackethandlers")];
+    removeCacheFullDir(`${__dirname}/../../packets/ClientProtocol/ClientProtocol_860/`)
     this._packetHandlers = new (
       require("./zonepackethandlers") as any
     ).zonePacketHandlers();
@@ -1059,19 +1067,30 @@ export class ZoneServer extends EventEmitter {
 
   setGodMode(client: Client, godMode: boolean) {
     client.character.godMode = godMode;
+    client.character.characterStates.invincibility = godMode;
     this.sendChatText(
       client,
       `GODMODE: ${client.character.godMode ? "ON" : "OFF"}`
     );
-    const godModeState = client.character.godMode
-      ? "000000000002000000"
-      : "000000000000000000";
-    this.sendData(client, "PlayerUpdate.UpdateCharacterState", {
-      characterId: client.character.characterId,
-      state: godModeState,
-      gameTime: this.getSequenceTime(),
-    });
+    this.updateCharacterState(
+      client,
+      client.character.characterId,
+      client.character.characterStates,
+      false
+    );
   }
+
+  toggleHiddenMode(client: Client) {
+    client.character.isHidden = !client.character.isHidden;
+    client.character.characterStates.gmHidden = client.character.isHidden;
+    this.updateCharacterState(
+      client,
+      client.character.characterId,
+      client.character.characterStates,
+      false
+    );
+  }
+
   tempGodMode(client: Client, durationMs: number) {
     if (!client.character.godMode) {
       client.character.godMode = true;
@@ -1084,11 +1103,13 @@ export class ZoneServer extends EventEmitter {
     const character = client.character;
     if (character.isAlive) {
       debug(character.name + " has died");
-      this.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
-        characterId: character.characterId,
-        state: "0000000000000000C00",
-        gameTime: Int64String(this.getSequenceTime()),
-      });
+      client.character.characterStates.knockedOut = true;
+      this.updateCharacterState(
+        client,
+        client.character.characterId,
+        client.character.characterStates,
+        false
+      );
       if (!client.vehicle.mountedVehicle) {
         this.sendDataToAll("Ragdoll.UpdatePose", {
           characterId: character.characterId,
@@ -1131,7 +1152,7 @@ export class ZoneServer extends EventEmitter {
         rotation: [0, 0, 0, 0],
         scale: [1, 1, 1, 1],
         attachedObject: {},
-        isVehicle: true,
+        positionUpdateType: 1,
         color: { r: 127, g: 127, b: 127 },
         array5: [{ unknown1: 0 }],
         array17: [{ unknown1: 0 }],
@@ -1202,14 +1223,16 @@ export class ZoneServer extends EventEmitter {
     client.character.resources.water = 10000;
     client.character.resources.stamina = 600;
     client.character.resourcesUpdater.refresh();
+    delete client.character.characterStates.knockedOut;
+    this.updateCharacterState(
+      client,
+      client.character.characterId,
+      client.character.characterStates,
+      false
+    );
     this.sendData(client, "PlayerUpdate.RespawnReply", {
       characterId: client.character.characterId,
       unk: 1,
-    });
-    this.sendDataToAll("PlayerUpdate.UpdateCharacterState", {
-      characterId: client.character.characterId,
-      state: "000000000000000000",
-      gameTime: Int64String(this.getSequenceTime()),
     });
     const spawnLocations = this._soloMode
       ? localSpawnList
@@ -1509,6 +1532,37 @@ export class ZoneServer extends EventEmitter {
         },
       },
     });
+  }
+
+  updateCharacterState(
+    client: Client,
+    characterId: string,
+    object: any,
+    sendToAll: boolean
+  ) {
+    const updateCharacterStateBody = {
+      characterId: characterId,
+      states1: object,
+      states2: object,
+      states3: object,
+      states4: object,
+      states5: object,
+      states6: object,
+      states7: object,
+    };
+
+    if (!sendToAll) {
+      this.sendData(
+        client,
+        "PlayerUpdate.UpdateCharacterState",
+        updateCharacterStateBody
+      );
+    } else {
+      this.sendDataToAll(
+        "PlayerUpdate.UpdateCharacterState",
+        updateCharacterStateBody
+      );
+    }
   }
 
   turnOnEngine(vehicleGuid: string) {
