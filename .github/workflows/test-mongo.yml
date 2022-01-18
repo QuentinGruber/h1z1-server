@@ -20,7 +20,5 @@ jobs:
       - name: MongoDB in GitHub Actions
         uses: supercharge/mongodb-github-action@1.6.0
       - run: npm run build-tests
-      - ports:
-        - '80:80'
       - name: run MongoDB tests
       - run: npm run test-mongo
