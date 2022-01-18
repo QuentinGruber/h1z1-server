@@ -330,12 +330,11 @@ export default function dynamicWeather(
     fogEnabled // increase/dicrease fog values with each tick
   ) {
     case true:
-      fchancemin = 1;
-      fchancemax = 1;
+      fchancemax += 1;
       break;
     case false:
-      fchancemin = -1;
-      fchancemax = -1;
+      fchancemin -= 1;
+      fchancemax -= 1;
       break;
     default:
       break;
