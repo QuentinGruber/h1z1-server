@@ -28,7 +28,7 @@
     "src": "./src"
   },
   "devDependencies": {
-    "chokidar": "3.5.2",
+    "chokidar": "3.5.3",
     "prettier": "2.5.1",
     "ts-node": "10.4.0"
   },
