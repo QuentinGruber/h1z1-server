@@ -22,4 +22,5 @@ jobs:
       - run: npm run build-tests
       - ports:
         - '80:80'
+      - name: run MongoDB tests
       - run: npm run test-mongo
