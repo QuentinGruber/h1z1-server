@@ -1,7 +1,9 @@
 import * as h1emu from "../../../h1z1-server";
 
 async function test() {
-  await new h1emu.LoginServer(1115, "mongodb://localhost:27017/").start();
+  const loginServer = new h1emu.LoginServer(1115, "mongodb://localhost:27017/");
+  loginServer._enableHttpServer = false; // note: if i want to enable it and test routes , i need to change port 80 to something superior at 1024
+  await loginServer.start();
   await new h1emu.ZoneServer(
     1117,
     new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", "base64"),
