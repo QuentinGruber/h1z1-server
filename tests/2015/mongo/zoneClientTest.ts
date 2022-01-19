@@ -83,4 +83,7 @@ async function test() {
   }, 15000);
 }
 
-new LoginServer(1115,"mongodb://localhost:27017/").start().then(test);
+const loginServer = new LoginServer(1115,"mongodb://localhost:27017/");
+loginServer._enableHttpServer = false; // note: if i want to enable it and test routes , i need to change port 80 to something superior at 1024
+
+loginServer.start().then(test);

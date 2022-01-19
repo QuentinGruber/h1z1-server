@@ -12,15 +12,13 @@
 // ======================================================================
 
 export default function PacketTableBuild(
-  packets: string | any[],
-  prefix?: string
-): any[] {
-  prefix = prefix ? prefix + "." : "";
+  packets: any[]
+  ): any[] {
   const packetTypes: any = {};
   const packetDescriptors: any = {};
   for (let i = 0; i < packets.length; i++) {
     const packet = packets[i],
-      name = prefix + packet[0],
+      name = packet[0],
       type = packet[1] >>> 0,
       packetDesc = packet[2];
     packetTypes[name] = type;
