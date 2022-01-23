@@ -16,6 +16,10 @@ import { generate_random_guid } from "h1emu-core";
 import v8 from "v8";
 import fs, { readdirSync } from "fs";
 import { normalize } from "path";
+import {
+  setImmediate as setImmediatePromise,
+  setTimeout as setTimeoutPromise
+} from 'timers/promises';
 
 export class customLodash {
   constructor() {}
@@ -299,3 +303,15 @@ export const getPacketTypeBytes = function (packetType: number): number[] {
   }
   return packetTypeBytes;
 };
+
+
+// experimental custom implementation of the scheduler API
+export class Scheduler {
+  constructor() {}
+  static async yield() {
+    return await setImmediatePromise();
+  }
+  static async wait(delay:number, options:any) {
+    return await setTimeoutPromise(delay, undefined, { signal: options?.signal });
+  }
+}
