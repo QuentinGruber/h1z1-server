@@ -12,7 +12,7 @@
 // ======================================================================
 
 import SOEClient from "../../SoeServer/soeclient";
-import { RemoteInfo } from "dgram";
+import { RemoteInfo } from "node:dgram";
 import { Character } from "./character";
 
 export class ZoneClient extends SOEClient {

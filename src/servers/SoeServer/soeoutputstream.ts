@@ -11,8 +11,8 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import crypto from "crypto";
-import { EventEmitter } from "events";
+import crypto from "node:crypto";
+import { EventEmitter } from "node:events";
 
 const debug = require("debug")("SOEOutputStream");
 

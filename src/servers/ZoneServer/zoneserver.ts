@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { EventEmitter } from "events";
+import { EventEmitter } from "node:events";
 import { GatewayServer } from "../GatewayServer/gatewayserver";
 import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
 import { H1emuZoneServer } from "../H1emuServer/h1emuZoneServer";
@@ -29,12 +29,12 @@ import {
 } from "../../utils/utils";
 import { Weather } from "../../types/zoneserver";
 import { Db, MongoClient } from "mongodb";
-import { Worker } from "worker_threads";
+import { Worker } from "node:worker_threads";
 import SOEClient from "../SoeServer/soeclient";
 import { ZoneClient as Client } from "./classes/zoneclient";
 import { h1z1PacketsType } from "../../types/packets";
 import { Vehicle } from "./classes/vehicles";
-import { Resolver } from "dns";
+import { Resolver } from "node:dns";
 
 process.env.isBin && require("./workers/dynamicWeather");
 
