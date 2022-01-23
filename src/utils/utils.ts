@@ -311,7 +311,7 @@ export class Scheduler {
   static async yield() {
     return await setImmediatePromise();
   }
-  static async wait(delay:number, options:any) {
+  static async wait(delay:number, options?:any) {
     return await setTimeoutPromise(delay, undefined, { signal: options?.signal });
   }
 }
