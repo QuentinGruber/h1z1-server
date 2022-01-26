@@ -726,16 +726,18 @@ export class ZoneServer extends EventEmitter {
   }
 
   timeoutClient(client: Client): void {
-    debug(
-      `Client disconnected from ${client.address}:${client.port} ( ping timeout )`
-    );
-    clearTimeout(client.character?.resourcesUpdater);
-    if (client.character?.characterId) {
-      delete this._characters[client.character.characterId];
+    if(this._clients[client.sessionId]){ // if hasn't already deleted
+      debug(
+        `Client disconnected from ${client.address}:${client.port} ( ping timeout )`
+      );
+      clearTimeout(client.character?.resourcesUpdater);
+      if (client.character?.characterId) {
+        delete this._characters[client.character.characterId];
+      }
+      delete this._clients[client.sessionId];
+      this._gatewayServer._soeServer.deleteClient(client);
+      this.emit("disconnect", null, client);
     }
-    delete this._clients[client.sessionId];
-    this._gatewayServer._soeServer.deleteClient(client);
-    this.emit("disconnect", null, client);
   }
 
   generateGuid(): string {
