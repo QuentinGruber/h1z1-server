@@ -2325,7 +2325,7 @@ export const basePackets: any = [
   ],
   ["ClientLogout", 0x07, {}],
   ["TargetClientNotOnline", 0x08, {}],
-  
+
   [
     "ClientBeginZoning",
     0x0b,
@@ -2348,7 +2348,7 @@ export const basePackets: any = [
       ],
     },
   ],
-  
+
   ["Mail", 0x0e, {}],
 
   ["Ability.ClientRequestStartAbility", 0x1001, {}],
@@ -2374,7 +2374,7 @@ export const basePackets: any = [
   ["Ability.ActivateVehicleAbility", 0x1015, {}],
   ["Ability.DeactivateItemAbility", 0x1016, {}],
   ["Ability.DeactivateVehicleAbility", 0x1017, {}],
- 
+
   ["MiniGame", 0x12, {}],
   ["Group", 0x13, {}],
   ["Encounter", 0x14, {}],
@@ -2397,10 +2397,10 @@ export const basePackets: any = [
       ],
     },
   ],
- 
+
   ["Objective", 0x18, {}],
   ["Debug", 0x19, {}],
-  
+
   ["Quest", 0x1b, {}],
   ["Reward", 0x1c, {}],
   [
@@ -2422,14 +2422,12 @@ export const basePackets: any = [
   ["EscrowGivePackage", 0x23, {}],
   ["EscrowGotPackage", 0x24, {}],
   ["UpdateEncounterDataCommon", 0x25, {}],
-  
-  
- 
+
   ["Report", 0x29, {}],
   ["LiveGamer", 0x2a, {}],
   ["Acquaintance", 0x2b, {}],
   ["ClientServerShuttingDown", 0x2c, {}],
- 
+
   ["Broadcast", 0x2e, {}],
   ["ClientKickedFromServer", 0x2f, {}],
   [
@@ -2606,7 +2604,6 @@ export const basePackets: any = [
     },
   ],
 
-  
   ["AdminGuild", 0x5a, {}],
   ["BattleMages", 0x5b, {}],
   ["WorldToWorld", 0x5c, {}],
@@ -2697,7 +2694,7 @@ export const basePackets: any = [
   ["ActionBarManager", 0x6b, {}],
   ["ClientTrialProfileUpsellRequest", 0x6c, {}],
   ["PlayerUpdateJump", 0x6d, {}],
-  
+
   [
     "InitializationParameters",
     0x6f,
@@ -2708,7 +2705,7 @@ export const basePackets: any = [
       ],
     },
   ],
- 
+
   [
     "ClientInitializationDetails",
     0x72,
@@ -2750,9 +2747,7 @@ export const basePackets: any = [
   ["GuideStone", 0x80, {}],
   ["Raid", 0x81, {}],
   ["MatchSchedule", 0x84, {}],
-  
-  
- 
+
   ["Grief", 0x8a, {}],
   ["SpotPlayer", 0x8b, {}],
   ["Faction", 0x8c, {}],
@@ -2834,7 +2829,7 @@ export const basePackets: any = [
       ],
     },
   ],
-  
+
   ["Leaderboard", 0x90, {}],
   [
     "PlayerUpdateManagedPosition",
@@ -2885,7 +2880,7 @@ export const basePackets: any = [
     },
   ],
   ["PlayerUpdateUpdateVehicleWeapon", 0x93, {}],
-  
+
   [
     "ContinentBattleInfo",
     0x97,
@@ -2953,11 +2948,7 @@ export const basePackets: any = [
     },
   ],
 
- 
-
-  ["ClientInGamePurchase", 0x9d, {}], 
-  
-  
+  ["ClientInGamePurchase", 0x9d, {}],
 
   [
     "Security",
@@ -3017,7 +3008,7 @@ export const basePackets: any = [
       ],
     },
   ],
-  
+
   ["PlayerUpdate.AttachObject", 0xae, {}],
   ["PlayerUpdate.DetachObject", 0xaf, {}],
   [
@@ -3076,7 +3067,6 @@ export const basePackets: any = [
       ],
     },
   ],
-  
 
   [
     "WordFilter.Data",
@@ -3085,7 +3075,7 @@ export const basePackets: any = [
       fields: [{ name: "wordFilterData", type: "byteswithlength" }],
     },
   ],
- 
+
   ["ProxiedPlayer", 0xbf, {}],
   ["Resists", 0xc0, {}],
   ["InGamePurchasing", 0xc1, {}],
@@ -3104,7 +3094,7 @@ export const basePackets: any = [
   ],
   ["Stats", 0xc6, {}],
   ["Score", 0xc7, {}],
-  ["Resources", 0xc8, {}], 
+  ["Resources", 0xc8, {}],
   [
     "UpdateWeatherData",
     0xcb,

@@ -11,7 +11,11 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { attachmentDataSchema, equipmentCharacterDataSchema, equipmentSlotSchema } from "./shared";
+import {
+  attachmentDataSchema,
+  equipmentCharacterDataSchema,
+  equipmentSlotSchema,
+} from "./shared";
 
 export const equipmentPackets: any = [
   [

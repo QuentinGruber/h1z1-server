@@ -274,7 +274,11 @@ export class SOEServer extends EventEmitter {
           break;
       }
     } else {
-      console.error(`handlePacket failed : ${JSON.stringify(packet)} from ${client.address}:${client.port}`);
+      console.error(
+        `handlePacket failed : ${JSON.stringify(packet)} from ${
+          client.address
+        }:${client.port}`
+      );
     }
   }
 

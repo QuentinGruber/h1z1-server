@@ -38,7 +38,7 @@ const characterItemDefinitionsDummy = require("../../../data/2015/sampleData/cha
 export class LoginServer extends EventEmitter {
   _soeServer: SOEServer;
   _protocol: LoginProtocol;
-  _protocol2016: LoginProtocol2016
+  _protocol2016: LoginProtocol2016;
   _db: any;
   _mongoClient: any;
   _compression: number;
@@ -65,10 +65,7 @@ export class LoginServer extends EventEmitter {
     this._crcSeed = 0;
     this._crcLength = 2;
     this._udpLength = 512;
-    this._cryptoKey = Buffer.from(
-      "F70IaxuU8C/w7FPXY1ibXw==",
-      "base64"
-    );
+    this._cryptoKey = Buffer.from("F70IaxuU8C/w7FPXY1ibXw==", "base64");
     this._soloMode = false;
     this._mongoAddress = mongoAddress;
     this._appDataFolder = getAppDataFolderPath();
@@ -105,7 +102,7 @@ export class LoginServer extends EventEmitter {
       "appdata",
       async (err: string, client: Client, data: Buffer) => {
         try {
-          const packet: any = this.parseData(client.protocolName,data);
+          const packet: any = this.parseData(client.protocolName, data);
           debug(packet);
           if (packet?.result) {
             // if packet parsing succeed
@@ -240,25 +237,25 @@ export class LoginServer extends EventEmitter {
     }
   }
 
-  parseData(clientProtocol:string,data:Buffer){
+  parseData(clientProtocol: string, data: Buffer) {
     switch (clientProtocol) {
       case "LoginUdp_9":
         return this._protocol.parse(data);
       case "LoginUdp_11":
         return this._protocol2016.parse(data);
       default:
-        return null
+        return null;
     }
   }
 
   sendData(client: Client, packetName: loginPacketsType, obj: any) {
     let data;
     switch (client.protocolName) {
-      case "LoginUdp_9":{
+      case "LoginUdp_9": {
         data = this._protocol.pack(packetName, obj);
         break;
       }
-      case "LoginUdp_11":{
+      case "LoginUdp_11": {
         data = this._protocol2016.pack(packetName, obj);
         break;
       }
@@ -268,14 +265,14 @@ export class LoginServer extends EventEmitter {
     this._soeServer.sendAppData(client, data, true);
   }
 
-  getServerVersionTag(protocolName:string){
+  getServerVersionTag(protocolName: string) {
     switch (protocolName) {
       case "LoginUdp_9":
-        return "2015"
+        return "2015";
       case "LoginUdp_11":
-        return "2016"
+        return "2016";
       default:
-        return protocolName // can be usefull to debug this behavior
+        return protocolName; // can be usefull to debug this behavior
     }
   }
 
@@ -293,7 +290,10 @@ export class LoginServer extends EventEmitter {
         return require(`${this._appDataFolder}/single_player_characters.json`);
       } else {
         // 2015 mongo
-        const charactersQuery = { authKey: client.loginSessionId, serverVersionTag: this.getServerVersionTag(client.protocolName) };
+        const charactersQuery = {
+          authKey: client.loginSessionId,
+          serverVersionTag: this.getServerVersionTag(client.protocolName),
+        };
         return await this._db
           .collection("characters-light")
           .find(charactersQuery)
@@ -313,7 +313,10 @@ export class LoginServer extends EventEmitter {
         return require(`${this._appDataFolder}/single_player_characters2016.json`);
       } else {
         // 2016 mongo
-        const charactersQuery = { authKey: client.loginSessionId, serverVersionTag: this.getServerVersionTag(client.protocolName) };
+        const charactersQuery = {
+          authKey: client.loginSessionId,
+          serverVersionTag: this.getServerVersionTag(client.protocolName),
+        };
         return await this._db
           .collection("characters-light")
           .find(charactersQuery)
@@ -472,7 +475,12 @@ export class LoginServer extends EventEmitter {
     let servers;
     if (!this._soloMode) {
       await this.updateServersStatus();
-      servers = await this._db.collection("servers").find({serverVersionTag:this.getServerVersionTag(client.protocolName)}).toArray();
+      servers = await this._db
+        .collection("servers")
+        .find({
+          serverVersionTag: this.getServerVersionTag(client.protocolName),
+        })
+        .toArray();
       const userWhiteList = await this._db
         .collection("servers-whitelist")
         .find({ userId: client.loginSessionId })
@@ -835,7 +843,9 @@ export class LoginServer extends EventEmitter {
       // useless if in solomode ( never get called either)
       let servers: Array<GameServer> = await this._db
         .collection("servers")
-        .find({serverVersionTag:this.getServerVersionTag(client.protocolName)})
+        .find({
+          serverVersionTag: this.getServerVersionTag(client.protocolName),
+        })
         .toArray();
       const userWhiteList = await this._db
         .collection("servers-whitelist")
@@ -959,5 +969,5 @@ export class LoginServer extends EventEmitter {
 }
 
 if (process.env.VSCODE_DEBUG === "true") {
-    new LoginServer(1115, process.env.MONGO_URL).start();
+  new LoginServer(1115, process.env.MONGO_URL).start();
 }

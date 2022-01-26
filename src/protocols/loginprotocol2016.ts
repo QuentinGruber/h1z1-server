@@ -19,10 +19,10 @@ export class LoginProtocol2016 {
   tunnelLoginPackets: any;
 
   constructor() {
-        this.loginPackets =
-          require("../packets/LoginUdp/LoginUdp_11/loginpackets").default;
-        this.tunnelLoginPackets =
-          require("../packets/LoginUdp/LoginUdp_11/loginTunnelPackets").default;
+    this.loginPackets =
+      require("../packets/LoginUdp/LoginUdp_11/loginpackets").default;
+    this.tunnelLoginPackets =
+      require("../packets/LoginUdp/LoginUdp_11/loginTunnelPackets").default;
   }
 
   parse(data: any) {
@@ -32,12 +32,8 @@ export class LoginProtocol2016 {
     if (packet) {
       if (packet.name === "TunnelAppPacketClientToServer") {
         const { schema, name } =
-          this.tunnelLoginPackets.Packets[
-            data.readUint8(14)
-          ];
-        const tunnelData = data.slice(
-          15
-        );
+          this.tunnelLoginPackets.Packets[data.readUint8(14)];
+        const tunnelData = data.slice(15);
         try {
           result = DataSchema.parse(schema, tunnelData, 0, undefined).result;
         } catch (error) {

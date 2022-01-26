@@ -18,10 +18,10 @@ export class LoginProtocol {
   loginPackets: any;
   tunnelLoginPackets: any;
   constructor() {
-        this.loginPackets =
-          require("../packets/LoginUdp/LoginUdp_9/loginpackets").default;
-        this.tunnelLoginPackets =
-          require("../packets/LoginUdp/LoginUdp_9/loginTunnelPackets").default;
+    this.loginPackets =
+      require("../packets/LoginUdp/LoginUdp_9/loginpackets").default;
+    this.tunnelLoginPackets =
+      require("../packets/LoginUdp/LoginUdp_9/loginTunnelPackets").default;
   }
 
   parse(data: any) {
@@ -31,12 +31,8 @@ export class LoginProtocol {
     if (packet) {
       if (packet.name === "TunnelAppPacketClientToServer") {
         const { schema, name } =
-          this.tunnelLoginPackets.Packets[
-            data.readUint8( 13)
-          ];
-        const tunnelData = data.slice(
-          14
-        );
+          this.tunnelLoginPackets.Packets[data.readUint8(13)];
+        const tunnelData = data.slice(14);
         try {
           result = DataSchema.parse(schema, tunnelData, 0, undefined).result;
         } catch (error) {
@@ -100,8 +96,8 @@ export class LoginProtocol {
           return Buffer.from("0");
         }
 
-        const basePacketLength =  14;
-        const opcodesLength =  1;
+        const basePacketLength = 14;
+        const opcodesLength = 1;
         data = new (Buffer as any).alloc(basePacketLength + tunnelData.length);
         data.writeUInt8(packetType, 0);
         data.writeUInt32LE(object.serverId, 1);

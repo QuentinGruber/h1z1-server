@@ -18,7 +18,6 @@ import {
 } from "../../../utils/utils";
 import DataSchema from "h1z1-dataschema";
 
-
 export function readPacketType(data: Buffer, packets: any) {
   let opCode = data[0] >>> 0,
     length = 0,
@@ -62,7 +61,10 @@ export function writePacketType(packetType: number) {
   return data;
 }
 
-export function readUnsignedIntWith2bitLengthValue(data: Buffer, offset: number) {
+export function readUnsignedIntWith2bitLengthValue(
+  data: Buffer,
+  offset: number
+) {
   let value = data.readUInt8(offset);
   const n = value & 3;
   for (let i = 0; i < n; i++) {

@@ -11,8 +11,4 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-
-export const ragdollPackets: any = [
-  ["Ragdoll", 0xce, {}],
-
-];
+export const ragdollPackets: any = [["Ragdoll", 0xce, {}]];

@@ -56,7 +56,13 @@ export class ZoneServer2016 extends ZoneServer {
   worldObjectManager: WorldObjectManager;
   _ready: boolean = false;
 
-  constructor(serverPort: number, gatewayKey: Uint8Array, mongoAddress = "",worldId?: number, internalServerPort?: number) {
+  constructor(
+    serverPort: number,
+    gatewayKey: Uint8Array,
+    mongoAddress = "",
+    worldId?: number,
+    internalServerPort?: number
+  ) {
     super(serverPort, gatewayKey, mongoAddress, worldId, internalServerPort);
     this._protocol = new H1Z1Protocol("ClientProtocol_1080");
     this._clientProtocol = "ClientProtocol_1080";

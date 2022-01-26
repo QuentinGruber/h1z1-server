@@ -718,7 +718,9 @@ export class ZoneServer extends EventEmitter {
     //@ts-ignore
     delete this._packetHandlers;
     delete require.cache[require.resolve("./zonepackethandlers")];
-    removeCacheFullDir(`${__dirname}/../../packets/ClientProtocol/ClientProtocol_860/`)
+    removeCacheFullDir(
+      `${__dirname}/../../packets/ClientProtocol/ClientProtocol_860/`
+    );
     this._packetHandlers = new (
       require("./zonepackethandlers") as any
     ).zonePacketHandlers();
@@ -726,7 +728,8 @@ export class ZoneServer extends EventEmitter {
   }
 
   timeoutClient(client: Client): void {
-    if(this._clients[client.sessionId]){ // if hasn't already deleted
+    if (this._clients[client.sessionId]) {
+      // if hasn't already deleted
       debug(
         `Client disconnected from ${client.address}:${client.port} ( ping timeout )`
       );
@@ -1323,9 +1326,13 @@ export class ZoneServer extends EventEmitter {
           break;
       }
       vehicle.npcData.resources.health -= damage;
-      if(loopDamageMs && vehicle.npcData.resources.health && vehicle.npcData.destroyedState === 3){
+      if (
+        loopDamageMs &&
+        vehicle.npcData.resources.health &&
+        vehicle.npcData.destroyedState === 3
+      ) {
         setTimeout(() => {
-          this.damageVehicle(1000,vehicle,loopDamageMs)
+          this.damageVehicle(1000, vehicle, loopDamageMs);
         }, loopDamageMs);
       }
       if (vehicle.npcData.resources.health <= 0) {
@@ -1411,7 +1418,9 @@ export class ZoneServer extends EventEmitter {
       } else if (vehicle.npcData.resources.health <= 20000) {
         if (vehicle.npcData.destroyedState != 3) {
           vehicle.npcData.destroyedState = 3;
-          setTimeout(()=>{this.damageVehicle(damage,vehicle,1000)},1000)
+          setTimeout(() => {
+            this.damageVehicle(damage, vehicle, 1000);
+          }, 1000);
           this.sendDataToAll("Command.PlayDialogEffect", {
             characterId: vehicle.npcData.characterId,
             effectId: criticalDamageEffect,

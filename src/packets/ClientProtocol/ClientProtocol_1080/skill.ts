@@ -33,5 +33,5 @@ export const skillPackets: any = [
   ["Skill.AddSkill", 0x8609, {}],
   ["Skill.ReportSkillGrant", 0x860a, {}],
   ["Skill.ReportOfflineEarnedSkillPoints", 0x860b, {}],
-  ["Skill.ReportDeprecatedSkillLine", 0x860c, {}], 
+  ["Skill.ReportDeprecatedSkillLine", 0x860c, {}],
 ];

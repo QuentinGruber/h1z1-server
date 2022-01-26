@@ -11,6 +11,4 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-export const acquaintancePackets: any = [
-  ["Acquaintance", 0x2b, {}],
-];
+export const acquaintancePackets: any = [["Acquaintance", 0x2b, {}]];

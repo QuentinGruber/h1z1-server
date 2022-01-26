@@ -18,8 +18,8 @@ import fs, { readdirSync } from "fs";
 import { normalize } from "path";
 import {
   setImmediate as setImmediatePromise,
-  setTimeout as setTimeoutPromise
-} from 'timers/promises';
+  setTimeout as setTimeoutPromise,
+} from "timers/promises";
 
 export class customLodash {
   constructor() {}
@@ -201,13 +201,14 @@ export const generateRandomGuid = function (): string {
   return "0x" + generate_random_guid();
 };
 
-export const removeCacheFullDir = function (directoryPath:string): void {
+export const removeCacheFullDir = function (directoryPath: string): void {
   const files = readdirSync(directoryPath); // need to be sync
-  for (const file of files){
-    if(!file.includes(".")){ // if it's a folder ( this feature isn't tested but should work well )
-      removeCacheFullDir(`${directoryPath}/${file}`)
+  for (const file of files) {
+    if (!file.includes(".")) {
+      // if it's a folder ( this feature isn't tested but should work well )
+      removeCacheFullDir(`${directoryPath}/${file}`);
     }
-    if(file.substring(file.length - 3) === ".js"){
+    if (file.substring(file.length - 3) === ".js") {
       delete require.cache[normalize(`${directoryPath}/${file}`)];
     }
   }
@@ -304,14 +305,15 @@ export const getPacketTypeBytes = function (packetType: number): number[] {
   return packetTypeBytes;
 };
 
-
 // experimental custom implementation of the scheduler API
 export class Scheduler {
   constructor() {}
   static async yield() {
     return await setImmediatePromise();
   }
-  static async wait(delay:number, options?:any) {
-    return await setTimeoutPromise(delay, undefined, { signal: options?.signal });
+  static async wait(delay: number, options?: any) {
+    return await setTimeoutPromise(delay, undefined, {
+      signal: options?.signal,
+    });
   }
 }

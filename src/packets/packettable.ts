@@ -11,9 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-export default function PacketTableBuild(
-  packets: any[]
-  ): any[] {
+export default function PacketTableBuild(packets: any[]): any[] {
   const packetTypes: any = {};
   const packetDescriptors: any = {};
   for (let i = 0; i < packets.length; i++) {
