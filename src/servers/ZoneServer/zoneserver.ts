@@ -1301,7 +1301,7 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
-  damageVehicle(damage: number, vehicle: Vehicle) {
+  damageVehicle(damage: number, vehicle: Vehicle, loopDamageMs = 0) {
     if (!vehicle.isInvulnerable) {
       let destroyedVehicleEffect: number;
       let destroyedVehicleModel: number;
@@ -1339,7 +1339,11 @@ export class ZoneServer extends EventEmitter {
           break;
       }
       vehicle.npcData.resources.health -= damage;
-
+      if(loopDamageMs && vehicle.npcData.resources.health && vehicle.npcData.destroyedState === 3){
+        setTimeout(() => {
+          this.damageVehicle(1000,vehicle,loopDamageMs)
+        }, loopDamageMs);
+      }
       if (vehicle.npcData.resources.health <= 0) {
         vehicle.npcData.resources.health = 0;
         if (vehicle.passengers.passenger1) {
@@ -1423,6 +1427,7 @@ export class ZoneServer extends EventEmitter {
       } else if (vehicle.npcData.resources.health <= 20000) {
         if (vehicle.npcData.destroyedState != 3) {
           vehicle.npcData.destroyedState = 3;
+          setTimeout(()=>{this.damageVehicle(damage,vehicle,1000)},1000)
           this.sendDataToAll("Command.PlayDialogEffect", {
             characterId: vehicle.npcData.characterId,
             effectId: criticalDamageEffect,
