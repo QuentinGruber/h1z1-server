@@ -56,6 +56,7 @@ export class LoginServer extends EventEmitter {
   _internalReqCount: number = 0;
   _pendingInternalReq: { [requestId: number]: any } = {};
   _pendingInternalReqTimeouts: { [requestId: number]: NodeJS.Timeout } = {};
+  _serverVersionTag: string = "2015";
 
   constructor(serverPort: number, mongoAddress = "") {
     super();
@@ -63,7 +64,7 @@ export class LoginServer extends EventEmitter {
     this._crcSeed = 0;
     this._crcLength = 2;
     this._udpLength = 512;
-    this._cryptoKey = new (Buffer as any).from(
+    this._cryptoKey = Buffer.from(
       "F70IaxuU8C/w7FPXY1ibXw==",
       "base64"
     );
@@ -256,7 +257,7 @@ export class LoginServer extends EventEmitter {
         return require(`${this._appDataFolder}/single_player_characters.json`);
       } else {
         // 2015 mongo
-        const charactersQuery = { authKey: client.loginSessionId };
+        const charactersQuery = { authKey: client.loginSessionId, serverVersionTag: this._serverVersionTag };
         return await this._db
           .collection("characters-light")
           .find(charactersQuery)
@@ -276,7 +277,7 @@ export class LoginServer extends EventEmitter {
         return require(`${this._appDataFolder}/single_player_characters2016.json`);
       } else {
         // 2016 mongo
-        const charactersQuery = { authKey: client.loginSessionId };
+        const charactersQuery = { authKey: client.loginSessionId, serverVersionTag: this._serverVersionTag };
         return await this._db
           .collection("characters-light")
           .find(charactersQuery)
@@ -435,7 +436,7 @@ export class LoginServer extends EventEmitter {
     let servers;
     if (!this._soloMode) {
       await this.updateServersStatus();
-      servers = await this._db.collection("servers").find().toArray();
+      servers = await this._db.collection("servers").find({serverVersionTag:this._serverVersionTag}).toArray();
       const userWhiteList = await this._db
         .collection("servers-whitelist")
         .find({ userId: client.loginSessionId })
@@ -778,6 +779,7 @@ export class LoginServer extends EventEmitter {
         await this._db.collection("characters-light").insertOne({
           authKey: client.loginSessionId,
           serverId: serverId,
+          serverVersionTag: this._serverVersionTag,
           payload: { name: characterName },
           characterId: newCharacter.characterId,
           status: 1,
@@ -797,7 +799,7 @@ export class LoginServer extends EventEmitter {
       // useless if in solomode ( never get called either)
       let servers: Array<GameServer> = await this._db
         .collection("servers")
-        .find()
+        .find({serverVersionTag:this._serverVersionTag})
         .toArray();
       const userWhiteList = await this._db
         .collection("servers-whitelist")
@@ -824,6 +826,7 @@ export class LoginServer extends EventEmitter {
     debug("Starting server");
     debug(`Protocol used : ${this._protocol.protocolName}`);
     if (this._mongoAddress) {
+      this._serverVersionTag =  this._protocol.protocolName === "LoginUdp_9" ? "2015" : "2016";
       const mongoClient = (this._mongoClient = new MongoClient(
         this._mongoAddress
       ));
