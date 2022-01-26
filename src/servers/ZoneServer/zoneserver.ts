@@ -91,7 +91,6 @@ export class ZoneServer extends EventEmitter {
   _appDataFolder: string;
   _respawnOnLastPosition: boolean = false;
   _worldRoutineRadiusPercentage: number = 0.4;
-  _enableGarbageCollection: boolean = true;
   worldRoutineTimer: any;
   tickRate: number = 3000;
   _h1emuZoneServer!: H1emuZoneServer;
@@ -174,7 +173,6 @@ export class ZoneServer extends EventEmitter {
     if (!this._mongoAddress) {
       this._soloMode = true;
       debug("Server in solo mode !");
-      this._enableGarbageCollection = false;
     }
     this.on("data", this.onZoneDataEvent);
 
@@ -415,22 +413,22 @@ export class ZoneServer extends EventEmitter {
 
   onGatewayLoginEvent(
     err: string,
-    client: SOEClient,
+    soeClient: SOEClient,
     characterId: string,
     loginSessionId: string,
     clientProtocol: string
   ) {
     if (clientProtocol !== this._clientProtocol) {
-      debug(`${client.address} is using the wrong client protocol`);
-      this.sendData(client as Client, "LoginFailed", {});
+      debug(`${soeClient.address} is using the wrong client protocol`);
+      this.sendData(soeClient as Client, "LoginFailed", {});
       return;
     }
     debug(
-      `Client logged in from ${client.address}:${client.port} with character id: ${characterId}`
+      `Client logged in from ${soeClient.address}:${soeClient.port} with character id: ${characterId}`
     );
     const generatedTransient = this.generateTransientId(characterId);
     const zoneClient = new Client(
-      client,
+      soeClient,
       loginSessionId,
       characterId,
       generatedTransient
@@ -442,7 +440,7 @@ export class ZoneServer extends EventEmitter {
         zoneClient.npcsToSpawnTimer.refresh();
       }
     });
-    this._clients[client.sessionId] = zoneClient;
+    this._clients[soeClient.sessionId] = zoneClient;
 
     this._transientIds[generatedTransient] = characterId;
     this._characters[characterId] = zoneClient.character;
@@ -523,11 +521,6 @@ export class ZoneServer extends EventEmitter {
       });
       this._h1emuZoneServer.start();
       this.sendZonePopulationUpdate();
-    }
-    if (this._enableGarbageCollection) {
-      setInterval(() => {
-        this.garbageCollection();
-      }, 120000);
     }
     debug("Server ready");
   }
@@ -730,17 +723,6 @@ export class ZoneServer extends EventEmitter {
       require("./zonepackethandlers") as any
     ).zonePacketHandlers();
     await this._packetHandlers.reloadCommandCache();
-  }
-
-  garbageCollection(): void {
-    // backup plan to free memory
-    for (const clientKey in this._clients) {
-      //@ts-ignore
-      if (this._clients[clientKey]._destroyed) {
-        console.log(`${clientKey} removed by garbage collection`);
-        delete this._clients[clientKey];
-      }
-    }
   }
 
   timeoutClient(client: Client): void {
