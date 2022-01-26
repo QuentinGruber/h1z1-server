@@ -259,7 +259,7 @@ export class LoginServer extends EventEmitter {
         break;
       }
       case "LoginUdp_11":{
-        data = this._protocol.pack(packetName, obj);
+        data = this._protocol2016.pack(packetName, obj);
         break;
       }
       default:
