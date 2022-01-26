@@ -40,8 +40,6 @@ export default class SOEClient {
   cryptoKey: Uint8Array;
   waitQueueTimer: any;
   waitingQueueCurrentByteLength: number = 0;
-  lastZonePingTimestamp?: number;
-  zonePingTimeMs: number = 1; // since this feature is experimental, if it fail it allow the user anyway
   constructor(
     remote: RemoteInfo,
     crcSeed: number,
