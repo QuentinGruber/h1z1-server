@@ -56,8 +56,8 @@ export class ZoneServer2016 extends ZoneServer {
   worldObjectManager: WorldObjectManager;
   _ready: boolean = false;
 
-  constructor(serverPort: number, gatewayKey: Uint8Array, mongoAddress = "") {
-    super(serverPort, gatewayKey, mongoAddress, 0);
+  constructor(serverPort: number, gatewayKey: Uint8Array, mongoAddress = "",worldId?: number, internalServerPort?: number) {
+    super(serverPort, gatewayKey, mongoAddress, worldId, internalServerPort);
     this._protocol = new H1Z1Protocol("ClientProtocol_1080");
     this._clientProtocol = "ClientProtocol_1080";
     this._dynamicWeatherEnabled = false;
@@ -1543,6 +1543,7 @@ if (process.env.VSCODE_DEBUG === "true") {
   new ZoneServer2016(
     1117,
     new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", "base64"),
-    process.env.MONGO_URL
+    process.env.MONGO_URL,
+    2
   ).start();
 }

@@ -14,14 +14,15 @@
 const debug = require("debug")("LoginProtocol");
 import DataSchema from "h1z1-dataschema";
 
-export class LoginProtocol {
+export class LoginProtocol2016 {
   loginPackets: any;
   tunnelLoginPackets: any;
+
   constructor() {
         this.loginPackets =
-          require("../packets/LoginUdp/LoginUdp_9/loginpackets").default;
+          require("../packets/LoginUdp/LoginUdp_11/loginpackets").default;
         this.tunnelLoginPackets =
-          require("../packets/LoginUdp/LoginUdp_9/loginTunnelPackets").default;
+          require("../packets/LoginUdp/LoginUdp_11/loginTunnelPackets").default;
   }
 
   parse(data: any) {
@@ -32,10 +33,10 @@ export class LoginProtocol {
       if (packet.name === "TunnelAppPacketClientToServer") {
         const { schema, name } =
           this.tunnelLoginPackets.Packets[
-            data.readUint8( 13)
+            data.readUint8(14)
           ];
         const tunnelData = data.slice(
-          14
+          15
         );
         try {
           result = DataSchema.parse(schema, tunnelData, 0, undefined).result;
@@ -100,14 +101,15 @@ export class LoginProtocol {
           return Buffer.from("0");
         }
 
-        const basePacketLength =  14;
-        const opcodesLength =  1;
+        const basePacketLength = 15;
+        const opcodesLength = 2;
         data = new (Buffer as any).alloc(basePacketLength + tunnelData.length);
         data.writeUInt8(packetType, 0);
         data.writeUInt32LE(object.serverId, 1);
         data.writeUInt32LE(0, 5);
         data.writeUInt32LE(tunnelData.length + opcodesLength, 9);
-        data.writeUInt8(subPacketOpcode, 13);
+        data.writeUint8(0xa7, 13);
+        data.writeUInt8(subPacketOpcode, 14);
         tunnelData.data.copy(data, basePacketLength);
         debug("tunnelpacket send data :", object);
       } else if (packet.schema) {
@@ -140,4 +142,4 @@ export class LoginProtocol {
   }
 }
 
-exports.LoginProtocol = LoginProtocol;
+exports.LoginProtocol2016 = LoginProtocol2016;
