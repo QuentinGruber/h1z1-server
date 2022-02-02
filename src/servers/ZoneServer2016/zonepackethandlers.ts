@@ -872,6 +872,24 @@ export class zonePacketHandlers {
             targetData: {},
             unknownArray1: [],
             unknownArray2: [],
+            unknownArray3: {data:[]},
+            resources: {
+              data:[
+                {
+                  resourceId: 1,
+                  resourceData: {
+                    resourceId: 1,
+                    resourceType: 1,
+                    value: 10000
+                  }
+                }
+              ]
+            },
+            unknownArray4: {data:[]},
+            unknownArray5: {data:[]},
+            unknownArray6: {data:[]},
+            remoteWeapons: {data:[]},
+            itemsData:{data:[]}
           });
           break;
         case 2: // vehicles
@@ -884,6 +902,24 @@ export class zonePacketHandlers {
               targetData: {},
               unknownArray1: [],
               unknownArray2: [],
+              unknownArray3: {data:[]},
+              resources: {
+                data:[
+                  {
+                    resourceId: 1,
+                    resourceData: {
+                      resourceId: 1,
+                      resourceType: 1,
+                      value: 10000
+                    }
+                  }
+                ]
+              },
+              unknownArray4: {data:[]},
+              unknownArray5: {data:[]},
+              unknownArray6: {data:[]},
+              remoteWeapons: {data:[]},
+              itemsData:{data:[]}
             },
             unknownArray1: [],
             unknownArray2: [],

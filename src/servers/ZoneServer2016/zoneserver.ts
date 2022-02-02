@@ -1260,6 +1260,32 @@ export class ZoneServer2016 extends ZoneServer {
         engineOn: true,
       });
     }
+    this.sendData(client, "Vehicle.Occupy", {
+      guid: vehicle.npcData.characterId,
+      characterId: client.character.characterId,
+      vehicleId: vehicle.npcData.vehicleId,
+      unknownDword1: 0,
+      unknownArray1: [
+        {
+          unknownDword1: 0,
+          unknownBoolean1: 0,
+        },
+      ],
+      passengers: [
+        {
+          passengerData: {
+            characterId: client.character.characterId,
+            characterData: {
+              unknownDword1: 0,
+              unknownDword2: 0,
+              unknownDword3: 0,
+              characterName: client.character.name,
+            },
+          },
+        },
+      ],
+      unknownArray2: [{}]
+    });
   }
 
   dismountVehicle(client: Client): void {
@@ -1289,6 +1315,20 @@ export class ZoneServer2016 extends ZoneServer {
       );
     }
     client.vehicle.mountedVehicle = "";
+    this.sendData(client, "Vehicle.Occupy", {
+      guid: "",
+      characterId: client.character.characterId,
+      vehicleId: 0,
+      unknownDword1: 0,
+      unknownArray1: [
+        {
+          unknownDword1: 0,
+          unknownBoolean1: 0,
+        },
+      ],
+      passengers: [],
+      unknownArray2: []
+    });
   }
 
   changeSeat(client: Client, packet: any): void {

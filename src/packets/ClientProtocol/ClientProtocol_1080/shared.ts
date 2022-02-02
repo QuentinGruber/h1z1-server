@@ -1407,7 +1407,7 @@ export const fullNpcDataSchema = [
     ]
   },
   {
-    name: "characterResources",
+    name: "resources",
     type: "byteswithlength",
     fields: [
       {
