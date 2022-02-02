@@ -83,7 +83,7 @@ export const vehiclePackets: any = [
         {
           name: "passengers",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             {
               name: "passengerData",
@@ -97,19 +97,8 @@ export const vehiclePackets: any = [
                 {
                   name: "characterData",
                   type: "schema",
-                  fields: [
-                    { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                    { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                    { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-                    { name: "characterName", type: "string", defaultValue: "" },
-                    {
-                      name: "unknownString1",
-                      type: "string",
-                      defaultValue: "",
-                    },
-                  ],
+                  fields: identitySchema,
                 },
-                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                 { name: "unknownString1", type: "string", defaultValue: "" },
               ],
             },
