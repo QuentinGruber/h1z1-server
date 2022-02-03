@@ -446,18 +446,7 @@ export class zonePacketHandlers {
       packet: any
     ) {
       debug("ClientLogout");
-      clearInterval(client.character.resourcesUpdater);
-      server.saveCharacterPosition(client);
-      client.managedObjects.forEach((characterId: any) => {
-        server.dropVehicleManager(client, characterId);
-      });
-      server.deleteEntity(client.character.characterId, server._characters);
-      server._gatewayServer._soeServer.deleteClient(client);
-      delete server._characters[client.character.characterId];
-      delete server._clients[client.sessionId];
-      if (!server._soloMode) {
-        server.sendZonePopulationUpdate();
-      }
+      server.deleteClient(client);
     };
     this.GameTimeSync = function (
       server: ZoneServer,

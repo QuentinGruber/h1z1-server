@@ -85,8 +85,7 @@ export class GatewayServer extends EventEmitter {
               }
               break;
             case "Logout":
-              debug("Logout");
-              this._soeServer.deleteClient(client);
+              debug("Logout gateway");
               this.emit("disconnect", err, client);
               break;
             case "TunnelPacketFromExternalConnection":

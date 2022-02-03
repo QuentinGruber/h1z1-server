@@ -180,7 +180,6 @@ export class SOEServer extends EventEmitter {
           break;
         case "Disconnect":
           debug("Received disconnect from client");
-          this.deleteClient(this._clients[client.address + ":" + client.port]);
           this.emit("disconnect", null, client);
           break;
         case "MultiPacket": {

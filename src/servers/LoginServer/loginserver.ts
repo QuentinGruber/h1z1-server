@@ -387,6 +387,7 @@ export class LoginServer extends EventEmitter {
 
   Logout(client: Client) {
     clearTimeout(client.serverUpdateTimer);
+    this._soeServer.deleteClient(client);
   }
 
   addDummyDataToCharacters(characters: any[]) {
