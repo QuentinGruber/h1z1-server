@@ -458,14 +458,16 @@ export class ZoneServer extends EventEmitter {
     this.deleteClient(client);
   }
 
+
   deleteClient(client: Client){
-    clearInterval(client.character?.resourcesUpdater);
-    this.saveCharacterPosition(client);
-    client.managedObjects?.forEach((characterId: any) => {
-      this.dropVehicleManager(client, characterId);
-    });
-    this.deleteEntity(client.character.characterId, this._characters);
-    delete this._characters[client.character.characterId];
+    if(client.character){
+      this.deleteEntity(client.character.characterId, this._characters);
+      clearInterval(client.character?.resourcesUpdater);
+      this.saveCharacterPosition(client);
+      client.managedObjects?.forEach((characterId: any) => {
+        this.dropVehicleManager(client, characterId);
+      });
+    }
     delete this._clients[client.sessionId];
     this._gatewayServer._soeServer.deleteClient(client);
     if (!this._soloMode) {

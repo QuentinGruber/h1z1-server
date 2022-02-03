@@ -119,9 +119,14 @@ export class ZoneServer2016 extends ZoneServer {
       ) {
         debug(`Receive Data ${[packet.name]}`);
       }
-      this._packetHandlers.processPacket(this, client, packet);
+      try {
+        this._packetHandlers.processPacket(this, client, packet);
+      } catch (error) {
+        console.error(`An error occurred while processing a packet : `,packet)
+      }
     }
   }
+  
 
   async onCharacterCreateRequest(client: any, packet: any) {
     function getCharacterModelData(payload: any): any {
