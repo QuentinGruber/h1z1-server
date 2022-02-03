@@ -422,11 +422,7 @@ export class zonePacketHandlers {
       packet: any
     ) {
       debug("ClientLogout");
-      server.saveCharacterPosition(client);
-      server.deleteEntity(client.character.characterId, server._characters);
-      server._gatewayServer._soeServer.deleteClient(client);
-      delete server._characters[client.character.characterId];
-      delete server._clients[client.sessionId];
+      server.deleteClient(client);
     };
     this.GameTimeSync = function (
       server: ZoneServer2016,
