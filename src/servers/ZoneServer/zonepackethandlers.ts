@@ -1505,6 +1505,10 @@ export class zonePacketHandlers {
           positionUpdate: packet.data.PositionUpdate,
         });
 
+        if(server._vehicles[characterId]){
+          server._vehicles[characterId].positionUpdate = packet.data.PositionUpdate
+        }
+
         if (packet.data.PositionUpdate.engineRPM) {
           server._vehicles[characterId].positionUpdate.engineRPM =
             packet.data.PositionUpdate.engineRPM;
