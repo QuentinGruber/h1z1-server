@@ -621,6 +621,7 @@ export class zonePacketHandlers {
         case joaat("HAX"):
           if (
             client.isAdmin ||
+            commandName === "list" ||
             ((server._allowedCommands.length === 0 ||
               server._allowedCommands.includes(commandName)) &&
               !!this.hax[commandName])
@@ -628,7 +629,7 @@ export class zonePacketHandlers {
             // using !! is faster but ugly
             this.hax[commandName](server, client, args);
           } else {
-            if (server._allowedCommands.includes(commandName)) {
+            if (!server._allowedCommands.includes(commandName)) {
               server.sendChatText(client, "You don't have access to that.");
             } else {
               server.sendChatText(
@@ -640,29 +641,31 @@ export class zonePacketHandlers {
           break;
         case joaat("DEV"):
         case 552078457: // dev
-          if (
-            client.isAdmin ||
-            ((server._allowedCommands.length === 0 ||
-              server._allowedCommands.includes(commandName)) &&
-              !!this.dev[commandName])
-          ) {
-            // using !! is faster but ugly
-            this.dev[commandName](server, client, args);
+        if (
+          client.isAdmin ||
+          commandName === "list" ||
+          ((server._allowedCommands.length === 0 ||
+            server._allowedCommands.includes(commandName)) &&
+            !!this.dev[commandName])
+        ) {
+          // using !! is faster but ugly
+          this.dev[commandName](server, client, args);
+        } else {
+          if (!server._allowedCommands.includes(commandName)) {
+            server.sendChatText(client, "You don't have access to that.");
           } else {
-            if (server._allowedCommands.includes(commandName)) {
-              server.sendChatText(client, "You don't have access to that.");
-            } else {
-              server.sendChatText(
-                client,
-                `Unknown command: /dev ${commandName} , display dev all commands by using /dev list`
-              );
-            }
+            server.sendChatText(
+              client,
+              `Unknown command: /dev ${commandName} , display dev all commands by using /dev list`
+            );
           }
-          break;
+        }
+        break;
         case joaat("ADMIN"):
         case 997464845: // admin
-          if (
+           if (
             client.isAdmin ||
+            commandName === "list" ||
             ((server._allowedCommands.length === 0 ||
               server._allowedCommands.includes(commandName)) &&
               !!this.admin[commandName])
@@ -670,7 +673,7 @@ export class zonePacketHandlers {
             // using !! is faster but ugly
             this.admin[commandName](server, client, args);
           } else {
-            if (server._allowedCommands.includes(commandName)) {
+            if (!server._allowedCommands.includes(commandName)) {
               server.sendChatText(client, "You don't have access to that.");
             } else {
               server.sendChatText(
