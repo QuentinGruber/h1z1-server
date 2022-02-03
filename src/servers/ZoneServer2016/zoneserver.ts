@@ -1264,7 +1264,7 @@ export class ZoneServer2016 extends ZoneServer {
       guid: vehicle.npcData.characterId,
       characterId: client.character.characterId,
       vehicleId: vehicle.npcData.vehicleId,
-      unknownDword1: 0,
+      clearLoadout: 0,
       unknownArray1: [
         {
           unknownDword1: 0,
@@ -1319,7 +1319,7 @@ export class ZoneServer2016 extends ZoneServer {
       guid: "",
       characterId: client.character.characterId,
       vehicleId: 0,
-      unknownDword1: 0,
+      clearLoadout: 1,
       unknownArray1: [
         {
           unknownDword1: 0,

@@ -72,7 +72,7 @@ export const vehiclePackets: any = [
         { name: "guid", type: "uint64string", defaultValue: "0" },
         { name: "characterId", type: "uint64string", defaultValue: "0" },
         { name: "vehicleId", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "clearLoadout", type: "uint32", defaultValue: 0 },
         {
           name: "unknownArray1",
           type: "array",
