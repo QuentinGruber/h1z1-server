@@ -448,7 +448,6 @@ export const basePackets: any = [
                 },
               ],
             },
-
             {
               name: "playerTitles",
               type: "array",
@@ -3203,51 +3202,29 @@ export const basePackets: any = [
         },
         { name: "unknownByte3", type: "uint8", defaultValue: 0 },
         {
-          name: "unknownArray3",
+          name: "passengers",
           type: "array",
-          defaultValue: [{}],
-          fields: [
-            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
-          ],
-        },
-        {
-          name: "unknownArray4",
-          type: "array",
-          defaultValue: [{}],
-          fields: [
-            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
-          ],
-        },
-        {
-          name: "unknownArray5",
-          type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             {
-              name: "unknownData1",
+              name: "passengerData",
               type: "schema",
               fields: [
                 {
-                  name: "unknownQword1",
+                  name: "characterId",
                   type: "uint64string",
                   defaultValue: "0",
                 },
                 {
-                  name: "unknownData1",
+                  name: "characterData",
                   type: "schema",
                   fields: [
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                     { name: "unknownDword2", type: "uint32", defaultValue: 0 },
                     { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+                    { name: "characterName", type: "string", defaultValue: "" },
                     {
                       name: "unknownString1",
-                      type: "string",
-                      defaultValue: "",
-                    },
-                    {
-                      name: "unknownString2",
                       type: "string",
                       defaultValue: "",
                     },
@@ -3261,26 +3238,61 @@ export const basePackets: any = [
           ],
         },
         {
-          name: "unknownArray6",
+          name: "unknownArray3",
           type: "array",
           defaultValue: [{}],
           fields: [
-            { name: "unknownString1", type: "string", defaultValue: "" },
+            {
+              name: "unknownString1",
+              type: "string",
+              defaultValue: "",
+            },
           ],
         },
         {
-          name: "unknownArray7",
+          name: "stats",
           type: "array",
-          defaultValue: [{}],
-          fields: itemWeaponDetailSubSchema1,
+          defaultValue: [],
+          fields: [
+            { name: "statId", type: "uint32", defaultValue: 0 },
+            {
+              name: "statData",
+              type: "schema",
+              defaultValue: {},
+              fields: statDataSchema,
+            },
+          ],
         },
         {
-          name: "unknownArray8",
+          name: "unknownArray4",
           type: "array",
           defaultValue: [{}],
-          fields: itemWeaponDetailSubSchema2,
+          fields: [
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            {
+              name: "unknownArray1",
+              type: "array",
+              defaultValue: [{}],
+              fields: [
+                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                {
+                  name: "stats",
+                  type: "array",
+                  defaultValue: [],
+                  fields: [
+                    { name: "statId", type: "uint32", defaultValue: 0 },
+                    {
+                      name: "statData",
+                      type: "schema",
+                      defaultValue: {},
+                      fields: statDataSchema,
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
         },
-        { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
       ],
     },
   ],
