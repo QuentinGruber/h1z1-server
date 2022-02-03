@@ -437,7 +437,7 @@ export class LoginServer extends EventEmitter {
         characters = this.addDummyDataToCharacters(characterList);
       }
     } else {
-      const charactersQuery = { authKey: client.loginSessionId, status: 1 };
+      const charactersQuery = { authKey: client.loginSessionId,serverVersionTag:this.getServerVersionTag(client.protocolName), status: 1 };
       characters = await this._db
         .collection("characters-light")
         .find(charactersQuery)
@@ -812,6 +812,7 @@ export class LoginServer extends EventEmitter {
               serverId: newCharacter.serverId,
               ownerId: sessionObj.guid,
               payload: packet.result.payload,
+              status: 1
             };
       creationStatus = (await this.askZone(serverId, "CharacterCreateRequest", {
         characterObjStringify: JSON.stringify(newCharacterData),
