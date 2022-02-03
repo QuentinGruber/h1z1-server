@@ -230,6 +230,9 @@ export class zonePacketHandlers {
           () => server.saveCharacterPosition(client),
           30000
         );
+        if (!server._soloMode) {
+          server.sendZonePopulationUpdate();
+        }
         server.sendData(client, "Equipment.SetCharacterEquipment", {
           characterData: {
             characterId: client.character.characterId,
