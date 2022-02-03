@@ -328,6 +328,7 @@ export const clientUpdatePackets: any = [
           parser: readUnsignedIntWith2bitLengthValue,
           packer: packUnsignedIntWith2bitLengthValue,
         },
+        { name: "version?", type: "uint8", defaultValue: 1 },
       ],
     },
   ],

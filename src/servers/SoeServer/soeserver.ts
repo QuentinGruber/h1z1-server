@@ -179,16 +179,7 @@ export class SOEServer extends EventEmitter {
           this.emit("session", null, client);
           break;
         case "Disconnect":
-          // hack so updateInterval is cleared even if user badly close the client
-          this.emit(
-            "appdata",
-            null,
-            client,
-            Buffer.from(new Uint8Array([0x03]))
-          ); // trigger "Logout"
-
           debug("Received disconnect from client");
-          delete this._clients[client.address + ":" + client.port];
           this.emit("disconnect", null, client);
           break;
         case "MultiPacket": {
@@ -382,7 +373,7 @@ export class SOEServer extends EventEmitter {
         );
         if (result?.soePacket) {
           if (!unknow_client && result.soePacket.name === "SessionRequest") {
-            delete this._clients[clientId];
+            this.deleteClient(this._clients[clientId]);
             debug(
               "Delete an old session badly closed by the client (",
               clientId,

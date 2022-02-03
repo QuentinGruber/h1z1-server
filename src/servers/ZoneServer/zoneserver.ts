@@ -366,7 +366,11 @@ export class ZoneServer extends EventEmitter {
       ) {
         debug(`Receive Data ${[packet.name]}`);
       }
-      this._packetHandlers.processPacket(this, client, packet);
+      try {
+        this._packetHandlers.processPacket(this, client, packet);
+      } catch (error) {
+        console.error(`An error occurred while processing a packet : `,packet)
+      }
     }
   }
 
@@ -451,14 +455,24 @@ export class ZoneServer extends EventEmitter {
   }
 
   onGatewayDisconnectEvent(err: string, client: Client) {
-    debug(`Client disconnected from ${client.address}:${client.port}`);
-    clearTimeout(client.character?.resourcesUpdater);
-    if (client.character?.characterId) {
-      delete this._characters[client.character.characterId];
+    this.deleteClient(client);
+  }
+
+
+  deleteClient(client: Client){
+    if(client.character){
+      this.deleteEntity(client.character.characterId, this._characters);
+      clearInterval(client.character?.resourcesUpdater);
+      this.saveCharacterPosition(client);
+      client.managedObjects?.forEach((characterId: any) => {
+        this.dropVehicleManager(client, characterId);
+      });
     }
     delete this._clients[client.sessionId];
     this._gatewayServer._soeServer.deleteClient(client);
-    this.emit("disconnect", null, client);
+    if (!this._soloMode) {
+      this.sendZonePopulationUpdate();
+    }
   }
 
   onGatewaySessionEvent(err: string, client: Client) {
@@ -728,18 +742,12 @@ export class ZoneServer extends EventEmitter {
   }
 
   timeoutClient(client: Client): void {
-    if (this._clients[client.sessionId]) {
+    if (!!this._clients[client.sessionId]) {
       // if hasn't already deleted
       debug(
         `Client disconnected from ${client.address}:${client.port} ( ping timeout )`
       );
-      clearTimeout(client.character?.resourcesUpdater);
-      if (client.character?.characterId) {
-        delete this._characters[client.character.characterId];
-      }
-      delete this._clients[client.sessionId];
-      this._gatewayServer._soeServer.deleteClient(client);
-      this.emit("disconnect", null, client);
+      this.deleteClient(client);
     }
   }
 
