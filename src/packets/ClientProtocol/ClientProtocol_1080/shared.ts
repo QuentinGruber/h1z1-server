@@ -1297,11 +1297,10 @@ export const attachmentDataSchema = [
 
 export const fullNpcDataSchema = [
   {
-    name: "transient_id",
+    name: "transientId",
     type: "custom",
     parser: readUnsignedIntWith2bitLengthValue,
-    packer: packUnsignedIntWith2bitLengthValue,
-    defaultValue: 115,
+    packer: packUnsignedIntWith2bitLengthValue
   },
   { name: "unknownDword1", type: "uint32", defaultValue: 0 },
   { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -1317,15 +1316,12 @@ export const fullNpcDataSchema = [
   { name: "unknownDword4", type: "uint32", defaultValue: 0 },
   { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
   { name: "unknownDword5", type: "uint32", defaultValue: 0 },
-  //{ name: "unknownVector1", type: "floatvector3", defaultValue: [0, 0, 0] },
-  //{ name: "unknownVector2", type: "floatvector3", defaultValue: [0, 0, 0] },
-  //{ name: "unknownFloat2", type: "float", defaultValue: 0.0 },
   { name: "unknownDword6", type: "uint32", defaultValue: 0 },
   { name: "unknownDword7", type: "uint32", defaultValue: 0 },
   {
     name: "effectTags",
     type: "array",
-    defaultValue: [{}],
+    defaultValue: [],
     fields: effectTagsSchema,
   },
   {
@@ -1346,7 +1342,7 @@ export const fullNpcDataSchema = [
     name: "targetData",
     type: "schema",
     fields: [
-      { name: "unknownByte1", type: "uint32", defaultValue: 0 },/*
+      { name: "unknownByte1", type: "uint8", defaultValue: 0 },/*
       {
         name: "unknownVector4",
         type: "floatvector4",
@@ -1391,13 +1387,10 @@ export const fullNpcDataSchema = [
   { name: "unknownDword19", type: "uint32", defaultValue: 0 },
   { name: "unknownDword20", type: "uint32", defaultValue: 0 },
   { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
-  
-  
-  //{ name: "test1", type: "uint32", defaultValue: 0 },
   {
     name: "unknownArray3",
     type: "byteswithlength",
-    defaultValue: null,
+    defaultValue: {},
     fields: [
       {
         name: "data",// locksBaseRelated
@@ -1410,17 +1403,10 @@ export const fullNpcDataSchema = [
       },
     ]
   },
-  /*
-  { name: "test2", type: "uint32", defaultValue: 0 },
-  { name: "test3", type: "uint32", defaultValue: 0 },
-  { name: "test4", type: "uint32", defaultValue: 0 },
-  { name: "test5", type: "uint32", defaultValue: 0 },
-  { name: "test6", type: "uint32", defaultValue: 0 },
-  */
   {
     name: "resources",
     type: "byteswithlength",
-    defaultValue: null,
+    defaultValue: {},
     fields: [
       {
         name: "data",
@@ -1441,7 +1427,7 @@ export const fullNpcDataSchema = [
   {
     name: "unknownArray4",
     type: "byteswithlength",
-    defaultValue: null,
+    defaultValue: {},
     fields: [
       {
         name: "unknownArray1",
@@ -1618,7 +1604,7 @@ export const fullNpcDataSchema = [
   {
     name: "unknownArray5",
     type: "byteswithlength",
-    defaultValue: null,
+    defaultValue: {},
     fields: [
       {
         name: "data",
@@ -1647,7 +1633,7 @@ export const fullNpcDataSchema = [
   {
     name: "remoteWeapons",
     type: "byteswithlength",
-    defaultValue: null,
+    defaultValue: {},
     fields: [
       {
         name: "data",
@@ -1736,7 +1722,7 @@ export const fullNpcDataSchema = [
   {
     name: "itemsData",
     type: "byteswithlength",
-    defaultValue: null,
+    defaultValue: {},
     fields: [
       {
         name: "items",

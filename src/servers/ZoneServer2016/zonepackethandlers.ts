@@ -870,12 +870,34 @@ export class zonePacketHandlers {
             effectTags: [],
             unknownData1: {},
             targetData: {},
-            unknownArray1: [],
-            unknownArray2: [],
-            unknownArray3: {/*data:[]*/},
-            resources: {/*
-              data:[/*
-                {
+            unknownArray1: [
+              {
+                unknownDword1: 0,
+                unknownString1: "",
+                unknownDword2: 0,
+              },
+              {
+                unknownDword1: 0,
+                unknownString1: "",
+                unknownDword2: 0,
+              },
+            ],
+            unknownArray2: [
+              {
+                unknownDword1: 0,
+                unknownString1: "",
+                unknownString2: ""
+              },
+              {
+                unknownDword1: 0,
+                unknownString1: "",
+                unknownString2: ""
+              },
+            ],
+            //unknownArray3: {/*data:[]*/},
+            //resources: {/*
+            //  data:[
+                /*{
                   resourceId: 1,
                   resourceData: {
                     resourceId: 1,
@@ -884,12 +906,12 @@ export class zonePacketHandlers {
                   }
                 }
               ]*/
-            },
-            unknownArray4: {/*unknownArray1:[], unknownArray2:[]*/},
-            unknownArray5: {/*data:[]*/},
-            unknownArray6: {/*data:[]*/},
-            remoteWeapons: {/*data:[]*/},
-            itemsData: {/*data:[]*/}
+            //},
+            //unknownArray4: {/*unknownArray1:[], unknownArray2:[]*/},
+            //unknownArray5: {/*data:[]*/},
+            //unknownArray6: {/*data:[]*/},
+            //remoteWeapons: {/*data:[]*/},
+            //itemsData: {/*data:[]*/}
           });
           break;
         case 2: // vehicles
