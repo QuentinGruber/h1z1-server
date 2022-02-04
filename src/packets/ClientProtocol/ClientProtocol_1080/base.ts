@@ -97,7 +97,7 @@ export const basePackets: any = [
             { name: "unknownDword18", type: "uint32", defaultValue: 0 },
             { name: "unknownBoolean3", type: "boolean", defaultValue: false },
             { name: "unknownDword19", type: "uint32", defaultValue: 0 },
-            { name: "gender", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword26", type: "uint32", defaultValue: 0 },
             { name: "unknownDword21", type: "uint32", defaultValue: 0 },
             { name: "unknownDword22", type: "uint32", defaultValue: 0 },
             { name: "unknownDword23", type: "uint32", defaultValue: 0 },
@@ -150,7 +150,7 @@ export const basePackets: any = [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
               ],
             },
-            { name: "unknownDword26", type: "uint32", defaultValue: 0 },
+            { name: "gender", type: "uint32", defaultValue: 0 },
             {
               name: "characterQuests",
               type: "schema",
@@ -3175,7 +3175,7 @@ export const basePackets: any = [
         {
           name: "unknownArray1",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
             { name: "unknownBoolean1", type: "boolean", defaultValue: false },
@@ -3184,7 +3184,7 @@ export const basePackets: any = [
         {
           name: "unknownArray2",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
             { name: "unknownByte1", type: "boolean", defaultValue: false },
@@ -3240,7 +3240,7 @@ export const basePackets: any = [
         {
           name: "unknownArray3",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             {
               name: "unknownString1",
@@ -3266,13 +3266,13 @@ export const basePackets: any = [
         {
           name: "unknownArray4",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
             {
               name: "unknownArray1",
               type: "array",
-              defaultValue: [{}],
+              defaultValue: [],
               fields: [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                 {

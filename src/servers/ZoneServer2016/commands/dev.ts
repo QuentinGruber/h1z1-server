@@ -85,12 +85,14 @@ const dev: any = {
       eventData: {
         type: 2,
         value: {
-          characterId: "0x03147cca2a860191",
-          resourceId: args[1],
-          resourceType: args[2],
-          unknownArray1: [],
-          value: args[3],
-          unknownArray2: [],
+          characterId: client.character.characterId,
+          resourceData: {
+            resourceId: Number(args[1]),
+            resourceType: Number(args[2]),
+            unknownArray1: [],
+            value: Number(args[3]),
+            unknownArray2: [],
+          }
         },
       },
     };
