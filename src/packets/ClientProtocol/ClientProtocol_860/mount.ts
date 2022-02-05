@@ -91,17 +91,21 @@ export const mountPackets: any = [
   ["Mount.Despawn", 0x7007, {}],
   ["Mount.SpawnByItemDefinitionId", 0x7008, {}],
   ["Mount.OfferUpsell", 0x7009, {}], // contain same schema as Mount.List seems to be glitched
-  ["Mount.SeatChangeRequest", 0x700a, {}],
+  [
+    "Mount.SeatChangeRequest",
+    0x700a,
+    { fields: [{ name: "seatId", type: "uint8", defaultValue: 0 }] },
+  ],
   [
     "Mount.SeatChangeResponse",
     0x700b,
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "unknownGuid", type: "uint64string", defaultValue: "0" },
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+        { name: "vehicleId", type: "uint64string", defaultValue: "0" },
+        { name: "unknownDword1", type: "uint32", defaultValue: 1 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 2 },
+        { name: "unknownDword3", type: "uint32", defaultValue: 3 },
       ],
     },
   ],
