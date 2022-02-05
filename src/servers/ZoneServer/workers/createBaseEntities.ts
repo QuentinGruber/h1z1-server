@@ -87,8 +87,6 @@ function createEntity(
     texture: texture,
     position: position,
     rotation: rotation,
-    attachedObject: {},
-    color: {},
   };
 }
 
@@ -128,7 +126,7 @@ function createDTO(
     rotation: rotation,
     positionUpdateType: 1,
     renderDistance: renderDistance,
-    attachedObject: {},
+    
     dontRequestFullData: true,
     color: { g: 127 },
   };
@@ -182,8 +180,6 @@ function createDoor(
     rotationRaw: startRot,
     openAngle: openAngle,
     closedAngle: startRot[0],
-    openCounter: 0,
-    attachedObject: {},
     color: { g: 127 },
   };
 }
