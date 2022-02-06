@@ -80,7 +80,6 @@ export class ZoneServer extends EventEmitter {
   _dynamicWeatherWorker: any;
   _dynamicWeatherEnabled: boolean;
   _vehicles: { [characterId: string]: Vehicle };
-  _respawnLocations: any[];
   _doors: any;
   _props: any;
   _destroyablesTimeout: any;
@@ -145,31 +144,6 @@ export class ZoneServer extends EventEmitter {
     this._dynamicWeatherEnabled = true;
     this._dummySelf = require("../../../data/2015/sampleData/sendself.json");
     this._appDataFolder = getAppDataFolderPath();
-    this._respawnLocations = spawnLocations.map((spawn: any) => {
-      return {
-        guid: this.generateGuid(),
-        respawnType: 1,
-        position: spawn.position,
-        iconId: 1,
-        respawnTypeIconId: 1,
-        respawnTotalTimeMS: 1,
-        unknownDword1: 1,
-        nameId: 1,
-        distance: 3000,
-        unknownByte1: 0,
-        isActive: 1,
-        unknownData1: {
-          unknownByte1: 0,
-          unknownByte2: 0,
-          unknownByte3: 0,
-          unknownByte4: 0,
-          unknownByte5: 0,
-        },
-        zoneId: 1,
-        unknownByte3: 0,
-        unknownByte4: 0,
-      };
-    });
     if (!this._mongoAddress) {
       this._soloMode = true;
       debug("Server in solo mode !");
@@ -884,20 +858,7 @@ export class ZoneServer extends EventEmitter {
   }
 
   sendInitData(client: Client): void {
-    this.sendData(client, "InitializationParameters", {
-      environment: "LIVE",
-      serverId: 1,
-    });
-
     this.SendZoneDetailsPacket(client, this._weather);
-
-    this.sendData(client, "ClientUpdate.ZonePopulation", {
-      populations: [0, 0],
-    });
-    this.sendData(client, "ClientUpdate.RespawnLocations", {
-      locations: this._respawnLocations,
-      locations2: this._respawnLocations,
-    });
 
     this.sendData(client, "ClientGameSettings", {
       Unknown2: 0,
@@ -912,11 +873,6 @@ export class ZoneServer extends EventEmitter {
     });
 
     this.characterData(client);
-
-    this.sendData(client, "PlayerUpdate.SetBattleRank", {
-      characterId: client.character.characterId,
-      battleRank: 100,
-    });
   }
 
   spawnNpcs(client: Client): void {
