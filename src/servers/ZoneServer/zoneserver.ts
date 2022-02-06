@@ -411,13 +411,6 @@ export class ZoneServer extends EventEmitter {
       characterId,
       generatedTransient
     );
-    zoneClient.npcsToSpawnTimer = setTimeout(() => {
-      const npcData = zoneClient.npcsToSpawn.shift();
-      if (npcData) {
-        this.sendData(zoneClient, "PlayerUpdate.AddLightweightNpc", npcData);
-        zoneClient.npcsToSpawnTimer.refresh();
-      }
-    });
     this._clients[soeClient.sessionId] = zoneClient;
 
     this._transientIds[generatedTransient] = characterId;
@@ -885,7 +878,7 @@ export class ZoneServer extends EventEmitter {
         ) &&
         !client.spawnedEntities.includes(this._npcs[npc])
       ) {
-        client.npcsToSpawn.push({ ...this._npcs[npc], profileId: 65 });
+        this.sendData(client, "PlayerUpdate.AddLightweightNpc", { ...this._npcs[npc], profileId: 65 });
         client.spawnedEntities.push(this._npcs[npc]);
       }
     }
@@ -932,20 +925,21 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
+  worldRoutineClient(client: Client) {
+    this.spawnCharacters(client);
+    this.spawnObjects(client);
+    this.spawnDoors(client);
+    this.spawnProps(client);
+    this.spawnNpcs(client);
+    this.spawnVehicles(client);
+    this.spawnDTOs(client);
+    this.removeOutOfDistanceEntities(client);
+    this.POIManager(client);
+    client.posAtLastRoutine = client.character.state.position;
+  }
+
   worldRoutine(refresh = false): void {
-    this.executeFuncForAllReadyClients((client: Client) => {
-      this.spawnCharacters(client);
-      this.spawnObjects(client);
-      this.spawnDoors(client);
-      this.spawnProps(client);
-      this.spawnNpcs(client);
-      this.spawnVehicles(client);
-      this.spawnDTOs(client);
-      this.removeOutOfDistanceEntities(client);
-      this.POIManager(client);
-      client.npcsToSpawnTimer.refresh();
-      client.posAtLastRoutine = client.character.state.position;
-    });
+    this.executeFuncForAllReadyClients(this.worldRoutineClient.bind(this));
     if (refresh) this.worldRoutineTimer.refresh();
   }
 
@@ -2086,7 +2080,7 @@ export class ZoneServer extends EventEmitter {
         ) &&
         !client.spawnedEntities.includes(itemData)
       ) {
-        client.npcsToSpawn.push(itemData);
+        this.sendData(client, "PlayerUpdate.AddLightweightNpc", itemData);
         client.spawnedEntities.push(itemData);
       }
     }
@@ -2144,7 +2138,7 @@ export class ZoneServer extends EventEmitter {
         ) &&
         !client.spawnedDTOs.includes(DTOObject)
       ) {
-        client.npcsToSpawn.push(DTOObject);
+        this.sendData(client, "PlayerUpdate.AddLightweightNpc", DTOObject);
         client.spawnedDTOs.push(DTOObject);
       }
     }

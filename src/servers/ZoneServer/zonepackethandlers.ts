@@ -106,7 +106,7 @@ export class zonePacketHandlers {
         profiles: server._profiles,
         attachmentData: client.character.equipment,
       });
-      
+
       server.sendData(client, "PlayerUpdate.CharacterStateDelta", {
         guid1: client.character.guid,
         guid2: "0x0000000000000000",
@@ -151,11 +151,11 @@ export class zonePacketHandlers {
         });
       });
 
-      client.character.startRessourceUpdater(client, server);
       server.sendDataToAll("PlayerUpdate.WeaponStance", {
         characterId: client.character.characterId,
         stance: 1,
       });
+      client.character.startRessourceUpdater(client, server);
       server.sendData(client, "ClientUpdate.DoneSendingPreloadCharacters", {
         unknownBoolean1: 1,
       });
