@@ -3170,8 +3170,8 @@ export const basePackets: any = [
     {
       fields: [
         { name: "npcData", type: "schema", fields: fullNpcDataSchema },
-        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownByte1", type: "uint8", defaultValue: 1 },
+        { name: "unknownDword1", type: "uint32", defaultValue: 1 },
         {
           name: "unknownArray1",
           type: "array",
@@ -3365,7 +3365,6 @@ export const basePackets: any = [
       ],
     },
   ],
-  //["AccessedCharacterBase", 0xf1, {}],
   ["ShaderParameterOverrideBase", 0xf2, {}],
   ["VehicleSkinBase", 0xf3, {}],
   ["WeaponLagLockParameters", 0xf5, {}],

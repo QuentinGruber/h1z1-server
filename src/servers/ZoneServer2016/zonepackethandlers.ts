@@ -860,40 +860,18 @@ export class zonePacketHandlers {
         case 1: // npcs
           server.sendData(client, "LightweightToFullNpc", {
             transientId: entityData.transientId,
-            attachmentData: [
+            attachmentData: [/*
               {
                 modelName: "SurvivorMale_Chest_Hoodie_Up_Tintable.adr",
                 effectId: 0,
                 slotId: 3,
-              },
+              },*/
             ],
             effectTags: [],
             unknownData1: {},
             targetData: {},
-            unknownArray1: [
-              {
-                unknownDword1: 0,
-                unknownString1: "",
-                unknownDword2: 0,
-              },
-              {
-                unknownDword1: 0,
-                unknownString1: "",
-                unknownDword2: 0,
-              },
-            ],
-            unknownArray2: [
-              {
-                unknownDword1: 0,
-                unknownString1: "",
-                unknownString2: ""
-              },
-              {
-                unknownDword1: 0,
-                unknownString1: "",
-                unknownString2: ""
-              },
-            ],
+            unknownArray1: [],
+            unknownArray2: [],
             //unknownArray3: {/*data:[]*/},
             //resources: {/*
             //  data:[
@@ -932,6 +910,14 @@ export class zonePacketHandlers {
                     resourceData: {
                       resourceId: 1,
                       resourceType: 1,
+                      value: 10000
+                    }
+                  },
+                  {
+                    resourceId: 50,
+                    resourceData: {
+                      resourceId: 50,
+                      resourceType: 50,
                       value: 10000
                     }
                   }
