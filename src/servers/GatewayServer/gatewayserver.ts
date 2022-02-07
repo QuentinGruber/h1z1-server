@@ -125,7 +125,7 @@ export class GatewayServer extends EventEmitter {
       channel: channel,
       tunnelData: tunnelData,
     });
-    (this._soeServer.sendAppData as any)(client, data);
+    this._soeServer.sendAppData(client, data);
   }
 
   stop() {

@@ -32,7 +32,7 @@ export default class SOEClient {
   outOfOrderPackets: any[] = [];
   nextAck: number = -1;
   lastAck: number = -1;
-  inputStream: () => void;
+  inputStream: any;
   outputStream: any;
   outQueueTimer: any;
   ackTimer: any;
