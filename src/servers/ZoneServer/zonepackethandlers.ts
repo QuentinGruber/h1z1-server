@@ -101,72 +101,10 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      /* still disable
-            server.sendData(client, "ClientBeginZoning", {
-              position: client.character.state.position,
-              rotation: client.character.state.rotation,
-              skyData: server._weather,
-            });
-            */
       server.customizeDTO(client);
-      server.sendData(client, "QuickChat.SendData", { commands: [] });
       server.sendData(client, "ClientUpdate.ActivateProfile", {
         profiles: server._profiles,
         attachmentData: client.character.equipment,
-      });
-      server.sendData(client, "ClientUpdate.DoneSendingPreloadCharacters", {
-        unknownBoolean1: 1,
-      });
-
-      server.sendData(client, "ClientUpdate.UpdateStat", { stats: [] });
-
-      server.sendData(client, "Operation.ClientClearMissions", {});
-
-      server.sendData(client, "ZoneSetting.Data", {
-        settings: [
-          {
-            hash: joaat("zonesetting.deploy.on.login".toUpperCase()),
-            value: 1,
-            settingType: 2,
-            unknown1: 0,
-            unknown2: 0,
-          },
-          {
-            hash: joaat("zonesetting.no.acquisition.timers".toUpperCase()),
-            value: 1,
-            settingType: 2,
-            unknown1: 0,
-            unknown2: 0,
-          },
-          {
-            hash: joaat("zonesetting.XpMultiplier".toUpperCase()),
-            value: 1,
-            settingType: 1,
-            unknown1: 0,
-            unknown2: 0,
-          },
-          {
-            hash: joaat("zonesetting.disabletrialitems".toUpperCase()),
-            value: 1,
-            settingType: 2,
-            unknown1: 0,
-            unknown2: 0,
-          },
-          {
-            hash: joaat("zonesetting.isvrzone".toUpperCase()),
-            value: 0,
-            settingType: 2,
-            unknown1: 0,
-            unknown2: 0,
-          },
-          {
-            hash: joaat("zonesetting.no.resource.costs".toUpperCase()),
-            value: 1,
-            settingType: 2,
-            unknown1: 0,
-            unknown2: 0,
-          },
-        ],
       });
 
       server.sendData(client, "PlayerUpdate.CharacterStateDelta", {
@@ -213,14 +151,13 @@ export class zonePacketHandlers {
         });
       });
 
-      server.sendData(client, "Synchronization", {
-        serverTime: Int64String(server.getSequenceTime()),
-        serverTime2: Int64String(server.getSequenceTime()),
-      });
-      client.character.startRessourceUpdater(client, server);
       server.sendDataToAll("PlayerUpdate.WeaponStance", {
         characterId: client.character.characterId,
         stance: 1,
+      });
+      client.character.startRessourceUpdater(client, server);
+      server.sendData(client, "ClientUpdate.DoneSendingPreloadCharacters", {
+        unknownBoolean1: 1,
       });
     };
     this.ClientFinishedLoading = (

@@ -55,6 +55,7 @@ export class ZoneServer2016 extends ZoneServer {
   _characters: { [characterId: string]: Character } = {};
   worldObjectManager: WorldObjectManager;
   _ready: boolean = false;
+  _respawnLocations:any;
 
   constructor(
     serverPort: number,
