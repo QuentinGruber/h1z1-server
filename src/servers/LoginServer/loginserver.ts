@@ -25,7 +25,8 @@ import {
   initMongo,
   setupAppDataFolder,
 } from "../../utils/utils";
-import { Client, GameServer } from "../../types/loginserver";
+import { GameServer } from "../../types/loginserver";
+import Client from "servers/LoginServer/loginclient";
 import fs from "fs";
 import { loginPacketsType } from "types/packets";
 import { Worker } from "worker_threads";

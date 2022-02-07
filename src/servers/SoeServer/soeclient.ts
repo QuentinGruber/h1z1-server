@@ -28,7 +28,7 @@ export default class SOEClient {
   useEncryption: boolean = true;
   waitingQueue: any[] = [];
   outQueue: any[] = [];
-  protocolName?: string;
+  protocolName: string = "unset";
   outOfOrderPackets: any[] = [];
   nextAck: number = -1;
   lastAck: number = -1;
@@ -40,6 +40,7 @@ export default class SOEClient {
   cryptoKey: Uint8Array;
   waitQueueTimer: any;
   waitingQueueCurrentByteLength: number = 0;
+  soeClientId: string;
   constructor(
     remote: RemoteInfo,
     crcSeed: number,
@@ -47,6 +48,7 @@ export default class SOEClient {
     cryptoKey: Uint8Array
   ) {
     this.sessionId = 0;
+    this.soeClientId = remote.address + ":" + remote.port;
     this.address = remote.address;
     this.port = remote.port;
     this.crcSeed = crcSeed;
