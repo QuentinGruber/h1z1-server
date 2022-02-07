@@ -39,7 +39,7 @@ import { Resolver } from "dns";
 process.env.isBin && require("./workers/dynamicWeather");
 
 import { zonePacketHandlers } from "./zonepackethandlers";
-const localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json");
+let localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json");
 
 const debugName = "ZoneServer";
 const debug = require("debug")(debugName);
@@ -460,7 +460,7 @@ export class ZoneServer extends EventEmitter {
   }
 
   removeSoloCache() {
-    spawnLocations = null;
+    localSpawnList = null;
     localWeatherTemplates = null;
     delete require.cache[
       require.resolve("../../../data/2015/sampleData/spawnLocations.json")
