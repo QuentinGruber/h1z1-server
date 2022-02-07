@@ -24,7 +24,7 @@ export class SOEOutputStream extends EventEmitter {
   _cache: any;
   _rc4: crypto.Cipher;
   _enableCaching: boolean;
-  constructor(cryptoKey: string, fragmentSize: number) {
+  constructor(cryptoKey: Uint8Array, fragmentSize: number = 0) {
     super();
     this._useEncryption = false;
     this._fragmentSize = fragmentSize;

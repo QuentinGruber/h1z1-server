@@ -52,8 +52,8 @@ export default class SOEClient {
     this.crcSeed = crcSeed;
     this.compression = compression;
     this.cryptoKey = cryptoKey;
-    this.inputStream = new (SOEInputStream as any)(cryptoKey);
-    this.outputStream = new (SOEOutputStream as any)(cryptoKey);
+    this.inputStream = new SOEInputStream(cryptoKey);
+    this.outputStream = new SOEOutputStream(cryptoKey);
   }
 
   clearTimers() {
