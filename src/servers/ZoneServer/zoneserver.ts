@@ -2425,8 +2425,9 @@ export class ZoneServer extends EventEmitter {
   }
 
   sendDataToAll(packetName: h1z1PacketsType, obj: any, channel = 0): void {
+    const data = this._protocol.pack(packetName, obj);
     for (const a in this._clients) {
-      this.sendData(this._clients[a], packetName, obj, channel);
+      this.sendRawData(this._clients[a],data);
     }
   }
 
