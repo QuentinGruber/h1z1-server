@@ -43,7 +43,6 @@ const localSpawnList = require("../../../data/2015/sampleData/spawnLocations.jso
 
 const debugName = "ZoneServer";
 const debug = require("debug")(debugName);
-let spawnLocations = require("../../../data/2015/sampleData/spawnLocations.json");
 let localWeatherTemplates = require("../../../data/2015/sampleData/weather.json");
 const stats = require("../../../data/2015/sampleData/stats.json");
 const recipes = require("../../../data/2015/sampleData/recipes.json");
