@@ -38,7 +38,7 @@ export class ZoneClient extends SOEClient {
   npcsToSpawn: any[] = [];
   npcsToSpawnTimer!: NodeJS.Timeout;
   character: Character;
-  loginSessionId?: string;
+  loginSessionId: string;
   pingTimer: NodeJS.Timeout | undefined;
   savePositionTimer: any;
   clearHudTimer: () => void;
@@ -58,6 +58,7 @@ export class ZoneClient extends SOEClient {
       initialClient.compression,
       initialClient.cryptoKey
     );
+    this.sessionId = initialClient.sessionId;
     this.inputStream = initialClient.inputStream;
     this.outputStream = initialClient.outputStream;
     this.crcSeed = initialClient.crcSeed;

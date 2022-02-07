@@ -55,9 +55,16 @@ export class ZoneServer2016 extends ZoneServer {
   _characters: { [characterId: string]: Character } = {};
   worldObjectManager: WorldObjectManager;
   _ready: boolean = false;
+  _respawnLocations:any;
 
-  constructor(serverPort: number, gatewayKey: Uint8Array, mongoAddress = "") {
-    super(serverPort, gatewayKey, mongoAddress, 0);
+  constructor(
+    serverPort: number,
+    gatewayKey: Uint8Array,
+    mongoAddress = "",
+    worldId?: number,
+    internalServerPort?: number
+  ) {
+    super(serverPort, gatewayKey, mongoAddress, worldId, internalServerPort);
     this._protocol = new H1Z1Protocol("ClientProtocol_1080");
     this._clientProtocol = "ClientProtocol_1080";
     this._dynamicWeatherEnabled = false;
@@ -113,9 +120,14 @@ export class ZoneServer2016 extends ZoneServer {
       ) {
         debug(`Receive Data ${[packet.name]}`);
       }
-      this._packetHandlers.processPacket(this, client, packet);
+      try {
+        this._packetHandlers.processPacket(this, client, packet);
+      } catch (error) {
+        console.error(`An error occurred while processing a packet : `,packet)
+      }
     }
   }
+  
 
   async onCharacterCreateRequest(client: any, packet: any) {
     function getCharacterModelData(payload: any): any {
@@ -1542,7 +1554,8 @@ export class ZoneServer2016 extends ZoneServer {
 if (process.env.VSCODE_DEBUG === "true") {
   new ZoneServer2016(
     1117,
-    new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", "base64"),
-    process.env.MONGO_URL
+    Buffer.from("F70IaxuU8C/w7FPXY1ibXw==", "base64"),
+    process.env.MONGO_URL,
+    2
   ).start();
 }

@@ -1,0 +1,293 @@
+// ======================================================================
+//
+//   GNU GENERAL PUBLIC LICENSE
+//   Version 3, 29 June 2007
+//   copyright (C) 2020 - 2021 Quentin Gruber
+//   copyright (C) 2021 - 2022 H1emu community
+//
+//   https://github.com/QuentinGruber/h1z1-server
+//   https://www.npmjs.com/package/h1z1-server
+//
+//   Based on https://github.com/psemu/soe-network
+// ======================================================================
+
+export const characterPackets: any = [
+  ["Character.None", 0x0f00, {}],
+  [
+    "Character.RemovePlayer",
+    0x0f01,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "unknownWord1", type: "uint16", defaultValue: 0 },
+        { name: "unknownBool1", type: "boolean", defaultValue: 0 },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
+  ["Character.Knockback", 0x0f02, {}],
+  ["Character.UpdateHitpoints", 0x0f03, {}],
+  ["Character.PlayAnimation", 0x0f04, {}],
+  [
+    "Character.UpdateScale",
+    0x0f05,
+    {
+      fields: [
+        {
+          name: "characterId",
+          type: "uint64string",
+          defaultValue: "0x0000000000000000",
+        },
+        { name: "scale", type: "floatvector4", defaultValue: [20, 5, 20, 1] },
+      ],
+    },
+  ],
+  ["Character.UpdateTemporaryAppearance", 0x0f06, {}],
+  ["Character.RemoveTemporaryAppearance", 0x0f07, {}],
+  ["Character.SetLookAt", 0x0f08, {}],
+  ["Character.RenamePlayer", 0x0f09, {}],
+  [
+    "Character.UpdateCharacterState",
+    0x0f0a,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "gameTime", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
+  ["Character.ExpectedSpeed", 0x0f0b, {}],
+  ["Character.ScriptedAnimation", 0x0f0c, {}],
+  ["Character.ThoughtBubble", 0x0f0d, {}],
+  ["Character._REUSE_14", 0x0f0e, {}],
+  ["Character.LootEvent", 0x0f0f, {}],
+  ["Character.SlotCompositeEffectOverride", 0x0f10, {}],
+  ["Character.EffectPackage", 0x0f11, {}],
+  ["Character.PreferredLanguages", 0x0f12, {}],
+  ["Character.CustomizationChange", 0x0f13, {}],
+  ["Character.PlayerTitle", 0x0f14, {}],
+  ["Character.AddEffectTagCompositeEffect", 0x0f15, {}],
+  ["Character.RemoveEffectTagCompositeEffect", 0x0f16, {}],
+  ["Character.SetSpawnAnimation", 0x0f17, {}],
+  ["Character.CustomizeNpc", 0x0f18, {}],
+  ["Character.SetSpawnerActivationEffect", 0x0f19, {}],
+  ["Character.SetComboState", 0x0f1a, {}],
+  ["Character.SetSurpriseState", 0x0f1b, {}],
+  ["Character.RemoveNpcCustomization", 0x0f1c, {}],
+  ["Character.ReplaceBaseModel", 0x0f1d, {}],
+  ["Character.SetCollidable", 0x0f1e, {}],
+  ["Character.UpdateOwner", 0x0f1f, {}],
+  [
+    "Character.WeaponStance",
+    0x0f20,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "stance", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
+  ["Character.UpdateTintAlias", 0x0f21, {}],
+  ["Character.MoveOnRail", 0x0f22, {}],
+  ["Character.ClearMovementRail", 0x0f23, {}],
+  ["Character.MoveOnRelativeRail", 0x0f24, {}],
+  [
+    "Character.Destroyed",
+    0x0f25,
+    {
+      fields: [
+        { name: "guid", type: "uint64string", defaultValue: "0" },
+        { name: "unknown1", type: "uint32", defaultValue: 0 },
+        { name: "unknown2", type: "uint32", defaultValue: 0 },
+        { name: "unknown3", type: "uint32", defaultValue: 0 },
+        { name: "unknown4", type: "uint8", defaultValue: 0 },
+      ],
+    },
+  ],
+  ["Character.SeekTarget", 0x0f26, {}],
+  ["Character.SeekTargetUpdate", 0x0f27, {}],
+  [
+    "Character.UpdateActiveWieldType",
+    0x0f28,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
+  ["Character.LaunchProjectile", 0x0f29, {}],
+  ["Character.SetSynchronizedAnimations", 0x0f2a, {}],
+  ["Character.MemberStatus", 0x0f2b, {}],
+  [
+    "Character.KnockedOut",
+    0x0f2c,
+    {
+      fields: [{ name: "guid", type: "uint64string", defaultValue: "0" }],
+    },
+  ],
+  ["Character.KnockedOutDamageReport", 0x0f2d, {}],
+  [
+    "Character.Respawn",
+    0x0f2e,
+    {
+      fields: [
+        { name: "respawnType", type: "uint8", defaultValue: 0 },
+        { name: "respawnGuid", type: "uint64string", defaultValue: "0" },
+        { name: "profileId", type: "uint32", defaultValue: 0 },
+        { name: "profileId2", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
+  [
+    "Character.RespawnReply",
+    0x0f2f,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "status", type: "boolean", defaultValue: false },
+      ],
+    },
+  ],
+  ["Character.ActivateProfile", 0x0f31, {}],
+  [
+    "Character.Jet",
+    0x0f32,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "state", type: "uint8", defaultValue: 0 },
+      ],
+    },
+  ],
+  ["Character.Turbo", 0x0f33, {}],
+  ["Character.StartRevive", 0x0f34, {}],
+  ["Character.StopRevive", 0x0f35, {}],
+  ["Character.ReadyToRevive", 0x0f36, {}],
+  [
+    "Character.SetFaction",
+    0x0f37,
+    {
+      fields: [
+        { name: "guid", type: "uint64string", defaultValue: "0" },
+        { name: "factionId", type: "uint8", defaultValue: 0 },
+      ],
+    },
+  ],
+  [
+    "Character.SetBattleRank",
+    0x0f38,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "battleRank", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
+  ["Character.StartHeal", 0x0f39, {}],
+  ["Character.StopHeal", 0x0f3a, {}],
+  [
+    "Character.ManagedObject",
+    0x0f3b,
+    {
+      fields: [
+        { name: "objectCharacterId", type: "uint64string", defaultValue: "0" },
+        { name: "guid2", type: "uint64string", defaultValue: "0" },
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+      ],
+    },
+  ],
+  ["Character.MaterialTypeOverride", 0x0f3c, {}],
+  ["Character.DebrisLaunch", 0x0f3d, {}],
+  ["Character.HideCorpse", 0x0f3e, {}],
+  [
+    "Character.CharacterStateDelta",
+    0x0f3f,
+    {
+      fields: [
+        { name: "guid1", type: "uint64string", defaultValue: "0" },
+        { name: "guid2", type: "uint64string", defaultValue: "0" },
+        { name: "guid3", type: "uint64string", defaultValue: "0" },
+        { name: "guid4", type: "uint64string", defaultValue: "0" },
+        { name: "gameTime", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
+  ["Character.UpdateStat", 0x0f40, {}],
+  ["Character.NonPriorityCharacters", 0x0f42, {}],
+  [
+    "Character.PlayWorldCompositeEffect",
+    0x0f43,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: 0 },
+        { name: "soundId", type: "uint32", defaultValue: 0 },
+        {
+          name: "position",
+          type: "floatvector4",
+          defaultValue: [0, 0, 0, 0],
+        },
+        { name: "unk3", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
+  ["Character.AFK", 0x0f44, {}],
+  [
+    "Character.FullCharacterDataRequest",
+    0x0f45,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+      ],
+    },
+  ],
+  ["Character.Deploy", 0x0f46, {}],
+  ["Character.LowAmmoUpdate", 0x0f47, {}],
+  ["Character.KilledBy", 0x0f48, {}],
+  [
+    "Character.MotorRunning",
+    0x0f49,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "unknownBool1", type: "boolean", defaultValue: false },
+      ],
+    },
+  ],
+  ["Character.DroppedIemNotification", 0x0f4a, {}],
+  ["Character.NoSpaceNotification", 0x0f4b, {}],
+  ["Character.ReloadNotification", 0x0f4c, {}],
+  ["Character.MountBlockedNotification", 0x0f4d, {}],
+  ["Character.StartMultiStateDeath", 0x0f4f, {}],
+  ["Character.AggroLevel", 0x0f50, {}],
+  [
+    "Character.DoorState",
+    0x0f51,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownBool1", type: "boolean", defaultValue: false },
+      ],
+    },
+  ],
+  ["Character.RequestToggleDoorState", 0x0f52, {}],
+  ["Character.SetAllowRespawn", 0x0f54, {}],
+  ["Character.UpdateGuildTag", 0x0f55, {}],
+  ["Character.MovementVersion", 0x0f56, {}],
+  ["Character.RequestMovementVersion", 0x0f57, {}],
+  ["Character.DailyRepairMaterials", 0x0f58, {}],
+  ["Character.BeginPreviewInteraction", 0x0f59, {}],
+  ["Character.TransportPlayerToFactionHub", 0x0f5a, {}],
+  ["Character.EnterCache", 0x0f5b, {}],
+  ["Character.ExitCache", 0x0f5c, {}],
+  ["Character.TransportPlayerToGatheringZone", 0x0f5d, {}],
+  ["Character.UpdateTwitchInfo", 0x0f5e, {}],
+  ["Character.UpdateSimpleProxyHealth", 0x0f5f, {}],
+];

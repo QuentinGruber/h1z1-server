@@ -1,6 +1,5 @@
 import { ZoneServer, ZoneClient, LoginServer } from "../../../h1z1-server";
 
-
 const character = {
   characterId: "0x3bc1e27032c82ed6",
   serverId: 1,
@@ -45,11 +44,10 @@ const character = {
   },
 };
 
-
 async function test() {
   const zoneServer = new ZoneServer(
     1117,
-    new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", "base64"),
+    Buffer.from("F70IaxuU8C/w7FPXY1ibXw==", "base64"),
     "mongodb://localhost:27017/",
     1
   );
@@ -83,4 +81,7 @@ async function test() {
   }, 15000);
 }
 
-new LoginServer(1115,"mongodb://localhost:27017/").start().then(test);
+const loginServer = new LoginServer(1115, "mongodb://localhost:27017/");
+loginServer._enableHttpServer = false; // note: if i want to enable it and test routes , i need to change port 80 to something superior at 1024
+
+loginServer.start().then(test);

@@ -180,7 +180,6 @@ export class SOEServer extends EventEmitter {
           break;
         case "Disconnect":
           debug("Received disconnect from client");
-          delete this._clients[client.address + ":" + client.port];
           this.emit("disconnect", null, client);
           break;
         case "MultiPacket": {
@@ -258,18 +257,10 @@ export class SOEServer extends EventEmitter {
           break;
         case "ZonePing":
           debug("Receive Zone Ping ");
-          const pingTime = Date.now();
           /* this._sendPacket(client, "ZonePing", { respond to it is currently useless ( at least on the 2015 version )
             PingId: result.PingId,
             Data: result.Data,
           });*/
-          if (client.lastZonePingTimestamp) {
-            client.zonePingTimeMs =
-              pingTime - client.lastZonePingTimestamp - 5000; // zonepings are sent every 5 sec by the game
-            client.zonePingTimeMs =
-              client.zonePingTimeMs < 0 ? 0 : client.zonePingTimeMs;
-          }
-          client.lastZonePingTimestamp = pingTime;
           break;
         case "FatalError":
           debug("Received fatal error from client");
@@ -278,7 +269,11 @@ export class SOEServer extends EventEmitter {
           break;
       }
     } else {
-      console.error(`handlePacket failed : ${JSON.stringify(packet)} from ${client.address}:${client.port}`);
+      console.error(
+        `handlePacket failed : ${JSON.stringify(packet)} from ${
+          client.address
+        }:${client.port}`
+      );
     }
   }
 
@@ -382,7 +377,7 @@ export class SOEServer extends EventEmitter {
         );
         if (result?.soePacket) {
           if (!unknow_client && result.soePacket.name === "SessionRequest") {
-            delete this._clients[clientId];
+            this.deleteClient(this._clients[clientId]);
             debug(
               "Delete an old session badly closed by the client (",
               clientId,
