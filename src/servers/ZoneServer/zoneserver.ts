@@ -2425,8 +2425,9 @@ export class ZoneServer extends EventEmitter {
   }
 
   sendDataToAll(packetName: h1z1PacketsType, obj: any, channel = 0): void {
+    const data = this._protocol.pack(packetName, obj);
     for (const a in this._clients) {
-      this.sendData(this._clients[a], packetName, obj, channel);
+      this.sendRawData(this._clients[a],data,channel);
     }
   }
 
@@ -2443,16 +2444,16 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
-  sendRawToAll(data: Buffer): void {
+  sendRawToAll(data: Buffer,channel = 0): void {
     for (const a in this._clients) {
-      this.sendRawData(this._clients[a], data);
+      this.sendRawData(this._clients[a], data, channel);
     }
   }
 
-  sendRawToAllOthers(client: Client, data: Buffer): void {
+  sendRawToAllOthers(client: Client, data: Buffer, channel= 0): void {
     for (const a in this._clients) {
       if (client != this._clients[a]) {
-        this.sendRawData(this._clients[a], data);
+        this.sendRawData(this._clients[a], data, channel);
       }
     }
   }
@@ -2468,8 +2469,8 @@ export class ZoneServer extends EventEmitter {
     });
   }
 
-  sendRawData(client: Client, data: Buffer): void {
-    this._gatewayServer.sendTunnelData(client, data);
+  sendRawData(client: Client, data: Buffer, channel = 0): void {
+    this._gatewayServer.sendTunnelData(client, data, channel);
   }
 
   stop(): void {
