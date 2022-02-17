@@ -14,6 +14,8 @@
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { Int64String } from "../../../utils/utils";
+import { characterEquipment, characterLoadout } from "types/zoneserver";
+const itemDefinitions = require("./../../../../data/2016/dataSources/ServerItemDefinitions.json");
 
 const debug = require("debug")("zonepacketHandlers");
 
@@ -600,54 +602,136 @@ const dev: any = {
     client: Client,
     args: any[]
   ) {
-    const backpack: any = server.generateItem(1602);
-    server.equipItem(client, backpack);
-    const item: any = server.generateItem(2425),
-      containerGuid = server.generateGuid(),
-      containers = [
-        {
-          unknownDword1: 3, // container itemDefinitionId ?
-          containerData: {
-            guid: containerGuid,
-            unknownDword1: 1,
-            associatedCharacterId: backpack,
-            slots: 9999,
-            items: [
-              {
+    const backpack: any = server.generateItem(1602),
+    backpackDef = server._items[backpack].itemDefinition
+
+    const containers = [
+      {
+        unknownDword1: backpackDef.ID,//ITEM_TYPE==34?backpackDef.PARAM1:0, // container itemDefinitionId ?
+        containerData: {
+          guid: backpack,
+          unknownDword1: backpackDef.ID,//.ITEM_TYPE==34?backpackDef.PARAM1:0,
+          associatedCharacterId: client.character.characterId,
+          slots: 9999,
+          items: [/*
+            {
+              itemDefinitionId: server._items[item].itemDefinition.ID,
+              itemData: {
                 itemDefinitionId: server._items[item].itemDefinition.ID,
-                itemData: {
-                  itemDefinitionId: server._items[item].itemDefinition.ID,
-                  tintId: 1,
-                  guid: item,
-                  count: 1,
-                  itemSubData: {
-                    unknownBoolean1: false,
-                  },
-                  containerGuid: containerGuid,
-                  containerDefinitionId: 1,
-                  containerSlotId: 1,
-                  baseDurability: 1,
-                  currentDurability: 1,
-                  maxDurabilityFromDefinition: 1,
-                  unknownBoolean1: true,
-                  unknownQword3: containerGuid,
-                  unknownDword9: 1,
+                tintId: 1,
+                guid: item,
+                count: 1,
+                itemSubData: {
+                  unknownBoolean1: false,
                 },
+                containerGuid: backpack,
+                containerDefinitionId: backpackDef.ITEM_TYPE==34?backpackDef.PARAM1:0,
+                containerSlotId: 0,
+                baseDurability: 1,
+                currentDurability: 1,
+                maxDurabilityFromDefinition: 1,
+                unknownBoolean1: true,
+                unknownQword3: client.character.characterId,
+                unknownDword9: 1,
               },
-            ],
-            unknownBoolean1: true,
-            unknownDword3: 3,
-            unknownDword4: 3,
-            unknownDword5: 3,
-            unknownBoolean2: true,
-          },
+            },*/
+          ],
+          unknownBoolean1: true,
+          maxBulk: 2000,
+          unknownDword4: 250,
+          bulkUsed: 0,
+          unknownBoolean2: true,
         },
-      ];
-    server.sendData(client, "Container.InitEquippedContainers", {
-      ignore: client.character.characterId,
-      characterId: client.character.characterId,
-      containers: containers,
-    });
+      },
+    ];
+  server.sendData(client, "Container.InitEquippedContainers", {
+    ignore: client.character.characterId,
+    characterId: client.character.characterId,
+    containers: containers,
+  });
+
+    server.equipItem(client, backpack, false);
+
+      server.sendData(client, "ClientUpdate.ItemAdd", {
+        characterId: client.character.characterId,
+        data: {
+          itemDefinitionId: server._items[backpack].itemDefinition.ID,
+          tintId: 5,
+          guid: backpack,
+          count: 1, // also ammoCount
+          itemSubData: {
+            hasSubData: false,
+            unknownDword1: 1,
+            unknownData1: {
+              unknownQword1: backpack,
+              unknownDword1: 28,
+              unknownDword2: 28,
+            }
+          },
+          containerGuid: backpack,
+          containerDefinitionId: 28,
+          containerSlotId: 28,
+          baseDurability: 28,
+          currentDurability: 28,
+          maxDurabilityFromDefinition: 28,
+          unknownBoolean1: true,
+          unknownQword3: client.character.characterId,
+          unknownDword9: 28,
+          unknownBoolean2: true,
+        }
+      });
+      
+      server.sendData(client, "Loadout.SetLoadoutSlots", {
+        characterId: client.character.characterId,
+        loadoutId: 3,
+        loadoutData: {
+          loadoutSlots: client.character.loadout.map((slot: characterLoadout) => {
+            return {
+              unknownDword1: 28,
+              itemDefinitionId: slot.itemDefinitionId,
+              slotId: slot.slotId,
+              unknownData1: {
+                itemDefinitionId: slot.itemDefinitionId,
+                loadoutItemOwnerGuid: slot.itemGuid,
+                unknownByte1: 28,
+              },
+              unknownDword4: 28,
+            };
+          }),
+        },
+        loadoutSlotId: 3,
+      });
+  
+      server.sendDataToAllWithSpawnedCharacter(
+        client,
+        "Equipment.SetCharacterEquipment",
+        {
+          characterData: {
+            characterId: client.character.characterId,
+          },
+          equipmentSlots: client.character.equipment.map((slot: characterEquipment) => {
+            return {
+              equipmentSlotId: slot.slotId,
+              equipmentSlotData: {
+                equipmentSlotId: slot.slotId,
+                guid: slot.guid || "",
+                tintAlias: slot.tintAlias || "",
+                decalAlias: slot.tintAlias || "#",
+              },
+            };
+          }),
+          attachmentData: client.character.equipment.map((slot: characterEquipment) => {
+            return {
+              modelName: slot.modelName,
+              textureAlias: slot.textureAlias || "",
+              tintAlias: slot.tintAlias || "",
+              decalAlias: slot.tintAlias || "#",
+              slotId: slot.slotId,
+            };
+          }),
+        }
+      );
+    
   },
   listcontainers: function (
     server: ZoneServer2016,
@@ -688,9 +772,9 @@ const dev: any = {
               },*/
             ],
             unknownBoolean1: true,
-            unknownDword3: 565,
+            maxBulk: 565,
             unknownDword4: 999,
-            unknownDword5: 999,
+            bulkUsed: 999,
             unknownBoolean2: false,
           },
         },
@@ -733,9 +817,9 @@ const dev: any = {
           },
         ],
         unknownBoolean1: true,
-        unknownDword3: 2,
+        maxBulk: 2,
         unknownDword4: 2,
-        unknownDword5: 2,
+        bulkUsed: 2,
         unknownBoolean2: true,
       };
     server.sendData(client, "Container.UpdateEquippedContainer", {

@@ -1481,9 +1481,9 @@ export const containerData = [
     ],
   },
   { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-  { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+  { name: "maxBulk", type: "uint32", defaultValue: 0 },
   { name: "unknownDword4", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+  { name: "bulkUsed", type: "uint32", defaultValue: 0 },
   { name: "unknownBoolean2", type: "boolean", defaultValue: false },
 ];
 
@@ -1715,7 +1715,7 @@ export const itemDefinitionDataSchema: any[] = [
   { name: "unknownBoolean1", type: "boolean", defaultValue: true },
   { name: "IS_ARMOR", type: "boolean", defaultValue: false },
   { name: "unknownDword52", type: "uint32", defaultValue: 928 },
-  { name: "unknownDword53", type: "uint32", defaultValue: 929 },
+  { name: "containerDefinitionId", type: "uint32", defaultValue: 0 },
   { name: "unknownDword54", type: "uint32", defaultValue: 930 },
   { name: "unknownDword55", type: "uint32", defaultValue: 931 },
   { name: "unknownString8", type: "string", defaultValue: "" },

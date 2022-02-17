@@ -378,9 +378,9 @@ export const basePackets: any = [
               ],
             },
             {
-              name: "profileRelatedBool",
+              name: "sendFirstTimeEvents",
               type: "boolean",
-              defaultValue: false,
+              defaultValue: true,
             },
             {
               name: "unknownCoinStoreData",

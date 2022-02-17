@@ -29,7 +29,7 @@ import { _, Int64String, isPosInRadius } from "../../utils/utils";
 
 import { characterEquipment } from "../../types/zoneserver";
 
-const itemDefinitions = require("./../../../data/2016/dataSources/ClientItemDefinitions.json");
+const itemDefinitions = require("./../../../data/2016/dataSources/ServerItemDefinitions.json");
 
 export class zonePacketHandlers {
   ClientIsReady: any;
@@ -70,6 +70,7 @@ export class zonePacketHandlers {
   constructionPlacementFinalizeRequest: any;
   commandItemDefinitionRequest: any;
   characterWeaponStance: any;
+  firstTimeEvent: any;
   constructor() {
     this.ClientIsReady = function (
       server: ZoneServer2016,
@@ -185,6 +186,7 @@ export class zonePacketHandlers {
               definitionData: {
                 ...itemDef,
                 HUD_IMAGE_SET_ID: itemDef.IMAGE_SET_ID,
+                containerDefinitionId: itemDef.ITEM_TYPE==34?itemDef.PARAM1:0,
                 flags1: {
                   ...itemDef,
                 },
@@ -1110,6 +1112,21 @@ export class zonePacketHandlers {
         }
       );
     };
+    this.firstTimeEvent = function (
+      server: ZoneServer2016,
+      client: Client,
+      packet: any
+    ) {
+      server.sendData(
+        client,
+        "FirstTimeEvent.State",
+        {
+          unknownDword1: 0xFFFFFFFF,
+          unknownDword2: 1,
+          unknownBoolean1: false
+        }
+      );
+    }
   }
   processPacket(server: ZoneServer2016, client: Client, packet: any) {
     switch (packet.name) {
@@ -1226,6 +1243,9 @@ export class zonePacketHandlers {
         break;
       case "Character.WeaponStance":
         this.characterWeaponStance(server, client, packet);
+        break;
+      case "FirstTimeEvent.Unknown1":
+        this.firstTimeEvent(server, client, packet);
         break;
       default:
         debug(packet);
