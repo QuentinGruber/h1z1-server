@@ -358,7 +358,7 @@ export class ZoneServer2016 extends ZoneServer {
                 maxBulk: 2000,
                 unknownDword4: 4,
                 bulkUsed: 0,
-                unknownBoolean2: false,
+                hasBulkLimit: true,
               },
             })
           }

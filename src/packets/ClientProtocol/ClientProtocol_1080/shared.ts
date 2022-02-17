@@ -1484,7 +1484,7 @@ export const containerData = [
   { name: "maxBulk", type: "uint32", defaultValue: 0 },
   { name: "unknownDword4", type: "uint32", defaultValue: 0 },
   { name: "bulkUsed", type: "uint32", defaultValue: 0 },
-  { name: "unknownBoolean2", type: "boolean", defaultValue: false },
+  { name: "hasBulkLimit", type: "boolean", defaultValue: true },
 ];
 
 export const skyData = [

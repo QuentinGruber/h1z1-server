@@ -604,7 +604,7 @@ const dev: any = {
   ) {
     const backpack: any = server.generateItem(1602),
     backpackDef = server._items[backpack].itemDefinition
-
+    const item: any = server.generateItem(2425);
     const containers = [
       {
         unknownDword1: backpackDef.ID,//ITEM_TYPE==34?backpackDef.PARAM1:0, // container itemDefinitionId ?
@@ -613,7 +613,7 @@ const dev: any = {
           unknownDword1: backpackDef.ID,//.ITEM_TYPE==34?backpackDef.PARAM1:0,
           associatedCharacterId: client.character.characterId,
           slots: 9999,
-          items: [/*
+          items: [
             {
               itemDefinitionId: server._items[item].itemDefinition.ID,
               itemData: {
@@ -634,28 +634,23 @@ const dev: any = {
                 unknownQword3: client.character.characterId,
                 unknownDword9: 1,
               },
-            },*/
+            },
           ],
           unknownBoolean1: true,
           maxBulk: 2000,
           unknownDword4: 250,
-          bulkUsed: 0,
-          unknownBoolean2: true,
+          bulkUsed: 50,
+          hasBulkLimit: false,
         },
       },
     ];
-  server.sendData(client, "Container.InitEquippedContainers", {
-    ignore: client.character.characterId,
-    characterId: client.character.characterId,
-    containers: containers,
-  });
 
     server.equipItem(client, backpack, false);
 
       server.sendData(client, "ClientUpdate.ItemAdd", {
         characterId: client.character.characterId,
         data: {
-          itemDefinitionId: server._items[backpack].itemDefinition.ID,
+          itemDefinitionId: backpackDef.ID,
           tintId: 5,
           guid: backpack,
           count: 1, // also ammoCount
@@ -702,6 +697,12 @@ const dev: any = {
         loadoutSlotId: 3,
       });
   
+      server.sendData(client, "Container.InitEquippedContainers", {
+        ignore: client.character.characterId,
+        characterId: client.character.characterId,
+        containers: containers,
+      });
+
       server.sendDataToAllWithSpawnedCharacter(
         client,
         "Equipment.SetCharacterEquipment",
@@ -775,7 +776,7 @@ const dev: any = {
             maxBulk: 565,
             unknownDword4: 999,
             bulkUsed: 999,
-            unknownBoolean2: false,
+            hasBulkLimit: false,
           },
         },
       ];
@@ -820,7 +821,7 @@ const dev: any = {
         maxBulk: 2,
         unknownDword4: 2,
         bulkUsed: 2,
-        unknownBoolean2: true,
+        hasBulkLimit: true,
       };
     server.sendData(client, "Container.UpdateEquippedContainer", {
       ignore: client.character.characterId,
@@ -907,10 +908,10 @@ const dev: any = {
               },
             ],
             unknownBoolean1: true,
-            unknownDword3: 1,
+            maxBulk: 1,
             unknownDword4: 1,
-            unknownDword5: 1,
-            unknownBoolean2: true,
+            bulkUsed: 1,
+            hasBulkLimit: true,
           },
         },
       ];
