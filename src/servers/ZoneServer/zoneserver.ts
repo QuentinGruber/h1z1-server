@@ -39,11 +39,10 @@ import { Resolver } from "dns";
 process.env.isBin && require("./workers/dynamicWeather");
 
 import { zonePacketHandlers } from "./zonepackethandlers";
-const localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json");
+let localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json");
 
 const debugName = "ZoneServer";
 const debug = require("debug")(debugName);
-let spawnLocations = require("../../../data/2015/sampleData/spawnLocations.json");
 let localWeatherTemplates = require("../../../data/2015/sampleData/weather.json");
 const stats = require("../../../data/2015/sampleData/stats.json");
 const recipes = require("../../../data/2015/sampleData/recipes.json");
@@ -80,7 +79,6 @@ export class ZoneServer extends EventEmitter {
   _dynamicWeatherWorker: any;
   _dynamicWeatherEnabled: boolean;
   _vehicles: { [characterId: string]: Vehicle };
-  _respawnLocations: any[];
   _doors: any;
   _props: any;
   _destroyablesTimeout: any;
@@ -145,31 +143,6 @@ export class ZoneServer extends EventEmitter {
     this._dynamicWeatherEnabled = true;
     this._dummySelf = require("../../../data/2015/sampleData/sendself.json");
     this._appDataFolder = getAppDataFolderPath();
-    this._respawnLocations = spawnLocations.map((spawn: any) => {
-      return {
-        guid: this.generateGuid(),
-        respawnType: 1,
-        position: spawn.position,
-        iconId: 1,
-        respawnTypeIconId: 1,
-        respawnTotalTimeMS: 1,
-        unknownDword1: 1,
-        nameId: 1,
-        distance: 3000,
-        unknownByte1: 0,
-        isActive: 1,
-        unknownData1: {
-          unknownByte1: 0,
-          unknownByte2: 0,
-          unknownByte3: 0,
-          unknownByte4: 0,
-          unknownByte5: 0,
-        },
-        zoneId: 1,
-        unknownByte3: 0,
-        unknownByte4: 0,
-      };
-    });
     if (!this._mongoAddress) {
       this._soloMode = true;
       debug("Server in solo mode !");
@@ -366,7 +339,11 @@ export class ZoneServer extends EventEmitter {
       ) {
         debug(`Receive Data ${[packet.name]}`);
       }
-      this._packetHandlers.processPacket(this, client, packet);
+      try {
+        this._packetHandlers.processPacket(this, client, packet);
+      } catch (error) {
+        console.error(`An error occurred while processing a packet : `,packet)
+      }
     }
   }
 
@@ -433,13 +410,6 @@ export class ZoneServer extends EventEmitter {
       characterId,
       generatedTransient
     );
-    zoneClient.npcsToSpawnTimer = setTimeout(() => {
-      const npcData = zoneClient.npcsToSpawn.shift();
-      if (npcData) {
-        this.sendData(zoneClient, "PlayerUpdate.AddLightweightNpc", npcData);
-        zoneClient.npcsToSpawnTimer.refresh();
-      }
-    });
     this._clients[soeClient.sessionId] = zoneClient;
 
     this._transientIds[generatedTransient] = characterId;
@@ -451,14 +421,24 @@ export class ZoneServer extends EventEmitter {
   }
 
   onGatewayDisconnectEvent(err: string, client: Client) {
-    debug(`Client disconnected from ${client.address}:${client.port}`);
-    clearTimeout(client.character?.resourcesUpdater);
-    if (client.character?.characterId) {
-      delete this._characters[client.character.characterId];
+    this.deleteClient(client);
+  }
+
+
+  deleteClient(client: Client){
+    if(client.character){
+      this.deleteEntity(client.character.characterId, this._characters);
+      clearInterval(client.character?.resourcesUpdater);
+      this.saveCharacterPosition(client);
+      client.managedObjects?.forEach((characterId: any) => {
+        this.dropVehicleManager(client, characterId);
+      });
     }
     delete this._clients[client.sessionId];
     this._gatewayServer._soeServer.deleteClient(client);
-    this.emit("disconnect", null, client);
+    if (!this._soloMode) {
+      this.sendZonePopulationUpdate();
+    }
   }
 
   onGatewaySessionEvent(err: string, client: Client) {
@@ -482,7 +462,7 @@ export class ZoneServer extends EventEmitter {
   }
 
   removeSoloCache() {
-    spawnLocations = null;
+    localSpawnList = null;
     localWeatherTemplates = null;
     delete require.cache[
       require.resolve("../../../data/2015/sampleData/spawnLocations.json")
@@ -730,18 +710,12 @@ export class ZoneServer extends EventEmitter {
   }
 
   timeoutClient(client: Client): void {
-    if (this._clients[client.sessionId]) {
+    if (!!this._clients[client.sessionId]) {
       // if hasn't already deleted
       debug(
         `Client disconnected from ${client.address}:${client.port} ( ping timeout )`
       );
-      clearTimeout(client.character?.resourcesUpdater);
-      if (client.character?.characterId) {
-        delete this._characters[client.character.characterId];
-      }
-      delete this._clients[client.sessionId];
-      this._gatewayServer._soeServer.deleteClient(client);
-      this.emit("disconnect", null, client);
+      this.deleteClient(client);
     }
   }
 
@@ -878,20 +852,7 @@ export class ZoneServer extends EventEmitter {
   }
 
   sendInitData(client: Client): void {
-    this.sendData(client, "InitializationParameters", {
-      environment: "LIVE",
-      serverId: 1,
-    });
-
     this.SendZoneDetailsPacket(client, this._weather);
-
-    this.sendData(client, "ClientUpdate.ZonePopulation", {
-      populations: [0, 0],
-    });
-    this.sendData(client, "ClientUpdate.RespawnLocations", {
-      locations: this._respawnLocations,
-      locations2: this._respawnLocations,
-    });
 
     this.sendData(client, "ClientGameSettings", {
       Unknown2: 0,
@@ -906,11 +867,6 @@ export class ZoneServer extends EventEmitter {
     });
 
     this.characterData(client);
-
-    this.sendData(client, "PlayerUpdate.SetBattleRank", {
-      characterId: client.character.characterId,
-      battleRank: 100,
-    });
   }
 
   spawnNpcs(client: Client): void {
@@ -923,7 +879,7 @@ export class ZoneServer extends EventEmitter {
         ) &&
         !client.spawnedEntities.includes(this._npcs[npc])
       ) {
-        client.npcsToSpawn.push({ ...this._npcs[npc], profileId: 65 });
+        this.sendData(client, "PlayerUpdate.AddLightweightNpc", { ...this._npcs[npc], profileId: 65 });
         client.spawnedEntities.push(this._npcs[npc]);
       }
     }
@@ -970,20 +926,21 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
+  worldRoutineClient(client: Client) {
+    this.spawnCharacters(client);
+    this.spawnObjects(client);
+    this.spawnDoors(client);
+    this.spawnProps(client);
+    this.spawnNpcs(client);
+    this.spawnVehicles(client);
+    this.spawnDTOs(client);
+    this.removeOutOfDistanceEntities(client);
+    this.POIManager(client);
+    client.posAtLastRoutine = client.character.state.position;
+  }
+
   worldRoutine(refresh = false): void {
-    this.executeFuncForAllReadyClients((client: Client) => {
-      this.spawnCharacters(client);
-      this.spawnObjects(client);
-      this.spawnDoors(client);
-      this.spawnProps(client);
-      this.spawnNpcs(client);
-      this.spawnVehicles(client);
-      this.spawnDTOs(client);
-      this.removeOutOfDistanceEntities(client);
-      this.POIManager(client);
-      client.npcsToSpawnTimer.refresh();
-      client.posAtLastRoutine = client.character.state.position;
-    });
+    this.executeFuncForAllReadyClients(this.worldRoutineClient.bind(this));
     if (refresh) this.worldRoutineTimer.refresh();
   }
 
@@ -1140,12 +1097,7 @@ export class ZoneServer extends EventEmitter {
         position: character.state.position,
         rotation: [0, 0, 0, 0],
         scale: [1, 1, 1, 1],
-        attachedObject: {},
         positionUpdateType: 1,
-        color: { r: 127, g: 127, b: 127 },
-        array5: [{ unknown1: 0 }],
-        array17: [{ unknown1: 0 }],
-        array18: [{ unknown1: 0 }],
       };
       this.sendDataToAll("PlayerUpdate.AddLightweightNpc", prop);
       if (!this._soloMode) {
@@ -1573,9 +1525,10 @@ export class ZoneServer extends EventEmitter {
       });
       this._vehicles[vehicleGuid].engineOn = true;
       this._vehicles[vehicleGuid].resourcesUpdater = setInterval(() => {
-        const fuelLoss =
-          this._vehicles[vehicleGuid].positionUpdate.engineRPM * 0.005;
-        this._vehicles[vehicleGuid].npcData.resources.fuel -= fuelLoss;
+        if(this._vehicles[vehicleGuid].positionUpdate.engineRPM){
+          const fuelLoss = this._vehicles[vehicleGuid].positionUpdate.engineRPM * 0.005;
+          this._vehicles[vehicleGuid].npcData.resources.fuel -= fuelLoss;
+        }
         if (this._vehicles[vehicleGuid].npcData.resources.fuel < 0) {
           this._vehicles[vehicleGuid].npcData.resources.fuel = 0;
         }
@@ -2129,7 +2082,7 @@ export class ZoneServer extends EventEmitter {
         ) &&
         !client.spawnedEntities.includes(itemData)
       ) {
-        client.npcsToSpawn.push(itemData);
+        this.sendData(client, "PlayerUpdate.AddLightweightNpc", itemData);
         client.spawnedEntities.push(itemData);
       }
     }
@@ -2187,7 +2140,7 @@ export class ZoneServer extends EventEmitter {
         ) &&
         !client.spawnedDTOs.includes(DTOObject)
       ) {
-        client.npcsToSpawn.push(DTOObject);
+        this.sendData(client, "PlayerUpdate.AddLightweightNpc", DTOObject);
         client.spawnedDTOs.push(DTOObject);
       }
     }
@@ -2475,8 +2428,9 @@ export class ZoneServer extends EventEmitter {
   }
 
   sendDataToAll(packetName: h1z1PacketsType, obj: any, channel = 0): void {
+    const data = this._protocol.pack(packetName, obj);
     for (const a in this._clients) {
-      this.sendData(this._clients[a], packetName, obj, channel);
+      this.sendRawData(this._clients[a],data,channel);
     }
   }
 
@@ -2493,16 +2447,16 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
-  sendRawToAll(data: Buffer): void {
+  sendRawToAll(data: Buffer,channel = 0): void {
     for (const a in this._clients) {
-      this.sendRawData(this._clients[a], data);
+      this.sendRawData(this._clients[a], data, channel);
     }
   }
 
-  sendRawToAllOthers(client: Client, data: Buffer): void {
+  sendRawToAllOthers(client: Client, data: Buffer, channel= 0): void {
     for (const a in this._clients) {
       if (client != this._clients[a]) {
-        this.sendRawData(this._clients[a], data);
+        this.sendRawData(this._clients[a], data, channel);
       }
     }
   }
@@ -2518,8 +2472,8 @@ export class ZoneServer extends EventEmitter {
     });
   }
 
-  sendRawData(client: Client, data: Buffer): void {
-    this._gatewayServer.sendTunnelData(client, data);
+  sendRawData(client: Client, data: Buffer, channel = 0): void {
+    this._gatewayServer.sendTunnelData(client, data, channel);
   }
 
   stop(): void {
@@ -2616,7 +2570,7 @@ if (
 ) {
   const zoneServer = new ZoneServer(
     1117,
-    new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", "base64"),
+    Buffer.from("F70IaxuU8C/w7FPXY1ibXw==", "base64"),
     process.env.MONGO_URL,
     1
   );
