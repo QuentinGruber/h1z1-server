@@ -177,7 +177,7 @@ export class zonePacketHandlers {
       server.sendData(client, "Command.ItemDefinitions", {
         // sends full list of item definitions
         data: {
-          itemDefinitions: Object.keys(server._itemDefinitions).map((itemDefId: any) => {
+          itemDefinitions: server._itemDefinitionIds.map((itemDefId: any) => {
             const itemDef = server.getItemDefinition(itemDefId);
             return {
               ID: itemDefId,

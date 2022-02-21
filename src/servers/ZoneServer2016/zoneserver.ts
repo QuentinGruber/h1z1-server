@@ -56,7 +56,7 @@ export class ZoneServer2016 extends ZoneServer {
   worldObjectManager: WorldObjectManager;
   _ready: boolean = false;
   _itemDefinitions: { [itemDefinitionId: number]: any } = itemDefinitions;
-
+  _itemDefinitionIds: any[] = Object.keys(this._itemDefinitions)
   constructor(
     serverPort: number,
     gatewayKey: Uint8Array,
@@ -1552,7 +1552,7 @@ export class ZoneServer2016 extends ZoneServer {
       return Number(fixed ? num.toFixed(0) : num);
     }
 
-    const authorizedItemDefinitions = Object.keys(this._itemDefinitions).filter(
+    const authorizedItemDefinitions = this._itemDefinitionIds.filter(
       (defId: any) =>
         this.getItemDefinition(defId).WORLD_MODEL_ID === objectData.modelId &&
         this.getItemDefinition(defId).CODE_FACTORY_NAME !== "AccountRecipe"
