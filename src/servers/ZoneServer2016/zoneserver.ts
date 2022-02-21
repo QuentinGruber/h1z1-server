@@ -231,7 +231,6 @@ export class ZoneServer2016 extends ZoneServer {
       gender: character.gender,
       creationDate: character.creationDate,
       lastLoginDate: character.lastLoginDate,
-      _inventory: {}, // default
       factionId: 2, // default
       isRunning: false,
       resources: {
@@ -317,54 +316,6 @@ export class ZoneServer2016 extends ZoneServer {
 
   async sendCharacterData(client: Client) {
     await this.loadCharacterData(client);
-    
-    //const backpack: any = this.generateItem(1602);
-      //containerGuid = this.generateGuid(),
-    //this.equipItem(client, backpack, false);
-      let containers: any[] = [];
-      Object.keys(client.character._inventory).forEach(
-        (item: any, index: number) => {
-          if (this._items[item].itemDefinition.ITEM_TYPE==34) {
-            containers.push({
-              unknownDword1: this._items[item].itemDefinition.ID,
-              containerData: {
-                guid: item,
-                unknownDword1: this._items[item].itemDefinition.ID,
-                associatedCharacterId: client.character.characterId,
-                slots: 9999,
-                items: [/*
-                  {
-                    itemDefinitionId: server._items[item].itemDefinition.ID,
-                    itemData: {
-                      itemDefinitionId: server._items[item].itemDefinition.ID,
-                      tintId: 1,
-                      guid: item,
-                      count: 1,
-                      itemSubData: {
-                        unknownBoolean1: false,
-                      },
-                      containerGuid: backpack,
-                      containerDefinitionId: backpackDef.ITEM_TYPE==34?backpackDef.PARAM1:0,
-                      containerSlotId: 0,
-                      baseDurability: 1,
-                      currentDurability: 1,
-                      maxDurabilityFromDefinition: 1,
-                      unknownBoolean1: true,
-                      unknownQword3: client.character.characterId,
-                      unknownDword9: 1,
-                    },
-                  },*/
-                ],
-                unknownBoolean1: false,
-                maxBulk: 2000,
-                unknownDword4: 4,
-                bulkUsed: 0,
-                hasBulkLimit: true,
-              },
-            })
-          }
-        }
-      )
     this.sendData(client, "SendSelfToClient", {
       data: {
         guid: client.character.guid, // todo: guid should be moved to client, instead of character
@@ -481,7 +432,7 @@ export class ZoneServer2016 extends ZoneServer {
             },
           },
         ],
-        containers: containers,
+        //containers: containers,
         //unknownQword1: client.character.characterId,
         //unknownDword38: 1,
         //vehicleLoadoutRelatedQword: client.character.characterId,
@@ -1481,18 +1432,12 @@ export class ZoneServer2016 extends ZoneServer {
     client.character._loadout[loadoutSlotId] = loadoutData;
     client.character._equipment[equipmentSlotId] = equipmentData;
 
-    const existingItem = Object.keys(client.character._inventory).find(
-      (guid: any) =>
-        client.character._inventory[guid].slotId === loadoutSlotId
-    );
-    if (existingItem && sendPacket) {
-      delete client.character._inventory[existingItem];
+    if (client.character._loadout[loadoutSlotId] && sendPacket) {
       this.sendData(client, "ClientUpdate.ItemDelete", {
         characterId: client.character.characterId,
-        itemGuid: existingItem,
+        itemGuid: client.character._loadout[loadoutSlotId].itemGuid,
       });
     }
-    client.character._inventory[item.guid] = item;
 
     if (!sendPacket) return;
 
