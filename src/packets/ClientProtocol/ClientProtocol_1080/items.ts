@@ -11,6 +11,8 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { readUint64String } from "../../../utils/utils";
+
 export function parseItemRequestSubData(data: Buffer, offset: number) {
   const obj: any = {},
   startOffset = offset;
@@ -18,14 +20,6 @@ export function parseItemRequestSubData(data: Buffer, offset: number) {
   offset += 1;
 
   if(!obj["unknownBoolean1"]) {
-    function readUint64String (data: Buffer, offset: number) {
-      let str = "0x";
-      for (let j = 7; j >= 0; j--) {
-        str += ("0" + data.readUInt8(offset + j).toString(16)).substr(-2);
-      }
-      return str;
-    }
-
     obj["unknownDword1"] = data.readUInt32LE(offset);
     offset += 4;
     obj["unknownDword2"] = data.readUInt32LE(offset);
