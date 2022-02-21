@@ -783,7 +783,7 @@ const hax: any = {
             equipmentModel.replace("Up", "Down"))
         : (client.character._equipment[3].modelName =
             equipmentModel.replace("Down", "Up"));
-      server.updateEquipment(client, 1);
+      server.updateEquipmentSlot(client, 1);
     }
   },
 };

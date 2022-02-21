@@ -431,6 +431,7 @@ export interface inventoryItem {
   itemDefinitionId: number;
   slotId: number;
   itemGuid: string;
+  containerGuid: string;
 }
 
 export interface loadoutItem extends inventoryItem {

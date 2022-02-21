@@ -382,12 +382,13 @@ export class ZoneServer2016 extends ZoneServer {
           characterName: client.character.name,
         },
         inventory: {
-          items: Object.keys(client.character._inventory).map(
-            (item: any, index: number) => {
+          items: Object.keys(client.character._loadout).map(
+            (slotId: any) => {
+              const slot = client.character._loadout[slotId];
               return {
-                itemDefinitionId: this._items[item].itemDefinition.ID,
+                itemDefinitionId: slot.itemDefinitionId,
                 tintId: 5,
-                guid: item,
+                guid: slot.itemGuid,
                 count: 1, // also ammoCount
                 itemSubData: {
                   hasSubData: false /*
@@ -398,14 +399,14 @@ export class ZoneServer2016 extends ZoneServer {
                   unknownDword2: 1
                 }*/,
                 },
-                containerGuid: item,
+                containerGuid: slot.containerGuid,
                 containerDefinitionId: 1,
-                containerSlotId: 1,
+                containerSlotId: slot.slotId,
                 baseDurability: 1,
                 currentDurability: 1,
                 maxDurabilityFromDefinition: 1,
                 unknownBoolean1: true,
-                unknownQword3: item,
+                unknownQword3: client.character.characterId,
                 unknownDword9: 1,
                 unknownBoolean2: true,
               };
@@ -1340,29 +1341,7 @@ export class ZoneServer2016 extends ZoneServer {
   //#endregion
   //#region ********************INVENTORY********************
 
-  updateLoadout(client: Client, slotId: number) {
-    /*
-    this.sendData(client, "Loadout.SetLoadoutSlots", {
-      characterId: client.character.characterId,
-      loadoutId: 3,
-      loadoutData: {
-        loadoutSlots: client.character._loadout.map((slot: loadoutItem) => {
-          return {
-            unknownDword1: 3,
-            itemDefinitionId: slot.itemDefinitionId,
-            slotId: slot.slotId,
-            unknownData1: {
-              itemDefinitionId: slot.itemDefinitionId,
-              loadoutItemGuid: slot.itemGuid,
-              unknownByte1: 17,
-            },
-            unknownDword4: 18,
-          };
-        }),
-      },
-      loadoutSlotId: 3,
-    });
-    */
+  updateLoadoutSlot(client: Client, slotId: number) {
    const loadoutItem = client.character._loadout[slotId];
     this.sendData(client, "Loadout.SetLoadoutSlot", {
       characterId: client.character.characterId,
@@ -1377,17 +1356,15 @@ export class ZoneServer2016 extends ZoneServer {
       unknownDword1: 3
     });
   }
-
-  updateEquipment(client: Client, slotId: number, character = client.character) {
-    /*
-    this.sendDataToAllWithSpawnedCharacter(
-      client,
-      "Equipment.SetCharacterEquipment",
-      {
-        characterData: {
-          characterId: character.characterId,
-        },
-        equipmentSlots: character._equipment.map((slot: characterEquipment) => {
+  
+  updateEquipment(client: Client, character = client.character) {
+    this.sendData(client, "Equipment.SetCharacterEquipment", {
+      characterData: {
+        characterId: character.characterId,
+      },
+      equipmentSlots: Object.keys(character._equipment).map(
+        (slotId: any) => {
+          const slot = character._equipment[slotId];
           return {
             equipmentSlotId: slot.slotId,
             equipmentSlotData: {
@@ -1397,8 +1374,11 @@ export class ZoneServer2016 extends ZoneServer {
               decalAlias: slot.tintAlias || "#",
             },
           };
-        }),
-        attachmentData: character._equipment.map((slot: characterEquipment) => {
+        }
+      ),
+      attachmentData: Object.keys(character._equipment).map(
+        (slotId: any) => {
+          const slot = character._equipment[slotId];
           return {
             modelName: slot.modelName,
             textureAlias: slot.textureAlias || "",
@@ -1406,10 +1386,12 @@ export class ZoneServer2016 extends ZoneServer {
             decalAlias: slot.tintAlias || "#",
             slotId: slot.slotId,
           };
-        }),
-      }
-    );
-    */
+        }
+      ),
+    });
+  }
+
+  updateEquipmentSlot(client: Client, slotId: number, character = client.character) {
     const equipmentSlot = client.character._equipment[slotId];
     this.sendDataToAllWithSpawnedCharacter(
       client,
@@ -1474,22 +1456,15 @@ export class ZoneServer2016 extends ZoneServer {
         (slot: any) => slot.ITEM_CLASS === def.ITEM_CLASS
       ),
       loadoutSlotId = loadoutSlotItemClass ? loadoutSlotItemClass.SLOT : 1, // use primary slot if ItemClass is invalid
-      /*
-      lIndex = client.character._loadout
-        .map((slot: any) => slot.slotId)
-        .indexOf(loadoutSlotId),*/
       equipmentSlotId = loadoutEquipSlots.find(
         (slot: any) => slot.SLOT_ID === loadoutSlotId
       ).EQUIP_SLOT_ID,
-      /*
-      eIndex = client.character._equipment
-        .map((slot: any) => slot.slotId)
-        .indexOf(equipmentSlotId),
-        */
+
       loadoutData = {
         itemDefinitionId: def.ID,
         slotId: loadoutSlotId,
         itemGuid: item.guid,
+        containerGuid: "0xFFFFFFFFFFFFFFFF",
         loadoutItemOwnerGuid: client.character.characterId
       },
       equipmentData = {
@@ -1502,19 +1477,10 @@ export class ZoneServer2016 extends ZoneServer {
         textureAlias: def.TEXTURE_ALIAS,
         tintAlias: "",
       };
-    
-      /*
-    lIndex === -1
-      ? client.character._loadout.push(loadoutData)
-      : (client.character._loadout[lIndex] = loadoutData);
-    */
-   client.character._loadout[loadoutSlotId] = loadoutData;
-   client.character._equipment[equipmentSlotId] = equipmentData;
-   /*
-    eIndex === -1
-      ? client.character._equipment.push(equipmentData)
-      : (client.character._equipment[eIndex] = equipmentData);
-    */
+
+    client.character._loadout[loadoutSlotId] = loadoutData;
+    client.character._equipment[equipmentSlotId] = equipmentData;
+
     const existingItem = Object.keys(client.character._inventory).find(
       (guid: any) =>
         client.character._inventory[guid].slotId === loadoutSlotId
@@ -1528,11 +1494,10 @@ export class ZoneServer2016 extends ZoneServer {
     }
     client.character._inventory[item.guid] = item;
 
-    // put this above ItemAdd function when inventory items are tracked in client.character
     if (!sendPacket) return;
 
-    this.updateLoadout(client, loadoutSlotId);
-    this.updateEquipment(client, equipmentSlotId);
+    this.updateLoadoutSlot(client, loadoutSlotId);
+    this.updateEquipmentSlot(client, equipmentSlotId);
     this.addItem(client, item.guid, "0xFFFFFFFFFFFFFFFF", loadoutSlotId);
   }
 

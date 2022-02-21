@@ -230,37 +230,7 @@ export class zonePacketHandlers {
           () => server.saveCharacterPosition(client),
           30000
         );
-        server.sendData(client, "Equipment.SetCharacterEquipment", {
-          characterData: {
-            characterId: client.character.characterId,
-          },
-          equipmentSlots: Object.keys(client.character._equipment).map(
-            (slotId: any) => {
-              const slot = client.character._equipment[slotId];
-              return {
-                equipmentSlotId: slot.slotId,
-                equipmentSlotData: {
-                  equipmentSlotId: slot.slotId,
-                  guid: slot.guid || "",
-                  tintAlias: slot.tintAlias || "",
-                  decalAlias: slot.tintAlias || "#",
-                },
-              };
-            }
-          ),
-          attachmentData: Object.keys(client.character._equipment).map(
-            (slotId: any) => {
-              const slot = client.character._equipment[slotId];
-              return {
-                modelName: slot.modelName,
-                textureAlias: slot.textureAlias || "",
-                tintAlias: slot.tintAlias || "",
-                decalAlias: slot.tintAlias || "#",
-                slotId: slot.slotId,
-              };
-            }
-          ),
-        }); // needed or third person character will be invisible
+        server.updateEquipment(client);// needed or third person character will be invisible
 
         server.executeFuncForAllReadyClients(() => server.spawnCharacters);
       }
