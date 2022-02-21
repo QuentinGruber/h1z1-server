@@ -14,8 +14,7 @@
 import { Character } from "../../ZoneServer/classes/character";
 import {
   characterEquipment,
-  loadoutItem,
-  inventoryItem
+  loadoutItem
 } from "../../../types/zoneserver";
 
 export class Character2016 extends Character {

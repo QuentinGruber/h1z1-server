@@ -1554,7 +1554,7 @@ export const recipeData = [
 ];
 
 export const equipmentCharacterDataSchema = [
-  { name: "profileId", type: "uint32", defaultValue: 1 },
+  { name: "profileId", type: "uint32", defaultValue: 3 },
   { name: "characterId", type: "uint64string", defaultValue: "0" },
 ];
 

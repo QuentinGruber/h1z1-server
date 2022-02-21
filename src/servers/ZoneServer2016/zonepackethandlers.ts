@@ -67,7 +67,7 @@ export class zonePacketHandlers {
   commandItemDefinitionRequest: any;
   characterWeaponStance: any;
   firstTimeEvent: any;
-  dropItem: any;
+  requestUseItem: any;
   constructor() {
     this.ClientIsReady = function (
       server: ZoneServer2016,
@@ -1107,13 +1107,23 @@ export class zonePacketHandlers {
       );
     }
     //#region ITEMS
-    this.dropItem = function (
+    this.requestUseItem = function (
       server: ZoneServer2016,
       client: Client,
       packet: any
     ) {
-      console.log("data")
-      console.log(packet)
+      debug(packet.data)
+      if(!packet.data.itemGuid) {
+        server.sendChatText(client, "[ERROR] ItemGuid is invalid!");
+        return;
+      }
+      switch(packet.data.itemUseOption) {
+        case 4:
+          server.dropItem(client, packet.data.itemGuid);
+          break;
+        default:
+          server.sendChatText(client, "[ERROR] ItemUseOption not mapped to a function.")
+      }
     }
     //#endregion
   };
@@ -1237,8 +1247,8 @@ export class zonePacketHandlers {
       case "FirstTimeEvent.Unknown1":
         this.firstTimeEvent(server, client, packet);
         break;
-      case "Items.DropItem":
-        this.dropItem(server, client, packet);
+      case "Items.RequestUseItem":
+        this.requestUseItem(server, client, packet);
         break;
       default:
         debug(packet);
