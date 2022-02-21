@@ -47,7 +47,7 @@ const character = {
 async function test() {
   const zoneServer = new ZoneServer(
     1117,
-    new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", "base64"),
+    Buffer.from("F70IaxuU8C/w7FPXY1ibXw==", "base64"),
     "mongodb://localhost:27017/",
     1
   );

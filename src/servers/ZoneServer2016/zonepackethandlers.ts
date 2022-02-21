@@ -28,6 +28,9 @@ let admin = require("./commands/admin").default;
 import { _, Int64String, isPosInRadius } from "../../utils/utils";
 
 export class zonePacketHandlers {
+  hax: any = hax;
+  dev: any = dev;
+  admin: any = admin;
   ClientIsReady: any;
   ClientFinishedLoading: any;
   Security: any;
@@ -227,6 +230,7 @@ export class zonePacketHandlers {
           () => server.saveCharacterPosition(client),
           30000
         );
+
         server.updateEquipment(client); // needed or third person character will be invisible
         server.updateLoadout(client); // needed or all loadout context menu entries aren't shown
         /*
@@ -236,6 +240,9 @@ export class zonePacketHandlers {
           containers: [],
         });
         */
+        if (!server._soloMode) {
+          server.sendZonePopulationUpdate();
+        }
         server.executeFuncForAllReadyClients(() => server.spawnCharacters);
       }
 
@@ -395,11 +402,7 @@ export class zonePacketHandlers {
       packet: any
     ) {
       debug("ClientLogout");
-      server.saveCharacterPosition(client);
-      server.deleteEntity(client.character.characterId, server._characters);
-      server._gatewayServer._soeServer.deleteClient(client);
-      delete server._characters[client.character.characterId];
-      delete server._clients[client.sessionId];
+      server.deleteClient(client);
     };
     this.GameTimeSync = function (
       server: ZoneServer2016,
@@ -428,12 +431,21 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      const args: any[] = packet.data.arguments.toLowerCase().split(" ");
-
+      const args: string[] = packet.data.arguments.toLowerCase().split(" ");
+      const commandName = args[0];
       switch (packet.data.commandHash) {
+        case 3720768430: // /respawn
+          server.killCharacter(client);
+          break;
+        case 3357274581: // /clientinfo
+          server.sendChatText(
+            client,
+            `Spawned entities count : ${client.spawnedEntities.length}`
+          );
+          break;
         case 2371122039: // /serverinfo
-          if (args[0] === "mem") {
-            const used = process.memoryUsage().heapUsed / 1024 / 1024;
+          if (commandName === "mem") {
+            const used = process.memoryUsage().rss / 1024 / 1024;
             server.sendChatText(
               client,
               `Used memory ${Math.round(used * 100) / 100} MB`
@@ -444,15 +456,58 @@ export class zonePacketHandlers {
               _clients: clients,
               _characters: characters,
               _npcs: npcs,
+              _objects: objects,
+              _vehicles: vehicles,
+              _doors: doors,
+              _props: props,
             } = server;
+            const delta = Date.now() - server._startTime;
+            const datakur = new Date(
+              (server._serverTime + delta) * server._timeMultiplier
+            );
+            const monthNames = [
+              "January",
+              "February",
+              "March",
+              "April",
+              "May",
+              "June",
+              "July",
+              "August",
+              "September",
+              "October",
+              "November",
+              "December",
+            ];
             const serverVersion = require("../../../package.json").version;
             server.sendChatText(client, `h1z1-server V${serverVersion}`, true);
             server.sendChatText(
               client,
-              `Connected clients : ${_.size(clients)}`
+              `clients: ${_.size(clients)} characters : ${_.size(characters)}`
             );
-            server.sendChatText(client, `characters : ${_.size(characters)}`);
-            server.sendChatText(client, `npcs : ${_.size(npcs)}`);
+            server.sendChatText(
+              client,
+              `npcs : ${_.size(npcs)} doors : ${_.size(doors)}`
+            );
+            server.sendChatText(
+              client,
+              `objects : ${_.size(objects)} props : ${_.size(
+                props
+              )} vehicles : ${_.size(vehicles)}`
+            );
+            server.sendChatText(
+              client,
+              "Gametime: " +
+                datakur.getUTCDate() +
+                " " +
+                monthNames[datakur.getUTCMonth()] +
+                " " +
+                (datakur.getUTCFullYear() + 50) +
+                ", " +
+                datakur.getUTCHours() +
+                ":" +
+                datakur.getUTCMinutes()
+            );
             break;
           }
         case 1757604914: // /spawninfo
@@ -464,20 +519,31 @@ export class zonePacketHandlers {
           break;
         case joaat("HELP"):
         case 3575372649: // /help
-          const haxCommandList: any = [];
-          Object.keys(hax).forEach((key) => {
+          const haxCommandList: string[] = [];
+          Object.keys(this.hax).forEach((key) => {
             haxCommandList.push(`/hax ${key}`);
           });
-          const devCommandList: any = [];
-          Object.keys(dev).forEach((key) => {
+          const devCommandList: string[] = [];
+          Object.keys(this.dev).forEach((key) => {
             devCommandList.push(`/dev ${key}`);
           });
-          const commandList = ["/help", "/loc", "/spawninfo", "/serverinfo"];
+          const adminCommandList: string[] = [];
+          Object.keys(this.admin).forEach((key) => {
+            adminCommandList.push(`/admin ${key}`);
+          });
+          const commandList = [
+            "/help",
+            "/loc",
+            "/spawninfo",
+            "/serverinfo",
+            "/player_air_control",
+            "/player_fall_through_world_test",
+          ];
           server.sendChatText(client, `Commands list:`);
           commandList
-            .concat(haxCommandList, devCommandList)
-            .sort((a, b) => a.localeCompare(b))
-            .forEach((command) => {
+            .concat(haxCommandList, devCommandList, adminCommandList)
+            .sort((a: string, b: string) => a.localeCompare(b))
+            .forEach((command: string) => {
               server.sendChatText(client, `${command}`);
             });
           break;
@@ -486,38 +552,81 @@ export class zonePacketHandlers {
           const { position, rotation } = client.character.state;
           server.sendChatText(
             client,
-            `position: ${position[0]},${position[1]},${position[2]}`
+            `position: ${position[0].toFixed(2)},${position[1].toFixed(
+              2
+            )},${position[2].toFixed(2)}`
           );
           server.sendChatText(
             client,
-            `rotation: ${rotation[0]},${rotation[1]},${rotation[2]}`
+            `rotation: ${rotation[0].toFixed(2)},${rotation[1].toFixed(
+              2
+            )},${rotation[2].toFixed(2)}`
           );
           break;
         case joaat("HAX"):
-          hax[args[0]]
-            ? hax[args[0]](server, client, args)
-            : server.sendChatText(
+          if (
+            client.isAdmin ||
+            commandName === "list" ||
+            ((server._allowedCommands.length === 0 ||
+              server._allowedCommands.includes(commandName)) &&
+              !!this.hax[commandName])
+          ) {
+            // using !! is faster but ugly
+            this.hax[commandName](server, client, args);
+          } else {
+            if (!server._allowedCommands.includes(commandName)) {
+              server.sendChatText(client, "You don't have access to that.");
+            } else {
+              server.sendChatText(
                 client,
-                `Unknown command: /hax ${args[0]} , display all hax commands by using /hax list`
+                `Unknown command: /hax ${commandName} , display hax all commands by using /hax list`
               );
+            }
+          }
           break;
         case joaat("DEV"):
         case 552078457: // dev
-          dev[args[0]]
-            ? dev[args[0]](server, client, args)
-            : server.sendChatText(
+          if (
+            client.isAdmin ||
+            commandName === "list" ||
+            ((server._allowedCommands.length === 0 ||
+              server._allowedCommands.includes(commandName)) &&
+              !!this.dev[commandName])
+          ) {
+            // using !! is faster but ugly
+            this.dev[commandName](server, client, args);
+          } else {
+            if (!server._allowedCommands.includes(commandName)) {
+              server.sendChatText(client, "You don't have access to that.");
+            } else {
+              server.sendChatText(
                 client,
-                `Unknown command: /dev ${args[0]} , display all dev commands by using /dev list`
+                `Unknown command: /dev ${commandName} , display dev all commands by using /dev list`
               );
+            }
+          }
           break;
         case joaat("ADMIN"):
         case 997464845: // admin
-          admin[args[0]]
-            ? admin[args[0]](server, client, args)
-            : server.sendChatText(
+          if (
+            client.isAdmin ||
+            commandName === "list" ||
+            ((server._allowedCommands.length === 0 ||
+              server._allowedCommands.includes(commandName)) &&
+              !!this.admin[commandName])
+          ) {
+            // using !! is faster but ugly
+            this.admin[commandName](server, client, args);
+          } else {
+            if (!server._allowedCommands.includes(commandName)) {
+              server.sendChatText(client, "You don't have access to that.");
+            } else {
+              server.sendChatText(
                 client,
-                `Unknown command: /admin ${args[0]} , display all admin commands by using /admin list`
+                `Unknown command: /admin ${commandName} , display admin all commands by using /admin list`
               );
+            }
+          }
           break;
       }
     }),
@@ -1259,9 +1368,9 @@ export class zonePacketHandlers {
   async reloadCommandCache() {
     delete require.cache[require.resolve("./commands/hax")];
     delete require.cache[require.resolve("./commands/dev")];
-    delete require.cache[require.resolve("./commands/admin")];
     hax = require("./commands/hax").default;
     dev = require("./commands/dev").default;
-    admin = require("./commands/admin").default;
+    this.hax = require("./commands/hax").default;
+    this.dev = require("./commands/dev").default;
   }
 }

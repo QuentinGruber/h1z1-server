@@ -85,8 +85,8 @@ export class GatewayServer extends EventEmitter {
               }
               break;
             case "Logout":
-              debug("Logout");
-              this.emit("logout", null, client);
+              debug("Logout gateway");
+              this.emit("disconnect", err, client);
               break;
             case "TunnelPacketFromExternalConnection":
               debug("TunnelPacketFromExternalConnection");
@@ -104,9 +104,6 @@ export class GatewayServer extends EventEmitter {
         }
       }
     );
-    this.on("logout", (err: string, client: SOEClient) => {
-      this._soeServer.deleteClient(client);
-    });
   }
 
   start(useLocalConfig: boolean = false) {
