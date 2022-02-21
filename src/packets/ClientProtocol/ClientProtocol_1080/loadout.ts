@@ -61,7 +61,7 @@ export const loadoutPackets: any = [
               fields: [
                 { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
                 {
-                  name: "loadoutItemOwnerGuid",
+                  name: "loadoutItemGuid",
                   type: "uint64string",
                   defaultValue: "0",
                 },

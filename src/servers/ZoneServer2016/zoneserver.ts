@@ -351,11 +351,11 @@ export class ZoneServer2016 extends ZoneServer {
                 }*/,
                 },
                 containerGuid: slot.containerGuid,
-                containerDefinitionId: 1,
+                containerDefinitionId: 28, // TEMP
                 containerSlotId: slot.slotId,
-                baseDurability: 1,
-                currentDurability: 1,
-                maxDurabilityFromDefinition: 1,
+                baseDurability: 2000,
+                currentDurability: slot.currentDurability,
+                maxDurabilityFromDefinition: 2000,
                 unknownBoolean1: true,
                 unknownQword3: client.character.characterId,
                 unknownDword9: 1,
@@ -1294,6 +1294,28 @@ export class ZoneServer2016 extends ZoneServer {
 
   updateLoadoutSlot(client: Client, slotId: number) {
    const loadoutItem = client.character._loadout[slotId];
+   this.sendData(client, "ClientUpdate.ItemAdd", {
+      characterId: client.character.characterId,
+      data: {
+        itemDefinitionId: loadoutItem.itemDefinitionId,
+        tintId: 5,
+        guid: loadoutItem.itemGuid,
+        count: 1, // also ammoCount
+        itemSubData: {
+          unknownBoolean1: false,
+        },
+        containerGuid: loadoutItem.containerGuid,
+        containerDefinitionId: 28, // temp
+        containerSlotId: loadoutItem.slotId,
+        baseDurability: 2000,
+        currentDurability: loadoutItem.currentDurability,
+        maxDurabilityFromDefinition: 2000,
+        unknownBoolean1: true,
+        unknownQword3: client.character.characterId,
+        unknownDword9: 28,
+        unknownBoolean2: true,
+      },
+    });
     this.sendData(client, "Loadout.SetLoadoutSlot", {
       characterId: client.character.characterId,
       loadoutSlot: {
@@ -1301,7 +1323,7 @@ export class ZoneServer2016 extends ZoneServer {
         slotId: slotId,
         unknownData1: {
           itemDefinitionId: loadoutItem.itemDefinitionId,
-          loadoutItemOwnerGuid: loadoutItem.loadoutItemOwnerGuid
+          loadoutItemGuid: loadoutItem.itemGuid
         }
       },
       unknownDword1: 3
@@ -1416,6 +1438,7 @@ export class ZoneServer2016 extends ZoneServer {
         slotId: loadoutSlotId,
         itemGuid: item.guid,
         containerGuid: "0xFFFFFFFFFFFFFFFF",
+        currentDurability: 2000,
         loadoutItemOwnerGuid: client.character.characterId
       },
       equipmentData = {
@@ -1443,7 +1466,6 @@ export class ZoneServer2016 extends ZoneServer {
 
     this.updateLoadoutSlot(client, loadoutSlotId);
     this.updateEquipmentSlot(client, equipmentSlotId);
-    this.addItem(client, item.guid, "0xFFFFFFFFFFFFFFFF", loadoutSlotId);
   }
 
   generateItem(itemDefinitionId: any) {
