@@ -1340,12 +1340,12 @@ export class ZoneServer2016 extends ZoneServer {
   updateLoadout(client: Client) {
     this.sendData(client, "Loadout.SetLoadoutSlots", {
       characterId: client.character.characterId,
-      loadoutId: 3,
+      loadoutId: 3, // needs to be 3
       loadoutData: {
         loadoutSlots: Object.keys(client.character._loadout).map((slotId: any) => {
           const slot = client.character._loadout[slotId];
           return {
-            unknownDword1: 3,
+            unknownDword1: 3,// affects Equip Item context entry packet, and Container.MoveItem
             itemDefinitionId: slot.itemDefinitionId,
             slotId: slot.slotId,
             unknownData1: {
@@ -1353,11 +1353,11 @@ export class ZoneServer2016 extends ZoneServer {
               loadoutItemOwnerGuid: slot.itemGuid,
               unknownByte1: 17,
             },
-            unknownDword4: 18,
+            unknownDword4: 1,
           };
         }),
       },
-      loadoutSlotId: 3,
+      unknownDword1: 3, // needs to be 3
     });
   }
 

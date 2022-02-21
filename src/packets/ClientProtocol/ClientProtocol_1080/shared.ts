@@ -1740,7 +1740,7 @@ export const itemDefinitionDataSchema: any[] = [
 ];
 
 export const loadoutSlotsSchema = [
-  { name: "loadoutId", type: "uint32", defaultValue: 0 },
+  { name: "loadoutId", type: "uint32", defaultValue: 3 },
   {
     name: "loadoutData",
     type: "schema",
@@ -1775,5 +1775,5 @@ export const loadoutSlotsSchema = [
       },
     ],
   },
-  { name: "loadoutSlotId", type: "uint32", defaultValue: 3 },
+  { name: "unknownDword1", type: "uint32", defaultValue: 1 },
 ];
