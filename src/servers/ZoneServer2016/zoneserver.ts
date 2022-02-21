@@ -55,6 +55,7 @@ export class ZoneServer2016 extends ZoneServer {
   _characters: { [characterId: string]: Character } = {};
   worldObjectManager: WorldObjectManager;
   _ready: boolean = false;
+  _itemDefinitions: { [itemDefinitionId: number]: any } = itemDefinitions;
 
   constructor(
     serverPort: number,
@@ -316,6 +317,51 @@ export class ZoneServer2016 extends ZoneServer {
 
   async sendCharacterData(client: Client) {
     await this.loadCharacterData(client);
+
+    const backpack = this.generateItem(1602);
+    this.equipItem(client, backpack, false); // golf pants
+    const item: any = this.generateItem(2425),
+      containers = [
+        {
+          unknownDword1: 28, // container itemDefinitionId ?
+          containerData: {
+            guid: backpack,
+            unknownDword1: 28,
+            associatedCharacterId: client.character.characterId,
+            slots: 9999,
+            items: [
+              {
+                itemDefinitionId: this._items[item].itemDefinitionId,
+                itemData: {
+                  itemDefinitionId: this._items[item].itemDefinitionId,
+                  tintId: 0,
+                  guid: item,
+                  count: 1,
+                  itemSubData: {
+                    unknownBoolean1: false,
+                  },
+                  containerGuid: backpack,
+                  containerDefinitionId: 3,
+                  containerSlotId: 1,
+                  baseDurability: 0,
+                  currentDurability: 0,
+                  maxDurabilityFromDefinition: 0,
+                  unknownBoolean1: true,
+                  unknownQword3: backpack,
+                  unknownDword9: 0,
+                  unknownBoolean2: true,
+                },
+              },
+            ],
+            unknownBoolean1: false,
+            unknownDword3: 999,
+            unknownDword4: 3,
+            unknownDword5: 777,
+            unknownBoolean2: true,
+          },
+        },
+      ];
+
     this.sendData(client, "SendSelfToClient", {
       data: {
         guid: client.character.guid, // todo: guid should be moved to client, instead of character
@@ -432,7 +478,7 @@ export class ZoneServer2016 extends ZoneServer {
             },
           },
         ],
-        //containers: containers,
+        containers: containers,
         //unknownQword1: client.character.characterId,
         //unknownDword38: 1,
         //vehicleLoadoutRelatedQword: client.character.characterId,
@@ -441,13 +487,12 @@ export class ZoneServer2016 extends ZoneServer {
         //unknownDword40: 1
       },
     });
-    /*
-    console.log(containers)
+    
     this.sendData(client, "Container.InitEquippedContainers", {
       ignore: client.character.characterId,
       characterId: client.character.characterId,
       containers: containers,
-    });*/
+    });
     this._characters[client.character.characterId] = client.character; // character will spawn on other player's screen(s) at this point
   }
 
@@ -1292,7 +1337,31 @@ export class ZoneServer2016 extends ZoneServer {
   //#endregion
   //#region ********************INVENTORY********************
 
-  updateLoadoutSlot(client: Client, slotId: number) {
+  updateLoadout(client: Client) {
+    this.sendData(client, "Loadout.SetLoadoutSlots", {
+      characterId: client.character.characterId,
+      loadoutId: 3,
+      loadoutData: {
+        loadoutSlots: Object.keys(client.character._loadout).map((slotId: any) => {
+          const slot = client.character._loadout[slotId];
+          return {
+            unknownDword1: 3,
+            itemDefinitionId: slot.itemDefinitionId,
+            slotId: slot.slotId,
+            unknownData1: {
+              itemDefinitionId: slot.itemDefinitionId,
+              loadoutItemOwnerGuid: slot.itemGuid,
+              unknownByte1: 17,
+            },
+            unknownDword4: 18,
+          };
+        }),
+      },
+      loadoutSlotId: 3,
+    });
+  }
+
+  addLoadoutItem(client: Client, slotId: number) {
    const loadoutItem = client.character._loadout[slotId];
    this.sendData(client, "ClientUpdate.ItemAdd", {
       characterId: client.character.characterId,
@@ -1315,18 +1384,6 @@ export class ZoneServer2016 extends ZoneServer {
         unknownDword9: 28,
         unknownBoolean2: true,
       },
-    });
-    this.sendData(client, "Loadout.SetLoadoutSlot", {
-      characterId: client.character.characterId,
-      loadoutSlot: {
-        itemDefinitionId: loadoutItem.itemDefinitionId,
-        slotId: slotId,
-        unknownData1: {
-          itemDefinitionId: loadoutItem.itemDefinitionId,
-          loadoutItemGuid: loadoutItem.itemGuid
-        }
-      },
-      unknownDword1: 3
     });
   }
   
@@ -1397,7 +1454,7 @@ export class ZoneServer2016 extends ZoneServer {
     this.sendData(client, "ClientUpdate.ItemAdd", {
       characterId: client.character.characterId,
       data: {
-        itemDefinitionId: this._items[itemGuid].itemDefinition.ID,
+        itemDefinitionId: this._items[itemGuid].itemDefinitionId,
         tintId: 5,
         guid: itemGuid,
         count: 1, // also ammoCount
@@ -1424,7 +1481,7 @@ export class ZoneServer2016 extends ZoneServer {
       return;
     }
     const item = this._items[itemGuid],
-      def = item.itemDefinition,
+      def = this.getItemDefinition(item.itemDefinitionId),
       loadoutSlotItemClass = loadoutSlotItemClasses.find(
         (slot: any) => slot.ITEM_CLASS === def.ITEM_CLASS
       ),
@@ -1464,8 +1521,13 @@ export class ZoneServer2016 extends ZoneServer {
 
     if (!sendPacket) return;
 
-    this.updateLoadoutSlot(client, loadoutSlotId);
+    this.addLoadoutItem(client, loadoutSlotId);
+    this.updateLoadout(client);
     this.updateEquipmentSlot(client, equipmentSlotId);
+  }
+
+  getItemDefinition(itemDefinitionId: any) {
+    return this._itemDefinitions[itemDefinitionId];
   }
 
   generateItem(itemDefinitionId: any) {
@@ -1473,11 +1535,9 @@ export class ZoneServer2016 extends ZoneServer {
     console.log(generatedGuid)
     this._items[generatedGuid] = {
       guid: generatedGuid,
-      itemDefinition: itemDefinitions.find(
-        (itemDef: any) => itemDef.ID === itemDefinitionId
-      ),
+      itemDefinitionId: Number(itemDefinitionId),
     };
-    if (!this._items[generatedGuid].itemDefinition) {
+    if (!this.getItemDefinition(this._items[generatedGuid].itemDefinitionId)) {
       debug(
         `[ERROR] GenerateItem: Invalid item definition: ${itemDefinitionId}`
       );
@@ -1492,10 +1552,10 @@ export class ZoneServer2016 extends ZoneServer {
       return Number(fixed ? num.toFixed(0) : num);
     }
 
-    const authorizedItemDefinitions = itemDefinitions.filter(
-      (def: any) =>
-        def.WORLD_MODEL_ID === objectData.modelId &&
-        def.CODE_FACTORY_NAME !== "AccountRecipe"
+    const authorizedItemDefinitions = Object.keys(this._itemDefinitions).filter(
+      (defId: any) =>
+        this.getItemDefinition(defId).WORLD_MODEL_ID === objectData.modelId &&
+        this.getItemDefinition(defId).CODE_FACTORY_NAME !== "AccountRecipe"
     );
     if (!authorizedItemDefinitions.length) {
       debug(
@@ -1506,7 +1566,7 @@ export class ZoneServer2016 extends ZoneServer {
     return this.generateItem(
       authorizedItemDefinitions[
         rnd_number(authorizedItemDefinitions.length - 1, true)
-      ].ID
+      ]
     );
   }
   //#endregion

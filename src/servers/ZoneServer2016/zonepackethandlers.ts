@@ -27,10 +27,6 @@ let admin = require("./commands/admin").default;
 
 import { _, Int64String, isPosInRadius } from "../../utils/utils";
 
-import { characterEquipment } from "../../types/zoneserver";
-
-const itemDefinitions = require("./../../../data/2016/dataSources/ServerItemDefinitions.json");
-
 export class zonePacketHandlers {
   ClientIsReady: any;
   ClientFinishedLoading: any;
@@ -177,13 +173,14 @@ export class zonePacketHandlers {
         serverTime: Int64String(server.getServerTime()),
         serverTime2: Int64String(server.getServerTime()),
       });
-
+      
       server.sendData(client, "Command.ItemDefinitions", {
         // sends full list of item definitions
         data: {
-          itemDefinitions: itemDefinitions.map((itemDef: any) => {
+          itemDefinitions: Object.keys(server._itemDefinitions).map((itemDefId: any) => {
+            const itemDef = server.getItemDefinition(itemDefId);
             return {
-              ID: itemDef.ID,
+              ID: itemDefId,
               definitionData: {
                 ...itemDef,
                 HUD_IMAGE_SET_ID: itemDef.IMAGE_SET_ID,
@@ -230,8 +227,15 @@ export class zonePacketHandlers {
           () => server.saveCharacterPosition(client),
           30000
         );
-        server.updateEquipment(client);// needed or third person character will be invisible
-
+        server.updateEquipment(client); // needed or third person character will be invisible
+        server.updateLoadout(client); // needed or all loadout context menu entries aren't shown
+        /*
+        server.sendData(client, "Container.InitEquippedContainers", {
+          ignore: client.character.characterId,
+          characterId: client.character.characterId,
+          containers: [],
+        });
+        */
         server.executeFuncForAllReadyClients(() => server.spawnCharacters);
       }
 
@@ -1051,10 +1055,12 @@ export class zonePacketHandlers {
     ) {
       debug(`ItemDefinitionRequest ID: ${packet.data.ID}`);
 
-      const itemDef = itemDefinitions.find(
-        (itemDef: any) => itemDef.ID === packet.data.ID
-      );
+      const itemDef = server.getItemDefinition(packet.data.ID);
 
+      if(!itemDef) {
+        debug(`ERROR: No ItemDefinition found for ItemDefinitonID: ${packet.data.ID}`);
+        return;
+      }
       server.sendData(client, "Command.ItemDefinitionReply", {
         data: {
           ID: packet.data.ID,

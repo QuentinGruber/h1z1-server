@@ -14,8 +14,6 @@
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { Int64String } from "../../../utils/utils";
-import { characterEquipment, loadoutItem } from "types/zoneserver";
-const itemDefinitions = require("./../../../../data/2016/dataSources/ServerItemDefinitions.json");
 
 const debug = require("debug")("zonepacketHandlers");
 
@@ -603,9 +601,9 @@ const dev: any = {
     args: any[]
   ) {
     const backpack: any = server.generateItem(1602),
-    backpackDef = server._items[backpack].itemDefinition
+    backpackDef = server.getItemDefinition(server._items[backpack].itemDefinitionId)
     const item: any = server.generateItem(2425),
-    itemDef = server._items[item].itemDefinition
+    itemDef = server.getItemDefinition(server._items[item].itemDefinitionId)
     const containers = [
       {
         unknownDword1: backpackDef.ITEM_TYPE==34?backpackDef.PARAM1:0,//ITEM_TYPE==34?backpackDef.PARAM1:0, // container itemDefinitionId ?
@@ -616,9 +614,9 @@ const dev: any = {
           slots: 9999,
           items: [/*
             {
-              itemDefinitionId: server._items[item].itemDefinition.ID,
+              itemDefinitionId: itemDef.ID,
               itemData: {
-                itemDefinitionId: server._items[item].itemDefinition.ID,
+                itemDefinitionId: itemDef.ID,
                 tintId: 3,
                 guid: item,
                 count: 3,
@@ -653,37 +651,7 @@ const dev: any = {
     });
 
     server.equipItem(client, backpack);
-      
-    /*
-      server.sendData(client, "ClientUpdate.ItemAdd", {
-        characterId: client.character.characterId,
-        data: {
-          itemDefinitionId: backpackDef.ID,
-          tintId: 3,
-          guid: backpack,
-          count: 3, // also ammoCount
-          itemSubData: {
-            hasSubData: false,
-            unknownDword1: 3,
-            unknownData1: {
-              unknownQword1: "0x0",
-              unknownDword1: 3,
-              unknownDword2: 3,
-            }
-          },
-          containerGuid: "0x0",
-          containerDefinitionId: 3,
-          containerSlotId: 3,
-          baseDurability: 3,
-          currentDurability: 3,
-          maxDurabilityFromDefinition: 3,
-          unknownBoolean1: true,
-          unknownQword3: "0x0",
-          unknownDword9: 3,
-          unknownBoolean2: true,
-        }
-      });
-      */
+
       server.sendData(client, "ClientUpdate.ItemAdd", {
         characterId: client.character.characterId,
         data: {
@@ -712,37 +680,13 @@ const dev: any = {
           unknownBoolean2: true,
         }
       });
-
-      /*
-      server.sendData(client, "Loadout.SetLoadoutSlots", {
-        characterId: client.character.characterId,
-        loadoutId: 3,
-        loadoutData: {
-          loadoutSlots: Object.keys(client.character._loadout).map((slot: any) => {
-            return {
-              unknownDword1: 0,
-              itemDefinitionId: slot.itemDefinitionId,
-              slotId: slot.slotId,
-              unknownData1: {
-                itemDefinitionId: slot.itemDefinitionId,
-                loadoutItemGuid: slot.itemGuid,
-                unknownByte1: 0,
-              },
-              unknownDword4: 0,
-            };
-          }),
-        },
-        loadoutSlotId: 3,
-      });
-      */
   },
   listcontainers: function (
     server: ZoneServer2016,
     client: Client,
     args: any[]
   ) {
-    const //item: any = server.generateItem(2425),
-      containers = [
+    const containers = [
         {
           unknownDword1: 3, // container itemDefinitionId ?
           containerData: {
@@ -751,28 +695,7 @@ const dev: any = {
             associatedCharacterId: client.character.characterId,
             slots: 9999,
             items: [
-              /*
-              {
-                itemDefinitionId: server._items[item].itemDefinition.ID,
-                itemData: {
-                  itemDefinitionId: server._items[item].itemDefinition.ID,
-                  tintId: 1,
-                  guid: item,
-                  count: 1,
-                  itemSubData: {
-                    unknownBoolean1: false,
-                  },
-                  containerGuid: containerGuid,
-                  containerDefinitionId: 1,
-                  containerSlotId: 1,
-                  baseDurability: 1,
-                  currentDurability: 1,
-                  maxDurabilityFromDefinition: 1,
-                  unknownBoolean1: true,
-                  unknownQword3: "",
-                  unknownDword9: 1,
-                },
-              },*/
+
             ],
             unknownBoolean1: true,
             maxBulk: 565,
@@ -793,14 +716,14 @@ const dev: any = {
     const item: any = server.generateItem(2425),
       containerData = {
         guid: backpack,
-        unknownDword1: server._items[backpack].itemDefinition.ID,
+        unknownDword1: server._items[backpack].itemDefinitionId,
         associatedCharacterId: backpack,
         slots: 2,
         items: [
           {
-            itemDefinitionId: server._items[item].itemDefinition.ID,
+            itemDefinitionId: server._items[item].itemDefinitionId,
             itemData: {
-              itemDefinitionId: server._items[item].itemDefinition.ID,
+              itemDefinitionId: server._items[item].itemDefinitionId,
               tintId: 1,
               guid: item,
               count: 1,
@@ -885,11 +808,11 @@ const dev: any = {
             slots: 9999,
             items: [
               {
-                itemDefinitionId: server._items[item].itemDefinition.ID,
+                itemDefinitionId: server._items[item].itemDefinitionId,
                 itemData: {
-                  itemDefinitionId: server._items[item].itemDefinition.ID,
+                  itemDefinitionId: server._items[item].itemDefinitionId,
                   itemData: {
-                    itemDefinitionId: server._items[item].itemDefinition.ID,
+                    itemDefinitionId: server._items[item].itemDefinitionId,
                     tintId: 1,
                     guid: item,
                     count: 1,
@@ -936,11 +859,11 @@ const dev: any = {
           items: [
             {
               item: {
-                itemDefinitionId: server._items[item].itemDefinition.ID,
+                itemDefinitionId: server._items[item].itemDefinitionId,
                 itemData: {
-                  itemDefinitionId: server._items[item].itemDefinition.ID,
+                  itemDefinitionId: server._items[item].itemDefinitionId,
                   itemData: {
-                    itemDefinitionId: server._items[item].itemDefinition.ID,
+                    itemDefinitionId: server._items[item].itemDefinitionId,
                     tintId: 1,
                     guid: item,
                     count: 1,
@@ -993,9 +916,9 @@ const dev: any = {
     server.sendData(client, "ClientUpdate.ProximateItems", {
       items: [
         {
-          itemDefinitionId: server._items[item].itemDefinition.ID,
+          itemDefinitionId: server._items[item].itemDefinitionId,
           itemData: {
-            itemDefinitionId: server._items[item].itemDefinition.ID,
+            itemDefinitionId: server._items[item].itemDefinitionId,
             tintId: 43,
             guid: item,
             count: 44,
