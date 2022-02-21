@@ -769,24 +769,21 @@ const hax: any = {
     server.equipItem(client, server.generateItem(Number(args[1])));
   },
   hood: function (server: ZoneServer2016, client: Client) {
-    const eIndex = client.character.equipment
-        .map((slot: any) => slot.slotId)
-        .indexOf(3),
-      equipment = client.character.equipment[eIndex] || {},
+      const equipment = client.character._equipment[3] || {},
       equipmentModel = equipment.modelName || "";
 
     if (
-      eIndex === -1 ||
-      !client.character.equipment[eIndex].modelName.includes("Hoodie")
+      !client.character._equipment[3] ||
+      !client.character._equipment[3].modelName.includes("Hoodie")
     ) {
       server.sendChatText(client, "[ERROR] You aren't wearing a hoodie.");
     } else {
       equipmentModel.includes("Up")
-        ? (client.character.equipment[eIndex].modelName =
+        ? (client.character._equipment[3].modelName =
             equipmentModel.replace("Up", "Down"))
-        : (client.character.equipment[eIndex].modelName =
+        : (client.character._equipment[3].modelName =
             equipmentModel.replace("Down", "Up"));
-      server.updateEquipment(client);
+      server.updateEquipment(client, 1);
     }
   },
 };

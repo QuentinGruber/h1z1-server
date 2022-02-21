@@ -71,6 +71,7 @@ export class zonePacketHandlers {
   commandItemDefinitionRequest: any;
   characterWeaponStance: any;
   firstTimeEvent: any;
+  dropItem: any;
   constructor() {
     this.ClientIsReady = function (
       server: ZoneServer2016,
@@ -233,8 +234,9 @@ export class zonePacketHandlers {
           characterData: {
             characterId: client.character.characterId,
           },
-          equipmentSlots: client.character.equipment.map(
-            (slot: characterEquipment) => {
+          equipmentSlots: Object.keys(client.character._equipment).map(
+            (slotId: any) => {
+              const slot = client.character._equipment[slotId];
               return {
                 equipmentSlotId: slot.slotId,
                 equipmentSlotData: {
@@ -246,8 +248,9 @@ export class zonePacketHandlers {
               };
             }
           ),
-          attachmentData: client.character.equipment.map(
-            (slot: characterEquipment) => {
+          attachmentData: Object.keys(client.character._equipment).map(
+            (slotId: any) => {
+              const slot = client.character._equipment[slotId];
               return {
                 modelName: slot.modelName,
                 textureAlias: slot.textureAlias || "",
@@ -1127,7 +1130,18 @@ export class zonePacketHandlers {
         }
       );
     }
-  }
+    //#region ITEMS
+    this.dropItem = function (
+      server: ZoneServer2016,
+      client: Client,
+      packet: any
+    ) {
+      console.log("data")
+      console.log(packet)
+    }
+    //#endregion
+  };
+  
   processPacket(server: ZoneServer2016, client: Client, packet: any) {
     switch (packet.name) {
       case "ClientIsReady":
@@ -1246,6 +1260,9 @@ export class zonePacketHandlers {
         break;
       case "FirstTimeEvent.Unknown1":
         this.firstTimeEvent(server, client, packet);
+        break;
+      case "Items.DropItem":
+        this.dropItem(server, client, packet);
         break;
       default:
         debug(packet);

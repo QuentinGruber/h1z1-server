@@ -426,10 +426,15 @@ export interface characterEquipment {
   decalAlias?: string;
 }
 
-export interface characterLoadout {
+
+export interface inventoryItem {
   itemDefinitionId: number;
   slotId: number;
   itemGuid: string;
+}
+
+export interface loadoutItem extends inventoryItem {
+  loadoutItemOwnerGuid: string;
 }
 
 export interface Client {

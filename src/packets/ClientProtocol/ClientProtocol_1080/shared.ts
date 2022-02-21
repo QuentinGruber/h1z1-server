@@ -1763,7 +1763,7 @@ export const loadoutSlotsSchema = [
                 defaultValue: 0,
               },
               {
-                name: "loadoutItemOwnerGuid",
+                name: "loadoutItemGuid",
                 type: "uint64string",
                 defaultValue: "0",
               },
