@@ -323,7 +323,7 @@ export class ZoneServer2016 extends ZoneServer {
   async sendCharacterData(client: Client) {
     await this.loadCharacterData(client);
 
-    const backpack = this.generateItem(1602);
+    const backpack = this.generateItem(2393);
     this.equipItem(client, backpack, false); // test backpack
     const item: any = this.generateItem(2425),
       containers = [

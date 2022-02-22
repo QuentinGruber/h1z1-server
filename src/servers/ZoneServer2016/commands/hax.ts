@@ -560,21 +560,9 @@ const hax: any = {
     }
   },
   run: function (server: ZoneServer2016, client: Client, args: any[]) {
-    const speedValue = args[1];
-    let speed;
-    if (speedValue > 10) {
-      server.sendChatText(
-        client,
-        "To avoid security issue speed > 10 is set to 15",
-        true
-      );
-      speed = 15;
-    } else {
-      speed = speedValue;
-    }
-    server.sendChatText(client, "Setting run speed: " + speed, true);
+    server.sendChatText(client, "Setting run speed: " + Number(args[1]), true);
     server.sendData(client, "Command.RunSpeed", {
-      runSpeed: speed,
+      runSpeed: Number(args[1]),
     });
   },
   randomweather: function (
