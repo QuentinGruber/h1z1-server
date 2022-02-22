@@ -18,12 +18,12 @@ export const loadoutPackets: any = [
     "Loadout.SelectLoadout",
     0x8702,
     {
-      fields: [{ name: "loadoutSlotId", type: "uint32", defaultValue: 0 }],
+      fields: [{ name: "loadoutId", type: "uint32", defaultValue: 0 }],
     },
   ],
 
   [
-    "Loadout.SetCurrentLoadout",
+    "Loadout.SelectSlot",
     0x8703,
     {
       fields: [

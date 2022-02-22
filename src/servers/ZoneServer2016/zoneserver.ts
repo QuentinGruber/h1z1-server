@@ -272,6 +272,7 @@ export class ZoneServer2016 extends ZoneServer {
         },
       ],
       _loadout: {},
+      currentLoadoutSlot: 7,//fists
       _equipment: {},
       state: {
         position: new Float32Array([0, 0, 0, 1]),
@@ -316,6 +317,7 @@ export class ZoneServer2016 extends ZoneServer {
     this.equipItem(client, this.generateItem(85), false); // fists weapon
     this.equipItem(client, this.generateItem(2377), false); // DOA Hoodie
     this.equipItem(client, this.generateItem(2079), false); // golf pants
+    //this.equipItem(client, this.generateItem(2425), false); // ar15
   }
 
   async sendCharacterData(client: Client) {
@@ -422,20 +424,20 @@ export class ZoneServer2016 extends ZoneServer {
               (slotId: any) => {
                 const slot = client.character._loadout[slotId];
                 return {
-                  unknownDword1: 3,
-                  itemDefinitionId: slot.itemDefinitionId,
+                  hotbarSlotId: slot.slotId,
+                  loadoutId: 3,
                   slotId: slot.slotId,
-                  unknownData1: {
+                  loadoutItemData: {
                     itemDefinitionId: slot.itemDefinitionId,
                     loadoutItemGuid: slot.itemGuid,
-                    unknownByte1: 17,
+                    unknownByte1: 255, // flags?
                   },
-                  unknownDword4: 18,
+                  unknownDword4: 3,
                 };
               }
             ),
           },
-          loadoutSlotId: 3,
+          currentSlotId: client.character.currentLoadoutSlot,
         },
         characterResources: [
           {
@@ -1348,19 +1350,19 @@ export class ZoneServer2016 extends ZoneServer {
         loadoutSlots: Object.keys(client.character._loadout).map((slotId: any) => {
           const slot = client.character._loadout[slotId];
           return {
-            unknownDword1: 3,// affects Equip Item context entry packet, and Container.MoveItem
-            itemDefinitionId: slot.itemDefinitionId,
+            hotbarSlotId: slot.slotId,// affects Equip Item context entry packet, and Container.MoveItem
+            loadoutId: 3,
             slotId: slot.slotId,
-            unknownData1: {
+            loadoutItemData: {
               itemDefinitionId: slot.itemDefinitionId,
               loadoutItemOwnerGuid: slot.itemGuid,
-              unknownByte1: 17,
+              unknownByte1: 255,// flags?
             },
-            unknownDword4: 1,
+            unknownDword4: 3,
           };
         }),
       },
-      unknownDword1: 3, // needs to be 3
+      currentSlotId: client.character.currentLoadoutSlot,
     });
   }
 
@@ -1535,7 +1537,7 @@ export class ZoneServer2016 extends ZoneServer {
 
   generateItem(itemDefinitionId: any) {
     const generatedGuid = `0x${Math.floor(Math.random() * (0x3fffffffffffffff - 0x3000000000000000) + 0x3000000000000000).toString(16)}`;
-    console.log(generatedGuid)
+    //console.log(generatedGuid)
     this._items[generatedGuid] = {
       guid: generatedGuid,
       itemDefinitionId: Number(itemDefinitionId),

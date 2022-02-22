@@ -108,10 +108,10 @@ const dev: any = {
     }
     server.sendChatText(client, "Sending selectloadout packet");
     server.sendData(client, "Loadout.SelectLoadout", {
-      loadoutSlotId: Number(args[1]),
+      loadoutId: Number(args[1]),
     });
   },
-  setcurrentloadout: function (
+  selectslot: function (
     server: ZoneServer2016,
     client: Client,
     args: any[]
@@ -120,12 +120,11 @@ const dev: any = {
       server.sendChatText(client, "Missing loadoutSlotId arg");
       return;
     }
-    const loadout = {
+    server.sendChatText(client, "Sending SelectSlot packet");
+    server.sendData(client, "Loadout.SelectSlot", {
       characterId: client.character.characterId,
       loadoutSlotId: Number(args[1]),
-    };
-    server.sendChatText(client, "Sending setcurrentloadout packet");
-    server.sendData(client, "Loadout.SetCurrentLoadout", loadout);
+    });
   },
   setslot: function (server: ZoneServer2016, client: Client, args: any[]) {
     if (!args[2]) {

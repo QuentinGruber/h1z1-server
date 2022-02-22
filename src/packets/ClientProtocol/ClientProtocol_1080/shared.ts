@@ -1750,11 +1750,11 @@ export const loadoutSlotsSchema = [
         type: "array",
         defaultValue: [],
         fields: [
-          { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-          { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
+          { name: "hotbarSlotId", type: "uint32", defaultValue: 0 },
+          { name: "loadoutId", type: "uint32", defaultValue: 0 },
           { name: "slotId", type: "uint32", defaultValue: 0 },
           {
-            name: "unknownData1",
+            name: "loadoutItemData",
             type: "schema",
             fields: [
               {
@@ -1775,5 +1775,5 @@ export const loadoutSlotsSchema = [
       },
     ],
   },
-  { name: "unknownDword1", type: "uint32", defaultValue: 1 },
+  { name: "currentSlotId", type: "uint32", defaultValue: 7 },
 ];

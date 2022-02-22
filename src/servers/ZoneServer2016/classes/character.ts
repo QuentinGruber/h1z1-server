@@ -34,6 +34,7 @@ export class Character2016 extends Character {
   creationDate!: string;
   lastLoginDate!: string;
   _loadout: { [loadoutSlotId: number]: loadoutItem } = {};
+  currentLoadoutSlot: number = 7;//fists
   _equipment: { [equipmentSlotId: number]: characterEquipment } = {};
   startRessourceUpdater: any;
   constructor(characterId: string, generatedTransient: number) {
