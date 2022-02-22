@@ -1537,7 +1537,6 @@ export class ZoneServer2016 extends ZoneServer {
 
   generateItem(itemDefinitionId: any) {
     const generatedGuid = `0x${Math.floor(Math.random() * (0x3fffffffffffffff - 0x3000000000000000) + 0x3000000000000000).toString(16)}`;
-    //console.log(generatedGuid)
     this._items[generatedGuid] = {
       guid: generatedGuid,
       itemDefinitionId: Number(itemDefinitionId),

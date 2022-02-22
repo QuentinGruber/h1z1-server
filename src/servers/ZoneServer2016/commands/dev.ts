@@ -945,6 +945,27 @@ const dev: any = {
       ],
     });
   },
+  mapdef: function (server: ZoneServer2016, client: Client, args: any[]) {
+    if(!args[2]) {
+      server.sendChatText(client, "Usage: /mapdef {modelId} {itemDefId}");
+      return;
+    }
+    const modelId = Number(args[1]),
+    itemDefId = Number(args[2]),
+    def = server.getItemDefinition(itemDefId);
+    if(!def) {
+      server.sendChatText(client, "Invalid itemDefId");
+      return;
+    }
+    def.WORLD_MODEL_ID = modelId;
+    server._itemDefinitions[itemDefId] = def;
+    server.sendChatText(client, `Mapped modelId: ${modelId} to itemDefId: ${itemDefId}`);
+    const fs = require('fs');
+    delete require.cache[require.resolve(`${__dirname}\\..\\..\\..\\..\\data\\2016\\dataSources\\ServerItemDefinitions.json`)];
+    fs.writeFileSync(`${__dirname}\\..\\..\\..\\..\\data\\2016\\dataSources\\ServerItemDefinitions.json`, JSON.stringify(server._itemDefinitions, null, 2));
+    server._itemDefinitions = require(`${__dirname}\\..\\..\\..\\..\\data\\2016\\dataSources\\ServerItemDefinitions.json`);
+    server.sendChatText(client, `Reloaded itemdefinitions`);
+  }
   /*
     proxiedobjects: function(server: ZoneServer2016, client: Client, args: any[]) {
 
