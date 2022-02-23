@@ -1,6 +1,6 @@
 {
   "name": "h1z1-server",
-  "version": "0.19.3-2",
+  "version": "0.19.3-4",
   "description": "Library for emulating h1z1 servers",
   "author": "Quentin Gruber <quentingruber@gmail.com> (http://github.com/quentingruber)",
   "license": "GPL-3.0-only",
@@ -17,9 +17,9 @@
     "@swc/cli": "0.1.55",
     "@swc/core": "1.2.127",
     "debug": "4.3.3",
-    "h1emu-core": "0.6.5",
+    "h1emu-core": "0.6.6",
     "h1z1-dataschema": "1.5.8",
-    "mongodb": "4.3.1",
+    "mongodb": "4.4.0",
     "mongodb-restore-dump": "1.0.1",
     "typedoc": "0.22.11",
     "typescript": "4.5.5",
@@ -31,7 +31,7 @@
   "devDependencies": {
     "glob": "7.2.0",
     "prettier": "2.5.1",
-    "ts-node": "10.4.0",
+    "ts-node": "10.5.0",
     "typedoc": "0.22.11"
   },
   "scripts": {

@@ -92,7 +92,7 @@ export class LoginServer extends EventEmitter {
     });
     this._soeServer.on("disconnect", (err: string, client: Client) => {
       debug(`Client disconnected from ${client.address}:${client.port}`);
-      this.emit("disconnect", err, client);
+      this.Logout(client);
     });
     this._soeServer.on("session", (err: string, client: Client) => {
       debug(`Session started for client ${client.address}:${client.port}`);
@@ -132,7 +132,7 @@ export class LoginServer extends EventEmitter {
                 this.TunnelAppPacketClientToServer(client, packet);
                 break;
               case "Logout":
-                this.Logout(client, packet);
+                this.Logout(client);
                 break;
             }
           } else {
@@ -385,8 +385,9 @@ export class LoginServer extends EventEmitter {
     this.sendData(client, "TunnelAppPacketServerToClient", response);
   }
 
-  Logout(client: Client, packet: any) {
+  Logout(client: Client) {
     clearTimeout(client.serverUpdateTimer);
+    this._soeServer.deleteClient(client);
   }
 
   addDummyDataToCharacters(characters: any[]) {
@@ -437,7 +438,7 @@ export class LoginServer extends EventEmitter {
         characters = this.addDummyDataToCharacters(characterList);
       }
     } else {
-      const charactersQuery = { authKey: client.loginSessionId, status: 1 };
+      const charactersQuery = { authKey: client.loginSessionId,serverVersionTag:this.getServerVersionTag(client.protocolName), status: 1 };
       characters = await this._db
         .collection("characters-light")
         .find(charactersQuery)
@@ -812,6 +813,7 @@ export class LoginServer extends EventEmitter {
               serverId: newCharacter.serverId,
               ownerId: sessionObj.guid,
               payload: packet.result.payload,
+              status: 1
             };
       creationStatus = (await this.askZone(serverId, "CharacterCreateRequest", {
         characterObjStringify: JSON.stringify(newCharacterData),
