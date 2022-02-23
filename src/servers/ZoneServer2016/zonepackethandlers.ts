@@ -71,6 +71,7 @@ export class zonePacketHandlers {
   characterWeaponStance: any;
   firstTimeEvent: any;
   requestUseItem: any;
+  constructionPlacementRequest: any;
   constructor() {
     this.ClientIsReady = function (
       server: ZoneServer2016,
@@ -1234,6 +1235,17 @@ export class zonePacketHandlers {
           server.sendChatText(client, "[ERROR] ItemUseOption not mapped to a function.")
       }
     }
+    this.constructionPlacementRequest = function (
+      server: ZoneServer2016,
+      client: Client,
+      packet: any
+    ) {
+      debug(packet.data);
+      server.sendData(client, "Construction.PlacementResponse", {
+        unknownDword1: packet.data.itemDefinitionId,
+        model: server.getItemDefinition(packet.data.itemDefinitionId).PLACEMENT_MODEL_ID,
+      });
+      }
     //#endregion
   };
   
@@ -1359,6 +1371,8 @@ export class zonePacketHandlers {
       case "Items.RequestUseItem":
         this.requestUseItem(server, client, packet);
         break;
+      case "Construction.PlacementRequest":
+        this.constructionPlacementRequest(server, client, packet);
       default:
         debug(packet);
         debug("Packet not implemented in packetHandlers");
