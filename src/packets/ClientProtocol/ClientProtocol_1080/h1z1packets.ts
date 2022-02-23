@@ -30,6 +30,7 @@ import { containerPackets } from "./container";
 import { currencyPackets } from "./currency";
 import { definitionFilterPackets } from "./definitionFilter";
 import { deployablePackets } from "./deployable";
+import { dtoPackets } from "./dto";
 import { effectsPackets } from "./effects";
 import { equipmentPackets } from "./equipment";
 import { experiencePackets } from "./experience";
@@ -85,6 +86,7 @@ const packets: any = [
   ...currencyPackets,
   ...definitionFilterPackets,
   ...deployablePackets,
+  ...dtoPackets,
   ...effectsPackets,
   ...equipmentPackets,
   ...experiencePackets,

@@ -3055,19 +3055,6 @@ export const basePackets: any = [
   ["RequestWalletTopupUpdate", 0xb8, {}],
   ["StationCashActivePromoRequestUpdate", 0xb9, {}],
   [
-    "Pickup",
-    0xbb,
-    {
-      fields: [
-        { name: "type?", type: "uint16" },
-        { name: "id", type: "uint32" },
-        { name: "treeId", type: "uint32" },
-        { name: "name", type: "string" },
-      ],
-    },
-  ],
-
-  [
     "WordFilter.Data",
     0xbd01,
     {
