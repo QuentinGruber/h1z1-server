@@ -1373,6 +1373,7 @@ export class zonePacketHandlers {
         break;
       case "Construction.PlacementRequest":
         this.constructionPlacementRequest(server, client, packet);
+        break;
       default:
         debug(packet);
         debug("Packet not implemented in packetHandlers");
