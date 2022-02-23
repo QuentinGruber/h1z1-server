@@ -622,7 +622,7 @@ const dev: any = {
     const backpack: any = server.generateItem(1602);
     server.equipItem(client, backpack);
     const item: any = server.generateItem(2425),
-      containerGuid = server.generateGuid(),
+      //containerGuid = server.generateGuid(),
       containers = [
         {
           unknownDword1: 3, // container itemDefinitionId ?

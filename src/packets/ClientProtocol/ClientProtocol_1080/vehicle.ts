@@ -125,7 +125,7 @@ export const vehiclePackets: any = [
           ],
         },
         {
-          name: "unknownBytes1",
+          name: "unknownBytes2",
           type: "byteswithlength",
           defaultValue: null,
           fields: [
