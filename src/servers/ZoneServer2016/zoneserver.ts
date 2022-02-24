@@ -827,7 +827,7 @@ export class ZoneServer2016 extends ZoneServer {
             message: packet.data.name.replace("SpeedTree.", ""),
           });
           break;
-      }
+    }
 	  if(itemDefId){
         this.sendData(client, "ClientUpdate.ItemAdd", {
           characterId: client.character.characterId,
@@ -1766,6 +1766,9 @@ export class ZoneServer2016 extends ZoneServer {
           },
           slotId: equipmentSlotId,
         });
+        if(equipmentSlotId === 7) { // primary slot
+          this.equipItem(client, client.character._loadout[7].itemGuid);
+        }
       }
   }
   //#endregion

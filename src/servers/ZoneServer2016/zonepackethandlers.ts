@@ -1084,8 +1084,9 @@ export class zonePacketHandlers {
       switch (entityType) {
         case 1: // object
         console.log(entityData)
-          const itemGuid = entityData.itemGuid,//server.generatePickupItem(entityData),
-            item = server._items[itemGuid];
+          const itemGuid = entityData.itemGuid,
+            item = server._items[itemGuid],
+            itemDefId = server._items[itemGuid].itemDefinitionId;
           if (!item) {
             server.sendChatText(
               client,
@@ -1093,8 +1094,39 @@ export class zonePacketHandlers {
             );
             return;
           }
-
-          server.equipItem(client, itemGuid);
+          if(server.getItemDefinition(itemDefId).FLAG_CAN_EQUIP) {
+            server.equipItem(client, itemGuid);
+          }
+          else {
+            server.sendData(client, "ClientUpdate.ItemAdd", {
+              characterId: client.character.characterId,
+              data: {
+                itemDefinitionId: itemDefId,
+                tintId: 3,
+                guid: itemGuid,
+                count: 1, // also ammoCount
+                itemSubData: {
+                  hasSubData: true,
+                  unknownDword1: 1,
+                  unknownData1: {
+                    unknownQword1: client.character.characterId,
+                    unknownDword1: 3,
+                    unknownDword2: 3,
+                  }
+                },
+                containerGuid: "0x0", // temp until containers work
+                containerDefinitionId: 0,
+                containerSlotId: 1,
+                baseDurability: 2000,
+                currentDurability: 2000,
+                maxDurabilityFromDefinition: 2000,
+                unknownBoolean1: true,
+                unknownQword3: client.character.characterId,
+                unknownDword9: 0,
+                unknownBoolean2: true,
+              }
+            });
+          }
           server.deleteEntity(guid, server._objects);
           delete server.worldObjectManager.spawnedObjects[entityData.spawnerId];
           break;
@@ -1263,6 +1295,8 @@ export class zonePacketHandlers {
       }
       switch(packet.data.itemUseOption) {
         case 4:
+        case 73: // battery drop option
+        case 79: // sparks drop option
           server.dropItem(client, packet.data.itemGuid);
           break;
         default:
