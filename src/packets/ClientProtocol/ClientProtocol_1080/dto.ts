@@ -27,8 +27,13 @@ export const dtoPackets: any = [
         { name: "objectId", type: "uint32" },
         { name: "modelName", type: "string" },
         { name: "effectId", type: "uint32" },
-        { name: "unk3", type: "float" },
+        { name: "unk3", type: "float", defaultValue: 0 },
         { name: "unk4", type: "boolean" }, // changing this boolean change how the packet is processed
+		{ name: "unkDword1", type: "uint32", defaultValue: 0 },
+		{ name: "unk5", type: "boolean", defaultValue: true },
+		{ name: "unk6", type: "boolean", defaultValue: true },
+		{ name: "unk7", type: "boolean", defaultValue: true },
+		{ name: "unk8", type: "boolean", defaultValue: true },
       ],
     },
   ],
@@ -45,6 +50,10 @@ export const dtoPackets: any = [
           fields: [
             { name: "objectId", type: "uint32", defaultValue: 0 },
             { name: "unknownString1", type: "string", defaultValue: "0" },
+			{ name: "unknownDword1", type: "uint32", defaultValue: 0 },
+			{ name: "unknownBool1", type: "boolean", defaultValue: true },
+			{ name: "unknownBool2", type: "boolean", defaultValue: true },
+			{ name: "unknownBool3", type: "boolean", defaultValue: true },
           ],
         },
         {
