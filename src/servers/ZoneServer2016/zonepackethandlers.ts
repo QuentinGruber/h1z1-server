@@ -91,6 +91,8 @@ export class zonePacketHandlers {
       server.sendData(client, "ClientUpdate.NetworkProximityUpdatesComplete", {
         done: true,
       }); // Required for WaitForWorldReady
+      
+      server.customizeDTO(client);
 
       server.sendData(client, "ZoneSetting.Data", {
         settings: [
@@ -731,57 +733,7 @@ export class zonePacketHandlers {
       packet: any
     ) {
       debug(packet);
-      const name = packet.data.name
-      server.sendData(client, "ClientUpdate.StartTimer", {
-        stringId: 582,
-        time: 100,
-      });
-      server.sendData(client, "ClientUpdate.TextAlert", {
-        message: name.replace("SpeedTree.", ""),
-      });
-      let itemDefId = 0;
-      switch(name){
-        case "SpeedTree.Blackberry":
-          itemDefId = 105;
-          break;
-        case "SpeedTree.DevilClub":
-        case "SpeedTree.VineMaple":
-          itemDefId = 111;
-          break;
-        default:
-          server.sendChatText(client, `[ERROR] Invalid SpeedTree Name: ${name}`)
-          break;
-      }
-      if(itemDefId){
-        server.sendData(client, "ClientUpdate.ItemAdd", {
-          characterId: client.character.characterId,
-          data: {
-            itemDefinitionId: itemDefId,
-            tintId: 3,
-            guid: server.generateItem(itemDefId),
-            count: 1, // also ammoCount
-            itemSubData: {
-              hasSubData: true,
-              unknownDword1: 1,
-              unknownData1: {
-                unknownQword1: client.character.characterId,
-                unknownDword1: 3,
-                unknownDword2: 3,
-              }
-            },
-            containerGuid: "0x0", // temp until containers work
-            containerDefinitionId: 0,
-            containerSlotId: 1,
-            baseDurability: 2000,
-            currentDurability: 2000,
-            maxDurabilityFromDefinition: 2000,
-            unknownBoolean1: true,
-            unknownQword3: client.character.characterId,
-            unknownDword9: 0,
-            unknownBoolean2: true,
-          }
-        });
-      }
+      server.speedTreeUse(client, packet);
     };
     this.GetRewardBuffInfo = function (
       server: ZoneServer2016,
