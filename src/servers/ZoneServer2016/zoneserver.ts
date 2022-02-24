@@ -54,6 +54,7 @@ export class ZoneServer2016 extends ZoneServer {
   _itemDefinitions: { [itemDefinitionId: number]: any } = itemDefinitions;
   _itemDefinitionIds: any[] = Object.keys(this._itemDefinitions)
   _respawnLocations:any;
+  _speedTrees: any;
   
   constructor(
     serverPort: number,
@@ -70,6 +71,7 @@ export class ZoneServer2016 extends ZoneServer {
     this._weatherTemplates = localWeatherTemplates;
     this._defaultWeatherTemplate = "H1emuBaseWeather";
     this._weather2016 = this._weatherTemplates[this._defaultWeatherTemplate];
+    this._speedTrees = {};
     this._spawnLocations = spawnLocations;
     this._respawnLocations = spawnLocations.map((spawn: any) => {
       return {
@@ -768,6 +770,113 @@ export class ZoneServer2016 extends ZoneServer {
     });
     if (this._ready) this.worldObjectManager.run(this);
     if (refresh) this.worldRoutineTimer.refresh();
+  }
+  
+  speedTreeDestroy(packet: any) {
+    this.sendDataToAll("DtoStateChange", {
+      objectId: packet.data.id,
+      modelName: packet.data.name.concat(".Stump"),
+      effectId: 0,
+      unk3: 0,
+      unk4: true,
+    });
+    const { id: objectId, name } = packet.data;
+    this._speedTrees[packet.data.id] = {
+      objectId: objectId,
+      modelName: name,
+    };
+    setTimeout(() => {
+      this.sendDataToAll("DtoStateChange", {
+        objectId: objectId,
+        modelName: this._speedTrees[objectId].modelName,
+        effectId: 0,
+        unk3: 0,
+        unk4: true,
+      });
+      delete this._speedTrees[objectId];
+    }, 1800000);
+  }
+
+  speedTreeUse(client: Client, packet: any) {
+    const elo = this._speedTrees[packet.data.id];
+    if (elo) {
+      debug(
+        "\x1b[32m",
+        client.character.name + "\x1b[0m",
+        "tried to use destroyed speedTree id:" + "\x1b[32m",
+        packet.data.id
+      );
+    } else {
+		let itemDefId = 0;
+      switch (packet.data.name) {
+        case "SpeedTree.Blackberry":
+		itemDefId = 105;
+          this.sendData(client, "ClientUpdate.TextAlert", {
+            message: packet.data.name.replace("SpeedTree.", ""),
+          });
+          break;
+		case "SpeedTree.DevilClub":
+		case "SpeedTree.VineMaple":
+          itemDefId = 111;
+		  this.sendData(client, "ClientUpdate.TextAlert", {
+            message: packet.data.name.replace("SpeedTree.", ""),
+          });
+          break;
+        default:
+          this.sendData(client, "ClientUpdate.TextAlert", {
+            message: packet.data.name.replace("SpeedTree.", ""),
+          });
+          break;
+      }
+	  if(itemDefId){
+        this.sendData(client, "ClientUpdate.ItemAdd", {
+          characterId: client.character.characterId,
+          data: {
+            itemDefinitionId: itemDefId,
+            tintId: 3,
+            guid: this.generateItem(itemDefId),
+            count: 1, // also ammoCount
+            itemSubData: {
+              hasSubData: true,
+              unknownDword1: 1,
+              unknownData1: {
+                unknownQword1: client.character.characterId,
+                unknownDword1: 3,
+                unknownDword2: 3,
+              }
+            },
+            containerGuid: "0x0", // temp until containers work
+            containerDefinitionId: 0,
+            containerSlotId: 1,
+            baseDurability: 2000,
+            currentDurability: 2000,
+            maxDurabilityFromDefinition: 2000,
+            unknownBoolean1: true,
+            unknownQword3: client.character.characterId,
+            unknownDword9: 0,
+            unknownBoolean2: true,
+          }
+        });
+      }
+      this.speedTreeDestroy(packet);
+    }
+  }
+  
+  customizeDTO(client: Client): void {
+    const DTOArray: any = [];
+    for (const object in this._speedTrees) {
+      const DTO = this._speedTrees[object];
+      const DTOinstance = {
+        objectId: DTO.objectId,
+        unknownString1: DTO.modelName.concat(".Stump"),
+      };
+      DTOArray.push(DTOinstance);
+    }
+    this.sendData(client, "DtoObjectInitialData", {
+      unknownDword1: 1,
+      unknownArray1: DTOArray,
+      unknownArray2: [{}],
+    });
   }
 
   sendWeatherUpdatePacket(
