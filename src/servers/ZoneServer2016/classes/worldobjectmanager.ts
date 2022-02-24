@@ -129,6 +129,41 @@ export class WorldObjectManager {
     if (itemSpawnerId) this.spawnedObjects[itemSpawnerId] = characterId;
   }
 
+  createLootEntity(
+    // todo: clean this up
+    server: ZoneServer2016,
+    itemDefinitionId: number,
+    position: Array<number>,
+    rotation: Array<number>,
+    itemSpawnerId: number = -1
+  ): void {
+    const itemDef = server.getItemDefinition(itemDefinitionId);
+    if(!itemDef){
+      debug(`[ERROR] Tried to createLootEntity for invalid itemDefId: ${itemDefinitionId}`)
+      return;
+    }
+    if(!itemDef.WORLD_MODEL_ID){
+      debug(`[ERROR] Tried to createLootEntity for itemDefId: ${itemDefinitionId} with no WORLD_MODEL_ID`)
+      return;
+    }
+    const guid = generateRandomGuid(),
+      characterId = generateRandomGuid();
+    server._objects[characterId] = {
+      characterId: characterId,
+      guid: guid,
+      transientId: server.getTransientId(characterId),
+      modelId: itemDef.WORLD_MODEL_ID,
+      position: position,
+      rotation: rotation,
+      spawnerId: itemSpawnerId || 0,
+      itemGuid: server.generateItem(itemDefinitionId)
+    };
+    if (itemSpawnerId) this.spawnedObjects[itemSpawnerId] = characterId;
+  }
+
+
+
+
   createDoors(server: ZoneServer2016): void {
     Z1_doors.forEach((doorType: any) => {
       const modelId: number = _.find(models, (model: any) => {
@@ -301,35 +336,34 @@ export class WorldObjectManager {
   }
 
   createAR15(server: ZoneServer2016, spawnerType: any) {
-    const authorizedModelId: number[] = [];
+    const authorizedItemDefIds: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_Weapon_M16A4.adr":
-        authorizedModelId.push(23);
+        authorizedItemDefIds.push(2425);
         break;
       case "ItemSpawner_AmmoBox02_M16A4.adr":
-        authorizedModelId.push(10);
+        authorizedItemDefIds.push(1430);
         break;
       case "ItemSpawner_AmmoBox02.adr":
-        authorizedModelId.push(10);
+        authorizedItemDefIds.push(1430);
         break;
       default:
         break;
     }
-    if (authorizedModelId.length) {
+    if (authorizedItemDefIds.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
         if (this.spawnedObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceAR15) {
           // temporary spawnchance
           const r = itemInstance.rotation;
-          this.createEntity(
+          this.createLootEntity(
             server,
-            authorizedModelId[
-              Math.floor(Math.random() * authorizedModelId.length)
+            authorizedItemDefIds[
+              Math.floor(Math.random() * authorizedItemDefIds.length)
             ],
             itemInstance.position,
             [r[1], r[0], r[2]],
-            server._objects,
             itemInstance.id
           );
         }
@@ -337,32 +371,31 @@ export class WorldObjectManager {
     }
   }
   createPumpShotgun(server: ZoneServer2016, spawnerType: any) {
-    const authorizedModelId: number[] = [];
+    const authorizedItemDefIds: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_Weapon_PumpShotgun01.adr":
-        authorizedModelId.push(9286);
+        authorizedItemDefIds.push(2663);
         break;
       case "ItemSpawner_AmmoBox02_12GaShotgun.adr":
-        authorizedModelId.push(8023);
+        authorizedItemDefIds.push(1511);
         break;
       default:
         break;
     }
-    if (authorizedModelId.length) {
+    if (authorizedItemDefIds.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
         if (this.spawnedObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chancePumpShotgun) {
           // temporary spawnchance
           const r = itemInstance.rotation;
-          this.createEntity(
+          this.createLootEntity(
             server,
-            authorizedModelId[
-              Math.floor(Math.random() * authorizedModelId.length)
+            authorizedItemDefIds[
+              Math.floor(Math.random() * authorizedItemDefIds.length)
             ],
             itemInstance.position,
             [r[1], r[0], r[2]],
-            server._objects,
             itemInstance.id
           );
         }
@@ -371,72 +404,71 @@ export class WorldObjectManager {
   }
 
   createTools(server: ZoneServer2016, spawnerType: any) {
-    const authorizedModelId: number[] = [];
+    const authorizedItemDefIds: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_Weapon_Crowbar01.adr":
-        authorizedModelId.push(18);
+        authorizedItemDefIds.push(82);
         break;
       case "ItemSpawner_Weapon_CombatKnife01.adr":
-        authorizedModelId.push(21);
+        authorizedItemDefIds.push(84);
         break;
       case "ItemSpawner_Weapon_Machete01.adr":
-        authorizedModelId.push(24);
-        authorizedModelId.push(9695); // katana
+        authorizedItemDefIds.push(83);
+        authorizedItemDefIds.push(2961); // katana
         break;
       case "ItemSpawner_Weapon_Bat01.adr":
-        authorizedModelId.push(42);
+        authorizedItemDefIds.push(1721);
         break;
       case "ItemSpawner_BackpackOnGround001.adr":
-        authorizedModelId.push(9093);
+        authorizedItemDefIds.push(1602);
         break;
       case "ItemSpawner_GasCan01.adr":
-        authorizedModelId.push(9135);
+        authorizedItemDefIds.push(73);
         break;
       case "ItemSpawner_Weapon_Guitar01.adr":
-        authorizedModelId.push(9318);
+        authorizedItemDefIds.push(1733);
         break;
       case "ItemSpawner_Weapon_WoodAxe01.adr":
-        authorizedModelId.push(27);
+        authorizedItemDefIds.push(58);
         break;
       case "ItemSpawner_Weapon_FireAxe01.adr":
-        authorizedModelId.push(9325);
+        authorizedItemDefIds.push(1745);
         break;
       case "ItemSpawner_Weapon_ClawHammer01.adr":
-        authorizedModelId.push(9252);
+        authorizedItemDefIds.push(1536);
         break;
       case "ItemSpawner_Weapon_Hatchet01.adr":
-        authorizedModelId.push(22);
+        authorizedItemDefIds.push(3);
         break;
       case "ItemSpawner_Weapon_Pipe01.adr":
-        authorizedModelId.push(9209);
+        authorizedItemDefIds.push(1448);
         break;
       case "ItemSpawner_Weapon_Bat02.adr":
-        authorizedModelId.push(9313);
+        authorizedItemDefIds.push(1724);
         break;
       case "ItemSpawner_Weapon_Bow.adr":
-        authorizedModelId.push(9162);
-        authorizedModelId.push(9214);
-        authorizedModelId.push(9398);
-        authorizedModelId.push(9420); // recurve
+        authorizedItemDefIds.push(113);
+        authorizedItemDefIds.push(1720);
+        authorizedItemDefIds.push(1716);
+        authorizedItemDefIds.push(1986); // recurve
         break;
       default:
         break;
     }
-    if (authorizedModelId.length) {
+    if (authorizedItemDefIds.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
         if (this.spawnedObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceTools) {
           // temporary spawnchance
           const r = itemInstance.rotation;
-          this.createEntity(
+          this.createLootEntity(
             server,
-            authorizedModelId[
-              Math.floor(Math.random() * authorizedModelId.length)
+            authorizedItemDefIds[
+              Math.floor(Math.random() * authorizedItemDefIds.length)
             ],
             itemInstance.position,
             [r[1], r[0], r[2]],
-            server._objects,
             itemInstance.id
           );
         }
@@ -445,35 +477,34 @@ export class WorldObjectManager {
   }
 
   createPistols(server: ZoneServer2016, spawnerType: any) {
-    const authorizedModelId: number[] = [];
+    const authorizedItemDefIds: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_Weapon_45Auto.adr":
-        authorizedModelId.push(17);
+        authorizedItemDefIds.push(2);
         break;
       case "ItemSpawner_Weapon_M9Auto.adr":
-        authorizedModelId.push(9423);
+        authorizedItemDefIds.push(1997);
         break;
       case "ItemSpawner_AmmoBox02_1911.adr":
-        authorizedModelId.push(10);
+        authorizedItemDefIds.push(1428);//todo: find item spawner for m9 ammo
         break;
       default:
         break;
     }
-    if (authorizedModelId.length) {
+    if (authorizedItemDefIds.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
         if (this.spawnedObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chancePistols) {
           // temporary spawnchance
           const r = itemInstance.rotation;
-          this.createEntity(
+          this.createLootEntity(
             server,
-            authorizedModelId[
-              Math.floor(Math.random() * authorizedModelId.length)
+            authorizedItemDefIds[
+              Math.floor(Math.random() * authorizedItemDefIds.length)
             ],
             itemInstance.position,
             [r[1], r[0], r[2]],
-            server._objects,
             itemInstance.id
           );
         }
@@ -482,32 +513,31 @@ export class WorldObjectManager {
   }
 
   createM24(server: ZoneServer2016, spawnerType: any) {
-    const authorizedModelId: number[] = [];
+    const authorizedItemDefIds: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_Weapon_M24.adr":
-        authorizedModelId.push(9204);
+        authorizedItemDefIds.push(1899);
         break;
       case "ItemSpawner_AmmoBox02_308Rifle.adr":
-        authorizedModelId.push(9287);
+        authorizedItemDefIds.push(1469);
         break;
       default:
         break;
     }
-    if (authorizedModelId.length) {
+    if (authorizedItemDefIds.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
         if (this.spawnedObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceM24) {
           // temporary spawnchance
           const r = itemInstance.rotation;
-          this.createEntity(
+          this.createLootEntity(
             server,
-            authorizedModelId[
-              Math.floor(Math.random() * authorizedModelId.length)
+            authorizedItemDefIds[
+              Math.floor(Math.random() * authorizedItemDefIds.length)
             ],
             itemInstance.position,
             [r[1], r[0], r[2]],
-            server._objects,
             itemInstance.id
           );
         }
@@ -516,36 +546,35 @@ export class WorldObjectManager {
   }
 
   createConsumables(server: ZoneServer2016, spawnerType: any) {
-    const authorizedModelId: number[] = [];
+    const authorizedItemDefIds: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_FirstAidKit.adr":
-        authorizedModelId.push(9221);
+        authorizedItemDefIds.push(2424);
         break;
       case "ItemSpawner_CannedFood.adr":
-        authorizedModelId.push(7);
-        authorizedModelId.push(8020);
+        authorizedItemDefIds.push(56);
+        authorizedItemDefIds.push(7);
         break;
       case "ItemSpawner_WaterContainer_Small_Purified.adr":
-        authorizedModelId.push(9159);
+        authorizedItemDefIds.push(1371);
         break;
       default:
         break;
     }
-    if (authorizedModelId.length) {
+    if (authorizedItemDefIds.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
         if (this.spawnedObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceConsumables) {
           // temporary spawnchance
           const r = itemInstance.rotation;
-          this.createEntity(
+          this.createLootEntity(
             server,
-            authorizedModelId[
-              Math.floor(Math.random() * authorizedModelId.length)
+            authorizedItemDefIds[
+              Math.floor(Math.random() * authorizedItemDefIds.length)
             ],
             itemInstance.position,
             [r[1], r[0], r[2]],
-            server._objects,
             itemInstance.id
           );
         }
@@ -554,39 +583,38 @@ export class WorldObjectManager {
   }
 
   createClothes(server: ZoneServer2016, spawnerType: any) {
-    const authorizedModelId: number[] = [];
+    const authorizedItemDefIds: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_Clothes_MotorcycleHelmet.adr":
-        authorizedModelId.push(68);
+        authorizedItemDefIds.push(2042);
         break;
       case "ItemSpawner_Clothes_BaseballCap.adr":
-        authorizedModelId.push(66);
+        authorizedItemDefIds.push(12);
         break;
       case "ItemSpawner_Clothes_FoldedShirt.adr":
-        authorizedModelId.push(9249); // shirt
-        authorizedModelId.push(9736); // pants
+        authorizedItemDefIds.push(92); // shirt
+        authorizedItemDefIds.push(86); // pants
         break;
       case "ItemSpawner_Clothes_Beanie.adr":
-        authorizedModelId.push(67);
+        authorizedItemDefIds.push(2162);
         break;
       default:
         break;
     }
-    if (authorizedModelId.length) {
+    if (authorizedItemDefIds.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
         if (this.spawnedObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceClothes) {
           // temporary spawnchance
           const r = itemInstance.rotation;
-          this.createEntity(
+          this.createLootEntity(
             server,
-            authorizedModelId[
-              Math.floor(Math.random() * authorizedModelId.length)
+            authorizedItemDefIds[
+              Math.floor(Math.random() * authorizedItemDefIds.length)
             ],
             itemInstance.position,
             [r[1], r[0], r[2]],
-            server._objects,
             itemInstance.id
           );
         }
@@ -595,49 +623,48 @@ export class WorldObjectManager {
   }
 
   createResidential(server: ZoneServer2016, spawnerType: any) {
-    const authorizedModelId: number[] = [];
+    const authorizedItemDefIds: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawnerResidential_Tier00.adr":
-        authorizedModelId.push(9064);
-        authorizedModelId.push(9249); // shirt
-        authorizedModelId.push(9736); // pants
-        authorizedModelId.push(70);
-        authorizedModelId.push(21);
-        authorizedModelId.push(66);
-        authorizedModelId.push(67);
-        authorizedModelId.push(68);
-        authorizedModelId.push(8020);
-        authorizedModelId.push(9065);
-        authorizedModelId.push(9039);
-        authorizedModelId.push(9182);
-        authorizedModelId.push(9156);
-        authorizedModelId.push(9159);
-        authorizedModelId.push(10);
-        authorizedModelId.push(72);
-        authorizedModelId.push(9163);
-        authorizedModelId.push(9250);
-        authorizedModelId.push(9221);
-        authorizedModelId.push(9199);
-        authorizedModelId.push(9313);
+        authorizedItemDefIds.push(57);
+        authorizedItemDefIds.push(92); // shirt
+        authorizedItemDefIds.push(86); // pants
+        authorizedItemDefIds.push(1696);
+        authorizedItemDefIds.push(84);
+        authorizedItemDefIds.push(12);
+        authorizedItemDefIds.push(2162);
+        authorizedItemDefIds.push(2042);
+        authorizedItemDefIds.push(7);
+        authorizedItemDefIds.push(22);
+        //authorizedModelId.push(9039); // can opener
+        authorizedItemDefIds.push(1436);
+        authorizedItemDefIds.push(1353);
+        authorizedItemDefIds.push(1371);
+        authorizedItemDefIds.push(1428);
+        authorizedItemDefIds.push(1701);
+        authorizedItemDefIds.push(106);
+        authorizedItemDefIds.push(1402);
+        authorizedItemDefIds.push(2424);
+        authorizedItemDefIds.push(1542);
+        authorizedItemDefIds.push(1724);
         break;
       default:
         break;
     }
-    if (authorizedModelId.length) {
+    if (authorizedItemDefIds.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
         if (this.spawnedObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceResidential) {
           // temporary spawnchance
           const r = itemInstance.rotation;
-          this.createEntity(
+          this.createLootEntity(
             server,
-            authorizedModelId[
-              Math.floor(Math.random() * authorizedModelId.length)
+            authorizedItemDefIds[
+              Math.floor(Math.random() * authorizedItemDefIds.length)
             ],
             itemInstance.position,
             [r[1], r[0], r[2]],
-            server._objects,
             itemInstance.id
           );
         }
@@ -646,35 +673,34 @@ export class WorldObjectManager {
   }
 
   createRare(server: ZoneServer2016, spawnerType: any) {
-    const authorizedModelId: number[] = [];
+    const authorizedItemDefIds: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawnerRare_Tier00.adr":
-        authorizedModelId.push(10);
-        authorizedModelId.push(9287);
-        authorizedModelId.push(8023);
-        authorizedModelId.push(17);
-        authorizedModelId.push(9204);
-        authorizedModelId.push(9286);
-        authorizedModelId.push(23);
+        authorizedItemDefIds.push(1428);
+        authorizedItemDefIds.push(1469);
+        authorizedItemDefIds.push(1511);
+        authorizedItemDefIds.push(2);
+        authorizedItemDefIds.push(1899);
+        authorizedItemDefIds.push(1374);
+        authorizedItemDefIds.push(2230);
         break;
       default:
         break;
     }
-    if (authorizedModelId.length) {
+    if (authorizedItemDefIds.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
         if (this.spawnedObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceRare) {
           // temporary spawnchance
           const r = itemInstance.rotation;
-          this.createEntity(
+          this.createLootEntity(
             server,
-            authorizedModelId[
-              Math.floor(Math.random() * authorizedModelId.length)
+            authorizedItemDefIds[
+              Math.floor(Math.random() * authorizedItemDefIds.length)
             ],
             itemInstance.position,
             [r[1], r[0], r[2]],
-            server._objects,
             itemInstance.id
           );
         }
@@ -683,39 +709,38 @@ export class WorldObjectManager {
   }
 
   createIndustrial(server: ZoneServer2016, spawnerType: any) {
-    const authorizedModelId: number[] = [];
+    const authorizedItemDefIds: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawnerIndustrial_Tier00.adr":
-        authorizedModelId.push(70);
-        authorizedModelId.push(71);
-        authorizedModelId.push(72);
-        authorizedModelId.push(73);
-        authorizedModelId.push(9156);
-        authorizedModelId.push(64);
-        authorizedModelId.push(11);
-        authorizedModelId.push(30);
-        authorizedModelId.push(9209);
-        authorizedModelId.push(27);
-        authorizedModelId.push(54);
+        authorizedItemDefIds.push(1696);
+        authorizedItemDefIds.push(9);
+        authorizedItemDefIds.push(1701);
+        authorizedItemDefIds.push(90);
+        authorizedItemDefIds.push(1353);
+        authorizedItemDefIds.push(109);
+        authorizedItemDefIds.push(46);
+        authorizedItemDefIds.push(48);
+        authorizedItemDefIds.push(1448);
+        authorizedItemDefIds.push(58);
+        authorizedItemDefIds.push(155);
         break;
       default:
         break;
     }
-    if (authorizedModelId.length) {
+    if (authorizedItemDefIds.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
         if (this.spawnedObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceIndustrial) {
           // temporary spawnchance
           const r = itemInstance.rotation;
-          this.createEntity(
+          this.createLootEntity(
             server,
-            authorizedModelId[
-              Math.floor(Math.random() * authorizedModelId.length)
+            authorizedItemDefIds[
+              Math.floor(Math.random() * authorizedItemDefIds.length)
             ],
             itemInstance.position,
             [r[1], r[0], r[2]],
-            server._objects,
             itemInstance.id
           );
         }
@@ -724,39 +749,38 @@ export class WorldObjectManager {
   }
 
   createWorld(server: ZoneServer2016, spawnerType: any) {
-    const authorizedModelId: number[] = [];
+    const authorizedItemDefIds: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawnerWorld_Tier00.adr":
-        authorizedModelId.push(24);
-        authorizedModelId.push(9156);
-        authorizedModelId.push(9159);
-        authorizedModelId.push(9249); // shirt
-        authorizedModelId.push(9736); // pants
-        authorizedModelId.push(9250);
-        authorizedModelId.push(22);
-        authorizedModelId.push(66);
-        authorizedModelId.push(67);
-        authorizedModelId.push(68);
-        authorizedModelId.push(8020);
+        authorizedItemDefIds.push(83);
+        authorizedItemDefIds.push(1353);
+        authorizedItemDefIds.push(1371);
+        authorizedItemDefIds.push(92); // shirt
+        authorizedItemDefIds.push(86); // pants
+        authorizedItemDefIds.push(1402);
+        authorizedItemDefIds.push(3);
+        authorizedItemDefIds.push(12);
+        authorizedItemDefIds.push(2162);
+        authorizedItemDefIds.push(2042);
+        authorizedItemDefIds.push(7);
         break;
       default:
         break;
     }
-    if (authorizedModelId.length) {
+    if (authorizedItemDefIds.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
         if (this.spawnedObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceWorld) {
           // temporary spawnchance
           const r = itemInstance.rotation;
-          this.createEntity(
+          this.createLootEntity(
             server,
-            authorizedModelId[
-              Math.floor(Math.random() * authorizedModelId.length)
+            authorizedItemDefIds[
+              Math.floor(Math.random() * authorizedItemDefIds.length)
             ],
             itemInstance.position,
             [r[1], r[0], r[2]],
-            server._objects,
             itemInstance.id
           );
         }
@@ -765,31 +789,28 @@ export class WorldObjectManager {
   }
 
   createLog(server: ZoneServer2016, spawnerType: any) {
-    const authorizedModelId: number[] = [];
+    const authorizedItemDefIds: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_Log01.adr":
-        authorizedModelId.push(9043);
-        authorizedModelId.push(64);
-        authorizedModelId.push(65);
+        authorizedItemDefIds.push(16);
         break;
       default:
         break;
     }
-    if (authorizedModelId.length) {
+    if (authorizedItemDefIds.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
         if (this.spawnedObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceLog) {
           // temporary spawnchance
           const r = itemInstance.rotation;
-          this.createEntity(
+          this.createLootEntity(
             server,
-            authorizedModelId[
-              Math.floor(Math.random() * authorizedModelId.length)
+            authorizedItemDefIds[
+              Math.floor(Math.random() * authorizedItemDefIds.length)
             ],
             itemInstance.position,
             [r[1], r[0], r[2]],
-            server._objects,
             itemInstance.id
           );
         }
@@ -798,36 +819,35 @@ export class WorldObjectManager {
   }
 
   createCommercial(server: ZoneServer2016, spawnerType: any) {
-    const authorizedModelId: number[] = [];
+    const authorizedItemDefIds: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawnerCommercial_Tier00.adr":
-        authorizedModelId.push(70);
-        authorizedModelId.push(72);
-        authorizedModelId.push(9159);
-        authorizedModelId.push(9156);
-        authorizedModelId.push(68);
-        authorizedModelId.push(9064);
-        authorizedModelId.push(9065);
-        authorizedModelId.push(8020);
+        authorizedItemDefIds.push(1696);
+        authorizedItemDefIds.push(1701);
+        authorizedItemDefIds.push(1353);
+        authorizedItemDefIds.push(1353);
+        authorizedItemDefIds.push(2042);
+        authorizedItemDefIds.push(57);
+        authorizedItemDefIds.push(22);
+        authorizedItemDefIds.push(7);
         break;
       default:
         break;
     }
-    if (authorizedModelId.length) {
+    if (authorizedItemDefIds.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
         if (this.spawnedObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceCommercial) {
           // temporary spawnchance
           const r = itemInstance.rotation;
-          this.createEntity(
+          this.createLootEntity(
             server,
-            authorizedModelId[
-              Math.floor(Math.random() * authorizedModelId.length)
+            authorizedItemDefIds[
+              Math.floor(Math.random() * authorizedItemDefIds.length)
             ],
             itemInstance.position,
             [r[1], r[0], r[2]],
-            server._objects,
             itemInstance.id
           );
         }
@@ -836,33 +856,32 @@ export class WorldObjectManager {
   }
 
   createFarm(server: ZoneServer2016, spawnerType: any) {
-    const authorizedModelId: number[] = [];
+    const authorizedItemDefIds: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawnerFarm.adr":
-        authorizedModelId.push(15);
-        authorizedModelId.push(27);
-        authorizedModelId.push(9163);
-        authorizedModelId.push(22);
-        authorizedModelId.push(9156);
+        authorizedItemDefIds.push(25);
+        authorizedItemDefIds.push(58);
+        authorizedItemDefIds.push(106);
+        authorizedItemDefIds.push(3);
+        authorizedItemDefIds.push(1353);
         break;
       default:
         break;
     }
-    if (authorizedModelId.length) {
+    if (authorizedItemDefIds.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
         if (this.spawnedObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceFarm) {
           // temporary spawnchance
           const r = itemInstance.rotation;
-          this.createEntity(
+          this.createLootEntity(
             server,
-            authorizedModelId[
-              Math.floor(Math.random() * authorizedModelId.length)
+            authorizedItemDefIds[
+              Math.floor(Math.random() * authorizedItemDefIds.length)
             ],
             itemInstance.position,
             [r[1], r[0], r[2]],
-            server._objects,
             itemInstance.id
           );
         }
@@ -870,37 +889,36 @@ export class WorldObjectManager {
     }
   }
   createHospital(server: ZoneServer2016, spawnerType: any) {
-    const authorizedModelId: number[] = [];
+    const authorizedItemDefIds: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawnerHospital.adr":
-        authorizedModelId.push(9221); // medkit
-        authorizedModelId.push(9250); // mre
-        authorizedModelId.push(9066); // bandage
-        authorizedModelId.push(9543); // vial
-        authorizedModelId.push(9540); // syringe
-        authorizedModelId.push(9249); // shirt
-        authorizedModelId.push(9736); // pants
-        authorizedModelId.push(9296); // water bottle
-        authorizedModelId.push(9156); // empty bottle
+        authorizedItemDefIds.push(2424); // medkit
+        authorizedItemDefIds.push(1402); // mre
+        authorizedItemDefIds.push(2423); // bandage
+        authorizedItemDefIds.push(2510); // vial
+        authorizedItemDefIds.push(1508); // syringe
+        authorizedItemDefIds.push(92); // shirt
+        authorizedItemDefIds.push(86); // pants
+        authorizedItemDefIds.push(2358); // water bottle
+        authorizedItemDefIds.push(1353); // empty bottle
         break;
       default:
         break;
     }
-    if (authorizedModelId.length) {
+    if (authorizedItemDefIds.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
         if (this.spawnedObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceHospital) {
           // temporary spawnchance
           const r = itemInstance.rotation;
-          this.createEntity(
+          this.createLootEntity(
             server,
-            authorizedModelId[
-              Math.floor(Math.random() * authorizedModelId.length)
+            authorizedItemDefIds[
+              Math.floor(Math.random() * authorizedItemDefIds.length)
             ],
             itemInstance.position,
             [r[1], r[0], r[2]],
-            server._objects,
             itemInstance.id
           );
         }
@@ -908,83 +926,99 @@ export class WorldObjectManager {
     }
   }
   createMilitary(server: ZoneServer2016, spawnerType: any) {
-    const authorizedModelId: number[] = [];
+    const authorizedItemDefIds: number[] = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_Z1_MilitaryBase_Tents1.adr": // uncommon
-        authorizedModelId.push(9202); // crossbow
-        authorizedModelId.push(9422); // r380
-        authorizedModelId.push(9249); // shirt, should be ghille suit when inventory works
-        authorizedModelId.push(68); // motorcycle helmet
-        authorizedModelId.push(9418); // tactical helmet
-        authorizedModelId.push(9419); // respirator
-        authorizedModelId.push(9221); // medkit
-        authorizedModelId.push(10); // pistol ammo
-        authorizedModelId.push(9445); // night vision goggles
-        authorizedModelId.push(10); // ar-15 / ak-47 ammo
-        authorizedModelId.push(9250); // mre
+        authorizedItemDefIds.push(2246); // crossbow
+        authorizedItemDefIds.push(1991); // r380
+        authorizedItemDefIds.push(92); // shirt, should be ghille suit when inventory works
+        authorizedItemDefIds.push(2042); // motorcycle helmet
+        authorizedItemDefIds.push(2172); // tactical helmet
+        authorizedItemDefIds.push(2148); // respirator
+        authorizedItemDefIds.push(2424); // medkit
+        //ammo
+        authorizedItemDefIds.push(1428);
+        authorizedItemDefIds.push(1429);
+        authorizedItemDefIds.push(1430);
+        authorizedItemDefIds.push(1992);
+        authorizedItemDefIds.push(1998);
+        authorizedItemDefIds.push(2325);
+
+        authorizedItemDefIds.push(1700); // night vision goggles
+        authorizedItemDefIds.push(1428); // ar-15 / ak-47 ammo
+        authorizedItemDefIds.push(1402); // mre
         break;
       case "ItemSpawner_Z1_MilitaryBase_Tents2.adr": // rare
-        authorizedModelId.push(9449); // molotov
-        authorizedModelId.push(9483); // magnum
-        authorizedModelId.push(8023); // shotgun ammo
-        authorizedModelId.push(9287); // 308 ammo
-        authorizedModelId.push(16); // gunpowder
-        authorizedModelId.push(9391); // bag (landmine)
-        authorizedModelId.push(9583); // kevlar
+        authorizedItemDefIds.push(14); // molotov
+        authorizedItemDefIds.push(1718); // magnum
+        authorizedItemDefIds.push(1511); // shotgun ammo
+        authorizedItemDefIds.push(1469); // 308 ammo
+        authorizedItemDefIds.push(11); // gunpowder
+        authorizedItemDefIds.push(74); // bag (landmine)
+        authorizedItemDefIds.push(2271); // kevlar
         break;
       case "ItemSpawner_Z1_MilitaryBase_MotorPool.adr": // common
-        authorizedModelId.push(9199); // binoculars
-        authorizedModelId.push(21); // combat knife
-        authorizedModelId.push(25); // flare
-        authorizedModelId.push(30); // scrap
-        authorizedModelId.push(9391); // bag (cloth)
-        authorizedModelId.push(58); // flashlight
-        authorizedModelId.push(54); // tarp
-        authorizedModelId.push(9250); // mre
+        authorizedItemDefIds.push(1542); // binoculars
+        authorizedItemDefIds.push(84); // combat knife
+        authorizedItemDefIds.push(1672); // flare
+        authorizedItemDefIds.push(48); // scrap
+        authorizedItemDefIds.push(74); // bag (cloth)
+        authorizedItemDefIds.push(1380); // flashlight
+        authorizedItemDefIds.push(155); // tarp
+        authorizedItemDefIds.push(1402); // mre
         break;
       case "ItemSpawner_Z1_MilitaryBase_Hangar.adr": // industrial
-        authorizedModelId.push(30); // scrap
-        authorizedModelId.push(11); // sheet metal
-        authorizedModelId.push(12); // metal pipe
-        authorizedModelId.push(18); // crowbar
-        authorizedModelId.push(9252); // claw hammer
-        authorizedModelId.push(9135); // gas can
-        authorizedModelId.push(70); // battery
-        authorizedModelId.push(71); // headlights
-        authorizedModelId.push(72); // sparkplugs
-        authorizedModelId.push(73); // turbocharger
-        authorizedModelId.push(9393); // wrench
+        authorizedItemDefIds.push(48); // scrap
+        authorizedItemDefIds.push(46); // sheet metal
+        authorizedItemDefIds.push(47); // metal pipe
+        authorizedItemDefIds.push(82); // crowbar
+        authorizedItemDefIds.push(1536); // claw hammer
+        authorizedItemDefIds.push(73); // gas can
+        authorizedItemDefIds.push(1696); // battery
+        //headlights
+        authorizedItemDefIds.push(9);
+        authorizedItemDefIds.push(1728);
+        authorizedItemDefIds.push(1730);
+        authorizedItemDefIds.push(2194);
+
+        authorizedItemDefIds.push(1701); // sparkplugs
+        // turbochargers
+        authorizedItemDefIds.push(90);
+        authorizedItemDefIds.push(1729);
+        authorizedItemDefIds.push(1731);
+        authorizedItemDefIds.push(2195);
+
+        authorizedItemDefIds.push(1538); // wrench
         break;
       case "ItemSpawner_Weapon_GrenadeSmoke.adr":
-        authorizedModelId.push(9450);
+        authorizedItemDefIds.push(2236);
         break;
       case "ItemSpawner_Weapon_GrenadeFlashbang.adr":
-        authorizedModelId.push(9448);
+        authorizedItemDefIds.push(2235);
         break;
       case "ItemSpawner_Weapon_GrenadeGas.adr":
-        authorizedModelId.push(9479);
+        authorizedItemDefIds.push(2237);
         break;
       case "ItemSpawner_Weapon_GrenadeHE.adr":
-        authorizedModelId.push(9476);
+        authorizedItemDefIds.push(2243);
         break;
       default:
         break;
     }
-    if (authorizedModelId.length) {
+    if (authorizedItemDefIds.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
         if (this.spawnedObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceMilitary) {
           // temporary spawnchance
           const r = itemInstance.rotation;
-          this.createEntity(
+          this.createLootEntity(
             server,
-            authorizedModelId[
-              Math.floor(Math.random() * authorizedModelId.length)
+            authorizedItemDefIds[
+              Math.floor(Math.random() * authorizedItemDefIds.length)
             ],
             itemInstance.position,
             [r[1], r[0], r[2]],
-            server._objects,
             itemInstance.id
           );
         }

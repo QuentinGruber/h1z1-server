@@ -1131,7 +1131,8 @@ export class zonePacketHandlers {
 
       switch (entityType) {
         case 1: // object
-          const itemGuid = server.generatePickupItem(entityData),
+        console.log(entityData)
+          const itemGuid = entityData.itemGuid,//server.generatePickupItem(entityData),
             item = server._items[itemGuid];
           if (!item) {
             server.sendChatText(

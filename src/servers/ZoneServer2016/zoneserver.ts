@@ -1626,12 +1626,11 @@ export class ZoneServer2016 extends ZoneServer {
       );
       return;
     }
-    this.worldObjectManager.createEntity(
+    this.worldObjectManager.createLootEntity(
       this, 
-      modelId, 
+      itemDefinition.ID, 
       [...client.character.state.position], 
-      [...client.character.state.lookAt],
-      this._objects
+      [...client.character.state.lookAt]
       )
       this.spawnObjects(client); // manually call this for now
 
