@@ -494,6 +494,31 @@ export class ZoneServer2016 extends ZoneServer {
         //unknownDword40: 1
       },
     });
+
+    this.sendData(client, "Command.ItemDefinitions", {
+      // sends full list of item definitions
+      data: {
+        itemDefinitions: this._itemDefinitionIds.map((itemDefId: any) => {
+          const itemDef = this.getItemDefinition(itemDefId);
+          return {
+            ID: itemDefId,
+            definitionData: {
+              ...itemDef,
+              HUD_IMAGE_SET_ID: itemDef.IMAGE_SET_ID,
+              containerDefinitionId:
+                itemDef.ITEM_TYPE == 34 ? itemDef.PARAM1 : 0,
+              flags1: {
+                ...itemDef,
+              },
+              flags2: {
+                ...itemDef,
+              },
+              stats: [],
+            },
+          };
+        }),
+      },
+    });  
     
     this.sendData(client, "Container.InitEquippedContainers", {
       ignore: client.character.characterId,
