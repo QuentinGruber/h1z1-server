@@ -1758,7 +1758,6 @@ export class ZoneServer2016 extends ZoneServer {
         client, 
         `[ERROR] No WORLD_MODEL_ID mapped to itemDefinitionId: ${this._items[itemGuid].itemDefinitionId}`
       );
-      return;
     }
     this.worldObjectManager.createLootEntity(
       this, 
