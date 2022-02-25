@@ -1104,7 +1104,7 @@ export class zonePacketHandlers {
                 itemDefinitionId: itemDefId,
                 tintId: 3,
                 guid: itemGuid,
-                count: 1, // also ammoCount
+                count: entityData.stackCount, // also ammoCount
                 itemSubData: {
                   hasSubData: true,
                   unknownDword1: 1,
@@ -1297,7 +1297,7 @@ export class zonePacketHandlers {
         case 4:
         case 73: // battery drop option
         case 79: // sparks drop option
-          server.dropItem(client, packet.data.itemGuid);
+          server.dropItem(client, packet.data.itemGuid, 1);
           break;
         default:
           server.sendChatText(client, "[ERROR] ItemUseOption not mapped to a function.")

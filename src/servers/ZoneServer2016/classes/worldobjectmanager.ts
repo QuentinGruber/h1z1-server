@@ -48,7 +48,110 @@ function getRandomVehicleId() {
   }
 }
 
+function getRandomItem(authorizedItems:  Array<{id: number, count: number}>) {
+  return authorizedItems[
+    Math.floor(Math.random() * authorizedItems.length)
+  ]
+};
+
+function getItemSpawnCount(min: number, max: number) {
+  return Math.floor(Math.random() * (max - min) + min);
+};
+
 export class WorldObjectManager {
+  eItems: any = {
+    WEAPON_AR15: 2425,
+    AMMO_223: 1429,
+    WEAPON_SHOTGUN: 2663,
+    AMMO_12GA: 1511,
+    WEAPON_CROWBAR: 82,
+    WEAPON_COMBATKNIFE: 84,
+    WEAPON_MACHETE01: 83,
+    WEAPON_KATANA: 2961,
+    WEAPON_BAT_WOOD: 1724,
+    BACKPACK: 1605,
+    GAS_CAN: 73,
+    WEAPON_GUITAR: 1733,
+    WEAPON_AXE_WOOD: 58,
+    WEAPON_AXE_FIRE: 1745,
+    WEAPON_HAMMER: 1536,
+    WEAPON_HATCHET: 3,
+    WEAPON_PIPE: 1448,
+    WEAPON_BAT_ALUM: 1733,
+    WEAPON_BOW_MAKESHIFT: 113,
+    WEAPON_BOW_WOOD: 1720,
+    WEAPON_BOW_RECURVE: 1986,
+    WEAPON_45: 2,
+    WEAPON_M9:1997,
+    AMMO_1911: 1428,
+    AMMO_9MM: 1998, // TODO: assign it to a spawner
+    WEAPON_308: 1899,
+    AMMO_308: 1469,
+    FIRST_AID: 2424,
+    GROUND_COFFEE: 56, // TODO: expand with more canned food types
+    CANNED_FOOD01: 7,
+    WATER_PURE: 1371,
+    HELMET_MOTORCYCLE: 2170, // TODO: expand with other default helmet colors
+    HAT_CAP: 12, // TODO: expand with other cap colors
+    SHIRT_DEFAULT: 92, // TODO: expand with other default shirts
+    PANTS_DEFAULT: 86, // TODO: expand with other default pants
+
+    HAT_BEANIE: 2162,
+    SUGAR: 57,
+    BATTERY: 1696,
+    SPARKPLUGS: 1701,
+    SALT: 22,
+    LIGHTER: 1436,
+    WATER_EMPTY: 1353,
+    MRE_APPLE: 1402, // TODO: add other MRE types
+
+    WEAPON_BINOCULARS: 1542,
+    FUEL_BIOFUEL: 73,
+    WOOD_PLANK: 109,
+    METAL_SHEET: 46,
+    METAL_SCRAP: 48,
+    TARP: 155,
+    WOOD_LOG: 16,
+    FERTILIZER: 25,
+    SEED_CORN: 1987,
+    SEED_WHEAT: 1988,
+    BANDAGE: 2423,
+    VIAL_EMPTY: 2510,
+    SYRINGE_EMPTY: 1508,
+    WEAPON_CROSSBOW: 2246,
+    WEAPON_R380: 1991,
+    GHILLIE_SUIT: 92,
+    HELMET_TACTICAL: 2172,
+    RESPIRATOR: 2148,
+    AMMO_380: 1992,
+    AMMO_762: 2325,
+    NV_GOGGLES: 1700,
+    WEAPON_MOLOTOV: 14,
+    WEAPON_MAGNUM: 1718,
+    GUNPOWDER: 11,
+    LANDMINE: 74,
+    KEVLAR_DEFAULT: 2271,
+    FLARE: 1672,
+    CLOTH: 74,
+    WEAPON_FLASHLIGHT: 1380,
+    METAL_PIPE: 47,
+    WEAPON_WRENCH: 1538,
+
+    HEADLIGHTS_OFFROADER: 9,
+    HEADLIGHTS_POLICE: 1730,
+    HEADLIGHTS_ATV: 2194,
+    HEADLIGHTS_PICKUP: 1728,
+
+    TURBO_OFFROADER: 90,
+    TURBO_POLICE: 1731,
+    TURBO_ATV: 2195,
+    TURBO_PICKUP: 1729,
+
+    GRENADE_SMOKE: 2236,
+    GRENADE_FLASH: 2235,
+    GRENADE_GAS: 2237,
+    GRENADE_HE: 2243
+  };
   spawnedObjects: { [spawnerId: number]: string } = {};
   vehicleSpawnCap: number = 100;
 
@@ -133,6 +236,7 @@ export class WorldObjectManager {
     // todo: clean this up
     server: ZoneServer2016,
     itemDefinitionId: number,
+    stackCount: number,
     position: Array<number>,
     rotation: Array<number>,
     itemSpawnerId: number = -1
@@ -156,7 +260,8 @@ export class WorldObjectManager {
       position: position,
       rotation: rotation,
       spawnerId: itemSpawnerId || 0,
-      itemGuid: server.generateItem(itemDefinitionId)
+      itemGuid: server.generateItem(itemDefinitionId),
+      stackCount: stackCount
     };
     if (itemSpawnerId) this.spawnedObjects[itemSpawnerId] = characterId;
   }
@@ -336,32 +441,32 @@ export class WorldObjectManager {
   }
 
   createAR15(server: ZoneServer2016, spawnerType: any) {
-    const authorizedItemDefIds: number[] = [];
+    const authorizedItems: Array<{id: number, count: number}> = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_Weapon_M16A4.adr":
-        authorizedItemDefIds.push(2425);
+        authorizedItems.push({id: this.eItems.WEAPON_AR15, count: 1});
         break;
       case "ItemSpawner_AmmoBox02_M16A4.adr":
-        authorizedItemDefIds.push(1430);
+        authorizedItems.push({id: this.eItems.AMMO_223, count: getItemSpawnCount(5, 10)});
         break;
       case "ItemSpawner_AmmoBox02.adr":
-        authorizedItemDefIds.push(1430);
+        authorizedItems.push({id: this.eItems.AMMO_223, count: getItemSpawnCount(1, 5)});
         break;
       default:
         break;
     }
-    if (authorizedItemDefIds.length) {
+    if (authorizedItems.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
         if (this.spawnedObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceAR15) {
           // temporary spawnchance
-          const r = itemInstance.rotation;
+          const r = itemInstance.rotation,
+          item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
-            authorizedItemDefIds[
-              Math.floor(Math.random() * authorizedItemDefIds.length)
-            ],
+            item.id,
+            item.count,
             itemInstance.position,
             [r[1], r[0], r[2]],
             itemInstance.id
@@ -371,29 +476,29 @@ export class WorldObjectManager {
     }
   }
   createPumpShotgun(server: ZoneServer2016, spawnerType: any) {
-    const authorizedItemDefIds: number[] = [];
+    const authorizedItems: Array<{id: number, count: number}> = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_Weapon_PumpShotgun01.adr":
-        authorizedItemDefIds.push(2663);
+        authorizedItems.push({id: this.eItems.WEAPON_SHOTGUN, count: 1});
         break;
       case "ItemSpawner_AmmoBox02_12GaShotgun.adr":
-        authorizedItemDefIds.push(1511);
+        authorizedItems.push({id: this.eItems.AMMO_12GA, count: getItemSpawnCount(1, 3)});
         break;
       default:
         break;
     }
-    if (authorizedItemDefIds.length) {
+    if (authorizedItems.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
         if (this.spawnedObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chancePumpShotgun) {
           // temporary spawnchance
-          const r = itemInstance.rotation;
+          const r = itemInstance.rotation,
+          item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
-            authorizedItemDefIds[
-              Math.floor(Math.random() * authorizedItemDefIds.length)
-            ],
+            item.id,
+            item.count,
             itemInstance.position,
             [r[1], r[0], r[2]],
             itemInstance.id
@@ -404,69 +509,68 @@ export class WorldObjectManager {
   }
 
   createTools(server: ZoneServer2016, spawnerType: any) {
-    const authorizedItemDefIds: number[] = [];
+    const authorizedItems: Array<{id: number, count: number}> = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_Weapon_Crowbar01.adr":
-        authorizedItemDefIds.push(82);
+        authorizedItems.push({id: this.eItems.WEAPON_CROWBAR, count: 1});
         break;
       case "ItemSpawner_Weapon_CombatKnife01.adr":
-        authorizedItemDefIds.push(84);
+        authorizedItems.push({id: this.eItems.WEAPON_COMBATKNIFE, count: 1});
         break;
       case "ItemSpawner_Weapon_Machete01.adr":
-        authorizedItemDefIds.push(83);
-        authorizedItemDefIds.push(2961); // katana
+        authorizedItems.push({id: this.eItems.WEAPON_MACHETE01, count: 1});
+        authorizedItems.push({id: this.eItems.WEAPON_KATANA, count: 1}); // katana
         break;
       case "ItemSpawner_Weapon_Bat01.adr":
-        authorizedItemDefIds.push(1721);
+        authorizedItems.push({id: this.eItems.WEAPON_BAT_WOOD, count: 1});
         break;
       case "ItemSpawner_BackpackOnGround001.adr":
-        authorizedItemDefIds.push(1602);
+        authorizedItems.push({id: this.eItems.BACKPACK, count: 1});
         break;
       case "ItemSpawner_GasCan01.adr":
-        authorizedItemDefIds.push(73);
+        authorizedItems.push({id: this.eItems.FUEL_BIOFUEL, count: 1});
         break;
       case "ItemSpawner_Weapon_Guitar01.adr":
-        authorizedItemDefIds.push(1733);
+        authorizedItems.push({id: this.eItems.WEAPON_GUITAR, count: 1});
         break;
       case "ItemSpawner_Weapon_WoodAxe01.adr":
-        authorizedItemDefIds.push(58);
+        authorizedItems.push({id: this.eItems.WEAPON_AXE_WOOD, count: 1});
         break;
       case "ItemSpawner_Weapon_FireAxe01.adr":
-        authorizedItemDefIds.push(1745);
+        authorizedItems.push({id: this.eItems.WEAPON_AXE_FIRE, count: 1});
         break;
       case "ItemSpawner_Weapon_ClawHammer01.adr":
-        authorizedItemDefIds.push(1536);
+        authorizedItems.push({id: this.eItems.WEAPON_HAMMER, count: 1});
         break;
       case "ItemSpawner_Weapon_Hatchet01.adr":
-        authorizedItemDefIds.push(3);
+        authorizedItems.push({id: this.eItems.WEAPON_HATCHET, count: 1});
         break;
       case "ItemSpawner_Weapon_Pipe01.adr":
-        authorizedItemDefIds.push(1448);
+        authorizedItems.push({id: this.eItems.WEAPON_PIPE, count: 1});
         break;
       case "ItemSpawner_Weapon_Bat02.adr":
-        authorizedItemDefIds.push(1724);
+        authorizedItems.push({id: this.eItems.WEAPON_BAT_ALUM, count: 1});
         break;
       case "ItemSpawner_Weapon_Bow.adr":
-        authorizedItemDefIds.push(113);
-        authorizedItemDefIds.push(1720);
-        authorizedItemDefIds.push(1716);
-        authorizedItemDefIds.push(1986); // recurve
+        authorizedItems.push({id: this.eItems.WEAPON_BOW_MAKESHIFT, count: 1});
+        authorizedItems.push({id: this.eItems.WEAPON_BOW_WOOD, count: 1});
+        authorizedItems.push({id: this.eItems.WEAPON_BOW_RECURVE, count: 1});
         break;
       default:
         break;
     }
-    if (authorizedItemDefIds.length) {
+    if (authorizedItems.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
         if (this.spawnedObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceTools) {
           // temporary spawnchance
-          const r = itemInstance.rotation;
+          const r = itemInstance.rotation,
+          item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
-            authorizedItemDefIds[
-              Math.floor(Math.random() * authorizedItemDefIds.length)
-            ],
+            item.id,
+            item.count,
             itemInstance.position,
             [r[1], r[0], r[2]],
             itemInstance.id
@@ -477,32 +581,32 @@ export class WorldObjectManager {
   }
 
   createPistols(server: ZoneServer2016, spawnerType: any) {
-    const authorizedItemDefIds: number[] = [];
+    const authorizedItems: Array<{id: number, count: number}> = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_Weapon_45Auto.adr":
-        authorizedItemDefIds.push(2);
+        authorizedItems.push({id: this.eItems.WEAPON_45, count: 1});
         break;
       case "ItemSpawner_Weapon_M9Auto.adr":
-        authorizedItemDefIds.push(1997);
+        authorizedItems.push({id: this.eItems.WEAPON_M9, count: 1});
         break;
       case "ItemSpawner_AmmoBox02_1911.adr":
-        authorizedItemDefIds.push(1428);//todo: find item spawner for m9 ammo
+        authorizedItems.push({id: this.eItems.AMMO_1911, count: getItemSpawnCount(1, 5)});//todo: find item spawner for m9 ammo
         break;
       default:
         break;
     }
-    if (authorizedItemDefIds.length) {
+    if (authorizedItems.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
         if (this.spawnedObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chancePistols) {
           // temporary spawnchance
-          const r = itemInstance.rotation;
+          const r = itemInstance.rotation,
+          item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
-            authorizedItemDefIds[
-              Math.floor(Math.random() * authorizedItemDefIds.length)
-            ],
+            item.id,
+            item.count,
             itemInstance.position,
             [r[1], r[0], r[2]],
             itemInstance.id
@@ -513,29 +617,29 @@ export class WorldObjectManager {
   }
 
   createM24(server: ZoneServer2016, spawnerType: any) {
-    const authorizedItemDefIds: number[] = [];
+    const authorizedItems: Array<{id: number, count: number}> = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_Weapon_M24.adr":
-        authorizedItemDefIds.push(1899);
+        authorizedItems.push({id: this.eItems.WEAPON_308, count: 1});
         break;
       case "ItemSpawner_AmmoBox02_308Rifle.adr":
-        authorizedItemDefIds.push(1469);
+        authorizedItems.push({id: this.eItems.AMMO_308, count: getItemSpawnCount(2, 4)});
         break;
       default:
         break;
     }
-    if (authorizedItemDefIds.length) {
+    if (authorizedItems.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
         if (this.spawnedObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceM24) {
           // temporary spawnchance
-          const r = itemInstance.rotation;
+          const r = itemInstance.rotation,
+          item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
-            authorizedItemDefIds[
-              Math.floor(Math.random() * authorizedItemDefIds.length)
-            ],
+            item.id,
+            item.count,
             itemInstance.position,
             [r[1], r[0], r[2]],
             itemInstance.id
@@ -546,33 +650,33 @@ export class WorldObjectManager {
   }
 
   createConsumables(server: ZoneServer2016, spawnerType: any) {
-    const authorizedItemDefIds: number[] = [];
+    const authorizedItems: Array<{id: number, count: number}> = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_FirstAidKit.adr":
-        authorizedItemDefIds.push(2424);
+        authorizedItems.push({id: this.eItems.FIRST_AID, count: 1});
         break;
       case "ItemSpawner_CannedFood.adr":
-        authorizedItemDefIds.push(56);
-        authorizedItemDefIds.push(7);
+        authorizedItems.push({id: this.eItems.GROUND_COFFEE, count: 1});
+        authorizedItems.push({id: this.eItems.CANNED_FOOD01, count: 1});
         break;
       case "ItemSpawner_WaterContainer_Small_Purified.adr":
-        authorizedItemDefIds.push(1371);
+        authorizedItems.push({id: this.eItems.WATER_PURE, count: 1});
         break;
       default:
         break;
     }
-    if (authorizedItemDefIds.length) {
+    if (authorizedItems.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
         if (this.spawnedObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceConsumables) {
           // temporary spawnchance
-          const r = itemInstance.rotation;
+          const r = itemInstance.rotation,
+          item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
-            authorizedItemDefIds[
-              Math.floor(Math.random() * authorizedItemDefIds.length)
-            ],
+            item.id,
+            item.count,
             itemInstance.position,
             [r[1], r[0], r[2]],
             itemInstance.id
@@ -583,36 +687,36 @@ export class WorldObjectManager {
   }
 
   createClothes(server: ZoneServer2016, spawnerType: any) {
-    const authorizedItemDefIds: number[] = [];
+    const authorizedItems: Array<{id: number, count: number}> = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_Clothes_MotorcycleHelmet.adr":
-        authorizedItemDefIds.push(2042);
+        authorizedItems.push({id: this.eItems.HELMET_MOTORCYCLE, count: 1});
         break;
       case "ItemSpawner_Clothes_BaseballCap.adr":
-        authorizedItemDefIds.push(12);
+        authorizedItems.push({id: this.eItems.HAT_CAP, count: 1});
         break;
       case "ItemSpawner_Clothes_FoldedShirt.adr":
-        authorizedItemDefIds.push(92); // shirt
-        authorizedItemDefIds.push(86); // pants
+        authorizedItems.push({id: this.eItems.SHIRT_DEFAULT, count: 1});
+        authorizedItems.push({id: this.eItems.PANTS_DEFAULT, count: 1});
         break;
       case "ItemSpawner_Clothes_Beanie.adr":
-        authorizedItemDefIds.push(2162);
+        authorizedItems.push({id: this.eItems.HAT_BEANIE, count: 1});
         break;
       default:
         break;
     }
-    if (authorizedItemDefIds.length) {
+    if (authorizedItems.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
         if (this.spawnedObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceClothes) {
           // temporary spawnchance
-          const r = itemInstance.rotation;
+          const r = itemInstance.rotation,
+          item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
-            authorizedItemDefIds[
-              Math.floor(Math.random() * authorizedItemDefIds.length)
-            ],
+            item.id,
+            item.count,
             itemInstance.position,
             [r[1], r[0], r[2]],
             itemInstance.id
@@ -623,46 +727,45 @@ export class WorldObjectManager {
   }
 
   createResidential(server: ZoneServer2016, spawnerType: any) {
-    const authorizedItemDefIds: number[] = [];
+    const authorizedItems: Array<{id: number, count: number}> = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawnerResidential_Tier00.adr":
-        authorizedItemDefIds.push(57);
-        authorizedItemDefIds.push(92); // shirt
-        authorizedItemDefIds.push(86); // pants
-        authorizedItemDefIds.push(1696);
-        authorizedItemDefIds.push(84);
-        authorizedItemDefIds.push(12);
-        authorizedItemDefIds.push(2162);
-        authorizedItemDefIds.push(2042);
-        authorizedItemDefIds.push(7);
-        authorizedItemDefIds.push(22);
-        //authorizedModelId.push(9039); // can opener
-        authorizedItemDefIds.push(1436);
-        authorizedItemDefIds.push(1353);
-        authorizedItemDefIds.push(1371);
-        authorizedItemDefIds.push(1428);
-        authorizedItemDefIds.push(1701);
-        authorizedItemDefIds.push(106);
-        authorizedItemDefIds.push(1402);
-        authorizedItemDefIds.push(2424);
-        authorizedItemDefIds.push(1542);
-        authorizedItemDefIds.push(1724);
+        authorizedItems.push({id: this.eItems.SUGAR, count: 1});
+        authorizedItems.push({id: this.eItems.SHIRT_DEFAULT, count: 1});
+        authorizedItems.push({id: this.eItems.PANTS_DEFAULT, count: 1});
+        authorizedItems.push({id: this.eItems.BATTERY, count: 1});
+        authorizedItems.push({id: this.eItems.WEAPON_COMBATKNIFE, count: 1});
+        authorizedItems.push({id: this.eItems.HAT_CAP, count: 1});
+        authorizedItems.push({id: this.eItems.HAT_BEANIE, count: 1});
+        authorizedItems.push({id: this.eItems.HELMET_MOTORCYCLE, count: 1});
+        authorizedItems.push({id: this.eItems.CANNED_FOOD01, count: 1});
+        authorizedItems.push({id: this.eItems.SALT, count: 1});
+        authorizedItems.push({id: this.eItems.LIGHTER, count: 1});
+        authorizedItems.push({id: this.eItems.WATER_EMPTY, count: 1});
+        authorizedItems.push({id: this.eItems.WATER_PURE, count: 1});
+        authorizedItems.push({id: this.eItems.AMMO_1911, count: 1});
+        authorizedItems.push({id: this.eItems.AMMO_9MM, count: 1});
+        authorizedItems.push({id: this.eItems.SPARKPLUGS, count: 1});
+        authorizedItems.push({id: this.eItems.FIRST_AID, count: 1});
+        authorizedItems.push({id: this.eItems.WEAPON_BINOCULARS, count: 1});
+        authorizedItems.push({id: this.eItems.WEAPON_BAT_WOOD, count: 1});
+        authorizedItems.push({id: this.eItems.WEAPON_BAT_ALUM, count: 1});
         break;
       default:
         break;
     }
-    if (authorizedItemDefIds.length) {
+    if (authorizedItems.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
         if (this.spawnedObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceResidential) {
           // temporary spawnchance
-          const r = itemInstance.rotation;
+          const r = itemInstance.rotation,
+          item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
-            authorizedItemDefIds[
-              Math.floor(Math.random() * authorizedItemDefIds.length)
-            ],
+            item.id,
+            item.count,
             itemInstance.position,
             [r[1], r[0], r[2]],
             itemInstance.id
@@ -673,32 +776,32 @@ export class WorldObjectManager {
   }
 
   createRare(server: ZoneServer2016, spawnerType: any) {
-    const authorizedItemDefIds: number[] = [];
+    const authorizedItems: Array<{id: number, count: number}> = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawnerRare_Tier00.adr":
-        authorizedItemDefIds.push(1428);
-        authorizedItemDefIds.push(1469);
-        authorizedItemDefIds.push(1511);
-        authorizedItemDefIds.push(2);
-        authorizedItemDefIds.push(1899);
-        authorizedItemDefIds.push(1374);
-        authorizedItemDefIds.push(2230);
+        authorizedItems.push({id: this.eItems.AMMO_1911, count: 1});
+        authorizedItems.push({id: this.eItems.AMMO_308, count: 1});
+        authorizedItems.push({id: this.eItems.AMMO_12GA, count: 1});
+        authorizedItems.push({id: this.eItems.WEAPON_45, count: 1});
+        authorizedItems.push({id: this.eItems.WEAPON_308, count: 1});
+        authorizedItems.push({id: this.eItems.WEAPON_SHOTGUN, count: 1});
+        authorizedItems.push({id: this.eItems.WEAPON_AR15, count: 1});
         break;
       default:
         break;
     }
-    if (authorizedItemDefIds.length) {
+    if (authorizedItems.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
         if (this.spawnedObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceRare) {
           // temporary spawnchance
-          const r = itemInstance.rotation;
+          const r = itemInstance.rotation,
+          item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
-            authorizedItemDefIds[
-              Math.floor(Math.random() * authorizedItemDefIds.length)
-            ],
+            item.id,
+            item.count,
             itemInstance.position,
             [r[1], r[0], r[2]],
             itemInstance.id
@@ -709,36 +812,45 @@ export class WorldObjectManager {
   }
 
   createIndustrial(server: ZoneServer2016, spawnerType: any) {
-    const authorizedItemDefIds: number[] = [];
+    const authorizedItems: Array<{id: number, count: number}> = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawnerIndustrial_Tier00.adr":
-        authorizedItemDefIds.push(1696);
-        authorizedItemDefIds.push(9);
-        authorizedItemDefIds.push(1701);
-        authorizedItemDefIds.push(90);
-        authorizedItemDefIds.push(1353);
-        authorizedItemDefIds.push(109);
-        authorizedItemDefIds.push(46);
-        authorizedItemDefIds.push(48);
-        authorizedItemDefIds.push(1448);
-        authorizedItemDefIds.push(58);
-        authorizedItemDefIds.push(155);
+        authorizedItems.push({id: this.eItems.BATTERY, count: 1});
+        authorizedItems.push({id: this.eItems.SPARKPLUGS, count: 1});
+        //headlights
+        authorizedItems.push({id: this.eItems.HEADLIGHTS_OFFROADER, count: 1});
+        authorizedItems.push({id: this.eItems.HEADLIGHTS_POLICE, count: 1});
+        authorizedItems.push({id: this.eItems.HEADLIGHTS_ATV, count: 1});
+        authorizedItems.push({id: this.eItems.HEADLIGHTS_PICKUP, count: 1});
+        // turbochargers
+        authorizedItems.push({id: this.eItems.TURBO_OFFROADER, count: 1});
+        authorizedItems.push({id: this.eItems.TURBO_POLICE, count: 1});
+        authorizedItems.push({id: this.eItems.TURBO_ATV, count: 1});
+        authorizedItems.push({id: this.eItems.TURBO_PICKUP, count: 1});
+
+        authorizedItems.push({id: this.eItems.WATER_EMPTY, count: 1});
+        authorizedItems.push({id: this.eItems.WOOD_PLANK, count: 1});
+        authorizedItems.push({id: this.eItems.METAL_SHEET, count: 1});
+        authorizedItems.push({id: this.eItems.METAL_SCRAP, count: 1});
+        authorizedItems.push({id: this.eItems.WEAPON_PIPE, count: 1});
+        authorizedItems.push({id: this.eItems.WEAPON_AXE_WOOD, count: 1});
+        authorizedItems.push({id: this.eItems.TARP, count: 1}); // tarp
         break;
       default:
         break;
     }
-    if (authorizedItemDefIds.length) {
+    if (authorizedItems.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
         if (this.spawnedObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceIndustrial) {
           // temporary spawnchance
-          const r = itemInstance.rotation;
+          const r = itemInstance.rotation,
+          item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
-            authorizedItemDefIds[
-              Math.floor(Math.random() * authorizedItemDefIds.length)
-            ],
+            item.id,
+            item.count,
             itemInstance.position,
             [r[1], r[0], r[2]],
             itemInstance.id
@@ -749,36 +861,35 @@ export class WorldObjectManager {
   }
 
   createWorld(server: ZoneServer2016, spawnerType: any) {
-    const authorizedItemDefIds: number[] = [];
+    const authorizedItems: Array<{id: number, count: number}> = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawnerWorld_Tier00.adr":
-        authorizedItemDefIds.push(83);
-        authorizedItemDefIds.push(1353);
-        authorizedItemDefIds.push(1371);
-        authorizedItemDefIds.push(92); // shirt
-        authorizedItemDefIds.push(86); // pants
-        authorizedItemDefIds.push(1402);
-        authorizedItemDefIds.push(3);
-        authorizedItemDefIds.push(12);
-        authorizedItemDefIds.push(2162);
-        authorizedItemDefIds.push(2042);
-        authorizedItemDefIds.push(7);
+        authorizedItems.push({id: this.eItems.WEAPON_MACHETE01, count: 1});
+        authorizedItems.push({id: this.eItems.WATER_EMPTY, count: 1});
+        authorizedItems.push({id: this.eItems.WATER_PURE, count: 1});
+        authorizedItems.push({id: this.eItems.SHIRT_DEFAULT, count: 1});
+        authorizedItems.push({id: this.eItems.PANTS_DEFAULT, count: 1});
+        authorizedItems.push({id: this.eItems.WEAPON_HATCHET, count: 1});
+        authorizedItems.push({id: this.eItems.HAT_CAP, count: 1});
+        authorizedItems.push({id: this.eItems.HAT_BEANIE, count: 1});
+        authorizedItems.push({id: this.eItems.HELMET_MOTORCYCLE, count: 1});
+        authorizedItems.push({id: this.eItems.CANNED_FOOD01, count: 1});
         break;
       default:
         break;
     }
-    if (authorizedItemDefIds.length) {
+    if (authorizedItems.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
         if (this.spawnedObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceWorld) {
           // temporary spawnchance
-          const r = itemInstance.rotation;
+          const r = itemInstance.rotation,
+          item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
-            authorizedItemDefIds[
-              Math.floor(Math.random() * authorizedItemDefIds.length)
-            ],
+            item.id,
+            item.count,
             itemInstance.position,
             [r[1], r[0], r[2]],
             itemInstance.id
@@ -789,26 +900,26 @@ export class WorldObjectManager {
   }
 
   createLog(server: ZoneServer2016, spawnerType: any) {
-    const authorizedItemDefIds: number[] = [];
+    const authorizedItems: Array<{id: number, count: number}> = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_Log01.adr":
-        authorizedItemDefIds.push(16);
+        authorizedItems.push({id: this.eItems.WOOD_LOG, count: 1}); // log
         break;
       default:
         break;
     }
-    if (authorizedItemDefIds.length) {
+    if (authorizedItems.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
         if (this.spawnedObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceLog) {
           // temporary spawnchance
-          const r = itemInstance.rotation;
+          const r = itemInstance.rotation,
+          item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
-            authorizedItemDefIds[
-              Math.floor(Math.random() * authorizedItemDefIds.length)
-            ],
+            item.id,
+            item.count,
             itemInstance.position,
             [r[1], r[0], r[2]],
             itemInstance.id
@@ -819,33 +930,33 @@ export class WorldObjectManager {
   }
 
   createCommercial(server: ZoneServer2016, spawnerType: any) {
-    const authorizedItemDefIds: number[] = [];
+    const authorizedItems: Array<{id: number, count: number}> = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawnerCommercial_Tier00.adr":
-        authorizedItemDefIds.push(1696);
-        authorizedItemDefIds.push(1701);
-        authorizedItemDefIds.push(1353);
-        authorizedItemDefIds.push(1353);
-        authorizedItemDefIds.push(2042);
-        authorizedItemDefIds.push(57);
-        authorizedItemDefIds.push(22);
-        authorizedItemDefIds.push(7);
+        authorizedItems.push({id: this.eItems.BATTERY, count: 1});
+        authorizedItems.push({id: this.eItems.SPARKPLUGS, count: 1});
+        authorizedItems.push({id: this.eItems.WATER_EMPTY, count: 1});
+        authorizedItems.push({id: this.eItems.WATER_PURE, count: 1});
+        authorizedItems.push({id: this.eItems.HELMET_MOTORCYCLE, count: 1});
+        authorizedItems.push({id: this.eItems.SUGAR, count: 1});
+        authorizedItems.push({id: this.eItems.SALT, count: 1});
+        authorizedItems.push({id: this.eItems.CANNED_FOOD01, count: 1});
         break;
       default:
         break;
     }
-    if (authorizedItemDefIds.length) {
+    if (authorizedItems.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
         if (this.spawnedObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceCommercial) {
           // temporary spawnchance
-          const r = itemInstance.rotation;
+          const r = itemInstance.rotation,
+          item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
-            authorizedItemDefIds[
-              Math.floor(Math.random() * authorizedItemDefIds.length)
-            ],
+            item.id,
+            item.count,
             itemInstance.position,
             [r[1], r[0], r[2]],
             itemInstance.id
@@ -856,30 +967,31 @@ export class WorldObjectManager {
   }
 
   createFarm(server: ZoneServer2016, spawnerType: any) {
-    const authorizedItemDefIds: number[] = [];
+    const authorizedItems: Array<{id: number, count: number}> = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawnerFarm.adr":
-        authorizedItemDefIds.push(25);
-        authorizedItemDefIds.push(58);
-        authorizedItemDefIds.push(106);
-        authorizedItemDefIds.push(3);
-        authorizedItemDefIds.push(1353);
+        authorizedItems.push({id: this.eItems.FERTILIZER, count: 1});
+        authorizedItems.push({id: this.eItems.WEAPON_AXE_WOOD, count: 1});
+        authorizedItems.push({id: this.eItems.SEED_CORN, count: 1});
+        authorizedItems.push({id: this.eItems.SEED_WHEAT, count: 1});
+        authorizedItems.push({id: this.eItems.WEAPON_HATCHET, count: 1});
+        authorizedItems.push({id: this.eItems.WATER_EMPTY, count: 1});
         break;
       default:
         break;
     }
-    if (authorizedItemDefIds.length) {
+    if (authorizedItems.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
         if (this.spawnedObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceFarm) {
           // temporary spawnchance
-          const r = itemInstance.rotation;
+          const r = itemInstance.rotation,
+          item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
-            authorizedItemDefIds[
-              Math.floor(Math.random() * authorizedItemDefIds.length)
-            ],
+            item.id,
+            item.count,
             itemInstance.position,
             [r[1], r[0], r[2]],
             itemInstance.id
@@ -889,34 +1001,35 @@ export class WorldObjectManager {
     }
   }
   createHospital(server: ZoneServer2016, spawnerType: any) {
-    const authorizedItemDefIds: number[] = [];
+    const authorizedItems: Array<{id: number, count: number}> = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawnerHospital.adr":
-        authorizedItemDefIds.push(2424); // medkit
-        authorizedItemDefIds.push(1402); // mre
-        authorizedItemDefIds.push(2423); // bandage
-        authorizedItemDefIds.push(2510); // vial
-        authorizedItemDefIds.push(1508); // syringe
-        authorizedItemDefIds.push(92); // shirt
-        authorizedItemDefIds.push(86); // pants
-        authorizedItemDefIds.push(2358); // water bottle
-        authorizedItemDefIds.push(1353); // empty bottle
+        authorizedItems.push({id: this.eItems.FIRST_AID, count: 1});
+        authorizedItems.push({id: this.eItems.MRE_APPLE, count: 1});
+        authorizedItems.push({id: this.eItems.BANDAGE, count: 1});
+        authorizedItems.push({id: this.eItems.VIAL_EMPTY, count: 1});
+        authorizedItems.push({id: this.eItems.SYRINGE_EMPTY, count: 1});
+        authorizedItems.push({id: this.eItems.SHIRT_DEFAULT, count: 1});
+        authorizedItems.push({id: this.eItems.PANTS_DEFAULT, count: 1});
+        authorizedItems.push({id: this.eItems.WATER_PURE, count: 1});
+        authorizedItems.push({id: this.eItems.WATER_EMPTY, count: 1});
+        // todo add cloth spawn
         break;
       default:
         break;
     }
-    if (authorizedItemDefIds.length) {
+    if (authorizedItems.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
         if (this.spawnedObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceHospital) {
           // temporary spawnchance
-          const r = itemInstance.rotation;
+          const r = itemInstance.rotation,
+          item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
-            authorizedItemDefIds[
-              Math.floor(Math.random() * authorizedItemDefIds.length)
-            ],
+            item.id,
+            item.count,
             itemInstance.position,
             [r[1], r[0], r[2]],
             itemInstance.id
@@ -926,97 +1039,94 @@ export class WorldObjectManager {
     }
   }
   createMilitary(server: ZoneServer2016, spawnerType: any) {
-    const authorizedItemDefIds: number[] = [];
+    const authorizedItems: Array<{id: number, count: number}> = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_Z1_MilitaryBase_Tents1.adr": // uncommon
-        authorizedItemDefIds.push(2246); // crossbow
-        authorizedItemDefIds.push(1991); // r380
-        authorizedItemDefIds.push(92); // shirt, should be ghille suit when inventory works
-        authorizedItemDefIds.push(2042); // motorcycle helmet
-        authorizedItemDefIds.push(2172); // tactical helmet
-        authorizedItemDefIds.push(2148); // respirator
-        authorizedItemDefIds.push(2424); // medkit
+        authorizedItems.push({id: this.eItems.WEAPON_CROSSBOW, count: 1});
+        authorizedItems.push({id: this.eItems.WEAPON_R380, count: 1});
+        authorizedItems.push({id: this.eItems.GHILLIE_SUIT, count: 1});
+        authorizedItems.push({id: this.eItems.HELMET_MOTORCYCLE, count: 1});
+        authorizedItems.push({id: this.eItems.HELMET_TACTICAL, count: 1});
+        authorizedItems.push({id: this.eItems.RESPIRATOR, count: 1});
+        authorizedItems.push({id: this.eItems.FIRST_AID, count: 1});
         //ammo
-        authorizedItemDefIds.push(1428);
-        authorizedItemDefIds.push(1429);
-        authorizedItemDefIds.push(1430);
-        authorizedItemDefIds.push(1992);
-        authorizedItemDefIds.push(1998);
-        authorizedItemDefIds.push(2325);
+        authorizedItems.push({id: this.eItems.AMMO_1911, count: 1});
+        authorizedItems.push({id: this.eItems.AMMO_223, count: 1}); 
+        authorizedItems.push({id: this.eItems.AMMO_380, count: 1});
+        authorizedItems.push({id: this.eItems.AMMO_9MM, count: 1});
+        authorizedItems.push({id: this.eItems.AMMO_762, count: 1});
 
-        authorizedItemDefIds.push(1700); // night vision goggles
-        authorizedItemDefIds.push(1428); // ar-15 / ak-47 ammo
-        authorizedItemDefIds.push(1402); // mre
+        authorizedItems.push({id: this.eItems.NV_GOGGLES, count: 1});
+        authorizedItems.push({id: this.eItems.MRE_APPLE, count: 1});
         break;
       case "ItemSpawner_Z1_MilitaryBase_Tents2.adr": // rare
-        authorizedItemDefIds.push(14); // molotov
-        authorizedItemDefIds.push(1718); // magnum
-        authorizedItemDefIds.push(1511); // shotgun ammo
-        authorizedItemDefIds.push(1469); // 308 ammo
-        authorizedItemDefIds.push(11); // gunpowder
-        authorizedItemDefIds.push(74); // bag (landmine)
-        authorizedItemDefIds.push(2271); // kevlar
+        authorizedItems.push({id: this.eItems.WEAPON_MOLOTOV, count: 1});
+        authorizedItems.push({id: this.eItems.WEAPON_MAGNUM, count: 1});
+        authorizedItems.push({id: this.eItems.AMMO_12GA, count: 1});
+        authorizedItems.push({id: this.eItems.AMMO_308, count: 1});
+        authorizedItems.push({id: this.eItems.GUNPOWDER, count: 1});
+        authorizedItems.push({id: this.eItems.LANDMINE, count: 1});
+        authorizedItems.push({id: this.eItems.KEVLAR_DEFAULT, count: 1});
         break;
       case "ItemSpawner_Z1_MilitaryBase_MotorPool.adr": // common
-        authorizedItemDefIds.push(1542); // binoculars
-        authorizedItemDefIds.push(84); // combat knife
-        authorizedItemDefIds.push(1672); // flare
-        authorizedItemDefIds.push(48); // scrap
-        authorizedItemDefIds.push(74); // bag (cloth)
-        authorizedItemDefIds.push(1380); // flashlight
-        authorizedItemDefIds.push(155); // tarp
-        authorizedItemDefIds.push(1402); // mre
+        authorizedItems.push({id: this.eItems.WEAPON_BINOCULARS, count: 1});
+        authorizedItems.push({id: this.eItems.WEAPON_COMBATKNIFE, count: 1});
+        authorizedItems.push({id: this.eItems.FLARE, count: 1});
+        authorizedItems.push({id: this.eItems.METAL_SCRAP, count: 1});
+        authorizedItems.push({id: this.eItems.CLOTH, count: 1});
+        authorizedItems.push({id: this.eItems.WEAPON_FLASHLIGHT, count: 1});
+        authorizedItems.push({id: this.eItems.TARP, count: 1});
+        authorizedItems.push({id: this.eItems.MRE_APPLE, count: 1});
         break;
       case "ItemSpawner_Z1_MilitaryBase_Hangar.adr": // industrial
-        authorizedItemDefIds.push(48); // scrap
-        authorizedItemDefIds.push(46); // sheet metal
-        authorizedItemDefIds.push(47); // metal pipe
-        authorizedItemDefIds.push(82); // crowbar
-        authorizedItemDefIds.push(1536); // claw hammer
-        authorizedItemDefIds.push(73); // gas can
-        authorizedItemDefIds.push(1696); // battery
+        authorizedItems.push({id: this.eItems.METAL_SCRAP, count: 1});
+        authorizedItems.push({id: this.eItems.METAL_SHEET, count: 1});
+        authorizedItems.push({id: this.eItems.METAL_PIPE, count: 1});
+        authorizedItems.push({id: this.eItems.WEAPON_CROWBAR, count: 1});
+        authorizedItems.push({id: this.eItems.WEAPON_HAMMER, count: 1});
+        authorizedItems.push({id: this.eItems.FUEL_BIOFUEL, count: 1});
+        authorizedItems.push({id: this.eItems.BATTERY, count: 1});
+        authorizedItems.push({id: this.eItems.SPARKPLUGS, count: 1});
+        authorizedItems.push({id: this.eItems.WEAPON_WRENCH, count: 1});
+
         //headlights
-        authorizedItemDefIds.push(9);
-        authorizedItemDefIds.push(1728);
-        authorizedItemDefIds.push(1730);
-        authorizedItemDefIds.push(2194);
-
-        authorizedItemDefIds.push(1701); // sparkplugs
+        authorizedItems.push({id: this.eItems.HEADLIGHTS_OFFROADER, count: 1});
+        authorizedItems.push({id: this.eItems.HEADLIGHTS_POLICE, count: 1});
+        authorizedItems.push({id: this.eItems.HEADLIGHTS_ATV, count: 1});
+        authorizedItems.push({id: this.eItems.HEADLIGHTS_PICKUP, count: 1});
         // turbochargers
-        authorizedItemDefIds.push(90);
-        authorizedItemDefIds.push(1729);
-        authorizedItemDefIds.push(1731);
-        authorizedItemDefIds.push(2195);
-
-        authorizedItemDefIds.push(1538); // wrench
+        authorizedItems.push({id: this.eItems.TURBO_OFFROADER, count: 1});
+        authorizedItems.push({id: this.eItems.TURBO_POLICE, count: 1});
+        authorizedItems.push({id: this.eItems.TURBO_ATV, count: 1});
+        authorizedItems.push({id: this.eItems.TURBO_PICKUP, count: 1});
         break;
       case "ItemSpawner_Weapon_GrenadeSmoke.adr":
-        authorizedItemDefIds.push(2236);
+        authorizedItems.push({id: this.eItems.GRENADE_SMOKE, count: 1});
         break;
       case "ItemSpawner_Weapon_GrenadeFlashbang.adr":
-        authorizedItemDefIds.push(2235);
+        authorizedItems.push({id: this.eItems.GRENADE_FLASH, count: 1});
         break;
       case "ItemSpawner_Weapon_GrenadeGas.adr":
-        authorizedItemDefIds.push(2237);
+        authorizedItems.push({id: this.eItems.GRENADE_GAS, count: 1});
         break;
       case "ItemSpawner_Weapon_GrenadeHE.adr":
-        authorizedItemDefIds.push(2243);
+        authorizedItems.push({id: this.eItems.GRENADE_HE, count: 1});
         break;
       default:
         break;
     }
-    if (authorizedItemDefIds.length) {
+    if (authorizedItems.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
         if (this.spawnedObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceMilitary) {
           // temporary spawnchance
-          const r = itemInstance.rotation;
+          const r = itemInstance.rotation,
+          item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
-            authorizedItemDefIds[
-              Math.floor(Math.random() * authorizedItemDefIds.length)
-            ],
+            item.id,
+            item.count,
             itemInstance.position,
             [r[1], r[0], r[2]],
             itemInstance.id

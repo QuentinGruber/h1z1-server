@@ -1722,8 +1722,9 @@ export class ZoneServer2016 extends ZoneServer {
       ]
     );
   }
-  dropItem(client: Client, itemGuid: string) {
-    const itemDefinition = this.getItemDefinition(this._items[itemGuid].itemDefinitionId);
+  dropItem(client: Client, itemGuid: string, count: number) {
+    const item = this._items[itemGuid],
+    itemDefinition = this.getItemDefinition(item.itemDefinitionId);
     const modelId = itemDefinition.WORLD_MODEL_ID
     if(!modelId) {
       debug(
@@ -1738,6 +1739,7 @@ export class ZoneServer2016 extends ZoneServer {
     this.worldObjectManager.createLootEntity(
       this, 
       itemDefinition.ID, 
+      count,
       [...client.character.state.position], 
       [...client.character.state.lookAt]
       )
