@@ -1264,21 +1264,35 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      debug(packet.data)
-      if(!packet.data.itemGuid) {
+      debug(packet.data);
+      if (!packet.data.itemGuid) {
         server.sendChatText(client, "[ERROR] ItemGuid is invalid!");
         return;
       }
-      switch(packet.data.itemUseOption) {
+      switch (packet.data.itemUseOption) {
         case 4:
         case 73: // battery drop option
         case 79: // sparks drop option
           server.dropItem(client, packet.data.itemGuid);
           break;
+        case 6: // salvage/shred
+          const itemDefinition = server.getItemDefinition(
+            server._items[packet.data.itemGuid].itemDefinitionId
+          );
+          const nameId = itemDefinition.NAME_ID;
+          server.startTimer(client, nameId, 3000);
+          client.posAtLogoutStart = client.character.state.position;
+          client.hudTimer = setTimeout(() => {
+            server.salvageItem(client, packet.data.itemGuid);
+          }, 3000);
+          break;
         default:
-          server.sendChatText(client, "[ERROR] ItemUseOption not mapped to a function.")
+          server.sendChatText(
+            client,
+            "[ERROR] ItemUseOption not mapped to a function."
+          );
       }
-    }
+    };
     this.constructionPlacementRequest = function (
       server: ZoneServer2016,
       client: Client,
