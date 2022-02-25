@@ -845,7 +845,6 @@ export class ZoneServer2016 extends ZoneServer {
           break;
     }
 	  if(itemDefId){
-		  const itemGuid = this.generateItem(itemDefId);
 		  this.addContainerItem(client, itemDefId, 1);       
       }
       this.speedTreeDestroy(packet);
