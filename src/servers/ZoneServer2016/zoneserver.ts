@@ -1661,20 +1661,15 @@ export class ZoneServer2016 extends ZoneServer {
     }
     const item = this._items[itemGuid],
       def = this.getItemDefinition(item.itemDefinitionId),
-      loadoutSlotItemClass = loadoutSlotItemClasses.find(
-        (slot: any) => slot.ITEM_CLASS === def.ITEM_CLASS
-      ),
-      loadoutSlotId = loadoutSlotItemClass ? loadoutSlotItemClass.SLOT : 1, // use primary slot if ItemClass is invalid
-      equipmentSlotId = loadoutEquipSlots.find(
-        (slot: any) => slot.SLOT_ID === loadoutSlotId
-      ).EQUIP_SLOT_ID,
-
+      loadoutSlotId = this.getLoadoutSlot(item.itemDefinitionId),
+      equipmentSlotId = this.getEquipmentSlot(loadoutSlotId),
       loadoutData = {
         itemDefinitionId: def.ID,
         slotId: loadoutSlotId,
         itemGuid: item.guid,
         containerGuid: "0xFFFFFFFFFFFFFFFF",
         currentDurability: 2000,
+        stackCount: 1,
         loadoutItemOwnerGuid: client.character.characterId
       },
       equipmentData = {
@@ -1703,6 +1698,12 @@ export class ZoneServer2016 extends ZoneServer {
     this.addLoadoutItem(client, loadoutSlotId);
     this.updateLoadout(client);
     this.updateEquipmentSlot(client, equipmentSlotId);
+    if(def.ITEM_CLASS === 34) {
+      client.character._containers[item.guid] = {
+        guid: item.guid,
+        items: []
+      }
+    }
   }
 
   getItemDefinition(itemDefinitionId: any) {
@@ -1723,31 +1724,22 @@ export class ZoneServer2016 extends ZoneServer {
     }
     return generatedGuid;
   }
-
-  generatePickupItem(objectData: any): any {
-    function rnd_number(max: any, fixed: Boolean = false) {
-      const num = Math.random() * max;
-      return Number(fixed ? num.toFixed(0) : num);
-    }
-
-    const authorizedItemDefinitions = this._itemDefinitionIds.filter(
-      (defId: any) =>
-        this.getItemDefinition(defId).WORLD_MODEL_ID === objectData.modelId &&
-        this.getItemDefinition(defId).CODE_FACTORY_NAME !== "AccountRecipe"
+  
+  getLoadoutSlot(itemDefinitionId: number) {
+    // TODO: return -1 if no slot
+    const loadoutSlotItemClass = loadoutSlotItemClasses.find(
+      (slot: any) => slot.ITEM_CLASS === this.getItemDefinition(itemDefinitionId).ITEM_CLASS
     );
-    if (!authorizedItemDefinitions.length) {
-      debug(
-        `[ERROR] GeneratePickupItem: No item definition mapped to id: ${objectData.modelId}`
-      );
-      return;
-    }
-    return this.generateItem(
-      authorizedItemDefinitions[
-        rnd_number(authorizedItemDefinitions.length - 1, true)
-      ]
-    );
+    return loadoutSlotItemClass ? loadoutSlotItemClass.SLOT : 1 // use primary slot if ItemClass is invalid
   }
-  dropItem(client: Client, itemGuid: string, count: number) {
+
+  getEquipmentSlot(loadoutSlotId: number) {
+    return loadoutEquipSlots.find(
+      (slot: any) => slot.SLOT_ID === loadoutSlotId
+    ).EQUIP_SLOT_ID;
+  }
+
+  dropItem(client: Client, itemGuid: string, count: number = 1) {
     const item = this._items[itemGuid],
     itemDefinition = this.getItemDefinition(item.itemDefinitionId);
     const modelId = itemDefinition.WORLD_MODEL_ID
@@ -1766,37 +1758,86 @@ export class ZoneServer2016 extends ZoneServer {
       count,
       [...client.character.state.position], 
       [...client.character.state.lookAt]
-      )
-      this.spawnObjects(client); // manually call this for now
+    )
+    this.spawnObjects(client); // manually call this for now
+    this.sendData(client, "ClientUpdate.ItemDelete", {
+      characterId: client.character.characterId,
+      itemGuid: itemGuid,
+    });
 
-      this.sendData(client, "ClientUpdate.ItemDelete", {
-        characterId: client.character.characterId,
-        itemGuid: itemGuid,
+    const loadoutSlotId = this.getLoadoutSlot(itemDefinition.ID);
+    if(client.character._loadout[loadoutSlotId]) {
+      // TODO: add logic for checking if loadout item has an equipment slot, ex. radio doesn't have one
+      const equipmentSlotId = this.getEquipmentSlot(loadoutSlotId);
+      delete client.character._loadout[loadoutSlotId];
+      delete client.character._equipment[equipmentSlotId];
+      this.updateLoadout(client);
+      this.sendData(client, "Equipment.UnsetCharacterEquipmentSlot", {
+        characterData: {
+          characterId: client.character.characterId,
+        },
+        slotId: equipmentSlotId,
       });
-
-      const loadoutSlotItemClass = loadoutSlotItemClasses.find(
-        (slot: any) => slot.ITEM_CLASS === itemDefinition.ITEM_CLASS
-      ),
-      loadoutSlotId = loadoutSlotItemClass ? loadoutSlotItemClass.SLOT : 1 // use primary slot if ItemClass is invalid
-      if(client.character._loadout[loadoutSlotId]) {
-        // TODO: add logic for checking if loadout item has an equipment slot, ex. radio doesn't have one
-        const equipmentSlotId = loadoutEquipSlots.find(
-          (slot: any) => slot.SLOT_ID === loadoutSlotId
-        ).EQUIP_SLOT_ID
-        delete client.character._loadout[loadoutSlotId];
-        delete client.character._equipment[equipmentSlotId];
-        this.updateLoadout(client);
-        this.sendData(client, "Equipment.UnsetCharacterEquipmentSlot", {
-          characterData: {
-            characterId: client.character.characterId,
-          },
-          slotId: equipmentSlotId,
-        });
-        if(equipmentSlotId === 7) { // primary slot
-          this.equipItem(client, client.character._loadout[7].itemGuid);
-        }
+      if(equipmentSlotId === 7) { // primary slot
+        this.equipItem(client, client.character._loadout[7].itemGuid);
       }
+    }
+    if(itemDefinition.ITEM_CLASS === 34) {
+      delete client.character._containers[item.guid];
+    }
   }
+
+  pickupItem(client: Client, guid: string) {
+    const object = this._objects[guid],
+      itemGuid = object.itemGuid,
+      item = this._items[itemGuid],
+      itemDefId = this._items[itemGuid].itemDefinitionId;
+    if (!item) {
+      this.sendChatText(
+        client,
+        `[ERROR] No item definition mapped to id: ${object.modelId}`
+      );
+      return;
+    }
+    if(this.getItemDefinition(itemDefId).FLAG_CAN_EQUIP) {
+      // todo, check if loadout slot is occupied
+      this.equipItem(client, itemGuid);
+    }
+    else {
+      //this.getAvailableContainer(client);
+      this.sendData(client, "ClientUpdate.ItemAdd", {
+        characterId: client.character.characterId,
+        data: {
+          itemDefinitionId: itemDefId,
+          tintId: 3,
+          guid: itemGuid,
+          count: object.stackCount, // also ammoCount
+          itemSubData: {
+            hasSubData: true,
+            unknownDword1: 1,
+            unknownData1: {
+              unknownQword1: client.character.characterId,
+              unknownDword1: 3,
+              unknownDword2: 3,
+            }
+          },
+          containerGuid: "0x0", // temp until containers work
+          containerDefinitionId: 0,
+          containerSlotId: 1,
+          baseDurability: 2000,
+          currentDurability: 2000,
+          maxDurabilityFromDefinition: 2000,
+          unknownBoolean1: true,
+          unknownQword3: client.character.characterId,
+          unknownDword9: 0,
+          unknownBoolean2: true,
+        }
+      });
+    }
+    this.deleteEntity(guid, this._objects);
+    delete this.worldObjectManager._spawnedObjects[object.spawnerId];
+  }
+
 
   startTimer(client: Client, stringId: number, time: number) {
     this.sendData(client, "ClientUpdate.StartTimer", {
@@ -1850,15 +1891,10 @@ export class ZoneServer2016 extends ZoneServer {
         unknownBoolean2: true,
       },
     });
-    const loadoutSlotItemClass = loadoutSlotItemClasses.find(
-        (slot: any) => slot.ITEM_CLASS === itemDefinition.ITEM_CLASS
-      ),
-      loadoutSlotId = loadoutSlotItemClass ? loadoutSlotItemClass.SLOT : 1; // use primary slot if ItemClass is invalid
+    const loadoutSlotId = this.getLoadoutSlot(itemDefinition.ID);
     if (client.character._loadout[loadoutSlotId]) {
       // TODO: add logic for checking if loadout item has an equipment slot, ex. radio doesn't have one
-      const equipmentSlotId = loadoutEquipSlots.find(
-        (slot: any) => slot.SLOT_ID === loadoutSlotId
-      ).EQUIP_SLOT_ID;
+      const equipmentSlotId = this.getEquipmentSlot(loadoutSlotId);
       delete client.character._loadout[loadoutSlotId];
       delete client.character._equipment[equipmentSlotId];
       this.updateLoadout(client);

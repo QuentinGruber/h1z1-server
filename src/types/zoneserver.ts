@@ -427,16 +427,23 @@ export interface characterEquipment {
 }
 
 
+
 export interface inventoryItem {
   itemDefinitionId: number;
   slotId: number;
   itemGuid: string;
   containerGuid: string;
   currentDurability: number;
+  stackCount: number;
 }
 
 export interface loadoutItem extends inventoryItem {
   loadoutItemOwnerGuid: string;
+}
+
+export interface inventoryContainer {
+  guid: string;
+  items: Array<inventoryItem>;
 }
 
 export interface Client {
