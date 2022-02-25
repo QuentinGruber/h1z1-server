@@ -180,30 +180,6 @@ export class zonePacketHandlers {
         serverTime2: Int64String(server.getServerTime()),
       });
       
-      server.sendData(client, "Command.ItemDefinitions", {
-        // sends full list of item definitions
-        data: {
-          itemDefinitions: server._itemDefinitionIds.map((itemDefId: any) => {
-            const itemDef = server.getItemDefinition(itemDefId);
-            return {
-              ID: itemDefId,
-              definitionData: {
-                ...itemDef,
-                HUD_IMAGE_SET_ID: itemDef.IMAGE_SET_ID,
-                containerDefinitionId: itemDef.ITEM_TYPE==34?itemDef.PARAM1:0,
-                flags1: {
-                  ...itemDef,
-                },
-                flags2: {
-                  ...itemDef,
-                },
-                stats: [],
-              },
-            };
-          }),
-        },
-      });
-
       server.sendData(client, "Character.WeaponStance", {
         // activates weaponstance key
         characterId: client.character.characterId,
