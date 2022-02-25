@@ -836,52 +836,17 @@ export class ZoneServer2016 extends ZoneServer {
       switch (packet.data.name) {
         case "SpeedTree.Blackberry":
 		itemDefId = 105;
-          this.sendData(client, "ClientUpdate.TextAlert", {
-            message: packet.data.name.replace("SpeedTree.", ""),
-          });
           break;
 		case "SpeedTree.DevilClub":
 		case "SpeedTree.VineMaple":
           itemDefId = 111;
-		  this.sendData(client, "ClientUpdate.TextAlert", {
-            message: packet.data.name.replace("SpeedTree.", ""),
-          });
           break;
         default:
-          this.sendData(client, "ClientUpdate.TextAlert", {
-            message: packet.data.name.replace("SpeedTree.", ""),
-          });
           break;
     }
 	  if(itemDefId){
-        this.sendData(client, "ClientUpdate.ItemAdd", {
-          characterId: client.character.characterId,
-          data: {
-            itemDefinitionId: itemDefId,
-            tintId: 3,
-            guid: this.generateItem(itemDefId),
-            count: 1, // also ammoCount
-            itemSubData: {
-              hasSubData: true,
-              unknownDword1: 1,
-              unknownData1: {
-                unknownQword1: client.character.characterId,
-                unknownDword1: 3,
-                unknownDword2: 3,
-              }
-            },
-            containerGuid: "0x0", // temp until containers work
-            containerDefinitionId: 0,
-            containerSlotId: 1,
-            baseDurability: 2000,
-            currentDurability: 2000,
-            maxDurabilityFromDefinition: 2000,
-            unknownBoolean1: true,
-            unknownQword3: client.character.characterId,
-            unknownDword9: 0,
-            unknownBoolean2: true,
-          }
-        });
+		  const itemGuid = this.generateItem(itemDefId);
+		  this.addContainerItem(client, itemDefId, 1);       
       }
       this.speedTreeDestroy(packet);
     }
@@ -1764,7 +1729,11 @@ export class ZoneServer2016 extends ZoneServer {
       characterId: client.character.characterId,
       itemGuid: itemGuid,
     });
-
+	this.sendData(client, "Character.DroppedIemNotification", {
+		characterId: client.character.characterId,
+        itemDefId: item.itemDefinitionId,
+		count: count,
+      });
     const loadoutSlotId = this.getLoadoutSlot(itemDefinition.ID);
     if(client.character._loadout[loadoutSlotId]) {
       // TODO: add logic for checking if loadout item has an equipment slot, ex. radio doesn't have one
@@ -1802,6 +1771,11 @@ export class ZoneServer2016 extends ZoneServer {
     if(this.getItemDefinition(itemDefId).FLAG_CAN_EQUIP) {
       // todo, check if loadout slot is occupied
       this.equipItem(client, itemGuid);
+	  this.sendData(client, "Reward.AddNonRewardItem", {
+        itemDefId: itemDefId,
+		iconId: item.IMAGE_SET_ID,
+		count: object.stackCount,
+      });
     }
     else {
       //this.getAvailableContainer(client);
@@ -1833,11 +1807,53 @@ export class ZoneServer2016 extends ZoneServer {
           unknownBoolean2: true,
         }
       });
+	  this.sendData(client, "Reward.AddNonRewardItem", {
+        itemDefId: itemDefId,
+		iconId: item.IMAGE_SET_ID,
+		count: object.stackCount,
+      });
     }
     this.deleteEntity(guid, this._objects);
     delete this.worldObjectManager._spawnedObjects[object.spawnerId];
   }
-
+  
+  addContainerItem(client: Client, itemDefId: number, count: number) {
+    const itemGuid = this.generateItem(itemDefId);
+	const item = this.getItemDefinition(itemDefId);
+      this.sendData(client, "ClientUpdate.ItemAdd", {
+        characterId: client.character.characterId,
+        data: {
+          itemDefinitionId: itemDefId,
+          tintId: 3,
+          guid: itemGuid,
+          count: count, // also ammoCount
+          itemSubData: {
+            hasSubData: true,
+            unknownDword1: 1,
+            unknownData1: {
+              unknownQword1: client.character.characterId,
+              unknownDword1: 3,
+              unknownDword2: 3,
+            }
+          },
+          containerGuid: "0x0", // temp until containers work
+          containerDefinitionId: 0,
+          containerSlotId: 1,
+          baseDurability: 0,
+          currentDurability: 0,
+          maxDurabilityFromDefinition: 0,
+          unknownBoolean1: true,
+          unknownQword3: client.character.characterId,
+          unknownDword9: 0,
+          unknownBoolean2: true,
+        }
+      });
+	  this.sendData(client, "Reward.AddNonRewardItem", {
+        itemDefId: itemDefId,
+		iconId: item.IMAGE_SET_ID,
+		count: count,
+      });
+  }
 
   startTimer(client: Client, stringId: number, time: number) {
     this.sendData(client, "ClientUpdate.StartTimer", {
@@ -1851,7 +1867,7 @@ export class ZoneServer2016 extends ZoneServer {
       this._items[itemGuid].itemDefinitionId
     );
     const itemType = itemDefinition.ITEM_TYPE;
-    let count;
+    let count = 1;
     switch (itemType) {
       case 36:
       case 39:
@@ -1863,34 +1879,9 @@ export class ZoneServer2016 extends ZoneServer {
       default:
         this.sendChatText(client, "[ERROR] Unknown salvage item or count.");
     }
-    this.sendData(client, "ClientUpdate.ItemAdd", {
-      characterId: client.character.characterId,
-      data: {
-        itemDefinitionId: 23,
-        tintId: 0,
-        guid: this.generateItem(23),
-        count: count, // also ammoCount
-        itemSubData: {
-          hasSubData: true,
-          unknownDword1: 1,
-          unknownData1: {
-            unknownQword1: client.character.characterId,
-            unknownDword1: 3,
-            unknownDword2: 3,
-          },
-        },
-        containerGuid: "0x0", // temp until containers work
-        containerDefinitionId: 0,
-        containerSlotId: 0,
-        baseDurability: 0,
-        currentDurability: 0,
-        maxDurabilityFromDefinition: 0,
-        unknownBoolean1: true,
-        unknownQword3: client.character.characterId,
-        unknownDword9: 0,
-        unknownBoolean2: true,
-      },
-    });
+	
+	this.addContainerItem(client, 23, count); 
+	
     const loadoutSlotId = this.getLoadoutSlot(itemDefinition.ID);
     if (client.character._loadout[loadoutSlotId]) {
       // TODO: add logic for checking if loadout item has an equipment slot, ex. radio doesn't have one
