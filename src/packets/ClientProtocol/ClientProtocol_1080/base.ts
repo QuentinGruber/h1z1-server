@@ -64,7 +64,7 @@ export const basePackets: any = [
             { name: "lastLoginDate", type: "uint64string", defaultValue: "" },
             { name: "actorModelId", type: "uint32", defaultValue: 0 },
             { name: "headActor", type: "string", defaultValue: "" },
-            { name: "unknownString1", type: "string", defaultValue: "" },
+            { name: "hairModel", type: "string", defaultValue: "" },
             { name: "unknownDword4", type: "uint32", defaultValue: 0 },
             { name: "unknownDword5", type: "uint32", defaultValue: 0 },
             { name: "emptyTexture", type: "string", defaultValue: "" },
