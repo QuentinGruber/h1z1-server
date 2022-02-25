@@ -260,7 +260,21 @@ export const characterPackets: any = [
       ],
     },
   ],
-  ["Character.DroppedIemNotification", 0x0f4a, {}],
+  [
+    "Character.DroppedIemNotification",
+    0x0f4a,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "" },
+        {
+          name: "itemDefId",
+          type: "uint32",
+          defaultValue: "2",
+        },
+        { name: "count", type: "uint32", defaultValue: 10 },
+      ],
+    },
+  ],
   ["Character.NoSpaceNotification", 0x0f4b, {}],
   ["Character.ReloadNotification", 0x0f4c, {}],
   ["Character.MountBlockedNotification", 0x0f4d, {}],
