@@ -494,6 +494,31 @@ export class ZoneServer2016 extends ZoneServer {
         //unknownDword40: 1
       },
     });
+
+    this.sendData(client, "Command.ItemDefinitions", {
+      // sends full list of item definitions
+      data: {
+        itemDefinitions: this._itemDefinitionIds.map((itemDefId: any) => {
+          const itemDef = this.getItemDefinition(itemDefId);
+          return {
+            ID: itemDefId,
+            definitionData: {
+              ...itemDef,
+              HUD_IMAGE_SET_ID: itemDef.IMAGE_SET_ID,
+              containerDefinitionId:
+                itemDef.ITEM_TYPE == 34 ? itemDef.PARAM1 : 0,
+              flags1: {
+                ...itemDef,
+              },
+              flags2: {
+                ...itemDef,
+              },
+              stats: [],
+            },
+          };
+        }),
+      },
+    });  
     
     this.sendData(client, "Container.InitEquippedContainers", {
       ignore: client.character.characterId,
@@ -1734,7 +1759,6 @@ export class ZoneServer2016 extends ZoneServer {
         client, 
         `[ERROR] No WORLD_MODEL_ID mapped to itemDefinitionId: ${this._items[itemGuid].itemDefinitionId}`
       );
-      return;
     }
     this.worldObjectManager.createLootEntity(
       this, 
@@ -1772,6 +1796,83 @@ export class ZoneServer2016 extends ZoneServer {
           this.equipItem(client, client.character._loadout[7].itemGuid);
         }
       }
+  }
+
+  startTimer(client: Client, stringId: number, time: number) {
+    this.sendData(client, "ClientUpdate.StartTimer", {
+      stringId: stringId,
+      time: time,
+    });
+  }
+
+  salvageItem(client: Client, itemGuid: string) {
+    const itemDefinition = this.getItemDefinition(
+      this._items[itemGuid].itemDefinitionId
+    );
+    const itemType = itemDefinition.ITEM_TYPE;
+    let count;
+    switch (itemType) {
+      case 36:
+      case 39:
+        count = 1;
+        break;
+      case 34: // salvage/shred
+        count = 4;
+        break;
+      default:
+        this.sendChatText(client, "[ERROR] Unknown salvage item or count.");
+    }
+    this.sendData(client, "ClientUpdate.ItemAdd", {
+      characterId: client.character.characterId,
+      data: {
+        itemDefinitionId: 23,
+        tintId: 0,
+        guid: this.generateItem(23),
+        count: count, // also ammoCount
+        itemSubData: {
+          hasSubData: true,
+          unknownDword1: 1,
+          unknownData1: {
+            unknownQword1: client.character.characterId,
+            unknownDword1: 3,
+            unknownDword2: 3,
+          },
+        },
+        containerGuid: "0x0", // temp until containers work
+        containerDefinitionId: 0,
+        containerSlotId: 0,
+        baseDurability: 0,
+        currentDurability: 0,
+        maxDurabilityFromDefinition: 0,
+        unknownBoolean1: true,
+        unknownQword3: client.character.characterId,
+        unknownDword9: 0,
+        unknownBoolean2: true,
+      },
+    });
+    const loadoutSlotItemClass = loadoutSlotItemClasses.find(
+        (slot: any) => slot.ITEM_CLASS === itemDefinition.ITEM_CLASS
+      ),
+      loadoutSlotId = loadoutSlotItemClass ? loadoutSlotItemClass.SLOT : 1; // use primary slot if ItemClass is invalid
+    if (client.character._loadout[loadoutSlotId]) {
+      // TODO: add logic for checking if loadout item has an equipment slot, ex. radio doesn't have one
+      const equipmentSlotId = loadoutEquipSlots.find(
+        (slot: any) => slot.SLOT_ID === loadoutSlotId
+      ).EQUIP_SLOT_ID;
+      delete client.character._loadout[loadoutSlotId];
+      delete client.character._equipment[equipmentSlotId];
+      this.updateLoadout(client);
+      this.sendData(client, "Equipment.UnsetCharacterEquipmentSlot", {
+        characterData: {
+          characterId: client.character.characterId,
+        },
+        slotId: equipmentSlotId,
+      });
+      if (equipmentSlotId === 7) {
+        // primary slot
+        this.equipItem(client, client.character._loadout[7].itemGuid);
+      }
+    }
   }
   //#endregion
 
