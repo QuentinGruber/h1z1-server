@@ -138,13 +138,14 @@ export class WorldObjectManager {
     itemSpawnerId: number = -1
   ): void {
     const itemDef = server.getItemDefinition(itemDefinitionId);
+      let modelId = itemDef.WORLD_MODEL_ID;
     if(!itemDef){
       debug(`[ERROR] Tried to createLootEntity for invalid itemDefId: ${itemDefinitionId}`)
       return;
     }
     if(!itemDef.WORLD_MODEL_ID){
       debug(`[ERROR] Tried to createLootEntity for itemDefId: ${itemDefinitionId} with no WORLD_MODEL_ID`)
-      return;
+      modelId = 9;
     }
     const guid = generateRandomGuid(),
       characterId = generateRandomGuid();
@@ -152,7 +153,7 @@ export class WorldObjectManager {
       characterId: characterId,
       guid: guid,
       transientId: server.getTransientId(characterId),
-      modelId: itemDef.WORLD_MODEL_ID,
+      modelId: modelId,
       position: position,
       rotation: rotation,
       spawnerId: itemSpawnerId || 0,
