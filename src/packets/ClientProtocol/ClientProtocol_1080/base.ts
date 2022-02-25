@@ -2403,6 +2403,20 @@ export const basePackets: any = [
   ["Quest", 0x1b, {}],
   ["Reward", 0x1c, {}],
   [
+    "Reward.AddNonRewardItem",
+    0x1c02,
+    {
+      fields: [
+        { name: "itemDefId", type: "uint32", defaultValue: 10 },
+        { name: "unk1", type: "uint32", defaultValue: 1 },
+        { name: "iconId", type: "uint32", defaultValue: 7 },
+        { name: "time4", type: "uint32", defaultValue: 1 },
+        { name: "count", type: "uint32", defaultValue: 2 },
+        { name: "time6", type: "uint32", defaultValue: 1 },
+      ],
+    },
+  ],
+  [
     "GameTimeSync",
     0x1d,
     {
