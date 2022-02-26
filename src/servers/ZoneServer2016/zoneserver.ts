@@ -19,7 +19,7 @@ import { ZoneClient2016 as Client } from "./classes/zoneclient";
 import { Vehicle2016 as Vehicle } from "./classes/vehicle";
 import { WorldObjectManager } from "./classes/worldobjectmanager";
 
-import { inventoryItem, loadoutContainer, Weather2016 } from "../../types/zoneserver";
+import { loadoutContainer, Weather2016 } from "../../types/zoneserver";
 import { h1z1PacketsType } from "../../types/packets";
 import { Character2016 as Character } from "./classes/character";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
@@ -1702,7 +1702,6 @@ export class ZoneServer2016 extends ZoneServer {
   }
   
   getLoadoutSlot(itemDefinitionId: number) {
-    // TODO: return -1 if no slot
     const loadoutSlotItemClass = loadoutSlotItemClasses.find(
       (slot: any) => slot.ITEM_CLASS === this.getItemDefinition(itemDefinitionId).ITEM_CLASS
     );
@@ -1808,6 +1807,7 @@ export class ZoneServer2016 extends ZoneServer {
     }
     else {
       const dropItem = client.character._containers[12]?.items[itemGuid]; // TODO: GET CORRECT CONTAINER WHEN CONTAINERS ARE WORKING
+      if(!dropItem) return;
       if(dropItem.stackCount <= count) {
         delete client.character._containers[12]?.items[itemGuid]; // TODO: GET CORRECT CONTAINER WHEN CONTAINERS ARE WORKING
         this.sendData(client, "ClientUpdate.ItemDelete", {
@@ -1817,6 +1817,8 @@ export class ZoneServer2016 extends ZoneServer {
       }
       else {
         dropItem.stackCount -= count;
+        // todo: add method to get dropItem container
+        //this.updateContainerItem(client, dropItem.itemGuid, )
         this.sendData(client, "ClientUpdate.ItemUpdate", {
           characterId: client.character.characterId,
           data: {
@@ -1865,7 +1867,15 @@ export class ZoneServer2016 extends ZoneServer {
     }
     if(this.getItemDefinition(itemDefId).FLAG_CAN_EQUIP) {
       // todo, check if loadout slot is occupied
-      this.equipItem(client, itemGuid);
+      // todo: fix this
+      /*
+      if(client.character._loadout[this.getLoadoutSlot(itemDefId)]) {
+        this.lootContainerItem(client, itemGuid, object.stackCount)
+      }
+      else {*/
+        this.equipItem(client, itemGuid);
+      //}
+      
     }
     else {
       this.lootContainerItem(client, itemGuid, object.stackCount);
