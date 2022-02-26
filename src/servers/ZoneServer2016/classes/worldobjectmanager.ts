@@ -176,15 +176,15 @@ export class WorldObjectManager {
   chanceM24: number = 50;
   chanceConsumables: number = 50;
   chanceClothes: number = 50;
-  chanceResidential: number = 10;
-  chanceRare: number = 10;
-  chanceIndustrial: number = 10;
-  chanceWorld: number = 10;
-  chanceLog: number = 10;
-  chanceCommercial: number = 10;
-  chanceFarm: number = 10;
-  chanceHospital: number = 50;
-  chanceMilitary: number = 20;
+  chanceResidential: number = 30;
+  chanceRare: number = 30;
+  chanceIndustrial: number = 30;
+  chanceWorld: number = 30;
+  chanceLog: number = 30;
+  chanceCommercial: number = 30;
+  chanceFarm: number = 30;
+  chanceHospital: number = 40;
+  chanceMilitary: number = 30;
 
   chanceNpc: number = 50;
   chanceScreamer: number = 5; // 1000 max
