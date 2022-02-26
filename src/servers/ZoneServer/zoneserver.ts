@@ -183,7 +183,7 @@ export class ZoneServer extends EventEmitter {
       this.onGatewayDisconnectEvent(err, client);
     });
 
-    this._gatewayServer.on("session", (err: string, client: Client) => {
+    this._gatewayServer.on("session", (err: string, client: SOEClient) => {
       this.onGatewaySessionEvent(err, client);
     });
 
@@ -397,7 +397,7 @@ export class ZoneServer extends EventEmitter {
   ) {
     if (clientProtocol !== this._clientProtocol) {
       debug(`${soeClient.address} is using the wrong client protocol`);
-      this.sendData(soeClient as Client, "LoginFailed", {});
+      this.sendData(soeClient as any, "LoginFailed", {});
       return;
     }
     debug(
@@ -405,7 +405,8 @@ export class ZoneServer extends EventEmitter {
     );
     const generatedTransient = this.generateTransientId(characterId);
     const zoneClient = new Client(
-      soeClient,
+      soeClient.sessionId,
+      soeClient.soeClientId,
       loginSessionId,
       characterId,
       generatedTransient
@@ -424,6 +425,10 @@ export class ZoneServer extends EventEmitter {
     this.deleteClient(client);
   }
 
+  getSoeClient(soeClientId : string) : SOEClient{
+    return this._gatewayServer._soeServer._clients[soeClientId];
+  }
+
 
   deleteClient(client: Client){
     if(client.character){
@@ -435,13 +440,13 @@ export class ZoneServer extends EventEmitter {
       });
     }
     delete this._clients[client.sessionId];
-    this._gatewayServer._soeServer.deleteClient(client);
+    this._gatewayServer._soeServer.deleteClient(this.getSoeClient(client.soeClientId));
     if (!this._soloMode) {
       this.sendZonePopulationUpdate();
     }
   }
 
-  onGatewaySessionEvent(err: string, client: Client) {
+  onGatewaySessionEvent(err: string, client: SOEClient) {
     debug(`Session started for client ${client.address}:${client.port}`);
   }
 
@@ -711,7 +716,7 @@ export class ZoneServer extends EventEmitter {
     if (!!this._clients[client.sessionId]) {
       // if hasn't already deleted
       debug(
-        `Client disconnected from ${client.address}:${client.port} ( ping timeout )`
+        `Client (${client.soeClientId}) disconnected ( ping timeout )`
       );
       this.deleteClient(client);
     }
@@ -2422,7 +2427,7 @@ export class ZoneServer extends EventEmitter {
       debug("send data", packetName);
     }
     const data = this._protocol.pack(packetName, obj);
-    this._gatewayServer.sendTunnelData(client, data, channel);
+    this._gatewayServer.sendTunnelData(this.getSoeClient(client.soeClientId), data, channel);
   }
 
   sendDataToAll(packetName: h1z1PacketsType, obj: any, channel = 0): void {
@@ -2471,7 +2476,8 @@ export class ZoneServer extends EventEmitter {
   }
 
   sendRawData(client: Client, data: Buffer, channel = 0): void {
-    this._gatewayServer.sendTunnelData(client, data, channel);
+    this._gatewayServer.sendTunnelData(this.getSoeClient(client.soeClientId), data, channel);
+
   }
 
   stop(): void {
