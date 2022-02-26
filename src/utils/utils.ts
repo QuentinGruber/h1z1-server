@@ -14,6 +14,7 @@
 const restore = require("mongodb-restore-dump");
 import { generate_random_guid } from "h1emu-core";
 import v8 from "v8";
+import {compress, compressBound} from "./lz4/lz4";
 import fs, { readdirSync } from "fs";
 import { normalize } from "path";
 import {
@@ -225,6 +226,13 @@ export const generateCommandList = (
   return commandList;
 };
 
+export class LZ4 {
+  static encodeBlock: (src: any, dst: any, sIdx?: any, eIdx?: any) => number;
+  static encodeBound: (isize: number) => number;
+}
+LZ4.encodeBlock = compress
+LZ4.encodeBound = compressBound
+
 export const lz4_decompress = function (
   // from original implementation
   data: any,
@@ -304,14 +312,6 @@ export const getPacketTypeBytes = function (packetType: number): number[] {
   }
   return packetTypeBytes;
 };
-
-export const readUint64String = function (data: Buffer, offset: number): string {
-  let str = "0x";
-  for (let j = 7; j >= 0; j--) {
-    str += ("0" + data.readUInt8(offset + j).toString(16)).substr(-2);
-  }
-  return str;
-}
 
 // experimental custom implementation of the scheduler API
 export class Scheduler {

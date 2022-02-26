@@ -11,11 +11,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import SOEClient from "../../SoeServer/soeclient";
-import { RemoteInfo } from "dgram";
 import { Character } from "./character";
 
-export class ZoneClient extends SOEClient {
+export class ZoneClient {
   currentPOI?: number;
   firstLoading: boolean = false;
   isLoading: boolean = false;
@@ -42,35 +40,19 @@ export class ZoneClient extends SOEClient {
   pingTimer: NodeJS.Timeout | undefined;
   savePositionTimer: any;
   clearHudTimer: () => void;
+  clearTimers: () => void;
+  sessionId: number;
+  soeClientId: string;
 
   constructor(
-    initialClient: SOEClient,
+    sessionId: number,
+    soeClientId: string,
     loginSessionId: string,
     characterId: string,
     generatedTransient: number
   ) {
-    super(
-      {
-        address: initialClient.address,
-        port: initialClient.port,
-      } as RemoteInfo,
-      initialClient.crcSeed,
-      initialClient.compression,
-      initialClient.cryptoKey
-    );
-    this.sessionId = initialClient.sessionId;
-    this.inputStream = initialClient.inputStream;
-    this.outputStream = initialClient.outputStream;
-    this.crcSeed = initialClient.crcSeed;
-    this.sequences = initialClient.sequences;
-    this.outQueue = initialClient.outQueue;
-    this.protocolName = initialClient.protocolName;
-    this.outOfOrderPackets = initialClient.outOfOrderPackets;
-    this.nextAck = initialClient.nextAck;
-    this.lastAck = initialClient.lastAck;
-    this.outQueueTimer = initialClient.outputStream;
-    this.ackTimer = initialClient.inputStream;
-    this.outOfOrderTimer = initialClient.outputStream;
+    this.sessionId = sessionId;
+    this.soeClientId = soeClientId;
 
     this.isLoading = true;
     this.firstLoading = true;
@@ -84,7 +66,6 @@ export class ZoneClient extends SOEClient {
     this.spawnedEntities = [];
     this.managedObjects = [];
     this.clearTimers = () => {
-      super.clearTimers();
       clearTimeout(this.npcsToSpawnTimer);
     };
     this.clearHudTimer = () => {

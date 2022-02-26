@@ -193,6 +193,7 @@ export class zonePacketHandlers {
     ) {
       client.currentPOI = 0; // clears currentPOI for POIManager
       server.sendGameTimeSync(client);
+      server.startRessourceUpdater(client);
       if (client.firstLoading) {
         server.sendData(client, "POIChangeMessage", {
           // welcome POI message
@@ -255,7 +256,15 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      debug("Collision.Damage");
+      const characterId = packet.data.characterId;
+      const damage = packet.data.damage;
+      const vehicle = server._vehicles[characterId];
+      if (characterId === client.character.characterId) {
+        server.playerDamage(client, damage);
+      } else if (vehicle) {
+        /*server.damageVehicle(damage / 100, vehicle);
+        server.DTOhit(client, packet);*/
+      }
     };
     this.lobbyGameDefinitionDefinitionsRequest = function (
       server: ZoneServer2016,
@@ -826,6 +835,11 @@ export class zonePacketHandlers {
           );
         }
       }
+      if (packet.data.horizontalSpeed) {
+        client.character.isRunning =
+          packet.data.horizontalSpeed > (client.character.isExhausted ? 5 : 6);
+      }
+
       if (packet.data.position) {
         client.character.state.position = new Float32Array([
           packet.data.position[0],
@@ -833,7 +847,6 @@ export class zonePacketHandlers {
           packet.data.position[2],
           0,
         ]);
-        client.character.isRunning = packet.data.unknown11_float > 6;
 
         if (
           client.hudTimer != null &&

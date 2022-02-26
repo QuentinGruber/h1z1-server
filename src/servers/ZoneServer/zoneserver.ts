@@ -68,6 +68,7 @@ export class ZoneServer extends EventEmitter {
   _cycleSpeed: number;
   _frozeCycle: boolean = false;
   _profiles: any[];
+  _items: any[];
   _weather!: Weather;
   _spawnLocations: any;
   _defaultWeatherTemplate: string;
@@ -137,6 +138,7 @@ export class ZoneServer extends EventEmitter {
     this._soloMode = false;
     this._defaultWeatherTemplate = "h1emubaseweather";
     this._profiles = [];
+    this._items = [];
     this._interactionDistance = 4;
     this._npcRenderDistance = 350;
     this._pingTimeoutTime = 120000;
@@ -183,7 +185,7 @@ export class ZoneServer extends EventEmitter {
       this.onGatewayDisconnectEvent(err, client);
     });
 
-    this._gatewayServer.on("session", (err: string, client: Client) => {
+    this._gatewayServer.on("session", (err: string, client: SOEClient) => {
       this.onGatewaySessionEvent(err, client);
     });
 
@@ -397,7 +399,7 @@ export class ZoneServer extends EventEmitter {
   ) {
     if (clientProtocol !== this._clientProtocol) {
       debug(`${soeClient.address} is using the wrong client protocol`);
-      this.sendData(soeClient as Client, "LoginFailed", {});
+      this.sendData(soeClient as any, "LoginFailed", {});
       return;
     }
     debug(
@@ -405,7 +407,8 @@ export class ZoneServer extends EventEmitter {
     );
     const generatedTransient = this.generateTransientId(characterId);
     const zoneClient = new Client(
-      soeClient,
+      soeClient.sessionId,
+      soeClient.soeClientId,
       loginSessionId,
       characterId,
       generatedTransient
@@ -424,6 +427,10 @@ export class ZoneServer extends EventEmitter {
     this.deleteClient(client);
   }
 
+  getSoeClient(soeClientId : string) : SOEClient{
+    return this._gatewayServer._soeServer._clients[soeClientId];
+  }
+
 
   deleteClient(client: Client){
     if(client.character){
@@ -435,13 +442,13 @@ export class ZoneServer extends EventEmitter {
       });
     }
     delete this._clients[client.sessionId];
-    this._gatewayServer._soeServer.deleteClient(client);
+    this._gatewayServer._soeServer.deleteClient(this.getSoeClient(client.soeClientId));
     if (!this._soloMode) {
       this.sendZonePopulationUpdate();
     }
   }
 
-  onGatewaySessionEvent(err: string, client: Client) {
+  onGatewaySessionEvent(err: string, client: SOEClient) {
     debug(`Session started for client ${client.address}:${client.port}`);
   }
 
@@ -481,6 +488,7 @@ export class ZoneServer extends EventEmitter {
           ?.collection("weathers")
           .findOne({ templateName: this._defaultWeatherTemplate });
     this._profiles = this.generateProfiles();
+    this._items = this.generateItems();
     if (
       !this._soloMode &&
       (await this._db?.collection("worlds").findOne({ worldId: this._worldId }))
@@ -713,7 +721,7 @@ export class ZoneServer extends EventEmitter {
     if (!!this._clients[client.sessionId]) {
       // if hasn't already deleted
       debug(
-        `Client disconnected from ${client.address}:${client.port} ( ping timeout )`
+        `Client (${client.soeClientId}) disconnected ( ping timeout )`
       );
       this.deleteClient(client);
     }
@@ -851,6 +859,98 @@ export class ZoneServer extends EventEmitter {
     return profiles;
   }
 
+  generateItems(): any[] {
+    const items: any[] = [];
+    const itemDefinitions = require("../../../data/2015/dataSources/ClientItemDefinitions.json");
+    itemDefinitions.forEach((item: any) => {
+      items.push({
+        definitionData: {
+          ID: item.ID,
+          flags: {
+            NO_TRADE: item.NO_TRADE,
+            COMBAT_ONLY: item.COMBAT_ONLY,
+            NO_LIVE_GAMER: item.NO_LIVE_GAMER,
+            SINGLE_USE: item.SINGLE_USE,
+            NON_MINI_GAME: item.NON_MINI_GAME,
+            MEMBERS_ONLY: item.MEMBERS_ONLY,
+            NO_SALE: item.NO_SALE,
+            FORCE_DISABLE_PREVIEW: item.FORCE_DISABLE_PREVIEW,
+          },
+          flags2: {
+            PERSIST_PROFILE_SWITCH: item.PERSIST_PROFILE_SWITCH,
+            FLAG_QUICK_USE: item.FLAG_QUICK_USE,
+            FLAG_NO_DRAG_DROP: false,
+            FLAG_ACCOUNT_SCOPE: item.FLAG_ACCOUNT_SCOPE,
+            FLAG_CAN_EQUIP: item.FLAG_CAN_EQUIP,
+            bit5: false,
+            bit6: false,
+            bit7: false,
+          },
+          nameId: item.NAME_ID,
+          descriptionId: item.DESCRIPTION_ID,
+          unknownDword4: 6,
+          iconId: item.IMAGE_SET_ID,
+          tintId: item.TINT_ID,
+          hudImageSetId: item.HUD_IMAGE_SET_ID,
+          unknownDword8: 10,
+          unknownDword9: 11,
+          coinPurchasePrice: item.COST,
+          itemClass: item.ITEM_CLASS,
+          slot: item.SLOT,
+          unknownDword13: 15,
+          modelName: item.MODEL_NAME,
+          textureAlias: item.TEXTURE_ALIAS,
+          genderUsage: item.GENDER_USAGE,
+          itemType: item.ITEM_TYPE,
+          categoryId: item.CATEGORY_ID,
+          unknownDword17: 19,
+          compositeEffectId: item.COMPOSITE_EFFECT_ID,
+          powerRating: item.POWER_RATING,
+          minProfileRank: item.MIN_PROFILE_RANK,
+          unknownDword21: 23,
+          unknownDword22: 24,
+          unknownDword23: 25,
+          unknownDword24: 26,
+          unknownDword25: 27,
+          maxStackSize: item.MAX_STACK_SIZE,
+          unknownDword27: 29,
+          tintAlias: item.TINT_ALIAS,
+          unknownDword28: 30,
+          unknownDword29: 31,
+          VipRankRequirement: item.VIP_RANK_REQUIRED,
+          unknownDword31: 33,
+          unknownDword32: 34,
+          equipCountMax: item.EQUIP_COUNT_MAX,
+          currencyType: item.CURRENCY_TYPE,
+          unknownDword35: 37,
+          unknownDword36: 38,
+          unknownDword37: 39,
+          overlayTexture: item.OVERLAY_TEXTURE,
+          decalSlot: item.DECAL_SLOT,
+          unknownDword38: 40,
+          unknownDword39: 41,
+          unknownDword40: 42,
+          unknownDword41: 43,
+          overrideAppearance: item.OVERRIDE_APPEARANCE,
+          overrideCameraId: item.OVERRIDE_CAMERA_ID,
+          unknownDword43: 45,
+          unknownDword44: 46,
+          unknownDword45: 2,
+          bulk: item.BULK,
+          unknownDword47: 0,
+          unknownDword48: 0,
+          unknownDword49: 0,
+          unknownDword50: 0,
+          unknownDword51: 0,
+          unknownDword52: 0,
+          stats: [],
+        },
+      });
+    });
+    debug("Generated " +items.length +" items");
+    return items;
+  }
+
   sendInitData(client: Client): void {
     this.SendZoneDetailsPacket(client, this._weather);
 
@@ -867,6 +967,13 @@ export class ZoneServer extends EventEmitter {
     });
 
     this.characterData(client);
+
+    this.sendData(client, "Command.ItemDefinitions", {
+      definitionsData: {
+        itemDefinitions: this._items,
+      },
+    });
+
   }
 
   spawnNpcs(client: Client): void {
@@ -2424,7 +2531,7 @@ export class ZoneServer extends EventEmitter {
       debug("send data", packetName);
     }
     const data = this._protocol.pack(packetName, obj);
-    this._gatewayServer.sendTunnelData(client, data, channel);
+    this._gatewayServer.sendTunnelData(this.getSoeClient(client.soeClientId), data, channel);
   }
 
   sendDataToAll(packetName: h1z1PacketsType, obj: any, channel = 0): void {
@@ -2473,7 +2580,8 @@ export class ZoneServer extends EventEmitter {
   }
 
   sendRawData(client: Client, data: Buffer, channel = 0): void {
-    this._gatewayServer.sendTunnelData(client, data, channel);
+    this._gatewayServer.sendTunnelData(this.getSoeClient(client.soeClientId), data, channel);
+
   }
 
   stop(): void {

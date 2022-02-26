@@ -25,7 +25,8 @@ import {
   initMongo,
   setupAppDataFolder,
 } from "../../utils/utils";
-import { Client, GameServer } from "../../types/loginserver";
+import { GameServer } from "../../types/loginserver";
+import Client from "servers/LoginServer/loginclient";
 import fs from "fs";
 import { loginPacketsType } from "types/packets";
 import { Worker } from "worker_threads";
@@ -262,7 +263,7 @@ export class LoginServer extends EventEmitter {
       default:
         return;
     }
-    this._soeServer.sendAppData(client, data, true);
+    this._soeServer.sendAppData(client, data);
   }
 
   getServerVersionTag(protocolName: string) {

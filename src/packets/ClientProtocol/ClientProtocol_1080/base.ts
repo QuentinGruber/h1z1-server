@@ -2817,9 +2817,10 @@ export const basePackets: any = [
             3: [
               // UpdateCharacterResource
               { name: "characterId", type: "uint64string", defaultValue: "0" },
-              { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-              { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-              { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+              { name: "resourceId", type: "uint32", defaultValue: 0 },
+              { name: "resourceType", type: "uint32", defaultValue: 0 },
+
+              { name: "initialValue", type: "uint32", defaultValue: 0 },
               { name: "unknownDword4", type: "uint32", defaultValue: 0 },
               { name: "unknownFloat5", type: "float", defaultValue: 0.0 },
               { name: "unknownFloat6", type: "float", defaultValue: 0.0 },
@@ -2827,11 +2828,13 @@ export const basePackets: any = [
               { name: "unknownDword8", type: "uint32", defaultValue: 0 },
               { name: "unknownDword9", type: "uint32", defaultValue: 0 },
               { name: "unknownDword10", type: "uint32", defaultValue: 0 },
+
               { name: "unknownByte1", type: "uint8", defaultValue: 0 },
               { name: "unknownByte2", type: "uint8", defaultValue: 0 },
               { name: "unknownGuid3", type: "uint64string", defaultValue: "0" },
               { name: "unknownGuid4", type: "uint64string", defaultValue: "0" },
               { name: "unknownGuid5", type: "uint64string", defaultValue: "0" },
+
               { name: "unknownBoolean", type: "boolean", defaultValue: false },
             ],
             4: [

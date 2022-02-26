@@ -11,9 +11,10 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { readUint64String } from "../../../utils/utils";
+import { h1z1Buffer } from "h1z1-dataschema";
 
-export function parseItemRequestSubData(data: Buffer, offset: number) {
+
+export function parseItemRequestSubData(data: h1z1Buffer, offset: number) {
   const obj: any = {},
   startOffset = offset;
   obj["unknownBoolean1"] = data.readUInt8(offset);
@@ -28,9 +29,9 @@ export function parseItemRequestSubData(data: Buffer, offset: number) {
     offset += 4;
     obj["count"] = data.readUInt32LE(offset);
     offset += 4;
-    obj["unknownQword1"] = readUint64String(data, offset);
+    obj["unknownQword1"] = data.readUInt64String(offset);
     offset += 8;
-    obj["unknownQword2"] = readUint64String(data, offset);
+    obj["unknownQword2"] = data.readUInt64String(offset);
     offset += 8;
   }
 
