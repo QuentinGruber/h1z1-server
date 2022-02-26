@@ -840,6 +840,9 @@ export class ZoneServer2016 extends ZoneServer {
       switch (packet.data.name) {
         case "SpeedTree.Blackberry":
           itemDefId = 105;
+          if(Math.floor(Math.random() * 10) == 1) {
+            this.lootItem(client, this.generateItem(this.worldObjectManager.eItems.WEAPON_BRANCH), 1);
+          }
           break;
         case "SpeedTree.DevilClub":
         case "SpeedTree.VineMaple":
@@ -2018,35 +2021,32 @@ export class ZoneServer2016 extends ZoneServer {
     }
   }
 
+  lootItem(client: Client, itemGuid: string | undefined, count: number) {
+    if(!itemGuid) return;
+    const itemDefId = this._items[itemGuid].itemDefinitionId;
+    if(this.getItemDefinition(itemDefId).FLAG_CAN_EQUIP) {
+      if(client.character._loadout[this.getLoadoutSlot(itemDefId)]) {
+        this.lootContainerItem(client, itemGuid, count)
+      }
+      else {
+        this.equipItem(client, itemGuid);
+      }
+    }
+    else {
+      this.lootContainerItem(client, itemGuid, count);
+    }
+  }
+
   pickupItem(client: Client, guid: string) {
-    const object = this._objects[guid],
-      itemGuid = object.itemGuid,
-      item = this._items[itemGuid],
-      itemDefId = this._items[itemGuid].itemDefinitionId;
-    if (!item) {
+    const object = this._objects[guid];
+    if (!this._items[object.itemGuid]) {
       this.sendChatText(
         client,
         `[ERROR] No item definition mapped to id: ${object.modelId}`
       );
       return;
     }
-    if(this.getItemDefinition(itemDefId).FLAG_CAN_EQUIP) {
-      // todo, check if loadout slot is occupied
-      // todo: fix this
-      console.log("pickupItem")
-      console.log(client.character._loadout[this.getLoadoutSlot(itemDefId)])
-      console.log(itemGuid)
-      if(client.character._loadout[this.getLoadoutSlot(itemDefId)]) {
-        this.lootContainerItem(client, itemGuid, object.stackCount)
-      }
-      else {
-        this.equipItem(client, itemGuid);
-      }
-      
-    }
-    else {
-      this.lootContainerItem(client, itemGuid, object.stackCount);
-    }
+    this.lootItem(client, object.itemGuid, object.stackCount);
     this.deleteEntity(guid, this._objects);
     delete this.worldObjectManager._spawnedObjects[object.spawnerId];
   }
