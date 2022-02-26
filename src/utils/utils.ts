@@ -14,6 +14,7 @@
 const restore = require("mongodb-restore-dump");
 import { generate_random_guid } from "h1emu-core";
 import v8 from "v8";
+import {compress, compressBound} from "./lz4/lz4";
 import fs, { readdirSync } from "fs";
 import { normalize } from "path";
 import {
@@ -224,6 +225,13 @@ export const generateCommandList = (
   });
   return commandList;
 };
+
+export class LZ4 {
+  static encodeBlock: (src: any, dst: any, sIdx?: any, eIdx?: any) => number;
+  static encodeBound: (isize: number) => number;
+}
+LZ4.encodeBlock = compress
+LZ4.encodeBound = compressBound
 
 export const lz4_decompress = function (
   // from original implementation

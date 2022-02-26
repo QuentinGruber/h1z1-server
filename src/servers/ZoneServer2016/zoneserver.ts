@@ -1066,7 +1066,7 @@ export class ZoneServer2016 extends ZoneServer {
         debug("send data", packetName);
     }
     const data = this._protocol.pack(packetName, obj);
-    this._gatewayServer.sendTunnelData(client, data, channel);
+    this._gatewayServer.sendTunnelData(this.getSoeClient(client.soeClientId), data, channel);
   }
   sendChat(client: Client, message: string, channel: number) {
     if (!this._soloMode) {

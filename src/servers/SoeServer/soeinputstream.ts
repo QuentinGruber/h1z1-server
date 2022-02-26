@@ -26,7 +26,7 @@ export class SOEInputStream extends EventEmitter {
   _useEncryption: boolean;
   _rc4: Decipher;
 
-  constructor(cryptoKey: string) {
+  constructor(cryptoKey: Uint8Array) {
     super();
     this._sequences = [];
     this._nextSequence = -1;
