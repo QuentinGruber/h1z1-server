@@ -1765,20 +1765,7 @@ export class ZoneServer2016 extends ZoneServer {
       debug(
         `[ERROR] DropItem: No WORLD_MODEL_ID mapped to itemDefinitionId: ${this._items[itemGuid].itemDefinitionId}`
       );
-      this.sendChatText(
-        client, 
-        `[ERROR] No WORLD_MODEL_ID mapped to itemDefinitionId: ${this._items[itemGuid].itemDefinitionId}`
-      );
     }
-    this.worldObjectManager.createLootEntity(
-      this, 
-      itemDefinition.ID, 
-      count,
-      [...client.character.state.position], 
-      [...client.character.state.lookAt]
-    )
-    this.spawnObjects(client); // manually call this for now
-    
 	  this.sendData(client, "Character.DroppedIemNotification", {
 		  characterId: client.character.characterId,
       itemDefId: item.itemDefinitionId,
@@ -1804,6 +1791,15 @@ export class ZoneServer2016 extends ZoneServer {
       if(equipmentSlotId === 7) { // primary slot
         this.equipItem(client, client.character._loadout[7].itemGuid);
       }
+      this.worldObjectManager.createLootEntity(
+        this, 
+        itemDefinition.ID, 
+        count,
+        [...client.character.state.position], 
+        [...client.character.state.lookAt],
+        -1,
+        itemGuid
+      )
     }
     else {
       const dropItem = client.character._containers[12]?.items[itemGuid]; // TODO: GET CORRECT CONTAINER WHEN CONTAINERS ARE WORKING
@@ -1814,6 +1810,15 @@ export class ZoneServer2016 extends ZoneServer {
           characterId: client.character.characterId,
           itemGuid: itemGuid,
         });
+        this.worldObjectManager.createLootEntity(
+          this, 
+          itemDefinition.ID, 
+          count,
+          [...client.character.state.position], 
+          [...client.character.state.lookAt],
+          -1,
+          itemGuid
+        )
       }
       else {
         dropItem.stackCount -= count;
@@ -1846,8 +1851,16 @@ export class ZoneServer2016 extends ZoneServer {
             unknownDword9: 0,
           }
         });
+        this.worldObjectManager.createLootEntity(
+          this, 
+          itemDefinition.ID, 
+          count,
+          [...client.character.state.position], 
+          [...client.character.state.lookAt]
+        )
       }
     }
+    this.spawnObjects(client); // manually call this for now
     if(itemDefinition.ITEM_TYPE === 34) {
       delete client.character._containers[item.guid];
     }
@@ -1902,6 +1915,7 @@ export class ZoneServer2016 extends ZoneServer {
           iconId: this.getItemDefinition(itemDefId).IMAGE_SET_ID,
           count: count,
         });
+        delete(this._items[itemGuid]);
       }
       else {
         this.addContainerItem(client, itemGuid, availableContainer, count);

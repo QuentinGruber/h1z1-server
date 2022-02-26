@@ -239,7 +239,8 @@ export class WorldObjectManager {
     stackCount: number,
     position: Array<number>,
     rotation: Array<number>,
-    itemSpawnerId: number = -1
+    itemSpawnerId: number = -1,
+    itemGuid: string = ""
   ): void {
     const itemDef = server.getItemDefinition(itemDefinitionId);
 	let modelId;
@@ -263,7 +264,7 @@ export class WorldObjectManager {
       position: position,
       rotation: rotation,
       spawnerId: itemSpawnerId || 0,
-      itemGuid: server.generateItem(itemDefinitionId),
+      itemGuid: itemGuid || server.generateItem(itemDefinitionId),
       stackCount: stackCount
     };
     if (itemSpawnerId) this._spawnedObjects[itemSpawnerId] = characterId;
