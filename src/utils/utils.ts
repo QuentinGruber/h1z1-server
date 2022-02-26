@@ -313,14 +313,6 @@ export const getPacketTypeBytes = function (packetType: number): number[] {
   return packetTypeBytes;
 };
 
-export const readUint64String = function (data: Buffer, offset: number): string {
-  let str = "0x";
-  for (let j = 7; j >= 0; j--) {
-    str += ("0" + data.readUInt8(offset + j).toString(16)).substr(-2);
-  }
-  return str;
-}
-
 // experimental custom implementation of the scheduler API
 export class Scheduler {
   constructor() {}
