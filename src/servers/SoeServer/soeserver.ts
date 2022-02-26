@@ -83,7 +83,7 @@ export class SOEServer extends EventEmitter {
         [data.buffer]
       );
     }
-    (client as any).outQueueTimer.refresh();
+    client.outQueueTimer.refresh();
   }
 
   checkAck(client: Client) {
@@ -99,7 +99,7 @@ export class SOEServer extends EventEmitter {
         true
       );
     }
-    (client as any).ackTimer.refresh();
+    client.ackTimer.refresh();
   }
   sendClientWaitQueue(client: Client) {
     if (client.waitingQueue.length) {
@@ -141,7 +141,7 @@ export class SOEServer extends EventEmitter {
         true
       );
     }
-    (client as any).outOfOrderTimer.refresh();
+    client.outOfOrderTimer.refresh();
   }
 
   handlePacket(client: SOEClient, packet: any) {
@@ -163,9 +163,9 @@ export class SOEServer extends EventEmitter {
           client.serverUdpLength = this._udpLength;
           client.crcSeed = this._crcSeed;
           client.crcLength = this._crcLength;
-          (client as any).inputStream.setEncryption(this._useEncryption);
-          (client as any).outputStream.setEncryption(this._useEncryption);
-          (client as any).outputStream.setFragmentSize(
+          client.inputStream.setEncryption(this._useEncryption);
+          client.outputStream.setEncryption(this._useEncryption);
+          client.outputStream.setFragmentSize(
             client.clientUdpLength - 7
           );
 
@@ -179,16 +179,7 @@ export class SOEServer extends EventEmitter {
           this.emit("session", null, client);
           break;
         case "Disconnect":
-          // hack so updateInterval is cleared even if user badly close the client
-          this.emit(
-            "appdata",
-            null,
-            client,
-            Buffer.from(new Uint8Array([0x03]))
-          ); // trigger "Logout"
-
           debug("Received disconnect from client");
-          delete this._clients[client.address + ":" + client.port];
           this.emit("disconnect", null, client);
           break;
         case "MultiPacket": {
@@ -215,7 +206,7 @@ export class SOEServer extends EventEmitter {
                 ", sequence " +
                 lastOutOfOrder
             );
-            (client as any).outputStream.resendData(lastOutOfOrder);
+            client.outputStream.resendData(lastOutOfOrder);
           }
           break;
         }
@@ -230,7 +221,7 @@ export class SOEServer extends EventEmitter {
           debug(
             "Received data packet from client, sequence " + result.sequence
           );
-          (client as any).inputStream.write(
+          client.inputStream.write(
             result.data,
             result.sequence,
             false
@@ -240,7 +231,7 @@ export class SOEServer extends EventEmitter {
           debug(
             "Received data fragment from client, sequence " + result.sequence
           );
-          (client as any).inputStream.write(result.data, result.sequence, true);
+          client.inputStream.write(result.data, result.sequence, true);
           break;
         case "OutOfOrder":
           debug(
@@ -249,7 +240,7 @@ export class SOEServer extends EventEmitter {
               ", sequence " +
               result.sequence
           );
-          (client as any).outputStream.resendData(result.sequence);
+          client.outputStream.resendData(result.sequence);
           break;
         case "Ack":
           if (result.sequence > 63000) {
@@ -258,22 +249,14 @@ export class SOEServer extends EventEmitter {
             this.emit("PacketLimitationReached", client);
           }
           debug("Ack, sequence " + result.sequence);
-          (client as any).outputStream.ack(result.sequence);
+          client.outputStream.ack(result.sequence);
           break;
         case "ZonePing":
           debug("Receive Zone Ping ");
-          const pingTime = Date.now();
           /* this._sendPacket(client, "ZonePing", { respond to it is currently useless ( at least on the 2015 version )
             PingId: result.PingId,
             Data: result.Data,
           });*/
-          if (client.lastZonePingTimestamp) {
-            client.zonePingTimeMs =
-              pingTime - client.lastZonePingTimestamp - 5000; // zonepings are sent every 5 sec by the game
-            client.zonePingTimeMs =
-              client.zonePingTimeMs < 0 ? 0 : client.zonePingTimeMs;
-          }
-          client.lastZonePingTimestamp = pingTime;
           break;
         case "FatalError":
           debug("Received fatal error from client");
@@ -282,7 +265,11 @@ export class SOEServer extends EventEmitter {
           break;
       }
     } else {
-      console.error(`handlePacket failed : ${JSON.stringify(packet)} from ${client.address}:${client.port}`);
+      console.error(
+        `handlePacket failed : ${JSON.stringify(packet)} from ${
+          client.address
+        }:${client.port}`
+      );
     }
   }
 
@@ -322,34 +309,34 @@ export class SOEServer extends EventEmitter {
           if (this._isLocal) {
             client.outputStream._enableCaching = false;
           } else {
-            (client as any).outOfOrderTimer = setTimeout(
+            client.outOfOrderTimer = setTimeout(
               () => this.checkOutOfOrderQueue(client),
               50
             );
           }
 
-          (client as any).inputStream.on(
+          client.inputStream.on(
             "data",
             (err: string, data: Buffer) => {
               this.emit("appdata", null, client, data);
             }
           );
 
-          (client as any).inputStream.on(
+          client.inputStream.on(
             "ack",
             (err: string, sequence: number) => {
               client.nextAck = sequence;
             }
           );
 
-          (client as any).inputStream.on(
+          client.inputStream.on(
             "outoforder",
             (err: string, expected: any, sequence: number) => {
               client.outOfOrderPackets.push(sequence);
             }
           );
 
-          (client as any).outputStream.on(
+          client.outputStream.on(
             "data",
             (err: string, data: Buffer, sequence: number, fragment: any) => {
               if (fragment) {
@@ -365,16 +352,16 @@ export class SOEServer extends EventEmitter {
               }
             }
           );
-          (client as any).outQueueTimer = setTimeout(() =>
+          client.outQueueTimer = setTimeout(() =>
             this.checkClientOutQueue(client)
           );
           if (this._useMultiPackets) {
-            (client as any).waitQueueTimer = setTimeout(
+            client.waitQueueTimer = setTimeout(
               () => this.sendClientWaitQueue(client),
               this._waitQueueTimeMs
             );
           }
-          (client as any).ackTimer = setTimeout(() => this.checkAck(client));
+          client.ackTimer = setTimeout(() => this.checkAck(client));
 
           this.emit("connect", null, this._clients[clientId]);
         }
@@ -386,7 +373,7 @@ export class SOEServer extends EventEmitter {
         );
         if (result?.soePacket) {
           if (!unknow_client && result.soePacket.name === "SessionRequest") {
-            delete this._clients[clientId];
+            this.deleteClient(this._clients[clientId]);
             debug(
               "Delete an old session badly closed by the client (",
               clientId,
@@ -458,23 +445,23 @@ export class SOEServer extends EventEmitter {
     }
   }
 
-  sendAppData(client: Client, data: Buffer, overrideEncryption: boolean): void {
-    if ((client as any).outputStream._useEncryption) {
+  sendAppData(client: Client, data: Buffer): void {
+    if (client.outputStream._useEncryption) {
       debug("Sending app data: " + data.length + " bytes with encryption");
     } else {
       debug("Sending app data: " + data.length + " bytes");
     }
-    (client as any).outputStream.write(data, overrideEncryption);
+    client.outputStream.write(data);
   }
 
   setEncryption(client: Client, value: boolean): void {
-    (client as any).outputStream.setEncryption(value);
-    (client as any).inputStream.setEncryption(value);
+    client.outputStream.setEncryption(value);
+    client.inputStream.setEncryption(value);
   }
 
   toggleEncryption(client: Client): void {
-    (client as any).outputStream.toggleEncryption();
-    (client as any).inputStream.toggleEncryption();
+    client.outputStream.toggleEncryption();
+    client.inputStream.toggleEncryption();
   }
 
   deleteClient(client: SOEClient): void {

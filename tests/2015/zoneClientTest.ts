@@ -3,7 +3,7 @@ import { getAppDataFolderPath } from "../../out/utils/utils";
 import fs from "fs";
 const zoneServer = new ZoneServer(
   1117,
-  new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", "base64")
+  Buffer.from("F70IaxuU8C/w7FPXY1ibXw==", "base64")
 );
 
 zoneServer.start();
@@ -198,7 +198,7 @@ setTimeout(() => {
   var client = new ZoneClient(
     "127.0.0.1",
     1117,
-    new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", "base64"),
+    Buffer.from("F70IaxuU8C/w7FPXY1ibXw==", "base64"),
     "0x69cf9098124bdb33",
     "0",
     "ClientProtocol_860",

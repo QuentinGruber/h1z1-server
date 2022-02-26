@@ -806,6 +806,7 @@ export const lightWeightNpcSchema = [
   {
     name: "color",
     type: "rgb",
+    defaultValue: {},
     fields: [
       { name: "r", type: "uint8", defaultValue: 0 },
       { name: "g", type: "uint8", defaultValue: 0 },
@@ -822,6 +823,7 @@ export const lightWeightNpcSchema = [
   {
     name: "attachedObject",
     type: "schema",
+    defaultValue: {},
     fields: [
       {
         name: "targetObjectId",

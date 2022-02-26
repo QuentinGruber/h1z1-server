@@ -30,7 +30,6 @@ export interface Client {
   outOfOrderPackets: any;
   nextAck: number;
   lastAck: number;
-  zonePingTimeMs: number;
   cryptoKey: Uint8Array;
   serverUpdateTimer: ReturnType<typeof setTimeout>;
   waitingQueueCurrentByteLength: number;

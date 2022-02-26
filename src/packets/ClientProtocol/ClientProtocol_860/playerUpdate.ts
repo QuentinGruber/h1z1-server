@@ -619,11 +619,11 @@ export const playerUpdatePackets: any = [
         { name: "acceleration", type: "float", defaultValue: 10 },
         { name: "speed", type: "float", defaultValue: 1 },
         { name: "unknown8", type: "float", defaultValue: 0 },
-        { name: "yRot", type: "float", defaultValue: 0},
+        { name: "yRot", type: "float", defaultValue: 0 },
         {
           name: "rotation",
           type: "floatvector4",
-          defaultValue: [0, 0,0, 1],
+          defaultValue: [0, 0, 0, 1],
         },
       ],
     },

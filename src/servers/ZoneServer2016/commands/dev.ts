@@ -85,12 +85,14 @@ const dev: any = {
       eventData: {
         type: 2,
         value: {
-          characterId: "0x03147cca2a860191",
-          resourceId: args[1],
-          resourceType: args[2],
-          unknownArray1: [],
-          value: args[3],
-          unknownArray2: [],
+          characterId: client.character.characterId,
+          resourceData: {
+            resourceId: Number(args[1]),
+            resourceType: Number(args[2]),
+            unknownArray1: [],
+            value: Number(args[3]),
+            unknownArray2: [],
+          }
         },
       },
     };
@@ -127,6 +129,23 @@ const dev: any = {
     server.sendChatText(client, "Sending setcurrentloadout packet");
     server.sendData(client, "Loadout.SetCurrentLoadout", loadout);
   },
+  createcustomloadout: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: any[]
+  ) {
+    if (!args[2]) {
+      server.sendChatText(client, "Missing slotId and loadoutSlotId args");
+      return;
+    }
+    const loadout = {
+      slotId: Number(args[1]),
+      loadoutSlotId: Number(args[2]),
+    };
+    server.sendChatText(client, "Sending setcurrentloadout packet");
+    server.sendData(client, "Loadout.CreateCustomLoadout", loadout);
+  },
+
   setslot: function (server: ZoneServer2016, client: Client, args: any[]) {
     if (!args[2]) {
       server.sendChatText(client, "Missing slotId and itemDefinitionId args.");
@@ -603,14 +622,14 @@ const dev: any = {
     const backpack: any = server.generateItem(1602);
     server.equipItem(client, backpack);
     const item: any = server.generateItem(2425),
-      containerGuid = server.generateGuid(),
+      //containerGuid = server.generateGuid(),
       containers = [
         {
           unknownDword1: 3, // container itemDefinitionId ?
           containerData: {
-            guid: containerGuid,
-            unknownDword1: 1,
-            associatedCharacterId: backpack,
+            guid: backpack,
+            definitionId: 3,
+            associatedCharacterId: client.character.characterId,
             slots: 9999,
             items: [
               {
@@ -623,14 +642,14 @@ const dev: any = {
                   itemSubData: {
                     unknownBoolean1: false,
                   },
-                  containerGuid: containerGuid,
+                  containerGuid: backpack,
                   containerDefinitionId: 1,
                   containerSlotId: 1,
                   baseDurability: 1,
                   currentDurability: 1,
                   maxDurabilityFromDefinition: 1,
                   unknownBoolean1: true,
-                  unknownQword3: containerGuid,
+                  unknownQword3: backpack,
                   unknownDword9: 1,
                 },
               },
@@ -654,49 +673,46 @@ const dev: any = {
     client: Client,
     args: any[]
   ) {
-    const //item: any = server.generateItem(2425),
-      containers = [
+    const item: any = server.generateItem(2425);
+    console.log(item);
+    const containers = [
         {
-          unknownDword1: 3, // container itemDefinitionId ?
-          containerData: {
-            guid: "0x123",
-            unknownDword1: 3,
-            associatedCharacterId: client.character.characterId,
-            slots: 9999,
-            items: [
-              /*
-              {
+          guid: item,
+          definitionId: 4,
+          associatedCharacterId: client.character.characterId,
+          slots: 9999,
+          items: [
+            {
+              itemDefinitionId: server._items[item].itemDefinition.ID,
+              itemData: {
                 itemDefinitionId: server._items[item].itemDefinition.ID,
-                itemData: {
-                  itemDefinitionId: server._items[item].itemDefinition.ID,
-                  tintId: 1,
-                  guid: item,
-                  count: 1,
-                  itemSubData: {
-                    unknownBoolean1: false,
-                  },
-                  containerGuid: containerGuid,
-                  containerDefinitionId: 1,
-                  containerSlotId: 1,
-                  baseDurability: 1,
-                  currentDurability: 1,
-                  maxDurabilityFromDefinition: 1,
-                  unknownBoolean1: true,
-                  unknownQword3: "",
-                  unknownDword9: 1,
+                tintId: 1,
+                guid: item,
+                count: 1,
+                itemSubData: {
+                  unknownBoolean1: false,
                 },
-              },*/
-            ],
-            unknownBoolean1: true,
-            unknownDword3: 565,
-            unknownDword4: 999,
-            unknownDword5: 999,
-            unknownBoolean2: false,
-          },
+                containerGuid: client.character.characterId,
+                containerDefinitionId: 1,
+                containerSlotId: 1,
+                baseDurability: 1,
+                currentDurability: 1,
+                maxDurabilityFromDefinition: 1,
+                unknownBoolean1: true,
+                unknownQword3: "",
+                unknownDword9: 1,
+              },
+            },
+          ],
+          unknownBoolean1: true,
+          unknownDword3: 565,
+          unknownDword4: 999,
+          unknownDword5: 991,
+          unknownBoolean2: false,
         },
       ];
     server.sendData(client, "Container.ListAll", {
-      characterId: "0x123",
+      characterId: client.character.characterId,
       containers: containers,
     });
   },
@@ -706,7 +722,7 @@ const dev: any = {
     const item: any = server.generateItem(2425),
       containerData = {
         guid: backpack,
-        unknownDword1: server._items[backpack].itemDefinition.ID,
+        definitionId: server._items[backpack].itemDefinition.ID,
         associatedCharacterId: backpack,
         slots: 2,
         items: [
@@ -763,9 +779,9 @@ const dev: any = {
     server: ZoneServer2016,
     client: Client,
     args: any[]
-  ) {
+  ) {/*
     const backpack: any = server.generateItem(1602);
-    server.equipItem(client, backpack);
+    server.equipItem(client, backpack);*/
     const objectCharacterId = server.generateGuid(),
       npc = {
         characterId: objectCharacterId,
@@ -786,15 +802,15 @@ const dev: any = {
         unknownData1: { unknownData1: {} },
         attachedObject: {},
       };
-    const item: any = server.generateItem(2425),
+    const item: any = server.generateItem(2425)/*,
       containerGuid = server.generateGuid(),
       containers = [
         {
-          unknownDword1: 3, // container itemDefinitionId ?
+          unknownDword1: 92, // container itemDefinitionId ?
           containerData: {
-            guid: containerGuid,
-            unknownDword1: 3,
-            associatedCharacterId: client.character.characterId,
+            guid: objectCharacterId,
+            definitionId: 92,
+            associatedCharacterId: objectCharacterId,
             slots: 9999,
             items: [
               {
@@ -830,20 +846,20 @@ const dev: any = {
           },
         },
       ];
-
+      */
     server._npcs[objectCharacterId] = npc; // save npc
     server.worldRoutine();
-    setTimeout(() => {
+    setTimeout(() => {/*
       server.sendData(client, "Container.InitEquippedContainers", {
         ignore: client.character.characterId,
         //ignore2: client.character.characterId,
         characterId: objectCharacterId,
         containers: containers,
       });
-
+      */
       server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
         objectCharacterId: objectCharacterId,
-        containerGuid: containerGuid,
+        containerGuid: client.character.characterId,
         unknownBool1: false,
         itemsData: {
           items: [
@@ -854,31 +870,31 @@ const dev: any = {
                   itemDefinitionId: server._items[item].itemDefinition.ID,
                   itemData: {
                     itemDefinitionId: server._items[item].itemDefinition.ID,
-                    tintId: 1,
+                    tintId: 92,
                     guid: item,
-                    count: 1,
+                    count: 92,
                     itemSubData: {
                       unknownBoolean1: false,
                     },
-                    containerGuid: containerGuid,
-                    containerDefinitionId: 1,
-                    containerSlotId: 1,
-                    baseDurability: 1,
-                    currentDurability: 1,
-                    maxDurabilityFromDefinition: 1,
+                    containerGuid: objectCharacterId,
+                    containerDefinitionId: 92,
+                    containerSlotId: 92,
+                    baseDurability: 92,
+                    currentDurability: 92,
+                    maxDurabilityFromDefinition: 92,
                     unknownBoolean1: true,
-                    unknownQword3: containerGuid,
-                    unknownDword9: 1,
+                    unknownQword3: client.character.characterId,
+                    unknownDword9: 92,
                   },
                 },
               },
-              unknownBool1: false,
+              unknownBool1: true,
             },
           ],
-          unknownDword1: 1,
+          unknownDword1: 92,
         },
       });
-    }, 3000);
+    }, 500);
   },
   fte: function (server: ZoneServer2016, client: Client, args: any[]) {
     if (!args[3]) {

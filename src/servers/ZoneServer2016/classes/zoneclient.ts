@@ -18,14 +18,14 @@ import { Character2016 } from "./character";
 export class ZoneClient2016 extends ZoneClient {
   character: Character2016;
   managedObjects: any[] = [];
-
   constructor(
+    sessionId: number,
     initialClient: SOEClient,
     loginSessionId: string,
     characterId: string,
     generatedTransient: number
   ) {
-    super(initialClient, loginSessionId, characterId, generatedTransient);
+    super(sessionId,initialClient.soeClientId ,loginSessionId, characterId, generatedTransient);
 
     this.character = new Character2016(characterId, generatedTransient);
   }

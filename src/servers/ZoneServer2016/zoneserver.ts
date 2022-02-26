@@ -55,9 +55,16 @@ export class ZoneServer2016 extends ZoneServer {
   _characters: { [characterId: string]: Character } = {};
   worldObjectManager: WorldObjectManager;
   _ready: boolean = false;
+  _respawnLocations:any;
 
-  constructor(serverPort: number, gatewayKey: Uint8Array, mongoAddress = "") {
-    super(serverPort, gatewayKey, mongoAddress, 0);
+  constructor(
+    serverPort: number,
+    gatewayKey: Uint8Array,
+    mongoAddress = "",
+    worldId?: number,
+    internalServerPort?: number
+  ) {
+    super(serverPort, gatewayKey, mongoAddress, worldId, internalServerPort);
     this._protocol = new H1Z1Protocol("ClientProtocol_1080");
     this._clientProtocol = "ClientProtocol_1080";
     this._dynamicWeatherEnabled = false;
@@ -113,9 +120,14 @@ export class ZoneServer2016 extends ZoneServer {
       ) {
         debug(`Receive Data ${[packet.name]}`);
       }
-      this._packetHandlers.processPacket(this, client, packet);
+      try {
+        this._packetHandlers.processPacket(this, client, packet);
+      } catch (error) {
+        console.error(`An error occurred while processing a packet : `,packet)
+      }
     }
   }
+  
 
   async onCharacterCreateRequest(client: any, packet: any) {
     function getCharacterModelData(payload: any): any {
@@ -319,7 +331,7 @@ export class ZoneServer2016 extends ZoneServer {
             unknownDword1: 3, // container itemDefinitionId ?
             containerData: {
               guid: containerGuid,
-              unknownDword1: 3,
+              definitionId: 3,
               associatedCharacterId: client.character.characterId,
               slots: 9999,
               items: [
@@ -327,24 +339,11 @@ export class ZoneServer2016 extends ZoneServer {
                   itemDefinitionId: this._items[item].itemDefinitionId,
                   itemData: {
                     itemDefinitionId: this._items[item].itemDefinitionId,
-                    itemData: {
-                      itemDefinitionId: this._items[item].itemDefinitionId,
-                      tintId: 0,
-                      guid: item,
-                      count: 1,
-                      itemSubData: {
-                        unknownBoolean1: false,
-                      },
-                      unknownQword2: item,
-                      unknownDword4: 0,
-                      slot: 0,
-                      unknownDword6: 0,
-                      unknownDword7: 0,
-                      unknownDword8: 0,
-                      unknownBoolean1: true,
-                      unknownQword3: item,
-                      unknownDword9: 0,
-                      unknownBoolean2: true,
+                    tintId: 0,
+                    guid: item,
+                    count: 1,
+                    itemSubData: {
+                      unknownBoolean1: false,
                     },
                     containerGuid: containerGuid,
                     containerDefinitionId: 3,
@@ -354,8 +353,7 @@ export class ZoneServer2016 extends ZoneServer {
                     maxDurabilityFromDefinition: 0,
                     unknownBoolean1: true,
                     unknownQword3: containerGuid,
-                    unknownDword9: 0,
-                    unknownBoolean2: true,
+                    unknownDword9: 0
                   },
                 },
               ],
@@ -958,7 +956,7 @@ export class ZoneServer2016 extends ZoneServer {
         debug("send data", packetName);
     }
     const data = this._protocol.pack(packetName, obj);
-    this._gatewayServer.sendTunnelData(client, data, channel);
+    this._gatewayServer.sendTunnelData(this.getSoeClient(client.soeClientId), data, channel);
   }
   sendChat(client: Client, message: string, channel: number) {
     if (!this._soloMode) {
@@ -1254,6 +1252,32 @@ export class ZoneServer2016 extends ZoneServer {
         engineOn: true,
       });
     }
+    this.sendData(client, "Vehicle.Occupy", {
+      guid: vehicle.npcData.characterId,
+      characterId: client.character.characterId,
+      vehicleId: vehicle.npcData.vehicleId,
+      clearLoadout: 0,
+      unknownArray1: [
+        {
+          unknownDword1: 0,
+          unknownBoolean1: 0,
+        },
+      ],
+      passengers: [
+        {
+          passengerData: {
+            characterId: client.character.characterId,
+            characterData: {
+              unknownDword1: 0,
+              unknownDword2: 0,
+              unknownDword3: 0,
+              characterName: client.character.name,
+            },
+          },
+        },
+      ],
+      unknownArray2: [{}]
+    });
   }
 
   dismountVehicle(client: Client): void {
@@ -1283,6 +1307,20 @@ export class ZoneServer2016 extends ZoneServer {
       );
     }
     client.vehicle.mountedVehicle = "";
+    this.sendData(client, "Vehicle.Occupy", {
+      guid: "",
+      characterId: client.character.characterId,
+      vehicleId: 0,
+      clearLoadout: 1,
+      unknownArray1: [
+        {
+          unknownDword1: 0,
+          unknownBoolean1: 0,
+        },
+      ],
+      passengers: [],
+      unknownArray2: []
+    });
   }
 
   changeSeat(client: Client, packet: any): void {
@@ -1542,7 +1580,8 @@ export class ZoneServer2016 extends ZoneServer {
 if (process.env.VSCODE_DEBUG === "true") {
   new ZoneServer2016(
     1117,
-    new (Buffer as any).from("F70IaxuU8C/w7FPXY1ibXw==", "base64"),
-    process.env.MONGO_URL
+    Buffer.from("F70IaxuU8C/w7FPXY1ibXw==", "base64"),
+    process.env.MONGO_URL,
+    2
   ).start();
 }
