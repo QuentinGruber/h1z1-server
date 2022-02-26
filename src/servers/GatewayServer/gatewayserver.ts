@@ -69,8 +69,7 @@ export class GatewayServer extends EventEmitter {
               this._soeServer.toggleEncryption(client);
               this._soeServer.sendAppData(
                 client,
-                this._protocol.pack("LoginReply", { loggedIn: true }),
-                true
+                this._protocol.pack("LoginReply", { loggedIn: true })
               );
 
               if (result && result.characterId) {

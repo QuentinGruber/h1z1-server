@@ -445,13 +445,13 @@ export class SOEServer extends EventEmitter {
     }
   }
 
-  sendAppData(client: Client, data: Buffer, overrideEncryption: boolean = false): void {
+  sendAppData(client: Client, data: Buffer): void {
     if (client.outputStream._useEncryption) {
       debug("Sending app data: " + data.length + " bytes with encryption");
     } else {
       debug("Sending app data: " + data.length + " bytes");
     }
-    client.outputStream.write(data, overrideEncryption);
+    client.outputStream.write(data);
   }
 
   setEncryption(client: Client, value: boolean): void {
