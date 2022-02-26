@@ -15,7 +15,7 @@ import { Character } from "../../ZoneServer/classes/character";
 import {
   characterEquipment,
   loadoutItem,
-  inventoryContainer
+  loadoutContainer
 } from "../../../types/zoneserver";
 
 export class Character2016 extends Character {
@@ -37,7 +37,7 @@ export class Character2016 extends Character {
   _loadout: { [loadoutSlotId: number]: loadoutItem } = {};
   currentLoadoutSlot: number = 7;//fists
   _equipment: { [equipmentSlotId: number]: characterEquipment } = {};
-  _containers: { [containerGuid: string]: inventoryContainer } = {};
+  _containers: { [loadoutSlotId: number]: loadoutContainer } = {};
   startRessourceUpdater: any;
   constructor(characterId: string, generatedTransient: number) {
     super(characterId, generatedTransient);

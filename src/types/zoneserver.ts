@@ -441,9 +441,9 @@ export interface loadoutItem extends inventoryItem {
   loadoutItemOwnerGuid: string;
 }
 
-export interface inventoryContainer {
-  guid: string;
-  items: Array<inventoryItem>;
+export interface loadoutContainer extends loadoutItem {
+  containerDefinitionId: number;
+  items: { [itemGuid: string]: inventoryItem };
 }
 
 export interface Client {
