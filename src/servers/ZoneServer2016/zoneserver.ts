@@ -848,8 +848,8 @@ export class ZoneServer2016 extends ZoneServer {
         default:
           break;
     }
-	  if(itemDefId){
-		  this.addContainerItem(client, itemDefId, 1);
+	    if(itemDefId){
+        this.lootContainerItem(client, this.generateItem(itemDefId), 1);
       }
       this.speedTreeDestroy(packet);
     }
@@ -1868,7 +1868,16 @@ export class ZoneServer2016 extends ZoneServer {
       this.equipItem(client, itemGuid);
     }
     else {
-      const availableContainer: loadoutContainer = this.getAvailableContainer(client, itemDefId, object.stackCount);
+      this.lootContainerItem(client, itemGuid, object.stackCount);
+    }
+    this.deleteEntity(guid, this._objects);
+    delete this.worldObjectManager._spawnedObjects[object.spawnerId];
+  }
+  
+  lootContainerItem(client: Client, itemGuid: string | undefined, count: number) {
+    if(!itemGuid) return;
+    const itemDefId = this._items[itemGuid].itemDefinitionId,
+    availableContainer: loadoutContainer = this.getAvailableContainer(client, itemDefId, count);
       if(!availableContainer) {
         // container error full
         return;
@@ -1876,124 +1885,96 @@ export class ZoneServer2016 extends ZoneServer {
       const itemStackGuid = this.getAvailableItemStack(availableContainer, itemDefId);
       if(itemStackGuid) {
         const itemStack = client.character._containers[availableContainer.slotId].items[itemStackGuid]
-        //delete and add back item for now since itemupdate crashes game if misused
-        itemStack.stackCount += object.stackCount/*
-        this.sendData(client, "ClientUpdate.ItemDelete", {
-          characterId: client.character.characterId,
-          itemGuid: itemStack.itemGuid,
-        });*/
-        this.sendData(client, "ClientUpdate.ItemUpdate", {
-          characterId: client.character.characterId,
-          data: {
-            itemDefinitionId: itemDefId,
-            tintId: 3,
-            guid: itemStack.itemGuid,
-            count: itemStack.stackCount, // also ammoCount
-            itemSubData: {
-              hasSubData: true,
-              unknownDword1: 1,
-              unknownData1: {
-                unknownQword1: client.character.characterId,
-                unknownDword1: 3,
-                unknownDword2: 3,
-              }
-            },
-            containerGuid: "0x0"/*availableContainer.itemGuid*/, // temp until containers work
-            containerDefinitionId: 0,
-            containerSlotId: 1,
-            baseDurability: 2000,
-            currentDurability: 2000,
-            maxDurabilityFromDefinition: 2000,
-            unknownBoolean1: true,
-            unknownQword3: client.character.characterId,
-            unknownDword9: 0,
-          }
+        itemStack.stackCount += count
+        this.updateContainerItem(client, itemStack.itemGuid, availableContainer);
+        this.sendData(client, "Reward.AddNonRewardItem", {
+          itemDefId: itemDefId,
+          iconId: this.getItemDefinition(itemDefId).IMAGE_SET_ID,
+          count: count,
         });
       }
       else {
-        this.sendData(client, "ClientUpdate.ItemAdd", {
-          characterId: client.character.characterId,
-          data: {
-            itemDefinitionId: itemDefId,
-            tintId: 3,
-            guid: itemGuid,
-            count: object.stackCount, // also ammoCount
-            itemSubData: {
-              hasSubData: true,
-              unknownDword1: 1,
-              unknownData1: {
-                unknownQword1: client.character.characterId,
-                unknownDword1: 3,
-                unknownDword2: 3,
-              }
-            },
-            containerGuid: "0x0"/*availableContainer.itemGuid*/, // temp until containers work
-            containerDefinitionId: 0,
-            containerSlotId: 1,
-            baseDurability: 2000,
-            currentDurability: 2000,
-            maxDurabilityFromDefinition: 2000,
-            unknownBoolean1: true,
-            unknownQword3: client.character.characterId,
-            unknownDword9: 0,
-            unknownBoolean2: true,
-          }
-        });
-        availableContainer.items[itemGuid] = {
-          itemDefinitionId: itemDefId,
-          slotId: 1,
-          itemGuid: itemGuid,
-          containerGuid: "0x0",
-          stackCount: object.stackCount,
-          currentDurability: 2000
-        };
+        this.addContainerItem(client, itemGuid, availableContainer, count);
       }
-    }
+  }
+
+  addContainerItem(client: Client, itemGuid: string | undefined, container: loadoutContainer, count: number) {
+    if(!itemGuid) return;
+    const itemDefId = this._items[itemGuid].itemDefinitionId;
+    this.sendData(client, "ClientUpdate.ItemAdd", {
+      characterId: client.character.characterId,
+      data: {
+        itemDefinitionId: itemDefId,
+        tintId: 3,
+        guid: itemGuid,
+        count: count, // also ammoCount
+        itemSubData: {
+          hasSubData: true,
+          unknownDword1: 1,
+          unknownData1: {
+            unknownQword1: client.character.characterId,
+            unknownDword1: 3,
+            unknownDword2: 3,
+          }
+        },
+        containerGuid: container.itemGuid,
+        containerDefinitionId: 0,
+        containerSlotId: 1,
+        baseDurability: 2000,
+        currentDurability: 2000,
+        maxDurabilityFromDefinition: 2000,
+        unknownBoolean1: true,
+        unknownQword3: client.character.characterId,
+        unknownDword9: 0,
+        unknownBoolean2: true,
+      }
+    });
+    container.items[itemGuid] = {
+      itemDefinitionId: itemDefId,
+      slotId: 1,
+      itemGuid: itemGuid,
+      containerGuid: container.itemGuid,
+      stackCount: count,
+      currentDurability: 2000
+    };
     this.sendData(client, "Reward.AddNonRewardItem", {
       itemDefId: itemDefId,
-      iconId: item.IMAGE_SET_ID,
-      count: object.stackCount,
+      iconId: this.getItemDefinition(itemDefId).IMAGE_SET_ID,
+      count: count,
     });
-    this.deleteEntity(guid, this._objects);
-    delete this.worldObjectManager._spawnedObjects[object.spawnerId];
   }
-  
-  addContainerItem(client: Client, itemDefId: number, count: number) {
-    const itemGuid = this.generateItem(itemDefId);
-	const item = this.getItemDefinition(itemDefId);
-      this.sendData(client, "ClientUpdate.ItemAdd", {
-        characterId: client.character.characterId,
-        data: {
-          itemDefinitionId: itemDefId,
-          tintId: 3,
-          guid: itemGuid,
-          count: count, // also ammoCount
-          itemSubData: {
-            hasSubData: true,
-            unknownDword1: 1,
-            unknownData1: {
-              unknownQword1: client.character.characterId,
-              unknownDword1: 3,
-              unknownDword2: 3,
-            }
-          },
-          containerGuid: "0x0", // temp until containers work
-          containerDefinitionId: 0,
-          containerSlotId: 1,
-          baseDurability: 0,
-          currentDurability: 0,
-          maxDurabilityFromDefinition: 0,
-          unknownBoolean1: true,
-          unknownQword3: client.character.characterId,
-          unknownDword9: 0,
-          unknownBoolean2: true,
-        }
-      });
-	  this.sendData(client, "Reward.AddNonRewardItem", {
-        itemDefId: itemDefId,
-		iconId: item.IMAGE_SET_ID,
-		count: count,
-      });
+
+  updateContainerItem(client: Client, itemGuid: string, container: loadoutContainer) {
+    const itemDefId = this._items[itemGuid].itemDefinitionId;
+    const item = container.items[itemGuid];
+    this.sendData(client, "ClientUpdate.ItemUpdate", {
+      characterId: client.character.characterId,
+      data: {
+        itemDefinitionId: itemDefId,
+        tintId: 3,
+        guid: itemGuid,
+        count: item.stackCount, // also ammoCount
+        itemSubData: {
+          hasSubData: true,
+          unknownDword1: 1,
+          unknownData1: {
+            unknownQword1: client.character.characterId,
+            unknownDword1: 3,
+            unknownDword2: 3,
+          }
+        },
+        containerGuid: container.itemGuid,
+        containerDefinitionId: 0,
+        containerSlotId: 1,
+        baseDurability: 2000,
+        currentDurability: 2000,
+        maxDurabilityFromDefinition: 2000,
+        unknownBoolean1: true,
+        unknownQword3: client.character.characterId,
+        unknownDword9: 0,
+        unknownBoolean2: true,
+      }
+    });
   }
 
   startTimer(client: Client, stringId: number, time: number) {
@@ -2020,9 +2001,8 @@ export class ZoneServer2016 extends ZoneServer {
       default:
         this.sendChatText(client, "[ERROR] Unknown salvage item or count.");
     }
-	
-	this.addContainerItem(client, 23, count); 
-	
+    this.lootContainerItem(client, this.generateItem(23), count);
+
     const loadoutSlotId = this.getLoadoutSlot(itemDefinition.ID);
     if (client.character._loadout[loadoutSlotId]) {
       // TODO: add logic for checking if loadout item has an equipment slot, ex. radio doesn't have one
