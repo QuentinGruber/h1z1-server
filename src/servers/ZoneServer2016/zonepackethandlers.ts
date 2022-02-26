@@ -1237,22 +1237,40 @@ export class zonePacketHandlers {
         server.sendChatText(client, "[ERROR] ItemGuid is invalid!");
         return;
       }
+      const itemDefinition = server.getItemDefinition(
+        server._items[packet.data.itemGuid].itemDefinitionId
+      );
+      const nameId = itemDefinition.NAME_ID;
       switch (packet.data.itemUseOption) {
         case 4:
         case 73: // battery drop option
         case 79: // sparks drop option
-          server.dropItem(client, packet.data.itemGuid, packet.data.itemSubData?.count);
-          break;
-        case 6: // salvage/shred
-          const itemDefinition = server.getItemDefinition(
-            server._items[packet.data.itemGuid].itemDefinitionId
+          server.dropItem(
+            client,
+            packet.data.itemGuid,
+            packet.data.itemSubData?.count
           );
-          const nameId = itemDefinition.NAME_ID;
+          break;
+        case 6: // shred
           server.startTimer(client, nameId, 3000);
           client.posAtLogoutStart = client.character.state.position;
           client.hudTimer = setTimeout(() => {
-            server.salvageItem(client, packet.data.itemGuid);
+            server.shredItem(client, packet.data.itemGuid);
           }, 3000);
+          break;
+        case 1: //eat
+          server.startTimer(client, nameId, 1000);
+          client.posAtLogoutStart = client.character.state.position;
+          client.hudTimer = setTimeout(() => {
+            server.eatItem(client, packet.data.itemGuid);
+          }, 1000);
+          break;
+        case 2: //drink
+          server.startTimer(client, nameId, 1000);
+          client.posAtLogoutStart = client.character.state.position;
+          client.hudTimer = setTimeout(() => {
+            server.drinkItem(client, packet.data.itemGuid);
+          }, 1000);
           break;
         default:
           server.sendChatText(
