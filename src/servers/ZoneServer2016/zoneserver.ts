@@ -858,7 +858,6 @@ export class ZoneServer2016 extends ZoneServer {
   startRessourceUpdater(client: Client) {
     client.character.resourcesUpdater = setTimeout(() => {
       // prototype resource manager
-      console.log("2016");
       const { isRunning } = client.character;
       if (isRunning) {
         client.character.resources.stamina -= 20;
