@@ -1725,13 +1725,13 @@ export class ZoneServer2016 extends ZoneServer {
     /*
     let availableContainer = null;
     const itemDef = this.getItemDefinition(itemDefinitionId);
-    Object.keys(client.character._containers).forEach((loadoutSlotId) => {
+    Object.keys(client.character._containers).every((loadoutSlotId) => {
       const container = client.character._containers[Number(loadoutSlotId)],
       containerItemDef = this.getItemDefinition(container?.itemDefinitionId),
       containerDef = this.getContainerDefinition(containerItemDef?.PARAM1)
       if(container && containerDef?.MAX_BULK >= (this.getContainerBulk(container) + (itemDef.BULK * count))){
         availableContainer = container;
-        break;
+        return false;
       }
     })
     return availableContainer;
@@ -1756,13 +1756,15 @@ export class ZoneServer2016 extends ZoneServer {
     return itemContainer;
   }
 
-  getAvailableItemStack(container: loadoutContainer, itemDefId: number): string {
-    // returns the itemGuid of an open stack in container arg that has enough open slots and is the same itemDefinitionId as itemDefId arg
+  getAvailableItemStack(container: loadoutContainer, itemDefId: number, count: number): string {
+    // returns the itemGuid of the first open stack in container arg that has enough open slots and is the same itemDefinitionId as itemDefId arg
     let itemStack = "";
-    Object.keys(container.items).forEach((itemGuid) => {
+    //if(this.getItemDefinition(itemDefId).MAX_STACK_SIZE == 1) return itemStack;
+    Object.keys(container.items).every((itemGuid) => {
       const item = container.items[itemGuid];
-      if(item.itemDefinitionId == itemDefId) {
+      if(item.itemDefinitionId == itemDefId /*&& this.getItemDefinition(item.itemDefinitionId).MAX_STACK_SIZE >= item.stackCount + count*/) {
         itemStack = item.itemGuid;
+        //return false;
       }
     })
     return itemStack;
@@ -1783,7 +1785,7 @@ export class ZoneServer2016 extends ZoneServer {
 		  count: count,
     });
     const loadoutSlotId = this.getLoadoutSlot(itemDefinition.ID);
-    if(client.character._loadout[loadoutSlotId]) {
+    if(client.character._loadout[loadoutSlotId]?.itemGuid == itemGuid) {
       this.deleteItem(client, itemGuid)
       // TODO: add logic for checking if loadout item has an equipment slot, ex. radio doesn't have one
       const equipmentSlotId = this.getEquipmentSlot(loadoutSlotId);
@@ -1859,15 +1861,15 @@ export class ZoneServer2016 extends ZoneServer {
     if(this.getItemDefinition(itemDefId).FLAG_CAN_EQUIP) {
       // todo, check if loadout slot is occupied
       // todo: fix this
-      /*console.log("pickupItem")
+      console.log("pickupItem")
       console.log(client.character._loadout[this.getLoadoutSlot(itemDefId)])
       console.log(itemGuid)
       if(client.character._loadout[this.getLoadoutSlot(itemDefId)]) {
         this.lootContainerItem(client, itemGuid, object.stackCount)
       }
-      else {*/
+      else {
         this.equipItem(client, itemGuid);
-      //}
+      }
       
     }
     else {
@@ -1885,7 +1887,7 @@ export class ZoneServer2016 extends ZoneServer {
         // container error full
         return;
       }
-      const itemStackGuid = this.getAvailableItemStack(availableContainer, itemDefId);
+      const itemStackGuid = this.getAvailableItemStack(availableContainer, itemDefId, count);
       if(itemStackGuid) {
         const itemStack = client.character._containers[availableContainer.slotId].items[itemStackGuid]
         itemStack.stackCount += count
