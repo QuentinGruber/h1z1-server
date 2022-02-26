@@ -849,7 +849,7 @@ export class ZoneServer2016 extends ZoneServer {
           break;
     }
 	  if(itemDefId){
-		  this.addContainerItem(client, itemDefId, 1);       
+		  this.addContainerItem(client, itemDefId, 1);
       }
       this.speedTreeDestroy(packet);
     }
@@ -1706,7 +1706,7 @@ export class ZoneServer2016 extends ZoneServer {
     const loadoutSlotItemClass = loadoutSlotItemClasses.find(
       (slot: any) => slot.ITEM_CLASS === this.getItemDefinition(itemDefinitionId).ITEM_CLASS
     );
-    return loadoutSlotItemClass ? loadoutSlotItemClass.SLOT : 1 // use primary slot if ItemClass is invalid
+    return loadoutSlotItemClass ? loadoutSlotItemClass.SLOT : -1
   }
 
   getEquipmentSlot(loadoutSlotId: number) {
@@ -1726,32 +1726,36 @@ export class ZoneServer2016 extends ZoneServer {
 
   getAvailableContainer(client: Client, itemDefinitionId: number, count: number): any {
     /*
+    let availableContainer = null;
     const itemDef = this.getItemDefinition(itemDefinitionId);
     Object.keys(client.character._containers).forEach((loadoutSlotId) => {
       const container = client.character._containers[Number(loadoutSlotId)],
       containerItemDef = this.getItemDefinition(container?.itemDefinitionId),
       containerDef = this.getContainerDefinition(containerItemDef?.PARAM1)
       if(container && containerDef?.MAX_BULK >= (this.getContainerBulk(container) + (itemDef.BULK * count))){
-        return container;
+        availableContainer = container;
+        break;
       }
     })
-    return -1;
+    return availableContainer;
     */
    
     // TEMP LOGIC UNTIL CONTAINERS WORK
     if(client.character._loadout[12] && client.character._containers[12]) {
       return client.character._containers[12]
     }// backpack
+    return null;
   }
 
-  getAvailableItemStack(container: loadoutContainer, itemDefId: number): inventoryItem | null {
+  getAvailableItemStack(container: loadoutContainer, itemDefId: number): string {
+    let itemStack = "";
     Object.keys(container.items).forEach((itemGuid) => {
       const item = container.items[itemGuid];
       if(item.itemDefinitionId == itemDefId) {
-        return item;
+        itemStack = item.itemGuid;
       }
     })
-    return null;
+    return itemStack;
   }
 
   dropItem(client: Client, itemGuid: string, count: number = 1) {
@@ -1775,10 +1779,7 @@ export class ZoneServer2016 extends ZoneServer {
       [...client.character.state.lookAt]
     )
     this.spawnObjects(client); // manually call this for now
-    this.sendData(client, "ClientUpdate.ItemDelete", {
-      characterId: client.character.characterId,
-      itemGuid: itemGuid,
-    });
+    
 	  this.sendData(client, "Character.DroppedIemNotification", {
 		  characterId: client.character.characterId,
       itemDefId: item.itemDefinitionId,
@@ -1786,6 +1787,10 @@ export class ZoneServer2016 extends ZoneServer {
     });
     const loadoutSlotId = this.getLoadoutSlot(itemDefinition.ID);
     if(client.character._loadout[loadoutSlotId]) {
+      this.sendData(client, "ClientUpdate.ItemDelete", {
+        characterId: client.character.characterId,
+        itemGuid: itemGuid,
+      });
       // TODO: add logic for checking if loadout item has an equipment slot, ex. radio doesn't have one
       const equipmentSlotId = this.getEquipmentSlot(loadoutSlotId);
       delete client.character._loadout[loadoutSlotId];
@@ -1801,11 +1806,46 @@ export class ZoneServer2016 extends ZoneServer {
         this.equipItem(client, client.character._loadout[7].itemGuid);
       }
     }
-    /*
     else {
-      delete client.character._containers[12]?.items[itemGuid]; // TODO: GET CORRECT CONTAINER WHEN CONTAINERS ARE WORKING
+      const dropItem = client.character._containers[12]?.items[itemGuid]; // TODO: GET CORRECT CONTAINER WHEN CONTAINERS ARE WORKING
+      if(dropItem.stackCount <= count) {
+        delete client.character._containers[12]?.items[itemGuid]; // TODO: GET CORRECT CONTAINER WHEN CONTAINERS ARE WORKING
+        this.sendData(client, "ClientUpdate.ItemDelete", {
+          characterId: client.character.characterId,
+          itemGuid: itemGuid,
+        });
+      }
+      else {
+        dropItem.stackCount -= count;
+        this.sendData(client, "ClientUpdate.ItemUpdate", {
+          characterId: client.character.characterId,
+          data: {
+            itemDefinitionId: dropItem.itemDefinitionId,
+            tintId: 3,
+            guid: dropItem.itemGuid,
+            count: dropItem.stackCount, // also ammoCount
+            itemSubData: {
+              hasSubData: true,
+              unknownDword1: 1,
+              unknownData1: {
+                unknownQword1: client.character.characterId,
+                unknownDword1: 3,
+                unknownDword2: 3,
+              }
+            },
+            containerGuid: "0x0"/*availableContainer.itemGuid*/, // temp until containers work
+            containerDefinitionId: 0,
+            containerSlotId: 1,
+            baseDurability: 2000,
+            currentDurability: 2000,
+            maxDurabilityFromDefinition: 2000,
+            unknownBoolean1: true,
+            unknownQword3: client.character.characterId,
+            unknownDword9: 0,
+          }
+        });
+      }
     }
-    */
     if(itemDefinition.ITEM_TYPE === 34) {
       delete client.character._containers[item.guid];
     }
@@ -1827,23 +1867,27 @@ export class ZoneServer2016 extends ZoneServer {
       // todo, check if loadout slot is occupied
       this.equipItem(client, itemGuid);
     }
-    else {/*
+    else {
       const availableContainer: loadoutContainer = this.getAvailableContainer(client, itemDefId, object.stackCount);
       if(!availableContainer) {
         // container error full
         return;
       }
-      console.log(availableContainer);
-      const itemStack = this.getAvailableItemStack(availableContainer, itemDefId);
-      if(itemStack) {
-        //itemupdate
-        itemStack.stackCount += object.stackCount
+      const itemStackGuid = this.getAvailableItemStack(availableContainer, itemDefId);
+      if(itemStackGuid) {
+        const itemStack = client.character._containers[availableContainer.slotId].items[itemStackGuid]
+        //delete and add back item for now since itemupdate crashes game if misused
+        itemStack.stackCount += object.stackCount/*
+        this.sendData(client, "ClientUpdate.ItemDelete", {
+          characterId: client.character.characterId,
+          itemGuid: itemStack.itemGuid,
+        });*/
         this.sendData(client, "ClientUpdate.ItemUpdate", {
           characterId: client.character.characterId,
           data: {
             itemDefinitionId: itemDefId,
             tintId: 3,
-            guid: itemGuid,
+            guid: itemStack.itemGuid,
             count: itemStack.stackCount, // also ammoCount
             itemSubData: {
               hasSubData: true,
@@ -1854,7 +1898,7 @@ export class ZoneServer2016 extends ZoneServer {
                 unknownDword2: 3,
               }
             },
-            containerGuid: "0x0"/*availableContainer.itemGuid*//*, // temp until containers work
+            containerGuid: "0x0"/*availableContainer.itemGuid*/, // temp until containers work
             containerDefinitionId: 0,
             containerSlotId: 1,
             baseDurability: 2000,
@@ -1865,16 +1909,8 @@ export class ZoneServer2016 extends ZoneServer {
             unknownDword9: 0,
           }
         });
-        availableContainer.items[itemGuid] = {
-          itemDefinitionId: itemDefId,
-          slotId: 1,
-          itemGuid: itemGuid,
-          containerGuid: "0x0",
-          stackCount: object.stackCount,
-          currentDurability: 2000
-        }
       }
-      else {*/
+      else {
         this.sendData(client, "ClientUpdate.ItemAdd", {
           characterId: client.character.characterId,
           data: {
@@ -1902,7 +1938,7 @@ export class ZoneServer2016 extends ZoneServer {
             unknownDword9: 0,
             unknownBoolean2: true,
           }
-        });/*
+        });
         availableContainer.items[itemGuid] = {
           itemDefinitionId: itemDefId,
           slotId: 1,
@@ -1911,7 +1947,7 @@ export class ZoneServer2016 extends ZoneServer {
           stackCount: object.stackCount,
           currentDurability: 2000
         };
-      }*/
+      }
     }
     this.sendData(client, "Reward.AddNonRewardItem", {
       itemDefId: itemDefId,
