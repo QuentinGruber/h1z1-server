@@ -2170,7 +2170,89 @@ export class ZoneServer2016 extends ZoneServer {
     });
   }
 
-  salvageItem(client: Client, itemGuid: string) {
+  eatItem(client: Client, itemGuid: string) {
+    const item = this._items[itemGuid],
+      itemDefinition = this.getItemDefinition(item.itemDefinitionId);
+    let drinkCount = 0;
+    let eatCount = 2000;
+    switch (item.itemDefinitionId) {
+      case 105: // berries
+        drinkCount = 200;
+        eatCount = 200;
+        break;
+      case 7: // canned Food
+        eatCount = 4000;
+        break;
+      default:
+        this.sendChatText(
+          client,
+          "[ERROR] eat count not mapped to item Definition " + itemDefinition
+        );
+    }
+    const dropItemContainer = this.getItemContainer(client, itemGuid);
+    const dropItem = dropItemContainer?.items[itemGuid];
+    if (!dropItemContainer || !dropItem) return;
+    if (dropItem.stackCount <= 1) {
+      delete dropItemContainer.items[itemGuid];
+      this.deleteItem(client, itemGuid);
+    } else {
+      dropItem.stackCount -= 1;
+      this.updateContainerItem(
+        client,
+        dropItem.itemGuid,
+        this.getItemContainer(client, dropItem.itemGuid)
+      );
+    }
+    client.character.resources.food += eatCount;
+    client.character.resources.water += drinkCount;
+    const { food, water } = client.character.resources;
+    this.updateResource(client, client.character.characterId, food, 4, 4);
+    this.updateResource(client, client.character.characterId, water, 5, 5);
+  }
+
+  drinkItem(client: Client, itemGuid: string) {
+    const item = this._items[itemGuid],
+      itemDefinition = this.getItemDefinition(item.itemDefinitionId);
+    let drinkCount = 2000;
+    let eatCount = 0;
+    switch (item.itemDefinitionId) {
+      case 1368: // dirty water
+        drinkCount = 1000;
+        break;
+      case 1535: //stagnant water
+        drinkCount = 2000;
+        break;
+      case 1371: // purified water
+        drinkCount = 4000;
+        break;
+      default:
+        this.sendChatText(
+          client,
+          "[ERROR] drink count not mapped to item Definition " + itemDefinition
+        );
+    }
+    const dropItemContainer = this.getItemContainer(client, itemGuid);
+    const dropItem = dropItemContainer?.items[itemGuid];
+    if (!dropItemContainer || !dropItem) return;
+    if (dropItem.stackCount <= 1) {
+      delete dropItemContainer.items[itemGuid];
+      this.deleteItem(client, itemGuid);
+    } else {
+      dropItem.stackCount -= 1;
+      this.updateContainerItem(
+        client,
+        dropItem.itemGuid,
+        this.getItemContainer(client, dropItem.itemGuid)
+      );
+    }
+    client.character.resources.food += eatCount;
+    client.character.resources.water += drinkCount;
+    const { food, water } = client.character.resources;
+    this.updateResource(client, client.character.characterId, food, 4, 4);
+    this.updateResource(client, client.character.characterId, water, 5, 5);
+  }
+
+  shredItem(client: Client, itemGuid: string) {
     const itemDefinition = this.getItemDefinition(
       this._items[itemGuid].itemDefinitionId
     );
