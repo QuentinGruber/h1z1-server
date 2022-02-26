@@ -331,7 +331,7 @@ export class ZoneServer2016 extends ZoneServer {
             unknownDword1: 3, // container itemDefinitionId ?
             containerData: {
               guid: containerGuid,
-              unknownDword1: 3,
+              definitionId: 3,
               associatedCharacterId: client.character.characterId,
               slots: 9999,
               items: [
@@ -339,24 +339,11 @@ export class ZoneServer2016 extends ZoneServer {
                   itemDefinitionId: this._items[item].itemDefinitionId,
                   itemData: {
                     itemDefinitionId: this._items[item].itemDefinitionId,
-                    itemData: {
-                      itemDefinitionId: this._items[item].itemDefinitionId,
-                      tintId: 0,
-                      guid: item,
-                      count: 1,
-                      itemSubData: {
-                        unknownBoolean1: false,
-                      },
-                      unknownQword2: item,
-                      unknownDword4: 0,
-                      slot: 0,
-                      unknownDword6: 0,
-                      unknownDword7: 0,
-                      unknownDword8: 0,
-                      unknownBoolean1: true,
-                      unknownQword3: item,
-                      unknownDword9: 0,
-                      unknownBoolean2: true,
+                    tintId: 0,
+                    guid: item,
+                    count: 1,
+                    itemSubData: {
+                      unknownBoolean1: false,
                     },
                     containerGuid: containerGuid,
                     containerDefinitionId: 3,
@@ -366,8 +353,7 @@ export class ZoneServer2016 extends ZoneServer {
                     maxDurabilityFromDefinition: 0,
                     unknownBoolean1: true,
                     unknownQword3: containerGuid,
-                    unknownDword9: 0,
-                    unknownBoolean2: true,
+                    unknownDword9: 0
                   },
                 },
               ],
@@ -1266,6 +1252,32 @@ export class ZoneServer2016 extends ZoneServer {
         engineOn: true,
       });
     }
+    this.sendData(client, "Vehicle.Occupy", {
+      guid: vehicle.npcData.characterId,
+      characterId: client.character.characterId,
+      vehicleId: vehicle.npcData.vehicleId,
+      clearLoadout: 0,
+      unknownArray1: [
+        {
+          unknownDword1: 0,
+          unknownBoolean1: 0,
+        },
+      ],
+      passengers: [
+        {
+          passengerData: {
+            characterId: client.character.characterId,
+            characterData: {
+              unknownDword1: 0,
+              unknownDword2: 0,
+              unknownDword3: 0,
+              characterName: client.character.name,
+            },
+          },
+        },
+      ],
+      unknownArray2: [{}]
+    });
   }
 
   dismountVehicle(client: Client): void {
@@ -1295,6 +1307,20 @@ export class ZoneServer2016 extends ZoneServer {
       );
     }
     client.vehicle.mountedVehicle = "";
+    this.sendData(client, "Vehicle.Occupy", {
+      guid: "",
+      characterId: client.character.characterId,
+      vehicleId: 0,
+      clearLoadout: 1,
+      unknownArray1: [
+        {
+          unknownDword1: 0,
+          unknownBoolean1: 0,
+        },
+      ],
+      passengers: [],
+      unknownArray2: []
+    });
   }
 
   changeSeat(client: Client, packet: any): void {
