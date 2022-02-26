@@ -256,7 +256,15 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      debug("Collision.Damage");
+      const characterId = packet.data.characterId;
+      const damage = packet.data.damage;
+      const vehicle = server._vehicles[characterId];
+      if (characterId === client.character.characterId) {
+        server.playerDamage(client, damage);
+      } else if (vehicle) {
+        /*server.damageVehicle(damage / 100, vehicle);
+        server.DTOhit(client, packet);*/
+      }
     };
     this.lobbyGameDefinitionDefinitionsRequest = function (
       server: ZoneServer2016,
