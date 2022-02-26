@@ -1903,6 +1903,7 @@ export class ZoneServer2016 extends ZoneServer {
         availableContainer = container;
         return false;
       }
+      return true;
     })
     return availableContainer;
     */
@@ -1929,13 +1930,14 @@ export class ZoneServer2016 extends ZoneServer {
   getAvailableItemStack(container: loadoutContainer, itemDefId: number, count: number): string {
     // returns the itemGuid of the first open stack in container arg that has enough open slots and is the same itemDefinitionId as itemDefId arg
     let itemStack = "";
-    //if(this.getItemDefinition(itemDefId).MAX_STACK_SIZE == 1) return itemStack;
+    if(this.getItemDefinition(itemDefId).MAX_STACK_SIZE == 1) return itemStack;
     Object.keys(container.items).every((itemGuid) => {
       const item = container.items[itemGuid];
-      if(item.itemDefinitionId == itemDefId /*&& this.getItemDefinition(item.itemDefinitionId).MAX_STACK_SIZE >= item.stackCount + count*/) {
+      if(item.itemDefinitionId == itemDefId && this.getItemDefinition(item.itemDefinitionId).MAX_STACK_SIZE >= item.stackCount + count) {
         itemStack = item.itemGuid;
-        //return false;
+        return false;
       }
+      return true;
     })
     return itemStack;
   }
