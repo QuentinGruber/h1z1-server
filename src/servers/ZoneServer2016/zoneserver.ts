@@ -1797,7 +1797,7 @@ export class ZoneServer2016 extends ZoneServer {
         slotId: equipmentSlotId,
       });
       if(equipmentSlotId === 7) { // primary slot
-        this.equipItem(client, client.character._loadout[7].itemGuid);
+        this.equipItem(client, client.character._loadout[7].itemGuid);//equip fists
       }
       this.worldObjectManager.createLootEntity(
         this, 
@@ -1810,10 +1810,11 @@ export class ZoneServer2016 extends ZoneServer {
       )
     }
     else {
-      const dropItem = client.character._containers[12]?.items[itemGuid]; // TODO: GET CORRECT CONTAINER WHEN CONTAINERS ARE WORKING
-      if(!dropItem) return;
+      const dropItemContainer = this.getItemContainer(client, itemGuid)
+      const dropItem = dropItemContainer?.items[itemGuid];
+      if(!dropItemContainer || !dropItem) return;
       if(dropItem.stackCount <= count) {
-        delete client.character._containers[12]?.items[itemGuid]; // TODO: GET CORRECT CONTAINER WHEN CONTAINERS ARE WORKING
+        delete dropItemContainer.items[itemGuid];
         this.deleteItem(client, itemGuid)
         this.worldObjectManager.createLootEntity(
           this, 
@@ -1858,7 +1859,9 @@ export class ZoneServer2016 extends ZoneServer {
     if(this.getItemDefinition(itemDefId).FLAG_CAN_EQUIP) {
       // todo, check if loadout slot is occupied
       // todo: fix this
-      /*
+      /*console.log("pickupItem")
+      console.log(client.character._loadout[this.getLoadoutSlot(itemDefId)])
+      console.log(itemGuid)
       if(client.character._loadout[this.getLoadoutSlot(itemDefId)]) {
         this.lootContainerItem(client, itemGuid, object.stackCount)
       }
@@ -1892,7 +1895,7 @@ export class ZoneServer2016 extends ZoneServer {
           iconId: this.getItemDefinition(itemDefId).IMAGE_SET_ID,
           count: count,
         });
-        delete(this._items[itemGuid]);
+        delete this._items[itemGuid];
       }
       else {
         this.addContainerItem(client, itemGuid, availableContainer, count);
