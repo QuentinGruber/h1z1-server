@@ -17,12 +17,6 @@ const PackageSetting = require("./package.json");
 console.log(
   `${PackageSetting.name} V${PackageSetting.version} by H1emu community`
 );
-
-if(process.versions.node.split(".")[0]>16 && !process.env.NODE_OPTIONS?.includes("--openssl-legacy-provider")){
-  console.log(`[error] To run the project with nodejs ${process.version} you need use the "--openssl-legacy-provider" command-line option see https://github.com/nodejs/node/blob/master/doc/changelogs/CHANGELOG_V17.md#openssl-30 `)
-  process.exit(1);
-}
-
 console.log(`Node ${process.version}`);
 
 

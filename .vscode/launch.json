@@ -10,7 +10,6 @@
             "name": "Launch ZoneServer",
             "env":{
                 "VSCODE_DEBUG":"true",
-                "NODE_OPTIONS":"--openssl-legacy-provider"
             },
             "skipFiles": [
                 "<node_internals>/**"
@@ -27,8 +26,7 @@
             "env":{
                 "VSCODE_DEBUG":"true",
                 "MONGO_URL":"mongodb://localhost:27017/",
-                "LOGINSERVER_IP":"127.0.0.1",
-                "NODE_OPTIONS":"--openssl-legacy-provider"
+                "LOGINSERVER_IP":"127.0.0.1"
             },
             "skipFiles": [
                 "<node_internals>/**"
@@ -43,8 +41,7 @@
             "request": "launch",
             "name": "Launch LoginServer",
             "env":{
-                "VSCODE_DEBUG":"true",
-                "NODE_OPTIONS":"--openssl-legacy-provider"
+                "VSCODE_DEBUG":"true"    
             },
             "skipFiles": [
                 "<node_internals>/**"
@@ -60,8 +57,7 @@
             "name": "Launch LoginServer with MongoDB",
             "env":{
                 "VSCODE_DEBUG":"true",
-                "MONGO_URL":"mongodb://localhost:27017/",
-                "NODE_OPTIONS":"--openssl-legacy-provider"
+                "MONGO_URL":"mongodb://localhost:27017/"
             },
             "skipFiles": [
                 "<node_internals>/**"
@@ -77,8 +73,7 @@
             "name": "Launch ZoneServer2016",
             "env":{
                 "VSCODE_DEBUG":"true",
-                "CLIENT_SIXTEEN":"true",
-                "NODE_OPTIONS":"--openssl-legacy-provider"
+                "CLIENT_SIXTEEN":"true"
             },
             "skipFiles": [
                 "<node_internals>/**"
@@ -96,8 +91,7 @@
                 "VSCODE_DEBUG":"true",
                 "CLIENT_SIXTEEN":"true",
                 "MONGO_URL":"mongodb://localhost:27017/",
-                "LOGINSERVER_IP":"127.0.0.1",
-                "NODE_OPTIONS":"--openssl-legacy-provider"
+                "LOGINSERVER_IP":"127.0.0.1"
             },
             "skipFiles": [
                 "<node_internals>/**"
@@ -113,8 +107,7 @@
             "name": "Launch LoginServer2016",
             "env":{
                 "VSCODE_DEBUG":"true",
-                "CLIENT_SIXTEEN":"true",
-                "NODE_OPTIONS":"--openssl-legacy-provider"
+                "CLIENT_SIXTEEN":"true"
             },
             "skipFiles": [
                 "<node_internals>/**"
@@ -132,8 +125,7 @@
             "env":{
                 "VSCODE_DEBUG":"true",
                 "CLIENT_SIXTEEN":"true",
-                "MONGO_URL":"mongodb://localhost:27017/",
-                "NODE_OPTIONS":"--openssl-legacy-provider"
+                "MONGO_URL":"mongodb://localhost:27017/"
             },
             "skipFiles": [
                 "<node_internals>/**"
