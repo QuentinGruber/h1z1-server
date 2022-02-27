@@ -132,7 +132,16 @@ export const commandPackets: any = [
   ["Command.FriendsPositionRequest", 0x091700, {}],
   ["Command.MoveAndInteract", 0x091800, {}],
   ["Command.QuestAbandon", 0x091900, {}],
-  ["Command.RecipeStart", 0x091a00, {}],
+  [
+    "Command.RecipeStart",
+    0x091a00,
+    {
+      fields: [
+        { name: "recipeId", type: "uint32", defaultValue: 0 },
+        { name: "count", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
   ["Command.ShowRecipeWindow", 0x091b00, {}],
   ["Command.ActivateProfileFailed", 0x091c00, {}],
   ["Command.PlayDialogEffect", 0x091d00, {}],
