@@ -11,8 +11,6 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import SOEClient from "../../SoeServer/soeclient";
-import { RemoteInfo } from "node:dgram";
 
 import { Character } from "./character";
 
