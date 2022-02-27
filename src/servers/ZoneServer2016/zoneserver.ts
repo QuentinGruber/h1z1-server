@@ -19,11 +19,7 @@ import { ZoneClient2016 as Client } from "./classes/zoneclient";
 import { Vehicle2016 as Vehicle } from "./classes/vehicle";
 import { WorldObjectManager } from "./classes/worldobjectmanager";
 
-import {
-  characterEquipment,
-  characterLoadout,
-  Weather2016,
-} from "../../types/zoneserver";
+import { loadoutContainer, Weather2016 } from "../../types/zoneserver";
 import { h1z1PacketsType } from "../../types/packets";
 import { Character2016 as Character } from "./classes/character";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
@@ -40,6 +36,7 @@ const stats = require("../../../data/2016/sampleData/stats.json");
 const resources = require("../../../data/2016/dataSources/resourceDefinitions.json");
 
 const itemDefinitions = require("./../../../data/2016/dataSources/ServerItemDefinitions.json");
+const containerDefinitions = require("./../../../data/2016/dataSources/ContainerDefinitions.json");
 const loadoutSlotItemClasses = require("./../../../data/2016/dataSources/LoadoutSlotItemClasses.json");
 const loadoutEquipSlots = require("./../../../data/2016/dataSources/LoadoutEquipSlots.json");
 
@@ -55,8 +52,13 @@ export class ZoneServer2016 extends ZoneServer {
   _characters: { [characterId: string]: Character } = {};
   worldObjectManager: WorldObjectManager;
   _ready: boolean = false;
+  _itemDefinitions: { [itemDefinitionId: number]: any } = itemDefinitions;
+  _itemDefinitionIds: any[] = Object.keys(this._itemDefinitions);
+  _containerDefinitions: { [containerDefinitionId: number]: any } = containerDefinitions;
+  _containerDefinitionIds: any[] = Object.keys(this._containerDefinitions);
   _respawnLocations:any;
-
+  _speedTrees: any;
+  
   constructor(
     serverPort: number,
     gatewayKey: Uint8Array,
@@ -72,6 +74,7 @@ export class ZoneServer2016 extends ZoneServer {
     this._weatherTemplates = localWeatherTemplates;
     this._defaultWeatherTemplate = "H1emuBaseWeather";
     this._weather2016 = this._weatherTemplates[this._defaultWeatherTemplate];
+    this._speedTrees = {};
     this._spawnLocations = spawnLocations;
     this._respawnLocations = spawnLocations.map((spawn: any) => {
       return {
@@ -237,7 +240,6 @@ export class ZoneServer2016 extends ZoneServer {
       gender: character.gender,
       creationDate: character.creationDate,
       lastLoginDate: character.lastLoginDate,
-      _inventory: {}, // default
       factionId: 2, // default
       isRunning: false,
       resources: {
@@ -274,7 +276,10 @@ export class ZoneServer2016 extends ZoneServer {
           slotId: 3,
         },
       ],
-      loadout: [],
+      _loadout: {},
+      currentLoadoutSlot: 7,//fists
+      _equipment: {},
+      _containers: {},
       state: {
         position: new Float32Array([0, 0, 0, 1]),
         rotation: new Float32Array([0, 0, 0, 1]),
@@ -284,10 +289,10 @@ export class ZoneServer2016 extends ZoneServer {
       },
     };
     if (character.hairModel) {
-      client.character.equipment.push({
+      client.character._equipment[27] = {
         modelName: character.hairModel,
         slotId: 27,
-      });
+      };
     }
     let isRandomlySpawning = false;
     if (
@@ -318,53 +323,54 @@ export class ZoneServer2016 extends ZoneServer {
     this.equipItem(client, this.generateItem(85), false); // fists weapon
     this.equipItem(client, this.generateItem(2377), false); // DOA Hoodie
     this.equipItem(client, this.generateItem(2079), false); // golf pants
+    //this.equipItem(client, this.generateItem(2425), false); // ar15
   }
 
   async sendCharacterData(client: Client) {
     await this.loadCharacterData(client);
 
+    const backpack = this.generateItem(2393);
+    this.equipItem(client, backpack, false); // test backpack
     const item: any = this.generateItem(2425),
-      containerGuid = this.generateGuid(),
       containers = [
-        [
-          {
-            unknownDword1: 3, // container itemDefinitionId ?
-            containerData: {
-              guid: containerGuid,
-              definitionId: 3,
-              associatedCharacterId: client.character.characterId,
-              slots: 9999,
-              items: [
-                {
+        {
+          unknownDword1: 28, // container itemDefinitionId ?
+          containerData: {
+            guid: backpack,
+            unknownDword1: 28,
+            associatedCharacterId: client.character.characterId,
+            slots: 9999,
+            items: [
+              {
+                itemDefinitionId: this._items[item].itemDefinitionId,
+                itemData: {
                   itemDefinitionId: this._items[item].itemDefinitionId,
-                  itemData: {
-                    itemDefinitionId: this._items[item].itemDefinitionId,
-                    tintId: 0,
-                    guid: item,
-                    count: 1,
-                    itemSubData: {
-                      unknownBoolean1: false,
-                    },
-                    containerGuid: containerGuid,
-                    containerDefinitionId: 3,
-                    containerSlotId: 1,
-                    baseDurability: 0,
-                    currentDurability: 0,
-                    maxDurabilityFromDefinition: 0,
-                    unknownBoolean1: true,
-                    unknownQword3: containerGuid,
-                    unknownDword9: 0
+                  tintId: 0,
+                  guid: item,
+                  count: 1,
+                  itemSubData: {
+                    unknownBoolean1: false,
                   },
+                  containerGuid: backpack,
+                  containerDefinitionId: 3,
+                  containerSlotId: 1,
+                  baseDurability: 0,
+                  currentDurability: 0,
+                  maxDurabilityFromDefinition: 0,
+                  unknownBoolean1: true,
+                  unknownQword3: backpack,
+                  unknownDword9: 0,
+                  unknownBoolean2: true,
                 },
-              ],
-              unknownBoolean1: false,
-              unknownDword3: 999,
-              unknownDword4: 3,
-              unknownDword5: 777,
-              unknownBoolean2: true,
-            },
+              },
+            ],
+            unknownBoolean1: false,
+            unknownDword3: 999,
+            unknownDword4: 3,
+            unknownDword5: 777,
+            unknownBoolean2: true,
           },
-        ],
+        },
       ];
 
     this.sendData(client, "SendSelfToClient", {
@@ -384,12 +390,13 @@ export class ZoneServer2016 extends ZoneServer {
           characterName: client.character.name,
         },
         inventory: {
-          items: Object.keys(client.character._inventory).map(
-            (item: any, index: number) => {
+          items: Object.keys(client.character._loadout).map(
+            (slotId: any) => {
+              const slot = client.character._loadout[slotId];
               return {
-                itemDefinitionId: this._items[item].itemDefinition.ID,
+                itemDefinitionId: slot.itemDefinitionId,
                 tintId: 5,
-                guid: item,
+                guid: slot.itemGuid,
                 count: 1, // also ammoCount
                 itemSubData: {
                   hasSubData: false /*
@@ -400,14 +407,14 @@ export class ZoneServer2016 extends ZoneServer {
                   unknownDword2: 1
                 }*/,
                 },
-                containerGuid: item,
-                containerDefinitionId: 1,
-                containerSlotId: 1,
-                baseDurability: 1,
-                currentDurability: 1,
-                maxDurabilityFromDefinition: 1,
+                containerGuid: slot.containerGuid,
+                containerDefinitionId: 28, // TEMP
+                containerSlotId: slot.slotId,
+                baseDurability: 2000,
+                currentDurability: slot.currentDurability,
+                maxDurabilityFromDefinition: 2000,
                 unknownBoolean1: true,
-                unknownQword3: item,
+                unknownQword3: client.character.characterId,
                 unknownDword9: 1,
                 unknownBoolean2: true,
               };
@@ -419,23 +426,24 @@ export class ZoneServer2016 extends ZoneServer {
         loadoutSlots: {
           loadoutId: 3,
           loadoutData: {
-            loadoutSlots: client.character.loadout.map(
-              (slot: characterLoadout) => {
+            loadoutSlots: Object.keys(client.character._loadout).map(
+              (slotId: any) => {
+                const slot = client.character._loadout[slotId];
                 return {
-                  unknownDword1: 3,
-                  itemDefinitionId: slot.itemDefinitionId,
+                  hotbarSlotId: slot.slotId,
+                  loadoutId: 3,
                   slotId: slot.slotId,
-                  unknownData1: {
+                  loadoutItemData: {
                     itemDefinitionId: slot.itemDefinitionId,
-                    loadoutItemOwnerGuid: slot.itemGuid,
-                    unknownByte1: 17,
+                    loadoutItemGuid: slot.itemGuid,
+                    unknownByte1: 255, // flags?
                   },
-                  unknownDword4: 18,
+                  unknownDword4: 3,
                 };
               }
             ),
           },
-          loadoutSlotId: 3,
+          currentSlotId: client.character.currentLoadoutSlot,
         },
         characterResources: [
           {
@@ -489,6 +497,37 @@ export class ZoneServer2016 extends ZoneServer {
         //vehicleLoadoutRelatedDword: 1,
         //unknownDword40: 1
       },
+    });
+
+    this.sendData(client, "Command.ItemDefinitions", {
+      // sends full list of item definitions
+      data: {
+        itemDefinitions: this._itemDefinitionIds.map((itemDefId: any) => {
+          const itemDef = this.getItemDefinition(itemDefId);
+          return {
+            ID: itemDefId,
+            definitionData: {
+              ...itemDef,
+              HUD_IMAGE_SET_ID: itemDef.IMAGE_SET_ID,
+              containerDefinitionId:
+                itemDef.ITEM_TYPE == 34 ? itemDef.PARAM1 : 0,
+              flags1: {
+                ...itemDef,
+              },
+              flags2: {
+                ...itemDef,
+              },
+              stats: [],
+            },
+          };
+        }),
+      },
+    });  
+    
+    this.sendData(client, "Container.InitEquippedContainers", {
+      ignore: client.character.characterId,
+      characterId: client.character.characterId,
+      containers: containers,
     });
     this._characters[client.character.characterId] = client.character; // character will spawn on other player's screen(s) at this point
   }
@@ -761,6 +800,250 @@ export class ZoneServer2016 extends ZoneServer {
     if (this._ready) this.worldObjectManager.run(this);
     if (refresh) this.worldRoutineTimer.refresh();
   }
+  
+  speedTreeDestroy(packet: any) {
+    this.sendDataToAll("DtoStateChange", {
+      objectId: packet.data.id,
+      modelName: packet.data.name.concat(".Stump"),
+      effectId: 0,
+      unk3: 0,
+      unk4: true,
+    });
+    const { id: objectId, name } = packet.data;
+    this._speedTrees[packet.data.id] = {
+      objectId: objectId,
+      modelName: name,
+    };
+    setTimeout(() => {
+      this.sendDataToAll("DtoStateChange", {
+        objectId: objectId,
+        modelName: this._speedTrees[objectId].modelName,
+        effectId: 0,
+        unk3: 0,
+        unk4: true,
+      });
+      delete this._speedTrees[objectId];
+    }, 1800000);
+  }
+
+  speedTreeUse(client: Client, packet: any) {
+    const elo = this._speedTrees[packet.data.id];
+    if (elo) {
+      debug(
+        "\x1b[32m",
+        client.character.name + "\x1b[0m",
+        "tried to use destroyed speedTree id:" + "\x1b[32m",
+        packet.data.id
+      );
+    } else {
+      let itemDefId = 0;
+      switch (packet.data.name) {
+        case "SpeedTree.Blackberry":
+          itemDefId = 105;
+          if(Math.floor(Math.random() * 10) == 1) {
+            this.lootItem(client, this.generateItem(this.worldObjectManager.eItems.WEAPON_BRANCH), 1);
+          }
+          break;
+        case "SpeedTree.DevilClub":
+        case "SpeedTree.VineMaple":
+          itemDefId = 111;
+          break;
+        default:
+          break;
+      }
+      if (itemDefId) {
+        this.lootContainerItem(client, this.generateItem(itemDefId), 1);
+      }
+      this.speedTreeDestroy(packet);
+    }
+  }
+
+  startRessourceUpdater(client: Client) {
+    client.character.resourcesUpdater = setTimeout(() => {
+      // prototype resource manager
+      const { isRunning } = client.character;
+      if (isRunning) {
+        client.character.resources.stamina -= 20;
+        if (client.character.resources.stamina < 120) {
+          client.character.isExhausted = true;
+        } else {
+          client.character.isExhausted = false;
+        }
+      } else if (!client.character.isBleeding || !client.character.isMoving) {
+        client.character.resources.stamina += 30;
+      }
+
+      // if we had a packets we could modify sprint stat to 0
+      // or play exhausted sounds etc
+      client.character.resources.food -= 10;
+      client.character.resources.water -= 20;
+      if (client.character.resources.stamina > 600) {
+        client.character.resources.stamina = 600;
+      } else if (client.character.resources.stamina < 0) {
+        client.character.resources.stamina = 0;
+      }
+      if (client.character.resources.food > 10000) {
+        client.character.resources.food = 10000;
+      } else if (client.character.resources.food < 0) {
+        client.character.resources.food = 0;
+        this.playerDamage(client, 100);
+      }
+      if (client.character.resources.water > 10000) {
+        client.character.resources.water = 10000;
+      } else if (client.character.resources.water < 0) {
+        client.character.resources.water = 0;
+        this.playerDamage(client, 100);
+      }
+      if (client.character.resources.health > 10000) {
+        client.character.resources.health = 10000;
+      } else if (client.character.resources.health < 0) {
+        client.character.resources.health = 0;
+      }
+      // Prototype bleeding
+      if (client.character.isBleeding && client.character.isAlive) {
+        if (!client.character.isBandaged) {
+          this.playerDamage(client, 100);
+        }
+        if (client.character.isBandaged) {
+          client.character.resources.health += 100;
+          this.updateResource(
+            client,
+            client.character.characterId,
+            client.character.resources.health,
+            1,
+            1
+          );
+        }
+        if (client.character.resources.health >= 2000) {
+          client.character.isBleeding = false;
+        }
+        if (client.character.resources.stamina > 130 && isRunning) {
+          client.character.resources.stamina -= 100;
+        }
+
+        if (
+          client.character.resources.health < 10000 &&
+          !client.character.isBleeding &&
+          client.character.isBandaged
+        ) {
+          client.character.resources.health += 400;
+          this.updateResource(
+            client,
+            client.character.characterId,
+            client.character.resources.health,
+            1,
+            1
+          );
+        }
+        if (client.character.resources.health >= 10000) {
+          client.character.isBandaged = false;
+        }
+      }
+      if (client.character.isBleeding && !client.character.isAlive) {
+        client.character.isBleeding = false;
+      }
+      const { stamina, food, water, virus } = client.character.resources;
+      this.updateResource(client, client.character.characterId, stamina, 6, 6);
+      this.updateResource(client, client.character.characterId, food, 4, 4);
+      this.updateResource(client, client.character.characterId, water, 5, 5);
+      this.updateResource(client, client.character.characterId, virus, 12, 12);
+      client.character.resourcesUpdater.refresh();
+    }, 3000);
+  }
+
+  updateResource(
+    client: Client,
+    entityId: string,
+    value: number,
+    resource: number,
+    resourceType: number
+  ) {
+    this.sendData(client, "ResourceEvent", {
+      eventData: {
+        type: 3,
+        value: {
+          characterId: entityId,
+          resourceId: resource,
+          resourceType: resourceType,
+          initialValue: value,
+          unknownArray1: [],
+          unknownArray2: [],
+        },
+      },
+    });
+  }
+
+  playerDamage(client: Client, damage: number) {
+    const character = client.character;
+    if (
+      !client.character.godMode &&
+      client.character.isAlive &&
+      client.character.characterId
+    ) {
+      if (damage > 99) {
+        character.resources.health -= damage;
+      }
+      if (character.resources.health <= 0) {
+        character.resources.health = 0;
+      }
+      this.updateResource(
+        client,
+        character.characterId,
+        character.resources.health,
+        1,
+        1
+      );
+    }
+  }
+
+  updateCharacterState(
+    client: Client,
+    characterId: string,
+    object: any,
+    sendToAll: boolean
+  ) {
+    const updateCharacterStateBody = {
+      characterId: characterId,
+      states1: object,
+      states2: object,
+      states3: object,
+      states4: object,
+      states5: object,
+      states6: object,
+      states7: object,
+    };
+
+    if (!sendToAll) {
+      this.sendData(
+        client,
+        "Character.UpdateCharacterState",
+        updateCharacterStateBody
+      );
+    } else {
+      this.sendDataToAllOthersWithSpawnedCharacter(
+        client,
+        "Character.UpdateCharacterState",
+        updateCharacterStateBody
+      );
+    }
+  }
+  
+  customizeDTO(client: Client): void {
+    const DTOArray: any = [];
+    for (const object in this._speedTrees) {
+      const DTO = this._speedTrees[object];
+      const DTOinstance = {
+        objectId: DTO.objectId,
+        unknownString1: DTO.modelName.concat(".Stump"),
+      };
+      DTOArray.push(DTOinstance);
+    }
+    this.sendData(client, "DtoObjectInitialData", {
+      unknownDword1: 1,
+      unknownArray1: DTOArray,
+      unknownArray2: [{}],
+    });
+  }
 
   sendWeatherUpdatePacket(
     client: Client,
@@ -909,10 +1192,22 @@ export class ZoneServer2016 extends ZoneServer {
           ) &&
           !client.spawnedEntities.includes(this._objects[object])
         ) {
+          /*
           this.sendData(
             client,
             "AddSimpleNpc",
             { ...this._objects[object] },
+            1
+          );
+          */
+          this.sendData(
+            client,
+            "AddLightweightNpc",
+            { 
+              ...this._objects[object],
+              nameId: this.getItemDefinition(this._items[this._objects[object].itemGuid].itemDefinitionId).NAME_ID,
+              dontSendFullNpcRequest: true
+            },
             1
           );
           client.spawnedEntities.push(this._objects[object]);
@@ -1377,35 +1672,61 @@ export class ZoneServer2016 extends ZoneServer {
   updateLoadout(client: Client) {
     this.sendData(client, "Loadout.SetLoadoutSlots", {
       characterId: client.character.characterId,
-      loadoutId: 3,
+      loadoutId: 3, // needs to be 3
       loadoutData: {
-        loadoutSlots: client.character.loadout.map((slot: characterLoadout) => {
+        loadoutSlots: Object.keys(client.character._loadout).map((slotId: any) => {
+          const slot = client.character._loadout[slotId];
           return {
-            unknownDword1: 3,
-            itemDefinitionId: slot.itemDefinitionId,
+            hotbarSlotId: slot.slotId,// affects Equip Item context entry packet, and Container.MoveItem
+            loadoutId: 3,
             slotId: slot.slotId,
-            unknownData1: {
+            loadoutItemData: {
               itemDefinitionId: slot.itemDefinitionId,
               loadoutItemOwnerGuid: slot.itemGuid,
-              unknownByte1: 17,
+              unknownByte1: 255,// flags?
             },
-            unknownDword4: 18,
+            unknownDword4: 3,
           };
         }),
       },
-      loadoutSlotId: 3,
+      currentSlotId: client.character.currentLoadoutSlot,
     });
   }
 
-  updateEquipment(client: Client, character = client.character) {
-    this.sendDataToAllWithSpawnedCharacter(
-      client,
-      "Equipment.SetCharacterEquipment",
-      {
-        characterData: {
-          characterId: character.characterId,
+  addLoadoutItem(client: Client, slotId: number) {
+   const loadoutItem = client.character._loadout[slotId];
+   this.sendData(client, "ClientUpdate.ItemAdd", {
+      characterId: client.character.characterId,
+      data: {
+        itemDefinitionId: loadoutItem.itemDefinitionId,
+        tintId: 5,
+        guid: loadoutItem.itemGuid,
+        count: 1, // also ammoCount
+        itemSubData: {
+          unknownBoolean1: false,
         },
-        equipmentSlots: character.equipment.map((slot: characterEquipment) => {
+        containerGuid: loadoutItem.containerGuid,
+        containerDefinitionId: 28, // temp
+        containerSlotId: loadoutItem.slotId,
+        baseDurability: 2000,
+        currentDurability: loadoutItem.currentDurability,
+        maxDurabilityFromDefinition: 2000,
+        unknownBoolean1: true,
+        unknownQword3: client.character.characterId,
+        unknownDword9: 28,
+        unknownBoolean2: true,
+      },
+    });
+  }
+  
+  updateEquipment(client: Client, character = client.character) {
+    this.sendData(client, "Equipment.SetCharacterEquipment", {
+      characterData: {
+        characterId: character.characterId,
+      },
+      equipmentSlots: Object.keys(character._equipment).map(
+        (slotId: any) => {
+          const slot = character._equipment[slotId];
           return {
             equipmentSlotId: slot.slotId,
             equipmentSlotData: {
@@ -1415,8 +1736,11 @@ export class ZoneServer2016 extends ZoneServer {
               decalAlias: slot.tintAlias || "#",
             },
           };
-        }),
-        attachmentData: character.equipment.map((slot: characterEquipment) => {
+        }
+      ),
+      attachmentData: Object.keys(character._equipment).map(
+        (slotId: any) => {
+          const slot = character._equipment[slotId];
           return {
             modelName: slot.modelName,
             textureAlias: slot.textureAlias || "",
@@ -1424,31 +1748,62 @@ export class ZoneServer2016 extends ZoneServer {
             decalAlias: slot.tintAlias || "#",
             slotId: slot.slotId,
           };
-        }),
+        }
+      ),
+    });
+  }
+
+  updateEquipmentSlot(client: Client, slotId: number, character = client.character) {
+    const equipmentSlot = client.character._equipment[slotId];
+    this.sendDataToAllWithSpawnedCharacter(
+      client,
+      "Equipment.SetCharacterEquipmentSlot",
+      {
+        characterData: {
+          characterId: character.characterId,
+        },
+        equipmentSlot: {
+            equipmentSlotId: equipmentSlot.slotId,
+            equipmentSlotData: {
+              equipmentSlotId: equipmentSlot.slotId,
+              guid: equipmentSlot.guid || "",
+              tintAlias: equipmentSlot.tintAlias || "",
+              decalAlias: equipmentSlot.tintAlias || "#",
+            },
+        },
+        attachmentData: {
+            modelName: equipmentSlot.modelName,
+            textureAlias: equipmentSlot.textureAlias || "",
+            tintAlias: equipmentSlot.tintAlias || "",
+            decalAlias: equipmentSlot.tintAlias || "#",
+            slotId: equipmentSlot.slotId,
+          }
       }
     );
   }
 
-  addItem(client: Client, itemGuid: string) {
+  addItem(client: Client, itemGuid: string, containerGuid: string, slot: number) {
+    const item = this._items[itemGuid],
+    itemDef = this.getItemDefinition(item.itemDefinitionId);
     this.sendData(client, "ClientUpdate.ItemAdd", {
       characterId: client.character.characterId,
       data: {
-        itemDefinitionId: this._items[itemGuid].itemDefinition.ID,
+        itemDefinitionId: itemDef.ID,
         tintId: 5,
         guid: itemGuid,
         count: 1, // also ammoCount
         itemSubData: {
           unknownBoolean1: false,
         },
-        containerGuid: itemGuid,
-        containerDefinitionId: 1,
-        containerSlotId: 1,
-        baseDurability: 1,
-        currentDurability: 1,
-        maxDurabilityFromDefinition: 1,
+        containerGuid: containerGuid,
+        containerDefinitionId: 28,
+        containerSlotId: slot,
+        baseDurability: 2000,
+        currentDurability: 2000,
+        maxDurabilityFromDefinition: 2000,
         unknownBoolean1: true,
-        unknownQword3: itemGuid,
-        unknownDword9: 1,
+        unknownQword3: client.character.characterId,
+        unknownDword9: 28,
         unknownBoolean2: true,
       },
     });
@@ -1460,24 +1815,23 @@ export class ZoneServer2016 extends ZoneServer {
       return;
     }
     const item = this._items[itemGuid],
-      def = item.itemDefinition,
-      loadoutSlotItemClass = loadoutSlotItemClasses.find(
-        (slot: any) => slot.ITEM_CLASS === def.ITEM_CLASS
-      ),
-      loadoutSlotId = loadoutSlotItemClass ? loadoutSlotItemClass.SLOT : 1, // use primary slot if ItemClass is invalid
-      lIndex = client.character.loadout
-        .map((slot: any) => slot.slotId)
-        .indexOf(loadoutSlotId),
-      equipmentSlotId = loadoutEquipSlots.find(
-        (slot: any) => slot.SLOT_ID === loadoutSlotId
-      ).EQUIP_SLOT_ID,
-      eIndex = client.character.equipment
-        .map((slot: any) => slot.slotId)
-        .indexOf(equipmentSlotId),
+      def = this.getItemDefinition(item.itemDefinitionId),
+      loadoutSlotId = this.getLoadoutSlot(item.itemDefinitionId);
+      if(loadoutSlotId == -1) {
+        debug(
+          `[ERROR] equipItem: Tried to equip item with itemDefinitionId: ${item.itemDefinitionId} with an invalid loadoutSlotId!`
+        );
+        return;
+      }
+      const equipmentSlotId = this.getEquipmentSlot(loadoutSlotId),
       loadoutData = {
         itemDefinitionId: def.ID,
         slotId: loadoutSlotId,
         itemGuid: item.guid,
+        containerGuid: "0xFFFFFFFFFFFFFFFF",
+        currentDurability: 2000,
+        stackCount: 1,
+        loadoutItemOwnerGuid: client.character.characterId
       },
       equipmentData = {
         modelName: def.MODEL_NAME.replace(
@@ -1490,43 +1844,43 @@ export class ZoneServer2016 extends ZoneServer {
         tintAlias: "",
       };
 
-    lIndex === -1
-      ? client.character.loadout.push(loadoutData)
-      : (client.character.loadout[lIndex] = loadoutData);
-    eIndex === -1
-      ? client.character.equipment.push(equipmentData)
-      : (client.character.equipment[eIndex] = equipmentData);
+    client.character._loadout[loadoutSlotId] = loadoutData;
+    client.character._equipment[equipmentSlotId] = equipmentData;
 
-    const existingItem = Object.keys(client.character._inventory).find(
-      (guid: any) =>
-        client.character._inventory[guid].loadoutSlotId === loadoutSlotId
-    );
-    if (existingItem && sendPacket) {
-      delete client.character._inventory[existingItem];
-      this.sendData(client, "ClientUpdate.ItemDelete", {
-        characterId: client.character.characterId,
-        itemGuid: existingItem,
-      });
+    if (client.character._loadout[loadoutSlotId] && sendPacket) {
+      this.deleteItem(client, client.character._loadout[loadoutSlotId].itemGuid)
     }
-    client.character._inventory[item.guid] = item;
 
-    // put this above ItemAdd function when inventory items are tracked in client.character
+    if(def.ITEM_TYPE === 34) {
+      client.character._containers[loadoutSlotId] = {
+        ...client.character._loadout[loadoutSlotId],
+        containerDefinitionId: def.PARAM1,
+        items: {}
+      }
+    }
+
     if (!sendPacket) return;
 
+    this.addLoadoutItem(client, loadoutSlotId);
     this.updateLoadout(client);
-    this.updateEquipment(client);
-    this.addItem(client, item.guid);
+    this.updateEquipmentSlot(client, equipmentSlotId);
+    
+  }
+
+  getItemDefinition(itemDefinitionId: any) {
+    return this._itemDefinitions[itemDefinitionId];
+  }
+  getContainerDefinition(containerDefinitionId: any) {
+    return this._containerDefinitions[containerDefinitionId];
   }
 
   generateItem(itemDefinitionId: any) {
-    const generatedGuid = this.generateGuid();
+    const generatedGuid = `0x${Math.floor(Math.random() * (0x3fffffffffffffff - 0x3000000000000000) + 0x3000000000000000).toString(16)}`;
     this._items[generatedGuid] = {
       guid: generatedGuid,
-      itemDefinition: itemDefinitions.find(
-        (itemDef: any) => itemDef.ID === itemDefinitionId
-      ),
+      itemDefinitionId: Number(itemDefinitionId),
     };
-    if (!this._items[generatedGuid].itemDefinition) {
+    if (!this.getItemDefinition(this._items[generatedGuid].itemDefinitionId)) {
       debug(
         `[ERROR] GenerateItem: Invalid item definition: ${itemDefinitionId}`
       );
@@ -1534,29 +1888,475 @@ export class ZoneServer2016 extends ZoneServer {
     }
     return generatedGuid;
   }
-
-  generatePickupItem(objectData: any): any {
-    function rnd_number(max: any, fixed: Boolean = false) {
-      const num = Math.random() * max;
-      return Number(fixed ? num.toFixed(0) : num);
-    }
-
-    const authorizedItemDefinitions = itemDefinitions.filter(
-      (def: any) =>
-        def.WORLD_MODEL_ID === objectData.modelId &&
-        def.CODE_FACTORY_NAME !== "AccountRecipe"
+  
+  getLoadoutSlot(itemDefinitionId: number) {
+    const loadoutSlotItemClass = loadoutSlotItemClasses.find(
+      (slot: any) => slot.ITEM_CLASS === this.getItemDefinition(itemDefinitionId).ITEM_CLASS
     );
-    if (!authorizedItemDefinitions.length) {
+    return loadoutSlotItemClass ? loadoutSlotItemClass.SLOT : -1
+  }
+
+  getEquipmentSlot(loadoutSlotId: number) {
+    return loadoutEquipSlots.find(
+      (slot: any) => slot.SLOT_ID === loadoutSlotId
+    ).EQUIP_SLOT_ID;
+  }
+
+  getContainerBulk(container: loadoutContainer): number {
+    let bulk = 0;
+    Object.keys(container.items).forEach((itemGuid) => {
+      const item = container.items[itemGuid];
+      bulk += this.getItemDefinition(item.itemDefinitionId).BULK
+    })
+    return bulk;
+  }
+
+  getAvailableContainer(client: Client, itemDefinitionId: number, count: number): loadoutContainer | undefined {
+    // returns the first container that has enough space to store count * itemDefinitionId bulk
+    /*
+    let availableContainer = null;
+    const itemDef = this.getItemDefinition(itemDefinitionId);
+    Object.keys(client.character._containers).every((loadoutSlotId) => {
+      const container = client.character._containers[Number(loadoutSlotId)],
+      containerItemDef = this.getItemDefinition(container?.itemDefinitionId),
+      containerDef = this.getContainerDefinition(containerItemDef?.PARAM1)
+      if(container && containerDef?.MAX_BULK >= (this.getContainerBulk(container) + (itemDef.BULK * count))){
+        availableContainer = container;
+        return false;
+      }
+      return true;
+    })
+    return availableContainer;
+    */
+   
+    // TEMP LOGIC UNTIL CONTAINERS WORK
+    if(client.character._loadout[12] && client.character._containers[12]) {
+      return client.character._containers[12]
+    }// backpack
+    return undefined;
+  }
+
+  getItemContainer(client: Client, itemGuid: string): loadoutContainer | undefined {
+    // returns the container that an item is contained in
+    let itemContainer = undefined;
+    Object.keys(client.character._containers).forEach((loadoutSlotId) => {
+      const container = client.character._containers[Number(loadoutSlotId)]
+      if(container.items[itemGuid]) {
+        itemContainer = container;
+      }
+    })
+    return itemContainer;
+  }
+
+  getAvailableItemStack(container: loadoutContainer, itemDefId: number, count: number): string {
+    // returns the itemGuid of the first open stack in container arg that has enough open slots and is the same itemDefinitionId as itemDefId arg
+    let itemStack = "";
+    if(this.getItemDefinition(itemDefId).MAX_STACK_SIZE == 1) return itemStack;
+    Object.keys(container.items).every((itemGuid) => {
+      const item = container.items[itemGuid];
+      if(item.itemDefinitionId == itemDefId && this.getItemDefinition(item.itemDefinitionId).MAX_STACK_SIZE >= item.stackCount + count) {
+        itemStack = item.itemGuid;
+        return false;
+      }
+      return true;
+    })
+    return itemStack;
+  }
+
+  removeInventoryItem(client: Client, itemGuid: string, count: number = 1) {
+    const item = this._items[itemGuid],
+    itemDefinition = this.getItemDefinition(item.itemDefinitionId);
+    const loadoutSlotId = this.getLoadoutSlot(itemDefinition.ID);
+    if(client.character._loadout[loadoutSlotId]?.itemGuid == itemGuid) {
+      this.deleteItem(client, itemGuid)
+      // TODO: add logic for checking if loadout item has an equipment slot, ex. radio doesn't have one
+      const equipmentSlotId = this.getEquipmentSlot(loadoutSlotId);
+      delete client.character._loadout[loadoutSlotId];
+      delete client.character._equipment[equipmentSlotId];
+      this.updateLoadout(client);
+      this.sendData(client, "Equipment.UnsetCharacterEquipmentSlot", {
+        characterData: {
+          characterId: client.character.characterId,
+        },
+        slotId: equipmentSlotId,
+      });
+      if(equipmentSlotId === 7) { // primary slot
+        this.equipItem(client, client.character._loadout[7].itemGuid);//equip fists
+      }
+    }
+    else {
+      const removeItemContainer = this.getItemContainer(client, itemGuid)
+      const removeItem = removeItemContainer?.items[itemGuid];
+      if(!removeItemContainer || !removeItem) return;
+      if(removeItem.stackCount <= count) {
+        delete removeItemContainer.items[itemGuid];
+        this.deleteItem(client, itemGuid)
+      }
+      else {
+        removeItem.stackCount -= count;
+        this.updateContainerItem(client, removeItem.itemGuid, this.getItemContainer(client, removeItem.itemGuid));
+      }
+    }
+    if(itemDefinition.ITEM_TYPE === 34) {
+      delete client.character._containers[item.guid];
+    }
+  }
+
+  dropItem(client: Client, itemGuid: string, count: number = 1) {
+    const item = this._items[itemGuid],
+    itemDefinition = this.getItemDefinition(item.itemDefinitionId);
+    const modelId = itemDefinition.WORLD_MODEL_ID
+    if(!modelId) {
       debug(
-        `[ERROR] GeneratePickupItem: No item definition mapped to id: ${objectData.modelId}`
+        `[ERROR] DropItem: No WORLD_MODEL_ID mapped to itemDefinitionId: ${this._items[itemGuid].itemDefinitionId}`
+      );
+    }
+	  this.sendData(client, "Character.DroppedIemNotification", {
+		  characterId: client.character.characterId,
+      itemDefId: item.itemDefinitionId,
+		  count: count,
+    });
+    const loadoutSlotId = this.getLoadoutSlot(itemDefinition.ID);
+    if(client.character._loadout[loadoutSlotId]?.itemGuid == itemGuid) {
+      this.deleteItem(client, itemGuid)
+      // TODO: add logic for checking if loadout item has an equipment slot, ex. radio doesn't have one
+      const equipmentSlotId = this.getEquipmentSlot(loadoutSlotId);
+      delete client.character._loadout[loadoutSlotId];
+      delete client.character._equipment[equipmentSlotId];
+      this.updateLoadout(client);
+      this.sendData(client, "Equipment.UnsetCharacterEquipmentSlot", {
+        characterData: {
+          characterId: client.character.characterId,
+        },
+        slotId: equipmentSlotId,
+      });
+      if(equipmentSlotId === 7) { // primary slot
+        this.equipItem(client, client.character._loadout[7].itemGuid);//equip fists
+      }
+      this.worldObjectManager.createLootEntity(
+        this, 
+        itemDefinition.ID, 
+        count,
+        [...client.character.state.position], 
+        [...client.character.state.lookAt],
+        -1,
+        itemGuid
+      )
+    }
+    else {
+      const dropItemContainer = this.getItemContainer(client, itemGuid)
+      const dropItem = dropItemContainer?.items[itemGuid];
+      if(!dropItemContainer || !dropItem) return;
+      if(dropItem.stackCount <= count) {
+        delete dropItemContainer.items[itemGuid];
+        this.deleteItem(client, itemGuid)
+        this.worldObjectManager.createLootEntity(
+          this, 
+          itemDefinition.ID, 
+          count,
+          [...client.character.state.position], 
+          [...client.character.state.lookAt],
+          -1,
+          itemGuid
+        )
+      }
+      else {
+        dropItem.stackCount -= count;
+        this.updateContainerItem(client, dropItem.itemGuid, this.getItemContainer(client, dropItem.itemGuid));
+        this.worldObjectManager.createLootEntity(
+          this, 
+          itemDefinition.ID, 
+          count,
+          [...client.character.state.position], 
+          [...client.character.state.lookAt]
+        )
+      }
+    }
+    this.spawnObjects(client); // manually call this for now
+    if(itemDefinition.ITEM_TYPE === 34) {
+      delete client.character._containers[item.guid];
+    }
+  }
+
+  lootItem(client: Client, itemGuid: string | undefined, count: number) {
+    if(!itemGuid) return;
+    const itemDefId = this._items[itemGuid].itemDefinitionId;
+    if(this.getItemDefinition(itemDefId).FLAG_CAN_EQUIP) {
+      if(client.character._loadout[this.getLoadoutSlot(itemDefId)]) {
+        this.lootContainerItem(client, itemGuid, count)
+      }
+      else {
+        this.sendData(client, "Reward.AddNonRewardItem", {
+          itemDefId: itemDefId,
+          iconId: this.getItemDefinition(itemDefId).IMAGE_SET_ID,
+          count: count,
+        });
+        this.equipItem(client, itemGuid);
+      }
+    }
+    else {
+      this.lootContainerItem(client, itemGuid, count);
+    }
+  }
+
+  pickupItem(client: Client, guid: string) {
+    const object = this._objects[guid];
+    if (!this._items[object.itemGuid]) {
+      this.sendChatText(
+        client,
+        `[ERROR] No item definition mapped to id: ${object.modelId}`
       );
       return;
     }
-    return this.generateItem(
-      authorizedItemDefinitions[
-        rnd_number(authorizedItemDefinitions.length - 1, true)
-      ].ID
+    this.lootItem(client, object.itemGuid, object.stackCount);
+    this.deleteEntity(guid, this._objects);
+    delete this.worldObjectManager._spawnedObjects[object.spawnerId];
+  }
+  
+  lootContainerItem(client: Client, itemGuid: string | undefined, count: number, sendUpdate: boolean = true) {
+    if(!itemGuid) return;
+    const itemDefId = this._items[itemGuid].itemDefinitionId,
+    availableContainer = this.getAvailableContainer(client, itemDefId, count);
+      if(!availableContainer) {
+        // container error full
+        return;
+      }
+      const itemStackGuid = this.getAvailableItemStack(availableContainer, itemDefId, count);
+      if(itemStackGuid) {
+        const itemStack = client.character._containers[availableContainer.slotId].items[itemStackGuid]
+        itemStack.stackCount += count
+        this.updateContainerItem(client, itemStack.itemGuid, availableContainer);
+        if(sendUpdate) {
+          this.sendData(client, "Reward.AddNonRewardItem", {
+            itemDefId: itemDefId,
+            iconId: this.getItemDefinition(itemDefId).IMAGE_SET_ID,
+            count: count,
+          });
+        }
+        delete this._items[itemGuid];
+      }
+      else {
+        this.addContainerItem(client, itemGuid, availableContainer, count, sendUpdate);
+      }
+  }
+
+  deleteItem(client:Client, itemGuid: string) {
+    this.sendData(client, "ClientUpdate.ItemDelete", {
+      characterId: client.character.characterId,
+      itemGuid: itemGuid,
+    });
+  }
+
+  addContainerItem(client: Client, itemGuid: string | undefined, container: loadoutContainer, count: number, sendUpdate: boolean = true) {
+    if(!itemGuid) return;
+    const itemDefId = this._items[itemGuid].itemDefinitionId;
+    this.sendData(client, "ClientUpdate.ItemAdd", {
+      characterId: client.character.characterId,
+      data: {
+        itemDefinitionId: itemDefId,
+        tintId: 3,
+        guid: itemGuid,
+        count: count, // also ammoCount
+        itemSubData: {
+          hasSubData: true,
+          unknownDword1: 1,
+          unknownData1: {
+            unknownQword1: client.character.characterId,
+            unknownDword1: 3,
+            unknownDword2: 3,
+          }
+        },
+        containerGuid: container.itemGuid,
+        containerDefinitionId: 0,
+        containerSlotId: 1,
+        baseDurability: 2000,
+        currentDurability: 2000,
+        maxDurabilityFromDefinition: 2000,
+        unknownBoolean1: true,
+        unknownQword3: client.character.characterId,
+        unknownDword9: 0,
+        unknownBoolean2: true,
+      }
+    });
+    container.items[itemGuid] = {
+      itemDefinitionId: itemDefId,
+      slotId: 1,
+      itemGuid: itemGuid,
+      containerGuid: container.itemGuid,
+      stackCount: count,
+      currentDurability: 2000
+    };
+    if(sendUpdate) {
+      this.sendData(client, "Reward.AddNonRewardItem", {
+        itemDefId: itemDefId,
+        iconId: this.getItemDefinition(itemDefId).IMAGE_SET_ID,
+        count: count,
+      });
+    }
+  }
+
+  updateContainerItem(client: Client, itemGuid: string, container: loadoutContainer | undefined) {
+    if(!container) return;
+    const itemDefId = this._items[itemGuid].itemDefinitionId;
+    const item = container.items[itemGuid];
+    this.sendData(client, "ClientUpdate.ItemUpdate", {
+      characterId: client.character.characterId,
+      data: {
+        itemDefinitionId: itemDefId,
+        tintId: 3,
+        guid: itemGuid,
+        count: item.stackCount, // also ammoCount
+        itemSubData: {
+          hasSubData: true,
+          unknownDword1: 1,
+          unknownData1: {
+            unknownQword1: client.character.characterId,
+            unknownDword1: 3,
+            unknownDword2: 3,
+          }
+        },
+        containerGuid: container.itemGuid,
+        containerDefinitionId: 0,
+        containerSlotId: 1,
+        baseDurability: 2000,
+        currentDurability: 2000,
+        maxDurabilityFromDefinition: 2000,
+        unknownBoolean1: true,
+        unknownQword3: client.character.characterId,
+        unknownDword9: 0,
+        unknownBoolean2: true,
+      }
+    });
+  }
+
+  startTimer(client: Client, stringId: number, time: number) {
+    this.sendData(client, "ClientUpdate.StartTimer", {
+      stringId: stringId,
+      time: time,
+    });
+  }
+
+  eatItem(client: Client, itemGuid: string) {
+    const item = this._items[itemGuid],
+      itemDefinition = this.getItemDefinition(item.itemDefinitionId);
+    let drinkCount = 0;
+    let eatCount = 2000;
+    let givetrash = 0;
+    switch (item.itemDefinitionId) {
+      case 105: // berries
+        drinkCount = 200;
+        eatCount = 200;
+        break;
+      case 7: // canned Food
+        eatCount = 4000;
+        givetrash = 48;
+        break;
+      case 1402: // M.R.E Apple
+        eatCount = 6000;
+        drinkCount = 6000;
+        break;
+      default:
+        this.sendChatText(
+          client,
+          "[ERROR] eat count not mapped to item Definition " + itemDefinition
+        );
+    }
+    this.removeInventoryItem(client, itemGuid, 1);
+    client.character.resources.food += eatCount;
+    client.character.resources.water += drinkCount;
+    const { food, water } = client.character.resources;
+    this.updateResource(client, client.character.characterId, food, 4, 4);
+    this.updateResource(client, client.character.characterId, water, 5, 5);
+    if (givetrash) {
+      this.lootContainerItem(client, this.generateItem(givetrash), 1);
+    }
+  }
+
+  drinkItem(client: Client, itemGuid: string) {
+    const item = this._items[itemGuid],
+      itemDefinition = this.getItemDefinition(item.itemDefinitionId);
+    let drinkCount = 2000;
+    let eatCount = 0;
+    let givetrash = 0;
+    switch (item.itemDefinitionId) {
+      case 1368: // dirty water
+        drinkCount = 1000;
+        givetrash = 1353;
+        break;
+      case 1535: //stagnant water
+        drinkCount = 2000;
+        givetrash = 1353;
+        break;
+      case 1371: // purified water
+        drinkCount = 4000;
+        givetrash = 1353;
+        break;
+      default:
+        this.sendChatText(
+          client,
+          "[ERROR] drink count not mapped to item Definition " + itemDefinition
+        );
+    }
+    this.removeInventoryItem(client, itemGuid, 1);
+    client.character.resources.food += eatCount;
+    client.character.resources.water += drinkCount;
+    const { food, water } = client.character.resources;
+    this.updateResource(client, client.character.characterId, food, 4, 4);
+    this.updateResource(client, client.character.characterId, water, 5, 5);
+    if (givetrash) {
+      this.lootContainerItem(client, this.generateItem(givetrash), 1);
+    }
+  }
+
+  useItem(client: Client, itemGuid: string) {
+    const item = this._items[itemGuid],
+      itemDefinition = this.getItemDefinition(item.itemDefinitionId);
+    let useoption = "";
+    switch (item.itemDefinitionId) {
+      case 1353: // empty bottle
+        useoption = "fill";
+        break;
+      default:
+        this.sendChatText(
+          client,
+          "[ERROR] No use option mapped to item Definition " + itemDefinition
+        );
+    }
+    switch (useoption) {
+      case "fill": // empty bottle
+        if (client.character.characterStates.inWater) {
+          this.removeInventoryItem(client, itemGuid, 1);
+          this.lootContainerItem(client, this.generateItem(1368), 1); // give dirty water
+        } else {
+          this.sendData(client, "ClientUpdate.TextAlert", {
+            message: "There is no water source nearby",
+          });
+        }
+        break;
+      default:
+        return;
+    }
+  }
+
+  shredItem(client: Client, itemGuid: string) {
+    const itemDefinition = this.getItemDefinition(
+      this._items[itemGuid].itemDefinitionId
     );
+    const itemType = itemDefinition.ITEM_TYPE;
+    let count = 1;
+    switch (itemType) {
+      case 36:
+      case 39:
+        count = 1;
+        break;
+      case 34: // salvage/shred
+        count = 4;
+        break;
+      default:
+        this.sendChatText(client, "[ERROR] Unknown salvage item or count.");
+    }
+    this.removeInventoryItem(client, itemGuid, 1);
+    this.lootItem(client, this.generateItem(23), count);
   }
   //#endregion
 

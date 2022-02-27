@@ -16,7 +16,7 @@ import { Character } from "./character";
 export class ZoneClient {
   currentPOI?: number;
   firstLoading: boolean = false;
-  isLoading: boolean = false;
+  isLoading: boolean = true;
   isInteracting: boolean = false;
   isAdmin: boolean = false;
   posAtLastRoutine: Float32Array = new Float32Array();

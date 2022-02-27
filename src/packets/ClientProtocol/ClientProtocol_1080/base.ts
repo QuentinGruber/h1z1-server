@@ -64,7 +64,7 @@ export const basePackets: any = [
             { name: "lastLoginDate", type: "uint64string", defaultValue: "" },
             { name: "actorModelId", type: "uint32", defaultValue: 0 },
             { name: "headActor", type: "string", defaultValue: "" },
-            { name: "unknownString1", type: "string", defaultValue: "" },
+            { name: "hairModel", type: "string", defaultValue: "" },
             { name: "unknownDword4", type: "uint32", defaultValue: 0 },
             { name: "unknownDword5", type: "uint32", defaultValue: 0 },
             { name: "emptyTexture", type: "string", defaultValue: "" },
@@ -378,9 +378,9 @@ export const basePackets: any = [
               ],
             },
             {
-              name: "profileRelatedBool",
+              name: "sendFirstTimeEvents",
               type: "boolean",
-              defaultValue: false,
+              defaultValue: true,
             },
             {
               name: "unknownCoinStoreData",
@@ -2403,6 +2403,20 @@ export const basePackets: any = [
   ["Quest", 0x1b, {}],
   ["Reward", 0x1c, {}],
   [
+    "Reward.AddNonRewardItem",
+    0x1c02,
+    {
+      fields: [
+        { name: "itemDefId", type: "uint32", defaultValue: 10 },
+        { name: "unk1", type: "uint32", defaultValue: 1 },
+        { name: "iconId", type: "uint32", defaultValue: 7 },
+        { name: "time4", type: "uint32", defaultValue: 1 },
+        { name: "count", type: "uint32", defaultValue: 2 },
+        { name: "time6", type: "uint32", defaultValue: 1 },
+      ],
+    },
+  ],
+  [
     "GameTimeSync",
     0x1d,
     {
@@ -2803,9 +2817,10 @@ export const basePackets: any = [
             3: [
               // UpdateCharacterResource
               { name: "characterId", type: "uint64string", defaultValue: "0" },
-              { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-              { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-              { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+              { name: "resourceId", type: "uint32", defaultValue: 0 },
+              { name: "resourceType", type: "uint32", defaultValue: 0 },
+
+              { name: "initialValue", type: "uint32", defaultValue: 0 },
               { name: "unknownDword4", type: "uint32", defaultValue: 0 },
               { name: "unknownFloat5", type: "float", defaultValue: 0.0 },
               { name: "unknownFloat6", type: "float", defaultValue: 0.0 },
@@ -2813,11 +2828,13 @@ export const basePackets: any = [
               { name: "unknownDword8", type: "uint32", defaultValue: 0 },
               { name: "unknownDword9", type: "uint32", defaultValue: 0 },
               { name: "unknownDword10", type: "uint32", defaultValue: 0 },
+
               { name: "unknownByte1", type: "uint8", defaultValue: 0 },
               { name: "unknownByte2", type: "uint8", defaultValue: 0 },
               { name: "unknownGuid3", type: "uint64string", defaultValue: "0" },
               { name: "unknownGuid4", type: "uint64string", defaultValue: "0" },
               { name: "unknownGuid5", type: "uint64string", defaultValue: "0" },
+
               { name: "unknownBoolean", type: "boolean", defaultValue: false },
             ],
             4: [
@@ -3054,19 +3071,6 @@ export const basePackets: any = [
   ["PromoEligibilityReply", 0xb6, {}],
   ["RequestWalletTopupUpdate", 0xb8, {}],
   ["StationCashActivePromoRequestUpdate", 0xb9, {}],
-  [
-    "Pickup",
-    0xbb,
-    {
-      fields: [
-        { name: "type?", type: "uint16" },
-        { name: "id", type: "uint32" },
-        { name: "treeId", type: "uint32" },
-        { name: "name", type: "string" },
-      ],
-    },
-  ],
-
   [
     "WordFilter.Data",
     0xbd01,
