@@ -14,7 +14,8 @@
 import { Character } from "../../ZoneServer/classes/character";
 import {
   characterEquipment,
-  characterLoadout,
+  loadoutItem,
+  loadoutContainer
 } from "../../../types/zoneserver";
 
 export class Character2016 extends Character {
@@ -33,9 +34,10 @@ export class Character2016 extends Character {
   gender!: number;
   creationDate!: string;
   lastLoginDate!: string;
-  loadout: characterLoadout[] = [];
-  equipment: characterEquipment[] = [];
-  _inventory: { [itemGuid: string]: any } = {};
+  _loadout: { [loadoutSlotId: number]: loadoutItem } = {};
+  currentLoadoutSlot: number = 7;//fists
+  _equipment: { [equipmentSlotId: number]: characterEquipment } = {};
+  _containers: { [loadoutSlotId: number]: loadoutContainer } = {};
   startRessourceUpdater: any;
   constructor(characterId: string, generatedTransient: number) {
     super(characterId, generatedTransient);

@@ -14,6 +14,7 @@
 import {
   eul2quat,
   getPacketTypeBytes,
+  LZ4,
   lz4_decompress,
 } from "../../../utils/utils";
 import DataSchema from "h1z1-dataschema";
@@ -352,6 +353,230 @@ export function packPositionUpdateData(obj: any) {
   return data;
 }
 
+export function packItemDefinitionData(obj: any) {
+  let compressionData = Buffer.allocUnsafe(4);
+  let data = Buffer.allocUnsafe(4);
+  let v: any;
+  data.writeUInt32LE(obj["ID"], 0); // could be the actual item id idk
+  v = Buffer.allocUnsafe(1);
+  let flagValue = 0;
+  let flagNum = 0;
+  for (const key in obj["flags"]) {
+    const flag = obj["flags"][key];
+    if (flag) {
+      flagValue = flagValue | (1 << flagNum);
+    }
+    flagNum++;
+  }
+  v.writeUInt8(flagValue, 0);
+  data = Buffer.concat([data, v]);
+  flagValue = 0;
+  flagNum = 0;
+  for (const key in obj["flags2"]) {
+    const flag = obj["flags2"][key];
+    if (flag) {
+      flagValue = flagValue | (1 << flagNum);
+    }
+    flagNum++;
+  }
+  v.writeUInt8(flagValue, 0); // flags
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["nameId"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["descriptionId"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["unknownDword4"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["iconId"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["tintId"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["hudImageSetId"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["unknownDword8"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["unknownDword9"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["coinPurchasePrice"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["itemClass"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["unknownDword12"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["slot"], 0);
+  data = Buffer.concat([data, v]);
+  if (obj["modelName"]) {
+    (v = Buffer.allocUnsafe(4 + obj["modelName"].length)),
+      v.writePrefixedStringLE(obj["modelName"], 0);
+  } else {
+    (v = Buffer.allocUnsafe(4)), v.writePrefixedStringLE("", 0);
+  }
+  data = Buffer.concat([data, v]);
+  if (obj["textureAlias"]) {
+    (v = Buffer.allocUnsafe(4 + obj["textureAlias"].length)),
+      v.writePrefixedStringLE(obj["textureAlias"], 0);
+  } else {
+    (v = Buffer.allocUnsafe(4)), v.writePrefixedStringLE("", 0);
+  }
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["genderUsage"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["itemType"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["categoryId"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["unknownDword17"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["compositeEffectId"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["powerRating"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["minProfileRank"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["unknownDword21"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["unknownDword22"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["unknownDword23"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["unknownDword24"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["unknownDword25"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["maxStackSize"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["unknownDword27"], 0);
+  data = Buffer.concat([data, v]);
+  if (obj["tintAlias"]) {
+    (v = Buffer.allocUnsafe(4 + obj["tintAlias"].length)),
+      v.writePrefixedStringLE(obj["tintAlias"], 0);
+  } else {
+    (v = Buffer.allocUnsafe(4)), v.writePrefixedStringLE("", 0);
+  }
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["unknownDword28"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["unknownDword29"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["VipRankRequirement"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["unknownDword31"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["unknownDword32"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["equipCountMax"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["currencyType"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["unknownDword35"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["unknownDword36"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["unknownDword37"], 0);
+  data = Buffer.concat([data, v]);
+  if (obj["overlayTexture"]) {
+    (v = Buffer.allocUnsafe(4 + obj["overlayTexture"].length)),
+      v.writePrefixedStringLE(obj["overlayTexture"], 0);
+  } else {
+    (v = Buffer.allocUnsafe(4)), v.writePrefixedStringLE("", 0);
+  }
+  data = Buffer.concat([data, v]);
+  if (obj["decalSlot"]) {
+    (v = Buffer.allocUnsafe(4 + obj["decalSlot"].length)),
+      v.writePrefixedStringLE(obj["decalSlot"], 0);
+  } else {
+    (v = Buffer.allocUnsafe(4)), v.writePrefixedStringLE("", 0);
+  }
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["unknownDword38"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["unknownDword39"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["unknownDword40"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["unknownDword41"], 0);
+  data = Buffer.concat([data, v]);
+  if (obj["overrideAppearance"]) {
+    (v = Buffer.allocUnsafe(4 + obj["overrideAppearance"].length)),
+      v.writePrefixedStringLE(obj["overrideAppearance"], 0);
+  } else {
+    (v = Buffer.allocUnsafe(4)), v.writePrefixedStringLE("", 0);
+  }
+  data = Buffer.concat([data, v]);
+  (v = Buffer.allocUnsafe(4)), v.writeUInt32LE(obj["overrideCameraId"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["unknownDword43"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["unknownDword44"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["unknownDword45"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["bulk"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["unknownDword47"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["unknownDword48"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["unknownDword49"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["unknownDword50"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["unknownDword51"], 0); // seems to break it if > or < 9
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["unknownDword52"], 0);
+  data = Buffer.concat([data, v]);
+  v.writeUInt32LE(obj["stats"].length, 0);
+  data = Buffer.concat([data, v]);
+  let step;
+  for (step = 0; step < obj["stats"].length; step++) {
+    v.writeUInt32LE(obj["stats"][step]["statId"], 0);
+    data = Buffer.concat([data, v]);
+    v.writeUInt32LE(obj["stats"][step]["statData"]["statId"], 0);
+    data = Buffer.concat([data, v]);
+    v = Buffer.allocUnsafe(1);
+    v.writeUInt8(obj["stats"][step]["statData"]["statValue"]["type"], 0);
+    data = Buffer.concat([data, v]);
+    v = Buffer.allocUnsafe(4);
+    switch (obj["stats"][step]["statData"]["statValue"]["type"]) {
+      case 0:
+        v.writeUInt32LE(
+          obj["stats"][step]["statData"]["statValue"]["value"]["base"],
+          0
+        );
+        data = Buffer.concat([data, v]);
+        v.writeUInt32LE(
+          obj["stats"][step]["statData"]["statValue"]["value"]["modifier"],
+          0
+        );
+        data = Buffer.concat([data, v]);
+        break;
+      case 1:
+        v.writeFloatLE(
+          obj["stats"][step]["statData"]["statValue"]["value"]["base"],
+          0
+        );
+        data = Buffer.concat([data, v]);
+        v.writeFloatLE(
+          obj["stats"][step]["statData"]["statValue"]["value"]["modifier"],
+          0
+        );
+        data = Buffer.concat([data, v]);
+        break;
+      default:
+    }
+    v.writeUInt32LE(obj["stats"][step]["unknownDword1"], 0);
+    data = Buffer.concat([data, v]);
+  }
+  const input = data;
+  let output = Buffer.alloc(LZ4.encodeBound(input.length));
+  const compressedSize = LZ4.encodeBlock(input, output);
+  output = output.slice(0, compressedSize);
+  compressionData.writeUInt16LE(output.length, 0);
+  compressionData.writeUInt16LE(data.length, 2);
+  const finalData = Buffer.concat([compressionData, output]);
+  return finalData;
+}
+
 export function packItemSubData(obj: any) {
   const unknownData1Schema = [
     { name: "unknownQword1", type: "uint64string", defaultValue: "" },
@@ -584,6 +809,7 @@ export const lightWeightNpcSchema = [
   {
     name: "color",
     type: "rgb",
+    defaultValue: {},
     fields: [
       { name: "r", type: "uint8", defaultValue: 0 },
       { name: "g", type: "uint8", defaultValue: 0 },
@@ -600,6 +826,7 @@ export const lightWeightNpcSchema = [
   {
     name: "attachedObject",
     type: "schema",
+    defaultValue: {},
     fields: [
       {
         name: "targetObjectId",

@@ -30,6 +30,7 @@ export type h1z1PacketsType =
   | "Debug"
   | "Quest"
   | "Reward"
+  | "Reward.AddNonRewardItem"
   | "GameTimeSync"
   | "Pet"
   | "PointOfInterestDefinitionRequest"

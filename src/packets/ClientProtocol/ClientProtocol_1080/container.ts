@@ -15,6 +15,20 @@ import { containerData } from "./shared";
 
 export const containerPackets: any = [
   [
+    "Container.MoveItem",
+    0xc90100,
+    {
+      fields: [
+        { name: "containerGuid", type: "uint64string", defaultValue: "" },
+        { name: "characterId", type: "uint64string", defaultValue: "" },
+        { name: "itemGuid", type: "uint64string", defaultValue: "" },
+        { name: "characterId2", type: "uint64string", defaultValue: "" },
+        { name: "oldSlotId", type: "uint32", defaultValue: 0 },
+        { name: "newSlotId", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
+  [
     "Container.InitEquippedContainers",
     0xc90200,
     {

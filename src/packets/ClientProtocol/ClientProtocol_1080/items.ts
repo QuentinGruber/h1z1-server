@@ -11,6 +11,36 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { h1z1Buffer } from "h1z1-dataschema";
+
+
+export function parseItemRequestSubData(data: h1z1Buffer, offset: number) {
+  const obj: any = {},
+  startOffset = offset;
+  obj["unknownBoolean1"] = data.readUInt8(offset);
+  offset += 1;
+
+  if(!obj["unknownBoolean1"]) {
+    obj["unknownDword1"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword2"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownDword3"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["count"] = data.readUInt32LE(offset);
+    offset += 4;
+    obj["unknownQword1"] = data.readUInt64String(offset);
+    offset += 8;
+    obj["unknownQword2"] = data.readUInt64String(offset);
+    offset += 8;
+  }
+
+  return {
+    value: obj,
+    length: offset - startOffset,
+  };
+}
+
 export const itemsPackets: any = [
   ["Items.LoadItemRentalDefinitionManager", 0xad01, {}],
   ["Items.SetItemTimerManager", 0xad02, {}],
@@ -33,6 +63,27 @@ export const itemsPackets: any = [
   ["Items.RequestAddItemTimer", 0xad13, {}],
   ["Items.RequestTrialItem", 0xad14, {}],
   ["Items.RequestRentalItem", 0xad15, {}],
-  ["Items.RequestUseItem", 0xad16, {}],
+  //["Items.RequestUseItem", 0xad16, {}],
   ["Items.RequestUseAccountItem", 0xad17, {}],
+  [
+    "Items.RequestUseItem", 
+    0xad2a, 
+    {
+      fields: [
+        { name: "itemCount", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "itemUseOption", type: "uint32", defaultValue: 0 },
+        { name: "characterId", type: "uint64string", defaultValue: "" },
+        { name: "characterId2", type: "uint64string", defaultValue: "" },
+        { name: "characterId3", type: "uint64string", defaultValue: "" },
+        { name: "itemGuid", type: "uint64string", defaultValue: "" },
+        {
+          name: "itemSubData",
+          type: "custom",
+          defaultValue: {},
+          parser: parseItemRequestSubData,
+        },
+      ]
+    }
+  ],
 ];
