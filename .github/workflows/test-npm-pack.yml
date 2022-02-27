@@ -5,7 +5,7 @@ on:
   pull_request:
     branches: [master, dev]
 jobs:
-  test-linux:
+  test-npm-pack-linux:
     runs-on: ubuntu-latest
     strategy:
       matrix:
