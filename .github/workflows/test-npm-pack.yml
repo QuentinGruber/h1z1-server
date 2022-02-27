@@ -1,4 +1,4 @@
-name: test runtime
+name: test npm pack
 on:
   push:
     branches: [master]
