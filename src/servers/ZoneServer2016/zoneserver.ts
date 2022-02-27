@@ -1804,8 +1804,14 @@ export class ZoneServer2016 extends ZoneServer {
     }
     const item = this._items[itemGuid],
       def = this.getItemDefinition(item.itemDefinitionId),
-      loadoutSlotId = this.getLoadoutSlot(item.itemDefinitionId),
-      equipmentSlotId = this.getEquipmentSlot(loadoutSlotId),
+      loadoutSlotId = this.getLoadoutSlot(item.itemDefinitionId);
+      if(loadoutSlotId == -1) {
+        debug(
+          `[ERROR] equipItem: Tried to equip item with itemDefinitionId: ${item.itemDefinitionId} with an invalid loadoutSlotId!`
+        );
+        return;
+      }
+      const equipmentSlotId = this.getEquipmentSlot(loadoutSlotId),
       loadoutData = {
         itemDefinitionId: def.ID,
         slotId: loadoutSlotId,

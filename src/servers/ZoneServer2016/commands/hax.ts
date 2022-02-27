@@ -741,20 +741,22 @@ const hax: any = {
     client.vehicle.mountedVehicle = characterId;
     client.vehicle.mountedVehicleType = "spectate";
   },
-  addloadoutitem: function (
+  additem: function (
     server: ZoneServer2016,
     client: Client,
     args: any[]
   ) {
-    if (!args[1]) {
+    const itemDefId = Number(args[1]),
+    count = Number(args[2]);
+    if (!args[2] || count != NaN) {
       server.sendChatText(
         client,
-        "[ERROR] Usage /hax addloadoutitem {itemDefinitionId}"
+        "[ERROR] Usage /hax additem {itemDefinitionId} {count}"
       );
       return;
     }
-    server.sendChatText(client, `Adding item with id ${args[1]} to loadout.`);
-    server.equipItem(client, server.generateItem(Number(args[1])));
+    server.sendChatText(client, `Adding ${count}x item${count==1?"":"s"} with id ${itemDefId}.`);
+    server.lootItem(client, server.generateItem(itemDefId), count)
   },
   hood: function (server: ZoneServer2016, client: Client) {
       const equipment = client.character._equipment[3] || {},
