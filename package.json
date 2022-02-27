@@ -6,7 +6,7 @@
   "license": "GPL-3.0-only",
   "main": "h1z1-server.js",
   "engines": {
-    "node": ">=0.16.0 <17"
+    "node": ">=0.16.0 <18"
   },
   "bin": {
     "if-env": "scripts/if-env.js",
