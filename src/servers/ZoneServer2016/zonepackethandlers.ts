@@ -1148,7 +1148,7 @@ export class zonePacketHandlers {
         case 1: // object
           server.sendData(client, "Command.InteractionString", {
             guid: guid,
-            stringId: 29,
+            stringId: 13338,
           });
           break;
         case 2: // vehicle

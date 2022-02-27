@@ -1192,10 +1192,22 @@ export class ZoneServer2016 extends ZoneServer {
           ) &&
           !client.spawnedEntities.includes(this._objects[object])
         ) {
+          /*
           this.sendData(
             client,
             "AddSimpleNpc",
             { ...this._objects[object] },
+            1
+          );
+          */
+          this.sendData(
+            client,
+            "AddLightweightNpc",
+            { 
+              ...this._objects[object],
+              nameId: this.getItemDefinition(this._items[this._objects[object].itemGuid].itemDefinitionId).NAME_ID,
+              dontSendFullNpcRequest: true
+            },
             1
           );
           client.spawnedEntities.push(this._objects[object]);
@@ -2074,6 +2086,11 @@ export class ZoneServer2016 extends ZoneServer {
         this.lootContainerItem(client, itemGuid, count)
       }
       else {
+        this.sendData(client, "Reward.AddNonRewardItem", {
+          itemDefId: itemDefId,
+          iconId: this.getItemDefinition(itemDefId).IMAGE_SET_ID,
+          count: count,
+        });
         this.equipItem(client, itemGuid);
       }
     }

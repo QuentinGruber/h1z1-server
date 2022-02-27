@@ -228,6 +228,7 @@ const hax: any = {
     server.sendChatText(client, "Objects removed from the game.", true);
   },
   tp: function (server: ZoneServer2016, client: Client, args: any[]) {
+    client.isLoading = true;
     let locationPosition;
     switch (args[1]) {
       case "zimms":

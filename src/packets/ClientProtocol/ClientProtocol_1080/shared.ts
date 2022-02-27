@@ -775,7 +775,7 @@ export const lightWeightNpcSchema = [
   {
     name: "characterId",
     type: "uint64string",
-    defaultValue: "0x0000000000000000",
+    defaultValue: "0x0",
   },
   {
     name: "transientId",
@@ -808,7 +808,7 @@ export const lightWeightNpcSchema = [
   { name: "npcDefinitionId", type: "uint32", defaultValue: 0 },
   { name: "positionUpdateType", type: "boolean", defaultValue: 0 }, // determine if npc is moving with positionUpdate - Avcio
   { name: "unknownDword7", type: "uint32", defaultValue: 0 },
-  { name: "unknownBoolean1", type: "boolean", defaultValue: 0 },
+  { name: "dontSendFullNpcRequest", type: "boolean", defaultValue: false },
   {
     name: "color",
     type: "schema",
@@ -817,13 +817,14 @@ export const lightWeightNpcSchema = [
       { name: "g", type: "uint8", defaultValue: 0 },
       { name: "b", type: "uint8", defaultValue: 0 },
     ],
+    defaultValue: {}
   },
   { name: "unknownByte3", type: "uint8", defaultValue: 0 },
   { name: "unknownDword8", type: "uint32", defaultValue: 0 },
   {
     name: "unknownQword1",
     type: "uint64string",
-    defaultValue: "0x0000000000000000",
+    defaultValue: "0x0",
   },
   {
     name: "attachedObject",
@@ -832,7 +833,7 @@ export const lightWeightNpcSchema = [
       {
         name: "targetObjectId",
         type: "uint64string",
-        defaultValue: "0x0000000000000000",
+        defaultValue: "0x0",
       },
       /*{ name: "unknownFloatVector41", type: "floatvector4", defaultValue: [0, 0, 0, 1] },
             { name: "unknownFloatVector42", type: "floatvector4", defaultValue: [0, 0, 0, 1] },
@@ -847,14 +848,11 @@ export const lightWeightNpcSchema = [
             },
             { name: "unknownDword2", type: "uint32", defaultValue: 0 },*/
     ],
+    defaultValue: {}
   },
   { name: "unknownDword9", type: "uint32", defaultValue: 0 },
   { name: "unknownDword10", type: "uint32", defaultValue: 0 },
-  {
-    name: "unknownQword2",
-    type: "uint64string",
-    defaultValue: "0x0000000000000000",
-  },
+  { name: "unknownQword2", type: "uint64string", defaultValue: "0x0" },
   { name: "unknownDword11", type: "uint32", defaultValue: 0 },
   { name: "unknownDword12", type: "uint32", defaultValue: 0 },
   { name: "unknownDword13", type: "uint32", defaultValue: 0 },

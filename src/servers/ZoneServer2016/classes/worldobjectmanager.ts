@@ -473,7 +473,7 @@ export class WorldObjectManager {
             item.id,
             item.count,
             itemInstance.position,
-            [r[1], r[0], r[2]],
+            itemInstance.rotation,
             itemInstance.id
           );
         }
@@ -505,7 +505,7 @@ export class WorldObjectManager {
             item.id,
             item.count,
             itemInstance.position,
-            [r[1], r[0], r[2]],
+            itemInstance.rotation,
             itemInstance.id
           );
         }
@@ -577,7 +577,7 @@ export class WorldObjectManager {
             item.id,
             item.count,
             itemInstance.position,
-            [r[1], r[0], r[2]],
+            itemInstance.rotation,
             itemInstance.id
           );
         }
@@ -613,7 +613,7 @@ export class WorldObjectManager {
             item.id,
             item.count,
             itemInstance.position,
-            [r[1], r[0], r[2]],
+            itemInstance.rotation,
             itemInstance.id
           );
         }
@@ -646,7 +646,7 @@ export class WorldObjectManager {
             item.id,
             item.count,
             itemInstance.position,
-            [r[1], r[0], r[2]],
+            itemInstance.rotation,
             itemInstance.id
           );
         }
@@ -683,7 +683,7 @@ export class WorldObjectManager {
             item.id,
             item.count,
             itemInstance.position,
-            [r[1], r[0], r[2]],
+            itemInstance.rotation,
             itemInstance.id
           );
         }
@@ -723,7 +723,7 @@ export class WorldObjectManager {
             item.id,
             item.count,
             itemInstance.position,
-            [r[1], r[0], r[2]],
+            itemInstance.rotation,
             itemInstance.id
           );
         }
@@ -772,7 +772,7 @@ export class WorldObjectManager {
             item.id,
             item.count,
             itemInstance.position,
-            [r[1], r[0], r[2]],
+            itemInstance.rotation,
             itemInstance.id
           );
         }
@@ -812,7 +812,7 @@ export class WorldObjectManager {
             item.id,
             item.count,
             itemInstance.position,
-            [r[1], r[0], r[2]],
+            itemInstance.rotation,
             itemInstance.id
           );
         }
@@ -861,7 +861,7 @@ export class WorldObjectManager {
             item.id,
             item.count,
             itemInstance.position,
-            [r[1], r[0], r[2]],
+            itemInstance.rotation,
             itemInstance.id
           );
         }
@@ -900,7 +900,7 @@ export class WorldObjectManager {
             item.id,
             item.count,
             itemInstance.position,
-            [r[1], r[0], r[2]],
+            itemInstance.rotation,
             itemInstance.id
           );
         }
@@ -930,7 +930,7 @@ export class WorldObjectManager {
             item.id,
             item.count,
             itemInstance.position,
-            [r[1], r[0], r[2]],
+            itemInstance.rotation,
             itemInstance.id
           );
         }
@@ -967,7 +967,7 @@ export class WorldObjectManager {
             item.id,
             item.count,
             itemInstance.position,
-            [r[1], r[0], r[2]],
+            itemInstance.rotation,
             itemInstance.id
           );
         }
@@ -1002,7 +1002,7 @@ export class WorldObjectManager {
             item.id,
             item.count,
             itemInstance.position,
-            [r[1], r[0], r[2]],
+            itemInstance.rotation,
             itemInstance.id
           );
         }
@@ -1040,7 +1040,7 @@ export class WorldObjectManager {
             item.id,
             item.count,
             itemInstance.position,
-            [r[1], r[0], r[2]],
+            itemInstance.rotation,
             itemInstance.id
           );
         }
@@ -1140,7 +1140,7 @@ export class WorldObjectManager {
             item.id,
             item.count,
             itemInstance.position,
-            [r[1], r[0], r[2]],
+            itemInstance.rotation,
             itemInstance.id
           );
         }
