@@ -1242,7 +1242,7 @@ export class zonePacketHandlers {
       );
       const nameId = itemDefinition.NAME_ID;
       switch (packet.data.itemUseOption) {
-        case 4:
+        case 4: // normal item drop option
         case 73: // battery drop option
         case 79: // sparks drop option
           server.dropItem(
@@ -1251,6 +1251,19 @@ export class zonePacketHandlers {
             packet.data.itemSubData?.count
           );
           break;
+        case 60:
+            const item = server._items[packet.data.itemGuid],
+            loadoutId = server.getLoadoutSlot(item.itemDefinitionId),
+            oldLoadoutItem = client.character._loadout[loadoutId];
+            if(oldLoadoutItem) {// if target loadoutSlot is occupied
+              if(oldLoadoutItem.itemGuid == packet.data.itemGuid){
+                server.sendChatText(client, "[ERROR] Item is already equipped!");
+                return;
+              }
+              server.lootContainerItem(client, oldLoadoutItem.itemGuid, 1, false);
+            }
+            server.equipItem(client, packet.data.itemGuid);
+            break;
         case 6: // shred
           server.startTimer(client, nameId, 3000);
           client.posAtLogoutStart = client.character.state.position;
