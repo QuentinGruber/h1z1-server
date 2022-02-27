@@ -748,11 +748,7 @@ const hax: any = {
   ) {
     const itemDefId = Number(args[1]),
     count = Number(args[2]);
-<<<<<<< HEAD
-    if (!args[2] && count != NaN) {
-=======
     if (!args[2] || !isNaN(count)) {
->>>>>>> 056b5119971984b78582829d9bf8c0202be9677e
       server.sendChatText(
         client,
         "[ERROR] Usage /hax additem {itemDefinitionId} {count}"
