@@ -11,8 +11,8 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import crypto from "crypto";
 import { EventEmitter } from "events";
+import {RC4} from "h1emu-core"
 
 const debug = require("debug")("SOEOutputStream");
 
@@ -22,9 +22,9 @@ export class SOEOutputStream extends EventEmitter {
   _sequence: number;
   _lastAck: number;
   _cache: any;
-  _rc4: crypto.Cipher;
+  _rc4: RC4;
   _enableCaching: boolean;
-  constructor(cryptoKey: string, fragmentSize: number) {
+  constructor(cryptoKey: Uint8Array, fragmentSize: number = 0) {
     super();
     this._useEncryption = false;
     this._fragmentSize = fragmentSize;
@@ -32,13 +32,13 @@ export class SOEOutputStream extends EventEmitter {
     this._lastAck = -1;
     this._cache = {};
     this._enableCaching = true;
-    this._rc4 = crypto.createCipheriv("rc4", cryptoKey, null);
+    this._rc4 = new RC4(cryptoKey)
   }
 
-  write(data: Buffer, overrideEncryption: boolean): void {
-    if (this._useEncryption && overrideEncryption !== false) {
-      this._rc4.write(data);
-      data = this._rc4.read();
+  write(data: Buffer): void {
+    if (this._useEncryption) {
+      data = Buffer.from(this._rc4.encrypt(new Uint32Array(data)))
+
       if (data[0] === 0) {
         const tmp = Buffer.allocUnsafe(1);
         tmp[0] = 0;

@@ -19,11 +19,11 @@ const debug = require("debug")("dynamicWeather");
 const protocol = new H1Z1Protocol("ClientProtocol_860");
 let weatherChoosen = false;
 let fogChecked = false;
-let fog = 0; // density
-let foggradient = 0;
-let fogEnabled = false;
-let fchancemin = 0;
-let fchancemax = 0;
+let fog = 45; // density
+let foggradient = 40;
+let fogEnabled = true;
+let fchancemin = 15;
+let fchancemax = 70;
 let currentSeason = "summer";
 let rainChecked = false;
 let rainIncoming = false;
@@ -330,12 +330,12 @@ export default function dynamicWeather(
     fogEnabled // increase/dicrease fog values with each tick
   ) {
     case true:
-      fchancemin = 1;
-      fchancemax = 1;
+      fchancemin += 1;
+      fchancemax += 1;
       break;
     case false:
-      fchancemin = -1;
-      fchancemax = -1;
+      fchancemin -= 1;
+      fchancemax -= 1;
       break;
     default:
       break;
