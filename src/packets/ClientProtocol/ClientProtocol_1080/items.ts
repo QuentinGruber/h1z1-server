@@ -13,14 +13,13 @@
 
 import { h1z1Buffer } from "h1z1-dataschema";
 
-
 export function parseItemRequestSubData(data: h1z1Buffer, offset: number) {
   const obj: any = {},
-  startOffset = offset;
+    startOffset = offset;
   obj["unknownBoolean1"] = data.readUInt8(offset);
   offset += 1;
 
-  if(!obj["unknownBoolean1"]) {
+  if (!obj["unknownBoolean1"]) {
     obj["unknownDword1"] = data.readUInt32LE(offset);
     offset += 4;
     obj["unknownDword2"] = data.readUInt32LE(offset);
@@ -66,8 +65,8 @@ export const itemsPackets: any = [
   //["Items.RequestUseItem", 0xad16, {}],
   ["Items.RequestUseAccountItem", 0xad17, {}],
   [
-    "Items.RequestUseItem", 
-    0xad2a, 
+    "Items.RequestUseItem",
+    0xad2a,
     {
       fields: [
         { name: "itemCount", type: "uint32", defaultValue: 0 },
@@ -83,7 +82,7 @@ export const itemsPackets: any = [
           defaultValue: {},
           parser: parseItemRequestSubData,
         },
-      ]
-    }
+      ],
+    },
   ],
 ];

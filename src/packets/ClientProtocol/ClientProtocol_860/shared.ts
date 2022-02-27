@@ -701,7 +701,6 @@ export function packItemData(obj: any, referenceData: any) {
   */
 }
 
-
 export const lightWeightPcSchema = [
   { name: "characterId", type: "uint64string", defaultValue: "0" },
   {

@@ -43,8 +43,8 @@ export const clientUpdatePackets: any = [
     },
   ],
   [
-    "ClientUpdate.ItemUpdate", 
-    0x110300, 
+    "ClientUpdate.ItemUpdate",
+    0x110300,
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
@@ -54,7 +54,7 @@ export const clientUpdatePackets: any = [
           fields: itemDataSchema,
         },
       ],
-    }
+    },
   ],
   [
     "ClientUpdate.ItemDelete",

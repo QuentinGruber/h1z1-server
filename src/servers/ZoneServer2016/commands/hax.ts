@@ -742,13 +742,9 @@ const hax: any = {
     client.vehicle.mountedVehicle = characterId;
     client.vehicle.mountedVehicleType = "spectate";
   },
-  additem: function (
-    server: ZoneServer2016,
-    client: Client,
-    args: any[]
-  ) {
+  additem: function (server: ZoneServer2016, client: Client, args: any[]) {
     const itemDefId = Number(args[1]),
-    count = Number(args[2]);
+      count = Number(args[2]);
     if (!args[2] || !isNaN(count)) {
       server.sendChatText(
         client,
@@ -756,11 +752,14 @@ const hax: any = {
       );
       return;
     }
-    server.sendChatText(client, `Adding ${count}x item${count==1?"":"s"} with id ${itemDefId}.`);
-    server.lootItem(client, server.generateItem(itemDefId), count)
+    server.sendChatText(
+      client,
+      `Adding ${count}x item${count == 1 ? "" : "s"} with id ${itemDefId}.`
+    );
+    server.lootItem(client, server.generateItem(itemDefId), count);
   },
   hood: function (server: ZoneServer2016, client: Client) {
-      const equipment = client.character._equipment[3] || {},
+    const equipment = client.character._equipment[3] || {},
       equipmentModel = equipment.modelName || "";
 
     if (
@@ -770,10 +769,14 @@ const hax: any = {
       server.sendChatText(client, "[ERROR] You aren't wearing a hoodie.");
     } else {
       equipmentModel.includes("Up")
-        ? (client.character._equipment[3].modelName =
-            equipmentModel.replace("Up", "Down"))
-        : (client.character._equipment[3].modelName =
-            equipmentModel.replace("Down", "Up"));
+        ? (client.character._equipment[3].modelName = equipmentModel.replace(
+            "Up",
+            "Down"
+          ))
+        : (client.character._equipment[3].modelName = equipmentModel.replace(
+            "Down",
+            "Up"
+          ));
       server.updateEquipmentSlot(client, 3);
     }
   },

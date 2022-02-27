@@ -426,8 +426,6 @@ export interface characterEquipment {
   decalAlias?: string;
 }
 
-
-
 export interface inventoryItem {
   itemDefinitionId: number;
   slotId: number;

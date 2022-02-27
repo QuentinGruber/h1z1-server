@@ -13,13 +13,11 @@
 
 export const constructionPackets: any = [
   [
-    "Construction.PlacementRequest", 
-    0xca0100, 
-    { 
-      fields: [
-        { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
-      ] 
-    }
+    "Construction.PlacementRequest",
+    0xca0100,
+    {
+      fields: [{ name: "itemDefinitionId", type: "uint32", defaultValue: 0 }],
+    },
   ],
   [
     "Construction.PlacementResponse",

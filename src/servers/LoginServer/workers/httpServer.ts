@@ -44,13 +44,13 @@ function parseQueryString(queryString: string) {
 }
 const agent = new http.Agent({
   keepAlive: true,
-  maxSockets: 45
+  maxSockets: 45,
 });
 http.request({
   agent: agent,
   method: "GET",
   hostname: "localhost",
-  port: SERVER_PORT
+  port: SERVER_PORT,
 });
 const httpServer = http.createServer().listen(SERVER_PORT);
 httpServer.on("request", async function (req, res) {
@@ -88,9 +88,9 @@ httpServer.on("request", async function (req, res) {
       break;
   }
 });
-httpServer.on("error",(error)=>{
+httpServer.on("error", (error) => {
   console.error(error);
-})
+});
 
 parentPort?.on(`message`, (message: httpServerMessage) => {
   const { type, requestId, data } = message;
