@@ -25,7 +25,13 @@ export class ZoneClient2016 extends ZoneClient {
     characterId: string,
     generatedTransient: number
   ) {
-    super(sessionId,initialClient.soeClientId ,loginSessionId, characterId, generatedTransient);
+    super(
+      sessionId,
+      initialClient.soeClientId,
+      loginSessionId,
+      characterId,
+      generatedTransient
+    );
 
     this.character = new Character2016(characterId, generatedTransient);
   }

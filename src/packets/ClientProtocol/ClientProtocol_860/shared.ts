@@ -683,6 +683,7 @@ export function parseItemData(
 }
 
 export function packItemData(obj: any, referenceData: any) {
+  /*
   const baseData = DataSchema.pack(itemBaseSchema, obj.baseItem);
   let detailData, detailSchema;
 
@@ -697,6 +698,7 @@ export function packItemData(obj: any, referenceData: any) {
 
   //detailData = DataSchema.pack(detailSchema, obj.detail);
   return baseData.data;
+  */
 }
 
 export const lightWeightPcSchema = [

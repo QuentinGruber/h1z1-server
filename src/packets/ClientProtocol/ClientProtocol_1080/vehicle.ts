@@ -11,9 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { identitySchema,
-        itemDataSchema 
-      } from "./shared";
+import { identitySchema, itemDataSchema } from "./shared";
 
 export const vehiclePackets: any = [
   [

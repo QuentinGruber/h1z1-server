@@ -817,7 +817,7 @@ export const lightWeightNpcSchema = [
       { name: "g", type: "uint8", defaultValue: 0 },
       { name: "b", type: "uint8", defaultValue: 0 },
     ],
-    defaultValue: {}
+    defaultValue: {},
   },
   { name: "unknownByte3", type: "uint8", defaultValue: 0 },
   { name: "unknownDword8", type: "uint32", defaultValue: 0 },
@@ -848,7 +848,7 @@ export const lightWeightNpcSchema = [
             },
             { name: "unknownDword2", type: "uint32", defaultValue: 0 },*/
     ],
-    defaultValue: {}
+    defaultValue: {},
   },
   { name: "unknownDword9", type: "uint32", defaultValue: 0 },
   { name: "unknownDword10", type: "uint32", defaultValue: 0 },
@@ -1298,7 +1298,7 @@ export const fullNpcDataSchema = [
     name: "transientId",
     type: "custom",
     parser: readUnsignedIntWith2bitLengthValue,
-    packer: packUnsignedIntWith2bitLengthValue
+    packer: packUnsignedIntWith2bitLengthValue,
   },
   { name: "unknownDword1", type: "uint32", defaultValue: 1 },
   { name: "unknownDword2", type: "uint32", defaultValue: 1 },
@@ -1340,13 +1340,13 @@ export const fullNpcDataSchema = [
     name: "targetData",
     type: "schema",
     fields: [
-      { name: "unknownByte1", type: "uint8", defaultValue: 0 },/*
+      { name: "unknownByte1", type: "uint8", defaultValue: 0 } /*
       {
         name: "unknownVector4",
         type: "floatvector4",
         defaultValue: [0, 0, 0, 0],
       },
-      { name: "unknownQword1", type: "uint64string", defaultValue: "0" },*/
+      { name: "unknownQword1", type: "uint64string", defaultValue: "0" },*/,
     ],
   },
   {
@@ -1391,7 +1391,7 @@ export const fullNpcDataSchema = [
     defaultValue: {},
     fields: [
       {
-        name: "data",// locksBaseRelated
+        name: "data", // locksBaseRelated
         type: "array",
         defaultValue: [],
         fields: [
@@ -1399,7 +1399,7 @@ export const fullNpcDataSchema = [
           { name: "unknownDword2", type: "uint32", defaultValue: 0 },
         ],
       },
-    ]
+    ],
   },
   {
     name: "resources",
@@ -1420,7 +1420,7 @@ export const fullNpcDataSchema = [
           },
         ],
       },
-    ]
+    ],
   },
   {
     name: "unknownArray4",
@@ -1597,7 +1597,7 @@ export const fullNpcDataSchema = [
           },
         ],
       },
-    ]
+    ],
   },
   {
     name: "unknownArray5",
@@ -1626,7 +1626,7 @@ export const fullNpcDataSchema = [
           },
         ],
       },
-    ]
+    ],
   },
   {
     name: "remoteWeapons",
@@ -1650,22 +1650,30 @@ export const fullNpcDataSchema = [
             fields: [
               { name: "unknownDword1", type: "uint32", defaultValue: 0 },
               { name: "unknownByte1", type: "int8", defaultValue: 0 },
-              { 
-                name: "unknownArray1", 
-                type: "array8", 
-                defaultValue: [], 
+              {
+                name: "unknownArray1",
+                type: "array8",
+                defaultValue: [],
                 fields: [
                   { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                  { 
-                    name: "unknownArray1", 
-                    type: "array8", 
-                    defaultValue: [], 
+                  {
+                    name: "unknownArray1",
+                    type: "array8",
+                    defaultValue: [],
                     fields: [
-                      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                      { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                    ] 
+                      {
+                        name: "unknownDword1",
+                        type: "uint32",
+                        defaultValue: 0,
+                      },
+                      {
+                        name: "unknownDword2",
+                        type: "uint32",
+                        defaultValue: 0,
+                      },
+                    ],
                   },
-                ] 
+                ],
               },
               {
                 name: "weaponStats",
@@ -1692,7 +1700,11 @@ export const fullNpcDataSchema = [
                     type: "array",
                     defaultValue: [],
                     fields: [
-                      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                      {
+                        name: "unknownDword1",
+                        type: "uint32",
+                        defaultValue: 0,
+                      },
                       {
                         name: "stats",
                         type: "array",
@@ -1715,7 +1727,7 @@ export const fullNpcDataSchema = [
           },
         ],
       },
-    ]
+    ],
   },
   {
     name: "itemsData",
@@ -1827,7 +1839,7 @@ export const fullPcDataSchema = [
         defaultValue: {},
         fields: [
           {
-            name: "data",// locksBaseRelated
+            name: "data", // locksBaseRelated
             type: "array",
             defaultValue: [],
             fields: [
@@ -1835,7 +1847,7 @@ export const fullPcDataSchema = [
               { name: "unknownDword2", type: "uint32", defaultValue: 0 },
             ],
           },
-        ]
+        ],
       },
       {
         name: "resources",
@@ -1856,7 +1868,7 @@ export const fullPcDataSchema = [
               },
             ],
           },
-        ]
+        ],
       },
       {
         name: "unknownArray2",
@@ -2018,22 +2030,38 @@ export const fullPcDataSchema = [
                         type: "uint64string",
                         defaultValue: "",
                       },
-                      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                      { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                      { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+                      {
+                        name: "unknownDword1",
+                        type: "uint32",
+                        defaultValue: 0,
+                      },
+                      {
+                        name: "unknownDword2",
+                        type: "uint32",
+                        defaultValue: 0,
+                      },
+                      {
+                        name: "unknownDword3",
+                        type: "uint32",
+                        defaultValue: 0,
+                      },
                       {
                         name: "unknownQword2",
                         type: "uint64string",
                         defaultValue: "",
                       },
-                      { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+                      {
+                        name: "unknownDword4",
+                        type: "uint32",
+                        defaultValue: 0,
+                      },
                     ],
                   },
                 ],
               },
             ],
           },
-        ]
+        ],
       },
       {
         name: "unknownArray3",
@@ -2062,7 +2090,7 @@ export const fullPcDataSchema = [
               },
             ],
           },
-        ]
+        ],
       },
     ],
   },

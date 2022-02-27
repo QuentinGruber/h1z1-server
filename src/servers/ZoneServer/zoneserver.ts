@@ -344,7 +344,7 @@ export class ZoneServer extends EventEmitter {
       try {
         this._packetHandlers.processPacket(this, client, packet);
       } catch (error) {
-        console.error(`An error occurred while processing a packet : `,packet)
+        console.error(`An error occurred while processing a packet : `, packet);
       }
     }
   }
@@ -427,13 +427,12 @@ export class ZoneServer extends EventEmitter {
     this.deleteClient(client);
   }
 
-  getSoeClient(soeClientId : string) : SOEClient{
+  getSoeClient(soeClientId: string): SOEClient {
     return this._gatewayServer._soeServer._clients[soeClientId];
   }
 
-
-  deleteClient(client: Client){
-    if(client.character){
+  deleteClient(client: Client) {
+    if (client.character) {
       this.deleteEntity(client.character.characterId, this._characters);
       clearInterval(client.character?.resourcesUpdater);
       this.saveCharacterPosition(client);
@@ -442,7 +441,9 @@ export class ZoneServer extends EventEmitter {
       });
     }
     delete this._clients[client.sessionId];
-    this._gatewayServer._soeServer.deleteClient(this.getSoeClient(client.soeClientId));
+    this._gatewayServer._soeServer.deleteClient(
+      this.getSoeClient(client.soeClientId)
+    );
     if (!this._soloMode) {
       this.sendZonePopulationUpdate();
     }
@@ -720,9 +721,7 @@ export class ZoneServer extends EventEmitter {
   timeoutClient(client: Client): void {
     if (!!this._clients[client.sessionId]) {
       // if hasn't already deleted
-      debug(
-        `Client (${client.soeClientId}) disconnected ( ping timeout )`
-      );
+      debug(`Client (${client.soeClientId}) disconnected ( ping timeout )`);
       this.deleteClient(client);
     }
   }
@@ -947,7 +946,7 @@ export class ZoneServer extends EventEmitter {
         },
       });
     });
-    debug("Generated " +items.length +" items");
+    debug("Generated " + items.length + " items");
     return items;
   }
 
@@ -973,7 +972,6 @@ export class ZoneServer extends EventEmitter {
         itemDefinitions: this._items,
       },
     });
-
   }
 
   spawnNpcs(client: Client): void {
@@ -986,7 +984,10 @@ export class ZoneServer extends EventEmitter {
         ) &&
         !client.spawnedEntities.includes(this._npcs[npc])
       ) {
-        this.sendData(client, "PlayerUpdate.AddLightweightNpc", { ...this._npcs[npc], profileId: 65 });
+        this.sendData(client, "PlayerUpdate.AddLightweightNpc", {
+          ...this._npcs[npc],
+          profileId: 65,
+        });
         client.spawnedEntities.push(this._npcs[npc]);
       }
     }
@@ -1632,8 +1633,9 @@ export class ZoneServer extends EventEmitter {
       });
       this._vehicles[vehicleGuid].engineOn = true;
       this._vehicles[vehicleGuid].resourcesUpdater = setInterval(() => {
-        if(this._vehicles[vehicleGuid].positionUpdate.engineRPM){
-          const fuelLoss = this._vehicles[vehicleGuid].positionUpdate.engineRPM * 0.005;
+        if (this._vehicles[vehicleGuid].positionUpdate.engineRPM) {
+          const fuelLoss =
+            this._vehicles[vehicleGuid].positionUpdate.engineRPM * 0.005;
           this._vehicles[vehicleGuid].npcData.resources.fuel -= fuelLoss;
         }
         if (this._vehicles[vehicleGuid].npcData.resources.fuel < 0) {
@@ -2531,13 +2533,17 @@ export class ZoneServer extends EventEmitter {
       debug("send data", packetName);
     }
     const data = this._protocol.pack(packetName, obj);
-    this._gatewayServer.sendTunnelData(this.getSoeClient(client.soeClientId), data, channel);
+    this._gatewayServer.sendTunnelData(
+      this.getSoeClient(client.soeClientId),
+      data,
+      channel
+    );
   }
 
   sendDataToAll(packetName: h1z1PacketsType, obj: any, channel = 0): void {
     const data = this._protocol.pack(packetName, obj);
     for (const a in this._clients) {
-      this.sendRawData(this._clients[a],data,channel);
+      this.sendRawData(this._clients[a], data, channel);
     }
   }
 
@@ -2554,13 +2560,13 @@ export class ZoneServer extends EventEmitter {
     }
   }
 
-  sendRawToAll(data: Buffer,channel = 0): void {
+  sendRawToAll(data: Buffer, channel = 0): void {
     for (const a in this._clients) {
       this.sendRawData(this._clients[a], data, channel);
     }
   }
 
-  sendRawToAllOthers(client: Client, data: Buffer, channel= 0): void {
+  sendRawToAllOthers(client: Client, data: Buffer, channel = 0): void {
     for (const a in this._clients) {
       if (client != this._clients[a]) {
         this.sendRawData(this._clients[a], data, channel);
@@ -2580,8 +2586,11 @@ export class ZoneServer extends EventEmitter {
   }
 
   sendRawData(client: Client, data: Buffer, channel = 0): void {
-    this._gatewayServer.sendTunnelData(this.getSoeClient(client.soeClientId), data, channel);
-
+    this._gatewayServer.sendTunnelData(
+      this.getSoeClient(client.soeClientId),
+      data,
+      channel
+    );
   }
 
   stop(): void {

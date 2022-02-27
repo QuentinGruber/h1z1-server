@@ -11,8 +11,8 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import SoeClient from "../SoeServer/soeclient"
+import SoeClient from "../SoeServer/soeclient";
 export default abstract class LoginClient extends SoeClient {
-    serverUpdateTimer:any
-    loginSessionId:string | undefined = undefined;
+  serverUpdateTimer: any;
+  loginSessionId: string | undefined = undefined;
 }

@@ -92,7 +92,7 @@ const dev: any = {
             unknownArray1: [],
             value: Number(args[3]),
             unknownArray2: [],
-          }
+          },
         },
       },
     };
@@ -113,11 +113,7 @@ const dev: any = {
       loadoutId: Number(args[1]),
     });
   },
-  selectslot: function (
-    server: ZoneServer2016,
-    client: Client,
-    args: any[]
-  ) {
+  selectslot: function (server: ZoneServer2016, client: Client, args: any[]) {
     if (!args[1]) {
       server.sendChatText(client, "Missing loadoutSlotId arg");
       return;
@@ -619,18 +615,21 @@ const dev: any = {
     args: any[]
   ) {
     const backpack: any = server.generateItem(1602),
-    backpackDef = server.getItemDefinition(server._items[backpack].itemDefinitionId)
+      backpackDef = server.getItemDefinition(
+        server._items[backpack].itemDefinitionId
+      );
     const item: any = server.generateItem(2425),
-    itemDef = server.getItemDefinition(server._items[item].itemDefinitionId)
+      itemDef = server.getItemDefinition(server._items[item].itemDefinitionId);
     const containers = [
       {
-        unknownDword1: backpackDef.ITEM_TYPE==34?backpackDef.PARAM1:0,//ITEM_TYPE==34?backpackDef.PARAM1:0, // container itemDefinitionId ?
+        unknownDword1: backpackDef.ITEM_TYPE == 34 ? backpackDef.PARAM1 : 0, //ITEM_TYPE==34?backpackDef.PARAM1:0, // container itemDefinitionId ?
         containerData: {
           guid: backpack,
-          unknownDword1: backpackDef.ITEM_TYPE==34?backpackDef.PARAM1:0,//.ITEM_TYPE==34?backpackDef.PARAM1:0,
+          unknownDword1: backpackDef.ITEM_TYPE == 34 ? backpackDef.PARAM1 : 0, //.ITEM_TYPE==34?backpackDef.PARAM1:0,
           associatedCharacterId: client.character.characterId,
           slots: 9999,
-          items: [/*
+          items: [
+            /*
             {
               itemDefinitionId: itemDef.ID,
               itemData: {
@@ -670,34 +669,34 @@ const dev: any = {
 
     server.equipItem(client, backpack);
 
-      server.sendData(client, "ClientUpdate.ItemAdd", {
-        characterId: client.character.characterId,
-        data: {
-          itemDefinitionId: itemDef.ID,
-          tintId: 3,
-          guid: item,
-          count: 1, // also ammoCount
-          itemSubData: {
-            hasSubData: true,
-            unknownDword1: 1,
-            unknownData1: {
-              unknownQword1: client.character.characterId,
-              unknownDword1: 3,
-              unknownDword2: 3,
-            }
+    server.sendData(client, "ClientUpdate.ItemAdd", {
+      characterId: client.character.characterId,
+      data: {
+        itemDefinitionId: itemDef.ID,
+        tintId: 3,
+        guid: item,
+        count: 1, // also ammoCount
+        itemSubData: {
+          hasSubData: true,
+          unknownDword1: 1,
+          unknownData1: {
+            unknownQword1: client.character.characterId,
+            unknownDword1: 3,
+            unknownDword2: 3,
           },
-          containerGuid: backpack,
-          containerDefinitionId: 0,
-          containerSlotId: 1,
-          baseDurability: 2000,
-          currentDurability: 2000,
-          maxDurabilityFromDefinition: 2000,
-          unknownBoolean1: true,
-          unknownQword3: client.character.characterId,
-          unknownDword9: 0,
-          unknownBoolean2: true,
-        }
-      });
+        },
+        containerGuid: backpack,
+        containerDefinitionId: 0,
+        containerSlotId: 1,
+        baseDurability: 2000,
+        currentDurability: 2000,
+        maxDurabilityFromDefinition: 2000,
+        unknownBoolean1: true,
+        unknownQword3: client.character.characterId,
+        unknownDword9: 0,
+        unknownBoolean2: true,
+      },
+    });
   },
   listcontainers: function (
     server: ZoneServer2016,
@@ -705,24 +704,22 @@ const dev: any = {
     args: any[]
   ) {
     const containers = [
-        {
-          unknownDword1: 3, // container itemDefinitionId ?
-          containerData: {
-            guid: "0x123",
-            unknownDword1: 3,
-            associatedCharacterId: client.character.characterId,
-            slots: 9999,
-            items: [
-
-            ],
-            unknownBoolean1: true,
-            maxBulk: 565,
-            unknownDword4: 999,
-            bulkUsed: 999,
-            hasBulkLimit: false,
-          },
+      {
+        unknownDword1: 3, // container itemDefinitionId ?
+        containerData: {
+          guid: "0x123",
+          unknownDword1: 3,
+          associatedCharacterId: client.character.characterId,
+          slots: 9999,
+          items: [],
+          unknownBoolean1: true,
+          maxBulk: 565,
+          unknownDword4: 999,
+          bulkUsed: 999,
+          hasBulkLimit: false,
         },
-      ];
+      },
+    ];
     server.sendData(client, "Container.ListAll", {
       characterId: client.character.characterId,
       containers: containers,
@@ -791,7 +788,8 @@ const dev: any = {
     server: ZoneServer2016,
     client: Client,
     args: any[]
-  ) {/*
+  ) {
+    /*
     const backpack: any = server.generateItem(1602);
     server.equipItem(client, backpack);*/
     const objectCharacterId = server.generateGuid(),
@@ -814,7 +812,7 @@ const dev: any = {
         unknownData1: { unknownData1: {} },
         attachedObject: {},
       };
-    const item: any = server.generateItem(2425)/*,
+    const item: any = server.generateItem(2425); /*,
       containerGuid = server.generateGuid(),
       containers = [
         {
@@ -861,7 +859,8 @@ const dev: any = {
       */
     server._npcs[objectCharacterId] = npc; // save npc
     server.worldRoutine();
-    setTimeout(() => {/*
+    setTimeout(() => {
+      /*
       server.sendData(client, "Container.InitEquippedContainers", {
         ignore: client.character.characterId,
         //ignore2: client.character.characterId,
@@ -965,26 +964,36 @@ const dev: any = {
     });
   },
   mapdef: function (server: ZoneServer2016, client: Client, args: any[]) {
-    if(!args[2]) {
+    if (!args[2]) {
       server.sendChatText(client, "Usage: /mapdef {modelId} {itemDefId}");
       return;
     }
     const modelId = Number(args[1]),
-    itemDefId = Number(args[2]),
-    def = server.getItemDefinition(itemDefId);
-    if(!def) {
+      itemDefId = Number(args[2]),
+      def = server.getItemDefinition(itemDefId);
+    if (!def) {
       server.sendChatText(client, "Invalid itemDefId");
       return;
     }
     def.WORLD_MODEL_ID = modelId;
     server._itemDefinitions[itemDefId] = def;
-    server.sendChatText(client, `Mapped modelId: ${modelId} to itemDefId: ${itemDefId}`);
-    const fs = require('fs');
-    delete require.cache[require.resolve(`${__dirname}\\..\\..\\..\\..\\data\\2016\\dataSources\\ServerItemDefinitions.json`)];
-    fs.writeFileSync(`${__dirname}\\..\\..\\..\\..\\data\\2016\\dataSources\\ServerItemDefinitions.json`, JSON.stringify(server._itemDefinitions, null, 2));
+    server.sendChatText(
+      client,
+      `Mapped modelId: ${modelId} to itemDefId: ${itemDefId}`
+    );
+    const fs = require("fs");
+    delete require.cache[
+      require.resolve(
+        `${__dirname}\\..\\..\\..\\..\\data\\2016\\dataSources\\ServerItemDefinitions.json`
+      )
+    ];
+    fs.writeFileSync(
+      `${__dirname}\\..\\..\\..\\..\\data\\2016\\dataSources\\ServerItemDefinitions.json`,
+      JSON.stringify(server._itemDefinitions, null, 2)
+    );
     server._itemDefinitions = require(`${__dirname}\\..\\..\\..\\..\\data\\2016\\dataSources\\ServerItemDefinitions.json`);
     server.sendChatText(client, `Reloaded itemdefinitions`);
-  }
+  },
   /*
     proxiedobjects: function(server: ZoneServer2016, client: Client, args: any[]) {
 

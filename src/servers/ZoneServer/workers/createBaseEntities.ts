@@ -126,7 +126,7 @@ function createDTO(
     rotation: rotation,
     positionUpdateType: 1,
     renderDistance: renderDistance,
-    
+
     dontRequestFullData: true,
     color: { g: 127 },
   };

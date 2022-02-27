@@ -165,9 +165,7 @@ export class SOEServer extends EventEmitter {
           client.crcLength = this._crcLength;
           client.inputStream.setEncryption(this._useEncryption);
           client.outputStream.setEncryption(this._useEncryption);
-          client.outputStream.setFragmentSize(
-            client.clientUdpLength - 7
-          );
+          client.outputStream.setFragmentSize(client.clientUdpLength - 7);
 
           this._sendPacket(client, "SessionReply", {
             sessionId: client.sessionId,
@@ -221,11 +219,7 @@ export class SOEServer extends EventEmitter {
           debug(
             "Received data packet from client, sequence " + result.sequence
           );
-          client.inputStream.write(
-            result.data,
-            result.sequence,
-            false
-          );
+          client.inputStream.write(result.data, result.sequence, false);
           break;
         case "DataFragment":
           debug(
@@ -315,19 +309,13 @@ export class SOEServer extends EventEmitter {
             );
           }
 
-          client.inputStream.on(
-            "data",
-            (err: string, data: Buffer) => {
-              this.emit("appdata", null, client, data);
-            }
-          );
+          client.inputStream.on("data", (err: string, data: Buffer) => {
+            this.emit("appdata", null, client, data);
+          });
 
-          client.inputStream.on(
-            "ack",
-            (err: string, sequence: number) => {
-              client.nextAck = sequence;
-            }
-          );
+          client.inputStream.on("ack", (err: string, sequence: number) => {
+            client.nextAck = sequence;
+          });
 
           client.inputStream.on(
             "outoforder",

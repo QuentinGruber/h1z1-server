@@ -93,7 +93,7 @@ export class zonePacketHandlers {
       server.sendData(client, "ClientUpdate.NetworkProximityUpdatesComplete", {
         done: true,
       }); // Required for WaitForWorldReady
-      
+
       server.customizeDTO(client);
 
       server.sendData(client, "ZoneSetting.Data", {
@@ -181,7 +181,7 @@ export class zonePacketHandlers {
         serverTime: Int64String(server.getServerTime()),
         serverTime2: Int64String(server.getServerTime()),
       });
-      
+
       server.sendData(client, "Character.WeaponStance", {
         // activates weaponstance key
         characterId: client.character.characterId,
@@ -947,7 +947,8 @@ export class zonePacketHandlers {
         case 1: // npcs
           server.sendData(client, "LightweightToFullNpc", {
             transientId: entityData.transientId,
-            attachmentData: [/*
+            attachmentData: [
+              /*
               {
                 modelName: "SurvivorMale_Chest_Hoodie_Up_Tintable.adr",
                 effectId: 0,
@@ -962,7 +963,7 @@ export class zonePacketHandlers {
             //unknownArray3: {/*data:[]*/},
             //resources: {/*
             //  data:[
-                /*{
+            /*{
                   resourceId: 1,
                   resourceData: {
                     resourceId: 1,
@@ -989,32 +990,32 @@ export class zonePacketHandlers {
               targetData: {},
               unknownArray1: [],
               unknownArray2: [],
-              unknownArray3: {data:[]},
+              unknownArray3: { data: [] },
               resources: {
-                data:[
+                data: [
                   {
                     resourceId: 1,
                     resourceData: {
                       resourceId: 1,
                       resourceType: 1,
-                      value: 10000
-                    }
+                      value: 10000,
+                    },
                   },
                   {
                     resourceId: 50,
                     resourceData: {
                       resourceId: 50,
                       resourceType: 50,
-                      value: 10000
-                    }
-                  }
-                ]
+                      value: 10000,
+                    },
+                  },
+                ],
               },
-              unknownArray4: {data:[]},
-              unknownArray5: {data:[]},
-              unknownArray6: {data:[]},
-              remoteWeapons: {data:[]},
-              itemsData:{data:[]}
+              unknownArray4: { data: [] },
+              unknownArray5: { data: [] },
+              unknownArray6: { data: [] },
+              remoteWeapons: { data: [] },
+              itemsData: { data: [] },
             },
             unknownArray1: [],
             unknownArray2: [],
@@ -1037,7 +1038,6 @@ export class zonePacketHandlers {
           });
           break;
         case 3: // characters
-        
           server.sendData(client, "LightweightToFullPc", {
             positionUpdate: server.createPositionUpdate(
               entityData.state.position,
@@ -1198,8 +1198,10 @@ export class zonePacketHandlers {
 
       const itemDef = server.getItemDefinition(packet.data.ID);
 
-      if(!itemDef) {
-        debug(`ERROR: No ItemDefinition found for ItemDefinitonID: ${packet.data.ID}`);
+      if (!itemDef) {
+        debug(
+          `ERROR: No ItemDefinition found for ItemDefinitonID: ${packet.data.ID}`
+        );
         return;
       }
       server.sendData(client, "Command.ItemDefinitionReply", {
@@ -1237,16 +1239,12 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      server.sendData(
-        client,
-        "FirstTimeEvent.State",
-        {
-          unknownDword1: 0xFFFFFFFF,
-          unknownDword2: 1,
-          unknownBoolean1: false
-        }
-      );
-    }
+      server.sendData(client, "FirstTimeEvent.State", {
+        unknownDword1: 0xffffffff,
+        unknownDword2: 1,
+        unknownBoolean1: false,
+      });
+    };
     //#region ITEMS
     this.requestUseItem = function (
       server: ZoneServer2016,
@@ -1273,18 +1271,19 @@ export class zonePacketHandlers {
           );
           break;
         case 60:
-            const item = server._items[packet.data.itemGuid],
+          const item = server._items[packet.data.itemGuid],
             loadoutId = server.getLoadoutSlot(item.itemDefinitionId),
             oldLoadoutItem = client.character._loadout[loadoutId];
-            if(oldLoadoutItem) {// if target loadoutSlot is occupied
-              if(oldLoadoutItem.itemGuid == packet.data.itemGuid){
-                server.sendChatText(client, "[ERROR] Item is already equipped!");
-                return;
-              }
-              server.lootContainerItem(client, oldLoadoutItem.itemGuid, 1, false);
+          if (oldLoadoutItem) {
+            // if target loadoutSlot is occupied
+            if (oldLoadoutItem.itemGuid == packet.data.itemGuid) {
+              server.sendChatText(client, "[ERROR] Item is already equipped!");
+              return;
             }
-            server.equipItem(client, packet.data.itemGuid);
-            break;
+            server.lootContainerItem(client, oldLoadoutItem.itemGuid, 1, false);
+          }
+          server.equipItem(client, packet.data.itemGuid);
+          break;
         case 6: // shred
           server.startTimer(client, nameId, 3000);
           client.posAtLogoutStart = client.character.state.position;
@@ -1328,12 +1327,13 @@ export class zonePacketHandlers {
       debug(packet.data);
       server.sendData(client, "Construction.PlacementResponse", {
         unknownDword1: packet.data.itemDefinitionId,
-        model: server.getItemDefinition(packet.data.itemDefinitionId).PLACEMENT_MODEL_ID,
+        model: server.getItemDefinition(packet.data.itemDefinitionId)
+          .PLACEMENT_MODEL_ID,
       });
-      }
+    };
     //#endregion
-  };
-  
+  }
+
   processPacket(server: ZoneServer2016, client: Client, packet: any) {
     switch (packet.name) {
       case "ClientIsReady":
