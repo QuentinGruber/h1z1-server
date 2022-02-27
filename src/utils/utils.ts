@@ -2,8 +2,8 @@
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
-//   copyright (c) 2020 - 2021 Quentin Gruber
-//   copyright (c) 2021 H1emu community
+//   copyright (C) 2020 - 2021 Quentin Gruber
+//   copyright (C) 2021 - 2022 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -14,7 +14,13 @@
 const restore = require("mongodb-restore-dump");
 import { generate_random_guid } from "h1emu-core";
 import v8 from "v8";
-import fs from "fs";
+import { compress, compressBound } from "./lz4/lz4";
+import fs, { readdirSync } from "fs";
+import { normalize } from "path";
+import {
+  setImmediate as setImmediatePromise,
+  setTimeout as setTimeoutPromise,
+} from "timers/promises";
 
 export class customLodash {
   constructor() {}
@@ -196,6 +202,19 @@ export const generateRandomGuid = function (): string {
   return "0x" + generate_random_guid();
 };
 
+export const removeCacheFullDir = function (directoryPath: string): void {
+  const files = readdirSync(directoryPath); // need to be sync
+  for (const file of files) {
+    if (!file.includes(".")) {
+      // if it's a folder ( this feature isn't tested but should work well )
+      removeCacheFullDir(`${directoryPath}/${file}`);
+    }
+    if (file.substring(file.length - 3) === ".js") {
+      delete require.cache[normalize(`${directoryPath}/${file}`)];
+    }
+  }
+};
+
 export const generateCommandList = (
   commandObject: any,
   commandNamespace: string
@@ -206,6 +225,13 @@ export const generateCommandList = (
   });
   return commandList;
 };
+
+export class LZ4 {
+  static encodeBlock: (src: any, dst: any, sIdx?: any, eIdx?: any) => number;
+  static encodeBound: (isize: number) => number;
+}
+LZ4.encodeBlock = compress;
+LZ4.encodeBound = compressBound;
 
 export const lz4_decompress = function (
   // from original implementation
@@ -286,3 +312,16 @@ export const getPacketTypeBytes = function (packetType: number): number[] {
   }
   return packetTypeBytes;
 };
+
+// experimental custom implementation of the scheduler API
+export class Scheduler {
+  constructor() {}
+  static async yield() {
+    return await setImmediatePromise();
+  }
+  static async wait(delay: number, options?: any) {
+    return await setTimeoutPromise(delay, undefined, {
+      signal: options?.signal,
+    });
+  }
+}

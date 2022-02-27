@@ -2,8 +2,8 @@
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
-//   copyright (c) 2020 - 2021 Quentin Gruber
-//   copyright (c) 2021 H1emu community
+//   copyright (C) 2020 - 2021 Quentin Gruber
+//   copyright (C) 2021 - 2022 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -28,11 +28,11 @@ export default class SOEClient {
   useEncryption: boolean = true;
   waitingQueue: any[] = [];
   outQueue: any[] = [];
-  protocolName?: string;
+  protocolName: string = "unset";
   outOfOrderPackets: any[] = [];
   nextAck: number = -1;
   lastAck: number = -1;
-  inputStream: () => void;
+  inputStream: any;
   outputStream: any;
   outQueueTimer: any;
   ackTimer: any;
@@ -40,8 +40,7 @@ export default class SOEClient {
   cryptoKey: Uint8Array;
   waitQueueTimer: any;
   waitingQueueCurrentByteLength: number = 0;
-  lastZonePingTimestamp?: number;
-  zonePingTimeMs: number = 1; // since this feature is experimental, if it fail it allow the user anyway
+  soeClientId: string;
   constructor(
     remote: RemoteInfo,
     crcSeed: number,
@@ -49,13 +48,14 @@ export default class SOEClient {
     cryptoKey: Uint8Array
   ) {
     this.sessionId = 0;
+    this.soeClientId = remote.address + ":" + remote.port;
     this.address = remote.address;
     this.port = remote.port;
     this.crcSeed = crcSeed;
     this.compression = compression;
     this.cryptoKey = cryptoKey;
-    this.inputStream = new (SOEInputStream as any)(cryptoKey);
-    this.outputStream = new (SOEOutputStream as any)(cryptoKey);
+    this.inputStream = new SOEInputStream(cryptoKey);
+    this.outputStream = new SOEOutputStream(cryptoKey);
   }
 
   clearTimers() {

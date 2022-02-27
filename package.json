@@ -1,23 +1,24 @@
 {
   "name": "h1z1-server",
-  "version": "0.19.2",
+  "version": "0.20.0",
   "description": "Library for emulating h1z1 servers",
   "author": "Quentin Gruber <quentingruber@gmail.com> (http://github.com/quentingruber)",
   "license": "GPL-3.0-only",
   "main": "h1z1-server.js",
+  "engines": {
+    "node": ">=0.14.0 <17"
+  },
   "bin": {
     "if-env": "scripts/if-env.js",
     "h1z1-server-demo": "scripts/h1z1-server-demo.js",
     "h1z1-server-demo-2016": "scripts/h1z1-server-demo-2016.js"
   },
   "dependencies": {
-    "@swc/cli": "0.1.40",
-    "@swc/core": "1.2.57",
-    "@types/json-schema": "7.0.9",
-    "@types/node": "16.7.9",
+    "@swc/cli": "0.1.55",
+    "@swc/core": "1.2.127",
     "debug": "4.3.3",
     "h1emu-core": "0.6.6",
-    "h1z1-dataschema": "1.5.8",
+    "h1z1-dataschema": "1.5.9",
     "mongodb": "4.4.0",
     "mongodb-restore-dump": "1.0.1",
     "typedoc": "0.22.12",
@@ -28,15 +29,22 @@
     "src": "./src"
   },
   "devDependencies": {
-    "chokidar": "3.5.2",
+    "glob": "7.2.0",
     "prettier": "2.5.1",
-    "ts-node": "10.5.0"
+    "ts-node": "10.5.0",
+    "typedoc": "0.22.11"
   },
   "scripts": {
     "gen-packets-types": "npx ts-node ./scripts/genPacketsNames.ts && npx prettier -w ./src/types/packets.ts",
     "gen-packets-handler": "npx ts-node ./scripts/genPacketHandlersFromMap.ts && npx prettier -w ./src/servers/ZoneServer/zonepackethandlers.ts",
+    "fix-signatures": "npx ts-node ./scripts/fixSignatures.ts && npm run prettier_sources",
     "gen-doc": "npx typedoc",
-    "build": "tsc -p ./tsconfig.json",
+    "build": "npm run build-all",
+    "build-all": "tsc -p ./tsconfig.json",
+    "build-login-2015": "tsc -p ./tsconfig-2015-login.json",
+    "build-login-2016": "tsc -p ./tsconfig-2016-login.json",
+    "build-zone-2015": "tsc -p ./tsconfig-2015-zone.json",
+    "build-zone-2016": "tsc -p ./tsconfig-2016-zone.json",
     "build-tests": "npx swc tests -d tests_out",
     "build-benchs": "npx swc benchmarks -d benchmarks_out",
     "build-docker-images": "npx ts-node ./docker/buildDocker.ts",
@@ -53,8 +61,7 @@
     "postinstall": "if-env INSTALL_TYPE=launcher &&  npm run build-swc || npm run build",
     "publish_release": "git push --tags && git push origin dev && git push origin master && git checkout dev && npm run publish_release-next",
     "publish_release-next": "npm version prerelease && git add * && git commit -m 'publish-a-next-version' && npm publish --tag next && git push origin dev",
-    "prettier_sources": "prettier --write ./src && prettier --write ./tests && prettier --write ./benchmarks",
-    "watch-swc": "npx swc --watch src -d out"
+    "prettier_sources": "prettier --write ./src && prettier --write ./tests && prettier --write ./benchmarks"
   },
   "repository": {
     "type": "git",

@@ -2,8 +2,8 @@
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
-//   copyright (c) 2020 - 2021 Quentin Gruber
-//   copyright (c) 2021 H1emu community
+//   copyright (C) 2020 - 2021 Quentin Gruber
+//   copyright (C) 2021 - 2022 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -19,11 +19,11 @@ const debug = require("debug")("dynamicWeather");
 const protocol = new H1Z1Protocol("ClientProtocol_860");
 let weatherChoosen = false;
 let fogChecked = false;
-let fog = 0; // density
-let foggradient = 0;
-let fogEnabled = false;
-let fchancemin = 0;
-let fchancemax = 0;
+let fog = 45; // density
+let foggradient = 40;
+let fogEnabled = true;
+let fchancemin = 15;
+let fchancemax = 70;
 let currentSeason = "summer";
 let rainChecked = false;
 let rainIncoming = false;
@@ -330,12 +330,12 @@ export default function dynamicWeather(
     fogEnabled // increase/dicrease fog values with each tick
   ) {
     case true:
-      fchancemin = 1;
-      fchancemax = 1;
+      fchancemin += 1;
+      fchancemax += 1;
       break;
     case false:
-      fchancemin = -1;
-      fchancemax = -1;
+      fchancemin -= 1;
+      fchancemax -= 1;
       break;
     default:
       break;

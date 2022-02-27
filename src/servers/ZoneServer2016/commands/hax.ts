@@ -2,8 +2,8 @@
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
-//   copyright (c) 2020 - 2021 Quentin Gruber
-//   copyright (c) 2021 H1emu community
+//   copyright (C) 2020 - 2021 Quentin Gruber
+//   copyright (C) 2021 - 2022 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -228,6 +228,7 @@ const hax: any = {
     server.sendChatText(client, "Objects removed from the game.", true);
   },
   tp: function (server: ZoneServer2016, client: Client, args: any[]) {
+    client.isLoading = true;
     let locationPosition;
     switch (args[1]) {
       case "zimms":
@@ -560,21 +561,9 @@ const hax: any = {
     }
   },
   run: function (server: ZoneServer2016, client: Client, args: any[]) {
-    const speedValue = args[1];
-    let speed;
-    if (speedValue > 10) {
-      server.sendChatText(
-        client,
-        "To avoid security issue speed > 10 is set to 15",
-        true
-      );
-      speed = 15;
-    } else {
-      speed = speedValue;
-    }
-    server.sendChatText(client, "Setting run speed: " + speed, true);
+    server.sendChatText(client, "Setting run speed: " + Number(args[1]), true);
     server.sendData(client, "Command.RunSpeed", {
-      runSpeed: speed,
+      runSpeed: Number(args[1]),
     });
   },
   randomweather: function (
@@ -753,40 +742,42 @@ const hax: any = {
     client.vehicle.mountedVehicle = characterId;
     client.vehicle.mountedVehicleType = "spectate";
   },
-  addloadoutitem: function (
-    server: ZoneServer2016,
-    client: Client,
-    args: any[]
-  ) {
-    if (!args[1]) {
+  additem: function (server: ZoneServer2016, client: Client, args: any[]) {
+    const itemDefId = Number(args[1]),
+      count = Number(args[2]);
+    if (!args[2] || !isNaN(count)) {
       server.sendChatText(
         client,
-        "[ERROR] Usage /hax addloadoutitem {itemDefinitionId}"
+        "[ERROR] Usage /hax additem {itemDefinitionId} {count}"
       );
       return;
     }
-    server.sendChatText(client, `Adding item with id ${args[1]} to loadout.`);
-    server.equipItem(client, server.generateItem(Number(args[1])));
+    server.sendChatText(
+      client,
+      `Adding ${count}x item${count == 1 ? "" : "s"} with id ${itemDefId}.`
+    );
+    server.lootItem(client, server.generateItem(itemDefId), count);
   },
   hood: function (server: ZoneServer2016, client: Client) {
-    const eIndex = client.character.equipment
-        .map((slot: any) => slot.slotId)
-        .indexOf(3),
-      equipment = client.character.equipment[eIndex] || {},
+    const equipment = client.character._equipment[3] || {},
       equipmentModel = equipment.modelName || "";
 
     if (
-      eIndex === -1 ||
-      !client.character.equipment[eIndex].modelName.includes("Hoodie")
+      !client.character._equipment[3] ||
+      !client.character._equipment[3].modelName.includes("Hoodie")
     ) {
       server.sendChatText(client, "[ERROR] You aren't wearing a hoodie.");
     } else {
       equipmentModel.includes("Up")
-        ? (client.character.equipment[eIndex].modelName =
-            equipmentModel.replace("Up", "Down"))
-        : (client.character.equipment[eIndex].modelName =
-            equipmentModel.replace("Down", "Up"));
-      server.updateEquipment(client);
+        ? (client.character._equipment[3].modelName = equipmentModel.replace(
+            "Up",
+            "Down"
+          ))
+        : (client.character._equipment[3].modelName = equipmentModel.replace(
+            "Down",
+            "Up"
+          ));
+      server.updateEquipmentSlot(client, 3);
     }
   },
 };

@@ -2,8 +2,8 @@
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
-//   copyright (c) 2020 - 2021 Quentin Gruber
-//   copyright (c) 2021 H1emu community
+//   copyright (C) 2020 - 2021 Quentin Gruber
+//   copyright (C) 2021 - 2022 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -11,16 +11,12 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-export default function PacketTableBuild(
-  packets: string | any[],
-  prefix?: string
-): any[] {
-  prefix = prefix ? prefix + "." : "";
+export default function PacketTableBuild(packets: any[]): any[] {
   const packetTypes: any = {};
   const packetDescriptors: any = {};
   for (let i = 0; i < packets.length; i++) {
     const packet = packets[i],
-      name = prefix + packet[0],
+      name = packet[0],
       type = packet[1] >>> 0,
       packetDesc = packet[2];
     packetTypes[name] = type;

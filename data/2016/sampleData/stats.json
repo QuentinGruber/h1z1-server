@@ -637,7 +637,7 @@
             "statValue": {
                 "type": 0,
                 "value": {
-                    "base": 0,
+                    "base": 0.1,
                     "modifier": 0
                 }
             }
@@ -649,9 +649,9 @@
         "statData": {
             "statId": 53,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
-                    "base": 0,
+                    "base": 0.1,
                     "modifier": 0
                 }
             }
@@ -663,9 +663,9 @@
         "statData": {
             "statId": 54,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
-                    "base": 0,
+                    "base": 20,
                     "modifier": 0
                 }
             }
@@ -677,9 +677,9 @@
         "statData": {
             "statId": 55,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
-                    "base": 0,
+                    "base": 0.8,
                     "modifier": 0
                 }
             }

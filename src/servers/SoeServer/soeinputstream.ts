@@ -2,8 +2,8 @@
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
-//   copyright (c) 2020 - 2021 Quentin Gruber
-//   copyright (c) 2021 H1emu community
+//   copyright (C) 2020 - 2021 Quentin Gruber
+//   copyright (C) 2021 - 2022 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -26,7 +26,7 @@ export class SOEInputStream extends EventEmitter {
   _useEncryption: boolean;
   _rc4: Decipher;
 
-  constructor(cryptoKey: string) {
+  constructor(cryptoKey: Uint8Array) {
     super();
     this._sequences = [];
     this._nextSequence = -1;

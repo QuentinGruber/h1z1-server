@@ -2,8 +2,8 @@
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
-//   copyright (c) 2020 - 2021 Quentin Gruber
-//   copyright (c) 2021 H1emu community
+//   copyright (C) 2020 - 2021 Quentin Gruber
+//   copyright (C) 2021 - 2022 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -69,8 +69,7 @@ export class GatewayServer extends EventEmitter {
               this._soeServer.toggleEncryption(client);
               this._soeServer.sendAppData(
                 client,
-                this._protocol.pack("LoginReply", { loggedIn: true }),
-                true
+                this._protocol.pack("LoginReply", { loggedIn: true })
               );
 
               if (result && result.characterId) {
@@ -85,8 +84,8 @@ export class GatewayServer extends EventEmitter {
               }
               break;
             case "Logout":
-              debug("Logout");
-              this.emit("logout", null, client);
+              debug("Logout gateway");
+              this.emit("disconnect", err, client);
               break;
             case "TunnelPacketFromExternalConnection":
               debug("TunnelPacketFromExternalConnection");
@@ -104,9 +103,6 @@ export class GatewayServer extends EventEmitter {
         }
       }
     );
-    this.on("logout", (err: string, client: SOEClient) => {
-      this._soeServer.deleteClient(client);
-    });
   }
 
   start(useLocalConfig: boolean = false) {
@@ -128,7 +124,7 @@ export class GatewayServer extends EventEmitter {
       channel: channel,
       tunnelData: tunnelData,
     });
-    (this._soeServer.sendAppData as any)(client, data);
+    this._soeServer.sendAppData(client, data);
   }
 
   stop() {

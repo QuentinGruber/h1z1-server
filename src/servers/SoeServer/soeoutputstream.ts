@@ -2,8 +2,8 @@
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
-//   copyright (c) 2020 - 2021 Quentin Gruber
-//   copyright (c) 2021 H1emu community
+//   copyright (C) 2020 - 2021 Quentin Gruber
+//   copyright (C) 2021 - 2022 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -24,7 +24,7 @@ export class SOEOutputStream extends EventEmitter {
   _cache: any;
   _rc4: crypto.Cipher;
   _enableCaching: boolean;
-  constructor(cryptoKey: string, fragmentSize: number) {
+  constructor(cryptoKey: Uint8Array, fragmentSize: number = 0) {
     super();
     this._useEncryption = false;
     this._fragmentSize = fragmentSize;
@@ -35,8 +35,8 @@ export class SOEOutputStream extends EventEmitter {
     this._rc4 = crypto.createCipheriv("rc4", cryptoKey, null);
   }
 
-  write(data: Buffer, overrideEncryption: boolean): void {
-    if (this._useEncryption && overrideEncryption !== false) {
+  write(data: Buffer): void {
+    if (this._useEncryption) {
       this._rc4.write(data);
       data = this._rc4.read();
       if (data[0] === 0) {
