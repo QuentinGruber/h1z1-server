@@ -2181,6 +2181,7 @@ export class ZoneServer2016 extends ZoneServer {
       itemDefinition = this.getItemDefinition(item.itemDefinitionId);
     let drinkCount = 0;
     let eatCount = 2000;
+    let givetrash = 0;
     switch (item.itemDefinitionId) {
       case 105: // berries
         drinkCount = 200;
@@ -2188,6 +2189,7 @@ export class ZoneServer2016 extends ZoneServer {
         break;
       case 7: // canned Food
         eatCount = 4000;
+        givetrash = 48;
         break;
       case 1402: // M.R.E Apple
         eatCount = 6000;
@@ -2218,6 +2220,9 @@ export class ZoneServer2016 extends ZoneServer {
     const { food, water } = client.character.resources;
     this.updateResource(client, client.character.characterId, food, 4, 4);
     this.updateResource(client, client.character.characterId, water, 5, 5);
+    if (givetrash) {
+      this.lootContainerItem(client, this.generateItem(givetrash), 1);
+    }
   }
 
   drinkItem(client: Client, itemGuid: string) {
@@ -2225,15 +2230,19 @@ export class ZoneServer2016 extends ZoneServer {
       itemDefinition = this.getItemDefinition(item.itemDefinitionId);
     let drinkCount = 2000;
     let eatCount = 0;
+    let givetrash = 0;
     switch (item.itemDefinitionId) {
       case 1368: // dirty water
         drinkCount = 1000;
+        givetrash = 1353;
         break;
       case 1535: //stagnant water
         drinkCount = 2000;
+        givetrash = 1353;
         break;
       case 1371: // purified water
         drinkCount = 4000;
+        givetrash = 1353;
         break;
       default:
         this.sendChatText(
@@ -2260,6 +2269,52 @@ export class ZoneServer2016 extends ZoneServer {
     const { food, water } = client.character.resources;
     this.updateResource(client, client.character.characterId, food, 4, 4);
     this.updateResource(client, client.character.characterId, water, 5, 5);
+    if (givetrash) {
+      this.lootContainerItem(client, this.generateItem(givetrash), 1);
+    }
+  }
+
+  useItem(client: Client, itemGuid: string) {
+    const item = this._items[itemGuid],
+      itemDefinition = this.getItemDefinition(item.itemDefinitionId);
+    let useoption = "";
+    switch (item.itemDefinitionId) {
+      case 1353: // empty bottle
+        useoption = "fill";
+        break;
+      default:
+        this.sendChatText(
+          client,
+          "[ERROR] No use option mapped to item Definition " + itemDefinition
+        );
+    }
+    switch (useoption) {
+      case "fill": // empty bottle
+        if (client.character.characterStates.inWater) {
+          const dropItemContainer = this.getItemContainer(client, itemGuid);
+          const dropItem = dropItemContainer?.items[itemGuid];
+          if (!dropItemContainer || !dropItem) return;
+          if (dropItem.stackCount <= 1) {
+            delete dropItemContainer.items[itemGuid];
+            this.deleteItem(client, itemGuid);
+          } else {
+            dropItem.stackCount -= 1;
+            this.updateContainerItem(
+              client,
+              dropItem.itemGuid,
+              this.getItemContainer(client, dropItem.itemGuid)
+            );
+          }
+          this.lootContainerItem(client, this.generateItem(1368), 1); // give dirty water
+        } else {
+          this.sendData(client, "ClientUpdate.TextAlert", {
+            message: "There is no water source nearby",
+          });
+        }
+        break;
+      default:
+        return;
+    }
   }
 
   shredItem(client: Client, itemGuid: string) {
