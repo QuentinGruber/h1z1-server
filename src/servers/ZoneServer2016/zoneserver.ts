@@ -2189,6 +2189,10 @@ export class ZoneServer2016 extends ZoneServer {
       case 7: // canned Food
         eatCount = 4000;
         break;
+      case 1402: // M.R.E Apple
+        eatCount = 6000;
+        drinkCount = 6000;
+        break;
       default:
         this.sendChatText(
           client,
