@@ -466,8 +466,7 @@ export class WorldObjectManager {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceAR15) {
           // temporary spawnchance
-          const r = itemInstance.rotation,
-          item = getRandomItem(authorizedItems);
+          const item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
             item.id,
@@ -498,8 +497,7 @@ export class WorldObjectManager {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chancePumpShotgun) {
           // temporary spawnchance
-          const r = itemInstance.rotation,
-          item = getRandomItem(authorizedItems);
+          const item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
             item.id,
@@ -570,8 +568,7 @@ export class WorldObjectManager {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceTools) {
           // temporary spawnchance
-          const r = itemInstance.rotation,
-          item = getRandomItem(authorizedItems);
+          const item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
             item.id,
@@ -606,8 +603,7 @@ export class WorldObjectManager {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chancePistols) {
           // temporary spawnchance
-          const r = itemInstance.rotation,
-          item = getRandomItem(authorizedItems);
+          const item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
             item.id,
@@ -639,8 +635,7 @@ export class WorldObjectManager {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceM24) {
           // temporary spawnchance
-          const r = itemInstance.rotation,
-          item = getRandomItem(authorizedItems);
+          const item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
             item.id,
@@ -676,8 +671,7 @@ export class WorldObjectManager {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceConsumables) {
           // temporary spawnchance
-          const r = itemInstance.rotation,
-          item = getRandomItem(authorizedItems);
+          const item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
             item.id,
@@ -716,8 +710,7 @@ export class WorldObjectManager {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceClothes) {
           // temporary spawnchance
-          const r = itemInstance.rotation,
-          item = getRandomItem(authorizedItems);
+          const item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
             item.id,
@@ -765,8 +758,7 @@ export class WorldObjectManager {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceResidential) {
           // temporary spawnchance
-          const r = itemInstance.rotation,
-          item = getRandomItem(authorizedItems);
+          const item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
             item.id,
@@ -805,8 +797,7 @@ export class WorldObjectManager {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceRare) {
           // temporary spawnchance
-          const r = itemInstance.rotation,
-          item = getRandomItem(authorizedItems);
+          const item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
             item.id,
@@ -854,8 +845,7 @@ export class WorldObjectManager {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceIndustrial) {
           // temporary spawnchance
-          const r = itemInstance.rotation,
-          item = getRandomItem(authorizedItems);
+          const item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
             item.id,
@@ -893,8 +883,7 @@ export class WorldObjectManager {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceWorld) {
           // temporary spawnchance
-          const r = itemInstance.rotation,
-          item = getRandomItem(authorizedItems);
+          const item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
             item.id,
@@ -923,8 +912,7 @@ export class WorldObjectManager {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceLog) {
           // temporary spawnchance
-          const r = itemInstance.rotation,
-          item = getRandomItem(authorizedItems);
+          const item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
             item.id,
@@ -960,8 +948,7 @@ export class WorldObjectManager {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceCommercial) {
           // temporary spawnchance
-          const r = itemInstance.rotation,
-          item = getRandomItem(authorizedItems);
+          const item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
             item.id,
@@ -995,8 +982,7 @@ export class WorldObjectManager {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceFarm) {
           // temporary spawnchance
-          const r = itemInstance.rotation,
-          item = getRandomItem(authorizedItems);
+          const item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
             item.id,
@@ -1033,8 +1019,7 @@ export class WorldObjectManager {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceHospital) {
           // temporary spawnchance
-          const r = itemInstance.rotation,
-          item = getRandomItem(authorizedItems);
+          const item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
             item.id,
@@ -1133,8 +1118,7 @@ export class WorldObjectManager {
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceMilitary) {
           // temporary spawnchance
-          const r = itemInstance.rotation,
-          item = getRandomItem(authorizedItems);
+          const item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
             item.id,
