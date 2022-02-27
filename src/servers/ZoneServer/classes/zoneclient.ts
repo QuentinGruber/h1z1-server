@@ -11,6 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+
 import { Character } from "./character";
 
 export class ZoneClient {

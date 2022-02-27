@@ -15,7 +15,7 @@ import { EventEmitter } from "events";
 import { SOEProtocol } from "../../protocols/soeprotocol";
 import Client from "./soeclient";
 import SOEClient from "./soeclient";
-import { Worker } from "worker_threads";
+import { Worker } from "node:worker_threads";
 
 const debug = require("debug")("SOEServer");
 process.env.isBin && require("../shared/workers/udpServerWorker.js");
