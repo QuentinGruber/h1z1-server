@@ -2244,20 +2244,7 @@ export class ZoneServer2016 extends ZoneServer {
           "[ERROR] eat count not mapped to item Definition " + itemDefinition
         );
     }
-    const dropItemContainer = this.getItemContainer(client, itemGuid);
-    const dropItem = dropItemContainer?.items[itemGuid];
-    if (!dropItemContainer || !dropItem) return;
-    if (dropItem.stackCount <= 1) {
-      delete dropItemContainer.items[itemGuid];
-      this.deleteItem(client, itemGuid);
-    } else {
-      dropItem.stackCount -= 1;
-      this.updateContainerItem(
-        client,
-        dropItem.itemGuid,
-        this.getItemContainer(client, dropItem.itemGuid)
-      );
-    }
+    this.removeInventoryItem(client, itemGuid, 1);
     client.character.resources.food += eatCount;
     client.character.resources.water += drinkCount;
     const { food, water } = client.character.resources;
@@ -2293,20 +2280,7 @@ export class ZoneServer2016 extends ZoneServer {
           "[ERROR] drink count not mapped to item Definition " + itemDefinition
         );
     }
-    const dropItemContainer = this.getItemContainer(client, itemGuid);
-    const dropItem = dropItemContainer?.items[itemGuid];
-    if (!dropItemContainer || !dropItem) return;
-    if (dropItem.stackCount <= 1) {
-      delete dropItemContainer.items[itemGuid];
-      this.deleteItem(client, itemGuid);
-    } else {
-      dropItem.stackCount -= 1;
-      this.updateContainerItem(
-        client,
-        dropItem.itemGuid,
-        this.getItemContainer(client, dropItem.itemGuid)
-      );
-    }
+    this.removeInventoryItem(client, itemGuid, 1);
     client.character.resources.food += eatCount;
     client.character.resources.water += drinkCount;
     const { food, water } = client.character.resources;
@@ -2334,20 +2308,7 @@ export class ZoneServer2016 extends ZoneServer {
     switch (useoption) {
       case "fill": // empty bottle
         if (client.character.characterStates.inWater) {
-          const dropItemContainer = this.getItemContainer(client, itemGuid);
-          const dropItem = dropItemContainer?.items[itemGuid];
-          if (!dropItemContainer || !dropItem) return;
-          if (dropItem.stackCount <= 1) {
-            delete dropItemContainer.items[itemGuid];
-            this.deleteItem(client, itemGuid);
-          } else {
-            dropItem.stackCount -= 1;
-            this.updateContainerItem(
-              client,
-              dropItem.itemGuid,
-              this.getItemContainer(client, dropItem.itemGuid)
-            );
-          }
+          this.removeInventoryItem(client, itemGuid, 1);
           this.lootContainerItem(client, this.generateItem(1368), 1); // give dirty water
         } else {
           this.sendData(client, "ClientUpdate.TextAlert", {

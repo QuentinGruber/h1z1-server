@@ -1303,6 +1303,13 @@ export class zonePacketHandlers {
             server.drinkItem(client, packet.data.itemGuid);
           }, 1000);
           break;
+        case 3: //use
+          server.startTimer(client, nameId, 2000);
+          client.posAtLogoutStart = client.character.state.position;
+          client.hudTimer = setTimeout(() => {
+            server.useItem(client, packet.data.itemGuid);
+          }, 2000);
+          break;
         default:
           server.sendChatText(
             client,
