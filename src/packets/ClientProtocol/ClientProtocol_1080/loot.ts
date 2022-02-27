@@ -11,6 +11,4 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-export const lootPackets: any = [
-  ["Loot", 0x6a, {}],
-];
+export const lootPackets: any = [["Loot", 0x6a, {}]];

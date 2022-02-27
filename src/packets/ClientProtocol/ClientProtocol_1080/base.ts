@@ -20,8 +20,8 @@ import {
   fullNpcDataSchema,
   fullPcDataSchema,
   itemDataSchema,
-  itemWeaponDetailSubSchema1,
-  itemWeaponDetailSubSchema2,
+  //itemWeaponDetailSubSchema1,
+  //itemWeaponDetailSubSchema2,
   lightWeightNpcSchema,
   lightWeightPcSchema,
   loadoutSlotsSchema,
@@ -64,7 +64,7 @@ export const basePackets: any = [
             { name: "lastLoginDate", type: "uint64string", defaultValue: "" },
             { name: "actorModelId", type: "uint32", defaultValue: 0 },
             { name: "headActor", type: "string", defaultValue: "" },
-            { name: "unknownString1", type: "string", defaultValue: "" },
+            { name: "hairModel", type: "string", defaultValue: "" },
             { name: "unknownDword4", type: "uint32", defaultValue: 0 },
             { name: "unknownDword5", type: "uint32", defaultValue: 0 },
             { name: "emptyTexture", type: "string", defaultValue: "" },
@@ -97,7 +97,7 @@ export const basePackets: any = [
             { name: "unknownDword18", type: "uint32", defaultValue: 0 },
             { name: "unknownBoolean3", type: "boolean", defaultValue: false },
             { name: "unknownDword19", type: "uint32", defaultValue: 0 },
-            { name: "gender", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword26", type: "uint32", defaultValue: 0 },
             { name: "unknownDword21", type: "uint32", defaultValue: 0 },
             { name: "unknownDword22", type: "uint32", defaultValue: 0 },
             { name: "unknownDword23", type: "uint32", defaultValue: 0 },
@@ -150,7 +150,7 @@ export const basePackets: any = [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
               ],
             },
-            { name: "unknownDword26", type: "uint32", defaultValue: 0 },
+            { name: "gender", type: "uint32", defaultValue: 0 },
             {
               name: "characterQuests",
               type: "schema",
@@ -378,9 +378,9 @@ export const basePackets: any = [
               ],
             },
             {
-              name: "profileRelatedBool",
+              name: "sendFirstTimeEvents",
               type: "boolean",
-              defaultValue: false,
+              defaultValue: true,
             },
             {
               name: "unknownCoinStoreData",
@@ -448,7 +448,6 @@ export const basePackets: any = [
                 },
               ],
             },
-
             {
               name: "playerTitles",
               type: "array",
@@ -2325,7 +2324,7 @@ export const basePackets: any = [
   ],
   ["ClientLogout", 0x07, {}],
   ["TargetClientNotOnline", 0x08, {}],
-  
+
   [
     "ClientBeginZoning",
     0x0b,
@@ -2348,7 +2347,7 @@ export const basePackets: any = [
       ],
     },
   ],
-  
+
   ["Mail", 0x0e, {}],
 
   ["Ability.ClientRequestStartAbility", 0x1001, {}],
@@ -2374,7 +2373,7 @@ export const basePackets: any = [
   ["Ability.ActivateVehicleAbility", 0x1015, {}],
   ["Ability.DeactivateItemAbility", 0x1016, {}],
   ["Ability.DeactivateVehicleAbility", 0x1017, {}],
- 
+
   ["MiniGame", 0x12, {}],
   ["Group", 0x13, {}],
   ["Encounter", 0x14, {}],
@@ -2397,12 +2396,26 @@ export const basePackets: any = [
       ],
     },
   ],
- 
+
   ["Objective", 0x18, {}],
   ["Debug", 0x19, {}],
-  
+
   ["Quest", 0x1b, {}],
   ["Reward", 0x1c, {}],
+  [
+    "Reward.AddNonRewardItem",
+    0x1c02,
+    {
+      fields: [
+        { name: "itemDefId", type: "uint32", defaultValue: 10 },
+        { name: "unk1", type: "uint32", defaultValue: 1 },
+        { name: "iconId", type: "uint32", defaultValue: 7 },
+        { name: "time4", type: "uint32", defaultValue: 1 },
+        { name: "count", type: "uint32", defaultValue: 2 },
+        { name: "time6", type: "uint32", defaultValue: 1 },
+      ],
+    },
+  ],
   [
     "GameTimeSync",
     0x1d,
@@ -2422,14 +2435,12 @@ export const basePackets: any = [
   ["EscrowGivePackage", 0x23, {}],
   ["EscrowGotPackage", 0x24, {}],
   ["UpdateEncounterDataCommon", 0x25, {}],
-  
-  
- 
+
   ["Report", 0x29, {}],
   ["LiveGamer", 0x2a, {}],
   ["Acquaintance", 0x2b, {}],
   ["ClientServerShuttingDown", 0x2c, {}],
- 
+
   ["Broadcast", 0x2e, {}],
   ["ClientKickedFromServer", 0x2f, {}],
   [
@@ -2606,7 +2617,6 @@ export const basePackets: any = [
     },
   ],
 
-  
   ["AdminGuild", 0x5a, {}],
   ["BattleMages", 0x5b, {}],
   ["WorldToWorld", 0x5c, {}],
@@ -2697,7 +2707,7 @@ export const basePackets: any = [
   ["ActionBarManager", 0x6b, {}],
   ["ClientTrialProfileUpsellRequest", 0x6c, {}],
   ["PlayerUpdateJump", 0x6d, {}],
-  
+
   [
     "InitializationParameters",
     0x6f,
@@ -2708,7 +2718,7 @@ export const basePackets: any = [
       ],
     },
   ],
- 
+
   [
     "ClientInitializationDetails",
     0x72,
@@ -2750,9 +2760,7 @@ export const basePackets: any = [
   ["GuideStone", 0x80, {}],
   ["Raid", 0x81, {}],
   ["MatchSchedule", 0x84, {}],
-  
-  
- 
+
   ["Grief", 0x8a, {}],
   ["SpotPlayer", 0x8b, {}],
   ["Faction", 0x8c, {}],
@@ -2809,9 +2817,10 @@ export const basePackets: any = [
             3: [
               // UpdateCharacterResource
               { name: "characterId", type: "uint64string", defaultValue: "0" },
-              { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-              { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-              { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+              { name: "resourceId", type: "uint32", defaultValue: 0 },
+              { name: "resourceType", type: "uint32", defaultValue: 0 },
+
+              { name: "initialValue", type: "uint32", defaultValue: 0 },
               { name: "unknownDword4", type: "uint32", defaultValue: 0 },
               { name: "unknownFloat5", type: "float", defaultValue: 0.0 },
               { name: "unknownFloat6", type: "float", defaultValue: 0.0 },
@@ -2819,11 +2828,13 @@ export const basePackets: any = [
               { name: "unknownDword8", type: "uint32", defaultValue: 0 },
               { name: "unknownDword9", type: "uint32", defaultValue: 0 },
               { name: "unknownDword10", type: "uint32", defaultValue: 0 },
+
               { name: "unknownByte1", type: "uint8", defaultValue: 0 },
               { name: "unknownByte2", type: "uint8", defaultValue: 0 },
               { name: "unknownGuid3", type: "uint64string", defaultValue: "0" },
               { name: "unknownGuid4", type: "uint64string", defaultValue: "0" },
               { name: "unknownGuid5", type: "uint64string", defaultValue: "0" },
+
               { name: "unknownBoolean", type: "boolean", defaultValue: false },
             ],
             4: [
@@ -2834,7 +2845,7 @@ export const basePackets: any = [
       ],
     },
   ],
-  
+
   ["Leaderboard", 0x90, {}],
   [
     "PlayerUpdateManagedPosition",
@@ -2885,7 +2896,7 @@ export const basePackets: any = [
     },
   ],
   ["PlayerUpdateUpdateVehicleWeapon", 0x93, {}],
-  
+
   [
     "ContinentBattleInfo",
     0x97,
@@ -2953,11 +2964,7 @@ export const basePackets: any = [
     },
   ],
 
- 
-
-  ["ClientInGamePurchase", 0x9d, {}], 
-  
-  
+  ["ClientInGamePurchase", 0x9d, {}],
 
   [
     "Security",
@@ -3017,7 +3024,7 @@ export const basePackets: any = [
       ],
     },
   ],
-  
+
   ["PlayerUpdate.AttachObject", 0xae, {}],
   ["PlayerUpdate.DetachObject", 0xaf, {}],
   [
@@ -3065,27 +3072,13 @@ export const basePackets: any = [
   ["RequestWalletTopupUpdate", 0xb8, {}],
   ["StationCashActivePromoRequestUpdate", 0xb9, {}],
   [
-    "Pickup",
-    0xbb,
-    {
-      fields: [
-        { name: "type?", type: "uint16" },
-        { name: "id", type: "uint32" },
-        { name: "treeId", type: "uint32" },
-        { name: "name", type: "string" },
-      ],
-    },
-  ],
-  
-
-  [
     "WordFilter.Data",
     0xbd01,
     {
       fields: [{ name: "wordFilterData", type: "byteswithlength" }],
     },
   ],
- 
+
   ["ProxiedPlayer", 0xbf, {}],
   ["Resists", 0xc0, {}],
   ["InGamePurchasing", 0xc1, {}],
@@ -3104,7 +3097,7 @@ export const basePackets: any = [
   ],
   ["Stats", 0xc6, {}],
   ["Score", 0xc7, {}],
-  ["Resources", 0xc8, {}], 
+  ["Resources", 0xc8, {}],
   [
     "UpdateWeatherData",
     0xcb,
@@ -3181,12 +3174,12 @@ export const basePackets: any = [
     {
       fields: [
         { name: "npcData", type: "schema", fields: fullNpcDataSchema },
-        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownByte1", type: "uint8", defaultValue: 1 },
+        { name: "unknownDword1", type: "uint32", defaultValue: 1 },
         {
           name: "unknownArray1",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
             { name: "unknownBoolean1", type: "boolean", defaultValue: false },
@@ -3195,7 +3188,7 @@ export const basePackets: any = [
         {
           name: "unknownArray2",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
             { name: "unknownByte1", type: "boolean", defaultValue: false },
@@ -3213,51 +3206,29 @@ export const basePackets: any = [
         },
         { name: "unknownByte3", type: "uint8", defaultValue: 0 },
         {
-          name: "unknownArray3",
+          name: "passengers",
           type: "array",
-          defaultValue: [{}],
-          fields: [
-            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
-          ],
-        },
-        {
-          name: "unknownArray4",
-          type: "array",
-          defaultValue: [{}],
-          fields: [
-            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
-          ],
-        },
-        {
-          name: "unknownArray5",
-          type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
             {
-              name: "unknownData1",
+              name: "passengerData",
               type: "schema",
               fields: [
                 {
-                  name: "unknownQword1",
+                  name: "characterId",
                   type: "uint64string",
                   defaultValue: "0",
                 },
                 {
-                  name: "unknownData1",
+                  name: "characterData",
                   type: "schema",
                   fields: [
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                     { name: "unknownDword2", type: "uint32", defaultValue: 0 },
                     { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+                    { name: "characterName", type: "string", defaultValue: "" },
                     {
                       name: "unknownString1",
-                      type: "string",
-                      defaultValue: "",
-                    },
-                    {
-                      name: "unknownString2",
                       type: "string",
                       defaultValue: "",
                     },
@@ -3271,26 +3242,61 @@ export const basePackets: any = [
           ],
         },
         {
-          name: "unknownArray6",
+          name: "unknownArray3",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: [
-            { name: "unknownString1", type: "string", defaultValue: "" },
+            {
+              name: "unknownString1",
+              type: "string",
+              defaultValue: "",
+            },
           ],
         },
         {
-          name: "unknownArray7",
+          name: "stats",
           type: "array",
-          defaultValue: [{}],
-          fields: itemWeaponDetailSubSchema1,
+          defaultValue: [],
+          fields: [
+            { name: "statId", type: "uint32", defaultValue: 0 },
+            {
+              name: "statData",
+              type: "schema",
+              defaultValue: {},
+              fields: statDataSchema,
+            },
+          ],
         },
         {
-          name: "unknownArray8",
+          name: "unknownArray4",
           type: "array",
-          defaultValue: [{}],
-          fields: itemWeaponDetailSubSchema2,
+          defaultValue: [],
+          fields: [
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            {
+              name: "unknownArray1",
+              type: "array",
+              defaultValue: [],
+              fields: [
+                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                {
+                  name: "stats",
+                  type: "array",
+                  defaultValue: [],
+                  fields: [
+                    { name: "statId", type: "uint32", defaultValue: 0 },
+                    {
+                      name: "statData",
+                      type: "schema",
+                      defaultValue: {},
+                      fields: statDataSchema,
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
         },
-        { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
       ],
     },
   ],
@@ -3363,7 +3369,6 @@ export const basePackets: any = [
       ],
     },
   ],
-  //["AccessedCharacterBase", 0xf1, {}],
   ["ShaderParameterOverrideBase", 0xf2, {}],
   ["VehicleSkinBase", 0xf3, {}],
   ["WeaponLagLockParameters", 0xf5, {}],

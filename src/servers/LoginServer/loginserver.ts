@@ -25,11 +25,13 @@ import {
   initMongo,
   setupAppDataFolder,
 } from "../../utils/utils";
-import { Client, GameServer } from "../../types/loginserver";
+import { GameServer } from "../../types/loginserver";
+import Client from "servers/LoginServer/loginclient";
 import fs from "fs";
 import { loginPacketsType } from "types/packets";
 import { Worker } from "worker_threads";
 import { httpServerMessage } from "types/shared";
+import { LoginProtocol2016 } from "../../protocols/loginprotocol2016";
 
 const debugName = "LoginServer";
 const debug = require("debug")(debugName);
@@ -37,6 +39,7 @@ const characterItemDefinitionsDummy = require("../../../data/2015/sampleData/cha
 export class LoginServer extends EventEmitter {
   _soeServer: SOEServer;
   _protocol: LoginProtocol;
+  _protocol2016: LoginProtocol2016;
   _db: any;
   _mongoClient: any;
   _compression: number;
@@ -63,10 +66,7 @@ export class LoginServer extends EventEmitter {
     this._crcSeed = 0;
     this._crcLength = 2;
     this._udpLength = 512;
-    this._cryptoKey = new (Buffer as any).from(
-      "F70IaxuU8C/w7FPXY1ibXw==",
-      "base64"
-    );
+    this._cryptoKey = Buffer.from("F70IaxuU8C/w7FPXY1ibXw==", "base64");
     this._soloMode = false;
     this._mongoAddress = mongoAddress;
     this._appDataFolder = getAppDataFolderPath();
@@ -86,13 +86,14 @@ export class LoginServer extends EventEmitter {
     );
 
     this._protocol = new LoginProtocol();
+    this._protocol2016 = new LoginProtocol2016();
     this._soeServer.on("connect", (err: string, client: Client) => {
       debug(`Client connected from ${client.address}:${client.port}`);
       this.emit("connect", err, client);
     });
     this._soeServer.on("disconnect", (err: string, client: Client) => {
       debug(`Client disconnected from ${client.address}:${client.port}`);
-      this.emit("disconnect", err, client);
+      this.Logout(client);
     });
     this._soeServer.on("session", (err: string, client: Client) => {
       debug(`Session started for client ${client.address}:${client.port}`);
@@ -102,7 +103,7 @@ export class LoginServer extends EventEmitter {
       "appdata",
       async (err: string, client: Client, data: Buffer) => {
         try {
-          const packet: any = this._protocol.parse(data);
+          const packet: any = this.parseData(client.protocolName, data);
           debug(packet);
           if (packet?.result) {
             // if packet parsing succeed
@@ -112,10 +113,10 @@ export class LoginServer extends EventEmitter {
                 await this.LoginRequest(client, sessionId, systemFingerPrint);
                 /* 2016 client does not send CharacterSelectInfoRequest or ServerListRequest,
                   so all 3 replies need to be sent at the same time */
-                if (this._protocol.protocolName !== "LoginUdp_11") break;
+                if (client.protocolName !== "LoginUdp_11") break;
               case "CharacterSelectInfoRequest":
                 await this.CharacterSelectInfoRequest(client);
-                if (this._protocol.protocolName !== "LoginUdp_11") break;
+                if (client.protocolName !== "LoginUdp_11") break;
               case "ServerListRequest":
                 await this.ServerListRequest(client);
                 break;
@@ -132,7 +133,7 @@ export class LoginServer extends EventEmitter {
                 this.TunnelAppPacketClientToServer(client, packet);
                 break;
               case "Logout":
-                this.Logout(client, packet);
+                this.Logout(client);
                 break;
             }
           } else {
@@ -237,13 +238,47 @@ export class LoginServer extends EventEmitter {
     }
   }
 
+  parseData(clientProtocol: string, data: Buffer) {
+    switch (clientProtocol) {
+      case "LoginUdp_9":
+        return this._protocol.parse(data);
+      case "LoginUdp_11":
+        return this._protocol2016.parse(data);
+      default:
+        return null;
+    }
+  }
+
   sendData(client: Client, packetName: loginPacketsType, obj: any) {
-    const data = this._protocol.pack(packetName, obj);
-    this._soeServer.sendAppData(client, data, true);
+    let data;
+    switch (client.protocolName) {
+      case "LoginUdp_9": {
+        data = this._protocol.pack(packetName, obj);
+        break;
+      }
+      case "LoginUdp_11": {
+        data = this._protocol2016.pack(packetName, obj);
+        break;
+      }
+      default:
+        return;
+    }
+    this._soeServer.sendAppData(client, data);
+  }
+
+  getServerVersionTag(protocolName: string) {
+    switch (protocolName) {
+      case "LoginUdp_9":
+        return "2015";
+      case "LoginUdp_11":
+        return "2016";
+      default:
+        return protocolName; // can be usefull to debug this behavior
+    }
   }
 
   async loadCharacterData(client: Client): Promise<any> {
-    if (this._protocol.protocolName == "LoginUdp_9") {
+    if (client.protocolName == "LoginUdp_9") {
       if (this._soloMode) {
         try {
           // delete old character cache
@@ -256,7 +291,10 @@ export class LoginServer extends EventEmitter {
         return require(`${this._appDataFolder}/single_player_characters.json`);
       } else {
         // 2015 mongo
-        const charactersQuery = { authKey: client.loginSessionId };
+        const charactersQuery = {
+          authKey: client.loginSessionId,
+          serverVersionTag: this.getServerVersionTag(client.protocolName),
+        };
         return await this._db
           .collection("characters-light")
           .find(charactersQuery)
@@ -276,7 +314,10 @@ export class LoginServer extends EventEmitter {
         return require(`${this._appDataFolder}/single_player_characters2016.json`);
       } else {
         // 2016 mongo
-        const charactersQuery = { authKey: client.loginSessionId };
+        const charactersQuery = {
+          authKey: client.loginSessionId,
+          serverVersionTag: this.getServerVersionTag(client.protocolName),
+        };
         return await this._db
           .collection("characters-light")
           .find(charactersQuery)
@@ -286,7 +327,7 @@ export class LoginServer extends EventEmitter {
   }
 
   async LoginRequest(client: Client, sessionId: string, fingerprint: string) {
-    if (this._protocol.protocolName == "LoginUdp_11" && this._soloMode) {
+    if (client.protocolName == "LoginUdp_11" && this._soloMode) {
       const SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters2016.json`);
       // if character file is old, delete it
       if (SinglePlayerCharacters[0] && SinglePlayerCharacters[0].payload) {
@@ -345,8 +386,9 @@ export class LoginServer extends EventEmitter {
     this.sendData(client, "TunnelAppPacketServerToClient", response);
   }
 
-  Logout(client: Client, packet: any) {
+  Logout(client: Client) {
     clearTimeout(client.serverUpdateTimer);
+    this._soeServer.deleteClient(client);
   }
 
   addDummyDataToCharacters(characters: any[]) {
@@ -378,7 +420,7 @@ export class LoginServer extends EventEmitter {
   async CharacterSelectInfoRequest(client: Client) {
     let characters = await this.loadCharacterData(client);
     if (this._soloMode) {
-      if (this._protocol.protocolName == "LoginUdp_9") {
+      if (client.protocolName == "LoginUdp_9") {
         characters = this.addDummyDataToCharacters(characters);
       } else {
         // LoginUdp_11
@@ -397,7 +439,11 @@ export class LoginServer extends EventEmitter {
         characters = this.addDummyDataToCharacters(characterList);
       }
     } else {
-      const charactersQuery = { authKey: client.loginSessionId, status: 1 };
+      const charactersQuery = {
+        authKey: client.loginSessionId,
+        serverVersionTag: this.getServerVersionTag(client.protocolName),
+        status: 1,
+      };
       characters = await this._db
         .collection("characters-light")
         .find(charactersQuery)
@@ -435,7 +481,12 @@ export class LoginServer extends EventEmitter {
     let servers;
     if (!this._soloMode) {
       await this.updateServersStatus();
-      servers = await this._db.collection("servers").find().toArray();
+      servers = await this._db
+        .collection("servers")
+        .find({
+          serverVersionTag: this.getServerVersionTag(client.protocolName),
+        })
+        .toArray();
       const userWhiteList = await this._db
         .collection("servers-whitelist")
         .find({ userId: client.loginSessionId })
@@ -454,7 +505,7 @@ export class LoginServer extends EventEmitter {
       }
     } else {
       if (this._soloMode) {
-        if (this._protocol.protocolName == "LoginUdp_9") {
+        if (client.protocolName == "LoginUdp_9") {
           const SoloServer = require("../../../data/2015/sampleData/single_player_server.json");
           servers = [SoloServer];
         } else {
@@ -477,7 +528,7 @@ export class LoginServer extends EventEmitter {
       );
       SinglePlayerCharacters.splice(characterIndex, 1);
 
-      if (this._protocol.protocolName == "LoginUdp_9") {
+      if (client.protocolName == "LoginUdp_9") {
         fs.writeFileSync(
           `${this._appDataFolder}/single_player_characters.json`,
           JSON.stringify(SinglePlayerCharacters, null, "\t")
@@ -571,7 +622,7 @@ export class LoginServer extends EventEmitter {
       };
     } else {
       const SinglePlayerCharacters = await this.loadCharacterData(client);
-      if (this._protocol.protocolName == "LoginUdp_9") {
+      if (client.protocolName == "LoginUdp_9") {
         const character = SinglePlayerCharacters.find(
           (character: any) => character.characterId === characterId
         );
@@ -666,7 +717,7 @@ export class LoginServer extends EventEmitter {
     } = packet.result;
     // create character object
     let sampleCharacter, newCharacter;
-    if (this._protocol.protocolName == "LoginUdp_9") {
+    if (client.protocolName == "LoginUdp_9") {
       sampleCharacter = require("../../../data/2015/sampleData/single_player_character.json");
       newCharacter = _.cloneDeep(sampleCharacter);
       newCharacter.payload.name = characterName;
@@ -681,7 +732,7 @@ export class LoginServer extends EventEmitter {
     let creationStatus = 1;
     if (this._soloMode) {
       const SinglePlayerCharacters = await this.loadCharacterData(client);
-      if (this._protocol.protocolName == "LoginUdp_9") {
+      if (client.protocolName == "LoginUdp_9") {
         SinglePlayerCharacters[SinglePlayerCharacters.length] = newCharacter;
         fs.writeFileSync(
           `${this._appDataFolder}/single_player_characters.json`,
@@ -760,13 +811,14 @@ export class LoginServer extends EventEmitter {
         await this._db?.collection("user-sessions").insertOne(sessionObj);
       }
       const newCharacterData =
-        this._protocol.protocolName == "LoginUdp_9"
+        client.protocolName == "LoginUdp_9"
           ? { ...newCharacter, ownerId: sessionObj.guid }
           : {
               characterId: newCharacter.characterId,
               serverId: newCharacter.serverId,
               ownerId: sessionObj.guid,
               payload: packet.result.payload,
+              status: 1,
             };
       creationStatus = (await this.askZone(serverId, "CharacterCreateRequest", {
         characterObjStringify: JSON.stringify(newCharacterData),
@@ -778,6 +830,7 @@ export class LoginServer extends EventEmitter {
         await this._db.collection("characters-light").insertOne({
           authKey: client.loginSessionId,
           serverId: serverId,
+          serverVersionTag: this.getServerVersionTag(client.protocolName),
           payload: { name: characterName },
           characterId: newCharacter.characterId,
           status: 1,
@@ -797,7 +850,9 @@ export class LoginServer extends EventEmitter {
       // useless if in solomode ( never get called either)
       let servers: Array<GameServer> = await this._db
         .collection("servers")
-        .find()
+        .find({
+          serverVersionTag: this.getServerVersionTag(client.protocolName),
+        })
         .toArray();
       const userWhiteList = await this._db
         .collection("servers-whitelist")
@@ -822,7 +877,6 @@ export class LoginServer extends EventEmitter {
 
   async start(): Promise<void> {
     debug("Starting server");
-    debug(`Protocol used : ${this._protocol.protocolName}`);
     if (this._mongoAddress) {
       const mongoClient = (this._mongoClient = new MongoClient(
         this._mongoAddress
@@ -922,14 +976,5 @@ export class LoginServer extends EventEmitter {
 }
 
 if (process.env.VSCODE_DEBUG === "true") {
-  if (process.env.CLIENT_SIXTEEN === "true") {
-    const server = new LoginServer(
-      1115, // <- server port
-      process.env.MONGO_URL // <- MongoDB address ( if blank server start in solo mode )
-    );
-    server._protocol = new LoginProtocol("LoginUdp_11");
-    server.start();
-  } else {
-    new LoginServer(1115, process.env.MONGO_URL).start();
-  }
+  new LoginServer(1115, process.env.MONGO_URL).start();
 }

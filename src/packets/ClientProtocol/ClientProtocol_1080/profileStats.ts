@@ -29,5 +29,5 @@ export const profileStatsPackets: any = [
   ["ProfileStats.GetLeaderboard", 0x940600, {}],
   ["ProfileStats.Leaderboard", 0x940700, {}],
   ["ProfileStats.GetZoneCharacterStats", 0x940800, {}],
-  ["ProfileStats.ZoneCharacterStats", 0x940900, {}], 
+  ["ProfileStats.ZoneCharacterStats", 0x940900, {}],
 ];

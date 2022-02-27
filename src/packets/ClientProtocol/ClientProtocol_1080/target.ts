@@ -11,6 +11,4 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-export const targetPackets: any = [
-  ["Target", 0x7e, {}],
-]
+export const targetPackets: any = [["Target", 0x7e, {}]];

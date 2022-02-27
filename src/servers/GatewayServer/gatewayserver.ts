@@ -69,8 +69,7 @@ export class GatewayServer extends EventEmitter {
               this._soeServer.toggleEncryption(client);
               this._soeServer.sendAppData(
                 client,
-                this._protocol.pack("LoginReply", { loggedIn: true }),
-                true
+                this._protocol.pack("LoginReply", { loggedIn: true })
               );
 
               if (result && result.characterId) {
@@ -85,8 +84,8 @@ export class GatewayServer extends EventEmitter {
               }
               break;
             case "Logout":
-              debug("Logout");
-              this.emit("logout", null, client);
+              debug("Logout gateway");
+              this.emit("disconnect", err, client);
               break;
             case "TunnelPacketFromExternalConnection":
               debug("TunnelPacketFromExternalConnection");
@@ -104,9 +103,6 @@ export class GatewayServer extends EventEmitter {
         }
       }
     );
-    this.on("logout", (err: string, client: SOEClient) => {
-      this._soeServer.deleteClient(client);
-    });
   }
 
   start(useLocalConfig: boolean = false) {
@@ -128,7 +124,7 @@ export class GatewayServer extends EventEmitter {
       channel: channel,
       tunnelData: tunnelData,
     });
-    (this._soeServer.sendAppData as any)(client, data);
+    this._soeServer.sendAppData(client, data);
   }
 
   stop() {
