@@ -36,6 +36,8 @@ export class zonePacketHandlers {
   Security: any;
   commandRecipeStart: any;
   commandFreeInteractionNpc: any;
+  CommandSetInWater: any;
+  CommandClearInWater;
   collisionDamage: any;
   lobbyGameDefinitionDefinitionsRequest: any;
   KeepAlive: any;
@@ -242,6 +244,22 @@ export class zonePacketHandlers {
     ) {
       debug(packet);
       //server.sendData(client, "Command.RecipeAction", {});
+    };
+    this.CommandSetInWater = function (
+      server: ZoneServer2016,
+      client: Client,
+      packet: any
+    ) {
+      debug(packet);
+      client.character.characterStates.inWater = true;
+    };
+    this.CommandClearInWater = function (
+      server: ZoneServer2016,
+      client: Client,
+      packet: any
+    ) {
+      debug(packet);
+      client.character.characterStates.inWater = false;
     };
     this.commandFreeInteractionNpc = function (
       server: ZoneServer2016,
@@ -1309,6 +1327,12 @@ export class zonePacketHandlers {
         break;
       case "Command.FreeInteractionNpc":
         this.commandFreeInteractionNpc(server, client, packet);
+        break;
+      case "Command.SetInWater":
+        this.CommandSetInWater(server, client, packet);
+        break;
+      case "Command.ClearInWater":
+        this.CommandClearInWater(server, client, packet);
         break;
       case "Collision.Damage":
         this.collisionDamage(server, client, packet);
