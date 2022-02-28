@@ -779,8 +779,9 @@ export class zonePacketHandlers {
         }
       );
       //}
-
-      vehicle.positionUpdate = packet.data.positionUpdate;
+      if (packet.data.positionUpdate.engineRPM) {
+        vehicle.positionUpdate = packet.data.positionUpdate;
+      }
       if (packet.data.positionUpdate.position) {
         vehicle.npcData.position = new Float32Array([
           packet.data.positionUpdate.position[0],
