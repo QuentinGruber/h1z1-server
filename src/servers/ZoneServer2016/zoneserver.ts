@@ -40,6 +40,7 @@ const recipes = require("../../../data/2016/sampleData/recipes.json");
 const localWeatherTemplates = require("../../../data/2016/dataSources/weather.json");
 const stats = require("../../../data/2016/sampleData/stats.json");
 const resources = require("../../../data/2016/dataSources/resourceDefinitions.json");
+let localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json");
 
 const itemDefinitions = require("./../../../data/2016/dataSources/ServerItemDefinitions.json");
 const containerDefinitions = require("./../../../data/2016/dataSources/ContainerDefinitions.json");
