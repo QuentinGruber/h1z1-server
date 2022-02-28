@@ -863,14 +863,13 @@ export class ZoneServer2016 extends ZoneServer {
     }
     for (const vehicleKey in this._vehicles) {
       const vehicle = this._vehicles[vehicleKey];
-      if (
-        !vehicle.isInvulnerable &&
-        vehicle.npcData.characterId != npcTriggered
-      ) {
+      if (vehicle.npcData.characterId != npcTriggered) {
         if (isPosInRadius(5, vehicle.npcData.position, position)) {
           const distance = getDistance(position, vehicle.npcData.position);
-          const damage = 20000 / distance;
-          this.damageVehicle(damage, vehicle);
+          const damage = 250000 / distance;
+          setTimeout(() => {
+            this.damageVehicle(damage, vehicle);
+          }, 100);
         }
       }
     }
@@ -883,27 +882,39 @@ export class ZoneServer2016 extends ZoneServer {
       let minorDamageEffect: number;
       let majorDamageEffect: number;
       let criticalDamageEffect: number;
-      switch (vehicle.vehicleType) {
-        case "offroader":
+      let supercriticalDamageEffect: number;
+      switch (vehicle.npcData.vehicleId) {
+        case 1: //offroader
           destroyedVehicleEffect = 135;
           destroyedVehicleModel = 7226;
           minorDamageEffect = 182;
           majorDamageEffect = 181;
           criticalDamageEffect = 180;
+          supercriticalDamageEffect = 5227;
           break;
-        case "pickup":
+        case 2: // pickup
           destroyedVehicleEffect = 326;
           destroyedVehicleModel = 9315;
           minorDamageEffect = 325;
           majorDamageEffect = 324;
           criticalDamageEffect = 323;
+          supercriticalDamageEffect = 5228;
           break;
-        case "policecar":
+        case 3: // police car
           destroyedVehicleEffect = 286;
           destroyedVehicleModel = 9316;
           minorDamageEffect = 285;
           majorDamageEffect = 284;
           criticalDamageEffect = 283;
+          supercriticalDamageEffect = 5229;
+          break;
+        case 5: // atv
+          destroyedVehicleEffect = 357;
+          destroyedVehicleModel = 9593;
+          minorDamageEffect = 360;
+          majorDamageEffect = 359;
+          criticalDamageEffect = 358;
+          supercriticalDamageEffect = 5226;
           break;
         default:
           destroyedVehicleEffect = 135;
@@ -911,13 +922,15 @@ export class ZoneServer2016 extends ZoneServer {
           minorDamageEffect = 182;
           majorDamageEffect = 181;
           criticalDamageEffect = 180;
+          supercriticalDamageEffect = 5227;
           break;
       }
       vehicle.npcData.resources.health -= damage;
       if (
-        loopDamageMs &&
-        vehicle.npcData.resources.health &&
-        vehicle.npcData.destroyedState === 3
+        (loopDamageMs &&
+          vehicle.npcData.resources.health &&
+          vehicle.npcData.destroyedState === 3) ||
+        vehicle.npcData.destroyedState === 4
       ) {
         setTimeout(() => {
           this.damageVehicle(1000, vehicle, loopDamageMs);
@@ -937,14 +950,18 @@ export class ZoneServer2016 extends ZoneServer {
           disableWeirdPhysics: false,
         });
         vehicle.npcData.destroyedState = 4;
-		for (const c in this._clients) {
-		const guid = vehicle.npcData.characterId;
-		if (vehicle.npcData.characterId === this._clients[c].vehicle.mountedVehicle) {
-			this.dismountVehicle(this._clients[c]);
-		}
-		};
-		clearInterval(this._vehicles[vehicle.npcData.characterId].resourcesUpdater);
-		delete this._vehicles[vehicle.npcData.characterId];
+        for (const c in this._clients) {
+          if (
+            vehicle.npcData.characterId ===
+            this._clients[c].vehicle.mountedVehicle
+          ) {
+            this.dismountVehicle(this._clients[c]);
+          }
+        }
+        if (vehicle.resourcesUpdater) {
+          clearInterval(vehicle.resourcesUpdater);
+        }
+        delete this._vehicles[vehicle.npcData.characterId];
         setTimeout(() => {
           this.sendDataToAllWithSpawnedVehicle(
             vehicle.npcData.characterId,
@@ -988,7 +1005,10 @@ export class ZoneServer2016 extends ZoneServer {
           this._vehicles[vehicle.npcData.characterId].destroyedEffect =
             majorDamageEffect;
         }
-      } else if (vehicle.npcData.resources.health <= 20000) {
+      } else if (
+        vehicle.npcData.resources.health <= 20000 &&
+        vehicle.npcData.resources.health > 10000
+      ) {
         if (vehicle.npcData.destroyedState != 3) {
           vehicle.npcData.destroyedState = 3;
           setTimeout(() => {
@@ -1004,6 +1024,23 @@ export class ZoneServer2016 extends ZoneServer {
           );
           this._vehicles[vehicle.npcData.characterId].destroyedEffect =
             criticalDamageEffect;
+        }
+      } else if (vehicle.npcData.resources.health <= 10000) {
+        if (vehicle.npcData.destroyedState != 4) {
+          vehicle.npcData.destroyedState = 4;
+          setTimeout(() => {
+            this.damageVehicle(damage, vehicle, 1000);
+          }, 1000);
+          this.sendDataToAllWithSpawnedVehicle(
+            vehicle.npcData.characterId,
+            "Command.PlayDialogEffect",
+            {
+              characterId: vehicle.npcData.characterId,
+              effectId: supercriticalDamageEffect,
+            }
+          );
+          this._vehicles[vehicle.npcData.characterId].destroyedEffect =
+            supercriticalDamageEffect;
         }
       } else if (
         vehicle.npcData.resources.health > 50000 &&
