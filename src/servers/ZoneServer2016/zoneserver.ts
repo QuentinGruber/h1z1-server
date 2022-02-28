@@ -798,6 +798,279 @@ export class ZoneServer2016 extends ZoneServer {
     if (this._ready) this.worldObjectManager.run(this);
     if (refresh) this.worldRoutineTimer.refresh();
   }
+  
+  killCharacter(client: Client) {
+    const character = client.character;
+    if (character.isAlive) {
+      debug(character.name + " has died");
+      client.character.characterStates.knockedOut = true;
+      this.updateCharacterState(
+        client,
+        client.character.characterId,
+        client.character.characterStates,
+        false
+      );
+      this.sendDataToAllWithSpawnedCharacter(
+        client,
+        "Character.StartMultiStateDeath",
+        {
+          characterId: client.character.characterId,
+        }
+      );
+      /*const guid = this.generateGuid();
+      const transientId = 1;
+      const characterId = this.generateGuid();
+      const prop = {
+        characterId: characterId,
+        worldId: this._worldId,
+        guid: guid,
+        transientId: transientId,
+        modelId: 9,
+        position: character.state.position,
+        rotation: [0, 0, 0, 0],
+        scale: [1, 1, 1, 1],
+        positionUpdateType: 1,
+      };
+      this.sendDataToAll("PlayerUpdate.AddLightweightNpc", prop);
+      if (!this._soloMode) {
+        this._db?.collection("props").insertOne(prop);
+      }
+      this._props[characterId] = prop;*/
+    }
+    character.isAlive = false;
+  }
+  
+  explosionDamage(position: Float32Array, npcTriggered: string) {
+    for (const character in this._clients) {
+      const characterObj = this._clients[character];
+      if (!characterObj.character.godMode) {
+        if (isPosInRadius(6, characterObj.character.state.position, position)) {
+          const distance = getDistance(
+            position,
+            characterObj.character.state.position
+          );
+          const damage = 30000 / distance;
+          this.playerDamage(this._clients[character], damage);
+        }
+      }
+    }
+    for (const vehicleKey in this._vehicles) {
+      const vehicle = this._vehicles[vehicleKey];
+      if (
+        !vehicle.isInvulnerable &&
+        vehicle.npcData.characterId != npcTriggered
+      ) {
+        if (isPosInRadius(5, vehicle.npcData.position, position)) {
+          const distance = getDistance(position, vehicle.npcData.position);
+          const damage = 20000 / distance;
+          this.damageVehicle(damage, vehicle);
+        }
+      }
+    }
+  }
+
+  damageVehicle(damage: number, vehicle: Vehicle, loopDamageMs = 0) {
+    if (!vehicle.isInvulnerable) {
+      let destroyedVehicleEffect: number;
+      let destroyedVehicleModel: number;
+      let minorDamageEffect: number;
+      let majorDamageEffect: number;
+      let criticalDamageEffect: number;
+      switch (vehicle.vehicleType) {
+        case "offroader":
+          destroyedVehicleEffect = 135;
+          destroyedVehicleModel = 7226;
+          minorDamageEffect = 182;
+          majorDamageEffect = 181;
+          criticalDamageEffect = 180;
+          break;
+        case "pickup":
+          destroyedVehicleEffect = 326;
+          destroyedVehicleModel = 9315;
+          minorDamageEffect = 325;
+          majorDamageEffect = 324;
+          criticalDamageEffect = 323;
+          break;
+        case "policecar":
+          destroyedVehicleEffect = 286;
+          destroyedVehicleModel = 9316;
+          minorDamageEffect = 285;
+          majorDamageEffect = 284;
+          criticalDamageEffect = 283;
+          break;
+        default:
+          destroyedVehicleEffect = 135;
+          destroyedVehicleModel = 7226;
+          minorDamageEffect = 182;
+          majorDamageEffect = 181;
+          criticalDamageEffect = 180;
+          break;
+      }
+      vehicle.npcData.resources.health -= damage;
+      if (
+        loopDamageMs &&
+        vehicle.npcData.resources.health &&
+        vehicle.npcData.destroyedState === 3
+      ) {
+        setTimeout(() => {
+          this.damageVehicle(1000, vehicle, loopDamageMs);
+        }, loopDamageMs);
+      }
+      if (vehicle.npcData.resources.health <= 0) {
+        vehicle.npcData.resources.health = 0;
+        this.explosionDamage(
+          vehicle.npcData.position,
+          vehicle.npcData.characterId
+        );
+        this.sendDataToAll("Character.Destroyed", {
+          characterId: vehicle.npcData.characterId,
+          unknown1: destroyedVehicleEffect, // destroyed offroader effect
+          unknown2: destroyedVehicleModel, // destroyed offroader model
+          unknown3: 0,
+          disableWeirdPhysics: false,
+        });
+        vehicle.npcData.destroyedState = 4;
+        setTimeout(() => {
+          this.sendDataToAllWithSpawnedVehicle(
+            vehicle.npcData.characterId,
+            "Character.RemovePlayer",
+            {
+              characterId: vehicle.npcData.characterId,
+            }
+          );
+        }, 15000);
+      } else if (
+        vehicle.npcData.resources.health <= 50000 &&
+        vehicle.npcData.resources.health > 35000
+      ) {
+        if (vehicle.npcData.destroyedState != 1) {
+          vehicle.npcData.destroyedState = 1;
+          this.sendDataToAllWithSpawnedVehicle(
+            vehicle.npcData.characterId,
+            "Command.PlayDialogEffect",
+            {
+              characterId: vehicle.npcData.characterId,
+              effectId: minorDamageEffect,
+            }
+          );
+          this._vehicles[vehicle.npcData.characterId].destroyedEffect =
+            minorDamageEffect;
+        }
+      } else if (
+        vehicle.npcData.resources.health <= 35000 &&
+        vehicle.npcData.resources.health > 20000
+      ) {
+        if (vehicle.npcData.destroyedState != 2) {
+          vehicle.npcData.destroyedState = 2;
+          this.sendDataToAllWithSpawnedVehicle(
+            vehicle.npcData.characterId,
+            "Command.PlayDialogEffect",
+            {
+              characterId: vehicle.npcData.characterId,
+              effectId: majorDamageEffect,
+            }
+          );
+          this._vehicles[vehicle.npcData.characterId].destroyedEffect =
+            majorDamageEffect;
+        }
+      } else if (vehicle.npcData.resources.health <= 20000) {
+        if (vehicle.npcData.destroyedState != 3) {
+          vehicle.npcData.destroyedState = 3;
+          setTimeout(() => {
+            this.damageVehicle(damage, vehicle, 1000);
+          }, 1000);
+          this.sendDataToAllWithSpawnedVehicle(
+            vehicle.npcData.characterId,
+            "Command.PlayDialogEffect",
+            {
+              characterId: vehicle.npcData.characterId,
+              effectId: criticalDamageEffect,
+            }
+          );
+          this._vehicles[vehicle.npcData.characterId].destroyedEffect =
+            criticalDamageEffect;
+        }
+      } else if (
+        vehicle.npcData.resources.health > 50000 &&
+        vehicle.npcData.destroyedState != 0
+      ) {
+        vehicle.npcData.destroyedState = 0;
+        this.sendDataToAllWithSpawnedVehicle(
+          vehicle.npcData.characterId,
+          "Command.PlayDialogEffect",
+          {
+            characterId: vehicle.npcData.characterId,
+            effectId: 0,
+          }
+        );
+        this._vehicles[vehicle.npcData.characterId].destroyedEffect = 0;
+      }
+      this.updateResourceToAllWithSpawnedVehicle(
+        vehicle.passengers.passenger1,
+        vehicle.npcData.characterId,
+        vehicle.npcData.resources.health,
+        561,
+        1
+      );
+    }
+  }
+
+  async respawnPlayer(client: Client) {
+    client.character.isAlive = true;
+    client.isLoading = true;
+    client.character.resources.health = 10000;
+    client.character.resources.food = 10000;
+    client.character.resources.water = 10000;
+    client.character.resources.stamina = 600;
+    client.character.resourcesUpdater.refresh();
+    delete client.character.characterStates.knockedOut;
+    this.updateCharacterState(
+      client,
+      client.character.characterId,
+      client.character.characterStates,
+      false
+    );
+    this.sendData(client, "Character.RespawnReply", {
+      characterId: client.character.characterId,
+      status: 1,
+    });
+    const spawnLocations = this._soloMode
+      ? localSpawnList
+      : await this._db?.collection("spawns").find().toArray();
+    const randomSpawnIndex = Math.floor(Math.random() * spawnLocations.length);
+    this.sendData(client, "ClientUpdate.UpdateLocation", {
+      position: spawnLocations[randomSpawnIndex].position,
+    });
+    client.character.state.position = spawnLocations[randomSpawnIndex].position;
+    this.updateResource(
+      client,
+      client.character.characterId,
+      client.character.resources.health,
+      1,
+      1
+    );
+    this.updateResource(
+      client,
+      client.character.characterId,
+      client.character.resources.stamina,
+      6,
+      6
+    );
+    this.updateResource(
+      client,
+      client.character.characterId,
+      client.character.resources.food,
+      4,
+      4
+    );
+    this.updateResource(
+      client,
+      client.character.characterId,
+      client.character.resources.water,
+      5,
+      5
+    );
+  }
 
   speedTreeDestroy(packet: any) {
     this.sendDataToAll("DtoStateChange", {
@@ -987,6 +1260,7 @@ export class ZoneServer2016 extends ZoneServer {
       }
       if (character.resources.health <= 0) {
         character.resources.health = 0;
+        this.killCharacter(client);
       }
       this.updateResource(
         client,
@@ -1549,10 +1823,73 @@ export class ZoneServer2016 extends ZoneServer {
     );
     if (seatId === "0") {
       //this.takeoverManagedObject(client, vehicle); // disabled for now, client won't drop management
-      this.sendDataToAllWithSpawnedVehicle(packet.data.guid, "Vehicle.Engine", {
-        // starts engine
-        guid2: client.vehicle.mountedVehicle,
-        engineOn: true,
+      if (vehicle.npcData.resources.fuel > 0) {
+        this.sendDataToAllWithSpawnedVehicle(
+          packet.data.guid,
+          "Vehicle.Engine",
+          {
+            guid2: packet.data.guid,
+            engineOn: true,
+          }
+        );
+        this._vehicles[packet.data.guid].engineOn = true;
+        this._vehicles[packet.data.guid].resourcesUpdater = setInterval(() => {
+          if (!this._vehicles[packet.data.guid].engineOn) {
+            clearInterval(this._vehicles[packet.data.guid].resourcesUpdater);
+          }
+          if (this._vehicles[packet.data.guid].positionUpdate.engineRPM) {
+            const fuelLoss =
+              this._vehicles[packet.data.guid].positionUpdate.engineRPM * 0.005;
+            console.log(fuelLoss);
+            this._vehicles[packet.data.guid].npcData.resources.fuel -= fuelLoss;
+          }
+          if (this._vehicles[packet.data.guid].npcData.resources.fuel < 0) {
+            this._vehicles[packet.data.guid].npcData.resources.fuel = 0;
+          }
+          if (
+            this._vehicles[packet.data.guid].engineOn &&
+            this._vehicles[packet.data.guid].npcData.resources.fuel <= 0
+          ) {
+            this.sendDataToAllWithSpawnedVehicle(
+              packet.data.guid,
+              "Vehicle.Engine",
+              {
+                guid2: packet.data.guid,
+                engineOn: false,
+              }
+            );
+          }
+          this.updateResourceToAllWithSpawnedVehicle(
+            vehicle.passengers.passenger1,
+            vehicle.npcData.characterId,
+            vehicle.npcData.resources.fuel,
+            396,
+            50
+          );
+        }, 3000);
+      }
+      this.sendDataToAllWithSpawnedCharacter(client, "Vehicle.Owner", {
+        guid: vehicle.npcData.characterId,
+        characterId: client.character.characterId,
+        unknownDword1: 0,
+        vehicleId: vehicle.npcData.vehicleId,
+        passengers: [
+          {
+            passengerData: {
+              characterId: client.character.characterId,
+              characterData: {
+                unknownDword1: 1,
+                unknownDword2: 1,
+                unknownDword3: 1,
+                characterName: client.character.name,
+                unknownString1: "",
+              },
+              unknownDword1: 1,
+              unknownString1: "",
+            },
+            unknownByte1: 1,
+          },
+        ],
       });
     }
     this.sendData(client, "Vehicle.Occupy", {
@@ -1608,6 +1945,7 @@ export class ZoneServer2016 extends ZoneServer {
           engineOn: false,
         }
       );
+      vehicle.engineOn = false;
     }
     client.vehicle.mountedVehicle = "";
     this.sendData(client, "Vehicle.Occupy", {
@@ -1623,6 +1961,29 @@ export class ZoneServer2016 extends ZoneServer {
       ],
       passengers: [],
       unknownArray2: [],
+    });
+    this.sendDataToAllWithSpawnedCharacter(client, "Vehicle.Owner", {
+      guid: vehicle.npcData.characterId,
+      characterId: client.character.characterId,
+      unknownDword1: 0,
+      vehicleId: 0,
+      passengers: [
+        {
+          passengerData: {
+            characterId: client.character.characterId,
+            characterData: {
+              unknownDword1: 1,
+              unknownDword2: 1,
+              unknownDword3: 1,
+              characterName: client.character.name,
+              unknownString1: "",
+            },
+            unknownDword1: 1,
+            unknownString1: "",
+          },
+          unknownByte1: 1,
+        },
+      ],
     });
   }
 
