@@ -1311,10 +1311,10 @@ export class ZoneServer2016 extends ZoneServer {
         1,
         1
       );
-	  this.sendData(client, "ClientUpdate.DamageInfo", {
-      transientId: 0,
-	  unknownDword2: damage,
-    });
+      this.sendData(client, "ClientUpdate.DamageInfo", {
+        transientId: 0,
+        unknownDword2: 100,
+      });
     }
   }
 
@@ -1885,7 +1885,7 @@ export class ZoneServer2016 extends ZoneServer {
           }
           if (this._vehicles[packet.data.guid].positionUpdate.engineRPM) {
             const fuelLoss =
-              this._vehicles[packet.data.guid].positionUpdate.engineRPM * 0.005;
+              this._vehicles[packet.data.guid].positionUpdate.engineRPM * 0.01;
             console.log(fuelLoss);
             this._vehicles[packet.data.guid].npcData.resources.fuel -= fuelLoss;
           }
