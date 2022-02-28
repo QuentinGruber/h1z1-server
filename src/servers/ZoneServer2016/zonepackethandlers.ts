@@ -282,8 +282,8 @@ export class zonePacketHandlers {
       if (characterId === client.character.characterId) {
         server.playerDamage(client, damage);
       } else if (vehicle) {
-        /*server.damageVehicle(damage / 100, vehicle);
-        server.DTOhit(client, packet);*/
+        server.damageVehicle(damage / 50, vehicle);
+        //server.DTOhit(client, packet);
       }
     };
     this.lobbyGameDefinitionDefinitionsRequest = function (
@@ -918,10 +918,7 @@ export class zonePacketHandlers {
       packet: any
     ) {
       debug(packet);
-      server.sendData(client, "Character.RespawnReply", {
-        characterId: client.character.characterId,
-        position: [0, 200, 0, 1],
-      });
+      server.respawnPlayer(client);
     };
     this.characterFullCharacterDataRequest = function (
       server: ZoneServer2016,
@@ -996,17 +993,17 @@ export class zonePacketHandlers {
                   {
                     resourceId: 1,
                     resourceData: {
-                      resourceId: 1,
+                      resourceId: 561,
                       resourceType: 1,
-                      value: 10000,
+                      value: entityData.npcData.resources.health,
                     },
                   },
                   {
                     resourceId: 50,
                     resourceData: {
-                      resourceId: 50,
+                      resourceId: 396,
                       resourceType: 50,
-                      value: 10000,
+                      value: entityData.npcData.resources.fuel,
                     },
                   },
                 ],
@@ -1036,6 +1033,18 @@ export class zonePacketHandlers {
               },
             ],
           });
+          if (entityData.destroyedEffect != 0) {
+            server.sendData(client, "Command.PlayDialogEffect", {
+              characterId: entityData.npcData.characterId,
+              effectId: entityData.destroyedEffect,
+            });
+          }
+          if (entityData.engineOn) {
+            server.sendData(client, "Vehicle.Engine", {
+              guid2: entityData.npcData.characterId,
+              unknownBoolean: false,
+            });
+          }
           break;
         case 3: // characters
           server.sendData(client, "LightweightToFullPc", {
