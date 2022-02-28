@@ -876,13 +876,13 @@ export class ZoneServer2016 extends ZoneServer {
     }
   }
 
-  damageVehicle(damage, vehicle, loopDamageMs = 0) {
+  damageVehicle(damage: number, vehicle: Vehicle, loopDamageMs = 0) {
     if (!vehicle.isInvulnerable) {
-      let destroyedVehicleEffect;
-      let destroyedVehicleModel;
-      let minorDamageEffect;
-      let majorDamageEffect;
-      let criticalDamageEffect;
+      let destroyedVehicleEffect: number;
+      let destroyedVehicleModel: number;
+      let minorDamageEffect: number;
+      let majorDamageEffect: number;
+      let criticalDamageEffect: number;
       switch (vehicle.vehicleType) {
         case "offroader":
           destroyedVehicleEffect = 135;
@@ -931,25 +931,20 @@ export class ZoneServer2016 extends ZoneServer {
         );
         this.sendDataToAll("Character.Destroyed", {
           characterId: vehicle.npcData.characterId,
-          unknown1: destroyedVehicleEffect,
-          unknown2: destroyedVehicleModel,
+          unknown1: destroyedVehicleEffect, // destroyed offroader effect
+          unknown2: destroyedVehicleModel, // destroyed offroader model
           unknown3: 0,
           disableWeirdPhysics: false,
         });
         vehicle.npcData.destroyedState = 4;
-        for (const c in this._clients) {
-          const guid = vehicle.npcData.characterId;
-          if (
-            vehicle.npcData.characterId ===
-            this._clients[c].vehicle.mountedVehicle
-          ) {
-            this.dismountVehicle(this._clients[c]);
-          }
-        }
-        if (vehicle.resourcesUpdater) {
-          clearInterval(vehicle.resourcesUpdater);
-        }
-        delete this._vehicles[vehicle.npcData.characterId];
+		for (const c in this._clients) {
+		const guid = vehicle.npcData.characterId;
+		if (vehicle.npcData.characterId === this._clients[c].vehicle.mountedVehicle) {
+			this.dismountVehicle(this._clients[c]);
+		}
+		};
+		clearInterval(this._vehicles[vehicle.npcData.characterId].resourcesUpdater);
+		delete this._vehicles[vehicle.npcData.characterId];
         setTimeout(() => {
           this.sendDataToAllWithSpawnedVehicle(
             vehicle.npcData.characterId,
@@ -959,7 +954,6 @@ export class ZoneServer2016 extends ZoneServer {
             }
           );
         }, 15000);
-		break;
       } else if (
         vehicle.npcData.resources.health <= 50000 &&
         vehicle.npcData.resources.health > 35000
@@ -1317,6 +1311,10 @@ export class ZoneServer2016 extends ZoneServer {
         1,
         1
       );
+	  this.sendData(client, "ClientUpdate.DamageInfo", {
+      transientId: 0,
+	  unknownDword2: damage,
+    });
     }
   }
 
@@ -1887,7 +1885,8 @@ export class ZoneServer2016 extends ZoneServer {
           }
           if (this._vehicles[packet.data.guid].positionUpdate.engineRPM) {
             const fuelLoss =
-              this._vehicles[packet.data.guid].positionUpdate.engineRPM * 0.01;
+              this._vehicles[packet.data.guid].positionUpdate.engineRPM * 0.005;
+            console.log(fuelLoss);
             this._vehicles[packet.data.guid].npcData.resources.fuel -= fuelLoss;
           }
           if (this._vehicles[packet.data.guid].npcData.resources.fuel < 0) {
@@ -2859,3 +2858,4 @@ if (process.env.VSCODE_DEBUG === "true") {
     2
   ).start();
 }
+
