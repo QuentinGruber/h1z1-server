@@ -23,7 +23,13 @@ import { loadoutContainer, Weather2016 } from "../../types/zoneserver";
 import { h1z1PacketsType } from "../../types/packets";
 import { Character2016 as Character } from "./classes/character";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
-import { _, initMongo, Int64String, isPosInRadius } from "../../utils/utils";
+import {
+  _,
+  initMongo,
+  Int64String,
+  isPosInRadius,
+  getDistance,
+} from "../../utils/utils";
 
 import { Db, MongoClient } from "mongodb";
 import dynamicWeather from "./workers/dynamicWeather";
