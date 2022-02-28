@@ -1253,6 +1253,33 @@ export class ZoneServer2016 extends ZoneServer {
       },
     });
   }
+  
+  updateResourceToAllWithSpawnedVehicle(
+    client: Client,
+    entityId: string,
+    value: number,
+    resource: number,
+    resourceType: number
+  ) {
+    this.sendDataToAllOthersWithSpawnedVehicle(
+      client,
+      entityId,
+      "ResourceEvent",
+      {
+        eventData: {
+          type: 3,
+          value: {
+            characterId: entityId,
+            resourceId: resource,
+            resourceType: resourceType,
+            initialValue: value,
+            unknownArray1: [],
+            unknownArray2: [],
+          },
+        },
+      }
+    );
+  }
 
   playerDamage(client: Client, damage: number) {
     const character = client.character;
