@@ -1874,7 +1874,6 @@ export class ZoneServer2016 extends ZoneServer {
           if (this._vehicles[packet.data.guid].positionUpdate.engineRPM) {
             const fuelLoss =
               this._vehicles[packet.data.guid].positionUpdate.engineRPM * 0.005;
-            console.log(fuelLoss);
             this._vehicles[packet.data.guid].npcData.resources.fuel -= fuelLoss;
           }
           if (this._vehicles[packet.data.guid].npcData.resources.fuel < 0) {
