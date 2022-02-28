@@ -326,7 +326,7 @@ export const characterPackets: any = [
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: 0 },
-        { name: "soundId", type: "uint32", defaultValue: 0 },
+        { name: "effectId", type: "uint32", defaultValue: 0 },
         {
           name: "position",
           type: "floatvector4",
