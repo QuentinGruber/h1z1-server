@@ -1124,6 +1124,10 @@ export class ZoneServer2016 extends ZoneServer {
     delete this._transientIds[characterId];
   }
 
+  sendManagedObjectResponseControlPacket(client: Client, obj:any){
+    this.sendData(client, "ClientUpdate.ManagedObjectResponseControl",obj );
+  }
+
   spawnNpcs(client: Client): void {
     for (const npc in this._npcs) {
       if (

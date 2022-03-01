@@ -1710,10 +1710,13 @@ export class ZoneServer extends EventEmitter {
     });
   }
 
+  sendManagedObjectResponseControlPacket(client: Client, obj:any){
+    this.sendData(client, "PlayerUpdate.ManagedObjectResponseControl",obj );
+  }
   dropVehicleManager(client: Client, vehicleGuid: string) {
-    this.sendData(client, "PlayerUpdate.ManagedObjectResponseControl", {
-      unk: 0,
-      characterId: vehicleGuid,
+    this.sendManagedObjectResponseControlPacket(client,{
+      control: 0,
+      objectCharacterId: vehicleGuid,
     });
     client.managedObjects.splice(
       client.managedObjects.findIndex((e: string) => e === vehicleGuid),
