@@ -2591,6 +2591,12 @@ export class ZoneServer2016 extends ZoneServer {
       );
       return;
     }
+    this.sendData(client, "Command.PlayDialogEffect", {
+      characterId: guid,
+      effectId: this.getItemDefinition(
+        this._items[object.itemGuid].itemDefinitionId
+      ).PICKUP_EFFECT,
+    });
     this.lootItem(client, object.itemGuid, object.stackCount);
     this.deleteEntity(guid, this._objects);
     delete this.worldObjectManager._spawnedObjects[object.spawnerId];
