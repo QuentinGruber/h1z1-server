@@ -245,7 +245,7 @@ export class zonePacketHandlers {
       packet: any
     ) {
       debug(packet);
-      //server.sendData(client, "Command.RecipeAction", {});
+      server.dummyCraft(client, packet.data.recipeId, packet.data.count);
     };
     this.CommandSetInWater = function (
       server: ZoneServer2016,
