@@ -2874,6 +2874,32 @@ export class ZoneServer2016 extends ZoneServer {
     this.removeInventoryItem(client, itemGuid, 1);
     this.lootItem(client, this.generateItem(23), count);
   }
+  
+  refuelVehicle(client: Client, itemGuid: string, vehicleGuid: string) {
+    const item = this._items[itemGuid],
+      itemDefinition = this.getItemDefinition(item.itemDefinitionId);
+    let fuelValue = 2500;
+    switch (item.itemDefinitionId) {
+      case 1384: // ethanol
+        fuelValue = 5000;
+        break;
+      default:
+        break;
+    }
+    this.removeInventoryItem(client, itemGuid, 1);
+    const vehicle = this._vehicles[vehicleGuid];
+    vehicle.npcData.resources.fuel += fuelValue;
+    if (vehicle.npcData.resources.fuel > 10000) {
+      vehicle.npcData.resources.fuel = 10000;
+    }
+    this.updateResourceToAllWithSpawnedVehicle(
+      client,
+      vehicleGuid,
+      vehicle.npcData.resources.fuel,
+      396,
+      50
+    );
+  }
   //#endregion
 
   async reloadZonePacketHandlers() {
