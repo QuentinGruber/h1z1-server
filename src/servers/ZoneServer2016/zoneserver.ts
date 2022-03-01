@@ -127,6 +127,7 @@ export class ZoneServer2016 extends ZoneServer {
       try {
         this._packetHandlers.processPacket(this, client, packet);
       } catch (error) {
+        console.error(error);
         console.error(`An error occurred while processing a packet : `, packet);
       }
     }

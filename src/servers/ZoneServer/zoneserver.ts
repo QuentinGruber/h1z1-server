@@ -344,6 +344,7 @@ export class ZoneServer extends EventEmitter {
       try {
         this._packetHandlers.processPacket(this, client, packet);
       } catch (error) {
+        console.error(error);
         console.error(`An error occurred while processing a packet : `, packet);
       }
     }
