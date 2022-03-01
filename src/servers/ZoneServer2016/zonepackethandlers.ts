@@ -280,7 +280,7 @@ export class zonePacketHandlers {
       const damage = packet.data.damage;
       const vehicle = server._vehicles[characterId];
       if (characterId === client.character.characterId) {
-        server.playerDamage(client, damage);
+        server.playerDamage(client, damage * 5);
       } else if (vehicle) {
         server.damageVehicle(damage / 50, vehicle);
         //server.DTOhit(client, packet);
