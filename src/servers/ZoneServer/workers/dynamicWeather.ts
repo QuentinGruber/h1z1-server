@@ -12,7 +12,7 @@
 // ======================================================================
 
 import { _, randomIntFromInterval } from "../../../utils/utils";
-import { parentPort, workerData } from "node:worker_threads";
+import { parentPort, workerData } from "worker_threads";
 import { H1Z1Protocol } from "../../../protocols/h1z1protocol";
 const debug = require("debug")("dynamicWeather");
 

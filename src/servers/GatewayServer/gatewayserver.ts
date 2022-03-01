@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { EventEmitter } from "node:events";
+import { EventEmitter } from "events";
 import { SOEServer } from "../SoeServer/soeserver";
 import { GatewayProtocol } from "../../protocols/gatewayprotocol";
 import SOEClient from "../SoeServer/soeclient";
@@ -120,11 +120,17 @@ export class GatewayServer extends EventEmitter {
 
   sendTunnelData(client: SOEClient, tunnelData: any, channel = 0) {
     debug("Sending tunnel data to client");
-    const data = this._protocol.pack("TunnelPacketToExternalConnection", {
-      channel: channel,
-      tunnelData: tunnelData,
-    });
-    this._soeServer.sendAppData(client, data);
+    if (tunnelData) {
+      const data = this._protocol.pack("TunnelPacketToExternalConnection", {
+        channel: channel,
+        tunnelData: tunnelData,
+      });
+      this._soeServer.sendAppData(client, data);
+    }
+    else {
+      console.error(client)
+      console.error("[ERROR] Above client tries to sent an empty buffer !")
+    }
   }
 
   stop() {
