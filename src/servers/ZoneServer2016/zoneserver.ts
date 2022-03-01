@@ -2877,7 +2877,6 @@ export class ZoneServer2016 extends ZoneServer {
   
   refuelVehicle(client: Client, itemGuid: string, vehicleGuid: string) {
     const item = this._items[itemGuid],
-      itemDefinition = this.getItemDefinition(item.itemDefinitionId);
     let fuelValue = 2500;
     switch (item.itemDefinitionId) {
       case 1384: // ethanol
