@@ -2908,6 +2908,25 @@ export class ZoneServer2016 extends ZoneServer {
           this.generateItem(recipe.itemDefinitionId),
           count
         );
+        recipe.components.forEach((component: any) => {
+          Object.keys(client.character._containers).forEach((loadoutSlotId) => {
+            const container =
+              client.character._containers[Number(loadoutSlotId)];
+            for (const itemobj in container.items) {
+              const item = container.items[itemobj];
+              if (
+                item.itemDefinitionId == component.itemDefinitionId &&
+                item.stackCount >= component.requiredAmount
+              ) {
+                this.dropItemCrafting(
+                  client,
+                  item.itemGuid,
+                  component.requiredAmount
+                );
+              }
+            }
+          });
+        });
       }
     });
   }
