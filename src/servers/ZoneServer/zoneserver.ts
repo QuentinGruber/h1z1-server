@@ -434,7 +434,7 @@ export class ZoneServer extends EventEmitter {
   deleteClient(client: Client) {
     if (client.character) {
       this.deleteEntity(client.character.characterId, this._characters);
-      clearInterval(client.character?.resourcesUpdater);
+      clearTimeout(client.character?.resourcesUpdater);
       this.saveCharacterPosition(client);
       client.managedObjects?.forEach((characterId: any) => {
         this.dropVehicleManager(client, characterId);

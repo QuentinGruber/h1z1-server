@@ -1427,7 +1427,7 @@ export class ZoneServer2016 extends ZoneServer {
       control: true,
       objectCharacterId: vehicle.npcData.characterId,
     });
-    client.managedObjects.push(vehicle);
+    client.managedObjects.push(vehicle.npcData.characterId);
     vehicle.isManaged = true;
   }
 
@@ -1436,7 +1436,7 @@ export class ZoneServer2016 extends ZoneServer {
     vehicle: Vehicle,
     keepManaged: boolean = false
   ) {
-    const index = client.managedObjects.indexOf(vehicle);
+    const index = client.managedObjects.indexOf(vehicle.npcData.characterId);
     if (index > -1) {
       // todo: vehicle seat swap managed object drop logic
       debug("\n\n\n\n\n\n\n\n\n\n drop managed object");
@@ -1456,13 +1456,13 @@ export class ZoneServer2016 extends ZoneServer {
   }
 
   takeoverManagedObject(newClient: Client, vehicle: Vehicle) {
-    const index = newClient.managedObjects.indexOf(vehicle);
+    const index = newClient.managedObjects.indexOf(vehicle.npcData.characterId);
     if (index === -1) {
       // if object is already managed by client, do nothing
       debug("\n\n\n\n\n\n\n\n\n\n takeover managed object");
       for (const characterId in this._clients) {
         const oldClient = this._clients[characterId];
-        const idx = oldClient.managedObjects.indexOf(vehicle);
+        const idx = oldClient.managedObjects.indexOf(vehicle.npcData.characterId);
         if (idx > -1) {
           this.dropManagedObject(oldClient, vehicle, true);
           break;
