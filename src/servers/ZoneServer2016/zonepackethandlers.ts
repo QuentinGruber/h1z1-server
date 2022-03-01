@@ -1322,6 +1322,16 @@ export class zonePacketHandlers {
             server.useItem(client, packet.data.itemGuid);
           }, 2000);
           break;
+        case 17: //refuel
+          const vehicleGuid: string = client.vehicle.mountedVehicle!;
+          if (vehicleGuid) {
+            server.startTimer(client, nameId, 5000);
+            client.posAtLogoutStart = client.character.state.position;
+            client.hudTimer = setTimeout(() => {
+              server.refuelVehicle(client, packet.data.itemGuid, vehicleGuid);
+            }, 5000);
+          }
+          break;
         default:
           server.sendChatText(
             client,
