@@ -2595,7 +2595,7 @@ export class ZoneServer2016 extends ZoneServer {
       characterId: guid,
       effectId: this.getItemDefinition(
         this._items[object.itemGuid].itemDefinitionId
-      ).PICKUP_EFFECT,
+      ).PICKUP_EFFECT ?? 5151,
     });
     this.lootItem(client, object.itemGuid, object.stackCount);
     this.deleteEntity(guid, this._objects);
