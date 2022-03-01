@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { EventEmitter } from "node:events";
+import { EventEmitter } from "events";
 
 import { SOEServer } from "../SoeServer/soeserver";
 import { H1emuLoginServer } from "../H1emuServer/h1emuLoginServer";

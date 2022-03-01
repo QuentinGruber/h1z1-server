@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { EventEmitter } from "node:events";
+import { EventEmitter } from "events";
 import {RC4} from "h1emu-core"
 
 const debug = require("debug")("SOEOutputStream");
