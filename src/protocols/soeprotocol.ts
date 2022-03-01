@@ -235,7 +235,22 @@ const packets = [
       compression: number,
       isSubPacket: boolean,
       appData: any
-    ) {},
+    ) {
+        const timeDiff = data.readUInt16BE(2);
+        const serverTick = data.readUInt32BE(6);
+        const unk1 = data.readBigInt64BE(10);
+        const unk2 = data.readBigInt64BE(11);
+        const unk3 = data.readBigInt64BE(13);
+        const unk4 = data.readBigInt64BE(13);
+        return {
+          timeDiff: timeDiff,
+          serverTick: serverTick,
+          unk1: unk1,
+          unk2: unk2,
+          unk3: unk3,
+          unk4: unk4
+        };
+    },
     pack: function (
       packet: any,
       crcSeed: number,
@@ -244,9 +259,7 @@ const packets = [
     ) {
       let data = Buffer.alloc(40);
       let offset = 0;
-      data.writeUInt16BE(0x07, offset);
-      offset += 2;
-      data.writeUInt16BE(10, offset);
+      data.writeUInt16BE(10, offset); // timeDiff
       offset += 2;
       data.writeInt32BE(0x07, offset);
       offset += 4;
