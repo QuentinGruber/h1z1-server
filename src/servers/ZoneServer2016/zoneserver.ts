@@ -2899,6 +2899,18 @@ export class ZoneServer2016 extends ZoneServer {
       50
     );
   }
+  
+  dummyCraft(client: Client, recipeId: number, count: number) {
+    recipes.forEach((recipe: any) => {
+      if (recipe.recipeId == recipeId) {
+        this.lootItem(
+          client,
+          this.generateItem(recipe.itemDefinitionId),
+          count
+        );
+      }
+    });
+  }
   //#endregion
 
   async reloadZonePacketHandlers() {
