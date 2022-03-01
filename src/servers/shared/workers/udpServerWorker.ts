@@ -11,9 +11,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import dgram from "node:dgram";
+import dgram from "dgram";
 
-import { parentPort, workerData } from "node:worker_threads";
+import { parentPort, workerData } from "worker_threads";
 
 const debug = require("debug")("UDPserver");
 

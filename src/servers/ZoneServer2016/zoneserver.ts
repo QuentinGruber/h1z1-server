@@ -127,6 +127,7 @@ export class ZoneServer2016 extends ZoneServer {
       try {
         this._packetHandlers.processPacket(this, client, packet);
       } catch (error) {
+        console.error(error);
         console.error(`An error occurred while processing a packet : `, packet);
       }
     }
@@ -1121,6 +1122,10 @@ export class ZoneServer2016 extends ZoneServer {
     );
     delete dictionary[characterId];
     delete this._transientIds[characterId];
+  }
+
+  sendManagedObjectResponseControlPacket(client: Client, obj:any){
+    this.sendData(client, "ClientUpdate.ManagedObjectResponseControl",obj );
   }
 
   spawnNpcs(client: Client): void {

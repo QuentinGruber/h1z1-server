@@ -1029,8 +1029,8 @@ export const playerUpdatePackets: any = [
     0x0f4a,
     {
       fields: [
-        { name: "unk", type: "uint8", defaultValue: 0 },
-        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "control", type: "uint8", defaultValue: 0 },
+        { name: "objectCharacterId", type: "uint64string", defaultValue: "0" },
       ],
     },
   ],
