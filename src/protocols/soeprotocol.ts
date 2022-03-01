@@ -204,7 +204,7 @@ const packets = [
     {
       parse: function (data: any) {
         const disconnectReason = disconnectReasonEnum[data.readUInt16BE(7)]
-        console.log("disconnectReason : ",disconnectReason?disconnectReason:data.readUInt16BE(7));
+        debug("disconnectReason : ",disconnectReason?disconnectReason:data.readUInt16BE(7));
         return data;
       },
       pack: function () {
