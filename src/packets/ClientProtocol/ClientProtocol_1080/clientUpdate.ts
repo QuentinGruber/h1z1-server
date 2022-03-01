@@ -42,7 +42,20 @@ export const clientUpdatePackets: any = [
       ],
     },
   ],
-  ["ClientUpdate.ItemUpdate", 0x110300, {}],
+  [
+    "ClientUpdate.ItemUpdate",
+    0x110300,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        {
+          name: "data",
+          type: "schema",
+          fields: itemDataSchema,
+        },
+      ],
+    },
+  ],
   [
     "ClientUpdate.ItemDelete",
     0x110400,

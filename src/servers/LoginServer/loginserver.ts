@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { EventEmitter } from "events";
+import { EventEmitter } from "node:events";
 
 import { SOEServer } from "../SoeServer/soeserver";
 import { H1emuLoginServer } from "../H1emuServer/h1emuLoginServer";
@@ -25,7 +25,8 @@ import {
   initMongo,
   setupAppDataFolder,
 } from "../../utils/utils";
-import { Client, GameServer } from "../../types/loginserver";
+import { GameServer } from "../../types/loginserver";
+import Client from "servers/LoginServer/loginclient";
 import fs from "fs";
 import { loginPacketsType } from "types/packets";
 import { Worker } from "worker_threads";
@@ -262,7 +263,7 @@ export class LoginServer extends EventEmitter {
       default:
         return;
     }
-    this._soeServer.sendAppData(client, data, true);
+    this._soeServer.sendAppData(client, data);
   }
 
   getServerVersionTag(protocolName: string) {
@@ -438,7 +439,11 @@ export class LoginServer extends EventEmitter {
         characters = this.addDummyDataToCharacters(characterList);
       }
     } else {
-      const charactersQuery = { authKey: client.loginSessionId,serverVersionTag:this.getServerVersionTag(client.protocolName), status: 1 };
+      const charactersQuery = {
+        authKey: client.loginSessionId,
+        serverVersionTag: this.getServerVersionTag(client.protocolName),
+        status: 1,
+      };
       characters = await this._db
         .collection("characters-light")
         .find(charactersQuery)
@@ -813,7 +818,7 @@ export class LoginServer extends EventEmitter {
               serverId: newCharacter.serverId,
               ownerId: sessionObj.guid,
               payload: packet.result.payload,
-              status: 1
+              status: 1,
             };
       creationStatus = (await this.askZone(serverId, "CharacterCreateRequest", {
         characterObjStringify: JSON.stringify(newCharacterData),

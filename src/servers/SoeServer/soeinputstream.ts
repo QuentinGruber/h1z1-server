@@ -11,8 +11,8 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { EventEmitter } from "events";
-import { createDecipheriv, Decipher } from "crypto";
+import { EventEmitter } from "node:events";
+import { RC4 } from "h1emu-core"
 
 const debug = require("debug")("SOEInputStream");
 
@@ -24,9 +24,9 @@ export class SOEInputStream extends EventEmitter {
   _lastProcessedFragment: number;
   _fragments: Array<any>;
   _useEncryption: boolean;
-  _rc4: Decipher;
+  _rc4: RC4;
 
-  constructor(cryptoKey: string) {
+  constructor(cryptoKey: Uint8Array) {
     super();
     this._sequences = [];
     this._nextSequence = -1;
@@ -35,7 +35,7 @@ export class SOEInputStream extends EventEmitter {
     this._lastProcessedFragment = -1;
     this._fragments = [];
     this._useEncryption = false;
-    this._rc4 = createDecipheriv("rc4", cryptoKey, null);
+    this._rc4 = new RC4(cryptoKey)
   }
 
   _processDataFragments(): void {
@@ -109,11 +109,10 @@ export class SOEInputStream extends EventEmitter {
                       It does this by having all internal packets start with a zero (0) byte.
                     */
           if (data.length > 1 && data.readUInt16LE(0) === 0) {
-            this._rc4.write(data.slice(1));
+            data = Buffer.from(this._rc4.encrypt(new Uint32Array(data.slice(1))))
           } else {
-            this._rc4.write(data);
+            data = Buffer.from(this._rc4.encrypt(new Uint32Array(data)))
           }
-          data = this._rc4.read();
         }
         this.emit("data", null, data);
       }

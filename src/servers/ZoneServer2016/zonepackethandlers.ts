@@ -27,10 +27,6 @@ let admin = require("./commands/admin").default;
 
 import { _, Int64String, isPosInRadius } from "../../utils/utils";
 
-import { characterEquipment } from "../../types/zoneserver";
-
-const itemDefinitions = require("./../../../data/2016/dataSources/ClientItemDefinitions.json");
-
 export class zonePacketHandlers {
   hax: any = hax;
   dev: any = dev;
@@ -40,6 +36,8 @@ export class zonePacketHandlers {
   Security: any;
   commandRecipeStart: any;
   commandFreeInteractionNpc: any;
+  CommandSetInWater: any;
+  CommandClearInWater;
   collisionDamage: any;
   lobbyGameDefinitionDefinitionsRequest: any;
   KeepAlive: any;
@@ -59,7 +57,7 @@ export class zonePacketHandlers {
   commandStartLogoutRequest: any;
   CharacterSelectSessionRequest: any;
   profileStatsGetPlayerProfileStats: any;
-  Pickup: any;
+  DtoHitSpeedTreeReport: any;
   GetRewardBuffInfo: any;
   PlayerUpdateManagedPosition: any;
   vehicleStateData: any;
@@ -73,6 +71,9 @@ export class zonePacketHandlers {
   constructionPlacementFinalizeRequest: any;
   commandItemDefinitionRequest: any;
   characterWeaponStance: any;
+  firstTimeEvent: any;
+  requestUseItem: any;
+  constructionPlacementRequest: any;
   constructor() {
     this.ClientIsReady = function (
       server: ZoneServer2016,
@@ -92,6 +93,8 @@ export class zonePacketHandlers {
       server.sendData(client, "ClientUpdate.NetworkProximityUpdatesComplete", {
         done: true,
       }); // Required for WaitForWorldReady
+
+      server.customizeDTO(client);
 
       server.sendData(client, "ZoneSetting.Data", {
         settings: [
@@ -179,28 +182,6 @@ export class zonePacketHandlers {
         serverTime2: Int64String(server.getServerTime()),
       });
 
-      server.sendData(client, "Command.ItemDefinitions", {
-        // sends full list of item definitions
-        data: {
-          itemDefinitions: itemDefinitions.map((itemDef: any) => {
-            return {
-              ID: itemDef.ID,
-              definitionData: {
-                ...itemDef,
-                HUD_IMAGE_SET_ID: itemDef.IMAGE_SET_ID,
-                flags1: {
-                  ...itemDef,
-                },
-                flags2: {
-                  ...itemDef,
-                },
-                stats: [],
-              },
-            };
-          }),
-        },
-      });
-
       server.sendData(client, "Character.WeaponStance", {
         // activates weaponstance key
         characterId: client.character.characterId,
@@ -214,6 +195,7 @@ export class zonePacketHandlers {
     ) {
       client.currentPOI = 0; // clears currentPOI for POIManager
       server.sendGameTimeSync(client);
+      server.startRessourceUpdater(client);
       if (client.firstLoading) {
         server.sendData(client, "POIChangeMessage", {
           // welcome POI message
@@ -230,40 +212,22 @@ export class zonePacketHandlers {
           () => server.saveCharacterPosition(client),
           30000
         );
+
+        server.updateEquipment(client); // needed or third person character will be invisible
+        server.updateLoadout(client); // needed or all loadout context menu entries aren't shown
+        /*
+        server.sendData(client, "Container.InitEquippedContainers", {
+          ignore: client.character.characterId,
+          characterId: client.character.characterId,
+          containers: [],
+        });
+        */
         if (!server._soloMode) {
           server.sendZonePopulationUpdate();
         }
-        server.sendData(client, "Equipment.SetCharacterEquipment", {
-          characterData: {
-            characterId: client.character.characterId,
-          },
-          equipmentSlots: client.character.equipment.map(
-            (slot: characterEquipment) => {
-              return {
-                equipmentSlotId: slot.slotId,
-                equipmentSlotData: {
-                  equipmentSlotId: slot.slotId,
-                  guid: slot.guid || "",
-                  tintAlias: slot.tintAlias || "",
-                  decalAlias: slot.tintAlias || "#",
-                },
-              };
-            }
-          ),
-          attachmentData: client.character.equipment.map(
-            (slot: characterEquipment) => {
-              return {
-                modelName: slot.modelName,
-                textureAlias: slot.textureAlias || "",
-                tintAlias: slot.tintAlias || "",
-                decalAlias: slot.tintAlias || "#",
-                slotId: slot.slotId,
-              };
-            }
-          ),
-        }); // needed or third person character will be invisible
-
         server.executeFuncForAllReadyClients(() => server.spawnCharacters);
+        server.lootItem(client, server.generateItem(1985), 1); // map
+        server.lootItem(client, server.generateItem(1441), 1); // compass
       }
 
       client.isLoading = false;
@@ -283,6 +247,22 @@ export class zonePacketHandlers {
       debug(packet);
       //server.sendData(client, "Command.RecipeAction", {});
     };
+    this.CommandSetInWater = function (
+      server: ZoneServer2016,
+      client: Client,
+      packet: any
+    ) {
+      debug(packet);
+      client.character.characterStates.inWater = true;
+    };
+    this.CommandClearInWater = function (
+      server: ZoneServer2016,
+      client: Client,
+      packet: any
+    ) {
+      debug(packet);
+      client.character.characterStates.inWater = false;
+    };
     this.commandFreeInteractionNpc = function (
       server: ZoneServer2016,
       client: Client,
@@ -296,7 +276,15 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      debug("Collision.Damage");
+      const characterId = packet.data.characterId;
+      const damage = packet.data.damage;
+      const vehicle = server._vehicles[characterId];
+      if (characterId === client.character.characterId) {
+        server.playerDamage(client, damage);
+      } else if (vehicle) {
+        /*server.damageVehicle(damage / 100, vehicle);
+        server.DTOhit(client, packet);*/
+      }
     };
     this.lobbyGameDefinitionDefinitionsRequest = function (
       server: ZoneServer2016,
@@ -744,26 +732,13 @@ export class zonePacketHandlers {
         require("../../../data/profilestats.json")
       );
     };
-    this.Pickup = function (
+    this.DtoHitSpeedTreeReport = function (
       server: ZoneServer2016,
       client: Client,
       packet: any
     ) {
       debug(packet);
-      const { data: packetData } = packet;
-      server.sendData(client, "ClientUpdate.StartTimer", {
-        stringId: 582,
-        time: 100,
-      });
-      if (packetData.name === "SpeedTree.Blackberry") {
-        server.sendData(client, "ClientUpdate.TextAlert", {
-          message: "Blackberries...miss you...",
-        });
-      } else {
-        server.sendData(client, "ClientUpdate.TextAlert", {
-          message: packetData.name.replace("SpeedTree.", ""),
-        });
-      }
+      server.speedTreeUse(client, packet);
     };
     this.GetRewardBuffInfo = function (
       server: ZoneServer2016,
@@ -880,6 +855,11 @@ export class zonePacketHandlers {
           );
         }
       }
+      if (packet.data.horizontalSpeed) {
+        client.character.isRunning =
+          packet.data.horizontalSpeed > (client.character.isExhausted ? 5 : 6);
+      }
+
       if (packet.data.position) {
         client.character.state.position = new Float32Array([
           packet.data.position[0],
@@ -887,7 +867,6 @@ export class zonePacketHandlers {
           packet.data.position[2],
           0,
         ]);
-        client.character.isRunning = packet.data.unknown11_float > 6;
 
         if (
           client.hudTimer != null &&
@@ -969,17 +948,36 @@ export class zonePacketHandlers {
           server.sendData(client, "LightweightToFullNpc", {
             transientId: entityData.transientId,
             attachmentData: [
+              /*
               {
                 modelName: "SurvivorMale_Chest_Hoodie_Up_Tintable.adr",
                 effectId: 0,
                 slotId: 3,
-              },
+              },*/
             ],
             effectTags: [],
             unknownData1: {},
             targetData: {},
             unknownArray1: [],
             unknownArray2: [],
+            //unknownArray3: {/*data:[]*/},
+            //resources: {/*
+            //  data:[
+            /*{
+                  resourceId: 1,
+                  resourceData: {
+                    resourceId: 1,
+                    resourceType: 1,
+                    value: 10000
+                  }
+                }
+              ]*/
+            //},
+            //unknownArray4: {/*unknownArray1:[], unknownArray2:[]*/},
+            //unknownArray5: {/*data:[]*/},
+            //unknownArray6: {/*data:[]*/},
+            //remoteWeapons: {/*data:[]*/},
+            //itemsData: {/*data:[]*/}
           });
           break;
         case 2: // vehicles
@@ -992,6 +990,32 @@ export class zonePacketHandlers {
               targetData: {},
               unknownArray1: [],
               unknownArray2: [],
+              unknownArray3: { data: [] },
+              resources: {
+                data: [
+                  {
+                    resourceId: 1,
+                    resourceData: {
+                      resourceId: 1,
+                      resourceType: 1,
+                      value: 10000,
+                    },
+                  },
+                  {
+                    resourceId: 50,
+                    resourceData: {
+                      resourceId: 50,
+                      resourceType: 50,
+                      value: 10000,
+                    },
+                  },
+                ],
+              },
+              unknownArray4: { data: [] },
+              unknownArray5: { data: [] },
+              unknownArray6: { data: [] },
+              remoteWeapons: { data: [] },
+              itemsData: { data: [] },
             },
             unknownArray1: [],
             unknownArray2: [],
@@ -1069,19 +1093,7 @@ export class zonePacketHandlers {
 
       switch (entityType) {
         case 1: // object
-          const itemGuid = server.generatePickupItem(entityData),
-            item = server._items[itemGuid];
-          if (!item) {
-            server.sendChatText(
-              client,
-              `[ERROR] No item definition mapped to id: ${entityData.modelId}`
-            );
-            return;
-          }
-
-          server.equipItem(client, itemGuid);
-          server.deleteEntity(guid, server._objects);
-          delete server.worldObjectManager.spawnedObjects[entityData.spawnerId];
+          server.pickupItem(client, guid);
           break;
         case 2: // vehicle
           !client.vehicle.mountedVehicle
@@ -1139,7 +1151,7 @@ export class zonePacketHandlers {
         case 1: // object
           server.sendData(client, "Command.InteractionString", {
             guid: guid,
-            stringId: 29,
+            stringId: 13338,
           });
           break;
         case 2: // vehicle
@@ -1184,10 +1196,14 @@ export class zonePacketHandlers {
     ) {
       debug(`ItemDefinitionRequest ID: ${packet.data.ID}`);
 
-      const itemDef = itemDefinitions.find(
-        (itemDef: any) => itemDef.ID === packet.data.ID
-      );
+      const itemDef = server.getItemDefinition(packet.data.ID);
 
+      if (!itemDef) {
+        debug(
+          `ERROR: No ItemDefinition found for ItemDefinitonID: ${packet.data.ID}`
+        );
+        return;
+      }
       server.sendData(client, "Command.ItemDefinitionReply", {
         data: {
           ID: packet.data.ID,
@@ -1218,7 +1234,106 @@ export class zonePacketHandlers {
         }
       );
     };
+    this.firstTimeEvent = function (
+      server: ZoneServer2016,
+      client: Client,
+      packet: any
+    ) {
+      server.sendData(client, "FirstTimeEvent.State", {
+        unknownDword1: 0xffffffff,
+        unknownDword2: 1,
+        unknownBoolean1: false,
+      });
+    };
+    //#region ITEMS
+    this.requestUseItem = function (
+      server: ZoneServer2016,
+      client: Client,
+      packet: any
+    ) {
+      debug(packet.data);
+      if (!packet.data.itemGuid) {
+        server.sendChatText(client, "[ERROR] ItemGuid is invalid!");
+        return;
+      }
+      const itemDefinition = server.getItemDefinition(
+        server._items[packet.data.itemGuid].itemDefinitionId
+      );
+      const nameId = itemDefinition.NAME_ID;
+      switch (packet.data.itemUseOption) {
+        case 4: // normal item drop option
+        case 73: // battery drop option
+        case 79: // sparks drop option
+          server.dropItem(
+            client,
+            packet.data.itemGuid,
+            packet.data.itemSubData?.count
+          );
+          break;
+        case 60:
+          const item = server._items[packet.data.itemGuid],
+            loadoutId = server.getLoadoutSlot(item.itemDefinitionId),
+            oldLoadoutItem = client.character._loadout[loadoutId];
+          if (oldLoadoutItem) {
+            // if target loadoutSlot is occupied
+            if (oldLoadoutItem.itemGuid == packet.data.itemGuid) {
+              server.sendChatText(client, "[ERROR] Item is already equipped!");
+              return;
+            }
+            server.lootContainerItem(client, oldLoadoutItem.itemGuid, 1, false);
+          }
+          server.equipItem(client, packet.data.itemGuid);
+          break;
+        case 6: // shred
+          server.startTimer(client, nameId, 3000);
+          client.posAtLogoutStart = client.character.state.position;
+          client.hudTimer = setTimeout(() => {
+            server.shredItem(client, packet.data.itemGuid);
+          }, 3000);
+          break;
+        case 1: //eat
+          server.startTimer(client, nameId, 1000);
+          client.posAtLogoutStart = client.character.state.position;
+          client.hudTimer = setTimeout(() => {
+            server.eatItem(client, packet.data.itemGuid);
+          }, 1000);
+          break;
+        case 2: //drink
+          server.startTimer(client, nameId, 1000);
+          client.posAtLogoutStart = client.character.state.position;
+          client.hudTimer = setTimeout(() => {
+            server.drinkItem(client, packet.data.itemGuid);
+          }, 1000);
+          break;
+        case 3: //use
+          server.startTimer(client, nameId, 2000);
+          client.posAtLogoutStart = client.character.state.position;
+          client.hudTimer = setTimeout(() => {
+            server.useItem(client, packet.data.itemGuid);
+          }, 2000);
+          break;
+        default:
+          server.sendChatText(
+            client,
+            "[ERROR] ItemUseOption not mapped to a function."
+          );
+      }
+    };
+    this.constructionPlacementRequest = function (
+      server: ZoneServer2016,
+      client: Client,
+      packet: any
+    ) {
+      debug(packet.data);
+      server.sendData(client, "Construction.PlacementResponse", {
+        unknownDword1: packet.data.itemDefinitionId,
+        model: server.getItemDefinition(packet.data.itemDefinitionId)
+          .PLACEMENT_MODEL_ID,
+      });
+    };
+    //#endregion
   }
+
   processPacket(server: ZoneServer2016, client: Client, packet: any) {
     switch (packet.name) {
       case "ClientIsReady":
@@ -1235,6 +1350,12 @@ export class zonePacketHandlers {
         break;
       case "Command.FreeInteractionNpc":
         this.commandFreeInteractionNpc(server, client, packet);
+        break;
+      case "Command.SetInWater":
+        this.CommandSetInWater(server, client, packet);
+        break;
+      case "Command.ClearInWater":
+        this.CommandClearInWater(server, client, packet);
         break;
       case "Collision.Damage":
         this.collisionDamage(server, client, packet);
@@ -1293,8 +1414,8 @@ export class zonePacketHandlers {
       case "ProfileStats.GetPlayerProfileStats":
         this.profileStatsGetPlayerProfileStats(server, client, packet);
         break;
-      case "Pickup":
-        this.Pickup(server, client, packet);
+      case "DtoHitSpeedTreeReport":
+        this.DtoHitSpeedTreeReport(server, client, packet);
         break;
       case "GetRewardBuffInfo":
         this.GetRewardBuffInfo(server, client, packet);
@@ -1334,6 +1455,15 @@ export class zonePacketHandlers {
         break;
       case "Character.WeaponStance":
         this.characterWeaponStance(server, client, packet);
+        break;
+      case "FirstTimeEvent.Unknown1":
+        this.firstTimeEvent(server, client, packet);
+        break;
+      case "Items.RequestUseItem":
+        this.requestUseItem(server, client, packet);
+        break;
+      case "Construction.PlacementRequest":
+        this.constructionPlacementRequest(server, client, packet);
         break;
       default:
         debug(packet);

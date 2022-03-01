@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { RemoteInfo } from "dgram";
+import { RemoteInfo } from "node:dgram";
 import { SOEInputStream } from "./soeinputstream";
 import { SOEOutputStream } from "./soeoutputstream";
 
@@ -28,11 +28,11 @@ export default class SOEClient {
   useEncryption: boolean = true;
   waitingQueue: any[] = [];
   outQueue: any[] = [];
-  protocolName?: string;
+  protocolName: string = "unset";
   outOfOrderPackets: any[] = [];
   nextAck: number = -1;
   lastAck: number = -1;
-  inputStream: () => void;
+  inputStream: any;
   outputStream: any;
   outQueueTimer: any;
   ackTimer: any;
@@ -40,6 +40,7 @@ export default class SOEClient {
   cryptoKey: Uint8Array;
   waitQueueTimer: any;
   waitingQueueCurrentByteLength: number = 0;
+  soeClientId: string;
   constructor(
     remote: RemoteInfo,
     crcSeed: number,
@@ -47,13 +48,14 @@ export default class SOEClient {
     cryptoKey: Uint8Array
   ) {
     this.sessionId = 0;
+    this.soeClientId = remote.address + ":" + remote.port;
     this.address = remote.address;
     this.port = remote.port;
     this.crcSeed = crcSeed;
     this.compression = compression;
     this.cryptoKey = cryptoKey;
-    this.inputStream = new (SOEInputStream as any)(cryptoKey);
-    this.outputStream = new (SOEOutputStream as any)(cryptoKey);
+    this.inputStream = new SOEInputStream(cryptoKey);
+    this.outputStream = new SOEOutputStream(cryptoKey);
   }
 
   clearTimers() {

@@ -15,7 +15,7 @@ import { EventEmitter } from "events";
 import { SOEProtocol } from "../../protocols/soeprotocol";
 import Client from "./soeclient";
 import SOEClient from "./soeclient";
-import { Worker } from "worker_threads";
+import { Worker } from "node:worker_threads";
 
 const debug = require("debug")("SOEServer");
 process.env.isBin && require("../shared/workers/udpServerWorker.js");
@@ -83,7 +83,7 @@ export class SOEServer extends EventEmitter {
         [data.buffer]
       );
     }
-    (client as any).outQueueTimer.refresh();
+    client.outQueueTimer.refresh();
   }
 
   checkAck(client: Client) {
@@ -99,7 +99,7 @@ export class SOEServer extends EventEmitter {
         true
       );
     }
-    (client as any).ackTimer.refresh();
+    client.ackTimer.refresh();
   }
   sendClientWaitQueue(client: Client) {
     if (client.waitingQueue.length) {
@@ -141,7 +141,7 @@ export class SOEServer extends EventEmitter {
         true
       );
     }
-    (client as any).outOfOrderTimer.refresh();
+    client.outOfOrderTimer.refresh();
   }
 
   handlePacket(client: SOEClient, packet: any) {
@@ -163,11 +163,9 @@ export class SOEServer extends EventEmitter {
           client.serverUdpLength = this._udpLength;
           client.crcSeed = this._crcSeed;
           client.crcLength = this._crcLength;
-          (client as any).inputStream.setEncryption(this._useEncryption);
-          (client as any).outputStream.setEncryption(this._useEncryption);
-          (client as any).outputStream.setFragmentSize(
-            client.clientUdpLength - 7
-          );
+          client.inputStream.setEncryption(this._useEncryption);
+          client.outputStream.setEncryption(this._useEncryption);
+          client.outputStream.setFragmentSize(client.clientUdpLength - 7);
 
           this._sendPacket(client, "SessionReply", {
             sessionId: client.sessionId,
@@ -206,7 +204,7 @@ export class SOEServer extends EventEmitter {
                 ", sequence " +
                 lastOutOfOrder
             );
-            (client as any).outputStream.resendData(lastOutOfOrder);
+            client.outputStream.resendData(lastOutOfOrder);
           }
           break;
         }
@@ -221,17 +219,13 @@ export class SOEServer extends EventEmitter {
           debug(
             "Received data packet from client, sequence " + result.sequence
           );
-          (client as any).inputStream.write(
-            result.data,
-            result.sequence,
-            false
-          );
+          client.inputStream.write(result.data, result.sequence, false);
           break;
         case "DataFragment":
           debug(
             "Received data fragment from client, sequence " + result.sequence
           );
-          (client as any).inputStream.write(result.data, result.sequence, true);
+          client.inputStream.write(result.data, result.sequence, true);
           break;
         case "OutOfOrder":
           debug(
@@ -240,7 +234,7 @@ export class SOEServer extends EventEmitter {
               ", sequence " +
               result.sequence
           );
-          (client as any).outputStream.resendData(result.sequence);
+          client.outputStream.resendData(result.sequence);
           break;
         case "Ack":
           if (result.sequence > 40000) {
@@ -249,11 +243,8 @@ export class SOEServer extends EventEmitter {
             // see https://github.com/QuentinGruber/h1z1-server/issues/363
            // this.emit("PacketLimitationReached", client);
           }
-          else{
-            debug("Ack, sequence " + result.sequence);
-            (client as any).outputStream.ack(result.sequence);
-          }
-
+          debug("Ack, sequence " + result.sequence);
+          client.outputStream.ack(result.sequence);
           break;
         case "ZonePing":
           debug("Receive Zone Ping ");
@@ -313,34 +304,28 @@ export class SOEServer extends EventEmitter {
           if (this._isLocal) {
             client.outputStream._enableCaching = false;
           } else {
-            (client as any).outOfOrderTimer = setTimeout(
+            client.outOfOrderTimer = setTimeout(
               () => this.checkOutOfOrderQueue(client),
               50
             );
           }
 
-          (client as any).inputStream.on(
-            "data",
-            (err: string, data: Buffer) => {
-              this.emit("appdata", null, client, data);
-            }
-          );
+          client.inputStream.on("data", (err: string, data: Buffer) => {
+            this.emit("appdata", null, client, data);
+          });
 
-          (client as any).inputStream.on(
-            "ack",
-            (err: string, sequence: number) => {
-              client.nextAck = sequence;
-            }
-          );
+          client.inputStream.on("ack", (err: string, sequence: number) => {
+            client.nextAck = sequence;
+          });
 
-          (client as any).inputStream.on(
+          client.inputStream.on(
             "outoforder",
             (err: string, expected: any, sequence: number) => {
               client.outOfOrderPackets.push(sequence);
             }
           );
 
-          (client as any).outputStream.on(
+          client.outputStream.on(
             "data",
             (err: string, data: Buffer, sequence: number, fragment: any) => {
               if (fragment) {
@@ -356,16 +341,16 @@ export class SOEServer extends EventEmitter {
               }
             }
           );
-          (client as any).outQueueTimer = setTimeout(() =>
+          client.outQueueTimer = setTimeout(() =>
             this.checkClientOutQueue(client)
           );
           if (this._useMultiPackets) {
-            (client as any).waitQueueTimer = setTimeout(
+            client.waitQueueTimer = setTimeout(
               () => this.sendClientWaitQueue(client),
               this._waitQueueTimeMs
             );
           }
-          (client as any).ackTimer = setTimeout(() => this.checkAck(client));
+          client.ackTimer = setTimeout(() => this.checkAck(client));
 
           this.emit("connect", null, this._clients[clientId]);
         }
@@ -449,23 +434,23 @@ export class SOEServer extends EventEmitter {
     }
   }
 
-  sendAppData(client: Client, data: Buffer, overrideEncryption: boolean): void {
-    if ((client as any).outputStream._useEncryption) {
+  sendAppData(client: Client, data: Buffer): void {
+    if (client.outputStream._useEncryption) {
       debug("Sending app data: " + data.length + " bytes with encryption");
     } else {
       debug("Sending app data: " + data.length + " bytes");
     }
-    (client as any).outputStream.write(data, overrideEncryption);
+    client.outputStream.write(data);
   }
 
   setEncryption(client: Client, value: boolean): void {
-    (client as any).outputStream.setEncryption(value);
-    (client as any).inputStream.setEncryption(value);
+    client.outputStream.setEncryption(value);
+    client.inputStream.setEncryption(value);
   }
 
   toggleEncryption(client: Client): void {
-    (client as any).outputStream.toggleEncryption();
-    (client as any).inputStream.toggleEncryption();
+    client.outputStream.toggleEncryption();
+    client.inputStream.toggleEncryption();
   }
 
   deleteClient(client: SOEClient): void {

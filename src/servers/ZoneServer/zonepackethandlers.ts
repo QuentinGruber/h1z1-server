@@ -41,60 +41,180 @@ export class zonePacketHandlers {
   hax: any = hax;
   dev: any = dev;
   admin: any = admin;
-  ClientIsReady: (server: ZoneServer, client: Client, packet: any) =>void;
-  ClientFinishedLoading: (server: ZoneServer, client: Client, packet: any) =>void;
-  Security: (server: ZoneServer, client: Client, packet: any) =>void;
-  commandRecipeStart: (server: ZoneServer, client: Client, packet: any) =>void;
-  commandFreeInteractionNpc: (server: ZoneServer, client: Client, packet: any) =>void;
-  collisionDamage: (server: ZoneServer, client: Client, packet: any) =>void;
-  VehicleItemDefinitionRequest: (server: ZoneServer, client: Client, packet: any) =>void;
-  CurrentMoveMode: (server: ZoneServer, client: Client, packet: any) =>void;
-  lobbyGameDefinitionDefinitionsRequest: (server: ZoneServer, client: Client, packet: any) =>void;
-  playerUpdateEndCharacterAccess: (server: ZoneServer, client: Client, packet: any) =>void;
-  KeepAlive: (server: ZoneServer, client: Client, packet: any) =>void;
-  ClientLog: (server: ZoneServer, client: Client, packet: any) =>void;
-  ClientMetrics: (server: ZoneServer, client: Client, packet: any) =>void;
-  WallOfDataClientSystemInfo: (server: ZoneServer, client: Client, packet: any) =>void;
-  WallOfDataLaunchPadFingerprint: (server: ZoneServer, client: Client, packet: any) =>void;
-  wallOfDataUIEvent: (server: ZoneServer, client: Client, packet: any) =>void;
-  SetLocale: (server: ZoneServer, client: Client, packet: any) =>void;
-  GetContinentBattleInfo: (server: ZoneServer, client: Client, packet: any) =>void;
-  chatChat: (server: ZoneServer, client: Client, packet: any) =>void;
-  loadoutSelectSlot: (server: ZoneServer, client: Client, packet: any) =>void;
-  ClientInitializationDetails: (server: ZoneServer, client: Client, packet: any) =>void;
-  ClientLogout: (server: ZoneServer, client: Client, packet: any) =>void;
-  GameTimeSync: (server: ZoneServer, client: Client, packet: any) =>void;
-  Synchronization: (server: ZoneServer, client: Client, packet: any) =>void;
-  commandExecuteCommand: (server: ZoneServer, client: Client, packet: any) =>void;
-  commandSetProfile: (server: ZoneServer, client: Client, packet: any) =>void;
-  playerUpdateWeaponStance: (server: ZoneServer, client: Client, packet: any) =>void;
-  mountDismountRequest: (server: ZoneServer, client: Client, packet: any) =>void;
-  commandInteractRequest: (server: ZoneServer, client: Client, packet: any) =>void;
-  commandInteractionString: (server: ZoneServer, client: Client, packet: any) =>void;
-  commandSetInWater: (server: ZoneServer, client: Client, packet: any) =>void;
-  commandClearInWater: (server: ZoneServer, client: Client, packet: any) =>void;
-  commandInteractionSelect: (server: ZoneServer, client: Client, packet: any) =>void;
-  playerUpdateVehicleCollision: (server: ZoneServer, client: Client, packet: any) =>void;
-  vehicleDismiss: (server: ZoneServer, client: Client, packet: any) =>void;
-  vehicleSpawn: (server: ZoneServer, client: Client, packet: any) =>void;
-  vehicleAutoMount: (server: ZoneServer, client: Client, packet: any) =>void;
-  commandInteractCancel: (server: ZoneServer, client: Client, packet: any) =>void;
-  commandStartLogoutRequest: (server: ZoneServer, client: Client, packet: any) =>void;
-  CharacterSelectSessionRequest: (server: ZoneServer, client: Client, packet: any) =>void;
-  profileStatsGetPlayerProfileStats: (server: ZoneServer, client: Client, packet: any) =>void;
-  DtoHitSpeedTreeReport: (server: ZoneServer, client: Client, packet: any) =>void;
-  GetRewardBuffInfo: (server: ZoneServer, client: Client, packet: any) =>void;
-  vehicleStateData: (server: ZoneServer, client: Client, packet: any) =>void;
-  VehicleAccessType: (server: ZoneServer, client: Client, packet: any) =>void;
-  PlayerUpdateManagedPosition: (server: ZoneServer, client: Client, packet: any) =>void;
-  PlayerUpdateUpdatePositionClientToZone: (server: ZoneServer, client: Client, packet: any) =>void;
-  commandPlayerSelect: (server: ZoneServer, client: Client, packet: any) =>void;
-  constructionPlacementRequest: (server: ZoneServer, client: Client, packet: any) =>void;
-  constructionPlacementFinalizeRequest: (server: ZoneServer, client: Client, packet: any) =>void;
-  playerUpdateRespawn: (server: ZoneServer, client: Client, packet: any) =>void;
-  playerUpdateFullCharacterDataRequest: (server: ZoneServer, client: Client, packet: any) =>void;
-  commandRedeploy: (server: ZoneServer, client: Client, packet: any) =>void;
-  mountSeatChangeRequest: (server: ZoneServer, client: Client, packet: any) =>void;
+  ClientIsReady: (server: ZoneServer, client: Client, packet: any) => void;
+  ClientFinishedLoading: (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) => void;
+  Security: (server: ZoneServer, client: Client, packet: any) => void;
+  commandRecipeStart: (server: ZoneServer, client: Client, packet: any) => void;
+  commandFreeInteractionNpc: (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) => void;
+  collisionDamage: (server: ZoneServer, client: Client, packet: any) => void;
+  VehicleItemDefinitionRequest: (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) => void;
+  CurrentMoveMode: (server: ZoneServer, client: Client, packet: any) => void;
+  lobbyGameDefinitionDefinitionsRequest: (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) => void;
+  playerUpdateEndCharacterAccess: (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) => void;
+  KeepAlive: (server: ZoneServer, client: Client, packet: any) => void;
+  ClientLog: (server: ZoneServer, client: Client, packet: any) => void;
+  ClientMetrics: (server: ZoneServer, client: Client, packet: any) => void;
+  WallOfDataClientSystemInfo: (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) => void;
+  WallOfDataLaunchPadFingerprint: (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) => void;
+  wallOfDataUIEvent: (server: ZoneServer, client: Client, packet: any) => void;
+  SetLocale: (server: ZoneServer, client: Client, packet: any) => void;
+  GetContinentBattleInfo: (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) => void;
+  chatChat: (server: ZoneServer, client: Client, packet: any) => void;
+  loadoutSelectSlot: (server: ZoneServer, client: Client, packet: any) => void;
+  ClientInitializationDetails: (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) => void;
+  ClientLogout: (server: ZoneServer, client: Client, packet: any) => void;
+  GameTimeSync: (server: ZoneServer, client: Client, packet: any) => void;
+  Synchronization: (server: ZoneServer, client: Client, packet: any) => void;
+  commandExecuteCommand: (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) => void;
+  commandSetProfile: (server: ZoneServer, client: Client, packet: any) => void;
+  playerUpdateWeaponStance: (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) => void;
+  mountDismountRequest: (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) => void;
+  commandInteractRequest: (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) => void;
+  commandInteractionString: (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) => void;
+  commandSetInWater: (server: ZoneServer, client: Client, packet: any) => void;
+  commandClearInWater: (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) => void;
+  commandInteractionSelect: (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) => void;
+  playerUpdateVehicleCollision: (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) => void;
+  vehicleDismiss: (server: ZoneServer, client: Client, packet: any) => void;
+  vehicleSpawn: (server: ZoneServer, client: Client, packet: any) => void;
+  vehicleAutoMount: (server: ZoneServer, client: Client, packet: any) => void;
+  commandInteractCancel: (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) => void;
+  commandStartLogoutRequest: (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) => void;
+  CharacterSelectSessionRequest: (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) => void;
+  profileStatsGetPlayerProfileStats: (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) => void;
+  DtoHitSpeedTreeReport: (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) => void;
+  GetRewardBuffInfo: (server: ZoneServer, client: Client, packet: any) => void;
+  vehicleStateData: (server: ZoneServer, client: Client, packet: any) => void;
+  VehicleAccessType: (server: ZoneServer, client: Client, packet: any) => void;
+  PlayerUpdateManagedPosition: (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) => void;
+  PlayerUpdateUpdatePositionClientToZone: (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) => void;
+  commandPlayerSelect: (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) => void;
+  constructionPlacementRequest: (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) => void;
+  constructionPlacementFinalizeRequest: (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) => void;
+  playerUpdateRespawn: (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) => void;
+  playerUpdateFullCharacterDataRequest: (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) => void;
+  commandRedeploy: (server: ZoneServer, client: Client, packet: any) => void;
+  mountSeatChangeRequest: (
+    server: ZoneServer,
+    client: Client,
+    packet: any
+  ) => void;
   constructor() {
     this.ClientIsReady = function (
       server: ZoneServer,
@@ -568,29 +688,29 @@ export class zonePacketHandlers {
           break;
         case joaat("DEV"):
         case 552078457: // dev
-        if (
-          client.isAdmin ||
-          commandName === "list" ||
-          ((server._allowedCommands.length === 0 ||
-            server._allowedCommands.includes(commandName)) &&
-            !!this.dev[commandName])
-        ) {
-          // using !! is faster but ugly
-          this.dev[commandName](server, client, args);
-        } else {
-          if (!server._allowedCommands.includes(commandName)) {
-            server.sendChatText(client, "You don't have access to that.");
+          if (
+            client.isAdmin ||
+            commandName === "list" ||
+            ((server._allowedCommands.length === 0 ||
+              server._allowedCommands.includes(commandName)) &&
+              !!this.dev[commandName])
+          ) {
+            // using !! is faster but ugly
+            this.dev[commandName](server, client, args);
           } else {
-            server.sendChatText(
-              client,
-              `Unknown command: /dev ${commandName} , display dev all commands by using /dev list`
-            );
+            if (!server._allowedCommands.includes(commandName)) {
+              server.sendChatText(client, "You don't have access to that.");
+            } else {
+              server.sendChatText(
+                client,
+                `Unknown command: /dev ${commandName} , display dev all commands by using /dev list`
+              );
+            }
           }
-        }
-        break;
+          break;
         case joaat("ADMIN"):
         case 997464845: // admin
-           if (
+          if (
             client.isAdmin ||
             commandName === "list" ||
             ((server._allowedCommands.length === 0 ||
@@ -640,8 +760,8 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-        server.sendChatText(client,"mountSeatChangeResponse unimplemented");
-       /* server.sendData(client,"Mount.SeatChangeResponse",{
+      server.sendChatText(client, "mountSeatChangeResponse unimplemented");
+      /* server.sendData(client,"Mount.SeatChangeResponse",{
           characterId:client.character.characterId,
           vehicleId: client.vehicle.mountedVehicle
         })*/
@@ -1454,8 +1574,9 @@ export class zonePacketHandlers {
           positionUpdate: packet.data.PositionUpdate,
         });
 
-        if(server._vehicles[characterId]){
-          server._vehicles[characterId].positionUpdate = packet.data.PositionUpdate
+        if (server._vehicles[characterId]) {
+          server._vehicles[characterId].positionUpdate =
+            packet.data.PositionUpdate;
         }
 
         if (packet.data.PositionUpdate.engineRPM) {

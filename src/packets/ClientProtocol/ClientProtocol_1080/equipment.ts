@@ -69,7 +69,21 @@ export const equipmentPackets: any = [
       ],
     },
   ],
-  ["Equipment.UnsetCharacterEquipmentSlot", 0x9503, {}],
+  [
+    "Equipment.UnsetCharacterEquipmentSlot",
+    0x9503,
+    {
+      fields: [
+        {
+          name: "characterData",
+          type: "schema",
+          fields: equipmentCharacterDataSchema,
+        },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "slotId", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
   [
     "Equipment.SetCharacterEquipmentSlots",
     0x9504,

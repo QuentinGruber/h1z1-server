@@ -1,12 +1,12 @@
 {
   "name": "h1z1-server",
-  "version": "0.19.3-4",
+  "version": "0.20.1-0",
   "description": "Library for emulating h1z1 servers",
   "author": "Quentin Gruber <quentingruber@gmail.com> (http://github.com/quentingruber)",
   "license": "GPL-3.0-only",
   "main": "h1z1-server.js",
   "engines": {
-    "node": ">=0.14.0 <17"
+    "node": ">=0.16.0 <18"
   },
   "bin": {
     "if-env": "scripts/if-env.js",
@@ -17,11 +17,11 @@
     "@swc/cli": "0.1.55",
     "@swc/core": "1.2.127",
     "debug": "4.3.3",
-    "h1emu-core": "0.6.5",
-    "h1z1-dataschema": "1.5.8",
-    "mongodb": "4.3.1",
+    "h1emu-core": "0.7.0",
+    "h1z1-dataschema": "1.5.9",
+    "mongodb": "4.4.0",
     "mongodb-restore-dump": "1.0.1",
-    "typedoc": "0.22.11",
+    "typedoc": "0.22.12",
     "typescript": "4.5.5",
     "v8-compile-cache": "2.3.0"
   },
@@ -31,8 +31,8 @@
   "devDependencies": {
     "glob": "7.2.0",
     "prettier": "2.5.1",
-    "ts-node": "10.4.0",
-    "typedoc": "0.22.11"
+    "ts-node": "10.5.0",
+    "typedoc": "0.22.12"
   },
   "scripts": {
     "gen-packets-types": "npx ts-node ./scripts/genPacketsNames.ts && npx prettier -w ./src/types/packets.ts",
