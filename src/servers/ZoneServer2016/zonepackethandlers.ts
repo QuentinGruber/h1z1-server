@@ -1051,6 +1051,11 @@ export class zonePacketHandlers {
               effectTags: [],
             },
           });
+          entityData._equipment[1] = { // temporary to fix missing heads
+            modelName: entityData.headActor,
+            slotId: 1,
+            guid: "0x0"
+          }
           server.updateEquipment(client, entityData);
           server.sendData(client, "Character.WeaponStance", {
             // activates weaponstance key
