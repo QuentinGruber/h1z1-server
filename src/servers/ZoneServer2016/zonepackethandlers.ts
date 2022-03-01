@@ -1259,6 +1259,14 @@ export class zonePacketHandlers {
       const itemDefinition = server.getItemDefinition(
         server._items[packet.data.itemGuid].itemDefinitionId
       );
+      // temporarily disable equipped backpack logic
+      if(client.character._loadout[12]?.itemGuid == packet.data.itemGuid) {
+        server.sendChatText(
+          client,
+          `[ERROR] Equipped backpack use options are disabled for now.`
+        );
+        return;
+      }
       const nameId = itemDefinition.NAME_ID;
       switch (packet.data.itemUseOption) {
         case 4: // normal item drop option
@@ -1270,11 +1278,20 @@ export class zonePacketHandlers {
             packet.data.itemSubData?.count
           );
           break;
-        case 60:
+        case 60: //equip item
           const item = server._items[packet.data.itemGuid],
             loadoutId = server.getLoadoutSlot(item.itemDefinitionId),
             oldLoadoutItem = client.character._loadout[loadoutId];
           if (oldLoadoutItem) {
+            // temporarily disable equipped backpack logic
+            if(oldLoadoutItem.slotId == 12) {
+              server.sendChatText(
+                client,
+                `[ERROR] Equipped backpack use options are disabled for now.`
+              );
+              return;
+            }
+
             // if target loadoutSlot is occupied
             if (oldLoadoutItem.itemGuid == packet.data.itemGuid) {
               server.sendChatText(client, "[ERROR] Item is already equipped!");

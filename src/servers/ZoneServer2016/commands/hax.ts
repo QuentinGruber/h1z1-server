@@ -745,7 +745,7 @@ const hax: any = {
   additem: function (server: ZoneServer2016, client: Client, args: any[]) {
     const itemDefId = Number(args[1]),
       count = Number(args[2]);
-    if (!args[2] || !isNaN(count)) {
+    if (!args[2] || isNaN(count)) {
       server.sendChatText(
         client,
         "[ERROR] Usage /hax additem {itemDefinitionId} {count}"
