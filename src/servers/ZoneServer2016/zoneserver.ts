@@ -2796,11 +2796,6 @@ export class ZoneServer2016 extends ZoneServer {
             item.itemDefinitionId
         );
     }
-    this.startTimer(client, nameId, timeout);
-    if (client.hudTimer != null) {
-      clearTimeout(client.hudTimer);
-    }
-    client.posAtLogoutStart = client.character.state.position;
     this.utilizeHudTimer(
       client,
       this.eatItemPass,
@@ -2833,10 +2828,6 @@ export class ZoneServer2016 extends ZoneServer {
           "[ERROR] Medical not mapped to item Definition " +
             item.itemDefinitionId
         );
-    }
-    this.startTimer(client, nameId, timeout);
-    if (client.hudTimer != null) {
-      clearTimeout(client.hudTimer);
     }
     this.utilizeHudTimer(
       client,
