@@ -24,6 +24,13 @@ const dev: any = {
       `/dev commands list: \n/dev ${Object.keys(this).join("\n/dev ")}`
     );
   },
+  d: function (server: ZoneServer2016, client: Client, args: any[]) {
+    // quick disconnect
+    server.sendData(client, "CharacterSelectSessionResponse", {
+      status: 1,
+      sessionId: client.loginSessionId,
+    });
+  },
   testpacket: function (server: ZoneServer2016, client: Client, args: any[]) {
     const packetName = args[1];
     server.sendData(client, packetName, {});

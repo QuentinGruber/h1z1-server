@@ -195,7 +195,7 @@ export class zonePacketHandlers {
     ) {
       client.currentPOI = 0; // clears currentPOI for POIManager
       server.sendGameTimeSync(client);
-      server.startRessourceUpdater(client);
+      client.character.startRessourceUpdater(client,server);
       if (client.firstLoading) {
         server.sendData(client, "POIChangeMessage", {
           // welcome POI message
