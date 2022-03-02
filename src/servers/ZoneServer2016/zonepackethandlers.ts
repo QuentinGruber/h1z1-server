@@ -1302,18 +1302,10 @@ export class zonePacketHandlers {
           }, 3000);
           break;
         case 1: //eat
-          server.startTimer(client, nameId, 1000);
-          client.posAtLogoutStart = client.character.state.position;
-          client.hudTimer = setTimeout(() => {
-            server.eatItem(client, packet.data.itemGuid);
-          }, 1000);
+          server.eatItem(client, packet.data.itemGuid, nameId);
           break;
         case 2: //drink
-          server.startTimer(client, nameId, 1000);
-          client.posAtLogoutStart = client.character.state.position;
-          client.hudTimer = setTimeout(() => {
-            server.drinkItem(client, packet.data.itemGuid);
-          }, 1000);
+          server.drinkItem(client, packet.data.itemGuid, nameId);
           break;
         case 3: //use
           server.startTimer(client, nameId, 2000);
@@ -1323,11 +1315,18 @@ export class zonePacketHandlers {
           }, 2000);
           break;
         case 17: //refuel
-            server.startTimer(client, nameId, 5000);
-            client.posAtLogoutStart = client.character.state.position;
-            client.hudTimer = setTimeout(() => {
-              server.refuelVehicle(client, packet.data.itemGuid, packet.data.characterId2);
-            }, 5000);
+          server.startTimer(client, nameId, 5000);
+          client.posAtLogoutStart = client.character.state.position;
+          client.hudTimer = setTimeout(() => {
+            server.refuelVehicle(
+              client,
+              packet.data.itemGuid,
+              packet.data.characterId2
+            );
+          }, 5000);
+          break;
+        case 52: //use medical
+          server.useMedical(client, packet.data.itemGuid, nameId);
           break;
         default:
           server.sendChatText(
