@@ -1614,8 +1614,20 @@ export class ZoneServer2016 extends ZoneServer {
           ) &&
           !client.spawnedEntities.includes(this._doors[door])
         ) {
-          this.sendData(client, "AddSimpleNpc", this._doors[door], 1);
+          const object = this._doors[door];
+          this.sendData(client, "AddLightweightNpc", object, 1);
           client.spawnedEntities.push(this._doors[door]);
+          if (object.isOpen) {
+            this.sendDataToAll("PlayerUpdatePosition", {
+              transientId: object.transientId,
+              positionUpdate: {
+                sequenceTime: 0,
+                unknown3_int8: 0,
+                position: object.position,
+                orientation: object.openAngle,
+              },
+            });
+          }
         }
       }
     });
