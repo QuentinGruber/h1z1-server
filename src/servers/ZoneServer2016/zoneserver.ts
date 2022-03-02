@@ -2528,6 +2528,7 @@ export class ZoneServer2016 extends ZoneServer {
       itemDefId: item.itemDefinitionId,
       count: count,
     });
+    /*
     const loadoutSlotId = this.getLoadoutSlot(itemDefinition.ID);
     if (client.character._loadout[loadoutSlotId]?.itemGuid == itemGuid) {
       this.deleteItem(client, itemGuid);
@@ -2546,15 +2547,6 @@ export class ZoneServer2016 extends ZoneServer {
         // primary slot
         this.equipItem(client, client.character._loadout[7].itemGuid); //equip fists
       }
-      this.worldObjectManager.createLootEntity(
-        this,
-        itemDefinition.ID,
-        count,
-        [...client.character.state.position],
-        [...client.character.state.lookAt],
-        -1,
-        itemGuid
-      );
     } else {
       const dropItemContainer = this.getItemContainer(client, itemGuid);
       const dropItem = dropItemContainer?.items[itemGuid];
@@ -2562,15 +2554,6 @@ export class ZoneServer2016 extends ZoneServer {
       if (dropItem.stackCount <= count) {
         delete dropItemContainer.items[itemGuid];
         this.deleteItem(client, itemGuid);
-        this.worldObjectManager.createLootEntity(
-          this,
-          itemDefinition.ID,
-          count,
-          [...client.character.state.position],
-          [...client.character.state.lookAt],
-          -1,
-          itemGuid
-        );
       } else {
         dropItem.stackCount -= count;
         this.updateContainerItem(
@@ -2578,19 +2561,23 @@ export class ZoneServer2016 extends ZoneServer {
           dropItem.itemGuid,
           this.getItemContainer(client, dropItem.itemGuid)
         );
-        this.worldObjectManager.createLootEntity(
-          this,
-          itemDefinition.ID,
-          count,
-          [...client.character.state.position],
-          [...client.character.state.lookAt]
-        );
       }
     }
+    */
+    this.removeInventoryItem(client, itemGuid, count);
+    this.worldObjectManager.createLootEntity(
+      this,
+      itemDefinition.ID,
+      count,
+      [...client.character.state.position],
+      [...client.character.state.lookAt]
+    );
     this.spawnObjects(client); // manually call this for now
+    /*
     if (itemDefinition.ITEM_TYPE === 34) {
       delete client.character._containers[item.guid];
     }
+    */
   }
 
   lootItem(client: Client, itemGuid: string | undefined, count: number) {
@@ -2989,22 +2976,32 @@ export class ZoneServer2016 extends ZoneServer {
     return inventory;
   }
   
-  craftItem(client: Client, recipeId: number, count: number): string | undefined {
+  craftItem(client: Client, recipeId: number, count: number): string | undefined{
+  /*
+  const timerTime = 1000;
+  this.sendData(client, "ClientUpdate.StartTimer", {
+    stringId: 0,
+    time: timerTime,
+  });
+  */
     const recipe = this._recipes[recipeId];
     if(!recipe) {
       this.sendChatText(client, `[ERROR] Invalid recipeId ${recipeId}`);
       return undefined;
     }
-    let inventory = this.getInventoryAsContainer(client);
-    recipe.components.forEach((component: any) => {
+    
+    for(const component of recipe.components){
+      const inventory = this.getInventoryAsContainer(client);
       if(!Object.keys(inventory).includes(component.itemDefinitionId.toString())) {
         // if inventory doesn't have component but has materials for it
         if(!this._recipes[component.itemDefinitionId]) {
           return undefined; // no valid recipe to craft component
         }
-        if(!this.craftItem(client, component.itemDefinitionId, component.requiredAmount * count)){
-          console.log("Craftitem error")
-          return undefined; // craftItem returned some error
+        for(let i = 0; i < count; i++) {
+          if(!this.craftItem(client, component.itemDefinitionId, component.requiredAmount)){
+            console.log("Craftitem error")
+            return undefined; // craftItem returned some error
+          }
         }
         /*
         const item = this._items[craft as string]
@@ -3017,7 +3014,7 @@ export class ZoneServer2016 extends ZoneServer {
           }); // push new itemstack
         }
         */
-        inventory = this.getInventoryAsContainer(client);// todo: stop refreshing whole inventory just for one item stack
+        //inventory = this.getInventoryAsContainer(client);// todo: stop refreshing whole inventory just for one item stack
       } 
       let remainingItems = component.requiredAmount * count;
       inventory[component.itemDefinitionId]?.forEach((item) => {
@@ -3028,11 +3025,11 @@ export class ZoneServer2016 extends ZoneServer {
         }
         else {
           if(!this.removeInventoryItem(client, item.itemGuid, item.stackCount)) {
-            return undefined; // return if not enough items
+          return undefined; // return if not enough items
           }
         }
       })
-    })
+    }
     const itemGuid = this.generateItem(recipe.itemDefinitionId);
     this.lootItem(client, itemGuid, count);
     return itemGuid;
@@ -3056,8 +3053,9 @@ export class ZoneServer2016 extends ZoneServer {
           }
         }
       });
-      
+        
     });*/
+    
   }
   //#endregion
 
