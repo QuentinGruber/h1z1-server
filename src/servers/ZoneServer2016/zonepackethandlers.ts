@@ -1051,11 +1051,12 @@ export class zonePacketHandlers {
               effectTags: [],
             },
           });
-          entityData._equipment[1] = { // temporary to fix missing heads
+          entityData._equipment[1] = {
+            // temporary to fix missing heads
             modelName: entityData.headActor,
             slotId: 1,
-            guid: "0x0"
-          }
+            guid: "0x0",
+          };
           server.updateEquipment(client, entityData);
           server.sendData(client, "Character.WeaponStance", {
             // activates weaponstance key
@@ -1265,7 +1266,7 @@ export class zonePacketHandlers {
         server._items[packet.data.itemGuid].itemDefinitionId
       );
       // temporarily disable equipped backpack logic
-      if(client.character._loadout[12]?.itemGuid == packet.data.itemGuid) {
+      if (client.character._loadout[12]?.itemGuid == packet.data.itemGuid) {
         server.sendChatText(
           client,
           `[ERROR] Equipped backpack use options are disabled for now.`
@@ -1289,7 +1290,7 @@ export class zonePacketHandlers {
             oldLoadoutItem = client.character._loadout[loadoutId];
           if (oldLoadoutItem) {
             // temporarily disable equipped backpack logic
-            if(oldLoadoutItem.slotId == 12) {
+            if (oldLoadoutItem.slotId == 12) {
               server.sendChatText(
                 client,
                 `[ERROR] Equipped backpack use options are disabled for now.`
