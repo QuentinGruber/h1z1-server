@@ -2783,7 +2783,8 @@ export class ZoneServer2016 extends ZoneServer {
   }
 
   eatItem(client: Client, itemGuid: string, nameId: number) {
-    const item = this._items[itemGuid];
+    const item = this._items[itemGuid],
+      itemDefinition = this.getItemDefinition(item.itemDefinitionId);
     let drinkCount = 0;
     let eatCount = 2000;
     let givetrash = 0;
@@ -2810,22 +2811,60 @@ export class ZoneServer2016 extends ZoneServer {
         );
     }
     this.startTimer(client, nameId, timeout);
+    if (client.hudTimer != null) {
+      clearTimeout(client.hudTimer);
+    }
     client.posAtLogoutStart = client.character.state.position;
-    client.hudTimer = setTimeout(() => {
-      this.removeInventoryItem(client, itemGuid, 1);
-      client.character.resources.food += eatCount;
-      client.character.resources.water += drinkCount;
-      const { food, water } = client.character.resources;
-      this.updateResource(client, client.character.characterId, food, 4, 4);
-      this.updateResource(client, client.character.characterId, water, 5, 5);
-      if (givetrash) {
-        this.lootContainerItem(client, this.generateItem(givetrash), 1);
-      }
-    }, timeout);
+    this.utilizeHudTimer(
+      client,
+      this.eatItemPass,
+      [client, itemGuid, eatCount, drinkCount, givetrash],
+      nameId,
+      timeout
+    );
+  }
+
+  useMedical(client: Client, itemGuid: string, nameId: number) {
+    const item = this._items[itemGuid],
+      itemDefinition = this.getItemDefinition(item.itemDefinitionId);
+    let timeout = 1000;
+    let healCount = 9;
+    switch (item.itemDefinitionId) {
+      case 78: // med kit
+        healCount = 99;
+        timeout = 5000;
+        break;
+      case 24: // bandage
+        healCount = 9;
+        timeout = 1000;
+        break;
+      case 2214: //dressed bandage
+        healCount = 29;
+        timeout = 2000;
+        break;
+      default:
+        this.sendChatText(
+          client,
+          "[ERROR] Medical not mapped to item Definition " +
+            item.itemDefinitionId
+        );
+    }
+    this.startTimer(client, nameId, timeout);
+    if (client.hudTimer != null) {
+      clearTimeout(client.hudTimer);
+    }
+    this.utilizeHudTimer(
+      client,
+      this.useMedicalPass,
+      [client, itemGuid, healCount],
+      nameId,
+      timeout
+    );
   }
 
   drinkItem(client: Client, itemGuid: string, nameId: number) {
-    const item = this._items[itemGuid];
+    const item = this._items[itemGuid],
+      itemDefinition = this.getItemDefinition(item.itemDefinitionId);
     let drinkCount = 2000;
     let eatCount = 0;
     let givetrash = 0;
@@ -2850,60 +2889,22 @@ export class ZoneServer2016 extends ZoneServer {
             item.itemDefinitionId
         );
     }
-    this.startTimer(client, nameId, timeout);
-    client.posAtLogoutStart = client.character.state.position;
-    client.hudTimer = setTimeout(() => {
-      this.removeInventoryItem(client, itemGuid, 1);
-      client.character.resources.food += eatCount;
-      client.character.resources.water += drinkCount;
-      const { food, water } = client.character.resources;
-      this.updateResource(client, client.character.characterId, food, 4, 4);
-      this.updateResource(client, client.character.characterId, water, 5, 5);
-      if (givetrash) {
-        this.lootContainerItem(client, this.generateItem(givetrash), 1);
-      }
-    }, timeout);
-  }
-  
-  useMedical(client: Client, itemGuid: string, nameId: number) {
-    const item = this._items[itemGuid];
-    let timeout = 1000;
-    let healCount = 9;
-    switch (item.itemDefinitionId) {
-      case 78: // med kit
-        healCount = 99;
-        timeout = 5000;
-        break;
-      case 24: // bandage
-        healCount = 9;
-        timeout = 1000;
-        break;
-      case 2214: //dressed bandage
-        healCount = 29;
-        timeout = 2000;
-        break;
-      default:
-        this.sendChatText(
-          client,
-          "[ERROR] Medical not mapped to item Definition " +
-            item.itemDefinitionId
-        );
-    }
-    this.startTimer(client, nameId, timeout);
-    client.posAtLogoutStart = client.character.state.position;
-    client.hudTimer = setTimeout(() => {
-      client.character.healingMaxTicks += healCount;
-      if (!client.character.healingInterval) {
-        this.starthealingInterval(client);
-      }
-      this.removeInventoryItem(client, itemGuid, 1);
-    }, timeout);
+
+    this.utilizeHudTimer(
+      client,
+      this.drinkItemPass,
+      [client, itemGuid, eatCount, drinkCount, givetrash],
+      nameId,
+      timeout
+    );
   }
 
   useItem(client: Client, itemGuid: string) {
     const item = this._items[itemGuid],
       itemDefinition = this.getItemDefinition(item.itemDefinitionId);
+    const nameId = itemDefinition.NAME_ID;
     let useoption = "";
+    let timeout = 1000;
     switch (item.itemDefinitionId) {
       case 1353: // empty bottle
         useoption = "fill";
@@ -2911,31 +2912,54 @@ export class ZoneServer2016 extends ZoneServer {
       default:
         this.sendChatText(
           client,
-          "[ERROR] No use option mapped to item Definition " + itemDefinition
+          "[ERROR] No use option mapped to item Definition " +
+            item.itemDefinitionId
         );
     }
     switch (useoption) {
       case "fill": // empty bottle
-        if (client.character.characterStates.inWater) {
-          this.removeInventoryItem(client, itemGuid, 1);
-          this.lootContainerItem(client, this.generateItem(1368), 1); // give dirty water
-        } else {
-          this.sendData(client, "ClientUpdate.TextAlert", {
-            message: "There is no water source nearby",
-          });
-        }
+        this.utilizeHudTimer(
+          client,
+          this.fillPass,
+          [client, itemGuid],
+          nameId,
+          timeout
+        );
         break;
       default:
         return;
     }
+  }
+  refuelVehicle(client: Client, itemGuid: string, vehicleGuid: string) {
+    const item = this._items[itemGuid],
+      itemDefinition = this.getItemDefinition(item.itemDefinitionId);
+    const nameId = itemDefinition.NAME_ID;
+    let timeout = 5000;
+    let fuelValue = 2500;
+    switch (item.itemDefinitionId) {
+      case 1384: // ethanol
+        fuelValue = 5000;
+        break;
+      default:
+        break;
+    }
+    this.utilizeHudTimer(
+      client,
+      this.refuelVehiclePass,
+      [client, itemGuid, vehicleGuid, fuelValue],
+      nameId,
+      timeout
+    );
   }
 
   shredItem(client: Client, itemGuid: string) {
     const itemDefinition = this.getItemDefinition(
       this._items[itemGuid].itemDefinitionId
     );
+    const nameId = itemDefinition.NAME_ID;
     const itemType = itemDefinition.ITEM_TYPE;
     let count = 1;
+    let timeout = 3000;
     switch (itemType) {
       case 36:
       case 39:
@@ -2947,20 +2971,76 @@ export class ZoneServer2016 extends ZoneServer {
       default:
         this.sendChatText(client, "[ERROR] Unknown salvage item or count.");
     }
-    this.removeInventoryItem(client, itemGuid, 1);
-    this.lootItem(client, this.generateItem(23), count);
+    this.utilizeHudTimer(
+      client,
+      this.shredItemPass,
+      [client, itemGuid, count],
+      nameId,
+      timeout
+    );
   }
-  
-  refuelVehicle(client: Client, itemGuid: string, vehicleGuid: string) {
-    const item = this._items[itemGuid];
-    let fuelValue = 2500;
-    switch (item.itemDefinitionId) {
-      case 1384: // ethanol
-        fuelValue = 5000;
-        break;
-      default:
-        break;
+
+  drinkItemPass(
+    client: Client,
+    itemGuid: string,
+    eatCount: number,
+    drinkCount: number,
+    givetrash: number
+  ) {
+    this.removeInventoryItem(client, itemGuid, 1);
+    client.character.resources.food += eatCount;
+    client.character.resources.water += drinkCount;
+    const { food, water } = client.character.resources;
+    this.updateResource(client, client.character.characterId, food, 4, 4);
+    this.updateResource(client, client.character.characterId, water, 5, 5);
+    if (givetrash) {
+      this.lootContainerItem(client, this.generateItem(givetrash), 1);
     }
+  }
+
+  eatItemPass(
+    client: Client,
+    itemGuid: string,
+    eatCount: number,
+    drinkCount: number,
+    givetrash: number
+  ) {
+    this.removeInventoryItem(client, itemGuid, 1);
+    client.character.resources.food += eatCount;
+    client.character.resources.water += drinkCount;
+    const { food, water } = client.character.resources;
+    this.updateResource(client, client.character.characterId, food, 4, 4);
+    this.updateResource(client, client.character.characterId, water, 5, 5);
+    if (givetrash) {
+      this.lootContainerItem(client, this.generateItem(givetrash), 1);
+    }
+  }
+
+  useMedicalPass(client: Client, itemGuid: string, healCount: number) {
+    client.character.healingMaxTicks += healCount;
+    if (!client.character.healingInterval) {
+      this.starthealingInterval(client);
+    }
+    this.removeInventoryItem(client, itemGuid, 1);
+  }
+
+  fillPass(client: Client, itemGuid: string) {
+    if (client.character.characterStates.inWater) {
+      this.removeInventoryItem(client, itemGuid, 1);
+      this.lootContainerItem(client, this.generateItem(1368), 1); // give dirty water
+    } else {
+      this.sendData(client, "ClientUpdate.TextAlert", {
+        message: "There is no water source nearby",
+      });
+    }
+  }
+
+  refuelVehiclePass(
+    client: Client,
+    itemGuid: string,
+    vehicleGuid: string,
+    fuelValue: number
+  ) {
     this.removeInventoryItem(client, itemGuid, 1);
     const vehicle = this._vehicles[vehicleGuid];
     vehicle.npcData.resources.fuel += fuelValue;
@@ -2974,6 +3054,28 @@ export class ZoneServer2016 extends ZoneServer {
       396,
       50
     );
+  }
+
+  shredItemPass(client: Client, itemGuid: string, count: number) {
+    this.removeInventoryItem(client, itemGuid, 1);
+    this.lootItem(client, this.generateItem(23), count);
+  }
+
+  utilizeHudTimer(
+    client: Client,
+    callback: any,
+    args: any,
+    nameId: number,
+    timeout: number
+  ) {
+    this.startTimer(client, nameId, timeout);
+    if (client.hudTimer != null) {
+      clearTimeout(client.hudTimer);
+    }
+    client.posAtLogoutStart = client.character.state.position;
+    client.hudTimer = setTimeout(() => {
+      callback.apply(this, args);
+    }, timeout);
   }
   
   getInventoryAsContainer(client: Client): {[itemDefinitionId: number]: inventoryItem[]} {
