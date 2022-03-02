@@ -2054,11 +2054,7 @@ export class ZoneServer2016 extends ZoneServer {
         `[ERROR] DropItem: No WORLD_MODEL_ID mapped to itemDefinitionId: ${this._items[itemGuid].itemDefinitionId}`
       );
     }
-    this.sendData(client, "Character.DroppedIemNotification", {
-      characterId: client.character.characterId,
-      itemDefId: item.itemDefinitionId,
-      count: count,
-    });
+    
     const loadoutSlotId = this.getLoadoutSlot(itemDefinition.ID);
     if (client.character._loadout[loadoutSlotId]?.itemGuid == itemGuid) {
       this.deleteItem(client, itemGuid);
@@ -2122,6 +2118,11 @@ export class ZoneServer2016 extends ZoneServer {
     if (itemDefinition.ITEM_TYPE === 34) {
       delete client.character._containers[item.guid];
     }
+    this.sendData(client, "Character.DroppedIemNotification", {
+      characterId: client.character.characterId,
+      itemDefId: item.itemDefinitionId,
+      count: count,
+    });
   }
 
   lootItem(client: Client, itemGuid: string | undefined, count: number) {
