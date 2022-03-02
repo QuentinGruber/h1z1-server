@@ -402,6 +402,16 @@ export class ZoneServer extends EventEmitter {
     return generatedTransient;
   }
 
+  createClient(sessionId:number,soeClientId:string,loginSessionId:string,characterId:string,generatedTransient:number){
+    return new Client(
+      sessionId,
+      soeClientId,
+      loginSessionId,
+      characterId,
+      generatedTransient
+    );
+  }
+
   onGatewayLoginEvent(
     err: string,
     soeClient: SOEClient,
@@ -418,13 +428,7 @@ export class ZoneServer extends EventEmitter {
       `Client logged in from ${soeClient.address}:${soeClient.port} with character id: ${characterId}`
     );
     const generatedTransient = this.generateTransientId(characterId);
-    const zoneClient = new Client(
-      soeClient.sessionId,
-      soeClient.soeClientId,
-      loginSessionId,
-      characterId,
-      generatedTransient
-    );
+    const zoneClient = this.createClient(soeClient.sessionId,soeClient.soeClientId,loginSessionId,characterId,generatedTransient)
     this._clients[soeClient.sessionId] = zoneClient;
 
     this._transientIds[generatedTransient] = characterId;

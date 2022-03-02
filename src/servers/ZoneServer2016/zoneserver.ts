@@ -1288,6 +1288,16 @@ export class ZoneServer2016 extends ZoneServer {
     }
   }
 
+  createClient(sessionId:number,soeClientId:string,loginSessionId:string,characterId:string,generatedTransient:number){
+    return new Client(
+      sessionId,
+      soeClientId,
+      loginSessionId,
+      characterId,
+      generatedTransient
+    );
+  }
+
   getGameTime(): number {
     //debug("get server time");
     const delta = Date.now() - this._startGameTime;
