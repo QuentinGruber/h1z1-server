@@ -1124,8 +1124,8 @@ export class ZoneServer2016 extends ZoneServer {
     delete this._transientIds[characterId];
   }
 
-  sendManagedObjectResponseControlPacket(client: Client, obj:any){
-    this.sendData(client, "ClientUpdate.ManagedObjectResponseControl",obj );
+  sendManagedObjectResponseControlPacket(client: Client, obj: any) {
+    this.sendData(client, "ClientUpdate.ManagedObjectResponseControl", obj);
   }
 
   spawnNpcs(client: Client): void {
@@ -1467,7 +1467,9 @@ export class ZoneServer2016 extends ZoneServer {
       debug("\n\n\n\n\n\n\n\n\n\n takeover managed object");
       for (const characterId in this._clients) {
         const oldClient = this._clients[characterId];
-        const idx = oldClient.managedObjects.indexOf(vehicle.npcData.characterId);
+        const idx = oldClient.managedObjects.indexOf(
+          vehicle.npcData.characterId
+        );
         if (idx > -1) {
           this.dropManagedObject(oldClient, vehicle, true);
           break;
@@ -2054,7 +2056,7 @@ export class ZoneServer2016 extends ZoneServer {
         `[ERROR] DropItem: No WORLD_MODEL_ID mapped to itemDefinitionId: ${this._items[itemGuid].itemDefinitionId}`
       );
     }
-    
+
     const loadoutSlotId = this.getLoadoutSlot(itemDefinition.ID);
     if (client.character._loadout[loadoutSlotId]?.itemGuid == itemGuid) {
       this.deleteItem(client, itemGuid);

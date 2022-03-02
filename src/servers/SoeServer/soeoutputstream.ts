@@ -12,7 +12,7 @@
 // ======================================================================
 
 import { EventEmitter } from "events";
-import {RC4} from "h1emu-core"
+import { RC4 } from "h1emu-core";
 
 const debug = require("debug")("SOEOutputStream");
 
@@ -32,12 +32,12 @@ export class SOEOutputStream extends EventEmitter {
     this._lastAck = -1;
     this._cache = {};
     this._enableCaching = true;
-    this._rc4 = new RC4(cryptoKey)
+    this._rc4 = new RC4(cryptoKey);
   }
 
   write(data: Buffer): void {
     if (this._useEncryption) {
-      data = Buffer.from(this._rc4.encrypt(new Uint32Array(data)))
+      data = Buffer.from(this._rc4.encrypt(new Uint32Array(data)));
 
       if (data[0] === 0) {
         const tmp = Buffer.allocUnsafe(1);
