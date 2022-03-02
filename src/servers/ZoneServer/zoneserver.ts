@@ -157,10 +157,21 @@ export class ZoneServer extends EventEmitter {
 
     this._gatewayServer._soeServer.on(
       "PacketLimitationReached",
-      (client: Client) => {
-        this.onSoePacketLimitationReachedEvent(client);
+      (soeClient: SOEClient) => {
+        this.onSoePacketLimitationReachedEvent(this._clients[soeClient.sessionId]);
       }
     );
+
+    this._gatewayServer._soeServer.on(
+      "fatalError",
+      (soeClient: SOEClient) => {
+        const client = this._clients[soeClient.sessionId];
+        this.deleteClient(client);
+        // TODO: force crash the client 
+      }
+    );
+
+    
 
     this._gatewayServer.on(
       "login",

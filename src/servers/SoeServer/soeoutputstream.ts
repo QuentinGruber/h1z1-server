@@ -92,6 +92,7 @@ export class SOEOutputStream extends EventEmitter {
       );
     } else {
       console.error("Cache error, could not resend data!");
+      this.emit("cacheError");
     }
   }
 
