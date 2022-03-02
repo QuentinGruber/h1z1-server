@@ -19,7 +19,7 @@ import { ZoneClient2016 as Client } from "./classes/zoneclient";
 import { Vehicle2016 as Vehicle } from "./classes/vehicle";
 import { WorldObjectManager } from "./classes/worldobjectmanager";
 
-import { loadoutContainer, Weather2016 } from "../../types/zoneserver";
+import { inventoryItem, loadoutContainer, Weather2016 } from "../../types/zoneserver";
 import { h1z1PacketsType } from "../../types/packets";
 import { Character2016 as Character } from "./classes/character";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
@@ -66,6 +66,7 @@ export class ZoneServer2016 extends ZoneServer {
   _containerDefinitionIds: any[] = Object.keys(this._containerDefinitions);
   _respawnLocations: any;
   _speedTrees: any;
+  _recipes: { [recipeId: number]: any } = recipes;
 
   constructor(
     serverPort: number,
@@ -135,6 +136,7 @@ export class ZoneServer2016 extends ZoneServer {
         this._packetHandlers.processPacket(this, client, packet);
       } catch (error) {
         console.error(`An error occurred while processing a packet : `, packet);
+        console.log(error)
       }
     }
   }
@@ -426,7 +428,7 @@ export class ZoneServer2016 extends ZoneServer {
             };
           }),
         },
-        recipes: recipes,
+        recipes: Object.values(this._recipes),
         stats: stats,
         loadoutSlots: {
           loadoutId: 3,
@@ -2442,7 +2444,7 @@ export class ZoneServer2016 extends ZoneServer {
     return itemStack;
   }
 
-  removeInventoryItem(client: Client, itemGuid: string, count: number = 1) {
+  removeInventoryItem(client: Client, itemGuid: string, count: number = 1): boolean {
     const item = this._items[itemGuid],
       itemDefinition = this.getItemDefinition(item.itemDefinitionId);
     const loadoutSlotId = this.getLoadoutSlot(itemDefinition.ID);
@@ -2466,22 +2468,26 @@ export class ZoneServer2016 extends ZoneServer {
     } else {
       const removeItemContainer = this.getItemContainer(client, itemGuid);
       const removeItem = removeItemContainer?.items[itemGuid];
-      if (!removeItemContainer || !removeItem) return;
-      if (removeItem.stackCount <= count) {
+      if (!removeItemContainer || !removeItem) return false;
+      if (removeItem.stackCount == count) {
         delete removeItemContainer.items[itemGuid];
         this.deleteItem(client, itemGuid);
-      } else {
+      } else if (removeItem.stackCount > count) {
         removeItem.stackCount -= count;
         this.updateContainerItem(
           client,
           removeItem.itemGuid,
-          this.getItemContainer(client, removeItem.itemGuid)
+          removeItemContainer
         );
+      }
+      else { // if count > removeItem.stackCount 
+        return false;
       }
     }
     if (itemDefinition.ITEM_TYPE === 34) {
       delete client.character._containers[item.guid];
     }
+    return true;
   }
 
   dropItem(client: Client, itemGuid: string, count: number = 1) {
@@ -2558,54 +2564,6 @@ export class ZoneServer2016 extends ZoneServer {
       }
     }
     this.spawnObjects(client); // manually call this for now
-    if (itemDefinition.ITEM_TYPE === 34) {
-      delete client.character._containers[item.guid];
-    }
-  }
-  
-  dropItemCrafting(client: Client, itemGuid: string, count: number = 1) {
-    const item = this._items[itemGuid],
-      itemDefinition = this.getItemDefinition(item.itemDefinitionId);
-    const modelId = itemDefinition.WORLD_MODEL_ID;
-    if (!modelId) {
-      debug(
-        `[ERROR] DropItem: No WORLD_MODEL_ID mapped to itemDefinitionId: ${this._items[itemGuid].itemDefinitionId}`
-      );
-    }
-    const loadoutSlotId = this.getLoadoutSlot(itemDefinition.ID);
-    if (client.character._loadout[loadoutSlotId]?.itemGuid == itemGuid) {
-      this.deleteItem(client, itemGuid);
-      // TODO: add logic for checking if loadout item has an equipment slot, ex. radio doesn't have one
-      const equipmentSlotId = this.getEquipmentSlot(loadoutSlotId);
-      delete client.character._loadout[loadoutSlotId];
-      delete client.character._equipment[equipmentSlotId];
-      this.updateLoadout(client);
-      this.sendData(client, "Equipment.UnsetCharacterEquipmentSlot", {
-        characterData: {
-          characterId: client.character.characterId,
-        },
-        slotId: equipmentSlotId,
-      });
-      if (equipmentSlotId === 7) {
-        // primary slot
-        this.equipItem(client, client.character._loadout[7].itemGuid); //equip fists
-      }
-    } else {
-      const dropItemContainer = this.getItemContainer(client, itemGuid);
-      const dropItem = dropItemContainer?.items[itemGuid];
-      if (!dropItemContainer || !dropItem) return;
-      if (dropItem.stackCount <= count) {
-        delete dropItemContainer.items[itemGuid];
-        this.deleteItem(client, itemGuid);
-      } else {
-        dropItem.stackCount -= count;
-        this.updateContainerItem(
-          client,
-          dropItem.itemGuid,
-          this.getItemContainer(client, dropItem.itemGuid)
-        );
-      }
-    }
     if (itemDefinition.ITEM_TYPE === 34) {
       delete client.character._containers[item.guid];
     }
@@ -2948,35 +2906,88 @@ export class ZoneServer2016 extends ZoneServer {
     );
   }
   
-  dummyCraft(client: Client, recipeId: number, count: number) {
-    recipes.forEach((recipe: any) => {
-      if (recipe.recipeId == recipeId) {
-        this.lootItem(
-          client,
-          this.generateItem(recipe.itemDefinitionId),
-          count
-        );
-        recipe.components.forEach((component: any) => {
-          Object.keys(client.character._containers).forEach((loadoutSlotId) => {
-            const container =
-              client.character._containers[Number(loadoutSlotId)];
-            for (const itemobj in container.items) {
-              const item = container.items[itemobj];
-              if (
-                item.itemDefinitionId == component.itemDefinitionId &&
-                item.stackCount >= component.requiredAmount
-              ) {
-                this.dropItemCrafting(
-                  client,
-                  item.itemGuid,
-                  component.requiredAmount
-                );
-              }
-            }
-          });
-        });
-      }
+  getInventoryAsContainer(client: Client): {[itemDefinitionId: number]: inventoryItem[]} {
+    const inventory: {[itemDefinitionId: number]: inventoryItem[]} = {};
+    Object.keys(client.character._containers).forEach((loadoutSlotId) => {
+      const container = client.character._containers[Number(loadoutSlotId)];
+      Object.keys(container.items).forEach((itemGuid) => {
+        const item = container.items[itemGuid];
+        inventory[item.itemDefinitionId] = []; // init array
+        inventory[item.itemDefinitionId].push(item); // push new itemstack
+      });
     });
+    return inventory;
+  }
+  
+  craftItem(client: Client, recipeId: number, count: number): string | undefined {
+    const recipe = this._recipes[recipeId];
+    if(!recipe) {
+      this.sendChatText(client, `[ERROR] Invalid recipeId ${recipeId}`);
+      return undefined;
+    }
+    let inventory = this.getInventoryAsContainer(client);
+    recipe.components.forEach((component: any) => {
+      if(!Object.keys(inventory).includes(component.itemDefinitionId.toString())) {
+        // if inventory doesn't have component but has materials for it
+        if(!this._recipes[component.itemDefinitionId]) {
+          return undefined; // no valid recipe to craft component
+        }
+        if(!this.craftItem(client, component.itemDefinitionId, component.requiredAmount * count)){
+          console.log("Craftitem error")
+          return undefined; // craftItem returned some error
+        }
+        /*
+        const item = this._items[craft as string]
+        if(inventory[item.itemDefinitionId]){
+          inventory[item.itemDefinitionId].push({
+            itemDefinitionId: item.itemDefinitionId,
+            slotId: 0,
+            itemGuid: this.getAvailableItemStack(),
+            
+          }); // push new itemstack
+        }
+        */
+        inventory = this.getInventoryAsContainer(client);// todo: stop refreshing whole inventory just for one item stack
+      } 
+      let remainingItems = component.requiredAmount * count;
+      inventory[component.itemDefinitionId]?.forEach((item) => {
+        if(item.stackCount >= remainingItems) {
+          if(!this.removeInventoryItem(client, item.itemGuid, remainingItems)) {
+            return undefined; // return if not enough items
+          }
+        }
+        else {
+          if(!this.removeInventoryItem(client, item.itemGuid, item.stackCount)) {
+            return undefined; // return if not enough items
+          }
+        }
+      })
+    })
+    const itemGuid = this.generateItem(recipe.itemDefinitionId);
+    this.lootItem(client, itemGuid, count);
+    return itemGuid;
+    /*
+    recipe.components.forEach((component: any) => {
+
+      Object.keys(client.character._containers).forEach((loadoutSlotId) => {
+        const container =
+          client.character._containers[Number(loadoutSlotId)];
+        for (const itemGuid in container.items) {
+          const item = container.items[itemGuid];
+          if (
+            item.itemDefinitionId == component.itemDefinitionId &&
+            item.stackCount >= component.requiredAmount
+          ) {
+            this.removeInventoryItem(
+              client,
+              item.itemGuid,
+              component.requiredAmount
+            );
+          }
+        }
+      });
+      
+    });*/
   }
   //#endregion
 
