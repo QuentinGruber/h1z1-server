@@ -1111,10 +1111,46 @@ export class zonePacketHandlers {
             : server.dismountVehicle(client);
           break;
         case 3: // door
-          server.sendChatText(
-            client,
-            `Tell @Meme#2744 to add door opening/closing ;)`
-          );
+          if (entityData.isOpen === false) {
+            entityData.moving = true;
+            setTimeout(function () {
+              entityData.moving = false;
+            }, 500);
+            server.sendDataToAll("PlayerUpdatePosition", {
+              transientId: entityData.transientId,
+              positionUpdate: {
+                sequenceTime: 0,
+                unknown3_int8: 0,
+                position: entityData.position,
+                orientation: entityData.openAngle,
+              },
+            });
+            server.sendDataToAll("Command.PlayDialogEffect", {
+              characterId: entityData.characterId,
+              effectId: 5049,
+            });
+            entityData.isOpen = true;
+          } else {
+            entityData.moving = true;
+            setTimeout(function () {
+              entityData.moving = false;
+            }, 500);
+            server.sendData(client, "PlayerUpdatePosition", {
+              transientId: entityData.transientId,
+              positionUpdate: {
+                sequenceTime: 0,
+                unknown3_int8: 0,
+                stance: 1089,
+                position: entityData.position,
+                orientation: entityData.closedAngle,
+              },
+            });
+            server.sendData(client, "Command.PlayDialogEffect", {
+              characterId: entityData.characterId,
+              effectId: 5049,
+            });
+            entityData.isOpen = false;
+          }
           break;
         default:
           break;
