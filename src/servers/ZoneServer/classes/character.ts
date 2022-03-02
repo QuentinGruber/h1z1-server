@@ -187,14 +187,5 @@ export class Character {
       server.updateResource(client, this.characterId, virus, 9, 12);
       this.resourcesUpdater.refresh();
     }, 3000);
-
-    server.sendData(client, "ZoneDoneSendingInitialData", {});
-
-    server.updateCharacterState(
-      client,
-      client.character.characterId,
-      this.characterStates,
-      false
-    );
   }
 }
