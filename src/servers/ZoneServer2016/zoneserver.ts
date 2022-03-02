@@ -127,6 +127,7 @@ export class ZoneServer2016 extends ZoneServer {
       try {
         this._packetHandlers.processPacket(this, client, packet);
       } catch (error) {
+        console.error(error);
         console.error(`An error occurred while processing a packet : `, packet);
       }
     }
@@ -1123,6 +1124,10 @@ export class ZoneServer2016 extends ZoneServer {
     delete this._transientIds[characterId];
   }
 
+  sendManagedObjectResponseControlPacket(client: Client, obj: any) {
+    this.sendData(client, "ClientUpdate.ManagedObjectResponseControl", obj);
+  }
+
   spawnNpcs(client: Client): void {
     for (const npc in this._npcs) {
       if (
@@ -1427,7 +1432,7 @@ export class ZoneServer2016 extends ZoneServer {
       control: true,
       objectCharacterId: vehicle.npcData.characterId,
     });
-    client.managedObjects.push(vehicle);
+    client.managedObjects.push(vehicle.npcData.characterId);
     vehicle.isManaged = true;
   }
 
@@ -1436,7 +1441,7 @@ export class ZoneServer2016 extends ZoneServer {
     vehicle: Vehicle,
     keepManaged: boolean = false
   ) {
-    const index = client.managedObjects.indexOf(vehicle);
+    const index = client.managedObjects.indexOf(vehicle.npcData.characterId);
     if (index > -1) {
       // todo: vehicle seat swap managed object drop logic
       debug("\n\n\n\n\n\n\n\n\n\n drop managed object");
@@ -1456,13 +1461,15 @@ export class ZoneServer2016 extends ZoneServer {
   }
 
   takeoverManagedObject(newClient: Client, vehicle: Vehicle) {
-    const index = newClient.managedObjects.indexOf(vehicle);
+    const index = newClient.managedObjects.indexOf(vehicle.npcData.characterId);
     if (index === -1) {
       // if object is already managed by client, do nothing
       debug("\n\n\n\n\n\n\n\n\n\n takeover managed object");
       for (const characterId in this._clients) {
         const oldClient = this._clients[characterId];
-        const idx = oldClient.managedObjects.indexOf(vehicle);
+        const idx = oldClient.managedObjects.indexOf(
+          vehicle.npcData.characterId
+        );
         if (idx > -1) {
           this.dropManagedObject(oldClient, vehicle, true);
           break;
@@ -2049,11 +2056,7 @@ export class ZoneServer2016 extends ZoneServer {
         `[ERROR] DropItem: No WORLD_MODEL_ID mapped to itemDefinitionId: ${this._items[itemGuid].itemDefinitionId}`
       );
     }
-    this.sendData(client, "Character.DroppedIemNotification", {
-      characterId: client.character.characterId,
-      itemDefId: item.itemDefinitionId,
-      count: count,
-    });
+
     const loadoutSlotId = this.getLoadoutSlot(itemDefinition.ID);
     if (client.character._loadout[loadoutSlotId]?.itemGuid == itemGuid) {
       this.deleteItem(client, itemGuid);
@@ -2117,6 +2120,11 @@ export class ZoneServer2016 extends ZoneServer {
     if (itemDefinition.ITEM_TYPE === 34) {
       delete client.character._containers[item.guid];
     }
+    this.sendData(client, "Character.DroppedIemNotification", {
+      characterId: client.character.characterId,
+      itemDefId: item.itemDefinitionId,
+      count: count,
+    });
   }
 
   lootItem(client: Client, itemGuid: string | undefined, count: number) {

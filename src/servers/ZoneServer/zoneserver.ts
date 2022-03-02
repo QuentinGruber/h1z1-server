@@ -344,6 +344,7 @@ export class ZoneServer extends EventEmitter {
       try {
         this._packetHandlers.processPacket(this, client, packet);
       } catch (error) {
+        console.error(error);
         console.error(`An error occurred while processing a packet : `, packet);
       }
     }
@@ -434,7 +435,7 @@ export class ZoneServer extends EventEmitter {
   deleteClient(client: Client) {
     if (client.character) {
       this.deleteEntity(client.character.characterId, this._characters);
-      clearInterval(client.character?.resourcesUpdater);
+      clearTimeout(client.character?.resourcesUpdater);
       this.saveCharacterPosition(client);
       client.managedObjects?.forEach((characterId: any) => {
         this.dropVehicleManager(client, characterId);
@@ -1709,10 +1710,13 @@ export class ZoneServer extends EventEmitter {
     });
   }
 
+  sendManagedObjectResponseControlPacket(client: Client, obj: any) {
+    this.sendData(client, "PlayerUpdate.ManagedObjectResponseControl", obj);
+  }
   dropVehicleManager(client: Client, vehicleGuid: string) {
-    this.sendData(client, "PlayerUpdate.ManagedObjectResponseControl", {
-      unk: 0,
-      characterId: vehicleGuid,
+    this.sendManagedObjectResponseControlPacket(client, {
+      control: 0,
+      objectCharacterId: vehicleGuid,
     });
     client.managedObjects.splice(
       client.managedObjects.findIndex((e: string) => e === vehicleGuid),
