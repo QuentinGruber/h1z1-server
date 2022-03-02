@@ -1295,11 +1295,7 @@ export class zonePacketHandlers {
           server.equipItem(client, packet.data.itemGuid);
           break;
         case 6: // shred
-          server.startTimer(client, nameId, 3000);
-          client.posAtLogoutStart = client.character.state.position;
-          client.hudTimer = setTimeout(() => {
-            server.shredItem(client, packet.data.itemGuid);
-          }, 3000);
+          server.shredItem(client, packet.data.itemGuid);
           break;
         case 1: //eat
           server.eatItem(client, packet.data.itemGuid, nameId);
@@ -1308,22 +1304,14 @@ export class zonePacketHandlers {
           server.drinkItem(client, packet.data.itemGuid, nameId);
           break;
         case 3: //use
-          server.startTimer(client, nameId, 2000);
-          client.posAtLogoutStart = client.character.state.position;
-          client.hudTimer = setTimeout(() => {
-            server.useItem(client, packet.data.itemGuid);
-          }, 2000);
+          server.useItem(client, packet.data.itemGuid);
           break;
         case 17: //refuel
-          server.startTimer(client, nameId, 5000);
-          client.posAtLogoutStart = client.character.state.position;
-          client.hudTimer = setTimeout(() => {
-            server.refuelVehicle(
-              client,
-              packet.data.itemGuid,
-              packet.data.characterId2
-            );
-          }, 5000);
+          server.refuelVehicle(
+            client,
+            packet.data.itemGuid,
+            packet.data.characterId2
+          );
           break;
         case 52: //use medical
           server.useMedical(client, packet.data.itemGuid, nameId);
