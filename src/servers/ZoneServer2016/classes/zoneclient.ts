@@ -30,7 +30,6 @@ export class ZoneClient2016 extends ZoneClient {
       characterId,
       generatedTransient
     );
-      console.log("mdrrr")
     this.character = new Character2016(characterId, generatedTransient);
   }
 }
