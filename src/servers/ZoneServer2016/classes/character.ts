@@ -55,7 +55,6 @@ export class Character2016 extends Character {
     this.startRessourceUpdater = (client: ZoneClient2016, server: ZoneServer2016)=> {
       client.character.resourcesUpdater = setTimeout(() => {
         // prototype resource manager
-        console.log("updater")
         const { isRunning } = client.character;
         if (isRunning) {
           client.character.resources.stamina -= 20;
