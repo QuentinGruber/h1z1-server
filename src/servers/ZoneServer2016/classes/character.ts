@@ -39,8 +39,13 @@ export class Character2016 extends Character {
   _equipment: { [equipmentSlotId: number]: characterEquipment } = {};
   _containers: { [loadoutSlotId: number]: loadoutContainer } = {};
   startRessourceUpdater: any;
+  healingInterval?: any;
+  healingTicks: number;
+  healingMaxTicks: number;
   constructor(characterId: string, generatedTransient: number) {
     super(characterId, generatedTransient);
+    this.healingTicks = 0;
+    this.healingMaxTicks = 0;
     this.resources = {
       health: 5000,
       stamina: 50,

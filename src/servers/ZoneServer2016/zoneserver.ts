@@ -1279,6 +1279,30 @@ export class ZoneServer2016 extends ZoneServer {
       client.character.resourcesUpdater.refresh();
     }, 3000);
   }
+  
+  starthealingInterval(client: Client) {
+    client.character.healingInterval = setTimeout(() => {
+      client.character.resources.health += 100;
+      if (client.character.resources.health > 10000) {
+        client.character.resources.health = 10000;
+      }
+
+      this.updateResource(
+        client,
+        client.character.characterId,
+        client.character.resources.health,
+        1,
+        1
+      );
+      if (client.character.healingTicks++ < client.character.healingMaxTicks) {
+        client.character.healingInterval.refresh();
+      } else {
+        client.character.healingMaxTicks = 0;
+        client.character.healingTicks = 0;
+        delete client.character.healingInterval;
+      }
+    }, 1000);
+  }
 
   updateResource(
     client: Client,
@@ -2758,16 +2782,17 @@ export class ZoneServer2016 extends ZoneServer {
     });
   }
 
-  eatItem(client: Client, itemGuid: string) {
-    const item = this._items[itemGuid],
-      itemDefinition = this.getItemDefinition(item.itemDefinitionId);
+  eatItem(client: Client, itemGuid: string, nameId: number) {
+    const item = this._items[itemGuid];
     let drinkCount = 0;
     let eatCount = 2000;
     let givetrash = 0;
+    let timeout = 1000;
     switch (item.itemDefinitionId) {
       case 105: // berries
         drinkCount = 200;
         eatCount = 200;
+        timeout = 600;
         break;
       case 7: // canned Food
         eatCount = 4000;
@@ -2780,26 +2805,31 @@ export class ZoneServer2016 extends ZoneServer {
       default:
         this.sendChatText(
           client,
-          "[ERROR] eat count not mapped to item Definition " + itemDefinition
+          "[ERROR] eat count not mapped to item Definition " +
+            item.itemDefinitionId
         );
     }
-    this.removeInventoryItem(client, itemGuid, 1);
-    client.character.resources.food += eatCount;
-    client.character.resources.water += drinkCount;
-    const { food, water } = client.character.resources;
-    this.updateResource(client, client.character.characterId, food, 4, 4);
-    this.updateResource(client, client.character.characterId, water, 5, 5);
-    if (givetrash) {
-      this.lootContainerItem(client, this.generateItem(givetrash), 1);
-    }
+    this.startTimer(client, nameId, timeout);
+    client.posAtLogoutStart = client.character.state.position;
+    client.hudTimer = setTimeout(() => {
+      this.removeInventoryItem(client, itemGuid, 1);
+      client.character.resources.food += eatCount;
+      client.character.resources.water += drinkCount;
+      const { food, water } = client.character.resources;
+      this.updateResource(client, client.character.characterId, food, 4, 4);
+      this.updateResource(client, client.character.characterId, water, 5, 5);
+      if (givetrash) {
+        this.lootContainerItem(client, this.generateItem(givetrash), 1);
+      }
+    }, timeout);
   }
 
-  drinkItem(client: Client, itemGuid: string) {
-    const item = this._items[itemGuid],
-      itemDefinition = this.getItemDefinition(item.itemDefinitionId);
+  drinkItem(client: Client, itemGuid: string, nameId: number) {
+    const item = this._items[itemGuid];
     let drinkCount = 2000;
     let eatCount = 0;
     let givetrash = 0;
+    let timeout = 1000;
     switch (item.itemDefinitionId) {
       case 1368: // dirty water
         drinkCount = 1000;
@@ -2816,18 +2846,58 @@ export class ZoneServer2016 extends ZoneServer {
       default:
         this.sendChatText(
           client,
-          "[ERROR] drink count not mapped to item Definition " + itemDefinition
+          "[ERROR] drink count not mapped to item Definition " +
+            item.itemDefinitionId
         );
     }
-    this.removeInventoryItem(client, itemGuid, 1);
-    client.character.resources.food += eatCount;
-    client.character.resources.water += drinkCount;
-    const { food, water } = client.character.resources;
-    this.updateResource(client, client.character.characterId, food, 4, 4);
-    this.updateResource(client, client.character.characterId, water, 5, 5);
-    if (givetrash) {
-      this.lootContainerItem(client, this.generateItem(givetrash), 1);
+    this.startTimer(client, nameId, timeout);
+    client.posAtLogoutStart = client.character.state.position;
+    client.hudTimer = setTimeout(() => {
+      this.removeInventoryItem(client, itemGuid, 1);
+      client.character.resources.food += eatCount;
+      client.character.resources.water += drinkCount;
+      const { food, water } = client.character.resources;
+      this.updateResource(client, client.character.characterId, food, 4, 4);
+      this.updateResource(client, client.character.characterId, water, 5, 5);
+      if (givetrash) {
+        this.lootContainerItem(client, this.generateItem(givetrash), 1);
+      }
+    }, timeout);
+  }
+  
+  useMedical(client: Client, itemGuid: string, nameId: number) {
+    const item = this._items[itemGuid];
+    let timeout = 1000;
+    let healCount = 9;
+    switch (item.itemDefinitionId) {
+      case 78: // med kit
+        healCount = 99;
+        timeout = 5000;
+        break;
+      case 24: // bandage
+        healCount = 9;
+        timeout = 1000;
+        break;
+      case 2214: //dressed bandage
+        healCount = 29;
+        timeout = 2000;
+        break;
+      default:
+        this.sendChatText(
+          client,
+          "[ERROR] Medical not mapped to item Definition " +
+            item.itemDefinitionId
+        );
     }
+    this.startTimer(client, nameId, timeout);
+    client.posAtLogoutStart = client.character.state.position;
+    client.hudTimer = setTimeout(() => {
+      client.character.healingMaxTicks += healCount;
+      if (!client.character.healingInterval) {
+        this.starthealingInterval(client);
+      }
+      this.removeInventoryItem(client, itemGuid, 1);
+    }, timeout);
   }
 
   useItem(client: Client, itemGuid: string) {

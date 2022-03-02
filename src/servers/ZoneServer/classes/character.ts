@@ -22,6 +22,9 @@ export class Character {
   loadouts?: any;
   extraModel?: string;
   resourcesUpdater?: any;
+  healingInterval?: any;
+  healingTicks: number;
+  healingMaxTicks: number;
   equipment: characterEquipment[];
   resources: {
     health: number;
@@ -71,6 +74,8 @@ export class Character {
         slotId: 4,
       },
     ];
+	this.healingTicks = 0;
+	this.healingMaxTicks = 0;
     this.resources = {
       health: 10000,
       stamina: 10000,
@@ -198,3 +203,4 @@ export class Character {
     );
   }
 }
+
