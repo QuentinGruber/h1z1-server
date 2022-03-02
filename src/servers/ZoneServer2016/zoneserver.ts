@@ -2783,8 +2783,7 @@ export class ZoneServer2016 extends ZoneServer {
   }
 
   eatItem(client: Client, itemGuid: string, nameId: number) {
-    const item = this._items[itemGuid],
-      itemDefinition = this.getItemDefinition(item.itemDefinitionId);
+    const item = this._items[itemGuid];
     let drinkCount = 0;
     let eatCount = 2000;
     let givetrash = 0;
@@ -2825,8 +2824,7 @@ export class ZoneServer2016 extends ZoneServer {
   }
 
   useMedical(client: Client, itemGuid: string, nameId: number) {
-    const item = this._items[itemGuid],
-      itemDefinition = this.getItemDefinition(item.itemDefinitionId);
+    const item = this._items[itemGuid];
     let timeout = 1000;
     let healCount = 9;
     switch (item.itemDefinitionId) {
@@ -2863,8 +2861,7 @@ export class ZoneServer2016 extends ZoneServer {
   }
 
   drinkItem(client: Client, itemGuid: string, nameId: number) {
-    const item = this._items[itemGuid],
-      itemDefinition = this.getItemDefinition(item.itemDefinitionId);
+    const item = this._items[itemGuid];
     let drinkCount = 2000;
     let eatCount = 0;
     let givetrash = 0;
