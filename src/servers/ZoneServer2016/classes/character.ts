@@ -44,6 +44,7 @@ export class Character2016 extends Character {
   healingInterval?: any;
   healingTicks: number;
   healingMaxTicks: number;
+  starthealingInterval:any;
   constructor(characterId: string, generatedTransient: number) {
     super(characterId, generatedTransient);
     this.healingTicks = 0;
@@ -56,6 +57,30 @@ export class Character2016 extends Character {
       virus: 6000,
       comfort: 6000,
     };
+
+    this.starthealingInterval = (client: ZoneClient2016,server: ZoneServer2016) => {
+      client.character.healingInterval = setTimeout(() => {
+        client.character.resources.health += 100;
+        if (client.character.resources.health > 10000) {
+          client.character.resources.health = 10000;
+        }
+  
+        server.updateResource(
+          client,
+          client.character.characterId,
+          client.character.resources.health,
+          1,
+          1
+        );
+        if (client.character.healingTicks++ < client.character.healingMaxTicks) {
+          client.character.healingInterval.refresh();
+        } else {
+          client.character.healingMaxTicks = 0;
+          client.character.healingTicks = 0;
+          delete client.character.healingInterval;
+        }
+      }, 1000);
+    }
 
     this.startRessourceUpdater = (client: ZoneClient2016, server: ZoneServer2016)=> {
       client.character.resourcesUpdater = setTimeout(() => {
@@ -147,7 +172,6 @@ export class Character2016 extends Character {
         server.updateResource(client, client.character.characterId, water, 5, 5);
         server.updateResource(client, client.character.characterId, virus, 12, 12);
         client.character.resourcesUpdater.refresh();
-      }, 3000);
-    }
+      }, 3000);}
   }
 }

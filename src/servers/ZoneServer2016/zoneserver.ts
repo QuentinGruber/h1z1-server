@@ -1187,123 +1187,6 @@ export class ZoneServer2016 extends ZoneServer {
       this.speedTreeDestroy(packet);
     }
   }
-  
-  startRessourceUpdater(client: Client) {
-    client.character.resourcesUpdater = setTimeout(() => {
-      // prototype resource manager
-      const { isRunning } = client.character;
-      if (isRunning) {
-        client.character.resources.stamina -= 20;
-        if (client.character.resources.stamina < 120) {
-          client.character.isExhausted = true;
-        } else {
-          client.character.isExhausted = false;
-        }
-      } else if (!client.character.isBleeding || !client.character.isMoving) {
-        client.character.resources.stamina += 30;
-      }
-
-      // if we had a packets we could modify sprint stat to 0
-      // or play exhausted sounds etc
-      client.character.resources.food -= 10;
-      client.character.resources.water -= 20;
-      if (client.character.resources.stamina > 600) {
-        client.character.resources.stamina = 600;
-      } else if (client.character.resources.stamina < 0) {
-        client.character.resources.stamina = 0;
-      }
-      if (client.character.resources.food > 10000) {
-        client.character.resources.food = 10000;
-      } else if (client.character.resources.food < 0) {
-        client.character.resources.food = 0;
-        this.playerDamage(client, 100);
-      }
-      if (client.character.resources.water > 10000) {
-        client.character.resources.water = 10000;
-      } else if (client.character.resources.water < 0) {
-        client.character.resources.water = 0;
-        this.playerDamage(client, 100);
-      }
-      if (client.character.resources.health > 10000) {
-        client.character.resources.health = 10000;
-      } else if (client.character.resources.health < 0) {
-        client.character.resources.health = 0;
-      }
-      // Prototype bleeding
-      if (client.character.isBleeding && client.character.isAlive) {
-        if (!client.character.isBandaged) {
-          this.playerDamage(client, 100);
-        }
-        if (client.character.isBandaged) {
-          client.character.resources.health += 100;
-          this.updateResource(
-            client,
-            client.character.characterId,
-            client.character.resources.health,
-            1,
-            1
-          );
-        }
-        if (client.character.resources.health >= 2000) {
-          client.character.isBleeding = false;
-        }
-        if (client.character.resources.stamina > 130 && isRunning) {
-          client.character.resources.stamina -= 100;
-        }
-
-        if (
-          client.character.resources.health < 10000 &&
-          !client.character.isBleeding &&
-          client.character.isBandaged
-        ) {
-          client.character.resources.health += 400;
-          this.updateResource(
-            client,
-            client.character.characterId,
-            client.character.resources.health,
-            1,
-            1
-          );
-        }
-        if (client.character.resources.health >= 10000) {
-          client.character.isBandaged = false;
-        }
-      }
-      if (client.character.isBleeding && !client.character.isAlive) {
-        client.character.isBleeding = false;
-      }
-      const { stamina, food, water, virus } = client.character.resources;
-      this.updateResource(client, client.character.characterId, stamina, 6, 6);
-      this.updateResource(client, client.character.characterId, food, 4, 4);
-      this.updateResource(client, client.character.characterId, water, 5, 5);
-      this.updateResource(client, client.character.characterId, virus, 12, 12);
-      client.character.resourcesUpdater.refresh();
-    }, 3000);
-  }
-  
-  starthealingInterval(client: Client) {
-    client.character.healingInterval = setTimeout(() => {
-      client.character.resources.health += 100;
-      if (client.character.resources.health > 10000) {
-        client.character.resources.health = 10000;
-      }
-
-      this.updateResource(
-        client,
-        client.character.characterId,
-        client.character.resources.health,
-        1,
-        1
-      );
-      if (client.character.healingTicks++ < client.character.healingMaxTicks) {
-        client.character.healingInterval.refresh();
-      } else {
-        client.character.healingMaxTicks = 0;
-        client.character.healingTicks = 0;
-        delete client.character.healingInterval;
-      }
-    }, 1000);
-  }
 
   updateResource(
     client: Client,
@@ -2994,7 +2877,7 @@ export class ZoneServer2016 extends ZoneServer {
   useMedicalPass(client: Client, itemGuid: string, healCount: number) {
     client.character.healingMaxTicks += healCount;
     if (!client.character.healingInterval) {
-      this.starthealingInterval(client);
+      client.character.starthealingInterval(client);
     }
     this.removeInventoryItem(client, itemGuid, 1);
   }
