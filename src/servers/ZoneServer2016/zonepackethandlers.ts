@@ -1069,46 +1069,57 @@ export class zonePacketHandlers {
             : server.dismountVehicle(client);
           break;
         case 3: // door
-          if (entityData.isOpen === false) {
-            entityData.moving = true;
-            setTimeout(function () {
-              entityData.moving = false;
-            }, 500);
-            server.sendDataToAll("PlayerUpdatePosition", {
-              transientId: entityData.transientId,
-              positionUpdate: {
-                sequenceTime: 0,
-                unknown3_int8: 0,
-                position: entityData.position,
-                orientation: entityData.openAngle,
-              },
-            });
-            server.sendDataToAll("Command.PlayDialogEffect", {
-              characterId: entityData.characterId,
-              effectId: 5049,
-            });
-            entityData.isOpen = true;
-          } else {
-            entityData.moving = true;
-            setTimeout(function () {
-              entityData.moving = false;
-            }, 500);
-            server.sendData(client, "PlayerUpdatePosition", {
-              transientId: entityData.transientId,
-              positionUpdate: {
-                sequenceTime: 0,
-                unknown3_int8: 0,
-                stance: 1089,
-                position: entityData.position,
-                orientation: entityData.closedAngle,
-              },
-            });
-            server.sendData(client, "Command.PlayDialogEffect", {
-              characterId: entityData.characterId,
-              effectId: 5049,
-            });
-            entityData.isOpen = false;
+          let openSound = 5048;
+          let closeSound = 5049;
+          switch (entityData.modelId) {
+            case 9231:
+            case 9224:
+            case 9232:
+            case 9233:
+              openSound = 5087;
+              closeSound = 5088;
+              break;
+            case 9246:
+            case 9495:
+              openSound = 5089;
+              closeSound = 5090;
+              break;
+            case 9183:
+            case 9184:
+            case 9185:
+            case 9186:
+              openSound = 5085;
+              closeSound = 5086;
+              break;
+            default:
+              server.sendChatText(
+                client,
+                "[ERROR] Door sound not mapped to modelId " + entityData.modelId
+              );
           }
+          if (entityData.moving) {
+            return;
+          }
+          entityData.moving = true;
+          setTimeout(function () {
+            entityData.moving = false;
+          }, 1000);
+          server.sendDataToAll("PlayerUpdatePosition", {
+            transientId: entityData.transientId,
+            positionUpdate: {
+              sequenceTime: 0,
+              unknown3_int8: 0,
+              position: entityData.position,
+              orientation: entityData.isOpen
+                ? entityData.closedAngle
+                : entityData.openAngle,
+            },
+          });
+          server.sendDataToAll("Command.PlayDialogEffect", {
+            characterId: entityData.characterId,
+            effectId: entityData.isOpen ? closeSound : openSound,
+          });
+          entityData.isOpen = !entityData.isOpen;
           break;
         default:
           break;
