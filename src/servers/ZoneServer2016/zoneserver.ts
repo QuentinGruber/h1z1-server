@@ -1929,6 +1929,9 @@ export class ZoneServer2016 extends ZoneServer {
       case 13:
         client.vehicle.mountedVehicleType = "parachute";
         break;
+      case 1337:
+        client.vehicle.mountedVehicleType = "spectate";
+        break;
       default:
         client.vehicle.mountedVehicleType = "unknown";
         break;
@@ -2073,6 +2076,9 @@ export class ZoneServer2016 extends ZoneServer {
         }
       );
       vehicle.engineOn = false;
+    }
+    if(client.vehicle.mountedVehicleType == "spectate") {
+      this.updateEquipment(client);
     }
     client.vehicle.mountedVehicle = "";
     this.sendData(client, "Vehicle.Occupy", {

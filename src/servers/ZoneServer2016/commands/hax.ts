@@ -320,37 +320,7 @@ const hax: any = {
       server._vehicles[characterId] = vehicle; // save vehicle
     }
   },
-  spawnsimplenpc: function (
-    server: ZoneServer2016,
-    client: Client,
-    args: any[]
-  ) {
-    const characterId = server.generateGuid();
-    const transientId = server.getTransientId(characterId);
-    if (!args[1]) {
-      server.sendChatText(client, "[ERROR] You need to specify a model id !");
-      return;
-    }
-    if (!args[3]) {
-      server.sendChatText(client, "Missing 2 byte values");
-      return;
-    }
-    const choosenModelId = Number(args[1]);
-    const obj = {
-      characterId: characterId,
-      transientId: transientId,
-      position: [
-        client.character.state.position[0],
-        client.character.state.position[1],
-        client.character.state.position[2],
-      ],
-      modelId: choosenModelId,
-      showHealth: Number(args[2]),
-      unknownDword4: Number(args[3]),
-    };
-    server._objects[characterId] = obj; // save npc
-  },
-  spawnnpcmodel: function (
+  spawnnpc: function (
     server: ZoneServer2016,
     client: Client,
     args: any[]
@@ -398,44 +368,6 @@ const hax: any = {
       server.getGameTime()
     );
     server._vehicles[characterId] = vehicle; // save vehicle
-  },
-
-  spawnpcmodel: function (server: ZoneServer2016, client: Client, args: any[]) {
-    const characterId = server.generateGuid();
-    debug("spawnPcModel called");
-    if (!args[1]) {
-      server.sendChatText(client, "[ERROR] You need to specify a name !");
-      return;
-    }
-
-    let pc = new Character(characterId, server.getTransientId(characterId));
-    pc = {
-      ...pc,
-      characterId: characterId,
-      transientId: server.getTransientId(characterId),
-      name: args[1],
-      state: {
-        ...pc.state,
-        position: client.character.state.position,
-        lookAt: client.character.state.lookAt,
-      },
-    };
-    server._characters[characterId] = pc; // save pc
-  },
-  sonic: function (server: ZoneServer2016, client: Client, args: any[]) {
-    server.sendData(client, "ClientGameSettings", {
-      unknownQword1: "0x0000000000000000",
-      unknownBoolean1: true,
-      timescale: 3.0,
-      unknownQword2: "0x0000000000000000",
-      unknownFloat1: 0.0,
-      unknownFloat2: 12.0,
-      unknownFloat3: 110.0,
-    });
-    server.sendData(client, "Command.RunSpeed", {
-      runSpeed: -100,
-    });
-    server.sendChatText(client, "Welcome MR.Hedgehog");
   },
   weather: async function (
     server: ZoneServer2016,
@@ -581,96 +513,6 @@ const hax: any = {
     };
     server.sendWeatherUpdatePacket(client, server._weather2016, true);
   },
-  equipment: function (server: ZoneServer2016, client: Client, args: any[]) {
-    server.sendChatText(
-      client,
-      `[DEPRECEATION WARNING]: Please use '/hax equip {equipmentName}`
-    );
-  },
-  weapon: function (server: ZoneServer2016, client: Client, args: any[]) {
-    server.sendChatText(
-      client,
-      `[DEPRECEATION WARNING]: Please use '/hax equip {equipmentName}`
-    );
-  },
-  equip: function (server: ZoneServer2016, client: Client, args: any[]) {
-    if (!args[1]) {
-      server.sendChatText(client, "[ERROR] Usage /hax equip {equipment}");
-      server.sendChatText(
-        client,
-        "Valid options: ar, ak, m9, 1911, 308, shotgun, torch, molotov, empty, hoodie, shirt, ghillie, pants, backpack, shoes, helmet, armor, gloves, bandana"
-      );
-      return;
-    }
-    let definitionId;
-    switch (args[1]) {
-      case "ar":
-        definitionId = 2425;
-        break;
-      case "ak":
-        definitionId = 2229;
-        break;
-      case "m9":
-        definitionId = 1997;
-        break;
-      case "1911":
-        definitionId = 2;
-        break;
-      case "308":
-        definitionId = 1899;
-        break;
-      case "shotgun":
-        definitionId = 1374;
-        break;
-      case "torch":
-        definitionId = 5;
-        break;
-      case "molotov":
-        definitionId = 14;
-        break;
-      case "empty":
-        definitionId = 85;
-        break;
-      case "hoodie":
-        definitionId = 2377;
-        break;
-      case "shirt":
-        definitionId = 3218;
-        break;
-      case "ghillie":
-        definitionId = 2609;
-        break;
-      case "pants":
-        definitionId = 2079;
-        break;
-      case "backpack":
-        definitionId = 2393;
-        break;
-      case "shoes":
-        definitionId = 2217;
-        break;
-      case "helmet":
-        definitionId = 2045;
-        break;
-      case "armor":
-        definitionId = 2274;
-        break;
-      case "gloves":
-        definitionId = 2284;
-        break;
-      case "bandana":
-        definitionId = 2924;
-        break;
-      default:
-        server.sendChatText(
-          client,
-          "Valid options: ar, ak, m9, 1911, 308, shotgun, torch, molotov, empty, hoodie, shirt, ghillie, pants, backpack, shoes, helmet, armor, gloves, bandana"
-        );
-        return;
-    }
-    server.sendChatText(client, `Adding ${args[1]} to loadout.`);
-    server.equipItem(client, server.generateItem(definitionId));
-  },
   placement: function (server: ZoneServer2016, client: Client, args: any[]) {
     const modelChoosen = args[1];
     if (!modelChoosen) {
@@ -692,15 +534,15 @@ const hax: any = {
       client.character.state.lookAt,
       server.getGameTime()
     );
+    vehicle.isManaged = true;
     server._vehicles[characterId] = vehicle;
-    server.vehicleManager(client);
-    server.sendData(client, "Mount.MountResponse", {
-      characterId: client.character.characterId,
-      vehicleGuid: characterId,
-      identity: {},
-    });
-    client.vehicle.mountedVehicle = characterId;
-    client.vehicle.mountedVehicleType = "spectate";
+    //@ts-ignore
+    (vehicle.onReadyCallback = () => {
+      // doing anything with vehicle before client gets fullvehicle packet breaks it
+      server.mountVehicle(client, characterId);
+      // todo: when vehicle takeover function works, delete assignManagedObject call
+      server.assignManagedObject(client, vehicle);
+    })
   },
   additem: function (server: ZoneServer2016, client: Client, args: any[]) {
     const itemDefId = Number(args[1]),
