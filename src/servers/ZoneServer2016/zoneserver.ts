@@ -1406,7 +1406,7 @@ export class ZoneServer2016 extends ZoneServer {
     for (const npc in this._npcs) {
       if (
         isPosInRadius(
-          this._npcRenderDistance,
+          this._npcs[npc].npcRenderDistance,
           client.character.state.position,
           this._npcs[npc].position
         ) &&
@@ -1467,7 +1467,7 @@ export class ZoneServer2016 extends ZoneServer {
       for (const object in this._objects) {
         if (
           isPosInRadius(
-            this._npcRenderDistance,
+            this._objects[object].npcRenderDistance,
             client.character.state.position,
             this._objects[object].position
           ) &&
@@ -1504,7 +1504,7 @@ export class ZoneServer2016 extends ZoneServer {
       for (const door in this._doors) {
         if (
           isPosInRadius(
-            this._npcRenderDistance,
+            this._doors[door].npcRenderDistance!,
             client.character.state.position,
             this._doors[door].position
           ) &&
@@ -1512,9 +1512,9 @@ export class ZoneServer2016 extends ZoneServer {
         ) {
           const object = this._doors[door];
           this.sendData(
-            client, 
-            "AddLightweightNpc", 
-            {...object, dontSendFullNpcRequest: true}, 
+            client,
+            "AddLightweightNpc",
+            { ...object, dontSendFullNpcRequest: true },
             1
           );
           client.spawnedEntities.push(this._doors[door]);
