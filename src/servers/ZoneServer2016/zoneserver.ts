@@ -1616,7 +1616,12 @@ export class ZoneServer2016 extends ZoneServer {
           !client.spawnedEntities.includes(this._doors[door])
         ) {
           const object = this._doors[door];
-          this.sendData(client, "AddLightweightNpc", object, 1);
+          this.sendData(
+            client, 
+            "AddLightweightNpc", 
+            {...object, dontSendFullNpcRequest: true}, 
+            1
+          );
           client.spawnedEntities.push(this._doors[door]);
           if (object.isOpen) {
             this.sendDataToAll("PlayerUpdatePosition", {
@@ -1904,8 +1909,8 @@ export class ZoneServer2016 extends ZoneServer {
       }
     }
   }
-  mountVehicle(client: Client, packet: any): void {
-    const vehicle = this._vehicles[packet.data.guid];
+  mountVehicle(client: Client, vehicleGuid: string): void {
+    const vehicle = this._vehicles[vehicleGuid];
     if (!vehicle) return;
     client.vehicle.mountedVehicle = vehicle.npcData.characterId;
     switch (vehicle.npcData.vehicleId) {
@@ -1932,7 +1937,7 @@ export class ZoneServer2016 extends ZoneServer {
     if (seatId < 0) return; // no available seats in vehicle
     vehicle.seats[seatId] = client.character.characterId;
     this.sendDataToAllWithSpawnedVehicle(
-      packet.data.guid,
+      vehicleGuid,
       "Mount.MountResponse",
       {
         // mounts character
@@ -1947,36 +1952,36 @@ export class ZoneServer2016 extends ZoneServer {
       //this.takeoverManagedObject(client, vehicle); // disabled for now, client won't drop management
       if (vehicle.npcData.resources.fuel > 0) {
         this.sendDataToAllWithSpawnedVehicle(
-          packet.data.guid,
+          vehicleGuid,
           "Vehicle.Engine",
           {
-            guid2: packet.data.guid,
+            guid2: vehicleGuid,
             engineOn: true,
           }
         );
-        this._vehicles[packet.data.guid].engineOn = true;
-        this._vehicles[packet.data.guid].resourcesUpdater = setInterval(() => {
-          if (!this._vehicles[packet.data.guid].engineOn) {
-            clearInterval(this._vehicles[packet.data.guid].resourcesUpdater);
+        this._vehicles[vehicleGuid].engineOn = true;
+        this._vehicles[vehicleGuid].resourcesUpdater = setInterval(() => {
+          if (!this._vehicles[vehicleGuid].engineOn) {
+            clearInterval(this._vehicles[vehicleGuid].resourcesUpdater);
           }
-          if (this._vehicles[packet.data.guid].positionUpdate.engineRPM) {
+          if (this._vehicles[vehicleGuid].positionUpdate.engineRPM) {
             const fuelLoss =
-              this._vehicles[packet.data.guid].positionUpdate.engineRPM * 0.01;
+              this._vehicles[vehicleGuid].positionUpdate.engineRPM * 0.01;
             console.log(fuelLoss);
-            this._vehicles[packet.data.guid].npcData.resources.fuel -= fuelLoss;
+            this._vehicles[vehicleGuid].npcData.resources.fuel -= fuelLoss;
           }
-          if (this._vehicles[packet.data.guid].npcData.resources.fuel < 0) {
-            this._vehicles[packet.data.guid].npcData.resources.fuel = 0;
+          if (this._vehicles[vehicleGuid].npcData.resources.fuel < 0) {
+            this._vehicles[vehicleGuid].npcData.resources.fuel = 0;
           }
           if (
-            this._vehicles[packet.data.guid].engineOn &&
-            this._vehicles[packet.data.guid].npcData.resources.fuel <= 0
+            this._vehicles[vehicleGuid].engineOn &&
+            this._vehicles[vehicleGuid].npcData.resources.fuel <= 0
           ) {
             this.sendDataToAllWithSpawnedVehicle(
-              packet.data.guid,
+              vehicleGuid,
               "Vehicle.Engine",
               {
-                guid2: packet.data.guid,
+                guid2: vehicleGuid,
                 engineOn: false,
               }
             );

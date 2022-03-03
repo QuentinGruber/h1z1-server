@@ -360,50 +360,16 @@ export class zonePacketHandlers {
       const { channel, message } = packet.data;
       server.sendChat(client, message, channel);
     }),
-      /*
-    "Loadout.SelectSlot": function (server: ZoneServer2016, client: Client, packet: any) {
-
-      if (client.character.currentLoadout) {
-        const loadout = client.character.currentLoadout,
-          loadoutSlotId = packet.data.loadoutSlotId;
-        client.character.currentLoadoutSlot = packet.data.loadoutSlotId;
-        const loadoutSlots = loadout.loadoutSlots;
-        for (let i = 0; i < loadoutSlots.length; i++) {
-          if (loadoutSlots[i].loadoutSlotId == loadoutSlotId) {
-            const itemLineId =
-              loadoutSlots[i].loadoutSlotData.loadoutSlotItem.itemLineId;
-            server
-              .data("item_line_members")
-              .findOne(
-                { itemLineId: itemLineId, itemLineIndex: 0 },
-                function (err, itemLineMember) {
-                  const itemId = itemLineMember.itemId;
-                  const inventoryItems = client.character.inventory.items;
-                  for (let j = 0; j < inventoryItems.length; j++) {
-                    if (inventoryItems[j].itemData.baseItem.itemId == itemId) {
-                      client.character.currentLoadoutSlotItem =
-                        inventoryItems[j].itemData;
-                      break;
-                    }
-                  }
-                }
-              );
-            break;
-          }
-        }
+    (this.ClientInitializationDetails = function (
+      server: ZoneServer2016,
+      client: Client,
+      packet: any
+    ) {
+      // just in case
+      if (packet.data.unknownDword1) {
+        debug("ClientInitializationDetails : ", packet.data.unknownDword1);
       }
-
-    }*/
-      (this.ClientInitializationDetails = function (
-        server: ZoneServer2016,
-        client: Client,
-        packet: any
-      ) {
-        // just in case
-        if (packet.data.unknownDword1) {
-          debug("ClientInitializationDetails : ", packet.data.unknownDword1);
-        }
-      });
+    });
     this.ClientLogout = function (
       server: ZoneServer2016,
       client: Client,
@@ -638,61 +604,43 @@ export class zonePacketHandlers {
           break;
       }
     }),
-      /*
-    "Command.SetProfile": function (server: ZoneServer2016, client: Client, packet: any) {
-      server.sendData(client, "Loadout.SetCurrentLoadout", {
-        type: 2,
-        unknown1: 0,
-        loadoutId: 15,
-        tabId: 256,
-        unknown2: 1,
-      });
-    }*/
-      (this.commandInteractRequest = function (
-        server: ZoneServer2016,
-        client: Client,
-        packet: any
-      ) {
-        server.sendData(client, "Command.InteractionString", {
-          guid: packet.data.guid,
-          stringId: 5463,
-          unknown4: 0,
-        });
-        server.sendData(client, "Command.InteractionList", {
-          guid: packet.data.guid,
-          unknownBoolean1: true,
-          unknownArray1: [
-            {
-              unknownDword1: 11,
-              unknownDword2: 0,
-              unknownDword3: 5463,
-              unknownDword4: 51,
-              unknownDword5: 1,
-              unknownDword6: 0,
-              unknownDword7: 0,
-            },
-          ],
-          unknownString1: "",
-          unknownBoolean2: true,
-          unknownArray2: [],
-          unknownBoolean3: false,
-        });
-      }),
-      /*
-    "Command.InteractionSelect": function (server: ZoneServer2016, client: Client, packet: any) {
-      server.sendData(client, "Loadout.SetLoadouts", {
-        type: 2,
+    (this.commandInteractRequest = function (
+      server: ZoneServer2016,
+      client: Client,
+      packet: any
+    ) {
+      server.sendData(client, "Command.InteractionString", {
         guid: packet.data.guid,
-        unknownDword1: 1,
+        stringId: 5463,
+        unknown4: 0,
       });
-    }*/
-      (this.commandInteractCancel = function (
-        server: ZoneServer2016,
-        client: Client,
-        packet: any
-      ) {
-        debug("Interaction Canceled");
+      server.sendData(client, "Command.InteractionList", {
+        guid: packet.data.guid,
+        unknownBoolean1: true,
+        unknownArray1: [
+          {
+            unknownDword1: 11,
+            unknownDword2: 0,
+            unknownDword3: 5463,
+            unknownDword4: 51,
+            unknownDword5: 1,
+            unknownDword6: 0,
+            unknownDword7: 0,
+          },
+        ],
+        unknownString1: "",
+        unknownBoolean2: true,
+        unknownArray2: [],
+        unknownBoolean3: false,
       });
+    }),
+    (this.commandInteractCancel = function (
+      server: ZoneServer2016,
+      client: Client,
+      packet: any
+    ) {
+      debug("Interaction Canceled");
+    });
     this.commandStartLogoutRequest = function (
       server: ZoneServer2016,
       client: Client,
@@ -1071,6 +1019,10 @@ export class zonePacketHandlers {
         default:
           break;
       }
+      if(entityData.onReadyCallback) {
+        entityData.onReadyCallback();
+        delete entityData.onReadyCallback;
+      }
     };
     this.commandPlayerSelect = function (
       server: ZoneServer2016,
@@ -1107,7 +1059,7 @@ export class zonePacketHandlers {
           break;
         case 2: // vehicle
           !client.vehicle.mountedVehicle
-            ? server.mountVehicle(client, packet)
+            ? server.mountVehicle(client, packet.data.guid)
             : server.dismountVehicle(client);
           break;
         case 3: // door

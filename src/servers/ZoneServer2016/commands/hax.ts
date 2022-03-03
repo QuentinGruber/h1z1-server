@@ -35,6 +35,22 @@ function getHeadActor(modelId: number) {
   }
 }
 
+function getDriveModel(model: string) {
+  switch (model) {
+    case "offroader":
+      return 7225;
+    case "pickup":
+      return 9258;
+    case "policecar":
+      return 9301;
+    case "atv":
+      return 9588;
+    default:
+      // offroader default
+      return 7225;
+  }
+}
+
 const hax: any = {
   list: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.sendChatText(
@@ -69,75 +85,38 @@ const hax: any = {
     client.vehicle.mountedVehicleType = "parachute";
   },
   drive: function (server: ZoneServer2016, client: Client, args: any[]) {
-    let driveModel;
-    const driveChoosen = args[1];
     if (!args[1]) {
       server.sendChatText(
         client,
-        "[ERROR] Usage /hax drive offroader/pickup/policecar"
+        "[ERROR] Usage /hax drive offroader/pickup/policecar/atv"
       );
       return;
     }
     let wasAlreadyGod = client.character.godMode;
     client.character.godMode = true;
-    switch (driveChoosen) {
-      case "offroader":
-        driveModel = 7225;
-        client.vehicle.mountedVehicleType = "offroader";
-        break;
-      case "pickup":
-        driveModel = 9258;
-        client.vehicle.mountedVehicleType = "pickup";
-        break;
-      case "policecar":
-        driveModel = 9301;
-        client.vehicle.mountedVehicleType = "policecar";
-        break;
-      default:
-        driveModel = 7225;
-        client.vehicle.mountedVehicleType = "offroader";
-        break;
-    }
     const characterId = server.generateGuid();
     const vehicleData = new Vehicle2016(
       server._worldId,
       characterId,
       server.getTransientId(characterId),
-      driveModel,
+      getDriveModel(args[1]),
       client.character.state.position,
       client.character.state.lookAt,
       server.getServerTime()
     );
-    server.sendDataToAll("AddLightweightVehicle", vehicleData);
     vehicleData.isManaged = true;
+    server._vehicles[characterId] = vehicleData; // save vehicle
     //@ts-ignore
     (vehicleData.onReadyCallback = () => {
       // doing anything with vehicle before client gets fullvehicle packet breaks it
-      server.sendData(client, "Character.ManagedObject", {
-        guid: vehicleData.npcData.characterId,
-        characterId: client.character.characterId,
-      });
-      server.sendData(client, "ClientUpdate.ManagedObjectResponseControl", {
-        control: true,
-        objectCharacterId: characterId,
-      });
-      server.sendDataToAll("Mount.MountResponse", {
-        characterId: client.character.characterId,
-        guid: characterId,
-        characterData: [],
-      });
-      server.sendDataToAll("Vehicle.Engine", {
-        guid2: characterId,
-        unknownBoolean: true,
-      });
+      server.mountVehicle(client, characterId);
+      // todo: when vehicle takeover function works, delete assignManagedObject call
+      server.assignManagedObject(client, vehicleData);
       client.vehicle.mountedVehicle = characterId;
-      //client.managedObjects.push(server._vehicles[characterId]);
       setTimeout(() => {
         client.character.godMode = wasAlreadyGod;
       }, 1000);
-    }),
-      (server._vehicles[characterId] = vehicleData);
-    server.worldRoutine();
+    })
   },
   titan: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.sendDataToAll("Character.UpdateScale", {
@@ -408,31 +387,12 @@ const hax: any = {
       );
       return;
     }
-    let driveModel;
-    switch (args[1]) {
-      case "offroader":
-        driveModel = 7225;
-        break;
-      case "pickup":
-        driveModel = 9258;
-        break;
-      case "policecar":
-        driveModel = 9301;
-        break;
-      case "atv":
-        driveModel = 9588;
-        break;
-      default:
-        // offroader default
-        driveModel = 7225;
-        break;
-    }
     const characterId = server.generateGuid();
     const vehicle = new Vehicle(
       server._worldId,
       characterId,
       server.getTransientId(characterId),
-      driveModel,
+      getDriveModel(args[1]),
       client.character.state.position,
       client.character.state.lookAt,
       server.getGameTime()
