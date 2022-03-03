@@ -2466,7 +2466,8 @@ export class ZoneServer2016 extends ZoneServer {
       itemDefinition.ID,
       count,
       [...client.character.state.position],
-      [...client.character.state.lookAt]
+      [...client.character.state.lookAt],
+	  15,
     );
     this.spawnObjects(client); // manually call this for now
   }
