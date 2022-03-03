@@ -2523,48 +2523,13 @@ export class ZoneServer2016 extends ZoneServer {
         `[ERROR] DropItem: No WORLD_MODEL_ID mapped to itemDefinitionId: ${this._items[itemGuid].itemDefinitionId}`
       );
     }
+    if(!this.removeInventoryItem(client, itemGuid, count)) return;
     this.sendData(client, "Character.DroppedIemNotification", {
       characterId: client.character.characterId,
       itemDefId: item.itemDefinitionId,
       count: count,
     });
-    /*
-    const loadoutSlotId = this.getLoadoutSlot(itemDefinition.ID);
-    if (client.character._loadout[loadoutSlotId]?.itemGuid == itemGuid) {
-      this.deleteItem(client, itemGuid);
-      // TODO: add logic for checking if loadout item has an equipment slot, ex. radio doesn't have one
-      const equipmentSlotId = this.getEquipmentSlot(loadoutSlotId);
-      delete client.character._loadout[loadoutSlotId];
-      delete client.character._equipment[equipmentSlotId];
-      this.updateLoadout(client);
-      this.sendData(client, "Equipment.UnsetCharacterEquipmentSlot", {
-        characterData: {
-          characterId: client.character.characterId,
-        },
-        slotId: equipmentSlotId,
-      });
-      if (equipmentSlotId === 7) {
-        // primary slot
-        this.equipItem(client, client.character._loadout[7].itemGuid); //equip fists
-      }
-    } else {
-      const dropItemContainer = this.getItemContainer(client, itemGuid);
-      const dropItem = dropItemContainer?.items[itemGuid];
-      if (!dropItemContainer || !dropItem) return;
-      if (dropItem.stackCount <= count) {
-        delete dropItemContainer.items[itemGuid];
-        this.deleteItem(client, itemGuid);
-      } else {
-        dropItem.stackCount -= count;
-        this.updateContainerItem(
-          client,
-          dropItem.itemGuid,
-          this.getItemContainer(client, dropItem.itemGuid)
-        );
-      }
-    }
-    */
-    this.removeInventoryItem(client, itemGuid, count);
+    
     this.worldObjectManager.createLootEntity(
       this,
       itemDefinition.ID,
@@ -2573,11 +2538,6 @@ export class ZoneServer2016 extends ZoneServer {
       [...client.character.state.lookAt]
     );
     this.spawnObjects(client); // manually call this for now
-    /*
-    if (itemDefinition.ITEM_TYPE === 34) {
-      delete client.character._containers[item.guid];
-    }
-    */
   }
 
   lootItem(client: Client, itemGuid: string | undefined, count: number) {
