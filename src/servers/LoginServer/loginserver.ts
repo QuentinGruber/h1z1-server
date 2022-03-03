@@ -419,6 +419,8 @@ export class LoginServer extends EventEmitter {
 
   async CharacterSelectInfoRequest(client: Client) {
     let characters = await this.loadCharacterData(client);
+    console.log("characters sent ",characters)
+    console.log("for client : ",client)
     if (this._soloMode) {
       if (client.protocolName == "LoginUdp_9") {
         characters = this.addDummyDataToCharacters(characters);
