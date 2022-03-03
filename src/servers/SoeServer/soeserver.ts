@@ -313,6 +313,10 @@ export class SOEServer extends EventEmitter {
             this.emit("appdata", null, client, data);
           });
 
+          client.outputStream.on("cacheError", (err: string, data: Buffer) => {
+            this.emit("fatalError",client)
+          });
+
           client.inputStream.on("ack", (err: string, sequence: number) => {
             client.nextAck = sequence;
           });
