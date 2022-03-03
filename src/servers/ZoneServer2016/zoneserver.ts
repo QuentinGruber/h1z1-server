@@ -135,6 +135,7 @@ export class ZoneServer2016 extends ZoneServer {
       try {
         this._packetHandlers.processPacket(this, client, packet);
       } catch (error) {
+        console.error(error);
         console.error(`An error occurred while processing a packet : `, packet);
         console.log(error)
       }
@@ -1186,7 +1187,7 @@ export class ZoneServer2016 extends ZoneServer {
       this.speedTreeDestroy(packet);
     }
   }
-
+  
   startRessourceUpdater(client: Client) {
     client.character.resourcesUpdater = setTimeout(() => {
       // prototype resource manager
@@ -1352,7 +1353,6 @@ export class ZoneServer2016 extends ZoneServer {
       }
     );
   }
-
   playerDamage(client: Client, damage: number) {
     const character = client.character;
     if (
@@ -1505,6 +1505,10 @@ export class ZoneServer2016 extends ZoneServer {
     );
     delete dictionary[characterId];
     delete this._transientIds[characterId];
+  }
+
+  sendManagedObjectResponseControlPacket(client: Client, obj: any) {
+    this.sendData(client, "ClientUpdate.ManagedObjectResponseControl", obj);
   }
 
   spawnNpcs(client: Client): void {
@@ -1684,6 +1688,16 @@ export class ZoneServer2016 extends ZoneServer {
     }
   }
 
+  createClient(sessionId:number,soeClientId:string,loginSessionId:string,characterId:string,generatedTransient:number){
+    return new Client(
+      sessionId,
+      soeClientId,
+      loginSessionId,
+      characterId,
+      generatedTransient
+    );
+  }
+
   getGameTime(): number {
     //debug("get server time");
     const delta = Date.now() - this._startGameTime;
@@ -1828,7 +1842,7 @@ export class ZoneServer2016 extends ZoneServer {
       control: true,
       objectCharacterId: vehicle.npcData.characterId,
     });
-    client.managedObjects.push(vehicle);
+    client.managedObjects.push(vehicle.npcData.characterId);
     vehicle.isManaged = true;
   }
 
@@ -1837,7 +1851,7 @@ export class ZoneServer2016 extends ZoneServer {
     vehicle: Vehicle,
     keepManaged: boolean = false
   ) {
-    const index = client.managedObjects.indexOf(vehicle);
+    const index = client.managedObjects.indexOf(vehicle.npcData.characterId);
     if (index > -1) {
       // todo: vehicle seat swap managed object drop logic
       debug("\n\n\n\n\n\n\n\n\n\n drop managed object");
@@ -1857,13 +1871,15 @@ export class ZoneServer2016 extends ZoneServer {
   }
 
   takeoverManagedObject(newClient: Client, vehicle: Vehicle) {
-    const index = newClient.managedObjects.indexOf(vehicle);
+    const index = newClient.managedObjects.indexOf(vehicle.npcData.characterId);
     if (index === -1) {
       // if object is already managed by client, do nothing
       debug("\n\n\n\n\n\n\n\n\n\n takeover managed object");
       for (const characterId in this._clients) {
         const oldClient = this._clients[characterId];
-        const idx = oldClient.managedObjects.indexOf(vehicle);
+        const idx = oldClient.managedObjects.indexOf(
+          vehicle.npcData.characterId
+        );
         if (idx > -1) {
           this.dropManagedObject(oldClient, vehicle, true);
           break;
