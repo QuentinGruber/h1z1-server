@@ -9,7 +9,7 @@
             "request": "launch",
             "name": "Launch ZoneServer",
             "env":{
-                "VSCODE_DEBUG":"true",
+                "VSCODE_DEBUG":"true"
             },
             "skipFiles": [
                 "<node_internals>/**"
@@ -41,7 +41,7 @@
             "request": "launch",
             "name": "Launch LoginServer",
             "env":{
-                "VSCODE_DEBUG":"true"    
+                "VSCODE_DEBUG":"true"
             },
             "skipFiles": [
                 "<node_internals>/**"

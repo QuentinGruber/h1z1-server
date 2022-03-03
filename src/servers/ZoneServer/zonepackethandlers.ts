@@ -276,13 +276,6 @@ export class zonePacketHandlers {
         stance: 1,
       });
       client.character.startRessourceUpdater(client, server);
-      server.sendData(client, "ZoneDoneSendingInitialData", {});
-      server.updateCharacterState(
-        client,
-        client.character.characterId,
-        client.character.characterStates,
-        false
-      );
       server.sendData(client, "ClientUpdate.DoneSendingPreloadCharacters", {
         unknownBoolean1: 1,
       });

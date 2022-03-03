@@ -157,21 +157,10 @@ export class ZoneServer extends EventEmitter {
 
     this._gatewayServer._soeServer.on(
       "PacketLimitationReached",
-      (soeClient: SOEClient) => {
-        this.onSoePacketLimitationReachedEvent(this._clients[soeClient.sessionId]);
+      (client: Client) => {
+        this.onSoePacketLimitationReachedEvent(client);
       }
     );
-
-    this._gatewayServer._soeServer.on(
-      "fatalError",
-      (soeClient: SOEClient) => {
-        const client = this._clients[soeClient.sessionId];
-        this.deleteClient(client);
-        // TODO: force crash the client 
-      }
-    );
-
-    
 
     this._gatewayServer.on(
       "login",
@@ -355,7 +344,6 @@ export class ZoneServer extends EventEmitter {
       try {
         this._packetHandlers.processPacket(this, client, packet);
       } catch (error) {
-        console.error(error);
         console.error(`An error occurred while processing a packet : `, packet);
       }
     }
@@ -402,16 +390,6 @@ export class ZoneServer extends EventEmitter {
     return generatedTransient;
   }
 
-  createClient(sessionId:number,soeClientId:string,loginSessionId:string,characterId:string,generatedTransient:number){
-    return new Client(
-      sessionId,
-      soeClientId,
-      loginSessionId,
-      characterId,
-      generatedTransient
-    );
-  }
-
   onGatewayLoginEvent(
     err: string,
     soeClient: SOEClient,
@@ -428,7 +406,13 @@ export class ZoneServer extends EventEmitter {
       `Client logged in from ${soeClient.address}:${soeClient.port} with character id: ${characterId}`
     );
     const generatedTransient = this.generateTransientId(characterId);
-    const zoneClient = this.createClient(soeClient.sessionId,soeClient.soeClientId,loginSessionId,characterId,generatedTransient)
+    const zoneClient = new Client(
+      soeClient.sessionId,
+      soeClient.soeClientId,
+      loginSessionId,
+      characterId,
+      generatedTransient
+    );
     this._clients[soeClient.sessionId] = zoneClient;
 
     this._transientIds[generatedTransient] = characterId;
@@ -448,22 +432,20 @@ export class ZoneServer extends EventEmitter {
   }
 
   deleteClient(client: Client) {
-    if(client){
-      if (client.character) {
-        this.deleteEntity(client.character.characterId, this._characters);
-        clearTimeout(client.character?.resourcesUpdater);
-        this.saveCharacterPosition(client);
-        client.managedObjects?.forEach((characterId: any) => {
-          this.dropVehicleManager(client, characterId);
-        });
-      }
-      delete this._clients[client.sessionId];
-      this._gatewayServer._soeServer.deleteClient(
-        this.getSoeClient(client.soeClientId)
-      );
-      if (!this._soloMode) {
-        this.sendZonePopulationUpdate();
-      }
+    if (client.character) {
+      this.deleteEntity(client.character.characterId, this._characters);
+      clearInterval(client.character?.resourcesUpdater);
+      this.saveCharacterPosition(client);
+      client.managedObjects?.forEach((characterId: any) => {
+        this.dropVehicleManager(client, characterId);
+      });
+    }
+    delete this._clients[client.sessionId];
+    this._gatewayServer._soeServer.deleteClient(
+      this.getSoeClient(client.soeClientId)
+    );
+    if (!this._soloMode) {
+      this.sendZonePopulationUpdate();
     }
   }
 
@@ -1727,13 +1709,10 @@ export class ZoneServer extends EventEmitter {
     });
   }
 
-  sendManagedObjectResponseControlPacket(client: Client, obj: any) {
-    this.sendData(client, "PlayerUpdate.ManagedObjectResponseControl", obj);
-  }
   dropVehicleManager(client: Client, vehicleGuid: string) {
-    this.sendManagedObjectResponseControlPacket(client, {
-      control: 0,
-      objectCharacterId: vehicleGuid,
+    this.sendData(client, "PlayerUpdate.ManagedObjectResponseControl", {
+      unk: 0,
+      characterId: vehicleGuid,
     });
     client.managedObjects.splice(
       client.managedObjects.findIndex((e: string) => e === vehicleGuid),

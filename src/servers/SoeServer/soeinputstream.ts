@@ -12,7 +12,7 @@
 // ======================================================================
 
 import { EventEmitter } from "events";
-import { RC4 } from "h1emu-core";
+import { createDecipheriv, Decipher } from "crypto";
 
 const debug = require("debug")("SOEInputStream");
 
@@ -24,7 +24,7 @@ export class SOEInputStream extends EventEmitter {
   _lastProcessedFragment: number;
   _fragments: Array<any>;
   _useEncryption: boolean;
-  _rc4: RC4;
+  _rc4: Decipher;
 
   constructor(cryptoKey: Uint8Array) {
     super();
@@ -35,7 +35,7 @@ export class SOEInputStream extends EventEmitter {
     this._lastProcessedFragment = -1;
     this._fragments = [];
     this._useEncryption = false;
-    this._rc4 = new RC4(cryptoKey);
+    this._rc4 = createDecipheriv("rc4", cryptoKey, null);
   }
 
   _processDataFragments(): void {
@@ -109,12 +109,11 @@ export class SOEInputStream extends EventEmitter {
                       It does this by having all internal packets start with a zero (0) byte.
                     */
           if (data.length > 1 && data.readUInt16LE(0) === 0) {
-            data = Buffer.from(
-              this._rc4.encrypt(new Uint32Array(data.slice(1)))
-            );
+            this._rc4.write(data.slice(1));
           } else {
-            data = Buffer.from(this._rc4.encrypt(new Uint32Array(data)));
+            this._rc4.write(data);
           }
+          data = this._rc4.read();
         }
         this.emit("data", null, data);
       }

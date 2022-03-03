@@ -11,25 +11,28 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { ZoneClient } from "../../ZoneServer/classes/zoneclient";
+import SOEClient from "../../SoeServer/soeclient";
+import { ZoneClient } from "servers/ZoneServer/classes/zoneclient";
 import { Character2016 } from "./character";
 
 export class ZoneClient2016 extends ZoneClient {
   character: Character2016;
+  managedObjects: any[] = [];
   constructor(
     sessionId: number,
-    soeClientId: string,
+    initialClient: SOEClient,
     loginSessionId: string,
     characterId: string,
     generatedTransient: number
   ) {
     super(
       sessionId,
-      soeClientId,
+      initialClient.soeClientId,
       loginSessionId,
       characterId,
       generatedTransient
     );
+
     this.character = new Character2016(characterId, generatedTransient);
   }
 }
