@@ -37,6 +37,7 @@ import dynamicWeather from "./workers/dynamicWeather";
 // need to get 2016 lists
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json");
 const recipes = require("../../../data/2016/sampleData/recipes.json");
+const deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json");
 const localWeatherTemplates = require("../../../data/2016/dataSources/weather.json");
 const stats = require("../../../data/2016/sampleData/stats.json");
 const resources = require("../../../data/2016/dataSources/resourceDefinitions.json");
@@ -1307,6 +1308,13 @@ export class ZoneServer2016 extends ZoneServer {
       };
       DTOArray.push(DTOinstance);
     }
+    deprecatedDoors.forEach((door: number) => {
+      const DTOinstance = {
+        objectId: door,
+        unknownString1: "Hospital_Door01_Placer.adr",
+      };
+      DTOArray.push(DTOinstance);
+    });
     this.sendData(client, "DtoObjectInitialData", {
       unknownDword1: 1,
       unknownArray1: DTOArray,
