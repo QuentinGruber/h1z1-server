@@ -439,7 +439,7 @@ export const commandPackets: any = [
     "Command.ReportLastDeath", 
     0x095300, 
     {
-      fields: {}
+      fields: []
     }
   ],
   ["Command.BecomeEnforcer", 0x095404, {}],
