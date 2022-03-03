@@ -1360,9 +1360,10 @@ export class ZoneServer2016 extends ZoneServer {
       client.character.isAlive &&
       client.character.characterId
     ) {
-      if (damage > 99) {
+      if (damage < 100) {
+		  return;
+	  }
         character.resources.health -= damage;
-      }
       if (character.resources.health <= 0) {
         character.resources.health = 0;
         this.killCharacter(client);
