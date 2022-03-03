@@ -1169,7 +1169,7 @@ export class zonePacketHandlers {
         case 3: // door
           server.sendData(client, "Command.InteractionString", {
             guid: guid,
-            stringId: 31,
+            stringId: 78,
           });
           break;
         default:
