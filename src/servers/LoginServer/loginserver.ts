@@ -317,6 +317,7 @@ export class LoginServer extends EventEmitter {
         const charactersQuery = {
           authKey: client.loginSessionId,
           serverVersionTag: this.getServerVersionTag(client.protocolName),
+          status: 1,
         };
         return await this._db
           .collection("characters-light")
@@ -420,7 +421,7 @@ export class LoginServer extends EventEmitter {
   async CharacterSelectInfoRequest(client: Client) {
     let characters = await this.loadCharacterData(client);
     console.log("characters sent ",characters)
-    console.log("for client : ",client)
+    console.log("for client : ",client.loginSessionId)
     if (this._soloMode) {
       if (client.protocolName == "LoginUdp_9") {
         characters = this.addDummyDataToCharacters(characters);
@@ -441,15 +442,6 @@ export class LoginServer extends EventEmitter {
         characters = this.addDummyDataToCharacters(characterList);
       }
     } else {
-      const charactersQuery = {
-        authKey: client.loginSessionId,
-        serverVersionTag: this.getServerVersionTag(client.protocolName),
-        status: 1,
-      };
-      characters = await this._db
-        .collection("characters-light")
-        .find(charactersQuery)
-        .toArray();
       characters = this.addDummyDataToCharacters(characters);
     }
     this.sendData(client, "CharacterSelectInfoReply", {
