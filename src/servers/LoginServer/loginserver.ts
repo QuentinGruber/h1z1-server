@@ -294,6 +294,7 @@ export class LoginServer extends EventEmitter {
         const charactersQuery = {
           authKey: client.loginSessionId,
           serverVersionTag: this.getServerVersionTag(client.protocolName),
+          status: 1,
         };
         return await this._db
           .collection("characters-light")
