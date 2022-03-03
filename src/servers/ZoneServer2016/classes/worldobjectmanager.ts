@@ -133,7 +133,7 @@ export class WorldObjectManager {
     HELMET_MOTORCYCLE: 2170, // TODO: expand with other default helmet colors
     HAT_CAP: 12, // TODO: expand with other cap colors
     SHIRT_DEFAULT: 92, // TODO: expand with other default shirts
-    PANTS_DEFAULT: 86, // TODO: expand with other default pants
+    PANTS_DEFAULT: 2177, // TODO: expand with other default pants
 
     HAT_BEANIE: 2162,
     SUGAR: 57,
@@ -179,12 +179,12 @@ export class WorldObjectManager {
 
     HEADLIGHTS_OFFROADER: 9,
     HEADLIGHTS_POLICE: 1730,
-    HEADLIGHTS_ATV: 2194,
+    HEADLIGHTS_ATV: 2595,
     HEADLIGHTS_PICKUP: 1728,
 
     TURBO_OFFROADER: 90,
     TURBO_POLICE: 1731,
-    TURBO_ATV: 2195,
+    TURBO_ATV: 2727,
     TURBO_PICKUP: 1729,
 
     GRENADE_SMOKE: 2236,
