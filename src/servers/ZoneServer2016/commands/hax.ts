@@ -14,7 +14,6 @@
 import fs from "fs";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { Vehicle2016 as Vehicle, Vehicle2016 } from "../classes/vehicle";
-import { Character2016 as Character } from "../classes/character";
 import { ZoneServer2016 } from "../zoneserver";
 import { _ } from "../../../utils/utils";
 
