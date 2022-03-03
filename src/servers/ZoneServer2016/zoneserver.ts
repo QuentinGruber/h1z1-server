@@ -2694,6 +2694,7 @@ export class ZoneServer2016 extends ZoneServer {
     let healCount = 9;
     switch (item.itemDefinitionId) {
       case 78: // med kit
+	  case 2424:
         healCount = 99;
         timeout = 5000;
         break;
@@ -2877,7 +2878,7 @@ export class ZoneServer2016 extends ZoneServer {
   useMedicalPass(client: Client, itemGuid: string, healCount: number) {
     client.character.healingMaxTicks += healCount;
     if (!client.character.healingInterval) {
-      client.character.starthealingInterval(client);
+      client.character.starthealingInterval(client, this);
     }
     this.removeInventoryItem(client, itemGuid, 1);
   }
