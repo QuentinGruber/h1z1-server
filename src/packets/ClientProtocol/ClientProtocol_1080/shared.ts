@@ -808,7 +808,7 @@ export const lightWeightNpcSchema = [
   { name: "npcDefinitionId", type: "uint32", defaultValue: 0 },
   { name: "positionUpdateType", type: "boolean", defaultValue: 0 }, // determine if npc is moving with positionUpdate - Avcio
   { name: "unknownDword7", type: "uint32", defaultValue: 0 },
-  { name: "dontSendFullNpcRequest", type: "boolean", defaultValue: false },
+  { name: "dontSendFullNpcRequest", type: "boolean", defaultValue: true },
   {
     name: "color",
     type: "schema",

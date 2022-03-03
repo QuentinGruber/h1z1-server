@@ -17,7 +17,12 @@ const Z1_items = require("../../../../data/2016/zoneData/Z1_items.json");
 const Z1_vehicles = require("../../../../data/2016/zoneData/Z1_vehicleLocations.json");
 const Z1_npcs = require("../../../../data/2016/zoneData/Z1_npcs.json");
 const models = require("../../../../data/2016/dataSources/Models.json");
-import { _, generateRandomGuid, isPosInRadius } from "../../../utils/utils";
+import {
+  _,
+  generateRandomGuid,
+  isPosInRadius,
+  eul2quat,
+} from "../../../utils/utils";
 import { Vehicle2016 as Vehicle } from "./../classes/vehicle";
 const debug = require("debug")("ZoneServer");
 
@@ -46,6 +51,42 @@ function getRandomVehicleId() {
       // pickup
       return 9258;
   }
+}
+
+function createDoor(
+  server: ZoneServer2016,
+  modelID: number,
+  position: Array<number>,
+  rotation: Array<number>,
+  startRot: Array<number>,
+  scale: Array<number>,
+  texture: string,
+  zoneId: number,
+  dictionnary: any
+): void {
+  const guid = generateRandomGuid();
+  const characterId = generateRandomGuid();
+  let openAngle = startRot[0] + 1.575;
+  dictionnary[characterId] = {
+    worldId: server._worldId,
+    zoneId: zoneId,
+    isOpen: false,
+    characterId: characterId,
+    guid: guid,
+    transientId: server.getTransientId(characterId),
+    nameId: 0,
+    modelId: modelID,
+    scale: scale,
+    texture: texture,
+    positionUpdateType: 1,
+    position: position,
+    rotation: rotation,
+    rotationRaw: startRot,
+    openAngle: openAngle,
+    closedAngle: startRot[0],
+    dontSendFullNpcRequest: true,
+    color: { g: 127 },
+  };
 }
 
 function getRandomItem(authorizedItems: Array<{ id: number; count: number }>) {
@@ -282,17 +323,20 @@ export class WorldObjectManager {
         );
       })?.ID;
       doorType.instances.forEach((doorInstance: any) => {
-        const r = doorInstance.rotation;
-        this.createEntity(
+        createDoor(
           server,
           modelId ? modelId : 9183,
           doorInstance.position,
-          [0, r[0] + -1.5707963705062866, 0],
+          eul2quat(doorInstance.rotation),
+          doorInstance.rotation,
+          doorInstance.scale ?? [1, 1, 1, 1],
+          "",
+          doorInstance.id,
           server._doors
         );
       });
     });
-    debug("All door objects created");
+    debug("All doors objects created");
   }
 
   createVehicles(server: ZoneServer2016) {
@@ -1251,3 +1295,4 @@ export class WorldObjectManager {
     }
   }
 }
+

@@ -1360,9 +1360,10 @@ export class ZoneServer2016 extends ZoneServer {
       client.character.isAlive &&
       client.character.characterId
     ) {
-      if (damage > 99) {
+      if (damage < 100) {
+		  return;
+	  }
         character.resources.health -= damage;
-      }
       if (character.resources.health <= 0) {
         character.resources.health = 0;
         this.killCharacter(client);
@@ -1614,8 +1615,20 @@ export class ZoneServer2016 extends ZoneServer {
           ) &&
           !client.spawnedEntities.includes(this._doors[door])
         ) {
-          this.sendData(client, "AddSimpleNpc", this._doors[door], 1);
+          const object = this._doors[door];
+          this.sendData(client, "AddLightweightNpc", object, 1);
           client.spawnedEntities.push(this._doors[door]);
+          if (object.isOpen) {
+            this.sendDataToAll("PlayerUpdatePosition", {
+              transientId: object.transientId,
+              positionUpdate: {
+                sequenceTime: 0,
+                unknown3_int8: 0,
+                position: object.position,
+                orientation: object.openAngle,
+              },
+            });
+          }
         }
       }
     });
@@ -2756,11 +2769,6 @@ export class ZoneServer2016 extends ZoneServer {
             item.itemDefinitionId
         );
     }
-    this.startTimer(client, nameId, timeout);
-    if (client.hudTimer != null) {
-      clearTimeout(client.hudTimer);
-    }
-    client.posAtLogoutStart = client.character.state.position;
     this.utilizeHudTimer(
       client,
       this.eatItemPass,
@@ -2793,10 +2801,6 @@ export class ZoneServer2016 extends ZoneServer {
           "[ERROR] Medical not mapped to item Definition " +
             item.itemDefinitionId
         );
-    }
-    this.startTimer(client, nameId, timeout);
-    if (client.hudTimer != null) {
-      clearTimeout(client.hudTimer);
     }
     this.utilizeHudTimer(
       client,
