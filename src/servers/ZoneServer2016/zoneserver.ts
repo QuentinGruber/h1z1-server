@@ -930,16 +930,6 @@ export class ZoneServer2016 extends ZoneServer {
           break;
       }
       vehicle.npcData.resources.health -= damage;
-      if (
-        (loopDamageMs &&
-          vehicle.npcData.resources.health &&
-          vehicle.npcData.destroyedState === 3) ||
-        vehicle.npcData.destroyedState === 4
-      ) {
-        setTimeout(() => {
-          this.damageVehicle(1000, vehicle, loopDamageMs);
-        }, loopDamageMs);
-      }
       if (vehicle.npcData.resources.health <= 0) {
         vehicle.npcData.resources.health = 0;
         this.explosionDamage(
@@ -975,100 +965,90 @@ export class ZoneServer2016 extends ZoneServer {
             }
           );
         }, 15000);
-      } else if (
-        vehicle.npcData.resources.health <= 50000 &&
-        vehicle.npcData.resources.health > 35000
-      ) {
-        if (vehicle.npcData.destroyedState != 1) {
-          vehicle.npcData.destroyedState = 1;
-          this.sendDataToAllWithSpawnedVehicle(
-            vehicle.npcData.characterId,
-            "Command.PlayDialogEffect",
-            {
-              characterId: vehicle.npcData.characterId,
-              effectId: minorDamageEffect,
-            }
-          );
-          this._vehicles[vehicle.npcData.characterId].destroyedEffect =
-            minorDamageEffect;
-        }
-      } else if (
-        vehicle.npcData.resources.health <= 35000 &&
-        vehicle.npcData.resources.health > 20000
-      ) {
-        if (vehicle.npcData.destroyedState != 2) {
-          vehicle.npcData.destroyedState = 2;
-          this.sendDataToAllWithSpawnedVehicle(
-            vehicle.npcData.characterId,
-            "Command.PlayDialogEffect",
-            {
-              characterId: vehicle.npcData.characterId,
-              effectId: majorDamageEffect,
-            }
-          );
-          this._vehicles[vehicle.npcData.characterId].destroyedEffect =
-            majorDamageEffect;
-        }
-      } else if (
-        vehicle.npcData.resources.health <= 20000 &&
-        vehicle.npcData.resources.health > 10000
-      ) {
-        if (vehicle.npcData.destroyedState != 3) {
-          vehicle.npcData.destroyedState = 3;
-          setTimeout(() => {
-            this.damageVehicle(damage, vehicle, 1000);
-          }, 1000);
-          this.sendDataToAllWithSpawnedVehicle(
-            vehicle.npcData.characterId,
-            "Command.PlayDialogEffect",
-            {
-              characterId: vehicle.npcData.characterId,
-              effectId: criticalDamageEffect,
-            }
-          );
-          this._vehicles[vehicle.npcData.characterId].destroyedEffect =
-            criticalDamageEffect;
-        }
-      } else if (vehicle.npcData.resources.health <= 10000) {
-        if (vehicle.npcData.destroyedState != 4) {
-          vehicle.npcData.destroyedState = 4;
-          setTimeout(() => {
-            this.damageVehicle(damage, vehicle, 1000);
-          }, 1000);
-          this.sendDataToAllWithSpawnedVehicle(
-            vehicle.npcData.characterId,
-            "Command.PlayDialogEffect",
-            {
-              characterId: vehicle.npcData.characterId,
-              effectId: supercriticalDamageEffect,
-            }
-          );
-          this._vehicles[vehicle.npcData.characterId].destroyedEffect =
-            supercriticalDamageEffect;
-        }
-      } else if (
-        vehicle.npcData.resources.health > 50000 &&
-        vehicle.npcData.destroyedState != 0
-      ) {
-        vehicle.npcData.destroyedState = 0;
-        this.sendDataToAllWithSpawnedVehicle(
-          vehicle.npcData.characterId,
-          "Command.PlayDialogEffect",
-          {
-            characterId: vehicle.npcData.characterId,
-            effectId: 0,
+      } else {
+        let damageeffect = 0;
+        let allowSend = false;
+        let startDamageTimeout = false;
+        if (
+          vehicle.npcData.resources.health <= 50000 &&
+          vehicle.npcData.resources.health > 35000
+        ) {
+          if (vehicle.npcData.destroyedState != 1) {
+            damageeffect = minorDamageEffect;
+            allowSend = true;
+            vehicle.npcData.destroyedState = 1;
           }
+        } else if (
+          vehicle.npcData.resources.health <= 35000 &&
+          vehicle.npcData.resources.health > 20000
+        ) {
+          if (vehicle.npcData.destroyedState != 2) {
+            damageeffect = majorDamageEffect;
+            allowSend = true;
+            vehicle.npcData.destroyedState = 2;
+          }
+        } else if (
+          vehicle.npcData.resources.health <= 20000 &&
+          vehicle.npcData.resources.health > 10000
+        ) {
+          if (vehicle.npcData.destroyedState != 3) {
+            damageeffect = criticalDamageEffect;
+            allowSend = true;
+            startDamageTimeout = true;
+            vehicle.npcData.destroyedState = 3;
+          }
+        } else if (vehicle.npcData.resources.health <= 10000) {
+          if (vehicle.npcData.destroyedState != 4) {
+            damageeffect = supercriticalDamageEffect;
+            allowSend = true;
+            startDamageTimeout = true;
+            vehicle.npcData.destroyedState = 4;
+          }
+        } else if (
+          vehicle.npcData.resources.health > 50000 &&
+          vehicle.npcData.destroyedState != 0
+        ) {
+          vehicle.npcData.destroyedState = 0;
+          this._vehicles[vehicle.npcData.characterId].destroyedEffect = 0;
+        }
+
+        if (allowSend) {
+          this.sendDataToAllWithSpawnedVehicle(
+            vehicle.npcData.characterId,
+            "Command.PlayDialogEffect",
+            {
+              characterId: vehicle.npcData.characterId,
+              effectId: damageeffect,
+            }
+          );
+          this._vehicles[vehicle.npcData.characterId].destroyedEffect =
+            damageeffect;
+          if (!vehicle.damageTimeout && startDamageTimeout) {
+            this.startVehicleDamageDelay(vehicle);
+          }
+        }
+
+        this.updateResourceToAllWithSpawnedVehicle(
+          vehicle.passengers.passenger1,
+          vehicle.npcData.characterId,
+          vehicle.npcData.resources.health,
+          561,
+          1
         );
-        this._vehicles[vehicle.npcData.characterId].destroyedEffect = 0;
       }
-      this.updateResourceToAllWithSpawnedVehicle(
-        vehicle.passengers.passenger1,
-        vehicle.npcData.characterId,
-        vehicle.npcData.resources.health,
-        561,
-        1
-      );
     }
+  }
+
+  startVehicleDamageDelay(vehicle: Vehicle) {
+    vehicle.damageTimeout = setTimeout(() => {
+      this.damageVehicle(1000, vehicle);
+      if (
+        vehicle.npcData.resources.health < 20000 &&
+        vehicle.npcData.resources.health > 0
+      ) {
+        vehicle.damageTimeout.refresh();
+      }
+    }, 1000);
   }
 
   async respawnPlayer(client: Client) {
@@ -1877,7 +1857,6 @@ export class ZoneServer2016 extends ZoneServer {
           if (this._vehicles[vehicleGuid].positionUpdate.engineRPM) {
             const fuelLoss =
               this._vehicles[vehicleGuid].positionUpdate.engineRPM * 0.01;
-            console.log(fuelLoss);
             this._vehicles[vehicleGuid].npcData.resources.fuel -= fuelLoss;
           }
           if (this._vehicles[vehicleGuid].npcData.resources.fuel < 0) {
