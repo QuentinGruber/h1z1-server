@@ -579,43 +579,6 @@ const dev: any = {
       },
     });
   },
-  additem: function (server: ZoneServer2016, client: Client, args: any[]) {
-    if (!args[1]) {
-      server.sendChatText(client, "Missing itemDefinitionid");
-      return;
-    }
-    const item = server.generateItem(Number(args[1]));
-    server.sendData(client, "ClientUpdate.ItemAdd", {
-      characterId: client.character.characterId,
-      data: {
-        itemDefinitionId: Number(args[1]),
-        tintId: 5,
-        guid: item,
-        count: 1, // also ammoCount
-        itemSubData: {
-          unknownBoolean1: true,
-
-          unknownDword1: 1,
-          unknownData1: {
-            unknownQword1: item,
-            unknownDword1: 0,
-            unknownDword2: 0,
-          },
-        },
-        unknownQword2: item,
-        unknownDword4: 0,
-        slot: 0,
-        unknownDword6: 0,
-        unknownDword7: 0,
-        unknownDword8: 0,
-        unknownBoolean1: true,
-        unknownQword3: item,
-        unknownDword9: 0,
-        unknownBoolean2: true,
-      },
-    });
-    server.equipItem(client, item);
-  },
   addcontainers: function (
     server: ZoneServer2016,
     client: Client,
@@ -781,15 +744,6 @@ const dev: any = {
       timeLeft: 0,
       message: " ",
     });
-  },
-  loginmsg: function (server: ZoneServer2016, client: Client, args: any[]) {
-    server._h1emuZoneServer.sendData(
-      server._h1emuZoneServer._loginConnection,
-      "test",
-      {
-        msg: Number(args[1]) | 99,
-      }
-    );
   },
   begincharacteraccess: function (
     server: ZoneServer2016,
@@ -999,37 +953,6 @@ const dev: any = {
       unknownDword4: Number(args[3]),
     };
     server._objects[characterId] = obj; // save npc
-  },
-  mapdef: function (server: ZoneServer2016, client: Client, args: any[]) {
-    if (!args[2]) {
-      server.sendChatText(client, "Usage: /mapdef {modelId} {itemDefId}");
-      return;
-    }
-    const modelId = Number(args[1]),
-      itemDefId = Number(args[2]),
-      def = server.getItemDefinition(itemDefId);
-    if (!def) {
-      server.sendChatText(client, "Invalid itemDefId");
-      return;
-    }
-    def.WORLD_MODEL_ID = modelId;
-    server._itemDefinitions[itemDefId] = def;
-    server.sendChatText(
-      client,
-      `Mapped modelId: ${modelId} to itemDefId: ${itemDefId}`
-    );
-    const fs = require("fs");
-    delete require.cache[
-      require.resolve(
-        `${__dirname}\\..\\..\\..\\..\\data\\2016\\dataSources\\ServerItemDefinitions.json`
-      )
-    ];
-    fs.writeFileSync(
-      `${__dirname}\\..\\..\\..\\..\\data\\2016\\dataSources\\ServerItemDefinitions.json`,
-      JSON.stringify(server._itemDefinitions, null, 2)
-    );
-    server._itemDefinitions = require(`${__dirname}\\..\\..\\..\\..\\data\\2016\\dataSources\\ServerItemDefinitions.json`);
-    server.sendChatText(client, `Reloaded itemdefinitions`);
   },
   /*
     proxiedobjects: function(server: ZoneServer2016, client: Client, args: any[]) {
