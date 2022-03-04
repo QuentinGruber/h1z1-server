@@ -62,7 +62,8 @@ function createDoor(
   scale: Array<number>,
   texture: string,
   zoneId: number,
-  dictionnary: any
+  dictionnary: any,
+  renderDistance: number
 ): void {
   const guid = generateRandomGuid();
   const characterId = generateRandomGuid();
@@ -86,6 +87,7 @@ function createDoor(
     closedAngle: startRot[0],
     dontSendFullNpcRequest: true,
     color: { g: 127 },
+    npcRenderDistance: renderDistance,
   };
 }
 
@@ -252,6 +254,7 @@ export class WorldObjectManager {
     position: Array<number>,
     rotation: Array<number>,
     dictionary: any,
+    renderDistance: number,
     itemSpawnerId: number = -1
   ): void {
     const guid = generateRandomGuid(),
@@ -268,6 +271,7 @@ export class WorldObjectManager {
       attachedObject: {},
       color: {},
       spawnerId: itemSpawnerId || 0,
+      npcRenderDistance: renderDistance,
     };
     if (itemSpawnerId) this._spawnedObjects[itemSpawnerId] = characterId;
   }
@@ -279,6 +283,7 @@ export class WorldObjectManager {
     stackCount: number,
     position: Array<number>,
     rotation: Array<number>,
+    renderDistance: number,
     itemSpawnerId: number = -1,
     itemGuid: string = ""
   ): void {
@@ -310,6 +315,7 @@ export class WorldObjectManager {
       spawnerId: itemSpawnerId || 0,
       itemGuid: itemGuid || server.generateItem(itemDefinitionId),
       stackCount: stackCount,
+      npcRenderDistance: renderDistance,
     };
     if (itemSpawnerId) this._spawnedObjects[itemSpawnerId] = characterId;
   }
@@ -332,7 +338,8 @@ export class WorldObjectManager {
           doorInstance.scale ?? [1, 1, 1, 1],
           "",
           doorInstance.id,
-          server._doors
+          server._doors,
+          150
         );
       });
     });
@@ -418,7 +425,8 @@ export class WorldObjectManager {
               ],
               npcInstance.position,
               [0, r[0], 0],
-              server._npcs
+              server._npcs,
+              80
             );
           }
         });
@@ -522,6 +530,7 @@ export class WorldObjectManager {
             item.count,
             itemInstance.position,
             itemInstance.rotation,
+            25,
             itemInstance.id
           );
         }
@@ -556,6 +565,7 @@ export class WorldObjectManager {
             item.count,
             itemInstance.position,
             itemInstance.rotation,
+            25,
             itemInstance.id
           );
         }
@@ -630,6 +640,7 @@ export class WorldObjectManager {
             item.count,
             itemInstance.position,
             itemInstance.rotation,
+            25,
             itemInstance.id
           );
         }
@@ -668,6 +679,7 @@ export class WorldObjectManager {
             item.count,
             itemInstance.position,
             itemInstance.rotation,
+            25,
             itemInstance.id
           );
         }
@@ -703,6 +715,7 @@ export class WorldObjectManager {
             item.count,
             itemInstance.position,
             itemInstance.rotation,
+            25,
             itemInstance.id
           );
         }
@@ -739,6 +752,7 @@ export class WorldObjectManager {
             item.count,
             itemInstance.position,
             itemInstance.rotation,
+            25,
             itemInstance.id
           );
         }
@@ -778,6 +792,7 @@ export class WorldObjectManager {
             item.count,
             itemInstance.position,
             itemInstance.rotation,
+            25,
             itemInstance.id
           );
         }
@@ -826,6 +841,7 @@ export class WorldObjectManager {
             item.count,
             itemInstance.position,
             itemInstance.rotation,
+            25,
             itemInstance.id
           );
         }
@@ -886,6 +902,7 @@ export class WorldObjectManager {
             item.count,
             itemInstance.position,
             itemInstance.rotation,
+            25,
             itemInstance.id
           );
         }
@@ -952,6 +969,7 @@ export class WorldObjectManager {
             item.count,
             itemInstance.position,
             itemInstance.rotation,
+            25,
             itemInstance.id
           );
         }
@@ -990,6 +1008,7 @@ export class WorldObjectManager {
             item.count,
             itemInstance.position,
             itemInstance.rotation,
+            25,
             itemInstance.id
           );
         }
@@ -1022,6 +1041,7 @@ export class WorldObjectManager {
             item.count,
             itemInstance.position,
             itemInstance.rotation,
+            25,
             itemInstance.id
           );
         }
@@ -1058,6 +1078,7 @@ export class WorldObjectManager {
             item.count,
             itemInstance.position,
             itemInstance.rotation,
+            25,
             itemInstance.id
           );
         }
@@ -1098,6 +1119,7 @@ export class WorldObjectManager {
             item.count,
             itemInstance.position,
             itemInstance.rotation,
+            25,
             itemInstance.id
           );
         }
@@ -1144,6 +1166,7 @@ export class WorldObjectManager {
             item.count,
             itemInstance.position,
             itemInstance.rotation,
+            25,
             itemInstance.id
           );
         }
@@ -1288,6 +1311,7 @@ export class WorldObjectManager {
             item.count,
             itemInstance.position,
             itemInstance.rotation,
+            25,
             itemInstance.id
           );
         }

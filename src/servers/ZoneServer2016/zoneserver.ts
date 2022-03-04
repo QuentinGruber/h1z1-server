@@ -37,6 +37,7 @@ import dynamicWeather from "./workers/dynamicWeather";
 // need to get 2016 lists
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json");
 const recipes = require("../../../data/2016/sampleData/recipes.json");
+const deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json");
 const localWeatherTemplates = require("../../../data/2016/dataSources/weather.json");
 const stats = require("../../../data/2016/sampleData/stats.json");
 const resources = require("../../../data/2016/dataSources/resourceDefinitions.json");
@@ -1307,6 +1308,13 @@ export class ZoneServer2016 extends ZoneServer {
       };
       DTOArray.push(DTOinstance);
     }
+    deprecatedDoors.forEach((door: number) => {
+      const DTOinstance = {
+        objectId: door,
+        unknownString1: "Hospital_Door01_Placer.adr",
+      };
+      DTOArray.push(DTOinstance);
+    });
     this.sendData(client, "DtoObjectInitialData", {
       unknownDword1: 1,
       unknownArray1: DTOArray,
@@ -1398,7 +1406,7 @@ export class ZoneServer2016 extends ZoneServer {
     for (const npc in this._npcs) {
       if (
         isPosInRadius(
-          this._npcRenderDistance,
+          this._npcs[npc].npcRenderDistance,
           client.character.state.position,
           this._npcs[npc].position
         ) &&
@@ -1459,7 +1467,7 @@ export class ZoneServer2016 extends ZoneServer {
       for (const object in this._objects) {
         if (
           isPosInRadius(
-            this._npcRenderDistance,
+            this._objects[object].npcRenderDistance,
             client.character.state.position,
             this._objects[object].position
           ) &&
@@ -1496,7 +1504,7 @@ export class ZoneServer2016 extends ZoneServer {
       for (const door in this._doors) {
         if (
           isPosInRadius(
-            this._npcRenderDistance,
+            this._doors[door].npcRenderDistance!,
             client.character.state.position,
             this._doors[door].position
           ) &&
@@ -1504,9 +1512,9 @@ export class ZoneServer2016 extends ZoneServer {
         ) {
           const object = this._doors[door];
           this.sendData(
-            client, 
-            "AddLightweightNpc", 
-            {...object, dontSendFullNpcRequest: true}, 
+            client,
+            "AddLightweightNpc",
+            { ...object, dontSendFullNpcRequest: true },
             1
           );
           client.spawnedEntities.push(this._doors[door]);
@@ -2458,7 +2466,8 @@ export class ZoneServer2016 extends ZoneServer {
       itemDefinition.ID,
       count,
       [...client.character.state.position],
-      [0, Number(Math.random() * 10 - 5), 0, 1]
+      [0, Number(Math.random() * 10 - 5), 0, 1],
+	    15,
     );
     this.spawnObjects(client); // manually call this for now
   }

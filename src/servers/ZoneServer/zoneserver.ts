@@ -2163,7 +2163,7 @@ export class ZoneServer extends EventEmitter {
 
   filterOutOfDistance(element: any, playerPosition: Float32Array): boolean {
     return !isPosInRadius(
-      this._npcRenderDistance,
+      (element.npcRenderDistance || this._npcRenderDistance) + 5,
       playerPosition,
       element.position || element.state?.position || element.npcData.position
     );
