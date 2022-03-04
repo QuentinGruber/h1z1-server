@@ -452,7 +452,6 @@ const hax: any = {
     }
   },
   run: function (server: ZoneServer2016, client: Client, args: any[]) {
-    server.sendChatText(client, "Setting run speed: " + Number(args[1]), true);
     server.sendData(client, "Command.RunSpeed", {
       runSpeed: Number(args[1]),
     });
