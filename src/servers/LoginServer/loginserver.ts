@@ -320,6 +320,7 @@ export class LoginServer extends EventEmitter {
           serverVersionTag: this.getServerVersionTag(client.protocolName),
           status: 1,
         };
+        console.log("execute query :",charactersQuery)
         return await this._db
           .collection("characters-light")
           .find(charactersQuery)
