@@ -646,12 +646,16 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
+      client.posAtLogoutStart = client.character.state.position;
+      if(!client.character.isAlive) { // Exit to menu button on respawn screen
+        server.sendData(client, "ClientUpdate.CompleteLogoutProcess", {});
+        return;
+      }
       const timerTime = 10000;
       server.sendData(client, "ClientUpdate.StartTimer", {
         stringId: 0,
         time: timerTime,
       });
-      client.posAtLogoutStart = client.character.state.position;
       if (client.hudTimer != null) {
         clearTimeout(client.hudTimer);
       }
