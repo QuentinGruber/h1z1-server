@@ -98,11 +98,7 @@ export class Character {
       const { isRunning } = this;
       if (isRunning) {
         this.resources.stamina -= 20;
-        if (this.resources.stamina < 120) {
-          this.isExhausted = true;
-        } else {
-          this.isExhausted = false;
-        }
+        this.isExhausted = this.resources.stamina < 120;
       } else if (!this.isBleeding || !this.isMoving) {
         this.resources.stamina += 30;
       }
