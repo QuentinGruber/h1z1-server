@@ -136,6 +136,7 @@ export class WorldObjectManager {
     HAT_CAP: 12, // TODO: expand with other cap colors
     SHIRT_DEFAULT: 92, // TODO: expand with other default shirts
     PANTS_DEFAULT: 2177, // TODO: expand with other default pants
+    CONVEYS_BLUE: 2217, // TODO: expand with other convey colors
 
     HAT_BEANIE: 2162,
     SUGAR: 57,
@@ -807,6 +808,7 @@ export class WorldObjectManager {
         authorizedItems.push({ id: this.eItems.SUGAR, count: 1 });
         authorizedItems.push({ id: this.eItems.SHIRT_DEFAULT, count: 1 });
         authorizedItems.push({ id: this.eItems.PANTS_DEFAULT, count: 1 });
+        authorizedItems.push({ id: this.eItems.CONVEYS_BLUE, count: 1 });
         authorizedItems.push({ id: this.eItems.BATTERY, count: 1 });
         authorizedItems.push({ id: this.eItems.WEAPON_COMBATKNIFE, count: 1 });
         authorizedItems.push({ id: this.eItems.HAT_CAP, count: 1 });
@@ -986,6 +988,7 @@ export class WorldObjectManager {
         authorizedItems.push({ id: this.eItems.WATER_PURE, count: 1 });
         authorizedItems.push({ id: this.eItems.SHIRT_DEFAULT, count: 1 });
         authorizedItems.push({ id: this.eItems.PANTS_DEFAULT, count: 1 });
+        authorizedItems.push({ id: this.eItems.CONVEYS_BLUE, count: 1 });
         authorizedItems.push({ id: this.eItems.WEAPON_HATCHET, count: 1 });
         authorizedItems.push({ id: this.eItems.HAT_CAP, count: 1 });
         authorizedItems.push({ id: this.eItems.HAT_BEANIE, count: 1 });
