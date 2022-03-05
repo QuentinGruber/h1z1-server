@@ -48,6 +48,9 @@ export class Vehicle2016 extends Vehicle {
   ) {
     super(worldId, characterId, transientId, modelId, position, rotation);
     this.npcData.vehicleId = getVehicleId(modelId);
+    this.isInvulnerable = 
+    this.npcData.vehicleId==1337 ||
+    this.npcData.vehicleId==13?true:false
     switch (this.npcData.vehicleId) {
       case 1: // offroader
       case 2: // pickup
