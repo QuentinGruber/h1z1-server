@@ -3112,6 +3112,9 @@ export class ZoneServer2016 extends ZoneServer {
   }
 
   igniteIED(IED: any) {
+    if (!IED.isIED) {
+      return;
+    }
     this.sendDataToAllWithSpawnedExplosive(
       IED.characterId,
       "Command.PlayDialogEffect",
