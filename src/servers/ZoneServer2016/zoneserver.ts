@@ -2787,6 +2787,18 @@ export class ZoneServer2016 extends ZoneServer {
     );
   }
 
+  
+  fillPass(client: Client, itemGuid: string) {
+    if (client.character.characterStates.inWater) {
+      this.removeInventoryItem(client, itemGuid, 1);
+      this.lootContainerItem(client, this.generateItem(1368), 1); // give dirty water
+    } else {
+      this.sendData(client, "ClientUpdate.TextAlert", {
+        message: "There is no water source nearby",
+      });
+    }
+  }
+
   useItem(client: Client, itemGuid: string) {
     const item = this._items[itemGuid],
       itemDefinition = this.getItemDefinition(item.itemDefinitionId);
