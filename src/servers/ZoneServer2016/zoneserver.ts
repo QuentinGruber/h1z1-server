@@ -1237,10 +1237,10 @@ export class ZoneServer2016 extends ZoneServer {
         if (damage > 4000) {
           client.character.resources.bleeding += 41;
         }
-        server.updateResource(
+        this.updateResource(
           client,
           client.character.characterId,
-          bleeding > 0 ? bleeding : 0,
+          client.character.resources.bleeding > 0 ? client.character.resources.bleeding : 0,
           21,
           21
         );
