@@ -1518,8 +1518,108 @@ export class zonePacketHandlers {
                   characterId: server._traps[characterId].characterId,
                 }
               );
+              delete server._traps[characterId];
             }
           }, 500);
+        }, 3000);
+      } else if (packet.data.itemDefinitionId == 1415) {
+        const characterId = server.generateGuid();
+        const guid = server.generateGuid();
+        const transientId = server.getTransientId(guid);
+        const npc = {
+          characterId: characterId,
+          guid: guid,
+          transientId: transientId,
+          modelId: 9175,
+          position: client.character.state.position,
+          rotation: client.character.state.lookAt,
+          color: {},
+          attachedObject: {},
+          isTriggered: false,
+        };
+        Object.keys(client.character._containers).forEach((loadoutSlotId) => {
+          const container = client.character._containers[Number(loadoutSlotId)];
+          for (const itemGuid in container.items) {
+            const item = container.items[itemGuid];
+            if (item.itemDefinitionId == packet.data.itemDefinitionId) {
+              server.removeInventoryItem(client, item.itemGuid, 1);
+            }
+          }
+        });
+        server._traps[characterId] = npc; // save npc
+        setTimeout(function () {
+          // arming time
+          server._traps[characterId].trapTimer = setTimeout(() => {
+            for (const a in server._clients) {
+              if (
+                getDistance(
+                  server._clients[a].character.state.position,
+                  npc.position
+                ) < 1
+              ) {
+                server.playerDamage(server._clients[a], 2000);
+                server._clients[a].character.resources.bleeding += 41;
+                server.sendDataToAllWithSpawnedTrap(
+                  characterId,
+                  "Character.PlayWorldCompositeEffect",
+                  {
+                    characterId: characterId,
+                    effectId: 1630,
+                    position: server._traps[characterId].position,
+                  }
+                );
+                server._traps[characterId].isTriggered = true;
+                server.sendData(
+                  server._clients[a],
+                  "ClientUpdate.ModifyMovementSpeed",
+                  {
+                    speed: 0.4,
+                  }
+                );
+                setTimeout(() => {
+                  server.sendData(
+                    server._clients[a],
+                    "ClientUpdate.ModifyMovementSpeed",
+                    {
+                      speed: 2.5,
+                    }
+                  );
+                }, 20000);
+              }
+            }
+
+            if (!server._traps[characterId].isTriggered) {
+              server._traps[characterId].trapTimer.refresh();
+            } else {
+              server.sendDataToAllWithSpawnedTrap(
+                characterId,
+                "Character.RemovePlayer",
+                {
+                  characterId: server._traps[characterId].characterId,
+                }
+              );
+              npc.modelId = 1974;
+              server.worldObjectManager.createLootEntity(
+                server,
+                1415,
+                1,
+                [
+                  npc.position[0],
+                  npc.position[1],
+                  npc.position[2],
+                  npc.position[3],
+                ],
+                [
+                  npc.rotation[0],
+                  npc.rotation[1],
+                  npc.rotation[2],
+                  npc.rotation[3],
+                ],
+                15
+              );
+              delete server._traps[characterId];
+            }
+          }, 200);
         }, 3000);
       } else {
         server.sendData(client, "Construction.PlacementResponse", {
