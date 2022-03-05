@@ -143,7 +143,6 @@ export class ZoneServer2016 extends ZoneServer {
       } catch (error) {
         console.error(error);
         console.error(`An error occurred while processing a packet : `, packet);
-        console.log(error)
       }
     }
   }
