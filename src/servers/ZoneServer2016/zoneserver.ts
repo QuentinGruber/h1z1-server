@@ -69,6 +69,8 @@ export class ZoneServer2016 extends ZoneServer {
   _respawnLocations: any;
   _speedTrees: any;
   _recipes: { [recipeId: number]: any } = recipes;
+  _explosives: any;
+  _traps: any;
 
   constructor(
     serverPort: number,
@@ -87,6 +89,8 @@ export class ZoneServer2016 extends ZoneServer {
     this._weather2016 = this._weatherTemplates[this._defaultWeatherTemplate];
     this._speedTrees = {};
     this._spawnLocations = spawnLocations;
+    this._explosives = {};
+    this._traps = {};
     this._respawnLocations = spawnLocations.map((spawn: any) => {
       return {
         guid: this.generateGuid(),
@@ -805,6 +809,8 @@ export class ZoneServer2016 extends ZoneServer {
       this.spawnObjects(client);
       this.spawnDoors(client);
       this.spawnNpcs(client);
+      this.spawnExplosives(client);
+      this.spawnTraps(client);
       this.POIManager(client);
       client.posAtLastRoutine = client.character.state.position;
     });
@@ -857,12 +863,12 @@ export class ZoneServer2016 extends ZoneServer {
     for (const character in this._clients) {
       const characterObj = this._clients[character];
       if (!characterObj.character.godMode) {
-        if (isPosInRadius(6, characterObj.character.state.position, position)) {
+        if (isPosInRadius(8, characterObj.character.state.position, position)) {
           const distance = getDistance(
             position,
             characterObj.character.state.position
           );
-          const damage = 30000 / distance;
+          const damage = 50000 / distance;
           this.playerDamage(this._clients[character], damage);
         }
       }
@@ -876,6 +882,17 @@ export class ZoneServer2016 extends ZoneServer {
           setTimeout(() => {
             this.damageVehicle(damage, vehicle);
           }, 100);
+        }
+      }
+    }
+    for (const explosive in this._explosives) {
+      const explosiveObj = this._explosives[explosive];
+      if (explosiveObj.characterId != npcTriggered) {
+        if (getDistance(position, explosiveObj.position) < 3) {
+          setTimeout(() => {
+            this.explodeExplosive(explosiveObj);
+          }, 150);
+          return;
         }
       }
     }
@@ -1421,6 +1438,43 @@ export class ZoneServer2016 extends ZoneServer {
     }
   }
 
+  spawnExplosives(client: Client): void {
+    for (const npc in this._explosives) {
+      if (
+        isPosInRadius(
+          80,
+          client.character.state.position,
+          this._explosives[npc].position
+        ) &&
+        !client.spawnedEntities.includes(this._explosives[npc])
+      ) {
+        this.sendData(
+          client,
+          "AddLightweightNpc",
+          { ...this._explosives[npc], profileId: 65 },
+          1
+        );
+        client.spawnedEntities.push(this._explosives[npc]);
+      }
+    }
+  }
+
+  spawnTraps(client: Client): void {
+    for (const npc in this._traps) {
+      if (
+        isPosInRadius(
+          75,
+          client.character.state.position,
+          this._traps[npc].position
+        ) &&
+        !client.spawnedEntities.includes(this._traps[npc])
+      ) {
+        this.sendData(client, "AddSimpleNpc", { ...this._traps[npc] }, 1);
+        client.spawnedEntities.push(this._traps[npc]);
+      }
+    }
+  }
+
   spawnCharacters(client: Client) {
     for (const c in this._clients) {
       const characterObj: Character = this._clients[c].character;
@@ -1795,6 +1849,43 @@ export class ZoneServer2016 extends ZoneServer {
       }
     }
   }
+
+  sendDataToAllWithSpawnedExplosive(
+    entityCharacterId: string = "",
+    packetName: any,
+    obj: any,
+    channel = 0
+  ): void {
+    if (!entityCharacterId) return;
+    for (const a in this._clients) {
+      if (
+        this._clients[a].spawnedEntities.includes(
+          this._explosives[entityCharacterId]
+        )
+      ) {
+        this.sendData(this._clients[a], packetName, obj, channel);
+      }
+    }
+  }
+	
+  sendDataToAllWithSpawnedTrap(
+    entityCharacterId: string = "",
+    packetName: any,
+    obj: any,
+    channel = 0
+  ): void {
+    if (!entityCharacterId) return;
+    for (const a in this._clients) {
+      if (
+        this._clients[a].spawnedEntities.includes(
+          this._traps[entityCharacterId]
+        )
+      ) {
+        this.sendData(this._clients[a], packetName, obj, channel);
+      }
+    }
+  }
+	
   sendDataToAllOthersWithSpawnedVehicle(
     client: Client,
     entityCharacterId: string = "",
@@ -2751,6 +2842,31 @@ export class ZoneServer2016 extends ZoneServer {
     );
   }
 
+  igniteOption(client: Client, itemGuid: string, nameId: number) {
+    const item = this._items[itemGuid];
+    let timeout = 100;
+    switch (item.itemDefinitionId) {
+      case 1436: // lighter
+        break;
+      case 1452: // bow drill
+        timeout = 15000;
+        break;
+      default:
+        this.sendChatText(
+          client,
+          "[ERROR] Igniter not mapped to item Definition " +
+            item.itemDefinitionId
+        );
+    }
+    this.utilizeHudTimer(
+      client,
+      this.igniteoptionPass,
+      [client, itemGuid],
+      nameId,
+      timeout
+    );
+  }
+
   drinkItem(client: Client, itemGuid: string, nameId: number) {
     const item = this._items[itemGuid];
     let drinkCount = 2000;
@@ -2916,6 +3032,20 @@ export class ZoneServer2016 extends ZoneServer {
     }
   }
 
+  igniteoptionPass(client: Client, itemGuid: string) {
+    for (const a in this._explosives) {
+      if (
+        isPosInRadius(
+          1,
+          client.character.state.position,
+          this._explosives[a].position
+        )
+      ) {
+        this.igniteIED(this._explosives[a]);
+      }
+    }
+  }
+
   useMedicalPass(
     client: Client,
     itemGuid: string,
@@ -2979,6 +3109,49 @@ export class ZoneServer2016 extends ZoneServer {
     client.hudTimer = setTimeout(() => {
       callback.apply(this, args);
     }, timeout);
+  }
+
+  igniteIED(IED: any) {
+    this.sendDataToAllWithSpawnedExplosive(
+      IED.characterId,
+      "Command.PlayDialogEffect",
+      {
+        characterId: IED.characterId,
+        effectId: 5034,
+      }
+    );
+    this.sendDataToAllWithSpawnedExplosive(
+      IED.characterId,
+      "Command.PlayDialogEffect",
+      {
+        characterId: IED.characterId,
+        effectId: 185,
+      }
+    );
+    setTimeout(() => {
+      this.explodeExplosive(IED);
+    }, 10000);
+  }
+
+  explodeExplosive(explosive: any) {
+    this.sendDataToAllWithSpawnedExplosive(
+      explosive.characterId,
+      "Character.PlayWorldCompositeEffect",
+      {
+        characterId: explosive.characterId,
+        effectId: 1875,
+        position: explosive.position,
+      }
+    );
+    this.sendDataToAllWithSpawnedExplosive(
+      explosive.characterId,
+      "Character.RemovePlayer",
+      {
+        characterId: explosive.characterId,
+      }
+    );
+    delete this._explosives[explosive.characterId];
+    this.explosionDamage(explosive.position, explosive.characterId);
   }
   
   getInventoryAsContainer(client: Client): {[itemDefinitionId: number]: inventoryItem[]} {
