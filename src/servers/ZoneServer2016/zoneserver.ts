@@ -259,11 +259,11 @@ export class ZoneServer2016 extends ZoneServer {
       factionId: 2, // default
       isRunning: false,
       resources: {
-        health: 5000,
+        health: 10000,
         stamina: 600,
-        food: 5000,
-        water: 5000,
-        virus: 6000,
+        food: 10000,
+        water: 10000,
+        virus: 0,
         comfort: 5000,
         bleeding: -40,
       },
