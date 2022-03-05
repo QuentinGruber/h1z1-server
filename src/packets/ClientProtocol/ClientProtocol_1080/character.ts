@@ -419,5 +419,14 @@ export const characterPackets: any = [
   ["Character.ExitCache", 0x0f5c, {}],
   ["Character.TransportPlayerToGatheringZone", 0x0f5d, {}],
   ["Character.UpdateTwitchInfo", 0x0f5e, {}],
-  ["Character.UpdateSimpleProxyHealth", 0x0f5f, {}],
+  [
+    "Character.UpdateSimpleProxyHealth",
+    0x0f5f,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "health", type: "float", defaultValue: 0 },
+      ],
+    },
+  ],
 ];
