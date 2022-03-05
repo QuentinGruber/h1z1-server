@@ -1430,9 +1430,9 @@ export class zonePacketHandlers {
                 );
                 delete server._explosives[characterId];
               }
-              if (server._explosives[characterId]) {
-                server._explosives[characterId].mineTimer.refresh();
-              }
+            }
+            if (server._explosives[characterId]) {
+              server._explosives[characterId].mineTimer.refresh();
             }
           }, 100);
         }, 5000);
