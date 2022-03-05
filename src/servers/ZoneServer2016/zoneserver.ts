@@ -260,6 +260,7 @@ export class ZoneServer2016 extends ZoneServer {
         water: 5000,
         virus: 6000,
         comfort: 5000,
+        bleeding: -40,
       },
       equipment: [
         // default SurvivorMale equipment
@@ -1058,6 +1059,9 @@ export class ZoneServer2016 extends ZoneServer {
     client.character.resources.food = 10000;
     client.character.resources.water = 10000;
     client.character.resources.stamina = 600;
+    client.character.resources.bleeding = -40;
+    client.character.healingTicks = 0;
+    client.character.healingMaxTicks = 0;
     client.character.resourcesUpdater.refresh();
     delete client.character.characterStates.knockedOut;
     this.updateCharacterState(
@@ -1225,9 +1229,15 @@ export class ZoneServer2016 extends ZoneServer {
       client.character.characterId
     ) {
       if (damage < 100) {
-		  return;
-	  }
-        character.resources.health -= damage;
+        return;
+      }
+      if (randomIntFromInterval(0, 100) < damage / 100 && damage > 500) {
+        client.character.resources.bleeding += 41;
+        if (damage > 4000) {
+          client.character.resources.bleeding += 41;
+        }
+      }
+      character.resources.health -= damage;
       if (character.resources.health <= 0) {
         character.resources.health = 0;
         this.killCharacter(client);
@@ -2701,11 +2711,13 @@ export class ZoneServer2016 extends ZoneServer {
     const item = this._items[itemGuid];
     let timeout = 1000;
     let healCount = 9;
+    let bandagingCount = 40;
     switch (item.itemDefinitionId) {
       case 78: // med kit
-	  case 2424:
+      case 2424:
         healCount = 99;
         timeout = 5000;
+        bandagingCount = 120;
         break;
       case 24: // bandage
         healCount = 9;
@@ -2725,7 +2737,7 @@ export class ZoneServer2016 extends ZoneServer {
     this.utilizeHudTimer(
       client,
       this.useMedicalPass,
-      [client, itemGuid, healCount],
+      [client, itemGuid, healCount, bandagingCount],
       nameId,
       timeout
     );
@@ -2884,23 +2896,26 @@ export class ZoneServer2016 extends ZoneServer {
     }
   }
 
-  useMedicalPass(client: Client, itemGuid: string, healCount: number) {
+  useMedicalPass(
+    client: Client,
+    itemGuid: string,
+    healCount: number,
+    bandagingCount: number
+  ) {
     client.character.healingMaxTicks += healCount;
+    client.character.resources.bleeding -= bandagingCount;
+    const { bleeding } = client.character.resources;
     if (!client.character.healingInterval) {
       client.character.starthealingInterval(client, this);
     }
+    this.updateResource(
+      client,
+      client.character.characterId,
+      bleeding > 0 ? bleeding : 0,
+      21,
+      21
+    );
     this.removeInventoryItem(client, itemGuid, 1);
-  }
-
-  fillPass(client: Client, itemGuid: string) {
-    if (client.character.characterStates.inWater) {
-      this.removeInventoryItem(client, itemGuid, 1);
-      this.lootContainerItem(client, this.generateItem(1368), 1); // give dirty water
-    } else {
-      this.sendData(client, "ClientUpdate.TextAlert", {
-        message: "There is no water source nearby",
-      });
-    }
   }
 
   refuelVehiclePass(
