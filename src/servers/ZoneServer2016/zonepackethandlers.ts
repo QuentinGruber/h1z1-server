@@ -1491,7 +1491,6 @@ export class zonePacketHandlers {
                     health: server._traps[characterId].health,
                   }
                 );
-                console.log(server._traps[characterId].health);
                 server._traps[characterId].realHealth -= 1000;
                 server._traps[characterId].health = Math.floor(
                   server._traps[characterId].realHealth / 1000
