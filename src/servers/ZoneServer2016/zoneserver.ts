@@ -19,7 +19,11 @@ import { ZoneClient2016 as Client } from "./classes/zoneclient";
 import { Vehicle2016 as Vehicle } from "./classes/vehicle";
 import { WorldObjectManager } from "./classes/worldobjectmanager";
 
-import { inventoryItem, loadoutContainer, Weather2016 } from "../../types/zoneserver";
+import {
+  inventoryItem,
+  loadoutContainer,
+  Weather2016,
+} from "../../types/zoneserver";
 import { h1z1PacketsType } from "../../types/packets";
 import { Character2016 as Character } from "./classes/character";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
@@ -817,7 +821,7 @@ export class ZoneServer2016 extends ZoneServer {
     if (refresh) this.worldRoutineTimer.refresh();
   }
   deleteClient(client: Client) {
-    if(client){
+    if (client) {
       if (client.character) {
         this.deleteEntity(client.character.characterId, this._characters);
         clearTimeout(client.character?.resourcesUpdater);
@@ -835,7 +839,7 @@ export class ZoneServer2016 extends ZoneServer {
       }
     }
   }
-  
+
   killCharacter(client: Client) {
     const character = client.character;
     if (character.isAlive) {
@@ -876,7 +880,7 @@ export class ZoneServer2016 extends ZoneServer {
     }
     character.isAlive = false;
   }
-  
+
   explosionDamage(position: Float32Array, npcTriggered: string) {
     for (const character in this._clients) {
       const characterObj = this._clients[character];
@@ -1230,7 +1234,7 @@ export class ZoneServer2016 extends ZoneServer {
       },
     });
   }
-  
+
   updateResourceToAllWithSpawnedVehicle(
     client: Client,
     entityId: string,
@@ -1275,7 +1279,9 @@ export class ZoneServer2016 extends ZoneServer {
         this.updateResource(
           client,
           client.character.characterId,
-          client.character.resources.bleeding > 0 ? client.character.resources.bleeding : 0,
+          client.character.resources.bleeding > 0
+            ? client.character.resources.bleeding
+            : 0,
           21,
           21
         );
@@ -1649,7 +1655,13 @@ export class ZoneServer2016 extends ZoneServer {
     }
   }
 
-  createClient(sessionId:number,soeClientId:string,loginSessionId:string,characterId:string,generatedTransient:number){
+  createClient(
+    sessionId: number,
+    soeClientId: string,
+    loginSessionId: string,
+    characterId: string,
+    generatedTransient: number
+  ) {
     return new Client(
       sessionId,
       soeClientId,
@@ -1885,7 +1897,7 @@ export class ZoneServer2016 extends ZoneServer {
       }
     }
   }
-	
+
   sendDataToAllWithSpawnedTrap(
     entityCharacterId: string = "",
     packetName: any,
@@ -1903,7 +1915,7 @@ export class ZoneServer2016 extends ZoneServer {
       }
     }
   }
-	
+
   sendDataToAllOthersWithSpawnedVehicle(
     client: Client,
     entityCharacterId: string = "",
@@ -1953,29 +1965,21 @@ export class ZoneServer2016 extends ZoneServer {
     const seatId = vehicle.getNextSeatId();
     if (seatId < 0) return; // no available seats in vehicle
     vehicle.seats[seatId] = client.character.characterId;
-    this.sendDataToAllWithSpawnedVehicle(
-      vehicleGuid,
-      "Mount.MountResponse",
-      {
-        // mounts character
-        characterId: client.character.characterId,
-        vehicleGuid: vehicle.npcData.characterId, // vehicle guid
-        seatId: Number(seatId),
-        unknownDword3: seatId === "0" ? 1 : 0, //isDriver
-        identity: {},
-      }
-    );
+    this.sendDataToAllWithSpawnedVehicle(vehicleGuid, "Mount.MountResponse", {
+      // mounts character
+      characterId: client.character.characterId,
+      vehicleGuid: vehicle.npcData.characterId, // vehicle guid
+      seatId: Number(seatId),
+      unknownDword3: seatId === "0" ? 1 : 0, //isDriver
+      identity: {},
+    });
     if (seatId === "0") {
       //this.takeoverManagedObject(client, vehicle); // disabled for now, client won't drop management
       if (vehicle.npcData.resources.fuel > 0) {
-        this.sendDataToAllWithSpawnedVehicle(
-          vehicleGuid,
-          "Vehicle.Engine",
-          {
-            guid2: vehicleGuid,
-            engineOn: true,
-          }
-        );
+        this.sendDataToAllWithSpawnedVehicle(vehicleGuid, "Vehicle.Engine", {
+          guid2: vehicleGuid,
+          engineOn: true,
+        });
         this._vehicles[vehicleGuid].engineOn = true;
         this._vehicles[vehicleGuid].resourcesUpdater = setInterval(() => {
           if (!this._vehicles[vehicleGuid].engineOn) {
@@ -2090,7 +2094,7 @@ export class ZoneServer2016 extends ZoneServer {
       );
       vehicle.engineOn = false;
     }
-    if(client.vehicle.mountedVehicleType == "spectate") {
+    if (client.vehicle.mountedVehicleType == "spectate") {
       this.updateEquipment(client);
     }
     client.vehicle.mountedVehicle = "";
@@ -2505,7 +2509,11 @@ export class ZoneServer2016 extends ZoneServer {
     return itemStack;
   }
 
-  hasInventoryItem(client: Client, itemGuid: string, count: number = 1): boolean {
+  hasInventoryItem(
+    client: Client,
+    itemGuid: string,
+    count: number = 1
+  ): boolean {
     const item = this._items[itemGuid],
       itemDefinition = this.getItemDefinition(item.itemDefinitionId);
     const loadoutSlotId = this.getLoadoutSlot(itemDefinition.ID);
@@ -2519,14 +2527,18 @@ export class ZoneServer2016 extends ZoneServer {
         return true;
       } else if (removeItem.stackCount > count) {
         return true;
-      }
-      else { // if count > removeItem.stackCount 
+      } else {
+        // if count > removeItem.stackCount
         return false;
       }
     }
   }
 
-  removeInventoryItem(client: Client, itemGuid: string, count: number = 1): boolean {
+  removeInventoryItem(
+    client: Client,
+    itemGuid: string,
+    count: number = 1
+  ): boolean {
     const item = this._items[itemGuid],
       itemDefinition = this.getItemDefinition(item.itemDefinitionId);
     const loadoutSlotId = this.getLoadoutSlot(itemDefinition.ID);
@@ -2561,8 +2573,8 @@ export class ZoneServer2016 extends ZoneServer {
           removeItem.itemGuid,
           removeItemContainer
         );
-      }
-      else { // if count > removeItem.stackCount 
+      } else {
+        // if count > removeItem.stackCount
         return false;
       }
     }
@@ -2581,20 +2593,20 @@ export class ZoneServer2016 extends ZoneServer {
         `[ERROR] DropItem: No WORLD_MODEL_ID mapped to itemDefinitionId: ${this._items[itemGuid].itemDefinitionId}`
       );
     }
-    if(!this.removeInventoryItem(client, itemGuid, count)) return;
+    if (!this.removeInventoryItem(client, itemGuid, count)) return;
     this.sendData(client, "Character.DroppedIemNotification", {
       characterId: client.character.characterId,
       itemDefId: item.itemDefinitionId,
       count: count,
     });
-    
+
     this.worldObjectManager.createLootEntity(
       this,
       itemDefinition.ID,
       count,
       [...client.character.state.position],
       [0, Number(Math.random() * 10 - 5), 0, 1],
-	    15,
+      15
     );
     this.spawnObjects(client); // manually call this for now
   }
@@ -2629,9 +2641,9 @@ export class ZoneServer2016 extends ZoneServer {
     }
     this.sendData(client, "Command.PlayDialogEffect", {
       characterId: guid,
-      effectId: this.getItemDefinition(
-        this._items[object.itemGuid].itemDefinitionId
-      ).PICKUP_EFFECT ?? 5151,
+      effectId:
+        this.getItemDefinition(this._items[object.itemGuid].itemDefinitionId)
+          .PICKUP_EFFECT ?? 5151,
     });
     this.lootItem(client, object.itemGuid, object.stackCount);
     this.deleteEntity(guid, this._objects);
@@ -2921,7 +2933,6 @@ export class ZoneServer2016 extends ZoneServer {
     );
   }
 
-  
   fillPass(client: Client, itemGuid: string) {
     if (client.character.characterStates.inWater) {
       this.removeInventoryItem(client, itemGuid, 1);
@@ -3174,9 +3185,11 @@ export class ZoneServer2016 extends ZoneServer {
     delete this._explosives[explosive.characterId];
     this.explosionDamage(explosive.position, explosive.characterId);
   }
-  
-  getInventoryAsContainer(client: Client): {[itemDefinitionId: number]: inventoryItem[]} {
-    const inventory: {[itemDefinitionId: number]: inventoryItem[]} = {};
+
+  getInventoryAsContainer(client: Client): {
+    [itemDefinitionId: number]: inventoryItem[];
+  } {
+    const inventory: { [itemDefinitionId: number]: inventoryItem[] } = {};
     Object.keys(client.character._containers).forEach((loadoutSlotId) => {
       const container = client.character._containers[Number(loadoutSlotId)];
       Object.keys(container.items).forEach((itemGuid) => {
@@ -3187,9 +3200,13 @@ export class ZoneServer2016 extends ZoneServer {
     });
     return inventory;
   }
-  
-  craftItem(client: Client, recipeId: number, count: number): string | undefined{
-  // TODO: convert this to a class because this function sucks
+
+  craftItem(
+    client: Client,
+    recipeId: number,
+    count: number
+  ): string | undefined {
+    // TODO: convert this to a class because this function sucks
 
     /*
   const timerTime = 1000;
@@ -3199,45 +3216,50 @@ export class ZoneServer2016 extends ZoneServer {
   });
   */
     const recipe = this._recipes[recipeId];
-    if(!recipe) {
+    if (!recipe) {
       this.sendChatText(client, `[ERROR] Invalid recipeId ${recipeId}`);
       return undefined;
     }
-    
-    for(const component of recipe.components){
+
+    for (const component of recipe.components) {
       let inventory = this.getInventoryAsContainer(client);
-      if(!Object.keys(inventory).includes(component.itemDefinitionId.toString())) {
+      if (
+        !Object.keys(inventory).includes(component.itemDefinitionId.toString())
+      ) {
         // if inventory doesn't have component but has materials for it
-        if(!this._recipes[component.itemDefinitionId]) {
+        if (!this._recipes[component.itemDefinitionId]) {
           return undefined; // no valid recipe to craft component
         }
         //for(let i = 0; i < count; i++) {
-          if(!this.craftItem(client, component.itemDefinitionId, component.requiredAmount * count)){
-            console.log("Craftitem error")
-            return undefined; // craftItem returned some error
-          }
+        if (
+          !this.craftItem(
+            client,
+            component.itemDefinitionId,
+            component.requiredAmount * count
+          )
+        ) {
+          console.log("Craftitem error");
+          return undefined; // craftItem returned some error
+        }
         //}
-      } 
+      }
       let remainingItems = component.requiredAmount * count;
       inventory = this.getInventoryAsContainer(client);
       inventory[component.itemDefinitionId]?.forEach((item) => {
-        if(item.stackCount >= remainingItems) {
-          if(this.hasInventoryItem(client, item.itemGuid, remainingItems)) {
+        if (item.stackCount >= remainingItems) {
+          if (this.hasInventoryItem(client, item.itemGuid, remainingItems)) {
             this.removeInventoryItem(client, item.itemGuid, remainingItems);
+          } else {
+            return undefined; // return if not enough items
           }
-          else {
+        } else {
+          if (this.hasInventoryItem(client, item.itemGuid, item.stackCount)) {
+            this.removeInventoryItem(client, item.itemGuid, item.stackCount);
+          } else {
             return undefined; // return if not enough items
           }
         }
-        else {
-          if(this.hasInventoryItem(client, item.itemGuid, item.stackCount)) {
-            this.removeInventoryItem(client, item.itemGuid, item.stackCount)
-          }
-          else {
-            return undefined; // return if not enough items
-          }
-        }
-      })
+      });
     }
     const itemGuid = this.generateItem(recipe.itemDefinitionId);
     this.lootItem(client, itemGuid, count);
@@ -3270,4 +3292,3 @@ if (process.env.VSCODE_DEBUG === "true") {
     2
   ).start();
 }
-

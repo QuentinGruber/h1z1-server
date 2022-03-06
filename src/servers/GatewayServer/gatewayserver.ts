@@ -127,14 +127,13 @@ export class GatewayServer extends EventEmitter {
       });
       this._soeServer.sendAppData(client, data);
     } else {
-      if(client){
+      if (client) {
         console.error(client);
         console.error("[ERROR] Above client tries to sent an empty buffer !");
-     }
-     else{
-       console.error(tunnelData);
-       console.error("[ERROR] Empty client !")
-     }
+      } else {
+        console.error(tunnelData);
+        console.error("[ERROR] Empty client !");
+      }
     }
   }
 

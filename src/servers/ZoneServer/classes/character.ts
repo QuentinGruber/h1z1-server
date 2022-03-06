@@ -74,8 +74,8 @@ export class Character {
         slotId: 4,
       },
     ];
-	this.healingTicks = 0;
-	this.healingMaxTicks = 0;
+    this.healingTicks = 0;
+    this.healingMaxTicks = 0;
     this.resources = {
       health: 10000,
       stamina: 10000,
@@ -190,4 +190,3 @@ export class Character {
     }, 3000);
   }
 }
-

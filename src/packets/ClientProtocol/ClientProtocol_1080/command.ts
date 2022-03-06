@@ -436,11 +436,11 @@ export const commandPackets: any = [
   ["Command.SelectiveSpawnAdd", 0x095104, {}],
   ["Command.SelectiveSpawnAddById", 0x095204, {}],
   [
-    "Command.ReportLastDeath", 
-    0x095300, 
+    "Command.ReportLastDeath",
+    0x095300,
     {
-      fields: []
-    }
+      fields: [],
+    },
   ],
   ["Command.BecomeEnforcer", 0x095404, {}],
   ["Command.BecomeReferee", 0x095504, {}],
