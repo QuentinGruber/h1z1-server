@@ -363,14 +363,17 @@ export class H1Z1Protocol {
           }
           packetData.data.copy(data, packetTypeBytes.length);
         } else {
-          debug("Could not pack data schema for " + packet.name);
+          console.error("Could not pack data schema for " + packet.name);
         }
       } else {
         debug(packet);
-        debug("pack()", "No schema for packet " + packet.name);
+        console.error("pack()", "No schema for packet " + packet.name);
       }
     } else {
-      debug("pack()", "Unknown or unhandled zone packet type: " + packetType);
+      console.error(
+        "pack()",
+        "Unknown or unhandled zone packet type: " + packetType
+      );
     }
     return data;
   }

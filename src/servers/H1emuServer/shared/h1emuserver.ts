@@ -29,7 +29,7 @@ export abstract class H1emuServer extends EventEmitter {
   _pingTime: number = 5000; // ms
   _pingTimeout: number = 12000;
   _pingTimer!: NodeJS.Timeout;
-  constructor(serverPort?: number) {
+  protected constructor(serverPort?: number) {
     super();
     this._serverPort = serverPort;
     this._protocol = new H1emuProtocol();

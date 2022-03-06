@@ -84,9 +84,9 @@ export const clientUpdatePackets: any = [
       fields: [
         { name: "position", type: "floatvector4", defaultValue: [0, 0, 0, 1] },
         { name: "rotation", type: "floatvector4", defaultValue: [0, 0, 0, 1] },
-        { name: "triggerLoadingScreen", type: "boolean", defaultValue: false },
+        { name: "triggerLoadingScreen", type: "boolean", defaultValue: true },
         { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-        { name: "unknownBool2", type: "boolean", defaultValue: false },
+        { name: "unknownBool2", type: "boolean", defaultValue: true },
       ],
     },
   ],
@@ -138,7 +138,29 @@ export const clientUpdatePackets: any = [
   ["ClientUpdate.UpdateActionBarSlotUsed", 0x111b00, {}],
   ["ClientUpdate.PhaseChange", 0x111c00, {}],
   ["ClientUpdate.UpdateKingdomExperience", 0x111d00, {}],
-  ["ClientUpdate.DamageInfo", 0x111e00, {}],
+  [
+    "ClientUpdate.DamageInfo",
+    0x111e00,
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 100 },
+        {
+          name: "transientId", // not sure if its used
+          type: "custom",
+          parser: readUnsignedIntWith2bitLengthValue,
+          packer: packUnsignedIntWith2bitLengthValue,
+          defaultValue: 0,
+        },
+        { name: "unknownDword2", type: "int32", defaultValue: 1 }, // cant be 0
+        { name: "orientationToSource", type: "float", defaultValue: 1 },
+        { name: "unknownDword4", type: "float", defaultValue: 1 },
+        { name: "unknownBoolean2", type: "boolean", defaultValue: 1 },
+        { name: "unknownBoolean3", type: "boolean", defaultValue: 1 },
+        { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword6", type: "uint32", defaultValue: 66 },
+      ],
+    },
+  ],
   [
     "ClientUpdate.ZonePopulation",
     0x112f00,

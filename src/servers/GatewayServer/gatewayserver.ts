@@ -120,15 +120,20 @@ export class GatewayServer extends EventEmitter {
 
   sendTunnelData(client: SOEClient, tunnelData: any, channel = 0) {
     debug("Sending tunnel data to client");
-    if (tunnelData) {
+    if (tunnelData && client) {
       const data = this._protocol.pack("TunnelPacketToExternalConnection", {
         channel: channel,
         tunnelData: tunnelData,
       });
       this._soeServer.sendAppData(client, data);
     } else {
-      console.error(client);
-      console.error("[ERROR] Above client tries to sent an empty buffer !");
+      if (client) {
+        console.error(client);
+        console.error("[ERROR] Above client tries to sent an empty buffer !");
+      } else {
+        console.error(tunnelData);
+        console.error("[ERROR] Empty client !");
+      }
     }
   }
 
