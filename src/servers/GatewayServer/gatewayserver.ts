@@ -135,7 +135,6 @@ export class GatewayServer extends EventEmitter {
        console.error(tunnelData);
        console.error("[ERROR] Empty client !")
      }
-     process.exit(1) // since the server seems to enter a terrible state after that happen.... This is temporary
     }
   }
 
