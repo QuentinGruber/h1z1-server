@@ -1338,6 +1338,9 @@ export class zonePacketHandlers {
         case 52: //use medical
           server.useMedical(client, packet.data.itemGuid, nameId);
           break;
+        case 11: //ignite
+          server.igniteOption(client, packet.data.itemGuid, nameId);
+          break;
         default:
           server.sendChatText(
             client,
