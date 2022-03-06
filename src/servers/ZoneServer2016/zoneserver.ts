@@ -816,6 +816,25 @@ export class ZoneServer2016 extends ZoneServer {
     if (this._ready) this.worldObjectManager.run(this);
     if (refresh) this.worldRoutineTimer.refresh();
   }
+  deleteClient(client: Client) {
+    if(client){
+      if (client.character) {
+        this.deleteEntity(client.character.characterId, this._characters);
+        clearTimeout(client.character?.resourcesUpdater);
+        this.saveCharacterPosition(client);
+        client.managedObjects?.forEach((characterId: any) => {
+          this.dropVehicleManager(client, characterId);
+        });
+      }
+      delete this._clients[client.sessionId];
+      this._gatewayServer._soeServer.deleteClient(
+        this.getSoeClient(client.soeClientId)
+      );
+      if (!this._soloMode) {
+        this.sendZonePopulationUpdate();
+      }
+    }
+  }
   
   killCharacter(client: Client) {
     const character = client.character;
