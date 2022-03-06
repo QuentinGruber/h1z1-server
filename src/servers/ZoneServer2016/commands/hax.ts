@@ -333,7 +333,6 @@ const hax: any = {
     const choosenModelId = Number(args[1]);
     const characterId = server.generateGuid();
     const headactor = getHeadActor(choosenModelId);
-    console.log(headactor);
     const npc = {
       characterId: characterId,
       guid: guid,
