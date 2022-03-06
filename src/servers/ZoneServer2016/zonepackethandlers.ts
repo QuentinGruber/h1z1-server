@@ -142,7 +142,7 @@ export class zonePacketHandlers {
           },
         ],
       });
-
+      client.character.startRessourceUpdater(client,server);
       server.sendData(client, "Character.CharacterStateDelta", {
         guid1: client.character.guid,
         guid2: "0x0000000000000000",
@@ -195,7 +195,6 @@ export class zonePacketHandlers {
     ) {
       client.currentPOI = 0; // clears currentPOI for POIManager
       server.sendGameTimeSync(client);
-      client.character.startRessourceUpdater(client,server);
       if (client.firstLoading) {
         server.sendData(client, "POIChangeMessage", {
           // welcome POI message
