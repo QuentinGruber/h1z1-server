@@ -237,7 +237,7 @@ export class SOEServer extends EventEmitter {
           client.outputStream.resendData(result.sequence);
           break;
         case "Ack":
-          if (result.sequence > 63000) {
+          if (result.sequence > 40000) {
             // see https://github.com/QuentinGruber/h1z1-server/issues/363
             console.log("Warn Ack, sequence ", result.sequence);
             this.emit("PacketLimitationReached", client);
