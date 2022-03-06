@@ -1255,8 +1255,8 @@ export class ZoneServer extends EventEmitter {
           client.character.resources.health < 2000 &&
           damage > 100)
       ) {
-        var moderateBleeding = 5042;
-        var impactSound = 5050;
+        const moderateBleeding = 5042;
+        const impactSound = 5050;
         if (damage >= 4000) {
           this.sendDataToAll("PlayerUpdate.EffectPackage", {
             characterId: client.character.characterId,

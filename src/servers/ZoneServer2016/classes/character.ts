@@ -98,11 +98,7 @@ export class Character2016 extends Character {
         const { isRunning } = client.character;
         if (isRunning) {
           client.character.resources.stamina -= 20;
-          if (client.character.resources.stamina < 120) {
-            client.character.isExhausted = true;
-          } else {
-            client.character.isExhausted = false;
-          }
+          client.character.isExhausted = client.character.resources.stamina < 120;
         } else if (!client.character.isBleeding || !client.character.isMoving) {
           client.character.resources.stamina += 30;
         }
