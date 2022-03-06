@@ -72,6 +72,7 @@ export class Vehicle {
   onReadyCallback?: (clientTriggered: ZoneClient) => boolean;
   onDismount?: any;
   resourcesUpdater?: any;
+  damageTimeout?: any;
 
   constructor(
     worldId: number,

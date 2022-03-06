@@ -199,11 +199,13 @@ export const characterPackets: any = [
     0x0f25,
     {
       fields: [
-        { name: "guid", type: "uint64string", defaultValue: "0" },
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
         { name: "unknown1", type: "uint32", defaultValue: 0 },
         { name: "unknown2", type: "uint32", defaultValue: 0 },
         { name: "unknown3", type: "uint32", defaultValue: 0 },
-        { name: "unknown4", type: "uint8", defaultValue: 0 },
+        { name: "disableWeirdPhysic", type: "boolean", defaultValue: 0 },
+        { name: "unknown4", type: "uint32", defaultValue: 0 },
+        { name: "disableWeirdPhysic2", type: "boolean", defaultValue: true },
       ],
     },
   ],
@@ -248,7 +250,7 @@ export const characterPackets: any = [
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "status", type: "boolean", defaultValue: false },
+        { name: "status", type: "boolean", defaultValue: true },
       ],
     },
   ],
@@ -324,7 +326,7 @@ export const characterPackets: any = [
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: 0 },
-        { name: "soundId", type: "uint32", defaultValue: 0 },
+        { name: "effectId", type: "uint32", defaultValue: 0 },
         {
           name: "position",
           type: "floatvector4",
@@ -375,7 +377,24 @@ export const characterPackets: any = [
   ["Character.NoSpaceNotification", 0x0f4b, {}],
   ["Character.ReloadNotification", 0x0f4c, {}],
   ["Character.MountBlockedNotification", 0x0f4d, {}],
-  ["Character.StartMultiStateDeath", 0x0f4f, {}],
+  [
+    "Character.StartMultiStateDeath",
+    0x0f4f,
+    {
+      fields: [
+        {
+          name: "characterId",
+          type: "uint64string",
+          defaultValue: "0x0000000000000000",
+        },
+        { name: "unknown4", type: "uint8", defaultValue: 0 }, // die by falling to there left
+        { name: "unknown5", type: "uint8", defaultValue: 1 }, // weird accrobatic stuff
+        // when unknown4 & unknown5 are > 0 then the animation play in a loop forever
+        { name: "unknown6", type: "uint8", defaultValue: 0 },
+        // seems like some bytes can be added after that but not required
+      ],
+    },
+  ],
   ["Character.AggroLevel", 0x0f50, {}],
   [
     "Character.DoorState",
@@ -400,5 +419,14 @@ export const characterPackets: any = [
   ["Character.ExitCache", 0x0f5c, {}],
   ["Character.TransportPlayerToGatheringZone", 0x0f5d, {}],
   ["Character.UpdateTwitchInfo", 0x0f5e, {}],
-  ["Character.UpdateSimpleProxyHealth", 0x0f5f, {}],
+  [
+    "Character.UpdateSimpleProxyHealth",
+    0x0f5f,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "health", type: "float", defaultValue: 0 },
+      ],
+    },
+  ],
 ];

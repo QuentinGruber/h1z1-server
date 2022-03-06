@@ -132,10 +132,28 @@ export const commandPackets: any = [
   ["Command.FriendsPositionRequest", 0x091700, {}],
   ["Command.MoveAndInteract", 0x091800, {}],
   ["Command.QuestAbandon", 0x091900, {}],
-  ["Command.RecipeStart", 0x091a00, {}],
+  [
+    "Command.RecipeStart",
+    0x091a00,
+    {
+      fields: [
+        { name: "recipeId", type: "uint32", defaultValue: 0 },
+        { name: "count", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
   ["Command.ShowRecipeWindow", 0x091b00, {}],
   ["Command.ActivateProfileFailed", 0x091c00, {}],
-  ["Command.PlayDialogEffect", 0x091d00, {}],
+  [
+    "Command.PlayDialogEffect",
+    0x091d00,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0x000" },
+        { name: "effectId", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
   ["Command.ForceClearDialog", 0x091e00, {}],
   ["Command.IgnoreRequest", 0x091f00, {}],
   ["Command.SetActiveVehicleGuid", 0x092000, {}],
@@ -417,7 +435,13 @@ export const commandPackets: any = [
   ["Command.SelectiveSpawnEnable", 0x095004, {}],
   ["Command.SelectiveSpawnAdd", 0x095104, {}],
   ["Command.SelectiveSpawnAddById", 0x095204, {}],
-  ["Command.SelectiveSpawnClear", 0x095304, {}],
+  [
+    "Command.ReportLastDeath", 
+    0x095300, 
+    {
+      fields: []
+    }
+  ],
   ["Command.BecomeEnforcer", 0x095404, {}],
   ["Command.BecomeReferee", 0x095504, {}],
   ["Command.Profiler", 0x095604, {}],
