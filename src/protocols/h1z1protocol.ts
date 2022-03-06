@@ -370,7 +370,10 @@ export class H1Z1Protocol {
         console.error("pack()", "No schema for packet " + packet.name);
       }
     } else {
-      console.error("pack()", "Unknown or unhandled zone packet type: " + packetType);
+      console.error(
+        "pack()",
+        "Unknown or unhandled zone packet type: " + packetType
+      );
     }
     return data;
   }

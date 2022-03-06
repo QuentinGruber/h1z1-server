@@ -142,7 +142,7 @@ export class zonePacketHandlers {
           },
         ],
       });
-      client.character.startRessourceUpdater(client,server);
+      client.character.startRessourceUpdater(client, server);
       server.sendData(client, "Character.CharacterStateDelta", {
         guid1: client.character.guid,
         guid2: "0x0000000000000000",
@@ -359,16 +359,16 @@ export class zonePacketHandlers {
       const { channel, message } = packet.data;
       server.sendChat(client, message, channel);
     }),
-    (this.ClientInitializationDetails = function (
-      server: ZoneServer2016,
-      client: Client,
-      packet: any
-    ) {
-      // just in case
-      if (packet.data.unknownDword1) {
-        debug("ClientInitializationDetails : ", packet.data.unknownDword1);
-      }
-    });
+      (this.ClientInitializationDetails = function (
+        server: ZoneServer2016,
+        client: Client,
+        packet: any
+      ) {
+        // just in case
+        if (packet.data.unknownDword1) {
+          debug("ClientInitializationDetails : ", packet.data.unknownDword1);
+        }
+      });
     this.ClientLogout = function (
       server: ZoneServer2016,
       client: Client,
@@ -537,19 +537,18 @@ export class zonePacketHandlers {
           );
           break;
         case joaat("HAX"):
-          if(!!hax[commandName]) {
+          if (!!hax[commandName]) {
             if (
               client.isAdmin ||
               commandName === "list" ||
-              (server._allowedCommands.length === 0 ||
-                server._allowedCommands.includes(commandName))
+              server._allowedCommands.length === 0 ||
+              server._allowedCommands.includes(commandName)
             ) {
               this.hax[commandName](server, client, args);
             } else {
               server.sendChatText(client, "You don't have access to that.");
             }
-          }
-          else {
+          } else {
             server.sendChatText(
               client,
               `Unknown command: /hax ${commandName} , display hax all commands by using /hax list`
@@ -558,19 +557,18 @@ export class zonePacketHandlers {
           break;
         case joaat("DEV"):
         case 552078457: // dev
-          if(!!dev[commandName]) {
+          if (!!dev[commandName]) {
             if (
               client.isAdmin ||
               commandName === "list" ||
-              (server._allowedCommands.length === 0 ||
-                server._allowedCommands.includes(commandName))
+              server._allowedCommands.length === 0 ||
+              server._allowedCommands.includes(commandName)
             ) {
               this.dev[commandName](server, client, args);
             } else {
               server.sendChatText(client, "You don't have access to that.");
             }
-          }
-          else {
+          } else {
             server.sendChatText(
               client,
               `Unknown command: /dev ${commandName} , display dev all commands by using /dev list`
@@ -579,19 +577,18 @@ export class zonePacketHandlers {
           break;
         case joaat("ADMIN"):
         case 997464845: // admin
-          if(!!admin[commandName]) {
+          if (!!admin[commandName]) {
             if (
               client.isAdmin ||
               commandName === "list" ||
-              (server._allowedCommands.length === 0 ||
-                server._allowedCommands.includes(commandName))
+              server._allowedCommands.length === 0 ||
+              server._allowedCommands.includes(commandName)
             ) {
               this.admin[commandName](server, client, args);
             } else {
               server.sendChatText(client, "You don't have access to that.");
             }
-          }
-          else {
+          } else {
             server.sendChatText(
               client,
               `Unknown command: /admin ${commandName} , display admin all commands by using /admin list`
@@ -600,50 +597,51 @@ export class zonePacketHandlers {
           break;
       }
     }),
-    (this.commandInteractRequest = function (
-      server: ZoneServer2016,
-      client: Client,
-      packet: any
-    ) {
-      server.sendData(client, "Command.InteractionString", {
-        guid: packet.data.guid,
-        stringId: 5463,
-        unknown4: 0,
+      (this.commandInteractRequest = function (
+        server: ZoneServer2016,
+        client: Client,
+        packet: any
+      ) {
+        server.sendData(client, "Command.InteractionString", {
+          guid: packet.data.guid,
+          stringId: 5463,
+          unknown4: 0,
+        });
+        server.sendData(client, "Command.InteractionList", {
+          guid: packet.data.guid,
+          unknownBoolean1: true,
+          unknownArray1: [
+            {
+              unknownDword1: 11,
+              unknownDword2: 0,
+              unknownDword3: 5463,
+              unknownDword4: 51,
+              unknownDword5: 1,
+              unknownDword6: 0,
+              unknownDword7: 0,
+            },
+          ],
+          unknownString1: "",
+          unknownBoolean2: true,
+          unknownArray2: [],
+          unknownBoolean3: false,
+        });
+      }),
+      (this.commandInteractCancel = function (
+        server: ZoneServer2016,
+        client: Client,
+        packet: any
+      ) {
+        debug("Interaction Canceled");
       });
-      server.sendData(client, "Command.InteractionList", {
-        guid: packet.data.guid,
-        unknownBoolean1: true,
-        unknownArray1: [
-          {
-            unknownDword1: 11,
-            unknownDword2: 0,
-            unknownDword3: 5463,
-            unknownDword4: 51,
-            unknownDword5: 1,
-            unknownDword6: 0,
-            unknownDword7: 0,
-          },
-        ],
-        unknownString1: "",
-        unknownBoolean2: true,
-        unknownArray2: [],
-        unknownBoolean3: false,
-      });
-    }),
-    (this.commandInteractCancel = function (
-      server: ZoneServer2016,
-      client: Client,
-      packet: any
-    ) {
-      debug("Interaction Canceled");
-    });
     this.commandStartLogoutRequest = function (
       server: ZoneServer2016,
       client: Client,
       packet: any
     ) {
       client.posAtLogoutStart = client.character.state.position;
-      if(!client.character.isAlive) { // Exit to menu button on respawn screen
+      if (!client.character.isAlive) {
+        // Exit to menu button on respawn screen
         server.sendData(client, "ClientUpdate.CompleteLogoutProcess", {});
         return;
       }
@@ -1025,7 +1023,7 @@ export class zonePacketHandlers {
         default:
           break;
       }
-      if(entityData.onReadyCallback) {
+      if (entityData.onReadyCallback) {
         entityData.onReadyCallback();
         delete entityData.onReadyCallback;
       }
