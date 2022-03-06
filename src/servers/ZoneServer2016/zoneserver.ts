@@ -1460,7 +1460,7 @@ export class ZoneServer2016 extends ZoneServer {
     for (const npc in this._explosives) {
       if (
         isPosInRadius(
-          80,
+          300,
           client.character.state.position,
           this._explosives[npc].position
         ) &&
