@@ -21,7 +21,7 @@
     "h1z1-dataschema": "1.5.9",
     "mongodb": "4.4.0",
     "mongodb-restore-dump": "1.0.1",
-    "typedoc": "0.22.12",
+    "typedoc": "0.22.13",
     "typescript": "4.6.2",
     "v8-compile-cache": "2.3.0"
   },
@@ -32,7 +32,7 @@
     "glob": "7.2.0",
     "prettier": "2.5.1",
     "ts-node": "10.7.0",
-    "typedoc": "0.22.12"
+    "typedoc": "0.22.13"
   },
   "scripts": {
     "gen-packets-types": "npx ts-node ./scripts/genPacketsNames.ts && npx prettier -w ./src/types/packets.ts",
