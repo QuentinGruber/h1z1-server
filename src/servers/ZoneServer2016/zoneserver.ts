@@ -1235,6 +1235,28 @@ export class ZoneServer2016 extends ZoneServer {
     });
   }
 
+  updateResourceToAllWithSpawnedCharacter(
+    client: Client,
+    entityId: string,
+    value: number,
+    resource: number,
+    resourceType: number
+  ) {
+    this.sendDataToAllWithSpawnedCharacter(client, "ResourceEvent", {
+      eventData: {
+        type: 3,
+        value: {
+          characterId: entityId,
+          resourceId: resource,
+          resourceType: resourceType,
+          initialValue: value,
+          unknownArray1: [],
+          unknownArray2: [],
+        },
+      },
+    });
+  }
+
   updateResourceToAllWithSpawnedVehicle(
     client: Client,
     entityId: string,
@@ -1276,7 +1298,7 @@ export class ZoneServer2016 extends ZoneServer {
         if (damage > 4000) {
           client.character.resources.bleeding += 41;
         }
-        this.updateResource(
+        this.updateResourceToAllWithSpawnedCharacter(
           client,
           client.character.characterId,
           client.character.resources.bleeding > 0
@@ -3087,7 +3109,7 @@ export class ZoneServer2016 extends ZoneServer {
     if (!client.character.healingInterval) {
       client.character.starthealingInterval(client, this);
     }
-    this.updateResource(
+    this.updateResourceToAllWithSpawnedCharacter(
       client,
       client.character.characterId,
       bleeding > 0 ? bleeding : 0,
