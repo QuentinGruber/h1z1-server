@@ -142,7 +142,7 @@ export class zonePacketHandlers {
           },
         ],
       });
-
+      client.character.startRessourceUpdater(client,server);
       server.sendData(client, "Character.CharacterStateDelta", {
         guid1: client.character.guid,
         guid2: "0x0000000000000000",
@@ -195,7 +195,6 @@ export class zonePacketHandlers {
     ) {
       client.currentPOI = 0; // clears currentPOI for POIManager
       server.sendGameTimeSync(client);
-      client.character.startRessourceUpdater(client,server);
       if (client.firstLoading) {
         server.sendData(client, "POIChangeMessage", {
           // welcome POI message
@@ -1338,6 +1337,9 @@ export class zonePacketHandlers {
           break;
         case 52: //use medical
           server.useMedical(client, packet.data.itemGuid, nameId);
+          break;
+        case 11: //ignite
+          server.igniteOption(client, packet.data.itemGuid, nameId);
           break;
         default:
           server.sendChatText(

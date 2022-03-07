@@ -51,7 +51,7 @@ export class Character2016 extends Character {
     this.healingTicks = 0;
     this.healingMaxTicks = 0;
     this.resources = {
-      health: 5000,
+      health: 10000,
       stamina: 50,
       food: 5000,
       water: 5000,
@@ -65,6 +65,9 @@ export class Character2016 extends Character {
       server: ZoneServer2016
     ) => {
       client.character.healingInterval = setTimeout(() => {
+        if (!server._clients[client.sessionId]) {
+          return;
+        }
         client.character.resources.health += 100;
         if (client.character.resources.health > 10000) {
           client.character.resources.health = 10000;
@@ -95,10 +98,14 @@ export class Character2016 extends Character {
     ) => {
       client.character.resourcesUpdater = setTimeout(() => {
         // prototype resource manager
+        if (!server._clients[client.sessionId]) {
+          return;
+        }
         const { isRunning } = client.character;
         if (isRunning) {
           client.character.resources.stamina -= 20;
-          client.character.isExhausted = client.character.resources.stamina < 120;
+          client.character.isExhausted =
+            client.character.resources.stamina < 120;
         } else if (!client.character.isBleeding || !client.character.isMoving) {
           client.character.resources.stamina += 30;
         }
