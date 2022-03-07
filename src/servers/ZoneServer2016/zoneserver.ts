@@ -14,7 +14,7 @@
 const debugName = "ZoneServer";
 const debug = require("debug")(debugName);
 import { zonePacketHandlers } from "./zonepackethandlers";
-import { ZoneServer2015 } from "../ZoneServer/zoneserver";
+import { ZoneServer2015 } from "../ZoneServer2015/zoneserver";
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
 import { Vehicle2016 as Vehicle } from "./classes/vehicle";
 import { WorldObjectManager } from "./classes/worldobjectmanager";
