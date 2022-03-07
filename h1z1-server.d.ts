@@ -14,6 +14,7 @@ export var ZoneClientClass: typeof import("./out/servers/ZoneServer/classes/zone
 export var SOEServer: typeof import("./out/servers/SoeServer/soeserver.js").SOEServer;
 export var LoginServer: typeof import("./out/servers/LoginServer/loginserver.js").LoginServer;
 export var GatewayServer: typeof import("./out/servers/GatewayServer/gatewayserver.js").GatewayServer;
-export var ZoneServer: typeof import("./out/servers/ZoneServer/zoneserver.js").ZoneServer;
+export var ZoneServer: typeof import("./out/servers/ZoneServer/zoneserver.js").ZoneServer2015; // legacy 
+export var ZoneServer2015: typeof import("./out/servers/ZoneServer/zoneserver.js").ZoneServer2015; 
 export var ZoneServer2016: typeof import("./out/servers/ZoneServer2016/zoneserver.js").ZoneServer2016;
 export var Utils: typeof import("./out/utils/utils");
