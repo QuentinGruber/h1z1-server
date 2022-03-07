@@ -48,7 +48,7 @@ const stats = require("../../../data/2015/sampleData/stats.json");
 const recipes = require("../../../data/2015/sampleData/recipes.json");
 const Z1_POIs = require("../../../data/2015/zoneData/Z1_POIs");
 
-export class ZoneServer extends EventEmitter {
+export class ZoneServer2015 extends EventEmitter {
   _gatewayServer: GatewayServer;
   _protocol: any;
   _db: Db | undefined;
@@ -2715,7 +2715,7 @@ if (
   process.env.VSCODE_DEBUG === "true" &&
   process.env.CLIENT_SIXTEEN !== "true"
 ) {
-  const zoneServer = new ZoneServer(
+  const zoneServer = new ZoneServer2015(
     1117,
     Buffer.from("F70IaxuU8C/w7FPXY1ibXw==", "base64"),
     process.env.MONGO_URL,

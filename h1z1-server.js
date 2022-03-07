@@ -88,8 +88,12 @@ h1z1Server.__defineGetter__("GatewayServer", function () {
   return require("./out/servers/GatewayServer/gatewayserver.js").GatewayServer;
 });  
 
-h1z1Server.__defineGetter__("ZoneServer", function () {
-  return require("./out/servers/ZoneServer/zoneserver.js").ZoneServer;
+h1z1Server.__defineGetter__("ZoneServer", function () { // legacy
+  return require("./out/servers/ZoneServer/zoneserver.js").ZoneServer2015;
+});
+
+h1z1Server.__defineGetter__("ZoneServer2015", function () {
+  return require("./out/servers/ZoneServer/zoneserver.js").ZoneServer2015;
 });  
 
 h1z1Server.__defineGetter__("ZoneServer2016", function () {
