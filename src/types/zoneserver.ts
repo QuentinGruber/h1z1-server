@@ -11,8 +11,8 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { ZoneClient } from "../servers/ZoneServer/classes/zoneclient";
-import { ZoneServer2015 } from "../servers/ZoneServer/zoneserver";
+import { ZoneClient } from "../servers/ZoneServer2015/classes/zoneclient";
+import { ZoneServer2015 } from "../servers/ZoneServer2015/zoneserver";
 import { ZoneClient2016 } from "../servers/ZoneServer2016/classes/zoneclient";
 import { ZoneServer2016 } from "../servers/ZoneServer2016/zoneserver";
 
