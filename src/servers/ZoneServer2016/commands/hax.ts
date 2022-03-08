@@ -345,6 +345,7 @@ const hax: any = {
       unknownData1: { unknownData1: {} },
       headActor: headactor,
       attachedObject: {},
+      npcRenderDistance: 80,
     };
     server._npcs[characterId] = npc; // save npc
   },
