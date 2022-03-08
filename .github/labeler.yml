@@ -1,6 +1,58 @@
-# Add 'label1' to any changes within 'example' folder or any subfolders
-label1:
-- example/**/*
+client-2015:
+- src/servers/ZoneServer/**/*
+- src/servers/ZoneServer2015/**/*
+- src/packets/ClientProtocol_860/**/*
 
-# Add 'label2' to any file changes within 'example2' folder
-label2: example2/*
+
+client-2016:
+- src/servers/ZoneServer2016/**/*
+- src/packets/ClientProtocol_1080/**/*
+
+core:
+- src/servers/SoeServer/**/*
+- src/protocols/soeprotocol.ts
+- src/packets/packettable.ts
+- src/servers/shared/**/*
+- src/servers/utils/**/*
+- h1z1-server.js
+- h1z1-server.d.ts
+
+
+h1emu-internal-communication:
+- src/servers/H1emuServer/**/*
+- src/protocols/h1emuprotocol.ts
+
+
+gatewayserver:
+- src/protocols/gatewayprotocol.ts
+- src/packets/gatewaypackets.ts
+
+loginserver:
+- src/servers/LoginServer/**/*
+- src/protocols/loginprotocol.ts
+- src/protocols/loginprotocol2016.ts
+- src/packets/LoginUdp/**/*
+
+
+unit-tests:
+- src/tests/**/*
+- src/clients/**/*
+
+dockerfiles:
+- docker/**/*
+
+server-data:
+- data/**/*
+
+config-files:
+- .swc/**/*
+- .devcontainer/**/*
+- .github/**/*
+- .npmignore
+- .swcrc
+- tsconfig.json
+- tsconfigs/**/*
+
+dependencies:
+- package-lock.json
+- package.json
