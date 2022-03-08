@@ -69,7 +69,7 @@ h1z1Server.__defineGetter__("ZoneClient", function () {
 });  
 
 h1z1Server.__defineGetter__("ZoneClientClass", function () {
-  return require("./out/servers/ZoneServer/classes/zoneclient.js").ZoneClient;
+  return require("./out/servers/ZoneServer2015/classes/zoneclient.js").ZoneClient;
 });
 
 h1z1Server.__defineGetter__("Utils", function () {
@@ -89,11 +89,11 @@ h1z1Server.__defineGetter__("GatewayServer", function () {
 });  
 
 h1z1Server.__defineGetter__("ZoneServer", function () { // legacy
-  return require("./out/servers/ZoneServer/zoneserver.js").ZoneServer2015;
+  return require("./out/servers/ZoneServer2015/zoneserver.js").ZoneServer2015;
 });
 
 h1z1Server.__defineGetter__("ZoneServer2015", function () {
-  return require("./out/servers/ZoneServer/zoneserver.js").ZoneServer2015;
+  return require("./out/servers/ZoneServer2015/zoneserver.js").ZoneServer2015;
 });  
 
 h1z1Server.__defineGetter__("ZoneServer2016", function () {
