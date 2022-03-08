@@ -1,6 +1,6 @@
 {
   "name": "h1z1-server",
-  "version": "0.20.1-0",
+  "version": "0.20.3-1",
   "description": "Library for emulating h1z1 servers",
   "author": "Quentin Gruber <quentingruber@gmail.com> (http://github.com/quentingruber)",
   "license": "GPL-3.0-only",
@@ -21,8 +21,8 @@
     "h1z1-dataschema": "1.5.9",
     "mongodb": "4.4.0",
     "mongodb-restore-dump": "1.0.1",
-    "typedoc": "0.22.12",
-    "typescript": "4.5.5",
+    "typedoc": "0.22.13",
+    "typescript": "4.6.2",
     "v8-compile-cache": "2.3.0"
   },
   "directories": {
@@ -31,8 +31,8 @@
   "devDependencies": {
     "glob": "7.2.0",
     "prettier": "2.5.1",
-    "ts-node": "10.5.0",
-    "typedoc": "0.22.12"
+    "ts-node": "10.7.0",
+    "typedoc": "0.22.13"
   },
   "scripts": {
     "gen-packets-types": "npx ts-node ./scripts/genPacketsNames.ts && npx prettier -w ./src/types/packets.ts",

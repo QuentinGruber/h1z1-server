@@ -17,7 +17,12 @@ const Z1_items = require("../../../../data/2016/zoneData/Z1_items.json");
 const Z1_vehicles = require("../../../../data/2016/zoneData/Z1_vehicleLocations.json");
 const Z1_npcs = require("../../../../data/2016/zoneData/Z1_npcs.json");
 const models = require("../../../../data/2016/dataSources/Models.json");
-import { _, generateRandomGuid, isPosInRadius } from "../../../utils/utils";
+import {
+  _,
+  generateRandomGuid,
+  isPosInRadius,
+  eul2quat,
+} from "../../../utils/utils";
 import { Vehicle2016 as Vehicle } from "./../classes/vehicle";
 const debug = require("debug")("ZoneServer");
 
@@ -46,6 +51,44 @@ function getRandomVehicleId() {
       // pickup
       return 9258;
   }
+}
+
+function createDoor(
+  server: ZoneServer2016,
+  modelID: number,
+  position: Array<number>,
+  rotation: Array<number>,
+  startRot: Array<number>,
+  scale: Array<number>,
+  texture: string,
+  zoneId: number,
+  dictionnary: any,
+  renderDistance: number
+): void {
+  const guid = generateRandomGuid();
+  const characterId = generateRandomGuid();
+  let openAngle = startRot[0] + 1.575;
+  dictionnary[characterId] = {
+    worldId: server._worldId,
+    zoneId: zoneId,
+    isOpen: false,
+    characterId: characterId,
+    guid: guid,
+    transientId: server.getTransientId(characterId),
+    nameId: 0,
+    modelId: modelID,
+    scale: scale,
+    texture: texture,
+    positionUpdateType: 1,
+    position: position,
+    rotation: rotation,
+    rotationRaw: startRot,
+    openAngle: openAngle,
+    closedAngle: startRot[0],
+    dontSendFullNpcRequest: true,
+    color: { g: 127 },
+    npcRenderDistance: renderDistance,
+  };
 }
 
 function getRandomItem(authorizedItems: Array<{ id: number; count: number }>) {
@@ -92,7 +135,8 @@ export class WorldObjectManager {
     HELMET_MOTORCYCLE: 2170, // TODO: expand with other default helmet colors
     HAT_CAP: 12, // TODO: expand with other cap colors
     SHIRT_DEFAULT: 92, // TODO: expand with other default shirts
-    PANTS_DEFAULT: 86, // TODO: expand with other default pants
+    PANTS_DEFAULT: 2177, // TODO: expand with other default pants
+    CONVEYS_BLUE: 2217, // TODO: expand with other convey colors
 
     HAT_BEANIE: 2162,
     SUGAR: 57,
@@ -138,12 +182,12 @@ export class WorldObjectManager {
 
     HEADLIGHTS_OFFROADER: 9,
     HEADLIGHTS_POLICE: 1730,
-    HEADLIGHTS_ATV: 2194,
+    HEADLIGHTS_ATV: 2595,
     HEADLIGHTS_PICKUP: 1728,
 
     TURBO_OFFROADER: 90,
     TURBO_POLICE: 1731,
-    TURBO_ATV: 2195,
+    TURBO_ATV: 2727,
     TURBO_PICKUP: 1729,
 
     GRENADE_SMOKE: 2236,
@@ -211,6 +255,7 @@ export class WorldObjectManager {
     position: Array<number>,
     rotation: Array<number>,
     dictionary: any,
+    renderDistance: number,
     itemSpawnerId: number = -1
   ): void {
     const guid = generateRandomGuid(),
@@ -227,6 +272,7 @@ export class WorldObjectManager {
       attachedObject: {},
       color: {},
       spawnerId: itemSpawnerId || 0,
+      npcRenderDistance: renderDistance,
     };
     if (itemSpawnerId) this._spawnedObjects[itemSpawnerId] = characterId;
   }
@@ -238,6 +284,7 @@ export class WorldObjectManager {
     stackCount: number,
     position: Array<number>,
     rotation: Array<number>,
+    renderDistance: number,
     itemSpawnerId: number = -1,
     itemGuid: string = ""
   ): void {
@@ -269,6 +316,7 @@ export class WorldObjectManager {
       spawnerId: itemSpawnerId || 0,
       itemGuid: itemGuid || server.generateItem(itemDefinitionId),
       stackCount: stackCount,
+      npcRenderDistance: renderDistance,
     };
     if (itemSpawnerId) this._spawnedObjects[itemSpawnerId] = characterId;
   }
@@ -282,17 +330,21 @@ export class WorldObjectManager {
         );
       })?.ID;
       doorType.instances.forEach((doorInstance: any) => {
-        const r = doorInstance.rotation;
-        this.createEntity(
+        createDoor(
           server,
           modelId ? modelId : 9183,
           doorInstance.position,
-          [0, r[0] + -1.5707963705062866, 0],
-          server._doors
+          eul2quat(doorInstance.rotation),
+          doorInstance.rotation,
+          doorInstance.scale ?? [1, 1, 1, 1],
+          "",
+          doorInstance.id,
+          server._doors,
+          150
         );
       });
     });
-    debug("All door objects created");
+    debug("All doors objects created");
   }
 
   createVehicles(server: ZoneServer2016) {
@@ -374,7 +426,8 @@ export class WorldObjectManager {
               ],
               npcInstance.position,
               [0, r[0], 0],
-              server._npcs
+              server._npcs,
+              80
             );
           }
         });
@@ -478,6 +531,7 @@ export class WorldObjectManager {
             item.count,
             itemInstance.position,
             itemInstance.rotation,
+            25,
             itemInstance.id
           );
         }
@@ -512,6 +566,7 @@ export class WorldObjectManager {
             item.count,
             itemInstance.position,
             itemInstance.rotation,
+            25,
             itemInstance.id
           );
         }
@@ -586,6 +641,7 @@ export class WorldObjectManager {
             item.count,
             itemInstance.position,
             itemInstance.rotation,
+            25,
             itemInstance.id
           );
         }
@@ -624,6 +680,7 @@ export class WorldObjectManager {
             item.count,
             itemInstance.position,
             itemInstance.rotation,
+            25,
             itemInstance.id
           );
         }
@@ -659,6 +716,7 @@ export class WorldObjectManager {
             item.count,
             itemInstance.position,
             itemInstance.rotation,
+            25,
             itemInstance.id
           );
         }
@@ -695,6 +753,7 @@ export class WorldObjectManager {
             item.count,
             itemInstance.position,
             itemInstance.rotation,
+            25,
             itemInstance.id
           );
         }
@@ -734,6 +793,7 @@ export class WorldObjectManager {
             item.count,
             itemInstance.position,
             itemInstance.rotation,
+            25,
             itemInstance.id
           );
         }
@@ -748,6 +808,7 @@ export class WorldObjectManager {
         authorizedItems.push({ id: this.eItems.SUGAR, count: 1 });
         authorizedItems.push({ id: this.eItems.SHIRT_DEFAULT, count: 1 });
         authorizedItems.push({ id: this.eItems.PANTS_DEFAULT, count: 1 });
+        authorizedItems.push({ id: this.eItems.CONVEYS_BLUE, count: 1 });
         authorizedItems.push({ id: this.eItems.BATTERY, count: 1 });
         authorizedItems.push({ id: this.eItems.WEAPON_COMBATKNIFE, count: 1 });
         authorizedItems.push({ id: this.eItems.HAT_CAP, count: 1 });
@@ -782,6 +843,7 @@ export class WorldObjectManager {
             item.count,
             itemInstance.position,
             itemInstance.rotation,
+            25,
             itemInstance.id
           );
         }
@@ -842,6 +904,7 @@ export class WorldObjectManager {
             item.count,
             itemInstance.position,
             itemInstance.rotation,
+            25,
             itemInstance.id
           );
         }
@@ -908,6 +971,7 @@ export class WorldObjectManager {
             item.count,
             itemInstance.position,
             itemInstance.rotation,
+            25,
             itemInstance.id
           );
         }
@@ -924,6 +988,7 @@ export class WorldObjectManager {
         authorizedItems.push({ id: this.eItems.WATER_PURE, count: 1 });
         authorizedItems.push({ id: this.eItems.SHIRT_DEFAULT, count: 1 });
         authorizedItems.push({ id: this.eItems.PANTS_DEFAULT, count: 1 });
+        authorizedItems.push({ id: this.eItems.CONVEYS_BLUE, count: 1 });
         authorizedItems.push({ id: this.eItems.WEAPON_HATCHET, count: 1 });
         authorizedItems.push({ id: this.eItems.HAT_CAP, count: 1 });
         authorizedItems.push({ id: this.eItems.HAT_BEANIE, count: 1 });
@@ -946,6 +1011,7 @@ export class WorldObjectManager {
             item.count,
             itemInstance.position,
             itemInstance.rotation,
+            25,
             itemInstance.id
           );
         }
@@ -978,6 +1044,7 @@ export class WorldObjectManager {
             item.count,
             itemInstance.position,
             itemInstance.rotation,
+            25,
             itemInstance.id
           );
         }
@@ -1014,6 +1081,7 @@ export class WorldObjectManager {
             item.count,
             itemInstance.position,
             itemInstance.rotation,
+            25,
             itemInstance.id
           );
         }
@@ -1054,6 +1122,7 @@ export class WorldObjectManager {
             item.count,
             itemInstance.position,
             itemInstance.rotation,
+            25,
             itemInstance.id
           );
         }
@@ -1100,6 +1169,7 @@ export class WorldObjectManager {
             item.count,
             itemInstance.position,
             itemInstance.rotation,
+            25,
             itemInstance.id
           );
         }
@@ -1244,6 +1314,7 @@ export class WorldObjectManager {
             item.count,
             itemInstance.position,
             itemInstance.rotation,
+            25,
             itemInstance.id
           );
         }

@@ -22,6 +22,9 @@ export class Character {
   loadouts?: any;
   extraModel?: string;
   resourcesUpdater?: any;
+  healingInterval?: any;
+  healingTicks: number;
+  healingMaxTicks: number;
   equipment: characterEquipment[];
   resources: {
     health: number;
@@ -71,6 +74,8 @@ export class Character {
         slotId: 4,
       },
     ];
+    this.healingTicks = 0;
+    this.healingMaxTicks = 0;
     this.resources = {
       health: 10000,
       stamina: 10000,
@@ -98,11 +103,7 @@ export class Character {
       const { isRunning } = this;
       if (isRunning) {
         this.resources.stamina -= 20;
-        if (this.resources.stamina < 120) {
-          this.isExhausted = true;
-        } else {
-          this.isExhausted = false;
-        }
+        this.isExhausted = this.resources.stamina < 120;
       } else if (!this.isBleeding || !this.isMoving) {
         this.resources.stamina += 30;
       }
@@ -187,14 +188,5 @@ export class Character {
       server.updateResource(client, this.characterId, virus, 9, 12);
       this.resourcesUpdater.refresh();
     }, 3000);
-
-    server.sendData(client, "ZoneDoneSendingInitialData", {});
-
-    server.updateCharacterState(
-      client,
-      client.character.characterId,
-      this.characterStates,
-      false
-    );
   }
 }

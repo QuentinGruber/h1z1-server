@@ -11,11 +11,11 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { EventEmitter } from "node:events";
+import { EventEmitter } from "events";
 import { H1emuProtocol } from "../../../protocols/h1emuprotocol";
 import { H1emuClient as H1emuClient } from "./h1emuclient";
-import { Worker } from "node:worker_threads";
-import { RemoteInfo } from "node:dgram";
+import { Worker } from "worker_threads";
+import { RemoteInfo } from "dgram";
 
 const debug = require("debug")("H1emuServer");
 process.env.isBin && require("../../shared/workers/udpServerWorker.js");
@@ -29,7 +29,7 @@ export abstract class H1emuServer extends EventEmitter {
   _pingTime: number = 5000; // ms
   _pingTimeout: number = 12000;
   _pingTimer!: NodeJS.Timeout;
-  constructor(serverPort?: number) {
+  protected constructor(serverPort?: number) {
     super();
     this._serverPort = serverPort;
     this._protocol = new H1emuProtocol();

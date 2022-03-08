@@ -220,8 +220,6 @@ export default function dynamicWeather(server: ZoneServer2016) {
     unknownDword32: 0,
     unknownDword33: 0,
   };
-  console.log(weather);
-  console.log(`${sunposx}, ${sunposy}`);
   /*
     //rain strength
     const rainchancestr = randomIntFromInterval(rainIncMin, rainIncMax); // rain strength increase

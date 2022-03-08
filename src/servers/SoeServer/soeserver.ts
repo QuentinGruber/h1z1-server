@@ -15,7 +15,7 @@ import { EventEmitter } from "events";
 import { SOEProtocol } from "../../protocols/soeprotocol";
 import Client from "./soeclient";
 import SOEClient from "./soeclient";
-import { Worker } from "node:worker_threads";
+import { Worker } from "worker_threads";
 
 const debug = require("debug")("SOEServer");
 process.env.isBin && require("../shared/workers/udpServerWorker.js");
@@ -312,6 +312,10 @@ export class SOEServer extends EventEmitter {
 
           client.inputStream.on("data", (err: string, data: Buffer) => {
             this.emit("appdata", null, client, data);
+          });
+
+          client.outputStream.on("cacheError", (err: string, data: Buffer) => {
+            this.emit("fatalError", client);
           });
 
           client.inputStream.on("ack", (err: string, sequence: number) => {

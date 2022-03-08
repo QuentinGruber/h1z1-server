@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { RemoteInfo } from "node:dgram";
+import { RemoteInfo } from "dgram";
 
 export class H1emuClient {
   sessionId: number = 0;

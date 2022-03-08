@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { EventEmitter } from "node:events";
+import { EventEmitter } from "events";
 import { GatewayServer } from "../GatewayServer/gatewayserver";
 import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
 import { H1emuZoneServer } from "../H1emuServer/h1emuZoneServer";
@@ -29,12 +29,12 @@ import {
 } from "../../utils/utils";
 import { Weather } from "../../types/zoneserver";
 import { Db, MongoClient } from "mongodb";
-import { Worker } from "node:worker_threads";
+import { Worker } from "worker_threads";
 import SOEClient from "../SoeServer/soeclient";
 import { ZoneClient as Client } from "./classes/zoneclient";
 import { h1z1PacketsType } from "../../types/packets";
 import { Vehicle } from "./classes/vehicles";
-import { Resolver } from "node:dns";
+import { Resolver } from "dns";
 
 process.env.isBin && require("./workers/dynamicWeather");
 
@@ -157,10 +157,18 @@ export class ZoneServer extends EventEmitter {
 
     this._gatewayServer._soeServer.on(
       "PacketLimitationReached",
-      (client: Client) => {
-        this.onSoePacketLimitationReachedEvent(client);
+      (soeClient: SOEClient) => {
+        this.onSoePacketLimitationReachedEvent(
+          this._clients[soeClient.sessionId]
+        );
       }
     );
+
+    this._gatewayServer._soeServer.on("fatalError", (soeClient: SOEClient) => {
+      const client = this._clients[soeClient.sessionId];
+      this.deleteClient(client);
+      // TODO: force crash the client
+    });
 
     this._gatewayServer.on(
       "login",
@@ -344,6 +352,7 @@ export class ZoneServer extends EventEmitter {
       try {
         this._packetHandlers.processPacket(this, client, packet);
       } catch (error) {
+        console.error(error);
         console.error(`An error occurred while processing a packet : `, packet);
       }
     }
@@ -390,6 +399,22 @@ export class ZoneServer extends EventEmitter {
     return generatedTransient;
   }
 
+  createClient(
+    sessionId: number,
+    soeClientId: string,
+    loginSessionId: string,
+    characterId: string,
+    generatedTransient: number
+  ) {
+    return new Client(
+      sessionId,
+      soeClientId,
+      loginSessionId,
+      characterId,
+      generatedTransient
+    );
+  }
+
   onGatewayLoginEvent(
     err: string,
     soeClient: SOEClient,
@@ -406,7 +431,7 @@ export class ZoneServer extends EventEmitter {
       `Client logged in from ${soeClient.address}:${soeClient.port} with character id: ${characterId}`
     );
     const generatedTransient = this.generateTransientId(characterId);
-    const zoneClient = new Client(
+    const zoneClient = this.createClient(
       soeClient.sessionId,
       soeClient.soeClientId,
       loginSessionId,
@@ -432,20 +457,22 @@ export class ZoneServer extends EventEmitter {
   }
 
   deleteClient(client: Client) {
-    if (client.character) {
-      this.deleteEntity(client.character.characterId, this._characters);
-      clearTimeout(client.character?.resourcesUpdater);
-      this.saveCharacterPosition(client);
-      client.managedObjects?.forEach((characterId: any) => {
-        this.dropVehicleManager(client, characterId);
-      });
-    }
-    delete this._clients[client.sessionId];
-    this._gatewayServer._soeServer.deleteClient(
-      this.getSoeClient(client.soeClientId)
-    );
-    if (!this._soloMode) {
-      this.sendZonePopulationUpdate();
+    if (client) {
+      if (client.character) {
+        this.deleteEntity(client.character.characterId, this._characters);
+        clearTimeout(client.character?.resourcesUpdater);
+        this.saveCharacterPosition(client);
+        client.managedObjects?.forEach((characterId: any) => {
+          this.dropVehicleManager(client, characterId);
+        });
+      }
+      delete this._clients[client.sessionId];
+      this._gatewayServer._soeServer.deleteClient(
+        this.getSoeClient(client.soeClientId)
+      );
+      if (!this._soloMode) {
+        this.sendZonePopulationUpdate();
+      }
     }
   }
 
@@ -1237,8 +1264,8 @@ export class ZoneServer extends EventEmitter {
           client.character.resources.health < 2000 &&
           damage > 100)
       ) {
-        var moderateBleeding = 5042;
-        var impactSound = 5050;
+        const moderateBleeding = 5042;
+        const impactSound = 5050;
         if (damage >= 4000) {
           this.sendDataToAll("PlayerUpdate.EffectPackage", {
             characterId: client.character.characterId,
@@ -1709,10 +1736,13 @@ export class ZoneServer extends EventEmitter {
     });
   }
 
+  sendManagedObjectResponseControlPacket(client: Client, obj: any) {
+    this.sendData(client, "PlayerUpdate.ManagedObjectResponseControl", obj);
+  }
   dropVehicleManager(client: Client, vehicleGuid: string) {
-    this.sendData(client, "PlayerUpdate.ManagedObjectResponseControl", {
-      unk: 0,
-      characterId: vehicleGuid,
+    this.sendManagedObjectResponseControlPacket(client, {
+      control: 0,
+      objectCharacterId: vehicleGuid,
     });
     client.managedObjects.splice(
       client.managedObjects.findIndex((e: string) => e === vehicleGuid),
@@ -2142,7 +2172,7 @@ export class ZoneServer extends EventEmitter {
 
   filterOutOfDistance(element: any, playerPosition: Float32Array): boolean {
     return !isPosInRadius(
-      this._npcRenderDistance,
+      (element.npcRenderDistance || this._npcRenderDistance) + 5,
       playerPosition,
       element.position || element.state?.position || element.npcData.position
     );

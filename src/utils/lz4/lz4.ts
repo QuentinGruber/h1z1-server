@@ -9,10 +9,10 @@
 
 if (!Math.imul)
   Math.imul = function imul(a, b) {
-    var ah = a >>> 16;
-    var al = a & 0xffff;
-    var bh = b >>> 16;
-    var bl = b & 0xffff;
+    const ah = a >>> 16;
+    const al = a & 0xffff;
+    const bh = b >>> 16;
+    const bl = b & 0xffff;
     return (al * bl + ((ah * bl + al * bh) << 16)) | 0;
   };
 
@@ -24,6 +24,10 @@ if (!Math.imul)
  *
  * @param input {Buffer} input data
  * @param output {Buffer} output data
+ * @param sIdx
+ * @param eIdx
+ * @param sIdx
+ * @param eIdx
  * @return {Number} number of decoded bytes
  * @private
  */
@@ -38,10 +42,10 @@ export const uncompress = (
   let end;
   // Process each sequence in the incoming data
   for (var i = sIdx, n = eIdx, j = 0; i < n; ) {
-    var token = input[i++];
+    const token = input[i++];
 
     // Literals
-    var literals_length = token >> 4;
+    let literals_length = token >> 4;
     if (literals_length > 0) {
       // length of literals
       var l = literals_length + 240;
@@ -60,13 +64,13 @@ export const uncompress = (
 
     // Match copy
     // 2 bytes offset (little endian)
-    var offset = input[i++] | (input[i++] << 8);
+    const offset = input[i++] | (input[i++] << 8);
 
     // 0 is an invalid offset value
     if (offset === 0 || offset > j) return -(i - 2);
 
     // length of match copy
-    var match_length = token & 0xf;
+    let match_length = token & 0xf;
     var l = match_length + 240;
     while (l === 255) {
       l = input[i++];
@@ -74,7 +78,7 @@ export const uncompress = (
     }
 
     // Copy the match
-    var pos = j - offset; // position of the match copy in the current output
+    let pos = j - offset; // position of the match copy in the current output
     end = j + match_length + 4; // minmatch = 4
     while (j < end) output[j++] = output[pos++];
   }
@@ -82,7 +86,7 @@ export const uncompress = (
   return j;
 };
 
-var maxInputSize = 0x7e000000,
+const maxInputSize = 0x7e000000,
   minMatch = 4,
   hashLog = 16,
   hashShift = minMatch * 8 - hashLog,
@@ -103,8 +107,8 @@ export const compressBound = function (isize: number) {
 
 export const compress = function (src: any, dst: any[], sIdx: any, eIdx: any) {
   // V8 optimization: non sparse array with integers
-  var hashTable = new Array(hashSize);
-  for (var i = 0; i < hashSize; i++) {
+  const hashTable = new Array(hashSize);
+  for (let i = 0; i < hashSize; i++) {
     hashTable[i] = 0;
   }
   return compressBlock(src, dst, 0, hashTable, sIdx || 0, eIdx || dst.length);
@@ -118,36 +122,36 @@ export const compressBlock = (
   sIdx: number,
   eIdx: number
 ) => {
-  var dpos = sIdx;
-  var dlen = eIdx - sIdx;
-  var anchor = 0;
+  let dpos = sIdx;
+  const dlen = eIdx - sIdx;
+  let anchor = 0;
 
   if (src.length >= maxInputSize) throw new Error("input too large");
 
   // Minimum of input bytes for compression (LZ4 specs)
   if (src.length > mfLimit) {
-    var n = compressBound(src.length);
+    const n = compressBound(src.length);
     if (dlen < n) throw Error("output too small: " + dlen + " < " + n);
 
-    var findMatchAttempts = (1 << skipStrength) + 3,
-      // Keep last few bytes incompressible (LZ4 specs):
+    let findMatchAttempts = (1 << skipStrength) + 3;
+    const // Keep last few bytes incompressible (LZ4 specs):
       // last 5 bytes must be literals
       srcLength = src.length - mfLimit;
 
     while (pos + minMatch < srcLength) {
       // Find a match
       // min match of 4 bytes aka sequence
-      var sequenceLowBits = (src[pos + 1] << 8) | src[pos];
-      var sequenceHighBits = (src[pos + 3] << 8) | src[pos + 2];
+      const sequenceLowBits = (src[pos + 1] << 8) | src[pos];
+      const sequenceHighBits = (src[pos + 3] << 8) | src[pos + 2];
       // compute hash for the current sequence
-      var hash =
+      const hash =
         Math.imul(sequenceLowBits | (sequenceHighBits << 16), hasher) >>>
         hashShift;
       // get the position of the sequence matching the hash
       // NB. since 2 different sequences may have the same hash
       // it is double-checked below
       // do -1 to distinguish between initialized and uninitialized values
-      var ref = hashTable[hash] - 1;
+      let ref = hashTable[hash] - 1;
       // save position of current sequence in hash table
       hashTable[hash] = pos + 1;
 
@@ -168,14 +172,14 @@ export const compressBlock = (
 
       // got a match
       var literals_length = pos - anchor;
-      var offset = pos - ref;
+      const offset = pos - ref;
 
       // minMatch already verified
       pos += minMatch;
       ref += minMatch;
 
       // move to the end of the match (>=minMatch)
-      var match_length = pos;
+      let match_length = pos;
       while (pos < srcLength && src[pos] == src[ref]) {
         pos++;
         ref++;
@@ -185,7 +189,7 @@ export const compressBlock = (
       match_length = pos - match_length;
 
       // token
-      var token = match_length < mlMask ? match_length : mlMask;
+      const token = match_length < mlMask ? match_length : mlMask;
 
       // encode literals length
       if (literals_length >= runMask) {
@@ -201,7 +205,7 @@ export const compressBlock = (
       }
 
       // write literals
-      for (var i = 0; i < literals_length; i++) {
+      for (let i = 0; i < literals_length; i++) {
         dst[dpos++] = src[anchor + i];
       }
 

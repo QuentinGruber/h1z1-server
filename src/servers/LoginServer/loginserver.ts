@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { EventEmitter } from "node:events";
+import { EventEmitter } from "events";
 
 import { SOEServer } from "../SoeServer/soeserver";
 import { H1emuLoginServer } from "../H1emuServer/h1emuLoginServer";
@@ -294,6 +294,7 @@ export class LoginServer extends EventEmitter {
         const charactersQuery = {
           authKey: client.loginSessionId,
           serverVersionTag: this.getServerVersionTag(client.protocolName),
+          status: 1,
         };
         return await this._db
           .collection("characters-light")
@@ -317,6 +318,7 @@ export class LoginServer extends EventEmitter {
         const charactersQuery = {
           authKey: client.loginSessionId,
           serverVersionTag: this.getServerVersionTag(client.protocolName),
+          status: 1,
         };
         return await this._db
           .collection("characters-light")
@@ -439,15 +441,6 @@ export class LoginServer extends EventEmitter {
         characters = this.addDummyDataToCharacters(characterList);
       }
     } else {
-      const charactersQuery = {
-        authKey: client.loginSessionId,
-        serverVersionTag: this.getServerVersionTag(client.protocolName),
-        status: 1,
-      };
-      characters = await this._db
-        .collection("characters-light")
-        .find(charactersQuery)
-        .toArray();
       characters = this.addDummyDataToCharacters(characters);
     }
     this.sendData(client, "CharacterSelectInfoReply", {
