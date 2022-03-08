@@ -14,7 +14,7 @@
 const debugName = "ZoneServer";
 const debug = require("debug")(debugName);
 import { zonePacketHandlers } from "./zonepackethandlers";
-import { ZoneServer } from "../ZoneServer/zoneserver";
+import { ZoneServer2015 } from "../ZoneServer2015/zoneserver";
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
 import { Vehicle2016 as Vehicle } from "./classes/vehicle";
 import { WorldObjectManager } from "./classes/worldobjectmanager";
@@ -53,7 +53,7 @@ const containerDefinitions = require("./../../../data/2016/dataSources/Container
 const loadoutSlotItemClasses = require("./../../../data/2016/dataSources/LoadoutSlotItemClasses.json");
 const loadoutEquipSlots = require("./../../../data/2016/dataSources/LoadoutEquipSlots.json");
 
-export class ZoneServer2016 extends ZoneServer {
+export class ZoneServer2016 extends ZoneServer2015 {
   _weather2016: Weather2016;
   // @ts-ignore yeah idk how to fix that
   _packetHandlers: zonePacketHandlers = new zonePacketHandlers();

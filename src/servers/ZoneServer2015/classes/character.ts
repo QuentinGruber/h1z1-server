@@ -12,7 +12,7 @@
 // ======================================================================
 
 import { characterEquipment } from "../../../types/zoneserver";
-import { ZoneServer } from "../zoneserver";
+import { ZoneServer2015 } from "../zoneserver";
 import { ZoneClient } from "./zoneclient";
 
 export class Character {
@@ -97,7 +97,7 @@ export class Character {
     };
   }
 
-  startRessourceUpdater(client: ZoneClient, server: ZoneServer) {
+  startRessourceUpdater(client: ZoneClient, server: ZoneServer2015) {
     this.resourcesUpdater = setTimeout(() => {
       // prototype resource manager
       const { isRunning } = this;

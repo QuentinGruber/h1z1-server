@@ -13,24 +13,24 @@
 
 import { ZoneClient as Client } from "../classes/zoneclient";
 import { generateRandomGuid } from "../../../utils/utils";
-import { ZoneServer } from "../zoneserver";
+import { ZoneServer2015 } from "../zoneserver";
 
 const debug = require("debug")("zonepacketHandlers");
 
 const dev: any = {
-  list: function (server: ZoneServer, client: Client, args: any[]) {
+  list: function (server: ZoneServer2015, client: Client, args: any[]) {
     server.sendChatText(
       client,
       `/dev commands list: \n/dev ${Object.keys(this).join("\n/dev ")}`
     );
   },
-  testpacket: function (server: ZoneServer, client: Client, args: any[]) {
+  testpacket: function (server: ZoneServer2015, client: Client, args: any[]) {
     server.sendData(client, "PlayerUpdate.PlayAnimation", {
       characterId: client.character.characterId,
     });
   },
   clearspawnedentities: function (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: Client,
     args: any[]
   ) {
@@ -45,7 +45,7 @@ const dev: any = {
     server.sendChatText(client, "Entities cleared !", true);
     server.worldRoutine();
   },
-  testnpcmove: function (server: ZoneServer, client: Client, args: any[]) {
+  testnpcmove: function (server: ZoneServer2015, client: Client, args: any[]) {
     const guid = server.generateGuid();
     const characterId = server.generateGuid();
     const transientId = server.getTransientId(characterId);
@@ -92,7 +92,7 @@ const dev: any = {
     });
     server._npcs[characterId] = npc; // save npc
   },
-  lol: function (server: ZoneServer, client: Client, args: any[]) {
+  lol: function (server: ZoneServer2015, client: Client, args: any[]) {
     for (const npcKey in server._npcs) {
       const npc = server._npcs[npcKey];
       server.sendData(client, "Ragdoll.UpdatePose", {
@@ -104,7 +104,7 @@ const dev: any = {
     }
   },
   testmanagedobject: function (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: Client,
     args: any[]
   ) {
@@ -139,7 +139,7 @@ const dev: any = {
       characterId: client.character.characterId,
     });
   },
-  hideme: function (server: ZoneServer, client: Client, args: any[]) {
+  hideme: function (server: ZoneServer2015, client: Client, args: any[]) {
     const characterObj = server._characters[client.character.characterId];
     server.toggleHiddenMode(client);
     if (client.character.isHidden) {
@@ -156,7 +156,7 @@ const dev: any = {
       });
     }
   },
-  testnpcrelevance: function (server: ZoneServer, client: Client, args: any[]) {
+  testnpcrelevance: function (server: ZoneServer2015, client: Client, args: any[]) {
     const npcs = Object.values(server._npcs).map((npc: any) => {
       return { guid: npc.characterId };
     });
@@ -164,14 +164,14 @@ const dev: any = {
       npcs: npcs,
     });
   },
-  d: function (server: ZoneServer, client: Client, args: any[]) {
+  d: function (server: ZoneServer2015, client: Client, args: any[]) {
     // quick disconnect
     server.sendData(client, "CharacterSelectSessionResponse", {
       status: 1,
       sessionId: client.loginSessionId,
     });
   },
-  testnpc: function (server: ZoneServer, client: Client, args: any[]) {
+  testnpc: function (server: ZoneServer2015, client: Client, args: any[]) {
     const characterId = server.generateGuid();
     server.sendData(client, "PlayerUpdate.AddLightweightNpc", {
       characterId: characterId,
@@ -199,7 +199,7 @@ const dev: any = {
           });
         }, 500);*/
   },
-  testvehicle: function (server: ZoneServer, client: Client, args: any[]) {
+  testvehicle: function (server: ZoneServer2015, client: Client, args: any[]) {
     const characterId = server.generateGuid();
     const vehicleData = {
       npcData: {
@@ -227,7 +227,7 @@ const dev: any = {
 
     server.sendData(client, "PlayerUpdate.AddLightweightVehicle", vehicleData);
   },
-  findmodel: function (server: ZoneServer, client: Client, args: any[]) {
+  findmodel: function (server: ZoneServer2015, client: Client, args: any[]) {
     const models = require("../../../../data/2015/dataSources/Models.json");
     const wordFilter = args[1];
     if (wordFilter) {
@@ -243,7 +243,7 @@ const dev: any = {
       server.sendChatText(client, `missing word filter`);
     }
   },
-  reloadpackets: function (server: ZoneServer, client: Client, args: any[]) {
+  reloadpackets: function (server: ZoneServer2015, client: Client, args: any[]) {
     if (args[1]) {
       server.reloadPackets(client, args[1]);
     } else {

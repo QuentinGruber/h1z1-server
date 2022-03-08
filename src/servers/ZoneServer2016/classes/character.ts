@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { Character } from "../../ZoneServer/classes/character";
+import { Character } from "../../ZoneServer2015/classes/character";
 import {
   characterEquipment,
   loadoutItem,
