@@ -1425,7 +1425,7 @@ export class zonePacketHandlers {
                   {
                     characterId: characterId,
                     effectId: 1875,
-                    position: client.character.state.position,
+                    position: server._clients[a].character.state.position,
                   }
                 );
                 delete server._explosives[characterId];
@@ -1479,7 +1479,7 @@ export class zonePacketHandlers {
                   {
                     characterId: characterId,
                     effectId: 5116,
-                    position: client.character.state.position,
+                    position: server._clients[a].character.state.position,
                   }
                 );
 
