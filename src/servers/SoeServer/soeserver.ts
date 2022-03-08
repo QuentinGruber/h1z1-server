@@ -57,7 +57,7 @@ export class SOEServer extends EventEmitter {
     this._protocol = new SOEProtocol();
     this._udpLength = 512;
     this._useEncryption = true;
-    this._useMultiPackets = useMultiPackets; // force disable multiPackets until a better system is made
+    this._useMultiPackets = true; // TODO don't force them
     this._clients = {};
     this._connection = new Worker(
       `${__dirname}/../shared/workers/udpServerWorker.js`,
@@ -278,7 +278,7 @@ export class SOEServer extends EventEmitter {
     this._crcSeed = crcSeed;
     this._crcLength = crcLength;
     this._udpLength = udpLength;
-    if (this._isLocal) {
+    if (false && this._isLocal) { // TODO: renable that
       this._useMultiPackets = false;
     }
     this._connection.on("message", (message) => {
