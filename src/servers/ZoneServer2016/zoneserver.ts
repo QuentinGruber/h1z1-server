@@ -74,6 +74,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
   _speedTrees: any;
   _recipes: { [recipeId: number]: any } = recipes;
   _explosives: any;
+  _temporatyObjects: any;
   _traps: any;
 
   constructor(
@@ -94,6 +95,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
     this._speedTrees = {};
     this._spawnLocations = spawnLocations;
     this._explosives = {};
+    this._temporatyObjects = {};
     this._traps = {};
     this._respawnLocations = spawnLocations.map((spawn: any) => {
       return {
@@ -806,6 +808,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
       this.spawnNpcs(client);
       this.spawnExplosives(client);
       this.spawnTraps(client);
+      this.spawnTemporatyObjects(client);
       this.POIManager(client);
       client.posAtLastRoutine = client.character.state.position;
     });
@@ -1515,6 +1518,27 @@ export class ZoneServer2016 extends ZoneServer2015 {
     }
   }
 
+  spawnTemporatyObjects(client: Client): void {
+    for (const npc in this._temporatyObjects) {
+      if (
+        isPosInRadius(
+          40,
+          client.character.state.position,
+          this._temporatyObjects[npc].position
+        ) &&
+        !client.spawnedEntities.includes(this._temporatyObjects[npc])
+      ) {
+        this.sendData(
+          client,
+          "AddSimpleNpc",
+          { ...this._temporatyObjects[npc] },
+          1
+        );
+        client.spawnedEntities.push(this._temporatyObjects[npc]);
+      }
+    }
+  }
+
   spawnCharacters(client: Client) {
     for (const c in this._clients) {
       const characterObj: Character = this._clients[c].character;
@@ -1925,6 +1949,24 @@ export class ZoneServer2016 extends ZoneServer2015 {
       if (
         this._clients[a].spawnedEntities.includes(
           this._traps[entityCharacterId]
+        )
+      ) {
+        this.sendData(this._clients[a], packetName, obj, channel);
+      }
+    }
+  }
+
+  sendDataToAllWithSpawnedTemporaryObject(
+    entityCharacterId: string = "",
+    packetName: any,
+    obj: any,
+    channel = 0
+  ): void {
+    if (!entityCharacterId) return;
+    for (const a in this._clients) {
+      if (
+        this._clients[a].spawnedEntities.includes(
+          this._temporatyObjects[entityCharacterId]
         )
       ) {
         this.sendData(this._clients[a], packetName, obj, channel);
