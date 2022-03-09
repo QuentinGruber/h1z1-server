@@ -1094,7 +1094,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
     client.character.resources.food = 10000;
     client.character.resources.water = 10000;
     client.character.resources.stamina = 600;
-    client.character.resources.bleeding = -40;
+    client.character.resources.bleeding = -120;
     client.character.healingTicks = 0;
     client.character.healingMaxTicks = 0;
     client.character.resourcesUpdater.refresh();
