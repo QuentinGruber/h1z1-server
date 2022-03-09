@@ -1720,13 +1720,20 @@ export class ZoneServer2016 extends ZoneServer2015 {
   }
 
   sendGameTimeSync(client: Client): void {
-    debug(`GameTimeSync ${this._cycleSpeed} ${this.getGameTime()}\n`);
-    //this._gameTime = this.getGameTime();
-    this.sendData(client, "GameTimeSync", {
-      time: Int64String(this.getGameTime()),
-      cycleSpeed: this._cycleSpeed,
-      unknownBoolean: false,
-    });
+    debug("GameTimeSync");
+    if (!this._frozeCycle) {
+      this.sendData(client, "GameTimeSync", {
+        time: Int64String(this.getServerTimeTest()),
+        cycleSpeed: Math.round(this._timeMultiplier * 0.97222),
+        unknownBoolean: false,
+      });
+    } else if (this._frozeCycle) {
+      this.sendData(client, "GameTimeSync", {
+        time: Int64String(this.getGameTime()),
+        cycleSpeed: 0.1,
+        unknownBoolean: false,
+      });
+    }
   }
 
   getTransientId(guid: string): number {
