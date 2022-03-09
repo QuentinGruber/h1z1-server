@@ -338,19 +338,11 @@ export class ZoneServer2016 extends ZoneServer2015 {
       client.character.state.position = character.position;
       client.character.state.rotation = character.rotation;
     }
-
-    // default equipment / loadout
-    this.equipItem(client, this.generateItem(85), false); // fists weapon
-    this.equipItem(client, this.generateItem(2377), false); // DOA Hoodie
-    this.equipItem(client, this.generateItem(2079), false); // golf pants
-    //this.equipItem(client, this.generateItem(2425), false); // ar15
   }
 
   async sendCharacterData(client: Client) {
     await this.loadCharacterData(client);
-
     const backpack = this.generateItem(2393);
-    this.equipItem(client, backpack, false); // test backpack
     const item: any = this.generateItem(2425),
       containers = [
         {
