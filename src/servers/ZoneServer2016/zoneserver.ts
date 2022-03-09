@@ -2827,7 +2827,6 @@ export class ZoneServer2016 extends ZoneServer2015 {
   }
 
   clearInventory(client: Client) {
-    const inventory: { [itemDefinitionId: number]: inventoryItem[] } = {};
     Object.keys(client.character._containers).forEach((loadoutSlotId) => {
       const container = client.character._containers[Number(loadoutSlotId)];
       Object.keys(container.items).forEach((itemGuid) => {
