@@ -102,6 +102,7 @@ function getItemSpawnCount(min: number, max: number) {
 export class WorldObjectManager {
   eItems: any = {
     WEAPON_AR15: 2425,
+    WEAPON_AK47: 2661,
     AMMO_223: 1429,
     WEAPON_SHOTGUN: 2663,
     AMMO_12GA: 1511,
@@ -167,6 +168,7 @@ export class WorldObjectManager {
     RESPIRATOR: 2148,
     AMMO_380: 1992,
     AMMO_762: 2325,
+    AMMO_44: 1719,
     NV_GOGGLES: 1700,
     WEAPON_MOLOTOV: 14,
     WEAPON_MAGNUM: 1718,
@@ -819,8 +821,16 @@ export class WorldObjectManager {
         authorizedItems.push({ id: this.eItems.LIGHTER, count: 1 });
         authorizedItems.push({ id: this.eItems.WATER_EMPTY, count: 1 });
         authorizedItems.push({ id: this.eItems.WATER_PURE, count: 1 });
-        authorizedItems.push({ id: this.eItems.AMMO_1911, count: 1 });
-        authorizedItems.push({ id: this.eItems.AMMO_9MM, count: 1 });
+        authorizedItems.push({ id: this.eItems.AMMO_1911, count: getItemSpawnCount(1, 5) });
+        authorizedItems.push({ id: this.eItems.AMMO_9MM, count: getItemSpawnCount(1, 5) });
+        authorizedItems.push({ id: this.eItems.AMMO_380, count: getItemSpawnCount(1, 5) });
+        authorizedItems.push({ id: this.eItems.AMMO_44, count: getItemSpawnCount(1, 5) });
+
+        authorizedItems.push({ id: this.eItems.AMMO_223, count: getItemSpawnCount(1, 5) });
+        authorizedItems.push({ id: this.eItems.AMMO_762, count: getItemSpawnCount(1, 5) });
+        authorizedItems.push({ id: this.eItems.AMMO_308, count: getItemSpawnCount(1, 3) });
+        authorizedItems.push({ id: this.eItems.AMMO_12GA, count: getItemSpawnCount(1, 3) });
+
         authorizedItems.push({ id: this.eItems.SPARKPLUGS, count: 1 });
         authorizedItems.push({ id: this.eItems.FIRST_AID, count: 1 });
         authorizedItems.push({ id: this.eItems.WEAPON_BINOCULARS, count: 1 });
@@ -855,38 +865,24 @@ export class WorldObjectManager {
     const authorizedItems: Array<{ id: number; count: number }> = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawnerRare_Tier00.adr":
-        authorizedItems.push({
-          id: this.eItems.AMMO_1911,
-          count: getItemSpawnCount(1, 5),
-        });
-        authorizedItems.push({
-          id: this.eItems.AMMO_9MM,
-          count: getItemSpawnCount(1, 5),
-        });
-        authorizedItems.push({
-          id: this.eItems.AMMO_380,
-          count: getItemSpawnCount(1, 5),
-        });
-        authorizedItems.push({
-          id: this.eItems.AMMO_223,
-          count: getItemSpawnCount(1, 4),
-        });
-        authorizedItems.push({
-          id: this.eItems.AMMO_762,
-          count: getItemSpawnCount(1, 4),
-        });
-        authorizedItems.push({
-          id: this.eItems.AMMO_308,
-          count: getItemSpawnCount(1, 3),
-        });
-        authorizedItems.push({
-          id: this.eItems.AMMO_12GA,
-          count: getItemSpawnCount(1, 3),
-        });
+        authorizedItems.push({ id: this.eItems.AMMO_1911, count: getItemSpawnCount(1, 8) });
+        authorizedItems.push({ id: this.eItems.AMMO_9MM, count: getItemSpawnCount(1, 8) });
+        authorizedItems.push({ id: this.eItems.AMMO_380, count: getItemSpawnCount(1, 8) });
+        authorizedItems.push({ id: this.eItems.AMMO_44, count: getItemSpawnCount(1, 8) });
+
+        authorizedItems.push({ id: this.eItems.AMMO_223, count: getItemSpawnCount(1, 8) });
+        authorizedItems.push({ id: this.eItems.AMMO_762, count: getItemSpawnCount(1, 8) });
+        authorizedItems.push({ id: this.eItems.AMMO_308, count: getItemSpawnCount(1, 5) });
+        authorizedItems.push({ id: this.eItems.AMMO_12GA, count: getItemSpawnCount(1, 5) });
+
         authorizedItems.push({ id: this.eItems.WEAPON_45, count: 1 });
+        authorizedItems.push({ id: this.eItems.WEAPON_M9, count: 1 });
+        authorizedItems.push({ id: this.eItems.WEAPON_R380, count: 1 });
+        authorizedItems.push({ id: this.eItems.WEAPON_MAGNUM, count: 1 });
         authorizedItems.push({ id: this.eItems.WEAPON_308, count: 1 });
         authorizedItems.push({ id: this.eItems.WEAPON_SHOTGUN, count: 1 });
         authorizedItems.push({ id: this.eItems.WEAPON_AR15, count: 1 });
+        authorizedItems.push({ id: this.eItems.WEAPON_AK47, count: 1 });
         break;
       default:
         break;
@@ -1198,6 +1194,10 @@ export class WorldObjectManager {
         });
         authorizedItems.push({
           id: this.eItems.AMMO_380,
+          count: getItemSpawnCount(1, 10),
+        });
+        authorizedItems.push({
+          id: this.eItems.AMMO_44,
           count: getItemSpawnCount(1, 10),
         });
         authorizedItems.push({
