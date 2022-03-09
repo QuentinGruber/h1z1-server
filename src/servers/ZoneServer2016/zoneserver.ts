@@ -1121,6 +1121,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
     this.sendData(client, "ClientUpdate.UpdateLocation", {
       position: spawnLocations[randomSpawnIndex].position,
     });
+    this.clearInventory(client);
+    this.giveStartingItems(client, true);
     client.character.state.position = spawnLocations[randomSpawnIndex].position;
     this.updateResource(
       client,
@@ -2815,6 +2817,44 @@ export class ZoneServer2016 extends ZoneServer2015 {
     });
   }
 
+  giveStartingItems(
+    client: Client,
+    sendPacket: boolean,
+    giveBackpack: boolean = false
+  ) {
+    if (giveBackpack) {
+      this.equipItem(client, this.generateItem(2393), sendPacket);
+    }
+    this.equipItem(client, this.generateItem(85), sendPacket); // fists weapon
+    this.equipItem(client, this.generateItem(2377), sendPacket); // DOA Hoodie
+    this.equipItem(client, this.generateItem(2079), sendPacket); // golf pants
+    this.lootContainerItem(client, this.generateItem(1985), 1, false); // map
+    this.lootContainerItem(client, this.generateItem(1441), 1, false); // compass
+    this.lootContainerItem(client, this.generateItem(1751), 5, false); // gauze
+    this.lootContainerItem(client, this.generateItem(1804), 1, false); // flare
+  }
+
+  clearInventory(client: Client) {
+    const inventory: { [itemDefinitionId: number]: inventoryItem[] } = {};
+    Object.keys(client.character._containers).forEach((loadoutSlotId) => {
+      const container = client.character._containers[Number(loadoutSlotId)];
+      Object.keys(container.items).forEach((itemGuid) => {
+        const item = container.items[itemGuid];
+        this.removeInventoryItem(client, itemGuid, item.stackCount);
+        delete client.character._containers[Number(loadoutSlotId)].items[
+          itemGuid
+        ];
+      });
+      if (container.slotId != 12) { //ignite backpack for now
+        this.removeInventoryItem(
+          client,
+          container.itemGuid,
+          container.stackCount
+        );
+      }
+    });
+  }
+
   startTimer(client: Client, stringId: number, time: number) {
     this.sendData(client, "ClientUpdate.StartTimer", {
       stringId: stringId,
@@ -3192,7 +3232,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
       explosive.characterId,
       "Character.PlayWorldCompositeEffect",
       {
-        characterId: explosive.characterId,
+        characterId: "0x0",
         effectId: 1875,
         position: explosive.position,
       }
