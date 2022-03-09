@@ -1356,7 +1356,51 @@ export class zonePacketHandlers {
       const modelId = server.getItemDefinition(
         packet.data.itemDefinitionId
       ).PLACEMENT_MODEL_ID;
+      const itemDef = packet.data.itemDefinitionId;
+      if (
+        itemDef == 1804 ||
+        itemDef == 4 ||
+        itemDef == 156 ||
+        itemDef == 1461 ||
+        itemDef == 1531
+      ) {
+        // flare
+        const characterId = server.generateGuid();
+        const guid = server.generateGuid();
+        const transientId = server.getTransientId(guid);
+        const npc = {
+          characterId: characterId,
+          guid: guid,
+          transientId: transientId,
+          modelId: 1,
+          position: client.character.state.position,
+          rotation: client.character.state.lookAt,
+          color: {},
+          attachedObject: {},
+          staticEffectId: true,
+        };
+        Object.keys(client.character._containers).forEach((loadoutSlotId) => {
+          const container = client.character._containers[Number(loadoutSlotId)];
+          for (const itemGuid in container.items) {
+            const item = container.items[itemGuid];
+            if (item.itemDefinitionId == packet.data.itemDefinitionId) {
+              server.removeInventoryItem(client, item.itemGuid, 1);
+            }
+          }
+        });
+        server._temporatyObjects[characterId] = npc; // save npc
+        setTimeout(function () {
+          server.sendDataToAllWithSpawnedTemporaryObject(
+            characterId,
+            "Character.RemovePlayer",
+            {
+              characterId: server._temporatyObjects[characterId].characterId,
+            }
+          );
+        }, 900000);
+      }
       if (packet.data.itemDefinitionId == 1699) {
+        // IED
         const characterId = server.generateGuid();
         const guid = server.generateGuid();
         const transientId = server.getTransientId(guid);
@@ -1382,6 +1426,7 @@ export class zonePacketHandlers {
         });
         server._explosives[characterId] = npc; // save npc
       } else if (packet.data.itemDefinitionId == 74) {
+        // land mine
         const characterId = server.generateGuid();
         const guid = server.generateGuid();
         const transientId = server.getTransientId(guid);
@@ -1429,7 +1474,7 @@ export class zonePacketHandlers {
                     position: server._clients[a].character.state.position,
                   }
                 );
-                delete server._explosives[characterId];
+                return;
               }
             }
             if (server._explosives[characterId]) {
@@ -1438,6 +1483,7 @@ export class zonePacketHandlers {
           }, 100);
         }, 5000);
       } else if (packet.data.itemDefinitionId == 98) {
+        // punji sticks
         const characterId = server.generateGuid();
         const guid = server.generateGuid();
         const transientId = server.getTransientId(guid);
@@ -1473,12 +1519,12 @@ export class zonePacketHandlers {
                   npc.position
                 ) < 1.5
               ) {
-                server.playerDamage(server._clients[a], 100);
+                server.playerDamage(server._clients[a], 500);
                 server.sendDataToAllWithSpawnedTrap(
                   characterId,
                   "Character.PlayWorldCompositeEffect",
                   {
-                    characterId: characterId,
+                    characterId: "0x0",
                     effectId: 5116,
                     position: server._clients[a].character.state.position,
                   }
@@ -1506,7 +1552,7 @@ export class zonePacketHandlers {
                 characterId,
                 "Character.PlayWorldCompositeEffect",
                 {
-                  characterId: characterId,
+                  characterId: "0x0",
                   effectId: 163,
                   position: server._traps[characterId].position,
                 }
@@ -1519,10 +1565,12 @@ export class zonePacketHandlers {
                 }
               );
               delete server._traps[characterId];
+              return;
             }
           }, 500);
         }, 3000);
       } else if (packet.data.itemDefinitionId == 1415) {
+        // snare
         const characterId = server.generateGuid();
         const guid = server.generateGuid();
         const transientId = server.getTransientId(guid);
