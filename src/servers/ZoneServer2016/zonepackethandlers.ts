@@ -226,8 +226,6 @@ export class zonePacketHandlers {
           server.sendZonePopulationUpdate();
         }
         server.executeFuncForAllReadyClients(() => server.spawnCharacters);
-        server.lootItem(client, server.generateItem(1985), 1); // map
-        server.lootItem(client, server.generateItem(1441), 1); // compass
       }
 
       client.isLoading = false;
