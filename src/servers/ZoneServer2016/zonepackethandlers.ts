@@ -247,7 +247,7 @@ export class zonePacketHandlers {
     ) {
       debug(packet);
       //server.craftItem(client, packet.data.recipeId, packet.data.count);
-      new CraftManager(client, server, packet.data.recipeId, packet.data.count);
+      new CraftManager().start(client, server, packet.data.recipeId, packet.data.count);
     };
     this.CommandSetInWater = function (
       server: ZoneServer2016,
