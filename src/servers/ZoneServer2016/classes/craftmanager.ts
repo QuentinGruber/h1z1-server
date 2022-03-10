@@ -70,7 +70,7 @@ export class CraftManager {
     return true;
   }
 
-  /*async*/ generateQueue(server: ZoneServer2016, client: Client, recipeId: number, count: number): /*Promise<*/boolean/*>*/ {
+  async generateQueue(server: ZoneServer2016, client: Client, recipeId: number, count: number): Promise<boolean> {
     console.log(`[CraftManager] Generating craft queue for recipeId ${recipeId}`)
     const recipe = server._recipes[recipeId];
     for(const component of recipe.components) {
@@ -82,9 +82,9 @@ export class CraftManager {
         }
         // if inventory doesn't have component but has materials for it
         for(let i = 0; i < count; i++) {
-          /*await*/ pSetImmediate();
+          await pSetImmediate();
           if (
-            !this.generateQueue(server, client, component.itemDefinitionId, component.requiredAmount)
+            !await this.generateQueue(server, client, component.itemDefinitionId, component.requiredAmount)
           ) {
             console.log("Craftitem error");
             return false; // craftItem returned some error
@@ -122,10 +122,10 @@ export class CraftManager {
     return true;
   }
 
-  /*async*/ start(client: Client, server: ZoneServer2016, recipeId: number, count: number) {
+  async start(client: Client, server: ZoneServer2016, recipeId: number, count: number) {
     this.componentsDataSource = getComponentsDataSource(client);
     for(let i = 0; i < count; i++) {
-      /*await*/ this.generateQueue(server, client, recipeId, 1);
+      await this.generateQueue(server, client, recipeId, 1);
     }
     debug(`[CraftManager] Craft queue:`);
     console.log(this.craftQueue);
