@@ -143,7 +143,7 @@ export class Character2016 extends Character {
           client.character.resources.water = 10000;
         } else if (client.character.resources.water < 0) {
           client.character.resources.water = 0;
-          client.character.resources.health -= 100;
+          server.playerDamage(client, 100);
         }
         if (client.character.resources.health > 10000) {
           client.character.resources.health = 10000;
