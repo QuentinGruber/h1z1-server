@@ -16,7 +16,6 @@ import { ZoneServer2016 } from "../zoneserver";
 import { ZoneClient2016 as Client } from "./zoneclient";
 const debug = require("debug")("ZoneServer");
 import { promisify } from "util";
-const pSetImmediate = promisify(setImmediate);
 
 interface componentItem {
   itemDefinitionId: number,
@@ -70,14 +69,13 @@ export class CraftManager {
 
   async generateQueue(server: ZoneServer2016, client: Client, recipeId: number, count: number): Promise<boolean> {
     await server.pSetImmediate();
+    if(!count) return true;
     // todo: craft max makes this loop infinitely
-    console.log(`[CraftManager] Generating craft queue for recipeId ${recipeId}`)
+    debug(`[CraftManager] Generating craft queue for recipeId ${recipeId}`)
     const recipe = server._recipes[recipeId];
     for(const component of recipe.components) {
-      if (
-        !this.componentsDataSource[component.itemDefinitionId] || 
-        this.componentsDataSource[component.itemDefinitionId].stackCount < component.requiredAmount
-      ) {
+      const remainingItems = component.requiredAmount * count;
+      if (!this.componentsDataSource[component.itemDefinitionId]) {
         if (!server._recipes[component.itemDefinitionId]) {
           return false; // no valid recipe to craft component
         }
@@ -86,15 +84,35 @@ export class CraftManager {
           if (
             !await this.generateQueue(server, client, component.itemDefinitionId, component.requiredAmount)
           ) {
-            console.log("Craftitem error");
             return false; // craftItem returned some error
           }
         }
       }
-      let remainingItems = component.requiredAmount * count;
+      else if (this.componentsDataSource[component.itemDefinitionId].stackCount < remainingItems){
+        if (!server._recipes[component.itemDefinitionId]) {
+          return false; // no valid recipe to craft component
+        }
+        let stackCount = this.componentsDataSource[component.itemDefinitionId].stackCount;
+        // if inventory has some of component but not enough
+        for(let i = 0; i < count; i++) {
+          let craftAmount = 0; // amount that needs crafted per recipe iteration
+          if(stackCount >= component.requiredAmount) { // use some of stack and don't craft any component through one recipe iteration
+            stackCount -= component.requiredAmount;
+          }
+          else { // use all of stack if required component amount is greater than stackCount
+            craftAmount = component.requiredAmount - stackCount;
+            stackCount = 0;
+          }
+          if (
+            !await this.generateQueue(server, client, component.itemDefinitionId, craftAmount)
+          ) {
+            return false; // craftItem returned some error
+          }
+        }
+      }
+      
       const item = this.componentsDataSource[component.itemDefinitionId];
-      if(!item) {
-        console.log("!item")
+      if(!item || item.stackCount < component.requiredAmount) {
         return false;
       }
       if (
@@ -103,7 +121,6 @@ export class CraftManager {
           component.itemDefinitionId, 
           item.stackCount >= remainingItems?remainingItems:item.stackCount)
       ) {
-        console.log("removecomponent 1");
         return false; // return if not enough items
       }
       // push dummy item
@@ -118,7 +135,6 @@ export class CraftManager {
       }
     }
     this.craftQueue.push({id: recipeId, count: count});
-    console.log("true1")
     return true;
   }
 
@@ -127,9 +143,6 @@ export class CraftManager {
     for(let i = 0; i < count; i++) {
       await this.generateQueue(server, client, recipeId, 1);
     }
-    debug(`[CraftManager] Craft queue:`);
-    console.log(this.craftQueue);
-    console.log("craft start");
     for(const recipe of this.craftQueue) {
       await server.pUtilizeHudTimer(client, server.getItemDefinition(recipe.id).NAME_ID, 1000 * recipe.count);
       const r = server._recipes[recipe.id];
