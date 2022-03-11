@@ -13,7 +13,7 @@
 
 import { Weather } from "types/zoneserver";
 import { ZoneClient as Client } from "../classes/zoneclient";
-import { ZoneServer } from "../zoneserver";
+import { ZoneServer2015 } from "../zoneserver";
 
 import { _, generateRandomGuid } from "../../../utils/utils";
 import { Vehicle } from "../classes/vehicles";
@@ -21,13 +21,13 @@ import { Vehicle } from "../classes/vehicles";
 const debug = require("debug")("zonepacketHandlers");
 
 const hax: any = {
-  list: function (server: ZoneServer, client: Client, args: any[]) {
+  list: function (server: ZoneServer2015, client: Client, args: any[]) {
     server.sendChatText(
       client,
       `/hax commands list: \n/hax ${Object.keys(this).join("\n/hax ")}`
     );
   },
-  placement: function (server: ZoneServer, client: Client, args: any[]) {
+  placement: function (server: ZoneServer2015, client: Client, args: any[]) {
     const modelChoosen = args[1];
     if (!modelChoosen) {
       server.sendChatText(client, "[ERROR] Usage /hax placement {modelId}");
@@ -37,7 +37,7 @@ const hax: any = {
       model: modelChoosen,
     });
   },
-  siren: function (server: ZoneServer, client: Client, args: any[]) {
+  siren: function (server: ZoneServer2015, client: Client, args: any[]) {
     switch (client.vehicle.mountedVehicleType) {
       case "policecar":
         server.sendData(client, "Mount.DismountResponse", {
@@ -55,7 +55,7 @@ const hax: any = {
         break;
     }
   },
-  spectate: function (server: ZoneServer, client: Client, args: any[]) {
+  spectate: function (server: ZoneServer2015, client: Client, args: any[]) {
     const characterId = server.generateGuid();
     const vehicleData = new Vehicle(
       server._worldId,
@@ -98,7 +98,7 @@ const hax: any = {
       },
     };
   },
-  headlights: function (server: ZoneServer, client: Client, args: any[]) {
+  headlights: function (server: ZoneServer2015, client: Client, args: any[]) {
     let headlightType: number;
     switch (client.vehicle.mountedVehicleType) {
       case "offroader":
@@ -128,7 +128,7 @@ const hax: any = {
       server.sendChatText(client, "You are not in a vehicle");
     }
   },
-  vehicleaction: function (server: ZoneServer, client: Client, args: any[]) {
+  vehicleaction: function (server: ZoneServer2015, client: Client, args: any[]) {
     if (client.vehicle.mountedVehicle) {
       const type = args[1];
       if (!args[1]) {
@@ -178,7 +178,7 @@ const hax: any = {
       server.sendChatText(client, "[ERROR] You are not in a vehicle");
     }
   },
-  drive: function (server: ZoneServer, client: Client, args: any[]) {
+  drive: function (server: ZoneServer2015, client: Client, args: any[]) {
     let driveModel;
     const driveChoosen = args[1];
     if (!args[1]) {
@@ -235,7 +235,7 @@ const hax: any = {
     };
     server.worldRoutine();
   },
-  weaponstance: function (server: ZoneServer, client: Client, args: any[]) {
+  weaponstance: function (server: ZoneServer2015, client: Client, args: any[]) {
     const stance = args[1];
     let weaponStance;
     switch (stance) {
@@ -263,7 +263,7 @@ const hax: any = {
       stance: weaponStance,
     });
   },
-  state: function (server: ZoneServer, client: Client, args: any[]) {
+  state: function (server: ZoneServer2015, client: Client, args: any[]) {
     const state = args[1];
     let stateId = "";
     switch (state) {
@@ -324,7 +324,7 @@ const hax: any = {
       true
     );
   },
-  spawnvehicle: function (server: ZoneServer, client: Client, args: any[]) {
+  spawnvehicle: function (server: ZoneServer2015, client: Client, args: any[]) {
     if (!args[1]) {
       server.sendChatText(
         client,
@@ -380,7 +380,7 @@ const hax: any = {
     };
     server.worldRoutine();
   },
-  bandage: function (server: ZoneServer, client: Client, args: any[]) {
+  bandage: function (server: ZoneServer2015, client: Client, args: any[]) {
     const character = client.character;
     if (character.resources.health < 10000) {
       character.resources.health += 3000;
@@ -401,7 +401,7 @@ const hax: any = {
       );
     }
   },
-  parachute: function (server: ZoneServer, client: Client, args: any[]) {
+  parachute: function (server: ZoneServer2015, client: Client, args: any[]) {
     const dropPosition = new Float32Array([
       client.character.state.position[0],
       client.character.state.position[1] + 700,
@@ -411,7 +411,7 @@ const hax: any = {
     server.dropPlayerInParachute(client, dropPosition);
   },
 
-  time: function (server: ZoneServer, client: Client, args: any[]) {
+  time: function (server: ZoneServer2015, client: Client, args: any[]) {
     const choosenHour = Number(args[1]);
     if (choosenHour < 0) {
       server.sendChatText(client, "You need to specify an hour to set !");
@@ -432,12 +432,12 @@ const hax: any = {
       true
     );
   },
-  realTime: function (server: ZoneServer, client: Client, args: any[]) {
+  realTime: function (server: ZoneServer2015, client: Client, args: any[]) {
     server.removeForcedTime();
     server.sendChatText(client, "Game time is now based on real time", true);
   },
   globalheartattack: function (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: Client,
     args: any[]
   ) {
@@ -448,7 +448,7 @@ const hax: any = {
       });
     }
   },
-  tp: function (server: ZoneServer, client: Client, args: any[]) {
+  tp: function (server: ZoneServer2015, client: Client, args: any[]) {
     client.isLoading = true;
     const choosenSpawnLocation = args[1];
     let locationPosition: Float32Array;
@@ -502,7 +502,7 @@ const hax: any = {
       position: locationPosition,
     });
   },
-  despawnobjects: function (server: ZoneServer, client: Client, args: any[]) {
+  despawnobjects: function (server: ZoneServer2015, client: Client, args: any[]) {
     client.spawnedEntities.forEach((object) => {
       server.despawnEntity(
         object.characterId ? object.characterId : object.npcData.characterId
@@ -516,7 +516,7 @@ const hax: any = {
     server._doors = {};
     server.sendChatText(client, "Objects removed from the game.", true);
   },
-  spamoffroader: function (server: ZoneServer, client: Client, args: any[]) {
+  spamoffroader: function (server: ZoneServer2015, client: Client, args: any[]) {
     for (let index = 0; index < 150; index++) {
       const vehicleData = {
         npcData: {
@@ -546,7 +546,7 @@ const hax: any = {
       );
     }
   },
-  spampolicecar: function (server: ZoneServer, client: Client, args: any[]) {
+  spampolicecar: function (server: ZoneServer2015, client: Client, args: any[]) {
     for (let index = 0; index < 150; index++) {
       const vehicleData = {
         npcData: {
@@ -575,7 +575,7 @@ const hax: any = {
       );
     }
   },
-  spawnnpcmodel: function (server: ZoneServer, client: Client, args: any[]) {
+  spawnnpcmodel: function (server: ZoneServer2015, client: Client, args: any[]) {
     const guid = server.generateGuid();
     const transientId = 1;
     if (!args[1]) {
@@ -612,7 +612,7 @@ const hax: any = {
     server._db?.collection("npcs").insertOne(npc);
     server._npcs[characterId] = npc; // save npc
   },
-  sonic: function (server: ZoneServer, client: Client, args: any[]) {
+  sonic: function (server: ZoneServer2015, client: Client, args: any[]) {
     let character = client.character;
     character.isSonic = !character.isSonic;
     server.setGodMode(client, character.isSonic);
@@ -634,7 +634,7 @@ const hax: any = {
       : "Goodbye MR.Hedgehog";
     server.sendChatText(client, messageToMrHedgehog, true);
   },
-  observer: function (server: ZoneServer, client: Client, args: any[]) {
+  observer: function (server: ZoneServer2015, client: Client, args: any[]) {
     server.sendChatText(
       client,
       "[Deprecated] You should use /hax spectate, this command will be removed soon!"
@@ -646,7 +646,7 @@ const hax: any = {
     debug(server._characters);
     server.sendChatText(client, "Delete player, back in observer mode");
   },
-  changestat: function (server: ZoneServer, client: Client, args: any[]) {
+  changestat: function (server: ZoneServer2015, client: Client, args: any[]) {
     const stats = require("../../../../data/2015/sampleData/stats.json");
     server.sendData(client, "PlayerUpdate.UpdateStat", {
       characterId: client.character.characterId,
@@ -654,7 +654,7 @@ const hax: any = {
     });
     server.sendChatText(client, "change stat");
   },
-  changemodel: function (server: ZoneServer, client: Client, args: any[]) {
+  changemodel: function (server: ZoneServer2015, client: Client, args: any[]) {
     const newModelId = args[1];
     if (newModelId) {
       server.sendDataToAll("PlayerUpdate.ReplaceBaseModel", {
@@ -666,7 +666,7 @@ const hax: any = {
     }
   },
   removedynamicweather: async function (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: Client,
     args: any[]
   ) {
@@ -686,7 +686,7 @@ const hax: any = {
     }
     server.sendChatText(client, "Dynamic weather removed !");
   },
-  weather: function (server: ZoneServer, client: Client, args: any[]) {
+  weather: function (server: ZoneServer2015, client: Client, args: any[]) {
     if (server._dynamicWeatherWorker) {
       hax["removedynamicweather"](server, client, args);
     }
@@ -700,7 +700,7 @@ const hax: any = {
       server.changeWeatherWithTemplate(client, choosenTemplate);
     }
   },
-  weapon: function (server: ZoneServer, client: Client, args: any[]) {
+  weapon: function (server: ZoneServer2015, client: Client, args: any[]) {
     const choosenWeapon: string = args[1];
     if (!choosenWeapon) {
       server.sendChatText(
@@ -797,7 +797,7 @@ const hax: any = {
       }
     }
   },
-  outfit: function (server: ZoneServer, client: Client, args: any[]) {
+  outfit: function (server: ZoneServer2015, client: Client, args: any[]) {
     const choosenOutfit: string = args[1];
     if (!choosenOutfit) {
       server.sendChatText(
@@ -941,7 +941,7 @@ const hax: any = {
     }
   },
   savecurrentweather: async function (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: Client,
     args: any[]
   ) {
@@ -972,7 +972,7 @@ const hax: any = {
       }
     }
   },
-  run: function (server: ZoneServer, client: Client, args: any[]) {
+  run: function (server: ZoneServer2015, client: Client, args: any[]) {
     const speedValue = args[1];
     let speed;
     if (speedValue > 10) {
@@ -990,7 +990,7 @@ const hax: any = {
       runSpeed: speed,
     });
   },
-  randomweather: function (server: ZoneServer, client: Client, args: any[]) {
+  randomweather: function (server: ZoneServer2015, client: Client, args: any[]) {
     if (server._dynamicWeatherWorker) {
       clearInterval(server._dynamicWeatherWorker);
       server._dynamicWeatherWorker = null;
@@ -1047,40 +1047,40 @@ const hax: any = {
     debug(JSON.stringify(rnd_weather));
     server.changeWeather(client, rnd_weather);
   },
-  rick: function (server: ZoneServer, client: Client, args: any[]) {
+  rick: function (server: ZoneServer2015, client: Client, args: any[]) {
     server.sendDataToAll("ClientExitLaunchUrl", {
       url: "www.youtube.com/watch?v=dQw4w9WgXcQ", // that's a very dangerous command, if it was working....
     });
   },
-  titan: function (server: ZoneServer, client: Client, args: any[]) {
+  titan: function (server: ZoneServer2015, client: Client, args: any[]) {
     server.sendDataToAll("PlayerUpdate.UpdateScale", {
       characterId: client.character.characterId,
       scale: [20, 20, 20, 1],
     });
     server.sendChatText(client, "TITAN size");
   },
-  poutine: function (server: ZoneServer, client: Client, args: any[]) {
+  poutine: function (server: ZoneServer2015, client: Client, args: any[]) {
     server.sendDataToAll("PlayerUpdate.UpdateScale", {
       characterId: client.character.characterId,
       scale: [20, 5, 20, 1],
     });
     server.sendChatText(client, "The meme become a reality.....");
   },
-  rat: function (server: ZoneServer, client: Client, args: any[]) {
+  rat: function (server: ZoneServer2015, client: Client, args: any[]) {
     server.sendDataToAll("PlayerUpdate.UpdateScale", {
       characterId: client.character.characterId,
       scale: [0.2, 0.2, 0.2, 1],
     });
     server.sendChatText(client, "Rat size");
   },
-  normalsize: function (server: ZoneServer, client: Client, args: any[]) {
+  normalsize: function (server: ZoneServer2015, client: Client, args: any[]) {
     server.sendDataToAll("PlayerUpdate.UpdateScale", {
       characterId: client.character.characterId,
       scale: [1, 1, 1, 1],
     });
     server.sendChatText(client, "Back to normal size");
   },
-  godmode: function (server: ZoneServer, client: Client, args: any[]) {
+  godmode: function (server: ZoneServer2015, client: Client, args: any[]) {
     server.setGodMode(client, !client.character.godMode);
   },
 };

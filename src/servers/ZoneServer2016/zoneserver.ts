@@ -14,12 +14,16 @@
 const debugName = "ZoneServer";
 const debug = require("debug")(debugName);
 import { zonePacketHandlers } from "./zonepackethandlers";
-import { ZoneServer } from "../ZoneServer/zoneserver";
+import { ZoneServer2015 } from "../ZoneServer2015/zoneserver";
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
 import { Vehicle2016 as Vehicle } from "./classes/vehicle";
 import { WorldObjectManager } from "./classes/worldobjectmanager";
 
-import { inventoryItem, loadoutContainer, Weather2016 } from "../../types/zoneserver";
+import {
+  inventoryItem,
+  loadoutContainer,
+  Weather2016,
+} from "../../types/zoneserver";
 import { h1z1PacketsType } from "../../types/packets";
 import { Character2016 as Character } from "./classes/character";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
@@ -49,7 +53,7 @@ const containerDefinitions = require("./../../../data/2016/dataSources/Container
 const loadoutSlotItemClasses = require("./../../../data/2016/dataSources/LoadoutSlotItemClasses.json");
 const loadoutEquipSlots = require("./../../../data/2016/dataSources/LoadoutEquipSlots.json");
 
-export class ZoneServer2016 extends ZoneServer {
+export class ZoneServer2016 extends ZoneServer2015 {
   _weather2016: Weather2016;
   // @ts-ignore yeah idk how to fix that
   _packetHandlers: zonePacketHandlers = new zonePacketHandlers();
@@ -70,6 +74,7 @@ export class ZoneServer2016 extends ZoneServer {
   _speedTrees: any;
   _recipes: { [recipeId: number]: any } = recipes;
   _explosives: any;
+  _temporatyObjects: any;
   _traps: any;
 
   constructor(
@@ -90,6 +95,7 @@ export class ZoneServer2016 extends ZoneServer {
     this._speedTrees = {};
     this._spawnLocations = spawnLocations;
     this._explosives = {};
+    this._temporatyObjects = {};
     this._traps = {};
     this._respawnLocations = spawnLocations.map((spawn: any) => {
       return {
@@ -334,19 +340,11 @@ export class ZoneServer2016 extends ZoneServer {
       client.character.state.position = character.position;
       client.character.state.rotation = character.rotation;
     }
-
-    // default equipment / loadout
-    this.equipItem(client, this.generateItem(85), false); // fists weapon
-    this.equipItem(client, this.generateItem(2377), false); // DOA Hoodie
-    this.equipItem(client, this.generateItem(2079), false); // golf pants
-    //this.equipItem(client, this.generateItem(2425), false); // ar15
   }
 
   async sendCharacterData(client: Client) {
     await this.loadCharacterData(client);
-
     const backpack = this.generateItem(2393);
-    this.equipItem(client, backpack, false); // test backpack
     const item: any = this.generateItem(2425),
       containers = [
         {
@@ -810,6 +808,7 @@ export class ZoneServer2016 extends ZoneServer {
       this.spawnNpcs(client);
       this.spawnExplosives(client);
       this.spawnTraps(client);
+      this.spawnTemporatyObjects(client);
       this.POIManager(client);
       client.posAtLastRoutine = client.character.state.position;
     });
@@ -817,7 +816,7 @@ export class ZoneServer2016 extends ZoneServer {
     if (refresh) this.worldRoutineTimer.refresh();
   }
   deleteClient(client: Client) {
-    if(client){
+    if (client) {
       if (client.character) {
         this.deleteEntity(client.character.characterId, this._characters);
         clearTimeout(client.character?.resourcesUpdater);
@@ -835,7 +834,7 @@ export class ZoneServer2016 extends ZoneServer {
       }
     }
   }
-  
+
   killCharacter(client: Client) {
     const character = client.character;
     if (character.isAlive) {
@@ -876,7 +875,7 @@ export class ZoneServer2016 extends ZoneServer {
     }
     character.isAlive = false;
   }
-  
+
   explosionDamage(position: Float32Array, npcTriggered: string) {
     for (const character in this._clients) {
       const characterObj = this._clients[character];
@@ -1097,7 +1096,7 @@ export class ZoneServer2016 extends ZoneServer {
     client.character.resources.food = 10000;
     client.character.resources.water = 10000;
     client.character.resources.stamina = 600;
-    client.character.resources.bleeding = -40;
+    client.character.resources.bleeding = -120;
     client.character.healingTicks = 0;
     client.character.healingMaxTicks = 0;
     client.character.resourcesUpdater.refresh();
@@ -1119,6 +1118,8 @@ export class ZoneServer2016 extends ZoneServer {
     this.sendData(client, "ClientUpdate.UpdateLocation", {
       position: spawnLocations[randomSpawnIndex].position,
     });
+    this.clearInventory(client);
+    this.giveStartingItems(client, true);
     client.character.state.position = spawnLocations[randomSpawnIndex].position;
     this.updateResource(
       client,
@@ -1232,7 +1233,29 @@ export class ZoneServer2016 extends ZoneServer {
       },
     });
   }
-  
+
+  updateResourceToAllWithSpawnedCharacter(
+    client: Client,
+    entityId: string,
+    value: number,
+    resource: number,
+    resourceType: number
+  ) {
+    this.sendDataToAllWithSpawnedCharacter(client, "ResourceEvent", {
+      eventData: {
+        type: 3,
+        value: {
+          characterId: entityId,
+          resourceId: resource,
+          resourceType: resourceType,
+          initialValue: value,
+          unknownArray1: [],
+          unknownArray2: [],
+        },
+      },
+    });
+  }
+
   updateResourceToAllWithSpawnedVehicle(
     client: Client,
     entityId: string,
@@ -1275,10 +1298,12 @@ export class ZoneServer2016 extends ZoneServer {
         if (damage > 4000) {
           client.character.resources.bleeding += 41;
         }
-        this.updateResource(
+        this.updateResourceToAllWithSpawnedCharacter(
           client,
           client.character.characterId,
-          client.character.resources.bleeding > 0 ? client.character.resources.bleeding : 0,
+          client.character.resources.bleeding > 0
+            ? client.character.resources.bleeding
+            : 0,
           21,
           21
         );
@@ -1498,6 +1523,27 @@ export class ZoneServer2016 extends ZoneServer {
     }
   }
 
+  spawnTemporatyObjects(client: Client): void {
+    for (const npc in this._temporatyObjects) {
+      if (
+        isPosInRadius(
+          40,
+          client.character.state.position,
+          this._temporatyObjects[npc].position
+        ) &&
+        !client.spawnedEntities.includes(this._temporatyObjects[npc])
+      ) {
+        this.sendData(
+          client,
+          "AddSimpleNpc",
+          { ...this._temporatyObjects[npc] },
+          1
+        );
+        client.spawnedEntities.push(this._temporatyObjects[npc]);
+      }
+    }
+  }
+
   spawnCharacters(client: Client) {
     for (const c in this._clients) {
       const characterObj: Character = this._clients[c].character;
@@ -1654,7 +1700,13 @@ export class ZoneServer2016 extends ZoneServer {
     }
   }
 
-  createClient(sessionId:number,soeClientId:string,loginSessionId:string,characterId:string,generatedTransient:number){
+  createClient(
+    sessionId: number,
+    soeClientId: string,
+    loginSessionId: string,
+    characterId: string,
+    generatedTransient: number
+  ) {
     return new Client(
       sessionId,
       soeClientId,
@@ -1673,13 +1725,20 @@ export class ZoneServer2016 extends ZoneServer {
   }
 
   sendGameTimeSync(client: Client): void {
-    debug(`GameTimeSync ${this._cycleSpeed} ${this.getGameTime()}\n`);
-    //this._gameTime = this.getGameTime();
-    this.sendData(client, "GameTimeSync", {
-      time: Int64String(this.getGameTime()),
-      cycleSpeed: this._cycleSpeed,
-      unknownBoolean: false,
-    });
+    debug("GameTimeSync");
+    if (!this._frozeCycle) {
+      this.sendData(client, "GameTimeSync", {
+        time: Int64String(this.getServerTimeTest()),
+        cycleSpeed: Math.round(this._timeMultiplier * 0.97222),
+        unknownBoolean: false,
+      });
+    } else if (this._frozeCycle) {
+      this.sendData(client, "GameTimeSync", {
+        time: Int64String(this.getGameTime()),
+        cycleSpeed: 0.1,
+        unknownBoolean: false,
+      });
+    }
   }
 
   getTransientId(guid: string): number {
@@ -1858,7 +1917,25 @@ export class ZoneServer2016 extends ZoneServer {
       }
     }
   }
-  
+
+  sendDataToAllWithSpawnedTemporaryObject(
+    entityCharacterId: string = "",
+    packetName: any,
+    obj: any,
+    channel = 0
+  ): void {
+    if (!entityCharacterId) return;
+    for (const a in this._clients) {
+      if (
+        this._clients[a].spawnedEntities.includes(
+          this._temporatyObjects[entityCharacterId]
+        )
+      ) {
+        this.sendData(this._clients[a], packetName, obj, channel);
+      }
+    }
+  }
+
   sendDataToAllOthersWithSpawnedEntity(
     dictionary: {[id: string]: any},
     client: Client,
@@ -2052,7 +2129,7 @@ export class ZoneServer2016 extends ZoneServer {
       );
       vehicle.engineOn = false;
     }
-    if(client.vehicle.mountedVehicleType == "spectate") {
+    if (client.vehicle.mountedVehicleType == "spectate") {
       this.updateEquipment(client);
     }
     client.vehicle.mountedVehicle = "";
@@ -2470,7 +2547,11 @@ export class ZoneServer2016 extends ZoneServer {
     return itemStack;
   }
 
-  hasInventoryItem(client: Client, itemGuid: string, count: number = 1): boolean {
+  hasInventoryItem(
+    client: Client,
+    itemGuid: string,
+    count: number = 1
+  ): boolean {
     const item = this._items[itemGuid],
       itemDefinition = this.getItemDefinition(item.itemDefinitionId);
     const loadoutSlotId = this.getLoadoutSlot(itemDefinition.ID);
@@ -2484,14 +2565,18 @@ export class ZoneServer2016 extends ZoneServer {
         return true;
       } else if (removeItem.stackCount > count) {
         return true;
-      }
-      else { // if count > removeItem.stackCount 
+      } else {
+        // if count > removeItem.stackCount
         return false;
       }
     }
   }
 
-  removeInventoryItem(client: Client, itemGuid: string, count: number = 1): boolean {
+  removeInventoryItem(
+    client: Client,
+    itemGuid: string,
+    count: number = 1
+  ): boolean {
     const item = this._items[itemGuid],
       itemDefinition = this.getItemDefinition(item.itemDefinitionId);
     const loadoutSlotId = this.getLoadoutSlot(itemDefinition.ID);
@@ -2526,8 +2611,8 @@ export class ZoneServer2016 extends ZoneServer {
           removeItem.itemGuid,
           removeItemContainer
         );
-      }
-      else { // if count > removeItem.stackCount 
+      } else {
+        // if count > removeItem.stackCount
         return false;
       }
     }
@@ -2546,20 +2631,20 @@ export class ZoneServer2016 extends ZoneServer {
         `[ERROR] DropItem: No WORLD_MODEL_ID mapped to itemDefinitionId: ${this._items[itemGuid].itemDefinitionId}`
       );
     }
-    if(!this.removeInventoryItem(client, itemGuid, count)) return;
+    if (!this.removeInventoryItem(client, itemGuid, count)) return;
     this.sendData(client, "Character.DroppedIemNotification", {
       characterId: client.character.characterId,
       itemDefId: item.itemDefinitionId,
       count: count,
     });
-    
+
     this.worldObjectManager.createLootEntity(
       this,
       itemDefinition.ID,
       count,
       [...client.character.state.position],
       [0, Number(Math.random() * 10 - 5), 0, 1],
-	    15,
+      15
     );
     this.spawnObjects(client); // manually call this for now
   }
@@ -2594,9 +2679,9 @@ export class ZoneServer2016 extends ZoneServer {
     }
     this.sendData(client, "Command.PlayDialogEffect", {
       characterId: guid,
-      effectId: this.getItemDefinition(
-        this._items[object.itemGuid].itemDefinitionId
-      ).PICKUP_EFFECT ?? 5151,
+      effectId:
+        this.getItemDefinition(this._items[object.itemGuid].itemDefinitionId)
+          .PICKUP_EFFECT ?? 5151,
     });
     this.lootItem(client, object.itemGuid, object.stackCount);
     this.deleteEntity(guid, this._objects);
@@ -2746,6 +2831,43 @@ export class ZoneServer2016 extends ZoneServer {
     });
   }
 
+  giveStartingItems(
+    client: Client,
+    sendPacket: boolean,
+    giveBackpack: boolean = false
+  ) {
+    if (giveBackpack) {
+      this.equipItem(client, this.generateItem(2393), sendPacket);
+    }
+    this.equipItem(client, this.generateItem(85), sendPacket); // fists weapon
+    this.equipItem(client, this.generateItem(2377), sendPacket); // DOA Hoodie
+    this.equipItem(client, this.generateItem(2079), sendPacket); // golf pants
+    this.lootContainerItem(client, this.generateItem(1985), 1, false); // map
+    this.lootContainerItem(client, this.generateItem(1441), 1, false); // compass
+    this.lootContainerItem(client, this.generateItem(1751), 5, false); // gauze
+    this.lootContainerItem(client, this.generateItem(1804), 1, false); // flare
+  }
+
+  clearInventory(client: Client) {
+    Object.keys(client.character._containers).forEach((loadoutSlotId) => {
+      const container = client.character._containers[Number(loadoutSlotId)];
+      Object.keys(container.items).forEach((itemGuid) => {
+        const item = container.items[itemGuid];
+        this.removeInventoryItem(client, itemGuid, item.stackCount);
+        delete client.character._containers[Number(loadoutSlotId)].items[
+          itemGuid
+        ];
+      });
+      if (container.slotId != 12) { //ignite backpack for now
+        this.removeInventoryItem(
+          client,
+          container.itemGuid,
+          container.stackCount
+        );
+      }
+    });
+  }
+
   startTimer(client: Client, stringId: number, time: number) {
     this.sendData(client, "ClientUpdate.StartTimer", {
       stringId: stringId,
@@ -2886,7 +3008,6 @@ export class ZoneServer2016 extends ZoneServer {
     );
   }
 
-  
   fillPass(client: Client, itemGuid: string) {
     if (client.character.characterStates.inWater) {
       this.removeInventoryItem(client, itemGuid, 1);
@@ -3041,7 +3162,7 @@ export class ZoneServer2016 extends ZoneServer {
     if (!client.character.healingInterval) {
       client.character.starthealingInterval(client, this);
     }
-    this.updateResource(
+    this.updateResourceToAllWithSpawnedCharacter(
       client,
       client.character.characterId,
       bleeding > 0 ? bleeding : 0,
@@ -3127,7 +3248,7 @@ export class ZoneServer2016 extends ZoneServer {
       explosive.characterId,
       "Character.PlayWorldCompositeEffect",
       {
-        characterId: explosive.characterId,
+        characterId: "0x0",
         effectId: 1875,
         position: explosive.position,
       }
@@ -3143,9 +3264,11 @@ export class ZoneServer2016 extends ZoneServer {
     delete this._explosives[explosive.characterId];
     this.explosionDamage(explosive.position, explosive.characterId);
   }
-  
-  getInventoryAsContainer(client: Client): {[itemDefinitionId: number]: inventoryItem[]} {
-    const inventory: {[itemDefinitionId: number]: inventoryItem[]} = {};
+
+  getInventoryAsContainer(client: Client): {
+    [itemDefinitionId: number]: inventoryItem[];
+  } {
+    const inventory: { [itemDefinitionId: number]: inventoryItem[] } = {};
     Object.keys(client.character._containers).forEach((loadoutSlotId) => {
       const container = client.character._containers[Number(loadoutSlotId)];
       Object.keys(container.items).forEach((itemGuid) => {
@@ -3156,9 +3279,13 @@ export class ZoneServer2016 extends ZoneServer {
     });
     return inventory;
   }
-  
-  craftItem(client: Client, recipeId: number, count: number): string | undefined{
-  // TODO: convert this to a class because this function sucks
+
+  craftItem(
+    client: Client,
+    recipeId: number,
+    count: number
+  ): string | undefined {
+    // TODO: convert this to a class because this function sucks
 
     /*
   const timerTime = 1000;
@@ -3168,45 +3295,50 @@ export class ZoneServer2016 extends ZoneServer {
   });
   */
     const recipe = this._recipes[recipeId];
-    if(!recipe) {
+    if (!recipe) {
       this.sendChatText(client, `[ERROR] Invalid recipeId ${recipeId}`);
       return undefined;
     }
-    
-    for(const component of recipe.components){
+
+    for (const component of recipe.components) {
       let inventory = this.getInventoryAsContainer(client);
-      if(!Object.keys(inventory).includes(component.itemDefinitionId.toString())) {
+      if (
+        !Object.keys(inventory).includes(component.itemDefinitionId.toString())
+      ) {
         // if inventory doesn't have component but has materials for it
-        if(!this._recipes[component.itemDefinitionId]) {
+        if (!this._recipes[component.itemDefinitionId]) {
           return undefined; // no valid recipe to craft component
         }
         //for(let i = 0; i < count; i++) {
-          if(!this.craftItem(client, component.itemDefinitionId, component.requiredAmount * count)){
-            console.log("Craftitem error")
-            return undefined; // craftItem returned some error
-          }
+        if (
+          !this.craftItem(
+            client,
+            component.itemDefinitionId,
+            component.requiredAmount * count
+          )
+        ) {
+          console.log("Craftitem error");
+          return undefined; // craftItem returned some error
+        }
         //}
-      } 
+      }
       let remainingItems = component.requiredAmount * count;
       inventory = this.getInventoryAsContainer(client);
       inventory[component.itemDefinitionId]?.forEach((item) => {
-        if(item.stackCount >= remainingItems) {
-          if(this.hasInventoryItem(client, item.itemGuid, remainingItems)) {
+        if (item.stackCount >= remainingItems) {
+          if (this.hasInventoryItem(client, item.itemGuid, remainingItems)) {
             this.removeInventoryItem(client, item.itemGuid, remainingItems);
+          } else {
+            return undefined; // return if not enough items
           }
-          else {
+        } else {
+          if (this.hasInventoryItem(client, item.itemGuid, item.stackCount)) {
+            this.removeInventoryItem(client, item.itemGuid, item.stackCount);
+          } else {
             return undefined; // return if not enough items
           }
         }
-        else {
-          if(this.hasInventoryItem(client, item.itemGuid, item.stackCount)) {
-            this.removeInventoryItem(client, item.itemGuid, item.stackCount)
-          }
-          else {
-            return undefined; // return if not enough items
-          }
-        }
-      })
+      });
     }
     const itemGuid = this.generateItem(recipe.itemDefinitionId);
     this.lootItem(client, itemGuid, count);
@@ -3239,4 +3371,3 @@ if (process.env.VSCODE_DEBUG === "true") {
     2
   ).start();
 }
-

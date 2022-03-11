@@ -106,7 +106,7 @@ const hax: any = {
     vehicleData.isManaged = true;
     server._vehicles[characterId] = vehicleData; // save vehicle
     //@ts-ignore
-    (vehicleData.onReadyCallback = () => {
+    vehicleData.onReadyCallback = () => {
       // doing anything with vehicle before client gets fullvehicle packet breaks it
       server.mountVehicle(client, characterId);
       // todo: when vehicle takeover function works, delete assignManagedObject call
@@ -115,7 +115,7 @@ const hax: any = {
       setTimeout(() => {
         client.character.godMode = wasAlreadyGod;
       }, 1000);
-    })
+    };
   },
   titan: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.sendDataToAll("Character.UpdateScale", {
@@ -319,11 +319,7 @@ const hax: any = {
       server._vehicles[characterId] = vehicle; // save vehicle
     }
   },
-  spawnnpc: function (
-    server: ZoneServer2016,
-    client: Client,
-    args: any[]
-  ) {
+  spawnnpc: function (server: ZoneServer2016, client: Client, args: any[]) {
     const guid = server.generateGuid();
     const transientId = server.getTransientId(guid);
     if (!args[1]) {
@@ -333,7 +329,6 @@ const hax: any = {
     const choosenModelId = Number(args[1]);
     const characterId = server.generateGuid();
     const headactor = getHeadActor(choosenModelId);
-    console.log(headactor);
     const npc = {
       characterId: characterId,
       guid: guid,
@@ -536,12 +531,12 @@ const hax: any = {
     vehicle.isManaged = true;
     server._vehicles[characterId] = vehicle;
     //@ts-ignore
-    (vehicle.onReadyCallback = () => {
+    vehicle.onReadyCallback = () => {
       // doing anything with vehicle before client gets fullvehicle packet breaks it
       server.mountVehicle(client, characterId);
       // todo: when vehicle takeover function works, delete assignManagedObject call
       server.assignManagedObject(client, vehicle);
-    })
+    };
   },
   additem: function (server: ZoneServer2016, client: Client, args: any[]) {
     const itemDefId = Number(args[1]),

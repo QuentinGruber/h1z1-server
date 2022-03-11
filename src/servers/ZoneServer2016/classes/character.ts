@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { Character } from "../../ZoneServer/classes/character";
+import { Character } from "../../ZoneServer2015/classes/character";
 import {
   characterEquipment,
   loadoutItem,
@@ -101,6 +101,8 @@ export class Character2016 extends Character {
         if (!server._clients[client.sessionId]) {
           return;
         }
+        const { stamina, food, water, virus, health, bleeding } =
+          client.character.resources;
         const { isRunning } = client.character;
         if (isRunning) {
           client.character.resources.stamina -= 20;
@@ -141,119 +143,74 @@ export class Character2016 extends Character {
           client.character.resources.water = 10000;
         } else if (client.character.resources.water < 0) {
           client.character.resources.water = 0;
-          client.character.resources.health -= 100;
+          server.playerDamage(client, 100);
         }
         if (client.character.resources.health > 10000) {
           client.character.resources.health = 10000;
         } else if (client.character.resources.health < 0) {
           client.character.resources.health = 0;
         }
-        // Prototype bleeding
-        if (client.character.isBleeding && client.character.isAlive) {
-          if (!client.character.isBandaged) {
-            server.playerDamage(client, 100);
-          }
-          if (client.character.isBandaged) {
-            client.character.resources.health += 100;
-            server.updateResource(
-              client,
-              client.character.characterId,
-              client.character.resources.health,
-              1,
-              1
-            );
-          }
-          if (client.character.resources.health >= 2000) {
-            client.character.isBleeding = false;
-          }
-          if (client.character.resources.stamina > 130 && isRunning) {
-            client.character.resources.stamina -= 100;
-          }
 
-          if (
-            client.character.resources.health < 10000 &&
-            !client.character.isBleeding &&
-            client.character.isBandaged
-          ) {
-            client.character.resources.health += 400;
-            server.updateResource(
-              client,
-              client.character.characterId,
-              client.character.resources.health,
-              1,
-              1
-            );
-          }
-          if (client.character.resources.health >= 10000) {
-            client.character.isBandaged = false;
-          }
+        if (client.character.resources.food != food) {
+          server.updateResourceToAllWithSpawnedCharacter(
+            client,
+            client.character.characterId,
+            client.character.resources.food,
+            4,
+            4
+          );
         }
-        if (client.character.isBleeding && !client.character.isAlive) {
-          client.character.isBleeding = false;
+        if (client.character.resources.water != water) {
+          server.updateResourceToAllWithSpawnedCharacter(
+            client,
+            client.character.characterId,
+            client.character.resources.water,
+            5,
+            5
+          );
         }
-        const { stamina, food, water, virus, health, bleeding } =
-          client.character.resources;
-        server.sendData(client, "ResourceEvent", {
-          eventData: {
-            type: 1,
-            value: {
-              characterId: client.character.characterId,
-              characterResources: [
-                {
-                  resourceId: 6,
-                  resourceData: {
-                    resourceId: 6,
-                    resourceType: 6,
-                    value: stamina,
-                  },
-                },
-                {
-                  resourceId: 4,
-                  resourceData: {
-                    resourceId: 4,
-                    resourceType: 4,
-                    value: food,
-                  },
-                },
-                {
-                  resourceId: 5,
-                  resourceData: {
-                    resourceId: 5,
-                    resourceType: 5,
-                    value: water,
-                  },
-                },
-                {
-                  resourceId: 12,
-                  resourceData: {
-                    resourceId: 12,
-                    resourceType: 12,
-                    value: virus,
-                  },
-                },
-                {
-                  resourceId: 1,
-                  resourceData: {
-                    resourceId: 1,
-                    resourceType: 1,
-                    value: health,
-                  },
-                },
-                {
-                  resourceId: 21,
-                  resourceData: {
-                    resourceId: 21,
-                    resourceType: 21,
-                    value: bleeding > 0 ? bleeding : 0,
-                  },
-                },
-              ],
-            },
-          },
-        });
+        if (client.character.resources.health != health) {
+          server.updateResourceToAllWithSpawnedCharacter(
+            client,
+            client.character.characterId,
+            client.character.resources.health,
+            1,
+            1
+          );
+        }
+        if (client.character.resources.virus != virus) {
+          server.updateResourceToAllWithSpawnedCharacter(
+            client,
+            client.character.characterId,
+            client.character.resources.virus,
+            12,
+            12
+          );
+        }
+        if (client.character.resources.stamina != stamina) {
+          server.updateResourceToAllWithSpawnedCharacter(
+            client,
+            client.character.characterId,
+            client.character.resources.stamina,
+            6,
+            6
+          );
+        }
+        if (client.character.resources.bleeding != bleeding) {
+          server.updateResourceToAllWithSpawnedCharacter(
+            client,
+            client.character.characterId,
+            client.character.resources.bleeding > 0
+              ? client.character.resources.bleeding
+              : 0,
+            21,
+            21
+          );
+        }
 
         client.character.resourcesUpdater.refresh();
       }, 3000);
     };
   }
 }
+

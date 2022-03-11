@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { Vehicle } from "../../ZoneServer/classes/vehicles";
+import { Vehicle } from "../../ZoneServer2015/classes/vehicles";
 import { createPositionUpdate } from "../../../utils/utils";
 
 function getVehicleId(ModelId: number) {
@@ -48,8 +48,8 @@ export class Vehicle2016 extends Vehicle {
   ) {
     super(worldId, characterId, transientId, modelId, position, rotation);
     this.npcData.vehicleId = getVehicleId(modelId);
-    this.isInvulnerable = 
-    this.npcData.vehicleId==1337 || this.npcData.vehicleId==13
+    this.isInvulnerable =
+      this.npcData.vehicleId == 1337 || this.npcData.vehicleId == 13;
     switch (this.npcData.vehicleId) {
       case 1: // offroader
       case 2: // pickup
