@@ -717,7 +717,8 @@ export class zonePacketHandlers {
         vehicle = characterId ? server._vehicles[characterId] : undefined;
       if (!vehicle) return;
       //if (!server._soloMode) {
-      server.sendDataToAllOthersWithSpawnedVehicle(
+      server.sendDataToAllOthersWithSpawnedEntity(
+        server._vehicles,
         client,
         characterId,
         "PlayerUpdatePosition",
@@ -764,7 +765,8 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      server.sendDataToAllOthersWithSpawnedVehicle(
+      server.sendDataToAllOthersWithSpawnedEntity(
+        server._vehicles,
         client,
         packet.data.guid,
         "Vehicle.StateData",
@@ -1241,8 +1243,10 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      server.sendDataToAllOthersWithSpawnedCharacter(
+      server.sendDataToAllOthersWithSpawnedEntity(
+        server._characters,
         client,
+        client.character.characterId,
         "Character.WeaponStance",
         {
           characterId: client.character.characterId,
@@ -1421,7 +1425,8 @@ export class zonePacketHandlers {
                   server._explosives[characterId].position,
                   characterId
                 );
-                server.sendDataToAllWithSpawnedExplosive(
+                server.sendDataToAllWithSpawnedEntity(
+                  server._explosives,
                   characterId,
                   "Character.PlayWorldCompositeEffect",
                   {
@@ -1475,7 +1480,8 @@ export class zonePacketHandlers {
                 ) < 1.5
               ) {
                 server.playerDamage(server._clients[a], 100);
-                server.sendDataToAllWithSpawnedTrap(
+                server.sendDataToAllWithSpawnedEntity(
+                  server._traps,
                   characterId,
                   "Character.PlayWorldCompositeEffect",
                   {
@@ -1485,7 +1491,8 @@ export class zonePacketHandlers {
                   }
                 );
 
-                server.sendDataToAllWithSpawnedTrap(
+                server.sendDataToAllWithSpawnedEntity(
+                  server._traps,
                   characterId,
                   "Character.UpdateSimpleProxyHealth",
                   {
@@ -1503,7 +1510,8 @@ export class zonePacketHandlers {
             if (server._traps[characterId].realHealth > 0) {
               server._traps[characterId].trapTimer.refresh();
             } else {
-              server.sendDataToAllWithSpawnedTrap(
+              server.sendDataToAllWithSpawnedEntity(
+                server._traps,
                 characterId,
                 "Character.PlayWorldCompositeEffect",
                 {
@@ -1512,7 +1520,8 @@ export class zonePacketHandlers {
                   position: server._traps[characterId].position,
                 }
               );
-              server.sendDataToAllWithSpawnedTrap(
+              server.sendDataToAllWithSpawnedEntity(
+                server._traps,
                 characterId,
                 "Character.RemovePlayer",
                 {
@@ -1560,7 +1569,8 @@ export class zonePacketHandlers {
               ) {
                 server.playerDamage(server._clients[a], 2000);
                 server._clients[a].character.resources.bleeding += 41;
-                server.sendDataToAllWithSpawnedTrap(
+                server.sendDataToAllWithSpawnedEntity(
+                  server._traps,
                   characterId,
                   "Character.PlayWorldCompositeEffect",
                   {
@@ -1592,7 +1602,8 @@ export class zonePacketHandlers {
             if (!server._traps[characterId].isTriggered) {
               server._traps[characterId].trapTimer.refresh();
             } else {
-              server.sendDataToAllWithSpawnedTrap(
+              server.sendDataToAllWithSpawnedEntity(
+                server._traps,
                 characterId,
                 "Character.RemovePlayer",
                 {
