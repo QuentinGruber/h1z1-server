@@ -13,6 +13,7 @@
 
 const debugName = "ZoneServer";
 const debug = require("debug")(debugName);
+import { promisify } from "util";
 import { zonePacketHandlers } from "./zonepackethandlers";
 import { ZoneServer } from "../ZoneServer/zoneserver";
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
@@ -20,8 +21,10 @@ import { Vehicle2016 as Vehicle } from "./classes/vehicle";
 import { WorldObjectManager } from "./classes/worldobjectmanager";
 
 import {
+  characterEquipment,
   inventoryItem,
   loadoutContainer,
+  loadoutItem,
   Weather2016,
 } from "../../types/zoneserver";
 import { h1z1PacketsType } from "../../types/packets";
@@ -2372,7 +2375,7 @@ export class ZoneServer2016 extends ZoneServer {
       return;
     }
     const equipmentSlotId = this.getEquipmentSlot(loadoutSlotId),
-      loadoutData = {
+      loadoutData: loadoutItem = {
         itemDefinitionId: def.ID,
         slotId: loadoutSlotId,
         itemGuid: item.guid,
@@ -2381,7 +2384,7 @@ export class ZoneServer2016 extends ZoneServer {
         stackCount: 1,
         loadoutItemOwnerGuid: client.character.characterId,
       },
-      equipmentData = {
+      equipmentData: characterEquipment = {
         modelName: def.MODEL_NAME.replace(
           "<gender>",
           client.character.gender == 1 ? "Male" : "Female"
@@ -2849,12 +2852,10 @@ export class ZoneServer2016 extends ZoneServer {
             item.itemDefinitionId
         );
     }
-    this.utilizeHudTimer(
-      client,
-      this.eatItemPass,
-      [client, itemGuid, eatCount, drinkCount, givetrash],
-      nameId,
-      timeout
+    this.utilizeHudTimer(client, nameId, timeout, ()=>
+      {
+        this.eatItemPass(client, itemGuid, eatCount, drinkCount, givetrash)
+      }
     );
   }
 
@@ -2885,12 +2886,10 @@ export class ZoneServer2016 extends ZoneServer {
             item.itemDefinitionId
         );
     }
-    this.utilizeHudTimer(
-      client,
-      this.useMedicalPass,
-      [client, itemGuid, healCount, bandagingCount],
-      nameId,
-      timeout
+    this.utilizeHudTimer(client, nameId, timeout, ()=>
+      {
+        this.useMedicalPass(client, itemGuid, healCount, bandagingCount)
+      }
     );
   }
 
@@ -2910,12 +2909,10 @@ export class ZoneServer2016 extends ZoneServer {
             item.itemDefinitionId
         );
     }
-    this.utilizeHudTimer(
-      client,
-      this.igniteoptionPass,
-      [client, itemGuid],
-      nameId,
-      timeout
+    this.utilizeHudTimer(client, nameId, timeout, ()=>
+      {
+        this.igniteoptionPass(client, itemGuid)
+      }
     );
   }
 
@@ -2945,13 +2942,10 @@ export class ZoneServer2016 extends ZoneServer {
             item.itemDefinitionId
         );
     }
-
-    this.utilizeHudTimer(
-      client,
-      this.drinkItemPass,
-      [client, itemGuid, eatCount, drinkCount, givetrash],
-      nameId,
-      timeout
+    this.utilizeHudTimer(client, nameId, timeout, ()=>
+      {
+        this.drinkItemPass(client, itemGuid, eatCount, drinkCount, givetrash)
+      }
     );
   }
 
@@ -2985,12 +2979,10 @@ export class ZoneServer2016 extends ZoneServer {
     }
     switch (useoption) {
       case "fill": // empty bottle
-        this.utilizeHudTimer(
-          client,
-          this.fillPass,
-          [client, itemGuid],
-          nameId,
-          timeout
+        this.utilizeHudTimer(client, nameId, timeout, ()=>
+          {
+            this.fillPass(client, itemGuid)
+          }
         );
         break;
       default:
@@ -3010,12 +3002,10 @@ export class ZoneServer2016 extends ZoneServer {
       default:
         break;
     }
-    this.utilizeHudTimer(
-      client,
-      this.refuelVehiclePass,
-      [client, itemGuid, vehicleGuid, fuelValue],
-      nameId,
-      timeout
+    this.utilizeHudTimer(client, nameId, timeout, ()=>
+      {
+        this.refuelVehiclePass(client, itemGuid, vehicleGuid, fuelValue)
+      }
     );
   }
 
@@ -3038,12 +3028,10 @@ export class ZoneServer2016 extends ZoneServer {
       default:
         this.sendChatText(client, "[ERROR] Unknown salvage item or count.");
     }
-    this.utilizeHudTimer(
-      client,
-      this.shredItemPass,
-      [client, itemGuid, count],
-      nameId,
-      timeout
+    this.utilizeHudTimer(client, nameId, timeout, ()=>
+      {
+        this.shredItemPass(client, itemGuid, count)
+      }
     );
   }
 
@@ -3145,12 +3133,13 @@ export class ZoneServer2016 extends ZoneServer {
     this.lootItem(client, this.generateItem(23), count);
   }
 
+  pUtilizeHudTimer = promisify(this.utilizeHudTimer);
+
   utilizeHudTimer(
     client: Client,
-    callback: any,
-    args: any,
     nameId: number,
-    timeout: number
+    timeout: number,
+    callback: any,
   ) {
     this.startTimer(client, nameId, timeout);
     if (client.hudTimer != null) {
@@ -3158,7 +3147,7 @@ export class ZoneServer2016 extends ZoneServer {
     }
     client.posAtLogoutStart = client.character.state.position;
     client.hudTimer = setTimeout(() => {
-      callback.apply(this, args);
+      callback.apply(this);
     }, timeout);
   }
 
@@ -3223,11 +3212,13 @@ export class ZoneServer2016 extends ZoneServer {
     return inventory;
   }
 
-  craftItem(
+  pSetImmediate = promisify(setImmediate);
+
+  async craftItem(
     client: Client,
     recipeId: number,
     count: number
-  ): string | undefined {
+  ): Promise<string | undefined> {
     // TODO: convert this to a class because this function sucks
 
     /*
@@ -3237,6 +3228,7 @@ export class ZoneServer2016 extends ZoneServer {
     time: timerTime,
   });
   */
+    await this.pSetImmediate();
     const recipe = this._recipes[recipeId];
     if (!recipe) {
       this.sendChatText(client, `[ERROR] Invalid recipeId ${recipeId}`);

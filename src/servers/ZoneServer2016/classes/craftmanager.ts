@@ -56,8 +56,6 @@ export class CraftManager {
   // used for removing items from internal recipe components data source (only for inventory rn)
   removeComponent(client: Client, itemDefinitionId: number, count: number = 1): boolean {
     const removeItem = this.componentsDataSource[itemDefinitionId];
-    console.log("removeItem")
-    console.log(removeItem);
     if (!removeItem) return false;
     if (removeItem.stackCount == count) {
       delete this.componentsDataSource[itemDefinitionId];
@@ -71,6 +69,8 @@ export class CraftManager {
   }
 
   async generateQueue(server: ZoneServer2016, client: Client, recipeId: number, count: number): Promise<boolean> {
+    await server.pSetImmediate();
+    // todo: craft max makes this loop infinitely
     console.log(`[CraftManager] Generating craft queue for recipeId ${recipeId}`)
     const recipe = server._recipes[recipeId];
     for(const component of recipe.components) {
@@ -82,7 +82,6 @@ export class CraftManager {
         }
         // if inventory doesn't have component but has materials for it
         for(let i = 0; i < count; i++) {
-          await pSetImmediate();
           if (
             !await this.generateQueue(server, client, component.itemDefinitionId, component.requiredAmount)
           ) {
@@ -130,8 +129,30 @@ export class CraftManager {
     debug(`[CraftManager] Craft queue:`);
     console.log(this.craftQueue);
     console.log("craft start");
-    this.craftQueue.forEach((recipe) => {
-      server.lootItem(client, server.generateItem(recipe.id), recipe.count)
-    })
+    for(const recipe of this.craftQueue) {
+      await server.pUtilizeHudTimer(client, server.getItemDefinition(recipe.id).NAME_ID, 1000 * recipe.count);
+      const r = server._recipes[recipe.id];
+      for (const component of r.components) {
+        const inventory = server.getInventoryAsContainer(client);
+        let remainingItems = recipe.count;
+        inventory[component.itemDefinitionId]?.forEach((item) => {
+          if (item.stackCount >= remainingItems) {
+            if (server.hasInventoryItem(client, item.itemGuid, remainingItems)) {
+              server.removeInventoryItem(client, item.itemGuid, remainingItems);
+            } else {
+              return; // return if not enough items
+            }
+          } else {
+            if (server.hasInventoryItem(client, item.itemGuid, item.stackCount)) {
+              server.removeInventoryItem(client, item.itemGuid, item.stackCount);
+              remainingItems -= item.stackCount;
+            } else {
+              return; // return if not enough items
+            }
+          }
+        });
+      }
+      server.lootItem(client, server.generateItem(recipe.id), recipe.count);
+    }
   }
 }
