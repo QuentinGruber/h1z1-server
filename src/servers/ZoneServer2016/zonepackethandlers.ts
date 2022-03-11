@@ -1531,7 +1531,8 @@ export class zonePacketHandlers {
                   ) < 1.5
                 ) {
                   server.playerDamage(server._clients[a], 500);
-                  server.sendDataToAllWithSpawnedTrap(
+                  server.sendDataToAllWithSpawnedEntity(
+                    server._traps,
                     characterId,
                     "Character.PlayWorldCompositeEffect",
                     {
@@ -1632,7 +1633,8 @@ export class zonePacketHandlers {
                     21,
                     21
                   );
-                  server.sendDataToAllWithSpawnedTrap(
+                  server.sendDataToAllWithSpawnedEntity(
+                    server._traps,
                     characterId,
                     "Character.PlayWorldCompositeEffect",
                     {
