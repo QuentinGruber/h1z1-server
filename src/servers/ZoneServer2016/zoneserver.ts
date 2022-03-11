@@ -2924,6 +2924,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
         bandagingCount = 120;
         break;
       case 24: // bandage
+      case 1751: // gauze
         healCount = 9;
         timeout = 1000;
         break;
