@@ -993,7 +993,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
         }
         delete this._vehicles[vehicle.npcData.characterId];
         setTimeout(() => {
-          this.sendDataToAllWithSpawnedVehicle(
+          this.sendDataToAllWithSpawnedEntity(
+            this._vehicles,
             vehicle.npcData.characterId,
             "Character.RemovePlayer",
             {
@@ -1049,7 +1050,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
         }
 
         if (allowSend) {
-          this.sendDataToAllWithSpawnedVehicle(
+          this.sendDataToAllWithSpawnedEntity(
+            this._vehicles,
             vehicle.npcData.characterId,
             "Command.PlayDialogEffect",
             {
@@ -1261,7 +1263,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
     resource: number,
     resourceType: number
   ) {
-    this.sendDataToAllOthersWithSpawnedVehicle(
+    this.sendDataToAllOthersWithSpawnedEntity(
+      this._vehicles,
       client,
       entityId,
       "ResourceEvent",
@@ -1348,8 +1351,10 @@ export class ZoneServer2016 extends ZoneServer2015 {
         updateCharacterStateBody
       );
     } else {
-      this.sendDataToAllOthersWithSpawnedCharacter(
+      this.sendDataToAllOthersWithSpawnedEntity(
+        this._characters,
         client,
+        client.character.characterId,
         "Character.UpdateCharacterState",
         updateCharacterStateBody
       );
@@ -1761,23 +1766,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
       }
     }
   }
-  sendDataToAllOthersWithSpawnedCharacter(
-    client: Client,
-    packetName: any,
-    obj: any,
-    channel = 0
-  ): void {
-    for (const a in this._clients) {
-      if (
-        client != this._clients[a] &&
-        this._clients[a].spawnedEntities.includes(
-          this._characters[client.character.characterId]
-        )
-      ) {
-        this.sendData(this._clients[a], packetName, obj, channel);
-      }
-    }
-  }
+  
   sendDataToAllWithSpawnedCharacter(
     client: Client,
     packetName: any,
@@ -1795,6 +1784,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
       }
     }
   }
+  
   //#region ********************VEHICLE********************
   vehicleManager(client: Client) {
     for (const key in this._vehicles) {
@@ -1909,7 +1899,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
     }
   }
 
-  sendDataToAllWithSpawnedVehicle(
+  sendDataToAllWithSpawnedEntity(
+    dictionary: {[id: string]: any},
     entityCharacterId: string = "",
     packetName: any,
     obj: any,
@@ -1919,43 +1910,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
     for (const a in this._clients) {
       if (
         this._clients[a].spawnedEntities.includes(
-          this._vehicles[entityCharacterId]
-        )
-      ) {
-        this.sendData(this._clients[a], packetName, obj, channel);
-      }
-    }
-  }
-
-  sendDataToAllWithSpawnedExplosive(
-    entityCharacterId: string = "",
-    packetName: any,
-    obj: any,
-    channel = 0
-  ): void {
-    if (!entityCharacterId) return;
-    for (const a in this._clients) {
-      if (
-        this._clients[a].spawnedEntities.includes(
-          this._explosives[entityCharacterId]
-        )
-      ) {
-        this.sendData(this._clients[a], packetName, obj, channel);
-      }
-    }
-  }
-
-  sendDataToAllWithSpawnedTrap(
-    entityCharacterId: string = "",
-    packetName: any,
-    obj: any,
-    channel = 0
-  ): void {
-    if (!entityCharacterId) return;
-    for (const a in this._clients) {
-      if (
-        this._clients[a].spawnedEntities.includes(
-          this._traps[entityCharacterId]
+          dictionary[entityCharacterId]
         )
       ) {
         this.sendData(this._clients[a], packetName, obj, channel);
@@ -1981,7 +1936,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
     }
   }
 
-  sendDataToAllOthersWithSpawnedVehicle(
+  sendDataToAllOthersWithSpawnedEntity(
+    dictionary: {[id: string]: any},
     client: Client,
     entityCharacterId: string = "",
     packetName: any,
@@ -1993,13 +1949,14 @@ export class ZoneServer2016 extends ZoneServer2015 {
       if (
         client != this._clients[a] &&
         this._clients[a].spawnedEntities.includes(
-          this._vehicles[entityCharacterId]
+          dictionary[entityCharacterId]
         )
       ) {
         this.sendData(this._clients[a], packetName, obj, channel);
       }
     }
   }
+
   mountVehicle(client: Client, vehicleGuid: string): void {
     const vehicle = this._vehicles[vehicleGuid];
     if (!vehicle) return;
@@ -2030,21 +1987,31 @@ export class ZoneServer2016 extends ZoneServer2015 {
     const seatId = vehicle.getNextSeatId();
     if (seatId < 0) return; // no available seats in vehicle
     vehicle.seats[seatId] = client.character.characterId;
-    this.sendDataToAllWithSpawnedVehicle(vehicleGuid, "Mount.MountResponse", {
-      // mounts character
-      characterId: client.character.characterId,
-      vehicleGuid: vehicle.npcData.characterId, // vehicle guid
-      seatId: Number(seatId),
-      unknownDword3: seatId === "0" ? 1 : 0, //isDriver
-      identity: {},
-    });
+    this.sendDataToAllWithSpawnedEntity(
+      this._vehicles,
+      vehicleGuid,
+      "Mount.MountResponse",
+      {
+        // mounts character
+        characterId: client.character.characterId,
+        vehicleGuid: vehicle.npcData.characterId, // vehicle guid
+        seatId: Number(seatId),
+        unknownDword3: seatId === "0" ? 1 : 0, //isDriver
+        identity: {},
+      }
+    );
     if (seatId === "0") {
       //this.takeoverManagedObject(client, vehicle); // disabled for now, client won't drop management
       if (vehicle.npcData.resources.fuel > 0) {
-        this.sendDataToAllWithSpawnedVehicle(vehicleGuid, "Vehicle.Engine", {
-          guid2: vehicleGuid,
-          engineOn: true,
-        });
+        this.sendDataToAllWithSpawnedEntity(
+          this._vehicles,
+          vehicleGuid,
+          "Vehicle.Engine",
+          {
+            guid2: vehicleGuid,
+            engineOn: true,
+          }
+        );
         this._vehicles[vehicleGuid].engineOn = true;
         this._vehicles[vehicleGuid].resourcesUpdater = setInterval(() => {
           if (!this._vehicles[vehicleGuid].engineOn) {
@@ -2062,7 +2029,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
             this._vehicles[vehicleGuid].engineOn &&
             this._vehicles[vehicleGuid].npcData.resources.fuel <= 0
           ) {
-            this.sendDataToAllWithSpawnedVehicle(
+            this.sendDataToAllWithSpawnedEntity(
+              this._vehicles,
               vehicleGuid,
               "Vehicle.Engine",
               {
@@ -2139,7 +2107,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
     const seatId = vehicle.getCharacterSeat(client.character.characterId);
     if (!seatId) return;
     vehicle.seats[seatId] = "";
-    this.sendDataToAllWithSpawnedVehicle(
+    this.sendDataToAllWithSpawnedEntity(
+      this._vehicles,
       client.vehicle.mountedVehicle,
       "Mount.DismountResponse",
       {
@@ -2148,7 +2117,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
       }
     );
     if (seatId === "0") {
-      this.sendDataToAllWithSpawnedVehicle(
+      this.sendDataToAllWithSpawnedEntity(
+        this._vehicles,
         client.vehicle.mountedVehicle,
         "Vehicle.Engine",
         {
@@ -2213,7 +2183,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
       !vehicle.seats[packet.data.seatId] &&
       oldSeatId
     ) {
-      this.sendDataToAllWithSpawnedVehicle(
+      this.sendDataToAllWithSpawnedEntity(
+        this._vehicles,
         client.vehicle.mountedVehicle,
         "Mount.SeatChangeResponse",
         {
@@ -2226,7 +2197,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
       vehicle.seats[oldSeatId] = "";
       vehicle.seats[packet.data.seatId] = client.character.characterId;
       if (oldSeatId === "0") {
-        this.sendDataToAllWithSpawnedVehicle(
+        this.sendDataToAllWithSpawnedEntity(
+          this._vehicles,
           client.vehicle.mountedVehicle,
           "Vehicle.Engine",
           {
@@ -2238,7 +2210,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
       }
       if (packet.data.seatId === 0) {
         //this.takeoverManagedObject(client, vehicle); // disabled for now, client won't drop management
-        this.sendDataToAllWithSpawnedVehicle(
+        this.sendDataToAllWithSpawnedEntity(
+          this._vehicles,
           client.vehicle.mountedVehicle,
           "Vehicle.Engine",
           {
@@ -3246,7 +3219,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
     if (!IED.isIED) {
       return;
     }
-    this.sendDataToAllWithSpawnedExplosive(
+    this.sendDataToAllWithSpawnedEntity(
+      this._explosives,
       IED.characterId,
       "Command.PlayDialogEffect",
       {
@@ -3254,7 +3228,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
         effectId: 5034,
       }
     );
-    this.sendDataToAllWithSpawnedExplosive(
+    this.sendDataToAllWithSpawnedEntity(
+      this._explosives,
       IED.characterId,
       "Command.PlayDialogEffect",
       {
@@ -3268,7 +3243,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
   }
 
   explodeExplosive(explosive: any) {
-    this.sendDataToAllWithSpawnedExplosive(
+    this.sendDataToAllWithSpawnedEntity(
+      this._explosives,
       explosive.characterId,
       "Character.PlayWorldCompositeEffect",
       {
@@ -3277,7 +3253,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
         position: explosive.position,
       }
     );
-    this.sendDataToAllWithSpawnedExplosive(
+    this.sendDataToAllWithSpawnedEntity(
+      this._explosives,
       explosive.characterId,
       "Character.RemovePlayer",
       {
