@@ -127,7 +127,7 @@ export class WorldObjectManager {
     WEAPON_M9: 1997,
     AMMO_1911: 1428,
     AMMO_9MM: 1998, // TODO: assign it to a spawner
-    WEAPON_308: 1899,
+    WEAPON_308: 1373,
     AMMO_308: 1469,
     FIRST_AID: 2424,
     GROUND_COFFEE: 56, // TODO: expand with more canned food types
