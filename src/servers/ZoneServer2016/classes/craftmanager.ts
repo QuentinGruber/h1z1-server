@@ -75,7 +75,8 @@ export class CraftManager {
     const recipe = server._recipes[recipeId];
     for(const component of recipe.components) {
       if (
-        !Object.keys(this.componentsDataSource).includes(component.itemDefinitionId.toString())
+        !this.componentsDataSource[component.itemDefinitionId] || 
+        this.componentsDataSource[component.itemDefinitionId].stackCount < component.requiredAmount
       ) {
         if (!server._recipes[component.itemDefinitionId]) {
           return false; // no valid recipe to craft component
@@ -133,8 +134,8 @@ export class CraftManager {
       await server.pUtilizeHudTimer(client, server.getItemDefinition(recipe.id).NAME_ID, 1000 * recipe.count);
       const r = server._recipes[recipe.id];
       for (const component of r.components) {
-        const inventory = server.getInventoryAsContainer(client);
-        let remainingItems = recipe.count;
+        let inventory = server.getInventoryAsContainer(client);
+        let remainingItems = component.requiredAmount * recipe.count;
         inventory[component.itemDefinitionId]?.forEach((item) => {
           if (item.stackCount >= remainingItems) {
             if (server.hasInventoryItem(client, item.itemGuid, remainingItems)) {
