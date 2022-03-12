@@ -11,27 +11,20 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { inventoryItem } from "../../../types/zoneserver";
 import { ZoneServer2016 } from "../zoneserver";
 import { ZoneClient2016 as Client } from "./zoneclient";
 const debug = require("debug")("ZoneServer");
-import { promisify } from "util";
 
-interface componentItem {
+interface craftComponentDSEntry {
   itemDefinitionId: number,
   stackCount: number
 }
 
-interface recipe {
-  id: number,
-  count: number
-}
-
-function getComponentsDataSource(client: Client): {
-  [itemDefinitionId: number]: componentItem;
+function getCraftComponentsDataSource(client: Client): {
+  [itemDefinitionId: number]: craftComponentDSEntry;
 } {
   // todo: include other datasources when they are available ex. proximity items, accessed container
-  const inventory: { [itemDefinitionId: number]: componentItem } = {};
+  const inventory: { [itemDefinitionId: number]: craftComponentDSEntry } = {};
   Object.keys(client.character._containers).forEach((loadoutSlotId) => {
     const container = client.character._containers[Number(loadoutSlotId)];
     Object.keys(container.items).forEach((itemGuid) => {
@@ -48,31 +41,33 @@ function getComponentsDataSource(client: Client): {
 }
 
 export class CraftManager {
-  craftQueue: Array<recipe> = [];
-  componentsDataSource: { [itemDefinitionId: number]: componentItem } = {};
-  constructor(){}
+  componentsDataSource: { [itemDefinitionId: number]: craftComponentDSEntry } = {};
+  constructor(client: Client, server: ZoneServer2016, recipeId: number, count: number) {
+    this.componentsDataSource = getCraftComponentsDataSource(client);
+    this.start(client, server, recipeId, count);
+  }
 
   // used for removing items from internal recipe components data source (only for inventory rn)
-  removeComponent(client: Client, itemDefinitionId: number, count: number = 1): boolean {
+  removeCraftComponent(itemDefinitionId: number, count: number): boolean {
     const removeItem = this.componentsDataSource[itemDefinitionId];
     if (!removeItem) return false;
     if (removeItem.stackCount == count) {
       delete this.componentsDataSource[itemDefinitionId];
     } else if (removeItem.stackCount > count) {
-      removeItem.stackCount -= count;
-    } else {
-      // if count > removeItem.stackCount
+      this.componentsDataSource[itemDefinitionId].stackCount -= count;
+    } else { // if count > removeItem.stackCount
       return false;
     }
     return true;
   }
 
-  async generateQueue(server: ZoneServer2016, client: Client, recipeId: number, count: number): Promise<boolean> {
-    await server.pSetImmediate();
+  async craftItem(server: ZoneServer2016, client: Client, recipeId: number, count: number): Promise<boolean> {
+    // if craftItem gets stuck in an infinite loop somehow, setImmediate will prevent the server from crashing
+    server.pSetImmediate();
     if(!count) return true;
-    // todo: craft max makes this loop infinitely
-    debug(`[CraftManager] Generating craft queue for recipeId ${recipeId}`)
+    debug(`[CraftManager] Crafting ${count} of itemDefinitionId ${recipeId}`);
     const recipe = server._recipes[recipeId];
+    if(!recipe) return false;
     for(const component of recipe.components) {
       const remainingItems = component.requiredAmount * count;
       if (!this.componentsDataSource[component.itemDefinitionId]) {
@@ -82,7 +77,7 @@ export class CraftManager {
         // if inventory doesn't have component but has materials for it
         for(let i = 0; i < count; i++) {
           if (
-            !await this.generateQueue(server, client, component.itemDefinitionId, component.requiredAmount)
+            !await this.craftItem(server, client, component.itemDefinitionId, component.requiredAmount)
           ) {
             return false; // craftItem returned some error
           }
@@ -104,69 +99,55 @@ export class CraftManager {
             stackCount = 0;
           }
           if (
-            !await this.generateQueue(server, client, component.itemDefinitionId, craftAmount)
+            !await this.craftItem(server, client, component.itemDefinitionId, craftAmount)
           ) {
             return false; // craftItem returned some error
           }
         }
       }
       
-      const item = this.componentsDataSource[component.itemDefinitionId];
-      if(!item || item.stackCount < component.requiredAmount) {
+      if(!this.removeCraftComponent(component.itemDefinitionId, remainingItems)) {
         return false;
       }
-      if (
-        !this.removeComponent(
-          client, 
-          component.itemDefinitionId, 
-          item.stackCount >= remainingItems?remainingItems:item.stackCount)
-      ) {
-        return false; // return if not enough items
-      }
-      // push dummy item
-      if(this.componentsDataSource[recipeId]) {
-        this.componentsDataSource[recipeId].stackCount += count;
-      }
-      else {
-        this.componentsDataSource[recipeId] = {
-          itemDefinitionId: recipeId,
-          stackCount: count
-        }
+    }
+    // push dummy item
+    if(this.componentsDataSource[recipeId]) {
+      this.componentsDataSource[recipeId].stackCount += count;
+    }
+    else {
+      this.componentsDataSource[recipeId] = {
+        itemDefinitionId: recipeId,
+        stackCount: count
       }
     }
-    this.craftQueue.push({id: recipeId, count: count});
+
+    await server.pUtilizeHudTimer(client, server.getItemDefinition(recipeId).NAME_ID, 1000 * count);
+    const r = server._recipes[recipeId];
+    for (const component of r.components) {
+      let inventory = server.getInventoryAsContainer(client),
+      remainingItems = component.requiredAmount * count;
+      if(!inventory[component.itemDefinitionId]) return false;
+      for(const item of inventory[component.itemDefinitionId]) {
+        if (item.stackCount >= remainingItems) {
+          if (!server.removeInventoryItem(client, item.itemGuid, remainingItems)) {
+            return false; // return if not enough items
+          }
+        } else {
+          if (server.removeInventoryItem(client, item.itemGuid, item.stackCount)) {
+            remainingItems -= item.stackCount;
+          } else {
+            return false; // return if not enough items
+          }
+        }
+      };
+    }
+    server.lootItem(client, server.generateItem(recipeId), count);
     return true;
   }
 
   async start(client: Client, server: ZoneServer2016, recipeId: number, count: number) {
-    this.componentsDataSource = getComponentsDataSource(client);
     for(let i = 0; i < count; i++) {
-      await this.generateQueue(server, client, recipeId, 1);
-    }
-    for(const recipe of this.craftQueue) {
-      await server.pUtilizeHudTimer(client, server.getItemDefinition(recipe.id).NAME_ID, 1000 * recipe.count);
-      const r = server._recipes[recipe.id];
-      for (const component of r.components) {
-        let inventory = server.getInventoryAsContainer(client);
-        let remainingItems = component.requiredAmount * recipe.count;
-        inventory[component.itemDefinitionId]?.forEach((item) => {
-          if (item.stackCount >= remainingItems) {
-            if (server.hasInventoryItem(client, item.itemGuid, remainingItems)) {
-              server.removeInventoryItem(client, item.itemGuid, remainingItems);
-            } else {
-              return; // return if not enough items
-            }
-          } else {
-            if (server.hasInventoryItem(client, item.itemGuid, item.stackCount)) {
-              server.removeInventoryItem(client, item.itemGuid, item.stackCount);
-              remainingItems -= item.stackCount;
-            } else {
-              return; // return if not enough items
-            }
-          }
-        });
-      }
-      server.lootItem(client, server.generateItem(recipe.id), recipe.count);
+      if(!await this.craftItem(server, client, recipeId, 1)) return;
     }
   }
 }
