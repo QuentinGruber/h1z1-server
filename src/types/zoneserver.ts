@@ -444,6 +444,11 @@ export interface loadoutContainer extends loadoutItem {
   items: { [itemGuid: string]: inventoryItem };
 }
 
+export interface craftComponentDSEntry {
+  itemDefinitionId: number,
+  stackCount: number
+}
+
 export interface Client {
   currentPOI?: number;
   firstLoading: boolean;

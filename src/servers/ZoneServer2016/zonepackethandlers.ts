@@ -27,6 +27,8 @@ let admin = require("./commands/admin").default;
 
 import { _, Int64String, isPosInRadius, getDistance } from "../../utils/utils";
 
+import { CraftManager } from "./classes/craftmanager"
+
 export class zonePacketHandlers {
   hax: any = hax;
   dev: any = dev;
@@ -242,8 +244,7 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      debug(packet);
-      server.craftItem(client, packet.data.recipeId, packet.data.count);
+      new CraftManager(client, server, packet.data.recipeId, packet.data.count);
     };
     this.CommandSetInWater = function (
       server: ZoneServer2016,

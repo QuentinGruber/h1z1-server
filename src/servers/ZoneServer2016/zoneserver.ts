@@ -13,6 +13,7 @@
 
 const debugName = "ZoneServer";
 const debug = require("debug")(debugName);
+import { promisify } from "util";
 import { zonePacketHandlers } from "./zonepackethandlers";
 import { ZoneServer2015 } from "../ZoneServer2015/zoneserver";
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
@@ -20,8 +21,10 @@ import { Vehicle2016 as Vehicle } from "./classes/vehicle";
 import { WorldObjectManager } from "./classes/worldobjectmanager";
 
 import {
+  characterEquipment,
   inventoryItem,
   loadoutContainer,
+  loadoutItem,
   Weather2016,
 } from "../../types/zoneserver";
 import { h1z1PacketsType } from "../../types/packets";
@@ -2388,7 +2391,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
       return;
     }
     const equipmentSlotId = this.getEquipmentSlot(loadoutSlotId),
-      loadoutData = {
+      loadoutData: loadoutItem = {
         itemDefinitionId: def.ID,
         slotId: loadoutSlotId,
         itemGuid: item.guid,
@@ -2397,7 +2400,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
         stackCount: 1,
         loadoutItemOwnerGuid: client.character.characterId,
       },
-      equipmentData = {
+      equipmentData: characterEquipment = {
         modelName: def.MODEL_NAME.replace(
           "<gender>",
           client.character.gender == 1 ? "Male" : "Female"
@@ -2547,28 +2550,20 @@ export class ZoneServer2016 extends ZoneServer2015 {
     return itemStack;
   }
 
-  hasInventoryItem(
+  getInventoryItem(
     client: Client,
-    itemGuid: string,
-    count: number = 1
-  ): boolean {
+    itemGuid: string
+  ): inventoryItem | undefined {
     const item = this._items[itemGuid],
-      itemDefinition = this.getItemDefinition(item.itemDefinitionId);
-    const loadoutSlotId = this.getLoadoutSlot(itemDefinition.ID);
+    itemDefinition = this.getItemDefinition(item.itemDefinitionId),
+    loadoutSlotId = this.getLoadoutSlot(itemDefinition.ID);
     if (client.character._loadout[loadoutSlotId]?.itemGuid == itemGuid) {
-      return true;
+      return client.character._loadout[loadoutSlotId];
     } else {
       const removeItemContainer = this.getItemContainer(client, itemGuid);
       const removeItem = removeItemContainer?.items[itemGuid];
-      if (!removeItemContainer || !removeItem) return false;
-      if (removeItem.stackCount == count) {
-        return true;
-      } else if (removeItem.stackCount > count) {
-        return true;
-      } else {
-        // if count > removeItem.stackCount
-        return false;
-      }
+      if (!removeItemContainer || !removeItem) return undefined;
+      return removeItem;
     }
   }
 
@@ -2578,8 +2573,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
     count: number = 1
   ): boolean {
     const item = this._items[itemGuid],
-      itemDefinition = this.getItemDefinition(item.itemDefinitionId);
-    const loadoutSlotId = this.getLoadoutSlot(itemDefinition.ID);
+    itemDefinition = this.getItemDefinition(item.itemDefinitionId),
+    loadoutSlotId = this.getLoadoutSlot(itemDefinition.ID);
     if (client.character._loadout[loadoutSlotId]?.itemGuid == itemGuid) {
       this.deleteItem(client, itemGuid);
       // TODO: add logic for checking if loadout item has an equipment slot, ex. radio doesn't have one
@@ -2598,8 +2593,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
         this.equipItem(client, client.character._loadout[7].itemGuid); //equip fists
       }
     } else {
-      const removeItemContainer = this.getItemContainer(client, itemGuid);
-      const removeItem = removeItemContainer?.items[itemGuid];
+      const removeItemContainer = this.getItemContainer(client, itemGuid),
+      removeItem = removeItemContainer?.items[itemGuid];
       if (!removeItemContainer || !removeItem) return false;
       if (removeItem.stackCount == count) {
         delete removeItemContainer.items[itemGuid];
@@ -2902,12 +2897,10 @@ export class ZoneServer2016 extends ZoneServer2015 {
             item.itemDefinitionId
         );
     }
-    this.utilizeHudTimer(
-      client,
-      this.eatItemPass,
-      [client, itemGuid, eatCount, drinkCount, givetrash],
-      nameId,
-      timeout
+    this.utilizeHudTimer(client, nameId, timeout, ()=>
+      {
+        this.eatItemPass(client, itemGuid, eatCount, drinkCount, givetrash)
+      }
     );
   }
 
@@ -2939,12 +2932,10 @@ export class ZoneServer2016 extends ZoneServer2015 {
             item.itemDefinitionId
         );
     }
-    this.utilizeHudTimer(
-      client,
-      this.useMedicalPass,
-      [client, itemGuid, healCount, bandagingCount],
-      nameId,
-      timeout
+    this.utilizeHudTimer(client, nameId, timeout, ()=>
+      {
+        this.useMedicalPass(client, itemGuid, healCount, bandagingCount)
+      }
     );
   }
 
@@ -2964,12 +2955,10 @@ export class ZoneServer2016 extends ZoneServer2015 {
             item.itemDefinitionId
         );
     }
-    this.utilizeHudTimer(
-      client,
-      this.igniteoptionPass,
-      [client, itemGuid],
-      nameId,
-      timeout
+    this.utilizeHudTimer(client, nameId, timeout, ()=>
+      {
+        this.igniteoptionPass(client, itemGuid)
+      }
     );
   }
 
@@ -2999,13 +2988,10 @@ export class ZoneServer2016 extends ZoneServer2015 {
             item.itemDefinitionId
         );
     }
-
-    this.utilizeHudTimer(
-      client,
-      this.drinkItemPass,
-      [client, itemGuid, eatCount, drinkCount, givetrash],
-      nameId,
-      timeout
+    this.utilizeHudTimer(client, nameId, timeout, ()=>
+      {
+        this.drinkItemPass(client, itemGuid, eatCount, drinkCount, givetrash)
+      }
     );
   }
 
@@ -3039,12 +3025,10 @@ export class ZoneServer2016 extends ZoneServer2015 {
     }
     switch (useoption) {
       case "fill": // empty bottle
-        this.utilizeHudTimer(
-          client,
-          this.fillPass,
-          [client, itemGuid],
-          nameId,
-          timeout
+        this.utilizeHudTimer(client, nameId, timeout, ()=>
+          {
+            this.fillPass(client, itemGuid)
+          }
         );
         break;
       default:
@@ -3064,12 +3048,10 @@ export class ZoneServer2016 extends ZoneServer2015 {
       default:
         break;
     }
-    this.utilizeHudTimer(
-      client,
-      this.refuelVehiclePass,
-      [client, itemGuid, vehicleGuid, fuelValue],
-      nameId,
-      timeout
+    this.utilizeHudTimer(client, nameId, timeout, ()=>
+      {
+        this.refuelVehiclePass(client, itemGuid, vehicleGuid, fuelValue)
+      }
     );
   }
 
@@ -3092,12 +3074,10 @@ export class ZoneServer2016 extends ZoneServer2015 {
       default:
         this.sendChatText(client, "[ERROR] Unknown salvage item or count.");
     }
-    this.utilizeHudTimer(
-      client,
-      this.shredItemPass,
-      [client, itemGuid, count],
-      nameId,
-      timeout
+    this.utilizeHudTimer(client, nameId, timeout, ()=>
+      {
+        this.shredItemPass(client, itemGuid, count)
+      }
     );
   }
 
@@ -3199,12 +3179,13 @@ export class ZoneServer2016 extends ZoneServer2015 {
     this.lootItem(client, this.generateItem(23), count);
   }
 
+  pUtilizeHudTimer = promisify(this.utilizeHudTimer);
+
   utilizeHudTimer(
     client: Client,
-    callback: any,
-    args: any,
     nameId: number,
-    timeout: number
+    timeout: number,
+    callback: any,
   ) {
     this.startTimer(client, nameId, timeout);
     if (client.hudTimer != null) {
@@ -3212,7 +3193,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
     }
     client.posAtLogoutStart = client.character.state.position;
     client.hudTimer = setTimeout(() => {
-      callback.apply(this, args);
+      callback.apply(this);
     }, timeout);
   }
 
@@ -3280,71 +3261,6 @@ export class ZoneServer2016 extends ZoneServer2015 {
     });
     return inventory;
   }
-
-  craftItem(
-    client: Client,
-    recipeId: number,
-    count: number
-  ): string | undefined {
-    // TODO: convert this to a class because this function sucks
-
-    /*
-  const timerTime = 1000;
-  this.sendData(client, "ClientUpdate.StartTimer", {
-    stringId: 0,
-    time: timerTime,
-  });
-  */
-    const recipe = this._recipes[recipeId];
-    if (!recipe) {
-      this.sendChatText(client, `[ERROR] Invalid recipeId ${recipeId}`);
-      return undefined;
-    }
-
-    for (const component of recipe.components) {
-      let inventory = this.getInventoryAsContainer(client);
-      if (
-        !Object.keys(inventory).includes(component.itemDefinitionId.toString())
-      ) {
-        // if inventory doesn't have component but has materials for it
-        if (!this._recipes[component.itemDefinitionId]) {
-          return undefined; // no valid recipe to craft component
-        }
-        //for(let i = 0; i < count; i++) {
-        if (
-          !this.craftItem(
-            client,
-            component.itemDefinitionId,
-            component.requiredAmount * count
-          )
-        ) {
-          console.log("Craftitem error");
-          return undefined; // craftItem returned some error
-        }
-        //}
-      }
-      let remainingItems = component.requiredAmount * count;
-      inventory = this.getInventoryAsContainer(client);
-      inventory[component.itemDefinitionId]?.forEach((item) => {
-        if (item.stackCount >= remainingItems) {
-          if (this.hasInventoryItem(client, item.itemGuid, remainingItems)) {
-            this.removeInventoryItem(client, item.itemGuid, remainingItems);
-          } else {
-            return undefined; // return if not enough items
-          }
-        } else {
-          if (this.hasInventoryItem(client, item.itemGuid, item.stackCount)) {
-            this.removeInventoryItem(client, item.itemGuid, item.stackCount);
-          } else {
-            return undefined; // return if not enough items
-          }
-        }
-      });
-    }
-    const itemGuid = this.generateItem(recipe.itemDefinitionId);
-    this.lootItem(client, itemGuid, count);
-    return itemGuid;
-  }
   //#endregion
 
   async reloadZonePacketHandlers() {
@@ -3362,6 +3278,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
     this._protocol.reloadPacketDefinitions();
     this.sendChatText(client, "[DEV] Packets reloaded", true);
   }
+
+  pSetImmediate = promisify(setImmediate)
 }
 
 if (process.env.VSCODE_DEBUG === "true") {
