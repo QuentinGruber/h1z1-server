@@ -1078,7 +1078,6 @@ export class zonePacketHandlers {
             case 9169:
             case 9171:
             case 9497:
-            case 9009:
             case 9904:
             case 9905:
             case 9333:
