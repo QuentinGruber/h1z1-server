@@ -1861,12 +1861,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
       // todo: vehicle seat swap managed object drop logic
       debug("\n\n\n\n\n\n\n\n\n\n drop managed object");
 
-      this.sendData(client, "Character.ManagedObject", {
-        objectCharacterId: vehicle.npcData.characterId,
-        characterId: client.character.characterId,
-      });
       this.sendData(client, "ClientUpdate.ManagedObjectResponseControl", {
-        control: false,
+        control: true,
         objectCharacterId: vehicle.npcData.characterId,
       });
       client.managedObjects.splice(index, 1);
@@ -1996,7 +1992,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
       }
     );
     if (seatId === "0") {
-      //this.takeoverManagedObject(client, vehicle); // disabled for now, client won't drop management
+      this.takeoverManagedObject(client, vehicle);
       if (vehicle.npcData.resources.fuel > 0) {
         this.sendDataToAllWithSpawnedEntity(
           this._vehicles,
@@ -2204,7 +2200,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
         );
       }
       if (packet.data.seatId === 0) {
-        //this.takeoverManagedObject(client, vehicle); // disabled for now, client won't drop management
+        this.takeoverManagedObject(client, vehicle);
         this.sendDataToAllWithSpawnedEntity(
           this._vehicles,
           client.vehicle.mountedVehicle,

@@ -778,6 +778,9 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
+      if (packet.data.flags === 513) { // head rotation when in vehicle, client spams this packet every 1ms even if you dont move, disabled for now(it doesnt work anyway)
+        return;
+      }
       if (packet.data.flags === 510) {
         client.vehicle.falling = packet.data.unknown10_float;
       }
@@ -996,18 +999,39 @@ export class zonePacketHandlers {
           }
           break;
         case 3: // characters
-          server.sendData(client, "LightweightToFullPc", {
-            positionUpdate: server.createPositionUpdate(
-              entityData.state.position,
-              entityData.state.rotation
-            ),
-            stats: [],
-            fullPcData: {
-              transientId: entityData.transientId,
-              attachmentData: [],
-              unknownData1: {},
-              effectTags: [],
-            },
+          server.sendData(client, "LightweightToFullNpc", {
+            transientId: entityData.transientId,
+            attachmentData: [
+              /*
+              {
+                modelName: "SurvivorMale_Chest_Hoodie_Up_Tintable.adr",
+                effectId: 0,
+                slotId: 3,
+              },*/
+            ],
+            effectTags: [],
+            unknownData1: {},
+            targetData: {},
+            unknownArray1: [],
+            unknownArray2: [],
+            //unknownArray3: {/*data:[]*/},
+            //resources: {/*
+            //  data:[
+            /*{
+                  resourceId: 1,
+                  resourceData: {
+                    resourceId: 1,
+                    resourceType: 1,
+                    value: 10000
+                  }
+                }
+              ]*/
+            //},
+            //unknownArray4: {/*unknownArray1:[], unknownArray2:[]*/},
+            //unknownArray5: {/*data:[]*/},
+            //unknownArray6: {/*data:[]*/},
+            //remoteWeapons: {/*data:[]*/},
+            //itemsData: {/*data:[]*/}
           });
           entityData._equipment[1] = {
             // temporary to fix missing heads

@@ -3174,8 +3174,8 @@ export const basePackets: any = [
     {
       fields: [
         { name: "npcData", type: "schema", fields: fullNpcDataSchema },
-        { name: "unknownByte1", type: "uint8", defaultValue: 1 },
-        { name: "unknownDword1", type: "uint32", defaultValue: 1 },
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         {
           name: "unknownArray1",
           type: "array",
