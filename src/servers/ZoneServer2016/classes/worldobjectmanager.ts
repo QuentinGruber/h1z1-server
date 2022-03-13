@@ -62,13 +62,13 @@ function createDoor(
   scale: Array<number>,
   texture: string,
   zoneId: number,
-  dictionnary: any,
+  dictionary: any,
   renderDistance: number
 ): void {
   const guid = generateRandomGuid();
   const characterId = generateRandomGuid();
   let openAngle = startRot[0] + 1.575;
-  dictionnary[characterId] = {
+  dictionary[characterId] = {
     worldId: server._worldId,
     zoneId: zoneId,
     isOpen: false,
