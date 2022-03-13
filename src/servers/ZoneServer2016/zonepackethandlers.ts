@@ -778,6 +778,9 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
+      if (packet.data.flags === 513) { // head rotation when in vehicle, client spams this packet every 1ms even if you dont move, disabled for now(it doesnt work anyway)
+        return;
+      }
       if (packet.data.flags === 510) {
         client.vehicle.falling = packet.data.unknown10_float;
       }
