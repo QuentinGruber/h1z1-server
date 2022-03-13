@@ -1879,9 +1879,12 @@ export class zonePacketHandlers {
   async reloadCommandCache() {
     delete require.cache[require.resolve("./commands/hax")];
     delete require.cache[require.resolve("./commands/dev")];
+    delete require.cache[require.resolve("./commands/admin")];
     hax = require("./commands/hax").default;
     dev = require("./commands/dev").default;
+    admin = require("./commands/admin").default;
     this.hax = require("./commands/hax").default;
     this.dev = require("./commands/dev").default;
+    this.admin = require("./commands/admin").default;
   }
 }
