@@ -55,7 +55,7 @@ export class SOEOutputStream extends EventEmitter {
       }
       this.emit("data", null, data, this._sequence, false);
     } else {
-      const header = new (Buffer as any).alloc(4);
+      const header = Buffer.alloc(4);
       header.writeUInt32BE(data.length, 0);
       data = Buffer.concat([header, data]);
       for (let i = 0; i < data.length; i += this._fragmentSize) {
@@ -91,7 +91,7 @@ export class SOEOutputStream extends EventEmitter {
         this._cache[sequence].fragment
       );
     } else {
-      console.error("Cache error, could not resend data!");
+      console.error(`Cache error, could not resend data for sequence ${sequence}! `);
       this.emit("cacheError");
     }
   }

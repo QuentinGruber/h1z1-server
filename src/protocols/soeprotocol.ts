@@ -175,8 +175,8 @@ const packets = [
         isSubPacket: boolean
       ) {
         const dataParts = [];
-        let subData,
-          data = new (Buffer as any).alloc(2 + (compression ? 1 : 0));
+        let subData;
+        let data = Buffer.alloc(2 + (compression ? 1 : 0));
         data.writeUInt16BE(0x03, 0);
         if (compression) {
           data.writeUInt8(0, 2);
@@ -193,7 +193,7 @@ const packets = [
           dataParts.push(writeDataLength(subData.length), subData);
         }
         data = Buffer.concat(dataParts);
-        data = appendCRC(data, crcSeed);
+        data = appendCRC(data, crcSeed) as Buffer;
         return data;
       },
     },
