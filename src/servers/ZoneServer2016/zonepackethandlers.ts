@@ -1423,13 +1423,13 @@ export class zonePacketHandlers {
               }
             }
           });
-          server._temporatyObjects[characterId] = npc; // save npc
+          server._temporaryObjects[characterId] = npc; // save npc
           setTimeout(function () {
             server.sendDataToAllWithSpawnedTemporaryObject(
               characterId,
               "Character.RemovePlayer",
               {
-                characterId: server._temporatyObjects[characterId].characterId,
+                characterId: server._temporaryObjects[characterId].characterId,
               }
             );
           }, 900000);
