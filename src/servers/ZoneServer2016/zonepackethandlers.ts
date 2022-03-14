@@ -83,6 +83,8 @@ export class zonePacketHandlers {
       packet: any
     ) {
       server.sendData(client, "ClientBeginZoning", {
+        position: client.character.state.position,
+        rotation: client.character.state.lookAt,
         skyData: server._weather2016,
       }); // Needed for trees
 

@@ -93,7 +93,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
     this._dynamicWeatherEnabled = false;
     this._cycleSpeed = 100;
     this._weatherTemplates = localWeatherTemplates;
-    this._defaultWeatherTemplate = "H1emuBaseWeather";
+    this._defaultWeatherTemplate = "z1br";
     this._weather2016 = this._weatherTemplates[this._defaultWeatherTemplate];
     this._speedTrees = {};
     this._spawnLocations = spawnLocations;
