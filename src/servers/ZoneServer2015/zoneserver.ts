@@ -491,8 +491,6 @@ export class ZoneServer2015 extends EventEmitter {
       this.emit("data", null, client, packet);
     } else {
       debug("zonefailed : ", data);
-      /*const fs = require('fs'); // nothing happening here ;) - meme
-      fs.writeFileSync(`C:\\Users\\csm45\\Desktop\\zonefailed\\zonefailed${Date.now()}.dat`, data)*/
     }
   }
 
