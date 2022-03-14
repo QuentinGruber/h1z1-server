@@ -33,7 +33,7 @@ import { Worker } from "worker_threads";
 import SOEClient from "../SoeServer/soeclient";
 import { ZoneClient as Client } from "./classes/zoneclient";
 import { h1z1PacketsType } from "../../types/packets";
-import { Vehicle } from "./classes/vehicles";
+import { Vehicle } from "./classes/vehicle";
 import { Resolver } from "dns";
 
 process.env.isBin && require("./workers/dynamicWeather");
