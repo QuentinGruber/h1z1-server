@@ -1193,7 +1193,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
       switch (packet.data.name) {
         case "SpeedTree.Blackberry":
           itemDefId = 105;
-          if (Math.floor(Math.random() * 10) == 1) {
+          if (randomIntFromInterval(1, 10) == 1) {
             this.lootItem(
               client,
               this.generateItem(this.worldObjectManager.eItems.WEAPON_BRANCH),
@@ -2432,10 +2432,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
   }
 
   generateItem(itemDefinitionId: any) {
-    const generatedGuid = `0x${Math.floor(
-      Math.random() * (0x3fffffffffffffff - 0x3000000000000000) +
-        0x3000000000000000
-    ).toString(16)}`;
+    const generatedGuid = `0x${randomIntFromInterval(0x3000000000000000, 0x3fffffffffffffff).toString(16)}`;
     this._items[generatedGuid] = {
       guid: generatedGuid,
       itemDefinitionId: Number(itemDefinitionId),

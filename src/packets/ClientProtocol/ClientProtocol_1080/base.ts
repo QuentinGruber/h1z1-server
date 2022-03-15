@@ -72,7 +72,7 @@ export const basePackets: any = [
             { name: "unknownString4", type: "string", defaultValue: "" },
             { name: "headId", type: "uint32", defaultValue: 0 },
             { name: "unknownDword6", type: "uint32", defaultValue: 0 },
-            { name: "factionId", type: "uint32", defaultValue: 0 },
+            { name: "shaderGroupId", type: "uint32", defaultValue: 664 },
             { name: "unknownDword9", type: "uint32", defaultValue: 0 },
             { name: "unknownDword10", type: "uint32", defaultValue: 0 },
             { name: "position", type: "floatvector4", defaultValue: 0 },
