@@ -1554,6 +1554,8 @@ export class zonePacketHandlers {
                   ) < 1.5
                   &&
                   server._clients[a].character.isAlive
+                  &&
+                  !server._clients[a].vehicle.mountedVehicle
                 ) {
                   server.playerDamage(server._clients[a], 500);
                   server.sendDataToAllWithSpawnedEntity(
