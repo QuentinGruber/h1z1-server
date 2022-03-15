@@ -11,8 +11,8 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-const debugName = "ZoneServer";
-const debug = require("debug")(debugName);
+const debugName = "ZoneServer",
+debug = require("debug")(debugName);
 import { promisify } from "util";
 import { zonePacketHandlers } from "./zonepackethandlers";
 import { ZoneServer2015 } from "../ZoneServer2015/zoneserver";
@@ -43,18 +43,17 @@ import { Db, MongoClient } from "mongodb";
 import dynamicWeather from "./workers/dynamicWeather";
 
 // need to get 2016 lists
-const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json");
-const recipes = require("../../../data/2016/sampleData/recipes.json");
-const deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json");
-const localWeatherTemplates = require("../../../data/2016/dataSources/weather.json");
-const stats = require("../../../data/2016/sampleData/stats.json");
-const resources = require("../../../data/2016/dataSources/resourceDefinitions.json");
-let localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json");
-
-const itemDefinitions = require("./../../../data/2016/dataSources/ServerItemDefinitions.json");
-const containerDefinitions = require("./../../../data/2016/dataSources/ContainerDefinitions.json");
-const loadoutSlotItemClasses = require("./../../../data/2016/dataSources/LoadoutSlotItemClasses.json");
-const loadoutEquipSlots = require("./../../../data/2016/dataSources/LoadoutEquipSlots.json");
+const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
+recipes = require("../../../data/2016/sampleData/recipes.json"),
+deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
+localWeatherTemplates = require("../../../data/2016/dataSources/weather.json"),
+stats = require("../../../data/2016/sampleData/stats.json"),
+resources = require("../../../data/2016/dataSources/resourceDefinitions.json"),
+localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json"),
+itemDefinitions = require("./../../../data/2016/dataSources/ServerItemDefinitions.json"),
+containerDefinitions = require("./../../../data/2016/dataSources/ContainerDefinitions.json"),
+loadoutSlotItemClasses = require("./../../../data/2016/dataSources/LoadoutSlotItemClasses.json"),
+loadoutEquipSlots = require("./../../../data/2016/dataSources/LoadoutEquipSlots.json");
 
 export class ZoneServer2016 extends ZoneServer2015 {
   _weather2016: Weather2016;
@@ -2215,6 +2214,14 @@ export class ZoneServer2016 extends ZoneServer2015 {
     }
   }
   //#endregion
+
+  startTimer(client: Client, stringId: number, time: number) {
+    this.sendData(client, "ClientUpdate.StartTimer", {
+      stringId: stringId,
+      time: time,
+    });
+  }
+  
   //#region ********************INVENTORY********************
 
   updateLoadout(client: Client) {
@@ -2461,10 +2468,9 @@ export class ZoneServer2016 extends ZoneServer2015 {
 
   getContainerBulk(container: loadoutContainer): number {
     let bulk = 0;
-    Object.keys(container.items).forEach((itemGuid) => {
-      const item = container.items[itemGuid];
+    for (const item of Object.values(container.items)) {
       bulk += this.getItemDefinition(item.itemDefinitionId).BULK;
-    });
+    };
     return bulk;
   }
 
@@ -2475,19 +2481,15 @@ export class ZoneServer2016 extends ZoneServer2015 {
   ): loadoutContainer | undefined {
     // returns the first container that has enough space to store count * itemDefinitionId bulk
     /*
-    let availableContainer = null;
     const itemDef = this.getItemDefinition(itemDefinitionId);
-    Object.keys(client.character._containers).every((loadoutSlotId) => {
-      const container = client.character._containers[Number(loadoutSlotId)],
-      containerItemDef = this.getItemDefinition(container?.itemDefinitionId),
+    for (const container of Object.values(client.character._containers)) {
+      const containerItemDef = this.getItemDefinition(container?.itemDefinitionId),
       containerDef = this.getContainerDefinition(containerItemDef?.PARAM1)
       if(container && containerDef?.MAX_BULK >= (this.getContainerBulk(container) + (itemDef.BULK * count))){
-        availableContainer = container;
-        return false;
+        return container;
       }
-      return true;
-    })
-    return availableContainer;
+    }
+    return undefined;
     */
 
     // TEMP LOGIC UNTIL CONTAINERS WORK
@@ -2502,14 +2504,26 @@ export class ZoneServer2016 extends ZoneServer2015 {
     itemGuid: string
   ): loadoutContainer | undefined {
     // returns the container that an item is contained in
-    let itemContainer = undefined;
-    Object.keys(client.character._containers).forEach((loadoutSlotId) => {
-      const container = client.character._containers[Number(loadoutSlotId)];
+    for (const container of Object.values(client.character._containers)) {
       if (container.items[itemGuid]) {
-        itemContainer = container;
+        return container;
       }
-    });
-    return itemContainer;
+    };
+    return undefined;
+  }
+
+  getItemById(
+    client: Client,
+    itemDefId: number,
+  ): string {
+    for (const container of Object.values(client.character._containers)) {
+      for (const item of Object.values(container.items)) {
+        if (item.itemDefinitionId == itemDefId) {
+          return item.itemGuid;
+        }
+      }
+    };
+    return "";
   }
 
   getAvailableItemStack(
@@ -2518,21 +2532,17 @@ export class ZoneServer2016 extends ZoneServer2015 {
     count: number
   ): string {
     // returns the itemGuid of the first open stack in container arg that has enough open slots and is the same itemDefinitionId as itemDefId arg
-    let itemStack = "";
-    if (this.getItemDefinition(itemDefId).MAX_STACK_SIZE == 1) return itemStack;
-    Object.keys(container.items).every((itemGuid) => {
-      const item = container.items[itemGuid];
+    if (this.getItemDefinition(itemDefId).MAX_STACK_SIZE == 1) return "";
+    for (const item of Object.values(container.items)) {
       if (
         item.itemDefinitionId == itemDefId &&
         this.getItemDefinition(item.itemDefinitionId).MAX_STACK_SIZE >=
           item.stackCount + count
       ) {
-        itemStack = item.itemGuid;
-        return false;
+        return item.itemGuid;
       }
-      return true;
-    });
-    return itemStack;
+    };
+    return "";
   }
 
   getInventoryItem(
@@ -2557,6 +2567,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
     itemGuid: string,
     count: number = 1
   ): boolean {
+    console.log(itemGuid)
+    if(!this._items[itemGuid]) return false;
     const item = this._items[itemGuid],
     itemDefinition = this.getItemDefinition(item.itemDefinitionId),
     loadoutSlotId = this.getLoadoutSlot(itemDefinition.ID);
@@ -2829,30 +2841,21 @@ export class ZoneServer2016 extends ZoneServer2015 {
   }
 
   clearInventory(client: Client) {
-    Object.keys(client.character._containers).forEach((loadoutSlotId) => {
-      const container = client.character._containers[Number(loadoutSlotId)];
-      Object.keys(container.items).forEach((itemGuid) => {
-        const item = container.items[itemGuid];
-        this.removeInventoryItem(client, itemGuid, item.stackCount);
-        delete client.character._containers[Number(loadoutSlotId)].items[
-          itemGuid
+    for (const container of Object.values(client.character._containers)) {
+      for (const item of Object.values(container.items)) {
+        this.removeInventoryItem(client, item.itemGuid, item.stackCount);
+        delete client.character._containers[container.slotId].items[
+          item.itemGuid
         ];
-      });
-      if (container.slotId != 12) { //ignite backpack for now
+      };
+      if (container.slotId != 12) { //ignore backpack for now
         this.removeInventoryItem(
           client,
           container.itemGuid,
           container.stackCount
         );
       }
-    });
-  }
-
-  startTimer(client: Client, stringId: number, time: number) {
-    this.sendData(client, "ClientUpdate.StartTimer", {
-      stringId: stringId,
-      time: time,
-    });
+    };
   }
 
   eatItem(client: Client, itemGuid: string, nameId: number) {
@@ -3236,14 +3239,12 @@ export class ZoneServer2016 extends ZoneServer2015 {
     [itemDefinitionId: number]: inventoryItem[];
   } {
     const inventory: { [itemDefinitionId: number]: inventoryItem[] } = {};
-    Object.keys(client.character._containers).forEach((loadoutSlotId) => {
-      const container = client.character._containers[Number(loadoutSlotId)];
-      Object.keys(container.items).forEach((itemGuid) => {
-        const item = container.items[itemGuid];
+    for (const container of Object.values(client.character._containers)) {
+      for (const item of Object.values(container.items)) {
         inventory[item.itemDefinitionId] = []; // init array
         inventory[item.itemDefinitionId].push(item); // push new itemstack
-      });
-    });
+      };
+    };
     return inventory;
   }
   //#endregion

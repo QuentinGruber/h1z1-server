@@ -353,24 +353,24 @@ export class zonePacketHandlers {
         ],
       });
     };
-    (this.chatChat = function (
+    this.chatChat = function (
       server: ZoneServer2016,
       client: Client,
       packet: any
     ) {
       const { channel, message } = packet.data;
       server.sendChat(client, message, channel);
-    }),
-      (this.ClientInitializationDetails = function (
-        server: ZoneServer2016,
-        client: Client,
-        packet: any
-      ) {
-        // just in case
-        if (packet.data.unknownDword1) {
-          debug("ClientInitializationDetails : ", packet.data.unknownDword1);
-        }
-      });
+    },
+    this.ClientInitializationDetails = function (
+      server: ZoneServer2016,
+      client: Client,
+      packet: any
+    ) {
+      // just in case
+      if (packet.data.unknownDword1) {
+        debug("ClientInitializationDetails : ", packet.data.unknownDword1);
+      }
+    };
     this.ClientLogout = function (
       server: ZoneServer2016,
       client: Client,
@@ -401,7 +401,7 @@ export class zonePacketHandlers {
         time3: packet.data.clientTime + 2,
       });
     };
-    (this.commandExecuteCommand = async function (
+    this.commandExecuteCommand = async function (
       server: ZoneServer2016,
       client: Client,
       packet: any
@@ -511,8 +511,6 @@ export class zonePacketHandlers {
             "/loc",
             "/spawninfo",
             "/serverinfo",
-            "/player_air_control",
-            "/player_fall_through_world_test",
           ];
           server.sendChatText(client, `Commands list:`);
           commandList
@@ -598,44 +596,44 @@ export class zonePacketHandlers {
           }
           break;
       }
-    }),
-      (this.commandInteractRequest = function (
-        server: ZoneServer2016,
-        client: Client,
+    },
+    this.commandInteractRequest = function (
+      server: ZoneServer2016,
+      client: Client,
         packet: any
-      ) {
-        server.sendData(client, "Command.InteractionString", {
-          guid: packet.data.guid,
-          stringId: 5463,
-          unknown4: 0,
-        });
-        server.sendData(client, "Command.InteractionList", {
-          guid: packet.data.guid,
-          unknownBoolean1: true,
-          unknownArray1: [
-            {
-              unknownDword1: 11,
-              unknownDword2: 0,
-              unknownDword3: 5463,
-              unknownDword4: 51,
-              unknownDword5: 1,
-              unknownDword6: 0,
-              unknownDword7: 0,
-            },
-          ],
-          unknownString1: "",
-          unknownBoolean2: true,
-          unknownArray2: [],
-          unknownBoolean3: false,
-        });
-      }),
-      (this.commandInteractCancel = function (
-        server: ZoneServer2016,
-        client: Client,
-        packet: any
-      ) {
-        debug("Interaction Canceled");
+    ) {
+      server.sendData(client, "Command.InteractionString", {
+        guid: packet.data.guid,
+        stringId: 5463,
+        unknown4: 0,
       });
+      server.sendData(client, "Command.InteractionList", {
+        guid: packet.data.guid,
+        unknownBoolean1: true,
+        unknownArray1: [
+          {
+            unknownDword1: 11,
+            unknownDword2: 0,
+            unknownDword3: 5463,
+            unknownDword4: 51,
+            unknownDword5: 1,
+            unknownDword6: 0,
+            unknownDword7: 0,
+          },
+        ],
+        unknownString1: "",
+        unknownBoolean2: true,
+        unknownArray2: [],
+        unknownBoolean3: false,
+      });
+    },
+    this.commandInteractCancel = function (
+      server: ZoneServer2016,
+      client: Client,
+      packet: any
+    ) {
+      debug("Interaction Canceled");
+    };
     this.commandStartLogoutRequest = function (
       server: ZoneServer2016,
       client: Client,
@@ -1439,23 +1437,16 @@ export class zonePacketHandlers {
             attachedObject: {},
             staticEffectId: true,
           };
-          Object.keys(client.character._containers).forEach((loadoutSlotId) => {
-            const container =
-              client.character._containers[Number(loadoutSlotId)];
-            for (const itemGuid in container.items) {
-              const item = container.items[itemGuid];
-              if (item.itemDefinitionId == packet.data.itemDefinitionId) {
-                server.removeInventoryItem(client, item.itemGuid, 1);
-              }
-            }
-          });
+
+          if(!server.removeInventoryItem(client, server.getItemById(client, packet.data.itemDefinitionId))) return;
+
           server._temporaryObjects[characterId] = npc; // save npc
           setTimeout(function () {
             server.sendDataToAllWithSpawnedTemporaryObject(
               characterId,
               "Character.RemovePlayer",
               {
-                characterId: server._temporaryObjects[characterId].characterId,
+                characterId: characterId,
               }
             );
           }, 900000);
@@ -1476,16 +1467,8 @@ export class zonePacketHandlers {
             attachedObject: {},
             isIED: true,
           };
-          Object.keys(client.character._containers).forEach((loadoutSlotId) => {
-            const container =
-              client.character._containers[Number(loadoutSlotId)];
-            for (const itemGuid in container.items) {
-              const item = container.items[itemGuid];
-              if (item.itemDefinitionId == packet.data.itemDefinitionId) {
-                server.removeInventoryItem(client, item.itemGuid, 1);
-              }
-            }
-          });
+          if(!server.removeInventoryItem(client, server.getItemById(client, packet.data.itemDefinitionId))) return;
+
           server._explosives[characterId] = npc; // save npc
           break;
         case 74:
@@ -1504,16 +1487,8 @@ export class zonePacketHandlers {
             attachedObject: {},
             isIED: false,
           };
-          Object.keys(client.character._containers).forEach((loadoutSlotId) => {
-            const container =
-              client.character._containers[Number(loadoutSlotId)];
-            for (const itemGuid in container.items) {
-              const item = container.items[itemGuid];
-              if (item.itemDefinitionId == packet.data.itemDefinitionId) {
-                server.removeInventoryItem(client, item.itemGuid, 1);
-              }
-            }
-          });
+          if(!server.removeInventoryItem(client, server.getItemById(client, packet.data.itemDefinitionId))) return;
+
           server._explosives[characterId] = npc; // save npc
           setTimeout(function () {
             // arming time
@@ -1565,16 +1540,8 @@ export class zonePacketHandlers {
             realHealth: 100000,
             health: 100,
           };
-          Object.keys(client.character._containers).forEach((loadoutSlotId) => {
-            const container =
-              client.character._containers[Number(loadoutSlotId)];
-            for (const itemGuid in container.items) {
-              const item = container.items[itemGuid];
-              if (item.itemDefinitionId == packet.data.itemDefinitionId) {
-                server.removeInventoryItem(client, item.itemGuid, 1);
-              }
-            }
-          });
+          if(!server.removeInventoryItem(client, server.getItemById(client, packet.data.itemDefinitionId))) return;
+
           server._traps[characterId] = npc; // save npc
           setTimeout(function () {
             // arming time
@@ -1585,6 +1552,8 @@ export class zonePacketHandlers {
                     server._clients[a].character.state.position,
                     npc.position
                   ) < 1.5
+                  &&
+                  server._clients[a].character.isAlive
                 ) {
                   server.playerDamage(server._clients[a], 500);
                   server.sendDataToAllWithSpawnedEntity(
@@ -1632,7 +1601,7 @@ export class zonePacketHandlers {
                   characterId,
                   "Character.RemovePlayer",
                   {
-                    characterId: server._traps[characterId].characterId,
+                    characterId: characterId,
                   }
                 );
                 delete server._traps[characterId];
@@ -1657,16 +1626,8 @@ export class zonePacketHandlers {
             attachedObject: {},
             isTriggered: false,
           };
-          Object.keys(client.character._containers).forEach((loadoutSlotId) => {
-            const container =
-              client.character._containers[Number(loadoutSlotId)];
-            for (const itemGuid in container.items) {
-              const item = container.items[itemGuid];
-              if (item.itemDefinitionId == packet.data.itemDefinitionId) {
-                server.removeInventoryItem(client, item.itemGuid, 1);
-              }
-            }
-          });
+          if(!server.removeInventoryItem(client, server.getItemById(client, packet.data.itemDefinitionId))) return;
+
           server._traps[characterId] = npc; // save npc
           setTimeout(function () {
             // arming time
@@ -1727,7 +1688,7 @@ export class zonePacketHandlers {
                   characterId,
                   "Character.RemovePlayer",
                   {
-                    characterId: server._traps[characterId].characterId,
+                    characterId: characterId,
                   }
                 );
                 npc.modelId = 1974;
@@ -1735,18 +1696,8 @@ export class zonePacketHandlers {
                   server,
                   1415,
                   1,
-                  [
-                    npc.position[0],
-                    npc.position[1],
-                    npc.position[2],
-                    npc.position[3],
-                  ],
-                  [
-                    npc.rotation[0],
-                    npc.rotation[1],
-                    npc.rotation[2],
-                    npc.rotation[3],
-                  ],
+                  npc.position,
+                  npc.rotation,
                   15
                 );
                 delete server._traps[characterId];
