@@ -33,7 +33,7 @@ import { Worker } from "worker_threads";
 import SOEClient from "../SoeServer/soeclient";
 import { ZoneClient as Client } from "./classes/zoneclient";
 import { h1z1PacketsType } from "../../types/packets";
-import { Vehicle } from "./classes/vehicles";
+import { Vehicle } from "./classes/vehicle";
 import { Resolver } from "dns";
 
 process.env.isBin && require("./workers/dynamicWeather");
@@ -491,8 +491,6 @@ export class ZoneServer2015 extends EventEmitter {
       this.emit("data", null, client, packet);
     } else {
       debug("zonefailed : ", data);
-      /*const fs = require('fs'); // nothing happening here ;) - meme
-      fs.writeFileSync(`C:\\Users\\csm45\\Desktop\\zonefailed\\zonefailed${Date.now()}.dat`, data)*/
     }
   }
 

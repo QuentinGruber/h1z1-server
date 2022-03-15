@@ -16,7 +16,7 @@ import { ZoneClient as Client } from "../classes/zoneclient";
 import { ZoneServer2015 } from "../zoneserver";
 
 import { _, generateRandomGuid } from "../../../utils/utils";
-import { Vehicle } from "../classes/vehicles";
+import { Vehicle } from "../classes/vehicle";
 
 const debug = require("debug")("zonepacketHandlers");
 

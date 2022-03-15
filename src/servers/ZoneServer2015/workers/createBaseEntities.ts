@@ -24,7 +24,7 @@ const Z1_destroyablePS = require("../../../../data/2015/zoneData/Z1_destroyableP
 const Z1_destroyable = require("../../../../data/2015/zoneData/Z1_destroyable.json");
 import { zoneObject, zoneObjectInstance } from "types/zonedata";
 import { _, eul2quat, generateRandomGuid } from "../../../utils/utils";
-import { Vehicle } from "../classes/vehicles";
+import { Vehicle } from "../classes/vehicle";
 import { ZoneServer2015 } from "../zoneserver";
 
 const npcs: any = {};
