@@ -128,7 +128,11 @@ const hax: any = {
       server.sendChatText(client, "You are not in a vehicle");
     }
   },
-  vehicleaction: function (server: ZoneServer2015, client: Client, args: any[]) {
+  vehicleaction: function (
+    server: ZoneServer2015,
+    client: Client,
+    args: any[]
+  ) {
     if (client.vehicle.mountedVehicle) {
       const type = args[1];
       if (!args[1]) {
@@ -502,7 +506,11 @@ const hax: any = {
       position: locationPosition,
     });
   },
-  despawnobjects: function (server: ZoneServer2015, client: Client, args: any[]) {
+  despawnobjects: function (
+    server: ZoneServer2015,
+    client: Client,
+    args: any[]
+  ) {
     client.spawnedEntities.forEach((object) => {
       server.despawnEntity(
         object.characterId ? object.characterId : object.npcData.characterId
@@ -516,7 +524,11 @@ const hax: any = {
     server._doors = {};
     server.sendChatText(client, "Objects removed from the game.", true);
   },
-  spamoffroader: function (server: ZoneServer2015, client: Client, args: any[]) {
+  spamoffroader: function (
+    server: ZoneServer2015,
+    client: Client,
+    args: any[]
+  ) {
     for (let index = 0; index < 150; index++) {
       const vehicleData = {
         npcData: {
@@ -546,7 +558,11 @@ const hax: any = {
       );
     }
   },
-  spampolicecar: function (server: ZoneServer2015, client: Client, args: any[]) {
+  spampolicecar: function (
+    server: ZoneServer2015,
+    client: Client,
+    args: any[]
+  ) {
     for (let index = 0; index < 150; index++) {
       const vehicleData = {
         npcData: {
@@ -575,7 +591,11 @@ const hax: any = {
       );
     }
   },
-  spawnnpcmodel: function (server: ZoneServer2015, client: Client, args: any[]) {
+  spawnnpcmodel: function (
+    server: ZoneServer2015,
+    client: Client,
+    args: any[]
+  ) {
     const guid = server.generateGuid();
     const transientId = 1;
     if (!args[1]) {
@@ -990,7 +1010,11 @@ const hax: any = {
       runSpeed: speed,
     });
   },
-  randomweather: function (server: ZoneServer2015, client: Client, args: any[]) {
+  randomweather: function (
+    server: ZoneServer2015,
+    client: Client,
+    args: any[]
+  ) {
     if (server._dynamicWeatherWorker) {
       clearInterval(server._dynamicWeatherWorker);
       server._dynamicWeatherWorker = null;
