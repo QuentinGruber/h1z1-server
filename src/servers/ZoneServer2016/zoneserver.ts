@@ -2578,7 +2578,6 @@ export class ZoneServer2016 extends ZoneServer2015 {
     itemGuid: string,
     count: number = 1
   ): boolean {
-    console.log(itemGuid)
     if(!this._items[itemGuid]) return false;
     const item = this._items[itemGuid],
     itemDefinition = this.getItemDefinition(item.itemDefinitionId),
