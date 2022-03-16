@@ -1513,7 +1513,13 @@ export class zonePacketHandlers {
             attachedObject: {},
             isIED: false,
           };
-          if(!server.removeInventoryItem(client, server.getItemById(client, packet.data.itemDefinitionId))) return;
+          if (
+            !server.removeInventoryItem(
+              client,
+              server.getItemById(client, packet.data.itemDefinitionId)
+            )
+          )
+            return;
 
           server._explosives[characterId] = npc; // save npc
           setTimeout(function () {
@@ -1531,13 +1537,37 @@ export class zonePacketHandlers {
                     characterId
                   );
                   server.sendDataToAllWithSpawnedEntity(
-                  server._explosives,
+                    server._explosives,
                     characterId,
                     "Character.PlayWorldCompositeEffect",
                     {
                       characterId: characterId,
                       effectId: 1875,
                       position: server._clients[a].character.state.position,
+                    }
+                  );
+                  return;
+                }
+              }
+              for (const a in server._vehicles) {
+                if (
+                  getDistance(
+                    server._vehicles[a].npcData.position,
+                    npc.position
+                  ) < 1.5
+                ) {
+                  server.explosionDamage(
+                    server._explosives[characterId].position,
+                    characterId
+                  );
+                  server.sendDataToAllWithSpawnedEntity(
+                    server._explosives,
+                    characterId,
+                    "Character.PlayWorldCompositeEffect",
+                    {
+                      characterId: characterId,
+                      effectId: 1875,
+                      position: server._vehicles[a].npcData.position,
                     }
                   );
                   return;
