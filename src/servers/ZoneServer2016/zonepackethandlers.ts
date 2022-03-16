@@ -985,6 +985,32 @@ export class zonePacketHandlers {
               },
             ],
           });
+          for (const a in entityData.seats) {
+            server.sendDataToAllWithSpawnedEntity(
+              server._characters,
+              entityData.seats[a],
+              "Mount.DismountResponse",
+              {
+                // dismounts character
+                characterId: entityData.seats[a],
+              }
+            );
+            const seatId = entityData.getCharacterSeat(entityData.seats[a]);
+            server.sendDataToAllWithSpawnedEntity(
+              server._characters,
+              entityData.seats[a],
+              "Mount.MountResponse",
+              {
+                // mounts character
+                characterId: entityData.seats[a],
+                vehicleGuid: entityData.npcData.characterId, // vehicle guid
+                seatId: seatId,
+                unknownDword3: seatId === "0" ? 1 : 0, //isDriver
+                identity: {},
+              }
+            );
+          }
+
           if (entityData.destroyedEffect != 0) {
             server.sendData(client, "Command.PlayDialogEffect", {
               characterId: entityData.npcData.characterId,
