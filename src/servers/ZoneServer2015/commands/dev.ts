@@ -156,7 +156,11 @@ const dev: any = {
       });
     }
   },
-  testnpcrelevance: function (server: ZoneServer2015, client: Client, args: any[]) {
+  testnpcrelevance: function (
+    server: ZoneServer2015,
+    client: Client,
+    args: any[]
+  ) {
     const npcs = Object.values(server._npcs).map((npc: any) => {
       return { guid: npc.characterId };
     });
@@ -243,7 +247,11 @@ const dev: any = {
       server.sendChatText(client, `missing word filter`);
     }
   },
-  reloadpackets: function (server: ZoneServer2015, client: Client, args: any[]) {
+  reloadpackets: function (
+    server: ZoneServer2015,
+    client: Client,
+    args: any[]
+  ) {
     if (args[1]) {
       server.reloadPackets(client, args[1]);
     } else {

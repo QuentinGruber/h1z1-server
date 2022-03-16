@@ -48,19 +48,31 @@ export class zonePacketHandlers {
     packet: any
   ) => void;
   Security: (server: ZoneServer2015, client: Client, packet: any) => void;
-  commandRecipeStart: (server: ZoneServer2015, client: Client, packet: any) => void;
+  commandRecipeStart: (
+    server: ZoneServer2015,
+    client: Client,
+    packet: any
+  ) => void;
   commandFreeInteractionNpc: (
     server: ZoneServer2015,
     client: Client,
     packet: any
   ) => void;
-  collisionDamage: (server: ZoneServer2015, client: Client, packet: any) => void;
+  collisionDamage: (
+    server: ZoneServer2015,
+    client: Client,
+    packet: any
+  ) => void;
   VehicleItemDefinitionRequest: (
     server: ZoneServer2015,
     client: Client,
     packet: any
   ) => void;
-  CurrentMoveMode: (server: ZoneServer2015, client: Client, packet: any) => void;
+  CurrentMoveMode: (
+    server: ZoneServer2015,
+    client: Client,
+    packet: any
+  ) => void;
   lobbyGameDefinitionDefinitionsRequest: (
     server: ZoneServer2015,
     client: Client,
@@ -84,7 +96,11 @@ export class zonePacketHandlers {
     client: Client,
     packet: any
   ) => void;
-  wallOfDataUIEvent: (server: ZoneServer2015, client: Client, packet: any) => void;
+  wallOfDataUIEvent: (
+    server: ZoneServer2015,
+    client: Client,
+    packet: any
+  ) => void;
   SetLocale: (server: ZoneServer2015, client: Client, packet: any) => void;
   GetContinentBattleInfo: (
     server: ZoneServer2015,
@@ -92,7 +108,11 @@ export class zonePacketHandlers {
     packet: any
   ) => void;
   chatChat: (server: ZoneServer2015, client: Client, packet: any) => void;
-  loadoutSelectSlot: (server: ZoneServer2015, client: Client, packet: any) => void;
+  loadoutSelectSlot: (
+    server: ZoneServer2015,
+    client: Client,
+    packet: any
+  ) => void;
   ClientInitializationDetails: (
     server: ZoneServer2015,
     client: Client,
@@ -100,13 +120,21 @@ export class zonePacketHandlers {
   ) => void;
   ClientLogout: (server: ZoneServer2015, client: Client, packet: any) => void;
   GameTimeSync: (server: ZoneServer2015, client: Client, packet: any) => void;
-  Synchronization: (server: ZoneServer2015, client: Client, packet: any) => void;
+  Synchronization: (
+    server: ZoneServer2015,
+    client: Client,
+    packet: any
+  ) => void;
   commandExecuteCommand: (
     server: ZoneServer2015,
     client: Client,
     packet: any
   ) => void;
-  commandSetProfile: (server: ZoneServer2015, client: Client, packet: any) => void;
+  commandSetProfile: (
+    server: ZoneServer2015,
+    client: Client,
+    packet: any
+  ) => void;
   playerUpdateWeaponStance: (
     server: ZoneServer2015,
     client: Client,
@@ -127,7 +155,11 @@ export class zonePacketHandlers {
     client: Client,
     packet: any
   ) => void;
-  commandSetInWater: (server: ZoneServer2015, client: Client, packet: any) => void;
+  commandSetInWater: (
+    server: ZoneServer2015,
+    client: Client,
+    packet: any
+  ) => void;
   commandClearInWater: (
     server: ZoneServer2015,
     client: Client,
@@ -145,7 +177,11 @@ export class zonePacketHandlers {
   ) => void;
   vehicleDismiss: (server: ZoneServer2015, client: Client, packet: any) => void;
   vehicleSpawn: (server: ZoneServer2015, client: Client, packet: any) => void;
-  vehicleAutoMount: (server: ZoneServer2015, client: Client, packet: any) => void;
+  vehicleAutoMount: (
+    server: ZoneServer2015,
+    client: Client,
+    packet: any
+  ) => void;
   commandInteractCancel: (
     server: ZoneServer2015,
     client: Client,
@@ -171,9 +207,21 @@ export class zonePacketHandlers {
     client: Client,
     packet: any
   ) => void;
-  GetRewardBuffInfo: (server: ZoneServer2015, client: Client, packet: any) => void;
-  vehicleStateData: (server: ZoneServer2015, client: Client, packet: any) => void;
-  VehicleAccessType: (server: ZoneServer2015, client: Client, packet: any) => void;
+  GetRewardBuffInfo: (
+    server: ZoneServer2015,
+    client: Client,
+    packet: any
+  ) => void;
+  vehicleStateData: (
+    server: ZoneServer2015,
+    client: Client,
+    packet: any
+  ) => void;
+  VehicleAccessType: (
+    server: ZoneServer2015,
+    client: Client,
+    packet: any
+  ) => void;
   PlayerUpdateManagedPosition: (
     server: ZoneServer2015,
     client: Client,
@@ -209,7 +257,11 @@ export class zonePacketHandlers {
     client: Client,
     packet: any
   ) => void;
-  commandRedeploy: (server: ZoneServer2015, client: Client, packet: any) => void;
+  commandRedeploy: (
+    server: ZoneServer2015,
+    client: Client,
+    packet: any
+  ) => void;
   mountSeatChangeRequest: (
     server: ZoneServer2015,
     client: Client,
@@ -313,7 +365,11 @@ export class zonePacketHandlers {
       delete client.vehicle.mountedVehicle;
       client.vehicle.mountedVehicleType = "0";
     };
-    this.Security = function (server: ZoneServer2015, client: Client, packet: any) {
+    this.Security = function (
+      server: ZoneServer2015,
+      client: Client,
+      packet: any
+    ) {
       debug(packet);
     };
     this.commandRecipeStart = function (
@@ -454,7 +510,11 @@ export class zonePacketHandlers {
         ],
       });
     };
-    this.chatChat = function (server: ZoneServer2015, client: Client, packet: any) {
+    this.chatChat = function (
+      server: ZoneServer2015,
+      client: Client,
+      packet: any
+    ) {
       const { channel, message } = packet.data;
       server.sendChat(client, message, channel);
     };

@@ -17,7 +17,11 @@ import { ZoneClient2016 } from "../servers/ZoneServer2016/classes/zoneclient";
 import { ZoneServer2016 } from "../servers/ZoneServer2016/zoneserver";
 
 export interface HandledZonePackets {
-  ClientIsReady: (server: ZoneServer2015, client: ZoneClient, packet: any) => void;
+  ClientIsReady: (
+    server: ZoneServer2015,
+    client: ZoneClient,
+    packet: any
+  ) => void;
   ClientFinishedLoading: (
     server: ZoneServer2015,
     client: ZoneClient,
@@ -72,7 +76,11 @@ export interface HandledZonePackets {
     client: ZoneClient,
     packet: any
   ) => void;
-  "Chat.Chat": (server: ZoneServer2015, client: ZoneClient, packet: any) => void;
+  "Chat.Chat": (
+    server: ZoneServer2015,
+    client: ZoneClient,
+    packet: any
+  ) => void;
   "Loadout.SelectSlot": (
     server: ZoneServer2015,
     client: ZoneClient,
@@ -83,8 +91,16 @@ export interface HandledZonePackets {
     client: ZoneClient,
     packet: any
   ) => void;
-  ClientLogout: (server: ZoneServer2015, client: ZoneClient, packet: any) => void;
-  GameTimeSync: (server: ZoneServer2015, client: ZoneClient, packet: any) => void;
+  ClientLogout: (
+    server: ZoneServer2015,
+    client: ZoneClient,
+    packet: any
+  ) => void;
+  GameTimeSync: (
+    server: ZoneServer2015,
+    client: ZoneClient,
+    packet: any
+  ) => void;
   Synchronization: (
     server: ZoneServer2015,
     client: ZoneClient,

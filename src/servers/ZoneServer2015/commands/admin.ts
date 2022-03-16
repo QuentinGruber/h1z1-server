@@ -23,7 +23,11 @@ const admin: any = {
       `/admin commands list: \n/admin ${Object.keys(this).join("\n/admin ")}`
     );
   },
-  shutdown: async function (server: ZoneServer2015, client: Client, args: any[]) {
+  shutdown: async function (
+    server: ZoneServer2015,
+    client: Client,
+    args: any[]
+  ) {
     const timeLeft = args[1] ? args[1] : 0;
     const message = args[2] ? args[2] : " ";
     const startedTime = Date.now();
