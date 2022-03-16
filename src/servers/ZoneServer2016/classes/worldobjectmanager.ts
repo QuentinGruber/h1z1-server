@@ -312,6 +312,7 @@ export class WorldObjectManager {
       modelId: modelId,
       position: position,
       rotation: rotation,
+      color: { r: 0, g: 0, b: 255 },
       spawnerId: itemSpawnerId || 0,
       itemGuid: itemGuid || server.generateItem(itemDefinitionId),
       stackCount: stackCount,
