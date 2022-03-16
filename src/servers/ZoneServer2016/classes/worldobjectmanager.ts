@@ -22,6 +22,7 @@ import {
   generateRandomGuid,
   isPosInRadius,
   eul2quat,
+  randomIntFromInterval,
 } from "../../../utils/utils";
 import { Vehicle2016 as Vehicle } from "./../classes/vehicle";
 const debug = require("debug")("ZoneServer");
@@ -62,13 +63,13 @@ function createDoor(
   scale: Array<number>,
   texture: string,
   zoneId: number,
-  dictionnary: any,
+  dictionary: any,
   renderDistance: number
 ): void {
   const guid = generateRandomGuid();
   const characterId = generateRandomGuid();
   let openAngle = startRot[0] + 1.575;
-  dictionnary[characterId] = {
+  dictionary[characterId] = {
     worldId: server._worldId,
     zoneId: zoneId,
     isOpen: false,
@@ -95,13 +96,10 @@ function getRandomItem(authorizedItems: Array<{ id: number; count: number }>) {
   return authorizedItems[Math.floor(Math.random() * authorizedItems.length)];
 }
 
-function getItemSpawnCount(min: number, max: number) {
-  return Math.floor(Math.random() * (max - min) + min);
-}
-
 export class WorldObjectManager {
   eItems: any = {
     WEAPON_AR15: 2425,
+    WEAPON_AK47: 2661,
     AMMO_223: 1429,
     WEAPON_SHOTGUN: 2663,
     AMMO_12GA: 1511,
@@ -126,7 +124,7 @@ export class WorldObjectManager {
     WEAPON_M9: 1997,
     AMMO_1911: 1428,
     AMMO_9MM: 1998, // TODO: assign it to a spawner
-    WEAPON_308: 1899,
+    WEAPON_308: 1373,
     AMMO_308: 1469,
     FIRST_AID: 2424,
     GROUND_COFFEE: 56, // TODO: expand with more canned food types
@@ -167,6 +165,7 @@ export class WorldObjectManager {
     RESPIRATOR: 2148,
     AMMO_380: 1992,
     AMMO_762: 2325,
+    AMMO_44: 1719,
     NV_GOGGLES: 1700,
     WEAPON_MOLOTOV: 14,
     WEAPON_MAGNUM: 1718,
@@ -313,6 +312,7 @@ export class WorldObjectManager {
       modelId: modelId,
       position: position,
       rotation: rotation,
+      color: { r: 0, g: 0, b: 255 },
       spawnerId: itemSpawnerId || 0,
       itemGuid: itemGuid || server.generateItem(itemDefinitionId),
       stackCount: stackCount,
@@ -506,13 +506,13 @@ export class WorldObjectManager {
       case "ItemSpawner_AmmoBox02_M16A4.adr":
         authorizedItems.push({
           id: this.eItems.AMMO_223,
-          count: getItemSpawnCount(5, 10),
+          count: randomIntFromInterval(5, 10),
         });
         break;
       case "ItemSpawner_AmmoBox02.adr":
         authorizedItems.push({
           id: this.eItems.AMMO_223,
-          count: getItemSpawnCount(1, 5),
+          count: randomIntFromInterval(1, 5),
         });
         break;
       default:
@@ -547,7 +547,7 @@ export class WorldObjectManager {
       case "ItemSpawner_AmmoBox02_12GaShotgun.adr":
         authorizedItems.push({
           id: this.eItems.AMMO_12GA,
-          count: getItemSpawnCount(1, 3),
+          count: randomIntFromInterval(1, 3),
         });
         break;
       default:
@@ -661,7 +661,7 @@ export class WorldObjectManager {
       case "ItemSpawner_AmmoBox02_1911.adr":
         authorizedItems.push({
           id: this.eItems.AMMO_1911,
-          count: getItemSpawnCount(1, 5),
+          count: randomIntFromInterval(1, 5),
         }); //todo: find item spawner for m9 ammo
         break;
       default:
@@ -697,7 +697,7 @@ export class WorldObjectManager {
       case "ItemSpawner_AmmoBox02_308Rifle.adr":
         authorizedItems.push({
           id: this.eItems.AMMO_308,
-          count: getItemSpawnCount(2, 4),
+          count: randomIntFromInterval(2, 4),
         });
         break;
       default:
@@ -819,8 +819,16 @@ export class WorldObjectManager {
         authorizedItems.push({ id: this.eItems.LIGHTER, count: 1 });
         authorizedItems.push({ id: this.eItems.WATER_EMPTY, count: 1 });
         authorizedItems.push({ id: this.eItems.WATER_PURE, count: 1 });
-        authorizedItems.push({ id: this.eItems.AMMO_1911, count: 1 });
-        authorizedItems.push({ id: this.eItems.AMMO_9MM, count: 1 });
+        authorizedItems.push({ id: this.eItems.AMMO_1911, count: randomIntFromInterval(1, 5) });
+        authorizedItems.push({ id: this.eItems.AMMO_9MM, count: randomIntFromInterval(1, 5) });
+        authorizedItems.push({ id: this.eItems.AMMO_380, count: randomIntFromInterval(1, 5) });
+        authorizedItems.push({ id: this.eItems.AMMO_44, count: randomIntFromInterval(1, 5) });
+
+        authorizedItems.push({ id: this.eItems.AMMO_223, count: randomIntFromInterval(1, 5) });
+        authorizedItems.push({ id: this.eItems.AMMO_762, count: randomIntFromInterval(1, 5) });
+        authorizedItems.push({ id: this.eItems.AMMO_308, count: randomIntFromInterval(1, 3) });
+        authorizedItems.push({ id: this.eItems.AMMO_12GA, count: randomIntFromInterval(1, 3) });
+
         authorizedItems.push({ id: this.eItems.SPARKPLUGS, count: 1 });
         authorizedItems.push({ id: this.eItems.FIRST_AID, count: 1 });
         authorizedItems.push({ id: this.eItems.WEAPON_BINOCULARS, count: 1 });
@@ -855,38 +863,24 @@ export class WorldObjectManager {
     const authorizedItems: Array<{ id: number; count: number }> = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawnerRare_Tier00.adr":
-        authorizedItems.push({
-          id: this.eItems.AMMO_1911,
-          count: getItemSpawnCount(1, 5),
-        });
-        authorizedItems.push({
-          id: this.eItems.AMMO_9MM,
-          count: getItemSpawnCount(1, 5),
-        });
-        authorizedItems.push({
-          id: this.eItems.AMMO_380,
-          count: getItemSpawnCount(1, 5),
-        });
-        authorizedItems.push({
-          id: this.eItems.AMMO_223,
-          count: getItemSpawnCount(1, 4),
-        });
-        authorizedItems.push({
-          id: this.eItems.AMMO_762,
-          count: getItemSpawnCount(1, 4),
-        });
-        authorizedItems.push({
-          id: this.eItems.AMMO_308,
-          count: getItemSpawnCount(1, 3),
-        });
-        authorizedItems.push({
-          id: this.eItems.AMMO_12GA,
-          count: getItemSpawnCount(1, 3),
-        });
+        authorizedItems.push({ id: this.eItems.AMMO_1911, count: randomIntFromInterval(1, 8) });
+        authorizedItems.push({ id: this.eItems.AMMO_9MM, count: randomIntFromInterval(1, 8) });
+        authorizedItems.push({ id: this.eItems.AMMO_380, count: randomIntFromInterval(1, 8) });
+        authorizedItems.push({ id: this.eItems.AMMO_44, count: randomIntFromInterval(1, 8) });
+
+        authorizedItems.push({ id: this.eItems.AMMO_223, count: randomIntFromInterval(1, 8) });
+        authorizedItems.push({ id: this.eItems.AMMO_762, count: randomIntFromInterval(1, 8) });
+        authorizedItems.push({ id: this.eItems.AMMO_308, count: randomIntFromInterval(1, 5) });
+        authorizedItems.push({ id: this.eItems.AMMO_12GA, count: randomIntFromInterval(1, 5) });
+
         authorizedItems.push({ id: this.eItems.WEAPON_45, count: 1 });
+        authorizedItems.push({ id: this.eItems.WEAPON_M9, count: 1 });
+        authorizedItems.push({ id: this.eItems.WEAPON_R380, count: 1 });
+        authorizedItems.push({ id: this.eItems.WEAPON_MAGNUM, count: 1 });
         authorizedItems.push({ id: this.eItems.WEAPON_308, count: 1 });
         authorizedItems.push({ id: this.eItems.WEAPON_SHOTGUN, count: 1 });
         authorizedItems.push({ id: this.eItems.WEAPON_AR15, count: 1 });
+        authorizedItems.push({ id: this.eItems.WEAPON_AK47, count: 1 });
         break;
       default:
         break;
@@ -935,24 +929,24 @@ export class WorldObjectManager {
         authorizedItems.push({ id: this.eItems.WATER_EMPTY, count: 1 });
         authorizedItems.push({
           id: this.eItems.WOOD_PLANK,
-          count: getItemSpawnCount(1, 5),
+          count: randomIntFromInterval(1, 5),
         });
         authorizedItems.push({
           id: this.eItems.METAL_SHEET,
-          count: getItemSpawnCount(1, 3),
+          count: randomIntFromInterval(1, 3),
         });
         authorizedItems.push({
           id: this.eItems.METAL_SCRAP,
-          count: getItemSpawnCount(1, 4),
+          count: randomIntFromInterval(1, 4),
         });
         authorizedItems.push({
           id: this.eItems.WEAPON_PIPE,
-          count: getItemSpawnCount(1, 2),
+          count: randomIntFromInterval(1, 2),
         });
         authorizedItems.push({ id: this.eItems.WEAPON_AXE_WOOD, count: 1 });
         authorizedItems.push({
           id: this.eItems.TARP,
-          count: getItemSpawnCount(1, 2),
+          count: randomIntFromInterval(1, 2),
         }); // tarp
         break;
       default:
@@ -1025,7 +1019,7 @@ export class WorldObjectManager {
       case "ItemSpawner_Log01.adr":
         authorizedItems.push({
           id: this.eItems.WOOD_LOG,
-          count: getItemSpawnCount(1, 4),
+          count: randomIntFromInterval(1, 4),
         }); // log
         break;
       default:
@@ -1097,11 +1091,11 @@ export class WorldObjectManager {
         authorizedItems.push({ id: this.eItems.WEAPON_AXE_WOOD, count: 1 });
         authorizedItems.push({
           id: this.eItems.SEED_CORN,
-          count: getItemSpawnCount(1, 3),
+          count: randomIntFromInterval(1, 3),
         });
         authorizedItems.push({
           id: this.eItems.SEED_WHEAT,
-          count: getItemSpawnCount(1, 3),
+          count: randomIntFromInterval(1, 3),
         });
         authorizedItems.push({ id: this.eItems.WEAPON_HATCHET, count: 1 });
         authorizedItems.push({ id: this.eItems.WATER_EMPTY, count: 1 });
@@ -1137,15 +1131,15 @@ export class WorldObjectManager {
         authorizedItems.push({ id: this.eItems.MRE_APPLE, count: 1 });
         authorizedItems.push({
           id: this.eItems.BANDAGE,
-          count: getItemSpawnCount(1, 2),
+          count: randomIntFromInterval(1, 2),
         });
         authorizedItems.push({
           id: this.eItems.VIAL_EMPTY,
-          count: getItemSpawnCount(1, 2),
+          count: randomIntFromInterval(1, 2),
         });
         authorizedItems.push({
           id: this.eItems.SYRINGE_EMPTY,
-          count: getItemSpawnCount(1, 2),
+          count: randomIntFromInterval(1, 2),
         });
         authorizedItems.push({ id: this.eItems.SHIRT_DEFAULT, count: 1 });
         authorizedItems.push({ id: this.eItems.PANTS_DEFAULT, count: 1 });
@@ -1190,31 +1184,35 @@ export class WorldObjectManager {
         //ammo
         authorizedItems.push({
           id: this.eItems.AMMO_1911,
-          count: getItemSpawnCount(1, 10),
+          count: randomIntFromInterval(1, 10),
         });
         authorizedItems.push({
           id: this.eItems.AMMO_9MM,
-          count: getItemSpawnCount(1, 10),
+          count: randomIntFromInterval(1, 10),
         });
         authorizedItems.push({
           id: this.eItems.AMMO_380,
-          count: getItemSpawnCount(1, 10),
+          count: randomIntFromInterval(1, 10),
+        });
+        authorizedItems.push({
+          id: this.eItems.AMMO_44,
+          count: randomIntFromInterval(1, 10),
         });
         authorizedItems.push({
           id: this.eItems.AMMO_223,
-          count: getItemSpawnCount(1, 10),
+          count: randomIntFromInterval(1, 10),
         });
         authorizedItems.push({
           id: this.eItems.AMMO_762,
-          count: getItemSpawnCount(1, 10),
+          count: randomIntFromInterval(1, 10),
         });
         authorizedItems.push({
           id: this.eItems.AMMO_308,
-          count: getItemSpawnCount(1, 5),
+          count: randomIntFromInterval(1, 5),
         });
         authorizedItems.push({
           id: this.eItems.AMMO_12GA,
-          count: getItemSpawnCount(1, 6),
+          count: randomIntFromInterval(1, 6),
         });
 
         authorizedItems.push({ id: this.eItems.NV_GOGGLES, count: 1 });
@@ -1225,11 +1223,11 @@ export class WorldObjectManager {
         authorizedItems.push({ id: this.eItems.WEAPON_MAGNUM, count: 1 });
         authorizedItems.push({
           id: this.eItems.AMMO_308,
-          count: getItemSpawnCount(1, 5),
+          count: randomIntFromInterval(1, 5),
         });
         authorizedItems.push({
           id: this.eItems.AMMO_12GA,
-          count: getItemSpawnCount(1, 6),
+          count: randomIntFromInterval(1, 6),
         });
         authorizedItems.push({ id: this.eItems.GUNPOWDER, count: 1 });
         authorizedItems.push({ id: this.eItems.LANDMINE, count: 1 });
@@ -1242,27 +1240,27 @@ export class WorldObjectManager {
         authorizedItems.push({ id: this.eItems.METAL_SCRAP, count: 1 });
         authorizedItems.push({
           id: this.eItems.CLOTH,
-          count: getItemSpawnCount(1, 5),
+          count: randomIntFromInterval(1, 5),
         });
         authorizedItems.push({ id: this.eItems.WEAPON_FLASHLIGHT, count: 1 });
         authorizedItems.push({
           id: this.eItems.TARP,
-          count: getItemSpawnCount(1, 2),
+          count: randomIntFromInterval(1, 2),
         });
         authorizedItems.push({ id: this.eItems.MRE_APPLE, count: 1 });
         break;
       case "ItemSpawner_Z1_MilitaryBase_Hangar.adr": // industrial
         authorizedItems.push({
           id: this.eItems.METAL_SHEET,
-          count: getItemSpawnCount(1, 3),
+          count: randomIntFromInterval(1, 3),
         });
         authorizedItems.push({
           id: this.eItems.METAL_SCRAP,
-          count: getItemSpawnCount(1, 4),
+          count: randomIntFromInterval(1, 4),
         });
         authorizedItems.push({
           id: this.eItems.WEAPON_PIPE,
-          count: getItemSpawnCount(1, 2),
+          count: randomIntFromInterval(1, 2),
         });
 
         authorizedItems.push({ id: this.eItems.WEAPON_CROWBAR, count: 1 });

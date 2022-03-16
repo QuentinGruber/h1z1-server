@@ -27,6 +27,8 @@ let admin = require("./commands/admin").default;
 
 import { _, Int64String, isPosInRadius, getDistance } from "../../utils/utils";
 
+import { CraftManager } from "./classes/craftmanager"
+
 export class zonePacketHandlers {
   hax: any = hax;
   dev: any = dev;
@@ -81,6 +83,8 @@ export class zonePacketHandlers {
       packet: any
     ) {
       server.sendData(client, "ClientBeginZoning", {
+        position: client.character.state.position,
+        rotation: client.character.state.lookAt,
         skyData: server._weather2016,
       }); // Needed for trees
 
@@ -187,6 +191,7 @@ export class zonePacketHandlers {
         characterId: client.character.characterId,
         stance: 1,
       });
+      server.giveStartingItems(client, true, true);
     };
     this.ClientFinishedLoading = function (
       server: ZoneServer2016,
@@ -225,8 +230,6 @@ export class zonePacketHandlers {
           server.sendZonePopulationUpdate();
         }
         server.executeFuncForAllReadyClients(() => server.spawnCharacters);
-        server.lootItem(client, server.generateItem(1985), 1); // map
-        server.lootItem(client, server.generateItem(1441), 1); // compass
       }
 
       client.isLoading = false;
@@ -243,8 +246,7 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      debug(packet);
-      server.craftItem(client, packet.data.recipeId, packet.data.count);
+      new CraftManager(client, server, packet.data.recipeId, packet.data.count);
     };
     this.CommandSetInWater = function (
       server: ZoneServer2016,
@@ -351,24 +353,24 @@ export class zonePacketHandlers {
         ],
       });
     };
-    (this.chatChat = function (
+    this.chatChat = function (
       server: ZoneServer2016,
       client: Client,
       packet: any
     ) {
       const { channel, message } = packet.data;
       server.sendChat(client, message, channel);
-    }),
-      (this.ClientInitializationDetails = function (
-        server: ZoneServer2016,
-        client: Client,
-        packet: any
-      ) {
-        // just in case
-        if (packet.data.unknownDword1) {
-          debug("ClientInitializationDetails : ", packet.data.unknownDword1);
-        }
-      });
+    },
+    this.ClientInitializationDetails = function (
+      server: ZoneServer2016,
+      client: Client,
+      packet: any
+    ) {
+      // just in case
+      if (packet.data.unknownDword1) {
+        debug("ClientInitializationDetails : ", packet.data.unknownDword1);
+      }
+    };
     this.ClientLogout = function (
       server: ZoneServer2016,
       client: Client,
@@ -399,7 +401,7 @@ export class zonePacketHandlers {
         time3: packet.data.clientTime + 2,
       });
     };
-    (this.commandExecuteCommand = async function (
+    this.commandExecuteCommand = async function (
       server: ZoneServer2016,
       client: Client,
       packet: any
@@ -509,8 +511,6 @@ export class zonePacketHandlers {
             "/loc",
             "/spawninfo",
             "/serverinfo",
-            "/player_air_control",
-            "/player_fall_through_world_test",
           ];
           server.sendChatText(client, `Commands list:`);
           commandList
@@ -596,44 +596,44 @@ export class zonePacketHandlers {
           }
           break;
       }
-    }),
-      (this.commandInteractRequest = function (
-        server: ZoneServer2016,
-        client: Client,
+    },
+    this.commandInteractRequest = function (
+      server: ZoneServer2016,
+      client: Client,
         packet: any
-      ) {
-        server.sendData(client, "Command.InteractionString", {
-          guid: packet.data.guid,
-          stringId: 5463,
-          unknown4: 0,
-        });
-        server.sendData(client, "Command.InteractionList", {
-          guid: packet.data.guid,
-          unknownBoolean1: true,
-          unknownArray1: [
-            {
-              unknownDword1: 11,
-              unknownDword2: 0,
-              unknownDword3: 5463,
-              unknownDword4: 51,
-              unknownDword5: 1,
-              unknownDword6: 0,
-              unknownDword7: 0,
-            },
-          ],
-          unknownString1: "",
-          unknownBoolean2: true,
-          unknownArray2: [],
-          unknownBoolean3: false,
-        });
-      }),
-      (this.commandInteractCancel = function (
-        server: ZoneServer2016,
-        client: Client,
-        packet: any
-      ) {
-        debug("Interaction Canceled");
+    ) {
+      server.sendData(client, "Command.InteractionString", {
+        guid: packet.data.guid,
+        stringId: 5463,
+        unknown4: 0,
       });
+      server.sendData(client, "Command.InteractionList", {
+        guid: packet.data.guid,
+        unknownBoolean1: true,
+        unknownArray1: [
+          {
+            unknownDword1: 11,
+            unknownDword2: 0,
+            unknownDword3: 5463,
+            unknownDword4: 51,
+            unknownDword5: 1,
+            unknownDword6: 0,
+            unknownDword7: 0,
+          },
+        ],
+        unknownString1: "",
+        unknownBoolean2: true,
+        unknownArray2: [],
+        unknownBoolean3: false,
+      });
+    },
+    this.commandInteractCancel = function (
+      server: ZoneServer2016,
+      client: Client,
+      packet: any
+    ) {
+      debug("Interaction Canceled");
+    };
     this.commandStartLogoutRequest = function (
       server: ZoneServer2016,
       client: Client,
@@ -715,7 +715,8 @@ export class zonePacketHandlers {
         vehicle = characterId ? server._vehicles[characterId] : undefined;
       if (!vehicle) return;
       //if (!server._soloMode) {
-      server.sendDataToAllOthersWithSpawnedVehicle(
+      server.sendDataToAllOthersWithSpawnedEntity(
+        server._vehicles,
         client,
         characterId,
         "PlayerUpdatePosition",
@@ -762,7 +763,8 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      server.sendDataToAllOthersWithSpawnedVehicle(
+      server.sendDataToAllOthersWithSpawnedEntity(
+        server._vehicles,
         client,
         packet.data.guid,
         "Vehicle.StateData",
@@ -776,6 +778,9 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
+      if (packet.data.flags === 513) { // head rotation when in vehicle, client spams this packet every 1ms even if you dont move, disabled for now(it doesnt work anyway)
+        return;
+      }
       if (packet.data.flags === 510) {
         client.vehicle.falling = packet.data.unknown10_float;
       }
@@ -980,6 +985,32 @@ export class zonePacketHandlers {
               },
             ],
           });
+          for (const a in entityData.seats) {
+            server.sendDataToAllWithSpawnedEntity(
+              server._characters,
+              entityData.seats[a],
+              "Mount.DismountResponse",
+              {
+                // dismounts character
+                characterId: entityData.seats[a],
+              }
+            );
+            const seatId = entityData.getCharacterSeat(entityData.seats[a]);
+            server.sendDataToAllWithSpawnedEntity(
+              server._characters,
+              entityData.seats[a],
+              "Mount.MountResponse",
+              {
+                // mounts character
+                characterId: entityData.seats[a],
+                vehicleGuid: entityData.npcData.characterId, // vehicle guid
+                seatId: seatId,
+                unknownDword3: seatId === "0" ? 1 : 0, //isDriver
+                identity: {},
+              }
+            );
+          }
+
           if (entityData.destroyedEffect != 0) {
             server.sendData(client, "Command.PlayDialogEffect", {
               characterId: entityData.npcData.characterId,
@@ -994,18 +1025,39 @@ export class zonePacketHandlers {
           }
           break;
         case 3: // characters
-          server.sendData(client, "LightweightToFullPc", {
-            positionUpdate: server.createPositionUpdate(
-              entityData.state.position,
-              entityData.state.rotation
-            ),
-            stats: [],
-            fullPcData: {
-              transientId: entityData.transientId,
-              attachmentData: [],
-              unknownData1: {},
-              effectTags: [],
-            },
+          server.sendData(client, "LightweightToFullNpc", {
+            transientId: entityData.transientId,
+            attachmentData: [
+              /*
+              {
+                modelName: "SurvivorMale_Chest_Hoodie_Up_Tintable.adr",
+                effectId: 0,
+                slotId: 3,
+              },*/
+            ],
+            effectTags: [],
+            unknownData1: {},
+            targetData: {},
+            unknownArray1: [],
+            unknownArray2: [],
+            //unknownArray3: {/*data:[]*/},
+            //resources: {/*
+            //  data:[
+            /*{
+                  resourceId: 1,
+                  resourceData: {
+                    resourceId: 1,
+                    resourceType: 1,
+                    value: 10000
+                  }
+                }
+              ]*/
+            //},
+            //unknownArray4: {/*unknownArray1:[], unknownArray2:[]*/},
+            //unknownArray5: {/*data:[]*/},
+            //unknownArray6: {/*data:[]*/},
+            //remoteWeapons: {/*data:[]*/},
+            //itemsData: {/*data:[]*/}
           });
           entityData._equipment[1] = {
             // temporary to fix missing heads
@@ -1070,17 +1122,46 @@ export class zonePacketHandlers {
           let openSound = 5048;
           let closeSound = 5049;
           switch (entityData.modelId) {
-            case 9231:
+            case 9009:
+            case 9165:
+            case 9167:
+            case 9169:
+            case 9171:
+            case 9497:
+            case 9904:
+            case 9905:
+            case 9333:
+            case 9334:
+            case 9335:
+              openSound = 5048;
+              closeSound = 5049;
+              break;
+            case 9136:
+              openSound = 5091;
+              closeSound = 5092;
+              break;
             case 9224:
             case 9232:
             case 9233:
-              openSound = 5087;
-              closeSound = 5088;
-              break;
-            case 9246:
-            case 9495:
               openSound = 5089;
               closeSound = 5090;
+              break;
+            case 9243:
+              openSound = 5093;
+              closeSound = 5094;
+              break;
+            case 9903:
+            case 9246:
+            case 9498:
+              openSound = 5095;
+              closeSound = 5096;
+              break;
+            case 9452:
+            case 9453:
+            case 9454:
+            case 9455:
+              openSound = 5083;
+              closeSound = 5084;
               break;
             case 9183:
             case 9184:
@@ -1239,8 +1320,10 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      server.sendDataToAllOthersWithSpawnedCharacter(
+      server.sendDataToAllOthersWithSpawnedEntity(
+        server._characters,
         client,
+        client.character.characterId,
         "Character.WeaponStance",
         {
           characterId: client.character.characterId,
@@ -1355,276 +1438,337 @@ export class zonePacketHandlers {
       const modelId = server.getItemDefinition(
         packet.data.itemDefinitionId
       ).PLACEMENT_MODEL_ID;
-      if (packet.data.itemDefinitionId == 1699) {
-        const characterId = server.generateGuid();
-        const guid = server.generateGuid();
-        const transientId = server.getTransientId(guid);
-        const npc = {
-          characterId: characterId,
-          guid: guid,
-          transientId: transientId,
-          modelId: 9176,
-          position: client.character.state.position,
-          rotation: client.character.state.lookAt,
-          color: {},
-          attachedObject: {},
-          isIED: true,
-        };
-        Object.keys(client.character._containers).forEach((loadoutSlotId) => {
-          const container = client.character._containers[Number(loadoutSlotId)];
-          for (const itemGuid in container.items) {
-            const item = container.items[itemGuid];
-            if (item.itemDefinitionId == packet.data.itemDefinitionId) {
-              server.removeInventoryItem(client, item.itemGuid, 1);
-            }
-          }
-        });
-        server._explosives[characterId] = npc; // save npc
-      } else if (packet.data.itemDefinitionId == 74) {
-        const characterId = server.generateGuid();
-        const guid = server.generateGuid();
-        const transientId = server.getTransientId(guid);
-        const npc = {
-          characterId: characterId,
-          guid: guid,
-          transientId: transientId,
-          modelId: 9176,
-          position: client.character.state.position,
-          rotation: client.character.state.lookAt,
-          color: {},
-          attachedObject: {},
-          isIED: false,
-        };
-        Object.keys(client.character._containers).forEach((loadoutSlotId) => {
-          const container = client.character._containers[Number(loadoutSlotId)];
-          for (const itemGuid in container.items) {
-            const item = container.items[itemGuid];
-            if (item.itemDefinitionId == packet.data.itemDefinitionId) {
-              server.removeInventoryItem(client, item.itemGuid, 1);
-            }
-          }
-        });
-        server._explosives[characterId] = npc; // save npc
-        setTimeout(function () {
-          // arming time
-          server._explosives[characterId].mineTimer = setTimeout(() => {
-            for (const a in server._clients) {
-              if (
-                getDistance(
-                  server._clients[a].character.state.position,
-                  npc.position
-                ) < 0.6
-              ) {
-                server.explosionDamage(
-                  server._explosives[characterId].position,
-                  characterId
-                );
-                server.sendDataToAllWithSpawnedExplosive(
-                  characterId,
-                  "Character.PlayWorldCompositeEffect",
-                  {
-                    characterId: characterId,
-                    effectId: 1875,
-                    position: server._clients[a].character.state.position,
-                  }
-                );
-                delete server._explosives[characterId];
-              }
-            }
-            if (server._explosives[characterId]) {
-              server._explosives[characterId].mineTimer.refresh();
-            }
-          }, 100);
-        }, 5000);
-      } else if (packet.data.itemDefinitionId == 98) {
-        const characterId = server.generateGuid();
-        const guid = server.generateGuid();
-        const transientId = server.getTransientId(guid);
-        const npc = {
-          characterId: characterId,
-          guid: guid,
-          transientId: transientId,
-          modelId: 56,
-          position: client.character.state.position,
-          rotation: client.character.state.lookAt,
-          color: {},
-          attachedObject: {},
-          realHealth: 100000,
-          health: 100,
-        };
-        Object.keys(client.character._containers).forEach((loadoutSlotId) => {
-          const container = client.character._containers[Number(loadoutSlotId)];
-          for (const itemGuid in container.items) {
-            const item = container.items[itemGuid];
-            if (item.itemDefinitionId == packet.data.itemDefinitionId) {
-              server.removeInventoryItem(client, item.itemGuid, 1);
-            }
-          }
-        });
-        server._traps[characterId] = npc; // save npc
-        setTimeout(function () {
-          // arming time
-          server._traps[characterId].trapTimer = setTimeout(() => {
-            for (const a in server._clients) {
-              if (
-                getDistance(
-                  server._clients[a].character.state.position,
-                  npc.position
-                ) < 1.5
-              ) {
-                server.playerDamage(server._clients[a], 100);
-                server.sendDataToAllWithSpawnedTrap(
-                  characterId,
-                  "Character.PlayWorldCompositeEffect",
-                  {
-                    characterId: characterId,
-                    effectId: 5116,
-                    position: server._clients[a].character.state.position,
-                  }
-                );
+      let characterId: string;
+      let guid: string;
+      let transientId: number;
+      let npc: any = {};
+      switch (packet.data.itemDefinitionId) {
+        case 1804:
+        case 4:
+        case 156:
+        case 1461:
+        case 1531:
+          // flare
+          characterId = server.generateGuid();
+          guid = server.generateGuid();
+          transientId = server.getTransientId(guid);
+          npc = {
+            characterId: characterId,
+            guid: guid,
+            transientId: transientId,
+            modelId: 1,
+            position: client.character.state.position,
+            rotation: client.character.state.lookAt,
+            color: {},
+            attachedObject: {},
+            staticEffectId: true,
+          };
 
-                server.sendDataToAllWithSpawnedTrap(
-                  characterId,
-                  "Character.UpdateSimpleProxyHealth",
-                  {
-                    characterId: characterId,
-                    health: server._traps[characterId].health,
-                  }
-                );
-                server._traps[characterId].realHealth -= 1000;
-                server._traps[characterId].health = Math.floor(
-                  server._traps[characterId].realHealth / 1000
-                );
-              }
-            }
+          if(!server.removeInventoryItem(client, server.getItemById(client, packet.data.itemDefinitionId))) return;
 
-            if (server._traps[characterId].realHealth > 0) {
-              server._traps[characterId].trapTimer.refresh();
-            } else {
-              server.sendDataToAllWithSpawnedTrap(
-                characterId,
-                "Character.PlayWorldCompositeEffect",
-                {
-                  characterId: characterId,
-                  effectId: 163,
-                  position: server._traps[characterId].position,
+          server._temporaryObjects[characterId] = npc; // save npc
+          setTimeout(function () {
+            server.sendDataToAllWithSpawnedTemporaryObject(
+              characterId,
+              "Character.RemovePlayer",
+              {
+                characterId: characterId,
+              }
+            );
+          }, 900000);
+          break;
+        case 1699:
+          // IED
+          characterId = server.generateGuid();
+          guid = server.generateGuid();
+          transientId = server.getTransientId(guid);
+          npc = {
+            characterId: characterId,
+            guid: guid,
+            transientId: transientId,
+            modelId: 9176,
+            position: client.character.state.position,
+            rotation: client.character.state.lookAt,
+            color: {},
+            attachedObject: {},
+            isIED: true,
+          };
+          if(!server.removeInventoryItem(client, server.getItemById(client, packet.data.itemDefinitionId))) return;
+
+          server._explosives[characterId] = npc; // save npc
+          break;
+        case 74:
+          // land mine
+          characterId = server.generateGuid();
+          guid = server.generateGuid();
+          transientId = server.getTransientId(guid);
+          npc = {
+            characterId: characterId,
+            guid: guid,
+            transientId: transientId,
+            modelId: 9176,
+            position: client.character.state.position,
+            rotation: client.character.state.lookAt,
+            color: {},
+            attachedObject: {},
+            isIED: false,
+          };
+          if (
+            !server.removeInventoryItem(
+              client,
+              server.getItemById(client, packet.data.itemDefinitionId)
+            )
+          )
+            return;
+
+          server._explosives[characterId] = npc; // save npc
+          setTimeout(function () {
+            // arming time
+            server._explosives[characterId].mineTimer = setTimeout(() => {
+              for (const a in server._clients) {
+                if (
+                  getDistance(
+                    server._clients[a].character.state.position,
+                    npc.position
+                  ) < 0.6
+                ) {
+                  server.explosionDamage(
+                    server._explosives[characterId].position,
+                    characterId
+                  );
+                  server.sendDataToAllWithSpawnedEntity(
+                    server._explosives,
+                    characterId,
+                    "Character.PlayWorldCompositeEffect",
+                    {
+                      characterId: characterId,
+                      effectId: 1875,
+                      position: server._clients[a].character.state.position,
+                    }
+                  );
+                  return;
                 }
-              );
-              server.sendDataToAllWithSpawnedTrap(
-                characterId,
-                "Character.RemovePlayer",
-                {
-                  characterId: server._traps[characterId].characterId,
+              }
+              for (const a in server._vehicles) {
+                if (
+                  getDistance(
+                    server._vehicles[a].npcData.position,
+                    npc.position
+                  ) < 1.5
+                ) {
+                  server.explosionDamage(
+                    server._explosives[characterId].position,
+                    characterId
+                  );
+                  server.sendDataToAllWithSpawnedEntity(
+                    server._explosives,
+                    characterId,
+                    "Character.PlayWorldCompositeEffect",
+                    {
+                      characterId: characterId,
+                      effectId: 1875,
+                      position: server._vehicles[a].npcData.position,
+                    }
+                  );
+                  return;
                 }
-              );
-              delete server._traps[characterId];
-            }
-          }, 500);
-        }, 3000);
-      } else if (packet.data.itemDefinitionId == 1415) {
-        const characterId = server.generateGuid();
-        const guid = server.generateGuid();
-        const transientId = server.getTransientId(guid);
-        const npc = {
-          characterId: characterId,
-          guid: guid,
-          transientId: transientId,
-          modelId: 9175,
-          position: client.character.state.position,
-          rotation: client.character.state.lookAt,
-          color: {},
-          attachedObject: {},
-          isTriggered: false,
-        };
-        Object.keys(client.character._containers).forEach((loadoutSlotId) => {
-          const container = client.character._containers[Number(loadoutSlotId)];
-          for (const itemGuid in container.items) {
-            const item = container.items[itemGuid];
-            if (item.itemDefinitionId == packet.data.itemDefinitionId) {
-              server.removeInventoryItem(client, item.itemGuid, 1);
-            }
-          }
-        });
-        server._traps[characterId] = npc; // save npc
-        setTimeout(function () {
-          // arming time
-          server._traps[characterId].trapTimer = setTimeout(() => {
-            for (const a in server._clients) {
-              if (
-                getDistance(
-                  server._clients[a].character.state.position,
-                  npc.position
-                ) < 1
-              ) {
-                server.playerDamage(server._clients[a], 2000);
-                server._clients[a].character.resources.bleeding += 41;
-                server.sendDataToAllWithSpawnedTrap(
+              }
+              if (server._explosives[characterId]) {
+                server._explosives[characterId].mineTimer.refresh();
+              }
+            }, 100);
+          }, 5000);
+          break;
+        case 98:
+          // punji sticks
+          characterId = server.generateGuid();
+          guid = server.generateGuid();
+          transientId = server.getTransientId(guid);
+          npc = {
+            characterId: characterId,
+            guid: guid,
+            transientId: transientId,
+            modelId: 56,
+            position: client.character.state.position,
+            rotation: client.character.state.lookAt,
+            color: {},
+            attachedObject: {},
+            realHealth: 100000,
+            health: 100,
+          };
+          if(!server.removeInventoryItem(client, server.getItemById(client, packet.data.itemDefinitionId))) return;
+
+          server._traps[characterId] = npc; // save npc
+          setTimeout(function () {
+            // arming time
+            server._traps[characterId].trapTimer = setTimeout(() => {
+              for (const a in server._clients) {
+                if (
+                  getDistance(
+                    server._clients[a].character.state.position,
+                    npc.position
+                  ) < 1.5
+                  &&
+                  server._clients[a].character.isAlive
+                  &&
+                  !server._clients[a].vehicle.mountedVehicle
+                ) {
+                  server.playerDamage(server._clients[a], 500);
+                  server.sendDataToAllWithSpawnedEntity(
+                    server._traps,
+                    characterId,
+                    "Character.PlayWorldCompositeEffect",
+                    {
+                      characterId: "0x0",
+                      effectId: 5116,
+                      position: server._clients[a].character.state.position,
+                    }
+                  );
+
+                  server.sendDataToAllWithSpawnedEntity(
+                    server._traps,
+                    characterId,
+                    "Character.UpdateSimpleProxyHealth",
+                    {
+                      characterId: characterId,
+                      health: server._traps[characterId].health,
+                    }
+                  );
+                  server._traps[characterId].realHealth -= 1000;
+                  server._traps[characterId].health = Math.floor(
+                    server._traps[characterId].realHealth / 1000
+                  );
+                }
+              }
+
+              if (server._traps[characterId].realHealth > 0) {
+                server._traps[characterId].trapTimer.refresh();
+              } else {
+                server.sendDataToAllWithSpawnedEntity(
+                   server._traps,
                   characterId,
                   "Character.PlayWorldCompositeEffect",
                   {
-                    characterId: characterId,
-                    effectId: 1630,
+                    characterId: "0x0",
+                    effectId: 163,
                     position: server._traps[characterId].position,
                   }
                 );
-                server._traps[characterId].isTriggered = true;
-                server.sendData(
-                  server._clients[a],
-                  "ClientUpdate.ModifyMovementSpeed",
+                server.sendDataToAllWithSpawnedEntity(
+                   server._traps,
+                  characterId,
+                  "Character.RemovePlayer",
                   {
-                    speed: 0.4,
+                    characterId: characterId,
                   }
                 );
-                setTimeout(() => {
+                delete server._traps[characterId];
+                return;
+              }
+            }, 500);
+          }, 3000);
+          break;
+        case 1415:
+          // snare
+          characterId = server.generateGuid();
+          guid = server.generateGuid();
+          transientId = server.getTransientId(guid);
+          npc = {
+            characterId: characterId,
+            guid: guid,
+            transientId: transientId,
+            modelId: 9175,
+            position: client.character.state.position,
+            rotation: client.character.state.lookAt,
+            color: {},
+            attachedObject: {},
+            isTriggered: false,
+          };
+          if(!server.removeInventoryItem(client, server.getItemById(client, packet.data.itemDefinitionId))) return;
+
+          server._traps[characterId] = npc; // save npc
+          setTimeout(function () {
+            // arming time
+            server._traps[characterId].trapTimer = setTimeout(() => {
+              for (const a in server._clients) {
+                if (
+                  getDistance(
+                    server._clients[a].character.state.position,
+                    npc.position
+                  ) < 1
+                ) {
+                  server.playerDamage(server._clients[a], 2000);
+                  server._clients[a].character.resources.bleeding += 41;
+                  server.updateResourceToAllWithSpawnedCharacter(
+                    client,
+                    client.character.characterId,
+                    client.character.resources.bleeding > 0
+                      ? client.character.resources.bleeding
+                      : 0,
+                    21,
+                    21
+                  );
+                  server.sendDataToAllWithSpawnedEntity(
+                    server._traps,
+                    characterId,
+                    "Character.PlayWorldCompositeEffect",
+                    {
+                      characterId: characterId,
+                      effectId: 1630,
+                      position: server._traps[characterId].position,
+                    }
+                  );
+                  server._traps[characterId].isTriggered = true;
                   server.sendData(
                     server._clients[a],
                     "ClientUpdate.ModifyMovementSpeed",
                     {
-                      speed: 2.5,
+                      speed: 0.4,
                     }
                   );
-                }, 20000);
-              }
-            }
-
-            if (!server._traps[characterId].isTriggered) {
-              server._traps[characterId].trapTimer.refresh();
-            } else {
-              server.sendDataToAllWithSpawnedTrap(
-                characterId,
-                "Character.RemovePlayer",
-                {
-                  characterId: server._traps[characterId].characterId,
+                  setTimeout(() => {
+                    server.sendData(
+                      server._clients[a],
+                      "ClientUpdate.ModifyMovementSpeed",
+                      {
+                        speed: 2.5,
+                      }
+                    );
+                  }, 20000);
                 }
-              );
-              npc.modelId = 1974;
-              server.worldObjectManager.createLootEntity(
-                server,
-                1415,
-                1,
-                [
-                  npc.position[0],
-                  npc.position[1],
-                  npc.position[2],
-                  npc.position[3],
-                ],
-                [
-                  npc.rotation[0],
-                  npc.rotation[1],
-                  npc.rotation[2],
-                  npc.rotation[3],
-                ],
-                15
-              );
-              delete server._traps[characterId];
-            }
-          }, 200);
-        }, 3000);
-      } else {
-        server.sendData(client, "Construction.PlacementResponse", {
-          unknownDword1: packet.data.itemDefinitionId,
-          model: modelId,
-        });
+              }
+
+              if (!server._traps[characterId].isTriggered) {
+                server._traps[characterId].trapTimer.refresh();
+              } else {
+                server.sendDataToAllWithSpawnedEntity(
+                  server._traps,
+                  characterId,
+                  "Character.RemovePlayer",
+                  {
+                    characterId: characterId,
+                  }
+                );
+                npc.modelId = 1974;
+                server.worldObjectManager.createLootEntity(
+                  server,
+                  1415,
+                  1,
+                  npc.position,
+                  npc.rotation,
+                  15
+                );
+                delete server._traps[characterId];
+              }
+            }, 200);
+          }, 3000);
+          break;
+        default:
+          server.sendData(client, "Construction.PlacementResponse", {
+            unknownDword1: packet.data.itemDefinitionId,
+            model: modelId,
+          });
+          break;
       }
     };
     //#endregion
@@ -1770,9 +1914,12 @@ export class zonePacketHandlers {
   async reloadCommandCache() {
     delete require.cache[require.resolve("./commands/hax")];
     delete require.cache[require.resolve("./commands/dev")];
+    delete require.cache[require.resolve("./commands/admin")];
     hax = require("./commands/hax").default;
     dev = require("./commands/dev").default;
+    admin = require("./commands/admin").default;
     this.hax = require("./commands/hax").default;
     this.dev = require("./commands/dev").default;
+    this.admin = require("./commands/admin").default;
   }
 }
