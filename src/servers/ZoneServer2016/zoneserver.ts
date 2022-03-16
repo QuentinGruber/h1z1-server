@@ -1860,10 +1860,21 @@ export class ZoneServer2016 extends ZoneServer2015 {
       // todo: vehicle seat swap managed object drop logic
       debug("\n\n\n\n\n\n\n\n\n\n drop managed object");
 
-      this.sendData(client, "ClientUpdate.ManagedObjectResponseControl", {
+      /*this.sendData(client, "ClientUpdate.ManagedObjectResponseControl", {
         control: true,
         objectCharacterId: vehicle.npcData.characterId,
-      });
+      });*/ // dont work :/
+
+      this.sendData( // temp workaround
+        client,
+        "Character.RemovePlayer",
+        {
+          characterId: vehicle.npcData.characterId,
+        },
+        1
+      );
+
+      this.sendData(client, "AddLightweightVehicle", vehicle, 1);
       client.managedObjects.splice(index, 1);
       // blocks vehicleManager from taking over management during a takeover
       if (!keepManaged) vehicle.isManaged = false;
