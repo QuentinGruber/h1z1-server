@@ -1529,6 +1529,9 @@ export class zonePacketHandlers {
           setTimeout(function () {
             // arming time
             server._explosives[characterId].mineTimer = setTimeout(() => {
+              if (!server._explosives[characterId]) {
+                return;
+              }
               for (const a in server._clients) {
                 if (
                   getDistance(
@@ -1613,6 +1616,9 @@ export class zonePacketHandlers {
           setTimeout(function () {
             // arming time
             server._traps[characterId].trapTimer = setTimeout(() => {
+              if (!server._traps[characterId]) {
+                return;
+              }
               for (const a in server._clients) {
                 if (
                   getDistance(
@@ -1706,6 +1712,9 @@ export class zonePacketHandlers {
           setTimeout(function () {
             // arming time
             server._traps[characterId].trapTimer = setTimeout(() => {
+              if (!server._traps[characterId]) {
+                return;
+              }
               for (const a in server._clients) {
                 if (
                   getDistance(
