@@ -1554,6 +1554,15 @@ export class zonePacketHandlers {
                       position: server._clients[a].character.state.position,
                     }
                   );
+                  server.sendDataToAllWithSpawnedEntity(
+                  server._explosives,
+                  characterId,
+                  "Character.RemovePlayer",
+                  {
+                    characterId: characterId,
+                  }
+                );
+                  delete server._explosives[characterId];
                   return;
                 }
               }
@@ -1578,6 +1587,15 @@ export class zonePacketHandlers {
                       position: server._vehicles[a].npcData.position,
                     }
                   );
+                  server.sendDataToAllWithSpawnedEntity(
+                  server._explosives,
+                  characterId,
+                  "Character.RemovePlayer",
+                  {
+                    characterId: characterId,
+                  }
+                );
+                  delete server._explosives[characterId];
                   return;
                 }
               }
