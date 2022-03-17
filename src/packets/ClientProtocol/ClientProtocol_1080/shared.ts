@@ -2150,11 +2150,11 @@ export const containerData = [
 
 export const skyData = [
   { name: "unknownDword1", type: "float", defaultValue: 0 },
-  { name: "unknownDword2", type: "float", defaultValue: 0 },
-  { name: "skyBrightness1", type: "float", defaultValue: 1 },
-  { name: "skyBrightness2", type: "float", defaultValue: 1 },
-  { name: "snow", type: "uint32", defaultValue: 0 },
-  { name: "snowMap", type: "float", defaultValue: 0 },
+  { name: "fogDensity", type: "float", defaultValue: 0 },
+  { name: "fogFloor", type: "float", defaultValue: 1 },
+  { name: "fogGradient", type: "float", defaultValue: 1 },
+  { name: "rain", type: "float", defaultValue: 0 },
+  { name: "temp", type: "float", defaultValue: 0 },
   { name: "colorGradient", type: "float", defaultValue: 0 },
   { name: "unknownDword8", type: "float", defaultValue: 0 },
   { name: "unknownDword9", type: "float", defaultValue: 0 },
