@@ -146,7 +146,7 @@ export class zonePacketHandlers {
           },
         ],
       });
-      client.character.startRessourceUpdater(client, server);
+      // client.character.startRessourceUpdater(client, server);
       server.sendData(client, "Character.CharacterStateDelta", {
         guid1: client.character.guid,
         guid2: "0x0000000000000000",
