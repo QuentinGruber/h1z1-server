@@ -210,7 +210,7 @@ export default function dynamicWeather(
       const fogtogglechance = randomIntFromInterval(0, 100);
       if (!fogChecked) {
         if (fogtogglechance <= 75) {
-          const fog = 0;
+          fog = 0;
         }
         fogChecked = true;
       }
