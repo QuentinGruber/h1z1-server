@@ -1558,7 +1558,7 @@ export class zonePacketHandlers {
                   getDistance(
                     server._vehicles[a].npcData.position,
                     npc.position
-                  ) < 1.5
+                  ) < 2.2
                 ) {
                   server.explosionDamage(
                     server._explosives[characterId].position,
@@ -1580,7 +1580,7 @@ export class zonePacketHandlers {
               if (server._explosives[characterId]) {
                 server._explosives[characterId].mineTimer.refresh();
               }
-            }, 100);
+            }, 90);
           }, 5000);
           break;
         case 98:
