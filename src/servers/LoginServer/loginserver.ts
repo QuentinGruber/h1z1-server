@@ -900,7 +900,7 @@ export class LoginServer extends EventEmitter {
           .collection("zone-whitelist")
           .find({})
           .toArray();
-      }, 1800000);
+      }, 60000);
     }
 
     if (this._soloMode) {
