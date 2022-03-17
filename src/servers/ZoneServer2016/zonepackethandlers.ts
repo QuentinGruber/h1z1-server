@@ -778,7 +778,8 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      if (packet.data.flags === 513) { // head rotation when in vehicle, client spams this packet every 1ms even if you dont move, disabled for now(it doesnt work anyway)
+      if (packet.data.flags === 513) {
+        // head rotation when in vehicle, client spams this packet every 1ms even if you dont move, disabled for now(it doesnt work anyway)
         return;
       }
       if (packet.data.flags === 510) {
@@ -786,26 +787,14 @@ export class zonePacketHandlers {
       }
       const movingCharacter = server._characters[client.character.characterId];
       if (movingCharacter) {
-        if (client.vehicle.mountedVehicle) {
-          const vehicle = server._vehicles[client.vehicle.mountedVehicle];
-          server.sendRawToAllOthersWithSpawnedCharacter(
-            client,
-            movingCharacter.characterId,
-            server._protocol.createPositionBroadcast2016(
-              packet.data.raw,
-              vehicle.npcData.transientId
-            )
-          );
-        } else {
-          server.sendRawToAllOthersWithSpawnedCharacter(
-            client,
-            movingCharacter.characterId,
-            server._protocol.createPositionBroadcast2016(
-              packet.data.raw,
-              movingCharacter.transientId
-            )
-          );
-        }
+        server.sendRawToAllOthersWithSpawnedCharacter(
+          client,
+          movingCharacter.characterId,
+          server._protocol.createPositionBroadcast2016(
+            packet.data.raw,
+            movingCharacter.transientId
+          )
+        );
       }
       if (packet.data.horizontalSpeed) {
         client.character.isRunning =
@@ -1459,12 +1448,19 @@ export class zonePacketHandlers {
             modelId: 1,
             position: client.character.state.position,
             rotation: client.character.state.lookAt,
+            dontSendFullNpcRequest: true,
             color: {},
             attachedObject: {},
             staticEffectId: true,
           };
 
-          if(!server.removeInventoryItem(client, server.getItemById(client, packet.data.itemDefinitionId))) return;
+          if (
+            !server.removeInventoryItem(
+              client,
+              server.getItemById(client, packet.data.itemDefinitionId)
+            )
+          )
+            return;
 
           server._temporaryObjects[characterId] = npc; // save npc
           setTimeout(function () {
@@ -1489,11 +1485,18 @@ export class zonePacketHandlers {
             modelId: 9176,
             position: client.character.state.position,
             rotation: client.character.state.lookAt,
+            dontSendFullNpcRequest: true,
             color: {},
             attachedObject: {},
             isIED: true,
           };
-          if(!server.removeInventoryItem(client, server.getItemById(client, packet.data.itemDefinitionId))) return;
+          if (
+            !server.removeInventoryItem(
+              client,
+              server.getItemById(client, packet.data.itemDefinitionId)
+            )
+          )
+            return;
 
           server._explosives[characterId] = npc; // save npc
           break;
@@ -1509,6 +1512,7 @@ export class zonePacketHandlers {
             modelId: 9176,
             position: client.character.state.position,
             rotation: client.character.state.lookAt,
+            dontSendFullNpcRequest: true,
             color: {},
             attachedObject: {},
             isIED: false,
@@ -1591,12 +1595,19 @@ export class zonePacketHandlers {
             modelId: 56,
             position: client.character.state.position,
             rotation: client.character.state.lookAt,
+            dontSendFullNpcRequest: true,
             color: {},
             attachedObject: {},
             realHealth: 100000,
             health: 100,
           };
-          if(!server.removeInventoryItem(client, server.getItemById(client, packet.data.itemDefinitionId))) return;
+          if (
+            !server.removeInventoryItem(
+              client,
+              server.getItemById(client, packet.data.itemDefinitionId)
+            )
+          )
+            return;
 
           server._traps[characterId] = npc; // save npc
           setTimeout(function () {
@@ -1607,10 +1618,8 @@ export class zonePacketHandlers {
                   getDistance(
                     server._clients[a].character.state.position,
                     npc.position
-                  ) < 1.5
-                  &&
-                  server._clients[a].character.isAlive
-                  &&
+                  ) < 1.5 &&
+                  server._clients[a].character.isAlive &&
                   !server._clients[a].vehicle.mountedVehicle
                 ) {
                   server.playerDamage(server._clients[a], 500);
@@ -1645,7 +1654,7 @@ export class zonePacketHandlers {
                 server._traps[characterId].trapTimer.refresh();
               } else {
                 server.sendDataToAllWithSpawnedEntity(
-                   server._traps,
+                  server._traps,
                   characterId,
                   "Character.PlayWorldCompositeEffect",
                   {
@@ -1655,7 +1664,7 @@ export class zonePacketHandlers {
                   }
                 );
                 server.sendDataToAllWithSpawnedEntity(
-                   server._traps,
+                  server._traps,
                   characterId,
                   "Character.RemovePlayer",
                   {
@@ -1680,11 +1689,18 @@ export class zonePacketHandlers {
             modelId: 9175,
             position: client.character.state.position,
             rotation: client.character.state.lookAt,
+            dontSendFullNpcRequest: true,
             color: {},
             attachedObject: {},
             isTriggered: false,
           };
-          if(!server.removeInventoryItem(client, server.getItemById(client, packet.data.itemDefinitionId))) return;
+          if (
+            !server.removeInventoryItem(
+              client,
+              server.getItemById(client, packet.data.itemDefinitionId)
+            )
+          )
+            return;
 
           server._traps[characterId] = npc; // save npc
           setTimeout(function () {
@@ -1773,7 +1789,6 @@ export class zonePacketHandlers {
     };
     //#endregion
   }
-
   processPacket(server: ZoneServer2016, client: Client, packet: any) {
     switch (packet.name) {
       case "ClientIsReady":
