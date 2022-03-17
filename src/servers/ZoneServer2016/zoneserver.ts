@@ -89,7 +89,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
     super(serverPort, gatewayKey, mongoAddress, worldId, internalServerPort);
     this._protocol = new H1Z1Protocol("ClientProtocol_1080");
     this._clientProtocol = "ClientProtocol_1080";
-    this._dynamicWeatherEnabled = false;
+    this._dynamicWeatherEnabled = true;
+    this._timeMultiplier = 72;
     this._cycleSpeed = 100;
     this._weatherTemplates = localWeatherTemplates;
     this._defaultWeatherTemplate = "z1br";
@@ -741,7 +742,19 @@ export class ZoneServer2016 extends ZoneServer2015 {
     this._startTime += Date.now();
     this._startGameTime += Date.now();
     if (this._dynamicWeatherEnabled) {
-      this._dynamicWeatherWorker = setInterval(() => dynamicWeather(this), 100);
+      this._dynamicWeatherWorker = setTimeout(() => {
+        if (!this._dynamicWeatherEnabled) {
+          return;
+        }
+        const rnd_weather = dynamicWeather(
+          this._serverTime,
+          this._startTime,
+          this._timeMultiplier
+        );
+        this._weather2016 = rnd_weather;
+        this.sendDataToAll("UpdateWeatherData", rnd_weather);
+        this._dynamicWeatherWorker.refresh();
+      }, 360000 / this._timeMultiplier);
     }
     this._gatewayServer.start(true); // SET TO TRUE OR ELSE MULTIPLAYER PACKETS ARE BROKEN
     this.worldRoutineTimer = setTimeout(
@@ -978,19 +991,17 @@ export class ZoneServer2016 extends ZoneServer2015 {
           disableWeirdPhysics: false,
         });
         vehicle.npcData.destroyedState = 4;
-        for (const c in this._clients) {
-          if (
-            vehicle.npcData.characterId ===
-            this._clients[c].vehicle.mountedVehicle
-          ) {
-            this.dismountVehicle(this._clients[c]);
-          }
-        }
-        if (vehicle.resourcesUpdater) {
-          clearInterval(vehicle.resourcesUpdater);
-        }
-        delete this._vehicles[vehicle.npcData.characterId];
+        vehicle.npcData.modelId = destroyedVehicleModel;
         setTimeout(() => {
+          for (const c in this._clients) {
+            if (
+              vehicle.npcData.characterId ===
+                this._clients[c].vehicle.mountedVehicle &&
+              !this._clients[c].character.isAlive
+            ) {
+              this.dismountVehicle(this._clients[c]);
+            }
+          }
           this.sendDataToAllWithSpawnedEntity(
             this._vehicles,
             vehicle.npcData.characterId,
@@ -999,7 +1010,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
               characterId: vehicle.npcData.characterId,
             }
           );
-        }, 15000);
+          delete this._vehicles[vehicle.npcData.characterId];
+        }, 60000);
       } else {
         let damageeffect = 0;
         let allowSend = false;
@@ -1089,6 +1101,9 @@ export class ZoneServer2016 extends ZoneServer2015 {
 
   async respawnPlayer(client: Client) {
     client.character.isAlive = true;
+    if (client.vehicle.mountedVehicle) {
+      this.dismountVehicle(client);
+    }
     client.isLoading = true;
     client.character.resources.health = 10000;
     client.character.resources.food = 10000;
@@ -2010,40 +2025,47 @@ export class ZoneServer2016 extends ZoneServer2015 {
           }
         );
         this._vehicles[vehicleGuid].engineOn = true;
-        this._vehicles[vehicleGuid].resourcesUpdater = setInterval(() => {
-          if (!this._vehicles[vehicleGuid].engineOn) {
-            clearInterval(this._vehicles[vehicleGuid].resourcesUpdater);
-          }
-          if (this._vehicles[vehicleGuid].positionUpdate.engineRPM) {
-            const fuelLoss =
-              this._vehicles[vehicleGuid].positionUpdate.engineRPM * 0.01;
-            this._vehicles[vehicleGuid].npcData.resources.fuel -= fuelLoss;
-          }
-          if (this._vehicles[vehicleGuid].npcData.resources.fuel < 0) {
-            this._vehicles[vehicleGuid].npcData.resources.fuel = 0;
-          }
-          if (
-            this._vehicles[vehicleGuid].engineOn &&
-            this._vehicles[vehicleGuid].npcData.resources.fuel <= 0
-          ) {
-            this.sendDataToAllWithSpawnedEntity(
-              this._vehicles,
-              vehicleGuid,
-              "Vehicle.Engine",
-              {
-                guid2: vehicleGuid,
-                engineOn: false,
-              }
+        if (!this._vehicles[vehicleGuid].resourcesUpdater) {
+          this._vehicles[vehicleGuid].resourcesUpdater = setTimeout(() => {
+            if (!this._vehicles[vehicleGuid]) {
+              return;
+            }
+            if (!this._vehicles[vehicleGuid].engineOn) {
+              delete this._vehicles[vehicleGuid].resourcesUpdater;
+              return;
+            }
+            if (this._vehicles[vehicleGuid].positionUpdate.engineRPM) {
+              const fuelLoss =
+                this._vehicles[vehicleGuid].positionUpdate.engineRPM * 0.01;
+              this._vehicles[vehicleGuid].npcData.resources.fuel -= fuelLoss;
+            }
+            if (this._vehicles[vehicleGuid].npcData.resources.fuel < 0) {
+              this._vehicles[vehicleGuid].npcData.resources.fuel = 0;
+            }
+            if (
+              this._vehicles[vehicleGuid].engineOn &&
+              this._vehicles[vehicleGuid].npcData.resources.fuel <= 0
+            ) {
+              this.sendDataToAllWithSpawnedEntity(
+                this._vehicles,
+                vehicleGuid,
+                "Vehicle.Engine",
+                {
+                  guid2: vehicleGuid,
+                  engineOn: false,
+                }
+              );
+            }
+            this.updateResourceToAllWithSpawnedVehicle(
+              vehicle.passengers.passenger1,
+              vehicle.npcData.characterId,
+              vehicle.npcData.resources.fuel,
+              396,
+              50
             );
-          }
-          this.updateResourceToAllWithSpawnedVehicle(
-            vehicle.passengers.passenger1,
-            vehicle.npcData.characterId,
-            vehicle.npcData.resources.fuel,
-            396,
-            50
-          );
-        }, 3000);
+            this._vehicles[vehicleGuid].resourcesUpdater.refresh();
+          }, 3000);
+        }
       }
       this.sendDataToAllWithSpawnedCharacter(client, "Vehicle.Owner", {
         guid: vehicle.npcData.characterId,

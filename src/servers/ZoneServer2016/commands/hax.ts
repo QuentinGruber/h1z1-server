@@ -473,8 +473,8 @@ const hax: any = {
             skyBrightness1: 1,
             skyBrightness2: 1,
             */
-      snow: rnd_number(200, true),
-      snowMap: rnd_number(80, true),
+      rain: rnd_number(200, true),
+      temp: rnd_number(80, true),
       colorGradient: rnd_number(1),
       unknownDword8: rnd_number(1),
       unknownDword9: rnd_number(1),
