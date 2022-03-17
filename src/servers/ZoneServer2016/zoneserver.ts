@@ -1112,7 +1112,6 @@ export class ZoneServer2016 extends ZoneServer2015 {
     client.character.resources.bleeding = -120;
     client.character.healingTicks = 0;
     client.character.healingMaxTicks = 0;
-    client.character.resourcesUpdater.refresh();
     delete client.character.characterStates.knockedOut;
     this.updateCharacterState(
       client,
