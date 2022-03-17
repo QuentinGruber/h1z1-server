@@ -811,7 +811,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
   worldRoutine(refresh = false): void {
     debug("WORLDROUTINE");
     this.executeFuncForAllReadyClients((client: Client) => {
-      this.vehicleManager(client);
+    //  this.vehicleManager(client);
       this.removeOutOfDistanceEntities(client);
       this.spawnCharacters(client);
       this.spawnObjects(client);
