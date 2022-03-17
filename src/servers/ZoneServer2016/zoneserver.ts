@@ -2014,40 +2014,47 @@ export class ZoneServer2016 extends ZoneServer2015 {
           }
         );
         this._vehicles[vehicleGuid].engineOn = true;
-        this._vehicles[vehicleGuid].resourcesUpdater = setInterval(() => {
-          if (!this._vehicles[vehicleGuid].engineOn) {
-            clearInterval(this._vehicles[vehicleGuid].resourcesUpdater);
-          }
-          if (this._vehicles[vehicleGuid].positionUpdate.engineRPM) {
-            const fuelLoss =
-              this._vehicles[vehicleGuid].positionUpdate.engineRPM * 0.01;
-            this._vehicles[vehicleGuid].npcData.resources.fuel -= fuelLoss;
-          }
-          if (this._vehicles[vehicleGuid].npcData.resources.fuel < 0) {
-            this._vehicles[vehicleGuid].npcData.resources.fuel = 0;
-          }
-          if (
-            this._vehicles[vehicleGuid].engineOn &&
-            this._vehicles[vehicleGuid].npcData.resources.fuel <= 0
-          ) {
-            this.sendDataToAllWithSpawnedEntity(
-              this._vehicles,
-              vehicleGuid,
-              "Vehicle.Engine",
-              {
-                guid2: vehicleGuid,
-                engineOn: false,
-              }
+        if (!this._vehicles[vehicleGuid].resourcesUpdater) {
+          this._vehicles[vehicleGuid].resourcesUpdater = setTimeout(() => {
+            if (
+              !this._vehicles[vehicleGuid].engineOn ||
+              !this._vehicles[vehicleGuid]
+            ) {
+              delete this._vehicles[vehicleGuid].resourcesUpdater;
+              return;
+            }
+            if (this._vehicles[vehicleGuid].positionUpdate.engineRPM) {
+              const fuelLoss =
+                this._vehicles[vehicleGuid].positionUpdate.engineRPM * 0.01;
+              this._vehicles[vehicleGuid].npcData.resources.fuel -= fuelLoss;
+            }
+            if (this._vehicles[vehicleGuid].npcData.resources.fuel < 0) {
+              this._vehicles[vehicleGuid].npcData.resources.fuel = 0;
+            }
+            if (
+              this._vehicles[vehicleGuid].engineOn &&
+              this._vehicles[vehicleGuid].npcData.resources.fuel <= 0
+            ) {
+              this.sendDataToAllWithSpawnedEntity(
+                this._vehicles,
+                vehicleGuid,
+                "Vehicle.Engine",
+                {
+                  guid2: vehicleGuid,
+                  engineOn: false,
+                }
+              );
+            }
+            this.updateResourceToAllWithSpawnedVehicle(
+              vehicle.passengers.passenger1,
+              vehicle.npcData.characterId,
+              vehicle.npcData.resources.fuel,
+              396,
+              50
             );
-          }
-          this.updateResourceToAllWithSpawnedVehicle(
-            vehicle.passengers.passenger1,
-            vehicle.npcData.characterId,
-            vehicle.npcData.resources.fuel,
-            396,
-            50
-          );
-        }, 3000);
+            this._vehicles[vehicleGuid].resourcesUpdater.refresh();
+          }, 3000);
+        }
       }
       this.sendDataToAllWithSpawnedCharacter(client, "Vehicle.Owner", {
         guid: vehicle.npcData.characterId,
