@@ -89,7 +89,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
     super(serverPort, gatewayKey, mongoAddress, worldId, internalServerPort);
     this._protocol = new H1Z1Protocol("ClientProtocol_1080");
     this._clientProtocol = "ClientProtocol_1080";
-    this._dynamicWeatherEnabled = false;
+    this._dynamicWeatherEnabled = true;
+    this._timeMultiplier = 72;
     this._cycleSpeed = 100;
     this._weatherTemplates = localWeatherTemplates;
     this._defaultWeatherTemplate = "z1br";
@@ -745,7 +746,19 @@ export class ZoneServer2016 extends ZoneServer2015 {
     this._startTime += Date.now();
     this._startGameTime += Date.now();
     if (this._dynamicWeatherEnabled) {
-      this._dynamicWeatherWorker = setInterval(() => dynamicWeather(this), 100);
+      this._dynamicWeatherWorker = setTimeout(() => {
+        if (!this._dynamicWeatherEnabled) {
+          return;
+        }
+        const rnd_weather = dynamicWeather(
+          this._serverTime,
+          this._startTime,
+          this._timeMultiplier
+        );
+        this._weather2016 = rnd_weather;
+        this.sendDataToAll("UpdateWeatherData", rnd_weather);
+        this._dynamicWeatherWorker.refresh();
+      }, 360000 / this._timeMultiplier);
     }
     this._gatewayServer.start(true); // SET TO TRUE OR ELSE MULTIPLAYER PACKETS ARE BROKEN
     this.worldRoutineTimer = setTimeout(
