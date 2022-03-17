@@ -1471,6 +1471,7 @@ export class zonePacketHandlers {
                 characterId: characterId,
               }
             );
+            delete server._temporaryObjects[characterId];
           }, 900000);
           break;
         case 1699:
