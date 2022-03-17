@@ -1020,7 +1020,7 @@ export class zonePacketHandlers {
           if (entityData.engineOn) {
             server.sendData(client, "Vehicle.Engine", {
               guid2: entityData.npcData.characterId,
-              unknownBoolean: false,
+              engineOn: true,
             });
           }
           break;
