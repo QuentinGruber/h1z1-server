@@ -611,11 +611,11 @@ export interface Weather2016 {
   templateName?: string;
   name: string;
   unknownDword1: number;
-  unknownDword2: number;
-  skyBrightness1: number;
-  skyBrightness2: number;
-  snow: number;
-  snowMap: number;
+  fogDensity: number;
+  fogFloor: number;
+  fogGradient: number;
+  rain: number;
+  temp: number;
   colorGradient: number;
   unknownDword8: number;
   unknownDword9: number;
