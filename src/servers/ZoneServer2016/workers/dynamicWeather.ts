@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { _, randomIntFromInterval } from "../../../utils/utils";
+import { randomIntFromInterval } from "../../../utils/utils";
 const debug = require("debug")("dynamicWeather");
 
 let fogValue = 2;
