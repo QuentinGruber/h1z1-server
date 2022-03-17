@@ -982,19 +982,17 @@ export class ZoneServer2016 extends ZoneServer2015 {
           disableWeirdPhysics: false,
         });
         vehicle.npcData.destroyedState = 4;
-        for (const c in this._clients) {
-          if (
-            vehicle.npcData.characterId ===
-            this._clients[c].vehicle.mountedVehicle
-          ) {
-            this.dismountVehicle(this._clients[c]);
-          }
-        }
-        if (vehicle.resourcesUpdater) {
-          clearInterval(vehicle.resourcesUpdater);
-        }
-        delete this._vehicles[vehicle.npcData.characterId];
+        vehicle.npcData.modelId = destroyedVehicleModel;
         setTimeout(() => {
+          for (const c in this._clients) {
+            if (
+              vehicle.npcData.characterId ===
+                this._clients[c].vehicle.mountedVehicle &&
+              !this._clients[c].character.isAlive
+            ) {
+              this.dismountVehicle(this._clients[c]);
+            }
+          }
           this.sendDataToAllWithSpawnedEntity(
             this._vehicles,
             vehicle.npcData.characterId,
@@ -1003,7 +1001,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
               characterId: vehicle.npcData.characterId,
             }
           );
-        }, 15000);
+          delete this._vehicles[vehicle.npcData.characterId];
+        }, 60000);
       } else {
         let damageeffect = 0;
         let allowSend = false;
@@ -1093,6 +1092,9 @@ export class ZoneServer2016 extends ZoneServer2015 {
 
   async respawnPlayer(client: Client) {
     client.character.isAlive = true;
+    if (client.vehicle.mountedVehicle) {
+      this.dismountVehicle(client);
+    }
     client.isLoading = true;
     client.character.resources.health = 10000;
     client.character.resources.food = 10000;
@@ -2016,10 +2018,10 @@ export class ZoneServer2016 extends ZoneServer2015 {
         this._vehicles[vehicleGuid].engineOn = true;
         if (!this._vehicles[vehicleGuid].resourcesUpdater) {
           this._vehicles[vehicleGuid].resourcesUpdater = setTimeout(() => {
-            if (
-              !this._vehicles[vehicleGuid].engineOn ||
-              !this._vehicles[vehicleGuid]
-            ) {
+            if (!this._vehicles[vehicleGuid]) {
+              return;
+            }
+            if (!this._vehicles[vehicleGuid].engineOn) {
               delete this._vehicles[vehicleGuid].resourcesUpdater;
               return;
             }
