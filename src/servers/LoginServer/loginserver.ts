@@ -180,6 +180,7 @@ export class LoginServer extends EventEmitter {
                           { $set: { allowedAccess: true } }
                         );
                     } else {
+                      console.log(`rejected connection serverId : ${serverId} address: ${client.address} `)
                       delete this._h1emuLoginServer._clients[client.clientId];
                       return;
                     }
@@ -900,7 +901,7 @@ export class LoginServer extends EventEmitter {
           .collection("zone-whitelist")
           .find({})
           .toArray();
-      }, 1800000);
+      }, 60000);
     }
 
     if (this._soloMode) {

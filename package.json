@@ -1,6 +1,6 @@
 {
   "name": "h1z1-server",
-  "version": "0.20.3-2",
+  "version": "0.20.3-5",
   "description": "Library for emulating h1z1 servers",
   "author": "Quentin Gruber <quentingruber@gmail.com> (http://github.com/quentingruber)",
   "license": "GPL-3.0-only",

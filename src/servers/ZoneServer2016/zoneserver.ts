@@ -127,10 +127,6 @@ export class ZoneServer2016 extends ZoneServer2015 {
         unknownByte4: 1,
       };
     });
-    this._loginServerInfo = {
-      address: "127.0.0.1",
-      port: 1110,
-    };
     this.worldObjectManager = new WorldObjectManager();
   }
 
