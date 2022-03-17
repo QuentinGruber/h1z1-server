@@ -212,10 +212,11 @@ export default function dynamicWeather(
         if (fogtogglechance <= 75) {
           const fog = 0;
         }
+        fogChecked = true;
       }
       break;
     case 3: //
-      fogChecked = true;
+      fogChecked = false;
       weatherChoosen = false;
       break;
     /*case 4: // start accumulating rain clouds and start rain with a random delay (after clouds accululated) if matched %chance
