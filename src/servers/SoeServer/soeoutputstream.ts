@@ -37,7 +37,7 @@ export class SOEOutputStream extends EventEmitter {
 
   write(data: Buffer): void {
     if (this._useEncryption) {
-      data = Buffer.from(this._rc4.encrypt(new Uint32Array(data)));
+      data = Buffer.from(this._rc4.encrypt(data));
 
       if (data[0] === 0) {
         const tmp = Buffer.allocUnsafe(1);
