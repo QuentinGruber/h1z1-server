@@ -4,6 +4,7 @@ WORKDIR /usr/src/app
 COPY . .
 ENV LOGINSERVER_IP=127.0.0.1
 RUN npm i --production
+ENV NODE_ENV="production"
 # Login server port
 EXPOSE 1115/udp
 # Zone server port
