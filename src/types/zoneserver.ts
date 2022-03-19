@@ -461,8 +461,8 @@ export interface loadoutContainer extends loadoutItem {
 }
 
 export interface craftComponentDSEntry {
-  itemDefinitionId: number,
-  stackCount: number
+  itemDefinitionId: number;
+  stackCount: number;
 }
 
 export interface Client {

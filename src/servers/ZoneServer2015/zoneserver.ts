@@ -2689,7 +2689,9 @@ export class ZoneServer2015 extends EventEmitter {
   getTransientId(guid: string): number {
     let generatedTransient;
     do {
-      generatedTransient = Number((Math.random() * MAX_TRANSIENT_ID).toFixed(0));
+      generatedTransient = Number(
+        (Math.random() * MAX_TRANSIENT_ID).toFixed(0)
+      );
     } while (!!this._transientIds[generatedTransient]);
     this._transientIds[generatedTransient] = guid;
     return generatedTransient;

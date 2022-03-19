@@ -768,7 +768,7 @@ const dev: any = {
           client.character.state.rotation[0],
           client.character.state.rotation[1],
           client.character.state.rotation[2],
-          1
+          1,
         ],
         color: {},
         unknownData1: { unknownData1: {} },
@@ -805,20 +805,20 @@ const dev: any = {
               loadoutSlots: [
                 {
                   hotbarSlotId: 31, // affects Equip Item context entry packet, and Container.MoveItem
-                    loadoutId: 5,
-                    slotId: 31,
-                    loadoutItemData: {
-                      itemDefinitionId: 1504,
-                      loadoutItemOwnerGuid: item,
-                      unknownByte1: 255, // flags?
-                    },
-                    unknownDword4: 3,
-                }
-              ]
+                  loadoutId: 5,
+                  slotId: 31,
+                  loadoutItemData: {
+                    itemDefinitionId: 1504,
+                    loadoutItemOwnerGuid: item,
+                    unknownByte1: 255, // flags?
+                  },
+                  unknownDword4: 3,
+                },
+              ],
             },
             currentSlotId: 31,
           });
-        }
+        },
       };
     const item: any = server.generateItem(2425); /*,
       containerGuid = server.generateGuid(),
