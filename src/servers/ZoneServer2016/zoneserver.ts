@@ -823,7 +823,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
       this.POIManager(client);
       client.posAtLastRoutine = client.character.state.position;
     });
-    //if (this._ready) this.worldObjectManager.run(this);
+    if (this._ready) this.worldObjectManager.run(this);
     if (refresh) this.worldRoutineTimer.refresh();
   }
   deleteClient(client: Client) {
@@ -1112,6 +1112,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
     client.character.resources.bleeding = -120;
     client.character.healingTicks = 0;
     client.character.healingMaxTicks = 0;
+    client.character.resourcesUpdater.refresh();
     delete client.character.characterStates.knockedOut;
     this.updateCharacterState(
       client,
