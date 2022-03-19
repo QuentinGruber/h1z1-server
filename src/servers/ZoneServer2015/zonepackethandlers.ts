@@ -13,7 +13,7 @@
 
 import { ZoneClient as Client } from "./classes/zoneclient";
 
-import { ZoneServer } from "./zoneserver";
+import { ZoneServer2015 } from "./zoneserver";
 
 const debug = require("debug")("zonepacketHandlers");
 
@@ -41,183 +41,235 @@ export class zonePacketHandlers {
   hax: any = hax;
   dev: any = dev;
   admin: any = admin;
-  ClientIsReady: (server: ZoneServer, client: Client, packet: any) => void;
+  ClientIsReady: (server: ZoneServer2015, client: Client, packet: any) => void;
   ClientFinishedLoading: (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: Client,
     packet: any
   ) => void;
-  Security: (server: ZoneServer, client: Client, packet: any) => void;
-  commandRecipeStart: (server: ZoneServer, client: Client, packet: any) => void;
+  Security: (server: ZoneServer2015, client: Client, packet: any) => void;
+  commandRecipeStart: (
+    server: ZoneServer2015,
+    client: Client,
+    packet: any
+  ) => void;
   commandFreeInteractionNpc: (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: Client,
     packet: any
   ) => void;
-  collisionDamage: (server: ZoneServer, client: Client, packet: any) => void;
+  collisionDamage: (
+    server: ZoneServer2015,
+    client: Client,
+    packet: any
+  ) => void;
   VehicleItemDefinitionRequest: (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: Client,
     packet: any
   ) => void;
-  CurrentMoveMode: (server: ZoneServer, client: Client, packet: any) => void;
+  CurrentMoveMode: (
+    server: ZoneServer2015,
+    client: Client,
+    packet: any
+  ) => void;
   lobbyGameDefinitionDefinitionsRequest: (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: Client,
     packet: any
   ) => void;
   playerUpdateEndCharacterAccess: (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: Client,
     packet: any
   ) => void;
-  KeepAlive: (server: ZoneServer, client: Client, packet: any) => void;
-  ClientLog: (server: ZoneServer, client: Client, packet: any) => void;
-  ClientMetrics: (server: ZoneServer, client: Client, packet: any) => void;
+  KeepAlive: (server: ZoneServer2015, client: Client, packet: any) => void;
+  ClientLog: (server: ZoneServer2015, client: Client, packet: any) => void;
+  ClientMetrics: (server: ZoneServer2015, client: Client, packet: any) => void;
   WallOfDataClientSystemInfo: (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: Client,
     packet: any
   ) => void;
   WallOfDataLaunchPadFingerprint: (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: Client,
     packet: any
   ) => void;
-  wallOfDataUIEvent: (server: ZoneServer, client: Client, packet: any) => void;
-  SetLocale: (server: ZoneServer, client: Client, packet: any) => void;
+  wallOfDataUIEvent: (
+    server: ZoneServer2015,
+    client: Client,
+    packet: any
+  ) => void;
+  SetLocale: (server: ZoneServer2015, client: Client, packet: any) => void;
   GetContinentBattleInfo: (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: Client,
     packet: any
   ) => void;
-  chatChat: (server: ZoneServer, client: Client, packet: any) => void;
-  loadoutSelectSlot: (server: ZoneServer, client: Client, packet: any) => void;
+  chatChat: (server: ZoneServer2015, client: Client, packet: any) => void;
+  loadoutSelectSlot: (
+    server: ZoneServer2015,
+    client: Client,
+    packet: any
+  ) => void;
   ClientInitializationDetails: (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: Client,
     packet: any
   ) => void;
-  ClientLogout: (server: ZoneServer, client: Client, packet: any) => void;
-  GameTimeSync: (server: ZoneServer, client: Client, packet: any) => void;
-  Synchronization: (server: ZoneServer, client: Client, packet: any) => void;
+  ClientLogout: (server: ZoneServer2015, client: Client, packet: any) => void;
+  GameTimeSync: (server: ZoneServer2015, client: Client, packet: any) => void;
+  Synchronization: (
+    server: ZoneServer2015,
+    client: Client,
+    packet: any
+  ) => void;
   commandExecuteCommand: (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: Client,
     packet: any
   ) => void;
-  commandSetProfile: (server: ZoneServer, client: Client, packet: any) => void;
+  commandSetProfile: (
+    server: ZoneServer2015,
+    client: Client,
+    packet: any
+  ) => void;
   playerUpdateWeaponStance: (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: Client,
     packet: any
   ) => void;
   mountDismountRequest: (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: Client,
     packet: any
   ) => void;
   commandInteractRequest: (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: Client,
     packet: any
   ) => void;
   commandInteractionString: (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: Client,
     packet: any
   ) => void;
-  commandSetInWater: (server: ZoneServer, client: Client, packet: any) => void;
+  commandSetInWater: (
+    server: ZoneServer2015,
+    client: Client,
+    packet: any
+  ) => void;
   commandClearInWater: (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: Client,
     packet: any
   ) => void;
   commandInteractionSelect: (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: Client,
     packet: any
   ) => void;
   playerUpdateVehicleCollision: (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: Client,
     packet: any
   ) => void;
-  vehicleDismiss: (server: ZoneServer, client: Client, packet: any) => void;
-  vehicleSpawn: (server: ZoneServer, client: Client, packet: any) => void;
-  vehicleAutoMount: (server: ZoneServer, client: Client, packet: any) => void;
+  vehicleDismiss: (server: ZoneServer2015, client: Client, packet: any) => void;
+  vehicleSpawn: (server: ZoneServer2015, client: Client, packet: any) => void;
+  vehicleAutoMount: (
+    server: ZoneServer2015,
+    client: Client,
+    packet: any
+  ) => void;
   commandInteractCancel: (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: Client,
     packet: any
   ) => void;
   commandStartLogoutRequest: (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: Client,
     packet: any
   ) => void;
   CharacterSelectSessionRequest: (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: Client,
     packet: any
   ) => void;
   profileStatsGetPlayerProfileStats: (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: Client,
     packet: any
   ) => void;
   DtoHitSpeedTreeReport: (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: Client,
     packet: any
   ) => void;
-  GetRewardBuffInfo: (server: ZoneServer, client: Client, packet: any) => void;
-  vehicleStateData: (server: ZoneServer, client: Client, packet: any) => void;
-  VehicleAccessType: (server: ZoneServer, client: Client, packet: any) => void;
+  GetRewardBuffInfo: (
+    server: ZoneServer2015,
+    client: Client,
+    packet: any
+  ) => void;
+  vehicleStateData: (
+    server: ZoneServer2015,
+    client: Client,
+    packet: any
+  ) => void;
+  VehicleAccessType: (
+    server: ZoneServer2015,
+    client: Client,
+    packet: any
+  ) => void;
   PlayerUpdateManagedPosition: (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: Client,
     packet: any
   ) => void;
   PlayerUpdateUpdatePositionClientToZone: (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: Client,
     packet: any
   ) => void;
   commandPlayerSelect: (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: Client,
     packet: any
   ) => void;
   constructionPlacementRequest: (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: Client,
     packet: any
   ) => void;
   constructionPlacementFinalizeRequest: (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: Client,
     packet: any
   ) => void;
   playerUpdateRespawn: (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: Client,
     packet: any
   ) => void;
   playerUpdateFullCharacterDataRequest: (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: Client,
     packet: any
   ) => void;
-  commandRedeploy: (server: ZoneServer, client: Client, packet: any) => void;
+  commandRedeploy: (
+    server: ZoneServer2015,
+    client: Client,
+    packet: any
+  ) => void;
   mountSeatChangeRequest: (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: Client,
     packet: any
   ) => void;
   constructor() {
     this.ClientIsReady = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
@@ -288,7 +340,7 @@ export class zonePacketHandlers {
       });
     };
     this.ClientFinishedLoading = (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) => {
@@ -313,11 +365,15 @@ export class zonePacketHandlers {
       delete client.vehicle.mountedVehicle;
       client.vehicle.mountedVehicleType = "0";
     };
-    this.Security = function (server: ZoneServer, client: Client, packet: any) {
+    this.Security = function (
+      server: ZoneServer2015,
+      client: Client,
+      packet: any
+    ) {
       debug(packet);
     };
     this.commandRecipeStart = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
@@ -325,7 +381,7 @@ export class zonePacketHandlers {
       server.sendData(client, "Command.RecipeAction", {});
     };
     this.commandFreeInteractionNpc = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
@@ -333,7 +389,7 @@ export class zonePacketHandlers {
       server.sendData(client, "Command.FreeInteractionNpc", {});
     };
     this.collisionDamage = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
@@ -348,7 +404,7 @@ export class zonePacketHandlers {
       }
     };
     this.lobbyGameDefinitionDefinitionsRequest = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
@@ -357,7 +413,7 @@ export class zonePacketHandlers {
       });
     };
     this.VehicleItemDefinitionRequest = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
@@ -366,7 +422,7 @@ export class zonePacketHandlers {
       );
     };
     this.CurrentMoveMode = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
@@ -375,14 +431,14 @@ export class zonePacketHandlers {
       );
     };
     this.playerUpdateEndCharacterAccess = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
       debug("EndCharacterAccess");
     };
     this.KeepAlive = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
@@ -391,49 +447,49 @@ export class zonePacketHandlers {
       });
     };
     this.ClientMetrics = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
       debugWOD(packet);
     };
     this.WallOfDataClientSystemInfo = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
       debugWOD(packet.data.ClientSystemInfo);
     };
     this.WallOfDataLaunchPadFingerprint = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
       debugWOD(`LaunchPadFingerprint : ${packet.data.LaunchPadFingerprint}`);
     };
     this.ClientLog = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
       debug(packet);
     };
     this.wallOfDataUIEvent = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
       debug(packet);
     };
     this.SetLocale = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
       debug("Do nothing");
     };
     this.GetContinentBattleInfo = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
@@ -454,12 +510,16 @@ export class zonePacketHandlers {
         ],
       });
     };
-    this.chatChat = function (server: ZoneServer, client: Client, packet: any) {
+    this.chatChat = function (
+      server: ZoneServer2015,
+      client: Client,
+      packet: any
+    ) {
       const { channel, message } = packet.data;
       server.sendChat(client, message, channel);
     };
     this.loadoutSelectSlot = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
@@ -496,7 +556,7 @@ export class zonePacketHandlers {
         */
     };
     this.ClientInitializationDetails = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
@@ -506,7 +566,7 @@ export class zonePacketHandlers {
       }
     };
     this.ClientLogout = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
@@ -514,14 +574,14 @@ export class zonePacketHandlers {
       server.deleteClient(client);
     };
     this.GameTimeSync = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
       server.sendGameTimeSync(client);
     };
     this.Synchronization = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
@@ -536,7 +596,7 @@ export class zonePacketHandlers {
       });
     };
     this.commandExecuteCommand = async function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
@@ -740,7 +800,7 @@ export class zonePacketHandlers {
       }
     };
     this.commandSetProfile = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
@@ -753,7 +813,7 @@ export class zonePacketHandlers {
       });
     };
     this.playerUpdateWeaponStance = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
@@ -763,7 +823,7 @@ export class zonePacketHandlers {
       });
     };
     this.mountSeatChangeRequest = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
@@ -774,7 +834,7 @@ export class zonePacketHandlers {
         })*/
     };
     this.mountDismountRequest = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
@@ -783,7 +843,7 @@ export class zonePacketHandlers {
         server.dismountVehicle(client, client.vehicle.mountedVehicle);
     };
     this.commandInteractRequest = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
@@ -815,7 +875,7 @@ export class zonePacketHandlers {
       });
     };
     this.commandInteractionString = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
@@ -943,17 +1003,17 @@ export class zonePacketHandlers {
       }
     };
     this.commandSetInWater = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {};
     this.commandClearInWater = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {};
     this.commandInteractionSelect = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
@@ -961,14 +1021,14 @@ export class zonePacketHandlers {
       debug("select");
     };
     this.playerUpdateVehicleCollision = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
       debug(packet);
     };
     this.vehicleDismiss = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
@@ -979,7 +1039,7 @@ export class zonePacketHandlers {
       }
     };
     this.vehicleSpawn = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
@@ -1093,7 +1153,7 @@ export class zonePacketHandlers {
       });
     };
     this.vehicleAutoMount = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
@@ -1441,7 +1501,7 @@ export class zonePacketHandlers {
       });
     };
     this.commandRedeploy = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
@@ -1452,14 +1512,14 @@ export class zonePacketHandlers {
       });
     };
     this.commandInteractCancel = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
       debug("Interaction Canceled");
     };
     this.commandStartLogoutRequest = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
@@ -1480,7 +1540,7 @@ export class zonePacketHandlers {
       }, timerTime);
     };
     this.CharacterSelectSessionRequest = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
@@ -1490,7 +1550,7 @@ export class zonePacketHandlers {
       });
     };
     this.profileStatsGetPlayerProfileStats = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
@@ -1501,7 +1561,7 @@ export class zonePacketHandlers {
       );
     };
     this.DtoHitSpeedTreeReport = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
@@ -1509,7 +1569,7 @@ export class zonePacketHandlers {
       server.speedTreeUse(client, packet);
     };
     this.GetRewardBuffInfo = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
@@ -1529,7 +1589,7 @@ export class zonePacketHandlers {
       });
     };
     this.vehicleStateData = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
@@ -1541,7 +1601,7 @@ export class zonePacketHandlers {
       });
     };
     this.VehicleAccessType = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
@@ -1553,7 +1613,7 @@ export class zonePacketHandlers {
       });
     };
     this.PlayerUpdateManagedPosition = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
@@ -1659,7 +1719,7 @@ export class zonePacketHandlers {
       data: UpdatePositionObject;
     }
     this.PlayerUpdateUpdatePositionClientToZone = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: PlayerUpdateUpdatePositionClientToZoneData
     ) {
@@ -1730,7 +1790,7 @@ export class zonePacketHandlers {
       }
     };
     this.commandPlayerSelect = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
@@ -1992,7 +2052,7 @@ export class zonePacketHandlers {
       }
     };
     this.constructionPlacementRequest = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
@@ -2001,7 +2061,7 @@ export class zonePacketHandlers {
       //server.sendData(client, "Construction.PlacementResponse", {model:modelChoosen});
     };
     this.constructionPlacementFinalizeRequest = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
@@ -2012,7 +2072,7 @@ export class zonePacketHandlers {
       });
     };
     this.playerUpdateRespawn = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
@@ -2020,7 +2080,7 @@ export class zonePacketHandlers {
       server.respawnPlayer(client);
     };
     this.playerUpdateFullCharacterDataRequest = function (
-      server: ZoneServer,
+      server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
@@ -2167,7 +2227,7 @@ export class zonePacketHandlers {
       }
     };
   }
-  processPacket(server: ZoneServer, client: Client, packet: any) {
+  processPacket(server: ZoneServer2015, client: Client, packet: any) {
     switch (packet.name) {
       case "ClientIsReady":
         this.ClientIsReady(server, client, packet);

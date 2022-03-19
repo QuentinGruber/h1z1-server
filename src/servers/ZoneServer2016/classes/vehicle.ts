@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { Vehicle } from "../../ZoneServer/classes/vehicles";
+import { Vehicle } from "../../ZoneServer2015/classes/vehicle";
 import { createPositionUpdate } from "../../../utils/utils";
 
 function getVehicleId(ModelId: number) {
