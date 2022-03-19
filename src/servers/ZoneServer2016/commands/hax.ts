@@ -578,7 +578,7 @@ const hax: any = {
   },
   addallitems: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.sendChatText(client, "Adding 1x of all items to inventory.");
-    for(const id in server._itemDefinitionIds) {
+    for (const id in server._itemDefinitionIds) {
       server.lootItem(client, server.generateItem(id), 1);
     }
   },

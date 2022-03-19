@@ -12,7 +12,7 @@
 // ======================================================================
 
 const debugName = "ZoneServer",
-debug = require("debug")(debugName);
+  debug = require("debug")(debugName);
 import { promisify } from "util";
 import { zonePacketHandlers } from "./zonepackethandlers";
 import { ZoneServer2015 } from "../ZoneServer2015/zoneserver";
@@ -44,16 +44,16 @@ import dynamicWeather from "./workers/dynamicWeather";
 
 // need to get 2016 lists
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
-recipes = require("../../../data/2016/sampleData/recipes.json"),
-deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
-localWeatherTemplates = require("../../../data/2016/dataSources/weather.json"),
-stats = require("../../../data/2016/sampleData/stats.json"),
-resources = require("../../../data/2016/dataSources/resourceDefinitions.json"),
-localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json"),
-itemDefinitions = require("./../../../data/2016/dataSources/ServerItemDefinitions.json"),
-containerDefinitions = require("./../../../data/2016/dataSources/ContainerDefinitions.json"),
-loadoutSlotItemClasses = require("./../../../data/2016/dataSources/LoadoutSlotItemClasses.json"),
-loadoutEquipSlots = require("./../../../data/2016/dataSources/LoadoutEquipSlots.json");
+  recipes = require("../../../data/2016/sampleData/recipes.json"),
+  deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
+  localWeatherTemplates = require("../../../data/2016/dataSources/weather.json"),
+  stats = require("../../../data/2016/sampleData/stats.json"),
+  resources = require("../../../data/2016/dataSources/resourceDefinitions.json"),
+  localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json"),
+  itemDefinitions = require("./../../../data/2016/dataSources/ServerItemDefinitions.json"),
+  containerDefinitions = require("./../../../data/2016/dataSources/ContainerDefinitions.json"),
+  loadoutSlotItemClasses = require("./../../../data/2016/dataSources/LoadoutSlotItemClasses.json"),
+  loadoutEquipSlots = require("./../../../data/2016/dataSources/LoadoutEquipSlots.json");
 
 export class ZoneServer2016 extends ZoneServer2015 {
   _weather2016: Weather2016;
@@ -1746,7 +1746,6 @@ export class ZoneServer2016 extends ZoneServer2015 {
     }
   }
 
-
   sendRawToAllOthersWithSpawnedCharacter(
     client: Client,
     entityCharacterId: string = "",
@@ -1763,7 +1762,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
       }
     }
   }
-  
+
   sendDataToAllWithSpawnedCharacter(
     client: Client,
     packetName: any,
@@ -1781,7 +1780,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
       }
     }
   }
-  
+
   //#region ********************VEHICLE********************
   vehicleManager(client: Client) {
     for (const key in this._vehicles) {
@@ -1868,7 +1867,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
         objectCharacterId: vehicle.npcData.characterId,
       });*/ // dont work :/
 
-      this.sendData( // temp workaround
+      this.sendData(
+        // temp workaround
         client,
         "Character.RemovePlayer",
         {
@@ -1904,7 +1904,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
   }
 
   sendDataToAllWithSpawnedEntity(
-    dictionary: {[id: string]: any},
+    dictionary: { [id: string]: any },
     entityCharacterId: string = "",
     packetName: any,
     obj: any,
@@ -1913,9 +1913,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
     if (!entityCharacterId) return;
     for (const a in this._clients) {
       if (
-        this._clients[a].spawnedEntities.includes(
-          dictionary[entityCharacterId]
-        )
+        this._clients[a].spawnedEntities.includes(dictionary[entityCharacterId])
       ) {
         this.sendData(this._clients[a], packetName, obj, channel);
       }
@@ -1941,7 +1939,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
   }
 
   sendDataToAllOthersWithSpawnedEntity(
-    dictionary: {[id: string]: any},
+    dictionary: { [id: string]: any },
     client: Client,
     entityCharacterId: string = "",
     packetName: any,
@@ -1952,9 +1950,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
     for (const a in this._clients) {
       if (
         client != this._clients[a] &&
-        this._clients[a].spawnedEntities.includes(
-          dictionary[entityCharacterId]
-        )
+        this._clients[a].spawnedEntities.includes(dictionary[entityCharacterId])
       ) {
         this.sendData(this._clients[a], packetName, obj, channel);
       }
@@ -2242,7 +2238,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
       time: time,
     });
   }
-  
+
   //#region ********************INVENTORY********************
 
   updateLoadout(client: Client) {
@@ -2460,7 +2456,10 @@ export class ZoneServer2016 extends ZoneServer2015 {
   }
 
   generateItem(itemDefinitionId: any) {
-    const generatedGuid = `0x${randomIntFromInterval(0x3000000000000000, 0x3fffffffffffffff).toString(16)}`;
+    const generatedGuid = `0x${randomIntFromInterval(
+      0x3000000000000000,
+      0x3fffffffffffffff
+    ).toString(16)}`;
     this._items[generatedGuid] = {
       guid: generatedGuid,
       itemDefinitionId: Number(itemDefinitionId),
@@ -2491,7 +2490,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
     let bulk = 0;
     for (const item of Object.values(container.items)) {
       bulk += this.getItemDefinition(item.itemDefinitionId).BULK;
-    };
+    }
     return bulk;
   }
 
@@ -2529,21 +2528,18 @@ export class ZoneServer2016 extends ZoneServer2015 {
       if (container.items[itemGuid]) {
         return container;
       }
-    };
+    }
     return undefined;
   }
 
-  getItemById(
-    client: Client,
-    itemDefId: number,
-  ): string {
+  getItemById(client: Client, itemDefId: number): string {
     for (const container of Object.values(client.character._containers)) {
       for (const item of Object.values(container.items)) {
         if (item.itemDefinitionId == itemDefId) {
           return item.itemGuid;
         }
       }
-    };
+    }
     return "";
   }
 
@@ -2562,7 +2558,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
       ) {
         return item.itemGuid;
       }
-    };
+    }
     return "";
   }
 
@@ -2571,8 +2567,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
     itemGuid: string
   ): inventoryItem | undefined {
     const item = this._items[itemGuid],
-    itemDefinition = this.getItemDefinition(item.itemDefinitionId),
-    loadoutSlotId = this.getLoadoutSlot(itemDefinition.ID);
+      itemDefinition = this.getItemDefinition(item.itemDefinitionId),
+      loadoutSlotId = this.getLoadoutSlot(itemDefinition.ID);
     if (client.character._loadout[loadoutSlotId]?.itemGuid == itemGuid) {
       return client.character._loadout[loadoutSlotId];
     } else {
@@ -2588,10 +2584,10 @@ export class ZoneServer2016 extends ZoneServer2015 {
     itemGuid: string,
     count: number = 1
   ): boolean {
-    if(!this._items[itemGuid]) return false;
+    if (!this._items[itemGuid]) return false;
     const item = this._items[itemGuid],
-    itemDefinition = this.getItemDefinition(item.itemDefinitionId),
-    loadoutSlotId = this.getLoadoutSlot(itemDefinition.ID);
+      itemDefinition = this.getItemDefinition(item.itemDefinitionId),
+      loadoutSlotId = this.getLoadoutSlot(itemDefinition.ID);
     if (client.character._loadout[loadoutSlotId]?.itemGuid == itemGuid) {
       this.deleteItem(client, itemGuid);
       // TODO: add logic for checking if loadout item has an equipment slot, ex. radio doesn't have one
@@ -2611,7 +2607,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
       }
     } else {
       const removeItemContainer = this.getItemContainer(client, itemGuid),
-      removeItem = removeItemContainer?.items[itemGuid];
+        removeItem = removeItemContainer?.items[itemGuid];
       if (!removeItemContainer || !removeItem) return false;
       if (removeItem.stackCount == count) {
         delete removeItemContainer.items[itemGuid];
@@ -2867,15 +2863,16 @@ export class ZoneServer2016 extends ZoneServer2015 {
         delete client.character._containers[container.slotId].items[
           item.itemGuid
         ];
-      };
-      if (container.slotId != 12) { //ignore backpack for now
+      }
+      if (container.slotId != 12) {
+        //ignore backpack for now
         this.removeInventoryItem(
           client,
           container.itemGuid,
           container.stackCount
         );
       }
-    };
+    }
   }
 
   eatItem(client: Client, itemGuid: string, nameId: number) {
@@ -2905,11 +2902,9 @@ export class ZoneServer2016 extends ZoneServer2015 {
             item.itemDefinitionId
         );
     }
-    this.utilizeHudTimer(client, nameId, timeout, ()=>
-      {
-        this.eatItemPass(client, itemGuid, eatCount, drinkCount, givetrash)
-      }
-    );
+    this.utilizeHudTimer(client, nameId, timeout, () => {
+      this.eatItemPass(client, itemGuid, eatCount, drinkCount, givetrash);
+    });
   }
 
   useMedical(client: Client, itemGuid: string, nameId: number) {
@@ -2940,11 +2935,9 @@ export class ZoneServer2016 extends ZoneServer2015 {
             item.itemDefinitionId
         );
     }
-    this.utilizeHudTimer(client, nameId, timeout, ()=>
-      {
-        this.useMedicalPass(client, itemGuid, healCount, bandagingCount)
-      }
-    );
+    this.utilizeHudTimer(client, nameId, timeout, () => {
+      this.useMedicalPass(client, itemGuid, healCount, bandagingCount);
+    });
   }
 
   igniteOption(client: Client, itemGuid: string, nameId: number) {
@@ -2963,11 +2956,9 @@ export class ZoneServer2016 extends ZoneServer2015 {
             item.itemDefinitionId
         );
     }
-    this.utilizeHudTimer(client, nameId, timeout, ()=>
-      {
-        this.igniteoptionPass(client, itemGuid)
-      }
-    );
+    this.utilizeHudTimer(client, nameId, timeout, () => {
+      this.igniteoptionPass(client, itemGuid);
+    });
   }
 
   drinkItem(client: Client, itemGuid: string, nameId: number) {
@@ -2996,11 +2987,9 @@ export class ZoneServer2016 extends ZoneServer2015 {
             item.itemDefinitionId
         );
     }
-    this.utilizeHudTimer(client, nameId, timeout, ()=>
-      {
-        this.drinkItemPass(client, itemGuid, eatCount, drinkCount, givetrash)
-      }
-    );
+    this.utilizeHudTimer(client, nameId, timeout, () => {
+      this.drinkItemPass(client, itemGuid, eatCount, drinkCount, givetrash);
+    });
   }
 
   fillPass(client: Client, itemGuid: string) {
@@ -3033,11 +3022,9 @@ export class ZoneServer2016 extends ZoneServer2015 {
     }
     switch (useoption) {
       case "fill": // empty bottle
-        this.utilizeHudTimer(client, nameId, timeout, ()=>
-          {
-            this.fillPass(client, itemGuid)
-          }
-        );
+        this.utilizeHudTimer(client, nameId, timeout, () => {
+          this.fillPass(client, itemGuid);
+        });
         break;
       default:
         return;
@@ -3056,11 +3043,9 @@ export class ZoneServer2016 extends ZoneServer2015 {
       default:
         break;
     }
-    this.utilizeHudTimer(client, nameId, timeout, ()=>
-      {
-        this.refuelVehiclePass(client, itemGuid, vehicleGuid, fuelValue)
-      }
-    );
+    this.utilizeHudTimer(client, nameId, timeout, () => {
+      this.refuelVehiclePass(client, itemGuid, vehicleGuid, fuelValue);
+    });
   }
 
   shredItem(client: Client, itemGuid: string) {
@@ -3082,11 +3067,9 @@ export class ZoneServer2016 extends ZoneServer2015 {
       default:
         this.sendChatText(client, "[ERROR] Unknown salvage item or count.");
     }
-    this.utilizeHudTimer(client, nameId, timeout, ()=>
-      {
-        this.shredItemPass(client, itemGuid, count)
-      }
-    );
+    this.utilizeHudTimer(client, nameId, timeout, () => {
+      this.shredItemPass(client, itemGuid, count);
+    });
   }
 
   drinkItemPass(
@@ -3193,7 +3176,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
     client: Client,
     nameId: number,
     timeout: number,
-    callback: any,
+    callback: any
   ) {
     this.startTimer(client, nameId, timeout);
     if (client.hudTimer != null) {
@@ -3263,8 +3246,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
       for (const item of Object.values(container.items)) {
         inventory[item.itemDefinitionId] = []; // init array
         inventory[item.itemDefinitionId].push(item); // push new itemstack
-      };
-    };
+      }
+    }
     return inventory;
   }
   //#endregion
@@ -3285,7 +3268,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
     this.sendChatText(client, "[DEV] Packets reloaded", true);
   }
 
-  pSetImmediate = promisify(setImmediate)
+  pSetImmediate = promisify(setImmediate);
 }
 
 if (process.env.VSCODE_DEBUG === "true") {

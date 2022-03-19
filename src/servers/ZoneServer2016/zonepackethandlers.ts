@@ -27,7 +27,7 @@ let admin = require("./commands/admin").default;
 
 import { _, Int64String, isPosInRadius, getDistance } from "../../utils/utils";
 
-import { CraftManager } from "./classes/craftmanager"
+import { CraftManager } from "./classes/craftmanager";
 
 export class zonePacketHandlers {
   hax: any = hax;
@@ -353,24 +353,24 @@ export class zonePacketHandlers {
         ],
       });
     };
-    this.chatChat = function (
+    (this.chatChat = function (
       server: ZoneServer2016,
       client: Client,
       packet: any
     ) {
       const { channel, message } = packet.data;
       server.sendChat(client, message, channel);
-    },
-    this.ClientInitializationDetails = function (
-      server: ZoneServer2016,
-      client: Client,
-      packet: any
-    ) {
-      // just in case
-      if (packet.data.unknownDword1) {
-        debug("ClientInitializationDetails : ", packet.data.unknownDword1);
-      }
-    };
+    }),
+      (this.ClientInitializationDetails = function (
+        server: ZoneServer2016,
+        client: Client,
+        packet: any
+      ) {
+        // just in case
+        if (packet.data.unknownDword1) {
+          debug("ClientInitializationDetails : ", packet.data.unknownDword1);
+        }
+      });
     this.ClientLogout = function (
       server: ZoneServer2016,
       client: Client,
@@ -401,7 +401,7 @@ export class zonePacketHandlers {
         time3: packet.data.clientTime + 2,
       });
     };
-    this.commandExecuteCommand = async function (
+    (this.commandExecuteCommand = async function (
       server: ZoneServer2016,
       client: Client,
       packet: any
@@ -506,12 +506,7 @@ export class zonePacketHandlers {
           Object.keys(this.admin).forEach((key) => {
             adminCommandList.push(`/admin ${key}`);
           });
-          const commandList = [
-            "/help",
-            "/loc",
-            "/spawninfo",
-            "/serverinfo",
-          ];
+          const commandList = ["/help", "/loc", "/spawninfo", "/serverinfo"];
           server.sendChatText(client, `Commands list:`);
           commandList
             .concat(haxCommandList, devCommandList, adminCommandList)
@@ -596,44 +591,44 @@ export class zonePacketHandlers {
           }
           break;
       }
-    },
-    this.commandInteractRequest = function (
-      server: ZoneServer2016,
-      client: Client,
+    }),
+      (this.commandInteractRequest = function (
+        server: ZoneServer2016,
+        client: Client,
         packet: any
-    ) {
-      server.sendData(client, "Command.InteractionString", {
-        guid: packet.data.guid,
-        stringId: 5463,
-        unknown4: 0,
+      ) {
+        server.sendData(client, "Command.InteractionString", {
+          guid: packet.data.guid,
+          stringId: 5463,
+          unknown4: 0,
+        });
+        server.sendData(client, "Command.InteractionList", {
+          guid: packet.data.guid,
+          unknownBoolean1: true,
+          unknownArray1: [
+            {
+              unknownDword1: 11,
+              unknownDword2: 0,
+              unknownDword3: 5463,
+              unknownDword4: 51,
+              unknownDword5: 1,
+              unknownDword6: 0,
+              unknownDword7: 0,
+            },
+          ],
+          unknownString1: "",
+          unknownBoolean2: true,
+          unknownArray2: [],
+          unknownBoolean3: false,
+        });
+      }),
+      (this.commandInteractCancel = function (
+        server: ZoneServer2016,
+        client: Client,
+        packet: any
+      ) {
+        debug("Interaction Canceled");
       });
-      server.sendData(client, "Command.InteractionList", {
-        guid: packet.data.guid,
-        unknownBoolean1: true,
-        unknownArray1: [
-          {
-            unknownDword1: 11,
-            unknownDword2: 0,
-            unknownDword3: 5463,
-            unknownDword4: 51,
-            unknownDword5: 1,
-            unknownDword6: 0,
-            unknownDword7: 0,
-          },
-        ],
-        unknownString1: "",
-        unknownBoolean2: true,
-        unknownArray2: [],
-        unknownBoolean3: false,
-      });
-    },
-    this.commandInteractCancel = function (
-      server: ZoneServer2016,
-      client: Client,
-      packet: any
-    ) {
-      debug("Interaction Canceled");
-    };
     this.commandStartLogoutRequest = function (
       server: ZoneServer2016,
       client: Client,
@@ -1555,13 +1550,13 @@ export class zonePacketHandlers {
                     }
                   );
                   server.sendDataToAllWithSpawnedEntity(
-                  server._explosives,
-                  characterId,
-                  "Character.RemovePlayer",
-                  {
-                    characterId: characterId,
-                  }
-                );
+                    server._explosives,
+                    characterId,
+                    "Character.RemovePlayer",
+                    {
+                      characterId: characterId,
+                    }
+                  );
                   delete server._explosives[characterId];
                   return;
                 }
@@ -1588,13 +1583,13 @@ export class zonePacketHandlers {
                     }
                   );
                   server.sendDataToAllWithSpawnedEntity(
-                  server._explosives,
-                  characterId,
-                  "Character.RemovePlayer",
-                  {
-                    characterId: characterId,
-                  }
-                );
+                    server._explosives,
+                    characterId,
+                    "Character.RemovePlayer",
+                    {
+                      characterId: characterId,
+                    }
+                  );
                   delete server._explosives[characterId];
                   return;
                 }

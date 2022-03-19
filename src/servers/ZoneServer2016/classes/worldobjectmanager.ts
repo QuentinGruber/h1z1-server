@@ -819,15 +819,39 @@ export class WorldObjectManager {
         authorizedItems.push({ id: this.eItems.LIGHTER, count: 1 });
         authorizedItems.push({ id: this.eItems.WATER_EMPTY, count: 1 });
         authorizedItems.push({ id: this.eItems.WATER_PURE, count: 1 });
-        authorizedItems.push({ id: this.eItems.AMMO_1911, count: randomIntFromInterval(1, 5) });
-        authorizedItems.push({ id: this.eItems.AMMO_9MM, count: randomIntFromInterval(1, 5) });
-        authorizedItems.push({ id: this.eItems.AMMO_380, count: randomIntFromInterval(1, 5) });
-        authorizedItems.push({ id: this.eItems.AMMO_44, count: randomIntFromInterval(1, 5) });
+        authorizedItems.push({
+          id: this.eItems.AMMO_1911,
+          count: randomIntFromInterval(1, 5),
+        });
+        authorizedItems.push({
+          id: this.eItems.AMMO_9MM,
+          count: randomIntFromInterval(1, 5),
+        });
+        authorizedItems.push({
+          id: this.eItems.AMMO_380,
+          count: randomIntFromInterval(1, 5),
+        });
+        authorizedItems.push({
+          id: this.eItems.AMMO_44,
+          count: randomIntFromInterval(1, 5),
+        });
 
-        authorizedItems.push({ id: this.eItems.AMMO_223, count: randomIntFromInterval(1, 5) });
-        authorizedItems.push({ id: this.eItems.AMMO_762, count: randomIntFromInterval(1, 5) });
-        authorizedItems.push({ id: this.eItems.AMMO_308, count: randomIntFromInterval(1, 3) });
-        authorizedItems.push({ id: this.eItems.AMMO_12GA, count: randomIntFromInterval(1, 3) });
+        authorizedItems.push({
+          id: this.eItems.AMMO_223,
+          count: randomIntFromInterval(1, 5),
+        });
+        authorizedItems.push({
+          id: this.eItems.AMMO_762,
+          count: randomIntFromInterval(1, 5),
+        });
+        authorizedItems.push({
+          id: this.eItems.AMMO_308,
+          count: randomIntFromInterval(1, 3),
+        });
+        authorizedItems.push({
+          id: this.eItems.AMMO_12GA,
+          count: randomIntFromInterval(1, 3),
+        });
 
         authorizedItems.push({ id: this.eItems.SPARKPLUGS, count: 1 });
         authorizedItems.push({ id: this.eItems.FIRST_AID, count: 1 });
@@ -863,15 +887,39 @@ export class WorldObjectManager {
     const authorizedItems: Array<{ id: number; count: number }> = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawnerRare_Tier00.adr":
-        authorizedItems.push({ id: this.eItems.AMMO_1911, count: randomIntFromInterval(1, 8) });
-        authorizedItems.push({ id: this.eItems.AMMO_9MM, count: randomIntFromInterval(1, 8) });
-        authorizedItems.push({ id: this.eItems.AMMO_380, count: randomIntFromInterval(1, 8) });
-        authorizedItems.push({ id: this.eItems.AMMO_44, count: randomIntFromInterval(1, 8) });
+        authorizedItems.push({
+          id: this.eItems.AMMO_1911,
+          count: randomIntFromInterval(1, 8),
+        });
+        authorizedItems.push({
+          id: this.eItems.AMMO_9MM,
+          count: randomIntFromInterval(1, 8),
+        });
+        authorizedItems.push({
+          id: this.eItems.AMMO_380,
+          count: randomIntFromInterval(1, 8),
+        });
+        authorizedItems.push({
+          id: this.eItems.AMMO_44,
+          count: randomIntFromInterval(1, 8),
+        });
 
-        authorizedItems.push({ id: this.eItems.AMMO_223, count: randomIntFromInterval(1, 8) });
-        authorizedItems.push({ id: this.eItems.AMMO_762, count: randomIntFromInterval(1, 8) });
-        authorizedItems.push({ id: this.eItems.AMMO_308, count: randomIntFromInterval(1, 5) });
-        authorizedItems.push({ id: this.eItems.AMMO_12GA, count: randomIntFromInterval(1, 5) });
+        authorizedItems.push({
+          id: this.eItems.AMMO_223,
+          count: randomIntFromInterval(1, 8),
+        });
+        authorizedItems.push({
+          id: this.eItems.AMMO_762,
+          count: randomIntFromInterval(1, 8),
+        });
+        authorizedItems.push({
+          id: this.eItems.AMMO_308,
+          count: randomIntFromInterval(1, 5),
+        });
+        authorizedItems.push({
+          id: this.eItems.AMMO_12GA,
+          count: randomIntFromInterval(1, 5),
+        });
 
         authorizedItems.push({ id: this.eItems.WEAPON_45, count: 1 });
         authorizedItems.push({ id: this.eItems.WEAPON_M9, count: 1 });

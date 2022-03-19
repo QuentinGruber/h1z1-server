@@ -83,8 +83,8 @@ export class SOEOutputStream extends EventEmitter {
   }
 
   resendSequence(sequence: number): void {
-    if(this._hadCacheError){
-      return
+    if (this._hadCacheError) {
+      return;
     }
     if (this._cache[sequence]) {
       this.emit(
