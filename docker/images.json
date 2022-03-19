@@ -15,11 +15,6 @@
     "version": "2015"
   },
   {
-    "name": "login-server-2016",
-    "fileName": "LoginServer",
-    "version": "2016"
-  },
-  {
     "name": "zone-server-2016",
     "fileName": "ZoneServer",
     "version": "2016"
