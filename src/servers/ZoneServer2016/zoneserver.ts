@@ -1746,14 +1746,6 @@ export class ZoneServer2016 extends ZoneServer2015 {
     }
   }
 
-  getTransientId(guid: string): number {
-    let generatedTransient;
-    do {
-      generatedTransient = Number((Math.random() * 30000).toFixed(0));
-    } while (this._transientIds[generatedTransient]);
-    this._transientIds[generatedTransient] = guid;
-    return generatedTransient;
-  }
 
   sendRawToAllOthersWithSpawnedCharacter(
     client: Client,

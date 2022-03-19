@@ -39,6 +39,7 @@ import { Resolver } from "dns";
 process.env.isBin && require("./workers/dynamicWeather");
 
 import { zonePacketHandlers } from "./zonepackethandlers";
+import { MAX_TRANSIENT_ID } from "../../utils/constants";
 let localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json");
 
 const debugName = "ZoneServer";
@@ -2688,7 +2689,7 @@ export class ZoneServer2015 extends EventEmitter {
   getTransientId(guid: string): number {
     let generatedTransient;
     do {
-      generatedTransient = Number((Math.random() * 30000).toFixed(0));
+      generatedTransient = Number((Math.random() * MAX_TRANSIENT_ID).toFixed(0));
     } while (!!this._transientIds[generatedTransient]);
     this._transientIds[generatedTransient] = guid;
     return generatedTransient;
