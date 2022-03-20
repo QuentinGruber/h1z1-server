@@ -3,7 +3,7 @@ module.exports = {
     apps : [
         {
           name: "zoneserver2016",
-          script: "./bin/2016/zoneServer.js",
+          script: "./docker/2016/zoneServer.js",
           watch: true,
           env: {
             "NODE_ENV": "production",
