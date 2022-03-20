@@ -2463,10 +2463,11 @@ export class ZoneServer2016 extends ZoneServer2015 {
     return generatedGuid;
   }
 
-  getLoadoutSlot(itemDefinitionId: number) {
+  getLoadoutSlot(itemDefinitionId: number, loadoutId: number = 3) {
     const loadoutSlotItemClass = loadoutSlotItemClasses.find(
       (slot: any) =>
-        slot.ITEM_CLASS === this.getItemDefinition(itemDefinitionId).ITEM_CLASS
+        slot.ITEM_CLASS === this.getItemDefinition(itemDefinitionId).ITEM_CLASS &&
+        loadoutId === slot.LOADOUT_ID
     );
     return loadoutSlotItemClass ? loadoutSlotItemClass.SLOT : -1;
   }
@@ -2650,7 +2651,9 @@ export class ZoneServer2016 extends ZoneServer2015 {
   lootItem(client: Client, itemGuid: string | undefined, count: number) {
     if (!itemGuid) return;
     const itemDefId = this._items[itemGuid].itemDefinitionId;
-    if (this.getItemDefinition(itemDefId).FLAG_CAN_EQUIP) {
+    if (this.getItemDefinition(itemDefId).FLAG_CAN_EQUIP && 
+    this.getLoadoutSlot(itemDefId)
+    ) {
       if (client.character._loadout[this.getLoadoutSlot(itemDefId)]) {
         this.lootContainerItem(client, itemGuid, count);
       } else {
