@@ -927,7 +927,6 @@ export class ZoneServer2016 extends ZoneServer2015 {
   damageVehicle(damage: number, vehicle: Vehicle, loopDamageMs = 0) {
     if (!vehicle.isInvulnerable) {
       let destroyedVehicleEffect: number;
-      let destroyedVehicleModel: number;
       let minorDamageEffect: number;
       let majorDamageEffect: number;
       let criticalDamageEffect: number;
@@ -935,7 +934,6 @@ export class ZoneServer2016 extends ZoneServer2015 {
       switch (vehicle.npcData.vehicleId) {
         case 1: //offroader
           destroyedVehicleEffect = 135;
-          destroyedVehicleModel = 7226;
           minorDamageEffect = 182;
           majorDamageEffect = 181;
           criticalDamageEffect = 180;
@@ -943,7 +941,6 @@ export class ZoneServer2016 extends ZoneServer2015 {
           break;
         case 2: // pickup
           destroyedVehicleEffect = 326;
-          destroyedVehicleModel = 9315;
           minorDamageEffect = 325;
           majorDamageEffect = 324;
           criticalDamageEffect = 323;
@@ -951,7 +948,6 @@ export class ZoneServer2016 extends ZoneServer2015 {
           break;
         case 3: // police car
           destroyedVehicleEffect = 286;
-          destroyedVehicleModel = 9316;
           minorDamageEffect = 285;
           majorDamageEffect = 284;
           criticalDamageEffect = 283;
@@ -959,7 +955,6 @@ export class ZoneServer2016 extends ZoneServer2015 {
           break;
         case 5: // atv
           destroyedVehicleEffect = 357;
-          destroyedVehicleModel = 9593;
           minorDamageEffect = 360;
           majorDamageEffect = 359;
           criticalDamageEffect = 358;
@@ -967,7 +962,6 @@ export class ZoneServer2016 extends ZoneServer2015 {
           break;
         default:
           destroyedVehicleEffect = 135;
-          destroyedVehicleModel = 7226;
           minorDamageEffect = 182;
           majorDamageEffect = 181;
           criticalDamageEffect = 180;
