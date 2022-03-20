@@ -916,7 +916,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
     for (const explosive in this._explosives) {
       const explosiveObj = this._explosives[explosive];
       if (explosiveObj.characterId != npcTriggered) {
-        if (getDistance(position, explosiveObj.position) < 2) {
+        if (getDistance(position, explosiveObj.position) < 4) {
           await timer(150);
           this.explodeExplosive(explosiveObj);
         }
