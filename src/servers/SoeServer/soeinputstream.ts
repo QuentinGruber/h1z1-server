@@ -109,11 +109,9 @@ export class SOEInputStream extends EventEmitter {
                       It does this by having all internal packets start with a zero (0) byte.
                     */
           if (data.length > 1 && data.readUInt16LE(0) === 0) {
-            data = Buffer.from(
-              this._rc4.encrypt(new Uint32Array(data.slice(1)))
-            );
+            data = Buffer.from(this._rc4.encrypt(data.slice(1)));
           } else {
-            data = Buffer.from(this._rc4.encrypt(new Uint32Array(data)));
+            data = Buffer.from(this._rc4.encrypt(data));
           }
         }
         this.emit("data", null, data);

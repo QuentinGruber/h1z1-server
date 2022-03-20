@@ -213,4 +213,3 @@ export class Character2016 extends Character {
     };
   }
 }
-

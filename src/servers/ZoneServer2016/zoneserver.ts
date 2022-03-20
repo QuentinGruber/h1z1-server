@@ -12,7 +12,7 @@
 // ======================================================================
 
 const debugName = "ZoneServer",
-debug = require("debug")(debugName);
+  debug = require("debug")(debugName);
 import { promisify } from "util";
 import { zonePacketHandlers } from "./zonepackethandlers";
 import { ZoneServer2015 } from "../ZoneServer2015/zoneserver";
@@ -44,16 +44,16 @@ import dynamicWeather from "./workers/dynamicWeather";
 
 // need to get 2016 lists
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
-recipes = require("../../../data/2016/sampleData/recipes.json"),
-deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
-localWeatherTemplates = require("../../../data/2016/dataSources/weather.json"),
-stats = require("../../../data/2016/sampleData/stats.json"),
-resources = require("../../../data/2016/dataSources/resourceDefinitions.json"),
-localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json"),
-itemDefinitions = require("./../../../data/2016/dataSources/ServerItemDefinitions.json"),
-containerDefinitions = require("./../../../data/2016/dataSources/ContainerDefinitions.json"),
-loadoutSlotItemClasses = require("./../../../data/2016/dataSources/LoadoutSlotItemClasses.json"),
-loadoutEquipSlots = require("./../../../data/2016/dataSources/LoadoutEquipSlots.json");
+  recipes = require("../../../data/2016/sampleData/recipes.json"),
+  deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
+  localWeatherTemplates = require("../../../data/2016/dataSources/weather.json"),
+  stats = require("../../../data/2016/sampleData/stats.json"),
+  resources = require("../../../data/2016/dataSources/resourceDefinitions.json"),
+  localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json"),
+  itemDefinitions = require("./../../../data/2016/dataSources/ServerItemDefinitions.json"),
+  containerDefinitions = require("./../../../data/2016/dataSources/ContainerDefinitions.json"),
+  loadoutSlotItemClasses = require("./../../../data/2016/dataSources/LoadoutSlotItemClasses.json"),
+  loadoutEquipSlots = require("./../../../data/2016/dataSources/LoadoutEquipSlots.json");
 
 export class ZoneServer2016 extends ZoneServer2015 {
   _weather2016: Weather2016;
@@ -89,7 +89,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
     super(serverPort, gatewayKey, mongoAddress, worldId, internalServerPort);
     this._protocol = new H1Z1Protocol("ClientProtocol_1080");
     this._clientProtocol = "ClientProtocol_1080";
-    this._dynamicWeatherEnabled = false;
+    this._dynamicWeatherEnabled = true;
+    this._timeMultiplier = 72;
     this._cycleSpeed = 100;
     this._weatherTemplates = localWeatherTemplates;
     this._defaultWeatherTemplate = "z1br";
@@ -126,10 +127,6 @@ export class ZoneServer2016 extends ZoneServer2015 {
         unknownByte4: 1,
       };
     });
-    this._loginServerInfo = {
-      address: "127.0.0.1",
-      port: 1110,
-    };
     this.worldObjectManager = new WorldObjectManager();
   }
 
@@ -745,7 +742,19 @@ export class ZoneServer2016 extends ZoneServer2015 {
     this._startTime += Date.now();
     this._startGameTime += Date.now();
     if (this._dynamicWeatherEnabled) {
-      this._dynamicWeatherWorker = setInterval(() => dynamicWeather(this), 100);
+      this._dynamicWeatherWorker = setTimeout(() => {
+        if (!this._dynamicWeatherEnabled) {
+          return;
+        }
+        const rnd_weather = dynamicWeather(
+          this._serverTime,
+          this._startTime,
+          this._timeMultiplier
+        );
+        this._weather2016 = rnd_weather;
+        this.sendDataToAll("UpdateWeatherData", rnd_weather);
+        this._dynamicWeatherWorker.refresh();
+      }, 360000 / this._timeMultiplier);
     }
     this._gatewayServer.start(true); // SET TO TRUE OR ELSE MULTIPLAYER PACKETS ARE BROKEN
     this.worldRoutineTimer = setTimeout(
@@ -878,7 +887,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
     character.isAlive = false;
   }
 
-  explosionDamage(position: Float32Array, npcTriggered: string) {
+  async explosionDamage(position: Float32Array, npcTriggered: string) {
+    const timer = (ms: number) => new Promise((res) => setTimeout(res, ms));
     for (const character in this._clients) {
       const characterObj = this._clients[character];
       if (!characterObj.character.godMode) {
@@ -898,20 +908,17 @@ export class ZoneServer2016 extends ZoneServer2015 {
         if (isPosInRadius(5, vehicle.npcData.position, position)) {
           const distance = getDistance(position, vehicle.npcData.position);
           const damage = 250000 / distance;
-          setTimeout(() => {
-            this.damageVehicle(damage, vehicle);
-          }, 100);
+          await timer(150);
+          this.damageVehicle(damage, vehicle);
         }
       }
     }
     for (const explosive in this._explosives) {
       const explosiveObj = this._explosives[explosive];
       if (explosiveObj.characterId != npcTriggered) {
-        if (getDistance(position, explosiveObj.position) < 3) {
-          setTimeout(() => {
-            this.explodeExplosive(explosiveObj);
-          }, 150);
-          return;
+        if (getDistance(position, explosiveObj.position) < 2) {
+          await timer(150);
+          this.explodeExplosive(explosiveObj);
         }
       }
     }
@@ -920,7 +927,6 @@ export class ZoneServer2016 extends ZoneServer2015 {
   damageVehicle(damage: number, vehicle: Vehicle, loopDamageMs = 0) {
     if (!vehicle.isInvulnerable) {
       let destroyedVehicleEffect: number;
-      let destroyedVehicleModel: number;
       let minorDamageEffect: number;
       let majorDamageEffect: number;
       let criticalDamageEffect: number;
@@ -928,7 +934,6 @@ export class ZoneServer2016 extends ZoneServer2015 {
       switch (vehicle.npcData.vehicleId) {
         case 1: //offroader
           destroyedVehicleEffect = 135;
-          destroyedVehicleModel = 7226;
           minorDamageEffect = 182;
           majorDamageEffect = 181;
           criticalDamageEffect = 180;
@@ -936,7 +941,6 @@ export class ZoneServer2016 extends ZoneServer2015 {
           break;
         case 2: // pickup
           destroyedVehicleEffect = 326;
-          destroyedVehicleModel = 9315;
           minorDamageEffect = 325;
           majorDamageEffect = 324;
           criticalDamageEffect = 323;
@@ -944,7 +948,6 @@ export class ZoneServer2016 extends ZoneServer2015 {
           break;
         case 3: // police car
           destroyedVehicleEffect = 286;
-          destroyedVehicleModel = 9316;
           minorDamageEffect = 285;
           majorDamageEffect = 284;
           criticalDamageEffect = 283;
@@ -952,7 +955,6 @@ export class ZoneServer2016 extends ZoneServer2015 {
           break;
         case 5: // atv
           destroyedVehicleEffect = 357;
-          destroyedVehicleModel = 9593;
           minorDamageEffect = 360;
           majorDamageEffect = 359;
           criticalDamageEffect = 358;
@@ -960,7 +962,6 @@ export class ZoneServer2016 extends ZoneServer2015 {
           break;
         default:
           destroyedVehicleEffect = 135;
-          destroyedVehicleModel = 7226;
           minorDamageEffect = 182;
           majorDamageEffect = 181;
           criticalDamageEffect = 180;
@@ -974,36 +975,33 @@ export class ZoneServer2016 extends ZoneServer2015 {
           vehicle.npcData.position,
           vehicle.npcData.characterId
         );
-        this.sendDataToAll("Character.Destroyed", {
-          characterId: vehicle.npcData.characterId,
-          unknown1: destroyedVehicleEffect, // destroyed offroader effect
-          unknown2: destroyedVehicleModel, // destroyed offroader model
-          unknown3: 0,
-          disableWeirdPhysics: false,
-        });
-        vehicle.npcData.destroyedState = 4;
+        this.sendDataToAllWithSpawnedEntity(
+          this._vehicles,
+          vehicle.npcData.characterId,
+          "Command.PlayDialogEffect",
+          {
+            characterId: vehicle.npcData.characterId,
+            effectId: destroyedVehicleEffect,
+          }
+        );
         for (const c in this._clients) {
           if (
             vehicle.npcData.characterId ===
-            this._clients[c].vehicle.mountedVehicle
+              this._clients[c].vehicle.mountedVehicle &&
+            !this._clients[c].character.isAlive
           ) {
             this.dismountVehicle(this._clients[c]);
           }
         }
-        if (vehicle.resourcesUpdater) {
-          clearInterval(vehicle.resourcesUpdater);
-        }
+        this.sendDataToAllWithSpawnedEntity(
+          this._vehicles,
+          vehicle.npcData.characterId,
+          "Character.RemovePlayer",
+          {
+            characterId: vehicle.npcData.characterId,
+          }
+        );
         delete this._vehicles[vehicle.npcData.characterId];
-        setTimeout(() => {
-          this.sendDataToAllWithSpawnedEntity(
-            this._vehicles,
-            vehicle.npcData.characterId,
-            "Character.RemovePlayer",
-            {
-              characterId: vehicle.npcData.characterId,
-            }
-          );
-        }, 15000);
       } else {
         let damageeffect = 0;
         let allowSend = false;
@@ -1093,6 +1091,9 @@ export class ZoneServer2016 extends ZoneServer2015 {
 
   async respawnPlayer(client: Client) {
     client.character.isAlive = true;
+    if (client.vehicle.mountedVehicle) {
+      this.dismountVehicle(client);
+    }
     client.isLoading = true;
     client.character.resources.health = 10000;
     client.character.resources.food = 10000;
@@ -1735,15 +1736,6 @@ export class ZoneServer2016 extends ZoneServer2015 {
     }
   }
 
-  getTransientId(guid: string): number {
-    let generatedTransient;
-    do {
-      generatedTransient = Number((Math.random() * 30000).toFixed(0));
-    } while (this._transientIds[generatedTransient]);
-    this._transientIds[generatedTransient] = guid;
-    return generatedTransient;
-  }
-
   sendRawToAllOthersWithSpawnedCharacter(
     client: Client,
     entityCharacterId: string = "",
@@ -1760,7 +1752,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
       }
     }
   }
-  
+
   sendDataToAllWithSpawnedCharacter(
     client: Client,
     packetName: any,
@@ -1778,7 +1770,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
       }
     }
   }
-  
+
   //#region ********************VEHICLE********************
   vehicleManager(client: Client) {
     for (const key in this._vehicles) {
@@ -1865,7 +1857,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
         objectCharacterId: vehicle.npcData.characterId,
       });*/ // dont work :/
 
-      this.sendData( // temp workaround
+      this.sendData(
+        // temp workaround
         client,
         "Character.RemovePlayer",
         {
@@ -1901,7 +1894,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
   }
 
   sendDataToAllWithSpawnedEntity(
-    dictionary: {[id: string]: any},
+    dictionary: { [id: string]: any },
     entityCharacterId: string = "",
     packetName: any,
     obj: any,
@@ -1910,9 +1903,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
     if (!entityCharacterId) return;
     for (const a in this._clients) {
       if (
-        this._clients[a].spawnedEntities.includes(
-          dictionary[entityCharacterId]
-        )
+        this._clients[a].spawnedEntities.includes(dictionary[entityCharacterId])
       ) {
         this.sendData(this._clients[a], packetName, obj, channel);
       }
@@ -1938,7 +1929,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
   }
 
   sendDataToAllOthersWithSpawnedEntity(
-    dictionary: {[id: string]: any},
+    dictionary: { [id: string]: any },
     client: Client,
     entityCharacterId: string = "",
     packetName: any,
@@ -1949,9 +1940,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
     for (const a in this._clients) {
       if (
         client != this._clients[a] &&
-        this._clients[a].spawnedEntities.includes(
-          dictionary[entityCharacterId]
-        )
+        this._clients[a].spawnedEntities.includes(dictionary[entityCharacterId])
       ) {
         this.sendData(this._clients[a], packetName, obj, channel);
       }
@@ -2014,40 +2003,47 @@ export class ZoneServer2016 extends ZoneServer2015 {
           }
         );
         this._vehicles[vehicleGuid].engineOn = true;
-        this._vehicles[vehicleGuid].resourcesUpdater = setInterval(() => {
-          if (!this._vehicles[vehicleGuid].engineOn) {
-            clearInterval(this._vehicles[vehicleGuid].resourcesUpdater);
-          }
-          if (this._vehicles[vehicleGuid].positionUpdate.engineRPM) {
-            const fuelLoss =
-              this._vehicles[vehicleGuid].positionUpdate.engineRPM * 0.01;
-            this._vehicles[vehicleGuid].npcData.resources.fuel -= fuelLoss;
-          }
-          if (this._vehicles[vehicleGuid].npcData.resources.fuel < 0) {
-            this._vehicles[vehicleGuid].npcData.resources.fuel = 0;
-          }
-          if (
-            this._vehicles[vehicleGuid].engineOn &&
-            this._vehicles[vehicleGuid].npcData.resources.fuel <= 0
-          ) {
-            this.sendDataToAllWithSpawnedEntity(
-              this._vehicles,
-              vehicleGuid,
-              "Vehicle.Engine",
-              {
-                guid2: vehicleGuid,
-                engineOn: false,
-              }
+        if (!this._vehicles[vehicleGuid].resourcesUpdater) {
+          this._vehicles[vehicleGuid].resourcesUpdater = setTimeout(() => {
+            if (!this._vehicles[vehicleGuid]) {
+              return;
+            }
+            if (!this._vehicles[vehicleGuid].engineOn) {
+              delete this._vehicles[vehicleGuid].resourcesUpdater;
+              return;
+            }
+            if (this._vehicles[vehicleGuid].positionUpdate.engineRPM) {
+              const fuelLoss =
+                this._vehicles[vehicleGuid].positionUpdate.engineRPM * 0.01;
+              this._vehicles[vehicleGuid].npcData.resources.fuel -= fuelLoss;
+            }
+            if (this._vehicles[vehicleGuid].npcData.resources.fuel < 0) {
+              this._vehicles[vehicleGuid].npcData.resources.fuel = 0;
+            }
+            if (
+              this._vehicles[vehicleGuid].engineOn &&
+              this._vehicles[vehicleGuid].npcData.resources.fuel <= 0
+            ) {
+              this.sendDataToAllWithSpawnedEntity(
+                this._vehicles,
+                vehicleGuid,
+                "Vehicle.Engine",
+                {
+                  guid2: vehicleGuid,
+                  engineOn: false,
+                }
+              );
+            }
+            this.updateResourceToAllWithSpawnedVehicle(
+              vehicle.passengers.passenger1,
+              vehicle.npcData.characterId,
+              vehicle.npcData.resources.fuel,
+              396,
+              50
             );
-          }
-          this.updateResourceToAllWithSpawnedVehicle(
-            vehicle.passengers.passenger1,
-            vehicle.npcData.characterId,
-            vehicle.npcData.resources.fuel,
-            396,
-            50
-          );
-        }, 3000);
+            this._vehicles[vehicleGuid].resourcesUpdater.refresh();
+          }, 3000);
+        }
       }
       this.sendDataToAllWithSpawnedCharacter(client, "Vehicle.Owner", {
         guid: vehicle.npcData.characterId,
@@ -2232,7 +2228,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
       time: time,
     });
   }
-  
+
   //#region ********************INVENTORY********************
 
   updateLoadout(client: Client) {
@@ -2450,7 +2446,10 @@ export class ZoneServer2016 extends ZoneServer2015 {
   }
 
   generateItem(itemDefinitionId: any) {
-    const generatedGuid = `0x${randomIntFromInterval(0x3000000000000000, 0x3fffffffffffffff).toString(16)}`;
+    const generatedGuid = `0x${randomIntFromInterval(
+      0x3000000000000000,
+      0x3fffffffffffffff
+    ).toString(16)}`;
     this._items[generatedGuid] = {
       guid: generatedGuid,
       itemDefinitionId: Number(itemDefinitionId),
@@ -2482,7 +2481,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
     let bulk = 0;
     for (const item of Object.values(container.items)) {
       bulk += this.getItemDefinition(item.itemDefinitionId).BULK;
-    };
+    }
     return bulk;
   }
 
@@ -2520,21 +2519,18 @@ export class ZoneServer2016 extends ZoneServer2015 {
       if (container.items[itemGuid]) {
         return container;
       }
-    };
+    }
     return undefined;
   }
 
-  getItemById(
-    client: Client,
-    itemDefId: number,
-  ): string {
+  getItemById(client: Client, itemDefId: number): string {
     for (const container of Object.values(client.character._containers)) {
       for (const item of Object.values(container.items)) {
         if (item.itemDefinitionId == itemDefId) {
           return item.itemGuid;
         }
       }
-    };
+    }
     return "";
   }
 
@@ -2553,7 +2549,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
       ) {
         return item.itemGuid;
       }
-    };
+    }
     return "";
   }
 
@@ -2562,8 +2558,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
     itemGuid: string
   ): inventoryItem | undefined {
     const item = this._items[itemGuid],
-    itemDefinition = this.getItemDefinition(item.itemDefinitionId),
-    loadoutSlotId = this.getLoadoutSlot(itemDefinition.ID);
+      itemDefinition = this.getItemDefinition(item.itemDefinitionId),
+      loadoutSlotId = this.getLoadoutSlot(itemDefinition.ID);
     if (client.character._loadout[loadoutSlotId]?.itemGuid == itemGuid) {
       return client.character._loadout[loadoutSlotId];
     } else {
@@ -2579,10 +2575,10 @@ export class ZoneServer2016 extends ZoneServer2015 {
     itemGuid: string,
     count: number = 1
   ): boolean {
-    if(!this._items[itemGuid]) return false;
+    if (!this._items[itemGuid]) return false;
     const item = this._items[itemGuid],
-    itemDefinition = this.getItemDefinition(item.itemDefinitionId),
-    loadoutSlotId = this.getLoadoutSlot(itemDefinition.ID);
+      itemDefinition = this.getItemDefinition(item.itemDefinitionId),
+      loadoutSlotId = this.getLoadoutSlot(itemDefinition.ID);
     if (client.character._loadout[loadoutSlotId]?.itemGuid == itemGuid) {
       this.deleteItem(client, itemGuid);
       // TODO: add logic for checking if loadout item has an equipment slot, ex. radio doesn't have one
@@ -2602,7 +2598,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
       }
     } else {
       const removeItemContainer = this.getItemContainer(client, itemGuid),
-      removeItem = removeItemContainer?.items[itemGuid];
+        removeItem = removeItemContainer?.items[itemGuid];
       if (!removeItemContainer || !removeItem) return false;
       if (removeItem.stackCount == count) {
         delete removeItemContainer.items[itemGuid];
@@ -2860,15 +2856,16 @@ export class ZoneServer2016 extends ZoneServer2015 {
         delete client.character._containers[container.slotId].items[
           item.itemGuid
         ];
-      };
-      if (container.slotId != 12) { //ignore backpack for now
+      }
+      if (container.slotId != 12) {
+        //ignore backpack for now
         this.removeInventoryItem(
           client,
           container.itemGuid,
           container.stackCount
         );
       }
-    };
+    }
   }
 
   eatItem(client: Client, itemGuid: string, nameId: number) {
@@ -2898,11 +2895,9 @@ export class ZoneServer2016 extends ZoneServer2015 {
             item.itemDefinitionId
         );
     }
-    this.utilizeHudTimer(client, nameId, timeout, ()=>
-      {
-        this.eatItemPass(client, itemGuid, eatCount, drinkCount, givetrash)
-      }
-    );
+    this.utilizeHudTimer(client, nameId, timeout, () => {
+      this.eatItemPass(client, itemGuid, eatCount, drinkCount, givetrash);
+    });
   }
 
   useMedical(client: Client, itemGuid: string, nameId: number) {
@@ -2933,11 +2928,9 @@ export class ZoneServer2016 extends ZoneServer2015 {
             item.itemDefinitionId
         );
     }
-    this.utilizeHudTimer(client, nameId, timeout, ()=>
-      {
-        this.useMedicalPass(client, itemGuid, healCount, bandagingCount)
-      }
-    );
+    this.utilizeHudTimer(client, nameId, timeout, () => {
+      this.useMedicalPass(client, itemGuid, healCount, bandagingCount);
+    });
   }
 
   igniteOption(client: Client, itemGuid: string, nameId: number) {
@@ -2956,11 +2949,9 @@ export class ZoneServer2016 extends ZoneServer2015 {
             item.itemDefinitionId
         );
     }
-    this.utilizeHudTimer(client, nameId, timeout, ()=>
-      {
-        this.igniteoptionPass(client, itemGuid)
-      }
-    );
+    this.utilizeHudTimer(client, nameId, timeout, () => {
+      this.igniteoptionPass(client, itemGuid);
+    });
   }
 
   drinkItem(client: Client, itemGuid: string, nameId: number) {
@@ -2989,11 +2980,9 @@ export class ZoneServer2016 extends ZoneServer2015 {
             item.itemDefinitionId
         );
     }
-    this.utilizeHudTimer(client, nameId, timeout, ()=>
-      {
-        this.drinkItemPass(client, itemGuid, eatCount, drinkCount, givetrash)
-      }
-    );
+    this.utilizeHudTimer(client, nameId, timeout, () => {
+      this.drinkItemPass(client, itemGuid, eatCount, drinkCount, givetrash);
+    });
   }
 
   fillPass(client: Client, itemGuid: string) {
@@ -3026,11 +3015,9 @@ export class ZoneServer2016 extends ZoneServer2015 {
     }
     switch (useoption) {
       case "fill": // empty bottle
-        this.utilizeHudTimer(client, nameId, timeout, ()=>
-          {
-            this.fillPass(client, itemGuid)
-          }
-        );
+        this.utilizeHudTimer(client, nameId, timeout, () => {
+          this.fillPass(client, itemGuid);
+        });
         break;
       default:
         return;
@@ -3049,11 +3036,9 @@ export class ZoneServer2016 extends ZoneServer2015 {
       default:
         break;
     }
-    this.utilizeHudTimer(client, nameId, timeout, ()=>
-      {
-        this.refuelVehiclePass(client, itemGuid, vehicleGuid, fuelValue)
-      }
-    );
+    this.utilizeHudTimer(client, nameId, timeout, () => {
+      this.refuelVehiclePass(client, itemGuid, vehicleGuid, fuelValue);
+    });
   }
 
   shredItem(client: Client, itemGuid: string) {
@@ -3075,11 +3060,9 @@ export class ZoneServer2016 extends ZoneServer2015 {
       default:
         this.sendChatText(client, "[ERROR] Unknown salvage item or count.");
     }
-    this.utilizeHudTimer(client, nameId, timeout, ()=>
-      {
-        this.shredItemPass(client, itemGuid, count)
-      }
-    );
+    this.utilizeHudTimer(client, nameId, timeout, () => {
+      this.shredItemPass(client, itemGuid, count);
+    });
   }
 
   drinkItemPass(
@@ -3186,7 +3169,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
     client: Client,
     nameId: number,
     timeout: number,
-    callback: any,
+    callback: any
   ) {
     this.startTimer(client, nameId, timeout);
     if (client.hudTimer != null) {
@@ -3226,6 +3209,9 @@ export class ZoneServer2016 extends ZoneServer2015 {
   }
 
   explodeExplosive(explosive: any) {
+    if (!this._explosives[explosive.characterId]) {
+      return;
+    }
     this.sendDataToAllWithSpawnedEntity(
       this._explosives,
       explosive.characterId,
@@ -3256,8 +3242,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
       for (const item of Object.values(container.items)) {
         inventory[item.itemDefinitionId] = []; // init array
         inventory[item.itemDefinitionId].push(item); // push new itemstack
-      };
-    };
+      }
+    }
     return inventory;
   }
   //#endregion
@@ -3278,7 +3264,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
     this.sendChatText(client, "[DEV] Packets reloaded", true);
   }
 
-  pSetImmediate = promisify(setImmediate)
+  pSetImmediate = promisify(setImmediate);
 }
 
 if (process.env.VSCODE_DEBUG === "true") {

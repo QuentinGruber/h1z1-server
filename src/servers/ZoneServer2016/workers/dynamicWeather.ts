@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { _, randomIntFromInterval } from "../../../utils/utils";
+import { randomIntFromInterval } from "../../../utils/utils";
 const debug = require("debug")("dynamicWeather");
 
 let fogValue = 2;
@@ -27,9 +27,6 @@ let fog = 0; // density
 let currentSeason = "summer";
 let skyColor = 0;
 let windStrength = 0;
-let sunPositionX = 0;
-let sunPositionY = 0;
-let sunPositionZ = 0;
 let c1 = 0;
 let c2 = 0;
 let c3 = 0;
@@ -59,33 +56,21 @@ function chooseWeather() {
         case "summer":
           temperature = 80;
           windStrength = randomIntFromInterval(0, 60);
-          sunPositionX = 15;
-          sunPositionY = 90;
-          sunPositionZ = 0;
           fog = 0;
           break;
         case "autumn":
           temperature = 80;
           windStrength = randomIntFromInterval(0, 120);
-          sunPositionX = 30;
-          sunPositionY = 110;
-          sunPositionZ = 20;
           fog = 0;
           break;
         case "winter":
           temperature = 0;
           windStrength = randomIntFromInterval(0, 160);
-          sunPositionX = 90;
-          sunPositionY = 130;
-          sunPositionZ = 60;
           fog = 0;
           break;
         case "spring":
           temperature = 80;
           windStrength = randomIntFromInterval(0, 100);
-          sunPositionX = 20;
-          sunPositionY = 110;
-          sunPositionZ = 10;
           fog = 0;
           break;
         default:
@@ -102,33 +87,21 @@ function chooseWeather() {
         case "summer":
           temperature = 80;
           windStrength = randomIntFromInterval(0, 120);
-          sunPositionX = 15;
-          sunPositionY = 90;
-          sunPositionZ = 0;
           fog = randomIntFromInterval(0, 80);
           break;
         case "autumn":
           temperature = 80;
           windStrength = randomIntFromInterval(0, 240);
-          sunPositionX = 30;
-          sunPositionY = 110;
-          sunPositionZ = 20;
           fog = randomIntFromInterval(140, 200);
           break;
         case "winter":
           temperature = 0;
           windStrength = randomIntFromInterval(0, 600);
-          sunPositionX = 90;
-          sunPositionY = 130;
-          sunPositionZ = 60;
           fog = randomIntFromInterval(140, 200);
           break;
         case "spring":
           temperature = 80;
           windStrength = randomIntFromInterval(0, 160);
-          sunPositionX = 20;
-          sunPositionY = 110;
-          sunPositionZ = 10;
           fog = randomIntFromInterval(0, 100);
           break;
         default:
@@ -145,33 +118,21 @@ function chooseWeather() {
         case "summer":
           temperature = 80;
           windStrength = randomIntFromInterval(0, 100);
-          sunPositionX = 15;
-          sunPositionY = 90;
-          sunPositionZ = 0;
           fog = randomIntFromInterval(0, 40);
           break;
         case "autumn":
           temperature = 80;
           windStrength = randomIntFromInterval(0, 180);
-          sunPositionX = 30;
-          sunPositionY = 110;
-          sunPositionZ = 20;
           fog = randomIntFromInterval(38, 100);
           break;
         case "winter":
           temperature = 0;
           windStrength = randomIntFromInterval(0, 400);
-          sunPositionX = 90;
-          sunPositionY = 130;
-          sunPositionZ = 60;
           fog = randomIntFromInterval(38, 100);
           break;
         case "spring":
           temperature = 80;
           windStrength = randomIntFromInterval(0, 140);
-          sunPositionX = 20;
-          sunPositionY = 110;
-          sunPositionZ = 10;
           fog = randomIntFromInterval(0, 48);
           break;
         default:
@@ -249,12 +210,13 @@ export default function dynamicWeather(
       const fogtogglechance = randomIntFromInterval(0, 100);
       if (!fogChecked) {
         if (fogtogglechance <= 75) {
-          const fog = 0;
+          fog = 0;
         }
+        fogChecked = true;
       }
       break;
     case 3: //
-      fogChecked = true;
+      fogChecked = false;
       weatherChoosen = false;
       break;
     /*case 4: // start accumulating rain clouds and start rain with a random delay (after clouds accululated) if matched %chance

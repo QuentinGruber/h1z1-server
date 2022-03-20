@@ -12,6 +12,8 @@
 // ======================================================================
 process.env.isBin && require('v8-compile-cache');
 
+require("./out/utils/processErrorHandling")
+
 const PackageSetting = require("./package.json");
 
 console.log(
