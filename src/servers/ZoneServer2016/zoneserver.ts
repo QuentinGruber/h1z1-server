@@ -990,10 +990,6 @@ export class ZoneServer2016 extends ZoneServer2015 {
             effectId: destroyedVehicleEffect,
           }
         );
-        vehicle.npcData.destroyedState = 4;
-        vehicle.npcData.modelId = destroyedVehicleModel;
-        vehicle.destroyed = true;
-        const vehicleId = vehicle.npcData.characterId;
         for (const c in this._clients) {
           if (
             vehicle.npcData.characterId ===
