@@ -2386,7 +2386,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
     const item = this._items[itemGuid],
       def = this.getItemDefinition(item.itemDefinitionId),
       loadoutSlotId = this.getLoadoutSlot(item.itemDefinitionId);
-    if (loadoutSlotId == -1) {
+    if (!loadoutSlotId) {
       debug(
         `[ERROR] equipItem: Tried to equip item with itemDefinitionId: ${item.itemDefinitionId} with an invalid loadoutSlotId!`
       );
@@ -2469,7 +2469,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
         slot.ITEM_CLASS === this.getItemDefinition(itemDefinitionId).ITEM_CLASS &&
         loadoutId === slot.LOADOUT_ID
     );
-    return loadoutSlotItemClass ? loadoutSlotItemClass.SLOT : -1;
+    return loadoutSlotItemClass ? loadoutSlotItemClass.SLOT : 0;
   }
 
   getEquipmentSlot(loadoutSlotId: number) {
