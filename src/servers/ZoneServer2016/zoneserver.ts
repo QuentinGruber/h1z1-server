@@ -931,9 +931,11 @@ export class ZoneServer2016 extends ZoneServer2015 {
       let majorDamageEffect: number;
       let criticalDamageEffect: number;
       let supercriticalDamageEffect: number;
+      let destroyedVehicleModel: number;
       switch (vehicle.npcData.vehicleId) {
         case 1: //offroader
           destroyedVehicleEffect = 135;
+          destroyedVehicleModel = 7226;
           minorDamageEffect = 182;
           majorDamageEffect = 181;
           criticalDamageEffect = 180;
@@ -941,6 +943,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
           break;
         case 2: // pickup
           destroyedVehicleEffect = 326;
+          destroyedVehicleModel = 9315;
           minorDamageEffect = 325;
           majorDamageEffect = 324;
           criticalDamageEffect = 323;
@@ -948,6 +951,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
           break;
         case 3: // police car
           destroyedVehicleEffect = 286;
+          destroyedVehicleModel = 9316;
           minorDamageEffect = 285;
           majorDamageEffect = 284;
           criticalDamageEffect = 283;
@@ -955,6 +959,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
           break;
         case 5: // atv
           destroyedVehicleEffect = 357;
+          destroyedVehicleModel = 9593;
           minorDamageEffect = 360;
           majorDamageEffect = 359;
           criticalDamageEffect = 358;
@@ -962,6 +967,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
           break;
         default:
           destroyedVehicleEffect = 135;
+          destroyedVehicleModel = 7226;
           minorDamageEffect = 182;
           majorDamageEffect = 181;
           criticalDamageEffect = 180;
@@ -970,38 +976,11 @@ export class ZoneServer2016 extends ZoneServer2015 {
       }
       vehicle.npcData.resources.health -= damage;
       if (vehicle.npcData.resources.health <= 0) {
-        vehicle.npcData.resources.health = 0;
-        this.explosionDamage(
-          vehicle.npcData.position,
-          vehicle.npcData.characterId
+        this.destroyVehicle(
+          vehicle,
+          destroyedVehicleEffect,
+          destroyedVehicleModel
         );
-        this.sendDataToAllWithSpawnedEntity(
-          this._vehicles,
-          vehicle.npcData.characterId,
-          "Command.PlayDialogEffect",
-          {
-            characterId: vehicle.npcData.characterId,
-            effectId: destroyedVehicleEffect,
-          }
-        );
-        for (const c in this._clients) {
-          if (
-            vehicle.npcData.characterId ===
-              this._clients[c].vehicle.mountedVehicle &&
-            !this._clients[c].character.isAlive
-          ) {
-            this.dismountVehicle(this._clients[c]);
-          }
-        }
-        this.sendDataToAllWithSpawnedEntity(
-          this._vehicles,
-          vehicle.npcData.characterId,
-          "Character.RemovePlayer",
-          {
-            characterId: vehicle.npcData.characterId,
-          }
-        );
-        delete this._vehicles[vehicle.npcData.characterId];
       } else {
         let damageeffect = 0;
         let allowSend = false;
@@ -1077,6 +1056,37 @@ export class ZoneServer2016 extends ZoneServer2015 {
     }
   }
 
+  destroyVehicle(
+    vehicle: Vehicle,
+    destroyedVehicleEffect: number,
+    destroyedVehicleModel: number
+  ) {
+    vehicle.npcData.resources.health = 0;
+    this.explosionDamage(vehicle.npcData.position, vehicle.npcData.characterId);
+    this.sendDataToAllWithSpawnedEntity(
+      this._vehicles,
+      vehicle.npcData.characterId,
+      "Character.Destroyed",
+      {
+        characterId: vehicle.npcData.characterId,
+        unknown1: destroyedVehicleEffect, 
+        unknown2: destroyedVehicleModel, 
+        unknown3: 0,
+        disableWeirdPhysics: false,
+      }
+    );
+    for (const c in this._clients) {
+      if (
+        vehicle.npcData.characterId ===
+          this._clients[c].vehicle.mountedVehicle &&
+        !this._clients[c].character.isAlive
+      ) {
+        this.dismountVehicle(this._clients[c]);
+      }
+    }
+    this.deleteEntity(vehicle.npcData.characterId, this._vehicles);
+  }
+  
   startVehicleDamageDelay(vehicle: Vehicle) {
     vehicle.damageTimeout = setTimeout(() => {
       this.damageVehicle(1000, vehicle);
@@ -1453,12 +1463,13 @@ export class ZoneServer2016 extends ZoneServer2015 {
   }
 
   deleteEntity(characterId: string, dictionary: any) {
-    this.sendDataToAll(
+    this.sendDataToAllWithSpawnedEntity(
+      dictionary,
+      characterId,
       "Character.RemovePlayer",
       {
         characterId: characterId,
-      },
-      1
+      }
     );
     delete dictionary[characterId];
     delete this._transientIds[characterId];
