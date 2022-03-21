@@ -11,198 +11,214 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { ZoneClient } from "../servers/ZoneServer/classes/zoneclient";
-import { ZoneServer } from "../servers/ZoneServer/zoneserver";
+import { ZoneClient } from "../servers/ZoneServer2015/classes/zoneclient";
+import { ZoneServer2015 } from "../servers/ZoneServer2015/zoneserver";
 import { ZoneClient2016 } from "../servers/ZoneServer2016/classes/zoneclient";
 import { ZoneServer2016 } from "../servers/ZoneServer2016/zoneserver";
 
 export interface HandledZonePackets {
-  ClientIsReady: (server: ZoneServer, client: ZoneClient, packet: any) => void;
-  ClientFinishedLoading: (
-    server: ZoneServer,
+  ClientIsReady: (
+    server: ZoneServer2015,
     client: ZoneClient,
     packet: any
   ) => void;
-  Security: (server: ZoneServer, client: ZoneClient, packet: any) => void;
+  ClientFinishedLoading: (
+    server: ZoneServer2015,
+    client: ZoneClient,
+    packet: any
+  ) => void;
+  Security: (server: ZoneServer2015, client: ZoneClient, packet: any) => void;
   "Command.RecipeStart": (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: ZoneClient,
     packet: any
   ) => void;
   "Command.FreeInteractionNpc": (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: ZoneClient,
     packet: any
   ) => void;
   "Collision.Damage": (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: ZoneClient,
     packet: any
   ) => void;
   "LobbyGameDefinition.DefinitionsRequest": (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: ZoneClient,
     packet: any
   ) => void;
   "PlayerUpdate.EndCharacterAccess": (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: ZoneClient,
     packet: any
   ) => void;
-  KeepAlive: (server: ZoneServer, client: ZoneClient, packet: any) => void;
-  ClientLog: (server: ZoneServer, client: ZoneClient, packet: any) => void;
+  KeepAlive: (server: ZoneServer2015, client: ZoneClient, packet: any) => void;
+  ClientLog: (server: ZoneServer2015, client: ZoneClient, packet: any) => void;
   "WallOfData.UIEvent": (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: ZoneClient,
     packet: any
   ) => void;
-  SetLocale: (server: ZoneServer, client: ZoneClient, packet: any) => void;
+  SetLocale: (server: ZoneServer2015, client: ZoneClient, packet: any) => void;
   GetContinentBattleInfo: (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: ZoneClient,
     packet: any
   ) => void;
   "Command.SetInWater": (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: ZoneClient,
     packet: any
   ) => void;
   "Command.ClearInWater": (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: ZoneClient,
     packet: any
   ) => void;
-  "Chat.Chat": (server: ZoneServer, client: ZoneClient, packet: any) => void;
+  "Chat.Chat": (
+    server: ZoneServer2015,
+    client: ZoneClient,
+    packet: any
+  ) => void;
   "Loadout.SelectSlot": (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: ZoneClient,
     packet: any
   ) => void;
   ClientInitializationDetails: (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: ZoneClient,
     packet: any
   ) => void;
-  ClientLogout: (server: ZoneServer, client: ZoneClient, packet: any) => void;
-  GameTimeSync: (server: ZoneServer, client: ZoneClient, packet: any) => void;
+  ClientLogout: (
+    server: ZoneServer2015,
+    client: ZoneClient,
+    packet: any
+  ) => void;
+  GameTimeSync: (
+    server: ZoneServer2015,
+    client: ZoneClient,
+    packet: any
+  ) => void;
   Synchronization: (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: ZoneClient,
     packet: any
   ) => void;
   "Command.ExecuteCommand": (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: ZoneClient,
     packet: any
   ) => void;
   "Command.SetProfile": (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: ZoneClient,
     packet: any
   ) => void;
   "Mount.DismountRequest": (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: ZoneClient,
     packet: any
   ) => void;
   "Command.InteractRequest": (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: ZoneClient,
     packet: any
   ) => void;
   "Command.InteractionString": (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: ZoneClient,
     packet: any
   ) => void;
   "Command.InteractionSelect": (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: ZoneClient,
     packet: any
   ) => void;
   "PlayerUpdate.VehicleCollision": (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: ZoneClient,
     packet: any
   ) => void;
   "Vehicle.Dismiss": (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: ZoneClient,
     packet: any
   ) => void;
   "Vehicle.Spawn": (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: ZoneClient,
     packet: any
   ) => void;
   "Vehicle.AutoMount": (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: ZoneClient,
     packet: any
   ) => void;
   "AdminCommand.SpawnVehicle": (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: ZoneClient,
     packet: any
   ) => void;
   "Command.InteractCancel": (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: ZoneClient,
     packet: any
   ) => void;
   "Command.StartLogoutRequest": (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: ZoneClient,
     packet: any
   ) => void;
   CharacterSelectSessionRequest: (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: ZoneClient,
     packet: any
   ) => void;
   "ProfileStats.GetPlayerProfileStats": (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: ZoneClient,
     packet: any
   ) => void;
-  Pickup: (server: ZoneServer, client: ZoneClient, packet: any) => void;
+  Pickup: (server: ZoneServer2015, client: ZoneClient, packet: any) => void;
   GetRewardBuffInfo: (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: ZoneClient,
     packet: any
   ) => void;
   PlayerUpdateManagedPosition: (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: ZoneClient,
     packet: any
   ) => void;
   PlayerUpdateUpdatePositionClientToZone: (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: ZoneClient,
     packet: any
   ) => void;
   "Command.PlayerSelect": (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: ZoneClient,
     packet: any
   ) => void;
   "Construction.PlacementRequest": (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: ZoneClient,
     packet: any
   ) => void;
   "Construction.PlacementFinalizeRequest": (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: ZoneClient,
     packet: any
   ) => void;
   "PlayerUpdate.Respawn": (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: ZoneClient,
     packet: any
   ) => void;
   "PlayerUpdate.FullCharacterDataRequest": (
-    server: ZoneServer,
+    server: ZoneServer2015,
     client: ZoneClient,
     packet: any
   ) => void;
@@ -444,6 +460,11 @@ export interface loadoutContainer extends loadoutItem {
   items: { [itemGuid: string]: inventoryItem };
 }
 
+export interface craftComponentDSEntry {
+  itemDefinitionId: number;
+  stackCount: number;
+}
+
 export interface Client {
   currentPOI?: number;
   firstLoading: boolean;
@@ -590,11 +611,11 @@ export interface Weather2016 {
   templateName?: string;
   name: string;
   unknownDword1: number;
-  unknownDword2: number;
-  skyBrightness1: number;
-  skyBrightness2: number;
-  snow: number;
-  snowMap: number;
+  fogDensity: number;
+  fogFloor: number;
+  fogGradient: number;
+  rain: number;
+  temp: number;
   colorGradient: number;
   unknownDword8: number;
   unknownDword9: number;

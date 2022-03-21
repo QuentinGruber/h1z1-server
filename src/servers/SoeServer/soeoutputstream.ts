@@ -24,6 +24,7 @@ export class SOEOutputStream extends EventEmitter {
   _cache: any;
   _rc4: RC4;
   _enableCaching: boolean;
+  _hadCacheError: boolean = false;
   constructor(cryptoKey: Uint8Array, fragmentSize: number = 0) {
     super();
     this._useEncryption = false;
@@ -37,7 +38,7 @@ export class SOEOutputStream extends EventEmitter {
 
   write(data: Buffer): void {
     if (this._useEncryption) {
-      data = Buffer.from(this._rc4.encrypt(new Uint32Array(data)));
+      data = Buffer.from(this._rc4.encrypt(data));
 
       if (data[0] === 0) {
         const tmp = Buffer.allocUnsafe(1);
@@ -82,6 +83,9 @@ export class SOEOutputStream extends EventEmitter {
   }
 
   resendSequence(sequence: number): void {
+    if (this._hadCacheError) {
+      return;
+    }
     if (this._cache[sequence]) {
       this.emit(
         "data",
@@ -92,6 +96,7 @@ export class SOEOutputStream extends EventEmitter {
       );
     } else {
       console.error(`Cache error, could not resend data for sequence ${sequence}! `);
+      this._hadCacheError = true;
       this.emit("cacheError");
     }
   }

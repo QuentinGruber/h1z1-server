@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { ZoneClient } from "../../ZoneServer/classes/zoneclient";
+import { ZoneClient } from "../../ZoneServer2015/classes/zoneclient";
 import { Character2016 } from "./character";
 
 export class ZoneClient2016 extends ZoneClient {

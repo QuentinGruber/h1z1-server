@@ -768,10 +768,57 @@ const dev: any = {
           client.character.state.rotation[0],
           client.character.state.rotation[1],
           client.character.state.rotation[2],
+          1,
         ],
         color: {},
         unknownData1: { unknownData1: {} },
         attachedObject: {},
+        npcRenderDistance: 80,
+        onReadyCallback: () => {
+          const item = server.generateItem(1504);
+          server.sendData(client, "ClientUpdate.ItemAdd", {
+            characterId: objectCharacterId,
+            data: {
+              itemDefinitionId: 1504,
+              tintId: 5,
+              guid: item,
+              count: 1, // also ammoCount
+              itemSubData: {
+                unknownBoolean1: false,
+              },
+              containerGuid: "0xFFFFFFFFFFFFFFFF",
+              containerDefinitionId: 28,
+              containerSlotId: 31,
+              baseDurability: 2000,
+              currentDurability: 2000,
+              maxDurabilityFromDefinition: 2000,
+              unknownBoolean1: true,
+              unknownQword3: client.character.characterId,
+              unknownDword9: 28,
+              unknownBoolean2: true,
+            },
+          });
+          server.sendData(client, "Loadout.SetLoadoutSlots", {
+            characterId: objectCharacterId,
+            loadoutId: 5,
+            loadoutData: {
+              loadoutSlots: [
+                {
+                  hotbarSlotId: 31, // affects Equip Item context entry packet, and Container.MoveItem
+                  loadoutId: 5,
+                  slotId: 31,
+                  loadoutItemData: {
+                    itemDefinitionId: 1504,
+                    loadoutItemOwnerGuid: item,
+                    unknownByte1: 255, // flags?
+                  },
+                  unknownDword4: 3,
+                },
+              ],
+            },
+            currentSlotId: 31,
+          });
+        },
       };
     const item: any = server.generateItem(2425); /*,
       containerGuid = server.generateGuid(),
@@ -819,7 +866,7 @@ const dev: any = {
       ];
       */
     server._npcs[objectCharacterId] = npc; // save npc
-    server.worldRoutine();
+    server.spawnNpcs(client);
     setTimeout(() => {
       /*
       server.sendData(client, "Container.InitEquippedContainers", {
@@ -831,7 +878,7 @@ const dev: any = {
       */
       server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
         objectCharacterId: objectCharacterId,
-        containerGuid: client.character.characterId,
+        containerGuid: objectCharacterId,
         unknownBool1: false,
         itemsData: {
           items: [
@@ -866,7 +913,7 @@ const dev: any = {
           unknownDword1: 92,
         },
       });
-    }, 500);
+    }, 5000);
   },
   fte: function (server: ZoneServer2016, client: Client, args: any[]) {
     if (!args[3]) {

@@ -33,12 +33,13 @@ import { Worker } from "worker_threads";
 import SOEClient from "../SoeServer/soeclient";
 import { ZoneClient as Client } from "./classes/zoneclient";
 import { h1z1PacketsType } from "../../types/packets";
-import { Vehicle } from "./classes/vehicles";
+import { Vehicle } from "./classes/vehicle";
 import { Resolver } from "dns";
 
 process.env.isBin && require("./workers/dynamicWeather");
 
 import { zonePacketHandlers } from "./zonepackethandlers";
+import { MAX_TRANSIENT_ID } from "../../utils/constants";
 let localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json");
 
 const debugName = "ZoneServer";
@@ -48,7 +49,7 @@ const stats = require("../../../data/2015/sampleData/stats.json");
 const recipes = require("../../../data/2015/sampleData/recipes.json");
 const Z1_POIs = require("../../../data/2015/zoneData/Z1_POIs");
 
-export class ZoneServer extends EventEmitter {
+export class ZoneServer2015 extends EventEmitter {
   _gatewayServer: GatewayServer;
   _protocol: any;
   _db: Db | undefined;
@@ -491,8 +492,6 @@ export class ZoneServer extends EventEmitter {
       this.emit("data", null, client, packet);
     } else {
       debug("zonefailed : ", data);
-      /*const fs = require('fs'); // nothing happening here ;) - meme
-      fs.writeFileSync(`C:\\Users\\csm45\\Desktop\\zonefailed\\zonefailed${Date.now()}.dat`, data)*/
     }
   }
 
@@ -2690,7 +2689,9 @@ export class ZoneServer extends EventEmitter {
   getTransientId(guid: string): number {
     let generatedTransient;
     do {
-      generatedTransient = Number((Math.random() * 30000).toFixed(0));
+      generatedTransient = Number(
+        (Math.random() * MAX_TRANSIENT_ID).toFixed(0)
+      );
     } while (!!this._transientIds[generatedTransient]);
     this._transientIds[generatedTransient] = guid;
     return generatedTransient;
@@ -2715,7 +2716,7 @@ if (
   process.env.VSCODE_DEBUG === "true" &&
   process.env.CLIENT_SIXTEEN !== "true"
 ) {
-  const zoneServer = new ZoneServer(
+  const zoneServer = new ZoneServer2015(
     1117,
     Buffer.from("F70IaxuU8C/w7FPXY1ibXw==", "base64"),
     process.env.MONGO_URL,

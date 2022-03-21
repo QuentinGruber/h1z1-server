@@ -401,30 +401,6 @@
     ],
     "itemDefinitionId": 47
   },
-  "48": {
-    "recipeId": 48,
-    "nameId": 2,
-    "iconId": 39,
-    "unknownDword1": 0,
-    "descriptionId": 583,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 8,
-    "components": [
-      {
-        "unknownDword1": 0,
-        "nameId": 634,
-        "iconId": 86,
-        "unknownDword2": 0,
-        "requiredAmount": 4,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 114
-      }
-    ],
-    "itemDefinitionId": 48
-  },
   "55": {
     "recipeId": 55,
     "nameId": 9,
