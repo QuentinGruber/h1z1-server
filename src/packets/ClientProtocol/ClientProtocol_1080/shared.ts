@@ -14,6 +14,7 @@
 import {
   eul2quat,
   getPacketTypeBytes,
+  LZ4,
   lz4_decompress,
 } from "../../../utils/utils";
 import DataSchema from "h1z1-dataschema";
@@ -349,6 +350,23 @@ export function packPositionUpdateData(obj: any) {
   data.writeUInt16LE(flags, 0);
 
   return data;
+}
+
+export function packItemDefinitionData(obj: any) {
+  let compressionData = Buffer.allocUnsafe(4);
+  let data = Buffer.allocUnsafe(4);
+  data.writeUInt32LE(obj["ID"], 0); // could be the actual item id idk
+  const itemDefinitionData = DataSchema.pack(
+    itemDefinitionDataSchema,
+    obj
+  ).data;
+  data = Buffer.concat([data, itemDefinitionData]);
+  const input = data;
+  let output = Buffer.alloc(LZ4.encodeBound(input.length));
+  output = output.slice(0, LZ4.encodeBlock(input, output));
+  compressionData.writeUInt16LE(output.length, 0);
+  compressionData.writeUInt16LE(data.length, 2);
+  return Buffer.concat([compressionData, output]);
 }
 
 export const vehicleReferenceDataSchema = [

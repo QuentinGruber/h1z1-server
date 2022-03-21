@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { itemDefinitionDataSchema } from "./shared";
+import { packItemDefinitionData } from "./shared";
 
 export const commandPackets: any = [
   ["Command.ShowDialog", 0x090100, {}],
@@ -254,7 +254,7 @@ export const commandPackets: any = [
               name: "definitionData",
               type: "schema",
               defaultValue: {},
-              fields: itemDefinitionDataSchema,
+              packer: packItemDefinitionData,
             },
           ],
         },
@@ -277,9 +277,8 @@ export const commandPackets: any = [
                 { name: "ID", type: "uint32", defaultValue: 0 },
                 {
                   name: "definitionData",
-                  type: "schema",
-                  defaultValue: {},
-                  fields: itemDefinitionDataSchema,
+                  type: "custom",
+                  packer: packItemDefinitionData,
                 },
               ],
             },
