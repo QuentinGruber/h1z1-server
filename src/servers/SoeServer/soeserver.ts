@@ -12,7 +12,7 @@
 // ======================================================================
 
 import { EventEmitter } from "events";
-import { SOEProtocol } from "../../protocols/soeprotocol";
+import { Soeprotocol } from "h1emu-core"
 import Client from "./soeclient";
 import SOEClient from "./soeclient";
 import { Worker } from "worker_threads";
@@ -25,7 +25,7 @@ export class SOEServer extends EventEmitter {
   _serverPort: number;
   _cryptoKey: Uint8Array;
   _compression: number = 0;
-  _protocol: any;
+  _protocol: Soeprotocol;
   _udpLength: number;
   _useEncryption: boolean;
   _useMultiPackets: boolean;
@@ -52,10 +52,10 @@ export class SOEServer extends EventEmitter {
     this._crcSeed = 0;
     this._crcLength = 2;
     this._maxOutOfOrderPacketsPerLoop = 20;
-    this._protocol = new SOEProtocol();
+    this._protocol = new Soeprotocol();
     this._udpLength = 512;
     this._useEncryption = true;
-    this._useMultiPackets = true; // TODO don't force them
+    this._useMultiPackets = false; // TODO don't force them
     this._clients = {};
     this._connection = new Worker(
       `${__dirname}/../shared/workers/udpServerWorker.js`,
@@ -153,10 +153,7 @@ export class SOEServer extends EventEmitter {
   }
 
   handlePacket(client: SOEClient, packet: any) {
-    const { soePacket } = packet;
-    const result = soePacket?.result;
-    if (result) {
-      switch (soePacket.name) {
+      switch (packet.name) {
         case "SessionRequest":
           debug(
             "Received session request from " +
@@ -164,9 +161,9 @@ export class SOEServer extends EventEmitter {
               ":" +
               client.port
           );
-          client.sessionId = result.sessionId;
-          client.clientUdpLength = result.udpLength;
-          client.protocolName = result.protocol;
+          client.sessionId = packet.session_id;
+          client.clientUdpLength = packet.udp_length;
+          client.protocolName = packet.protocol;
           client.compression = this._compression;
           client.serverUdpLength = this._udpLength;
           client.crcSeed = this._crcSeed;
@@ -176,11 +173,11 @@ export class SOEServer extends EventEmitter {
           client.outputStream.setFragmentSize(client.clientUdpLength - 7);
 
           this._sendPacket(client, "SessionReply", {
-            sessionId: client.sessionId,
-            crcSeed: client.crcSeed,
-            crcLength: client.crcLength,
+            session_id: client.sessionId,
+            crc_seed: client.crcSeed,
+            crc_length: client.crcLength,
             compression: client.compression,
-            udpLength: client.serverUdpLength,
+            udp_length: client.serverUdpLength,
           });
           this.emit("session", null, client);
           break;
@@ -191,8 +188,8 @@ export class SOEServer extends EventEmitter {
         case "MultiPacket": {
           let lastOutOfOrder = 0;
           const channel = 0;
-          for (let i = 0; i < result.subPackets.length; i++) {
-            const subPacket = result.subPackets[i];
+          for (let i = 0; i < packet.subPackets.length; i++) {
+            const subPacket = packet.subPackets[i];
             switch (subPacket.name) {
               case "OutOfOrder":
                 if (subPacket.result.sequence > lastOutOfOrder) {
@@ -225,34 +222,34 @@ export class SOEServer extends EventEmitter {
           break;
         case "Data":
           debug(
-            "Received data packet from client, sequence " + result.sequence
+            "Received data packet from client, sequence " + packet.sequence
           );
-          client.inputStream.write(result.data, result.sequence, false);
+          client.inputStream.write(Buffer.from(packet.data), packet.sequence, false);
           break;
         case "DataFragment":
           debug(
-            "Received data fragment from client, sequence " + result.sequence
+            "Received data fragment from client, sequence " + packet.sequence
           );
-          client.inputStream.write(result.data, result.sequence, true);
+          client.inputStream.write(Buffer.from(packet.data), packet.sequence, true);
           break;
         case "OutOfOrder":
           debug(
             "Received out-order-packet packet on channel " +
-              result.channel +
+            packet.channel +
               ", sequence " +
-              result.sequence
+              packet.sequence
           );
-          client.outputStream.resendData(result.sequence);
+          client.outputStream.resendData(packet.sequence);
           break;
         case "Ack":
-          if (result.sequence > 40000) {
-            console.log("Warn Ack, sequence ", result.sequence);
+          if (packet.sequence > 40000) {
+            console.log("Warn Ack, sequence ", packet.sequence);
             this._sendPacket(client, "PacketOrdered",{},true);
             // see https://github.com/QuentinGruber/h1z1-server/issues/363
            // this.emit("PacketLimitationReached", client);
           }
-          debug("Ack, sequence " + result.sequence);
-          client.outputStream.ack(result.sequence);
+          debug("Ack, sequence " + packet.sequence);
+          client.outputStream.ack(packet.sequence);
           break;
         case "ZonePing":
           debug("Receive Zone Ping ");
@@ -267,13 +264,6 @@ export class SOEServer extends EventEmitter {
         case "FatalErrorReply":
           break;
       }
-    } else {
-      console.error(
-        `handlePacket failed : ${JSON.stringify(packet)} from ${
-          client.address
-        }:${client.port}`
-      );
-    }
   }
 
   start(
@@ -388,13 +378,13 @@ export class SOEServer extends EventEmitter {
           this.emit("connect", null, this._clients[clientId]);
         }
         client = this._clients[clientId];
-        const result = this._protocol.parse(
+        const raw_parsed_data: string = this._protocol.parse(
           data,
-          client.crcSeed,
-          client.compression
+          client.outputStream._rc4
         );
-        if (result?.soePacket) {
-          if (!unknow_client && result.soePacket.name === "SessionRequest") {
+        if (raw_parsed_data) {
+          const parsed_data = JSON.parse(raw_parsed_data);
+          if (!unknow_client && parsed_data.name === "SessionRequest") {
             this.deleteClient(this._clients[clientId]);
             debug(
               "Delete an old session badly closed by the client (",
@@ -402,7 +392,7 @@ export class SOEServer extends EventEmitter {
               ") )"
             );
           }
-          this.handlePacket(client, result);
+          this.handlePacket(client, parsed_data);
         }
       } catch (e) {
         console.log(e);
@@ -417,13 +407,17 @@ export class SOEServer extends EventEmitter {
   }
 
   createPacket(client: Client, packetName: string, packet: any): Buffer {
+    if(packet.data){
+      packet.data = [...packet.data]
+    }
     try {
-      return this._protocol.pack(
+      return Buffer.from(this._protocol.pack(
         packetName,
-        packet,
+        JSON.stringify(packet),
         client.crcSeed,
-        client.compression
-      );
+        !!client.compression,
+        client.outputStream._rc4
+      ));
     } catch (e) {
       console.error(
         `Failed to create packet ${packetName} packet data : ${JSON.stringify(

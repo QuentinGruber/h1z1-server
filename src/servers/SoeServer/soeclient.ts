@@ -32,8 +32,8 @@ export default class SOEClient {
   outOfOrderPackets: any[] = [];
   nextAck: number = -1;
   lastAck: number = -1;
-  inputStream: any;
-  outputStream: any;
+  inputStream: SOEInputStream;
+  outputStream: SOEOutputStream;
   outQueueTimer: any;
   ackTimer: any;
   outOfOrderTimer: any;

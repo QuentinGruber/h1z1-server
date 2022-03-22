@@ -13,7 +13,7 @@
 
 const debug = require("debug")("SOEProtocol");
 import PacketTableBuild from "../packets/packettable";
-import { append_crc as appendCRC } from "h1emu-core";
+import { append_crc_legacy as appendCRC } from "h1emu-core";
 
 
 enum disconnectReasonEnum {
