@@ -191,7 +191,6 @@ export class zonePacketHandlers {
         characterId: client.character.characterId,
         stance: 1,
       });
-      server.giveStartingItems(client, true, true);
     };
     this.ClientFinishedLoading = function (
       server: ZoneServer2016,

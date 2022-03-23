@@ -339,53 +339,51 @@ export class ZoneServer2016 extends ZoneServer2015 {
       client.character.state.position = character.position;
       client.character.state.rotation = character.rotation;
     }
+    this.giveStartingItems(client, false, true);
   }
 
   async sendCharacterData(client: Client) {
     await this.loadCharacterData(client);
-    const backpack = this.generateItem(2393);
-    const item: any = this.generateItem(2425),
-      containers = [
-        {
-          unknownDword1: 28, // container itemDefinitionId ?
-          containerData: {
-            guid: backpack,
-            unknownDword1: 28,
-            associatedCharacterId: client.character.characterId,
-            slots: 9999,
-            items: [
-              {
-                itemDefinitionId: this._items[item].itemDefinitionId,
-                itemData: {
-                  itemDefinitionId: this._items[item].itemDefinitionId,
-                  tintId: 0,
-                  guid: item,
-                  count: 1,
-                  itemSubData: {
-                    unknownBoolean1: false,
-                  },
-                  containerGuid: backpack,
-                  containerDefinitionId: 3,
-                  containerSlotId: 1,
-                  baseDurability: 0,
-                  currentDurability: 0,
-                  maxDurabilityFromDefinition: 0,
-                  unknownBoolean1: true,
-                  unknownQword3: backpack,
-                  unknownDword9: 0,
-                  unknownBoolean2: true,
+    const containers = Object.values(client.character._containers).map((container)=> {
+      const containerDefinition = this.getContainerDefinition(container.containerDefinitionId);
+      return {
+        loadoutSlotId: container.slotId,
+        containerData: {
+          guid: container.itemGuid,
+          definitionId: container.containerDefinitionId,
+          associatedCharacterId: client.character.characterId,
+          slots: containerDefinition.MAXIMUM_SLOTS,
+          items: Object.values(container.items).map((item)=> {
+            return {
+              itemDefinitionId: item.itemDefinitionId,
+              itemData: {
+                itemDefinitionId: item.itemDefinitionId,
+                tintId: 0,
+                guid: item.itemGuid,
+                count: item.stackCount,
+                itemSubData: {
+                  unknownBoolean1: false,
                 },
-              },
-            ],
-            unknownBoolean1: false,
-            unknownDword3: 999,
-            unknownDword4: 3,
-            unknownDword5: 777,
-            unknownBoolean2: true,
-          },
-        },
-      ];
-
+                containerGuid: container.containerGuid,
+                containerDefinitionId: container.containerDefinitionId,
+                containerSlotId: container.slotId,
+                baseDurability: 2000,
+                currentDurability: 2000,
+                maxDurabilityFromDefinition: 2000,
+                unknownBoolean1: true,
+                unknownQword3: client.character.characterId,
+                unknownDword9: 28,
+              }
+            }
+          }),
+          unknownBoolean1: true,
+          maxBulk: containerDefinition.MAX_BULK,
+          unknownDword4: 0,
+          bulkUsed: this.getContainerBulk(container),
+          hasBulkLimit: !!containerDefinition.MAX_BULK,
+        }
+      }
+    })
     this.sendData(client, "SendSelfToClient", {
       data: {
         guid: client.character.guid, // todo: guid should be moved to client, instead of character
@@ -411,13 +409,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
               guid: slot.itemGuid,
               count: 1, // also ammoCount
               itemSubData: {
-                hasSubData: false /*
-                unknownDword1: 1,
-                unknownData1: {
-                  unknownQword1: item,
-                  unknownDword1: 1,
-                  unknownDword2: 1
-                }*/,
+                hasSubData: false
               },
               containerGuid: slot.containerGuid,
               containerDefinitionId: 28, // TEMP
@@ -2269,7 +2261,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
         itemSubData: {
           unknownBoolean1: false,
         },
-        containerGuid: loadoutItem.containerGuid,
+        containerGuid: "0xFFFFFFFFFFFFFFFF",
         containerDefinitionId: 28, // temp
         containerSlotId: loadoutItem.slotId,
         baseDurability: 2000,
@@ -2348,27 +2340,24 @@ export class ZoneServer2016 extends ZoneServer2015 {
 
   addItem(
     client: Client,
-    itemGuid: string,
-    containerGuid: string,
-    slot: number
+    item: inventoryItem
   ) {
-    const item = this._items[itemGuid],
-      itemDef = this.getItemDefinition(item.itemDefinitionId);
+    const itemDef = this.getItemDefinition(item.itemDefinitionId);
     this.sendData(client, "ClientUpdate.ItemAdd", {
       characterId: client.character.characterId,
       data: {
         itemDefinitionId: itemDef.ID,
         tintId: 5,
-        guid: itemGuid,
+        guid: item.itemGuid,
         count: 1, // also ammoCount
         itemSubData: {
           unknownBoolean1: false,
         },
-        containerGuid: containerGuid,
+        containerGuid: item.containerGuid,
         containerDefinitionId: 28,
-        containerSlotId: slot,
+        containerSlotId: item.slotId,
         baseDurability: 2000,
-        currentDurability: 2000,
+        currentDurability: item.currentDurability,
         maxDurabilityFromDefinition: 2000,
         unknownBoolean1: true,
         unknownQword3: client.character.characterId,
@@ -2433,7 +2422,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
 
     if (!sendPacket) return;
 
-    this.addLoadoutItem(client, loadoutSlotId);
+    //this.addLoadoutItem(client, loadoutSlotId);
+    this.addItem(client, loadoutData);
     this.updateLoadout(client);
     this.updateEquipmentSlot(client, equipmentSlotId);
   }
@@ -2491,7 +2481,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
     count: number
   ): loadoutContainer | undefined {
     // returns the first container that has enough space to store count * itemDefinitionId bulk
-    /*
+    
     const itemDef = this.getItemDefinition(itemDefinitionId);
     for (const container of Object.values(client.character._containers)) {
       const containerItemDef = this.getItemDefinition(container?.itemDefinitionId),
@@ -2501,13 +2491,14 @@ export class ZoneServer2016 extends ZoneServer2015 {
       }
     }
     return undefined;
-    */
+    
 
     // TEMP LOGIC UNTIL CONTAINERS WORK
+    /*
     if (client.character._loadout[12] && client.character._containers[12]) {
       return client.character._containers[12];
     } // backpack
-    return undefined;
+    return undefined;*/
   }
 
   getItemContainer(
@@ -2607,7 +2598,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
         removeItem.stackCount -= count;
         this.updateContainerItem(
           client,
-          removeItem.itemGuid,
+          removeItem,
           removeItemContainer
         );
       } else {
@@ -2713,7 +2704,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
           itemStackGuid
         ];
       itemStack.stackCount += count;
-      this.updateContainerItem(client, itemStack.itemGuid, availableContainer);
+      this.updateContainerItem(client, itemStack, availableContainer);
       if (sendUpdate) {
         this.sendData(client, "Reward.AddNonRewardItem", {
           itemDefId: itemDefId,
@@ -2740,6 +2731,49 @@ export class ZoneServer2016 extends ZoneServer2015 {
     });
   }
 
+  updateContainer(client: Client, container: loadoutContainer) {
+    const containerDefinition = this.getContainerDefinition(container.containerDefinitionId);
+    this.sendData(client, "Container.UpdateEquippedContainer", {
+      ignore: client.character.characterId,
+      characterId: client.character.characterId,
+      containerData: {
+        guid: container.itemGuid,
+        definitionId: container.containerDefinitionId,
+        associatedCharacterId: client.character.characterId,
+        slots: containerDefinition.MAXIMUM_SLOTS,
+        items: Object.values(container.items).map((item, idx)=> {
+          container.items[item.itemGuid].slotId = idx+1;
+          return {
+            itemDefinitionId: item.itemDefinitionId,
+            itemData: {
+              itemDefinitionId: item.itemDefinitionId,
+              tintId: 1,
+              guid: item.itemGuid,
+              count: item.stackCount,
+              itemSubData: {
+                unknownBoolean1: false
+              },
+              containerGuid: container.itemGuid,
+              containerDefinitionId: container.containerDefinitionId,
+              containerSlotId: item.slotId,
+              baseDurability: 2000,
+              currentDurability: item.currentDurability,
+              maxDurabilityFromDefinition: 2000,
+              unknownBoolean1: false,
+              unknownQword3: client.character.characterId,
+              unknownDword9: 1
+            }
+          }
+        })
+      },
+      unknownBoolean1: false,
+      maxBulk: containerDefinition.MAX_BULK,
+      unknownDword4: 0,
+      bulkUsed: this.getContainerBulk(container),
+      hasBulkLimit: !!containerDefinition.MAX_BULK
+    });
+  }
+
   addContainerItem(
     client: Client,
     itemGuid: string | undefined,
@@ -2748,43 +2782,18 @@ export class ZoneServer2016 extends ZoneServer2015 {
     sendUpdate: boolean = true
   ) {
     if (!itemGuid) return;
+    
     const itemDefId = this._items[itemGuid].itemDefinitionId;
-    this.sendData(client, "ClientUpdate.ItemAdd", {
-      characterId: client.character.characterId,
-      data: {
-        itemDefinitionId: itemDefId,
-        tintId: 3,
-        guid: itemGuid,
-        count: count, // also ammoCount
-        itemSubData: {
-          hasSubData: true,
-          unknownDword1: 1,
-          unknownData1: {
-            unknownQword1: client.character.characterId,
-            unknownDword1: 3,
-            unknownDword2: 3,
-          },
-        },
-        containerGuid: container.itemGuid,
-        containerDefinitionId: 0,
-        containerSlotId: 1,
-        baseDurability: 2000,
-        currentDurability: 2000,
-        maxDurabilityFromDefinition: 2000,
-        unknownBoolean1: true,
-        unknownQword3: client.character.characterId,
-        unknownDword9: 0,
-        unknownBoolean2: true,
-      },
-    });
     container.items[itemGuid] = {
       itemDefinitionId: itemDefId,
-      slotId: 1,
+      slotId: Object.keys(container.items).length,
       itemGuid: itemGuid,
       containerGuid: container.itemGuid,
       stackCount: count,
       currentDurability: 2000,
     };
+    this.addItem(client, container.items[itemGuid]);
+    this.updateContainer(client, container);
     if (sendUpdate) {
       this.sendData(client, "Reward.AddNonRewardItem", {
         itemDefId: itemDefId,
@@ -2796,33 +2805,25 @@ export class ZoneServer2016 extends ZoneServer2015 {
 
   updateContainerItem(
     client: Client,
-    itemGuid: string,
+    item: inventoryItem,
     container: loadoutContainer | undefined
   ) {
     if (!container) return;
-    const itemDefId = this._items[itemGuid].itemDefinitionId;
-    const item = container.items[itemGuid];
     this.sendData(client, "ClientUpdate.ItemUpdate", {
       characterId: client.character.characterId,
       data: {
-        itemDefinitionId: itemDefId,
+        itemDefinitionId: item.itemDefinitionId,
         tintId: 3,
-        guid: itemGuid,
+        guid: item.itemGuid,
         count: item.stackCount, // also ammoCount
         itemSubData: {
-          hasSubData: true,
-          unknownDword1: 1,
-          unknownData1: {
-            unknownQword1: client.character.characterId,
-            unknownDword1: 3,
-            unknownDword2: 3,
-          },
+          unknownBoolean1: false,
         },
         containerGuid: container.itemGuid,
         containerDefinitionId: 0,
-        containerSlotId: 1,
+        containerSlotId: item.slotId,
         baseDurability: 2000,
-        currentDurability: 2000,
+        currentDurability: item.currentDurability,
         maxDurabilityFromDefinition: 2000,
         unknownBoolean1: true,
         unknownQword3: client.character.characterId,
@@ -2830,6 +2831,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
         unknownBoolean2: true,
       },
     });
+    this.updateContainer(client, container);
   }
 
   giveStartingItems(
@@ -2843,10 +2845,10 @@ export class ZoneServer2016 extends ZoneServer2015 {
     this.equipItem(client, this.generateItem(85), sendPacket); // fists weapon
     this.equipItem(client, this.generateItem(2377), sendPacket); // DOA Hoodie
     this.equipItem(client, this.generateItem(2079), sendPacket); // golf pants
-    this.lootContainerItem(client, this.generateItem(1985), 1, false); // map
-    this.lootContainerItem(client, this.generateItem(1441), 1, false); // compass
-    this.lootContainerItem(client, this.generateItem(1751), 5, false); // gauze
-    this.lootContainerItem(client, this.generateItem(1804), 1, false); // flare
+    this.lootContainerItem(client, this.generateItem(1985), 1, sendPacket); // map
+    this.lootContainerItem(client, this.generateItem(1441), 1, sendPacket); // compass
+    this.lootContainerItem(client, this.generateItem(1751), 5, sendPacket); // gauze
+    this.lootContainerItem(client, this.generateItem(1804), 1, sendPacket); // flare
   }
 
   clearInventory(client: Client) {

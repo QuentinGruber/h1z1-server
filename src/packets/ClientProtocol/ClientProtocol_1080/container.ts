@@ -41,7 +41,7 @@ export const containerPackets: any = [
           type: "array",
           defaultValue: [],
           fields: [
-            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            { name: "loadoutSlotId", type: "uint32", defaultValue: 0 },
             { name: "containerData", type: "schema", fields: containerData },
           ],
         },

@@ -590,9 +590,10 @@ const dev: any = {
       );
     const item: any = server.generateItem(2425),
       itemDef = server.getItemDefinition(server._items[item].itemDefinitionId);
-    const containers = [
+    const containers = 
+    [
       {
-        unknownDword1: backpackDef.ITEM_TYPE == 34 ? backpackDef.PARAM1 : 0, //ITEM_TYPE==34?backpackDef.PARAM1:0, // container itemDefinitionId ?
+        loadoutSlotId: 10,
         containerData: {
           guid: backpack,
           unknownDword1: backpackDef.ITEM_TYPE == 34 ? backpackDef.PARAM1 : 0, //.ITEM_TYPE==34?backpackDef.PARAM1:0,
@@ -675,7 +676,7 @@ const dev: any = {
   ) {
     const containers = [
       {
-        unknownDword1: 3, // container itemDefinitionId ?
+        loadoutSlotId: 3,
         containerData: {
           guid: "0x123",
           unknownDword1: 3,
@@ -824,7 +825,7 @@ const dev: any = {
       containerGuid = server.generateGuid(),
       containers = [
         {
-          unknownDword1: 92, // container itemDefinitionId ?
+          loadoutSlotId: 92,
           containerData: {
             guid: objectCharacterId,
             definitionId: 92,
