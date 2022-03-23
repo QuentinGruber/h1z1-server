@@ -52,7 +52,7 @@ export class SOEServer extends EventEmitter {
     this._crcSeed = 0;
     this._crcLength = 2;
     this._maxOutOfOrderPacketsPerLoop = 20;
-    this._protocol = new Soeprotocol(true,false,true);
+    this._protocol = new Soeprotocol(true,false,false);
     this._udpLength = 512;
     this._useEncryption = true;
     this._useMultiPackets = false; // TODO don't force them

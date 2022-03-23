@@ -37,6 +37,15 @@ export class SOEOutputStream extends EventEmitter {
   }
 
   write(data: Buffer): void {
+    if (this._useEncryption) {
+      data = Buffer.from(this._rc4.encrypt(data));
+
+      if (data[0] === 0) {
+        const tmp = Buffer.allocUnsafe(1);
+        tmp[0] = 0;
+        data = Buffer.concat([tmp, data]);
+      }
+    }
     if (data.length <= this._fragmentSize) {
       this._sequence++;
       if (this._enableCaching) {
