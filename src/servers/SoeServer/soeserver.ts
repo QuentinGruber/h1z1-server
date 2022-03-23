@@ -52,7 +52,7 @@ export class SOEServer extends EventEmitter {
     this._crcSeed = 0;
     this._crcLength = 2;
     this._maxOutOfOrderPacketsPerLoop = 20;
-    this._protocol = new Soeprotocol();
+    this._protocol = new Soeprotocol(true,false,true);
     this._udpLength = 512;
     this._useEncryption = true;
     this._useMultiPackets = false; // TODO don't force them
@@ -176,7 +176,7 @@ export class SOEServer extends EventEmitter {
             session_id: client.sessionId,
             crc_seed: client.crcSeed,
             crc_length: client.crcLength,
-            compression: client.compression,
+            encrypt_method: client.compression,
             udp_length: client.serverUdpLength,
           });
           this.emit("session", null, client);
@@ -331,6 +331,7 @@ export class SOEServer extends EventEmitter {
             "data",
             (err: string, data: Buffer, sequence: number, fragment: any) => {
               console.log("data sequence : ",sequence)
+              console.log("data : ",data)
               if (fragment) {
                 this._sendPacket(client, "DataFragment", {
                   sequence: sequence,
@@ -384,6 +385,7 @@ export class SOEServer extends EventEmitter {
         );
         if (raw_parsed_data) {
           const parsed_data = JSON.parse(raw_parsed_data);
+          console.log(parsed_data)
           if (!unknow_client && parsed_data.name === "SessionRequest") {
             this.deleteClient(this._clients[clientId]);
             debug(
@@ -407,6 +409,7 @@ export class SOEServer extends EventEmitter {
   }
 
   createPacket(client: Client, packetName: string, packet: any): Buffer {
+    console.log("sent "+packetName)
     if(packet.data){
       packet.data = [...packet.data]
     }
@@ -415,7 +418,6 @@ export class SOEServer extends EventEmitter {
         packetName,
         JSON.stringify(packet),
         client.crcSeed,
-        !!client.compression,
         client.outputStream._rc4
       ));
     } catch (e) {
