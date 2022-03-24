@@ -109,7 +109,7 @@ export class SOEServer extends EventEmitter {
           client,
           "MultiPacket",
           {
-            subPackets: client.waitingQueue,
+            sub_packets: client.waitingQueue,
           },
           true
         );
@@ -130,10 +130,8 @@ export class SOEServer extends EventEmitter {
         const sequence = client.outOfOrderPackets.shift();
         packets.push({
           name: "OutOfOrder",
-          soePacket: {
-            channel: 0,
-            sequence: sequence,
-          },
+          channel: 0,
+          sequence: sequence,
         });
         if (!client.outOfOrderPackets.length) {
           break;
@@ -144,7 +142,8 @@ export class SOEServer extends EventEmitter {
         client,
         "MultiPacket",
         {
-          subPackets: packets,
+          name: "MultiPacket",
+          sub_packets: packets,
         },
         true
       );
@@ -188,12 +187,12 @@ export class SOEServer extends EventEmitter {
         case "MultiPacket": {
           let lastOutOfOrder = 0;
           const channel = 0;
-          for (let i = 0; i < packet.subPackets.length; i++) {
-            const subPacket = packet.subPackets[i];
+          for (let i = 0; i < packet.sub_packets.length; i++) {
+            const subPacket = packet.sub_packets[i];
             switch (subPacket.name) {
               case "OutOfOrder":
-                if (subPacket.result.sequence > lastOutOfOrder) {
-                  lastOutOfOrder = subPacket.result.sequence;
+                if (subPacket.sequence > lastOutOfOrder) {
+                  lastOutOfOrder = subPacket.sequence;
                 }
                 break;
               default:
@@ -413,6 +412,7 @@ export class SOEServer extends EventEmitter {
     if(packet.data){
       packet.data = [...packet.data]
     }
+    console.log(packet)
     try {
       return Buffer.from(this._protocol.pack(
         packetName,
