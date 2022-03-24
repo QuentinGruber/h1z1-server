@@ -674,23 +674,46 @@ const dev: any = {
     client: Client,
     args: any[]
   ) {
-    const containers = [
-      {
-        loadoutSlotId: 3,
+    const containers = Object.values(client.character._containers).map((container)=> {
+      const containerDefinition = server.getContainerDefinition(container.containerDefinitionId);
+      return {
+        loadoutSlotId: container.slotId,
         containerData: {
-          guid: "0x123",
-          unknownDword1: 3,
+          guid: container.itemGuid,
+          definitionId: container.containerDefinitionId,
           associatedCharacterId: client.character.characterId,
-          slots: 9999,
-          items: [],
-          unknownBoolean1: true,
-          maxBulk: 565,
-          unknownDword4: 999,
-          bulkUsed: 999,
-          hasBulkLimit: false,
-        },
-      },
-    ];
+          slots: containerDefinition.MAXIMUM_SLOTS,
+          items: Object.values(container.items).map((item)=> {
+            return {
+              itemDefinitionId: item.itemDefinitionId,
+              itemData: {
+                itemDefinitionId: item.itemDefinitionId,
+                tintId: 5,
+                guid: item.itemGuid,
+                count: item.stackCount,
+                itemSubData: {
+                  hasSubData: false,
+                },
+                containerGuid: container.containerGuid,
+                containerDefinitionId: container.containerDefinitionId,
+                containerSlotId: container.slotId,
+                baseDurability: 2000,
+                currentDurability: 2000,
+                maxDurabilityFromDefinition: 2000,
+                unknownBoolean1: true,
+                unknownQword3: client.character.characterId,
+                unknownDword9: 1,
+              }
+            }
+          }),
+          unknownBoolean1: true,// needs to be true or bulk doesn't show up
+          maxBulk: containerDefinition.MAX_BULK,
+          unknownDword4: 28,
+          bulkUsed: server.getContainerBulk(container),
+          hasBulkLimit: !!containerDefinition.MAX_BULK,
+        }
+      }
+    })
     server.sendData(client, "Container.ListAll", {
       characterId: client.character.characterId,
       containers: containers,

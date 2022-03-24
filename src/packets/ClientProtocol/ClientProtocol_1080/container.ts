@@ -23,7 +23,7 @@ export const containerPackets: any = [
         { name: "characterId", type: "uint64string", defaultValue: "" },
         { name: "itemGuid", type: "uint64string", defaultValue: "" },
         { name: "characterId2", type: "uint64string", defaultValue: "" },
-        { name: "oldSlotId", type: "uint32", defaultValue: 0 },
+        { name: "count", type: "uint32", defaultValue: 0 },
         { name: "newSlotId", type: "uint32", defaultValue: 0 },
       ],
     },

@@ -358,11 +358,11 @@ export class ZoneServer2016 extends ZoneServer2015 {
               itemDefinitionId: item.itemDefinitionId,
               itemData: {
                 itemDefinitionId: item.itemDefinitionId,
-                tintId: 0,
+                tintId: 5,
                 guid: item.itemGuid,
                 count: item.stackCount,
                 itemSubData: {
-                  unknownBoolean1: false,
+                  hasSubData: false,
                 },
                 containerGuid: container.containerGuid,
                 containerDefinitionId: container.containerDefinitionId,
@@ -372,13 +372,13 @@ export class ZoneServer2016 extends ZoneServer2015 {
                 maxDurabilityFromDefinition: 2000,
                 unknownBoolean1: true,
                 unknownQword3: client.character.characterId,
-                unknownDword9: 28,
+                unknownDword9: 1,
               }
             }
           }),
-          unknownBoolean1: true,
+          unknownBoolean1: true,// needs to be true or bulk doesn't show up
           maxBulk: containerDefinition.MAX_BULK,
-          unknownDword4: 0,
+          unknownDword4: 28,
           bulkUsed: this.getContainerBulk(container),
           hasBulkLimit: !!containerDefinition.MAX_BULK,
         }
@@ -2257,9 +2257,9 @@ export class ZoneServer2016 extends ZoneServer2015 {
         itemDefinitionId: loadoutItem.itemDefinitionId,
         tintId: 5,
         guid: loadoutItem.itemGuid,
-        count: 1, // also ammoCount
+        count: loadoutItem.stackCount, // also ammoCount
         itemSubData: {
-          unknownBoolean1: false,
+          hasSubData: false,
         },
         containerGuid: "0xFFFFFFFFFFFFFFFF",
         containerDefinitionId: 28, // temp
@@ -2349,9 +2349,9 @@ export class ZoneServer2016 extends ZoneServer2015 {
         itemDefinitionId: itemDef.ID,
         tintId: 5,
         guid: item.itemGuid,
-        count: 1, // also ammoCount
+        count: item.stackCount, // also ammoCount
         itemSubData: {
-          unknownBoolean1: false,
+          hasSubData: false,
         },
         containerGuid: item.containerGuid,
         containerDefinitionId: 28,
@@ -2766,9 +2766,9 @@ export class ZoneServer2016 extends ZoneServer2015 {
           }
         })
       },
-      unknownBoolean1: false,
+      unknownBoolean1: true,// needs to be true or bulk doesn't show up
       maxBulk: containerDefinition.MAX_BULK,
-      unknownDword4: 0,
+      unknownDword4: 28,
       bulkUsed: this.getContainerBulk(container),
       hasBulkLimit: !!containerDefinition.MAX_BULK
     });
@@ -2813,21 +2813,21 @@ export class ZoneServer2016 extends ZoneServer2015 {
       characterId: client.character.characterId,
       data: {
         itemDefinitionId: item.itemDefinitionId,
-        tintId: 3,
+        tintId: 5,
         guid: item.itemGuid,
         count: item.stackCount, // also ammoCount
         itemSubData: {
-          unknownBoolean1: false,
+          hasSubData: false,
         },
         containerGuid: container.itemGuid,
-        containerDefinitionId: 0,
+        containerDefinitionId: 28,
         containerSlotId: item.slotId,
         baseDurability: 2000,
         currentDurability: item.currentDurability,
         maxDurabilityFromDefinition: 2000,
         unknownBoolean1: true,
         unknownQword3: client.character.characterId,
-        unknownDword9: 0,
+        unknownDword9: 28,
         unknownBoolean2: true,
       },
     });
