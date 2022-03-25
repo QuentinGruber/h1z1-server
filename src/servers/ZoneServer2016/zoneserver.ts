@@ -2482,9 +2482,11 @@ export class ZoneServer2016 extends ZoneServer2015 {
   getAvailableItemStack(
     container: loadoutContainer,
     itemDefId: number,
-    count: number
+    count: number,
+    slotId: number = 0
   ): string {
     // returns the itemGuid of the first open stack in container arg that has enough open slots and is the same itemDefinitionId as itemDefId arg
+    // if slotId is defined, then only an item with the same slotId will be returned
     if (this.getItemDefinition(itemDefId).MAX_STACK_SIZE == 1) return "";
     for (const item of Object.values(container.items)) {
       if (
@@ -2492,7 +2494,9 @@ export class ZoneServer2016 extends ZoneServer2015 {
         this.getItemDefinition(item.itemDefinitionId).MAX_STACK_SIZE >=
           item.stackCount + count
       ) {
-        return item.itemGuid;
+        if(!slotId || slotId==item.slotId){
+          return item.itemGuid;
+        }
       }
     }
     return "";
@@ -2513,6 +2517,32 @@ export class ZoneServer2016 extends ZoneServer2015 {
       if (!removeItemContainer || !removeItem) return undefined;
       return removeItem;
     }
+  }
+
+  removeLoadoutItem(client: Client, loadoutSlotId: number): boolean {
+    const item = client.character._loadout[loadoutSlotId];
+    if(!item) return false;
+    this.deleteItem(client, item.itemGuid);
+    // TODO: add logic for checking if loadout item has an equipment slot, ex. radio doesn't have one
+    const equipmentSlotId = this.getEquipmentSlot(loadoutSlotId);
+    delete client.character._loadout[loadoutSlotId];
+    delete client.character._equipment[equipmentSlotId];
+    this.updateLoadout(client);
+    this.sendData(client, "Equipment.UnsetCharacterEquipmentSlot", {
+      characterData: {
+        characterId: client.character.characterId,
+      },
+      slotId: equipmentSlotId,
+    });
+    if (equipmentSlotId === 7) {
+      // primary slot
+      this.equipItem(client, client.character._loadout[7].itemGuid); //equip fists
+    }
+    if (this.getItemDefinition(item.itemDefinitionId).ITEM_TYPE === 34) {
+      delete client.character._containers[loadoutSlotId];
+      this.initializeContainerList(client);
+    }
+    return true;
   }
 
   removeContainerItem(
@@ -2550,32 +2580,13 @@ export class ZoneServer2016 extends ZoneServer2015 {
       itemDefinition = this.getItemDefinition(item.itemDefinitionId),
       loadoutSlotId = this.getLoadoutSlot(itemDefinition.ID);
     if (client.character._loadout[loadoutSlotId]?.itemGuid == itemGuid) {
-      this.deleteItem(client, itemGuid);
-      // TODO: add logic for checking if loadout item has an equipment slot, ex. radio doesn't have one
-      const equipmentSlotId = this.getEquipmentSlot(loadoutSlotId);
-      delete client.character._loadout[loadoutSlotId];
-      delete client.character._equipment[equipmentSlotId];
-      this.updateLoadout(client);
-      this.sendData(client, "Equipment.UnsetCharacterEquipmentSlot", {
-        characterData: {
-          characterId: client.character.characterId,
-        },
-        slotId: equipmentSlotId,
-      });
-      if (equipmentSlotId === 7) {
-        // primary slot
-        this.equipItem(client, client.character._loadout[7].itemGuid); //equip fists
-      }
-      if (itemDefinition.ITEM_TYPE === 34) {
-        delete client.character._containers[loadoutSlotId];
-        this.initializeContainerList(client);
-      }
-    } else {
+      return this.removeLoadoutItem(client, loadoutSlotId);
+    }
+    else {
       const removeItemContainer = this.getItemContainer(client, itemGuid),
       removeItem = removeItemContainer?.items[itemGuid];
       return this.removeContainerItem(client, removeItem, removeItemContainer, count)
     }
-    return true;
   }
 
   dropItem(client: Client, itemGuid: string, count: number = 1) {
@@ -3302,6 +3313,13 @@ export class ZoneServer2016 extends ZoneServer2015 {
       }
     }
     return inventory;
+  }
+
+  containerError(client: Client, error: number) {
+    this.sendData(client, "Container.Error", {
+      characterId: client.character.characterId,
+      containerError: error, // unknown container
+    });
   }
   //#endregion
 

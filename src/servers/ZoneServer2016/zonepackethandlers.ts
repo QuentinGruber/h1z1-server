@@ -1363,6 +1363,7 @@ export class zonePacketHandlers {
           );
           break;
         case 60: //equip item
+          /*
           const item = server._items[packet.data.itemGuid],
             loadoutId = server.getLoadoutSlot(item.itemDefinitionId),
             oldLoadoutItem = client.character._loadout[loadoutId];
@@ -1374,7 +1375,12 @@ export class zonePacketHandlers {
             }
             server.lootContainerItem(client, oldLoadoutItem.itemGuid, 1, false);
           }
+          const container = server.getItemContainer(client, packet.data.itemGuid),
+          containerItem = container?.items[packet.data.itemGuid];
+          if(!container || !containerItem) return;
+          server.removeContainerItem(client, containerItem, container, 1);
           server.equipItem(client, packet.data.itemGuid);
+          */
           break;
         case 6: // shred
           server.shredItem(client, packet.data.itemGuid);
@@ -1818,28 +1824,171 @@ export class zonePacketHandlers {
         count,
         newSlotId
       } = packet.data;
-      
+      console.log(packet.data)
       if(characterId == client.character.characterId){
         // from client container
         if(characterId == targetCharacterId){
           // from / to client container
           const container = server.getItemContainer(client, itemGuid),
-          targetContainer = server.getContainerFromGuid(client, containerGuid),
-          item = container?.items[itemGuid];
-          if(!targetContainer || !container) {
-            server.sendData(client, "Container.Error", {
-              characterId: client.character.characterId,
-              containerError: 3, // unknown container
-            });
-            return;
-          };
-          if(!item) {
-            server.sendData(client, "Container.Error", {
-              characterId: client.character.characterId,
-              containerError: 5, // slot does not contain item
-            });
-            return;
-          };
+          targetContainer = server.getContainerFromGuid(client, containerGuid);
+
+          if(container) {// from container
+            const item = container.items[itemGuid];
+            if(!item) {
+              server.containerError(client, 5); // slot does not contain item
+              return;
+            };
+            if(targetContainer) { // to container
+              // move to container
+              if(!server.getContainerHasSpace(targetContainer, item.itemDefinitionId, count)) {
+                return;
+              }
+              if(!server.removeContainerItem(client, item, container, count)) {
+                server.containerError(client, 5); // slot does not contain item
+                return;
+              }
+              if(newSlotId == 0xFFFFFFFF) {
+                console.log("0xffffffff")
+                if(item.stackCount == count) {
+                  // if full stack is moved
+                  console.log("full stack")
+                  server.addContainerItem(client, itemGuid, targetContainer, count, false);
+                }
+                else {
+                  // if only partial stack is moved
+                  console.log("partial stack")
+                  console.log(container == targetContainer)
+                  server.addContainerItem(
+                    client,
+                    server.generateItem(item.itemDefinitionId),
+                    targetContainer,
+                    count,
+                    false
+                  );
+                }
+              }
+              else {
+                console.log("slotId defined")
+                const itemStack = server.getAvailableItemStack(targetContainer, item.itemDefinitionId, count, newSlotId);
+                console.log("itemstack")
+                console.log(itemStack)
+                if(itemStack){ // add to existing item stack
+                  const item = targetContainer.items[itemStack]
+                  item.stackCount += count;
+                  server.updateContainerItem(client, item, targetContainer);
+                }
+                else { // add item to end
+                  if(item.stackCount == count) {
+                    // if full stack is moved
+                    server.addContainerItem(client, itemGuid, targetContainer, count, false);
+                  }
+                  else {
+                    // if only partial stack is moved
+                    server.addContainerItem(
+                      client,
+                      server.generateItem(item.itemDefinitionId),
+                      targetContainer,
+                      count,
+                      false
+                    );
+                  }
+                }
+              }
+            }
+            else if (containerGuid == "0xFFFFFFFFFFFFFFFF") { // to loadout
+              // remove item from inventory and equip item
+              if(!server.removeContainerItem(client, item, container, count)) {
+                server.containerError(client, 5); // slot does not contain item
+                return;
+              }
+              server.equipItem(client, itemGuid);
+            }
+            else { // invalid
+              server.containerError(client, 3); // unknown container
+            }
+          }
+          else {// from loadout or invalid
+            const item = server._items[itemGuid];
+            //todo: check if item exists in loadout
+            if(targetContainer) { // to container
+              // move to container
+              if(!server.getContainerHasSpace(targetContainer, item.itemDefinitionId, count)) {
+                return;
+              }
+              if(!server.removeLoadoutItem(client, server.getLoadoutSlot(item.itemDefinitionId))) {
+                server.containerError(client, 5); // slot does not contain item
+                return;
+              }
+              server.addContainerItem(
+                client,
+                server.generateItem(item.itemDefinitionId),
+                targetContainer,
+                count,
+                false
+              );
+            }
+            else if (containerGuid == "0xFFFFFFFFFFFFFFFF") { // to loadout
+              // remove item from inventory and equip item
+
+            }
+            else { // invalid
+              server.containerError(client, 3); // unknown container
+            }
+          }
+
+
+
+
+
+
+
+
+
+          /*
+          if(targetContainer) { // to container
+            if(!server.getContainerHasSpace(targetContainer, item.itemDefinitionId, count)) {
+              return;
+            }
+            if (!server.removeInventoryItem(client, itemGuid, count)) {
+              server.sendData(client, "Container.Error", {
+                characterId: client.character.characterId,
+                containerError: 3, // unknown container
+              });
+              return;
+            }
+            if(item.stackCount == count) {
+              server.addContainerItem(client, itemGuid, targetContainer, count, false);
+            }
+            else {
+              //check if container already has a stack
+              //server.addContainerItem(client, server.generateItem(item.itemDefinitionId), targetContainer, count, false);
+              const itemStackGuid = server.getAvailableItemStack(
+                targetContainer,
+                item.itemDefinitionId,
+                count
+              );
+              if (itemStackGuid) {
+                const itemStack =
+                  client.character._containers[targetContainer.slotId].items[
+                    itemStackGuid
+                  ];
+                itemStack.stackCount += count;
+                server.updateContainerItem(client, itemStack, targetContainer);
+                delete server._items[itemGuid];
+              } else {
+                server.addContainerItem(
+                  client,
+                  server.generateItem(item.itemDefinitionId),
+                  targetContainer,
+                  count,
+                  false
+                );
+              }
+            }
+          }
+          /*
+          
+          
           console.log(item)
           if(container.itemGuid == targetContainer.itemGuid) {
             // from / to same container
@@ -1885,6 +2034,7 @@ export class zonePacketHandlers {
               }
             }
           }
+          */
         }
       }
       else {
