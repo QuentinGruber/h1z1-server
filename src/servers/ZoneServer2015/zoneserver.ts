@@ -254,6 +254,35 @@ export class ZoneServer2015 extends EventEmitter {
                 this.onCharacterCreateRequest(client, packet);
                 break;
               }
+              case "CharacterExistRequest":{
+                const { characterId, reqId } = packet.data;
+                try {
+                  const collection = (this._db as Db).collection("characters");
+                  const charactersArray = await collection
+                    .find({ characterId: characterId })
+                    .toArray();
+                  if (charactersArray.length) {
+                    this._h1emuZoneServer.sendData(
+                      client,
+                      "CharacterExistReply",
+                      { status: 1, reqId: reqId }
+                    );
+                  } else {
+                    this._h1emuZoneServer.sendData(
+                      client,
+                      "CharacterExistReply",
+                      { status: 0, reqId: reqId }
+                    );
+                  }
+                } catch (error) {
+                  this._h1emuZoneServer.sendData(
+                    client,
+                    "CharacterExistReply",
+                    { status: 0, reqId: reqId }
+                  );
+                }
+                break;
+              }
               case "CharacterDeleteRequest": {
                 const { characterId, reqId } = packet.data;
                 try {
@@ -279,7 +308,7 @@ export class ZoneServer2015 extends EventEmitter {
                     this._h1emuZoneServer.sendData(
                       client,
                       "CharacterDeleteReply",
-                      { status: 0, reqId: reqId }
+                      { status: 1, reqId: reqId }
                     );
                   }
                 } catch (error) {

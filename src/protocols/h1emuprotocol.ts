@@ -103,6 +103,25 @@ const packets = [
         { name: "status", type: "boolean", defaultValue: 0 },
       ],
     },
+  ],[
+    "CharacterExistRequest",
+    0x12,
+    {
+      fields: [
+        { name: "reqId", type: "uint32", defaultValue: 0 },
+        { name: "characterId", type: "uint64string", defaultValue: 0 },
+      ],
+    },
+  ],
+  [
+    "CharacterExistReply",
+    0x13,
+    {
+      fields: [
+        { name: "reqId", type: "uint32", defaultValue: 0 },
+        { name: "status", type: "boolean", defaultValue: 0 },
+      ],
+    },
   ],
 ];
 
