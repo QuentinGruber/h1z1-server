@@ -2364,6 +2364,27 @@ export class ZoneServer2016 extends ZoneServer2015 {
   getItemDefinition(itemDefinitionId: any) {
     return this._itemDefinitions[itemDefinitionId];
   }
+
+  getContainerHasSpace(container: loadoutContainer, itemDefinitionId: number, count: number): boolean {
+    return !!(this.getContainerDefinition(container.containerDefinitionId).MAX_BULK - 
+      (
+        this.getContainerBulk(container) + 
+        (
+          this.getItemDefinition(itemDefinitionId).BULK * count
+        )
+      )
+      >= 0)
+  }
+
+  getContainerFromGuid(client: Client, containerGuid: string): loadoutContainer | undefined {
+    for (const container of Object.values(client.character._containers)) {
+      if (container.itemGuid == containerGuid) {
+        return container;
+      }
+    }
+    return undefined;
+  }
+
   getContainerDefinition(containerDefinitionId: any) {
     if(this._containerDefinitions[containerDefinitionId]) {
       return this._containerDefinitions[containerDefinitionId];
@@ -2430,14 +2451,6 @@ export class ZoneServer2016 extends ZoneServer2015 {
       }
     }
     return undefined;
-    
-
-    // TEMP LOGIC UNTIL CONTAINERS WORK
-    /*
-    if (client.character._loadout[12] && client.character._containers[12]) {
-      return client.character._containers[12];
-    } // backpack
-    return undefined;*/
   }
 
   getItemContainer(
@@ -2500,6 +2513,31 @@ export class ZoneServer2016 extends ZoneServer2015 {
     }
   }
 
+  removeContainerItem(
+    client: Client, 
+    item: inventoryItem | undefined, 
+    container: loadoutContainer | undefined, 
+    count: number
+  ): boolean {
+    if (!container || !item) return false;
+    if (item.stackCount == count) {
+      delete container.items[item.itemGuid];
+      this.deleteItem(client, item.itemGuid);
+    } else if (item.stackCount > count) {
+      item.stackCount -= count;
+      this.updateContainerItem(
+        client,
+        item,
+        container
+      );
+    } else {
+      // if count > removeItem.stackCount
+      return false;
+    }
+    this.updateContainer(client, container)
+    return true;
+  }
+
   removeInventoryItem(
     client: Client,
     itemGuid: string,
@@ -2532,23 +2570,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
       }
     } else {
       const removeItemContainer = this.getItemContainer(client, itemGuid),
-        removeItem = removeItemContainer?.items[itemGuid];
-      if (!removeItemContainer || !removeItem) return false;
-      if (removeItem.stackCount == count) {
-        delete removeItemContainer.items[itemGuid];
-        this.deleteItem(client, itemGuid);
-      } else if (removeItem.stackCount > count) {
-        removeItem.stackCount -= count;
-        this.updateContainerItem(
-          client,
-          removeItem,
-          removeItemContainer
-        );
-      } else {
-        // if count > removeItem.stackCount
-        return false;
-      }
-      this.updateContainer(client, removeItemContainer)
+      removeItem = removeItemContainer?.items[itemGuid];
+      return this.removeContainerItem(client, removeItem, removeItemContainer, count)
     }
     return true;
   }

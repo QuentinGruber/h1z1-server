@@ -22,7 +22,7 @@ export const containerPackets: any = [
         { name: "containerGuid", type: "uint64string", defaultValue: "" },
         { name: "characterId", type: "uint64string", defaultValue: "" },
         { name: "itemGuid", type: "uint64string", defaultValue: "" },
-        { name: "characterId2", type: "uint64string", defaultValue: "" },
+        { name: "targetCharacterId", type: "uint64string", defaultValue: "" },
         { name: "count", type: "uint32", defaultValue: 0 },
         { name: "newSlotId", type: "uint32", defaultValue: 0 },
       ],
@@ -34,7 +34,6 @@ export const containerPackets: any = [
     {
       fields: [
         { name: "ignore", type: "uint64string", defaultValue: "" },
-        //{ name: "ignore2", type: "uint64string", defaultValue: "" },
         { name: "characterId", type: "uint64string", defaultValue: "" },
         {
           name: "containers",

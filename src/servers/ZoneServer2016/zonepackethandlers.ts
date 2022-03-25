@@ -76,6 +76,7 @@ export class zonePacketHandlers {
   firstTimeEvent: any;
   requestUseItem: any;
   constructionPlacementRequest: any;
+  containerMoveItem: any;
   constructor() {
     this.ClientIsReady = function (
       server: ZoneServer2016,
@@ -1796,6 +1797,92 @@ export class zonePacketHandlers {
           break;
       }
     };
+    this.containerMoveItem = function(
+      server: ZoneServer2016,
+      client: Client,
+      packet: any
+    ) {
+      const {
+        containerGuid,
+        characterId,
+        itemGuid,
+        targetCharacterId,
+        count,
+        newSlotId
+      } = packet.data;
+      
+      if(characterId == client.character.characterId){
+        // from client container
+        if(characterId == targetCharacterId){
+          // from / to client container
+          const container = server.getItemContainer(client, itemGuid),
+          targetContainer = server.getContainerFromGuid(client, containerGuid),
+          item = container?.items[itemGuid];
+          if(!targetContainer || !container) {
+            server.sendData(client, "Container.Error", {
+              characterId: client.character.characterId,
+              containerError: 3, // unknown container
+            });
+            return;
+          };
+          if(!item) {
+            server.sendData(client, "Container.Error", {
+              characterId: client.character.characterId,
+              containerError: 5, // slot does not contain item
+            });
+            return;
+          };
+          console.log(item)
+          if(container.itemGuid == targetContainer.itemGuid) {
+            // from / to same container
+            if(newSlotId == 0xFFFFFFFF) {
+              item.slotId = _.size(container.items)+1
+            }
+            else {
+              item.slotId = newSlotId
+            }
+            server.updateContainer(client, container);
+          }
+          else {
+            if(server.getContainerHasSpace(targetContainer, item.itemDefinitionId, count)) {
+              server.removeContainerItem(client, item, container, count);
+              if(item.stackCount == count) {
+                server.addContainerItem(client, itemGuid, targetContainer, count, false);
+              }
+              else {
+                //check if container already has a stack
+                //server.addContainerItem(client, server.generateItem(item.itemDefinitionId), targetContainer, count, false);
+                const itemStackGuid = server.getAvailableItemStack(
+                  targetContainer,
+                  item.itemDefinitionId,
+                  count
+                );
+                if (itemStackGuid) {
+                  const itemStack =
+                    client.character._containers[targetContainer.slotId].items[
+                      itemStackGuid
+                    ];
+                  itemStack.stackCount += count;
+                  server.updateContainerItem(client, itemStack, targetContainer);
+                  delete server._items[itemGuid];
+                } else {
+                  server.addContainerItem(
+                    client,
+                    server.generateItem(item.itemDefinitionId),
+                    targetContainer,
+                    count,
+                    false
+                  );
+                }
+              }
+            }
+          }
+        }
+      }
+      else {
+        // from external container
+      }
+    }
     //#endregion
   }
   processPacket(server: ZoneServer2016, client: Client, packet: any) {
@@ -1928,6 +2015,9 @@ export class zonePacketHandlers {
         break;
       case "Construction.PlacementRequest":
         this.constructionPlacementRequest(server, client, packet);
+        break;
+      case "Container.MoveItem":
+        this.containerMoveItem(server, client, packet);
         break;
       default:
         debug(packet);
