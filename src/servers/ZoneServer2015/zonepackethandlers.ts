@@ -1534,9 +1534,6 @@ export class zonePacketHandlers {
         clearTimeout(client.hudTimer);
       }
       client.hudTimer = setTimeout(() => {
-        client.managedObjects.forEach((object: string) => {
-          server._vehicles[object].isManaged = false;
-        });
         server.sendData(client, "ClientUpdate.CompleteLogoutProcess", {});
       }, timerTime);
     };
