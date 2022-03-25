@@ -13,7 +13,6 @@
 
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
-import { Int64String } from "../../../utils/utils";
 
 const debug = require("debug")("zonepacketHandlers");
 
@@ -311,7 +310,7 @@ const dev: any = {
       server.sendChatText(client, `No npcs of ID: ${args[1]} found`);
     }
   },
-  
+
   placement: function (server: ZoneServer2016, client: Client, args: any[]) {
     const modelChoosen = args[1];
     if (!modelChoosen) {
