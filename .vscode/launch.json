@@ -31,7 +31,7 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/out/servers/ZoneServer/zoneserver.js",
+            "program": "${workspaceFolder}/out/servers/ZoneServer2015/zoneserver.js",
             "outFiles": [
                 "${workspaceFolder}/out/**/*.js"
             ]
