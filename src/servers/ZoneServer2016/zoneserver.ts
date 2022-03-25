@@ -344,47 +344,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
 
   async sendCharacterData(client: Client) {
     await this.loadCharacterData(client);
-    const containers = Object.values(client.character._containers).map((container)=> {
-      const containerDefinition = this.getContainerDefinition(container.containerDefinitionId);
-      return {
-        loadoutSlotId: container.slotId,
-        containerData: {
-          guid: container.itemGuid,
-          definitionId: container.containerDefinitionId,
-          associatedCharacterId: client.character.characterId,
-          slots: containerDefinition.MAXIMUM_SLOTS,
-          items: Object.values(container.items).map((item, idx)=> {
-            container.items[item.itemGuid].slotId = idx+1;
-            return {
-              itemDefinitionId: item.itemDefinitionId,
-              itemData: {
-                itemDefinitionId: item.itemDefinitionId,
-                tintId: 5,
-                guid: item.itemGuid,
-                count: item.stackCount,
-                itemSubData: {
-                  hasSubData: false,
-                },
-                containerGuid: container.itemGuid,
-                containerDefinitionId: container.containerDefinitionId,
-                containerSlotId: item.slotId,
-                baseDurability: 2000,
-                currentDurability: item.currentDurability,
-                maxDurabilityFromDefinition: 2000,
-                unknownBoolean1: true,
-                unknownQword3: client.character.characterId,
-                unknownDword9: 1,
-              }
-            }
-          }),
-          unknownBoolean1: true,// needs to be true or bulk doesn't show up
-          maxBulk: containerDefinition.MAX_BULK,
-          unknownDword4: 28,
-          bulkUsed: this.getContainerBulk(container),
-          hasBulkLimit: !!containerDefinition.MAX_BULK,
-        }
-      }
-    })
+    const containers = this.initializeContainerList(client, false);
     this.sendData(client, "SendSelfToClient", {
       data: {
         guid: client.character.guid, // todo: guid should be moved to client, instead of character
@@ -2568,6 +2528,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
       }
       if (itemDefinition.ITEM_TYPE === 34) {
         delete client.character._containers[loadoutSlotId];
+        this.initializeContainerList(client);
       }
     } else {
       const removeItemContainer = this.getItemContainer(client, itemGuid),
@@ -2621,8 +2582,9 @@ export class ZoneServer2016 extends ZoneServer2015 {
 
   lootItem(client: Client, itemGuid: string | undefined, count: number) {
     if (!itemGuid) return;
-    const itemDefId = this._items[itemGuid].itemDefinitionId;
-    if (this.getItemDefinition(itemDefId).FLAG_CAN_EQUIP && 
+    const itemDefId = this._items[itemGuid].itemDefinitionId,
+    itemDef = this.getItemDefinition(itemDefId);
+    if (itemDef.FLAG_CAN_EQUIP && 
     this.getLoadoutSlot(itemDefId)
     ) {
       if (client.character._loadout[this.getLoadoutSlot(itemDefId)]) {
@@ -2634,6 +2596,9 @@ export class ZoneServer2016 extends ZoneServer2015 {
           count: count,
         });
         this.equipItem(client, itemGuid);
+        if(itemDef.ITEM_TYPE === 34) {
+          this.initializeContainerList(client);
+        }
       }
     } else {
       this.lootContainerItem(client, itemGuid, count);
@@ -2671,6 +2636,18 @@ export class ZoneServer2016 extends ZoneServer2015 {
       availableContainer = this.getAvailableContainer(client, itemDefId, count);
     if (!availableContainer) {
       // container error full
+      this.sendData(client, "Character.NoSpaceNotification", {
+        characterId: client.character.characterId
+      })
+      this.worldObjectManager.createLootEntity(
+        this,
+        this._items[itemGuid].itemDefinitionId,
+        count,
+        [...client.character.state.position],
+        [0, Number(Math.random() * 10 - 5), 0, 1],
+        15
+      );
+      this.spawnObjects(client); // manually call this for now
       return;
     }
     const itemStackGuid = this.getAvailableItemStack(
@@ -2709,6 +2686,58 @@ export class ZoneServer2016 extends ZoneServer2015 {
       characterId: client.character.characterId,
       itemGuid: itemGuid,
     });
+  }
+
+  initializeContainerList(client: Client, sendPacket: boolean = true) {
+    const containers = Object.values(client.character._containers).map((container)=> {
+      const containerDefinition = this.getContainerDefinition(container.containerDefinitionId);
+      return {
+        loadoutSlotId: container.slotId,
+        containerData: {
+          guid: container.itemGuid,
+          definitionId: container.containerDefinitionId,
+          associatedCharacterId: client.character.characterId,
+          slots: containerDefinition.MAXIMUM_SLOTS,
+          items: Object.values(container.items).map((item, idx)=> {
+            container.items[item.itemGuid].slotId = idx+1;
+            return {
+              itemDefinitionId: item.itemDefinitionId,
+              itemData: {
+                itemDefinitionId: item.itemDefinitionId,
+                tintId: 5,
+                guid: item.itemGuid,
+                count: item.stackCount,
+                itemSubData: {
+                  hasSubData: false,
+                },
+                containerGuid: container.itemGuid,
+                containerDefinitionId: container.containerDefinitionId,
+                containerSlotId: item.slotId,
+                baseDurability: 2000,
+                currentDurability: item.currentDurability,
+                maxDurabilityFromDefinition: 2000,
+                unknownBoolean1: true,
+                unknownQword3: client.character.characterId,
+                unknownDword9: 1,
+              }
+            }
+          }),
+          unknownBoolean1: true,// needs to be true or bulk doesn't show up
+          maxBulk: containerDefinition.MAX_BULK,
+          unknownDword4: 28,
+          bulkUsed: this.getContainerBulk(container),
+          hasBulkLimit: !!containerDefinition.MAX_BULK,
+        }
+      }
+    })
+    if(sendPacket){
+      this.sendData(client, "Container.InitEquippedContainers", {
+        ignore: client.character.characterId,
+        characterId: client.character.characterId,
+        containers: containers,
+      });
+    }
+    return containers;
   }
 
   updateContainer(client: Client, container: loadoutContainer | undefined) {

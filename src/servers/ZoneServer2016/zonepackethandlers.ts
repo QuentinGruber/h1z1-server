@@ -1336,7 +1336,7 @@ export class zonePacketHandlers {
       nameId = itemDefinition.NAME_ID,
       loadoutSlotId = server.getLoadoutSlot(itemDefinition.ID);
       if (loadoutSlotId && 
-        client.character._containers[loadoutSlotId].itemGuid == packet.data.itemGuid
+        client.character._containers[loadoutSlotId]?.itemGuid == packet.data.itemGuid
         && _.size(client.character._containers[loadoutSlotId].items) != 0
       ) {
         // prevents duping if client check is bypassed
