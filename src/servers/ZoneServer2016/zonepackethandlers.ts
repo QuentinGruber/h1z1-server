@@ -1311,11 +1311,13 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
+      /*
       server.sendData(client, "FirstTimeEvent.State", {
         unknownDword1: 0xffffffff,
         unknownDword2: 1,
         unknownBoolean1: false,
       });
+      */
     };
     //#region ITEMS
     this.requestUseItem = function (
@@ -1356,15 +1358,6 @@ export class zonePacketHandlers {
             loadoutId = server.getLoadoutSlot(item.itemDefinitionId),
             oldLoadoutItem = client.character._loadout[loadoutId];
           if (oldLoadoutItem) {
-            // temporarily disable equipped backpack logic
-            if (oldLoadoutItem.slotId == 12) {
-              server.sendChatText(
-                client,
-                `[ERROR] Equipped backpack use options are disabled for now.`
-              );
-              return;
-            }
-
             // if target loadoutSlot is occupied
             if (oldLoadoutItem.itemGuid == packet.data.itemGuid) {
               server.sendChatText(client, "[ERROR] Item is already equipped!");
