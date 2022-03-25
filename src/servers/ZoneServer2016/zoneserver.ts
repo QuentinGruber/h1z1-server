@@ -339,7 +339,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
       client.character.state.position = character.position;
       client.character.state.rotation = character.rotation;
     }
-    this.giveStartingItems(client, false, true);
+    this.giveStartingEquipment(client, false, true);
   }
 
   async sendCharacterData(client: Client) {
@@ -353,7 +353,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
           definitionId: container.containerDefinitionId,
           associatedCharacterId: client.character.characterId,
           slots: containerDefinition.MAXIMUM_SLOTS,
-          items: Object.values(container.items).map((item)=> {
+          items: Object.values(container.items).map((item, idx)=> {
+            container.items[item.itemGuid].slotId = idx+1;
             return {
               itemDefinitionId: item.itemDefinitionId,
               itemData: {
@@ -364,11 +365,11 @@ export class ZoneServer2016 extends ZoneServer2015 {
                 itemSubData: {
                   hasSubData: false,
                 },
-                containerGuid: container.containerGuid,
+                containerGuid: container.itemGuid,
                 containerDefinitionId: container.containerDefinitionId,
-                containerSlotId: container.slotId,
+                containerSlotId: item.slotId,
                 baseDurability: 2000,
-                currentDurability: 2000,
+                currentDurability: item.currentDurability,
                 maxDurabilityFromDefinition: 2000,
                 unknownBoolean1: true,
                 unknownQword3: client.character.characterId,
@@ -401,8 +402,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
           characterName: client.character.name,
         },
         inventory: {
-          items: Object.keys(client.character._loadout).map((slotId: any) => {
-            const slot = client.character._loadout[slotId];
+          items: Object.values(client.character._loadout).map((slot) => {
             return {
               itemDefinitionId: slot.itemDefinitionId,
               tintId: 5,
@@ -412,7 +412,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
                 hasSubData: false
               },
               containerGuid: slot.containerGuid,
-              containerDefinitionId: 28, // TEMP
+              containerDefinitionId: 101, // loadout containerDefinitionId
               containerSlotId: slot.slotId,
               baseDurability: 2000,
               currentDurability: slot.currentDurability,
@@ -526,7 +526,6 @@ export class ZoneServer2016 extends ZoneServer2015 {
         }),
       },
     });
-
     this.sendData(client, "Container.InitEquippedContainers", {
       ignore: client.character.characterId,
       characterId: client.character.characterId,
@@ -2249,32 +2248,6 @@ export class ZoneServer2016 extends ZoneServer2015 {
     });
   }
 
-  addLoadoutItem(client: Client, slotId: number) {
-    const loadoutItem = client.character._loadout[slotId];
-    this.sendData(client, "ClientUpdate.ItemAdd", {
-      characterId: client.character.characterId,
-      data: {
-        itemDefinitionId: loadoutItem.itemDefinitionId,
-        tintId: 5,
-        guid: loadoutItem.itemGuid,
-        count: loadoutItem.stackCount, // also ammoCount
-        itemSubData: {
-          hasSubData: false,
-        },
-        containerGuid: "0xFFFFFFFFFFFFFFFF",
-        containerDefinitionId: 28, // temp
-        containerSlotId: loadoutItem.slotId,
-        baseDurability: 2000,
-        currentDurability: loadoutItem.currentDurability,
-        maxDurabilityFromDefinition: 2000,
-        unknownBoolean1: true,
-        unknownQword3: client.character.characterId,
-        unknownDword9: 28,
-        unknownBoolean2: true,
-      },
-    });
-  }
-
   updateEquipment(client: Client, character = client.character) {
     this.sendData(client, "Equipment.SetCharacterEquipment", {
       characterData: {
@@ -2340,7 +2313,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
 
   addItem(
     client: Client,
-    item: inventoryItem
+    item: inventoryItem,
+    containerDefinitionId: number
   ) {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     this.sendData(client, "ClientUpdate.ItemAdd", {
@@ -2354,14 +2328,14 @@ export class ZoneServer2016 extends ZoneServer2015 {
           hasSubData: false,
         },
         containerGuid: item.containerGuid,
-        containerDefinitionId: 28,
+        containerDefinitionId: containerDefinitionId,
         containerSlotId: item.slotId,
         baseDurability: 2000,
         currentDurability: item.currentDurability,
         maxDurabilityFromDefinition: 2000,
         unknownBoolean1: true,
         unknownQword3: client.character.characterId,
-        unknownDword9: 28,
+        unknownDword9: 1,
         unknownBoolean2: true,
       },
     });
@@ -2422,8 +2396,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
 
     if (!sendPacket) return;
 
-    //this.addLoadoutItem(client, loadoutSlotId);
-    this.addItem(client, loadoutData);
+    this.addItem(client, loadoutData, 101);
     this.updateLoadout(client);
     this.updateEquipmentSlot(client, equipmentSlotId);
   }
@@ -2432,7 +2405,13 @@ export class ZoneServer2016 extends ZoneServer2015 {
     return this._itemDefinitions[itemDefinitionId];
   }
   getContainerDefinition(containerDefinitionId: any) {
-    return this._containerDefinitions[containerDefinitionId];
+    if(this._containerDefinitions[containerDefinitionId]) {
+      return this._containerDefinitions[containerDefinitionId];
+    }
+    else {
+      debug(`Tried to get containerDefinition for invalid containerDefinitionId ${containerDefinitionId}`);
+      return this._containerDefinitions[119];
+    }
   }
 
   generateItem(itemDefinitionId: any) {
@@ -2470,7 +2449,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
   getContainerBulk(container: loadoutContainer): number {
     let bulk = 0;
     for (const item of Object.values(container.items)) {
-      bulk += this.getItemDefinition(item.itemDefinitionId).BULK;
+      bulk += this.getItemDefinition(item.itemDefinitionId).BULK * item.stackCount;
     }
     return bulk;
   }
@@ -2587,6 +2566,9 @@ export class ZoneServer2016 extends ZoneServer2015 {
         // primary slot
         this.equipItem(client, client.character._loadout[7].itemGuid); //equip fists
       }
+      if (itemDefinition.ITEM_TYPE === 34) {
+        delete client.character._containers[loadoutSlotId];
+      }
     } else {
       const removeItemContainer = this.getItemContainer(client, itemGuid),
         removeItem = removeItemContainer?.items[itemGuid];
@@ -2605,9 +2587,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
         // if count > removeItem.stackCount
         return false;
       }
-    }
-    if (itemDefinition.ITEM_TYPE === 34) {
-      delete client.character._containers[item.guid];
+      this.updateContainer(client, removeItemContainer)
     }
     return true;
   }
@@ -2731,7 +2711,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
     });
   }
 
-  updateContainer(client: Client, container: loadoutContainer) {
+  updateContainer(client: Client, container: loadoutContainer | undefined) {
+    if(!container) return;
     const containerDefinition = this.getContainerDefinition(container.containerDefinitionId);
     this.sendData(client, "Container.UpdateEquippedContainer", {
       ignore: client.character.characterId,
@@ -2747,11 +2728,11 @@ export class ZoneServer2016 extends ZoneServer2015 {
             itemDefinitionId: item.itemDefinitionId,
             itemData: {
               itemDefinitionId: item.itemDefinitionId,
-              tintId: 1,
+              tintId: 5,
               guid: item.itemGuid,
               count: item.stackCount,
               itemSubData: {
-                unknownBoolean1: false
+                hasSubData: false,
               },
               containerGuid: container.itemGuid,
               containerDefinitionId: container.containerDefinitionId,
@@ -2759,19 +2740,20 @@ export class ZoneServer2016 extends ZoneServer2015 {
               baseDurability: 2000,
               currentDurability: item.currentDurability,
               maxDurabilityFromDefinition: 2000,
-              unknownBoolean1: false,
+              unknownBoolean1: true,
               unknownQword3: client.character.characterId,
-              unknownDword9: 1
+              unknownDword9: 1,
             }
           }
-        })
-      },
-      unknownBoolean1: true,// needs to be true or bulk doesn't show up
-      maxBulk: containerDefinition.MAX_BULK,
-      unknownDword4: 28,
-      bulkUsed: this.getContainerBulk(container),
-      hasBulkLimit: !!containerDefinition.MAX_BULK
+        }),
+        unknownBoolean1: true,// needs to be true or bulk doesn't show up
+        maxBulk: containerDefinition.MAX_BULK,
+        unknownDword4: 28,
+        bulkUsed: this.getContainerBulk(container),
+        hasBulkLimit: !!containerDefinition.MAX_BULK,
+      }
     });
+    
   }
 
   addContainerItem(
@@ -2792,7 +2774,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
       stackCount: count,
       currentDurability: 2000,
     };
-    this.addItem(client, container.items[itemGuid]);
+    this.addItem(client, container.items[itemGuid], container.containerDefinitionId);
     this.updateContainer(client, container);
     if (sendUpdate) {
       this.sendData(client, "Reward.AddNonRewardItem", {
@@ -2819,32 +2801,37 @@ export class ZoneServer2016 extends ZoneServer2015 {
         itemSubData: {
           hasSubData: false,
         },
-        containerGuid: container.itemGuid,
-        containerDefinitionId: 28,
+        containerGuid: item.containerGuid,
+        containerDefinitionId: container.containerDefinitionId,
         containerSlotId: item.slotId,
         baseDurability: 2000,
         currentDurability: item.currentDurability,
         maxDurabilityFromDefinition: 2000,
         unknownBoolean1: true,
         unknownQword3: client.character.characterId,
-        unknownDword9: 28,
+        unknownDword9: 1,
         unknownBoolean2: true,
       },
     });
     this.updateContainer(client, container);
   }
 
-  giveStartingItems(
+  giveStartingEquipment(
     client: Client,
     sendPacket: boolean,
     giveBackpack: boolean = false
   ) {
     if (giveBackpack) {
-      this.equipItem(client, this.generateItem(2393), sendPacket);
+      this.equipItem(client, this.generateItem(2393), sendPacket); // rasta backpack
     }
     this.equipItem(client, this.generateItem(85), sendPacket); // fists weapon
     this.equipItem(client, this.generateItem(2377), sendPacket); // DOA Hoodie
     this.equipItem(client, this.generateItem(2079), sendPacket); // golf pants
+  }
+  giveStartingItems(
+    client: Client,
+    sendPacket: boolean,
+  ) {
     this.lootContainerItem(client, this.generateItem(1985), 1, sendPacket); // map
     this.lootContainerItem(client, this.generateItem(1441), 1, sendPacket); // compass
     this.lootContainerItem(client, this.generateItem(1751), 5, sendPacket); // gauze

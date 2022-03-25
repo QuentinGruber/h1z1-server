@@ -215,16 +215,9 @@ export class zonePacketHandlers {
           () => server.saveCharacterPosition(client),
           30000
         );
-
+        server.giveStartingItems(client, true);
         server.updateEquipment(client); // needed or third person character will be invisible
         server.updateLoadout(client); // needed or all loadout context menu entries aren't shown
-        /*
-        server.sendData(client, "Container.InitEquippedContainers", {
-          ignore: client.character.characterId,
-          characterId: client.character.characterId,
-          containers: [],
-        });
-        */
         if (!server._soloMode) {
           server.sendZonePopulationUpdate();
         }
@@ -1337,16 +1330,17 @@ export class zonePacketHandlers {
       }
       const itemDefinition = server.getItemDefinition(
         server._items[packet.data.itemGuid].itemDefinitionId
-      );
-      // temporarily disable equipped backpack logic
-      if (client.character._loadout[12]?.itemGuid == packet.data.itemGuid) {
-        server.sendChatText(
-          client,
-          `[ERROR] Equipped backpack use options are disabled for now.`
-        );
+      ),
+      nameId = itemDefinition.NAME_ID,
+      loadoutSlotId = server.getLoadoutSlot(itemDefinition.ID);
+      if (loadoutSlotId && 
+        client.character._containers[loadoutSlotId].itemGuid == packet.data.itemGuid
+        && _.size(client.character._containers[loadoutSlotId].items) != 0
+      ) {
+        // prevents duping if client check is bypassed
+        server.sendChatText(client, "[ERROR] Container must be empty to unequip.");
         return;
       }
-      const nameId = itemDefinition.NAME_ID;
       switch (packet.data.itemUseOption) {
         case 4: // normal item drop option
         case 73: // battery drop option
