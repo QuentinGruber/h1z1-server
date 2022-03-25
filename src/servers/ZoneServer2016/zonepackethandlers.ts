@@ -77,6 +77,7 @@ export class zonePacketHandlers {
   requestUseItem: any;
   constructionPlacementRequest: any;
   containerMoveItem: any;
+  commandSuicide: any;
   constructor() {
     this.ClientIsReady = function (
       server: ZoneServer2016,
@@ -1320,6 +1321,13 @@ export class zonePacketHandlers {
       });
       */
     };
+    this.commandSuicide = function (
+      server: ZoneServer2016,
+      client: Client,
+      packet: any
+    ) {
+      server.killCharacter(client);
+    }
     //#region ITEMS
     this.requestUseItem = function (
       server: ZoneServer2016,
@@ -2018,6 +2026,9 @@ export class zonePacketHandlers {
         break;
       case "Container.MoveItem":
         this.containerMoveItem(server, client, packet);
+        break;
+      case "Command.Suicide":
+        this.commandSuicide(server, client, packet);
         break;
       default:
         debug(packet);

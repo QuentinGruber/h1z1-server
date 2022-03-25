@@ -1073,6 +1073,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
       position: spawnLocations[randomSpawnIndex].position,
     });
     this.clearInventory(client);
+    this.giveStartingEquipment(client, true, true);
     this.giveStartingItems(client, true);
     client.character.state.position = spawnLocations[randomSpawnIndex].position;
     this.updateResource(
@@ -1103,6 +1104,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
       5,
       5
     );
+    this.initializeContainerList(client)
   }
 
   speedTreeDestroy(packet: any) {
@@ -2891,6 +2893,19 @@ export class ZoneServer2016 extends ZoneServer2015 {
   }
 
   clearInventory(client: Client) {
+    for(const item of Object.values(client.character._loadout)) {
+      if(client.character._containers[item.slotId]) {
+        const container = client.character._containers[item.slotId];
+        for (const item of Object.values(container.items)) {
+          this.removeInventoryItem(client, item.itemGuid, item.stackCount);
+        }
+      }
+      if(item.slotId != 7) {
+        this.removeInventoryItem(client, item.itemGuid, item.stackCount);
+      }
+    }
+
+    /*
     for (const container of Object.values(client.character._containers)) {
       for (const item of Object.values(container.items)) {
         this.removeInventoryItem(client, item.itemGuid, item.stackCount);
@@ -2907,6 +2922,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
         );
       }
     }
+    */
   }
 
   eatItem(client: Client, itemGuid: string, nameId: number) {
