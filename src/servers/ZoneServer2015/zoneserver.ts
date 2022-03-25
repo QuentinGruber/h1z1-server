@@ -308,7 +308,7 @@ export class ZoneServer2015 extends EventEmitter {
                     this._h1emuZoneServer.sendData(
                       client,
                       "CharacterDeleteReply",
-                      { status: 0, reqId: reqId }
+                      { status: 1, reqId: reqId }
                     );
                   }
                 } catch (error) {
