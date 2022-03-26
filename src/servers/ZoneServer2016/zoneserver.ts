@@ -3045,6 +3045,11 @@ export class ZoneServer2016 extends ZoneServer2015 {
     }
   }
 
+  sniffPass(client: Client, itemGuid: string) {
+    this.removeInventoryItem(client, itemGuid, 1);
+    this.applyMovementModifier(client, 1.15, "swizzle");
+  }
+
   useItem(client: Client, itemGuid: string) {
     const item = this._items[itemGuid],
       itemDefinition = this.getItemDefinition(item.itemDefinitionId);
@@ -3054,6 +3059,10 @@ export class ZoneServer2016 extends ZoneServer2015 {
     switch (item.itemDefinitionId) {
       case 1353: // empty bottle
         useoption = "fill";
+        break;
+      case 1709: // swizzle
+        useoption = "sniff";
+        timeout = 3000;
         break;
       default:
         this.sendChatText(
@@ -3066,6 +3075,11 @@ export class ZoneServer2016 extends ZoneServer2015 {
       case "fill": // empty bottle
         this.utilizeHudTimer(client, nameId, timeout, () => {
           this.fillPass(client, itemGuid);
+        });
+        break;
+      case "sniff": // swizzle
+        this.utilizeHudTimer(client, nameId, timeout, () => {
+          this.sniffPass(client, itemGuid);
         });
         break;
       default:
