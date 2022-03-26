@@ -3348,14 +3348,12 @@ export class ZoneServer2016 extends ZoneServer2015 {
   }
 
   multiplyMovementModifier(client: Client, modifier: number) {
-    client.character.speedModifier *= modifier;
     this.sendData(client, "ClientUpdate.ModifyMovementSpeed", {
       speed: modifier,
     });
   }
 
   divideMovementModifier(client: Client, modifier: number) {
-    client.character.speedModifier /= modifier;
     const modifierFixed = 1 / modifier;
     this.sendData(client, "ClientUpdate.ModifyMovementSpeed", {
       speed: modifierFixed,
