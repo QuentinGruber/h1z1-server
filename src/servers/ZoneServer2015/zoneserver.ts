@@ -51,7 +51,7 @@ const Z1_POIs = require("../../../data/2015/zoneData/Z1_POIs");
 
 export class ZoneServer2015 extends EventEmitter {
   _gatewayServer: GatewayServer;
-  _protocol: any;
+  _protocol: ZoneProtocol;
   _db: Db | undefined;
   _soloMode: any;
   _mongoClient: any;
