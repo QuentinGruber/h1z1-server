@@ -415,14 +415,27 @@ const hax: any = {
     );
     server._vehicles[characterId] = vehicle; // save vehicle
   },
+  dynamicweather: async function (
+    server: ZoneServer2016,
+    client: Client,
+    args: any[]
+  ) {
+    if (!server._dynamicWeatherEnabled) {
+      server._dynamicWeatherEnabled = true;
+      server.sendChatText(client, "Dynamic weather enabled !");
+    }
+    else{
+      server.sendChatText(client, "Dynamic weather already enabled !");
+    }
+  },
   weather: async function (
     server: ZoneServer2016,
     client: Client,
     args: any[]
   ) {
     if (server._dynamicWeatherEnabled) {
-      await server._dynamicWeatherWorker.terminate();
-      server._dynamicWeatherWorker = null;
+      server._dynamicWeatherEnabled = false;
+      
       server.sendChatText(client, "Dynamic weather removed !");
     }
     const weatherTemplate = server._soloMode
@@ -508,6 +521,10 @@ const hax: any = {
     client: Client,
     args: any[]
   ) {
+    if (server._dynamicWeatherEnabled) {
+      server._dynamicWeatherEnabled = false;
+      server.sendChatText(client, "Dynamic weather removed !");
+    }
     server.sendChatText(client, `Randomized weather`);
 
     function rnd_number(max: any, fixed: Boolean = false) {

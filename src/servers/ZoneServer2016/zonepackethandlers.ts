@@ -378,6 +378,7 @@ export class zonePacketHandlers {
       packet: any
     ) {
       debug("ClientLogout");
+      clearTimeout(client.hudTimer) // clear the timer started at StartLogoutRequest
       server.deleteClient(client);
     };
     this.GameTimeSync = function (
