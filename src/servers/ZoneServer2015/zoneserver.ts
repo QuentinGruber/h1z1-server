@@ -1212,6 +1212,7 @@ export class ZoneServer2015 extends EventEmitter {
     const character = client.character;
     if (character.isAlive) {
       debug(character.name + " has died");
+      client.character.isRunning = false;
       client.character.characterStates.knockedOut = true;
       this.updateCharacterState(
         client,
@@ -1322,6 +1323,7 @@ export class ZoneServer2015 extends EventEmitter {
 
   async respawnPlayer(client: Client) {
     client.character.isAlive = true;
+    client.character.isRunning = false;
     client.character.resources.health = 10000;
     client.character.resources.food = 10000;
     client.character.resources.water = 10000;

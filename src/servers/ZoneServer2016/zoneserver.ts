@@ -850,6 +850,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
     const character = client.character;
     if (character.isAlive) {
       debug(character.name + " has died");
+      client.character.isRunning = false
       client.character.characterStates.knockedOut = true;
       this.updateCharacterState(
         client,
@@ -1091,6 +1092,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
 
   async respawnPlayer(client: Client) {
     client.character.isAlive = true;
+    client.character.isRunning = false;
     if (client.vehicle.mountedVehicle) {
       this.dismountVehicle(client);
     }
