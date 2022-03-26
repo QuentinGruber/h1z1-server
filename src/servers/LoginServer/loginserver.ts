@@ -662,11 +662,14 @@ export class LoginServer extends EventEmitter {
       }
     }
     debug(charactersLoginInfo);
-    const characterExistOnZone = await this.askZone(
+    let characterExistOnZone = 1;
+    if(!this._soloMode){
+     characterExistOnZone = await this.askZone(
       serverId,
       "CharacterExistRequest",
       { characterId: characterId }
     );
+     }
     if(characterExistOnZone){
       this.sendData(client, "CharacterLoginReply", charactersLoginInfo);
     }
