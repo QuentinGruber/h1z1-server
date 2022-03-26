@@ -2300,6 +2300,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
       },
       currentSlotId: client.character.currentLoadoutSlot,
     });
+    this.checkConveys(client);
   }
 
   addLoadoutItem(client: Client, slotId: number) {
@@ -2637,6 +2638,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
         },
         slotId: equipmentSlotId,
       });
+      this.checkConveys(client);
       if (equipmentSlotId === 7) {
         // primary slot
         this.equipItem(client, client.character._loadout[7].itemGuid); //equip fists
@@ -3358,6 +3360,27 @@ export class ZoneServer2016 extends ZoneServer2015 {
     this.sendData(client, "ClientUpdate.ModifyMovementSpeed", {
       speed: modifierFixed,
     });
+  }
+
+  checkConveys(client: Client, character = client.character) {
+    if (!character._equipment["5"]) {
+      if (character.hasConveys) {
+        character.hasConveys = false;
+        this.divideMovementModifier(client, 1.15);
+      }
+    } else {
+      if (character._equipment["5"].guid) {
+        const item = this._items[character._equipment["5"].guid];
+        const itemDef = this.getItemDefinition(item.itemDefinitionId);
+        if (itemDef.NAME.includes("Conveys") && !character.hasConveys) {
+          character.hasConveys = true;
+          this.applyMovementModifier(client, 1.15, "boots");
+        } else if (!itemDef.NAME.includes("Conveys") && character.hasConveys) {
+          character.hasConveys = false;
+          this.divideMovementModifier(client, 1.15);
+        }
+      }
+    }
   }
     
   //#endregion
