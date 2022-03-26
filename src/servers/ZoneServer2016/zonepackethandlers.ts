@@ -1824,40 +1824,38 @@ export class zonePacketHandlers {
         count,
         newSlotId
       } = packet.data;
-      console.log(packet.data)
       if(characterId == client.character.characterId){
         // from client container
         if(characterId == targetCharacterId){
           // from / to client container
           const container = server.getItemContainer(client, itemGuid),
-          targetContainer = server.getContainerFromGuid(client, containerGuid);
+          targetContainer = server.getContainerFromGuid(client, containerGuid)
 
           if(container) {// from container
-            const item = container.items[itemGuid];
+            const item = container.items[itemGuid],
+            oldStackCount = item.stackCount; // saves stack count before it gets altered
             if(!item) {
               server.containerError(client, 5); // slot does not contain item
               return;
             };
             if(targetContainer) { // to container
               // move to container
-              if(!server.getContainerHasSpace(targetContainer, item.itemDefinitionId, count)) {
+              if(
+                  container.containerGuid != targetContainer.containerGuid &&
+                  !server.getContainerHasSpace(targetContainer, item.itemDefinitionId, count)
+              ) { // allows items in the same container but different stacks to be stacked
                 return;
               }
+              
               if(!server.removeContainerItem(client, item, container, count)) {
                 server.containerError(client, 5); // slot does not contain item
                 return;
               }
               if(newSlotId == 0xFFFFFFFF) {
-                console.log("0xffffffff")
-                if(item.stackCount == count) {
-                  // if full stack is moved
-                  console.log("full stack")
+                if(oldStackCount == count) { // if full stack is moved
                   server.addContainerItem(client, itemGuid, targetContainer, count, false);
                 }
-                else {
-                  // if only partial stack is moved
-                  console.log("partial stack")
-                  console.log(container == targetContainer)
+                else { // if only partial stack is moved
                   server.addContainerItem(
                     client,
                     server.generateItem(item.itemDefinitionId),
@@ -1868,17 +1866,14 @@ export class zonePacketHandlers {
                 }
               }
               else {
-                console.log("slotId defined")
                 const itemStack = server.getAvailableItemStack(targetContainer, item.itemDefinitionId, count, newSlotId);
-                console.log("itemstack")
-                console.log(itemStack)
                 if(itemStack){ // add to existing item stack
                   const item = targetContainer.items[itemStack]
                   item.stackCount += count;
                   server.updateContainerItem(client, item, targetContainer);
                 }
                 else { // add item to end
-                  if(item.stackCount == count) {
+                  if(oldStackCount == count) {
                     // if full stack is moved
                     server.addContainerItem(client, itemGuid, targetContainer, count, false);
                   }
@@ -1935,106 +1930,6 @@ export class zonePacketHandlers {
               server.containerError(client, 3); // unknown container
             }
           }
-
-
-
-
-
-
-
-
-
-          /*
-          if(targetContainer) { // to container
-            if(!server.getContainerHasSpace(targetContainer, item.itemDefinitionId, count)) {
-              return;
-            }
-            if (!server.removeInventoryItem(client, itemGuid, count)) {
-              server.sendData(client, "Container.Error", {
-                characterId: client.character.characterId,
-                containerError: 3, // unknown container
-              });
-              return;
-            }
-            if(item.stackCount == count) {
-              server.addContainerItem(client, itemGuid, targetContainer, count, false);
-            }
-            else {
-              //check if container already has a stack
-              //server.addContainerItem(client, server.generateItem(item.itemDefinitionId), targetContainer, count, false);
-              const itemStackGuid = server.getAvailableItemStack(
-                targetContainer,
-                item.itemDefinitionId,
-                count
-              );
-              if (itemStackGuid) {
-                const itemStack =
-                  client.character._containers[targetContainer.slotId].items[
-                    itemStackGuid
-                  ];
-                itemStack.stackCount += count;
-                server.updateContainerItem(client, itemStack, targetContainer);
-                delete server._items[itemGuid];
-              } else {
-                server.addContainerItem(
-                  client,
-                  server.generateItem(item.itemDefinitionId),
-                  targetContainer,
-                  count,
-                  false
-                );
-              }
-            }
-          }
-          /*
-          
-          
-          console.log(item)
-          if(container.itemGuid == targetContainer.itemGuid) {
-            // from / to same container
-            if(newSlotId == 0xFFFFFFFF) {
-              item.slotId = _.size(container.items)+1
-            }
-            else {
-              item.slotId = newSlotId
-            }
-            server.updateContainer(client, container);
-          }
-          else {
-            if(server.getContainerHasSpace(targetContainer, item.itemDefinitionId, count)) {
-              server.removeContainerItem(client, item, container, count);
-              if(item.stackCount == count) {
-                server.addContainerItem(client, itemGuid, targetContainer, count, false);
-              }
-              else {
-                //check if container already has a stack
-                //server.addContainerItem(client, server.generateItem(item.itemDefinitionId), targetContainer, count, false);
-                const itemStackGuid = server.getAvailableItemStack(
-                  targetContainer,
-                  item.itemDefinitionId,
-                  count
-                );
-                if (itemStackGuid) {
-                  const itemStack =
-                    client.character._containers[targetContainer.slotId].items[
-                      itemStackGuid
-                    ];
-                  itemStack.stackCount += count;
-                  server.updateContainerItem(client, itemStack, targetContainer);
-                  delete server._items[itemGuid];
-                } else {
-                  server.addContainerItem(
-                    client,
-                    server.generateItem(item.itemDefinitionId),
-                    targetContainer,
-                    count,
-                    false
-                  );
-                }
-              }
-            }
-          }
-          */
         }
       }
       else {
