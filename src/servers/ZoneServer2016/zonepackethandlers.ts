@@ -914,6 +914,7 @@ export class zonePacketHandlers {
             //itemsData: {/*data:[]*/}
           });
           break;
+        case 2: // vehicles
         if (entityData.npcData.vehicleId != 13) {
             server.sendData(client, "LightweightToFullVehicle", {
               npcData: {
