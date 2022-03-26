@@ -885,6 +885,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
       }
       this._props[characterId] = prop;*/
     }
+    this.clearMovementModifiers(client);
     character.isAlive = false;
   }
 
@@ -3290,6 +3291,77 @@ export class ZoneServer2016 extends ZoneServer2015 {
     }
     return inventory;
   }
+
+  clearMovementModifiers(client: Client) {
+    for (const a in client.character.timeouts) {
+      client.character.timeouts[a]._onTimeout();
+      delete client.character.timeouts[a];
+    }
+  }
+
+  applyMovementModifier(client: Client, modifier: number, type: string) {
+    this.multiplyMovementModifier(client, modifier);
+    switch (type) {
+      case "wellRested":
+        if (client.character.timeouts["wellRested"]) {
+          client.character.timeouts["wellRested"]._onTimeout();
+          delete client.character.timeouts["wellRested"];
+        }
+        client.character.timeouts["wellRested"] = setTimeout(() => {
+          if (!client.character.timeouts["wellRested"]) {
+            return;
+          }
+          this.divideMovementModifier(client, modifier);
+          delete client.character.timeouts["wellRested"];
+        }, 300000);
+        break;
+      case "swizzle":
+        if (client.character.timeouts["swizzle"]) {
+          client.character.timeouts["swizzle"]._onTimeout();
+          delete client.character.timeouts["swizzle"];
+        }
+        client.character.timeouts["swizzle"] = setTimeout(() => {
+          if (!client.character.timeouts["swizzle"]) {
+            return;
+          }
+          this.divideMovementModifier(client, modifier);
+          delete client.character.timeouts["swizzle"];
+        }, 30000);
+        break;
+      case "snared":
+        if (client.character.timeouts["snared"]) {
+          client.character.timeouts["snared"]._onTimeout();
+          delete client.character.timeouts["snared"];
+        }
+        client.character.timeouts["snared"] = setTimeout(() => {
+          if (!client.character.timeouts["snared"]) {
+            return;
+          }
+          this.divideMovementModifier(client, modifier);
+          delete client.character.timeouts["snared"];
+        }, 15000);
+        break;
+      case "boots":
+        // some stuff
+        break;
+    }
+  }
+
+  multiplyMovementModifier(client: Client, modifier: number) {
+    client.character.speedModifier *= modifier;
+    this.sendData(client, "ClientUpdate.ModifyMovementSpeed", {
+      speed: modifier,
+    });
+  }
+
+  divideMovementModifier(client: Client, modifier: number) {
+    client.character.speedModifier /= modifier;
+    const modifierFixed = 1 / modifier;
+    this.sendData(client, "ClientUpdate.ModifyMovementSpeed", {
+      speed: modifierFixed,
+    });
+  }
+    
   //#endregion
 
   async reloadZonePacketHandlers() {
