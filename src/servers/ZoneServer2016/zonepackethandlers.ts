@@ -1772,22 +1772,7 @@ export class zonePacketHandlers {
                     }
                   );
                   server._traps[characterId].isTriggered = true;
-                  server.sendData(
-                    server._clients[a],
-                    "ClientUpdate.ModifyMovementSpeed",
-                    {
-                      speed: 0.4,
-                    }
-                  );
-                  setTimeout(() => {
-                    server.sendData(
-                      server._clients[a],
-                      "ClientUpdate.ModifyMovementSpeed",
-                      {
-                        speed: 2.5,
-                      }
-                    );
-                  }, 20000);
+                  server.applyMovementModifier(client, 0.4, "snared");
                 }
               }
 
