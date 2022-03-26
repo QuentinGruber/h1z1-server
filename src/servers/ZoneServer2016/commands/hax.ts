@@ -74,14 +74,9 @@ const hax: any = {
       server.getGameTime()
     );
     server._vehicles[characterId] = vehicle;
-    server.worldRoutine();
-    server.sendData(client, "Mount.MountResponse", {
-      characterId: client.character.characterId,
-      vehicleGuid: characterId,
-      identity: {},
-    });
-    client.vehicle.mountedVehicle = characterId;
-    client.vehicle.mountedVehicleType = "parachute";
+    server.sendData(client, "AddLightweightVehicle", vehicle, 1);
+    client.spawnedEntities.push(vehicle);
+    server.mountVehicle(client, characterId);
   },
   drive: function (server: ZoneServer2016, client: Client, args: any[]) {
     if (!args[1]) {
