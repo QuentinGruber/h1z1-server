@@ -46,6 +46,7 @@ export class Character2016 extends Character {
   healingTicks: number;
   healingMaxTicks: number;
   starthealingInterval: any;
+  timeouts: any;
   constructor(characterId: string, generatedTransient: number) {
     super(characterId, generatedTransient);
     this.healingTicks = 0;
@@ -59,7 +60,7 @@ export class Character2016 extends Character {
       comfort: 6000,
       bleeding: -40,
     };
-
+    this.timeouts = {};
     this.starthealingInterval = (
       client: ZoneClient2016,
       server: ZoneServer2016
