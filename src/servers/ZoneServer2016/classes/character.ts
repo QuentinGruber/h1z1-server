@@ -47,6 +47,7 @@ export class Character2016 extends Character {
   healingMaxTicks: number;
   starthealingInterval: any;
   timeouts: any;
+  hasConveys: boolean = false;
   constructor(characterId: string, generatedTransient: number) {
     super(characterId, generatedTransient);
     this.healingTicks = 0;
