@@ -53,7 +53,8 @@ const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.js
   itemDefinitions = require("./../../../data/2016/dataSources/ServerItemDefinitions.json"),
   containerDefinitions = require("./../../../data/2016/dataSources/ContainerDefinitions.json"),
   loadoutSlotItemClasses = require("./../../../data/2016/dataSources/LoadoutSlotItemClasses.json"),
-  loadoutEquipSlots = require("./../../../data/2016/dataSources/LoadoutEquipSlots.json");
+  loadoutEquipSlots = require("./../../../data/2016/dataSources/LoadoutEquipSlots.json"),
+  Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs");
 
 export class ZoneServer2016 extends ZoneServer2015 {
   _weather2016: Weather2016;
@@ -1659,6 +1660,38 @@ export class ZoneServer2016 extends ZoneServer2015 {
         }
       }
     });
+  }
+
+  POIManager(client: Client) {
+    // sends POIChangeMessage or clears it based on player location
+    let inPOI = false;
+    Z1_POIs.forEach((point: any) => {
+      if (
+        isPosInRadius(
+          point.range,
+          client.character.state.position,
+          point.position
+        )
+      ) {
+        inPOI = true;
+        if (client.currentPOI != point.stringId) {
+          // checks if player already was sent POIChangeMessage
+          this.sendData(client, "POIChangeMessage", {
+            messageStringId: point.stringId,
+            id: point.POIid,
+          });
+          client.currentPOI = point.stringId;
+        }
+      }
+    });
+    if (!inPOI && client.currentPOI != 0) {
+      // checks if POIChangeMessage was already cleared
+      this.sendData(client, "POIChangeMessage", {
+        messageStringId: 0,
+        id: 115,
+      });
+      client.currentPOI = 0;
+    }
   }
 
   sendData(
