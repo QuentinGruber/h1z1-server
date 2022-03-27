@@ -34,51 +34,51 @@ export class zonePacketHandlers {
   hax: any = hax;
   dev: any = dev;
   admin: any = admin;
-  ClientIsReady: any;
-  ClientFinishedLoading: any;
-  Security: any;
-  commandRecipeStart: any;
-  commandFreeInteractionNpc: any;
-  CommandSetInWater: any;
+  ClientIsReady;
+  ClientFinishedLoading;
+  Security;
+  commandRecipeStart;
+  commandFreeInteractionNpc;
+  CommandSetInWater;
   CommandClearInWater;
-  collisionDamage: any;
-  lobbyGameDefinitionDefinitionsRequest: any;
-  KeepAlive: any;
-  clientUpdateMonitorTimeDrift: any;
-  ClientLog: any;
-  wallOfDataUIEvent: any;
-  SetLocale: any;
-  GetContinentBattleInfo: any;
-  chatChat: any;
-  ClientInitializationDetails: any;
-  ClientLogout: any;
-  GameTimeSync: any;
-  Synchronization: any;
-  commandExecuteCommand: any;
-  commandInteractRequest: any;
-  commandInteractCancel: any;
-  commandStartLogoutRequest: any;
-  CharacterSelectSessionRequest: any;
-  profileStatsGetPlayerProfileStats: any;
-  DtoHitSpeedTreeReport: any;
-  GetRewardBuffInfo: any;
-  PlayerUpdateManagedPosition: any;
-  vehicleStateData: any;
-  PlayerUpdateUpdatePositionClientToZone: any;
-  characterRespawn: any;
-  characterFullCharacterDataRequest: any;
-  commandPlayerSelect: any;
-  mountDismountRequest: any;
-  commandInteractionString: any;
-  mountSeatChangeRequest: any;
-  constructionPlacementFinalizeRequest: any;
-  commandItemDefinitionRequest: any;
-  characterWeaponStance: any;
-  firstTimeEvent: any;
-  requestUseItem: any;
-  constructionPlacementRequest: any;
-  containerMoveItem: any;
-  commandSuicide: any;
+  collisionDamage;
+  lobbyGameDefinitionDefinitionsRequest;
+  KeepAlive;
+  clientUpdateMonitorTimeDrift;
+  ClientLog;
+  wallOfDataUIEvent;
+  SetLocale;
+  GetContinentBattleInfo;
+  chatChat;
+  ClientInitializationDetails;
+  ClientLogout;
+  GameTimeSync;
+  Synchronization;
+  commandExecuteCommand;
+  commandInteractRequest;
+  commandInteractCancel;
+  commandStartLogoutRequest;
+  CharacterSelectSessionRequest;
+  profileStatsGetPlayerProfileStats;
+  DtoHitSpeedTreeReport;
+  GetRewardBuffInfo;
+  PlayerUpdateManagedPosition;
+  vehicleStateData;
+  PlayerUpdateUpdatePositionClientToZone;
+  characterRespawn;
+  characterFullCharacterDataRequest;
+  commandPlayerSelect;
+  mountDismountRequest;
+  commandInteractionString;
+  mountSeatChangeRequest;
+  constructionPlacementFinalizeRequest;
+  commandItemDefinitionRequest;
+  characterWeaponStance;
+  firstTimeEvent;
+  requestUseItem;
+  constructionPlacementRequest;
+  containerMoveItem;
+  commandSuicide;
   constructor() {
     this.ClientIsReady = function (
       server: ZoneServer2016,
@@ -272,9 +272,9 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      const characterId = packet.data.characterId;
-      const damage = packet.data.damage;
-      const vehicle = server._vehicles[characterId];
+      const characterId = packet.data.characterId,
+      damage = packet.data.damage,
+      vehicle = server._vehicles[characterId];
       if (characterId === client.character.characterId) {
         server.playerDamage(client, damage * 5);
       } else if (vehicle) {
