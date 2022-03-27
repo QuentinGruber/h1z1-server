@@ -100,40 +100,6 @@
             "outFiles": [
                 "${workspaceFolder}/out/**/*.js"
             ]
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Launch LoginServer2016",
-            "env":{
-                "VSCODE_DEBUG":"true",
-                "CLIENT_SIXTEEN":"true"
-            },
-            "skipFiles": [
-                "<node_internals>/**"
-            ],
-            "program": "${workspaceFolder}/out/servers/LoginServer/loginserver.js",
-            "outFiles": [
-                "${workspaceFolder}/out/**/*.js"
-            ]
-        }
-        ,
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Launch LoginServer2016 with MongoDB",
-            "env":{
-                "VSCODE_DEBUG":"true",
-                "CLIENT_SIXTEEN":"true",
-                "MONGO_URL":"mongodb://localhost:27017/"
-            },
-            "skipFiles": [
-                "<node_internals>/**"
-            ],
-            "program": "${workspaceFolder}/out/servers/LoginServer/loginserver.js",
-            "outFiles": [
-                "${workspaceFolder}/out/**/*.js"
-            ]
         }
     ]
 }
