@@ -1552,6 +1552,9 @@ export class zonePacketHandlers {
 
           server._explosives[characterId] = npc; // save npc
           setTimeout(function () {
+            if(!server._explosives[characterId]){ // it happens when you die before the explosive is enable
+              return
+            }
             // arming time
             server._explosives[characterId].mineTimer = setTimeout(() => {
               if (!server._explosives[characterId]) {
