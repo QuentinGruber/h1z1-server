@@ -54,7 +54,7 @@ export class ZoneServer2015 extends EventEmitter {
   _protocol: ZoneProtocol;
   _db: Db | undefined;
   _soloMode: any;
-  _mongoClient: any;
+  _mongoClient?: MongoClient;
   _mongoAddress: string;
   _clients: { [characterId: string]: Client } = {};
   _characters: any;
@@ -700,7 +700,7 @@ export class ZoneServer2015 extends EventEmitter {
 
   async connectMongo() {
     const mongoClient = (this._mongoClient = new MongoClient(
-      this._mongoAddress
+      this._mongoAddress,{maxPoolSize:10}
     ));
     try {
       await mongoClient.connect();
