@@ -28,7 +28,7 @@ let admin = require("./commands/admin").default;
 import { _, Int64String, isPosInRadius, getDistance } from "../../utils/utils";
 
 import { CraftManager } from "./classes/craftmanager";
-import { inventoryItem, loadoutContainer, loadoutItem } from "types/zoneserver";
+import { inventoryItem, loadoutContainer } from "types/zoneserver";
 
 export class zonePacketHandlers {
   hax: any = hax;

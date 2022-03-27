@@ -2370,7 +2370,6 @@ export class ZoneServer2016 extends ZoneServer2015 {
       return;
     }
     const item = this._items[itemGuid],
-      def = this.getItemDefinition(item.itemDefinitionId),
       loadoutSlotId = this.getLoadoutSlot(item.itemDefinitionId);
     if (!loadoutSlotId) {
       debug(
