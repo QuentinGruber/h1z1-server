@@ -2727,11 +2727,12 @@ export class ZoneServer2016 extends ZoneServer2015 {
       );
       return;
     }
-    this.sendData(client, "Command.PlayDialogEffect", {
-      characterId: guid,
+    this.sendData(client, "Character.PlayWorldCompositeEffect", {
+      characterId: "0x0",
       effectId:
         this.getItemDefinition(this._items[object.itemGuid].itemDefinitionId)
           .PICKUP_EFFECT ?? 5151,
+      position: object.position,
     });
     this.lootItem(client, object.itemGuid, object.stackCount);
     this.deleteEntity(guid, this._objects);
