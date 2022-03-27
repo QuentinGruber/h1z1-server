@@ -28,6 +28,7 @@ let admin = require("./commands/admin").default;
 import { _, Int64String, isPosInRadius, getDistance } from "../../utils/utils";
 
 import { CraftManager } from "./classes/craftmanager";
+import { inventoryItem, loadoutContainer, loadoutItem } from "types/zoneserver";
 
 export class zonePacketHandlers {
   hax: any = hax;
@@ -1363,24 +1364,36 @@ export class zonePacketHandlers {
           );
           break;
         case 60: //equip item
-          /*
           const item = server._items[packet.data.itemGuid],
             loadoutId = server.getLoadoutSlot(item.itemDefinitionId),
-            oldLoadoutItem = client.character._loadout[loadoutId];
-          if (oldLoadoutItem) {
-            // if target loadoutSlot is occupied
+            oldLoadoutItem = client.character._loadout[loadoutId],
+            container = server.getItemContainer(client, packet.data.itemGuid),
+            containerItem = container?.items[packet.data.itemGuid];
+          if(!oldLoadoutItem && !container || !containerItem) {
+            server.containerError(client, 3); // unknown container
+            return;
+          }
+          if (oldLoadoutItem) { // if target loadoutSlot is occupied
             if (oldLoadoutItem.itemGuid == packet.data.itemGuid) {
               server.sendChatText(client, "[ERROR] Item is already equipped!");
               return;
             }
+            // remove item from inventory and equip item
+            if(!server.removeContainerItem(client, containerItem, container, 1)) {
+              server.containerError(client, 5); // slot does not contain item
+              return;
+            }
             server.lootContainerItem(client, oldLoadoutItem.itemGuid, 1, false);
+            server.equipItem(client, packet.data.itemGuid);
           }
-          const container = server.getItemContainer(client, packet.data.itemGuid),
-          containerItem = container?.items[packet.data.itemGuid];
-          if(!container || !containerItem) return;
-          server.removeContainerItem(client, containerItem, container, 1);
-          server.equipItem(client, packet.data.itemGuid);
-          */
+          else {
+            // remove item from inventory and equip item
+            if(!server.removeContainerItem(client, containerItem, container, 1)) {
+              server.containerError(client, 5); // slot does not contain item
+              return;
+            }
+            server.equipItem(client, packet.data.itemGuid);
+          }
           break;
         case 6: // shred
           server.shredItem(client, packet.data.itemGuid);
@@ -1824,6 +1837,23 @@ export class zonePacketHandlers {
         count,
         newSlotId
       } = packet.data;
+      
+      // helper functions
+      function combineItemStack(oldStackCount: number, targetContainer: loadoutContainer, item: inventoryItem) {
+        if(oldStackCount == count) { // if full stack is moved
+          server.addContainerItem(client, itemGuid, targetContainer, count, false);
+        }
+        else { // if only partial stack is moved
+          server.addContainerItem(
+            client,
+            server.generateItem(item.itemDefinitionId),
+            targetContainer,
+            count,
+            false
+          );
+        }
+      }
+
       if(characterId == client.character.characterId){
         // from client container
         if(characterId == targetCharacterId){
@@ -1833,7 +1863,7 @@ export class zonePacketHandlers {
 
           if(container) {// from container
             const item = container.items[itemGuid],
-            oldStackCount = item.stackCount; // saves stack count before it gets altered
+            oldStackCount = item?.stackCount; // saves stack count before it gets altered
             if(!item) {
               server.containerError(client, 5); // slot does not contain item
               return;
@@ -1852,18 +1882,7 @@ export class zonePacketHandlers {
                 return;
               }
               if(newSlotId == 0xFFFFFFFF) {
-                if(oldStackCount == count) { // if full stack is moved
-                  server.addContainerItem(client, itemGuid, targetContainer, count, false);
-                }
-                else { // if only partial stack is moved
-                  server.addContainerItem(
-                    client,
-                    server.generateItem(item.itemDefinitionId),
-                    targetContainer,
-                    count,
-                    false
-                  );
-                }
+                combineItemStack(oldStackCount, targetContainer, item);
               }
               else {
                 const itemStack = server.getAvailableItemStack(targetContainer, item.itemDefinitionId, count, newSlotId);
@@ -1873,30 +1892,12 @@ export class zonePacketHandlers {
                   server.updateContainerItem(client, item, targetContainer);
                 }
                 else { // add item to end
-                  if(oldStackCount == count) {
-                    // if full stack is moved
-                    server.addContainerItem(client, itemGuid, targetContainer, count, false);
-                  }
-                  else {
-                    // if only partial stack is moved
-                    server.addContainerItem(
-                      client,
-                      server.generateItem(item.itemDefinitionId),
-                      targetContainer,
-                      count,
-                      false
-                    );
-                  }
+                  combineItemStack(oldStackCount, targetContainer, item);
                 }
               }
             }
             else if (containerGuid == "0xFFFFFFFFFFFFFFFF") { // to loadout
-              // remove item from inventory and equip item
-              if(!server.removeContainerItem(client, item, container, count)) {
-                server.containerError(client, 5); // slot does not contain item
-                return;
-              }
-              server.equipItem(client, itemGuid);
+              server.equipItem(client, packet.data.itemGuid);
             }
             else { // invalid
               server.containerError(client, 3); // unknown container

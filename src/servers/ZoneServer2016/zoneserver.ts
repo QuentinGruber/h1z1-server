@@ -2305,7 +2305,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
 
   equipItem(client: Client, itemGuid: string = "", sendPacket: boolean = true) {
     if (!itemGuid) {
-      debug("[ERROR] EquipItem: ItemGuid is blank!");
+      debug("[ERROR] EquipInventoryItem: ItemGuid is blank!");
       return;
     }
     const item = this._items[itemGuid],
@@ -2313,30 +2313,31 @@ export class ZoneServer2016 extends ZoneServer2015 {
       loadoutSlotId = this.getLoadoutSlot(item.itemDefinitionId);
     if (!loadoutSlotId) {
       debug(
-        `[ERROR] equipItem: Tried to equip item with itemDefinitionId: ${item.itemDefinitionId} with an invalid loadoutSlotId!`
+        `[ERROR] EquipInventoryItem: Tried to equip item with itemDefinitionId: ${item.itemDefinitionId} with an invalid loadoutSlotId!`
       );
       return;
     }
+    // equips item only without checking if another item
     const equipmentSlotId = this.getEquipmentSlot(loadoutSlotId),
-      loadoutData: loadoutItem = {
-        itemDefinitionId: def.ID,
-        slotId: loadoutSlotId,
-        itemGuid: item.guid,
-        containerGuid: "0xFFFFFFFFFFFFFFFF",
-        currentDurability: 2000,
-        stackCount: 1,
-        loadoutItemOwnerGuid: client.character.characterId,
-      },
-      equipmentData: characterEquipment = {
-        modelName: def.MODEL_NAME.replace(
-          "<gender>",
-          client.character.gender == 1 ? "Male" : "Female"
-        ),
-        slotId: equipmentSlotId,
-        guid: item.guid,
-        textureAlias: def.TEXTURE_ALIAS,
-        tintAlias: "",
-      };
+    loadoutData: loadoutItem = {
+      itemDefinitionId: def.ID,
+      slotId: loadoutSlotId,
+      itemGuid: item.guid,
+      containerGuid: "0xFFFFFFFFFFFFFFFF",
+      currentDurability: 2000,
+      stackCount: 1,
+      loadoutItemOwnerGuid: client.character.characterId,
+    },
+    equipmentData: characterEquipment = {
+      modelName: def.MODEL_NAME.replace(
+        "<gender>",
+        client.character.gender == 1 ? "Male" : "Female"
+      ),
+      slotId: equipmentSlotId,
+      guid: item.guid,
+      textureAlias: def.TEXTURE_ALIAS,
+      tintAlias: "",
+    };
 
     client.character._loadout[loadoutSlotId] = loadoutData;
     client.character._equipment[equipmentSlotId] = equipmentData;
@@ -2361,6 +2362,51 @@ export class ZoneServer2016 extends ZoneServer2015 {
     this.addItem(client, loadoutData, 101);
     this.updateLoadout(client);
     this.updateEquipmentSlot(client, equipmentSlotId);
+  }
+
+  equipInventoryItem(client: Client, itemGuid: string = "", sendPacket: boolean = true) {
+    if (!itemGuid) {
+      debug("[ERROR] EquipInventoryItem: ItemGuid is blank!");
+      return;
+    }
+    const item = this._items[itemGuid],
+      def = this.getItemDefinition(item.itemDefinitionId),
+      loadoutSlotId = this.getLoadoutSlot(item.itemDefinitionId);
+    if (!loadoutSlotId) {
+      debug(
+        `[ERROR] EquipInventoryItem: Tried to equip item with itemDefinitionId: ${item.itemDefinitionId} with an invalid loadoutSlotId!`
+      );
+      return;
+    }
+    
+    const oldLoadoutItem = client.character._loadout[loadoutSlotId],
+      container = this.getItemContainer(client, itemGuid),
+      containerItem = container?.items[itemGuid];
+    if(!oldLoadoutItem && !container || !containerItem) {
+      this.containerError(client, 3); // unknown container
+      return;
+    }
+    if (oldLoadoutItem) { // if target loadoutSlot is occupied
+      if (oldLoadoutItem.itemGuid == itemGuid) {
+        this.sendChatText(client, "[ERROR] Item is already equipped!");
+        return;
+      }
+      // remove item from inventory and equip item
+      if(!this.removeContainerItem(client, containerItem, container, 1)) {
+        this.containerError(client, 5); // slot does not contain item
+      return;
+    }
+    this.lootContainerItem(client, oldLoadoutItem.itemGuid, 1, false);
+      this.equipItem(client, itemGuid, sendPacket);
+    }
+    else {
+      // remove item from inventory and equip item
+      if(!this.removeContainerItem(client, containerItem, container, 1)) {
+        this.containerError(client, 5); // slot does not contain item
+        return;
+      }
+      this.equipItem(client, itemGuid, sendPacket);
+    }
   }
 
   getItemDefinition(itemDefinitionId: any) {
@@ -2550,7 +2596,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
     item: inventoryItem | undefined, 
     container: loadoutContainer | undefined, 
     count: number
-  ): boolean {
+  ): boolean {// removes a specific itemGuid from a specified container
     if (!container || !item) return false;
     if (item.stackCount == count) {
       delete container.items[item.itemGuid];
@@ -2574,7 +2620,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
     client: Client,
     itemGuid: string,
     count: number = 1
-  ): boolean {
+  ): boolean {// removes a specific itemGuid from the inventory (containers and loadout)
     if (!this._items[itemGuid]) return false;
     const item = this._items[itemGuid],
       itemDefinition = this.getItemDefinition(item.itemDefinitionId),
@@ -2586,6 +2632,56 @@ export class ZoneServer2016 extends ZoneServer2015 {
       const removeItemContainer = this.getItemContainer(client, itemGuid),
       removeItem = removeItemContainer?.items[itemGuid];
       return this.removeContainerItem(client, removeItem, removeItemContainer, count)
+    }
+  }
+
+  removeInventoryItems(
+    client: Client,
+    itemDefinitionId: number,
+    requiredCount: number = 1
+  ): boolean {// removes x amount of items between multiple stacks, containers, and loadout
+    const loadoutSlotId = this.getLoadoutSlot(itemDefinitionId);
+    if (client.character._loadout[loadoutSlotId]?.itemDefinitionId == itemDefinitionId) {
+      // todo: check multiple loadout slots for items
+      return this.removeLoadoutItem(client, loadoutSlotId);
+    }
+    else {
+      let removeItems: {container: loadoutContainer, item: inventoryItem, count: number}[] = [];
+      for(const container of Object.values(client.character._containers)) {
+        console.log(`container: ${container.slotId}`)
+        if(!requiredCount) break;
+        for(const item of Object.values(container.items)) {
+          if(item.itemDefinitionId == itemDefinitionId) {
+            console.log(`item: ${item.itemGuid}`)
+            if(item.stackCount >= requiredCount) {
+              console.log("stack 1")
+              removeItems.push({container, item, count: requiredCount});
+              requiredCount = 0;
+              break;
+            }
+            else {
+              console.log("stack 2")
+              removeItems.push({container, item, count: item.stackCount});
+              requiredCount -= item.stackCount;
+            }
+          }
+        }
+      }
+      if(requiredCount) {// missing some items
+        return false;
+      }
+      for(const itemStack of Object.values(removeItems)) {
+        console.log(itemStack);
+        if(!this.removeContainerItem(client, itemStack.item, itemStack.container, itemStack.count)){
+          return false;
+        }
+      }
+      return true;
+      /*
+      const removeItemContainer = this.getItemContainer(client, itemGuid),
+      removeItem = removeItemContainer?.items[itemGuid];
+      return this.removeContainerItem(client, removeItem, removeItemContainer, count)
+      */
     }
   }
 
@@ -2915,25 +3011,6 @@ export class ZoneServer2016 extends ZoneServer2015 {
         this.removeInventoryItem(client, item.itemGuid, item.stackCount);
       }
     }
-
-    /*
-    for (const container of Object.values(client.character._containers)) {
-      for (const item of Object.values(container.items)) {
-        this.removeInventoryItem(client, item.itemGuid, item.stackCount);
-        delete client.character._containers[container.slotId].items[
-          item.itemGuid
-        ];
-      }
-      if (container.slotId != 12) {
-        //ignore backpack for now
-        this.removeInventoryItem(
-          client,
-          container.itemGuid,
-          container.stackCount
-        );
-      }
-    }
-    */
   }
 
   eatItem(client: Client, itemGuid: string, nameId: number) {
@@ -3308,7 +3385,9 @@ export class ZoneServer2016 extends ZoneServer2015 {
     const inventory: { [itemDefinitionId: number]: inventoryItem[] } = {};
     for (const container of Object.values(client.character._containers)) {
       for (const item of Object.values(container.items)) {
-        inventory[item.itemDefinitionId] = []; // init array
+        if (!inventory[item.itemDefinitionId]) {
+          inventory[item.itemDefinitionId] = []; // init array
+        }
         inventory[item.itemDefinitionId].push(item); // push new itemstack
       }
     }
