@@ -79,6 +79,7 @@ export class zonePacketHandlers {
   constructionPlacementRequest;
   containerMoveItem;
   commandSuicide;
+  vehicleDismiss;
   constructor() {
     this.ClientIsReady = function (
       server: ZoneServer2016,
