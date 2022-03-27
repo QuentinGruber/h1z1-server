@@ -35,6 +35,7 @@ export class H1emuZoneServer extends H1emuServer {
           if (!packet) return;
           switch (packet.name) {
             case "Ping":
+              this.updateClientLastPing(client.clientId);
               break;
             case "SessionReply": {
               debug(

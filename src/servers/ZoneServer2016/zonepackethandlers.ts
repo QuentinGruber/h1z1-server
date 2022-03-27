@@ -372,6 +372,7 @@ export class zonePacketHandlers {
       packet: any
     ) {
       debug("ClientLogout");
+      clearTimeout(client.hudTimer) // clear the timer started at StartLogoutRequest
       server.deleteClient(client);
     };
     this.GameTimeSync = function (
@@ -909,61 +910,63 @@ export class zonePacketHandlers {
           });
           break;
         case 2: // vehicles
-          server.sendData(client, "LightweightToFullVehicle", {
-            npcData: {
-              transientId: entityData.npcData.transientId,
-              attachmentData: [],
-              effectTags: [],
-              unknownData1: {},
-              targetData: {},
+        if (entityData.npcData.vehicleId != 13) {
+            server.sendData(client, "LightweightToFullVehicle", {
+              npcData: {
+                transientId: entityData.npcData.transientId,
+                attachmentData: [],
+                effectTags: [],
+                unknownData1: {},
+                targetData: {},
+                unknownArray1: [],
+                unknownArray2: [],
+                unknownArray3: { data: [] },
+                resources: {
+                  data: [
+                    {
+                      resourceId: 1,
+                      resourceData: {
+                        resourceId: 561,
+                        resourceType: 1,
+                        value: entityData.npcData.resources.health,
+                      },
+                    },
+                    {
+                      resourceId: 50,
+                      resourceData: {
+                        resourceId: 396,
+                        resourceType: 50,
+                        value: entityData.npcData.resources.fuel,
+                      },
+                    },
+                  ],
+                },
+                unknownArray4: { data: [] },
+                unknownArray5: { data: [] },
+                unknownArray6: { data: [] },
+                remoteWeapons: { data: [] },
+                itemsData: { data: [] },
+              },
               unknownArray1: [],
               unknownArray2: [],
-              unknownArray3: { data: [] },
-              resources: {
-                data: [
-                  {
-                    resourceId: 1,
-                    resourceData: {
-                      resourceId: 561,
-                      resourceType: 1,
-                      value: entityData.npcData.resources.health,
-                    },
+              unknownArray3: [],
+              unknownArray4: [],
+              unknownArray5: [
+                {
+                  unknownData1: {
+                    unknownData1: {},
                   },
-                  {
-                    resourceId: 50,
-                    resourceData: {
-                      resourceId: 396,
-                      resourceType: 50,
-                      value: entityData.npcData.resources.fuel,
-                    },
-                  },
-                ],
-              },
-              unknownArray4: { data: [] },
-              unknownArray5: { data: [] },
-              unknownArray6: { data: [] },
-              remoteWeapons: { data: [] },
-              itemsData: { data: [] },
-            },
-            unknownArray1: [],
-            unknownArray2: [],
-            unknownArray3: [],
-            unknownArray4: [],
-            unknownArray5: [
-              {
-                unknownData1: {
-                  unknownData1: {},
                 },
-              },
-            ],
-            unknownArray6: [],
-            unknownArray7: [],
-            unknownArray8: [
-              {
-                unknownArray1: [],
-              },
-            ],
-          });
+              ],
+              unknownArray6: [],
+              unknownArray7: [],
+              unknownArray8: [
+                {
+                  unknownArray1: [],
+                },
+              ],
+            });
+          }
           for (const a in entityData.seats) {
             server.sendDataToAllWithSpawnedEntity(
               server._characters,
@@ -1190,6 +1193,17 @@ export class zonePacketHandlers {
     ) {
       // only for driver seat
       server.dismountVehicle(client);
+    };
+    this.vehicleDismiss = function (
+      server: ZoneServer2016,
+      client: Client,
+      packet: any
+    ) {
+      const vehicleGuid = client.vehicle.mountedVehicle;
+      if (vehicleGuid) {
+        server.dismountVehicle(client);
+        server.dismissVehicle(vehicleGuid);
+      }
     };
     this.commandInteractionString = function (
       server: ZoneServer2016,
@@ -1772,22 +1786,7 @@ export class zonePacketHandlers {
                     }
                   );
                   server._traps[characterId].isTriggered = true;
-                  server.sendData(
-                    server._clients[a],
-                    "ClientUpdate.ModifyMovementSpeed",
-                    {
-                      speed: 0.4,
-                    }
-                  );
-                  setTimeout(() => {
-                    server.sendData(
-                      server._clients[a],
-                      "ClientUpdate.ModifyMovementSpeed",
-                      {
-                        speed: 2.5,
-                      }
-                    );
-                  }, 20000);
+                  server.applyMovementModifier(client, 0.4, "snared");
                 }
               }
 
@@ -2009,6 +2008,9 @@ export class zonePacketHandlers {
         break;
       case "Command.InteractCancel":
         this.commandInteractCancel(server, client, packet);
+        break;
+      case "Vehicle.Dismiss":
+        this.vehicleDismiss(server, client, packet);
         break;
       case "Command.StartLogoutRequest":
         this.commandStartLogoutRequest(server, client, packet);

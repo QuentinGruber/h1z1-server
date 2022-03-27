@@ -51,10 +51,10 @@ const Z1_POIs = require("../../../data/2015/zoneData/Z1_POIs");
 
 export class ZoneServer2015 extends EventEmitter {
   _gatewayServer: GatewayServer;
-  _protocol: any;
+  _protocol: ZoneProtocol;
   _db: Db | undefined;
   _soloMode: any;
-  _mongoClient: any;
+  _mongoClient?: MongoClient;
   _mongoAddress: string;
   _clients: { [characterId: string]: Client } = {};
   _characters: any;
@@ -254,6 +254,35 @@ export class ZoneServer2015 extends EventEmitter {
                 this.onCharacterCreateRequest(client, packet);
                 break;
               }
+              case "CharacterExistRequest":{
+                const { characterId, reqId } = packet.data;
+                try {
+                  const collection = (this._db as Db).collection("characters");
+                  const charactersArray = await collection
+                    .find({ characterId: characterId })
+                    .toArray();
+                  if (charactersArray.length) {
+                    this._h1emuZoneServer.sendData(
+                      client,
+                      "CharacterExistReply",
+                      { status: 1, reqId: reqId }
+                    );
+                  } else {
+                    this._h1emuZoneServer.sendData(
+                      client,
+                      "CharacterExistReply",
+                      { status: 0, reqId: reqId }
+                    );
+                  }
+                } catch (error) {
+                  this._h1emuZoneServer.sendData(
+                    client,
+                    "CharacterExistReply",
+                    { status: 0, reqId: reqId }
+                  );
+                }
+                break;
+              }
               case "CharacterDeleteRequest": {
                 const { characterId, reqId } = packet.data;
                 try {
@@ -279,7 +308,7 @@ export class ZoneServer2015 extends EventEmitter {
                     this._h1emuZoneServer.sendData(
                       client,
                       "CharacterDeleteReply",
-                      { status: 0, reqId: reqId }
+                      { status: 1, reqId: reqId }
                     );
                   }
                 } catch (error) {
@@ -671,7 +700,7 @@ export class ZoneServer2015 extends EventEmitter {
 
   async connectMongo() {
     const mongoClient = (this._mongoClient = new MongoClient(
-      this._mongoAddress
+      this._mongoAddress,{maxPoolSize:10}
     ));
     try {
       await mongoClient.connect();
@@ -1183,6 +1212,7 @@ export class ZoneServer2015 extends EventEmitter {
     const character = client.character;
     if (character.isAlive) {
       debug(character.name + " has died");
+      client.character.isRunning = false;
       client.character.characterStates.knockedOut = true;
       this.updateCharacterState(
         client,
@@ -1293,6 +1323,7 @@ export class ZoneServer2015 extends EventEmitter {
 
   async respawnPlayer(client: Client) {
     client.character.isAlive = true;
+    client.character.isRunning = false;
     client.character.resources.health = 10000;
     client.character.resources.food = 10000;
     client.character.resources.water = 10000;
