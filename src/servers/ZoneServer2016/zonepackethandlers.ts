@@ -779,6 +779,10 @@ export class zonePacketHandlers {
       }
       const movingCharacter = server._characters[client.character.characterId];
       if (movingCharacter) {
+        if (packet.data.horizontalSpeed) {
+          client.character.isRunning =
+            packet.data.horizontalSpeed > (client.character.isExhausted ? 5 : 6);
+        }
         server.sendRawToAllOthersWithSpawnedCharacter(
           client,
           movingCharacter.characterId,
@@ -787,10 +791,6 @@ export class zonePacketHandlers {
             movingCharacter.transientId
           )
         );
-      }
-      if (packet.data.horizontalSpeed) {
-        client.character.isRunning =
-          packet.data.horizontalSpeed > (client.character.isExhausted ? 5 : 6);
       }
 
       if (packet.data.position) {
