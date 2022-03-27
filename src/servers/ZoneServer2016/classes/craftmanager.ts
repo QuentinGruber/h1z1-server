@@ -155,8 +155,16 @@ export class CraftManager {
     const r = server._recipes[recipeId];
     for (const component of r.components) {
       let inventory = server.getInventoryAsContainer(client),
-        remainingItems = component.requiredAmount * count;
+        remainingItems = component.requiredAmount * count,
+        stackCount = 0;
       if (!inventory[component.itemDefinitionId]) return false;
+      for (const item of inventory[component.itemDefinitionId]) {
+        stackCount += item.stackCount
+      }
+      if(remainingItems > stackCount) {
+        server.containerError(client, 5); // slot does not contain item
+        return false;
+      }
       for (const item of inventory[component.itemDefinitionId]) {
         if (item.stackCount >= remainingItems) {
           if (
@@ -164,6 +172,7 @@ export class CraftManager {
           ) {
             return false; // return if not enough items
           }
+          remainingItems = 0;
         } else {
           if (
             server.removeInventoryItem(client, item.itemGuid, item.stackCount)
@@ -173,6 +182,7 @@ export class CraftManager {
             return false; // return if not enough items
           }
         }
+        if(!remainingItems) break;
       }
     }
     server.lootItem(client, server.generateItem(recipeId), count);
