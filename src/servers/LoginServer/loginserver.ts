@@ -84,6 +84,9 @@ export class LoginServer extends EventEmitter {
       this._cryptoKey,
       0
     );
+    // 2016 client doesn't send a disconnect packet so we've to use that
+    // But that can't be enabled on zoneserver
+    this._soeServer._usePingTimeout = true; 
 
     this._protocol = new LoginProtocol();
     this._protocol2016 = new LoginProtocol2016();
