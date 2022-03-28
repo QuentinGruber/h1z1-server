@@ -889,7 +889,7 @@ export class LoginServer extends EventEmitter {
     debug("Starting server");
     if (this._mongoAddress) {
       const mongoClient = (this._mongoClient = new MongoClient(
-        this._mongoAddress, {maxPoolSize:40}
+        this._mongoAddress, {maxPoolSize:100}
       ));
       try {
         await mongoClient.connect();

@@ -498,7 +498,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
   async fetchZoneData(): Promise<void> {
     if (this._mongoAddress) {
       const mongoClient = (this._mongoClient = new MongoClient(
-        this._mongoAddress,{maxPoolSize:10}
+        this._mongoAddress,{maxPoolSize:50}
       ));
       try {
         await mongoClient.connect();
