@@ -70,6 +70,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
   _ready: boolean = false;
   _itemDefinitions: { [itemDefinitionId: number]: any } = itemDefinitions;
   _itemDefinitionIds: any[] = Object.keys(this._itemDefinitions);
+  itemDefinitionsCache: any;
   _containerDefinitions: { [containerDefinitionId: number]: any } =
     containerDefinitions;
   _containerDefinitionIds: any[] = Object.keys(this._containerDefinitions);
@@ -462,31 +463,12 @@ export class ZoneServer2016 extends ZoneServer2015 {
         //unknownDword40: 1
       },
     });
-
-    this.sendData(client, "Command.ItemDefinitions", {
-      // sends full list of item definitions
-      data: {
-        itemDefinitions: this._itemDefinitionIds.map((itemDefId: any) => {
-          const itemDef = this.getItemDefinition(itemDefId);
-          return {
-            ID: itemDefId,
-            definitionData: {
-              ...itemDef,
-              HUD_IMAGE_SET_ID: itemDef.IMAGE_SET_ID,
-              containerDefinitionId:
-                itemDef.ITEM_TYPE == 34 ? itemDef.PARAM1 : 0,
-              flags1: {
-                ...itemDef,
-              },
-              flags2: {
-                ...itemDef,
-              },
-              stats: [],
-            },
-          };
-        }),
-      },
-    });
+    
+    if(!this.itemDefinitionsCache) {
+      this.packItemDefinitions()
+    }
+    this.sendRawData(client, this.itemDefinitionsCache);
+    
     this.sendData(client, "Container.InitEquippedContainers", {
       ignore: client.character.characterId,
       characterId: client.character.characterId,
@@ -647,6 +629,34 @@ export class ZoneServer2016 extends ZoneServer2015 {
     }
   }
 
+  packItemDefinitions() {
+    this.itemDefinitionsCache = this._protocol.pack("Command.ItemDefinitions", {
+      // cache itemDefinitions so server doesn't have to spend time packing for each
+      // character login
+      data: {
+        itemDefinitions: this._itemDefinitionIds.map((itemDefId: any) => {
+          const itemDef = this.getItemDefinition(itemDefId);
+          return {
+            ID: itemDefId,
+            definitionData: {
+              ...itemDef,
+              HUD_IMAGE_SET_ID: itemDef.IMAGE_SET_ID,
+              containerDefinitionId:
+                itemDef.ITEM_TYPE == 34 ? itemDef.PARAM1 : 0,
+              flags1: {
+                ...itemDef,
+              },
+              flags2: {
+                ...itemDef,
+              },
+              stats: [],
+            },
+          };
+        }),
+      },
+    });
+  }
+
   async setupServer(): Promise<void> {
     this.forceTime(971172000000); // force day time by default - not working for now
     this._frozeCycle = false;
@@ -662,6 +672,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
         .insertOne({ worldId: this._worldId });
       await this.saveWorld();
     }
+
+    this.packItemDefinitions();
 
     // other entities are handled by worldRoutine
     this.worldObjectManager.createDoors(this);
