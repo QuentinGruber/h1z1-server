@@ -169,7 +169,7 @@ export class SOEServer extends EventEmitter {
           client.inputStream.setEncryption(this._useEncryption);
           client.outputStream.setEncryption(this._useEncryption);
           client.outputStream.setFragmentSize(client.clientUdpLength - 7);
-          if(this._usePingTimeout){
+          if (this._usePingTimeout) {
             client.lastPingTimer = setTimeout(() => {
               this.emit("disconnect", null, client);
             }, this._pingTimeoutTime);
@@ -218,8 +218,8 @@ export class SOEServer extends EventEmitter {
         }
         case "Ping":
           debug("Received ping from client");
-          if(this._usePingTimeout){
-            client.lastPingTimer.refresh()
+          if (this._usePingTimeout) {
+            client.lastPingTimer.refresh();
           }
           this._sendPacket(client, "Ping", {});
           break;

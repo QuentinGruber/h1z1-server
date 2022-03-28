@@ -254,7 +254,7 @@ export class ZoneServer2015 extends EventEmitter {
                 this.onCharacterCreateRequest(client, packet);
                 break;
               }
-              case "CharacterExistRequest":{
+              case "CharacterExistRequest": {
                 const { characterId, reqId } = packet.data;
                 try {
                   const collection = (this._db as Db).collection("characters");
@@ -700,7 +700,8 @@ export class ZoneServer2015 extends EventEmitter {
 
   async connectMongo() {
     const mongoClient = (this._mongoClient = new MongoClient(
-      this._mongoAddress,{maxPoolSize:50}
+      this._mongoAddress,
+      { maxPoolSize: 50 }
     ));
     try {
       await mongoClient.connect();

@@ -103,7 +103,8 @@ const packets = [
         { name: "status", type: "boolean", defaultValue: 0 },
       ],
     },
-  ],[
+  ],
+  [
     "CharacterExistRequest",
     0x12,
     {
