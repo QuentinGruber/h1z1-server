@@ -159,9 +159,9 @@ export class CraftManager {
         stackCount = 0;
       if (!inventory[component.itemDefinitionId]) return false;
       for (const item of inventory[component.itemDefinitionId]) {
-        stackCount += item.stackCount
+        stackCount += item.stackCount;
       }
-      if(remainingItems > stackCount) {
+      if (remainingItems > stackCount) {
         server.containerError(client, 5); // slot does not contain item
         return false;
       }
@@ -182,7 +182,7 @@ export class CraftManager {
             return false; // return if not enough items
           }
         }
-        if(!remainingItems) break;
+        if (!remainingItems) break;
       }
     }
     server.lootItem(client, server.generateItem(recipeId), count);

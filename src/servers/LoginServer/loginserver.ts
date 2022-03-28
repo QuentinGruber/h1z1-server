@@ -84,6 +84,9 @@ export class LoginServer extends EventEmitter {
       this._cryptoKey,
       0
     );
+    // 2016 client doesn't send a disconnect packet so we've to use that
+    // But that can't be enabled on zoneserver
+    this._soeServer._usePingTimeout = true;
 
     this._protocol = new LoginProtocol();
     this._protocol2016 = new LoginProtocol2016();
@@ -663,20 +666,19 @@ export class LoginServer extends EventEmitter {
     }
     debug(charactersLoginInfo);
     let characterExistOnZone = 1;
-    if(!this._soloMode){
-     characterExistOnZone = await this.askZone(
-      serverId,
-      "CharacterExistRequest",
-      { characterId: characterId }
-    );
-     }
-    if(characterExistOnZone){
-      this.sendData(client, "CharacterLoginReply", charactersLoginInfo);
+    if (!this._soloMode) {
+      characterExistOnZone = await this.askZone(
+        serverId,
+        "CharacterExistRequest",
+        { characterId: characterId }
+      );
     }
-    else{
+    if (characterExistOnZone) {
+      this.sendData(client, "CharacterLoginReply", charactersLoginInfo);
+    } else {
       charactersLoginInfo.status = 0;
       this.sendData(client, "CharacterLoginReply", charactersLoginInfo);
-      }
+    }
     debug("CharacterLoginRequest");
   }
 
@@ -889,7 +891,8 @@ export class LoginServer extends EventEmitter {
     debug("Starting server");
     if (this._mongoAddress) {
       const mongoClient = (this._mongoClient = new MongoClient(
-        this._mongoAddress, {maxPoolSize:100}
+        this._mongoAddress,
+        { maxPoolSize: 100 }
       ));
       try {
         await mongoClient.connect();

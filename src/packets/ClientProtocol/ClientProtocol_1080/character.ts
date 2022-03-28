@@ -375,13 +375,11 @@ export const characterPackets: any = [
     },
   ],
   [
-    "Character.NoSpaceNotification", 
-    0x0f4b, 
+    "Character.NoSpaceNotification",
+    0x0f4b,
     {
-      fields: [
-        { name: "characterId", type: "uint64string", defaultValue: "" },
-      ],
-    }
+      fields: [{ name: "characterId", type: "uint64string", defaultValue: "" }],
+    },
   ],
   ["Character.ReloadNotification", 0x0f4c, {}],
   ["Character.MountBlockedNotification", 0x0f4d, {}],
