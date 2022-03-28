@@ -1962,6 +1962,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
   mountVehicle(client: Client, vehicleGuid: string): void {
     const vehicle = this._vehicles[vehicleGuid];
     if (!vehicle) return;
+    client.character.isRunning = false; // maybe some async stuff make this useless need to test that
     client.vehicle.mountedVehicle = vehicle.npcData.characterId;
     switch (vehicle.npcData.vehicleId) {
       case 1:
