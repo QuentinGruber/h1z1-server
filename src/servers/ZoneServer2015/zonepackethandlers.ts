@@ -571,6 +571,7 @@ export class zonePacketHandlers {
       packet: any
     ) {
       debug("ClientLogout");
+      clearTimeout(client.hudTimer); // clear the timer started at StartLogoutRequest
       server.deleteClient(client);
     };
     this.GameTimeSync = function (
@@ -1533,9 +1534,6 @@ export class zonePacketHandlers {
         clearTimeout(client.hudTimer);
       }
       client.hudTimer = setTimeout(() => {
-        client.managedObjects.forEach((object: string) => {
-          server._vehicles[object].isManaged = false;
-        });
         server.sendData(client, "ClientUpdate.CompleteLogoutProcess", {});
       }, timerTime);
     };

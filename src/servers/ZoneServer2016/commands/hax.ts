@@ -74,14 +74,9 @@ const hax: any = {
       server.getGameTime()
     );
     server._vehicles[characterId] = vehicle;
-    server.worldRoutine();
-    server.sendData(client, "Mount.MountResponse", {
-      characterId: client.character.characterId,
-      vehicleGuid: characterId,
-      identity: {},
-    });
-    client.vehicle.mountedVehicle = characterId;
-    client.vehicle.mountedVehicleType = "parachute";
+    server.sendData(client, "AddLightweightVehicle", vehicle, 1);
+    client.spawnedEntities.push(vehicle);
+    server.mountVehicle(client, characterId);
   },
   drive: function (server: ZoneServer2016, client: Client, args: any[]) {
     if (!args[1]) {
@@ -302,6 +297,62 @@ const hax: any = {
     server.removeForcedTime();
     server.sendChatText(client, "Game time is now based on real time", true);
   },
+  spamied: function (server: ZoneServer2016, client: Client, args: any[]) {
+    if (!args[2]) {
+      server.sendChatText(
+        client,
+        "[ERROR] Usage /hax spamIED [RANGE] [POINTS]"
+      );
+      return;
+    }
+    const multiplied = Number(args[1]) * Number(args[2]);
+    if (multiplied > 600) {
+      server.sendChatText(
+        client,
+        `[ERROR]Maximum RANGE * POINTS value reached: ("${multiplied}"/600)`
+      );
+      return;
+    }
+    const range = Number(args[1]);
+    const lat = client.character.state.position[0];
+    const long = client.character.state.position[2];
+    let points = [];
+    let rangeFixed = range;
+    let numberOfPoints = Number(args[2]);
+    let degreesPerPoint = 360 / numberOfPoints;
+    for (let j = 1; j < range; j++) {
+      let currentAngle = 0;
+      let x2;
+      let y2;
+      rangeFixed += -1;
+      for (let i = 0; i < numberOfPoints; i++) {
+        x2 = Math.cos(currentAngle) * rangeFixed;
+        y2 = Math.sin(currentAngle) * rangeFixed;
+        const p = [lat + x2, long + y2];
+        points.push(p);
+        currentAngle += degreesPerPoint;
+      }
+    }
+    points.forEach((obj: any) => {
+      const characterId = server.generateGuid();
+      const guid = server.generateGuid();
+      const transientId = server.getTransientId(guid);
+      const npc = {
+        characterId: characterId,
+        guid: guid,
+        transientId: transientId,
+        modelId: 9176,
+        position: [obj[0], client.character.state.position[1], obj[1], 1],
+        rotation: client.character.state.lookAt,
+        dontSendFullNpcRequest: true,
+        color: {},
+        attachedObject: {},
+        isIED: true,
+      };
+
+      server._explosives[characterId] = npc; // save npc
+    });
+  },
   spamatv: function (server: ZoneServer2016, client: Client, args: any[]) {
     for (let index = 0; index < 50; index++) {
       const guid = server.generateGuid();
@@ -364,14 +415,26 @@ const hax: any = {
     );
     server._vehicles[characterId] = vehicle; // save vehicle
   },
+  dynamicweather: async function (
+    server: ZoneServer2016,
+    client: Client,
+    args: any[]
+  ) {
+    if (!server._dynamicWeatherEnabled) {
+      server._dynamicWeatherEnabled = true;
+      server.sendChatText(client, "Dynamic weather enabled !");
+    } else {
+      server.sendChatText(client, "Dynamic weather already enabled !");
+    }
+  },
   weather: async function (
     server: ZoneServer2016,
     client: Client,
     args: any[]
   ) {
     if (server._dynamicWeatherEnabled) {
-      await server._dynamicWeatherWorker.terminate();
-      server._dynamicWeatherWorker = null;
+      server._dynamicWeatherEnabled = false;
+
       server.sendChatText(client, "Dynamic weather removed !");
     }
     const weatherTemplate = server._soloMode
@@ -457,6 +520,10 @@ const hax: any = {
     client: Client,
     args: any[]
   ) {
+    if (server._dynamicWeatherEnabled) {
+      server._dynamicWeatherEnabled = false;
+      server.sendChatText(client, "Dynamic weather removed !");
+    }
     server.sendChatText(client, `Randomized weather`);
 
     function rnd_number(max: any, fixed: Boolean = false) {
@@ -576,12 +643,14 @@ const hax: any = {
       server.updateEquipmentSlot(client, 3);
     }
   },
+  /*
   addallitems: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.sendChatText(client, "Adding 1x of all items to inventory.");
-    for (const id in server._itemDefinitionIds) {
-      server.lootItem(client, server.generateItem(id), 1);
+    for (const itemDef of Object.values(server._itemDefinitions)) {
+      server.lootItem(client, server.generateItem(itemDef.ID), 1);
     }
   },
+  */
 };
 
 export default hax;

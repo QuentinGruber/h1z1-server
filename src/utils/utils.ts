@@ -16,7 +16,7 @@ import { generate_random_guid } from "h1emu-core";
 import v8 from "v8";
 import { compress, compressBound } from "./lz4/lz4";
 import fs, { readdirSync } from "fs";
-import { normalize } from "path";
+import { normalize, resolve } from "path";
 import {
   setImmediate as setImmediatePromise,
   setTimeout as setTimeoutPromise,
@@ -311,6 +311,18 @@ export const getPacketTypeBytes = function (packetType: number): number[] {
     packetType = packetType >> 8;
   }
   return packetTypeBytes;
+};
+
+export const clearFolderCache = (
+  currentFolderDirname: string,
+  folderPath: string
+) => {
+  const resolvedPath = resolve(currentFolderDirname, folderPath);
+  Object.keys(require.cache).forEach((key: string) => {
+    if (key.includes(resolvedPath)) {
+      delete require.cache[key];
+    }
+  });
 };
 
 // experimental custom implementation of the scheduler API
