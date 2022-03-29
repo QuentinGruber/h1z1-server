@@ -1379,36 +1379,7 @@ export class zonePacketHandlers {
           );
           break;
         case 60: //equip item
-          const item = server._items[packet.data.itemGuid],
-            loadoutId = server.getLoadoutSlot(item.itemDefinitionId),
-            oldLoadoutItem = client.character._loadout[loadoutId],
-            container = server.getItemContainer(client, packet.data.itemGuid),
-            containerItem = container?.items[packet.data.itemGuid];
-          if(!oldLoadoutItem && !container || !containerItem) {
-            server.containerError(client, 3); // unknown container
-            return;
-          }
-          if (oldLoadoutItem) { // if target loadoutSlot is occupied
-            if (oldLoadoutItem.itemGuid == packet.data.itemGuid) {
-              server.sendChatText(client, "[ERROR] Item is already equipped!");
-              return;
-            }
-            // remove item from inventory and equip item
-            if(!server.removeContainerItem(client, containerItem, container, 1)) {
-              server.containerError(client, 5); // slot does not contain item
-              return;
-            }
-            server.lootContainerItem(client, oldLoadoutItem.itemGuid, 1, false);
-            server.equipItem(client, packet.data.itemGuid);
-          }
-          else {
-            // remove item from inventory and equip item
-            if(!server.removeContainerItem(client, containerItem, container, 1)) {
-              server.containerError(client, 5); // slot does not contain item
-              return;
-            }
-            server.equipItem(client, packet.data.itemGuid);
-          }
+          server.equipContainerItem(client, packet.data.itemGuid);
           break;
         case 6: // shred
           server.shredItem(client, packet.data.itemGuid);
@@ -1840,7 +1811,7 @@ export class zonePacketHandlers {
         count,
         newSlotId
       } = packet.data;
-      
+      console.log(packet.data)
       // helper functions
       function combineItemStack(oldStackCount: number, targetContainer: loadoutContainer, item: inventoryItem) {
         if(oldStackCount == count) { // if full stack is moved
@@ -1899,8 +1870,8 @@ export class zonePacketHandlers {
                 }
               }
             }
-            else if (containerGuid == "0xFFFFFFFFFFFFFFFF") { // to loadout
-              server.equipItem(client, packet.data.itemGuid);
+            else if (containerGuid == "0xffffffffffffffff") { // to loadout
+              server.equipContainerItem(client, itemGuid);
             }
             else { // invalid
               server.containerError(client, 3); // unknown container
@@ -1926,7 +1897,7 @@ export class zonePacketHandlers {
                 false
               );
             }
-            else if (containerGuid == "0xFFFFFFFFFFFFFFFF") { // to loadout
+            else if (containerGuid == "0xffffffffffffffff") { // to loadout
               // remove item from inventory and equip item
 
             }
