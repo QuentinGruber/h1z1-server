@@ -46,6 +46,8 @@ export class Character2016 extends Character {
   healingTicks: number;
   healingMaxTicks: number;
   starthealingInterval: any;
+  timeouts: any;
+  hasConveys: boolean = false;
   constructor(characterId: string, generatedTransient: number) {
     super(characterId, generatedTransient);
     this.healingTicks = 0;
@@ -59,7 +61,7 @@ export class Character2016 extends Character {
       comfort: 6000,
       bleeding: -40,
     };
-
+    this.timeouts = {};
     this.starthealingInterval = (
       client: ZoneClient2016,
       server: ZoneServer2016
@@ -104,7 +106,7 @@ export class Character2016 extends Character {
         const { stamina, food, water, virus, health, bleeding } =
           client.character.resources;
         const { isRunning } = client.character;
-        if (isRunning) {
+        if (isRunning && (client.vehicle.mountedVehicle == "" || !client.vehicle.mountedVehicle)) {
           client.character.resources.stamina -= 20;
           client.character.isExhausted =
             client.character.resources.stamina < 120;

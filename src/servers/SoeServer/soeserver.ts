@@ -36,6 +36,8 @@ export class SOEServer extends EventEmitter {
   _maxOutOfOrderPacketsPerLoop: number;
   _waitQueueTimeMs: number = 50;
   _isLocal: boolean = false;
+  _pingTimeoutTime: number = 60000;
+  _usePingTimeout: boolean;
 
   constructor(
     protocolName: string,
@@ -55,7 +57,8 @@ export class SOEServer extends EventEmitter {
     this._protocol = new Soeprotocol(true,false,false);
     this._udpLength = 512;
     this._useEncryption = true;
-    this._useMultiPackets = false; // TODO don't force them
+    this._useMultiPackets = false;
+    this._usePingTimeout = false;
     this._clients = {};
     this._connection = new Worker(
       `${__dirname}/../shared/workers/udpServerWorker.js`,
@@ -170,6 +173,11 @@ export class SOEServer extends EventEmitter {
           client.inputStream.setEncryption(this._useEncryption);
           client.outputStream.setEncryption(this._useEncryption);
           client.outputStream.setFragmentSize(client.clientUdpLength - 7);
+          if (this._usePingTimeout) {
+            client.lastPingTimer = setTimeout(() => {
+              this.emit("disconnect", null, client);
+            }, this._pingTimeoutTime);
+          }
 
           this._sendPacket(client, "SessionReply", {
             session_id: client.sessionId,
@@ -214,6 +222,9 @@ export class SOEServer extends EventEmitter {
         }
         case "Ping":
           debug("Received ping from client");
+          if (this._usePingTimeout) {
+            client.lastPingTimer.refresh();
+          }
           this._sendPacket(client, "Ping", {});
           break;
         case "NetStatusRequest":

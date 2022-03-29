@@ -21,6 +21,7 @@
         "src/servers/H1emuServer/h1emuLoginServer.ts",
         "src/servers/H1emuServer/h1emuZoneServer.ts",
         "src/servers/H1emuServer/shared/h1emuclient.ts",
+        "src/protocols/h1z1protocol.ts",
         "src/protocols/gatewayprotocol.ts",
         "src/protocols/loginprotocol.ts",
         "src/protocols/loginprotocol2016.ts",

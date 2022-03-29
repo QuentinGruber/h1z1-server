@@ -1,107 +1,194 @@
 [
   {
     "POIid": 1,
-	"POIname": "Pleasant Valley",
-	"stringId": 9570,
-	"range": 500,
-	"position": [-33.53, 23.48, -1050.13, 1]
+    "POIname": "Pleasant Valley",
+    "stringId": 9570,
+    "range": 500,
+    "position": [
+      -33.53,
+      23.48,
+      -1050.13,
+      1
+    ]
   },
   {
     "POIid": 3,
-	"POIname": "Bubba's Truck Stop",
-	"stringId": 9550,
-	"range": 250,
-	"position": [-438.08, 71.41, 2581.95, 1]
+    "POIname": "Bubba's Truck Stop",
+    "stringId": 9550,
+    "range": 250,
+    "position": [
+      -438.08,
+      71.41,
+      2581.95,
+      1
+    ]
   },
   {
     "POIid": 4,
-	"POIname": "Bumjick Farms",
-	"stringId": 9552,
-	"range": 200,
-	"position": [-658.07, 13.13, -1801.67, 1]
+    "POIname": "Bumjick Farms",
+    "stringId": 9552,
+    "range": 200,
+    "position": [
+      -658.07,
+      13.13,
+      -1801.67,
+      1
+    ]
   },
   {
     "POIid": 5,
-	"POIname": "Cranberry",
-	"stringId": 9554,
-	"range": 300,
-	"position": [-1318.68, 71.68, 1801.41, 1]
+    "POIname": "Cranberry",
+    "stringId": 9554,
+    "range": 300,
+    "position": [
+      -1318.68,
+      71.68,
+      1801.41,
+      1
+    ]
   },
   {
     "POIid": 6,
-	"POIname": "De Soto Service Stop",
-	"stringId": 9556,
-	"range": 150,
-	"position": [-2718.09, 108.81, 1071.88, 1]
+    "POIname": "De Soto Service Stop",
+    "stringId": 9556,
+    "range": 150,
+    "position": [
+      -2718.09,
+      108.81,
+      1071.88,
+      1
+    ]
   },
   {
     "POIid": 7,
-	"POIname": "Hemingway Truck Stop",
-	"stringId": 9558,
-	"range": 100,
-	"position": [-1912.41, 62.29, -2228.84, 1]
+    "POIname": "Hemingway Truck Stop",
+    "stringId": 9558,
+    "range": 100,
+    "position": [
+      -1912.41,
+      62.29,
+      -2228.84,
+      1
+    ]
   },
   {
     "POIid": 8,
-	"POIname": "Hunter's Truck Stop",
-	"stringId": 9560,
-	"range": 150,
-	"position": [903.74, 77.97, 3219.35, 1]
+    "POIname": "Hunter's Truck Stop",
+    "stringId": 9560,
+    "range": 150,
+    "position": [
+      903.74,
+      77.97,
+      3219.35,
+      1
+    ]
   },
   {
     "POIid": 9,
-	"POIname": "KZPV 98.5 FM Radio",
-	"stringId": 9562,
-	"range": 100,
-	"position": [-1509.76, 354.00, -835.34, 1]
+    "POIname": "KZPV 98.5 FM Radio",
+    "stringId": 9562,
+    "range": 100,
+    "position": [
+      -1509.76,
+      354,
+      -835.34,
+      1
+    ]
   },
   {
     "POIid": 10,
-	"POIname": "Lone Pine Development",
-	"stringId": 9564,
-	"range": 300,
-	"position": [-992.52, 61.41, 2704.51, 1]
+    "POIname": "Lone Pine Development",
+    "stringId": 9564,
+    "range": 300,
+    "position": [
+      -992.52,
+      61.41,
+      2704.51,
+      1
+    ]
   },
   {
     "POIid": 11,
-	"POIname": "Misty Peak Dam",
-	"stringId": 9566,
-	"range": 150,
-	"position": [-509.98, 63.75, 1281.89, 1]
+    "POIname": "Misty Peak Dam",
+    "stringId": 9566,
+    "range": 150,
+    "position": [
+      -509.98,
+      63.75,
+      1281.89,
+      1
+    ]
   },
   {
     "POIid": 12,
-	"POIname": "Opfer Wilderness Camp",
-	"stringId": 9568,
-	"range": 300,
-	"position": [-1947.34, 72.64, 1205.56, 1]
+    "POIname": "Opfer Wilderness Camp",
+    "stringId": 9568,
+    "range": 300,
+    "position": [
+      -1947.34,
+      72.64,
+      1205.56,
+      1
+    ]
   },
   {
     "POIid": 13,
-	"POIname": "Ranchito Taquito",
-	"stringId": 9572,
-	"range": 400,
-	"position": [2020.91, 41.20, 2341.24, 1]
+    "POIname": "Ranchito Taquito",
+    "stringId": 9572,
+    "range": 400,
+    "position": [
+      2020.91,
+      41.2,
+      2341.24,
+      1
+    ]
   },
   {
     "POIid": 14,
-	"POIname": "The Villas Development",
-	"stringId": 9576,
-	"range": 200,
-	"position": [631.81, 90.52, 2899.85, 1]
+    "POIname": "The Villas Development",
+    "stringId": 9576,
+    "range": 200,
+    "position": [
+      631.81,
+      90.52,
+      2899.85,
+      1
+    ]
   },
   {
     "POIid": 15,
-	"POIname": "Wake Hills Hamlet",
-	"stringId": 9578,
-	"range": 100,
-	"position": [-3165.71, 67.58, -1501.85, 1]
+    "POIname": "Wake Hills Hamlet",
+    "stringId": 9578,
+    "range": 100,
+    "position": [
+      -3165.71,
+      67.58,
+      -1501.85,
+      1
+    ]
   },
   {
     "POIid": 16,
-	"POIname": "Runamok Campsite",
-	"stringId": 9574,
-	"range": 30,
-	"position": [-2920.35, 6.03, -3021.75, 1]
+    "POIname": "Runamok Campsite",
+    "stringId": 9574,
+    "range": 50,
+    "position": [
+      -2920.35,
+      6.03,
+      -3021.75,
+      1
+    ]
+  },
+  {
+    "POIid": 17,
+    "POIname": "Kurama Medical Facility",
+    "stringId": 12838,
+    "range": 350,
+    "position": [
+      1827.94,
+      94.36,
+      -2726.31,
+      1
+    ]
   }
 ]
