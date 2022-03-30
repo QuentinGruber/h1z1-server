@@ -1182,7 +1182,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
           if (randomIntFromInterval(1, 10) == 1) {
             this.lootItem(
               client,
-              this.generateItem(this.worldObjectManager.eItems.WEAPON_BRANCH),
+              this.generateItem(this.worldObjectManager.eItems.WEAPON_BRANCH)?.itemGuid,
               1
             );
           }
@@ -1195,7 +1195,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
           break;
       }
       if (itemDefId) {
-        this.lootContainerItem(client, this.generateItem(itemDefId), 1);
+        this.lootContainerItem(client, this.generateItem(itemDefId)?.itemGuid, 1);
       }
       this.speedTreeDestroy(packet);
     }
@@ -2412,7 +2412,10 @@ export class ZoneServer2016 extends ZoneServer2015 {
       }
     }
     else {
-      loadoutSlotId = this.getLoadoutSlot(client, item.itemDefinitionId);
+      loadoutSlotId = this.getAvailableLoadoutSlot(client, item.itemDefinitionId);
+      if(!loadoutSlotId) {
+        loadoutSlotId = this.getLoadoutSlot(item.itemDefinitionId)
+      }
     }
     if (!loadoutSlotId) {
       debug(
@@ -2477,7 +2480,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
       return;
     }
     const item = this._items[itemGuid],
-      loadoutSlotId = this.getLoadoutSlot(client, item.itemDefinitionId);
+      loadoutSlotId = this.getActiveLoadoutSlot(client, itemGuid);
     if (!loadoutSlotId) {
       debug(
         `[ERROR] EquipInventoryItem: Tried to equip item with itemDefinitionId: ${item.itemDefinitionId} with an invalid loadoutSlotId!`
@@ -2554,22 +2557,29 @@ export class ZoneServer2016 extends ZoneServer2015 {
     }
   }
 
-  generateItem(itemDefinitionId: any) {
+  generateItem(itemDefinitionId: number): inventoryItem | undefined {
+    if (!this.getItemDefinition(itemDefinitionId)) {
+      debug(
+        `[ERROR] GenerateItem: Invalid item definition: ${itemDefinitionId}`
+      );
+      return;
+    }
     const generatedGuid = `0x${randomIntFromInterval(
       0x3000000000000000,
       0x3fffffffffffffff
     ).toString(16)}`;
     this._items[generatedGuid] = {
       guid: generatedGuid,
-      itemDefinitionId: Number(itemDefinitionId),
+      itemDefinitionId: itemDefinitionId,
     };
-    if (!this.getItemDefinition(this._items[generatedGuid].itemDefinitionId)) {
-      debug(
-        `[ERROR] GenerateItem: Invalid item definition: ${itemDefinitionId}`
-      );
-      return;
-    }
-    return generatedGuid;
+    return {
+      itemDefinitionId: itemDefinitionId,
+      slotId: 0,
+      itemGuid: generatedGuid,
+      containerGuid: "0x0",
+      currentDurability: 2000,
+      stackCount: 0
+    };
   }
 
   validateLoadoutSlot(itemDefinitionId: number, loadoutSlotId: number): boolean {
@@ -2580,7 +2590,19 @@ export class ZoneServer2016 extends ZoneServer2015 {
     );
   }
 
-  getLoadoutSlot(client: Client, itemDefinitionId: number, loadoutId: number = 3) {
+  getLoadoutSlot(itemDefinitionId: number, loadoutId: number = 3) {
+    // gets the first loadoutSlot an item can go into (occupied or not)
+    const itemDef = this.getItemDefinition(itemDefinitionId),
+    loadoutSlotItemClass = loadoutSlotItemClasses.find(
+      (slot: any) =>
+        slot.ITEM_CLASS === itemDef.ITEM_CLASS &&
+        loadoutId === slot.LOADOUT_ID
+    );
+    return loadoutSlotItemClass?.SLOT || 0;
+  }
+
+  getAvailableLoadoutSlot(client: Client, itemDefinitionId: number, loadoutId: number = 3): number {
+    // gets an open loadoutslot for a specified itemDefinitionId
     const itemDef = this.getItemDefinition(itemDefinitionId),
     loadoutSlotItemClass = loadoutSlotItemClasses.find(
       (slot: any) =>
@@ -2589,7 +2611,6 @@ export class ZoneServer2016 extends ZoneServer2015 {
     );
     let slot = loadoutSlotItemClass?.SLOT;
     if(!slot) return 0;
-    /*
     if(itemDef.ITEM_CLASS == 25036) {// weapon
       if(client.character._loadout[slot]?.itemDefinitionId) {// primary
         slot = 3; // secondary
@@ -2597,21 +2618,27 @@ export class ZoneServer2016 extends ZoneServer2015 {
       if(slot == 3 && client.character._loadout[slot]?.itemDefinitionId) {// secondary
         slot = 4; // tertiary
       }
-      if(slot == 4 && client.character._loadout[slot]?.itemDefinitionId) {// tertiary
-        slot = 1; // primary
-      }
     }
     else if(itemDef.ITEM_CLASS == 25054) {// item 1 / item 2
       if(client.character._loadout[slot]?.itemDefinitionId) {// item 1
         slot = 41; // item 2
       }
-      if(slot == 41 && client.character._loadout[slot]?.itemDefinitionId) {// item 2
-        slot = 40; // item 1
+    }
+
+    if(client.character._loadout[slot]?.itemDefinitionId) {
+      slot = 0;
+    }
+    return slot;
+  }
+
+  getActiveLoadoutSlot(client: Client, itemGuid: string): number {
+    // gets the loadoutSlotId of a specified itemGuid in the loadout
+    for(const item of Object.values(client.character._loadout)) {
+      if(itemGuid == item.itemGuid) {
+        return item.slotId;
       }
     }
-    */
-   
-    return slot;
+    return 0;
   }
 
   getEquipmentSlot(loadoutSlotId: number) {
@@ -2649,7 +2676,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
         return container;
       }
     }
-    return undefined;
+    return;
   }
 
   getItemContainer(
@@ -2662,7 +2689,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
         return container;
       }
     }
-    return undefined;
+    return;
   }
 
   getItemById(client: Client, itemDefId: number): string {
@@ -2703,9 +2730,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
     client: Client,
     itemGuid: string
   ): inventoryItem | undefined {
-    const item = this._items[itemGuid],
-      itemDefinition = this.getItemDefinition(item.itemDefinitionId),
-      loadoutSlotId = this.getLoadoutSlot(client, itemDefinition.ID);
+    const loadoutSlotId = this.getActiveLoadoutSlot(client, itemGuid);
     if (client.character._loadout[loadoutSlotId]?.itemGuid == itemGuid) {
       return client.character._loadout[loadoutSlotId];
     } else {
@@ -2792,9 +2817,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
   ): boolean {
     // removes a specific itemGuid from the inventory (containers and loadout)
     if (!this._items[itemGuid]) return false;
-    const item = this._items[itemGuid],
-      itemDefinition = this.getItemDefinition(item.itemDefinitionId),
-      loadoutSlotId = this.getLoadoutSlot(client, itemDefinition.ID);
+    const loadoutSlotId = this.getActiveLoadoutSlot(client, itemGuid);
     if (client.character._loadout[loadoutSlotId]?.itemGuid == itemGuid) {
       return this.removeLoadoutItem(client, loadoutSlotId);
     } else {
@@ -2815,7 +2838,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
     requiredCount: number = 1
   ): boolean {
     // removes x amount of items between multiple stacks, containers, and loadout
-    const loadoutSlotId = this.getLoadoutSlot(client, itemDefinitionId);
+    const loadoutSlotId = 0//this.getActiveLoadoutSlot(client, itemDefinitionId);
+    // loadout disabled for now
     if (
       client.character._loadout[loadoutSlotId]?.itemDefinitionId ==
       itemDefinitionId
@@ -2905,18 +2929,19 @@ export class ZoneServer2016 extends ZoneServer2015 {
     const itemDefId = this._items[itemGuid].itemDefinitionId,
     itemDef = this.getItemDefinition(itemDefId);
     if (itemDef.FLAG_CAN_EQUIP && 
-    this.getLoadoutSlot(client, itemDefId)
+    this.getAvailableLoadoutSlot(client, itemDefId)
     ) {
-      if (client.character._loadout[this.getLoadoutSlot(client, itemDefId)]?.itemDefinitionId) {
+      /*
+      if (client.character._loadout[this.getActiveLoadoutSlot(client, itemDefId)]?.itemDefinitionId) {
         this.lootContainerItem(client, itemGuid, count);
-      } else {
+      } else {*/
         this.sendData(client, "Reward.AddNonRewardItem", {
           itemDefId: itemDefId,
           iconId: this.getItemDefinition(itemDefId).IMAGE_SET_ID,
           count: count,
         });
         this.equipItem(client, itemGuid);
-      }
+      //}
     } else {
       this.lootContainerItem(client, itemGuid, count);
     }
@@ -3178,17 +3203,17 @@ export class ZoneServer2016 extends ZoneServer2015 {
     giveBackpack: boolean = false
   ) {
     if (giveBackpack) {
-      this.equipItem(client, this.generateItem(2393), sendPacket); // rasta backpack
+      this.equipItem(client, this.generateItem(2393)?.itemGuid, sendPacket); // rasta backpack
     }
-    this.equipItem(client, this.generateItem(85), sendPacket); // fists weapon
-    this.equipItem(client, this.generateItem(2377), sendPacket); // DOA Hoodie
-    this.equipItem(client, this.generateItem(2079), sendPacket); // golf pants
+    this.equipItem(client, this.generateItem(85)?.itemGuid, sendPacket); // fists weapon
+    this.equipItem(client, this.generateItem(2377)?.itemGuid, sendPacket); // DOA Hoodie
+    this.equipItem(client, this.generateItem(2079)?.itemGuid, sendPacket); // golf pants
   }
   giveStartingItems(client: Client, sendPacket: boolean) {
-    this.lootContainerItem(client, this.generateItem(1985), 1, sendPacket); // map
-    this.lootContainerItem(client, this.generateItem(1441), 1, sendPacket); // compass
-    this.lootContainerItem(client, this.generateItem(1751), 5, sendPacket); // gauze
-    this.lootContainerItem(client, this.generateItem(1804), 1, sendPacket); // flare
+    this.lootContainerItem(client, this.generateItem(1985)?.itemGuid, 1, sendPacket); // map
+    this.lootContainerItem(client, this.generateItem(1441)?.itemGuid, 1, sendPacket); // compass
+    this.lootContainerItem(client, this.generateItem(1751)?.itemGuid, 5, sendPacket); // gauze
+    this.lootContainerItem(client, this.generateItem(1804)?.itemGuid, 1, sendPacket); // flare
   }
 
   clearInventory(client: Client) {
@@ -3325,7 +3350,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
   fillPass(client: Client, itemGuid: string) {
     if (client.character.characterStates.inWater) {
       this.removeInventoryItem(client, itemGuid, 1);
-      this.lootContainerItem(client, this.generateItem(1368), 1); // give dirty water
+      this.lootContainerItem(client, this.generateItem(1368)?.itemGuid, 1); // give dirty water
     } else {
       this.sendData(client, "ClientUpdate.TextAlert", {
         message: "There is no water source nearby",
@@ -3430,7 +3455,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
     this.updateResource(client, client.character.characterId, food, 4, 4);
     this.updateResource(client, client.character.characterId, water, 5, 5);
     if (givetrash) {
-      this.lootContainerItem(client, this.generateItem(givetrash), 1);
+      this.lootContainerItem(client, this.generateItem(givetrash)?.itemGuid, 1);
     }
   }
 
@@ -3448,7 +3473,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
     this.updateResource(client, client.character.characterId, food, 4, 4);
     this.updateResource(client, client.character.characterId, water, 5, 5);
     if (givetrash) {
-      this.lootContainerItem(client, this.generateItem(givetrash), 1);
+      this.lootContainerItem(client, this.generateItem(givetrash)?.itemGuid, 1);
     }
   }
 
@@ -3511,7 +3536,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
 
   shredItemPass(client: Client, itemGuid: string, count: number) {
     this.removeInventoryItem(client, itemGuid, 1);
-    this.lootItem(client, this.generateItem(23), count);
+    this.lootItem(client, this.generateItem(23)?.itemGuid, count);
   }
 
   pUtilizeHudTimer = promisify(this.utilizeHudTimer);

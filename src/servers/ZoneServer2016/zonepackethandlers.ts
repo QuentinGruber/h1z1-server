@@ -1352,17 +1352,18 @@ export class zonePacketHandlers {
       packet: any
     ) {
       debug(packet.data);
-      if (!packet.data.itemGuid) {
+      const { itemGuid } = packet.data;
+      if (!itemGuid) {
         server.sendChatText(client, "[ERROR] ItemGuid is invalid!");
         return;
       }
       const itemDefinition = server.getItemDefinition(
-        server._items[packet.data.itemGuid].itemDefinitionId
+        server._items[itemGuid].itemDefinitionId
       ),
       nameId = itemDefinition.NAME_ID,
-      loadoutSlotId = server.getLoadoutSlot(client, itemDefinition.ID);
+      loadoutSlotId = server.getActiveLoadoutSlot(client, itemGuid);
       if (loadoutSlotId && 
-        client.character._containers[loadoutSlotId]?.itemGuid == packet.data.itemGuid
+        client.character._containers[loadoutSlotId]?.itemGuid == itemGuid
         && _.size(client.character._containers[loadoutSlotId].items) != 0
       ) {
         // prevents duping if client check is bypassed
@@ -1378,44 +1379,49 @@ export class zonePacketHandlers {
         case 79: // sparks drop option
           server.dropItem(
             client,
-            packet.data.itemGuid,
+            itemGuid,
             packet.data.itemSubData?.count
           );
           break;
         case 60: //equip item
-          server.equipContainerItem(
-            client, 
-            packet.data.itemGuid, 
-            server.getLoadoutSlot(
+          if(server.getActiveLoadoutSlot(client, itemGuid)) {
+            server.sendChatText(client, "[ERROR] Item is already equipped!");
+            return;
+          }
+          let loadoutSlotId = 
+            server.getAvailableLoadoutSlot(
               client, 
-              server._items[packet.data.itemGuid]?.itemDefinitionId
+              server._items[itemGuid]?.itemDefinitionId
             )
-          );
+          if(!loadoutSlotId) {
+            loadoutSlotId = server.getLoadoutSlot(server._items[itemGuid]?.itemDefinitionId);
+          }
+          server.equipContainerItem(client, itemGuid, loadoutSlotId);
           break;
         case 6: // shred
-          server.shredItem(client, packet.data.itemGuid);
+          server.shredItem(client, itemGuid);
           break;
         case 1: //eat
-          server.eatItem(client, packet.data.itemGuid, nameId);
+          server.eatItem(client, itemGuid, nameId);
           break;
         case 2: //drink
-          server.drinkItem(client, packet.data.itemGuid, nameId);
+          server.drinkItem(client, itemGuid, nameId);
           break;
         case 3: //use
-          server.useItem(client, packet.data.itemGuid);
+          server.useItem(client, itemGuid);
           break;
         case 17: //refuel
           server.refuelVehicle(
             client,
-            packet.data.itemGuid,
+            itemGuid,
             packet.data.characterId2
           );
           break;
         case 52: //use medical
-          server.useMedical(client, packet.data.itemGuid, nameId);
+          server.useMedical(client, itemGuid, nameId);
           break;
         case 11: //ignite
-          server.igniteOption(client, packet.data.itemGuid, nameId);
+          server.igniteOption(client, itemGuid, nameId);
           break;
         default:
           server.sendChatText(
@@ -1842,7 +1848,7 @@ export class zonePacketHandlers {
           // if only partial stack is moved
           server.addContainerItem(
             client,
-            server.generateItem(item.itemDefinitionId),
+            server.generateItem(item.itemDefinitionId)?.itemGuid,
             targetContainer,
             count,
             false
@@ -1908,10 +1914,14 @@ export class zonePacketHandlers {
               }
             }
             else if (containerGuid == "0xffffffffffffffff") { // to loadout
-              //server.equipContainerItem(client, itemGuid, newSlotId);
-              
+              if(server.validateLoadoutSlot(item.itemDefinitionId, newSlotId)) {
+                server.equipContainerItem(client, itemGuid, newSlotId);
+              }
+              else {
+                server.equipContainerItem(client, itemGuid, server.getLoadoutSlot(item.itemDefinitionId));
+              }
               // temp
-              server.equipContainerItem(client, itemGuid, server.getLoadoutSlot(client, item.itemDefinitionId))
+              //server.equipContainerItem(client, itemGuid, server.getLoadoutSlot(item.itemDefinitionId));
             }
             else { // invalid
               server.containerError(client, 3); // unknown container
@@ -1935,7 +1945,7 @@ export class zonePacketHandlers {
               if (
                 !server.removeLoadoutItem(
                   client,
-                  server.getLoadoutSlot(client, item.itemDefinitionId)
+                  server.getActiveLoadoutSlot(client, itemGuid)
                 )
               ) {
                 server.containerError(client, 5); // slot does not contain item
@@ -1943,15 +1953,26 @@ export class zonePacketHandlers {
               }
               server.addContainerItem(
                 client,
-                server.generateItem(item.itemDefinitionId),
+                server.generateItem(item.itemDefinitionId)?.itemGuid,
                 targetContainer,
                 count,
                 false
               );
             }
             else if (containerGuid == "0xffffffffffffffff") { // to loadout
-              //server.removeLoadoutItem(client, )
-
+              if(!server.validateLoadoutSlot(server._items[itemGuid].itemDefinitionId, newSlotId)) {
+                return;
+              }
+              if (
+                !server.removeLoadoutItem(
+                  client,
+                  server.getActiveLoadoutSlot(client, itemGuid)
+                )
+              ) {
+                server.containerError(client, 5); // slot does not contain item
+                return;
+              }
+              server.equipItem(client, itemGuid, true, newSlotId);
             }
             else { // invalid
               server.containerError(client, 3); // unknown container

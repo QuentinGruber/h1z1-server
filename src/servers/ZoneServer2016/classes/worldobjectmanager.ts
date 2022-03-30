@@ -314,7 +314,7 @@ export class WorldObjectManager {
       rotation: rotation,
       color: { r: 0, g: 0, b: 255 },
       spawnerId: itemSpawnerId || 0,
-      itemGuid: itemGuid || server.generateItem(itemDefinitionId),
+      itemGuid: itemGuid || server.generateItem(itemDefinitionId)?.itemGuid,
       stackCount: stackCount,
       npcRenderDistance: renderDistance,
     };
