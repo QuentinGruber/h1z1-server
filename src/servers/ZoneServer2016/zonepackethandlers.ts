@@ -1359,7 +1359,7 @@ export class zonePacketHandlers {
         server._items[packet.data.itemGuid].itemDefinitionId
       ),
       nameId = itemDefinition.NAME_ID,
-      loadoutSlotId = server.getLoadoutSlot(itemDefinition.ID);
+      loadoutSlotId = server.getLoadoutSlot(client, itemDefinition.ID);
       if (loadoutSlotId && 
         client.character._containers[loadoutSlotId]?.itemGuid == packet.data.itemGuid
         && _.size(client.character._containers[loadoutSlotId].items) != 0
@@ -1379,7 +1379,14 @@ export class zonePacketHandlers {
           );
           break;
         case 60: //equip item
-          server.equipContainerItem(client, packet.data.itemGuid);
+          server.equipContainerItem(
+            client, 
+            packet.data.itemGuid, 
+            server.getLoadoutSlot(
+              client, 
+              server._items[packet.data.itemGuid]?.itemDefinitionId
+            )
+          );
           break;
         case 6: // shred
           server.shredItem(client, packet.data.itemGuid);
@@ -1871,7 +1878,10 @@ export class zonePacketHandlers {
               }
             }
             else if (containerGuid == "0xffffffffffffffff") { // to loadout
-              server.equipContainerItem(client, itemGuid);
+              //server.equipContainerItem(client, itemGuid, newSlotId);
+              
+              // temp
+              server.equipContainerItem(client, itemGuid, server.getLoadoutSlot(client, item.itemDefinitionId))
             }
             else { // invalid
               server.containerError(client, 3); // unknown container
@@ -1885,7 +1895,7 @@ export class zonePacketHandlers {
               if(!server.getContainerHasSpace(targetContainer, item.itemDefinitionId, count)) {
                 return;
               }
-              if(!server.removeLoadoutItem(client, server.getLoadoutSlot(item.itemDefinitionId))) {
+              if(!server.removeLoadoutItem(client, server.getLoadoutSlot(client, item.itemDefinitionId))) {
                 server.containerError(client, 5); // slot does not contain item
                 return;
               }
@@ -1898,7 +1908,7 @@ export class zonePacketHandlers {
               );
             }
             else if (containerGuid == "0xffffffffffffffff") { // to loadout
-              // remove item from inventory and equip item
+              //server.removeLoadoutItem(client, )
 
             }
             else { // invalid
