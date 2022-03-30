@@ -1929,7 +1929,10 @@ export class zonePacketHandlers {
                 server.equipContainerItem(client, item, newSlotId);
               }
               else {
-                server.equipContainerItem(client, item, server.getLoadoutSlot(item.itemDefinitionId));
+                const loadoutSlot = server.getLoadoutSlot(item.itemDefinitionId);
+                if(server.validateLoadoutSlot(item.itemDefinitionId, loadoutSlot)) {
+                  server.equipContainerItem(client, item, loadoutSlot);
+                }
               }
             }
             else { // invalid

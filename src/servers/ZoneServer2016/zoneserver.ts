@@ -2461,55 +2461,6 @@ export class ZoneServer2016 extends ZoneServer2015 {
     this.updateEquipmentSlot(client, equipmentSlotId);
   }
 
-  /*
-  equipInventoryItem(
-    client: Client,
-    itemGuid: string = "",
-    sendPacket: boolean = true
-  ) {
-    if (!itemGuid) {
-      debug("[ERROR] EquipInventoryItem: ItemGuid is blank!");
-      return;
-    }
-    const item = this._items[itemGuid],
-      loadoutSlotId = this.getActiveLoadoutSlot(client, itemGuid);
-    if (!loadoutSlotId) {
-      debug(
-        `[ERROR] EquipInventoryItem: Tried to equip item with itemDefinitionId: ${item.itemDefinitionId} with an invalid loadoutSlotId!`
-      );
-      return;
-    }
-
-    const oldLoadoutItem = client.character._loadout[loadoutSlotId],
-      container = this.getItemContainer(client, itemGuid),
-      containerItem = container?.items[itemGuid];
-    if(!oldLoadoutItem?.itemDefinitionId && !container || !containerItem) {
-      this.containerError(client, 3); // unknown container
-      return;
-    }
-    if (oldLoadoutItem?.itemDefinitionId) { // if target loadoutSlot is occupied
-      if (oldLoadoutItem.itemGuid == itemGuid) {
-        this.sendChatText(client, "[ERROR] Item is already equipped!");
-        return;
-      }
-      // remove item from inventory and equip item
-      if (!this.removeContainerItem(client, containerItem, container, 1)) {
-        this.containerError(client, 5); // slot does not contain item
-        return;
-      }
-      this.lootContainerItem(client, oldLoadoutItem, 1, false);
-      this.equipItem(client, itemGuid, sendPacket);
-    } else {
-      // remove item from inventory and equip item
-      if (!this.removeContainerItem(client, containerItem, container, 1)) {
-        this.containerError(client, 5); // slot does not contain item
-        return;
-      }
-      this.equipItem(client, itemGuid, sendPacket);
-    }
-  }
-  */
-
   getItemDefinition(itemDefinitionId: any) {
     return this._itemDefinitions[itemDefinitionId];
   }
@@ -2576,6 +2527,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
   }
 
   validateLoadoutSlot(itemDefinitionId: number, loadoutSlotId: number): boolean {
+    if(!this.getItemDefinition(itemDefinitionId).FLAG_CAN_EQUIP) return false;
     return !!loadoutSlotItemClasses.find(
       (slot: any) =>
         slot.ITEM_CLASS === this.getItemDefinition(itemDefinitionId).ITEM_CLASS &&
