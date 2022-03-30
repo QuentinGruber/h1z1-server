@@ -1137,7 +1137,6 @@ export class ZoneServer2016 extends ZoneServer2015 {
       5,
       5
     );
-    this.initializeContainerList(client);
   }
 
   speedTreeDestroy(packet: any) {
@@ -2452,7 +2451,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
         containerDefinitionId: def.PARAM1,
         items: {},
       };
-      this.initializeContainerList(client);
+      if(sendPacket) this.initializeContainerList(client);
     }
 
     if (!sendPacket) return;
