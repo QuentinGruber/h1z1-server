@@ -2375,10 +2375,6 @@ export class ZoneServer2016 extends ZoneServer2015 {
       this.containerError(client, 3); // unknown container
       return;
     }
-    if(container && !item) {
-      this.containerError(client, 5); // slot does not contain item
-      return;
-    }
     if(!this.removeContainerItem(client, item, container, 1)) {
       this.containerError(client, 5); // slot does not contain item
       return;
