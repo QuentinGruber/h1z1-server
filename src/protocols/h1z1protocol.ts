@@ -14,7 +14,12 @@
 const debug = require("debug")("H1Z1Protocol");
 import DataSchema from "h1z1-dataschema";
 import { packUnsignedIntWith2bitLengthValue } from "../packets/ClientProtocol/ClientProtocol_860/shared";
-import { clearFolderCache, eul2quat, getPacketTypeBytes, lz4_decompress } from "../utils/utils";
+import {
+  clearFolderCache,
+  eul2quat,
+  getPacketTypeBytes,
+  lz4_decompress,
+} from "../utils/utils";
 
 export interface UpdatePositionObject {
   raw: Buffer;
@@ -406,7 +411,7 @@ export class H1Z1Protocol {
     return [packet, offset];
   }
 
-  parse(data: Buffer, flag: number, fromClient: boolean, referenceData?: any ) {
+  parse(data: Buffer, flag: number, fromClient: boolean, referenceData?: any) {
     const H1Z1Packets = this.H1Z1Packets;
     let opCode = data[0],
       offset = 0,
@@ -516,7 +521,7 @@ export class H1Z1Protocol {
 
   reloadPacketDefinitions() {
     const protocolPacketsFolderPath = `../packets/ClientProtocol/${this.protocolName}`;
-    clearFolderCache(__dirname,protocolPacketsFolderPath)
+    clearFolderCache(__dirname, protocolPacketsFolderPath);
     this.H1Z1Packets = require(`${protocolPacketsFolderPath}/h1z1packets.js`);
   }
 }

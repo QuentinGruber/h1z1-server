@@ -274,8 +274,8 @@ export class zonePacketHandlers {
       packet: any
     ) {
       const characterId = packet.data.characterId,
-      damage = packet.data.damage,
-      vehicle = server._vehicles[characterId];
+        damage = packet.data.damage,
+        vehicle = server._vehicles[characterId];
       if (characterId === client.character.characterId) {
         server.playerDamage(client, damage * 5);
       } else if (vehicle) {
@@ -373,7 +373,7 @@ export class zonePacketHandlers {
       packet: any
     ) {
       debug("ClientLogout");
-      clearTimeout(client.hudTimer) // clear the timer started at StartLogoutRequest
+      clearTimeout(client.hudTimer); // clear the timer started at StartLogoutRequest
       server.deleteClient(client);
     };
     this.GameTimeSync = function (
@@ -781,7 +781,8 @@ export class zonePacketHandlers {
       if (movingCharacter) {
         if (packet.data.horizontalSpeed) {
           client.character.isRunning =
-            packet.data.horizontalSpeed > (client.character.isExhausted ? 5 : 6);
+            packet.data.horizontalSpeed >
+            (client.character.isExhausted ? 5 : 6);
         }
         server.sendRawToAllOthersWithSpawnedCharacter(
           client,
@@ -911,7 +912,7 @@ export class zonePacketHandlers {
           });
           break;
         case 2: // vehicles
-        if (entityData.npcData.vehicleId != 13) {
+          if (entityData.npcData.vehicleId != 13) {
             server.sendData(client, "LightweightToFullVehicle", {
               npcData: {
                 transientId: entityData.npcData.transientId,
@@ -1343,7 +1344,7 @@ export class zonePacketHandlers {
       packet: any
     ) {
       server.killCharacter(client);
-    }
+    };
     //#region ITEMS
     this.requestUseItem = function (
       server: ZoneServer2016,
@@ -1365,7 +1366,10 @@ export class zonePacketHandlers {
         && _.size(client.character._containers[loadoutSlotId].items) != 0
       ) {
         // prevents duping if client check is bypassed
-        server.sendChatText(client, "[ERROR] Container must be empty to unequip.");
+        server.sendChatText(
+          client,
+          "[ERROR] Container must be empty to unequip."
+        );
         return;
       }
       switch (packet.data.itemUseOption) {
@@ -1530,8 +1534,9 @@ export class zonePacketHandlers {
 
           server._explosives[characterId] = npc; // save npc
           setTimeout(function () {
-            if(!server._explosives[characterId]){ // it happens when you die before the explosive is enable
-              return
+            if (!server._explosives[characterId]) {
+              // it happens when you die before the explosive is enable
+              return;
             }
             // arming time
             server._explosives[characterId].mineTimer = setTimeout(() => {
@@ -1805,7 +1810,7 @@ export class zonePacketHandlers {
           break;
       }
     };
-    this.containerMoveItem = function(
+    this.containerMoveItem = function (
       server: ZoneServer2016,
       client: Client,
       packet: any
@@ -1816,15 +1821,25 @@ export class zonePacketHandlers {
         itemGuid,
         targetCharacterId,
         count,
-        newSlotId
+        newSlotId,
       } = packet.data;
-      console.log(packet.data)
       // helper functions
-      function combineItemStack(oldStackCount: number, targetContainer: loadoutContainer, item: inventoryItem) {
-        if(oldStackCount == count) { // if full stack is moved
-          server.addContainerItem(client, itemGuid, targetContainer, count, false);
-        }
-        else { // if only partial stack is moved
+      function combineItemStack(
+        oldStackCount: number,
+        targetContainer: loadoutContainer,
+        item: inventoryItem
+      ) {
+        if (oldStackCount == count) {
+          // if full stack is moved
+          server.addContainerItem(
+            client,
+            itemGuid,
+            targetContainer,
+            count,
+            false
+          );
+        } else {
+          // if only partial stack is moved
           server.addContainerItem(
             client,
             server.generateItem(item.itemDefinitionId),
@@ -1835,44 +1850,59 @@ export class zonePacketHandlers {
         }
       }
 
-      if(characterId == client.character.characterId){
+      if (characterId == client.character.characterId) {
         // from client container
-        if(characterId == targetCharacterId){
+        if (characterId == targetCharacterId) {
           // from / to client container
           const container = server.getItemContainer(client, itemGuid),
-          targetContainer = server.getContainerFromGuid(client, containerGuid)
+            targetContainer = server.getContainerFromGuid(
+              client,
+              containerGuid
+            );
 
-          if(container) {// from container
+          if (container) {
+            // from container
             const item = container.items[itemGuid],
-            oldStackCount = item?.stackCount; // saves stack count before it gets altered
-            if(!item) {
+              oldStackCount = item?.stackCount; // saves stack count before it gets altered
+            if (!item) {
               server.containerError(client, 5); // slot does not contain item
               return;
-            };
-            if(targetContainer) { // to container
+            }
+            if (targetContainer) {
+              // to container
               // move to container
-              if(
-                  container.containerGuid != targetContainer.containerGuid &&
-                  !server.getContainerHasSpace(targetContainer, item.itemDefinitionId, count)
-              ) { // allows items in the same container but different stacks to be stacked
+              if (
+                container.containerGuid != targetContainer.containerGuid &&
+                !server.getContainerHasSpace(
+                  targetContainer,
+                  item.itemDefinitionId,
+                  count
+                )
+              ) {
+                // allows items in the same container but different stacks to be stacked
                 return;
               }
-              
-              if(!server.removeContainerItem(client, item, container, count)) {
+
+              if (!server.removeContainerItem(client, item, container, count)) {
                 server.containerError(client, 5); // slot does not contain item
                 return;
               }
-              if(newSlotId == 0xFFFFFFFF) {
+              if (newSlotId == 0xffffffff) {
                 combineItemStack(oldStackCount, targetContainer, item);
-              }
-              else {
-                const itemStack = server.getAvailableItemStack(targetContainer, item.itemDefinitionId, count, newSlotId);
-                if(itemStack){ // add to existing item stack
-                  const item = targetContainer.items[itemStack]
+              } else {
+                const itemStack = server.getAvailableItemStack(
+                  targetContainer,
+                  item.itemDefinitionId,
+                  count,
+                  newSlotId
+                );
+                if (itemStack) {
+                  // add to existing item stack
+                  const item = targetContainer.items[itemStack];
                   item.stackCount += count;
                   server.updateContainerItem(client, item, targetContainer);
-                }
-                else { // add item to end
+                } else {
+                  // add item to end
                   combineItemStack(oldStackCount, targetContainer, item);
                 }
               }
@@ -1886,16 +1916,28 @@ export class zonePacketHandlers {
             else { // invalid
               server.containerError(client, 3); // unknown container
             }
-          }
-          else {// from loadout or invalid
+          } else {
+            // from loadout or invalid
             const item = server._items[itemGuid];
             //todo: check if item exists in loadout
-            if(targetContainer) { // to container
+            if (targetContainer) {
+              // to container
               // move to container
-              if(!server.getContainerHasSpace(targetContainer, item.itemDefinitionId, count)) {
+              if (
+                !server.getContainerHasSpace(
+                  targetContainer,
+                  item.itemDefinitionId,
+                  count
+                )
+              ) {
                 return;
               }
-              if(!server.removeLoadoutItem(client, server.getLoadoutSlot(client, item.itemDefinitionId))) {
+              if (
+                !server.removeLoadoutItem(
+                  client,
+                  server.getLoadoutSlot(item.itemDefinitionId)
+                )
+              ) {
                 server.containerError(client, 5); // slot does not contain item
                 return;
               }
@@ -1916,11 +1958,10 @@ export class zonePacketHandlers {
             }
           }
         }
-      }
-      else {
+      } else {
         // from external container
       }
-    }
+    };
     //#endregion
   }
   processPacket(server: ZoneServer2016, client: Client, packet: any) {

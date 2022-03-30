@@ -423,8 +423,7 @@ const hax: any = {
     if (!server._dynamicWeatherEnabled) {
       server._dynamicWeatherEnabled = true;
       server.sendChatText(client, "Dynamic weather enabled !");
-    }
-    else{
+    } else {
       server.sendChatText(client, "Dynamic weather already enabled !");
     }
   },
@@ -435,7 +434,7 @@ const hax: any = {
   ) {
     if (server._dynamicWeatherEnabled) {
       server._dynamicWeatherEnabled = false;
-      
+
       server.sendChatText(client, "Dynamic weather removed !");
     }
     const weatherTemplate = server._soloMode

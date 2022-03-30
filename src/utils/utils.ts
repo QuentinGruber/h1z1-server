@@ -313,15 +313,17 @@ export const getPacketTypeBytes = function (packetType: number): number[] {
   return packetTypeBytes;
 };
 
-
-export const clearFolderCache = (currentFolderDirname:string,folderPath:string) => {
-  const resolvedPath = resolve(currentFolderDirname,folderPath)
-  Object.keys(require.cache).forEach((key:string) => {
-      if (key.includes(resolvedPath)){
-        delete require.cache[key];
-      }
+export const clearFolderCache = (
+  currentFolderDirname: string,
+  folderPath: string
+) => {
+  const resolvedPath = resolve(currentFolderDirname, folderPath);
+  Object.keys(require.cache).forEach((key: string) => {
+    if (key.includes(resolvedPath)) {
+      delete require.cache[key];
+    }
   });
-}
+};
 
 // experimental custom implementation of the scheduler API
 export class Scheduler {
