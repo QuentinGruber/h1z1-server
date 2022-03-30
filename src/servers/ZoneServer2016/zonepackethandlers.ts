@@ -1935,7 +1935,7 @@ export class zonePacketHandlers {
               if (
                 !server.removeLoadoutItem(
                   client,
-                  server.getLoadoutSlot(item.itemDefinitionId)
+                  server.getLoadoutSlot(client, item.itemDefinitionId)
                 )
               ) {
                 server.containerError(client, 5); // slot does not contain item

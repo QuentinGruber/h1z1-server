@@ -3023,25 +3023,27 @@ export class ZoneServer2016 extends ZoneServer2015 {
               container.items[item.itemGuid].slotId = idx + 1;
               return {
                 itemDefinitionId: item.itemDefinitionId,
-                tintId: 0,
-                guid: item.itemGuid,
-                count: item.stackCount,
-                itemSubData: {
-                  hasSubData: false,
-                },
-                containerGuid: container.itemGuid,
-                containerDefinitionId: container.containerDefinitionId,
-                containerSlotId: item.slotId,
-                baseDurability: 2000,
-                currentDurability: item.currentDurability,
-                maxDurabilityFromDefinition: 2000,
-                unknownBoolean1: true,
-                unknownQword3: client.character.characterId,
-                unknownDword9: 1,
+                itemData: {
+                  itemDefinitionId: item.itemDefinitionId,
+                  tintId: 0,
+                  guid: item.itemGuid,
+                  count: item.stackCount,
+                  itemSubData: {
+                    hasSubData: false,
+                  },
+                  containerGuid: container.itemGuid,
+                  containerDefinitionId: container.containerDefinitionId,
+                  containerSlotId: item.slotId,
+                  baseDurability: 2000,
+                  currentDurability: item.currentDurability,
+                  maxDurabilityFromDefinition: 2000,
+                  unknownBoolean1: true,
+                  unknownQword3: client.character.characterId,
+                  unknownDword9: 1,
                 },
               };
             }),
-            unknownBoolean1: true,
+            unknownBoolean1: true, // needs to be true or bulk doesn't show up
             maxBulk: containerDefinition.MAX_BULK,
             unknownDword4: 28,
             bulkUsed: this.getContainerBulk(container),
