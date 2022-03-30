@@ -204,9 +204,7 @@ export class SOEServer extends EventEmitter {
                 }
                 break;
               default:
-                this.handlePacket(client, {
-                  soePacket: subPacket,
-                });
+                this.handlePacket(client, subPacket);
             }
           }
           if (lastOutOfOrder > 0) {
