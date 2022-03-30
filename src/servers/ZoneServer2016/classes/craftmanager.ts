@@ -157,7 +157,10 @@ export class CraftManager {
       let inventory = server.getInventoryAsContainer(client),
         remainingItems = component.requiredAmount * count,
         stackCount = 0;
-      if (!inventory[component.itemDefinitionId]) return false;
+      if (!inventory[component.itemDefinitionId]) {
+        server.containerError(client, 5); // slot does not contain item
+        return false;
+      }
       for (const item of inventory[component.itemDefinitionId]) {
         stackCount += item.stackCount;
       }
@@ -170,6 +173,7 @@ export class CraftManager {
           if (
             !server.removeInventoryItem(client, item.itemGuid, remainingItems)
           ) {
+            server.containerError(client, 5); // slot does not contain item
             return false; // return if not enough items
           }
           remainingItems = 0;
@@ -179,6 +183,7 @@ export class CraftManager {
           ) {
             remainingItems -= item.stackCount;
           } else {
+            server.containerError(client, 5); // slot does not contain item
             return false; // return if not enough items
           }
         }
