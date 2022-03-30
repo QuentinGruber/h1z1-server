@@ -2587,8 +2587,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
         slot.ITEM_CLASS === itemDef.ITEM_CLASS &&
         loadoutId === slot.LOADOUT_ID
     );
-    let slot = loadoutSlotItemClass.SLOT;
-    
+    let slot = loadoutSlotItemClass?.SLOT;
+    if(!slot) return 0;
     /*
     if(itemDef.ITEM_CLASS == 25036) {// weapon
       if(client.character._loadout[slot]?.itemDefinitionId) {// primary
@@ -2611,7 +2611,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
     }
     */
    
-    return loadoutSlotItemClass ? slot : 0;
+    return slot;
   }
 
   getEquipmentSlot(loadoutSlotId: number) {
