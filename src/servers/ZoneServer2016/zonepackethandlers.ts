@@ -1396,7 +1396,18 @@ export class zonePacketHandlers {
           if(!loadoutSlotId) {
             loadoutSlotId = server.getLoadoutSlot(server._items[itemGuid]?.itemDefinitionId);
           }
-          server.equipContainerItem(client, itemGuid, loadoutSlotId);
+          const container = server.getItemContainer(client, itemGuid);
+
+          if (!container) {
+            server.containerError(client, 3) // unknown container
+            return;
+          }
+          const item = container.items[itemGuid];
+          if (!item) {
+            server.containerError(client, 5); // slot does not contain item
+            return;
+          }
+          server.equipContainerItem(client, item, loadoutSlotId);
           break;
         case 6: // shred
           server.shredItem(client, itemGuid);
@@ -1839,7 +1850,7 @@ export class zonePacketHandlers {
           // if full stack is moved
           server.addContainerItem(
             client,
-            itemGuid,
+            item,
             targetContainer,
             count,
             false
@@ -1848,7 +1859,7 @@ export class zonePacketHandlers {
           // if only partial stack is moved
           server.addContainerItem(
             client,
-            server.generateItem(item.itemDefinitionId)?.itemGuid,
+            server.generateItem(item.itemDefinitionId),
             targetContainer,
             count,
             false
@@ -1915,13 +1926,11 @@ export class zonePacketHandlers {
             }
             else if (containerGuid == "0xffffffffffffffff") { // to loadout
               if(server.validateLoadoutSlot(item.itemDefinitionId, newSlotId)) {
-                server.equipContainerItem(client, itemGuid, newSlotId);
+                server.equipContainerItem(client, item, newSlotId);
               }
               else {
-                server.equipContainerItem(client, itemGuid, server.getLoadoutSlot(item.itemDefinitionId));
+                server.equipContainerItem(client, item, server.getLoadoutSlot(item.itemDefinitionId));
               }
-              // temp
-              //server.equipContainerItem(client, itemGuid, server.getLoadoutSlot(item.itemDefinitionId));
             }
             else { // invalid
               server.containerError(client, 3); // unknown container
@@ -1953,7 +1962,7 @@ export class zonePacketHandlers {
               }
               server.addContainerItem(
                 client,
-                server.generateItem(item.itemDefinitionId)?.itemGuid,
+                server.generateItem(item.itemDefinitionId),
                 targetContainer,
                 count,
                 false

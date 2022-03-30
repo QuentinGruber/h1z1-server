@@ -619,7 +619,7 @@ const hax: any = {
       client,
       `Adding ${count}x item${count == 1 ? "" : "s"} with id ${itemDefId}.`
     );
-    server.lootItem(client, server.generateItem(itemDefId)?.itemGuid, count);
+    server.lootItem(client, server.generateItem(itemDefId), count);
   },
   hood: function (server: ZoneServer2016, client: Client) {
     const equipment = client.character._equipment[3] || {},
