@@ -103,11 +103,8 @@ export class SOEServer extends EventEmitter {
     client.ackTimer.refresh();
   }
   sendClientWaitQueue(client: Client) {
-    console.log("wait queue flushed with "+client.waitingQueueCurrentByteLength + " bytes ")
     if (client.waitingQueue.length) {
-      console.log("waitingqueue length : "+client.waitingQueue.length)
       if(client.waitingQueue.length > 1){
-        console.log("sequence before : ",client.outputStream._sequence)
         this._sendPacket(
           client,
           "MultiPacket",
@@ -338,8 +335,6 @@ export class SOEServer extends EventEmitter {
           client.outputStream.on(
             "data",
             (err: string, data: Buffer, sequence: number, fragment: any) => {
-              console.log("data sequence : ",sequence)
-              console.log("data : ",data)
               if (fragment) {
                 this._sendPacket(client, "DataFragment", {
                   sequence: sequence,
@@ -357,7 +352,6 @@ export class SOEServer extends EventEmitter {
           client.outputStream.on(
             "dataResend",
             (err: string, data: Buffer, sequence: number, fragment: any) => {
-              console.log("data sequence : ",sequence)
               if (fragment) {
                 this._sendPacket(client, "DataFragment", {
                   sequence: sequence,
@@ -393,7 +387,6 @@ export class SOEServer extends EventEmitter {
         );
         if (raw_parsed_data) {
           const parsed_data = JSON.parse(raw_parsed_data);
-          console.log(parsed_data)
           if (!unknow_client && parsed_data.name === "SessionRequest") {
             this.deleteClient(this._clients[clientId]);
             debug(
@@ -417,11 +410,9 @@ export class SOEServer extends EventEmitter {
   }
 
   createPacket(client: Client, packetName: string, packet: any): Buffer {
-    console.log("sent "+packetName)
     if(packet.data){
       packet.data = [...packet.data]
     }
-    console.log(packet)
     try {
       return Buffer.from(this._protocol.pack(
         packetName,
@@ -450,7 +441,6 @@ export class SOEServer extends EventEmitter {
   ): void {
     const data = this.createPacket(client, packetName, packet);
     if (prioritize) {
-      console.log("prioritize ",packetName)
       if(packetName !== "MultiPacket")
         this.sendClientWaitQueue(client);
       client.outQueue.push(data);
