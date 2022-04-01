@@ -61,7 +61,6 @@ export class ZoneServer2016 extends ZoneServer2015 {
   // @ts-ignore yeah idk how to fix that
   _packetHandlers: zonePacketHandlers = new zonePacketHandlers();
   _weatherTemplates: any;
-  _items: any = {};
   _vehicles: { [characterId: string]: Vehicle } = {};
   _reloadPacketsInterval: any;
   _clients: { [characterId: string]: Client } = {};
@@ -2527,10 +2526,6 @@ export class ZoneServer2016 extends ZoneServer2015 {
       return;
     }
     const generatedGuid = `0x${this.generateItemGuid().toString(16)}`;
-    this._items[generatedGuid] = {
-      guid: generatedGuid,
-      itemDefinitionId: itemDefinitionId,
-    };
     return {
       itemDefinitionId: itemDefinitionId,
       slotId: 0,
@@ -2671,15 +2666,15 @@ export class ZoneServer2016 extends ZoneServer2015 {
     return;
   }
 
-  getItemById(client: Client, itemDefId: number): string {
+  getItemById(client: Client, itemDefId: number): inventoryItem | undefined {
     for (const container of Object.values(client.character._containers)) {
       for (const item of Object.values(container.items)) {
         if (item.itemDefinitionId == itemDefId) {
-          return item.itemGuid;
+          return item;
         }
       }
     }
-    return "";
+    return undefined;
   }
 
   getAvailableItemStack(
@@ -2713,10 +2708,10 @@ export class ZoneServer2016 extends ZoneServer2015 {
     if (client.character._loadout[loadoutSlotId]?.itemGuid == itemGuid) {
       return client.character._loadout[loadoutSlotId];
     } else {
-      const removeItemContainer = this.getItemContainer(client, itemGuid);
-      const removeItem = removeItemContainer?.items[itemGuid];
-      if (!removeItemContainer || !removeItem) return undefined;
-      return removeItem;
+      const container = this.getItemContainer(client, itemGuid);
+      const item = container?.items[itemGuid];
+      if (!container || !item) return undefined;
+      return item;
     }
   }
 
@@ -2741,8 +2736,9 @@ export class ZoneServer2016 extends ZoneServer2015 {
   }
 
   removeLoadoutItem(client: Client, loadoutSlotId: number): boolean {
-    const item = client.character._loadout[loadoutSlotId];
-    if (!item) return false;
+    const item = client.character._loadout[loadoutSlotId],
+    itemDefId = item.itemDefinitionId; // save before item gets deleted
+    if (!item || !item.itemDefinitionId) return false;
     this.deleteItem(client, item.itemGuid);
     // TODO: add logic for checking if loadout item has an equipment slot, ex. radio doesn't have one
     const equipmentSlotId = this.getEquipmentSlot(client, item);
@@ -2759,7 +2755,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
       // primary slot
       this.equipItem(client, client.character._loadout[7]); //equip fists
     }
-    if (this.getItemDefinition(item.itemDefinitionId).ITEM_TYPE === 34) {
+    if (this.getItemDefinition(itemDefId).ITEM_TYPE === 34) {
       delete client.character._containers[loadoutSlotId];
       this.initializeContainerList(client);
     }
@@ -2790,21 +2786,17 @@ export class ZoneServer2016 extends ZoneServer2015 {
 
   removeInventoryItem(
     client: Client,
-    itemGuid: string,
+    item: inventoryItem,
     count: number = 1
   ): boolean {
     // removes a specific itemGuid from the inventory (containers and loadout)
-    if (!this._items[itemGuid]) return false;
-    const loadoutSlotId = this.getActiveLoadoutSlot(client, itemGuid);
-    if (client.character._loadout[loadoutSlotId]?.itemGuid == itemGuid) {
-      return this.removeLoadoutItem(client, loadoutSlotId);
+    if (client.character._loadout[item.slotId]?.itemGuid == item.itemGuid) {
+      return this.removeLoadoutItem(client, item.slotId);
     } else {
-      const removeItemContainer = this.getItemContainer(client, itemGuid),
-        removeItem = removeItemContainer?.items[itemGuid];
       return this.removeContainerItem(
         client,
-        removeItem,
-        removeItemContainer,
+        item,
+        this.getItemContainer(client, item.itemGuid),
         count
       );
     }
@@ -2870,24 +2862,20 @@ export class ZoneServer2016 extends ZoneServer2015 {
     }
   }
 
-  dropItem(client: Client, itemGuid: string, count: number = 1) {
-    const item = this._items[itemGuid],
-      itemDefinition = this.getItemDefinition(item.itemDefinitionId);
-    const modelId = itemDefinition.WORLD_MODEL_ID;
+  dropItem(client: Client, item: inventoryItem, count: number = 1) {
+    if(!item) {
+      this.containerError(client, 5); // slot does not contain item
+      return;
+    }
+    const itemDefinition = this.getItemDefinition(item.itemDefinitionId),
+    modelId = itemDefinition.WORLD_MODEL_ID;
     if (!modelId) {
       debug(
         `[ERROR] DropItem: No WORLD_MODEL_ID mapped to itemDefinitionId: ${item.itemDefinitionId}`
       );
     }
-
-    let itemStack;
-    const loadoutSlotId = this.getActiveLoadoutSlot(client, itemGuid);
-    if (client.character._loadout[loadoutSlotId]?.itemGuid == itemGuid) {
-      itemStack = client.character._loadout[loadoutSlotId];
-    } else {
-      itemStack = this.getItemContainer(client, itemGuid)?.items[itemGuid];
-    }
-    if (!this.removeInventoryItem(client, itemGuid, count)) return;
+    
+    if (!this.removeInventoryItem(client, item, count)) return;
     this.sendData(client, "Character.DroppedIemNotification", {
       characterId: client.character.characterId,
       itemDefId: item.itemDefinitionId,
@@ -2895,11 +2883,11 @@ export class ZoneServer2016 extends ZoneServer2015 {
     });
 
     let dropItem;
-    if(itemStack?.stackCount == count) {
-      dropItem = itemStack;
+    if(item.stackCount == count) {
+      dropItem = item;
     }
-    else if(itemStack && itemStack.stackCount > count){
-      dropItem = this.generateItem(itemStack.itemDefinitionId, count)
+    else if(item.stackCount > count){
+      dropItem = this.generateItem(item.itemDefinitionId, count)
     }
     else {
       return;
@@ -2997,7 +2985,6 @@ export class ZoneServer2016 extends ZoneServer2015 {
           count: count,
         });
       }
-      //delete this._items[item.itemGuid];
     } else {
       this.addContainerItem(
         client,
@@ -3204,17 +3191,16 @@ export class ZoneServer2016 extends ZoneServer2015 {
       if (client.character._containers[item.slotId]) {
         const container = client.character._containers[item.slotId];
         for (const item of Object.values(container.items)) {
-          this.removeInventoryItem(client, item.itemGuid, item.stackCount);
+          this.removeInventoryItem(client, item, item.stackCount);
         }
       }
-      if (item.slotId != 7) {
-        this.removeInventoryItem(client, item.itemGuid, item.stackCount);
+      if (item.slotId != 7 && item.itemDefinitionId) {
+        this.removeInventoryItem(client, item, item.stackCount);
       }
     }
   }
 
-  eatItem(client: Client, itemGuid: string, nameId: number) {
-    const item = this._items[itemGuid];
+  eatItem(client: Client, item: inventoryItem, nameId: number) {
     let drinkCount = 0;
     let eatCount = 2000;
     let givetrash = 0;
@@ -3241,12 +3227,11 @@ export class ZoneServer2016 extends ZoneServer2015 {
         );
     }
     this.utilizeHudTimer(client, nameId, timeout, () => {
-      this.eatItemPass(client, itemGuid, eatCount, drinkCount, givetrash);
+      this.eatItemPass(client, item, eatCount, drinkCount, givetrash);
     });
   }
 
-  useMedical(client: Client, itemGuid: string, nameId: number) {
-    const item = this._items[itemGuid];
+  useMedical(client: Client, item: inventoryItem, nameId: number) {
     let timeout = 1000;
     let healCount = 9;
     let bandagingCount = 40;
@@ -3274,12 +3259,11 @@ export class ZoneServer2016 extends ZoneServer2015 {
         );
     }
     this.utilizeHudTimer(client, nameId, timeout, () => {
-      this.useMedicalPass(client, itemGuid, healCount, bandagingCount);
+      this.useMedicalPass(client, item, healCount, bandagingCount);
     });
   }
 
-  igniteOption(client: Client, itemGuid: string, nameId: number) {
-    const item = this._items[itemGuid];
+  igniteOption(client: Client, item: inventoryItem, nameId: number) {
     let timeout = 100;
     switch (item.itemDefinitionId) {
       case 1436: // lighter
@@ -3295,12 +3279,11 @@ export class ZoneServer2016 extends ZoneServer2015 {
         );
     }
     this.utilizeHudTimer(client, nameId, timeout, () => {
-      this.igniteoptionPass(client, itemGuid);
+      this.igniteoptionPass(client);
     });
   }
 
-  drinkItem(client: Client, itemGuid: string, nameId: number) {
-    const item = this._items[itemGuid];
+  drinkItem(client: Client, item: inventoryItem, nameId: number) {
     let drinkCount = 2000;
     let eatCount = 0;
     let givetrash = 0;
@@ -3326,13 +3309,13 @@ export class ZoneServer2016 extends ZoneServer2015 {
         );
     }
     this.utilizeHudTimer(client, nameId, timeout, () => {
-      this.drinkItemPass(client, itemGuid, eatCount, drinkCount, givetrash);
+      this.drinkItemPass(client, item, eatCount, drinkCount, givetrash);
     });
   }
 
-  fillPass(client: Client, itemGuid: string) {
+  fillPass(client: Client, item: inventoryItem) {
     if (client.character.characterStates.inWater) {
-      this.removeInventoryItem(client, itemGuid, 1);
+      this.removeInventoryItem(client, item, 1);
       this.lootContainerItem(client, this.generateItem(1368), 1); // give dirty water
     } else {
       this.sendData(client, "ClientUpdate.TextAlert", {
@@ -3341,15 +3324,14 @@ export class ZoneServer2016 extends ZoneServer2015 {
     }
   }
 
-  sniffPass(client: Client, itemGuid: string) {
-    this.removeInventoryItem(client, itemGuid, 1);
+  sniffPass(client: Client, item: inventoryItem) {
+    this.removeInventoryItem(client, item, 1);
     this.applyMovementModifier(client, 1.15, "swizzle");
   }
 
-  useItem(client: Client, itemGuid: string) {
-    const item = this._items[itemGuid],
-      itemDefinition = this.getItemDefinition(item.itemDefinitionId);
-    const nameId = itemDefinition.NAME_ID;
+  useItem(client: Client, item: inventoryItem) {
+    const itemDefinition = this.getItemDefinition(item.itemDefinitionId),
+    nameId = itemDefinition.NAME_ID;
     let useoption = "";
     let timeout = 1000;
     switch (item.itemDefinitionId) {
@@ -3370,22 +3352,21 @@ export class ZoneServer2016 extends ZoneServer2015 {
     switch (useoption) {
       case "fill": // empty bottle
         this.utilizeHudTimer(client, nameId, timeout, () => {
-          this.fillPass(client, itemGuid);
+          this.fillPass(client, item);
         });
         break;
       case "sniff": // swizzle
         this.utilizeHudTimer(client, nameId, timeout, () => {
-          this.sniffPass(client, itemGuid);
+          this.sniffPass(client, item);
         });
         break;
       default:
         return;
     }
   }
-  refuelVehicle(client: Client, itemGuid: string, vehicleGuid: string) {
-    const item = this._items[itemGuid],
-      itemDefinition = this.getItemDefinition(item.itemDefinitionId);
-    const nameId = itemDefinition.NAME_ID;
+  refuelVehicle(client: Client, item: inventoryItem, vehicleGuid: string) {
+    const itemDefinition = this.getItemDefinition(item.itemDefinitionId),
+    nameId = itemDefinition.NAME_ID;
     let timeout = 5000;
     let fuelValue = 2500;
     switch (item.itemDefinitionId) {
@@ -3396,18 +3377,18 @@ export class ZoneServer2016 extends ZoneServer2015 {
         break;
     }
     this.utilizeHudTimer(client, nameId, timeout, () => {
-      this.refuelVehiclePass(client, itemGuid, vehicleGuid, fuelValue);
+      this.refuelVehiclePass(client, item, vehicleGuid, fuelValue);
     });
   }
 
-  shredItem(client: Client, itemGuid: string) {
+  shredItem(client: Client, item: inventoryItem) {
     const itemDefinition = this.getItemDefinition(
-      this._items[itemGuid].itemDefinitionId
-    );
-    const nameId = itemDefinition.NAME_ID;
-    const itemType = itemDefinition.ITEM_TYPE;
-    let count = 1;
-    let timeout = 3000;
+      item.itemDefinitionId
+    ),
+    nameId = itemDefinition.NAME_ID,
+    itemType = itemDefinition.ITEM_TYPE;
+    let count = 1,
+    timeout = 3000;
     switch (itemType) {
       case 36:
       case 39:
@@ -3420,18 +3401,18 @@ export class ZoneServer2016 extends ZoneServer2015 {
         this.sendChatText(client, "[ERROR] Unknown salvage item or count.");
     }
     this.utilizeHudTimer(client, nameId, timeout, () => {
-      this.shredItemPass(client, itemGuid, count);
+      this.shredItemPass(client, item, count);
     });
   }
 
   drinkItemPass(
     client: Client,
-    itemGuid: string,
+    item: inventoryItem,
     eatCount: number,
     drinkCount: number,
     givetrash: number
   ) {
-    this.removeInventoryItem(client, itemGuid, 1);
+    this.removeInventoryItem(client, item, 1);
     client.character.resources.food += eatCount;
     client.character.resources.water += drinkCount;
     const { food, water } = client.character.resources;
@@ -3444,12 +3425,12 @@ export class ZoneServer2016 extends ZoneServer2015 {
 
   eatItemPass(
     client: Client,
-    itemGuid: string,
+    item: inventoryItem,
     eatCount: number,
     drinkCount: number,
     givetrash: number
   ) {
-    this.removeInventoryItem(client, itemGuid, 1);
+    this.removeInventoryItem(client, item, 1);
     client.character.resources.food += eatCount;
     client.character.resources.water += drinkCount;
     const { food, water } = client.character.resources;
@@ -3460,7 +3441,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
     }
   }
 
-  igniteoptionPass(client: Client, itemGuid: string) {
+  igniteoptionPass(client: Client) {
     for (const a in this._explosives) {
       if (
         isPosInRadius(
@@ -3476,7 +3457,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
 
   useMedicalPass(
     client: Client,
-    itemGuid: string,
+    item: inventoryItem,
     healCount: number,
     bandagingCount: number
   ) {
@@ -3493,16 +3474,16 @@ export class ZoneServer2016 extends ZoneServer2015 {
       21,
       21
     );
-    this.removeInventoryItem(client, itemGuid, 1);
+    this.removeInventoryItem(client, item, 1);
   }
 
   refuelVehiclePass(
     client: Client,
-    itemGuid: string,
+    item: inventoryItem,
     vehicleGuid: string,
     fuelValue: number
   ) {
-    this.removeInventoryItem(client, itemGuid, 1);
+    this.removeInventoryItem(client, item, 1);
     const vehicle = this._vehicles[vehicleGuid];
     vehicle.npcData.resources.fuel += fuelValue;
     if (vehicle.npcData.resources.fuel > 10000) {
@@ -3517,8 +3498,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
     );
   }
 
-  shredItemPass(client: Client, itemGuid: string, count: number) {
-    this.removeInventoryItem(client, itemGuid, 1);
+  shredItemPass(client: Client, item: inventoryItem, count: number) {
+    this.removeInventoryItem(client, item, 1);
     this.lootItem(client, this.generateItem(23), count);
   }
 
@@ -3691,7 +3672,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
       }
     } else {
       if (character._equipment["5"].guid) {
-        const item = this._items[character._equipment["5"].guid];
+        const item = this.getInventoryItem(client, character._equipment["5"].guid);
+        if(!item) return;
         const itemDef = this.getItemDefinition(item.itemDefinitionId);
         if (itemDef.NAME.includes("Conveys") && !character.hasConveys) {
           character.hasConveys = true;

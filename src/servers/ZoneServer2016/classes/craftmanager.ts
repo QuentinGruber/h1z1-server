@@ -171,7 +171,7 @@ export class CraftManager {
       for (const item of inventory[component.itemDefinitionId]) {
         if (item.stackCount >= remainingItems) {
           if (
-            !server.removeInventoryItem(client, item.itemGuid, remainingItems)
+            !server.removeInventoryItem(client, item, remainingItems)
           ) {
             server.containerError(client, 5); // slot does not contain item
             return false; // return if not enough items
@@ -179,7 +179,7 @@ export class CraftManager {
           remainingItems = 0;
         } else {
           if (
-            server.removeInventoryItem(client, item.itemGuid, item.stackCount)
+            server.removeInventoryItem(client, item, item.stackCount)
           ) {
             remainingItems -= item.stackCount;
           } else {
