@@ -2614,10 +2614,10 @@ export class ZoneServer2016 extends ZoneServer2015 {
   getEquipmentSlot(client: Client, item: inventoryItem): number {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     if(!itemDef) return 0;
-    if(client.character.equipment[itemDef.ACTIVE_EQUIP_SLOT_ID]?.guid == item.itemGuid) {
+    if(client.character._equipment[itemDef.ACTIVE_EQUIP_SLOT_ID]?.guid == item.itemGuid) {
       return itemDef.ACTIVE_EQUIP_SLOT_ID
     }
-    else if(client.character.equipment[itemDef.PASSIVE_EQUIP_SLOT_ID]?.guid == item.itemGuid) {
+    else if(client.character._equipment[itemDef.PASSIVE_EQUIP_SLOT_ID]?.guid == item.itemGuid) {
       return itemDef.PASSIVE_EQUIP_SLOT_ID;
     }
     return 0;
@@ -2744,7 +2744,6 @@ export class ZoneServer2016 extends ZoneServer2015 {
     this.deleteItem(client, item.itemGuid);
     // TODO: add logic for checking if loadout item has an equipment slot, ex. radio doesn't have one
     const equipmentSlotId = this.getEquipmentSlot(client, item);
-    
     this.clearLoadoutSlot(client, loadoutSlotId);
     delete client.character._equipment[equipmentSlotId];
     this.updateLoadout(client);
