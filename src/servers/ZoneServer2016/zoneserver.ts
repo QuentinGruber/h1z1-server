@@ -2897,7 +2897,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
     if(itemStack?.stackCount == count) {
       dropItem = itemStack;
     }
-    else if(itemStack && itemStack?.stackCount > count){
+    else if(itemStack && itemStack.stackCount > count){
       dropItem = this.generateItem(itemStack.itemDefinitionId, count)
     }
     else {
