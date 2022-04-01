@@ -1384,10 +1384,7 @@ export class zonePacketHandlers {
           );
           break;
         case 60: //equip item
-          if(server.getActiveLoadoutSlot(client, itemGuid)) {
-            server.sendChatText(client, "[ERROR] Item is already equipped!");
-            return;
-          }
+          const activeLoadoutSlot = server.getActiveLoadoutSlot(client, itemGuid);
           let loadoutSlotId = 
             server.getAvailableLoadoutSlot(
               client, 
@@ -1397,17 +1394,45 @@ export class zonePacketHandlers {
             loadoutSlotId = server.getLoadoutSlot(server._items[itemGuid]?.itemDefinitionId);
           }
           const container = server.getItemContainer(client, itemGuid);
-
-          if (!container) {
-            server.containerError(client, 3) // unknown container
-            return;
+          if(server.isWeaponLoadoutSlot(loadoutSlotId)) {
+            if(container) {
+              const item = container.items[itemGuid];
+              if (!item) {
+                server.containerError(client, 5); // slot does not contain item
+                return;
+              }
+              server.equipContainerItem(client, item, loadoutSlotId);
+            }
+            else {
+              const activeSlotId = server.getActiveLoadoutSlot(client, itemGuid);
+              if(!activeSlotId) {
+                server.containerError(client, 3) // unknown container
+                return;
+              }
+              const loadoutItem = client.character._loadout[activeSlotId];
+              if (!loadoutItem || !server.removeLoadoutItem(client, activeSlotId)) {
+                server.containerError(client, 5); // slot does not contain item
+                return;
+              }
+              server.equipItem(client, loadoutItem, true, loadoutSlotId);
+            }
           }
-          const item = container.items[itemGuid];
-          if (!item) {
-            server.containerError(client, 5); // slot does not contain item
-            return;
+          else {
+            if(activeLoadoutSlot) {
+              server.sendChatText(client, "[ERROR] Item is already equipped!");
+              return;
+            }
+            if (!container) {
+              server.containerError(client, 3) // unknown container
+              return;
+            }
+            const item = container.items[itemGuid];
+            if (!item) {
+              server.containerError(client, 5); // slot does not contain item
+              return;
+            }
+            server.equipContainerItem(client, item, loadoutSlotId);
           }
-          server.equipContainerItem(client, item, loadoutSlotId);
           break;
         case 6: // shred
           server.shredItem(client, itemGuid);
@@ -1808,8 +1833,7 @@ export class zonePacketHandlers {
                 npc.modelId = 1974;
                 server.worldObjectManager.createLootEntity(
                   server,
-                  1415,
-                  1,
+                  server.generateItem(1415),
                   npc.position,
                   npc.rotation,
                   15
@@ -1975,16 +1999,13 @@ export class zonePacketHandlers {
               if(!server.validateLoadoutSlot(server._items[itemGuid].itemDefinitionId, newSlotId)) {
                 return;
               }
-              if (
-                !server.removeLoadoutItem(
-                  client,
-                  server.getActiveLoadoutSlot(client, itemGuid)
-                )
-              ) {
+              const oldLoadoutSlot = server.getActiveLoadoutSlot(client, itemGuid),
+              loadoutItem = client.character._loadout[oldLoadoutSlot];
+              if (!server.removeLoadoutItem(client, oldLoadoutSlot)) {
                 server.containerError(client, 5); // slot does not contain item
                 return;
               }
-              server.equipItem(client, itemGuid, true, newSlotId);
+              server.equipItem(client, loadoutItem, true, newSlotId);
             }
             else { // invalid
               server.containerError(client, 3); // unknown container
