@@ -4,24 +4,8 @@
     "name": "Basic H1emu spawn",
     "position": [
       0,
-      50,
+      20,
       0,
-      1
-    ],
-    "rotation": [
-      0,
-      0,
-      0,
-      1
-    ]
-  },
-  {
-    "id": 1,
-    "name": "Top radio",
-    "position": [
-      -1514.17,
-      406.87,
-      -842.29,
       1
     ],
     "rotation": [
@@ -211,9 +195,9 @@
     "id": 13,
     "name": "Lower Dam water",
     "position": [
-      -410.47,
-      37.28,
-      952.96,
+      -404.94,
+      36.00,
+      956.72,
       1
     ],
     "rotation": [
