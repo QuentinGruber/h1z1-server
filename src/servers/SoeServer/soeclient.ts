@@ -41,6 +41,7 @@ export default class SOEClient {
   waitQueueTimer: any;
   waitingQueueCurrentByteLength: number = 0;
   soeClientId: string;
+  lastPingTimer!: NodeJS.Timeout;
   constructor(
     remote: RemoteInfo,
     crcSeed: number,

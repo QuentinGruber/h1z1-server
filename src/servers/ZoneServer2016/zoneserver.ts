@@ -69,6 +69,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
   _ready: boolean = false;
   _itemDefinitions: { [itemDefinitionId: number]: any } = itemDefinitions;
   _itemDefinitionIds: any[] = Object.keys(this._itemDefinitions);
+  itemDefinitionsCache: any;
   _containerDefinitions: { [containerDefinitionId: number]: any } =
     containerDefinitions;
   _containerDefinitionIds: any[] = Object.keys(this._containerDefinitions);
@@ -369,7 +370,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
               guid: slot.itemGuid,
               count: 1, // also ammoCount
               itemSubData: {
-                hasSubData: false
+                hasSubData: false,
               },
               containerGuid: slot.containerGuid,
               containerDefinitionId: 101, // loadout containerDefinitionId
@@ -462,30 +463,11 @@ export class ZoneServer2016 extends ZoneServer2015 {
       },
     });
 
-    this.sendData(client, "Command.ItemDefinitions", {
-      // sends full list of item definitions
-      data: {
-        itemDefinitions: this._itemDefinitionIds.map((itemDefId: any) => {
-          const itemDef = this.getItemDefinition(itemDefId);
-          return {
-            ID: itemDefId,
-            definitionData: {
-              ...itemDef,
-              HUD_IMAGE_SET_ID: itemDef.IMAGE_SET_ID,
-              containerDefinitionId:
-                itemDef.ITEM_TYPE == 34 ? itemDef.PARAM1 : 0,
-              flags1: {
-                ...itemDef,
-              },
-              flags2: {
-                ...itemDef,
-              },
-              stats: [],
-            },
-          };
-        }),
-      },
-    });
+    if (!this.itemDefinitionsCache) {
+      this.packItemDefinitions();
+    }
+    this.sendRawData(client, this.itemDefinitionsCache);
+
     this.sendData(client, "Container.InitEquippedContainers", {
       ignore: client.character.characterId,
       characterId: client.character.characterId,
@@ -497,7 +479,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
   async fetchZoneData(): Promise<void> {
     if (this._mongoAddress) {
       const mongoClient = (this._mongoClient = new MongoClient(
-        this._mongoAddress,{maxPoolSize:10}
+        this._mongoAddress,
+        { maxPoolSize: 50 }
       ));
       try {
         await mongoClient.connect();
@@ -646,6 +629,34 @@ export class ZoneServer2016 extends ZoneServer2015 {
     }
   }
 
+  packItemDefinitions() {
+    this.itemDefinitionsCache = this._protocol.pack("Command.ItemDefinitions", {
+      // cache itemDefinitions so server doesn't have to spend time packing for each
+      // character login
+      data: {
+        itemDefinitions: this._itemDefinitionIds.map((itemDefId: any) => {
+          const itemDef = this.getItemDefinition(itemDefId);
+          return {
+            ID: itemDefId,
+            definitionData: {
+              ...itemDef,
+              HUD_IMAGE_SET_ID: itemDef.IMAGE_SET_ID,
+              containerDefinitionId:
+                itemDef.ITEM_TYPE == 34 ? itemDef.PARAM1 : 0,
+              flags1: {
+                ...itemDef,
+              },
+              flags2: {
+                ...itemDef,
+              },
+              stats: [],
+            },
+          };
+        }),
+      },
+    });
+  }
+
   async setupServer(): Promise<void> {
     this.forceTime(971172000000); // force day time by default - not working for now
     this._frozeCycle = false;
@@ -661,6 +672,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
         .insertOne({ worldId: this._worldId });
       await this.saveWorld();
     }
+
+    this.packItemDefinitions();
 
     // other entities are handled by worldRoutine
     this.worldObjectManager.createDoors(this);
@@ -707,7 +720,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
         this._dynamicWeatherWorker.refresh();
       }, 360000 / this._timeMultiplier);
     }
-    this._gatewayServer.start(true); // SET TO TRUE OR ELSE MULTIPLAYER PACKETS ARE BROKEN
+    this._gatewayServer.start();
     this.worldRoutineTimer = setTimeout(
       () => this.worldRoutine.bind(this)(true),
       this.tickRate
@@ -801,7 +814,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
     const character = client.character;
     if (character.isAlive) {
       debug(character.name + " has died");
-      client.character.isRunning = false
+      client.character.isRunning = false;
       client.character.characterStates.knockedOut = true;
       this.updateCharacterState(
         client,
@@ -1022,8 +1035,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
       "Character.Destroyed",
       {
         characterId: vehicle.npcData.characterId,
-        unknown1: destroyedVehicleEffect, 
-        unknown2: destroyedVehicleModel, 
+        unknown1: destroyedVehicleEffect,
+        unknown2: destroyedVehicleModel,
         unknown3: 0,
         disableWeirdPhysics: false,
       }
@@ -1039,7 +1052,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
     }
     this.deleteEntity(vehicle.npcData.characterId, this._vehicles);
   }
-  
+
   startVehicleDamageDelay(vehicle: Vehicle) {
     vehicle.damageTimeout = setTimeout(() => {
       this.damageVehicle(1000, vehicle);
@@ -1115,7 +1128,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
       5,
       5
     );
-    this.initializeContainerList(client)
+    this.initializeContainerList(client);
   }
 
   speedTreeDestroy(packet: any) {
@@ -1947,6 +1960,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
   mountVehicle(client: Client, vehicleGuid: string): void {
     const vehicle = this._vehicles[vehicleGuid];
     if (!vehicle) return;
+    client.character.isRunning = false; // maybe some async stuff make this useless need to test that
     client.vehicle.mountedVehicle = vehicle.npcData.characterId;
     switch (vehicle.npcData.vehicleId) {
       case 1:
@@ -2318,11 +2332,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
     );
   }
 
-  addItem(
-    client: Client,
-    item: inventoryItem,
-    containerDefinitionId: number
-  ) {
+  addItem(client: Client, item: inventoryItem, containerDefinitionId: number) {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     this.sendData(client, "ClientUpdate.ItemAdd", {
       characterId: client.character.characterId,
@@ -2364,25 +2374,25 @@ export class ZoneServer2016 extends ZoneServer2015 {
     }
     // equips item only without checking if another item
     const equipmentSlotId = this.getEquipmentSlot(loadoutSlotId),
-    loadoutData: loadoutItem = {
-      itemDefinitionId: def.ID,
-      slotId: loadoutSlotId,
-      itemGuid: item.guid,
-      containerGuid: "0xFFFFFFFFFFFFFFFF",
-      currentDurability: 2000,
-      stackCount: 1,
-      loadoutItemOwnerGuid: client.character.characterId,
-    },
-    equipmentData: characterEquipment = {
-      modelName: def.MODEL_NAME.replace(
-        "<gender>",
-        client.character.gender == 1 ? "Male" : "Female"
-      ),
-      slotId: equipmentSlotId,
-      guid: item.guid,
-      textureAlias: def.TEXTURE_ALIAS,
-      tintAlias: "",
-    };
+      loadoutData: loadoutItem = {
+        itemDefinitionId: def.ID,
+        slotId: loadoutSlotId,
+        itemGuid: item.guid,
+        containerGuid: "0xFFFFFFFFFFFFFFFF",
+        currentDurability: 2000,
+        stackCount: 1,
+        loadoutItemOwnerGuid: client.character.characterId,
+      },
+      equipmentData: characterEquipment = {
+        modelName: def.MODEL_NAME.replace(
+          "<gender>",
+          client.character.gender == 1 ? "Male" : "Female"
+        ),
+        slotId: equipmentSlotId,
+        guid: item.guid,
+        textureAlias: def.TEXTURE_ALIAS,
+        tintAlias: "",
+      };
 
     client.character._loadout[loadoutSlotId] = loadoutData;
     client.character._equipment[equipmentSlotId] = equipmentData;
@@ -2409,7 +2419,11 @@ export class ZoneServer2016 extends ZoneServer2015 {
     this.updateEquipmentSlot(client, equipmentSlotId);
   }
 
-  equipInventoryItem(client: Client, itemGuid: string = "", sendPacket: boolean = true) {
+  equipInventoryItem(
+    client: Client,
+    itemGuid: string = "",
+    sendPacket: boolean = true
+  ) {
     if (!itemGuid) {
       debug("[ERROR] EquipInventoryItem: ItemGuid is blank!");
       return;
@@ -2422,30 +2436,30 @@ export class ZoneServer2016 extends ZoneServer2015 {
       );
       return;
     }
-    
+
     const oldLoadoutItem = client.character._loadout[loadoutSlotId],
       container = this.getItemContainer(client, itemGuid),
       containerItem = container?.items[itemGuid];
-    if(!oldLoadoutItem && !container || !containerItem) {
+    if ((!oldLoadoutItem && !container) || !containerItem) {
       this.containerError(client, 3); // unknown container
       return;
     }
-    if (oldLoadoutItem) { // if target loadoutSlot is occupied
+    if (oldLoadoutItem) {
+      // if target loadoutSlot is occupied
       if (oldLoadoutItem.itemGuid == itemGuid) {
         this.sendChatText(client, "[ERROR] Item is already equipped!");
         return;
       }
       // remove item from inventory and equip item
-      if(!this.removeContainerItem(client, containerItem, container, 1)) {
+      if (!this.removeContainerItem(client, containerItem, container, 1)) {
         this.containerError(client, 5); // slot does not contain item
-      return;
-    }
-    this.lootContainerItem(client, oldLoadoutItem.itemGuid, 1, false);
+        return;
+      }
+      this.lootContainerItem(client, oldLoadoutItem.itemGuid, 1, false);
       this.equipItem(client, itemGuid, sendPacket);
-    }
-    else {
+    } else {
       // remove item from inventory and equip item
-      if(!this.removeContainerItem(client, containerItem, container, 1)) {
+      if (!this.removeContainerItem(client, containerItem, container, 1)) {
         this.containerError(client, 5); // slot does not contain item
         return;
       }
@@ -2457,18 +2471,23 @@ export class ZoneServer2016 extends ZoneServer2015 {
     return this._itemDefinitions[itemDefinitionId];
   }
 
-  getContainerHasSpace(container: loadoutContainer, itemDefinitionId: number, count: number): boolean {
-    return !!(this.getContainerDefinition(container.containerDefinitionId).MAX_BULK - 
-      (
-        this.getContainerBulk(container) + 
-        (
-          this.getItemDefinition(itemDefinitionId).BULK * count
-        )
-      )
-      >= 0)
+  getContainerHasSpace(
+    container: loadoutContainer,
+    itemDefinitionId: number,
+    count: number
+  ): boolean {
+    return !!(
+      this.getContainerDefinition(container.containerDefinitionId).MAX_BULK -
+        (this.getContainerBulk(container) +
+          this.getItemDefinition(itemDefinitionId).BULK * count) >=
+      0
+    );
   }
 
-  getContainerFromGuid(client: Client, containerGuid: string): loadoutContainer | undefined {
+  getContainerFromGuid(
+    client: Client,
+    containerGuid: string
+  ): loadoutContainer | undefined {
     for (const container of Object.values(client.character._containers)) {
       if (container.itemGuid == containerGuid) {
         return container;
@@ -2478,11 +2497,12 @@ export class ZoneServer2016 extends ZoneServer2015 {
   }
 
   getContainerDefinition(containerDefinitionId: any) {
-    if(this._containerDefinitions[containerDefinitionId]) {
+    if (this._containerDefinitions[containerDefinitionId]) {
       return this._containerDefinitions[containerDefinitionId];
-    }
-    else {
-      debug(`Tried to get containerDefinition for invalid containerDefinitionId ${containerDefinitionId}`);
+    } else {
+      debug(
+        `Tried to get containerDefinition for invalid containerDefinitionId ${containerDefinitionId}`
+      );
       return this._containerDefinitions[119];
     }
   }
@@ -2508,7 +2528,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
   getLoadoutSlot(itemDefinitionId: number, loadoutId: number = 3) {
     const loadoutSlotItemClass = loadoutSlotItemClasses.find(
       (slot: any) =>
-        slot.ITEM_CLASS === this.getItemDefinition(itemDefinitionId).ITEM_CLASS &&
+        slot.ITEM_CLASS ===
+          this.getItemDefinition(itemDefinitionId).ITEM_CLASS &&
         loadoutId === slot.LOADOUT_ID
     );
     return loadoutSlotItemClass ? loadoutSlotItemClass.SLOT : 0;
@@ -2522,7 +2543,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
   getContainerBulk(container: loadoutContainer): number {
     let bulk = 0;
     for (const item of Object.values(container.items)) {
-      bulk += this.getItemDefinition(item.itemDefinitionId).BULK * item.stackCount;
+      bulk +=
+        this.getItemDefinition(item.itemDefinitionId).BULK * item.stackCount;
     }
     return bulk;
   }
@@ -2533,12 +2555,18 @@ export class ZoneServer2016 extends ZoneServer2015 {
     count: number
   ): loadoutContainer | undefined {
     // returns the first container that has enough space to store count * itemDefinitionId bulk
-    
+
     const itemDef = this.getItemDefinition(itemDefinitionId);
     for (const container of Object.values(client.character._containers)) {
-      const containerItemDef = this.getItemDefinition(container?.itemDefinitionId),
-      containerDef = this.getContainerDefinition(containerItemDef?.PARAM1)
-      if(container && containerDef?.MAX_BULK >= (this.getContainerBulk(container) + (itemDef.BULK * count))){
+      const containerItemDef = this.getItemDefinition(
+          container?.itemDefinitionId
+        ),
+        containerDef = this.getContainerDefinition(containerItemDef?.PARAM1);
+      if (
+        container &&
+        containerDef?.MAX_BULK >=
+          this.getContainerBulk(container) + itemDef.BULK * count
+      ) {
         return container;
       }
     }
@@ -2584,7 +2612,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
         this.getItemDefinition(item.itemDefinitionId).MAX_STACK_SIZE >=
           item.stackCount + count
       ) {
-        if(!slotId || slotId==item.slotId){
+        if (!slotId || slotId == item.slotId) {
           return item.itemGuid;
         }
       }
@@ -2611,7 +2639,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
 
   removeLoadoutItem(client: Client, loadoutSlotId: number): boolean {
     const item = client.character._loadout[loadoutSlotId];
-    if(!item) return false;
+    if (!item) return false;
     this.deleteItem(client, item.itemGuid);
     // TODO: add logic for checking if loadout item has an equipment slot, ex. radio doesn't have one
     const equipmentSlotId = this.getEquipmentSlot(loadoutSlotId);
@@ -2636,27 +2664,24 @@ export class ZoneServer2016 extends ZoneServer2015 {
   }
 
   removeContainerItem(
-    client: Client, 
-    item: inventoryItem | undefined, 
-    container: loadoutContainer | undefined, 
+    client: Client,
+    item: inventoryItem | undefined,
+    container: loadoutContainer | undefined,
     count: number
-  ): boolean {// removes a specific itemGuid from a specified container
+  ): boolean {
+    // removes a specific itemGuid from a specified container
     if (!container || !item) return false;
     if (item.stackCount == count) {
       delete container.items[item.itemGuid];
       this.deleteItem(client, item.itemGuid);
     } else if (item.stackCount > count) {
       item.stackCount -= count;
-      this.updateContainerItem(
-        client,
-        item,
-        container
-      );
+      this.updateContainerItem(client, item, container);
     } else {
       // if count > removeItem.stackCount
       return false;
     }
-    this.updateContainer(client, container)
+    this.updateContainer(client, container);
     return true;
   }
 
@@ -2664,18 +2689,23 @@ export class ZoneServer2016 extends ZoneServer2015 {
     client: Client,
     itemGuid: string,
     count: number = 1
-  ): boolean {// removes a specific itemGuid from the inventory (containers and loadout)
+  ): boolean {
+    // removes a specific itemGuid from the inventory (containers and loadout)
     if (!this._items[itemGuid]) return false;
     const item = this._items[itemGuid],
       itemDefinition = this.getItemDefinition(item.itemDefinitionId),
       loadoutSlotId = this.getLoadoutSlot(itemDefinition.ID);
     if (client.character._loadout[loadoutSlotId]?.itemGuid == itemGuid) {
       return this.removeLoadoutItem(client, loadoutSlotId);
-    }
-    else {
+    } else {
       const removeItemContainer = this.getItemContainer(client, itemGuid),
-      removeItem = removeItemContainer?.items[itemGuid];
-      return this.removeContainerItem(client, removeItem, removeItemContainer, count)
+        removeItem = removeItemContainer?.items[itemGuid];
+      return this.removeContainerItem(
+        client,
+        removeItem,
+        removeItemContainer,
+        count
+      );
     }
   }
 
@@ -2683,40 +2713,54 @@ export class ZoneServer2016 extends ZoneServer2015 {
     client: Client,
     itemDefinitionId: number,
     requiredCount: number = 1
-  ): boolean {// removes x amount of items between multiple stacks, containers, and loadout
+  ): boolean {
+    // removes x amount of items between multiple stacks, containers, and loadout
     const loadoutSlotId = this.getLoadoutSlot(itemDefinitionId);
-    if (client.character._loadout[loadoutSlotId]?.itemDefinitionId == itemDefinitionId) {
+    if (
+      client.character._loadout[loadoutSlotId]?.itemDefinitionId ==
+      itemDefinitionId
+    ) {
       // todo: check multiple loadout slots for items
       return this.removeLoadoutItem(client, loadoutSlotId);
-    }
-    else {
-      let removeItems: {container: loadoutContainer, item: inventoryItem, count: number}[] = [];
-      for(const container of Object.values(client.character._containers)) {
-        console.log(`container: ${container.slotId}`)
-        if(!requiredCount) break;
-        for(const item of Object.values(container.items)) {
-          if(item.itemDefinitionId == itemDefinitionId) {
-            console.log(`item: ${item.itemGuid}`)
-            if(item.stackCount >= requiredCount) {
-              console.log("stack 1")
-              removeItems.push({container, item, count: requiredCount});
+    } else {
+      let removeItems: {
+        container: loadoutContainer;
+        item: inventoryItem;
+        count: number;
+      }[] = [];
+      for (const container of Object.values(client.character._containers)) {
+        console.log(`container: ${container.slotId}`);
+        if (!requiredCount) break;
+        for (const item of Object.values(container.items)) {
+          if (item.itemDefinitionId == itemDefinitionId) {
+            console.log(`item: ${item.itemGuid}`);
+            if (item.stackCount >= requiredCount) {
+              console.log("stack 1");
+              removeItems.push({ container, item, count: requiredCount });
               requiredCount = 0;
               break;
-            }
-            else {
-              console.log("stack 2")
-              removeItems.push({container, item, count: item.stackCount});
+            } else {
+              console.log("stack 2");
+              removeItems.push({ container, item, count: item.stackCount });
               requiredCount -= item.stackCount;
             }
           }
         }
       }
-      if(requiredCount) {// missing some items
+      if (requiredCount) {
+        // missing some items
         return false;
       }
-      for(const itemStack of Object.values(removeItems)) {
+      for (const itemStack of Object.values(removeItems)) {
         console.log(itemStack);
-        if(!this.removeContainerItem(client, itemStack.item, itemStack.container, itemStack.count)){
+        if (
+          !this.removeContainerItem(
+            client,
+            itemStack.item,
+            itemStack.container,
+            itemStack.count
+          )
+        ) {
           return false;
         }
       }
@@ -2759,10 +2803,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
   lootItem(client: Client, itemGuid: string | undefined, count: number) {
     if (!itemGuid) return;
     const itemDefId = this._items[itemGuid].itemDefinitionId,
-    itemDef = this.getItemDefinition(itemDefId);
-    if (itemDef.FLAG_CAN_EQUIP && 
-    this.getLoadoutSlot(itemDefId)
-    ) {
+      itemDef = this.getItemDefinition(itemDefId);
+    if (itemDef.FLAG_CAN_EQUIP && this.getLoadoutSlot(itemDefId)) {
       if (client.character._loadout[this.getLoadoutSlot(itemDefId)]) {
         this.lootContainerItem(client, itemGuid, count);
       } else {
@@ -2772,7 +2814,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
           count: count,
         });
         this.equipItem(client, itemGuid);
-        if(itemDef.ITEM_TYPE === 34) {
+        if (itemDef.ITEM_TYPE === 34) {
           this.initializeContainerList(client);
         }
       }
@@ -2814,8 +2856,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
     if (!availableContainer) {
       // container error full
       this.sendData(client, "Character.NoSpaceNotification", {
-        characterId: client.character.characterId
-      })
+        characterId: client.character.characterId,
+      });
       this.worldObjectManager.createLootEntity(
         this,
         this._items[itemGuid].itemDefinitionId,
@@ -2866,48 +2908,52 @@ export class ZoneServer2016 extends ZoneServer2015 {
   }
 
   initializeContainerList(client: Client, sendPacket: boolean = true) {
-    const containers = Object.values(client.character._containers).map((container)=> {
-      const containerDefinition = this.getContainerDefinition(container.containerDefinitionId);
-      return {
-        loadoutSlotId: container.slotId,
-        containerData: {
-          guid: container.itemGuid,
-          definitionId: container.containerDefinitionId,
-          associatedCharacterId: client.character.characterId,
-          slots: containerDefinition.MAXIMUM_SLOTS,
-          items: Object.values(container.items).map((item, idx)=> {
-            container.items[item.itemGuid].slotId = idx+1;
-            return {
-              itemDefinitionId: item.itemDefinitionId,
-              itemData: {
+    const containers = Object.values(client.character._containers).map(
+      (container) => {
+        const containerDefinition = this.getContainerDefinition(
+          container.containerDefinitionId
+        );
+        return {
+          loadoutSlotId: container.slotId,
+          containerData: {
+            guid: container.itemGuid,
+            definitionId: container.containerDefinitionId,
+            associatedCharacterId: client.character.characterId,
+            slots: containerDefinition.MAXIMUM_SLOTS,
+            items: Object.values(container.items).map((item, idx) => {
+              container.items[item.itemGuid].slotId = idx + 1;
+              return {
                 itemDefinitionId: item.itemDefinitionId,
-                tintId: 5,
-                guid: item.itemGuid,
-                count: item.stackCount,
-                itemSubData: {
-                  hasSubData: false,
+                itemData: {
+                  itemDefinitionId: item.itemDefinitionId,
+                  tintId: 5,
+                  guid: item.itemGuid,
+                  count: item.stackCount,
+                  itemSubData: {
+                    hasSubData: false,
+                  },
+                  containerGuid: container.itemGuid,
+                  containerDefinitionId: container.containerDefinitionId,
+                  containerSlotId: item.slotId,
+                  baseDurability: 2000,
+                  currentDurability: item.currentDurability,
+                  maxDurabilityFromDefinition: 2000,
+                  unknownBoolean1: true,
+                  unknownQword3: client.character.characterId,
+                  unknownDword9: 1,
                 },
-                containerGuid: container.itemGuid,
-                containerDefinitionId: container.containerDefinitionId,
-                containerSlotId: item.slotId,
-                baseDurability: 2000,
-                currentDurability: item.currentDurability,
-                maxDurabilityFromDefinition: 2000,
-                unknownBoolean1: true,
-                unknownQword3: client.character.characterId,
-                unknownDword9: 1,
-              }
-            }
-          }),
-          unknownBoolean1: true,// needs to be true or bulk doesn't show up
-          maxBulk: containerDefinition.MAX_BULK,
-          unknownDword4: 28,
-          bulkUsed: this.getContainerBulk(container),
-          hasBulkLimit: !!containerDefinition.MAX_BULK,
-        }
+              };
+            }),
+            unknownBoolean1: true, // needs to be true or bulk doesn't show up
+            maxBulk: containerDefinition.MAX_BULK,
+            unknownDword4: 28,
+            bulkUsed: this.getContainerBulk(container),
+            hasBulkLimit: !!containerDefinition.MAX_BULK,
+          },
+        };
       }
-    })
-    if(sendPacket){
+    );
+    if (sendPacket) {
       this.sendData(client, "Container.InitEquippedContainers", {
         ignore: client.character.characterId,
         characterId: client.character.characterId,
@@ -2918,8 +2964,10 @@ export class ZoneServer2016 extends ZoneServer2015 {
   }
 
   updateContainer(client: Client, container: loadoutContainer | undefined) {
-    if(!container) return;
-    const containerDefinition = this.getContainerDefinition(container.containerDefinitionId);
+    if (!container) return;
+    const containerDefinition = this.getContainerDefinition(
+      container.containerDefinitionId
+    );
     this.sendData(client, "Container.UpdateEquippedContainer", {
       ignore: client.character.characterId,
       characterId: client.character.characterId,
@@ -2928,8 +2976,8 @@ export class ZoneServer2016 extends ZoneServer2015 {
         definitionId: container.containerDefinitionId,
         associatedCharacterId: client.character.characterId,
         slots: containerDefinition.MAXIMUM_SLOTS,
-        items: Object.values(container.items).map((item, idx)=> {
-          container.items[item.itemGuid].slotId = idx+1;
+        items: Object.values(container.items).map((item, idx) => {
+          container.items[item.itemGuid].slotId = idx + 1;
           return {
             itemDefinitionId: item.itemDefinitionId,
             itemData: {
@@ -2949,17 +2997,16 @@ export class ZoneServer2016 extends ZoneServer2015 {
               unknownBoolean1: true,
               unknownQword3: client.character.characterId,
               unknownDword9: 1,
-            }
-          }
+            },
+          };
         }),
-        unknownBoolean1: true,// needs to be true or bulk doesn't show up
+        unknownBoolean1: true, // needs to be true or bulk doesn't show up
         maxBulk: containerDefinition.MAX_BULK,
         unknownDword4: 28,
         bulkUsed: this.getContainerBulk(container),
         hasBulkLimit: !!containerDefinition.MAX_BULK,
-      }
+      },
     });
-    
   }
 
   addContainerItem(
@@ -2970,7 +3017,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
     sendUpdate: boolean = true
   ) {
     if (!itemGuid) return;
-    
+
     const itemDefId = this._items[itemGuid].itemDefinitionId;
     container.items[itemGuid] = {
       itemDefinitionId: itemDefId,
@@ -2980,7 +3027,11 @@ export class ZoneServer2016 extends ZoneServer2015 {
       stackCount: count,
       currentDurability: 2000,
     };
-    this.addItem(client, container.items[itemGuid], container.containerDefinitionId);
+    this.addItem(
+      client,
+      container.items[itemGuid],
+      container.containerDefinitionId
+    );
     this.updateContainer(client, container);
     if (sendUpdate) {
       this.sendData(client, "Reward.AddNonRewardItem", {
@@ -3034,10 +3085,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
     this.equipItem(client, this.generateItem(2377), sendPacket); // DOA Hoodie
     this.equipItem(client, this.generateItem(2079), sendPacket); // golf pants
   }
-  giveStartingItems(
-    client: Client,
-    sendPacket: boolean,
-  ) {
+  giveStartingItems(client: Client, sendPacket: boolean) {
     this.lootContainerItem(client, this.generateItem(1985), 1, sendPacket); // map
     this.lootContainerItem(client, this.generateItem(1441), 1, sendPacket); // compass
     this.lootContainerItem(client, this.generateItem(1751), 5, sendPacket); // gauze
@@ -3045,14 +3093,14 @@ export class ZoneServer2016 extends ZoneServer2015 {
   }
 
   clearInventory(client: Client) {
-    for(const item of Object.values(client.character._loadout)) {
-      if(client.character._containers[item.slotId]) {
+    for (const item of Object.values(client.character._loadout)) {
+      if (client.character._containers[item.slotId]) {
         const container = client.character._containers[item.slotId];
         for (const item of Object.values(container.items)) {
           this.removeInventoryItem(client, item.itemGuid, item.stackCount);
         }
       }
-      if(item.slotId != 7) {
+      if (item.slotId != 7) {
         this.removeInventoryItem(client, item.itemGuid, item.stackCount);
       }
     }
