@@ -35,7 +35,6 @@ export class SOEServer extends EventEmitter {
   _crcLength: number;
   _maxOutOfOrderPacketsPerLoop: number;
   _waitQueueTimeMs: number = 50;
-  _isLocal: boolean = false;
   _pingTimeoutTime: number = 60000;
   _usePingTimeout: boolean;
 
@@ -90,8 +89,7 @@ export class SOEServer extends EventEmitter {
     if(!client.isDeleted){
       this.checkClientOutQueue(client);
       this.checkAck(client);
-      if(!this._isLocal)
-        this.checkOutOfOrderQueue(client);
+      this.checkOutOfOrderQueue(client);
       setImmediate(() =>
             this.soeClientRoutine(client)
           );
@@ -291,9 +289,7 @@ export class SOEServer extends EventEmitter {
     this._crcSeed = crcSeed;
     this._crcLength = crcLength;
     this._udpLength = udpLength;
-    if (false && this._isLocal) { // TODO: renable that
-      this._useMultiPackets = false;
-    }
+
     this._connection.on("message", (message) => {
       const data = Buffer.from(message.data);
       try {
@@ -313,7 +309,6 @@ export class SOEServer extends EventEmitter {
             this._compression,
             this._cryptoKey
           );
-          client.outputStream._enableCaching = !this._isLocal
           
           client.inputStream.on("data", (err: string, data: Buffer) => {
             this.emit("appdata", null, client, data);

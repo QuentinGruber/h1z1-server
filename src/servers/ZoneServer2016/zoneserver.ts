@@ -721,7 +721,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
         this._dynamicWeatherWorker.refresh();
       }, 360000 / this._timeMultiplier);
     }
-    this._gatewayServer.start(true); // SET TO TRUE OR ELSE MULTIPLAYER PACKETS ARE BROKEN
+    this._gatewayServer.start();
     this.worldRoutineTimer = setTimeout(
       () => this.worldRoutine.bind(this)(true),
       this.tickRate

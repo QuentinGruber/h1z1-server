@@ -748,7 +748,7 @@ export class ZoneServer2015 extends EventEmitter {
         this.sendRawToAll(Buffer.from(weather));
       });
     }
-    this._gatewayServer.start(this._soloMode);
+    this._gatewayServer.start();
     this.worldRoutineTimer = setTimeout(
       () => this.worldRoutine.bind(this)(true),
       this.tickRate
