@@ -2737,7 +2737,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
 
   removeLoadoutItem(client: Client, loadoutSlotId: number): boolean {
     const item = client.character._loadout[loadoutSlotId],
-    itemDefId = item.itemDefinitionId; // save before item gets deleted
+    itemDefId = item?.itemDefinitionId; // save before item gets deleted
     if (!item || !item.itemDefinitionId) return false;
     this.deleteItem(client, item.itemGuid);
     // TODO: add logic for checking if loadout item has an equipment slot, ex. radio doesn't have one
