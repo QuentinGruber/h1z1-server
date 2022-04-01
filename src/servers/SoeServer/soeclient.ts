@@ -34,14 +34,12 @@ export default class SOEClient {
   lastAck: number = -1;
   inputStream: SOEInputStream;
   outputStream: SOEOutputStream;
-  outQueueTimer: any;
-  ackTimer: any;
-  outOfOrderTimer: any;
   cryptoKey: Uint8Array;
-  waitQueueTimer: any;
+  waitQueueTimer!: NodeJS.Timeout;
   waitingQueueCurrentByteLength: number = 0;
   soeClientId: string;
   lastPingTimer!: NodeJS.Timeout;
+  isDeleted: boolean = false;
   constructor(
     remote: RemoteInfo,
     crcSeed: number,
@@ -57,11 +55,5 @@ export default class SOEClient {
     this.cryptoKey = cryptoKey;
     this.inputStream = new SOEInputStream(cryptoKey);
     this.outputStream = new SOEOutputStream(cryptoKey);
-  }
-
-  clearTimers() {
-    clearTimeout(this.outQueueTimer);
-    clearTimeout(this.ackTimer);
-    clearTimeout(this.outOfOrderTimer);
   }
 }

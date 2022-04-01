@@ -69,22 +69,33 @@ export class SOEServer extends EventEmitter {
   }
 
   checkClientOutQueue(client: SOEClient) {
-    const data = client.outQueue.shift();
-    if (data) {
-      this._connection.postMessage(
-        {
-          type: "sendPacket",
-          data: {
-            packetData: data,
-            length: data.length,
-            port: client.port,
-            address: client.address,
+      const data = client.outQueue.shift();
+      if (data) {
+        this._connection.postMessage(
+          {
+            type: "sendPacket",
+            data: {
+              packetData: data,
+              length: data.length,
+              port: client.port,
+              address: client.address,
+            },
           },
-        },
-        [data.buffer]
-      );
+          [data.buffer]
+        );
     }
-    client.outQueueTimer.refresh();
+  }
+
+  soeClientRoutine(client: Client){
+    if(!client.isDeleted){
+      this.checkClientOutQueue(client);
+      this.checkAck(client);
+      if(!this._isLocal)
+        this.checkOutOfOrderQueue(client);
+      setImmediate(() =>
+            this.soeClientRoutine(client)
+          );
+    }
   }
 
   checkAck(client: Client) {
@@ -100,8 +111,8 @@ export class SOEServer extends EventEmitter {
         false
       );
     }
-    client.ackTimer.refresh();
   }
+
   sendClientWaitQueue(client: Client) {
     if (client.waitingQueue.length) {
       if(client.waitingQueue.length > 1){
@@ -148,7 +159,6 @@ export class SOEServer extends EventEmitter {
         true
       );
     }
-    client.outOfOrderTimer.refresh();
   }
 
   handlePacket(client: SOEClient, packet: any) {
@@ -303,16 +313,8 @@ export class SOEServer extends EventEmitter {
             this._compression,
             this._cryptoKey
           );
-
-          if (false && this._isLocal) { // TODO: renable that
-            client.outputStream._enableCaching = false;
-          } else {
-            client.outOfOrderTimer = setTimeout(
-              () => this.checkOutOfOrderQueue(client),
-              50
-            );
-          }
-
+          client.outputStream._enableCaching = !this._isLocal
+          
           client.inputStream.on("data", (err: string, data: Buffer) => {
             this.emit("appdata", null, client, data);
           });
@@ -367,16 +369,14 @@ export class SOEServer extends EventEmitter {
           );
 
           
-          client.outQueueTimer = setTimeout(() =>
-            this.checkClientOutQueue(client)
-          );
+          setImmediate(() => this.soeClientRoutine(client));
+
           if (this._useMultiPackets) {
             client.waitQueueTimer = setTimeout(
               () => this.sendClientWaitQueue(client),
               this._waitQueueTimeMs
             );
           }
-          client.ackTimer = setTimeout(() => this.checkAck(client));
 
           this.emit("connect", null, this._clients[clientId]);
         }
@@ -485,8 +485,8 @@ export class SOEServer extends EventEmitter {
   }
 
   deleteClient(client: SOEClient): void {
-    client.clearTimers();
     delete this._clients[client.address + ":" + client.port];
+    client.isDeleted = true;
     debug("client connection from port : ", client.port, " deleted");
   }
 }
