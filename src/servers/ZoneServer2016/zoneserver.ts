@@ -80,6 +80,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
   _explosives: any;
   _temporaryObjects: any;
   _traps: any;
+  lastItemGuid: bigint = 0x3000000000000000n;
 
   constructor(
     serverPort: number,
@@ -2514,6 +2515,10 @@ export class ZoneServer2016 extends ZoneServer2015 {
     }
   }
 
+  generateItemGuid(): bigint {
+    return ++this.lastItemGuid;
+  }
+
   generateItem(itemDefinitionId: number, count: number = 1): inventoryItem | undefined {
     if (!this.getItemDefinition(itemDefinitionId)) {
       debug(
@@ -2521,10 +2526,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
       );
       return;
     }
-    const generatedGuid = `0x${randomIntFromInterval(
-      0x3000000000000000,
-      0x3fffffffffffffff
-    ).toString(16)}`;
+    const generatedGuid = `0x${this.generateItemGuid().toString(16)}`;
     this._items[generatedGuid] = {
       guid: generatedGuid,
       itemDefinitionId: itemDefinitionId,
