@@ -53,7 +53,7 @@ export class SOEServer extends EventEmitter {
     this._crcSeed = 0;
     this._crcLength = 2;
     this._maxOutOfOrderPacketsPerLoop = 20;
-    this._protocol = new Soeprotocol(true,false,false);
+    this._protocol = new Soeprotocol(true);
     this._udpLength = 512;
     this._useEncryption = true;
     this._useMultiPackets = false;
@@ -377,8 +377,7 @@ export class SOEServer extends EventEmitter {
         }
         client = this._clients[clientId];
         const raw_parsed_data: string = this._protocol.parse(
-          data,
-          client.outputStream._rc4
+          data
         );
         if (raw_parsed_data) {
           const parsed_data = JSON.parse(raw_parsed_data);
@@ -412,8 +411,7 @@ export class SOEServer extends EventEmitter {
       return Buffer.from(this._protocol.pack(
         packetName,
         JSON.stringify(packet),
-        client.crcSeed,
-        client.outputStream._rc4
+        client.crcSeed
       ));
     } catch (e) {
       console.error(
