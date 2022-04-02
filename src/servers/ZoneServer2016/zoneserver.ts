@@ -2634,7 +2634,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
     return 0;
   }
 
-  getActiveEquipmentSlot(client: Client, item: inventoryItem) {
+  getActiveEquipmentSlot(client: Client, item: loadoutItem) {
     for(const equipment of Object.values(client.character._equipment)) {
       if(item.itemGuid == equipment.guid) {
         return equipment.slotId;
@@ -2784,6 +2784,17 @@ export class ZoneServer2016 extends ZoneServer2015 {
     }
   }
 
+  switchLoadoutSlot(client: Client, loadoutItem: loadoutItem) {
+    const oldLoadoutSlot = client.character.currentLoadoutSlot;
+    // remove passive equip
+    this.removeEquipmentItem(client, this.getActiveEquipmentSlot(client, loadoutItem));
+    client.character.currentLoadoutSlot = loadoutItem.slotId;
+    this.equipItem(client, loadoutItem, true, loadoutItem.slotId);
+
+    // equip passive slot
+    this.equipItem(client, client.character._loadout[oldLoadoutSlot], true, oldLoadoutSlot);
+  }
+
   removeEquipmentItem(client: Client, equipmentSlotId: number): boolean {
     if(!equipmentSlotId) return false;
     delete client.character._equipment[equipmentSlotId];
@@ -2795,6 +2806,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
     });
     if (equipmentSlotId === 7) {
       // primary slot
+      client.character.currentLoadoutSlot = 7;
       this.equipItem(client, client.character._loadout[7]); //equip fists
     }
     return true;
@@ -3254,7 +3266,9 @@ export class ZoneServer2016 extends ZoneServer2015 {
     }
   }
 
-  eatItem(client: Client, item: inventoryItem, nameId: number) {
+  eatItem(client: Client, item: inventoryItem) {
+    const itemDef = this.getItemDefinition(item.itemDefinitionId);
+    if(!itemDef) return;
     let drinkCount = 0;
     let eatCount = 2000;
     let givetrash = 0;
@@ -3280,12 +3294,14 @@ export class ZoneServer2016 extends ZoneServer2015 {
             item.itemDefinitionId
         );
     }
-    this.utilizeHudTimer(client, nameId, timeout, () => {
+    this.utilizeHudTimer(client, itemDef.NAME_ID, timeout, () => {
       this.eatItemPass(client, item, eatCount, drinkCount, givetrash);
     });
   }
 
-  useMedical(client: Client, item: inventoryItem, nameId: number) {
+  useMedical(client: Client, item: inventoryItem) {
+    const itemDef = this.getItemDefinition(item.itemDefinitionId);
+    if(!itemDef) return;
     let timeout = 1000;
     let healCount = 9;
     let bandagingCount = 40;
@@ -3312,12 +3328,14 @@ export class ZoneServer2016 extends ZoneServer2015 {
             item.itemDefinitionId
         );
     }
-    this.utilizeHudTimer(client, nameId, timeout, () => {
+    this.utilizeHudTimer(client, itemDef.NAME_ID, timeout, () => {
       this.useMedicalPass(client, item, healCount, bandagingCount);
     });
   }
 
-  igniteOption(client: Client, item: inventoryItem, nameId: number) {
+  igniteOption(client: Client, item: inventoryItem) {
+    const itemDef = this.getItemDefinition(item.itemDefinitionId);
+    if(!itemDef) return;
     let timeout = 100;
     switch (item.itemDefinitionId) {
       case 1436: // lighter
@@ -3332,12 +3350,14 @@ export class ZoneServer2016 extends ZoneServer2015 {
             item.itemDefinitionId
         );
     }
-    this.utilizeHudTimer(client, nameId, timeout, () => {
+    this.utilizeHudTimer(client, itemDef.NAME_ID, timeout, () => {
       this.igniteoptionPass(client);
     });
   }
 
-  drinkItem(client: Client, item: inventoryItem, nameId: number) {
+  drinkItem(client: Client, item: inventoryItem) {
+    const itemDef = this.getItemDefinition(item.itemDefinitionId);
+    if(!itemDef) return;
     let drinkCount = 2000;
     let eatCount = 0;
     let givetrash = 0;
@@ -3362,7 +3382,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
             item.itemDefinitionId
         );
     }
-    this.utilizeHudTimer(client, nameId, timeout, () => {
+    this.utilizeHudTimer(client, itemDef.NAME_ID, timeout, () => {
       this.drinkItemPass(client, item, eatCount, drinkCount, givetrash);
     });
   }
