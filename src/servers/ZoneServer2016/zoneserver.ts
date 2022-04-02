@@ -53,6 +53,7 @@ const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.js
   itemDefinitions = require("./../../../data/2016/dataSources/ServerItemDefinitions.json"),
   containerDefinitions = require("./../../../data/2016/dataSources/ContainerDefinitions.json"),
   loadoutSlotItemClasses = require("./../../../data/2016/dataSources/LoadoutSlotItemClasses.json"),
+  equipSlotItemClasses = require("./../../../data/2016/dataSources/EquipSlotItemClasses.json"),
   loadoutSlots = require("./../../../data/2016/dataSources/LoadoutSlots.json"),
   Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs");
 
@@ -2390,12 +2391,13 @@ export class ZoneServer2016 extends ZoneServer2015 {
         this.sendChatText(client, "[ERROR] Item is already equipped!");
         return;
       }
-      this.equipItem(client, item, true, slotId);
+      if (!this.removeLoadoutItem(client, oldLoadoutItem.slotId)) {
+        this.containerError(client, 5); // slot does not contain item
+        return;
+      }
       this.lootContainerItem(client, oldLoadoutItem, 1, false);
     }
-    else {
-      this.equipItem(client, item, true, slotId);
-    }
+    this.equipItem(client, item, true, slotId);
   }
 
   equipItem(client: Client, item: inventoryItem | undefined, sendPacket: boolean = true, loadoutSlotId: number = 0) {
@@ -2423,12 +2425,22 @@ export class ZoneServer2016 extends ZoneServer2015 {
       );
       return;
     }
-
-    let equipmentSlotId = def.PASSIVE_EQUIP_SLOT_ID;
+    
+    let equipmentSlotId = def.PASSIVE_EQUIP_SLOT_ID; // default for any equipment
+    /*
     if(this.isWeaponLoadoutSlot(loadoutSlotId)) {
       equipmentSlotId = def.ACTIVE_EQUIP_SLOT_ID;
     }
-    
+    */
+   if(this.isWeapon(item.itemDefinitionId)) {
+     if(loadoutSlotId == client.character.currentLoadoutSlot) {
+      equipmentSlotId = def.ACTIVE_EQUIP_SLOT_ID;
+     }
+     else {
+      equipmentSlotId = this.getAvailablePassiveEquipmentSlot(client, item);
+     }
+   }
+
     if(equipmentSlotId) {
       const equipmentData: characterEquipment = {
         modelName: def.MODEL_NAME.replace(
@@ -2536,6 +2548,10 @@ export class ZoneServer2016 extends ZoneServer2015 {
     };
   }
 
+  isWeapon(itemDefinitionId: number): boolean {
+    return this.getItemDefinition(itemDefinitionId)?.ITEM_TYPE == 26;
+  }
+
   isWeaponLoadoutSlot(loadoutSlotId: number): boolean {
     switch(loadoutSlotId) {
       case 1: // primary
@@ -2546,6 +2562,16 @@ export class ZoneServer2016 extends ZoneServer2015 {
       default:
         return false;
     }
+  }
+
+  validateEquipmentSlot(itemDefinitionId: number, equipmentSlotId: number) {
+    // only for weapons at the moment
+    if(!this.getItemDefinition(itemDefinitionId).FLAG_CAN_EQUIP) return false;
+    return !!equipSlotItemClasses.find(
+      (slot: any) =>
+        slot.ITEM_CLASS === this.getItemDefinition(itemDefinitionId).ITEM_CLASS &&
+        equipmentSlotId === slot.EQUIP_SLOT_ID
+    );
   }
 
   validateLoadoutSlot(itemDefinitionId: number, loadoutSlotId: number): boolean {
@@ -2608,14 +2634,26 @@ export class ZoneServer2016 extends ZoneServer2015 {
     return 0;
   }
 
-  getEquipmentSlot(client: Client, item: inventoryItem): number {
-    const itemDef = this.getItemDefinition(item.itemDefinitionId);
-    if(!itemDef) return 0;
-    if(client.character._equipment[itemDef.ACTIVE_EQUIP_SLOT_ID]?.guid == item.itemGuid) {
-      return itemDef.ACTIVE_EQUIP_SLOT_ID
+  getActiveEquipmentSlot(client: Client, item: inventoryItem) {
+    for(const equipment of Object.values(client.character._equipment)) {
+      if(item.itemGuid == equipment.guid) {
+        return equipment.slotId;
+      }
     }
-    else if(client.character._equipment[itemDef.PASSIVE_EQUIP_SLOT_ID]?.guid == item.itemGuid) {
-      return itemDef.PASSIVE_EQUIP_SLOT_ID;
+    return 0;
+  }
+
+  getAvailablePassiveEquipmentSlot(client: Client, item: inventoryItem): number {
+    const itemDef = this.getItemDefinition(item.itemDefinitionId),
+    itemClass = itemDef?.ITEM_CLASS
+    if(!itemDef || !itemClass || !this.isWeapon(item.itemDefinitionId)) return 0;
+    for(const slot of equipSlotItemClasses) {
+      if(
+        slot.ITEM_CLASS == itemDef.ITEM_CLASS &&
+        !client.character._equipment[slot.EQUIP_SLOT_ID]
+      ) {
+        return slot.EQUIP_SLOT_ID;
+      }
     }
     return 0;
   }
@@ -2700,13 +2738,24 @@ export class ZoneServer2016 extends ZoneServer2015 {
     return "";
   }
 
+  getLoadoutItem(
+    client: Client,
+    itemGuid: string
+  ): loadoutItem | undefined {
+    const loadoutSlotId = this.getActiveLoadoutSlot(client, itemGuid);
+    if (client.character._loadout[loadoutSlotId]?.itemGuid == itemGuid) {
+      return client.character._loadout[loadoutSlotId];
+    }
+    return;
+  }
+
   getInventoryItem(
     client: Client,
     itemGuid: string
   ): inventoryItem | undefined {
-    const loadoutSlotId = this.getActiveLoadoutSlot(client, itemGuid);
-    if (client.character._loadout[loadoutSlotId]?.itemGuid == itemGuid) {
-      return client.character._loadout[loadoutSlotId];
+    const loadoutItem = this.getLoadoutItem(client, itemGuid);
+    if (loadoutItem) {
+      return loadoutItem;
     } else {
       const container = this.getItemContainer(client, itemGuid);
       const item = container?.items[itemGuid];
@@ -2735,16 +2784,9 @@ export class ZoneServer2016 extends ZoneServer2015 {
     }
   }
 
-  removeLoadoutItem(client: Client, loadoutSlotId: number): boolean {
-    const item = client.character._loadout[loadoutSlotId],
-    itemDefId = item?.itemDefinitionId; // save before item gets deleted
-    if (!item || !item.itemDefinitionId) return false;
-    this.deleteItem(client, item.itemGuid);
-    // TODO: add logic for checking if loadout item has an equipment slot, ex. radio doesn't have one
-    const equipmentSlotId = this.getEquipmentSlot(client, item);
-    this.clearLoadoutSlot(client, loadoutSlotId);
+  removeEquipmentItem(client: Client, equipmentSlotId: number): boolean {
+    if(!equipmentSlotId) return false;
     delete client.character._equipment[equipmentSlotId];
-    this.updateLoadout(client);
     this.sendData(client, "Equipment.UnsetCharacterEquipmentSlot", {
       characterData: {
         characterId: client.character.characterId,
@@ -2755,6 +2797,18 @@ export class ZoneServer2016 extends ZoneServer2015 {
       // primary slot
       this.equipItem(client, client.character._loadout[7]); //equip fists
     }
+    return true;
+  }
+
+  removeLoadoutItem(client: Client, loadoutSlotId: number): boolean {
+    const item = client.character._loadout[loadoutSlotId],
+    itemDefId = item?.itemDefinitionId; // save before item gets deleted
+    if (!item || !item.itemDefinitionId) return false;
+    this.deleteItem(client, item.itemGuid);
+    // TODO: add logic for checking if loadout item has an equipment slot, ex. radio doesn't have one
+    this.clearLoadoutSlot(client, loadoutSlotId);
+    this.updateLoadout(client);
+    this.removeEquipmentItem(client, this.getActiveEquipmentSlot(client, item));
     if (this.getItemDefinition(itemDefId).ITEM_TYPE === 34) {
       delete client.character._containers[loadoutSlotId];
       this.initializeContainerList(client);

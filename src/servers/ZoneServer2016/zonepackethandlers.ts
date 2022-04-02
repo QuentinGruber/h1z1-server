@@ -1890,18 +1890,14 @@ export class zonePacketHandlers {
               client,
               containerGuid
             );
-
-          if (container) {
-            // from container
+          if (container) { // from container
             const item = container.items[itemGuid],
               oldStackCount = item?.stackCount; // saves stack count before it gets altered
             if (!item) {
               server.containerError(client, 5); // slot does not contain item
               return;
             }
-            if (targetContainer) {
-              // to container
-              // move to container
+            if (targetContainer) { // to container
               if (
                 container.containerGuid != targetContainer.containerGuid &&
                 !server.getContainerHasSpace(
@@ -1913,7 +1909,6 @@ export class zonePacketHandlers {
                 // allows items in the same container but different stacks to be stacked
                 return;
               }
-
               if (!server.removeContainerItem(client, item, container, count)) {
                 server.containerError(client, 5); // slot does not contain item
                 return;
@@ -1927,13 +1922,11 @@ export class zonePacketHandlers {
                   count,
                   newSlotId
                 );
-                if (itemStack) {
-                  // add to existing item stack
+                if (itemStack) { // add to existing item stack
                   const item = targetContainer.items[itemStack];
                   item.stackCount += count;
                   server.updateContainerItem(client, item, targetContainer);
-                } else {
-                  // add item to end
+                } else { // add item to end
                   combineItemStack(oldStackCount, targetContainer, item);
                 }
               }
@@ -1942,63 +1935,61 @@ export class zonePacketHandlers {
               if(server.validateLoadoutSlot(item.itemDefinitionId, newSlotId)) {
                 server.equipContainerItem(client, item, newSlotId);
               }
-              else {
-                const loadoutSlot = server.getLoadoutSlot(item.itemDefinitionId);
-                if(server.validateLoadoutSlot(item.itemDefinitionId, loadoutSlot)) {
-                  server.equipContainerItem(client, item, loadoutSlot);
-                }
-              }
             }
             else { // invalid
               server.containerError(client, 3); // unknown container
             }
-          } else {
-            // from loadout or invalid
-            const item = server.getInventoryItem(client, itemGuid);
-            if (!item) {
+          } else { // from loadout or invalid
+            const loadoutItem = server.getLoadoutItem(client, itemGuid);
+            if (!loadoutItem) {
               server.containerError(client, 5); // slot does not contain item
               return;
             }
-            //todo: check if item exists in loadout
-            if (targetContainer) {
-              // to container
-              // move to container
+            if (targetContainer) { // to container
               if (
                 !server.getContainerHasSpace(
                   targetContainer,
-                  item.itemDefinitionId,
+                  loadoutItem.itemDefinitionId,
                   count
                 )
               ) {
                 return;
               }
-              if (
-                !server.removeLoadoutItem(
-                  client,
-                  server.getActiveLoadoutSlot(client, itemGuid)
-                )
-              ) {
+              if (!server.removeLoadoutItem(client, loadoutItem.slotId)) {
                 server.containerError(client, 5); // slot does not contain item
                 return;
               }
               server.addContainerItem(
                 client,
-                server.generateItem(item.itemDefinitionId),
+                loadoutItem,
                 targetContainer,
                 count,
                 false
               );
             }
             else if (containerGuid == "0xffffffffffffffff") { // to loadout
-              
-              const oldLoadoutSlot = server.getActiveLoadoutSlot(client, itemGuid),
-              loadoutItem = client.character._loadout[oldLoadoutSlot];
-              if(!server.validateLoadoutSlot(loadoutItem?.itemDefinitionId, newSlotId)) {
-                return;
-              }
-              if (!server.removeLoadoutItem(client, oldLoadoutSlot)) {
+              const loadoutItem = server.getLoadoutItem(client, itemGuid),
+              oldLoadoutItem = client.character._loadout[newSlotId];
+              if(!loadoutItem) {
                 server.containerError(client, 5); // slot does not contain item
                 return;
+              }
+              if(!server.validateLoadoutSlot(loadoutItem.itemDefinitionId, newSlotId)) {
+                server.sendChatText(client, "[ERROR] Invalid loadout slot.")
+                return;
+              }
+              if(oldLoadoutItem.itemDefinitionId) {
+                if (!server.removeLoadoutItem(client, oldLoadoutItem.slotId)) {
+                  server.containerError(client, 5); // slot does not contain item
+                  return;
+                }
+              }
+              if (!server.removeLoadoutItem(client, loadoutItem.slotId)) {
+                server.containerError(client, 5); // slot does not contain item
+                return;
+              }
+              if(oldLoadoutItem.itemDefinitionId) {
+                server.equipItem(client, oldLoadoutItem, true, loadoutItem.slotId);
               }
               server.equipItem(client, loadoutItem, true, newSlotId);
             }
@@ -2007,8 +1998,11 @@ export class zonePacketHandlers {
             }
           }
         }
-      } else {
-        // from external container
+        else { // to external container
+
+        }
+      } else { // from external container 
+
       }
     };
     //#endregion
