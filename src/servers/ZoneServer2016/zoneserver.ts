@@ -3727,7 +3727,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
         if (itemDef.DESCRIPTION_ID == 11895 && !character.hasConveys) {
           character.hasConveys = true;
           this.applyMovementModifier(client, 1.15, "boots");
-        } else if (!itemDef.NAME.includes("Conveys") && character.hasConveys) {
+        } else if (itemDef.DESCRIPTION_ID != 11895 && character.hasConveys) {
           character.hasConveys = false;
           this.divideMovementModifier(client, 1.15);
         }
