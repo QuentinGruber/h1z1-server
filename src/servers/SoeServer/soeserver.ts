@@ -16,9 +16,11 @@ import { Soeprotocol } from "h1emu-core"
 import Client from "./soeclient";
 import SOEClient from "./soeclient";
 import { Worker } from "worker_threads";
+import { crc_length_options } from "../../types/soeserver";
 
 const debug = require("debug")("SOEServer");
 process.env.isBin && require("../shared/workers/udpServerWorker.js");
+
 
 export class SOEServer extends EventEmitter {
   _protocolName: string;
@@ -32,7 +34,7 @@ export class SOEServer extends EventEmitter {
   _clients: any;
   _connection: Worker;
   _crcSeed: number;
-  _crcLength: number;
+  _crcLength: crc_length_options;
   _maxOutOfOrderPacketsPerLoop: number;
   _waitQueueTimeMs: number = 50;
   _pingTimeoutTime: number = 60000;
@@ -51,9 +53,9 @@ export class SOEServer extends EventEmitter {
     this._serverPort = serverPort;
     this._cryptoKey = cryptoKey;
     this._crcSeed = 0;
-    this._crcLength = 2;
+    this._crcLength = 0;
     this._maxOutOfOrderPacketsPerLoop = 20;
-    this._protocol = new Soeprotocol(true);
+    this._protocol = new Soeprotocol(Boolean(this._crcLength));
     this._udpLength = 512;
     this._useEncryption = true;
     this._useMultiPackets = false;
@@ -282,12 +284,12 @@ export class SOEServer extends EventEmitter {
   start(
     compression: number,
     crcSeed: number,
-    crcLength: number,
+    crcLength: crc_length_options,
     udpLength: number
   ): void {
     this._compression = 0; // TODO: renable that
     this._crcSeed = crcSeed;
-    this._crcLength = crcLength;
+    this._crcLength = crcLength as crc_length_options;
     this._udpLength = udpLength;
 
     this._connection.on("message", (message) => {

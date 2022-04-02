@@ -35,6 +35,8 @@ import { ZoneClient as Client } from "./classes/zoneclient";
 import { h1z1PacketsType } from "../../types/packets";
 import { Vehicle } from "./classes/vehicle";
 import { Resolver } from "dns";
+import { DEFAULT_CRYPTO_KEY } from "../../utils/constants";
+
 
 process.env.isBin && require("./workers/dynamicWeather");
 
@@ -2750,7 +2752,7 @@ if (
 ) {
   const zoneServer = new ZoneServer2015(
     1117,
-    Buffer.from("F70IaxuU8C/w7FPXY1ibXw==", "base64"),
+    Buffer.from(DEFAULT_CRYPTO_KEY, "base64"),
     process.env.MONGO_URL,
     1
   );

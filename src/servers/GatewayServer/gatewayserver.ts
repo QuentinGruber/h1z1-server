@@ -15,6 +15,7 @@ import { EventEmitter } from "events";
 import { SOEServer } from "../SoeServer/soeserver";
 import { GatewayProtocol } from "../../protocols/gatewayprotocol";
 import SOEClient from "../SoeServer/soeclient";
+import { crc_length_options } from "../../types/soeserver";
 
 const debug = require("debug")("GatewayServer");
 
@@ -23,7 +24,7 @@ export class GatewayServer extends EventEmitter {
   _protocol: GatewayProtocol;
   _compression: number;
   _crcSeed: number;
-  _crcLength: number;
+  _crcLength: crc_length_options;
   _udpLength: number;
 
   constructor(
@@ -34,7 +35,7 @@ export class GatewayServer extends EventEmitter {
     super();
     this._compression = 0x0100;
     this._crcSeed = 0;
-    this._crcLength = 2;
+    this._crcLength = 0;
     this._udpLength = 512;
 
     this._soeServer = new SOEServer(
