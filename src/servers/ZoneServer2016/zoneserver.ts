@@ -841,7 +841,6 @@ export class ZoneServer2016 extends ZoneServer2015 {
   }
 
   async explosionDamage(position: Float32Array, npcTriggered: string) {
-    const timer = (ms: number) => new Promise((res) => setTimeout(res, ms));
     for (const character in this._clients) {
       const characterObj = this._clients[character];
       if (!characterObj.character.godMode) {
@@ -861,7 +860,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
         if (isPosInRadius(5, vehicle.npcData.position, position)) {
           const distance = getDistance(position, vehicle.npcData.position);
           const damage = 250000 / distance;
-          await timer(150);
+          await this.pSetTimeout(150);
           this.damageVehicle(damage, vehicle);
         }
       }
@@ -870,7 +869,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
       const explosiveObj = this._explosives[explosive];
       if (explosiveObj.characterId != npcTriggered) {
         if (getDistance(position, explosiveObj.position) < 2) {
-          await timer(150);
+          await this.pSetTimeout(150);
           this.explodeExplosive(explosiveObj);
         }
       }
@@ -3747,6 +3746,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
     await this._packetHandlers.reloadCommandCache();
   }
   pSetImmediate = promisify(setImmediate);
+  pSetTimeout = promisify(setTimeout)
 }
 
 if (process.env.VSCODE_DEBUG === "true") {
