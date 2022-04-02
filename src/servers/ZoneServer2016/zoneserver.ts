@@ -49,6 +49,7 @@ const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.js
   localWeatherTemplates = require("../../../data/2016/dataSources/weather.json"),
   stats = require("../../../data/2016/sampleData/stats.json"),
   resources = require("../../../data/2016/dataSources/resourceDefinitions.json"),
+  localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json"),
   itemDefinitions = require("./../../../data/2016/dataSources/ServerItemDefinitions.json"),
   containerDefinitions = require("./../../../data/2016/dataSources/ContainerDefinitions.json"),
   loadoutSlotItemClasses = require("./../../../data/2016/dataSources/LoadoutSlotItemClasses.json"),
@@ -835,25 +836,6 @@ export class ZoneServer2016 extends ZoneServer2015 {
           characterId: client.character.characterId,
         }
       );
-      /*const guid = this.generateGuid();
-      const transientId = 1;
-      const characterId = this.generateGuid();
-      const prop = {
-        characterId: characterId,
-        worldId: this._worldId,
-        guid: guid,
-        transientId: transientId,
-        modelId: 9,
-        position: character.state.position,
-        rotation: [0, 0, 0, 0],
-        scale: [1, 1, 1, 1],
-        positionUpdateType: 1,
-      };
-      this.sendDataToAll("PlayerUpdate.AddLightweightNpc", prop);
-      if (!this._soloMode) {
-        this._db?.collection("props").insertOne(prop);
-      }
-      this._props[characterId] = prop;*/
     }
     this.clearMovementModifiers(client);
     character.isAlive = false;
@@ -1097,15 +1079,17 @@ export class ZoneServer2016 extends ZoneServer2015 {
       characterId: client.character.characterId,
       status: 1,
     });
-    
-    const randomSpawnIndex = Math.floor(Math.random() * this._spawnLocations.length);
+    const spawnLocations = this._soloMode
+      ? localSpawnList
+      : await this._db?.collection("spawns").find().toArray();
+    const randomSpawnIndex = Math.floor(Math.random() * spawnLocations.length);
     this.sendData(client, "ClientUpdate.UpdateLocation", {
-      position: this._spawnLocations[randomSpawnIndex].position,
+      position: spawnLocations[randomSpawnIndex].position,
     });
     this.clearInventory(client);
     this.giveStartingEquipment(client, true, true);
     this.giveStartingItems(client, true);
-    client.character.state.position = this._spawnLocations[randomSpawnIndex].position;
+    client.character.state.position = spawnLocations[randomSpawnIndex].position;
     this.updateResource(
       client,
       client.character.characterId,
@@ -2424,11 +2408,6 @@ export class ZoneServer2016 extends ZoneServer2015 {
     }
     
     let equipmentSlotId = def.PASSIVE_EQUIP_SLOT_ID; // default for any equipment
-    /*
-    if(this.isWeaponLoadoutSlot(loadoutSlotId)) {
-      equipmentSlotId = def.ACTIVE_EQUIP_SLOT_ID;
-    }
-    */
    if(this.isWeapon(item.itemDefinitionId)) {
      if(loadoutSlotId == client.character.currentLoadoutSlot) {
       equipmentSlotId = def.ACTIVE_EQUIP_SLOT_ID;
@@ -2814,7 +2793,6 @@ export class ZoneServer2016 extends ZoneServer2015 {
     itemDefId = item?.itemDefinitionId; // save before item gets deleted
     if (!item || !item.itemDefinitionId) return false;
     this.deleteItem(client, item.itemGuid);
-    // TODO: add logic for checking if loadout item has an equipment slot, ex. radio doesn't have one
     this.clearLoadoutSlot(client, loadoutSlotId);
     this.updateLoadout(client);
     this.removeEquipmentItem(client, this.getActiveEquipmentSlot(client, item));
@@ -2865,6 +2843,9 @@ export class ZoneServer2016 extends ZoneServer2015 {
     }
   }
 
+
+  // not used for now, maybe helpful in the future
+  /*
   removeInventoryItems(
     client: Client,
     itemDefinitionId: number,
@@ -2924,6 +2905,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
       return true;
     }
   }
+  */
 
   dropItem(client: Client, item: inventoryItem, count: number = 1) {
     if(!item) {
