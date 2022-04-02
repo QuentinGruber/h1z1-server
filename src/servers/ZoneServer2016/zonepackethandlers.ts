@@ -1362,10 +1362,7 @@ export class zonePacketHandlers {
         server.containerError(client, 5); // slot does not contain item
         return;
       }
-      const itemDefinition = server.getItemDefinition(
-        item.itemDefinitionId
-      ),
-      loadoutSlotId = server.getActiveLoadoutSlot(client, itemGuid);
+      const loadoutSlotId = server.getActiveLoadoutSlot(client, itemGuid);
       if (loadoutSlotId && 
         client.character._containers[loadoutSlotId]?.itemGuid == itemGuid
         && _.size(client.character._containers[loadoutSlotId].items) != 0
