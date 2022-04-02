@@ -49,7 +49,6 @@ const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.js
   localWeatherTemplates = require("../../../data/2016/dataSources/weather.json"),
   stats = require("../../../data/2016/sampleData/stats.json"),
   resources = require("../../../data/2016/dataSources/resourceDefinitions.json"),
-  localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json"),
   itemDefinitions = require("./../../../data/2016/dataSources/ServerItemDefinitions.json"),
   containerDefinitions = require("./../../../data/2016/dataSources/ContainerDefinitions.json"),
   loadoutSlotItemClasses = require("./../../../data/2016/dataSources/LoadoutSlotItemClasses.json"),
@@ -1079,17 +1078,14 @@ export class ZoneServer2016 extends ZoneServer2015 {
       characterId: client.character.characterId,
       status: 1,
     });
-    const spawnLocations = this._soloMode
-      ? localSpawnList
-      : await this._db?.collection("spawns").find().toArray();
-    const randomSpawnIndex = Math.floor(Math.random() * spawnLocations.length);
+    const randomSpawnIndex = Math.floor(Math.random() * this._spawnLocations.length);
     this.sendData(client, "ClientUpdate.UpdateLocation", {
       position: spawnLocations[randomSpawnIndex].position,
     });
     this.clearInventory(client);
     this.giveStartingEquipment(client, true, true);
     this.giveStartingItems(client, true);
-    client.character.state.position = spawnLocations[randomSpawnIndex].position;
+    client.character.state.position = this._spawnLocations[randomSpawnIndex].position;
     this.updateResource(
       client,
       client.character.characterId,
