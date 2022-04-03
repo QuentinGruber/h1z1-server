@@ -192,41 +192,12 @@ export class ZoneServer2016 extends EventEmitter {
       this._soloMode = true;
       debug("Server in solo mode !");
     }
-    this.on("data", (err: any, client: Client, packet: any) => {
-      if (err) {
-        console.error(err);
-      } else {
-        client.pingTimer?.refresh();
-        if (
-          packet.name != "KeepAlive" &&
-          packet.name != "PlayerUpdateUpdatePositionClientToZone" &&
-          packet.name != "PlayerUpdateManagedPosition" &&
-          packet.name != "ClientUpdate.MonitorTimeDrift"
-        ) {
-          debug(`Receive Data ${[packet.name]}`);
-        }
-        try {
-          this._packetHandlers.processPacket(this, client, packet);
-        } catch (error) {
-          console.error(error);
-          console.error(`An error occurred while processing a packet : `, packet);
-        }
-      }
-    });
+    this.on("data", this.onZoneDataEvent);
 
     this.on("login", (err, client) => {
-      if (err) {
-      console.error(err);
-      } else {
-        debug("zone login");
-        try {
-          this.sendInitData(client);
-        } catch (error) {
-          debug(error);
-          this.sendData(client, "LoginFailed", {});
-        }
-      }
+      this.onZoneLoginEvent(err, client);
     });
+
     this._gatewayServer._soeServer.on(
       "PacketLimitationReached",
       (soeClient: SOEClient) => {
@@ -427,6 +398,42 @@ export class ZoneServer2016 extends EventEmitter {
       );
     }
   }
+
+  onZoneLoginEvent(err: any, client: Client) {
+    if (err) {
+    console.error(err);
+    } else {
+      debug("zone login");
+      try {
+        this.sendInitData(client);
+      } catch (error) {
+        debug(error);
+        this.sendData(client, "LoginFailed", {});
+      }
+    }
+  };
+
+  onZoneDataEvent(err: any, client: Client, packet: any) {
+    if (err) {
+      console.error(err);
+    } else {
+      client.pingTimer?.refresh();
+      if (
+        packet.name != "KeepAlive" &&
+        packet.name != "PlayerUpdateUpdatePositionClientToZone" &&
+        packet.name != "PlayerUpdateManagedPosition" &&
+        packet.name != "ClientUpdate.MonitorTimeDrift"
+      ) {
+        debug(`Receive Data ${[packet.name]}`);
+      }
+      try {
+        this._packetHandlers.processPacket(this, client, packet);
+      } catch (error) {
+        console.error(error);
+        console.error(`An error occurred while processing a packet : `, packet);
+      }
+    }
+  };
   
   async onCharacterCreateRequest(client: any, packet: any) {
     function getCharacterModelData(payload: any): any {
