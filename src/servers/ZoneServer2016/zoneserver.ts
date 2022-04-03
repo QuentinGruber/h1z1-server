@@ -56,7 +56,7 @@ const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.js
   equipSlotItemClasses = require("./../../../data/2016/dataSources/EquipSlotItemClasses.json"),
   loadoutSlots = require("./../../../data/2016/dataSources/LoadoutSlots.json"),
   Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs");
-
+//
 export class ZoneServer2016 extends ZoneServer2015 {
   _weather2016: Weather2016;
   // @ts-ignore yeah idk how to fix that
