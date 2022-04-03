@@ -3044,7 +3044,10 @@ export class ZoneServer2016 extends EventEmitter {
   removeEquipmentItem(client: Client, equipmentSlotId: number): boolean {
     if(!equipmentSlotId) return false;
     delete client.character._equipment[equipmentSlotId];
-    this.sendData(client, "Equipment.UnsetCharacterEquipmentSlot", {
+    this.sendDataToAllOthersWithSpawnedEntity(this._characters, 
+      client, client.character.characterId, 
+      "Equipment.UnsetCharacterEquipmentSlot", 
+    {
       characterData: {
         characterId: client.character.characterId,
       },
