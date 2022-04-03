@@ -16,7 +16,7 @@ const debugName = "ZoneServer",
 
 import { EventEmitter } from "events";
 import { GatewayServer } from "../GatewayServer/gatewayserver";
-import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
+import { H1Z1Protocol } from "../../protocols/h1z1protocol";
 import SOEClient from "../SoeServer/soeclient";
 import { H1emuZoneServer } from "../H1emuServer/h1emuZoneServer";
 import { H1emuClient } from "../H1emuServer/shared/h1emuclient";
@@ -37,7 +37,6 @@ import {
 } from "../../types/zoneserver";
 import { h1z1PacketsType } from "../../types/packets";
 import { Character2016 as Character } from "./classes/character";
-import { H1Z1Protocol } from "../../protocols/h1z1protocol";
 import {
   _,
   generateRandomGuid,
@@ -69,7 +68,7 @@ const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.js
 
 export class ZoneServer2016 extends EventEmitter {
   _gatewayServer: GatewayServer;
-  _protocol: ZoneProtocol;
+  _protocol: H1Z1Protocol;
   _db?: Db;
   _soloMode = false;
   _mongoClient?: MongoClient;
