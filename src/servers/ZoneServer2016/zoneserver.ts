@@ -13,9 +13,17 @@
 
 const debugName = "ZoneServer",
   debug = require("debug")(debugName);
+
+import { EventEmitter } from "events";
+import { GatewayServer } from "../GatewayServer/gatewayserver";
+import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
+import SOEClient from "../SoeServer/soeclient";
+import { H1emuZoneServer } from "../H1emuServer/h1emuZoneServer";
+import { H1emuClient } from "../H1emuServer/shared/h1emuclient";
+import { Resolver } from "dns";
+
 import { promisify } from "util";
 import { zonePacketHandlers } from "./zonepackethandlers";
-import { ZoneServer2015 } from "../ZoneServer2015/zoneserver";
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
 import { Vehicle2016 as Vehicle } from "./classes/vehicle";
 import { WorldObjectManager } from "./classes/worldobjectmanager";
@@ -32,12 +40,15 @@ import { Character2016 as Character } from "./classes/character";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
 import {
   _,
+  generateRandomGuid,
+  getAppDataFolderPath,
   initMongo,
   Int64String,
   isPosInRadius,
   getDistance,
   randomIntFromInterval,
 } from "../../utils/utils";
+import { MAX_TRANSIENT_ID } from "../../utils/constants";
 
 import { Db, MongoClient } from "mongodb";
 import dynamicWeather from "./workers/dynamicWeather";
@@ -55,16 +66,56 @@ const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.js
   equipSlotItemClasses = require("./../../../data/2016/dataSources/EquipSlotItemClasses.json"),
   loadoutSlots = require("./../../../data/2016/dataSources/LoadoutSlots.json"),
   Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs");
-//
-export class ZoneServer2016 extends ZoneServer2015 {
+
+export class ZoneServer2016 extends EventEmitter {
+  _gatewayServer: GatewayServer;
+  _protocol: ZoneProtocol;
+  _db?: Db;
+  _soloMode = false;
+  _mongoClient?: MongoClient;
+  _mongoAddress: string;
+  _clients: { [characterId: string]: Client } = {};
+  _characters: { [characterId: string]: Character } = {};
+  _clientProtocol = "ClientProtocol_1080";
+  _dynamicWeatherWorker: any;
+  _dynamicWeatherEnabled = true;
+  _defaultWeatherTemplate = "z1br";
+  _spawnLocations = spawnLocations;
+  _h1emuZoneServer!: H1emuZoneServer;
+  _appDataFolder = getAppDataFolderPath();
+  _worldId = 0;
+  _npcs: any;
+  _objects: any;
+  _doors: any;
+  _props: any;
+  _gameTime: any;
+  _time = Date.now();
+  _serverTime: any;
+  _startTime = 0;
+  _startGameTime = 0;
+  _timeMultiplier = 72;
+  _cycleSpeed = 100;
+  _frozeCycle = false;
+  tickRate = 3000;
+
+  _transientIds: any;
+  _loginServerInfo: { address?: string; port: number } = {
+    address: process.env.LOGINSERVER_IP,
+    port: 1110,
+  };
+  worldRoutineTimer: any;
+  _npcRenderDistance = 350;
+  _allowedCommands: string[] = [];
+  _interactionDistance = 4;
+  _pingTimeoutTime = 120000;
+
+
   _weather2016: Weather2016;
-  // @ts-ignore yeah idk how to fix that
-  _packetHandlers: zonePacketHandlers = new zonePacketHandlers();
+  _packetHandlers: zonePacketHandlers;
   _weatherTemplates: any;
   _vehicles: { [characterId: string]: Vehicle } = {};
   _reloadPacketsInterval: any;
-  _clients: { [characterId: string]: Client } = {};
-  _characters: { [characterId: string]: Character } = {};
+  
   worldObjectManager: WorldObjectManager;
   _ready: boolean = false;
   _itemDefinitions: { [itemDefinitionId: number]: any } = itemDefinitions;
@@ -88,20 +139,28 @@ export class ZoneServer2016 extends ZoneServer2015 {
     worldId?: number,
     internalServerPort?: number
   ) {
-    super(serverPort, gatewayKey, mongoAddress, worldId, internalServerPort);
+    super();
+    this._gatewayServer = new GatewayServer(
+      "ExternalGatewayApi_3",
+      serverPort,
+      gatewayKey
+    );
+    this._transientIds = {};
+    this._packetHandlers = new zonePacketHandlers();
+    this._mongoAddress = mongoAddress;
+    this._worldId = worldId || 0;
     this._protocol = new H1Z1Protocol("ClientProtocol_1080");
-    this._clientProtocol = "ClientProtocol_1080";
-    this._dynamicWeatherEnabled = true;
-    this._timeMultiplier = 72;
-    this._cycleSpeed = 100;
     this._weatherTemplates = localWeatherTemplates;
-    this._defaultWeatherTemplate = "z1br";
     this._weather2016 = this._weatherTemplates[this._defaultWeatherTemplate];
     this._speedTrees = {};
-    this._spawnLocations = spawnLocations;
     this._explosives = {};
     this._temporaryObjects = {};
     this._traps = {};
+    this._npcs = {};
+    this._objects = {};
+    this._doors = {};
+    this._vehicles = {};
+    this._props = {};
     this._respawnLocations = spawnLocations.map((spawn: any) => {
       return {
         guid: this.generateGuid(),
@@ -130,30 +189,246 @@ export class ZoneServer2016 extends ZoneServer2015 {
       };
     });
     this.worldObjectManager = new WorldObjectManager();
-  }
+    if (!this._mongoAddress) {
+      this._soloMode = true;
+      debug("Server in solo mode !");
+    }
+    this.on("data", (err: any, client: Client, packet: any) => {
+      if (err) {
+        console.error(err);
+      } else {
+        client.pingTimer?.refresh();
+        if (
+          packet.name != "KeepAlive" &&
+          packet.name != "PlayerUpdateUpdatePositionClientToZone" &&
+          packet.name != "PlayerUpdateManagedPosition" &&
+          packet.name != "ClientUpdate.MonitorTimeDrift"
+        ) {
+          debug(`Receive Data ${[packet.name]}`);
+        }
+        try {
+          this._packetHandlers.processPacket(this, client, packet);
+        } catch (error) {
+          console.error(error);
+          console.error(`An error occurred while processing a packet : `, packet);
+        }
+      }
+    });
 
-  onZoneDataEvent(err: any, client: Client, packet: any) {
-    if (err) {
+    this.on("login", (err, client) => {
+      if (err) {
       console.error(err);
-    } else {
-      client.pingTimer?.refresh();
-      if (
-        packet.name != "KeepAlive" &&
-        packet.name != "PlayerUpdateUpdatePositionClientToZone" &&
-        packet.name != "PlayerUpdateManagedPosition" &&
-        packet.name != "ClientUpdate.MonitorTimeDrift"
-      ) {
-        debug(`Receive Data ${[packet.name]}`);
+      } else {
+        debug("zone login");
+        try {
+          this.sendInitData(client);
+        } catch (error) {
+          debug(error);
+          this.sendData(client, "LoginFailed", {});
+        }
       }
-      try {
-        this._packetHandlers.processPacket(this, client, packet);
-      } catch (error) {
-        console.error(error);
-        console.error(`An error occurred while processing a packet : `, packet);
+    });
+    this._gatewayServer._soeServer.on(
+      "PacketLimitationReached",
+      (soeClient: SOEClient) => {
+        const client = this._clients[soeClient.sessionId];
+        this.sendChatText(
+          client,
+          "You've almost reached the packet limitation for the server."
+        );
+        this.sendChatText(
+          client,
+          "We will disconnect you in 60 seconds ( You can also do it yourself )"
+        );
+        this.sendChatText(client, "Sorry for that.");
+        setTimeout(() => {
+          this.sendData(client, "CharacterSelectSessionResponse", {
+            status: 1,
+            sessionId: client.loginSessionId,
+          });
+        }, 60000);
       }
+    );
+    this._gatewayServer._soeServer.on("fatalError", (soeClient: SOEClient) => {
+      const client = this._clients[soeClient.sessionId];
+      this.deleteClient(client);
+      // TODO: force crash the client
+    });
+    this._gatewayServer.on(
+      "login",
+      (
+        err: string,
+        client: SOEClient,
+        characterId: string,
+        loginSessionId: string,
+        clientProtocol: string
+      ) => {
+        if (clientProtocol !== this._clientProtocol) {
+          debug(`${client.address} is using the wrong client protocol`);
+          this.sendData(client as any, "LoginFailed", {});
+          return;
+        }
+        debug(
+          `Client logged in from ${client.address}:${client.port} with character id: ${characterId}`
+        );
+        const generatedTransient = this.getTransientId(characterId);
+        const zoneClient = this.createClient(
+          client.sessionId,
+          client.soeClientId,
+          loginSessionId,
+          characterId,
+          generatedTransient
+        );
+        this._clients[client.sessionId] = zoneClient;
+    
+        this._transientIds[generatedTransient] = characterId;
+        this._characters[characterId] = zoneClient.character;
+        zoneClient.pingTimer = setTimeout(() => {
+          this.timeoutClient(zoneClient);
+        }, this._pingTimeoutTime);
+        this.emit("login", err, zoneClient);
+      }
+    );
+    this._gatewayServer.on("disconnect", (err: string, client: Client) => {
+      this.deleteClient(client);
+    });
+
+    this._gatewayServer.on("session", (err: string, client: SOEClient) => {
+      debug(`Session started for client ${client.address}:${client.port}`);
+    });
+
+    this._gatewayServer.on(
+      "tunneldata",
+      (err: string, client: Client, data: Buffer, flags: number) => {
+        const packet = this._protocol.parse(data, flags, true);
+        if (packet) {
+          this.emit("data", null, client, packet);
+        } else {
+          debug("zonefailed : ", data);
+        }
+      }
+    );
+
+    if (!this._soloMode) {
+      this._h1emuZoneServer = new H1emuZoneServer(internalServerPort); // opens local socket to connect to loginserver
+
+      this._h1emuZoneServer.on(
+        "session",
+        (err: string, client: H1emuClient, status: number) => {
+          if (err) {
+            console.error(err);
+          } else {
+            debug(`LoginConnection established`);
+          }
+        }
+      );
+
+      this._h1emuZoneServer.on(
+        "sessionfailed",
+        (err: string, client: H1emuClient, status: number) => {
+          console.error("h1emuServer sessionfailed");
+          process.exit(1);
+        }
+      );
+
+      this._h1emuZoneServer.on(
+        "disconnect",
+        (err: string, client: H1emuClient, reason: number) => {
+          debug(
+            `LoginConnection dropped: ${
+              reason ? "Connection Lost" : "Unknown Error"
+            }`
+          );
+        }
+      );
+
+      this._h1emuZoneServer.on(
+        "data",
+        async (err: string, client: H1emuClient, packet: any) => {
+          if (err) {
+            console.error(err);
+          } else {
+            switch (packet.name) {
+              case "CharacterCreateRequest": {
+                this.onCharacterCreateRequest(client, packet);
+                break;
+              }
+              case "CharacterExistRequest": {
+                const { characterId, reqId } = packet.data;
+                try {
+                  const collection = (this._db as Db).collection("characters");
+                  const charactersArray = await collection
+                    .find({ characterId: characterId })
+                    .toArray();
+                  if (charactersArray.length) {
+                    this._h1emuZoneServer.sendData(
+                      client,
+                      "CharacterExistReply",
+                      { status: 1, reqId: reqId }
+                    );
+                  } else {
+                    this._h1emuZoneServer.sendData(
+                      client,
+                      "CharacterExistReply",
+                      { status: 0, reqId: reqId }
+                    );
+                  }
+                } catch (error) {
+                  this._h1emuZoneServer.sendData(
+                    client,
+                    "CharacterExistReply",
+                    { status: 0, reqId: reqId }
+                  );
+                }
+                break;
+              }
+              case "CharacterDeleteRequest": {
+                const { characterId, reqId } = packet.data;
+                try {
+                  const collection = (this._db as Db).collection("characters");
+                  const charactersArray = await collection
+                    .find({ characterId: characterId })
+                    .toArray();
+                  if (charactersArray.length === 1) {
+                    await collection.updateOne(
+                      { characterId: characterId },
+                      {
+                        $set: {
+                          status: 0,
+                        },
+                      }
+                    );
+                    this._h1emuZoneServer.sendData(
+                      client,
+                      "CharacterDeleteReply",
+                      { status: 1, reqId: reqId }
+                    );
+                  } else {
+                    this._h1emuZoneServer.sendData(
+                      client,
+                      "CharacterDeleteReply",
+                      { status: 1, reqId: reqId }
+                    );
+                  }
+                } catch (error) {
+                  this._h1emuZoneServer.sendData(
+                    client,
+                    "CharacterDeleteReply",
+                    { status: 0, reqId: reqId }
+                  );
+                }
+                break;
+              }
+              default:
+                debug(`Unhandled h1emu packet: ${packet.name}`);
+                break;
+            }
+          }
+        }
+      );
     }
   }
-
+  
   async onCharacterCreateRequest(client: any, packet: any) {
     function getCharacterModelData(payload: any): any {
       switch (payload.headType) {
@@ -522,7 +797,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
     for (let index = 0; index < vehiclesArray.length; index++) {
       const vehicle = vehiclesArray[index];
       this._vehicles[vehicle.npcData.characterId] = new Vehicle(
-        this._worldId,
+        this._worldId || 0,
         vehicle.npcData.characterId,
         vehicle.npcData.transientId,
         vehicle.npcData.modelId,
@@ -667,7 +942,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
     this.forceTime(971172000000); // force day time by default - not working for now
     this._frozeCycle = false;
     await this.fetchZoneData();
-    this._profiles = this.generateProfiles();
+    //this._profiles = this.generateProfiles();
     if (
       await this._db?.collection("worlds").findOne({ worldId: this._worldId })
     ) {
@@ -3745,6 +4020,184 @@ export class ZoneServer2016 extends ZoneServer2015 {
     ).zonePacketHandlers();
     await this._packetHandlers.reloadCommandCache();
   }
+  generateGuid(): string {
+    return generateRandomGuid();
+  }
+  getSoeClient(soeClientId: string): SOEClient {
+    return this._gatewayServer._soeServer._clients[soeClientId];
+  }
+  sendRawData(client: Client, data: Buffer, channel = 0): void {
+    this._gatewayServer.sendTunnelData(
+      this.getSoeClient(client.soeClientId),
+      data,
+      channel
+    );
+  }
+  sendChatText(client: Client, message: string, clearChat = false): void {
+    if (clearChat) {
+      for (let index = 0; index <= 6; index++) {
+        this.sendData(client, "Chat.ChatText", {
+          message: " ",
+          unknownDword1: 0,
+          color: [255, 255, 255, 0],
+          unknownDword2: 13951728,
+          unknownByte3: 0,
+          unknownByte4: 1,
+        });
+      }
+    }
+    this.sendData(client, "Chat.ChatText", {
+      message: message,
+      unknownDword1: 0,
+      color: [255, 255, 255, 0],
+      unknownDword2: 13951728,
+      unknownByte3: 0,
+      unknownByte4: 1,
+    });
+  }
+  getAllCurrentUsedTransientId() {
+    const allTransient: any = {};
+    for (const key in this._doors) {
+      const door = this._doors[key];
+      allTransient[door.transientId] = key;
+    }
+    for (const key in this._props) {
+      const prop = this._props[key];
+      allTransient[prop.transientId] = key;
+    }
+    for (const key in this._vehicles) {
+      const vehicle = this._vehicles[key];
+      allTransient[vehicle.npcData.transientId] = key;
+    }
+    for (const key in this._npcs) {
+      const npc = this._npcs[key];
+      allTransient[npc.transientId] = key;
+    }
+    for (const key in this._objects) {
+      const object = this._objects[key];
+      allTransient[object.transientId] = key;
+    }
+    return allTransient;
+  }
+  async fetchLoginInfo() {
+    const resolver = new Resolver();
+    const loginServerAddress = await new Promise((resolve, reject) => {
+      resolver.resolve4("loginserver.h1emu.com", (err, addresses) => {
+        if (!err) {
+          resolve(addresses[0]);
+        } else {
+          throw err;
+        }
+      });
+    });
+    this._loginServerInfo.address = loginServerAddress as string;
+  }
+  executeFuncForAllReadyClients(callback: any): void {
+    for (const client in this._clients) {
+      const clientObj: Client = this._clients[client];
+      if (!clientObj.isLoading) {
+        callback(clientObj);
+      }
+    }
+  }
+  async saveCharacterPosition(client: Client, refreshTimeout = false) {
+    if (client?.character) {
+      const { position, rotation } = client.character.state;
+      await this._db?.collection("characters").updateOne(
+        { characterId: client.character.characterId },
+        {
+          $set: {
+            position: position,
+            rotation: rotation,
+          },
+        }
+      );
+      refreshTimeout && client.savePositionTimer.refresh();
+    }
+  }
+  sendDataToAll(packetName: h1z1PacketsType, obj: any, channel = 0): void {
+    const data = this._protocol.pack(packetName, obj);
+    for (const a in this._clients) {
+      this.sendRawData(this._clients[a], data, channel);
+    }
+  }
+  dropVehicleManager(client: Client, vehicleGuid: string) {
+    this.sendManagedObjectResponseControlPacket(client, {
+      control: 0,
+      objectCharacterId: vehicleGuid,
+    });
+    client.managedObjects.splice(
+      client.managedObjects.findIndex((e: string) => e === vehicleGuid),
+      1
+    );
+    delete this._vehicles[vehicleGuid]?.manager;
+  }
+  sendZonePopulationUpdate() {
+    const populationNumber = _.size(this._characters);
+    this._h1emuZoneServer.sendData(
+      {
+        ...this._loginServerInfo,
+        session: true,
+      } as any,
+      "UpdateZonePopulation",
+      { population: populationNumber }
+    );
+  }
+  sendGlobalChatText(message: string, clearChat = false): void {
+    for (const a in this._clients) {
+      this.sendChatText(this._clients[a], message, clearChat);
+    }
+  }
+  filterOutOfDistance(element: any, playerPosition: Float32Array): boolean {
+    return !isPosInRadius(
+      (element.npcRenderDistance || this._npcRenderDistance) + 5,
+      playerPosition,
+      element.position || element.state?.position || element.npcData.position
+    );
+  }
+  getServerTimeTest(): number {
+    debug("get server time");
+    const delta = Date.now() - this._startTime;
+    return Number(
+      (((this._serverTime + delta) * this._timeMultiplier) / 1000).toFixed(0)
+    );
+  }
+  getServerTime(): number {
+    debug("get server time");
+    const delta = Date.now() - this._startTime;
+    return this._serverTime + delta;
+  }
+  dismissVehicle(vehicleGuid: string) {
+    /*
+    this.sendDataToAll("PlayerUpdate.RemovePlayerGracefully", {
+      characterId: vehicleGuid,
+    });
+    this.deleteEntity(vehicleGuid, this._vehicles);
+    */
+  }
+  getTransientId(guid: string): number {
+    let generatedTransient;
+    do {
+      generatedTransient = Number(
+        (Math.random() * MAX_TRANSIENT_ID).toFixed(0)
+      );
+    } while (!!this._transientIds[generatedTransient]);
+    this._transientIds[generatedTransient] = guid;
+    return generatedTransient;
+  }
+  reloadPackets(client: Client, intervalTime = -1): void {
+    this.reloadZonePacketHandlers();
+    this._protocol.reloadPacketDefinitions();
+    this.sendChatText(client, "[DEV] Packets reloaded", true);
+  }
+  timeoutClient(client: Client): void {
+    if (!!this._clients[client.sessionId]) {
+      // if hasn't already deleted
+      debug(`Client (${client.soeClientId}) disconnected ( ping timeout )`);
+      this.deleteClient(client);
+    }
+  }
+
   pSetImmediate = promisify(setImmediate);
   pSetTimeout = promisify(setTimeout)
 }

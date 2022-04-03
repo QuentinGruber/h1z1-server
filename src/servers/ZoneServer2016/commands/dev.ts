@@ -498,11 +498,11 @@ const dev: any = {
           items: [
             {
               item: {
-                itemDefinitionId: server._items[item].itemDefinitionId,
+                //itemDefinitionId: server._items[item].itemDefinitionId,
                 itemData: {
-                  itemDefinitionId: server._items[item].itemDefinitionId,
+                  //itemDefinitionId: server._items[item].itemDefinitionId,
                   itemData: {
-                    itemDefinitionId: server._items[item].itemDefinitionId,
+                    //itemDefinitionId: server._items[item].itemDefinitionId,
                     tintId: 1,
                     guid: item,
                     count: 92,
@@ -555,9 +555,9 @@ const dev: any = {
     server.sendData(client, "ClientUpdate.ProximateItems", {
       items: [
         {
-          itemDefinitionId: server._items[item].itemDefinitionId,
+          //itemDefinitionId: server._items[item].itemDefinitionId,
           itemData: {
-            itemDefinitionId: server._items[item].itemDefinitionId,
+            //itemDefinitionId: server._items[item].itemDefinitionId,
             tintId: 43,
             guid: item,
             count: 44,

@@ -31,9 +31,9 @@ import { CraftManager } from "./classes/craftmanager";
 import { inventoryItem, loadoutContainer } from "types/zoneserver";
 
 export class zonePacketHandlers {
-  hax: any = hax;
-  dev: any = dev;
-  admin: any = admin;
+  hax = hax;
+  dev = dev;
+  admin = admin;
   ClientIsReady;
   ClientFinishedLoading;
   Security;
