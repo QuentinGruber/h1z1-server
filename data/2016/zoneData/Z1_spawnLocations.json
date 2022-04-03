@@ -16,22 +16,6 @@
     ]
   },
   {
-    "id": 1,
-    "name": "Top radio",
-    "position": [
-      -1514.17,
-      406.87,
-      -842.29,
-      1
-    ],
-    "rotation": [
-      0,
-      0,
-      0,
-      1
-    ]
-  },
-  {
     "id": 2,
     "name": "pv pd",
     "position": [
@@ -211,9 +195,9 @@
     "id": 13,
     "name": "Lower Dam water",
     "position": [
-      -402.95,
-      36,
-      954.90,
+      -404.94,
+      36.00,
+      956.72,
       1
     ],
     "rotation": [
