@@ -829,7 +829,7 @@ export type h1z1PacketsType =
   | "Items.AddItemTrialTimer"
   | "Items.RemoveItemTrialTimer"
   | "Items.ExpireItemTrialTimer"
-  | "UpdateItemTrialTimer"
+  | "Items.UpdateItemTrialTimer"
   | "Items.SetItemRentalTimers"
   | "Items.AddItemRentalTimer"
   | "Items.RemoveItemRentalTimer"
