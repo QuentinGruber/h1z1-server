@@ -11,37 +11,25 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import {
-  characterEquipment,
-  loadoutItem,
-  loadoutContainer,
-} from "../../../types/zoneserver";
 import { ZoneClient2016 } from "./zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
+import { BaseCharacter } from "./basecharacter";
 
-export class Character2016 {
-  characterId: string;
+export class Character2016 extends BaseCharacter {
   guid?: string;
-  transientId: number;
   name?: string;
   resourcesUpdater?: any;
   factionId?: number;
-  spawnLocation?: string;
   godMode = false;
-  state: {
-    position: Float32Array;
-    rotation: Float32Array;
-    lookAt: Float32Array;
-  };
   characterStates: any;
-  isRunning: boolean = false;
-  isHidden: boolean = false;
-  isBleeding: boolean = false;
-  isBandaged: boolean = false;
-  isExhausted: boolean = false;
-  isAlive: boolean = true;
-  isSonic: boolean = false;
-  isMoving: boolean = false;
+  isRunning = false;
+  isHidden = false;
+  isBleeding = false;
+  isBandaged = false;
+  isExhausted = false;
+  isAlive = true;
+  isSonic = false;
+  isMoving = false;
   resources: {
     health: number;
     stamina: number;
@@ -54,14 +42,11 @@ export class Character2016 {
   actorModelId!: number;
   headActor!: string;
   hairModel!: string;
-  isRespawning: boolean = false;
+  isRespawning = false;
   gender!: number;
   creationDate!: string;
   lastLoginDate!: string;
-  _loadout: { [loadoutSlotId: number]: loadoutItem } = {};
-  currentLoadoutSlot: number = 7; //fists
-  _equipment: { [equipmentSlotId: number]: characterEquipment } = {};
-  _containers: { [loadoutSlotId: number]: loadoutContainer } = {};
+  currentLoadoutSlot = 7; //fists
   startRessourceUpdater: any;
   healingInterval?: any;
   healingTicks: number;
@@ -70,13 +55,7 @@ export class Character2016 {
   timeouts: any;
   hasConveys: boolean = false;
   constructor(characterId: string, generatedTransient: number) {
-    this.characterId = characterId;
-    this.transientId = generatedTransient;
-    this.state = {
-      position: new Float32Array([0, 0, 0, 0]),
-      rotation: new Float32Array([0, 0, 0, 0]),
-      lookAt: new Float32Array([0, 0, 0, 0]),
-    };
+    super(characterId, generatedTransient);
     this.healingTicks = 0;
     this.healingMaxTicks = 0;
     this.resources = {
