@@ -11,12 +11,6 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import {
-  characterEquipment,
-  loadoutItem,
-  loadoutContainer,
-} from "../../../types/zoneserver";
-
 export class BaseLightweightCharacter{
   characterId: string;
   transientId: number;
