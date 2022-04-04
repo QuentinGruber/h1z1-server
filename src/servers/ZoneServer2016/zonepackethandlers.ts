@@ -1480,7 +1480,7 @@ export class zonePacketHandlers {
       packet: any
     ) {
       debug(packet.data);
-      const item = server.getItemById(client, packet.data.itemDefinitionId);
+      const item = client.character.getItemById(packet.data.itemDefinitionId);
       if(!item) {
         server.containerError(client, 5); // slot does not contain item
         return;
@@ -1889,10 +1889,7 @@ export class zonePacketHandlers {
         if (characterId == targetCharacterId) {
           // from / to client container
           const container = client.character.getItemContainer(itemGuid),
-            targetContainer = server.getContainerFromGuid(
-              client,
-              containerGuid
-            );
+            targetContainer = client.character.getContainerFromGuid(containerGuid);
           if (container) { // from container
             const item = container.items[itemGuid],
               oldStackCount = item?.stackCount; // saves stack count before it gets altered

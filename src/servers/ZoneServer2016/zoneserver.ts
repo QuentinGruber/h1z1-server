@@ -2705,18 +2705,6 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  getContainerFromGuid(
-    client: Client,
-    containerGuid: string
-  ): loadoutContainer | undefined {
-    for (const container of Object.values(client.character._containers)) {
-      if (container.itemGuid == containerGuid) {
-        return container;
-      }
-    }
-    return undefined;
-  }
-
   getContainerDefinition(containerDefinitionId: any) {
     if (this._containerDefinitions[containerDefinitionId]) {
       return this._containerDefinitions[containerDefinitionId];
@@ -2752,18 +2740,6 @@ export class ZoneServer2016 extends EventEmitter {
 
   isWeapon(itemDefinitionId: number): boolean {
     return this.getItemDefinition(itemDefinitionId)?.ITEM_TYPE == 26;
-  }
-
-  isWeaponLoadoutSlot(loadoutSlotId: number): boolean {
-    switch(loadoutSlotId) {
-      case 1: // primary
-      case 3: // secondary
-      case 4: // tertiary
-      case 7: // fists
-        return true;
-      default:
-        return false;
-    }
   }
 
   validateEquipmentSlot(itemDefinitionId: number, equipmentSlotId: number) {
@@ -2881,17 +2857,6 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
     return;
-  }
-
-  getItemById(client: Client, itemDefId: number): inventoryItem | undefined {
-    for (const container of Object.values(client.character._containers)) {
-      for (const item of Object.values(container.items)) {
-        if (item.itemDefinitionId == itemDefId) {
-          return item;
-        }
-      }
-    }
-    return undefined;
   }
 
   getAvailableItemStack(

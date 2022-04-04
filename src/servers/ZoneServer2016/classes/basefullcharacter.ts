@@ -24,11 +24,29 @@ const loadoutSlots = require("./../../../../data/2016/dataSources/LoadoutSlots.j
 export class BaseFullCharacter extends BaseLightweightCharacter{
   resources = {};
   _loadout: { [loadoutSlotId: number]: loadoutItem } = {};
-  //currentLoadoutSlot: number = 7; //fists
   _equipment: { [equipmentSlotId: number]: characterEquipment } = {};
   _containers: { [loadoutSlotId: number]: loadoutContainer } = {};
   constructor(characterId: string, generatedTransient: number) {
     super(characterId, generatedTransient);
+  }
+
+  clearLoadoutSlot(loadoutSlotId: number) {
+    this._loadout[loadoutSlotId] = {
+      itemDefinitionId: 0,
+      slotId: loadoutSlotId,
+      itemGuid: "0x0",
+      containerGuid: "0xFFFFFFFFFFFFFFFF",
+      currentDurability: 0,
+      stackCount: 0,
+      loadoutItemOwnerGuid: "0x0"
+    }
+  }
+  setupLoadoutSlots() {
+    for(const slot of loadoutSlots) {
+      if(slot.LOADOUT_ID == 3 && !this._loadout[slot.SLOT_ID]) {
+        this.clearLoadoutSlot(slot.SLOT_ID);
+      }
+    }
   }
 
   getActiveLoadoutSlot(itemGuid: string): number {
@@ -48,24 +66,6 @@ export class BaseFullCharacter extends BaseLightweightCharacter{
       return this._loadout[loadoutSlotId];
     }
     return;
-  }
-  clearLoadoutSlot(loadoutSlotId: number) {
-    this._loadout[loadoutSlotId] = {
-      itemDefinitionId: 0,
-      slotId: loadoutSlotId,
-      itemGuid: "0x0",
-      containerGuid: "0xFFFFFFFFFFFFFFFF",
-      currentDurability: 0,
-      stackCount: 0,
-      loadoutItemOwnerGuid: "0x0"
-    }
-  }
-  setupLoadoutSlots() {
-    for(const slot of loadoutSlots) {
-      if(slot.LOADOUT_ID == 3 && !this._loadout[slot.SLOT_ID]) {
-        this.clearLoadoutSlot(slot.SLOT_ID);
-      }
-    }
   }
   getItemContainer(
     itemGuid: string
@@ -91,4 +91,28 @@ export class BaseFullCharacter extends BaseLightweightCharacter{
       return item;
     }
   }
+
+  getContainerFromGuid(
+    containerGuid: string
+  ): loadoutContainer | undefined {
+    for (const container of Object.values(this._containers)) {
+      if (container.itemGuid == containerGuid) {
+        return container;
+      }
+    }
+    return undefined;
+  }
+
+  getItemById(itemDefId: number): inventoryItem | undefined {
+    for (const container of Object.values(this._containers)) {
+      for (const item of Object.values(container.items)) {
+        if (item.itemDefinitionId == itemDefId) {
+          return item;
+        }
+      }
+    }
+    return undefined;
+  }
+
+
 }
