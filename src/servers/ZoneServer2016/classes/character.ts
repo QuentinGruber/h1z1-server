@@ -13,11 +13,12 @@
 
 import { ZoneClient2016 } from "./zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
-import { BaseCharacter } from "./basecharacter";
+import { BaseFullCharacter } from "./basefullcharacter";
 
-export class Character2016 extends BaseCharacter {
+export class Character2016 extends BaseFullCharacter {
   guid?: string;
   name?: string;
+  spawnLocation?: string;
   resourcesUpdater?: any;
   factionId?: number;
   godMode = false;

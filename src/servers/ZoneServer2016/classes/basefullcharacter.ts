@@ -16,29 +16,15 @@ import {
   loadoutItem,
   loadoutContainer,
 } from "../../../types/zoneserver";
+import { BaseLightweightCharacter } from "./baselightweightcharacter";
 
-export class BaseCharacter {
-  characterId: string;
-  transientId: number;
-  spawnLocation?: string;
-  state: {
-    position: Float32Array;
-    rotation: Float32Array;
-    lookAt: Float32Array;
-  };
+export class BaseFullCharacter extends BaseLightweightCharacter{
   resources = {};
-  actorModelId!: number;
   _loadout: { [loadoutSlotId: number]: loadoutItem } = {};
   //currentLoadoutSlot: number = 7; //fists
   _equipment: { [equipmentSlotId: number]: characterEquipment } = {};
   _containers: { [loadoutSlotId: number]: loadoutContainer } = {};
   constructor(characterId: string, generatedTransient: number) {
-    this.characterId = characterId;
-    this.transientId = generatedTransient;
-    this.state = {
-      position: new Float32Array([0, 0, 0, 0]),
-      rotation: new Float32Array([0, 0, 0, 0]),
-      lookAt: new Float32Array([0, 0, 0, 0]),
-    };
+    super(characterId, generatedTransient);
   }
 }
