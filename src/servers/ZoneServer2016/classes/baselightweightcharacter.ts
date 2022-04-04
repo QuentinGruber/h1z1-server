@@ -24,9 +24,9 @@ export class BaseLightweightCharacter{
     this.characterId = characterId;
     this.transientId = generatedTransient;
     this.state = {
-      position: new Float32Array([0, 0, 0, 0]),
-      rotation: new Float32Array([0, 0, 0, 0]),
-      lookAt: new Float32Array([0, 0, 0, 0]),
+      position: new Float32Array([0, 0, 0, 1]),
+      rotation: new Float32Array([0, 0, 0, 1]),
+      lookAt: new Float32Array([0, 0, 0, 1]),
     };
   }
 }

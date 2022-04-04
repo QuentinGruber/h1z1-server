@@ -1049,6 +1049,12 @@ export class zonePacketHandlers {
             slotId: 1,
             guid: "0x0",
           };
+          entityData._equipment[27] = {
+            // temporary to fix missing hair
+            modelName: entityData.hairModel,
+            slotId: 27,
+            guid: "0x0",
+          };
           server.updateEquipment(client, entityData);
           server.sendData(client, "Character.WeaponStance", {
             // activates weaponstance key
@@ -1322,6 +1328,7 @@ export class zonePacketHandlers {
         "Character.WeaponStance",
         {
           characterId: client.character.characterId,
+          stance: packet.data.stance
         }
       );
     };
@@ -1357,7 +1364,7 @@ export class zonePacketHandlers {
         server.sendChatText(client, "[ERROR] ItemGuid is invalid!");
         return;
       }
-      const item = server.getInventoryItem(client, itemGuid);
+      const item = client.character.getInventoryItem(itemGuid);
       if (!item) {
         server.containerError(client, 5); // slot does not contain item
         return;
@@ -1391,7 +1398,7 @@ export class zonePacketHandlers {
               client, 
               item.itemDefinitionId
             )
-          const container = server.getItemContainer(client, itemGuid);
+          const container = client.character.getItemContainer(itemGuid);
           if(server.isWeapon(item.itemDefinitionId)) {
             if(container) {
               const item = container.items[itemGuid];
@@ -1881,7 +1888,7 @@ export class zonePacketHandlers {
         // from client container
         if (characterId == targetCharacterId) {
           // from / to client container
-          const container = server.getItemContainer(client, itemGuid),
+          const container = client.character.getItemContainer(itemGuid),
             targetContainer = server.getContainerFromGuid(
               client,
               containerGuid
@@ -1936,7 +1943,7 @@ export class zonePacketHandlers {
               server.containerError(client, 3); // unknown container
             }
           } else { // from loadout or invalid
-            const loadoutItem = server.getLoadoutItem(client, itemGuid);
+            const loadoutItem = client.character.getLoadoutItem(itemGuid);
             if (!loadoutItem) {
               server.containerError(client, 5); // slot does not contain item
               return;
@@ -1964,7 +1971,7 @@ export class zonePacketHandlers {
               );
             }
             else if (containerGuid == "0xffffffffffffffff") { // to loadout
-              const loadoutItem = server.getLoadoutItem(client, itemGuid),
+              const loadoutItem = client.character.getLoadoutItem(itemGuid),
               oldLoadoutItem = client.character._loadout[newSlotId];
               if(!loadoutItem) {
                 server.containerError(client, 5); // slot does not contain item

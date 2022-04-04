@@ -20,7 +20,7 @@ export class Character2016 extends BaseFullCharacter {
   name?: string;
   spawnLocation?: string;
   resourcesUpdater?: any;
-  factionId?: number;
+  factionId = 2;
   godMode = false;
   characterStates: any;
   isRunning = false;
@@ -61,13 +61,13 @@ export class Character2016 extends BaseFullCharacter {
     this.healingMaxTicks = 0;
     this.resources = {
       health: 10000,
-      stamina: 50,
-      food: 5000,
-      water: 5000,
+      stamina: 600,
+      food: 10000,
+      water: 10000,
       virus: 0,
-      comfort: 6000,
+      comfort: 5000,
       bleeding: -40,
-    };
+    },
     this.timeouts = {};
     this.starthealingInterval = (
       client: ZoneClient2016,
