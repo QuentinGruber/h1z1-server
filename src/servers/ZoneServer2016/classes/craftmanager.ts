@@ -11,6 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { Scheduler } from "../../../utils/utils";
 import { ZoneServer2016 } from "../zoneserver";
 import { ZoneClient2016 as Client } from "./zoneclient";
 const debug = require("debug")("ZoneServer");
@@ -74,7 +75,7 @@ export class CraftManager {
     count: number
   ): Promise<boolean> {
     // if craftItem gets stuck in an infinite loop somehow, setImmediate will prevent the server from crashing
-    server.pSetImmediate();
+    Scheduler.yield()
     if (!count) return true;
     debug(`[CraftManager] Crafting ${count} of itemDefinitionId ${recipeId}`);
     const recipe = server._recipes[recipeId];

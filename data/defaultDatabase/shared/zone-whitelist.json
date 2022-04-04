@@ -1,0 +1,10 @@
+[
+    {
+        "serverId": 1,
+        "address": "127.0.0.1"
+      },
+      {
+        "serverId": 2,
+        "address": "127.0.0.1"
+      }
+]
