@@ -11,7 +11,6 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { Character } from "../../ZoneServer2015/classes/character";
 import {
   characterEquipment,
   loadoutItem,
@@ -20,7 +19,29 @@ import {
 import { ZoneClient2016 } from "./zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 
-export class Character2016 extends Character {
+export class Character2016 {
+  characterId: string;
+  guid?: string;
+  transientId: number;
+  name?: string;
+  resourcesUpdater?: any;
+  factionId?: number;
+  spawnLocation?: string;
+  godMode = false;
+  state: {
+    position: Float32Array;
+    rotation: Float32Array;
+    lookAt: Float32Array;
+  };
+  characterStates: any;
+  isRunning: boolean = false;
+  isHidden: boolean = false;
+  isBleeding: boolean = false;
+  isBandaged: boolean = false;
+  isExhausted: boolean = false;
+  isAlive: boolean = true;
+  isSonic: boolean = false;
+  isMoving: boolean = false;
   resources: {
     health: number;
     stamina: number;
@@ -49,7 +70,13 @@ export class Character2016 extends Character {
   timeouts: any;
   hasConveys: boolean = false;
   constructor(characterId: string, generatedTransient: number) {
-    super(characterId, generatedTransient);
+    this.characterId = characterId;
+    this.transientId = generatedTransient;
+    this.state = {
+      position: new Float32Array([0, 0, 0, 0]),
+      rotation: new Float32Array([0, 0, 0, 0]),
+      lookAt: new Float32Array([0, 0, 0, 0]),
+    };
     this.healingTicks = 0;
     this.healingMaxTicks = 0;
     this.resources = {

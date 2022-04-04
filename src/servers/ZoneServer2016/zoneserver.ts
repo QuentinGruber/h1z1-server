@@ -555,6 +555,7 @@ export class ZoneServer2016 extends EventEmitter {
         comfort: 5000,
         bleeding: -40,
       },
+      /*
       equipment: [
         // default SurvivorMale equipment
         {
@@ -581,6 +582,7 @@ export class ZoneServer2016 extends EventEmitter {
           slotId: 3,
         },
       ],
+      */
       _loadout: {},
       currentLoadoutSlot: 7, //fists
       _equipment: {},
@@ -589,8 +591,6 @@ export class ZoneServer2016 extends EventEmitter {
         position: new Float32Array([0, 0, 0, 1]),
         rotation: new Float32Array([0, 0, 0, 1]),
         lookAt: new Float32Array([0, 0, 0, 1]),
-        health: 0,
-        shield: 0,
       },
     };
     if (character.hairModel) {
