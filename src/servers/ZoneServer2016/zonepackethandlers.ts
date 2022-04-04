@@ -1362,7 +1362,7 @@ export class zonePacketHandlers {
         server.containerError(client, 5); // slot does not contain item
         return;
       }
-      const loadoutSlotId = server.getActiveLoadoutSlot(client, itemGuid);
+      const loadoutSlotId = client.character.getActiveLoadoutSlot(itemGuid)
       if (loadoutSlotId && 
         client.character._containers[loadoutSlotId]?.itemGuid == itemGuid
         && _.size(client.character._containers[loadoutSlotId].items) != 0
@@ -1385,7 +1385,7 @@ export class zonePacketHandlers {
           );
           break;
         case 60: //equip item
-          const activeSlotId = server.getActiveLoadoutSlot(client, itemGuid);
+          const activeSlotId = client.character.getActiveLoadoutSlot(itemGuid)
           let loadoutSlotId = 
             server.getAvailableLoadoutSlot(
               client, 

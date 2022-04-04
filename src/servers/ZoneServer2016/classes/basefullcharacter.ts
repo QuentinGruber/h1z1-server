@@ -27,4 +27,15 @@ export class BaseFullCharacter extends BaseLightweightCharacter{
   constructor(characterId: string, generatedTransient: number) {
     super(characterId, generatedTransient);
   }
+
+  getActiveLoadoutSlot(itemGuid: string): number {
+    // gets the loadoutSlotId of a specified itemGuid in the loadout
+    for(const item of Object.values(this._loadout)) {
+      if(itemGuid == item.itemGuid) {
+        return item.slotId;
+      }
+    }
+    return 0;
+  }
+
 }

@@ -534,7 +534,8 @@ export class ZoneServer2016 extends EventEmitter {
       );
       client.character.name = character.characterName;
     }
-
+    
+    //@ts-ignore
     client.character = {
       ...client.character,
       guid: "0x665a2bff2b44c034", // default, only matters for multiplayer
@@ -555,34 +556,6 @@ export class ZoneServer2016 extends EventEmitter {
         comfort: 5000,
         bleeding: -40,
       },
-      /*
-      equipment: [
-        // default SurvivorMale equipment
-        {
-          modelName: character.headActor,
-          slotId: 1,
-        },
-        {
-          modelName: `Survivor${
-            client.character.gender == 1 ? "Male" : "Female"
-          }_Eyes_01.adr`,
-          slotId: 105,
-        },
-        {
-          modelName: `Survivor${
-            client.character.gender == 1 ? "Male" : "Female"
-          }_Legs_Pants_Underwear.adr`,
-          slotId: 4,
-        },
-        {
-          modelName: `Survivor${
-            client.character.gender == 1 ? "Male" : "Female"
-          }_Chest_Bra.adr`,
-          textureAlias: "",
-          slotId: 3,
-        },
-      ],
-      */
       _loadout: {},
       currentLoadoutSlot: 7, //fists
       _equipment: {},
@@ -2881,16 +2854,6 @@ export class ZoneServer2016 extends EventEmitter {
     return slot;
   }
 
-  getActiveLoadoutSlot(client: Client, itemGuid: string): number {
-    // gets the loadoutSlotId of a specified itemGuid in the loadout
-    for(const item of Object.values(client.character._loadout)) {
-      if(itemGuid == item.itemGuid) {
-        return item.slotId;
-      }
-    }
-    return 0;
-  }
-
   getActiveEquipmentSlot(client: Client, item: loadoutItem) {
     for(const equipment of Object.values(client.character._equipment)) {
       if(item.itemGuid == equipment.guid) {
@@ -2999,7 +2962,7 @@ export class ZoneServer2016 extends EventEmitter {
     client: Client,
     itemGuid: string
   ): loadoutItem | undefined {
-    const loadoutSlotId = this.getActiveLoadoutSlot(client, itemGuid);
+    const loadoutSlotId = client.character.getActiveLoadoutSlot(itemGuid);
     if (client.character._loadout[loadoutSlotId]?.itemGuid == itemGuid) {
       return client.character._loadout[loadoutSlotId];
     }
