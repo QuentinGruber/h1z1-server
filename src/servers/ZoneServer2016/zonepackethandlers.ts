@@ -1352,20 +1352,20 @@ export class zonePacketHandlers {
       packet: any
     ) {
       debug(packet.data);
-      if (!packet.data.itemGuid) {
+      const { itemGuid } = packet.data;
+      if (!itemGuid) {
         server.sendChatText(client, "[ERROR] ItemGuid is invalid!");
         return;
       }
-      const itemDefinition = server.getItemDefinition(
-          server._items[packet.data.itemGuid].itemDefinitionId
-        ),
-        nameId = itemDefinition.NAME_ID,
-        loadoutSlotId = server.getLoadoutSlot(itemDefinition.ID);
-      if (
-        loadoutSlotId &&
-        client.character._containers[loadoutSlotId]?.itemGuid ==
-          packet.data.itemGuid &&
-        _.size(client.character._containers[loadoutSlotId].items) != 0
+      const item = server.getInventoryItem(client, itemGuid);
+      if (!item) {
+        server.containerError(client, 5); // slot does not contain item
+        return;
+      }
+      const loadoutSlotId = server.getActiveLoadoutSlot(client, itemGuid);
+      if (loadoutSlotId && 
+        client.character._containers[loadoutSlotId]?.itemGuid == itemGuid
+        && _.size(client.character._containers[loadoutSlotId].items) != 0
       ) {
         // prevents duping if client check is bypassed
         server.sendChatText(
@@ -1380,70 +1380,85 @@ export class zonePacketHandlers {
         case 79: // sparks drop option
           server.dropItem(
             client,
-            packet.data.itemGuid,
+            item,
             packet.data.itemSubData?.count
           );
           break;
         case 60: //equip item
-          const item = server._items[packet.data.itemGuid],
-            loadoutId = server.getLoadoutSlot(item.itemDefinitionId),
-            oldLoadoutItem = client.character._loadout[loadoutId],
-            container = server.getItemContainer(client, packet.data.itemGuid),
-            containerItem = container?.items[packet.data.itemGuid];
-          if ((!oldLoadoutItem && !container) || !containerItem) {
-            server.containerError(client, 3); // unknown container
-            return;
+          const activeSlotId = server.getActiveLoadoutSlot(client, itemGuid);
+          let loadoutSlotId = 
+            server.getAvailableLoadoutSlot(
+              client, 
+              item.itemDefinitionId
+            )
+          const container = server.getItemContainer(client, itemGuid);
+          if(server.isWeapon(item.itemDefinitionId)) {
+            if(container) {
+              const item = container.items[itemGuid];
+              if (!item) {
+                server.containerError(client, 5); // slot does not contain item
+                return;
+              }
+              if(!loadoutSlotId) {
+                loadoutSlotId = server.getLoadoutSlot(item.itemDefinitionId);
+              }
+              client.character.currentLoadoutSlot = loadoutSlotId;
+              server.equipContainerItem(client, item, loadoutSlotId);
+            }
+            else {
+              if(!activeSlotId) {
+                server.containerError(client, 3) // unknown container
+                return;
+              }
+              const loadoutItem = client.character._loadout[activeSlotId];
+              if (!loadoutItem) {
+                server.containerError(client, 5); // slot does not contain item
+                return;
+              }
+              server.switchLoadoutSlot(client, loadoutItem);
+            }
           }
-          if (oldLoadoutItem) {
-            // if target loadoutSlot is occupied
-            if (oldLoadoutItem.itemGuid == packet.data.itemGuid) {
+          else {
+            if(activeSlotId) {
               server.sendChatText(client, "[ERROR] Item is already equipped!");
               return;
             }
-            // remove item from inventory and equip item
-            if (
-              !server.removeContainerItem(client, containerItem, container, 1)
-            ) {
+            if (!container) {
+              server.containerError(client, 3) // unknown container
+              return;
+            }
+            const item = container.items[itemGuid];
+            if (!item) {
               server.containerError(client, 5); // slot does not contain item
               return;
             }
-            server.lootContainerItem(client, oldLoadoutItem.itemGuid, 1, false);
-            server.equipItem(client, packet.data.itemGuid);
-          } else {
-            // remove item from inventory and equip item
-            if (
-              !server.removeContainerItem(client, containerItem, container, 1)
-            ) {
-              server.containerError(client, 5); // slot does not contain item
-              return;
-            }
-            server.equipItem(client, packet.data.itemGuid);
+            server.equipContainerItem(client, item, server.getLoadoutSlot(item.itemDefinitionId));
           }
           break;
         case 6: // shred
-          server.shredItem(client, packet.data.itemGuid);
+          server.shredItem(client, item);
           break;
         case 1: //eat
-          server.eatItem(client, packet.data.itemGuid, nameId);
+          server.eatItem(client, item);
           break;
         case 2: //drink
-          server.drinkItem(client, packet.data.itemGuid, nameId);
+          server.drinkItem(client, item);
           break;
         case 3: //use
-          server.useItem(client, packet.data.itemGuid);
+          server.useItem(client, item);
           break;
         case 17: //refuel
           server.refuelVehicle(
             client,
-            packet.data.itemGuid,
+            item,
             packet.data.characterId2
           );
           break;
         case 52: //use medical
-          server.useMedical(client, packet.data.itemGuid, nameId);
+          server.useMedical(client, item);
           break;
         case 11: //ignite
-          server.igniteOption(client, packet.data.itemGuid, nameId);
+          server.igniteOption(client, item);
           break;
         default:
           server.sendChatText(
@@ -1458,6 +1473,11 @@ export class zonePacketHandlers {
       packet: any
     ) {
       debug(packet.data);
+      const item = server.getItemById(client, packet.data.itemDefinitionId);
+      if(!item) {
+        server.containerError(client, 5); // slot does not contain item
+        return;
+      }
       const modelId = server.getItemDefinition(
         packet.data.itemDefinitionId
       ).PLACEMENT_MODEL_ID;
@@ -1488,13 +1508,9 @@ export class zonePacketHandlers {
             staticEffectId: true,
           };
 
-          if (
-            !server.removeInventoryItem(
-              client,
-              server.getItemById(client, packet.data.itemDefinitionId)
-            )
-          )
+          if (!server.removeInventoryItem(client, item)) {
             return;
+          }
 
           server._temporaryObjects[characterId] = npc; // save npc
           setTimeout(function () {
@@ -1525,13 +1541,9 @@ export class zonePacketHandlers {
             attachedObject: {},
             isIED: true,
           };
-          if (
-            !server.removeInventoryItem(
-              client,
-              server.getItemById(client, packet.data.itemDefinitionId)
-            )
-          )
+          if (!server.removeInventoryItem(client, item)) {
             return;
+          }
 
           server._explosives[characterId] = npc; // save npc
           break;
@@ -1552,13 +1564,9 @@ export class zonePacketHandlers {
             attachedObject: {},
             isIED: false,
           };
-          if (
-            !server.removeInventoryItem(
-              client,
-              server.getItemById(client, packet.data.itemDefinitionId)
-            )
-          )
+          if (!server.removeInventoryItem(client, item)) {
             return;
+          }
 
           server._explosives[characterId] = npc; // save npc
           setTimeout(function () {
@@ -1661,13 +1669,9 @@ export class zonePacketHandlers {
             realHealth: 100000,
             health: 100,
           };
-          if (
-            !server.removeInventoryItem(
-              client,
-              server.getItemById(client, packet.data.itemDefinitionId)
-            )
-          )
+          if (!server.removeInventoryItem(client, item)) {
             return;
+          }
 
           server._traps[characterId] = npc; // save npc
           setTimeout(function () {
@@ -1757,13 +1761,9 @@ export class zonePacketHandlers {
             attachedObject: {},
             isTriggered: false,
           };
-          if (
-            !server.removeInventoryItem(
-              client,
-              server.getItemById(client, packet.data.itemDefinitionId)
-            )
-          )
+          if (!server.removeInventoryItem(client, item)) {
             return;
+          }
 
           server._traps[characterId] = npc; // save npc
           setTimeout(function () {
@@ -1819,8 +1819,7 @@ export class zonePacketHandlers {
                 npc.modelId = 1974;
                 server.worldObjectManager.createLootEntity(
                   server,
-                  1415,
-                  1,
+                  server.generateItem(1415),
                   npc.position,
                   npc.rotation,
                   15
@@ -1851,7 +1850,6 @@ export class zonePacketHandlers {
         count,
         newSlotId,
       } = packet.data;
-
       // helper functions
       function combineItemStack(
         oldStackCount: number,
@@ -1862,7 +1860,7 @@ export class zonePacketHandlers {
           // if full stack is moved
           server.addContainerItem(
             client,
-            itemGuid,
+            item,
             targetContainer,
             count,
             false
@@ -1888,18 +1886,14 @@ export class zonePacketHandlers {
               client,
               containerGuid
             );
-
-          if (container) {
-            // from container
+          if (container) { // from container
             const item = container.items[itemGuid],
               oldStackCount = item?.stackCount; // saves stack count before it gets altered
             if (!item) {
               server.containerError(client, 5); // slot does not contain item
               return;
             }
-            if (targetContainer) {
-              // to container
-              // move to container
+            if (targetContainer) { // to container
               if (
                 container.containerGuid != targetContainer.containerGuid &&
                 !server.getContainerHasSpace(
@@ -1911,7 +1905,6 @@ export class zonePacketHandlers {
                 // allows items in the same container but different stacks to be stacked
                 return;
               }
-
               if (!server.removeContainerItem(client, item, container, count)) {
                 server.containerError(client, 5); // slot does not contain item
                 return;
@@ -1925,66 +1918,87 @@ export class zonePacketHandlers {
                   count,
                   newSlotId
                 );
-                if (itemStack) {
-                  // add to existing item stack
+                if (itemStack) { // add to existing item stack
                   const item = targetContainer.items[itemStack];
                   item.stackCount += count;
                   server.updateContainerItem(client, item, targetContainer);
-                } else {
-                  // add item to end
+                } else { // add item to end
                   combineItemStack(oldStackCount, targetContainer, item);
                 }
               }
-            } else if (containerGuid == "0xFFFFFFFFFFFFFFFF") {
-              // to loadout
-              server.equipItem(client, packet.data.itemGuid);
-            } else {
-              // invalid
+            }
+            else if (containerGuid == "0xffffffffffffffff") { // to loadout
+              if(server.validateLoadoutSlot(item.itemDefinitionId, newSlotId)) {
+                server.equipContainerItem(client, item, newSlotId);
+              }
+            }
+            else { // invalid
               server.containerError(client, 3); // unknown container
             }
-          } else {
-            // from loadout or invalid
-            const item = server._items[itemGuid];
-            //todo: check if item exists in loadout
-            if (targetContainer) {
-              // to container
-              // move to container
+          } else { // from loadout or invalid
+            const loadoutItem = server.getLoadoutItem(client, itemGuid);
+            if (!loadoutItem) {
+              server.containerError(client, 5); // slot does not contain item
+              return;
+            }
+            if (targetContainer) { // to container
               if (
                 !server.getContainerHasSpace(
                   targetContainer,
-                  item.itemDefinitionId,
+                  loadoutItem.itemDefinitionId,
                   count
                 )
               ) {
                 return;
               }
-              if (
-                !server.removeLoadoutItem(
-                  client,
-                  server.getLoadoutSlot(item.itemDefinitionId)
-                )
-              ) {
+              if (!server.removeLoadoutItem(client, loadoutItem.slotId)) {
                 server.containerError(client, 5); // slot does not contain item
                 return;
               }
               server.addContainerItem(
                 client,
-                server.generateItem(item.itemDefinitionId),
+                loadoutItem,
                 targetContainer,
                 count,
                 false
               );
-            } else if (containerGuid == "0xFFFFFFFFFFFFFFFF") {
-              // to loadout
-              // remove item from inventory and equip item
-            } else {
-              // invalid
+            }
+            else if (containerGuid == "0xffffffffffffffff") { // to loadout
+              const loadoutItem = server.getLoadoutItem(client, itemGuid),
+              oldLoadoutItem = client.character._loadout[newSlotId];
+              if(!loadoutItem) {
+                server.containerError(client, 5); // slot does not contain item
+                return;
+              }
+              if(!server.validateLoadoutSlot(loadoutItem.itemDefinitionId, newSlotId)) {
+                server.sendChatText(client, "[ERROR] Invalid loadout slot.")
+                return;
+              }
+              if(oldLoadoutItem.itemDefinitionId) {
+                if (!server.removeLoadoutItem(client, oldLoadoutItem.slotId)) {
+                  server.containerError(client, 5); // slot does not contain item
+                  return;
+                }
+              }
+              if (!server.removeLoadoutItem(client, loadoutItem.slotId)) {
+                server.containerError(client, 5); // slot does not contain item
+                return;
+              }
+              if(oldLoadoutItem.itemDefinitionId) {
+                server.equipItem(client, oldLoadoutItem, true, loadoutItem.slotId);
+              }
+              server.equipItem(client, loadoutItem, true, newSlotId);
+            }
+            else { // invalid
               server.containerError(client, 3); // unknown container
             }
           }
         }
-      } else {
-        // from external container
+        else { // to external container
+
+        }
+      } else { // from external container 
+
       }
     };
     //#endregion
