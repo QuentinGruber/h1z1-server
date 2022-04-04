@@ -1322,9 +1322,7 @@ export class ZoneServer2015 extends EventEmitter {
       characterId: client.character.characterId,
       unk: 1,
     });
-    const spawnLocations = this._soloMode
-      ? localSpawnList
-      : await this._db?.collection("spawns").find().toArray();
+    const spawnLocations = localSpawnList;
     const randomSpawnIndex = Math.floor(Math.random() * spawnLocations.length);
     this.sendData(client, "ClientUpdate.UpdateLocation", {
       position: spawnLocations[randomSpawnIndex].position,
