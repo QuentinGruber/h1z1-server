@@ -120,7 +120,6 @@ export class SOEServer extends EventEmitter {
       clearTimeout(client.waitQueueTimer)
       client.waitQueueTimer = undefined;
     }
-    console.log("send client wait queue : "+client.waitingQueue.length);
     if (client.waitingQueue.length) {
       if(client.waitingQueue.length > 1){
         this._sendPacket(
