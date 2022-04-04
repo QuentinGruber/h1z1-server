@@ -39,7 +39,7 @@ export function parseItemRequestSubData(data: h1z1Buffer, offset: number) {
     length: offset - startOffset,
   };
 }
-  export const itemsPackets: any = [
+export const itemsPackets: any = [
   ["Items.LoadItemRentalDefinitionManager", 0xad01, {}],
   ["Items.SetItemTimerManager", 0xad02, {}],
   ["Items.SetItemLockTimer", 0xad03, {}],
@@ -73,8 +73,8 @@ export function parseItemRequestSubData(data: h1z1Buffer, offset: number) {
   ["Items.ItemPacketIdSetEmoteItem", 0xad1f, {}],
   ["Items.RemoveEmoteItem", 0xad20, {}],
   ["Items.SetSkinItemManager", 0xad21, {}],
-  ["Items.SetSkinItem", 0xad22, {}], 
-  ["Items.RemoveSkinItem", 0xad23, {}],  
+  ["Items.SetSkinItem", 0xad22, {}],
+  ["Items.RemoveSkinItem", 0xad23, {}],
   ["Items.SetSkinItemCollectionCustomName", 0xad24, {}],
   ["Items.SelectSkinItemCollectionId", 0xad25, {}],
   ["Items.SetCurrentSkinItemCollection", 0xad26, {}],
@@ -82,20 +82,21 @@ export function parseItemRequestSubData(data: h1z1Buffer, offset: number) {
   ["Items.RequestTrialItem", 0xad28, {}],
   ["Items.RequestRentalItem", 0xad29, {}],
   ["Items.RequestUseItem", 0xad2a, {
-		fields: [
-        { name: "itemCount", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "itemUseOption", type: "uint32", defaultValue: 0 },
-        { name: "characterId", type: "uint64string", defaultValue: "" },
-        { name: "characterId2", type: "uint64string", defaultValue: "" },
-        { name: "characterId3", type: "uint64string", defaultValue: "" },
-        { name: "itemGuid", type: "uint64string", defaultValue: "" },
-        {
-          name: "itemSubData",
-          type: "custom",
-          defaultValue: {},
-          parser: parseItemRequestSubData,
-	  }],
+    fields: [
+      { name: "itemCount", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      { name: "itemUseOption", type: "uint32", defaultValue: 0 },
+      { name: "characterId", type: "uint64string", defaultValue: "" },
+      { name: "characterId2", type: "uint64string", defaultValue: "" },
+      { name: "characterId3", type: "uint64string", defaultValue: "" },
+      { name: "itemGuid", type: "uint64string", defaultValue: "" },
+      {
+        name: "itemSubData",
+        type: "custom",
+        defaultValue: {},
+        parser: parseItemRequestSubData,
+      }]
+  }],
   ["Items.RequestUseAccountItem", 0xad2b, {}],
   ["Items.RequestRemoveNewAccountItemRec", 0xad2c, {}],
   ["Items.RemoveNewAccountItemRecByItemId", 0xad2d, {}],
@@ -110,8 +111,4 @@ export function parseItemRequestSubData(data: h1z1Buffer, offset: number) {
   ["Items.RequestSelectSkinItemCollection", 0xad36, {}],
   ["Items.RequestOpenAccountCrate", 0xad37, {}],
   ["Items.RequestPreviewAccountCrateRewards", 0xad38, {}],
-      },
-      ],
-    },
-  ],
 ];
