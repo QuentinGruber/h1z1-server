@@ -89,7 +89,7 @@ export class ZoneServer2016 extends EventEmitter {
   _props: any;
   _gameTime: any;
   _time = Date.now();
-  _serverTime: any;
+  _serverTime = this.getCurrentTime();
   _startTime = 0;
   _startGameTime = 0;
   _timeMultiplier = 72;
@@ -110,6 +110,7 @@ export class ZoneServer2016 extends EventEmitter {
 
 
   _weather2016: Weather2016;
+  //@ts-ignore
   _packetHandlers: zonePacketHandlers;
   _weatherTemplates: any;
   _vehicles: { [characterId: string]: Vehicle } = {};
@@ -1977,6 +1978,10 @@ export class ZoneServer2016 extends EventEmitter {
       characterId,
       generatedTransient
     );
+  }
+
+  getCurrentTime(): number {
+    return Number((Date.now() / 1000).toFixed(0));
   }
 
   getGameTime(): number {
