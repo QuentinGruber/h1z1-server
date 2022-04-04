@@ -72,7 +72,7 @@ export function parseItemRequestSubData(data: h1z1Buffer, offset: number) {
   ["Items.ReportRewardCrateContents", 0xad1e, {}],
   ["Items.ItemPacketIdSetEmoteItem", 0xad1f, {}],
   ["Items.RemoveEmoteItem", 0xad20, {}],
-  ["Items.SetSkinItemManage", 0xad21, {}],
+  ["Items.SetSkinItemManager", 0xad21, {}],
   ["Items.SetSkinItem", 0xad22, {}], 
   ["Items.RemoveSkinItem", 0xad23, {}],  
   ["Items.SetSkinItemCollectionCustomName", 0xad24, {}],
