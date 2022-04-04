@@ -1626,14 +1626,11 @@ export class ZoneServer2016 extends EventEmitter {
       return !objectsToRemove.includes(el);
     });
     objectsToRemove.forEach((object: any) => {
-      const characterId = object.characterId
-        ? object.characterId
-        : object.characterId;
       this.sendData(
         client,
         "Character.RemovePlayer",
         {
-          characterId,
+          characterId: object.characterId,
         },
         1
       );
