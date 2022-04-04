@@ -37,6 +37,7 @@ import {
   isPosInRadius,
   getDistance,
   randomIntFromInterval,
+  Scheduler,
 } from "../../utils/utils";
 
 import { Db, MongoClient } from "mongodb";
@@ -860,7 +861,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
         if (isPosInRadius(5, vehicle.npcData.position, position)) {
           const distance = getDistance(position, vehicle.npcData.position);
           const damage = 250000 / distance;
-          await this.pSetTimeout(150);
+          await Scheduler.wait(150);
           this.damageVehicle(damage, vehicle);
         }
       }
@@ -869,7 +870,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
       const explosiveObj = this._explosives[explosive];
       if (explosiveObj.characterId != npcTriggered) {
         if (getDistance(position, explosiveObj.position) < 2) {
-          await this.pSetTimeout(150);
+          await Scheduler.wait(150);
           this.explodeExplosive(explosiveObj);
         }
       }
@@ -3745,8 +3746,6 @@ export class ZoneServer2016 extends ZoneServer2015 {
     ).zonePacketHandlers();
     await this._packetHandlers.reloadCommandCache();
   }
-  pSetImmediate = promisify(setImmediate);
-  pSetTimeout = promisify(setTimeout)
 }
 
 if (process.env.VSCODE_DEBUG === "true") {
