@@ -1,4 +1,4 @@
-// ======================================================================
+  // ======================================================================
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
@@ -39,8 +39,7 @@ export function parseItemRequestSubData(data: h1z1Buffer, offset: number) {
     length: offset - startOffset,
   };
 }
-
-export const itemsPackets: any = [
+  export const itemsPackets: any = [
   ["Items.LoadItemRentalDefinitionManager", 0xad01, {}],
   ["Items.SetItemTimerManager", 0xad02, {}],
   ["Items.SetItemLockTimer", 0xad03, {}],
@@ -55,20 +54,35 @@ export const itemsPackets: any = [
   ["Items.AddItemRentalTimer", 0xad0c, {}],
   ["Items.RemoveItemRentalTimer", 0xad0d, {}],
   ["Items.ExpireItemRentalTimer", 0xad0e, {}],
-  ["Items.SetAccountItemManager", 0xad0f, {}],
-  ["Items.AddAccountItem", 0xad10, {}],
-  ["Items.RemoveAccountItem", 0xad11, {}],
-  ["Items.UpdateAccountItem", 0xad12, {}],
-  ["Items.RequestAddItemTimer", 0xad13, {}],
-  ["Items.RequestTrialItem", 0xad14, {}],
-  ["Items.RequestRentalItem", 0xad15, {}],
-  //["Items.RequestUseItem", 0xad16, {}],
-  ["Items.RequestUseAccountItem", 0xad17, {}],
-  [
-    "Items.RequestUseItem",
-    0xad2a,
-    {
-      fields: [
+  ["Items.UseClientItem", 0xad0f, {}],
+  ["Items.SetAccountItemManager", 0xad10, {}],
+  ["Items.AddAccountItem", 0xad11, {}],
+  ["Items.RemoveAccountItem", 0xad12, {}],
+  ["Items.UpdateAccountItem", 0xad13, {}],
+  ["Items.SetEscrowAccountItemManager", 0xad14, {}],
+  ["Items.AddEscrowAccountItem", 0xad15, {}],
+  ["Items.RemoveEscrowAccountItem", 0xad16, {}],
+  ["Items.UpdateEscrowAccountItem", 0xad17, {}],
+  ["Items.AccountItemManagerStateChanged", 0xad18, {}],
+  ["Items.AddNewAccountItemRec", 0xad19, {}],
+  ["Items.RemoveNewAccountItemRec", 0xad1a, {}],
+  ["Items.RemoveNewAccountItemRecByItemId", 0xad1b, {}],
+  ["Items.RemoveAllNewAccountItemRecs", 0xad1c, {}],
+  ["Items.ReportNewRewardCrateAdded", 0xad1d, {}],
+  ["Items.ReportRewardCrateContents", 0xad1e, {}],
+  ["Items.ItemPacketIdSetEmoteItem", 0xad1f, {}],
+  ["Items.RemoveEmoteItem", 0xad20, {}],
+  ["Items.SetSkinItemManage", 0xad21, {}],
+  ["Items.SetSkinItem", 0xad22, {}], 
+  ["Items.RemoveSkinItem", 0xad23, {}],  
+  ["Items.SetSkinItemCollectionCustomName", 0xad24, {}],
+  ["Items.SelectSkinItemCollectionId", 0xad25, {}],
+  ["Items.SetCurrentSkinItemCollection", 0xad26, {}],
+  ["Items.RequestAddItemTimer", 0xad27, {}],
+  ["Items.RequestTrialItem", 0xad28, {}],
+  ["Items.RequestRentalItem", 0xad29, {}],
+  ["Items.RequestUseItem", 0xad2a, {
+		fields: [
         { name: "itemCount", type: "uint32", defaultValue: 0 },
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "itemUseOption", type: "uint32", defaultValue: 0 },
@@ -81,8 +95,25 @@ export const itemsPackets: any = [
           type: "custom",
           defaultValue: {},
           parser: parseItemRequestSubData,
-        },
+		  }],
+  ["Items.RequestUseAccountItem", 0xad2b, {}],
+  ["Items.RequestRemoveNewAccountItemRec", 0xad2c, {}],
+  ["Items.RemoveNewAccountItemRecByItemId", 0xad2d, {}],
+  ["Items.RequestRemoveAllNewAccountItemRecs", 0xad2e, {}],
+  ["Items.RequestSetEmoteItem", 0xad2f, {}],
+  ["Items.RequestSetSkinItem", 0xad30, {}],
+  ["Items.SetSkinItemByItemId", 0xad31, {}],
+  ["Items.RequestSetSkinItemFlags", 0xad32, {}],
+  ["Items.RequestUnsetSkinItem", 0xad33, {}],
+  ["Items.RequestRemoveSkinItem", 0xad34, {}],
+  ["Items.SetSkinItemCollectionCustomName", 0xad35, {}],
+  ["Items.RequestSelectSkinItemCollection", 0xad36, {}],
+  ["Items.RequestOpenAccountCrate", 0xad37, {}],
+  ["Items.RequestPreviewAccountCrateRewards", 0xad38, {}],
+      },
       ],
     },
   ],
 ];
+  
+  
