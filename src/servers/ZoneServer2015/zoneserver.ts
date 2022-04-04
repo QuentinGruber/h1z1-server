@@ -524,25 +524,10 @@ export class ZoneServer2015 extends EventEmitter {
     }
   }
 
-  removeSoloCache() {
-    localSpawnList = null;
-    localWeatherTemplates = null;
-    delete require.cache[
-      require.resolve("../../../data/2015/sampleData/spawnLocations.json")
-    ];
-    delete require.cache[
-      require.resolve("../../../data/2015/sampleData/weather.json")
-    ];
-  }
-
   async setupServer(): Promise<void> {
     this.forceTime(971172000000); // force day time by default - not working for now
     this._frozeCycle = false;
-    this._weather = this._soloMode
-      ? localWeatherTemplates[this._defaultWeatherTemplate]
-      : await this._db
-          ?.collection("weathers")
-          .findOne({ templateName: this._defaultWeatherTemplate });
+    this._weather = localWeatherTemplates[this._defaultWeatherTemplate]
     this._profiles = this.generateProfiles();
     this._items = this.generateItems();
     if (
@@ -557,7 +542,6 @@ export class ZoneServer2015 extends EventEmitter {
       await this.saveWorld();
     }
     if (!this._soloMode) {
-      this.removeSoloCache();
       debug("Starting H1emuZoneServer");
       if (!this._loginServerInfo.address) {
         await this.fetchLoginInfo();
@@ -715,9 +699,8 @@ export class ZoneServer2015 extends EventEmitter {
     const dbIsEmpty =
       (await mongoClient.db("h1server").collections()).length < 1;
     if (dbIsEmpty) {
-      await initMongo(this._mongoAddress, debugName);
+      await initMongo(mongoClient, debugName);
     }
-    delete require.cache[require.resolve("mongodb-restore-dump")];
     this._db = mongoClient.db("h1server");
   }
 
@@ -854,9 +837,7 @@ export class ZoneServer2015 extends EventEmitter {
 
     if (isRandomlySpawning) {
       // Take position/rotation from a random spawn location.
-      const spawnLocations = this._soloMode
-        ? localSpawnList
-        : await this._db?.collection("spawns").find().toArray();
+      const spawnLocations = localSpawnList;
       const randomSpawnIndex = Math.floor(
         Math.random() * spawnLocations.length
       );
@@ -1341,9 +1322,7 @@ export class ZoneServer2015 extends EventEmitter {
       characterId: client.character.characterId,
       unk: 1,
     });
-    const spawnLocations = this._soloMode
-      ? localSpawnList
-      : await this._db?.collection("spawns").find().toArray();
+    const spawnLocations = localSpawnList;
     const randomSpawnIndex = Math.floor(Math.random() * spawnLocations.length);
     this.sendData(client, "ClientUpdate.UpdateLocation", {
       position: spawnLocations[randomSpawnIndex].position,

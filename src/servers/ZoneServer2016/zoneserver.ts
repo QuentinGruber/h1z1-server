@@ -499,16 +499,9 @@ export class ZoneServer2016 extends ZoneServer2015 {
       debug("connected to mongo !");
       // if no collections exist on h1server database , fill it with samples
       (await mongoClient.db("h1server").collections()).length ||
-        (await initMongo(this._mongoAddress, debugName));
+        (await initMongo(mongoClient, debugName));
       this._db = mongoClient.db("h1server");
     }
-
-    this._spawnLocations = this._soloMode
-      ? spawnLocations
-      : await this._db?.collection("spawns").find().toArray();
-    this._weatherTemplates = this._soloMode
-      ? localWeatherTemplates
-      : await this._db?.collection("weathers").find().toArray();
   }
 
   addDoor(obj: {}, characterId: string) {

@@ -20,7 +20,6 @@
     "h1emu-core": "0.7.1",
     "h1z1-dataschema": "1.5.9",
     "mongodb": "4.4.1",
-    "mongodb-restore-dump": "1.0.1",
     "typescript": "4.6.3",
     "v8-compile-cache": "2.3.0"
   },
