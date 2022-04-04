@@ -35,7 +35,7 @@ export default class SOEClient {
   inputStream: SOEInputStream;
   outputStream: SOEOutputStream;
   cryptoKey: Uint8Array;
-  waitQueueTimer!: NodeJS.Timeout;
+  waitQueueTimer?: NodeJS.Timeout;
   waitingQueueCurrentByteLength: number = 0;
   soeClientId: string;
   lastPingTimer!: NodeJS.Timeout;

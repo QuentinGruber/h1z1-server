@@ -39,6 +39,7 @@ export class SOEServer extends EventEmitter {
   _waitQueueTimeMs: number = 50;
   _pingTimeoutTime: number = 60000;
   _usePingTimeout: boolean;
+  _maxMultiBufferSize: number;
 
   constructor(
     protocolName: string,
@@ -57,6 +58,7 @@ export class SOEServer extends EventEmitter {
     this._maxOutOfOrderPacketsPerLoop = 20;
     this._protocol = new Soeprotocol(Boolean(this._crcLength));
     this._udpLength = 512;
+    this._maxMultiBufferSize = this._udpLength - 4 - this._crcLength;
     this._useEncryption = true;
     this._useMultiPackets = false;
     this._usePingTimeout = false;
@@ -114,6 +116,11 @@ export class SOEServer extends EventEmitter {
   }
 
   sendClientWaitQueue(client: Client) {
+    if(client.waitQueueTimer){
+      clearTimeout(client.waitQueueTimer)
+      client.waitQueueTimer = undefined;
+    }
+    console.log("send client wait queue : "+client.waitingQueue.length);
     if (client.waitingQueue.length) {
       if(client.waitingQueue.length > 1){
         this._sendPacket(
@@ -127,8 +134,8 @@ export class SOEServer extends EventEmitter {
       }
       else{ // if only one packets
         const extractedPacket = client.waitingQueue[0];
-        const data = this.createPacket(client, extractedPacket.name, extractedPacket.soePacket);
-        client.outQueue.unshift(data);
+        const data = this.createPacket(client, extractedPacket.name, extractedPacket);
+        client.outQueue.push(data);
       }
       client.waitingQueueCurrentByteLength = 0;
       client.waitingQueue = [];
@@ -362,13 +369,6 @@ export class SOEServer extends EventEmitter {
           
           setImmediate(() => this.soeClientRoutine(client));
 
-          if (this._useMultiPackets) {
-            client.waitQueueTimer = setTimeout(
-              () => this.sendClientWaitQueue(client),
-              this._waitQueueTimeMs
-            );
-          }
-
           this.emit("connect", null, this._clients[clientId]);
         }
         client = this._clients[clientId];
@@ -430,23 +430,24 @@ export class SOEServer extends EventEmitter {
   ): void {
     const data = this.createPacket(client, packetName, packet);
     if (prioritize) {
-      if(packetName !== "MultiPacket")
+      if(packetName !== "MultiPacket" && this._waitQueueTimeMs > 0)
         this.sendClientWaitQueue(client);
       client.outQueue.push(data);
     } else {
       if (
-        this._useMultiPackets &&
-        packetName != "DataFragment" &&
-        (client.waitingQueueCurrentByteLength + data.length + 1 < 300 )&&
-        (data.length + 1) < 255
+        this._waitQueueTimeMs > 0 &&
+        data.length < 255 &&
+        (client.waitingQueueCurrentByteLength + data.length <= this._maxMultiBufferSize)
       ) {
-        const fullBufferedPacketLen = data.length + 1;
+        const fullBufferedPacketLen = data.length + 1; // the additionnal byte is the length of the packet written in the buffer when assembling the packet
         client.waitingQueue.push({
           name: packetName,
-          soePacket: packet,
+          ...packet,
         });
         client.waitingQueueCurrentByteLength += fullBufferedPacketLen;
-        client.waitQueueTimer.refresh();
+        if(!client.waitQueueTimer){
+          client.waitQueueTimer = setTimeout(()=>this.sendClientWaitQueue(client),this._waitQueueTimeMs);
+        }
       } else {
         this.sendClientWaitQueue(client);
         client.outQueue.push(data);
