@@ -1614,6 +1614,7 @@ export class ZoneServer2016 extends EventEmitter {
     const objectsToRemove = client.spawnedEntities.filter(
       (e) =>
         //!e.npcData?.positionUpdateType && // TODO: change this behavior this will cause issues
+        !e.vehicleId &&
         this.filterOutOfDistance(e, client.character.state.position)
     );
     client.spawnedEntities = client.spawnedEntities.filter((el) => {
@@ -2014,10 +2015,10 @@ export class ZoneServer2016 extends EventEmitter {
             ...vehicle,
             npcData: {
               ...vehicle,
-              position: vehicle.state.position,
-              rotation: vehicle.state.rotation,
+              ...vehicle.state,
               modelId: vehicle.actorModelId
-            }
+            },
+            unknownGuid1: this.generateGuid()
           }, 1);
           this.sendData(client, "Vehicle.OwnerPassengerList", {
             characterId: client.character.characterId,
