@@ -257,12 +257,6 @@ export class SOEServer extends EventEmitter {
           client.outputStream.resendData(packet.sequence);
           break;
         case "Ack":
-          if (packet.sequence > 40000) {
-            console.log("Warn Ack, sequence ", packet.sequence);
-            this._sendPacket(client, "PacketOrdered",{},true);
-            // see https://github.com/QuentinGruber/h1z1-server/issues/363
-           // this.emit("PacketLimitationReached", client);
-          }
           debug("Ack, sequence " + packet.sequence);
           client.outputStream.ack(packet.sequence);
           break;
@@ -336,12 +330,12 @@ export class SOEServer extends EventEmitter {
             (err: string, data: Buffer, sequence: number, fragment: any) => {
               if (fragment) {
                 this._sendPacket(client, "DataFragment", {
-                  sequence: sequence,
+                  sequence: sequence & 0xffff,
                   data: data,
                 });
               } else {
                 this._sendPacket(client, "Data", {
-                  sequence: sequence,
+                  sequence: sequence & 0xffff,
                   data: data,
                 });
               }
