@@ -1,4 +1,4 @@
-  // ======================================================================
+// ======================================================================
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
@@ -95,7 +95,7 @@ export function parseItemRequestSubData(data: h1z1Buffer, offset: number) {
           type: "custom",
           defaultValue: {},
           parser: parseItemRequestSubData,
-		  }],
+	  }],
   ["Items.RequestUseAccountItem", 0xad2b, {}],
   ["Items.RequestRemoveNewAccountItemRec", 0xad2c, {}],
   ["Items.RemoveNewAccountItemRecByItemId", 0xad2d, {}],
@@ -115,5 +115,3 @@ export function parseItemRequestSubData(data: h1z1Buffer, offset: number) {
     },
   ],
 ];
-  
-  
