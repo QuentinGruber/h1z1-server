@@ -68,6 +68,10 @@ export class Character2016 extends BaseFullCharacter {
       comfort: 5000,
       bleeding: -40,
     },
+    this.characterStates = {
+      knockedOut: false,
+      inWater: false,
+    }
     this.timeouts = {};
     this.starthealingInterval = (
       client: ZoneClient2016,

@@ -74,7 +74,15 @@ const hax: any = {
       server.getGameTime()
     );
     server._vehicles[characterId] = vehicle;
-    server.sendData(client, "AddLightweightVehicle", vehicle, 1);
+    server.sendData(client, "AddLightweightVehicle", {
+      ...vehicle,
+      npcData: {
+        ...vehicle,
+        position: vehicle.state.position,
+        rotation: vehicle.state.rotation,
+        modelId: vehicle.actorModelId
+      }
+    }, 1);
     client.spawnedEntities.push(vehicle);
     server.mountVehicle(client, characterId);
   },
@@ -189,7 +197,7 @@ const hax: any = {
   ) {
     client.spawnedEntities.forEach((object) => {
       server.despawnEntity(
-        object.characterId ? object.characterId : object.npcData.characterId
+        object.characterId
       );
     });
     client.spawnedEntities = [];

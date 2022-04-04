@@ -722,7 +722,7 @@ export class zonePacketHandlers {
         vehicle.positionUpdate = packet.data.positionUpdate;
       }
       if (packet.data.positionUpdate.position) {
-        vehicle.npcData.position = new Float32Array([
+        vehicle.state.position = new Float32Array([
           packet.data.positionUpdate.position[0],
           packet.data.positionUpdate.position[1],
           packet.data.positionUpdate.position[2],
@@ -822,7 +822,7 @@ export class zonePacketHandlers {
         packet.data.vehicle_position &&
         client.vehicle.mountedVehicle
       ) {
-        server._vehicles[client.vehicle.mountedVehicle].npcData.position =
+        server._vehicles[client.vehicle.mountedVehicle].state.position =
           new Float32Array([
             packet.data.vehicle_position[0],
             packet.data.vehicle_position[1],
@@ -912,10 +912,10 @@ export class zonePacketHandlers {
           });
           break;
         case 2: // vehicles
-          if (entityData.npcData.vehicleId != 13) {
+          if (entityData.vehicleId != 13) {
             server.sendData(client, "LightweightToFullVehicle", {
               npcData: {
-                transientId: entityData.npcData.transientId,
+                transientId: entityData.transientId,
                 attachmentData: [],
                 effectTags: [],
                 unknownData1: {},
@@ -930,7 +930,7 @@ export class zonePacketHandlers {
                       resourceData: {
                         resourceId: 561,
                         resourceType: 1,
-                        value: entityData.npcData.resources.health,
+                        value: entityData.resources.health,
                       },
                     },
                     {
@@ -938,7 +938,7 @@ export class zonePacketHandlers {
                       resourceData: {
                         resourceId: 396,
                         resourceType: 50,
-                        value: entityData.npcData.resources.fuel,
+                        value: entityData.resources.fuel,
                       },
                     },
                   ],
@@ -987,7 +987,7 @@ export class zonePacketHandlers {
               {
                 // mounts character
                 characterId: entityData.seats[a],
-                vehicleGuid: entityData.npcData.characterId, // vehicle guid
+                vehicleGuid: entityData.characterId, // vehicle guid
                 seatId: seatId,
                 unknownDword3: seatId === "0" ? 1 : 0, //isDriver
                 identity: {},
@@ -997,13 +997,13 @@ export class zonePacketHandlers {
 
           if (entityData.destroyedEffect != 0) {
             server.sendData(client, "Command.PlayDialogEffect", {
-              characterId: entityData.npcData.characterId,
+              characterId: entityData.characterId,
               effectId: entityData.destroyedEffect,
             });
           }
           if (entityData.engineOn) {
             server.sendData(client, "Vehicle.Engine", {
-              guid2: entityData.npcData.characterId,
+              guid2: entityData.characterId,
               engineOn: true,
             });
           }
@@ -1094,7 +1094,7 @@ export class zonePacketHandlers {
         !isPosInRadius(
           server._interactionDistance,
           client.character.state.position,
-          entityData.npcData ? entityData.npcData.position : entityData.position
+          entityData.state ? entityData.state.position : entityData.position
         )
       )
         return;
@@ -1237,7 +1237,7 @@ export class zonePacketHandlers {
         !isPosInRadius(
           server._interactionDistance,
           client.character.state.position,
-          entityData.npcData ? entityData.npcData.position : entityData.position
+          entityData.state ? entityData.state.position : entityData.position
         )
       )
         return;
@@ -1622,7 +1622,7 @@ export class zonePacketHandlers {
               for (const a in server._vehicles) {
                 if (
                   getDistance(
-                    server._vehicles[a].npcData.position,
+                    server._vehicles[a].state.position,
                     npc.position
                   ) < 2.2
                 ) {
@@ -1637,7 +1637,7 @@ export class zonePacketHandlers {
                     {
                       characterId: characterId,
                       effectId: 1875,
-                      position: server._vehicles[a].npcData.position,
+                      position: server._vehicles[a].state.position,
                     }
                   );
                   server.sendDataToAllWithSpawnedEntity(

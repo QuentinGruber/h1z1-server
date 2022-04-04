@@ -268,8 +268,8 @@ const dev: any = {
     let found = false;
     for (const v in server._vehicles) {
       console.log(server._vehicles[v]);
-      if (server._vehicles[v].npcData.modelId === parseInt(args[1])) {
-        location.position = server._vehicles[v].npcData.position;
+      if (server._vehicles[v].actorModelId === parseInt(args[1])) {
+        location.position = server._vehicles[v].state.position;
         server.sendData(client, "ClientUpdate.UpdateLocation", location);
         server.sendWeatherUpdatePacket(client, server._weather2016);
         found = true;

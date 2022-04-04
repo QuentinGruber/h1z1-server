@@ -748,17 +748,27 @@ export class ZoneServer2016 extends EventEmitter {
       .toArray();
     for (let index = 0; index < vehiclesArray.length; index++) {
       const vehicle = vehiclesArray[index];
-      this._vehicles[vehicle.npcData.characterId] = new Vehicle(
+      this._vehicles[vehicle.characterId] = new Vehicle(
         this._worldId || 0,
-        vehicle.npcData.characterId,
-        vehicle.npcData.transientId,
-        vehicle.npcData.modelId,
-        new Float32Array(vehicle.npcData.position),
-        new Float32Array(vehicle.npcData.rotation),
+        vehicle.characterId,
+        vehicle.transientId,
+        vehicle.actorModelId,
+        new Float32Array(vehicle.state.position),
+        new Float32Array(vehicle.state.rotation),
         this._gameTime
       );
-      this._vehicles[vehicle.npcData.characterId].npcData = vehicle.npcData;
-      this._vehicles[vehicle.npcData.characterId].positionUpdate =
+      // TODO: update mongo with new schema
+      this._vehicles[vehicle.characterId] = {
+        ...this._vehicles[vehicle.characterId],
+        ...vehicle.npcData,
+        actorModelId: vehicle.npcData.modelId
+      }
+      this._vehicles[vehicle.characterId].state = {
+        ...this._vehicles[vehicle.characterId].state,
+        position: vehicle.npcData.position,
+        rotation: vehicle.npcData.rotation,
+      }
+      this._vehicles[vehicle.characterId].positionUpdate =
         vehicle.positionUpdate;
     }
   }
@@ -1083,9 +1093,9 @@ export class ZoneServer2016 extends EventEmitter {
     }
     for (const vehicleKey in this._vehicles) {
       const vehicle = this._vehicles[vehicleKey];
-      if (vehicle.npcData.characterId != npcTriggered) {
-        if (isPosInRadius(5, vehicle.npcData.position, position)) {
-          const distance = getDistance(position, vehicle.npcData.position);
+      if (vehicle.characterId != npcTriggered) {
+        if (isPosInRadius(5, vehicle.state.position, position)) {
+          const distance = getDistance(position, vehicle.state.position);
           const damage = 250000 / distance;
           await this.pSetTimeout(150);
           this.damageVehicle(damage, vehicle);
@@ -1111,7 +1121,7 @@ export class ZoneServer2016 extends EventEmitter {
       let criticalDamageEffect: number;
       let supercriticalDamageEffect: number;
       let destroyedVehicleModel: number;
-      switch (vehicle.npcData.vehicleId) {
+      switch (vehicle.vehicleId) {
         case 1: //offroader
           destroyedVehicleEffect = 135;
           destroyedVehicleModel = 7226;
@@ -1153,8 +1163,8 @@ export class ZoneServer2016 extends EventEmitter {
           supercriticalDamageEffect = 5227;
           break;
       }
-      vehicle.npcData.resources.health -= damage;
-      if (vehicle.npcData.resources.health <= 0) {
+      vehicle.resources.health -= damage;
+      if (vehicle.resources.health <= 0) {
         this.destroyVehicle(
           vehicle,
           destroyedVehicleEffect,
@@ -1165,59 +1175,59 @@ export class ZoneServer2016 extends EventEmitter {
         let allowSend = false;
         let startDamageTimeout = false;
         if (
-          vehicle.npcData.resources.health <= 50000 &&
-          vehicle.npcData.resources.health > 35000
+          vehicle.resources.health <= 50000 &&
+          vehicle.resources.health > 35000
         ) {
-          if (vehicle.npcData.destroyedState != 1) {
+          if (vehicle.destroyedState != 1) {
             damageeffect = minorDamageEffect;
             allowSend = true;
-            vehicle.npcData.destroyedState = 1;
+            vehicle.destroyedState = 1;
           }
         } else if (
-          vehicle.npcData.resources.health <= 35000 &&
-          vehicle.npcData.resources.health > 20000
+          vehicle.resources.health <= 35000 &&
+          vehicle.resources.health > 20000
         ) {
-          if (vehicle.npcData.destroyedState != 2) {
+          if (vehicle.destroyedState != 2) {
             damageeffect = majorDamageEffect;
             allowSend = true;
-            vehicle.npcData.destroyedState = 2;
+            vehicle.destroyedState = 2;
           }
         } else if (
-          vehicle.npcData.resources.health <= 20000 &&
-          vehicle.npcData.resources.health > 10000
+          vehicle.resources.health <= 20000 &&
+          vehicle.resources.health > 10000
         ) {
-          if (vehicle.npcData.destroyedState != 3) {
+          if (vehicle.destroyedState != 3) {
             damageeffect = criticalDamageEffect;
             allowSend = true;
             startDamageTimeout = true;
-            vehicle.npcData.destroyedState = 3;
+            vehicle.destroyedState = 3;
           }
-        } else if (vehicle.npcData.resources.health <= 10000) {
-          if (vehicle.npcData.destroyedState != 4) {
+        } else if (vehicle.resources.health <= 10000) {
+          if (vehicle.destroyedState != 4) {
             damageeffect = supercriticalDamageEffect;
             allowSend = true;
             startDamageTimeout = true;
-            vehicle.npcData.destroyedState = 4;
+            vehicle.destroyedState = 4;
           }
         } else if (
-          vehicle.npcData.resources.health > 50000 &&
-          vehicle.npcData.destroyedState != 0
+          vehicle.resources.health > 50000 &&
+          vehicle.destroyedState != 0
         ) {
-          vehicle.npcData.destroyedState = 0;
-          this._vehicles[vehicle.npcData.characterId].destroyedEffect = 0;
+          vehicle.destroyedState = 0;
+          this._vehicles[vehicle.characterId].destroyedEffect = 0;
         }
 
         if (allowSend) {
           this.sendDataToAllWithSpawnedEntity(
             this._vehicles,
-            vehicle.npcData.characterId,
+            vehicle.characterId,
             "Command.PlayDialogEffect",
             {
-              characterId: vehicle.npcData.characterId,
+              characterId: vehicle.characterId,
               effectId: damageeffect,
             }
           );
-          this._vehicles[vehicle.npcData.characterId].destroyedEffect =
+          this._vehicles[vehicle.characterId].destroyedEffect =
             damageeffect;
           if (!vehicle.damageTimeout && startDamageTimeout) {
             this.startVehicleDamageDelay(vehicle);
@@ -1226,8 +1236,8 @@ export class ZoneServer2016 extends EventEmitter {
 
         this.updateResourceToAllWithSpawnedVehicle(
           vehicle.passengers.passenger1,
-          vehicle.npcData.characterId,
-          vehicle.npcData.resources.health,
+          vehicle.characterId,
+          vehicle.resources.health,
           561,
           1
         );
@@ -1240,14 +1250,14 @@ export class ZoneServer2016 extends EventEmitter {
     destroyedVehicleEffect: number,
     destroyedVehicleModel: number
   ) {
-    vehicle.npcData.resources.health = 0;
-    this.explosionDamage(vehicle.npcData.position, vehicle.npcData.characterId);
+    vehicle.resources.health = 0;
+    this.explosionDamage(vehicle.state.position, vehicle.characterId);
     this.sendDataToAllWithSpawnedEntity(
       this._vehicles,
-      vehicle.npcData.characterId,
+      vehicle.characterId,
       "Character.Destroyed",
       {
-        characterId: vehicle.npcData.characterId,
+        characterId: vehicle.characterId,
         unknown1: destroyedVehicleEffect,
         unknown2: destroyedVehicleModel,
         unknown3: 0,
@@ -1256,22 +1266,22 @@ export class ZoneServer2016 extends EventEmitter {
     );
     for (const c in this._clients) {
       if (
-        vehicle.npcData.characterId ===
+        vehicle.characterId ===
           this._clients[c].vehicle.mountedVehicle &&
         !this._clients[c].character.isAlive
       ) {
         this.dismountVehicle(this._clients[c]);
       }
     }
-    this.deleteEntity(vehicle.npcData.characterId, this._vehicles);
+    this.deleteEntity(vehicle.characterId, this._vehicles);
   }
 
   startVehicleDamageDelay(vehicle: Vehicle) {
     vehicle.damageTimeout = setTimeout(() => {
       this.damageVehicle(1000, vehicle);
       if (
-        vehicle.npcData.resources.health < 20000 &&
-        vehicle.npcData.resources.health > 0
+        vehicle.resources.health < 20000 &&
+        vehicle.resources.health > 0
       ) {
         vehicle.damageTimeout.refresh();
       }
@@ -1609,7 +1619,7 @@ export class ZoneServer2016 extends EventEmitter {
     // does not include vehicles
     const objectsToRemove = client.spawnedEntities.filter(
       (e) =>
-        !e.npcData?.positionUpdateType && // TODO: change this behavior this will cause issues
+        //!e.npcData?.positionUpdateType && // TODO: change this behavior this will cause issues
         this.filterOutOfDistance(e, client.character.state.position)
     );
     client.spawnedEntities = client.spawnedEntities.filter((el) => {
@@ -1618,7 +1628,7 @@ export class ZoneServer2016 extends EventEmitter {
     objectsToRemove.forEach((object: any) => {
       const characterId = object.characterId
         ? object.characterId
-        : object.npcData.characterId;
+        : object.characterId;
       this.sendData(
         client,
         "Character.RemovePlayer",
@@ -2005,11 +2015,19 @@ export class ZoneServer2016 extends EventEmitter {
         isPosInRadius(
           this._npcRenderDistance,
           client.character.state.position,
-          vehicle.npcData.position
+          vehicle.state.position
         )
       ) {
         if (!client.spawnedEntities.includes(vehicle)) {
-          this.sendData(client, "AddLightweightVehicle", vehicle, 1);
+          this.sendData(client, "AddLightweightVehicle", {
+            ...vehicle,
+            npcData: {
+              ...vehicle,
+              position: vehicle.state.position,
+              rotation: vehicle.state.rotation,
+              modelId: vehicle.actorModelId
+            }
+          }, 1);
           this.sendData(client, "Vehicle.OwnerPassengerList", {
             characterId: client.character.characterId,
             passengers: vehicle.getPassengerList().map((characterId) => {
@@ -2041,7 +2059,7 @@ export class ZoneServer2016 extends EventEmitter {
             client,
             "Character.RemovePlayer",
             {
-              characterId: vehicle.npcData.characterId,
+              characterId: vehicle.characterId,
             },
             1
           );
@@ -2056,14 +2074,14 @@ export class ZoneServer2016 extends EventEmitter {
     debug("\n\n\n\n\n\n\n\n\n\n assign managed object");
 
     this.sendData(client, "Character.ManagedObject", {
-      objectCharacterId: vehicle.npcData.characterId,
+      objectCharacterId: vehicle.characterId,
       characterId: client.character.characterId,
     });
     this.sendData(client, "ClientUpdate.ManagedObjectResponseControl", {
       control: true,
-      objectCharacterId: vehicle.npcData.characterId,
+      objectCharacterId: vehicle.characterId,
     });
-    client.managedObjects.push(vehicle.npcData.characterId);
+    client.managedObjects.push(vehicle.characterId);
     vehicle.isManaged = true;
   }
 
@@ -2072,14 +2090,14 @@ export class ZoneServer2016 extends EventEmitter {
     vehicle: Vehicle,
     keepManaged: boolean = false
   ) {
-    const index = client.managedObjects.indexOf(vehicle.npcData.characterId);
+    const index = client.managedObjects.indexOf(vehicle.characterId);
     if (index > -1) {
       // todo: vehicle seat swap managed object drop logic
       debug("\n\n\n\n\n\n\n\n\n\n drop managed object");
 
       /*this.sendData(client, "ClientUpdate.ManagedObjectResponseControl", {
         control: true,
-        objectCharacterId: vehicle.npcData.characterId,
+        objectCharacterId: vehicle.characterId,
       });*/ // dont work :/
 
       this.sendData(
@@ -2087,12 +2105,20 @@ export class ZoneServer2016 extends EventEmitter {
         client,
         "Character.RemovePlayer",
         {
-          characterId: vehicle.npcData.characterId,
+          characterId: vehicle.characterId,
         },
         1
       );
 
-      this.sendData(client, "AddLightweightVehicle", vehicle, 1);
+      this.sendData(client, "AddLightweightVehicle", {
+        ...vehicle,
+        npcData: {
+          ...vehicle,
+          position: vehicle.state.position,
+          rotation: vehicle.state.rotation,
+          modelId: vehicle.actorModelId
+        }
+      }, 1);
       client.managedObjects.splice(index, 1);
       // blocks vehicleManager from taking over management during a takeover
       if (!keepManaged) vehicle.isManaged = false;
@@ -2100,14 +2126,14 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   takeoverManagedObject(newClient: Client, vehicle: Vehicle) {
-    const index = newClient.managedObjects.indexOf(vehicle.npcData.characterId);
+    const index = newClient.managedObjects.indexOf(vehicle.characterId);
     if (index === -1) {
       // if object is already managed by client, do nothing
       debug("\n\n\n\n\n\n\n\n\n\n takeover managed object");
       for (const characterId in this._clients) {
         const oldClient = this._clients[characterId];
         const idx = oldClient.managedObjects.indexOf(
-          vehicle.npcData.characterId
+          vehicle.characterId
         );
         if (idx > -1) {
           this.dropManagedObject(oldClient, vehicle, true);
@@ -2176,8 +2202,8 @@ export class ZoneServer2016 extends EventEmitter {
     const vehicle = this._vehicles[vehicleGuid];
     if (!vehicle) return;
     client.character.isRunning = false; // maybe some async stuff make this useless need to test that
-    client.vehicle.mountedVehicle = vehicle.npcData.characterId;
-    switch (vehicle.npcData.vehicleId) {
+    client.vehicle.mountedVehicle = vehicle.characterId;
+    switch (vehicle.vehicleId) {
       case 1:
         client.vehicle.mountedVehicleType = "offroader";
         break;
@@ -2210,7 +2236,7 @@ export class ZoneServer2016 extends EventEmitter {
       {
         // mounts character
         characterId: client.character.characterId,
-        vehicleGuid: vehicle.npcData.characterId, // vehicle guid
+        vehicleGuid: vehicle.characterId, // vehicle guid
         seatId: Number(seatId),
         unknownDword3: seatId === "0" ? 1 : 0, //isDriver
         identity: {},
@@ -2218,7 +2244,7 @@ export class ZoneServer2016 extends EventEmitter {
     );
     if (seatId === "0") {
       this.takeoverManagedObject(client, vehicle);
-      if (vehicle.npcData.resources.fuel > 0) {
+      if (vehicle.resources.fuel > 0) {
         this.sendDataToAllWithSpawnedEntity(
           this._vehicles,
           vehicleGuid,
@@ -2241,14 +2267,14 @@ export class ZoneServer2016 extends EventEmitter {
             if (this._vehicles[vehicleGuid].positionUpdate.engineRPM) {
               const fuelLoss =
                 this._vehicles[vehicleGuid].positionUpdate.engineRPM * 0.01;
-              this._vehicles[vehicleGuid].npcData.resources.fuel -= fuelLoss;
+              this._vehicles[vehicleGuid].resources.fuel -= fuelLoss;
             }
-            if (this._vehicles[vehicleGuid].npcData.resources.fuel < 0) {
-              this._vehicles[vehicleGuid].npcData.resources.fuel = 0;
+            if (this._vehicles[vehicleGuid].resources.fuel < 0) {
+              this._vehicles[vehicleGuid].resources.fuel = 0;
             }
             if (
               this._vehicles[vehicleGuid].engineOn &&
-              this._vehicles[vehicleGuid].npcData.resources.fuel <= 0
+              this._vehicles[vehicleGuid].resources.fuel <= 0
             ) {
               this.sendDataToAllWithSpawnedEntity(
                 this._vehicles,
@@ -2262,8 +2288,8 @@ export class ZoneServer2016 extends EventEmitter {
             }
             this.updateResourceToAllWithSpawnedVehicle(
               vehicle.passengers.passenger1,
-              vehicle.npcData.characterId,
-              vehicle.npcData.resources.fuel,
+              vehicle.characterId,
+              vehicle.resources.fuel,
               396,
               50
             );
@@ -2272,10 +2298,10 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
       this.sendDataToAllWithSpawnedCharacter(client, "Vehicle.Owner", {
-        guid: vehicle.npcData.characterId,
+        guid: vehicle.characterId,
         characterId: client.character.characterId,
         unknownDword1: 0,
-        vehicleId: vehicle.npcData.vehicleId,
+        vehicleId: vehicle.vehicleId,
         passengers: [
           {
             passengerData: {
@@ -2296,9 +2322,9 @@ export class ZoneServer2016 extends EventEmitter {
       });
     }
     this.sendData(client, "Vehicle.Occupy", {
-      guid: vehicle.npcData.characterId,
+      guid: vehicle.characterId,
       characterId: client.character.characterId,
-      vehicleId: vehicle.npcData.vehicleId,
+      vehicleId: vehicle.vehicleId,
       clearLoadout: 0,
       unknownArray1: [
         {
@@ -2371,7 +2397,7 @@ export class ZoneServer2016 extends EventEmitter {
       unknownArray2: [],
     });
     this.sendDataToAllWithSpawnedCharacter(client, "Vehicle.Owner", {
-      guid: vehicle.npcData.characterId,
+      guid: vehicle.characterId,
       characterId: client.character.characterId,
       unknownDword1: 0,
       vehicleId: 0,
@@ -2412,7 +2438,7 @@ export class ZoneServer2016 extends EventEmitter {
         "Mount.SeatChangeResponse",
         {
           characterId: client.character.characterId,
-          vehicleGuid: vehicle.npcData.characterId,
+          vehicleGuid: vehicle.characterId,
           identity: {},
           seatId: packet.data.seatId,
         }
@@ -2802,15 +2828,6 @@ export class ZoneServer2016 extends EventEmitter {
     return slot;
   }
 
-  getActiveEquipmentSlot(client: Client, item: loadoutItem) {
-    for(const equipment of Object.values(client.character._equipment)) {
-      if(item.itemGuid == equipment.guid) {
-        return equipment.slotId;
-      }
-    }
-    return 0;
-  }
-
   getAvailablePassiveEquipmentSlot(client: Client, item: inventoryItem): number {
     const itemDef = this.getItemDefinition(item.itemDefinitionId),
     itemClass = itemDef?.ITEM_CLASS
@@ -2885,7 +2902,7 @@ export class ZoneServer2016 extends EventEmitter {
   switchLoadoutSlot(client: Client, loadoutItem: loadoutItem) {
     const oldLoadoutSlot = client.character.currentLoadoutSlot;
     // remove passive equip
-    this.removeEquipmentItem(client, this.getActiveEquipmentSlot(client, loadoutItem));
+    this.removeEquipmentItem(client, client.character.getActiveEquipmentSlot(loadoutItem));
     client.character.currentLoadoutSlot = loadoutItem.slotId;
     this.equipItem(client, loadoutItem, true, loadoutItem.slotId);
 
@@ -2896,8 +2913,8 @@ export class ZoneServer2016 extends EventEmitter {
   removeEquipmentItem(client: Client, equipmentSlotId: number): boolean {
     if(!equipmentSlotId) return false;
     delete client.character._equipment[equipmentSlotId];
-    this.sendDataToAllOthersWithSpawnedEntity(this._characters, 
-      client, client.character.characterId, 
+    this.sendDataToAllWithSpawnedEntity(this._characters, 
+      client.character.characterId, 
       "Equipment.UnsetCharacterEquipmentSlot", 
     {
       characterData: {
@@ -2920,7 +2937,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.deleteItem(client, item.itemGuid);
     client.character.clearLoadoutSlot(loadoutSlotId);
     this.updateLoadout(client);
-    this.removeEquipmentItem(client, this.getActiveEquipmentSlot(client, item));
+    this.removeEquipmentItem(client, client.character.getActiveEquipmentSlot(item));
     if (this.getItemDefinition(itemDefId).ITEM_TYPE === 34) {
       delete client.character._containers[loadoutSlotId];
       this.initializeContainerList(client);
@@ -3663,14 +3680,14 @@ export class ZoneServer2016 extends EventEmitter {
   ) {
     this.removeInventoryItem(client, item, 1);
     const vehicle = this._vehicles[vehicleGuid];
-    vehicle.npcData.resources.fuel += fuelValue;
-    if (vehicle.npcData.resources.fuel > 10000) {
-      vehicle.npcData.resources.fuel = 10000;
+    vehicle.resources.fuel += fuelValue;
+    if (vehicle.resources.fuel > 10000) {
+      vehicle.resources.fuel = 10000;
     }
     this.updateResourceToAllWithSpawnedVehicle(
       client,
       vehicleGuid,
-      vehicle.npcData.resources.fuel,
+      vehicle.resources.fuel,
       396,
       50
     );
@@ -3922,7 +3939,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
     for (const key in this._vehicles) {
       const vehicle = this._vehicles[key];
-      allTransient[vehicle.npcData.transientId] = key;
+      allTransient[vehicle.transientId] = key;
     }
     for (const key in this._npcs) {
       const npc = this._npcs[key];
@@ -4007,7 +4024,7 @@ export class ZoneServer2016 extends EventEmitter {
     return !isPosInRadius(
       (element.npcRenderDistance || this._npcRenderDistance) + 5,
       playerPosition,
-      element.position || element.state?.position || element.npcData.position
+      element.position || element.state?.position || element.state.position
     );
   }
   getServerTimeTest(): number {

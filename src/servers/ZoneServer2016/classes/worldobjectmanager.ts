@@ -360,7 +360,7 @@ export class WorldObjectManager {
           isPosInRadius(
             this.vehicleSpawnRadius,
             vehicle.position,
-            spawnedVehicle.npcData.position
+            spawnedVehicle.state.position
           )
         )
           spawn = false;
