@@ -58,6 +58,6 @@ loginServer.start().then(() => {
     }, 2000);
     setInterval(() => {
       throw new Error("Test timed out!");
-    }, 60000);
+    }, 15000);
   });
 });

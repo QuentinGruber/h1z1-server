@@ -28,4 +28,4 @@ client.on("ZoneDoneSendingInitialData", (err, res) => {
 
 setInterval(() => {
   throw new Error("Test timed out!");
-}, 60000);
+}, 15000);
