@@ -287,7 +287,7 @@ export class SOEServer extends EventEmitter {
     crcLength: crc_length_options,
     udpLength: number
   ): void {
-    this._compression = 0; // TODO: renable that
+    this._compression = 0;
     this._crcSeed = crcSeed;
     this._crcLength = crcLength as crc_length_options;
     this._udpLength = udpLength;
@@ -371,6 +371,7 @@ export class SOEServer extends EventEmitter {
           this.emit("connect", null, this._clients[clientId]);
         }
         client = this._clients[clientId];
+        if(data[0] === 0x00) {
         const raw_parsed_data: string = this._protocol.parse(
           data
         );
@@ -386,6 +387,13 @@ export class SOEServer extends EventEmitter {
           }
           this.handlePacket(client, parsed_data);
         }
+        else{
+          console.error("Unmanaged packet from client", clientId, data);
+        }
+      }
+      else{
+        debug("Unmanaged standalone packet from client", clientId, data);
+      }
       } catch (e) {
         console.log(e);
       }
