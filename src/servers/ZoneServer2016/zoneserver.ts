@@ -3559,7 +3559,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
           }
           this.divideMovementModifier(client, modifier);
           delete client.character.timeouts["snared"];
-        }, 15000);
+        }, 60000);
         break;
       case "boots":
         // some stuff
