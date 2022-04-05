@@ -102,7 +102,6 @@ export class SOEServer extends EventEmitter {
         client,
         "Ack",
         {
-          channel: 0,
           sequence: client.nextAck,
         },
         false
@@ -142,7 +141,6 @@ export class SOEServer extends EventEmitter {
         const sequence = client.outOfOrderPackets.shift();
         packets.push({
           name: "OutOfOrder",
-          channel: 0,
           sequence: sequence,
         });
         if (!client.outOfOrderPackets.length) {
