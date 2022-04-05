@@ -334,34 +334,20 @@ export class SOEServer extends EventEmitter {
           client.outputStream.on(
             "data",
             (err: string, data: Buffer, sequence: number, fragment: any) => {
-              if (fragment) {
-                this._sendPacket(client, "DataFragment", {
+              this._sendPacket(client, fragment?"DataFragment":"Data", {
                   sequence: sequence & 0xffff,
                   data: data,
                 });
-              } else {
-                this._sendPacket(client, "Data", {
-                  sequence: sequence & 0xffff,
-                  data: data,
-                });
-              }
             }
           );
 
           client.outputStream.on(
             "dataResend",
             (err: string, data: Buffer, sequence: number, fragment: any) => {
-              if (fragment) {
-                this._sendPacket(client, "DataFragment", {
-                  sequence: sequence,
+                this._sendPacket(client, fragment?"DataFragment":"Data", {
+                  sequence: sequence & 0xffff,
                   data: data,
                 },true);
-              } else {
-                this._sendPacket(client, "Data", {
-                  sequence: sequence,
-                  data: data,
-                },true);
-              }
             }
           );
 
