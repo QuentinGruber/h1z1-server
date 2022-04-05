@@ -365,7 +365,7 @@ const dev: any = {
     args: any[]
   ) {
     /*
-    const backpack: any = server.generateItem(1602);
+    const backpack: any = server.generateItem(1602)?.itemGuid;
     server.equipItem(client, backpack);*/
     const objectCharacterId = server.generateGuid(),
       npc = {
@@ -389,7 +389,7 @@ const dev: any = {
         attachedObject: {},
         npcRenderDistance: 80,
         onReadyCallback: () => {
-          const item = server.generateItem(1504);
+          const item = server.generateItem(1504)?.itemGuid;
           server.sendData(client, "ClientUpdate.ItemAdd", {
             characterId: objectCharacterId,
             data: {
@@ -434,7 +434,7 @@ const dev: any = {
           });
         },
       };
-    const item: any = server.generateItem(2425); /*,
+    const item: any = server.generateItem(2425)?.itemGuid; /*,
       containerGuid = server.generateGuid(),
       containers = [
         {
@@ -545,7 +545,7 @@ const dev: any = {
     client: Client,
     args: any[]
   ) {
-    const item: any = server.generateItem(2425),
+    const item: any = server.generateItem(2425)?.itemGuid,
       guid1 = server.generateGuid(),
       guid2 = server.generateGuid(),
       guid3 = server.generateGuid();

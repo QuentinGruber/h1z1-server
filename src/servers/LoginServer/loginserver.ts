@@ -907,9 +907,8 @@ export class LoginServer extends EventEmitter {
       const dbIsEmpty =
         (await mongoClient.db("h1server").collections()).length < 1;
       if (dbIsEmpty) {
-        await initMongo(this._mongoAddress, debugName);
+        await initMongo(mongoClient, debugName);
       }
-      delete require.cache[require.resolve("mongodb-restore-dump")];
       this._db = mongoClient.db("h1server");
       this._zoneWhitelist = await this._db
         .collection("zone-whitelist")

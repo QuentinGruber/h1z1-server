@@ -1,6 +1,6 @@
 const { spawn } = require("child_process");
 
-const loginServer = spawn("node", [`${__dirname}/loginServer.js`]);
+const loginServer = spawn("node", [`${__dirname}/../2015/loginServer.js`]);
 const zoneServer = spawn("node", [`${__dirname}/zoneServer.js`]);
 
 loginServer.stdout.on("data", (data) => {
