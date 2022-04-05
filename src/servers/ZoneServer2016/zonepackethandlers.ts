@@ -726,14 +726,14 @@ export class zonePacketHandlers {
           packet.data.positionUpdate.position[0],
           packet.data.positionUpdate.position[1],
           packet.data.positionUpdate.position[2],
-          0,
+          1,
         ]);
         vehicle.getPassengerList().forEach((passenger: any) => {
           server._characters[passenger].state.position = new Float32Array([
             packet.data.positionUpdate.position[0],
             packet.data.positionUpdate.position[1],
             packet.data.positionUpdate.position[2],
-            0,
+            1,
           ]);
         });
         if (client.vehicle.mountedVehicle === characterId) {

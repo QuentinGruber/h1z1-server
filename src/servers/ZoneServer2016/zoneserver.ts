@@ -46,6 +46,7 @@ import {
   isPosInRadius,
   getDistance,
   randomIntFromInterval,
+  Scheduler,
 } from "../../utils/utils";
 import { MAX_TRANSIENT_ID } from "../../utils/constants";
 
@@ -725,16 +726,9 @@ export class ZoneServer2016 extends EventEmitter {
       debug("connected to mongo !");
       // if no collections exist on h1server database , fill it with samples
       (await mongoClient.db("h1server").collections()).length ||
-        (await initMongo(this._mongoAddress, debugName));
+        (await initMongo(mongoClient, debugName));
       this._db = mongoClient.db("h1server");
     }
-
-    this._spawnLocations = this._soloMode
-      ? spawnLocations
-      : await this._db?.collection("spawns").find().toArray();
-    this._weatherTemplates = this._soloMode
-      ? localWeatherTemplates
-      : await this._db?.collection("weathers").find().toArray();
   }
 
   addDoor(obj: {}, characterId: string) {
@@ -1097,7 +1091,7 @@ export class ZoneServer2016 extends EventEmitter {
         if (isPosInRadius(5, vehicle.state.position, position)) {
           const distance = getDistance(position, vehicle.state.position);
           const damage = 250000 / distance;
-          await this.pSetTimeout(150);
+          await Scheduler.wait(150);
           this.damageVehicle(damage, vehicle);
         }
       }
@@ -1106,7 +1100,7 @@ export class ZoneServer2016 extends EventEmitter {
       const explosiveObj = this._explosives[explosive];
       if (explosiveObj.characterId != npcTriggered) {
         if (getDistance(position, explosiveObj.position) < 2) {
-          await this.pSetTimeout(150);
+          await Scheduler.wait(150);
           this.explodeExplosive(explosiveObj);
         }
       }
@@ -1620,20 +1614,18 @@ export class ZoneServer2016 extends EventEmitter {
     const objectsToRemove = client.spawnedEntities.filter(
       (e) =>
         //!e.npcData?.positionUpdateType && // TODO: change this behavior this will cause issues
+        !e.vehicleId &&
         this.filterOutOfDistance(e, client.character.state.position)
     );
     client.spawnedEntities = client.spawnedEntities.filter((el) => {
       return !objectsToRemove.includes(el);
     });
     objectsToRemove.forEach((object: any) => {
-      const characterId = object.characterId
-        ? object.characterId
-        : object.characterId;
       this.sendData(
         client,
         "Character.RemovePlayer",
         {
-          characterId,
+          characterId: object.characterId,
         },
         1
       );
@@ -2023,10 +2015,10 @@ export class ZoneServer2016 extends EventEmitter {
             ...vehicle,
             npcData: {
               ...vehicle,
-              position: vehicle.state.position,
-              rotation: vehicle.state.rotation,
+              ...vehicle.state,
               modelId: vehicle.actorModelId
-            }
+            },
+            unknownGuid1: this.generateGuid()
           }, 1);
           this.sendData(client, "Vehicle.OwnerPassengerList", {
             characterId: client.character.characterId,

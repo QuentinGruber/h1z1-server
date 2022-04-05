@@ -12,7 +12,6 @@
 // ======================================================================
 
 import { createPositionUpdate } from "../../../utils/utils";
-import { generateRandomGuid } from "../../../utils/utils";
 import {
   positionUpdate,
   passengers
