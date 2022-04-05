@@ -36,7 +36,7 @@ export class SOEServer extends EventEmitter {
   _crcSeed: number;
   _crcLength: crc_length_options;
   _maxOutOfOrderPacketsPerLoop: number;
-  _waitQueueTimeMs: number = 0;
+  _waitQueueTimeMs: number = 50;
   _pingTimeoutTime: number = 60000;
   _usePingTimeout: boolean;
   _maxMultiBufferSize: number;
