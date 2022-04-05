@@ -30,7 +30,6 @@ export class SOEServer extends EventEmitter {
   _protocol!: Soeprotocol;
   _udpLength: number;
   _useEncryption: boolean;
-  _useMultiPackets: boolean;
   _clients: any;
   _connection: Worker;
   _crcSeed: number;
@@ -57,7 +56,6 @@ export class SOEServer extends EventEmitter {
     this._udpLength = 512;
     this._maxMultiBufferSize = this._udpLength - 4 - this._crcLength;
     this._useEncryption = true;
-    this._useMultiPackets = false;
     this._usePingTimeout = false;
     this._clients = {};
     this._connection = new Worker(
