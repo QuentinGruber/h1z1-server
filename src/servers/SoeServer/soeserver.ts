@@ -200,7 +200,6 @@ export class SOEServer extends EventEmitter {
           break;
         case "MultiPacket": {
           let lastOutOfOrder = 0;
-          const channel = 0;
           for (let i = 0; i < packet.sub_packets.length; i++) {
             const subPacket = packet.sub_packets[i];
             switch (subPacket.name) {
@@ -215,9 +214,7 @@ export class SOEServer extends EventEmitter {
           }
           if (lastOutOfOrder > 0) {
             debug(
-              "Received multiple out-order-packet packet on channel " +
-                channel +
-                ", sequence " +
+              "Received multiple out-order-packet sequence " +
                 lastOutOfOrder
             );
             client.outputStream.resendData(lastOutOfOrder);
@@ -248,10 +245,7 @@ export class SOEServer extends EventEmitter {
           break;
         case "OutOfOrder":
           debug(
-            "Received out-order-packet packet on channel " +
-            packet.channel +
-              ", sequence " +
-              packet.sequence
+            "Received out-order-packet sequence " + packet.sequence
           );
           client.outputStream.resendData(packet.sequence);
           break;
