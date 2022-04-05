@@ -56,7 +56,7 @@ export class SOEServer extends EventEmitter {
     this._crcSeed = 0;
     this._crcLength = 0;
     this._maxOutOfOrderPacketsPerLoop = 20;
-    this._protocol = new Soeprotocol(Boolean(this._crcLength));
+    this._protocol = new Soeprotocol(Boolean(this._crcLength),this._crcSeed);
     this._udpLength = 512;
     this._maxMultiBufferSize = this._udpLength - 4 - this._crcLength;
     this._useEncryption = true;
@@ -363,6 +363,9 @@ export class SOEServer extends EventEmitter {
         );
         if (raw_parsed_data) {
           const parsed_data = JSON.parse(raw_parsed_data);
+          if(parsed_data.name === "Error"){
+            console.error(parsed_data.error);
+          }
           if (!unknow_client && parsed_data.name === "SessionRequest") {
             this.deleteClient(this._clients[clientId]);
             debug(
@@ -399,8 +402,7 @@ export class SOEServer extends EventEmitter {
     try {
       return Buffer.from(this._protocol.pack(
         packetName,
-        JSON.stringify(packet),
-        client.crcSeed
+        JSON.stringify(packet)
       ));
     } catch (e) {
       console.error(
