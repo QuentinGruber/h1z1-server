@@ -91,9 +91,9 @@ export class SOEServer extends EventEmitter {
 
   soeClientRoutine(client: Client){
     if(!client.isDeleted){
-      this.checkClientOutQueue(client);
       this.checkAck(client);
       this.checkOutOfOrderQueue(client);
+      this.checkClientOutQueue(client);
       setImmediate(() =>
             this.soeClientRoutine(client)
           );
