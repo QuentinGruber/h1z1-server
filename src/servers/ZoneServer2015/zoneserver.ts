@@ -94,7 +94,7 @@ export class ZoneServer2015 extends EventEmitter {
   _respawnOnLastPosition: boolean = false;
   _worldRoutineRadiusPercentage: number = 0.4;
   worldRoutineTimer: any;
-  tickRate: number = 3000;
+  tickRate: number = 500;
   _h1emuZoneServer!: H1emuZoneServer;
   _loginServerInfo: { address?: string; port: number } = {
     address: process.env.LOGINSERVER_IP,
