@@ -83,8 +83,7 @@ export class LoginServer extends EventEmitter {
     this._soeServer = new SOEServer(
       "LoginUdp_9",
       serverPort,
-      this._cryptoKey,
-      0
+      this._cryptoKey
     );
     // 2016 client doesn't send a disconnect packet so we've to use that
     // But that can't be enabled on zoneserver
@@ -929,8 +928,6 @@ export class LoginServer extends EventEmitter {
       setupAppDataFolder();
     }
     this._soeServer.start(
-      this._compression,
-      this._crcSeed,
       this._crcLength,
       this._udpLength
     );

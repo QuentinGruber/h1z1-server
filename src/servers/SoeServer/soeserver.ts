@@ -27,7 +27,7 @@ export class SOEServer extends EventEmitter {
   _serverPort: number;
   _cryptoKey: Uint8Array;
   _compression: number = 0;
-  _protocol: Soeprotocol;
+  _protocol!: Soeprotocol;
   _udpLength: number;
   _useEncryption: boolean;
   _useMultiPackets: boolean;
@@ -45,8 +45,6 @@ export class SOEServer extends EventEmitter {
     protocolName: string,
     serverPort: number,
     cryptoKey: Uint8Array,
-    compression: number,
-    useMultiPackets = false
   ) {
     super();
     Buffer.poolSize = 8192 * 4;
@@ -54,9 +52,8 @@ export class SOEServer extends EventEmitter {
     this._serverPort = serverPort;
     this._cryptoKey = cryptoKey;
     this._crcSeed = 0;
-    this._crcLength = 0;
+    this._crcLength = 2;
     this._maxOutOfOrderPacketsPerLoop = 20;
-    this._protocol = new Soeprotocol(Boolean(this._crcLength),this._crcSeed);
     this._udpLength = 512;
     this._maxMultiBufferSize = this._udpLength - 4 - this._crcLength;
     this._useEncryption = true;
@@ -282,16 +279,17 @@ export class SOEServer extends EventEmitter {
   }
 
   start(
-    compression: number,
-    crcSeed: number,
-    crcLength: crc_length_options,
-    udpLength: number
+    crcLength?: crc_length_options,
+    udpLength?: number
   ): void {
     this._compression = 0;
-    this._crcSeed = crcSeed;
-    this._crcLength = crcLength as crc_length_options;
+    if(crcLength !== undefined){
+      this._crcLength = crcLength;
+    }
+    this._protocol = new Soeprotocol(Boolean(this._crcLength),this._crcSeed);
+    if(udpLength !== undefined){
     this._udpLength = udpLength;
-
+    }
     this._connection.on("message", (message) => {
       const data = Buffer.from(message.data);
       try {

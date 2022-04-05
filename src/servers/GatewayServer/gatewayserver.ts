@@ -41,9 +41,7 @@ export class GatewayServer extends EventEmitter {
     this._soeServer = new SOEServer(
       protocolName,
       serverPort,
-      gatewayKey,
-      this._compression,
-      true
+      gatewayKey
     ) as any; // as any since SOEServer isn't typed
     this._soeServer._useEncryption = false; // communication is encrypted only after loginRequest
     this._protocol = new GatewayProtocol();
@@ -109,8 +107,6 @@ export class GatewayServer extends EventEmitter {
   start() {
     debug("Starting server");
     this._soeServer.start(
-      this._compression,
-      this._crcSeed,
       this._crcLength,
       this._udpLength
     );
