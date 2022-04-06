@@ -1392,7 +1392,7 @@ export class zonePacketHandlers {
           const activeSlotId = client.character.getActiveLoadoutSlot(itemGuid)
           let loadoutSlotId = 
             server.getAvailableLoadoutSlot(
-              client, 
+              client.character, 
               item.itemDefinitionId
             )
           const container = client.character.getItemContainer(itemGuid);
@@ -1518,7 +1518,8 @@ export class zonePacketHandlers {
 
           server._temporaryObjects[characterId] = npc; // save npc
           setTimeout(function () {
-            server.sendDataToAllWithSpawnedTemporaryObject(
+            server.sendDataToAllWithSpawnedEntity(
+              server._temporaryObjects,
               characterId,
               "Character.RemovePlayer",
               {
