@@ -63,6 +63,7 @@ export class Vehicle2016 extends BaseFullCharacter {
   vehicleId: number
   destroyedState = 0;
   positionUpdateType = 1;
+  loadoutId = 5; // vehicle (need to confirm)
   constructor(
     worldId: number,
     characterId: string,
@@ -143,5 +144,24 @@ export class Vehicle2016 extends BaseFullCharacter {
       }
     }
     return passengers;
+  }
+
+  pGetLightweightVehicle() {
+    return {
+      npcData: {
+        ...this.pGetLightweight(),
+        position: this.positionUpdate.position || this.state.position,
+        vehicleId: this.vehicleId,
+        positionUpdateType: this.positionUpdateType
+      },
+      positionUpdate: this.positionUpdate
+    }
+  }
+  pGetFullVehicle() {
+    return {
+      npcData: {
+        ...this.pGetFull(),
+      },
+    }
   }
 }

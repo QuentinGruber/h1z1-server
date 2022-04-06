@@ -29,4 +29,14 @@ export class BaseLightweightCharacter{
       lookAt: new Float32Array([0, 0, 0, 1]),
     };
   }
+
+  pGetLightweight() {
+    return {
+      characterId: this.characterId,
+      transientId: this.transientId,
+      modelId: this.actorModelId,
+      position: this.state.position,
+      rotation: this.state.rotation,
+    }
+  }
 }

@@ -48,6 +48,7 @@ export class Character2016 extends BaseFullCharacter {
   creationDate!: string;
   lastLoginDate!: string;
   currentLoadoutSlot = 7; //fists
+  loadoutId = 3; // character
   startRessourceUpdater: any;
   healingInterval?: any;
   healingTicks: number;

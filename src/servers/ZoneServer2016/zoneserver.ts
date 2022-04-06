@@ -2475,14 +2475,14 @@ export class ZoneServer2016 extends EventEmitter {
 
   //#region ********************INVENTORY********************
 
-  updateLoadout(client: Client) {
+  updateLoadout(client: Client, character = client.character) {
     this.sendData(client, "Loadout.SetLoadoutSlots", {
-      characterId: client.character.characterId,
+      characterId: character.characterId,
       loadoutId: 3, // needs to be 3
       loadoutData: {
-        loadoutSlots: Object.keys(client.character._loadout).map(
+        loadoutSlots: Object.keys(character._loadout).map(
           (slotId: any) => {
-            const slot = client.character._loadout[slotId];
+            const slot = character._loadout[slotId];
             return {
               hotbarSlotId: slot.slotId, // affects Equip Item context entry packet, and Container.MoveItem
               loadoutId: 3,
@@ -2497,39 +2497,17 @@ export class ZoneServer2016 extends EventEmitter {
           }
         ),
       },
-      currentSlotId: client.character.currentLoadoutSlot,
+      currentSlotId: character.currentLoadoutSlot,
     });
     this.checkConveys(client);
   }
 
   updateEquipment(client: Client, character = client.character) {
-    this.sendData(client, "Equipment.SetCharacterEquipment", {
-      characterData: {
-        characterId: character.characterId,
-      },
-      equipmentSlots: Object.keys(character._equipment).map((slotId: any) => {
-        const slot = character._equipment[slotId];
-        return {
-          equipmentSlotId: slot.slotId,
-          equipmentSlotData: {
-            equipmentSlotId: slot.slotId,
-            guid: slot.guid || "",
-            tintAlias: slot.tintAlias || "",
-            decalAlias: slot.tintAlias || "#",
-          },
-        };
-      }),
-      attachmentData: Object.keys(character._equipment).map((slotId: any) => {
-        const slot = character._equipment[slotId];
-        return {
-          modelName: slot.modelName,
-          textureAlias: slot.textureAlias || "",
-          tintAlias: slot.tintAlias || "",
-          decalAlias: slot.tintAlias || "#",
-          slotId: slot.slotId,
-        };
-      }),
-    });
+    this.sendData(
+      client, 
+      "Equipment.SetCharacterEquipment", 
+      character.pGetEquipment()
+    );
   }
 
   updateEquipmentSlot(
@@ -2537,31 +2515,10 @@ export class ZoneServer2016 extends EventEmitter {
     slotId: number,
     character = client.character
   ) {
-    const equipmentSlot = client.character._equipment[slotId];
     this.sendDataToAllWithSpawnedCharacter(
       client,
       "Equipment.SetCharacterEquipmentSlot",
-      {
-        characterData: {
-          characterId: character.characterId,
-        },
-        equipmentSlot: {
-          equipmentSlotId: equipmentSlot.slotId,
-          equipmentSlotData: {
-            equipmentSlotId: equipmentSlot.slotId,
-            guid: equipmentSlot.guid || "",
-            tintAlias: equipmentSlot.tintAlias || "",
-            decalAlias: equipmentSlot.tintAlias || "#",
-          },
-        },
-        attachmentData: {
-          modelName: equipmentSlot.modelName,
-          textureAlias: equipmentSlot.textureAlias || "",
-          tintAlias: equipmentSlot.tintAlias || "",
-          decalAlias: equipmentSlot.tintAlias || "#",
-          slotId: equipmentSlot.slotId,
-        },
-      }
+      character.pGetEquipmentSlotFull(slotId)
     );
   }
 

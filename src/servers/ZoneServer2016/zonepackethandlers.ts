@@ -29,6 +29,8 @@ import { _, Int64String, isPosInRadius, getDistance } from "../../utils/utils";
 
 import { CraftManager } from "./classes/craftmanager";
 import { inventoryItem, loadoutContainer } from "types/zoneserver";
+import { Character2016 } from "./classes/character";
+import { Vehicle2016 } from "./classes/vehicle";
 
 export class zonePacketHandlers {
   hax = hax;
@@ -912,10 +914,11 @@ export class zonePacketHandlers {
           });
           break;
         case 2: // vehicles
-          if (entityData.vehicleId != 13) {
+        const vehicle = entityData as Vehicle2016;
+          if (vehicle.vehicleId != 13) {
             server.sendData(client, "LightweightToFullVehicle", {
               npcData: {
-                transientId: entityData.transientId,
+                transientId: vehicle.transientId,
                 attachmentData: [],
                 effectTags: [],
                 unknownData1: {},
@@ -930,7 +933,7 @@ export class zonePacketHandlers {
                       resourceData: {
                         resourceId: 561,
                         resourceType: 1,
-                        value: entityData.resources.health,
+                        value: vehicle.resources.health,
                       },
                     },
                     {
@@ -938,7 +941,7 @@ export class zonePacketHandlers {
                       resourceData: {
                         resourceId: 396,
                         resourceType: 50,
-                        value: entityData.resources.fuel,
+                        value: vehicle.resources.fuel,
                       },
                     },
                   ],
@@ -969,25 +972,25 @@ export class zonePacketHandlers {
               ],
             });
           }
-          for (const a in entityData.seats) {
+          for (const a in vehicle.seats) {
             server.sendDataToAllWithSpawnedEntity(
               server._characters,
-              entityData.seats[a],
+              vehicle.seats[a],
               "Mount.DismountResponse",
               {
                 // dismounts character
-                characterId: entityData.seats[a],
+                characterId: vehicle.seats[a],
               }
             );
-            const seatId = entityData.getCharacterSeat(entityData.seats[a]);
+            const seatId = vehicle.getCharacterSeat(vehicle.seats[a]);
             server.sendDataToAllWithSpawnedEntity(
               server._characters,
-              entityData.seats[a],
+              vehicle.seats[a],
               "Mount.MountResponse",
               {
                 // mounts character
-                characterId: entityData.seats[a],
-                vehicleGuid: entityData.characterId, // vehicle guid
+                characterId: vehicle.seats[a],
+                vehicleGuid: vehicle.characterId, // vehicle guid
                 seatId: seatId,
                 unknownDword3: seatId === "0" ? 1 : 0, //isDriver
                 identity: {},
@@ -995,30 +998,36 @@ export class zonePacketHandlers {
             );
           }
 
-          if (entityData.destroyedEffect != 0) {
+          if (vehicle.destroyedEffect != 0) {
             server.sendData(client, "Command.PlayDialogEffect", {
-              characterId: entityData.characterId,
-              effectId: entityData.destroyedEffect,
+              characterId: vehicle.characterId,
+              effectId: vehicle.destroyedEffect,
             });
           }
-          if (entityData.engineOn) {
+          if (vehicle.engineOn) {
             server.sendData(client, "Vehicle.Engine", {
-              guid2: entityData.characterId,
+              guid2: vehicle.characterId,
               engineOn: true,
             });
           }
           break;
         case 3: // characters
+          const character = entityData as Character2016;
+          character._equipment[1] = {
+            // temporary to fix missing heads
+            modelName: character.headActor,
+            slotId: 1,
+            guid: "0x0",
+          };
+          character._equipment[27] = {
+            // temporary to fix missing hair
+            modelName: character.hairModel,
+            slotId: 27,
+            guid: "0x0",
+          };
           server.sendData(client, "LightweightToFullNpc", {
-            transientId: entityData.transientId,
-            attachmentData: [
-              /*
-              {
-                modelName: "SurvivorMale_Chest_Hoodie_Up_Tintable.adr",
-                effectId: 0,
-                slotId: 3,
-              },*/
-            ],
+            transientId: character.transientId,
+            attachmentData: [],//character.pGetAttachmentSlots(),
             effectTags: [],
             unknownData1: {},
             targetData: {},
@@ -1043,22 +1052,10 @@ export class zonePacketHandlers {
             //remoteWeapons: {/*data:[]*/},
             //itemsData: {/*data:[]*/}
           });
-          entityData._equipment[1] = {
-            // temporary to fix missing heads
-            modelName: entityData.headActor,
-            slotId: 1,
-            guid: "0x0",
-          };
-          entityData._equipment[27] = {
-            // temporary to fix missing hair
-            modelName: entityData.hairModel,
-            slotId: 27,
-            guid: "0x0",
-          };
-          server.updateEquipment(client, entityData);
+          server.updateEquipment(client, character);
           server.sendData(client, "Character.WeaponStance", {
             // activates weaponstance key
-            characterId: entityData.characterId,
+            characterId: character.characterId,
             stance: 1,
           });
           break;

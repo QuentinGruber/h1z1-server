@@ -26,6 +26,8 @@ export class BaseFullCharacter extends BaseLightweightCharacter{
   _loadout: { [loadoutSlotId: number]: loadoutItem } = {};
   _equipment: { [equipmentSlotId: number]: characterEquipment } = {};
   _containers: { [loadoutSlotId: number]: loadoutContainer } = {};
+  loadoutId = 0;
+  currentLoadoutSlot = 0; // idk if other full npcs use this
   constructor(characterId: string, generatedTransient: number) {
     super(characterId, generatedTransient);
   }
@@ -120,6 +122,92 @@ export class BaseFullCharacter extends BaseLightweightCharacter{
       }
     }
     return 0;
+  }
+
+  pGetEquipmentSlot(slotId: number) {
+    const slot = this._equipment[slotId];
+    return slot?{
+      equipmentSlotId: slot.slotId,
+      equipmentSlotData: {
+        equipmentSlotId: slot.slotId,
+        guid: slot.guid || "",
+        tintAlias: slot.tintAlias || "",
+        decalAlias: slot.tintAlias || "#",
+      }
+    }:undefined
+  }
+
+  pGetAttachmentSlot(slotId: number) {
+    const slot = this._equipment[slotId];
+    return slot?{
+      modelName: slot.modelName,
+      textureAlias: slot.textureAlias || "",
+      tintAlias: slot.tintAlias || "",
+      decalAlias: slot.tintAlias || "#",
+      slotId: slot.slotId,
+    }:undefined
+  }
+
+  pGetAttachmentSlots() {
+    return Object.keys(this._equipment).map((slotId: any) => {
+      return this.pGetEquipmentSlot(slotId);
+    })
+  }
+
+  pGetEquipmentSlotFull(slotId: number) {
+    const slot = this._equipment[slotId];
+    return slot?{
+      characterData: {
+        characterId: this.characterId,
+      },
+      equipmentSlot: this.pGetEquipmentSlot(slotId),
+      attachmentData: this.pGetAttachmentSlot(slotId)
+    }:undefined
+  }
+
+  pGetEquipment() {
+    return {
+      characterData: {
+        characterId: this.characterId,
+      },
+      equipmentSlots: this.pGetAttachmentSlots(),
+      attachmentData: Object.keys(this._equipment).map((slotId: any) => {
+        return this.pGetAttachmentSlot(slotId);
+      }),
+    }
+  }
+
+  pGetLoadoutSlots() {
+    return {
+      characterId: this.characterId,
+      loadoutId: 3, // needs to be 3
+      loadoutData: {
+        loadoutSlots: Object.keys(this._loadout).map(
+          (slotId: any) => {
+            const slot = this._loadout[slotId];
+            return {
+              hotbarSlotId: slot.slotId, // affects Equip Item context entry packet, and Container.MoveItem
+              loadoutId: this.loadoutId,
+              slotId: slot.slotId,
+              loadoutItemData: {
+                itemDefinitionId: slot.itemDefinitionId,
+                loadoutItemOwnerGuid: slot.itemGuid,
+                unknownByte1: 255, // flags?
+              },
+              unknownDword4: slot.slotId,
+            };
+          }
+        ),
+      },
+      currentSlotId: this.currentLoadoutSlot,
+    }
+  }
+
+  pGetFull() {
+    return {
+      transientId: this.transientId,
+
+    }
   }
 
 }
