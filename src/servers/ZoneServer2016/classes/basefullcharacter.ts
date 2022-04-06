@@ -30,6 +30,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter{
   currentLoadoutSlot = 0; // idk if other full npcs use this
   constructor(characterId: string, generatedTransient: number) {
     super(characterId, generatedTransient);
+    this.setupLoadoutSlots();
   }
 
   clearLoadoutSlot(loadoutSlotId: number) {
@@ -45,7 +46,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter{
   }
   setupLoadoutSlots() {
     for(const slot of loadoutSlots) {
-      if(slot.LOADOUT_ID == 3 && !this._loadout[slot.SLOT_ID]) {
+      if(slot.LOADOUT_ID == this.loadoutId && !this._loadout[slot.SLOT_ID]) {
         this.clearLoadoutSlot(slot.SLOT_ID);
       }
     }

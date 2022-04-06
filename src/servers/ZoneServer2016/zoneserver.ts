@@ -569,7 +569,6 @@ export class ZoneServer2016 extends EventEmitter {
       client.character.state.rotation = character.rotation;
     }
     this.giveStartingEquipment(client, false, true);
-    client.character.setupLoadoutSlots();
   }
 
   async sendCharacterData(client: Client) {
