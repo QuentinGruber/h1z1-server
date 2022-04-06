@@ -17,7 +17,7 @@
     "@swc/cli": "0.1.56",
     "@swc/core": "1.2.160",
     "debug": "4.3.4",
-    "h1emu-core": "0.7.1",
+    "h1emu-core": "0.8.2",
     "h1z1-dataschema": "1.5.9",
     "mongodb": "4.4.1",
     "mongodb-restore-dump": "1.0.1",
