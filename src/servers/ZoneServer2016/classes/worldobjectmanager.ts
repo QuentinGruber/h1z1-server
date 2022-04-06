@@ -24,7 +24,7 @@ import {
   eul2quat,
   randomIntFromInterval,
 } from "../../../utils/utils";
-import { Vehicle2016 as Vehicle } from "./../classes/vehicle";
+import { Vehicle2016 as Vehicle, Vehicle2016 } from "./../classes/vehicle";
 import { inventoryItem } from "types/zoneserver";
 const debug = require("debug")("ZoneServer");
 
@@ -351,6 +351,11 @@ export class WorldObjectManager {
     debug("All doors objects created");
   }
 
+  createVehicle(server: ZoneServer2016, vehicleData: Vehicle2016) {
+    // setup vehicle loadout slots, containers, etc here
+    server._vehicles[vehicleData.characterId] = vehicleData;
+  }
+
   createVehicles(server: ZoneServer2016) {
     if (Object.keys(server._vehicles).length >= this.vehicleSpawnCap) return;
     Z1_vehicles.forEach((vehicle: any) => {
@@ -367,8 +372,9 @@ export class WorldObjectManager {
         return;
       });
       if (!spawn) return;
-      const characterId = generateRandomGuid();
-      const vehicleData = new Vehicle(
+      
+      const characterId = generateRandomGuid(),
+      vehicleData = new Vehicle(
         server._worldId,
         characterId,
         server.getTransientId(characterId),
@@ -377,7 +383,8 @@ export class WorldObjectManager {
         new Float32Array(vehicle.rotation),
         server.getGameTime()
       );
-      server._vehicles[characterId] = vehicleData; // save vehicle
+
+      this.createVehicle(server, vehicleData); // save vehicle
     });
     debug("All vehicles created");
   }

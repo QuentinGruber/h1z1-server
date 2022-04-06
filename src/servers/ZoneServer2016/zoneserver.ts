@@ -741,7 +741,7 @@ export class ZoneServer2016 extends EventEmitter {
       .toArray();
     for (let index = 0; index < vehiclesArray.length; index++) {
       const vehicle = vehiclesArray[index];
-      this._vehicles[vehicle.characterId] = new Vehicle(
+      const vehicleData = new Vehicle(
         this._worldId || 0,
         vehicle.characterId,
         vehicle.transientId,
@@ -749,20 +749,8 @@ export class ZoneServer2016 extends EventEmitter {
         new Float32Array(vehicle.state.position),
         new Float32Array(vehicle.state.rotation),
         this._gameTime
-      );
-      // TODO: update mongo with new schema
-      this._vehicles[vehicle.characterId] = {
-        ...this._vehicles[vehicle.characterId],
-        ...vehicle.npcData,
-        actorModelId: vehicle.npcData.modelId
-      }
-      this._vehicles[vehicle.characterId].state = {
-        ...this._vehicles[vehicle.characterId].state,
-        position: vehicle.npcData.position,
-        rotation: vehicle.npcData.rotation,
-      }
-      this._vehicles[vehicle.characterId].positionUpdate =
-        vehicle.positionUpdate;
+      )
+      this.worldObjectManager.createVehicle(this, vehicleData);
     }
   }
 
@@ -2233,6 +2221,19 @@ export class ZoneServer2016 extends EventEmitter {
         identity: {},
       }
     );
+    /*
+    if(seatId === "0") {
+      this.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
+        objectCharacterId: vehicle.characterId,
+        containerGuid: vehicle.characterId,// idk just testing for now
+        unknownBool1: false,
+        itemsData: {
+          items: [],
+          unknownDword1: 0,
+        },
+      });
+    }
+    */
     if (seatId === "0") {
       this.takeoverManagedObject(client, vehicle);
       if (vehicle.resources.fuel > 0) {

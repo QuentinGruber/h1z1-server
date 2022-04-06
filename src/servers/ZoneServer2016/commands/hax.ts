@@ -73,18 +73,14 @@ const hax: any = {
       client.character.state.lookAt,
       server.getGameTime()
     );
-    server._vehicles[characterId] = vehicle;
-    server.sendData(client, "AddLightweightVehicle", {
-      ...vehicle,
-      npcData: {
-        ...vehicle,
-        position: vehicle.state.position,
-        rotation: vehicle.state.rotation,
-        modelId: vehicle.actorModelId
-      }
-    }, 1);
-    client.spawnedEntities.push(vehicle);
-    server.mountVehicle(client, characterId);
+    vehicle.onReadyCallback = () => {
+      // doing anything with vehicle before client gets fullvehicle packet breaks it
+      server.mountVehicle(client, characterId);
+      // todo: when vehicle takeover function works, delete assignManagedObject call
+      server.assignManagedObject(client, vehicle);
+      client.vehicle.mountedVehicle = characterId;
+    };
+    server.worldObjectManager.createVehicle(server, vehicle);
   },
   drive: function (server: ZoneServer2016, client: Client, args: any[]) {
     if (!args[1]) {
@@ -107,8 +103,6 @@ const hax: any = {
       server.getServerTime()
     );
     vehicleData.isManaged = true;
-    server._vehicles[characterId] = vehicleData; // save vehicle
-    //@ts-ignore
     vehicleData.onReadyCallback = () => {
       // doing anything with vehicle before client gets fullvehicle packet breaks it
       server.mountVehicle(client, characterId);
@@ -119,6 +113,7 @@ const hax: any = {
         client.character.godMode = wasAlreadyGod;
       }, 1000);
     };
+    server.worldObjectManager.createVehicle(server, vehicleData);
   },
   titan: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.sendDataToAll("Character.UpdateScale", {
@@ -166,7 +161,7 @@ const hax: any = {
         client.character.state.lookAt,
         server.getGameTime()
       );
-      server._vehicles[characterId] = vehicle; // save vehicle
+      server.worldObjectManager.createVehicle(server, vehicle);
     }
   },
   spampolicecar: function (
@@ -187,7 +182,7 @@ const hax: any = {
         client.character.state.lookAt,
         server.getGameTime()
       );
-      server._vehicles[characterId] = vehicle; // save vehicle
+      server.worldObjectManager.createVehicle(server, vehicle);
     }
   },
   despawnobjects: function (
@@ -375,7 +370,7 @@ const hax: any = {
         client.character.state.lookAt,
         server.getGameTime()
       );
-      server._vehicles[characterId] = vehicle; // save vehicle
+      server.worldObjectManager.createVehicle(server, vehicle);
     }
   },
   spawnnpc: function (server: ZoneServer2016, client: Client, args: any[]) {
@@ -421,7 +416,7 @@ const hax: any = {
       client.character.state.lookAt,
       server.getGameTime()
     );
-    server._vehicles[characterId] = vehicle; // save vehicle
+    server.worldObjectManager.createVehicle(server, vehicle);
   },
   dynamicweather: async function (
     server: ZoneServer2016,
@@ -604,14 +599,13 @@ const hax: any = {
       server.getGameTime()
     );
     vehicle.isManaged = true;
-    server._vehicles[characterId] = vehicle;
-    //@ts-ignore
     vehicle.onReadyCallback = () => {
       // doing anything with vehicle before client gets fullvehicle packet breaks it
       server.mountVehicle(client, characterId);
       // todo: when vehicle takeover function works, delete assignManagedObject call
       server.assignManagedObject(client, vehicle);
     };
+    server.worldObjectManager.createVehicle(server, vehicle);
   },
   additem: function (server: ZoneServer2016, client: Client, args: any[]) {
     const itemDefId = Number(args[1]),
