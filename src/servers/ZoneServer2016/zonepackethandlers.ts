@@ -31,6 +31,7 @@ import { CraftManager } from "./classes/craftmanager";
 import { inventoryItem, loadoutContainer } from "types/zoneserver";
 import { Character2016 } from "./classes/character";
 import { Vehicle2016 } from "./classes/vehicle";
+import { ResourceIds } from "./enums";
 
 export class zonePacketHandlers {
   hax = hax;
@@ -1792,8 +1793,7 @@ export class zonePacketHandlers {
                     client.character.resources.bleeding > 0
                       ? client.character.resources.bleeding
                       : 0,
-                    21,
-                    21
+                    ResourceIds.BLEEDING
                   );
                   server.sendDataToAllWithSpawnedEntity(
                     server._traps,

@@ -27,6 +27,7 @@ import { zonePacketHandlers } from "./zonepackethandlers";
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
 import { Vehicle2016 as Vehicle } from "./classes/vehicle";
 import { WorldObjectManager } from "./classes/worldobjectmanager";
+import { Items, ResourceIds, ResourceTypes } from "./enums";
 
 import {
   characterEquipment,
@@ -1222,8 +1223,8 @@ export class ZoneServer2016 extends EventEmitter {
           vehicle.passengers.passenger1,
           vehicle.characterId,
           vehicle.resources.health,
-          561,
-          1
+          ResourceIds.CONDITION,
+          ResourceTypes.CONDITION
         );
       }
     }
@@ -1310,29 +1311,25 @@ export class ZoneServer2016 extends EventEmitter {
       client,
       client.character.characterId,
       client.character.resources.health,
-      1,
-      1
+      ResourceIds.HEALTH
     );
     this.updateResource(
       client,
       client.character.characterId,
       client.character.resources.stamina,
-      6,
-      6
+      ResourceIds.STAMINA
     );
     this.updateResource(
       client,
       client.character.characterId,
       client.character.resources.food,
-      4,
-      4
+      ResourceIds.HUNGER
     );
     this.updateResource(
       client,
       client.character.characterId,
       client.character.resources.water,
-      5,
-      5
+      ResourceIds.HYDRATION
     );
   }
 
@@ -1378,7 +1375,7 @@ export class ZoneServer2016 extends EventEmitter {
           if (randomIntFromInterval(1, 10) == 1) {
             this.lootItem(
               client,
-              this.generateItem(this.worldObjectManager.eItems.WEAPON_BRANCH),
+              this.generateItem(Items.WEAPON_BRANCH),
               1
             );
           }
@@ -1401,15 +1398,15 @@ export class ZoneServer2016 extends EventEmitter {
     client: Client,
     entityId: string,
     value: number,
-    resource: number,
-    resourceType: number
+    resourceId: number,
+    resourceType = resourceId // most resources have the same id and type
   ) {
     this.sendData(client, "ResourceEvent", {
       eventData: {
         type: 3,
         value: {
           characterId: entityId,
-          resourceId: resource,
+          resourceId: resourceId,
           resourceType: resourceType,
           initialValue: value,
           unknownArray1: [],
@@ -1423,8 +1420,8 @@ export class ZoneServer2016 extends EventEmitter {
     client: Client,
     entityId: string,
     value: number,
-    resource: number,
-    resourceType: number
+    resourceId: number,
+    resourceType = resourceId // most resources have the same id and type
   ) {
     this.sendDataToAllWithSpawnedEntity(
       this._characters,
@@ -1435,7 +1432,7 @@ export class ZoneServer2016 extends EventEmitter {
           type: 3,
           value: {
             characterId: entityId,
-            resourceId: resource,
+            resourceId: resourceId,
             resourceType: resourceType,
             initialValue: value,
             unknownArray1: [],
@@ -1450,7 +1447,7 @@ export class ZoneServer2016 extends EventEmitter {
     client: Client,
     entityId: string,
     value: number,
-    resource: number,
+    resourceId: number,
     resourceType: number
   ) {
     this.sendDataToAllOthersWithSpawnedEntity(
@@ -1463,7 +1460,7 @@ export class ZoneServer2016 extends EventEmitter {
           type: 3,
           value: {
             characterId: entityId,
-            resourceId: resource,
+            resourceId: resourceId,
             resourceType: resourceType,
             initialValue: value,
             unknownArray1: [],
@@ -1494,8 +1491,7 @@ export class ZoneServer2016 extends EventEmitter {
           client.character.resources.bleeding > 0
             ? client.character.resources.bleeding
             : 0,
-          21,
-          21
+          ResourceIds.BLEEDING
         );
       }
       character.resources.health -= damage;
@@ -1507,8 +1503,7 @@ export class ZoneServer2016 extends EventEmitter {
         client,
         character.characterId,
         character.resources.health,
-        1,
-        1
+        ResourceIds.HEALTH
       );
       this.sendData(client, "ClientUpdate.DamageInfo", {
         transientId: 0,
@@ -2255,8 +2250,8 @@ export class ZoneServer2016 extends EventEmitter {
               vehicle.passengers.passenger1,
               vehicle.characterId,
               vehicle.resources.fuel,
-              396,
-              50
+              ResourceIds.FUEL,
+              ResourceTypes.FUEL,
             );
             this._vehicles[vehicleGuid].resourcesUpdater.refresh();
           }, 3000);
@@ -3524,8 +3519,18 @@ export class ZoneServer2016 extends EventEmitter {
     client.character.resources.food += eatCount;
     client.character.resources.water += drinkCount;
     const { food, water } = client.character.resources;
-    this.updateResource(client, client.character.characterId, food, 4, 4);
-    this.updateResource(client, client.character.characterId, water, 5, 5);
+    this.updateResource(
+      client, 
+      client.character.characterId, 
+      food, 
+      ResourceIds.HUNGER
+    );
+    this.updateResource(
+      client, 
+      client.character.characterId, 
+      water, 
+      ResourceIds.HYDRATION
+    );
     if (givetrash) {
       this.lootContainerItem(client, this.generateItem(givetrash), 1);
     }
@@ -3542,8 +3547,18 @@ export class ZoneServer2016 extends EventEmitter {
     client.character.resources.food += eatCount;
     client.character.resources.water += drinkCount;
     const { food, water } = client.character.resources;
-    this.updateResource(client, client.character.characterId, food, 4, 4);
-    this.updateResource(client, client.character.characterId, water, 5, 5);
+    this.updateResource(
+      client, 
+      client.character.characterId, 
+      food, 
+      ResourceIds.HUNGER, 
+    );
+    this.updateResource(
+      client, 
+      client.character.characterId, 
+      water, 
+      ResourceIds.HYDRATION
+    );
     if (givetrash) {
       this.lootContainerItem(client, this.generateItem(givetrash), 1);
     }
@@ -3579,8 +3594,7 @@ export class ZoneServer2016 extends EventEmitter {
       client,
       client.character.characterId,
       bleeding > 0 ? bleeding : 0,
-      21,
-      21
+      ResourceIds.BLEEDING
     );
     this.removeInventoryItem(client, item, 1);
   }
@@ -3601,8 +3615,8 @@ export class ZoneServer2016 extends EventEmitter {
       client,
       vehicleGuid,
       vehicle.resources.fuel,
-      396,
-      50
+      ResourceIds.FUEL,
+      ResourceTypes.FUEL
     );
   }
 
