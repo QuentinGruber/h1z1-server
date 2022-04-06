@@ -2476,29 +2476,7 @@ export class ZoneServer2016 extends EventEmitter {
   //#region ********************INVENTORY********************
 
   updateLoadout(client: Client, character = client.character) {
-    this.sendData(client, "Loadout.SetLoadoutSlots", {
-      characterId: character.characterId,
-      loadoutId: 3, // needs to be 3
-      loadoutData: {
-        loadoutSlots: Object.keys(character._loadout).map(
-          (slotId: any) => {
-            const slot = character._loadout[slotId];
-            return {
-              hotbarSlotId: slot.slotId, // affects Equip Item context entry packet, and Container.MoveItem
-              loadoutId: 3,
-              slotId: slot.slotId,
-              loadoutItemData: {
-                itemDefinitionId: slot.itemDefinitionId,
-                loadoutItemOwnerGuid: slot.itemGuid,
-                unknownByte1: 255, // flags?
-              },
-              unknownDword4: slot.slotId,
-            };
-          }
-        ),
-      },
-      currentSlotId: character.currentLoadoutSlot,
-    });
+    this.sendData(client, "Loadout.SetLoadoutSlots", character.pGetLoadoutSlots());
     this.checkConveys(client);
   }
 
@@ -2862,8 +2840,7 @@ export class ZoneServer2016 extends EventEmitter {
   removeEquipmentItem(client: Client, equipmentSlotId: number): boolean {
     if(!equipmentSlotId) return false;
     delete client.character._equipment[equipmentSlotId];
-    this.sendDataToAllWithSpawnedEntity(this._characters, 
-      client.character.characterId, 
+    this.sendDataToAllWithSpawnedCharacter(client, 
       "Equipment.UnsetCharacterEquipmentSlot", 
     {
       characterData: {
