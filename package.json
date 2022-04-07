@@ -31,7 +31,7 @@
     "glob": "7.2.0",
     "prettier": "2.6.2",
     "ts-node": "10.7.0",
-    "typedoc": "0.22.13"
+    "typedoc": "0.22.14"
   },
   "scripts": {
     "gen-packets-types": "npx ts-node ./scripts/genPacketsNames.ts && npx prettier -w ./src/types/packets.ts",
