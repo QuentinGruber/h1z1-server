@@ -61,7 +61,6 @@ const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.js
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
   localWeatherTemplates = require("../../../data/2016/dataSources/weather.json"),
   stats = require("../../../data/2016/sampleData/stats.json"),
-  resources = require("../../../data/2016/dataSources/resourceDefinitions.json"),
   itemDefinitions = require("./../../../data/2016/dataSources/ServerItemDefinitions.json"),
   containerDefinitions = require("./../../../data/2016/dataSources/ContainerDefinitions.json"),
   loadoutSlotItemClasses = require("./../../../data/2016/dataSources/LoadoutSlotItemClasses.json"),

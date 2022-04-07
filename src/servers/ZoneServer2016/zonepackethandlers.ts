@@ -31,7 +31,7 @@ import { CraftManager } from "./classes/craftmanager";
 import { inventoryItem, loadoutContainer } from "types/zoneserver";
 import { Character2016 } from "./classes/character";
 import { Vehicle2016 } from "./classes/vehicle";
-import { ResourceIds, ResourceTypes } from "./enums";
+import { ResourceIds } from "./enums";
 
 export class zonePacketHandlers {
   hax = hax;
