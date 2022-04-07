@@ -60,7 +60,6 @@ const hax: any = {
   parachute: function (server: ZoneServer2016, client: Client, args: any[]) {
     const characterId = server.generateGuid();
     const vehicle = new Vehicle(
-      server._worldId,
       characterId,
       999999,
       9374,
@@ -94,7 +93,6 @@ const hax: any = {
     client.character.godMode = true;
     const characterId = server.generateGuid();
     const vehicleData = new Vehicle2016(
-      server._worldId,
       characterId,
       server.getTransientId(characterId),
       getDriveModel(args[1]),
@@ -153,7 +151,6 @@ const hax: any = {
       const transientId = server.getTransientId(guid);
       const characterId = server.generateGuid();
       const vehicle = new Vehicle(
-        server._worldId,
         characterId,
         transientId,
         7225,
@@ -174,7 +171,6 @@ const hax: any = {
       const transientId = server.getTransientId(guid);
       const characterId = server.generateGuid();
       const vehicle = new Vehicle(
-        server._worldId,
         characterId,
         transientId,
         9301,
@@ -347,7 +343,7 @@ const hax: any = {
         modelId: 9176,
         position: [obj[0], client.character.state.position[1], obj[1], 1],
         rotation: client.character.state.lookAt,
-        dontSendFullNpcRequest: true,
+        isLightweight: true,
         color: {},
         attachedObject: {},
         isIED: true,
@@ -362,7 +358,6 @@ const hax: any = {
       const transientId = server.getTransientId(guid);
       const characterId = server.generateGuid();
       const vehicle = new Vehicle(
-        server._worldId,
         characterId,
         transientId,
         9588,
@@ -408,7 +403,6 @@ const hax: any = {
     }
     const characterId = server.generateGuid();
     const vehicle = new Vehicle(
-      server._worldId,
       characterId,
       server.getTransientId(characterId),
       getDriveModel(args[1]),
@@ -590,7 +584,6 @@ const hax: any = {
   spectate: function (server: ZoneServer2016, client: Client, args: any[]) {
     const characterId = server.generateGuid();
     const vehicle = new Vehicle(
-      server._worldId,
       characterId,
       server.getTransientId(characterId),
       9371,

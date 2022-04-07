@@ -27,6 +27,7 @@ import {
 import { Items } from "../enums"
 import { Vehicle2016 as Vehicle, Vehicle2016 } from "./../classes/vehicle";
 import { inventoryItem } from "types/zoneserver";
+import { ItemObject } from "./itemobject";
 const debug = require("debug")("ZoneServer");
 
 function getHeadActor(modelId: number): any {
@@ -89,7 +90,7 @@ function createDoor(
     openAngle: openAngle,
     closedAngle: startRot[0],
     dontSendFullNpcRequest: true,
-    color: { g: 127 },
+    flags: { b: 127 },
     npcRenderDistance: renderDistance,
   };
 }
@@ -174,7 +175,7 @@ export class WorldObjectManager {
       rotation: rotation,
       headActor: getHeadActor(modelID),
       attachedObject: {},
-      color: {},
+      flags: {},
       spawnerId: itemSpawnerId || 0,
       npcRenderDistance: renderDistance,
     };
@@ -182,12 +183,10 @@ export class WorldObjectManager {
   }
 
   createLootEntity(
-    // todo: clean this up
     server: ZoneServer2016,
     item: inventoryItem | undefined,
-    position: Array<number>,
-    rotation: Array<number>,
-    renderDistance: number,
+    position: Float32Array,
+    rotation: Float32Array,
     itemSpawnerId: number = -1
   ): void {
     if(!item){
@@ -212,20 +211,17 @@ export class WorldObjectManager {
     } else {
       modelId = itemDef.WORLD_MODEL_ID;
     }
-    const guid = generateRandomGuid(),
-      characterId = generateRandomGuid();
-    server._objects[characterId] = {
-      characterId: characterId,
-      guid: guid,
-      transientId: server.getTransientId(characterId),
-      modelId: modelId,
-      position: position,
-      rotation: rotation,
-      color: { r: 0, g: 0, b: 255 },
-      spawnerId: itemSpawnerId || 0,
-      item: item,
-      npcRenderDistance: renderDistance,
-    };
+    const characterId = generateRandomGuid();
+    server._objects[characterId] = new ItemObject(
+      characterId,
+      server.getTransientId(characterId),
+      modelId,
+      position,
+      rotation,
+      { a: 0, b: 0, c: 255 },
+      itemSpawnerId || 0,
+      item
+    )
     if (itemSpawnerId) this._spawnedObjects[itemSpawnerId] = characterId;
   }
 
@@ -279,7 +275,6 @@ export class WorldObjectManager {
       
       const characterId = generateRandomGuid(),
       vehicleData = new Vehicle(
-        server._worldId,
         characterId,
         server.getTransientId(characterId),
         getRandomVehicleId(),
@@ -445,7 +440,6 @@ export class WorldObjectManager {
             server.generateItem(item.id, item.count),
             itemInstance.position,
             itemInstance.rotation,
-            25,
             itemInstance.id
           );
         }
@@ -479,7 +473,6 @@ export class WorldObjectManager {
             server.generateItem(item.id, item.count),
             itemInstance.position,
             itemInstance.rotation,
-            25,
             itemInstance.id
           );
         }
@@ -553,7 +546,6 @@ export class WorldObjectManager {
             server.generateItem(item.id, item.count),
             itemInstance.position,
             itemInstance.rotation,
-            25,
             itemInstance.id
           );
         }
@@ -591,7 +583,6 @@ export class WorldObjectManager {
             server.generateItem(item.id, item.count),
             itemInstance.position,
             itemInstance.rotation,
-            25,
             itemInstance.id
           );
         }
@@ -626,7 +617,6 @@ export class WorldObjectManager {
             server.generateItem(item.id, item.count),
             itemInstance.position,
             itemInstance.rotation,
-            25,
             itemInstance.id
           );
         }
@@ -662,7 +652,6 @@ export class WorldObjectManager {
             server.generateItem(item.id, item.count),
             itemInstance.position,
             itemInstance.rotation,
-            25,
             itemInstance.id
           );
         }
@@ -701,7 +690,6 @@ export class WorldObjectManager {
             server.generateItem(item.id, item.count),
             itemInstance.position,
             itemInstance.rotation,
-            25,
             itemInstance.id
           );
         }
@@ -782,7 +770,6 @@ export class WorldObjectManager {
             server.generateItem(item.id, item.count),
             itemInstance.position,
             itemInstance.rotation,
-            25,
             itemInstance.id
           );
         }
@@ -852,7 +839,6 @@ export class WorldObjectManager {
             server.generateItem(item.id, item.count),
             itemInstance.position,
             itemInstance.rotation,
-            25,
             itemInstance.id
           );
         }
@@ -918,7 +904,6 @@ export class WorldObjectManager {
             server.generateItem(item.id, item.count),
             itemInstance.position,
             itemInstance.rotation,
-            25,
             itemInstance.id
           );
         }
@@ -957,7 +942,6 @@ export class WorldObjectManager {
             server.generateItem(item.id, item.count),
             itemInstance.position,
             itemInstance.rotation,
-            25,
             itemInstance.id
           );
         }
@@ -989,7 +973,6 @@ export class WorldObjectManager {
             server.generateItem(item.id, item.count),
             itemInstance.position,
             itemInstance.rotation,
-            25,
             itemInstance.id
           );
         }
@@ -1025,7 +1008,6 @@ export class WorldObjectManager {
             server.generateItem(item.id, item.count),
             itemInstance.position,
             itemInstance.rotation,
-            25,
             itemInstance.id
           );
         }
@@ -1065,7 +1047,6 @@ export class WorldObjectManager {
             server.generateItem(item.id, item.count),
             itemInstance.position,
             itemInstance.rotation,
-            25,
             itemInstance.id
           );
         }
@@ -1111,7 +1092,6 @@ export class WorldObjectManager {
             server.generateItem(item.id, item.count),
             itemInstance.position,
             itemInstance.rotation,
-            25,
             itemInstance.id
           );
         }
@@ -1259,7 +1239,6 @@ export class WorldObjectManager {
             server.generateItem(item.id, item.count),
             itemInstance.position,
             itemInstance.rotation,
-            25,
             itemInstance.id
           );
         }

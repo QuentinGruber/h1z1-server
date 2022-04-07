@@ -54,6 +54,7 @@ import { MAX_TRANSIENT_ID } from "../../utils/constants";
 import { Db, MongoClient } from "mongodb";
 import dynamicWeather from "./workers/dynamicWeather";
 import { BaseFullCharacter } from "./classes/basefullcharacter";
+import { ItemObject } from "./classes/itemobject";
 
 // need to get 2016 lists
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
@@ -85,7 +86,7 @@ export class ZoneServer2016 extends EventEmitter {
   _appDataFolder = getAppDataFolderPath();
   _worldId = 0;
   _npcs: any;
-  _objects: any;
+  _objects: { [characterId: string]: ItemObject } = {};
   _doors: any;
   _props: any;
   _gameTime: any;
@@ -158,9 +159,7 @@ export class ZoneServer2016 extends EventEmitter {
     this._temporaryObjects = {};
     this._traps = {};
     this._npcs = {};
-    this._objects = {};
     this._doors = {};
-    this._vehicles = {};
     this._props = {};
     this._respawnLocations = spawnLocations.map((spawn: any) => {
       return {
@@ -575,7 +574,6 @@ export class ZoneServer2016 extends EventEmitter {
   async sendCharacterData(client: Client) {
     await this.loadCharacterData(client);
     const containers = this.initializeContainerList(client, false);
-    console.log(client.character.pGetResources())
     this.sendData(client, "SendSelfToClient", {
       data: {
         guid: client.character.guid, // todo: guid should be moved to client, instead of character
@@ -622,28 +620,7 @@ export class ZoneServer2016 extends EventEmitter {
         },
         recipes: Object.values(this._recipes),
         stats: stats,
-        loadoutSlots: {
-          loadoutId: 3,
-          loadoutData: {
-            loadoutSlots: Object.keys(client.character._loadout).map(
-              (slotId: any) => {
-                const slot = client.character._loadout[slotId];
-                return {
-                  hotbarSlotId: slot.slotId,
-                  loadoutId: 3,
-                  slotId: slot.slotId,
-                  loadoutItemData: {
-                    itemDefinitionId: slot.itemDefinitionId,
-                    loadoutItemGuid: slot.itemGuid,
-                    unknownByte1: 255, // flags?
-                  },
-                  unknownDword4: slot.slotId,
-                };
-              }
-            ),
-          },
-          currentSlotId: client.character.currentLoadoutSlot,
-        },
+        loadoutSlots: client.character.pGetLoadoutSlots(),
         characterResources: client.character.pGetResources(),
         containers: containers,
         //unknownQword1: client.character.characterId,
@@ -701,7 +678,6 @@ export class ZoneServer2016 extends EventEmitter {
     for (let index = 0; index < vehiclesArray.length; index++) {
       const vehicle = vehiclesArray[index];
       const vehicleData = new Vehicle(
-        this._worldId || 0,
         vehicle.characterId,
         vehicle.transientId,
         vehicle.actorModelId,
@@ -1720,28 +1696,28 @@ export class ZoneServer2016 extends EventEmitter {
 
   spawnObjects(client: Client): void {
     setImmediate(() => {
-      for (const object in this._objects) {
+      for (const characterId in this._objects) {
+        const object = this._objects[characterId];
         if (
           isPosInRadius(
-            this._objects[object].npcRenderDistance,
+            object.npcRenderDistance,
             client.character.state.position,
-            this._objects[object].position
+            object.state.position
           ) &&
-          !client.spawnedEntities.includes(this._objects[object])
+          !client.spawnedEntities.includes(object)
         ) {
           this.sendData(
             client,
             "AddLightweightNpc",
             {
-              ...this._objects[object],
+              ...object.pGetLightweight(),
               nameId: this.getItemDefinition(
-                this._objects[object].item.itemDefinitionId
+                object.item.itemDefinitionId
               ).NAME_ID,
-              dontSendFullNpcRequest: true,
             },
             1
           );
-          client.spawnedEntities.push(this._objects[object]);
+          client.spawnedEntities.push(object);
         }
       }
     });
@@ -1762,7 +1738,7 @@ export class ZoneServer2016 extends EventEmitter {
           this.sendData(
             client,
             "AddLightweightNpc",
-            { ...object, dontSendFullNpcRequest: true },
+            { ...object, isLightweight: true },
             1
           );
           client.spawnedEntities.push(this._doors[door]);
@@ -2913,14 +2889,6 @@ export class ZoneServer2016 extends EventEmitter {
       this.containerError(client, 5); // slot does not contain item
       return;
     }
-    const itemDefinition = this.getItemDefinition(item.itemDefinitionId),
-    modelId = itemDefinition.WORLD_MODEL_ID;
-    if (!modelId) {
-      debug(
-        `[ERROR] DropItem: No WORLD_MODEL_ID mapped to itemDefinitionId: ${item.itemDefinitionId}`
-      );
-    }
-    
     if (!this.removeInventoryItem(client, item, count)) return;
     this.sendData(client, "Character.DroppedIemNotification", {
       characterId: client.character.characterId,
@@ -2941,9 +2909,8 @@ export class ZoneServer2016 extends EventEmitter {
     this.worldObjectManager.createLootEntity(
       this,
       dropItem,
-      [...client.character.state.position],
-      [0, Number(Math.random() * 10 - 5), 0, 1],
-      15
+      client.character.state.position,
+      new Float32Array([0, Number(Math.random() * 10 - 5), 0, 1])
     );
     this.spawnObjects(client); // manually call this for now
   }
@@ -2981,7 +2948,7 @@ export class ZoneServer2016 extends EventEmitter {
       effectId:
         this.getItemDefinition(item.itemDefinitionId)
           .PICKUP_EFFECT ?? 5151,
-      position: object.position,
+      position: object.state.position,
     });
     this.lootItem(client, item, item.stackCount);
     this.deleteEntity(guid, this._objects);
@@ -3005,9 +2972,8 @@ export class ZoneServer2016 extends EventEmitter {
       this.worldObjectManager.createLootEntity(
         this,
         item,
-        [...client.character.state.position],
-        [0, Number(Math.random() * 10 - 5), 0, 1],
-        15
+        client.character.state.position,
+        new Float32Array([0, Number(Math.random() * 10 - 5), 0, 1])
       );
       this.spawnObjects(client); // manually call this for now
       return;

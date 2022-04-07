@@ -48,7 +48,7 @@ export class ZoneClient2016 {
     soeClientId: string,
     loginSessionId: string,
     characterId: string,
-    generatedTransient: number
+    transientId: number
   ) {
     this.sessionId = sessionId;
     this.soeClientId = soeClientId;
@@ -71,6 +71,9 @@ export class ZoneClient2016 {
       this.hudTimer = null;
       this.isInteracting = false;
     };
-    this.character = new Character2016(characterId, generatedTransient);
+    this.character = new Character2016(
+      characterId, 
+      transientId
+      );
   }
 }

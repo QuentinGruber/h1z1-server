@@ -29,8 +29,15 @@ export class BaseFullCharacter extends BaseLightweightCharacter{
   _containers: { [loadoutSlotId: number]: loadoutContainer } = {};
   loadoutId = 0;
   currentLoadoutSlot = 0; // idk if other full npcs use this
-  constructor(characterId: string, generatedTransient: number) {
-    super(characterId, generatedTransient);
+  isLightweight = false;
+  constructor(
+    characterId: string, 
+    transientId: number, 
+    actorModelId: number, 
+    position: Float32Array, 
+    rotation: Float32Array
+  ) {
+    super(characterId, transientId, actorModelId, position, rotation);
     this.setupLoadoutSlots();
   }
 
@@ -182,7 +189,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter{
   pGetLoadoutSlots() {
     return {
       characterId: this.characterId,
-      loadoutId: 3, // needs to be 3
+      loadoutId: this.loadoutId, // needs to be 3
       loadoutData: {
         loadoutSlots: Object.keys(this._loadout).map(
           (slotId: any) => {

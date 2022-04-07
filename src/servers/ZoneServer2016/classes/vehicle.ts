@@ -40,7 +40,6 @@ function getVehicleId(ModelId: number) {
 }
 
 export class Vehicle2016 extends BaseFullCharacter {
-  worldId: number;
   isManaged: boolean = false;
   manager?: any;
   destroyedEffect: number = 0;
@@ -62,15 +61,14 @@ export class Vehicle2016 extends BaseFullCharacter {
   positionUpdateType = 1;
   loadoutId = 5; // vehicle (need to confirm)
   constructor(
-    worldId: number,
     characterId: string,
     transientId: number,
-    modelId: number,
+    actorModelId: number,
     position: Float32Array,
     rotation: Float32Array,
     gameTime: number
   ) {
-    super(characterId, transientId);
+    super(characterId, transientId, actorModelId, position, rotation);
     this._resources = { 
       [ResourceIds.CONDITION]: 100000, 
       [ResourceIds.FUEL]: 7590 
@@ -80,8 +78,6 @@ export class Vehicle2016 extends BaseFullCharacter {
       rotation: rotation,
       lookAt: new Float32Array([0, 0, 0, 1]),
     }
-    this.worldId = worldId;
-    this.actorModelId = modelId;
     this.vehicleId = getVehicleId(this.actorModelId);
     this.isInvulnerable =
       this.vehicleId == 1337 || this.vehicleId == 13;

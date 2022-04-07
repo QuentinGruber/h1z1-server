@@ -585,36 +585,6 @@ const dev: any = {
       ],
     });
   },
-  spawnsimplenpc: function (
-    server: ZoneServer2016,
-    client: Client,
-    args: any[]
-  ) {
-    const characterId = server.generateGuid();
-    const transientId = server.getTransientId(characterId);
-    if (!args[1]) {
-      server.sendChatText(client, "[ERROR] You need to specify a model id !");
-      return;
-    }
-    if (!args[3]) {
-      server.sendChatText(client, "Missing 2 byte values");
-      return;
-    }
-    const choosenModelId = Number(args[1]);
-    const obj = {
-      characterId: characterId,
-      transientId: transientId,
-      position: [
-        client.character.state.position[0],
-        client.character.state.position[1],
-        client.character.state.position[2],
-      ],
-      modelId: choosenModelId,
-      showHealth: Number(args[2]),
-      unknownDword4: Number(args[3]),
-    };
-    server._objects[characterId] = obj; // save npc
-  },
   /*
     proxiedobjects: function(server: ZoneServer2016, client: Client, args: any[]) {
 

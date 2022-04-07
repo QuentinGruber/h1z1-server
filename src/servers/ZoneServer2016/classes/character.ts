@@ -48,8 +48,17 @@ export class Character2016 extends BaseFullCharacter {
   starthealingInterval: any;
   timeouts: any;
   hasConveys: boolean = false;
-  constructor(characterId: string, generatedTransient: number) {
-    super(characterId, generatedTransient);
+  constructor(
+    characterId: string, 
+    transientId: number
+  ) {
+    super(
+      characterId, 
+      transientId, 
+      0, 
+      new Float32Array([0, 0, 0, 1]),
+      new Float32Array([0, 0, 0, 1])
+    );
     this.healingTicks = 0;
     this.healingMaxTicks = 0;
     this._resources = {

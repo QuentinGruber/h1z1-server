@@ -20,12 +20,22 @@ export class BaseLightweightCharacter{
     rotation: Float32Array;
     lookAt: Float32Array;
   };
-  constructor(characterId: string, generatedTransient: number) {
+  npcRenderDistance = 100; // default in case it doesn't get set in extending class
+  flags = { a: 0, b: 0, c: 0 };
+  isLightweight = true;
+  constructor(
+    characterId: string, 
+    transientId: number, 
+    actorModelId: number, 
+    position: Float32Array, 
+    rotation: Float32Array
+  ) {
     this.characterId = characterId;
-    this.transientId = generatedTransient;
+    this.transientId = transientId;
+    this.actorModelId = actorModelId;
     this.state = {
-      position: new Float32Array([0, 0, 0, 1]),
-      rotation: new Float32Array([0, 0, 0, 1]),
+      position: position,
+      rotation: rotation,
       lookAt: new Float32Array([0, 0, 0, 1]),
     };
   }
@@ -37,6 +47,8 @@ export class BaseLightweightCharacter{
       modelId: this.actorModelId,
       position: this.state.position,
       rotation: this.state.rotation,
+      flags: this.flags,
+      isLightweight: this.isLightweight
     }
   }
 }
