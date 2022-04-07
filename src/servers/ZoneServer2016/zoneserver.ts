@@ -649,42 +649,42 @@ export class ZoneServer2016 extends EventEmitter {
             ...resources.health,
             resourceData: {
               ...resources.health.resourceData,
-              value: client.character.resources.health,
+              value: client.character._resources[ResourceIds.HEALTH],
             },
           },
           {
             ...resources.stamina,
             resourceData: {
               ...resources.stamina.resourceData,
-              value: client.character.resources.stamina,
+              value: client.character._resources[ResourceIds.STAMINA],
             },
           },
           {
             ...resources.food,
             resourceData: {
               ...resources.food.resourceData,
-              value: client.character.resources.food,
+              value: client.character._resources[ResourceIds.HUNGER],
             },
           },
           {
             ...resources.water,
             resourceData: {
               ...resources.water.resourceData,
-              value: client.character.resources.water,
+              value: client.character._resources[ResourceIds.HYDRATION],
             },
           },
           {
             ...resources.comfort,
             resourceData: {
               ...resources.comfort.resourceData,
-              value: client.character.resources.comfort,
+              value: client.character._resources[ResourceIds.COMFORT],
             },
           },
           {
             ...resources.virus,
             resourceData: {
               ...resources.virus.resourceData,
-              value: client.character.resources.virus,
+              value: client.character._resources[ResourceIds.VIRUS],
             },
           },
         ],
@@ -1148,8 +1148,8 @@ export class ZoneServer2016 extends EventEmitter {
           supercriticalDamageEffect = 5227;
           break;
       }
-      vehicle.resources.health -= damage;
-      if (vehicle.resources.health <= 0) {
+      vehicle._resources[ResourceIds.CONDITION] -= damage;
+      if (vehicle._resources[ResourceIds.CONDITION] <= 0) {
         this.destroyVehicle(
           vehicle,
           destroyedVehicleEffect,
@@ -1160,8 +1160,8 @@ export class ZoneServer2016 extends EventEmitter {
         let allowSend = false;
         let startDamageTimeout = false;
         if (
-          vehicle.resources.health <= 50000 &&
-          vehicle.resources.health > 35000
+          vehicle._resources[ResourceIds.CONDITION] <= 50000 &&
+          vehicle._resources[ResourceIds.CONDITION] > 35000
         ) {
           if (vehicle.destroyedState != 1) {
             damageeffect = minorDamageEffect;
@@ -1169,8 +1169,8 @@ export class ZoneServer2016 extends EventEmitter {
             vehicle.destroyedState = 1;
           }
         } else if (
-          vehicle.resources.health <= 35000 &&
-          vehicle.resources.health > 20000
+          vehicle._resources[ResourceIds.CONDITION] <= 35000 &&
+          vehicle._resources[ResourceIds.CONDITION] > 20000
         ) {
           if (vehicle.destroyedState != 2) {
             damageeffect = majorDamageEffect;
@@ -1178,8 +1178,8 @@ export class ZoneServer2016 extends EventEmitter {
             vehicle.destroyedState = 2;
           }
         } else if (
-          vehicle.resources.health <= 20000 &&
-          vehicle.resources.health > 10000
+          vehicle._resources[ResourceIds.CONDITION] <= 20000 &&
+          vehicle._resources[ResourceIds.CONDITION] > 10000
         ) {
           if (vehicle.destroyedState != 3) {
             damageeffect = criticalDamageEffect;
@@ -1187,7 +1187,7 @@ export class ZoneServer2016 extends EventEmitter {
             startDamageTimeout = true;
             vehicle.destroyedState = 3;
           }
-        } else if (vehicle.resources.health <= 10000) {
+        } else if (vehicle._resources[ResourceIds.CONDITION] <= 10000) {
           if (vehicle.destroyedState != 4) {
             damageeffect = supercriticalDamageEffect;
             allowSend = true;
@@ -1195,7 +1195,7 @@ export class ZoneServer2016 extends EventEmitter {
             vehicle.destroyedState = 4;
           }
         } else if (
-          vehicle.resources.health > 50000 &&
+          vehicle._resources[ResourceIds.CONDITION] > 50000 &&
           vehicle.destroyedState != 0
         ) {
           vehicle.destroyedState = 0;
@@ -1222,7 +1222,7 @@ export class ZoneServer2016 extends EventEmitter {
         this.updateResourceToAllWithSpawnedVehicle(
           vehicle.passengers.passenger1,
           vehicle.characterId,
-          vehicle.resources.health,
+          vehicle._resources[ResourceIds.CONDITION],
           ResourceIds.CONDITION,
           ResourceTypes.CONDITION
         );
@@ -1235,7 +1235,7 @@ export class ZoneServer2016 extends EventEmitter {
     destroyedVehicleEffect: number,
     destroyedVehicleModel: number
   ) {
-    vehicle.resources.health = 0;
+    vehicle._resources[ResourceIds.CONDITION] = 0;
     this.explosionDamage(vehicle.state.position, vehicle.characterId);
     this.sendDataToAllWithSpawnedEntity(
       this._vehicles,
@@ -1265,8 +1265,8 @@ export class ZoneServer2016 extends EventEmitter {
     vehicle.damageTimeout = setTimeout(() => {
       this.damageVehicle(1000, vehicle);
       if (
-        vehicle.resources.health < 20000 &&
-        vehicle.resources.health > 0
+        vehicle._resources[ResourceIds.CONDITION] < 20000 &&
+        vehicle._resources[ResourceIds.CONDITION] > 0
       ) {
         vehicle.damageTimeout.refresh();
       }
@@ -1280,11 +1280,11 @@ export class ZoneServer2016 extends EventEmitter {
       this.dismountVehicle(client);
     }
     client.isLoading = true;
-    client.character.resources.health = 10000;
-    client.character.resources.food = 10000;
-    client.character.resources.water = 10000;
-    client.character.resources.stamina = 600;
-    client.character.resources.bleeding = -120;
+    client.character._resources[ResourceIds.HEALTH] = 10000;
+    client.character._resources[ResourceIds.HUNGER] = 10000;
+    client.character._resources[ResourceIds.HYDRATION] = 10000;
+    client.character._resources[ResourceIds.STAMINA] = 600;
+    client.character._resources[ResourceIds.BLEEDING] = -120;
     client.character.healingTicks = 0;
     client.character.healingMaxTicks = 0;
     client.character.resourcesUpdater.refresh();
@@ -1310,25 +1310,25 @@ export class ZoneServer2016 extends EventEmitter {
     this.updateResource(
       client,
       client.character.characterId,
-      client.character.resources.health,
+      client.character._resources[ResourceIds.HEALTH],
       ResourceIds.HEALTH
     );
     this.updateResource(
       client,
       client.character.characterId,
-      client.character.resources.stamina,
+      client.character._resources[ResourceIds.STAMINA],
       ResourceIds.STAMINA
     );
     this.updateResource(
       client,
       client.character.characterId,
-      client.character.resources.food,
+      client.character._resources[ResourceIds.HUNGER],
       ResourceIds.HUNGER
     );
     this.updateResource(
       client,
       client.character.characterId,
-      client.character.resources.water,
+      client.character._resources[ResourceIds.HYDRATION],
       ResourceIds.HYDRATION
     );
   }
@@ -1481,28 +1481,28 @@ export class ZoneServer2016 extends EventEmitter {
         return;
       }
       if (randomIntFromInterval(0, 100) < damage / 100 && damage > 500) {
-        client.character.resources.bleeding += 41;
+        client.character._resources[ResourceIds.BLEEDING] += 41;
         if (damage > 4000) {
-          client.character.resources.bleeding += 41;
+          client.character._resources[ResourceIds.BLEEDING] += 41;
         }
         this.updateResourceToAllWithSpawnedCharacter(
           client,
           client.character.characterId,
-          client.character.resources.bleeding > 0
-            ? client.character.resources.bleeding
+          client.character._resources[ResourceIds.BLEEDING] > 0
+            ? client.character._resources[ResourceIds.BLEEDING]
             : 0,
           ResourceIds.BLEEDING
         );
       }
-      character.resources.health -= damage;
-      if (character.resources.health <= 0) {
-        character.resources.health = 0;
+      character._resources[ResourceIds.HEALTH] -= damage;
+      if (character._resources[ResourceIds.HEALTH] <= 0) {
+        character._resources[ResourceIds.HEALTH] = 0;
         this.killCharacter(client);
       }
       this.updateResource(
         client,
         character.characterId,
-        character.resources.health,
+        character._resources[ResourceIds.HEALTH],
         ResourceIds.HEALTH
       );
       this.sendData(client, "ClientUpdate.DamageInfo", {
@@ -2204,7 +2204,7 @@ export class ZoneServer2016 extends EventEmitter {
     */
     if (seatId === "0") {
       this.takeoverManagedObject(client, vehicle);
-      if (vehicle.resources.fuel > 0) {
+      if (vehicle._resources[ResourceIds.FUEL] > 0) {
         this.sendDataToAllWithSpawnedEntity(
           this._vehicles,
           vehicleGuid,
@@ -2227,14 +2227,14 @@ export class ZoneServer2016 extends EventEmitter {
             if (this._vehicles[vehicleGuid].positionUpdate.engineRPM) {
               const fuelLoss =
                 this._vehicles[vehicleGuid].positionUpdate.engineRPM * 0.01;
-              this._vehicles[vehicleGuid].resources.fuel -= fuelLoss;
+              this._vehicles[vehicleGuid]._resources[ResourceIds.FUEL] -= fuelLoss;
             }
-            if (this._vehicles[vehicleGuid].resources.fuel < 0) {
-              this._vehicles[vehicleGuid].resources.fuel = 0;
+            if (this._vehicles[vehicleGuid]._resources[ResourceIds.FUEL] < 0) {
+              this._vehicles[vehicleGuid]._resources[ResourceIds.FUEL] = 0;
             }
             if (
               this._vehicles[vehicleGuid].engineOn &&
-              this._vehicles[vehicleGuid].resources.fuel <= 0
+              this._vehicles[vehicleGuid]._resources[ResourceIds.FUEL] <= 0
             ) {
               this.sendDataToAllWithSpawnedEntity(
                 this._vehicles,
@@ -2249,7 +2249,7 @@ export class ZoneServer2016 extends EventEmitter {
             this.updateResourceToAllWithSpawnedVehicle(
               vehicle.passengers.passenger1,
               vehicle.characterId,
-              vehicle.resources.fuel,
+              vehicle._resources[ResourceIds.FUEL],
               ResourceIds.FUEL,
               ResourceTypes.FUEL,
             );
@@ -3516,19 +3516,18 @@ export class ZoneServer2016 extends EventEmitter {
     givetrash: number
   ) {
     this.removeInventoryItem(client, item, 1);
-    client.character.resources.food += eatCount;
-    client.character.resources.water += drinkCount;
-    const { food, water } = client.character.resources;
+    client.character._resources[ResourceIds.HUNGER] += eatCount;
+    client.character._resources[ResourceIds.HYDRATION] += drinkCount;
     this.updateResource(
       client, 
       client.character.characterId, 
-      food, 
+      client.character._resources[ResourceIds.HUNGER], 
       ResourceIds.HUNGER
     );
     this.updateResource(
       client, 
       client.character.characterId, 
-      water, 
+      client.character._resources[ResourceIds.HYDRATION], 
       ResourceIds.HYDRATION
     );
     if (givetrash) {
@@ -3544,19 +3543,18 @@ export class ZoneServer2016 extends EventEmitter {
     givetrash: number
   ) {
     this.removeInventoryItem(client, item, 1);
-    client.character.resources.food += eatCount;
-    client.character.resources.water += drinkCount;
-    const { food, water } = client.character.resources;
+    client.character._resources[ResourceIds.HUNGER] += eatCount;
+    client.character._resources[ResourceIds.HYDRATION] += drinkCount;
     this.updateResource(
       client, 
       client.character.characterId, 
-      food, 
+      client.character._resources[ResourceIds.HUNGER], 
       ResourceIds.HUNGER, 
     );
     this.updateResource(
       client, 
       client.character.characterId, 
-      water, 
+      client.character._resources[ResourceIds.HYDRATION], 
       ResourceIds.HYDRATION
     );
     if (givetrash) {
@@ -3585,8 +3583,8 @@ export class ZoneServer2016 extends EventEmitter {
     bandagingCount: number
   ) {
     client.character.healingMaxTicks += healCount;
-    client.character.resources.bleeding -= bandagingCount;
-    const { bleeding } = client.character.resources;
+    client.character._resources[ResourceIds.BLEEDING] -= bandagingCount;
+    const bleeding = client.character._resources[ResourceIds.BLEEDING];
     if (!client.character.healingInterval) {
       client.character.starthealingInterval(client, this);
     }
@@ -3607,14 +3605,14 @@ export class ZoneServer2016 extends EventEmitter {
   ) {
     this.removeInventoryItem(client, item, 1);
     const vehicle = this._vehicles[vehicleGuid];
-    vehicle.resources.fuel += fuelValue;
-    if (vehicle.resources.fuel > 10000) {
-      vehicle.resources.fuel = 10000;
+    vehicle._resources[ResourceIds.FUEL] += fuelValue;
+    if (vehicle._resources[ResourceIds.FUEL] > 10000) {
+      vehicle._resources[ResourceIds.FUEL] = 10000;
     }
     this.updateResourceToAllWithSpawnedVehicle(
       client,
       vehicleGuid,
-      vehicle.resources.fuel,
+      vehicle._resources[ResourceIds.FUEL],
       ResourceIds.FUEL,
       ResourceTypes.FUEL
     );

@@ -31,7 +31,7 @@ import { CraftManager } from "./classes/craftmanager";
 import { inventoryItem, loadoutContainer } from "types/zoneserver";
 import { Character2016 } from "./classes/character";
 import { Vehicle2016 } from "./classes/vehicle";
-import { ResourceIds } from "./enums";
+import { ResourceIds, ResourceTypes } from "./enums";
 
 export class zonePacketHandlers {
   hax = hax;
@@ -898,7 +898,7 @@ export class zonePacketHandlers {
             //resources: {/*
             //  data:[
             /*{
-                  resourceId: 1,
+                  resourceType: 1,
                   resourceData: {
                     resourceId: 1,
                     resourceType: 1,
@@ -930,19 +930,19 @@ export class zonePacketHandlers {
                 resources: {
                   data: [
                     {
-                      resourceId: 1,
+                      resourceType: ResourceTypes.CONDITION,
                       resourceData: {
-                        resourceId: 561,
-                        resourceType: 1,
-                        value: vehicle.resources.health,
+                        resourceId: ResourceIds.CONDITION,
+                        resourceType: ResourceTypes.CONDITION,
+                        value: vehicle._resources[ResourceIds.CONDITION],
                       },
                     },
                     {
-                      resourceId: 50,
+                      resourceType: ResourceTypes.FUEL,
                       resourceData: {
-                        resourceId: 396,
-                        resourceType: 50,
-                        value: vehicle.resources.fuel,
+                        resourceId: ResourceIds.FUEL,
+                        resourceType: ResourceTypes.FUEL,
+                        value: vehicle._resources[ResourceIds.FUEL],
                       },
                     },
                   ],
@@ -1038,7 +1038,7 @@ export class zonePacketHandlers {
             //resources: {/*
             //  data:[
             /*{
-                  resourceId: 1,
+                  resourceType: 1,
                   resourceData: {
                     resourceId: 1,
                     resourceType: 1,
@@ -1786,12 +1786,12 @@ export class zonePacketHandlers {
                   ) < 1
                 ) {
                   server.playerDamage(server._clients[a], 2000);
-                  server._clients[a].character.resources.bleeding += 41;
+                  server._clients[a].character._resources[ResourceIds.BLEEDING] += 41;
                   server.updateResourceToAllWithSpawnedCharacter(
                     client,
                     client.character.characterId,
-                    client.character.resources.bleeding > 0
-                      ? client.character.resources.bleeding
+                    client.character._resources[ResourceIds.BLEEDING] > 0
+                      ? client.character._resources[ResourceIds.BLEEDING]
                       : 0,
                     ResourceIds.BLEEDING
                   );

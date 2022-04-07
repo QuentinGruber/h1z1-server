@@ -22,7 +22,7 @@ import { BaseLightweightCharacter } from "./baselightweightcharacter";
 const loadoutSlots = require("./../../../../data/2016/dataSources/LoadoutSlots.json");
 
 export class BaseFullCharacter extends BaseLightweightCharacter{
-  resources = {};
+  _resources: { [resourceId: number]: number } = {};
   _loadout: { [loadoutSlotId: number]: loadoutItem } = {};
   _equipment: { [equipmentSlotId: number]: characterEquipment } = {};
   _containers: { [loadoutSlotId: number]: loadoutContainer } = {};

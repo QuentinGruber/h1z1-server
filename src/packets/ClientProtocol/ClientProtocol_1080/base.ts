@@ -2184,7 +2184,7 @@ export const basePackets: any = [
               type: "array",
               defaultValue: [],
               fields: [
-                { name: "resourceId", type: "uint32", defaultValue: 0 },
+                { name: "resourceType", type: "uint32", defaultValue: 0 },
                 {
                   name: "resourceData",
                   type: "schema",
@@ -2796,7 +2796,7 @@ export const basePackets: any = [
                 type: "array",
                 defaultValue: [],
                 fields: [
-                  { name: "resourceId", type: "uint32", defaultValue: 0 },
+                  { name: "resourceType", type: "uint32", defaultValue: 0 },
                   {
                     name: "resourceData",
                     type: "schema",

@@ -3,7 +3,9 @@ export enum ResourceIds {
   HUNGER = 4,
   HYDRATION = 5,
   STAMINA = 6,
+  VIRUS = 12,
   BLEEDING = 21,
+  COMFORT = 68,
   FUEL = 396,
   CONDITION = 561,
 }
@@ -14,8 +16,10 @@ export enum ResourceTypes {
   HUNGER = 4,
   HYDRATION = 5,
   STAMINA = 6,
+  VIRUS = 12,
   BLEEDING = 21,
   FUEL = 50,
+  COMFORT = 68
 }
 
 export enum Items {

@@ -12,6 +12,7 @@
 // ======================================================================
 
 import { createPositionUpdate } from "../../../utils/utils";
+import { ResourceIds } from "../enums";
 import {
   positionUpdate,
   passengers
@@ -56,10 +57,6 @@ export class Vehicle2016 extends BaseFullCharacter {
   seats: { [seatId: string]: any } = {};
   passengers: passengers = {};
   gameTime: number;
-  resources: { 
-    health: number, 
-    fuel: number 
-  };
   vehicleId: number
   destroyedState = 0;
   positionUpdateType = 1;
@@ -74,7 +71,10 @@ export class Vehicle2016 extends BaseFullCharacter {
     gameTime: number
   ) {
     super(characterId, transientId);
-    this.resources = { health: 100000, fuel: 7590 };
+    this._resources = { 
+      [ResourceIds.CONDITION]: 100000, 
+      [ResourceIds.FUEL]: 7590 
+    };
     this.state = {
       position: position,
       rotation: rotation,
