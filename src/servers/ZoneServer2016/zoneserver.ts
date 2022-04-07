@@ -55,6 +55,7 @@ import { Db, MongoClient } from "mongodb";
 import dynamicWeather from "./workers/dynamicWeather";
 import { BaseFullCharacter } from "./classes/basefullcharacter";
 import { ItemObject } from "./classes/itemobject";
+import { DEFAULT_CRYPTO_KEY } from "../../utils/constants";
 
 // need to get 2016 lists
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
@@ -3919,7 +3920,7 @@ export class ZoneServer2016 extends EventEmitter {
 if (process.env.VSCODE_DEBUG === "true") {
   new ZoneServer2016(
     1117,
-    Buffer.from("F70IaxuU8C/w7FPXY1ibXw==", "base64"),
+    Buffer.from(DEFAULT_CRYPTO_KEY, "base64"),
     process.env.MONGO_URL,
     2
   ).start();
