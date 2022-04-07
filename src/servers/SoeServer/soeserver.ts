@@ -39,7 +39,7 @@ export class SOEServer extends EventEmitter {
   _pingTimeoutTime: number = 60000;
   _usePingTimeout: boolean;
   _maxMultiBufferSize: number;
-  reduceCpuUsage: boolean = false;
+  reduceCpuUsage: boolean = true;
   private _soeClientRoutineLoopMethod:any;
   constructor(
     protocolName: string,
