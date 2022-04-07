@@ -44,7 +44,7 @@ export class BaseLightweightCharacter{
     return {
       characterId: this.characterId,
       transientId: this.transientId,
-      modelId: this.actorModelId,
+      actorModelId: this.actorModelId,
       position: this.state.position,
       rotation: this.state.rotation,
       flags: this.flags,

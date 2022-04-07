@@ -577,18 +577,14 @@ export class ZoneServer2016 extends EventEmitter {
     const containers = this.initializeContainerList(client, false);
     this.sendData(client, "SendSelfToClient", {
       data: {
+        ...client.character.pGetLightweight(),
         guid: client.character.guid, // todo: guid should be moved to client, instead of character
-        characterId: client.character.characterId,
-        transientId: client.character.transientId,
-        actorModelId: client.character.actorModelId,
         headActor: client.character.headActor,
         hairModel: client.character.hairModel,
         isRespawning: client.character.isRespawning,
         gender: client.character.gender,
         creationDate: client.character.creationDate,
         lastLoginDate: client.character.lastLoginDate,
-        position: client.character.state.position,
-        rotation: client.character.state.rotation,
         identity: {
           characterName: client.character.name,
         },
@@ -1675,7 +1671,7 @@ export class ZoneServer2016 extends EventEmitter {
           "AddLightweightPc",
           {
             ...characterObj,
-            modelId: characterObj.actorModelId,
+            actorModelId: characterObj.actorModelId,
             transientId: characterObj.transientId,
             identity: {
               characterName: characterObj.name,
@@ -1916,7 +1912,7 @@ export class ZoneServer2016 extends EventEmitter {
             npcData: {
               ...vehicle,
               ...vehicle.state,
-              modelId: vehicle.actorModelId
+              actorModelId: vehicle.actorModelId
             },
             unknownGuid1: this.generateGuid()
           }, 1);
@@ -2008,7 +2004,7 @@ export class ZoneServer2016 extends EventEmitter {
           ...vehicle,
           position: vehicle.state.position,
           rotation: vehicle.state.rotation,
-          modelId: vehicle.actorModelId
+          actorModelId: vehicle.actorModelId
         }
       }, 1);
       client.managedObjects.splice(index, 1);
