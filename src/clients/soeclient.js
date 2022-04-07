@@ -152,8 +152,6 @@ class SOEClient {
     function handlePacket(packet) {
       const soePacket = packet.soePacket,
         result = soePacket.result;
-        console.log("client received " + soePacket.name);
-
       switch (soePacket.name) {
         case "SessionReply":
           debug("Received session reply from server");
@@ -297,7 +295,6 @@ class SOEClient {
       this._crcSeed,
       this._compression
     );
-    console.log("client sending " + packetName);
     debug(this._guid, "Sending " + packetName + " packet to server");
     if (this._dumpData) {
       fs.writeFileSync(

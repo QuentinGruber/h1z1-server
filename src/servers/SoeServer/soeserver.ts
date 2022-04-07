@@ -161,7 +161,6 @@ export class SOEServer extends EventEmitter {
   }
 
   handlePacket(client: SOEClient, packet: any) {
-    console.log("server receive packet", packet.name);
       switch (packet.name) {
         case "SessionRequest":
           debug(
@@ -412,7 +411,6 @@ export class SOEServer extends EventEmitter {
     packet: any,
     prioritize = false
   ): void {
-    console.log("server send packet", packetName);
     const data = this.createPacket(client, packetName, packet);
     if (prioritize) {
       if(packetName !== "MultiPacket" && this._waitQueueTimeMs > 0)
