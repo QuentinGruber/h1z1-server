@@ -928,24 +928,7 @@ export class zonePacketHandlers {
                 unknownArray2: [],
                 unknownArray3: { data: [] },
                 resources: {
-                  data: [
-                    {
-                      resourceType: ResourceTypes.CONDITION,
-                      resourceData: {
-                        resourceId: ResourceIds.CONDITION,
-                        resourceType: ResourceTypes.CONDITION,
-                        value: vehicle._resources[ResourceIds.CONDITION],
-                      },
-                    },
-                    {
-                      resourceType: ResourceTypes.FUEL,
-                      resourceData: {
-                        resourceId: ResourceIds.FUEL,
-                        resourceType: ResourceTypes.FUEL,
-                        value: vehicle._resources[ResourceIds.FUEL],
-                      },
-                    },
-                  ],
+                  data: vehicle.pGetResources(),
                 },
                 unknownArray4: { data: [] },
                 unknownArray5: { data: [] },

@@ -17,6 +17,7 @@ import {
   loadoutContainer,
   inventoryItem,
 } from "../../../types/zoneserver";
+import { ResourceIds, ResourceTypes } from "../enums";
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
 
 const loadoutSlots = require("./../../../../data/2016/dataSources/LoadoutSlots.json");
@@ -209,6 +210,48 @@ export class BaseFullCharacter extends BaseLightweightCharacter{
       transientId: this.transientId,
 
     }
+  }
+
+  getResourceType(resourceId: number) {
+    switch(resourceId) {
+      case ResourceIds.HEALTH:
+        return ResourceTypes.HEALTH;
+      case ResourceIds.HUNGER:
+        return ResourceTypes.HUNGER;
+      case ResourceIds.HYDRATION:
+        return ResourceTypes.HYDRATION;
+      case ResourceIds.STAMINA:
+        return ResourceTypes.STAMINA;
+      case ResourceIds.VIRUS:
+        return ResourceTypes.VIRUS;
+      case ResourceIds.BLEEDING:
+        return ResourceTypes.BLEEDING;
+      case ResourceIds.COMFORT:
+        return ResourceTypes.COMFORT;
+      case ResourceIds.FUEL:
+        return ResourceTypes.FUEL;
+      case ResourceIds.CONDITION:
+        return ResourceTypes.CONDITION;
+      default:
+        return 0;
+    }
+  }
+
+  pGetResources() {
+    return Object.keys(this._resources).map((resource) => {
+      const resourceId = Number(resource);
+      const resourceType = this.getResourceType(resourceId)
+      return {
+        resourceType: resourceType,
+        resourceData: {
+          resourceId: resourceId,
+          resourceType: resourceType,
+          value: this._resources[resourceId] > 0
+          ? this._resources[resourceId]
+          : 0
+        }
+      }
+    })
   }
 
 }

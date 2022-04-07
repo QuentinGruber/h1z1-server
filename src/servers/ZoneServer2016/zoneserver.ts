@@ -576,6 +576,7 @@ export class ZoneServer2016 extends EventEmitter {
   async sendCharacterData(client: Client) {
     await this.loadCharacterData(client);
     const containers = this.initializeContainerList(client, false);
+    console.log(client.character.pGetResources())
     this.sendData(client, "SendSelfToClient", {
       data: {
         guid: client.character.guid, // todo: guid should be moved to client, instead of character
@@ -644,50 +645,7 @@ export class ZoneServer2016 extends EventEmitter {
           },
           currentSlotId: client.character.currentLoadoutSlot,
         },
-        characterResources: [
-          {
-            ...resources.health,
-            resourceData: {
-              ...resources.health.resourceData,
-              value: client.character._resources[ResourceIds.HEALTH],
-            },
-          },
-          {
-            ...resources.stamina,
-            resourceData: {
-              ...resources.stamina.resourceData,
-              value: client.character._resources[ResourceIds.STAMINA],
-            },
-          },
-          {
-            ...resources.food,
-            resourceData: {
-              ...resources.food.resourceData,
-              value: client.character._resources[ResourceIds.HUNGER],
-            },
-          },
-          {
-            ...resources.water,
-            resourceData: {
-              ...resources.water.resourceData,
-              value: client.character._resources[ResourceIds.HYDRATION],
-            },
-          },
-          {
-            ...resources.comfort,
-            resourceData: {
-              ...resources.comfort.resourceData,
-              value: client.character._resources[ResourceIds.COMFORT],
-            },
-          },
-          {
-            ...resources.virus,
-            resourceData: {
-              ...resources.virus.resourceData,
-              value: client.character._resources[ResourceIds.VIRUS],
-            },
-          },
-        ],
+        characterResources: client.character.pGetResources(),
         containers: containers,
         //unknownQword1: client.character.characterId,
         //unknownDword38: 1,
@@ -1409,8 +1367,6 @@ export class ZoneServer2016 extends EventEmitter {
           resourceId: resourceId,
           resourceType: resourceType,
           initialValue: value,
-          unknownArray1: [],
-          unknownArray2: [],
         },
       },
     });
@@ -1435,8 +1391,6 @@ export class ZoneServer2016 extends EventEmitter {
             resourceId: resourceId,
             resourceType: resourceType,
             initialValue: value,
-            unknownArray1: [],
-            unknownArray2: [],
           },
         },
       }
@@ -1463,8 +1417,6 @@ export class ZoneServer2016 extends EventEmitter {
             resourceId: resourceId,
             resourceType: resourceType,
             initialValue: value,
-            unknownArray1: [],
-            unknownArray2: [],
           },
         },
       }

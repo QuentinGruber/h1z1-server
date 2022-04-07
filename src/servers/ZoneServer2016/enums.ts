@@ -12,14 +12,14 @@ export enum ResourceIds {
 
 export enum ResourceTypes {
   HEALTH = 1,
-  CONDITION = 1,
   HUNGER = 4,
   HYDRATION = 5,
   STAMINA = 6,
   VIRUS = 12,
   BLEEDING = 21,
+  COMFORT = 68,
   FUEL = 50,
-  COMFORT = 68
+  CONDITION = 1,
 }
 
 export enum Items {
