@@ -35,6 +35,8 @@ import { ZoneClient as Client } from "./classes/zoneclient";
 import { h1z1PacketsType } from "../../types/packets";
 import { Vehicle } from "./classes/vehicle";
 import { Resolver } from "dns";
+import { DEFAULT_CRYPTO_KEY } from "../../utils/constants";
+
 
 process.env.isBin && require("./workers/dynamicWeather");
 
@@ -92,7 +94,7 @@ export class ZoneServer2015 extends EventEmitter {
   _respawnOnLastPosition: boolean = false;
   _worldRoutineRadiusPercentage: number = 0.4;
   worldRoutineTimer: any;
-  tickRate: number = 3000;
+  tickRate: number = 500;
   _h1emuZoneServer!: H1emuZoneServer;
   _loginServerInfo: { address?: string; port: number } = {
     address: process.env.LOGINSERVER_IP,
@@ -731,7 +733,7 @@ export class ZoneServer2015 extends EventEmitter {
         this.sendRawToAll(Buffer.from(weather));
       });
     }
-    this._gatewayServer.start(this._soloMode);
+    this._gatewayServer.start();
     this.worldRoutineTimer = setTimeout(
       () => this.worldRoutine.bind(this)(true),
       this.tickRate
@@ -2729,7 +2731,7 @@ if (
 ) {
   const zoneServer = new ZoneServer2015(
     1117,
-    Buffer.from("F70IaxuU8C/w7FPXY1ibXw==", "base64"),
+    Buffer.from(DEFAULT_CRYPTO_KEY, "base64"),
     process.env.MONGO_URL,
     1
   );

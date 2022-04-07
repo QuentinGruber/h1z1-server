@@ -32,6 +32,8 @@ import { loginPacketsType } from "types/packets";
 import { Worker } from "worker_threads";
 import { httpServerMessage } from "types/shared";
 import { LoginProtocol2016 } from "../../protocols/loginprotocol2016";
+import { crc_length_options } from "../../types/soeserver";
+import { DEFAULT_CRYPTO_KEY } from "../../utils/constants";
 
 const debugName = "LoginServer";
 const debug = require("debug")(debugName);
@@ -44,7 +46,7 @@ export class LoginServer extends EventEmitter {
   _mongoClient?: MongoClient;
   _compression: number;
   _crcSeed: number;
-  _crcLength: number;
+  _crcLength: crc_length_options;
   _udpLength: number;
   _cryptoKey: Uint8Array;
   _mongoAddress: string;
@@ -64,9 +66,9 @@ export class LoginServer extends EventEmitter {
     super();
     this._compression = 0x0100;
     this._crcSeed = 0;
-    this._crcLength = 2;
+    this._crcLength = 0;
     this._udpLength = 512;
-    this._cryptoKey = Buffer.from("F70IaxuU8C/w7FPXY1ibXw==", "base64");
+    this._cryptoKey = Buffer.from(DEFAULT_CRYPTO_KEY, "base64");
     this._soloMode = false;
     this._mongoAddress = mongoAddress;
     this._appDataFolder = getAppDataFolderPath();
@@ -81,8 +83,7 @@ export class LoginServer extends EventEmitter {
     this._soeServer = new SOEServer(
       "LoginUdp_9",
       serverPort,
-      this._cryptoKey,
-      0
+      this._cryptoKey
     );
     // 2016 client doesn't send a disconnect packet so we've to use that
     // But that can't be enabled on zoneserver
@@ -924,11 +925,8 @@ export class LoginServer extends EventEmitter {
 
     if (this._soloMode) {
       setupAppDataFolder();
-      this._soeServer._isLocal = true;
     }
     this._soeServer.start(
-      this._compression,
-      this._crcSeed,
       this._crcLength,
       this._udpLength
     );

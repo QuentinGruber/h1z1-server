@@ -100,6 +100,7 @@ class SOEClient {
 
     function checkOutOfOrderQueue() {
       if (outOfOrderPackets.length) {
+        console.log("outoforder :))))))))))))))))")
         const packets = [];
         for (let i = 0; i < 20; i++) {
           const sequence = outOfOrderPackets.shift();
