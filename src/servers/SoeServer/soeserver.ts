@@ -89,7 +89,7 @@ export class SOEServer extends EventEmitter {
       this.checkAck(client);
       this.checkOutOfOrderQueue(client);
       this.checkClientOutQueue(client);
-      setImmediate(() =>
+      setTimeout(() =>
             this.soeClientRoutine(client)
           );
     }
@@ -340,7 +340,7 @@ export class SOEServer extends EventEmitter {
           );
 
           
-          setImmediate(() => this.soeClientRoutine(client));
+          setTimeout(() => this.soeClientRoutine(client));
 
           this.emit("connect", null, this._clients[clientId]);
         }
