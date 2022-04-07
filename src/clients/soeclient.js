@@ -93,7 +93,7 @@ class SOEClient {
           sequence: nextAck,
         });
       }
-      me._ackTimer = setTimeout(checkAck, 50);
+      me._ackTimer = setImmediate(checkAck, 50);
     }
 
     checkAck();
@@ -124,7 +124,7 @@ class SOEClient {
           true
         );
       }
-      me._outOfOrderTimer = setTimeout(checkOutOfOrderQueue, 10);
+      me._outOfOrderTimer = setImmediate(checkOutOfOrderQueue, 10);
     }
 
     checkOutOfOrderQueue();
@@ -144,7 +144,7 @@ class SOEClient {
           function (err, bytes) {}
         );
       }
-      me._outQueueTimer = setTimeout(checkOutQueue, 0);
+      me._outQueueTimer = setImmediate(checkOutQueue, 0);
     }
 
     checkOutQueue();
