@@ -17,7 +17,6 @@ import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
 
 export class Character2016 extends BaseFullCharacter {
-  guid?: string;
   name?: string;
   spawnLocation?: string;
   resourcesUpdater?: any;

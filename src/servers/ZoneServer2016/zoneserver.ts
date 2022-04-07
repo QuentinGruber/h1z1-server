@@ -536,7 +536,7 @@ export class ZoneServer2016 extends EventEmitter {
       client.character.name = character.characterName;
     }
 
-    client.character.guid = "0x665a2bff2b44c034" // default, only matters for multiplayer
+    client.guid = "0x665a2bff2b44c034" // default, only matters for multiplayer
     client.character.actorModelId = character.actorModelId;
     client.character.headActor = character.headActor;
     client.character.isRespawning = character.isRespawning;
@@ -578,7 +578,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendData(client, "SendSelfToClient", {
       data: {
         ...client.character.pGetLightweight(),
-        guid: client.character.guid, // todo: guid should be moved to client, instead of character
+        guid: client.guid,
         headActor: client.character.headActor,
         hairModel: client.character.hairModel,
         isRespawning: client.character.isRespawning,
