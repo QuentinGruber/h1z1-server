@@ -31,7 +31,7 @@ export class SOEServer extends EventEmitter {
   _udpLength: number;
   _useEncryption: boolean;
   _clients: any;
-  _connection: Worker;
+  private _connection: Worker;
   _crcSeed: number;
   _crcLength: crc_length_options;
   _maxOutOfOrderPacketsPerLoop: number;
@@ -39,7 +39,8 @@ export class SOEServer extends EventEmitter {
   _pingTimeoutTime: number = 60000;
   _usePingTimeout: boolean;
   _maxMultiBufferSize: number;
-
+  reduceCpuUsage: boolean = false;
+  private _soeClientRoutineLoopMethod:any;
   constructor(
     protocolName: string,
     serverPort: number,
@@ -66,7 +67,7 @@ export class SOEServer extends EventEmitter {
     );
   }
 
-  checkClientOutQueue(client: SOEClient) {
+  private checkClientOutQueue(client: SOEClient) {
       const data = client.outQueue.shift();
       if (data) {
         this._connection.postMessage(
@@ -84,18 +85,18 @@ export class SOEServer extends EventEmitter {
     }
   }
 
-  soeClientRoutine(client: Client){
+  private soeClientRoutine(client: Client){
     if(!client.isDeleted){
       this.checkAck(client);
       this.checkOutOfOrderQueue(client);
       this.checkClientOutQueue(client);
-      setImmediate(() =>
+      this._soeClientRoutineLoopMethod(() =>
             this.soeClientRoutine(client)
           );
     }
   }
 
-  checkAck(client: Client) {
+  private checkAck(client: Client) {
     if (client.lastAck != client.nextAck) {
       client.lastAck = client.nextAck;
       this._sendPacket(
@@ -109,7 +110,7 @@ export class SOEServer extends EventEmitter {
     }
   }
 
-  sendClientWaitQueue(client: Client) {
+  private sendClientWaitQueue(client: Client) {
     if(client.waitQueueTimer){
       clearTimeout(client.waitQueueTimer)
       client.waitQueueTimer = undefined;
@@ -134,7 +135,7 @@ export class SOEServer extends EventEmitter {
       client.waitingQueue = [];
     }
   }
-  checkOutOfOrderQueue(client: Client) {
+  private checkOutOfOrderQueue(client: Client) {
     if (client.outOfOrderPackets.length) {
       const packets = [];
       for (let i = 0; i < this._maxOutOfOrderPacketsPerLoop; i++) {
@@ -160,7 +161,7 @@ export class SOEServer extends EventEmitter {
     }
   }
 
-  handlePacket(client: SOEClient, packet: any) {
+  private handlePacket(client: SOEClient, packet: any) {
       switch (packet.name) {
         case "SessionRequest":
           debug(
@@ -280,6 +281,12 @@ export class SOEServer extends EventEmitter {
     if(udpLength !== undefined){
     this._udpLength = udpLength;
     }
+    if(this.reduceCpuUsage){
+      this._soeClientRoutineLoopMethod = setTimeout;
+    }
+    else{
+      this._soeClientRoutineLoopMethod = setImmediate;
+    }
     this._connection.on("message", (message) => {
       const data = Buffer.from(message.data);
       try {
@@ -340,7 +347,7 @@ export class SOEServer extends EventEmitter {
           );
 
           
-          setImmediate(() => this.soeClientRoutine(client));
+          this._soeClientRoutineLoopMethod(() => this.soeClientRoutine(client));
 
           this.emit("connect", null, this._clients[clientId]);
         }
@@ -383,7 +390,7 @@ export class SOEServer extends EventEmitter {
     process.exit(0);
   }
 
-  createPacket(client: Client, packetName: string, packet: any): Buffer {
+  private createPacket(client: Client, packetName: string, packet: any): Buffer {
     if(packet.data){
       packet.data = [...packet.data]
     }
@@ -405,7 +412,7 @@ export class SOEServer extends EventEmitter {
     }
   }
 
-  _sendPacket(
+  private _sendPacket(
     client: Client,
     packetName: string,
     packet: any,
