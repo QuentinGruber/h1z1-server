@@ -15,6 +15,10 @@ import { ResourceIds } from "../enums";
 import { ZoneClient2016 } from "./zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
+import {
+  positionUpdate
+} from "../../../types/zoneserver"
+
 
 export class Character2016 extends BaseFullCharacter {
   name?: string;
@@ -47,6 +51,7 @@ export class Character2016 extends BaseFullCharacter {
   starthealingInterval: any;
   timeouts: any;
   hasConveys: boolean = false;
+  positionUpdate?: positionUpdate;
   constructor(
     characterId: string, 
     transientId: number

@@ -155,7 +155,7 @@ export class zonePacketHandlers {
       });
       client.character.startRessourceUpdater(client, server);
       server.sendData(client, "Character.CharacterStateDelta", {
-        guid1: client.character.guid,
+        guid1: client.guid,
         guid2: "0x0000000000000000",
         guid3: "0x0000000040000000",
         guid4: "0x0000000000000000",
@@ -773,6 +773,7 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
+      client.character.positionUpdate = packet.data
       if (packet.data.flags === 513) {
         // head rotation when in vehicle, client spams this packet every 1ms even if you dont move, disabled for now(it doesnt work anyway)
         return;
@@ -1009,6 +1010,7 @@ export class zonePacketHandlers {
             slotId: 27,
             guid: "0x0",
           };
+          
           server.sendData(client, "LightweightToFullNpc", {
             transientId: character.transientId,
             attachmentData: [],//character.pGetAttachmentSlots(),
@@ -1017,10 +1019,11 @@ export class zonePacketHandlers {
             targetData: {},
             unknownArray1: [],
             unknownArray2: [],
-            //unknownArray3: {/*data:[]*/},
-            //resources: {/*
-            //  data:[
-            /*{
+            //unknownArray3: {data:[]},
+            /*
+            resources: {
+             data:[
+                {
                   resourceType: 1,
                   resourceData: {
                     resourceId: 1,
@@ -1028,14 +1031,27 @@ export class zonePacketHandlers {
                     value: 10000
                   }
                 }
-              ]*/
-            //},
-            //unknownArray4: {/*unknownArray1:[], unknownArray2:[]*/},
-            //unknownArray5: {/*data:[]*/},
-            //unknownArray6: {/*data:[]*/},
-            //remoteWeapons: {/*data:[]*/},
-            //itemsData: {/*data:[]*/}
+              ]
+            },
+            */
+            //unknownArray4: {unknownArray1:[], unknownArray2:[]},
+            //unknownArray5: {data:[]},
+            //unknownArray6: {data:[]},
+            //remoteWeapons: {data:[]},
+            //itemsData: {data:[]}
           });
+          
+          /*
+          server.sendData(client, "LightweightToFullPc", {
+            useCompression: false,
+            unknownDword1: 0,
+            positionUpdate: character.positionUpdate,
+            fullPcData: {
+              transientId: character.transientId,
+              
+            }
+          });
+          */
           server.updateEquipment(client, character);
           server.sendData(client, "Character.WeaponStance", {
             // activates weaponstance key
