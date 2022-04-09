@@ -801,7 +801,7 @@ export const lightWeightNpcSchema = [
     parser: readUnsignedIntWith2bitLengthValue,
     packer: packUnsignedIntWith2bitLengthValue,
   },
-  { name: "unknownString1", type: "string", defaultValue: "" },
+  { name: "petName", type: "string", defaultValue: "" },
   { name: "nameId", type: "uint32", defaultValue: 0 },
   { name: "unknownByte1", type: "uint8", defaultValue: 0 },
   { name: "actorModelId", type: "uint32", defaultValue: 0 },
@@ -1343,6 +1343,7 @@ export const fullNpcDataSchema = [
   {
     name: "unknownData1",
     type: "schema",
+    defaultValue: {},
     fields: [
       { name: "unknownDword1", type: "uint32", defaultValue: 1 },
       { name: "unknownString1", type: "string", defaultValue: "" },
@@ -1357,6 +1358,7 @@ export const fullNpcDataSchema = [
   {
     name: "targetData",
     type: "schema",
+    defaultValue: {},
     fields: [
       { name: "unknownByte1", type: "uint8", defaultValue: 0 } /*
       {

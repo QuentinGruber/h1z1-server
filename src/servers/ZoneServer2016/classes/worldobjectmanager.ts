@@ -19,12 +19,13 @@ const Z1_npcs = require("../../../../data/2016/zoneData/Z1_npcs.json");
 const models = require("../../../../data/2016/dataSources/Models.json");
 import {
   _,
+  eul2quat,
   generateRandomGuid,
   isPosInRadius,
   randomIntFromInterval,
 } from "../../../utils/utils";
 import { Items } from "../enums"
-import { Vehicle2016 as Vehicle, Vehicle2016 } from "./../classes/vehicle";
+import { Vehicle2016 } from "./../classes/vehicle";
 import { inventoryItem } from "types/zoneserver";
 import { ItemObject } from "./itemobject";
 import { DoorEntity } from "./doorentity";
@@ -66,8 +67,6 @@ export class WorldObjectManager {
   // objects won't spawn if another object is within this radius
   vehicleSpawnRadius: number = 50;
   npcSpawnRadius: number = 3;
-  // only really used to check if another loot object is already spawned in the same exact spot
-  lootSpawnRadius: number = 1;
 
   chancePumpShotgun: number = 50;
   chanceAR15: number = 50;
@@ -107,7 +106,6 @@ export class WorldObjectManager {
     }
   }
   createNpc(
-    // todo: clean this up
     server: ZoneServer2016,
     modelId: number,
     position: Float32Array,
@@ -220,21 +218,23 @@ export class WorldObjectManager {
     if (Object.keys(server._vehicles).length >= this.vehicleSpawnCap) return;
     Z1_vehicles.forEach((vehicle: any) => {
       let spawn = true;
-      _.forEach(server._vehicles, (spawnedVehicle: Vehicle) => {
+      Object.values(server._vehicles).every((spawnedVehicle: Vehicle2016) => {
         if (
           isPosInRadius(
             this.vehicleSpawnRadius,
             vehicle.position,
             spawnedVehicle.state.position
           )
-        )
+        ) {
           spawn = false;
-        return;
+          return false;
+        }
+        return true;
       });
       if (!spawn) return;
       
       const characterId = generateRandomGuid(),
-      vehicleData = new Vehicle(
+      vehicleData = new Vehicle2016(
         characterId,
         server.getTransientId(characterId),
         getRandomVehicleId(),
@@ -248,7 +248,7 @@ export class WorldObjectManager {
     debug("All vehicles created");
   }
 
-  async createNpcs(server: ZoneServer2016) {
+  createNpcs(server: ZoneServer2016) {
     // This is only for giving the world some life
     Z1_npcs.forEach((spawnerType: any) => {
       const authorizedModelId: number[] = [];
@@ -267,39 +267,40 @@ export class WorldObjectManager {
         default:
           break;
       }
-      if (authorizedModelId.length) {
+      if (!authorizedModelId.length) return;
+      spawnerType.instances.forEach((npcInstance: any) => {
         let spawn = true;
-        spawnerType.instances.forEach((npcInstance: any) => {
-          _.forEach(server._npcs, (spawnedNpc: Npc) => {
-            if (
-              isPosInRadius(
-                this.npcSpawnRadius,
-                npcInstance.position,
-                spawnedNpc.state.position
-              )
-            )
-              spawn = false;
-            return;
-          });
-          if (!spawn) return;
-          const spawnchance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
-          if (spawnchance <= this.chanceNpc) {
-            const screamerChance = Math.floor(Math.random() * 1000) + 1; // temporary spawnchance
-            if (screamerChance <= this.chanceScreamer) {
-              authorizedModelId.push(9667);
-            }
-            this.createNpc(
-              server,
-              authorizedModelId[
-                Math.floor(Math.random() * authorizedModelId.length)
-              ],
+        Object.values(server._npcs).every((spawnedNpc: Npc) => {
+          if (
+            isPosInRadius(
+              this.npcSpawnRadius,
               npcInstance.position,
-              npcInstance.rotation,
-              npcInstance.id
-            );
+              spawnedNpc.state.position
+            )
+          ) {
+            spawn = false;
+            return false;
           }
+          return true;
         });
-      }
+        if (!spawn) return;
+        const spawnchance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
+        if (spawnchance <= this.chanceNpc) {
+          const screamerChance = Math.floor(Math.random() * 1000) + 1; // temporary spawnchance
+          if (screamerChance <= this.chanceScreamer) {
+            authorizedModelId.push(9667);
+          }
+          this.createNpc(
+            server,
+            authorizedModelId[
+              Math.floor(Math.random() * authorizedModelId.length)
+            ],
+            npcInstance.position,
+            new Float32Array(eul2quat(npcInstance.rotation)),
+            npcInstance.id
+          );
+        }
+      });
     });
     debug("All npcs objects created");
   }
