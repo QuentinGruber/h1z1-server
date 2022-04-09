@@ -11,10 +11,10 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { BaseEntity } from "./baseentity";
+import { BaseSimpleNpc } from "./basesimplenpc";
 
-export class BaseSimpleNpc extends BaseEntity{
-  health = 100000;
+export class ExplosiveEntity extends BaseSimpleNpc{
+  isIED = false;
   constructor(
     characterId: string,
     transientId: number,
@@ -23,23 +23,5 @@ export class BaseSimpleNpc extends BaseEntity{
     rotation: Float32Array
   ) {
     super(characterId, transientId, actorModelId, position, rotation);
-  }
-  pGetSimpleNpc() {
-    return {
-      characterId: this.characterId,
-      transientId: this.transientId,
-      position: this.state.position,
-      rotation: this.state.rotation,
-      modelId: this.actorModelId,
-      scale: this.scale,
-      showHealth: true,
-      health: this.health / 1000
-    }
-  }
-  pGetSimpleProxyHealth() {
-    return {
-      characterId: this.characterId,
-      health: this.health / 1000
-    }
   }
 }

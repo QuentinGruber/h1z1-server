@@ -33,6 +33,7 @@ import { Character2016 } from "./classes/character";
 import { Vehicle2016 } from "./classes/vehicle";
 import { ResourceIds } from "./enums";
 import { TrapEntity } from "./classes/trapentity";
+import { ExplosiveEntity } from "./classes/explosiveentity";
 
 export class zonePacketHandlers {
   hax = hax;
@@ -1484,7 +1485,8 @@ export class zonePacketHandlers {
       const characterId = server.generateGuid(),
       transientId = server.getTransientId(characterId);
       let npc: any = {},
-      trap: TrapEntity;
+      trap: TrapEntity//,
+      //explosive: ExplosiveEntity
       switch (packet.data.itemDefinitionId) {
         case 1804:
         case 4:
@@ -1530,9 +1532,16 @@ export class zonePacketHandlers {
             attachedObject: {},
             isIED: true,
           };
-          if (!server.removeInventoryItem(client, item)) {
-            return;
-          }
+          /*
+          explosive = new ExplosiveEntity(
+            characterId, 
+            transientId, 
+            9176,
+            client.character.state.position,
+            client.character.state.lookAt
+          )
+          explosive.isIED = true;
+          */
 
           server._explosives[characterId] = npc; // save npc
           break;
@@ -1677,11 +1686,11 @@ export class zonePacketHandlers {
                     "Character.UpdateSimpleProxyHealth",
                     trap.pGetSimpleProxyHealth()
                   );
-                  trap.realHealth -= 1000;
+                  trap.health -= 1000;
                 }
               }
 
-              if (trap.realHealth > 0) {
+              if (trap.health > 0) {
                 trap.trapTimer?.refresh();
               } else {
                 server.sendDataToAllWithSpawnedEntity(
