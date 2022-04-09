@@ -387,23 +387,22 @@ export class WorldObjectManager {
       default:
         break;
     }
-    if (authorizedItems.length) {
-      spawnerType.instances.forEach((itemInstance: any) => {
-        if (this._spawnedLootObjects[itemInstance.id]) return;
-        const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
-        if (chance <= this.chanceAR15) {
-          // temporary spawnchance
-          const item = getRandomItem(authorizedItems);
-          this.createLootEntity(
-            server,
-            server.generateItem(item.id, item.count),
-            itemInstance.position,
-            itemInstance.rotation,
-            itemInstance.id
-          );
-        }
-      });
-    }
+    if (!authorizedItems.length) return;
+    spawnerType.instances.forEach((itemInstance: any) => {
+      if (this._spawnedLootObjects[itemInstance.id]) return;
+      const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
+      if (chance <= this.chanceAR15) {
+        // temporary spawnchance
+        const item = getRandomItem(authorizedItems);
+        this.createLootEntity(
+          server,
+          server.generateItem(item.id, item.count),
+          itemInstance.position,
+          itemInstance.rotation,
+          itemInstance.id
+        );
+      }
+    });
   }
   createPumpShotgun(server: ZoneServer2016, spawnerType: any) {
     const authorizedItems: Array<{ id: number; count: number }> = [];
@@ -420,23 +419,22 @@ export class WorldObjectManager {
       default:
         break;
     }
-    if (authorizedItems.length) {
-      spawnerType.instances.forEach((itemInstance: any) => {
-        if (this._spawnedLootObjects[itemInstance.id]) return;
-        const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
-        if (chance <= this.chancePumpShotgun) {
-          // temporary spawnchance
-          const item = getRandomItem(authorizedItems);
-          this.createLootEntity(
-            server,
-            server.generateItem(item.id, item.count),
-            itemInstance.position,
-            itemInstance.rotation,
-            itemInstance.id
-          );
-        }
-      });
-    }
+    if (!authorizedItems.length) return;
+    spawnerType.instances.forEach((itemInstance: any) => {
+      if (this._spawnedLootObjects[itemInstance.id]) return;
+      const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
+      if (chance <= this.chancePumpShotgun) {
+        // temporary spawnchance
+        const item = getRandomItem(authorizedItems);
+        this.createLootEntity(
+          server,
+          server.generateItem(item.id, item.count),
+          itemInstance.position,
+          itemInstance.rotation,
+          itemInstance.id
+        );
+      }
+    });
   }
 
   createTools(server: ZoneServer2016, spawnerType: any) {
@@ -493,23 +491,22 @@ export class WorldObjectManager {
       default:
         break;
     }
-    if (authorizedItems.length) {
-      spawnerType.instances.forEach((itemInstance: any) => {
-        if (this._spawnedLootObjects[itemInstance.id]) return;
-        const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
-        if (chance <= this.chanceTools) {
-          // temporary spawnchance
-          const item = getRandomItem(authorizedItems);
-          this.createLootEntity(
-            server,
-            server.generateItem(item.id, item.count),
-            itemInstance.position,
-            itemInstance.rotation,
-            itemInstance.id
-          );
-        }
-      });
-    }
+    if (!authorizedItems.length) return;
+    spawnerType.instances.forEach((itemInstance: any) => {
+      if (this._spawnedLootObjects[itemInstance.id]) return;
+      const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
+      if (chance <= this.chanceTools) {
+        // temporary spawnchance
+        const item = getRandomItem(authorizedItems);
+        this.createLootEntity(
+          server,
+          server.generateItem(item.id, item.count),
+          itemInstance.position,
+          itemInstance.rotation,
+          itemInstance.id
+        );
+      }
+    });
   }
 
   createPistols(server: ZoneServer2016, spawnerType: any) {
@@ -530,23 +527,22 @@ export class WorldObjectManager {
       default:
         break;
     }
-    if (authorizedItems.length) {
-      spawnerType.instances.forEach((itemInstance: any) => {
-        if (this._spawnedLootObjects[itemInstance.id]) return;
-        const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
-        if (chance <= this.chancePistols) {
-          // temporary spawnchance
-          const item = getRandomItem(authorizedItems);
-          this.createLootEntity(
-            server,
-            server.generateItem(item.id, item.count),
-            itemInstance.position,
-            itemInstance.rotation,
-            itemInstance.id
-          );
-        }
-      });
-    }
+    if (!authorizedItems.length) return;
+    spawnerType.instances.forEach((itemInstance: any) => {
+      if (this._spawnedLootObjects[itemInstance.id]) return;
+      const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
+      if (chance <= this.chancePistols) {
+        // temporary spawnchance
+        const item = getRandomItem(authorizedItems);
+        this.createLootEntity(
+          server,
+          server.generateItem(item.id, item.count),
+          itemInstance.position,
+          itemInstance.rotation,
+          itemInstance.id
+        );
+      }
+    });
   }
 
   createM24(server: ZoneServer2016, spawnerType: any) {
@@ -564,23 +560,22 @@ export class WorldObjectManager {
       default:
         break;
     }
-    if (authorizedItems.length) {
-      spawnerType.instances.forEach((itemInstance: any) => {
-        if (this._spawnedLootObjects[itemInstance.id]) return;
-        const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
-        if (chance <= this.chanceM24) {
-          // temporary spawnchance
-          const item = getRandomItem(authorizedItems);
-          this.createLootEntity(
-            server,
-            server.generateItem(item.id, item.count),
-            itemInstance.position,
-            itemInstance.rotation,
-            itemInstance.id
-          );
-        }
-      });
-    }
+    if (!authorizedItems.length) return;
+    spawnerType.instances.forEach((itemInstance: any) => {
+      if (this._spawnedLootObjects[itemInstance.id]) return;
+      const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
+      if (chance <= this.chanceM24) {
+        // temporary spawnchance
+        const item = getRandomItem(authorizedItems);
+        this.createLootEntity(
+          server,
+          server.generateItem(item.id, item.count),
+          itemInstance.position,
+          itemInstance.rotation,
+          itemInstance.id
+        );
+      }
+    });
   }
 
   createConsumables(server: ZoneServer2016, spawnerType: any) {
@@ -599,23 +594,22 @@ export class WorldObjectManager {
       default:
         break;
     }
-    if (authorizedItems.length) {
-      spawnerType.instances.forEach((itemInstance: any) => {
-        if (this._spawnedLootObjects[itemInstance.id]) return;
-        const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
-        if (chance <= this.chanceConsumables) {
-          // temporary spawnchance
-          const item = getRandomItem(authorizedItems);
-          this.createLootEntity(
-            server,
-            server.generateItem(item.id, item.count),
-            itemInstance.position,
-            itemInstance.rotation,
-            itemInstance.id
-          );
-        }
-      });
-    }
+    if (!authorizedItems.length) return;
+    spawnerType.instances.forEach((itemInstance: any) => {
+      if (this._spawnedLootObjects[itemInstance.id]) return;
+      const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
+      if (chance <= this.chanceConsumables) {
+        // temporary spawnchance
+        const item = getRandomItem(authorizedItems);
+        this.createLootEntity(
+          server,
+          server.generateItem(item.id, item.count),
+          itemInstance.position,
+          itemInstance.rotation,
+          itemInstance.id
+        );
+      }
+    });
   }
 
   createClothes(server: ZoneServer2016, spawnerType: any) {
@@ -637,23 +631,22 @@ export class WorldObjectManager {
       default:
         break;
     }
-    if (authorizedItems.length) {
-      spawnerType.instances.forEach((itemInstance: any) => {
-        if (this._spawnedLootObjects[itemInstance.id]) return;
-        const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
-        if (chance <= this.chanceClothes) {
-          // temporary spawnchance
-          const item = getRandomItem(authorizedItems);
-          this.createLootEntity(
-            server,
-            server.generateItem(item.id, item.count),
-            itemInstance.position,
-            itemInstance.rotation,
-            itemInstance.id
-          );
-        }
-      });
-    }
+    if (!authorizedItems.length) return;
+    spawnerType.instances.forEach((itemInstance: any) => {
+      if (this._spawnedLootObjects[itemInstance.id]) return;
+      const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
+      if (chance <= this.chanceClothes) {
+        // temporary spawnchance
+        const item = getRandomItem(authorizedItems);
+        this.createLootEntity(
+          server,
+          server.generateItem(item.id, item.count),
+          itemInstance.position,
+          itemInstance.rotation,
+          itemInstance.id
+        );
+      }
+    });
   }
 
   createResidential(server: ZoneServer2016, spawnerType: any) {
@@ -717,23 +710,22 @@ export class WorldObjectManager {
       default:
         break;
     }
-    if (authorizedItems.length) {
-      spawnerType.instances.forEach((itemInstance: any) => {
-        if (this._spawnedLootObjects[itemInstance.id]) return;
-        const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
-        if (chance <= this.chanceResidential) {
-          // temporary spawnchance
-          const item = getRandomItem(authorizedItems);
-          this.createLootEntity(
-            server,
-            server.generateItem(item.id, item.count),
-            itemInstance.position,
-            itemInstance.rotation,
-            itemInstance.id
-          );
-        }
-      });
-    }
+    if (!authorizedItems.length) return;
+    spawnerType.instances.forEach((itemInstance: any) => {
+      if (this._spawnedLootObjects[itemInstance.id]) return;
+      const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
+      if (chance <= this.chanceResidential) {
+        // temporary spawnchance
+        const item = getRandomItem(authorizedItems);
+        this.createLootEntity(
+          server,
+          server.generateItem(item.id, item.count),
+          itemInstance.position,
+          itemInstance.rotation,
+          itemInstance.id
+        );
+      }
+    });
   }
 
   createRare(server: ZoneServer2016, spawnerType: any) {
@@ -786,23 +778,22 @@ export class WorldObjectManager {
       default:
         break;
     }
-    if (authorizedItems.length) {
-      spawnerType.instances.forEach((itemInstance: any) => {
-        if (this._spawnedLootObjects[itemInstance.id]) return;
-        const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
-        if (chance <= this.chanceRare) {
-          // temporary spawnchance
-          const item = getRandomItem(authorizedItems);
-          this.createLootEntity(
-            server,
-            server.generateItem(item.id, item.count),
-            itemInstance.position,
-            itemInstance.rotation,
-            itemInstance.id
-          );
-        }
-      });
-    }
+    if (!authorizedItems.length) return;
+    spawnerType.instances.forEach((itemInstance: any) => {
+      if (this._spawnedLootObjects[itemInstance.id]) return;
+      const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
+      if (chance <= this.chanceRare) {
+        // temporary spawnchance
+        const item = getRandomItem(authorizedItems);
+        this.createLootEntity(
+          server,
+          server.generateItem(item.id, item.count),
+          itemInstance.position,
+          itemInstance.rotation,
+          itemInstance.id
+        );
+      }
+    });
   }
 
   createIndustrial(server: ZoneServer2016, spawnerType: any) {
@@ -851,23 +842,22 @@ export class WorldObjectManager {
       default:
         break;
     }
-    if (authorizedItems.length) {
-      spawnerType.instances.forEach((itemInstance: any) => {
-        if (this._spawnedLootObjects[itemInstance.id]) return;
-        const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
-        if (chance <= this.chanceIndustrial) {
-          // temporary spawnchance
-          const item = getRandomItem(authorizedItems);
-          this.createLootEntity(
-            server,
-            server.generateItem(item.id, item.count),
-            itemInstance.position,
-            itemInstance.rotation,
-            itemInstance.id
-          );
-        }
-      });
-    }
+    if (!authorizedItems.length) return;
+    spawnerType.instances.forEach((itemInstance: any) => {
+      if (this._spawnedLootObjects[itemInstance.id]) return;
+      const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
+      if (chance <= this.chanceIndustrial) {
+        // temporary spawnchance
+        const item = getRandomItem(authorizedItems);
+        this.createLootEntity(
+          server,
+          server.generateItem(item.id, item.count),
+          itemInstance.position,
+          itemInstance.rotation,
+          itemInstance.id
+        );
+      }
+    });
   }
 
   createWorld(server: ZoneServer2016, spawnerType: any) {
@@ -889,23 +879,22 @@ export class WorldObjectManager {
       default:
         break;
     }
-    if (authorizedItems.length) {
-      spawnerType.instances.forEach((itemInstance: any) => {
-        if (this._spawnedLootObjects[itemInstance.id]) return;
-        const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
-        if (chance <= this.chanceWorld) {
-          // temporary spawnchance
-          const item = getRandomItem(authorizedItems);
-          this.createLootEntity(
-            server,
-            server.generateItem(item.id, item.count),
-            itemInstance.position,
-            itemInstance.rotation,
-            itemInstance.id
-          );
-        }
-      });
-    }
+    if (!authorizedItems.length) return;
+    spawnerType.instances.forEach((itemInstance: any) => {
+      if (this._spawnedLootObjects[itemInstance.id]) return;
+      const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
+      if (chance <= this.chanceWorld) {
+        // temporary spawnchance
+        const item = getRandomItem(authorizedItems);
+        this.createLootEntity(
+          server,
+          server.generateItem(item.id, item.count),
+          itemInstance.position,
+          itemInstance.rotation,
+          itemInstance.id
+        );
+      }
+    });
   }
 
   createLog(server: ZoneServer2016, spawnerType: any) {
@@ -920,23 +909,22 @@ export class WorldObjectManager {
       default:
         break;
     }
-    if (authorizedItems.length) {
-      spawnerType.instances.forEach((itemInstance: any) => {
-        if (this._spawnedLootObjects[itemInstance.id]) return;
-        const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
-        if (chance <= this.chanceLog) {
-          // temporary spawnchance
-          const item = getRandomItem(authorizedItems);
-          this.createLootEntity(
-            server,
-            server.generateItem(item.id, item.count),
-            itemInstance.position,
-            itemInstance.rotation,
-            itemInstance.id
-          );
-        }
-      });
-    }
+    if (!authorizedItems.length) return;
+    spawnerType.instances.forEach((itemInstance: any) => {
+      if (this._spawnedLootObjects[itemInstance.id]) return;
+      const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
+      if (chance <= this.chanceLog) {
+        // temporary spawnchance
+        const item = getRandomItem(authorizedItems);
+        this.createLootEntity(
+          server,
+          server.generateItem(item.id, item.count),
+          itemInstance.position,
+          itemInstance.rotation,
+          itemInstance.id
+        );
+      }
+    });
   }
 
   createCommercial(server: ZoneServer2016, spawnerType: any) {
@@ -955,23 +943,22 @@ export class WorldObjectManager {
       default:
         break;
     }
-    if (authorizedItems.length) {
-      spawnerType.instances.forEach((itemInstance: any) => {
-        if (this._spawnedLootObjects[itemInstance.id]) return;
-        const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
-        if (chance <= this.chanceCommercial) {
-          // temporary spawnchance
-          const item = getRandomItem(authorizedItems);
-          this.createLootEntity(
-            server,
-            server.generateItem(item.id, item.count),
-            itemInstance.position,
-            itemInstance.rotation,
-            itemInstance.id
-          );
-        }
-      });
-    }
+    if (!authorizedItems.length) return;
+    spawnerType.instances.forEach((itemInstance: any) => {
+      if (this._spawnedLootObjects[itemInstance.id]) return;
+      const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
+      if (chance <= this.chanceCommercial) {
+        // temporary spawnchance
+        const item = getRandomItem(authorizedItems);
+        this.createLootEntity(
+          server,
+          server.generateItem(item.id, item.count),
+          itemInstance.position,
+          itemInstance.rotation,
+          itemInstance.id
+        );
+      }
+    });
   }
 
   createFarm(server: ZoneServer2016, spawnerType: any) {
@@ -994,23 +981,22 @@ export class WorldObjectManager {
       default:
         break;
     }
-    if (authorizedItems.length) {
-      spawnerType.instances.forEach((itemInstance: any) => {
-        if (this._spawnedLootObjects[itemInstance.id]) return;
-        const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
-        if (chance <= this.chanceFarm) {
-          // temporary spawnchance
-          const item = getRandomItem(authorizedItems);
-          this.createLootEntity(
-            server,
-            server.generateItem(item.id, item.count),
-            itemInstance.position,
-            itemInstance.rotation,
-            itemInstance.id
-          );
-        }
-      });
-    }
+    if (!authorizedItems.length) return;
+    spawnerType.instances.forEach((itemInstance: any) => {
+      if (this._spawnedLootObjects[itemInstance.id]) return;
+      const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
+      if (chance <= this.chanceFarm) {
+        // temporary spawnchance
+        const item = getRandomItem(authorizedItems);
+        this.createLootEntity(
+          server,
+          server.generateItem(item.id, item.count),
+          itemInstance.position,
+          itemInstance.rotation,
+          itemInstance.id
+        );
+      }
+    });
   }
   createHospital(server: ZoneServer2016, spawnerType: any) {
     const authorizedItems: Array<{ id: number; count: number }> = [];
@@ -1039,23 +1025,22 @@ export class WorldObjectManager {
       default:
         break;
     }
-    if (authorizedItems.length) {
-      spawnerType.instances.forEach((itemInstance: any) => {
-        if (this._spawnedLootObjects[itemInstance.id]) return;
-        const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
-        if (chance <= this.chanceHospital) {
-          // temporary spawnchance
-          const item = getRandomItem(authorizedItems);
-          this.createLootEntity(
-            server,
-            server.generateItem(item.id, item.count),
-            itemInstance.position,
-            itemInstance.rotation,
-            itemInstance.id
-          );
-        }
-      });
-    }
+    if (!authorizedItems.length) return;
+    spawnerType.instances.forEach((itemInstance: any) => {
+      if (this._spawnedLootObjects[itemInstance.id]) return;
+      const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
+      if (chance <= this.chanceHospital) {
+        // temporary spawnchance
+        const item = getRandomItem(authorizedItems);
+        this.createLootEntity(
+          server,
+          server.generateItem(item.id, item.count),
+          itemInstance.position,
+          itemInstance.rotation,
+          itemInstance.id
+        );
+      }
+    });
   }
   createMilitary(server: ZoneServer2016, spawnerType: any) {
     const authorizedItems: Array<{ id: number; count: number }> = [];
@@ -1186,22 +1171,21 @@ export class WorldObjectManager {
       default:
         break;
     }
-    if (authorizedItems.length) {
-      spawnerType.instances.forEach((itemInstance: any) => {
-        if (this._spawnedLootObjects[itemInstance.id]) return;
-        const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
-        if (chance <= this.chanceMilitary) {
-          // temporary spawnchance
-          const item = getRandomItem(authorizedItems);
-          this.createLootEntity(
-            server,
-            server.generateItem(item.id, item.count),
-            itemInstance.position,
-            itemInstance.rotation,
-            itemInstance.id
-          );
-        }
-      });
-    }
+    if (!authorizedItems.length) return;
+    spawnerType.instances.forEach((itemInstance: any) => {
+      if (this._spawnedLootObjects[itemInstance.id]) return;
+      const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
+      if (chance <= this.chanceMilitary) {
+        // temporary spawnchance
+        const item = getRandomItem(authorizedItems);
+        this.createLootEntity(
+          server,
+          server.generateItem(item.id, item.count),
+          itemInstance.position,
+          itemInstance.rotation,
+          itemInstance.id
+        );
+      }
+    });
   }
 }
