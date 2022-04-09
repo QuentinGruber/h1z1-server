@@ -18,18 +18,17 @@ export class ItemObject extends BaseLightweightCharacter{
   npcRenderDistance = 25;
   spawnerId = 0;
   item: inventoryItem;
+  flags = { a: 0, b: 0, c: 255 };
   constructor(
     characterId: string,
     transientId: number,
     actorModelId: number,
     position: Float32Array,
     rotation: Float32Array,
-    flags: BaseLightweightCharacter["flags"],
     spawnerId: number,
     item: inventoryItem
   ) {
     super(characterId, transientId, actorModelId, position, rotation);
-    this.flags = flags;
     this.spawnerId = spawnerId,
     this.item = item;
   }

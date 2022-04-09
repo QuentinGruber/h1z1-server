@@ -218,7 +218,6 @@ export class WorldObjectManager {
       modelId,
       position,
       rotation,
-      { a: 0, b: 0, c: 255 },
       itemSpawnerId || 0,
       item
     )
