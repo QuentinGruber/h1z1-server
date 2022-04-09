@@ -21,6 +21,7 @@ export class BaseLightweightCharacter extends BaseEntity{
   };
   flags = { a: 0, b: 0, c: 0 };
   isLightweight = true;
+  positionUpdateType = 0;
   constructor(
     characterId: string, 
     transientId: number, 
@@ -43,8 +44,10 @@ export class BaseLightweightCharacter extends BaseEntity{
       actorModelId: this.actorModelId,
       position: this.state.position,
       rotation: this.state.rotation,
+      scale: this.scale,
+      positionUpdateType: this.positionUpdateType,
+      isLightweight: this.isLightweight,
       flags: this.flags,
-      isLightweight: this.isLightweight
     }
   }
 }

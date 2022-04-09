@@ -148,7 +148,6 @@ export class Vehicle2016 extends BaseFullCharacter {
         ...this.pGetLightweight(),
         position: this.positionUpdate.position || this.state.position,
         vehicleId: this.vehicleId,
-        positionUpdateType: this.positionUpdateType
       },
       positionUpdate: this.positionUpdate
     }
@@ -156,7 +155,7 @@ export class Vehicle2016 extends BaseFullCharacter {
   pGetFullVehicle() {
     return {
       npcData: {
-        ...this.pGetFull(),
+        ...this.pGetFull()
       },
     }
   }

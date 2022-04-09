@@ -28,6 +28,7 @@ import { Items } from "../enums"
 import { Vehicle2016 as Vehicle, Vehicle2016 } from "./../classes/vehicle";
 import { inventoryItem } from "types/zoneserver";
 import { ItemObject } from "./itemobject";
+import { DoorEntity } from "./doorentity";
 const debug = require("debug")("ZoneServer");
 
 function getHeadActor(modelId: number): any {
@@ -60,39 +61,21 @@ function getRandomVehicleId() {
 function createDoor(
   server: ZoneServer2016,
   modelID: number,
-  position: Array<number>,
-  rotation: Array<number>,
-  startRot: Array<number>,
-  scale: Array<number>,
-  texture: string,
-  zoneId: number,
-  dictionary: any,
-  renderDistance: number
+  position: Float32Array,
+  rotation: Float32Array,
+  scale: Float32Array,
+  spawnerId: number
 ): void {
-  const guid = generateRandomGuid();
   const characterId = generateRandomGuid();
-  let openAngle = startRot[0] + 1.575;
-  dictionary[characterId] = {
-    worldId: server._worldId,
-    zoneId: zoneId,
-    isOpen: false,
-    characterId: characterId,
-    guid: guid,
-    transientId: server.getTransientId(characterId),
-    nameId: 0,
-    modelId: modelID,
-    scale: scale,
-    texture: texture,
-    positionUpdateType: 1,
-    position: position,
-    rotation: rotation,
-    rotationRaw: startRot,
-    openAngle: openAngle,
-    closedAngle: startRot[0],
-    dontSendFullNpcRequest: true,
-    flags: { b: 127 },
-    npcRenderDistance: renderDistance,
-  };
+  server._doors[characterId] = new DoorEntity(
+    characterId,
+    server.getTransientId(characterId),
+    modelID,
+    position,
+    rotation,
+    scale,
+    spawnerId
+  )
 }
 
 function getRandomItem(authorizedItems: Array<{ id: number; count: number }>) {
@@ -237,13 +220,9 @@ export class WorldObjectManager {
           server,
           modelId ? modelId : 9183,
           doorInstance.position,
-          eul2quat(doorInstance.rotation),
           doorInstance.rotation,
           doorInstance.scale ?? [1, 1, 1, 1],
-          "",
-          doorInstance.id,
-          server._doors,
-          150
+          doorInstance.id
         );
       });
     });

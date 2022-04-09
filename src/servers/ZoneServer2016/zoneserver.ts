@@ -57,6 +57,7 @@ import { BaseFullCharacter } from "./classes/basefullcharacter";
 import { ItemObject } from "./classes/itemobject";
 import { DEFAULT_CRYPTO_KEY } from "../../utils/constants";
 import { TrapEntity } from "./classes/trapentity";
+import { DoorEntity } from "./classes/doorentity";
 
 // need to get 2016 lists
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
@@ -90,7 +91,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   _npcs: any = {};
   _objects: { [characterId: string]: ItemObject } = {};
-  _doors: any = {};
+  _doors: { [characterId: string]: DoorEntity } = {};
   _props: any = {};
   _explosives: any = {};
   _temporaryObjects: any = {};
@@ -657,10 +658,6 @@ export class ZoneServer2016 extends EventEmitter {
         (await initMongo(mongoClient, debugName));
       this._db = mongoClient.db("h1server");
     }
-  }
-
-  addDoor(obj: {}, characterId: string) {
-    this._doors[characterId] = obj;
   }
 
   async loadVehicleData() {
@@ -1719,31 +1716,32 @@ export class ZoneServer2016 extends EventEmitter {
 
   spawnDoors(client: Client): void {
     setImmediate(() => {
-      for (const door in this._doors) {
+      for (const characterId in this._doors) {
+        const door = this._doors[characterId];
         if (
           isPosInRadius(
-            this._doors[door].npcRenderDistance!,
+            door.npcRenderDistance!,
             client.character.state.position,
-            this._doors[door].position
+            door.state.position
           ) &&
-          !client.spawnedEntities.includes(this._doors[door])
+          !client.spawnedEntities.includes(door)
         ) {
-          const object = this._doors[door];
+          
           this.sendData(
             client,
             "AddLightweightNpc",
-            { ...object, isLightweight: true },
+            door.pGetLightweight(),
             1
           );
-          client.spawnedEntities.push(this._doors[door]);
-          if (object.isOpen) {
+          client.spawnedEntities.push(door);
+          if (door.isOpen) {
             this.sendDataToAll("PlayerUpdatePosition", {
-              transientId: object.transientId,
+              transientId: door.transientId,
               positionUpdate: {
                 sequenceTime: 0,
                 unknown3_int8: 0,
-                position: object.position,
-                orientation: object.openAngle,
+                position: door.state.position,
+                orientation: door.openAngle,
               },
             });
           }

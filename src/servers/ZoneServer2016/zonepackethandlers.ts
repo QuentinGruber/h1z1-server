@@ -34,6 +34,7 @@ import { Vehicle2016 } from "./classes/vehicle";
 import { ResourceIds } from "./enums";
 import { TrapEntity } from "./classes/trapentity";
 import { ExplosiveEntity } from "./classes/explosiveentity";
+import { DoorEntity } from "./classes/doorentity";
 
 export class zonePacketHandlers {
   hax = hax;
@@ -1100,9 +1101,10 @@ export class zonePacketHandlers {
             : server.dismountVehicle(client);
           break;
         case 3: // door
+        const door = entityData as DoorEntity;
           let openSound = 5048;
           let closeSound = 5049;
-          switch (entityData.modelId) {
+          switch (door.actorModelId) {
             case 9009:
             case 9165:
             case 9167:
@@ -1157,29 +1159,29 @@ export class zonePacketHandlers {
                 "[ERROR] Door sound not mapped to modelId " + entityData.modelId
               );
           }
-          if (entityData.moving) {
+          if (door.moving) {
             return;
           }
-          entityData.moving = true;
+          door.moving = true;
           setTimeout(function () {
-            entityData.moving = false;
+            door.moving = false;
           }, 1000);
           server.sendDataToAll("PlayerUpdatePosition", {
-            transientId: entityData.transientId,
+            transientId: door.transientId,
             positionUpdate: {
               sequenceTime: 0,
               unknown3_int8: 0,
-              position: entityData.position,
-              orientation: entityData.isOpen
-                ? entityData.closedAngle
-                : entityData.openAngle,
+              position: door.state.position,
+              orientation: door.isOpen
+                ? door.closedAngle
+                : door.openAngle,
             },
           });
           server.sendDataToAll("Command.PlayDialogEffect", {
-            characterId: entityData.characterId,
-            effectId: entityData.isOpen ? closeSound : openSound,
+            characterId: door.characterId,
+            effectId: door.isOpen ? closeSound : openSound,
           });
-          entityData.isOpen = !entityData.isOpen;
+          door.isOpen = !door.isOpen;
           break;
         default:
           break;

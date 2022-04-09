@@ -19,7 +19,7 @@ export class BaseEntity{
     position: Float32Array;
     rotation: Float32Array;
   };
-  scale: [number, number, number, number] = [1, 1, 1, 1];
+  scale: Float32Array = new Float32Array([1, 1, 1, 1]);
   npcRenderDistance = 100; // default in case it doesn't get set in extending class
   constructor(
     characterId: string,
