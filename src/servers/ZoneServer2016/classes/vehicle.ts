@@ -17,7 +17,6 @@ import {
   positionUpdate,
   passengers
 } from "../../../types/zoneserver"
-import { ZoneClient2016 } from "./zoneclient";
 import { BaseFullCharacter } from "./basefullcharacter";
 
 function getVehicleId(ModelId: number) {
