@@ -91,14 +91,14 @@ export class WorldObjectManager {
 
   constructor() {}
 
-  async run(server: ZoneServer2016) {
+  run(server: ZoneServer2016) {
     debug("WOM::Run");
     if (this.lastLootRespawnTime + this.lootRespawnTimer <= Date.now()) {
       this.createLoot(server);
       this.lastLootRespawnTime = Date.now();
     }
     if (this.lastNpcRespawnTime + this.npcRespawnTimer <= Date.now()) {
-      await this.createNpcs(server);
+      this.createNpcs(server);
       this.lastNpcRespawnTime = Date.now();
     }
     if (this.lastVehicleRespawnTime + this.vehicleRespawnTimer <= Date.now()) {
@@ -251,7 +251,6 @@ export class WorldObjectManager {
   async createNpcs(server: ZoneServer2016) {
     // This is only for giving the world some life
     Z1_npcs.forEach((spawnerType: any) => {
-      server.pSetImmediate();
       const authorizedModelId: number[] = [];
       switch (spawnerType.actorDefinition) {
         case "NPCSpawner_ZombieLazy.adr":
@@ -271,12 +270,12 @@ export class WorldObjectManager {
       if (authorizedModelId.length) {
         let spawn = true;
         spawnerType.instances.forEach((npcInstance: any) => {
-          _.forEach(server._npcs, (spawnedNpc: any) => {
+          _.forEach(server._npcs, (spawnedNpc: Npc) => {
             if (
               isPosInRadius(
                 this.npcSpawnRadius,
                 npcInstance.position,
-                spawnedNpc.position
+                spawnedNpc.state.position
               )
             )
               spawn = false;
