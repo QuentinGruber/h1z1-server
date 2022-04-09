@@ -13,38 +13,33 @@
 
 import { BaseEntity } from "./baseentity";
 
-export class BaseLightweightCharacter extends BaseEntity{
-  state: {
-    position: Float32Array;
-    rotation: Float32Array;
-    lookAt: Float32Array;
-  };
-  flags = { a: 0, b: 0, c: 0 };
-  isLightweight = true;
+export class BaseSimpleNpc extends BaseEntity{
+  realHealth = 100000;
   constructor(
-    characterId: string, 
-    transientId: number, 
-    actorModelId: number, 
-    position: Float32Array, 
+    characterId: string,
+    transientId: number,
+    actorModelId: number,
+    position: Float32Array,
     rotation: Float32Array
   ) {
     super(characterId, transientId, actorModelId, position, rotation);
-    this.state = {
-      position: position,
-      rotation: rotation,
-      lookAt: new Float32Array([0, 0, 0, 1]),
-    };
   }
-
-  pGetLightweight() {
+  pGetSimpleNpc() {
     return {
       characterId: this.characterId,
       transientId: this.transientId,
-      actorModelId: this.actorModelId,
       position: this.state.position,
       rotation: this.state.rotation,
-      flags: this.flags,
-      isLightweight: this.isLightweight
+      modelId: this.actorModelId,
+      scale: this.scale,
+      showHealth: true,
+      health: this.realHealth / 1000
+    }
+  }
+  pGetSimpleProxyHealth() {
+    return {
+      characterId: this.characterId,
+      health: this.realHealth / 1000
     }
   }
 }

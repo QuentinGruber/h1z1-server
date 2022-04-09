@@ -56,6 +56,7 @@ import dynamicWeather from "./workers/dynamicWeather";
 import { BaseFullCharacter } from "./classes/basefullcharacter";
 import { ItemObject } from "./classes/itemobject";
 import { DEFAULT_CRYPTO_KEY } from "../../utils/constants";
+import { TrapEntity } from "./classes/trapentity";
 
 // need to get 2016 lists
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
@@ -86,10 +87,16 @@ export class ZoneServer2016 extends EventEmitter {
   _h1emuZoneServer!: H1emuZoneServer;
   _appDataFolder = getAppDataFolderPath();
   _worldId = 0;
-  _npcs: any;
+
+  _npcs: any = {};
   _objects: { [characterId: string]: ItemObject } = {};
-  _doors: any;
-  _props: any;
+  _doors: any = {};
+  _props: any = {};
+  _explosives: any = {};
+  _temporaryObjects: any = {};
+  _traps: { [characterId: string]: TrapEntity } = {};
+  _speedTrees: any = {};
+
   _gameTime: any;
   _time = Date.now();
   _serverTime = this.getCurrentTime();
@@ -128,11 +135,7 @@ export class ZoneServer2016 extends EventEmitter {
     containerDefinitions;
   _containerDefinitionIds: any[] = Object.keys(this._containerDefinitions);
   _respawnLocations: any;
-  _speedTrees: any;
   _recipes: { [recipeId: number]: any } = recipes;
-  _explosives: any;
-  _temporaryObjects: any;
-  _traps: any;
   lastItemGuid: bigint = 0x3000000000000000n;
 
   constructor(
@@ -155,13 +158,6 @@ export class ZoneServer2016 extends EventEmitter {
     this._protocol = new H1Z1Protocol("ClientProtocol_1080");
     this._weatherTemplates = localWeatherTemplates;
     this._weather2016 = this._weatherTemplates[this._defaultWeatherTemplate];
-    this._speedTrees = {};
-    this._explosives = {};
-    this._temporaryObjects = {};
-    this._traps = {};
-    this._npcs = {};
-    this._doors = {};
-    this._props = {};
     this._respawnLocations = spawnLocations.map((spawn: any) => {
       return {
         guid: this.generateGuid(),
@@ -1616,17 +1612,18 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   spawnTraps(client: Client): void {
-    for (const npc in this._traps) {
+    for (const characterId in this._traps) {
+      const trap = this._traps[characterId];
       if (
         isPosInRadius(
           75,
           client.character.state.position,
-          this._traps[npc].position
+          trap.state.position
         ) &&
-        !client.spawnedEntities.includes(this._traps[npc])
+        !client.spawnedEntities.includes(trap)
       ) {
-        this.sendData(client, "AddSimpleNpc", { ...this._traps[npc] }, 1);
-        client.spawnedEntities.push(this._traps[npc]);
+        this.sendData(client, "AddSimpleNpc", trap.pGetSimpleNpc(), 1);
+        client.spawnedEntities.push(trap);
       }
     }
   }

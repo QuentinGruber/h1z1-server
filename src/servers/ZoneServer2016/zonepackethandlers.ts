@@ -32,6 +32,7 @@ import { inventoryItem, loadoutContainer } from "types/zoneserver";
 import { Character2016 } from "./classes/character";
 import { Vehicle2016 } from "./classes/vehicle";
 import { ResourceIds } from "./enums";
+import { TrapEntity } from "./classes/trapentity";
 
 export class zonePacketHandlers {
   hax = hax;
@@ -1474,13 +1475,16 @@ export class zonePacketHandlers {
         server.containerError(client, 5); // slot does not contain item
         return;
       }
+      if (!server.removeInventoryItem(client, item)) {
+        return;
+      }
       const modelId = server.getItemDefinition(
         packet.data.itemDefinitionId
       ).PLACEMENT_MODEL_ID;
-      let characterId: string;
-      let guid: string;
-      let transientId: number;
-      let npc: any = {};
+      const characterId = server.generateGuid(),
+      transientId = server.getTransientId(characterId);
+      let npc: any = {},
+      trap: TrapEntity;
       switch (packet.data.itemDefinitionId) {
         case 1804:
         case 4:
@@ -1488,12 +1492,8 @@ export class zonePacketHandlers {
         case 1461:
         case 1531:
           // flare
-          characterId = server.generateGuid();
-          guid = server.generateGuid();
-          transientId = server.getTransientId(guid);
           npc = {
             characterId: characterId,
-            guid: guid,
             transientId: transientId,
             modelId: 1,
             position: client.character.state.position,
@@ -1503,10 +1503,6 @@ export class zonePacketHandlers {
             attachedObject: {},
             staticEffectId: true,
           };
-
-          if (!server.removeInventoryItem(client, item)) {
-            return;
-          }
 
           server._temporaryObjects[characterId] = npc; // save npc
           setTimeout(function () {
@@ -1523,12 +1519,8 @@ export class zonePacketHandlers {
           break;
         case 1699:
           // IED
-          characterId = server.generateGuid();
-          guid = server.generateGuid();
-          transientId = server.getTransientId(guid);
           npc = {
             characterId: characterId,
-            guid: guid,
             transientId: transientId,
             modelId: 9176,
             position: client.character.state.position,
@@ -1546,12 +1538,8 @@ export class zonePacketHandlers {
           break;
         case 74:
           // land mine
-          characterId = server.generateGuid();
-          guid = server.generateGuid();
-          transientId = server.getTransientId(guid);
           npc = {
             characterId: characterId,
-            guid: guid,
             transientId: transientId,
             modelId: 9176,
             position: client.character.state.position,
@@ -1561,9 +1549,6 @@ export class zonePacketHandlers {
             attachedObject: {},
             isIED: false,
           };
-          if (!server.removeInventoryItem(client, item)) {
-            return;
-          }
 
           server._explosives[characterId] = npc; // save npc
           setTimeout(function () {
@@ -1650,30 +1635,18 @@ export class zonePacketHandlers {
           break;
         case 98:
           // punji sticks
-          characterId = server.generateGuid();
-          guid = server.generateGuid();
-          transientId = server.getTransientId(guid);
-          npc = {
-            characterId: characterId,
-            guid: guid,
-            transientId: transientId,
-            modelId: 56,
-            position: client.character.state.position,
-            rotation: client.character.state.lookAt,
-            isLightweight: true,
-            flags: {},
-            attachedObject: {},
-            realHealth: 100000,
-            health: 100,
-          };
-          if (!server.removeInventoryItem(client, item)) {
-            return;
-          }
+          trap = new TrapEntity(
+            characterId, 
+            transientId, 
+            56,
+            client.character.state.position,
+            client.character.state.lookAt,
+          )
 
-          server._traps[characterId] = npc; // save npc
+          server._traps[characterId] = trap; // save trap
           setTimeout(function () {
             // arming time
-            server._traps[characterId].trapTimer = setTimeout(() => {
+            trap.trapTimer = setTimeout(() => {
               if (!server._traps[characterId]) {
                 return;
               }
@@ -1681,7 +1654,7 @@ export class zonePacketHandlers {
                 if (
                   getDistance(
                     server._clients[a].character.state.position,
-                    npc.position
+                    trap.state.position
                   ) < 1.5 &&
                   server._clients[a].character.isAlive &&
                   !server._clients[a].vehicle.mountedVehicle
@@ -1702,20 +1675,14 @@ export class zonePacketHandlers {
                     server._traps,
                     characterId,
                     "Character.UpdateSimpleProxyHealth",
-                    {
-                      characterId: characterId,
-                      health: server._traps[characterId].health,
-                    }
+                    trap.pGetSimpleProxyHealth()
                   );
-                  server._traps[characterId].realHealth -= 1000;
-                  server._traps[characterId].health = Math.floor(
-                    server._traps[characterId].realHealth / 1000
-                  );
+                  trap.realHealth -= 1000;
                 }
               }
 
-              if (server._traps[characterId].realHealth > 0) {
-                server._traps[characterId].trapTimer.refresh();
+              if (trap.realHealth > 0) {
+                trap.trapTimer?.refresh();
               } else {
                 server.sendDataToAllWithSpawnedEntity(
                   server._traps,
@@ -1724,7 +1691,7 @@ export class zonePacketHandlers {
                   {
                     characterId: "0x0",
                     effectId: 163,
-                    position: server._traps[characterId].position,
+                    position: trap.state.position,
                   }
                 );
                 server.sendDataToAllWithSpawnedEntity(
@@ -1743,29 +1710,17 @@ export class zonePacketHandlers {
           break;
         case 1415:
           // snare
-          characterId = server.generateGuid();
-          guid = server.generateGuid();
-          transientId = server.getTransientId(guid);
-          npc = {
-            characterId: characterId,
-            guid: guid,
-            transientId: transientId,
-            modelId: 9175,
-            position: client.character.state.position,
-            rotation: client.character.state.lookAt,
-            isLightweight: true,
-            flags: {},
-            attachedObject: {},
-            isTriggered: false,
-          };
-          if (!server.removeInventoryItem(client, item)) {
-            return;
-          }
-
-          server._traps[characterId] = npc; // save npc
+          trap = new TrapEntity(
+            characterId, 
+            transientId, 
+            9175,
+            client.character.state.position,
+            client.character.state.lookAt,
+          )
+          server._traps[characterId] = trap; // save trap
           setTimeout(function () {
             // arming time
-            server._traps[characterId].trapTimer = setTimeout(() => {
+            trap.trapTimer = setTimeout(() => {
               if (!server._traps[characterId]) {
                 return;
               }
@@ -1773,7 +1728,7 @@ export class zonePacketHandlers {
                 if (
                   getDistance(
                     server._clients[a].character.state.position,
-                    npc.position
+                    trap.state.position
                   ) < 1
                 ) {
                   server.playerDamage(server._clients[a], 2000);
@@ -1793,16 +1748,16 @@ export class zonePacketHandlers {
                     {
                       characterId: characterId,
                       effectId: 1630,
-                      position: server._traps[characterId].position,
+                      position: server._traps[characterId].state.position,
                     }
                   );
-                  server._traps[characterId].isTriggered = true;
+                  trap.isTriggered = true;
                   server.applyMovementModifier(client, 0.4, "snared");
                 }
               }
 
-              if (!server._traps[characterId].isTriggered) {
-                server._traps[characterId].trapTimer.refresh();
+              if (!trap.isTriggered) {
+                trap.trapTimer?.refresh();
               } else {
                 server.sendDataToAllWithSpawnedEntity(
                   server._traps,
@@ -1812,12 +1767,12 @@ export class zonePacketHandlers {
                     characterId: characterId,
                   }
                 );
-                npc.modelId = 1974;
+                trap.actorModelId = 1974;
                 server.worldObjectManager.createLootEntity(
                   server,
                   server.generateItem(1415),
-                  npc.position,
-                  npc.rotation,
+                  trap.state.position,
+                  trap.state.rotation,
                   15
                 );
                 delete server._traps[characterId];
@@ -1826,6 +1781,7 @@ export class zonePacketHandlers {
           }, 3000);
           break;
         default:
+          server.lootItem(client, item, 1);
           server.sendData(client, "Construction.PlacementResponse", {
             unknownDword1: packet.data.itemDefinitionId,
             model: modelId,
