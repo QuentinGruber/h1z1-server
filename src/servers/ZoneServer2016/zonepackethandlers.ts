@@ -33,10 +33,10 @@ import { Character2016 } from "./classes/character";
 import { Vehicle2016 } from "./classes/vehicle";
 import { ResourceIds } from "./enums";
 import { TrapEntity } from "./classes/trapentity";
-import { ExplosiveEntity } from "./classes/explosiveentity";
+//import { ExplosiveEntity } from "./classes/explosiveentity";
 import { DoorEntity } from "./classes/doorentity";
 import { BaseLightweightCharacter } from "./classes/baselightweightcharacter";
-import { BaseFullCharacter } from "./classes/basefullcharacter";
+//import { BaseFullCharacter } from "./classes/basefullcharacter";
 
 export class zonePacketHandlers {
   hax = hax;

@@ -2944,7 +2944,7 @@ export class ZoneServer2016 extends EventEmitter {
     });
     this.lootItem(client, item, item.stackCount);
     this.deleteEntity(guid, this._objects);
-    delete this.worldObjectManager._spawnedObjects[object.spawnerId];
+    delete this.worldObjectManager._spawnedLootObjects[object.spawnerId];
   }
 
   lootContainerItem(
