@@ -16,23 +16,9 @@ import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { Vehicle2016 as Vehicle, Vehicle2016 } from "../classes/vehicle";
 import { ZoneServer2016 } from "../zoneserver";
 import { _ } from "../../../utils/utils";
+import { Npc } from "../classes/npc";
 
 const debug = require("debug")("zonepacketHandlers");
-
-function getHeadActor(modelId: number) {
-  switch (modelId) {
-    case 9240:
-      return "SurvivorMale_Head_01.adr";
-    case 9474:
-      return "SurvivorFemale_Head_01.adr";
-    case 9510:
-      return `ZombieFemale_Head_0${Math.floor(Math.random() * 3) + 1}.adr`;
-    case 9634:
-      return `ZombieMale_Head_0${Math.floor(Math.random() * 4) + 1}.adr`;
-    default:
-      return "";
-  }
-}
 
 function getDriveModel(model: string) {
   switch (model) {
@@ -375,22 +361,14 @@ const hax: any = {
       server.sendChatText(client, "[ERROR] You need to specify a model id !");
       return;
     }
-    const choosenModelId = Number(args[1]);
     const characterId = server.generateGuid();
-    const headactor = getHeadActor(choosenModelId);
-    const npc = {
-      characterId: characterId,
-      guid: guid,
-      transientId: transientId,
-      modelId: choosenModelId,
-      position: client.character.state.position,
-      rotation: client.character.state.lookAt,
-      color: {},
-      unknownData1: { unknownData1: {} },
-      headActor: headactor,
-      attachedObject: {},
-      npcRenderDistance: 80,
-    };
+    const npc = new Npc(
+      characterId,
+      transientId,
+      Number(args[1]),
+      client.character.state.position,
+      client.character.state.lookAt
+    )
     server._npcs[characterId] = npc; // save npc
   },
   spawnvehicle: function (server: ZoneServer2016, client: Client, args: any[]) {

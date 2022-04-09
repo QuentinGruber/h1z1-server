@@ -28,18 +28,8 @@ import { Vehicle2016 as Vehicle, Vehicle2016 } from "./../classes/vehicle";
 import { inventoryItem } from "types/zoneserver";
 import { ItemObject } from "./itemobject";
 import { DoorEntity } from "./doorentity";
+import { Npc } from "./npc";
 const debug = require("debug")("ZoneServer");
-
-function getHeadActor(modelId: number): any {
-  switch (modelId) {
-    case 9510:
-      return `ZombieFemale_Head_0${Math.floor(Math.random() * 2) + 1}.adr`;
-    case 9634:
-      return `ZombieMale_Head_0${Math.floor(Math.random() * 3) + 1}.adr`;
-    default:
-      return "";
-  }
-}
 
 function getRandomVehicleId() {
   switch (Math.floor(Math.random() * 4)) {
@@ -55,26 +45,6 @@ function getRandomVehicleId() {
       // pickup
       return 9258;
   }
-}
-
-function createDoor(
-  server: ZoneServer2016,
-  modelID: number,
-  position: Float32Array,
-  rotation: Float32Array,
-  scale: Float32Array,
-  spawnerId: number
-): void {
-  const characterId = generateRandomGuid();
-  server._doors[characterId] = new DoorEntity(
-    characterId,
-    server.getTransientId(characterId),
-    modelID,
-    position,
-    rotation,
-    scale,
-    spawnerId
-  )
 }
 
 function getRandomItem(authorizedItems: Array<{ id: number; count: number }>) {
@@ -140,25 +110,20 @@ export class WorldObjectManager {
     // todo: clean this up
     server: ZoneServer2016,
     modelID: number,
-    position: Array<number>,
-    rotation: Array<number>,
-    renderDistance: number,
-    spawnerId: number = -1
+    position: Float32Array,
+    rotation: Float32Array,
+    spawnerId: number = 0
   ): void {
     const characterId = generateRandomGuid();
-    server._npcs[characterId] = {
-      characterId: characterId,
-      transientId: server.getTransientId(characterId),
-      nameId: 0,
-      modelId: modelID,
-      position: position,
-      rotation: rotation,
-      headActor: getHeadActor(modelID),
-      attachedObject: {},
-      flags: {},
-      spawnerId: spawnerId || 0,
-      npcRenderDistance: renderDistance,
-    };
+    
+    server._npcs[characterId] = new Npc(
+      characterId,
+      server.getTransientId(characterId),
+      modelID,
+      position,
+      rotation,
+      spawnerId
+    )
     if (spawnerId) this._spawnedNpcs[spawnerId] = characterId;
   }
 
@@ -204,7 +169,27 @@ export class WorldObjectManager {
     if (itemSpawnerId) this._spawnedLootObjects[itemSpawnerId] = characterId;
   }
 
-  createDoors(server: ZoneServer2016): void {
+  createDoor(
+    server: ZoneServer2016,
+    modelID: number,
+    position: Float32Array,
+    rotation: Float32Array,
+    scale: Float32Array,
+    spawnerId: number
+  ) {
+    const characterId = generateRandomGuid();
+    server._doors[characterId] = new DoorEntity(
+      characterId,
+      server.getTransientId(characterId),
+      modelID,
+      position,
+      rotation,
+      scale,
+      spawnerId
+    )
+  }
+
+  createDoors(server: ZoneServer2016) {
     Z1_doors.forEach((doorType: any) => {
       const modelId: number = _.find(models, (model: any) => {
         return (
@@ -213,7 +198,7 @@ export class WorldObjectManager {
         );
       })?.ID;
       doorType.instances.forEach((doorInstance: any) => {
-        createDoor(
+        this.createDoor(
           server,
           modelId ? modelId : 9183,
           doorInstance.position,
@@ -310,8 +295,8 @@ export class WorldObjectManager {
                 Math.floor(Math.random() * authorizedModelId.length)
               ],
               npcInstance.position,
-              [0, r[0], 0],
-              80
+              npcInstance.rotation
+              //new Float32Array([0, r[0], 0])
             );
           }
         });

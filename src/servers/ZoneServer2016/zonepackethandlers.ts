@@ -36,7 +36,8 @@ import { TrapEntity } from "./classes/trapentity";
 //import { ExplosiveEntity } from "./classes/explosiveentity";
 import { DoorEntity } from "./classes/doorentity";
 import { BaseLightweightCharacter } from "./classes/baselightweightcharacter";
-//import { BaseFullCharacter } from "./classes/basefullcharacter";
+import { BaseFullCharacter } from "./classes/basefullcharacter";
+import { Npc } from "./classes/npc";
 
 export class zonePacketHandlers {
   hax = hax;
@@ -869,7 +870,7 @@ export class zonePacketHandlers {
       packet: any
     ) {
       const { characterId } = packet.data,
-      entityData: any =//entityData: BaseFullCharacter =
+      entityData: BaseFullCharacter =
         server._npcs[characterId] ||
         server._vehicles[characterId] ||
         server._characters[characterId] ||
@@ -885,82 +886,13 @@ export class zonePacketHandlers {
       if (!entityType) return;
       switch (entityType) {
         case 1: // npcs
-          server.sendData(client, "LightweightToFullNpc", {
-            transientId: entityData.transientId,
-            attachmentData: [
-              /*
-              {
-                modelName: "SurvivorMale_Chest_Hoodie_Up_Tintable.adr",
-                effectId: 0,
-                slotId: 3,
-              },*/
-            ],
-            effectTags: [],
-            unknownData1: {},
-            targetData: {},
-            unknownArray1: [],
-            unknownArray2: [],
-            //unknownArray3: {/*data:[]*/},
-            //resources: {/*
-            //  data:[
-            /*{
-                  resourceType: 1,
-                  resourceData: {
-                    resourceId: 1,
-                    resourceType: 1,
-                    value: 10000
-                  }
-                }
-              ]*/
-            //},
-            //unknownArray4: {/*unknownArray1:[], unknownArray2:[]*/},
-            //unknownArray5: {/*data:[]*/},
-            //unknownArray6: {/*data:[]*/},
-            //remoteWeapons: {/*data:[]*/},
-            //itemsData: {/*data:[]*/}
-          });
+          const npc = entityData as Npc;
+          server.sendData(client, "LightweightToFullNpc", npc.pGetFull());
           break;
         case 2: // vehicles
         const vehicle = entityData as Vehicle2016;
           if (vehicle.vehicleId != 13) {
-            server.sendData(client, "LightweightToFullVehicle", {
-              npcData: {
-                transientId: vehicle.transientId,
-                attachmentData: [],
-                effectTags: [],
-                unknownData1: {},
-                targetData: {},
-                unknownArray1: [],
-                unknownArray2: [],
-                unknownArray3: { data: [] },
-                resources: {
-                  data: vehicle.pGetResources(),
-                },
-                unknownArray4: { data: [] },
-                unknownArray5: { data: [] },
-                unknownArray6: { data: [] },
-                remoteWeapons: { data: [] },
-                itemsData: { data: [] },
-              },
-              unknownArray1: [],
-              unknownArray2: [],
-              unknownArray3: [],
-              unknownArray4: [],
-              unknownArray5: [
-                {
-                  unknownData1: {
-                    unknownData1: {},
-                  },
-                },
-              ],
-              unknownArray6: [],
-              unknownArray7: [],
-              unknownArray8: [
-                {
-                  unknownArray1: [],
-                },
-              ],
-            });
+            server.sendData(client, "LightweightToFullVehicle", vehicle.pGetFullVehicle());
           }
           for (const a in vehicle.seats) {
             server.sendDataToAllWithSpawnedEntity(
@@ -1016,26 +948,7 @@ export class zonePacketHandlers {
             guid: "0x0",
           };
           
-          server.sendData(client, "LightweightToFullNpc", {
-            transientId: character.transientId,
-            attachmentData: [],//character.pGetAttachmentSlots(),
-            effectTags: [],
-            unknownData1: {},
-            targetData: {},
-            unknownArray1: [],
-            unknownArray2: [],
-            //unknownArray3: {data:[]},
-            
-            resources: {
-             data: character.pGetResources()
-            },
-            
-            //unknownArray4: {unknownArray1:[], unknownArray2:[]},
-            //unknownArray5: {data:[]},
-            //unknownArray6: {data:[]},
-            //remoteWeapons: {data:[]},
-            //itemsData: {data:[]}
-          });
+          server.sendData(client, "LightweightToFullNpc", character.pGetFull());
           
           /*
           server.sendData(client, "LightweightToFullPc", {
@@ -1060,7 +973,7 @@ export class zonePacketHandlers {
           break;
       }
       if (entityData.onReadyCallback) {
-        entityData.onReadyCallback();
+        entityData.onReadyCallback(client);
         delete entityData.onReadyCallback;
       }
     };

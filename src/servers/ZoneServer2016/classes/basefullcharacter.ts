@@ -19,10 +19,12 @@ import {
 } from "../../../types/zoneserver";
 import { ResourceIds, ResourceTypes } from "../enums";
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
+import { ZoneClient2016 } from "./zoneclient";
 
 const loadoutSlots = require("./../../../../data/2016/dataSources/LoadoutSlots.json");
 
 export class BaseFullCharacter extends BaseLightweightCharacter{
+  onReadyCallback?: (clientTriggered: ZoneClient2016) => void;
   _resources: { [resourceId: number]: number } = {};
   _loadout: { [loadoutSlotId: number]: loadoutItem } = {};
   _equipment: { [equipmentSlotId: number]: characterEquipment } = {};
@@ -219,7 +221,11 @@ export class BaseFullCharacter extends BaseLightweightCharacter{
   pGetFull() {
     return {
       transientId: this.transientId,
-
+      attachmentData: this.pGetAttachmentSlots(),
+      characterId: this.characterId,
+      resources: {
+        data: this.pGetResources()
+      }
     }
   }
 

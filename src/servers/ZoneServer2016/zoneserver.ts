@@ -58,6 +58,7 @@ import { ItemObject } from "./classes/itemobject";
 import { DEFAULT_CRYPTO_KEY } from "../../utils/constants";
 import { TrapEntity } from "./classes/trapentity";
 import { DoorEntity } from "./classes/doorentity";
+import { Npc } from "./classes/npc";
 
 // need to get 2016 lists
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
@@ -89,7 +90,7 @@ export class ZoneServer2016 extends EventEmitter {
   _appDataFolder = getAppDataFolderPath();
   _worldId = 0;
 
-  _npcs: any = {};
+  _npcs: { [characterId: string]: Npc } = {};
   _objects: { [characterId: string]: ItemObject } = {};
   _doors: { [characterId: string]: DoorEntity } = {};
   _props: any = {};
@@ -704,7 +705,6 @@ export class ZoneServer2016 extends EventEmitter {
 
       await this.loadVehicleData();
 
-      this._npcs = {};
       const npcsArray: any = await this._db
         ?.collection("npcs")
         .find({ worldId: this._worldId })
@@ -1567,22 +1567,23 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   spawnNpcs(client: Client): void {
-    for (const npc in this._npcs) {
+    for (const characterId in this._npcs) {
+      const npc = this._npcs[characterId]
       if (
         isPosInRadius(
-          this._npcs[npc].npcRenderDistance,
+          npc.npcRenderDistance,
           client.character.state.position,
-          this._npcs[npc].position
+          npc.state.position
         ) &&
-        !client.spawnedEntities.includes(this._npcs[npc])
+        !client.spawnedEntities.includes(npc)
       ) {
         this.sendData(
           client,
           "AddLightweightNpc",
-          { ...this._npcs[npc], profileId: 65 },
+          npc.pGetLightweight(),
           1
         );
-        client.spawnedEntities.push(this._npcs[npc]);
+        client.spawnedEntities.push(npc);
       }
     }
   }

@@ -48,7 +48,6 @@ export class Vehicle2016 extends BaseFullCharacter {
   positionUpdate: positionUpdate;
   fuelUpdater: any;
   isInvulnerable: boolean = false;
-  onReadyCallback?: (clientTriggered: ZoneClient2016) => void;
   onDismount?: any;
   resourcesUpdater?: any;
   damageTimeout?: any;
