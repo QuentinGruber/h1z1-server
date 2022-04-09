@@ -83,7 +83,8 @@ function getRandomItem(authorizedItems: Array<{ id: number; count: number }>) {
 }
 
 export class WorldObjectManager {
-  _spawnedObjects: { [spawnerId: number]: string } = {};
+  _spawnedNpcs: { [spawnerId: number]: string } = {};
+  _spawnedLootObjects: { [spawnerId: number]: string } = {};
   vehicleSpawnCap: number = 100;
 
   lastLootRespawnTime: number = 0;
@@ -136,21 +137,18 @@ export class WorldObjectManager {
       this.lastVehicleRespawnTime = Date.now();
     }
   }
-  createEntity(
+  createNpc(
     // todo: clean this up
     server: ZoneServer2016,
     modelID: number,
     position: Array<number>,
     rotation: Array<number>,
-    dictionary: any,
     renderDistance: number,
-    itemSpawnerId: number = -1
+    spawnerId: number = -1
   ): void {
-    const guid = generateRandomGuid(),
-      characterId = generateRandomGuid();
-    dictionary[characterId] = {
+    const characterId = generateRandomGuid();
+    server._npcs[characterId] = {
       characterId: characterId,
-      guid: guid,
       transientId: server.getTransientId(characterId),
       nameId: 0,
       modelId: modelID,
@@ -159,10 +157,10 @@ export class WorldObjectManager {
       headActor: getHeadActor(modelID),
       attachedObject: {},
       flags: {},
-      spawnerId: itemSpawnerId || 0,
+      spawnerId: spawnerId || 0,
       npcRenderDistance: renderDistance,
     };
-    if (itemSpawnerId) this._spawnedObjects[itemSpawnerId] = characterId;
+    if (spawnerId) this._spawnedNpcs[spawnerId] = characterId;
   }
 
   createLootEntity(
@@ -204,7 +202,7 @@ export class WorldObjectManager {
       itemSpawnerId || 0,
       item
     )
-    if (itemSpawnerId) this._spawnedObjects[itemSpawnerId] = characterId;
+    if (itemSpawnerId) this._spawnedLootObjects[itemSpawnerId] = characterId;
   }
 
   createDoors(server: ZoneServer2016): void {
@@ -307,14 +305,13 @@ export class WorldObjectManager {
               authorizedModelId.push(9667);
             }
             const r = npcInstance.rotation;
-            this.createEntity(
+            this.createNpc(
               server,
               authorizedModelId[
                 Math.floor(Math.random() * authorizedModelId.length)
               ],
               npcInstance.position,
               [0, r[0], 0],
-              server._npcs,
               80
             );
           }
@@ -408,7 +405,7 @@ export class WorldObjectManager {
     }
     if (authorizedItems.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
-        if (this._spawnedObjects[itemInstance.id]) return;
+        if (this._spawnedLootObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceAR15) {
           // temporary spawnchance
@@ -441,7 +438,7 @@ export class WorldObjectManager {
     }
     if (authorizedItems.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
-        if (this._spawnedObjects[itemInstance.id]) return;
+        if (this._spawnedLootObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chancePumpShotgun) {
           // temporary spawnchance
@@ -514,7 +511,7 @@ export class WorldObjectManager {
     }
     if (authorizedItems.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
-        if (this._spawnedObjects[itemInstance.id]) return;
+        if (this._spawnedLootObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceTools) {
           // temporary spawnchance
@@ -551,7 +548,7 @@ export class WorldObjectManager {
     }
     if (authorizedItems.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
-        if (this._spawnedObjects[itemInstance.id]) return;
+        if (this._spawnedLootObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chancePistols) {
           // temporary spawnchance
@@ -585,7 +582,7 @@ export class WorldObjectManager {
     }
     if (authorizedItems.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
-        if (this._spawnedObjects[itemInstance.id]) return;
+        if (this._spawnedLootObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceM24) {
           // temporary spawnchance
@@ -620,7 +617,7 @@ export class WorldObjectManager {
     }
     if (authorizedItems.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
-        if (this._spawnedObjects[itemInstance.id]) return;
+        if (this._spawnedLootObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceConsumables) {
           // temporary spawnchance
@@ -658,7 +655,7 @@ export class WorldObjectManager {
     }
     if (authorizedItems.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
-        if (this._spawnedObjects[itemInstance.id]) return;
+        if (this._spawnedLootObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceClothes) {
           // temporary spawnchance
@@ -738,7 +735,7 @@ export class WorldObjectManager {
     }
     if (authorizedItems.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
-        if (this._spawnedObjects[itemInstance.id]) return;
+        if (this._spawnedLootObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceResidential) {
           // temporary spawnchance
@@ -807,7 +804,7 @@ export class WorldObjectManager {
     }
     if (authorizedItems.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
-        if (this._spawnedObjects[itemInstance.id]) return;
+        if (this._spawnedLootObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceRare) {
           // temporary spawnchance
@@ -872,7 +869,7 @@ export class WorldObjectManager {
     }
     if (authorizedItems.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
-        if (this._spawnedObjects[itemInstance.id]) return;
+        if (this._spawnedLootObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceIndustrial) {
           // temporary spawnchance
@@ -910,7 +907,7 @@ export class WorldObjectManager {
     }
     if (authorizedItems.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
-        if (this._spawnedObjects[itemInstance.id]) return;
+        if (this._spawnedLootObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceWorld) {
           // temporary spawnchance
@@ -941,7 +938,7 @@ export class WorldObjectManager {
     }
     if (authorizedItems.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
-        if (this._spawnedObjects[itemInstance.id]) return;
+        if (this._spawnedLootObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceLog) {
           // temporary spawnchance
@@ -976,7 +973,7 @@ export class WorldObjectManager {
     }
     if (authorizedItems.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
-        if (this._spawnedObjects[itemInstance.id]) return;
+        if (this._spawnedLootObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceCommercial) {
           // temporary spawnchance
@@ -1015,7 +1012,7 @@ export class WorldObjectManager {
     }
     if (authorizedItems.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
-        if (this._spawnedObjects[itemInstance.id]) return;
+        if (this._spawnedLootObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceFarm) {
           // temporary spawnchance
@@ -1060,7 +1057,7 @@ export class WorldObjectManager {
     }
     if (authorizedItems.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
-        if (this._spawnedObjects[itemInstance.id]) return;
+        if (this._spawnedLootObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceHospital) {
           // temporary spawnchance
@@ -1207,7 +1204,7 @@ export class WorldObjectManager {
     }
     if (authorizedItems.length) {
       spawnerType.instances.forEach((itemInstance: any) => {
-        if (this._spawnedObjects[itemInstance.id]) return;
+        if (this._spawnedLootObjects[itemInstance.id]) return;
         const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
         if (chance <= this.chanceMilitary) {
           // temporary spawnchance

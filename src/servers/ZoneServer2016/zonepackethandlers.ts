@@ -35,6 +35,8 @@ import { ResourceIds } from "./enums";
 import { TrapEntity } from "./classes/trapentity";
 import { ExplosiveEntity } from "./classes/explosiveentity";
 import { DoorEntity } from "./classes/doorentity";
+import { BaseLightweightCharacter } from "./classes/baselightweightcharacter";
+import { BaseFullCharacter } from "./classes/basefullcharacter";
 
 export class zonePacketHandlers {
   hax = hax;
@@ -867,18 +869,18 @@ export class zonePacketHandlers {
       packet: any
     ) {
       const { characterId } = packet.data,
-        entityData: any =
-          server._npcs[characterId] ||
-          server._vehicles[characterId] ||
-          server._characters[characterId] ||
-          0,
-        entityType = server._npcs[characterId]
-          ? 1
-          : 0 || server._vehicles[characterId]
-          ? 2
-          : 0 || server._characters[characterId]
-          ? 3
-          : 0;
+      entityData: any =//entityData: BaseFullCharacter =
+        server._npcs[characterId] ||
+        server._vehicles[characterId] ||
+        server._characters[characterId] ||
+        0,
+      entityType = server._npcs[characterId]
+        ? 1
+        : 0 || server._vehicles[characterId]
+        ? 2
+        : 0 || server._characters[characterId]
+        ? 3
+        : 0;
 
       if (!entityType) return;
       switch (entityType) {
@@ -1068,7 +1070,7 @@ export class zonePacketHandlers {
       packet: any
     ) {
       const { guid } = packet.data,
-        entityData: any =
+        entityData: BaseLightweightCharacter =
           server._objects[guid] ||
           server._vehicles[guid] ||
           server._doors[guid] ||
@@ -1086,7 +1088,7 @@ export class zonePacketHandlers {
         !isPosInRadius(
           server._interactionDistance,
           client.character.state.position,
-          entityData.state ? entityData.state.position : entityData.position
+          entityData.state.position
         )
       )
         return;
@@ -1102,63 +1104,6 @@ export class zonePacketHandlers {
           break;
         case 3: // door
         const door = entityData as DoorEntity;
-          let openSound = 5048;
-          let closeSound = 5049;
-          switch (door.actorModelId) {
-            case 9009:
-            case 9165:
-            case 9167:
-            case 9169:
-            case 9171:
-            case 9497:
-            case 9904:
-            case 9905:
-            case 9333:
-            case 9334:
-            case 9335:
-              openSound = 5048;
-              closeSound = 5049;
-              break;
-            case 9136:
-              openSound = 5091;
-              closeSound = 5092;
-              break;
-            case 9224:
-            case 9232:
-            case 9233:
-              openSound = 5089;
-              closeSound = 5090;
-              break;
-            case 9243:
-              openSound = 5093;
-              closeSound = 5094;
-              break;
-            case 9903:
-            case 9246:
-            case 9498:
-              openSound = 5095;
-              closeSound = 5096;
-              break;
-            case 9452:
-            case 9453:
-            case 9454:
-            case 9455:
-              openSound = 5083;
-              closeSound = 5084;
-              break;
-            case 9183:
-            case 9184:
-            case 9185:
-            case 9186:
-              openSound = 5085;
-              closeSound = 5086;
-              break;
-            default:
-              server.sendChatText(
-                client,
-                "[ERROR] Door sound not mapped to modelId " + entityData.modelId
-              );
-          }
           if (door.moving) {
             return;
           }
@@ -1179,7 +1124,7 @@ export class zonePacketHandlers {
           });
           server.sendDataToAll("Command.PlayDialogEffect", {
             characterId: door.characterId,
-            effectId: door.isOpen ? closeSound : openSound,
+            effectId: door.isOpen ? door.closeSound : door.openSound,
           });
           door.isOpen = !door.isOpen;
           break;
@@ -1212,7 +1157,7 @@ export class zonePacketHandlers {
       packet: any
     ) {
       const { guid } = packet.data,
-        entityData: any =
+        entityData: BaseLightweightCharacter =
           server._objects[guid] ||
           server._vehicles[guid] ||
           server._doors[guid] ||
@@ -1230,7 +1175,7 @@ export class zonePacketHandlers {
         !isPosInRadius(
           server._interactionDistance,
           client.character.state.position,
-          entityData.state ? entityData.state.position : entityData.position
+          entityData.state.position
         )
       )
         return;
