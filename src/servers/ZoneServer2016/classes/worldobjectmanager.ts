@@ -91,14 +91,14 @@ export class WorldObjectManager {
 
   constructor() {}
 
-  run(server: ZoneServer2016) {
+  async run(server: ZoneServer2016) {
     debug("WOM::Run");
     if (this.lastLootRespawnTime + this.lootRespawnTimer <= Date.now()) {
       this.createLoot(server);
       this.lastLootRespawnTime = Date.now();
     }
     if (this.lastNpcRespawnTime + this.npcRespawnTimer <= Date.now()) {
-      this.createNpcs(server);
+      await this.createNpcs(server);
       this.lastNpcRespawnTime = Date.now();
     }
     if (this.lastVehicleRespawnTime + this.vehicleRespawnTimer <= Date.now()) {
@@ -109,17 +109,17 @@ export class WorldObjectManager {
   createNpc(
     // todo: clean this up
     server: ZoneServer2016,
-    modelID: number,
+    modelId: number,
     position: Float32Array,
     rotation: Float32Array,
     spawnerId: number = 0
-  ): void {
+  ) {
     const characterId = generateRandomGuid();
     
     server._npcs[characterId] = new Npc(
       characterId,
       server.getTransientId(characterId),
-      modelID,
+      modelId,
       position,
       rotation,
       spawnerId
@@ -248,9 +248,10 @@ export class WorldObjectManager {
     debug("All vehicles created");
   }
 
-  createNpcs(server: ZoneServer2016) {
+  async createNpcs(server: ZoneServer2016) {
     // This is only for giving the world some life
     Z1_npcs.forEach((spawnerType: any) => {
+      server.pSetImmediate();
       const authorizedModelId: number[] = [];
       switch (spawnerType.actorDefinition) {
         case "NPCSpawner_ZombieLazy.adr":
@@ -288,15 +289,14 @@ export class WorldObjectManager {
             if (screamerChance <= this.chanceScreamer) {
               authorizedModelId.push(9667);
             }
-            const r = npcInstance.rotation;
             this.createNpc(
               server,
               authorizedModelId[
                 Math.floor(Math.random() * authorizedModelId.length)
               ],
               npcInstance.position,
-              npcInstance.rotation
-              //new Float32Array([0, r[0], 0])
+              npcInstance.rotation,
+              npcInstance.id
             );
           }
         });

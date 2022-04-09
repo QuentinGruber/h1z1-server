@@ -13,7 +13,7 @@
 
 import { BaseFullCharacter } from "./basefullcharacter";
 
-function getHeadActor(modelId: number): any {
+function getHeadActor(modelId: number): string {
   switch (modelId) {
     case 9240:
       return "SurvivorMale_Head_01.adr";
