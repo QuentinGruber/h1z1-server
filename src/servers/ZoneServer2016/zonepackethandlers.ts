@@ -1020,20 +1020,11 @@ export class zonePacketHandlers {
             unknownArray1: [],
             unknownArray2: [],
             //unknownArray3: {data:[]},
-            /*
+            
             resources: {
-             data:[
-                {
-                  resourceType: 1,
-                  resourceData: {
-                    resourceId: 1,
-                    resourceType: 1,
-                    value: 10000
-                  }
-                }
-              ]
+             data: character.pGetResources()
             },
-            */
+            
             //unknownArray4: {unknownArray1:[], unknownArray2:[]},
             //unknownArray5: {data:[]},
             //unknownArray6: {data:[]},
@@ -1048,7 +1039,8 @@ export class zonePacketHandlers {
             positionUpdate: character.positionUpdate,
             fullPcData: {
               transientId: character.transientId,
-              
+              attachmentData: character.pGetAttachmentSlots(),
+              resources: character.pGetResources()
             }
           });
           */

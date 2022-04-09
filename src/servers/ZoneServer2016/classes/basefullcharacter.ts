@@ -146,6 +146,12 @@ export class BaseFullCharacter extends BaseLightweightCharacter{
     }:undefined
   }
 
+  pGetEquipmentSlots() {
+    return Object.keys(this._equipment).map((slotId: any) => {
+      return this.pGetEquipmentSlot(slotId);
+    })
+  }
+
   pGetAttachmentSlot(slotId: number) {
     const slot = this._equipment[slotId];
     return slot?{
@@ -159,7 +165,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter{
 
   pGetAttachmentSlots() {
     return Object.keys(this._equipment).map((slotId: any) => {
-      return this.pGetEquipmentSlot(slotId);
+      return this.pGetAttachmentSlot(slotId);
     })
   }
 
@@ -179,10 +185,8 @@ export class BaseFullCharacter extends BaseLightweightCharacter{
       characterData: {
         characterId: this.characterId,
       },
-      equipmentSlots: this.pGetAttachmentSlots(),
-      attachmentData: Object.keys(this._equipment).map((slotId: any) => {
-        return this.pGetAttachmentSlot(slotId);
-      }),
+      equipmentSlots: this.pGetEquipmentSlots(),
+      attachmentData: this.pGetAttachmentSlots(),
     }
   }
 

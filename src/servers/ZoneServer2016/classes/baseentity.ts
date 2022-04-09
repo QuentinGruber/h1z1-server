@@ -11,42 +11,25 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { BaseEntity } from "./baseentity";
-
-export class BaseLightweightCharacter extends BaseEntity{
-  transientId: number;
+export class BaseEntity{
+  characterId: string;
+  actorModelId!: number;
   state: {
     position: Float32Array;
     rotation: Float32Array;
-    lookAt: Float32Array;
   };
-  flags = { a: 0, b: 0, c: 0 };
-  isLightweight = true;
+  npcRenderDistance = 100; // default in case it doesn't get set in extending class
   constructor(
     characterId: string, 
-    transientId: number, 
     actorModelId: number, 
     position: Float32Array, 
     rotation: Float32Array
   ) {
-    super(characterId, actorModelId, position, rotation);
-    this.transientId = transientId;
+    this.characterId = characterId;
+    this.actorModelId = actorModelId;
     this.state = {
       position: position,
       rotation: rotation,
-      lookAt: new Float32Array([0, 0, 0, 1]),
     };
-  }
-
-  pGetLightweight() {
-    return {
-      characterId: this.characterId,
-      transientId: this.transientId,
-      actorModelId: this.actorModelId,
-      position: this.state.position,
-      rotation: this.state.rotation,
-      flags: this.flags,
-      isLightweight: this.isLightweight
-    }
   }
 }
