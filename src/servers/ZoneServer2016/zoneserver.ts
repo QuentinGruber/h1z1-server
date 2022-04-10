@@ -63,6 +63,7 @@ import { ExplosiveEntity } from "./classes/explosiveentity";
 import { BaseLightweightCharacter } from "./classes/baselightweightcharacter";
 import { BaseSimpleNpc } from "./classes/basesimplenpc";
 import { TemporaryEntity } from "./classes/temporaryentity";
+import { BaseEntity } from "./classes/baseentity";
 
 // need to get 2016 lists
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
@@ -114,7 +115,9 @@ export class ZoneServer2016 extends EventEmitter {
   _frozeCycle = false;
   tickRate = 3000;
 
-  _transientIds: any;
+  _transientIds: { [transientId: number]: string } = {};
+  _characterIds: { [characterId: string]: number } = {};
+
   _loginServerInfo: { address?: string; port: number } = {
     address: process.env.LOGINSERVER_IP,
     port: 1110,
@@ -158,7 +161,6 @@ export class ZoneServer2016 extends EventEmitter {
       serverPort,
       gatewayKey
     );
-    this._transientIds = {};
     this._packetHandlers = new zonePacketHandlers();
     this._mongoAddress = mongoAddress;
     this._worldId = worldId || 0;
@@ -255,8 +257,6 @@ export class ZoneServer2016 extends EventEmitter {
           generatedTransient
         );
         this._clients[client.sessionId] = zoneClient;
-    
-        this._transientIds[generatedTransient] = characterId;
         this._characters[characterId] = zoneClient.character;
         zoneClient.pingTimer = setTimeout(() => {
           this.timeoutClient(zoneClient);
@@ -1525,7 +1525,6 @@ export class ZoneServer2016 extends EventEmitter {
     // does not include vehicles
     const objectsToRemove = client.spawnedEntities.filter(
       (e) =>
-        //!e.npcData?.positionUpdateType && // TODO: change this behavior this will cause issues
         !e.vehicleId &&
         this.filterOutOfDistance(e, client.character.state.position)
     );
@@ -1564,7 +1563,9 @@ export class ZoneServer2016 extends EventEmitter {
       }
     );
     delete dictionary[characterId];
-    delete this._transientIds[characterId];
+
+    delete this._transientIds[this._characterIds[characterId]];
+    delete this._characterIds[characterId];
   }
 
   sendManagedObjectResponseControlPacket(client: Client, obj: any) {
@@ -3854,11 +3855,11 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendChatText(this._clients[a], message, clearChat);
     }
   }
-  filterOutOfDistance(element: any, playerPosition: Float32Array): boolean {
+  filterOutOfDistance(element: BaseEntity, playerPosition: Float32Array): boolean {
     return !isPosInRadius(
       (element.npcRenderDistance || this._npcRenderDistance) + 5,
       playerPosition,
-      element.position || element.state?.position || element.state.position
+      element.state.position
     );
   }
   getServerTimeTest(): number {
@@ -3881,14 +3882,15 @@ export class ZoneServer2016 extends EventEmitter {
     this.deleteEntity(vehicleGuid, this._vehicles);
     */
   }
-  getTransientId(guid: string): number {
+  getTransientId(characterId: string): number {
     let generatedTransient;
     do {
       generatedTransient = Number(
         (Math.random() * MAX_TRANSIENT_ID).toFixed(0)
       );
     } while (!!this._transientIds[generatedTransient]);
-    this._transientIds[generatedTransient] = guid;
+    this._transientIds[generatedTransient] = characterId;
+    this._characterIds[characterId] = generatedTransient;
     return generatedTransient;
   }
   reloadPackets(client: Client, intervalTime = -1): void {
