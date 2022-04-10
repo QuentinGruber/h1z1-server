@@ -75,7 +75,7 @@ export class CraftManager {
     count: number
   ): Promise<boolean> {
     // if craftItem gets stuck in an infinite loop somehow, setImmediate will prevent the server from crashing
-    Scheduler.yield()
+    Scheduler.yield();
     if (!count) return true;
     debug(`[CraftManager] Crafting ${count} of itemDefinitionId ${recipeId}`);
     const recipe = server._recipes[recipeId];
@@ -171,17 +171,13 @@ export class CraftManager {
       }
       for (const item of inventory[component.itemDefinitionId]) {
         if (item.stackCount >= remainingItems) {
-          if (
-            !server.removeInventoryItem(client, item, remainingItems)
-          ) {
+          if (!server.removeInventoryItem(client, item, remainingItems)) {
             server.containerError(client, 5); // slot does not contain item
             return false; // return if not enough items
           }
           remainingItems = 0;
         } else {
-          if (
-            server.removeInventoryItem(client, item, item.stackCount)
-          ) {
+          if (server.removeInventoryItem(client, item, item.stackCount)) {
             remainingItems -= item.stackCount;
           } else {
             server.containerError(client, 5); // slot does not contain item

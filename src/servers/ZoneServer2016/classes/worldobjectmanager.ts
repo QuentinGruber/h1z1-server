@@ -286,10 +286,8 @@ export class WorldObjectManager {
     renderDistance: number,
     itemSpawnerId: number = -1
   ): void {
-    if(!item){
-      debug(
-        `[ERROR] Tried to createLootEntity with invalid item object`
-      );
+    if (!item) {
+      debug(`[ERROR] Tried to createLootEntity with invalid item object`);
       return;
     }
     const itemDef = server.getItemDefinition(item.itemDefinitionId);

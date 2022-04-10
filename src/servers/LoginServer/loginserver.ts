@@ -80,11 +80,7 @@ export class LoginServer extends EventEmitter {
       debug("Server in solo mode !");
     }
 
-    this._soeServer = new SOEServer(
-      "LoginUdp_9",
-      serverPort,
-      this._cryptoKey
-    );
+    this._soeServer = new SOEServer("LoginUdp_9", serverPort, this._cryptoKey);
     // 2016 client doesn't send a disconnect packet so we've to use that
     // But that can't be enabled on zoneserver
     this._soeServer._usePingTimeout = true;
@@ -926,10 +922,7 @@ export class LoginServer extends EventEmitter {
     if (this._soloMode) {
       setupAppDataFolder();
     }
-    this._soeServer.start(
-      this._crcLength,
-      this._udpLength
-    );
+    this._soeServer.start(this._crcLength, this._udpLength);
     if (this._mongoAddress && this._enableHttpServer) {
       this._httpServer = new Worker(`${__dirname}/workers/httpServer.js`, {
         workerData: {
