@@ -102,7 +102,7 @@ export class ZoneServer2015 extends EventEmitter {
   };
   _hasBeenAuthenticated: boolean = false;
   _clientProtocol: string = "ClientProtocol_860";
-  _allowedCommands: string[] = [];
+  _allowedCommands: string[] = process.env.ALLOWED_COMMANDS?JSON.parse(process.env.ALLOWED_COMMANDS):[];
   _maxAllowedPing: number = 300;
   constructor(
     serverPort: number,
