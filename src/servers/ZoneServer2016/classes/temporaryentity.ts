@@ -11,29 +11,16 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-export class BaseEntity{
-  characterId: string;
-  transientId: number;
-  actorModelId!: number;
-  state: {
-    position: Float32Array;
-    rotation: Float32Array;
-  };
-  scale = new Float32Array([1, 1, 1, 1]);
-  npcRenderDistance = 100; // default in case it doesn't get set in extending class
+import { BaseSimpleNpc } from "./basesimplenpc";
+
+export class TemporaryEntity extends BaseSimpleNpc{
   constructor(
     characterId: string,
     transientId: number,
-    actorModelId: number, 
-    position: Float32Array, 
+    actorModelId: number,
+    position: Float32Array,
     rotation: Float32Array
   ) {
-    this.characterId = characterId;
-    this.transientId = transientId;
-    this.actorModelId = actorModelId;
-    this.state = {
-      position: position,
-      rotation: rotation,
-    };
+    super(characterId, transientId, actorModelId, position, rotation);
   }
 }

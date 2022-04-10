@@ -38,6 +38,7 @@ import { DoorEntity } from "./classes/doorentity";
 import { BaseLightweightCharacter } from "./classes/baselightweightcharacter";
 import { BaseFullCharacter } from "./classes/basefullcharacter";
 import { Npc } from "./classes/npc";
+import { TemporaryEntity } from "./classes/temporaryentity";
 
 export class zonePacketHandlers {
   hax = hax;
@@ -1344,7 +1345,7 @@ export class zonePacketHandlers {
       ).PLACEMENT_MODEL_ID;
       const characterId = server.generateGuid(),
       transientId = server.getTransientId(characterId);
-      let npc: any = {},
+      let tempObj: any = {},
       trap: TrapEntity,
       explosive: ExplosiveEntity
       switch (packet.data.itemDefinitionId) {
@@ -1354,19 +1355,13 @@ export class zonePacketHandlers {
         case 1461:
         case 1531:
           // flare
-          npc = {
-            characterId: characterId,
-            transientId: transientId,
-            modelId: 1,
-            position: client.character.state.position,
-            rotation: client.character.state.lookAt,
-            isLightweight: true,
-            flags: {},
-            attachedObject: {},
-            staticEffectId: true,
-          };
-
-          server._temporaryObjects[characterId] = npc; // save npc
+          server._temporaryObjects[characterId] = new TemporaryEntity(
+            characterId,
+            transientId,
+            1,
+            client.character.state.position,
+            client.character.state.lookAt,
+          ); // save tempObj
           setTimeout(function () {
             server.sendDataToAllWithSpawnedEntity(
               server._temporaryObjects,

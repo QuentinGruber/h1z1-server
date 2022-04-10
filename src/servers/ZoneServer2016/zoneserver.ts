@@ -62,6 +62,7 @@ import { Npc } from "./classes/npc";
 import { ExplosiveEntity } from "./classes/explosiveentity";
 import { BaseLightweightCharacter } from "./classes/baselightweightcharacter";
 import { BaseSimpleNpc } from "./classes/basesimplenpc";
+import { TemporaryEntity } from "./classes/temporaryentity";
 
 // need to get 2016 lists
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
@@ -96,10 +97,11 @@ export class ZoneServer2016 extends EventEmitter {
   _npcs: { [characterId: string]: Npc } = {};
   _objects: { [characterId: string]: ItemObject } = {};
   _doors: { [characterId: string]: DoorEntity } = {};
-  _props: any = {};
   _explosives: { [characterId: string]: ExplosiveEntity } = {};
-  _temporaryObjects: any = {};
   _traps: { [characterId: string]: TrapEntity } = {};
+  _temporaryObjects: { [characterId: string]: TemporaryEntity } = {};
+  _props: any = {};
+  
   _speedTrees: any = {};
 
   _gameTime: any;
@@ -1633,22 +1635,18 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   spawnTemporaryObjects(client: Client): void {
-    for (const npc in this._temporaryObjects) {
+    for (const characterId in this._temporaryObjects) {
+      const tempObj = this._temporaryObjects[characterId];
       if (
         isPosInRadius(
           40,
           client.character.state.position,
-          this._temporaryObjects[npc].position
+          tempObj.state.position
         ) &&
-        !client.spawnedEntities.includes(this._temporaryObjects[npc])
+        !client.spawnedEntities.includes(tempObj)
       ) {
-        this.sendData(
-          client,
-          "AddSimpleNpc",
-          { ...this._temporaryObjects[npc] },
-          1
-        );
-        client.spawnedEntities.push(this._temporaryObjects[npc]);
+        this.addSimpleNpc(client, tempObj)
+        client.spawnedEntities.push(tempObj);
       }
     }
   }
@@ -3552,7 +3550,7 @@ export class ZoneServer2016 extends EventEmitter {
     }, timeout);
   }
 
-  igniteIED(IED: any) {
+  igniteIED(IED: ExplosiveEntity) {
     if (!IED.isIED) {
       return;
     }
@@ -3579,7 +3577,7 @@ export class ZoneServer2016 extends EventEmitter {
     }, 10000);
   }
 
-  explodeExplosive(explosive: any) {
+  explodeExplosive(explosive: ExplosiveEntity) {
     if (!this._explosives[explosive.characterId]) {
       return;
     }
@@ -3590,7 +3588,7 @@ export class ZoneServer2016 extends EventEmitter {
       {
         characterId: "0x0",
         effectId: 1875,
-        position: explosive.position,
+        position: explosive.state.position,
       }
     );
     this.sendDataToAllWithSpawnedEntity(
@@ -3602,7 +3600,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
     );
     delete this._explosives[explosive.characterId];
-    this.explosionDamage(explosive.position, explosive.characterId);
+    this.explosionDamage(explosive.state.position, explosive.characterId);
   }
 
   getInventoryAsContainer(client: Client): {
