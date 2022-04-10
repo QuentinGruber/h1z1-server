@@ -299,17 +299,15 @@ const hax: any = {
       );
       return;
     }
-    const range = Number(args[1]);
-    const lat = client.character.state.position[0];
-    const long = client.character.state.position[2];
-    let points = [];
-    let rangeFixed = range;
-    let numberOfPoints = Number(args[2]);
-    let degreesPerPoint = 360 / numberOfPoints;
+    const range = Number(args[1]),
+    lat = client.character.state.position[0],
+    long = client.character.state.position[2];
+    let points = [],
+    rangeFixed = range,
+    numberOfPoints = Number(args[2]),
+    degreesPerPoint = 360 / numberOfPoints;
     for (let j = 1; j < range; j++) {
-      let currentAngle = 0;
-      let x2;
-      let y2;
+      let currentAngle = 0, x2, y2;
       rangeFixed += -1;
       for (let i = 0; i < numberOfPoints; i++) {
         x2 = Math.cos(currentAngle) * rangeFixed;

@@ -60,6 +60,8 @@ import { TrapEntity } from "./classes/trapentity";
 import { DoorEntity } from "./classes/doorentity";
 import { Npc } from "./classes/npc";
 import { ExplosiveEntity } from "./classes/explosiveentity";
+import { BaseLightweightCharacter } from "./classes/baselightweightcharacter";
+import { BaseSimpleNpc } from "./classes/basesimplenpc";
 
 // need to get 2016 lists
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
@@ -1567,6 +1569,18 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendData(client, "ClientUpdate.ManagedObjectResponseControl", obj);
   }
 
+  addLightweightNpc(client: Client, entity: BaseLightweightCharacter) {
+    this.sendData(
+      client,
+      "AddLightweightNpc",
+      entity.pGetLightweight(),
+      1
+    );
+  }
+  addSimpleNpc(client: Client, entity: BaseSimpleNpc) {
+    this.sendData(client, "AddSimpleNpc", entity.pGetSimpleNpc(), 1);
+  }
+
   spawnNpcs(client: Client): void {
     for (const characterId in this._npcs) {
       const npc = this._npcs[characterId]
@@ -1578,34 +1592,25 @@ export class ZoneServer2016 extends EventEmitter {
         ) &&
         !client.spawnedEntities.includes(npc)
       ) {
-        this.sendData(
-          client,
-          "AddLightweightNpc",
-          npc.pGetLightweight(),
-          1
-        );
+        this.addLightweightNpc(client, npc);
         client.spawnedEntities.push(npc);
       }
     }
   }
 
   spawnExplosives(client: Client): void {
-    for (const npc in this._explosives) {
+    for (const characterId in this._explosives) {
+      const explosive = this._explosives[characterId];
       if (
         isPosInRadius(
           300,
           client.character.state.position,
-          this._explosives[npc].state.position
+          explosive.state.position
         ) &&
-        !client.spawnedEntities.includes(this._explosives[npc])
+        !client.spawnedEntities.includes(explosive)
       ) {
-        this.sendData(
-          client,
-          "AddLightweightNpc",
-          { ...this._explosives[npc], profileId: 65 },
-          1
-        );
-        client.spawnedEntities.push(this._explosives[npc]);
+        this.addLightweightNpc(client, explosive);
+        client.spawnedEntities.push(explosive);
       }
     }
   }
@@ -1621,7 +1626,7 @@ export class ZoneServer2016 extends EventEmitter {
         ) &&
         !client.spawnedEntities.includes(trap)
       ) {
-        this.sendData(client, "AddSimpleNpc", trap.pGetSimpleNpc(), 1);
+        this.addSimpleNpc(client, trap);
         client.spawnedEntities.push(trap);
       }
     }
@@ -1729,12 +1734,7 @@ export class ZoneServer2016 extends EventEmitter {
           !client.spawnedEntities.includes(door)
         ) {
           
-          this.sendData(
-            client,
-            "AddLightweightNpc",
-            door.pGetLightweight(),
-            1
-          );
+          this.addLightweightNpc(client, door);
           client.spawnedEntities.push(door);
           if (door.isOpen) {
             this.sendDataToAll("PlayerUpdatePosition", {
