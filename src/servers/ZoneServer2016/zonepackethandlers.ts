@@ -33,7 +33,7 @@ import { Character2016 } from "./classes/character";
 import { Vehicle2016 } from "./classes/vehicle";
 import { ResourceIds } from "./enums";
 import { TrapEntity } from "./classes/trapentity";
-//import { ExplosiveEntity } from "./classes/explosiveentity";
+import { ExplosiveEntity } from "./classes/explosiveentity";
 import { DoorEntity } from "./classes/doorentity";
 import { BaseLightweightCharacter } from "./classes/baselightweightcharacter";
 import { BaseFullCharacter } from "./classes/basefullcharacter";
@@ -1345,8 +1345,8 @@ export class zonePacketHandlers {
       const characterId = server.generateGuid(),
       transientId = server.getTransientId(characterId);
       let npc: any = {},
-      trap: TrapEntity//,
-      //explosive: ExplosiveEntity
+      trap: TrapEntity,
+      explosive: ExplosiveEntity
       switch (packet.data.itemDefinitionId) {
         case 1804:
         case 4:
@@ -1381,64 +1381,45 @@ export class zonePacketHandlers {
           break;
         case 1699:
           // IED
-          npc = {
-            characterId: characterId,
-            transientId: transientId,
-            modelId: 9176,
-            position: client.character.state.position,
-            rotation: client.character.state.lookAt,
-            isLightweight: true,
-            flags: {},
-            attachedObject: {},
-            isIED: true,
-          };
-          /*
-          explosive = new ExplosiveEntity(
+          server._explosives[characterId] = new ExplosiveEntity(
             characterId, 
             transientId, 
             9176,
             client.character.state.position,
-            client.character.state.lookAt
-          )
-          explosive.isIED = true;
-          */
-
-          server._explosives[characterId] = npc; // save npc
+            client.character.state.lookAt,
+            true
+          ); // save explosive
           break;
         case 74:
           // land mine
-          npc = {
-            characterId: characterId,
-            transientId: transientId,
-            modelId: 9176,
-            position: client.character.state.position,
-            rotation: client.character.state.lookAt,
-            isLightweight: true,
-            flags: {},
-            attachedObject: {},
-            isIED: false,
-          };
+          explosive = new ExplosiveEntity(
+            characterId,
+            transientId,
+            9176,
+            client.character.state.position,
+            client.character.state.lookAt
+          )
 
-          server._explosives[characterId] = npc; // save npc
+          server._explosives[characterId] = explosive; // save npc
           setTimeout(function () {
             if (!server._explosives[characterId]) {
               // it happens when you die before the explosive is enable
               return;
             }
             // arming time
-            server._explosives[characterId].mineTimer = setTimeout(() => {
-              if (!server._explosives[characterId]) {
+            explosive.mineTimer = setTimeout(() => {
+              if (!explosive) {
                 return;
               }
               for (const a in server._clients) {
                 if (
                   getDistance(
                     server._clients[a].character.state.position,
-                    npc.position
+                    explosive.state.position
                   ) < 0.6
                 ) {
                   server.explosionDamage(
-                    server._explosives[characterId].position,
+                    explosive.state.position,
                     characterId
                   );
                   server.sendDataToAllWithSpawnedEntity(
@@ -1467,11 +1448,11 @@ export class zonePacketHandlers {
                 if (
                   getDistance(
                     server._vehicles[a].state.position,
-                    npc.position
+                    explosive.state.position
                   ) < 2.2
                 ) {
                   server.explosionDamage(
-                    server._explosives[characterId].position,
+                    explosive.state.position,
                     characterId
                   );
                   server.sendDataToAllWithSpawnedEntity(
@@ -1497,7 +1478,7 @@ export class zonePacketHandlers {
                 }
               }
               if (server._explosives[characterId]) {
-                server._explosives[characterId].mineTimer.refresh();
+                explosive.mineTimer?.refresh();
               }
             }, 90);
           }, 5000);

@@ -11,17 +11,20 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { BaseSimpleNpc } from "./basesimplenpc";
+import { BaseLightweightCharacter } from "./baselightweightcharacter";
 
-export class ExplosiveEntity extends BaseSimpleNpc{
+export class ExplosiveEntity extends BaseLightweightCharacter{
   isIED = false;
+  mineTimer?: NodeJS.Timeout;
   constructor(
     characterId: string,
     transientId: number,
     actorModelId: number,
     position: Float32Array,
-    rotation: Float32Array
+    rotation: Float32Array,
+    isIED: boolean = false
   ) {
     super(characterId, transientId, actorModelId, position, rotation);
+    this.isIED = isIED;
   }
 }

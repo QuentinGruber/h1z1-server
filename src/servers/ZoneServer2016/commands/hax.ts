@@ -17,6 +17,7 @@ import { Vehicle2016 as Vehicle, Vehicle2016 } from "../classes/vehicle";
 import { ZoneServer2016 } from "../zoneserver";
 import { _ } from "../../../utils/utils";
 import { Npc } from "../classes/npc";
+import { ExplosiveEntity } from "../classes/explosiveentity";
 
 const debug = require("debug")("zonepacketHandlers");
 
@@ -320,22 +321,14 @@ const hax: any = {
     }
     points.forEach((obj: any) => {
       const characterId = server.generateGuid();
-      const guid = server.generateGuid();
-      const transientId = server.getTransientId(guid);
-      const npc = {
-        characterId: characterId,
-        guid: guid,
-        transientId: transientId,
-        modelId: 9176,
-        position: [obj[0], client.character.state.position[1], obj[1], 1],
-        rotation: client.character.state.lookAt,
-        isLightweight: true,
-        color: {},
-        attachedObject: {},
-        isIED: true,
-      };
-
-      server._explosives[characterId] = npc; // save npc
+      server._explosives[characterId] = new ExplosiveEntity(
+        characterId,
+        server.getTransientId(characterId),
+        9176,
+        new Float32Array([obj[0], client.character.state.position[1], obj[1], 1]),
+        client.character.state.lookAt,
+        true
+      ); // save explosive
     });
   },
   spamatv: function (server: ZoneServer2016, client: Client, args: any[]) {

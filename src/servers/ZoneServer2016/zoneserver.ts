@@ -59,6 +59,7 @@ import { DEFAULT_CRYPTO_KEY } from "../../utils/constants";
 import { TrapEntity } from "./classes/trapentity";
 import { DoorEntity } from "./classes/doorentity";
 import { Npc } from "./classes/npc";
+import { ExplosiveEntity } from "./classes/explosiveentity";
 
 // need to get 2016 lists
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
@@ -94,7 +95,7 @@ export class ZoneServer2016 extends EventEmitter {
   _objects: { [characterId: string]: ItemObject } = {};
   _doors: { [characterId: string]: DoorEntity } = {};
   _props: any = {};
-  _explosives: any = {};
+  _explosives: { [characterId: string]: ExplosiveEntity } = {};
   _temporaryObjects: any = {};
   _traps: { [characterId: string]: TrapEntity } = {};
   _speedTrees: any = {};
@@ -1013,7 +1014,7 @@ export class ZoneServer2016 extends EventEmitter {
     for (const explosive in this._explosives) {
       const explosiveObj = this._explosives[explosive];
       if (explosiveObj.characterId != npcTriggered) {
-        if (getDistance(position, explosiveObj.position) < 2) {
+        if (getDistance(position, explosiveObj.state.position) < 2) {
           await Scheduler.wait(150);
           this.explodeExplosive(explosiveObj);
         }
@@ -1594,7 +1595,7 @@ export class ZoneServer2016 extends EventEmitter {
         isPosInRadius(
           300,
           client.character.state.position,
-          this._explosives[npc].position
+          this._explosives[npc].state.position
         ) &&
         !client.spawnedEntities.includes(this._explosives[npc])
       ) {
@@ -3478,7 +3479,7 @@ export class ZoneServer2016 extends EventEmitter {
         isPosInRadius(
           1,
           client.character.state.position,
-          this._explosives[a].position
+          this._explosives[a].state.position
         )
       ) {
         this.igniteIED(this._explosives[a]);
