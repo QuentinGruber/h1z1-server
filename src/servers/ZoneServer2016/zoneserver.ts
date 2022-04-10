@@ -883,7 +883,7 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  sendInitData(client: Client): void {
+  sendInitData(client: Client) {
     this.sendData(client, "InitializationParameters", {
       environment: "LIVE",
       serverId: this._worldId,
@@ -928,7 +928,7 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  worldRoutine(refresh = false): void {
+  worldRoutine(refresh = false) {
     debug("WORLDROUTINE");
     this.executeFuncForAllReadyClients((client: Client) => {
       this.vehicleManager(client);
@@ -1473,7 +1473,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  customizeDTO(client: Client): void {
+  customizeDTO(client: Client) {
     const DTOArray: any = [];
     for (const object in this._speedTrees) {
       const DTO = this._speedTrees[object];
@@ -1501,7 +1501,7 @@ export class ZoneServer2016 extends EventEmitter {
     client: Client,
     weather: Weather2016,
     broadcast = false
-  ): void {
+  ) {
     if (!this._soloMode) {
       this.sendDataToAll("UpdateWeatherData", weather);
       if (broadcast && client?.character?.name) {
@@ -1514,19 +1514,19 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  forceTime(time: number): void {
+  forceTime(time: number) {
     this._cycleSpeed = 0.1;
     this._frozeCycle = true;
     this._gameTime = time;
   }
 
-  removeForcedTime(): void {
+  removeForcedTime() {
     this._cycleSpeed = 100;
     this._frozeCycle = false;
     this._gameTime = Date.now();
   }
 
-  removeOutOfDistanceEntities(client: Client): void {
+  removeOutOfDistanceEntities(client: Client) {
     // does not include vehicles
     const objectsToRemove = client.spawnedEntities.filter(
       (e) =>
@@ -1589,7 +1589,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendData(client, "AddSimpleNpc", entity.pGetSimpleNpc(), 1);
   }
 
-  spawnNpcs(client: Client): void {
+  spawnNpcs(client: Client) {
     for (const characterId in this._npcs) {
       const npc = this._npcs[characterId]
       if (
@@ -1606,7 +1606,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  spawnExplosives(client: Client): void {
+  spawnExplosives(client: Client) {
     for (const characterId in this._explosives) {
       const explosive = this._explosives[characterId];
       if (
@@ -1623,7 +1623,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  spawnTraps(client: Client): void {
+  spawnTraps(client: Client) {
     for (const characterId in this._traps) {
       const trap = this._traps[characterId];
       if (
@@ -1640,7 +1640,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  spawnTemporaryObjects(client: Client): void {
+  spawnTemporaryObjects(client: Client) {
     for (const characterId in this._temporaryObjects) {
       const tempObj = this._temporaryObjects[characterId];
       if (
@@ -1696,7 +1696,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  spawnObjects(client: Client): void {
+  spawnObjects(client: Client) {
     setImmediate(() => {
       for (const characterId in this._objects) {
         const object = this._objects[characterId];
@@ -1725,7 +1725,7 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  spawnDoors(client: Client): void {
+  spawnDoors(client: Client) {
     setImmediate(() => {
       for (const characterId in this._doors) {
         const door = this._doors[characterId];
@@ -1793,7 +1793,7 @@ export class ZoneServer2016 extends EventEmitter {
     packetName: h1z1PacketsType,
     obj: any,
     channel = 0
-  ): void {
+  ) {
     switch (packetName) {
       case "KeepAlive":
       case "PlayerUpdatePosition":
@@ -1861,7 +1861,7 @@ export class ZoneServer2016 extends EventEmitter {
       : Number((this._gameTime / 1000).toFixed(0));
   }
 
-  sendGameTimeSync(client: Client): void {
+  sendGameTimeSync(client: Client) {
     debug("GameTimeSync");
     if (!this._frozeCycle) {
       this.sendData(client, "GameTimeSync", {
@@ -1882,7 +1882,7 @@ export class ZoneServer2016 extends EventEmitter {
     client: Client,
     entityCharacterId: string = "",
     data: any
-  ): void {
+  ) {
     for (const a in this._clients) {
       if (
         client != this._clients[a] &&
@@ -2039,7 +2039,7 @@ export class ZoneServer2016 extends EventEmitter {
     packetName: any,
     obj: any,
     channel = 0
-  ): void {
+  ) {
     if (!entityCharacterId) return;
     for (const a in this._clients) {
       if (
@@ -2058,7 +2058,7 @@ export class ZoneServer2016 extends EventEmitter {
     packetName: any,
     obj: any,
     channel = 0
-  ): void {
+  ) {
     if (!entityCharacterId) return;
     for (const a in this._clients) {
       if (
@@ -2070,7 +2070,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  mountVehicle(client: Client, vehicleGuid: string): void {
+  mountVehicle(client: Client, vehicleGuid: string) {
     const vehicle = this._vehicles[vehicleGuid];
     if (!vehicle) return;
     client.character.isRunning = false; // maybe some async stuff make this useless need to test that
@@ -2239,7 +2239,7 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  dismountVehicle(client: Client): void {
+  dismountVehicle(client: Client) {
     if (!client.vehicle.mountedVehicle) return;
     const vehicle = this._vehicles[client.vehicle.mountedVehicle];
     if (!vehicle) return;
@@ -2316,7 +2316,7 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  changeSeat(client: Client, packet: any): void {
+  changeSeat(client: Client, packet: any) {
     if (!client.vehicle.mountedVehicle) return;
     const vehicle = this._vehicles[client.vehicle.mountedVehicle],
       seatCount = vehicle.getSeatCount(),
@@ -3753,14 +3753,14 @@ export class ZoneServer2016 extends EventEmitter {
   getSoeClient(soeClientId: string): SOEClient {
     return this._gatewayServer._soeServer._clients[soeClientId];
   }
-  sendRawData(client: Client, data: Buffer, channel = 0): void {
+  sendRawData(client: Client, data: Buffer, channel = 0) {
     this._gatewayServer.sendTunnelData(
       this.getSoeClient(client.soeClientId),
       data,
       channel
     );
   }
-  sendChatText(client: Client, message: string, clearChat = false): void {
+  sendChatText(client: Client, message: string, clearChat = false) {
     if (clearChat) {
       for (let index = 0; index <= 6; index++) {
         this.sendData(client, "Chat.ChatText", {
@@ -3819,7 +3819,7 @@ export class ZoneServer2016 extends EventEmitter {
     });
     this._loginServerInfo.address = loginServerAddress as string;
   }
-  executeFuncForAllReadyClients(callback: any): void {
+  executeFuncForAllReadyClients(callback: any) {
     for (const client in this._clients) {
       const clientObj: Client = this._clients[client];
       if (!clientObj.isLoading) {
@@ -3842,7 +3842,7 @@ export class ZoneServer2016 extends EventEmitter {
       refreshTimeout && client.savePositionTimer.refresh();
     }
   }
-  sendDataToAll(packetName: h1z1PacketsType, obj: any, channel = 0): void {
+  sendDataToAll(packetName: h1z1PacketsType, obj: any, channel = 0) {
     const data = this._protocol.pack(packetName, obj);
     for (const a in this._clients) {
       this.sendRawData(this._clients[a], data, channel);
@@ -3870,7 +3870,7 @@ export class ZoneServer2016 extends EventEmitter {
       { population: populationNumber }
     );
   }
-  sendGlobalChatText(message: string, clearChat = false): void {
+  sendGlobalChatText(message: string, clearChat = false) {
     for (const a in this._clients) {
       this.sendChatText(this._clients[a], message, clearChat);
     }
@@ -3913,12 +3913,12 @@ export class ZoneServer2016 extends EventEmitter {
     this._characterIds[characterId] = generatedTransient;
     return generatedTransient;
   }
-  reloadPackets(client: Client, intervalTime = -1): void {
+  reloadPackets(client: Client, intervalTime = -1) {
     this.reloadZonePacketHandlers();
     this._protocol.reloadPacketDefinitions();
     this.sendChatText(client, "[DEV] Packets reloaded", true);
   }
-  timeoutClient(client: Client): void {
+  timeoutClient(client: Client) {
     if (!!this._clients[client.sessionId]) {
       // if hasn't already deleted
       debug(`Client (${client.soeClientId}) disconnected ( ping timeout )`);
