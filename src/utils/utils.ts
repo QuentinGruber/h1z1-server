@@ -294,13 +294,16 @@ export const initMongo = async function (
   serverName: string
 ): Promise<void> {
   const debug = require("debug")(serverName);
-  const dbName = "h1server"
+  const dbName = "h1server";
   await mongoClient.db(dbName).createCollection("servers");
-  const servers = require("../../data/defaultDatabase/shared/servers.json")
+  const servers = require("../../data/defaultDatabase/shared/servers.json");
   await mongoClient.db(dbName).collection("servers").insertMany(servers);
   await mongoClient.db(dbName).createCollection("zone-whitelist");
-  const zoneWhitelist = require("../../data/defaultDatabase/shared/zone-whitelist.json")
-  await mongoClient.db(dbName).collection("zone-whitelist").insertMany(zoneWhitelist);
+  const zoneWhitelist = require("../../data/defaultDatabase/shared/zone-whitelist.json");
+  await mongoClient
+    .db(dbName)
+    .collection("zone-whitelist")
+    .insertMany(zoneWhitelist);
   debug("h1server database was missing... created one with samples.");
 };
 

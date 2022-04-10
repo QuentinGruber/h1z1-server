@@ -89,7 +89,9 @@ export class SOEOutputStream extends EventEmitter {
         this._cache[sequence].fragment
       );
     } else {
-      console.error(`Cache error, could not resend data for sequence ${sequence}! `);
+      console.error(
+        `Cache error, could not resend data for sequence ${sequence}! `
+      );
       this._hadCacheError = true;
       this.emit("cacheError");
     }

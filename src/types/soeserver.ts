@@ -11,8 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-
-export type crc_length_options = 0|2;
+export type crc_length_options = 0 | 2;
 
 export interface Client {
   sessionId: number;

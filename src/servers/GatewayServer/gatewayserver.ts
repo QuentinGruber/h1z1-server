@@ -106,10 +106,7 @@ export class GatewayServer extends EventEmitter {
 
   start() {
     debug("Starting server");
-    this._soeServer.start(
-      this._crcLength,
-      this._udpLength
-    );
+    this._soeServer.start(this._crcLength, this._udpLength);
   }
 
   sendTunnelData(client: SOEClient, tunnelData: any, channel = 0) {
