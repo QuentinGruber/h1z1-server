@@ -1,0 +1,74 @@
+[
+  {
+    "EQUIP_SLOT_ID": 76,
+    "ITEM_CLASS": 25036
+  },
+  {
+    "EQUIP_SLOT_ID": 76,
+    "ITEM_CLASS": 25037
+  },
+  {
+    "EQUIP_SLOT_ID": 77,
+    "ITEM_CLASS": 25036
+  },
+  {
+    "EQUIP_SLOT_ID": 77,
+    "ITEM_CLASS": 25037
+  },
+  {
+    "EQUIP_SLOT_ID": 78,
+    "ITEM_CLASS": 4096
+  },
+  {
+    "EQUIP_SLOT_ID": 78,
+    "ITEM_CLASS": 4098
+  },
+  {
+    "EQUIP_SLOT_ID": 79,
+    "ITEM_CLASS": 4096
+  },
+  {
+    "EQUIP_SLOT_ID": 79,
+    "ITEM_CLASS": 4098
+  },
+  {
+    "EQUIP_SLOT_ID": 80,
+    "ITEM_CLASS": 25036
+  },
+  {
+    "EQUIP_SLOT_ID": 80,
+    "ITEM_CLASS": 25037
+  },
+  {
+    "EQUIP_SLOT_ID": 81,
+    "ITEM_CLASS": 4096
+  },
+  {
+    "EQUIP_SLOT_ID": 81,
+    "ITEM_CLASS": 4098
+  },
+  {
+    "EQUIP_SLOT_ID": 82,
+    "ITEM_CLASS": 25038
+  },
+  {
+    "EQUIP_SLOT_ID": 83,
+    "ITEM_CLASS": 25038
+  },
+  {
+    "EQUIP_SLOT_ID": 84,
+    "ITEM_CLASS": 25038
+  },
+  {
+    "EQUIP_SLOT_ID": 85,
+    "ITEM_CLASS": 4098
+  },
+  {
+    "EQUIP_SLOT_ID": 85,
+    "ITEM_CLASS": 25037
+  },
+  {
+    "EQUIP_SLOT_ID": 103,
+    "ITEM_CLASS": 25047
+  }
+]

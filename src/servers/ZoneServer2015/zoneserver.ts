@@ -35,6 +35,7 @@ import { ZoneClient as Client } from "./classes/zoneclient";
 import { h1z1PacketsType } from "../../types/packets";
 import { Vehicle } from "./classes/vehicle";
 import { Resolver } from "dns";
+import { DEFAULT_CRYPTO_KEY } from "../../utils/constants";
 
 process.env.isBin && require("./workers/dynamicWeather");
 
@@ -92,7 +93,7 @@ export class ZoneServer2015 extends EventEmitter {
   _respawnOnLastPosition: boolean = false;
   _worldRoutineRadiusPercentage: number = 0.4;
   worldRoutineTimer: any;
-  tickRate: number = 3000;
+  tickRate: number = 500;
   _h1emuZoneServer!: H1emuZoneServer;
   _loginServerInfo: { address?: string; port: number } = {
     address: process.env.LOGINSERVER_IP,
@@ -100,7 +101,9 @@ export class ZoneServer2015 extends EventEmitter {
   };
   _hasBeenAuthenticated: boolean = false;
   _clientProtocol: string = "ClientProtocol_860";
-  _allowedCommands: string[] = [];
+  _allowedCommands: string[] = process.env.ALLOWED_COMMANDS
+    ? JSON.parse(process.env.ALLOWED_COMMANDS)
+    : [];
   _maxAllowedPing: number = 300;
   constructor(
     serverPort: number,
@@ -524,25 +527,10 @@ export class ZoneServer2015 extends EventEmitter {
     }
   }
 
-  removeSoloCache() {
-    localSpawnList = null;
-    localWeatherTemplates = null;
-    delete require.cache[
-      require.resolve("../../../data/2015/sampleData/spawnLocations.json")
-    ];
-    delete require.cache[
-      require.resolve("../../../data/2015/sampleData/weather.json")
-    ];
-  }
-
   async setupServer(): Promise<void> {
     this.forceTime(971172000000); // force day time by default - not working for now
     this._frozeCycle = false;
-    this._weather = this._soloMode
-      ? localWeatherTemplates[this._defaultWeatherTemplate]
-      : await this._db
-          ?.collection("weathers")
-          .findOne({ templateName: this._defaultWeatherTemplate });
+    this._weather = localWeatherTemplates[this._defaultWeatherTemplate];
     this._profiles = this.generateProfiles();
     this._items = this.generateItems();
     if (
@@ -557,7 +545,6 @@ export class ZoneServer2015 extends EventEmitter {
       await this.saveWorld();
     }
     if (!this._soloMode) {
-      this.removeSoloCache();
       debug("Starting H1emuZoneServer");
       if (!this._loginServerInfo.address) {
         await this.fetchLoginInfo();
@@ -715,9 +702,8 @@ export class ZoneServer2015 extends EventEmitter {
     const dbIsEmpty =
       (await mongoClient.db("h1server").collections()).length < 1;
     if (dbIsEmpty) {
-      await initMongo(this._mongoAddress, debugName);
+      await initMongo(mongoClient, debugName);
     }
-    delete require.cache[require.resolve("mongodb-restore-dump")];
     this._db = mongoClient.db("h1server");
   }
 
@@ -748,7 +734,7 @@ export class ZoneServer2015 extends EventEmitter {
         this.sendRawToAll(Buffer.from(weather));
       });
     }
-    this._gatewayServer.start(this._soloMode);
+    this._gatewayServer.start();
     this.worldRoutineTimer = setTimeout(
       () => this.worldRoutine.bind(this)(true),
       this.tickRate
@@ -854,9 +840,7 @@ export class ZoneServer2015 extends EventEmitter {
 
     if (isRandomlySpawning) {
       // Take position/rotation from a random spawn location.
-      const spawnLocations = this._soloMode
-        ? localSpawnList
-        : await this._db?.collection("spawns").find().toArray();
+      const spawnLocations = localSpawnList;
       const randomSpawnIndex = Math.floor(
         Math.random() * spawnLocations.length
       );
@@ -1341,9 +1325,7 @@ export class ZoneServer2015 extends EventEmitter {
       characterId: client.character.characterId,
       unk: 1,
     });
-    const spawnLocations = this._soloMode
-      ? localSpawnList
-      : await this._db?.collection("spawns").find().toArray();
+    const spawnLocations = localSpawnList;
     const randomSpawnIndex = Math.floor(Math.random() * spawnLocations.length);
     this.sendData(client, "ClientUpdate.UpdateLocation", {
       position: spawnLocations[randomSpawnIndex].position,
@@ -2750,7 +2732,7 @@ if (
 ) {
   const zoneServer = new ZoneServer2015(
     1117,
-    Buffer.from("F70IaxuU8C/w7FPXY1ibXw==", "base64"),
+    Buffer.from(DEFAULT_CRYPTO_KEY, "base64"),
     process.env.MONGO_URL,
     1
   );

@@ -11,7 +11,6 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-const restore = require("mongodb-restore-dump");
 import { generate_random_guid } from "h1emu-core";
 import v8 from "v8";
 import { compress, compressBound } from "./lz4/lz4";
@@ -21,6 +20,7 @@ import {
   setImmediate as setImmediatePromise,
   setTimeout as setTimeoutPromise,
 } from "timers/promises";
+import { MongoClient } from "mongodb";
 
 export class customLodash {
   constructor() {}
@@ -290,17 +290,20 @@ export const lz4_decompress = function (
 };
 
 export const initMongo = async function (
-  uri: string,
+  mongoClient: MongoClient,
   serverName: string
 ): Promise<void> {
   const debug = require("debug")(serverName);
-
-  // restore single database
-  await restore.database({
-    uri,
-    database: "h1server",
-    from: `${__dirname}/../../mongodb/h1server/`,
-  });
+  const dbName = "h1server";
+  await mongoClient.db(dbName).createCollection("servers");
+  const servers = require("../../data/defaultDatabase/shared/servers.json");
+  await mongoClient.db(dbName).collection("servers").insertMany(servers);
+  await mongoClient.db(dbName).createCollection("zone-whitelist");
+  const zoneWhitelist = require("../../data/defaultDatabase/shared/zone-whitelist.json");
+  await mongoClient
+    .db(dbName)
+    .collection("zone-whitelist")
+    .insertMany(zoneWhitelist);
   debug("h1server database was missing... created one with samples.");
 };
 

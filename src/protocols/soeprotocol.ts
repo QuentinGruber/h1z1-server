@@ -11,9 +11,53 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+/* ONLY USED ON TESTS CLIENTS */
+/* ONLY USED ON TESTS CLIENTS */
+/* ONLY USED ON TESTS CLIENTS */
+/* ONLY USED ON TESTS CLIENTS */
+/* ONLY USED ON TESTS CLIENTS */
+/* ONLY USED ON TESTS CLIENTS */
+/* ONLY USED ON TESTS CLIENTS */
+/* ONLY USED ON TESTS CLIENTS */
+/* ONLY USED ON TESTS CLIENTS */
+/* ONLY USED ON TESTS CLIENTS */
+/* ONLY USED ON TESTS CLIENTS */
+/* ONLY USED ON TESTS CLIENTS */
+/* ONLY USED ON TESTS CLIENTS */
+/* ONLY USED ON TESTS CLIENTS */
+/* ONLY USED ON TESTS CLIENTS */
+/* ONLY USED ON TESTS CLIENTS */
+/* ONLY USED ON TESTS CLIENTS */
+/* ONLY USED ON TESTS CLIENTS */
+/* ONLY USED ON TESTS CLIENTS */
+/* ONLY USED ON TESTS CLIENTS */
+/* ONLY USED ON TESTS CLIENTS */
+/* ONLY USED ON TESTS CLIENTS */
+
 const debug = require("debug")("SOEProtocol");
 import PacketTableBuild from "../packets/packettable";
-import { append_crc as appendCRC } from "h1emu-core";
+import { append_crc_legacy as appendCRC } from "h1emu-core";
+
+enum disconnectReasonEnum {
+  DisconnectReasonIcmpError = 0,
+  DisconnectReasonTimeout = 1,
+  DisconnectReasonNone = 2,
+  DisconnectReasonOtherSideTerminated = 3,
+  DisconnectReasonManagerDeleted = 4,
+  DisconnectReasonConnectFail = 5,
+  DisconnectReasonApplication = 6,
+  DisconnectReasonUnreachableConnection = 7,
+  DisconnectReasonUnacknowledgedTimeout = 8,
+  DisconnectReasonNewConnectionAttempt = 9,
+  DisconnectReasonConnectionRefused = 10,
+  DisconnectReasonConnectErro = 11,
+  DisconnectReasonConnectingToSelf = 12,
+  DisconnectReasonReliableOverflow = 13,
+  DisconnectReasonApplicationReleased = 14,
+  DisconnectReasonCorruptPacket = 15,
+  DisconnectReasonProtocolMismatch = 16,
+}
+
 const stand_alone_packets = [
   [
     "ZonePing",
@@ -153,8 +197,8 @@ const packets = [
         isSubPacket: boolean
       ) {
         const dataParts = [];
-        let subData,
-          data = new (Buffer as any).alloc(2 + (compression ? 1 : 0));
+        let subData;
+        let data = Buffer.alloc(2 + (compression ? 1 : 0));
         data.writeUInt16BE(0x03, 0);
         if (compression) {
           data.writeUInt8(0, 2);
@@ -171,7 +215,7 @@ const packets = [
           dataParts.push(writeDataLength(subData.length), subData);
         }
         data = Buffer.concat(dataParts);
-        data = appendCRC(data, crcSeed);
+        data = appendCRC(data, crcSeed) as Buffer;
         return data;
       },
     },
@@ -181,7 +225,12 @@ const packets = [
     0x05,
     {
       parse: function (data: any) {
-        return {};
+        const disconnectReason = disconnectReasonEnum[data.readUInt16BE(7)];
+        debug(
+          "disconnectReason : ",
+          disconnectReason ? disconnectReason : data.readUInt16BE(7)
+        );
+        return data;
       },
       pack: function () {
         const data = new (Buffer as any).alloc(2);
@@ -204,7 +253,59 @@ const packets = [
       },
     },
   ],
-  ["NetStatusRequest", 0x07, {}],
+  [
+    "NetStatusRequest",
+    0x07,
+    {
+      parse: function (
+        data: any,
+        crcSeed: number,
+        compression: number,
+        isSubPacket: boolean,
+        appData: any
+      ) {
+        const timeDiff = data.readUInt16BE(2);
+        const serverTick = data.readUInt32BE(6);
+        const unk1 = data.readBigInt64BE(10);
+        const unk2 = data.readBigInt64BE(11);
+        const unk3 = data.readBigInt64BE(13);
+        const unk4 = data.readBigInt64BE(13);
+        return {
+          timeDiff: timeDiff,
+          serverTick: serverTick,
+          unk1: unk1,
+          unk2: unk2,
+          unk3: unk3,
+          unk4: unk4,
+        };
+      },
+      pack: function (
+        packet: any,
+        crcSeed: number,
+        compression: number,
+        isSubPacket: boolean
+      ) {
+        let data = Buffer.alloc(40);
+        let offset = 0;
+        data.writeUInt16BE(10, offset); // timeDiff
+        offset += 2;
+        data.writeInt32BE(0x07, offset);
+        offset += 4;
+        data.writeInt32BE(0x07, offset);
+        offset += 4;
+        data.writeInt32BE(0x07, offset);
+        offset += 4;
+        data.writeInt32BE(0x07, offset);
+        offset += 4;
+        data.writeInt32BE(0x07, offset);
+        offset += 4;
+        data.writeBigInt64BE(0x07n, offset);
+        offset += 8;
+        data.writeBigInt64BE(0x07n, offset);
+        return data;
+      },
+    },
+  ],
   ["NetStatusReply", 0x08, {}],
   [
     "Data",
@@ -463,11 +564,16 @@ const packets = [
     "PacketOrdered",
     0x1a,
     {
-      parse: function (data: any) {
-        const sequence = data.readUInt16BE(0);
+      parse: function (data: Buffer) {
+        const sequence = data.readUInt16BE(1);
         return sequence;
       },
-      pack: function () {
+      pack: function (
+        packet: any,
+        crcSeed: number,
+        compression: number,
+        isSubPacket: boolean
+      ) {
         const data = Buffer.alloc(4);
         data.writeUInt16BE(0x1a, 0);
         data.writeUInt16BE(1, 0);
@@ -475,7 +581,22 @@ const packets = [
       },
     },
   ],
-  ["PacketOrdered2", 0x1b, {}],
+  [
+    "PacketOrdered2",
+    0x1b,
+    {
+      parse: function (data: Buffer) {
+        const sequence = data.readUInt16BE(1);
+        return sequence;
+      },
+      pack: function () {
+        const data = Buffer.alloc(4);
+        data.writeUInt16BE(0x1a, 0);
+        data.writeUInt16BE(1, 31000);
+        return data;
+      },
+    },
+  ],
   ["FatalError", 0x1d, {}],
   ["FatalErrorReply", 0x1e, {}],
 ];
@@ -531,7 +652,7 @@ function parseSOEPacket(
   appData: any
 ) {
   let packet;
-  if (data.readUInt8(0)) {
+  if (data[0] !== 0) {
     packet = (StandAlonePackets as any).Packets[data.readUInt8(0)];
   } else {
     packet = (SOEPackets as any).Packets[data.readUInt16BE(0)];

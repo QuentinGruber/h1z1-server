@@ -51,7 +51,7 @@ export const constructionPackets: any = [
   ],
   [
     "Construction.Unknown",
-    0xca0400,
+    0xca0500,
     {
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },

@@ -25,6 +25,7 @@ import {
   randomIntFromInterval,
 } from "../../../utils/utils";
 import { Vehicle2016 as Vehicle } from "./../classes/vehicle";
+import { inventoryItem } from "types/zoneserver";
 const debug = require("debug")("ZoneServer");
 
 function getHeadActor(modelId: number): any {
@@ -279,25 +280,27 @@ export class WorldObjectManager {
   createLootEntity(
     // todo: clean this up
     server: ZoneServer2016,
-    itemDefinitionId: number,
-    stackCount: number,
+    item: inventoryItem | undefined,
     position: Array<number>,
     rotation: Array<number>,
     renderDistance: number,
-    itemSpawnerId: number = -1,
-    itemGuid: string = ""
+    itemSpawnerId: number = -1
   ): void {
-    const itemDef = server.getItemDefinition(itemDefinitionId);
+    if (!item) {
+      debug(`[ERROR] Tried to createLootEntity with invalid item object`);
+      return;
+    }
+    const itemDef = server.getItemDefinition(item.itemDefinitionId);
     let modelId;
     if (!itemDef) {
       debug(
-        `[ERROR] Tried to createLootEntity for invalid itemDefId: ${itemDefinitionId}`
+        `[ERROR] Tried to createLootEntity for invalid itemDefId: ${item.itemDefinitionId}`
       );
       return;
     }
     if (!itemDef.WORLD_MODEL_ID) {
       debug(
-        `[ERROR] Tried to createLootEntity for itemDefId: ${itemDefinitionId} with no WORLD_MODEL_ID`
+        `[ERROR] Tried to createLootEntity for itemDefId: ${item.itemDefinitionId} with no WORLD_MODEL_ID`
       );
       modelId = 9;
     } else {
@@ -314,8 +317,7 @@ export class WorldObjectManager {
       rotation: rotation,
       color: { r: 0, g: 0, b: 255 },
       spawnerId: itemSpawnerId || 0,
-      itemGuid: itemGuid || server.generateItem(itemDefinitionId),
-      stackCount: stackCount,
+      item: item,
       npcRenderDistance: renderDistance,
     };
     if (itemSpawnerId) this._spawnedObjects[itemSpawnerId] = characterId;
@@ -527,8 +529,7 @@ export class WorldObjectManager {
           const item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
-            item.id,
-            item.count,
+            server.generateItem(item.id, item.count),
             itemInstance.position,
             itemInstance.rotation,
             25,
@@ -562,8 +563,7 @@ export class WorldObjectManager {
           const item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
-            item.id,
-            item.count,
+            server.generateItem(item.id, item.count),
             itemInstance.position,
             itemInstance.rotation,
             25,
@@ -637,8 +637,7 @@ export class WorldObjectManager {
           const item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
-            item.id,
-            item.count,
+            server.generateItem(item.id, item.count),
             itemInstance.position,
             itemInstance.rotation,
             25,
@@ -676,8 +675,7 @@ export class WorldObjectManager {
           const item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
-            item.id,
-            item.count,
+            server.generateItem(item.id, item.count),
             itemInstance.position,
             itemInstance.rotation,
             25,
@@ -712,8 +710,7 @@ export class WorldObjectManager {
           const item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
-            item.id,
-            item.count,
+            server.generateItem(item.id, item.count),
             itemInstance.position,
             itemInstance.rotation,
             25,
@@ -749,8 +746,7 @@ export class WorldObjectManager {
           const item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
-            item.id,
-            item.count,
+            server.generateItem(item.id, item.count),
             itemInstance.position,
             itemInstance.rotation,
             25,
@@ -789,8 +785,7 @@ export class WorldObjectManager {
           const item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
-            item.id,
-            item.count,
+            server.generateItem(item.id, item.count),
             itemInstance.position,
             itemInstance.rotation,
             25,
@@ -871,8 +866,7 @@ export class WorldObjectManager {
           const item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
-            item.id,
-            item.count,
+            server.generateItem(item.id, item.count),
             itemInstance.position,
             itemInstance.rotation,
             25,
@@ -942,8 +936,7 @@ export class WorldObjectManager {
           const item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
-            item.id,
-            item.count,
+            server.generateItem(item.id, item.count),
             itemInstance.position,
             itemInstance.rotation,
             25,
@@ -1009,8 +1002,7 @@ export class WorldObjectManager {
           const item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
-            item.id,
-            item.count,
+            server.generateItem(item.id, item.count),
             itemInstance.position,
             itemInstance.rotation,
             25,
@@ -1049,8 +1041,7 @@ export class WorldObjectManager {
           const item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
-            item.id,
-            item.count,
+            server.generateItem(item.id, item.count),
             itemInstance.position,
             itemInstance.rotation,
             25,
@@ -1082,8 +1073,7 @@ export class WorldObjectManager {
           const item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
-            item.id,
-            item.count,
+            server.generateItem(item.id, item.count),
             itemInstance.position,
             itemInstance.rotation,
             25,
@@ -1119,8 +1109,7 @@ export class WorldObjectManager {
           const item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
-            item.id,
-            item.count,
+            server.generateItem(item.id, item.count),
             itemInstance.position,
             itemInstance.rotation,
             25,
@@ -1160,8 +1149,7 @@ export class WorldObjectManager {
           const item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
-            item.id,
-            item.count,
+            server.generateItem(item.id, item.count),
             itemInstance.position,
             itemInstance.rotation,
             25,
@@ -1207,8 +1195,7 @@ export class WorldObjectManager {
           const item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
-            item.id,
-            item.count,
+            server.generateItem(item.id, item.count),
             itemInstance.position,
             itemInstance.rotation,
             25,
@@ -1356,8 +1343,7 @@ export class WorldObjectManager {
           const item = getRandomItem(authorizedItems);
           this.createLootEntity(
             server,
-            item.id,
-            item.count,
+            server.generateItem(item.id, item.count),
             itemInstance.position,
             itemInstance.rotation,
             25,

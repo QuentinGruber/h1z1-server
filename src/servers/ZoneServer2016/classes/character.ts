@@ -106,7 +106,11 @@ export class Character2016 extends Character {
         const { stamina, food, water, virus, health, bleeding } =
           client.character.resources;
         const { isRunning } = client.character;
-        if (isRunning && (client.vehicle.mountedVehicle == "" || !client.vehicle.mountedVehicle)) {
+        if (
+          isRunning &&
+          (client.vehicle.mountedVehicle == "" ||
+            !client.vehicle.mountedVehicle)
+        ) {
           client.character.resources.stamina -= 20;
           client.character.isExhausted =
             client.character.resources.stamina < 120;
