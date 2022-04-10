@@ -37,7 +37,6 @@ import { Vehicle } from "./classes/vehicle";
 import { Resolver } from "dns";
 import { DEFAULT_CRYPTO_KEY } from "../../utils/constants";
 
-
 process.env.isBin && require("./workers/dynamicWeather");
 
 import { zonePacketHandlers } from "./zonepackethandlers";
@@ -102,7 +101,9 @@ export class ZoneServer2015 extends EventEmitter {
   };
   _hasBeenAuthenticated: boolean = false;
   _clientProtocol: string = "ClientProtocol_860";
-  _allowedCommands: string[] = [];
+  _allowedCommands: string[] = process.env.ALLOWED_COMMANDS
+    ? JSON.parse(process.env.ALLOWED_COMMANDS)
+    : [];
   _maxAllowedPing: number = 300;
   constructor(
     serverPort: number,
@@ -529,7 +530,7 @@ export class ZoneServer2015 extends EventEmitter {
   async setupServer(): Promise<void> {
     this.forceTime(971172000000); // force day time by default - not working for now
     this._frozeCycle = false;
-    this._weather = localWeatherTemplates[this._defaultWeatherTemplate]
+    this._weather = localWeatherTemplates[this._defaultWeatherTemplate];
     this._profiles = this.generateProfiles();
     this._items = this.generateItems();
     if (

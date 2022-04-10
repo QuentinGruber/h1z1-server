@@ -81,22 +81,27 @@ export const itemsPackets: any = [
   ["Items.RequestAddItemTimer", 0xad27, {}],
   ["Items.RequestTrialItem", 0xad28, {}],
   ["Items.RequestRentalItem", 0xad29, {}],
-  ["Items.RequestUseItem", 0xad2a, {
-    fields: [
-      { name: "itemCount", type: "uint32", defaultValue: 0 },
-      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-      { name: "itemUseOption", type: "uint32", defaultValue: 0 },
-      { name: "characterId", type: "uint64string", defaultValue: "" },
-      { name: "characterId2", type: "uint64string", defaultValue: "" },
-      { name: "characterId3", type: "uint64string", defaultValue: "" },
-      { name: "itemGuid", type: "uint64string", defaultValue: "" },
-      {
-        name: "itemSubData",
-        type: "custom",
-        defaultValue: {},
-        parser: parseItemRequestSubData,
-      }]
-  }],
+  [
+    "Items.RequestUseItem",
+    0xad2a,
+    {
+      fields: [
+        { name: "itemCount", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "itemUseOption", type: "uint32", defaultValue: 0 },
+        { name: "characterId", type: "uint64string", defaultValue: "" },
+        { name: "characterId2", type: "uint64string", defaultValue: "" },
+        { name: "characterId3", type: "uint64string", defaultValue: "" },
+        { name: "itemGuid", type: "uint64string", defaultValue: "" },
+        {
+          name: "itemSubData",
+          type: "custom",
+          defaultValue: {},
+          parser: parseItemRequestSubData,
+        },
+      ],
+    },
+  ],
   ["Items.RequestUseAccountItem", 0xad2b, {}],
   ["Items.RequestRemoveNewAccountItemRec", 0xad2c, {}],
   ["Items.RemoveNewAccountItemRecByItemId", 0xad2d, {}],

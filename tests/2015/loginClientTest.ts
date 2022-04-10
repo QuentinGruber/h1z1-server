@@ -1,7 +1,7 @@
 import { LoginClient, LoginServer } from "../../h1z1-server";
 
-const loginServer = new LoginServer(1115)
-loginServer._crcLength = 2
+const loginServer = new LoginServer(1115);
+loginServer._crcLength = 2;
 loginServer.start();
 
 setTimeout(() => {

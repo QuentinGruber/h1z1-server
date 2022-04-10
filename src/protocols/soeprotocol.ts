@@ -11,7 +11,6 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-
 /* ONLY USED ON TESTS CLIENTS */
 /* ONLY USED ON TESTS CLIENTS */
 /* ONLY USED ON TESTS CLIENTS */
@@ -39,7 +38,6 @@ const debug = require("debug")("SOEProtocol");
 import PacketTableBuild from "../packets/packettable";
 import { append_crc_legacy as appendCRC } from "h1emu-core";
 
-
 enum disconnectReasonEnum {
   DisconnectReasonIcmpError = 0,
   DisconnectReasonTimeout = 1,
@@ -57,8 +55,8 @@ enum disconnectReasonEnum {
   DisconnectReasonReliableOverflow = 13,
   DisconnectReasonApplicationReleased = 14,
   DisconnectReasonCorruptPacket = 15,
-  DisconnectReasonProtocolMismatch = 16
-};
+  DisconnectReasonProtocolMismatch = 16,
+}
 
 const stand_alone_packets = [
   [
@@ -227,8 +225,11 @@ const packets = [
     0x05,
     {
       parse: function (data: any) {
-        const disconnectReason = disconnectReasonEnum[data.readUInt16BE(7)]
-        debug("disconnectReason : ",disconnectReason?disconnectReason:data.readUInt16BE(7));
+        const disconnectReason = disconnectReasonEnum[data.readUInt16BE(7)];
+        debug(
+          "disconnectReason : ",
+          disconnectReason ? disconnectReason : data.readUInt16BE(7)
+        );
         return data;
       },
       pack: function () {
@@ -252,14 +253,17 @@ const packets = [
       },
     },
   ],
-  ["NetStatusRequest", 0x07, {
-    parse: function (
-      data: any,
-      crcSeed: number,
-      compression: number,
-      isSubPacket: boolean,
-      appData: any
-    ) {
+  [
+    "NetStatusRequest",
+    0x07,
+    {
+      parse: function (
+        data: any,
+        crcSeed: number,
+        compression: number,
+        isSubPacket: boolean,
+        appData: any
+      ) {
         const timeDiff = data.readUInt16BE(2);
         const serverTick = data.readUInt32BE(6);
         const unk1 = data.readBigInt64BE(10);
@@ -272,35 +276,36 @@ const packets = [
           unk1: unk1,
           unk2: unk2,
           unk3: unk3,
-          unk4: unk4
+          unk4: unk4,
         };
+      },
+      pack: function (
+        packet: any,
+        crcSeed: number,
+        compression: number,
+        isSubPacket: boolean
+      ) {
+        let data = Buffer.alloc(40);
+        let offset = 0;
+        data.writeUInt16BE(10, offset); // timeDiff
+        offset += 2;
+        data.writeInt32BE(0x07, offset);
+        offset += 4;
+        data.writeInt32BE(0x07, offset);
+        offset += 4;
+        data.writeInt32BE(0x07, offset);
+        offset += 4;
+        data.writeInt32BE(0x07, offset);
+        offset += 4;
+        data.writeInt32BE(0x07, offset);
+        offset += 4;
+        data.writeBigInt64BE(0x07n, offset);
+        offset += 8;
+        data.writeBigInt64BE(0x07n, offset);
+        return data;
+      },
     },
-    pack: function (
-      packet: any,
-      crcSeed: number,
-      compression: number,
-      isSubPacket: boolean
-    ) {
-      let data = Buffer.alloc(40);
-      let offset = 0;
-      data.writeUInt16BE(10, offset); // timeDiff
-      offset += 2;
-      data.writeInt32BE(0x07, offset);
-      offset += 4;
-      data.writeInt32BE(0x07, offset);
-      offset += 4;
-      data.writeInt32BE(0x07, offset);
-      offset += 4;
-      data.writeInt32BE(0x07, offset);
-      offset += 4;
-      data.writeInt32BE(0x07, offset);
-      offset += 4;
-      data.writeBigInt64BE(0x07n, offset);
-      offset += 8
-      data.writeBigInt64BE(0x07n, offset);
-      return data;
-    },
-  }],
+  ],
   ["NetStatusReply", 0x08, {}],
   [
     "Data",
@@ -576,18 +581,22 @@ const packets = [
       },
     },
   ],
-  ["PacketOrdered2", 0x1b,  {
-    parse: function (data: Buffer) {
-      const sequence = data.readUInt16BE(1);
-      return sequence;
+  [
+    "PacketOrdered2",
+    0x1b,
+    {
+      parse: function (data: Buffer) {
+        const sequence = data.readUInt16BE(1);
+        return sequence;
+      },
+      pack: function () {
+        const data = Buffer.alloc(4);
+        data.writeUInt16BE(0x1a, 0);
+        data.writeUInt16BE(1, 31000);
+        return data;
+      },
     },
-    pack: function () {
-      const data = Buffer.alloc(4);
-      data.writeUInt16BE(0x1a, 0);
-      data.writeUInt16BE(1, 31000);
-      return data;
-    },
-  }],
+  ],
   ["FatalError", 0x1d, {}],
   ["FatalErrorReply", 0x1e, {}],
 ];
@@ -643,9 +652,9 @@ function parseSOEPacket(
   appData: any
 ) {
   let packet;
-  if(data[0] !== 0) {
-      packet = (StandAlonePackets as any).Packets[data.readUInt8(0)];
-} else {
+  if (data[0] !== 0) {
+    packet = (StandAlonePackets as any).Packets[data.readUInt8(0)];
+  } else {
     packet = (SOEPackets as any).Packets[data.readUInt16BE(0)];
   }
   if (packet) {
