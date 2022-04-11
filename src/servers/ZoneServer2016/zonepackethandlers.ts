@@ -1823,6 +1823,14 @@ export class zonePacketHandlers {
             }, 200);
           }, 3000);
           break;
+          //Ground Tiller
+        case 1383:
+          server.plantingManager.Reclaim(client,server);
+          break;
+          //Corn Seed
+        case 1987:
+          server.plantingManager.SowSeed(client,server,1987);
+          break;
         default:
           server.sendData(client, "Construction.PlacementResponse", {
             unknownDword1: packet.data.itemDefinitionId,

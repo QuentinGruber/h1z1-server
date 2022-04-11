@@ -11,6 +11,8 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import {PlantingManager} from "./workers/Planting/PlantingManager";
+
 const debugName = "ZoneServer",
   debug = require("debug")(debugName);
 import { promisify } from "util";
@@ -68,6 +70,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
   _clients: { [characterId: string]: Client } = {};
   _characters: { [characterId: string]: Character } = {};
   worldObjectManager: WorldObjectManager;
+  plantingManager:PlantingManager;
   _ready: boolean = false;
   _itemDefinitions: { [itemDefinitionId: number]: any } = itemDefinitions;
   _itemDefinitionIds: any[] = Object.keys(this._itemDefinitions);
@@ -132,6 +135,7 @@ export class ZoneServer2016 extends ZoneServer2015 {
       };
     });
     this.worldObjectManager = new WorldObjectManager();
+    this.plantingManager = new PlantingManager(null);
   }
 
   onZoneDataEvent(err: any, client: Client, packet: any) {

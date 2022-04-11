@@ -3,6 +3,7 @@ import {ZoneClient2016} from "../../../classes/zoneclient";
 import {ZoneServer2016} from "../../../zoneserver";
 import {Euler, Vector4} from "../Model/TypeModels";
 import {Euler2Quaternion} from "../Utils";
+import {randomIntFromInterval} from "../../../../../utils/utils";
 
 interface Stage {
   StageName: string,
@@ -117,12 +118,12 @@ export class GrowingManager {
         let firstStage = script.Stages[stagesKeys[0]];
         hole.InsideSeed = seed;
         this.placeSeedOrCrop(hole.Position, hole.Rotation, seed.Type, server);
-        return this.grow2Stage(server, hole, seed.Name, null, firstStage);
+        return this.grow2Stage(client,server, hole, seed.Name, null, firstStage);
       }
     }
     return false;
   }
-  private grow2Stage = (server: ZoneServer2016, hole: Hole, scriptName: string, srcStage: Stage | null, destStage: Stage): boolean => {
+  private grow2Stage = (client:ZoneClient2016, server: ZoneServer2016, hole: Hole, scriptName: string, srcStage: Stage | null, destStage: Stage): boolean => {
     if (!hole.GetInsideObject()) {
       console.log('nothing found in hole');
       return false;
@@ -152,7 +153,7 @@ export class GrowingManager {
               ItemDefinitionId: current.ItemDefinitionId,
               Count: current.Count
             });
-            this.createLootAbleCropsPiles(server, hole, destStage.NewModelId, current.ItemDefinitionId, current.Count);
+            this.createLootAbleCropsPiles(client,server, hole, destStage.NewModelId, current.ItemDefinitionId, current.Count);
           }
         }
         this.removeModel(server, hole.InsideCropsPile.Guid);
@@ -178,7 +179,7 @@ export class GrowingManager {
         return;
       } else {
         let nextStage = growthScripts[scriptName].Stages[sts[nextIndex]];
-        this.grow2Stage(server, hole, scriptName, destStage, nextStage);
+        this.grow2Stage(client,server, hole, scriptName, destStage, nextStage);
       }
     }, destStage.TimeToReach);
     return true;
@@ -206,7 +207,7 @@ export class GrowingManager {
     );
     delete server._temporaryObjects[srcGuid];
   }
-  private createLootAbleCropsPiles = (server: ZoneServer2016, hole: Hole, modelId: number, itemDefinitionId: number, count: number) => {
+  private createLootAbleCropsPiles = (client:ZoneClient2016,server: ZoneServer2016, hole: Hole, modelId: number, itemDefinitionId: number, count: number) => {
     let qu = Euler2Quaternion(hole.Rotation.Yaw, hole.Rotation.Pitch, hole.Rotation.Roll);
     let rotation = [qu.Z, qu.Y, qu.X, qu.W];
     let cid = server.generateGuid();
@@ -219,12 +220,14 @@ export class GrowingManager {
       position: [hole.Position.Z, hole.Position.Y, hole.Position.X, hole.Position.W],
       rotation: rotation,
       color: {r: 0, g: 0, b: 255},
-      spawnerId: 0,
+      scale:new Float32Array([1.5,1.5,1.5,1]),
+      spawnerId: -1,
       item: server.generateItem(itemDefinitionId, count),
       npcRenderDistance: 15,
     };
-    server._objects[guid] = obj;
-    server.sendDataToAll("AddLightweightNpc", obj);
+      server._objects[guid] = obj;
+      server.spawnObjects(client);
+    // server.sendDataToAll("AddLightweightNpc", obj);
     console.log('loot able crops created:', itemDefinitionId, count);
   }
 
