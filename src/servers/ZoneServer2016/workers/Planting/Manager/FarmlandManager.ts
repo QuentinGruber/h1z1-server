@@ -178,44 +178,6 @@ export class FarmlandManager {
         return true;
     }
 
-    // private placeSeedOrCrop(pos:Vector4, rot: Euler,modelId:number, server:ZoneServer2016):boolean
-    // {
-    //     let characterId = server.generateGuid();
-    //     let guid = server.generateGuid();
-    //     let transientId = server.getTransientId(guid);
-    //     let seedQU= Euler2Quaternion(rot.Yaw,rot.Pitch,rot.Roll);
-    //     //add to server dataset
-    //     let obj ={
-    //         characterId: characterId,
-    //         guid: guid,
-    //         transientId: transientId,
-    //         modelId:modelId,
-    //         //9191 9190 9189,59 60 61 is wheat and corn sapling growing grown status model
-    //         position: new Float32Array([pos.Z, pos.Y+0.05, pos.X]),
-    //         //client calc order like below:
-    //         //if like [z,y,x] structure,calc order is: first rot y second rot z and third rot x.
-    //         //y=yaw z=pitch and x=roll
-    //         // rotation: new Float32Array([0, rot.Yaw, 0]),
-    //         rotation: new Float32Array([seedQU.Z,seedQU.Y,seedQU.X,seedQU.W]),
-    //         dontSendFullNpcRequest: true,
-    //         color: {},
-    //         attachedObject: {},
-    //     };
-    //     server._temporaryObjects[characterId] = obj;
-    //     server.sendDataToAll("AddLightweightNpc", obj);
-    //     setTimeout(function () {
-    //         server.sendDataToAllWithSpawnedTemporaryObject(
-    //             characterId,
-    //             "Character.RemovePlayer",
-    //             {
-    //                 characterId: characterId,
-    //             }
-    //         );
-    //         delete server._temporaryObjects[characterId];
-    //     }, 20000);
-    //     return true;
-    // }
-
     //use for fertilize furrows or simple seed placement
     private searchTiledFurrowsListAroundSight(characterId:string, sightPoint: Vector4, circleRadius: number):Furrows[] {
         let ret :Furrows[] = [];
