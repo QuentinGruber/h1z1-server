@@ -4,16 +4,18 @@ import {getGuidStr, MoveToByParent} from "../Utils";
 
 export class Furrows {
   //There's 4 holes in per furrows.
+  public Holes:Hole[];
   constructor(
     public Owner: string,
     public Position: Vector4,
     public Rotation: Euler,
     public CreateTime: number,
     public ExpirationTime: number,
-    public Holes: Hole[],
+    holes: Hole[],
     public Id?: string) {
     this.Id = Id ? Id : getGuidStr();
-    if (Holes) {
+    if (holes) {
+      this.Holes = holes;
     } else {
       this.Holes = [];
       for (let i = 0; i < 4; i++) {

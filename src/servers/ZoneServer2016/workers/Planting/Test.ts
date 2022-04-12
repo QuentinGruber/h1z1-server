@@ -151,7 +151,7 @@ const RotRotRotByParent = (firstMoved: Vector4, times: number, perTimeAngle: num
     parentDir = newDir;
     // console.log(newDir);
     let newLine = Vector4.Multiply(newDir, distance);
-    parent = newLine;
+    // parent = newLine;
     // console.log(newDir)
     currentWorld = Vector4.Add(currentWorld, newLine);
     currentWorld.W = 1;
