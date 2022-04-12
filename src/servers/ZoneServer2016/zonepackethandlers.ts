@@ -1454,10 +1454,6 @@ export class zonePacketHandlers {
         case 11: //ignite
           server.igniteOption(client, item);
           break;
-        case 25://Fertilizer
-          server.plantingManager.FertilizeCrops(client,server);
-          server.removeInventoryItem(client, item);
-          break;
         default:
           server.sendChatText(
             client,

@@ -3423,6 +3423,12 @@ export class ZoneServer2016 extends ZoneServer2015 {
         useoption = "sniff";
         timeout = 3000;
         break;
+      case 25://Fertilizer
+        this.utilizeHudTimer(client, nameId, timeout, () => {
+          this.plantingManager.FertilizeCrops(client,this);
+          this.removeInventoryItem(client, item);
+        });
+        return;
       default:
         this.sendChatText(
           client,
