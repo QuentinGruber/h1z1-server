@@ -1,7 +1,7 @@
 import {CropsPile, CropsPileStatus, Hole, Seed} from "../Model/DataModels";
 import {ZoneClient2016} from "../../../classes/zoneclient";
 import {ZoneServer2016} from "../../../zoneserver";
-import {Euler, Vector4} from "../Model/TypeModels";
+import {Euler, PlantingSetting, Vector4} from "../Model/TypeModels";
 import {Euler2Quaternion} from "../Utils";
 
 interface Stage {
@@ -112,14 +112,13 @@ const growthScripts: GrowthScript =
     }
 
 export class GrowingManager {
-    _fertilizerAcceleration: number = 2;
     //key is hole guid, value is stage timer handle of seed or crops in hole
-    _stageTimers: {
+    private readonly _stageTimers: {
         [key: string]:
             { timer: NodeJS.Timeout, scriptName: string, srcStage: Stage | null, destStage: Stage }
     };
 
-    constructor() {
+    constructor(private _setting:PlantingSetting) {
         this._stageTimers = {};
     }
 
@@ -163,15 +162,15 @@ export class GrowingManager {
         if (hole.LastFertilizeTime && hole.FertilizerDuration) {
             let fertilizerRemaining = Date.now() - hole.LastFertilizeTime;
             //到达下一个状态在有化肥加成的情况下,需要多长时间
-            let timeToReachByAcceleration = destStage.TimeToReach / this._fertilizerAcceleration;
+            let timeToReachByAcceleration = destStage.TimeToReach / this._setting.FertilizerAcceleration;
             //如果本来需要10秒,有化肥加成以后,就用5秒,化肥实际可用的时间是7秒,那就直接定10/2=5秒的定时器
             if (timeToReachByAcceleration <= fertilizerRemaining) {
-                realTimeToReach = destStage.TimeToReach / this._fertilizerAcceleration;
+                realTimeToReach = destStage.TimeToReach / this._setting.FertilizerAcceleration;
             }
             //如果本来需要10秒,有化肥的加成以后,就用5秒,化肥实际可用时间是4秒,前面的8秒时间被化肥加成所用4秒,后面的时间正常.那最后的结果是6秒
             else {
                 // 这剩余的4秒可以产生8秒的效果
-                let quick = fertilizerRemaining * this._fertilizerAcceleration;
+                let quick = fertilizerRemaining * this._setting.FertilizerAcceleration;
                 // 还剩下2秒正常的
                 let normal = destStage.TimeToReach - quick;
                 //2秒正常的加上化肥的4秒,最后就是6秒

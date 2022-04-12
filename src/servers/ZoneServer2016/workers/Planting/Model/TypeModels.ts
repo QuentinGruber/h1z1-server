@@ -98,3 +98,11 @@ export class Quaternion extends Vector4
         return JSON.stringify({Yaw: ret[0].toFixed(floatLen), Pitch: ret[1].toFixed(floatLen), Roll: ret[2].toFixed(floatLen)});
     }
 }
+
+export interface PlantingSetting
+{
+    PerFertilizerCanUseForHolesCount :number,
+    DefaultFurrowsDuration: number,
+    DefaultFertilizerDuration: number,
+    FertilizerAcceleration: number,
+}

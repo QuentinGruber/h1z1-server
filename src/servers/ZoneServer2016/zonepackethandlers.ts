@@ -1454,6 +1454,10 @@ export class zonePacketHandlers {
         case 11: //ignite
           server.igniteOption(client, item);
           break;
+        case 25://Fertilizer
+          server.plantingManager.FertilizeCrops(client,server);
+          server.removeInventoryItem(client, item);
+          break;
         default:
           server.sendChatText(
             client,
@@ -1826,14 +1830,12 @@ export class zonePacketHandlers {
           //Ground Tiller
         case 1383:
           server.plantingManager.Reclaim(client,server);
+          server.removeInventoryItem(client, item);
           break;
           //Corn Seed
         case 1987:
           server.plantingManager.SowSeed(client,server,1987);
-          break;
-          //Fertilizer
-        case 25:
-          server.plantingManager.FertilizeCrops(client,server);
+          server.removeInventoryItem(client, item);
           break;
         default:
           server.sendData(client, "Construction.PlacementResponse", {

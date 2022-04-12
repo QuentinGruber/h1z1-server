@@ -1,17 +1,15 @@
 import {ZoneClient2016 as Client} from "../../../classes/zoneclient";
-import {Euler, Vector4} from "../Model/TypeModels";
+import {Euler, PlantingSetting, Vector4} from "../Model/TypeModels";
 import {Euler2Quaternion, getLookAtPos, MoveToByParent, Quaternion2Euler} from "../Utils";
 import {ZoneServer2016} from "../../../zoneserver";
 import {Furrows, Hole, SeedType} from "../Model/DataModels";
 
 
 export class FarmlandManager {
-    _charactersFurrows: { [key: string]: Furrows[] };
-    _furrowsUsePeriodTimers: { [key: string]: NodeJS.Timeout };
-    _fertilizerExpirationTimers: { [key: string]: NodeJS.Timeout };
-    _server?: ZoneServer2016;
-    defaultFurrowsDuration: number = 3600000;
-    defaultFertilizerDuration: number = 10800000;
+    private readonly _charactersFurrows: { [key: string]: Furrows[] };
+    private readonly _furrowsUsePeriodTimers: { [key: string]: NodeJS.Timeout };
+    private readonly _fertilizerExpirationTimers: { [key: string]: NodeJS.Timeout };
+    private _server?: ZoneServer2016;
 
     //region private d3d calc functions
     //region cross pos calc
@@ -55,7 +53,7 @@ export class FarmlandManager {
                 this._charactersFurrows[client.character.characterId] = [];
             }
             let newFurrows = new Furrows(client.character.characterId, pos,
-                new Euler(rot[0], 0, 0), Date.now(), this.defaultFurrowsDuration, [], guid);
+                new Euler(rot[0], 0, 0), Date.now(), this._setting.DefaultFurrowsDuration, [], guid);
             this.simulateCreateHoles(newFurrows);
             this._charactersFurrows[client.character.characterId].push(newFurrows);
             //If the furrows is not used, destroy it within a certain period of time
@@ -70,7 +68,7 @@ export class FarmlandManager {
         const guid = furrows.Id;
         if (guid) {
             clearTimeout(this._furrowsUsePeriodTimers[guid]);
-            this.setFurrowsTimeout(furrows, this.defaultFurrowsDuration + cropDuration);
+            this.setFurrowsTimeout(furrows, this._setting.DefaultFurrowsDuration + cropDuration);
             console.log('reset furrows duration : ', furrows);
         }
     }
@@ -130,8 +128,20 @@ export class FarmlandManager {
     public BuryFertilizerIntoHole = (hole: Hole) => {
         if (hole.FertilizerDuration || (hole.Id && this._fertilizerExpirationTimers[hole.Id]))
             return false;
-        this.setFertilizerInHoleTimeout(hole, this.defaultFertilizerDuration);
+        this.setFertilizerInHoleTimeout(hole, this._setting.DefaultFertilizerDuration);
         this.triggerBuryFertilizerIntoHoleEffect(hole);
+    }
+
+    public ReFertilizeHole = (hole:Hole) :boolean=>
+    {
+        let guid = hole.Id;
+        if(!guid) return false;
+        if(!this._fertilizerExpirationTimers[guid])
+            return false;
+        clearTimeout(this._fertilizerExpirationTimers[guid]);
+        delete this._fertilizerExpirationTimers[guid];
+        this.setFertilizerInHoleTimeout(hole, this._setting.DefaultFertilizerDuration);
+        return true;
     }
 
     public SowSeedTest(client: Client, server: ZoneServer2016, itemId: number): boolean {
@@ -285,7 +295,9 @@ export class FarmlandManager {
         hole.FertilizerDuration = duration;
     }
 
-    constructor(charactersFurrowsData: { [key: string]: Furrows[] } | null) {
+    constructor(
+        public _setting:PlantingSetting,
+        charactersFurrowsData: { [key: string]: Furrows[] } | null) {
         this._charactersFurrows = charactersFurrowsData ? charactersFurrowsData : {};
         this._furrowsUsePeriodTimers = {};
         this._fertilizerExpirationTimers = {};
