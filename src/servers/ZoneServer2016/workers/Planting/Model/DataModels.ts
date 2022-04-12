@@ -4,13 +4,14 @@ import {getGuidStr, MoveToByParent} from "../Utils";
 
 export class Furrows {
   //There's 4 holes in per furrows.
+  public TimerInstance?:number;
   public Holes:Hole[];
   constructor(
     public Owner: string,
     public Position: Vector4,
     public Rotation: Euler,
     public CreateTime: number,
-    public ExpirationTime: number,
+    public Duration: number,
     holes: Hole[],
     public Id?: string) {
     this.Id = Id ? Id : getGuidStr();
@@ -20,7 +21,7 @@ export class Furrows {
       this.Holes = [];
       for (let i = 0; i < 4; i++) {
         const posRot = this.createHolePosRot(this.Position, this.Rotation, i);
-        let currentHole = new Hole(null, null, posRot.NewPos, posRot.NewRot);
+        let currentHole = new Hole(null, null, posRot.NewPos, posRot.NewRot,0);
         this.Holes.push(currentHole);
       }
     }
@@ -39,7 +40,8 @@ export class Hole {
   {
     return this.InsideCropsPile? this.InsideCropsPile:this.InsideSeed;
   }
-  constructor(public InsideSeed: Seed | null, public InsideCropsPile: CropsPile | null, public Position: Vector4, public Rotation: Euler, public Id?: string) {
+  public LastFertilizeTime?:number;
+  constructor(public InsideSeed: Seed | null, public InsideCropsPile: CropsPile | null, public Position: Vector4, public Rotation: Euler,public FertilizerDuration:number, public Id?: string) {
     this.Id = Id ? Id : getGuidStr();
   }
 }
@@ -58,18 +60,20 @@ export interface ObjectInHole
 export class Seed implements ObjectInHole {
   public Name: string;
   public Guid:string;
+  public TimeToGrown:number;
   constructor(public Type: SeedType, public SwingTime: number) {
     switch (this.Type) {
-      case SeedType.Corn2:
-      case SeedType.Corn:
-        this.Name = 'Corn Seed';
-        break;
       case SeedType.Wheat:
       case SeedType.Wheat2:
         this.Name = 'Wheat Seed';
+        this.TimeToGrown = 40000;
         break;
+      case SeedType.Corn2:
+      case SeedType.Corn:
       default:
         this.Name = 'Corn Seed';
+        this.TimeToGrown = 30000;
+        break;
     }
     this.Guid = getGuidStr();
   }

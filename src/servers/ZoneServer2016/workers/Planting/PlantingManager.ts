@@ -7,6 +7,7 @@ export class PlantingManager {
     //region Variables
     _farmlandManager: FarmlandManager;
     _growManager: GrowingManager;
+    _perFertilizerCanUseForHolesCount: number= 4;
     //endregion
 
 
@@ -24,7 +25,12 @@ export class PlantingManager {
           for (const hole of f.Holes) {
             if (!hole.InsideSeed&&!hole.InsideCropsPile)
             {
-              sRet = this._growManager.StartCultivating(client,server,hole,new Seed(itemId, Date.now()));
+                let seed = new Seed(itemId, Date.now());
+              sRet = this._growManager.StartCultivating(client,server,hole,seed);
+              if (sRet)
+              {
+                  this._farmlandManager.ReUseFurrows(f,seed.TimeToGrown);
+              }
               break;
             }
           }
@@ -32,12 +38,24 @@ export class PlantingManager {
         server.sendChatText(client, `swing seed has been${sRet?' succeeded':' failed'}`);
     }
 
-    // public FertilizeCrops(client: Client,
-    //                       fertilizerObject: Fertilizer
-    // public FertilizeCrops(client: Client,server:ZoneServer2016
-    // ) {
-    //
-    // }
+    public FertilizeCrops(client: Client) {
+        let holes = this._farmlandManager.GetSurroundingFertilizeAbleHoles(client,1);
+        if (!holes.length)
+        {
+            console.log('No surrounding holes for fertilization');
+            return;
+        }
+        let doneCount = 0;
+        for (const hole of holes) {
+            if(doneCount >= this._perFertilizerCanUseForHolesCount)
+                break;
+            if(this._farmlandManager.BuryFertilizerIntoHole(hole))
+            {
+                this._growManager.StartCultivating
+                doneCount +=1;
+            }
+        }
+    }
 
     // public UprootCrops(client: Client,
     //                    hole: Hole) {
