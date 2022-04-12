@@ -124,7 +124,7 @@ export class ZoneServer2016 extends EventEmitter {
   };
   worldRoutineTimer: any;
   _npcRenderDistance = 350;
-  _allowedCommands: string[] = [];
+  _allowedCommands: string[] = process.env.ALLOWED_COMMANDS?JSON.parse(process.env.ALLOWED_COMMANDS):[];
   _interactionDistance = 4;
   _pingTimeoutTime = 120000;
 
