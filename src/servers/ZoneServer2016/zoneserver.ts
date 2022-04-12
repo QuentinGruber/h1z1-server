@@ -789,7 +789,7 @@ export class ZoneServer2016 extends EventEmitter {
               ...itemDef,
               HUD_IMAGE_SET_ID: itemDef.IMAGE_SET_ID,
               containerDefinitionId:
-                itemDef.ITEM_TYPE == 34 ? itemDef.PARAM1 : 0,
+                itemDef.ITEM_TYPE == 34 || itemDef.ITEM_TYPE == 20 ? itemDef.PARAM1 : 0,
               flags1: {
                 ...itemDef,
               },
@@ -2599,7 +2599,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   isWeapon(itemDefinitionId: number): boolean {
-    return this.getItemDefinition(itemDefinitionId)?.ITEM_TYPE == 26;
+    return this.getItemDefinition(itemDefinitionId)?.ITEM_TYPE == 20;
   }
 
   validateEquipmentSlot(itemDefinitionId: number, equipmentSlotId: number) {
