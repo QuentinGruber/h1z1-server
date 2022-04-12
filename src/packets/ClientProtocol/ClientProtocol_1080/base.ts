@@ -85,7 +85,6 @@ export const basePackets: any = [
               type: "array",
               defaultValue: [],
               fields: currencySchema,
-              
             },
             { name: "creationDate", type: "uint64string", defaultValue: "" },
             { name: "unknownDword15", type: "uint32", defaultValue: 0 },

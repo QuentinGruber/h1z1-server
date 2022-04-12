@@ -574,7 +574,6 @@ export class ZoneServer2016 extends EventEmitter {
       data: {
         ...client.character.pGetLightweight(),
         guid: client.guid,
-        headActor: client.character.headActor,
         hairModel: client.character.hairModel,
         isRespawning: client.character.isRespawning,
         gender: client.character.gender,

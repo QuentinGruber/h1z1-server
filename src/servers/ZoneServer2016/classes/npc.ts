@@ -13,25 +13,9 @@
 
 import { BaseFullCharacter } from "./basefullcharacter";
 
-function getHeadActor(modelId: number): string {
-  switch (modelId) {
-    case 9240:
-      return "SurvivorMale_Head_01.adr";
-    case 9474:
-      return "SurvivorFemale_Head_01.adr";
-    case 9510:
-      return `ZombieFemale_Head_0${Math.floor(Math.random() * 2) + 1}.adr`;
-    case 9634:
-      return `ZombieMale_Head_0${Math.floor(Math.random() * 3) + 1}.adr`;
-    default:
-      return "";
-  }
-}
-
 export class Npc extends BaseFullCharacter{
   npcRenderDistance = 80;
   spawnerId: number;
-  headActor = getHeadActor(this.actorModelId);
   constructor(
     characterId: string, 
     transientId: number, 
@@ -42,11 +26,5 @@ export class Npc extends BaseFullCharacter{
   ) {
     super(characterId, transientId, actorModelId, position, rotation);
     this.spawnerId = spawnerId;
-  }
-  pGetLightweight() {
-    return {
-      ...super.pGetLightweight(),
-      headActor: this.headActor
-    }
   }
 }
