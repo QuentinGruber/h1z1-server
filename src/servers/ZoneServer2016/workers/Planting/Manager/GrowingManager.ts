@@ -139,13 +139,13 @@ export class GrowingManager {
         return false;
     }
 
-    public AccelerateGrowth = (hole: Hole, client:ZoneClient2016, server:ZoneServer2016) => {
+    public AccelerateGrowth = (hole: Hole, client: ZoneClient2016, server: ZoneServer2016) => {
         if (!hole.InsideSeed && !hole.InsideCropsPile)
             return false;
         const guid = hole.Id;
         if (!guid) return false;
         if (this._stageTimers[guid]) {
-            this.grow2Stage(client,server,hole, this._stageTimers[guid].scriptName, this._stageTimers[guid].srcStage, this._stageTimers[guid].destStage);
+            this.grow2Stage(client, server, hole, this._stageTimers[guid].scriptName, this._stageTimers[guid].srcStage, this._stageTimers[guid].destStage);
         }
     }
     private grow2Stage = (client: ZoneClient2016, server: ZoneServer2016, hole: Hole, scriptName: string, srcStage: Stage | null, destStage: Stage): boolean => {
@@ -182,7 +182,7 @@ export class GrowingManager {
                 // realTimeToReach = destStage.TimeToReach + fertilizerRemaining * (1-this._fertilizerAcceleration);
             }
         }
-        this._stageTimers[guid].timer = setTimeout(() => {
+        const timer = setTimeout(() => {
             //sapling
             if (destStage.StageName == CropsPileStatus.Sapling.toString() && hole.InsideSeed) {
                 hole.InsideCropsPile = new CropsPile(hole.InsideSeed, CropsPileStatus.Sapling);
@@ -236,6 +236,7 @@ export class GrowingManager {
                 this.grow2Stage(client, server, hole, scriptName, destStage, nextStage);
             }
         }, realTimeToReach);
+        this._stageTimers[guid] = {timer: timer, destStage: destStage, srcStage: srcStage, scriptName: scriptName};
         return true;
     }
     private changeModel = (server: ZoneServer2016, hole: Hole, srcGuid: string, newModelId: number) => {
