@@ -3,7 +3,6 @@ import {ZoneClient2016} from "../../../classes/zoneclient";
 import {ZoneServer2016} from "../../../zoneserver";
 import {Euler, Vector4} from "../Model/TypeModels";
 import {Euler2Quaternion} from "../Utils";
-import {randomIntFromInterval} from "../../../../../utils/utils";
 
 interface Stage {
   StageName: string,
@@ -113,11 +112,11 @@ export class GrowingManager {
       if (growthScripts[seed.Name]) {
         let script = growthScripts[seed.Name];
         let stagesKeys = Object.keys(script.Stages);
-        if (!stagesKeys || stagesKeys.length < 1)
+        if (stagesKeys.length < 1)
           return false;
         let firstStage = script.Stages[stagesKeys[0]];
         hole.InsideSeed = seed;
-        this.placeSeedOrCrop(hole.Position, hole.Rotation, seed.Type, server);
+        GrowingManager.placeSeedOrCrop(hole.Position, hole.Rotation, seed.Type, server);
         return this.grow2Stage(client,server, hole, seed.Name, null, firstStage);
       }
     }
@@ -195,7 +194,7 @@ export class GrowingManager {
     );
     delete server._temporaryObjects[srcGuid];
     //add
-    this.placeSeedOrCrop(hole.Position, hole.Rotation, newModelId, server);
+    GrowingManager.placeSeedOrCrop(hole.Position, hole.Rotation, newModelId, server);
   }
   private removeModel = (server: ZoneServer2016, srcGuid: string): void => {
     server.sendDataToAllWithSpawnedTemporaryObject(
@@ -226,12 +225,12 @@ export class GrowingManager {
       npcRenderDistance: 15,
     };
       server._objects[guid] = obj;
-      server.spawnObjects(client);
-    // server.sendDataToAll("AddLightweightNpc", obj);
+      // server.spawnObjects(client);
+    server.sendDataToAll("AddLightweightNpc", obj);
     console.log('loot able crops created:', itemDefinitionId, count);
   }
 
-  private placeSeedOrCrop(pos: Vector4, rot: Euler, modelId: number, server: ZoneServer2016): boolean {
+  private static placeSeedOrCrop(pos: Vector4, rot: Euler, modelId: number, server: ZoneServer2016): boolean {
     let characterId = server.generateGuid();
     let guid = server.generateGuid();
     let transientId = server.getTransientId(guid);

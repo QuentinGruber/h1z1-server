@@ -14,7 +14,6 @@ export class Furrows {
     public Id?: string) {
     this.Id = Id ? Id : getGuidStr();
     if (Holes) {
-      this.Holes = Holes;
     } else {
       this.Holes = [];
       for (let i = 0; i < 4; i++) {

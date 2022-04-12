@@ -51,7 +51,8 @@ const standLookAroundPositions = (standPos: Vector4, lookDownAngle: number, role
   let lookAroundPosList = new Array<Vector4>();
   // let rolePos = {X:x,Y:world.Y,Z:z,W:1};
   let cameraPos = Vector4.FromXYZW({X: standPos.X, Y: standPos.Y + roleHeight, Z: standPos.Z, W: 1});
-  let cameraDefaultDirect = {X: 1, Y: 0, Z: 0, W: 0};
+  console.log('cameraPos:',cameraPos);
+  // let cameraDefaultDirect = {X: 1, Y: 0, Z: 0, W: 0};
   let testYawCount = 12;
   for (let k = 0; k < testYawCount; k++) {
     let yaw = (Math.PI * 2) / testYawCount * k - Math.PI;
@@ -72,6 +73,7 @@ const Test2 = () => {
   let ret = convertDudesQuaternion2Eul(new Float32Array([0.02618025, -0.5811435, -0.122121, 0.80416]));
   //-1.24,-0.1,-0.23
   console.log('convert from the quaternion decoded ret is :', ret);
+  console.log(standLookAroundPositions(new Vector4(1,0,0,1), -Math.PI/4,0.5));
 }
 
 //simulate role move and get look at pos
@@ -363,7 +365,7 @@ const Test12 = () => {
   //endregion
 
   //region test2 see vector4moveByParent.skp
-  let worldDir = new Vector4(1, 0, 0, 0);
+  // let worldDir = new Vector4(1, 0, 0, 0);
   let furrowsPosRot = MoveToByParent(new Vector4(0, 0, 0, 1), new Euler(0, 0, 0), new Euler(-Math.PI / 6, 0, 0), 500);
   let furrowsPos = furrowsPosRot.NewPos;
   console.log('furrowsPos = ', furrowsPosRot);
@@ -378,4 +380,32 @@ const Test12 = () => {
   //endregion
 }
 
-Test8();
+// Test8();
+
+const TestEntry=()=>
+{
+    let server = new ZoneServer2016(
+        1117,
+        Buffer.from("F70IaxuU8C/w7FPXY1ibXw==", "base64"),
+        process.env.MONGO_URL,
+        2
+    );
+    // server.start();
+    let client = new ZoneClient2016(0, "", "", "norman", 888);
+    Test();
+    Test2();
+    Test3();
+    Test4();
+    Test5();
+    Test6();
+    Test7();
+    Test8();
+    Test9(client, server);
+    Test10(client, server);
+    Test11(client, server);
+    Test12();
+}
+if (process.env.NM)
+{
+  TestEntry();
+}

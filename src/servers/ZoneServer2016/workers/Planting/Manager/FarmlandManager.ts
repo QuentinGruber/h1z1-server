@@ -2,7 +2,7 @@ import {ZoneClient2016 as Client} from "../../../classes/zoneclient";
 import {Euler, Vector4} from "../Model/TypeModels";
 import {Euler2Quaternion, getLookAtPos, MoveToByParent, Quaternion2Euler} from "../Utils";
 import {ZoneServer2016} from "../../../zoneserver";
-import {Furrows, Hole, Seed, SeedType} from "../Model/DataModels";
+import {Furrows, Hole, SeedType} from "../Model/DataModels";
 
 
 export class FarmlandManager {
@@ -30,7 +30,7 @@ export class FarmlandManager {
         let pos = FarmlandManager.calcLookAtPosition(client);
         // console.log('look at pos:', pos);
         // let rot = this.getBillboardRot(client);
-        if (pos && rot) {
+        if (pos) {
             this.placeFurrows(<Vector4>pos, rot, server);
             if (!this._charactersFurrows[client.character.characterId])
             {
@@ -59,7 +59,7 @@ export class FarmlandManager {
       }
     }
 
-    public SimulateGetSightPointSowAbleFurrows=(client:Client, server:ZoneServer2016):Furrows|null=>
+    public SimulateGetSightPointSowAbleFurrows=(client:Client):Furrows|null=>
     {
       let sightPoint = FarmlandManager.calcLookAtPosition(client);
       if (sightPoint) {
@@ -95,14 +95,14 @@ export class FarmlandManager {
             {
                 let bestFurrows : any;
                 let bestHole;
-                let bestHoleIndexOfFurrows : any;
+                // let bestHoleIndexOfFurrows : any;
                 //get best hole
                 for (const f of fs) {
                     for (const hole of f.Holes) {
                         if (!hole.InsideSeed) {
                             bestFurrows = <Furrows>f;
                             bestHole = hole;
-                            bestHoleIndexOfFurrows = f.Holes.indexOf(hole);
+                            // bestHoleIndexOfFurrows = f.Holes.indexOf(hole);
                             break;
                         }
                     }

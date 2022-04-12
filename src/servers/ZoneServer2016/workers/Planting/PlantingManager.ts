@@ -2,7 +2,7 @@ import {ZoneClient2016 as Client} from "../../classes/zoneclient";
 import {FarmlandManager} from "./Manager/FarmlandManager";
 import {GrowingManager} from "./Manager/GrowingManager";
 import {ZoneServer2016} from "../../zoneserver";
-import {Furrows, Seed, SeedType} from "./Model/DataModels";
+import {Furrows, Seed} from "./Model/DataModels";
 export class PlantingManager {
     //region Variables
     _farmlandManager: FarmlandManager;
@@ -18,7 +18,7 @@ export class PlantingManager {
     //now it's just simple placement,auto find sight point around furrows and holes
     public SowSeed(client: Client,server:ZoneServer2016,itemId:number) {
       let sRet = false;
-        let f = this._farmlandManager.SimulateGetSightPointSowAbleFurrows(client,server);
+        let f = this._farmlandManager.SimulateGetSightPointSowAbleFurrows(client);
         if (f)
         {
           for (const hole of f.Holes) {
