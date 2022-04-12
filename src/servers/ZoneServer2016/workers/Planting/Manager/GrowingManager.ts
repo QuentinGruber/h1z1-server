@@ -1,35 +1,10 @@
 import {CropsPile, CropsPileStatus, Hole, Seed} from "../Model/DataModels";
 import {ZoneClient2016} from "../../../classes/zoneclient";
 import {ZoneServer2016} from "../../../zoneserver";
-import {Euler, PlantingSetting, Vector4} from "../Model/TypeModels";
+import {Euler, GrowthScript, PlantingSetting, Stage, Vector4} from "../Model/TypeModels";
 import {Euler2Quaternion} from "../Utils";
 
-interface Stage {
-    StageName: string,
-    TimeToReach: number,
-    NewModelId: number,
-    Outcome?:
-        {
-            Name: string,
-            ItemDefinitionId: number,
-            ModelId: number,
-            Count: number,
-            LootAble: boolean
-        }[],
-}
-
-interface Stages {
-    [key: string]: Stage
-}
-
-interface GrowthScript {
-    [key: string]: {
-        PetriDish: any,
-        Stages: Stages
-    },
-}
-
-const growthScripts: GrowthScript =
+const defaultTestGrowthScripts: GrowthScript =
     {
         'Corn Seed':
             {
@@ -119,13 +94,22 @@ export class GrowingManager {
     };
 
     constructor(private _setting:PlantingSetting) {
+        Object.entries(defaultTestGrowthScripts).forEach(([k, v]) => {
+            if(!_setting.GrowthScripts[k])
+                _setting.GrowthScripts[k] = v;
+        });
         this._stageTimers = {};
     }
 
     public StartCultivating = (client: ZoneClient2016, server: ZoneServer2016, hole: Hole, seed: Seed): boolean => {
         if (hole && seed) {
-            if (growthScripts[seed.Name]) {
-                let script = growthScripts[seed.Name];
+            if (this._setting.GrowthScripts[seed.Name]) {
+                let script = this._setting.GrowthScripts[seed.Name];
+                if(!script)
+                {
+                    console.warn('cant match growth script of ',seed.Name);
+                    return false;
+                }
                 let stagesKeys = Object.keys(script.Stages);
                 if (stagesKeys.length < 1)
                     return false;
@@ -223,7 +207,7 @@ export class GrowingManager {
                 console.warn('cant match dest stage', destStage);
             }
             //get next stage;
-            let sts = Object.keys(growthScripts[scriptName].Stages);
+            let sts = Object.keys(this._setting.GrowthScripts[scriptName].Stages);
             let currentIndex = sts.indexOf(destStage.StageName);
             let nextIndex = currentIndex + 1;
             if (sts.length < nextIndex + 1) {
@@ -231,7 +215,7 @@ export class GrowingManager {
                 console.log('没有更多状态了.no more stage,the end, now you can loot crops if correct!!');
                 return;
             } else {
-                let nextStage = growthScripts[scriptName].Stages[sts[nextIndex]];
+                let nextStage = this._setting.GrowthScripts[scriptName].Stages[sts[nextIndex]];
                 this.grow2Stage(client, server, hole, scriptName, destStage, nextStage);
             }
         }, realTimeToReach);

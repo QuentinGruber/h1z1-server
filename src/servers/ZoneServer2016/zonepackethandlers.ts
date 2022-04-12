@@ -1837,6 +1837,11 @@ export class zonePacketHandlers {
           server.plantingManager.SowSeed(client,server,1987);
           server.removeInventoryItem(client, item);
           break;
+          //Wheat Seed
+        case 1988:
+          server.plantingManager.SowSeed(client,server,1988);
+          server.removeInventoryItem(client, item);
+          break;
         default:
           server.sendData(client, "Construction.PlacementResponse", {
             unknownDword1: packet.data.itemDefinitionId,

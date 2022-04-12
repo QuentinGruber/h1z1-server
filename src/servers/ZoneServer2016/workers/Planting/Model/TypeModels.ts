@@ -99,10 +99,38 @@ export class Quaternion extends Vector4
     }
 }
 
+//region for growing manager
+export interface Stage {
+    StageName: string,
+    TimeToReach: number,
+    NewModelId: number,
+    Outcome?:
+        {
+            Name: string,
+            ItemDefinitionId: number,
+            ModelId: number,
+            Count: number,
+            LootAble: boolean
+        }[],
+}
+
+interface Stages {
+    [key: string]: Stage
+}
+
+export interface GrowthScript {
+    [key: string]: {
+        PetriDish: any,
+        Stages: Stages
+    },
+}
+//endregion
+
 export interface PlantingSetting
 {
     PerFertilizerCanUseForHolesCount :number,
     DefaultFurrowsDuration: number,
     DefaultFertilizerDuration: number,
     FertilizerAcceleration: number,
+    GrowthScripts:GrowthScript,
 }
