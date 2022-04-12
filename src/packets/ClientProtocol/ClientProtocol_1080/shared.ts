@@ -17,7 +17,7 @@ import {
   LZ4,
   lz4_decompress,
 } from "../../../utils/utils";
-import Schema from "h1z1-dataschema";
+import DataSchema from "h1z1-dataschema";
 
 export function readPacketType(data: Buffer, packets: any) {
   let opCode = data[0] >>> 0,
@@ -356,7 +356,7 @@ export function packItemDefinitionData(obj: any) {
   let compressionData = Buffer.allocUnsafe(4);
   let data = Buffer.allocUnsafe(4);
   data.writeUInt32LE(obj["ID"], 0); // could be the actual item id idk
-  const itemDefinitionData = Schema.pack(
+  const itemDefinitionData = DataSchema.pack(
     itemDefinitionSchema,
     obj
   ).data;
@@ -669,7 +669,7 @@ export function parseVehicleReferenceData(data: Buffer, offset: number) {
     outSize = data.readUInt32LE(4),
     compData = data.slice(8);
   data = lz4_decompress(compData, inSize, outSize);
-  const result = Schema.parse(vehicleReferenceSchema, data, 0).result;
+  const result = DataSchema.parse(vehicleReferenceSchema, data, 0).result;
   return {
     value: result,
     length: dataLength + 4,
@@ -677,7 +677,7 @@ export function parseVehicleReferenceData(data: Buffer, offset: number) {
 }
 
 export function packVehicleReferenceData(obj: any) {
-  const data = Schema.pack(vehicleReferenceSchema, obj);
+  const data = DataSchema.pack(vehicleReferenceSchema, obj);
   return data;
 }
 
@@ -965,7 +965,7 @@ export function packItemSubData(obj: any) {
   v.writeUInt32LE(obj["unknownDword1"], 0);
   data = Buffer.concat([data, v]);
   if (obj.unknownDword1 <= 0) return data;
-  const unknownData1Obj = Schema.pack(
+  const unknownData1Obj = DataSchema.pack(
     unknownData1Schema,
     obj["unknownData1"]
   ).data;
