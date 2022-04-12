@@ -102,9 +102,7 @@ export class ZoneServer2016 extends EventEmitter {
   _traps: { [characterId: string]: TrapEntity } = {};
   _temporaryObjects: { [characterId: string]: TemporaryEntity } = {};
   _props: any = {};
-  
   _speedTrees: any = {};
-
   _gameTime: any;
   _time = Date.now();
   _serverTime = this.getCurrentTime();
@@ -114,10 +112,8 @@ export class ZoneServer2016 extends EventEmitter {
   _cycleSpeed = 100;
   _frozeCycle = false;
   tickRate = 3000;
-
   _transientIds: { [transientId: number]: string } = {};
   _characterIds: { [characterId: string]: number } = {};
-
   _loginServerInfo: { address?: string; port: number } = {
     address: process.env.LOGINSERVER_IP,
     port: 1110,
@@ -127,15 +123,11 @@ export class ZoneServer2016 extends EventEmitter {
   _allowedCommands: string[] = process.env.ALLOWED_COMMANDS?JSON.parse(process.env.ALLOWED_COMMANDS):[];
   _interactionDistance = 4;
   _pingTimeoutTime = 120000;
-
-
   _weather2016: Weather2016;
-  //@ts-ignore
   _packetHandlers: zonePacketHandlers;
   _weatherTemplates: any;
   _vehicles: { [characterId: string]: Vehicle } = {};
   _reloadPacketsInterval: any;
-  
   worldObjectManager: WorldObjectManager;
   _ready: boolean = false;
   _itemDefinitions: { [itemDefinitionId: number]: any } = itemDefinitions;

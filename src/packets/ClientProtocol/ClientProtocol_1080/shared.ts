@@ -17,7 +17,7 @@ import {
   LZ4,
   lz4_decompress,
 } from "../../../utils/utils";
-import DataSchema from "h1z1-dataschema";
+import Schema from "h1z1-DataSchema";
 
 export function readPacketType(data: Buffer, packets: any) {
   let opCode = data[0] >>> 0,
@@ -356,8 +356,8 @@ export function packItemDefinitionData(obj: any) {
   let compressionData = Buffer.allocUnsafe(4);
   let data = Buffer.allocUnsafe(4);
   data.writeUInt32LE(obj["ID"], 0); // could be the actual item id idk
-  const itemDefinitionData = DataSchema.pack(
-    itemDefinitionDataSchema,
+  const itemDefinitionData = Schema.pack(
+    itemDefinitionSchema,
     obj
   ).data;
   data = Buffer.concat([data, itemDefinitionData]);
@@ -369,7 +369,7 @@ export function packItemDefinitionData(obj: any) {
   return Buffer.concat([compressionData, output]);
 }
 
-export const vehicleReferenceDataSchema = [
+export const vehicleReferenceSchema = [
   {
     name: "move_info",
     type: "array",
@@ -669,7 +669,7 @@ export function parseVehicleReferenceData(data: Buffer, offset: number) {
     outSize = data.readUInt32LE(4),
     compData = data.slice(8);
   data = lz4_decompress(compData, inSize, outSize);
-  const result = DataSchema.parse(vehicleReferenceDataSchema, data, 0).result;
+  const result = Schema.parse(vehicleReferenceSchema, data, 0).result;
   return {
     value: result,
     length: dataLength + 4,
@@ -677,11 +677,11 @@ export function parseVehicleReferenceData(data: Buffer, offset: number) {
 }
 
 export function packVehicleReferenceData(obj: any) {
-  const data = DataSchema.pack(vehicleReferenceDataSchema, obj);
+  const data = Schema.pack(vehicleReferenceSchema, obj);
   return data;
 }
 
-export const itemDataSchema = [
+export const itemSchema = [
   { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
   { name: "tintId", type: "uint32", defaultValue: 0 },
   { name: "guid", type: "uint64string", defaultValue: "" },
@@ -703,7 +703,7 @@ export const itemDataSchema = [
   { name: "unknownDword9", type: "uint32", defaultValue: 0 },
 ];
 
-export const profileDataSchema = [
+export const profileSchema = [
   { name: "profileId", type: "uint32", defaultValue: 0 },
   { name: "nameId", type: "uint32", defaultValue: 0 },
   { name: "descriptionId", type: "uint32", defaultValue: 0 },
@@ -913,7 +913,7 @@ export const effectTagsSchema = [
   { name: "unknownDword23", type: "uint32", defaultValue: 0 },
 ];
 
-export const statDataSchema = [
+export const statSchema = [
   { name: "statId", type: "uint32", defaultValue: 0 },
   {
     name: "statValue",
@@ -932,7 +932,7 @@ export const statDataSchema = [
 ];
 export const itemWeaponDetailSubSchema1 = [
   { name: "statOwnerId", type: "uint32", defaultValue: 0 },
-  { name: "statData", type: "schema", fields: statDataSchema },
+  { name: "statData", type: "schema", fields: statSchema },
 ];
 export const itemWeaponDetailSubSchema2 = [
   { name: "unknownDword1", type: "uint32", defaultValue: 0 },
@@ -965,23 +965,25 @@ export function packItemSubData(obj: any) {
   v.writeUInt32LE(obj["unknownDword1"], 0);
   data = Buffer.concat([data, v]);
   if (obj.unknownDword1 <= 0) return data;
-  const unknownData1Obj = DataSchema.pack(
+  const unknownData1Obj = Schema.pack(
     unknownData1Schema,
     obj["unknownData1"]
   ).data;
   return Buffer.concat([data, unknownData1Obj]);
 }
 
-export const rewardBundleDataSchema = [
+export const currencySchema = [
+  { name: "currencyId", type: "uint32", defaultValue: 0 },
+  { name: "quantity", type: "uint32", defaultValue: 0 },
+]
+
+export const rewardBundleSchema = [
   { name: "unknownBoolean1", type: "boolean", defaultValue: false },
   {
     name: "currency",
     type: "array",
-    fields: [
-      { name: "currencyId", type: "uint32", defaultValue: 0 },
-      { name: "quantity", type: "uint32", defaultValue: 0 },
-    ],
-    defaultValue: [{}],
+    defaultValue: [],
+    fields: currencySchema,
   },
   { name: "unknownDword1", type: "uint32", defaultValue: 0 },
   { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -1042,7 +1044,7 @@ export const collectionsSchema = [
   { name: "unknownDword5", type: "uint32", defaultValue: 0 },
   { name: "unknownDword6", type: "uint32", defaultValue: 0 },
   { name: "unknownDword7", type: "uint32", defaultValue: 0 },
-  { name: "reward", type: "schema", fields: rewardBundleDataSchema },
+  { name: "reward", type: "schema", fields: rewardBundleSchema },
   {
     name: "unknownArray2",
     type: "array",
@@ -1067,11 +1069,11 @@ export const collectionsSchema = [
   },
 ];
 
-export const objectiveDataSchema = [
+export const objectiveSchema = [
   { name: "objectiveId", type: "uint32", defaultValue: 0 },
   { name: "nameId", type: "uint32", defaultValue: 0 },
   { name: "descriptionId", type: "uint32", defaultValue: 0 },
-  { name: "rewardData", type: "schema", fields: rewardBundleDataSchema },
+  { name: "rewardData", type: "schema", fields: rewardBundleSchema },
   { name: "unknownByte1", type: "uint8", defaultValue: 0 },
   { name: "unknownDword3", type: "uint32", defaultValue: 0 },
   { name: "unknownDword4", type: "uint32", defaultValue: 0 },
@@ -1089,7 +1091,7 @@ export const objectiveDataSchema = [
   },
   { name: "unknownByte4", type: "uint8", defaultValue: 0 },
 ];
-export const achievementDataSchema = [
+export const achievementSchema = [
   { name: "achievementId", type: "uint32", defaultValue: 0 },
   { name: "unknownBoolean1", type: "uint32", defaultValue: 0 },
   { name: "nameId", type: "uint32", defaultValue: 0 },
@@ -1103,7 +1105,7 @@ export const achievementDataSchema = [
     defaultValue: [{}],
     fields: [
       { name: "index", type: "uint32", defaultValue: 0 },
-      { name: "objectiveData", type: "schema", fields: objectiveDataSchema },
+      { name: "objectiveData", type: "schema", fields: objectiveSchema },
     ],
   },
   { name: "iconId", type: "uint32", defaultValue: 0 },
@@ -1292,7 +1294,7 @@ export const characterResourceData = [
   { name: "unknownByte2", type: "uint8", defaultValue: 0 },
 ];
 
-export const attachmentDataSchema = [
+export const attachmentSchema = [
   { name: "modelName", type: "string", defaultValue: "" },
   { name: "textureAlias", type: "string", defaultValue: "" },
   { name: "tintAlias", type: "string", defaultValue: "" },
@@ -1311,7 +1313,7 @@ export const attachmentDataSchema = [
   { name: "unknownBool1", type: "boolean", defaultValue: false },
 ];
 
-export const fullNpcDataSchema = [
+export const fullNpcSchema = [
   {
     name: "transientId",
     type: "custom",
@@ -1325,7 +1327,7 @@ export const fullNpcDataSchema = [
     name: "attachmentData",
     type: "array",
     defaultValue: [],
-    fields: attachmentDataSchema,
+    fields: attachmentSchema,
   },
   { name: "unknownString1", type: "string", defaultValue: "" },
   { name: "unknownString2", type: "string", defaultValue: "" },
@@ -1705,7 +1707,7 @@ export const fullNpcDataSchema = [
                     name: "statData",
                     type: "schema",
                     defaultValue: {},
-                    fields: statDataSchema,
+                    fields: statSchema,
                   },
                 ],
               },
@@ -1735,7 +1737,7 @@ export const fullNpcDataSchema = [
                             name: "statData",
                             type: "schema",
                             defaultValue: {},
-                            fields: statDataSchema,
+                            fields: statSchema,
                           },
                         ],
                       },
@@ -1763,7 +1765,7 @@ export const fullNpcDataSchema = [
             name: "item",
             type: "schema",
             defaultValue: {},
-            fields: itemDataSchema,
+            fields: itemSchema,
           },
           { name: "unknownBool1", type: "boolean", defaultValue: false },
         ],
@@ -1774,7 +1776,7 @@ export const fullNpcDataSchema = [
   { name: "unknownDword21", type: "uint32", defaultValue: 0 },
 ];
 
-export const fullPcDataSchema = [
+export const fullPcSchema = [
   // NOT FINISHED
   { name: "useCompression", type: "boolean", defaultValue: false },
   { name: "unknownDword1", type: "uint32", defaultValue: 0 }, // needs to be less than 1
@@ -1791,7 +1793,7 @@ export const fullPcDataSchema = [
     name: "stats",
     type: "array",
     defaultValue: [],
-    fields: statDataSchema,
+    fields: statSchema,
   },
   {
     name: "fullPcData",
@@ -1812,7 +1814,7 @@ export const fullPcDataSchema = [
         name: "attachmentData",
         type: "array",
         defaultValue: [],
-        fields: attachmentDataSchema,
+        fields: attachmentSchema,
       },
       { name: "unknownString1", type: "string", defaultValue: "" },
       { name: "unknownString2", type: "string", defaultValue: "" },
@@ -2117,7 +2119,7 @@ export const fullPcDataSchema = [
   // CONTINUED
 ];
 
-export const respawnLocationDataSchema = [
+export const respawnLocationSchema = [
   { name: "guid", type: "uint64string", defaultValue: "0" },
   { name: "respawnType", type: "uint8", defaultValue: 0 },
   { name: "position", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
@@ -2158,7 +2160,7 @@ export const containerData = [
     defaultValue: [],
     fields: [
       { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
-      { name: "itemData", type: "schema", fields: itemDataSchema },
+      { name: "itemData", type: "schema", fields: itemSchema },
     ],
   },
   { name: "unknownBoolean1", type: "boolean", defaultValue: false },
@@ -2234,7 +2236,7 @@ export const recipeData = [
   { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
 ];
 
-export const equipmentCharacterDataSchema = [
+export const equipmentCharacterSchema = [
   { name: "profileId", type: "uint32", defaultValue: 3 },
   { name: "characterId", type: "uint64string", defaultValue: "0" },
 ];
@@ -2253,7 +2255,7 @@ export const equipmentSlotSchema = [
   },
 ];
 
-export const itemDefinitionDataSchema: any[] = [
+export const itemDefinitionSchema: any[] = [
   {
     name: "flags1", // 2 sets of 8 bits, the sets might be swapped though
     type: "bitflags",
@@ -2361,7 +2363,7 @@ export const itemDefinitionDataSchema: any[] = [
         name: "statData",
         type: "schema",
         defaultValue: {},
-        fields: statDataSchema,
+        fields: statSchema,
       },
       { name: "unknownDword2", type: "uint32", defaultValue: 0 },
     ],
