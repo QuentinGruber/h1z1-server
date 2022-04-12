@@ -155,6 +155,25 @@ export class Vehicle2016 extends BaseFullCharacter {
       npcData: {
         ...this.pGetFull()
       },
+      positionUpdate: this.positionUpdate,
+      unknownArray1: [],
+      unknownArray2: [],
+      unknownArray3: [],
+      unknownArray4: [],
+      unknownArray5: [
+        {
+          unknownData1: {
+            unknownData1: {},
+          },
+        },
+      ],
+      unknownArray6: [],
+      unknownArray7: [],
+      unknownArray8: [
+        {
+          unknownArray1: [],
+        },
+      ],
     }
   }
 }

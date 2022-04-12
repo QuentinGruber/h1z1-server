@@ -894,6 +894,15 @@ export class zonePacketHandlers {
         const vehicle = entityData as Vehicle2016;
           if (vehicle.vehicleId != 13) {
             server.sendData(client, "LightweightToFullVehicle", vehicle.pGetFullVehicle());
+            server.sendData(client, "ResourceEvent", {
+              eventData: {
+                type: 1,
+                value: {
+                  characterId: vehicle.characterId,
+              characterResources: vehicle.pGetResources()
+                },
+              },
+            })
           }
           for (const a in vehicle.seats) {
             server.sendDataToAllWithSpawnedEntity(
