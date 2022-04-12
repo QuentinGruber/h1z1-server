@@ -38,7 +38,7 @@ export class PlantingManager {
         server.sendChatText(client, `swing seed has been${sRet?' succeeded':' failed'}`);
     }
 
-    public FertilizeCrops(client: Client) {
+    public FertilizeCrops(client: Client, server:ZoneServer2016) {
         let holes = this._farmlandManager.GetSurroundingFertilizeAbleHoles(client,1);
         if (!holes.length)
         {
@@ -51,7 +51,7 @@ export class PlantingManager {
                 break;
             if(this._farmlandManager.BuryFertilizerIntoHole(hole))
             {
-                this._growManager.StartCultivating
+                this._growManager.AccelerateGrowth(hole,client,server);
                 doneCount +=1;
             }
         }

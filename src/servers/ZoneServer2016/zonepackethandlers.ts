@@ -1831,6 +1831,10 @@ export class zonePacketHandlers {
         case 1987:
           server.plantingManager.SowSeed(client,server,1987);
           break;
+          //Fertilizer
+        case 25:
+          server.plantingManager.FertilizeCrops(client,server);
+          break;
         default:
           server.sendData(client, "Construction.PlacementResponse", {
             unknownDword1: packet.data.itemDefinitionId,
