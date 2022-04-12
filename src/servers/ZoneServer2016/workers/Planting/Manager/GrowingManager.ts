@@ -122,6 +122,7 @@ export class GrowingManager {
         return false;
     }
 
+    //The arrival time of the next stage will only be confirmed according to the energy efficiency of the fertilizer. The timer will be recalculated when this func called each times.
     public AccelerateGrowth = (hole: Hole, client: ZoneClient2016, server: ZoneServer2016) => {
         if (!hole.InsideSeed && !hole.InsideCropsPile)
             return false;

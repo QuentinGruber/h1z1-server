@@ -10,7 +10,8 @@ const defaultPlantingSetting: PlantingSetting =
         PerFertilizerCanUseForHolesCount: 4,
         DefaultFurrowsDuration: 3600000,
         DefaultFertilizerDuration: 10800000,
-        FertilizerAcceleration: 2
+        FertilizerAcceleration: 2,
+        GrowthScripts:{}
     }
 
 export class PlantingManager {
@@ -76,6 +77,7 @@ export class PlantingManager {
                 if (doneCount >= this._setting.PerFertilizerCanUseForHolesCount)
                     break;
                 if (this._farmlandManager.ReFertilizeHole(hole)) {
+                    this._growManager.AccelerateGrowth(hole, client, server);
                     doneCount += 1;
                 }
             }
