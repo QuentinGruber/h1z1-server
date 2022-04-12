@@ -17,7 +17,7 @@ import {
   LZ4,
   lz4_decompress,
 } from "../../../utils/utils";
-import Schema from "h1z1-dataSchema";
+import Schema from "h1z1-dataschema";
 
 export function readPacketType(data: Buffer, packets: any) {
   let opCode = data[0] >>> 0,
