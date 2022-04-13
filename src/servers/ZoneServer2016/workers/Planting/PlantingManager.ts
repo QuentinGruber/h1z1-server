@@ -11,7 +11,7 @@ const defaultPlantingSetting: PlantingSetting =
         DefaultFurrowsDuration: 3600000,
         DefaultFertilizerDuration: 10800000,
         FertilizerAcceleration: 2,
-        FertilizerActionRadius:1,
+        FertilizerActionRadius:2,
         GrowthScripts:{}
     }
 
@@ -46,7 +46,7 @@ export class PlantingManager {
                 }
             }
         }
-        server.sendChatText(client, `swing seed has been${sRet ? ' succeeded' : ' failed'}`);
+        server.sendChatText(client, `sowing seed has been${sRet ? ' succeeded' : ' failed'}`);
     }
 
     public FertilizeCrops(client: Client, server: ZoneServer2016) {

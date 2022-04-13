@@ -2,7 +2,7 @@ import {ZoneClient2016 as Client} from "../../../classes/zoneclient";
 import {Euler, PlantingSetting, Vector4} from "../Model/TypeModels";
 import {Euler2Quaternion, getLookAtPos, MoveToByParent, Quaternion2Euler} from "../Utils";
 import {ZoneServer2016} from "../../../zoneserver";
-import {Furrows, Hole, Seed, SeedType} from "../Model/DataModels";
+import {Furrows, Hole, Seed} from "../Model/DataModels";
 
 
 export class FarmlandManager {
@@ -63,7 +63,7 @@ export class FarmlandManager {
     return false;
   }
 
-  //If the furrows is reused his duration is extended beyond the crop maturity time
+  //If the furrows is reused it's duration is extended beyond the crop maturity time
   public ReUseFurrows = (furrows: Furrows, cropDuration: number) => {
     const guid = furrows.Id;
     if (guid) {
@@ -130,11 +130,13 @@ export class FarmlandManager {
 
   public BurySeedIntoHole = (hole: Hole, seed: Seed, server:ZoneServer2016) =>
   {
+    if(!hole.Id) return;
     let guid = server.generateGuid();
-    let transientId = server.getTransientId(seed.Guid);
+    let transientId = server.getTransientId(hole.Id);
     let seedQU = Euler2Quaternion(hole.Rotation.Yaw,hole.Rotation.Pitch,hole.Rotation.Roll);
     let obj = {
-      characterId: seed.Guid,
+      //the model is for the object inside hole. so use hole guid
+      characterId: hole.Id,
       guid: guid,
       transientId: transientId,
       modelId: 9163,
@@ -144,7 +146,7 @@ export class FarmlandManager {
       color: {},
       attachedObject: {},
     };
-    server._temporaryObjects[seed.Guid] = obj;
+    server._temporaryObjects[hole.Id] = obj;
     server.sendDataToAll("AddLightweightNpc", obj);
   }
 
@@ -159,60 +161,6 @@ export class FarmlandManager {
     return true;
   }
 
-  public SowSeedTest(client: Client, server: ZoneServer2016, itemDefinitionId: number): boolean {
-    if (!SeedType[itemDefinitionId]) {
-      console.warn('it is not a valid seed item id');
-      return false;
-    }
-    let sightPoint = FarmlandManager.calcLookAtPosition(client);
-    if (sightPoint) {
-      let fs = this.searchTiledFurrowsListAroundPosition(client.character.characterId, sightPoint, 0.2);
-      // console.log('around furrows:', fs);
-      if (fs.length > 0) {
-        let bestFurrows: any;
-        let bestHole;
-        // let bestHoleIndexOfFurrows : any;
-        //get best hole
-        for (const f of fs) {
-          for (const hole of f.Holes) {
-            if (!hole.InsideSeed) {
-              bestFurrows = <Furrows>f;
-              bestHole = hole;
-              // bestHoleIndexOfFurrows = f.Holes.indexOf(hole);
-              break;
-            }
-          }
-          if (bestHole) {
-            break;
-          }
-        }
-        //get best hole pos
-        //360deg is Math.PI*2;
-        //in h1z1 world,
-        //45 = -Math.PI/4
-        //135 = -Math.PI/4*3
-        //225 = Math.PI/4*3
-        //315 = Math.PI/4
-        if (bestFurrows && bestHole) {
-          // let seedPosRot = MoveToByParent(bestFurrows.Position, bestFurrows.Rotation,
-          //     new Euler(-Math.PI/4+(-Math.PI/2*bestHoleIndexOfFurrows),0,0),
-          //     0.4);
-          // console.warn('播种到:',bestHoleIndexOfFurrows+1);
-          // console.log('best furrows pos:', bestFurrows.Position);
-          // console.log('best furrows rot:', bestFurrows.Rotation);
-          // console.log('seed pos:', seedPosRot.NewPos);
-          // this.placeSeedOrCrop(seedPosRot.NewPos,
-          //     //same as parent rot,but use new pos
-          //     bestFurrows.Rotation
-          //     ,9163,server);
-          //     bestHole.InsideSeed = new Seed(itemId,Date.now());
-          //     return true;
-        }
-      }
-    }
-    return false;
-  }
-
   private simulateCreateHoles = (destFurrows: Furrows): void => {
     for (let i = 0; i < 4; i++) {
       let seedPosRot = MoveToByParent(destFurrows.Position, destFurrows.Rotation,
@@ -222,6 +170,7 @@ export class FarmlandManager {
       // console.log('best furrows pos:', bestFurrows.Position);
       // console.log('best furrows rot:', bestFurrows.Rotation);
       console.log('seed pos:', seedPosRot.NewPos);
+      seedPosRot.NewPos.W = 0;
       destFurrows.Holes.push(new Hole(null, null, seedPosRot.NewPos, seedPosRot.NewRot, 0));
     }
   }

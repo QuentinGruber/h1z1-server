@@ -1,7 +1,7 @@
 import {CropsPile, CropsPileStatus, Hole, Seed} from "../Model/DataModels";
 import {ZoneClient2016} from "../../../classes/zoneclient";
 import {ZoneServer2016} from "../../../zoneserver";
-import {Euler, GrowthScript, PlantingSetting, Stage, Vector4} from "../Model/TypeModels";
+import {GrowthScript, PlantingSetting, Stage} from "../Model/TypeModels";
 import {Euler2Quaternion} from "../Utils";
 
 const defaultTestGrowthScripts: GrowthScript =
@@ -175,14 +175,14 @@ export class GrowingManager {
       //sapling
       if (destStage.StageName == CropsPileStatus.Sapling.toString() && hole.InsideSeed) {
         hole.InsideCropsPile = new CropsPile(hole.InsideSeed, CropsPileStatus.Sapling);
-        this.changeModel(server, hole, hole.InsideSeed.Guid, destStage.NewModelId);
+        this.changeHoleInsideObjModel(server, hole, destStage.NewModelId);
         hole.InsideSeed = null;
         console.log('种子已发芽', hole.GetInsideObject());
       }
       //growing
       else if (destStage.StageName == CropsPileStatus.Growing.toString() && hole.InsideCropsPile) {
         hole.InsideCropsPile.Status = CropsPileStatus.Growing;
-        this.changeModel(server, hole, hole.InsideCropsPile.Guid, destStage.NewModelId);
+        this.changeHoleInsideObjModel(server, hole, destStage.NewModelId);
         console.log('种子已成长', hole.GetInsideObject())
       }
       //grown
@@ -199,7 +199,7 @@ export class GrowingManager {
             this.createLootAbleCropsPiles(client, server, hole, destStage.NewModelId, current.ItemDefinitionId, current.Count);
           }
         }
-        this.removeModel(server, hole.InsideCropsPile.Guid);
+        this.removeHoleInsideObjModel(server, hole);
 
         console.log('种子已成熟', hole.GetInsideObject());
 
@@ -228,28 +228,30 @@ export class GrowingManager {
     this._stageTimers[guid] = {timer: timer, destStage: destStage, srcStage: srcStage, scriptName: scriptName};
     return true;
   }
-  private changeModel = (server: ZoneServer2016, hole: Hole, srcGuid: string, newModelId: number) => {
+  private changeHoleInsideObjModel = (server: ZoneServer2016, hole: Hole, newModelId: number) => {
+    if(!hole.Id) return;
     //remove
     server.sendDataToAllWithSpawnedTemporaryObject(
-      srcGuid,
+      hole.Id,
       "Character.RemovePlayer",
       {
-        characterId: srcGuid,
+        characterId: hole.Id,
       }
     );
-    delete server._temporaryObjects[srcGuid];
+    delete server._temporaryObjects[hole.Id];
     //add
-    GrowingManager.placeCropModel(hole.Position, hole.Rotation, newModelId, server);
+    GrowingManager.placeCropModel(hole, newModelId, server);
   }
-  private removeModel = (server: ZoneServer2016, srcGuid: string): void => {
+  private removeHoleInsideObjModel = (server: ZoneServer2016, hole:Hole): void => {
+    if(!hole.Id) return;
     server.sendDataToAllWithSpawnedTemporaryObject(
-      srcGuid,
+      hole.Id,
       "Character.RemovePlayer",
       {
-        characterId: srcGuid,
+        characterId: hole.Id,
       }
     );
-    delete server._temporaryObjects[srcGuid];
+    delete server._temporaryObjects[hole.Id];
   }
   private createLootAbleCropsPiles = (client: ZoneClient2016, server: ZoneServer2016, hole: Hole, modelId: number, itemDefinitionId: number, count: number) => {
     let qu = Euler2Quaternion(hole.Rotation.Yaw, hole.Rotation.Pitch, hole.Rotation.Roll);
@@ -275,11 +277,12 @@ export class GrowingManager {
     console.log('loot able crops created:', itemDefinitionId, count);
   }
 
-  private static placeCropModel(pos: Vector4, rot: Euler, modelId: number, server: ZoneServer2016): boolean {
-    let characterId = server.generateGuid();
+  private static placeCropModel(hole:Hole, modelId: number, server: ZoneServer2016): boolean {
+    let characterId = hole.Id;
+    if (!characterId) return false;
     let guid = server.generateGuid();
     let transientId = server.getTransientId(guid);
-    let seedQU = Euler2Quaternion(rot.Yaw, rot.Pitch, rot.Roll);
+    let seedQU = Euler2Quaternion(hole.Rotation.Yaw, hole.Rotation.Pitch, hole.Rotation.Roll);
     //add to server dataset
     let obj = {
       characterId: characterId,
@@ -287,7 +290,7 @@ export class GrowingManager {
       transientId: transientId,
       modelId: modelId,
       //9191 9190 9189,59 60 61 is wheat and corn sapling growing grown status model
-      position: new Float32Array([pos.Z, pos.Y + 0.05, pos.X]),
+      position: new Float32Array([hole.Position.Z, hole.Position.Y, hole.Position.X, hole.Position.W]),
       //client calc order like below:
       //if like [z,y,x] structure,calc order is: first rot y second rot z and third rot x.
       //y=yaw z=pitch and x=roll
