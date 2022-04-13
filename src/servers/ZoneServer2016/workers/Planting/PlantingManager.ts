@@ -11,6 +11,7 @@ const defaultPlantingSetting: PlantingSetting =
         DefaultFurrowsDuration: 3600000,
         DefaultFertilizerDuration: 10800000,
         FertilizerAcceleration: 2,
+        FertilizerActionRadius:1,
         GrowthScripts:{}
     }
 
@@ -29,13 +30,14 @@ export class PlantingManager {
     }
 
     //now it's just simple placement,auto find sight point around furrows and holes
-    public SowSeed(client: Client, server: ZoneServer2016, itemId: number) {
+    public SowSeed(client: Client, server: ZoneServer2016, itemDefinitionId: number, itemGuid:string) {
         let sRet = false;
-        let f = this._farmlandManager.SimulateGetSightPointSowAbleFurrows(client);
+        let f = this._farmlandManager.SimulateGetSurroundingSowAbleFurrows(client,false);
         if (f) {
             for (const hole of f.Holes) {
                 if (!hole.InsideSeed && !hole.InsideCropsPile) {
-                    let seed = new Seed(itemId, Date.now());
+                    let seed = new Seed(itemDefinitionId, Date.now(), itemGuid);
+                    this._farmlandManager.BurySeedIntoHole(hole,seed,server);
                     sRet = this._growManager.StartCultivating(client, server, hole, seed);
                     if (sRet) {
                         this._farmlandManager.ReUseFurrows(f, seed.TimeToGrown);
@@ -47,10 +49,8 @@ export class PlantingManager {
         server.sendChatText(client, `swing seed has been${sRet ? ' succeeded' : ' failed'}`);
     }
 
-    public Is
-
     public FertilizeCrops(client: Client, server: ZoneServer2016) {
-        let holes = this._farmlandManager.GetSurroundingFertilizeAbleHoles(client, 1);
+        let holes = this._farmlandManager.GetSurroundingFertilizeAbleHoles(client, this._setting.FertilizerActionRadius);
         if (!holes.length) {
             console.log('No surrounding holes for fertilization');
             return;

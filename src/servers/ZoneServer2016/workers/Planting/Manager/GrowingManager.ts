@@ -121,7 +121,6 @@ export class GrowingManager {
           return false;
         let firstStage = script.Stages[stagesKeys[0]];
         hole.InsideSeed = seed;
-        GrowingManager.placeSeedOrCrop(hole.Position, hole.Rotation, seed.Type, server);
         return this.grow2Stage(client, server, hole, seed.Name, null, firstStage);
       }
     }
@@ -240,7 +239,7 @@ export class GrowingManager {
     );
     delete server._temporaryObjects[srcGuid];
     //add
-    GrowingManager.placeSeedOrCrop(hole.Position, hole.Rotation, newModelId, server);
+    GrowingManager.placeCropModel(hole.Position, hole.Rotation, newModelId, server);
   }
   private removeModel = (server: ZoneServer2016, srcGuid: string): void => {
     server.sendDataToAllWithSpawnedTemporaryObject(
@@ -276,7 +275,7 @@ export class GrowingManager {
     console.log('loot able crops created:', itemDefinitionId, count);
   }
 
-  private static placeSeedOrCrop(pos: Vector4, rot: Euler, modelId: number, server: ZoneServer2016): boolean {
+  private static placeCropModel(pos: Vector4, rot: Euler, modelId: number, server: ZoneServer2016): boolean {
     let characterId = server.generateGuid();
     let guid = server.generateGuid();
     let transientId = server.getTransientId(guid);

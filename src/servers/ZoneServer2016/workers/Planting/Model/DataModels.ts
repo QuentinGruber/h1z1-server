@@ -59,9 +59,8 @@ export interface ObjectInHole
 }
 export class Seed implements ObjectInHole {
   public Name: string;
-  public Guid:string;
   public TimeToGrown:number;
-  constructor(public Type: SeedType, public SwingTime: number) {
+  constructor(public Type: SeedType, public SwingTime: number, public Guid:string) {
     switch (this.Type) {
       case SeedType.Wheat:
       case SeedType.Wheat2:
@@ -75,7 +74,7 @@ export class Seed implements ObjectInHole {
         this.TimeToGrown = 30000;
         break;
     }
-    this.Guid = getGuidStr();
+    // this.Guid = getGuidStr();
   }
 }
 

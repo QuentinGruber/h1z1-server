@@ -223,7 +223,7 @@ const Test8 = () => {
   let m = new PlantingManager(null);
   m.Reclaim(client, server);
   for (let i = 0; i < 1; i++) {
-    m.SowSeed(client, server, SeedType.Corn);
+    m.SowSeed(client, server, SeedType.Corn, server.generateGuid());
   }
 }
 

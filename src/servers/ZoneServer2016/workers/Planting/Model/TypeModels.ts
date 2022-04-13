@@ -132,5 +132,6 @@ export interface PlantingSetting
     DefaultFurrowsDuration: number,
     DefaultFertilizerDuration: number,
     FertilizerAcceleration: number,
+    FertilizerActionRadius: number,
     GrowthScripts:GrowthScript,
 }

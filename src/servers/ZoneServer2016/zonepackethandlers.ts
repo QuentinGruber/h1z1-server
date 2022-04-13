@@ -1830,12 +1830,12 @@ export class zonePacketHandlers {
           break;
           //Corn Seed
         case 1987:
-          server.plantingManager.SowSeed(client,server,1987);
+          server.plantingManager.SowSeed(client,server,1987, item.itemGuid);
           server.removeInventoryItem(client, item);
           break;
           //Wheat Seed
         case 1988:
-          server.plantingManager.SowSeed(client,server,1988);
+          server.plantingManager.SowSeed(client,server,1988, item.itemGuid);
           server.removeInventoryItem(client, item);
           break;
         default:
