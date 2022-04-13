@@ -4,8 +4,6 @@ import {GrowingManager} from "./Manager/GrowingManager";
 import {ZoneServer2016} from "../../zoneserver";
 import {Furrows, Seed} from "./Model/DataModels";
 import {PlantingSetting} from "./Model/TypeModels";
-import {inventoryItem} from "../../../../types/zoneserver";
-import {generateRandomGuid} from "../../../../utils/utils";
 
 const defaultPlantingSetting: PlantingSetting =
     {
@@ -29,58 +27,6 @@ export class PlantingManager {
         let reclaimRet = this._farmlandManager.Reclaim(client, server);
         server.sendChatText(client, `reclaim the ground has been${reclaimRet ? ' succeeded' : ' failed'}`);
     }
-    test(server:ZoneServer2016,client:Client)
-    {
-        let rotation = [0,0,0,0];
-        const cid = generateRandomGuid();
-        const guid = generateRandomGuid();
-        const obj = {
-            characterId: cid,
-            guid: guid,
-            transientId: server.getTransientId(cid),
-            modelId: 61,
-            position: Array.from(client.character.state.position),
-            rotation: rotation,
-            color: {r: 0, g: 0, b: 255},
-            scale: new Float32Array([1.5, 1.5, 1.5, 1]),
-            spawnerId: 107||0,
-            item: server.generateItem(107, 4),
-            npcRenderDistance: 25,
-        };
-        server._objects[cid] = obj;
-        // server.spawnObjects(client);
-        server.sendDataToAll("AddLightweightNpc", obj);
-        if (107) server.worldObjectManager._spawnedObjects[107] = cid;
-        // console.log('loot able crops created:', itemDefinitionId, count);
-    }
-    createLootEntity(
-        // todo: clean this up
-        server: ZoneServer2016,
-        item: inventoryItem | undefined,
-        modelId:number,
-        position: Array<number>,
-        rotation: Array<number>,
-        renderDistance: number,
-        itemSpawnerId: number = -1
-    ): void {
-        const guid = generateRandomGuid(),
-            characterId = generateRandomGuid();
-        server._objects[characterId] = {
-            characterId: characterId,
-            guid: guid,
-            transientId: server.getTransientId(characterId),
-            modelId: modelId,
-            position: position,
-            rotation: rotation,
-            scale:[2,2,2,2],
-            color: { r: 0, g: 0, b: 255 },
-            spawnerId: itemSpawnerId || 0,
-            item: item,
-            npcRenderDistance: renderDistance,
-        };
-        server.sendDataToAll("AddLightweightNpc", server._objects[characterId]);
-        if (itemSpawnerId) server.worldObjectManager._spawnedObjects[itemSpawnerId] = characterId;
-    }
 
     //now it's just simple placement,auto find sight point around furrows and holes
     public SowSeed(client: Client, server: ZoneServer2016, itemId: number) {
@@ -100,6 +46,8 @@ export class PlantingManager {
         }
         server.sendChatText(client, `swing seed has been${sRet ? ' succeeded' : ' failed'}`);
     }
+
+    public Is
 
     public FertilizeCrops(client: Client, server: ZoneServer2016) {
         let holes = this._farmlandManager.GetSurroundingFertilizeAbleHoles(client, 1);
