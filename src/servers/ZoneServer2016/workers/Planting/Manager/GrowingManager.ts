@@ -32,7 +32,7 @@ const defaultTestGrowthScripts: GrowthScript =
                                     Name: 'Corn', LootAble: true, ModelId: 0, Count: 4, ItemDefinitionId: 107
                                 },
                                 {
-                                    Name: 'Corn Seed', ItemDefinitionId: 1417, Count: 2, ModelId: 0, LootAble: true
+                                    Name: 'Corn Seed', ItemDefinitionId: 1987, Count: 2, ModelId: 0, LootAble: true
                                 },
                                 {
                                     Name: 'Dried Corn Seeds',
@@ -251,7 +251,7 @@ export class GrowingManager {
         let rotation = [qu.Z, qu.Y, qu.X, qu.W];
         let cid = server.generateGuid();
         let guid = server.generateGuid();
-        let obj = {
+        const obj = {
             characterId: cid,
             guid: guid,
             transientId: server.getTransientId(cid),
@@ -260,16 +260,15 @@ export class GrowingManager {
             rotation: rotation,
             color: {r: 0, g: 0, b: 255},
             scale: new Float32Array([1.5, 1.5, 1.5, 1]),
-            spawnerId: -1,
+            spawnerId: itemDefinitionId,
             item: server.generateItem(itemDefinitionId, count),
             npcRenderDistance: 15,
         };
-        server._objects[guid] = obj;
+        server._objects[cid] = obj;
         // server.spawnObjects(client);
         server.sendDataToAll("AddLightweightNpc", obj);
         console.log('loot able crops created:', itemDefinitionId, count);
     }
-
     private static placeSeedOrCrop(pos: Vector4, rot: Euler, modelId: number, server: ZoneServer2016): boolean {
         let characterId = server.generateGuid();
         let guid = server.generateGuid();
