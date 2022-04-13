@@ -635,6 +635,100 @@ export class ZoneServer2016 extends EventEmitter {
       characterId: client.character.characterId,
       containers: containers,
     });
+
+    // testing
+    this.sendData(client, "ReferenceData.WeaponDefinitions", {
+      data: {
+        definitionsData: {/*
+          unknownArray1: [
+            {
+              ID: 1389,
+              unknownData1: {
+                unknownDword1: 1389
+              }
+            },
+            {
+              ID: 12,
+              unknownData1: {
+                unknownDword1: 12
+              }
+            }
+          ],
+          unknownArray2: [
+            {
+              ID: 1389,
+              unknownData1: {
+                unknownDword1: 1389
+              }
+            },
+            {
+              ID: 12,
+              unknownData1: {
+                unknownDword1: 12
+              }
+            }
+          ],
+          unknownArray3: [
+            {
+              ID: 1389,
+              unknownData1: {
+                unknownDword1: 1389
+              }
+            },
+            {
+              ID: 12,
+              unknownData1: {
+                unknownDword1: 12
+              }
+            }
+          ],
+          unknownArray4: [
+            {
+              ID: 1389,
+              unknownData1: {
+                unknownDword1: 1389
+              }
+            },
+            {
+              ID: 12,
+              unknownData1: {
+                unknownDword1: 12
+              }
+            }
+          ],
+          unknownArray5: [
+            {
+              ID: 1389,
+              unknownData1: {
+                unknownDword1: 1389
+              }
+            },
+            {
+              ID: 12,
+              unknownData1: {
+                unknownDword1: 12
+              }
+            }
+          ],
+          unknownArray6: [
+            {
+              ID: 1389,
+              unknownData1: {
+                unknownDword1: 1389
+              }
+            },
+            {
+              ID: 12,
+              unknownData1: {
+                unknownDword1: 12
+              }
+            }
+          ],*/
+        }
+      }
+    });
+
+
     this._characters[client.character.characterId] = client.character; // character will spawn on other player's screen(s) at this point
   }
 

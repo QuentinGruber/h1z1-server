@@ -453,7 +453,7 @@ function packWeaponDefinitionData(obj: any) {
   let output = Buffer.alloc(LZ4.encodeBound(input.length));
   output = output.slice(0, LZ4.encodeBlock(input, output));
   compressionData.writeUInt32LE(output.length, 0);
-  compressionData.writeUInt32LE(data.length, 2);
+  compressionData.writeUInt32LE(data.length, 4);
   return Buffer.concat([compressionData, output]);
 }
 
@@ -480,11 +480,11 @@ export const referenceDataPackets: any = [
     {
       fields: [
         {
-          name: "definitionsData",
+          name: "data",
           type: "byteswithlength",
           fields: [
             {
-              name: "definitionData",
+              name: "definitionsData",
               type: "custom",
               packer: packWeaponDefinitionData,
             },
