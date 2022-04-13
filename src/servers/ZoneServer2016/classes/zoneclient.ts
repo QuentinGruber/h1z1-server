@@ -11,25 +11,70 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { ZoneClient } from "../../ZoneServer2015/classes/zoneclient";
 import { Character2016 } from "./character";
 
-export class ZoneClient2016 extends ZoneClient {
+export class ZoneClient2016 {
+  guid?: string;
   character: Character2016;
+  currentPOI?: number;
+  firstLoading: boolean = false;
+  isLoading: boolean = true;
+  isInteracting: boolean = false;
+  isAdmin: boolean = false;
+  posAtLastRoutine: Float32Array = new Float32Array();
+  posAtLogoutStart: Float32Array = new Float32Array();
+  hudTimer!: any;
+  spawnedDTOs: any[] = [];
+  spawnedEntities: any[] = [];
+  managedObjects: string[] = [];
+  vehicle: {
+    falling: number;
+    mountedVehicle?: string;
+    mountedVehicleType?: string;
+    mountedVehicleSeat?: number;
+    vehicleState: number;
+    vehicleSeat: number;
+  };
+  npcsToSpawn: any[] = [];
+  npcsToSpawnTimer!: NodeJS.Timeout;
+  loginSessionId: string;
+  pingTimer: NodeJS.Timeout | undefined;
+  savePositionTimer: any;
+  clearHudTimer: () => void;
+  clearTimers: () => void;
+  sessionId: number;
+  soeClientId: string;
   constructor(
     sessionId: number,
     soeClientId: string,
     loginSessionId: string,
     characterId: string,
-    generatedTransient: number
+    transientId: number
   ) {
-    super(
-      sessionId,
-      soeClientId,
-      loginSessionId,
-      characterId,
-      generatedTransient
-    );
-    this.character = new Character2016(characterId, generatedTransient);
+    this.sessionId = sessionId;
+    this.soeClientId = soeClientId;
+
+    this.isLoading = true;
+    this.firstLoading = true;
+    this.loginSessionId = loginSessionId;
+    this.vehicle = {
+      vehicleState: 0,
+      falling: -1,
+      vehicleSeat: 0,
+    };
+    this.spawnedEntities = [];
+    this.managedObjects = [];
+    this.clearTimers = () => {
+      clearTimeout(this.npcsToSpawnTimer);
+    };
+    this.clearHudTimer = () => {
+      clearTimeout(this.hudTimer);
+      this.hudTimer = null;
+      this.isInteracting = false;
+    };
+    this.character = new Character2016(
+      characterId, 
+      transientId
+      );
   }
 }

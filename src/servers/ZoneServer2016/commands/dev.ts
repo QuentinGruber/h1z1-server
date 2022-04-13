@@ -11,6 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { Npc } from "../classes/npc";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 
@@ -268,8 +269,8 @@ const dev: any = {
     let found = false;
     for (const v in server._vehicles) {
       console.log(server._vehicles[v]);
-      if (server._vehicles[v].npcData.modelId === parseInt(args[1])) {
-        location.position = server._vehicles[v].npcData.position;
+      if (server._vehicles[v].actorModelId === parseInt(args[1])) {
+        location.position = server._vehicles[v].state.position;
         server.sendData(client, "ClientUpdate.UpdateLocation", location);
         server.sendWeatherUpdatePacket(client, server._weather2016);
         found = true;
@@ -289,15 +290,15 @@ const dev: any = {
       return;
     }
     const location = {
-      position: [0, 80, 0, 1],
-      rotation: [0, 0, 0, 1],
+      position: new Float32Array([0, 80, 0, 1]),
+      rotation: new Float32Array([0, 0, 0, 1]),
       triggerLoadingScreen: true,
     };
     let found = false;
     for (const n in server._npcs) {
-      if (server._npcs[n].modelId === parseInt(args[1])) {
+      if (server._npcs[n].actorModelId === parseInt(args[1])) {
         console.log(server._npcs[n]);
-        location.position = server._npcs[n].position;
+        location.position = server._npcs[n].state.position;
         server.sendData(client, "ClientUpdate.UpdateLocation", location);
         server.sendWeatherUpdatePacket(client, server._weather2016);
         found = true;
@@ -368,72 +369,58 @@ const dev: any = {
     const backpack: any = server.generateItem(1602)?.itemGuid;
     server.equipItem(client, backpack);*/
     const objectCharacterId = server.generateGuid(),
-      npc = {
+      npc = new Npc(
+        objectCharacterId,
+        server.getTransientId(objectCharacterId),
+        9034,
+        client.character.state.position,
+        client.character.state.lookAt
+      )
+    npc.onReadyCallback = () => {
+      const item = server.generateItem(1504)?.itemGuid;
+      server.sendData(client, "ClientUpdate.ItemAdd", {
         characterId: objectCharacterId,
-        guid: server.generateGuid(),
-        transientId: 9999,
-        modelId: 9034,
-        position: [
-          client.character.state.position[0],
-          client.character.state.position[1],
-          client.character.state.position[2],
-        ],
-        rotation: [
-          client.character.state.rotation[0],
-          client.character.state.rotation[1],
-          client.character.state.rotation[2],
-          1,
-        ],
-        color: {},
-        unknownData1: { unknownData1: {} },
-        attachedObject: {},
-        npcRenderDistance: 80,
-        onReadyCallback: () => {
-          const item = server.generateItem(1504)?.itemGuid;
-          server.sendData(client, "ClientUpdate.ItemAdd", {
-            characterId: objectCharacterId,
-            data: {
-              itemDefinitionId: 1504,
-              tintId: 5,
-              guid: item,
-              count: 1, // also ammoCount
-              itemSubData: {
-                unknownBoolean1: false,
-              },
-              containerGuid: "0xFFFFFFFFFFFFFFFF",
-              containerDefinitionId: 28,
-              containerSlotId: 31,
-              baseDurability: 2000,
-              currentDurability: 2000,
-              maxDurabilityFromDefinition: 2000,
-              unknownBoolean1: true,
-              unknownQword3: client.character.characterId,
-              unknownDword9: 28,
-              unknownBoolean2: true,
-            },
-          });
-          server.sendData(client, "Loadout.SetLoadoutSlots", {
-            characterId: objectCharacterId,
-            loadoutId: 5,
-            loadoutData: {
-              loadoutSlots: [
-                {
-                  hotbarSlotId: 31, // affects Equip Item context entry packet, and Container.MoveItem
-                  loadoutId: 5,
-                  slotId: 31,
-                  loadoutItemData: {
-                    itemDefinitionId: 1504,
-                    loadoutItemOwnerGuid: item,
-                    unknownByte1: 255, // flags?
-                  },
-                  unknownDword4: 3,
-                },
-              ],
-            },
-            currentSlotId: 31,
-          });
+        data: {
+          itemDefinitionId: 1504,
+          tintId: 5,
+          guid: item,
+          count: 1, // also ammoCount
+          itemSubData: {
+            unknownBoolean1: false,
+          },
+          containerGuid: "0xFFFFFFFFFFFFFFFF",
+          containerDefinitionId: 28,
+          containerSlotId: 31,
+          baseDurability: 2000,
+          currentDurability: 2000,
+          maxDurabilityFromDefinition: 2000,
+          unknownBoolean1: true,
+          unknownQword3: client.character.characterId,
+          unknownDword9: 28,
+          unknownBoolean2: true,
         },
-      };
+      });
+      server.sendData(client, "Loadout.SetLoadoutSlots", {
+        characterId: objectCharacterId,
+        loadoutId: 5,
+        loadoutData: {
+          loadoutSlots: [
+            {
+              hotbarSlotId: 31, // affects Equip Item context entry packet, and Container.MoveItem
+              loadoutId: 5,
+              slotId: 31,
+              loadoutItemData: {
+                itemDefinitionId: 1504,
+                loadoutItemOwnerGuid: item,
+                unknownByte1: 255, // flags?
+              },
+              unknownDword4: 3,
+            },
+          ],
+        },
+        currentSlotId: 31,
+      });
+    };
     const item: any = server.generateItem(2425)?.itemGuid; /*,
       containerGuid = server.generateGuid(),
       containers = [
@@ -498,11 +485,11 @@ const dev: any = {
           items: [
             {
               item: {
-                itemDefinitionId: server._items[item].itemDefinitionId,
+                //itemDefinitionId: server._items[item].itemDefinitionId,
                 itemData: {
-                  itemDefinitionId: server._items[item].itemDefinitionId,
+                  //itemDefinitionId: server._items[item].itemDefinitionId,
                   itemData: {
-                    itemDefinitionId: server._items[item].itemDefinitionId,
+                    //itemDefinitionId: server._items[item].itemDefinitionId,
                     tintId: 1,
                     guid: item,
                     count: 92,
@@ -555,9 +542,9 @@ const dev: any = {
     server.sendData(client, "ClientUpdate.ProximateItems", {
       items: [
         {
-          itemDefinitionId: server._items[item].itemDefinitionId,
+          //itemDefinitionId: server._items[item].itemDefinitionId,
           itemData: {
-            itemDefinitionId: server._items[item].itemDefinitionId,
+            //itemDefinitionId: server._items[item].itemDefinitionId,
             tintId: 43,
             guid: item,
             count: 44,
@@ -584,36 +571,6 @@ const dev: any = {
         },
       ],
     });
-  },
-  spawnsimplenpc: function (
-    server: ZoneServer2016,
-    client: Client,
-    args: any[]
-  ) {
-    const characterId = server.generateGuid();
-    const transientId = server.getTransientId(characterId);
-    if (!args[1]) {
-      server.sendChatText(client, "[ERROR] You need to specify a model id !");
-      return;
-    }
-    if (!args[3]) {
-      server.sendChatText(client, "Missing 2 byte values");
-      return;
-    }
-    const choosenModelId = Number(args[1]);
-    const obj = {
-      characterId: characterId,
-      transientId: transientId,
-      position: [
-        client.character.state.position[0],
-        client.character.state.position[1],
-        client.character.state.position[2],
-      ],
-      modelId: choosenModelId,
-      showHealth: Number(args[2]),
-      unknownDword4: Number(args[3]),
-    };
-    server._objects[characterId] = obj; // save npc
   },
   /*
     proxiedobjects: function(server: ZoneServer2016, client: Client, args: any[]) {
