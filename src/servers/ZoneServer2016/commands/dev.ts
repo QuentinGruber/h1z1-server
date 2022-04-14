@@ -14,6 +14,7 @@
 import { Npc } from "../classes/npc";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
+import { NormanTest } from '../workers/Planting/Test';
 
 const debug = require("debug")("zonepacketHandlers");
 
@@ -593,6 +594,20 @@ const dev: any = {
       });
     }
     */
+  norman : function (server: ZoneServer2016, client: Client, args: any[]) {
+    if (!args[1])
+    {
+      server.sendChatText(client, "missing sub command");
+    }
+    const cmd = args[1].toLowerCase();
+    switch (cmd)
+    {
+      //show sight line
+      case 'sight':
+        NormanTest.Test10(client,server);
+        break;
+    }
+  }
 };
 
 export default dev;
