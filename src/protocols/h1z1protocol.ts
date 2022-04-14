@@ -78,7 +78,7 @@ export class H1Z1Protocol {
 
   createPositionBroadcast(rawData: Buffer, transientId: number): Buffer {
     const tId = packUnsignedIntWith2bitLengthValue(transientId);
-    return Buffer.concat([new Uint8Array([120]), tId, rawData]); // why 120 ? i don't remember
+    return Buffer.concat([new Uint8Array([120]), tId, rawData]); 
   }
 
   createPositionBroadcast2016(rawData: Buffer, transientId: number): Buffer {

@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { achievementDataSchema, objectiveDataSchema } from "./shared";
+import { achievementSchema, objectiveSchema } from "./shared";
 
 export const achievementPackets: any = [
   [
@@ -23,7 +23,7 @@ export const achievementPackets: any = [
         {
           name: "achievementData",
           type: "schema",
-          fields: objectiveDataSchema,
+          fields: objectiveSchema,
         },
       ],
     },
@@ -37,7 +37,7 @@ export const achievementPackets: any = [
           name: "clientAchievements",
           type: "array",
           defaultValue: [{}],
-          fields: achievementDataSchema,
+          fields: achievementSchema,
         },
         {
           name: "achievementData",
@@ -47,7 +47,7 @@ export const achievementPackets: any = [
               name: "achievements",
               type: "array",
               defaultValue: [{}],
-              fields: achievementDataSchema,
+              fields: achievementSchema,
             },
           ],
         },

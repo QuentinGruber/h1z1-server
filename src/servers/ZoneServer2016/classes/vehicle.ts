@@ -11,8 +11,13 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { Vehicle } from "../../ZoneServer2015/classes/vehicle";
 import { createPositionUpdate } from "../../../utils/utils";
+import { ResourceIds } from "../enums";
+import {
+  positionUpdate,
+  passengers
+} from "../../../types/zoneserver"
+import { BaseFullCharacter } from "./basefullcharacter";
 
 function getVehicleId(ModelId: number) {
   switch (ModelId) {
@@ -33,24 +38,48 @@ function getVehicleId(ModelId: number) {
   }
 }
 
-export class Vehicle2016 extends Vehicle {
+export class Vehicle2016 extends BaseFullCharacter {
+  isManaged: boolean = false;
+  manager?: any;
+  destroyedEffect: number = 0;
+  engineOn: boolean = false;
+  isLocked: number = 0;
+  positionUpdate: positionUpdate;
+  fuelUpdater: any;
+  isInvulnerable: boolean = false;
+  onDismount?: any;
+  resourcesUpdater?: any;
+  damageTimeout?: any;
   vehicleManager?: string;
   seats: { [seatId: string]: any } = {};
+  passengers: passengers = {};
   gameTime: number;
+  vehicleId: number
+  destroyedState = 0;
+  positionUpdateType = 1;
+  loadoutId = 5; // vehicle (need to confirm)
   constructor(
-    worldId: number,
     characterId: string,
     transientId: number,
-    modelId: number,
+    actorModelId: number,
     position: Float32Array,
     rotation: Float32Array,
     gameTime: number
   ) {
-    super(worldId, characterId, transientId, modelId, position, rotation);
-    this.npcData.vehicleId = getVehicleId(modelId);
+    super(characterId, transientId, actorModelId, position, rotation);
+    this._resources = { 
+      [ResourceIds.CONDITION]: 100000, 
+      [ResourceIds.FUEL]: 7590 
+    };
+    this.state = {
+      position: position,
+      rotation: rotation,
+      lookAt: new Float32Array([0, 0, 0, 1]),
+    }
+    this.vehicleId = getVehicleId(this.actorModelId);
     this.isInvulnerable =
-      this.npcData.vehicleId == 1337 || this.npcData.vehicleId == 13;
-    switch (this.npcData.vehicleId) {
+      this.vehicleId == 1337 || this.vehicleId == 13;
+    switch (this.vehicleId) {
       case 1: // offroader
       case 2: // pickup
       case 3: // policecar
@@ -77,8 +106,8 @@ export class Vehicle2016 extends Vehicle {
     Object.seal(this.seats); // object can't be edited, but properties can
     this.gameTime = gameTime;
     this.positionUpdate = createPositionUpdate(
-      this.npcData.position,
-      this.npcData.rotation,
+      this.state.position,
+      this.state.rotation,
       this.gameTime
     );
   }
@@ -109,5 +138,42 @@ export class Vehicle2016 extends Vehicle {
       }
     }
     return passengers;
+  }
+
+  pGetLightweightVehicle() {
+    return {
+      npcData: {
+        ...this.pGetLightweight(),
+        position: this.positionUpdate.position || this.state.position,
+        vehicleId: this.vehicleId,
+      },
+      positionUpdate: this.positionUpdate
+    }
+  }
+  pGetFullVehicle() {
+    return {
+      npcData: {
+        ...this.pGetFull()
+      },
+      positionUpdate: this.positionUpdate,
+      unknownArray1: [],
+      unknownArray2: [],
+      unknownArray3: [],
+      unknownArray4: [],
+      unknownArray5: [
+        {
+          unknownData1: {
+            unknownData1: {},
+          },
+        },
+      ],
+      unknownArray6: [],
+      unknownArray7: [],
+      unknownArray8: [
+        {
+          unknownArray1: [],
+        },
+      ],
+    }
   }
 }

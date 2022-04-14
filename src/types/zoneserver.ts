@@ -427,8 +427,22 @@ export interface passengers {
 }
 
 export interface positionUpdate {
-  position?: any;
+  flags?: number;
+  sequenceTime?: number;
+  unknown3_int8?: number;
+  stance?: number;
+  position?: Array<number>;
   orientation?: any;
+  frontTilt?: number;
+  sideTilt?: number;
+  angleChange?: number;
+  verticalSpeed?: number;
+  horizontalSpeed?: number;
+  unknown12_float?: number;
+  rotation?: any;
+  rotationRaw?: any;
+  lookAt?: Array<number>;
+  direction?: any;
   engineRPM?: any;
 }
 

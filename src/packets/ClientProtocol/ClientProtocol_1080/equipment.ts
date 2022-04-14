@@ -12,8 +12,8 @@
 // ======================================================================
 
 import {
-  attachmentDataSchema,
-  equipmentCharacterDataSchema,
+  attachmentSchema,
+  equipmentCharacterSchema,
   equipmentSlotSchema,
 } from "./shared";
 
@@ -26,7 +26,7 @@ export const equipmentPackets: any = [
         {
           name: "characterData",
           type: "schema",
-          fields: equipmentCharacterDataSchema,
+          fields: equipmentCharacterSchema,
         },
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "unknownString1", type: "string", defaultValue: "" },
@@ -41,7 +41,7 @@ export const equipmentPackets: any = [
           name: "attachmentData",
           type: "array",
           defaultValue: [],
-          fields: attachmentDataSchema,
+          fields: attachmentSchema,
         },
       ],
     },
@@ -54,7 +54,7 @@ export const equipmentPackets: any = [
         {
           name: "characterData",
           type: "schema",
-          fields: equipmentCharacterDataSchema,
+          fields: equipmentCharacterSchema,
         },
         {
           name: "equipmentSlot",
@@ -64,7 +64,7 @@ export const equipmentPackets: any = [
         {
           name: "attachmentData",
           type: "schema",
-          fields: attachmentDataSchema,
+          fields: attachmentSchema,
         },
       ],
     },
@@ -77,7 +77,7 @@ export const equipmentPackets: any = [
         {
           name: "characterData",
           type: "schema",
-          fields: equipmentCharacterDataSchema,
+          fields: equipmentCharacterSchema,
         },
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "slotId", type: "uint32", defaultValue: 0 },
@@ -92,7 +92,7 @@ export const equipmentPackets: any = [
         {
           name: "characterData",
           type: "schema",
-          fields: equipmentCharacterDataSchema,
+          fields: equipmentCharacterSchema,
         },
         { name: "gameTime", type: "uint32", defaultValue: 0 },
         {
@@ -117,7 +117,7 @@ export const equipmentPackets: any = [
           name: "attachmentData",
           type: "array",
           defaultValue: [],
-          fields: attachmentDataSchema,
+          fields: attachmentSchema,
         },
       ],
     },
