@@ -162,8 +162,8 @@ export class FarmlandManager {
     }
 
     public IsSeedOrCropsInHole = (itemGuid: string): Hole | null => {
-        Object.keys(this._charactersFurrows).forEach((k) => {
-            for (const f of this._charactersFurrows[k]) {
+        for (const cid of Object.keys(this._charactersFurrows)) {
+            for (const f of this._charactersFurrows[cid]) {
                 for (const hole of f.Holes) {
                     if (
                         (hole.InsideSeed && hole.InsideSeed.Guid == itemGuid) ||
@@ -173,7 +173,7 @@ export class FarmlandManager {
                     }
                 }
             }
-        });
+        }
         return null;
     }
 
