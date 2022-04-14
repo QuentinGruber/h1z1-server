@@ -191,6 +191,7 @@ export class ZoneServer2016 extends EventEmitter {
     });
     this.worldObjectManager = new WorldObjectManager();
     this.plantingManager = new PlantingManager(null);
+    
     if (!this._mongoAddress) {
       this._soloMode = true;
       debug("Server in solo mode !");
@@ -1352,7 +1353,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendDataToAllWithSpawnedEntity(
       this._characters,
       client.character.characterId,
-      "ResourceEvent",
+      "ResourceEvent", 
       {
         eventData: {
           type: 3,
@@ -2180,7 +2181,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendDataToAllWithSpawnedEntity(
         this._characters,
         client.character.characterId,
-        "Vehicle.Owner",
+        "Vehicle.Owner", 
         {
           guid: vehicle.characterId,
           characterId: client.character.characterId,
@@ -2380,8 +2381,8 @@ export class ZoneServer2016 extends EventEmitter {
 
   updateEquipment(client: Client, character = client.character) {
     this.sendData(
-      client,
-      "Equipment.SetCharacterEquipment",
+      client, 
+      "Equipment.SetCharacterEquipment", 
       character.pGetEquipment()
     );
   }
@@ -2765,7 +2766,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendDataToAllWithSpawnedEntity(
       this._characters,
       client.character.characterId,
-      "Equipment.UnsetCharacterEquipmentSlot",
+      "Equipment.UnsetCharacterEquipmentSlot", 
       {
         characterData: {
           characterId: client.character.characterId,
@@ -2932,7 +2933,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!item) return;
     const itemDefId = item.itemDefinitionId,
     itemDef = this.getItemDefinition(itemDefId);
-    if (itemDef.FLAG_CAN_EQUIP &&
+    if (itemDef.FLAG_CAN_EQUIP && 
     this.getAvailableLoadoutSlot(client.character, itemDefId)
     ) {
       this.sendData(client, "Reward.AddNonRewardItem", {
@@ -3450,15 +3451,15 @@ export class ZoneServer2016 extends EventEmitter {
     client.character._resources[ResourceIds.HUNGER] += eatCount;
     client.character._resources[ResourceIds.HYDRATION] += drinkCount;
     this.updateResource(
-      client,
-      client.character.characterId,
-      client.character._resources[ResourceIds.HUNGER],
+      client, 
+      client.character.characterId, 
+      client.character._resources[ResourceIds.HUNGER], 
       ResourceIds.HUNGER
     );
     this.updateResource(
-      client,
-      client.character.characterId,
-      client.character._resources[ResourceIds.HYDRATION],
+      client, 
+      client.character.characterId, 
+      client.character._resources[ResourceIds.HYDRATION], 
       ResourceIds.HYDRATION
     );
     if (givetrash) {
@@ -3477,15 +3478,15 @@ export class ZoneServer2016 extends EventEmitter {
     client.character._resources[ResourceIds.HUNGER] += eatCount;
     client.character._resources[ResourceIds.HYDRATION] += drinkCount;
     this.updateResource(
-      client,
-      client.character.characterId,
-      client.character._resources[ResourceIds.HUNGER],
-      ResourceIds.HUNGER,
+      client, 
+      client.character.characterId, 
+      client.character._resources[ResourceIds.HUNGER], 
+      ResourceIds.HUNGER, 
     );
     this.updateResource(
-      client,
-      client.character.characterId,
-      client.character._resources[ResourceIds.HYDRATION],
+      client, 
+      client.character.characterId, 
+      client.character._resources[ResourceIds.HYDRATION], 
       ResourceIds.HYDRATION
     );
     if (givetrash) {
