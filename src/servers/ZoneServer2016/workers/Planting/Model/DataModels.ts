@@ -41,12 +41,15 @@ export class Hole {
     return this.InsideCropsPile? this.InsideCropsPile:this.InsideSeed;
   }
   public LastFertilizeTime?:number;
+  //also as spawnerId
+  public CreateTime:number;
   constructor(public InsideSeed: Seed | null,
               public InsideCropsPile: CropsPile | null,
               public Position: Vector4,
               public Rotation: Euler,
               public FertilizerDuration:number,
               public Id:string) {
+    this.CreateTime = Date.now();
   }
 }
 
@@ -102,10 +105,8 @@ export class CropsPile implements ObjectInHole {
   get Name(){
     return this.EmbryoSeed.Name + ' ' + this.Status.toString();
   }
-  public Guid:string;
   public LootAbleProducts:LootAbleProduct[];
-  constructor(public EmbryoSeed: Seed, public Status: CropsPileStatus) {
-    this.Guid = generateRandomGuid();
+  constructor(public EmbryoSeed: Seed, public Status: CropsPileStatus, public Guid:string) {
     this.LootAbleProducts = [];
   }
 }

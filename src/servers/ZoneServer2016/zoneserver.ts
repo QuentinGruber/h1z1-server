@@ -2961,6 +2961,11 @@ export class ZoneServer2016 extends EventEmitter {
           .PICKUP_EFFECT ?? 5151,
       position: object.state.position,
     });
+    //region Norman added. if it is a crop product, randomly generated product is processed by the planting manager. else, continue
+    if(this.plantingManager.TriggerPicking(item,client,this)) {
+      return;
+    }
+    //endregion
     this.lootItem(client, item, item.stackCount);
     this.deleteEntity(guid, this._objects);
     delete this.worldObjectManager._spawnedLootObjects[object.spawnerId];

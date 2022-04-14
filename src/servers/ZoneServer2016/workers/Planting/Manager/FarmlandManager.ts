@@ -5,37 +5,40 @@ import {ZoneServer2016} from "../../../zoneserver";
 import {Furrows, Hole, Seed} from "../Model/DataModels";
 import {TemporaryEntity} from "../../../classes/temporaryentity";
 import {generateRandomGuid} from "../../../../../utils/utils";
+import {ItemObject} from "../../../classes/itemobject";
 
 
 export class FarmlandManager {
+    //region variables
     private readonly _charactersFurrows: { [key: string]: Furrows[] };
     private readonly _furrowsUsePeriodTimers: { [key: string]: NodeJS.Timeout };
     private readonly _fertilizerExpirationTimers: { [key: string]: NodeJS.Timeout };
     private _server?: ZoneServer2016;
 
-    //region private d3d calc functions
-    //region cross pos calc
-    private static calcLookAtPosition(client: Client): Vector4 | null {
-        let roleHeight = 1.5;
-        let pos = client.character.state.position;
-        // let euler = convertDudesQuaternion2Eul(client.character.state.rotation);
-        let euler = Quaternion2Euler(Vector4.FromXYZW({
-            Z: client.character.state.rotation[0],
-            Y: client.character.state.rotation[1],
-            X: client.character.state.rotation[2],
-            W: client.character.state.rotation[3]
-        }), "XZY");
-        // console.log(pos,euler);
-        if (euler[1] > 0) {
-            console.warn('you cant place in the sky');
-            return null;
+    //endregion
+
+    constructor(
+        public _setting: PlantingSetting,
+        charactersFurrowsData: { [key: string]: Furrows[] } | null) {
+        this._charactersFurrows = charactersFurrowsData ? charactersFurrowsData : {};
+        this._furrowsUsePeriodTimers = {};
+        this._fertilizerExpirationTimers = {};
+        //re set timer on server restart
+        if (charactersFurrowsData) {
+            Object.entries(charactersFurrowsData).forEach(([k, v]) => {
+                console.log('resetting furrows and fertilizers timer, character guid:', k);
+                for (const furrows of v) {
+                    this.setFurrowsTimeout(furrows, furrows.Duration);
+                    for (const hole of furrows.Holes) {
+                        if (hole.FertilizerDuration > 0) {
+                            this.setFertilizerInHoleTimeout(hole, hole.FertilizerDuration)
+                        }
+                    }
+                }
+            });
         }
-        // console.log('rol pos:', pos, 'euler:', euler, 'dest pos:',crossPos);
-        return getLookAtPos(new Vector4(pos[2], pos[1], pos[0], 1), -euler[0], euler[2], euler[1], roleHeight);
     }
 
-    //endregion
-    //endregion
     public Reclaim = (client: Client, server: ZoneServer2016): boolean => {
         if (!this._server) {
             this._server = server;
@@ -131,10 +134,19 @@ export class FarmlandManager {
     }
 
     public BurySeedIntoHole = (hole: Hole, seed: Seed, server: ZoneServer2016) => {
-        if (!hole.Id) return;
         let seedQU = Euler2Quaternion(hole.Rotation.Yaw, hole.Rotation.Pitch, hole.Rotation.Roll);
-        server._temporaryObjects[hole.Id] = new TemporaryEntity(
-            hole.Id, server.getTransientId(hole.Id), 9163, hole.Position.ToFloat32ArrayZYXW(), seedQU.ToFloat32ArrayZYXW()
+        //loot able seed
+        const seedInHole = server.generateItem(seed.Type, 1);
+        if (!seedInHole || !seedInHole.itemGuid)
+            return;
+        server._objects[seedInHole.itemGuid] = new ItemObject(
+            seedInHole.itemGuid,
+            server.getTransientId(seedInHole.itemGuid),
+            9163,
+            hole.Position.ToFloat32ArrayZYXW(),
+            seedQU.ToFloat32ArrayZYXW(),
+            hole.CreateTime,
+            seedInHole
         );
     }
 
@@ -147,6 +159,42 @@ export class FarmlandManager {
         delete this._fertilizerExpirationTimers[guid];
         this.setFertilizerInHoleTimeout(hole, this._setting.DefaultFertilizerDuration);
         return true;
+    }
+
+    public IsSeedOrCropsInHole = (itemGuid: string): Hole | null => {
+        Object.keys(this._charactersFurrows).forEach((k) => {
+            for (const f of this._charactersFurrows[k]) {
+                for (const hole of f.Holes) {
+                    if (
+                        (hole.InsideSeed && hole.InsideSeed.Guid == itemGuid) ||
+                        (hole.InsideCropsPile && hole.InsideCropsPile.Guid == itemGuid)
+                    ) {
+                        return hole;
+                    }
+                }
+            }
+        });
+        return null;
+    }
+
+    //region private
+    private static calcLookAtPosition(client: Client): Vector4 | null {
+        let roleHeight = 1.5;
+        let pos = client.character.state.position;
+        // let euler = convertDudesQuaternion2Eul(client.character.state.rotation);
+        let euler = Quaternion2Euler(Vector4.FromXYZW({
+            Z: client.character.state.rotation[0],
+            Y: client.character.state.rotation[1],
+            X: client.character.state.rotation[2],
+            W: client.character.state.rotation[3]
+        }), "XZY");
+        // console.log(pos,euler);
+        if (euler[1] > 0) {
+            console.warn('you cant place in the sky');
+            return null;
+        }
+        // console.log('rol pos:', pos, 'euler:', euler, 'dest pos:',crossPos);
+        return getLookAtPos(new Vector4(pos[2], pos[1], pos[0], 1), -euler[0], euler[2], euler[1], roleHeight);
     }
 
     private simulateCreateHoles = (destFurrows: Furrows): void => {
@@ -205,7 +253,7 @@ export class FarmlandManager {
         const guid = furrows.Id;
         if (!guid) return;
         if (this._server) {
-            this._server.deleteEntity(guid,this._server._temporaryObjects);
+            this._server.deleteEntity(guid, this._server._temporaryObjects);
         }
         clearTimeout(this._furrowsUsePeriodTimers[guid]);
         delete this._furrowsUsePeriodTimers[guid];
@@ -240,26 +288,5 @@ export class FarmlandManager {
         }, duration);
         hole.FertilizerDuration = duration;
     }
-
-    constructor(
-        public _setting: PlantingSetting,
-        charactersFurrowsData: { [key: string]: Furrows[] } | null) {
-        this._charactersFurrows = charactersFurrowsData ? charactersFurrowsData : {};
-        this._furrowsUsePeriodTimers = {};
-        this._fertilizerExpirationTimers = {};
-        //re set timer on server restart
-        if (charactersFurrowsData) {
-            Object.entries(charactersFurrowsData).forEach(([k, v]) => {
-                console.log('resetting furrows and fertilizers timer, character guid:', k);
-                for (const furrows of v) {
-                    this.setFurrowsTimeout(furrows, furrows.Duration);
-                    for (const hole of furrows.Holes) {
-                        if (hole.FertilizerDuration > 0) {
-                            this.setFertilizerInHoleTimeout(hole, hole.FertilizerDuration)
-                        }
-                    }
-                }
-            });
-        }
-    }
+    //endregion
 }

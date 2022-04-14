@@ -117,7 +117,9 @@ export interface Stage {
             Name: string,
             ItemDefinitionId: number,
             ModelId: number,
-            Count: number,
+            DefiniteCount?: number,
+            MinCount?:number,
+            MaxCount?:number,
             LootAble: boolean
         }[],
 }

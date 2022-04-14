@@ -2,8 +2,9 @@ import {ZoneClient2016 as Client} from "../../classes/zoneclient";
 import {FarmlandManager} from "./Manager/FarmlandManager";
 import {GrowingManager} from "./Manager/GrowingManager";
 import {ZoneServer2016} from "../../zoneserver";
-import {Furrows, Seed} from "./Model/DataModels";
+import {Furrows, Seed, SeedType} from "./Model/DataModels";
 import {PlantingSetting} from "./Model/TypeModels";
+import {inventoryItem} from "../../../../types/zoneserver";
 
 const defaultPlantingSetting: PlantingSetting =
     {
@@ -11,8 +12,8 @@ const defaultPlantingSetting: PlantingSetting =
         DefaultFurrowsDuration: 3600000,
         DefaultFertilizerDuration: 10800000,
         FertilizerAcceleration: 2,
-        FertilizerActionRadius:2,
-        GrowthScripts:{}
+        FertilizerActionRadius: 2,
+        GrowthScripts: {}
     }
 
 export class PlantingManager {
@@ -30,14 +31,14 @@ export class PlantingManager {
     }
 
     //now it's just simple placement,auto find sight point around furrows and holes
-    public SowSeed(client: Client, server: ZoneServer2016, itemDefinitionId: number, itemGuid:string) {
+    public SowSeed(client: Client, server: ZoneServer2016, itemDefinitionId: number, itemGuid: string) {
         let sRet = false;
-        let f = this._farmlandManager.SimulateGetSurroundingSowAbleFurrows(client,false);
+        let f = this._farmlandManager.SimulateGetSurroundingSowAbleFurrows(client, false);
         if (f) {
             for (const hole of f.Holes) {
                 if (!hole.InsideSeed && !hole.InsideCropsPile) {
                     let seed = new Seed(itemDefinitionId, Date.now(), itemGuid);
-                    this._farmlandManager.BurySeedIntoHole(hole,seed,server);
+                    this._farmlandManager.BurySeedIntoHole(hole, seed, server);
                     sRet = this._growManager.StartCultivating(client, server, hole, seed);
                     if (sRet) {
                         this._farmlandManager.ReUseFurrows(f, seed.TimeToGrown);
@@ -87,15 +88,15 @@ export class PlantingManager {
         console.log('fertilize hole(seed or crops) success, done count:', doneCount);
     }
 
-    // public UprootCrops(client: Client,
-    //                    hole: Hole) {
-    //
-    // }
-    //
-    // public PickingMatureCrops(client: Client,
-    //                           source: CropsPile | Hole) {
-    //
-    // }
+    public TriggerPicking = (item: inventoryItem | undefined, client: Client, server: ZoneServer2016): boolean => {
+        if (!item || !SeedType[item.itemDefinitionId] || !item.itemGuid)
+            return false;
+        let hole = this._farmlandManager.IsSeedOrCropsInHole(item.itemGuid);
+        if (hole) {
+            return this._growManager.PickingMatureCrops(hole, client, server);
+        }
+        return false;
+    }
 
     //region Constructor
     constructor(
