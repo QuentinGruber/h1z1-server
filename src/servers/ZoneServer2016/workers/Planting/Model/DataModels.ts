@@ -1,6 +1,7 @@
 //The furrows contains 2 furrow and also 4 holes in that;
 import {Euler, Vector4} from "./TypeModels";
-import {getGuidStr, MoveToByParent} from "../Utils";
+import {MoveToByParent} from "../Utils";
+import {generateRandomGuid} from "../../../../../utils/utils";
 
 export class Furrows {
   //There's 4 holes in per furrows.
@@ -13,15 +14,14 @@ export class Furrows {
     public CreateTime: number,
     public Duration: number,
     holes: Hole[],
-    public Id?: string) {
-    this.Id = Id ? Id : getGuidStr();
+    public Id: string) {
     if (holes) {
       this.Holes = holes;
     } else {
       this.Holes = [];
       for (let i = 0; i < 4; i++) {
         const posRot = this.createHolePosRot(this.Position, this.Rotation, i);
-        let currentHole = new Hole(null, null, posRot.NewPos, posRot.NewRot,0);
+        let currentHole = new Hole(null, null, posRot.NewPos, posRot.NewRot,0, generateRandomGuid());
         this.Holes.push(currentHole);
       }
     }
@@ -41,8 +41,12 @@ export class Hole {
     return this.InsideCropsPile? this.InsideCropsPile:this.InsideSeed;
   }
   public LastFertilizeTime?:number;
-  constructor(public InsideSeed: Seed | null, public InsideCropsPile: CropsPile | null, public Position: Vector4, public Rotation: Euler,public FertilizerDuration:number, public Id?: string) {
-    this.Id = Id ? Id : getGuidStr();
+  constructor(public InsideSeed: Seed | null,
+              public InsideCropsPile: CropsPile | null,
+              public Position: Vector4,
+              public Rotation: Euler,
+              public FertilizerDuration:number,
+              public Id:string) {
   }
 }
 
@@ -101,7 +105,7 @@ export class CropsPile implements ObjectInHole {
   public Guid:string;
   public LootAbleProducts:LootAbleProduct[];
   constructor(public EmbryoSeed: Seed, public Status: CropsPileStatus) {
-    this.Guid = getGuidStr();
+    this.Guid = generateRandomGuid();
     this.LootAbleProducts = [];
   }
 }

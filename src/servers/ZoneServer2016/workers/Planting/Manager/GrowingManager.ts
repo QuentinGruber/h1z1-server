@@ -3,6 +3,8 @@ import {ZoneClient2016} from "../../../classes/zoneclient";
 import {ZoneServer2016} from "../../../zoneserver";
 import {GrowthScript, PlantingSetting, Stage} from "../Model/TypeModels";
 import {Euler2Quaternion} from "../Utils";
+import {TemporaryEntity} from "../../../classes/temporaryentity";
+import {ItemObject} from "../../../classes/itemobject";
 
 const defaultTestGrowthScripts: GrowthScript =
   {
@@ -231,7 +233,7 @@ export class GrowingManager {
   private changeHoleInsideObjModel = (server: ZoneServer2016, hole: Hole, newModelId: number) => {
     if(!hole.Id) return;
     //remove
-    server.sendDataToAllWithSpawnedTemporaryObject(
+    server.sendDataToAllWithSpawnedEntity(server._temporaryObjects,
       hole.Id,
       "Character.RemovePlayer",
       {
@@ -244,7 +246,7 @@ export class GrowingManager {
   }
   private removeHoleInsideObjModel = (server: ZoneServer2016, hole:Hole): void => {
     if(!hole.Id) return;
-    server.sendDataToAllWithSpawnedTemporaryObject(
+    server.sendDataToAllWithSpawnedEntity(server._temporaryObjects,
       hole.Id,
       "Character.RemovePlayer",
       {
@@ -255,53 +257,31 @@ export class GrowingManager {
   }
   private createLootAbleCropsPiles = (client: ZoneClient2016, server: ZoneServer2016, hole: Hole, modelId: number, itemDefinitionId: number, count: number) => {
     let qu = Euler2Quaternion(hole.Rotation.Yaw, hole.Rotation.Pitch, hole.Rotation.Roll);
-    let rotation = [qu.Z, qu.Y, qu.X, qu.W];
     let cid = server.generateGuid();
-    let guid = server.generateGuid();
-    const obj = {
-      characterId: cid,
-      guid: guid,
-      transientId: server.getTransientId(cid),
-      modelId: modelId,
-      position: [hole.Position.Z, hole.Position.Y, hole.Position.X, hole.Position.W],
-      rotation: rotation,
-      color: {r: 0, g: 0, b: 255},
-      scale: new Float32Array([1.5, 1.5, 1.5, 1]),
-      spawnerId: itemDefinitionId,
-      item: server.generateItem(itemDefinitionId, count),
-      npcRenderDistance: 15,
-    };
-    server._objects[cid] = obj;
-    // server.spawnObjects(client);
-    server.sendDataToAll("AddLightweightNpc", obj);
+    const itemSpawnerId = Date.now();
+    let item = server.generateItem(itemDefinitionId, count);
+    if(!item)
+    {
+      console.warn('server generate item failed, item definition id :', itemDefinitionId);
+      return;
+    }
+    server._objects[cid] = new ItemObject(
+        cid,
+        server.getTransientId(cid),
+        modelId,
+        hole.Position.ToFloat32ArrayZYXW(),
+        qu.ToFloat32ArrayZYXW(),
+        itemSpawnerId,
+        item
+    )
     console.log('loot able crops created:', itemDefinitionId, count);
   }
 
   private static placeCropModel(hole:Hole, modelId: number, server: ZoneServer2016): boolean {
-    let characterId = hole.Id;
-    if (!characterId) return false;
-    let guid = server.generateGuid();
-    let transientId = server.getTransientId(guid);
-    let seedQU = Euler2Quaternion(hole.Rotation.Yaw, hole.Rotation.Pitch, hole.Rotation.Roll);
+    if (!hole.Id) return false;
+    let cropsQU = Euler2Quaternion(hole.Rotation.Yaw, hole.Rotation.Pitch, hole.Rotation.Roll);
     //add to server dataset
-    let obj = {
-      characterId: characterId,
-      guid: guid,
-      transientId: transientId,
-      modelId: modelId,
-      //9191 9190 9189,59 60 61 is wheat and corn sapling growing grown status model
-      position: new Float32Array([hole.Position.Z, hole.Position.Y, hole.Position.X, hole.Position.W]),
-      //client calc order like below:
-      //if like [z,y,x] structure,calc order is: first rot y second rot z and third rot x.
-      //y=yaw z=pitch and x=roll
-      // rotation: new Float32Array([0, rot.Yaw, 0]),
-      rotation: new Float32Array([seedQU.Z, seedQU.Y, seedQU.X, seedQU.W]),
-      dontSendFullNpcRequest: true,
-      color: {},
-      attachedObject: {},
-    };
-    server._temporaryObjects[characterId] = obj;
-    server.sendDataToAll("AddLightweightNpc", obj);
+    server._temporaryObjects[hole.Id] = new TemporaryEntity(hole.Id, server.getTransientId(hole.Id), modelId, hole.Position.ToFloat32ArrayZYXW(), cropsQU.ToFloat32ArrayZYXW());
     return true;
   }
 }

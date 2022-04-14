@@ -4,6 +4,7 @@ import {ZoneServer2016} from "../../zoneserver";
 import {ZoneClient2016} from "../../classes/zoneclient";
 import {PlantingManager} from "./PlantingManager";
 import {SeedType} from "./Model/DataModels";
+import {TemporaryEntity} from "../../classes/temporaryentity";
 
 //test euler from client->server->quaternion encode(by other dude,not correct maybe)->decode to euler
 const Test = () => {
@@ -142,8 +143,7 @@ const Test5 = () => {
 //rot rot rot
 const RotRotRotByParent = (firstMoved: Vector4, times: number, perTimeAngle: number, distance: number) => {
   let start = firstMoved;
-  let parent = start;
-  let parentDir = Vector4.Normalize(parent);
+  let parentDir = Vector4.Normalize(start);
   let currentWorld = start;
   for (let i = 0; i < times; i++) {
     let newDir = parentDir;
@@ -245,24 +245,26 @@ const Test9 = (client: ZoneClient2016, server: ZoneServer2016) => {
 //do place flares on sight line test
 const placeFlare = (pos: Vector4, rot: Float32Array, duration: number, server: ZoneServer2016) => {
   let characterId = server.generateGuid();
-  let guid = server.generateGuid();
-  let transientId = server.getTransientId(guid);
-  let flare = {
-    characterId: characterId,
-    guid: guid,
-    transientId: transientId,
-    modelId: 1,
-    position: new Float32Array([pos.Z, pos.Y, pos.X]),
-    rotation: new Float32Array([-rot[1], rot[0], 0]),
-    dontSendFullNpcRequest: true,
-    color: {},
-    attachedObject: {},
-  };
+  // let guid = server.generateGuid();
+  let transientId = server.getTransientId(characterId);
+  // let flare = {
+  //   characterId: characterId,
+  //   guid: guid,
+  //   transientId: transientId,
+  //   modelId: 1,
+  //   position: new Float32Array([pos.Z, pos.Y, pos.X]),
+  //   rotation: new Float32Array([-rot[1], rot[0], 0]),
+  //   dontSendFullNpcRequest: true,
+  //   color: {},
+  //   attachedObject: {},
+  // };
+  let flare = new TemporaryEntity(characterId,transientId,1,pos.ToFloat32ArrayZYXW(),rot);
   server._temporaryObjects[characterId] = flare;
   server.sendDataToAll("AddLightweightNpc", flare);
   setTimeout(function () {
     delete server._temporaryObjects[characterId];
-    server.sendDataToAllWithSpawnedTemporaryObject(
+    // server.sendDataToAllWithSpawnedTemporaryObject(
+    server.sendDataToAllWithSpawnedEntity(server._temporaryObjects,
       characterId,
       "Character.RemovePlayer",
       {
@@ -299,20 +301,21 @@ const Test10 = (client: ZoneClient2016, server: ZoneServer2016) => {
 }
 const placeModel = (pos: Vector4, offsetY: number, modelId: number, server: ZoneServer2016) => {
   let characterId = server.generateGuid();
-  let guid = server.generateGuid();
-  let transientId = server.getTransientId(guid);
-  let model = {
-    characterId: characterId,
-    guid: guid,
-    transientId: transientId,
-    modelId: modelId,
-    position: new Float32Array([pos.Z, pos.Y + offsetY, pos.X]),
-    rotation: new Float32Array(3),
-    dontSendFullNpcRequest: true,
-    positionUpdateType: true,
-    color: {},
-    attachedObject: {},
-  };
+  let transientId = server.getTransientId(characterId);
+  // let model = {
+  //   characterId: characterId,
+  //   guid: guid,
+  //   transientId: transientId,
+  //   modelId: modelId,
+  //   position: new Float32Array([pos.Z, pos.Y + offsetY, pos.X]),
+  //   rotation: new Float32Array(3),
+  //   dontSendFullNpcRequest: true,
+  //   positionUpdateType: true,
+  //   color: {},
+  //   attachedObject: {},
+  // };
+  // I don't know when it changed from using Euler angles to quaternions
+  let model = new TemporaryEntity(characterId,transientId,modelId,pos.ToFloat32ArrayZYXW(),new Float32Array(4));
   server._temporaryObjects[characterId] = model;
   server.sendDataToAll("AddLightweightNpc", model);
 }

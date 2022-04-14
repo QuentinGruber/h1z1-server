@@ -1,10 +1,10 @@
 import {Quaternion2Euler} from "../Utils";
 
-export enum FurrowsPlacingDestinationTypeEnum {
-    Ground,
-    Water,
-    Basement
-}
+// export enum FurrowsPlacingDestinationTypeEnum {
+//     Ground,
+//     Water,
+//     Basement
+// }
 
 //The type will use for place something on their base surface
 export type SurfacePlane =
@@ -84,6 +84,10 @@ export class Vector4 {
             Number(v.W.toFixed(floatLen))
         );
     }
+    public ToFloat32ArrayZYXW()
+    {
+        return new Float32Array([this.Z,this.Y,this.X,this.W]);
+    }
 }
 
 export class Euler {
@@ -96,6 +100,10 @@ export class Quaternion extends Vector4
     public static ToFixedAngleString=(qu:Quaternion,floatLen:number):string=> {
         let ret = Quaternion2Euler(qu, "XZY");
         return JSON.stringify({Yaw: ret[0].toFixed(floatLen), Pitch: ret[1].toFixed(floatLen), Roll: ret[2].toFixed(floatLen)});
+    }
+    public ToFloat32ArrayZYXW()
+    {
+        return new Float32Array([this.Z,this.Y,this.X,this.W]);
     }
 }
 

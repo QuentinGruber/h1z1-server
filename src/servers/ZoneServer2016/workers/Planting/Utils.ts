@@ -1,9 +1,5 @@
 //region translation functions
 import {Euler, Quaternion, Vector4} from "./Model/TypeModels";
-export const getGuidStr=():string=>
-{
-    return ((Math.random() * 0xffffffff) >>> 0).toString(16)
-}
 
 const twoAxisRot = (r11: number, r12: number, r21: number, r31: number, r32: number): Float32Array => {
     let res = new Float32Array(3);
