@@ -315,7 +315,8 @@ const placeModel = (pos: Vector4, offsetY: number, modelId: number, server: Zone
   //   attachedObject: {},
   // };
   // I don't know when it changed from using Euler angles to quaternions
-  let model = new TemporaryEntity(characterId,transientId,modelId,pos.ToFloat32ArrayZYXW(),new Float32Array(4));
+  let realPos = new Vector4(pos.X,pos.Y+offsetY,pos.Z,pos.W);
+  let model = new TemporaryEntity(characterId,transientId,modelId,realPos.ToFloat32ArrayZYXW(),new Float32Array(4));
   server._temporaryObjects[characterId] = model;
   server.sendDataToAll("AddLightweightNpc", model);
 }
