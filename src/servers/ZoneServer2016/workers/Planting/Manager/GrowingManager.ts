@@ -177,14 +177,18 @@ export class GrowingManager {
       //sapling
       if (destStage.StageName == CropsPileStatus.Sapling.toString() && hole.InsideSeed) {
         hole.InsideCropsPile = new CropsPile(hole.InsideSeed, CropsPileStatus.Sapling);
-        this.changeHoleInsideObjModel(server, hole, destStage.NewModelId);
+        //change hole model
+        server.deleteEntity(hole.Id,server._temporaryObjects);
+        GrowingManager.placeCropModel(hole, destStage.NewModelId, server);
         hole.InsideSeed = null;
         console.log('种子已发芽', hole.GetInsideObject());
       }
       //growing
       else if (destStage.StageName == CropsPileStatus.Growing.toString() && hole.InsideCropsPile) {
         hole.InsideCropsPile.Status = CropsPileStatus.Growing;
-        this.changeHoleInsideObjModel(server, hole, destStage.NewModelId);
+        //change hole model
+        server.deleteEntity(hole.Id,server._temporaryObjects);
+        GrowingManager.placeCropModel(hole, destStage.NewModelId, server);
         console.log('种子已成长', hole.GetInsideObject())
       }
       //grown
@@ -201,7 +205,9 @@ export class GrowingManager {
             this.createLootAbleCropsPiles(client, server, hole, destStage.NewModelId, current.ItemDefinitionId, current.Count);
           }
         }
-        this.removeHoleInsideObjModel(server, hole);
+
+        //delete temporary model
+        server.deleteEntity(hole.Id,server._temporaryObjects);
 
         console.log('种子已成熟', hole.GetInsideObject());
 
@@ -230,31 +236,7 @@ export class GrowingManager {
     this._stageTimers[guid] = {timer: timer, destStage: destStage, srcStage: srcStage, scriptName: scriptName};
     return true;
   }
-  private changeHoleInsideObjModel = (server: ZoneServer2016, hole: Hole, newModelId: number) => {
-    if(!hole.Id) return;
-    //remove
-    server.sendDataToAllWithSpawnedEntity(server._temporaryObjects,
-      hole.Id,
-      "Character.RemovePlayer",
-      {
-        characterId: hole.Id,
-      }
-    );
-    delete server._temporaryObjects[hole.Id];
-    //add
-    GrowingManager.placeCropModel(hole, newModelId, server);
-  }
-  private removeHoleInsideObjModel = (server: ZoneServer2016, hole:Hole): void => {
-    if(!hole.Id) return;
-    server.sendDataToAllWithSpawnedEntity(server._temporaryObjects,
-      hole.Id,
-      "Character.RemovePlayer",
-      {
-        characterId: hole.Id,
-      }
-    );
-    delete server._temporaryObjects[hole.Id];
-  }
+
   private createLootAbleCropsPiles = (client: ZoneClient2016, server: ZoneServer2016, hole: Hole, modelId: number, itemDefinitionId: number, count: number) => {
     let qu = Euler2Quaternion(hole.Rotation.Yaw, hole.Rotation.Pitch, hole.Rotation.Roll);
     let cid = server.generateGuid();

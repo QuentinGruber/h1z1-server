@@ -205,16 +205,7 @@ export class FarmlandManager {
         const guid = furrows.Id;
         if (!guid) return;
         if (this._server) {
-            // todo: Am I correct? Here?
-            // this._server.sendDataToAllWithSpawnedTemporaryObject(
-            this._server.sendDataToAllWithSpawnedEntity(this._server._temporaryObjects,
-                guid,
-                "Character.RemovePlayer",
-                {
-                    characterId: guid,
-                }
-            );
-            delete this._server._temporaryObjects[guid];
+            this._server.deleteEntity(guid,this._server._temporaryObjects);
         }
         clearTimeout(this._furrowsUsePeriodTimers[guid]);
         delete this._furrowsUsePeriodTimers[guid];
