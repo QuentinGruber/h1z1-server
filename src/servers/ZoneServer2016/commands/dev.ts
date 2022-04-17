@@ -375,7 +375,7 @@ const dev: any = {
         9034,
         client.character.state.position,
         client.character.state.lookAt
-      )
+      );
     npc.onReadyCallback = () => {
       const item = server.generateItem(1504)?.itemGuid;
       server.sendData(client, "ClientUpdate.ItemAdd", {

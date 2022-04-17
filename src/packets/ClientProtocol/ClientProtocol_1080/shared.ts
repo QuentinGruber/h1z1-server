@@ -356,10 +356,7 @@ export function packItemDefinitionData(obj: any) {
   let compressionData = Buffer.allocUnsafe(4);
   let data = Buffer.allocUnsafe(4);
   data.writeUInt32LE(obj["ID"], 0); // could be the actual item id idk
-  const itemDefinitionData = DataSchema.pack(
-    itemDefinitionSchema,
-    obj
-  ).data;
+  const itemDefinitionData = DataSchema.pack(itemDefinitionSchema, obj).data;
   data = Buffer.concat([data, itemDefinitionData]);
   const input = data;
   let output = Buffer.alloc(LZ4.encodeBound(input.length));
@@ -764,20 +761,20 @@ export const lightWeightPcSchema = [
     type: "schema",
     fields: identitySchema,
   },
-  { name: "unknownByte1", type: "uint8", defaultValue: /*2*/0 },
+  { name: "unknownByte1", type: "uint8", defaultValue: /*2*/ 0 },
   { name: "actorModelId", type: "uint32", defaultValue: 9240 },
-  { name: "unknownDword1", type: "uint32", defaultValue: /*270*/0 },
+  { name: "unknownDword1", type: "uint32", defaultValue: /*270*/ 0 },
   { name: "position", type: "floatvector3", defaultValue: [0, 80, 0] },
   { name: "rotation", type: "floatvector4", defaultValue: [0, 80, 0, 1] },
-  { name: "unknownDword2", type: "uint32", defaultValue: /*1083598438*/0 },
+  { name: "unknownDword2", type: "uint32", defaultValue: /*1083598438*/ 0 },
   {
     name: "mountGuid",
     type: "uint64string",
     defaultValue: "0x0000000000000000",
   },
-  { name: "mountSeatId", type: "uint32", defaultValue: 0xFFFFFFFF },
-  { name: "mountRelatedDword1", type: "uint32", defaultValue: 0xFFFFFFFF },
-  { name: "unknownByte2", type: "uint8", defaultValue: /*7*/0 },
+  { name: "mountSeatId", type: "uint32", defaultValue: 0xffffffff },
+  { name: "mountRelatedDword1", type: "uint32", defaultValue: 0xffffffff },
+  { name: "unknownByte2", type: "uint8", defaultValue: /*7*/ 0 },
   { name: "unknownDword3", type: "uint32", defaultValue: 0 },
   { name: "unknownDword4", type: "uint32", defaultValue: 0 },
   {
@@ -785,7 +782,7 @@ export const lightWeightPcSchema = [
     type: "uint64string",
     defaultValue: "0x0000000000000000",
   },
-  { name: "unknownDword5", type: "uint32", defaultValue: /*665*/0 },
+  { name: "unknownDword5", type: "uint32", defaultValue: /*665*/ 0 },
   { name: "unknownByte3", type: "uint8", defaultValue: 0 },
 ];
 
@@ -975,7 +972,7 @@ export function packItemSubData(obj: any) {
 export const currencySchema = [
   { name: "currencyId", type: "uint32", defaultValue: 0 },
   { name: "quantity", type: "uint32", defaultValue: 0 },
-]
+];
 
 export const rewardBundleSchema = [
   { name: "unknownBoolean1", type: "boolean", defaultValue: false },

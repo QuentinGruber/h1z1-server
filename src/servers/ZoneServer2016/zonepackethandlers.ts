@@ -780,7 +780,7 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      client.character.positionUpdate = packet.data
+      client.character.positionUpdate = packet.data;
       if (packet.data.flags === 513) {
         // head rotation when in vehicle, client spams this packet every 1ms even if you dont move, disabled for now(it doesnt work anyway)
         return;
@@ -871,18 +871,18 @@ export class zonePacketHandlers {
       packet: any
     ) {
       const { characterId } = packet.data,
-      entityData: BaseFullCharacter =
-        server._npcs[characterId] ||
-        server._vehicles[characterId] ||
-        server._characters[characterId] ||
-        0,
-      entityType = server._npcs[characterId]
-        ? 1
-        : 0 || server._vehicles[characterId]
-        ? 2
-        : 0 || server._characters[characterId]
-        ? 3
-        : 0;
+        entityData: BaseFullCharacter =
+          server._npcs[characterId] ||
+          server._vehicles[characterId] ||
+          server._characters[characterId] ||
+          0,
+        entityType = server._npcs[characterId]
+          ? 1
+          : 0 || server._vehicles[characterId]
+          ? 2
+          : 0 || server._characters[characterId]
+          ? 3
+          : 0;
 
       if (!entityType) return;
       switch (entityType) {
@@ -891,18 +891,22 @@ export class zonePacketHandlers {
           server.sendData(client, "LightweightToFullNpc", npc.pGetFull());
           break;
         case 2: // vehicles
-        const vehicle = entityData as Vehicle2016;
+          const vehicle = entityData as Vehicle2016;
           if (vehicle.vehicleId != 13) {
-            server.sendData(client, "LightweightToFullVehicle", vehicle.pGetFullVehicle());
+            server.sendData(
+              client,
+              "LightweightToFullVehicle",
+              vehicle.pGetFullVehicle()
+            );
             server.sendData(client, "ResourceEvent", {
               eventData: {
                 type: 1,
                 value: {
                   characterId: vehicle.characterId,
-              characterResources: vehicle.pGetResources()
+                  characterResources: vehicle.pGetResources(),
                 },
               },
-            })
+            });
           }
           for (const a in vehicle.seats) {
             server.sendDataToAllWithSpawnedEntity(
@@ -957,9 +961,9 @@ export class zonePacketHandlers {
             slotId: 27,
             guid: "0x0",
           };
-          
+
           server.sendData(client, "LightweightToFullNpc", character.pGetFull());
-          
+
           /*
           server.sendData(client, "LightweightToFullPc", {
             useCompression: false,
@@ -1026,7 +1030,7 @@ export class zonePacketHandlers {
             : server.dismountVehicle(client);
           break;
         case 3: // door
-        const door = entityData as DoorEntity;
+          const door = entityData as DoorEntity;
           if (door.moving) {
             return;
           }
@@ -1040,9 +1044,7 @@ export class zonePacketHandlers {
               sequenceTime: 0,
               unknown3_int8: 0,
               position: door.state.position,
-              orientation: door.isOpen
-                ? door.closedAngle
-                : door.openAngle,
+              orientation: door.isOpen ? door.closedAngle : door.openAngle,
             },
           });
           server.sendDataToAll("Command.PlayDialogEffect", {
@@ -1189,7 +1191,7 @@ export class zonePacketHandlers {
         "Character.WeaponStance",
         {
           characterId: client.character.characterId,
-          stance: packet.data.stance
+          stance: packet.data.stance,
         }
       );
     };
@@ -1230,10 +1232,11 @@ export class zonePacketHandlers {
         server.containerError(client, 5); // slot does not contain item
         return;
       }
-      const loadoutSlotId = client.character.getActiveLoadoutSlot(itemGuid)
-      if (loadoutSlotId && 
-        client.character._containers[loadoutSlotId]?.itemGuid == itemGuid
-        && _.size(client.character._containers[loadoutSlotId].items) != 0
+      const loadoutSlotId = client.character.getActiveLoadoutSlot(itemGuid);
+      if (
+        loadoutSlotId &&
+        client.character._containers[loadoutSlotId]?.itemGuid == itemGuid &&
+        _.size(client.character._containers[loadoutSlotId].items) != 0
       ) {
         // prevents duping if client check is bypassed
         server.sendChatText(
@@ -1249,15 +1252,14 @@ export class zonePacketHandlers {
           server.dropItem(client, item, packet.data.itemSubData?.count);
           break;
         case 60: //equip item
-          const activeSlotId = client.character.getActiveLoadoutSlot(itemGuid)
-          let loadoutSlotId = 
-            server.getAvailableLoadoutSlot(
-              client.character, 
-              item.itemDefinitionId
-            )
+          const activeSlotId = client.character.getActiveLoadoutSlot(itemGuid);
+          let loadoutSlotId = server.getAvailableLoadoutSlot(
+            client.character,
+            item.itemDefinitionId
+          );
           const container = client.character.getItemContainer(itemGuid);
-          if(server.isWeapon(item.itemDefinitionId)) {
-            if(container) {
+          if (server.isWeapon(item.itemDefinitionId)) {
+            if (container) {
               const item = container.items[itemGuid];
               if (!item) {
                 server.containerError(client, 5); // slot does not contain item
@@ -1336,7 +1338,7 @@ export class zonePacketHandlers {
     ) {
       debug(packet.data);
       const item = client.character.getItemById(packet.data.itemDefinitionId);
-      if(!item) {
+      if (!item) {
         server.containerError(client, 5); // slot does not contain item
         return;
       }
@@ -1347,10 +1349,10 @@ export class zonePacketHandlers {
         packet.data.itemDefinitionId
       ).PLACEMENT_MODEL_ID;
       const characterId = server.generateGuid(),
-      transientId = server.getTransientId(characterId);
+        transientId = server.getTransientId(characterId);
       let tempObj: any = {},
-      trap: TrapEntity,
-      explosive: ExplosiveEntity
+        trap: TrapEntity,
+        explosive: ExplosiveEntity;
       switch (packet.data.itemDefinitionId) {
         case 1804:
         case 4:
@@ -1363,7 +1365,7 @@ export class zonePacketHandlers {
             transientId,
             1,
             client.character.state.position,
-            client.character.state.lookAt,
+            client.character.state.lookAt
           ); // save tempObj
           setTimeout(function () {
             server.sendDataToAllWithSpawnedEntity(
@@ -1380,8 +1382,8 @@ export class zonePacketHandlers {
         case 1699:
           // IED
           server._explosives[characterId] = new ExplosiveEntity(
-            characterId, 
-            transientId, 
+            characterId,
+            transientId,
             9176,
             client.character.state.position,
             client.character.state.lookAt,
@@ -1396,7 +1398,7 @@ export class zonePacketHandlers {
             9176,
             client.character.state.position,
             client.character.state.lookAt
-          )
+          );
 
           server._explosives[characterId] = explosive; // save npc
           setTimeout(function () {
@@ -1416,10 +1418,7 @@ export class zonePacketHandlers {
                     explosive.state.position
                   ) < 0.6
                 ) {
-                  server.explosionDamage(
-                    explosive.state.position,
-                    characterId
-                  );
+                  server.explosionDamage(explosive.state.position, characterId);
                   server.sendDataToAllWithSpawnedEntity(
                     server._explosives,
                     characterId,
@@ -1449,10 +1448,7 @@ export class zonePacketHandlers {
                     explosive.state.position
                   ) < 2.2
                 ) {
-                  server.explosionDamage(
-                    explosive.state.position,
-                    characterId
-                  );
+                  server.explosionDamage(explosive.state.position, characterId);
                   server.sendDataToAllWithSpawnedEntity(
                     server._explosives,
                     characterId,
@@ -1484,12 +1480,12 @@ export class zonePacketHandlers {
         case 98:
           // punji sticks
           trap = new TrapEntity(
-            characterId, 
-            transientId, 
+            characterId,
+            transientId,
             56,
             client.character.state.position,
-            client.character.state.lookAt,
-          )
+            client.character.state.lookAt
+          );
 
           server._traps[characterId] = trap; // save trap
           setTimeout(function () {
@@ -1559,12 +1555,12 @@ export class zonePacketHandlers {
         case 1415:
           // snare
           trap = new TrapEntity(
-            characterId, 
-            transientId, 
+            characterId,
+            transientId,
             9175,
             client.character.state.position,
-            client.character.state.lookAt,
-          )
+            client.character.state.lookAt
+          );
           server._traps[characterId] = trap; // save trap
           setTimeout(function () {
             // arming time
@@ -1580,7 +1576,9 @@ export class zonePacketHandlers {
                   ) < 1
                 ) {
                   server.playerDamage(server._clients[a], 2000);
-                  server._clients[a].character._resources[ResourceIds.BLEEDING] += 41;
+                  server._clients[a].character._resources[
+                    ResourceIds.BLEEDING
+                  ] += 41;
                   server.updateResourceToAllWithSpawnedCharacter(
                     client,
                     client.character.characterId,
@@ -1676,8 +1674,10 @@ export class zonePacketHandlers {
         if (characterId == targetCharacterId) {
           // from / to client container
           const container = client.character.getItemContainer(itemGuid),
-            targetContainer = client.character.getContainerFromGuid(containerGuid);
-          if (container) { // from container
+            targetContainer =
+              client.character.getContainerFromGuid(containerGuid);
+          if (container) {
+            // from container
             const item = container.items[itemGuid],
               oldStackCount = item?.stackCount; // saves stack count before it gets altered
             if (!item) {
@@ -1731,7 +1731,8 @@ export class zonePacketHandlers {
               // invalid
               server.containerError(client, 3); // unknown container
             }
-          } else { // from loadout or invalid
+          } else {
+            // from loadout or invalid
             const loadoutItem = client.character.getLoadoutItem(itemGuid);
             if (!loadoutItem) {
               server.containerError(client, 5); // slot does not contain item
@@ -1759,11 +1760,11 @@ export class zonePacketHandlers {
                 count,
                 false
               );
-            }
-            else if (containerGuid == "0xffffffffffffffff") { // to loadout
+            } else if (containerGuid == "0xffffffffffffffff") {
+              // to loadout
               const loadoutItem = client.character.getLoadoutItem(itemGuid),
-              oldLoadoutItem = client.character._loadout[newSlotId];
-              if(!loadoutItem) {
+                oldLoadoutItem = client.character._loadout[newSlotId];
+              if (!loadoutItem) {
                 server.containerError(client, 5); // slot does not contain item
                 return;
               }

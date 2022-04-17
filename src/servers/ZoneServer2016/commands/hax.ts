@@ -174,9 +174,7 @@ const hax: any = {
     args: any[]
   ) {
     client.spawnedEntities.forEach((object) => {
-      server.despawnEntity(
-        object.characterId
-      );
+      server.despawnEntity(object.characterId);
     });
     client.spawnedEntities = [];
     server._props = {};
@@ -300,14 +298,16 @@ const hax: any = {
       return;
     }
     const range = Number(args[1]),
-    lat = client.character.state.position[0],
-    long = client.character.state.position[2];
+      lat = client.character.state.position[0],
+      long = client.character.state.position[2];
     let points = [],
-    rangeFixed = range,
-    numberOfPoints = Number(args[2]),
-    degreesPerPoint = 360 / numberOfPoints;
+      rangeFixed = range,
+      numberOfPoints = Number(args[2]),
+      degreesPerPoint = 360 / numberOfPoints;
     for (let j = 1; j < range; j++) {
-      let currentAngle = 0, x2, y2;
+      let currentAngle = 0,
+        x2,
+        y2;
       rangeFixed += -1;
       for (let i = 0; i < numberOfPoints; i++) {
         x2 = Math.cos(currentAngle) * rangeFixed;
@@ -323,7 +323,12 @@ const hax: any = {
         characterId,
         server.getTransientId(characterId),
         9176,
-        new Float32Array([obj[0], client.character.state.position[1], obj[1], 1]),
+        new Float32Array([
+          obj[0],
+          client.character.state.position[1],
+          obj[1],
+          1,
+        ]),
         client.character.state.lookAt,
         true
       ); // save explosive
@@ -359,7 +364,7 @@ const hax: any = {
       Number(args[1]),
       client.character.state.position,
       client.character.state.lookAt
-    )
+    );
     server._npcs[characterId] = npc; // save npc
   },
   spawnvehicle: function (server: ZoneServer2016, client: Client, args: any[]) {

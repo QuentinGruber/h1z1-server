@@ -13,7 +13,7 @@
 
 import { BaseSimpleNpc } from "./basesimplenpc";
 
-export class TemporaryEntity extends BaseSimpleNpc{
+export class TemporaryEntity extends BaseSimpleNpc {
   constructor(
     characterId: string,
     transientId: number,

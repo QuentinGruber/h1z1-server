@@ -13,10 +13,7 @@
 
 import { createPositionUpdate } from "../../../utils/utils";
 import { ResourceIds } from "../enums";
-import {
-  positionUpdate,
-  passengers
-} from "../../../types/zoneserver"
+import { positionUpdate, passengers } from "../../../types/zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
 
 function getVehicleId(ModelId: number) {
@@ -54,7 +51,7 @@ export class Vehicle2016 extends BaseFullCharacter {
   seats: { [seatId: string]: any } = {};
   passengers: passengers = {};
   gameTime: number;
-  vehicleId: number
+  vehicleId: number;
   destroyedState = 0;
   positionUpdateType = 1;
   loadoutId = 5; // vehicle (need to confirm)
@@ -67,18 +64,17 @@ export class Vehicle2016 extends BaseFullCharacter {
     gameTime: number
   ) {
     super(characterId, transientId, actorModelId, position, rotation);
-    this._resources = { 
-      [ResourceIds.CONDITION]: 100000, 
-      [ResourceIds.FUEL]: 7590 
+    this._resources = {
+      [ResourceIds.CONDITION]: 100000,
+      [ResourceIds.FUEL]: 7590,
     };
     this.state = {
       position: position,
       rotation: rotation,
       lookAt: new Float32Array([0, 0, 0, 1]),
-    }
+    };
     this.vehicleId = getVehicleId(this.actorModelId);
-    this.isInvulnerable =
-      this.vehicleId == 1337 || this.vehicleId == 13;
+    this.isInvulnerable = this.vehicleId == 1337 || this.vehicleId == 13;
     switch (this.vehicleId) {
       case 1: // offroader
       case 2: // pickup
@@ -147,13 +143,13 @@ export class Vehicle2016 extends BaseFullCharacter {
         position: this.positionUpdate.position || this.state.position,
         vehicleId: this.vehicleId,
       },
-      positionUpdate: this.positionUpdate
-    }
+      positionUpdate: this.positionUpdate,
+    };
   }
   pGetFullVehicle() {
     return {
       npcData: {
-        ...this.pGetFull()
+        ...this.pGetFull(),
       },
       positionUpdate: this.positionUpdate,
       unknownArray1: [],
@@ -174,6 +170,6 @@ export class Vehicle2016 extends BaseFullCharacter {
           unknownArray1: [],
         },
       ],
-    }
+    };
   }
 }
