@@ -27,10 +27,10 @@
     "src": "./src"
   },
   "devDependencies": {
-    "glob": "7.2.0",
+    "glob": "8.0.1",
     "prettier": "2.6.2",
     "ts-node": "10.7.0",
-    "typedoc": "0.22.14"
+    "typedoc": "0.22.15"
   },
   "scripts": {
     "gen-packets-types": "npx ts-node ./scripts/genPacketsNames.ts && npx prettier -w ./src/types/packets.ts",
