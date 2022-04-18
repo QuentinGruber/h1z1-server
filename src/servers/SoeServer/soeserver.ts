@@ -40,6 +40,7 @@ export class SOEServer extends EventEmitter {
   _maxMultiBufferSize: number;
   reduceCpuUsage: boolean = true;
   private _soeClientRoutineLoopMethod: any;
+  private _healthWorker: Worker;
   constructor(protocolName: string, serverPort: number, cryptoKey: Uint8Array) {
     super();
     Buffer.poolSize = 8192 * 4;
@@ -60,7 +61,18 @@ export class SOEServer extends EventEmitter {
         workerData: { serverPort: serverPort },
       }
     );
-  }
+    this._healthWorker = new Worker(
+      `${__dirname}/../shared/workers/healthWorker.js`,
+      {
+        workerData: { mainThreadId: process.pid },
+      }
+    );
+
+    this._healthWorker.on("message", () => {
+      this._healthWorker.postMessage(true);
+  });
+
+}
 
   private checkClientOutQueue(client: SOEClient) {
     const data = client.outQueue.shift();
