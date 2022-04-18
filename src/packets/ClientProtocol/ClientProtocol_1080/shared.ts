@@ -352,6 +352,43 @@ export function packPositionUpdateData(obj: any) {
   return data;
 }
 
+export const profileDataSchema = [
+  { name: "profileId", type: "uint32", defaultValue: 0 },
+  { name: "nameId", type: "uint32", defaultValue: 0 },
+  { name: "descriptionId", type: "uint32", defaultValue: 0 },
+  { name: "type", type: "uint32", defaultValue: 0 },
+  { name: "iconId", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword8", type: "uint32", defaultValue: 0 },
+  { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+  { name: "unknownDword9", type: "uint32", defaultValue: 0 },
+  {
+    name: "unknownArray1",
+    type: "array",
+    defaultValue: [],
+    fields: [
+      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+    ],
+  },
+  { name: "unknownDword10", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword11", type: "uint32", defaultValue: 0 },
+  { name: "unknownBoolean3", type: "boolean", defaultValue: false },
+  { name: "unknownFloat1", type: "uint32", defaultValue: 0.0 },
+  { name: "unknownFloat2", type: "uint32", defaultValue: 0.0 },
+  { name: "unknownFloat3", type: "uint32", defaultValue: 0.0 },
+  { name: "unknownFloat4", type: "uint32", defaultValue: 0.0 },
+  { name: "unknownDword13", type: "uint32", defaultValue: 0 },
+  { name: "unknownFloat5", type: "uint32", defaultValue: 0.0 },
+  { name: "unknownDword14", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword15", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword16", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword17", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword18", type: "uint32", defaultValue: 0 },
+];
+
 export function packItemDefinitionData(obj: any) {
   let compressionData = Buffer.allocUnsafe(4);
   let data = Buffer.allocUnsafe(4);
