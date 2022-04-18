@@ -639,7 +639,7 @@ export class ZoneServer2016 extends EventEmitter {
     // testing
     this.sendData(client, "ReferenceData.WeaponDefinitions", {
       data: {
-        definitionsData: {/*
+        definitionsData: {
           unknownArray1: [
             {
               ID: 1389,
@@ -651,6 +651,12 @@ export class ZoneServer2016 extends EventEmitter {
               ID: 12,
               unknownData1: {
                 unknownDword1: 12
+              }
+            },
+            {
+              ID: 6,
+              unknownData1: {
+                unknownDword1: 6
               }
             }
           ],
@@ -666,6 +672,12 @@ export class ZoneServer2016 extends EventEmitter {
               unknownData1: {
                 unknownDword1: 12
               }
+            },
+            {
+              ID: 6,
+              unknownData1: {
+                unknownDword1: 6
+              }
             }
           ],
           unknownArray3: [
@@ -679,6 +691,12 @@ export class ZoneServer2016 extends EventEmitter {
               ID: 12,
               unknownData1: {
                 unknownDword1: 12
+              }
+            },
+            {
+              ID: 6,
+              unknownData1: {
+                unknownDword1: 6
               }
             }
           ],
@@ -694,6 +712,12 @@ export class ZoneServer2016 extends EventEmitter {
               unknownData1: {
                 unknownDword1: 12
               }
+            },
+            {
+              ID: 6,
+              unknownData1: {
+                unknownDword1: 6
+              }
             }
           ],
           unknownArray5: [
@@ -707,6 +731,12 @@ export class ZoneServer2016 extends EventEmitter {
               ID: 12,
               unknownData1: {
                 unknownDword1: 12
+              }
+            },
+            {
+              ID: 6,
+              unknownData1: {
+                unknownDword1: 6
               }
             }
           ],
@@ -722,8 +752,14 @@ export class ZoneServer2016 extends EventEmitter {
               unknownData1: {
                 unknownDword1: 12
               }
+            },
+            {
+              ID: 6,
+              unknownData1: {
+                unknownDword1: 6
+              }
             }
-          ],*/
+          ],
         }
       }
     });
