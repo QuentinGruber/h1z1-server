@@ -56,7 +56,7 @@
     "test-2015": "node tests_out/2015/testRuntime.js && node tests_out/2015/testIssuesInPacketSchemas.js && npm run test-login-client && npm run test-zone-client",
     "test-2016": "node tests_out/2016/testRuntime.js && node tests_out/2016/testIssuesInPacketSchemas.js",
     "test": "npm run build-swc && npm run build-tests && npm run test-2015 && npm run test-2016",
-    "postinstall": "if-env INSTALL_TYPE=launcher &&  npm run build-swc || npm run build",
+    "postinstall": "npx if-env INSTALL_TYPE=launcher &&  npm run build-swc || npm run build",
     "publish_release": "git push --tags && git push origin dev && git push origin master && git checkout dev && npm run publish_release-next",
     "publish_release-next": "npm version prerelease && git add * && git commit -m 'publish-a-next-version' && npm publish --tag next && git push origin dev",
     "prettier_sources": "prettier --write ./src && prettier --write ./tests && prettier --write ./benchmarks"
