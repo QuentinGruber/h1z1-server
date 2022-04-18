@@ -159,14 +159,6 @@ export class ZoneServer2015 extends EventEmitter {
       this.onZoneLoginEvent(err, client);
     });
 
-    this._gatewayServer._soeServer.on(
-      "PacketLimitationReached",
-      (soeClient: SOEClient) => {
-        this.onSoePacketLimitationReachedEvent(
-          this._clients[soeClient.sessionId]
-        );
-      }
-    );
 
     this._gatewayServer._soeServer.on("fatalError", (soeClient: SOEClient) => {
       const client = this._clients[soeClient.sessionId];
@@ -403,24 +395,6 @@ export class ZoneServer2015 extends EventEmitter {
         this.sendData(client, "LoginFailed", {});
       }
     }
-  }
-
-  onSoePacketLimitationReachedEvent(client: Client) {
-    this.sendChatText(
-      client,
-      "You've almost reached the packet limitation for the server."
-    );
-    this.sendChatText(
-      client,
-      "We will disconnect you in 60 seconds ( You can also do it yourself )"
-    );
-    this.sendChatText(client, "Sorry for that.");
-    setTimeout(() => {
-      this.sendData(client, "CharacterSelectSessionResponse", {
-        status: 1,
-        sessionId: client.loginSessionId,
-      });
-    }, 60000);
   }
 
   generateTransientId(characterId: string): number {

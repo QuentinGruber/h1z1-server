@@ -199,27 +199,6 @@ export class ZoneServer2016 extends EventEmitter {
       this.onZoneLoginEvent(err, client);
     });
 
-    this._gatewayServer._soeServer.on(
-      "PacketLimitationReached",
-      (soeClient: SOEClient) => {
-        const client = this._clients[soeClient.sessionId];
-        this.sendChatText(
-          client,
-          "You've almost reached the packet limitation for the server."
-        );
-        this.sendChatText(
-          client,
-          "We will disconnect you in 60 seconds ( You can also do it yourself )"
-        );
-        this.sendChatText(client, "Sorry for that.");
-        setTimeout(() => {
-          this.sendData(client, "CharacterSelectSessionResponse", {
-            status: 1,
-            sessionId: client.loginSessionId,
-          });
-        }, 60000);
-      }
-    );
     this._gatewayServer._soeServer.on("fatalError", (soeClient: SOEClient) => {
       const client = this._clients[soeClient.sessionId];
       this.deleteClient(client);
