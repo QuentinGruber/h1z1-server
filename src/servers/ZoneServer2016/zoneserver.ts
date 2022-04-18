@@ -64,6 +64,7 @@ import { BaseLightweightCharacter } from "./classes/baselightweightcharacter";
 import { BaseSimpleNpc } from "./classes/basesimplenpc";
 import { TemporaryEntity } from "./classes/temporaryentity";
 import { BaseEntity } from "./classes/baseentity";
+import { healthThreadDecorator } from "../shared/workers/healthWorker";
 
 // need to get 2016 lists
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
@@ -77,6 +78,7 @@ const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.js
   equipSlotItemClasses = require("./../../../data/2016/dataSources/EquipSlotItemClasses.json"),
   Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs");
 
+@healthThreadDecorator
 export class ZoneServer2016 extends EventEmitter {
   _gatewayServer: GatewayServer;
   _protocol: H1Z1Protocol;
@@ -199,27 +201,6 @@ export class ZoneServer2016 extends EventEmitter {
       this.onZoneLoginEvent(err, client);
     });
 
-    this._gatewayServer._soeServer.on(
-      "PacketLimitationReached",
-      (soeClient: SOEClient) => {
-        const client = this._clients[soeClient.sessionId];
-        this.sendChatText(
-          client,
-          "You've almost reached the packet limitation for the server."
-        );
-        this.sendChatText(
-          client,
-          "We will disconnect you in 60 seconds ( You can also do it yourself )"
-        );
-        this.sendChatText(client, "Sorry for that.");
-        setTimeout(() => {
-          this.sendData(client, "CharacterSelectSessionResponse", {
-            status: 1,
-            sessionId: client.loginSessionId,
-          });
-        }, 60000);
-      }
-    );
     this._gatewayServer._soeServer.on("fatalError", (soeClient: SOEClient) => {
       const client = this._clients[soeClient.sessionId];
       this.deleteClient(client);
@@ -260,10 +241,6 @@ export class ZoneServer2016 extends EventEmitter {
     );
     this._gatewayServer.on("disconnect", (err: string, client: Client) => {
       this.deleteClient(client);
-    });
-
-    this._gatewayServer.on("session", (err: string, client: SOEClient) => {
-      debug(`Session started for client ${client.address}:${client.port}`);
     });
 
     this._gatewayServer.on(

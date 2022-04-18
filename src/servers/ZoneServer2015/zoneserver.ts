@@ -41,6 +41,7 @@ process.env.isBin && require("./workers/dynamicWeather");
 
 import { zonePacketHandlers } from "./zonepackethandlers";
 import { MAX_TRANSIENT_ID } from "../../utils/constants";
+import { healthThreadDecorator } from "../shared/workers/healthWorker";
 let localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json");
 
 const debugName = "ZoneServer";
@@ -50,6 +51,7 @@ const stats = require("../../../data/2015/sampleData/stats.json");
 const recipes = require("../../../data/2015/sampleData/recipes.json");
 const Z1_POIs = require("../../../data/2015/zoneData/Z1_POIs");
 
+@healthThreadDecorator
 export class ZoneServer2015 extends EventEmitter {
   _gatewayServer: GatewayServer;
   _protocol: ZoneProtocol;
@@ -159,14 +161,6 @@ export class ZoneServer2015 extends EventEmitter {
       this.onZoneLoginEvent(err, client);
     });
 
-    this._gatewayServer._soeServer.on(
-      "PacketLimitationReached",
-      (soeClient: SOEClient) => {
-        this.onSoePacketLimitationReachedEvent(
-          this._clients[soeClient.sessionId]
-        );
-      }
-    );
 
     this._gatewayServer._soeServer.on("fatalError", (soeClient: SOEClient) => {
       const client = this._clients[soeClient.sessionId];
@@ -197,9 +191,6 @@ export class ZoneServer2015 extends EventEmitter {
       this.onGatewayDisconnectEvent(err, client);
     });
 
-    this._gatewayServer.on("session", (err: string, client: SOEClient) => {
-      this.onGatewaySessionEvent(err, client);
-    });
 
     this._gatewayServer.on(
       "tunneldata",
@@ -405,24 +396,6 @@ export class ZoneServer2015 extends EventEmitter {
     }
   }
 
-  onSoePacketLimitationReachedEvent(client: Client) {
-    this.sendChatText(
-      client,
-      "You've almost reached the packet limitation for the server."
-    );
-    this.sendChatText(
-      client,
-      "We will disconnect you in 60 seconds ( You can also do it yourself )"
-    );
-    this.sendChatText(client, "Sorry for that.");
-    setTimeout(() => {
-      this.sendData(client, "CharacterSelectSessionResponse", {
-        status: 1,
-        sessionId: client.loginSessionId,
-      });
-    }, 60000);
-  }
-
   generateTransientId(characterId: string): number {
     let generatedTransient;
     do {
@@ -507,10 +480,6 @@ export class ZoneServer2015 extends EventEmitter {
         this.sendZonePopulationUpdate();
       }
     }
-  }
-
-  onGatewaySessionEvent(err: string, client: SOEClient) {
-    debug(`Session started for client ${client.address}:${client.port}`);
   }
 
   onGatewayTunnelDataEvent(

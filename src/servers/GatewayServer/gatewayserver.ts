@@ -45,16 +45,9 @@ export class GatewayServer extends EventEmitter {
     ) as any; // as any since SOEServer isn't typed
     this._soeServer._useEncryption = false; // communication is encrypted only after loginRequest
     this._protocol = new GatewayProtocol();
-    this._soeServer.on("connect", (err: string, client: SOEClient) => {
-      debug("Client connected from " + client.address + ":" + client.port);
-      this.emit("connect", err, client);
-    });
     this._soeServer.on("disconnect", (err: string, client: SOEClient) => {
       debug("Client disconnected from " + client.address + ":" + client.port);
       this.emit("disconnect", err, client);
-    });
-    this._soeServer.on("session", (err: string, client: SOEClient) => {
-      debug("Session started for client " + client.address + ":" + client.port);
     });
 
     this._soeServer.on(

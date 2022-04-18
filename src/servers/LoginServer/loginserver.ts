@@ -34,10 +34,13 @@ import { httpServerMessage } from "types/shared";
 import { LoginProtocol2016 } from "../../protocols/loginprotocol2016";
 import { crc_length_options } from "../../types/soeserver";
 import { DEFAULT_CRYPTO_KEY } from "../../utils/constants";
+import { healthThreadDecorator } from "../../servers/shared/workers/healthWorker";
 
 const debugName = "LoginServer";
 const debug = require("debug")(debugName);
 const characterItemDefinitionsDummy = require("../../../data/2015/sampleData/characterItemDefinitionsDummy.json");
+
+@healthThreadDecorator
 export class LoginServer extends EventEmitter {
   _soeServer: SOEServer;
   _protocol: LoginProtocol;
@@ -87,16 +90,10 @@ export class LoginServer extends EventEmitter {
 
     this._protocol = new LoginProtocol();
     this._protocol2016 = new LoginProtocol2016();
-    this._soeServer.on("connect", (err: string, client: Client) => {
-      debug(`Client connected from ${client.address}:${client.port}`);
-      this.emit("connect", err, client);
-    });
+    
     this._soeServer.on("disconnect", (err: string, client: Client) => {
       debug(`Client disconnected from ${client.address}:${client.port}`);
       this.Logout(client);
-    });
-    this._soeServer.on("session", (err: string, client: Client) => {
-      debug(`Session started for client ${client.address}:${client.port}`);
     });
 
     this._soeServer.on(
