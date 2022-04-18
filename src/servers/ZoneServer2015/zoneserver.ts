@@ -189,9 +189,6 @@ export class ZoneServer2015 extends EventEmitter {
       this.onGatewayDisconnectEvent(err, client);
     });
 
-    this._gatewayServer.on("session", (err: string, client: SOEClient) => {
-      this.onGatewaySessionEvent(err, client);
-    });
 
     this._gatewayServer.on(
       "tunneldata",
@@ -481,10 +478,6 @@ export class ZoneServer2015 extends EventEmitter {
         this.sendZonePopulationUpdate();
       }
     }
-  }
-
-  onGatewaySessionEvent(err: string, client: SOEClient) {
-    debug(`Session started for client ${client.address}:${client.port}`);
   }
 
   onGatewayTunnelDataEvent(

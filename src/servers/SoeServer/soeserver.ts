@@ -187,7 +187,6 @@ export class SOEServer extends EventEmitter {
           encrypt_method: client.compression,
           udp_length: client.serverUdpLength,
         });
-        this.emit("session", null, client);
         break;
       case "Disconnect":
         debug("Received disconnect from client");
@@ -348,8 +347,6 @@ export class SOEServer extends EventEmitter {
           );
 
           this._soeClientRoutineLoopMethod(() => this.soeClientRoutine(client));
-
-          this.emit("connect", null, this._clients[clientId]);
         }
         client = this._clients[clientId];
         if (data[0] === 0x00) {

@@ -241,10 +241,6 @@ export class ZoneServer2016 extends EventEmitter {
       this.deleteClient(client);
     });
 
-    this._gatewayServer.on("session", (err: string, client: SOEClient) => {
-      debug(`Session started for client ${client.address}:${client.port}`);
-    });
-
     this._gatewayServer.on(
       "tunneldata",
       (err: string, client: Client, data: Buffer, flags: number) => {
