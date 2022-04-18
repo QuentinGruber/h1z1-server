@@ -12,7 +12,7 @@
 // ======================================================================
 
 import DataSchema from "h1z1-dataschema";
-import { LZ4 } from "utils/utils";
+import { LZ4 } from "../../../utils/utils";
 import { packVehicleReferenceData, parseVehicleReferenceData } from "./shared";
 import { profileDataSchema } from "./shared";
 
