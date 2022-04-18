@@ -34,10 +34,13 @@ import { httpServerMessage } from "types/shared";
 import { LoginProtocol2016 } from "../../protocols/loginprotocol2016";
 import { crc_length_options } from "../../types/soeserver";
 import { DEFAULT_CRYPTO_KEY } from "../../utils/constants";
+import { healthThreadDecorator } from "../../servers/shared/workers/healthWorker";
 
 const debugName = "LoginServer";
 const debug = require("debug")(debugName);
 const characterItemDefinitionsDummy = require("../../../data/2015/sampleData/characterItemDefinitionsDummy.json");
+
+@healthThreadDecorator
 export class LoginServer extends EventEmitter {
   _soeServer: SOEServer;
   _protocol: LoginProtocol;

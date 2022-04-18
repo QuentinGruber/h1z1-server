@@ -41,6 +41,7 @@ process.env.isBin && require("./workers/dynamicWeather");
 
 import { zonePacketHandlers } from "./zonepackethandlers";
 import { MAX_TRANSIENT_ID } from "../../utils/constants";
+import { healthThreadDecorator } from "../shared/workers/healthWorker";
 let localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json");
 
 const debugName = "ZoneServer";
@@ -50,6 +51,7 @@ const stats = require("../../../data/2015/sampleData/stats.json");
 const recipes = require("../../../data/2015/sampleData/recipes.json");
 const Z1_POIs = require("../../../data/2015/zoneData/Z1_POIs");
 
+@healthThreadDecorator
 export class ZoneServer2015 extends EventEmitter {
   _gatewayServer: GatewayServer;
   _protocol: ZoneProtocol;

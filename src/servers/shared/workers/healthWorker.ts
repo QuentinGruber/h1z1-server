@@ -11,15 +11,28 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { parentPort, workerData } from "worker_threads";
+import { parentPort, workerData, Worker } from "worker_threads";
 
-const { mainThreadId } = workerData;
+
+export function healthThreadDecorator(target:Function) {
+    target.prototype._healthWorker = new Worker(
+        `${__dirname}/healthWorker.js`,
+        {
+          workerData: { threadToWatchPid: process.pid },
+        }
+      );
+  
+      target.prototype._healthWorker.on("message", () => {
+        target.prototype._healthWorker.postMessage(true);
+    });
+}
 function checkHealth() {
+    const { threadToWatchPid } = workerData;
     let healthTimeoutTimer:any;
     const healthTimer = setTimeout(() => {
         parentPort?.postMessage(true);
         healthTimeoutTimer  = setTimeout(() => {
-            process.kill(mainThreadId);
+            process.kill(threadToWatchPid);
         }, 25000);
     }, 10000);
     parentPort?.on("message", () => {
@@ -29,5 +42,6 @@ function checkHealth() {
     );
     
 }
-
-checkHealth();
+if( workerData?.threadToWatchPid && workerData.threadToWatchPid === process.pid) {
+    checkHealth();
+}
