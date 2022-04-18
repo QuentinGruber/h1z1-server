@@ -275,10 +275,7 @@ export class SOEServer extends EventEmitter {
       this._udpLength = udpLength;
     }
     if (this.reduceCpuUsage || process.env.FORCE_REDUCE_CPU_USAGE) {
-      function nextTickTest(callback:any) {
-        setTimeout(()=>process.nextTick(callback))
-      }
-      this._soeClientRoutineLoopMethod = nextTickTest;
+      this._soeClientRoutineLoopMethod = setTimeout;
     } else {
       this._soeClientRoutineLoopMethod = setImmediate;
     }
