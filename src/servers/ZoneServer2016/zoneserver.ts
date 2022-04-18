@@ -75,7 +75,8 @@ const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.js
   containerDefinitions = require("./../../../data/2016/dataSources/ContainerDefinitions.json"),
   loadoutSlotItemClasses = require("./../../../data/2016/dataSources/LoadoutSlotItemClasses.json"),
   equipSlotItemClasses = require("./../../../data/2016/dataSources/EquipSlotItemClasses.json"),
-  Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs");
+  Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs"),
+  weaponDefinitions = require("../../../data/2016/dataSources/ServerWeaponDefinitions");
 
 export class ZoneServer2016 extends EventEmitter {
   _gatewayServer: GatewayServer;
@@ -637,46 +638,49 @@ export class ZoneServer2016 extends EventEmitter {
     });
 
     // testing
+    console.log(weaponDefinitions)
     this.sendData(client, "ReferenceData.WeaponDefinitions", {
       data: {
         definitionsData: {
-          unknownArray1: [
+          unknownArray1: weaponDefinitions,
+          
+          /*[
             {
               ID: 1389,
               unknownData1: {
-                unknownDword1: 1389
+                ID: 1389
               }
             },
             {
               ID: 12,
               unknownData1: {
-                unknownDword1: 12
+                ID: 12
               }
             },
             {
               ID: 6,
               unknownData1: {
-                unknownDword1: 6
+                ID: 6
               }
             }
-          ],
+          ],*/
           unknownArray2: [
             {
               ID: 1389,
               unknownData1: {
-                unknownDword1: 1389
+                ID: 1389
               }
             },
             {
               ID: 12,
               unknownData1: {
-                unknownDword1: 12
+                ID: 12
               }
             },
             {
               ID: 6,
               unknownData1: {
-                unknownDword1: 6
+                ID: 6
               }
             }
           ],
@@ -684,19 +688,19 @@ export class ZoneServer2016 extends EventEmitter {
             {
               ID: 1389,
               unknownData1: {
-                unknownDword1: 1389
+                ID: 1389
               }
             },
             {
               ID: 12,
               unknownData1: {
-                unknownDword1: 12
+                ID: 12
               }
             },
             {
               ID: 6,
               unknownData1: {
-                unknownDword1: 6
+                ID: 6
               }
             }
           ],
@@ -704,19 +708,19 @@ export class ZoneServer2016 extends EventEmitter {
             {
               ID: 1389,
               unknownData1: {
-                unknownDword1: 1389
+                ID: 1389
               }
             },
             {
               ID: 12,
               unknownData1: {
-                unknownDword1: 12
+                ID: 12
               }
             },
             {
               ID: 6,
               unknownData1: {
-                unknownDword1: 6
+                ID: 6
               }
             }
           ],
@@ -724,19 +728,19 @@ export class ZoneServer2016 extends EventEmitter {
             {
               ID: 1389,
               unknownData1: {
-                unknownDword1: 1389
+                ID: 1389
               }
             },
             {
               ID: 12,
               unknownData1: {
-                unknownDword1: 12
+                ID: 12
               }
             },
             {
               ID: 6,
               unknownData1: {
-                unknownDword1: 6
+                ID: 6
               }
             }
           ],
@@ -744,19 +748,19 @@ export class ZoneServer2016 extends EventEmitter {
             {
               ID: 1389,
               unknownData1: {
-                unknownDword1: 1389
+                ID: 1389
               }
             },
             {
               ID: 12,
               unknownData1: {
-                unknownDword1: 12
+                ID: 12
               }
             },
             {
               ID: 6,
               unknownData1: {
-                unknownDword1: 6
+                ID: 6
               }
             }
           ],

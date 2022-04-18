@@ -28,9 +28,10 @@ const weaponDefinitionSchema: any[] = [
         type: "schema",
         defaultValue: {},
         fields: [
+          { name: "ID", type: "uint32", defaultValue: 0 },
           { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-          { name: "unknownDword2", type: "uint32", defaultValue: 0 },
           { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+          { name: "unknownDword2", type: "uint32", defaultValue: 0 },
           { name: "unknownDword3", type: "uint32", defaultValue: 0 },
           { name: "unknownDword4", type: "uint32", defaultValue: 0 },
           { name: "unknownDword5", type: "uint32", defaultValue: 0 },
@@ -41,16 +42,15 @@ const weaponDefinitionSchema: any[] = [
           { name: "unknownDword10", type: "uint32", defaultValue: 0 },
           { name: "unknownDword11", type: "uint32", defaultValue: 0 },
           { name: "unknownDword12", type: "uint32", defaultValue: 0 },
-          { name: "unknownDword13", type: "uint32", defaultValue: 0 },
-          { name: "unknownDword14", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword13", type: "float", defaultValue: 0 },
+          { name: "unknownDword14", type: "float", defaultValue: 0 },
           { name: "unknownDword15", type: "uint32", defaultValue: 0 },
           { name: "unknownDword16", type: "uint32", defaultValue: 0 },
           { name: "unknownDword17", type: "uint32", defaultValue: 0 },
           { name: "unknownDword18", type: "uint32", defaultValue: 0 },
           { name: "unknownDword19", type: "uint32", defaultValue: 0 },
-          { name: "unknownDword20", type: "uint32", defaultValue: 0 },
           {
-            name: "unknownData1",
+            name: "unknownDwords1",
             type: "schema",
             defaultValue: {},
             fields: [
@@ -59,12 +59,12 @@ const weaponDefinitionSchema: any[] = [
             ],
           },
           { name: "unknownString1", type: "string", defaultValue: "" },
+          { name: "unknownDword20", type: "uint32", defaultValue: 0 },
           { name: "unknownDword21", type: "uint32", defaultValue: 0 },
           { name: "unknownDword22", type: "uint32", defaultValue: 0 },
-          { name: "unknownDword23", type: "uint32", defaultValue: 0 },
-          { name: "unknownDword24", type: "uint32", defaultValue: 0 },
+          { name: "unknownDword23", type: "float", defaultValue: 0 },
+          { name: "unknownDword24", type: "float", defaultValue: 0 },
           { name: "unknownDword25", type: "uint32", defaultValue: 0 },
-          { name: "unknownDword26", type: "uint32", defaultValue: 0 },
           {
             name: "unknownArray1",
             type: "array",
@@ -105,7 +105,7 @@ const weaponDefinitionSchema: any[] = [
         type: "schema",
         defaultValue: {},
         fields: [
-          { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+          { name: "ID", type: "uint32", defaultValue: 0 },
           {
             name: "unknownArray1",
             type: "array",
@@ -139,7 +139,7 @@ const weaponDefinitionSchema: any[] = [
         type: "schema",
         defaultValue: {},
         fields: [
-          { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+          { name: "ID", type: "uint32", defaultValue: 0 },
           {
             name: "unknownData1",
             type: "schema",
@@ -355,7 +355,7 @@ const weaponDefinitionSchema: any[] = [
         type: "array",
         defaultValue: [],
         fields: [
-          { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+          { name: "ID", type: "uint32", defaultValue: 0 },
           {
             name: "unknownData1",
             type: "schema",
@@ -396,7 +396,7 @@ const weaponDefinitionSchema: any[] = [
         type: "schema",
         defaultValue: {},
         fields: [
-          { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+          { name: "ID", type: "uint32", defaultValue: 0 },
           { name: "unknownDword2", type: "uint32", defaultValue: 0 },
           { name: "unknownDword3", type: "uint32", defaultValue: 0 },
         ],
@@ -414,7 +414,7 @@ const weaponDefinitionSchema: any[] = [
         type: "schema",
         defaultValue: {},
         fields: [
-          { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+          { name: "ID", type: "uint32", defaultValue: 0 },
           { name: "unknownDword2", type: "uint32", defaultValue: 0 },
           { name: "unknownDword3", type: "uint32", defaultValue: 0 },
           { name: "unknownDword4", type: "uint32", defaultValue: 0 },
