@@ -136,6 +136,15 @@ export class Vehicle2016 extends BaseFullCharacter {
     return passengers;
   }
 
+  removePassenger(characterId: string) {
+    for (const seatId in this.seats) {
+      if (this.seats[seatId] === characterId) {
+        this.seats[seatId] = "";
+        break;
+      }
+    }
+  }
+
   pGetLightweightVehicle() {
     return {
       npcData: {
