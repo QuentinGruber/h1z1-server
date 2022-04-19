@@ -339,7 +339,7 @@ export class H1Z1Protocol {
     };
   }
 
-  pack(packetName: string, object?: any, referenceData?: any) {
+  pack(packetName: string, object?: any, referenceData?: any): Buffer | null {
     const H1Z1Packets = this.H1Z1Packets;
     let packetType: number = H1Z1Packets.PacketTypes[packetName],
       packet = H1Z1Packets.Packets[packetType],
@@ -369,16 +369,19 @@ export class H1Z1Protocol {
           packetData.data.copy(data, packetTypeBytes.length);
         } else {
           console.error("Could not pack data schema for " + packet.name);
+          return null;
         }
       } else {
         debug(packet);
         console.error("pack()", "No schema for packet " + packet.name);
+        return null;
       }
     } else {
       console.error(
         "pack()",
         "Unknown or unhandled zone packet type: " + packetType
       );
+      return null;
     }
     return data;
   }
