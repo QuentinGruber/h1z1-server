@@ -21,6 +21,7 @@ import {
   setTimeout as setTimeoutPromise,
 } from "timers/promises";
 import { MongoClient } from "mongodb";
+import { MAX_TRANSIENT_ID } from "./constants";
 
 export class customLodash {
   constructor() {}
@@ -201,6 +202,13 @@ export const Int64String = function (value: number): string {
 export const generateRandomGuid = function (): string {
   return "0x" + generate_random_guid();
 };
+
+export function* generateTransientId() {
+  let id = 0;
+  for (let index = 0; index < MAX_TRANSIENT_ID; index++) {
+    yield id++;
+  }
+}
 
 export const removeCacheFullDir = function (directoryPath: string): void {
   const files = readdirSync(directoryPath); // need to be sync
