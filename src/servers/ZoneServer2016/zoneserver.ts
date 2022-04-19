@@ -48,8 +48,8 @@ import {
   getDistance,
   randomIntFromInterval,
   Scheduler,
+  generateTransientId,
 } from "../../utils/utils";
-import { MAX_TRANSIENT_ID } from "../../utils/constants";
 
 import { Db, MongoClient } from "mongodb";
 import dynamicWeather from "./workers/dynamicWeather";
