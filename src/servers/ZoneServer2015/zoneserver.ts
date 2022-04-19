@@ -41,7 +41,6 @@ import { DEFAULT_CRYPTO_KEY } from "../../utils/constants";
 process.env.isBin && require("./workers/dynamicWeather");
 
 import { zonePacketHandlers } from "./zonepackethandlers";
-import { MAX_TRANSIENT_ID } from "../../utils/constants";
 import { healthThreadDecorator } from "../shared/workers/healthWorker";
 let localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json");
 
