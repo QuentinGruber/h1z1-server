@@ -26,6 +26,7 @@ import {
   setupAppDataFolder,
   getDistance,
   removeCacheFullDir,
+  generateTransientId,
 } from "../../utils/utils";
 import { Weather } from "../../types/zoneserver";
 import { Db, MongoClient } from "mongodb";
@@ -40,7 +41,6 @@ import { DEFAULT_CRYPTO_KEY } from "../../utils/constants";
 process.env.isBin && require("./workers/dynamicWeather");
 
 import { zonePacketHandlers } from "./zonepackethandlers";
-import { MAX_TRANSIENT_ID } from "../../utils/constants";
 import { healthThreadDecorator } from "../shared/workers/healthWorker";
 let localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json");
 
@@ -2669,14 +2669,9 @@ export class ZoneServer2015 extends EventEmitter {
     }
   }
 
-  getTransientId(guid: string): number {
-    let generatedTransient;
-    do {
-      generatedTransient = Number(
-        (Math.random() * MAX_TRANSIENT_ID).toFixed(0)
-      );
-    } while (!!this._transientIds[generatedTransient]);
-    this._transientIds[generatedTransient] = guid;
+  getTransientId(characterId: string): number {
+    const generatedTransient = generateTransientId().next().value as number;
+    this._transientIds[generatedTransient] = characterId;
     return generatedTransient;
   }
 

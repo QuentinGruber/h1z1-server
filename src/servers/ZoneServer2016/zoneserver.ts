@@ -48,8 +48,8 @@ import {
   getDistance,
   randomIntFromInterval,
   Scheduler,
+  generateTransientId,
 } from "../../utils/utils";
-import { MAX_TRANSIENT_ID } from "../../utils/constants";
 
 import { Db, MongoClient } from "mongodb";
 import dynamicWeather from "./workers/dynamicWeather";
@@ -3895,12 +3895,7 @@ export class ZoneServer2016 extends EventEmitter {
     */
   }
   getTransientId(characterId: string): number {
-    let generatedTransient;
-    do {
-      generatedTransient = Number(
-        (Math.random() * MAX_TRANSIENT_ID).toFixed(0)
-      );
-    } while (!!this._transientIds[generatedTransient]);
+    const generatedTransient = generateTransientId().next().value as number;
     this._transientIds[generatedTransient] = characterId;
     this._characterIds[characterId] = generatedTransient;
     return generatedTransient;
