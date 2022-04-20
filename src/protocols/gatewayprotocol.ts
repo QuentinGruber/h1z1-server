@@ -62,7 +62,7 @@ export class GatewayProtocol {
     }
   }
 
-  pack(packetName: string, object: any) {
+  pack(packetName: string, object: any): Buffer | null {
     const packetType = packetTypes[packetName],
       packet = packetDescriptors[packetType];
     let payload, data;
@@ -102,9 +102,11 @@ export class GatewayProtocol {
             debug("send data :", data);
           } else {
             debug("Could not pack data schema for " + packet.name);
+            return null
           }
         } else {
           debug("pack()", "No schema for packet " + packet.name);
+          return null
         }
       }
     } else {
@@ -112,6 +114,7 @@ export class GatewayProtocol {
         "pack()",
         "Unknown or unhandled gateway packet type: " + packetType
       );
+      return null
     }
 
     return data;

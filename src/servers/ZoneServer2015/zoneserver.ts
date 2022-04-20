@@ -2114,8 +2114,7 @@ export class ZoneServer2015 extends EventEmitter {
             characterFirstName: characterObj.name,
             position: characterObj.state.position,
             rotation: characterObj.state.lookAt,
-          },
-          1
+          }
         );
         client.spawnedEntities.push(this._characters[character]);
       }
@@ -2135,8 +2134,7 @@ export class ZoneServer2015 extends EventEmitter {
         this.sendData(
           client,
           "PlayerUpdate.AddLightweightVehicle",
-          this._vehicles[vehicle],
-          1
+          this._vehicles[vehicle]
         );
         if (!this._vehicles[vehicle].isManaged) {
           this.sendData(client, "PlayerUpdate.ManagedObject", {
@@ -2182,8 +2180,7 @@ export class ZoneServer2015 extends EventEmitter {
         "PlayerUpdate.RemovePlayerGracefully",
         {
           characterId,
-        },
-        1
+        }
       );
     });
   }
@@ -2538,18 +2535,18 @@ export class ZoneServer2015 extends EventEmitter {
   sendData(
     client: Client,
     packetName: h1z1PacketsType,
-    obj: any,
-    channel = 0
+    obj: any
   ): void {
     if (packetName != "KeepAlive") {
       debug("send data", packetName);
     }
     const data = this._protocol.pack(packetName, obj);
-    this._gatewayServer.sendTunnelData(
-      this.getSoeClient(client.soeClientId),
-      data,
-      channel
-    );
+    if(data){
+      this._gatewayServer.sendTunnelData(
+        this.getSoeClient(client.soeClientId),
+        data
+      );
+    }
   }
 
   sendDataToAll(packetName: h1z1PacketsType, obj: any, channel = 0): void {
@@ -2569,7 +2566,7 @@ export class ZoneServer2015 extends EventEmitter {
   ): void {
     for (const a in this._clients) {
       if (client != this._clients[a]) {
-        this.sendData(this._clients[a], packetName, obj, channel);
+        this.sendData(this._clients[a], packetName, obj);
       }
     }
   }
@@ -2602,8 +2599,7 @@ export class ZoneServer2015 extends EventEmitter {
   sendRawData(client: Client, data: Buffer, channel = 0): void {
     this._gatewayServer.sendTunnelData(
       this.getSoeClient(client.soeClientId),
-      data,
-      channel
+      data
     );
   }
 

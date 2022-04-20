@@ -1505,8 +1505,7 @@ export class ZoneServer2016 extends EventEmitter {
         "Character.RemovePlayer",
         {
           characterId: object.characterId,
-        },
-        1
+        }
       );
     });
   }
@@ -1541,10 +1540,10 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   addLightweightNpc(client: Client, entity: BaseLightweightCharacter) {
-    this.sendData(client, "AddLightweightNpc", entity.pGetLightweight(), 1);
+    this.sendData(client, "AddLightweightNpc", entity.pGetLightweight());
   }
   addSimpleNpc(client: Client, entity: BaseSimpleNpc) {
-    this.sendData(client, "AddSimpleNpc", entity.pGetSimpleNpc(), 1);
+    this.sendData(client, "AddSimpleNpc", entity.pGetSimpleNpc());
   }
 
   spawnNpcs(client: Client) {
@@ -1646,8 +1645,7 @@ export class ZoneServer2016 extends EventEmitter {
               ? vehicle.getCharacterSeat(characterObj.characterId)
               : 0,
             mountRelatedDword1: vehicle ? 1 : 0,
-          },
-          1
+          }
         );
         client.spawnedEntities.push(this._characters[characterObj.characterId]);
       }
@@ -1673,8 +1671,7 @@ export class ZoneServer2016 extends EventEmitter {
               ...object.pGetLightweight(),
               nameId: this.getItemDefinition(object.item.itemDefinitionId)
                 .NAME_ID,
-            },
-            1
+            }
           );
           client.spawnedEntities.push(object);
         }
@@ -1744,7 +1741,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  sendData(client: Client, packetName: h1z1PacketsType, obj: any, channel = 0) {
+  sendData(client: Client, packetName: h1z1PacketsType, obj: any) {
     switch (packetName) {
       case "KeepAlive":
       case "PlayerUpdatePosition":
@@ -1756,11 +1753,12 @@ export class ZoneServer2016 extends EventEmitter {
         debug("send data", packetName);
     }
     const data = this._protocol.pack(packetName, obj);
-    this._gatewayServer.sendTunnelData(
-      this.getSoeClient(client.soeClientId),
-      data,
-      channel
-    );
+    if(data){
+      this._gatewayServer.sendTunnelData(
+        this.getSoeClient(client.soeClientId),
+        data
+      );
+    }
   }
   sendChat(client: Client, message: string, channel: number) {
     if (!this._soloMode) {
@@ -1870,8 +1868,7 @@ export class ZoneServer2016 extends EventEmitter {
                 actorModelId: vehicle.actorModelId,
               },
               unknownGuid1: this.generateGuid(),
-            },
-            1
+            }
           );
           this.sendData(client, "Vehicle.OwnerPassengerList", {
             characterId: client.character.characterId,
@@ -1905,8 +1902,7 @@ export class ZoneServer2016 extends EventEmitter {
             "Character.RemovePlayer",
             {
               characterId: vehicle.characterId,
-            },
-            1
+            }
           );
           client.spawnedEntities.splice(index, 1);
         }
@@ -1951,8 +1947,7 @@ export class ZoneServer2016 extends EventEmitter {
         "Character.RemovePlayer",
         {
           characterId: vehicle.characterId,
-        },
-        1
+        }
       );
 
       this.sendData(
@@ -1966,8 +1961,7 @@ export class ZoneServer2016 extends EventEmitter {
             rotation: vehicle.state.rotation,
             actorModelId: vehicle.actorModelId,
           },
-        },
-        1
+        }
       );
       client.managedObjects.splice(index, 1);
       // blocks vehicleManager from taking over management during a takeover
@@ -1996,8 +1990,7 @@ export class ZoneServer2016 extends EventEmitter {
     dictionary: { [id: string]: any },
     entityCharacterId: string = "",
     packetName: any,
-    obj: any,
-    channel = 0
+    obj: any
   ) {
     if (!entityCharacterId) return;
     for (const a in this._clients) {
@@ -2007,7 +2000,7 @@ export class ZoneServer2016 extends EventEmitter {
         ) ||
         this._clients[a].character.characterId == entityCharacterId
       ) {
-        this.sendData(this._clients[a], packetName, obj, channel);
+        this.sendData(this._clients[a], packetName, obj);
       }
     }
   }
@@ -2026,7 +2019,7 @@ export class ZoneServer2016 extends EventEmitter {
         client != this._clients[a] &&
         this._clients[a].spawnedEntities.includes(dictionary[entityCharacterId])
       ) {
-        this.sendData(this._clients[a], packetName, obj, channel);
+        this.sendData(this._clients[a], packetName, obj);
       }
     }
   }
@@ -3745,8 +3738,7 @@ export class ZoneServer2016 extends EventEmitter {
   sendRawData(client: Client, data: Buffer, channel = 0) {
     this._gatewayServer.sendTunnelData(
       this.getSoeClient(client.soeClientId),
-      data,
-      channel
+      data
     );
   }
   sendChatText(client: Client, message: string, clearChat = false) {
