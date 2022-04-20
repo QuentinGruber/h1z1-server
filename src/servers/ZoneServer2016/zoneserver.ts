@@ -646,6 +646,8 @@ export class ZoneServer2016 extends EventEmitter {
           unknownArray2: weaponDefinitions.unknownArray2,
           unknownArray3: weaponDefinitions.unknownArray3,
           unknownArray4: weaponDefinitions.unknownArray4,
+          unknownArray5: weaponDefinitions.unknownArray5,
+          unknownArray6: weaponDefinitions.unknownArray6,
           /*
           unknownArray4: [
             {
