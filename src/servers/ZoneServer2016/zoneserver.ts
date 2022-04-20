@@ -642,68 +642,11 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendData(client, "ReferenceData.WeaponDefinitions", {
       data: {
         definitionsData: {
-          unknownArray1: weaponDefinitions,
-          
-          /*[
-            {
-              ID: 1389,
-              unknownData1: {
-                ID: 1389
-              }
-            },
-            {
-              ID: 12,
-              unknownData1: {
-                ID: 12
-              }
-            },
-            {
-              ID: 6,
-              unknownData1: {
-                ID: 6
-              }
-            }
-          ],*/
-          unknownArray2: [
-            {
-              ID: 1389,
-              unknownData1: {
-                ID: 1389
-              }
-            },
-            {
-              ID: 12,
-              unknownData1: {
-                ID: 12
-              }
-            },
-            {
-              ID: 6,
-              unknownData1: {
-                ID: 6
-              }
-            }
-          ],
-          unknownArray3: [
-            {
-              ID: 1389,
-              unknownData1: {
-                ID: 1389
-              }
-            },
-            {
-              ID: 12,
-              unknownData1: {
-                ID: 12
-              }
-            },
-            {
-              ID: 6,
-              unknownData1: {
-                ID: 6
-              }
-            }
-          ],
+          unknownArray1: weaponDefinitions.unknownArray1,
+          unknownArray2: weaponDefinitions.unknownArray2,
+          unknownArray3: weaponDefinitions.unknownArray3,
+          unknownArray4: weaponDefinitions.unknownArray4,
+          /*
           unknownArray4: [
             {
               ID: 1389,
@@ -764,6 +707,7 @@ export class ZoneServer2016 extends EventEmitter {
               }
             }
           ],
+          */
         }
       }
     });
