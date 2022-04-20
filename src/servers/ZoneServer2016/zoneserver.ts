@@ -3300,9 +3300,9 @@ export class ZoneServer2016 extends EventEmitter {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDef) return;
     let drinkCount = 2000;
-    let eatCount = 0;
+    const eatCount = 0;
     let givetrash = 0;
-    let timeout = 1000;
+    const timeout = 1000;
     switch (item.itemDefinitionId) {
       case 1368: // dirty water
         drinkCount = 1000;
@@ -3382,7 +3382,7 @@ export class ZoneServer2016 extends EventEmitter {
   refuelVehicle(client: Client, item: inventoryItem, vehicleGuid: string) {
     const itemDefinition = this.getItemDefinition(item.itemDefinitionId),
       nameId = itemDefinition.NAME_ID;
-    let timeout = 5000;
+    const timeout = 5000;
     let fuelValue = 2500;
     switch (item.itemDefinitionId) {
       case 1384: // ethanol

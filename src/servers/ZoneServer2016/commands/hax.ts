@@ -76,7 +76,7 @@ const hax: any = {
       );
       return;
     }
-    let wasAlreadyGod = client.character.godMode;
+    const wasAlreadyGod = client.character.godMode;
     client.character.godMode = true;
     const characterId = server.generateGuid();
     const vehicleData = new Vehicle2016(
@@ -497,7 +497,7 @@ const hax: any = {
     }
     server.sendChatText(client, `Randomized weather`);
 
-    function rnd_number(max: any, fixed: Boolean = false) {
+    function rnd_number(max: any, fixed: boolean = false) {
       const num = Math.random() * max;
       return Number(fixed ? num.toFixed(0) : num);
     }

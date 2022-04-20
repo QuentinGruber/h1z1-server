@@ -36,7 +36,7 @@ let sunPositionX = 0;
 let sunPositionY = 0;
 let sunPositionZ = 0;
 let c1 = 0;
-let c2 = 0;
+const c2 = 0;
 let c3 = 0;
 let c4 = 0;
 let temperature = 80;
@@ -410,7 +410,7 @@ export default function dynamicWeather(
 }
 
 const { startTime, timeMultiplier } = workerData;
-let { serverTime } = workerData;
+const { serverTime } = workerData;
 dynamicWeather(serverTime, startTime, timeMultiplier);
 setInterval(() => {
   dynamicWeather(serverTime, startTime, timeMultiplier);

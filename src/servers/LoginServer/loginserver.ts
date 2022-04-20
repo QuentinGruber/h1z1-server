@@ -577,7 +577,7 @@ export class LoginServer extends EventEmitter {
       const character = await this._db
         .collection("characters-light")
         .findOne({ characterId: characterId });
-      let connectionStatus = Object.values(this._zoneConnections).includes(
+      const connectionStatus = Object.values(this._zoneConnections).includes(
         serverId
       );
       debug(`connectionStatus ${connectionStatus}`);
@@ -854,7 +854,7 @@ export class LoginServer extends EventEmitter {
     if (!this._soloMode) {
       await this.updateServersStatus();
       // useless if in solomode ( never get called either)
-      let servers: Array<GameServer> = await this._db
+      const servers: Array<GameServer> = await this._db
         .collection("servers")
         .find({
           serverVersionTag: this.getServerVersionTag(client.protocolName),

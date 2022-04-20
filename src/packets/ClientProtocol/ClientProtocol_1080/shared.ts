@@ -353,7 +353,7 @@ export function packPositionUpdateData(obj: any) {
 }
 
 export function packItemDefinitionData(obj: any) {
-  let compressionData = Buffer.allocUnsafe(4);
+  const compressionData = Buffer.allocUnsafe(4);
   let data = Buffer.allocUnsafe(4);
   data.writeUInt32LE(obj["ID"], 0); // could be the actual item id idk
   const itemDefinitionData = DataSchema.pack(itemDefinitionSchema, obj).data;
