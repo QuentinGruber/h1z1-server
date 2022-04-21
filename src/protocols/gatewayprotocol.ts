@@ -13,10 +13,11 @@
 
 const debug = require("debug")("GatewayProtocol");
 import DataSchema from "h1z1-dataschema";
+import { GatewayProtocolReadingFormat } from "../types/protocols";
 import { packetDescriptors, packetTypes } from "../packets/gatewaypackets";
 
 export class GatewayProtocol {
-  parse(data: Buffer) {
+  parse(data: Buffer): GatewayProtocolReadingFormat | null {
     const packetType = data[0] & 0x1f;
     let result;
     const packet = packetDescriptors[packetType];
@@ -52,6 +53,7 @@ export class GatewayProtocol {
           };
         } else {
           debug("parse()", "No schema for packet " + packet.name);
+          return null;
         }
       }
     } else {
@@ -59,6 +61,7 @@ export class GatewayProtocol {
         "parse()",
         "Unknown or unhandled gateway packet type: " + packetType
       );
+      return null;
     }
   }
 
