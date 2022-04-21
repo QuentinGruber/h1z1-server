@@ -13,6 +13,7 @@
 
 const debug = require("debug")("LoginProtocol");
 import DataSchema from "h1z1-dataschema";
+import { LoginProtocolReadingFormat } from "../types/protocols";
 
 export class LoginProtocol2016 {
   loginPackets: any;
@@ -25,14 +26,14 @@ export class LoginProtocol2016 {
       require("../packets/LoginUdp/LoginUdp_11/loginTunnelPackets").default;
   }
 
-  parse(data: any) {
+  parse(data: Buffer): LoginProtocolReadingFormat | null {
     const packetType = data[0];
     let result;
     const packet = this.loginPackets.Packets[packetType];
     if (packet) {
       if (packet.name === "TunnelAppPacketClientToServer") {
         const { schema, name } =
-          this.tunnelLoginPackets.Packets[data.readUint8(14)];
+          this.tunnelLoginPackets.Packets[data.readUInt8(14)];
         const tunnelData = data.slice(15);
         try {
           result = DataSchema.parse(schema, tunnelData, 0, undefined).result;
@@ -64,17 +65,17 @@ export class LoginProtocol2016 {
         };
       } else {
         debug("parse()", "No schema for packet ", packet.name);
-        return false;
+        return null;
       }
     } else {
       debug(
         "parse() " + "Unknown or unhandled login packet type: " + packetType
       );
-      return false;
+      return null;
     }
   }
 
-  pack(packetName: string, object: any): Buffer {
+  pack(packetName: string, object: any): Buffer | null {
     const packetType = this.loginPackets.PacketTypes[packetName];
     const packet = this.loginPackets.Packets[packetType];
     let payload;
@@ -120,6 +121,7 @@ export class LoginProtocol2016 {
           );
         } catch (error) {
           console.error(`${packet.name} : ${error}`);
+          return null;
         }
         if (payload) {
           data = Buffer.allocUnsafe(1 + payload.length);
@@ -127,12 +129,15 @@ export class LoginProtocol2016 {
           payload.data.copy(data, 1);
         } else {
           debug("Could not pack data schema for " + packet.name);
+          return null;
         }
       } else {
         debug("pack()", "No schema for packet " + packet.name);
+        return null;
       }
     } else {
       debug("pack()", "Unknown or unhandled login packet type: " + packetType);
+      return null;
     }
     return data;
   }
