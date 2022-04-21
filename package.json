@@ -40,6 +40,7 @@
     "gen-packets-handler": "npx ts-node ./scripts/genPacketHandlersFromMap.ts && npx prettier -w ./src/servers/ZoneServer/zonepackethandlers.ts",
     "fix-signatures": "npx ts-node ./scripts/fixSignatures.ts && npm run prettier_sources",
     "gen-doc": "npx typedoc",
+    "lint": "npx eslint src",
     "build": "npm run build-all",
     "build-all": "tsc -p ./tsconfig.json",
     "build-login-2015": "tsc -p ./tsconfig-2015-login.json",
