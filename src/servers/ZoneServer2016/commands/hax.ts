@@ -11,6 +11,8 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
+// TODO enable @typescript-eslint/no-unused-vars
 import fs from "fs";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { Vehicle2016 as Vehicle, Vehicle2016 } from "../classes/vehicle";

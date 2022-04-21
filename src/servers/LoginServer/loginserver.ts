@@ -376,7 +376,8 @@ export class LoginServer extends EventEmitter {
     }
   }
 
-  async LoginRequest(client: Client, sessionId: string, fingerprint: string) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async LoginRequest(client: Client, sessionId: string, fingerprint: string) { // we would use fingerprint at some point, and we are on live server custom implementation
     if (client.protocolName == "LoginUdp_11" && this._soloMode) {
       const SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters2016.json`);
       // if character file is old, delete it
@@ -729,7 +730,7 @@ export class LoginServer extends EventEmitter {
     packetName: string,
     packetObj: any
   ): Promise<number> {
-    const askZonePromise = await new Promise((resolve, reject) => {
+    const askZonePromise = await new Promise((resolve) => {
       this._internalReqCount++;
       const reqId = this._internalReqCount;
       try {

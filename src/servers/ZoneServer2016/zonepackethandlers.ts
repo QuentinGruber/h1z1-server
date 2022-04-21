@@ -11,6 +11,8 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
+// TODO enable @typescript-eslint/no-unused-vars
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
 
 import { ZoneServer2016 } from "./zoneserver";
@@ -367,7 +369,7 @@ export class zonePacketHandlers {
       packet: any
     ) {
       const { channel, message } = packet.data;
-      server.sendChat(client, message, channel);
+      server.sendChat(client, message);
     }),
       (this.ClientInitializationDetails = function (
         server: ZoneServer2016,

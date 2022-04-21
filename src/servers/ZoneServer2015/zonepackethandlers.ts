@@ -10,7 +10,8 @@
 //
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
-
+/* eslint-disable @typescript-eslint/no-unused-vars */
+// TODO enable @typescript-eslint/no-unused-vars
 import { ZoneClient as Client } from "./classes/zoneclient";
 
 import { ZoneServer2015 } from "./zoneserver";

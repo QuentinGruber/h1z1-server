@@ -302,7 +302,7 @@ export class SOEServer extends EventEmitter {
             this.emit("appdata", null, client, data);
           });
 
-          client.outputStream.on("cacheError", (err: string, data: Buffer) => {
+          client.outputStream.on("cacheError", () => {
             this.emit("fatalError", client);
           });
 

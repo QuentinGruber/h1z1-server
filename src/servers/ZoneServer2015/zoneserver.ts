@@ -209,19 +209,21 @@ export class ZoneServer2015 extends EventEmitter {
 
       this._h1emuZoneServer.on(
         "session",
-        (err: string, client: H1emuClient, status: number) => {
+        (err: string, client: H1emuClient) => {
           if (err) {
+            debug(`An error occured for LoginConnection with ${client.sessionId}`);
             console.error(err);
           } else {
-            debug(`LoginConnection established`);
+            debug(`LoginConnection established for ${client.sessionId}`);
           }
         }
       );
 
       this._h1emuZoneServer.on(
         "sessionfailed",
-        (err: string, client: H1emuClient, status: number) => {
-          console.error("h1emuServer sessionfailed");
+        (err: string, client: H1emuClient) => {
+          console.error(`h1emuServer sessionfailed for ${client.sessionId}`);
+          console.error(err);
           process.exit(1);
         }
       );
@@ -349,7 +351,7 @@ export class ZoneServer2015 extends EventEmitter {
 
   async fetchLoginInfo() {
     const resolver = new Resolver();
-    const loginServerAddress = await new Promise((resolve, reject) => {
+    const loginServerAddress = await new Promise((resolve) => {
       resolver.resolve4("loginserver.h1emu.com", (err, addresses) => {
         if (!err) {
           resolve(addresses[0]);
@@ -710,7 +712,7 @@ export class ZoneServer2015 extends EventEmitter {
     );
   }
 
-  reloadPackets(client: Client, intervalTime = -1): void {
+  reloadPackets(client: Client): void {
     this.reloadZonePacketHandlers();
     this._protocol.reloadPacketDefinitions();
     this.sendChatText(client, "[DEV] Packets reloaded", true);
@@ -1450,8 +1452,7 @@ export class ZoneServer2015 extends EventEmitter {
             characterId: vehicle.npcData.characterId,
             timeToDisappear: 13000,
             stickyEffectId: 156,
-          },
-          1
+          }
         );
         if (vehicle.passengers.passenger1) {
           const client = this._clients[vehicle.passengers.passenger1];
@@ -2292,8 +2293,7 @@ export class ZoneServer2015 extends EventEmitter {
       "PlayerUpdate.RemovePlayerGracefully",
       {
         characterId: characterId,
-      },
-      1
+      }
     );
   }
 
@@ -2302,8 +2302,7 @@ export class ZoneServer2015 extends EventEmitter {
       "PlayerUpdate.RemovePlayerGracefully",
       {
         characterId: characterId,
-      },
-      1
+      }
     );
     delete dictionnary[characterId];
   }
@@ -2549,11 +2548,11 @@ export class ZoneServer2015 extends EventEmitter {
     }
   }
 
-  sendDataToAll(packetName: h1z1PacketsType, obj: any, channel = 0): void {
+  sendDataToAll(packetName: h1z1PacketsType, obj: any): void {
     const data = this._protocol.pack(packetName, obj);
     if(data){
       for (const a in this._clients) {
-        this.sendRawData(this._clients[a], data, channel);
+        this.sendRawData(this._clients[a], data);
       }
     }
   }
@@ -2561,8 +2560,7 @@ export class ZoneServer2015 extends EventEmitter {
   sendDataToAllOthers(
     client: Client,
     packetName: h1z1PacketsType,
-    obj: any,
-    channel = 0
+    obj: any
   ): void {
     for (const a in this._clients) {
       if (client != this._clients[a]) {
@@ -2571,16 +2569,16 @@ export class ZoneServer2015 extends EventEmitter {
     }
   }
 
-  sendRawToAll(data: Buffer, channel = 0): void {
+  sendRawToAll(data: Buffer): void {
     for (const a in this._clients) {
-      this.sendRawData(this._clients[a], data, channel);
+      this.sendRawData(this._clients[a], data);
     }
   }
 
-  sendRawToAllOthers(client: Client, data: Buffer, channel = 0): void {
+  sendRawToAllOthers(client: Client, data: Buffer): void {
     for (const a in this._clients) {
       if (client != this._clients[a]) {
-        this.sendRawData(this._clients[a], data, channel);
+        this.sendRawData(this._clients[a], data);
       }
     }
   }
@@ -2596,7 +2594,7 @@ export class ZoneServer2015 extends EventEmitter {
     });
   }
 
-  sendRawData(client: Client, data: Buffer, channel = 0): void {
+  sendRawData(client: Client, data: Buffer): void {
     this._gatewayServer.sendTunnelData(
       this.getSoeClient(client.soeClientId),
       data

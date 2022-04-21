@@ -319,7 +319,7 @@ export class H1Z1Protocol {
     };
   }
 
-  parseUpdatePositionRaw(data: Buffer, offset: number) {
+  parseUpdatePositionRaw(data: Buffer) {
     // Temp workaround
     const obj = {} as UpdatePositionObject;
     obj.raw = data;

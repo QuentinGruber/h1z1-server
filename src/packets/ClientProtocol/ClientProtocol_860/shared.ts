@@ -682,7 +682,9 @@ export function parseItemData(
   };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function packItemData(obj: any, referenceData: any) {
+  throw new Error("Not implemented");
   /*
   const baseData = DataSchema.pack(itemBaseSchema, obj.baseItem);
   let detailData, detailSchema;
