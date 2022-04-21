@@ -14,7 +14,6 @@
 import { _, randomIntFromInterval } from "../../../utils/utils";
 import { parentPort, workerData } from "worker_threads";
 import { H1Z1Protocol } from "../../../protocols/h1z1protocol";
-const debug = require("debug")("dynamicWeather");
 
 const protocol = new H1Z1Protocol("ClientProtocol_860");
 let weatherChoosen = false;
@@ -36,7 +35,7 @@ let sunPositionX = 0;
 let sunPositionY = 0;
 let sunPositionZ = 0;
 let c1 = 0;
-const c2 = 0;
+//const c2 = 0;
 let c3 = 0;
 let c4 = 0;
 let temperature = 80;

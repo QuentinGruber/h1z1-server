@@ -269,7 +269,6 @@ const hax: any = {
   },
   state: function (server: ZoneServer2015, client: Client, args: any[]) {
     const state = args[1];
-    const stateId = "";
     switch (state) {
       case "list":
         server.sendChatText(
