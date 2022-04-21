@@ -13,6 +13,7 @@
 
 const debug = require("debug")("H1Z1Protocol");
 import DataSchema from "h1z1-dataschema";
+import { H1z1ProtocolReadingFormat } from "../types/protocols";
 import { packUnsignedIntWith2bitLengthValue } from "../packets/ClientProtocol/ClientProtocol_860/shared";
 import {
   clearFolderCache,
@@ -414,7 +415,7 @@ export class H1Z1Protocol {
     return [packet, offset];
   }
 
-  parse(data: Buffer, flag: number, fromClient: boolean, referenceData?: any) {
+  parse(data: Buffer, flag: number, fromClient: boolean, referenceData?: any): H1z1ProtocolReadingFormat | null {
     const H1Z1Packets = this.H1Z1Packets;
     let opCode = data[0],
       offset = 0,
@@ -510,6 +511,7 @@ export class H1Z1Protocol {
       };
     } else {
       debug("Unhandled zone packet:", data[0], data[1], data[2]);
+      return null
       //fs.writeFileSync("zone_failed_" + Date.now() + "_" + Math.random() + ".dat", data);
     }
     /*

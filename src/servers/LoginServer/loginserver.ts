@@ -263,7 +263,9 @@ export class LoginServer extends EventEmitter {
       default:
         return;
     }
-    this._soeServer.sendAppData(client, data);
+    if(data){
+      this._soeServer.sendAppData(client, data);
+    }
   }
 
   getServerVersionTag(protocolName: string) {
