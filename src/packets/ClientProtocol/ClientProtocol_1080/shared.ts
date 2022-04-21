@@ -2359,7 +2359,7 @@ export const itemDefinitionSchema: any[] = [
   { name: "EQUIP_COUNT_MAX", type: "uint32", defaultValue: 0 },
   { name: "CURRENCY_TYPE", type: "int32", defaultValue: 0 }, // can be -1
   { name: "DATASHEET_ID", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword14", type: "uint32", defaultValue: 0 }, // was ITEM_TYPE
+  { name: "ITEM_TYPE_1", type: "uint32", defaultValue: 0 }, // also ITEM_TYPE?
   { name: "SKILL_SET_ID", type: "uint32", defaultValue: 0 },
   { name: "OVERLAY_TEXTURE", type: "string", defaultValue: "" },
   { name: "DECAL_SLOT", type: "string", defaultValue: "" },
@@ -2383,10 +2383,10 @@ export const itemDefinitionSchema: any[] = [
   { name: "unknownBoolean1", type: "boolean", defaultValue: true },
   { name: "IS_ARMOR", type: "boolean", defaultValue: false },
   { name: "unknownDword52", type: "uint32", defaultValue: 28 },
-  { name: "containerDefinitionId", type: "uint32", defaultValue: 28 },
-  { name: "unknownDword54", type: "uint32", defaultValue: 28 },
-  { name: "unknownDword55", type: "uint32", defaultValue: 28 },
-  { name: "unknownString8", type: "string", defaultValue: "" },
+  { name: "PARAM1", type: "uint32", defaultValue: 0 },
+  { name: "PARAM2", type: "uint32", defaultValue: 0 },
+  { name: "PARAM3", type: "uint32", defaultValue: 0 },
+  { name: "STRING_PARAM1", type: "string", defaultValue: "" },
   { name: "UI_MODEL_CAMERA_ID", type: "uint32", defaultValue: 0 },
   { name: "unknownDword57", type: "uint32", defaultValue: 932 },
   { name: "SCRAP_VALUE_OVERRIDE", type: "int32", defaultValue: 0 }, // can be -1

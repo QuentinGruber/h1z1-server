@@ -648,68 +648,6 @@ export class ZoneServer2016 extends EventEmitter {
           unknownArray4: weaponDefinitions.unknownArray4,
           unknownArray5: weaponDefinitions.unknownArray5,
           unknownArray6: weaponDefinitions.unknownArray6,
-          /*
-          unknownArray4: [
-            {
-              ID: 1389,
-              unknownData1: {
-                ID: 1389
-              }
-            },
-            {
-              ID: 12,
-              unknownData1: {
-                ID: 12
-              }
-            },
-            {
-              ID: 6,
-              unknownData1: {
-                ID: 6
-              }
-            }
-          ],
-          unknownArray5: [
-            {
-              ID: 1389,
-              unknownData1: {
-                ID: 1389
-              }
-            },
-            {
-              ID: 12,
-              unknownData1: {
-                ID: 12
-              }
-            },
-            {
-              ID: 6,
-              unknownData1: {
-                ID: 6
-              }
-            }
-          ],
-          unknownArray6: [
-            {
-              ID: 1389,
-              unknownData1: {
-                ID: 1389
-              }
-            },
-            {
-              ID: 12,
-              unknownData1: {
-                ID: 12
-              }
-            },
-            {
-              ID: 6,
-              unknownData1: {
-                ID: 6
-              }
-            }
-          ],
-          */
         }
       }
     });
@@ -868,8 +806,7 @@ export class ZoneServer2016 extends EventEmitter {
             definitionData: {
               ...itemDef,
               HUD_IMAGE_SET_ID: itemDef.IMAGE_SET_ID,
-              containerDefinitionId:
-                itemDef.ITEM_TYPE == 34 || itemDef.ITEM_TYPE == 20 ? itemDef.PARAM1 : 0,
+              ITEM_TYPE_1: itemDef.ITEM_TYPE,
               flags1: {
                 ...itemDef,
               },
