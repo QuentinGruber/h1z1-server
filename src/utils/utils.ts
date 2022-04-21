@@ -22,9 +22,12 @@ import {
 } from "timers/promises";
 import { MongoClient } from "mongodb";
 import { MAX_TRANSIENT_ID } from "./constants";
+import { ZoneServer2016 } from "servers/ZoneServer2016/zoneserver";
+import { ZoneServer2015 } from "servers/ZoneServer2015/zoneserver";
+import { positionUpdate } from "types/zoneserver";
 
 export class customLodash {
-  cloneDeep(value: any) {
+  cloneDeep(value: unknown) {
     return v8.deserialize(v8.serialize(value));
   }
 
@@ -91,7 +94,7 @@ export function eul2quat(angle: number[]) {
 }
 
 export async function zoneShutdown(
-  server: any,
+  server: ZoneServer2016 | ZoneServer2015,
   startedTime: number,
   timeLeft: number,
   message: string
@@ -177,18 +180,16 @@ export function getDistance(p1: Float32Array, p2: Float32Array) {
 
 export function createPositionUpdate(
   position: Float32Array,
-  rotation: any,
-  gameTime: any
-): any {
-  const obj: any = {
+  rotation: Float32Array,
+  gameTime: number
+): positionUpdate {
+  const obj: positionUpdate = {
     flags: 4095,
-    unknown2_int32: gameTime,
-    unknown3_int8: 0,
-    unknown4: 1,
-    position: position,
+    sequenceTime: gameTime,
+    position: [...position],
   };
   if (rotation) {
-    obj.unknown13_float = rotation;
+    obj.rotation = rotation;
   }
   return obj;
 }
@@ -222,7 +223,7 @@ export const removeCacheFullDir = function (directoryPath: string): void {
 };
 
 export const generateCommandList = (
-  commandObject: any,
+  commandObject: string[],
   commandNamespace: string
 ): string[] => {
   const commandList: string[] = [];
@@ -340,6 +341,7 @@ export class Scheduler {
   static async yield() {
     return await setImmediatePromise();
   }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static async wait(delay: number, options?: any) {
     return await setTimeoutPromise(delay, undefined, {
       signal: options?.signal,
