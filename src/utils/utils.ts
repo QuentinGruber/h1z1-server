@@ -24,8 +24,6 @@ import { MongoClient } from "mongodb";
 import { MAX_TRANSIENT_ID } from "./constants";
 
 export class customLodash {
-  constructor() {}
-
   cloneDeep(value: any) {
     return v8.deserialize(v8.serialize(value));
   }
@@ -43,7 +41,7 @@ export class customLodash {
     );
   }
 
-  forEach(object: Object, callback: Function) {
+  forEach(object: Record<string, unknown>, callback: (arg0: any)=>void) {
     const objectLength = Object.keys(object).length;
     const objectValues = Object.values(object);
     for (let index = 0; index < objectLength; index++) {
@@ -51,7 +49,7 @@ export class customLodash {
     }
   }
 
-  size(object: Object) {
+  size(object: Record<string, unknown>) {
     return Object.keys(object).length;
   }
 
@@ -251,6 +249,7 @@ export const lz4_decompress = function (
   let offsetIn = 0,
     offsetOut = 0;
 
+  // eslint-disable-next-line no-constant-condition
   while (1) {
     const token: any = data[offsetIn];
     let literalLength: any = token >> 4;
@@ -338,7 +337,6 @@ export const clearFolderCache = (
 
 // experimental custom implementation of the scheduler API
 export class Scheduler {
-  constructor() {}
   static async yield() {
     return await setImmediatePromise();
   }

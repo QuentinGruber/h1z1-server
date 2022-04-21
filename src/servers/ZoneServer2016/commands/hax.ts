@@ -300,10 +300,10 @@ const hax: any = {
     const range = Number(args[1]),
       lat = client.character.state.position[0],
       long = client.character.state.position[2];
-    let points = [],
-      rangeFixed = range,
-      numberOfPoints = Number(args[2]),
-      degreesPerPoint = 360 / numberOfPoints;
+    const points = []
+    let rangeFixed = range
+    const numberOfPoints = Number(args[2])
+    const degreesPerPoint = 360 / numberOfPoints;
     for (let j = 1; j < range; j++) {
       let currentAngle = 0,
         x2,
@@ -427,7 +427,7 @@ const hax: any = {
         server.sendChatText(client, `Weather templates :`);
         _.forEach(
           server._weatherTemplates,
-          function (element: { templateName: any }) {
+          (element: { templateName: any }) => {
             server.sendChatText(client, `- ${element.templateName}`);
           }
         );

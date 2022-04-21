@@ -315,7 +315,9 @@ export class zonePacketHandlers {
       server: ZoneServer2016,
       client: Client,
       packet: any
-    ) {};
+    ) {
+      // nothing for now 
+    };
     this.ClientLog = function (
       server: ZoneServer2016,
       client: Client,
@@ -1356,8 +1358,8 @@ export class zonePacketHandlers {
       ).PLACEMENT_MODEL_ID;
       const characterId = server.generateGuid(),
         transientId = server.getTransientId(characterId);
-      let tempObj: any = {},
-        trap: TrapEntity,
+      const tempObj: any = {}
+      let trap: TrapEntity,
         explosive: ExplosiveEntity;
       switch (packet.data.itemDefinitionId) {
         case 1804:

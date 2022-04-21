@@ -1685,7 +1685,7 @@ export class ZoneServer2016 extends EventEmitter {
         const door = this._doors[characterId];
         if (
           isPosInRadius(
-            door.npcRenderDistance!,
+            door.npcRenderDistance,
             client.character.state.position,
             door.state.position
           ) &&
@@ -3400,8 +3400,8 @@ export class ZoneServer2016 extends EventEmitter {
     const itemDefinition = this.getItemDefinition(item.itemDefinitionId),
       nameId = itemDefinition.NAME_ID,
       itemType = itemDefinition.ITEM_TYPE;
-    let count = 1,
-      timeout = 3000;
+    let count = 1
+    const timeout = 3000;
     switch (itemType) {
       case 36:
       case 39:

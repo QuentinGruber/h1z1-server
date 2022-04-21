@@ -13,8 +13,11 @@
 
 import { parentPort, workerData, Worker } from "worker_threads";
 
+interface Target {
+    prototype:any
+}
 
-export function healthThreadDecorator(target:Function) {
+export function healthThreadDecorator(target:Target) {
     target.prototype._healthWorker = new Worker(
         `${__dirname}/healthWorker.js`,
         {

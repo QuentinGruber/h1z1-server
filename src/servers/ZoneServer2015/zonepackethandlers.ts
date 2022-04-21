@@ -1007,12 +1007,16 @@ export class zonePacketHandlers {
       server: ZoneServer2015,
       client: Client,
       packet: any
-    ) {};
+    ) {
+      // nothing 
+    };
     this.commandClearInWater = function (
       server: ZoneServer2015,
       client: Client,
       packet: any
-    ) {};
+    ) {
+      // nothing 
+    };
     this.commandInteractionSelect = function (
       server: ZoneServer2015,
       client: Client,

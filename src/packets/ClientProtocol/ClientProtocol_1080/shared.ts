@@ -143,22 +143,22 @@ export function readPositionUpdateData(data: Buffer, offset: number) {
 
   obj["unknown3_int8"] = data.readUInt8(offset);
   offset += 1;
-
+  let v;
   if (obj.flags & 1) {
-    var v = readUnsignedIntWith2bitLengthValue(data, offset);
+    v = readUnsignedIntWith2bitLengthValue(data, offset);
     obj["stance"] = v.value;
     offset += v.length;
   }
 
   if (obj.flags & 2) {
     obj["position"] = [];
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["position"][0] = v.value / 100;
     offset += v.length;
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["position"][1] = v.value / 100;
     offset += v.length;
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["position"][2] = v.value / 100;
     offset += v.length;
   }
@@ -169,31 +169,31 @@ export function readPositionUpdateData(data: Buffer, offset: number) {
   }
 
   if (obj.flags & 0x40) {
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["frontTilt"] = v.value / 100; // not 100% sure about name
     offset += v.length;
   }
 
   if (obj.flags & 0x80) {
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["sideTilt"] = v.value / 100; // not 100% sure
     offset += v.length;
   }
 
   if (obj.flags & 4) {
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["angleChange"] = v.value / 100; // maybe
     offset += v.length;
   }
 
   if (obj.flags & 0x8) {
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["verticalSpeed"] = v.value / 100;
     offset += v.length;
   }
 
   if (obj.flags & 0x10) {
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["horizontalSpeed"] = v.value / 10;
     offset += v.length;
   }
@@ -201,29 +201,29 @@ export function readPositionUpdateData(data: Buffer, offset: number) {
   if (obj.flags & 0x100) {
     // either the previous one i meantioned is rotation delta or this one cause rotation is almost neved sent by client
     obj["unknown12_float"] = [];
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["unknown12_float"][0] = v.value / 100;
     offset += v.length;
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["unknown12_float"][1] = v.value / 100;
     offset += v.length;
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["unknown12_float"][2] = v.value / 100;
     offset += v.length;
   }
 
   if (obj.flags & 0x200) {
     const rotationEul = [];
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     rotationEul[0] = v.value / 100;
     offset += v.length;
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     rotationEul[1] = v.value / 100;
     offset += v.length;
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     rotationEul[2] = v.value / 100;
     offset += v.length;
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     rotationEul[3] = v.value / 100;
     obj["rotation"] = eul2quat(rotationEul);
     obj["rotationRaw"] = rotationEul;
@@ -232,13 +232,13 @@ export function readPositionUpdateData(data: Buffer, offset: number) {
   }
 
   if (obj.flags & 0x400) {
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["direction"] = v.value / 10;
     offset += v.length;
   }
 
   if (obj.flags & 0x800) {
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["engineRPM"] = v.value / 10;
     offset += v.length;
   }
