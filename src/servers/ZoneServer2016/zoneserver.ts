@@ -260,19 +260,21 @@ export class ZoneServer2016 extends EventEmitter {
 
       this._h1emuZoneServer.on(
         "session",
-        (err: string, client: H1emuClient, status: number) => {
+        (err: string, client: H1emuClient) => {
           if (err) {
+            debug(`An error occured for LoginConnection with ${client.sessionId}`);
             console.error(err);
           } else {
-            debug(`LoginConnection established`);
+            debug(`LoginConnection established for ${client.sessionId}`);
           }
         }
       );
 
       this._h1emuZoneServer.on(
         "sessionfailed",
-        (err: string, client: H1emuClient, status: number) => {
-          console.error("h1emuServer sessionfailed");
+        (err: string, client: H1emuClient) => {
+          console.error(`h1emuServer sessionfailed for ${client.sessionId}`);
+          console.error(err);
           process.exit(1);
         }
       );
@@ -997,7 +999,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  damageVehicle(damage: number, vehicle: Vehicle, loopDamageMs = 0) {
+  damageVehicle(damage: number, vehicle: Vehicle) {
     if (!vehicle.isInvulnerable) {
       let destroyedVehicleEffect: number;
       let minorDamageEffect: number;
@@ -1515,8 +1517,7 @@ export class ZoneServer2016 extends EventEmitter {
       "Character.RemovePlayer",
       {
         characterId: characterId,
-      },
-      1
+      }
     );
   }
 
@@ -1685,7 +1686,7 @@ export class ZoneServer2016 extends EventEmitter {
         const door = this._doors[characterId];
         if (
           isPosInRadius(
-            door.npcRenderDistance!,
+            door.npcRenderDistance,
             client.character.state.position,
             door.state.position
           ) &&
@@ -1760,7 +1761,7 @@ export class ZoneServer2016 extends EventEmitter {
       );
     }
   }
-  sendChat(client: Client, message: string, channel: number) {
+  sendChat(client: Client, message: string) {
     if (!this._soloMode) {
       this.sendDataToAll("Chat.ChatText", {
         message: `${client.character.name}: ${message}`,
@@ -2010,8 +2011,7 @@ export class ZoneServer2016 extends EventEmitter {
     client: Client,
     entityCharacterId: string = "",
     packetName: any,
-    obj: any,
-    channel = 0
+    obj: any
   ) {
     if (!entityCharacterId) return;
     for (const a in this._clients) {
@@ -3300,9 +3300,9 @@ export class ZoneServer2016 extends EventEmitter {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDef) return;
     let drinkCount = 2000;
-    let eatCount = 0;
+    const eatCount = 0;
     let givetrash = 0;
-    let timeout = 1000;
+    const timeout = 1000;
     switch (item.itemDefinitionId) {
       case 1368: // dirty water
         drinkCount = 1000;
@@ -3382,7 +3382,7 @@ export class ZoneServer2016 extends EventEmitter {
   refuelVehicle(client: Client, item: inventoryItem, vehicleGuid: string) {
     const itemDefinition = this.getItemDefinition(item.itemDefinitionId),
       nameId = itemDefinition.NAME_ID;
-    let timeout = 5000;
+    const timeout = 5000;
     let fuelValue = 2500;
     switch (item.itemDefinitionId) {
       case 1384: // ethanol
@@ -3400,8 +3400,8 @@ export class ZoneServer2016 extends EventEmitter {
     const itemDefinition = this.getItemDefinition(item.itemDefinitionId),
       nameId = itemDefinition.NAME_ID,
       itemType = itemDefinition.ITEM_TYPE;
-    let count = 1,
-      timeout = 3000;
+    let count = 1
+    const timeout = 3000;
     switch (itemType) {
       case 36:
       case 39:
@@ -3735,7 +3735,7 @@ export class ZoneServer2016 extends EventEmitter {
   getSoeClient(soeClientId: string): SOEClient {
     return this._gatewayServer._soeServer._clients[soeClientId];
   }
-  sendRawData(client: Client, data: Buffer, channel = 0) {
+  sendRawData(client: Client, data: Buffer) {
     this._gatewayServer.sendTunnelData(
       this.getSoeClient(client.soeClientId),
       data
@@ -3789,7 +3789,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
   async fetchLoginInfo() {
     const resolver = new Resolver();
-    const loginServerAddress = await new Promise((resolve, reject) => {
+    const loginServerAddress = await new Promise((resolve) => {
       resolver.resolve4("loginserver.h1emu.com", (err, addresses) => {
         if (!err) {
           resolve(addresses[0]);
@@ -3823,11 +3823,11 @@ export class ZoneServer2016 extends EventEmitter {
       refreshTimeout && client.savePositionTimer.refresh();
     }
   }
-  sendDataToAll(packetName: h1z1PacketsType, obj: any, channel = 0) {
+  sendDataToAll(packetName: h1z1PacketsType, obj: any) {
     const data = this._protocol.pack(packetName, obj);
     if(data){
       for (const a in this._clients) {
-        this.sendRawData(this._clients[a], data, channel);
+        this.sendRawData(this._clients[a], data);
       }
     }
   }
@@ -3880,7 +3880,9 @@ export class ZoneServer2016 extends EventEmitter {
     const delta = Date.now() - this._startTime;
     return this._serverTime + delta;
   }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   dismissVehicle(vehicleGuid: string) {
+    throw new Error("Method not implemented.");
     /*
     this.sendDataToAll("PlayerUpdate.RemovePlayerGracefully", {
       characterId: vehicleGuid,
@@ -3894,7 +3896,7 @@ export class ZoneServer2016 extends EventEmitter {
     this._characterIds[characterId] = generatedTransient;
     return generatedTransient;
   }
-  reloadPackets(client: Client, intervalTime = -1) {
+  reloadPackets(client: Client) {
     this.reloadZonePacketHandlers();
     this._protocol.reloadPacketDefinitions();
     this.sendChatText(client, "[DEV] Packets reloaded", true);

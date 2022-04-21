@@ -18,7 +18,7 @@
     "@swc/core": "1.2.160",
     "debug": "4.3.4",
     "h1emu-core": "^0.8.2",
-    "h1z1-dataschema": "1.5.9",
+    "h1z1-dataschema": "^1.5.11",
     "mongodb": "4.5.0",
     "typescript": "4.6.3",
     "v8-compile-cache": "2.3.0"
@@ -27,6 +27,9 @@
     "src": "./src"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.20.0",
+    "@typescript-eslint/parser": "^5.20.0",
+    "eslint": "^8.13.0",
     "glob": "8.0.1",
     "prettier": "2.6.2",
     "ts-node": "10.7.0",
@@ -37,6 +40,7 @@
     "gen-packets-handler": "npx ts-node ./scripts/genPacketHandlersFromMap.ts && npx prettier -w ./src/servers/ZoneServer/zonepackethandlers.ts",
     "fix-signatures": "npx ts-node ./scripts/fixSignatures.ts && npm run prettier_sources",
     "gen-doc": "npx typedoc",
+    "lint": "npx eslint src",
     "build": "npm run build-all",
     "build-all": "tsc -p ./tsconfig.json",
     "build-login-2015": "tsc -p ./tsconfig-2015-login.json",

@@ -127,7 +127,7 @@ export class Vehicle2016 extends BaseFullCharacter {
   }
 
   getPassengerList(): string[] {
-    let passengers: string[] = [];
+    const passengers: string[] = [];
     for (const seatId in this.seats) {
       if (this.seats[seatId]) {
         passengers.push(this.seats[seatId]);

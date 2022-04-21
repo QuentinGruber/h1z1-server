@@ -55,6 +55,7 @@ export abstract class H1emuServer extends EventEmitter {
     return client;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   messageHandler(messageType: string, data: Buffer, client: H1emuClient): void {
     throw new Error("You need to implement messageHandler !");
   }

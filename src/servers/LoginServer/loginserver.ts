@@ -40,6 +40,48 @@ const debugName = "LoginServer";
 const debug = require("debug")(debugName);
 const characterItemDefinitionsDummy = require("../../../data/2015/sampleData/characterItemDefinitionsDummy.json");
 
+
+function getCharacterModelData(payload: any): any {
+  switch (payload.headType) {
+    case 6: // black female
+      return {
+        modelId: 9474,
+        headActor: "SurvivorFemale_Head_03.adr",
+        hairModel: "SurvivorFemale_Hair_ShortMessy.adr",
+      };
+    case 5: // black male
+      return {
+        modelId: 9240,
+        headActor: "SurvivorMale_Head_04.adr",
+        hairModel: "SurvivorMale_HatHair_Short.adr",
+      };
+    case 4: // older white female
+      return {
+        modelId: 9474,
+        headActor: "SurvivorFemale_Head_02.adr",
+        hairModel: "SurvivorFemale_Hair_ShortBun.adr",
+      };
+    case 3: // young white female
+      return {
+        modelId: 9474,
+        headActor: "SurvivorFemale_Head_02.adr",
+        hairModel: "SurvivorFemale_Hair_ShortBun.adr",
+      };
+    case 2: // bald white male
+      return {
+        modelId: 9240,
+        headActor: "SurvivorMale_Head_01.adr",
+        hairModel: "SurvivorMale_HatHair_Short.adr",
+      };
+    case 1: // white male
+    default:
+      return {
+        modelId: 9240,
+        headActor: "SurvivorMale_Head_01.adr",
+        hairModel: "SurvivorMale_Hair_ShortMessy.adr",
+      };
+  }
+}
 @healthThreadDecorator
 export class LoginServer extends EventEmitter {
   _soeServer: SOEServer;
@@ -289,7 +331,9 @@ export class LoginServer extends EventEmitter {
               `${this._appDataFolder}/single_player_characters.json`
             )
           ];
-        } catch (e) {}
+        } catch (e) {
+          console.error(e);
+        }
         return require(`${this._appDataFolder}/single_player_characters.json`);
       } else {
         // 2015 mongo
@@ -313,7 +357,9 @@ export class LoginServer extends EventEmitter {
               `${this._appDataFolder}/single_player_characters2016.json`
             )
           ];
-        } catch (e) {}
+        } catch (e) {
+          console.error(e)
+        }
         return require(`${this._appDataFolder}/single_player_characters2016.json`);
       } else {
         // 2016 mongo
@@ -330,7 +376,8 @@ export class LoginServer extends EventEmitter {
     }
   }
 
-  async LoginRequest(client: Client, sessionId: string, fingerprint: string) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async LoginRequest(client: Client, sessionId: string, fingerprint: string) { // we would use fingerprint at some point, and we are on live server custom implementation
     if (client.protocolName == "LoginUdp_11" && this._soloMode) {
       const SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters2016.json`);
       // if character file is old, delete it
@@ -579,7 +626,7 @@ export class LoginServer extends EventEmitter {
       const character = await this._db
         .collection("characters-light")
         .findOne({ characterId: characterId });
-      let connectionStatus = Object.values(this._zoneConnections).includes(
+      const connectionStatus = Object.values(this._zoneConnections).includes(
         serverId
       );
       debug(`connectionStatus ${connectionStatus}`);
@@ -683,7 +730,7 @@ export class LoginServer extends EventEmitter {
     packetName: string,
     packetObj: any
   ): Promise<number> {
-    const askZonePromise = await new Promise((resolve, reject) => {
+    const askZonePromise = await new Promise((resolve) => {
       this._internalReqCount++;
       const reqId = this._internalReqCount;
       try {
@@ -748,47 +795,6 @@ export class LoginServer extends EventEmitter {
         );
       } else {
         // LoginUdp_11
-        function getCharacterModelData(payload: any): any {
-          switch (payload.headType) {
-            case 6: // black female
-              return {
-                modelId: 9474,
-                headActor: "SurvivorFemale_Head_03.adr",
-                hairModel: "SurvivorFemale_Hair_ShortMessy.adr",
-              };
-            case 5: // black male
-              return {
-                modelId: 9240,
-                headActor: "SurvivorMale_Head_04.adr",
-                hairModel: "SurvivorMale_HatHair_Short.adr",
-              };
-            case 4: // older white female
-              return {
-                modelId: 9474,
-                headActor: "SurvivorFemale_Head_02.adr",
-                hairModel: "SurvivorFemale_Hair_ShortBun.adr",
-              };
-            case 3: // young white female
-              return {
-                modelId: 9474,
-                headActor: "SurvivorFemale_Head_02.adr",
-                hairModel: "SurvivorFemale_Hair_ShortBun.adr",
-              };
-            case 2: // bald white male
-              return {
-                modelId: 9240,
-                headActor: "SurvivorMale_Head_01.adr",
-                hairModel: "SurvivorMale_HatHair_Short.adr",
-              };
-            case 1: // white male
-            default:
-              return {
-                modelId: 9240,
-                headActor: "SurvivorMale_Head_01.adr",
-                hairModel: "SurvivorMale_Hair_ShortMessy.adr",
-              };
-          }
-        }
         const characterModelData = getCharacterModelData(payload);
         newCharacter = {
           ...newCharacter,
@@ -856,7 +862,7 @@ export class LoginServer extends EventEmitter {
     if (!this._soloMode) {
       await this.updateServersStatus();
       // useless if in solomode ( never get called either)
-      let servers: Array<GameServer> = await this._db
+      const servers: Array<GameServer> = await this._db
         .collection("servers")
         .find({
           serverVersionTag: this.getServerVersionTag(client.protocolName),

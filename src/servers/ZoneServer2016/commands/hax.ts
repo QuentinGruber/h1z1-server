@@ -11,6 +11,8 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
+// TODO enable @typescript-eslint/no-unused-vars
 import fs from "fs";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { Vehicle2016 as Vehicle, Vehicle2016 } from "../classes/vehicle";
@@ -76,7 +78,7 @@ const hax: any = {
       );
       return;
     }
-    let wasAlreadyGod = client.character.godMode;
+    const wasAlreadyGod = client.character.godMode;
     client.character.godMode = true;
     const characterId = server.generateGuid();
     const vehicleData = new Vehicle2016(
@@ -300,10 +302,10 @@ const hax: any = {
     const range = Number(args[1]),
       lat = client.character.state.position[0],
       long = client.character.state.position[2];
-    let points = [],
-      rangeFixed = range,
-      numberOfPoints = Number(args[2]),
-      degreesPerPoint = 360 / numberOfPoints;
+    const points = []
+    let rangeFixed = range
+    const numberOfPoints = Number(args[2])
+    const degreesPerPoint = 360 / numberOfPoints;
     for (let j = 1; j < range; j++) {
       let currentAngle = 0,
         x2,
@@ -427,7 +429,7 @@ const hax: any = {
         server.sendChatText(client, `Weather templates :`);
         _.forEach(
           server._weatherTemplates,
-          function (element: { templateName: any }) {
+          (element: { templateName: any }) => {
             server.sendChatText(client, `- ${element.templateName}`);
           }
         );
@@ -497,7 +499,7 @@ const hax: any = {
     }
     server.sendChatText(client, `Randomized weather`);
 
-    function rnd_number(max: any, fixed: Boolean = false) {
+    function rnd_number(max: any, fixed: boolean = false) {
       const num = Math.random() * max;
       return Number(fixed ? num.toFixed(0) : num);
     }

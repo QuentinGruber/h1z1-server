@@ -21,12 +21,12 @@ process.on("uncaughtException", (err) => {
   process.exit(1);
 });
 
-process.on("SIGTERM", (signal) => {
+process.on("SIGTERM", () => {
   console.log(`Process ${process.pid} received a SIGTERM signal`);
   process.exit(0);
 });
 
-process.on("SIGINT", (signal) => {
+process.on("SIGINT", () => {
   console.log(`Process ${process.pid} has been interrupted`);
   process.exit(0);
 });

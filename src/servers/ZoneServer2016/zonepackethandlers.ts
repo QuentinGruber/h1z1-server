@@ -11,6 +11,8 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
+// TODO enable @typescript-eslint/no-unused-vars
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
 
 import { ZoneServer2016 } from "./zoneserver";
@@ -315,7 +317,9 @@ export class zonePacketHandlers {
       server: ZoneServer2016,
       client: Client,
       packet: any
-    ) {};
+    ) {
+      // nothing for now 
+    };
     this.ClientLog = function (
       server: ZoneServer2016,
       client: Client,
@@ -365,7 +369,7 @@ export class zonePacketHandlers {
       packet: any
     ) {
       const { channel, message } = packet.data;
-      server.sendChat(client, message, channel);
+      server.sendChat(client, message);
     }),
       (this.ClientInitializationDetails = function (
         server: ZoneServer2016,
@@ -1356,8 +1360,8 @@ export class zonePacketHandlers {
       ).PLACEMENT_MODEL_ID;
       const characterId = server.generateGuid(),
         transientId = server.getTransientId(characterId);
-      let tempObj: any = {},
-        trap: TrapEntity,
+      const tempObj: any = {}
+      let trap: TrapEntity,
         explosive: ExplosiveEntity;
       switch (packet.data.itemDefinitionId) {
         case 1804:
