@@ -107,6 +107,7 @@ export class ZoneServer2015 extends EventEmitter {
     ? JSON.parse(process.env.ALLOWED_COMMANDS)
     : [];
   _maxAllowedPing: number = 300;
+  private _transientIdGenerator = generateTransientId();
   constructor(
     serverPort: number,
     gatewayKey: Uint8Array,
@@ -2666,7 +2667,7 @@ export class ZoneServer2015 extends EventEmitter {
   }
 
   getTransientId(characterId: string): number {
-    const generatedTransient = generateTransientId().next().value as number;
+    const generatedTransient = this._transientIdGenerator.next().value as number;
     this._transientIds[generatedTransient] = characterId;
     return generatedTransient;
   }

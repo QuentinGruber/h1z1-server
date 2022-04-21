@@ -143,6 +143,7 @@ export class ZoneServer2016 extends EventEmitter {
   _respawnLocations: any;
   _recipes: { [recipeId: number]: any } = recipes;
   lastItemGuid: bigint = 0x3000000000000000n;
+  private _transientIdGenerator = generateTransientId();
 
   constructor(
     serverPort: number,
@@ -3891,7 +3892,7 @@ export class ZoneServer2016 extends EventEmitter {
     */
   }
   getTransientId(characterId: string): number {
-    const generatedTransient = generateTransientId().next().value as number;
+    const generatedTransient = this._transientIdGenerator.next().value as number;
     this._transientIds[generatedTransient] = characterId;
     this._characterIds[characterId] = generatedTransient;
     return generatedTransient;
@@ -3914,10 +3915,23 @@ export class ZoneServer2016 extends EventEmitter {
 }
 
 if (process.env.VSCODE_DEBUG === "true") {
-  new ZoneServer2016(
+
+
+  const z = new ZoneServer2016(
     1117,
     Buffer.from(DEFAULT_CRYPTO_KEY, "base64"),
     process.env.MONGO_URL,
     2
-  ).start();
+  );
+  z.start();
+  for (let index = 0; index < 100000; index++) {
+    const element = z.getTransientId("test");
+    if(index != element){
+      console.log(index)
+      console.log(element)
+
+     // throw new Error("transient id error");
+    }
+  }
+  
 }
