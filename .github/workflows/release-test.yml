@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-docker-images:
-    name: Create and push docker images
+    name: Create docker images
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
