@@ -67,10 +67,13 @@ export class SOEOutputStream extends EventEmitter {
     }
   }
 
-  ack(sequence: number): void {
+  ack(sequence: number, unAckData:{ [sequence: number]: number } ): void {
     while (this._lastAck <= sequence) {
       if (!!this._cache[this._lastAck]) {
         delete this._cache[this._lastAck];
+      }
+      if(!!unAckData[this._lastAck]) {
+        delete unAckData[this._lastAck];
       }
       this._lastAck++;
     }
@@ -100,6 +103,7 @@ export class SOEOutputStream extends EventEmitter {
   resendData(sequence: number): void {
     const start = this._lastAck + 1;
     for (let i = start; i < sequence; i++) {
+      console.log("server resend sequence " + i)
       this.resendSequence(sequence);
     }
   }

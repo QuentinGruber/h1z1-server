@@ -137,7 +137,7 @@ export class SOEInputStream extends EventEmitter {
 
     //debug(sequence, this._nextSequence);
     if (sequence > this._nextSequence) {
-      debug(
+      console.log(
         "Sequence out of order, expected " +
           this._nextSequence +
           " but received " +
@@ -157,6 +157,9 @@ export class SOEInputStream extends EventEmitter {
       if (ack > this._lastAck) {
         this._lastAck = ack;
         this.emit("ack", null, ack);
+      }
+      else if(ack < this._lastAck) {
+        this.emit("singleAck", null, ack);
       }
       this._nextSequence = this._lastAck + 1;
 

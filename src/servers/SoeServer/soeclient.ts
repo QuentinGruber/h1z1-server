@@ -29,6 +29,7 @@ export default class SOEClient {
   waitingQueue: any[] = [];
   outQueue: any[] = [];
   protocolName: string = "unset";
+  unAckData: { [sequence: number]: number } = {};
   outOfOrderPackets: any[] = [];
   nextAck: number = -1;
   lastAck: number = -1;
@@ -40,6 +41,7 @@ export default class SOEClient {
   soeClientId: string;
   lastPingTimer!: NodeJS.Timeout;
   isDeleted: boolean = false;
+  isOutOfOrder: boolean = false;
   constructor(
     remote: RemoteInfo,
     crcSeed: number,
