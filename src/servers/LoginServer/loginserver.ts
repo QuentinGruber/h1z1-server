@@ -106,7 +106,7 @@ export class LoginServer extends EventEmitter {
   _internalReqCount: number = 0;
   _pendingInternalReq: { [requestId: number]: any } = {};
   _pendingInternalReqTimeouts: { [requestId: number]: NodeJS.Timeout } = {};
-  private _soloPlayIp: string = process.env.SOLO_PLAY_IP || "192.168.92.128";
+  private _soloPlayIp: string = process.env.SOLO_PLAY_IP || "127.0.0.1";
 
   constructor(serverPort: number, mongoAddress = "") {
     super();
