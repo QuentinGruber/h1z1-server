@@ -641,14 +641,7 @@ export class ZoneServer2016 extends EventEmitter {
     console.log(weaponDefinitions)
     this.sendData(client, "ReferenceData.WeaponDefinitions", {
       data: {
-        definitionsData: {
-          unknownArray1: weaponDefinitions.unknownArray1,
-          unknownArray2: weaponDefinitions.unknownArray2,
-          unknownArray3: weaponDefinitions.unknownArray3,
-          unknownArray4: weaponDefinitions.unknownArray4,
-          unknownArray5: weaponDefinitions.unknownArray5,
-          unknownArray6: weaponDefinitions.unknownArray6,
-        }
+        definitionsData: weaponDefinitions
       }
     });
 

@@ -18,7 +18,7 @@ import { profileDataSchema } from "./shared";
 
 const weaponDefinitionSchema: any[] = [
   {
-    name: "unknownArray1",
+    name: "WEAPON_DATA",
     type: "array",
     defaultValue: [],
     fields: [
@@ -66,28 +66,28 @@ const weaponDefinitionSchema: any[] = [
           { name: "MAX_PITCH", type: "float", defaultValue: 0 },
           { name: "AUDIO_GAME_OBJECT", type: "uint32", defaultValue: 0 },
           {
-            name: "unknownArray1",
+            name: "AMMO_SLOTS",
             type: "array",
             defaultValue: [],
             fields: [
-              { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-              { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-              { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-              { name: "unknownBoolean1", type: "boolean", defaultValue: 0 },
-              { name: "unknownDword4", type: "uint32", defaultValue: 0 },
-              { name: "unknownDword5", type: "uint32", defaultValue: 0 },
-              { name: "unknownDword6", type: "uint32", defaultValue: 0 },
-              { name: "unknownString1", type: "string", defaultValue: "" },
-              { name: "unknownString2", type: "string", defaultValue: "" },
-              { name: "unknownString3", type: "string", defaultValue: "" },
+              { name: "AMMO_ID", type: "uint32", defaultValue: 0 },
+              { name: "CLIP_SIZE", type: "uint32", defaultValue: 0 },
+              { name: "CAPACITY", type: "uint32", defaultValue: 0 },
+              { name: "START_EMPTY", type: "boolean", defaultValue: 0 },
+              { name: "REFILL_AMMO_PER_TICK", type: "uint32", defaultValue: 0 },
+              { name: "REFILL_AMMO_DELAY_MS", type: "uint32", defaultValue: 0 },
+              { name: "CLIP_ATTACHMENT_SLOT", type: "uint32", defaultValue: 0 },
+              { name: "CLIP_MODEL_NAME", type: "string", defaultValue: "" },
+              { name: "RELOAD_WEAPON_BONE", type: "string", defaultValue: "" },
+              { name: "RELOAD_CHARACTER_BONE", type: "string", defaultValue: "" },
             ],
           },
           {
-            name: "unknownArray2",
+            name: "FIRE_GROUPS",
             type: "array",
             defaultValue: [],
             fields: [
-              { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+              { name: "FIRE_GROUP_ID", type: "uint32", defaultValue: 0 },
             ],
           },
         ],

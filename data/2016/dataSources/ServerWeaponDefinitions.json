@@ -1,5 +1,5 @@
 {
-  "unknownArray1": [
+  "WEAPON_DATA": [
     {
       "ID": 2,
       "definitionData": {
@@ -33,23 +33,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 4082551186,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 7,
-            "unknownDword3": 999999,
-            "unknownBoolean1": true,
-            "unknownDword4": 20,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 7,
+            "CAPACITY": 999999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 20,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 2
+            "FIRE_GROUP_ID": 2
           }
         ]
       }
@@ -87,23 +87,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 2508934649,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 1,
-            "unknownDword3": 99999999,
-            "unknownBoolean1": true,
-            "unknownDword4": 10,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_CombinedComponents_Carbine01_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 1,
+            "CAPACITY": 99999999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 10,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_CombinedComponents_Carbine01_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 3
+            "FIRE_GROUP_ID": 3
           }
         ]
       }
@@ -141,23 +141,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 3922658216,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 1,
-            "unknownDword3": 1,
-            "unknownBoolean1": true,
-            "unknownDword4": 1,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 1,
+            "CAPACITY": 1,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 1,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 4
+            "FIRE_GROUP_ID": 4
           }
         ]
       }
@@ -195,23 +195,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 622824195,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 1,
-            "unknownDword3": 9999999,
-            "unknownBoolean1": true,
-            "unknownDword4": 10,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_CombinedComponents_Carbine01_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 1,
+            "CAPACITY": 9999999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 10,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_CombinedComponents_Carbine01_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 5
+            "FIRE_GROUP_ID": 5
           }
         ]
       }
@@ -249,23 +249,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 2918591023,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 30,
-            "unknownDword3": 9999,
-            "unknownBoolean1": true,
-            "unknownDword4": 60,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 30,
+            "CAPACITY": 9999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 60,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 6
+            "FIRE_GROUP_ID": 6
           }
         ]
       }
@@ -303,23 +303,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 1936597675,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 1,
-            "unknownDword3": 0,
-            "unknownBoolean1": false,
-            "unknownDword4": 0,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 1,
+            "CAPACITY": 0,
+            "START_EMPTY": false,
+            "REFILL_AMMO_PER_TICK": 0,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 7
+            "FIRE_GROUP_ID": 7
           }
         ]
       }
@@ -357,23 +357,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 939673516,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 1,
-            "unknownDword3": 9999999,
-            "unknownBoolean1": true,
-            "unknownDword4": 10,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_CombinedComponents_Carbine01_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 1,
+            "CAPACITY": 9999999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 10,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_CombinedComponents_Carbine01_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 8
+            "FIRE_GROUP_ID": 8
           }
         ]
       }
@@ -411,23 +411,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 1207380366,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 0,
-            "unknownDword3": 0,
-            "unknownBoolean1": true,
-            "unknownDword4": 10,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 0,
+            "CAPACITY": 0,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 10,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 9
+            "FIRE_GROUP_ID": 9
           }
         ]
       }
@@ -465,10 +465,10 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 2205489625,
-        "unknownArray1": [],
-        "unknownArray2": [
+        "AMMO_SLOTS": [],
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 10
+            "FIRE_GROUP_ID": 10
           }
         ]
       }
@@ -506,23 +506,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 2914619689,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 0,
-            "unknownDword3": 0,
-            "unknownBoolean1": false,
-            "unknownDword4": 10,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 0,
+            "CAPACITY": 0,
+            "START_EMPTY": false,
+            "REFILL_AMMO_PER_TICK": 10,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 11
+            "FIRE_GROUP_ID": 11
           }
         ]
       }
@@ -560,23 +560,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 1063459730,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 0,
-            "unknownDword3": 0,
-            "unknownBoolean1": false,
-            "unknownDword4": 10,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 0,
+            "CAPACITY": 0,
+            "START_EMPTY": false,
+            "REFILL_AMMO_PER_TICK": 10,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 12
+            "FIRE_GROUP_ID": 12
           }
         ]
       }
@@ -614,23 +614,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 939673516,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 0,
-            "unknownDword3": 0,
-            "unknownBoolean1": true,
-            "unknownDword4": 10,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_CombinedComponents_Carbine01_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 0,
+            "CAPACITY": 0,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 10,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_CombinedComponents_Carbine01_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 23
+            "FIRE_GROUP_ID": 23
           }
         ]
       }
@@ -668,23 +668,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 2508934649,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 0,
-            "unknownDword3": 0,
-            "unknownBoolean1": true,
-            "unknownDword4": 10,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_CombinedComponents_Carbine01_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 0,
+            "CAPACITY": 0,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 10,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_CombinedComponents_Carbine01_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 24
+            "FIRE_GROUP_ID": 24
           }
         ]
       }
@@ -722,29 +722,29 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 1180815803,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 1,
-            "unknownDword3": 9999999,
-            "unknownBoolean1": true,
-            "unknownDword4": 1,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 1,
+            "CAPACITY": 9999999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 1,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 14
+            "FIRE_GROUP_ID": 14
           },
           {
-            "unknownDword1": 58
+            "FIRE_GROUP_ID": 58
           },
           {
-            "unknownDword1": 57
+            "FIRE_GROUP_ID": 57
           }
         ]
       }
@@ -782,23 +782,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 2508934649,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 1,
-            "unknownDword3": 15,
-            "unknownBoolean1": true,
-            "unknownDword4": 1,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 1,
+            "CAPACITY": 15,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 1,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 13
+            "FIRE_GROUP_ID": 13
           }
         ]
       }
@@ -836,21 +836,21 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 0,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 1,
-            "unknownDword3": 999,
-            "unknownBoolean1": true,
-            "unknownDword4": 1,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 1,
+            "CAPACITY": 999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 1,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": []
+        "FIRE_GROUPS": []
       }
     },
     {
@@ -886,23 +886,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 1795232537,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 50000000,
-            "unknownDword3": 50000000,
-            "unknownBoolean1": false,
-            "unknownDword4": 20,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 50000000,
+            "CAPACITY": 50000000,
+            "START_EMPTY": false,
+            "REFILL_AMMO_PER_TICK": 20,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 2
+            "FIRE_GROUP_ID": 2
           }
         ]
       }
@@ -940,23 +940,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 4245511188,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 5,
-            "unknownDword3": 999,
-            "unknownBoolean1": true,
-            "unknownDword4": 20,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 5,
+            "CAPACITY": 999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 20,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 15
+            "FIRE_GROUP_ID": 15
           }
         ]
       }
@@ -994,23 +994,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 1038629556,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 6,
-            "unknownDword3": 999,
-            "unknownBoolean1": true,
-            "unknownDword4": 20,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 6,
+            "CAPACITY": 999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 20,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 16
+            "FIRE_GROUP_ID": 16
           }
         ]
       }
@@ -1048,10 +1048,10 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 3957396575,
-        "unknownArray1": [],
-        "unknownArray2": [
+        "AMMO_SLOTS": [],
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 17
+            "FIRE_GROUP_ID": 17
           }
         ]
       }
@@ -1089,23 +1089,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 2466196102,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 1,
-            "unknownDword3": 1000,
-            "unknownBoolean1": true,
-            "unknownDword4": 1,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 1,
+            "CAPACITY": 1000,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 1,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 18
+            "FIRE_GROUP_ID": 18
           }
         ]
       }
@@ -1143,23 +1143,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 1180815803,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 9999999,
-            "unknownDword3": 9999999,
-            "unknownBoolean1": false,
-            "unknownDword4": 1,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 9999999,
+            "CAPACITY": 9999999,
+            "START_EMPTY": false,
+            "REFILL_AMMO_PER_TICK": 1,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 19
+            "FIRE_GROUP_ID": 19
           }
         ]
       }
@@ -1197,10 +1197,10 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 402834519,
-        "unknownArray1": [],
-        "unknownArray2": [
+        "AMMO_SLOTS": [],
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 21
+            "FIRE_GROUP_ID": 21
           }
         ]
       }
@@ -1238,10 +1238,10 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 3714704385,
-        "unknownArray1": [],
-        "unknownArray2": [
+        "AMMO_SLOTS": [],
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 22
+            "FIRE_GROUP_ID": 22
           }
         ]
       }
@@ -1279,23 +1279,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 2466196102,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 1,
-            "unknownDword3": 9999999,
-            "unknownBoolean1": true,
-            "unknownDword4": 1,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 1,
+            "CAPACITY": 9999999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 1,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 25
+            "FIRE_GROUP_ID": 25
           }
         ]
       }
@@ -1333,29 +1333,29 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 1180815803,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 1,
-            "unknownDword3": 9999999,
-            "unknownBoolean1": true,
-            "unknownDword4": 1,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 1,
+            "CAPACITY": 9999999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 1,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 26
+            "FIRE_GROUP_ID": 26
           },
           {
-            "unknownDword1": 62
+            "FIRE_GROUP_ID": 62
           },
           {
-            "unknownDword1": 63
+            "FIRE_GROUP_ID": 63
           }
         ]
       }
@@ -1393,23 +1393,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 4093171902,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 6,
-            "unknownDword3": 999999,
-            "unknownBoolean1": true,
-            "unknownDword4": 1,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 6,
+            "CAPACITY": 999999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 1,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 27
+            "FIRE_GROUP_ID": 27
           }
         ]
       }
@@ -1447,23 +1447,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 2508934649,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 0,
-            "unknownDword3": 0,
-            "unknownBoolean1": true,
-            "unknownDword4": 10,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_CombinedComponents_Carbine01_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 0,
+            "CAPACITY": 0,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 10,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_CombinedComponents_Carbine01_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 28
+            "FIRE_GROUP_ID": 28
           }
         ]
       }
@@ -1501,10 +1501,10 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 4075777780,
-        "unknownArray1": [],
-        "unknownArray2": [
+        "AMMO_SLOTS": [],
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 29
+            "FIRE_GROUP_ID": 29
           }
         ]
       }
@@ -1542,10 +1542,10 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 3957396575,
-        "unknownArray1": [],
-        "unknownArray2": [
+        "AMMO_SLOTS": [],
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 30
+            "FIRE_GROUP_ID": 30
           }
         ]
       }
@@ -1583,10 +1583,10 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 3957396575,
-        "unknownArray1": [],
-        "unknownArray2": [
+        "AMMO_SLOTS": [],
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 31
+            "FIRE_GROUP_ID": 31
           }
         ]
       }
@@ -1624,10 +1624,10 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 2508934649,
-        "unknownArray1": [],
-        "unknownArray2": [
+        "AMMO_SLOTS": [],
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 32
+            "FIRE_GROUP_ID": 32
           }
         ]
       }
@@ -1665,10 +1665,10 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 2508934649,
-        "unknownArray1": [],
-        "unknownArray2": [
+        "AMMO_SLOTS": [],
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 33
+            "FIRE_GROUP_ID": 33
           }
         ]
       }
@@ -1706,10 +1706,10 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 2508934649,
-        "unknownArray1": [],
-        "unknownArray2": [
+        "AMMO_SLOTS": [],
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 34
+            "FIRE_GROUP_ID": 34
           }
         ]
       }
@@ -1747,23 +1747,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 1795232537,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 999,
-            "unknownDword3": 99999,
-            "unknownBoolean1": true,
-            "unknownDword4": 5,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 999,
+            "CAPACITY": 99999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 5,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 35
+            "FIRE_GROUP_ID": 35
           }
         ]
       }
@@ -1801,10 +1801,10 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 2508934649,
-        "unknownArray1": [],
-        "unknownArray2": [
+        "AMMO_SLOTS": [],
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 36
+            "FIRE_GROUP_ID": 36
           }
         ]
       }
@@ -1842,32 +1842,32 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 1180815803,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 1,
-            "unknownDword3": 99999,
-            "unknownBoolean1": true,
-            "unknownDword4": 5,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 1,
+            "CAPACITY": 99999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 5,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 37
+            "FIRE_GROUP_ID": 37
           },
           {
-            "unknownDword1": 60
+            "FIRE_GROUP_ID": 60
           },
           {
-            "unknownDword1": 61
+            "FIRE_GROUP_ID": 61
           },
           {
-            "unknownDword1": 173
+            "FIRE_GROUP_ID": 173
           }
         ]
       }
@@ -1905,23 +1905,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 2194849040,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 7,
-            "unknownDword3": 99999,
-            "unknownBoolean1": true,
-            "unknownDword4": 5,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 7,
+            "CAPACITY": 99999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 5,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 38
+            "FIRE_GROUP_ID": 38
           }
         ]
       }
@@ -1959,23 +1959,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 1692889558,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 15,
-            "unknownDword3": 999999,
-            "unknownBoolean1": true,
-            "unknownDword4": 20,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 15,
+            "CAPACITY": 999999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 20,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 39
+            "FIRE_GROUP_ID": 39
           }
         ]
       }
@@ -2013,10 +2013,10 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 805559743,
-        "unknownArray1": [],
-        "unknownArray2": [
+        "AMMO_SLOTS": [],
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 29
+            "FIRE_GROUP_ID": 29
           }
         ]
       }
@@ -2054,23 +2054,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 4075777780,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 1,
-            "unknownDword3": 1,
-            "unknownBoolean1": false,
-            "unknownDword4": 0,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 1,
+            "CAPACITY": 1,
+            "START_EMPTY": false,
+            "REFILL_AMMO_PER_TICK": 0,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 55
+            "FIRE_GROUP_ID": 55
           }
         ]
       }
@@ -2108,23 +2108,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 1936597675,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 1,
-            "unknownDword3": 0,
-            "unknownBoolean1": false,
-            "unknownDword4": 0,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 1,
+            "CAPACITY": 0,
+            "START_EMPTY": false,
+            "REFILL_AMMO_PER_TICK": 0,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 40
+            "FIRE_GROUP_ID": 40
           }
         ]
       }
@@ -2162,23 +2162,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 964277156,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 30,
-            "unknownDword3": 9999,
-            "unknownBoolean1": true,
-            "unknownDword4": 60,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 30,
+            "CAPACITY": 9999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 60,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 51
+            "FIRE_GROUP_ID": 51
           }
         ]
       }
@@ -2216,23 +2216,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 1207750753,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 12,
-            "unknownDword3": 9999,
-            "unknownBoolean1": true,
-            "unknownDword4": 50,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 12,
+            "CAPACITY": 9999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 50,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 174
+            "FIRE_GROUP_ID": 174
           }
         ]
       }
@@ -2270,8 +2270,8 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 4158717999,
-        "unknownArray1": [],
-        "unknownArray2": []
+        "AMMO_SLOTS": [],
+        "FIRE_GROUPS": []
       }
     },
     {
@@ -2307,8 +2307,8 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 4158717999,
-        "unknownArray1": [],
-        "unknownArray2": []
+        "AMMO_SLOTS": [],
+        "FIRE_GROUPS": []
       }
     },
     {
@@ -2344,8 +2344,8 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 4158717999,
-        "unknownArray1": [],
-        "unknownArray2": []
+        "AMMO_SLOTS": [],
+        "FIRE_GROUPS": []
       }
     },
     {
@@ -2381,23 +2381,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 0,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 1,
-            "unknownDword3": 0,
-            "unknownBoolean1": false,
-            "unknownDword4": 0,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 1,
+            "CAPACITY": 0,
+            "START_EMPTY": false,
+            "REFILL_AMMO_PER_TICK": 0,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 42
+            "FIRE_GROUP_ID": 42
           }
         ]
       }
@@ -2435,23 +2435,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 0,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 1,
-            "unknownDword3": 0,
-            "unknownBoolean1": false,
-            "unknownDword4": 0,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 1,
+            "CAPACITY": 0,
+            "START_EMPTY": false,
+            "REFILL_AMMO_PER_TICK": 0,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 43
+            "FIRE_GROUP_ID": 43
           }
         ]
       }
@@ -2489,23 +2489,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 0,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 1,
-            "unknownDword3": 0,
-            "unknownBoolean1": false,
-            "unknownDword4": 0,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 1,
+            "CAPACITY": 0,
+            "START_EMPTY": false,
+            "REFILL_AMMO_PER_TICK": 0,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 44
+            "FIRE_GROUP_ID": 44
           }
         ]
       }
@@ -2543,23 +2543,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 1936597675,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 1,
-            "unknownDword3": 0,
-            "unknownBoolean1": false,
-            "unknownDword4": 0,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 1,
+            "CAPACITY": 0,
+            "START_EMPTY": false,
+            "REFILL_AMMO_PER_TICK": 0,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 45
+            "FIRE_GROUP_ID": 45
           }
         ]
       }
@@ -2597,29 +2597,29 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 2567614275,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 1,
-            "unknownDword3": 9999,
-            "unknownBoolean1": true,
-            "unknownDword4": 1,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 1,
+            "CAPACITY": 9999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 1,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 46
+            "FIRE_GROUP_ID": 46
           },
           {
-            "unknownDword1": 64
+            "FIRE_GROUP_ID": 64
           },
           {
-            "unknownDword1": 65
+            "FIRE_GROUP_ID": 65
           }
         ]
       }
@@ -2657,10 +2657,10 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 2508934649,
-        "unknownArray1": [],
-        "unknownArray2": [
+        "AMMO_SLOTS": [],
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 47
+            "FIRE_GROUP_ID": 47
           }
         ]
       }
@@ -2698,29 +2698,29 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 1180815803,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 1,
-            "unknownDword3": 99999,
-            "unknownBoolean1": true,
-            "unknownDword4": 5,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 1,
+            "CAPACITY": 99999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 5,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 49
+            "FIRE_GROUP_ID": 49
           },
           {
-            "unknownDword1": 50
+            "FIRE_GROUP_ID": 50
           },
           {
-            "unknownDword1": 54
+            "FIRE_GROUP_ID": 54
           }
         ]
       }
@@ -2758,10 +2758,10 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 4075777780,
-        "unknownArray1": [],
-        "unknownArray2": [
+        "AMMO_SLOTS": [],
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 66
+            "FIRE_GROUP_ID": 66
           }
         ]
       }
@@ -2799,10 +2799,10 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 4075777780,
-        "unknownArray1": [],
-        "unknownArray2": [
+        "AMMO_SLOTS": [],
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 68
+            "FIRE_GROUP_ID": 68
           }
         ]
       }
@@ -2840,10 +2840,10 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 4075777780,
-        "unknownArray1": [],
-        "unknownArray2": [
+        "AMMO_SLOTS": [],
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 70
+            "FIRE_GROUP_ID": 70
           }
         ]
       }
@@ -2881,10 +2881,10 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 4075777780,
-        "unknownArray1": [],
-        "unknownArray2": [
+        "AMMO_SLOTS": [],
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 72
+            "FIRE_GROUP_ID": 72
           }
         ]
       }
@@ -2922,23 +2922,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 4075777780,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 1,
-            "unknownDword3": 9999,
-            "unknownBoolean1": true,
-            "unknownDword4": 1,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_CombinedComponents_Carbine01_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 1,
+            "CAPACITY": 9999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 1,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_CombinedComponents_Carbine01_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 75
+            "FIRE_GROUP_ID": 75
           }
         ]
       }
@@ -2976,23 +2976,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 4075777780,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 999,
-            "unknownDword3": 9999,
-            "unknownBoolean1": false,
-            "unknownDword4": 150,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 999,
+            "CAPACITY": 9999,
+            "START_EMPTY": false,
+            "REFILL_AMMO_PER_TICK": 150,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 76
+            "FIRE_GROUP_ID": 76
           }
         ]
       }
@@ -3030,26 +3030,26 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 4109597905,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 30,
-            "unknownDword3": 9999,
-            "unknownBoolean1": true,
-            "unknownDword4": 60,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 30,
+            "CAPACITY": 9999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 60,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 77
+            "FIRE_GROUP_ID": 77
           },
           {
-            "unknownDword1": 78
+            "FIRE_GROUP_ID": 78
           }
         ]
       }
@@ -3087,23 +3087,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 0,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 1,
-            "unknownDword3": 0,
-            "unknownBoolean1": false,
-            "unknownDword4": 0,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 1,
+            "CAPACITY": 0,
+            "START_EMPTY": false,
+            "REFILL_AMMO_PER_TICK": 0,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 79
+            "FIRE_GROUP_ID": 79
           }
         ]
       }
@@ -3141,23 +3141,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 1936597675,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 1,
-            "unknownDword3": 0,
-            "unknownBoolean1": false,
-            "unknownDword4": 0,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 1,
+            "CAPACITY": 0,
+            "START_EMPTY": false,
+            "REFILL_AMMO_PER_TICK": 0,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 80
+            "FIRE_GROUP_ID": 80
           }
         ]
       }
@@ -3195,23 +3195,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 4158717999,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 30,
-            "unknownDword3": 9999,
-            "unknownBoolean1": true,
-            "unknownDword4": 60,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 30,
+            "CAPACITY": 9999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 60,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 81
+            "FIRE_GROUP_ID": 81
           }
         ]
       }
@@ -3249,23 +3249,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 2430399441,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 30,
-            "unknownDword3": 9999,
-            "unknownBoolean1": true,
-            "unknownDword4": 60,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 30,
+            "CAPACITY": 9999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 60,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 82
+            "FIRE_GROUP_ID": 82
           }
         ]
       }
@@ -3303,23 +3303,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 1838069068,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 8,
-            "unknownDword3": 999,
-            "unknownBoolean1": true,
-            "unknownDword4": 20,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 8,
+            "CAPACITY": 999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 20,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 83
+            "FIRE_GROUP_ID": 83
           }
         ]
       }
@@ -3357,23 +3357,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 1795232537,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 21,
-            "unknownDword3": 9999,
-            "unknownBoolean1": true,
-            "unknownDword4": 21,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 21,
+            "CAPACITY": 9999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 21,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 84
+            "FIRE_GROUP_ID": 84
           }
         ]
       }
@@ -3411,23 +3411,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 4158717999,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 30,
-            "unknownDword3": 9999,
-            "unknownBoolean1": true,
-            "unknownDword4": 60,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 30,
+            "CAPACITY": 9999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 60,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 85
+            "FIRE_GROUP_ID": 85
           }
         ]
       }
@@ -3465,10 +3465,10 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 2205489625,
-        "unknownArray1": [],
-        "unknownArray2": [
+        "AMMO_SLOTS": [],
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 86
+            "FIRE_GROUP_ID": 86
           }
         ]
       }
@@ -3506,23 +3506,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 2914619689,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 1,
-            "unknownDword3": 1000,
-            "unknownBoolean1": true,
-            "unknownDword4": 1,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 1,
+            "CAPACITY": 1000,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 1,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 87
+            "FIRE_GROUP_ID": 87
           }
         ]
       }
@@ -3560,23 +3560,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 0,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 1,
-            "unknownDword3": 0,
-            "unknownBoolean1": false,
-            "unknownDword4": 0,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 1,
+            "CAPACITY": 0,
+            "START_EMPTY": false,
+            "REFILL_AMMO_PER_TICK": 0,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 88
+            "FIRE_GROUP_ID": 88
           }
         ]
       }
@@ -3614,10 +3614,10 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 2508934649,
-        "unknownArray1": [],
-        "unknownArray2": [
+        "AMMO_SLOTS": [],
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 89
+            "FIRE_GROUP_ID": 89
           }
         ]
       }
@@ -3655,23 +3655,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 1180815803,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 999999,
-            "unknownDword3": 999999,
-            "unknownBoolean1": false,
-            "unknownDword4": 1,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 999999,
+            "CAPACITY": 999999,
+            "START_EMPTY": false,
+            "REFILL_AMMO_PER_TICK": 1,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 90
+            "FIRE_GROUP_ID": 90
           }
         ]
       }
@@ -3709,23 +3709,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 939673516,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 1,
-            "unknownDword3": 9999999,
-            "unknownBoolean1": true,
-            "unknownDword4": 1,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 1,
+            "CAPACITY": 9999999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 1,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 91
+            "FIRE_GROUP_ID": 91
           }
         ]
       }
@@ -3763,26 +3763,26 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 4158717999,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 9999999,
-            "unknownDword3": 9999999,
-            "unknownBoolean1": false,
-            "unknownDword4": 60,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 9999999,
+            "CAPACITY": 9999999,
+            "START_EMPTY": false,
+            "REFILL_AMMO_PER_TICK": 60,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 92
+            "FIRE_GROUP_ID": 92
           },
           {
-            "unknownDword1": 98
+            "FIRE_GROUP_ID": 98
           }
         ]
       }
@@ -3820,10 +3820,10 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 1180815803,
-        "unknownArray1": [],
-        "unknownArray2": [
+        "AMMO_SLOTS": [],
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 96
+            "FIRE_GROUP_ID": 96
           }
         ]
       }
@@ -3861,10 +3861,10 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 2205489625,
-        "unknownArray1": [],
-        "unknownArray2": [
+        "AMMO_SLOTS": [],
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 86
+            "FIRE_GROUP_ID": 86
           }
         ]
       }
@@ -3902,23 +3902,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 0,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 1,
-            "unknownDword3": 0,
-            "unknownBoolean1": false,
-            "unknownDword4": 0,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 1,
+            "CAPACITY": 0,
+            "START_EMPTY": false,
+            "REFILL_AMMO_PER_TICK": 0,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 97
+            "FIRE_GROUP_ID": 97
           }
         ]
       }
@@ -3956,26 +3956,26 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 4158717999,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 9999999,
-            "unknownDword3": 9999999,
-            "unknownBoolean1": false,
-            "unknownDword4": 60,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 9999999,
+            "CAPACITY": 9999999,
+            "START_EMPTY": false,
+            "REFILL_AMMO_PER_TICK": 60,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 99
+            "FIRE_GROUP_ID": 99
           },
           {
-            "unknownDword1": 100
+            "FIRE_GROUP_ID": 100
           }
         ]
       }
@@ -4013,10 +4013,10 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 2205489625,
-        "unknownArray1": [],
-        "unknownArray2": [
+        "AMMO_SLOTS": [],
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 101
+            "FIRE_GROUP_ID": 101
           }
         ]
       }
@@ -4054,23 +4054,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 4109597905,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 30,
-            "unknownDword3": 9999,
-            "unknownBoolean1": true,
-            "unknownDword4": 60,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 30,
+            "CAPACITY": 9999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 60,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 102
+            "FIRE_GROUP_ID": 102
           }
         ]
       }
@@ -4108,23 +4108,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 4158717999,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 30,
-            "unknownDword3": 9999,
-            "unknownBoolean1": true,
-            "unknownDword4": 60,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 30,
+            "CAPACITY": 9999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 60,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 103
+            "FIRE_GROUP_ID": 103
           }
         ]
       }
@@ -4162,23 +4162,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 3335203436,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 6,
-            "unknownDword3": 999,
-            "unknownBoolean1": true,
-            "unknownDword4": 20,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 6,
+            "CAPACITY": 999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 20,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 104
+            "FIRE_GROUP_ID": 104
           }
         ]
       }
@@ -4216,23 +4216,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 3486306879,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 15,
-            "unknownDword3": 99999,
-            "unknownBoolean1": true,
-            "unknownDword4": 20,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 15,
+            "CAPACITY": 99999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 20,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 105
+            "FIRE_GROUP_ID": 105
           }
         ]
       }
@@ -4270,23 +4270,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 239422887,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 6,
-            "unknownDword3": 999,
-            "unknownBoolean1": true,
-            "unknownDword4": 20,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 6,
+            "CAPACITY": 999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 20,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 106
+            "FIRE_GROUP_ID": 106
           }
         ]
       }
@@ -4324,10 +4324,10 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 2918591023,
-        "unknownArray1": [],
-        "unknownArray2": [
+        "AMMO_SLOTS": [],
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 107
+            "FIRE_GROUP_ID": 107
           }
         ]
       }
@@ -4365,23 +4365,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 1884419651,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 30,
-            "unknownDword3": 9999,
-            "unknownBoolean1": true,
-            "unknownDword4": 60,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 30,
+            "CAPACITY": 9999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 60,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 107
+            "FIRE_GROUP_ID": 107
           }
         ]
       }
@@ -4419,23 +4419,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 2430399441,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 30,
-            "unknownDword3": 9999,
-            "unknownBoolean1": true,
-            "unknownDword4": 60,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 30,
+            "CAPACITY": 9999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 60,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 108
+            "FIRE_GROUP_ID": 108
           }
         ]
       }
@@ -4473,23 +4473,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 4158717999,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 30,
-            "unknownDword3": 9999,
-            "unknownBoolean1": true,
-            "unknownDword4": 60,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 30,
+            "CAPACITY": 9999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 60,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 109
+            "FIRE_GROUP_ID": 109
           }
         ]
       }
@@ -4527,23 +4527,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 2918591023,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 9999999,
-            "unknownDword3": 9999999,
-            "unknownBoolean1": false,
-            "unknownDword4": 1,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 9999999,
+            "CAPACITY": 9999999,
+            "START_EMPTY": false,
+            "REFILL_AMMO_PER_TICK": 1,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 110
+            "FIRE_GROUP_ID": 110
           }
         ]
       }
@@ -4581,23 +4581,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 4196156722,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 30,
-            "unknownDword3": 999,
-            "unknownBoolean1": true,
-            "unknownDword4": 60,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 30,
+            "CAPACITY": 999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 60,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 111
+            "FIRE_GROUP_ID": 111
           }
         ]
       }
@@ -4635,26 +4635,26 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 4158717999,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 100,
-            "unknownDword3": 999999,
-            "unknownBoolean1": false,
-            "unknownDword4": 60,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 100,
+            "CAPACITY": 999999,
+            "START_EMPTY": false,
+            "REFILL_AMMO_PER_TICK": 60,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 151
+            "FIRE_GROUP_ID": 151
           },
           {
-            "unknownDword1": 152
+            "FIRE_GROUP_ID": 152
           }
         ]
       }
@@ -4692,23 +4692,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 4093171902,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 6,
-            "unknownDword3": 99999,
-            "unknownBoolean1": true,
-            "unknownDword4": 1,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 6,
+            "CAPACITY": 99999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 1,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 171
+            "FIRE_GROUP_ID": 171
           }
         ]
       }
@@ -4746,23 +4746,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 1180815803,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 1,
-            "unknownDword3": 9999,
-            "unknownBoolean1": true,
-            "unknownDword4": 0,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 1,
+            "CAPACITY": 9999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 0,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 173
+            "FIRE_GROUP_ID": 173
           }
         ]
       }
@@ -4800,23 +4800,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 2567614275,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 1,
-            "unknownDword3": 9999,
-            "unknownBoolean1": true,
-            "unknownDword4": 1,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 1,
+            "CAPACITY": 9999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 1,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 172
+            "FIRE_GROUP_ID": 172
           }
         ]
       }
@@ -4854,23 +4854,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 1936597675,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 1,
-            "unknownDword3": 0,
-            "unknownBoolean1": false,
-            "unknownDword4": 0,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 1,
+            "CAPACITY": 0,
+            "START_EMPTY": false,
+            "REFILL_AMMO_PER_TICK": 0,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 175
+            "FIRE_GROUP_ID": 175
           }
         ]
       }
@@ -4908,23 +4908,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 1884419651,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 25,
-            "unknownDword3": 9999,
-            "unknownBoolean1": true,
-            "unknownDword4": 60,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 25,
+            "CAPACITY": 9999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 60,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 176
+            "FIRE_GROUP_ID": 176
           }
         ]
       }
@@ -4962,23 +4962,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 1101382159,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 1,
-            "unknownDword3": 99999,
-            "unknownBoolean1": true,
-            "unknownDword4": 1,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 1,
+            "CAPACITY": 99999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 1,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 186
+            "FIRE_GROUP_ID": 186
           }
         ]
       }
@@ -5016,23 +5016,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 3045986898,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 7,
-            "unknownDword3": 999999,
-            "unknownBoolean1": true,
-            "unknownDword4": 20,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 7,
+            "CAPACITY": 999999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 20,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 187
+            "FIRE_GROUP_ID": 187
           }
         ]
       }
@@ -5070,23 +5070,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 3486306879,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 17,
-            "unknownDword3": 999999,
-            "unknownBoolean1": true,
-            "unknownDword4": 20,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 17,
+            "CAPACITY": 999999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 20,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 188
+            "FIRE_GROUP_ID": 188
           }
         ]
       }
@@ -5124,23 +5124,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 1884419651,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 26,
-            "unknownDword3": 9999,
-            "unknownBoolean1": true,
-            "unknownDword4": 60,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 26,
+            "CAPACITY": 9999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 60,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 189
+            "FIRE_GROUP_ID": 189
           }
         ]
       }
@@ -5178,23 +5178,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 322312493,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 30,
-            "unknownDword3": 9999,
-            "unknownBoolean1": true,
-            "unknownDword4": 60,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 30,
+            "CAPACITY": 9999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 60,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 190
+            "FIRE_GROUP_ID": 190
           }
         ]
       }
@@ -5232,23 +5232,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 4245511188,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 6,
-            "unknownDword3": 999,
-            "unknownBoolean1": true,
-            "unknownDword4": 20,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 6,
+            "CAPACITY": 999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 20,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 191
+            "FIRE_GROUP_ID": 191
           }
         ]
       }
@@ -5286,23 +5286,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 1785674670,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 10,
-            "unknownDword3": 999,
-            "unknownBoolean1": true,
-            "unknownDword4": 20,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 10,
+            "CAPACITY": 999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 20,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 192
+            "FIRE_GROUP_ID": 192
           }
         ]
       }
@@ -5340,23 +5340,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 1314993558,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 100,
-            "unknownDword3": 9999,
-            "unknownBoolean1": true,
-            "unknownDword4": 60,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 100,
+            "CAPACITY": 9999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 60,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 193
+            "FIRE_GROUP_ID": 193
           }
         ]
       }
@@ -5394,23 +5394,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 3772848319,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 30,
-            "unknownDword3": 9999,
-            "unknownBoolean1": true,
-            "unknownDword4": 60,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 30,
+            "CAPACITY": 9999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 60,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 199
+            "FIRE_GROUP_ID": 199
           }
         ]
       }
@@ -5448,23 +5448,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 1936597675,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 1,
-            "unknownDword3": 0,
-            "unknownBoolean1": false,
-            "unknownDword4": 0,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 1,
+            "CAPACITY": 0,
+            "START_EMPTY": false,
+            "REFILL_AMMO_PER_TICK": 0,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 210
+            "FIRE_GROUP_ID": 210
           }
         ]
       }
@@ -5502,23 +5502,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 1936597675,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 1,
-            "unknownDword3": 0,
-            "unknownBoolean1": false,
-            "unknownDword4": 0,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 1,
+            "CAPACITY": 0,
+            "START_EMPTY": false,
+            "REFILL_AMMO_PER_TICK": 0,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 211
+            "FIRE_GROUP_ID": 211
           }
         ]
       }
@@ -5556,23 +5556,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 2918591023,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 30,
-            "unknownDword3": 9999,
-            "unknownBoolean1": true,
-            "unknownDword4": 60,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 30,
+            "CAPACITY": 9999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 60,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 214
+            "FIRE_GROUP_ID": 214
           }
         ]
       }
@@ -5610,23 +5610,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 4245511188,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 5,
-            "unknownDword3": 999,
-            "unknownBoolean1": true,
-            "unknownDword4": 20,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 5,
+            "CAPACITY": 999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 20,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 215
+            "FIRE_GROUP_ID": 215
           }
         ]
       }
@@ -5664,23 +5664,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 625147958,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 6,
-            "unknownDword3": 999,
-            "unknownBoolean1": true,
-            "unknownDword4": 20,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 6,
+            "CAPACITY": 999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 20,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 216
+            "FIRE_GROUP_ID": 216
           }
         ]
       }
@@ -5718,23 +5718,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 4093171902,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 6,
-            "unknownDword3": 999999,
-            "unknownBoolean1": true,
-            "unknownDword4": 1,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 6,
+            "CAPACITY": 999999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 1,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 217
+            "FIRE_GROUP_ID": 217
           }
         ]
       }
@@ -5772,23 +5772,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 4109597905,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 30,
-            "unknownDword3": 99999,
-            "unknownBoolean1": true,
-            "unknownDword4": 60,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 30,
+            "CAPACITY": 99999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 60,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 218
+            "FIRE_GROUP_ID": 218
           }
         ]
       }
@@ -5826,29 +5826,29 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 2567614275,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 1,
-            "unknownDword3": 9999,
-            "unknownBoolean1": true,
-            "unknownDword4": 1,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 1,
+            "CAPACITY": 9999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 1,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 46
+            "FIRE_GROUP_ID": 46
           },
           {
-            "unknownDword1": 64
+            "FIRE_GROUP_ID": 64
           },
           {
-            "unknownDword1": 220
+            "FIRE_GROUP_ID": 220
           }
         ]
       }
@@ -5886,23 +5886,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 1884419651,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 30,
-            "unknownDword3": 9999,
-            "unknownBoolean1": true,
-            "unknownDword4": 60,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 30,
+            "CAPACITY": 9999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 60,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 221
+            "FIRE_GROUP_ID": 221
           }
         ]
       }
@@ -5940,23 +5940,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 1314993558,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 100,
-            "unknownDword3": 9999,
-            "unknownBoolean1": true,
-            "unknownDword4": 60,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 100,
+            "CAPACITY": 9999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 60,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 222
+            "FIRE_GROUP_ID": 222
           }
         ]
       }
@@ -5994,23 +5994,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 1101382159,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 1,
-            "unknownDword3": 9999,
-            "unknownBoolean1": true,
-            "unknownDword4": 1,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 1,
+            "CAPACITY": 9999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 1,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 223
+            "FIRE_GROUP_ID": 223
           }
         ]
       }
@@ -6048,23 +6048,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 2918591023,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 40,
-            "unknownDword3": 9999,
-            "unknownBoolean1": true,
-            "unknownDword4": 40,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 40,
+            "CAPACITY": 9999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 40,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 225
+            "FIRE_GROUP_ID": 225
           }
         ]
       }
@@ -6102,23 +6102,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 0,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 1,
-            "unknownDword3": 0,
-            "unknownBoolean1": false,
-            "unknownDword4": 0,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 1,
+            "CAPACITY": 0,
+            "START_EMPTY": false,
+            "REFILL_AMMO_PER_TICK": 0,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 231
+            "FIRE_GROUP_ID": 231
           }
         ]
       }
@@ -6156,23 +6156,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 1101382159,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 1,
-            "unknownDword3": 99999,
-            "unknownBoolean1": true,
-            "unknownDword4": 1,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "Weapon_NC_PistolMag_Clip.adr",
-            "unknownString2": "CLIP",
-            "unknownString3": "L_WEAPON"
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 1,
+            "CAPACITY": 99999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 1,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "Weapon_NC_PistolMag_Clip.adr",
+            "RELOAD_WEAPON_BONE": "CLIP",
+            "RELOAD_CHARACTER_BONE": "L_WEAPON"
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 234
+            "FIRE_GROUP_ID": 234
           }
         ]
       }
@@ -6210,23 +6210,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 0,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 1,
-            "unknownDword3": 0,
-            "unknownBoolean1": false,
-            "unknownDword4": 0,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 1,
+            "CAPACITY": 0,
+            "START_EMPTY": false,
+            "REFILL_AMMO_PER_TICK": 0,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 235
+            "FIRE_GROUP_ID": 235
           }
         ]
       }
@@ -6264,23 +6264,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 2567614275,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 1,
-            "unknownDword3": 9999,
-            "unknownBoolean1": true,
-            "unknownDword4": 1,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 1,
+            "CAPACITY": 9999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 1,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 238
+            "FIRE_GROUP_ID": 238
           }
         ]
       }
@@ -6318,23 +6318,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 0,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 1,
-            "unknownDword3": 0,
-            "unknownBoolean1": false,
-            "unknownDword4": 0,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 1,
+            "CAPACITY": 0,
+            "START_EMPTY": false,
+            "REFILL_AMMO_PER_TICK": 0,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 241
+            "FIRE_GROUP_ID": 241
           }
         ]
       }
@@ -6372,23 +6372,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 3498161294,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 3,
-            "unknownDword3": 99999,
-            "unknownBoolean1": true,
-            "unknownDword4": 99999,
-            "unknownDword5": 1,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 3,
+            "CAPACITY": 99999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 99999,
+            "REFILL_AMMO_DELAY_MS": 1,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 242
+            "FIRE_GROUP_ID": 242
           }
         ]
       }
@@ -6426,23 +6426,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 640723889,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 75,
-            "unknownDword3": 9999,
-            "unknownBoolean1": true,
-            "unknownDword4": 0,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 75,
+            "CAPACITY": 9999,
+            "START_EMPTY": true,
+            "REFILL_AMMO_PER_TICK": 0,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 243
+            "FIRE_GROUP_ID": 243
           }
         ]
       }
@@ -6480,23 +6480,23 @@
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
         "AUDIO_GAME_OBJECT": 0,
-        "unknownArray1": [
+        "AMMO_SLOTS": [
           {
-            "unknownDword1": 1,
-            "unknownDword2": 1,
-            "unknownDword3": 0,
-            "unknownBoolean1": false,
-            "unknownDword4": 0,
-            "unknownDword5": 0,
-            "unknownDword6": 0,
-            "unknownString1": "",
-            "unknownString2": "",
-            "unknownString3": ""
+            "AMMO_ID": 1,
+            "CLIP_SIZE": 1,
+            "CAPACITY": 0,
+            "START_EMPTY": false,
+            "REFILL_AMMO_PER_TICK": 0,
+            "REFILL_AMMO_DELAY_MS": 0,
+            "CLIP_ATTACHMENT_SLOT": 0,
+            "CLIP_MODEL_NAME": "",
+            "RELOAD_WEAPON_BONE": "",
+            "RELOAD_CHARACTER_BONE": ""
           }
         ],
-        "unknownArray2": [
+        "FIRE_GROUPS": [
           {
-            "unknownDword1": 247
+            "FIRE_GROUP_ID": 247
           }
         ]
       }
