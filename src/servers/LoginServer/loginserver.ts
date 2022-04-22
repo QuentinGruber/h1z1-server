@@ -106,6 +106,7 @@ export class LoginServer extends EventEmitter {
   _internalReqCount: number = 0;
   _pendingInternalReq: { [requestId: number]: any } = {};
   _pendingInternalReqTimeouts: { [requestId: number]: NodeJS.Timeout } = {};
+  private _soloPlayIp: string = process.env.SoloPlayIp || "127.0.0.1";
 
   constructor(serverPort: number, mongoAddress = "") {
     super();
@@ -674,7 +675,7 @@ export class LoginServer extends EventEmitter {
           unknownDword2: 0,
           status: 1,
           applicationData: {
-            serverAddress: "127.0.0.1:1117",
+            serverAddress: `${this._soloPlayIp}:1117`,
             serverTicket: client.loginSessionId,
             encryptionKey: this._cryptoKey,
             guid: characterId,
@@ -695,7 +696,7 @@ export class LoginServer extends EventEmitter {
           unknownDword2: 0,
           status: 1,
           applicationData: {
-            serverAddress: "127.0.0.1:1117",
+            serverAddress: `${this._soloPlayIp}:1117`,
             serverTicket: client.loginSessionId,
             encryptionKey: this._cryptoKey,
             guid: characterId,
