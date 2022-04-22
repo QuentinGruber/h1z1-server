@@ -23,10 +23,8 @@ jobs:
     name: Check package version
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       # Use this GitHub Action
       - name: Check package version
-        uses: technote-space/package-version-check-action@v1
-        with:
-          BRANCH_PREFIX: Release/
+        uses: QuentinGruber/release-check-package-version-action@v1.0.0
