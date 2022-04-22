@@ -29,5 +29,4 @@ jobs:
       - name: Check package version
         uses: technote-space/package-version-check-action@v1
         with:
-          BRANCH_PREFIX: release/
-          COMMIT_DISABLED: 1
+          BRANCH_PREFIX: Release/
