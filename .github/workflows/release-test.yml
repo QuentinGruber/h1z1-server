@@ -8,7 +8,6 @@ on:
 jobs:
   build-docker-images:
     name: Create and push docker images
-    needs: create-release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -16,8 +15,19 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 16.14.2
-      - uses: olegtarasov/get-tag@v2.1
-        id: tagName
       - uses: docker-practice/actions-setup-docker@master
       - run: npm i
       - run: npm run build-docker-images
+
+  check-release-tag:
+    name: Check package version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      # Use this GitHub Action
+      - name: Check package version
+        uses: technote-space/package-version-check-action@v1
+        with:
+          BRANCH_PREFIX: release/
+          COMMIT_DISABLED: 1
