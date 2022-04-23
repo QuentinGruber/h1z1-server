@@ -13,7 +13,7 @@
 
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
 
-export class ExplosiveEntity extends BaseLightweightCharacter{
+export class ExplosiveEntity extends BaseLightweightCharacter {
   isIED = false;
   mineTimer?: NodeJS.Timeout;
   constructor(

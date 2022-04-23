@@ -60,10 +60,10 @@ export class H1emuZoneServer extends H1emuServer {
                 this._hasBeenConnectedToLogin = true;
                 client.session = true;
                 this._loginConnection = client;
-                this.emit("session", null, client, packet.data.status);
+                this.emit("session", null, client);
               } else {
                 debug(`LoginConnection refused: Zone not whitelisted`);
-                this.emit("sessionfailed", null, client, packet.data.status);
+                this.emit("sessionfailed", null, client);
               }
               break;
             }

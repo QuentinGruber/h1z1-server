@@ -15,10 +15,7 @@ import { ResourceIds } from "../enums";
 import { ZoneClient2016 } from "./zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
-import {
-  positionUpdate
-} from "../../../types/zoneserver"
-
+import { positionUpdate } from "../../../types/zoneserver";
 
 export class Character2016 extends BaseFullCharacter {
   name?: string;
@@ -52,20 +49,17 @@ export class Character2016 extends BaseFullCharacter {
   timeouts: any;
   hasConveys: boolean = false;
   positionUpdate?: positionUpdate;
-  constructor(
-    characterId: string, 
-    transientId: number
-  ) {
+  constructor(characterId: string, transientId: number) {
     super(
-      characterId, 
-      transientId, 
-      0, 
+      characterId,
+      transientId,
+      0,
       new Float32Array([0, 0, 0, 1]),
       new Float32Array([0, 0, 0, 1])
     );
     this.healingTicks = 0;
     this.healingMaxTicks = 0;
-    this._resources = {
+    (this._resources = {
       [ResourceIds.HEALTH]: 10000,
       [ResourceIds.STAMINA]: 600,
       [ResourceIds.HUNGER]: 10000,
@@ -73,11 +67,11 @@ export class Character2016 extends BaseFullCharacter {
       [ResourceIds.VIRUS]: 0,
       [ResourceIds.COMFORT]: 5000,
       [ResourceIds.BLEEDING]: -40,
-    },
-    this.characterStates = {
-      knockedOut: false,
-      inWater: false,
-    }
+    }),
+      (this.characterStates = {
+        knockedOut: false,
+        inWater: false,
+      });
     this.timeouts = {};
     this.starthealingInterval = (
       client: ZoneClient2016,
@@ -115,11 +109,11 @@ export class Character2016 extends BaseFullCharacter {
       server: ZoneServer2016
     ) => {
       const hunger = this._resources[ResourceIds.HUNGER],
-      hydration = this._resources[ResourceIds.HYDRATION],
-      health = this._resources[ResourceIds.HEALTH],
-      virus = this._resources[ResourceIds.VIRUS],
-      stamina = this._resources[ResourceIds.STAMINA],
-      bleeding = this._resources[ResourceIds.BLEEDING]
+        hydration = this._resources[ResourceIds.HYDRATION],
+        health = this._resources[ResourceIds.HEALTH],
+        virus = this._resources[ResourceIds.VIRUS],
+        stamina = this._resources[ResourceIds.STAMINA],
+        bleeding = this._resources[ResourceIds.BLEEDING];
 
       client.character.resourcesUpdater = setTimeout(() => {
         // prototype resource manager
@@ -127,7 +121,11 @@ export class Character2016 extends BaseFullCharacter {
           return;
         }
         const { isRunning } = client.character;
-        if (isRunning && (client.vehicle.mountedVehicle == "" || !client.vehicle.mountedVehicle)) {
+        if (
+          isRunning &&
+          (client.vehicle.mountedVehicle == "" ||
+            !client.vehicle.mountedVehicle)
+        ) {
           client.character._resources[ResourceIds.STAMINA] -= 20;
           client.character.isExhausted =
             client.character._resources[ResourceIds.STAMINA] < 120;
@@ -147,7 +145,8 @@ export class Character2016 extends BaseFullCharacter {
         if (client.character._resources[ResourceIds.BLEEDING] > 0) {
           server.playerDamage(
             client,
-            Math.ceil(client.character._resources[ResourceIds.BLEEDING] / 40) * 100
+            Math.ceil(client.character._resources[ResourceIds.BLEEDING] / 40) *
+              100
           );
         }
         if (client.character._resources[ResourceIds.BLEEDING] > 80) {
@@ -221,7 +220,7 @@ export class Character2016 extends BaseFullCharacter {
             client.character._resources[ResourceIds.BLEEDING] > 0
               ? client.character._resources[ResourceIds.BLEEDING]
               : 0,
-              ResourceIds.BLEEDING
+            ResourceIds.BLEEDING
           );
         }
 

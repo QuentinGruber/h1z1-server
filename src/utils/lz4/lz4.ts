@@ -1,3 +1,4 @@
+/* eslint-disable no-var */
 /**
 	Javascript version of the key LZ4 C functions
 

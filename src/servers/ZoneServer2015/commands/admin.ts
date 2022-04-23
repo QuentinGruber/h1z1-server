@@ -10,7 +10,8 @@
 //
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
-
+/* eslint-disable @typescript-eslint/no-unused-vars */
+// TODO enable @typescript-eslint/no-unused-vars
 const debug = require("debug")("zonepacketHandlers");
 import { zoneShutdown } from "../../../utils/utils";
 import { ZoneClient as Client } from "../classes/zoneclient";

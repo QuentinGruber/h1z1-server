@@ -28,7 +28,7 @@ function getHeadActor(modelId: number): string {
   }
 }
 
-export class BaseLightweightCharacter extends BaseEntity{
+export class BaseLightweightCharacter extends BaseEntity {
   state: {
     position: Float32Array;
     rotation: Float32Array;
@@ -39,10 +39,10 @@ export class BaseLightweightCharacter extends BaseEntity{
   positionUpdateType = 0;
   headActor = getHeadActor(this.actorModelId);
   constructor(
-    characterId: string, 
-    transientId: number, 
-    actorModelId: number, 
-    position: Float32Array, 
+    characterId: string,
+    transientId: number,
+    actorModelId: number,
+    position: Float32Array,
     rotation: Float32Array
   ) {
     super(characterId, transientId, actorModelId, position, rotation);
@@ -64,7 +64,7 @@ export class BaseLightweightCharacter extends BaseEntity{
       positionUpdateType: this.positionUpdateType,
       isLightweight: this.isLightweight,
       flags: this.flags,
-      headActor: this.headActor
-    }
+      headActor: this.headActor,
+    };
   }
 }
