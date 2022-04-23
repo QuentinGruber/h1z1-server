@@ -233,7 +233,7 @@ const weaponDefinitionSchema: any[] = [
                 defaultValue: {},
                 fields: [
                   { name: "unknownFloat1", type: "float", defaultValue: 0 },
-                  { name: "unknownDword2", type: "float", defaultValue: 0 },
+                  { name: "unknownFloat2", type: "float", defaultValue: 0 },
                 ],
               },
               {
