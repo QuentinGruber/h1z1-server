@@ -12974,10 +12974,10 @@
   "PLAYER_STATE_GROUP_DEFINITIONS": [
     {
       "ID": 1,
-      "unknownDword1": 1,
+      "_ID": 1,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 1,
             "unknownByte1": 0,
@@ -13000,7 +13000,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 1,
             "unknownByte1": 1,
@@ -13023,7 +13023,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 1,
             "unknownByte1": 2,
@@ -13046,7 +13046,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 1,
             "unknownByte1": 3,
@@ -13069,7 +13069,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 1,
             "unknownByte1": 4,
@@ -13092,7 +13092,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 1,
             "unknownByte1": 5,
@@ -13118,10 +13118,10 @@
     },
     {
       "ID": 2,
-      "unknownDword1": 2,
+      "_ID": 2,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 2,
             "unknownByte1": 0,
@@ -13147,10 +13147,10 @@
     },
     {
       "ID": 75492,
-      "unknownDword1": 75492,
+      "_ID": 75492,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75492,
             "unknownByte1": 0,
@@ -13173,7 +13173,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75492,
             "unknownByte1": 3,
@@ -13199,10 +13199,10 @@
     },
     {
       "ID": 75493,
-      "unknownDword1": 75493,
+      "_ID": 75493,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75493,
             "unknownByte1": 0,
@@ -13225,7 +13225,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75493,
             "unknownByte1": 1,
@@ -13248,7 +13248,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75493,
             "unknownByte1": 2,
@@ -13271,7 +13271,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75493,
             "unknownByte1": 3,
@@ -13294,7 +13294,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75493,
             "unknownByte1": 4,
@@ -13317,7 +13317,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75493,
             "unknownByte1": 5,
@@ -13340,7 +13340,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75493,
             "unknownByte1": 6,
@@ -13363,7 +13363,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75493,
             "unknownByte1": 7,
@@ -13389,10 +13389,10 @@
     },
     {
       "ID": 75494,
-      "unknownDword1": 75494,
+      "_ID": 75494,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75494,
             "unknownByte1": 0,
@@ -13415,7 +13415,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75494,
             "unknownByte1": 1,
@@ -13438,7 +13438,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75494,
             "unknownByte1": 2,
@@ -13461,7 +13461,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75494,
             "unknownByte1": 3,
@@ -13484,7 +13484,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75494,
             "unknownByte1": 4,
@@ -13507,7 +13507,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75494,
             "unknownByte1": 5,
@@ -13530,7 +13530,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75494,
             "unknownByte1": 6,
@@ -13553,7 +13553,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75494,
             "unknownByte1": 7,
@@ -13579,10 +13579,10 @@
     },
     {
       "ID": 75498,
-      "unknownDword1": 75498,
+      "_ID": 75498,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75498,
             "unknownByte1": 0,
@@ -13605,7 +13605,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75498,
             "unknownByte1": 1,
@@ -13628,7 +13628,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75498,
             "unknownByte1": 2,
@@ -13651,7 +13651,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75498,
             "unknownByte1": 3,
@@ -13674,7 +13674,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75498,
             "unknownByte1": 4,
@@ -13697,7 +13697,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75498,
             "unknownByte1": 5,
@@ -13720,7 +13720,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75498,
             "unknownByte1": 6,
@@ -13743,7 +13743,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75498,
             "unknownByte1": 7,
@@ -13769,10 +13769,10 @@
     },
     {
       "ID": 75499,
-      "unknownDword1": 75499,
+      "_ID": 75499,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75499,
             "unknownByte1": 0,
@@ -13795,7 +13795,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75499,
             "unknownByte1": 1,
@@ -13818,7 +13818,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75499,
             "unknownByte1": 2,
@@ -13841,7 +13841,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75499,
             "unknownByte1": 3,
@@ -13864,7 +13864,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75499,
             "unknownByte1": 4,
@@ -13887,7 +13887,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75499,
             "unknownByte1": 5,
@@ -13910,7 +13910,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75499,
             "unknownByte1": 6,
@@ -13933,7 +13933,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75499,
             "unknownByte1": 7,
@@ -13959,10 +13959,10 @@
     },
     {
       "ID": 75500,
-      "unknownDword1": 75500,
+      "_ID": 75500,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75500,
             "unknownByte1": 0,
@@ -13985,7 +13985,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75500,
             "unknownByte1": 1,
@@ -14008,7 +14008,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75500,
             "unknownByte1": 2,
@@ -14031,7 +14031,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75500,
             "unknownByte1": 3,
@@ -14054,7 +14054,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75500,
             "unknownByte1": 4,
@@ -14077,7 +14077,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75500,
             "unknownByte1": 5,
@@ -14100,7 +14100,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75500,
             "unknownByte1": 6,
@@ -14123,7 +14123,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75500,
             "unknownByte1": 7,
@@ -14149,10 +14149,10 @@
     },
     {
       "ID": 75501,
-      "unknownDword1": 75501,
+      "_ID": 75501,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75501,
             "unknownByte1": 0,
@@ -14175,7 +14175,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75501,
             "unknownByte1": 1,
@@ -14198,7 +14198,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75501,
             "unknownByte1": 2,
@@ -14221,7 +14221,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75501,
             "unknownByte1": 3,
@@ -14244,7 +14244,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75501,
             "unknownByte1": 4,
@@ -14267,7 +14267,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75501,
             "unknownByte1": 5,
@@ -14290,7 +14290,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75501,
             "unknownByte1": 6,
@@ -14313,7 +14313,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75501,
             "unknownByte1": 7,
@@ -14339,10 +14339,10 @@
     },
     {
       "ID": 75502,
-      "unknownDword1": 75502,
+      "_ID": 75502,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75502,
             "unknownByte1": 0,
@@ -14365,7 +14365,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75502,
             "unknownByte1": 1,
@@ -14388,7 +14388,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75502,
             "unknownByte1": 2,
@@ -14411,7 +14411,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75502,
             "unknownByte1": 3,
@@ -14434,7 +14434,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75502,
             "unknownByte1": 4,
@@ -14457,7 +14457,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75502,
             "unknownByte1": 5,
@@ -14480,7 +14480,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75502,
             "unknownByte1": 6,
@@ -14503,7 +14503,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75502,
             "unknownByte1": 7,
@@ -14529,10 +14529,10 @@
     },
     {
       "ID": 75503,
-      "unknownDword1": 75503,
+      "_ID": 75503,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75503,
             "unknownByte1": 0,
@@ -14555,7 +14555,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75503,
             "unknownByte1": 1,
@@ -14578,7 +14578,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75503,
             "unknownByte1": 2,
@@ -14601,7 +14601,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75503,
             "unknownByte1": 3,
@@ -14624,7 +14624,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75503,
             "unknownByte1": 4,
@@ -14647,7 +14647,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75503,
             "unknownByte1": 5,
@@ -14670,7 +14670,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75503,
             "unknownByte1": 6,
@@ -14693,7 +14693,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75503,
             "unknownByte1": 7,
@@ -14719,10 +14719,10 @@
     },
     {
       "ID": 75504,
-      "unknownDword1": 75504,
+      "_ID": 75504,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75504,
             "unknownByte1": 0,
@@ -14745,7 +14745,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75504,
             "unknownByte1": 1,
@@ -14768,7 +14768,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75504,
             "unknownByte1": 2,
@@ -14791,7 +14791,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75504,
             "unknownByte1": 3,
@@ -14814,7 +14814,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75504,
             "unknownByte1": 4,
@@ -14837,7 +14837,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75504,
             "unknownByte1": 5,
@@ -14860,7 +14860,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75504,
             "unknownByte1": 6,
@@ -14883,7 +14883,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75504,
             "unknownByte1": 7,
@@ -14909,10 +14909,10 @@
     },
     {
       "ID": 75505,
-      "unknownDword1": 75505,
+      "_ID": 75505,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75505,
             "unknownByte1": 0,
@@ -14935,7 +14935,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75505,
             "unknownByte1": 1,
@@ -14958,7 +14958,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75505,
             "unknownByte1": 2,
@@ -14981,7 +14981,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75505,
             "unknownByte1": 3,
@@ -15004,7 +15004,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75505,
             "unknownByte1": 4,
@@ -15027,7 +15027,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75505,
             "unknownByte1": 5,
@@ -15050,7 +15050,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75505,
             "unknownByte1": 6,
@@ -15073,7 +15073,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75505,
             "unknownByte1": 7,
@@ -15099,10 +15099,10 @@
     },
     {
       "ID": 75506,
-      "unknownDword1": 75506,
+      "_ID": 75506,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75506,
             "unknownByte1": 0,
@@ -15125,7 +15125,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75506,
             "unknownByte1": 1,
@@ -15148,7 +15148,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75506,
             "unknownByte1": 2,
@@ -15171,7 +15171,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75506,
             "unknownByte1": 3,
@@ -15194,7 +15194,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75506,
             "unknownByte1": 4,
@@ -15217,7 +15217,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75506,
             "unknownByte1": 5,
@@ -15240,7 +15240,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75506,
             "unknownByte1": 6,
@@ -15263,7 +15263,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75506,
             "unknownByte1": 7,
@@ -15289,10 +15289,10 @@
     },
     {
       "ID": 75507,
-      "unknownDword1": 75507,
+      "_ID": 75507,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75507,
             "unknownByte1": 0,
@@ -15315,7 +15315,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75507,
             "unknownByte1": 1,
@@ -15338,7 +15338,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75507,
             "unknownByte1": 2,
@@ -15361,7 +15361,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75507,
             "unknownByte1": 3,
@@ -15384,7 +15384,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75507,
             "unknownByte1": 4,
@@ -15407,7 +15407,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75507,
             "unknownByte1": 5,
@@ -15430,7 +15430,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75507,
             "unknownByte1": 6,
@@ -15453,7 +15453,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75507,
             "unknownByte1": 7,
@@ -15479,10 +15479,10 @@
     },
     {
       "ID": 75508,
-      "unknownDword1": 75508,
+      "_ID": 75508,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75508,
             "unknownByte1": 0,
@@ -15505,7 +15505,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75508,
             "unknownByte1": 1,
@@ -15528,7 +15528,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75508,
             "unknownByte1": 2,
@@ -15551,7 +15551,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75508,
             "unknownByte1": 3,
@@ -15574,7 +15574,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75508,
             "unknownByte1": 4,
@@ -15597,7 +15597,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75508,
             "unknownByte1": 5,
@@ -15620,7 +15620,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75508,
             "unknownByte1": 6,
@@ -15643,7 +15643,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75508,
             "unknownByte1": 7,
@@ -15669,10 +15669,10 @@
     },
     {
       "ID": 75509,
-      "unknownDword1": 75509,
+      "_ID": 75509,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75509,
             "unknownByte1": 0,
@@ -15695,7 +15695,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75509,
             "unknownByte1": 1,
@@ -15718,7 +15718,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75509,
             "unknownByte1": 2,
@@ -15741,7 +15741,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75509,
             "unknownByte1": 3,
@@ -15764,7 +15764,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75509,
             "unknownByte1": 4,
@@ -15787,7 +15787,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75509,
             "unknownByte1": 5,
@@ -15810,7 +15810,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75509,
             "unknownByte1": 6,
@@ -15833,7 +15833,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75509,
             "unknownByte1": 7,
@@ -15859,10 +15859,10 @@
     },
     {
       "ID": 75510,
-      "unknownDword1": 75510,
+      "_ID": 75510,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75510,
             "unknownByte1": 0,
@@ -15885,7 +15885,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75510,
             "unknownByte1": 1,
@@ -15908,7 +15908,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75510,
             "unknownByte1": 2,
@@ -15931,7 +15931,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75510,
             "unknownByte1": 3,
@@ -15954,7 +15954,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75510,
             "unknownByte1": 4,
@@ -15977,7 +15977,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75510,
             "unknownByte1": 5,
@@ -16000,7 +16000,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75510,
             "unknownByte1": 6,
@@ -16023,7 +16023,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75510,
             "unknownByte1": 7,
@@ -16049,10 +16049,10 @@
     },
     {
       "ID": 75511,
-      "unknownDword1": 75511,
+      "_ID": 75511,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75511,
             "unknownByte1": 0,
@@ -16075,7 +16075,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75511,
             "unknownByte1": 1,
@@ -16098,7 +16098,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75511,
             "unknownByte1": 2,
@@ -16121,7 +16121,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75511,
             "unknownByte1": 3,
@@ -16144,7 +16144,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75511,
             "unknownByte1": 4,
@@ -16167,7 +16167,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75511,
             "unknownByte1": 5,
@@ -16190,7 +16190,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75511,
             "unknownByte1": 6,
@@ -16213,7 +16213,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75511,
             "unknownByte1": 7,
@@ -16239,10 +16239,10 @@
     },
     {
       "ID": 75528,
-      "unknownDword1": 75528,
+      "_ID": 75528,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75528,
             "unknownByte1": 0,
@@ -16265,7 +16265,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75528,
             "unknownByte1": 1,
@@ -16288,7 +16288,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75528,
             "unknownByte1": 2,
@@ -16311,7 +16311,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75528,
             "unknownByte1": 3,
@@ -16334,7 +16334,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75528,
             "unknownByte1": 4,
@@ -16357,7 +16357,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75528,
             "unknownByte1": 5,
@@ -16383,10 +16383,10 @@
     },
     {
       "ID": 75529,
-      "unknownDword1": 75529,
+      "_ID": 75529,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75529,
             "unknownByte1": 0,
@@ -16409,7 +16409,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75529,
             "unknownByte1": 1,
@@ -16432,7 +16432,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75529,
             "unknownByte1": 2,
@@ -16455,7 +16455,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75529,
             "unknownByte1": 3,
@@ -16478,7 +16478,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75529,
             "unknownByte1": 4,
@@ -16501,7 +16501,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75529,
             "unknownByte1": 5,
@@ -16527,10 +16527,10 @@
     },
     {
       "ID": 75530,
-      "unknownDword1": 75530,
+      "_ID": 75530,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75530,
             "unknownByte1": 0,
@@ -16553,7 +16553,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75530,
             "unknownByte1": 1,
@@ -16576,7 +16576,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75530,
             "unknownByte1": 2,
@@ -16599,7 +16599,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75530,
             "unknownByte1": 3,
@@ -16622,7 +16622,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75530,
             "unknownByte1": 4,
@@ -16645,7 +16645,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75530,
             "unknownByte1": 5,
@@ -16668,7 +16668,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75530,
             "unknownByte1": 6,
@@ -16691,7 +16691,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75530,
             "unknownByte1": 7,
@@ -16717,10 +16717,10 @@
     },
     {
       "ID": 75531,
-      "unknownDword1": 75531,
+      "_ID": 75531,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75531,
             "unknownByte1": 0,
@@ -16743,7 +16743,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75531,
             "unknownByte1": 1,
@@ -16766,7 +16766,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75531,
             "unknownByte1": 2,
@@ -16789,7 +16789,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75531,
             "unknownByte1": 3,
@@ -16812,7 +16812,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75531,
             "unknownByte1": 4,
@@ -16835,7 +16835,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75531,
             "unknownByte1": 5,
@@ -16858,7 +16858,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75531,
             "unknownByte1": 6,
@@ -16881,7 +16881,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75531,
             "unknownByte1": 7,
@@ -16907,10 +16907,10 @@
     },
     {
       "ID": 75532,
-      "unknownDword1": 75532,
+      "_ID": 75532,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75532,
             "unknownByte1": 0,
@@ -16933,7 +16933,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75532,
             "unknownByte1": 1,
@@ -16956,7 +16956,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75532,
             "unknownByte1": 2,
@@ -16979,7 +16979,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75532,
             "unknownByte1": 3,
@@ -17002,7 +17002,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75532,
             "unknownByte1": 4,
@@ -17025,7 +17025,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75532,
             "unknownByte1": 5,
@@ -17048,7 +17048,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75532,
             "unknownByte1": 6,
@@ -17071,7 +17071,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75532,
             "unknownByte1": 7,
@@ -17097,10 +17097,10 @@
     },
     {
       "ID": 75533,
-      "unknownDword1": 75533,
+      "_ID": 75533,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75533,
             "unknownByte1": 0,
@@ -17123,7 +17123,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75533,
             "unknownByte1": 1,
@@ -17146,7 +17146,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75533,
             "unknownByte1": 2,
@@ -17169,7 +17169,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75533,
             "unknownByte1": 3,
@@ -17192,7 +17192,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75533,
             "unknownByte1": 4,
@@ -17215,7 +17215,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75533,
             "unknownByte1": 5,
@@ -17238,7 +17238,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75533,
             "unknownByte1": 6,
@@ -17261,7 +17261,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75533,
             "unknownByte1": 7,
@@ -17287,10 +17287,10 @@
     },
     {
       "ID": 75534,
-      "unknownDword1": 75534,
+      "_ID": 75534,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75534,
             "unknownByte1": 0,
@@ -17313,7 +17313,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75534,
             "unknownByte1": 1,
@@ -17336,7 +17336,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75534,
             "unknownByte1": 2,
@@ -17359,7 +17359,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75534,
             "unknownByte1": 3,
@@ -17382,7 +17382,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75534,
             "unknownByte1": 4,
@@ -17405,7 +17405,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75534,
             "unknownByte1": 5,
@@ -17428,7 +17428,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75534,
             "unknownByte1": 6,
@@ -17451,7 +17451,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75534,
             "unknownByte1": 7,
@@ -17477,10 +17477,10 @@
     },
     {
       "ID": 75535,
-      "unknownDword1": 75535,
+      "_ID": 75535,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75535,
             "unknownByte1": 0,
@@ -17503,7 +17503,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75535,
             "unknownByte1": 1,
@@ -17526,7 +17526,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75535,
             "unknownByte1": 2,
@@ -17549,7 +17549,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75535,
             "unknownByte1": 3,
@@ -17572,7 +17572,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75535,
             "unknownByte1": 4,
@@ -17595,7 +17595,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75535,
             "unknownByte1": 5,
@@ -17618,7 +17618,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75535,
             "unknownByte1": 6,
@@ -17641,7 +17641,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75535,
             "unknownByte1": 7,
@@ -17667,10 +17667,10 @@
     },
     {
       "ID": 75536,
-      "unknownDword1": 75536,
+      "_ID": 75536,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75536,
             "unknownByte1": 0,
@@ -17693,7 +17693,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75536,
             "unknownByte1": 1,
@@ -17716,7 +17716,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75536,
             "unknownByte1": 2,
@@ -17739,7 +17739,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75536,
             "unknownByte1": 3,
@@ -17762,7 +17762,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75536,
             "unknownByte1": 4,
@@ -17785,7 +17785,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75536,
             "unknownByte1": 5,
@@ -17808,7 +17808,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75536,
             "unknownByte1": 6,
@@ -17831,7 +17831,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75536,
             "unknownByte1": 7,
@@ -17857,10 +17857,10 @@
     },
     {
       "ID": 75537,
-      "unknownDword1": 75537,
+      "_ID": 75537,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75537,
             "unknownByte1": 0,
@@ -17883,7 +17883,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75537,
             "unknownByte1": 1,
@@ -17906,7 +17906,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75537,
             "unknownByte1": 2,
@@ -17929,7 +17929,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75537,
             "unknownByte1": 3,
@@ -17952,7 +17952,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75537,
             "unknownByte1": 4,
@@ -17975,7 +17975,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75537,
             "unknownByte1": 5,
@@ -17998,7 +17998,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75537,
             "unknownByte1": 6,
@@ -18021,7 +18021,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75537,
             "unknownByte1": 7,
@@ -18047,10 +18047,10 @@
     },
     {
       "ID": 75538,
-      "unknownDword1": 75538,
+      "_ID": 75538,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75538,
             "unknownByte1": 0,
@@ -18073,7 +18073,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75538,
             "unknownByte1": 1,
@@ -18096,7 +18096,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75538,
             "unknownByte1": 2,
@@ -18119,7 +18119,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75538,
             "unknownByte1": 3,
@@ -18142,7 +18142,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75538,
             "unknownByte1": 4,
@@ -18165,7 +18165,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75538,
             "unknownByte1": 5,
@@ -18188,7 +18188,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75538,
             "unknownByte1": 6,
@@ -18211,7 +18211,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75538,
             "unknownByte1": 7,
@@ -18237,10 +18237,10 @@
     },
     {
       "ID": 75539,
-      "unknownDword1": 75539,
+      "_ID": 75539,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75539,
             "unknownByte1": 0,
@@ -18263,7 +18263,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75539,
             "unknownByte1": 1,
@@ -18286,7 +18286,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75539,
             "unknownByte1": 2,
@@ -18309,7 +18309,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75539,
             "unknownByte1": 3,
@@ -18332,7 +18332,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75539,
             "unknownByte1": 4,
@@ -18355,7 +18355,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75539,
             "unknownByte1": 5,
@@ -18378,7 +18378,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75539,
             "unknownByte1": 6,
@@ -18401,7 +18401,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75539,
             "unknownByte1": 7,
@@ -18427,10 +18427,10 @@
     },
     {
       "ID": 75541,
-      "unknownDword1": 75541,
+      "_ID": 75541,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75541,
             "unknownByte1": 0,
@@ -18453,7 +18453,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75541,
             "unknownByte1": 1,
@@ -18476,7 +18476,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75541,
             "unknownByte1": 2,
@@ -18499,7 +18499,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75541,
             "unknownByte1": 3,
@@ -18522,7 +18522,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75541,
             "unknownByte1": 4,
@@ -18545,7 +18545,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75541,
             "unknownByte1": 5,
@@ -18568,7 +18568,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75541,
             "unknownByte1": 6,
@@ -18591,7 +18591,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75541,
             "unknownByte1": 7,
@@ -18617,10 +18617,10 @@
     },
     {
       "ID": 75542,
-      "unknownDword1": 75542,
+      "_ID": 75542,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75542,
             "unknownByte1": 0,
@@ -18643,7 +18643,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75542,
             "unknownByte1": 1,
@@ -18666,7 +18666,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75542,
             "unknownByte1": 2,
@@ -18689,7 +18689,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75542,
             "unknownByte1": 3,
@@ -18712,7 +18712,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75542,
             "unknownByte1": 4,
@@ -18735,7 +18735,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75542,
             "unknownByte1": 5,
@@ -18758,7 +18758,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75542,
             "unknownByte1": 6,
@@ -18781,7 +18781,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75542,
             "unknownByte1": 7,
@@ -18807,10 +18807,10 @@
     },
     {
       "ID": 75543,
-      "unknownDword1": 75543,
+      "_ID": 75543,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75543,
             "unknownByte1": 0,
@@ -18833,7 +18833,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75543,
             "unknownByte1": 1,
@@ -18856,7 +18856,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75543,
             "unknownByte1": 2,
@@ -18879,7 +18879,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75543,
             "unknownByte1": 3,
@@ -18902,7 +18902,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75543,
             "unknownByte1": 4,
@@ -18925,7 +18925,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75543,
             "unknownByte1": 5,
@@ -18948,7 +18948,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75543,
             "unknownByte1": 6,
@@ -18971,7 +18971,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75543,
             "unknownByte1": 7,
@@ -18997,10 +18997,10 @@
     },
     {
       "ID": 75544,
-      "unknownDword1": 75544,
+      "_ID": 75544,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75544,
             "unknownByte1": 0,
@@ -19023,7 +19023,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75544,
             "unknownByte1": 1,
@@ -19046,7 +19046,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75544,
             "unknownByte1": 2,
@@ -19069,7 +19069,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75544,
             "unknownByte1": 3,
@@ -19092,7 +19092,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75544,
             "unknownByte1": 4,
@@ -19115,7 +19115,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75544,
             "unknownByte1": 5,
@@ -19138,7 +19138,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75544,
             "unknownByte1": 6,
@@ -19161,7 +19161,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75544,
             "unknownByte1": 7,
@@ -19187,10 +19187,10 @@
     },
     {
       "ID": 75545,
-      "unknownDword1": 75545,
+      "_ID": 75545,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75545,
             "unknownByte1": 0,
@@ -19213,7 +19213,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75545,
             "unknownByte1": 1,
@@ -19236,7 +19236,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75545,
             "unknownByte1": 2,
@@ -19259,7 +19259,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75545,
             "unknownByte1": 3,
@@ -19282,7 +19282,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75545,
             "unknownByte1": 4,
@@ -19305,7 +19305,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75545,
             "unknownByte1": 5,
@@ -19328,7 +19328,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75545,
             "unknownByte1": 6,
@@ -19351,7 +19351,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75545,
             "unknownByte1": 7,
@@ -19377,10 +19377,10 @@
     },
     {
       "ID": 75546,
-      "unknownDword1": 75546,
+      "_ID": 75546,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75546,
             "unknownByte1": 0,
@@ -19403,7 +19403,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75546,
             "unknownByte1": 1,
@@ -19426,7 +19426,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75546,
             "unknownByte1": 2,
@@ -19449,7 +19449,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75546,
             "unknownByte1": 3,
@@ -19472,7 +19472,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75546,
             "unknownByte1": 4,
@@ -19495,7 +19495,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75546,
             "unknownByte1": 5,
@@ -19518,7 +19518,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75546,
             "unknownByte1": 6,
@@ -19541,7 +19541,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75546,
             "unknownByte1": 7,
@@ -19567,10 +19567,10 @@
     },
     {
       "ID": 75547,
-      "unknownDword1": 75547,
+      "_ID": 75547,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75547,
             "unknownByte1": 0,
@@ -19593,7 +19593,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75547,
             "unknownByte1": 1,
@@ -19616,7 +19616,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75547,
             "unknownByte1": 2,
@@ -19639,7 +19639,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75547,
             "unknownByte1": 3,
@@ -19662,7 +19662,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75547,
             "unknownByte1": 4,
@@ -19685,7 +19685,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75547,
             "unknownByte1": 5,
@@ -19708,7 +19708,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75547,
             "unknownByte1": 6,
@@ -19731,7 +19731,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75547,
             "unknownByte1": 7,
@@ -19757,10 +19757,10 @@
     },
     {
       "ID": 75548,
-      "unknownDword1": 75548,
+      "_ID": 75548,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75548,
             "unknownByte1": 0,
@@ -19783,7 +19783,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75548,
             "unknownByte1": 1,
@@ -19806,7 +19806,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75548,
             "unknownByte1": 2,
@@ -19829,7 +19829,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75548,
             "unknownByte1": 3,
@@ -19852,7 +19852,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75548,
             "unknownByte1": 4,
@@ -19875,7 +19875,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75548,
             "unknownByte1": 5,
@@ -19898,7 +19898,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75548,
             "unknownByte1": 6,
@@ -19921,7 +19921,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75548,
             "unknownByte1": 7,
@@ -19947,10 +19947,10 @@
     },
     {
       "ID": 75549,
-      "unknownDword1": 75549,
+      "_ID": 75549,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75549,
             "unknownByte1": 0,
@@ -19973,7 +19973,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75549,
             "unknownByte1": 1,
@@ -19996,7 +19996,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75549,
             "unknownByte1": 2,
@@ -20019,7 +20019,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75549,
             "unknownByte1": 3,
@@ -20042,7 +20042,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75549,
             "unknownByte1": 4,
@@ -20065,7 +20065,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75549,
             "unknownByte1": 5,
@@ -20088,7 +20088,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75549,
             "unknownByte1": 6,
@@ -20111,7 +20111,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75549,
             "unknownByte1": 7,
@@ -20137,10 +20137,10 @@
     },
     {
       "ID": 75550,
-      "unknownDword1": 75550,
+      "_ID": 75550,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75550,
             "unknownByte1": 0,
@@ -20163,7 +20163,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75550,
             "unknownByte1": 1,
@@ -20186,7 +20186,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75550,
             "unknownByte1": 2,
@@ -20209,7 +20209,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75550,
             "unknownByte1": 3,
@@ -20232,7 +20232,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75550,
             "unknownByte1": 4,
@@ -20255,7 +20255,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75550,
             "unknownByte1": 5,
@@ -20278,7 +20278,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75550,
             "unknownByte1": 6,
@@ -20301,7 +20301,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75550,
             "unknownByte1": 7,
@@ -20327,10 +20327,10 @@
     },
     {
       "ID": 75551,
-      "unknownDword1": 75551,
+      "_ID": 75551,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75551,
             "unknownByte1": 0,
@@ -20353,7 +20353,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75551,
             "unknownByte1": 1,
@@ -20376,7 +20376,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75551,
             "unknownByte1": 2,
@@ -20399,7 +20399,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75551,
             "unknownByte1": 3,
@@ -20422,7 +20422,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75551,
             "unknownByte1": 4,
@@ -20445,7 +20445,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75551,
             "unknownByte1": 5,
@@ -20468,7 +20468,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75551,
             "unknownByte1": 6,
@@ -20491,7 +20491,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75551,
             "unknownByte1": 7,
@@ -20517,10 +20517,10 @@
     },
     {
       "ID": 75552,
-      "unknownDword1": 75552,
+      "_ID": 75552,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75552,
             "unknownByte1": 0,
@@ -20543,7 +20543,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75552,
             "unknownByte1": 1,
@@ -20566,7 +20566,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75552,
             "unknownByte1": 2,
@@ -20589,7 +20589,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75552,
             "unknownByte1": 3,
@@ -20612,7 +20612,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75552,
             "unknownByte1": 4,
@@ -20635,7 +20635,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75552,
             "unknownByte1": 5,
@@ -20658,7 +20658,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75552,
             "unknownByte1": 6,
@@ -20681,7 +20681,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75552,
             "unknownByte1": 7,
@@ -20707,10 +20707,10 @@
     },
     {
       "ID": 75553,
-      "unknownDword1": 75553,
+      "_ID": 75553,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75553,
             "unknownByte1": 0,
@@ -20733,7 +20733,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75553,
             "unknownByte1": 1,
@@ -20756,7 +20756,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75553,
             "unknownByte1": 2,
@@ -20779,7 +20779,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75553,
             "unknownByte1": 3,
@@ -20802,7 +20802,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75553,
             "unknownByte1": 4,
@@ -20825,7 +20825,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75553,
             "unknownByte1": 5,
@@ -20848,7 +20848,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75553,
             "unknownByte1": 6,
@@ -20871,7 +20871,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75553,
             "unknownByte1": 7,
@@ -20897,10 +20897,10 @@
     },
     {
       "ID": 75554,
-      "unknownDword1": 75554,
+      "_ID": 75554,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75554,
             "unknownByte1": 0,
@@ -20923,7 +20923,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75554,
             "unknownByte1": 1,
@@ -20946,7 +20946,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75554,
             "unknownByte1": 2,
@@ -20969,7 +20969,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75554,
             "unknownByte1": 3,
@@ -20992,7 +20992,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75554,
             "unknownByte1": 4,
@@ -21015,7 +21015,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75554,
             "unknownByte1": 5,
@@ -21038,7 +21038,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75554,
             "unknownByte1": 6,
@@ -21061,7 +21061,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75554,
             "unknownByte1": 7,
@@ -21087,10 +21087,10 @@
     },
     {
       "ID": 75555,
-      "unknownDword1": 75555,
+      "_ID": 75555,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75555,
             "unknownByte1": 0,
@@ -21113,7 +21113,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75555,
             "unknownByte1": 1,
@@ -21136,7 +21136,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75555,
             "unknownByte1": 2,
@@ -21159,7 +21159,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75555,
             "unknownByte1": 3,
@@ -21182,7 +21182,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75555,
             "unknownByte1": 4,
@@ -21205,7 +21205,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75555,
             "unknownByte1": 5,
@@ -21228,7 +21228,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75555,
             "unknownByte1": 6,
@@ -21251,7 +21251,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75555,
             "unknownByte1": 7,
@@ -21277,10 +21277,10 @@
     },
     {
       "ID": 75556,
-      "unknownDword1": 75556,
+      "_ID": 75556,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75556,
             "unknownByte1": 0,
@@ -21303,7 +21303,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75556,
             "unknownByte1": 1,
@@ -21326,7 +21326,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75556,
             "unknownByte1": 2,
@@ -21349,7 +21349,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75556,
             "unknownByte1": 3,
@@ -21372,7 +21372,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75556,
             "unknownByte1": 4,
@@ -21395,7 +21395,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75556,
             "unknownByte1": 5,
@@ -21418,7 +21418,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75556,
             "unknownByte1": 6,
@@ -21441,7 +21441,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75556,
             "unknownByte1": 7,
@@ -21467,10 +21467,10 @@
     },
     {
       "ID": 75559,
-      "unknownDword1": 75559,
+      "_ID": 75559,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75559,
             "unknownByte1": 0,
@@ -21493,7 +21493,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75559,
             "unknownByte1": 1,
@@ -21516,7 +21516,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75559,
             "unknownByte1": 2,
@@ -21539,7 +21539,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75559,
             "unknownByte1": 3,
@@ -21562,7 +21562,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75559,
             "unknownByte1": 4,
@@ -21585,7 +21585,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75559,
             "unknownByte1": 5,
@@ -21608,7 +21608,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75559,
             "unknownByte1": 6,
@@ -21631,7 +21631,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75559,
             "unknownByte1": 7,
@@ -21657,10 +21657,10 @@
     },
     {
       "ID": 75560,
-      "unknownDword1": 75560,
+      "_ID": 75560,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75560,
             "unknownByte1": 0,
@@ -21683,7 +21683,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75560,
             "unknownByte1": 1,
@@ -21706,7 +21706,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75560,
             "unknownByte1": 2,
@@ -21729,7 +21729,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75560,
             "unknownByte1": 3,
@@ -21752,7 +21752,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75560,
             "unknownByte1": 4,
@@ -21775,7 +21775,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75560,
             "unknownByte1": 5,
@@ -21798,7 +21798,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75560,
             "unknownByte1": 6,
@@ -21821,7 +21821,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75560,
             "unknownByte1": 7,
@@ -21847,10 +21847,10 @@
     },
     {
       "ID": 75561,
-      "unknownDword1": 75561,
+      "_ID": 75561,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75561,
             "unknownByte1": 0,
@@ -21873,7 +21873,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75561,
             "unknownByte1": 1,
@@ -21896,7 +21896,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75561,
             "unknownByte1": 2,
@@ -21919,7 +21919,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75561,
             "unknownByte1": 3,
@@ -21942,7 +21942,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75561,
             "unknownByte1": 4,
@@ -21965,7 +21965,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75561,
             "unknownByte1": 5,
@@ -21988,7 +21988,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75561,
             "unknownByte1": 6,
@@ -22011,7 +22011,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75561,
             "unknownByte1": 7,
@@ -22037,10 +22037,10 @@
     },
     {
       "ID": 75562,
-      "unknownDword1": 75562,
+      "_ID": 75562,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75562,
             "unknownByte1": 0,
@@ -22063,7 +22063,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75562,
             "unknownByte1": 1,
@@ -22086,7 +22086,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75562,
             "unknownByte1": 2,
@@ -22109,7 +22109,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75562,
             "unknownByte1": 3,
@@ -22132,7 +22132,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75562,
             "unknownByte1": 4,
@@ -22155,7 +22155,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75562,
             "unknownByte1": 5,
@@ -22178,7 +22178,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75562,
             "unknownByte1": 6,
@@ -22201,7 +22201,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75562,
             "unknownByte1": 7,
@@ -22227,10 +22227,10 @@
     },
     {
       "ID": 75563,
-      "unknownDword1": 75563,
+      "_ID": 75563,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75563,
             "unknownByte1": 0,
@@ -22253,7 +22253,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75563,
             "unknownByte1": 1,
@@ -22276,7 +22276,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75563,
             "unknownByte1": 2,
@@ -22299,7 +22299,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75563,
             "unknownByte1": 3,
@@ -22322,7 +22322,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75563,
             "unknownByte1": 4,
@@ -22345,7 +22345,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75563,
             "unknownByte1": 5,
@@ -22371,10 +22371,10 @@
     },
     {
       "ID": 75564,
-      "unknownDword1": 75564,
+      "_ID": 75564,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75564,
             "unknownByte1": 0,
@@ -22397,7 +22397,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75564,
             "unknownByte1": 1,
@@ -22420,7 +22420,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75564,
             "unknownByte1": 2,
@@ -22443,7 +22443,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75564,
             "unknownByte1": 3,
@@ -22466,7 +22466,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75564,
             "unknownByte1": 4,
@@ -22489,7 +22489,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75564,
             "unknownByte1": 5,
@@ -22512,7 +22512,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75564,
             "unknownByte1": 6,
@@ -22535,7 +22535,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75564,
             "unknownByte1": 7,
@@ -22561,10 +22561,10 @@
     },
     {
       "ID": 75565,
-      "unknownDword1": 75565,
+      "_ID": 75565,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75565,
             "unknownByte1": 0,
@@ -22587,7 +22587,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75565,
             "unknownByte1": 1,
@@ -22610,7 +22610,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75565,
             "unknownByte1": 2,
@@ -22633,7 +22633,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75565,
             "unknownByte1": 3,
@@ -22656,7 +22656,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75565,
             "unknownByte1": 4,
@@ -22679,7 +22679,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75565,
             "unknownByte1": 5,
@@ -22702,7 +22702,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75565,
             "unknownByte1": 6,
@@ -22725,7 +22725,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75565,
             "unknownByte1": 7,
@@ -22751,10 +22751,10 @@
     },
     {
       "ID": 75566,
-      "unknownDword1": 75566,
+      "_ID": 75566,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75566,
             "unknownByte1": 0,
@@ -22777,7 +22777,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75566,
             "unknownByte1": 1,
@@ -22800,7 +22800,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75566,
             "unknownByte1": 2,
@@ -22823,7 +22823,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75566,
             "unknownByte1": 3,
@@ -22846,7 +22846,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75566,
             "unknownByte1": 4,
@@ -22869,7 +22869,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75566,
             "unknownByte1": 5,
@@ -22892,7 +22892,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75566,
             "unknownByte1": 6,
@@ -22915,7 +22915,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75566,
             "unknownByte1": 7,
@@ -22941,10 +22941,10 @@
     },
     {
       "ID": 75567,
-      "unknownDword1": 75567,
+      "_ID": 75567,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75567,
             "unknownByte1": 0,
@@ -22967,7 +22967,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75567,
             "unknownByte1": 1,
@@ -22990,7 +22990,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75567,
             "unknownByte1": 2,
@@ -23013,7 +23013,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75567,
             "unknownByte1": 3,
@@ -23036,7 +23036,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75567,
             "unknownByte1": 4,
@@ -23059,7 +23059,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75567,
             "unknownByte1": 5,
@@ -23082,7 +23082,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75567,
             "unknownByte1": 6,
@@ -23105,7 +23105,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75567,
             "unknownByte1": 7,
@@ -23131,10 +23131,10 @@
     },
     {
       "ID": 75571,
-      "unknownDword1": 75571,
+      "_ID": 75571,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75571,
             "unknownByte1": 0,
@@ -23157,7 +23157,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75571,
             "unknownByte1": 1,
@@ -23180,7 +23180,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75571,
             "unknownByte1": 2,
@@ -23203,7 +23203,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75571,
             "unknownByte1": 3,
@@ -23226,7 +23226,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75571,
             "unknownByte1": 4,
@@ -23249,7 +23249,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75571,
             "unknownByte1": 5,
@@ -23272,7 +23272,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75571,
             "unknownByte1": 6,
@@ -23295,7 +23295,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75571,
             "unknownByte1": 7,
@@ -23321,10 +23321,10 @@
     },
     {
       "ID": 75572,
-      "unknownDword1": 75572,
+      "_ID": 75572,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75572,
             "unknownByte1": 0,
@@ -23347,7 +23347,7 @@
           }
         },
         {
-          "ID": 1,
+          "GROUP_ID": 1,
           "DATA": {
             "unknownDword1": 75572,
             "unknownByte1": 1,
@@ -23370,7 +23370,7 @@
           }
         },
         {
-          "ID": 2,
+          "GROUP_ID": 2,
           "DATA": {
             "unknownDword1": 75572,
             "unknownByte1": 2,
@@ -23393,7 +23393,7 @@
           }
         },
         {
-          "ID": 3,
+          "GROUP_ID": 3,
           "DATA": {
             "unknownDword1": 75572,
             "unknownByte1": 3,
@@ -23416,7 +23416,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75572,
             "unknownByte1": 4,
@@ -23439,7 +23439,7 @@
           }
         },
         {
-          "ID": 5,
+          "GROUP_ID": 5,
           "DATA": {
             "unknownDword1": 75572,
             "unknownByte1": 5,
@@ -23462,7 +23462,7 @@
           }
         },
         {
-          "ID": 6,
+          "GROUP_ID": 6,
           "DATA": {
             "unknownDword1": 75572,
             "unknownByte1": 6,
@@ -23485,7 +23485,7 @@
           }
         },
         {
-          "ID": 7,
+          "GROUP_ID": 7,
           "DATA": {
             "unknownDword1": 75572,
             "unknownByte1": 7,
@@ -23511,10 +23511,10 @@
     },
     {
       "ID": 75574,
-      "unknownDword1": 75574,
+      "_ID": 75574,
       "PLAYER_STATE_PROPERTIES": [
         {
-          "ID": 0,
+          "GROUP_ID": 0,
           "DATA": {
             "unknownDword1": 75574,
             "unknownByte1": 0,
@@ -23537,7 +23537,7 @@
           }
         },
         {
-          "ID": 4,
+          "GROUP_ID": 4,
           "DATA": {
             "unknownDword1": 75574,
             "unknownByte1": 4,
