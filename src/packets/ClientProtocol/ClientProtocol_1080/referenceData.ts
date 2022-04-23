@@ -18,13 +18,13 @@ import { profileDataSchema } from "./shared";
 
 const weaponDefinitionSchema: any[] = [
   {
-    name: "WEAPON_DATA",
+    name: "WEAPON_DEFINITIONS",
     type: "array",
     defaultValue: [],
     fields: [
       { name: "ID", type: "uint32", defaultValue: 0 },
       {
-        name: "definitionData",
+        name: "DATA",
         type: "schema",
         defaultValue: {},
         fields: [
@@ -95,13 +95,13 @@ const weaponDefinitionSchema: any[] = [
     ],
   },
   {
-    name: "unknownArray2",
+    name: "FIRE_GROUP_DEFINITIONS",
     type: "array",
     defaultValue: [],
     fields: [
       { name: "ID", type: "uint32", defaultValue: 0 },
       {
-        name: "unknownData1",
+        name: "DATA",
         type: "schema",
         defaultValue: {},
         fields: [
@@ -130,19 +130,19 @@ const weaponDefinitionSchema: any[] = [
     ],
   },
   {
-    name: "unknownArray3",
+    name: "FIRE_MODE_DEFINITIONS",
     type: "array",
     defaultValue: [],
     fields: [
       { name: "ID", type: "uint32", defaultValue: 0 },
       {
-        name: "unknownData1",
+        name: "DATA",
         type: "schema",
         defaultValue: {},
         fields: [
           { name: "ID", type: "uint32", defaultValue: 0 },
           {
-            name: "unknownData1",
+            name: "DATA",
             type: "schema",
             defaultValue: {},
             fields: [
@@ -157,7 +157,7 @@ const weaponDefinitionSchema: any[] = [
                 ],
               },
               { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-              { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+              { name: "ammoDefinitionId", type: "uint32", defaultValue: 0 },
               { name: "unknownByte2", type: "uint8", defaultValue: 0 },
               { name: "unknownByte3", type: "uint8", defaultValue: 0 },
               { name: "unknownWord1", type: "uint16", defaultValue: 0 },
@@ -345,20 +345,20 @@ const weaponDefinitionSchema: any[] = [
     ],
   },
   {
-    name: "unknownArray4",
+    name: "PLAYER_STATE_GROUP_DEFINITIONS",
     type: "array",
     defaultValue: [],
     fields: [
       { name: "ID", type: "uint32", defaultValue: 0 },
       { name: "unknownDword1", type: "uint32", defaultValue: 0 },
       {
-        name: "unknownArray1",
+        name: "PLAYER_STATE_PROPERTIES",
         type: "array",
         defaultValue: [],
         fields: [
-          { name: "ID", type: "uint32", defaultValue: 0 },
+          { name: "GROUP_ID", type: "uint32", defaultValue: 0 },
           {
-            name: "unknownData1",
+            name: "DATA",
             type: "schema",
             defaultValue: {},
             fields: [
@@ -387,13 +387,13 @@ const weaponDefinitionSchema: any[] = [
     ],
   },
   {
-    name: "unknownArray5",
+    name: "FIRE_MODE_PROJECTILE_MAPPING_DATA",
     type: "array",
     defaultValue: [],
     fields: [
       { name: "ID", type: "uint32", defaultValue: 0 },
       {
-        name: "unknownData1",
+        name: "DATA",
         type: "schema",
         defaultValue: {},
         fields: [
@@ -405,13 +405,13 @@ const weaponDefinitionSchema: any[] = [
     ],
   },
   {
-    name: "unknownArray6",
+    name: "AIM_ASSIST_DEFINITIONS",
     type: "array",
     defaultValue: [],
     fields: [
       { name: "ID", type: "uint32", defaultValue: 0 },
       {
-        name: "unknownData1",
+        name: "DATA",
         type: "schema",
         defaultValue: {},
         fields: [
