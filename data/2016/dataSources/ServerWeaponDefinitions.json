@@ -10275,7 +10275,7 @@
       "DATA": {
         "ID": 2,
         "DATA": {
-          "ammoDefinitionId": 1428
+          "AMMO_ID": 1428
         }
       }
     },
@@ -10284,7 +10284,7 @@
       "DATA": {
         "ID": 3,
         "DATA": {
-          "ammoDefinitionId": 1428
+          "AMMO_ID": 1428
         }
       }
     },
@@ -10293,7 +10293,7 @@
       "DATA": {
         "ID": 4,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -10302,7 +10302,7 @@
       "DATA": {
         "ID": 5,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -10311,7 +10311,7 @@
       "DATA": {
         "ID": 6,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -10320,7 +10320,7 @@
       "DATA": {
         "ID": 7,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -10329,7 +10329,7 @@
       "DATA": {
         "ID": 8,
         "DATA": {
-          "ammoDefinitionId": 1429
+          "AMMO_ID": 1429
         }
       }
     },
@@ -10338,7 +10338,7 @@
       "DATA": {
         "ID": 9,
         "DATA": {
-          "ammoDefinitionId": 1429
+          "AMMO_ID": 1429
         }
       }
     },
@@ -10347,7 +10347,7 @@
       "DATA": {
         "ID": 10,
         "DATA": {
-          "ammoDefinitionId": 14
+          "AMMO_ID": 14
         }
       }
     },
@@ -10356,7 +10356,7 @@
       "DATA": {
         "ID": 11,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -10365,7 +10365,7 @@
       "DATA": {
         "ID": 12,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -10374,7 +10374,7 @@
       "DATA": {
         "ID": 13,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -10383,7 +10383,7 @@
       "DATA": {
         "ID": 14,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -10392,7 +10392,7 @@
       "DATA": {
         "ID": 15,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -10401,7 +10401,7 @@
       "DATA": {
         "ID": 16,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -10410,7 +10410,7 @@
       "DATA": {
         "ID": 17,
         "DATA": {
-          "ammoDefinitionId": 112
+          "AMMO_ID": 112
         }
       }
     },
@@ -10419,7 +10419,7 @@
       "DATA": {
         "ID": 18,
         "DATA": {
-          "ammoDefinitionId": 112
+          "AMMO_ID": 112
         }
       }
     },
@@ -10428,7 +10428,7 @@
       "DATA": {
         "ID": 19,
         "DATA": {
-          "ammoDefinitionId": 1469
+          "AMMO_ID": 1469
         }
       }
     },
@@ -10437,7 +10437,7 @@
       "DATA": {
         "ID": 20,
         "DATA": {
-          "ammoDefinitionId": 1469
+          "AMMO_ID": 1469
         }
       }
     },
@@ -10446,7 +10446,7 @@
       "DATA": {
         "ID": 21,
         "DATA": {
-          "ammoDefinitionId": 1511
+          "AMMO_ID": 1511
         }
       }
     },
@@ -10455,7 +10455,7 @@
       "DATA": {
         "ID": 22,
         "DATA": {
-          "ammoDefinitionId": 1511
+          "AMMO_ID": 1511
         }
       }
     },
@@ -10464,7 +10464,7 @@
       "DATA": {
         "ID": 23,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -10473,7 +10473,7 @@
       "DATA": {
         "ID": 24,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -10482,7 +10482,7 @@
       "DATA": {
         "ID": 25,
         "DATA": {
-          "ammoDefinitionId": 1382
+          "AMMO_ID": 1382
         }
       }
     },
@@ -10491,7 +10491,7 @@
       "DATA": {
         "ID": 26,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -10500,7 +10500,7 @@
       "DATA": {
         "ID": 27,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -10509,7 +10509,7 @@
       "DATA": {
         "ID": 28,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -10518,7 +10518,7 @@
       "DATA": {
         "ID": 29,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -10527,7 +10527,7 @@
       "DATA": {
         "ID": 30,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -10536,7 +10536,7 @@
       "DATA": {
         "ID": 31,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -10545,7 +10545,7 @@
       "DATA": {
         "ID": 32,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -10554,7 +10554,7 @@
       "DATA": {
         "ID": 33,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -10563,7 +10563,7 @@
       "DATA": {
         "ID": 34,
         "DATA": {
-          "ammoDefinitionId": 1710
+          "AMMO_ID": 1710
         }
       }
     },
@@ -10572,7 +10572,7 @@
       "DATA": {
         "ID": 35,
         "DATA": {
-          "ammoDefinitionId": 4
+          "AMMO_ID": 4
         }
       }
     },
@@ -10581,7 +10581,7 @@
       "DATA": {
         "ID": 36,
         "DATA": {
-          "ammoDefinitionId": 3
+          "AMMO_ID": 3
         }
       }
     },
@@ -10590,7 +10590,7 @@
       "DATA": {
         "ID": 37,
         "DATA": {
-          "ammoDefinitionId": 14
+          "AMMO_ID": 14
         }
       }
     },
@@ -10599,7 +10599,7 @@
       "DATA": {
         "ID": 38,
         "DATA": {
-          "ammoDefinitionId": 112
+          "AMMO_ID": 112
         }
       }
     },
@@ -10608,7 +10608,7 @@
       "DATA": {
         "ID": 39,
         "DATA": {
-          "ammoDefinitionId": 1719
+          "AMMO_ID": 1719
         }
       }
     },
@@ -10617,7 +10617,7 @@
       "DATA": {
         "ID": 40,
         "DATA": {
-          "ammoDefinitionId": 1719
+          "AMMO_ID": 1719
         }
       }
     },
@@ -10626,7 +10626,7 @@
       "DATA": {
         "ID": 41,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -10635,7 +10635,7 @@
       "DATA": {
         "ID": 42,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -10644,7 +10644,7 @@
       "DATA": {
         "ID": 43,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -10653,7 +10653,7 @@
       "DATA": {
         "ID": 44,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -10662,7 +10662,7 @@
       "DATA": {
         "ID": 45,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -10671,7 +10671,7 @@
       "DATA": {
         "ID": 46,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -10680,7 +10680,7 @@
       "DATA": {
         "ID": 47,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -10689,7 +10689,7 @@
       "DATA": {
         "ID": 48,
         "DATA": {
-          "ammoDefinitionId": 1428
+          "AMMO_ID": 1428
         }
       }
     },
@@ -10698,7 +10698,7 @@
       "DATA": {
         "ID": 49,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -10707,7 +10707,7 @@
       "DATA": {
         "ID": 50,
         "DATA": {
-          "ammoDefinitionId": 112
+          "AMMO_ID": 112
         }
       }
     },
@@ -10716,7 +10716,7 @@
       "DATA": {
         "ID": 51,
         "DATA": {
-          "ammoDefinitionId": 1992
+          "AMMO_ID": 1992
         }
       }
     },
@@ -10725,7 +10725,7 @@
       "DATA": {
         "ID": 52,
         "DATA": {
-          "ammoDefinitionId": 1992
+          "AMMO_ID": 1992
         }
       }
     },
@@ -10734,7 +10734,7 @@
       "DATA": {
         "ID": 53,
         "DATA": {
-          "ammoDefinitionId": 1998
+          "AMMO_ID": 1998
         }
       }
     },
@@ -10743,7 +10743,7 @@
       "DATA": {
         "ID": 54,
         "DATA": {
-          "ammoDefinitionId": 1998
+          "AMMO_ID": 1998
         }
       }
     },
@@ -10752,7 +10752,7 @@
       "DATA": {
         "ID": 55,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -10761,7 +10761,7 @@
       "DATA": {
         "ID": 56,
         "DATA": {
-          "ammoDefinitionId": 65
+          "AMMO_ID": 65
         }
       }
     },
@@ -10770,7 +10770,7 @@
       "DATA": {
         "ID": 57,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -10779,7 +10779,7 @@
       "DATA": {
         "ID": 58,
         "DATA": {
-          "ammoDefinitionId": 1429
+          "AMMO_ID": 1429
         }
       }
     },
@@ -10788,7 +10788,7 @@
       "DATA": {
         "ID": 59,
         "DATA": {
-          "ammoDefinitionId": 2235
+          "AMMO_ID": 2235
         }
       }
     },
@@ -10797,7 +10797,7 @@
       "DATA": {
         "ID": 60,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -10806,7 +10806,7 @@
       "DATA": {
         "ID": 61,
         "DATA": {
-          "ammoDefinitionId": 2236
+          "AMMO_ID": 2236
         }
       }
     },
@@ -10815,7 +10815,7 @@
       "DATA": {
         "ID": 62,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -10824,7 +10824,7 @@
       "DATA": {
         "ID": 63,
         "DATA": {
-          "ammoDefinitionId": 2237
+          "AMMO_ID": 2237
         }
       }
     },
@@ -10833,7 +10833,7 @@
       "DATA": {
         "ID": 64,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -10842,7 +10842,7 @@
       "DATA": {
         "ID": 65,
         "DATA": {
-          "ammoDefinitionId": 2243
+          "AMMO_ID": 2243
         }
       }
     },
@@ -10851,7 +10851,7 @@
       "DATA": {
         "ID": 66,
         "DATA": {
-          "ammoDefinitionId": 2243
+          "AMMO_ID": 2243
         }
       }
     },
@@ -10860,7 +10860,7 @@
       "DATA": {
         "ID": 67,
         "DATA": {
-          "ammoDefinitionId": 112
+          "AMMO_ID": 112
         }
       }
     },
@@ -10869,7 +10869,7 @@
       "DATA": {
         "ID": 68,
         "DATA": {
-          "ammoDefinitionId": 112
+          "AMMO_ID": 112
         }
       }
     },
@@ -10878,7 +10878,7 @@
       "DATA": {
         "ID": 69,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -10887,7 +10887,7 @@
       "DATA": {
         "ID": 70,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -10896,7 +10896,7 @@
       "DATA": {
         "ID": 71,
         "DATA": {
-          "ammoDefinitionId": 1434
+          "AMMO_ID": 1434
         }
       }
     },
@@ -10905,7 +10905,7 @@
       "DATA": {
         "ID": 72,
         "DATA": {
-          "ammoDefinitionId": 1434
+          "AMMO_ID": 1434
         }
       }
     },
@@ -10914,7 +10914,7 @@
       "DATA": {
         "ID": 73,
         "DATA": {
-          "ammoDefinitionId": 112
+          "AMMO_ID": 112
         }
       }
     },
@@ -10923,7 +10923,7 @@
       "DATA": {
         "ID": 75,
         "DATA": {
-          "ammoDefinitionId": 1434
+          "AMMO_ID": 1434
         }
       }
     },
@@ -10932,7 +10932,7 @@
       "DATA": {
         "ID": 76,
         "DATA": {
-          "ammoDefinitionId": 1434
+          "AMMO_ID": 1434
         }
       }
     },
@@ -10941,7 +10941,7 @@
       "DATA": {
         "ID": 77,
         "DATA": {
-          "ammoDefinitionId": 112
+          "AMMO_ID": 112
         }
       }
     },
@@ -10950,7 +10950,7 @@
       "DATA": {
         "ID": 78,
         "DATA": {
-          "ammoDefinitionId": 2325
+          "AMMO_ID": 2325
         }
       }
     },
@@ -10959,7 +10959,7 @@
       "DATA": {
         "ID": 79,
         "DATA": {
-          "ammoDefinitionId": 2325
+          "AMMO_ID": 2325
         }
       }
     },
@@ -10968,7 +10968,7 @@
       "DATA": {
         "ID": 80,
         "DATA": {
-          "ammoDefinitionId": 65
+          "AMMO_ID": 65
         }
       }
     },
@@ -10977,7 +10977,7 @@
       "DATA": {
         "ID": 81,
         "DATA": {
-          "ammoDefinitionId": 138
+          "AMMO_ID": 138
         }
       }
     },
@@ -10986,7 +10986,7 @@
       "DATA": {
         "ID": 82,
         "DATA": {
-          "ammoDefinitionId": 138
+          "AMMO_ID": 138
         }
       }
     },
@@ -10995,7 +10995,7 @@
       "DATA": {
         "ID": 89,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -11004,7 +11004,7 @@
       "DATA": {
         "ID": 90,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -11013,7 +11013,7 @@
       "DATA": {
         "ID": 91,
         "DATA": {
-          "ammoDefinitionId": 1434
+          "AMMO_ID": 1434
         }
       }
     },
@@ -11022,7 +11022,7 @@
       "DATA": {
         "ID": 92,
         "DATA": {
-          "ammoDefinitionId": 138
+          "AMMO_ID": 138
         }
       }
     },
@@ -11031,7 +11031,7 @@
       "DATA": {
         "ID": 93,
         "DATA": {
-          "ammoDefinitionId": 1434
+          "AMMO_ID": 1434
         }
       }
     },
@@ -11040,7 +11040,7 @@
       "DATA": {
         "ID": 94,
         "DATA": {
-          "ammoDefinitionId": 138
+          "AMMO_ID": 138
         }
       }
     },
@@ -11049,7 +11049,7 @@
       "DATA": {
         "ID": 95,
         "DATA": {
-          "ammoDefinitionId": 1434
+          "AMMO_ID": 1434
         }
       }
     },
@@ -11058,7 +11058,7 @@
       "DATA": {
         "ID": 96,
         "DATA": {
-          "ammoDefinitionId": 138
+          "AMMO_ID": 138
         }
       }
     },
@@ -11067,7 +11067,7 @@
       "DATA": {
         "ID": 97,
         "DATA": {
-          "ammoDefinitionId": 1434
+          "AMMO_ID": 1434
         }
       }
     },
@@ -11076,7 +11076,7 @@
       "DATA": {
         "ID": 99,
         "DATA": {
-          "ammoDefinitionId": 138
+          "AMMO_ID": 138
         }
       }
     },
@@ -11085,7 +11085,7 @@
       "DATA": {
         "ID": 100,
         "DATA": {
-          "ammoDefinitionId": 1434
+          "AMMO_ID": 1434
         }
       }
     },
@@ -11094,7 +11094,7 @@
       "DATA": {
         "ID": 101,
         "DATA": {
-          "ammoDefinitionId": 138
+          "AMMO_ID": 138
         }
       }
     },
@@ -11103,7 +11103,7 @@
       "DATA": {
         "ID": 102,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -11112,7 +11112,7 @@
       "DATA": {
         "ID": 103,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -11121,7 +11121,7 @@
       "DATA": {
         "ID": 104,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -11130,7 +11130,7 @@
       "DATA": {
         "ID": 105,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -11139,7 +11139,7 @@
       "DATA": {
         "ID": 106,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -11148,7 +11148,7 @@
       "DATA": {
         "ID": 107,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -11157,7 +11157,7 @@
       "DATA": {
         "ID": 108,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -11166,7 +11166,7 @@
       "DATA": {
         "ID": 109,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -11175,7 +11175,7 @@
       "DATA": {
         "ID": 110,
         "DATA": {
-          "ammoDefinitionId": 1434
+          "AMMO_ID": 1434
         }
       }
     },
@@ -11184,7 +11184,7 @@
       "DATA": {
         "ID": 111,
         "DATA": {
-          "ammoDefinitionId": 138
+          "AMMO_ID": 138
         }
       }
     },
@@ -11193,7 +11193,7 @@
       "DATA": {
         "ID": 112,
         "DATA": {
-          "ammoDefinitionId": 1434
+          "AMMO_ID": 1434
         }
       }
     },
@@ -11202,7 +11202,7 @@
       "DATA": {
         "ID": 113,
         "DATA": {
-          "ammoDefinitionId": 112
+          "AMMO_ID": 112
         }
       }
     },
@@ -11211,7 +11211,7 @@
       "DATA": {
         "ID": 114,
         "DATA": {
-          "ammoDefinitionId": 1434
+          "AMMO_ID": 1434
         }
       }
     },
@@ -11220,7 +11220,7 @@
       "DATA": {
         "ID": 115,
         "DATA": {
-          "ammoDefinitionId": 138
+          "AMMO_ID": 138
         }
       }
     },
@@ -11229,7 +11229,7 @@
       "DATA": {
         "ID": 116,
         "DATA": {
-          "ammoDefinitionId": 1434
+          "AMMO_ID": 1434
         }
       }
     },
@@ -11238,7 +11238,7 @@
       "DATA": {
         "ID": 117,
         "DATA": {
-          "ammoDefinitionId": 138
+          "AMMO_ID": 138
         }
       }
     },
@@ -11247,7 +11247,7 @@
       "DATA": {
         "ID": 118,
         "DATA": {
-          "ammoDefinitionId": 112
+          "AMMO_ID": 112
         }
       }
     },
@@ -11256,7 +11256,7 @@
       "DATA": {
         "ID": 119,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -11265,7 +11265,7 @@
       "DATA": {
         "ID": 120,
         "DATA": {
-          "ammoDefinitionId": 1434
+          "AMMO_ID": 1434
         }
       }
     },
@@ -11274,7 +11274,7 @@
       "DATA": {
         "ID": 121,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -11283,7 +11283,7 @@
       "DATA": {
         "ID": 122,
         "DATA": {
-          "ammoDefinitionId": 2202
+          "AMMO_ID": 2202
         }
       }
     },
@@ -11292,7 +11292,7 @@
       "DATA": {
         "ID": 123,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -11301,7 +11301,7 @@
       "DATA": {
         "ID": 124,
         "DATA": {
-          "ammoDefinitionId": 65
+          "AMMO_ID": 65
         }
       }
     },
@@ -11310,7 +11310,7 @@
       "DATA": {
         "ID": 125,
         "DATA": {
-          "ammoDefinitionId": 2236
+          "AMMO_ID": 2236
         }
       }
     },
@@ -11319,7 +11319,7 @@
       "DATA": {
         "ID": 126,
         "DATA": {
-          "ammoDefinitionId": 2235
+          "AMMO_ID": 2235
         }
       }
     },
@@ -11328,7 +11328,7 @@
       "DATA": {
         "ID": 127,
         "DATA": {
-          "ammoDefinitionId": 2237
+          "AMMO_ID": 2237
         }
       }
     },
@@ -11337,7 +11337,7 @@
       "DATA": {
         "ID": 128,
         "DATA": {
-          "ammoDefinitionId": 1434
+          "AMMO_ID": 1434
         }
       }
     },
@@ -11346,7 +11346,7 @@
       "DATA": {
         "ID": 129,
         "DATA": {
-          "ammoDefinitionId": 138
+          "AMMO_ID": 138
         }
       }
     },
@@ -11355,7 +11355,7 @@
       "DATA": {
         "ID": 130,
         "DATA": {
-          "ammoDefinitionId": 2325
+          "AMMO_ID": 2325
         }
       }
     },
@@ -11364,7 +11364,7 @@
       "DATA": {
         "ID": 131,
         "DATA": {
-          "ammoDefinitionId": 2325
+          "AMMO_ID": 2325
         }
       }
     },
@@ -11373,7 +11373,7 @@
       "DATA": {
         "ID": 132,
         "DATA": {
-          "ammoDefinitionId": 2416
+          "AMMO_ID": 2416
         }
       }
     },
@@ -11382,7 +11382,7 @@
       "DATA": {
         "ID": 133,
         "DATA": {
-          "ammoDefinitionId": 2416
+          "AMMO_ID": 2416
         }
       }
     },
@@ -11391,7 +11391,7 @@
       "DATA": {
         "ID": 134,
         "DATA": {
-          "ammoDefinitionId": 66
+          "AMMO_ID": 66
         }
       }
     },
@@ -11400,7 +11400,7 @@
       "DATA": {
         "ID": 135,
         "DATA": {
-          "ammoDefinitionId": 1429
+          "AMMO_ID": 1429
         }
       }
     },
@@ -11409,7 +11409,7 @@
       "DATA": {
         "ID": 136,
         "DATA": {
-          "ammoDefinitionId": 2325
+          "AMMO_ID": 2325
         }
       }
     },
@@ -11418,7 +11418,7 @@
       "DATA": {
         "ID": 137,
         "DATA": {
-          "ammoDefinitionId": 2325
+          "AMMO_ID": 2325
         }
       }
     },
@@ -11427,7 +11427,7 @@
       "DATA": {
         "ID": 138,
         "DATA": {
-          "ammoDefinitionId": 1511
+          "AMMO_ID": 1511
         }
       }
     },
@@ -11436,7 +11436,7 @@
       "DATA": {
         "ID": 139,
         "DATA": {
-          "ammoDefinitionId": 1511
+          "AMMO_ID": 1511
         }
       }
     },
@@ -11445,7 +11445,7 @@
       "DATA": {
         "ID": 140,
         "DATA": {
-          "ammoDefinitionId": 1428
+          "AMMO_ID": 1428
         }
       }
     },
@@ -11454,7 +11454,7 @@
       "DATA": {
         "ID": 141,
         "DATA": {
-          "ammoDefinitionId": 1428
+          "AMMO_ID": 1428
         }
       }
     },
@@ -11463,7 +11463,7 @@
       "DATA": {
         "ID": 142,
         "DATA": {
-          "ammoDefinitionId": 1429
+          "AMMO_ID": 1429
         }
       }
     },
@@ -11472,7 +11472,7 @@
       "DATA": {
         "ID": 143,
         "DATA": {
-          "ammoDefinitionId": 1429
+          "AMMO_ID": 1429
         }
       }
     },
@@ -11481,7 +11481,7 @@
       "DATA": {
         "ID": 144,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -11490,7 +11490,7 @@
       "DATA": {
         "ID": 145,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -11499,7 +11499,7 @@
       "DATA": {
         "ID": 146,
         "DATA": {
-          "ammoDefinitionId": 3039
+          "AMMO_ID": 3039
         }
       }
     },
@@ -11508,7 +11508,7 @@
       "DATA": {
         "ID": 147,
         "DATA": {
-          "ammoDefinitionId": 3022
+          "AMMO_ID": 3022
         }
       }
     },
@@ -11517,7 +11517,7 @@
       "DATA": {
         "ID": 148,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -11526,7 +11526,7 @@
       "DATA": {
         "ID": 149,
         "DATA": {
-          "ammoDefinitionId": 3039
+          "AMMO_ID": 3039
         }
       }
     },
@@ -11535,7 +11535,7 @@
       "DATA": {
         "ID": 150,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -11544,7 +11544,7 @@
       "DATA": {
         "ID": 151,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -11553,7 +11553,7 @@
       "DATA": {
         "ID": 152,
         "DATA": {
-          "ammoDefinitionId": 3039
+          "AMMO_ID": 3039
         }
       }
     },
@@ -11562,7 +11562,7 @@
       "DATA": {
         "ID": 153,
         "DATA": {
-          "ammoDefinitionId": 1429
+          "AMMO_ID": 1429
         }
       }
     },
@@ -11571,7 +11571,7 @@
       "DATA": {
         "ID": 154,
         "DATA": {
-          "ammoDefinitionId": 1429
+          "AMMO_ID": 1429
         }
       }
     },
@@ -11580,7 +11580,7 @@
       "DATA": {
         "ID": 155,
         "DATA": {
-          "ammoDefinitionId": 1429
+          "AMMO_ID": 1429
         }
       }
     },
@@ -11589,7 +11589,7 @@
       "DATA": {
         "ID": 156,
         "DATA": {
-          "ammoDefinitionId": 1429
+          "AMMO_ID": 1429
         }
       }
     },
@@ -11598,7 +11598,7 @@
       "DATA": {
         "ID": 157,
         "DATA": {
-          "ammoDefinitionId": 112
+          "AMMO_ID": 112
         }
       }
     },
@@ -11607,7 +11607,7 @@
       "DATA": {
         "ID": 158,
         "DATA": {
-          "ammoDefinitionId": 1434
+          "AMMO_ID": 1434
         }
       }
     },
@@ -11616,7 +11616,7 @@
       "DATA": {
         "ID": 159,
         "DATA": {
-          "ammoDefinitionId": 138
+          "AMMO_ID": 138
         }
       }
     },
@@ -11625,7 +11625,7 @@
       "DATA": {
         "ID": 160,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -11634,7 +11634,7 @@
       "DATA": {
         "ID": 161,
         "DATA": {
-          "ammoDefinitionId": 3380
+          "AMMO_ID": 3380
         }
       }
     },
@@ -11643,7 +11643,7 @@
       "DATA": {
         "ID": 162,
         "DATA": {
-          "ammoDefinitionId": 1429
+          "AMMO_ID": 1429
         }
       }
     },
@@ -11652,7 +11652,7 @@
       "DATA": {
         "ID": 163,
         "DATA": {
-          "ammoDefinitionId": 1429
+          "AMMO_ID": 1429
         }
       }
     },
@@ -11661,7 +11661,7 @@
       "DATA": {
         "ID": 164,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -11670,7 +11670,7 @@
       "DATA": {
         "ID": 165,
         "DATA": {
-          "ammoDefinitionId": 2325
+          "AMMO_ID": 2325
         }
       }
     },
@@ -11679,7 +11679,7 @@
       "DATA": {
         "ID": 166,
         "DATA": {
-          "ammoDefinitionId": 2325
+          "AMMO_ID": 2325
         }
       }
     },
@@ -11688,7 +11688,7 @@
       "DATA": {
         "ID": 167,
         "DATA": {
-          "ammoDefinitionId": 1429
+          "AMMO_ID": 1429
         }
       }
     },
@@ -11697,7 +11697,7 @@
       "DATA": {
         "ID": 168,
         "DATA": {
-          "ammoDefinitionId": 1429
+          "AMMO_ID": 1429
         }
       }
     },
@@ -11706,7 +11706,7 @@
       "DATA": {
         "ID": 169,
         "DATA": {
-          "ammoDefinitionId": 1511
+          "AMMO_ID": 1511
         }
       }
     },
@@ -11715,7 +11715,7 @@
       "DATA": {
         "ID": 170,
         "DATA": {
-          "ammoDefinitionId": 1511
+          "AMMO_ID": 1511
         }
       }
     },
@@ -11724,7 +11724,7 @@
       "DATA": {
         "ID": 171,
         "DATA": {
-          "ammoDefinitionId": 1998
+          "AMMO_ID": 1998
         }
       }
     },
@@ -11733,7 +11733,7 @@
       "DATA": {
         "ID": 172,
         "DATA": {
-          "ammoDefinitionId": 1998
+          "AMMO_ID": 1998
         }
       }
     },
@@ -11742,7 +11742,7 @@
       "DATA": {
         "ID": 173,
         "DATA": {
-          "ammoDefinitionId": 1469
+          "AMMO_ID": 1469
         }
       }
     },
@@ -11751,7 +11751,7 @@
       "DATA": {
         "ID": 174,
         "DATA": {
-          "ammoDefinitionId": 1469
+          "AMMO_ID": 1469
         }
       }
     },
@@ -11760,7 +11760,7 @@
       "DATA": {
         "ID": 175,
         "DATA": {
-          "ammoDefinitionId": 65
+          "AMMO_ID": 65
         }
       }
     },
@@ -11769,7 +11769,7 @@
       "DATA": {
         "ID": 176,
         "DATA": {
-          "ammoDefinitionId": 4572
+          "AMMO_ID": 4572
         }
       }
     },
@@ -11778,7 +11778,7 @@
       "DATA": {
         "ID": 177,
         "DATA": {
-          "ammoDefinitionId": 4572
+          "AMMO_ID": 4572
         }
       }
     },
@@ -11787,7 +11787,7 @@
       "DATA": {
         "ID": 181,
         "DATA": {
-          "ammoDefinitionId": 2325
+          "AMMO_ID": 2325
         }
       }
     },
@@ -11796,7 +11796,7 @@
       "DATA": {
         "ID": 182,
         "DATA": {
-          "ammoDefinitionId": 2325
+          "AMMO_ID": 2325
         }
       }
     },
@@ -11805,7 +11805,7 @@
       "DATA": {
         "ID": 183,
         "DATA": {
-          "ammoDefinitionId": 1429
+          "AMMO_ID": 1429
         }
       }
     },
@@ -11814,7 +11814,7 @@
       "DATA": {
         "ID": 184,
         "DATA": {
-          "ammoDefinitionId": 1429
+          "AMMO_ID": 1429
         }
       }
     },
@@ -11823,7 +11823,7 @@
       "DATA": {
         "ID": 185,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -11832,7 +11832,7 @@
       "DATA": {
         "ID": 187,
         "DATA": {
-          "ammoDefinitionId": 1429
+          "AMMO_ID": 1429
         }
       }
     },
@@ -11841,7 +11841,7 @@
       "DATA": {
         "ID": 188,
         "DATA": {
-          "ammoDefinitionId": 1429
+          "AMMO_ID": 1429
         }
       }
     },
@@ -11850,7 +11850,7 @@
       "DATA": {
         "ID": 200,
         "DATA": {
-          "ammoDefinitionId": 3373
+          "AMMO_ID": 3373
         }
       }
     },
@@ -11859,7 +11859,7 @@
       "DATA": {
         "ID": 201,
         "DATA": {
-          "ammoDefinitionId": 3373
+          "AMMO_ID": 3373
         }
       }
     },
@@ -11868,7 +11868,7 @@
       "DATA": {
         "ID": 204,
         "DATA": {
-          "ammoDefinitionId": 0
+          "AMMO_ID": 0
         }
       }
     },
@@ -11877,7 +11877,7 @@
       "DATA": {
         "ID": 261,
         "DATA": {
-          "ammoDefinitionId": 1429
+          "AMMO_ID": 1429
         }
       }
     },
@@ -11886,7 +11886,7 @@
       "DATA": {
         "ID": 262,
         "DATA": {
-          "ammoDefinitionId": 1429
+          "AMMO_ID": 1429
         }
       }
     },
@@ -11895,7 +11895,7 @@
       "DATA": {
         "ID": 263,
         "DATA": {
-          "ammoDefinitionId": 1429
+          "AMMO_ID": 1429
         }
       }
     },
@@ -11904,7 +11904,7 @@
       "DATA": {
         "ID": 264,
         "DATA": {
-          "ammoDefinitionId": 1429
+          "AMMO_ID": 1429
         }
       }
     },
@@ -11913,7 +11913,7 @@
       "DATA": {
         "ID": 293,
         "DATA": {
-          "ammoDefinitionId": 65
+          "AMMO_ID": 65
         }
       }
     },
@@ -11922,7 +11922,7 @@
       "DATA": {
         "ID": 297,
         "DATA": {
-          "ammoDefinitionId": 14
+          "AMMO_ID": 14
         }
       }
     },
@@ -11931,7 +11931,7 @@
       "DATA": {
         "ID": 299,
         "DATA": {
-          "ammoDefinitionId": 2237
+          "AMMO_ID": 2237
         }
       }
     },
@@ -11940,7 +11940,7 @@
       "DATA": {
         "ID": 300,
         "DATA": {
-          "ammoDefinitionId": 2236
+          "AMMO_ID": 2236
         }
       }
     },
@@ -11949,7 +11949,7 @@
       "DATA": {
         "ID": 301,
         "DATA": {
-          "ammoDefinitionId": 2235
+          "AMMO_ID": 2235
         }
       }
     },
@@ -11958,7 +11958,7 @@
       "DATA": {
         "ID": 302,
         "DATA": {
-          "ammoDefinitionId": 4822
+          "AMMO_ID": 4822
         }
       }
     },
@@ -11967,7 +11967,7 @@
       "DATA": {
         "ID": 303,
         "DATA": {
-          "ammoDefinitionId": 4822
+          "AMMO_ID": 4822
         }
       }
     },
@@ -11976,7 +11976,7 @@
       "DATA": {
         "ID": 304,
         "DATA": {
-          "ammoDefinitionId": 4833
+          "AMMO_ID": 4833
         }
       }
     },
@@ -11985,7 +11985,7 @@
       "DATA": {
         "ID": 305,
         "DATA": {
-          "ammoDefinitionId": 4833
+          "AMMO_ID": 4833
         }
       }
     },
@@ -11994,7 +11994,7 @@
       "DATA": {
         "ID": 306,
         "DATA": {
-          "ammoDefinitionId": 4833
+          "AMMO_ID": 4833
         }
       }
     },
@@ -12003,7 +12003,7 @@
       "DATA": {
         "ID": 307,
         "DATA": {
-          "ammoDefinitionId": 4833
+          "AMMO_ID": 4833
         }
       }
     },
@@ -12012,7 +12012,7 @@
       "DATA": {
         "ID": 308,
         "DATA": {
-          "ammoDefinitionId": 2325
+          "AMMO_ID": 2325
         }
       }
     },
@@ -12021,7 +12021,7 @@
       "DATA": {
         "ID": 309,
         "DATA": {
-          "ammoDefinitionId": 2325
+          "AMMO_ID": 2325
         }
       }
     },
@@ -12030,7 +12030,7 @@
       "DATA": {
         "ID": 310,
         "DATA": {
-          "ammoDefinitionId": 4867
+          "AMMO_ID": 4867
         }
       }
     },
@@ -12039,7 +12039,7 @@
       "DATA": {
         "ID": 311,
         "DATA": {
-          "ammoDefinitionId": 4867
+          "AMMO_ID": 4867
         }
       }
     },
@@ -12048,7 +12048,7 @@
       "DATA": {
         "ID": 312,
         "DATA": {
-          "ammoDefinitionId": 4833
+          "AMMO_ID": 4833
         }
       }
     },
@@ -12057,7 +12057,7 @@
       "DATA": {
         "ID": 313,
         "DATA": {
-          "ammoDefinitionId": 4572
+          "AMMO_ID": 4572
         }
       }
     },
@@ -12066,7 +12066,7 @@
       "DATA": {
         "ID": 314,
         "DATA": {
-          "ammoDefinitionId": 4572
+          "AMMO_ID": 4572
         }
       }
     },
@@ -12075,7 +12075,7 @@
       "DATA": {
         "ID": 333,
         "DATA": {
-          "ammoDefinitionId": 4949
+          "AMMO_ID": 4949
         }
       }
     },
@@ -12084,7 +12084,7 @@
       "DATA": {
         "ID": 334,
         "DATA": {
-          "ammoDefinitionId": 4949
+          "AMMO_ID": 4949
         }
       }
     },
@@ -12093,7 +12093,7 @@
       "DATA": {
         "ID": 349,
         "DATA": {
-          "ammoDefinitionId": 1719
+          "AMMO_ID": 1719
         }
       }
     },
@@ -12102,7 +12102,7 @@
       "DATA": {
         "ID": 350,
         "DATA": {
-          "ammoDefinitionId": 1719
+          "AMMO_ID": 1719
         }
       }
     },
@@ -12111,7 +12111,7 @@
       "DATA": {
         "ID": 351,
         "DATA": {
-          "ammoDefinitionId": 5001
+          "AMMO_ID": 5001
         }
       }
     },
@@ -12120,7 +12120,7 @@
       "DATA": {
         "ID": 352,
         "DATA": {
-          "ammoDefinitionId": 5001
+          "AMMO_ID": 5001
         }
       }
     },
@@ -12129,7 +12129,7 @@
       "DATA": {
         "ID": 353,
         "DATA": {
-          "ammoDefinitionId": 4996
+          "AMMO_ID": 4996
         }
       }
     },
@@ -12138,7 +12138,7 @@
       "DATA": {
         "ID": 354,
         "DATA": {
-          "ammoDefinitionId": 4996
+          "AMMO_ID": 4996
         }
       }
     },
@@ -12147,7 +12147,7 @@
       "DATA": {
         "ID": 355,
         "DATA": {
-          "ammoDefinitionId": 4572
+          "AMMO_ID": 4572
         }
       }
     },
@@ -12156,7 +12156,7 @@
       "DATA": {
         "ID": 356,
         "DATA": {
-          "ammoDefinitionId": 1998
+          "AMMO_ID": 1998
         }
       }
     },
@@ -12165,7 +12165,7 @@
       "DATA": {
         "ID": 357,
         "DATA": {
-          "ammoDefinitionId": 1998
+          "AMMO_ID": 1998
         }
       }
     },
@@ -12174,7 +12174,7 @@
       "DATA": {
         "ID": 358,
         "DATA": {
-          "ammoDefinitionId": 4572
+          "AMMO_ID": 4572
         }
       }
     },
@@ -12183,7 +12183,7 @@
       "DATA": {
         "ID": 363,
         "DATA": {
-          "ammoDefinitionId": 4998
+          "AMMO_ID": 4998
         }
       }
     },
@@ -12192,7 +12192,7 @@
       "DATA": {
         "ID": 364,
         "DATA": {
-          "ammoDefinitionId": 4998
+          "AMMO_ID": 4998
         }
       }
     },
@@ -12201,7 +12201,7 @@
       "DATA": {
         "ID": 366,
         "DATA": {
-          "ammoDefinitionId": 1469
+          "AMMO_ID": 1469
         }
       }
     },
@@ -12210,7 +12210,7 @@
       "DATA": {
         "ID": 367,
         "DATA": {
-          "ammoDefinitionId": 1469
+          "AMMO_ID": 1469
         }
       }
     },
@@ -12219,7 +12219,7 @@
       "DATA": {
         "ID": 368,
         "DATA": {
-          "ammoDefinitionId": 5002
+          "AMMO_ID": 5002
         }
       }
     },
@@ -12228,7 +12228,7 @@
       "DATA": {
         "ID": 369,
         "DATA": {
-          "ammoDefinitionId": 5004
+          "AMMO_ID": 5004
         }
       }
     },
@@ -12237,7 +12237,7 @@
       "DATA": {
         "ID": 370,
         "DATA": {
-          "ammoDefinitionId": 5004
+          "AMMO_ID": 5004
         }
       }
     },
@@ -12246,7 +12246,7 @@
       "DATA": {
         "ID": 371,
         "DATA": {
-          "ammoDefinitionId": 2325
+          "AMMO_ID": 2325
         }
       }
     },
@@ -12255,7 +12255,7 @@
       "DATA": {
         "ID": 380,
         "DATA": {
-          "ammoDefinitionId": 2325
+          "AMMO_ID": 2325
         }
       }
     },
@@ -12264,7 +12264,7 @@
       "DATA": {
         "ID": 381,
         "DATA": {
-          "ammoDefinitionId": 1429
+          "AMMO_ID": 1429
         }
       }
     },
@@ -12273,7 +12273,7 @@
       "DATA": {
         "ID": 386,
         "DATA": {
-          "ammoDefinitionId": 1429
+          "AMMO_ID": 1429
         }
       }
     },
@@ -12282,7 +12282,7 @@
       "DATA": {
         "ID": 387,
         "DATA": {
-          "ammoDefinitionId": 1429
+          "AMMO_ID": 1429
         }
       }
     },
@@ -12291,7 +12291,7 @@
       "DATA": {
         "ID": 388,
         "DATA": {
-          "ammoDefinitionId": 4999
+          "AMMO_ID": 4999
         }
       }
     },
@@ -12300,7 +12300,7 @@
       "DATA": {
         "ID": 395,
         "DATA": {
-          "ammoDefinitionId": 1429
+          "AMMO_ID": 1429
         }
       }
     },
@@ -12309,7 +12309,7 @@
       "DATA": {
         "ID": 396,
         "DATA": {
-          "ammoDefinitionId": 2325
+          "AMMO_ID": 2325
         }
       }
     },
@@ -12318,7 +12318,7 @@
       "DATA": {
         "ID": 399,
         "DATA": {
-          "ammoDefinitionId": 2325
+          "AMMO_ID": 2325
         }
       }
     },
@@ -12327,7 +12327,7 @@
       "DATA": {
         "ID": 400,
         "DATA": {
-          "ammoDefinitionId": 2325
+          "AMMO_ID": 2325
         }
       }
     },
@@ -12336,7 +12336,7 @@
       "DATA": {
         "ID": 405,
         "DATA": {
-          "ammoDefinitionId": 1429
+          "AMMO_ID": 1429
         }
       }
     },
@@ -12345,7 +12345,7 @@
       "DATA": {
         "ID": 406,
         "DATA": {
-          "ammoDefinitionId": 1511
+          "AMMO_ID": 1511
         }
       }
     },
@@ -12354,7 +12354,7 @@
       "DATA": {
         "ID": 407,
         "DATA": {
-          "ammoDefinitionId": 1719
+          "AMMO_ID": 1719
         }
       }
     },
@@ -12363,7 +12363,7 @@
       "DATA": {
         "ID": 408,
         "DATA": {
-          "ammoDefinitionId": 1998
+          "AMMO_ID": 1998
         }
       }
     },
@@ -12372,7 +12372,7 @@
       "DATA": {
         "ID": 409,
         "DATA": {
-          "ammoDefinitionId": 2325
+          "AMMO_ID": 2325
         }
       }
     },
@@ -12381,7 +12381,7 @@
       "DATA": {
         "ID": 410,
         "DATA": {
-          "ammoDefinitionId": 2325
+          "AMMO_ID": 2325
         }
       }
     },
@@ -12390,7 +12390,7 @@
       "DATA": {
         "ID": 411,
         "DATA": {
-          "ammoDefinitionId": 112
+          "AMMO_ID": 112
         }
       }
     },
@@ -12399,7 +12399,7 @@
       "DATA": {
         "ID": 412,
         "DATA": {
-          "ammoDefinitionId": 1434
+          "AMMO_ID": 1434
         }
       }
     },
@@ -12408,7 +12408,7 @@
       "DATA": {
         "ID": 413,
         "DATA": {
-          "ammoDefinitionId": 138
+          "AMMO_ID": 138
         }
       }
     },
@@ -12417,7 +12417,7 @@
       "DATA": {
         "ID": 414,
         "DATA": {
-          "ammoDefinitionId": 4572
+          "AMMO_ID": 4572
         }
       }
     },
@@ -12426,7 +12426,7 @@
       "DATA": {
         "ID": 415,
         "DATA": {
-          "ammoDefinitionId": 4949
+          "AMMO_ID": 4949
         }
       }
     },
@@ -12435,7 +12435,7 @@
       "DATA": {
         "ID": 416,
         "DATA": {
-          "ammoDefinitionId": 4998
+          "AMMO_ID": 4998
         }
       }
     },
@@ -12444,7 +12444,7 @@
       "DATA": {
         "ID": 417,
         "DATA": {
-          "ammoDefinitionId": 5004
+          "AMMO_ID": 5004
         }
       }
     },
@@ -12453,7 +12453,7 @@
       "DATA": {
         "ID": 418,
         "DATA": {
-          "ammoDefinitionId": 1428
+          "AMMO_ID": 1428
         }
       }
     },
@@ -12462,7 +12462,7 @@
       "DATA": {
         "ID": 419,
         "DATA": {
-          "ammoDefinitionId": 1469
+          "AMMO_ID": 1469
         }
       }
     },
@@ -12471,7 +12471,7 @@
       "DATA": {
         "ID": 423,
         "DATA": {
-          "ammoDefinitionId": 5657
+          "AMMO_ID": 5657
         }
       }
     },
@@ -12480,7 +12480,7 @@
       "DATA": {
         "ID": 424,
         "DATA": {
-          "ammoDefinitionId": 5421
+          "AMMO_ID": 5421
         }
       }
     },
@@ -12489,7 +12489,7 @@
       "DATA": {
         "ID": 431,
         "DATA": {
-          "ammoDefinitionId": 1429
+          "AMMO_ID": 1429
         }
       }
     },
@@ -12498,7 +12498,7 @@
       "DATA": {
         "ID": 432,
         "DATA": {
-          "ammoDefinitionId": 1469
+          "AMMO_ID": 1469
         }
       }
     },
@@ -12507,7 +12507,7 @@
       "DATA": {
         "ID": 433,
         "DATA": {
-          "ammoDefinitionId": 1511
+          "AMMO_ID": 1511
         }
       }
     },
@@ -12516,7 +12516,7 @@
       "DATA": {
         "ID": 434,
         "DATA": {
-          "ammoDefinitionId": 1719
+          "AMMO_ID": 1719
         }
       }
     },
@@ -12525,7 +12525,7 @@
       "DATA": {
         "ID": 435,
         "DATA": {
-          "ammoDefinitionId": 1998
+          "AMMO_ID": 1998
         }
       }
     },
@@ -12534,7 +12534,7 @@
       "DATA": {
         "ID": 436,
         "DATA": {
-          "ammoDefinitionId": 2325
+          "AMMO_ID": 2325
         }
       }
     },
@@ -12543,7 +12543,7 @@
       "DATA": {
         "ID": 437,
         "DATA": {
-          "ammoDefinitionId": 138
+          "AMMO_ID": 138
         }
       }
     },
@@ -12552,7 +12552,7 @@
       "DATA": {
         "ID": 438,
         "DATA": {
-          "ammoDefinitionId": 2325
+          "AMMO_ID": 2325
         }
       }
     },
@@ -12561,7 +12561,7 @@
       "DATA": {
         "ID": 439,
         "DATA": {
-          "ammoDefinitionId": 112
+          "AMMO_ID": 112
         }
       }
     },
@@ -12570,7 +12570,7 @@
       "DATA": {
         "ID": 440,
         "DATA": {
-          "ammoDefinitionId": 1434
+          "AMMO_ID": 1434
         }
       }
     },
@@ -12579,7 +12579,7 @@
       "DATA": {
         "ID": 441,
         "DATA": {
-          "ammoDefinitionId": 4572
+          "AMMO_ID": 4572
         }
       }
     },
@@ -12588,7 +12588,7 @@
       "DATA": {
         "ID": 442,
         "DATA": {
-          "ammoDefinitionId": 5004
+          "AMMO_ID": 5004
         }
       }
     },
@@ -12597,7 +12597,7 @@
       "DATA": {
         "ID": 443,
         "DATA": {
-          "ammoDefinitionId": 1428
+          "AMMO_ID": 1428
         }
       }
     },
@@ -12606,7 +12606,7 @@
       "DATA": {
         "ID": 444,
         "DATA": {
-          "ammoDefinitionId": 5421
+          "AMMO_ID": 5421
         }
       }
     },
@@ -12615,7 +12615,7 @@
       "DATA": {
         "ID": 445,
         "DATA": {
-          "ammoDefinitionId": 5657
+          "AMMO_ID": 5657
         }
       }
     },
@@ -12624,7 +12624,7 @@
       "DATA": {
         "ID": 448,
         "DATA": {
-          "ammoDefinitionId": 4949
+          "AMMO_ID": 4949
         }
       }
     },
@@ -12633,7 +12633,7 @@
       "DATA": {
         "ID": 450,
         "DATA": {
-          "ammoDefinitionId": 1429
+          "AMMO_ID": 1429
         }
       }
     },
@@ -12642,7 +12642,7 @@
       "DATA": {
         "ID": 451,
         "DATA": {
-          "ammoDefinitionId": 1429
+          "AMMO_ID": 1429
         }
       }
     },
@@ -12651,7 +12651,7 @@
       "DATA": {
         "ID": 452,
         "DATA": {
-          "ammoDefinitionId": 1469
+          "AMMO_ID": 1469
         }
       }
     },
@@ -12660,7 +12660,7 @@
       "DATA": {
         "ID": 453,
         "DATA": {
-          "ammoDefinitionId": 1469
+          "AMMO_ID": 1469
         }
       }
     },
@@ -12669,7 +12669,7 @@
       "DATA": {
         "ID": 454,
         "DATA": {
-          "ammoDefinitionId": 1511
+          "AMMO_ID": 1511
         }
       }
     },
@@ -12678,7 +12678,7 @@
       "DATA": {
         "ID": 455,
         "DATA": {
-          "ammoDefinitionId": 1511
+          "AMMO_ID": 1511
         }
       }
     },
@@ -12687,7 +12687,7 @@
       "DATA": {
         "ID": 456,
         "DATA": {
-          "ammoDefinitionId": 1719
+          "AMMO_ID": 1719
         }
       }
     },
@@ -12696,7 +12696,7 @@
       "DATA": {
         "ID": 457,
         "DATA": {
-          "ammoDefinitionId": 1719
+          "AMMO_ID": 1719
         }
       }
     },
@@ -12705,7 +12705,7 @@
       "DATA": {
         "ID": 458,
         "DATA": {
-          "ammoDefinitionId": 2325
+          "AMMO_ID": 2325
         }
       }
     },
@@ -12714,7 +12714,7 @@
       "DATA": {
         "ID": 459,
         "DATA": {
-          "ammoDefinitionId": 2325
+          "AMMO_ID": 2325
         }
       }
     },
@@ -12723,7 +12723,7 @@
       "DATA": {
         "ID": 460,
         "DATA": {
-          "ammoDefinitionId": 2325
+          "AMMO_ID": 2325
         }
       }
     },
@@ -12732,7 +12732,7 @@
       "DATA": {
         "ID": 461,
         "DATA": {
-          "ammoDefinitionId": 2325
+          "AMMO_ID": 2325
         }
       }
     },
@@ -12741,7 +12741,7 @@
       "DATA": {
         "ID": 462,
         "DATA": {
-          "ammoDefinitionId": 138
+          "AMMO_ID": 138
         }
       }
     },
@@ -12750,7 +12750,7 @@
       "DATA": {
         "ID": 463,
         "DATA": {
-          "ammoDefinitionId": 138
+          "AMMO_ID": 138
         }
       }
     },
@@ -12759,7 +12759,7 @@
       "DATA": {
         "ID": 464,
         "DATA": {
-          "ammoDefinitionId": 4572
+          "AMMO_ID": 4572
         }
       }
     },
@@ -12768,7 +12768,7 @@
       "DATA": {
         "ID": 465,
         "DATA": {
-          "ammoDefinitionId": 4572
+          "AMMO_ID": 4572
         }
       }
     },
@@ -12777,7 +12777,7 @@
       "DATA": {
         "ID": 466,
         "DATA": {
-          "ammoDefinitionId": 5004
+          "AMMO_ID": 5004
         }
       }
     },
@@ -12786,7 +12786,7 @@
       "DATA": {
         "ID": 467,
         "DATA": {
-          "ammoDefinitionId": 5004
+          "AMMO_ID": 5004
         }
       }
     },
@@ -12795,7 +12795,7 @@
       "DATA": {
         "ID": 468,
         "DATA": {
-          "ammoDefinitionId": 4949
+          "AMMO_ID": 4949
         }
       }
     },
@@ -12804,7 +12804,7 @@
       "DATA": {
         "ID": 469,
         "DATA": {
-          "ammoDefinitionId": 4949
+          "AMMO_ID": 4949
         }
       }
     },
@@ -12813,7 +12813,7 @@
       "DATA": {
         "ID": 471,
         "DATA": {
-          "ammoDefinitionId": 1429
+          "AMMO_ID": 1429
         }
       }
     },
@@ -12822,7 +12822,7 @@
       "DATA": {
         "ID": 472,
         "DATA": {
-          "ammoDefinitionId": 1429
+          "AMMO_ID": 1429
         }
       }
     },
@@ -12831,7 +12831,7 @@
       "DATA": {
         "ID": 473,
         "DATA": {
-          "ammoDefinitionId": 1429
+          "AMMO_ID": 1429
         }
       }
     },
@@ -12840,7 +12840,7 @@
       "DATA": {
         "ID": 474,
         "DATA": {
-          "ammoDefinitionId": 1429
+          "AMMO_ID": 1429
         }
       }
     },
@@ -12849,7 +12849,7 @@
       "DATA": {
         "ID": 487,
         "DATA": {
-          "ammoDefinitionId": 6053
+          "AMMO_ID": 6053
         }
       }
     },
@@ -12858,7 +12858,7 @@
       "DATA": {
         "ID": 488,
         "DATA": {
-          "ammoDefinitionId": 6053
+          "AMMO_ID": 6053
         }
       }
     },
@@ -12867,7 +12867,7 @@
       "DATA": {
         "ID": 491,
         "DATA": {
-          "ammoDefinitionId": 4949
+          "AMMO_ID": 4949
         }
       }
     },
@@ -12876,7 +12876,7 @@
       "DATA": {
         "ID": 492,
         "DATA": {
-          "ammoDefinitionId": 4949
+          "AMMO_ID": 4949
         }
       }
     },
@@ -12885,7 +12885,7 @@
       "DATA": {
         "ID": 493,
         "DATA": {
-          "ammoDefinitionId": 6053
+          "AMMO_ID": 6053
         }
       }
     },
@@ -12894,7 +12894,7 @@
       "DATA": {
         "ID": 494,
         "DATA": {
-          "ammoDefinitionId": 6183
+          "AMMO_ID": 6183
         }
       }
     },
@@ -12903,7 +12903,7 @@
       "DATA": {
         "ID": 504,
         "DATA": {
-          "ammoDefinitionId": 6849
+          "AMMO_ID": 6849
         }
       }
     },
@@ -12912,7 +12912,7 @@
       "DATA": {
         "ID": 505,
         "DATA": {
-          "ammoDefinitionId": 6849
+          "AMMO_ID": 6849
         }
       }
     },
@@ -12921,7 +12921,7 @@
       "DATA": {
         "ID": 506,
         "DATA": {
-          "ammoDefinitionId": 6849
+          "AMMO_ID": 6849
         }
       }
     },
@@ -12930,7 +12930,7 @@
       "DATA": {
         "ID": 507,
         "DATA": {
-          "ammoDefinitionId": 6849
+          "AMMO_ID": 6849
         }
       }
     },
@@ -12939,7 +12939,7 @@
       "DATA": {
         "ID": 508,
         "DATA": {
-          "ammoDefinitionId": 6849
+          "AMMO_ID": 6849
         }
       }
     },
@@ -12948,7 +12948,7 @@
       "DATA": {
         "ID": 509,
         "DATA": {
-          "ammoDefinitionId": 6849
+          "AMMO_ID": 6849
         }
       }
     },
@@ -12957,7 +12957,7 @@
       "DATA": {
         "ID": 539,
         "DATA": {
-          "ammoDefinitionId": 8775
+          "AMMO_ID": 8775
         }
       }
     },
@@ -12966,7 +12966,7 @@
       "DATA": {
         "ID": 540,
         "DATA": {
-          "ammoDefinitionId": 8775
+          "AMMO_ID": 8775
         }
       }
     }
