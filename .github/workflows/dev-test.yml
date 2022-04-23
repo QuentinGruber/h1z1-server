@@ -16,7 +16,7 @@ jobs:
         with:
           node-version: 16.14.2
       - run: npm i
-      - run: npm run lint
+      - run: npm run lint-quiet
   test-npm-pack-linux:
     name: npm-pack-linux
     runs-on: ubuntu-latest
