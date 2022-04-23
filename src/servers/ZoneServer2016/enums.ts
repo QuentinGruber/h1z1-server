@@ -1,3 +1,16 @@
+// ======================================================================
+//
+//   GNU GENERAL PUBLIC LICENSE
+//   Version 3, 29 June 2007
+//   copyright (C) 2020 - 2021 Quentin Gruber
+//   copyright (C) 2021 - 2022 H1emu community
+//
+//   https://github.com/QuentinGruber/h1z1-server
+//   https://www.npmjs.com/package/h1z1-server
+//
+//   Based on https://github.com/psemu/soe-network
+// ======================================================================
+
 export enum ResourceIds {
   HEALTH = 1,
   HUNGER = 4,
@@ -118,4 +131,4 @@ export enum Items {
   GRENADE_FLASH = 2235,
   GRENADE_GAS = 2237,
   GRENADE_HE = 2243,
-};
+}

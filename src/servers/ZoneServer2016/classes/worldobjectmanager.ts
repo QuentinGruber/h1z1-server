@@ -24,7 +24,7 @@ import {
   isPosInRadius,
   randomIntFromInterval,
 } from "../../../utils/utils";
-import { Items } from "../enums"
+import { Items } from "../enums";
 import { Vehicle2016 } from "./../classes/vehicle";
 import { inventoryItem } from "types/zoneserver";
 import { ItemObject } from "./itemobject";
@@ -88,8 +88,6 @@ export class WorldObjectManager {
   chanceNpc: number = 50;
   chanceScreamer: number = 5; // 1000 max
 
-  constructor() {}
-
   run(server: ZoneServer2016) {
     debug("WOM::Run");
     if (this.lastLootRespawnTime + this.lootRespawnTimer <= Date.now()) {
@@ -113,7 +111,7 @@ export class WorldObjectManager {
     spawnerId: number = 0
   ) {
     const characterId = generateRandomGuid();
-    
+
     server._npcs[characterId] = new Npc(
       characterId,
       server.getTransientId(characterId),
@@ -121,7 +119,7 @@ export class WorldObjectManager {
       position,
       rotation,
       spawnerId
-    )
+    );
     if (spawnerId) this._spawnedNpcs[spawnerId] = characterId;
   }
 
@@ -161,7 +159,7 @@ export class WorldObjectManager {
       rotation,
       itemSpawnerId || 0,
       item
-    )
+    );
     if (itemSpawnerId) this._spawnedLootObjects[itemSpawnerId] = characterId;
   }
 
@@ -182,7 +180,7 @@ export class WorldObjectManager {
       rotation,
       scale,
       spawnerId
-    )
+    );
   }
 
   createDoors(server: ZoneServer2016) {
@@ -230,16 +228,16 @@ export class WorldObjectManager {
         return true;
       });
       if (!spawn) return;
-      
+
       const characterId = generateRandomGuid(),
-      vehicleData = new Vehicle2016(
-        characterId,
-        server.getTransientId(characterId),
-        getRandomVehicleId(),
-        new Float32Array(vehicle.position),
-        new Float32Array(vehicle.rotation),
-        server.getGameTime()
-      );
+        vehicleData = new Vehicle2016(
+          characterId,
+          server.getTransientId(characterId),
+          getRandomVehicleId(),
+          new Float32Array(vehicle.position),
+          new Float32Array(vehicle.rotation),
+          server.getGameTime()
+        );
 
       this.createVehicle(server, vehicleData); // save vehicle
     });

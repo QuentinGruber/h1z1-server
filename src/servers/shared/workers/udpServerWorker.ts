@@ -56,7 +56,7 @@ if (workerData) {
         connection.send(packetData, port, address);
         break;
       case "bind":
-        connection.bind(serverPort, function () {});
+        connection.bind(serverPort);
         break;
       case "close":
         connection.close();

@@ -11,6 +11,8 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
+// TODO enable @typescript-eslint/no-unused-vars
 import { Npc } from "../classes/npc";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
@@ -56,11 +58,7 @@ const dev: any = {
     client: Client,
     args: any[]
   ) {
-    if (args[1]) {
-      server.reloadPackets(client, args[1]);
-    } else {
-      server.reloadPackets(client);
-    }
+    server.reloadPackets(client);
   },
   systemmessage: function (
     server: ZoneServer2016,
@@ -375,7 +373,7 @@ const dev: any = {
         9034,
         client.character.state.position,
         client.character.state.lookAt
-      )
+      );
     npc.onReadyCallback = () => {
       const item = server.generateItem(1504)?.itemGuid;
       server.sendData(client, "ClientUpdate.ItemAdd", {

@@ -135,9 +135,9 @@ const H1emuPackets = {
 };
 
 function packH1emuPacket(packetName: string, object: any) {
-  let packetType = H1emuPackets.PacketTypes[packetName],
-    packet = H1emuPackets.Packets[packetType],
-    data;
+  const packetType = H1emuPackets.PacketTypes[packetName],
+    packet = H1emuPackets.Packets[packetType]
+  let data;
   if (packet) {
     if (packet.schema) {
       const packetData = DataSchema.pack(packet.schema, object);
@@ -160,8 +160,8 @@ function packH1emuPacket(packetName: string, object: any) {
 
 function parseH1emuPacket(data: any) {
   const packetType = data.readUInt8(0);
-  let result,
-    packet = H1emuPackets.Packets[packetType];
+  let result
+  const packet = H1emuPackets.Packets[packetType];
   if (packet) {
     if (packet.schema) {
       result = DataSchema.parse(packet.schema, data, 1).result;

@@ -2260,7 +2260,6 @@ export const basePackets: any = [
                   type: "array",
                   defaultValue: [],
                   fields: currencySchema,
-                  
                 },
               ],
             },

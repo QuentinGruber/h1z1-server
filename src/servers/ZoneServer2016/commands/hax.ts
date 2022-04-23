@@ -11,6 +11,8 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
+// TODO enable @typescript-eslint/no-unused-vars
 import fs from "fs";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { Vehicle2016 as Vehicle, Vehicle2016 } from "../classes/vehicle";
@@ -76,7 +78,7 @@ const hax: any = {
       );
       return;
     }
-    let wasAlreadyGod = client.character.godMode;
+    const wasAlreadyGod = client.character.godMode;
     client.character.godMode = true;
     const characterId = server.generateGuid();
     const vehicleData = new Vehicle2016(
@@ -174,9 +176,7 @@ const hax: any = {
     args: any[]
   ) {
     client.spawnedEntities.forEach((object) => {
-      server.despawnEntity(
-        object.characterId
-      );
+      server.despawnEntity(object.characterId);
     });
     client.spawnedEntities = [];
     server._props = {};
@@ -300,14 +300,16 @@ const hax: any = {
       return;
     }
     const range = Number(args[1]),
-    lat = client.character.state.position[0],
-    long = client.character.state.position[2];
-    let points = [],
-    rangeFixed = range,
-    numberOfPoints = Number(args[2]),
-    degreesPerPoint = 360 / numberOfPoints;
+      lat = client.character.state.position[0],
+      long = client.character.state.position[2];
+    const points = []
+    let rangeFixed = range
+    const numberOfPoints = Number(args[2])
+    const degreesPerPoint = 360 / numberOfPoints;
     for (let j = 1; j < range; j++) {
-      let currentAngle = 0, x2, y2;
+      let currentAngle = 0,
+        x2,
+        y2;
       rangeFixed += -1;
       for (let i = 0; i < numberOfPoints; i++) {
         x2 = Math.cos(currentAngle) * rangeFixed;
@@ -323,7 +325,12 @@ const hax: any = {
         characterId,
         server.getTransientId(characterId),
         9176,
-        new Float32Array([obj[0], client.character.state.position[1], obj[1], 1]),
+        new Float32Array([
+          obj[0],
+          client.character.state.position[1],
+          obj[1],
+          1,
+        ]),
         client.character.state.lookAt,
         true
       ); // save explosive
@@ -359,7 +366,7 @@ const hax: any = {
       Number(args[1]),
       client.character.state.position,
       client.character.state.lookAt
-    )
+    );
     server._npcs[characterId] = npc; // save npc
   },
   spawnvehicle: function (server: ZoneServer2016, client: Client, args: any[]) {
@@ -422,7 +429,7 @@ const hax: any = {
         server.sendChatText(client, `Weather templates :`);
         _.forEach(
           server._weatherTemplates,
-          function (element: { templateName: any }) {
+          (element: { templateName: any }) => {
             server.sendChatText(client, `- ${element.templateName}`);
           }
         );
@@ -492,7 +499,7 @@ const hax: any = {
     }
     server.sendChatText(client, `Randomized weather`);
 
-    function rnd_number(max: any, fixed: Boolean = false) {
+    function rnd_number(max: any, fixed: boolean = false) {
       const num = Math.random() * max;
       return Number(fixed ? num.toFixed(0) : num);
     }

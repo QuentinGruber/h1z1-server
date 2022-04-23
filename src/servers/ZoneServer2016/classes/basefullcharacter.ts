@@ -23,7 +23,7 @@ import { ZoneClient2016 } from "./zoneclient";
 
 const loadoutSlots = require("./../../../../data/2016/dataSources/LoadoutSlots.json");
 
-export class BaseFullCharacter extends BaseLightweightCharacter{
+export class BaseFullCharacter extends BaseLightweightCharacter {
   onReadyCallback?: (clientTriggered: ZoneClient2016) => void;
   _resources: { [resourceId: number]: number } = {};
   _loadout: { [loadoutSlotId: number]: loadoutItem } = {};
@@ -33,10 +33,10 @@ export class BaseFullCharacter extends BaseLightweightCharacter{
   currentLoadoutSlot = 0; // idk if other full npcs use this
   isLightweight = false;
   constructor(
-    characterId: string, 
-    transientId: number, 
-    actorModelId: number, 
-    position: Float32Array, 
+    characterId: string,
+    transientId: number,
+    actorModelId: number,
+    position: Float32Array,
     rotation: Float32Array
   ) {
     super(characterId, transientId, actorModelId, position, rotation);
@@ -51,12 +51,12 @@ export class BaseFullCharacter extends BaseLightweightCharacter{
       containerGuid: "0xFFFFFFFFFFFFFFFF",
       currentDurability: 0,
       stackCount: 0,
-      loadoutItemOwnerGuid: "0x0"
-    }
+      loadoutItemOwnerGuid: "0x0",
+    };
   }
   setupLoadoutSlots() {
-    for(const slot of loadoutSlots) {
-      if(slot.LOADOUT_ID == this.loadoutId && !this._loadout[slot.SLOT_ID]) {
+    for (const slot of loadoutSlots) {
+      if (slot.LOADOUT_ID == this.loadoutId && !this._loadout[slot.SLOT_ID]) {
         this.clearLoadoutSlot(slot.SLOT_ID);
       }
     }
@@ -64,25 +64,21 @@ export class BaseFullCharacter extends BaseLightweightCharacter{
 
   getActiveLoadoutSlot(itemGuid: string): number {
     // gets the loadoutSlotId of a specified itemGuid in the loadout
-    for(const item of Object.values(this._loadout)) {
-      if(itemGuid == item.itemGuid) {
+    for (const item of Object.values(this._loadout)) {
+      if (itemGuid == item.itemGuid) {
         return item.slotId;
       }
     }
     return 0;
   }
-  getLoadoutItem(
-    itemGuid: string
-  ): loadoutItem | undefined {
+  getLoadoutItem(itemGuid: string): loadoutItem | undefined {
     const loadoutSlotId = this.getActiveLoadoutSlot(itemGuid);
     if (this._loadout[loadoutSlotId]?.itemGuid == itemGuid) {
       return this._loadout[loadoutSlotId];
     }
     return;
   }
-  getItemContainer(
-    itemGuid: string
-  ): loadoutContainer | undefined {
+  getItemContainer(itemGuid: string): loadoutContainer | undefined {
     // returns the container that an item is contained in
     for (const container of Object.values(this._containers)) {
       if (container.items[itemGuid]) {
@@ -91,9 +87,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter{
     }
     return;
   }
-  getInventoryItem(
-    itemGuid: string
-  ): inventoryItem | undefined {
+  getInventoryItem(itemGuid: string): inventoryItem | undefined {
     const loadoutItem = this.getLoadoutItem(itemGuid);
     if (loadoutItem) {
       return loadoutItem;
@@ -105,9 +99,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter{
     }
   }
 
-  getContainerFromGuid(
-    containerGuid: string
-  ): loadoutContainer | undefined {
+  getContainerFromGuid(containerGuid: string): loadoutContainer | undefined {
     for (const container of Object.values(this._containers)) {
       if (container.itemGuid == containerGuid) {
         return container;
@@ -127,8 +119,8 @@ export class BaseFullCharacter extends BaseLightweightCharacter{
     return undefined;
   }
   getActiveEquipmentSlot(item: loadoutItem) {
-    for(const equipment of Object.values(this._equipment)) {
-      if(item.itemGuid == equipment.guid) {
+    for (const equipment of Object.values(this._equipment)) {
+      if (item.itemGuid == equipment.guid) {
         return equipment.slotId;
       }
     }
@@ -137,49 +129,55 @@ export class BaseFullCharacter extends BaseLightweightCharacter{
 
   pGetEquipmentSlot(slotId: number) {
     const slot = this._equipment[slotId];
-    return slot?{
-      equipmentSlotId: slot.slotId,
-      equipmentSlotData: {
-        equipmentSlotId: slot.slotId,
-        guid: slot.guid || "",
-        tintAlias: slot.tintAlias || "",
-        decalAlias: slot.tintAlias || "#",
-      }
-    }:undefined
+    return slot
+      ? {
+          equipmentSlotId: slot.slotId,
+          equipmentSlotData: {
+            equipmentSlotId: slot.slotId,
+            guid: slot.guid || "",
+            tintAlias: slot.tintAlias || "",
+            decalAlias: slot.tintAlias || "#",
+          },
+        }
+      : undefined;
   }
 
   pGetEquipmentSlots() {
     return Object.keys(this._equipment).map((slotId: any) => {
       return this.pGetEquipmentSlot(slotId);
-    })
+    });
   }
 
   pGetAttachmentSlot(slotId: number) {
     const slot = this._equipment[slotId];
-    return slot?{
-      modelName: slot.modelName,
-      textureAlias: slot.textureAlias || "",
-      tintAlias: slot.tintAlias || "",
-      decalAlias: slot.tintAlias || "#",
-      slotId: slot.slotId,
-    }:undefined
+    return slot
+      ? {
+          modelName: slot.modelName,
+          textureAlias: slot.textureAlias || "",
+          tintAlias: slot.tintAlias || "",
+          decalAlias: slot.tintAlias || "#",
+          slotId: slot.slotId,
+        }
+      : undefined;
   }
 
   pGetAttachmentSlots() {
     return Object.keys(this._equipment).map((slotId: any) => {
       return this.pGetAttachmentSlot(slotId);
-    })
+    });
   }
 
   pGetEquipmentSlotFull(slotId: number) {
     const slot = this._equipment[slotId];
-    return slot?{
-      characterData: {
-        characterId: this.characterId,
-      },
-      equipmentSlot: this.pGetEquipmentSlot(slotId),
-      attachmentData: this.pGetAttachmentSlot(slotId)
-    }:undefined
+    return slot
+      ? {
+          characterData: {
+            characterId: this.characterId,
+          },
+          equipmentSlot: this.pGetEquipmentSlot(slotId),
+          attachmentData: this.pGetAttachmentSlot(slotId),
+        }
+      : undefined;
   }
 
   pGetEquipment() {
@@ -189,7 +187,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter{
       },
       equipmentSlots: this.pGetEquipmentSlots(),
       attachmentData: this.pGetAttachmentSlots(),
-    }
+    };
   }
 
   pGetLoadoutSlots() {
@@ -197,25 +195,23 @@ export class BaseFullCharacter extends BaseLightweightCharacter{
       characterId: this.characterId,
       loadoutId: this.loadoutId, // needs to be 3
       loadoutData: {
-        loadoutSlots: Object.keys(this._loadout).map(
-          (slotId: any) => {
-            const slot = this._loadout[slotId];
-            return {
-              hotbarSlotId: slot.slotId, // affects Equip Item context entry packet, and Container.MoveItem
-              loadoutId: this.loadoutId,
-              slotId: slot.slotId,
-              loadoutItemData: {
-                itemDefinitionId: slot.itemDefinitionId,
-                loadoutItemOwnerGuid: slot.itemGuid,
-                unknownByte1: 255, // flags?
-              },
-              unknownDword4: slot.slotId,
-            };
-          }
-        ),
+        loadoutSlots: Object.keys(this._loadout).map((slotId: any) => {
+          const slot = this._loadout[slotId];
+          return {
+            hotbarSlotId: slot.slotId, // affects Equip Item context entry packet, and Container.MoveItem
+            loadoutId: this.loadoutId,
+            slotId: slot.slotId,
+            loadoutItemData: {
+              itemDefinitionId: slot.itemDefinitionId,
+              loadoutItemOwnerGuid: slot.itemGuid,
+              unknownByte1: 255, // flags?
+            },
+            unknownDword4: slot.slotId,
+          };
+        }),
       },
       currentSlotId: this.currentLoadoutSlot,
-    }
+    };
   }
 
   pGetFull() {
@@ -224,7 +220,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter{
       attachmentData: this.pGetAttachmentSlots(),
       characterId: this.characterId,
       resources: {
-        data: this.pGetResources()
+        data: this.pGetResources(),
       },
       effectTags: [],
       unknownData1: {},
@@ -237,11 +233,11 @@ export class BaseFullCharacter extends BaseLightweightCharacter{
       unknownArray6: { data: [] },
       remoteWeapons: { data: [] },
       itemsData: { data: [] },
-    }
+    };
   }
 
   getResourceType(resourceId: number) {
-    switch(resourceId) {
+    switch (resourceId) {
       case ResourceIds.HEALTH:
         return ResourceTypes.HEALTH;
       case ResourceIds.HUNGER:
@@ -268,18 +264,16 @@ export class BaseFullCharacter extends BaseLightweightCharacter{
   pGetResources() {
     return Object.keys(this._resources).map((resource) => {
       const resourceId = Number(resource);
-      const resourceType = this.getResourceType(resourceId)
+      const resourceType = this.getResourceType(resourceId);
       return {
         resourceType: resourceType,
         resourceData: {
           resourceId: resourceId,
           resourceType: resourceType,
-          value: this._resources[resourceId] > 0
-          ? this._resources[resourceId]
-          : 0
-        }
-      }
-    })
+          value:
+            this._resources[resourceId] > 0 ? this._resources[resourceId] : 0,
+        },
+      };
+    });
   }
-
 }

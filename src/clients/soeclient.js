@@ -17,7 +17,6 @@ const EventEmitter = require("events").EventEmitter,
   SOEOutputStream =
     require("../servers/SoeServer/soeoutputstream").SOEOutputStream,
   SOEProtocol = require("../protocols/soeprotocol").SOEProtocol,
-  SOEPackets = require("../protocols/soeprotocol").SOEPackets,
   util = require("util"),
   fs = require("fs"),
   dgram = require("dgram"),

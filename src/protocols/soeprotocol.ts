@@ -1,3 +1,4 @@
+/* eslint-disable */
 // ======================================================================
 //
 //   GNU GENERAL PUBLIC LICENSE
@@ -285,7 +286,7 @@ const packets = [
         compression: number,
         isSubPacket: boolean
       ) {
-        let data = Buffer.alloc(40);
+        const data = Buffer.alloc(40);
         let offset = 0;
         data.writeUInt16BE(10, offset); // timeDiff
         offset += 2;
