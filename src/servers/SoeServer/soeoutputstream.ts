@@ -22,14 +22,17 @@ export class SOEOutputStream extends EventEmitter {
   _sequence: number;
   _lastAck: number;
   _cache: any;
+
   _rc4: RC4;
   _hadCacheError: boolean = false;
+  private _maxCache: number;
   constructor(cryptoKey: Uint8Array, fragmentSize: number = 0) {
     super();
     this._useEncryption = false;
     this._fragmentSize = fragmentSize;
     this._sequence = -1;
     this._lastAck = -1;
+    this._maxCache = 4000;
     this._cache = {};
     this._rc4 = new RC4(cryptoKey);
   }
@@ -46,10 +49,13 @@ export class SOEOutputStream extends EventEmitter {
     }
     if (data.length <= this._fragmentSize) {
       this._sequence++;
-      this._cache[this._sequence] = {
-        data: data,
-        fragment: false,
-      };
+      if(Object.keys(this._cache).length < this._maxCache) {
+
+        this._cache[this._sequence] = {
+          data: data,
+          fragment: false,
+        };
+    }
       this.emit("data", null, data, this._sequence, false);
     } else {
       const header = Buffer.alloc(4);
@@ -58,10 +64,13 @@ export class SOEOutputStream extends EventEmitter {
       for (let i = 0; i < data.length; i += this._fragmentSize) {
         this._sequence++;
         const fragmentData = data.slice(i, i + this._fragmentSize);
-        this._cache[this._sequence] = {
-          data: fragmentData,
-          fragment: true,
-        };
+        if(Object.keys(this._cache).length < this._maxCache) {
+
+          this._cache[this._sequence] = {
+            data: fragmentData,
+            fragment: true,
+          };
+      }
         this.emit("data", null, fragmentData, this._sequence, true);
       }
     }
@@ -73,7 +82,6 @@ export class SOEOutputStream extends EventEmitter {
         delete this._cache[this._lastAck];
       }
       if(!!unAckData[this._lastAck]) {
-        console.log("server delete unack sequence via Ack" + this._lastAck)
         delete unAckData[this._lastAck];
       }
       this._lastAck++;
@@ -84,7 +92,6 @@ export class SOEOutputStream extends EventEmitter {
     if (this._hadCacheError) {
       return;
     }
-    console.log(this._cache)
     if (this._cache[sequence]) {
       this.emit(
         "dataResend",
@@ -105,7 +112,6 @@ export class SOEOutputStream extends EventEmitter {
   resendData(sequence: number): void {
     const start = this._lastAck + 1;
     for (let i = start; i < sequence; i++) {
-      console.log("server resend sequence " + i)
       this.resendSequence(sequence);
     }
   }
