@@ -73,6 +73,7 @@ export class SOEOutputStream extends EventEmitter {
         delete this._cache[this._lastAck];
       }
       if(!!unAckData[this._lastAck]) {
+        console.log("server delete unack sequence via Ack" + this._lastAck)
         delete unAckData[this._lastAck];
       }
       this._lastAck++;
@@ -83,9 +84,10 @@ export class SOEOutputStream extends EventEmitter {
     if (this._hadCacheError) {
       return;
     }
+    console.log(this._cache)
     if (this._cache[sequence]) {
       this.emit(
-        "data",
+        "dataResend",
         null,
         this._cache[sequence].data,
         sequence,

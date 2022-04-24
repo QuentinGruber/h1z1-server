@@ -13,11 +13,11 @@
 
 import { EventEmitter } from "events";
 import { RC4 } from "h1emu-core";
+import { MAX_SEQUENCE } from "../../utils/constants";
 
 const debug = require("debug")("SOEInputStream");
 
 export class SOEInputStream extends EventEmitter {
-  _sequences: Array<number>;
   _nextSequence: number;
   _lastAck: number;
   _nextFragment: number;
@@ -28,7 +28,6 @@ export class SOEInputStream extends EventEmitter {
 
   constructor(cryptoKey: Uint8Array) {
     super();
-    this._sequences = [];
     this._nextSequence = -1;
     this._lastAck = -1;
     this._nextFragment = 0;
@@ -146,7 +145,7 @@ export class SOEInputStream extends EventEmitter {
       this.emit("outoforder", null, this._nextSequence, sequence);
     } else {
       let ack = sequence;
-      for (let i = 1; i < this._sequences.length; i++) {
+      for (let i = 1; i < MAX_SEQUENCE; i++) {
         const j = (this._lastAck + i) & 0xffff;
         if (this._fragments[j]) {
           ack = j;
@@ -158,9 +157,7 @@ export class SOEInputStream extends EventEmitter {
         this._lastAck = ack;
         this.emit("ack", null, ack);
       }
-      else if(ack < this._lastAck) {
-        this.emit("singleAck", null, ack);
-      }
+
       this._nextSequence = this._lastAck + 1;
 
       this._processDataFragments();

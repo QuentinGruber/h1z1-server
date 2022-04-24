@@ -28,6 +28,7 @@ export default class SOEClient {
   useEncryption: boolean = true;
   waitingQueue: any[] = [];
   outQueue: any[] = [];
+  priorityQueue: any[] = [];
   protocolName: string = "unset";
   unAckData: { [sequence: number]: number } = {};
   outOfOrderPackets: any[] = [];

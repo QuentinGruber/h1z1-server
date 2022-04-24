@@ -39,7 +39,7 @@ export class SOEServer extends EventEmitter {
   _maxMultiBufferSize: number;
   reduceCpuUsage: boolean = true;
   private _soeClientRoutineLoopMethod: any;
-  private _resendTimeout: number = 300;
+  private _resendTimeout: number = 1000;
   constructor(protocolName: string, serverPort: number, cryptoKey: Uint8Array) {
     super();
     Buffer.poolSize = 8192 * 4;
@@ -63,6 +63,26 @@ export class SOEServer extends EventEmitter {
 }
 
   private checkClientOutQueue(client: SOEClient) {
+    // print length of queues
+     
+    const priorityData = client.priorityQueue.shift();
+    if (priorityData) {
+      console.log("priorityQueue packet: " , priorityData);
+      this._connection.postMessage(
+        {
+          type: "sendPacket",
+          data: {
+            packetData: priorityData,
+            length: priorityData.length,
+            port: client.port,
+            address: client.address,
+          },
+        },
+        [priorityData.buffer]
+      );
+    }
+    else{
+
       const data = client.outQueue.shift();
       if (data) {
         this._connection.postMessage(
@@ -78,14 +98,12 @@ export class SOEServer extends EventEmitter {
           [data.buffer]
         );
   }
+}
   }
 
   private soeClientRoutine(client: Client) {
     if (!client.isDeleted) {
-      if (client.isOutOfOrder) {
-        this.checkOutOfOrderQueue(client);
-
-      }
+      this.checkOutOfOrderQueue(client);
       this.checkAck(client);
       this.checkResendQueue(client);
       this.checkClientOutQueue(client);
@@ -95,17 +113,13 @@ export class SOEServer extends EventEmitter {
   checkResendQueue(client: Client) {
     const unAckDataKeys = Object.keys(client.unAckData);
     if(unAckDataKeys.length){
-      let hasResendedData = false;
-      for (let sequence = Number(unAckDataKeys[0]); sequence < unAckDataKeys.length; sequence++) {
+      //console.log("resend queue ", unAckDataKeys);
+      for (let index = 0; index < unAckDataKeys.length; index++) {
+        const sequence = Number(unAckDataKeys[index]);
         const unAckDataTime = client.unAckData[sequence];
-        if(unAckDataTime + this._resendTimeout < Date.now() && !hasResendedData){
-          hasResendedData = true;
-          console.log("data resend for client: " + client.address + ":" + client.port);
-          console.log("has been waiting for: " + (Date.now() - unAckDataTime) + "ms");
-          console.log("resend a total of " + (unAckDataKeys.length - sequence) + " packets");
-          client.outputStream.resendData(Number(unAckDataKeys[unAckDataKeys.length - 1]));
-        }
-        if(hasResendedData){
+        if(unAckDataTime + this._resendTimeout < Date.now()){
+          console.log("data resend for client: " + client.address + ":" + client.port+" sequence: " + sequence);
+          client.outputStream.resendSequence(sequence);
           client.unAckData[sequence] = Date.now();
         }
       }
@@ -115,7 +129,6 @@ export class SOEServer extends EventEmitter {
   private checkAck(client: Client) {
     if (client.lastAck != client.nextAck) {
       client.lastAck = client.nextAck;
-      console.log("server ack : " + client.nextAck);
       this._sendPacket(
         client,
         "Ack",
@@ -139,8 +152,7 @@ export class SOEServer extends EventEmitter {
           "MultiPacket",
           {
             sub_packets: client.waitingQueue,
-          },
-          true
+          }
         );
       } else {
         // if only one packets
@@ -169,7 +181,6 @@ export class SOEServer extends EventEmitter {
           break;
         }
       }
-      console.log("Sending " + packets.length + " OutOfOrder packets to the client");
       
       this._sendPacket(
         client,
@@ -218,24 +229,12 @@ export class SOEServer extends EventEmitter {
         this.emit("disconnect", null, client);
         break;
       case "MultiPacket": {
-        let lastOutOfOrder = 0;
         for (let i = 0; i < packet.sub_packets.length; i++) {
           const subPacket = packet.sub_packets[i];
           switch (subPacket.name) {
-            case "OutOfOrder":
-              if (subPacket.sequence > lastOutOfOrder) {
-                lastOutOfOrder = subPacket.sequence;
-              }
-              break;
             default:
               this.handlePacket(client, subPacket);
           }
-        }
-        if (lastOutOfOrder > 0) {
-          console.log(
-            "Received multiple out-order-packet sequence " + lastOutOfOrder
-          );
-          client.outputStream.resendData(lastOutOfOrder);
         }
         break;
       }
@@ -250,7 +249,6 @@ export class SOEServer extends EventEmitter {
         debug("Received net status request from client");
         break;
       case "Data":
-        console.log("Received data packet from client, sequence " + packet.sequence);
         client.inputStream.write(
           Buffer.from(packet.data),
           packet.sequence,
@@ -258,9 +256,6 @@ export class SOEServer extends EventEmitter {
         );
         break;
       case "DataFragment":
-        debug(
-          "Received data fragment from client, sequence " + packet.sequence
-        );
         client.inputStream.write(
           Buffer.from(packet.data),
           packet.sequence,
@@ -268,11 +263,11 @@ export class SOEServer extends EventEmitter {
         );
         break;
       case "OutOfOrder":
-        console.log("Received out-order-packet sequence " + packet.sequence);
-        client.outputStream.resendData(packet.sequence);
+        console.log("server delete unack sequence via OutOfOrder" + packet.sequence)
+        delete client.unAckData[packet.sequence];
+        //client.outputStream.resendData(packet.sequence);
         break;
       case "Ack":
-        debug("Ack, sequence " + packet.sequence);
         client.outputStream.ack(packet.sequence,client.unAckData);
         break;
       case "ZonePing":
@@ -287,6 +282,8 @@ export class SOEServer extends EventEmitter {
         break;
       case "FatalErrorReply":
         break;
+      default :
+        console.log("Unknown packet " + packet.name);
     }
   }
 
@@ -334,29 +331,12 @@ export class SOEServer extends EventEmitter {
 
           client.inputStream.on("ack", (err: string, sequence: number) => {
             client.nextAck = sequence;
-          });
-
-          client.inputStream.on("singleAck", (err: string, sequence: number) => {
-            this._sendPacket(
-              client,
-              "Ack",
-              {
-                sequence: client.nextAck,
-              },
-              false
-            );
-          });
-
-          
+          });          
 
           client.inputStream.on(
             "outoforder",
             (err: string, expectedSequence: number, outOfOrderSequence: number) => {
-              // TODO , need to reset last ack & 0xffff
-              for (expectedSequence; expectedSequence <= outOfOrderSequence; expectedSequence++) {
-                console.log("queue sequence " + expectedSequence + " for resend");
-                client.outOfOrderPackets.push(expectedSequence);
-              }
+              client.outOfOrderPackets.push(outOfOrderSequence);
             }
           );
 
@@ -459,7 +439,7 @@ export class SOEServer extends EventEmitter {
     if (prioritize) {
       if (packetName !== "MultiPacket")
         this.sendClientWaitQueue(client);
-      client.outQueue.push(data);
+      client.priorityQueue.push(data);
     } else {
       if (
         packetName !== "MultiPacket" && this._waitQueueTimeMs > 0 &&
@@ -480,7 +460,9 @@ export class SOEServer extends EventEmitter {
           );
         }
       } else {
-        this.sendClientWaitQueue(client);
+        if(packetName !== "MultiPacket"){ // that's bad but it's the only way to avoid a bug rn
+          this.sendClientWaitQueue(client);
+        }
         client.outQueue.push(data);
       }
     }
