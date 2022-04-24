@@ -222,7 +222,7 @@ class SOEClient {
           outputStream.resendData(result.sequence);
           break;
         case "Ack":
-          outputStream.ack(result.sequence);
+          outputStream.ack(result.sequence,{});
           break;
         case "FatalError":
           debug("Received fatal error from server");
