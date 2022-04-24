@@ -3915,23 +3915,10 @@ export class ZoneServer2016 extends EventEmitter {
 }
 
 if (process.env.VSCODE_DEBUG === "true") {
-
-
-  const z = new ZoneServer2016(
+  new ZoneServer2016(
     1117,
     Buffer.from(DEFAULT_CRYPTO_KEY, "base64"),
     process.env.MONGO_URL,
     2
-  );
-  z.start();
-  for (let index = 0; index < 100000; index++) {
-    const element = z.getTransientId("test");
-    if(index != element){
-      console.log(index)
-      console.log(element)
-
-     // throw new Error("transient id error");
-    }
-  }
-  
+  ).start();
 }

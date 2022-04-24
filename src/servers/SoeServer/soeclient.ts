@@ -23,12 +23,12 @@ export default class SOEClient {
   crcLength: number = 2;
   clientUdpLength: number = 512;
   serverUdpLength: number = 512;
-  sequences: any;
+  packetsSentThisLoop: number = 0;
   compression: number;
   useEncryption: boolean = true;
   waitingQueue: any[] = [];
-  outQueue: any[] = [];
-  priorityQueue: any[] = [];
+  outQueue: Buffer[] = [];
+  priorityQueue: Buffer[] = [];
   protocolName: string = "unset";
   unAckData: { [sequence: number]: number } = {};
   outOfOrderPackets: any[] = [];

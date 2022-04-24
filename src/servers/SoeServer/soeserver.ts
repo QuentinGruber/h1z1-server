@@ -17,6 +17,7 @@ import Client from "./soeclient";
 import SOEClient from "./soeclient";
 import { Worker } from "worker_threads";
 import { crc_length_options } from "../../types/soeserver";
+import { MAX_SEQUENCE } from "../../utils/constants";
 const debug = require("debug")("SOEServer");
 process.env.isBin && require("../shared/workers/udpServerWorker.js");
 
@@ -39,7 +40,8 @@ export class SOEServer extends EventEmitter {
   _maxMultiBufferSize: number;
   reduceCpuUsage: boolean = true;
   private _soeClientRoutineLoopMethod: any;
-  private _resendTimeout: number = 1000;
+  private _resendTimeout: number = 300;
+  private _maxPhysicalSendPerLoop: number;
   constructor(protocolName: string, serverPort: number, cryptoKey: Uint8Array) {
     super();
     Buffer.poolSize = 8192 * 4;
@@ -48,7 +50,8 @@ export class SOEServer extends EventEmitter {
     this._cryptoKey = cryptoKey;
     this._crcSeed = 0;
     this._crcLength = 2;
-    this._maxOutOfOrderPacketsPerLoop = 100; // TODO change this number, it need to be the max size of multipackets / the size of an outOfOrderPacket without crc + 2 
+    this._maxPhysicalSendPerLoop = 50;
+    this._maxOutOfOrderPacketsPerLoop = 20; // TODO change this number, it need to be the max size of multipackets / the size of an outOfOrderPacket without crc + 2 
     this._udpLength = 512;
     this._maxMultiBufferSize = this._udpLength - 4 - this._crcLength;
     this._useEncryption = true;
@@ -62,50 +65,61 @@ export class SOEServer extends EventEmitter {
     );
 }
 
+  private _sendPhysicalPacket(client: Client, packet: Buffer): void {
+    client.packetsSentThisLoop++;
+    this._connection.postMessage(
+      {
+        type: "sendPacket",
+        data: {
+          packetData: packet,
+          length: packet.length,
+          port: client.port,
+          address: client.address,
+        },
+      },
+      [packet.buffer]
+    );
+  }
+
+  private sendPriorityQueue(client: Client): void {
+    while (client.packetsSentThisLoop < this._maxPhysicalSendPerLoop) {
+      const data = client.priorityQueue.shift();
+    if (data) {
+      this._sendPhysicalPacket(client, data);
+    }
+    else {
+      break
+    }
+    }
+  }
+
+  private sendOutQueue(client: Client): void {
+    while (client.packetsSentThisLoop < this._maxPhysicalSendPerLoop) {
+      const data = client.outQueue.shift();
+    if (data) {
+      this._sendPhysicalPacket(client, data);
+    }
+    else {
+      break
+    }
+    }
+  }
+
   private checkClientOutQueue(client: SOEClient) {
     // print length of queues
-     
-    const priorityData = client.priorityQueue.shift();
-    if (priorityData) {
-      console.log("priorityQueue packet: " , priorityData);
-      this._connection.postMessage(
-        {
-          type: "sendPacket",
-          data: {
-            packetData: priorityData,
-            length: priorityData.length,
-            port: client.port,
-            address: client.address,
-          },
-        },
-        [priorityData.buffer]
-      );
-    }
-    else{
-
-      const data = client.outQueue.shift();
-      if (data) {
-        this._connection.postMessage(
-          {
-            type: "sendPacket",
-            data: {
-              packetData: data,
-              length: data.length,
-              port: client.port,
-              address: client.address,
-            },
-          },
-          [data.buffer]
-        );
-  }
-}
+    client.packetsSentThisLoop = 0;
+    this.sendPriorityQueue(client);
+    this.sendOutQueue(client);
+    //console.log("packets sent this loop: ", client.packetsSentThisLoop);
   }
 
   private soeClientRoutine(client: Client) {
     if (!client.isDeleted) {
       this.checkOutOfOrderQueue(client);
       this.checkAck(client);
-      this.checkResendQueue(client);
+      if(client.priorityQueue.length < this._maxOutOfOrderPacketsPerLoop){
+        this.checkResendQueue(client);
+      }
       this.checkClientOutQueue(client);
       this._soeClientRoutineLoopMethod(() => this.soeClientRoutine(client));
     }
@@ -113,12 +127,10 @@ export class SOEServer extends EventEmitter {
   checkResendQueue(client: Client) {
     const unAckDataKeys = Object.keys(client.unAckData);
     if(unAckDataKeys.length){
-      //console.log("resend queue ", unAckDataKeys);
       for (let index = 0; index < unAckDataKeys.length; index++) {
         const sequence = Number(unAckDataKeys[index]);
         const unAckDataTime = client.unAckData[sequence];
         if(unAckDataTime + this._resendTimeout < Date.now()){
-          console.log("data resend for client: " + client.address + ":" + client.port+" sequence: " + sequence);
           client.outputStream.resendSequence(sequence);
           client.unAckData[sequence] = Date.now();
         }
@@ -129,7 +141,7 @@ export class SOEServer extends EventEmitter {
   private checkAck(client: Client) {
     if (client.lastAck != client.nextAck) {
       client.lastAck = client.nextAck;
-      this._sendPacket(
+      this._sendLogicalPacket(
         client,
         "Ack",
         {
@@ -147,7 +159,7 @@ export class SOEServer extends EventEmitter {
     }
     if (client.waitingQueue.length) {
       if (client.waitingQueue.length > 1) {
-        this._sendPacket(
+        this._sendLogicalPacket(
           client,
           "MultiPacket",
           {
@@ -182,7 +194,7 @@ export class SOEServer extends EventEmitter {
         }
       }
       
-      this._sendPacket(
+      this._sendLogicalPacket(
         client,
         "MultiPacket",
         {
@@ -192,6 +204,10 @@ export class SOEServer extends EventEmitter {
         true
       );
     }
+  }
+
+  private _disconnectClient(client: Client) {
+    this._sendPhysicalPacket(client, Buffer.from([0x00, 0x99,0x99])); // doesnt work
   }
 
   private handlePacket(client: SOEClient, packet: any) {
@@ -216,7 +232,7 @@ export class SOEServer extends EventEmitter {
           }, this._pingTimeoutTime);
         }
 
-        this._sendPacket(client, "SessionReply", {
+        this._sendLogicalPacket(client, "SessionReply", {
           session_id: client.sessionId,
           crc_seed: client.crcSeed,
           crc_length: client.crcLength,
@@ -243,7 +259,7 @@ export class SOEServer extends EventEmitter {
         if (this._usePingTimeout) {
           client.lastPingTimer.refresh();
         }
-        this._sendPacket(client, "Ping", {});
+        this._sendLogicalPacket(client, "Ping", {});
         break;
       case "NetStatusRequest":
         debug("Received net status request from client");
@@ -263,7 +279,6 @@ export class SOEServer extends EventEmitter {
         );
         break;
       case "OutOfOrder":
-        console.log("server delete unack sequence via OutOfOrder" + packet.sequence)
         delete client.unAckData[packet.sequence];
         //client.outputStream.resendData(packet.sequence);
         break;
@@ -326,7 +341,7 @@ export class SOEServer extends EventEmitter {
           });
 
           client.outputStream.on("cacheError", () => {
-            this.emit("fatalError", client);
+            this._disconnectClient(client);
           });
 
           client.inputStream.on("ack", (err: string, sequence: number) => {
@@ -343,9 +358,10 @@ export class SOEServer extends EventEmitter {
           client.outputStream.on(
             "data",
             (err: string, data: Buffer, sequence: number, fragment: any) => {
-              client.unAckData[sequence]= Date.now();
-              this._sendPacket(client, fragment ? "DataFragment" : "Data", {
-                sequence: sequence & 0xffff,
+              const sequenceUint16 = sequence & MAX_SEQUENCE ;
+              client.unAckData[sequenceUint16]= Date.now();
+              this._sendLogicalPacket(client, fragment ? "DataFragment" : "Data", {
+                sequence: sequenceUint16 ,
                 data: data,
               });
             }
@@ -354,12 +370,13 @@ export class SOEServer extends EventEmitter {
           client.outputStream.on(
             "dataResend",
             (err: string, data: Buffer, sequence: number, fragment: any) => {
-              client.unAckData[sequence] = Date.now();
-              this._sendPacket(
+              const sequenceUint16 = sequence & MAX_SEQUENCE ;
+              client.unAckData[sequenceUint16] = Date.now();
+              this._sendLogicalPacket(
                 client,
                 fragment ? "DataFragment" : "Data",
                 {
-                  sequence: sequence & 0xffff,
+                  sequence: sequenceUint16 ,
                   data: data,
                 },
                 true
@@ -429,7 +446,7 @@ export class SOEServer extends EventEmitter {
     }
   }
 
-  private _sendPacket(
+  private _sendLogicalPacket(
     client: Client,
     packetName: string,
     packet: any,
