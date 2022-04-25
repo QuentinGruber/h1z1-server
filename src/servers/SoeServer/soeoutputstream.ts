@@ -27,63 +27,71 @@ export class SOEOutputStream extends EventEmitter {
   private _rc4: RC4;
   private _hadCacheError: boolean = false;
   private _maxCache: number = 25000;
+  private _cacheSize: number = 0;
   constructor(cryptoKey: Uint8Array) {
     super();
     this._rc4 = new RC4(cryptoKey);
+  }
+
+  addToCache(sequence: number, data: Buffer, isFragment: boolean) {
+    if (this._cacheSize < this._maxCache) {
+      this._cacheSize++;
+      this._cache[sequence] = {
+        data: data,
+        fragment: isFragment,
+      };
+    } else {
+      console.error("Cache is full, dropping data sequence: " + sequence);
+    }
+  }
+
+  removeFromCache(sequence: number): void {
+    if (!!this._cache[sequence]) {
+      this._cacheSize--;
+      delete this._cache[sequence];
+    }
   }
 
   write(data: Buffer): void {
     if (this._useEncryption) {
       data = Buffer.from(this._rc4.encrypt(data));
 
+      // if the first byte is a 0x00 then we need to add 1 more
       if (data[0] === 0) {
-        const tmp = Buffer.allocUnsafe(1);
-        tmp[0] = 0;
+        const tmp = Buffer.alloc(1);
         data = Buffer.concat([tmp, data]);
       }
     }
     if (data.length <= this._fragmentSize) {
       this._sequence++;
-      if(Object.keys(this._cache).length < this._maxCache) {
-
-        this._cache[this._sequence] = {
-          data: data,
-          fragment: false,
-        };
-    }
+      this.addToCache(this._sequence, data, false);
       this.emit("data", null, data, this._sequence, false);
     } else {
-      const header = Buffer.alloc(4);
+      const header = Buffer.allocUnsafe(4);
       header.writeUInt32BE(data.length, 0);
       data = Buffer.concat([header, data]);
       for (let i = 0; i < data.length; i += this._fragmentSize) {
         this._sequence++;
         const fragmentData = data.slice(i, i + this._fragmentSize);
-        if(Object.keys(this._cache).length < this._maxCache) {
+        this.addToCache(this._sequence, data, true);
 
-          this._cache[this._sequence] = {
-            data: fragmentData,
-            fragment: true,
-          };
-      }
         this.emit("data", null, fragmentData, this._sequence, true);
       }
     }
   }
 
-  ack(sequence: number, unAckData:{ [sequence: number]: number } ): void {
+  ack(sequence: number, unAckData: { [sequence: number]: number }): void {
+    // delete all data / timers cached for the sequences behind the given ack sequence
     while (this._lastAck <= sequence) {
-      if (!!this._cache[this._lastAck]) {
-        delete this._cache[this._lastAck];
-      }
-      if(!!unAckData[this._lastAck]) {
+      this.removeFromCache(this._lastAck);
+      if (!!unAckData[this._lastAck]) {
         delete unAckData[this._lastAck];
       }
       this._lastAck++;
     }
   }
 
-  resendSequence(sequence: number): void {
+  resendData(sequence: number): void {
     if (this._hadCacheError) {
       return;
     }
@@ -104,12 +112,8 @@ export class SOEOutputStream extends EventEmitter {
     }
   }
 
-  resendData(sequence: number): void {
-     this.resendSequence(sequence);
-  }
-
   isUsingEncryption(): boolean {
-    return this._useEncryption
+    return this._useEncryption;
   }
 
   setEncryption(value: boolean): void {

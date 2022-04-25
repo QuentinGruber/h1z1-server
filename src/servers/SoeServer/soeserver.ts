@@ -131,7 +131,7 @@ export class SOEServer extends EventEmitter {
         const sequence = Number(unAckDataKeys[index]);
         const unAckDataTime = client.unAckData[sequence];
         if(unAckDataTime + this._resendTimeout < Date.now()){
-          client.outputStream.resendSequence(sequence);
+          client.outputStream.resendData(sequence);
           client.unAckData[sequence] = Date.now();
         }
       }
