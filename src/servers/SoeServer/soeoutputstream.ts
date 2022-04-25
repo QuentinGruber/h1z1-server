@@ -26,7 +26,7 @@ export class SOEOutputStream extends EventEmitter {
 
   private _rc4: RC4;
   private _hadCacheError: boolean = false;
-  private _maxCache: number = 4000;
+  private _maxCache: number = 25000;
   constructor(cryptoKey: Uint8Array) {
     super();
     this._rc4 = new RC4(cryptoKey);
