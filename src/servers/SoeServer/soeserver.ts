@@ -225,7 +225,7 @@ export class SOEServer extends EventEmitter {
         client.crcLength = this._crcLength;
         client.inputStream.setEncryption(this._useEncryption);
         client.outputStream.setEncryption(this._useEncryption);
-        client.outputStream.setFragmentSize(client.clientUdpLength - 7);
+        client.outputStream.setFragmentSize(client.clientUdpLength - 7); // TODO: 7? calculate this based on crc enabled / compression etc
         if (this._usePingTimeout) {
           client.lastPingTimer = setTimeout(() => {
             this.emit("disconnect", null, client);
@@ -336,7 +336,7 @@ export class SOEServer extends EventEmitter {
             this._cryptoKey
           );
 
-          client.inputStream.on("data", (err: string, data: Buffer) => {
+          client.inputStream.on("appdata", (err: string, data: Buffer) => {
             this.emit("appdata", null, client, data);
           });
 
