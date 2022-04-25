@@ -17,7 +17,7 @@ import { SOEInputStream } from "./soeinputstream";
 import { SOEOutputStream } from "./soeoutputstream";
 
 export default class SOEClient {
-  sessionId: number;
+  sessionId: number = 0;
   address: string;
   port: number;
   crcSeed: number;
@@ -37,26 +37,22 @@ export default class SOEClient {
   lastAck: number = -1;
   inputStream: SOEInputStream;
   outputStream: SOEOutputStream;
-  cryptoKey: Uint8Array;
   waitQueueTimer?: NodeJS.Timeout;
   waitingQueueCurrentByteLength: number = 0;
   soeClientId: string;
   lastPingTimer!: NodeJS.Timeout;
   isDeleted: boolean = false;
-  isOutOfOrder: boolean = false;
   constructor(
     remote: RemoteInfo,
     crcSeed: number,
     compression: number,
     cryptoKey: Uint8Array
   ) {
-    this.sessionId = 0;
     this.soeClientId = remote.address + ":" + remote.port;
     this.address = remote.address;
     this.port = remote.port;
     this.crcSeed = crcSeed;
     this.compression = compression;
-    this.cryptoKey = cryptoKey;
     this.inputStream = new SOEInputStream(cryptoKey);
     this.outputStream = new SOEOutputStream(cryptoKey);
   }
