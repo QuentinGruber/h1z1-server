@@ -595,18 +595,30 @@ const dev: any = {
     }
     */
   norman : function (server: ZoneServer2016, client: Client, args: any[]) {
-    if (!args[1])
-    {
-      server.sendChatText(client, "missing sub command");
-    }
-    const cmd = args[1].toLowerCase();
-    switch (cmd)
-    {
-      //show sight line
-      case 'sight':
-        NormanTest.Test10(client,server);
-        break;
-    }
+      if (!args[1]) {
+          server.sendChatText(client, "missing sub command");
+      }
+      const cmd = args[1].toLowerCase();
+      switch (cmd) {
+          //show sight line
+          case 'sight':
+              NormanTest.Test10(client, server);
+              break;
+          case 'tp':
+              if (!args[4]) {
+                  server.sendChatText(client, "missing z,y,x z=EAST grid index,x=NORTH grid index, y=real height");
+                  return;
+              }
+              const z = args[2], y = args[3], x = args[4];
+              let locationPosition = new Float32Array([z * 128 * 6, y, x * 128 * 6, 1]);
+              client.character.state.position = locationPosition;
+              server.sendData(client, "ClientUpdate.UpdateLocation", {
+                  position: locationPosition,
+                  triggerLoadingScreen: true,
+              });
+              server.sendWeatherUpdatePacket(client, server._weather2016);
+              break;
+      }
   }
 };
 
