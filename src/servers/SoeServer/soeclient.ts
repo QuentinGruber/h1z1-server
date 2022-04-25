@@ -12,6 +12,7 @@
 // ======================================================================
 
 import { RemoteInfo } from "dgram";
+import { soePacket } from "../../types/soeserver";
 import { SOEInputStream } from "./soeinputstream";
 import { SOEOutputStream } from "./soeoutputstream";
 
@@ -26,12 +27,12 @@ export default class SOEClient {
   packetsSentThisLoop: number = 0;
   compression: number;
   useEncryption: boolean = true;
-  waitingQueue: any[] = [];
+  waitingQueue: soePacket[] = [];
   outQueue: Buffer[] = [];
   priorityQueue: Buffer[] = [];
   protocolName: string = "unset";
   unAckData: { [sequence: number]: number } = {};
-  outOfOrderPackets: any[] = [];
+  outOfOrderPackets: soePacket[] = [];
   nextAck: number = -1;
   lastAck: number = -1;
   inputStream: SOEInputStream;

@@ -486,7 +486,7 @@ export class SOEServer extends EventEmitter {
   }
 
   sendAppData(client: Client, data: Buffer): void {
-    if (client.outputStream._useEncryption) {
+    if (client.outputStream.isUsingEncryption()) {
       debug("Sending app data: " + data.length + " bytes with encryption");
     } else {
       debug("Sending app data: " + data.length + " bytes");

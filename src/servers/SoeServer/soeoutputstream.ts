@@ -13,27 +13,22 @@
 
 import { EventEmitter } from "events";
 import { RC4 } from "h1emu-core";
+import { dataCache } from "types/soeserver";
 
 const debug = require("debug")("SOEOutputStream");
 
 export class SOEOutputStream extends EventEmitter {
-  _useEncryption: boolean;
-  _fragmentSize: number;
-  _sequence: number;
-  _lastAck: number;
-  _cache: any;
+  private _useEncryption: boolean = false;
+  private _fragmentSize: number = 0;
+  private _sequence: number = -1;
+  private _lastAck: number = -1;
+  private _cache: dataCache = {};
 
-  _rc4: RC4;
-  _hadCacheError: boolean = false;
-  private _maxCache: number;
-  constructor(cryptoKey: Uint8Array, fragmentSize: number = 0) {
+  private _rc4: RC4;
+  private _hadCacheError: boolean = false;
+  private _maxCache: number = 4000;
+  constructor(cryptoKey: Uint8Array) {
     super();
-    this._useEncryption = false;
-    this._fragmentSize = fragmentSize;
-    this._sequence = -1;
-    this._lastAck = -1;
-    this._maxCache = 4000;
-    this._cache = {};
     this._rc4 = new RC4(cryptoKey);
   }
 
@@ -110,10 +105,11 @@ export class SOEOutputStream extends EventEmitter {
   }
 
   resendData(sequence: number): void {
-    const start = this._lastAck + 1;
-    for (let i = start; i < sequence; i++) {
-      this.resendSequence(sequence);
-    }
+     this.resendSequence(sequence);
+  }
+
+  isUsingEncryption(): boolean {
+    return this._useEncryption
   }
 
   setEncryption(value: boolean): void {
