@@ -27,36 +27,28 @@ export class SOEServer extends EventEmitter {
   _cryptoKey: Uint8Array;
   _compression: number = 0;
   _protocol!: Soeprotocol;
-  _udpLength: number;
-  _useEncryption: boolean;
-  _clients: any;
+  _udpLength: number = 512;
+  _useEncryption: boolean = true;
+  _clients: { [clientId: string]: SOEClient } = {};
   private _connection: Worker;
-  _crcSeed: number;
-  _crcLength: crc_length_options;
-  _maxOutOfOrderPacketsPerLoop: number;
+  _crcSeed: number = 0;
+  _crcLength: crc_length_options = 2;
+  _maxOutOfOrderPacketsPerLoop: number = 20;// TODO change this number, it need to be the max size of multipackets / the size of an outOfOrderPacket without crc + 2 
   _waitQueueTimeMs: number = 50;
   _pingTimeoutTime: number = 60000;
-  _usePingTimeout: boolean;
+  _usePingTimeout: boolean = false;
   _maxMultiBufferSize: number;
   reduceCpuUsage: boolean = true;
-  private _soeClientRoutineLoopMethod: any;
+  private _soeClientRoutineLoopMethod!: (arg0:()=>void)=>void;
   private _resendTimeout: number = 300;
-  private _maxPhysicalSendPerLoop: number;
+  private _maxPhysicalSendPerLoop: number = 200;
   constructor(protocolName: string, serverPort: number, cryptoKey: Uint8Array) {
     super();
     Buffer.poolSize = 8192 * 4;
     this._protocolName = protocolName;
     this._serverPort = serverPort;
     this._cryptoKey = cryptoKey;
-    this._crcSeed = 0;
-    this._crcLength = 2;
-    this._maxPhysicalSendPerLoop = 50;
-    this._maxOutOfOrderPacketsPerLoop = 20; // TODO change this number, it need to be the max size of multipackets / the size of an outOfOrderPacket without crc + 2 
-    this._udpLength = 512;
     this._maxMultiBufferSize = this._udpLength - 4 - this._crcLength;
-    this._useEncryption = true;
-    this._usePingTimeout = false;
-    this._clients = {};
     this._connection = new Worker(
       `${__dirname}/../shared/workers/udpServerWorker.js`,
       {

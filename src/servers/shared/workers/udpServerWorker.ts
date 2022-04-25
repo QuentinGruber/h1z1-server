@@ -19,7 +19,7 @@ const debug = require("debug")("UDPserver");
 
 interface Message {
   type: string;
-  data?: any;
+  data: {packetData:Buffer, port:number, address:string};
 }
 
 if (workerData) {
@@ -60,7 +60,6 @@ if (workerData) {
         break;
       case "close":
         connection.close();
-        process.exit(0);
       default:
         break;
     }
