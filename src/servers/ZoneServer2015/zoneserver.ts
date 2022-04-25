@@ -26,6 +26,7 @@ import {
   setupAppDataFolder,
   getDistance,
   removeCacheFullDir,
+  generateTransientId,
 } from "../../utils/utils";
 import { Weather } from "../../types/zoneserver";
 import { Db, MongoClient } from "mongodb";
@@ -40,16 +41,17 @@ import { DEFAULT_CRYPTO_KEY } from "../../utils/constants";
 process.env.isBin && require("./workers/dynamicWeather");
 
 import { zonePacketHandlers } from "./zonepackethandlers";
-import { MAX_TRANSIENT_ID } from "../../utils/constants";
-let localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json");
+import { healthThreadDecorator } from "../shared/workers/healthWorker";
+const localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json");
 
 const debugName = "ZoneServer";
 const debug = require("debug")(debugName);
-let localWeatherTemplates = require("../../../data/2015/sampleData/weather.json");
+const localWeatherTemplates = require("../../../data/2015/sampleData/weather.json");
 const stats = require("../../../data/2015/sampleData/stats.json");
 const recipes = require("../../../data/2015/sampleData/recipes.json");
 const Z1_POIs = require("../../../data/2015/zoneData/Z1_POIs");
 
+@healthThreadDecorator
 export class ZoneServer2015 extends EventEmitter {
   _gatewayServer: GatewayServer;
   _protocol: ZoneProtocol;
@@ -105,6 +107,7 @@ export class ZoneServer2015 extends EventEmitter {
     ? JSON.parse(process.env.ALLOWED_COMMANDS)
     : [];
   _maxAllowedPing: number = 300;
+  private _transientIdGenerator = generateTransientId();
   constructor(
     serverPort: number,
     gatewayKey: Uint8Array,
@@ -159,14 +162,6 @@ export class ZoneServer2015 extends EventEmitter {
       this.onZoneLoginEvent(err, client);
     });
 
-    this._gatewayServer._soeServer.on(
-      "PacketLimitationReached",
-      (soeClient: SOEClient) => {
-        this.onSoePacketLimitationReachedEvent(
-          this._clients[soeClient.sessionId]
-        );
-      }
-    );
 
     this._gatewayServer._soeServer.on("fatalError", (soeClient: SOEClient) => {
       const client = this._clients[soeClient.sessionId];
@@ -197,9 +192,6 @@ export class ZoneServer2015 extends EventEmitter {
       this.onGatewayDisconnectEvent(err, client);
     });
 
-    this._gatewayServer.on("session", (err: string, client: SOEClient) => {
-      this.onGatewaySessionEvent(err, client);
-    });
 
     this._gatewayServer.on(
       "tunneldata",
@@ -218,19 +210,21 @@ export class ZoneServer2015 extends EventEmitter {
 
       this._h1emuZoneServer.on(
         "session",
-        (err: string, client: H1emuClient, status: number) => {
+        (err: string, client: H1emuClient) => {
           if (err) {
+            debug(`An error occured for LoginConnection with ${client.sessionId}`);
             console.error(err);
           } else {
-            debug(`LoginConnection established`);
+            debug(`LoginConnection established for ${client.sessionId}`);
           }
         }
       );
 
       this._h1emuZoneServer.on(
         "sessionfailed",
-        (err: string, client: H1emuClient, status: number) => {
-          console.error("h1emuServer sessionfailed");
+        (err: string, client: H1emuClient) => {
+          console.error(`h1emuServer sessionfailed for ${client.sessionId}`);
+          console.error(err);
           process.exit(1);
         }
       );
@@ -358,7 +352,7 @@ export class ZoneServer2015 extends EventEmitter {
 
   async fetchLoginInfo() {
     const resolver = new Resolver();
-    const loginServerAddress = await new Promise((resolve, reject) => {
+    const loginServerAddress = await new Promise((resolve) => {
       resolver.resolve4("loginserver.h1emu.com", (err, addresses) => {
         if (!err) {
           resolve(addresses[0]);
@@ -403,24 +397,6 @@ export class ZoneServer2015 extends EventEmitter {
         this.sendData(client, "LoginFailed", {});
       }
     }
-  }
-
-  onSoePacketLimitationReachedEvent(client: Client) {
-    this.sendChatText(
-      client,
-      "You've almost reached the packet limitation for the server."
-    );
-    this.sendChatText(
-      client,
-      "We will disconnect you in 60 seconds ( You can also do it yourself )"
-    );
-    this.sendChatText(client, "Sorry for that.");
-    setTimeout(() => {
-      this.sendData(client, "CharacterSelectSessionResponse", {
-        status: 1,
-        sessionId: client.loginSessionId,
-      });
-    }, 60000);
   }
 
   generateTransientId(characterId: string): number {
@@ -507,10 +483,6 @@ export class ZoneServer2015 extends EventEmitter {
         this.sendZonePopulationUpdate();
       }
     }
-  }
-
-  onGatewaySessionEvent(err: string, client: SOEClient) {
-    debug(`Session started for client ${client.address}:${client.port}`);
   }
 
   onGatewayTunnelDataEvent(
@@ -741,7 +713,7 @@ export class ZoneServer2015 extends EventEmitter {
     );
   }
 
-  reloadPackets(client: Client, intervalTime = -1): void {
+  reloadPackets(client: Client): void {
     this.reloadZonePacketHandlers();
     this._protocol.reloadPacketDefinitions();
     this.sendChatText(client, "[DEV] Packets reloaded", true);
@@ -1481,8 +1453,7 @@ export class ZoneServer2015 extends EventEmitter {
             characterId: vehicle.npcData.characterId,
             timeToDisappear: 13000,
             stickyEffectId: 156,
-          },
-          1
+          }
         );
         if (vehicle.passengers.passenger1) {
           const client = this._clients[vehicle.passengers.passenger1];
@@ -2145,8 +2116,7 @@ export class ZoneServer2015 extends EventEmitter {
             characterFirstName: characterObj.name,
             position: characterObj.state.position,
             rotation: characterObj.state.lookAt,
-          },
-          1
+          }
         );
         client.spawnedEntities.push(this._characters[character]);
       }
@@ -2166,8 +2136,7 @@ export class ZoneServer2015 extends EventEmitter {
         this.sendData(
           client,
           "PlayerUpdate.AddLightweightVehicle",
-          this._vehicles[vehicle],
-          1
+          this._vehicles[vehicle]
         );
         if (!this._vehicles[vehicle].isManaged) {
           this.sendData(client, "PlayerUpdate.ManagedObject", {
@@ -2213,8 +2182,7 @@ export class ZoneServer2015 extends EventEmitter {
         "PlayerUpdate.RemovePlayerGracefully",
         {
           characterId,
-        },
-        1
+        }
       );
     });
   }
@@ -2326,8 +2294,7 @@ export class ZoneServer2015 extends EventEmitter {
       "PlayerUpdate.RemovePlayerGracefully",
       {
         characterId: characterId,
-      },
-      1
+      }
     );
   }
 
@@ -2336,8 +2303,7 @@ export class ZoneServer2015 extends EventEmitter {
       "PlayerUpdate.RemovePlayerGracefully",
       {
         characterId: characterId,
-      },
-      1
+      }
     );
     delete dictionnary[characterId];
   }
@@ -2569,50 +2535,51 @@ export class ZoneServer2015 extends EventEmitter {
   sendData(
     client: Client,
     packetName: h1z1PacketsType,
-    obj: any,
-    channel = 0
+    obj: any
   ): void {
     if (packetName != "KeepAlive") {
       debug("send data", packetName);
     }
     const data = this._protocol.pack(packetName, obj);
-    this._gatewayServer.sendTunnelData(
-      this.getSoeClient(client.soeClientId),
-      data,
-      channel
-    );
+    if(data){
+      this._gatewayServer.sendTunnelData(
+        this.getSoeClient(client.soeClientId),
+        data
+      );
+    }
   }
 
-  sendDataToAll(packetName: h1z1PacketsType, obj: any, channel = 0): void {
+  sendDataToAll(packetName: h1z1PacketsType, obj: any): void {
     const data = this._protocol.pack(packetName, obj);
-    for (const a in this._clients) {
-      this.sendRawData(this._clients[a], data, channel);
+    if(data){
+      for (const a in this._clients) {
+        this.sendRawData(this._clients[a], data);
+      }
     }
   }
 
   sendDataToAllOthers(
     client: Client,
     packetName: h1z1PacketsType,
-    obj: any,
-    channel = 0
+    obj: any
   ): void {
     for (const a in this._clients) {
       if (client != this._clients[a]) {
-        this.sendData(this._clients[a], packetName, obj, channel);
+        this.sendData(this._clients[a], packetName, obj);
       }
     }
   }
 
-  sendRawToAll(data: Buffer, channel = 0): void {
+  sendRawToAll(data: Buffer): void {
     for (const a in this._clients) {
-      this.sendRawData(this._clients[a], data, channel);
+      this.sendRawData(this._clients[a], data);
     }
   }
 
-  sendRawToAllOthers(client: Client, data: Buffer, channel = 0): void {
+  sendRawToAllOthers(client: Client, data: Buffer): void {
     for (const a in this._clients) {
       if (client != this._clients[a]) {
-        this.sendRawData(this._clients[a], data, channel);
+        this.sendRawData(this._clients[a], data);
       }
     }
   }
@@ -2628,11 +2595,10 @@ export class ZoneServer2015 extends EventEmitter {
     });
   }
 
-  sendRawData(client: Client, data: Buffer, channel = 0): void {
+  sendRawData(client: Client, data: Buffer): void {
     this._gatewayServer.sendTunnelData(
       this.getSoeClient(client.soeClientId),
-      data,
-      channel
+      data
     );
   }
 
@@ -2700,14 +2666,9 @@ export class ZoneServer2015 extends EventEmitter {
     }
   }
 
-  getTransientId(guid: string): number {
-    let generatedTransient;
-    do {
-      generatedTransient = Number(
-        (Math.random() * MAX_TRANSIENT_ID).toFixed(0)
-      );
-    } while (!!this._transientIds[generatedTransient]);
-    this._transientIds[generatedTransient] = guid;
+  getTransientId(characterId: string): number {
+    const generatedTransient = this._transientIdGenerator.next().value as number;
+    this._transientIds[generatedTransient] = characterId;
     return generatedTransient;
   }
 

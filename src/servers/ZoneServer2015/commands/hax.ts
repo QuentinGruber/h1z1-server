@@ -10,7 +10,8 @@
 //
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
-
+/* eslint-disable @typescript-eslint/no-unused-vars */
+// TODO enable @typescript-eslint/no-unused-vars
 import { Weather } from "types/zoneserver";
 import { ZoneClient as Client } from "../classes/zoneclient";
 import { ZoneServer2015 } from "../zoneserver";
@@ -192,7 +193,7 @@ const hax: any = {
       );
       return;
     }
-    let wasAlreadyGod = client.character.godMode;
+    const wasAlreadyGod = client.character.godMode;
     client.character.godMode = true;
     switch (driveChoosen) {
       case "offroader":
@@ -269,7 +270,6 @@ const hax: any = {
   },
   state: function (server: ZoneServer2015, client: Client, args: any[]) {
     const state = args[1];
-    let stateId = "";
     switch (state) {
       case "list":
         server.sendChatText(
@@ -352,7 +352,7 @@ const hax: any = {
         driveModel = 7225;
         break;
     }
-    let wasAlreadyGod = client.character.godMode;
+    const wasAlreadyGod = client.character.godMode;
     client.character.godMode = true;
     const characterId = server.generateGuid();
     const vehicleData = new Vehicle(
@@ -633,7 +633,7 @@ const hax: any = {
     server._npcs[characterId] = npc; // save npc
   },
   sonic: function (server: ZoneServer2015, client: Client, args: any[]) {
-    let character = client.character;
+    const character = client.character;
     character.isSonic = !character.isSonic;
     server.setGodMode(client, character.isSonic);
     server.sendData(client, "ClientGameSettings", {

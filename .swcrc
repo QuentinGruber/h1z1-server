@@ -2,23 +2,11 @@
     "jsc": {
       "parser": {
         "syntax": "typescript",
-        "decorators": false,
-        "dynamicImport": false
+        "decorators": true
       },
-      "transform": {
-        "legacyDecorator": false,
-        "decoratorMetadata": false
-      },
-      "target": "es2020",
-      "keepClassNames": false,
-      "loose": false
+      "target": "es2021"
     },
     "module": {
-      "type": "commonjs",
-      "strict": false,
-      "strictMode": false,
-      "lazy": false,
-      "noInterop": false
-    },
-    "sourceMaps": "inline"
+      "type": "commonjs"
+    }
   }

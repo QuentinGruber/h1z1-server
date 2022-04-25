@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-export class BaseEntity{
+export class BaseEntity {
   characterId: string;
   transientId: number;
   actorModelId!: number;
@@ -24,8 +24,8 @@ export class BaseEntity{
   constructor(
     characterId: string,
     transientId: number,
-    actorModelId: number, 
-    position: Float32Array, 
+    actorModelId: number,
+    position: Float32Array,
     rotation: Float32Array
   ) {
     this.characterId = characterId;

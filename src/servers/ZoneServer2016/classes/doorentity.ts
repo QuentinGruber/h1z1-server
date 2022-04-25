@@ -69,10 +69,10 @@ function getDoorSound(actorModelId: number) {
     default:
       break;
   }
-  return {openSound, closeSound};
+  return { openSound, closeSound };
 }
 
-export class DoorEntity extends BaseLightweightCharacter{
+export class DoorEntity extends BaseLightweightCharacter {
   flags = { a: 0, b: 127, c: 0 };
   spawnerId: number;
   npcRenderDistance = 150;
@@ -85,10 +85,10 @@ export class DoorEntity extends BaseLightweightCharacter{
   openSound: number;
   closeSound: number;
   constructor(
-    characterId: string, 
-    transientId: number, 
-    actorModelId: number, 
-    position: Float32Array, 
+    characterId: string,
+    transientId: number,
+    actorModelId: number,
+    position: Float32Array,
     rotation: Float32Array,
     scale: Float32Array,
     spawnerId: number
@@ -97,10 +97,10 @@ export class DoorEntity extends BaseLightweightCharacter{
     this.scale = new Float32Array(scale);
     this.spawnerId = spawnerId;
     this.startRot = rotation;
-    this.state.rotation = new Float32Array(eul2quat(
-      [rotation[0], rotation[1], rotation[2], rotation[3]]
+    (this.state.rotation = new Float32Array(
+      eul2quat([rotation[0], rotation[1], rotation[2], rotation[3]])
     )),
-    this.openAngle = this.startRot[0] + 1.575;
+      (this.openAngle = this.startRot[0] + 1.575);
     this.closedAngle = this.startRot[0];
     const { openSound, closeSound } = getDoorSound(this.actorModelId);
     this.openSound = openSound;

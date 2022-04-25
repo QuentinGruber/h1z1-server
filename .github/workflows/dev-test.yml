@@ -1,0 +1,99 @@
+name: Development tests
+on:
+  push:
+    branches: [master, dev]
+  pull_request:
+    branches: [master, dev]
+
+jobs:
+  eslint:
+    name: eslint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js 16.14.2
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16.14.2
+      - run: npm i
+      - run: npm run lint-quiet
+  test-npm-pack-linux:
+    name: npm-pack-linux
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm i
+      - run: npm pack
+  test-mongo-linux:
+    name: mongo-linux
+    runs-on: ubuntu-latest
+    env:
+     FORCE_REDUCE_CPU_USAGE: "true"
+    strategy:
+      matrix:
+        node-version: [16.14.2, 16.x, 18.x]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm i
+      - name: MongoDB in GitHub Actions
+        uses: supercharge/mongodb-github-action@1.6.0
+      - run: npm run build-tests
+      - run: npm run test-mongo
+  test-linux-local:
+    name: linux-local
+    runs-on: ubuntu-latest
+    env:
+     FORCE_REDUCE_CPU_USAGE: "true"
+    strategy:
+      matrix:
+        node-version: [16.14.2, 16.x, 18.x]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm i
+      - run: npm test
+  test-win-local:
+    name: win-local
+    runs-on: windows-latest
+    env:
+     FORCE_REDUCE_CPU_USAGE: "true"
+    strategy:
+      matrix:
+        node-version: [16.14.2, 16.x, 18.x]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm i
+      - run: npm test
+  test-binaries:
+    name: Test Binaries
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js 16.14.2
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16.14.2
+      - run: npm i --production
+      - run: npm i -g pkg@5.6.0
+      - run: pkg --compress GZip -t node16-win-x64 ./bin/2015/h1emuServer.js --output ./bin/h1emuServer-${{ github.ref }}.exe
+      - run: pkg --compress GZip -t node16-win-x64 ./bin/2016/h1emuServer.js --output ./bin/h1emuServer-2016-${{ github.ref }}.exe
+      - run: ./bin/h1emuServer-${{ github.ref }}.exe --test
+      - run: ./bin/h1emuServer-2016-${{ github.ref }}.exe --test

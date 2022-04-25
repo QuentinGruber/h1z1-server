@@ -17,7 +17,6 @@ import Client from "./soeclient";
 import SOEClient from "./soeclient";
 import { Worker } from "worker_threads";
 import { crc_length_options } from "../../types/soeserver";
-
 const debug = require("debug")("SOEServer");
 process.env.isBin && require("../shared/workers/udpServerWorker.js");
 
@@ -60,7 +59,7 @@ export class SOEServer extends EventEmitter {
         workerData: { serverPort: serverPort },
       }
     );
-  }
+}
 
   private checkClientOutQueue(client: SOEClient) {
     const data = client.outQueue.shift();
@@ -187,7 +186,6 @@ export class SOEServer extends EventEmitter {
           encrypt_method: client.compression,
           udp_length: client.serverUdpLength,
         });
-        this.emit("session", null, client);
         break;
       case "Disconnect":
         debug("Received disconnect from client");
@@ -304,7 +302,7 @@ export class SOEServer extends EventEmitter {
             this.emit("appdata", null, client, data);
           });
 
-          client.outputStream.on("cacheError", (err: string, data: Buffer) => {
+          client.outputStream.on("cacheError", () => {
             this.emit("fatalError", client);
           });
 
@@ -345,8 +343,6 @@ export class SOEServer extends EventEmitter {
           );
 
           this._soeClientRoutineLoopMethod(() => this.soeClientRoutine(client));
-
-          this.emit("connect", null, this._clients[clientId]);
         }
         client = this._clients[clientId];
         if (data[0] === 0x00) {
