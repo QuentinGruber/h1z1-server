@@ -35,12 +35,12 @@ export class SOEInputStream extends EventEmitter {
     this._rc4 = new RC4(cryptoKey);
   }
 
-  processSingleData(dataToProcess: Fragment, sequence: number): Array<Buffer> {
+  private processSingleData(dataToProcess: Fragment, sequence: number): Array<Buffer> {
     this._lastProcessedFragmentSequence = sequence;
     return parseChannelPacketData(dataToProcess.payload);
   }
 
-  processFragmentedData(
+  private processFragmentedData(
     dataToProcess: Fragment,
     sequence: number
   ): Array<Buffer> {
@@ -89,7 +89,7 @@ export class SOEInputStream extends EventEmitter {
     return []; // if somehow there is no fragments in memory
   }
 
-  _processData(): void {
+  private _processData(): void {
     const nextFragmentSequence =
       (this._lastProcessedFragmentSequence + 1) & MAX_SEQUENCE;
     const dataToProcess = this._fragments[nextFragmentSequence];
@@ -125,7 +125,7 @@ export class SOEInputStream extends EventEmitter {
     }
   }
 
-  acknowledgeInputData(sequence: number): boolean {
+  private acknowledgeInputData(sequence: number): boolean {
     if (sequence > this._nextSequence) {
       console.log(
         "Sequence out of order, expected " +
