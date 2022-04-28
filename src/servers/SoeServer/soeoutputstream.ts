@@ -80,12 +80,12 @@ export class SOEOutputStream extends EventEmitter {
     }
   }
 
-  ack(sequence: number, unAckData: { [sequence: number]: number }): void {
+  ack(sequence: number, unAckData: Map<number,number>): void {
     // delete all data / timers cached for the sequences behind the given ack sequence
     while (this._lastAck <= sequence) {
       this.removeFromCache(this._lastAck);
-      if (!!unAckData[this._lastAck]) {
-        delete unAckData[this._lastAck];
+      if (unAckData.has(this._lastAck)) {
+        unAckData.delete(this._lastAck);
       }
       this._lastAck++;
     }

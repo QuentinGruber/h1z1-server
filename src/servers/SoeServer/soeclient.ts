@@ -31,7 +31,7 @@ export default class SOEClient {
   outQueue: Buffer[] = [];
   priorityQueue: Buffer[] = [];
   protocolName: string = "unset";
-  unAckData: { [sequence: number]: number } = {};
+  unAckData: Map<number,number>= new Map();
   outOfOrderPackets: soePacket[] = [];
   nextAck: number = -1;
   lastAck: number = -1;

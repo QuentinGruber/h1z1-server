@@ -42,7 +42,7 @@ export class SOEServer extends EventEmitter {
   _maxMultiBufferSize: number;
   reduceCpuUsage: boolean = true;
   private _soeClientRoutineLoopMethod!: (arg0:()=>void)=>void;
-  private _resendTimeout: number = 300;
+  private _resendTimeout: number = 1000;
   protected _maxGlobalPacketRate = 70000
   protected _minPacketRate: number = 100;
   private _currentPacketRatePerClient: number = 1000;
@@ -134,25 +134,22 @@ export class SOEServer extends EventEmitter {
     if (!client.isDeleted) {
       this.checkOutOfOrderQueue(client);
       this.checkAck(client);
-      if(client.priorityQueue.length < this._maxOutOfOrderPacketsPerLoop){
-        this.checkResendQueue(client);
-      }
+      this.checkResendQueue(client);
+      console.log("priority queue size : ",client.priorityQueue.length)
+      console.log("out queue size : ",client.outQueue.length)
+      console.log("resend queue size : ",client.unAckData.size)
       this.checkClientOutQueue(client);
       this._soeClientRoutineLoopMethod(() => this.soeClientRoutine(client));
     }
   }
   checkResendQueue(client: Client) {
-    const unAckDataKeys = Object.keys(client.unAckData); // fais comme pour cache incremente une value
-    if(unAckDataKeys.length){
-      for (let index = 0; index < unAckDataKeys.length; index++) {
-        const sequence = Number(unAckDataKeys[index]);
-        const unAckDataTime = client.unAckData[sequence];
-        if(unAckDataTime + this._resendTimeout < Date.now()){
+      const currentTime = Date.now()
+      for (let [sequence, time] of client.unAckData) {
+        if(time + this._resendTimeout <currentTime){
           client.outputStream.resendData(sequence);
-          client.unAckData[sequence] = Date.now(); // settiemout ?
         }
-      }
   }
+
   }
 
   private checkAck(client: Client) {
@@ -307,7 +304,7 @@ export class SOEServer extends EventEmitter {
         );
         break;
       case "OutOfOrder":
-        delete client.unAckData[packet.sequence];
+        client.unAckData.delete(packet.sequence);
         //client.outputStream.resendData(packet.sequence);
         break;
       case "Ack":
@@ -382,7 +379,7 @@ export class SOEServer extends EventEmitter {
             "data",
             (err: string, data: Buffer, sequence: number, fragment: any) => {
               const sequenceUint16 = sequence & MAX_SEQUENCE ;
-              client.unAckData[sequenceUint16]= Date.now();
+              client.unAckData.set(sequenceUint16,Date.now());
               this._sendLogicalPacket(client, fragment ? "DataFragment" : "Data", {
                 sequence: sequenceUint16 ,
                 data: data,
@@ -394,7 +391,7 @@ export class SOEServer extends EventEmitter {
             "dataResend",
             (err: string, data: Buffer, sequence: number, fragment: any) => {
               const sequenceUint16 = sequence & MAX_SEQUENCE ;
-              client.unAckData[sequenceUint16] = Date.now();
+              client.unAckData.set(sequenceUint16, Date.now());
               this._sendLogicalPacket(
                 client,
                 fragment ? "DataFragment" : "Data",
@@ -465,7 +462,7 @@ export class SOEServer extends EventEmitter {
         )}`
       );
       console.error(e);
-      return Buffer.from("0");
+      process.exit(1)
     }
   }
 

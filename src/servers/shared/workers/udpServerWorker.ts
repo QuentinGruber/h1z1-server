@@ -81,8 +81,8 @@ if (workerData) {
   });
 
   setInterval(() => {
-    console.log("sentPerSec:", sentPerSec);
-    console.log("receivedPerSec:", receivedPerSec);
+   // console.log("sentPerSec:", sentPerSec);
+   // console.log("receivedPerSec:", receivedPerSec);
     sentPerSec = 0
     receivedPerSec = 0;
     for (const index in remotesRate) {
