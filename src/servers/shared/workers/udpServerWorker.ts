@@ -43,10 +43,21 @@ if (workerData) {
     throw new Error(`server error:\n${err.stack}`);
   });
 
+  const remotesRate:any = {}
+
   connection.on("message", (data, remote) => {
     receivedPerSec++;
+    if(remotesRate[remote.address]){
+      remotesRate[remote.address]++
+      if(remotesRate[remote.address] > 1000){
+        return
+      }
+    }
+    else{
+      remotesRate[remote.address] = 1
+    }
+  
     parentPort?.postMessage({
-      type: "incomingPacket",
       data: data,
       remote: remote,
     });
@@ -68,13 +79,14 @@ if (workerData) {
         break;
     }
   });
+
+  setInterval(() => {
+    console.log("sentPerSec:", sentPerSec);
+    console.log("receivedPerSec:", receivedPerSec);
+    sentPerSec = 0
+    receivedPerSec = 0;
+    for (const index in remotesRate) {
+      remotesRate[index] = 0;
+    }
+  } , 1000);
 }
-
-
-setInterval(() => {
-  console.log("sentPerSec:", sentPerSec);
-  console.log("receivedPerSec:", receivedPerSec);
-  sentPerSec = 0
-  receivedPerSec = 0;
-
-} , 1000);
