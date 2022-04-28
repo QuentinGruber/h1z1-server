@@ -51,7 +51,7 @@ class SOEClient {
     let n1 = 0,
       n2 = 0;
 
-    inputStream.on("data", function (err, data) {
+    inputStream.on("appdata", function (err, data) {
       if (me._dumpData) {
         fs.writeFileSync("soeclient_apppacket_" + n2++ + ".dat", data);
       }
@@ -99,6 +99,7 @@ class SOEClient {
 
     function checkOutOfOrderQueue() {
       if (outOfOrderPackets.length) {
+        return
         console.log("outoforder :))))))))))))))))");
         const packets = [];
         for (let i = 0; i < 20; i++) {
@@ -219,10 +220,10 @@ class SOEClient {
               ", sequence " +
               result.sequence
           );
-          outputStream.resendData(result.sequence);
+          //outputStream.resendData(result.sequence);
           break;
         case "Ack":
-          outputStream.ack(result.sequence,{});
+          outputStream.ack(result.sequence,new Map());
           break;
         case "FatalError":
           debug("Received fatal error from server");
