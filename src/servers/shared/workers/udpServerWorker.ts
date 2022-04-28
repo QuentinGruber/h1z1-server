@@ -22,8 +22,6 @@ interface Message {
   data: {packetData:Buffer, port:number, address:string};
 }
 
-let sentPerSec = 0
-let receivedPerSec = 0
 if (workerData) {
   const { serverPort } = workerData;
   const connection = dgram.createSocket("udp4");
@@ -43,10 +41,9 @@ if (workerData) {
     throw new Error(`server error:\n${err.stack}`);
   });
 
-  const remotesRate:any = {}
+  const remotesRate:{ [address: string]: number } = {}
 
   connection.on("message", (data, remote) => {
-    receivedPerSec++;
     if(remotesRate[remote.address]){
       remotesRate[remote.address]++
       if(remotesRate[remote.address] > 1000){
@@ -66,7 +63,6 @@ if (workerData) {
   parentPort?.on("message", (message: Message) => {
     switch (message.type) {
       case "sendPacket":
-        sentPerSec++;
         const { packetData, port, address } = message.data;
         connection.send(packetData, port, address);
         break;
@@ -81,10 +77,6 @@ if (workerData) {
   });
 
   setInterval(() => {
-   // console.log("sentPerSec:", sentPerSec);
-   // console.log("receivedPerSec:", receivedPerSec);
-    sentPerSec = 0
-    receivedPerSec = 0;
     for (const index in remotesRate) {
       remotesRate[index] = 0;
     }

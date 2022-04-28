@@ -13,7 +13,6 @@
 
 import { H1emuClient } from "./shared/h1emuclient";
 import { H1emuServer } from "./shared/h1emuserver";
-const debug = require("debug")("H1emuServer");
 
 export class H1emuLoginServer extends H1emuServer {
   constructor(serverPort?: number) {
