@@ -30,8 +30,7 @@ export class SOEServer extends EventEmitter {
   _protocol!: Soeprotocol;
   _udpLength: number = 512;
   _useEncryption: boolean = true;
-  _clients: { [clientId: string]: SOEClient } = {};
-  private _connectedClients:number = 0
+  private _clients: Map<string,SOEClient> = new Map();
   private _connection: Worker;
   _crcSeed: number = 0;
   _crcLength: crc_length_options = 2;
@@ -39,7 +38,7 @@ export class SOEServer extends EventEmitter {
   _waitQueueTimeMs: number = 50;
   _pingTimeoutTime: number = 60000;
   _usePingTimeout: boolean = false;
-  _maxMultiBufferSize: number;
+  private _maxMultiBufferSize: number;
   reduceCpuUsage: boolean = true;
   private _soeClientRoutineLoopMethod!: (arg0:()=>void)=>void;
   private _resendTimeout: number = 1000;
@@ -59,15 +58,19 @@ export class SOEServer extends EventEmitter {
         workerData: { serverPort: serverPort },
       }
     );
-    setInterval(this.resetPacketsRate,1000)
+    setInterval(()=>{this.resetPacketsRate()},1000)
 }
 
+  getSoeClient(soeClientId:string) : SOEClient | undefined{
+    return this._clients.get(soeClientId);
+  }
+
   private calculatePacketRate(): number{
-    const packetRate = this._maxGlobalPacketRate / this._connectedClients;
+    const packetRate = this._maxGlobalPacketRate / this._clients.size;
     if(packetRate < this._minPacketRate){
       console.log("Calculated packet rate too low !")
       console.log("packetRate : ", packetRate)
-      console.log("connectedClients : ", this._connectedClients)
+      console.log("connectedClients : ", this._clients.size)
         return this._minPacketRate
     }
     else{
@@ -80,8 +83,8 @@ export class SOEServer extends EventEmitter {
   }
 
   private resetPacketsRate():void{
-    for (const clientKey in this._clients) {
-      this._clients[clientKey].packetsSentThisSec = 0
+    for (const client of this._clients.values()) {
+      client.packetsSentThisSec = 0
     }
   }
 
@@ -221,14 +224,15 @@ export class SOEServer extends EventEmitter {
   }
 
   private _createClient(clientId:string,remote: RemoteInfo){
-    this._connectedClients++
     this.adjustPacketRate();
-    return this._clients[clientId] = new SOEClient(
+    const client =new SOEClient(
       remote,
       this._crcSeed,
       this._compression,
       this._cryptoKey
     );
+    this._clients.set(clientId,client);
+    return client
   }
 
   private _disconnectClient(client: Client) {
@@ -349,7 +353,7 @@ export class SOEServer extends EventEmitter {
         debug(data.length + " bytes from ", clientId);
         let unknow_client;
         // if doesn't know the client
-        if (!this._clients[clientId]) {
+        if (!this._clients.has(clientId)) {
           if (data[1] !== 1) {
             return;
           }
@@ -406,7 +410,9 @@ export class SOEServer extends EventEmitter {
 
           this._soeClientRoutineLoopMethod(() => this.soeClientRoutine(client));
         }
-        client = this._clients[clientId];
+        else{
+          client = this._clients.get(clientId) as SOEClient;
+        }
         if (data[0] === 0x00) {
           const raw_parsed_data: string = this._protocol.parse(data);
           if (raw_parsed_data) {
@@ -415,7 +421,7 @@ export class SOEServer extends EventEmitter {
               console.error(parsed_data.error);
             }
             if (!unknow_client && parsed_data.name === "SessionRequest") {
-              this.deleteClient(this._clients[clientId]);
+              this.deleteClient(this._clients.get(clientId) as SOEClient);
               debug(
                 "Delete an old session badly closed by the client (",
                 clientId,
@@ -525,9 +531,8 @@ export class SOEServer extends EventEmitter {
   }
 
   deleteClient(client: SOEClient): void {
-    delete this._clients[client.address + ":" + client.port];
+    this._clients.get(client.address + ":" + client.port);
     client.isDeleted = true;
-    this._connectedClients--;
     this.adjustPacketRate();
     debug("client connection from port : ", client.port, " deleted");
   }
