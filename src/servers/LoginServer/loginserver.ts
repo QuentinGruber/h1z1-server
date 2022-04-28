@@ -181,6 +181,7 @@ export class LoginServer extends EventEmitter {
           }
         } catch (error) {
           console.log(error);
+          process.exit(1)
         }
       }
     );
@@ -918,7 +919,7 @@ export class LoginServer extends EventEmitter {
         .toArray();
 
       setInterval(async () => {
-        this._zoneWhitelist = await this._db // refresh zoneWhitelist every 30minutes
+        this._zoneWhitelist = await this._db 
           .collection("zone-whitelist")
           .find({})
           .toArray();

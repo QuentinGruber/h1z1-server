@@ -24,10 +24,11 @@ export function healthThreadDecorator(target:Target) {
           workerData: { threadToWatchPid: process.pid },
         }
       );
-  
-      target.prototype._healthWorker.on("message", () => {
-        target.prototype._healthWorker.postMessage(true);
-    });
+      if(!process.env.VSCODE_DEBUG){
+        target.prototype._healthWorker.on("message", () => {
+            target.prototype._healthWorker.postMessage(true);
+        });
+      }
 }
 function checkHealth() {
     const { threadToWatchPid } = workerData;
@@ -45,6 +46,6 @@ function checkHealth() {
     );
     
 }
-if( workerData?.threadToWatchPid && workerData.threadToWatchPid === process.pid) {
+if( workerData?.threadToWatchPid && workerData.threadToWatchPid === process.pid && !process.env.VSCODE_DEBUG) {
     checkHealth();
 }
