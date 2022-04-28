@@ -68,9 +68,6 @@ export class SOEServer extends EventEmitter {
   private calculatePacketRate(): number{
     const packetRate = this._maxGlobalPacketRate / this._clients.size;
     if(packetRate < this._minPacketRate){
-      console.log("Calculated packet rate too low !")
-      console.log("packetRate : ", packetRate)
-      console.log("connectedClients : ", this._clients.size)
         return this._minPacketRate
     }
     else{
@@ -138,9 +135,6 @@ export class SOEServer extends EventEmitter {
       this.checkOutOfOrderQueue(client);
       this.checkAck(client);
       this.checkResendQueue(client);
-      console.log("priority queue size : ",client.priorityQueue.length)
-      console.log("out queue size : ",client.outQueue.length)
-      console.log("resend queue size : ",client.unAckData.size)
       this.checkClientOutQueue(client);
       this._soeClientRoutineLoopMethod(() => this.soeClientRoutine(client));
     }
@@ -288,7 +282,7 @@ export class SOEServer extends EventEmitter {
         if (this._usePingTimeout) {
           client.lastPingTimer.refresh();
         }
-        this._sendLogicalPacket(client, "Ping", {});
+        this._sendLogicalPacket(client, "Ping", {},true);
         break;
       case "NetStatusRequest":
         debug("Received net status request from client");
@@ -480,8 +474,6 @@ export class SOEServer extends EventEmitter {
   ): void {
     const data = this.createPacket(client, packetName, packet);
     if (prioritize) {
-      if (packetName !== "MultiPacket")
-        this.sendClientWaitQueue(client);
       client.priorityQueue.push(data);
     } else {
       if (

@@ -73,7 +73,7 @@ export class SOEOutputStream extends EventEmitter {
       for (let i = 0; i < data.length; i += this._fragmentSize) {
         this._sequence++;
         const fragmentData = data.slice(i, i + this._fragmentSize);
-        this.addToCache(this._sequence, data, true);
+        this.addToCache(this._sequence, fragmentData, true);
 
         this.emit("data", null, fragmentData, this._sequence, true);
       }
