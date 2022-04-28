@@ -12,6 +12,7 @@
 // ======================================================================
 
 import { EventEmitter } from "events";
+import { RemoteInfo } from "dgram";
 import { Soeprotocol } from "h1emu-core";
 import Client from "./soeclient";
 import SOEClient from "./soeclient";
@@ -30,6 +31,7 @@ export class SOEServer extends EventEmitter {
   _udpLength: number = 512;
   _useEncryption: boolean = true;
   _clients: { [clientId: string]: SOEClient } = {};
+  private _connectedClients:number = 0
   private _connection: Worker;
   _crcSeed: number = 0;
   _crcLength: crc_length_options = 2;
@@ -41,7 +43,9 @@ export class SOEServer extends EventEmitter {
   reduceCpuUsage: boolean = true;
   private _soeClientRoutineLoopMethod!: (arg0:()=>void)=>void;
   private _resendTimeout: number = 300;
-  private _maxPhysicalSendPerLoop: number = 200;
+  protected _maxGlobalPacketRate = 70000
+  protected _minPacketRate: number = 100;
+  private _currentPacketRatePerClient: number = 1000;
   constructor(protocolName: string, serverPort: number, cryptoKey: Uint8Array) {
     super();
     Buffer.poolSize = 8192 * 4;
@@ -55,10 +59,34 @@ export class SOEServer extends EventEmitter {
         workerData: { serverPort: serverPort },
       }
     );
+    setInterval(this.resetPacketsRate,1000)
 }
 
+  private calculatePacketRate(): number{
+    const packetRate = this._maxGlobalPacketRate / this._connectedClients;
+    if(packetRate < this._minPacketRate){
+      console.log("Calculated packet rate too low !")
+      console.log("packetRate : ", packetRate)
+      console.log("connectedClients : ", this._connectedClients)
+        return this._minPacketRate
+    }
+    else{
+      return packetRate
+    } 
+  }
+
+  private adjustPacketRate():void{
+    this._currentPacketRatePerClient = this.calculatePacketRate();
+  }
+
+  private resetPacketsRate():void{
+    for (const clientKey in this._clients) {
+      this._clients[clientKey].packetsSentThisSec = 0
+    }
+  }
+
   private _sendPhysicalPacket(client: Client, packet: Buffer): void {
-    client.packetsSentThisLoop++;
+    client.packetsSentThisSec++;
     this._connection.postMessage(
       {
         type: "sendPacket",
@@ -74,7 +102,7 @@ export class SOEServer extends EventEmitter {
   }
 
   private sendPriorityQueue(client: Client): void {
-    while (client.packetsSentThisLoop < this._maxPhysicalSendPerLoop) {
+    while (client.packetsSentThisSec < this._currentPacketRatePerClient) {
       const data = client.priorityQueue.shift();
     if (data) {
       this._sendPhysicalPacket(client, data);
@@ -86,7 +114,7 @@ export class SOEServer extends EventEmitter {
   }
 
   private sendOutQueue(client: Client): void {
-    while (client.packetsSentThisLoop < this._maxPhysicalSendPerLoop) {
+    while (client.packetsSentThisSec < this._currentPacketRatePerClient) {
       const data = client.outQueue.shift();
     if (data) {
       this._sendPhysicalPacket(client, data);
@@ -97,12 +125,9 @@ export class SOEServer extends EventEmitter {
     }
   }
 
-  private checkClientOutQueue(client: SOEClient) {
-    // print length of queues
-    client.packetsSentThisLoop = 0;
+  private checkClientOutQueue(client: SOEClient) {    
     this.sendPriorityQueue(client);
     this.sendOutQueue(client);
-    //console.log("packets sent this loop: ", client.packetsSentThisLoop);
   }
 
   private soeClientRoutine(client: Client) {
@@ -117,14 +142,14 @@ export class SOEServer extends EventEmitter {
     }
   }
   checkResendQueue(client: Client) {
-    const unAckDataKeys = Object.keys(client.unAckData);
+    const unAckDataKeys = Object.keys(client.unAckData); // fais comme pour cache incremente une value
     if(unAckDataKeys.length){
       for (let index = 0; index < unAckDataKeys.length; index++) {
         const sequence = Number(unAckDataKeys[index]);
         const unAckDataTime = client.unAckData[sequence];
         if(unAckDataTime + this._resendTimeout < Date.now()){
           client.outputStream.resendData(sequence);
-          client.unAckData[sequence] = Date.now();
+          client.unAckData[sequence] = Date.now(); // settiemout ?
         }
       }
   }
@@ -196,6 +221,17 @@ export class SOEServer extends EventEmitter {
         true
       );
     }
+  }
+
+  private _createClient(clientId:string,remote: RemoteInfo){
+    this._connectedClients++
+    this.adjustPacketRate();
+    return this._clients[clientId] = new SOEClient(
+      remote,
+      this._crcSeed,
+      this._compression,
+      this._cryptoKey
+    );
   }
 
   private _disconnectClient(client: Client) {
@@ -321,12 +357,7 @@ export class SOEServer extends EventEmitter {
             return;
           }
           unknow_client = true;
-          client = this._clients[clientId] = new SOEClient(
-            message.remote,
-            this._crcSeed,
-            this._compression,
-            this._cryptoKey
-          );
+          client = this._createClient(clientId, message.remote);
 
           client.inputStream.on("appdata", (err: string, data: Buffer) => {
             this.emit("appdata", null, client, data);
@@ -499,6 +530,8 @@ export class SOEServer extends EventEmitter {
   deleteClient(client: SOEClient): void {
     delete this._clients[client.address + ":" + client.port];
     client.isDeleted = true;
+    this._connectedClients--;
+    this.adjustPacketRate();
     debug("client connection from port : ", client.port, " deleted");
   }
 }
