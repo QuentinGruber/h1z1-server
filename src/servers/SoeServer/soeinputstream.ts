@@ -127,7 +127,7 @@ export class SOEInputStream extends EventEmitter {
 
   private acknowledgeInputData(sequence: number): boolean {
     if (sequence > this._nextSequence) {
-      console.log(
+      debug(
         "Sequence out of order, expected " +
           this._nextSequence +
           " but received " +

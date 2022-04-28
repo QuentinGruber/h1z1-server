@@ -392,7 +392,7 @@ export class SOEServer extends EventEmitter {
             "data",
             (err: string, data: Buffer, sequence: number, fragment: any) => {
               const sequenceUint16 = sequence & MAX_SEQUENCE;
-              client.unAckData.set(sequenceUint16, Date.now());
+              client.unAckData.set(sequence, Date.now());
               this._sendLogicalPacket(
                 client,
                 fragment ? "DataFragment" : "Data",
@@ -409,7 +409,7 @@ export class SOEServer extends EventEmitter {
             "dataResend",
             (err: string, data: Buffer, sequence: number, fragment: any) => {
               const sequenceUint16 = sequence & MAX_SEQUENCE;
-              client.unAckData.set(sequenceUint16, Date.now());
+              client.unAckData.set(sequence, Date.now());
               this._sendLogicalPacket(
                 client,
                 fragment ? "DataFragment" : "Data",
@@ -450,6 +450,7 @@ export class SOEServer extends EventEmitter {
         }
       } catch (e) {
         console.log(e);
+        process.exit(1)
       }
     });
     this._connection.postMessage({ type: "bind" });
