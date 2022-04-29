@@ -92,6 +92,7 @@ export class zonePacketHandlers {
   containerMoveItem;
   commandSuicide;
   vehicleDismiss;
+  loadoutSelectSlot;
   constructor() {
     this.ClientIsReady = function (
       server: ZoneServer2016,
@@ -1818,8 +1819,17 @@ export class zonePacketHandlers {
         // from external container
       }
     };
+    this.loadoutSelectSlot = function(server: ZoneServer2016, client: Client, packet: any) {
+      const slot = client.character._loadout[packet.data.slotId];
+      if(!slot) {
+        server.sendChatText(client, "[ERROR] Target slot is empty!");
+        return;
+      }
+      server.switchLoadoutSlot(client, slot);
+    }
     //#endregion
   }
+  
   processPacket(server: ZoneServer2016, client: Client, packet: any) {
     switch (packet.name) {
       case "ClientIsReady":
@@ -1959,6 +1969,9 @@ export class zonePacketHandlers {
         break;
       case "Command.Suicide":
         this.commandSuicide(server, client, packet);
+        break;
+      case "Loadout.SelectSlot":
+        this.loadoutSelectSlot(server, client, packet);
         break;
       default:
         debug(packet);

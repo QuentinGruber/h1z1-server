@@ -76,7 +76,8 @@ const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.js
   containerDefinitions = require("./../../../data/2016/dataSources/ContainerDefinitions.json"),
   loadoutSlotItemClasses = require("./../../../data/2016/dataSources/LoadoutSlotItemClasses.json"),
   equipSlotItemClasses = require("./../../../data/2016/dataSources/EquipSlotItemClasses.json"),
-  Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs");
+  Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs"),
+  weaponDefinitions = require("../../../data/2016/dataSources/ServerWeaponDefinitions");
 
 @healthThreadDecorator
 export class ZoneServer2016 extends EventEmitter {
@@ -617,6 +618,14 @@ export class ZoneServer2016 extends EventEmitter {
       characterId: client.character.characterId,
       containers: containers,
     });
+
+    this.sendData(client, "ReferenceData.WeaponDefinitions", {
+      data: {
+        definitionsData: weaponDefinitions
+      }
+    });
+
+
     this._characters[client.character.characterId] = client.character; // character will spawn on other player's screen(s) at this point
   }
 
@@ -770,8 +779,7 @@ export class ZoneServer2016 extends EventEmitter {
             definitionData: {
               ...itemDef,
               HUD_IMAGE_SET_ID: itemDef.IMAGE_SET_ID,
-              containerDefinitionId:
-                itemDef.ITEM_TYPE == 34 ? itemDef.PARAM1 : 0,
+              ITEM_TYPE_1: itemDef.ITEM_TYPE,
               flags1: {
                 ...itemDef,
               },
@@ -2579,7 +2587,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   isWeapon(itemDefinitionId: number): boolean {
-    return this.getItemDefinition(itemDefinitionId)?.ITEM_TYPE == 26;
+    return this.getItemDefinition(itemDefinitionId)?.ITEM_TYPE == 20;
   }
 
   validateEquipmentSlot(itemDefinitionId: number, equipmentSlotId: number) {

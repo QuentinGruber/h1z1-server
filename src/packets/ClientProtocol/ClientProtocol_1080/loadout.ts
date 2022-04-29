@@ -23,7 +23,7 @@ export const loadoutPackets: any = [
   ],
 
   [
-    "Loadout.SelectSlot",
+    "Loadout.Unk1",
     0x8703,
     {
       fields: [
@@ -72,6 +72,17 @@ export const loadoutPackets: any = [
           ],
         },
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
+  [
+    "Loadout.SelectSlot",
+    0x8706,
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "slotId", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
       ],
     },
   ],
