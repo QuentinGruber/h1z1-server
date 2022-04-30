@@ -88,10 +88,18 @@ export class Vector4 {
     {
         return new Float32Array([this.Z,this.Y,this.X,this.W]);
     }
+    public static FromH1Z1ClientPosFormat = (pos:Float32Array) :Vector4=>
+    {
+        return new Vector4(pos[2],pos[1],pos[0],1);
+    }
 }
 
 export class Euler {
     constructor(public Yaw: number, public Pitch: number, public Roll: number) {
+    }
+    public static ToH1Z1ClientRotFormat = (euler:Euler):Float32Array =>
+    {
+        return new Float32Array([euler.Roll, euler.Yaw, euler.Pitch]);
     }
 }
 

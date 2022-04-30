@@ -16,7 +16,11 @@
 import { Npc } from "../classes/npc";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
-import { NormanTest } from '../workers/Planting/Test';
+import {NormanTest} from '../workers/Planting/Test';
+import {Euler, Vector4} from "../workers/Planting/Model/TypeModels";
+import {Furrows, Hole} from "../workers/Planting/Model/DataModels";
+import {MoveToByParent} from "../workers/Planting/Utils";
+import {generateRandomGuid} from "../../../utils/utils";
 
 const debug = require("debug")("zonepacketHandlers");
 
@@ -601,15 +605,52 @@ const dev: any = {
       });
     }
     */
+  //region norman testing
   norman : function (server: ZoneServer2016, client: Client, args: any[]) {
       if (!args[1]) {
           server.sendChatText(client, "missing sub command");
       }
       const cmd = args[1].toLowerCase();
+    const pos = Vector4.FromH1Z1ClientPosFormat(client.character.state.position);
       switch (cmd) {
+        //show model center
+        case 'mc':
+          if(!args[2])
+          {
+            server.sendChatText(client, "missing model id");
+            return;
+          }
+          NormanTest.placeModel(pos,0,Number(args[2]),server
+              );
+          //place a flare to finger out model center
+          NormanTest.placeModel(pos,0,1,server);
+          break;
+          //show furrows holes location
+        case 'fh':
+
+        const simulateCreateHoles = (destFurrows: Furrows): void => {
+          for (let i = 0; i < 4; i++) {
+            const seedPosRot = MoveToByParent(destFurrows.Position, destFurrows.Rotation,
+                new Euler(-Math.PI / 4 + (-Math.PI / 2 * i), 0, 0),
+                0.4);
+            console.log('seed pos:', seedPosRot.NewPos);
+            seedPosRot.NewPos.W = 0;
+            destFurrows.Holes.push(new Hole(null, null, seedPosRot.NewPos, seedPosRot.NewRot, 0, generateRandomGuid()));
+          }
+        }
+          const f = new Furrows('',pos,new Euler(client.character.state.rotation[0],0,0),1,100000,[],'');
+          NormanTest.placeModel(f.Position,0,62,server);
+          //center
+          NormanTest.placeModel(pos,0,25,server);
+          simulateCreateHoles(f);
+          for (let i = 0; i < f.Holes.length; i++) {
+            NormanTest.placeModel(f.Holes[i].Position,0,1,server,f.Rotation);
+            break;
+          }
+          break;
           //show sight line
           case 'sight':
-              NormanTest.Test10(client, server);
+              NormanTest.Test10(client, server,true);
               break;
           case 'tp':
               if (!args[4]) {
@@ -617,7 +658,7 @@ const dev: any = {
                   return;
               }
               const z = args[2], y = args[3], x = args[4];
-              let locationPosition = new Float32Array([z * 128 * 6, y, x * 128 * 6, 1]);
+              const locationPosition = new Float32Array([z * 128 * 6, y, x * 128 * 6, 1]);
               client.character.state.position = locationPosition;
               server.sendData(client, "ClientUpdate.UpdateLocation", {
                   position: locationPosition,
@@ -627,6 +668,7 @@ const dev: any = {
               break;
       }
   }
+  //endregion
 };
 
 export default dev;

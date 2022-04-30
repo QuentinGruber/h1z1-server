@@ -247,22 +247,41 @@ export namespace NormanTest {
 //do place flares on sight line test
     const placeFlare = (pos: Vector4, rot: Float32Array, duration: number, server: ZoneServer2016) => {
         const p = pos.ToFloat32ArrayZYXW();
-        console.log('目标位置:', p);
+        console.log('目标位置:', p, '旋转:', rot);
         const cid = server.generateGuid();
-        const flare = new TemporaryEntity(
+        server._temporaryObjects[cid] = new TemporaryEntity(
             cid,
             server.getTransientId(cid),
             1,
             p,
-            rot);
-        server._temporaryObjects[cid] = flare;
-        server.sendDataToAll("AddLightweightNpc", flare);
+            rot
+            // new Float32Array([0,0,0])
+        );
+        // server.sendDataToAll("AddLightweightNpc", flare);
         setTimeout(function () {
             server.deleteEntity(cid, server._temporaryObjects);
         }, duration);
         return true;
     }
-    export const Test10 = (client: ZoneClient2016, server: ZoneServer2016) => {
+    const placeChair = (pos: Vector4, rot: Float32Array, duration: number, server: ZoneServer2016) => {
+        const p = pos.ToFloat32ArrayZYXW();
+        console.log('目标位置:', p, '旋转:', rot);
+        const cid = server.generateGuid();
+        server._temporaryObjects[cid] = new TemporaryEntity(
+            cid,
+            server.getTransientId(cid),
+            10004,
+            p,
+            rot
+            // new Float32Array([0,0,0])
+        );
+        // server.sendDataToAll("AddLightweightNpc", flare);
+        setTimeout(function () {
+            server.deleteEntity(cid, server._temporaryObjects);
+        }, duration);
+        return true;
+    }
+    export const Test10 = (client: ZoneClient2016, server: ZoneServer2016, useChair: boolean) => {
         //effect params
         const eyeHeight = 1.5, perDotDistance = 0.5, dotCount = 50, perPlaceDelay = 20,
             duration = 10000 + dotCount * perPlaceDelay;
@@ -278,7 +297,7 @@ export namespace NormanTest {
             -rot[0], 0, rot[1],
             perDotDistance, dotCount
         );
-        console.log('人物位置:', client.character.state.position);
+        // console.log('人物位置:', client.character.state.position);
         // const cid = server.generateGuid();
         // const tid = server.getTransientId(cid);
         // server._temporaryObjects[cid] = new TemporaryEntity(
@@ -292,12 +311,18 @@ export namespace NormanTest {
         for (let i = 0; i < positions.length; i++) {
             setTimeout(() => {
                     // placeFlare(positions[i], rot, duration, server);
-                    placeFlare(positions[i], new Float32Array([0,0,0,0]), duration, server);
+                if(useChair)
+                {
+                    placeChair(positions[i], new Float32Array([0,rot[0],0]), duration, server);
+                }
+                else {
+                    placeFlare(positions[i], new Float32Array([0, 0, 0, 0]), duration, server);
+                }
                 },
                 (i + 1) * perPlaceDelay)
         }
     }
-    const placeModel = (pos: Vector4, offsetY: number, modelId: number, server: ZoneServer2016) => {
+    export const placeModel = (pos: Vector4, offsetY: number, modelId: number, server: ZoneServer2016, rot:Euler=new Euler(0,0,0)) => {
         const characterId = server.generateGuid();
         const transientId = server.getTransientId(characterId);
         // let model = {
@@ -314,9 +339,8 @@ export namespace NormanTest {
         // };
         // I don't know when it changed from using Euler angles to quaternions
         const realPos = new Vector4(pos.X, pos.Y + offsetY, pos.Z, pos.W);
-        const model = new TemporaryEntity(characterId, transientId, modelId, realPos.ToFloat32ArrayZYXW(), new Float32Array(4));
-        server._temporaryObjects[characterId] = model;
-        server.sendDataToAll("AddLightweightNpc", model);
+        server._temporaryObjects[characterId] = new TemporaryEntity(characterId, transientId, modelId, realPos.ToFloat32ArrayZYXW(), Euler.ToH1Z1ClientRotFormat(rot));
+        // server.sendDataToAll("AddLightweightNpc", model);
     }
 
     const placeModels = (server: ZoneServer2016, startPos: Vector4, offsetY: number, perModelDistance: number, perPlaceDelay: number) => {
@@ -383,7 +407,6 @@ export namespace NormanTest {
     }
 
 // Test8();
-
     const TestEntry = () => {
         const server = new ZoneServer2016(
             1117,
@@ -402,7 +425,7 @@ export namespace NormanTest {
         Test7();
         Test8();
         Test9(client, server);
-        Test10(client, server);
+        Test10(client, server,true);
         Test11(client, server);
         Test12();
     }

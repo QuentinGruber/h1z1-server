@@ -1,11 +1,12 @@
 import {ZoneClient2016 as Client} from "../../../classes/zoneclient";
 import {Euler, PlantingSetting, Vector4} from "../Model/TypeModels";
-import {Euler2Quaternion, getLookAtPos, MoveToByParent, Quaternion2Euler} from "../Utils";
+import {getLookAtPos, MoveToByParent, Quaternion2Euler} from "../Utils";
 import {ZoneServer2016} from "../../../zoneserver";
 import {Furrows, Hole, Seed} from "../Model/DataModels";
 import {TemporaryEntity} from "../../../classes/temporaryentity";
 import {generateRandomGuid} from "../../../../../utils/utils";
 import {ItemObject} from "../../../classes/itemobject";
+import {inventoryItem} from "../../../../../types/zoneserver";
 
 
 export class FarmlandManager {
@@ -133,21 +134,23 @@ export class FarmlandManager {
         this.triggerBuryFertilizerIntoHoleEffect(hole);
     }
 
-    public BurySeedIntoHole = (hole: Hole, seed: Seed, server: ZoneServer2016) => {
-        const seedQU = Euler2Quaternion(hole.Rotation.Yaw, hole.Rotation.Pitch, hole.Rotation.Roll);
+    public BurySeedIntoHole = (hole: Hole, seed: Seed, server: ZoneServer2016):inventoryItem|null => {
+        // const seedQU = Euler2Quaternion(hole.Rotation.Yaw, hole.Rotation.Pitch, hole.Rotation.Roll);
         //loot able seed
         const seedInHole = server.generateItem(seed.Type, 1);
         if (!seedInHole || !seedInHole.itemGuid)
-            return;
+            return null;
         server._objects[seedInHole.itemGuid] = new ItemObject(
             seedInHole.itemGuid,
             server.getTransientId(seedInHole.itemGuid),
             9163,
             hole.Position.ToFloat32ArrayZYXW(),
-            seedQU.ToFloat32ArrayZYXW(),
+            Euler.ToH1Z1ClientRotFormat(hole.Rotation),
+            // seedQU.ToFloat32ArrayZYXW(),
             hole.CreateTime,
             seedInHole
         );
+        return seedInHole;
     }
 
     public ReFertilizeHole = (hole: Hole): boolean => {
@@ -215,7 +218,7 @@ export class FarmlandManager {
         if (!furrows.Id) return;
         // console.log('place angle, same as packet.data.orientation:', rot[0] / Math.PI * 180);
         //add to server dataset
-        const rotQU = Euler2Quaternion(furrows.Rotation.Yaw, furrows.Rotation.Pitch, furrows.Rotation.Roll);
+        // const rotQU = Euler2Quaternion(furrows.Rotation.Yaw, furrows.Rotation.Pitch, furrows.Rotation.Roll);
         //Use a chair just to check the rotation rules
         // modelId: 10004,
         //9191 9190 9189,59 60 61 is wheat and corn sapling growing grown status model
@@ -226,7 +229,9 @@ export class FarmlandManager {
             server.getTransientId(furrows.Id),
             62,
             furrows.Position.ToFloat32ArrayZYXW(),
-            rotQU.ToFloat32ArrayZYXW());
+            // rotQU.ToFloat32ArrayZYXW()
+            Euler.ToH1Z1ClientRotFormat(furrows.Rotation),
+        );
     }
 
     //use for fertilize furrows or simple seed placement

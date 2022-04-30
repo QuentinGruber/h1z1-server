@@ -1640,17 +1640,14 @@ export class zonePacketHandlers {
           //Ground Tiller
         case 1383:
           server.plantingManager.Reclaim(client,server);
-          server.removeInventoryItem(client, item);
           break;
           //Corn Seed
         case 1987:
           server.plantingManager.SowSeed(client,server,1987, item.itemGuid);
-          server.removeInventoryItem(client, item);
           break;
           //Wheat Seed
         case 1988:
           server.plantingManager.SowSeed(client,server,1988, item.itemGuid);
-          server.removeInventoryItem(client, item);
           break;
         default:
           server.lootItem(client, item, 1);

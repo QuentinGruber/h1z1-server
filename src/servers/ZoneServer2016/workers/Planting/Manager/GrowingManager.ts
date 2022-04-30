@@ -1,8 +1,7 @@
 import {CropsPile, CropsPileStatus, Hole, Seed} from "../Model/DataModels";
 import {ZoneClient2016} from "../../../classes/zoneclient";
 import {ZoneServer2016} from "../../../zoneserver";
-import {GrowthScript, PlantingSetting, Stage} from "../Model/TypeModels";
-import {Euler2Quaternion} from "../Utils";
+import {Euler, GrowthScript, PlantingSetting, Stage} from "../Model/TypeModels";
 import {ItemObject} from "../../../classes/itemobject";
 import {randomIntFromInterval} from "../../../../../utils/utils";
 import {inventoryItem} from "../../../../../types/zoneserver";
@@ -280,7 +279,7 @@ export class GrowingManager {
         {
             seedType = hole.InsideCropsPile.EmbryoSeed.Type;
         }
-        const qu = Euler2Quaternion(hole.Rotation.Yaw, hole.Rotation.Pitch, hole.Rotation.Roll);
+        // const qu = Euler2Quaternion(hole.Rotation.Yaw, hole.Rotation.Pitch, hole.Rotation.Roll);
         //set count=0, just place a loot able model, generate mature crops and seeds when picking
         const item = server.generateItem(seedType, 0);
         if (!item) {
@@ -292,7 +291,8 @@ export class GrowingManager {
             server.getTransientId(item.itemGuid),
             modelId,
             hole.Position.ToFloat32ArrayZYXW(),
-            qu.ToFloat32ArrayZYXW(),
+            Euler.ToH1Z1ClientRotFormat(hole.Rotation),
+            // qu.ToFloat32ArrayZYXW(),
             hole.CreateTime,
             item
         )

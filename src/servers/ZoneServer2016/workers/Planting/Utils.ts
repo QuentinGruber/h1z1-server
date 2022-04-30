@@ -206,7 +206,7 @@ export const MoveToByParent = (
     //like furrows npc rotationYPR
     parentYPROfWorld:Euler,
     //not base on parent location of world, only base on nearest parent towards
-    YPLBaseOnParent: Euler,
+    YPRBaseOnParent: Euler,
     distanceBaseOnParent: number): {NewPos:Vector4,NewRot:Euler} => {
     let parentDir = new Vector4(1, 0, 0, 0);
     const parentRotOfWorldQU = Euler2Quaternion(parentYPROfWorld.Yaw, parentYPROfWorld.Pitch, parentYPROfWorld.Roll);
@@ -215,7 +215,7 @@ export const MoveToByParent = (
     parentDir = Vector4.Normalize(parentDir);
     // console.log('parent rot eul of world:', Quaternion.ToFixedAngleString(parentRotOfWorldQU,2));
     // console.log('parentDir : ', parentDir);
-    const toNewDirQU = Euler2Quaternion(YPLBaseOnParent.Yaw, YPLBaseOnParent.Pitch, YPLBaseOnParent.Roll);
+    const toNewDirQU = Euler2Quaternion(YPRBaseOnParent.Yaw, YPRBaseOnParent.Pitch, YPRBaseOnParent.Roll);
     // console.log('self rot eul:',Quaternion.ToFixedAngleString(toNewDirQU,2));
     const newDir = Transform(parentDir, toNewDirQU);
     // console.log('parentDir:',parentDir);

@@ -38,7 +38,12 @@ export class PlantingManager {
             for (const hole of f.Holes) {
                 if (!hole.InsideSeed && !hole.InsideCropsPile) {
                     const seed = new Seed(itemDefinitionId, Date.now(), itemGuid);
-                    this._farmlandManager.BurySeedIntoHole(hole, seed, server);
+                    //cost seed and get placed seed guid
+                    const placedSeed = this._farmlandManager.BurySeedIntoHole(hole, seed, server);
+                    if(placedSeed)
+                    seed.Guid = placedSeed.itemGuid;
+                    else
+                        return;
                     sRet = this._growManager.StartCultivating(client, server, hole, seed);
                     if (sRet) {
                         this._farmlandManager.ReUseFurrows(f, seed.TimeToGrown);
