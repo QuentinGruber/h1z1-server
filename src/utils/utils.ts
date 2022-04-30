@@ -44,7 +44,7 @@ export class customLodash {
     );
   }
 
-  forEach(object: Record<string, unknown>, callback: (arg0: any)=>void) {
+  forEach(object: Record<string, unknown>, callback: (arg0: any) => void) {
     const objectLength = Object.keys(object).length;
     const objectValues = Object.values(object);
     for (let index = 0; index < objectLength; index++) {

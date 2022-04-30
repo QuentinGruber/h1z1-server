@@ -450,7 +450,7 @@ export class SOEServer extends EventEmitter {
         }
       } catch (e) {
         console.log(e);
-        process.exit(1)
+        process.exit(1);
       }
     });
     this._connection.postMessage({ type: "bind" });

@@ -22,22 +22,22 @@ export class H1emuLoginServer extends H1emuServer {
       data: Buffer,
       client: H1emuClient
     ): void {
-          const packet = this._protocol.parse(data);
-          if (!packet) return;
-          switch (packet.name) {
-            case "Ping":
-              this.ping(client);
-              break;
-            case "CharacterCreateReply":
-            case "CharacterExistReply":
-            case "CharacterDeleteReply": {
-              this.emit("processInternalReq", packet);
-              break;
-            }
-            default:
-              this.emit("data", null, client, packet);
-              break;
-          }
+      const packet = this._protocol.parse(data);
+      if (!packet) return;
+      switch (packet.name) {
+        case "Ping":
+          this.ping(client);
+          break;
+        case "CharacterCreateReply":
+        case "CharacterExistReply":
+        case "CharacterDeleteReply": {
+          this.emit("processInternalReq", packet);
+          break;
+        }
+        default:
+          this.emit("data", null, client, packet);
+          break;
+      }
     };
     this.ping = (client: H1emuClient) => {
       this.updateClientLastPing(client.clientId);

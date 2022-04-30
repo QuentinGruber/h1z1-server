@@ -105,11 +105,11 @@ export class GatewayProtocol {
             debug("send data :", data);
           } else {
             debug("Could not pack data schema for " + packet.name);
-            return null
+            return null;
           }
         } else {
           debug("pack()", "No schema for packet " + packet.name);
-          return null
+          return null;
         }
       }
     } else {
@@ -117,7 +117,7 @@ export class GatewayProtocol {
         "pack()",
         "Unknown or unhandled gateway packet type: " + packetType
       );
-      return null
+      return null;
     }
 
     return data;

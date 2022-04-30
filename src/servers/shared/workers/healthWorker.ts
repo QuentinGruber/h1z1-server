@@ -14,38 +14,37 @@
 import { parentPort, workerData, Worker } from "worker_threads";
 
 interface Target {
-    prototype:any
+  prototype: any;
 }
 
-export function healthThreadDecorator(target:Target) {
-    target.prototype._healthWorker = new Worker(
-        `${__dirname}/healthWorker.js`,
-        {
-          workerData: { threadToWatchPid: process.pid },
-        }
-      );
-      if(!process.env.VSCODE_DEBUG){
-        target.prototype._healthWorker.on("message", () => {
-            target.prototype._healthWorker.postMessage(true);
-        });
-      }
+export function healthThreadDecorator(target: Target) {
+  target.prototype._healthWorker = new Worker(`${__dirname}/healthWorker.js`, {
+    workerData: { threadToWatchPid: process.pid },
+  });
+  if (!process.env.VSCODE_DEBUG) {
+    target.prototype._healthWorker.on("message", () => {
+      target.prototype._healthWorker.postMessage(true);
+    });
+  }
 }
 function checkHealth() {
-    const { threadToWatchPid } = workerData;
-    let healthTimeoutTimer:any;
-    const healthTimer = setTimeout(() => {
-        parentPort?.postMessage(true);
-        healthTimeoutTimer  = setTimeout(() => {
-            process.kill(threadToWatchPid);
-        }, 25000);
-    }, 10000);
-    parentPort?.on("message", () => {
-        healthTimer.refresh();
-        clearTimeout(healthTimeoutTimer)
-    }
-    );
-    
+  const { threadToWatchPid } = workerData;
+  let healthTimeoutTimer: any;
+  const healthTimer = setTimeout(() => {
+    parentPort?.postMessage(true);
+    healthTimeoutTimer = setTimeout(() => {
+      process.kill(threadToWatchPid);
+    }, 25000);
+  }, 10000);
+  parentPort?.on("message", () => {
+    healthTimer.refresh();
+    clearTimeout(healthTimeoutTimer);
+  });
 }
-if( workerData?.threadToWatchPid && workerData.threadToWatchPid === process.pid && !process.env.VSCODE_DEBUG) {
-    checkHealth();
+if (
+  workerData?.threadToWatchPid &&
+  workerData.threadToWatchPid === process.pid &&
+  !process.env.VSCODE_DEBUG
+) {
+  checkHealth();
 }
