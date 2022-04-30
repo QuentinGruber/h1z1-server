@@ -14,7 +14,7 @@
 import { inventoryItem } from "types/zoneserver";
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
 
-export class ItemObject extends BaseLightweightCharacter{
+export class ItemObject extends BaseLightweightCharacter {
   npcRenderDistance = 25;
   spawnerId = 0;
   item: inventoryItem;
@@ -29,8 +29,6 @@ export class ItemObject extends BaseLightweightCharacter{
     item: inventoryItem
   ) {
     super(characterId, transientId, actorModelId, position, rotation);
-    this.spawnerId = spawnerId,
-    this.item = item;
+    (this.spawnerId = spawnerId), (this.item = item);
   }
-
 }

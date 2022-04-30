@@ -217,7 +217,9 @@ function parseMultiWeaponPacket(data: Buffer, offset: number) {
   };
 }
 
-function packMultiWeaponPacket() {}
+function packMultiWeaponPacket() {
+  throw new Error("Not implemented");
+}
 
 export function parseWeaponPacket(data: Buffer, offset: number) {
   const obj: any = {};

@@ -12,7 +12,7 @@
 // ======================================================================
 
 import { randomIntFromInterval } from "../../../utils/utils";
-const debug = require("debug")("dynamicWeather");
+//const debug = require("debug")("dynamicWeather");
 
 let fogValue = 2;
 let skyColorValue = 0;
@@ -28,7 +28,7 @@ let currentSeason = "summer";
 let skyColor = 0;
 let windStrength = 0;
 let c1 = 0;
-let c2 = 0;
+const c2 = 0;
 let c3 = 0;
 let c4 = 0;
 let temperature = 80;

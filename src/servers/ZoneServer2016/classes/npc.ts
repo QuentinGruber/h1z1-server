@@ -13,14 +13,14 @@
 
 import { BaseFullCharacter } from "./basefullcharacter";
 
-export class Npc extends BaseFullCharacter{
+export class Npc extends BaseFullCharacter {
   npcRenderDistance = 80;
   spawnerId: number;
   constructor(
-    characterId: string, 
-    transientId: number, 
-    actorModelId: number, 
-    position: Float32Array, 
+    characterId: string,
+    transientId: number,
+    actorModelId: number,
+    position: Float32Array,
     rotation: Float32Array,
     spawnerId: number = 0
   ) {

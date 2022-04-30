@@ -14,7 +14,6 @@
 import { _, randomIntFromInterval } from "../../../utils/utils";
 import { parentPort, workerData } from "worker_threads";
 import { H1Z1Protocol } from "../../../protocols/h1z1protocol";
-const debug = require("debug")("dynamicWeather");
 
 const protocol = new H1Z1Protocol("ClientProtocol_860");
 let weatherChoosen = false;
@@ -36,7 +35,7 @@ let sunPositionX = 0;
 let sunPositionY = 0;
 let sunPositionZ = 0;
 let c1 = 0;
-let c2 = 0;
+//const c2 = 0;
 let c3 = 0;
 let c4 = 0;
 let temperature = 80;
@@ -404,12 +403,13 @@ export default function dynamicWeather(
     }),
   };
 
-  const data: Buffer = protocol.pack("SkyChanged", rnd_weather);
-  parentPort?.postMessage(data);
+  const data = protocol.pack("SkyChanged", rnd_weather);
+  if(data)
+    parentPort?.postMessage(data);
 }
 
 const { startTime, timeMultiplier } = workerData;
-let { serverTime } = workerData;
+const { serverTime } = workerData;
 dynamicWeather(serverTime, startTime, timeMultiplier);
 setInterval(() => {
   dynamicWeather(serverTime, startTime, timeMultiplier);

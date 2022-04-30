@@ -10,7 +10,8 @@
 //
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
-
+/* eslint-disable @typescript-eslint/no-unused-vars */
+// TODO enable @typescript-eslint/no-unused-vars
 import { ZoneClient as Client } from "./classes/zoneclient";
 
 import { ZoneServer2015 } from "./zoneserver";
@@ -1007,12 +1008,16 @@ export class zonePacketHandlers {
       server: ZoneServer2015,
       client: Client,
       packet: any
-    ) {};
+    ) {
+      // nothing 
+    };
     this.commandClearInWater = function (
       server: ZoneServer2015,
       client: Client,
       packet: any
-    ) {};
+    ) {
+      // nothing 
+    };
     this.commandInteractionSelect = function (
       server: ZoneServer2015,
       client: Client,

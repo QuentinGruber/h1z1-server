@@ -143,22 +143,22 @@ export function readPositionUpdateData(data: Buffer, offset: number) {
 
   obj["unknown3_int8"] = data.readUInt8(offset);
   offset += 1;
-
+  let v;
   if (obj.flags & 1) {
-    var v = readUnsignedIntWith2bitLengthValue(data, offset);
+    v = readUnsignedIntWith2bitLengthValue(data, offset);
     obj["stance"] = v.value;
     offset += v.length;
   }
 
   if (obj.flags & 2) {
     obj["position"] = [];
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["position"][0] = v.value / 100;
     offset += v.length;
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["position"][1] = v.value / 100;
     offset += v.length;
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["position"][2] = v.value / 100;
     offset += v.length;
   }
@@ -169,31 +169,31 @@ export function readPositionUpdateData(data: Buffer, offset: number) {
   }
 
   if (obj.flags & 0x40) {
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["frontTilt"] = v.value / 100; // not 100% sure about name
     offset += v.length;
   }
 
   if (obj.flags & 0x80) {
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["sideTilt"] = v.value / 100; // not 100% sure
     offset += v.length;
   }
 
   if (obj.flags & 4) {
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["angleChange"] = v.value / 100; // maybe
     offset += v.length;
   }
 
   if (obj.flags & 0x8) {
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["verticalSpeed"] = v.value / 100;
     offset += v.length;
   }
 
   if (obj.flags & 0x10) {
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["horizontalSpeed"] = v.value / 10;
     offset += v.length;
   }
@@ -201,29 +201,29 @@ export function readPositionUpdateData(data: Buffer, offset: number) {
   if (obj.flags & 0x100) {
     // either the previous one i meantioned is rotation delta or this one cause rotation is almost neved sent by client
     obj["unknown12_float"] = [];
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["unknown12_float"][0] = v.value / 100;
     offset += v.length;
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["unknown12_float"][1] = v.value / 100;
     offset += v.length;
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["unknown12_float"][2] = v.value / 100;
     offset += v.length;
   }
 
   if (obj.flags & 0x200) {
     const rotationEul = [];
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     rotationEul[0] = v.value / 100;
     offset += v.length;
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     rotationEul[1] = v.value / 100;
     offset += v.length;
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     rotationEul[2] = v.value / 100;
     offset += v.length;
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     rotationEul[3] = v.value / 100;
     obj["rotation"] = eul2quat(rotationEul);
     obj["rotationRaw"] = rotationEul;
@@ -232,13 +232,13 @@ export function readPositionUpdateData(data: Buffer, offset: number) {
   }
 
   if (obj.flags & 0x400) {
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["direction"] = v.value / 10;
     offset += v.length;
   }
 
   if (obj.flags & 0x800) {
-    var v = readSignedIntWith2bitLengthValue(data, offset);
+    v = readSignedIntWith2bitLengthValue(data, offset);
     obj["engineRPM"] = v.value / 10;
     offset += v.length;
   }
@@ -352,14 +352,48 @@ export function packPositionUpdateData(obj: any) {
   return data;
 }
 
+export const profileDataSchema = [
+  { name: "profileId", type: "uint32", defaultValue: 0 },
+  { name: "nameId", type: "uint32", defaultValue: 0 },
+  { name: "descriptionId", type: "uint32", defaultValue: 0 },
+  { name: "type", type: "uint32", defaultValue: 0 },
+  { name: "iconId", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword8", type: "uint32", defaultValue: 0 },
+  { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+  { name: "unknownDword9", type: "uint32", defaultValue: 0 },
+  {
+    name: "unknownArray1",
+    type: "array",
+    defaultValue: [],
+    fields: [
+      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+    ],
+  },
+  { name: "unknownDword10", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword11", type: "uint32", defaultValue: 0 },
+  { name: "unknownBoolean3", type: "boolean", defaultValue: false },
+  { name: "unknownFloat1", type: "uint32", defaultValue: 0.0 },
+  { name: "unknownFloat2", type: "uint32", defaultValue: 0.0 },
+  { name: "unknownFloat3", type: "uint32", defaultValue: 0.0 },
+  { name: "unknownFloat4", type: "uint32", defaultValue: 0.0 },
+  { name: "unknownDword13", type: "uint32", defaultValue: 0 },
+  { name: "unknownFloat5", type: "uint32", defaultValue: 0.0 },
+  { name: "unknownDword14", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword15", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword16", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword17", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword18", type: "uint32", defaultValue: 0 },
+];
+
 export function packItemDefinitionData(obj: any) {
-  let compressionData = Buffer.allocUnsafe(4);
+  const compressionData = Buffer.allocUnsafe(4);
   let data = Buffer.allocUnsafe(4);
   data.writeUInt32LE(obj["ID"], 0); // could be the actual item id idk
-  const itemDefinitionData = DataSchema.pack(
-    itemDefinitionSchema,
-    obj
-  ).data;
+  const itemDefinitionData = DataSchema.pack(itemDefinitionSchema, obj).data;
   data = Buffer.concat([data, itemDefinitionData]);
   const input = data;
   let output = Buffer.alloc(LZ4.encodeBound(input.length));
@@ -764,20 +798,20 @@ export const lightWeightPcSchema = [
     type: "schema",
     fields: identitySchema,
   },
-  { name: "unknownByte1", type: "uint8", defaultValue: /*2*/0 },
+  { name: "unknownByte1", type: "uint8", defaultValue: /*2*/ 0 },
   { name: "actorModelId", type: "uint32", defaultValue: 9240 },
-  { name: "unknownDword1", type: "uint32", defaultValue: /*270*/0 },
+  { name: "unknownDword1", type: "uint32", defaultValue: /*270*/ 0 },
   { name: "position", type: "floatvector3", defaultValue: [0, 80, 0] },
   { name: "rotation", type: "floatvector4", defaultValue: [0, 80, 0, 1] },
-  { name: "unknownDword2", type: "uint32", defaultValue: /*1083598438*/0 },
+  { name: "unknownDword2", type: "uint32", defaultValue: /*1083598438*/ 0 },
   {
     name: "mountGuid",
     type: "uint64string",
     defaultValue: "0x0000000000000000",
   },
-  { name: "mountSeatId", type: "uint32", defaultValue: 0xFFFFFFFF },
-  { name: "mountRelatedDword1", type: "uint32", defaultValue: 0xFFFFFFFF },
-  { name: "unknownByte2", type: "uint8", defaultValue: /*7*/0 },
+  { name: "mountSeatId", type: "uint32", defaultValue: 0xffffffff },
+  { name: "mountRelatedDword1", type: "uint32", defaultValue: 0xffffffff },
+  { name: "unknownByte2", type: "uint8", defaultValue: /*7*/ 0 },
   { name: "unknownDword3", type: "uint32", defaultValue: 0 },
   { name: "unknownDword4", type: "uint32", defaultValue: 0 },
   {
@@ -785,7 +819,7 @@ export const lightWeightPcSchema = [
     type: "uint64string",
     defaultValue: "0x0000000000000000",
   },
-  { name: "unknownDword5", type: "uint32", defaultValue: /*665*/0 },
+  { name: "unknownDword5", type: "uint32", defaultValue: /*665*/ 0 },
   { name: "unknownByte3", type: "uint8", defaultValue: 0 },
 ];
 
@@ -975,7 +1009,7 @@ export function packItemSubData(obj: any) {
 export const currencySchema = [
   { name: "currencyId", type: "uint32", defaultValue: 0 },
   { name: "quantity", type: "uint32", defaultValue: 0 },
-]
+];
 
 export const rewardBundleSchema = [
   { name: "unknownBoolean1", type: "boolean", defaultValue: false },
@@ -2322,7 +2356,7 @@ export const itemDefinitionSchema: any[] = [
   { name: "EQUIP_COUNT_MAX", type: "uint32", defaultValue: 0 },
   { name: "CURRENCY_TYPE", type: "int32", defaultValue: 0 }, // can be -1
   { name: "DATASHEET_ID", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword14", type: "uint32", defaultValue: 0 }, // was ITEM_TYPE
+  { name: "ITEM_TYPE_1", type: "uint32", defaultValue: 0 }, // also ITEM_TYPE?
   { name: "SKILL_SET_ID", type: "uint32", defaultValue: 0 },
   { name: "OVERLAY_TEXTURE", type: "string", defaultValue: "" },
   { name: "DECAL_SLOT", type: "string", defaultValue: "" },
@@ -2346,10 +2380,10 @@ export const itemDefinitionSchema: any[] = [
   { name: "unknownBoolean1", type: "boolean", defaultValue: true },
   { name: "IS_ARMOR", type: "boolean", defaultValue: false },
   { name: "unknownDword52", type: "uint32", defaultValue: 28 },
-  { name: "containerDefinitionId", type: "uint32", defaultValue: 28 },
-  { name: "unknownDword54", type: "uint32", defaultValue: 28 },
-  { name: "unknownDword55", type: "uint32", defaultValue: 28 },
-  { name: "unknownString8", type: "string", defaultValue: "" },
+  { name: "PARAM1", type: "uint32", defaultValue: 0 },
+  { name: "PARAM2", type: "uint32", defaultValue: 0 },
+  { name: "PARAM3", type: "uint32", defaultValue: 0 },
+  { name: "STRING_PARAM1", type: "string", defaultValue: "" },
   { name: "UI_MODEL_CAMERA_ID", type: "uint32", defaultValue: 0 },
   { name: "unknownDword57", type: "uint32", defaultValue: 932 },
   { name: "SCRAP_VALUE_OVERRIDE", type: "int32", defaultValue: 0 }, // can be -1
