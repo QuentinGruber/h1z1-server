@@ -78,7 +78,8 @@ const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.js
   containerDefinitions = require("./../../../data/2016/dataSources/ContainerDefinitions.json"),
   loadoutSlotItemClasses = require("./../../../data/2016/dataSources/LoadoutSlotItemClasses.json"),
   equipSlotItemClasses = require("./../../../data/2016/dataSources/EquipSlotItemClasses.json"),
-  Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs");
+  Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs"),
+  weaponDefinitions = require("../../../data/2016/dataSources/ServerWeaponDefinitions");
 
 @healthThreadDecorator
 export class ZoneServer2016 extends EventEmitter {
@@ -245,13 +246,13 @@ export class ZoneServer2016 extends EventEmitter {
         this.emit("login", err, zoneClient);
       }
     );
-    this._gatewayServer.on("disconnect", (err: string, client: Client) => {
-      this.deleteClient(client);
+    this._gatewayServer.on("disconnect", (err: string, client: SOEClient) => {
+      this.deleteClient(this._clients[client.sessionId]);
     });
 
     this._gatewayServer.on(
       "tunneldata",
-      (err: string, client: Client, data: Buffer, flags: number) => {
+      (err: string, client: SOEClient, data: Buffer, flags: number) => {
         const packet = this._protocol.parse(data, flags, true);
         if (packet) {
           this.emit("data", null, this._clients[client.sessionId], packet);
@@ -622,6 +623,14 @@ export class ZoneServer2016 extends EventEmitter {
       characterId: client.character.characterId,
       containers: containers,
     });
+
+    this.sendData(client, "ReferenceData.WeaponDefinitions", {
+      data: {
+        definitionsData: weaponDefinitions
+      }
+    });
+
+
     this._characters[client.character.characterId] = client.character; // character will spawn on other player's screen(s) at this point
   }
 
@@ -775,8 +784,7 @@ export class ZoneServer2016 extends EventEmitter {
             definitionData: {
               ...itemDef,
               HUD_IMAGE_SET_ID: itemDef.IMAGE_SET_ID,
-              containerDefinitionId:
-                itemDef.ITEM_TYPE == 34 ? itemDef.PARAM1 : 0,
+              ITEM_TYPE_1: itemDef.ITEM_TYPE,
               flags1: {
                 ...itemDef,
               },
@@ -935,9 +943,12 @@ export class ZoneServer2016 extends EventEmitter {
         });
       }
       delete this._clients[client.sessionId];
-      this._gatewayServer._soeServer.deleteClient(
-        this.getSoeClient(client.soeClientId)
-      );
+      const soeClient = this.getSoeClient(client.soeClientId);
+      if(soeClient){
+        this._gatewayServer._soeServer.deleteClient(
+          soeClient
+        );
+      }
       if (!this._soloMode) {
         this.sendZonePopulationUpdate();
       }
@@ -1761,10 +1772,14 @@ export class ZoneServer2016 extends EventEmitter {
     }
     const data = this._protocol.pack(packetName, obj);
     if(data){
-      this._gatewayServer.sendTunnelData(
-        this.getSoeClient(client.soeClientId),
-        data
-      );
+      const soeClient = this.getSoeClient(client.soeClientId);
+      if(soeClient){
+        this._gatewayServer.sendTunnelData(
+          soeClient,
+          data
+        );
+      }
+
     }
   }
   sendChat(client: Client, message: string) {
@@ -2577,7 +2592,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   isWeapon(itemDefinitionId: number): boolean {
-    return this.getItemDefinition(itemDefinitionId)?.ITEM_TYPE == 26;
+    return this.getItemDefinition(itemDefinitionId)?.ITEM_TYPE == 20;
   }
 
   validateEquipmentSlot(itemDefinitionId: number, equipmentSlotId: number) {
@@ -3749,14 +3764,19 @@ export class ZoneServer2016 extends EventEmitter {
   generateGuid(): string {
     return generateRandomGuid();
   }
-  getSoeClient(soeClientId: string): SOEClient {
-    return this._gatewayServer._soeServer._clients[soeClientId];
+  getSoeClient(soeClientId: string): SOEClient | undefined {
+    return this._gatewayServer._soeServer.getSoeClient(soeClientId);
   }
   sendRawData(client: Client, data: Buffer) {
-    this._gatewayServer.sendTunnelData(
-      this.getSoeClient(client.soeClientId),
-      data
-    );
+    const soeClient = this.getSoeClient(client.soeClientId);
+    if(soeClient){
+      this._gatewayServer.sendTunnelData(
+        soeClient
+        ,
+        data
+      );
+    }
+
   }
   sendChatText(client: Client, message: string, clearChat = false) {
     if (clearChat) {
@@ -3931,23 +3951,10 @@ export class ZoneServer2016 extends EventEmitter {
 }
 
 if (process.env.VSCODE_DEBUG === "true") {
-
-
-  const z = new ZoneServer2016(
+  new ZoneServer2016(
     1117,
     Buffer.from(DEFAULT_CRYPTO_KEY, "base64"),
     process.env.MONGO_URL,
     2
-  );
-  z.start();
-  for (let index = 0; index < 100000; index++) {
-    const element = z.getTransientId("test");
-    if(index != element){
-      console.log(index)
-      console.log(element)
-
-     // throw new Error("transient id error");
-    }
-  }
-
+  ).start();
 }

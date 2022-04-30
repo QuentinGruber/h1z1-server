@@ -461,8 +461,8 @@ export class ZoneServer2015 extends EventEmitter {
     this.deleteClient(client);
   }
 
-  getSoeClient(soeClientId: string): SOEClient {
-    return this._gatewayServer._soeServer._clients[soeClientId];
+  getSoeClient(soeClientId: string): SOEClient | undefined {
+    return this._gatewayServer._soeServer.getSoeClient(soeClientId);
   }
 
   deleteClient(client: Client) {
@@ -476,9 +476,12 @@ export class ZoneServer2015 extends EventEmitter {
         });
       }
       delete this._clients[client.sessionId];
-      this._gatewayServer._soeServer.deleteClient(
-        this.getSoeClient(client.soeClientId)
-      );
+      const soeClient = this.getSoeClient(client.soeClientId);
+      if(soeClient){
+        this._gatewayServer._soeServer.deleteClient(
+          soeClient
+        );
+      }
       if (!this._soloMode) {
         this.sendZonePopulationUpdate();
       }
@@ -2542,10 +2545,13 @@ export class ZoneServer2015 extends EventEmitter {
     }
     const data = this._protocol.pack(packetName, obj);
     if(data){
-      this._gatewayServer.sendTunnelData(
-        this.getSoeClient(client.soeClientId),
-        data
-      );
+      const soeClient = this.getSoeClient(client.soeClientId)
+      if(soeClient){
+        this._gatewayServer.sendTunnelData(
+          soeClient,
+          data
+        );
+      }
     }
   }
 
@@ -2596,10 +2602,13 @@ export class ZoneServer2015 extends EventEmitter {
   }
 
   sendRawData(client: Client, data: Buffer): void {
-    this._gatewayServer.sendTunnelData(
-      this.getSoeClient(client.soeClientId),
-      data
-    );
+    const soeClient = this.getSoeClient(client.soeClientId);
+    if(soeClient){
+      this._gatewayServer.sendTunnelData(
+        soeClient,
+        data
+      );
+    }
   }
 
   stop(): void {

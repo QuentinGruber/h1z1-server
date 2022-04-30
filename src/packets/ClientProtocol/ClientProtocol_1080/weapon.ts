@@ -24,7 +24,7 @@ import { itemWeaponDetailSubSchema1 } from "./shared";
 const weaponPackets: any = [
   [
     "Weapon.FireStateUpdate",
-    0x8201,
+    0x8301,
     {
       fields: [
         { name: "guid", type: "uint64string", defaultValue: "0" },
@@ -33,10 +33,10 @@ const weaponPackets: any = [
       ],
     },
   ],
-  ["Weapon.FireStateTargetedUpdate", 0x8202, {}],
+  ["Weapon.FireStateTargetedUpdate", 0x8302, {}],
   [
     "Weapon.Fire",
-    0x8203,
+    0x8303,
     {
       fields: [
         { name: "guid", type: "uint64string", defaultValue: "0" },
@@ -47,22 +47,22 @@ const weaponPackets: any = [
       ],
     },
   ],
-  ["Weapon.FireWithDefinitionMapping", 0x8204, {}],
-  ["Weapon.FireNoProjectile", 0x8205, {}],
-  ["Weapon.ProjectileHitReport", 0x8206, {}],
+  ["Weapon.FireWithDefinitionMapping", 0x8304, {}],
+  ["Weapon.FireNoProjectile", 0x8305, {}],
+  ["Weapon.ProjectileHitReport", 0x8306, {}],
   [
     "Weapon.ReloadRequest",
-    0x8207,
+    0x8307,
     {
       fields: [{ name: "guid", type: "uint64string", defaultValue: "0" }],
     },
   ],
-  ["Weapon.Reload", 0x8208, {}],
-  ["Weapon.ReloadInterrupt", 0x8209, {}],
-  ["Weapon.ReloadComplete", 0x820a, {}],
+  ["Weapon.Reload", 0x8308, {}],
+  ["Weapon.ReloadInterrupt", 0x8309, {}],
+  ["Weapon.ReloadComplete", 0x830a, {}],
   [
     "Weapon.SwitchFireModeRequest",
-    0x820b,
+    0x830b,
     {
       fields: [
         { name: "guid", type: "uint64string", defaultValue: "0" },
@@ -72,11 +72,11 @@ const weaponPackets: any = [
       ],
     },
   ],
-  ["Weapon.LockOnGuidUpdate", 0x820c, {}],
-  ["Weapon.LockOnLocationUpdate", 0x820d, {}],
+  ["Weapon.LockOnGuidUpdate", 0x830c, {}],
+  ["Weapon.LockOnLocationUpdate", 0x830d, {}],
   [
     "Weapon.StatUpdate",
-    0x820e,
+    0x830e,
     {
       fields: [
         {
@@ -104,17 +104,17 @@ const weaponPackets: any = [
       ],
     },
   ],
-  ["Weapon.DebugProjectile", 0x820f, {}],
-  ["Weapon.AddFireGroup", 0x8210, {}],
-  ["Weapon.RemoveFireGroup", 0x8211, {}],
-  ["Weapon.ReplaceFireGroup", 0x8212, {}],
-  ["Weapon.GuidedUpdate", 0x8213, {}],
-  ["Weapon.RemoteWeapon.Reset", 0x821401, {}],
-  ["Weapon.RemoteWeapon.AddWeapon", 0x821402, {}],
-  ["Weapon.RemoteWeapon.RemoveWeapon", 0x821403, {}],
+  ["Weapon.DebugProjectile", 0x830f, {}],
+  ["Weapon.AddFireGroup", 0x8310, {}],
+  ["Weapon.RemoveFireGroup", 0x8311, {}],
+  ["Weapon.ReplaceFireGroup", 0x8312, {}],
+  ["Weapon.GuidedUpdate", 0x8313, {}],
+  ["Weapon.RemoteWeapon.Reset", 0x831401, {}],
+  ["Weapon.RemoteWeapon.AddWeapon", 0x831402, {}],
+  ["Weapon.RemoteWeapon.RemoveWeapon", 0x831403, {}],
   [
     "Weapon.RemoteWeapon.Update",
-    0x821404,
+    0x831404,
     {
       fields: [
         {
@@ -135,33 +135,33 @@ const weaponPackets: any = [
       ],
     },
   ],
-  ["Weapon.RemoteWeapon.Update.FireState", 0x82140401, {}],
-  ["Weapon.RemoteWeapon.Update.Empty", 0x82140402, {}],
-  ["Weapon.RemoteWeapon.Update.Reload", 0x82140403, {}],
-  ["Weapon.RemoteWeapon.Update.ReloadLoopEnd", 0x82140404, {}],
-  ["Weapon.RemoteWeapon.Update.ReloadInterrupt", 0x82140405, {}],
-  ["Weapon.RemoteWeapon.Update.SwitchFireMode", 0x82140406, {}],
-  ["Weapon.RemoteWeapon.Update.StatUpdate", 0x82140407, {}],
-  ["Weapon.RemoteWeapon.Update.AddFireGroup", 0x82140408, {}],
-  ["Weapon.RemoteWeapon.Update.RemoveFireGroup", 0x82140409, {}],
-  ["Weapon.RemoteWeapon.Update.ReplaceFireGroup", 0x8214040a, {}],
-  ["Weapon.RemoteWeapon.Update.ProjectileLaunch", 0x8214040b, {}],
-  ["Weapon.RemoteWeapon.Update.Chamber", 0x8214040c, {}],
-  ["Weapon.RemoteWeapon.Update.Throw", 0x8214040d, {}],
-  ["Weapon.RemoteWeapon.Update.Trigger", 0x8214040e, {}],
-  ["Weapon.RemoteWeapon.Update.ChamberInterrupt", 0x8214040f, {}],
-  ["Weapon.RemoteWeapon.ProjectileLaunchHint", 0x821405, {}],
-  ["Weapon.RemoteWeapon.ProjectileDetonateHint", 0x821406, {}],
-  ["Weapon.RemoteWeapon.ProjectileRemoteContactReport", 0x821407, {}],
-  ["Weapon.ChamberRound", 0x8215, {}],
-  ["Weapon.GuidedSetNonSeeking", 0x8216, {}],
-  ["Weapon.ChamberInterrupt", 0x8217, {}],
-  ["Weapon.GuidedExplode", 0x8218, {}],
-  ["Weapon.DestroyNpcProjectile", 0x8219, {}],
-  ["Weapon.WeaponToggleEffects", 0x821a, {}],
+  ["Weapon.RemoteWeapon.Update.FireState", 0x83140401, {}],
+  ["Weapon.RemoteWeapon.Update.Empty", 0x83140402, {}],
+  ["Weapon.RemoteWeapon.Update.Reload", 0x83140403, {}],
+  ["Weapon.RemoteWeapon.Update.ReloadLoopEnd", 0x83140404, {}],
+  ["Weapon.RemoteWeapon.Update.ReloadInterrupt", 0x83140405, {}],
+  ["Weapon.RemoteWeapon.Update.SwitchFireMode", 0x83140406, {}],
+  ["Weapon.RemoteWeapon.Update.StatUpdate", 0x83140407, {}],
+  ["Weapon.RemoteWeapon.Update.AddFireGroup", 0x83140408, {}],
+  ["Weapon.RemoteWeapon.Update.RemoveFireGroup", 0x83140409, {}],
+  ["Weapon.RemoteWeapon.Update.ReplaceFireGroup", 0x8314040a, {}],
+  ["Weapon.RemoteWeapon.Update.ProjectileLaunch", 0x8314040b, {}],
+  ["Weapon.RemoteWeapon.Update.Chamber", 0x8314040c, {}],
+  ["Weapon.RemoteWeapon.Update.Throw", 0x8314040d, {}],
+  ["Weapon.RemoteWeapon.Update.Trigger", 0x8314040e, {}],
+  ["Weapon.RemoteWeapon.Update.ChamberInterrupt", 0x8314040f, {}],
+  ["Weapon.RemoteWeapon.ProjectileLaunchHint", 0x831405, {}],
+  ["Weapon.RemoteWeapon.ProjectileDetonateHint", 0x831406, {}],
+  ["Weapon.RemoteWeapon.ProjectileRemoteContactReport", 0x831407, {}],
+  ["Weapon.ChamberRound", 0x8315, {}],
+  ["Weapon.GuidedSetNonSeeking", 0x8316, {}],
+  ["Weapon.ChamberInterrupt", 0x8317, {}],
+  ["Weapon.GuidedExplode", 0x8318, {}],
+  ["Weapon.DestroyNpcProjectile", 0x8319, {}],
+  ["Weapon.WeaponToggleEffects", 0x831a, {}],
   [
     "Weapon.Reset",
-    0x821b,
+    0x831b,
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
@@ -170,11 +170,11 @@ const weaponPackets: any = [
       ],
     },
   ],
-  ["Weapon.ProjectileSpawnNpc", 0x821c, {}],
-  ["Weapon.FireRejected", 0x821d, {}],
+  ["Weapon.ProjectileSpawnNpc", 0x831c, {}],
+  ["Weapon.FireRejected", 0x831d, {}],
   [
     "Weapon.MultiWeapon",
-    0x821e,
+    0x831e,
     {
       fields: [
         {
@@ -186,11 +186,11 @@ const weaponPackets: any = [
       ],
     },
   ],
-  ["Weapon.WeaponFireHint", 0x821f, {}],
-  ["Weapon.ProjectileContactReport", 0x8220, {}],
-  ["Weapon.MeleeHitMaterial", 0x8221, {}],
-  ["Weapon.ProjectileSpawnAttachedNp", 0x8222, {}],
-  ["Weapon.AddDebugLogEntry", 0x8223, {}],
+  ["Weapon.WeaponFireHint", 0x831f, {}],
+  ["Weapon.ProjectileContactReport", 0x8320, {}],
+  ["Weapon.MeleeHitMaterial", 0x8321, {}],
+  ["Weapon.ProjectileSpawnAttachedNp", 0x8322, {}],
+  ["Weapon.AddDebugLogEntry", 0x8323, {}],
 ];
 
 const [weaponPacketTypes, weaponPacketDescriptors] =

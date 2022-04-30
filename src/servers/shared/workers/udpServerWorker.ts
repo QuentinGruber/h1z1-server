@@ -19,7 +19,7 @@ const debug = require("debug")("UDPserver");
 
 interface Message {
   type: string;
-  data?: any;
+  data: {packetData:Buffer, port:number, address:string};
 }
 
 if (workerData) {
@@ -41,9 +41,20 @@ if (workerData) {
     throw new Error(`server error:\n${err.stack}`);
   });
 
+  const remotesRate:{ [address: string]: number } = {}
+
   connection.on("message", (data, remote) => {
+    if(remotesRate[remote.address]){
+      remotesRate[remote.address]++
+      if(remotesRate[remote.address] > 1000){
+        return
+      }
+    }
+    else{
+      remotesRate[remote.address] = 1
+    }
+  
     parentPort?.postMessage({
-      type: "incomingPacket",
       data: data,
       remote: remote,
     });
@@ -60,9 +71,14 @@ if (workerData) {
         break;
       case "close":
         connection.close();
-        process.exit(0);
       default:
         break;
     }
   });
+
+  setInterval(() => {
+    for (const index in remotesRate) {
+      remotesRate[index] = 0;
+    }
+  } , 1000);
 }
